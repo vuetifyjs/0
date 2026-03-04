@@ -26,7 +26,7 @@ A composable that extends `createSelection` to enforce single-item selection. Au
 
 The `createSingle` composable is used when you have a **collection of items** but want to allow **only one** to be selected at any time.
 
-```ts
+```ts collapse no-filename
 import { createSingle } from '@vuetify/v0'
 
 const single = createSingle()

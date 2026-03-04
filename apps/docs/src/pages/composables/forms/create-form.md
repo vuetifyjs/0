@@ -28,7 +28,7 @@ The form composables provide a powerful interface for managing form state, valid
 
 Use `createForm` to create a new form instance:
 
-```ts
+```ts collapse no-filename
 import { createForm } from '@vuetify/v0'
 
 const form = createForm()

@@ -26,7 +26,7 @@ The `createGroup` composable is designed to manage a group of related components
 The `createGroup` composable manages a group of selectable items, letting you work with both their IDs and their position indexes.
 It supports selecting, unselecting, toggling, and reading the indexes of selected items.
 
-```ts
+```ts collapse no-filename
 import { createGroup } from '@vuetify/v0'
 
 // Instantiate group

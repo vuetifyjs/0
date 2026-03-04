@@ -22,7 +22,7 @@ The `toArray` utility function provides a consistent way to convert any value in
 
 ## Usage
 
-```ts
+```ts collapse no-filename
 import { toArray } from '@vuetify/v0'
 
 const value = 'Example Value'

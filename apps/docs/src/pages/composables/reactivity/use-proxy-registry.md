@@ -26,7 +26,7 @@ The `useProxyRegistry` composable creates reactive objects that automatically sy
 
 **Important:** The registry must have `events: true` enabled for the proxy to receive updates.
 
-```ts
+```ts collapse no-filename
 import { createRegistry, useProxyRegistry } from '@vuetify/v0'
 
 const registry = createRegistry({ events: true })

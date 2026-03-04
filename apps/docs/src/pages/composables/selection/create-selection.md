@@ -27,7 +27,7 @@ A composable for managing the selection of items in a collection with automatic 
 
 `createSelection` extends the functionality of `createRegistry` to manage selection states for a collection of items. It is reactive, supports both single and multi-select patterns, and provides helper properties for working with selected IDs, values, and items.
 
-```ts
+```ts collapse no-filename
 import { createSelection } from '@vuetify/v0'
 
 const selection = createSelection()

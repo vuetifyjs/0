@@ -42,7 +42,7 @@ app.mount('#app')
 
 Once the plugin is installed, use the `useHydration` composable in any component. Destructure the properties for automatic ref unwrapping in templates:
 
-```vue UseHydration
+```vue collapse no-filename UseHydration
 <script setup lang="ts">
   import { useHydration } from '@vuetify/v0'
 

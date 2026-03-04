@@ -40,7 +40,7 @@ app.mount('#app')
 
 Once the plugin is installed, use the `useStorage` composable in any component:
 
-```vue UseStorage
+```vue collapse no-filename UseStorage
 <script setup lang="ts">
   import { useStorage } from '@vuetify/v0'
 

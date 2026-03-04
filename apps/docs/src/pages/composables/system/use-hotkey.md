@@ -25,7 +25,7 @@ A composable for handling hotkey combinations and sequences with platform-aware 
 
 The `useHotkey` composable registers hotkey handlers on the window with automatic cleanup when the component is unmounted. It supports key combinations (`ctrl+k`), key sequences (`g-h`), and platform-aware modifier mapping.
 
-```vue UseHotkey
+```vue collapse no-filename UseHotkey
 <script setup lang="ts">
   import { useHotkey } from '@vuetify/v0'
   import { ref } from 'vue'
