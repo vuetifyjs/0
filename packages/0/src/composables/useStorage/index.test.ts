@@ -200,6 +200,73 @@ describe('useStorage', () => {
       JSON.stringify({ name: 'john', age: 0 }),
     )
   })
+
+  describe('ttl', () => {
+    it('should wrap values with timestamp when ttl is set', async () => {
+      const now = 1_000_000
+      vi.spyOn(Date, 'now').mockReturnValue(now)
+
+      const storage = createStorage({ adapter: mockAdapter, ttl: 5000 })
+      storage.set('key', 'hello')
+
+      await nextTick()
+
+      expect(mockAdapter.setItem).toHaveBeenCalledWith(
+        'v0:key',
+        JSON.stringify({ __ttl: 1, __v: 'hello', __t: now }),
+      )
+    })
+
+    it('should return value when within ttl', () => {
+      const now = 1_000_000
+      vi.spyOn(Date, 'now').mockReturnValue(now)
+
+      mockAdapter.getItem.mockReturnValue(
+        JSON.stringify({ __ttl: 1, __v: 'fresh', __t: now - 3000 }),
+      )
+
+      const storage = createStorage({ adapter: mockAdapter, ttl: 5000 })
+      const val = storage.get('key', 'default')
+
+      expect(val.value).toBe('fresh')
+    })
+
+    it('should return default when ttl expired', () => {
+      const now = 1_000_000
+      vi.spyOn(Date, 'now').mockReturnValue(now)
+
+      mockAdapter.getItem.mockReturnValue(
+        JSON.stringify({ __ttl: 1, __v: 'stale', __t: now - 10_000 }),
+      )
+
+      const storage = createStorage({ adapter: mockAdapter, ttl: 5000 })
+      const val = storage.get('key', 'default')
+
+      expect(val.value).toBe('default')
+      expect(mockAdapter.removeItem).toHaveBeenCalledWith('v0:key')
+    })
+
+    it('should not wrap values when ttl is not set', async () => {
+      const storage = createStorage({ adapter: mockAdapter })
+      storage.set('key', 'plain')
+
+      await nextTick()
+
+      expect(mockAdapter.setItem).toHaveBeenCalledWith(
+        'v0:key',
+        JSON.stringify('plain'),
+      )
+    })
+
+    it('should read non-ttl values normally even when ttl is set', () => {
+      mockAdapter.getItem.mockReturnValue(JSON.stringify('legacy'))
+
+      const storage = createStorage({ adapter: mockAdapter, ttl: 5000 })
+      const val = storage.get('key', 'default')
+
+      expect(val.value).toBe('legacy')
+    })
+  })
 })
 
 describe('createStorageContext', () => {
