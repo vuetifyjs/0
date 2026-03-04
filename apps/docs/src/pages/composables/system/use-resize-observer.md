@@ -25,7 +25,7 @@ A composable for detecting element size changes using the Resize Observer API wi
 
 The `useResizeObserver` composable wraps the Resize Observer API to detect when an element's dimensions change. It's useful for responsive components, charts, virtualized lists, and aspect ratio maintenance.
 
-```vue UseResizeObserver
+```vue collapse no-filename UseResizeObserver
 <script setup lang="ts">
   import { useResizeObserver } from '@vuetify/v0'
   import { ref, useTemplateRef } from 'vue'

@@ -25,7 +25,7 @@ A lightweight composable for managing pagination state with navigation methods a
 
 The `createPagination` composable provides reactive pagination state management with navigation methods and automatic computation of visible page items with ellipsis support.
 
-```ts
+```ts collapse no-filename
 import { ref } from 'vue'
 import { createPagination } from '@vuetify/v0'
 

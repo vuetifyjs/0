@@ -53,7 +53,7 @@ app.mount('#app')
 
 Once the plugin is installed, use the `useBreakpoints` composable in any component. Destructure the properties you need for automatic ref unwrapping in templates:
 
-```vue UseBreakpoints
+```vue collapse no-filename UseBreakpoints
 <script setup lang="ts">
   import { useBreakpoints } from '@vuetify/v0'
 

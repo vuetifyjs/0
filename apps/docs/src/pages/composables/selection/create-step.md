@@ -26,7 +26,7 @@ A composable for managing navigation through multi-step processes like forms, wi
 The `createStep` composable manages a list of steps and allows navigation between them with configurable circular (wrapping) or bounded (stopping at edges) behavior.
 You register each step (with an `id` and value) in the order they should be navigated, then use the navigation methods to move
 
-```ts
+```ts collapse no-filename
 import { createStep } from '@vuetify/v0'
 
 // Bounded navigation (default) - for wizards, forms
