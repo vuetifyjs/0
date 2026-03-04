@@ -101,9 +101,15 @@ function buildPlaygroundFiles (inputFiles: PlaygroundFile[], dir?: string): Reco
  * Get editor URL for multiple files.
  * When dir is provided, files are nested under src/{dir}/.
  */
-export async function usePlayground (inputFiles: PlaygroundFile[], dir?: string): Promise<string> {
+export async function usePlayground (
+  inputFiles: PlaygroundFile[],
+  dir?: string,
+  imports?: Record<string, string>,
+): Promise<string> {
   const files = buildPlaygroundFiles(inputFiles, dir)
-  const hash = await utoa(JSON.stringify(files))
+  const data: PlaygroundHashData = { files }
+  if (imports && Object.keys(imports).length > 0) data.imports = imports
+  const hash = await encodePlaygroundHash(data)
   return `/playground#${hash}`
 }
 
@@ -114,6 +120,7 @@ function isFileRecord (v: unknown): v is Record<string, string> {
 export interface PlaygroundHashData {
   files: Record<string, string>
   active?: string
+  imports?: Record<string, string>
 }
 
 /**
@@ -139,8 +146,12 @@ export async function decodePlaygroundHash (hash: string): Promise<PlaygroundHas
       && 'files' in parsed
       && isFileRecord((parsed as { files: unknown }).files)
     ) {
-      const { files, active } = parsed as { files: Record<string, string>, active?: unknown }
-      return { files, active: isString(active) ? active : undefined }
+      const { files, active, imports } = parsed as { files: Record<string, string>, active?: unknown, imports?: unknown }
+      return {
+        files,
+        active: isString(active) ? active : undefined,
+        imports: isFileRecord(imports) ? imports : undefined,
+      }
     }
     return null
   } catch {
