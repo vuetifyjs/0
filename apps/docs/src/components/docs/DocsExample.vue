@@ -60,10 +60,10 @@
     return null
   })
 
-  const resolvedCode = computed(() =>
+  const resolvedCode = toRef(() =>
     code ?? ('code' in (auto.value || {}) ? (auto.value as { code?: string }).code : undefined),
   )
-  const resolvedFiles = computed(() =>
+  const resolvedFiles = toRef(() =>
     files ?? ('files' in (auto.value || {}) ? (auto.value as { files?: ExampleFile[] }).files : undefined),
   )
 
@@ -204,7 +204,8 @@
         <button
           :aria-controls="`${uid}-code`"
           :aria-expanded="showCode"
-          class="group w-full px-4 py-3 bg-transparent border-none font-inherit text-sm cursor-pointer flex items-center gap-2 text-on-surface transition-colors hover:bg-surface"
+          class="group w-full px-4 py-3 bg-transparent border-none font-inherit text-sm cursor-pointer flex items-center gap-2 text-on-surface transition-colors"
+          :class="!showCode && 'hover:bg-surface'"
           type="button"
           @click="toggleCode"
         >
