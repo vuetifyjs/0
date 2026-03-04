@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { createOverflow, isUndefined, Tabs } from '@vuetify/v0'
+  import { createOverflow, isUndefined, Popover, Tabs, Theme, useTheme } from '@vuetify/v0'
 
   // Components
   import DocsSkeleton from './DocsSkeleton.vue'
@@ -9,6 +9,7 @@
   import { getMultiFileBinUrl } from '@/composables/bin'
   import { useExamples } from '@/composables/useExamples'
   import { usePlayground } from '@/composables/usePlayground'
+  import { useThemeToggle } from '@/composables/useThemeToggle'
 
   // Utilities
   import { toKebab } from '@/utilities/strings'
@@ -167,6 +168,24 @@
     const url = getMultiFileBinUrl(files, props.title)
     window.open(url, '_blank')
   }
+
+  // Per-example theme override
+  const theme = useTheme()
+  const toggle = useThemeToggle()
+  const themeOverride = shallowRef<string>()
+  const themePickerOpen = ref(false)
+  const hasOverride = toRef(() => !!themeOverride.value)
+  const themeNames = toRef(() => theme.keys())
+
+  function onTheme (name: string) {
+    themeOverride.value = themeOverride.value === name ? undefined : name
+    themePickerOpen.value = false
+  }
+
+  function onResetTheme () {
+    themeOverride.value = undefined
+    themePickerOpen.value = false
+  }
 </script>
 
 <template>
@@ -183,10 +202,54 @@
       </DocsExampleDescription>
 
       <!-- Preview -->
-      <div class="p-6 bg-surface" :class="hasDescription && !descriptionExpanded && 'pt-8'">
+      <Theme class="relative p-6 bg-surface" :class="hasDescription && !descriptionExpanded && 'pt-8'" :theme="themeOverride">
+        <!-- Theme picker -->
+        <div class="absolute top-2 right-2 z-10">
+          <Popover.Root v-model="themePickerOpen">
+            <Popover.Activator
+              aria-label="Override example theme"
+              class="size-7 rounded inline-flex items-center justify-center transition-colors cursor-pointer"
+              :class="hasOverride ? 'bg-primary/15 text-primary' : 'text-on-surface/40 hover:text-on-surface hover:bg-surface-tint'"
+              title="Override theme"
+            >
+              <AppIcon :icon="toggle.icon.value" :size="14" />
+            </Popover.Activator>
+
+            <Popover.Content
+              class="p-2 rounded-lg bg-surface border border-divider shadow-xl min-w-44 !mt-1"
+              position-area="bottom span-left"
+              position-try="bottom span-left, bottom span-right, top span-left, top span-right"
+            >
+              <button
+                class="w-full flex items-center gap-2 px-2 py-1.5 rounded text-xs font-medium transition-colors"
+                :class="!hasOverride ? 'bg-primary/15 text-primary' : 'hover:bg-surface-tint text-on-surface'"
+                type="button"
+                @click="onResetTheme"
+              >
+                <AppIcon icon="close" :size="12" />
+                <span>Page default</span>
+              </button>
+
+              <div class="my-1 border-t border-divider" />
+
+              <button
+                v-for="name in themeNames"
+                :key="name"
+                class="w-full flex items-center gap-2 px-2 py-1.5 rounded text-xs font-medium transition-colors"
+                :class="themeOverride === name ? 'bg-primary/15 text-primary' : 'hover:bg-surface-tint text-on-surface'"
+                type="button"
+                @click="onTheme(name)"
+              >
+                <AppThemePreview :theme="name" />
+                <span class="capitalize">{{ name }}</span>
+              </button>
+            </Popover.Content>
+          </Popover.Root>
+        </div>
+
         <component :is="auto?.component" v-if="auto?.component" />
         <slot v-else />
-      </div>
+      </Theme>
 
       <!-- Code toggle button -->
       <div v-if="!peek && (resolvedCode || displayFiles?.length)" class="border-t border-divider bg-surface-tint">
