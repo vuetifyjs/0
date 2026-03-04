@@ -617,4 +617,120 @@ describe('slider', () => {
       expect(wrapper.find('input[type="hidden"]').attributes('disabled')).toBeDefined()
     })
   })
+
+  describe('readonly', () => {
+    it('should render data-readonly on root', async () => {
+      const model = ref([50])
+      const { rootProps, wait } = mountSlider({
+        model,
+        props: { readonly: true },
+      })
+      await wait()
+      expect(rootProps().attrs['data-readonly']).toBe(true)
+      expect(rootProps().isReadonly).toBe(true)
+    })
+
+    it('should not render data-readonly when writable', async () => {
+      const model = ref([50])
+      const { rootProps, wait } = mountSlider({ model })
+      await wait()
+      expect(rootProps().attrs['data-readonly']).toBeUndefined()
+    })
+
+    it('should set aria-readonly on thumb', async () => {
+      const model = ref([50])
+      const { thumbProps, wait } = mountSlider({
+        model,
+        props: { readonly: true },
+      })
+      await wait()
+      expect(thumbProps().attrs['aria-readonly']).toBe(true)
+    })
+
+    it('should keep tabindex 0 when readonly', async () => {
+      const model = ref([50])
+      const { thumbProps, wait } = mountSlider({
+        model,
+        props: { readonly: true },
+      })
+      await wait()
+      expect(thumbProps().attrs.tabindex).toBe(0)
+    })
+
+    it('should not respond to keyboard when readonly', async () => {
+      const model = ref([50])
+      const { wrapper, wait } = mountSlider({
+        model,
+        props: { readonly: true },
+      })
+      await wait()
+      await wrapper.find('[role="slider"]').trigger('keydown', { key: 'ArrowRight' })
+      await wait()
+      expect(model.value).toEqual([50])
+    })
+
+    it('should block track clicks when readonly', async () => {
+      const model = ref([50])
+      const { wrapper, wait } = mountSlider({
+        model,
+        props: { readonly: true },
+      })
+      await wait()
+
+      // Track pointerdown should be blocked
+      const track = wrapper.find('[data-orientation="horizontal"]')
+      track.element.dispatchEvent(new PointerEvent('pointerdown', { button: 0, bubbles: true }))
+      await wait()
+      expect(model.value).toEqual([50])
+    })
+
+    it('should render data-readonly on thumb', async () => {
+      const model = ref([50])
+      const { thumbProps, wait } = mountSlider({
+        model,
+        props: { readonly: true },
+      })
+      await wait()
+      expect(thumbProps().attrs['data-readonly']).toBe(true)
+    })
+  })
+
+  describe('start/end events', () => {
+    it('should emit start and end events', async () => {
+      const model = ref([50])
+      const { wrapper, wait } = mountSlider({ model })
+      await wait()
+
+      // Dispatch a real PointerEvent on the thumb element
+      const thumb = wrapper.find('[role="slider"]')
+      thumb.element.dispatchEvent(new PointerEvent('pointerdown', { button: 0, bubbles: true }))
+      await wait()
+
+      const emitted = wrapper.emitted()
+      expect(emitted.start).toBeDefined()
+      expect(emitted.start![0]).toEqual([[50]])
+
+      // Simulate pointerup on document
+      document.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }))
+      await wait()
+
+      expect(emitted.end).toBeDefined()
+      expect(emitted.end![0]).toEqual([[50]])
+    })
+
+    it('should not emit start when readonly', async () => {
+      const model = ref([50])
+      const { wrapper, wait } = mountSlider({
+        model,
+        props: { readonly: true },
+      })
+      await wait()
+
+      const thumb = wrapper.find('[role="slider"]')
+      thumb.element.dispatchEvent(new PointerEvent('pointerdown', { button: 0, bubbles: true }))
+      await wait()
+
+      expect(wrapper.emitted().start).toBeUndefined()
+    })
+  })
 })

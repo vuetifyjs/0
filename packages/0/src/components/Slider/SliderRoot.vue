@@ -45,7 +45,7 @@
     /** Track element ref for percent calculation */
     trackElement: Ref<HTMLElement | null>
     /** Start a drag interaction for a thumb */
-    startDrag: (index: number, event: PointerEvent) => void
+    startDrag: (index: number, event: PointerEvent, thumbEl?: HTMLElement) => void
   }
 
   export interface SliderRootProps extends AtomProps {
@@ -59,6 +59,8 @@
     step?: number
     /** Disables the slider */
     disabled?: MaybeRef<boolean>
+    /** Readonly — focusable but not editable */
+    readonly?: MaybeRef<boolean>
     /** Slider orientation */
     orientation?: 'horizontal' | 'vertical'
     /** Flip the percent axis */
@@ -86,11 +88,14 @@
     max: number
     /** Whether the slider is disabled */
     isDisabled: boolean
+    /** Whether the slider is readonly */
+    isReadonly: boolean
     /** Slider orientation */
     orientation: 'horizontal' | 'vertical'
     /** Pre-computed attributes for binding */
     attrs: {
       'data-disabled': true | undefined
+      'data-readonly': true | undefined
       'data-orientation': 'horizontal' | 'vertical'
     }
   }
@@ -107,9 +112,10 @@
     default: (props: SliderRootSlotProps) => any
   }>()
 
-  defineEmits<{
+  const emit = defineEmits<{
     'update:model-value': [value: number[]]
-    'valueCommit': [value: number[]]
+    'start': [value: number[]]
+    'end': [value: number[]]
   }>()
 
   const {
@@ -120,6 +126,7 @@
     max = 100,
     step = 1,
     disabled = false,
+    readonly: readonlyProp = false,
     orientation = 'horizontal',
     inverted = false,
     minStepsBetweenThumbs = 0,
@@ -136,6 +143,7 @@
     max,
     step,
     disabled,
+    readonly: readonlyProp,
     orientation,
     inverted,
     minStepsBetweenThumbs,
@@ -179,6 +187,8 @@
   const dragging = shallowRef<number | null>(null)
   const trackElement = shallowRef<HTMLElement | null>(null)
 
+  const dragOffset = shallowRef(0)
+
   function getPercent (e: PointerEvent): number {
     const el = trackElement.value
     if (!el) return 0
@@ -186,9 +196,9 @@
     const isVertical = toValue(slider.orientation) === 'vertical'
 
     if (isVertical) {
-      return ((rect.bottom - e.clientY) / rect.height) * 100
+      return ((rect.bottom - e.clientY - dragOffset.value) / rect.height) * 100
     }
-    return ((e.clientX - rect.left) / rect.width) * 100
+    return ((e.clientX - rect.left - dragOffset.value) / rect.width) * 100
   }
 
   useToggleScope(
@@ -201,16 +211,31 @@
       })
 
       useDocumentEventListener('pointerup', () => {
+        emit('end', [...slider.values.value])
         dragging.value = null
+        dragOffset.value = 0
       })
     },
   )
 
-  function startDrag (index: number, event: PointerEvent): void {
+  function startDrag (index: number, event: PointerEvent, thumbEl?: HTMLElement): void {
     if (toValue(disabled)) return
+    if (toValue(readonlyProp)) return
     if (event.button !== 0) return
     event.preventDefault()
+
+    if (thumbEl) {
+      const rect = thumbEl.getBoundingClientRect()
+      const isVertical = toValue(slider.orientation) === 'vertical'
+      dragOffset.value = isVertical
+        ? event.clientY - (rect.top + rect.height / 2)
+        : event.clientX - (rect.left + rect.width / 2)
+    } else {
+      dragOffset.value = 0
+    }
+
     dragging.value = index
+    emit('start', [...slider.values.value])
   }
 
   const context: SliderRootContext = {
@@ -228,6 +253,7 @@
   provideSliderRoot(namespace, context)
 
   const isDisabled = toRef(() => toValue(disabled))
+  const isReadonly = toRef(() => toValue(readonlyProp))
 
   const slotProps = toRef((): SliderRootSlotProps => ({
     id,
@@ -235,9 +261,11 @@
     min,
     max,
     isDisabled: isDisabled.value,
+    isReadonly: isReadonly.value,
     orientation: toValue(slider.orientation),
     attrs: {
       'data-disabled': isDisabled.value ? true : undefined,
+      'data-readonly': isReadonly.value ? true : undefined,
       'data-orientation': toValue(slider.orientation),
     },
   }))

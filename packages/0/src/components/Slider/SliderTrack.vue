@@ -27,6 +27,7 @@
     /** Pre-computed attributes */
     attrs: {
       'data-disabled': true | undefined
+      'data-readonly': true | undefined
       'data-orientation': 'horizontal' | 'vertical'
       'onPointerdown': (e: PointerEvent) => void
     }
@@ -72,6 +73,7 @@
 
   function onPointerdown (e: PointerEvent) {
     if (toValue(root.disabled)) return
+    if (toValue(root.readonly)) return
     if (e.button !== 0) return
 
     const el = trackRef.value?.element
@@ -91,6 +93,7 @@
   const slotProps = toRef((): SliderTrackSlotProps => ({
     attrs: {
       'data-disabled': toValue(root.disabled) ? true : undefined,
+      'data-readonly': toValue(root.readonly) ? true : undefined,
       'data-orientation': toValue(root.orientation),
       'onPointerdown': onPointerdown,
     },

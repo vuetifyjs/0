@@ -106,6 +106,47 @@ For custom implementations, use `renderless` mode and bind the `attrs` slot prop
 | `Home` | Set to minimum |
 | `End` | Set to maximum |
 
+## Readonly
+
+Set `readonly` on `Slider.Root` to make the slider focusable but not editable. Unlike `disabled`, readonly thumbs remain in the tab order and expose `aria-readonly`:
+
+```vue
+<template>
+  <Slider.Root :model-value="[50]" readonly>
+    <Slider.Track>
+      <Slider.Range />
+    </Slider.Track>
+
+    <Slider.Thumb />
+  </Slider.Root>
+</template>
+```
+
+## Events
+
+`Slider.Root` emits `start` and `end` events for drag interactions:
+
+| Event | Payload | When |
+|-------|---------|------|
+| `start` | `number[]` | Pointer drag begins |
+| `end` | `number[]` | Pointer drag ends |
+
+```vue
+<template>
+  <Slider.Root
+    v-model="value"
+    @start="onStart"
+    @end="onEnd"
+  >
+    <Slider.Track>
+      <Slider.Range />
+    </Slider.Track>
+
+    <Slider.Thumb />
+  </Slider.Root>
+</template>
+```
+
 ## Recipes
 
 ### Range Slider
@@ -140,6 +181,7 @@ Slider components expose `data-state` and `data-orientation` attributes for CSS 
 |-----------|--------|------------|
 | `data-state` | `dragging`, `idle` | Thumb |
 | `data-disabled` | `true` | Root, Track, Range, Thumb |
+| `data-readonly` | `true` | Root, Track, Range, Thumb |
 | `data-orientation` | `horizontal`, `vertical` | Root, Track, Range |
 
 ```vue
