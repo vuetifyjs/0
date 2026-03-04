@@ -32,6 +32,8 @@ export interface SliderOptions {
   inverted?: MaybeRefOrGetter<boolean>
   /** Minimum steps required between adjacent thumbs (default: 0) */
   minStepsBetweenThumbs?: number
+  /** Allow thumbs to pass through each other (default: false) */
+  crossover?: boolean
 }
 
 export interface SliderContext {
@@ -45,6 +47,8 @@ export interface SliderContext {
   readonly step: number
   /** Minimum steps between thumbs */
   readonly minStepsBetweenThumbs: number
+  /** Whether thumbs can pass through each other */
+  readonly crossover: boolean
   /** Whether disabled */
   disabled: Ref<boolean>
   /** Orientation */
@@ -92,6 +96,7 @@ export function createSlider (options: SliderOptions = {}): SliderContext {
     orientation: orientationProp = 'horizontal',
     inverted: invertedProp = false,
     minStepsBetweenThumbs = 0,
+    crossover = false,
   } = options
 
   const values = ref<number[]>([])
@@ -122,18 +127,20 @@ export function createSlider (options: SliderOptions = {}): SliderContext {
     const snapped = snap(value)
     const next = [...values.value]
 
-    // Enforce minimum distance between adjacent thumbs
-    const gap = minStepsBetweenThumbs * step
     let constrained = snapped
 
-    const prev = next[index - 1]
-    const following = next[index + 1]
+    // Enforce minimum distance between adjacent thumbs (skip when crossover)
+    if (!crossover) {
+      const gap = minStepsBetweenThumbs * step
+      const prev = next[index - 1]
+      const following = next[index + 1]
 
-    if (index > 0 && prev !== undefined) {
-      constrained = Math.max(constrained, prev + gap)
-    }
-    if (index < next.length - 1 && following !== undefined) {
-      constrained = Math.min(constrained, following - gap)
+      if (index > 0 && prev !== undefined) {
+        constrained = Math.max(constrained, prev + gap)
+      }
+      if (index < next.length - 1 && following !== undefined) {
+        constrained = Math.min(constrained, following - gap)
+      }
     }
 
     constrained = clamp(constrained, min, max)
@@ -163,6 +170,7 @@ export function createSlider (options: SliderOptions = {}): SliderContext {
     max,
     step,
     minStepsBetweenThumbs,
+    crossover,
     disabled,
     orientation,
     inverted,

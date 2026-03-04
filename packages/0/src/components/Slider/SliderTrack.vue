@@ -25,17 +25,18 @@
     attrs: {
       'data-disabled': true | undefined
       'data-orientation': 'horizontal' | 'vertical'
+      'onPointerdown': (e: PointerEvent) => void
     }
   }
 </script>
 
 <script setup lang="ts">
-  import { IN_BROWSER } from '#v0/constants/globals'
-
   // Utilities
-  import { toRef, toValue, useTemplateRef } from 'vue'
+  import { toRef, toValue, useAttrs, useTemplateRef, watchEffect } from 'vue'
 
   defineOptions({ name: 'SliderTrack', inheritAttrs: false })
+
+  const attrs = useAttrs()
 
   defineSlots<{
     default: (props: SliderTrackSlotProps) => any
@@ -48,20 +49,13 @@
   } = defineProps<SliderTrackProps>()
 
   const root = useSliderRoot(namespace)
-  const trackRef = useTemplateRef<HTMLElement>('track')
+  const trackRef = useTemplateRef<{ element: HTMLElement | null }>('track')
 
-  function getPercent (e: PointerEvent): number {
-    const el = trackRef.value
-    if (!el) return 0
-    const rect = el.getBoundingClientRect()
-    const isVertical = toValue(root.orientation) === 'vertical'
-
-    if (isVertical) {
-      // Bottom = 0%, Top = 100%
-      return ((rect.bottom - e.clientY) / rect.height) * 100
-    }
-    return ((e.clientX - rect.left) / rect.width) * 100
-  }
+  // Register track element with root for percent calculation
+  // Atom exposes { element } via defineExpose, not the raw HTMLElement
+  watchEffect(() => {
+    root.trackElement.value = trackRef.value?.element ?? null
+  })
 
   function nearest (value: number): number {
     let closest = 0
@@ -79,36 +73,26 @@
   function onPointerDown (e: PointerEvent) {
     if (toValue(root.disabled)) return
     if (e.button !== 0) return
-    e.preventDefault()
 
-    const percent = getPercent(e)
+    const el = trackRef.value?.element
+    if (!el) return
+    const rect = el.getBoundingClientRect()
+    const isVertical = toValue(root.orientation) === 'vertical'
+    const percent = isVertical
+      ? ((rect.bottom - e.clientY) / rect.height) * 100
+      : ((e.clientX - rect.left) / rect.width) * 100
+
     const value = root.fromPercent(percent)
     const index = nearest(value)
-
     root.setValue(index, value)
-    root.dragging.value = index
-
-    if (IN_BROWSER) {
-      function onPointerMove (e: PointerEvent) {
-        const percent = getPercent(e)
-        root.setValue(root.dragging.value!, root.fromPercent(percent))
-      }
-
-      function onPointerUp () {
-        root.dragging.value = null
-        document.removeEventListener('pointermove', onPointerMove)
-        document.removeEventListener('pointerup', onPointerUp)
-      }
-
-      document.addEventListener('pointermove', onPointerMove)
-      document.addEventListener('pointerup', onPointerUp)
-    }
+    root.startDrag(index, e)
   }
 
   const slotProps = toRef((): SliderTrackSlotProps => ({
     attrs: {
       'data-disabled': toValue(root.disabled) ? true : undefined,
       'data-orientation': toValue(root.orientation),
+      'onPointerdown': onPointerDown,
     },
   }))
 </script>
@@ -116,10 +100,9 @@
 <template>
   <Atom
     ref="track"
-    v-bind="slotProps.attrs"
+    v-bind="{ ...attrs, ...slotProps.attrs }"
     :as
     :renderless
-    @pointerdown="onPointerDown"
   >
     <slot v-bind="slotProps" />
   </Atom>

@@ -52,6 +52,8 @@
       'data-state': SliderThumbState
       'data-disabled': true | undefined
       'style': Record<string, string>
+      'onKeydown': (e: KeyboardEvent) => void
+      'onPointerdown': (e: PointerEvent) => void
     }
   }
 </script>
@@ -90,6 +92,10 @@
   const isDragging = toRef(() => root.dragging.value === index)
   const isDisabled = toRef(() => toValue(root.disabled))
   const isVertical = toRef(() => toValue(root.orientation) === 'vertical')
+
+  function onPointerDown (e: PointerEvent) {
+    root.startDrag(index, e)
+  }
 
   function onKeydown (e: KeyboardEvent) {
     if (isDisabled.value) return
@@ -151,6 +157,8 @@
         [isVertical.value ? 'bottom' : 'left']: `${pct.value}%`,
         '--v0-slider-thumb-percent': `${pct.value}%`,
       },
+      'onKeydown': onKeydown,
+      'onPointerdown': onPointerDown,
     },
   }))
 </script>
@@ -160,7 +168,6 @@
     v-bind="{ ...attrs, ...slotProps.attrs }"
     :as
     :renderless
-    @keydown="onKeydown"
   >
     <slot v-bind="slotProps" />
   </Atom>

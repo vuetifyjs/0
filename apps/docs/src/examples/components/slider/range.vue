@@ -7,7 +7,7 @@
 
 <template>
   <div class="flex flex-col gap-4">
-    <Slider.Root v-model="value" class="relative flex items-center w-full h-5" :min-steps-between-thumbs="1">
+    <Slider.Root v-model="value" class="relative flex items-center w-full h-5" :min-steps-between-thumbs="5">
       <Slider.Track class="relative h-1 w-full rounded-full bg-surface-variant">
         <Slider.Range class="absolute h-full rounded-full bg-primary" />
       </Slider.Track>

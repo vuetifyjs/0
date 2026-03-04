@@ -33,6 +33,10 @@
     unregisterThumb: (index: number) => void
     /** Track which thumb is currently being dragged */
     dragging: Ref<number | null>
+    /** Track element ref for percent calculation */
+    trackElement: Ref<HTMLElement | null>
+    /** Start a drag interaction for a thumb */
+    startDrag: (index: number, event: PointerEvent) => void
   }
 
   export interface SliderRootProps extends AtomProps {
@@ -52,6 +56,8 @@
     inverted?: boolean
     /** Minimum steps between adjacent thumbs (default: 0) */
     minStepsBetweenThumbs?: number
+    /** Allow thumbs to pass through each other (default: false) */
+    crossover?: boolean
     /** Form field name — triggers hidden inputs */
     name?: string
     /** Associate with form by ID */
@@ -89,6 +95,7 @@
 
   // Composables
   import { createSlider } from '#v0/composables/createSlider'
+  import { useDocumentEventListener } from '#v0/composables/useEventListener'
 
   // Utilities
   import { shallowRef, toRef, toValue, useAttrs, useId, watch } from 'vue'
@@ -117,6 +124,7 @@
     orientation = 'horizontal',
     inverted = false,
     minStepsBetweenThumbs = 0,
+    crossover = false,
     name,
     form,
     namespace = 'v0:slider:root',
@@ -132,16 +140,29 @@
     orientation,
     inverted,
     minStepsBetweenThumbs,
+    crossover,
   })
+
+  function arraysEqual (a: number[], b: number[]): boolean {
+    if (a.length !== b.length) return false
+    for (const [index, element] of a.entries()) {
+      if (element !== b[index]) return false
+    }
+    return true
+  }
 
   // Sync model → slider values
   watch(model, v => {
-    slider.values.value = [...v]
+    if (!arraysEqual(slider.values.value, v)) {
+      slider.values.value = [...v]
+    }
   }, { immediate: true })
 
   // Sync slider values → model
   watch(slider.values, v => {
-    model.value = [...v]
+    if (!arraysEqual(model.value, v)) {
+      model.value = [...v]
+    }
   })
 
   // Thumb registration
@@ -154,6 +175,45 @@
   }
 
   const dragging = shallowRef<number | null>(null)
+  const trackElement = shallowRef<HTMLElement | null>(null)
+
+  function getPercent (e: PointerEvent): number {
+    const el = trackElement.value
+    if (!el) return 0
+    const rect = el.getBoundingClientRect()
+    const isVertical = toValue(slider.orientation) === 'vertical'
+
+    if (isVertical) {
+      return ((rect.bottom - e.clientY) / rect.height) * 100
+    }
+    return ((e.clientX - rect.left) / rect.width) * 100
+  }
+
+  let stopMove: (() => void) | null = null
+  let stopUp: (() => void) | null = null
+
+  function startDrag (index: number, event: PointerEvent): void {
+    if (toValue(disabled)) return
+    if (event.button !== 0) return
+    event.preventDefault()
+
+    stopMove?.()
+    stopUp?.()
+    dragging.value = index
+
+    stopMove = useDocumentEventListener('pointermove', (e: PointerEvent) => {
+      const percent = getPercent(e)
+      slider.setValue(dragging.value!, slider.fromPercent(percent))
+    })
+
+    stopUp = useDocumentEventListener('pointerup', () => {
+      dragging.value = null
+      stopMove?.()
+      stopUp?.()
+      stopMove = null
+      stopUp = null
+    })
+  }
 
   const context: SliderRootContext = {
     ...slider,
@@ -163,6 +223,8 @@
     registerThumb,
     unregisterThumb,
     dragging,
+    trackElement,
+    startDrag,
   }
 
   provideSliderRoot(namespace, context)
