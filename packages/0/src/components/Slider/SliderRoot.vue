@@ -96,6 +96,7 @@
   // Composables
   import { createSlider } from '#v0/composables/createSlider'
   import { useDocumentEventListener } from '#v0/composables/useEventListener'
+  import { useToggleScope } from '#v0/composables/useToggleScope'
 
   // Utilities
   import { shallowRef, toRef, toValue, useAttrs, useId, watch } from 'vue'
@@ -165,13 +166,16 @@
     }
   })
 
-  // Thumb registration
-  let thumbCount = 0
+  // Thumb registration with index recycling (lowest-first)
+  const active = new Set<number>()
   function registerThumb (): number {
-    return thumbCount++
+    let index = 0
+    while (active.has(index)) index++
+    active.add(index)
+    return index
   }
-  function unregisterThumb (_index: number): void {
-    // Thumbs are indexed by mount order; no reindexing needed
+  function unregisterThumb (index: number): void {
+    active.delete(index)
   }
 
   const dragging = shallowRef<number | null>(null)
@@ -189,30 +193,26 @@
     return ((e.clientX - rect.left) / rect.width) * 100
   }
 
-  let stopMove: (() => void) | null = null
-  let stopUp: (() => void) | null = null
+  useToggleScope(
+    () => dragging.value !== null,
+    () => {
+      useDocumentEventListener('pointermove', (e: PointerEvent) => {
+        if (dragging.value === null) return
+        const percent = getPercent(e)
+        slider.setValue(dragging.value, slider.fromPercent(percent))
+      })
+
+      useDocumentEventListener('pointerup', () => {
+        dragging.value = null
+      })
+    },
+  )
 
   function startDrag (index: number, event: PointerEvent): void {
     if (toValue(disabled)) return
     if (event.button !== 0) return
     event.preventDefault()
-
-    stopMove?.()
-    stopUp?.()
     dragging.value = index
-
-    stopMove = useDocumentEventListener('pointermove', (e: PointerEvent) => {
-      const percent = getPercent(e)
-      slider.setValue(dragging.value!, slider.fromPercent(percent))
-    })
-
-    stopUp = useDocumentEventListener('pointerup', () => {
-      dragging.value = null
-      stopMove?.()
-      stopUp?.()
-      stopMove = null
-      stopUp = null
-    })
   }
 
   const context: SliderRootContext = {

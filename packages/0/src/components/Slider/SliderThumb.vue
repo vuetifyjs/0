@@ -93,7 +93,19 @@
   const isDisabled = toRef(() => toValue(root.disabled))
   const isVertical = toRef(() => toValue(root.orientation) === 'vertical')
 
-  function onPointerDown (e: PointerEvent) {
+  // Per-thumb constrained range for ARIA (WAI-ARIA multi-thumb slider pattern)
+  const valueMin = toRef(() => {
+    if (root.crossover) return root.min
+    const prev = root.values.value[index - 1]
+    return prev === undefined ? root.min : prev
+  })
+  const valueMax = toRef(() => {
+    if (root.crossover) return root.max
+    const next = root.values.value[index + 1]
+    return next === undefined ? root.max : next
+  })
+
+  function onPointerdown (e: PointerEvent) {
     root.startDrag(index, e)
   }
 
@@ -144,8 +156,8 @@
       'role': 'slider',
       'tabindex': isDisabled.value ? -1 : 0,
       'aria-valuenow': value.value,
-      'aria-valuemin': root.min,
-      'aria-valuemax': root.max,
+      'aria-valuemin': valueMin.value,
+      'aria-valuemax': valueMax.value,
       'aria-valuetext': ariaValuetext || undefined,
       'aria-orientation': toValue(root.orientation),
       'aria-disabled': isDisabled.value ? true : undefined,
@@ -158,7 +170,7 @@
         '--v0-slider-thumb-percent': `${pct.value}%`,
       },
       'onKeydown': onKeydown,
-      'onPointerdown': onPointerDown,
+      'onPointerdown': onPointerdown,
     },
   }))
 </script>

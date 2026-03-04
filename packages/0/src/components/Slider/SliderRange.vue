@@ -58,19 +58,23 @@
 
   const root = useSliderRoot(namespace)
 
-  const start = toRef(() => {
+  const rawStart = toRef(() => {
     const values = root.values.value
     if (values.length === 0) return 0
-    if (values.length === 1) return 0
+    if (values.length === 1) return root.percent(root.min)
     return root.percent(Math.min(...values))
   })
 
-  const end = toRef(() => {
+  const rawEnd = toRef(() => {
     const values = root.values.value
     if (values.length === 0) return 0
     if (values.length === 1) return root.percent(values[0]!)
     return root.percent(Math.max(...values))
   })
+
+  // Normalize so start <= end (inverted mode flips percent values)
+  const start = toRef(() => Math.min(rawStart.value, rawEnd.value))
+  const end = toRef(() => Math.max(rawStart.value, rawEnd.value))
 
   const isVertical = toRef(() => toValue(root.orientation) === 'vertical')
 
