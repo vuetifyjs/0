@@ -4,16 +4,12 @@
 
 <template>
   <div class="flex gap-4">
-    <Theme v-slot="{ isDark }" class="flex-1 p-4 rounded border border-divider" theme="light">
-      <p class="text-sm bg-surface text-on-surface p-3 rounded">
-        isDark: <strong>{{ isDark }}</strong>
-      </p>
+    <Theme v-slot="{ isDark, theme }" class="flex-1 p-4 rounded bg-background text-on-background" theme="odyssey">
+      <div class="text-xs font-mono opacity-70">{{ theme }} · isDark: {{ isDark }}</div>
     </Theme>
 
-    <Theme v-slot="{ isDark }" class="flex-1 p-4 rounded border border-divider" theme="dark">
-      <p class="text-sm bg-surface text-on-surface p-3 rounded">
-        isDark: <strong>{{ isDark }}</strong>
-      </p>
+    <Theme v-slot="{ isDark, theme }" class="flex-1 p-4 rounded bg-background text-on-background" theme="blackguard">
+      <div class="text-xs font-mono opacity-70">{{ theme }} · isDark: {{ isDark }}</div>
     </Theme>
   </div>
 </template>

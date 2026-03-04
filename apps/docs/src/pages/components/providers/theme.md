@@ -58,7 +58,9 @@ Theme components nest naturally. Each one shadows the parent's `v0:theme` inject
 /components/theme/nested
 :::
 
-## Slot Props
+## Recipes
+
+### Slot Props
 
 The default slot exposes `theme` (the active ID) and `isDark` (boolean) for conditional rendering.
 
@@ -66,13 +68,13 @@ The default slot exposes `theme` (the active ID) and `isDark` (boolean) for cond
 /components/theme/slot-props
 :::
 
-## Polymorphic Rendering
+### Polymorphic Rendering
 
 Theme extends `Atom`, so it accepts the `as` prop to render as any HTML element:
 
 ```vue
 <template>
-  <Theme theme="dark" as="section" class="dark-area">
+  <Theme theme="dark" as="section">
     <!-- renders as <section data-theme="dark"> -->
   </Theme>
 </template>
