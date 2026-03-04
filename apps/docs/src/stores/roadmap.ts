@@ -3,11 +3,9 @@
 import { createStorage, useLogger } from '@vuetify/v0'
 
 // Utilities
-import { isCacheValid } from '@/utilities/cache'
 import { defineStore } from 'pinia'
 
 // Types
-import type { CacheEntry } from '@/utilities/cache'
 import type { components as octokitComponents } from '@octokit/openapi-types'
 
 type GitHubMilestone = octokitComponents['schemas']['milestone']
@@ -30,7 +28,8 @@ interface State {
 const GITHUB_API = 'https://api.github.com'
 const REPO = 'vuetifyjs/0'
 
-const storage = createStorage({ prefix: 'v0-roadmap:' })
+const CACHE_TTL = import.meta.env.DEV ? 30 * 1000 : 5 * 60 * 1000 // 30s dev, 5min prod
+const storage = createStorage({ prefix: 'v0-roadmap:', ttl: CACHE_TTL })
 const logger = useLogger()
 
 /**
@@ -92,9 +91,9 @@ export const useRoadmapStore = defineStore('roadmap', {
       if (this.milestones.length > 0) return // Already fetched
 
       // Check cache first
-      const cached = storage.get<CacheEntry<Milestone[]> | null>('milestones', null)
-      if (isCacheValid(cached.value)) {
-        this.milestones = cached.value.data
+      const cached = storage.get<Milestone[] | null>('milestones', null)
+      if (cached.value) {
+        this.milestones = cached.value
         return
       }
 
@@ -126,11 +125,7 @@ export const useRoadmapStore = defineStore('roadmap', {
           ...closedMilestones.map(m => ({ ...m, horizon: 'done' as TimeHorizon })),
         ]
 
-        // Cache the result
-        storage.set<CacheEntry<Milestone[]>>('milestones', {
-          data: this.milestones,
-          timestamp: Date.now(),
-        })
+        storage.set('milestones', this.milestones)
       } catch (error: unknown) {
         logger.error('Failed to fetch roadmap', error)
         this.error = error instanceof Error && error.message === 'RATE_LIMITED' ? 'GitHub API rate limit reached. Try again in a few minutes.' : 'Failed to load roadmap. Please try again.'
@@ -145,9 +140,9 @@ export const useRoadmapStore = defineStore('roadmap', {
 
       // Check cache
       const cacheKey = `issues-${milestoneNumber}`
-      const cached = storage.get<CacheEntry<GitHubIssue[]> | null>(cacheKey, null)
-      if (isCacheValid(cached.value)) {
-        milestone.issues = cached.value.data
+      const cached = storage.get<GitHubIssue[] | null>(cacheKey, null)
+      if (cached.value) {
+        milestone.issues = cached.value
         return
       }
 
@@ -169,11 +164,7 @@ export const useRoadmapStore = defineStore('roadmap', {
 
         milestone.issues = await res.json()
 
-        // Cache the result
-        storage.set<CacheEntry<GitHubIssue[]>>(cacheKey, {
-          data: milestone.issues,
-          timestamp: Date.now(),
-        })
+        storage.set(cacheKey, milestone.issues)
       } catch (error: unknown) {
         logger.error('Failed to fetch issues', error)
         milestone.issues = []

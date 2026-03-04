@@ -22,7 +22,7 @@
     high: tasks.value.filter(t => t.priority === 'high' && !t.done).length,
   }))
 
-  function handleAdd () {
+  function onAdd () {
     const text = newTask.value.trim()
     if (!text) return
     add(text, newPriority.value)
@@ -62,12 +62,12 @@
         v-model="newTask"
         class="flex-1 px-3 py-1.5 text-sm rounded-lg border border-divider bg-surface text-on-surface placeholder:text-on-surface-variant outline-none focus:border-primary"
         placeholder="Add a task..."
-        @keydown.enter="handleAdd"
+        @keydown.enter="onAdd"
       >
       <button
         class="px-3 py-1.5 text-sm rounded-lg bg-primary text-on-primary hover:bg-primary/90 disabled:opacity-40 transition-colors"
         :disabled="!newTask.trim()"
-        @click="handleAdd"
+        @click="onAdd"
       >
         Add
       </button>

@@ -5,11 +5,20 @@
   // Composables
   import { useCodeHighlighter } from '@/composables/useCodeHighlighter'
   import { useSettings } from '@/composables/useSettings'
+  import { useSyncedRef } from '@/composables/useSyncedRef'
 
   // Utilities
-  import { computed, onMounted, onScopeDispose, shallowRef, useTemplateRef, watch } from 'vue'
+  import { onMounted, onScopeDispose, shallowRef, toRef, useTemplateRef, watch } from 'vue'
 
-  const props = withDefaults(defineProps<{
+  const {
+    code,
+    language = 'vue',
+    fileName,
+    title,
+    peek,
+    peekLines = 6,
+    showPlayground = true,
+  } = defineProps<{
     code: string
     language?: string
     fileName?: string
@@ -17,21 +26,13 @@
     peek?: boolean
     peekLines?: number
     showPlayground?: boolean
-  }>(), {
-    language: 'vue',
-    peekLines: 6,
-    showPlayground: true,
-  })
+  }>()
 
   const expanded = defineModel<boolean>('expanded', { default: false })
 
   const theme = useTheme()
   const settings = useSettings()
-  const lineWrap = shallowRef(settings.lineWrap.value)
-
-  watch(() => settings.lineWrap.value, val => {
-    lineWrap.value = val
-  })
+  const lineWrap = useSyncedRef(settings.lineWrap)
 
   // Highlighting
   const highlightedCode = shallowRef<string>()
@@ -41,10 +42,10 @@
   const { highlight: highlightCode } = useCodeHighlighter()
 
   async function highlight () {
-    if (highlightedCode.value || !props.code) return
+    if (highlightedCode.value || !code) return
     isLoading.value = true
     try {
-      const result = await highlightCode({ code: props.code, language: props.language })
+      const result = await highlightCode({ code, language })
       highlightedCode.value = result.html
     } catch (error) {
       logger.error('Failed to highlight code', error)
@@ -65,15 +66,15 @@
   )
 
   // Re-highlight when code changes
-  watch(() => props.code, () => {
+  watch(() => code, () => {
     highlightedCode.value = undefined
     highlight()
   })
 
   // Peek mode
-  const lineCount = computed(() => props.code?.split('\n').length ?? 0)
-  const shouldPeek = computed(() => props.peek && lineCount.value > props.peekLines)
-  const peekHeight = computed(() => `${props.peekLines * 1.5 + 1}rem`)
+  const lineCount = toRef(() => code?.split('\n').length ?? 0)
+  const shouldPeek = toRef(() => peek && lineCount.value > peekLines)
+  const peekHeight = toRef(() => `${peekLines * 1.5 + 1}rem`)
 
   onScopeDispose(() => {
     highlightedCode.value = undefined

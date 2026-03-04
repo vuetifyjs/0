@@ -11,7 +11,7 @@
   import { useSettings } from '@/composables/useSettings'
 
   // Utilities
-  import { computed, defineAsyncComponent, onScopeDispose, toRef, watch } from 'vue'
+  import { defineAsyncComponent, onScopeDispose, toRef, watch } from 'vue'
 
   // Stores
   import { useAppStore } from '@/stores/app'
@@ -42,7 +42,7 @@
 
   const slideTransition = toRef(() => settings.prefersReducedMotion.value ? undefined : 'slide')
 
-  const isModalOpen = computed(() => {
+  const isModalOpen = toRef(() => {
     if (search.isOpen.value) return true
     if (settings.isOpen.value) return true
     if (ask.isOpen.value && !breakpoints.lgAndUp.value) return true

@@ -10,7 +10,7 @@
   import { useSettings } from '@/composables/useSettings'
 
   // Utilities
-  import { computed, defineAsyncComponent, toRef } from 'vue'
+  import { defineAsyncComponent, toRef } from 'vue'
 
   // Stores
   import { useAppStore } from '@/stores/app'
@@ -33,7 +33,7 @@
   const fadeTransition = toRef(() => settings.prefersReducedMotion.value ? undefined : 'fade')
   const slideTransition = toRef(() => settings.prefersReducedMotion.value ? undefined : 'slide')
 
-  const isModalOpen = computed(() => settings.isOpen.value)
+  const isModalOpen = toRef(() => settings.isOpen.value)
   const isMobileNavOpen = toRef(() => navigation.isOpen.value && !breakpoints.mdAndUp.value)
 
   useScrollLock(settings.isOpen)
