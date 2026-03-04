@@ -69,4 +69,10 @@ Selection state is **always reactive**. Collection methods follow the base `crea
 > [!TIP] Selection vs Collection
 > Most UI patterns only need **selection reactivity** (which is always on). You rarely need the collection itself to be reactive.
 
+## Examples
+
+::: example
+/composables/create-selection/file-picker
+:::
+
 <DocsApi />
