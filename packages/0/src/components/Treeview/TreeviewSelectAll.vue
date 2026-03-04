@@ -20,7 +20,7 @@
   import { shallowRef, toRef, toValue } from 'vue'
 
   // Types
-  import type { NestedTicket } from '#v0/composables/createNested'
+  import type { ID } from '#v0/types'
   import type { TreeviewSelectAllProps, TreeviewSelectAllSlotProps } from './types'
 
   defineOptions({ name: 'TreeviewSelectAll' })
@@ -60,15 +60,50 @@
     nested.toggleAll()
   }
 
-  // Provide mock TreeviewItemContext so Treeview.Indicator works as a child
+  function noop () {}
+  const empty: ID[] = []
+
+  // Provide context for Treeview.Indicator
+  // SelectAll doesn't register as a tree item, so tree traversal methods
+  // return empty results and open/active methods are no-ops.
+  // These satisfy TreeviewItemContext contract for Indicator children.
   provideTreeviewItem(namespace, {
     ticket: {
+      // RegistryTicket
+      id: '__select-all__',
+      index: -1,
+      value: undefined,
+      valueIsIndex: false,
+      // SelectionTicket
+      disabled: isDisabled,
       isSelected: isAllSelected,
-      isMixed,
-      toggle: nested.toggleAll,
       select: nested.selectAll,
       unselect: nested.unselectAll,
-    } as unknown as NestedTicket,
+      toggle: nested.toggleAll,
+      // GroupTicket
+      isMixed,
+      mix: noop,
+      unmix: noop,
+      // NestedTicket
+      parentId: undefined,
+      isOpen: shallowRef(false),
+      isActive: shallowRef(false),
+      isLeaf: shallowRef(true),
+      depth: shallowRef(0),
+      open: noop,
+      close: noop,
+      flip: noop,
+      reveal: noop,
+      activate: noop,
+      deactivate: noop,
+      getPath: () => [],
+      getAncestors: () => [],
+      getDescendants: () => [],
+      isAncestorOf: () => false,
+      hasAncestor: () => false,
+      siblings: () => empty,
+      position: () => 0,
+    },
     isDisabled,
     hasContent: shallowRef(false),
   })
