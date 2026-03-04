@@ -70,7 +70,7 @@
     return closest
   }
 
-  function onPointerDown (e: PointerEvent) {
+  function onPointerdown (e: PointerEvent) {
     if (toValue(root.disabled)) return
     if (e.button !== 0) return
 
@@ -92,7 +92,7 @@
     attrs: {
       'data-disabled': toValue(root.disabled) ? true : undefined,
       'data-orientation': toValue(root.orientation),
-      'onPointerdown': onPointerDown,
+      'onPointerdown': onPointerdown,
     },
   }))
 </script>

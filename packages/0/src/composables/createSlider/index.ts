@@ -107,6 +107,7 @@ export function createSlider (options: SliderOptions = {}): SliderContext {
   const range = max - min
 
   function snap (value: number): number {
+    if (step <= 0) return clamp(value, min, max)
     const clamped = clamp(value, min, max)
     const steps = Math.round((clamped - min) / step)
     return clamp(min + steps * step, min, max)
