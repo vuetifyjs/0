@@ -12,9 +12,11 @@
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
+  import type { SplitterOrientation } from './SplitterRoot.vue'
 
   export interface SplitterHandleProps extends AtomProps {
     disabled?: boolean
+    label?: string
   }
 
   export type SplitterHandleState = 'drag' | 'hover' | 'inactive'
@@ -29,10 +31,12 @@
       'aria-valuenow': number
       'aria-valuemin': number
       'aria-valuemax': number
-      'aria-orientation': string
-      'aria-disabled': boolean | undefined
+      'aria-orientation': SplitterOrientation
+      'aria-controls': string | undefined
+      'aria-label': string | undefined
+      'aria-disabled': true | undefined
       'data-state': SplitterHandleState
-      'data-orientation': string
+      'data-orientation': SplitterOrientation
       'data-disabled': true | undefined
       'onPointerdown': (e: PointerEvent) => void
       'onPointerenter': () => void
@@ -43,6 +47,9 @@
 </script>
 
 <script setup lang="ts">
+  // Constants
+  import { IN_BROWSER } from '#v0/constants/globals'
+
   // Components
   import { Atom } from '#v0/components/Atom'
 
@@ -51,7 +58,7 @@
   import { useToggleScope } from '#v0/composables/useToggleScope'
 
   // Utilities
-  import { shallowRef, toRef, toValue, useAttrs } from 'vue'
+  import { onScopeDispose, shallowRef, toRef, useAttrs } from 'vue'
 
   defineOptions({ name: 'SplitterHandle', inheritAttrs: false })
 
@@ -65,9 +72,11 @@
     as = 'div',
     renderless,
     disabled = false,
+    label,
   } = defineProps<SplitterHandleProps>()
 
-  const KEYBOARD_STEP = 10
+  const ARROW_STEP = 1
+  const PAGE_STEP = 10
 
   const splitter = useSplitterRoot()
   const handleIndex = splitter.registerHandle()
@@ -77,22 +86,25 @@
   let rafId = 0
   let latestPos = 0
 
-  const isDisabled = toRef(() => disabled || toValue(splitter.disabled))
+  const isDisabled = toRef(() => disabled || splitter.disabled.value)
   const isHorizontal = toRef(() => splitter.orientation.value === 'horizontal')
 
   const state = toRef((): SplitterHandleState => {
-    if (splitter.dragging.value) return 'drag'
+    if (splitter.draggingHandle.value === handleIndex) return 'drag'
     if (hovering.value) return 'hover'
     return 'inactive'
   })
 
-  // aria-valuenow: size of the panel before this handle (0-100)
-  const valuenow = toRef(() => splitter.sizes.value[handleIndex] ?? 0)
-  const valuemin = toRef(() => 0)
+  // aria-valuenow: size of the panel before this handle (0-100), rounded for AT
+  const valuenow = toRef(() => Math.round(splitter.sizes.value[handleIndex] ?? 0))
+  const valuemin = toRef(() => splitter.panels.value[handleIndex]?.minSize ?? 0)
   const valuemax = toRef(() => {
+    const panel = splitter.panels.value[handleIndex]
+    const adjacent = splitter.panels.value[handleIndex + 1]
+    if (!panel || !adjacent) return 100
     const before = splitter.sizes.value[handleIndex] ?? 0
     const after = splitter.sizes.value[handleIndex + 1] ?? 0
-    return before + after
+    return Math.min(panel.maxSize, before + after - adjacent.minSize)
   })
 
   function onPointerDown (e: PointerEvent) {
@@ -102,10 +114,11 @@
     target.setPointerCapture(e.pointerId)
     startPosition.value = isHorizontal.value ? e.clientX : e.clientY
     document.documentElement.style.cursor = isHorizontal.value ? 'col-resize' : 'row-resize'
-    splitter.dragging.value = true
+    document.documentElement.style.userSelect = 'none'
+    splitter.draggingHandle.value = handleIndex
   }
 
-  useToggleScope(() => splitter.dragging.value, () => {
+  useToggleScope(() => splitter.draggingHandle.value === handleIndex, () => {
     useDocumentEventListener('pointermove', (e: PointerEvent) => {
       latestPos = isHorizontal.value ? e.clientX : e.clientY
       if (rafId) return
@@ -114,6 +127,8 @@
         if (!root) return
 
         const rootSize = isHorizontal.value ? root.offsetWidth : root.offsetHeight
+        if (!rootSize) return
+
         const delta = ((latestPos - startPosition.value) / rootSize) * 100
         startPosition.value = latestPos
 
@@ -125,8 +140,20 @@
     useDocumentEventListener('pointerup', () => {
       if (rafId) cancelAnimationFrame(rafId)
       rafId = 0
-      document.documentElement.style.cursor = ''
-      splitter.dragging.value = false
+      if (IN_BROWSER) {
+        document.documentElement.style.cursor = ''
+        document.documentElement.style.userSelect = ''
+      }
+      splitter.draggingHandle.value = null
+    })
+
+    onScopeDispose(() => {
+      if (rafId) cancelAnimationFrame(rafId)
+      rafId = 0
+      if (IN_BROWSER) {
+        document.documentElement.style.cursor = ''
+        document.documentElement.style.userSelect = ''
+      }
     })
   })
 
@@ -139,25 +166,39 @@
     switch (e.key) {
       case forward: {
         e.preventDefault()
-        splitter.resize(handleIndex, KEYBOARD_STEP)
+        splitter.resize(handleIndex, ARROW_STEP)
 
         break
       }
       case backward: {
         e.preventDefault()
-        splitter.resize(handleIndex, -KEYBOARD_STEP)
+        splitter.resize(handleIndex, -ARROW_STEP)
+
+        break
+      }
+      case 'PageDown': {
+        e.preventDefault()
+        splitter.resize(handleIndex, PAGE_STEP)
+
+        break
+      }
+      case 'PageUp': {
+        e.preventDefault()
+        splitter.resize(handleIndex, -PAGE_STEP)
 
         break
       }
       case 'Home': {
         e.preventDefault()
-        splitter.resize(handleIndex, -100)
+        const current = splitter.sizes.value[handleIndex] ?? 0
+        splitter.resize(handleIndex, valuemin.value - current)
 
         break
       }
       case 'End': {
         e.preventDefault()
-        splitter.resize(handleIndex, 100)
+        const current = splitter.sizes.value[handleIndex] ?? 0
+        splitter.resize(handleIndex, valuemax.value - current)
 
         break
       }
@@ -165,8 +206,21 @@
     }
   }
 
+  function onPointerEnter () {
+    hovering.value = true
+  }
+
+  function onPointerLeave () {
+    hovering.value = false
+  }
+
+  // WAI-ARIA: separator orientation is perpendicular to the layout direction
+  const ariaOrientation = toRef((): SplitterOrientation =>
+    splitter.orientation.value === 'horizontal' ? 'vertical' : 'horizontal',
+  )
+
   const slotProps = toRef((): SplitterHandleSlotProps => ({
-    isDragging: splitter.dragging.value,
+    isDragging: splitter.draggingHandle.value === handleIndex,
     isDisabled: isDisabled.value,
     state: state.value,
     attrs: {
@@ -175,18 +229,16 @@
       'aria-valuenow': valuenow.value,
       'aria-valuemin': valuemin.value,
       'aria-valuemax': valuemax.value,
-      'aria-orientation': splitter.orientation.value,
+      'aria-orientation': ariaOrientation.value,
+      'aria-controls': splitter.panelIds.value[handleIndex] || undefined,
+      'aria-label': label || undefined,
       'aria-disabled': isDisabled.value || undefined,
       'data-state': state.value,
       'data-orientation': splitter.orientation.value,
       'data-disabled': isDisabled.value || undefined,
       'onPointerdown': onPointerDown,
-      'onPointerenter': () => {
-        hovering.value = true
-      },
-      'onPointerleave': () => {
-        hovering.value = false
-      },
+      'onPointerenter': onPointerEnter,
+      'onPointerleave': onPointerLeave,
       'onKeydown': onKeydown,
     },
   }))
