@@ -6,10 +6,6 @@ import { h, nextTick, ref } from 'vue'
 
 import { Slider } from './index'
 
-// ============================================================================
-// Test Helpers
-// ============================================================================
-
 interface MountResult {
   wrapper: ReturnType<typeof mount>
   thumbProps: (index?: number) => any
@@ -72,10 +68,6 @@ function mountSlider (options: {
     wait: () => nextTick(),
   }
 }
-
-// ============================================================================
-// Tests
-// ============================================================================
 
 describe('slider', () => {
   describe('rendering', () => {

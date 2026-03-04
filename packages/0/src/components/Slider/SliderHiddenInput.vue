@@ -7,6 +7,12 @@
  */
 
 <script lang="ts">
+  // Components
+  import { useSliderRoot } from './SliderRoot.vue'
+
+  // Utilities
+  import { toRef, toValue } from 'vue'
+
   export interface SliderHiddenInputProps {
     /** Namespace for context injection from parent Slider.Root */
     namespace?: string
@@ -28,12 +34,6 @@
 </script>
 
 <script setup lang="ts">
-  // Components
-  import { useSliderRoot } from './SliderRoot.vue'
-
-  // Utilities
-  import { toRef, toValue } from 'vue'
-
   defineOptions({ name: 'SliderHiddenInput' })
 
   const {
