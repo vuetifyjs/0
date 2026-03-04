@@ -17,7 +17,6 @@ export interface TreeviewActivatorSlotProps {
   attrs: {
     'role': 'button' | undefined
     'tabindex': number
-    'aria-expanded': boolean | undefined
     'aria-disabled': boolean
     'data-disabled': true | undefined
     'data-open': true | undefined
@@ -41,8 +40,7 @@ export interface TreeviewCheckboxSlotProps {
   select: () => void
   unselect: () => void
   attrs: {
-    'role': 'checkbox'
-    'aria-checked': boolean | 'mixed'
+    'aria-hidden': true
     'aria-disabled': boolean
     'tabindex': number
     'data-selected': true | undefined
@@ -62,6 +60,7 @@ export interface TreeviewCueSlotProps {
   isOpen: boolean
   isLeaf: boolean
   attrs: {
+    'aria-hidden': true
     'data-state': 'open' | 'closed'
     'style': { visibility: 'visible' | 'hidden' }
   }
@@ -94,6 +93,7 @@ export interface TreeviewIndicatorSlotProps {
   isSelected: boolean
   isMixed: boolean
   attrs: {
+    'aria-hidden': true
     'data-state': 'checked' | 'unchecked' | 'indeterminate'
     'style': { visibility: 'visible' | 'hidden' }
   }
@@ -143,6 +143,32 @@ export interface TreeviewListSlotProps {
   attrs: {
     'role': 'tree'
     'aria-multiselectable': boolean
+  }
+}
+
+// TreeviewSelectAll
+export interface TreeviewSelectAllProps extends AtomProps {
+  label?: string
+  disabled?: boolean
+  namespace?: string
+}
+
+export interface TreeviewSelectAllSlotProps {
+  label?: string
+  isAllSelected: boolean
+  isMixed: boolean
+  isDisabled: boolean
+  selectAll: () => void
+  unselectAll: () => void
+  toggleAll: () => void
+  attrs: {
+    'role': 'checkbox'
+    'aria-checked': boolean | 'mixed'
+    'aria-disabled': boolean | undefined
+    'aria-label': string | undefined
+    'tabindex': 0 | undefined
+    'data-state': 'checked' | 'unchecked' | 'indeterminate'
+    'data-disabled': true | undefined
   }
 }
 

@@ -891,7 +891,7 @@ describe('treeview', () => {
         })
 
         const checkbox = wrapper.findComponent(Treeview.Checkbox as any)
-        expect(checkbox.attributes('role')).toBe('checkbox')
+        expect(checkbox.attributes('aria-hidden')).toBe('true')
       })
     })
 
@@ -948,7 +948,7 @@ describe('treeview', () => {
         expect(typeof slotProps.toggle).toBe('function')
         expect(typeof slotProps.select).toBe('function')
         expect(typeof slotProps.unselect).toBe('function')
-        expect(slotProps.attrs.role).toBe('checkbox')
+        expect(slotProps.attrs['aria-hidden']).toBe(true)
         expect(typeof slotProps.attrs.onClick).toBe('function')
         expect(typeof slotProps.attrs.onKeydown).toBe('function')
       })
@@ -1089,6 +1089,101 @@ describe('treeview', () => {
 
       expect(tree1ItemProps.isSelected).toBe(true)
       expect(tree2ItemProps.isSelected).toBe(false)
+    })
+  })
+
+  describe('selectAll', () => {
+    describe('rendering', () => {
+      it('should render as div by default', () => {
+        const wrapper = mount(Treeview.Root, {
+          slots: {
+            default: () => [
+              h(Treeview.SelectAll as any, {}, () => 'Select All'),
+              h(Treeview.Item as any, { value: 'item-1' }, () => 'Item 1'),
+            ],
+          },
+        })
+
+        const selectAll = wrapper.findComponent(Treeview.SelectAll as any)
+        expect(selectAll.element.tagName).toBe('DIV')
+      })
+
+      it('should set role=checkbox', () => {
+        const wrapper = mount(Treeview.Root, {
+          slots: {
+            default: () => [
+              h(Treeview.SelectAll as any, {}, () => 'Select All'),
+              h(Treeview.Item as any, { value: 'item-1' }, () => 'Item 1'),
+            ],
+          },
+        })
+
+        const selectAll = wrapper.findComponent(Treeview.SelectAll as any)
+        expect(selectAll.attributes('role')).toBe('checkbox')
+      })
+    })
+
+    describe('slot props', () => {
+      it('should expose correct slot props', async () => {
+        let slotProps: any
+
+        mount(Treeview.Root, {
+          slots: {
+            default: () => [
+              h(Treeview.SelectAll as any, {}, {
+                default: (props: any) => {
+                  slotProps = props
+                  return h('span', 'Select All')
+                },
+              }),
+              h(Treeview.Item as any, { value: 'item-1' }, () => 'Item 1'),
+            ],
+          },
+        })
+
+        await nextTick()
+
+        expect(slotProps).toBeDefined()
+        expect(typeof slotProps.isAllSelected).toBe('boolean')
+        expect(typeof slotProps.isMixed).toBe('boolean')
+        expect(typeof slotProps.isDisabled).toBe('boolean')
+        expect(typeof slotProps.selectAll).toBe('function')
+        expect(typeof slotProps.unselectAll).toBe('function')
+        expect(typeof slotProps.toggleAll).toBe('function')
+        expect(slotProps.attrs.role).toBe('checkbox')
+      })
+    })
+
+    describe('click handling', () => {
+      it('should toggle selection on click', async () => {
+        const selected = ref<string[]>([])
+
+        const wrapper = mount(Treeview.Root, {
+          props: {
+            'modelValue': selected.value,
+            'onUpdate:modelValue': (value: unknown) => {
+              selected.value = value as string[]
+            },
+          },
+          slots: {
+            default: () => [
+              h(Treeview.SelectAll as any, {}, () => 'Select All'),
+              h(Treeview.Item as any, { value: 'item-1' }, () => 'Item 1'),
+              h(Treeview.Item as any, { value: 'item-2' }, () => 'Item 2'),
+            ],
+          },
+        })
+
+        await nextTick()
+
+        const selectAll = wrapper.findComponent(Treeview.SelectAll as any)
+        await selectAll.trigger('click')
+        await nextTick()
+
+        expect(selected.value).toHaveLength(2)
+        expect(selected.value).toContain('item-1')
+        expect(selected.value).toContain('item-2')
+      })
     })
   })
 

@@ -113,7 +113,7 @@ A settings tree with functional controls built from reactive data. Click any set
 
 ### Cascade Selection
 
-Add `v-model` to `Treeview.Root` for cascade selection. Use `Treeview.Checkbox` and `Treeview.Indicator` for tri-state checkboxes. Root exposes `selectAll`, `unselectAll`, and `isAllSelected` via its slot.
+Add `v-model` to `Treeview.Root` for cascade selection. Use `Treeview.Checkbox` and `Treeview.Indicator` for tri-state checkboxes. Use `Treeview.SelectAll` for a tree-wide toggle.
 
 ```vue CascadeSelection playground no-filename collapse
 <script setup lang="ts">
@@ -124,7 +124,12 @@ Add `v-model` to `Treeview.Root` for cascade selection. Use `Treeview.Checkbox` 
 </script>
 
 <template>
-  <Treeview.Root v-slot="{ selectAll, unselectAll }" v-model="selected">
+  <Treeview.Root v-model="selected">
+    <Treeview.SelectAll>
+      <Treeview.Indicator />
+      Select All
+    </Treeview.SelectAll>
+
     <Treeview.List>
       <Treeview.Item value="users">
         <Treeview.Checkbox>
@@ -134,12 +139,16 @@ Add `v-model` to `Treeview.Root` for cascade selection. Use `Treeview.Checkbox` 
 
         <Treeview.Group>
           <Treeview.Item value="users:view">
-            <Treeview.Checkbox><Treeview.Indicator /></Treeview.Checkbox>
+            <Treeview.Checkbox>
+              <Treeview.Indicator />
+            </Treeview.Checkbox>
             View
           </Treeview.Item>
 
           <Treeview.Item value="users:create">
-            <Treeview.Checkbox><Treeview.Indicator /></Treeview.Checkbox>
+            <Treeview.Checkbox>
+              <Treeview.Indicator />
+            </Treeview.Checkbox>
             Create
           </Treeview.Item>
         </Treeview.Group>
