@@ -57,6 +57,8 @@ export interface StorageOptions {
     read: (value: string) => unknown
     write: (value: unknown) => string
   }
+  /** Time-to-live in milliseconds. When set, expired entries return the default value on `get()` and `set()` automatically timestamps entries. */
+  ttl?: number
 }
 
 export interface StorageContextOptions extends StorageOptions {
@@ -105,6 +107,7 @@ export function createStorage<
       read: JSON.parse,
       write: JSON.stringify,
     },
+    ttl,
   } = options
 
   const cache = new Map<string, Ref<any>>()
@@ -115,6 +118,39 @@ export function createStorage<
     return cache.has(prefixedKey)
   }
 
+  function readStored (prefixedKey: string) {
+    const raw = adapter?.getItem(prefixedKey)
+    if (!raw) return undefined
+
+    try {
+      const parsed = serializer.read(raw)
+
+      // TTL check: expired entries are treated as absent
+      if (ttl && parsed && typeof parsed === 'object' && '__ttl' in parsed && '__v' in parsed) {
+        if (Date.now() - (parsed as any).__t > ttl) {
+          adapter?.removeItem(prefixedKey)
+          return undefined
+        }
+        return (parsed as any).__v
+      }
+
+      return parsed
+    } catch (error) {
+      console.error(`[v0:storage] Failed to parse stored value for key "${prefixedKey}":`, error)
+      return undefined
+    }
+  }
+
+  function writeStored (prefixedKey: string, value: unknown) {
+    const wrapped = ttl ? { __ttl: 1, __v: value, __t: Date.now() } : value
+
+    try {
+      adapter?.setItem(prefixedKey, serializer.write(wrapped))
+    } catch (error) {
+      console.error(`[v0:storage] Failed to write key "${prefixedKey}":`, error)
+    }
+  }
+
   function get<T> (key: string, defaultValue?: T): Ref<T> {
     const prefixedKey = `${prefix}${key}`
 
@@ -122,28 +158,14 @@ export function createStorage<
       return cache.get(prefixedKey)!
     }
 
-    const storedValue = adapter?.getItem(prefixedKey)
-    let initialValue = defaultValue
-
-    if (storedValue) {
-      try {
-        initialValue = serializer.read(storedValue)
-      } catch (error) {
-        console.error(`[v0:storage] Failed to parse stored value for key "${prefixedKey}":`, error)
-      }
-    }
-
+    const initialValue = readStored(prefixedKey) ?? defaultValue
     const valueRef = ref<T>(initialValue as T)
 
     const stop = watch(valueRef, newValue => {
       if (isNullOrUndefined(newValue)) {
         adapter?.removeItem(prefixedKey)
       } else {
-        try {
-          adapter?.setItem(prefixedKey, serializer.write(newValue))
-        } catch (error) {
-          console.error(`[v0:storage] Failed to write key "${prefixedKey}":`, error)
-        }
+        writeStored(prefixedKey, newValue)
       }
     }, { deep: true })
 
@@ -195,17 +217,13 @@ export function createStorage<
 
       watchers.get(e.key)?.()
 
-      valueRef.value = e.newValue == null ? undefined : serializer.read(e.newValue)
+      valueRef.value = e.newValue == null ? undefined : readStored(e.key)
 
       const stop = watch(valueRef, newValue => {
         if (isNullOrUndefined(newValue)) {
           adapter?.removeItem(e.key!)
         } else {
-          try {
-            adapter?.setItem(e.key!, serializer.write(newValue))
-          } catch (error) {
-            console.error(`[v0:storage] Failed to write key "${e.key}":`, error)
-          }
+          writeStored(e.key!, newValue)
         }
       }, { deep: true })
 
