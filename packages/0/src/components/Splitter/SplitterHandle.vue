@@ -97,14 +97,19 @@
 
   // aria-valuenow: size of the panel before this handle (0-100), rounded for AT
   const valuenow = toRef(() => Math.round(splitter.sizes.value[handleIndex] ?? 0))
-  const valuemin = toRef(() => splitter.panels.value[handleIndex]?.minSize ?? 0)
+  const valuemin = toRef(() => {
+    const panel = splitter.panels.value[handleIndex]
+    if (!panel) return 0
+    return panel.collapsible ? panel.collapsedSize : panel.minSize
+  })
   const valuemax = toRef(() => {
     const panel = splitter.panels.value[handleIndex]
     const adjacent = splitter.panels.value[handleIndex + 1]
     if (!panel || !adjacent) return 100
     const before = splitter.sizes.value[handleIndex] ?? 0
     const after = splitter.sizes.value[handleIndex + 1] ?? 0
-    return Math.min(panel.maxSize, before + after - adjacent.minSize)
+    const adjMin = adjacent.collapsible ? adjacent.collapsedSize : adjacent.minSize
+    return Math.min(panel.maxSize, before + after - adjMin)
   })
 
   function onPointerDown (e: PointerEvent) {
@@ -145,6 +150,7 @@
         document.documentElement.style.userSelect = ''
       }
       splitter.draggingHandle.value = null
+      splitter.onResizeEnd()
     })
 
     onScopeDispose(() => {
@@ -167,39 +173,49 @@
       case forward: {
         e.preventDefault()
         splitter.resize(handleIndex, ARROW_STEP)
-
+        splitter.onResizeEnd()
         break
       }
       case backward: {
         e.preventDefault()
         splitter.resize(handleIndex, -ARROW_STEP)
-
+        splitter.onResizeEnd()
         break
       }
       case 'PageDown': {
         e.preventDefault()
         splitter.resize(handleIndex, PAGE_STEP)
-
+        splitter.onResizeEnd()
         break
       }
       case 'PageUp': {
         e.preventDefault()
         splitter.resize(handleIndex, -PAGE_STEP)
-
+        splitter.onResizeEnd()
         break
       }
       case 'Home': {
         e.preventDefault()
-        const current = splitter.sizes.value[handleIndex] ?? 0
-        splitter.resize(handleIndex, valuemin.value - current)
-
+        const panel = splitter.panels.value[handleIndex]
+        if (panel?.collapsible) {
+          splitter.collapsePanel(handleIndex)
+        } else {
+          const current = splitter.sizes.value[handleIndex] ?? 0
+          splitter.resize(handleIndex, valuemin.value - current)
+        }
+        splitter.onResizeEnd()
         break
       }
       case 'End': {
         e.preventDefault()
-        const current = splitter.sizes.value[handleIndex] ?? 0
-        splitter.resize(handleIndex, valuemax.value - current)
-
+        const panel = splitter.panels.value[handleIndex]
+        if (panel?.collapsible && panel.collapsed) {
+          splitter.expandPanel(handleIndex)
+        } else {
+          const current = splitter.sizes.value[handleIndex] ?? 0
+          splitter.resize(handleIndex, valuemax.value - current)
+        }
+        splitter.onResizeEnd()
         break
       }
     // No default
