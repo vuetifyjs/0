@@ -53,6 +53,7 @@ Components with meaningful HTML defaults. Render semantic elements by default bu
 | - | - |
 | [Avatar](/components/semantic/avatar) | Image/fallback avatar with priority loading |
 | [Pagination](/components/semantic/pagination) | Page navigation with semantic `<nav>` wrapper |
+| [Splitter](/components/semantic/splitter) | Resizable panel layout with drag handles |
 
 ## Disclosure
 
