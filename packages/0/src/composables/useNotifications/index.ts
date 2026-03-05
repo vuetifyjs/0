@@ -1,12 +1,13 @@
 /**
  * @module useNotifications
+ * @see https://0.vuetifyjs.com/composables/plugins/use-notifications
  *
  * @remarks
  * Notification management composable built on createQueue.
- * Manages notification lifecycle with optional service adapters (Knock, Novu, custom).
+ * Manages notification lifecycle with optional service adapters (FCM, OneSignal, Knock).
  *
  * Supports:
- * - Push notifications with severity, actions, and timeout
+ * - Push notifications with severity and timeout
  * - State mutations: read, seen, archived, snoozed
  * - Bulk operations: readAll, archiveAll, clear
  * - Adapter integration via event system
@@ -67,10 +68,8 @@ export interface NotificationsContext extends Omit<
   QueueContext<NotificationInput, NotificationTicket>,
   'register'
 > {
-  // Push
   notify: (input: NotificationInput) => NotificationTicket
 
-  // Single mutations
   read: (id: ID) => void
   unread: (id: ID) => void
   seen: (id: ID) => void
@@ -79,11 +78,9 @@ export interface NotificationsContext extends Omit<
   snooze: (id: ID, until: Date) => void
   unsnooze: (id: ID) => void
 
-  // Bulk mutations
   readAll: () => void
   archiveAll: () => void
 
-  // Reactive state
   items: ReturnType<typeof shallowRef<NotificationTicket[]>>
   unreadCount: ReturnType<typeof computed<number>>
   unseenCount: ReturnType<typeof computed<number>>
@@ -132,49 +129,48 @@ export function createNotifications (
       unarchive: () => unarchive(id),
       snooze: (until: Date) => snooze(id, until),
       unsnooze: () => unsnooze(id),
-    } as Partial<NotificationInput>)
+    } as Partial<NotificationTicket>)
 
     queue.emit('notification:received', ticket)
 
     return ticket
   }
 
-  // Single mutations
   function mutate (id: ID, patch: Partial<NotificationTicket>, event: string) {
     const ticket = queue.get(id)
     if (!ticket) return
 
-    queue.upsert(id, patch as Partial<NotificationTicket>)
+    queue.upsert(id, patch)
     queue.emit(event, id)
     sync()
   }
 
   function read (id: ID) {
-    mutate(id, { readAt: new Date() } as Partial<NotificationTicket>, 'notification:read')
+    mutate(id, { readAt: new Date() }, 'notification:read')
   }
 
   function unread (id: ID) {
-    mutate(id, { readAt: null } as Partial<NotificationTicket>, 'notification:unread')
+    mutate(id, { readAt: null }, 'notification:unread')
   }
 
   function seen (id: ID) {
-    mutate(id, { seenAt: new Date() } as Partial<NotificationTicket>, 'notification:seen')
+    mutate(id, { seenAt: new Date() }, 'notification:seen')
   }
 
   function archive (id: ID) {
-    mutate(id, { archivedAt: new Date() } as Partial<NotificationTicket>, 'notification:archived')
+    mutate(id, { archivedAt: new Date() }, 'notification:archived')
   }
 
   function unarchive (id: ID) {
-    mutate(id, { archivedAt: null } as Partial<NotificationTicket>, 'notification:unarchived')
+    mutate(id, { archivedAt: null }, 'notification:unarchived')
   }
 
   function snooze (id: ID, until: Date) {
-    mutate(id, { snoozedUntil: until } as Partial<NotificationTicket>, 'notification:snoozed')
+    mutate(id, { snoozedUntil: until }, 'notification:snoozed')
   }
 
   function unsnooze (id: ID) {
-    mutate(id, { snoozedUntil: null } as Partial<NotificationTicket>, 'notification:unsnoozed')
+    mutate(id, { snoozedUntil: null }, 'notification:unsnoozed')
   }
 
   // Bulk mutations
@@ -182,7 +178,7 @@ export function createNotifications (
     const now = new Date()
     for (const ticket of queue.values()) {
       if (!ticket.readAt) {
-        queue.upsert(ticket.id, { readAt: now } as Partial<NotificationTicket>)
+        queue.upsert(ticket.id, { readAt: now })
       }
     }
     sync()
@@ -192,18 +188,16 @@ export function createNotifications (
     const now = new Date()
     for (const ticket of queue.values()) {
       if (!ticket.archivedAt) {
-        queue.upsert(ticket.id, { archivedAt: now } as Partial<NotificationTicket>)
+        queue.upsert(ticket.id, { archivedAt: now })
       }
     }
     sync()
   }
 
-  // Reactive state
   const unreadCount = computed(() => items.value.filter(t => !t.readAt).length)
   const unseenCount = computed(() => items.value.filter(t => !t.seenAt).length)
   const total = computed(() => items.value.length)
 
-  // Adapter
   let cleanup: (() => void) | undefined
 
   if (adapter) {
@@ -215,14 +209,13 @@ export function createNotifications (
     if (result) cleanup = result
   }
 
-  // Override dispose to include adapter cleanup
+  onScopeDispose(() => cleanup?.(), true)
+
   const baseDispose = queue.dispose
   function dispose () {
     cleanup?.()
     baseDispose()
   }
-
-  onScopeDispose(dispose, true)
 
   return {
     ...queue,
@@ -255,4 +248,7 @@ export const [
 ] = createPluginContext<NotificationsPluginOptions, NotificationsContext>(
   'v0:notifications',
   options => createNotifications(options),
+  {
+    fallback: () => createNotifications(),
+  },
 )
