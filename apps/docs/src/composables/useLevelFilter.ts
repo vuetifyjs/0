@@ -6,7 +6,7 @@ import { computed, onMounted, toRef, toValue, watch } from 'vue'
 
 // Types
 import type { NavItem } from '@/stores/app'
-import type { ComputedRef, MaybeRefOrGetter } from 'vue'
+import type { ComputedRef, MaybeRefOrGetter, Ref } from 'vue'
 
 const LEVELS = [1, 2, 3] as const
 export type Level = (typeof LEVELS)[number]
@@ -14,7 +14,7 @@ export type Level = (typeof LEVELS)[number]
 export interface LevelFilterContext {
   levels: typeof LEVELS
   selectedLevels: Set<Level>
-  hasChanges: ComputedRef<boolean>
+  hasChanges: Readonly<Ref<boolean>>
   toggle: (level: Level) => void
   isSelected: (level: Level) => boolean
   clear: () => void
