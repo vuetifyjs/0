@@ -7,7 +7,7 @@
   import { useSyncedRef } from '@/composables/useSyncedRef'
 
   // Utilities
-  import { toCamel, toPascal } from '@/utilities/strings'
+  import { resolveItemName } from '@/utilities/strings'
   import { computed, toRef } from 'vue'
   import { useRoute } from 'vue-router'
 
@@ -31,18 +31,7 @@
     return null
   })
 
-  const itemName = computed(() => {
-    if (props.name) return props.name
-
-    const path = route.path
-    const match = path.match(/\/(components|composables)\/[^/]+\/([^/]+)/)
-    if (!match) return null
-
-    const slug = match[2] ?? ''
-    return match[1] === 'components'
-      ? toPascal(slug)
-      : toCamel(slug)
-  })
+  const itemName = computed(() => props.name ?? resolveItemName(route.path))
 
   const componentApis = computed(() => {
     if (pageType.value !== 'component') return []

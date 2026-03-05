@@ -23,7 +23,7 @@ import MiniSearch from 'minisearch'
 import { IN_BROWSER, useHotkey, useLogger, useStorage, useToggleScope } from '@vuetify/v0'
 
 // Utilities
-import { computed, nextTick, readonly, shallowRef, watch } from 'vue'
+import { computed, nextTick, readonly, shallowRef, toRef, watch } from 'vue'
 
 // Types
 import type { SearchDocument } from '@build/generate-search-index'
@@ -343,9 +343,7 @@ const results = computed<GroupedResults[]>(() => {
 })
 
 // Check if we have content to show in empty state
-const hasEmptyStateContent = computed(() => {
-  return favorites.value.length > 0 || recents.value.length > 0
-})
+const hasEmptyStateContent = toRef(() => favorites.value.length > 0 || recents.value.length > 0)
 
 /** Get total selectable items count (for keyboard navigation) */
 function getSelectableCount (): number {

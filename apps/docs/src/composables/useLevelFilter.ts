@@ -2,7 +2,7 @@
 import { createContext, createGroup, useStorage } from '@vuetify/v0'
 
 // Utilities
-import { computed, onMounted, toValue, watch } from 'vue'
+import { computed, onMounted, toRef, toValue, watch } from 'vue'
 
 // Types
 import type { NavItem } from '@/stores/app'
@@ -44,7 +44,7 @@ export function createLevelFilter (nav: MaybeRefOrGetter<NavItem[]>) {
     return filterNavByLevel(items, group.selectedIds as Set<number>)
   })
 
-  const hasChanges = computed(() => group.selectedIds.size > 0)
+  const hasChanges = toRef(() => group.selectedIds.size > 0)
 
   function clear () {
     group.unselectAll()

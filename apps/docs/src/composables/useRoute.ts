@@ -1,5 +1,5 @@
 // Utilities
-import { computed } from 'vue'
+import { toRef } from 'vue'
 import { useRoute } from 'vue-router'
 
 // Types
@@ -9,7 +9,5 @@ import type { RouteParams } from 'vue-router'
 export function useParams<P extends RouteParams> () {
   const route = useRoute()
 
-  return computed(
-    () => route.params as P,
-  )
+  return toRef(() => route.params as P)
 }

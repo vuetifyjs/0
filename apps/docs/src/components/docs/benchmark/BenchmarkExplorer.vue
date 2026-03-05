@@ -3,7 +3,7 @@
   import { useBenchmarkData } from '@/composables/useBenchmarkData'
 
   // Utilities
-  import { computed, toRef, watch } from 'vue'
+  import { toRef, watch } from 'vue'
 
   const {
     composable,
@@ -71,7 +71,7 @@
   }
 
   // Derive selected composable names from group selectedIds
-  const selectedComposableNames = computed(() => Array.from(composableSelection.selectedIds) as string[])
+  const selectedComposableNames = toRef(() => Array.from(composableSelection.selectedIds) as string[])
 </script>
 
 <template>

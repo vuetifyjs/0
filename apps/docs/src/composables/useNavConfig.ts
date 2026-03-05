@@ -7,7 +7,7 @@ import { useSettings } from '@/composables/useSettings'
 
 // Utilities
 import { toCamel } from '@/utilities/strings'
-import { computed, shallowRef, toValue, watch } from 'vue'
+import { computed, shallowRef, toRef, toValue, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 // Types
@@ -134,7 +134,7 @@ export function createNavConfig (nav: MaybeRefOrGetter<NavItem[]>) {
   }, { immediate: true })
 
   // Flat mode when collapsible setting is off
-  const flatMode = computed(() => !collapsibleNav.value)
+  const flatMode = toRef(() => !collapsibleNav.value)
 
   // Filter nav by active features (case-insensitive)
   const configuredNav = computed(() => {
