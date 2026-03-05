@@ -44,7 +44,7 @@ app.mount('#app')
 
 ## Usage
 
-Wrap any section in `<Theme>` to override the active theme for its subtree. Use the theme picker in the top-right corner of the example to see the card re-theme in place.
+Wrap any section in `<Theme>` to override the active theme for its subtree. Use the theme picker in the example toolbar to see the card re-theme in place.
 
 ::: example
 /components/theme/basic

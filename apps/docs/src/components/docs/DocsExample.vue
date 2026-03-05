@@ -202,23 +202,30 @@
       </DocsExampleDescription>
 
       <!-- Preview -->
-      <Theme class="relative p-6 bg-surface" :class="hasDescription && !descriptionExpanded && 'pt-8'" :theme="themeOverride">
-        <!-- Theme picker -->
-        <div class="absolute top-2 right-2 z-10">
+      <Theme class="p-6 bg-surface" :class="hasDescription && !descriptionExpanded && 'pt-8'" :theme="themeOverride">
+        <component :is="auto?.component" v-if="auto?.component" />
+        <slot v-else />
+      </Theme>
+
+      <!-- Toolbar -->
+      <div class="border-t border-divider bg-surface-tint">
+        <div class="flex items-center">
+          <!-- Theme picker -->
           <Popover.Root v-model="themePickerOpen">
             <Popover.Activator
               aria-label="Override example theme"
-              class="size-7 rounded inline-flex items-center justify-center transition-colors cursor-pointer"
-              :class="hasOverride ? 'bg-primary/15 text-primary' : 'text-on-surface/40 hover:text-on-surface hover:bg-surface-tint'"
+              class="px-4 py-3 inline-flex items-center gap-1.5 bg-transparent border-none text-sm cursor-pointer transition-colors hover:bg-surface"
+              :class="hasOverride ? 'text-primary' : 'text-on-surface-variant'"
               title="Override theme"
             >
-              <AppIcon :icon="toggle.icon.value" :size="14" />
+              <AppIcon :icon="toggle.icon.value" :size="16" />
+              <span v-if="hasOverride" class="text-xs font-medium capitalize">{{ themeOverride }}</span>
             </Popover.Activator>
 
             <Popover.Content
               class="p-2 rounded-lg bg-surface border border-divider shadow-xl min-w-44 !mt-1"
-              position-area="bottom span-left"
-              position-try="bottom span-left, bottom span-right, top span-left, top span-right"
+              position-area="bottom span-right"
+              position-try="bottom span-right, bottom span-left, top span-right, top span-left"
             >
               <button
                 class="w-full flex items-center gap-2 px-2 py-1.5 rounded text-xs font-medium transition-colors"
@@ -245,29 +252,25 @@
               </button>
             </Popover.Content>
           </Popover.Root>
+
+          <!-- Code toggle -->
+          <button
+            v-if="!peek && (resolvedCode || displayFiles?.length)"
+            :aria-controls="`${uid}-code`"
+            :aria-expanded="showCode"
+            class="group flex-1 px-4 py-3 bg-transparent border-none font-inherit text-sm cursor-pointer flex items-center gap-2 text-on-surface transition-colors hover:bg-surface"
+            type="button"
+            @click="toggleCode"
+          >
+            <AppLoaderIcon v-if="isLoading" variant="orbit" />
+            <AppIcon v-else-if="showCode && hasHighlightedCode" icon="chevron-up" :size="16" />
+            <AppIcon v-else class="transition-colors group-hover:text-primary" icon="code" :size="16" />
+            <span v-if="hasMultipleFiles" class="ml-auto opacity-60 font-mono text-[0.8125rem]">
+              {{ displayFiles!.length }} file(s)
+            </span>
+            <span v-else-if="fileName" class="ml-auto opacity-60 font-mono text-[0.8125rem]">{{ fileName }}</span>
+          </button>
         </div>
-
-        <component :is="auto?.component" v-if="auto?.component" />
-        <slot v-else />
-      </Theme>
-
-      <!-- Code toggle button -->
-      <div v-if="!peek && (resolvedCode || displayFiles?.length)" class="border-t border-divider bg-surface-tint">
-        <button
-          :aria-controls="`${uid}-code`"
-          :aria-expanded="showCode"
-          class="group w-full px-4 py-3 bg-transparent border-none font-inherit text-sm cursor-pointer flex items-center gap-2 text-on-surface transition-colors hover:bg-surface"
-          type="button"
-          @click="toggleCode"
-        >
-          <AppLoaderIcon v-if="isLoading" variant="orbit" />
-          <AppIcon v-else-if="showCode && hasHighlightedCode" icon="chevron-up" :size="16" />
-          <AppIcon v-else class="transition-colors group-hover:text-primary" icon="code" :size="16" />
-          <span v-if="hasMultipleFiles" class="ml-auto opacity-60 font-mono text-[0.8125rem]">
-            {{ displayFiles!.length }} file(s)
-          </span>
-          <span v-else-if="fileName" class="ml-auto opacity-60 font-mono text-[0.8125rem]">{{ fileName }}</span>
-        </button>
       </div>
 
       <!-- Single file code display -->
