@@ -10,7 +10,7 @@ meta:
 features:
   category: Plugin
   label: 'E: useNotifications'
-  github: /composables/createNotifications/
+  github: /composables/useNotifications/
   level: 2
 related:
   - /composables/registration/create-queue

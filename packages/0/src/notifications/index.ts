@@ -12,4 +12,4 @@
  * ```
  */
 
-export * from '#v0/composables/createNotifications/adapters'
+export * from '#v0/composables/useNotifications/adapters'

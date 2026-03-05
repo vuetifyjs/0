@@ -2,7 +2,7 @@
  * @module KnockNotificationsAdapter
  *
  * @remarks
- * Knock adapter for createNotifications.
+ * Knock adapter for useNotifications.
  * Bridges a Knock feed instance with the notification system.
  *
  * Inbound: Maps real-time feed events to ctx.notify()
@@ -12,7 +12,7 @@
  * @example
  * ```ts
  * import Knock from '@knocklabs/client'
- * import { createKnockAdapter } from '#v0/composables/createNotifications/adapters/knock'
+ * import { createKnockAdapter } from '#v0/composables/useNotifications/adapters/knock'
  *
  * const knock = new Knock(KNOCK_PUBLIC_API_KEY)
  * knock.authenticate(userId)
