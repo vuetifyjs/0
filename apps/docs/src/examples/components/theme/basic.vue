@@ -1,5 +1,10 @@
 <script setup lang="ts">
-  import { Theme } from '@vuetify/v0'
+  import { Switch, Theme } from '@vuetify/v0'
+  import { shallowRef } from 'vue'
+
+  const push = shallowRef(true)
+  const email = shallowRef(false)
+  const sms = shallowRef(false)
 </script>
 
 <template>
@@ -10,25 +15,31 @@
     </div>
 
     <div class="p-4 flex flex-col gap-3">
-      <label class="flex items-center justify-between">
+      <label class="flex items-center justify-between cursor-pointer">
         <span class="text-sm">Push notifications</span>
-        <span class="w-8 h-5 rounded-full bg-primary relative">
-          <span class="absolute right-0.5 top-0.5 w-4 h-4 rounded-full bg-on-primary transition-all" />
-        </span>
+        <Switch.Root v-model="push" class="inline-flex items-center border-none bg-transparent p-0">
+          <Switch.Track class="relative inline-flex items-center w-9 h-5 rounded-full transition-colors bg-surface-tint data-[state=checked]:bg-primary">
+            <Switch.Thumb class="![visibility:visible] block size-3.5 rounded-full bg-white shadow-sm transition-transform translate-x-0.75 data-[state=checked]:translate-x-4.25" />
+          </Switch.Track>
+        </Switch.Root>
       </label>
 
-      <label class="flex items-center justify-between">
+      <label class="flex items-center justify-between cursor-pointer">
         <span class="text-sm">Email digest</span>
-        <span class="w-8 h-5 rounded-full bg-surface-tint border border-divider relative">
-          <span class="absolute left-0.5 top-0.5 w-4 h-4 rounded-full bg-on-surface-variant transition-all" />
-        </span>
+        <Switch.Root v-model="email" class="inline-flex items-center border-none bg-transparent p-0">
+          <Switch.Track class="relative inline-flex items-center w-9 h-5 rounded-full transition-colors bg-surface-tint data-[state=checked]:bg-primary">
+            <Switch.Thumb class="![visibility:visible] block size-3.5 rounded-full bg-white shadow-sm transition-transform translate-x-0.75 data-[state=checked]:translate-x-4.25" />
+          </Switch.Track>
+        </Switch.Root>
       </label>
 
-      <label class="flex items-center justify-between">
+      <label class="flex items-center justify-between cursor-pointer">
         <span class="text-sm">SMS alerts</span>
-        <span class="w-8 h-5 rounded-full bg-surface-tint border border-divider relative">
-          <span class="absolute left-0.5 top-0.5 w-4 h-4 rounded-full bg-on-surface-variant transition-all" />
-        </span>
+        <Switch.Root v-model="sms" class="inline-flex items-center border-none bg-transparent p-0">
+          <Switch.Track class="relative inline-flex items-center w-9 h-5 rounded-full transition-colors bg-surface-tint data-[state=checked]:bg-primary">
+            <Switch.Thumb class="![visibility:visible] block size-3.5 rounded-full bg-white shadow-sm transition-transform translate-x-0.75 data-[state=checked]:translate-x-4.25" />
+          </Switch.Track>
+        </Switch.Root>
       </label>
     </div>
 
