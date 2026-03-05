@@ -19,18 +19,6 @@
     /** Thumb index to read value from */
     index?: number
   }
-
-  const visuallyHiddenStyle = {
-    position: 'absolute',
-    width: '1px',
-    height: '1px',
-    padding: '0',
-    margin: '-1px',
-    overflow: 'hidden',
-    clip: 'rect(0, 0, 0, 0)',
-    whiteSpace: 'nowrap',
-    border: '0',
-  } as const
 </script>
 
 <script setup lang="ts">
@@ -51,9 +39,7 @@
   <input
     :disabled="isDisabled"
     :form="root.form"
-    inert
     :name="root.name"
-    :style="visuallyHiddenStyle"
     tabindex="-1"
     type="hidden"
     :value="value"
