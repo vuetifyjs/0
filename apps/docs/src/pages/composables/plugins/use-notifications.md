@@ -19,7 +19,7 @@ related:
 
 # useNotifications
 
-Headless notification management built on `createQueue`. Manages notification lifecycle with severity levels, actions, state mutations, and optional service adapter integration.
+Headless notification management built on `createQueue`. Manages notification lifecycle with severity levels, state mutations, and optional service adapter integration.
 
 <DocsPageFeatures :frontmatter />
 
@@ -96,9 +96,9 @@ flowchart TB
   end
 
   Registry --> Queue
-  Queue --> Plugin
-  Plugin --> Core
-  Core --> Use
+  Queue --> Core
+  Core --> Plugin
+  Plugin --> Use
   Adapter -.->|inbound: notify| Core
   Core -.->|outbound: events| Events
   Events -.-> Adapter
@@ -129,7 +129,7 @@ notifications.archive(id)    // Set archivedAt
 notifications.unarchive(id)  // Clear archivedAt
 notifications.snooze(id, until) // Set snoozedUntil
 notifications.unsnooze(id)   // Clear snoozedUntil
-notifications.dismiss(id)    // Remove from queue
+notifications.unregister(id) // Remove from queue
 ```
 
 Tickets also expose convenience methods directly:
