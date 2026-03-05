@@ -172,19 +172,31 @@
   // Per-example theme override
   const theme = useTheme()
   const toggle = useThemeToggle()
-  const themeOverride = shallowRef<string>()
+  const committed = shallowRef<string>()
+  const preview = shallowRef<string>()
+  const themeOverride = toRef(() => preview.value ?? committed.value)
   const themePickerOpen = ref(false)
-  const hasOverride = toRef(() => !!themeOverride.value)
+  const hasOverride = toRef(() => !!committed.value)
   const themeNames = toRef(() => theme.keys())
 
   function onTheme (name: string) {
-    themeOverride.value = themeOverride.value === name ? undefined : name
+    committed.value = committed.value === name ? undefined : name
+    preview.value = undefined
     themePickerOpen.value = false
   }
 
   function onResetTheme () {
-    themeOverride.value = undefined
+    committed.value = undefined
+    preview.value = undefined
     themePickerOpen.value = false
+  }
+
+  function onPreview (name: string) {
+    preview.value = name
+  }
+
+  function onPreviewReset () {
+    preview.value = undefined
   }
 </script>
 
@@ -219,19 +231,21 @@
               title="Override theme"
             >
               <AppIcon :icon="toggle.icon.value" :size="16" />
-              <span v-if="hasOverride" class="text-xs font-medium capitalize">{{ themeOverride }}</span>
+              <span v-if="hasOverride" class="text-xs font-medium capitalize">{{ committed }}</span>
             </Popover.Activator>
 
             <Popover.Content
               class="p-2 rounded-lg bg-surface border border-divider shadow-xl min-w-44 !mt-1"
               position-area="bottom span-right"
               position-try="bottom span-right, bottom span-left, top span-right, top span-left"
+              @mouseleave="onPreviewReset"
             >
               <button
                 class="w-full flex items-center gap-2 px-2 py-1.5 rounded text-xs font-medium transition-colors"
                 :class="!hasOverride ? 'bg-primary/15 text-primary' : 'hover:bg-surface-tint text-on-surface'"
                 type="button"
                 @click="onResetTheme"
+                @mouseenter="onPreviewReset"
               >
                 <AppIcon icon="close" :size="12" />
                 <span>Page default</span>
@@ -243,9 +257,10 @@
                 v-for="name in themeNames"
                 :key="name"
                 class="w-full flex items-center gap-2 px-2 py-1.5 rounded text-xs font-medium transition-colors"
-                :class="themeOverride === name ? 'bg-primary/15 text-primary' : 'hover:bg-surface-tint text-on-surface'"
+                :class="committed === name ? 'bg-primary/15 text-primary' : 'hover:bg-surface-tint text-on-surface'"
                 type="button"
                 @click="onTheme(name)"
+                @mouseenter="onPreview(name)"
               >
                 <AppThemePreview :theme="name" />
                 <span class="capitalize">{{ name }}</span>
