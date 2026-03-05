@@ -44,40 +44,34 @@ app.mount('#app')
 
 ## Usage
 
-Wrap any section in `<Theme>` to override the active theme. Descendants calling `useTheme()` receive the overridden context, and CSS variables from `[data-theme]` cascade to all children.
+Wrap any section in `<Theme>` to override the active theme for its subtree. Click the theme buttons below to see the card re-theme in place.
 
 ::: example
 /components/theme/basic
 :::
 
-## Nesting
-
-Theme components nest naturally. Each one shadows the parent's `v0:theme` injection key.
-
-::: example
-/components/theme/nested
-:::
+Theme components nest — each one shadows the parent's `v0:theme` injection key, so descendants calling `useTheme()` receive the overridden context.
 
 ## Recipes
 
 ### Slot Props
 
-The default slot exposes `theme` (the active ID) and `isDark` (boolean) for conditional rendering.
+The default slot exposes `theme` (the active ID) and `isDark` (boolean) for conditional rendering:
 
-::: example
-/components/theme/slot-props
-:::
+```vue
+<Theme v-slot="{ theme, isDark }" theme="dark">
+  <span>{{ theme }} — dark: {{ isDark }}</span>
+</Theme>
+```
 
 ### Polymorphic Rendering
 
 Theme extends `Atom`, so it accepts the `as` prop to render as any HTML element:
 
 ```vue
-<template>
-  <Theme theme="dark" as="section">
-    <!-- renders as <section data-theme="dark"> -->
-  </Theme>
-</template>
+<Theme theme="dark" as="section">
+  <!-- renders as <section data-theme="dark"> -->
+</Theme>
 ```
 
 <DocsApi />
