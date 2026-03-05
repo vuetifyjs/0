@@ -1,16 +1,12 @@
 <script setup lang="ts">
   // Framework
-  import { useBreakpoints, useStack, useStorage } from '@vuetify/v0'
+  import { SplitterPanel, useBreakpoints, useStack, useStorage } from '@vuetify/v0'
 
   // Components
   import { usePlayground } from './PlaygroundApp.vue'
 
   // Utilities
-  import { onMounted, onUnmounted, shallowRef, toRef, watch } from 'vue'
-
-  const DEFAULT_WIDTH = 400
-  const DEFAULT_MIN_WIDTH = DEFAULT_WIDTH
-  const DEFAULT_MAX_WIDTH = 720
+  import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 
   const playground = usePlayground()
   const breakpoints = useBreakpoints()
@@ -21,22 +17,41 @@
 
   const isMobile = breakpoints.isMobile
 
-  onMounted(() => {
-    if (left.value && !isMobile.value) ticket.select()
-  })
-
-  const modelValue = shallowRef(DEFAULT_WIDTH)
-
-  const styles = toRef(() => ({
-    width: `${modelValue.value}px`,
-  }))
-
   onUnmounted(() => {
     playground.unregister(ticket.id)
   })
 
-  function onDblClick () {
-    modelValue.value = modelValue.value === DEFAULT_WIDTH ? DEFAULT_MAX_WIDTH : DEFAULT_WIDTH
+  // Bridge between Splitter collapse/expand and playground ticket
+  const panelApi = ref<{ collapse: () => void, expand: () => void }>()
+
+  function capture (slot: { collapse: () => void, expand: () => void }) {
+    panelApi.value = slot
+    return false
+  }
+
+  // Select ticket then collapse if not visible
+  onMounted(() => {
+    if (left.value && !isMobile.value) ticket.select()
+    else nextTick(() => panelApi.value?.collapse())
+  })
+
+  // Ticket drives collapse/expand
+  watch(() => ticket.isSelected.value, selected => {
+    if (isMobile.value) return
+    if (selected) panelApi.value?.expand()
+    else panelApi.value?.collapse()
+  })
+
+  // Drag-to-collapse drives ticket
+  function onResize (size: number) {
+    if (isMobile.value) return
+    if (size === 0 && ticket.isSelected.value) {
+      left.value = false
+      ticket.unselect()
+    } else if (size > 0 && !ticket.isSelected.value) {
+      left.value = true
+      ticket.select()
+    }
   }
 
   const stack = useStack()
@@ -50,37 +65,40 @@
 </script>
 
 <template>
-  <!-- Desktop: inline flex item -->
-  <template v-if="!isMobile">
-    <template v-if="ticket.isSelected.value">
-      <div
-        class="bg-glass-surface h-full flex flex-col"
-        :style="styles"
-      >
-        <slot />
-      </div>
+  <!-- Panel always rendered for stable Splitter indexing -->
+  <SplitterPanel
+    v-slot="slot"
+    :collapsed-size="0"
+    collapsible
+    :default-size="30"
+    :max-size="45"
+    :min-size="30"
+    @resize="onResize"
+  >
+    <template v-if="capture(slot)" />
 
-      <PlaygroundAppResizeBar
-        v-model="modelValue"
-        class="z-1"
-        direction="horizontal"
-        :max="DEFAULT_MAX_WIDTH"
-        :min="DEFAULT_MIN_WIDTH"
-        storage-key="playground-left"
-        @dblclick="onDblClick"
-      />
-    </template>
-  </template>
-
-  <!-- Mobile: always mounted fixed drawer -->
-  <template v-else>
+    <!-- Desktop: inline content -->
     <div
-      class="fixed inset-0 bg-surface border-r border-divider flex flex-col transition-transform duration-200"
-      :class="ticket.isSelected.value ? 'translate-x-0' : '-translate-x-full'"
-      :inert="ticket.isSelected.value ? undefined : true"
-      :style="{ zIndex: stackTicket.zIndex.value }"
+      v-if="!isMobile && !slot.isCollapsed"
+      class="bg-glass-surface h-full flex flex-col"
     >
       <slot />
     </div>
-  </template>
+  </SplitterPanel>
+
+  <PlaygroundSplitterHandle
+    direction="horizontal"
+    :hidden="isMobile || !ticket.isSelected.value"
+  />
+
+  <!-- Mobile: fixed drawer -->
+  <div
+    v-if="isMobile"
+    class="fixed inset-0 bg-surface border-r border-divider flex flex-col transition-transform duration-200"
+    :class="ticket.isSelected.value ? 'translate-x-0' : '-translate-x-full'"
+    :inert="ticket.isSelected.value ? undefined : true"
+    :style="{ zIndex: stackTicket.zIndex.value }"
+  >
+    <slot />
+  </div>
 </template>
