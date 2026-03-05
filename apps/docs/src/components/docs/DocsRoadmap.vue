@@ -80,7 +80,7 @@
   })
 
   // Expand from URL when milestones load
-  watch(() => store.milestones.length, () => {
+  watch(() => store.milestones?.length, () => {
     expandFromQuery()
   })
 

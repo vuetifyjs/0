@@ -79,12 +79,12 @@ export const useRoadmapStore = defineStore('roadmap', {
 
   getters: {
     byHorizon: state => (horizon: TimeHorizon) =>
-      state.milestones.filter(m => m.horizon === horizon),
+      isArray(state.milestones) ? state.milestones.filter(m => m.horizon === horizon) : [],
 
-    now: state => state.milestones.filter(m => m.horizon === 'now'),
-    next: state => state.milestones.filter(m => m.horizon === 'next'),
-    later: state => state.milestones.filter(m => m.horizon === 'later'),
-    done: state => state.milestones.filter(m => m.horizon === 'done'),
+    now: state => isArray(state.milestones) ? state.milestones.filter(m => m.horizon === 'now') : [],
+    next: state => isArray(state.milestones) ? state.milestones.filter(m => m.horizon === 'next') : [],
+    later: state => isArray(state.milestones) ? state.milestones.filter(m => m.horizon === 'later') : [],
+    done: state => isArray(state.milestones) ? state.milestones.filter(m => m.horizon === 'done') : [],
   },
 
   actions: {
