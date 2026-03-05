@@ -6,7 +6,7 @@
   import { useCustomThemes, type CustomTheme } from '@/composables/useCustomThemes'
 
   // Utilities
-  import { reactive, computed, watch } from 'vue'
+  import { reactive, toRef, watch } from 'vue'
 
   import { themes, type ThemeDefinition } from '@/themes'
 
@@ -76,7 +76,7 @@
   }
 
   // Initialize draft state from props or defaults
-  const isEditingExisting = computed(() => props.theme && 'custom' in props.theme)
+  const isEditingExisting = toRef(() => props.theme && 'custom' in props.theme)
 
   const draft = reactive({
     label: props.theme?.label ?? 'My Theme',
@@ -96,7 +96,7 @@
   // Apply immediately on mount (debounce skips first call otherwise)
   customThemes.preview(draft.colors, draft.dark)
 
-  function handleSave () {
+  function onSave () {
     const theme: CustomTheme = {
       id: props.theme?.id ?? '',
       label: draft.label,
@@ -108,11 +108,11 @@
     emit('save', theme)
   }
 
-  function handleCancel () {
+  function onCancel () {
     emit('cancel')
   }
 
-  function handleDelete () {
+  function onDelete () {
     if (props.theme?.id) {
       emit('delete', props.theme.id)
     }
@@ -134,7 +134,7 @@
       <button
         class="flex items-center gap-1 text-sm text-on-surface-variant hover:text-on-surface transition-colors"
         type="button"
-        @click="handleCancel"
+        @click="onCancel"
       >
         <AppIcon icon="arrow-left" size="16" />
         <span>Back</span>
@@ -144,7 +144,7 @@
         v-if="isEditingExisting"
         class="flex items-center gap-1 text-sm text-error hover:text-error/80 transition-colors"
         type="button"
-        @click="handleDelete"
+        @click="onDelete"
       >
         <AppIcon icon="delete" size="16" />
         <span>Delete</span>
@@ -204,14 +204,14 @@
       <button
         class="flex-1 px-4 py-2 text-sm rounded-lg bg-secondary text-on-secondary hover:opacity-90 transition-opacity"
         type="button"
-        @click="handleCancel"
+        @click="onCancel"
       >
         Cancel
       </button>
       <button
         class="flex-1 px-4 py-2 text-sm rounded-lg bg-primary text-on-primary hover:bg-primary/90 transition-colors"
         type="button"
-        @click="handleSave"
+        @click="onSave"
       >
         Save Theme
       </button>

@@ -20,7 +20,7 @@ import { IN_BROWSER } from '@vuetify/v0/constants'
 import { isUndefined } from '@vuetify/v0/utilities'
 
 // Utilities
-import { computed, onScopeDispose, shallowReactive, shallowRef } from 'vue'
+import { onScopeDispose, shallowReactive, shallowRef, toRef } from 'vue'
 
 // Types
 import type { Ref } from 'vue'
@@ -103,7 +103,7 @@ export function useScrollSpy (options: ScrollSpyOptions = {}): ScrollSpyReturn {
   // Reverse lookup: Element -> id
   const elementToId = new WeakMap<Element, string>()
 
-  const size = computed(() => elements.size)
+  const size = toRef(() => elements.size)
 
   let observer: IntersectionObserver | null = null
   const intersecting = new Set<Element>()

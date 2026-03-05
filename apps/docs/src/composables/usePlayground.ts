@@ -1,6 +1,9 @@
 // Framework
 import { isObject, isString } from '@vuetify/v0'
 
+// Utilities
+import { toPascal } from '@/utilities/strings'
+
 export interface PlaygroundFile {
   name: string
   code: string
@@ -57,7 +60,7 @@ export function detectEntryFile (files: PlaygroundFile[]): PlaygroundFile | unde
  */
 export function generateAppWrapper (entryPath: string): string {
   const baseName = entryPath.split('/').pop()!.replace(/\.vue$/, '')
-  const pascalName = baseName.split('-').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join('')
+  const pascalName = toPascal(baseName)
   return [
     '<' + `script setup lang="ts">`,
     `  import ${pascalName} from './${entryPath}'`,

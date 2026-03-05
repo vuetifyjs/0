@@ -1,7 +1,7 @@
 <script setup lang="ts">
   // Utilities
   import { useScrollToAnchor } from '@/utilities/scroll'
-  import { shallowRef, useSlots, computed } from 'vue'
+  import { shallowRef, useSlots, toRef } from 'vue'
 
   defineProps<{
     anchorId?: string
@@ -14,7 +14,7 @@
 
   const expanded = shallowRef(false)
 
-  const hasContent = computed(() => !!slots.default)
+  const hasContent = toRef(() => !!slots.default)
 </script>
 
 <template>

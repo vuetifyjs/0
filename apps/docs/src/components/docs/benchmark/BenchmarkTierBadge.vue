@@ -3,14 +3,14 @@
   import { TIER_CONFIG, type Tier } from '@/composables/useBenchmarkData'
 
   // Utilities
-  import { computed } from 'vue'
+  import { toRef } from 'vue'
 
   const props = defineProps<{
     tier: Tier
     size?: 'sm' | 'md'
   }>()
 
-  const config = computed(() => TIER_CONFIG[props.tier])
+  const config = toRef(() => TIER_CONFIG[props.tier])
 </script>
 
 <template>

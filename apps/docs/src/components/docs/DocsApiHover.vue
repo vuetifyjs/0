@@ -24,7 +24,7 @@
 
   // Utilities
   import { toKebab } from '@/utilities/strings'
-  import { computed, onScopeDispose, ref, shallowRef, useTemplateRef } from 'vue'
+  import { computed, onScopeDispose, ref, shallowRef, toRef, useTemplateRef } from 'vue'
   import { useRouter } from 'vue-router'
 
   // Types
@@ -240,21 +240,21 @@
   useDocumentEventListener('mouseleave', onMouseLeave, { capture: true })
 
   // Type-specific computed
-  const componentApi = computed(() =>
+  const componentApi = toRef(() =>
     activeApiType.value === 'component' ? activeApi.value as ComponentApi : null,
   )
 
-  const composableApi = computed(() =>
+  const composableApi = toRef(() =>
     activeApiType.value === 'composable' ? activeApi.value as ComposableApi : null,
   )
 
-  const vueApi = computed(() =>
+  const vueApi = toRef(() =>
     activeApiType.value === 'vue' ? activeApi.value as VueApiEntry : null,
   )
 
-  const displayProps = computed(() => componentApi.value?.props || [])
-  const displayEvents = computed(() => componentApi.value?.events || [])
-  const displaySlots = computed(() => componentApi.value?.slots || [])
+  const displayProps = toRef(() => componentApi.value?.props || [])
+  const displayEvents = toRef(() => componentApi.value?.events || [])
+  const displaySlots = toRef(() => componentApi.value?.slots || [])
 
   // Filter to show only the hovered function (if it exists in the functions list)
   const displayFunctions = computed(() => {
@@ -262,9 +262,9 @@
     const hoveredFn = functions.find(fn => fn.name === displayName.value)
     return hoveredFn ? [hoveredFn] : functions
   })
-  const displayOptions = computed(() => composableApi.value?.options || [])
-  const displayProperties = computed(() => composableApi.value?.properties || [])
-  const displayMethods = computed(() => composableApi.value?.methods || [])
+  const displayOptions = toRef(() => composableApi.value?.options || [])
+  const displayProperties = toRef(() => composableApi.value?.properties || [])
+  const displayMethods = toRef(() => composableApi.value?.methods || [])
 
   const apiLink = computed(() => {
     if (!activeApi.value) return null
@@ -292,7 +292,7 @@
   })
 
   // Whether the link is external (Vue docs) or internal (v0 API page)
-  const isExternalLink = computed(() => activeApiType.value === 'vue')
+  const isExternalLink = toRef(() => activeApiType.value === 'vue')
 
   function navigateToApi () {
     const link = apiLink.value

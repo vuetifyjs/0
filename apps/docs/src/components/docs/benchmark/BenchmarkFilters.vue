@@ -3,7 +3,7 @@
   import { TIER_CONFIG, type Tier } from '@/composables/useBenchmarkData'
 
   // Utilities
-  import { computed } from 'vue'
+  import { toRef } from 'vue'
 
   // Types
   import type { ID } from '@vuetify/v0'
@@ -31,12 +31,12 @@
     { value: 'rme', label: 'Margin' },
   ]
 
-  const hasActiveFilters = computed(() =>
+  const hasActiveFilters = toRef(() =>
     props.searchQuery !== ''
     || props.selectedTiers.size > 0,
   )
 
-  const isFiltered = computed(() => props.totalVisible < props.totalAll)
+  const isFiltered = toRef(() => props.totalVisible < props.totalAll)
 </script>
 
 <template>

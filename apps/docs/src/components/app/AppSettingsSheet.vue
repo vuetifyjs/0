@@ -11,7 +11,7 @@
   import { useSettings } from '@/composables/useSettings'
 
   // Utilities
-  import { computed, onUnmounted, toRef, useTemplateRef, watch } from 'vue'
+  import { onUnmounted, toRef, useTemplateRef, watch } from 'vue'
 
   const auth = useAuthStore()
   const features = useFeatures()
@@ -32,7 +32,7 @@
 
   const initial = toRef(() => auth.user?.name?.charAt(0).toUpperCase() ?? '?')
 
-  const hasChanges = computed(() => settings.hasChanges.value || levelFilter.hasChanges.value)
+  const hasChanges = toRef(() => settings.hasChanges.value || levelFilter.hasChanges.value)
 
   function reset () {
     settings.reset()

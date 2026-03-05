@@ -7,7 +7,8 @@
   import { useSyncedRef } from '@/composables/useSyncedRef'
 
   // Utilities
-  import { computed } from 'vue'
+  import { toCamel, toPascal } from '@/utilities/strings'
+  import { computed, toRef } from 'vue'
   import { useRoute } from 'vue-router'
 
   // Types
@@ -23,7 +24,7 @@
   const helpers = useApiHelpers()
   const showInlineApi = useSyncedRef(settings.showInlineApi)
 
-  const pageType = computed(() => {
+  const pageType = toRef(() => {
     const path = route.path
     if (path.includes('/components/')) return 'component'
     if (path.includes('/composables/')) return 'composable'
@@ -39,8 +40,8 @@
 
     const slug = match[2] ?? ''
     return match[1] === 'components'
-      ? slug.split('-').map(part => part.charAt(0).toUpperCase() + part.slice(1)).join('')
-      : slug.replace(/-([a-z])/g, (_, c) => c.toUpperCase())
+      ? toPascal(slug)
+      : toCamel(slug)
   })
 
   const componentApis = computed(() => {
@@ -59,7 +60,7 @@
       })
   })
 
-  const composableApi = computed(() => {
+  const composableApi = toRef(() => {
     if (pageType.value !== 'composable') return null
 
     const name = itemName.value

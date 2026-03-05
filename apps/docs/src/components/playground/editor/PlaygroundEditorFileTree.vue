@@ -6,7 +6,7 @@
   import { usePlayground } from '../app/PlaygroundApp.vue'
 
   // Utilities
-  import { computed, nextTick, shallowRef, useTemplateRef, watch } from 'vue'
+  import { computed, nextTick, shallowRef, toRef, useTemplateRef, watch } from 'vue'
 
   // Data
   import { REPL_BUILTIN_FILES } from '@/data/playground-defaults'
@@ -14,7 +14,7 @@
   const playground = usePlayground()
   const store = playground.store
   const isReady = playground.isReady
-  const activeFile = computed(() => store.activeFile?.filename)
+  const activeFile = toRef(() => store.activeFile?.filename)
 
   const tree = createNested()
 
@@ -278,18 +278,18 @@
 
   function onKeydown (e: KeyboardEvent, id: string) {
     const nodes = visibleNodes.value
-    const idx = nodes.findIndex(n => n.id === id)
+    const index = nodes.findIndex(n => n.id === id)
 
     switch (e.key) {
       case 'ArrowDown': {
         e.preventDefault()
-        const next = nodes[idx + 1]
+        const next = nodes[index + 1]
         if (next) focusNode(next.id)
         break
       }
       case 'ArrowUp': {
         e.preventDefault()
-        const prev = nodes[idx - 1]
+        const prev = nodes[index - 1]
         if (prev) focusNode(prev.id)
         break
       }
@@ -297,7 +297,7 @@
         e.preventDefault()
         if (!isFile(id)) {
           if (tree.opened(id)) {
-            const first = nodes[idx + 1]
+            const first = nodes[index + 1]
             if (first && tree.hasAncestor(first.id, id)) focusNode(first.id)
           } else {
             tree.open(id)
