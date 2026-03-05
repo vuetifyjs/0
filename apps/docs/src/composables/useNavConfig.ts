@@ -12,7 +12,7 @@ import { useRoute, useRouter } from 'vue-router'
 
 // Types
 import type { NavItem, NavItemLink } from '@/stores/app'
-import type { ComputedRef, MaybeRefOrGetter, ShallowRef } from 'vue'
+import type { ComputedRef, MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
 
 // =============================================================================
 // Constants
@@ -26,7 +26,7 @@ const STORAGE_KEY = 'v0:docs:features'
 
 export interface NavConfigContext {
   /** Flat mode - all sections expanded, no collapse buttons */
-  flatMode: ComputedRef<boolean>
+  flatMode: Readonly<Ref<boolean>>
   /** Active features filter (from URL or sessionStorage) */
   activeFeatures: ShallowRef<string[] | null>
   /** Nav filtered by active features (or original if no filter) */

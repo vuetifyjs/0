@@ -3,7 +3,7 @@
   import { useBenchmarkData } from '@/composables/useBenchmarkData'
 
   // Utilities
-  import { toRef, watch } from 'vue'
+  import { computed, toRef, watch } from 'vue'
 
   const {
     composable,

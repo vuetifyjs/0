@@ -79,7 +79,7 @@ export interface UseSearchReturn {
   /** Recently visited pages from search */
   recents: Readonly<Ref<SavedResult[]>>
   /** Whether there's content to show in empty state (favorites or recents) */
-  hasEmptyStateContent: ComputedRef<boolean>
+  hasEmptyStateContent: Readonly<Ref<boolean>>
   /** Keyboard selection state and controls */
   selection: SearchSelection
   /** Open the search modal */
