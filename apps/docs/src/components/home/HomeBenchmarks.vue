@@ -4,7 +4,7 @@
   import { useCountUp } from '@/composables/useCountUp'
 
   // Utilities
-  import { computed, shallowRef, toRef } from 'vue'
+  import { shallowRef, toRef } from 'vue'
 
   const { composables, summary } = useBenchmarkData()
 
@@ -29,9 +29,7 @@
     slow: '<1K ops/s — performance bottleneck, needs investigation',
   }
 
-  const showcaseComposables = computed(() =>
-    composables.value.slice(0, 6),
-  )
+  const showcaseComposables = toRef(() => composables.value.slice(0, 6))
 </script>
 
 <template>

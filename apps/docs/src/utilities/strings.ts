@@ -23,3 +23,17 @@ export function toPascal (str: string): string {
 export function toCamel (str: string): string {
   return str.replace(/-(\w)/g, (_, c) => c.toUpperCase())
 }
+
+/**
+ * Extract and resolve the item name from a route path.
+ * Components → PascalCase, composables → camelCase.
+ * e.g., "/components/disclosure/expansion-panel" → "ExpansionPanel"
+ * e.g., "/composables/selection/use-selection" → "useSelection"
+ */
+export function resolveItemName (path: string): string | null {
+  const match = path.match(/\/(components|composables)\/[^/]+\/([^/]+)/)
+  if (!match) return null
+
+  const slug = match[2]
+  return match[1] === 'components' ? toPascal(slug) : toCamel(slug)
+}
