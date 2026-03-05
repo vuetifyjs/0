@@ -34,12 +34,7 @@ import App from './App.vue'
 
 const app = createApp(App)
 
-app.use(
-  createNotificationsPlugin({
-    timeout: -1,
-    adapter: myAdapter,
-  })
-)
+app.use(createNotificationsPlugin())
 
 app.mount('#app')
 ```
@@ -66,8 +61,6 @@ Once the plugin is installed, use the `useNotifications` composable in any compo
     notifications.notify({
       subject: 'Build failed',
       severity: 'error',
-      primaryAction: { label: 'View logs', action: () => router.push('/logs') },
-      secondaryAction: { label: 'Dismiss' },
       timeout: -1,
     })
   }
@@ -79,8 +72,6 @@ Once the plugin is installed, use the `useNotifications` composable in any compo
   </button>
 </template>
 ```
-
-> [!ASKAI] When should I use the plugin vs standalone createNotifications?
 
 ## Architecture
 
@@ -105,15 +96,13 @@ flowchart TB
   end
 
   Registry --> Queue
-  Queue --> Core
-  Core --> Plugin
-  Plugin --> Use
+  Queue --> Plugin
+  Plugin --> Core
+  Core --> Use
   Adapter -.->|inbound: notify| Core
   Core -.->|outbound: events| Events
   Events -.-> Adapter
 ```
-
-> [!ASKAI] How does useNotifications differ from createQueue?
 
 ## Reactivity
 
@@ -163,49 +152,9 @@ notifications.clear()      // Remove all from queue
 
 ## Adapters
 
-An adapter is a function that receives a context with `notify`, `on`, and `off`, and optionally returns a cleanup function. No interface to implement — subscribe to the events you need.
-
-```mermaid "Adapter Data Flow"
-sequenceDiagram
-  participant Service as External Service
-  participant Adapter
-  participant Notifications as useNotifications
-
-  Note over Service,Notifications: Inbound (Service → v0)
-  Service->>Adapter: Real-time event
-  Adapter->>Notifications: ctx.notify(input)
-
-  Note over Service,Notifications: Outbound (v0 → Service)
-  Notifications->>Adapter: notification:read event
-  Adapter->>Service: API call (markAsRead)
-```
+Adapters connect external notification services to `useNotifications`. Each adapter handles mapping between the service's SDK and the notification lifecycle. Import adapters from `@vuetify/v0/notifications`.
 
 > [!ASKAI] How do I write a custom adapter for my backend?
-
-```ts
-type NotificationsAdapter = (context: NotificationsAdapterContext) => void | (() => void)
-```
-
-### Adapter Context
-
-| Method | Purpose |
-|--------|---------|
-| `notify(input)` | Push inbound notifications from the service |
-| `on(event, handler)` | Listen for outbound state changes |
-| `off(event, handler)` | Remove event listener |
-
-### Events
-
-| Event | Payload | When |
-|-------|---------|------|
-| `notification:received` | `NotificationTicket` | After `notify()` |
-| `notification:read` | `id` | After `read()` |
-| `notification:unread` | `id` | After `unread()` |
-| `notification:seen` | `id` | After `seen()` |
-| `notification:archived` | `id` | After `archive()` |
-| `notification:unarchived` | `id` | After `unarchive()` |
-| `notification:snoozed` | `id` | After `snooze()` |
-| `notification:unsnoozed` | `id` | After `unsnooze()` |
 
 ### Firebase Cloud Messaging
 
