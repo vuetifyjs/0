@@ -6,6 +6,7 @@ import { IN_BROWSER } from '@vuetify/v0/constants'
 import { useSettings } from '@/composables/useSettings'
 
 // Utilities
+import { toCamel } from '@/utilities/strings'
 import { computed, shallowRef, toValue, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -43,21 +44,13 @@ export { useNavConfigContext }
 // =============================================================================
 
 /**
- * Convert kebab-case path segment to camelCase feature name
- * e.g., "create-context" -> "createContext"
- */
-function kebabToCamel (str: string): string {
-  return str.replace(/-([a-z])/g, (_, c) => c.toUpperCase())
-}
-
-/**
  * Extract feature name from nav item path
  * e.g., "/composables/foundation/create-context" -> "createContext"
  */
 function getFeatureName (to: string): string {
   const segments = to.split('/').filter(Boolean)
   const lastSegment = segments.at(-1) || ''
-  return kebabToCamel(lastSegment)
+  return toCamel(lastSegment)
 }
 
 /**

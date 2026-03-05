@@ -77,7 +77,7 @@
     search.dismiss(id)
   }
 
-  function handleRemove (e: Event, id: string) {
+  function onRemove (e: Event, id: string) {
     e.stopPropagation()
     search.remove(id)
   }
@@ -271,9 +271,9 @@
                     role="button"
                     tabindex="0"
                     title="Remove from favorites"
-                    @click="handleRemove($event, result.id)"
-                    @keydown.enter.stop="handleRemove($event, result.id)"
-                    @keydown.space.stop.prevent="handleRemove($event, result.id)"
+                    @click="onRemove($event, result.id)"
+                    @keydown.enter.stop="onRemove($event, result.id)"
+                    @keydown.space.stop.prevent="onRemove($event, result.id)"
                   >
                     <AppIcon aria-hidden="true" icon="close" size="16" />
                   </span>
@@ -339,9 +339,9 @@
                       role="button"
                       tabindex="0"
                       title="Remove from recent"
-                      @click="handleRemove($event, result.id)"
-                      @keydown.enter.stop="handleRemove($event, result.id)"
-                      @keydown.space.stop.prevent="handleRemove($event, result.id)"
+                      @click="onRemove($event, result.id)"
+                      @keydown.enter.stop="onRemove($event, result.id)"
+                      @keydown.space.stop.prevent="onRemove($event, result.id)"
                     >
                       <AppIcon aria-hidden="true" icon="close" size="16" />
                     </span>

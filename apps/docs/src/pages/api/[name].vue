@@ -6,7 +6,8 @@
   import { useParams } from '@/composables/useRoute'
 
   // Utilities
-  import { computed } from 'vue'
+  import { toCamel, toPascal } from '@/utilities/strings'
+  import { computed, toRef } from 'vue'
 
   // Types
   import type { ApiData, ComponentApi, ComposableApi } from '@build/generate-api'
@@ -21,14 +22,14 @@
 
     // Convert slug to PascalCase for component prefix matching
     // e.g., "popover" → "Popover", "expansion-panel" → "ExpansionPanel"
-    const pascalName = slug.split('-').map(p => p.charAt(0).toUpperCase() + p.slice(1)).join('')
+    const pascalName = toPascal(slug)
 
     // Check if any component starts with this prefix (e.g., "Popover.Root", "Popover.Content")
     const hasComponentPrefix = Object.keys(data.components).some(name => name.startsWith(`${pascalName}.`) || name === pascalName)
     if (hasComponentPrefix) return pascalName
 
     // Check composables with camelCase name
-    const camelName = slug.replace(/-([a-z])/g, (_, c) => c.toUpperCase())
+    const camelName = toCamel(slug)
     if (camelName in data.composables) return camelName
 
     return null
@@ -38,7 +39,7 @@
     if (!itemName.value) return false
     return Object.keys(data.components).some(name => name.startsWith(`${itemName.value}.`) || name === itemName.value)
   })
-  const isComposable = computed(() => itemName.value && itemName.value in data.composables)
+  const isComposable = toRef(() => itemName.value && itemName.value in data.composables)
 
   const componentApis = computed<ComponentApi[]>(() => {
     if (!isComponent.value || !itemName.value) return []

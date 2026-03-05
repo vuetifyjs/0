@@ -14,6 +14,7 @@ import { IN_BROWSER, useDocumentEventListener } from '@vuetify/v0'
 import { useSettings } from './useSettings'
 
 // Utilities
+import { toCamel, toPascal } from '@/utilities/strings'
 import { readonly, shallowRef } from 'vue'
 import { useRoute } from 'vue-router'
 
@@ -180,7 +181,7 @@ function getApiForPage (path: string, apiData: ApiData): ApiContext[] | undefine
 
   if (path.includes('/components/')) {
     // Convert slug to PascalCase prefix: step -> Step
-    const prefix = slug.split('-').map(p => p.charAt(0).toUpperCase() + p.slice(1)).join('')
+    const prefix = toPascal(slug)
 
     const apis = Object.entries(apiData.components)
       .filter(([name]) => name.startsWith(prefix))
@@ -197,7 +198,7 @@ function getApiForPage (path: string, apiData: ApiData): ApiContext[] | undefine
 
   if (path.includes('/composables/')) {
     // Convert slug to camelCase: use-selection -> useSelection
-    const camelName = slug.replace(/-([a-z])/g, (_, c) => c.toUpperCase())
+    const camelName = toCamel(slug)
 
     const api = apiData.composables[camelName]
     if (api) {

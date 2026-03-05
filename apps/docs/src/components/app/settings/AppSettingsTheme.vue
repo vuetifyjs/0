@@ -89,7 +89,7 @@
     }
   }
 
-  function handleSave (themeData: CustomTheme) {
+  function onSave (themeData: CustomTheme) {
     // Clear inline preview styles before applying saved theme
     themes_.clearPreview()
 
@@ -118,7 +118,7 @@
     editingTheme.value = null
   }
 
-  function handleCancel () {
+  function onCancel () {
     // Clear inline preview styles and restore previous theme
     themes_.clearPreview()
     toggle.setPreference(previousPreference.value)
@@ -126,7 +126,7 @@
     editingTheme.value = null
   }
 
-  function handleDelete (id: string) {
+  function onDelete (id: string) {
     // Clear inline preview styles
     themes_.clearPreview()
     themes_.remove(id)
@@ -143,9 +143,9 @@
     <AppSettingsThemeEditor
       v-if="editingTheme"
       :theme="editingTheme"
-      @cancel="handleCancel"
-      @delete="handleDelete"
-      @save="handleSave"
+      @cancel="onCancel"
+      @delete="onDelete"
+      @save="onSave"
     />
 
     <!-- Selector Mode -->

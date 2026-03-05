@@ -8,6 +8,8 @@ import { defineStore } from 'pinia'
 // Types
 import type { components as octokitComponents } from '@octokit/openapi-types'
 
+import { CACHE_TTL } from '@/constants/cache'
+
 type GitHubMilestone = octokitComponents['schemas']['milestone']
 type GitHubIssue = octokitComponents['schemas']['issue']
 
@@ -28,7 +30,6 @@ interface State {
 const GITHUB_API = 'https://api.github.com'
 const REPO = 'vuetifyjs/0'
 
-const CACHE_TTL = import.meta.env.DEV ? 30 * 1000 : 5 * 60 * 1000 // 30s dev, 5min prod
 const storage = createStorage({ prefix: 'v0-roadmap:', ttl: CACHE_TTL })
 const logger = useLogger()
 

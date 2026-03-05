@@ -68,7 +68,7 @@
     return { as: 'a' as const, href: feature.to, target: '_blank', rel: 'noopener' }
   }
 
-  function handleClick (feature: typeof features[number], e: Event) {
+  function onClick (feature: typeof features[number], e: Event) {
     if (feature.action === 'settings') {
       e.preventDefault()
       router.push('/introduction/why-vuetify0').then(() => {
@@ -98,7 +98,7 @@
         :key="feature.title"
         v-bind="getCardProps(feature)"
         class="p-6 rounded-xl border bg-surface hover:border-primary hover:bg-surface-tint hover:shadow-md transition-all duration-150 group text-left"
-        @click="handleClick(feature, $event)"
+        @click="onClick(feature, $event)"
       >
         <div class="flex items-center gap-3 mb-3">
           <div class="w-10 h-10 shrink-0 rounded-lg bg-primary flex items-center justify-center text-on-primary">

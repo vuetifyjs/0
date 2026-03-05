@@ -8,6 +8,8 @@ import { defineStore } from 'pinia'
 // Types
 import type { components as octokitComponents } from '@octokit/openapi-types'
 
+import { CACHE_TTL } from '@/constants/cache'
+
 type GitHubRelease = octokitComponents['schemas']['release']
 
 export interface Release extends GitHubRelease {
@@ -25,7 +27,6 @@ interface State {
 }
 
 const url = import.meta.env.VITE_API_SERVER_URL || 'https://api.vuetifyjs.com'
-const CACHE_TTL = import.meta.env.DEV ? 30 * 1000 : 5 * 60 * 1000 // 30s dev, 5min prod
 const storage = createStorage({ prefix: 'v0-releases:', ttl: CACHE_TTL })
 const logger = useLogger()
 

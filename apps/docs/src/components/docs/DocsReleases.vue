@@ -78,7 +78,7 @@
 
   marked.use(markedEmoji({ emojis, renderer: token => token.emoji }))
 
-  const tag = computed(() => route.query.version as string | undefined)
+  const tag = toRef(() => route.query.version as string | undefined)
 
   const publishedOn = computed(() => {
     if (!model.value?.published_at) return undefined

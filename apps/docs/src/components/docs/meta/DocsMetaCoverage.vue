@@ -3,7 +3,7 @@
   import { usePageMetaOptional, type CoverageConfig } from '@/composables/usePageMeta'
 
   // Utilities
-  import { computed } from 'vue'
+  import { toRef } from 'vue'
 
   const props = defineProps<{
     coverage?: CoverageConfig | null
@@ -13,8 +13,8 @@
 
   const pageMeta = usePageMetaOptional()
 
-  const resolvedCoverage = computed(() => props.coverage ?? pageMeta?.coverage.value ?? null)
-  const resolvedHref = computed(() => props.href ?? pageMeta?.testFileLink.value ?? null)
+  const resolvedCoverage = toRef(() => props.coverage ?? pageMeta?.coverage.value ?? null)
+  const resolvedHref = toRef(() => props.href ?? pageMeta?.testFileLink.value ?? null)
 </script>
 
 <template>

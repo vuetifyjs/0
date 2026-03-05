@@ -8,7 +8,7 @@
   import { usePlayground } from './PlaygroundApp.vue'
 
   // Utilities
-  import { computed } from 'vue'
+  import { toRef } from 'vue'
   import { RouterLink, useRouter } from 'vue-router'
 
   const router = useRouter()
@@ -49,7 +49,7 @@
     }
   }
 
-  const backTo = computed(() =>
+  const backTo = toRef(() =>
     router.currentRoute.value.redirectedFrom?.fullPath
     ?? (IN_BROWSER ? window.history.state?.back : null)
     ?? '/',

@@ -13,7 +13,7 @@
   import { useSettings } from '@/composables/useSettings'
 
   // Utilities
-  import { computed } from 'vue'
+  import { computed, toRef } from 'vue'
   import { useRouter } from 'vue-router'
 
   // Stores
@@ -56,7 +56,7 @@
     return found
   })
 
-  const config = computed(() => getCalloutConfig(props.type))
+  const config = toRef(() => getCalloutConfig(props.type))
 
   function decodeQuestion (encoded: string): string {
     return decodeURIComponent(escape(atob(encoded)))

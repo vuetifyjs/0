@@ -6,7 +6,7 @@
   import { useSettings, type PackageManager } from '@/composables/useSettings'
 
   // Utilities
-  import { cloneVNode, computed, toValue, useId, useSlots, type VNode, watch } from 'vue'
+  import { cloneVNode, computed, toRef, toValue, useId, useSlots, type VNode, watch } from 'vue'
 
   const props = defineProps<{
     noFilename?: boolean
@@ -53,7 +53,7 @@
     }
   }, { immediate: true })
 
-  const selectedId = computed(() => toValue(single.selectedId))
+  const selectedId = toRef(() => toValue(single.selectedId))
 
   function onKeydown (event: KeyboardEvent) {
     const tabs = Array.from(proxy.values)

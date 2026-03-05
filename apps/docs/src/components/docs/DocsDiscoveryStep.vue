@@ -30,7 +30,7 @@
   import { useDiscovery } from '@/composables/useDiscovery'
 
   // Utilities
-  import { computed, onBeforeUnmount, useAttrs, useTemplateRef, watch } from 'vue'
+  import { onBeforeUnmount, toRef, useAttrs, useTemplateRef, watch } from 'vue'
 
   // Types
   import { SKILL_LEVEL_META } from '@/types/skill'
@@ -51,13 +51,13 @@
   const attrs = useAttrs()
   const discovery = useDiscovery()
 
-  const levelMeta = computed(() => {
+  const levelMeta = toRef(() => {
     // const tour = discovery.tours.selected.value
     // if (!tour) return null
     return SKILL_LEVEL_META[discovery.tours.selectedItem.value?.level || '']
   })
 
-  const isLastStep = computed(() => {
+  const isLastStep = toRef(() => {
     const index = discovery.steps.selectedIndex.value
     const total = discovery.steps.values().length
     return index === total - 1 && discovery.selectedId.value === props.step
@@ -73,7 +73,7 @@
     clearTimeout(burstTimeout)
   })
 
-  const offsetStyle = computed(() => {
+  const offsetStyle = toRef(() => {
     if (!props.offset) return undefined
     const [x, y] = props.offset
     return { transform: `translate(${x}px, ${y}px)` }

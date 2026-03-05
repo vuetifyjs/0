@@ -33,7 +33,7 @@
   } = useBenchmarkData({ composable: () => composable })
 
   // Default expand behavior: expand all when not collapsed
-  const shouldCollapse = computed(() => collapsed ?? !!composable)
+  const shouldCollapse = toRef(() => collapsed ?? !!composable)
 
   // Auto-expand groups when search is active
   watch(toRef(() => filter.query.value), query => {

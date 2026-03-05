@@ -6,11 +6,11 @@
   import { usePlayground } from '../app/PlaygroundApp.vue'
 
   // Utilities
-  import { computed } from 'vue'
+  import { toRef } from 'vue'
 
   const { store } = usePlayground()
 
-  const segments = computed(() => {
+  const segments = toRef(() => {
     return store.activeFile?.filename?.split('/') ?? []
   })
 </script>

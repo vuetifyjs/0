@@ -26,8 +26,8 @@
   useRouterLinks(mainRef)
 
   // Extract page metadata from frontmatter
-  const pageTitle = computed(() => page.value?.frontmatter?.title as string | undefined)
-  const pageMeta = computed(() => page.value?.frontmatter?.meta as Array<{ name?: string, content?: string }> | undefined)
+  const pageTitle = toRef(() => page.value?.frontmatter?.title as string | undefined)
+  const pageMeta = toRef(() => page.value?.frontmatter?.meta as Array<{ name?: string, content?: string }> | undefined)
   const pageDescription = computed(() => pageMeta.value?.find(m => m.name === 'description')?.content)
 
   // Set page-level meta from frontmatter (reactive)
