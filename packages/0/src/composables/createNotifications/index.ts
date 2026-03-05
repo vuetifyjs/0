@@ -29,18 +29,11 @@ import type { ID } from '#v0/types'
 
 export type NotificationSeverity = 'info' | 'warning' | 'error' | 'success'
 
-export interface NotificationAction {
-  label: string
-  action?: () => void
-}
-
 export interface NotificationInput extends QueueTicketInput {
   subject?: string
   body?: string
   severity?: NotificationSeverity
   data?: Record<string, unknown>
-  primaryAction?: NotificationAction
-  secondaryAction?: NotificationAction
 }
 
 export interface NotificationTicket extends QueueTicket<NotificationInput> {
