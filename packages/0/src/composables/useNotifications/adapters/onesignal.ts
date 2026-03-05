@@ -2,15 +2,15 @@
  * @module OneSignalNotificationsAdapter
  *
  * @remarks
- * OneSignal adapter for createNotifications.
+ * OneSignal adapter for useNotifications.
  * Push-only (inbound): maps foreground notification events to ctx.notify().
  * Does not sync outbound state back to OneSignal.
  *
  * @example
  * ```ts
  * import OneSignal from 'react-onesignal' // or window.OneSignalDeferred
- * import { createNotifications } from '#v0/composables/createNotifications'
- * import { createOneSignalAdapter } from '#v0/composables/createNotifications/adapters/onesignal'
+ * import { createNotifications } from '#v0/composables/useNotifications'
+ * import { createOneSignalAdapter } from '#v0/composables/useNotifications/adapters/onesignal'
  *
  * const notifications = createNotifications({
  *   adapter: createOneSignalAdapter(OneSignal),

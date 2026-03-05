@@ -2,14 +2,14 @@
  * @module FcmNotificationsAdapter
  *
  * @remarks
- * Firebase Cloud Messaging adapter for createNotifications.
+ * Firebase Cloud Messaging adapter for useNotifications.
  * Maps incoming FCM foreground messages to notification tickets
  * via the adapter context's `notify()` method.
  *
  * @example
  * ```ts
  * import { getMessaging } from 'firebase/messaging'
- * import { createFcmAdapter } from '#v0/composables/createNotifications/adapters/fcm'
+ * import { createFcmAdapter } from '#v0/composables/useNotifications/adapters/fcm'
  *
  * const notifications = createNotifications({
  *   adapter: createFcmAdapter(getMessaging(firebaseApp)),

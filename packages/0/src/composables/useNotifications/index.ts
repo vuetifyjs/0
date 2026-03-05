@@ -1,5 +1,5 @@
 /**
- * @module createNotifications
+ * @module useNotifications
  *
  * @remarks
  * Notification management composable built on createQueue.
