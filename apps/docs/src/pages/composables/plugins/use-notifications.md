@@ -209,43 +209,35 @@ type NotificationsAdapter = (context: NotificationsAdapterContext) => void | (()
 
 ### Firebase Cloud Messaging
 
-[Firebase Cloud Messaging (FCM)](https://firebase.google.com/docs/cloud-messaging) is Google's cross-platform messaging service. Follow the [web setup guide](https://firebase.google.com/docs/cloud-messaging/js/client) to configure your Firebase project and service worker. FCM handles push delivery — the adapter maps inbound messages.
+[Firebase Cloud Messaging (FCM)](https://firebase.google.com/docs/cloud-messaging) is Google's cross-platform messaging service. Follow the [web setup guide](https://firebase.google.com/docs/cloud-messaging/js/client) to configure your Firebase project and service worker.
 
 ::: code-group
 
-```ts src/plugins/firebase.ts
-import type { NotificationsAdapter } from '@vuetify/v0'
-import { getMessaging, onMessage } from 'firebase/messaging'
-import { firebaseApp } from './firebase'
+```ts src/firebase.ts
+import { initializeApp } from 'firebase/app'
 
-export const fcmAdapter: NotificationsAdapter = (ctx) => {
-  const messaging = getMessaging(firebaseApp)
-
-  const unsubscribe = onMessage(messaging, payload => {
-    ctx.notify({
-      id: payload.messageId,
-      subject: payload.notification?.title,
-      body: payload.notification?.body,
-      data: payload.data,
-      severity: 'info',
-    })
-  })
-
-  return unsubscribe
-}
+export const firebaseApp = initializeApp({
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+})
 ```
 
 ```ts src/main.ts
 import { createApp } from 'vue'
 import { createNotificationsPlugin } from '@vuetify/v0'
-import { fcmAdapter } from './plugins/firebase'
+import { createFcmAdapter } from '@vuetify/v0/notifications'
+import { getMessaging } from 'firebase/messaging'
+import { firebaseApp } from './firebase'
 import App from './App.vue'
 
 const app = createApp(App)
 
 app.use(
   createNotificationsPlugin({
-    adapter: fcmAdapter,
+    adapter: createFcmAdapter(getMessaging(firebaseApp)),
   })
 )
 
@@ -256,39 +248,32 @@ app.mount('#app')
 
 ### OneSignal
 
-[OneSignal](https://onesignal.com) specializes in push notifications across web, mobile, and email. Their [Web SDK](https://documentation.onesignal.com/docs/web-sdk-setup) handles service worker registration and permission prompts. OneSignal is push-only (no in-app feed), so the adapter is inbound-only.
+[OneSignal](https://onesignal.com) specializes in push notifications across web, mobile, and email. Their [Web SDK](https://documentation.onesignal.com/docs/web-sdk-setup) handles service worker registration and permission prompts. Inbound-only — maps foreground push events to notifications.
 
 ::: code-group
 
-```ts src/plugins/onesignal.ts
-import type { NotificationsAdapter } from '@vuetify/v0'
+```ts src/onesignal.ts
 import OneSignal from '@onesignal/web-sdk'
 
-export const onesignalAdapter: NotificationsAdapter = (ctx) => {
-  OneSignal.Notifications.addEventListener('foregroundWillDisplay', event => {
-    const { notification } = event
-    ctx.notify({
-      id: notification.notificationId,
-      subject: notification.title,
-      body: notification.body,
-      data: notification.additionalData,
-      severity: 'info',
-    })
-  })
-}
+await OneSignal.init({
+  appId: import.meta.env.VITE_ONESIGNAL_APP_ID,
+})
+
+export { OneSignal }
 ```
 
 ```ts src/main.ts
 import { createApp } from 'vue'
 import { createNotificationsPlugin } from '@vuetify/v0'
-import { onesignalAdapter } from './plugins/onesignal'
+import { createOneSignalAdapter } from '@vuetify/v0/notifications'
+import { OneSignal } from './onesignal'
 import App from './App.vue'
 
 const app = createApp(App)
 
 app.use(
   createNotificationsPlugin({
-    adapter: onesignalAdapter,
+    adapter: createOneSignalAdapter(OneSignal),
   })
 )
 
@@ -299,51 +284,33 @@ app.mount('#app')
 
 ### Knock
 
-[Knock](https://knock.app) is a notification infrastructure platform with feeds, preferences, and multi-channel delivery. Install their [JavaScript SDK](https://docs.knock.app/sdks/javascript/overview) to get started.
+[Knock](https://knock.app) is a notification infrastructure platform with feeds, preferences, and multi-channel delivery. Install their [JavaScript SDK](https://docs.knock.app/sdks/javascript/overview) to get started. Supports both inbound (feed → notifications) and outbound (read/archive → Knock API).
 
 ::: code-group
 
-```ts src/plugins/knock.ts
-import type { NotificationsAdapter } from '@vuetify/v0'
+```ts src/knock.ts
 import Knock from '@knocklabs/client'
 
-const knock = new Knock(import.meta.env.VITE_KNOCK_PUBLIC_KEY)
+export const knock = new Knock(import.meta.env.VITE_KNOCK_PUBLIC_KEY)
 knock.authenticate(userId)
 
-export const knockAdapter: NotificationsAdapter = (ctx) => {
-  const feed = knock.feeds.initialize(feedId)
-
-  // Inbound: Knock -> v0
-  feed.on('items.received.realtime', ({ items }) => {
-    for (const item of items) {
-      ctx.notify({
-        id: item.id,
-        subject: item.blocks[0]?.rendered,
-        data: item.data,
-        severity: 'info',
-      })
-    }
-  })
-
-  // Outbound: v0 -> Knock
-  ctx.on('notification:read', id => feed.markAsRead(id))
-  ctx.on('notification:archived', id => feed.markAsArchived(id))
-
-  return () => feed.teardown()
-}
+export const feed = knock.feeds.initialize(
+  import.meta.env.VITE_KNOCK_FEED_CHANNEL_ID
+)
 ```
 
 ```ts src/main.ts
 import { createApp } from 'vue'
 import { createNotificationsPlugin } from '@vuetify/v0'
-import { knockAdapter } from './plugins/knock'
+import { createKnockAdapter } from '@vuetify/v0/notifications'
+import { feed } from './knock'
 import App from './App.vue'
 
 const app = createApp(App)
 
 app.use(
   createNotificationsPlugin({
-    adapter: knockAdapter,
+    adapter: createKnockAdapter(feed),
   })
 )
 
