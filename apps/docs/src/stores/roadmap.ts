@@ -1,6 +1,6 @@
 // Vuetify0
 // Framework
-import { createStorage, useLogger } from '@vuetify/v0'
+import { createStorage, isArray, useLogger } from '@vuetify/v0'
 
 // Utilities
 import { defineStore } from 'pinia'
@@ -93,7 +93,7 @@ export const useRoadmapStore = defineStore('roadmap', {
 
       // Check cache first
       const cached = storage.get<Milestone[] | null>('milestones', null)
-      if (cached.value) {
+      if (isArray(cached.value)) {
         this.milestones = cached.value
         return
       }
@@ -116,10 +116,13 @@ export const useRoadmapStore = defineStore('roadmap', {
           throw new Error(`HTTP ${openRes.status || closedRes.status}`)
         }
 
-        const [openMilestones, closedMilestones]: [GitHubMilestone[], GitHubMilestone[]] = await Promise.all([
+        const [openData, closedData] = await Promise.all([
           openRes.json(),
           closedRes.json(),
         ])
+
+        const openMilestones: GitHubMilestone[] = isArray(openData) ? openData : []
+        const closedMilestones: GitHubMilestone[] = isArray(closedData) ? closedData : []
 
         this.milestones = [
           ...assignHorizons(openMilestones),
@@ -142,7 +145,7 @@ export const useRoadmapStore = defineStore('roadmap', {
       // Check cache
       const cacheKey = `issues-${milestoneNumber}`
       const cached = storage.get<GitHubIssue[] | null>(cacheKey, null)
-      if (cached.value) {
+      if (isArray(cached.value)) {
         milestone.issues = cached.value
         return
       }
@@ -163,7 +166,8 @@ export const useRoadmapStore = defineStore('roadmap', {
           throw new Error(`HTTP ${res.status}`)
         }
 
-        milestone.issues = await res.json()
+        const data = await res.json()
+        milestone.issues = isArray(data) ? data : []
 
         storage.set(cacheKey, milestone.issues)
       } catch (error: unknown) {
