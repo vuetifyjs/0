@@ -37,6 +37,7 @@
       "./features/adapters/flagsmith": "./dist/features/adapters/flagsmith/index.mjs",
       "./features/adapters/launchdarkly": "./dist/features/adapters/launchdarkly/index.mjs",
       "./features/adapters/posthog": "./dist/features/adapters/posthog/index.mjs",
+      "./notifications": "./dist/notifications/index.mjs",
       "./locale": "./dist/locale/index.mjs",
       "./locale/adapters": "./dist/locale/adapters/index.mjs",
       "./locale/adapters/v0": "./dist/locale/adapters/v0/index.mjs",
@@ -151,6 +152,10 @@
     "./features/adapters/posthog": {
       "development": "./src/features/adapters/posthog/index.ts",
       "default": "./dist/features/adapters/posthog/index.mjs"
+    },
+    "./notifications": {
+      "development": "./src/notifications/index.ts",
+      "default": "./dist/notifications/index.mjs"
     },
     "./locale": {
       "development": "./src/locale/index.ts",
