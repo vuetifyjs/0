@@ -20,9 +20,10 @@ describe('createNotifications', () => {
       withScope(() => {
         const notifications = createNotifications()
         expect(notifications.items.value).toEqual([])
-        expect(notifications.total.value).toBe(0)
-        expect(notifications.unreadCount.value).toBe(0)
-        expect(notifications.unseenCount.value).toBe(0)
+        expect(notifications.items.value!.length).toBe(0)
+        expect(notifications.unreadItems.value).toEqual([])
+        expect(notifications.archivedItems.value).toEqual([])
+        expect(notifications.snoozedItems.value).toEqual([])
       })
     })
 
@@ -42,7 +43,7 @@ describe('createNotifications', () => {
         expect(ticket.archivedAt).toBeNull()
         expect(ticket.snoozedUntil).toBeNull()
         expect(notifications.items.value).toHaveLength(1)
-        expect(notifications.total.value).toBe(1)
+        expect(notifications.items.value!.length).toBe(1)
       })
     })
 
@@ -71,11 +72,11 @@ describe('createNotifications', () => {
 
         notifications.read(ticket.id)
         expect(notifications.get(ticket.id)?.readAt).toBeInstanceOf(Date)
-        expect(notifications.unreadCount.value).toBe(0)
+        expect(notifications.unreadItems.value).toHaveLength(0)
 
         notifications.unread(ticket.id)
         expect(notifications.get(ticket.id)?.readAt).toBeNull()
-        expect(notifications.unreadCount.value).toBe(1)
+        expect(notifications.unreadItems.value).toHaveLength(1)
       })
     })
 
@@ -83,11 +84,10 @@ describe('createNotifications', () => {
       withScope(() => {
         const notifications = createNotifications()
         const ticket = notifications.notify({ subject: 'Test' })
-        expect(notifications.unseenCount.value).toBe(1)
+        expect(notifications.get(ticket.id)?.seenAt).toBeNull()
 
         notifications.seen(ticket.id)
         expect(notifications.get(ticket.id)?.seenAt).toBeInstanceOf(Date)
-        expect(notifications.unseenCount.value).toBe(0)
       })
     })
 
@@ -124,10 +124,10 @@ describe('createNotifications', () => {
         notifications.notify({ subject: 'A' })
         notifications.notify({ subject: 'B' })
         notifications.notify({ subject: 'C' })
-        expect(notifications.unreadCount.value).toBe(3)
+        expect(notifications.unreadItems.value).toHaveLength(3)
 
         notifications.readAll()
-        expect(notifications.unreadCount.value).toBe(0)
+        expect(notifications.unreadItems.value).toHaveLength(0)
       })
     })
 
@@ -148,10 +148,10 @@ describe('createNotifications', () => {
       withScope(() => {
         const notifications = createNotifications()
         const ticket = notifications.notify({ subject: 'Test' })
-        expect(notifications.total.value).toBe(1)
+        expect(notifications.items.value!.length).toBe(1)
 
         ticket.dismiss()
-        expect(notifications.total.value).toBe(0)
+        expect(notifications.items.value!.length).toBe(0)
       })
     })
 
