@@ -68,15 +68,15 @@
 
       <div class="flex flex-wrap gap-1.5">
         <span
-          v-for="item of model.selectedValues.value"
-          :key="String(item)"
+          v-for="item of model.selectedItems.value"
+          :key="item.id"
           class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-surface-tint text-xs font-medium text-on-surface"
         >
           <span
             class="size-3 rounded-full"
-            :style="{ backgroundColor: hsl(item as number) }"
+            :style="{ backgroundColor: hsl(toValue(item.value) as number) }"
           />
-          {{ item }}°
+          {{ toValue(item.value) }}°
         </span>
         <span
           v-if="model.selectedIds.size === 0"
@@ -87,7 +87,7 @@
       </div>
 
       <!-- Raw output -->
-      <pre class="rounded-lg border border-divider bg-surface-variant/30 px-3 py-2 text-xs font-mono text-on-surface-variant">{{ JSON.stringify([...model.selectedValues.value], null, 2) }}</pre>
+      <pre class="rounded-lg border border-divider bg-surface-variant/30 px-3 py-2 text-xs font-mono text-on-surface-variant">{{ JSON.stringify([...model.selectedItems.value].map(i => toValue(i.value)), null, 2) }}</pre>
     </div>
   </div>
 </template>
