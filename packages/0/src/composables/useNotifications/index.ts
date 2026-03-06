@@ -82,9 +82,9 @@ export interface NotificationsContext extends Omit<
   archiveAll: () => void
 
   items: ReturnType<typeof shallowRef<NotificationTicket[]>>
-  unreadCount: ReturnType<typeof computed<number>>
-  unseenCount: ReturnType<typeof computed<number>>
-  total: ReturnType<typeof computed<number>>
+  unreadItems: ReturnType<typeof computed<NotificationTicket[]>>
+  archivedItems: ReturnType<typeof computed<NotificationTicket[]>>
+  snoozedItems: ReturnType<typeof computed<NotificationTicket[]>>
 }
 
 export function createNotifications (
@@ -194,9 +194,9 @@ export function createNotifications (
     sync()
   }
 
-  const unreadCount = computed(() => items.value.filter(t => !t.readAt).length)
-  const unseenCount = computed(() => items.value.filter(t => !t.seenAt).length)
-  const total = computed(() => items.value.length)
+  const unreadItems = computed(() => items.value.filter(t => !t.readAt))
+  const archivedItems = computed(() => items.value.filter(t => !!t.archivedAt))
+  const snoozedItems = computed(() => items.value.filter(t => !!t.snoozedUntil))
 
   let cleanup: (() => void) | undefined
 
@@ -230,9 +230,9 @@ export function createNotifications (
     readAll,
     archiveAll,
     items,
-    unreadCount,
-    unseenCount,
-    total,
+    unreadItems,
+    archivedItems,
+    snoozedItems,
     dispose,
   } as unknown as NotificationsContext
 }

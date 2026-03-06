@@ -109,9 +109,9 @@ flowchart TB
 | Property | Type | Description |
 |----------|------|-------------|
 | `items` | `ShallowRef<NotificationTicket[]>` | All active notifications |
-| `unreadCount` | `ComputedRef<number>` | Notifications without `readAt` |
-| `unseenCount` | `ComputedRef<number>` | Notifications without `seenAt` |
-| `total` | `ComputedRef<number>` | Total active notification count |
+| `unreadItems` | `ComputedRef<NotificationTicket[]>` | Notifications without `readAt` |
+| `archivedItems` | `ComputedRef<NotificationTicket[]>` | Notifications with `archivedAt` |
+| `snoozedItems` | `ComputedRef<NotificationTicket[]>` | Notifications with `snoozedUntil` |
 
 ## State Mutations
 
