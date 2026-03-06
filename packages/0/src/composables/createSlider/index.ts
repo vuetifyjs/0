@@ -5,17 +5,24 @@
  * Composable for managing slider state: value math, step snapping,
  * percentage conversion, and multi-thumb value operations.
  *
+ * Extends createModel for useProxyModel compatibility:
+ * - createRegistry → createModel → createSlider (values override)
+ *
  * Designed for single-thumb, range, and multi-thumb sliders.
  * Also reusable for color picker tracks, media scrubbers,
  * gradient editors, and other 1D value-on-track controls.
  */
 
+// Composables
+import { createModel } from '#v0/composables/createModel'
+
 // Utilities
 import { clamp } from '#v0/utilities'
-import { ref, toRef, toValue } from 'vue'
+import { computed, ref, toRef, toValue } from 'vue'
 
 // Types
-import type { MaybeRefOrGetter, Ref } from 'vue'
+import type { ModelContext } from '#v0/composables/createModel'
+import type { ComputedRef, MaybeRefOrGetter, Ref } from 'vue'
 
 export interface SliderOptions {
   /** Minimum value (default: 0) */
@@ -38,9 +45,26 @@ export interface SliderOptions {
   crossover?: boolean
 }
 
-export interface SliderContext {
+export interface SliderContext extends Omit<
+  ModelContext,
+  'values' | 'selectedValues' | 'apply' | 'multiple' | 'disabled'
+> {
   /** All thumb values */
   values: Ref<number[]>
+  /** Selected values for useProxyModel compatibility */
+  selectedValues: ComputedRef<number[]>
+  /** Always true — slider operates in array mode */
+  readonly multiple: true
+  /** Apply external values to the slider */
+  apply: (values: unknown[], options?: { multiple?: boolean }) => void
+  /** Whether disabled */
+  disabled: Ref<boolean>
+  /** Whether readonly */
+  readonly: Ref<boolean>
+  /** Orientation */
+  orientation: Ref<'horizontal' | 'vertical'>
+  /** Whether inverted */
+  inverted: Ref<boolean>
   /** Minimum value */
   readonly min: number
   /** Maximum value */
@@ -51,14 +75,6 @@ export interface SliderContext {
   readonly minStepsBetweenThumbs: number
   /** Whether thumbs can pass through each other */
   readonly crossover: boolean
-  /** Whether disabled */
-  disabled: Ref<boolean>
-  /** Whether readonly */
-  readonly: Ref<boolean>
-  /** Orientation */
-  orientation: Ref<'horizontal' | 'vertical'>
-  /** Whether inverted */
-  inverted: Ref<boolean>
   /** Round value to nearest step, clamped to min/max */
   snap: (value: number) => number
   /** Convert value to 0-100 percentage (respects inverted) */
@@ -79,6 +95,10 @@ export interface SliderContext {
 
 /**
  * Creates slider state with value math, step snapping, and multi-thumb support.
+ *
+ * Extends createModel for useProxyModel compatibility. The model's registry and
+ * event system are available; slider overrides selectedValues and apply with
+ * ordered array semantics.
  *
  * @param options Slider configuration.
  * @returns Slider context with values, math functions, and thumb operations.
@@ -104,7 +124,12 @@ export function createSlider (options: SliderOptions = {}): SliderContext {
     crossover = false,
   } = options
 
+  const model = createModel({
+    disabled: disabledProp,
+  })
+
   const values = ref<number[]>([])
+  const selectedValues = computed(() => values.value)
   const disabled = toRef(() => toValue(disabledProp))
   const readonly = toRef(() => toValue(readonlyProp))
   const orientation = toRef(() => toValue(orientationProp))
@@ -172,8 +197,17 @@ export function createSlider (options: SliderOptions = {}): SliderContext {
     setValue(index, max)
   }
 
+  function apply (incoming: unknown[], _options?: { multiple?: boolean }): void {
+    const snapped = incoming.map(v => snap(Number(v)))
+    values.value = snapped
+  }
+
   return {
+    ...model,
     values,
+    selectedValues,
+    multiple: true as const,
+    apply,
     min,
     max,
     step,
@@ -191,5 +225,8 @@ export function createSlider (options: SliderOptions = {}): SliderContext {
     stepDown,
     setToMin,
     setToMax,
+    get size () {
+      return model.size
+    },
   }
 }

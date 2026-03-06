@@ -19,10 +19,11 @@
   // Composables
   import { createSlider } from '#v0/composables/createSlider'
   import { useDocumentEventListener } from '#v0/composables/useEventListener'
+  import { useProxyModel } from '#v0/composables/useProxyModel'
   import { useToggleScope } from '#v0/composables/useToggleScope'
 
   // Utilities
-  import { shallowRef, toRef, toValue, useAttrs, useId, watch } from 'vue'
+  import { shallowRef, toRef, toValue, useAttrs, useId } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -150,27 +151,7 @@
     crossover,
   })
 
-  function arraysEqual (a: number[], b: number[]): boolean {
-    if (a.length !== b.length) return false
-    for (const [index, element] of a.entries()) {
-      if (element !== b[index]) return false
-    }
-    return true
-  }
-
-  // Sync model → slider values
-  watch(model, v => {
-    if (!arraysEqual(slider.values.value, v)) {
-      slider.values.value = [...v]
-    }
-  }, { immediate: true })
-
-  // Sync slider values → model
-  watch(slider.values, v => {
-    if (!arraysEqual(model.value, v)) {
-      model.value = [...v]
-    }
-  })
+  useProxyModel(slider, model, { multiple: true })
 
   // Thumb registration with index recycling (lowest-first)
   const active = new Set<number>()
