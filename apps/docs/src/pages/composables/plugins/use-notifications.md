@@ -108,7 +108,7 @@ flowchart TB
 
 | Property | Type | Description |
 |----------|------|-------------|
-| `items` | `ShallowRef<NotificationTicket[]>` | All active notifications |
+| `proxy` | `ProxyRegistryContext` | Reactive proxy — `proxy.values`, `proxy.keys`, `proxy.size` |
 | `unreadItems` | `ComputedRef<NotificationTicket[]>` | Notifications without `readAt` |
 | `archivedItems` | `ComputedRef<NotificationTicket[]>` | Notifications with `archivedAt` |
 | `snoozedItems` | `ComputedRef<NotificationTicket[]>` | Notifications with `snoozedUntil` |

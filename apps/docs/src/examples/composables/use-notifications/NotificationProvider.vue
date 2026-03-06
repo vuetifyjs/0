@@ -1,5 +1,6 @@
 <script setup lang="ts">
   import { computed, shallowRef, watch } from 'vue'
+  import { useProxyRegistry } from '@vuetify/v0'
   import { mdiClose, mdiArchiveOutline, mdiClockOutline, mdiBellOutline } from '@mdi/js'
   import { createAppNotifications, provideNotifications } from './context'
   import type { NotificationTicket } from '@vuetify/v0'
@@ -7,13 +8,16 @@
   const notifications = createAppNotifications()
   provideNotifications(notifications)
 
+  // Direct reactive proxy — guaranteed reactivity for all mutations
+  const proxy = useProxyRegistry<NotificationTicket>(notifications)
+
   // Only show the most recent banner
   const banner = computed(() =>
-    notifications.items.value.find(t => t.data?.type === 'banner'),
+    proxy.values.find(t => t.data?.type === 'banner'),
   )
 
   const toasts = computed(() =>
-    notifications.items.value.filter(t => t.data?.type === 'toast'),
+    proxy.values.filter(t => t.data?.type === 'toast'),
   )
 
   // Auto-dismiss toasts after 4s (independent of queue FIFO)
@@ -41,11 +45,11 @@
   })
 
   const inlines = computed(() =>
-    notifications.items.value.filter(t => t.data?.type === 'inline'),
+    proxy.values.filter(t => t.data?.type === 'inline'),
   )
 
   const inbox = computed(() =>
-    notifications.items.value.filter(t => (!t.data?.type || t.data?.type === 'inbox') && !t.archivedAt),
+    proxy.values.filter(t => (!t.data?.type || t.data?.type === 'inbox') && !t.archivedAt),
   )
 
   const unread = computed(() =>
@@ -53,7 +57,7 @@
   )
 
   const archived = computed(() =>
-    notifications.items.value.filter(t => (!t.data?.type || t.data?.type === 'inbox') && !!t.archivedAt),
+    proxy.values.filter(t => (!t.data?.type || t.data?.type === 'inbox') && !!t.archivedAt),
   )
 
   const open = shallowRef(false)
@@ -125,7 +129,7 @@
     >
       <span class="flex-1">{{ banner.subject }}</span>
 
-      <button class="p-1 -mr-1 opacity-70 hover:opacity-100" @click.stop="banner.dismiss()">
+      <button class="p-1 -mr-1 opacity-70 hover:opacity-100" @click.stop="notifications.unregister(banner.id)">
         <svg class="w-4 h-4 pointer-events-none" viewBox="0 0 24 24"><path :d="mdiClose" fill="currentColor" /></svg>
       </button>
     </div>
@@ -147,7 +151,7 @@
         }"
       >
         <span class="flex-1">{{ ticket.subject }}</span>
-        <button class="p-1 -mr-1 opacity-50 hover:opacity-100" @click.stop="ticket.dismiss()">
+        <button class="p-1 -mr-1 opacity-50 hover:opacity-100" @click.stop="notifications.unregister(ticket.id)">
           <svg class="w-3.5 h-3.5 pointer-events-none" viewBox="0 0 24 24"><path :d="mdiClose" fill="currentColor" /></svg>
         </button>
       </div>
@@ -231,7 +235,7 @@
         :class="severity[ticket.severity ?? 'info']"
       >
         <span class="flex-1">{{ ticket.subject }}</span>
-        <button class="p-1 -mr-1 opacity-70 hover:opacity-100" @click.stop="ticket.dismiss()">
+        <button class="p-1 -mr-1 opacity-70 hover:opacity-100" @click.stop="notifications.unregister(ticket.id)">
           <svg class="w-4 h-4 pointer-events-none" viewBox="0 0 24 24"><path :d="mdiClose" fill="currentColor" /></svg>
         </button>
       </div>

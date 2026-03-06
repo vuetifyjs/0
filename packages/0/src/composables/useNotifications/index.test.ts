@@ -19,8 +19,8 @@ describe('createNotifications', () => {
     it('should create an empty notifications context', () => {
       withScope(() => {
         const notifications = createNotifications()
-        expect(notifications.items.value).toEqual([])
-        expect(notifications.items.value!.length).toBe(0)
+        expect(notifications.proxy.values).toEqual([])
+        expect(notifications.proxy.size).toBe(0)
         expect(notifications.unreadItems.value).toEqual([])
         expect(notifications.archivedItems.value).toEqual([])
         expect(notifications.snoozedItems.value).toEqual([])
@@ -42,8 +42,8 @@ describe('createNotifications', () => {
         expect(ticket.seenAt).toBeNull()
         expect(ticket.archivedAt).toBeNull()
         expect(ticket.snoozedUntil).toBeNull()
-        expect(notifications.items.value).toHaveLength(1)
-        expect(notifications.items.value!.length).toBe(1)
+        expect(notifications.proxy.values).toHaveLength(1)
+        expect(notifications.proxy.size).toBe(1)
       })
     })
 
@@ -138,7 +138,7 @@ describe('createNotifications', () => {
         notifications.notify({ subject: 'B' })
 
         notifications.archiveAll()
-        for (const ticket of notifications.items.value!) {
+        for (const ticket of notifications.proxy.values) {
           expect(ticket.archivedAt).toBeInstanceOf(Date)
         }
       })
@@ -148,10 +148,10 @@ describe('createNotifications', () => {
       withScope(() => {
         const notifications = createNotifications()
         const ticket = notifications.notify({ subject: 'Test' })
-        expect(notifications.items.value!.length).toBe(1)
+        expect(notifications.proxy.size).toBe(1)
 
         ticket.dismiss()
-        expect(notifications.items.value!.length).toBe(0)
+        expect(notifications.proxy.size).toBe(0)
       })
     })
 
@@ -256,8 +256,8 @@ describe('createNotifications', () => {
         const notifications = createNotifications()
         adapter.setup(adapterContext(notifications))
 
-        expect(notifications.items.value).toHaveLength(1)
-        expect(notifications.items.value![0]!.subject).toBe('From adapter')
+        expect(notifications.proxy.values).toHaveLength(1)
+        expect(notifications.proxy.values[0]!.subject).toBe('From adapter')
       })
     })
 
@@ -275,6 +275,52 @@ describe('createNotifications', () => {
         const ticket = notifications.notify({ subject: 'Test' })
         notifications.read(ticket.id)
         expect(reads).toEqual([ticket.id])
+      })
+    })
+  })
+
+  describe('proxy reactivity', () => {
+    it('should update proxy when dismissing first of two items', () => {
+      withScope(() => {
+        const notifications = createNotifications()
+        const a = notifications.notify({ subject: 'A' })
+        notifications.notify({ subject: 'B' })
+
+        expect(notifications.proxy.values).toHaveLength(2)
+
+        a.dismiss()
+
+        expect(notifications.proxy.values).toHaveLength(1)
+        expect(notifications.proxy.values[0]!.subject).toBe('B')
+      })
+    })
+
+    it('should update proxy when dismissing second of two items', () => {
+      withScope(() => {
+        const notifications = createNotifications()
+        notifications.notify({ subject: 'A' })
+        const b = notifications.notify({ subject: 'B' })
+
+        b.dismiss()
+
+        expect(notifications.proxy.values).toHaveLength(1)
+        expect(notifications.proxy.values[0]!.subject).toBe('A')
+      })
+    })
+
+    it('should handle rapid sequential dismissals', () => {
+      withScope(() => {
+        const notifications = createNotifications()
+        const a = notifications.notify({ subject: 'A' })
+        const b = notifications.notify({ subject: 'B' })
+        const c = notifications.notify({ subject: 'C' })
+
+        a.dismiss()
+        b.dismiss()
+        c.dismiss()
+
+        expect(notifications.proxy.values).toHaveLength(0)
+        expect(notifications.proxy.size).toBe(0)
       })
     })
   })
