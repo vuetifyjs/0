@@ -9,17 +9,16 @@
  * @example
  * ```ts
  * import OneSignal from 'react-onesignal' // or window.OneSignalDeferred
- * import { createNotifications } from '#v0/composables/useNotifications'
  * import { createOneSignalAdapter } from '#v0/composables/useNotifications/adapters/onesignal'
  *
- * const notifications = createNotifications({
+ * app.use(createNotificationsPlugin({
  *   adapter: createOneSignalAdapter(OneSignal),
- * })
+ * }))
  * ```
  */
 
 // Types
-import type { NotificationsAdapter, NotificationInput } from '..'
+import type { NotificationsAdapterInterface, NotificationInput } from '..'
 
 /**
  * Minimal subset of the OneSignal Web SDK used by this adapter.
@@ -65,31 +64,35 @@ export interface OneSignalAdapterOptions {
 export function createOneSignalAdapter (
   onesignal: OneSignalInstance,
   options: OneSignalAdapterOptions = {},
-): NotificationsAdapter {
+): NotificationsAdapterInterface {
   const { transform, suppress = false } = options
+  let listener: ((event: OneSignalNotificationEvent) => void) | undefined
 
-  return ctx => {
-    function onForeground (event: OneSignalNotificationEvent) {
-      if (suppress) {
-        event.preventDefault()
+  return {
+    setup (ctx) {
+      listener = (event: OneSignalNotificationEvent) => {
+        if (suppress) {
+          event.preventDefault()
+        }
+
+        const input = transform
+          ? transform(event)
+          : {
+            id: event.notification.notificationId,
+            subject: event.notification.title,
+            body: event.notification.body,
+            data: event.notification.additionalData,
+          } satisfies NotificationInput
+
+        ctx.notify(input)
       }
 
-      const input = transform
-        ? transform(event)
-        : {
-          id: event.notification.notificationId,
-          subject: event.notification.title,
-          body: event.notification.body,
-          data: event.notification.additionalData,
-        } satisfies NotificationInput
-
-      ctx.notify(input)
-    }
-
-    onesignal.Notifications.addEventListener('foregroundWillDisplay', onForeground)
-
-    return () => {
-      onesignal.Notifications.removeEventListener('foregroundWillDisplay', onForeground)
-    }
+      onesignal.Notifications.addEventListener('foregroundWillDisplay', listener)
+    },
+    dispose () {
+      if (listener) {
+        onesignal.Notifications.removeEventListener('foregroundWillDisplay', listener)
+      }
+    },
   }
 }
