@@ -106,6 +106,7 @@ State management for single and multi-selection patterns.
 
 | Name | Description |
 | - | - |
+| [createModel](/composables/selection/create-model) | Selection state layer with mandatory enforcement and apply bridge |
 | [createSelection](/composables/selection/create-selection) | General selection state management |
 | [createSingle](/composables/selection/create-single) | Single-selection with automatic deselection |
 | [createGroup](/composables/selection/create-group) | Multi-selection with tri-state support |
