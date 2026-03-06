@@ -116,9 +116,9 @@ This pattern is the foundation for compound inputs like forms, filters, and conf
 ::: example
 /composables/create-model/input
 
-### Text Input
+### Single Value
 
-A text input synced to a `createModel` store via `useProxyModel`. Tickets are registered with known values — when the input matches one, the store resolves it to a ticket ID. Type a fruit name or click a button to see the bridge in action.
+One ticket registered, one value stored. `useProxyModel` binds the store to a ref — the ref reflects the ticket's value reactively.
 
 :::
 
