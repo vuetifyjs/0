@@ -1,6 +1,6 @@
 <script setup lang="ts">
   import { isRef, shallowRef, toRef, toValue } from 'vue'
-  import { hsl, useColors } from './model'
+  import { oklch, useColors } from './model'
 
   const model = useColors()
   const raw = shallowRef(false)
@@ -35,7 +35,7 @@
               : 'border-transparent',
           ]"
           :disabled="toValue(ticket.disabled)"
-          :style="{ backgroundColor: hsl(toValue(ticket.value) as number) }"
+          :style="{ backgroundColor: oklch(toValue(ticket.value) as number) }"
           @click="model.toggle(ticket.id)"
         />
 
@@ -46,7 +46,7 @@
           :disabled="toValue(ticket.disabled)"
           max="360"
           min="0"
-          :style="{ color: hsl(toValue(ticket.value) as number) }"
+          :style="{ color: oklch(toValue(ticket.value) as number) }"
           type="range"
           :value="toValue(ticket.value)"
           @input="onHue(ticket, $event)"
@@ -75,7 +75,7 @@
         >
           <span
             class="size-3 rounded-full"
-            :style="{ backgroundColor: hsl(toValue(item.value) as number) }"
+            :style="{ backgroundColor: oklch(toValue(item.value) as number) }"
           />
           {{ toValue(item.value) }}°
         </span>

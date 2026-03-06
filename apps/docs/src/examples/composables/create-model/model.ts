@@ -15,8 +15,8 @@ const colors = [
   { id: 'orange', hue: 25 },
 ]
 
-export function hsl (hue: number) {
-  return `hsl(${hue}, 70%, 55%)`
+export function oklch (hue: number) {
+  return `oklch(0.7 0.15 ${hue})`
 }
 
 export function createColorModel () {

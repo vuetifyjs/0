@@ -141,7 +141,7 @@ One ticket registered, one value stored. `useProxyModel` binds the store to a re
 
 ### Color Palette
 
-Five tickets, each holding a reactive hue ref. Drag a slider to adjust a color in real time — `selectedValues` is the reactive composite of all active hues. Toggle a color off to drop it from the composite. Purple is disabled entirely. Uses `createSelection` (which extends `createModel`) for multi-ticket support.
+Five tickets, each holding a reactive OKLCH hue ref. Drag a slider to adjust a color in real time — `selectedValues` is the reactive composite of all active hues. Toggle a color off to drop it from the composite. Purple is disabled entirely. Uses `createSelection` (which extends `createModel`) for multi-ticket support.
 
 :::
 
