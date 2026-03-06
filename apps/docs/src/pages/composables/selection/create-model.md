@@ -127,9 +127,9 @@ Value state is **always reactive**. Collection methods follow the base `createRe
 ::: example
 /composables/create-model/input
 
-### Text Input
+### Single Value
 
-A text input synced to a `createModel` store via `useProxyModel`. Tickets are registered with known values — when the input matches one, the store resolves it to a ticket ID. Type a fruit name or click a button to see the bridge in action.
+One ticket registered, one value stored. `useProxyModel` binds the store to a ref — the ref reflects the ticket's value reactively.
 
 :::
 
@@ -139,9 +139,9 @@ A text input synced to a `createModel` store via `useProxyModel`. Tickets are re
 /composables/create-model/ColorConsumer.vue
 /composables/create-model/colors.vue
 
-### Color Palette Selector
+### Color Palette
 
-Each color is a registered ticket with a hex value. Purple is disabled and cannot be selected. Clicking a color selects it (replacing the previous selection). Uses `createContext` to provide the model across components.
+Five tickets, each holding a hex value. `selectedValues` is the reactive composite of all active colors. Toggle a color off — it drops from the composite. Purple is disabled and excluded entirely. Uses `createSelection` (which extends `createModel`) for multi-ticket support.
 
 :::
 

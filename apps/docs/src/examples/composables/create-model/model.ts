@@ -1,22 +1,26 @@
-import { createContext, createModel } from '@vuetify/v0'
-import type { ModelContext } from '@vuetify/v0'
+import { createContext, createSelection } from '@vuetify/v0'
+import type { SelectionContext } from '@vuetify/v0'
 
 export const [
   useColors,
   provideColors,
-] = createContext<ModelContext>('demo:colors')
+] = createContext<SelectionContext>('demo:colors')
+
+const colors = [
+  { id: 'red', value: '#ef4444' },
+  { id: 'blue', value: '#3b82f6' },
+  { id: 'green', value: '#22c55e' },
+  { id: 'purple', value: '#a855f7', disabled: true },
+  { id: 'orange', value: '#f97316' },
+]
 
 export function createColorModel () {
-  const model = createModel()
+  const selection = createSelection({ multiple: true })
 
-  model.register({ id: 'red', value: '#ef4444' })
-  model.register({ id: 'blue', value: '#3b82f6' })
-  model.register({ id: 'green', value: '#22c55e' })
-  model.register({ id: 'purple', value: '#a855f7', disabled: true })
-  model.register({ id: 'orange', value: '#f97316' })
+  for (const color of colors) {
+    selection.register(color)
+    if (!color.disabled) selection.select(color.id)
+  }
 
-  // Select initial color
-  model.select('red')
-
-  return model
+  return selection
 }

@@ -19,7 +19,7 @@ import { createRegistry } from '#v0/composables/createRegistry'
 
 // Utilities
 import { isUndefined, useId } from '#v0/utilities'
-import { computed, shallowReactive, toRef, toRaw, toValue } from 'vue'
+import { computed, isRef, shallowReactive, toRef, toRaw, toValue } from 'vue'
 
 // Types
 import type { RegistryContext, RegistryOptions, RegistryTicket, RegistryTicketInput } from '#v0/composables/createRegistry'
@@ -122,7 +122,7 @@ export function createModel<
 
   const selectedValues = computed(() => {
     return new Set(
-      Array.from(selectedItems.value).map(item => item.value),
+      Array.from(selectedItems.value).map(item => toValue(item.value)),
     )
   })
 
@@ -154,8 +154,19 @@ export function createModel<
   }
 
   function apply (values: unknown[], _options?: { multiple?: boolean }): void {
-    selectedIds.clear()
     const value = values[0]
+
+    // If the selected ticket's value is a ref, update it directly
+    for (const id of selectedIds) {
+      const item = registry.get(id)
+      if (item && isRef(item.value)) {
+        item.value.value = value
+        return
+      }
+    }
+
+    // Fallback: browse resolution for static values
+    selectedIds.clear()
     if (isUndefined(value)) return
 
     const ids = registry.browse(toRaw(value))
