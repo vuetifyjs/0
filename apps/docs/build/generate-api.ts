@@ -158,11 +158,66 @@ function extractExampleTag (tags: { name: string, text?: string }[]): string | u
   return example || undefined
 }
 
+/**
+ * Fallback: extract props from a separate types file using ts-morph.
+ * Handles components that define props interfaces in `types.ts` instead of inline.
+ */
+function extractPropsFromTypesFile (filePath: string): ApiProp[] {
+  try {
+    const proj = getProject()
+    const dir = dirname(filePath)
+    const typesPath = resolve(dir, 'types.ts')
+    if (!existsSync(typesPath)) return []
+
+    // Determine the props interface name from the component filename
+    // e.g., TreeviewRoot.vue → TreeviewRootProps
+    const componentName = filePath.split('/').pop()?.replace('.vue', '') || ''
+    const propsInterfaceName = `${componentName}Props`
+
+    let typesFile = proj.getSourceFile(typesPath)
+    if (!typesFile) {
+      typesFile = proj.addSourceFileAtPath(typesPath)
+    }
+
+    const iface = typesFile.getInterface(propsInterfaceName)
+    if (!iface) return []
+
+    const props: ApiProp[] = []
+    const seen = new Set<string>()
+
+    // Walk inheritance chain
+    function extract (current: InterfaceDeclaration, omitted = new Set<string>()) {
+      for (const ext of current.getExtends()) {
+        const resolved = resolveBaseInterface(current.getSourceFile(), ext.getText())
+        if (resolved) {
+          extract(resolved.iface, new Set([...omitted, ...resolved.omittedKeys]))
+        }
+      }
+      for (const prop of current.getProperties()) {
+        const name = prop.getName()
+        if (seen.has(name) || omitted.has(name)) continue
+        // Skip AtomProps members — they're universal and noisy
+        if (name === 'as' || name === 'renderless') continue
+        seen.add(name)
+        const type = prop.getType().getText(prop)
+        const { description, example } = getJsDocInfo(prop)
+        const required = !prop.hasQuestionToken()
+        props.push({ name, type, required, description, example })
+      }
+    }
+
+    extract(iface)
+    return props
+  } catch {
+    return []
+  }
+}
+
 function extractComponentApi (filePath: string): ComponentApi | null {
   try {
     const meta = getChecker().getComponentMeta(filePath)
 
-    const props: ApiProp[] = meta.props
+    let props: ApiProp[] = meta.props
       .filter(p => !VUE_INTERNALS.has(p.name))
       .map(p => ({
         name: p.name,
@@ -172,6 +227,11 @@ function extractComponentApi (filePath: string): ComponentApi | null {
         description: p.description,
         example: extractExampleTag(p.tags),
       }))
+
+    // Fallback: if vue-component-meta found no props, try ts-morph on types.ts
+    if (props.length === 0) {
+      props = extractPropsFromTypesFile(filePath)
+    }
 
     const events: ApiEvent[] = meta.events
       .filter(e => e.name !== 'update:modelValue')
@@ -229,7 +289,7 @@ async function generateComponentApis (): Promise<Record<string, ComponentApi>> {
   )
 
   for (const [index, api] of results.entries()) {
-    if (api && api.props.length > 0) {
+    if (api && (api.props.length > 0 || api.slots.length > 0 || api.events.length > 0)) {
       const file = files[index]
       // Extract namespace from directory and sub-component from file
       // e.g., /components/Step/StepRoot.vue → Step.Root
@@ -579,21 +639,55 @@ function extractComposableApi (filePath: string, composableName: string): Compos
     const pascalName = composableName.charAt(0).toUpperCase() + composableName.slice(1)
     const secondWord = isCreate ? composableName.replace(/^create/, '') : null
 
+    // Helper: find interface in source file or in re-exported type modules
+    function findInterface (name: string): InterfaceDeclaration | undefined {
+      // Direct lookup
+      const direct = sourceFile.getInterface(name)
+      if (direct) return direct
+
+      // Follow re-exports: export { type X } from './types'
+      for (const exportDecl of sourceFile.getExportDeclarations()) {
+        const moduleSpecifier = exportDecl.getModuleSpecifierValue()
+        if (!moduleSpecifier) continue
+
+        const namedExports = exportDecl.getNamedExports()
+        if (!namedExports.some(ne => ne.getName() === name)) continue
+
+        // Resolve the module path relative to source file
+        const sourceDir = dirname(sourceFile.getFilePath())
+        let resolvedPath = resolve(sourceDir, moduleSpecifier)
+        if (!resolvedPath.endsWith('.ts')) resolvedPath += '.ts'
+
+        let reExportedFile = proj.getSourceFile(resolvedPath)
+        if (!reExportedFile) {
+          try {
+            reExportedFile = proj.addSourceFileAtPath(resolvedPath)
+          } catch {
+            continue
+          }
+        }
+        const found = reExportedFile.getInterface(name)
+        if (found) return found
+      }
+
+      return undefined
+    }
+
     // Find Options interface with multiple naming patterns
     // Try: RegistryOptions, UseRegistryOptions, etc.
-    const optionsInterface = sourceFile.getInterface(`${baseName}Options`)
-      ?? sourceFile.getInterface(`${baseNameSingular}Options`)
-      ?? (isUse ? sourceFile.getInterface(`${pascalName}Options`) : undefined)
-      ?? (isCreate ? sourceFile.getInterface(`${pascalName}Options`) : undefined)
-      ?? (secondWord ? sourceFile.getInterface(`${secondWord}Options`) : undefined)
+    const optionsInterface = findInterface(`${baseName}Options`)
+      ?? findInterface(`${baseNameSingular}Options`)
+      ?? (isUse ? findInterface(`${pascalName}Options`) : undefined)
+      ?? (isCreate ? findInterface(`${pascalName}Options`) : undefined)
+      ?? (secondWord ? findInterface(`${secondWord}Options`) : undefined)
 
     // Find Context/Return interface with multiple naming patterns
     // Try: RegistryContext, UseRegistryReturn, etc.
-    const contextInterface = sourceFile.getInterface(`${baseName}Context`)
-      ?? sourceFile.getInterface(`${baseNameSingular}Context`)
-      ?? (isUse ? sourceFile.getInterface(`${pascalName}Return`) : undefined)
-      ?? (isCreate ? sourceFile.getInterface(`${pascalName}Context`) : undefined)
-      ?? (secondWord ? sourceFile.getInterface(`${secondWord}Context`) : undefined)
+    const contextInterface = findInterface(`${baseName}Context`)
+      ?? findInterface(`${baseNameSingular}Context`)
+      ?? (isUse ? findInterface(`${pascalName}Return`) : undefined)
+      ?? (isCreate ? findInterface(`${pascalName}Context`) : undefined)
+      ?? (secondWord ? findInterface(`${secondWord}Context`) : undefined)
 
     const functions = extractExportedFunctions(sourceFile)
     const options = extractOptionsMembers(optionsInterface)

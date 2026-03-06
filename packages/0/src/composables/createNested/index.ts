@@ -608,6 +608,11 @@ export function createNested<
 
     const ticket = group.register(item as Partial<GroupTicketInput>) as unknown as E
 
+    // Override group-level selection methods with cascade-aware versions
+    ticket.select = () => select(id)
+    ticket.unselect = () => unselect(id)
+    ticket.toggle = () => toggle(id)
+
     if (registration.active) {
       activate(id)
     }
