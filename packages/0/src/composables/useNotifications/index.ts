@@ -19,13 +19,15 @@ import { createPluginContext } from '#v0/composables/createPlugin'
 
 // Composables
 import { createQueue } from '#v0/composables/createQueue'
+import { useProxyRegistry } from '#v0/composables/useProxyRegistry'
 
 // Utilities
 import { isFunction, useId } from '#v0/utilities'
-import { computed, shallowRef, triggerRef } from 'vue'
+import { computed } from 'vue'
 
 // Types
 import type { QueueContext, QueueOptions, QueueTicket, QueueTicketInput } from '#v0/composables/createQueue'
+import type { ProxyRegistryContext } from '#v0/composables/useProxyRegistry'
 import type { ID } from '#v0/types'
 
 export type NotificationSeverity = 'info' | 'warning' | 'error' | 'success'
@@ -82,7 +84,7 @@ export interface NotificationsContext extends Omit<
   readAll: () => void
   archiveAll: () => void
 
-  items: ReturnType<typeof shallowRef<NotificationTicket[]>>
+  proxy: ProxyRegistryContext<NotificationTicket>
   unreadItems: ReturnType<typeof computed<NotificationTicket[]>>
   archivedItems: ReturnType<typeof computed<NotificationTicket[]>>
   snoozedItems: ReturnType<typeof computed<NotificationTicket[]>>
@@ -98,17 +100,7 @@ export function createNotifications (
     events: true,
   })
 
-  const items = shallowRef<NotificationTicket[]>([])
-
-  function sync () {
-    items.value = [...queue.values()]
-    triggerRef(items)
-  }
-
-  queue.on('register:ticket', sync)
-  queue.on('unregister:ticket', sync)
-  queue.on('update:ticket', sync)
-  queue.on('clear:registry', sync)
+  const proxy = useProxyRegistry<NotificationTicket>(queue)
 
   // Push
   function notify (input: NotificationInput): NotificationTicket {
@@ -143,7 +135,6 @@ export function createNotifications (
 
     queue.upsert(id, patch)
     queue.emit(event, id)
-    sync()
   }
 
   function read (id: ID) {
@@ -184,7 +175,6 @@ export function createNotifications (
         }
       }
     })
-    sync()
   }
 
   function archiveAll () {
@@ -196,12 +186,11 @@ export function createNotifications (
         }
       }
     })
-    sync()
   }
 
-  const unreadItems = computed(() => items.value.filter(t => !t.readAt))
-  const archivedItems = computed(() => items.value.filter(t => !!t.archivedAt))
-  const snoozedItems = computed(() => items.value.filter(t => !!t.snoozedUntil))
+  const unreadItems = computed(() => proxy.values.filter(t => !t.readAt))
+  const archivedItems = computed(() => proxy.values.filter(t => !!t.archivedAt))
+  const snoozedItems = computed(() => proxy.values.filter(t => !!t.snoozedUntil))
 
   return {
     ...queue,
@@ -215,7 +204,7 @@ export function createNotifications (
     unsnooze,
     readAll,
     archiveAll,
-    items,
+    proxy,
     unreadItems,
     archivedItems,
     snoozedItems,
