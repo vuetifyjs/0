@@ -150,6 +150,54 @@ notifications.archiveAll() // Archive all
 notifications.clear()      // Remove all from queue
 ```
 
+## Examples
+
+::: example
+/composables/use-notifications/context.ts 1
+/composables/use-notifications/NotificationProvider.vue 2
+/composables/use-notifications/NotificationConsumer.vue 3
+/composables/use-notifications/inbox.vue 4
+@import @mdi/js
+
+### Notification Center
+
+A single `createNotifications` instance powering four notification surfaces through the `data.type` field:
+
+| Surface | Type | Behavior |
+|---------|------|----------|
+| **Banner** | `'banner'` | Persistent, dismissible, max 1 visible. System announcements, trial expiry |
+| **Toast** | `'toast'` | Auto-dismissing via `timeout`. Action feedback: "Changes saved" |
+| **Inline** | `'inline'` | Contextual, embedded in page content. Rate limits, degraded service |
+| **Inbox** | `'inbox'` or none | Full lifecycle — read, archive, snooze. Collaboration, CI alerts |
+
+The `data` bag drives routing — the composable doesn't care how notifications render. Each surface filters `items` by `data.type`.
+
+| File | Role |
+|------|------|
+| `context.ts` | Wraps `createNotifications` with `createContext` for provide/inject |
+| `NotificationProvider.vue` | Renders all surfaces: banners, inbox dropdown, snackbar stack |
+| `NotificationConsumer.vue` | Triggers notifications — simulates real app events |
+| `inbox.vue` | Entry point wiring provider and consumer |
+
+Click **Simulate Event** repeatedly to cycle through banner, snackbar, and inbox notifications. Open the **Inbox** to interact with read/archive/snooze. Notice how `seen` (badge count) and `read` (visual weight) are distinct — mirroring GitHub and Slack.
+
+```mermaid "Notification Lifecycle"
+stateDiagram-v2
+  [*] --> Unseen: notify()
+  Unseen --> Unread: inbox opened (seen)
+  Unread --> Read: mark read
+  Read --> Unread: mark unread
+  Read --> Archived: archive
+  Unread --> Archived: archive
+  Unread --> Snoozed: snooze(until)
+  Snoozed --> Unread: unsnooze
+  Read --> [*]: dismiss()
+  Unread --> [*]: dismiss()
+  Archived --> [*]: dismiss()
+```
+
+:::
+
 ## Adapters
 
 Adapters connect external notification services to `useNotifications`. Each adapter handles mapping between the service's SDK and the notification lifecycle. Import adapters from `@vuetify/v0/notifications`.
