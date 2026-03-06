@@ -110,6 +110,9 @@
           {{ toValue(item.value) }}°
         </span>
       </div>
+
+      <!-- Raw output -->
+      <pre class="rounded-lg border border-divider bg-surface-variant/30 px-3 py-2 text-xs font-mono text-on-surface-variant">{{ JSON.stringify([...model.selectedValues.value], null, 2) }}</pre>
     </div>
   </div>
 </template>
