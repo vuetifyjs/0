@@ -2,27 +2,25 @@
  * @module useProxyModel
  *
  * @remarks
- * Proxy composable for bidirectional sync between selection registry and v-model.
+ * Proxy composable for bidirectional sync between a model context and v-model.
  *
  * Key features:
  * - Bidirectional synchronization
  * - Array and single-value modes
  * - Automatic cleanup on scope disposal
- * - Perfect for form controls with selection backing
+ * - Works with any ModelContext (Selection, Slider, etc.)
  *
- * Bridges the gap between selection composables and Vue's v-model.
+ * Bridges the gap between model composables and Vue's v-model.
  */
 
 // Utilities
-import { isFunction, isUndefined } from '#v0/utilities'
-import { onScopeDispose, toRaw, toValue, watch } from 'vue'
+import { isFunction } from '#v0/utilities'
+import { onScopeDispose, toValue, watch } from 'vue'
 
 // Transformers
 import { toArray } from '#v0/composables/toArray'
 
 // Types
-import type { SelectionContext, SelectionTicket } from '#v0/composables/createSelection'
-import type { ID } from '#v0/types'
 import type { MaybeRefOrGetter, Ref } from 'vue'
 
 export interface ProxyModelOptions {
@@ -32,12 +30,24 @@ export interface ProxyModelOptions {
 }
 
 /**
- * Syncs a ref with a selection registry bidirectionally.
+ * Minimal interface for useProxyModel's context parameter.
+ * Both ModelContext (Set-based) and SliderContext (Array-based) satisfy this.
+ */
+export interface ProxyModelTarget {
+  selectedValues: { readonly value: Iterable<unknown> }
+  apply: (values: unknown[], options?: { multiple?: boolean }) => void
+  select?: (id: string | number) => void
+  multiple?: MaybeRefOrGetter<boolean>
+  on?: (event: string, cb: (data: unknown) => void) => void
+  off?: (event: string, cb: (data: unknown) => void) => void
+}
+
+/**
+ * Syncs a ref with a model context bidirectionally.
  *
- * @param registry The selection registry to bind to.
+ * @param context The model context to bind to.
  * @param model The ref to sync.
  * @param options The options for the proxy model.
- * @template Z The type of the selection ticket.
  * @returns A function to stop the sync.
  *
  * @see https://0.vuetifyjs.com/composables/forms/use-proxy-model
@@ -56,12 +66,12 @@ export interface ProxyModelOptions {
  * const stop = useProxyModel(registry, model)
  * ```
  */
-export function useProxyModel<Z extends SelectionTicket = SelectionTicket> (
-  registry: SelectionContext<Z>,
+export function useProxyModel (
+  context: ProxyModelTarget,
   model: Ref<unknown>,
   options?: ProxyModelOptions,
 ) {
-  const multiple = options?.multiple ?? false
+  const multiple = options?.multiple ?? context.multiple ?? false
   const _transformIn = options?.transformIn
   const _transformOut = options?.transformOut
 
@@ -75,20 +85,23 @@ export function useProxyModel<Z extends SelectionTicket = SelectionTicket> (
     return toValue(multiple) ? val : val[0]
   }
 
+  const applyOptions = toValue(multiple) === toValue(context.multiple ?? false)
+    ? undefined
+    : { multiple: toValue(multiple) as boolean }
+
+  // Initialize: apply current model value, track unresolved values
   const modelAsArray = transformIn(model)
   const pending = new Set(modelAsArray)
 
+  context.apply(modelAsArray, applyOptions)
+
   for (const value of modelAsArray) {
-    const ids = registry.browse(value)
-    /* v8 ignore start -- edge case: value exists in registry at init */
-    if (ids) {
-      for (const id of ids) registry.select(id)
+    if (Array.from(context.selectedValues.value).includes(value)) {
       pending.delete(value)
     }
-    /* v8 ignore stop */
   }
 
-  const registryWatch = watch(registry.selectedValues, val => {
+  const contextWatch = watch(context.selectedValues as Ref, val => {
     modelWatch.pause()
 
     model.value = transformOut(Array.from(toValue(val)))
@@ -97,52 +110,33 @@ export function useProxyModel<Z extends SelectionTicket = SelectionTicket> (
   }, { flush: 'sync' })
 
   const modelWatch = watch(model, val => {
-    registryWatch.pause()
+    contextWatch.pause()
 
-    const currentIds = new Set(toValue(registry.selectedIds))
-    const targetIds = new Set<ID>()
+    context.apply(transformIn(val), applyOptions)
 
-    for (const value of transformIn(val)) {
-      const ids = registry.browse(toRaw(value))
-      if (ids) {
-        for (const id of ids) targetIds.add(id)
-      }
-    }
-
-    if (toValue(multiple)) {
-      for (const id of currentIds.difference(targetIds)) {
-        registry.selectedIds.delete(id) /* v8 ignore -- edge case: deselection via model */
-      }
-      for (const id of targetIds.difference(currentIds)) {
-        registry.selectedIds.add(id)
-      }
-    } else {
-      const next = targetIds.values().next().value
-      const last = currentIds.values().next().value
-      if (!isUndefined(last)) registry.unselect(last)
-      if (!isUndefined(next)) registry.select(next)
-    }
-
-    registryWatch.resume()
+    contextWatch.resume()
   }, { flush: 'sync', deep: toValue(multiple) })
 
   function onRegister (data: unknown) {
-    const ticket = data as Z
+    const ticket = data as { id: string | number, value: unknown, disabled?: unknown }
     if (!pending.has(ticket.value) || toValue(ticket.disabled)) return
-    registryWatch.pause()
+
+    contextWatch.pause()
     modelWatch.pause()
-    registry.select(ticket.id)
+
+    context.select?.(ticket.id)
     pending.delete(ticket.value)
+
     modelWatch.resume()
-    registryWatch.resume()
+    contextWatch.resume()
   }
 
-  registry.on('register:ticket', onRegister)
+  context.on?.('register:ticket', onRegister)
 
   function stop () {
-    registryWatch()
+    contextWatch()
     modelWatch()
-    registry.off('register:ticket', onRegister)
+    context.off?.('register:ticket', onRegister)
   }
 
   onScopeDispose(stop, true)
