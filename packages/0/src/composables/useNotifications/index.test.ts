@@ -211,36 +211,51 @@ describe('createNotifications', () => {
   })
 
   describe('adapter', () => {
-    it('should call adapter with context', () => {
-      withScope(() => {
-        const adapter = vi.fn()
-        createNotifications({ adapter })
-        expect(adapter).toHaveBeenCalledOnce()
+    function adapterContext (notifications: ReturnType<typeof createNotifications>): NotificationsAdapterContext {
+      return {
+        notify: notifications.notify,
+        on: notifications.on.bind(notifications),
+        off: notifications.off.bind(notifications),
+      }
+    }
 
-        const ctx = adapter.mock.calls[0]![0]
+    it('should call adapter setup with context', () => {
+      withScope(() => {
+        const setup = vi.fn()
+        const adapter = { setup }
+        const notifications = createNotifications()
+        adapter.setup(adapterContext(notifications))
+
+        expect(setup).toHaveBeenCalledOnce()
+        const ctx = setup.mock.calls[0]![0]
         expect(ctx).toHaveProperty('notify')
         expect(ctx).toHaveProperty('on')
         expect(ctx).toHaveProperty('off')
       })
     })
 
-    it('should call adapter cleanup on dispose', () => {
+    it('should call adapter dispose on teardown', () => {
       withScope(() => {
-        const cleanup = vi.fn()
-        const adapter = vi.fn(() => cleanup)
-        const notifications = createNotifications({ adapter })
+        const dispose = vi.fn()
+        const adapter = { setup: vi.fn(), dispose }
+        const notifications = createNotifications()
+        adapter.setup(adapterContext(notifications))
 
-        notifications.dispose()
-        expect(cleanup).toHaveBeenCalledOnce()
+        adapter.dispose()
+        expect(dispose).toHaveBeenCalledOnce()
       })
     })
 
     it('should allow adapter to push notifications', () => {
       withScope(() => {
-        function adapter (ctx: NotificationsAdapterContext) {
-          ctx.notify({ subject: 'From adapter', severity: 'info' })
+        const adapter = {
+          setup (ctx: NotificationsAdapterContext) {
+            ctx.notify({ subject: 'From adapter', severity: 'info' })
+          },
         }
-        const notifications = createNotifications({ adapter })
+        const notifications = createNotifications()
+        adapter.setup(adapterContext(notifications))
+
         expect(notifications.items.value).toHaveLength(1)
         expect(notifications.items.value![0]!.subject).toBe('From adapter')
       })
@@ -249,12 +264,15 @@ describe('createNotifications', () => {
     it('should allow adapter to listen to events', () => {
       withScope(() => {
         const reads: ID[] = []
-        function adapter (ctx: NotificationsAdapterContext) {
-          ctx.on('notification:read', (id: unknown) => reads.push(id as ID))
+        const adapter = {
+          setup (ctx: NotificationsAdapterContext) {
+            ctx.on('notification:read', (id: unknown) => reads.push(id as ID))
+          },
         }
-        const notifications = createNotifications({ adapter })
-        const ticket = notifications.notify({ subject: 'Test' })
+        const notifications = createNotifications()
+        adapter.setup(adapterContext(notifications))
 
+        const ticket = notifications.notify({ subject: 'Test' })
         notifications.read(ticket.id)
         expect(reads).toEqual([ticket.id])
       })

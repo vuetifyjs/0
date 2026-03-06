@@ -21,8 +21,8 @@ import { createPluginContext } from '#v0/composables/createPlugin'
 import { createQueue } from '#v0/composables/createQueue'
 
 // Utilities
-import { useId } from '#v0/utilities'
-import { computed, onScopeDispose, shallowRef, triggerRef } from 'vue'
+import { isFunction, useId } from '#v0/utilities'
+import { computed, shallowRef, triggerRef } from 'vue'
 
 // Types
 import type { QueueContext, QueueOptions, QueueTicket, QueueTicketInput } from '#v0/composables/createQueue'
@@ -58,11 +58,12 @@ export interface NotificationsAdapterContext {
   off: (event: string, handler: (...args: unknown[]) => void) => void
 }
 
-export type NotificationsAdapter = (context: NotificationsAdapterContext) => void | (() => void)
-
-export interface NotificationsOptions extends QueueOptions {
-  adapter?: NotificationsAdapter
+export interface NotificationsAdapterInterface {
+  setup: (context: NotificationsAdapterContext) => void
+  dispose?: () => void
 }
+
+export interface NotificationsOptions extends QueueOptions {}
 
 export interface NotificationsContext extends Omit<
   QueueContext<NotificationInput, NotificationTicket>,
@@ -90,7 +91,7 @@ export interface NotificationsContext extends Omit<
 export function createNotifications (
   _options: NotificationsOptions = {},
 ): NotificationsContext {
-  const { adapter, timeout = -1, ...options } = _options
+  const { timeout = -1, ...options } = _options
   const queue = createQueue<NotificationInput, NotificationTicket>({
     ...options,
     timeout,
@@ -176,46 +177,31 @@ export function createNotifications (
   // Bulk mutations
   function readAll () {
     const now = new Date()
-    for (const ticket of queue.values()) {
-      if (!ticket.readAt) {
-        queue.upsert(ticket.id, { readAt: now })
+    queue.batch(() => {
+      for (const ticket of queue.values()) {
+        if (!ticket.readAt) {
+          queue.upsert(ticket.id, { readAt: now })
+        }
       }
-    }
+    })
     sync()
   }
 
   function archiveAll () {
     const now = new Date()
-    for (const ticket of queue.values()) {
-      if (!ticket.archivedAt) {
-        queue.upsert(ticket.id, { archivedAt: now })
+    queue.batch(() => {
+      for (const ticket of queue.values()) {
+        if (!ticket.archivedAt) {
+          queue.upsert(ticket.id, { archivedAt: now })
+        }
       }
-    }
+    })
     sync()
   }
 
   const unreadItems = computed(() => items.value.filter(t => !t.readAt))
   const archivedItems = computed(() => items.value.filter(t => !!t.archivedAt))
   const snoozedItems = computed(() => items.value.filter(t => !!t.snoozedUntil))
-
-  let cleanup: (() => void) | undefined
-
-  if (adapter) {
-    const result = adapter({
-      notify,
-      on: queue.on.bind(queue),
-      off: queue.off.bind(queue),
-    })
-    if (result) cleanup = result
-  }
-
-  onScopeDispose(() => cleanup?.(), true)
-
-  const baseDispose = queue.dispose
-  function dispose () {
-    cleanup?.()
-    baseDispose()
-  }
 
   return {
     ...queue,
@@ -233,12 +219,12 @@ export function createNotifications (
     unreadItems,
     archivedItems,
     snoozedItems,
-    dispose,
   } as unknown as NotificationsContext
 }
 
 export interface NotificationsPluginOptions extends NotificationsOptions {
   namespace?: string
+  adapter?: NotificationsAdapterInterface
 }
 
 export const [
@@ -250,5 +236,18 @@ export const [
   options => createNotifications(options),
   {
     fallback: () => createNotifications(),
+    setup: (context, app, { adapter }) => {
+      if (!adapter) return
+
+      adapter.setup({
+        notify: context.notify,
+        on: context.on.bind(context),
+        off: context.off.bind(context),
+      })
+
+      if (isFunction(adapter.dispose)) {
+        app.onUnmount(() => adapter.dispose!())
+      }
+    },
   },
 )

@@ -11,14 +11,14 @@
  * import { getMessaging } from 'firebase/messaging'
  * import { createFcmAdapter } from '#v0/composables/useNotifications/adapters/fcm'
  *
- * const notifications = createNotifications({
+ * app.use(createNotificationsPlugin({
  *   adapter: createFcmAdapter(getMessaging(firebaseApp)),
- * })
+ * }))
  * ```
  */
 
 // Types
-import type { NotificationInput, NotificationsAdapter, NotificationSeverity } from '../index'
+import type { NotificationInput, NotificationsAdapterInterface, NotificationSeverity } from '../index'
 
 /** Minimal subset of the FCM MessagePayload we consume. */
 export interface FcmMessagePayload {
@@ -61,18 +61,22 @@ function toInput (payload: FcmMessagePayload, severity: NotificationSeverity): N
 export function createFcmAdapter (
   messaging: FcmMessaging,
   options: FcmAdapterOptions = {},
-): NotificationsAdapter {
+): NotificationsAdapterInterface {
   const { transform, severity = 'info' } = options
+  let unsubscribe: Unsubscribe | undefined
 
-  return ctx => {
-    const unsubscribe = messaging.onMessage(payload => {
-      const input = transform
-        ? transform(payload)
-        : toInput(payload, severity)
+  return {
+    setup (ctx) {
+      unsubscribe = messaging.onMessage(payload => {
+        const input = transform
+          ? transform(payload)
+          : toInput(payload, severity)
 
-      ctx.notify(input)
-    })
-
-    return unsubscribe
+        ctx.notify(input)
+      })
+    },
+    dispose () {
+      unsubscribe?.()
+    },
   }
 }
