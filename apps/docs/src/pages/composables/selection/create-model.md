@@ -125,6 +125,15 @@ Value state is **always reactive**. Collection methods follow the base `createRe
 ## Examples
 
 ::: example
+/composables/create-model/input
+
+### Text Input
+
+A text input synced to a `createModel` store via `useProxyModel`. Tickets are registered with known values — when the input matches one, the store resolves it to a ticket ID. Type a fruit name or click a button to see the bridge in action.
+
+:::
+
+::: example
 /composables/create-model/model.ts
 /composables/create-model/ColorProvider.vue
 /composables/create-model/ColorConsumer.vue
@@ -132,23 +141,7 @@ Value state is **always reactive**. Collection methods follow the base `createRe
 
 ### Color Palette Selector
 
-This example demonstrates `createModel` as a single-value store. Each color is a registered ticket with a hex value. Purple is disabled and cannot be selected. Clicking a color selects it (replacing the previous selection).
-
-**File breakdown:**
-
-| File | Role |
-|------|------|
-| `model.ts` | Creates the model instance, registers color tickets, and exports the context tuple |
-| `ColorProvider.vue` | Calls `createColorModel()` and provides the context, rendering only a slot |
-| `ColorConsumer.vue` | Consumes the context via `useColors()` to render clickable swatches with reactive selected state |
-| `colors.vue` | Entry point that composes Provider around Consumer |
-
-**Key patterns:**
-
-- Provider components are invisible wrappers that render only `<slot />`
-- Consumers import only from `model.ts`, never from the Provider
-- `toggle(id)` handles both select and unselect in one call
-- Disabled tickets are visually dimmed and non-interactive
+Each color is a registered ticket with a hex value. Purple is disabled and cannot be selected. Clicking a color selects it (replacing the previous selection). Uses `createContext` to provide the model across components.
 
 :::
 
