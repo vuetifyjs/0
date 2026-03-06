@@ -1,8 +1,9 @@
 <script setup lang="ts">
-  import { isRef, toRef, toValue } from 'vue'
+  import { isRef, shallowRef, toRef, toValue } from 'vue'
   import { hsl, useColors } from './model'
 
   const model = useColors()
+  const raw = shallowRef(false)
 
   const tickets = toRef(() => [...model.values()])
 
@@ -87,7 +88,17 @@
       </div>
 
       <!-- Raw output -->
-      <pre class="rounded-lg border border-divider bg-surface-variant/30 px-3 py-2 text-xs font-mono text-on-surface-variant">{{ JSON.stringify([...model.selectedItems.value].map(i => toValue(i.value)), null, 2) }}</pre>
+      <button
+        class="text-xs text-on-surface-variant/60 hover:text-on-surface-variant cursor-pointer transition-colors"
+        @click="raw = !raw"
+      >
+        {{ raw ? 'Hide' : 'Show' }} raw output
+      </button>
+
+      <pre
+        v-if="raw"
+        class="rounded-lg border border-divider bg-surface-variant/30 px-3 py-2 text-xs font-mono text-on-surface-variant"
+      >{{ JSON.stringify([...model.selectedItems.value].map(i => toValue(i.value)), null, 2) }}</pre>
     </div>
   </div>
 </template>
