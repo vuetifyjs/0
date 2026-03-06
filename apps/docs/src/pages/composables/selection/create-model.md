@@ -2,7 +2,7 @@
 title: createModel - Value Store for Vue 3
 meta:
 - name: description
-  content: Value store layer that extends createRegistry with a reactive Set of selected IDs, disabled guards, and an apply bridge for useProxyModel sync.
+  content: Value store layer that extends createRegistry with a reactive value, disabled guards, and an apply bridge for useProxyModel sync.
 - name: keywords
   content: createModel, value store, model, composable, Vue 3, state management, disabled, reactive
 features:
@@ -18,7 +18,7 @@ related:
 
 # createModel
 
-A composable that extends `createRegistry` with value storage — a reactive Set of selected IDs, disabled guards, and an `apply` bridge for syncing with `useProxyModel`.
+A value store composable — register a ticket with a ref, and `createModel` gives you a reactive bridge between that ref and `useProxyModel`.
 
 <DocsPageFeatures :frontmatter />
 
@@ -26,26 +26,29 @@ A composable that extends `createRegistry` with value storage — a reactive Set
 
 `createModel` is a value store layer — think of it as a creative way to store a single value, more like `defineModel` than `createSelection`. It adds value tracking and disabled guards on top of the registry's collection management.
 
-Selection-specific concepts like `mandatory`, `multiple`, and `enroll` belong in `createSelection`.
+The typical pattern: register one ticket whose value is a ref, activate it, and let `useProxyModel` keep everything in sync.
 
 ```ts
-import { createModel } from '@vuetify/v0'
+import { ref } from 'vue'
+import { createModel, useProxyModel } from '@vuetify/v0'
 
+const value = ref('Apple')
 const model = createModel()
 
-model.register({ id: 'a', value: 'Apple' })
-model.register({ id: 'b', value: 'Banana' })
+model.register({ id: 'fruit', value })
+model.select('fruit')
 
-model.select('a')
+useProxyModel(model, value)
 
-console.log(model.selectedIds) // Set(1) { 'a' }
-console.log(model.selectedValues.value) // Set(1) { 'Apple' }
-console.log(model.selected('a')) // true
+// The ref and the model's stored value are now synced.
+// Changing `value.value` updates the model, and vice versa.
 ```
+
+Selection-specific concepts like `mandatory`, `multiple`, and `enroll` belong in `createSelection`.
 
 ## Architecture
 
-`createModel` sits between `createRegistry` and the higher-level selection composables:
+`createModel` sits between `createRegistry` and the higher-level composables:
 
 ```mermaid "Model Hierarchy"
 flowchart TD
@@ -57,55 +60,61 @@ flowchart TD
   createSingle --> createStep
 ```
 
-## Single-Value Semantics
+## How It Stores a Value
 
-`createModel` always operates in single-value mode. Calling `select` clears any previous selection before adding the new one:
+Each ticket holds a value — typically a `ref`. Calling `select` activates a ticket, making it the model's current value. Because `createModel` is a single-value store, `select` always clears before adding:
 
 ```ts
 const model = createModel()
 
-model.register({ id: 'a', value: 'Apple' })
-model.register({ id: 'b', value: 'Banana' })
+model.register({ id: 'a', value: ref('Apple') })
+model.register({ id: 'b', value: ref('Banana') })
 
 model.select('a')
-console.log(model.selectedIds) // Set(1) { 'a' }
+// model now stores 'Apple'
 
-model.select('b') // clears 'a', adds 'b'
-console.log(model.selectedIds) // Set(1) { 'b' }
+model.select('b')
+// model now stores 'Banana' — 'a' is deactivated
 ```
 
-For multi-select, mandatory enforcement, and other selection patterns, use `createSelection`.
+When a ticket's value is a ref, `apply` updates that ref directly — no ID resolution needed. This is what makes `useProxyModel` work seamlessly with reactive ticket values.
+
+For multi-value patterns where multiple tickets are active simultaneously, use `createSelection`.
 
 ## Disabled Guards
 
-Both the model instance and individual tickets support disabled state. Selection operations are silently skipped when disabled:
+Both the model instance and individual tickets support a disabled state. Operations are silently skipped when disabled:
 
 ```ts
 // Instance-level disabled
 const model = createModel({ disabled: true })
-model.register({ id: 'a', value: 'Apple' })
+model.register({ id: 'a', value: ref('Apple') })
 model.select('a') // no-op
 
 // Ticket-level disabled
 const model2 = createModel()
-model2.register({ id: 'b', value: 'Banana', disabled: true })
+model2.register({ id: 'b', value: ref('Banana'), disabled: true })
 model2.select('b') // no-op
 ```
 
 ## The Apply Bridge
 
-`apply` syncs external values (from `useProxyModel`) into the model's `selectedIds`. It resolves the first value to an ID using the registry's `browse` method:
+`apply` is the sync mechanism that `useProxyModel` calls to push external values into the model. It has two strategies:
+
+1. **Ref values** (common): If the active ticket's value is a ref, `apply` writes directly to `ticket.value.value`. No lookup needed.
+2. **Static values** (fallback): Resolves the value to a ticket ID via the registry's `browse` method, then activates that ticket.
 
 ```ts
+const value = ref('Apple')
 const model = createModel()
 
-model.register({ id: 'a', value: 'Apple' })
-model.register({ id: 'b', value: 'Banana' })
+model.register({ id: 'fruit', value })
+model.select('fruit')
 
-// Sync external value into the model
-model.apply(['Apple'])
+// useProxyModel calls apply internally:
+model.apply(['Banana'])
 
-console.log(model.selectedIds) // Set(1) { 'a' }
+console.log(value.value) // 'Banana' — ref updated directly
 ```
 
 ## Reactivity
@@ -116,7 +125,7 @@ Value state is **always reactive**. Collection methods follow the base `createRe
 | - | :-: | - |
 | `selectedIds` | <AppSuccessIcon /> | `shallowReactive(Set)` — always reactive |
 | `selectedItems` | <AppSuccessIcon /> | Computed from `selectedIds` |
-| `selectedValues` | <AppSuccessIcon /> | Computed from `selectedItems` |
+| `selectedValues` | <AppSuccessIcon /> | Computed from `selectedItems`, unwraps refs via `toValue` |
 | ticket `isSelected` | <AppSuccessIcon /> | Computed from `selectedIds` |
 
 > [!TIP] Value vs Collection
@@ -129,7 +138,7 @@ Value state is **always reactive**. Collection methods follow the base `createRe
 
 ### Single Value
 
-One ticket registered, one value stored. `useProxyModel` binds the store to a ref — the ref reflects the ticket's value reactively.
+One ticket registered with a ref value, activated, and synced via `useProxyModel`. Type in the input — the ref, the store, and the model all stay in sync.
 
 :::
 
