@@ -1,3 +1,4 @@
+import { ref } from 'vue'
 import { createContext, createSelection } from '@vuetify/v0'
 import type { SelectionContext } from '@vuetify/v0'
 
@@ -7,18 +8,26 @@ export const [
 ] = createContext<SelectionContext>('demo:colors')
 
 const colors = [
-  { id: 'red', value: '#ef4444' },
-  { id: 'blue', value: '#3b82f6' },
-  { id: 'green', value: '#22c55e' },
-  { id: 'purple', value: '#a855f7', disabled: true },
-  { id: 'orange', value: '#f97316' },
+  { id: 'red', hue: 0 },
+  { id: 'blue', hue: 217 },
+  { id: 'green', hue: 142 },
+  { id: 'purple', hue: 271, disabled: true },
+  { id: 'orange', hue: 25 },
 ]
+
+export function hsl (hue: number) {
+  return `hsl(${hue}, 70%, 55%)`
+}
 
 export function createColorModel () {
   const selection = createSelection({ multiple: true })
 
   for (const color of colors) {
-    selection.register(color)
+    selection.register({
+      id: color.id,
+      value: ref(color.hue),
+      disabled: color.disabled,
+    })
     if (!color.disabled) selection.select(color.id)
   }
 
