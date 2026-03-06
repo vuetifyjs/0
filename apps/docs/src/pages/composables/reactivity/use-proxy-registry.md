@@ -122,7 +122,7 @@ All read properties from the underlying registry:
 | `has(id)` | `boolean` | Yes |
 | `get(id)` | `Ticket \| undefined` | Yes |
 
-Mutations (`register`, `unregister`) are pass-through methods that trigger updates via events.
+Mutations (`register`, `unregister`, `move`) are pass-through methods that trigger updates via events.
 
 ??? Does the proxy re-render on every registry change?
 

@@ -402,6 +402,36 @@ export interface RegistryContext<
    * const cherry = registry.seek('first', 1, ticket => (ticket.value as string).startsWith('c'))
    * ```
   */
+  /**
+   * Move a ticket to a new index position
+   *
+   * @param id The ID of the ticket to move.
+   * @param toIndex The target index position. Clamped to valid range.
+   * @returns The moved ticket, or undefined if the ticket was not found.
+   *
+   * @remarks Rebuilds the internal collection order by removing and reinserting the entry at the target position. Triggers a full reindex after the move. This operation invalidates cached results from `keys()`, `values()`, and `entries()`.
+   *
+   * @see https://0.vuetifyjs.com/composables/registration/use-registry#move
+   *
+   * @example
+   * ```ts
+   * import { createRegistry } from '@vuetify/v0'
+   *
+   * const registry = createRegistry()
+   *
+   * registry.onboard([
+   *   { id: 'a', value: 'alpha' },
+   *   { id: 'b', value: 'beta' },
+   *   { id: 'c', value: 'gamma' },
+   * ])
+   *
+   * // Move 'a' from index 0 to index 2
+   * registry.move('a', 2)
+   *
+   * console.log(registry.keys()) // ['b', 'c', 'a']
+   * ```
+  */
+  move: (id: ID, toIndex: number) => E | undefined
   seek: (direction?: 'first' | 'last', from?: number, predicate?: (ticket: E) => boolean) => E | undefined
   /**
    * Listen for registry events
@@ -1026,6 +1056,32 @@ export function createRegistry<
     })
   }
 
+  function move (id: ID, toIndex: number): E | undefined {
+    const ticket = collection.get(id)
+    if (!ticket) return undefined
+
+    const size = collection.size
+    const target = clamp(toIndex, 0, size - 1)
+
+    if (ticket.index === target) return ticket
+
+    const items = Array.from(collection.entries())
+    const fromIndex = items.findIndex(([key]) => key === id)
+    const [entry] = items.splice(fromIndex, 1)
+
+    items.splice(target, 0, entry!)
+
+    collection.clear()
+    for (const [key, value] of items) {
+      collection.set(key, value)
+    }
+
+    minDirtyIndex = Math.min(ticket.index, target)
+    reindex()
+
+    return ticket
+  }
+
   function seek (
     direction: 'first' | 'last' = 'first',
     from?: number,
@@ -1079,6 +1135,7 @@ export function createRegistry<
     register,
     unregister,
     reindex,
+    move,
     seek,
     batch,
     onboard (registrations: Partial<Z & RegistryTicket>[]) {
