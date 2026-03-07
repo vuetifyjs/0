@@ -3,8 +3,8 @@ export { default as SplitterRoot } from './SplitterRoot.vue'
 export { default as SplitterPanel } from './SplitterPanel.vue'
 export { default as SplitterHandle } from './SplitterHandle.vue'
 
-export type { SplitterContext, SplitterOrientation, SplitterPanelState, SplitterRootProps, SplitterRootSlotProps } from './SplitterRoot.vue'
-export type { SplitterPanelProps, SplitterPanelSlotProps } from './SplitterPanel.vue'
+export type { SplitterContext, SplitterOrientation, SplitterPanelInput, SplitterPanelTicket, SplitterRootProps, SplitterRootSlotProps } from './SplitterRoot.vue'
+export type { SplitterPanelExpose, SplitterPanelProps, SplitterPanelSlotProps } from './SplitterPanel.vue'
 export type { SplitterHandleProps, SplitterHandleSlotProps, SplitterHandleState } from './SplitterHandle.vue'
 
 // Components

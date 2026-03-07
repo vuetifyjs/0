@@ -17,39 +17,41 @@
   import { createContext } from '#v0/composables/createContext'
 
   // Utilities
-  import { clamp } from '#v0/utilities'
+  import { clamp, isNullOrUndefined } from '#v0/utilities'
 
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
+  import type { RegistryContext } from '#v0/composables/createRegistry'
+  import type { SelectionContext, SelectionTicket, SelectionTicketInput } from '#v0/composables/createSelection'
   import type { Ref } from 'vue'
 
   export type SplitterOrientation = 'horizontal' | 'vertical'
 
-  export interface SplitterPanelState {
+  export interface SplitterPanelInput extends SelectionTicketInput {
+    size: number
     minSize: number
     maxSize: number
     collapsible: boolean
     collapsedSize: number
-    collapsed: boolean
     defaultSize: number
   }
+
+  export type SplitterPanelTicket = SelectionTicket<SplitterPanelInput>
 
   export interface SplitterContext {
     orientation: Ref<SplitterOrientation>
     disabled: Ref<boolean>
-    sizes: Ref<number[]>
-    panels: Ref<SplitterPanelState[]>
-    panelIds: Ref<string[]>
+    panels: SelectionContext<SplitterPanelInput>
+    handles: RegistryContext
     dragging: Ref<boolean>
     draggingHandle: Ref<number | null>
     rootEl: Ref<HTMLElement | null>
-    register: (panel: SplitterPanelState, defaultSize: number, id: string) => number
-    unregister: (index: number) => void
-    registerHandle: () => number
-    resize: (handleIndex: number, delta: number) => void
+    panel: (index: number) => SplitterPanelTicket | undefined
+    resize: (index: number, delta: number) => void
     onResizeEnd: () => void
-    collapsePanel: (index: number) => void
-    expandPanel: (index: number) => void
+    collapse: (index: number) => void
+    expand: (index: number) => void
+    distribute: (sizes: number[]) => void
   }
 
   export interface SplitterRootProps extends AtomProps {
@@ -75,8 +77,12 @@
   // Components
   import { Atom } from '#v0/components/Atom'
 
+  // Composables
+  import { createRegistry } from '#v0/composables/createRegistry'
+  import { createSelection } from '#v0/composables/createSelection'
+
   // Utilities
-  import { ref, shallowRef, toRef, useAttrs, useTemplateRef } from 'vue'
+  import { shallowRef, toRef, toValue, useAttrs, useTemplateRef } from 'vue'
 
   defineOptions({ name: 'SplitterRoot', inheritAttrs: false })
 
@@ -101,150 +107,117 @@
   // Vue auto-unwraps exposed refs when accessed via template ref,
   // but TypeScript doesn't reflect this - cast corrects the type
   const rootEl = toRef(() => (rootAtom.value?.element as HTMLElement | null | undefined) ?? null)
-  const sizes = ref<number[]>([])
-  const panels = ref<SplitterPanelState[]>([])
-  const panelIds = ref<string[]>([])
   const draggingHandle = shallowRef<number | null>(null)
   const dragging = toRef(() => draggingHandle.value !== null)
 
-  let panelCount = 0
-  let handleCount = 0
+  const panels = createSelection<SplitterPanelInput>({
+    multiple: true,
+    enroll: true,
+    reactive: true,
+  })
 
-  function register (panel: SplitterPanelState, defaultSize: number, id: string) {
-    const index = panelCount++
-    panels.value.push(panel)
-    sizes.value.push(defaultSize)
-    panelIds.value.push(id)
-    return index
+  const handles = createRegistry()
+
+  function panel (index: number) {
+    const id = panels.lookup(index)
+    return isNullOrUndefined(id) ? undefined : panels.get(id)
   }
 
-  function unregister (index: number) {
-    panels.value.splice(index, 1)
-    sizes.value.splice(index, 1)
-    panelIds.value.splice(index, 1)
-    panelCount--
+  function effectiveMin (ticket: SplitterPanelTicket) {
+    return ticket.collapsible && !toValue(ticket.isSelected)
+      ? ticket.collapsedSize
+      : ticket.minSize
   }
 
-  function registerHandle () {
-    return handleCount++
+  function resize (index: number, delta: number) {
+    const before = panel(index)
+    const after = panel(index + 1)
+    if (!before || !after) return
+
+    const total = before.size + after.size
+    const min1 = effectiveMin(before)
+    const min2 = effectiveMin(after)
+    const lower = Math.max(min1, total - after.maxSize)
+    const upper = Math.min(before.maxSize, total - min2)
+
+    const size = clamp(before.size + delta, lower, upper)
+    before.size = size
+    after.size = total - size
   }
 
-  function effectiveMin (panel: SplitterPanelState) {
-    return panel.collapsible && panel.collapsed ? panel.collapsedSize : panel.minSize
+  function collapse (index: number) {
+    const ticket = panel(index)
+    if (!ticket?.collapsible || !toValue(ticket.isSelected)) return
+
+    const neighbor = panel(index > 0 ? index - 1 : index + 1)
+    if (!neighbor) return
+
+    const diff = ticket.size - ticket.collapsedSize
+    neighbor.size += diff
+    ticket.size = ticket.collapsedSize
+    ticket.unselect()
   }
 
-  function resize (handleIndex: number, delta: number) {
-    const before = handleIndex
-    const after = handleIndex + 1
+  function expand (index: number) {
+    const ticket = panel(index)
+    if (!ticket?.collapsible || toValue(ticket.isSelected)) return
 
-    if (before < 0 || after >= sizes.value.length) return
+    const neighbor = panel(index > 0 ? index - 1 : index + 1)
+    if (!neighbor) return
 
-    const panel1 = panels.value[before]
-    const panel2 = panels.value[after]
-    const size1 = sizes.value[before]
-    const size2 = sizes.value[after]
-
-    if (!panel1 || !panel2 || size1 == null || size2 == null) return
-
-    const total = size1 + size2
-
-    // Compute bounds considering collapse state
-    const min1 = effectiveMin(panel1)
-    const min2 = effectiveMin(panel2)
-    const lower = Math.max(min1, total - panel2.maxSize)
-    const upper = Math.min(panel1.maxSize, total - min2)
-
-    let newSize1 = clamp(size1 + delta, lower, upper)
-
-    // Collapse snap: if dragging a collapsible panel below its minSize, snap to collapsedSize
-    if (panel1.collapsible && !panel1.collapsed && newSize1 <= panel1.minSize && delta < 0) {
-      newSize1 = panel1.collapsedSize
-      panel1.collapsed = true
-    } else if (panel1.collapsible && panel1.collapsed && newSize1 > panel1.collapsedSize) {
-      // Expanding from collapsed: snap to minSize
-      newSize1 = Math.max(newSize1, panel1.minSize)
-      panel1.collapsed = false
-    }
-
-    if (panel2.collapsible && !panel2.collapsed && (total - newSize1) <= panel2.minSize && delta > 0) {
-      newSize1 = total - panel2.collapsedSize
-      panel2.collapsed = true
-    } else if (panel2.collapsible && panel2.collapsed && (total - newSize1) > panel2.collapsedSize) {
-      const newSize2 = total - newSize1
-      if (newSize2 >= panel2.minSize) {
-        panel2.collapsed = false
-      } else {
-        newSize1 = total - panel2.collapsedSize
-      }
-    }
-
-    const newSize2 = total - newSize1
-
-    sizes.value[before] = newSize1
-    sizes.value[after] = newSize2
-  }
-
-  function collapsePanel (index: number) {
-    const panel = panels.value[index]
-    if (!panel || !panel.collapsible || panel.collapsed) return
-
-    const neighbor = index > 0 ? index - 1 : index + 1
-    if (sizes.value[neighbor] == null) return
-
-    const oldSize = sizes.value[index] ?? panel.defaultSize
-    const diff = oldSize - panel.collapsedSize
-
-    sizes.value[neighbor] += diff
-    sizes.value[index] = panel.collapsedSize
-    panel.collapsed = true
-  }
-
-  function expandPanel (index: number) {
-    const panel = panels.value[index]
-    if (!panel || !panel.collapsible || !panel.collapsed) return
-
-    const neighbor = index > 0 ? index - 1 : index + 1
-    if (sizes.value[neighbor] == null) return
-
-    const target = Math.min(panel.defaultSize, panel.maxSize)
-    const diff = target - panel.collapsedSize
-    const neighborPanel = panels.value[neighbor]
-    const available = sizes.value[neighbor] - (neighborPanel?.minSize ?? 0)
+    const target = Math.min(ticket.defaultSize, ticket.maxSize)
+    const diff = target - ticket.collapsedSize
+    const available = neighbor.size - neighbor.minSize
     const take = Math.min(diff, available)
 
-    sizes.value[neighbor] -= take
-    sizes.value[index] = panel.collapsedSize + take
-    panel.collapsed = false
+    neighbor.size -= take
+    ticket.size = ticket.collapsedSize + take
+    ticket.select()
+  }
+
+  function distribute (incoming: number[]) {
+    const values = panels.values()
+    if (incoming.length !== values.length) return
+
+    for (const [index, ticket] of values.entries()) {
+      const value = incoming[index]!
+      const min = ticket.collapsible && value <= ticket.collapsedSize
+        ? ticket.collapsedSize
+        : ticket.minSize
+      ticket.size = clamp(value, min, ticket.maxSize)
+    }
+
+    emit('layout', values.map(t => t.size))
   }
 
   function onResizeEnd () {
-    emit('layout', [...sizes.value])
+    emit('layout', panels.values().map(t => t.size))
   }
 
   const context: SplitterContext = {
     orientation: toRef(() => orientation),
     disabled: toRef(() => disabled),
-    sizes,
     panels,
-    panelIds,
+    handles,
     dragging,
     draggingHandle,
     rootEl,
-    register,
-    unregister,
-    registerHandle,
+    panel,
     resize,
     onResizeEnd,
-    collapsePanel,
-    expandPanel,
+    collapse,
+    expand,
+    distribute,
   }
 
   provideSplitterRoot(context)
 
+  defineExpose({ distribute })
+
   const slotProps = toRef((): SplitterRootSlotProps => ({
     orientation,
     isDisabled: disabled,
-    sizes: sizes.value,
+    sizes: panels.values().map(t => t.size),
     isDragging: dragging.value,
     attrs: {
       'data-orientation': orientation,

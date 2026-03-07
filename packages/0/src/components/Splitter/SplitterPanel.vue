@@ -3,7 +3,7 @@
  *
  * @remarks
  * Resizable panel within a splitter layout. Registers with the parent
- * SplitterRoot and receives its size from the shared sizes array.
+ * SplitterRoot's selection context and receives its size from the ticket.
  * Sized via flex-basis percentage.
  */
 
@@ -14,6 +14,7 @@
   // Types
   import type { AtomProps } from '#v0/components/Atom'
   import type { SplitterOrientation } from './SplitterRoot.vue'
+  import type { Ref } from 'vue'
 
   export interface SplitterPanelProps extends AtomProps {
     defaultSize: number
@@ -21,6 +22,13 @@
     maxSize?: number
     collapsible?: boolean
     collapsedSize?: number
+  }
+
+  export interface SplitterPanelExpose {
+    collapse: () => void
+    expand: () => void
+    size: Ref<number>
+    isCollapsed: Ref<boolean>
   }
 
   export interface SplitterPanelSlotProps {
@@ -43,7 +51,7 @@
 
   // Utilities
   import { useId } from '#v0/utilities'
-  import { onUnmounted, toRef, useAttrs, watch, watchEffect } from 'vue'
+  import { onUnmounted, toRef, toValue, useAttrs, watch, watchEffect } from 'vue'
 
   defineOptions({ name: 'SplitterPanel', inheritAttrs: false })
 
@@ -70,40 +78,42 @@
   const splitter = useSplitterRoot()
   const panelId = useId()
 
-  // Panel registration uses array indices — assumes static panel ordering
-  const index = splitter.register(
-    { minSize, maxSize, collapsible, collapsedSize, collapsed: false, defaultSize },
+  const ticket = splitter.panels.register({
+    id: panelId,
+    size: defaultSize,
+    minSize,
+    maxSize,
+    collapsible,
+    collapsedSize,
     defaultSize,
-    panelId,
-  )
+  })
 
   watchEffect(() => {
-    const panel = splitter.panels.value[index]
-    if (panel) {
-      panel.minSize = minSize
-      panel.maxSize = maxSize
-      panel.collapsible = collapsible
-      panel.collapsedSize = collapsedSize
-      panel.defaultSize = defaultSize
-    }
+    ticket.minSize = minSize
+    ticket.maxSize = maxSize
+    ticket.collapsible = collapsible
+    ticket.collapsedSize = collapsedSize
+    ticket.defaultSize = defaultSize
   })
 
   onUnmounted(() => {
-    splitter.unregister(index)
+    splitter.panels.unregister(ticket.id)
   })
 
-  const size = toRef(() => splitter.sizes.value[index] ?? defaultSize)
-  const isCollapsed = toRef(() => splitter.panels.value[index]?.collapsed ?? false)
+  const size = toRef(() => ticket.size)
+  const isCollapsed = toRef(() => collapsible && !toValue(ticket.isSelected))
 
   function collapse () {
-    splitter.collapsePanel(index)
+    splitter.collapse(ticket.index)
     splitter.onResizeEnd()
   }
 
   function expand () {
-    splitter.expandPanel(index)
+    splitter.expand(ticket.index)
     splitter.onResizeEnd()
   }
+
+  defineExpose<SplitterPanelExpose>({ collapse, expand, size, isCollapsed })
 
   watch(size, val => emit('resize', val))
 
@@ -115,7 +125,7 @@
     attrs: {
       'id': panelId,
       'data-orientation': splitter.orientation.value,
-      'data-panel-index': index,
+      'data-panel-index': ticket.index,
       'data-collapsed': isCollapsed.value || undefined,
     },
   }))
