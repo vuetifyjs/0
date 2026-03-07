@@ -58,7 +58,8 @@
   import { useToggleScope } from '#v0/composables/useToggleScope'
 
   // Utilities
-  import { onScopeDispose, shallowRef, toRef, useAttrs } from 'vue'
+  import { isNullOrUndefined } from '#v0/utilities'
+  import { onScopeDispose, onUnmounted, shallowRef, toRef, toValue, useAttrs } from 'vue'
 
   defineOptions({ name: 'SplitterHandle', inheritAttrs: false })
 
@@ -79,7 +80,12 @@
   const PAGE_STEP = 10
 
   const splitter = useSplitterRoot()
-  const handleIndex = splitter.registerHandle()
+  const ticket = splitter.handles.register()
+  const handleIndex = ticket.index
+
+  onUnmounted(() => {
+    splitter.handles.unregister(ticket.id)
+  })
 
   const hovering = shallowRef(false)
   const startPosition = shallowRef(0)
@@ -96,20 +102,18 @@
   })
 
   // aria-valuenow: size of the panel before this handle (0-100), rounded for AT
-  const valuenow = toRef(() => Math.round(splitter.sizes.value[handleIndex] ?? 0))
+  const valuenow = toRef(() => Math.round(splitter.panel(handleIndex)?.size ?? 0))
   const valuemin = toRef(() => {
-    const panel = splitter.panels.value[handleIndex]
-    if (!panel) return 0
-    return panel.collapsible ? panel.collapsedSize : panel.minSize
+    const p = splitter.panel(handleIndex)
+    if (!p) return 0
+    return p.collapsible ? p.collapsedSize : p.minSize
   })
   const valuemax = toRef(() => {
-    const panel = splitter.panels.value[handleIndex]
-    const adjacent = splitter.panels.value[handleIndex + 1]
-    if (!panel || !adjacent) return 100
-    const before = splitter.sizes.value[handleIndex] ?? 0
-    const after = splitter.sizes.value[handleIndex + 1] ?? 0
+    const p = splitter.panel(handleIndex)
+    const adjacent = splitter.panel(handleIndex + 1)
+    if (!p || !adjacent) return 100
     const adjMin = adjacent.collapsible ? adjacent.collapsedSize : adjacent.minSize
-    return Math.min(panel.maxSize, before + after - adjMin)
+    return Math.min(p.maxSize, p.size + adjacent.size - adjMin)
   })
 
   function onPointerDown (e: PointerEvent) {
@@ -196,11 +200,11 @@
       }
       case 'Home': {
         e.preventDefault()
-        const panel = splitter.panels.value[handleIndex]
-        if (panel?.collapsible) {
-          splitter.collapsePanel(handleIndex)
+        const p = splitter.panel(handleIndex)
+        if (p?.collapsible) {
+          splitter.collapse(handleIndex)
         } else {
-          const current = splitter.sizes.value[handleIndex] ?? 0
+          const current = p?.size ?? 0
           splitter.resize(handleIndex, valuemin.value - current)
         }
         splitter.onResizeEnd()
@@ -208,11 +212,11 @@
       }
       case 'End': {
         e.preventDefault()
-        const panel = splitter.panels.value[handleIndex]
-        if (panel?.collapsible && panel.collapsed) {
-          splitter.expandPanel(handleIndex)
+        const p = splitter.panel(handleIndex)
+        if (p?.collapsible && !toValue(p.isSelected)) {
+          splitter.expand(handleIndex)
         } else {
-          const current = splitter.sizes.value[handleIndex] ?? 0
+          const current = p?.size ?? 0
           splitter.resize(handleIndex, valuemax.value - current)
         }
         splitter.onResizeEnd()
@@ -235,6 +239,11 @@
     splitter.orientation.value === 'horizontal' ? 'vertical' : 'horizontal',
   )
 
+  const ariaControls = toRef(() => {
+    const p = splitter.panel(handleIndex)
+    return isNullOrUndefined(p) ? undefined : String(p.id)
+  })
+
   const slotProps = toRef((): SplitterHandleSlotProps => ({
     isDragging: splitter.draggingHandle.value === handleIndex,
     isDisabled: isDisabled.value,
@@ -246,7 +255,7 @@
       'aria-valuemin': valuemin.value,
       'aria-valuemax': valuemax.value,
       'aria-orientation': ariaOrientation.value,
-      'aria-controls': splitter.panelIds.value[handleIndex] || undefined,
+      'aria-controls': ariaControls.value,
       'aria-label': label || undefined,
       'aria-disabled': isDisabled.value || undefined,
       'data-state': state.value,
@@ -265,6 +274,7 @@
     v-bind="{ ...attrs, ...slotProps.attrs }"
     :as
     :renderless
+    :style="{ flexShrink: 0 }"
   >
     <slot v-bind="slotProps" />
   </Atom>
