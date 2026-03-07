@@ -248,6 +248,10 @@ export const [createBreakpointsContext, createBreakpointsPlugin, useBreakpoints]
     {
       fallback: () => createBreakpointsFallback(),
       setup: (context, app, _options) => {
+        // Flush initial values synchronously so they're correct
+        // before any component's onMounted runs.
+        if (IN_BROWSER) context.update()
+
         app.mixin({
           mounted () {
             if (!isNull(this.$parent)) return
