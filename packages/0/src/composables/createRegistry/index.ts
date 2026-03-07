@@ -411,7 +411,7 @@ export interface RegistryContext<
    *
    * @remarks Rebuilds the internal collection order by removing and reinserting the entry at the target position. Triggers a full reindex after the move. This operation invalidates cached results from `keys()`, `values()`, and `entries()`.
    *
-   * @see https://0.vuetifyjs.com/composables/registration/use-registry#move
+   * @see https://0.vuetifyjs.com/composables/registration/create-registry#move
    *
    * @example
    * ```ts
@@ -1057,6 +1057,8 @@ export function createRegistry<
   }
 
   function move (id: ID, toIndex: number): E | undefined {
+    if (needsReindex) reindex()
+
     const ticket = collection.get(id)
     if (!ticket) return undefined
 
