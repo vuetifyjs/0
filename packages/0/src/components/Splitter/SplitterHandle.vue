@@ -106,7 +106,7 @@
   const valuemin = toRef(() => {
     const p = splitter.panel(handleIndex)
     if (!p) return 0
-    return p.collapsible ? p.collapsedSize : p.minSize
+    return p.collapsible && !toValue(p.isSelected) ? p.collapsedSize : p.minSize
   })
   const valuemax = toRef(() => {
     const p = splitter.panel(handleIndex)
@@ -122,8 +122,10 @@
     const target = e.target as Element
     target.setPointerCapture(e.pointerId)
     startPosition.value = isHorizontal.value ? e.clientX : e.clientY
-    document.documentElement.style.cursor = isHorizontal.value ? 'col-resize' : 'row-resize'
-    document.documentElement.style.userSelect = 'none'
+    if (IN_BROWSER) {
+      document.documentElement.style.cursor = isHorizontal.value ? 'col-resize' : 'row-resize'
+      document.documentElement.style.userSelect = 'none'
+    }
     splitter.draggingHandle.value = handleIndex
   }
 

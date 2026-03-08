@@ -153,7 +153,7 @@
     if (!neighbor) return
 
     const diff = ticket.size - ticket.collapsedSize
-    neighbor.size += diff
+    neighbor.size = Math.min(neighbor.size + diff, neighbor.maxSize)
     ticket.size = ticket.collapsedSize
     ticket.unselect()
   }
