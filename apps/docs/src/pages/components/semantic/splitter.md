@@ -99,9 +99,9 @@ Panels can collapse to a minimum size. Set `collapsible` and optionally `collaps
 ```vue
 <script setup lang="ts">
   import { Splitter } from '@vuetify/v0'
-  import { useTemplateRef } from 'vue'
+  import { type Ref, useTemplateRef } from 'vue'
 
-  const sidebar = useTemplateRef<{ collapse: () => void, expand: () => void }>('sidebar')
+  const sidebar = useTemplateRef<{ collapse: () => void, expand: () => void, size: Ref<number>, isCollapsed: Ref<boolean> }>('sidebar')
 </script>
 
 <template>
@@ -130,7 +130,7 @@ Panels can collapse to a minimum size. Set `collapsible` and optionally `collaps
 
 ### Events
 
-The root emits `@layout` with all panel sizes after every resize. Panels emit `@resize` with their individual size.
+The root emits `@layout` with all panel sizes at the end of each resize interaction. Panels emit `@resize` with their individual size.
 
 ```vue
 <template>
@@ -210,6 +210,7 @@ The Splitter implements the [WAI-ARIA Window Splitter](https://www.w3.org/WAI/AR
 | Page Down | Grow preceding panel by 10% |
 | Home | Collapse preceding panel (if collapsible) or shrink to minimum |
 | End | Expand preceding panel (if collapsed) or grow to maximum |
+| Enter | Toggle collapse state of preceding panel (if collapsible) |
 
 Arrow direction follows the layout orientation — horizontal splitters use Left/Right, vertical splitters use Up/Down.
 
