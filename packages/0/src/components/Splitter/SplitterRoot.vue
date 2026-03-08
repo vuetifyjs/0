@@ -47,13 +47,13 @@
   export type SplitterPanelTicket = SelectionTicket<SplitterPanelInput>
 
   export interface SplitterContext {
-    orientation: Ref<SplitterOrientation>
-    disabled: Ref<boolean>
+    orientation: Readonly<Ref<SplitterOrientation>>
+    disabled: Readonly<Ref<boolean>>
     panels: SelectionContext<SplitterPanelInput>
     handles: RegistryContext
-    dragging: Ref<boolean>
+    dragging: Readonly<Ref<boolean>>
     draggingHandle: Ref<number | null>
-    rootEl: Ref<HTMLElement | null>
+    rootEl: Readonly<Ref<HTMLElement | null>>
     panel: (index: number) => SplitterPanelTicket | undefined
     resize: (index: number, delta: number) => void
     startDrag: (index: number) => void
