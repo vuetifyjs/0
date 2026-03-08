@@ -1,25 +1,10 @@
 <script setup lang="ts">
   import { mdiCancel, mdiCheckCircle } from '@mdi/js'
-  import { ref, shallowRef, toRef, toValue } from 'vue'
-  import { Checkbox, createModel, useProxyRegistry } from '@vuetify/v0'
+  import { toValue } from 'vue'
+  import { Checkbox } from '@vuetify/v0'
+  import { allToppings, createCompound, sizes } from './createCompound'
 
-  const store = createModel({ events: true })
-  const proxy = useProxyRegistry(store)
-  const tickets = toRef(() => [...proxy.values])
-  const compound = toRef(() => [...store.selectedValues.value])
-
-  const name = shallowRef('John')
-  const size = shallowRef('M')
-  const toppings = ref(['cheese', 'lettuce'])
-  const quantity = shallowRef(2)
-
-  const sizes = ['XS', 'S', 'M', 'L', 'XL']
-  const allToppings = ['cheese', 'lettuce', 'tomato', 'onion', 'avocado']
-
-  store.register({ id: 'name', value: name, disabled: shallowRef(false) })
-  store.register({ id: 'size', value: size, disabled: shallowRef(false) })
-  store.register({ id: 'toppings', value: toppings, disabled: shallowRef(false) })
-  store.register({ id: 'quantity', value: quantity, disabled: shallowRef(false) })
+  const { store, tickets, compound, name, size, toppings, quantity } = createCompound()
 
   function onToggle (id: string | number) {
     if (store.selected(id)) store.selectedIds.delete(id)
@@ -44,7 +29,7 @@
   <div class="flex flex-col gap-5">
     <div class="flex items-baseline justify-between">
       <span class="text-xs text-on-surface-variant/50 tabular-nums">
-        {{ store.selectedIds.size }} / {{ proxy.size }} in compound
+        {{ store.selectedIds.size }} / {{ store.size }} in compound
       </span>
     </div>
 
