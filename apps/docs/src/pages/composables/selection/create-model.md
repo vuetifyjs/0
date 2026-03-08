@@ -57,37 +57,6 @@ flowchart TD
   createModel -. "useProxyModel" .-> defineModel["defineModel / v-model"]
 ```
 
-## Guide
-
-### How It Stores a Value
-
-A ticket's value is typically a ref. When registered, `useProxyModel` auto-selects the ticket and writes directly to the ref — changes flow both ways without ID resolution.
-
-When multiple tickets are registered, `select` always clears before adding — only one ticket is active at a time. For compound models where multiple values are active simultaneously, use `createSelection`.
-
-### Disabled Guards
-
-Both the model instance and individual tickets support a disabled state. Operations are silently skipped when disabled:
-
-```ts
-import { shallowRef } from 'vue'
-import { createModel } from '@vuetify/v0'
-
-// Instance-level disabled
-const model = createModel({ disabled: true })
-model.register({ id: 'a', value: shallowRef('Apple') })
-model.select('a') // no-op
-
-// Ticket-level disabled
-const model2 = createModel()
-model2.register({ id: 'b', value: shallowRef('Banana'), disabled: true })
-model2.select('b') // no-op
-```
-
-### The Apply Bridge
-
-`useProxyModel` calls `apply` internally to keep the ref and model in sync. When the active ticket's value is a ref, `apply` writes to it directly — no ID lookup needed. You rarely call `apply` yourself.
-
 ## Reactivity
 
 Value state is **always reactive**. Collection methods follow the base `createRegistry` pattern.
