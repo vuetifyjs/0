@@ -1,62 +1,190 @@
 <script setup lang="ts">
-  import { toRef, toValue } from 'vue'
-  import { useColors } from './model'
+  import { isRef, toRef, toValue } from 'vue'
+  import { hueGradient, oklch, useColors } from './model'
 
   const model = useColors()
+  const tickets = toRef(() => [...model.values()])
+  const selected = toRef(() => [...model.selectedItems.value])
+  const gradient = hueGradient()
 
-  const tickets = toRef(() => model.values())
+  function onHue (ticket: (typeof tickets.value)[number], event: Event) {
+    if (isRef(ticket.value)) {
+      ticket.value.value = Number((event.target as HTMLInputElement).value)
+    }
+  }
 </script>
 
 <template>
-  <div class="flex flex-col gap-4">
-    <!-- Color swatches -->
-    <div class="flex justify-center gap-3">
-      <button
-        v-for="ticket in tickets"
-        :key="ticket.id"
-        class="size-12 rounded-full border-3 transition-all"
-        :class="[
-          toValue(ticket.disabled)
-            ? 'opacity-30 cursor-not-allowed'
-            : 'cursor-pointer hover:scale-110',
-          ticket.isSelected.value
-            ? 'border-on-surface shadow-lg scale-110'
-            : 'border-transparent',
-        ]"
-        :disabled="toValue(ticket.disabled)"
-        :style="{ backgroundColor: String(ticket.value) }"
-        @click="model.toggle(ticket.id)"
-      />
+  <div class="flex flex-col gap-6">
+    <!-- Header -->
+    <div class="flex items-baseline justify-between">
+      <span class="text-on-surface text-lg font-serif italic">Palette</span>
+      <span class="text-on-surface-variant/45 text-xs font-medium tracking-widest uppercase">
+        {{ model.selectedIds.size }} / {{ model.size }}
+      </span>
     </div>
 
-    <!-- Selected state -->
-    <div class="rounded-lg border border-divider bg-surface-variant/30 p-3 space-y-2">
-      <div class="flex items-center gap-2">
-        <span class="text-xs font-medium text-on-surface-variant/60 uppercase tracking-wider">Selected</span>
-        <span class="text-xs text-on-surface-variant/40">
-          ({{ model.selectedIds.size }} / {{ model.size }})
-        </span>
-      </div>
-
-      <div class="flex flex-wrap gap-1.5">
-        <span
-          v-for="item of model.selectedValues.value"
-          :key="String(item)"
-          class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-surface-tint text-xs font-medium text-on-surface"
+    <!-- Color rows -->
+    <div class="flex flex-col gap-2.5">
+      <div
+        v-for="ticket in tickets"
+        :key="ticket.id"
+        class="color-row grid items-center gap-2.5"
+        :class="toValue(ticket.disabled) ? 'opacity-25 pointer-events-none' : ''"
+      >
+        <!-- Swatch toggle -->
+        <button
+          class="swatch size-8 shrink-0 rounded-full border-2 cursor-pointer relative"
+          :class="ticket.isSelected.value ? 'border-current' : 'border-transparent'"
+          :disabled="toValue(ticket.disabled)"
+          :style="{ color: oklch(toValue(ticket.value) as number) }"
+          @click="model.toggle(ticket.id)"
         >
           <span
-            class="size-3 rounded-full"
-            :style="{ backgroundColor: String(item) }"
+            class="absolute rounded-full inset-[3px]"
+            :style="{ backgroundColor: oklch(toValue(ticket.value) as number) }"
           />
-          {{ item }}
+        </button>
+
+        <!-- Label -->
+        <span class="text-on-surface-variant/45 text-xs font-medium tracking-wide capitalize">
+          {{ ticket.id }}
         </span>
-        <span
-          v-if="model.selectedIds.size === 0"
-          class="text-xs text-on-surface-variant italic"
+
+        <!-- Hue slider -->
+        <input
+          class="hue-slider w-full h-1.5 rounded-full cursor-pointer outline-none"
+          :disabled="toValue(ticket.disabled)"
+          max="360"
+          min="0"
+          :style="{
+            '--swatch-color': oklch(toValue(ticket.value) as number),
+            '--track-gradient': gradient,
+          } as any"
+          type="range"
+          :value="toValue(ticket.value)"
+          @input="onHue(ticket, $event)"
         >
-          None selected
+
+        <!-- Degree value -->
+        <span class="text-on-surface-variant/45 text-right text-xs font-mono tabular-nums">
+          {{ toValue(ticket.value) }}°
+        </span>
+      </div>
+    </div>
+
+    <!-- Divider -->
+    <div class="h-px bg-divider" />
+
+    <!-- Composite strip -->
+    <div class="flex flex-col gap-2.5">
+      <span class="text-on-surface-variant/25 text-xs font-medium tracking-widest uppercase">
+        Composite
+      </span>
+
+      <div class="strip-wrapper rounded-xl overflow-hidden relative">
+        <div v-if="selected.length > 0" class="flex w-full h-full">
+          <div
+            v-for="(item, index) in selected"
+            :key="item.id"
+            class="strip-segment flex-1 min-w-0 relative"
+            :class="index > 0 ? 'strip-segment-divider' : ''"
+            :style="{ backgroundColor: oklch(toValue(item.value) as number) }"
+          />
+        </div>
+        <div
+          v-else
+          class="w-full h-full grid place-items-center bg-surface-variant/30 text-on-surface-variant/25 text-xs italic"
+        >
+          No colors selected
+        </div>
+      </div>
+
+      <!-- Values beneath strip -->
+      <div class="flex min-h-4">
+        <span
+          v-for="item in selected"
+          :key="item.id"
+          class="flex-1 text-center text-on-surface-variant/45 text-[10px] font-light tabular-nums"
+        >
+          {{ toValue(item.value) }}°
         </span>
       </div>
     </div>
   </div>
 </template>
+
+<style scoped>
+.color-row {
+  grid-template-columns: 32px 52px 1fr 38px;
+  height: 36px;
+}
+
+/* Slider track */
+.hue-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  background: var(--track-gradient);
+}
+
+.hue-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--swatch-color);
+  border: 2px solid rgb(var(--v0-theme-on-surface));
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+  cursor: grab;
+}
+
+.hue-slider::-webkit-slider-thumb:active {
+  cursor: grabbing;
+}
+
+.hue-slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--swatch-color);
+  border: 2px solid rgb(var(--v0-theme-on-surface));
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+  cursor: grab;
+}
+
+/* Composite strip */
+.strip-wrapper {
+  height: 56px;
+  box-shadow:
+    inset 0 2px 6px rgba(0, 0, 0, 0.25),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.04),
+    0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+/* Glass highlight */
+.strip-wrapper::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.08), transparent 40%);
+  pointer-events: none;
+}
+
+/* Facet line between segments */
+.strip-segment-divider::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.12),
+    rgba(255, 255, 255, 0.03) 50%,
+    rgba(0, 0, 0, 0.15)
+  );
+}
+</style>

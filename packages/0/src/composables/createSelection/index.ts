@@ -2,11 +2,12 @@
  * @module useSelection
  *
  * @remarks
- * Selection composable that extends createModel with auto-enrollment
- * and ticket self-methods (select/unselect/toggle on each ticket).
+ * Selection composable that extends createModel with multi-select,
+ * mandatory enforcement, auto-enrollment, and ticket self-methods.
  *
  * Key features:
  * - Set-based selectedIds for O(1) selection checks
+ * - Single or multi-select mode
  * - Mandatory selection mode (prevents deselecting last item)
  * - Auto-enrollment option (selects non-disabled items on register)
  * - Disabled item filtering
@@ -24,12 +25,13 @@ import { createTrinity } from '#v0/composables/createTrinity'
 import { createModel } from '#v0/composables/createModel'
 
 // Utilities
-import { useId } from '#v0/utilities'
-import { toValue } from 'vue'
+import { isUndefined, useId } from '#v0/utilities'
+import { toRaw, toValue } from 'vue'
 
 // Types
 import type { ModelContext, ModelOptions, ModelTicket, ModelTicketInput } from '#v0/composables/createModel'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
+import type { ID } from '#v0/types'
 import type { App, MaybeRefOrGetter } from 'vue'
 
 /**
@@ -84,14 +86,29 @@ export type SelectionTicket<Z extends SelectionTicketInput = SelectionTicketInpu
 export interface SelectionContext<
   Z extends SelectionTicketInput = SelectionTicketInput,
   E extends SelectionTicket<Z> = SelectionTicket<Z>,
-> extends Omit<ModelContext<Z, E>, 'register' | 'onboard'> {
+> extends Omit<ModelContext<Z, E>, 'register'> {
+  /** Whether the selection allows multiple selections */
+  multiple: MaybeRefOrGetter<boolean>
   /** Register a new ticket (accepts input type, returns output type) */
   register: (ticket?: Partial<Z>) => E
   /** Onboard multiple tickets at once */
   onboard: (registrations: Partial<Z>[]) => E[]
+  /** Mandate selected ID based on "mandatory" option */
+  mandate: () => void
+  /** Seek for the first/last non-disabled ticket */
+  seek: (direction?: 'first' | 'last', from?: number) => E | undefined
 }
 
 export interface SelectionOptions extends ModelOptions {
+  /**
+   * Controls mandatory selection behavior:
+   * - `false` (default): No mandatory selection enforcement
+   * - `true`: Prevents deselecting the last selected item
+   * - `'force'`: Automatically selects the first non-disabled item on registration
+   */
+  mandatory?: MaybeRefOrGetter<boolean | 'force'>
+  /** When true, treats the selection as an array */
+  multiple?: MaybeRefOrGetter<boolean>
   /**
    * When true, newly registered items are automatically selected if not disabled.
    * Useful for pre-selecting items in multi-select scenarios.
@@ -106,7 +123,8 @@ export interface SelectionContextOptions extends SelectionOptions {
 /**
  * Creates a new selection instance for managing multiple selected items.
  *
- * Extends `createModel` with auto-enrollment and ticket self-methods.
+ * Extends `createModel` with multi-select, mandatory enforcement,
+ * auto-enrollment, and ticket self-methods.
  * Supports disabled items, mandatory selection enforcement, and auto-enrollment.
  *
  * @param options The options for the selection instance.
@@ -175,17 +193,82 @@ export function createSelection<
 > (_options: SelectionOptions = {}): R {
   const {
     enroll = false,
+    mandatory = false,
+    multiple = false,
     ...modelOptions
   } = _options
 
   const model = createModel<Z, E>(modelOptions)
 
+  function seek (direction: 'first' | 'last' = 'first', from?: number): E | undefined {
+    return model.seek(direction, from, (ticket: E) => !toValue(ticket.disabled))
+  }
+
+  function mandate () {
+    if (!toValue(mandatory) || model.size === 0 || model.selectedIds.size > 0) return
+
+    const ticket = seek('first')
+
+    if (ticket) select(ticket.id)
+  }
+
+  function select (id: ID) {
+    if (toValue(model.disabled)) return
+
+    const item = model.get(id)
+    if (!item || toValue(item.disabled)) return
+
+    if (!toValue(multiple)) model.selectedIds.clear()
+    model.selectedIds.add(id)
+  }
+
+  function unselect (id: ID) {
+    if (toValue(model.disabled)) return
+    if (toValue(mandatory) && model.selectedIds.size === 1) return
+
+    model.selectedIds.delete(id)
+  }
+
+  function toggle (id: ID) {
+    if (toValue(model.disabled)) return
+
+    if (model.selectedIds.has(id)) unselect(id)
+    else select(id)
+  }
+
+  function apply (values: unknown[], options?: { multiple?: boolean }): void {
+    const isMultiple = options?.multiple ?? toValue(multiple)
+    const currentIds = new Set(model.selectedIds)
+    const targetIds = new Set<ID>()
+
+    for (const value of values) {
+      const ids = model.browse(toRaw(value))
+      if (ids) {
+        for (const id of ids) targetIds.add(id)
+      }
+    }
+
+    if (isMultiple) {
+      for (const id of currentIds.difference(targetIds)) {
+        model.selectedIds.delete(id)
+      }
+      for (const id of targetIds.difference(currentIds)) {
+        model.selectedIds.add(id)
+      }
+    } else {
+      const next = targetIds.values().next().value
+      const last = currentIds.values().next().value
+      if (!isUndefined(last)) unselect(last)
+      if (!isUndefined(next)) select(next)
+    }
+  }
+
   function register (registration: Partial<Z> = {}): E {
     const id = registration.id ?? useId()
     const decorated: Partial<Z> = {
-      select: () => model.select(id),
-      unselect: () => model.unselect(id),
-      toggle: () => model.toggle(id),
+      select: () => select(id),
+      unselect: () => unselect(id),
+      toggle: () => toggle(id),
       ...registration,
       id,
     } as Partial<Z>
@@ -193,23 +276,30 @@ export function createSelection<
     const ticket = model.register(decorated)
 
     if (toValue(enroll) && !toValue(model.disabled) && !toValue(ticket.disabled)) {
-      model.select(ticket.id)
+      select(ticket.id)
     }
-    if (toValue(modelOptions.mandatory) === 'force') model.mandate()
+    if (toValue(mandatory) === 'force') mandate()
 
     return ticket
   }
 
   function onboard (registrations: Partial<Z>[]): E[] {
     const tickets = model.batch(() => registrations.map(registration => register(registration)))
-    if (toValue(modelOptions.mandatory) === 'force') model.mandate()
+    if (toValue(mandatory) === 'force') mandate()
     return tickets
   }
 
   return {
     ...model,
+    multiple,
     register,
     onboard,
+    select,
+    unselect,
+    toggle,
+    apply,
+    mandate,
+    seek,
     get size () {
       return model.size
     },

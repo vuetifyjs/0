@@ -1,10 +1,10 @@
 ---
-title: createModel - Selection State Layer for Vue 3
+title: createModel - Value Store for Vue 3
 meta:
 - name: description
-  content: Selection state layer that extends createRegistry with a reactive Set of selected IDs, mandatory selection enforcement, and an apply bridge for useProxyModel sync.
+  content: Value store layer that extends createRegistry with a reactive value, disabled guards, and an apply bridge for useProxyModel sync.
 - name: keywords
-  content: createModel, selection, model, composable, Vue 3, state management, mandatory, disabled, reactive
+  content: createModel, value store, model, composable, Vue 3, state management, disabled, reactive
 features:
   category: Composable
   label: 'E: createModel'
@@ -18,32 +18,32 @@ related:
 
 # createModel
 
-A composable that extends `createRegistry` with selection state — a reactive Set of selected IDs, disabled guards, mandatory enforcement, and an `apply` bridge for syncing with `useProxyModel`.
+Manage a reactive value with two-way sync — wrap a ref in a model and `useProxyModel` keeps it in sync automatically.
 
 <DocsPageFeatures :frontmatter />
 
 ## Usage
 
-`createModel` is the shared selection state layer used by both `createSelection` and `createSlider`. It adds selection tracking, disabled guards, and mandatory enforcement on top of the registry's collection management.
+`createModel` stores a reactive value. Register a ref and `useProxyModel` keeps it synced — the same idea as `defineModel` but built on the registry pattern.
 
 ```ts
-import { createModel } from '@vuetify/v0'
+import { createModel, useProxyModel } from '@vuetify/v0'
 
+const value = defineModel<string>()
 const model = createModel()
 
-model.register({ id: 'a', value: 'Apple' })
-model.register({ id: 'b', value: 'Banana' })
+model.register({ id: 'fruit', value })
 
-model.select('a')
-
-console.log(model.selectedIds) // Set(1) { 'a' }
-console.log(model.selectedValues.value) // Set(1) { 'Apple' }
-console.log(model.selected('a')) // true
+useProxyModel(model, value)
 ```
+
+Most of the time you register a single ticket — that's the only value you care about. The registry pattern underneath gives you the ability to compose multiple values into a compound model when you need it, which is what `createSelection` builds on.
+
+Selection-specific concepts like `mandatory`, `multiple`, and `enroll` belong in `createSelection`.
 
 ## Architecture
 
-`createModel` sits between `createRegistry` and the higher-level selection composables:
+`createModel` sits between `createRegistry` and the higher-level composables:
 
 ```mermaid "Model Hierarchy"
 flowchart TD
@@ -55,73 +55,56 @@ flowchart TD
   createSingle --> createStep
 ```
 
-## Mandatory Selection
+## How It Stores a Value
 
-The `mandatory` option controls whether at least one item must remain selected:
+A ticket's value is typically a ref. When registered, `useProxyModel` auto-selects the ticket and writes directly to the ref — changes flow both ways without ID resolution.
 
-| Value | Behavior |
-| - | - |
-| `false` | No enforcement — all items can be deselected |
-| `true` | Prevents deselecting the last selected item |
-| `'force'` | Same as `true`, plus auto-selects the first non-disabled item when `mandate()` is called |
-
-```ts
-const model = createModel({ mandatory: 'force' })
-
-model.register({ id: 'a', value: 'Apple' })
-model.mandate() // auto-selects 'a'
-
-model.unselect('a') // no-op — last item cannot be deselected
-```
+When multiple tickets are registered, `select` always clears before adding — only one ticket is active at a time. For compound models where multiple values are active simultaneously, use `createSelection`.
 
 ## Disabled Guards
 
-Both the model instance and individual tickets support disabled state. Selection operations are silently skipped when disabled:
+Both the model instance and individual tickets support a disabled state. Operations are silently skipped when disabled:
 
 ```ts
 // Instance-level disabled
 const model = createModel({ disabled: true })
-model.register({ id: 'a', value: 'Apple' })
+model.register({ id: 'a', value: ref('Apple') })
 model.select('a') // no-op
 
 // Ticket-level disabled
 const model2 = createModel()
-model2.register({ id: 'b', value: 'Banana', disabled: true })
+model2.register({ id: 'b', value: ref('Banana'), disabled: true })
 model2.select('b') // no-op
 ```
 
 ## The Apply Bridge
 
-`apply` syncs external values (from `useProxyModel`) into the model's `selectedIds`. It resolves values to IDs using the registry's `browse` method and performs a minimal diff:
-
-```ts
-const model = createModel({ multiple: true })
-
-model.register({ id: 'a', value: 'Apple' })
-model.register({ id: 'b', value: 'Banana' })
-model.register({ id: 'c', value: 'Cherry' })
-
-// Sync external values into the model
-model.apply(['Apple', 'Cherry'])
-
-console.log(model.selectedIds) // Set(2) { 'a', 'c' }
-```
+`useProxyModel` calls `apply` internally to keep the ref and model in sync. When the active ticket's value is a ref, `apply` writes to it directly — no ID lookup needed. You rarely call `apply` yourself.
 
 ## Reactivity
 
-Selection state is **always reactive**. Collection methods follow the base `createRegistry` pattern.
+Value state is **always reactive**. Collection methods follow the base `createRegistry` pattern.
 
 | Property/Method | Reactive | Notes |
 | - | :-: | - |
 | `selectedIds` | <AppSuccessIcon /> | `shallowReactive(Set)` — always reactive |
 | `selectedItems` | <AppSuccessIcon /> | Computed from `selectedIds` |
-| `selectedValues` | <AppSuccessIcon /> | Computed from `selectedItems` |
+| `selectedValues` | <AppSuccessIcon /> | Computed from `selectedItems`, unwraps refs via `toValue` |
 | ticket `isSelected` | <AppSuccessIcon /> | Computed from `selectedIds` |
 
-> [!TIP] Selection vs Collection
-> Most UI patterns only need **selection reactivity** (which is always on). You rarely need the collection itself to be reactive.
+> [!TIP] Value vs Collection
+> Most UI patterns only need **value reactivity** (which is always on). You rarely need the collection itself to be reactive.
 
 ## Examples
+
+::: example
+/composables/create-model/compound
+
+### Compound Value
+
+Register multiple tickets with different value types — text, radios, checkboxes, a slider, and a color picker. Each ticket's value is a ref. Toggle tickets in and out of the compound, disable them, or change their values. The compound output updates reactively.
+
+:::
 
 ::: example
 /composables/create-model/model.ts
@@ -129,25 +112,9 @@ Selection state is **always reactive**. Collection methods follow the base `crea
 /composables/create-model/ColorConsumer.vue
 /composables/create-model/colors.vue
 
-### Color Palette Selector
+### Color Palette
 
-This example demonstrates `createModel` with `multiple` and `mandatory` options. Each color is a registered ticket with a hex value. Purple is disabled and cannot be selected. The last selected color cannot be deselected due to `mandatory: true`.
-
-**File breakdown:**
-
-| File | Role |
-|------|------|
-| `model.ts` | Creates the model instance with `multiple: true, mandatory: true`, onboards color tickets, and exports the context tuple |
-| `ColorProvider.vue` | Calls `createColorModel()` and provides the context, rendering only a slot |
-| `ColorConsumer.vue` | Consumes the context via `useColors()` to render clickable swatches with reactive selected state |
-| `colors.vue` | Entry point that composes Provider around Consumer |
-
-**Key patterns:**
-
-- Provider components are invisible wrappers that render only `<slot />`
-- Consumers import only from `model.ts`, never from the Provider
-- `toggle(id)` handles both select and unselect in one call
-- Disabled tickets are visually dimmed and non-interactive
+Five OKLCH hue sliders composed into a shared palette via `createSelection` (which extends `createModel`). Drag a slider to adjust a color, toggle one off to drop it from the composite. Purple is disabled.
 
 :::
 

@@ -2,9 +2,12 @@
  * @module createModel
  *
  * @remarks
- * Selection state layer that extends createRegistry with a reactive Set of
- * selected IDs, mandatory selection enforcement, and an `apply` bridge for
- * useProxyModel sync.
+ * Value store layer that extends createRegistry with a reactive Set of
+ * selected IDs, disabled guards, and an `apply` bridge for useProxyModel sync.
+ *
+ * Think of it as a creative way to store a single value — more like
+ * `defineModel` than `createSelection`. Selection-specific concepts
+ * (mandatory, multiple, enroll) belong in createSelection.
  *
  * Both Selection and Slider extend this layer:
  * - createRegistry → createModel → createSelection → createSingle/createGroup/createStep
@@ -16,7 +19,7 @@ import { createRegistry } from '#v0/composables/createRegistry'
 
 // Utilities
 import { isUndefined, useId } from '#v0/utilities'
-import { computed, shallowReactive, toRef, toRaw, toValue } from 'vue'
+import { computed, isRef, shallowReactive, toRef, toRaw, toValue } from 'vue'
 
 // Types
 import type { RegistryContext, RegistryOptions, RegistryTicket, RegistryTicketInput } from '#v0/composables/createRegistry'
@@ -63,46 +66,31 @@ export interface ModelContext<
   selectedValues: ComputedRef<Set<E['value']>>
   /** Disable state for the entire model instance */
   disabled: MaybeRef<boolean>
-  /** Whether the model allows multiple selections */
-  multiple: MaybeRefOrGetter<boolean>
   /** Clear all selected IDs and reindex */
   reset: () => void
-  /** Select a ticket by ID (Toggle ON) */
+  /** Select a ticket by ID (single-value: clears before adding) */
   select: (id: ID) => void
-  /** Unselect a ticket by ID (Toggle OFF) */
+  /** Unselect a ticket by ID */
   unselect: (id: ID) => void
   /** Toggle a ticket ON and OFF by ID */
   toggle: (id: ID) => void
   /** Check if a ticket is selected by ID */
   selected: (id: ID) => boolean
-  /** Mandate selected ID based on "mandatory" option */
-  mandate: () => void
   /** Apply external values to the model (model→registry sync strategy) */
   apply: (values: unknown[], options?: { multiple?: boolean }) => void
   /** Register a new ticket (accepts input type, returns output type) */
   register: (ticket?: Partial<Z>) => E
-  /** Onboard multiple tickets at once */
-  onboard: (registrations: Partial<Z>[]) => E[]
 }
 
 export interface ModelOptions extends RegistryOptions {
-  /** When true, treats the model as an array */
-  multiple?: MaybeRefOrGetter<boolean>
-  /**
-   * Controls mandatory selection behavior:
-   * - `false` (default): No mandatory selection enforcement
-   * - `true`: Prevents deselecting the last selected item
-   * - `'force'`: Automatically selects the first non-disabled item on registration
-   */
-  mandatory?: MaybeRefOrGetter<boolean | 'force'>
   /** When true, the entire model instance is disabled */
   disabled?: MaybeRefOrGetter<boolean>
 }
 
 /**
- * Creates a new model instance for managing selected items in a collection.
+ * Creates a new model instance for storing a single value.
  *
- * Extends createRegistry with selection tracking via a reactive Set of selected IDs.
+ * Extends createRegistry with value tracking via a reactive Set of selected IDs.
  * Provides the shared model-value concept used by both Selection and Slider.
  *
  * @param options The options for the model instance.
@@ -118,8 +106,6 @@ export function createModel<
 > (_options: ModelOptions = {}): R {
   const {
     disabled = false,
-    mandatory = false,
-    multiple = false,
     ...options
   } = _options
 
@@ -136,21 +122,9 @@ export function createModel<
 
   const selectedValues = computed(() => {
     return new Set(
-      Array.from(selectedItems.value).map(item => item.value),
+      Array.from(selectedItems.value).map(item => toValue(item.value)),
     )
   })
-
-  function seek (direction: 'first' | 'last' = 'first', from?: number): E | undefined {
-    return registry.seek(direction, from, (ticket: E) => !toValue(ticket.disabled))
-  }
-
-  function mandate () {
-    if (!toValue(mandatory) || registry.size === 0 || selectedIds.size > 0) return
-
-    const ticket = seek('first')
-
-    if (ticket) select(ticket.id)
-  }
 
   function select (id: ID) {
     if (toValue(disabled)) return
@@ -158,13 +132,12 @@ export function createModel<
     const item = registry.get(id)
     if (!item || toValue(item.disabled)) return
 
-    if (!toValue(multiple)) selectedIds.clear()
+    selectedIds.clear()
     selectedIds.add(id)
   }
 
   function unselect (id: ID) {
     if (toValue(disabled)) return
-    if (toValue(mandatory) && selectedIds.size === 1) return
 
     selectedIds.delete(id)
   }
@@ -180,31 +153,25 @@ export function createModel<
     return selectedIds.has(id)
   }
 
-  function apply (values: unknown[], options?: { multiple?: boolean }): void {
-    const isMultiple = options?.multiple ?? toValue(multiple)
-    const currentIds = new Set(selectedIds)
-    const targetIds = new Set<ID>()
+  function apply (values: unknown[], _options?: { multiple?: boolean }): void {
+    const value = values[0]
 
-    for (const value of values) {
-      const ids = registry.browse(toRaw(value))
-      if (ids) {
-        for (const id of ids) targetIds.add(id)
+    // If the selected ticket's value is a ref, update it directly
+    for (const id of selectedIds) {
+      const item = registry.get(id)
+      if (item && isRef(item.value)) {
+        item.value.value = value
+        return
       }
     }
 
-    if (isMultiple) {
-      for (const id of currentIds.difference(targetIds)) {
-        selectedIds.delete(id)
-      }
-      for (const id of targetIds.difference(currentIds)) {
-        selectedIds.add(id)
-      }
-    } else {
-      const next = targetIds.values().next().value
-      const last = currentIds.values().next().value
-      if (!isUndefined(last)) unselect(last)
-      if (!isUndefined(next)) select(next)
-    }
+    // Fallback: browse resolution for static values
+    selectedIds.clear()
+    if (isUndefined(value)) return
+
+    const ids = registry.browse(toRaw(value))
+    const id = ids?.values().next().value
+    if (!isUndefined(id)) selectedIds.add(id)
   }
 
   function register (registration: Partial<Z> = {}): E {
@@ -231,10 +198,6 @@ export function createModel<
     registry.offboard(ids)
   }
 
-  function onboard (registrations: Partial<Z>[]): E[] {
-    return registry.batch(() => registrations.map(registration => register(registration)))
-  }
-
   function reset () {
     registry.clear()
     selectedIds.clear()
@@ -243,17 +206,13 @@ export function createModel<
   return {
     ...registry,
     disabled,
-    multiple,
     selectedIds,
     selectedItems,
     selectedValues,
     register,
     unregister,
-    onboard,
     offboard,
     reset,
-    mandate,
-    seek,
     select,
     unselect,
     toggle,
@@ -262,5 +221,5 @@ export function createModel<
     get size () {
       return registry.size
     },
-  } as R
+  } as unknown as R
 }
