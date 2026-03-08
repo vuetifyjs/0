@@ -21,6 +21,7 @@ export { provideTreeviewItem, useTreeviewItem } from './TreeviewItem.vue'
 export { default as TreeviewItem } from './TreeviewItem.vue'
 
 export type { TreeviewListProps, TreeviewListSlotProps } from './types'
+export { provideTreeviewList, useTreeviewList } from './TreeviewList.vue'
 export { default as TreeviewList } from './TreeviewList.vue'
 
 export type { TreeviewRootProps, TreeviewRootSlotProps } from './types'
@@ -97,6 +98,13 @@ export const Treeview = {
    * Top-level list container with `role="tree"` and `aria-multiselectable`.
    *
    * @see https://0.vuetifyjs.com/components/treeview#treeviewlist
+   *
+   * @example
+   * ```vue
+   * <Treeview.List label="File browser">
+   *   <Treeview.Item>...</Treeview.Item>
+   * </Treeview.List>
+   * ```
    */
   List,
   /**
@@ -104,18 +112,48 @@ export const Treeview = {
    * and auto-nests under the closest ancestor Item.
    *
    * @see https://0.vuetifyjs.com/components/treeview#treeviewitem
+   *
+   * @example
+   * ```vue
+   * <Treeview.Item id="docs" value="documents">
+   *   <Treeview.Activator>Documents</Treeview.Activator>
+   *   <Treeview.Content>
+   *     <Treeview.Group>
+   *       <Treeview.Item id="resume" value="resume.pdf">
+   *         <Treeview.Activator>Resume.pdf</Treeview.Activator>
+   *       </Treeview.Item>
+   *     </Treeview.Group>
+   *   </Treeview.Content>
+   * </Treeview.Item>
+   * ```
    */
   Item,
   /**
    * Click-to-toggle trigger for expand/collapse. Renders a button by default.
    *
    * @see https://0.vuetifyjs.com/components/treeview#treeviewactivator
+   *
+   * @example
+   * ```vue
+   * <Treeview.Activator v-slot="{ isOpen }">
+   *   {{ isOpen ? '▼' : '▶' }} Documents
+   * </Treeview.Activator>
+   * ```
    */
   Activator,
   /**
    * Collapse gate for child nodes. Conditionally renders when the parent Item is open.
    *
    * @see https://0.vuetifyjs.com/components/treeview#treeviewcontent
+   *
+   * @example
+   * ```vue
+   * <Treeview.Content>
+   *   <Treeview.Group>
+   *     <Treeview.Item>...</Treeview.Item>
+   *   </Treeview.Group>
+   * </Treeview.Content>
+   * ```
    */
   Content,
   /**
@@ -123,12 +161,29 @@ export const Treeview = {
    * Exposes `data-state="open|closed"` for CSS-driven styling.
    *
    * @see https://0.vuetifyjs.com/components/treeview#treeviewcue
+   *
+   * @example
+   * ```vue
+   * <Treeview.Cue v-slot="{ attrs }">
+   *   <span v-bind="attrs">▶</span>
+   * </Treeview.Cue>
+   * ```
    */
   Cue,
   /**
    * Wrapper with `role="group"` for nested child items inside Content.
    *
    * @see https://0.vuetifyjs.com/components/treeview#treeviewgroup
+   *
+   * @example
+   * ```vue
+   * <Treeview.Content>
+   *   <Treeview.Group>
+   *     <Treeview.Item>Child A</Treeview.Item>
+   *     <Treeview.Item>Child B</Treeview.Item>
+   *   </Treeview.Group>
+   * </Treeview.Content>
+   * ```
    */
   Group,
   /**
@@ -136,6 +191,13 @@ export const Treeview = {
    * and shows mixed state for partially-selected parents.
    *
    * @see https://0.vuetifyjs.com/components/treeview#treeviewcheckbox
+   *
+   * @example
+   * ```vue
+   * <Treeview.Checkbox v-slot="{ attrs, isSelected, isMixed }">
+   *   <span v-bind="attrs">{{ isMixed ? '−' : isSelected ? '✓' : '○' }}</span>
+   * </Treeview.Checkbox>
+   * ```
    */
   Checkbox,
   /**
@@ -143,6 +205,13 @@ export const Treeview = {
    * or indeterminate via `data-state`.
    *
    * @see https://0.vuetifyjs.com/components/treeview#treeviewindicator
+   *
+   * @example
+   * ```vue
+   * <Treeview.Indicator v-slot="{ attrs }">
+   *   <span v-bind="attrs">●</span>
+   * </Treeview.Indicator>
+   * ```
    */
   Indicator,
   /**
@@ -153,6 +222,15 @@ export const Treeview = {
    * register as a tree item. Must be used within a Treeview.Root.
    *
    * @see https://0.vuetifyjs.com/components/treeview#treeviewselectall
+   *
+   * @example
+   * ```vue
+   * <Treeview.SelectAll v-slot="{ attrs, isAllSelected, isMixed }">
+   *   <button v-bind="attrs">
+   *     {{ isMixed ? '−' : isAllSelected ? '✓' : '○' }} Select All
+   *   </button>
+   * </Treeview.SelectAll>
+   * ```
    */
   SelectAll,
 }

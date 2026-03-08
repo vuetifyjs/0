@@ -757,60 +757,73 @@ describe('treeview', () => {
     })
 
     describe('keyboard handling', () => {
-      it('should toggle on Enter key', async () => {
+      it('should toggle on Enter key via tree container', async () => {
         let itemProps: any
 
         const wrapper = mount(Treeview.Root, {
           slots: {
             default: () =>
-              h(Treeview.Item as any, { value: 'parent' }, {
-                default: (props: any) => {
-                  itemProps = props
-                  return [
-                    h(Treeview.Activator, {}, () => 'Toggle'),
-                    h(Treeview.Item as any, { value: 'child' }, () => 'Child'),
-                  ]
-                },
-              }),
+              h(Treeview.List as any, {}, () =>
+                h(Treeview.Item as any, { value: 'parent' }, {
+                  default: (props: any) => {
+                    itemProps = props
+                    return [
+                      h(Treeview.Activator, {}, () => 'Toggle'),
+                      h(Treeview.Item as any, { value: 'child' }, () => 'Child'),
+                    ]
+                  },
+                }),
+              ),
           },
         })
 
         await nextTick()
 
+        // Focus the parent item via roving focus
+        const list = wrapper.findComponent(Treeview.List as any)
+        await list.trigger('keydown', { key: 'ArrowDown' })
+        await nextTick()
+
         const initial = itemProps.isOpen
-        const activator = wrapper.findComponent(Treeview.Activator as any)
-        await activator.trigger('keydown', { key: 'Enter' })
+        await list.trigger('keydown', { key: 'Enter' })
         await nextTick()
 
         expect(itemProps.isOpen).toBe(!initial)
       })
 
-      it('should toggle on Space key', async () => {
+      it('should toggle selection on Space key via tree container', async () => {
         let itemProps: any
 
         const wrapper = mount(Treeview.Root, {
+          props: { multiple: true },
           slots: {
             default: () =>
-              h(Treeview.Item as any, { value: 'parent' }, {
-                default: (props: any) => {
-                  itemProps = props
-                  return [
-                    h(Treeview.Activator, {}, () => 'Toggle'),
-                    h(Treeview.Item as any, { value: 'child' }, () => 'Child'),
-                  ]
-                },
-              }),
+              h(Treeview.List as any, {}, () =>
+                h(Treeview.Item as any, { value: 'parent' }, {
+                  default: (props: any) => {
+                    itemProps = props
+                    return [
+                      h(Treeview.Activator, {}, () => 'Toggle'),
+                      h(Treeview.Item as any, { value: 'child' }, () => 'Child'),
+                    ]
+                  },
+                }),
+              ),
           },
         })
 
         await nextTick()
 
-        const initial = itemProps.isOpen
-        const activator = wrapper.findComponent(Treeview.Activator as any)
-        await activator.trigger('keydown', { key: ' ' })
+        // Focus the parent item via roving focus
+        const list = wrapper.findComponent(Treeview.List as any)
+        await list.trigger('keydown', { key: 'ArrowDown' })
         await nextTick()
 
-        expect(itemProps.isOpen).toBe(!initial)
+        const initial = itemProps.isSelected
+        await list.trigger('keydown', { key: ' ' })
+        await nextTick()
+
+        expect(itemProps.isSelected).toBe(!initial)
       })
     })
 
@@ -838,8 +851,7 @@ describe('treeview', () => {
         expect(typeof slotProps.isDisabled).toBe('boolean')
         expect(typeof slotProps.flip).toBe('function')
         expect(typeof slotProps.attrs.onClick).toBe('function')
-        expect(typeof slotProps.attrs.onKeydown).toBe('function')
-        expect(slotProps.attrs.tabindex).toBe(0)
+        expect(slotProps.attrs.tabindex).toBe(-1)
       })
     })
 
@@ -891,7 +903,8 @@ describe('treeview', () => {
         })
 
         const checkbox = wrapper.findComponent(Treeview.Checkbox as any)
-        expect(checkbox.attributes('aria-hidden')).toBe('true')
+        expect(checkbox.attributes('role')).toBe('checkbox')
+        expect(checkbox.attributes('aria-checked')).toBe('false')
       })
     })
 
@@ -948,9 +961,9 @@ describe('treeview', () => {
         expect(typeof slotProps.toggle).toBe('function')
         expect(typeof slotProps.select).toBe('function')
         expect(typeof slotProps.unselect).toBe('function')
-        expect(slotProps.attrs['aria-hidden']).toBe(true)
+        expect(slotProps.attrs['role']).toBe('checkbox')
+        expect(slotProps.attrs['aria-checked']).toBeDefined()
         expect(typeof slotProps.attrs.onClick).toBe('function')
-        expect(typeof slotProps.attrs.onKeydown).toBe('function')
       })
     })
   })

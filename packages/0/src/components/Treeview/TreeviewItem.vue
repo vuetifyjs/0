@@ -10,15 +10,17 @@
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
+  import { useTreeviewList } from './TreeviewList.vue'
   import { useTreeviewRoot } from './TreeviewRoot.vue'
 
   // Foundational
   import { createContext } from '#v0/composables/createContext'
 
   // Utilities
-  import { onBeforeUnmount, shallowRef, toRef, toValue } from 'vue'
+  import { onBeforeUnmount, shallowRef, toRef, toValue, useTemplateRef } from 'vue'
 
   // Types
+  import type { AtomExpose } from '#v0/components/Atom'
   import type { ID } from '#v0/types'
   import type { TreeviewItemContext, TreeviewItemProps, TreeviewItemSlotProps } from './types'
 
@@ -42,6 +44,11 @@
   } = defineProps<TreeviewItemProps<V>>()
 
   const nested = useTreeviewRoot(namespace)
+  const rootRef = useTemplateRef<AtomExpose>('root')
+
+  // Vue auto-unwraps exposed refs when accessed via template ref,
+  // but TypeScript doesn't reflect this - cast corrects the type
+  const el = toRef(() => (rootRef.value?.element as HTMLElement | null | undefined) ?? undefined)
 
   // Try to get parent item context for implicit nesting
   let parentId: ID | undefined
@@ -52,9 +59,17 @@
     // No parent item — this is a root-level item
   }
 
-  const ticket = nested.register({ id, value, disabled, parentId })
+  const ticket = nested.register({ id, value, disabled, parentId, el })
   const isDisabled = toRef(() => toValue(ticket.disabled) || toValue(nested.disabled))
   const hasContent = shallowRef(false)
+
+  // Roving focus for keyboard navigation (provided by TreeviewList)
+  let roving: ReturnType<typeof useTreeviewList> | undefined
+  try {
+    roving = useTreeviewList(namespace)
+  } catch {
+    // No TreeviewList ancestor — keyboard navigation not available
+  }
 
   onBeforeUnmount(() => nested.unregister(ticket.id))
 
@@ -84,7 +99,8 @@
 
 <template>
   <Atom
-    :aria-disabled="slotProps.isDisabled"
+    ref="root"
+    :aria-disabled="slotProps.isDisabled || undefined"
     :aria-expanded="hasContent ? slotProps.isOpen : undefined"
     :aria-level="slotProps.depth + 1"
     :aria-posinset="ticket.position()"
@@ -98,6 +114,7 @@
     :renderless
     role="treeitem"
     :style="{ '--v0-treeview-depth': slotProps.depth }"
+    :tabindex="roving ? (roving.isTabbable(ticket.id) ? 0 : -1) : undefined"
   >
     <slot v-bind="slotProps" />
   </Atom>

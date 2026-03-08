@@ -22,14 +22,13 @@ export interface TreeviewActivatorSlotProps {
   /** Attributes to bind to the activator element */
   attrs: {
     'role': 'button' | undefined
-    'tabindex': number
-    'aria-disabled': boolean
+    'tabindex': -1
+    'aria-disabled': true | undefined
     'data-disabled': true | undefined
     'data-open': true | undefined
     'disabled': boolean | undefined
     'type': 'button' | undefined
     'onClick': () => void
-    'onKeydown': (e: KeyboardEvent) => void
   }
 }
 
@@ -57,12 +56,11 @@ export interface TreeviewCheckboxSlotProps {
     'role': 'checkbox'
     'aria-checked': boolean | 'mixed'
     'aria-disabled': true | undefined
-    'tabindex': number
+    'tabindex': -1
     'data-selected': true | undefined
     'data-disabled': true | undefined
     'data-mixed': true | undefined
     'onClick': () => void
-    'onKeydown': (e: KeyboardEvent) => void
   }
 }
 
@@ -208,6 +206,8 @@ export interface TreeviewListProps extends AtomProps {
   namespace?: string
   /** Whether multiple items can be selected (sets aria-multiselectable) */
   multiselectable?: boolean
+  /** Accessible label for the tree */
+  label?: string
 }
 
 export interface TreeviewListSlotProps {
@@ -215,6 +215,9 @@ export interface TreeviewListSlotProps {
   attrs: {
     'role': 'tree'
     'aria-multiselectable': boolean
+    'aria-label': string | undefined
+    'onKeydown': (e: KeyboardEvent) => void
+    'onFocusin': (e: FocusEvent) => void
   }
 }
 
@@ -256,7 +259,7 @@ export interface TreeviewSelectAllSlotProps {
   attrs: {
     'role': 'checkbox'
     'aria-checked': boolean | 'mixed'
-    'aria-disabled': boolean | undefined
+    'aria-disabled': true | undefined
     'aria-label': string | undefined
     'tabindex': 0 | undefined
     'data-state': 'checked' | 'unchecked' | 'indeterminate'

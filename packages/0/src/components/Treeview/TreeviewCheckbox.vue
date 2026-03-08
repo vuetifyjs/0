@@ -32,13 +32,6 @@
 
   const item = useTreeviewItem(namespace)
 
-  function onKeydown (e: KeyboardEvent) {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault()
-      item.ticket.toggle()
-    }
-  }
-
   const slotProps = toRef((): TreeviewCheckboxSlotProps => ({
     isSelected: toValue(item.ticket.isSelected),
     isMixed: toValue(item.ticket.isMixed),
@@ -48,14 +41,13 @@
     unselect: item.ticket.unselect,
     attrs: {
       'role': 'checkbox',
-      'aria-checked': toValue(item.ticket.isMixed) ? 'mixed' : toValue(item.ticket.isSelected),
-      'aria-disabled': item.isDisabled.value,
-      'tabindex': item.isDisabled.value ? -1 : 0,
+      'aria-checked': toValue(item.ticket.isMixed) ? 'mixed' as const : toValue(item.ticket.isSelected),
+      'aria-disabled': item.isDisabled.value || undefined,
+      'tabindex': -1,
       'data-selected': toValue(item.ticket.isSelected) || undefined,
       'data-disabled': item.isDisabled.value || undefined,
       'data-mixed': toValue(item.ticket.isMixed) || undefined,
       'onClick': item.ticket.toggle,
-      onKeydown,
     },
   }))
 </script>
