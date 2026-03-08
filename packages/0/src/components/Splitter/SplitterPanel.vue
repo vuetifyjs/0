@@ -9,7 +9,12 @@
 
 <script lang="ts">
   // Components
+  import { Atom } from '#v0/components/Atom'
   import { useSplitterRoot } from './SplitterRoot.vue'
+
+  // Utilities
+  import { useId } from '#v0/utilities'
+  import { onUnmounted, toRef, toValue, useAttrs, watch, watchEffect } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -46,13 +51,6 @@
 </script>
 
 <script setup lang="ts">
-  // Components
-  import { Atom } from '#v0/components/Atom'
-
-  // Utilities
-  import { useId } from '#v0/utilities'
-  import { onUnmounted, toRef, toValue, useAttrs, watch, watchEffect } from 'vue'
-
   defineOptions({ name: 'SplitterPanel', inheritAttrs: false })
 
   const attrs = useAttrs()
@@ -105,12 +103,12 @@
 
   function collapse () {
     splitter.collapse(ticket.index)
-    splitter.onResizeEnd()
+    splitter.emitLayout()
   }
 
   function expand () {
     splitter.expand(ticket.index)
-    splitter.onResizeEnd()
+    splitter.emitLayout()
   }
 
   defineExpose<SplitterPanelExpose>({ collapse, expand, size, isCollapsed })

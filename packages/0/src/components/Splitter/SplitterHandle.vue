@@ -7,8 +7,20 @@
  */
 
 <script lang="ts">
+  // Constants
+  import { IN_BROWSER } from '#v0/constants/globals'
+
   // Components
+  import { Atom } from '#v0/components/Atom'
   import { useSplitterRoot } from './SplitterRoot.vue'
+
+  // Composables
+  import { useDocumentEventListener } from '#v0/composables/useEventListener'
+  import { useToggleScope } from '#v0/composables/useToggleScope'
+
+  // Utilities
+  import { isNullOrUndefined } from '#v0/utilities'
+  import { onScopeDispose, onUnmounted, shallowRef, toRef, toValue, useAttrs } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -47,20 +59,6 @@
 </script>
 
 <script setup lang="ts">
-  // Constants
-  import { IN_BROWSER } from '#v0/constants/globals'
-
-  // Components
-  import { Atom } from '#v0/components/Atom'
-
-  // Composables
-  import { useDocumentEventListener } from '#v0/composables/useEventListener'
-  import { useToggleScope } from '#v0/composables/useToggleScope'
-
-  // Utilities
-  import { isNullOrUndefined } from '#v0/utilities'
-  import { onScopeDispose, onUnmounted, shallowRef, toRef, toValue, useAttrs } from 'vue'
-
   defineOptions({ name: 'SplitterHandle', inheritAttrs: false })
 
   const attrs = useAttrs()
@@ -81,7 +79,6 @@
 
   const splitter = useSplitterRoot()
   const ticket = splitter.handles.register()
-  const handleIndex = ticket.index
 
   onUnmounted(() => {
     splitter.handles.unregister(ticket.id)
@@ -96,21 +93,21 @@
   const isHorizontal = toRef(() => splitter.orientation.value === 'horizontal')
 
   const state = toRef((): SplitterHandleState => {
-    if (splitter.draggingHandle.value === handleIndex) return 'drag'
+    if (splitter.draggingHandle.value === ticket.index) return 'drag'
     if (hovering.value) return 'hover'
     return 'inactive'
   })
 
   // aria-valuenow: size of the panel before this handle (0-100), rounded for AT
-  const valuenow = toRef(() => Math.round(splitter.panel(handleIndex)?.size ?? 0))
+  const valuenow = toRef(() => Math.round(splitter.panel(ticket.index)?.size ?? 0))
   const valuemin = toRef(() => {
-    const p = splitter.panel(handleIndex)
+    const p = splitter.panel(ticket.index)
     if (!p) return 0
-    return p.collapsible && !toValue(p.isSelected) ? p.collapsedSize : p.minSize
+    return p.collapsible ? p.collapsedSize : p.minSize
   })
   const valuemax = toRef(() => {
-    const p = splitter.panel(handleIndex)
-    const adjacent = splitter.panel(handleIndex + 1)
+    const p = splitter.panel(ticket.index)
+    const adjacent = splitter.panel(ticket.index + 1)
     if (!p || !adjacent) return 100
     const adjMin = adjacent.collapsible ? adjacent.collapsedSize : adjacent.minSize
     return Math.min(p.maxSize, p.size + adjacent.size - adjMin)
@@ -119,17 +116,17 @@
   function onPointerDown (e: PointerEvent) {
     if (isDisabled.value) return
 
-    const target = e.target as Element
+    const target = e.currentTarget as Element
     target.setPointerCapture(e.pointerId)
     startPosition.value = isHorizontal.value ? e.clientX : e.clientY
     if (IN_BROWSER) {
       document.documentElement.style.cursor = isHorizontal.value ? 'col-resize' : 'row-resize'
       document.documentElement.style.userSelect = 'none'
     }
-    splitter.draggingHandle.value = handleIndex
+    splitter.startDrag(ticket.index)
   }
 
-  useToggleScope(() => splitter.draggingHandle.value === handleIndex, () => {
+  useToggleScope(() => splitter.draggingHandle.value === ticket.index, () => {
     useDocumentEventListener('pointermove', (e: PointerEvent) => {
       latestPos = isHorizontal.value ? e.clientX : e.clientY
       if (rafId) return
@@ -143,7 +140,7 @@
         const delta = ((latestPos - startPosition.value) / rootSize) * 100
         startPosition.value = latestPos
 
-        splitter.resize(handleIndex, delta)
+        splitter.resize(ticket.index, delta)
         rafId = 0
       })
     })
@@ -155,13 +152,14 @@
         document.documentElement.style.cursor = ''
         document.documentElement.style.userSelect = ''
       }
-      splitter.draggingHandle.value = null
-      splitter.onResizeEnd()
+      splitter.endDrag()
+      splitter.emitLayout()
     })
 
     onScopeDispose(() => {
       if (rafId) cancelAnimationFrame(rafId)
       rafId = 0
+      splitter.endDrag()
       if (IN_BROWSER) {
         document.documentElement.style.cursor = ''
         document.documentElement.style.userSelect = ''
@@ -178,50 +176,62 @@
     switch (e.key) {
       case forward: {
         e.preventDefault()
-        splitter.resize(handleIndex, ARROW_STEP)
-        splitter.onResizeEnd()
+        splitter.resize(ticket.index, ARROW_STEP)
+        splitter.emitLayout()
         break
       }
       case backward: {
         e.preventDefault()
-        splitter.resize(handleIndex, -ARROW_STEP)
-        splitter.onResizeEnd()
+        splitter.resize(ticket.index, -ARROW_STEP)
+        splitter.emitLayout()
         break
       }
       case 'PageDown': {
         e.preventDefault()
-        splitter.resize(handleIndex, PAGE_STEP)
-        splitter.onResizeEnd()
+        splitter.resize(ticket.index, PAGE_STEP)
+        splitter.emitLayout()
         break
       }
       case 'PageUp': {
         e.preventDefault()
-        splitter.resize(handleIndex, -PAGE_STEP)
-        splitter.onResizeEnd()
+        splitter.resize(ticket.index, -PAGE_STEP)
+        splitter.emitLayout()
         break
       }
       case 'Home': {
         e.preventDefault()
-        const p = splitter.panel(handleIndex)
+        const p = splitter.panel(ticket.index)
         if (p?.collapsible) {
-          splitter.collapse(handleIndex)
+          splitter.collapse(ticket.index, ticket.index + 1)
         } else {
           const current = p?.size ?? 0
-          splitter.resize(handleIndex, valuemin.value - current)
+          splitter.resize(ticket.index, valuemin.value - current)
         }
-        splitter.onResizeEnd()
+        splitter.emitLayout()
         break
       }
       case 'End': {
         e.preventDefault()
-        const p = splitter.panel(handleIndex)
+        const p = splitter.panel(ticket.index)
         if (p?.collapsible && !toValue(p.isSelected)) {
-          splitter.expand(handleIndex)
+          splitter.expand(ticket.index, ticket.index + 1)
         } else {
           const current = p?.size ?? 0
-          splitter.resize(handleIndex, valuemax.value - current)
+          splitter.resize(ticket.index, valuemax.value - current)
         }
-        splitter.onResizeEnd()
+        splitter.emitLayout()
+        break
+      }
+      case 'Enter': {
+        e.preventDefault()
+        const p = splitter.panel(ticket.index)
+        if (!p?.collapsible) break
+        if (toValue(p.isSelected)) {
+          splitter.collapse(ticket.index, ticket.index + 1)
+        } else {
+          splitter.expand(ticket.index, ticket.index + 1)
+        }
+        splitter.emitLayout()
         break
       }
     // No default
@@ -242,12 +252,12 @@
   )
 
   const ariaControls = toRef(() => {
-    const p = splitter.panel(handleIndex)
+    const p = splitter.panel(ticket.index)
     return isNullOrUndefined(p) ? undefined : String(p.id)
   })
 
   const slotProps = toRef((): SplitterHandleSlotProps => ({
-    isDragging: splitter.draggingHandle.value === handleIndex,
+    isDragging: splitter.draggingHandle.value === ticket.index,
     isDisabled: isDisabled.value,
     state: state.value,
     attrs: {

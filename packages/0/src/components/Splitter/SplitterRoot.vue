@@ -13,11 +13,19 @@
  */
 
 <script lang="ts">
+  // Components
+  import { Atom } from '#v0/components/Atom'
+
   // Foundational
   import { createContext } from '#v0/composables/createContext'
 
+  // Composables
+  import { createRegistry } from '#v0/composables/createRegistry'
+  import { createSelection } from '#v0/composables/createSelection'
+
   // Utilities
   import { clamp, isNullOrUndefined } from '#v0/utilities'
+  import { shallowRef, toRef, toValue, useAttrs, useTemplateRef } from 'vue'
 
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
@@ -48,9 +56,15 @@
     rootEl: Ref<HTMLElement | null>
     panel: (index: number) => SplitterPanelTicket | undefined
     resize: (index: number, delta: number) => void
-    onResizeEnd: () => void
-    collapse: (index: number) => void
-    expand: (index: number) => void
+    startDrag: (index: number) => void
+    endDrag: () => void
+    emitLayout: () => void
+    collapse: (index: number, neighborIndex?: number) => void
+    expand: (index: number, neighborIndex?: number) => void
+    distribute: (sizes: number[]) => void
+  }
+
+  export interface SplitterRootExpose {
     distribute: (sizes: number[]) => void
   }
 
@@ -74,16 +88,6 @@
 </script>
 
 <script setup lang="ts">
-  // Components
-  import { Atom } from '#v0/components/Atom'
-
-  // Composables
-  import { createRegistry } from '#v0/composables/createRegistry'
-  import { createSelection } from '#v0/composables/createSelection'
-
-  // Utilities
-  import { shallowRef, toRef, toValue, useAttrs, useTemplateRef } from 'vue'
-
   defineOptions({ name: 'SplitterRoot', inheritAttrs: false })
 
   const attrs = useAttrs()
@@ -143,32 +147,62 @@
     const size = clamp(before.size + delta, lower, upper)
     before.size = size
     after.size = total - size
+
+    for (const p of [before, after]) {
+      if (!p.collapsible) continue
+      const collapsed = !toValue(p.isSelected)
+      if (!collapsed && p.size <= p.collapsedSize) p.unselect()
+      else if (collapsed && p.size > p.collapsedSize) p.select()
+    }
   }
 
-  function collapse (index: number) {
+  function collapse (index: number, neighborIndex?: number) {
     const ticket = panel(index)
     if (!ticket?.collapsible || !toValue(ticket.isSelected)) return
 
-    const neighbor = panel(index > 0 ? index - 1 : index + 1)
+    const neighbor = panel(neighborIndex ?? (index > 0 ? index - 1 : index + 1))
     if (!neighbor) return
 
     const diff = ticket.size - ticket.collapsedSize
-    neighbor.size = Math.min(neighbor.size + diff, neighbor.maxSize)
+    const absorbed = Math.min(diff, neighbor.maxSize - neighbor.size)
+    neighbor.size += absorbed
     ticket.size = ticket.collapsedSize
-    ticket.unselect()
+
+    // Cascade remaining size to other panels
+    let remaining = diff - absorbed
+    if (remaining > 0) {
+      for (const p of panels.values()) {
+        if (p.id === ticket.id || p.id === neighbor.id || remaining <= 0) continue
+        const room = p.maxSize - p.size
+        const take = Math.min(remaining, room)
+        p.size += take
+        remaining -= take
+      }
+    }
+
+    if (remaining > 0) {
+      ticket.size += remaining
+    }
+
+    if (ticket.size <= ticket.collapsedSize) {
+      ticket.unselect()
+    }
   }
 
-  function expand (index: number) {
+  function expand (index: number, neighborIndex?: number) {
     const ticket = panel(index)
     if (!ticket?.collapsible || toValue(ticket.isSelected)) return
 
-    const neighbor = panel(index > 0 ? index - 1 : index + 1)
+    const neighbor = panel(neighborIndex ?? (index > 0 ? index - 1 : index + 1))
     if (!neighbor) return
 
     const target = Math.min(ticket.defaultSize, ticket.maxSize)
     const diff = target - ticket.collapsedSize
     const available = neighbor.size - neighbor.minSize
     const take = Math.min(diff, available)
+
+    // Don't expand if we can't reach minSize
+    if (ticket.collapsedSize + take < ticket.minSize) return
 
     neighbor.size -= take
     ticket.size = ticket.collapsedSize + take
@@ -187,10 +221,42 @@
       ticket.size = clamp(value, min, ticket.maxSize)
     }
 
+    // Correct remainder so sizes sum to 100
+    let remainder = 100 - values.reduce((sum, t) => sum + t.size, 0)
+    for (const ticket of values) {
+      if (remainder === 0) break
+      const min = ticket.collapsible && ticket.size <= ticket.collapsedSize
+        ? ticket.collapsedSize
+        : ticket.minSize
+      const room = remainder > 0
+        ? ticket.maxSize - ticket.size
+        : ticket.size - min
+      const adjust = remainder > 0
+        ? Math.min(remainder, room)
+        : Math.max(remainder, -room)
+      ticket.size += adjust
+      remainder -= adjust
+    }
+
+    for (const ticket of values) {
+      if (!ticket.collapsible) continue
+      const collapsed = !toValue(ticket.isSelected)
+      if (!collapsed && ticket.size <= ticket.collapsedSize) ticket.unselect()
+      else if (collapsed && ticket.size > ticket.collapsedSize) ticket.select()
+    }
+
     emit('layout', values.map(t => t.size))
   }
 
-  function onResizeEnd () {
+  function startDrag (index: number) {
+    draggingHandle.value = index
+  }
+
+  function endDrag () {
+    draggingHandle.value = null
+  }
+
+  function emitLayout () {
     emit('layout', panels.values().map(t => t.size))
   }
 
@@ -204,7 +270,9 @@
     rootEl,
     panel,
     resize,
-    onResizeEnd,
+    startDrag,
+    endDrag,
+    emitLayout,
     collapse,
     expand,
     distribute,
@@ -212,7 +280,7 @@
 
   provideSplitterRoot(context)
 
-  defineExpose({ distribute })
+  defineExpose<SplitterRootExpose>({ distribute })
 
   const slotProps = toRef((): SplitterRootSlotProps => ({
     orientation,
