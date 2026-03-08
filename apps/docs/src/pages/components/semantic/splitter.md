@@ -38,11 +38,11 @@ The Splitter provides resizable panels separated by draggable handles. Panel siz
 
 <template>
   <Splitter.Root>
-    <Splitter.Panel />
+    <Splitter.Panel :default-size="50" />
 
     <Splitter.Handle />
 
-    <Splitter.Panel />
+    <Splitter.Panel :default-size="50" />
   </Splitter.Root>
 </template>
 ```
@@ -92,6 +92,82 @@ Set `orientation` on the root to control layout direction. Defaults to `horizont
 </template>
 ```
 
+### Collapsible Panels
+
+Panels can collapse to a minimum size. Set `collapsible` and optionally `collapsed-size` on the panel. Use the exposed `collapse()` and `expand()` methods, or press Home/End on the adjacent handle.
+
+```vue
+<script setup lang="ts">
+  import { Splitter } from '@vuetify/v0'
+  import { useTemplateRef } from 'vue'
+
+  const sidebar = useTemplateRef<{ collapse: () => void, expand: () => void }>('sidebar')
+</script>
+
+<template>
+  <button @click="sidebar?.collapse()">Collapse</button>
+  <button @click="sidebar?.expand()">Expand</button>
+
+  <Splitter.Root>
+    <Splitter.Panel
+      ref="sidebar"
+      :default-size="30"
+      :min-size="15"
+      :collapsed-size="0"
+      collapsible
+    >
+      Sidebar
+    </Splitter.Panel>
+
+    <Splitter.Handle label="Resize sidebar" />
+
+    <Splitter.Panel :default-size="70" :min-size="30">
+      Content
+    </Splitter.Panel>
+  </Splitter.Root>
+</template>
+```
+
+### Events
+
+The root emits `@layout` with all panel sizes after every resize. Panels emit `@resize` with their individual size.
+
+```vue
+<template>
+  <Splitter.Root @layout="sizes => console.log('layout', sizes)">
+    <Splitter.Panel :default-size="50" @resize="size => console.log('panel', size)">
+      Left
+    </Splitter.Panel>
+    <Splitter.Handle />
+    <Splitter.Panel :default-size="50">Right</Splitter.Panel>
+  </Splitter.Root>
+</template>
+```
+
+### Programmatic Sizing
+
+Use `distribute()` on the root ref to set all panel sizes at once. Values are clamped to each panel's min/max constraints.
+
+```vue
+<script setup lang="ts">
+  import { Splitter } from '@vuetify/v0'
+  import { useTemplateRef } from 'vue'
+
+  const root = useTemplateRef<{ distribute: (sizes: number[]) => void }>('root')
+</script>
+
+<template>
+  <button @click="root?.distribute([30, 70])">30 / 70</button>
+  <button @click="root?.distribute([50, 50])">50 / 50</button>
+
+  <Splitter.Root ref="root">
+    <Splitter.Panel :default-size="50" :min-size="20">Left</Splitter.Panel>
+    <Splitter.Handle />
+    <Splitter.Panel :default-size="50" :min-size="20">Right</Splitter.Panel>
+  </Splitter.Root>
+</template>
+```
+
 ### Disabled State
 
 Disable all resize interactions via the `disabled` prop on the root, or disable individual handles.
@@ -121,6 +197,7 @@ The Splitter implements the [WAI-ARIA Window Splitter](https://www.w3.org/WAI/AR
 - Each handle has `role="separator"` with `aria-valuenow`, `aria-valuemin`, and `aria-valuemax`
 - `aria-orientation` is set **perpendicular** to the layout direction (a horizontal layout produces vertical separators)
 - `aria-controls` links each handle to the panel it precedes
+- Use the `label` prop on handles to provide an `aria-label` (e.g., `label="Resize sidebar"`)
 - Disabled handles set `tabindex="-1"` and `aria-disabled="true"`
 
 ### Keyboard Navigation
@@ -131,8 +208,8 @@ The Splitter implements the [WAI-ARIA Window Splitter](https://www.w3.org/WAI/AR
 | Arrow Right / Arrow Down | Grow preceding panel by 1% |
 | Page Up | Shrink preceding panel by 10% |
 | Page Down | Grow preceding panel by 10% |
-| Home | Collapse preceding panel to minimum |
-| End | Expand preceding panel to maximum |
+| Home | Collapse preceding panel (if collapsible) or shrink to minimum |
+| End | Expand preceding panel (if collapsed) or grow to maximum |
 
 Arrow direction follows the layout orientation — horizontal splitters use Left/Right, vertical splitters use Up/Down.
 
