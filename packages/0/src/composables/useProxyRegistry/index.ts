@@ -18,7 +18,7 @@
 import { onScopeDispose, reactive, shallowReactive } from 'vue'
 
 // Types
-import type { RegistryContext, RegistryTicket } from '#v0/composables/createRegistry'
+import type { RegistryContext, RegistryTicket, RegistryTicketInput } from '#v0/composables/createRegistry'
 import type { ID } from '#v0/types'
 
 export interface ProxyRegistryOptions {
@@ -37,7 +37,8 @@ export interface ProxyRegistryContext<Z extends RegistryTicket = RegistryTicket>
  *
  * @param registry The registry instance to proxy.
  * @param options The options for the proxy registry.
- * @template Z The type of the registry ticket.
+ * @template Z The input ticket type (what users provide to register).
+ * @template E The output ticket type (what users receive from get/values).
  * @returns A proxy registry with reactive objects.
  *
  * @see https://0.vuetifyjs.com/composables/registration/use-proxy-registry
@@ -54,11 +55,12 @@ export interface ProxyRegistryContext<Z extends RegistryTicket = RegistryTicket>
  * ```
  */
 export function useProxyRegistry<
-  Z extends RegistryTicket = RegistryTicket,
+  Z extends RegistryTicketInput = RegistryTicketInput,
+  E extends RegistryTicket & Z = RegistryTicket & Z,
 > (
-  registry: RegistryContext<Z>,
+  registry: RegistryContext<Z, E>,
   options?: ProxyRegistryOptions,
-): ProxyRegistryContext<Z> {
+): ProxyRegistryContext<E> {
   const reactivity = options?.deep ? reactive : shallowReactive
 
   const state = reactivity({
@@ -87,5 +89,5 @@ export function useProxyRegistry<
     registry.off('clear:registry', update)
   }, true)
 
-  return state as ProxyRegistryContext<Z>
+  return state as ProxyRegistryContext<E>
 }

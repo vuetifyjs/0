@@ -352,6 +352,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/composables/selection/create-model': RouteRecordInfo<
+      '/composables/selection/create-model',
+      '/composables/selection/create-model',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/composables/selection/create-nested': RouteRecordInfo<
       '/composables/selection/create-nested',
       '/composables/selection/create-nested',
@@ -994,6 +1001,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/selection/create-group.md': {
       routes:
         | '/composables/selection/create-group'
+      views:
+        | never
+    }
+    'src/pages/composables/selection/create-model.md': {
+      routes:
+        | '/composables/selection/create-model'
       views:
         | never
     }

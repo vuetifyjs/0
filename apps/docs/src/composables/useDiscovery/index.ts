@@ -315,7 +315,7 @@ export function createDiscovery (): DiscoveryContext {
       const tour = tours.get(id)
       if (!tour) return
 
-      steps.reset()
+      steps.clear()
 
       const breakpoints = options?.context?.breakpoints as ReturnType<typeof useBreakpoints>
       const isMobile = breakpoints?.isMobile?.value ?? false
@@ -384,8 +384,8 @@ export function createDiscovery (): DiscoveryContext {
     handlers = {}
     exitHandler = undefined
     form.reset()
-    steps.reset()
-    tours.reset()
+    steps.clear()
+    tours.clear()
     isActive.value = false
     isComplete.value = false
     isReady.value = true
