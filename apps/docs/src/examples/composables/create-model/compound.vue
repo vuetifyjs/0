@@ -1,6 +1,6 @@
 <script setup lang="ts">
   import { mdiCancel, mdiCheckCircle } from '@mdi/js'
-  import { toValue } from 'vue'
+  import { isRef, toValue } from 'vue'
   import { Checkbox } from '@vuetify/v0'
   import { allToppings, createCompound, sizes } from './createCompound'
 
@@ -12,7 +12,7 @@
   }
 
   function onDisable (ticket: (typeof tickets.value)[number]) {
-    if (typeof ticket.disabled === 'object' && 'value' in ticket.disabled) {
+    if (isRef(ticket.disabled)) {
       ticket.disabled.value = !ticket.disabled.value
     }
   }
