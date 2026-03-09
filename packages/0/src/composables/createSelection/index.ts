@@ -110,8 +110,11 @@ export interface SelectionOptions extends ModelOptions {
   /** When true, treats the selection as an array */
   multiple?: MaybeRefOrGetter<boolean>
   /**
-   * When true, newly registered items are automatically selected if not disabled.
-   * Useful for pre-selecting items in multi-select scenarios.
+   * Auto-select tickets on registration
+   *
+   * @default false
+   * @remarks Overrides createModel's default of `true`. When truthy, newly registered
+   * items are automatically selected if not disabled. Respects `multiple` mode.
    */
   enroll?: MaybeRefOrGetter<boolean>
 }
@@ -198,7 +201,7 @@ export function createSelection<
     ...modelOptions
   } = _options
 
-  const model = createModel<Z, E>(modelOptions)
+  const model = createModel<Z, E>({ ...modelOptions, enroll: false })
 
   function seek (direction: 'first' | 'last' = 'first', from?: number): E | undefined {
     return model.seek(direction, from, (ticket: E) => !toValue(ticket.disabled))

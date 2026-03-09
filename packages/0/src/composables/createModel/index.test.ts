@@ -14,7 +14,7 @@ describe('createModel', () => {
       expect(ticket).toBeDefined()
       expect(ticket.id).toBeDefined()
       expect(ticket.disabled).toBe(false)
-      expect(ticket.isSelected.value).toBe(false)
+      expect(ticket.isSelected.value).toBe(true)
     })
 
     it('should register a ticket with a custom id', () => {
@@ -130,8 +130,11 @@ describe('createModel', () => {
 
       for (const ticket of tickets) {
         expect(ticket.disabled).toBe(false)
-        expect(ticket.isSelected.value).toBe(false)
       }
+      // Single-value enrollment: only last ticket is active
+      expect(tickets[0]!.isSelected.value).toBe(false)
+      expect(tickets[1]!.isSelected.value).toBe(false)
+      expect(tickets[2]!.isSelected.value).toBe(true)
     })
 
     it('should produce reactive isSelected on onboarded tickets', () => {
@@ -232,7 +235,7 @@ describe('createModel', () => {
     })
 
     it('should not select a non-existent ticket', () => {
-      const model = createModel()
+      const model = createModel({ enroll: false })
       model.register({ id: 'item-1', value: 'val-1' })
 
       model.select('non-existent')
@@ -271,7 +274,7 @@ describe('createModel', () => {
 
   describe('toggle', () => {
     it('should toggle a ticket on', () => {
-      const model = createModel()
+      const model = createModel({ enroll: false })
       model.register({ id: 'item-1', value: 'val-1' })
 
       model.toggle('item-1')
@@ -322,7 +325,7 @@ describe('createModel', () => {
     })
 
     it('should return false when ticket is not selected', () => {
-      const model = createModel()
+      const model = createModel({ enroll: false })
       model.register({ id: 'item-1', value: 'val-1' })
 
       expect(model.selected('item-1')).toBe(false)
@@ -337,7 +340,7 @@ describe('createModel', () => {
 
   describe('isSelected', () => {
     it('should be reactive on ticket', () => {
-      const model = createModel()
+      const model = createModel({ enroll: false })
       const ticket = model.register({ id: 'item-1', value: 'val-1' })
 
       expect(ticket.isSelected.value).toBe(false)
@@ -377,7 +380,7 @@ describe('createModel', () => {
     })
 
     it('should return empty set when nothing selected', () => {
-      const model = createModel()
+      const model = createModel({ enroll: false })
       model.register({ id: 'item-1', value: 'val-1' })
 
       expect(model.selectedItems.value.size).toBe(0)
@@ -502,6 +505,60 @@ describe('createModel', () => {
 
       model.register({ id: 'item-2', value: 'val-2' })
       expect(model.size).toBe(2)
+    })
+  })
+
+  describe('enroll', () => {
+    it('should auto-select on register by default', () => {
+      const model = createModel()
+      model.register({ id: 'item-1', value: 'val-1' })
+
+      expect(model.selectedIds.has('item-1')).toBe(true)
+      expect(model.selectedIds.size).toBe(1)
+    })
+
+    it('should select only the last registered ticket (single-value)', () => {
+      const model = createModel()
+      model.register({ id: 'item-1', value: 'val-1' })
+      model.register({ id: 'item-2', value: 'val-2' })
+
+      expect(model.selectedIds.has('item-1')).toBe(false)
+      expect(model.selectedIds.has('item-2')).toBe(true)
+      expect(model.selectedIds.size).toBe(1)
+    })
+
+    it('should not enroll when enroll is false', () => {
+      const model = createModel({ enroll: false })
+      model.register({ id: 'item-1', value: 'val-1' })
+
+      expect(model.selectedIds.size).toBe(0)
+    })
+
+    it('should not enroll when instance is disabled', () => {
+      const model = createModel({ disabled: true })
+      model.register({ id: 'item-1', value: 'val-1' })
+
+      expect(model.selectedIds.size).toBe(0)
+    })
+
+    it('should not enroll a disabled ticket', () => {
+      const model = createModel()
+      model.register({ id: 'item-1', value: 'val-1', disabled: true })
+
+      expect(model.selectedIds.size).toBe(0)
+    })
+
+    it('should respect reactive enroll option', () => {
+      const enroll = ref(false)
+      const model = createModel({ enroll })
+      model.register({ id: 'item-1', value: 'val-1' })
+
+      expect(model.selectedIds.size).toBe(0)
+
+      enroll.value = true
+      model.register({ id: 'item-2', value: 'val-2' })
+
+      expect(model.selectedIds.has('item-2')).toBe(true)
     })
   })
 

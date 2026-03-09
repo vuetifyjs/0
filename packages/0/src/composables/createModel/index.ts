@@ -7,7 +7,7 @@
  *
  * Think of it as a creative way to store a single value — more like
  * `defineModel` than `createSelection`. Selection-specific concepts
- * (mandatory, multiple, enroll) belong in createSelection.
+ * (mandatory, multiple) belong in createSelection.
  *
  * Both Selection and Slider extend this layer:
  * - createRegistry → createModel → createSelection → createSingle/createGroup/createStep
@@ -69,8 +69,7 @@ export interface ModelContext<
    * ```ts
    * const model = createModel()
    * model.register({ id: 'a', value: 'Apple' })
-   * model.select('a')
-   * console.log(model.selectedIds.has('a')) // true
+   * console.log(model.selectedIds.has('a')) // true (enrolled on register)
    * ```
    */
   selectedIds: Reactive<Set<ID>>
@@ -217,8 +216,7 @@ export interface ModelContext<
    *
    * const value = shallowRef('Apple')
    * const model = createModel()
-   * model.register({ id: 'fruit', value })
-   * model.select('fruit')
+   * model.register({ id: 'fruit', value }) // enrolled automatically
    *
    * model.apply(['Banana']) // value.value is now 'Banana'
    * ```
@@ -242,7 +240,7 @@ export interface ModelContext<
    * const ticket = model.register({ id: 'fruit', value: shallowRef('Apple') })
    *
    * console.log(ticket.id) // 'fruit'
-   * console.log(ticket.isSelected.value) // false
+   * console.log(ticket.isSelected.value) // true (enrolled by default)
    * console.log(ticket.disabled) // false
    * ```
    */
@@ -279,6 +277,18 @@ export interface ModelOptions extends RegistryOptions {
    * ```
    */
   disabled?: MaybeRefOrGetter<boolean>
+  /**
+   * Auto-select tickets on registration
+   *
+   * @default true
+   * @remarks When truthy, newly registered tickets are automatically selected via `select()`,
+   * subject to disabled guards (both instance-level and ticket-level). With single-value
+   * semantics, only the most recently registered ticket remains active.
+   *
+   * `createSelection` overrides this to `false` and handles enrollment with its own
+   * `multiple`-aware logic.
+   */
+  enroll?: MaybeRefOrGetter<boolean>
 }
 
 /**
@@ -294,8 +304,9 @@ export interface ModelOptions extends RegistryOptions {
  * Extends createRegistry with value tracking via a reactive Set of selected IDs.
  * Provides the shared model-value concept used by both Selection and Slider.
  *
- * **Single-value semantics**: `select()` always clears before adding — only one ticket
- * is active at a time. For multi-value behavior, use `createSelection`.
+ * **Enrollment**: Tickets are auto-selected on registration by default (`enroll: true`).
+ * With single-value semantics, only the most recently registered ticket is active.
+ * Pass `enroll: false` to opt out. `createSelection` overrides this to `false`.
  *
  * **Apply bridge**: `useProxyModel` calls `apply()` to sync a ref with the model.
  * When the active ticket's value is a ref, `apply` writes to it directly. Otherwise,
@@ -332,6 +343,7 @@ export function createModel<
 > (_options: ModelOptions = {}): R {
   const {
     disabled = false,
+    enroll = true,
     ...options
   } = _options
 
@@ -408,7 +420,13 @@ export function createModel<
       id,
     } as Partial<E>
 
-    return registry.register(item)
+    const ticket = registry.register(item)
+
+    if (toValue(enroll) && !toValue(disabled) && !toValue(ticket.disabled)) {
+      select(id)
+    }
+
+    return ticket
   }
 
   function unregister (id: ID) {

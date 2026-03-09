@@ -35,14 +35,16 @@ const value = shallowRef<string>()
 const model = createModel()
 
 model.register({ id: 'fruit', value })
-model.select('fruit')
+// ticket is already selected — enroll defaults to true
 
 useProxyModel(model, value)
 ```
 
+Tickets are **enrolled on registration** by default (`enroll: true`). With single-value semantics, only the most recently registered ticket is active. Pass `enroll: false` to opt out.
+
 Most of the time you register a single ticket — that's the only value you care about. The registry pattern underneath gives you the ability to compose multiple values into a compound model when you need it, which is what `createSelection` builds on.
 
-Selection-specific concepts like `mandatory`, `multiple`, and `enroll` belong in `createSelection`.
+Selection-specific concepts like `mandatory` and `multiple` belong in `createSelection`. Both composables accept `enroll`, but `createSelection` defaults it to `false`.
 
 ## Architecture
 

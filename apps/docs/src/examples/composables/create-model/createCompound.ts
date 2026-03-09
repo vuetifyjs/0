@@ -5,7 +5,7 @@ export const sizes = ['XS', 'S', 'M', 'L', 'XL']
 export const allToppings = ['cheese', 'lettuce', 'tomato', 'onion', 'avocado']
 
 export function createCompound () {
-  const store = createModel({ events: true })
+  const store = createModel({ events: true, enroll: false })
   const proxy = useProxyRegistry(store)
 
   const name = shallowRef('John')
