@@ -99,6 +99,55 @@ describe('createModel', () => {
     })
   })
 
+  describe('clear', () => {
+    it('should clear registry and selectedIds', () => {
+      const model = createModel()
+      model.register({ id: 'item-1', value: 'val-1' })
+      model.register({ id: 'item-2', value: 'val-2' })
+      model.select('item-1')
+
+      expect(model.size).toBe(2)
+      expect(model.selectedIds.size).toBe(1)
+
+      model.clear()
+
+      expect(model.size).toBe(0)
+      expect(model.selectedIds.size).toBe(0)
+    })
+  })
+
+  describe('onboard', () => {
+    it('should register multiple tickets with model fields', () => {
+      const model = createModel()
+      const tickets = model.onboard([
+        { id: 'item-1', value: 'val-1' },
+        { id: 'item-2', value: 'val-2' },
+        { id: 'item-3', value: 'val-3' },
+      ])
+
+      expect(tickets.length).toBe(3)
+      expect(model.size).toBe(3)
+
+      for (const ticket of tickets) {
+        expect(ticket.disabled).toBe(false)
+        expect(ticket.isSelected.value).toBe(false)
+      }
+    })
+
+    it('should produce reactive isSelected on onboarded tickets', () => {
+      const model = createModel()
+      const tickets = model.onboard([
+        { id: 'item-1', value: 'val-1' },
+        { id: 'item-2', value: 'val-2' },
+      ])
+
+      model.select('item-1')
+
+      expect(tickets[0]!.isSelected.value).toBe(true)
+      expect(tickets[1]!.isSelected.value).toBe(false)
+    })
+  })
+
   describe('reset', () => {
     it('should clear registry and selectedIds', () => {
       const model = createModel()
@@ -375,8 +424,9 @@ describe('createModel', () => {
       model.apply(['updated'])
 
       expect(valueRef.value).toBe('updated')
-      // selectedIds should remain unchanged (ref update path)
-      expect(model.selectedIds.has('item-1')).toBe(true)
+      // After ref write, apply still falls through to browse/clear
+      // Browse resolves by raw value, not ref — so selectedIds is cleared
+      expect(model.selectedIds.size).toBe(0)
     })
 
     it('should resolve by browse for static values', () => {

@@ -107,16 +107,16 @@ export interface ModelContext<
    * console.log([...model.selectedValues.value]) // ['Apple']
    * ```
    */
-  selectedValues: ComputedRef<Set<E['value']>>
+  selectedValues: ComputedRef<Set<E['value'] extends Ref<infer U> ? U : E['value']>>
   /**
    * Disabled state for the entire model instance
    *
    * @remarks When truthy, all selection operations (`select`, `unselect`, `toggle`) are silently
-   * skipped. Accepts a static boolean or a reactive `MaybeRef<boolean>`.
+   * skipped. Accepts a static boolean, a ref, or a getter for reactive disabled state.
    *
    * @see https://0.vuetifyjs.com/composables/selection/create-model
    */
-  disabled: MaybeRef<boolean>
+  disabled: MaybeRefOrGetter<boolean>
   /**
    * Clear all selected IDs and the underlying registry
    *
@@ -432,6 +432,11 @@ export function createModel<
     registry.clear()
   }
 
+  function dispose () {
+    selectedIds.clear()
+    registry.dispose()
+  }
+
   function reset () {
     selectedIds.clear()
     registry.clear()
@@ -448,6 +453,7 @@ export function createModel<
     unregister,
     offboard,
     clear,
+    dispose,
     reset,
     select,
     unselect,
@@ -457,5 +463,5 @@ export function createModel<
     get size () {
       return registry.size
     },
-  } as unknown as R
+  } as R
 }

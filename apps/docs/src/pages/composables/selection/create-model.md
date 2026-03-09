@@ -35,6 +35,7 @@ const value = shallowRef<string>()
 const model = createModel()
 
 model.register({ id: 'fruit', value })
+model.select('fruit')
 
 useProxyModel(model, value)
 ```
@@ -91,10 +92,11 @@ flowchart LR
     toppings["toppings · shallowRef(['cheese', 'lettuce'])"]
     quantity["quantity · shallowRef(2)"]
   end
-  name --> selectedValues
-  size --> selectedValues
-  toppings --> selectedValues
-  quantity --> selectedValues
+  name -- "toggle" --> selectedIds
+  size -- "toggle" --> selectedIds
+  toppings -- "toggle" --> selectedIds
+  quantity -- "toggle" --> selectedIds
+  selectedIds -- "toValue" --> selectedValues
   selectedValues --> compound["compound · toRef"]
 ```
 
