@@ -29,7 +29,7 @@
       <div
         v-for="ticket in tickets"
         :key="ticket.id"
-        class="color-row grid items-center gap-2.5"
+        class="grid grid-cols-[32px_52px_1fr_38px] h-9 items-center gap-2.5"
         :class="toValue(ticket.disabled) ? 'opacity-25 pointer-events-none' : ''"
       >
         <!-- Swatch toggle -->
@@ -53,7 +53,7 @@
 
         <!-- Hue slider -->
         <input
-          class="hue-slider w-full h-1.5 rounded-full cursor-pointer outline-none"
+          class="hue-slider w-full h-1.5 rounded-full cursor-pointer outline-none appearance-none bg-[image:var(--track-gradient)]"
           :disabled="toValue(ticket.disabled)"
           max="360"
           min="0"
@@ -82,7 +82,7 @@
         Composite
       </span>
 
-      <div class="strip-wrapper rounded-xl overflow-hidden relative">
+      <div class="strip-wrapper h-14 rounded-xl overflow-hidden relative">
         <div v-if="selected.length > 0" class="flex w-full h-full">
           <div
             v-for="(item, index) in selected"
@@ -115,18 +115,7 @@
 </template>
 
 <style scoped>
-.color-row {
-  grid-template-columns: 32px 52px 1fr 38px;
-  height: 36px;
-}
-
-/* Slider track */
-.hue-slider {
-  -webkit-appearance: none;
-  appearance: none;
-  background: var(--track-gradient);
-}
-
+/* Slider thumb — pseudo-elements require CSS */
 .hue-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
@@ -153,9 +142,8 @@
   cursor: grab;
 }
 
-/* Composite strip */
+/* Composite strip — complex shadow + pseudo-elements require CSS */
 .strip-wrapper {
-  height: 56px;
   box-shadow:
     inset 0 2px 6px rgba(0, 0, 0, 0.25),
     inset 0 -1px 0 rgba(255, 255, 255, 0.04),
