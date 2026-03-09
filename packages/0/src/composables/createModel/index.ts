@@ -76,7 +76,7 @@ export interface ModelContext<
   toggle: (id: ID) => void
   /** Check if a ticket is selected by ID */
   selected: (id: ID) => boolean
-  /** Apply external values to the model (model→registry sync strategy) */
+  /** Apply external values to the model (model→registry sync strategy). The options parameter exists for API compatibility with createSelection. */
   apply: (values: unknown[], options?: { multiple?: boolean }) => void
   /** Register a new ticket (accepts input type, returns output type) */
   register: (ticket?: Partial<Z>) => E

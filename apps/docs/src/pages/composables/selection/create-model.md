@@ -27,9 +27,10 @@ Manage a reactive value with two-way sync — wrap a ref in a model and `useProx
 `createModel` stores a reactive value. Register a ref and `useProxyModel` keeps it synced — the same idea as `defineModel` but built on the registry pattern.
 
 ```ts
+import { shallowRef } from 'vue'
 import { createModel, useProxyModel } from '@vuetify/v0'
 
-const value = defineModel<string>()
+const value = shallowRef<string>()
 const model = createModel()
 
 model.register({ id: 'fruit', value })
@@ -49,7 +50,7 @@ Selection-specific concepts like `mandatory`, `multiple`, and `enroll` belong in
 flowchart TD
   createRegistry --> createModel:::primary
   createModel --> createSelection
-  createModel --> createSlider
+  createModel -.-> createSlider["createSlider (planned)"]
   createSelection --> createSingle
   createSelection --> createGroup
   createSingle --> createStep
