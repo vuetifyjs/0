@@ -94,29 +94,27 @@ Set `orientation` on the root to control layout direction. Defaults to `horizont
 
 ### Collapsible Panels
 
-Panels can collapse to a minimum size. Set `collapsible` and optionally `collapsed-size` on the panel. Use the exposed `collapse()` and `expand()` methods, or press Home/End on the adjacent handle.
+Panels can collapse to a minimum size. Set `collapsible` and optionally `collapsed-size` on the panel. The panel's slot props provide `collapse()`, `expand()`, `size`, and `isCollapsed` — use these to build collapse controls inline. Keyboard users can press Home/End on the adjacent handle.
 
 ```vue
 <script setup lang="ts">
   import { Splitter } from '@vuetify/v0'
-  import { type Ref, useTemplateRef } from 'vue'
-
-  const sidebar = useTemplateRef<{ collapse: () => void, expand: () => void, size: Ref<number>, isCollapsed: Ref<boolean> }>('sidebar')
 </script>
 
 <template>
-  <button @click="sidebar?.collapse()">Collapse</button>
-  <button @click="sidebar?.expand()">Expand</button>
-
   <Splitter.Root>
     <Splitter.Panel
-      ref="sidebar"
+      v-slot="{ collapse, expand, isCollapsed }"
       :default-size="30"
       :min-size="15"
       :collapsed-size="0"
       collapsible
     >
-      Sidebar
+      <button v-if="isCollapsed" @click="expand">Expand</button>
+      <template v-else>
+        <button @click="collapse">Collapse</button>
+        Sidebar
+      </template>
     </Splitter.Panel>
 
     <Splitter.Handle label="Resize sidebar" />
@@ -146,22 +144,20 @@ The root emits `@layout` with all panel sizes at the end of each resize interact
 
 ### Programmatic Sizing
 
-Use `distribute()` on the root ref to set all panel sizes at once. Values are clamped to each panel's min/max constraints.
+Use `distribute()` from the root's slot props to set all panel sizes at once. Values are clamped to each panel's min/max constraints. Place controls inside a panel to keep them out of the root's flex layout.
 
 ```vue
 <script setup lang="ts">
   import { Splitter } from '@vuetify/v0'
-  import { useTemplateRef } from 'vue'
-
-  const root = useTemplateRef<{ distribute: (sizes: number[]) => void }>('root')
 </script>
 
 <template>
-  <button @click="root?.distribute([30, 70])">30 / 70</button>
-  <button @click="root?.distribute([50, 50])">50 / 50</button>
-
-  <Splitter.Root ref="root">
-    <Splitter.Panel :default-size="50" :min-size="20">Left</Splitter.Panel>
+  <Splitter.Root v-slot="{ distribute }">
+    <Splitter.Panel :default-size="50" :min-size="20">
+      <button @click="distribute([30, 70])">30 / 70</button>
+      <button @click="distribute([50, 50])">50 / 50</button>
+      Left
+    </Splitter.Panel>
     <Splitter.Handle />
     <Splitter.Panel :default-size="50" :min-size="20">Right</Splitter.Panel>
   </Splitter.Root>

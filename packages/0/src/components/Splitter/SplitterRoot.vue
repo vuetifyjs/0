@@ -78,6 +78,7 @@
     isDisabled: boolean
     sizes: number[]
     isDragging: boolean
+    distribute: (sizes: number[]) => void
     attrs: {
       'data-orientation': SplitterOrientation
       'data-dragging': true | undefined
@@ -287,6 +288,7 @@
     isDisabled: disabled,
     sizes: panels.values().map(t => t.size),
     isDragging: dragging.value,
+    distribute,
     attrs: {
       'data-orientation': orientation,
       'data-dragging': dragging.value || undefined,
