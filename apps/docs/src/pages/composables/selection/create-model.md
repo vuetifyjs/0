@@ -11,6 +11,7 @@ features:
   github: /composables/createModel/
   level: 2
 related:
+  - /composables/reactivity/use-proxy-model
   - /composables/registration/create-registry
   - /composables/selection/create-selection
   - /components/providers/selection
@@ -87,7 +88,7 @@ flowchart LR
   subgraph Tickets
     name["name · shallowRef('John')"]
     size["size · shallowRef('M')"]
-    toppings["toppings · ref(['cheese'])"]
+    toppings["toppings · shallowRef(['cheese', 'lettuce'])"]
     quantity["quantity · shallowRef(2)"]
   end
   name --> selectedValues

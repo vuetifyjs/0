@@ -57,7 +57,7 @@ export type ModelTicket<Z extends ModelTicketInput = ModelTicketInput> = Registr
 export interface ModelContext<
   Z extends ModelTicketInput = ModelTicketInput,
   E extends ModelTicket<Z> = ModelTicket<Z>,
-> extends Omit<RegistryContext<Z, E>, 'register' | 'onboard'> {
+> extends Omit<RegistryContext<Z, E>, 'register'> {
   /**
    * Set of currently selected ticket IDs
    *
@@ -201,9 +201,12 @@ export interface ModelContext<
    *
    * @param values Array of values to apply. Only `values[0]` is used (single-value store).
    * @param options Options for API compatibility with createSelection. The `multiple` field is accepted but ignored.
-   * @remarks Used internally by `useProxyModel` to sync a ref with the model. Two resolution strategies:
-   * 1. **Ref path**: If the currently selected ticket's value is a ref, writes directly to `ref.value`.
-   * 2. **Browse path**: Clears `selectedIds`, resolves the value via `registry.browse()`, and selects the match.
+   * @remarks Used internally by `useProxyModel` to sync a ref with the model. Executes two steps sequentially:
+   * 1. **Ref write**: Writes `values[0]` to any selected ticket whose value is a ref.
+   * 2. **Browse resolution**: Clears `selectedIds`, resolves `values[0]` via `registry.browse()`, and selects the match.
+   *
+   * For ref-valued tickets, browse typically finds no match (the catalog indexes by the ref object,
+   * not the unwrapped value), so `selectedIds` will be empty after apply.
    *
    * @see https://0.vuetifyjs.com/composables/selection/create-model
    *
@@ -244,6 +247,15 @@ export interface ModelContext<
    * ```
    */
   register: (registration?: Partial<Z>) => E
+  /**
+   * Onboard multiple tickets at once
+   *
+   * @param registrations An array of partial ticket data to register.
+   * @returns The registered tickets with model-specific fields attached.
+   * @remarks Delegates to the model's `register` (not the registry's) so each ticket
+   * receives `disabled` and `isSelected`. Runs inside `registry.batch()` for performance.
+   */
+  onboard: (registrations: Partial<Z>[]) => E[]
 }
 
 export interface ModelOptions extends RegistryOptions {
@@ -323,7 +335,7 @@ export function createModel<
     ...options
   } = _options
 
-  const registry = createRegistry<E>(options)
+  const registry = createRegistry<Z, E>(options)
   const selectedIds = shallowReactive(new Set<ID>())
 
   const selectedItems = computed(() => {
@@ -404,6 +416,10 @@ export function createModel<
     registry.unregister(id)
   }
 
+  function onboard (registrations: Partial<Z>[]): E[] {
+    return registry.batch(() => registrations.map(r => register(r)))
+  }
+
   function offboard (ids: ID[]) {
     for (const id of ids) {
       selectedIds.delete(id)
@@ -411,9 +427,14 @@ export function createModel<
     registry.offboard(ids)
   }
 
-  function reset () {
-    registry.clear()
+  function clear () {
     selectedIds.clear()
+    registry.clear()
+  }
+
+  function reset () {
+    selectedIds.clear()
+    registry.clear()
   }
 
   return {
@@ -423,8 +444,10 @@ export function createModel<
     selectedItems,
     selectedValues,
     register,
+    onboard,
     unregister,
     offboard,
+    clear,
     reset,
     select,
     unselect,
