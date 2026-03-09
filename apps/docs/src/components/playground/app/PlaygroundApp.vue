@@ -10,16 +10,16 @@
 
   // Types
   import type { ReplStore } from '@vue/repl'
-  import type { Ref, ShallowRef } from 'vue'
+  import type { ShallowRef } from 'vue'
 
   export interface PlaygroundContext {
     store: ReplStore
     isReady: ShallowRef<boolean>
-    left: Ref<boolean>
-    tree: ShallowRef<boolean>
-    bottom: ShallowRef<boolean>
-    side: ShallowRef<boolean>
-    editor: ShallowRef<boolean>
+    left: { value: boolean }
+    tree: { value: boolean }
+    bottom: { value: boolean }
+    side: { value: boolean }
+    editor: { value: boolean }
   }
 
   export const [usePlayground, providePlayground] = createContext<PlaygroundContext>('v0:playground')
