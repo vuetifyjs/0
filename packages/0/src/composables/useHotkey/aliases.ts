@@ -24,6 +24,9 @@ const keyAliasMap = {
   del: 'delete',
 
   // Symbol aliases
+  plus: '+',
+  slash: '/',
+  underscore: '_',
   minus: '-',
   hyphen: '-',
 } as const
