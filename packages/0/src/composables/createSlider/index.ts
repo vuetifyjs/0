@@ -6,7 +6,10 @@
  * percentage conversion, and multi-thumb value operations.
  *
  * Extends createModel for useProxyModel compatibility:
- * - createRegistry → createModel → createSlider (values override)
+ * - createRegistry → createModel → createSlider (ticket-per-thumb)
+ *
+ * Each thumb is a model ticket with a `shallowRef<number>` value.
+ * Values are derived from ordered tickets, not a standalone ref.
  *
  * Designed for single-thumb, range, and multi-thumb sliders.
  * Also reusable for color picker tracks, media scrubbers,
@@ -18,11 +21,16 @@ import { createModel } from '#v0/composables/createModel'
 
 // Utilities
 import { clamp } from '#v0/utilities'
-import { computed, ref, toRef, toValue } from 'vue'
+import { computed, isRef, shallowRef, toRef, toValue } from 'vue'
 
 // Types
-import type { ModelContext } from '#v0/composables/createModel'
-import type { ComputedRef, MaybeRefOrGetter, Ref } from 'vue'
+import type { ModelContext, ModelTicket, ModelTicketInput } from '#v0/composables/createModel'
+import type { ID } from '#v0/types'
+import type { ComputedRef, MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
+
+export interface SliderTicketInput extends ModelTicketInput<ShallowRef<number>> {
+  value: ShallowRef<number>
+}
 
 export interface SliderOptions {
   /** Minimum value (default: 0) */
@@ -43,19 +51,19 @@ export interface SliderOptions {
   minStepsBetweenThumbs?: number
   /** Allow thumbs to pass through each other (default: false) */
   crossover?: boolean
+  /** Range mode — expects two thumbs (default: false) */
+  range?: boolean
 }
 
 export interface SliderContext extends Omit<
-  ModelContext,
-  'values' | 'selectedValues' | 'apply' | 'multiple' | 'disabled'
+  ModelContext<SliderTicketInput, ModelTicket<SliderTicketInput>>,
+  'values' | 'selectedValues' | 'apply' | 'disabled'
 > {
-  /** All thumb values */
-  values: Ref<number[]>
-  /** Selected values for useProxyModel compatibility */
+  /** Ordered thumb values derived from model tickets */
+  values: ComputedRef<number[]>
+  /** Array of values for useProxyModel compatibility (not a Set — preserves duplicates) */
   selectedValues: ComputedRef<number[]>
-  /** Always true — slider operates in array mode */
-  readonly multiple: true
-  /** Apply external values to the slider */
+  /** Apply external values — snaps, constrains, writes to ticket refs */
   apply: (values: unknown[], options?: { multiple?: boolean }) => void
   /** Whether disabled */
   disabled: Ref<boolean>
@@ -73,8 +81,14 @@ export interface SliderContext extends Omit<
   readonly step: number
   /** Minimum steps between thumbs */
   readonly minStepsBetweenThumbs: number
-  /** Whether thumbs can pass through each other */
+  /** Whether thumbs can cross */
   readonly crossover: boolean
+  /** Whether this is a range slider */
+  readonly range: boolean
+  /** Register a thumb, returns its ticket */
+  registerThumb: (initialValue?: number) => ModelTicket<SliderTicketInput>
+  /** Unregister a thumb by ticket ID */
+  unregisterThumb: (id: ID) => void
   /** Round value to nearest step, clamped to min/max */
   snap: (value: number) => number
   /** Convert value to 0-100 percentage (respects inverted) */
@@ -96,9 +110,9 @@ export interface SliderContext extends Omit<
 /**
  * Creates slider state with value math, step snapping, and multi-thumb support.
  *
- * Extends createModel for useProxyModel compatibility. The model's registry and
- * event system are available; slider overrides selectedValues and apply with
- * ordered array semantics.
+ * Extends createModel for useProxyModel compatibility. Each thumb is a model
+ * ticket with a shallowRef<number> value. Values are derived from the ordered
+ * tickets, enabling proper registration/unregistration lifecycle.
  *
  * @param options Slider configuration.
  * @returns Slider context with values, math functions, and thumb operations.
@@ -106,9 +120,9 @@ export interface SliderContext extends Omit<
  * @example
  * ```ts
  * const slider = createSlider({ min: 0, max: 100, step: 5 })
- * slider.values.value = [50]
- * slider.stepUp(0)     // [55]
- * slider.percent(50)   // 50
+ * const ticket = slider.registerThumb(50)
+ * slider.stepUp(0)       // values: [55]
+ * slider.percent(50)     // 50
  * ```
  */
 export function createSlider (options: SliderOptions = {}): SliderContext {
@@ -122,20 +136,29 @@ export function createSlider (options: SliderOptions = {}): SliderContext {
     inverted: invertedProp = false,
     minStepsBetweenThumbs = 0,
     crossover = false,
+    range = false,
   } = options
 
-  const model = createModel({
+  const model = createModel<SliderTicketInput, ModelTicket<SliderTicketInput>>({
     disabled: disabledProp,
+    enroll: false,
   })
 
-  const values = ref<number[]>([])
-  const selectedValues = computed(() => values.value)
   const disabled = toRef(() => toValue(disabledProp))
   const readonly = toRef(() => toValue(readonlyProp))
   const orientation = toRef(() => toValue(orientationProp))
   const inverted = toRef(() => toValue(invertedProp))
 
-  const range = max - min
+  const extent = max - min
+
+  let pending: number[] | null = null
+
+  const thumbs = computed(() =>
+    Array.from(model.selectedItems.value).toSorted((a, b) => a.index - b.index),
+  )
+
+  const values = computed(() => thumbs.value.map(t => toValue(t.value)))
+  const selectedValues = computed(() => values.value)
 
   function snap (value: number): number {
     if (step <= 0) return clamp(value, min, max)
@@ -145,40 +168,92 @@ export function createSlider (options: SliderOptions = {}): SliderContext {
   }
 
   function percent (value: number): number {
-    if (range === 0) return 0
-    const p = ((value - min) / range) * 100
+    if (extent === 0) return 0
+    const p = ((value - min) / extent) * 100
     return inverted.value ? 100 - p : p
   }
 
   function fromPercent (p: number): number {
     const adjusted = inverted.value ? 100 - p : p
-    return snap(min + (adjusted / 100) * range)
+    return snap(min + (adjusted / 100) * extent)
+  }
+
+  function registerThumb (initialValue?: number): ModelTicket<SliderTicketInput> {
+    const thumbIndex = thumbs.value.length
+    const pendingValue = pending?.[thumbIndex]
+    const val = pendingValue === undefined ? snap(initialValue ?? min) : snap(pendingValue)
+
+    const ticket = model.register({
+      value: shallowRef(val),
+    })
+
+    // Manually select — model uses single-value select(), we need all thumbs selected
+    model.selectedIds.add(ticket.id)
+
+    // Clear pending once all expected values consumed
+    if (pending && thumbs.value.length >= pending.length) {
+      pending = null
+    }
+
+    return ticket
+  }
+
+  function unregisterThumb (id: ID): void {
+    model.unregister(id)
+  }
+
+  function apply (incoming: unknown[], _options?: { multiple?: boolean }): void {
+    const snapped = incoming.map(v => snap(Number(v)))
+
+    if (thumbs.value.length === 0) {
+      pending = snapped
+      return
+    }
+
+    for (let index = 0; index < snapped.length; index++) {
+      const ticket = thumbs.value[index]
+      if (!ticket || !isRef(ticket.value)) continue
+
+      let constrained = snapped[index]!
+
+      if (!crossover) {
+        const gap = minStepsBetweenThumbs * step
+        const prev = index > 0 ? snapped[index - 1] : undefined
+        const following = index < snapped.length - 1 ? snapped[index + 1] : undefined
+
+        if (prev !== undefined) constrained = Math.max(constrained, prev + gap)
+        if (following !== undefined) constrained = Math.min(constrained, following - gap)
+      }
+
+      ticket.value.value = clamp(constrained, min, max)
+    }
   }
 
   function setValue (index: number, value: number): void {
     if (readonly.value) return
     const snapped = snap(value)
-    const next = [...values.value]
+    const current = values.value
 
     let constrained = snapped
 
-    // Enforce minimum distance between adjacent thumbs (skip when crossover)
     if (!crossover) {
       const gap = minStepsBetweenThumbs * step
-      const prev = next[index - 1]
-      const following = next[index + 1]
+      const prev = current[index - 1]
+      const following = current[index + 1]
 
       if (index > 0 && prev !== undefined) {
         constrained = Math.max(constrained, prev + gap)
       }
-      if (index < next.length - 1 && following !== undefined) {
+      if (index < current.length - 1 && following !== undefined) {
         constrained = Math.min(constrained, following - gap)
       }
     }
 
     constrained = clamp(constrained, min, max)
-    next[index] = constrained
-    values.value = next
+    const ticket = thumbs.value[index]
+    if (ticket && isRef(ticket.value)) {
+      ticket.value.value = constrained
+    }
   }
 
   function stepUp (index: number, multiplier = 1): void {
@@ -197,17 +272,12 @@ export function createSlider (options: SliderOptions = {}): SliderContext {
     setValue(index, max)
   }
 
-  function apply (incoming: unknown[], _options?: { multiple?: boolean }): void {
-    const snapped = incoming.map(v => snap(Number(v)))
-    values.value = snapped
-  }
-
   return {
     ...model,
     values,
     selectedValues,
-    multiple: true as const,
     apply,
+    range,
     min,
     max,
     step,
@@ -217,6 +287,8 @@ export function createSlider (options: SliderOptions = {}): SliderContext {
     readonly,
     orientation,
     inverted,
+    registerThumb,
+    unregisterThumb,
     snap,
     percent,
     fromPercent,
