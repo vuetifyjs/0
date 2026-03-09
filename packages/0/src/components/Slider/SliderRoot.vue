@@ -37,10 +37,6 @@
     readonly name?: string
     /** Form association */
     readonly form?: string
-    /** Register a thumb, returns its index */
-    registerThumb: () => number
-    /** Unregister a thumb by index */
-    unregisterThumb: (index: number) => void
     /** Track which thumb is currently being dragged */
     dragging: Ref<number | null>
     /** Track element ref for percent calculation */
@@ -153,18 +149,6 @@
 
   useProxyModel(slider, model, { multiple: true })
 
-  // Thumb registration with index recycling (lowest-first)
-  const active = new Set<number>()
-  function registerThumb (): number {
-    let index = 0
-    while (active.has(index)) index++
-    active.add(index)
-    return index
-  }
-  function unregisterThumb (index: number): void {
-    active.delete(index)
-  }
-
   const dragging = shallowRef<number | null>(null)
   const trackElement = shallowRef<HTMLElement | null>(null)
 
@@ -224,8 +208,6 @@
     id,
     name,
     form,
-    registerThumb,
-    unregisterThumb,
     dragging,
     trackElement,
     startDrag,
