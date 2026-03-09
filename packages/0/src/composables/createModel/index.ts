@@ -117,10 +117,10 @@ export interface ModelContext<
    */
   disabled: MaybeRefOrGetter<boolean>
   /**
-   * Clear all selected IDs and the underlying registry
+   * Reset selection state without destroying the registry
    *
-   * @remarks Calls `registry.clear()` and `selectedIds.clear()`. After reset, `size` is 0
-   * and all computed properties return empty Sets.
+   * @remarks Clears `selectedIds` only — registered tickets are preserved.
+   * Use `clear()` to destroy both selection state and the registry.
    *
    * @example
    * ```ts
@@ -128,7 +128,7 @@ export interface ModelContext<
    * model.register({ id: 'a', value: 'Apple' })
    * model.select('a')
    * model.reset()
-   * console.log(model.size) // 0
+   * console.log(model.size) // 1 (tickets preserved)
    * console.log(model.selectedIds.size) // 0
    * ```
    */
@@ -445,19 +445,18 @@ export function createModel<
     registry.offboard(ids)
   }
 
-  function clear () {
+  function reset () {
     selectedIds.clear()
+  }
+
+  function clear () {
+    reset()
     registry.clear()
   }
 
   function dispose () {
-    selectedIds.clear()
+    reset()
     registry.dispose()
-  }
-
-  function reset () {
-    selectedIds.clear()
-    registry.clear()
   }
 
   return {

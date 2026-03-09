@@ -872,7 +872,7 @@ describe('createNested', () => {
   })
 
   describe('reset', () => {
-    it('should clear all state', () => {
+    it('should clear nested and selection state but preserve registry', () => {
       const nested = createNested()
 
       nested.register({ id: 'root', value: 'Root' })
@@ -882,7 +882,7 @@ describe('createNested', () => {
 
       nested.reset()
 
-      expect(nested.size).toBe(0)
+      expect(nested.size).toBe(2)
       expect(nested.openedIds.size).toBe(0)
       expect(nested.selectedIds.size).toBe(0)
       expect(nested.children.size).toBe(0)

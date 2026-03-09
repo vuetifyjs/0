@@ -18,10 +18,6 @@ import type { ModelContext, ModelTicket, ModelTicketInput } from './index'
 
 import { createModel } from './index'
 
-// =============================================================================
-// FIXTURES - Created once, reused across read-only benchmarks
-// =============================================================================
-
 interface BenchmarkItem {
   id: string
   value: string
@@ -59,15 +55,7 @@ model1k.select(LOOKUP_ID_1K)
 const model10k = createPopulatedModel(10_000)
 model10k.select(LOOKUP_ID_10K)
 
-// =============================================================================
-// BENCHMARKS
-// =============================================================================
-
 describe('createModel benchmarks', () => {
-  // ===========================================================================
-  // INITIALIZATION - Measures setup/creation cost
-  // Fresh fixture per iteration (required - we're measuring creation itself)
-  // ===========================================================================
   describe('initialization', () => {
     bench('Create empty model', () => {
       createModel()
@@ -102,11 +90,6 @@ describe('createModel benchmarks', () => {
     })
   })
 
-  // ===========================================================================
-  // LOOKUP OPERATIONS - Read-only state queries
-  // Shared fixture (safe - no state changes)
-  // Measures: isolated operation cost without setup overhead
-  // ===========================================================================
   describe('lookup operations', () => {
     bench('Check selected (1,000 items)', () => {
       model1k.selected(LOOKUP_ID_1K)
@@ -133,11 +116,6 @@ describe('createModel benchmarks', () => {
     })
   })
 
-  // ===========================================================================
-  // SELECTION OPERATIONS - Single item select/unselect/toggle
-  // Fresh fixture per iteration (required - mutations change state)
-  // Measures: setup + operation cost
-  // ===========================================================================
   describe('selection operations', () => {
     bench('Select single item (1,000 items)', () => {
       const model = createPopulatedModel(1000)
@@ -177,11 +155,6 @@ describe('createModel benchmarks', () => {
     })
   })
 
-  // ===========================================================================
-  // APPLY OPERATIONS - External value sync via apply bridge
-  // Fresh fixture per iteration (required - mutations change state)
-  // Measures: apply resolution cost (browse-based vs ref-based)
-  // ===========================================================================
   describe('apply operations', () => {
     bench('Apply static value (1,000 items)', () => {
       const model = createPopulatedModel(1000)
@@ -208,11 +181,6 @@ describe('createModel benchmarks', () => {
     })
   })
 
-  // ===========================================================================
-  // BATCH OPERATIONS - Bulk register/offboard/reset cycles
-  // Fresh fixture per iteration (required - mutations change state)
-  // Measures: setup + operation cost for bulk workflows
-  // ===========================================================================
   describe('batch operations', () => {
     bench('Onboard 1,000 then offboard 100 items', () => {
       const model = createPopulatedModel(1000)
@@ -241,11 +209,6 @@ describe('createModel benchmarks', () => {
     })
   })
 
-  // ===========================================================================
-  // COMPUTED ACCESS - selectedItems, selectedValues derivation
-  // Shared fixture (safe - reading .value doesn't mutate state)
-  // Measures: amortized cost of repeated computed reads
-  // ===========================================================================
   describe('computed access', () => {
     bench('Access selectedItems 100 times (1 of 1,000 selected, cached)', () => {
       for (let i = 0; i < 100; i++) {

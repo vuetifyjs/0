@@ -198,10 +198,10 @@ export function createSelection<
     enroll = false,
     mandatory = false,
     multiple = false,
-    ...modelOptions
+    ...options
   } = _options
 
-  const model = createModel<Z, E>({ ...modelOptions, enroll: false })
+  const model = createModel<Z, E>({ ...options, enroll: false })
 
   function seek (direction: 'first' | 'last' = 'first', from?: number): E | undefined {
     return model.seek(direction, from, (ticket: E) => !toValue(ticket.disabled))

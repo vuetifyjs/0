@@ -4,11 +4,11 @@
   import { Checkbox } from '@vuetify/v0'
   import { allToppings, createCompound, sizes } from './createCompound'
 
-  const { store, tickets, compound, name, size, toppings, quantity } = createCompound()
+  const { model, tickets, compound, name, size, toppings, quantity } = createCompound()
 
   function onToggle (id: string | number) {
-    if (store.selected(id)) store.selectedIds.delete(id)
-    else store.selectedIds.add(id)
+    if (model.selected(id)) model.selectedIds.delete(id)
+    else model.selectedIds.add(id)
   }
 
   function onDisable (ticket: (typeof tickets.value)[number]) {
@@ -29,7 +29,7 @@
   <div class="flex flex-col gap-5">
     <div class="flex items-baseline justify-between">
       <span class="text-xs text-on-surface-variant/50 tabular-nums">
-        {{ store.selectedIds.size }} / {{ store.size }} in compound
+        {{ model.selectedIds.size }} / {{ model.size }} in compound
       </span>
     </div>
 

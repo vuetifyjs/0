@@ -152,7 +152,7 @@ describe('createModel', () => {
   })
 
   describe('reset', () => {
-    it('should clear registry and selectedIds', () => {
+    it('should clear selectedIds but preserve registry', () => {
       const model = createModel()
       model.register({ id: 'item-1', value: 'val-1' })
       model.register({ id: 'item-2', value: 'val-2' })
@@ -163,7 +163,7 @@ describe('createModel', () => {
 
       model.reset()
 
-      expect(model.size).toBe(0)
+      expect(model.size).toBe(2)
       expect(model.selectedIds.size).toBe(0)
     })
   })
