@@ -175,7 +175,7 @@ app.mount('#app')
 - Vue 3.5.0 or higher
 - Node 22+
 
-## Quick Start
+## Usage
 
 Import and use components directly - no plugin installation required:
 
