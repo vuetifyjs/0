@@ -84,15 +84,16 @@
   const root = useSliderRoot(namespace)
   const thumbRef = useTemplateRef<{ element: HTMLElement | null }>('thumb')
 
-  const index = root.registerThumb()
+  const ticket = root.registerThumb()
 
   onUnmounted(() => {
-    root.unregisterThumb(index)
+    root.unregisterThumb(ticket.id)
   })
 
-  const value = toRef(() => root.values.value[index] ?? root.min)
+  const index = toRef(() => ticket.index)
+  const value = toRef(() => toValue(ticket.value))
   const pct = toRef(() => root.percent(value.value))
-  const isDragging = toRef(() => root.dragging.value === index)
+  const isDragging = toRef(() => root.dragging.value === index.value)
   const isDisabled = toRef(() => toValue(root.disabled))
   const isReadonly = toRef(() => toValue(root.readonly))
   const isVertical = toRef(() => toValue(root.orientation) === 'vertical')
@@ -100,17 +101,17 @@
   // Per-thumb constrained range for ARIA (WAI-ARIA multi-thumb slider pattern)
   const valueMin = toRef(() => {
     if (root.crossover) return root.min
-    const prev = root.values.value[index - 1]
+    const prev = root.values.value[index.value - 1]
     return prev === undefined ? root.min : prev
   })
   const valueMax = toRef(() => {
     if (root.crossover) return root.max
-    const next = root.values.value[index + 1]
+    const next = root.values.value[index.value + 1]
     return next === undefined ? root.max : next
   })
 
   function onPointerdown (e: PointerEvent) {
-    root.startDrag(index, e, thumbRef.value?.element ?? undefined)
+    root.startDrag(index.value, e, thumbRef.value?.element ?? undefined)
   }
 
   function onKeydown (e: KeyboardEvent) {
@@ -119,14 +120,14 @@
     const isInverted = toValue(root.inverted)
 
     const actions: Record<string, () => void> = {
-      ArrowRight: () => isInverted ? root.stepDown(index) : root.stepUp(index),
-      ArrowUp: () => root.stepUp(index),
-      ArrowLeft: () => isInverted ? root.stepUp(index) : root.stepDown(index),
-      ArrowDown: () => root.stepDown(index),
-      PageUp: () => root.stepUp(index, 10),
-      PageDown: () => root.stepDown(index, 10),
-      Home: () => root.setToMin(index),
-      End: () => root.setToMax(index),
+      ArrowRight: () => isInverted ? root.stepDown(index.value) : root.stepUp(index.value),
+      ArrowUp: () => root.stepUp(index.value),
+      ArrowLeft: () => isInverted ? root.stepUp(index.value) : root.stepDown(index.value),
+      ArrowDown: () => root.stepDown(index.value),
+      PageUp: () => root.stepUp(index.value, 10),
+      PageDown: () => root.stepDown(index.value, 10),
+      Home: () => root.setToMin(index.value),
+      End: () => root.setToMax(index.value),
     }
 
     // Shift + Arrow = 10x step
@@ -136,7 +137,7 @@
       const method = (e.key === 'ArrowRight' || e.key === 'ArrowLeft') && isInverted
         ? (base === 'stepUp' ? 'stepDown' : 'stepUp')
         : base
-      root[method](index, 10)
+      root[method](index.value, 10)
       return
     }
 
@@ -152,7 +153,7 @@
   )
 
   const slotProps = toRef((): SliderThumbSlotProps => ({
-    index,
+    index: index.value,
     value: value.value,
     percent: pct.value,
     isDragging: isDragging.value,
