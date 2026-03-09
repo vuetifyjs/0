@@ -6,18 +6,9 @@
   import { usePlayground } from '../app/PlaygroundApp.vue'
 
   // Utilities
-  import { onMounted, onUnmounted, toRef, useTemplateRef } from 'vue'
+  import { onMounted, useTemplateRef } from 'vue'
 
   const playground = usePlayground()
-  const ticket = playground.register({ id: 'workspace-top' })
-
-  onMounted(() => ticket.select())
-
-  const hasBottom = toRef(() => playground.selectedIds.has('workspace-bottom'))
-
-  onUnmounted(() => {
-    playground.unregister(ticket.id)
-  })
 
   const storage = useStorage()
   const sizes = storage.get<number[]>('playground-top-h-sizes', [])
@@ -42,6 +33,6 @@
 
   <PlaygroundSplitterHandle
     direction="vertical"
-    :hidden="!hasBottom"
+    :hidden="playground.bottom.value"
   />
 </template>

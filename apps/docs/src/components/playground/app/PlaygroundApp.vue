@@ -1,40 +1,49 @@
 <script lang="ts">
   // Framework
-  import { createGroupContext } from '@vuetify/v0'
+  import { createContext, useStorage } from '@vuetify/v0'
 
   // Composables
   import { usePlaygroundFiles } from '@/composables/usePlaygroundFiles'
 
+  // Utilities
+  import { shallowRef } from 'vue'
+
   // Types
   import type { ReplStore } from '@vue/repl'
-  import type { GroupTicket, GroupTicketInput, GroupContext } from '@vuetify/v0'
-  import type { ShallowRef } from 'vue'
+  import type { Ref, ShallowRef } from 'vue'
 
-  export interface PlaygroundTicketInput extends GroupTicketInput {}
-
-  export interface PlaygroundTicket extends GroupTicket {}
-
-  export interface PlaygroundContext extends GroupContext<PlaygroundTicketInput> {
+  export interface PlaygroundContext {
     store: ReplStore
     isReady: ShallowRef<boolean>
+    left: Ref<boolean>
+    tree: ShallowRef<boolean>
+    bottom: ShallowRef<boolean>
+    side: ShallowRef<boolean>
+    editor: ShallowRef<boolean>
   }
 
-  export const [usePlayground, providePlayground, playgroundContext] = createGroupContext<
-    PlaygroundTicketInput,
-    PlaygroundTicket,
-    PlaygroundContext
-  >({
-    namespace: 'v0:playground',
-  })
+  export const [usePlayground, providePlayground] = createContext<PlaygroundContext>('v0:playground')
 </script>
 
 <script setup lang="ts">
   const { store, isReady } = usePlaygroundFiles()
+  const storage = useStorage()
+
+  // Persisted collapsed state (true = collapsed)
+  const left = storage.get('playground-left-collapsed', false)
+  // Persisted user preference for side preview position
+  const sidePref = storage.get('playground-preview-right', false)
+  // Side preview active when preferred and left panel is collapsed
+  const sideActive = sidePref.value && left.value
 
   providePlayground({
-    ...playgroundContext,
     store,
     isReady,
+    left,
+    tree: shallowRef(false),
+    bottom: shallowRef(sideActive),
+    side: shallowRef(!sideActive),
+    editor: shallowRef(true),
   })
 </script>
 

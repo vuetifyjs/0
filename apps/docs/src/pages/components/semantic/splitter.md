@@ -126,6 +126,45 @@ Panels can collapse to a minimum size. Set `collapsible` and optionally `collaps
 </template>
 ```
 
+### Controlled Collapse
+
+Use `v-model:collapsed` for two-way binding of collapsed state. This lets you control collapse from outside the splitter — for example, a toolbar button or a shared ref.
+
+```vue
+<script setup lang="ts">
+  import { Splitter } from '@vuetify/v0'
+  import { shallowRef } from 'vue'
+
+  const collapsed = shallowRef(false)
+</script>
+
+<template>
+  <button @click="collapsed = !collapsed">
+    {{ collapsed ? 'Show' : 'Hide' }} Sidebar
+  </button>
+
+  <Splitter.Root>
+    <Splitter.Panel
+      v-model:collapsed="collapsed"
+      :default-size="30"
+      :min-size="15"
+      :collapsed-size="0"
+      collapsible
+    >
+      Sidebar
+    </Splitter.Panel>
+
+    <Splitter.Handle label="Resize sidebar" />
+
+    <Splitter.Panel :default-size="70" :min-size="30">
+      Content
+    </Splitter.Panel>
+  </Splitter.Root>
+</template>
+```
+
+The model syncs in both directions — setting the ref collapses/expands the panel, and drag-to-collapse or keyboard Home/End updates the ref.
+
 ### Events
 
 The root emits `@layout` with all panel sizes at the end of each resize interaction. Panels emit `@resize` with their individual size.
