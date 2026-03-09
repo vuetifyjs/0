@@ -55,8 +55,11 @@
 
   const attrs = useAttrs()
 
+  const collapsed = defineModel<boolean>('collapsed', { default: undefined })
+
   const emit = defineEmits<{
-    resize: [size: number]
+    'update:collapsed': [value: boolean]
+    'resize': [size: number]
   }>()
 
   defineSlots<{
@@ -112,6 +115,19 @@
   }
 
   defineExpose<SplitterPanelExpose>({ collapse, expand, size, isCollapsed })
+
+  // Sync v-model:collapsed → internal state (post flush ensures siblings are registered)
+  watch(collapsed, val => {
+    if (val === undefined) return
+    if (val && !isCollapsed.value) collapse()
+    else if (!val && isCollapsed.value) expand()
+  }, { immediate: true, flush: 'post' })
+
+  // Sync internal state → v-model:collapsed
+  watch(isCollapsed, val => {
+    if (collapsed.value === undefined) return
+    collapsed.value = val
+  })
 
   watch(size, val => emit('resize', val))
 
