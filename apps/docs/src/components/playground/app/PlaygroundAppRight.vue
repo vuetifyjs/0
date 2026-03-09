@@ -1,4 +1,7 @@
 <script setup lang="ts">
+  // Framework
+  import { SplitterPanel } from '@vuetify/v0'
+
   // Components
   import { usePlayground } from './PlaygroundApp.vue'
 
@@ -17,10 +20,12 @@
 </script>
 
 <template>
-  <div
-    v-if="ticket.isSelected.value"
-    class="bg-surface h-full flex-1 min-w-0"
-  >
-    <slot />
-  </div>
+  <SplitterPanel :default-size="70" :min-size="55">
+    <div
+      v-if="ticket.isSelected.value"
+      class="bg-surface h-full min-w-0"
+    >
+      <slot />
+    </div>
+  </SplitterPanel>
 </template>

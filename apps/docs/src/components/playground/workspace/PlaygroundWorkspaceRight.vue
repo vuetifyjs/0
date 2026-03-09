@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { useBreakpoints } from '@vuetify/v0'
+  import { SplitterPanel, useBreakpoints } from '@vuetify/v0'
 
   // Components
   import { usePlayground } from '../app/PlaygroundApp.vue'
@@ -22,10 +22,12 @@
 </script>
 
 <template>
-  <div
-    v-if="ticket.isSelected.value"
-    class="flex flex-col flex-1 min-w-0"
-  >
-    <slot />
-  </div>
+  <SplitterPanel :default-size="50" :min-size="20">
+    <div
+      v-if="ticket.isSelected.value"
+      class="flex flex-col min-w-0 h-full"
+    >
+      <slot />
+    </div>
+  </SplitterPanel>
 </template>

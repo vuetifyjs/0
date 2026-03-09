@@ -1,17 +1,16 @@
 <script setup lang="ts">
   // Framework
-  import { useBreakpoints, useStorage } from '@vuetify/v0'
+  import { SplitterPanel, useBreakpoints, useStorage } from '@vuetify/v0'
 
   // Components
   import { usePlayground } from '../app/PlaygroundApp.vue'
   import { Discovery } from '@/components/discovery'
 
   // Utilities
-  import { onMounted, onUnmounted, shallowRef, toRef } from 'vue'
+  import { nextTick, onMounted, onUnmounted, useTemplateRef, watch } from 'vue'
 
-  const DEFAULT_WIDTH = 400
-  const DEFAULT_MIN_WIDTH = 200
-  const DEFAULT_MAX_WIDTH = 700
+  // Types
+  import type { SplitterPanelExpose } from '@vuetify/v0'
 
   const playground = usePlayground()
   const breakpoints = useBreakpoints()
@@ -20,46 +19,47 @@
   const left = storage.get('playground-left-open', true)
 
   const ticket = playground.register({ id: 'preview-side' })
-
-  onMounted(() => {
-    if (!breakpoints.isMobile.value && side.value && !left.value) ticket.select()
-  })
+  const panel = useTemplateRef<SplitterPanelExpose>('panel')
 
   onUnmounted(() => {
     playground.unregister(ticket.id)
   })
 
-  const modelValue = shallowRef(DEFAULT_WIDTH)
+  onMounted(() => {
+    if (!breakpoints.isMobile.value && side.value && !left.value) ticket.select()
+    else nextTick(() => panel.value?.collapse())
+  })
 
-  const styles = toRef(() => ({
-    width: `${modelValue.value}px`,
-  }))
+  // Ticket drives collapse/expand
+  watch(() => ticket.isSelected.value, selected => {
+    if (selected) panel.value?.expand()
+    else panel.value?.collapse()
+  })
 
-  function onDblClick () {
-    modelValue.value = modelValue.value === DEFAULT_WIDTH ? DEFAULT_MAX_WIDTH : DEFAULT_WIDTH
-  }
 </script>
 
 <template>
-  <template v-if="ticket.isSelected.value">
-    <PlaygroundAppResizeBar
-      v-model="modelValue"
-      direction="horizontal"
-      :max="DEFAULT_MAX_WIDTH"
-      :min="DEFAULT_MIN_WIDTH"
-      reverse
-      storage-key="preview-side"
-      @dblclick="onDblClick"
-    />
+  <PlaygroundSplitterHandle
+    direction="horizontal"
+    :hidden="!ticket.isSelected.value"
+  />
 
+  <SplitterPanel
+    ref="panel"
+    :collapsed-size="0"
+    collapsible
+    :default-size="30"
+    :max-size="55"
+    :min-size="15"
+  >
     <Discovery.Activator
+      v-if="ticket.isSelected.value"
       active-class="rounded-lg"
       as="div"
       class="flex flex-col h-full"
       step="preview"
-      :style="styles"
     >
       <slot />
     </Discovery.Activator>
-  </template>
+  </SplitterPanel>
 </template>

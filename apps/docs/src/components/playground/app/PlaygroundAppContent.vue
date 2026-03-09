@@ -20,7 +20,12 @@
 </script>
 
 <template>
-  <SplitterRoot ref="root" class="flex-1 min-h-0" orientation="horizontal" @layout="onLayout">
+  <SplitterRoot
+    ref="root"
+    class="flex-1 min-h-0"
+    orientation="horizontal"
+    @layout="onLayout"
+  >
     <slot />
   </SplitterRoot>
 </template>

@@ -25,7 +25,12 @@
     playground.toggle('playground-left')
     left.value = playground.selected('playground-left')
 
-    if (side.value && !breakpoints.isMobile.value) {
+    if (left.value && !breakpoints.isMobile.value && playground.selected('preview-side')) {
+      // Opening intro with side preview: force to bottom
+      playground.toggle('preview-side')
+      playground.toggle('workspace-bottom')
+    } else if (!left.value && !breakpoints.isMobile.value && side.value && !playground.selected('preview-side')) {
+      // Closing intro: restore side preview if that was the user's preference
       playground.toggle('preview-side')
       playground.toggle('workspace-bottom')
     }

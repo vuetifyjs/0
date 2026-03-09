@@ -1,13 +1,16 @@
 <script setup lang="ts">
   // Framework
-  import { useBreakpoints, useStorage } from '@vuetify/v0'
+  import { SplitterPanel, useBreakpoints, useStorage } from '@vuetify/v0'
 
   // Components
   import { usePlayground } from '../app/PlaygroundApp.vue'
   import { Discovery } from '@/components/discovery'
 
   // Utilities
-  import { onMounted, onUnmounted } from 'vue'
+  import { nextTick, onMounted, onUnmounted, useTemplateRef, watch } from 'vue'
+
+  // Types
+  import type { SplitterPanelExpose } from '@vuetify/v0'
 
   const playground = usePlayground()
   const breakpoints = useBreakpoints()
@@ -16,24 +19,40 @@
   const left = storage.get('playground-left-open', true)
 
   const ticket = playground.register({ id: 'workspace-bottom' })
-
-  onMounted(() => {
-    if (breakpoints.isMobile.value || (!side.value || left.value)) ticket.select()
-  })
+  const panel = useTemplateRef<SplitterPanelExpose>('panel')
 
   onUnmounted(() => {
     playground.unregister(ticket.id)
   })
+
+  onMounted(() => {
+    if (breakpoints.isMobile.value || !side.value || left.value) ticket.select()
+    else nextTick(() => panel.value?.collapse())
+  })
+
+  watch(() => ticket.isSelected.value, selected => {
+    if (selected) panel.value?.expand()
+    else panel.value?.collapse()
+  })
+
 </script>
 
 <template>
-  <Discovery.Activator
-    v-if="ticket.isSelected.value"
-    active-class="rounded-lg"
-    as="div"
-    class="flex flex-1"
-    step="preview"
+  <SplitterPanel
+    ref="panel"
+    :collapsed-size="0"
+    collapsible
+    :default-size="40"
+    :min-size="10"
   >
-    <slot />
-  </Discovery.Activator>
+    <Discovery.Activator
+      v-if="ticket.isSelected.value"
+      active-class="rounded-lg"
+      as="div"
+      class="flex flex-1 h-full"
+      step="preview"
+    >
+      <slot />
+    </Discovery.Activator>
+  </SplitterPanel>
 </template>
