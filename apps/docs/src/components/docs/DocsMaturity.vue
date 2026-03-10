@@ -233,13 +233,23 @@
 
           <span class="text-on-surface-variant font-normal ml-1">({{ group.items.length }})</span>
 
-          <!-- Heat map bar -->
-          <span class="flex-1 flex items-center h-1.5 rounded-full overflow-hidden ml-2">
+          <!-- Heat map -->
+          <span class="inline-flex items-center gap-0.5 ml-2">
+            <span
+              v-for="(segment, index) in heatmap(group.items as MaturityItem[])"
+              :key="index"
+              class="size-1.5 rounded-full"
+              :style="{ backgroundColor: segment.color }"
+            />
+          </span>
+
+          <span class="flex-1" />
+
+          <span class="flex items-center w-20 h-1 rounded-full overflow-hidden">
             <span
               v-for="(segment, index) in heatmap(group.items as MaturityItem[])"
               :key="index"
               class="h-full"
-              :class="index === 0 ? 'rounded-l-full' : index === heatmap(group.items as MaturityItem[]).length - 1 ? 'rounded-r-full' : ''"
               :style="{ backgroundColor: segment.color, width: segment.percent + '%' }"
             />
           </span>
