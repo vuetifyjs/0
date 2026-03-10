@@ -206,32 +206,34 @@
     <div class="flex flex-wrap items-center gap-2 mb-4">
       <!-- Type toggles -->
       <button
-        class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium border cursor-pointer transition-all"
+        class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium border cursor-pointer transition-all"
         :class="activeType === 'composable'
           ? 'border-primary bg-primary/15 text-primary opacity-100'
           : 'border-divider text-on-surface-variant opacity-70 hover:opacity-100'"
         @click="onToggleType('composable')"
       >
+        <AppIcon icon="code" :size="12" />
         Composables
       </button>
 
       <button
-        class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium border cursor-pointer transition-all"
+        class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium border cursor-pointer transition-all"
         :class="activeType === 'component'
           ? 'border-accent bg-accent/15 text-accent opacity-100'
           : 'border-divider text-on-surface-variant opacity-70 hover:opacity-100'"
         @click="onToggleType('component')"
       >
+        <AppIcon icon="puzzle" :size="12" />
         Components
       </button>
 
-      <span class="w-px h-5 bg-divider mx-1" />
+      <span class="w-px h-4 bg-divider mx-1" />
 
       <!-- Level chips -->
       <button
         v-for="(config, key) in levels"
         :key="key"
-        class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium border cursor-pointer transition-all"
+        class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium border cursor-pointer transition-all"
         :class="activeFilters.size === 0 || activeFilters.has(key as Level)
           ? 'opacity-100'
           : 'opacity-40'"
@@ -244,7 +246,7 @@
         }"
         @click="onToggleFilter(key as Level)"
       >
-        <AppIcon :icon="config.icon" :size="16" />
+        <AppIcon :icon="config.icon" :size="14" />
         {{ config.label }}
       </button>
 
@@ -305,11 +307,12 @@
         </tr>
       </thead>
 
-      <template v-for="group in table.grouping.groups.value" :key="group.key">
+      <template v-for="(group, index) in table.grouping.groups.value" :key="group.key">
         <!-- Group header row -->
         <tbody>
           <tr
             class="cursor-pointer transition-colors hover:bg-surface-variant/30"
+            :class="index > 0 ? 'border-t border-divider' : ''"
             @click="table.grouping.toggle(group.key)"
           >
             <td class="px-4 py-2.5" :colspan="table.columns.length">
