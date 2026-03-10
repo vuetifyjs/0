@@ -360,7 +360,7 @@
     </table>
 
     <!-- Summary bar -->
-    <div class="flex flex-wrap items-center gap-4 px-4 py-3 rounded-lg border border-divider mb-8 text-sm">
+    <div class="flex flex-wrap items-center gap-4 px-4 py-3 rounded-lg border border-divider bg-surface-variant/50 mb-8 text-sm">
       <span class="font-semibold text-on-surface">
         {{ filtered.length }} total
       </span>
