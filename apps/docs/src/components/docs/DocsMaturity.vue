@@ -292,8 +292,8 @@
         <col class="w-[12%]">
       </colgroup>
 
-      <thead :class="anyOpen ? 'visible' : 'invisible'">
-        <tr>
+      <thead>
+        <tr v-if="anyOpen">
           <th
             v-for="col in table.columns"
             :key="col.key"
@@ -304,6 +304,11 @@
             {{ col.title }}
             <span v-if="col.sortable" class="ml-0.5 text-primary">{{ sortIcon(col.key) }}</span>
           </th>
+        </tr>
+        <tr v-else>
+          <td class="py-2 px-4 text-xs text-on-surface-variant" :colspan="table.columns.length">
+            Select a group to see individual items
+          </td>
         </tr>
       </thead>
 
