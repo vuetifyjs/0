@@ -6,6 +6,7 @@
 
   // Utilities
   import { shallowRef, toRef } from 'vue'
+  import { RouterLink } from 'vue-router'
 
   // Types
   type Level = 'draft' | 'preview' | 'stable' | 'mature' | 'deprecated'
@@ -18,6 +19,11 @@
     level: Level
     since: string
     levelOrder: number
+    path: string
+  }
+
+  function kebab (name: string): string {
+    return name.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()
   }
 
   const levels: Record<Level, { icon: string, color: string, label: string, order: number }> = {
@@ -43,6 +49,7 @@
         level: entry.level,
         since: entry.since,
         levelOrder: levels[entry.level as Level]?.order ?? -1,
+        path: `/composables/${entry.category}/${kebab(name)}`,
       })
     }
 
@@ -55,6 +62,7 @@
         level: entry.level,
         since: entry.since,
         levelOrder: levels[entry.level as Level]?.order ?? -1,
+        path: `/components/${entry.category}/${kebab(name)}`,
       })
     }
 
@@ -282,11 +290,92 @@
       </button>
     </div>
 
-    <!-- Data table -->
-    <div class="relative mb-6">
-      <AppDotGrid :coverage="30" :density="20" origin="top right" />
+    <!-- Mobile card view -->
+    <div class="md:hidden mb-6">
+      <template v-for="(group, index) in table.grouping.groups.value" :key="group.key">
+        <hr v-if="index > 0" class="border-divider m-0">
 
-      <table class="relative z-1 w-full border-collapse table-fixed">
+        <!-- Group header -->
+        <button
+          class="w-full flex items-center gap-2 px-2 py-2 text-sm font-semibold text-on-surface cursor-pointer border-0 bg-transparent text-left"
+          @click="table.grouping.toggle(group.key)"
+        >
+          <AppIcon
+            class="transition-transform"
+            :class="table.grouping.isOpen(group.key) ? 'rotate-90' : ''"
+            icon="chevron-right"
+            :size="14"
+          />
+          <span class="capitalize">{{ group.key }}</span>
+          <span class="text-on-surface-variant font-normal">({{ group.items.length }})</span>
+          <span class="flex-1" />
+          <span
+            class="inline-block size-2.5 min-w-2.5 rounded-full shrink-0"
+            :style="{ backgroundColor: blend(group.items) }"
+          />
+        </button>
+
+        <!-- Cards -->
+        <div v-if="table.grouping.isOpen(group.key)" class="grid gap-2 pl-2 mb-3">
+          <RouterLink
+            v-for="item in group.items"
+            :key="item.id"
+            class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-glass-surface no-underline transition-colors hover:bg-surface-variant/80"
+            :to="String(item.path)"
+          >
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-medium text-on-surface truncate">
+                {{ item.name }}
+              </div>
+              <div class="flex items-center gap-2 mt-1">
+                <span
+                  class="inline-block px-1.5 py-0 rounded-full text-[10px] font-medium"
+                  :class="item.type === 'composable'
+                    ? 'bg-primary/15 text-primary'
+                    : 'bg-info/15 text-info'"
+                >{{ item.type }}</span>
+                <span class="text-[10px] text-on-surface-variant font-mono">
+                  v{{ item.since }}
+                </span>
+              </div>
+            </div>
+            <span
+              class="inline-flex items-center gap-1 shrink-0"
+              :style="{ color: levels[item.level]?.color }"
+            >
+              <AppIcon :icon="levels[item.level]?.icon" :size="14" />
+            </span>
+          </RouterLink>
+        </div>
+      </template>
+
+      <!-- Empty state -->
+      <div
+        v-if="table.grouping.groups.value.length === 0"
+        class="px-4 py-8 text-center text-on-surface-variant text-sm"
+      >
+        No items match your search or filters.
+      </div>
+
+      <!-- Summary -->
+      <div class="flex flex-wrap items-center gap-3 px-2 py-3 text-xs text-on-surface-variant">
+        <span
+          v-for="(config, key) in levels"
+          :key="key"
+          class="inline-flex items-center gap-1"
+          :style="{ color: config.color }"
+        >
+          <AppIcon :icon="config.icon" :size="12" />
+          {{ summary[key] }} {{ config.label.toLowerCase() }}
+        </span>
+        <span class="flex-1" />
+        <span class="font-semibold text-on-surface">{{ filtered.length }} total</span>
+      </div>
+    </div>
+
+    <!-- Desktop table -->
+    <div class="relative overflow-hidden mb-6 hidden md:block">
+      <table class="w-full border-collapse table-fixed">
         <colgroup>
           <col class="w-[30%]">
           <col class="w-[18%]">
@@ -296,7 +385,7 @@
         </colgroup>
 
         <thead>
-          <tr v-if="anyOpen">
+          <tr v-if="anyOpen" class="relative z-1 bg-background">
             <th
               v-for="col in table.columns"
               :key="col.key"
@@ -308,8 +397,8 @@
               <span v-if="col.sortable" class="ml-0.5 text-primary">{{ sortIcon(col.key) }}</span>
             </th>
           </tr>
-          <tr v-else>
-            <td class="py-2 px-4 text-xs text-on-surface-variant/50 italic" :colspan="table.columns.length">
+          <tr v-else class="relative z-1 bg-background">
+            <th class="py-2 px-4 text-left text-xs font-normal text-on-surface-variant/50 italic" :colspan="table.columns.length">
               <div class="flex items-center gap-2">
                 Select a group to see individual items
                 <span class="flex-1" />
@@ -318,7 +407,7 @@
                   :style="{ backgroundColor: blend(filtered) }"
                 />
               </div>
-            </td>
+            </th>
           </tr>
         </thead>
 
@@ -371,8 +460,11 @@
               class="bg-glass-surface transition-colors hover:bg-surface-variant/80"
             >
               <!-- Name -->
-              <td class="!pl-[34px] pr-4 py-2.5 text-sm font-medium text-on-surface truncate">
-                {{ item.name }}
+              <td class="!pl-[34px] pr-4 py-2.5 text-sm font-medium truncate">
+                <RouterLink
+                  class="text-on-surface no-underline hover:text-primary transition-colors"
+                  :to="item.path"
+                >{{ item.name }}</RouterLink>
               </td>
 
               <!-- Type badge -->
@@ -408,7 +500,8 @@
                 <a
                   class="text-primary no-underline hover:underline"
                   :href="`/releases/?version=v${item.since}`"
-                >v{{ item.since }}</a>
+                  target="_blank"
+                >v{{ item.since }}<span class="text-xs opacity-70 ml-0.5">↗</span></a>
               </td>
             </tr>
           </tbody>
@@ -448,6 +541,8 @@
           </tr>
         </tfoot>
       </table>
+
+      <AppDotGrid :coverage="65" :density="18" />
     </div>
 
     <!-- Graduation criteria -->
