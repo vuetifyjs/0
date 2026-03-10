@@ -1,15 +1,16 @@
 <script setup lang="ts">
-  import { ref } from 'vue'
+  import { onUnmounted, shallowRef } from 'vue'
   import { createModel, useProxyModel } from '@vuetify/v0'
 
-  const value = ref('Apple')
+  const value = shallowRef('Apple')
 
-  const store = createModel()
+  const store = createModel({ events: true })
 
-  store.register({ id: 'fruit', value })
-  store.select('fruit')
+  const ticket = store.register({ id: 'fruit', value })
 
   useProxyModel(store, value)
+
+  onUnmounted(() => store.unregister(ticket.id))
 </script>
 
 <template>
@@ -25,9 +26,7 @@
       <div class="grid grid-cols-2 gap-1 text-xs">
         <span class="text-on-surface-variant/60">Ref</span>
         <span class="font-mono text-on-surface">{{ value ?? 'undefined' }}</span>
-        <span class="text-on-surface-variant/60">Selected ID</span>
-        <span class="font-mono text-on-surface">{{ [...store.selectedIds][0] ?? '—' }}</span>
-        <span class="text-on-surface-variant/60">Store value</span>
+        <span class="text-on-surface-variant/60">Model value</span>
         <span class="font-mono text-on-surface">{{ [...store.selectedValues.value][0] ?? '—' }}</span>
       </div>
     </div>

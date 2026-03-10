@@ -18,31 +18,26 @@ related:
 
 # createModel
 
-A value store composable — register a ticket with a ref, and `createModel` gives you a reactive bridge between that ref and `useProxyModel`.
+Manage a reactive value with two-way sync — wrap a ref in a model and `useProxyModel` keeps it in sync automatically.
 
 <DocsPageFeatures :frontmatter />
 
 ## Usage
 
-`createModel` is a value store layer — think of it as a creative way to store a single value, more like `defineModel` than `createSelection`. It adds value tracking and disabled guards on top of the registry's collection management.
-
-The typical pattern: register one ticket whose value is a ref, activate it, and let `useProxyModel` keep everything in sync.
+`createModel` stores a reactive value. Register a ref and `useProxyModel` keeps it synced — the same idea as `defineModel` but built on the registry pattern.
 
 ```ts
-import { ref } from 'vue'
 import { createModel, useProxyModel } from '@vuetify/v0'
 
-const value = ref('Apple')
+const value = defineModel<string>()
 const model = createModel()
 
 model.register({ id: 'fruit', value })
-model.select('fruit')
 
 useProxyModel(model, value)
-
-// The ref and the model's stored value are now synced.
-// Changing `value.value` updates the model, and vice versa.
 ```
+
+Most of the time you register a single ticket — that's the only value you care about. The registry pattern underneath gives you the ability to compose multiple values into a compound model when you need it, which is what `createSelection` builds on.
 
 Selection-specific concepts like `mandatory`, `multiple`, and `enroll` belong in `createSelection`.
 
@@ -62,24 +57,9 @@ flowchart TD
 
 ## How It Stores a Value
 
-Each ticket holds a value — typically a `ref`. Calling `select` activates a ticket, making it the model's current value. Because `createModel` is a single-value store, `select` always clears before adding:
+A ticket's value is typically a ref. When registered, `useProxyModel` auto-selects the ticket and writes directly to the ref — changes flow both ways without ID resolution.
 
-```ts
-const model = createModel()
-
-model.register({ id: 'a', value: ref('Apple') })
-model.register({ id: 'b', value: ref('Banana') })
-
-model.select('a')
-// model now stores 'Apple'
-
-model.select('b')
-// model now stores 'Banana' — 'a' is deactivated
-```
-
-When a ticket's value is a ref, `apply` updates that ref directly — no ID resolution needed. This is what makes `useProxyModel` work seamlessly with reactive ticket values.
-
-For multi-value patterns where multiple tickets are active simultaneously, use `createSelection`.
+When multiple tickets are registered, `select` always clears before adding — only one ticket is active at a time. For compound models where multiple values are active simultaneously, use `createSelection`.
 
 ## Disabled Guards
 
@@ -99,23 +79,7 @@ model2.select('b') // no-op
 
 ## The Apply Bridge
 
-`apply` is the sync mechanism that `useProxyModel` calls to push external values into the model. It has two strategies:
-
-1. **Ref values** (common): If the active ticket's value is a ref, `apply` writes directly to `ticket.value.value`. No lookup needed.
-2. **Static values** (fallback): Resolves the value to a ticket ID via the registry's `browse` method, then activates that ticket.
-
-```ts
-const value = ref('Apple')
-const model = createModel()
-
-model.register({ id: 'fruit', value })
-model.select('fruit')
-
-// useProxyModel calls apply internally:
-model.apply(['Banana'])
-
-console.log(value.value) // 'Banana' — ref updated directly
-```
+`useProxyModel` calls `apply` internally to keep the ref and model in sync. When the active ticket's value is a ref, `apply` writes to it directly — no ID lookup needed. You rarely call `apply` yourself.
 
 ## Reactivity
 
@@ -138,7 +102,7 @@ Value state is **always reactive**. Collection methods follow the base `createRe
 
 ### Single Value
 
-One ticket registered with a ref value, activated, and synced via `useProxyModel`. Type in the input — the ref, the store, and the model all stay in sync.
+Two-way binding between a ref and a model. Type in the input — both stay in sync automatically.
 
 :::
 
@@ -148,9 +112,9 @@ One ticket registered with a ref value, activated, and synced via `useProxyModel
 /composables/create-model/ColorConsumer.vue
 /composables/create-model/colors.vue
 
-### Color Palette
+### Color Palette — Compound Model
 
-Five tickets, each holding a reactive OKLCH hue ref. Drag a slider to adjust a color in real time — `selectedValues` is the reactive composite of all active hues. Toggle a color off to drop it from the composite. Purple is disabled entirely. Uses `createSelection` (which extends `createModel`) for multi-ticket support.
+Multiple reactive values composed into one model. Five OKLCH hue sliders each contribute to a shared palette via `createSelection` (which extends `createModel`). Drag a slider to adjust a color, toggle one off to drop it from the composite. Purple is disabled.
 
 :::
 
