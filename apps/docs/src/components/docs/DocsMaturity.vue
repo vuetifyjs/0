@@ -207,7 +207,7 @@
 <template>
   <div>
     <!-- Type toggles -->
-    <div class="flex flex-wrap items-center gap-2 mb-2">
+    <div class="flex flex-wrap items-center gap-2 mt-2 mb-3">
       <button
         class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium border cursor-pointer transition-all"
         :class="activeType === 'composable'
@@ -232,7 +232,7 @@
     </div>
 
     <!-- Level chips -->
-    <div class="flex flex-wrap items-center gap-2 mb-4">
+    <div class="flex flex-wrap items-center gap-2 mb-5">
       <button
         v-for="(config, key) in levels"
         :key="key"
