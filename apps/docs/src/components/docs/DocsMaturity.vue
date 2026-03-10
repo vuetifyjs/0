@@ -292,7 +292,7 @@
         <col class="w-[12%]">
       </colgroup>
 
-      <thead v-if="anyOpen">
+      <thead :class="anyOpen ? 'visible' : 'invisible'">
         <tr>
           <th
             v-for="col in table.columns"
