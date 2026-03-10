@@ -342,7 +342,7 @@
           <tr
             v-for="item in group.items"
             :key="item.id"
-            class="bg-surface-variant transition-colors hover:bg-surface-variant/80"
+            class="bg-glass-surface transition-colors hover:bg-surface-variant/80"
           >
             <!-- Name -->
             <td class="!pl-[34px] pr-4 py-2.5 text-sm font-medium text-on-surface truncate">
