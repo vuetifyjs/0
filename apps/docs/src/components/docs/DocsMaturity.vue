@@ -256,7 +256,8 @@
           <th
             v-for="col in table.columns"
             :key="col.key"
-            class="px-4 py-2 text-left text-xs font-semibold text-on-surface-variant uppercase tracking-wide cursor-pointer select-none hover:text-on-surface transition-colors"
+            class="py-2 text-left text-xs font-semibold text-on-surface-variant uppercase tracking-wide cursor-pointer select-none hover:text-on-surface transition-colors"
+            :class="col.key === 'name' ? 'pl-10 pr-4' : 'px-4'"
             @click="col.sortable ? table.sort.toggle(col.key) : undefined"
           >
             {{ col.title }}
@@ -359,7 +360,7 @@
     </table>
 
     <!-- Summary bar -->
-    <div class="flex flex-wrap items-center gap-4 px-4 py-3 rounded-lg bg-surface-variant/50 mb-8 text-sm">
+    <div class="flex flex-wrap items-center gap-4 px-4 py-3 rounded-lg border border-divider mb-8 text-sm">
       <span class="font-semibold text-on-surface">
         {{ filtered.length }} total
       </span>
