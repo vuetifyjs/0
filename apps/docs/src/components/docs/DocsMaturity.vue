@@ -123,6 +123,10 @@
     table.search((event.target as HTMLInputElement).value)
   }
 
+  const anyOpen = toRef(() => {
+    return table.grouping.groups.value.some(g => table.grouping.isOpen(g.key))
+  })
+
   const expanded = toRef(() => {
     const groups = table.grouping.groups.value
     return groups.length > 0 && groups.every(g => table.grouping.isOpen(g.key))
@@ -292,7 +296,7 @@
         <col class="w-[12%]">
       </colgroup>
 
-      <thead>
+      <thead v-if="anyOpen">
         <tr>
           <th
             v-for="col in table.columns"
