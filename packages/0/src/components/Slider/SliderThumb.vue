@@ -13,6 +13,7 @@
   import { useSliderRoot } from './SliderRoot.vue'
 
   // Utilities
+  import { isUndefined } from '#v0/utilities'
   import { onUnmounted, toRef, toValue, useAttrs, useTemplateRef } from 'vue'
 
   // Types
@@ -102,12 +103,12 @@
   const valueMin = toRef(() => {
     if (root.crossover) return root.min
     const prev = root.values.value[index.value - 1]
-    return prev === undefined ? root.min : prev
+    return isUndefined(prev) ? root.min : prev
   })
   const valueMax = toRef(() => {
     if (root.crossover) return root.max
     const next = root.values.value[index.value + 1]
-    return next === undefined ? root.max : next
+    return isUndefined(next) ? root.max : next
   })
 
   function onPointerdown (e: PointerEvent) {

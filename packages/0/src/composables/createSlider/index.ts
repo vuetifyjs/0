@@ -22,7 +22,7 @@
 import { createModel } from '#v0/composables/createModel'
 
 // Utilities
-import { clamp } from '#v0/utilities'
+import { clamp, isObject, isUndefined } from '#v0/utilities'
 import { computed, isRef, shallowRef, toRef, toValue } from 'vue'
 
 // Types
@@ -484,10 +484,10 @@ export function createSlider (options: SliderOptions = {}): SliderContext {
   }
 
   function register (input?: number | { value: number }): ModelTicket<SliderTicketInput> {
-    const initialValue = typeof input === 'object' ? input.value : input
+    const initialValue = isObject(input) ? input.value : input
     const thumbIndex = thumbs.value.length
     const pendingValue = pending?.[thumbIndex]
-    const val = pendingValue === undefined ? snap(initialValue ?? min) : snap(pendingValue)
+    const val = isUndefined(pendingValue) ? snap(initialValue ?? min) : snap(pendingValue)
 
     const ticket = model.register({
       value: shallowRef(val),
