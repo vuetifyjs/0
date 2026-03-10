@@ -145,9 +145,9 @@
   }
 
   // Weighted color blend for a group
-  function blend (items: MaturityItem[]): string {
-    const counts: Record<Level, number> = { draft: 0, experimental: 0, stable: 0, mature: 0, deprecated: 0 }
-    for (const item of items) counts[item.level]++
+  function blend (items: Record<string, unknown>[]): string {
+    const counts: Record<Level, number> = { draft: 0, preview: 0, stable: 0, mature: 0, deprecated: 0 }
+    for (const item of items) counts[(item as MaturityItem).level]++
     const total = items.length
     let r = 0
     let g = 0
@@ -341,7 +341,7 @@
                 <!-- Blended readiness dot -->
                 <span
                   class="inline-block size-2.5 min-w-2.5 rounded-full shrink-0"
-                  :style="{ backgroundColor: blend(group.items as MaturityItem[]) }"
+                  :style="{ backgroundColor: blend(group.items) }"
                 />
               </div>
             </td>
