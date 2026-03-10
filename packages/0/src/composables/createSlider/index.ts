@@ -523,8 +523,8 @@ export function createSlider (options: SliderOptions = {}): SliderContext {
         const prev = index > 0 ? snapped[index - 1] : undefined
         const following = index < snapped.length - 1 ? snapped[index + 1] : undefined
 
-        if (prev !== undefined) constrained = Math.max(constrained, prev + gap)
-        if (following !== undefined) constrained = Math.min(constrained, following - gap)
+        if (!isUndefined(prev)) constrained = Math.max(constrained, prev + gap)
+        if (!isUndefined(following)) constrained = Math.min(constrained, following - gap)
       }
 
       ticket.value.value = clamp(constrained, min, max)
@@ -543,10 +543,10 @@ export function createSlider (options: SliderOptions = {}): SliderContext {
       const prev = current[index - 1]
       const following = current[index + 1]
 
-      if (index > 0 && prev !== undefined) {
+      if (index > 0 && !isUndefined(prev)) {
         constrained = Math.max(constrained, prev + gap)
       }
-      if (index < current.length - 1 && following !== undefined) {
+      if (index < current.length - 1 && !isUndefined(following)) {
         constrained = Math.min(constrained, following - gap)
       }
     }
