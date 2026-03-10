@@ -1,13 +1,5 @@
 <script setup lang="ts">
   import maturityData from '#v0/maturity.json'
-  import {
-    mdiClose,
-    mdiFlash,
-    mdiFire,
-    mdiSnowflake,
-    mdiVolcano,
-    mdiWeatherFog,
-  } from '@mdi/js'
 
   // Framework
   import { createDataTable } from '@vuetify/v0'
@@ -25,16 +17,15 @@
     category: string
     level: Level
     since: string
-    notes: string
     levelOrder: number
   }
 
   const levels: Record<Level, { icon: string, color: string, label: string, order: number }> = {
-    draft: { icon: mdiSnowflake, color: '#60a5fa', label: 'Draft', order: 0 },
-    experimental: { icon: mdiFlash, color: '#facc15', label: 'Experimental', order: 1 },
-    stable: { icon: mdiFire, color: '#f97316', label: 'Stable', order: 2 },
-    mature: { icon: mdiVolcano, color: '#ef4444', label: 'Mature', order: 3 },
-    deprecated: { icon: mdiWeatherFog, color: '#9ca3af', label: 'Deprecated', order: 4 },
+    draft: { icon: 'snowflake', color: '#60a5fa', label: 'Draft', order: 0 },
+    experimental: { icon: 'flash', color: '#facc15', label: 'Experimental', order: 1 },
+    stable: { icon: 'fire', color: '#f97316', label: 'Stable', order: 2 },
+    mature: { icon: 'volcano', color: '#ef4444', label: 'Mature', order: 3 },
+    deprecated: { icon: 'weather-fog', color: '#9ca3af', label: 'Deprecated', order: 4 },
   }
 
   // Flatten JSON into MaturityItem[]
@@ -49,7 +40,6 @@
         category: entry.category,
         level: entry.level,
         since: entry.since,
-        notes: (entry as { notes?: string }).notes ?? '',
         levelOrder: levels[entry.level as Level]?.order ?? -1,
       })
     }
@@ -62,7 +52,6 @@
         category: entry.category,
         level: entry.level,
         since: entry.since,
-        notes: (entry as { notes?: string }).notes ?? '',
         levelOrder: levels[entry.level as Level]?.order ?? -1,
       })
     }
@@ -108,7 +97,6 @@
         sort: (a, b) => (a as number) - (b as number),
       },
       { key: 'since', title: 'Since', sortable: true },
-      { key: 'notes', title: 'Notes', filterable: true },
     ],
     groupBy: 'category',
     enroll: true,
@@ -184,9 +172,7 @@
         }"
         @click="onToggleFilter(key as Level)"
       >
-        <svg class="size-4" viewBox="0 0 24 24">
-          <path :d="config.icon" fill="currentColor" />
-        </svg>
+        <AppIcon :icon="config.icon" :size="16" />
         {{ config.label }}
       </button>
 
@@ -195,9 +181,7 @@
         class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border border-divider text-on-surface-variant bg-transparent cursor-pointer transition-colors hover:bg-surface-variant"
         @click="onClearFilters"
       >
-        <svg class="size-3.5" viewBox="0 0 24 24">
-          <path :d="mdiClose" fill="currentColor" />
-        </svg>
+        <AppIcon icon="close" :size="14" />
         Clear
       </button>
     </div>
@@ -221,10 +205,12 @@
           class="w-full flex items-center gap-2 px-4 py-2.5 bg-surface-variant text-on-surface font-semibold text-sm cursor-pointer border-0 border-b border-solid border-divider text-left transition-colors hover:bg-surface-variant/80"
           @click="table.grouping.toggle(group.key)"
         >
-          <span
-            class="inline-block transition-transform text-xs"
+          <AppIcon
+            class="transition-transform"
             :class="table.grouping.isOpen(group.key) ? 'rotate-90' : ''"
-          >&#9654;</span>
+            icon="chevron-right"
+            :size="14"
+          />
 
           <span class="capitalize">{{ group.key }}</span>
 
@@ -242,7 +228,6 @@
                 v-for="col in table.columns"
                 :key="col.key"
                 class="px-4 py-2 text-left text-xs font-semibold text-on-surface-variant uppercase tracking-wide cursor-pointer select-none hover:text-on-surface transition-colors"
-                :class="col.key === 'notes' ? 'hidden md:table-cell' : ''"
                 @click="col.sortable ? table.sort.toggle(col.key) : undefined"
               >
                 {{ col.title }}
@@ -285,9 +270,7 @@
                   class="inline-flex items-center gap-1"
                   :style="{ color: levels[item.level]?.color }"
                 >
-                  <svg class="size-4" viewBox="0 0 24 24">
-                    <path :d="levels[item.level]?.icon" fill="currentColor" />
-                  </svg>
+                  <AppIcon :icon="levels[item.level]?.icon" :size="16" />
                   <span class="text-xs font-medium">{{ levels[item.level]?.label }}</span>
                 </span>
               </td>
@@ -295,11 +278,6 @@
               <!-- Since -->
               <td class="px-4 py-2.5 text-sm text-on-surface-variant font-mono">
                 {{ item.since }}
-              </td>
-
-              <!-- Notes -->
-              <td class="px-4 py-2.5 text-xs text-on-surface-variant hidden md:table-cell">
-                {{ item.notes }}
               </td>
             </tr>
           </tbody>
@@ -327,9 +305,7 @@
         class="inline-flex items-center gap-1"
         :style="{ color: config.color }"
       >
-        <svg class="size-3.5" viewBox="0 0 24 24">
-          <path :d="config.icon" fill="currentColor" />
-        </svg>
+        <AppIcon :icon="config.icon" :size="14" />
         {{ config.label }}: {{ summary[key] }}
       </span>
     </div>
@@ -345,7 +321,7 @@
       >
         <div class="flex items-center gap-2 mb-2">
           <span class="text-sm font-semibold text-on-surface-variant">{{ item.from }}</span>
-          <span class="text-on-surface-variant">&rarr;</span>
+          <AppIcon class="text-on-surface-variant" icon="chevron-right" :size="14" />
           <span class="text-sm font-semibold text-on-surface">{{ item.to }}</span>
         </div>
 
