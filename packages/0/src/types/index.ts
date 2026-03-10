@@ -143,27 +143,3 @@ export type Extensible<T extends string> = T | (string & {})
  * ```
  */
 export type Activation = 'automatic' | 'manual'
-
-/**
- * Structural writable ref type
- *
- * @template T The value type
- *
- * @remarks
- * Accepts any object with a writable `.value` property: `Ref`, `ShallowRef`,
- * `WritableComputedRef`, storage refs, or plain wrappers. Use in interfaces
- * where the caller decides the reactivity strategy.
- *
- * @example
- * ```ts
- * interface PanelContext {
- *   collapsed: MutableRef<boolean>
- * }
- *
- * // All of these satisfy the interface:
- * const a: PanelContext = { collapsed: shallowRef(false) }
- * const b: PanelContext = { collapsed: ref(false) }
- * const c: PanelContext = { collapsed: computed({ get, set }) }
- * ```
- */
-export type MutableRef<T> = { value: T }
