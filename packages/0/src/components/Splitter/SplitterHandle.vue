@@ -123,7 +123,7 @@
       document.documentElement.style.cursor = isHorizontal.value ? 'col-resize' : 'row-resize'
       document.documentElement.style.userSelect = 'none'
     }
-    splitter.startDrag(ticket.index)
+    splitter.onStartDrag(ticket.index)
   }
 
   useToggleScope(() => splitter.draggingHandle.value === ticket.index, () => {
@@ -152,14 +152,13 @@
         document.documentElement.style.cursor = ''
         document.documentElement.style.userSelect = ''
       }
-      splitter.endDrag()
-      splitter.emitLayout()
+      splitter.onEndDrag()
     })
 
     onScopeDispose(() => {
       if (rafId) cancelAnimationFrame(rafId)
       rafId = 0
-      splitter.endDrag()
+      splitter.onEndDrag()
       if (IN_BROWSER) {
         document.documentElement.style.cursor = ''
         document.documentElement.style.userSelect = ''
@@ -176,26 +175,22 @@
     switch (e.key) {
       case forward: {
         e.preventDefault()
-        splitter.resize(ticket.index, ARROW_STEP)
-        splitter.emitLayout()
+        splitter.resize(ticket.index, ARROW_STEP, { emit: true })
         break
       }
       case backward: {
         e.preventDefault()
-        splitter.resize(ticket.index, -ARROW_STEP)
-        splitter.emitLayout()
+        splitter.resize(ticket.index, -ARROW_STEP, { emit: true })
         break
       }
       case 'PageDown': {
         e.preventDefault()
-        splitter.resize(ticket.index, PAGE_STEP)
-        splitter.emitLayout()
+        splitter.resize(ticket.index, PAGE_STEP, { emit: true })
         break
       }
       case 'PageUp': {
         e.preventDefault()
-        splitter.resize(ticket.index, -PAGE_STEP)
-        splitter.emitLayout()
+        splitter.resize(ticket.index, -PAGE_STEP, { emit: true })
         break
       }
       case 'Home': {
@@ -205,9 +200,8 @@
           splitter.collapse(ticket.index, ticket.index + 1)
         } else {
           const current = p?.size ?? 0
-          splitter.resize(ticket.index, valuemin.value - current)
+          splitter.resize(ticket.index, valuemin.value - current, { emit: true })
         }
-        splitter.emitLayout()
         break
       }
       case 'End': {
@@ -217,9 +211,8 @@
           splitter.expand(ticket.index, ticket.index + 1)
         } else {
           const current = p?.size ?? 0
-          splitter.resize(ticket.index, valuemax.value - current)
+          splitter.resize(ticket.index, valuemax.value - current, { emit: true })
         }
-        splitter.emitLayout()
         break
       }
       case 'Enter': {
@@ -231,7 +224,6 @@
         } else {
           splitter.expand(ticket.index, ticket.index + 1)
         }
-        splitter.emitLayout()
         break
       }
     // No default

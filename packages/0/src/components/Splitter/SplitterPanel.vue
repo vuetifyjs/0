@@ -106,12 +106,10 @@
 
   function collapse () {
     splitter.collapse(ticket.index)
-    splitter.emitLayout()
   }
 
   function expand () {
     splitter.expand(ticket.index)
-    splitter.emitLayout()
   }
 
   defineExpose<SplitterPanelExpose>({ collapse, expand, size, isCollapsed })

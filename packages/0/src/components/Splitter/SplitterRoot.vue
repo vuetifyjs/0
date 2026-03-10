@@ -24,7 +24,7 @@
   import { createSelection } from '#v0/composables/createSelection'
 
   // Utilities
-  import { clamp, isNullOrUndefined } from '#v0/utilities'
+  import { clamp, isNull, isNullOrUndefined } from '#v0/utilities'
   import { shallowRef, toRef, toValue, useAttrs, useTemplateRef } from 'vue'
 
   // Types
@@ -55,10 +55,9 @@
     draggingHandle: Readonly<Ref<number | null>>
     rootEl: Readonly<Ref<HTMLElement | null>>
     panel: (index: number) => SplitterPanelTicket | undefined
-    resize: (index: number, delta: number) => void
-    startDrag: (index: number) => void
-    endDrag: () => void
-    emitLayout: () => void
+    resize: (index: number, delta: number, options?: { emit?: boolean }) => void
+    onStartDrag: (index: number) => void
+    onEndDrag: () => void
     collapse: (index: number, neighborIndex?: number) => void
     expand: (index: number, neighborIndex?: number) => void
     distribute: (sizes: number[]) => void
@@ -113,7 +112,7 @@
   // but TypeScript doesn't reflect this - cast corrects the type
   const rootEl = toRef(() => (rootAtom.value?.element as HTMLElement | null | undefined) ?? null)
   const draggingHandle = shallowRef<number | null>(null)
-  const dragging = toRef(() => draggingHandle.value !== null)
+  const dragging = toRef(() => !isNull(draggingHandle.value))
 
   const panels = createSelection<SplitterPanelInput>({
     multiple: true,
@@ -134,7 +133,7 @@
       : ticket.minSize
   }
 
-  function resize (index: number, delta: number) {
+  function resize (index: number, delta: number, options?: { emit?: boolean }) {
     const before = panel(index)
     const after = panel(index + 1)
     if (!before || !after) return
@@ -155,6 +154,8 @@
       if (!collapsed && p.size <= p.collapsedSize) p.unselect()
       else if (collapsed && p.size > p.collapsedSize) p.select()
     }
+
+    if (options?.emit) emitLayout()
   }
 
   function collapse (index: number, neighborIndex?: number) {
@@ -188,6 +189,8 @@
     if (ticket.size <= ticket.collapsedSize) {
       ticket.unselect()
     }
+
+    emitLayout()
   }
 
   function expand (index: number, neighborIndex?: number) {
@@ -208,6 +211,8 @@
     neighbor.size -= take
     ticket.size = ticket.collapsedSize + take
     ticket.select()
+
+    emitLayout()
   }
 
   function distribute (incoming: number[]) {
@@ -249,12 +254,13 @@
     emit('layout', values.map(t => t.size))
   }
 
-  function startDrag (index: number) {
+  function onStartDrag (index: number) {
     draggingHandle.value = index
   }
 
-  function endDrag () {
+  function onEndDrag () {
     draggingHandle.value = null
+    emitLayout()
   }
 
   function emitLayout () {
@@ -271,9 +277,8 @@
     rootEl,
     panel,
     resize,
-    startDrag,
-    endDrag,
-    emitLayout,
+    onStartDrag,
+    onEndDrag,
     collapse,
     expand,
     distribute,
