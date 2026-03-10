@@ -149,8 +149,8 @@ export interface SliderContext extends Omit<
    * @example
    * ```ts
    * const slider = createSlider()
-   * slider.register(25)
-   * slider.register(75)
+   * slider.register({ value: 25 })
+   * slider.register({ value: 75 })
    * console.log(slider.values.value) // [25, 75]
    * ```
    */
@@ -177,8 +177,8 @@ export interface SliderContext extends Omit<
    * @example
    * ```ts
    * const slider = createSlider({ step: 10 })
-   * slider.register(0)
-   * slider.register(0)
+   * slider.register({ value: 0 })
+   * slider.register({ value: 0 })
    * slider.apply([33, 67]) // values: [30, 70]
    * ```
    */
@@ -206,24 +206,24 @@ export interface SliderContext extends Omit<
   /**
    * Register a new thumb and return its ticket.
    *
-   * @param initialValue Starting value for the thumb. Defaults to `min`.
+   * @param input Starting value as a number or `{ value }` object. Defaults to `min`.
    *
    * @remarks
    * The thumb is automatically selected in the model (all thumbs stay selected).
    * If `apply` was called before any thumbs registered, the pending value at this
-   * thumb's index is used instead of `initialValue`.
+   * thumb's index is used instead of the provided value.
    *
    * @see {@link unregister}
    *
    * @example
    * ```ts
    * const slider = createSlider({ min: 0, max: 100 })
-   * const thumb = slider.register(50)
+   * const thumb = slider.register({ value: 50 })
    * console.log(thumb.index) // 0
    * console.log(slider.values.value) // [50]
    * ```
    */
-  register: (initialValue?: number) => ModelTicket<SliderTicketInput>
+  register: (input?: number | { value: number }) => ModelTicket<SliderTicketInput>
   /**
    * Unregister a thumb by ticket ID.
    *
@@ -234,7 +234,7 @@ export interface SliderContext extends Omit<
    * @example
    * ```ts
    * const slider = createSlider()
-   * const thumb = slider.register(50)
+   * const thumb = slider.register({ value: 50 })
    * slider.unregister(thumb.id) // values: []
    * ```
    */
@@ -311,7 +311,7 @@ export interface SliderContext extends Omit<
    * @example
    * ```ts
    * const slider = createSlider({ min: 0, max: 100, step: 5 })
-   * slider.register(50)
+   * slider.register({ value: 50 })
    * slider.set(0, 73) // values: [75] (snapped)
    * ```
    */
@@ -327,7 +327,7 @@ export interface SliderContext extends Omit<
    * @example
    * ```ts
    * const slider = createSlider({ min: 0, max: 100, step: 5 })
-   * slider.register(50)
+   * slider.register({ value: 50 })
    * slider.up(0)     // values: [55]
    * slider.up(0, 3)  // values: [70]
    * ```
@@ -344,7 +344,7 @@ export interface SliderContext extends Omit<
    * @example
    * ```ts
    * const slider = createSlider({ min: 0, max: 100, step: 5 })
-   * slider.register(50)
+   * slider.register({ value: 50 })
    * slider.down(0)     // values: [45]
    * slider.down(0, 3)  // values: [30]
    * ```
@@ -360,7 +360,7 @@ export interface SliderContext extends Omit<
    * @example
    * ```ts
    * const slider = createSlider({ min: 10, max: 90 })
-   * slider.register(50)
+   * slider.register({ value: 50 })
    * slider.floor(0) // values: [10]
    * ```
    */
@@ -375,7 +375,7 @@ export interface SliderContext extends Omit<
    * @example
    * ```ts
    * const slider = createSlider({ min: 10, max: 90 })
-   * slider.register(50)
+   * slider.register({ value: 50 })
    * slider.ceil(0) // values: [90]
    * ```
    */
@@ -400,7 +400,7 @@ export interface SliderContext extends Omit<
  * import { createSlider } from '@vuetify/v0'
  *
  * const slider = createSlider({ min: 0, max: 100, step: 5 })
- * const ticket = slider.register(50)
+ * const ticket = slider.register({ value: 50 })
  * slider.up(0)           // values: [55]
  * slider.fromValue(50)   // 50
  * ```
@@ -410,8 +410,8 @@ export interface SliderContext extends Omit<
  * import { createSlider } from '@vuetify/v0'
  *
  * const slider = createSlider({ min: 0, max: 100, step: 1, range: true })
- * slider.register(25)
- * slider.register(75)
+ * slider.register({ value: 25 })
+ * slider.register({ value: 75 })
  * slider.set(0, 30)      // values: [30, 75]
  * slider.set(1, 60)      // values: [30, 60]
  * ```
@@ -421,7 +421,7 @@ export interface SliderContext extends Omit<
  * import { createSlider } from '@vuetify/v0'
  *
  * const slider = createSlider({ min: 0, max: 217, step: 0.1 })
- * slider.register(0)
+ * slider.register({ value: 0 })
  *
  * // pointer → fromPercent → set → fromValue → UI
  * const percent = (clientX - rect.left) / rect.width * 100
@@ -483,7 +483,8 @@ export function createSlider (options: SliderOptions = {}): SliderContext {
     return snap(min + (adjusted / 100) * extent)
   }
 
-  function register (initialValue?: number): ModelTicket<SliderTicketInput> {
+  function register (input?: number | { value: number }): ModelTicket<SliderTicketInput> {
+    const initialValue = typeof input === 'object' ? input.value : input
     const thumbIndex = thumbs.value.length
     const pendingValue = pending?.[thumbIndex]
     const val = pendingValue === undefined ? snap(initialValue ?? min) : snap(pendingValue)
