@@ -308,11 +308,11 @@
         <tr v-else>
           <td class="py-2 px-4 text-xs text-on-surface-variant/50 italic" :colspan="table.columns.length">
             <div class="flex items-center gap-2">
+              Select a group to see individual items
               <span
                 class="inline-block size-2.5 min-w-2.5 rounded-full shrink-0"
                 :style="{ backgroundColor: blend(filtered) }"
               />
-              Select a group to see individual items
             </div>
           </td>
         </tr>
