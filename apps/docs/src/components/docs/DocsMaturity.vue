@@ -8,7 +8,7 @@
   import { shallowRef, toRef } from 'vue'
 
   // Types
-  type Level = 'draft' | 'experimental' | 'stable' | 'mature' | 'deprecated'
+  type Level = 'draft' | 'preview' | 'stable' | 'mature' | 'deprecated'
 
   interface MaturityItem extends Record<string, unknown> {
     id: string
@@ -22,13 +22,13 @@
 
   const levels: Record<Level, { icon: string, color: string, label: string, order: number }> = {
     draft: { icon: 'circle-outline', color: '#9ca3af', label: 'Draft', order: 0 },
-    experimental: { icon: 'beaker', color: '#f59e0b', label: 'Experimental', order: 1 },
+    preview: { icon: 'beaker', color: '#f59e0b', label: 'Preview', order: 1 },
     stable: { icon: 'shield', color: '#3b82f6', label: 'Stable', order: 2 },
     mature: { icon: 'check-decagram', color: '#22c55e', label: 'Mature', order: 3 },
     deprecated: { icon: 'alert-circle', color: '#ef4444', label: 'Deprecated', order: 4 },
   }
 
-  const levelKeys: Level[] = ['draft', 'experimental', 'stable', 'mature', 'deprecated']
+  const levelKeys: Level[] = ['draft', 'preview', 'stable', 'mature', 'deprecated']
 
   // Flatten JSON into MaturityItem[]
   function flatten (): MaturityItem[] {
@@ -179,11 +179,11 @@
   const criteria = [
     {
       from: 'Draft',
-      to: 'Experimental',
+      to: 'Preview',
       requirements: 'Has unit tests, has documentation page, at least one working example.',
     },
     {
-      from: 'Experimental',
+      from: 'Preview',
       to: 'Stable',
       requirements: 'Edge-case test coverage, SSR safe or explicitly browser-only, accessibility reviewed, API unchanged for 2+ releases, benchmarked if performance-critical.',
     },
