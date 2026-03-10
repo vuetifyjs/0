@@ -264,21 +264,18 @@
       </button>
     </div>
 
-    <!-- Search input -->
-    <div class="mb-6">
+    <!-- Search + expand toggle -->
+    <div class="flex items-center gap-2 mb-4">
       <input
-        class="w-full px-4 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm placeholder-on-surface-variant/50 outline-none transition-colors focus:border-primary"
+        class="flex-1 px-4 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm placeholder-on-surface-variant/50 outline-none transition-colors focus:border-primary"
         placeholder="Search by name, type, or category..."
         type="text"
         :value="table.query.value"
         @input="onSearch"
       >
-    </div>
 
-    <!-- Expand/collapse all -->
-    <div class="flex justify-end mb-2">
       <button
-        class="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium text-on-surface-variant bg-transparent border-0 cursor-pointer transition-colors hover:text-on-surface"
+        class="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium text-on-surface-variant bg-transparent border-0 cursor-pointer transition-colors hover:text-on-surface whitespace-nowrap"
         @click="onToggleAll"
       >
         <AppIcon :icon="expanded ? 'combine' : 'split'" :size="14" />
@@ -411,24 +408,30 @@
           </td>
         </tr>
       </tbody>
+
+      <!-- Total row -->
+      <tfoot>
+        <tr>
+          <td class="px-4 py-3" :colspan="table.columns.length">
+            <div class="flex flex-wrap items-center gap-3 text-xs text-on-surface-variant">
+              <span class="font-semibold text-on-surface">
+                {{ filtered.length }} total
+              </span>
+
+              <span
+                v-for="(config, key) in levels"
+                :key="key"
+                class="inline-flex items-center gap-1"
+                :style="{ color: config.color }"
+              >
+                <AppIcon :icon="config.icon" :size="12" />
+                {{ summary[key] }} {{ config.label.toLowerCase() }}
+              </span>
+            </div>
+          </td>
+        </tr>
+      </tfoot>
     </table>
-
-    <!-- Summary bar -->
-    <div class="flex flex-wrap items-center gap-4 px-4 py-3 rounded-lg border border-divider bg-surface-variant/50 mb-8 text-sm">
-      <span class="font-semibold text-on-surface">
-        {{ filtered.length }} total
-      </span>
-
-      <span
-        v-for="(config, key) in levels"
-        :key="key"
-        class="inline-flex items-center gap-1"
-        :style="{ color: config.color }"
-      >
-        <AppIcon :icon="config.icon" :size="14" />
-        {{ config.label }}: {{ summary[key] }}
-      </span>
-    </div>
 
     <!-- Graduation criteria -->
     <h2 class="text-xl font-bold m-0 mb-4 text-on-surface">Graduation Criteria</h2>
