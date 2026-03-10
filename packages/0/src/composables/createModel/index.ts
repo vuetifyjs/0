@@ -298,7 +298,7 @@ export interface ModelOptions extends RegistryOptions {
    * @remarks When `true`, `select()` accumulates IDs instead of clearing before adding.
    * Used by createSlider where all thumbs must stay selected.
    */
-  multiple?: boolean
+  multiple?: MaybeRefOrGetter<boolean>
 }
 
 /**
@@ -381,7 +381,7 @@ export function createModel<
     const item = registry.get(id)
     if (!item || toValue(item.disabled)) return
 
-    if (!multiple) selectedIds.clear()
+    if (!toValue(multiple)) selectedIds.clear()
     selectedIds.add(id)
   }
 
@@ -414,7 +414,7 @@ export function createModel<
     }
 
     // Fallback: browse resolution for static values
-    if (!multiple) selectedIds.clear()
+    if (!toValue(multiple)) selectedIds.clear()
     if (isUndefined(value)) return
 
     const ids = registry.browse(toRaw(value))
