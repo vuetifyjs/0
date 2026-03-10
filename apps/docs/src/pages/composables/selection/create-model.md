@@ -44,7 +44,7 @@ Tickets are **enrolled on registration** by default (`enroll: true`). With singl
 
 Most of the time you register a single ticket — that's the only value you care about. The registry pattern underneath gives you the ability to compose multiple values into a compound model when you need it, which is what `createSelection` builds on.
 
-Selection-specific concepts like `mandatory` and `multiple` belong in `createSelection`. Both composables accept `enroll`, but `createSelection` defaults it to `false`.
+Pass `multiple: true` to let `select()` accumulate IDs instead of clearing first. This is how `createSlider` keeps all thumbs selected simultaneously. Selection-specific concepts like `mandatory` belong in `createSelection`. Both composables accept `enroll`, but `createSelection` defaults it to `false`.
 
 ## Architecture
 
@@ -54,7 +54,7 @@ Selection-specific concepts like `mandatory` and `multiple` belong in `createSel
 flowchart TD
   createRegistry --> createModel:::primary
   createModel --> createSelection
-  createModel -.-> createSlider["createSlider (planned)"]
+  createModel --> createSlider
   createSelection --> createSingle
   createSelection --> createGroup
   createSingle --> createStep

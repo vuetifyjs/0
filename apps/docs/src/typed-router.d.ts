@@ -100,6 +100,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/components/forms/slider': RouteRecordInfo<
+      '/components/forms/slider',
+      '/components/forms/slider',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/components/forms/switch': RouteRecordInfo<
       '/components/forms/switch',
       '/components/forms/switch',
@@ -208,6 +215,13 @@ declare module 'vue-router/auto-routes' {
     '/composables/forms/create-form': RouteRecordInfo<
       '/composables/forms/create-form',
       '/composables/forms/create-form',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/composables/forms/create-slider': RouteRecordInfo<
+      '/composables/forms/create-slider',
+      '/composables/forms/create-slider',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -788,6 +802,12 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/components/forms/slider.md': {
+      routes:
+        | '/components/forms/slider'
+      views:
+        | never
+    }
     'src/pages/components/forms/switch.md': {
       routes:
         | '/components/forms/switch'
@@ -881,6 +901,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/forms/create-form.md': {
       routes:
         | '/composables/forms/create-form'
+      views:
+        | never
+    }
+    'src/pages/composables/forms/create-slider.md': {
+      routes:
+        | '/composables/forms/create-slider'
       views:
         | never
     }
