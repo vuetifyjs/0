@@ -24,8 +24,8 @@
   import { createSelection } from '#v0/composables/createSelection'
 
   // Utilities
-  import { clamp, isNull, isNullOrUndefined } from '#v0/utilities'
-  import { shallowRef, toRef, toValue, useAttrs, useTemplateRef } from 'vue'
+  import { clamp, isNull, isNullOrUndefined, isUndefined } from '#v0/utilities'
+  import { shallowRef, toRef, toValue, useAttrs, useTemplateRef, watch } from 'vue'
 
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
@@ -121,6 +121,23 @@
   })
 
   const handles = createRegistry()
+
+  // Auto-redistribute when panels are added or removed
+  // flush: 'post' batches synchronous registrations so this fires once per render cycle
+  watch(() => panels.collection.size, (size, prev) => {
+    const values = panels.values()
+    if (values.length === 0) return
+    const total = values.reduce((sum, t) => sum + t.size, 0)
+    if (total === 0 || total === 100) return
+
+    // Panel added — use defaults so new panel gets its requested size
+    // Panel removed (or initial mount when prev is undefined) — preserve current sizes
+    const sizes = !isUndefined(prev) && size > prev
+      ? values.map(t => t.defaultSize)
+      : values.map(t => t.size)
+
+    distribute(sizes)
+  }, { flush: 'post' })
 
   function panel (index: number) {
     const id = panels.lookup(index)

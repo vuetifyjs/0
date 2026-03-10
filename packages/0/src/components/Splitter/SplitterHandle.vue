@@ -120,7 +120,6 @@
     target.setPointerCapture(e.pointerId)
     startPosition.value = isHorizontal.value ? e.clientX : e.clientY
     if (IN_BROWSER) {
-      document.documentElement.style.cursor = isHorizontal.value ? 'col-resize' : 'row-resize'
       document.documentElement.style.userSelect = 'none'
     }
     splitter.onStartDrag(ticket.index)
@@ -149,7 +148,6 @@
       if (rafId) cancelAnimationFrame(rafId)
       rafId = 0
       if (IN_BROWSER) {
-        document.documentElement.style.cursor = ''
         document.documentElement.style.userSelect = ''
       }
       splitter.onEndDrag()
@@ -160,7 +158,6 @@
       rafId = 0
       splitter.onEndDrag()
       if (IN_BROWSER) {
-        document.documentElement.style.cursor = ''
         document.documentElement.style.userSelect = ''
       }
     })
