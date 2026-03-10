@@ -21,11 +21,11 @@
   }
 
   const levels: Record<Level, { icon: string, color: string, label: string, order: number }> = {
-    draft: { icon: 'snowflake', color: '#60a5fa', label: 'Draft', order: 0 },
-    experimental: { icon: 'flash', color: '#facc15', label: 'Experimental', order: 1 },
-    stable: { icon: 'fire', color: '#f97316', label: 'Stable', order: 2 },
-    mature: { icon: 'volcano', color: '#ef4444', label: 'Mature', order: 3 },
-    deprecated: { icon: 'weather-fog', color: '#9ca3af', label: 'Deprecated', order: 4 },
+    draft: { icon: 'circle-outline', color: '#9ca3af', label: 'Draft', order: 0 },
+    experimental: { icon: 'beaker', color: '#f59e0b', label: 'Experimental', order: 1 },
+    stable: { icon: 'shield', color: '#3b82f6', label: 'Stable', order: 2 },
+    mature: { icon: 'check-decagram', color: '#22c55e', label: 'Mature', order: 3 },
+    deprecated: { icon: 'alert-circle', color: '#ef4444', label: 'Deprecated', order: 4 },
   }
 
   const levelKeys: Level[] = ['draft', 'experimental', 'stable', 'mature', 'deprecated']
@@ -143,17 +143,17 @@
     {
       from: 'Draft',
       to: 'Experimental',
-      requirements: 'Public API defined, basic tests, at least one working example.',
+      requirements: 'Has unit tests, has documentation page, at least one working example.',
     },
     {
       from: 'Experimental',
       to: 'Stable',
-      requirements: 'Full test coverage, documented API, no known breaking changes planned.',
+      requirements: 'Edge-case test coverage, SSR safe or explicitly browser-only, accessibility reviewed, API unchanged for 2+ releases, benchmarked if performance-critical.',
     },
     {
       from: 'Stable',
       to: 'Mature',
-      requirements: 'Used in production (e.g. Vuetify 4), battle-tested, performance benchmarked.',
+      requirements: 'Used in production downstream (e.g. Vuetify 4), adapter ecosystem (if applicable), API frozen — breaking changes require major version.',
     },
     {
       from: 'Any',
@@ -309,8 +309,11 @@
               </td>
 
               <!-- Since -->
-              <td class="px-4 py-2.5 text-sm text-on-surface-variant font-mono">
-                {{ item.since }}
+              <td class="px-4 py-2.5 text-sm font-mono">
+                <a
+                  class="text-primary no-underline hover:underline"
+                  :href="`/releases/?version=v${item.since}`"
+                >v{{ item.since }}</a>
               </td>
             </tr>
           </tbody>

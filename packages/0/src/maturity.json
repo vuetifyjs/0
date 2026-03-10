@@ -22,22 +22,22 @@
       "notes": "Used in Vuetify 4 selection system"
     },
     "createSingle": {
-      "level": "stable",
+      "level": "experimental",
       "since": "0.1.0",
       "category": "selection"
     },
     "createGroup": {
-      "level": "stable",
+      "level": "experimental",
       "since": "0.1.0",
       "category": "selection"
     },
     "createStep": {
-      "level": "stable",
+      "level": "experimental",
       "since": "0.1.0",
       "category": "selection"
     },
     "createModel": {
-      "level": "stable",
+      "level": "experimental",
       "since": "0.1.5",
       "category": "selection",
       "notes": "Recently redesigned from selection system"
@@ -55,12 +55,12 @@
       "notes": "Core registry pattern used across framework"
     },
     "createQueue": {
-      "level": "stable",
+      "level": "experimental",
       "since": "0.1.0",
       "category": "registration"
     },
     "createTimeline": {
-      "level": "stable",
+      "level": "experimental",
       "since": "0.1.0",
       "category": "registration"
     },
@@ -71,22 +71,22 @@
       "notes": "Used in Vuetify 4 theming"
     },
     "createForm": {
-      "level": "stable",
+      "level": "experimental",
       "since": "0.1.0",
       "category": "forms"
     },
     "createDataTable": {
-      "level": "stable",
+      "level": "experimental",
       "since": "0.1.0",
       "category": "data"
     },
     "createFilter": {
-      "level": "stable",
+      "level": "experimental",
       "since": "0.1.0",
       "category": "data"
     },
     "createPagination": {
-      "level": "stable",
+      "level": "experimental",
       "since": "0.1.0",
       "category": "data"
     },
@@ -97,12 +97,12 @@
       "notes": "Used in Vuetify 4 virtual scrolling"
     },
     "createBreadcrumbs": {
-      "level": "stable",
+      "level": "experimental",
       "since": "0.1.0",
       "category": "utilities"
     },
     "createOverflow": {
-      "level": "stable",
+      "level": "experimental",
       "since": "0.1.0",
       "category": "utilities"
     },
@@ -113,7 +113,7 @@
       "notes": "Internal factory for observer composables"
     },
     "useBreakpoints": {
-      "level": "stable",
+      "level": "experimental",
       "since": "0.1.0",
       "category": "plugins"
     },
@@ -124,194 +124,194 @@
       "notes": "Used in Vuetify 4 date pickers"
     },
     "useFeatures": {
-      "level": "stable",
+      "level": "experimental",
       "since": "0.1.0",
       "category": "plugins"
     },
     "useHydration": {
-      "level": "stable",
+      "level": "experimental",
       "since": "0.1.0",
       "category": "plugins"
     },
     "useLocale": {
-      "level": "stable",
+      "level": "experimental",
       "since": "0.1.0",
       "category": "plugins"
     },
     "useLogger": {
-      "level": "stable",
+      "level": "experimental",
       "since": "0.1.0",
       "category": "plugins"
     },
     "usePermissions": {
-      "level": "stable",
+      "level": "experimental",
       "since": "0.1.0",
       "category": "plugins"
     },
     "useStack": {
-      "level": "stable",
+      "level": "experimental",
       "since": "0.1.0",
       "category": "plugins"
     },
     "useStorage": {
-      "level": "stable",
+      "level": "experimental",
       "since": "0.1.0",
       "category": "plugins"
     },
     "useTheme": {
-      "level": "stable",
+      "level": "experimental",
       "since": "0.1.0",
       "category": "plugins"
     },
     "useClickOutside": {
-      "level": "stable",
+      "level": "experimental",
       "since": "0.1.0",
       "category": "system"
     },
     "useEventListener": {
-      "level": "stable",
+      "level": "experimental",
       "since": "0.1.0",
       "category": "system"
     },
     "useHotkey": {
-      "level": "stable",
+      "level": "experimental",
       "since": "0.1.0",
       "category": "system"
     },
     "useIntersectionObserver": {
-      "level": "stable",
+      "level": "experimental",
       "since": "0.1.0",
       "category": "system"
     },
     "useMutationObserver": {
-      "level": "stable",
+      "level": "experimental",
       "since": "0.1.0",
       "category": "system"
     },
     "useResizeObserver": {
-      "level": "stable",
+      "level": "experimental",
       "since": "0.1.0",
       "category": "system"
     },
     "useToggleScope": {
-      "level": "stable",
+      "level": "experimental",
       "since": "0.1.0",
       "category": "system"
     },
     "useMediaQuery": {
-      "level": "stable",
+      "level": "experimental",
       "since": "0.1.0",
       "category": "system"
     },
     "useLazy": {
-      "level": "stable",
+      "level": "experimental",
       "since": "0.1.0",
       "category": "system"
     },
     "useProxyModel": {
-      "level": "stable",
+      "level": "experimental",
       "since": "0.1.0",
       "category": "reactivity"
     },
     "useProxyRegistry": {
-      "level": "stable",
+      "level": "experimental",
       "since": "0.1.0",
       "category": "reactivity"
     },
     "toArray": {
-      "level": "stable",
+      "level": "experimental",
       "since": "0.1.0",
       "category": "transformers"
     },
     "toElement": {
-      "level": "stable",
+      "level": "experimental",
       "since": "0.1.0",
       "category": "transformers"
     },
     "toReactive": {
-      "level": "stable",
+      "level": "experimental",
       "since": "0.1.0",
       "category": "transformers"
     }
   },
   "components": {
     "Atom": {
-      "level": "stable",
+      "level": "experimental",
       "since": "0.1.0",
       "category": "primitives"
     },
     "Checkbox": {
-      "level": "stable",
+      "level": "experimental",
       "since": "0.1.0",
       "category": "forms"
     },
     "Radio": {
-      "level": "stable",
+      "level": "experimental",
       "since": "0.1.0",
       "category": "forms"
     },
     "Switch": {
-      "level": "stable",
+      "level": "experimental",
       "since": "0.1.0",
       "category": "forms"
     },
     "Dialog": {
-      "level": "stable",
+      "level": "experimental",
       "since": "0.1.0",
       "category": "disclosure"
     },
     "ExpansionPanel": {
-      "level": "stable",
+      "level": "experimental",
       "since": "0.1.0",
       "category": "disclosure"
     },
     "Popover": {
-      "level": "stable",
+      "level": "experimental",
       "since": "0.1.0",
       "category": "disclosure"
     },
     "Tabs": {
-      "level": "stable",
+      "level": "experimental",
       "since": "0.1.0",
       "category": "disclosure"
     },
     "Avatar": {
-      "level": "stable",
+      "level": "experimental",
       "since": "0.1.0",
       "category": "semantic"
     },
     "Breadcrumbs": {
-      "level": "stable",
+      "level": "experimental",
       "since": "0.1.0",
       "category": "semantic"
     },
     "Pagination": {
-      "level": "stable",
+      "level": "experimental",
       "since": "0.1.0",
       "category": "semantic"
     },
     "Group": {
-      "level": "stable",
+      "level": "experimental",
       "since": "0.1.0",
       "category": "providers"
     },
     "Scrim": {
-      "level": "stable",
+      "level": "experimental",
       "since": "0.1.0",
       "category": "providers"
     },
     "Selection": {
-      "level": "stable",
+      "level": "experimental",
       "since": "0.1.0",
       "category": "providers"
     },
     "Single": {
-      "level": "stable",
+      "level": "experimental",
       "since": "0.1.0",
       "category": "providers"
     },
     "Step": {
-      "level": "stable",
+      "level": "experimental",
       "since": "0.1.0",
       "category": "providers"
     }
