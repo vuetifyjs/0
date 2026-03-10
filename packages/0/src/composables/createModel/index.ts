@@ -25,7 +25,7 @@ import { computed, isRef, shallowReactive, toRef, toRaw, toValue } from 'vue'
 // Types
 import type { RegistryContext, RegistryOptions, RegistryTicket, RegistryTicketInput } from '#v0/composables/createRegistry'
 import type { ID } from '#v0/types'
-import type { ComputedRef, MaybeRef, MaybeRefOrGetter, Reactive, Ref } from 'vue'
+import type { ComputedRef, MaybeRefOrGetter, Reactive, Ref } from 'vue'
 
 /**
  * Input type for model tickets - what users provide to register().
@@ -34,7 +34,7 @@ import type { ComputedRef, MaybeRef, MaybeRefOrGetter, Reactive, Ref } from 'vue
  */
 export interface ModelTicketInput<V = unknown> extends RegistryTicketInput<V> {
   /** Disabled state of the ticket (optional on input, defaults to false) */
-  disabled?: MaybeRef<boolean>
+  disabled?: MaybeRefOrGetter<boolean>
 }
 
 /**
@@ -44,7 +44,7 @@ export interface ModelTicketInput<V = unknown> extends RegistryTicketInput<V> {
  */
 export type ModelTicket<Z extends ModelTicketInput = ModelTicketInput> = RegistryTicket & Z & {
   /** Disabled state of the ticket (guaranteed to exist on output) */
-  disabled: MaybeRef<boolean>
+  disabled: MaybeRefOrGetter<boolean>
   /** Whether the ticket is currently selected */
   isSelected: Readonly<Ref<boolean, boolean>>
 }

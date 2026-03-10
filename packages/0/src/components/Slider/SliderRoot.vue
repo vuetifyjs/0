@@ -29,7 +29,7 @@
   // Types
   import type { AtomProps } from '#v0/components/Atom'
   import type { SliderContext } from '#v0/composables/createSlider'
-  import type { MaybeRef, Ref } from 'vue'
+  import type { MaybeRefOrGetter, Ref } from 'vue'
 
   export interface SliderRootContext extends SliderContext {
     /** Unique identifier */
@@ -56,9 +56,9 @@
     /** Step increment (default: 1) */
     step?: number
     /** Disables the slider */
-    disabled?: MaybeRef<boolean>
+    disabled?: MaybeRefOrGetter<boolean>
     /** Readonly — focusable but not editable */
-    readonly?: MaybeRef<boolean>
+    readonly?: MaybeRefOrGetter<boolean>
     /** Slider orientation */
     orientation?: 'horizontal' | 'vertical'
     /** Flip the percent axis */

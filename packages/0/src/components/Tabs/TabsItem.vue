@@ -29,7 +29,7 @@
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
   import type { ID } from '#v0/types'
-  import type { MaybeRef } from 'vue'
+  import type { MaybeRefOrGetter } from 'vue'
 
   export interface TabsItemProps<V = unknown> extends AtomProps {
     /** Unique identifier (auto-generated if not provided) */
@@ -37,7 +37,7 @@
     /** Value associated with this tab (used to match with TabsPanel) */
     value?: V
     /** Disables this specific tab */
-    disabled?: MaybeRef<boolean>
+    disabled?: MaybeRefOrGetter<boolean>
     /** Namespace for dependency injection */
     namespace?: string
     /** Accessible label for this tab */

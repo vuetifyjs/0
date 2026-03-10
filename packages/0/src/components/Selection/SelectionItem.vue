@@ -9,7 +9,7 @@
 
 <script lang="ts">
   // Types
-  import type { MaybeRef } from 'vue'
+  import type { MaybeRefOrGetter } from 'vue'
 
   export interface SelectionItemProps<V = unknown> {
     /** Unique identifier (auto-generated if not provided) */
@@ -19,7 +19,7 @@
     /** Value associated with this item */
     value?: V
     /** Disables this specific item */
-    disabled?: MaybeRef<boolean>
+    disabled?: MaybeRefOrGetter<boolean>
     /** Namespace for dependency injection */
     namespace?: string
   }
