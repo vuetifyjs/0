@@ -3,7 +3,7 @@ import { shallowRef, toRef } from 'vue'
 
 export function useCompare () {
   const slider = createSlider({ min: 0, max: 100, step: 0.5 })
-  slider.register(50)
+  slider.register({ value: 50 })
 
   const split = toRef(() => slider.fromValue(slider.values.value[0] ?? 50))
   const dragging = shallowRef(false)

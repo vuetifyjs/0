@@ -4,7 +4,7 @@
   import { DURATION, provideScrubber } from './context'
 
   const slider = createSlider({ min: 0, max: DURATION, step: 0.1 })
-  slider.register(0)
+  slider.register({ value: 0 })
 
   const scrubbing = shallowRef(false)
   const track = shallowRef<HTMLElement | null>(null)
