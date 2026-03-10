@@ -46,8 +46,7 @@
 
         <Slider.Thumb
           v-slot="{ value, isDragging }"
-          class="absolute size-4 rounded-full bg-primary shadow-sm translate-y-1/2 focus:outline-2 focus:outline-primary transition-transform"
-          :class="isDragging && 'scale-125'"
+          class="absolute size-4 rounded-full bg-primary shadow-sm translate-y-1/2 focus:outline-2 focus:outline-primary transition-transform data-[state=dragging]:scale-125"
         >
           <span
             class="absolute -top-6 left-1/2 -translate-x-1/2 text-xs font-mono whitespace-nowrap transition-opacity"
