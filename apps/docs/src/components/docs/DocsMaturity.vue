@@ -340,7 +340,7 @@
 
                 <!-- Blended readiness dot -->
                 <span
-                  class="size-2 rounded-full shrink-0"
+                  class="inline-block size-2.5 min-w-2.5 rounded-full shrink-0"
                   :style="{ backgroundColor: blend(group.items as MaturityItem[]) }"
                 />
               </div>
