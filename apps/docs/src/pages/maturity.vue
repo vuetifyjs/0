@@ -1,7 +1,5 @@
 <script setup lang="ts">
-  // Data
   import maturityData from '#v0/maturity.json'
-  // Icons
   import {
     mdiClose,
     mdiFlash,
@@ -20,18 +18,18 @@
   import { shallowRef, toRef } from 'vue'
 
   // Types
+  type Level = 'draft' | 'experimental' | 'stable' | 'mature' | 'deprecated'
+
   interface MaturityItem extends Record<string, unknown> {
     id: string
     name: string
     type: 'composable' | 'component'
     category: string
-    level: string
+    level: Level
     since: string
     notes: string
     levelOrder: number
   }
-
-  type Level = 'draft' | 'experimental' | 'stable' | 'mature' | 'deprecated'
 
   definePage({
     meta: {
@@ -112,7 +110,7 @@
   // Filtered items based on level chips
   const filtered = toRef(() => {
     if (activeFilters.value.size === 0) return allItems
-    return allItems.filter(item => activeFilters.value.has(item.level as Level))
+    return allItems.filter(item => activeFilters.value.has(item.level))
   })
 
   const table = createDataTable<MaturityItem>({
@@ -135,13 +133,8 @@
     pagination: { itemsPerPage: 100 },
   })
 
-  // Search binding
-  const query = shallowRef('')
-
   function onSearch (event: Event) {
-    const value = (event.target as HTMLInputElement).value
-    query.value = value
-    table.search(value)
+    table.search((event.target as HTMLInputElement).value)
   }
 
   // Sort indicator
@@ -241,7 +234,7 @@
         class="w-full px-4 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm placeholder-on-surface-variant/50 outline-none transition-colors focus:border-primary"
         placeholder="Search by name, type, or category..."
         type="text"
-        :value="query"
+        :value="table.query.value"
         @input="onSearch"
       >
     </div>
@@ -251,7 +244,7 @@
       <template v-for="group in table.grouping.groups.value" :key="group.key">
         <!-- Group header -->
         <button
-          class="w-full flex items-center gap-2 px-4 py-2.5 bg-surface-variant text-on-surface font-semibold text-sm cursor-pointer border-none border-b border-divider text-left transition-colors hover:bg-surface-variant/80"
+          class="w-full flex items-center gap-2 px-4 py-2.5 bg-surface-variant text-on-surface font-semibold text-sm cursor-pointer border-0 border-b border-solid border-divider text-left transition-colors hover:bg-surface-variant/80"
           @click="table.grouping.toggle(group.key)"
         >
           <span
@@ -316,12 +309,12 @@
               <td class="px-4 py-2.5">
                 <span
                   class="inline-flex items-center gap-1"
-                  :style="{ color: levels[item.level as Level]?.color }"
+                  :style="{ color: levels[item.level]?.color }"
                 >
                   <svg class="size-4" viewBox="0 0 24 24">
-                    <path :d="levels[item.level as Level]?.icon" fill="currentColor" />
+                    <path :d="levels[item.level]?.icon" fill="currentColor" />
                   </svg>
-                  <span class="text-xs font-medium">{{ levels[item.level as Level]?.label }}</span>
+                  <span class="text-xs font-medium">{{ levels[item.level]?.label }}</span>
                 </span>
               </td>
 
