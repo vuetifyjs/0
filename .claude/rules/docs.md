@@ -41,13 +41,23 @@ related:
 1. **H1 title** — component name
 2. `<DocsPageFeatures :frontmatter />` — renders badges from frontmatter
 3. `<DocsBrowserSupport>` — optional, for native API features
-4. **Usage** — brief intro + `::: example` with basic example
-5. **Anatomy** — Vue template tree in `` ```vue Anatomy playground `` `` code fence
+4. **Usage** — brief intro + code fence (not a live example)
+5. **Anatomy** — Vue template tree in `` ```vue playground collapse `` `` code fence
 6. **Architecture** — optional Mermaid diagram
-7. **Recipes/Examples** — additional `::: example` sections
-8. **Accessibility** — ARIA roles, keyboard interaction, screen reader behavior
-9. **FAQ** — `::: faq` container with `???` questions
-10. `<DocsApi />` — auto-generated API reference (props/events/slots)
+7. **Examples** — `::: example` blocks, each with 2+ files
+8. **Recipes** — code fences or single-file `::: example` blocks
+9. **Accessibility** — ARIA roles, keyboard interaction, screen reader behavior
+10. **FAQ** — `::: faq` container with `???` questions
+11. `<DocsApi />` — auto-generated API reference (props/events/slots)
+
+## Section Content Rules
+
+| Section | Component pages | Composable pages |
+|---------|----------------|-----------------|
+| **Usage** | `::: example` with basic.vue | Code fence |
+| **Anatomy** | `` ```vue playground collapse `` `` | — |
+| **Examples** | `::: example` with 2+ files | `::: example` with 2+ files |
+| **Recipes** | Code fence or single-file `::: example` | Code fence or single-file `::: example` |
 
 ## Composable Page Structure
 
@@ -144,7 +154,7 @@ Auto-generated at build time — no manual API tables needed.
 | Category | Components |
 |----------|-----------|
 | `disclosure` | Dialog, ExpansionPanel, Popover, Tabs |
-| `forms` | Checkbox, Switch, Radio |
+| `forms` | Checkbox, Switch, Radio, Slider |
 | `primitives` | Atom |
 | `semantic` | Avatar, Pagination, Breadcrumbs |
 | `providers` | (context providers) |
