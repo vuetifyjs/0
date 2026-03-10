@@ -22,13 +22,13 @@
   })
 
   const stack = useStack()
-  const stackTicket = stack.register({ onDismiss: () => {
+  const ticket = stack.register({ onDismiss: () => {
     playground.left.value = true
   } })
 
   watch(() => open.value && isMobile.value, visible => {
-    if (visible) stackTicket.select()
-    else stackTicket.unselect()
+    if (visible) ticket.select()
+    else ticket.unselect()
   }, { immediate: true })
 </script>
 
@@ -62,7 +62,7 @@
     class="fixed inset-0 bg-surface border-r border-divider flex flex-col transition-transform duration-200"
     :class="open ? 'translate-x-0' : '-translate-x-full'"
     :inert="open ? undefined : true"
-    :style="{ zIndex: stackTicket.zIndex.value }"
+    :style="{ zIndex: ticket.zIndex.value }"
   >
     <slot />
   </div>

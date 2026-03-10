@@ -22,13 +22,13 @@
   })
 
   const stack = useStack()
-  const stackTicket = stack.register({ onDismiss: () => {
+  const ticket = stack.register({ onDismiss: () => {
     playground.tree.value = true
   } })
 
   watch(() => open.value && isMobile.value, visible => {
-    if (visible) stackTicket.select()
-    else stackTicket.unselect()
+    if (visible) ticket.select()
+    else ticket.unselect()
   }, { immediate: true })
 </script>
 
@@ -59,7 +59,7 @@
     class="fixed top-0 bottom-0 left-0 w-[280px] bg-surface border-r border-divider flex flex-col transition-transform duration-200"
     :class="open ? 'translate-x-0' : '-translate-x-full'"
     :inert="open ? undefined : true"
-    :style="{ zIndex: stackTicket.zIndex.value }"
+    :style="{ zIndex: ticket.zIndex.value }"
   >
     <header class="shrink-0 px-4 py-3 border-b border-divider flex items-center justify-between">
       <div class="flex items-center gap-2">

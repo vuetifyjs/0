@@ -52,7 +52,7 @@
     panels: SelectionContext<SplitterPanelInput>
     handles: RegistryContext
     dragging: Readonly<Ref<boolean>>
-    draggingHandle: Ref<number | null>
+    draggingHandle: Readonly<Ref<number | null>>
     rootEl: Readonly<Ref<HTMLElement | null>>
     panel: (index: number) => SplitterPanelTicket | undefined
     resize: (index: number, delta: number) => void
@@ -261,7 +261,7 @@
     emit('layout', panels.values().map(t => t.size))
   }
 
-  const context: SplitterContext = {
+  provideSplitterRoot({
     orientation: toRef(() => orientation),
     disabled: toRef(() => disabled),
     panels,
@@ -277,9 +277,7 @@
     collapse,
     expand,
     distribute,
-  }
-
-  provideSplitterRoot(context)
+  })
 
   defineExpose<SplitterRootExpose>({ distribute })
 
