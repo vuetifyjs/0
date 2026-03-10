@@ -269,7 +269,7 @@
           </colgroup>
 
           <thead>
-            <tr class="border-b border-divider">
+            <tr>
               <th
                 v-for="col in table.columns"
                 :key="col.key"
@@ -286,7 +286,7 @@
             <tr
               v-for="item in group.items"
               :key="item.id"
-              class="border-b border-divider last:border-b-0 transition-colors hover:bg-surface-variant/30"
+              class="transition-colors hover:bg-surface-variant/30"
             >
               <!-- Name -->
               <td class="px-4 py-2.5 text-sm font-medium text-on-surface truncate">
