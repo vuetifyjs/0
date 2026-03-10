@@ -108,6 +108,19 @@
     table.search((event.target as HTMLInputElement).value)
   }
 
+  const expanded = toRef(() => {
+    const groups = table.grouping.groups.value
+    return groups.length > 0 && groups.every(g => table.grouping.isOpen(g.key))
+  })
+
+  function onToggleAll () {
+    if (expanded.value) {
+      table.grouping.closeAll()
+    } else {
+      table.grouping.openAll()
+    }
+  }
+
   // Sort indicator
   function sortIcon (key: string): string {
     const dir = table.sort.direction(key)
@@ -206,6 +219,17 @@
         :value="table.query.value"
         @input="onSearch"
       >
+    </div>
+
+    <!-- Expand/collapse all -->
+    <div class="flex justify-end mb-2">
+      <button
+        class="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium text-on-surface-variant bg-transparent border-0 cursor-pointer transition-colors hover:text-on-surface"
+        @click="onToggleAll"
+      >
+        <AppIcon :icon="expanded ? 'combine' : 'split'" :size="14" />
+        {{ expanded ? 'Collapse all' : 'Expand all' }}
+      </button>
     </div>
 
     <!-- Data table -->
