@@ -302,7 +302,7 @@
             class="bg-surface-variant transition-colors hover:bg-surface-variant/80"
           >
             <!-- Name -->
-            <td class="px-4 py-2.5 text-sm font-medium text-on-surface truncate">
+            <td class="pl-10 pr-4 py-2.5 text-sm font-medium text-on-surface truncate">
               {{ item.name }}
             </td>
 
