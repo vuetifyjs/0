@@ -177,6 +177,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/components/semantic/splitter': RouteRecordInfo<
+      '/components/semantic/splitter',
+      '/components/semantic/splitter',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/composables/': RouteRecordInfo<
       '/composables/',
       '/composables',
@@ -865,6 +872,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/components/semantic/pagination.md': {
       routes:
         | '/components/semantic/pagination'
+      views:
+        | never
+    }
+    'src/pages/components/semantic/splitter.md': {
+      routes:
+        | '/components/semantic/splitter'
       views:
         | never
     }
