@@ -1,4 +1,4 @@
-import { createSlider } from '@vuetify/v0'
+import { createSlider, useDocumentEventListener, useToggleScope } from '@vuetify/v0'
 import { shallowRef, toRef } from 'vue'
 
 export function useCompare () {
@@ -16,24 +16,21 @@ export function useCompare () {
     return ((e.clientX - rect.left) / rect.width) * 100
   }
 
+  useToggleScope(dragging, () => {
+    useDocumentEventListener('pointermove', (e: PointerEvent) => {
+      slider.set(0, slider.fromPercent(toPercent(e)))
+    })
+
+    useDocumentEventListener('pointerup', () => {
+      dragging.value = false
+    })
+  })
+
   function onPointerdown (e: PointerEvent) {
     if (e.button !== 0) return
     e.preventDefault()
 
     dragging.value = true
-
-    function onPointermove (e: PointerEvent) {
-      slider.set(0, slider.fromPercent(toPercent(e)))
-    }
-
-    function onPointerup () {
-      dragging.value = false
-      document.removeEventListener('pointermove', onPointermove)
-      document.removeEventListener('pointerup', onPointerup)
-    }
-
-    document.addEventListener('pointermove', onPointermove)
-    document.addEventListener('pointerup', onPointerup)
   }
 
   return { split, dragging, track, onPointerdown }

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { createSlider } from '@vuetify/v0'
+  import { createSlider, useDocumentEventListener, useToggleScope } from '@vuetify/v0'
   import { shallowRef } from 'vue'
   import { DURATION, provideScrubber } from './context'
 
@@ -16,25 +16,22 @@
     return ((e.clientX - rect.left) / rect.width) * 100
   }
 
+  useToggleScope(scrubbing, () => {
+    useDocumentEventListener('pointermove', (e: PointerEvent) => {
+      slider.set(0, slider.fromPercent(percent(e)))
+    })
+
+    useDocumentEventListener('pointerup', () => {
+      scrubbing.value = false
+    })
+  })
+
   function onPointerdown (e: PointerEvent) {
     if (e.button !== 0) return
     e.preventDefault()
 
     scrubbing.value = true
     slider.set(0, slider.fromPercent(percent(e)))
-
-    function onPointermove (e: PointerEvent) {
-      slider.set(0, slider.fromPercent(percent(e)))
-    }
-
-    function onPointerup () {
-      scrubbing.value = false
-      document.removeEventListener('pointermove', onPointermove)
-      document.removeEventListener('pointerup', onPointerup)
-    }
-
-    document.addEventListener('pointermove', onPointermove)
-    document.addEventListener('pointerup', onPointerup)
   }
 
   provideScrubber({ slider, scrubbing })
