@@ -260,7 +260,7 @@
         <!-- Group header row -->
         <tbody>
           <tr
-            class="bg-surface-variant cursor-pointer transition-colors hover:bg-surface-variant/80"
+            class="cursor-pointer transition-colors hover:bg-surface-variant/30"
             @click="table.grouping.toggle(group.key)"
           >
             <td class="px-4 py-2.5" :colspan="table.columns.length">
@@ -299,7 +299,7 @@
           <tr
             v-for="item in group.items"
             :key="item.id"
-            class="transition-colors hover:bg-surface-variant/30"
+            class="bg-surface-variant transition-colors hover:bg-surface-variant/80"
           >
             <!-- Name -->
             <td class="px-4 py-2.5 text-sm font-medium text-on-surface truncate">
