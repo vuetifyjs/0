@@ -104,12 +104,12 @@
   <input
     :checked="isChecked"
     :disabled="isDisabled"
-    :form="form"
+    :form
     inert
-    :name="name"
+    :name
     :style="visuallyHiddenStyle"
     tabindex="-1"
     type="radio"
-    :value="value"
+    :value
   >
 </template>
