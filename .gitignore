@@ -45,6 +45,8 @@ storybook-static
 # Auto-generated files
 apps/docs/build/generated/
 
+docs/
+
 # Claude Code
 .claude/worktrees/
 .claude/plans/
