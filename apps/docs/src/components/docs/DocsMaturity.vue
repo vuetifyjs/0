@@ -63,7 +63,15 @@
 
   const allItems = flatten()
 
-  // Filter chips state
+  // Type filter
+  type ItemType = 'composable' | 'component'
+  const activeType = shallowRef<ItemType | null>(null)
+
+  function onToggleType (type: ItemType) {
+    activeType.value = activeType.value === type ? null : type
+  }
+
+  // Level filter chips state
   const activeFilters = shallowRef(new Set<Level>())
 
   function onToggleFilter (level: Level) {
@@ -78,12 +86,19 @@
 
   function onClearFilters () {
     activeFilters.value = new Set()
+    activeType.value = null
   }
 
-  // Filtered items based on level chips
+  // Filtered items based on type + level chips
   const filtered = toRef(() => {
-    if (activeFilters.value.size === 0) return allItems
-    return allItems.filter(item => activeFilters.value.has(item.level))
+    let result = allItems
+    if (activeType.value) {
+      result = result.filter(item => item.type === activeType.value)
+    }
+    if (activeFilters.value.size > 0) {
+      result = result.filter(item => activeFilters.value.has(item.level))
+    }
+    return result
   })
 
   const table = createDataTable<MaturityItem>({
@@ -187,8 +202,32 @@
 
 <template>
   <div>
-    <!-- Filter chips -->
+    <!-- Filters -->
     <div class="flex flex-wrap items-center gap-2 mb-4">
+      <!-- Type toggles -->
+      <button
+        class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium border cursor-pointer transition-all"
+        :class="activeType === 'composable'
+          ? 'border-primary bg-primary/15 text-primary opacity-100'
+          : 'border-divider text-on-surface-variant opacity-70 hover:opacity-100'"
+        @click="onToggleType('composable')"
+      >
+        Composables
+      </button>
+
+      <button
+        class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium border cursor-pointer transition-all"
+        :class="activeType === 'component'
+          ? 'border-accent bg-accent/15 text-accent opacity-100'
+          : 'border-divider text-on-surface-variant opacity-70 hover:opacity-100'"
+        @click="onToggleType('component')"
+      >
+        Components
+      </button>
+
+      <span class="w-px h-5 bg-divider mx-1" />
+
+      <!-- Level chips -->
       <button
         v-for="(config, key) in levels"
         :key="key"
@@ -210,7 +249,7 @@
       </button>
 
       <button
-        v-if="activeFilters.size > 0"
+        v-if="activeFilters.size > 0 || activeType"
         class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border border-divider text-on-surface-variant bg-transparent cursor-pointer transition-colors hover:bg-surface-variant"
         @click="onClearFilters"
       >
