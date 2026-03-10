@@ -231,7 +231,7 @@ async function generateNav (): Promise<NavItem[]> {
     pages.get(key)!.push(pageInfo)
   }
 
-  standalonePages.push({ item: { name: 'Playground', to: '/playground' }, order: 1.6 })
+  standalonePages.push({ item: { name: 'Maturity Matrix', to: '/maturity' }, order: 1.15 }, { item: { name: 'Playground', to: '/playground' }, order: 1.6 })
 
   const nav: NavItem[] = []
   const sectionEntries = Object.entries(SECTIONS).toSorted((a, b) => a[1].order - b[1].order)
