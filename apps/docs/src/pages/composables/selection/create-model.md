@@ -11,6 +11,7 @@ features:
   github: /composables/createModel/
   level: 2
 related:
+  - /composables/reactivity/use-proxy-model
   - /composables/registration/create-registry
   - /composables/selection/create-selection
   - /components/providers/selection
@@ -27,19 +28,23 @@ Manage a reactive value with two-way sync — wrap a ref in a model and `useProx
 `createModel` stores a reactive value. Register a ref and `useProxyModel` keeps it synced — the same idea as `defineModel` but built on the registry pattern.
 
 ```ts
+import { shallowRef } from 'vue'
 import { createModel, useProxyModel } from '@vuetify/v0'
 
-const value = defineModel<string>()
+const value = shallowRef<string>()
 const model = createModel()
 
 model.register({ id: 'fruit', value })
+// ticket is already selected — enroll defaults to true
 
 useProxyModel(model, value)
 ```
 
+Tickets are **enrolled on registration** by default (`enroll: true`). With single-value semantics, only the most recently registered ticket is active. Pass `enroll: false` to opt out.
+
 Most of the time you register a single ticket — that's the only value you care about. The registry pattern underneath gives you the ability to compose multiple values into a compound model when you need it, which is what `createSelection` builds on.
 
-Selection-specific concepts like `mandatory`, `multiple`, and `enroll` belong in `createSelection`.
+Selection-specific concepts like `mandatory` and `multiple` belong in `createSelection`. Both composables accept `enroll`, but `createSelection` defaults it to `false`.
 
 ## Architecture
 
@@ -47,39 +52,15 @@ Selection-specific concepts like `mandatory`, `multiple`, and `enroll` belong in
 
 ```mermaid "Model Hierarchy"
 flowchart TD
-  createRegistry --> createModel
+  createRegistry --> createModel:::primary
   createModel --> createSelection
-  createModel --> createSlider
+  createModel -.-> createSlider["createSlider (planned)"]
   createSelection --> createSingle
   createSelection --> createGroup
   createSingle --> createStep
+  createGroup --> createNested
+  createModel -. "useProxyModel" .-> defineModel["defineModel / v-model"]
 ```
-
-## How It Stores a Value
-
-A ticket's value is typically a ref. When registered, `useProxyModel` auto-selects the ticket and writes directly to the ref — changes flow both ways without ID resolution.
-
-When multiple tickets are registered, `select` always clears before adding — only one ticket is active at a time. For compound models where multiple values are active simultaneously, use `createSelection`.
-
-## Disabled Guards
-
-Both the model instance and individual tickets support a disabled state. Operations are silently skipped when disabled:
-
-```ts
-// Instance-level disabled
-const model = createModel({ disabled: true })
-model.register({ id: 'a', value: ref('Apple') })
-model.select('a') // no-op
-
-// Ticket-level disabled
-const model2 = createModel()
-model2.register({ id: 'b', value: ref('Banana'), disabled: true })
-model2.select('b') // no-op
-```
-
-## The Apply Bridge
-
-`useProxyModel` calls `apply` internally to keep the ref and model in sync. When the active ticket's value is a ref, `apply` writes to it directly — no ID lookup needed. You rarely call `apply` yourself.
 
 ## Reactivity
 
@@ -98,11 +79,37 @@ Value state is **always reactive**. Collection methods follow the base `createRe
 ## Examples
 
 ::: example
-/composables/create-model/input
+/composables/create-model/createCompound.ts
+/composables/create-model/compound.vue
 
-### Single Value
+### Compound Value
 
-Two-way binding between a ref and a model. Type in the input — both stay in sync automatically.
+A model isn't limited to one value. Register multiple tickets — each with its own ref and input type — and the model composes them into a single compound output. The compound output at the bottom is a `toRef` over `selectedValues`, so it updates whenever a ticket's value changes or a ticket is toggled in or out of the composition.
+
+```mermaid "Data Flow"
+flowchart LR
+  subgraph Tickets
+    name["name · shallowRef('John')"]
+    size["size · shallowRef('M')"]
+    toppings["toppings · shallowRef(['cheese', 'lettuce'])"]
+    quantity["quantity · shallowRef(2)"]
+  end
+  name -- "toggle" --> selectedIds
+  size -- "toggle" --> selectedIds
+  toppings -- "toggle" --> selectedIds
+  quantity -- "toggle" --> selectedIds
+  selectedIds -- "toValue" --> selectedValues
+  selectedValues --> compound["compound · toRef"]
+```
+
+Each ticket's value can be any type: a string, a number, an array. The checkbox next to each ticket controls whether it's included in the compound. Disabling a ticket freezes its value and prevents selection changes. Because each value is a ref, edits flow through the model reactively — type in the text field, pick a radio, check a topping, or drag the slider and the compound reflects the change immediately.
+
+This pattern is the foundation for compound inputs like forms, filters, and configuration panels — anywhere multiple independent values need to be composed into a single reactive output.
+
+| File | Role |
+|------|------|
+| `createCompound.ts` | Creates the model, registers four tickets with typed refs, exports reactive `compound` |
+| `compound.vue` | Renders each ticket with its matching input control, toggles composition membership |
 
 :::
 
@@ -112,9 +119,35 @@ Two-way binding between a ref and a model. Type in the input — both stay in sy
 /composables/create-model/ColorConsumer.vue
 /composables/create-model/colors.vue
 
-### Color Palette — Compound Model
+### Color Palette
 
-Multiple reactive values composed into one model. Five OKLCH hue sliders each contribute to a shared palette via `createSelection` (which extends `createModel`). Drag a slider to adjust a color, toggle one off to drop it from the composite. Purple is disabled.
+This example uses `createSelection` (which extends `createModel`) to compose a palette from five OKLCH hue values. Each color is a ticket with a `ref(hue)` as its value — the hue sliders write directly to those refs, so dragging a slider shifts the color in real time without any re-registration.
+
+```mermaid "Data Flow"
+sequenceDiagram
+  participant S as model.ts
+  participant P as ColorProvider
+  participant C as ColorConsumer
+
+  S->>S: createSelection({ multiple })
+  S->>S: register({ id, value: ref(hue) })
+  P->>P: createColorModel()
+  P->>C: provideColors(model)
+  C->>S: model.toggle(id)
+  C->>S: ticket.value.value = newHue
+  S-->>C: selectedItems / selectedValues updated
+```
+
+The circle next to each color toggles it in or out of the composition. Purple is registered with `disabled: true`, so it can't be toggled or adjusted. The composite strip at the bottom renders only the active colors as equal-width segments, with degree labels underneath.
+
+The provider/consumer split keeps the model definition (`model.ts`) separate from the UI (`ColorConsumer.vue`). The provider creates the model and provides it via `createContext`; the consumer injects it and renders the controls. This is the same pattern you'd use in a real application to share model state across a component tree.
+
+| File | Role |
+|------|------|
+| `model.ts` | Creates the selection, registers five OKLCH colors with `ref(hue)` values, exports context tuple |
+| `ColorProvider.vue` | Calls `createColorModel()` and provides context via slot |
+| `ColorConsumer.vue` | Injects context, renders hue sliders with gradient tracks and composite strip |
+| `colors.vue` | Entry point composing Provider around Consumer |
 
 :::
 
