@@ -1,6 +1,12 @@
 <script setup lang="ts">
+  // Constants
+  import { IN_BROWSER } from '#v0/constants/globals'
+
   // Framework
   import { SplitterHandle, useSplitterRoot } from '@vuetify/v0'
+
+  // Utilities
+  import { watch } from 'vue'
 
   const {
     direction,
@@ -11,6 +17,12 @@
   }>()
 
   const splitter = useSplitterRoot()
+
+  // Set document cursor during drag so it persists when moving off the handle
+  watch(splitter.dragging, dragging => {
+    if (!IN_BROWSER) return
+    document.documentElement.style.cursor = dragging ? 'grabbing' : ''
+  })
 
   function onDblclick (attrs: Record<string, unknown>) {
     const controlsId = attrs['aria-controls'] as string | undefined

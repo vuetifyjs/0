@@ -25,14 +25,14 @@
 </script>
 
 <template>
-  <SplitterPanel :default-size="60" :max-size="80" :min-size="20">
+  <SplitterPanel :default-size="60" :max-size="playground.side.value ? 80 : 100" :min-size="20">
     <SplitterRoot ref="root" class="h-full" orientation="horizontal" @layout="onLayout">
       <slot />
     </SplitterRoot>
   </SplitterPanel>
 
   <PlaygroundSplitterHandle
+    v-if="playground.side.value"
     direction="vertical"
-    :hidden="playground.bottom.value"
   />
 </template>

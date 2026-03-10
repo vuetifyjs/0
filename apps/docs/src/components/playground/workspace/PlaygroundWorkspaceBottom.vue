@@ -11,6 +11,7 @@
 
 <template>
   <SplitterPanel
+    v-if="playground.side.value"
     v-model:collapsed="playground.bottom.value"
     :collapsed-size="0"
     collapsible

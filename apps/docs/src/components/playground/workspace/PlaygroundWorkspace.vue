@@ -12,10 +12,10 @@
     sizes.value = values
   }
 
-  const root = useTemplateRef<{ distribute: (sizes: number[]) => void }>('root')
+  const rootEl = useTemplateRef<{ distribute: (sizes: number[]) => void }>('root')
 
   onMounted(() => {
-    if (sizes.value.length > 0) root.value?.distribute(sizes.value)
+    if (sizes.value.length > 0) rootEl.value?.distribute(sizes.value)
   })
 </script>
 
