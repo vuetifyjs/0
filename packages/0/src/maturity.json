@@ -1,0 +1,319 @@
+{
+  "composables": {
+    "createContext": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "foundation"
+    },
+    "createPlugin": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "foundation"
+    },
+    "createTrinity": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "foundation"
+    },
+    "createSelection": {
+      "level": "mature",
+      "since": "0.1.0",
+      "category": "selection",
+      "notes": "Used in Vuetify 4 selection system"
+    },
+    "createSingle": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "selection"
+    },
+    "createGroup": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "selection"
+    },
+    "createStep": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "selection"
+    },
+    "createModel": {
+      "level": "stable",
+      "since": "0.1.5",
+      "category": "selection",
+      "notes": "Recently redesigned from selection system"
+    },
+    "createNested": {
+      "level": "mature",
+      "since": "0.1.0",
+      "category": "selection",
+      "notes": "Used in Vuetify 4 nested navigation"
+    },
+    "createRegistry": {
+      "level": "mature",
+      "since": "0.1.0",
+      "category": "registration",
+      "notes": "Core registry pattern used across framework"
+    },
+    "createQueue": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "registration"
+    },
+    "createTimeline": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "registration"
+    },
+    "createTokens": {
+      "level": "mature",
+      "since": "0.1.0",
+      "category": "registration",
+      "notes": "Used in Vuetify 4 theming"
+    },
+    "createForm": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "forms"
+    },
+    "createDataTable": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "data"
+    },
+    "createFilter": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "data"
+    },
+    "createPagination": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "data"
+    },
+    "createVirtual": {
+      "level": "mature",
+      "since": "0.1.0",
+      "category": "data",
+      "notes": "Used in Vuetify 4 virtual scrolling"
+    },
+    "createBreadcrumbs": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "utilities"
+    },
+    "createOverflow": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "utilities"
+    },
+    "createObserver": {
+      "level": "draft",
+      "since": "0.1.0",
+      "category": "internal",
+      "notes": "Internal factory for observer composables"
+    },
+    "useBreakpoints": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "plugins"
+    },
+    "useDate": {
+      "level": "mature",
+      "since": "0.1.0",
+      "category": "plugins",
+      "notes": "Used in Vuetify 4 date pickers"
+    },
+    "useFeatures": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "plugins"
+    },
+    "useHydration": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "plugins"
+    },
+    "useLocale": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "plugins"
+    },
+    "useLogger": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "plugins"
+    },
+    "usePermissions": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "plugins"
+    },
+    "useStack": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "plugins"
+    },
+    "useStorage": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "plugins"
+    },
+    "useTheme": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "plugins"
+    },
+    "useClickOutside": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "system"
+    },
+    "useEventListener": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "system"
+    },
+    "useHotkey": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "system"
+    },
+    "useIntersectionObserver": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "system"
+    },
+    "useMutationObserver": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "system"
+    },
+    "useResizeObserver": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "system"
+    },
+    "useToggleScope": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "system"
+    },
+    "useMediaQuery": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "system"
+    },
+    "useLazy": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "system"
+    },
+    "useProxyModel": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "reactivity"
+    },
+    "useProxyRegistry": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "reactivity"
+    },
+    "toArray": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "transformers"
+    },
+    "toElement": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "transformers"
+    },
+    "toReactive": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "transformers"
+    }
+  },
+  "components": {
+    "Atom": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "primitives"
+    },
+    "Checkbox": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "forms"
+    },
+    "Radio": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "forms"
+    },
+    "Switch": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "forms"
+    },
+    "Dialog": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "disclosure"
+    },
+    "ExpansionPanel": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "disclosure"
+    },
+    "Popover": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "disclosure"
+    },
+    "Tabs": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "disclosure"
+    },
+    "Avatar": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "semantic"
+    },
+    "Breadcrumbs": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "semantic"
+    },
+    "Pagination": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "semantic"
+    },
+    "Group": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "providers"
+    },
+    "Scrim": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "providers"
+    },
+    "Selection": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "providers"
+    },
+    "Single": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "providers"
+    },
+    "Step": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "providers"
+    }
+  }
+}
