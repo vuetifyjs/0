@@ -254,8 +254,8 @@
       </button>
 
       <button
-        v-if="activeFilters.size > 0 || activeType"
         class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border border-divider text-on-surface-variant bg-transparent cursor-pointer transition-colors hover:bg-surface-variant"
+        :class="activeFilters.size > 0 || activeType ? 'visible' : 'invisible'"
         @click="onClearFilters"
       >
         <AppIcon icon="close" :size="14" />
