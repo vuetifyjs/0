@@ -206,9 +206,8 @@
 
 <template>
   <div>
-    <!-- Filters -->
-    <div class="flex flex-wrap items-center gap-2 mb-4">
-      <!-- Type toggles -->
+    <!-- Type toggles -->
+    <div class="flex flex-wrap items-center gap-2 mb-2">
       <button
         class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium border cursor-pointer transition-all"
         :class="activeType === 'composable'
@@ -223,17 +222,17 @@
       <button
         class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium border cursor-pointer transition-all"
         :class="activeType === 'component'
-          ? 'border-accent bg-accent/15 text-accent opacity-100'
+          ? 'border-info bg-info/15 text-info opacity-100'
           : 'border-divider text-on-surface-variant opacity-70 hover:opacity-100'"
         @click="onToggleType('component')"
       >
         <AppIcon icon="puzzle" :size="12" />
         Components
       </button>
+    </div>
 
-      <span class="w-px h-4 bg-divider mx-1" />
-
-      <!-- Level chips -->
+    <!-- Level chips -->
+    <div class="flex flex-wrap items-center gap-2 mb-4">
       <button
         v-for="(config, key) in levels"
         :key="key"
@@ -367,7 +366,7 @@
                 class="inline-block px-2 py-0.5 rounded-full text-xs font-medium"
                 :class="item.type === 'composable'
                   ? 'bg-primary/15 text-primary'
-                  : 'bg-accent/15 text-accent'"
+                  : 'bg-info/15 text-info'"
               >
                 {{ item.type }}
               </span>
