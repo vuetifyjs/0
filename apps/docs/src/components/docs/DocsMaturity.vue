@@ -8,8 +8,6 @@
     mdiVolcano,
     mdiWeatherFog,
   } from '@mdi/js'
-  import { useHead } from '@unhead/vue'
-  import { definePage } from 'unplugin-vue-router/runtime'
 
   // Framework
   import { createDataTable } from '@vuetify/v0'
@@ -30,22 +28,6 @@
     notes: string
     levelOrder: number
   }
-
-  definePage({
-    meta: {
-      layout: 'default',
-      level: 1,
-    },
-  })
-
-  useHead({
-    title: 'Maturity Matrix',
-    meta: [
-      { key: 'description', name: 'description', content: 'Interactive maturity matrix for @vuetify/v0 composables and components. Track stability levels, categories, and graduation criteria.' },
-      { key: 'og:title', property: 'og:title', content: 'Maturity Matrix - Vuetify0' },
-      { key: 'og:description', property: 'og:description', content: 'Interactive maturity matrix for @vuetify/v0 composables and components.' },
-    ],
-  })
 
   const levels: Record<Level, { icon: string, color: string, label: string, order: number }> = {
     draft: { icon: mdiSnowflake, color: '#60a5fa', label: 'Draft', order: 0 },
@@ -183,15 +165,7 @@
 </script>
 
 <template>
-  <div class="max-w-5xl mx-auto px-4 py-8">
-    <!-- Page header -->
-    <h1 class="text-3xl font-bold m-0 mb-2 text-on-surface">Maturity Matrix</h1>
-
-    <p class="text-on-surface-variant m-0 mb-8 text-base leading-relaxed">
-      Track the stability of every composable and component in @vuetify/v0.
-      Heat levels indicate how battle-tested each primitive is.
-    </p>
-
+  <div>
     <!-- Filter chips -->
     <div class="flex flex-wrap items-center gap-2 mb-4">
       <button
