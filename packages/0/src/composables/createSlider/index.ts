@@ -445,7 +445,7 @@ export function createSlider (options: SliderOptions = {}): SliderContext {
 
   const model = createModel<SliderTicketInput, ModelTicket<SliderTicketInput>>({
     disabled: disabledProp,
-    enroll: false,
+    multiple: true,
     events: true,
   })
 
@@ -493,8 +493,11 @@ export function createSlider (options: SliderOptions = {}): SliderContext {
       value: shallowRef(val),
     })
 
-    // Manually select — model uses single-value select(), we need all thumbs selected
-    model.selectedIds.add(ticket.id)
+    // Ensure thumb is selected even when model is disabled
+    // (disabled prevents slider interaction, not thumb visibility)
+    if (!model.selectedIds.has(ticket.id)) {
+      model.selectedIds.add(ticket.id)
+    }
 
     // Clear pending once all expected values consumed
     if (pending && thumbs.value.length >= pending.length) {

@@ -7,7 +7,8 @@
  *
  * Think of it as a creative way to store a single value — more like
  * `defineModel` than `createSelection`. Selection-specific concepts
- * (mandatory, multiple) belong in createSelection.
+ * (mandatory) belong in createSelection. The `multiple` option here
+ * controls whether `select()` accumulates or replaces.
  *
  * Both Selection and Slider extend this layer:
  * - createRegistry → createModel → createSelection → createSingle/createGroup/createStep
@@ -137,7 +138,8 @@ export interface ModelContext<
    * Select a ticket by ID
    *
    * @param id The ID of the ticket to select.
-   * @remarks Single-value semantics: clears `selectedIds` before adding the new ID.
+   * @remarks When `multiple` is `false` (default), clears `selectedIds` before adding the new ID.
+   * When `multiple` is `true`, accumulates without clearing.
    * No-op if the model instance is disabled, the ticket doesn't exist, or the ticket is disabled.
    *
    * @see https://0.vuetifyjs.com/composables/selection/create-model
@@ -289,6 +291,14 @@ export interface ModelOptions extends RegistryOptions {
    * `multiple`-aware logic.
    */
   enroll?: MaybeRefOrGetter<boolean>
+  /**
+   * Allow multiple tickets to be selected simultaneously
+   *
+   * @default false
+   * @remarks When `true`, `select()` accumulates IDs instead of clearing before adding.
+   * Used by createSlider where all thumbs must stay selected.
+   */
+  multiple?: boolean
 }
 
 /**
@@ -344,6 +354,7 @@ export function createModel<
   const {
     disabled = false,
     enroll = true,
+    multiple = false,
     ...options
   } = _options
 
@@ -370,7 +381,7 @@ export function createModel<
     const item = registry.get(id)
     if (!item || toValue(item.disabled)) return
 
-    selectedIds.clear()
+    if (!multiple) selectedIds.clear()
     selectedIds.add(id)
   }
 
@@ -403,7 +414,7 @@ export function createModel<
     }
 
     // Fallback: browse resolution for static values
-    selectedIds.clear()
+    if (!multiple) selectedIds.clear()
     if (isUndefined(value)) return
 
     const ids = registry.browse(toRaw(value))
