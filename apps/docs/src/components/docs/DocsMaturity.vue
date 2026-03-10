@@ -296,7 +296,7 @@
             v-for="col in table.columns"
             :key="col.key"
             class="py-2 text-left text-xs font-semibold text-on-surface-variant uppercase tracking-wide cursor-pointer select-none hover:text-on-surface transition-colors"
-            :class="col.key === 'name' ? '!pl-9 pr-4' : 'px-4'"
+            :class="col.key === 'name' ? '!pl-8 pr-4' : 'px-4'"
             @click="col.sortable ? table.sort.toggle(col.key) : undefined"
           >
             {{ col.title }}
@@ -345,7 +345,7 @@
             class="bg-surface-variant transition-colors hover:bg-surface-variant/80"
           >
             <!-- Name -->
-            <td class="!pl-9 pr-4 py-2.5 text-sm font-medium text-on-surface truncate">
+            <td class="!pl-8 pr-4 py-2.5 text-sm font-medium text-on-surface truncate">
               {{ item.name }}
             </td>
 
