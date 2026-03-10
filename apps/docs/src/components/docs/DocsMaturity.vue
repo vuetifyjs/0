@@ -116,20 +116,14 @@
     return ''
   }
 
-  // Heat map segments for a group
-  function heatmap (items: MaturityItem[]): { color: string, percent: number }[] {
-    const counts: Record<Level, number> = { draft: 0, experimental: 0, stable: 0, mature: 0, deprecated: 0 }
+  // Overall readiness: lowest level present in the group
+  function readiness (items: MaturityItem[]): Level {
+    let lowest = 4
     for (const item of items) {
-      counts[item.level]++
+      const order = levels[item.level]?.order ?? 0
+      if (order < lowest) lowest = order
     }
-    const total = items.length
-    const segments: { color: string, percent: number }[] = []
-    for (const key of levelKeys) {
-      if (counts[key] > 0) {
-        segments.push({ color: levels[key].color, percent: (counts[key] / total) * 100 })
-      }
-    }
-    return segments
+    return levelKeys[lowest]
   }
 
   // Summary counts
@@ -233,25 +227,18 @@
 
           <span class="text-on-surface-variant font-normal ml-1">({{ group.items.length }})</span>
 
-          <!-- Heat map -->
-          <span class="inline-flex items-center gap-0.5 ml-2">
-            <span
-              v-for="(segment, index) in heatmap(group.items as MaturityItem[])"
-              :key="index"
-              class="size-1.5 rounded-full"
-              :style="{ backgroundColor: segment.color }"
-            />
-          </span>
-
           <span class="flex-1" />
 
-          <span class="flex items-center w-20 h-1 rounded-full overflow-hidden">
-            <span
-              v-for="(segment, index) in heatmap(group.items as MaturityItem[])"
-              :key="index"
-              class="h-full"
-              :style="{ backgroundColor: segment.color, width: segment.percent + '%' }"
-            />
+          <!-- Readiness chip -->
+          <span
+            class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium"
+            :style="{
+              color: levels[readiness(group.items as MaturityItem[])].color,
+              backgroundColor: levels[readiness(group.items as MaturityItem[])].color + '18',
+            }"
+          >
+            <AppIcon :icon="levels[readiness(group.items as MaturityItem[])].icon" :size="12" />
+            {{ levels[readiness(group.items as MaturityItem[])].label }}
           </span>
         </button>
 
