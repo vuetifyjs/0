@@ -129,14 +129,23 @@
     return ''
   }
 
-  // Overall readiness: lowest level present in the group
-  function readiness (items: MaturityItem[]): Level {
-    let lowest = 4
-    for (const item of items) {
-      const order = levels[item.level]?.order ?? 0
-      if (order < lowest) lowest = order
+  // Weighted color blend for a group
+  function blend (items: MaturityItem[]): string {
+    const counts: Record<Level, number> = { draft: 0, experimental: 0, stable: 0, mature: 0, deprecated: 0 }
+    for (const item of items) counts[item.level]++
+    const total = items.length
+    let r = 0
+    let g = 0
+    let b = 0
+    for (const key of levelKeys) {
+      if (counts[key] === 0) continue
+      const weight = counts[key] / total
+      const hex = levels[key].color
+      r += Number.parseInt(hex.slice(1, 3), 16) * weight
+      g += Number.parseInt(hex.slice(3, 5), 16) * weight
+      b += Number.parseInt(hex.slice(5, 7), 16) * weight
     }
-    return levelKeys[lowest]
+    return `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})`
   }
 
   // Summary counts
@@ -278,17 +287,11 @@
 
                 <span class="flex-1" />
 
-                <!-- Readiness chip -->
+                <!-- Blended readiness dot -->
                 <span
-                  class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium"
-                  :style="{
-                    color: levels[readiness(group.items as MaturityItem[])].color,
-                    backgroundColor: levels[readiness(group.items as MaturityItem[])].color + '18',
-                  }"
-                >
-                  <AppIcon :icon="levels[readiness(group.items as MaturityItem[])].icon" :size="12" />
-                  {{ levels[readiness(group.items as MaturityItem[])].label }}
-                </span>
+                  class="size-2 rounded-full shrink-0"
+                  :style="{ backgroundColor: blend(group.items as MaturityItem[]) }"
+                />
               </div>
             </td>
           </tr>
