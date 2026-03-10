@@ -411,7 +411,7 @@
 
       <!-- Total row -->
       <tfoot>
-        <tr>
+        <tr class="bg-surface-tint">
           <td class="px-4 py-3" :colspan="table.columns.length">
             <div class="flex flex-wrap items-center gap-3 text-xs text-on-surface-variant">
               <span
