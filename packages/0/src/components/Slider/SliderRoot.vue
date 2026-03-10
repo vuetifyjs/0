@@ -23,6 +23,7 @@
   import { useToggleScope } from '#v0/composables/useToggleScope'
 
   // Utilities
+  import { isNull } from '#v0/utilities'
   import { shallowRef, toRef, toValue, useAttrs, useId } from 'vue'
 
   // Types
@@ -40,9 +41,9 @@
     /** Track which thumb is currently being dragged */
     dragging: Ref<number | null>
     /** Track element ref for percent calculation */
-    trackElement: Ref<HTMLElement | null>
+    track: Ref<HTMLElement | null>
     /** Start a drag interaction for a thumb */
-    startDrag: (index: number, event: PointerEvent, thumbEl?: HTMLElement) => void
+    onDrag: (index: number, event: PointerEvent, thumbEl?: HTMLElement) => void
   }
 
   export interface SliderRootProps extends AtomProps {
@@ -150,29 +151,28 @@
   useProxyModel(slider, model, { multiple: true })
 
   const dragging = shallowRef<number | null>(null)
-  const trackElement = shallowRef<HTMLElement | null>(null)
+  const track = shallowRef<HTMLElement | null>(null)
 
   const dragOffset = shallowRef(0)
 
   function getPercent (e: PointerEvent): number {
-    const el = trackElement.value
+    const el = track.value
     if (!el) return 0
     const rect = el.getBoundingClientRect()
     const isVertical = toValue(slider.orientation) === 'vertical'
 
-    if (isVertical) {
-      return ((rect.bottom - e.clientY - dragOffset.value) / rect.height) * 100
-    }
-    return ((e.clientX - rect.left - dragOffset.value) / rect.width) * 100
+    return isVertical
+      ? ((rect.bottom - e.clientY - dragOffset.value) / rect.height) * 100
+      : ((e.clientX - rect.left - dragOffset.value) / rect.width) * 100
   }
 
   useToggleScope(
-    () => dragging.value !== null,
+    () => !isNull(dragging.value),
     () => {
       useDocumentEventListener('pointermove', (e: PointerEvent) => {
-        if (dragging.value === null) return
+        if (isNull(dragging.value)) return
         const percent = getPercent(e)
-        slider.setValue(dragging.value, slider.fromPercent(percent))
+        slider.set(dragging.value, slider.fromPercent(percent))
       })
 
       useDocumentEventListener('pointerup', () => {
@@ -183,7 +183,7 @@
     },
   )
 
-  function startDrag (index: number, event: PointerEvent, thumbEl?: HTMLElement): void {
+  function onDrag (index: number, event: PointerEvent, thumbEl?: HTMLElement): void {
     if (toValue(disabled)) return
     if (toValue(readonlyProp)) return
     if (event.button !== 0) return
@@ -209,8 +209,8 @@
     name,
     form,
     dragging,
-    trackElement,
-    startDrag,
+    track,
+    onDrag,
   }
 
   provideSliderRoot(namespace, context)

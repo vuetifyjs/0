@@ -10,7 +10,7 @@ function setup (options?: SliderOptions) {
   return {
     slider,
     addThumb (value?: number) {
-      return slider.registerThumb(value)
+      return slider.register(value)
     },
   }
 }
@@ -37,19 +37,19 @@ describe('createSlider', () => {
     })
   })
 
-  describe('percent', () => {
+  describe('fromValue', () => {
     it('converts value to percentage', () => {
       const { slider } = setup({ min: 0, max: 100 })
-      expect(slider.percent(0)).toBe(0)
-      expect(slider.percent(50)).toBe(50)
-      expect(slider.percent(100)).toBe(100)
+      expect(slider.fromValue(0)).toBe(0)
+      expect(slider.fromValue(50)).toBe(50)
+      expect(slider.fromValue(100)).toBe(100)
     })
 
     it('handles custom min/max', () => {
       const { slider } = setup({ min: 20, max: 80 })
-      expect(slider.percent(20)).toBe(0)
-      expect(slider.percent(50)).toBe(50)
-      expect(slider.percent(80)).toBe(100)
+      expect(slider.fromValue(20)).toBe(0)
+      expect(slider.fromValue(50)).toBe(50)
+      expect(slider.fromValue(80)).toBe(100)
     })
   })
 
@@ -62,18 +62,18 @@ describe('createSlider', () => {
     })
   })
 
-  describe('setValue', () => {
+  describe('set', () => {
     it('sets value at index', () => {
       const { slider, addThumb } = setup({ min: 0, max: 100, step: 1 })
       addThumb(50)
-      slider.setValue(0, 75)
+      slider.set(0, 75)
       expect(slider.values.value).toEqual([75])
     })
 
     it('clamps value to min/max', () => {
       const { slider, addThumb } = setup({ min: 0, max: 100 })
       addThumb(50)
-      slider.setValue(0, 150)
+      slider.set(0, 150)
       expect(slider.values.value).toEqual([100])
     })
 
@@ -81,60 +81,60 @@ describe('createSlider', () => {
       const { slider, addThumb } = setup({ min: 0, max: 100, step: 1, minStepsBetweenThumbs: 10 })
       addThumb(30)
       addThumb(70)
-      slider.setValue(0, 65)
+      slider.set(0, 65)
       expect(slider.values.value[0]).toBe(60)
     })
 
     it('snaps to step', () => {
       const { slider, addThumb } = setup({ min: 0, max: 100, step: 5 })
       addThumb(50)
-      slider.setValue(0, 53)
+      slider.set(0, 53)
       expect(slider.values.value).toEqual([55])
     })
   })
 
-  describe('stepUp / stepDown', () => {
+  describe('up / down', () => {
     it('increments by one step', () => {
       const { slider, addThumb } = setup({ min: 0, max: 100, step: 5 })
       addThumb(50)
-      slider.stepUp(0)
+      slider.up(0)
       expect(slider.values.value).toEqual([55])
     })
 
     it('decrements by one step', () => {
       const { slider, addThumb } = setup({ min: 0, max: 100, step: 5 })
       addThumb(50)
-      slider.stepDown(0)
+      slider.down(0)
       expect(slider.values.value).toEqual([45])
     })
 
     it('supports multiplier', () => {
       const { slider, addThumb } = setup({ min: 0, max: 100, step: 1 })
       addThumb(50)
-      slider.stepUp(0, 10)
+      slider.up(0, 10)
       expect(slider.values.value).toEqual([60])
     })
 
     it('clamps at boundaries', () => {
       const { slider, addThumb } = setup({ min: 0, max: 100, step: 10 })
       addThumb(100)
-      slider.stepUp(0)
+      slider.up(0)
       expect(slider.values.value).toEqual([100])
     })
   })
 
-  describe('setToMin / setToMax', () => {
+  describe('floor / ceil', () => {
     it('sets to min', () => {
       const { slider, addThumb } = setup({ min: 10, max: 90 })
       addThumb(50)
-      slider.setToMin(0)
+      slider.floor(0)
       expect(slider.values.value).toEqual([10])
     })
 
     it('sets to max', () => {
       const { slider, addThumb } = setup({ min: 10, max: 90 })
       addThumb(50)
-      slider.setToMax(0)
+      slider.ceil(0)
       expect(slider.values.value).toEqual([90])
     })
   })
@@ -151,9 +151,9 @@ describe('createSlider', () => {
   describe('inverted', () => {
     it('flips percent calculation', () => {
       const { slider } = setup({ min: 0, max: 100, inverted: true })
-      expect(slider.percent(25)).toBe(75)
-      expect(slider.percent(0)).toBe(100)
-      expect(slider.percent(100)).toBe(0)
+      expect(slider.fromValue(25)).toBe(75)
+      expect(slider.fromValue(0)).toBe(100)
+      expect(slider.fromValue(100)).toBe(0)
     })
 
     it('flips fromPercent', () => {
@@ -162,7 +162,7 @@ describe('createSlider', () => {
     })
   })
 
-  describe('registerThumb', () => {
+  describe('register', () => {
     it('registers a thumb with initial value', () => {
       const { slider, addThumb } = setup()
       addThumb(50)
@@ -183,12 +183,12 @@ describe('createSlider', () => {
     })
   })
 
-  describe('unregisterThumb', () => {
+  describe('unregister', () => {
     it('removes a thumb', () => {
       const { slider, addThumb } = setup()
       const ticket = addThumb(50)
       addThumb(75)
-      slider.unregisterThumb(ticket.id)
+      slider.unregister(ticket.id)
       expect(slider.values.value).toEqual([75])
     })
   })

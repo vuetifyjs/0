@@ -55,7 +55,7 @@
   // Register track element with root for percent calculation
   // Atom exposes { element } via defineExpose, not the raw HTMLElement
   watchEffect(() => {
-    root.trackElement.value = trackRef.value?.element ?? null
+    root.track.value = trackRef.value?.element ?? null
   })
 
   function nearest (value: number): number {
@@ -86,8 +86,8 @@
 
     const value = root.fromPercent(percent)
     const index = nearest(value)
-    root.setValue(index, value)
-    root.startDrag(index, e)
+    root.set(index, value)
+    root.onDrag(index, e)
   }
 
   const slotProps = toRef((): SliderTrackSlotProps => ({

@@ -84,15 +84,15 @@
   const root = useSliderRoot(namespace)
   const thumbRef = useTemplateRef<{ element: HTMLElement | null }>('thumb')
 
-  const ticket = root.registerThumb()
+  const ticket = root.register()
 
   onUnmounted(() => {
-    root.unregisterThumb(ticket.id)
+    root.unregister(ticket.id)
   })
 
   const index = toRef(() => ticket.index)
   const value = toRef(() => toValue(ticket.value))
-  const pct = toRef(() => root.percent(value.value))
+  const pct = toRef(() => root.fromValue(value.value))
   const isDragging = toRef(() => root.dragging.value === index.value)
   const isDisabled = toRef(() => toValue(root.disabled))
   const isReadonly = toRef(() => toValue(root.readonly))
@@ -111,7 +111,7 @@
   })
 
   function onPointerdown (e: PointerEvent) {
-    root.startDrag(index.value, e, thumbRef.value?.element ?? undefined)
+    root.onDrag(index.value, e, thumbRef.value?.element ?? undefined)
   }
 
   function onKeydown (e: KeyboardEvent) {
@@ -120,22 +120,22 @@
     const isInverted = toValue(root.inverted)
 
     const actions: Record<string, () => void> = {
-      ArrowRight: () => isInverted ? root.stepDown(index.value) : root.stepUp(index.value),
-      ArrowUp: () => root.stepUp(index.value),
-      ArrowLeft: () => isInverted ? root.stepUp(index.value) : root.stepDown(index.value),
-      ArrowDown: () => root.stepDown(index.value),
-      PageUp: () => root.stepUp(index.value, 10),
-      PageDown: () => root.stepDown(index.value, 10),
-      Home: () => root.setToMin(index.value),
-      End: () => root.setToMax(index.value),
+      ArrowRight: () => isInverted ? root.down(index.value) : root.up(index.value),
+      ArrowUp: () => root.up(index.value),
+      ArrowLeft: () => isInverted ? root.up(index.value) : root.down(index.value),
+      ArrowDown: () => root.down(index.value),
+      PageUp: () => root.up(index.value, 10),
+      PageDown: () => root.down(index.value, 10),
+      Home: () => root.floor(index.value),
+      End: () => root.ceil(index.value),
     }
 
     // Shift + Arrow = 10x step
     if (e.shiftKey && e.key.startsWith('Arrow')) {
       e.preventDefault()
-      const base = e.key === 'ArrowRight' || e.key === 'ArrowUp' ? 'stepUp' : 'stepDown'
+      const base = e.key === 'ArrowRight' || e.key === 'ArrowUp' ? 'up' : 'down'
       const method = (e.key === 'ArrowRight' || e.key === 'ArrowLeft') && isInverted
-        ? (base === 'stepUp' ? 'stepDown' : 'stepUp')
+        ? (base === 'up' ? 'down' : 'up')
         : base
       root[method](index.value, 10)
       return

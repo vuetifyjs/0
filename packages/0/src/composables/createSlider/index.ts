@@ -57,7 +57,7 @@ export interface SliderOptions {
 
 export interface SliderContext extends Omit<
   ModelContext<SliderTicketInput, ModelTicket<SliderTicketInput>>,
-  'values' | 'selectedValues' | 'apply' | 'disabled'
+  'values' | 'selectedValues' | 'apply' | 'disabled' | 'register'
 > {
   /** Ordered thumb values derived from model tickets */
   values: ComputedRef<number[]>
@@ -86,25 +86,25 @@ export interface SliderContext extends Omit<
   /** Whether this is a range slider */
   readonly range: boolean
   /** Register a thumb, returns its ticket */
-  registerThumb: (initialValue?: number) => ModelTicket<SliderTicketInput>
+  register: (initialValue?: number) => ModelTicket<SliderTicketInput>
   /** Unregister a thumb by ticket ID */
-  unregisterThumb: (id: ID) => void
+  unregister: (id: ID) => void
   /** Round value to nearest step, clamped to min/max */
   snap: (value: number) => number
   /** Convert value to 0-100 percentage (respects inverted) */
-  percent: (value: number) => number
+  fromValue: (value: number) => number
   /** Convert 0-100 percentage to snapped value (respects inverted) */
   fromPercent: (percent: number) => number
   /** Set value at thumb index with constraints */
-  setValue: (index: number, value: number) => void
+  set: (index: number, value: number) => void
   /** Increment thumb value by step x multiplier */
-  stepUp: (index: number, multiplier?: number) => void
+  up: (index: number, multiplier?: number) => void
   /** Decrement thumb value by step x multiplier */
-  stepDown: (index: number, multiplier?: number) => void
+  down: (index: number, multiplier?: number) => void
   /** Set thumb to minimum value */
-  setToMin: (index: number) => void
+  floor: (index: number) => void
   /** Set thumb to maximum value */
-  setToMax: (index: number) => void
+  ceil: (index: number) => void
 }
 
 /**
@@ -120,9 +120,9 @@ export interface SliderContext extends Omit<
  * @example
  * ```ts
  * const slider = createSlider({ min: 0, max: 100, step: 5 })
- * const ticket = slider.registerThumb(50)
- * slider.stepUp(0)       // values: [55]
- * slider.percent(50)     // 50
+ * const ticket = slider.register(50)
+ * slider.up(0)           // values: [55]
+ * slider.fromValue(50)   // 50
  * ```
  */
 export function createSlider (options: SliderOptions = {}): SliderContext {
@@ -142,6 +142,7 @@ export function createSlider (options: SliderOptions = {}): SliderContext {
   const model = createModel<SliderTicketInput, ModelTicket<SliderTicketInput>>({
     disabled: disabledProp,
     enroll: false,
+    events: true,
   })
 
   const disabled = toRef(() => toValue(disabledProp))
@@ -167,7 +168,7 @@ export function createSlider (options: SliderOptions = {}): SliderContext {
     return clamp(min + steps * step, min, max)
   }
 
-  function percent (value: number): number {
+  function fromValue (value: number): number {
     if (extent === 0) return 0
     const p = ((value - min) / extent) * 100
     return inverted.value ? 100 - p : p
@@ -178,7 +179,7 @@ export function createSlider (options: SliderOptions = {}): SliderContext {
     return snap(min + (adjusted / 100) * extent)
   }
 
-  function registerThumb (initialValue?: number): ModelTicket<SliderTicketInput> {
+  function register (initialValue?: number): ModelTicket<SliderTicketInput> {
     const thumbIndex = thumbs.value.length
     const pendingValue = pending?.[thumbIndex]
     const val = pendingValue === undefined ? snap(initialValue ?? min) : snap(pendingValue)
@@ -196,10 +197,6 @@ export function createSlider (options: SliderOptions = {}): SliderContext {
     }
 
     return ticket
-  }
-
-  function unregisterThumb (id: ID): void {
-    model.unregister(id)
   }
 
   function apply (incoming: unknown[], _options?: { multiple?: boolean }): void {
@@ -229,7 +226,7 @@ export function createSlider (options: SliderOptions = {}): SliderContext {
     }
   }
 
-  function setValue (index: number, value: number): void {
+  function set (index: number, value: number): void {
     if (readonly.value) return
     const snapped = snap(value)
     const current = values.value
@@ -256,20 +253,20 @@ export function createSlider (options: SliderOptions = {}): SliderContext {
     }
   }
 
-  function stepUp (index: number, multiplier = 1): void {
-    setValue(index, (values.value[index] ?? min) + step * multiplier)
+  function up (index: number, multiplier = 1): void {
+    set(index, (values.value[index] ?? min) + step * multiplier)
   }
 
-  function stepDown (index: number, multiplier = 1): void {
-    setValue(index, (values.value[index] ?? min) - step * multiplier)
+  function down (index: number, multiplier = 1): void {
+    set(index, (values.value[index] ?? min) - step * multiplier)
   }
 
-  function setToMin (index: number): void {
-    setValue(index, min)
+  function floor (index: number): void {
+    set(index, min)
   }
 
-  function setToMax (index: number): void {
-    setValue(index, max)
+  function ceil (index: number): void {
+    set(index, max)
   }
 
   return {
@@ -287,16 +284,15 @@ export function createSlider (options: SliderOptions = {}): SliderContext {
     readonly,
     orientation,
     inverted,
-    registerThumb,
-    unregisterThumb,
+    register,
     snap,
-    percent,
+    fromValue,
     fromPercent,
-    setValue,
-    stepUp,
-    stepDown,
-    setToMin,
-    setToMax,
+    set,
+    up,
+    down,
+    floor,
+    ceil,
     get size () {
       return model.size
     },
