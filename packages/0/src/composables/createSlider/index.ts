@@ -184,13 +184,13 @@ export interface SliderContext extends Omit<
    */
   apply: (values: unknown[], options?: { multiple?: boolean }) => void
   /** Whether disabled. Reactive ref derived from the `disabled` option. */
-  disabled: Ref<boolean>
+  disabled: Readonly<Ref<boolean>>
   /** Whether readonly. Reactive ref derived from the `readonly` option. */
-  readonly: Ref<boolean>
+  readonly: Readonly<Ref<boolean>>
   /** Slider orientation. Reactive ref derived from the `orientation` option. */
-  orientation: Ref<'horizontal' | 'vertical'>
+  orientation: Readonly<Ref<'horizontal' | 'vertical'>>
   /** Whether inverted. Reactive ref derived from the `inverted` option. */
-  inverted: Ref<boolean>
+  inverted: Readonly<Ref<boolean>>
   /** Minimum value. */
   readonly min: number
   /** Maximum value. */
