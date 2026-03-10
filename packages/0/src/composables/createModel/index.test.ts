@@ -599,6 +599,18 @@ describe('createModel', () => {
       expect(model.selectedIds.size).toBe(1)
       expect(model.selectedIds.has('item-2')).toBe(true)
     })
+
+    it('should preserve existing selections during apply', () => {
+      const model = createModel({ multiple: true, enroll: false })
+      model.register({ id: 'item-1', value: 'val-1' })
+      model.register({ id: 'item-2', value: 'val-2' })
+
+      model.select('item-1')
+      model.apply(['val-2'])
+
+      expect(model.selectedIds.has('item-1')).toBe(true)
+      expect(model.selectedIds.has('item-2')).toBe(true)
+    })
   })
 
   describe('disabled', () => {
