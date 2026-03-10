@@ -106,6 +106,7 @@ declare module 'vue' {
     DocsKbd: typeof import('./components/docs/DocsKbd.vue')['default']
     DocsLastCommit: typeof import('./components/docs/DocsLastCommit.vue')['default']
     DocsMarkup: typeof import('./components/docs/DocsMarkup.vue')['default']
+    DocsMaturity: typeof import('./components/docs/DocsMaturity.vue')['default']
     DocsMermaid: typeof import('./components/docs/DocsMermaid.vue')['default']
     DocsMetaBenchmark: typeof import('./components/docs/meta/DocsMetaBenchmark.vue')['default']
     DocsMetaCoverage: typeof import('./components/docs/meta/DocsMetaCoverage.vue')['default']

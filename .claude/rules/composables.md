@@ -54,6 +54,7 @@ registry.browse('foo')      // Find ID(s) by value
 registry.lookup(0)          // Get ID by index
 registry.upsert('item-1', {...})
 registry.unregister('item-1')
+registry.move('item-1', 2)  // Move to index 2
 registry.onboard([...])     // Bulk register
 ```
 

@@ -562,6 +562,57 @@ describe('createModel', () => {
     })
   })
 
+  describe('multiple', () => {
+    it('should accumulate selections without clearing', () => {
+      const model = createModel({ multiple: true, enroll: false })
+      model.register({ id: 'item-1', value: 'val-1' })
+      model.register({ id: 'item-2', value: 'val-2' })
+      model.register({ id: 'item-3', value: 'val-3' })
+
+      model.select('item-1')
+      model.select('item-2')
+      model.select('item-3')
+
+      expect(model.selectedIds.size).toBe(3)
+      expect(model.selectedIds.has('item-1')).toBe(true)
+      expect(model.selectedIds.has('item-2')).toBe(true)
+      expect(model.selectedIds.has('item-3')).toBe(true)
+    })
+
+    it('should enroll all registered tickets when combined with enroll', () => {
+      const model = createModel({ multiple: true })
+      model.register({ id: 'item-1', value: 'val-1' })
+      model.register({ id: 'item-2', value: 'val-2' })
+      model.register({ id: 'item-3', value: 'val-3' })
+
+      expect(model.selectedIds.size).toBe(3)
+      expect(model.selectedIds.has('item-1')).toBe(true)
+      expect(model.selectedIds.has('item-2')).toBe(true)
+      expect(model.selectedIds.has('item-3')).toBe(true)
+    })
+
+    it('should default to single-value behavior when multiple is false', () => {
+      const model = createModel({ multiple: false })
+      model.register({ id: 'item-1', value: 'val-1' })
+      model.register({ id: 'item-2', value: 'val-2' })
+
+      expect(model.selectedIds.size).toBe(1)
+      expect(model.selectedIds.has('item-2')).toBe(true)
+    })
+
+    it('should preserve existing selections during apply', () => {
+      const model = createModel({ multiple: true, enroll: false })
+      model.register({ id: 'item-1', value: 'val-1' })
+      model.register({ id: 'item-2', value: 'val-2' })
+
+      model.select('item-1')
+      model.apply(['val-2'])
+
+      expect(model.selectedIds.has('item-1')).toBe(true)
+      expect(model.selectedIds.has('item-2')).toBe(true)
+    })
+  })
+
   describe('disabled', () => {
     it('should expose disabled property on context', () => {
       const model = createModel({ disabled: true })
