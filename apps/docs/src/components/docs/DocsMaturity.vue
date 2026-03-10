@@ -414,10 +414,6 @@
         <tr>
           <td class="px-4 py-3" :colspan="table.columns.length">
             <div class="flex flex-wrap items-center gap-3 text-xs text-on-surface-variant">
-              <span class="font-semibold text-on-surface">
-                {{ filtered.length }} total
-              </span>
-
               <span
                 v-for="(config, key) in levels"
                 :key="key"
@@ -426,6 +422,12 @@
               >
                 <AppIcon :icon="config.icon" :size="12" />
                 {{ summary[key] }} {{ config.label.toLowerCase() }}
+              </span>
+
+              <span class="flex-1" />
+
+              <span class="font-semibold text-on-surface">
+                {{ filtered.length }} total
               </span>
             </div>
           </td>
