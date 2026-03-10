@@ -42,6 +42,6 @@
     :name="root.name"
     tabindex="-1"
     type="hidden"
-    :value="value"
+    :value
   >
 </template>

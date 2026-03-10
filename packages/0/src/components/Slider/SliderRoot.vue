@@ -247,7 +247,7 @@
     <SliderHiddenInput
       v-for="(_, index) in slider.values.value"
       :key="index"
-      :index="index"
+      :index
     />
   </template>
 </template>
