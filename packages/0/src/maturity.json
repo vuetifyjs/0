@@ -16,10 +16,9 @@
       "category": "foundation"
     },
     "createSelection": {
-      "level": "mature",
+      "level": "preview",
       "since": "0.1.0",
-      "category": "selection",
-      "notes": "Used in Vuetify 4 selection system"
+      "category": "selection"
     },
     "createSingle": {
       "level": "preview",
@@ -43,16 +42,14 @@
       "notes": "Recently redesigned from selection system"
     },
     "createNested": {
-      "level": "mature",
+      "level": "preview",
       "since": "0.1.0",
-      "category": "selection",
-      "notes": "Used in Vuetify 4 nested navigation"
+      "category": "selection"
     },
     "createRegistry": {
-      "level": "mature",
+      "level": "preview",
       "since": "0.1.0",
-      "category": "registration",
-      "notes": "Core registry pattern used across framework"
+      "category": "registration"
     },
     "createQueue": {
       "level": "preview",
@@ -65,10 +62,9 @@
       "category": "registration"
     },
     "createTokens": {
-      "level": "mature",
+      "level": "preview",
       "since": "0.1.0",
-      "category": "registration",
-      "notes": "Used in Vuetify 4 theming"
+      "category": "registration"
     },
     "createForm": {
       "level": "preview",
@@ -91,10 +87,9 @@
       "category": "data"
     },
     "createVirtual": {
-      "level": "mature",
+      "level": "preview",
       "since": "0.1.0",
-      "category": "data",
-      "notes": "Used in Vuetify 4 virtual scrolling"
+      "category": "data"
     },
     "createBreadcrumbs": {
       "level": "preview",
@@ -118,10 +113,9 @@
       "category": "plugins"
     },
     "useDate": {
-      "level": "mature",
+      "level": "preview",
       "since": "0.1.0",
-      "category": "plugins",
-      "notes": "Used in Vuetify 4 date pickers"
+      "category": "plugins"
     },
     "useFeatures": {
       "level": "preview",
@@ -179,17 +173,17 @@
       "category": "system"
     },
     "useIntersectionObserver": {
-      "level": "preview",
+      "level": "stable",
       "since": "0.1.0",
       "category": "system"
     },
     "useMutationObserver": {
-      "level": "preview",
+      "level": "stable",
       "since": "0.1.0",
       "category": "system"
     },
     "useResizeObserver": {
-      "level": "preview",
+      "level": "stable",
       "since": "0.1.0",
       "category": "system"
     },
