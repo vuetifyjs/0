@@ -233,125 +233,127 @@
     </div>
 
     <!-- Data table -->
-    <div class="overflow-hidden mb-6">
-      <template v-for="group in table.grouping.groups.value" :key="group.key">
-        <!-- Group header -->
-        <button
-          class="w-full flex items-center gap-2 px-4 py-2.5 bg-surface-variant text-on-surface font-semibold text-sm cursor-pointer border-0 text-left transition-colors hover:bg-surface-variant/80"
-          @click="table.grouping.toggle(group.key)"
-        >
-          <AppIcon
-            class="transition-transform"
-            :class="table.grouping.isOpen(group.key) ? 'rotate-90' : ''"
-            icon="chevron-right"
-            :size="14"
-          />
+    <table class="w-full border-collapse table-fixed mb-6">
+      <colgroup>
+        <col class="w-[30%]">
+        <col class="w-[18%]">
+        <col class="w-[20%]">
+        <col class="w-[20%]">
+        <col class="w-[12%]">
+      </colgroup>
 
-          <span class="capitalize">{{ group.key }}</span>
-
-          <span class="text-on-surface-variant font-normal ml-1">({{ group.items.length }})</span>
-
-          <span class="flex-1" />
-
-          <!-- Readiness chip -->
-          <span
-            class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium"
-            :style="{
-              color: levels[readiness(group.items as MaturityItem[])].color,
-              backgroundColor: levels[readiness(group.items as MaturityItem[])].color + '18',
-            }"
+      <thead>
+        <tr>
+          <th
+            v-for="col in table.columns"
+            :key="col.key"
+            class="px-4 py-2 text-left text-xs font-semibold text-on-surface-variant uppercase tracking-wide cursor-pointer select-none hover:text-on-surface transition-colors"
+            @click="col.sortable ? table.sort.toggle(col.key) : undefined"
           >
-            <AppIcon :icon="levels[readiness(group.items as MaturityItem[])].icon" :size="12" />
-            {{ levels[readiness(group.items as MaturityItem[])].label }}
-          </span>
-        </button>
+            {{ col.title }}
+            <span v-if="col.sortable" class="ml-0.5 text-primary">{{ sortIcon(col.key) }}</span>
+          </th>
+        </tr>
+      </thead>
+
+      <template v-for="group in table.grouping.groups.value" :key="group.key">
+        <!-- Group header row -->
+        <tbody>
+          <tr
+            class="bg-surface-variant cursor-pointer transition-colors hover:bg-surface-variant/80"
+            @click="table.grouping.toggle(group.key)"
+          >
+            <td class="px-4 py-2.5" :colspan="table.columns.length">
+              <div class="flex items-center gap-2 text-sm font-semibold text-on-surface">
+                <AppIcon
+                  class="transition-transform"
+                  :class="table.grouping.isOpen(group.key) ? 'rotate-90' : ''"
+                  icon="chevron-right"
+                  :size="14"
+                />
+
+                <span class="capitalize">{{ group.key }}</span>
+
+                <span class="text-on-surface-variant font-normal">({{ group.items.length }})</span>
+
+                <span class="flex-1" />
+
+                <!-- Readiness chip -->
+                <span
+                  class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium"
+                  :style="{
+                    color: levels[readiness(group.items as MaturityItem[])].color,
+                    backgroundColor: levels[readiness(group.items as MaturityItem[])].color + '18',
+                  }"
+                >
+                  <AppIcon :icon="levels[readiness(group.items as MaturityItem[])].icon" :size="12" />
+                  {{ levels[readiness(group.items as MaturityItem[])].label }}
+                </span>
+              </div>
+            </td>
+          </tr>
+        </tbody>
 
         <!-- Group items -->
-        <table
-          v-if="table.grouping.isOpen(group.key)"
-          class="w-full border-collapse table-fixed"
-        >
-          <colgroup>
-            <col class="w-[30%]">
-            <col class="w-[18%]">
-            <col class="w-[20%]">
-            <col class="w-[20%]">
-            <col class="w-[12%]">
-          </colgroup>
+        <tbody v-if="table.grouping.isOpen(group.key)">
+          <tr
+            v-for="item in group.items"
+            :key="item.id"
+            class="transition-colors hover:bg-surface-variant/30"
+          >
+            <!-- Name -->
+            <td class="px-4 py-2.5 text-sm font-medium text-on-surface truncate">
+              {{ item.name }}
+            </td>
 
-          <thead>
-            <tr>
-              <th
-                v-for="col in table.columns"
-                :key="col.key"
-                class="px-4 py-2 text-left text-xs font-semibold text-on-surface-variant uppercase tracking-wide cursor-pointer select-none hover:text-on-surface transition-colors"
-                @click="col.sortable ? table.sort.toggle(col.key) : undefined"
+            <!-- Type badge -->
+            <td class="px-4 py-2.5">
+              <span
+                class="inline-block px-2 py-0.5 rounded-full text-xs font-medium"
+                :class="item.type === 'composable'
+                  ? 'bg-primary/15 text-primary'
+                  : 'bg-accent/15 text-accent'"
               >
-                {{ col.title }}
-                <span v-if="col.sortable" class="ml-0.5 text-primary">{{ sortIcon(col.key) }}</span>
-              </th>
-            </tr>
-          </thead>
+                {{ item.type }}
+              </span>
+            </td>
 
-          <tbody>
-            <tr
-              v-for="item in group.items"
-              :key="item.id"
-              class="transition-colors hover:bg-surface-variant/30"
-            >
-              <!-- Name -->
-              <td class="px-4 py-2.5 text-sm font-medium text-on-surface truncate">
-                {{ item.name }}
-              </td>
+            <!-- Category -->
+            <td class="px-4 py-2.5 text-sm text-on-surface-variant capitalize">
+              {{ item.category }}
+            </td>
 
-              <!-- Type badge -->
-              <td class="px-4 py-2.5">
-                <span
-                  class="inline-block px-2 py-0.5 rounded-full text-xs font-medium"
-                  :class="item.type === 'composable'
-                    ? 'bg-primary/15 text-primary'
-                    : 'bg-accent/15 text-accent'"
-                >
-                  {{ item.type }}
-                </span>
-              </td>
+            <!-- Level badge -->
+            <td class="px-4 py-2.5">
+              <span
+                class="inline-flex items-center gap-1"
+                :style="{ color: levels[item.level]?.color }"
+              >
+                <AppIcon :icon="levels[item.level]?.icon" :size="16" />
+                <span class="text-xs font-medium">{{ levels[item.level]?.label }}</span>
+              </span>
+            </td>
 
-              <!-- Category -->
-              <td class="px-4 py-2.5 text-sm text-on-surface-variant capitalize">
-                {{ item.category }}
-              </td>
-
-              <!-- Level badge -->
-              <td class="px-4 py-2.5">
-                <span
-                  class="inline-flex items-center gap-1"
-                  :style="{ color: levels[item.level]?.color }"
-                >
-                  <AppIcon :icon="levels[item.level]?.icon" :size="16" />
-                  <span class="text-xs font-medium">{{ levels[item.level]?.label }}</span>
-                </span>
-              </td>
-
-              <!-- Since -->
-              <td class="px-4 py-2.5 text-sm font-mono">
-                <a
-                  class="text-primary no-underline hover:underline"
-                  :href="`/releases/?version=v${item.since}`"
-                >v{{ item.since }}</a>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+            <!-- Since -->
+            <td class="px-4 py-2.5 text-sm font-mono">
+              <a
+                class="text-primary no-underline hover:underline"
+                :href="`/releases/?version=v${item.since}`"
+              >v{{ item.since }}</a>
+            </td>
+          </tr>
+        </tbody>
       </template>
 
       <!-- Empty state -->
-      <div
-        v-if="table.grouping.groups.value.length === 0"
-        class="px-4 py-8 text-center text-on-surface-variant text-sm"
-      >
-        No items match your search or filters.
-      </div>
-    </div>
+      <tbody v-if="table.grouping.groups.value.length === 0">
+        <tr>
+          <td class="px-4 py-8 text-center text-on-surface-variant text-sm" :colspan="table.columns.length">
+            No items match your search or filters.
+          </td>
+        </tr>
+      </tbody>
+    </table>
 
     <!-- Summary bar -->
     <div class="flex flex-wrap items-center gap-4 px-4 py-3 rounded-lg bg-surface-variant/50 mb-8 text-sm">
