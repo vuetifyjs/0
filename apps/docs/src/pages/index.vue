@@ -4,9 +4,9 @@
   useHead({
     title: 'The AI-Native Headless Framework for Vue',
     meta: [
-      { key: 'description', name: 'description', content: 'Build custom design systems with Vuetify0. Accessible composable-first headless Vue 3 primitives with published benchmarks, MCP integration, and zero styling opinions.' },
+      { key: 'description', name: 'description', content: 'Build custom design systems with Vuetify0. Headless, composable-first components for Vue with published benchmarks, MCP integration, and zero styling opinions.' },
       { key: 'og:title', property: 'og:title', content: 'Vuetify0 - The AI-Native Headless Framework for Vue' },
-      { key: 'og:description', property: 'og:description', content: 'Accessible composable-first primitives with AI-integrated docs, published benchmarks, and the backing of Vuetify.' },
+      { key: 'og:description', property: 'og:description', content: 'Headless, composable-first components for Vue with AI-integrated docs, published benchmarks, and the backing of Vuetify.' },
     ],
   })
 </script>

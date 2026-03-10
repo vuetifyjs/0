@@ -68,7 +68,7 @@
     </h1>
 
     <p class="relative text-lg md:text-xl opacity-60 max-w-[640px] mx-auto mb-10 leading-relaxed">
-      Accessible composable-first primitives with AI-integrated docs, published benchmarks, and the backing of Vuetify.
+      Headless, composable-first components for Vue with AI-integrated docs, published benchmarks, and the backing of Vuetify.
     </p>
 
     <div class="relative flex flex-col items-center gap-6 mb-16">
