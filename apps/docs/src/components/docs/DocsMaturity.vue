@@ -308,11 +308,19 @@
       </thead>
 
       <template v-for="(group, index) in table.grouping.groups.value" :key="group.key">
+        <!-- Group divider -->
+        <tbody v-if="index > 0">
+          <tr>
+            <td class="!p-0" :colspan="table.columns.length">
+              <hr class="border-divider m-0">
+            </td>
+          </tr>
+        </tbody>
+
         <!-- Group header row -->
         <tbody>
           <tr
             class="cursor-pointer transition-colors hover:bg-surface-variant/30"
-            :class="index > 0 ? 'border-t border-divider' : ''"
             @click="table.grouping.toggle(group.key)"
           >
             <td class="px-4 py-2.5" :colspan="table.columns.length">
