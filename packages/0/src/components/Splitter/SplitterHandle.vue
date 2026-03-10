@@ -121,6 +121,7 @@
     startPosition.value = isHorizontal.value ? e.clientX : e.clientY
     if (IN_BROWSER) {
       document.documentElement.style.userSelect = 'none'
+      document.documentElement.style.touchAction = 'none'
     }
     splitter.onStartDrag(ticket.index)
   }
@@ -149,6 +150,7 @@
       rafId = 0
       if (IN_BROWSER) {
         document.documentElement.style.userSelect = ''
+        document.documentElement.style.touchAction = ''
       }
       splitter.onEndDrag()
     })
@@ -159,6 +161,7 @@
       splitter.onEndDrag()
       if (IN_BROWSER) {
         document.documentElement.style.userSelect = ''
+        document.documentElement.style.touchAction = ''
       }
     })
   })
