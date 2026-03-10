@@ -309,5 +309,72 @@
       "since": "0.1.0",
       "category": "providers"
     }
+  },
+  "utilities": {
+    "isFunction": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "type-guards"
+    },
+    "isString": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "type-guards"
+    },
+    "isNumber": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "type-guards"
+    },
+    "isBoolean": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "type-guards"
+    },
+    "isObject": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "type-guards"
+    },
+    "isArray": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "type-guards"
+    },
+    "isNull": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "type-guards"
+    },
+    "isUndefined": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "type-guards"
+    },
+    "isNullOrUndefined": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "type-guards"
+    },
+    "isPrimitive": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "type-guards"
+    },
+    "isSymbol": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "type-guards"
+    },
+    "isNaN": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "type-guards"
+    },
+    "isElement": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "type-guards"
+    }
   }
 }

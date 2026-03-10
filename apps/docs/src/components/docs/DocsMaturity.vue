@@ -2,19 +2,20 @@
   import maturityData from '#v0/maturity.json'
 
   // Framework
-  import { createDataTable } from '@vuetify/v0'
+  import { createDataTable, createGroup, createSingle } from '@vuetify/v0'
 
   // Utilities
-  import { shallowRef, toRef } from 'vue'
+  import { toRef } from 'vue'
   import { RouterLink } from 'vue-router'
 
   // Types
   type Level = 'draft' | 'preview' | 'stable' | 'mature' | 'deprecated'
+  type ItemType = 'composable' | 'component' | 'utility'
 
   interface MaturityItem extends Record<string, unknown> {
     id: string
     name: string
-    type: 'composable' | 'component'
+    type: ItemType
     category: string
     level: Level
     since: string
@@ -66,45 +67,56 @@
       })
     }
 
+    for (const [name, entry] of Object.entries(maturityData.utilities)) {
+      result.push({
+        id: `utility-${name}`,
+        name,
+        type: 'utility',
+        category: entry.category,
+        level: entry.level,
+        since: entry.since,
+        levelOrder: levels[entry.level as Level]?.order ?? -1,
+        path: '/utilities',
+      })
+    }
+
     return result
   }
 
   const allItems = flatten()
 
   // Type filter
-  type ItemType = 'composable' | 'component'
-  const activeType = shallowRef<ItemType | null>(null)
-
-  function onToggleType (type: ItemType) {
-    activeType.value = activeType.value === type ? null : type
+  const typeConfig: Record<ItemType, { icon: string, active: string, label: string }> = {
+    composable: { icon: 'code', active: 'border-primary bg-primary/15 text-primary', label: 'Composables' },
+    component: { icon: 'puzzle', active: 'border-info bg-info/15 text-info', label: 'Components' },
+    utility: { icon: 'typescript', active: 'border-success bg-success/15 text-success', label: 'Utilities' },
   }
 
-  // Level filter chips state
-  const activeFilters = shallowRef(new Set<Level>())
+  const typeFilter = createSingle()
+  const typeTickets = typeFilter.onboard(
+    (Object.keys(typeConfig) as ItemType[]).map(key => ({ id: key, value: key })),
+  )
 
-  function onToggleFilter (level: Level) {
-    const next = new Set(activeFilters.value)
-    if (next.has(level)) {
-      next.delete(level)
-    } else {
-      next.add(level)
-    }
-    activeFilters.value = next
-  }
+  // Level filter
+  const levelFilter = createGroup()
+  const levelTickets = levelFilter.onboard(
+    levelKeys.map(key => ({ id: key, value: key })),
+  )
 
   function onClearFilters () {
-    activeFilters.value = new Set()
-    activeType.value = null
+    typeFilter.selectedIds.clear()
+    levelFilter.unselectAll()
   }
 
   // Filtered items based on type + level chips
   const filtered = toRef(() => {
     let result = allItems
-    if (activeType.value) {
-      result = result.filter(item => item.type === activeType.value)
+    const type = typeFilter.selectedValue.value
+    if (type) {
+      result = result.filter(item => item.type === type)
     }
-    if (activeFilters.value.size > 0) {
-      result = result.filter(item => activeFilters.value.has(item.level))
+    if (!levelFilter.isNoneSelected.value) {
+      result = result.filter(item => levelFilter.selectedIds.has(item.level))
     }
     return result
   })
@@ -217,53 +229,44 @@
     <!-- Type toggles -->
     <div class="flex flex-wrap items-center gap-2 mt-2 mb-3">
       <button
+        v-for="ticket in typeTickets"
+        :key="ticket.id"
         class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium border cursor-pointer transition-all"
-        :class="activeType === 'composable'
-          ? 'border-primary bg-primary/15 text-primary opacity-100'
+        :class="ticket.isSelected.value
+          ? typeConfig[ticket.id as ItemType].active + ' opacity-100'
           : 'border-divider text-on-surface-variant opacity-70 hover:opacity-100'"
-        @click="onToggleType('composable')"
+        @click="ticket.toggle()"
       >
-        <AppIcon icon="code" :size="12" />
-        Composables
-      </button>
-
-      <button
-        class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium border cursor-pointer transition-all"
-        :class="activeType === 'component'
-          ? 'border-info bg-info/15 text-info opacity-100'
-          : 'border-divider text-on-surface-variant opacity-70 hover:opacity-100'"
-        @click="onToggleType('component')"
-      >
-        <AppIcon icon="puzzle" :size="12" />
-        Components
+        <AppIcon :icon="typeConfig[ticket.id as ItemType].icon" :size="12" />
+        {{ typeConfig[ticket.id as ItemType].label }}
       </button>
     </div>
 
     <!-- Level chips -->
     <div class="flex flex-wrap items-center gap-2 mb-5">
       <button
-        v-for="(config, key) in levels"
-        :key="key"
+        v-for="ticket in levelTickets"
+        :key="ticket.id"
         class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium border cursor-pointer transition-all"
-        :class="activeFilters.size === 0 || activeFilters.has(key as Level)
+        :class="levelFilter.isNoneSelected.value || ticket.isSelected.value
           ? 'opacity-100'
           : 'opacity-40'"
         :style="{
-          borderColor: config.color,
-          backgroundColor: activeFilters.has(key as Level)
-            ? config.color + '22'
+          borderColor: levels[ticket.id as Level].color,
+          backgroundColor: ticket.isSelected.value
+            ? levels[ticket.id as Level].color + '22'
             : 'transparent',
-          color: config.color,
+          color: levels[ticket.id as Level].color,
         }"
-        @click="onToggleFilter(key as Level)"
+        @click="ticket.toggle()"
       >
-        <AppIcon :icon="config.icon" :size="14" />
-        {{ config.label }}
+        <AppIcon :icon="levels[ticket.id as Level].icon" :size="14" />
+        {{ levels[ticket.id as Level].label }}
       </button>
 
       <button
         class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border border-divider text-on-surface-variant bg-transparent cursor-pointer transition-colors hover:bg-surface-variant"
-        :class="activeFilters.size > 0 || activeType ? 'visible' : 'invisible'"
+        :class="!levelFilter.isNoneSelected.value || typeFilter.selectedId.value ? 'visible' : 'invisible'"
         @click="onClearFilters"
       >
         <AppIcon icon="close" :size="14" />
@@ -330,9 +333,11 @@
               <div class="flex items-center gap-2 mt-1">
                 <span
                   class="inline-block px-1.5 py-0 rounded-full text-[10px] font-medium"
-                  :class="item.type === 'composable'
-                    ? 'bg-primary/15 text-primary'
-                    : 'bg-info/15 text-info'"
+                  :class="[
+                    item.type === 'composable' && 'bg-primary/15 text-primary',
+                    item.type === 'component' && 'bg-info/15 text-info',
+                    item.type === 'utility' && 'bg-success/15 text-success',
+                  ]"
                 >{{ item.type }}</span>
                 <span class="text-[10px] text-on-surface-variant font-mono">
                   v{{ item.since }}
@@ -471,9 +476,11 @@
               <td class="px-4 py-2.5">
                 <span
                   class="inline-block px-2 py-0.5 rounded-full text-xs font-medium"
-                  :class="item.type === 'composable'
-                    ? 'bg-primary/15 text-primary'
-                    : 'bg-info/15 text-info'"
+                  :class="[
+                    item.type === 'composable' && 'bg-primary/15 text-primary',
+                    item.type === 'component' && 'bg-info/15 text-info',
+                    item.type === 'utility' && 'bg-success/15 text-success',
+                  ]"
                 >
                   {{ item.type }}
                 </span>
