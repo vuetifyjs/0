@@ -1,55 +1,38 @@
 <script setup lang="ts">
+  // Framework
+  import { SplitterPanel, SplitterRoot, useStorage } from '@vuetify/v0'
+
   // Components
   import { usePlayground } from '../app/PlaygroundApp.vue'
 
   // Utilities
-  import { onMounted, onUnmounted, shallowRef, toRef } from 'vue'
-
-  const DEFAULT_HEIGHT = 60
+  import { onMounted, useTemplateRef } from 'vue'
 
   const playground = usePlayground()
-  const ticket = playground.register({ id: 'workspace-top' })
 
-  onMounted(() => ticket.select())
+  const storage = useStorage()
+  const sizes = storage.get<number[]>('playground-top-h-sizes', [])
 
-  const modelValue = shallowRef(DEFAULT_HEIGHT)
-
-  const hasBottom = toRef(() => playground.selectedIds.has('workspace-bottom'))
-  const hasContent = toRef(() =>
-    playground.selectedIds.has('workspace-right') ||
-    playground.selectedIds.has('preview-side'),
-  )
-
-  const styles = toRef(() => ({
-    height: hasContent.value ? (hasBottom.value ? `${modelValue.value}%` : '100%') : '0',
-  }))
-
-  onUnmounted(() => {
-    playground.unregister(ticket.id)
-  })
-
-  function onDblClick () {
-    modelValue.value = modelValue.value === DEFAULT_HEIGHT ? 30 : DEFAULT_HEIGHT
+  function onLayout (values: number[]) {
+    sizes.value = values
   }
+
+  const rootEl = useTemplateRef<{ distribute: (sizes: number[]) => void }>('root')
+
+  onMounted(() => {
+    if (sizes.value.length > 0) rootEl.value?.distribute(sizes.value)
+  })
 </script>
 
 <template>
-  <template v-if="ticket.isSelected.value">
-    <div
-      class="flex"
-      :style="styles"
-    >
+  <SplitterPanel :default-size="60" :max-size="playground.side.value ? 80 : 100" :min-size="20">
+    <SplitterRoot ref="root" class="h-full" orientation="horizontal" @layout="onLayout">
       <slot />
-    </div>
+    </SplitterRoot>
+  </SplitterPanel>
 
-    <PlaygroundAppResizeBar
-      v-if="hasBottom && hasContent"
-      v-model="modelValue"
-      direction="vertical"
-      :max="80"
-      :min="20"
-      storage-key="workspace-top"
-      @dblclick="onDblClick"
-    />
-  </template>
+  <PlaygroundSplitterHandle
+    v-if="playground.side.value"
+    direction="vertical"
+  />
 </template>
