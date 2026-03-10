@@ -26,7 +26,7 @@
   import type { AtomProps } from '#v0/components/Atom'
   import type { GroupContext, GroupTicket } from '#v0/composables/createGroup'
   import type { ID } from '#v0/types'
-  import type { MaybeRef, Ref } from 'vue'
+  import type { MaybeRefOrGetter, Ref } from 'vue'
 
   /** Visual state of the switch for styling purposes */
   export type SwitchState = 'checked' | 'unchecked' | 'indeterminate'
@@ -72,9 +72,9 @@
     /** Associate with form by ID */
     form?: string
     /** Disables this switch */
-    disabled?: MaybeRef<boolean>
+    disabled?: MaybeRefOrGetter<boolean>
     /** Sets the indeterminate state */
-    indeterminate?: MaybeRef<boolean>
+    indeterminate?: MaybeRefOrGetter<boolean>
     /** Namespace for context provision to children (Track, Thumb, HiddenInput) */
     namespace?: string
     /** Namespace for connecting to parent Switch.Group */

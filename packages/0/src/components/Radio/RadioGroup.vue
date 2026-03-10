@@ -18,12 +18,12 @@
   import type { AtomProps } from '#v0/components/Atom'
   import type { SingleContext, SingleTicket } from '#v0/composables/createSingle'
   import type { Activation } from '#v0/types'
-  import type { MaybeRef, Ref } from 'vue'
+  import type { MaybeRefOrGetter, Ref } from 'vue'
 
   /** Ticket for radio items with element reference for focus management */
   export interface RadioTicket extends SingleTicket {
     /** Element reference for roving tabindex focus management */
-    el?: MaybeRef<HTMLElement | null | undefined>
+    el?: MaybeRefOrGetter<HTMLElement | null | undefined>
   }
 
   /** Activation mode alias for Radio component API */
