@@ -28,6 +28,8 @@
     deprecated: { icon: 'weather-fog', color: '#9ca3af', label: 'Deprecated', order: 4 },
   }
 
+  const levelKeys: Level[] = ['draft', 'experimental', 'stable', 'mature', 'deprecated']
+
   // Flatten JSON into MaturityItem[]
   function flatten (): MaturityItem[] {
     const result: MaturityItem[] = []
@@ -99,7 +101,6 @@
       { key: 'since', title: 'Since', sortable: true },
     ],
     groupBy: 'category',
-    enroll: true,
     pagination: { itemsPerPage: 100 },
   })
 
@@ -113,6 +114,22 @@
     if (dir === 'asc') return '\u2191'
     if (dir === 'desc') return '\u2193'
     return ''
+  }
+
+  // Heat map segments for a group
+  function heatmap (items: MaturityItem[]): { color: string, percent: number }[] {
+    const counts: Record<Level, number> = { draft: 0, experimental: 0, stable: 0, mature: 0, deprecated: 0 }
+    for (const item of items) {
+      counts[item.level]++
+    }
+    const total = items.length
+    const segments: { color: string, percent: number }[] = []
+    for (const key of levelKeys) {
+      if (counts[key] > 0) {
+        segments.push({ color: levels[key].color, percent: (counts[key] / total) * 100 })
+      }
+    }
+    return segments
   }
 
   // Summary counts
@@ -198,11 +215,11 @@
     </div>
 
     <!-- Data table -->
-    <div class="border border-divider rounded-xl overflow-hidden mb-6">
+    <div class="overflow-hidden mb-6">
       <template v-for="group in table.grouping.groups.value" :key="group.key">
         <!-- Group header -->
         <button
-          class="w-full flex items-center gap-2 px-4 py-2.5 bg-surface-variant text-on-surface font-semibold text-sm cursor-pointer border-0 border-b border-solid border-divider text-left transition-colors hover:bg-surface-variant/80"
+          class="w-full flex items-center gap-2 px-4 py-2.5 bg-surface-variant text-on-surface font-semibold text-sm cursor-pointer border-0 text-left transition-colors hover:bg-surface-variant/80"
           @click="table.grouping.toggle(group.key)"
         >
           <AppIcon
@@ -215,13 +232,32 @@
           <span class="capitalize">{{ group.key }}</span>
 
           <span class="text-on-surface-variant font-normal ml-1">({{ group.items.length }})</span>
+
+          <!-- Heat map bar -->
+          <span class="flex-1 flex items-center h-1.5 rounded-full overflow-hidden ml-2">
+            <span
+              v-for="(segment, index) in heatmap(group.items as MaturityItem[])"
+              :key="index"
+              class="h-full"
+              :class="index === 0 ? 'rounded-l-full' : index === heatmap(group.items as MaturityItem[]).length - 1 ? 'rounded-r-full' : ''"
+              :style="{ backgroundColor: segment.color, width: segment.percent + '%' }"
+            />
+          </span>
         </button>
 
         <!-- Group items -->
         <table
           v-if="table.grouping.isOpen(group.key)"
-          class="w-full border-collapse"
+          class="w-full border-collapse table-fixed"
         >
+          <colgroup>
+            <col class="w-[30%]">
+            <col class="w-[18%]">
+            <col class="w-[20%]">
+            <col class="w-[20%]">
+            <col class="w-[12%]">
+          </colgroup>
+
           <thead>
             <tr class="border-b border-divider">
               <th
@@ -243,7 +279,7 @@
               class="border-b border-divider last:border-b-0 transition-colors hover:bg-surface-variant/30"
             >
               <!-- Name -->
-              <td class="px-4 py-2.5 text-sm font-medium text-on-surface">
+              <td class="px-4 py-2.5 text-sm font-medium text-on-surface truncate">
                 {{ item.name }}
               </td>
 
