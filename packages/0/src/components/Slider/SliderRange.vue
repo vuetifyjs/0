@@ -6,9 +6,7 @@
  * track start to thumb position. For range (two thumbs), spans
  * between the two thumb positions.
  *
- * Exposes `start` and `end` percentages as slot props and CSS custom
- * properties `--v0-slider-range-start` and `--v0-slider-range-size`
- * for positioning.
+ * Exposes `start` and `end` percentages as slot props for positioning.
  */
 
 <script lang="ts">
@@ -89,8 +87,6 @@
       'style': {
         [isVertical.value ? 'bottom' : 'left']: `${start.value}%`,
         [isVertical.value ? 'height' : 'width']: `${end.value - start.value}%`,
-        '--v0-slider-range-start': `${start.value}%`,
-        '--v0-slider-range-size': `${end.value - start.value}%`,
       },
     },
   }))

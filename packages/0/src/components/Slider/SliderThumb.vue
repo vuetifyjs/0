@@ -174,7 +174,6 @@
       'data-readonly': isReadonly.value ? true : undefined,
       'style': {
         [isVertical.value ? 'bottom' : 'left']: `${pct.value}%`,
-        '--v0-slider-thumb-percent': `${pct.value}%`,
       },
       'onKeydown': onKeydown,
       'onPointerdown': onPointerdown,
