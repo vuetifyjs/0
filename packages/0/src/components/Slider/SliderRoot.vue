@@ -9,6 +9,9 @@
  */
 
 <script lang="ts">
+  // Constants
+  import { IN_BROWSER } from '#v0/constants/globals'
+
   // Components
   import { Atom } from '#v0/components/Atom'
   import SliderHiddenInput from './SliderHiddenInput.vue'
@@ -169,6 +172,10 @@
   useToggleScope(
     () => !isNull(dragging.value),
     () => {
+      if (IN_BROWSER) {
+        document.documentElement.style.touchAction = 'none'
+      }
+
       useDocumentEventListener('pointermove', (e: PointerEvent) => {
         if (isNull(dragging.value)) return
         const percent = getPercent(e)
@@ -176,6 +183,9 @@
       })
 
       useDocumentEventListener('pointerup', () => {
+        if (IN_BROWSER) {
+          document.documentElement.style.touchAction = ''
+        }
         emit('end', [...slider.values.value])
         dragging.value = null
         dragOffset.value = 0
