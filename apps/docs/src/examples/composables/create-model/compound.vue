@@ -1,7 +1,7 @@
 <script setup lang="ts">
   import { mdiCancel, mdiCheckCircle } from '@mdi/js'
   import { isRef, toValue } from 'vue'
-  import { Checkbox } from '@vuetify/v0'
+  import { Checkbox, Slider } from '@vuetify/v0'
   import { allToppings, createCompound, sizes } from './createCompound'
 
   const { model, tickets, compound, name, size, toppings, quantity } = createCompound()
@@ -125,15 +125,20 @@
 
           <!-- Slider -->
           <div v-else-if="ticket.id === 'quantity'" class="flex items-center gap-3">
-            <input
-              class="flex-1 accent-primary"
+            <Slider.Root
+              v-model="quantity"
+              class="relative flex flex-1 items-center h-5"
               :disabled="toValue(ticket.disabled)"
-              max="10"
-              min="1"
-              type="range"
-              :value="quantity"
-              @input="quantity = Number(($event.target as HTMLInputElement).value)"
+              :max="10"
+              :min="1"
             >
+              <Slider.Track class="relative h-1 w-full rounded-full bg-surface-variant">
+                <Slider.Range class="absolute h-full rounded-full bg-primary" />
+              </Slider.Track>
+
+              <Slider.Thumb class="absolute size-4 rounded-full bg-primary -translate-x-1/2 focus:outline-2 focus:outline-primary" />
+            </Slider.Root>
+
             <span class="text-sm font-mono text-on-surface tabular-nums w-5 text-right">{{ quantity }}</span>
           </div>
         </div>
