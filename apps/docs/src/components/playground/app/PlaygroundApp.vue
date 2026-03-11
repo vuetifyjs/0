@@ -29,20 +29,20 @@
   const storage = useStorage()
   const { isMobile } = useBreakpoints()
 
-  // Persisted collapsed state (true = collapsed)
-  const left = storage.get('playground-left-collapsed', false)
+  // Persisted open state (true = open)
+  const left = storage.get('playground-left-open', true)
   const storedLeft = left.value
 
   // Persisted user preference for side preview position
   const sidePref = storage.get('playground-preview-right', false)
-  // Side preview active when preferred and left panel is collapsed
-  const sideActive = sidePref.value && left.value
+  // Side preview active when preferred and left panel is closed
+  const sideActive = sidePref.value && !left.value
 
-  // Start collapsed (mobile-first default since isMobile defaults to true)
-  const tree = shallowRef(true)
-  const bottom = shallowRef(true)
-  const side = shallowRef(true)
-  left.value = true
+  // Start closed (mobile-first default since isMobile defaults to true)
+  const tree = shallowRef(false)
+  const bottom = shallowRef(false)
+  const side = shallowRef(false)
+  left.value = false
 
   providePlayground({
     store,
@@ -57,10 +57,10 @@
   // When breakpoints confirm desktop, restore open state
   watch(isMobile, mobile => {
     if (!mobile) {
-      tree.value = false
+      tree.value = true
       left.value = storedLeft
-      bottom.value = sideActive
-      side.value = !sideActive
+      bottom.value = !sideActive
+      side.value = sideActive
     }
   }, { immediate: true })
 </script>

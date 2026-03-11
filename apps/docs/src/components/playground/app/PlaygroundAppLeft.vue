@@ -11,18 +11,18 @@
   const playground = usePlayground()
   const breakpoints = useBreakpoints()
   const isMobile = breakpoints.isMobile
-  const open = toRef(() => !playground.left.value)
+  const open = toRef(() => playground.left.value)
 
   const collapsed = computed({
-    get: () => playground.left.value,
+    get: () => !playground.left.value,
     set: v => {
-      playground.left.value = v
+      playground.left.value = !v
     },
   })
 
   const stack = useStack()
   const ticket = stack.register({ onDismiss: () => {
-    playground.left.value = true
+    playground.left.value = false
   } })
 
   watch(() => open.value && isMobile.value, visible => {

@@ -6,22 +6,30 @@
   import { usePlayground } from '../app/PlaygroundApp.vue'
   import { Discovery } from '@/components/discovery'
 
+  // Utilities
+  import { computed } from 'vue'
+
   const playground = usePlayground()
   const { isMobile } = useBreakpoints()
+
+  const collapsed = computed({
+    get: () => !playground.bottom.value,
+    set: v => { playground.bottom.value = !v },
+  })
 </script>
 
 <template>
   <!-- Desktop: splitter panel for bottom preview -->
   <SplitterPanel
-    v-if="!isMobile && playground.side.value"
-    v-model:collapsed="playground.bottom.value"
+    v-if="!isMobile && !playground.side.value"
+    v-model:collapsed="collapsed"
     :collapsed-size="0"
     collapsible
     :default-size="40"
     :min-size="10"
   >
     <Discovery.Activator
-      v-if="!playground.bottom.value"
+      v-if="playground.bottom.value"
       active-class="rounded-lg"
       as="div"
       class="flex flex-1 h-full"
