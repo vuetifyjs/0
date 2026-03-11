@@ -5,7 +5,7 @@
  * Root component for sliders. Creates slider context, provides it to
  * child components (Track, Range, Thumb, HiddenInput), and bridges v-model.
  *
- * Value is always `number[]`: single thumb = `[50]`, range = `[25, 75]`.
+ * Value is `number` for single thumbs or `number[]` for range sliders.
  */
 
 <script lang="ts">
@@ -26,8 +26,8 @@
   import { useToggleScope } from '#v0/composables/useToggleScope'
 
   // Utilities
-  import { isNull } from '#v0/utilities'
-  import { shallowRef, toRef, toValue, useAttrs, useId } from 'vue'
+  import { isArray, isNull, isUndefined } from '#v0/utilities'
+  import { computed, shallowRef, toRef, toValue, useAttrs, useId } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -114,9 +114,9 @@
   }>()
 
   const emit = defineEmits<{
-    'update:model-value': [value: number[]]
-    'start': [value: number[]]
-    'end': [value: number[]]
+    'update:model-value': [value: number | number[]]
+    'start': [value: number | number[]]
+    'end': [value: number | number[]]
   }>()
 
   const {
@@ -137,7 +137,15 @@
     namespace = 'v0:slider:root',
   } = defineProps<SliderRootProps>()
 
-  const model = defineModel<number[]>({ default: () => [] })
+  const model = defineModel<number | number[]>({ default: () => [] })
+  const scalar = !isArray(model.value) && !isUndefined(model.value)
+
+  const internal = computed({
+    get: () => isArray(model.value) ? model.value : [model.value],
+    set: (arr: number[]) => {
+      model.value = scalar ? (arr[0] ?? 0) : arr
+    },
+  })
 
   const slider = createSlider({
     min,
@@ -151,7 +159,7 @@
     crossover,
   })
 
-  useProxyModel(slider, model, { multiple: true })
+  useProxyModel(slider, internal, { multiple: true })
 
   const dragging = shallowRef<number | null>(null)
   const track = shallowRef<HTMLElement | null>(null)
@@ -186,7 +194,8 @@
         if (IN_BROWSER) {
           document.documentElement.style.touchAction = ''
         }
-        emit('end', [...slider.values.value])
+        const values = [...slider.values.value]
+        emit('end', scalar ? values[0] ?? 0 : values)
         dragging.value = null
         dragOffset.value = 0
       })
@@ -210,7 +219,8 @@
     }
 
     dragging.value = index
-    emit('start', [...slider.values.value])
+    const values = [...slider.values.value]
+    emit('start', scalar ? values[0] ?? 0 : values)
   }
 
   const context: SliderRootContext = {
