@@ -41,6 +41,7 @@
     :default-size="30"
     :max-size="45"
     :min-size="30"
+    :style="isMobile ? { display: 'none' } : undefined"
   >
     <!-- Desktop: inline content -->
     <div
