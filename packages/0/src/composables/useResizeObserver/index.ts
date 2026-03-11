@@ -19,14 +19,15 @@
 import { SUPPORTS_OBSERVER } from '#v0/constants/globals'
 
 // Composables
-import { useHydration } from '#v0/composables/useHydration'
+import { createObserver } from '#v0/composables/createObserver'
 
 // Utilities
-import { isNull } from '#v0/utilities'
-import { onScopeDispose, shallowReadonly, shallowRef, toRef, watch } from 'vue'
+import { shallowReadonly, shallowRef } from 'vue'
 
 // Types
-import type { Ref, MaybeRef } from 'vue'
+import type { ObserverReturn } from '#v0/composables/createObserver'
+import type { MaybeElementRef } from '#v0/composables/toElement'
+import type { Ref } from 'vue'
 
 export interface ResizeObserverEntry {
   contentRect: {
@@ -44,28 +45,7 @@ export interface ResizeObserverOptions {
   box?: 'content-box' | 'border-box'
 }
 
-export interface UseResizeObserverReturn {
-  /**
-   * Whether the observer is currently active (created and observing)
-   */
-  readonly isActive: Readonly<Ref<boolean>>
-  /**
-   * Whether the observer is currently paused
-   */
-  readonly isPaused: Readonly<Ref<boolean>>
-  /**
-   * Pause observation (disconnects observer but keeps it alive)
-   */
-  pause: () => void
-  /**
-   * Resume observation
-   */
-  resume: () => void
-  /**
-   * Stop observation and clean up (destroys observer)
-   */
-  stop: () => void
-}
+export interface UseResizeObserverReturn extends ObserverReturn {}
 
 /**
  * A composable that uses the Resize Observer API to detect when an element's
@@ -109,133 +89,52 @@ export interface UseResizeObserverReturn {
  * ```
  */
 export function useResizeObserver (
-  target: MaybeRef<Element | null | undefined>,
+  target: MaybeElementRef,
   callback: (entries: ResizeObserverEntry[]) => void,
   options: ResizeObserverOptions = {},
 ): UseResizeObserverReturn {
-  const { isHydrated } = useHydration()
-  const targetRef = toRef(target)
-  const observer = shallowRef<ResizeObserver | null>()
-  const isPaused = shallowRef(false)
-  const isActive = toRef(() => !!observer.value)
-
-  function setup () {
-    // null = permanently stopped, undefined = not yet created
-    if (isNull(observer.value)) return
-    if (!isHydrated.value || !SUPPORTS_OBSERVER || !targetRef.value || isPaused.value) return
-
-    observer.value = new ResizeObserver(entries => {
-      const transformedEntries: ResizeObserverEntry[] = entries.map(entry => ({
+  return createObserver(target, callback, {
+    supports: SUPPORTS_OBSERVER,
+    once: options.once,
+    create: cb => new ResizeObserver(entries => {
+      cb(entries.map(e => ({
         contentRect: {
-          width: entry.contentRect.width,
-          height: entry.contentRect.height,
-          top: entry.contentRect.top,
-          left: entry.contentRect.left,
+          width: e.contentRect.width,
+          height: e.contentRect.height,
+          top: e.contentRect.top,
+          left: e.contentRect.left,
         },
-        target: entry.target,
-      }))
-
-      callback(transformedEntries)
-
-      if (options.once) {
-        stop()
+        target: e.target,
+      })))
+    }),
+    observe: (obs, el) => obs.observe(el, { box: options.box ?? 'content-box' }),
+    immediate: options.immediate
+      ? el => {
+        const rect = el.getBoundingClientRect()
+        return [{
+          contentRect: {
+            width: rect.width,
+            height: rect.height,
+            top: rect.top,
+            left: rect.left,
+          },
+          target: el,
+        }]
       }
-    })
-
-    observer.value.observe(targetRef.value, {
-      box: options.box || 'content-box',
-    })
-
-    if (options.immediate) {
-      const rect = targetRef.value.getBoundingClientRect()
-      callback([{
-        contentRect: {
-          width: rect.width,
-          height: rect.height,
-          top: rect.top,
-          left: rect.left,
-        },
-        target: targetRef.value,
-      }])
-    }
-  }
-
-  // Watch target changes - cleanup when element changes or is removed
-  watch(
-    () => targetRef.value,
-    (el, oldEl) => {
-      // Cleanup if we had a previous element or if observer exists (handles paused state)
-      if (oldEl || observer.value) cleanup()
-
-      if (isHydrated.value && el) {
-        setup()
-      }
-    },
-    { immediate: true },
-  )
-
-  // Handle initial hydration - setup once when hydrated if target exists
-  let stopHydrationWatch: (() => void) | undefined
-  if (!isHydrated.value) {
-    stopHydrationWatch = watch(
-      () => isHydrated.value,
-      hydrated => {
-        if (hydrated && targetRef.value && !observer.value) {
-          setup()
-          stopHydrationWatch?.()
-          stopHydrationWatch = undefined
-        }
-      },
-    )
-  }
-
-  function cleanup () {
-    if (observer.value) {
-      observer.value.disconnect()
-      observer.value = undefined
-    }
-  }
-
-  function pause () {
-    isPaused.value = true
-
-    observer.value?.disconnect()
-  }
-
-  function resume () {
-    isPaused.value = false
-
-    setup()
-  }
-
-  function stop () {
-    stopHydrationWatch?.()
-    stopHydrationWatch = undefined
-    cleanup()
-    observer.value = null
-  }
-
-  onScopeDispose(stop, true)
-
-  return {
-    isActive: shallowReadonly(isActive),
-    isPaused: shallowReadonly(isPaused),
-    pause,
-    resume,
-    stop,
-  }
+      : undefined,
+  })
 }
 
 export interface UseElementSizeReturn extends UseResizeObserverReturn {
   /**
    * The width of the element in pixels
    */
-  width: Ref<number>
+  readonly width: Readonly<Ref<number>>
 
   /**
    * The height of the element in pixels
    */
-  height: Ref<number>
+  readonly height: Readonly<Ref<number>>
 }
 
 /**
@@ -261,7 +160,7 @@ export interface UseElementSizeReturn extends UseResizeObserverReturn {
  * })
  * ```
  */
-export function useElementSize (target: MaybeRef<Element | null | undefined>): UseElementSizeReturn {
+export function useElementSize (target: MaybeElementRef): UseElementSizeReturn {
   const width = shallowRef(0)
   const height = shallowRef(0)
 
@@ -287,7 +186,7 @@ export function useElementSize (target: MaybeRef<Element | null | undefined>): U
     width,
     height,
     isActive,
-    isPaused,
+    isPaused: shallowReadonly(isPaused),
     pause,
     resume,
     stop,

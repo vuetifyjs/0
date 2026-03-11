@@ -3,14 +3,19 @@
   import DocsBadge from '@/components/docs/DocsBadge.vue'
 
   // Utilities
-  import { computed } from 'vue'
+  import { toRef } from 'vue'
 
   // Types
   import type { SkillMode } from '@/types/skill'
 
   import { SKILL_MODE_META } from '@/types/skill'
 
-  const props = withDefaults(defineProps<{
+  const {
+    mode,
+    showIcon = true,
+    showLabel = true,
+    iconSize = 14,
+  } = defineProps<{
     /** Skill mode ('guided' or 'interactive') */
     mode: SkillMode
     /** Show the mode icon */
@@ -19,13 +24,9 @@
     showLabel?: boolean
     /** Icon size in pixels */
     iconSize?: number
-  }>(), {
-    showIcon: true,
-    showLabel: true,
-    iconSize: 14,
-  })
+  }>()
 
-  const meta = computed(() => SKILL_MODE_META[props.mode])
+  const meta = toRef(() => SKILL_MODE_META[mode])
 </script>
 
 <template>

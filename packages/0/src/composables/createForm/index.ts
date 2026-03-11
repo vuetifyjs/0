@@ -30,7 +30,7 @@ import { computed, shallowRef, toValue } from 'vue'
 import { toArray } from '#v0/composables/toArray'
 
 // Types
-import type { RegistryContext, RegistryOptions, RegistryTicket } from '#v0/composables/createRegistry'
+import type { RegistryContext, RegistryOptions, RegistryTicket, RegistryTicketInput } from '#v0/composables/createRegistry'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { RuleAlias, RulesContext } from '#v0/composables/useRules'
 import type { ID } from '#v0/types'
@@ -50,7 +50,7 @@ export type FormValue = Ref<unknown> | ShallowRef<unknown>
  *
  * @template V The type of the field value.
  */
-export interface FormTicketInput<V = unknown> extends RegistryTicket<V> {
+export interface FormTicketInput<V = unknown> extends RegistryTicketInput<V> {
   /** Validation rules for this field (functions or aliases if RulesContext linked to form) */
   rules?: (FormValidationRule | RuleAlias)[]
   /** When validation should trigger (inherits from form if not set) */
@@ -65,7 +65,7 @@ export interface FormTicketInput<V = unknown> extends RegistryTicket<V> {
  *
  * @template Z The input ticket type that extends FormTicketInput.
  */
-export type FormTicket<Z extends FormTicketInput = FormTicketInput> = Z & {
+export type FormTicket<Z extends FormTicketInput = FormTicketInput> = RegistryTicket & Z & {
   validate: (silent?: boolean) => Promise<boolean>
   reset: () => void
   validateOn: 'submit' | 'change' | string
@@ -206,6 +206,8 @@ export function createForm<
       errors.value = []
       isPristine.value = true
       isValid.value = null
+      isValidating.value = false
+      validationGeneration++
     }
 
     let validationGeneration = 0
@@ -268,9 +270,14 @@ export function createForm<
     return ticket
   }
 
+  function onboard (registrations: Partial<Z>[]): E[] {
+    return registry.batch(() => registrations.map(r => register(r)))
+  }
+
   return {
     ...registry,
     register,
+    onboard,
     reset,
     submit,
     validateOn,

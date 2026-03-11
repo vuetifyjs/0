@@ -717,11 +717,16 @@ export function createNested<
     openedIds.clear()
     activeIds.clear()
     rootIds.clear()
-    group.reset()
+    group.clear()
   }
 
   function reset (): void {
-    clear()
+    children.clear()
+    parents.clear()
+    openedIds.clear()
+    activeIds.clear()
+    rootIds.clear()
+    group.reset()
   }
 
   const context = {

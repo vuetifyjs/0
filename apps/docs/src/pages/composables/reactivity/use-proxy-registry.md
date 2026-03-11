@@ -26,7 +26,7 @@ The `useProxyRegistry` composable creates reactive objects that automatically sy
 
 **Important:** The registry must have `events: true` enabled for the proxy to receive updates.
 
-```ts
+```ts collapse no-filename
 import { createRegistry, useProxyRegistry } from '@vuetify/v0'
 
 const registry = createRegistry({ events: true })
@@ -122,7 +122,7 @@ All read properties from the underlying registry:
 | `has(id)` | `boolean` | Yes |
 | `get(id)` | `Ticket \| undefined` | Yes |
 
-Mutations (`register`, `unregister`) are pass-through methods that trigger updates via events.
+Mutations (`register`, `unregister`, `move`) are called on the underlying registry instance — not through the proxy. The proxy automatically syncs via registry events.
 
 ??? Does the proxy re-render on every registry change?
 

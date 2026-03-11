@@ -22,7 +22,7 @@ The `toReactive` utility function converts a `MaybeRef` object to a reactive pro
 
 ## Usage
 
-```ts
+```ts collapse no-filename
 import { ref } from 'vue'
 import { toReactive } from '@vuetify/v0'
 

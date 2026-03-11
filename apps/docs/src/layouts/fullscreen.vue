@@ -10,7 +10,7 @@
   import { useSettings } from '@/composables/useSettings'
 
   // Utilities
-  import { computed, defineAsyncComponent, toRef } from 'vue'
+  import { defineAsyncComponent, toRef } from 'vue'
 
   // Stores
   import { useAppStore } from '@/stores/app'
@@ -33,7 +33,7 @@
   const fadeTransition = toRef(() => settings.prefersReducedMotion.value ? undefined : 'fade')
   const slideTransition = toRef(() => settings.prefersReducedMotion.value ? undefined : 'slide')
 
-  const isModalOpen = computed(() => settings.isOpen.value)
+  const isModalOpen = toRef(() => settings.isOpen.value)
   const isMobileNavOpen = toRef(() => navigation.isOpen.value && !breakpoints.mdAndUp.value)
 
   useScrollLock(settings.isOpen)
@@ -84,25 +84,3 @@
     <DocsSearch />
   </div>
 </template>
-
-<style scoped>
-  .fade-enter-active,
-  .fade-leave-active {
-    transition: opacity 0.2s ease;
-  }
-
-  .fade-enter-from,
-  .fade-leave-to {
-    opacity: 0;
-  }
-
-  .slide-enter-active,
-  .slide-leave-active {
-    transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .slide-enter-from,
-  .slide-leave-to {
-    transform: translateX(100%);
-  }
-</style>

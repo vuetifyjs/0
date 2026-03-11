@@ -139,13 +139,15 @@ export const DEFAULT_CODE = `<script lang="ts" setup>
     { id: 'profile', value: 'Profile' },
     { id: 'settings', value: 'Settings' },
   ])
+
+  const tabs = single.values()
 </script>
 
 <template>
   <div class="p-6">
     <div class="flex border-b border-divider mb-6">
       <button
-        v-for="tab in single.values()"
+        v-for="tab in tabs"
         :key="tab.id"
         class="px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors"
         :class="tab.isSelected.value

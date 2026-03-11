@@ -17,6 +17,7 @@ vi.mock('#v0/composables/useHydration', () => ({
 import { useMediaQuery, usePrefersContrast, usePrefersDark, usePrefersReducedMotion } from './index'
 
 describe('useMediaQuery', () => {
+  let originalWindow: typeof globalThis.window
   let mockMatchMedia: ReturnType<typeof vi.fn>
   let mockMediaQueryList: {
     matches: boolean
@@ -26,6 +27,8 @@ describe('useMediaQuery', () => {
   }
 
   beforeEach(() => {
+    originalWindow = globalThis.window
+
     mockMediaQueryList = {
       matches: false,
       media: '',
@@ -43,6 +46,7 @@ describe('useMediaQuery', () => {
   })
 
   afterEach(() => {
+    globalThis.window = originalWindow
     vi.clearAllMocks()
   })
 

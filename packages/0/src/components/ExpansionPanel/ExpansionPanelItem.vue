@@ -24,7 +24,7 @@
   // Types
   import type { AtomProps } from '#v0/components/Atom'
   import type { SelectionTicket } from '#v0/composables/createSelection'
-  import type { MaybeRef, Ref } from 'vue'
+  import type { MaybeRefOrGetter, Ref } from 'vue'
 
   export interface ExpansionPanelItemProps<V = unknown> extends AtomProps {
     /** Unique identifier for the panel item (auto-generated if not provided) */
@@ -32,7 +32,7 @@
     /** Value associated with this panel item for v-model binding */
     value?: V
     /** Disables this specific panel item */
-    disabled?: MaybeRef<boolean>
+    disabled?: MaybeRefOrGetter<boolean>
     /** Namespace to retrieve the parent ExpansionPanelRoot context (default: 'v0:expansion-panel') */
     namespace?: string
   }

@@ -83,6 +83,7 @@ export default vuetify({
   files: ['**/*.vue'],
   rules: {
     'vue/block-order': ['warn', { order: ['script', 'template', 'style'] }],
+    'vue/v-bind-style': ['error', 'shorthand', { sameNameShorthand: 'always' }],
   },
 },
 {

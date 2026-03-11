@@ -1,10 +1,10 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Adapters
 import { Vuetify0PermissionAdapter } from './adapters/v0'
 
 // Utilities
-import { inject, provide } from 'vue'
+import { provide } from 'vue'
 
 import { createPermissions, createPermissionsContext, createPermissionsPlugin, usePermissions } from './index'
 
@@ -18,9 +18,12 @@ vi.mock('vue', async () => {
 })
 
 const mockProvide = vi.mocked(provide)
-const mockInject = vi.mocked(inject)
 
 describe('usePermissions', () => {
+  afterEach(() => {
+    vi.clearAllMocks()
+  })
+
   describe('createPermissions', () => {
     it('should create permissions instance with default options', () => {
       const defaultPermissions = createPermissions()
@@ -170,6 +173,28 @@ describe('usePermissions', () => {
       expect(permissions.can('nonexistent', 'read', 'users')).toBe(false)
       expect(permissions.can('admin', 'nonexistent', 'users')).toBe(false)
       expect(permissions.can('admin', 'read', 'nonexistent')).toBe(false)
+    })
+
+    it('should return permission value via get()', () => {
+      const permissions = createPermissions({
+        permissions: {
+          admin: [
+            ['read', 'users'],
+            ['write', 'posts', (ctx: Record<string, unknown>) => ctx.isOwner === true],
+          ],
+        },
+      })
+
+      const readTicket = permissions.get('admin.read.users')
+      expect(readTicket).toBeDefined()
+      expect(readTicket!.value).toBe(true)
+
+      const writeTicket = permissions.get('admin.write.posts')
+      expect(writeTicket).toBeDefined()
+      expect(typeof writeTicket!.value).toBe('function')
+
+      const missing = permissions.get('admin.delete.users')
+      expect(missing).toBeUndefined()
     })
   })
 
@@ -369,35 +394,10 @@ describe('createPermissionsContext', () => {
 })
 
 describe('usePermissions consumer', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-  })
-
-  it('should inject context with default namespace', () => {
-    const mockContext = createPermissions()
-    mockInject.mockReturnValue(mockContext)
-
+  it('should return fallback when no context is provided', () => {
     const result = usePermissions()
 
-    expect(mockInject).toHaveBeenCalledWith('v0:permissions', undefined)
-    expect(result).toBe(mockContext)
-  })
-
-  it('should inject context with custom namespace', () => {
-    const mockContext = createPermissions()
-    mockInject.mockReturnValue(mockContext)
-
-    const result = usePermissions('my-permissions')
-
-    expect(mockInject).toHaveBeenCalledWith('my-permissions', undefined)
-    expect(result).toBe(mockContext)
-  })
-
-  it('should throw when context is not provided', () => {
-    mockInject.mockReturnValue(undefined)
-
-    expect(() => usePermissions()).toThrow(
-      'Context "v0:permissions" not found. Ensure it\'s provided by an ancestor.',
-    )
+    expect(result.can('anyone', 'read', 'anything')).toBe(false)
+    expect(result.size).toBe(0)
   })
 })

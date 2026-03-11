@@ -32,6 +32,22 @@ import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { Extensible, ID } from '#v0/types'
 import type { App } from 'vue'
 
+/**
+ * User-facing input shape for registry tickets.
+ *
+ * Extend this when defining custom ticket types passed to `register()` and `onboard()`.
+ * The registry adds the computed fields (`index`, `valueIsIndex`) automatically — those
+ * live on {@link RegistryTicket}, which is the output type returned by `get()` and `values()`.
+ *
+ * @template V The type of the ticket value.
+ */
+export interface RegistryTicketInput<V = unknown> {
+  /** The unique identifier. Optional — auto-generated if not provided. */
+  id?: ID
+  /** The value associated with the ticket. If not provided, it defaults to the index. */
+  value?: V
+}
+
 export interface RegistryTicket<V = unknown> {
   /** The unique identifier. Is randomly generated if not provided. */
   id: ID
@@ -89,16 +105,19 @@ type EventPayload<Z extends RegistryTicket, K extends string> =
 /** Internal callback type for event listeners storage */
 type InternalEventCallback = (data: unknown) => void
 
-export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
+export interface RegistryContext<
+  Z extends RegistryTicketInput = RegistryTicketInput,
+  E extends RegistryTicket & Z = RegistryTicket & Z,
+> {
   /**
    * The collection of tickets in the registry
    *
    * @template ID The type of the ticket ID.
-   * @template Z The type of the registry ticket.
+   * @template E The type of the registry ticket.
    *
    * @remarks Read-only view of the internal collection. Use `register`, `unregister`, `upsert`, and `clear` methods to modify.
    */
-  collection: ReadonlyMap<ID, Z>
+  collection: ReadonlyMap<ID, E>
   /**
    * Clear the entire registry
    *
@@ -185,7 +204,7 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
    * const unique = registry.browse('unique-value') // ['ticket-3']
    * ```
    */
-  browse: (value: Z['value']) => ID[] | undefined
+  browse: (value: E['value']) => ID[] | undefined
   /**
    * lookup a ticket by index number
    *
@@ -225,7 +244,7 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
    * const ticket = registry.get('ticket-id') // { id: 'ticket-id', index: 0, value: 'some-value', ... }
    * ```
    */
-  get: (id: ID) => Z | undefined
+  get: (id: ID) => E | undefined
   /**
    * Update or insert a ticket by ID
    *
@@ -248,7 +267,7 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
    * const patched = registry.upsert('ticket-id', { value: 'updated-value' })
    * ```
   */
-  upsert: (id: ID, ticket?: Partial<Z>) => Z
+  upsert: (id: ID, ticket?: Partial<Z>) => E
   /**
    * Get all values of registered tickets
    *
@@ -268,7 +287,7 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
    * const values = registry.values() // [{ id: 'ticket-1', ... }, { id: 'ticket-2', ... }]
    * ```
    */
-  values: () => readonly Z[]
+  values: () => readonly E[]
   /**
    * Get all entries of registered tickets
    *
@@ -288,7 +307,7 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
    * const entries = registry.entries() // [['ticket-1', { id: 'ticket-1', ... }], ['ticket-2', { id: 'ticket-2', ... }]]
    * ```
   */
-  entries: () => readonly [ID, Z][]
+  entries: () => readonly [ID, E][]
   /**
    * Register a new ticket
    *
@@ -308,7 +327,7 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
    * console.log(ticket) // { id: 'generated-id', index: 0, value: 0, valueIsIndex: true }
    * ```
   */
-  register: (ticket?: Partial<Z>) => Z
+  register: (ticket?: Partial<Z & RegistryTicket>) => E
   /**
    * Unregister a ticket by ID
    *
@@ -383,7 +402,37 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
    * const cherry = registry.seek('first', 1, ticket => (ticket.value as string).startsWith('c'))
    * ```
   */
-  seek: (direction?: 'first' | 'last', from?: number, predicate?: (ticket: Z) => boolean) => Z | undefined
+  /**
+   * Move a ticket to a new index position
+   *
+   * @param id The ID of the ticket to move.
+   * @param toIndex The target index position. Clamped to valid range.
+   * @returns The moved ticket, or undefined if the ticket was not found.
+   *
+   * @remarks Rebuilds the internal collection order by removing and reinserting the entry at the target position. Triggers a full reindex after the move. This operation invalidates cached results from `keys()`, `values()`, and `entries()`.
+   *
+   * @see https://0.vuetifyjs.com/composables/registration/create-registry#move
+   *
+   * @example
+   * ```ts
+   * import { createRegistry } from '@vuetify/v0'
+   *
+   * const registry = createRegistry()
+   *
+   * registry.onboard([
+   *   { id: 'a', value: 'alpha' },
+   *   { id: 'b', value: 'beta' },
+   *   { id: 'c', value: 'gamma' },
+   * ])
+   *
+   * // Move 'a' from index 0 to index 2
+   * registry.move('a', 2)
+   *
+   * console.log(registry.keys()) // ['b', 'c', 'a']
+   * ```
+  */
+  move: (id: ID, toIndex: number) => E | undefined
+  seek: (direction?: 'first' | 'last', from?: number, predicate?: (ticket: E) => boolean) => E | undefined
   /**
    * Listen for registry events
    *
@@ -412,7 +461,7 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
    * registry.register({ id: 'ticket-id' }) // Console: Ticket registered: { id: 'ticket-id', ... }
    * ```
   */
-  on: <K extends Extensible<RegistryEventName>>(event: K, cb: EventHandler<Z, K>) => void
+  on: <K extends Extensible<RegistryEventName>>(event: K, cb: EventHandler<E, K>) => void
   /**
    * Stop listening for registry events
    *
@@ -442,7 +491,7 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
    * })
    * ```
   */
-  off: <K extends Extensible<RegistryEventName>>(event: K, cb: EventHandler<Z, K>) => void
+  off: <K extends Extensible<RegistryEventName>>(event: K, cb: EventHandler<E, K>) => void
   /**
    * Emit an event with data
    *
@@ -465,7 +514,7 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
    * registry.emit('custom-event', { message: 'Hello, World!' }) // Console: Custom event received: { message: 'Hello, World!' }
    * ```
   */
-  emit: <K extends Extensible<RegistryEventName>>(event: K, data: EventPayload<Z, K>) => void
+  emit: <K extends Extensible<RegistryEventName>>(event: K, data: EventPayload<E, K>) => void
   /**
    * Clears the registry and removes all listeners
    *
@@ -510,7 +559,7 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
    * console.log(tickets) // [{ id: 'ticket-1', ... }, { id: 'ticket-2', ... }]
    * ```
   */
-  onboard: (registrations: Partial<Z>[]) => Z[]
+  onboard: (registrations: Partial<Z & RegistryTicket>[]) => E[]
   /**
    * Offboard multiple tickets at once
    *
@@ -655,15 +704,15 @@ export interface RegistryContextOptions extends RegistryOptions {
  * ```
  */
 export function createRegistry<
-  Z extends RegistryTicket = RegistryTicket,
-  E extends RegistryContext<Z> = RegistryContext<Z>,
-> (options?: RegistryOptions): E {
+  Z extends RegistryTicketInput = RegistryTicketInput,
+  E extends RegistryTicket & Z = RegistryTicket & Z,
+> (options?: RegistryOptions): RegistryContext<Z, E> {
   const logger = useLogger()
 
   const events = options?.events ?? false
   const reactive = options?.reactive ?? false
 
-  const collection = reactive ? shallowReactive(new Map<ID, Z>()) : new Map<ID, Z>()
+  const collection = reactive ? shallowReactive(new Map<ID, E>()) : new Map<ID, E>()
   const catalog = new Map<unknown, ID[]>()
   const directory = new Map<number, ID>()
   const cache = new Map<'keys' | 'values' | 'entries', unknown[]>()
@@ -722,7 +771,7 @@ export function createRegistry<
   function upsert (id: ID, patch: Partial<Z> = {}) {
     const existing = get(id)
 
-    if (!existing) return register({ ...patch, id })
+    if (!existing) return register({ ...patch, id } as Partial<Z & RegistryTicket>)
 
     const hasValue = Object.prototype.hasOwnProperty.call(patch, 'value')
     let value = existing.value
@@ -751,7 +800,7 @@ export function createRegistry<
       }
     }
 
-    const updated: Z = {
+    const updated: E = {
       ...existing,
       ...patch,
       id,
@@ -810,9 +859,9 @@ export function createRegistry<
     return keys
   }
 
-  function values (): readonly Z[] {
+  function values (): readonly E[] {
     const cached = cache.get('values')
-    if (!isUndefined(cached)) return cached as readonly Z[]
+    if (!isUndefined(cached)) return cached as readonly E[]
 
     const values = Array.from(collection.values())
 
@@ -821,9 +870,9 @@ export function createRegistry<
     return values
   }
 
-  function entries (): readonly [ID, Z][] {
+  function entries (): readonly [ID, E][] {
     const cached = cache.get('entries')
-    if (!isUndefined(cached)) return cached as readonly [ID, Z][]
+    if (!isUndefined(cached)) return cached as readonly [ID, E][]
 
     const entries = Array.from(collection.entries())
 
@@ -913,7 +962,7 @@ export function createRegistry<
     emit('reindex:registry')
   }
 
-  function register (registration: Partial<Z> = {}): Z {
+  function register (registration: Partial<Z & RegistryTicket> = {}): E {
     const size = collection.size
     const id = registration.id ?? useId()
 
@@ -938,7 +987,7 @@ export function createRegistry<
       index,
       value,
       valueIsIndex,
-    } as Z
+    } as E
 
     const ticket = reactive ? shallowReactive(rawTicket) : rawTicket
 
@@ -980,7 +1029,7 @@ export function createRegistry<
 
   function offboard (ids: ID[]) {
     batch(() => {
-      const removed: Z[] = []
+      const removed: E[] = []
 
       for (const id of ids) {
         const ticket = collection.get(id)
@@ -1007,11 +1056,39 @@ export function createRegistry<
     })
   }
 
+  function move (id: ID, toIndex: number): E | undefined {
+    if (needsReindex) reindex()
+
+    const ticket = collection.get(id)
+    if (!ticket) return undefined
+
+    const size = collection.size
+    const target = clamp(toIndex, 0, size - 1)
+
+    if (ticket.index === target) return ticket
+
+    const items = Array.from(collection.entries())
+    const fromIndex = items.findIndex(([key]) => key === id)
+    const [entry] = items.splice(fromIndex, 1)
+
+    items.splice(target, 0, entry!)
+
+    collection.clear()
+    for (const [key, value] of items) {
+      collection.set(key, value)
+    }
+
+    minDirtyIndex = Math.min(ticket.index, target)
+    reindex()
+
+    return ticket
+  }
+
   function seek (
     direction: 'first' | 'last' = 'first',
     from?: number,
-    predicate?: (ticket: Z) => boolean,
-  ): Z | undefined {
+    predicate?: (ticket: E) => boolean,
+  ): E | undefined {
     if (collection.size === 0) return undefined
 
     if (needsReindex) reindex()
@@ -1043,7 +1120,7 @@ export function createRegistry<
   }
 
   return {
-    collection: collection as ReadonlyMap<ID, Z>,
+    collection: collection as ReadonlyMap<ID, E>,
     emit,
     on,
     off,
@@ -1060,16 +1137,17 @@ export function createRegistry<
     register,
     unregister,
     reindex,
+    move,
     seek,
     batch,
-    onboard (registrations: Partial<Z>[]) {
+    onboard (registrations: Partial<Z & RegistryTicket>[]) {
       return batch(() => registrations.map(registration => register(registration)))
     },
     offboard,
     get size () {
       return collection.size
     },
-  } as E
+  } as RegistryContext<Z, E>
 }
 
 /**
@@ -1101,19 +1179,19 @@ export function createRegistry<
  * ```
  */
 export function createRegistryContext<
-  Z extends RegistryTicket = RegistryTicket,
-  E extends RegistryContext<Z> = RegistryContext<Z>,
-> (_options: RegistryContextOptions = {}): ContextTrinity<E> {
+  Z extends RegistryTicketInput = RegistryTicketInput,
+  E extends RegistryTicket & Z = RegistryTicket & Z,
+> (_options: RegistryContextOptions = {}): ContextTrinity<RegistryContext<Z, E>> {
   const { namespace = 'v0:registry', ...options } = _options
-  const [useRegistryContext, _provideRegistryContext] = createContext<E>(namespace)
+  const [useRegistryContext, _provideRegistryContext] = createContext<RegistryContext<Z, E>>(namespace)
 
   const context = createRegistry<Z, E>(options)
 
-  function provideRegistryContext (_context: E = context, app?: App): E {
+  function provideRegistryContext (_context: RegistryContext<Z, E> = context, app?: App): RegistryContext<Z, E> {
     return _provideRegistryContext(_context, app)
   }
 
-  return createTrinity<E>(useRegistryContext, provideRegistryContext, context)
+  return createTrinity<RegistryContext<Z, E>>(useRegistryContext, provideRegistryContext, context)
 }
 
 /**
@@ -1137,8 +1215,8 @@ export function createRegistryContext<
  * ```
  */
 export function useRegistry<
-  Z extends RegistryTicket = RegistryTicket,
-  E extends RegistryContext<Z> = RegistryContext<Z>,
-> (namespace = 'v0:registry'): E {
-  return useContext<E>(namespace)
+  Z extends RegistryTicketInput = RegistryTicketInput,
+  E extends RegistryTicket & Z = RegistryTicket & Z,
+> (namespace = 'v0:registry'): RegistryContext<Z, E> {
+  return useContext<RegistryContext<Z, E>>(namespace)
 }

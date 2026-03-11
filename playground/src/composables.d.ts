@@ -7,9 +7,11 @@
 export {}
 declare global {
   const COMMON_ELEMENTS: typeof import('../../packages/0/src/constants/htmlElements').COMMON_ELEMENTS
+  const ClientAdapter: typeof import('../../packages/0/src/composables/createDataTable/index').ClientAdapter
   const ConsolaLoggerAdapter: typeof import('../../packages/0/src/composables/useLogger/index').ConsolaLoggerAdapter
   const DEFAULT_DARK: typeof import('../../packages/paper/src/composables/useTheme/index').DEFAULT_DARK
   const DEFAULT_LIGHT: typeof import('../../packages/paper/src/composables/useTheme/index').DEFAULT_LIGHT
+  const DataTableAdapter: typeof import('../../packages/0/src/composables/createDataTable/index').DataTableAdapter
   const EffectScope: typeof import('vue').EffectScope
   const FeaturesAdapter: typeof import('../../packages/0/src/composables/useFeatures/index').FeaturesAdapter
   const FlagsmithFeatureAdapter: typeof import('../../packages/0/src/composables/useFeatures/index').FlagsmithFeatureAdapter
@@ -25,8 +27,10 @@ declare global {
   const SUPPORTS_MUTATION_OBSERVER: typeof import('../../packages/0/src/constants/globals').SUPPORTS_MUTATION_OBSERVER
   const SUPPORTS_OBSERVER: typeof import('../../packages/0/src/constants/globals').SUPPORTS_OBSERVER
   const SUPPORTS_TOUCH: typeof import('../../packages/0/src/constants/globals').SUPPORTS_TOUCH
+  const ServerAdapter: typeof import('../../packages/0/src/composables/createDataTable/index').ServerAdapter
   const TemporalDateAdapter: typeof import('../../packages/0/src/composables/useDate/index').TemporalDateAdapter
   const V0_ELEVATION_KEY: typeof import('../../packages/paper/src/composables/useElevation/index').V0_ELEVATION_KEY
+  const VirtualAdapter: typeof import('../../packages/0/src/composables/createDataTable/index').VirtualAdapter
   const Vuetify0DateAdapter: typeof import('../../packages/0/src/composables/useDate/index').Vuetify0DateAdapter
   const Vuetify0LocaleAdapter: typeof import('../../packages/0/src/composables/useLocale/index').Vuetify0LocaleAdapter
   const Vuetify0LoggerAdapter: typeof import('../../packages/0/src/composables/useLogger/index').Vuetify0LoggerAdapter
@@ -41,6 +45,8 @@ declare global {
   const createBreakpointsContext: typeof import('../../packages/0/src/composables/useBreakpoints/index').createBreakpointsContext
   const createBreakpointsPlugin: typeof import('../../packages/0/src/composables/useBreakpoints/index').createBreakpointsPlugin
   const createContext: typeof import('../../packages/0/src/composables/createContext/index').createContext
+  const createDataTable: typeof import('../../packages/0/src/composables/createDataTable/index').createDataTable
+  const createDataTableContext: typeof import('../../packages/0/src/composables/createDataTable/index').createDataTableContext
   const createDate: typeof import('../../packages/0/src/composables/useDate/index').createDate
   const createDateContext: typeof import('../../packages/0/src/composables/useDate/index').createDateContext
   const createDateFallback: typeof import('../../packages/0/src/composables/useDate/index').createDateFallback
@@ -76,6 +82,7 @@ declare global {
   const createPermissionsContext: typeof import('../../packages/0/src/composables/usePermissions/index').createPermissionsContext
   const createPermissionsPlugin: typeof import('../../packages/0/src/composables/usePermissions/index').createPermissionsPlugin
   const createPlugin: typeof import('../../packages/0/src/composables/createPlugin/index').createPlugin
+  const createPluginContext: typeof import('../../packages/0/src/composables/createPlugin/index').createPluginContext
   const createQueue: typeof import('../../packages/0/src/composables/createQueue/index').createQueue
   const createQueueContext: typeof import('../../packages/0/src/composables/createQueue/index').createQueueContext
   const createRegistry: typeof import('../../packages/0/src/composables/createRegistry/index').createRegistry
@@ -121,6 +128,7 @@ declare global {
   const instanceName: typeof import('../../packages/0/src/utilities/instance').instanceName
   const isArray: typeof import('../../packages/0/src/utilities/helpers').isArray
   const isBoolean: typeof import('../../packages/0/src/utilities/helpers').isBoolean
+  const isElement: typeof import('../../packages/0/src/utilities/helpers').isElement
   const isFunction: typeof import('../../packages/0/src/utilities/helpers').isFunction
   const isNaN: typeof import('../../packages/0/src/utilities/helpers').isNaN
   const isNull: typeof import('../../packages/0/src/utilities/helpers').isNull
@@ -171,6 +179,7 @@ declare global {
   const singleOpenStrategy: typeof import('../../packages/0/src/composables/createNested/index').singleOpenStrategy
   const toArray: typeof import('../../packages/0/src/composables/toArray/index').toArray
   const toCamelCase: typeof import('../../packages/paper/src/utilities/helpers').toCamelCase
+  const toElement: typeof import('../../packages/0/src/composables/toElement/index').toElement
   const toKebabCase: typeof import('../../packages/paper/src/utilities/helpers').toKebabCase
   const toRaw: typeof import('vue').toRaw
   const toReactive: typeof import('../../packages/0/src/composables/toReactive/index').toReactive
@@ -189,6 +198,7 @@ declare global {
   const useContrast: typeof import('../../packages/paper/src/composables/useContrast/index').useContrast
   const useCssModule: typeof import('vue').useCssModule
   const useCssVars: typeof import('vue').useCssVars
+  const useDataTable: typeof import('../../packages/0/src/composables/createDataTable/index').useDataTable
   const useDate: typeof import('../../packages/0/src/composables/useDate/index').useDate
   const useDimensions: typeof import('../../packages/paper/src/composables/useDimensions/index').useDimensions
   const useDocumentEventListener: typeof import('../../packages/0/src/composables/useEventListener/index').useDocumentEventListener
@@ -277,11 +287,17 @@ declare global {
   export type { ContextKey, CreateContextOptions } from '../../packages/0/src/composables/createContext/index'
   import('../../packages/0/src/composables/createContext/index')
   // @ts-ignore
-  export type { PluginOptions, Plugin } from '../../packages/0/src/composables/createPlugin/index'
+  export type { SelectStrategy, DataTableColumn, DataTableSort, DataTableSelection, DataTableGroup, DataTableGrouping, DataTableExpansion, DataTableOptions, DataTableContext, DataTableContextOptions, DataTableAdapterContext, DataTableAdapterInterface, DataTableAdapterResult, SortDirection, SortEntry, ServerAdapterOptions } from '../../packages/0/src/composables/createDataTable/index'
+  import('../../packages/0/src/composables/createDataTable/index')
+  // @ts-ignore
+  export type { PluginOptions, Plugin, PluginContextConfig } from '../../packages/0/src/composables/createPlugin/index'
   import('../../packages/0/src/composables/createPlugin/index')
   // @ts-ignore
   export type { ContextTrinity } from '../../packages/0/src/composables/createTrinity/index'
   import('../../packages/0/src/composables/createTrinity/index')
+  // @ts-ignore
+  export type { MaybeElementRef } from '../../packages/0/src/composables/toElement/index'
+  import('../../packages/0/src/composables/toElement/index')
   // @ts-ignore
   export type { BreakpointName, BreakpointsContext, BreakpointsOptions, BreakpointsPluginOptions, BreakpointsContextOptions } from '../../packages/0/src/composables/useBreakpoints/index'
   import('../../packages/0/src/composables/useBreakpoints/index')
@@ -328,7 +344,7 @@ declare global {
   export type { MediaQueryContext } from '../../packages/0/src/composables/useMediaQuery/index'
   import('../../packages/0/src/composables/useMediaQuery/index')
   // @ts-ignore
-  export type { MutationObserverRecord, UseMutationObserverOptions, UseMutationObserverReturn } from '../../packages/0/src/composables/useMutationObserver/index'
+  export type { ObservableNodeList, MutationObserverRecord, UseMutationObserverOptions, UseMutationObserverReturn } from '../../packages/0/src/composables/useMutationObserver/index'
   import('../../packages/0/src/composables/useMutationObserver/index')
   // @ts-ignore
   export type { OverflowOptions, OverflowContext, OverflowContextOptions } from '../../packages/0/src/composables/createOverflow/index'
@@ -349,7 +365,7 @@ declare global {
   export type { QueueTicketInput, QueueTicket, QueueContext, QueueOptions, QueueContextOptions } from '../../packages/0/src/composables/createQueue/index'
   import('../../packages/0/src/composables/createQueue/index')
   // @ts-ignore
-  export type { RegistryTicket, RegistryEventName, RegistryEventMap, RegistryEventCallback, RegistryContext, RegistryOptions, RegistryContextOptions } from '../../packages/0/src/composables/createRegistry/index'
+  export type { RegistryTicketInput, RegistryTicket, RegistryEventName, RegistryEventMap, RegistryEventCallback, RegistryContext, RegistryOptions, RegistryContextOptions } from '../../packages/0/src/composables/createRegistry/index'
   import('../../packages/0/src/composables/createRegistry/index')
   // @ts-ignore
   export type { ResizeObserverEntry, ResizeObserverOptions, UseResizeObserverReturn, UseElementSizeReturn } from '../../packages/0/src/composables/useResizeObserver/index'
@@ -395,9 +411,11 @@ declare module 'vue' {
   interface GlobalComponents {}
   interface ComponentCustomProperties {
     readonly COMMON_ELEMENTS: UnwrapRef<typeof import('../../packages/0/src/constants/htmlElements')['COMMON_ELEMENTS']>
+    readonly ClientAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/createDataTable/index')['ClientAdapter']>
     readonly ConsolaLoggerAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['ConsolaLoggerAdapter']>
     readonly DEFAULT_DARK: UnwrapRef<typeof import('../../packages/paper/src/composables/useTheme/index')['DEFAULT_DARK']>
     readonly DEFAULT_LIGHT: UnwrapRef<typeof import('../../packages/paper/src/composables/useTheme/index')['DEFAULT_LIGHT']>
+    readonly DataTableAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/createDataTable/index')['DataTableAdapter']>
     readonly EffectScope: UnwrapRef<typeof import('vue')['EffectScope']>
     readonly FeaturesAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/useFeatures/index')['FeaturesAdapter']>
     readonly IN_BROWSER: UnwrapRef<typeof import('../../packages/0/src/constants/globals')['IN_BROWSER']>
@@ -410,7 +428,9 @@ declare module 'vue' {
     readonly SUPPORTS_MUTATION_OBSERVER: UnwrapRef<typeof import('../../packages/0/src/constants/globals')['SUPPORTS_MUTATION_OBSERVER']>
     readonly SUPPORTS_OBSERVER: UnwrapRef<typeof import('../../packages/0/src/constants/globals')['SUPPORTS_OBSERVER']>
     readonly SUPPORTS_TOUCH: UnwrapRef<typeof import('../../packages/0/src/constants/globals')['SUPPORTS_TOUCH']>
+    readonly ServerAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/createDataTable/index')['ServerAdapter']>
     readonly V0_ELEVATION_KEY: UnwrapRef<typeof import('../../packages/paper/src/composables/useElevation/index')['V0_ELEVATION_KEY']>
+    readonly VirtualAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/createDataTable/index')['VirtualAdapter']>
     readonly Vuetify0LocaleAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/useLocale/index')['Vuetify0LocaleAdapter']>
     readonly Vuetify0LoggerAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['Vuetify0LoggerAdapter']>
     readonly Vuetify0ThemeAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/useTheme/index')['Vuetify0ThemeAdapter']>
@@ -424,6 +444,8 @@ declare module 'vue' {
     readonly createBreakpointsContext: UnwrapRef<typeof import('../../packages/0/src/composables/useBreakpoints/index')['createBreakpointsContext']>
     readonly createBreakpointsPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useBreakpoints/index')['createBreakpointsPlugin']>
     readonly createContext: UnwrapRef<typeof import('../../packages/0/src/composables/createContext/index')['createContext']>
+    readonly createDataTable: UnwrapRef<typeof import('../../packages/0/src/composables/createDataTable/index')['createDataTable']>
+    readonly createDataTableContext: UnwrapRef<typeof import('../../packages/0/src/composables/createDataTable/index')['createDataTableContext']>
     readonly createDate: UnwrapRef<typeof import('../../packages/0/src/composables/useDate/index')['createDate']>
     readonly createDateContext: UnwrapRef<typeof import('../../packages/0/src/composables/useDate/index')['createDateContext']>
     readonly createDatePlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useDate/index')['createDatePlugin']>
@@ -458,6 +480,7 @@ declare module 'vue' {
     readonly createPermissionsContext: UnwrapRef<typeof import('../../packages/0/src/composables/usePermissions/index')['createPermissionsContext']>
     readonly createPermissionsPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/usePermissions/index')['createPermissionsPlugin']>
     readonly createPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/createPlugin/index')['createPlugin']>
+    readonly createPluginContext: UnwrapRef<typeof import('../../packages/0/src/composables/createPlugin/index')['createPluginContext']>
     readonly createQueue: UnwrapRef<typeof import('../../packages/0/src/composables/createQueue/index')['createQueue']>
     readonly createQueueContext: UnwrapRef<typeof import('../../packages/0/src/composables/createQueue/index')['createQueueContext']>
     readonly createRegistry: UnwrapRef<typeof import('../../packages/0/src/composables/createRegistry/index')['createRegistry']>
@@ -502,6 +525,7 @@ declare module 'vue' {
     readonly instanceName: UnwrapRef<typeof import('../../packages/0/src/utilities/instance')['instanceName']>
     readonly isArray: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isArray']>
     readonly isBoolean: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isBoolean']>
+    readonly isElement: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isElement']>
     readonly isFunction: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isFunction']>
     readonly isNaN: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isNaN']>
     readonly isNull: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isNull']>
@@ -552,6 +576,7 @@ declare module 'vue' {
     readonly singleOpenStrategy: UnwrapRef<typeof import('../../packages/0/src/composables/createNested/index')['singleOpenStrategy']>
     readonly toArray: UnwrapRef<typeof import('../../packages/0/src/composables/toArray/index')['toArray']>
     readonly toCamelCase: UnwrapRef<typeof import('../../packages/paper/src/utilities/helpers')['toCamelCase']>
+    readonly toElement: UnwrapRef<typeof import('../../packages/0/src/composables/toElement/index')['toElement']>
     readonly toKebabCase: UnwrapRef<typeof import('../../packages/paper/src/utilities/helpers')['toKebabCase']>
     readonly toRaw: UnwrapRef<typeof import('vue')['toRaw']>
     readonly toReactive: UnwrapRef<typeof import('../../packages/0/src/composables/toReactive/index')['toReactive']>
@@ -570,6 +595,7 @@ declare module 'vue' {
     readonly useContrast: UnwrapRef<typeof import('../../packages/paper/src/composables/useContrast/index')['useContrast']>
     readonly useCssModule: UnwrapRef<typeof import('vue')['useCssModule']>
     readonly useCssVars: UnwrapRef<typeof import('vue')['useCssVars']>
+    readonly useDataTable: UnwrapRef<typeof import('../../packages/0/src/composables/createDataTable/index')['useDataTable']>
     readonly useDate: UnwrapRef<typeof import('../../packages/0/src/composables/useDate/index')['useDate']>
     readonly useDimensions: UnwrapRef<typeof import('../../packages/paper/src/composables/useDimensions/index')['useDimensions']>
     readonly useDocumentEventListener: UnwrapRef<typeof import('../../packages/0/src/composables/useEventListener/index')['useDocumentEventListener']>

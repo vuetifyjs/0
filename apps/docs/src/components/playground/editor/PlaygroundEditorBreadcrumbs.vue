@@ -6,17 +6,18 @@
   import { usePlayground } from '../app/PlaygroundApp.vue'
 
   // Utilities
-  import { computed } from 'vue'
+  import { toRef } from 'vue'
 
-  const { store } = usePlayground()
+  const playground = usePlayground()
 
-  const segments = computed(() => {
-    return store.activeFile?.filename?.split('/') ?? []
+  const segments = toRef(() => {
+    return playground.store.activeFile?.filename?.split('/') ?? []
   })
 </script>
 
 <template>
   <Breadcrumbs.Root
+    v-if="playground.isReady.value"
     as="div"
     class="flex items-center min-h-[24px] px-3 border-b border-divider bg-surface text-xs"
     label="File path"
@@ -50,4 +51,8 @@
       </template>
     </Breadcrumbs.List>
   </Breadcrumbs.Root>
+
+  <div v-else class="flex items-center min-h-[24px] px-3 border-b border-divider bg-surface">
+    <DocsSkeleton :lines="1" height="h-2.5" :widths="['w-24']" />
+  </div>
 </template>

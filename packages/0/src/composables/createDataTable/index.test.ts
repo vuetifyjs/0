@@ -589,7 +589,7 @@ describe('createDataTable', () => {
       const table = createDataTable<BadItem>({
         items: [{ id: 1, data: { foo: 'bar' } }],
         columns: [{ key: 'id', title: 'ID' }],
-        itemValue: 'data' as any,
+        itemValue: 'data' as never,
         selectStrategy: 'all',
       })
 
@@ -631,55 +631,69 @@ describe('createDataTable', () => {
       expect(table.total.value).toBe(1)
     })
   })
+})
 
-  describe('createDataTableContext', () => {
-    beforeEach(() => {
-      vi.clearAllMocks()
+describe('createDataTableContext', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('returns trinity tuple', () => {
+    const trinity = createDataTableContext({
+      items: users,
+      columns,
     })
 
-    it('returns trinity tuple', () => {
-      const trinity = createDataTableContext({
-        items: users,
-        columns,
-      })
+    expect(trinity).toHaveLength(3)
+    const [use, prov, ctx] = trinity
+    expect(typeof use).toBe('function')
+    expect(typeof prov).toBe('function')
+    expect(ctx).toBeDefined()
+    expect(ctx.items).toBeDefined()
+    expect(ctx.sort).toBeDefined()
+  })
 
-      expect(trinity).toHaveLength(3)
-      const [use, prov, ctx] = trinity
-      expect(typeof use).toBe('function')
-      expect(typeof prov).toBe('function')
-      expect(ctx).toBeDefined()
-      expect(ctx.items).toBeDefined()
-      expect(ctx.sort).toBeDefined()
+  it('provideDataTable calls Vue provide', () => {
+    const [, provideDataTable, context] = createDataTableContext({
+      items: users,
+      columns,
     })
 
-    it('provideDataTable calls Vue provide', () => {
-      const [, provideDataTable, context] = createDataTableContext({
-        items: users,
-        columns,
-      })
+    provideDataTable()
+    expect(mockProvide).toHaveBeenCalledWith('v0:data-table', context)
+  })
 
-      provideDataTable()
-      expect(mockProvide).toHaveBeenCalledWith('v0:data-table', context)
+  it('useDataTable calls Vue inject', () => {
+    const fakeContext = { items: ref([]) }
+    mockInject.mockReturnValue(fakeContext)
+
+    const result = useDataTable()
+    expect(mockInject).toHaveBeenCalledWith('v0:data-table', undefined)
+    expect(result).toBe(fakeContext)
+  })
+
+  it('custom namespace', () => {
+    const [, provideDataTable, context] = createDataTableContext({
+      namespace: 'custom:table',
+      items: users,
+      columns,
     })
 
-    it('useDataTable calls Vue inject', () => {
-      const fakeContext = { items: ref([]) }
-      mockInject.mockReturnValue(fakeContext)
+    provideDataTable()
+    expect(mockProvide).toHaveBeenCalledWith('custom:table', context)
+  })
+})
 
-      const result = useDataTable()
-      expect(mockInject).toHaveBeenCalledWith('v0:data-table', undefined)
-      expect(result).toBe(fakeContext)
-    })
+describe('useDataTable', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
 
-    it('custom namespace', () => {
-      const [, provideDataTable, context] = createDataTableContext({
-        namespace: 'custom:table',
-        items: users,
-        columns,
-      })
+  it('should throw when context is not provided', () => {
+    mockInject.mockReturnValue(undefined)
 
-      provideDataTable()
-      expect(mockProvide).toHaveBeenCalledWith('custom:table', context)
-    })
+    expect(() => useDataTable()).toThrow(
+      'Context "v0:data-table" not found. Ensure it\'s provided by an ancestor.',
+    )
   })
 })

@@ -1,3 +1,5 @@
+docs/plans/
+
 # Logs
 logs
 *.log
@@ -45,5 +47,9 @@ storybook-static
 # Auto-generated files
 apps/docs/build/generated/
 
-# Claude Code worktrees
+docs/
+
+# Claude Code
 .claude/worktrees/
+.claude/plans/
+.playwright-mcp/

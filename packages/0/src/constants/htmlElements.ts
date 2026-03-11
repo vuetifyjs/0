@@ -98,4 +98,4 @@ export type HTMLElementName = keyof HTMLElementTagNameMap
 /**
  * Type for self-closing HTML elements
  */
-export type SelfClosingElement = keyof typeof selfClosingTags
+export type SelfClosingElement = (typeof selfClosingTags)[number]

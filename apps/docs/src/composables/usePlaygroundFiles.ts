@@ -5,11 +5,11 @@ import { debounce, useTheme } from '@vuetify/v0'
 import { decodePlaygroundHash, encodePlaygroundHash } from '@/composables/usePlayground'
 
 // Utilities
-import { useStore, useVueImportMap } from '@vue/repl'
+import { useStore, useVueImportMap } from '@vue/repl/core'
 import { computed, onMounted, shallowRef, watch, watchEffect } from 'vue'
 
 // Data
-import { createMainTs, DEFAULT_CODE, INFRASTRUCTURE_FILES, UNO_CONFIG_TS } from '@/data/playground-defaults'
+import { createMainTs, DEFAULT_CODE, UNO_CONFIG_TS } from '@/data/playground-defaults'
 
 export function usePlaygroundFiles () {
   const theme = useTheme()
@@ -36,6 +36,7 @@ export function usePlaygroundFiles () {
   const isReady = shallowRef(false)
 
   const aliasMap = shallowRef(new Map<string, string>())
+  const extraImports = shallowRef<Record<string, string>>()
 
   onMounted(async () => {
     const hash = window.location.hash.slice(1)
@@ -43,6 +44,10 @@ export function usePlaygroundFiles () {
 
     if (decoded) {
       await loadExample(decoded.files, decoded.active)
+      if (decoded.imports && Object.keys(decoded.imports).length > 0) {
+        extraImports.value = decoded.imports
+        store.setImportMap({ imports: decoded.imports }, true)
+      }
     } else {
       const theme_ = theme.isDark.value ? 'dark' : 'light'
       await store.setFiles(
@@ -113,16 +118,17 @@ export function usePlaygroundFiles () {
 
   const updateHash = debounce(async (files: Record<string, string>, active: string | undefined) => {
     if (Object.keys(files).length === 0) return
-    const hash = await encodePlaygroundHash({ files, active })
+    const hash = await encodePlaygroundHash({ files, active, imports: extraImports.value })
     history.replaceState(null, '', `#${hash}`)
   }, 500)
 
   watch(isReady, ready => {
     if (!ready) return
     watchEffect(() => {
+      const aliases = new Set(aliasMap.value.values())
       const files: Record<string, string> = {}
       for (const [path, file] of Object.entries(store.files)) {
-        if (!INFRASTRUCTURE_FILES.has(path) && !file.hidden) {
+        if (!aliases.has(path)) {
           files[path] = file.code
         }
       }

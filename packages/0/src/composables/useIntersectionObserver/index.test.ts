@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest'
 
 // Utilities
 import { nextTick, readonly, ref, type Ref, shallowRef } from 'vue'
@@ -18,7 +18,7 @@ vi.mock('#v0/constants/globals', () => ({
 import { useElementIntersection, useIntersectionObserver } from './index'
 
 describe('useIntersectionObserver', () => {
-  let mockObserver: any
+  let mockObserver: { observe: Mock, unobserve: Mock, disconnect: Mock }
   let element: HTMLDivElement
 
   beforeEach(() => {

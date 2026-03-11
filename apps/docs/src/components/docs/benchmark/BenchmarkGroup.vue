@@ -3,7 +3,7 @@
   import { GROUP_DESCRIPTIONS, TIER_CONFIG, type NormalizedGroup, type Tier } from '@/composables/useBenchmarkData'
 
   // Utilities
-  import { computed } from 'vue'
+  import { computed, toRef } from 'vue'
 
   const props = defineProps<{
     group: NormalizedGroup
@@ -15,8 +15,8 @@
     'update:expanded': [value: boolean]
   }>()
 
-  const tierConfig = computed(() => TIER_CONFIG[props.tier])
-  const contentId = computed(() => `benchmark-group-${props.group.id}`)
+  const tierConfig = toRef(() => TIER_CONFIG[props.tier])
+  const contentId = toRef(() => `benchmark-group-${props.group.id}`)
   const description = computed(() => {
     const parts = props.group.name.split(' > ')
     const key = parts.at(-1)!.toLowerCase()

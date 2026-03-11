@@ -25,9 +25,40 @@ The `createNested` composable extends `createGroup` to manage hierarchical tree 
 
 The `createNested` composable manages hierarchical tree structures with parent-child relationships, open/close states, and tree traversal.
 
-::: example
-/composables/create-nested/basic
-:::
+```ts collapse no-filename
+import { createNested } from '@vuetify/v0'
+
+const tree = createNested({ open: 'multiple', selection: 'cascade' })
+
+tree.onboard([
+  {
+    id: 'root',
+    value: 'Root',
+    children: [
+      { id: 'child-1', value: 'Child 1' },
+      { id: 'child-2', value: 'Child 2' },
+    ],
+  },
+])
+
+tree.open('root')
+tree.select('child-1')
+```
+
+## Architecture
+
+`createNested` extends `createGroup` with hierarchical tree management:
+
+```mermaid "Nested Hierarchy"
+flowchart TD
+  createRegistry --> createSelection
+  createSelection --> createGroup
+  createGroup --> createNested
+  createNested --> children[children Map]
+  createNested --> parents[parents Map]
+  createNested --> openedIds[openedIds Set]
+  createNested --> OpenStrategy[OpenStrategy]
+```
 
 ## Reactivity
 
@@ -45,20 +76,11 @@ The `createNested` composable manages hierarchical tree structures with parent-c
 | `ticket.isLeaf` | <AppSuccessIcon /> | Ref via toRef() |
 | `ticket.depth` | <AppSuccessIcon /> | Ref via toRef() |
 
-## Architecture
+## Examples
 
-`createNested` extends `createGroup` with hierarchical tree management:
-
-```mermaid "Nested Hierarchy"
-flowchart TD
-  createRegistry --> createSelection
-  createSelection --> createGroup
-  createGroup --> createNested
-  createNested --> children[children Map]
-  createNested --> parents[parents Map]
-  createNested --> openedIds[openedIds Set]
-  createNested --> OpenStrategy[OpenStrategy]
-```
+::: example
+/composables/create-nested/basic
+:::
 
 <DocsApi />
 

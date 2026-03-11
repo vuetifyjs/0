@@ -117,6 +117,8 @@ export function useToc (options: UseTocOptions = {}): UseTocReturn {
     let currentH3: TocHeading | null = null
 
     for (const el of elements) {
+      if (el.closest('[role="dialog"]')) continue
+
       const id = el.id
       const text = el.textContent?.trim() ?? ''
       const level = el.tagName === 'H2' ? 2 : (el.tagName === 'H3' ? 3 : 4)

@@ -58,80 +58,54 @@
     mountedWrappers.clear()
   })
 
-  function mountDynamicComponents () {
+  function mountTo (selector: string, create: (el: HTMLElement) => ReturnType<typeof h> | null) {
     if (!contentRef.value) return
-
-    // Mount DocsMarkup for code blocks
-    const markupPlaceholders = contentRef.value.querySelectorAll<HTMLElement>('[data-markup]')
-    for (const el of markupPlaceholders) {
-      const code = el.dataset.code
-      const language = el.dataset.language
-      if (!code) continue
-
-      // Get the highlighted content to pass as slot
-      const highlighted = el.innerHTML
-
-      // Create wrapper for the component
+    for (const el of contentRef.value.querySelectorAll<HTMLElement>(selector)) {
+      const vnode = create(el)
+      if (!vnode) continue
       const wrapper = document.createElement('div')
       el.replaceWith(wrapper)
       mountedWrappers.add(wrapper)
-
-      // Mount DocsMarkup with app context for icons/plugins
-      const vnode = h(DocsMarkup, {
-        code,
-        language,
-        playground: language === 'vue',
-      }, {
-        default: () => h('div', { innerHTML: highlighted }),
-      })
       vnode.appContext = appContext ?? null
       render(vnode, wrapper)
     }
   }
 
-  function mountAlertComponents () {
-    if (!contentRef.value) return
-
-    const alertPlaceholders = contentRef.value.querySelectorAll<HTMLElement>('[data-alert]')
-    for (const el of alertPlaceholders) {
-      const type = el.dataset.type as 'tip' | 'info' | 'warning' | 'error'
-      const encodedContent = el.dataset.content
-      if (!type || !encodedContent) continue
-
-      const content = decodeBase64(encodedContent)
-
-      const wrapper = document.createElement('div')
-      el.replaceWith(wrapper)
-      mountedWrappers.add(wrapper)
-
-      const vnode = h(DocsCallout, { type }, {
-        default: () => h('div', { innerHTML: content }),
+  function mountDynamicComponents () {
+    mountTo('[data-markup]', el => {
+      const code = el.dataset.code
+      if (!code) return null
+      const highlighted = el.innerHTML
+      return h(DocsMarkup, {
+        code,
+        language: el.dataset.language,
+        playground: el.dataset.language === 'vue',
+      }, {
+        default: () => h('div', { innerHTML: highlighted }),
       })
-      vnode.appContext = appContext ?? null
-      render(vnode, wrapper)
-    }
+    })
+  }
+
+  function mountAlertComponents () {
+    mountTo('[data-alert]', el => {
+      const type = el.dataset.type as 'tip' | 'info' | 'warning' | 'error'
+      const encoded = el.dataset.content
+      if (!type || !encoded) return null
+      return h(DocsCallout, { type }, {
+        default: () => h('div', { innerHTML: decodeBase64(encoded) }),
+      })
+    })
   }
 
   function mountMermaidComponents () {
     if (!contentRef.value || mermaidMounted) return
-
-    const mermaidPlaceholders = contentRef.value.querySelectorAll<HTMLElement>('[data-mermaid]')
-    if (mermaidPlaceholders.length === 0) return
-
+    const placeholders = contentRef.value.querySelectorAll<HTMLElement>('[data-mermaid]')
+    if (placeholders.length === 0) return
     mermaidMounted = true
-
-    for (const el of mermaidPlaceholders) {
+    mountTo('[data-mermaid]', el => {
       const code = el.dataset.code
-      if (!code) continue
-
-      const wrapper = document.createElement('div')
-      el.replaceWith(wrapper)
-      mountedWrappers.add(wrapper)
-
-      const vnode = h(DocsMermaid, { code })
-      vnode.appContext = appContext ?? null
-      render(vnode, wrapper)
-    }
+      return code ? h(DocsMermaid, { code }) : null
+    })
   }
 </script>
 

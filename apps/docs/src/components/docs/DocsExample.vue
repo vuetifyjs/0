@@ -24,7 +24,20 @@
     language?: string
   }
 
-  const props = withDefaults(defineProps<{
+  const {
+    file,
+    filePath,
+    filePaths,
+    fileOrders,
+    title,
+    id,
+    code,
+    collapse,
+    files,
+    imports,
+    peek,
+    peekLines = 6,
+  } = defineProps<{
     file?: string
     filePath?: string
     filePaths?: string[]
@@ -34,42 +47,41 @@
     code?: string
     collapse?: boolean
     files?: ExampleFile[]
+    imports?: Record<string, string>
     peek?: boolean
     peekLines?: number
-  }>(), {
-    peekLines: 6,
-  })
+  }>()
 
   // Auto-resolve component and code from filePath(s)
   const examples = useExamples()
   const auto = computed(() => {
-    if (props.filePaths?.length) return examples.resolveMultiple(props.filePaths)
-    if (props.filePath) return examples.resolve(props.filePath)
+    if (filePaths?.length) return examples.resolveMultiple(filePaths)
+    if (filePath) return examples.resolve(filePath)
     return null
   })
 
-  const resolvedCode = computed(() =>
-    props.code ?? ('code' in (auto.value || {}) ? (auto.value as { code?: string }).code : undefined),
+  const resolvedCode = toRef(() =>
+    code ?? ('code' in (auto.value || {}) ? (auto.value as { code?: string }).code : undefined),
   )
-  const resolvedFiles = computed(() =>
-    props.files ?? ('files' in (auto.value || {}) ? (auto.value as { files?: ExampleFile[] }).files : undefined),
+  const resolvedFiles = toRef(() =>
+    files ?? ('files' in (auto.value || {}) ? (auto.value as { files?: ExampleFile[] }).files : undefined),
   )
 
   // Sort files by display order if fileOrders specified
   const displayFiles = computed(() => {
     const files = resolvedFiles.value
-    if (!files?.length || !props.fileOrders?.some(o => !isUndefined(o))) return files
+    if (!files?.length || !fileOrders?.some(o => !isUndefined(o))) return files
     return files
-      .map((f, i) => ({ file: f, order: props.fileOrders![i] ?? Infinity }))
+      .map((f, i) => ({ file: f, order: fileOrders![i] ?? Infinity }))
       .toSorted((a, b) => a.order - b.order)
       .map(x => x.file)
   })
 
   const slots = useSlots()
-  const hasDescription = computed(() => !!slots.description)
+  const hasDescription = toRef(() => !!slots.description)
   const descriptionExpanded = ref(false)
 
-  const anchorId = computed(() => props.id ?? (props.title ? `example-${toKebab(props.title)}` : undefined))
+  const anchorId = toRef(() => id ?? (title ? `example-${toKebab(title)}` : undefined))
 
   const uid = useId()
   const showCode = ref(false)
@@ -77,7 +89,7 @@
   const combinedView = ref(false)
 
   // Multi-file support
-  const hasMultipleFiles = computed(() => displayFiles.value && displayFiles.value.length > 1)
+  const hasMultipleFiles = toRef(() => displayFiles.value && displayFiles.value.length > 1)
   const selectedTab = ref<string>()
 
   watch(() => displayFiles.value, files => {
@@ -112,7 +124,7 @@
   const codePaneRefs = ref<Map<string, InstanceType<typeof DocsExampleCodePaneType>>>(new Map())
   const singleCodePane = useTemplateRef<InstanceType<typeof DocsExampleCodePaneType>>('single-code-pane')
 
-  const isLoading = computed(() => {
+  const isLoading = toRef(() => {
     if (hasMultipleFiles.value) {
       const pane = codePaneRefs.value.get(selectedTab.value ?? '')
       return pane?.isLoading ?? false
@@ -120,7 +132,7 @@
     return singleCodePane.value?.isLoading ?? false
   })
 
-  const hasHighlightedCode = computed(() => {
+  const hasHighlightedCode = toRef(() => {
     if (hasMultipleFiles.value) {
       const pane = codePaneRefs.value.get(selectedTab.value ?? '')
       return !!pane?.highlightedCode
@@ -149,27 +161,27 @@
     }
   }
 
-  const fileName = computed(() =>
-    props.file?.split('/').pop() || (props.filePath ? `${props.filePath.split('/').pop()}.vue` : ''),
+  const fileName = toRef(() =>
+    file?.split('/').pop() || (filePath ? `${filePath.split('/').pop()}.vue` : ''),
   )
 
   async function openAllInPlayground () {
     if (!displayFiles.value?.length) return
     const files = displayFiles.value.map(f => ({ name: f.name, code: f.code }))
-    const url = await usePlayground(files)
+    const url = await usePlayground(files, undefined, imports)
     window.open(url, '_blank')
   }
 
   function openAllInBin () {
     if (!displayFiles.value?.length) return
     const files = displayFiles.value.map(f => ({ name: f.name, code: f.code, language: f.language }))
-    const url = getMultiFileBinUrl(files, props.title)
+    const url = getMultiFileBinUrl(files, title)
     window.open(url, '_blank')
   }
 </script>
 
 <template>
-  <div class="relative my-6" :class="peek && !peekExpanded && 'mb-10'">
+  <div class="relative my-6" :class="peek && !hasMultipleFiles && 'mb-10'">
     <div class="border border-divider rounded-lg overflow-hidden">
       <!-- Description -->
       <DocsExampleDescription
@@ -192,7 +204,8 @@
         <button
           :aria-controls="`${uid}-code`"
           :aria-expanded="showCode"
-          class="group w-full px-4 py-3 bg-transparent border-none font-inherit text-sm cursor-pointer flex items-center gap-2 text-on-surface transition-colors hover:bg-surface"
+          class="group w-full px-4 py-3 bg-transparent border-none font-inherit text-sm cursor-pointer flex items-center gap-2 text-on-surface transition-colors"
+          :class="!showCode && 'hover:bg-surface'"
           type="button"
           @click="toggleCode"
         >
@@ -357,14 +370,15 @@
 
     <!-- Peek expand button -->
     <button
-      v-if="peek && !peekExpanded"
-      aria-label="Expand code"
-      class="absolute -bottom-3 left-1/2 -translate-x-1/2 z-10 inline-flex items-center justify-center gap-1 px-2 py-1 text-xs text-on-primary bg-primary rounded cursor-pointer transition-200 hover:bg-primary/85 touch-action-manipulation"
+      v-if="peek && !hasMultipleFiles"
+      :aria-label="peekExpanded ? 'Collapse code' : 'Expand code'"
+      class="absolute left-1/2 -translate-x-1/2 z-10 inline-flex items-center justify-center gap-1 px-2 py-1 text-xs text-on-primary bg-primary rounded cursor-pointer transition-200 hover:bg-primary/85 touch-action-manipulation"
+      :class="peekExpanded ? '-bottom-6' : '-bottom-3'"
       type="button"
-      @click="peekExpanded = true"
+      @click="peekExpanded = !peekExpanded"
     >
-      <span>Expand</span>
-      <AppIcon icon="down" :size="14" />
+      <span>{{ peekExpanded ? 'Collapse' : 'Expand' }}</span>
+      <AppIcon :icon="peekExpanded ? 'up' : 'down'" :size="14" />
     </button>
   </div>
 </template>

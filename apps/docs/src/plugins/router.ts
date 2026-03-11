@@ -28,7 +28,7 @@ const routerOptions: Omit<RouterOptions, 'history'> = {
       return new Promise(resolve => {
         setTimeout(() => {
           try {
-            const el = document.querySelector(to.hash)
+            const el = document.querySelector(`#${CSS.escape(to.hash.slice(1))}`)
             if (el) {
               const top = el.getBoundingClientRect().top + window.scrollY - 80
               const behavior = getPrefersReducedMotion() ? 'auto' : 'smooth'

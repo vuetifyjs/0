@@ -68,10 +68,10 @@ flowchart LR
 > [!TIP] Reactive filtering
 > Both the query and items passed to `apply()` can be reactive. The filtered result automatically updates when either changes.
 
-<DocsApi />
-
 ## Examples
 
 ::: example
 /composables/create-filter/live-search
 :::
+
+<DocsApi />

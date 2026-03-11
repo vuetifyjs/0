@@ -24,9 +24,24 @@ A composable for detecting clicks outside of specified element(s) with automatic
 
 The `useClickOutside` composable detects when users click outside target elements. It uses two-phase detection (pointerdown → pointerup) to prevent false positives when dragging, and includes touch scroll handling for mobile.
 
-::: example
-/composables/use-click-outside/basic
-:::
+```vue collapse no-filename UseClickOutside
+<script setup lang="ts">
+  import { useClickOutside } from '@vuetify/v0'
+  import { useTemplateRef } from 'vue'
+
+  const menu = useTemplateRef('menu')
+
+  useClickOutside(menu, () => {
+    console.log('Clicked outside the menu')
+  })
+</script>
+
+<template>
+  <div ref="menu">
+    Menu content
+  </div>
+</template>
+```
 
 ## Architecture
 
@@ -46,5 +61,11 @@ flowchart TD
 | - | :-: | - |
 | `isActive` | <AppSuccessIcon /> | Computed from `!isPaused` |
 | `isPaused` | <AppSuccessIcon /> | ShallowRef, readonly |
+
+## Examples
+
+::: example
+/composables/use-click-outside/basic
+:::
 
 <DocsApi />

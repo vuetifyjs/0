@@ -70,12 +70,12 @@
   <input
     :checked="isChecked"
     :disabled="isDisabled"
-    :form="form"
+    :form
     inert
-    :name="name"
+    :name
     :style="visuallyHiddenStyle"
     tabindex="-1"
     type="checkbox"
-    :value="value"
+    :value
   >
 </template>

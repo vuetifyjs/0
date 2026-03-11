@@ -27,7 +27,7 @@ A utility for managing design tokens with support for hierarchical collections, 
 
 The `createTokens` composable allows you to define a collection of design tokens, which can be primitive values or aliases that reference other tokens. It provides a context for resolving these tokens, making it easy to access design values throughout your application.
 
-```ts
+```ts collapse
 import { createTokens } from '@vuetify/v0'
 
 // Default behavior (depth = Infinity): fully flatten nested objects
@@ -56,13 +56,6 @@ const features = createTokens({
 features.resolve('rtl') // { value: true, variation: 'toggle' }
 ```
 
-## Reactivity
-
-`createTokens` uses **minimal reactivity** like its parent `createRegistry`. Token resolution is cached but not reactive.
-
-> [!TIP] For reactive theming
-> Use [useTheme](/composables/plugins/use-theme) which builds on `createTokens` with proper reactivity for theme switching.
-
 ## Architecture
 
 `createTokens` extends `createRegistry` and powers token-based systems:
@@ -75,7 +68,38 @@ flowchart TD
   createTokens --> usePermissions
 ```
 
-<DocsApi name="createTokens" />
+## Reactivity
+
+`createTokens` uses **minimal reactivity** like its parent `createRegistry`. Token resolution is cached but not reactive.
+
+> [!TIP] For reactive theming
+> Use [useTheme](/composables/plugins/use-theme) which builds on `createTokens` with proper reactivity for theme switching.
+
+## Examples
+
+::: example
+/composables/create-tokens/tokens.ts 1
+/composables/create-tokens/design-system.vue 2
+
+### Design Token Explorer
+
+A design system with four token categories — color palettes, semantic aliases, spacing, and radius — split across two files:
+
+| File | Role |
+|------|------|
+| `tokens.ts` | Defines the token collection with nested color scales and semantic aliases |
+| `design-system.vue` | Explorer UI with category tabs, search, and an alias resolver |
+
+**Key patterns:**
+
+- Nested objects flatten to dot-notation IDs: `color.blue.500`, `spacing.md`
+- Alias syntax `{color.blue.500}` references other tokens — `resolve()` follows the chain
+- `isAlias()` distinguishes alias references from direct values
+- Click any token to resolve it in the Alias Resolver panel
+
+:::
+
+<DocsApi />
 
 ## Frequently Asked Questions
 

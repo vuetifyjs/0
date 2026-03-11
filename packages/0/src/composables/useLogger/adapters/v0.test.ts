@@ -2,7 +2,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { Vuetify0LoggerAdapter } from './v0'
 
-// Mock IN_BROWSER - start with false for SSR tests
 const mockInBrowser = vi.hoisted(() => ({ value: false }))
 
 vi.mock('#v0/constants/globals', () => ({
@@ -115,12 +114,10 @@ describe('vuetify0LoggerAdapter', () => {
 
       adapter.info('ssr message')
 
-      // Should call console.info without %c prefix (no styling)
       expect(console.info).toHaveBeenCalledWith(
         expect.stringContaining('ssr message'),
       )
-      // The call should NOT include %c for styling
-      const call = (console.info as any).mock.calls[0][0]
+      const call = vi.mocked(console.info).mock.calls[0]![0]! as string
       expect(call).not.toContain('%c')
     })
 
@@ -130,8 +127,7 @@ describe('vuetify0LoggerAdapter', () => {
 
       adapter.info('test')
 
-      const call = (console.info as any).mock.calls[0][0]
-      // ISO format: 2024-01-01T00:00:00.000Z
+      const call = vi.mocked(console.info).mock.calls[0]![0]! as string
       expect(call).toMatch(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/)
     })
   })
@@ -146,11 +142,9 @@ describe('vuetify0LoggerAdapter', () => {
 
       adapter.info('browser message')
 
-      // Should call with %c prefix and style argument
       expect(console.info).toHaveBeenCalledWith(
         expect.stringContaining('%c'),
         expect.stringContaining('color:'),
-        // no extra args for this call
       )
     })
 
@@ -159,8 +153,7 @@ describe('vuetify0LoggerAdapter', () => {
 
       adapter.info('no color message')
 
-      // Should NOT include %c prefix
-      const call = (console.info as any).mock.calls[0][0]
+      const call = vi.mocked(console.info).mock.calls[0]![0]! as string
       expect(call).not.toContain('%c')
     })
 
@@ -169,8 +162,7 @@ describe('vuetify0LoggerAdapter', () => {
 
       adapter.info('test')
 
-      const call = (console.info as any).mock.calls[0][0]
-      // Short format: HH:MM:SS (no date, no T, no Z)
+      const call = vi.mocked(console.info).mock.calls[0]![0]! as string
       expect(call).toMatch(/\d{2}:\d{2}:\d{2}/)
       expect(call).not.toMatch(/\d{4}-\d{2}-\d{2}T/)
     })
@@ -182,7 +174,7 @@ describe('vuetify0LoggerAdapter', () => {
 
       adapter.info('no timestamp')
 
-      const call = (console.info as any).mock.calls[0][0]
+      const call = vi.mocked(console.info).mock.calls[0]![0]! as string
       expect(call).not.toMatch(/\d{2}:\d{2}:\d{2}/)
     })
   })
@@ -192,9 +184,7 @@ describe('vuetify0LoggerAdapter', () => {
       mockInBrowser.value = true
       const adapter = new Vuetify0LoggerAdapter({ colors: true })
 
-      // Access private method indirectly - silent level has empty style
-      // This tests the styles[level] || '' fallback
-      adapter.info('test') // info has a style, but this exercises the lookup
+      adapter.info('test')
 
       expect(console.info).toHaveBeenCalled()
     })

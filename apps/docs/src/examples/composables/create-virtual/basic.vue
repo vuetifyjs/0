@@ -26,7 +26,7 @@
   }))
 
   const jumpTo = shallowRef('')
-  function handleJumpTo () {
+  function onJumpTo () {
     const index = Number.parseInt(jumpTo.value) - 1
 
     if (index < 0 || index > items.value.length) return
@@ -52,10 +52,10 @@
         class="px-2 py-1 border border-divider bg-surface text-on-surface rounded w-24 flex-1 md:flex-none"
         placeholder="Jump to..."
         type="number"
-        @keyup.enter="handleJumpTo"
+        @keyup.enter="onJumpTo"
       >
 
-      <button class="px-3 py-1 border border-divider rounded hover:bg-surface-tint" @click="handleJumpTo">
+      <button class="px-3 py-1 border border-divider rounded hover:bg-surface-tint" @click="onJumpTo">
         Jump
       </button>
 

@@ -3,6 +3,7 @@
   import { TIER_CONFIG } from '@/composables/useBenchmarkData'
 
   // Utilities
+  import { resolveItemName } from '@/utilities/strings'
   import { computed, toRef } from 'vue'
   import { useRoute } from 'vue-router'
 
@@ -12,23 +13,9 @@
 
   const route = useRoute()
 
-  // Extract composable name from route
-  const itemName = computed(() => {
-    const path = route.path
-    const match = path.match(/\/(composables|components)\/[^/]+\/([^/]+)/)
-    if (!match) return null
+  const itemName = computed(() => resolveItemName(route.path))
 
-    const slug = match[2]
-    if (match[1] === 'composables') {
-      return slug.replace(/-([a-z])/g, (_, c: string) => c.toUpperCase())
-    }
-    return slug
-      .split('-')
-      .map(part => part.charAt(0).toUpperCase() + part.slice(1))
-      .join('')
-  })
-
-  const hasBenchmarks = computed(() => {
+  const hasBenchmarks = toRef(() => {
     const name = itemName.value
     if (!name) return false
     const m = (metrics as Record<string, { benchmarks?: Record<string, unknown> }>)[name]

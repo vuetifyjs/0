@@ -1,7 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Utilities
-import { createApp, inject, nextTick, provide } from 'vue'
+import { nextTick, provide } from 'vue'
+
+// Types
+import type { createApp } from 'vue'
 
 import { createStorage, createStorageContext, createStoragePlugin, useStorage } from './index'
 
@@ -15,7 +18,6 @@ vi.mock('vue', async () => {
 })
 
 const mockProvide = vi.mocked(provide)
-const mockInject = vi.mocked(inject)
 
 describe('useStorage', () => {
   let mockAdapter: any
@@ -198,6 +200,73 @@ describe('useStorage', () => {
       JSON.stringify({ name: 'john', age: 0 }),
     )
   })
+
+  describe('ttl', () => {
+    it('should wrap values with timestamp when ttl is set', async () => {
+      const now = 1_000_000
+      vi.spyOn(Date, 'now').mockReturnValue(now)
+
+      const storage = createStorage({ adapter: mockAdapter, ttl: 5000 })
+      storage.set('key', 'hello')
+
+      await nextTick()
+
+      expect(mockAdapter.setItem).toHaveBeenCalledWith(
+        'v0:key',
+        JSON.stringify({ __ttl: 1, __v: 'hello', __t: now }),
+      )
+    })
+
+    it('should return value when within ttl', () => {
+      const now = 1_000_000
+      vi.spyOn(Date, 'now').mockReturnValue(now)
+
+      mockAdapter.getItem.mockReturnValue(
+        JSON.stringify({ __ttl: 1, __v: 'fresh', __t: now - 3000 }),
+      )
+
+      const storage = createStorage({ adapter: mockAdapter, ttl: 5000 })
+      const val = storage.get('key', 'default')
+
+      expect(val.value).toBe('fresh')
+    })
+
+    it('should return default when ttl expired', () => {
+      const now = 1_000_000
+      vi.spyOn(Date, 'now').mockReturnValue(now)
+
+      mockAdapter.getItem.mockReturnValue(
+        JSON.stringify({ __ttl: 1, __v: 'stale', __t: now - 10_000 }),
+      )
+
+      const storage = createStorage({ adapter: mockAdapter, ttl: 5000 })
+      const val = storage.get('key', 'default')
+
+      expect(val.value).toBe('default')
+      expect(mockAdapter.removeItem).toHaveBeenCalledWith('v0:key')
+    })
+
+    it('should not wrap values when ttl is not set', async () => {
+      const storage = createStorage({ adapter: mockAdapter })
+      storage.set('key', 'plain')
+
+      await nextTick()
+
+      expect(mockAdapter.setItem).toHaveBeenCalledWith(
+        'v0:key',
+        JSON.stringify('plain'),
+      )
+    })
+
+    it('should read non-ttl values normally even when ttl is set', () => {
+      mockAdapter.getItem.mockReturnValue(JSON.stringify('legacy'))
+
+      const storage = createStorage({ adapter: mockAdapter, ttl: 5000 })
+      const val = storage.get('key', 'default')
+
+      expect(val.value).toBe('legacy')
+    })
+  })
 })
 
 describe('createStorageContext', () => {
@@ -287,56 +356,34 @@ describe('createStoragePlugin', () => {
   })
 
   it('should provide storage context when installed', () => {
-    const app = createApp({
-      template: '<div>Test</div>',
-    })
+    const mockApp = { provide: vi.fn(), runWithContext: vi.fn((fn: () => void) => fn()), _context: {} } as unknown as ReturnType<typeof createApp>
 
-    app.use(createStoragePlugin())
+    const plugin = createStoragePlugin()
+    plugin.install(mockApp)
 
-    const container = document.createElement('div')
-    app.mount(container)
-    app.unmount()
-
-    // Plugin installs without error
-    expect(true).toBe(true)
+    expect(mockApp.provide).toHaveBeenCalledWith('v0:storage', expect.objectContaining({
+      get: expect.any(Function),
+      set: expect.any(Function),
+      has: expect.any(Function),
+      remove: expect.any(Function),
+      clear: expect.any(Function),
+    }))
   })
 })
 
 describe('useStorage consumer', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-  })
-
-  it('should inject context with default namespace', () => {
-    const mockContext = createStorage()
-    mockInject.mockReturnValue(mockContext)
-
+  it('should return fallback when no context is provided', () => {
     const result = useStorage()
 
-    expect(mockInject).toHaveBeenCalledWith('v0:storage', undefined)
-    expect(result).toBe(mockContext)
-  })
-
-  it('should inject context with custom namespace', () => {
-    const mockContext = createStorage()
-    mockInject.mockReturnValue(mockContext)
-
-    const result = useStorage('my-storage')
-
-    expect(mockInject).toHaveBeenCalledWith('my-storage', undefined)
-    expect(result).toBe(mockContext)
-  })
-
-  it('should throw when context is not provided', () => {
-    mockInject.mockReturnValue(undefined)
-
-    expect(() => useStorage()).toThrow(
-      'Context "v0:storage" not found. Ensure it\'s provided by an ancestor.',
-    )
+    expect(typeof result.get).toBe('function')
+    expect(typeof result.set).toBe('function')
+    expect(typeof result.has).toBe('function')
+    expect(typeof result.remove).toBe('function')
+    expect(typeof result.clear).toBe('function')
   })
 })
 
-describe('useStorage SSR', () => {
+describe('useStorage SSR safety', () => {
   beforeEach(() => {
     vi.resetModules()
     vi.clearAllMocks()

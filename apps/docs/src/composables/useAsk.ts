@@ -8,12 +8,13 @@
  */
 
 // Framework
-import { IN_BROWSER } from '@vuetify/v0/constants'
+import { IN_BROWSER, useDocumentEventListener } from '@vuetify/v0'
 
 // Composables
 import { useSettings } from './useSettings'
 
 // Utilities
+import { resolveItemName } from '@/utilities/strings'
 import { readonly, shallowRef } from 'vue'
 import { useRoute } from 'vue-router'
 
@@ -175,15 +176,12 @@ function getPageSlug (path: string): string | null {
 
 /** Get API data for a page */
 function getApiForPage (path: string, apiData: ApiData): ApiContext[] | undefined {
-  const slug = getPageSlug(path)
-  if (!slug) return undefined
+  const name = resolveItemName(path)
+  if (!name) return undefined
 
   if (path.includes('/components/')) {
-    // Convert slug to PascalCase prefix: step -> Step
-    const prefix = slug.split('-').map(p => p.charAt(0).toUpperCase() + p.slice(1)).join('')
-
     const apis = Object.entries(apiData.components)
-      .filter(([name]) => name.startsWith(prefix))
+      .filter(([key]) => key.startsWith(name))
       .map(([, api]) => ({
         name: api.name,
         kind: 'component' as const,
@@ -196,10 +194,7 @@ function getApiForPage (path: string, apiData: ApiData): ApiContext[] | undefine
   }
 
   if (path.includes('/composables/')) {
-    // Convert slug to camelCase: use-selection -> useSelection
-    const camelName = slug.replace(/-([a-z])/g, (_, c) => c.toUpperCase())
-
-    const api = apiData.composables[camelName]
+    const api = apiData.composables[name]
     if (api) {
       return [{
         name: api.name,
@@ -261,6 +256,7 @@ const isLoading = shallowRef(false)
 const error: ShallowRef<string | null> = shallowRef(null)
 const focusTrigger = shallowRef(0)
 let abortController: AbortController | null = null
+let keyboardRegistered = false
 
 /**
  * Controls the Ask AI feature.
@@ -285,6 +281,22 @@ let abortController: AbortController | null = null
 export function useAsk (): UseAskReturn {
   const route = useRoute()
   const { packageManager } = useSettings()
+
+  // Register global keyboard shortcuts once (needs component context for useDocumentEventListener)
+  if (!keyboardRegistered) {
+    keyboardRegistered = true
+    useDocumentEventListener('keydown', (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === '/') {
+        e.preventDefault()
+        if (isOpen.value) isOpen.value = false
+        else focusTrigger.value++
+      }
+      if (e.key === 'Escape' && isOpen.value) {
+        e.preventDefault()
+        isOpen.value = false
+      }
+    })
+  }
 
   function open () {
     isOpen.value = true

@@ -25,9 +25,30 @@ Virtual scrolling composable for efficiently rendering large lists by only rende
 
 The `createVirtual` composable efficiently renders large lists by only mounting visible items plus a small overscan buffer. Pass an array of items and configure the item height to get back sliced items, scroll handlers, and positioning values.
 
-::: example
-/composables/create-virtual/basic
-:::
+```vue collapse no-filename
+<script setup lang="ts">
+  import { createVirtual } from '@vuetify/v0'
+  import { shallowRef } from 'vue'
+
+  const items = shallowRef(
+    Array.from({ length: 10_000 }, (_, i) => `Item ${i + 1}`)
+  )
+
+  const { element, items: visible, offset, size, scroll, scrollTo } = createVirtual(items, {
+    itemHeight: 40,
+  })
+</script>
+
+<template>
+  <div ref="element" class="h-[300px] overflow-y-auto" @scroll="scroll">
+    <div :style="{ height: `${offset}px` }" />
+    <div v-for="item in visible" :key="item.index">
+      {{ item.raw }}
+    </div>
+    <div :style="{ height: `${size}px` }" />
+  </div>
+</template>
+```
 
 ## Architecture
 
@@ -73,5 +94,11 @@ flowchart LR
 
 > [!TIP] Source items
 > The `items` ref passed to `createVirtual()` is watched for changes. When items change, the virtual scroller updates automatically.
+
+## Examples
+
+::: example
+/composables/create-virtual/basic
+:::
 
 <DocsApi />

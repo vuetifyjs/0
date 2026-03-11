@@ -5,7 +5,11 @@
   // Utilities
   import { computed, toRef, watch } from 'vue'
 
-  const props = withDefaults(defineProps<{
+  const {
+    composable,
+    hideSummary,
+    collapsed,
+  } = defineProps<{
     /** Restrict to a single composable (embed mode) */
     composable?: string
     /** Hide the filter bar */
@@ -14,9 +18,7 @@
     hideSummary?: boolean
     /** Start with groups collapsed */
     collapsed?: boolean
-  }>(), {
-    collapsed: undefined,
-  })
+  }>()
 
   const {
     isLoading,
@@ -28,10 +30,10 @@
     expandedGroups,
     expandAll,
     collapseAll,
-  } = useBenchmarkData({ composable: () => props.composable })
+  } = useBenchmarkData({ composable: () => composable })
 
   // Default expand behavior: expand all when not collapsed
-  const shouldCollapse = computed(() => props.collapsed ?? !!props.composable)
+  const shouldCollapse = toRef(() => collapsed ?? !!composable)
 
   // Auto-expand groups when search is active
   watch(toRef(() => filter.query.value), query => {
@@ -53,7 +55,7 @@
   )
 
   // Composable selection: register items and use toggle
-  function handleComposableSelect (name: string) {
+  function onComposableSelect (name: string) {
     if (!composableSelection.has(name)) {
       composableSelection.register({ id: name })
     }
@@ -61,7 +63,7 @@
   }
 
   // Expand/collapse: register group and toggle
-  function handleGroupToggle (id: string) {
+  function onGroupToggle (id: string) {
     if (!expandedGroups.has(id)) {
       expandedGroups.register({ id })
     }
@@ -69,7 +71,7 @@
   }
 
   // Derive selected composable names from group selectedIds
-  const selectedComposableNames = computed(() => Array.from(composableSelection.selectedIds) as string[])
+  const selectedComposableNames = toRef(() => Array.from(composableSelection.selectedIds) as string[])
 </script>
 
 <template>
@@ -83,7 +85,7 @@
         v-if="!hideSummary && composables.length > 1"
         :composables="composables"
         :selected-composables="selectedComposableNames"
-        @select="handleComposableSelect"
+        @select="onComposableSelect"
       />
 
       <!-- Aggregate stat -->
@@ -131,7 +133,7 @@
           :expanded="expandedGroups.selected(group.id)"
           :group="group"
           :tier="group.tier"
-          @update:expanded="handleGroupToggle(group.id)"
+          @update:expanded="onGroupToggle(group.id)"
         />
       </div>
 

@@ -8,7 +8,7 @@
   import { usePlayground } from './PlaygroundApp.vue'
 
   // Utilities
-  import { computed } from 'vue'
+  import { toRef } from 'vue'
   import { RouterLink, useRouter } from 'vue-router'
 
   const router = useRouter()
@@ -16,40 +16,38 @@
   const playground = usePlayground()
   const breakpoints = useBreakpoints()
   const storage = useStorage()
-  const left = storage.get('playground-left-open', true)
-  const side = storage.get('playground-preview-right', false)
+  const sidePref = storage.get('playground-preview-right', false)
 
-  useHotkey('ctrl+b', () => playground.toggle('workspace-left'), { inputs: true })
+  useHotkey('ctrl+b', () => {
+    playground.tree.value = !playground.tree.value
+  }, { inputs: true })
 
   function onLeft () {
-    playground.toggle('playground-left')
-    left.value = playground.selected('playground-left')
+    playground.left.value = !playground.left.value
+    const open = playground.left.value
 
-    if (side.value && !breakpoints.isMobile.value) {
-      playground.toggle('preview-side')
-      playground.toggle('workspace-bottom')
+    if (open && !breakpoints.isMobile.value && playground.side.value) {
+      // Opening intro with side preview: force to bottom
+      playground.side.value = false
+      playground.bottom.value = true
+    } else if (!open && !breakpoints.isMobile.value && sidePref.value && !playground.side.value) {
+      // Closing intro: restore side preview if that was the user's preference
+      playground.side.value = true
+      playground.bottom.value = false
     }
   }
 
   function onSide () {
-    playground.toggle('preview-side')
-    playground.toggle('workspace-bottom')
-    side.value = playground.selected('preview-side')
+    playground.side.value = !playground.side.value
+    playground.bottom.value = !playground.bottom.value
+    sidePref.value = playground.side.value
   }
 
   function onView () {
-    if (playground.selected('workspace-right')) {
-      playground.toggle('workspace-right')
-      const preview = side.value && !playground.selected('playground-left') && !breakpoints.isMobile.value ? 'preview-side' : 'workspace-bottom'
-      if (!playground.selected(preview)) playground.toggle(preview)
-    } else {
-      playground.toggle('workspace-right')
-      if (playground.selected('preview-side')) playground.toggle('preview-side')
-      if (playground.selected('workspace-bottom')) playground.toggle('workspace-bottom')
-    }
+    playground.editor.value = !playground.editor.value
   }
 
-  const backTo = computed(() =>
+  const backTo = toRef(() =>
     router.currentRoute.value.redirectedFrom?.fullPath
     ?? (IN_BROWSER ? window.history.state?.back : null)
     ?? '/',
@@ -72,48 +70,48 @@
 
     <div class="flex items-center gap-2">
       <button
-        :aria-pressed="playground.selected('playground-left')"
+        :aria-pressed="playground.left.value"
         class="pa-1 inline-flex rounded hover:opacity-80 hover:bg-surface-tint focus-visible:opacity-80 focus-visible:bg-surface-tint focus-visible:outline-none cursor-pointer transition-opacity"
-        :class="playground.selected('playground-left') ? 'opacity-80' : 'opacity-50'"
+        :class="playground.left.value ? 'opacity-80' : 'opacity-50'"
         title="Toggle documentation panel"
         type="button"
         @click="onLeft"
       >
-        <AppIcon :icon="playground.selected('playground-left') ? 'book-open' : 'book-closed'" />
+        <AppIcon :icon="playground.left.value ? 'book-open' : 'book-closed'" />
       </button>
 
       <button
-        :aria-pressed="playground.selected('workspace-left')"
+        :aria-pressed="playground.tree.value"
         class="pa-1 inline-flex rounded hover:opacity-80 hover:bg-surface-tint focus-visible:opacity-80 focus-visible:bg-surface-tint focus-visible:outline-none cursor-pointer transition-opacity"
-        :class="playground.selected('workspace-left') ? 'opacity-80' : 'opacity-50'"
+        :class="playground.tree.value ? 'opacity-80' : 'opacity-50'"
         title="Toggle file tree (Ctrl+B)"
         type="button"
-        @click="playground.toggle('workspace-left')"
+        @click="playground.tree.value = !playground.tree.value"
       >
-        <AppIcon :icon="playground.selected('workspace-left') ? 'folder-open' : 'folder'" />
+        <AppIcon :icon="playground.tree.value ? 'folder-open' : 'folder'" />
       </button>
 
       <button
-        :aria-disabled="playground.selected('playground-left')"
-        :aria-pressed="side"
+        :aria-disabled="playground.left.value"
+        :aria-pressed="sidePref"
         class="hidden md:inline-flex pa-1 rounded transition-opacity"
-        :class="playground.selected('playground-left') ? 'opacity-25 cursor-not-allowed' : 'opacity-50 hover:opacity-80 hover:bg-surface-tint focus-visible:opacity-80 focus-visible:bg-surface-tint focus-visible:outline-none cursor-pointer'"
-        :title="playground.selected('playground-left') ? 'Close the documentation panel to change preview position' : side.value ? 'Move preview to bottom' : 'Move preview to right'"
+        :class="playground.left.value ? 'opacity-25 cursor-not-allowed' : 'opacity-50 hover:opacity-80 hover:bg-surface-tint focus-visible:opacity-80 focus-visible:bg-surface-tint focus-visible:outline-none cursor-pointer'"
+        :title="playground.left.value ? 'Close the documentation panel to change preview position' : sidePref.value ? 'Move preview to bottom' : 'Move preview to right'"
         type="button"
-        @click="!playground.selected('playground-left') && onSide()"
+        @click="!playground.left.value && onSide()"
       >
-        <AppIcon :icon="playground.selected('preview-side') ? 'layout-vertical' : 'layout-horizontal'" />
+        <AppIcon :icon="playground.side.value ? 'layout-vertical' : 'layout-horizontal'" />
       </button>
 
       <button
-        :aria-pressed="!playground.selected('workspace-right')"
+        :aria-pressed="!playground.editor.value"
         class="md:hidden pa-1 inline-flex rounded hover:opacity-80 hover:bg-surface-tint focus-visible:opacity-80 focus-visible:bg-surface-tint focus-visible:outline-none cursor-pointer transition-opacity"
-        :class="!playground.selected('workspace-right') ? 'opacity-80' : 'opacity-50'"
-        :title="playground.selected('workspace-right') ? 'Switch to preview' : 'Switch to editor'"
+        :class="!playground.editor.value ? 'opacity-80' : 'opacity-50'"
+        :title="playground.editor.value ? 'Switch to preview' : 'Switch to editor'"
         type="button"
         @click="onView"
       >
-        <AppIcon :icon="playground.selected('workspace-right') ? 'editor' : 'eye'" />
+        <AppIcon :icon="playground.editor.value ? 'editor' : 'eye'" />
       </button>
 
       <AppThemeToggle />

@@ -20,11 +20,11 @@ Manage feature flags and simple variations across your app. Register features, t
 
 <DocsPageFeatures :frontmatter />
 
-## Usage
+## Installation
 
-Install the Features plugin once, then access the context anywhere via `createFeatures`.
+Install the Features plugin in your app's entry point:
 
-```ts
+```ts main.ts
 import { createApp } from 'vue'
 import { createFeaturesPlugin } from '@vuetify/v0'
 import App from './App.vue'
@@ -45,9 +45,11 @@ app.use(
 app.mount('#app')
 ```
 
-Now in any component, access current feature flags and variations:
+## Usage
 
-```vue UseFeatures
+Once the plugin is installed, access feature flags and variations in any component:
+
+```vue collapse UseFeatures
 <script setup lang="ts">
   import { useFeatures } from '@vuetify/v0'
 
@@ -66,7 +68,7 @@ Now in any component, access current feature flags and variations:
 
 Optionally register features at runtime:
 
-```vue UseFeatures
+```vue collapse UseFeatures
 <script setup lang="ts">
   import { useFeatures } from '@vuetify/v0'
 

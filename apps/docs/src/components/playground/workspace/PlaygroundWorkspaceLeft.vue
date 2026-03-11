@@ -1,93 +1,74 @@
 <script setup lang="ts">
   // Framework
-  import { useBreakpoints, useStack } from '@vuetify/v0'
+  import { SplitterPanel, useBreakpoints, useStack } from '@vuetify/v0'
 
   // Components
   import { usePlayground } from '../app/PlaygroundApp.vue'
 
   // Utilities
-  import { onMounted, onUnmounted, shallowRef, toRef, watch } from 'vue'
-
-  const DEFAULT_WIDTH = 300
-  const DEFAULT_MIN_WIDTH = 200
-  const DEFAULT_MAX_WIDTH = 450
+  import { computed, toRef, watch } from 'vue'
 
   const playground = usePlayground()
   const breakpoints = useBreakpoints()
-
-  const ticket = playground.register({ id: 'workspace-left' })
-
   const isMobile = breakpoints.isMobile
+  const open = toRef(() => playground.tree.value)
 
-  onMounted(() => {
-    if (!isMobile.value) ticket.select()
+  const collapsed = computed({
+    get: () => !playground.tree.value,
+    set: v => {
+      playground.tree.value = !v
+    },
   })
-
-  const modelValue = shallowRef(DEFAULT_WIDTH)
-
-  const styles = toRef(() => ({
-    width: `${modelValue.value}px`,
-  }))
-
-  onUnmounted(() => {
-    playground.unregister(ticket.id)
-  })
-
-  function onDblClick () {
-    modelValue.value = modelValue.value === DEFAULT_WIDTH ? DEFAULT_MAX_WIDTH : DEFAULT_WIDTH
-  }
 
   const stack = useStack()
-  const stackTicket = stack.register({ onDismiss: () => playground.toggle('workspace-left') })
+  const ticket = stack.register({ onDismiss: () => {
+    playground.tree.value = false
+  } })
 
-  watch(() => ticket.isSelected.value && isMobile.value, open => {
-    if (open) stackTicket.select()
-    else stackTicket.unselect()
+  watch(() => open.value && isMobile.value, visible => {
+    if (visible) ticket.select()
+    else ticket.unselect()
   }, { immediate: true })
-
 </script>
 
 <template>
-  <!-- Desktop: inline flex item -->
   <template v-if="!isMobile">
-    <template v-if="ticket.isSelected.value">
-      <div
-        :style="styles"
-      >
+    <SplitterPanel
+      v-model:collapsed="collapsed"
+      :collapsed-size="0"
+      collapsible
+      :default-size="20"
+      :max-size="35"
+      :min-size="15"
+    >
+      <div v-if="open">
         <slot />
       </div>
+    </SplitterPanel>
 
-      <PlaygroundAppResizeBar
-        v-if="playground.selectedIds.has('workspace-right')"
-        v-model="modelValue"
-        class="z-1"
-        direction="horizontal"
-        :max="DEFAULT_MAX_WIDTH"
-        :min="DEFAULT_MIN_WIDTH"
-        storage-key="workspace-left"
-        @dblclick="onDblClick"
-      />
-    </template>
+    <PlaygroundSplitterHandle
+      direction="horizontal"
+      :hidden="!open || !playground.editor.value"
+    />
   </template>
 
-  <!-- Mobile: always mounted fixed drawer -->
-  <template v-else>
-    <div
-      class="fixed top-0 bottom-0 left-0 w-[280px] bg-surface border-r border-divider flex flex-col transition-transform duration-200"
-      :class="ticket.isSelected.value ? 'translate-x-0' : '-translate-x-full'"
-      :inert="ticket.isSelected.value ? undefined : true"
-      :style="{ zIndex: stackTicket.zIndex.value }"
-    >
-      <header class="shrink-0 px-4 py-3 border-b border-divider flex items-center justify-between">
-        <div class="flex items-center gap-2">
-          <AppIcon aria-hidden="true" icon="folder" />
-          <span class="font-medium">Tree</span>
-        </div>
+  <!-- Mobile: fixed drawer -->
+  <div
+    v-if="isMobile"
+    class="fixed top-0 bottom-0 left-0 w-[280px] bg-surface border-r border-divider flex flex-col transition-transform duration-200"
+    :class="open ? 'translate-x-0' : '-translate-x-full'"
+    :inert="open ? undefined : true"
+    :style="{ zIndex: ticket.zIndex.value }"
+  >
+    <header class="shrink-0 px-4 py-3 border-b border-divider flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <AppIcon aria-hidden="true" icon="folder" />
+        <span class="font-medium">Tree</span>
+      </div>
 
-        <AppCloseButton label="Close file tree" @click="playground.toggle('workspace-left')" />
-      </header>
+      <AppCloseButton label="Close file tree" @click="playground.tree.value = false" />
+    </header>
 
-      <slot />
-    </div>
-  </template>
+    <slot />
+  </div>
 </template>

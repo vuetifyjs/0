@@ -100,6 +100,20 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/components/forms/slider': RouteRecordInfo<
+      '/components/forms/slider',
+      '/components/forms/slider',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/components/forms/switch': RouteRecordInfo<
+      '/components/forms/switch',
+      '/components/forms/switch',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/components/primitives/atom': RouteRecordInfo<
       '/components/primitives/atom',
       '/components/primitives/atom',
@@ -163,6 +177,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/components/semantic/splitter': RouteRecordInfo<
+      '/components/semantic/splitter',
+      '/components/semantic/splitter',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/composables/': RouteRecordInfo<
       '/composables/',
       '/composables',
@@ -201,6 +222,13 @@ declare module 'vue-router/auto-routes' {
     '/composables/forms/create-form': RouteRecordInfo<
       '/composables/forms/create-form',
       '/composables/forms/create-form',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/composables/forms/create-slider': RouteRecordInfo<
+      '/composables/forms/create-slider',
+      '/composables/forms/create-slider',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -348,6 +376,13 @@ declare module 'vue-router/auto-routes' {
     '/composables/selection/create-group': RouteRecordInfo<
       '/composables/selection/create-group',
       '/composables/selection/create-group',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/composables/selection/create-model': RouteRecordInfo<
+      '/composables/selection/create-model',
+      '/composables/selection/create-model',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -781,6 +816,18 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/components/forms/slider.md': {
+      routes:
+        | '/components/forms/slider'
+      views:
+        | never
+    }
+    'src/pages/components/forms/switch.md': {
+      routes:
+        | '/components/forms/switch'
+      views:
+        | never
+    }
     'src/pages/components/primitives/atom.md': {
       routes:
         | '/components/primitives/atom'
@@ -835,6 +882,12 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/components/semantic/splitter.md': {
+      routes:
+        | '/components/semantic/splitter'
+      views:
+        | never
+    }
     'src/pages/composables/index.md': {
       routes:
         | '/composables/'
@@ -868,6 +921,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/forms/create-form.md': {
       routes:
         | '/composables/forms/create-form'
+      views:
+        | never
+    }
+    'src/pages/composables/forms/create-slider.md': {
+      routes:
+        | '/composables/forms/create-slider'
       views:
         | never
     }
@@ -994,6 +1053,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/selection/create-group.md': {
       routes:
         | '/composables/selection/create-group'
+      views:
+        | never
+    }
+    'src/pages/composables/selection/create-model.md': {
+      routes:
+        | '/composables/selection/create-model'
       views:
         | never
     }

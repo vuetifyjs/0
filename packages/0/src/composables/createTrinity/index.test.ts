@@ -1,6 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
 
-import { createTrinity } from '../index'
+// Types
+import type { App } from 'vue'
+
+import { createTrinity } from './index'
 
 describe('createTrinity', () => {
   it('should create a singleton with use, provide, and context', () => {
@@ -50,7 +53,7 @@ describe('createTrinity', () => {
 
   it('should pass app parameter to provideContext', () => {
     const mockContext = { value: 'test' }
-    const mockApp = { version: '3.0.0' } as any
+    const mockApp = { version: '3.0.0' } as unknown as App
     const mockUseContext = vi.fn(() => mockContext)
     const mockProvideContext = vi.fn(context => context)
 
@@ -59,5 +62,32 @@ describe('createTrinity', () => {
     provideContext(undefined, mockApp)
 
     expect(mockProvideContext).toHaveBeenCalledWith(mockContext, mockApp)
+  })
+
+  it('should return a readonly tuple of exactly length 3', () => {
+    const mockContext = { value: 'test' }
+    const mockUseContext = vi.fn(() => mockContext)
+    const mockProvideContext = vi.fn(context => context)
+
+    const trinity = createTrinity(mockUseContext, mockProvideContext, mockContext)
+
+    expect(Array.isArray(trinity)).toBe(true)
+    expect(trinity).toHaveLength(3)
+    expect(typeof trinity[0]).toBe('function')
+    expect(typeof trinity[1]).toBe('function')
+    expect(trinity[2]).toBe(mockContext)
+  })
+
+  it('should propagate errors from useContext', () => {
+    const error = new Error('Context not found')
+    const mockUseContext = vi.fn(() => {
+      throw error
+    })
+    const mockProvideContext = vi.fn(context => context)
+    const mockContext = { value: 'test' }
+
+    const [useContext] = createTrinity(mockUseContext, mockProvideContext, mockContext)
+
+    expect(() => useContext()).toThrow('Context not found')
   })
 })

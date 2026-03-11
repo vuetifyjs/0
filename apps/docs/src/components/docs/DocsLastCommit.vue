@@ -5,20 +5,9 @@
   // Utilities
   import { onMounted } from 'vue'
 
+  import { CACHE_TTL } from '@/constants/cache'
   import { useAppStore } from '@/stores/app'
-
-  interface CacheEntry<T> {
-    data: T
-    timestamp: number
-  }
-
-  const CACHE_TTL = import.meta.env.DEV ? 30 * 1000 : 5 * 60 * 1000 // 30s dev, 5min prod
-  const storage = createStorage({ prefix: 'v0-commit:' })
-
-  function isCacheValid<T> (entry: CacheEntry<T> | null): entry is CacheEntry<T> {
-    if (!entry) return false
-    return Date.now() - entry.timestamp < CACHE_TTL
-  }
+  const storage = createStorage({ prefix: 'v0-commit:', ttl: CACHE_TTL })
 
   const app = useAppStore()
   const logger = useLogger()
@@ -27,9 +16,9 @@
     if (app.stats.commit) return // Already fetched this session
 
     // Check cache first
-    const cached = storage.get<CacheEntry<typeof app.stats.commit> | null>('latest', null)
-    if (isCacheValid(cached.value)) {
-      app.stats.commit = cached.value.data
+    const cached = storage.get<typeof app.stats.commit | null>('latest', null)
+    if (cached.value) {
+      app.stats.commit = cached.value
       return
     }
 
@@ -45,11 +34,7 @@
 
       app.stats.commit = data[0] as typeof app.stats.commit
 
-      // Cache the result
-      storage.set<CacheEntry<typeof app.stats.commit>>('latest', {
-        data: app.stats.commit,
-        timestamp: Date.now(),
-      })
+      storage.set('latest', app.stats.commit)
     } catch (error) {
       logger.warn('Failed to fetch commit info', error)
     }

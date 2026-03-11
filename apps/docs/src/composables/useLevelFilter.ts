@@ -2,11 +2,11 @@
 import { createContext, createGroup, useStorage } from '@vuetify/v0'
 
 // Utilities
-import { computed, onMounted, toValue, watch } from 'vue'
+import { computed, onMounted, toRef, toValue, watch } from 'vue'
 
 // Types
 import type { NavItem } from '@/stores/app'
-import type { ComputedRef, MaybeRefOrGetter } from 'vue'
+import type { ComputedRef, MaybeRefOrGetter, Ref } from 'vue'
 
 const LEVELS = [1, 2, 3] as const
 export type Level = (typeof LEVELS)[number]
@@ -14,7 +14,7 @@ export type Level = (typeof LEVELS)[number]
 export interface LevelFilterContext {
   levels: typeof LEVELS
   selectedLevels: Set<Level>
-  hasChanges: ComputedRef<boolean>
+  hasChanges: Readonly<Ref<boolean>>
   toggle: (level: Level) => void
   isSelected: (level: Level) => boolean
   clear: () => void
@@ -44,7 +44,7 @@ export function createLevelFilter (nav: MaybeRefOrGetter<NavItem[]>) {
     return filterNavByLevel(items, group.selectedIds as Set<number>)
   })
 
-  const hasChanges = computed(() => group.selectedIds.size > 0)
+  const hasChanges = toRef(() => group.selectedIds.size > 0)
 
   function clear () {
     group.unselectAll()

@@ -1,10 +1,10 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Adapters
 import { Vuetify0LocaleAdapter } from './adapters/v0'
 
 // Utilities
-import { getCurrentInstance, inject, provide } from 'vue'
+import { hasInjectionContext, inject, provide } from 'vue'
 
 import { createLocale, createLocaleContext, createLocalePlugin, useLocale } from './index'
 
@@ -14,15 +14,19 @@ vi.mock('vue', async () => {
     ...actual,
     provide: vi.fn(),
     inject: vi.fn(),
-    getCurrentInstance: vi.fn(),
+    hasInjectionContext: vi.fn(),
   }
 })
 
 const mockProvide = vi.mocked(provide)
 const mockInject = vi.mocked(inject)
-const mockGetCurrentInstance = vi.mocked(getCurrentInstance)
+const mockHasInjectionContext = vi.mocked(hasInjectionContext)
 
 describe('useLocale', () => {
+  afterEach(() => {
+    vi.clearAllMocks()
+  })
+
   describe('createLocale', () => {
     it('should create locale instance with default options', () => {
       const defaultLocale = createLocale()
@@ -148,11 +152,8 @@ describe('useLocale', () => {
           en: { greet: 'Hello {name}, you have {count} messages' },
         },
       })
-      const warnSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
 
       expect(locale.t('greet', { name: 'John', count: 5 })).toBe('Hello John, you have 5 messages')
-
-      warnSpy.mockRestore()
     })
 
     it('should resolve token references in messages', () => {
@@ -211,31 +212,19 @@ describe('useLocale', () => {
     })
 
     it('should handle numbered placeholders', () => {
-      const warnSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
-
       expect(adapter.t('Hello {0}', 'World')).toBe('Hello World')
       expect(adapter.t('Sum: {0} + {1} = {2}', 1, 2, 3)).toBe('Sum: 1 + 2 = 3')
-
-      warnSpy.mockRestore()
     })
 
     it('should handle named placeholders', () => {
-      const warnSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
-
       expect(adapter.t('Hello {name}', { name: 'World' })).toBe('Hello World')
       expect(adapter.t('Hello {firstName} {lastName}', { firstName: 'John', lastName: 'Doe' }))
         .toBe('Hello John Doe')
-
-      warnSpy.mockRestore()
     })
 
     it('should handle mixed placeholders', () => {
-      const warnSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
-
       expect(adapter.t('Hello {name}, you have {0} messages', { name: 'John' }, 5))
         .toBe('Hello John, you have 5 messages')
-
-      warnSpy.mockRestore()
     })
 
     it('should preserve unresolved placeholders', () => {
@@ -442,12 +431,10 @@ describe('useLocale consumer', () => {
     vi.clearAllMocks()
   })
 
-  it('should return fallback when not in component instance', () => {
-    mockGetCurrentInstance.mockReturnValue(null)
-
+  it('should return fallback when no injection context', () => {
     const result = useLocale()
 
-    // Should return fallback without calling inject
+    // hasInjectionContext() is false by default → returns fallback without calling inject
     expect(result).toBeDefined()
     expect(typeof result.t).toBe('function')
     expect(mockInject).not.toHaveBeenCalled()
@@ -455,7 +442,7 @@ describe('useLocale consumer', () => {
 
   it('should inject context when in component instance', () => {
     const mockContext = createLocale()
-    mockGetCurrentInstance.mockReturnValue({} as any)
+    mockHasInjectionContext.mockReturnValue(true)
     mockInject.mockReturnValue(mockContext)
 
     const result = useLocale()
@@ -465,7 +452,7 @@ describe('useLocale consumer', () => {
 
   it('should inject context with custom namespace', () => {
     const mockContext = createLocale()
-    mockGetCurrentInstance.mockReturnValue({} as any)
+    mockHasInjectionContext.mockReturnValue(true)
     mockInject.mockReturnValue(mockContext)
 
     const result = useLocale('my-locale')
@@ -474,10 +461,10 @@ describe('useLocale consumer', () => {
   })
 
   it('should return fallback when context is not provided', () => {
-    mockGetCurrentInstance.mockReturnValue({} as any)
-    mockInject.mockReturnValue(undefined)
+    mockHasInjectionContext.mockReturnValue(true)
+    // Simulate Vue's inject: return the defaultValue when key is not found
+    mockInject.mockImplementation((_key: unknown, def: unknown) => def)
 
-    // useLocale uses useContext with fallback, so it returns the fallback instead of throwing
     const result = useLocale()
     expect(result).toBeDefined()
     expect(typeof result.t).toBe('function')

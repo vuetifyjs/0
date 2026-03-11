@@ -8,7 +8,7 @@
   import { useSettings } from '@/composables/useSettings'
 
   // Utilities
-  import { computed, toRef, useTemplateRef } from 'vue'
+  import { toRef, useTemplateRef } from 'vue'
   import { RouterLink, useRoute } from 'vue-router'
 
   // Types
@@ -50,18 +50,18 @@
     return 'expand'
   })
 
-  const isActive = computed(() => to && (route.path === to || route.path.startsWith(`${to}/`)))
+  const isActive = toRef(() => to && (route.path === to || route.path.startsWith(`${to}/`)))
   // Check children Map directly for reactivity
-  const childIds = computed(() => navNested.nested.children.get(id) ?? [])
-  const hasChildren = computed(() => childIds.value.length > 0)
+  const childIds = toRef(() => navNested.nested.children.get(id) ?? [])
+  const hasChildren = toRef(() => childIds.value.length > 0)
 
   // Only top-level items can be collapsed (disabled in flat mode)
-  const isTopLevel = computed(() => depth === 0)
-  const isCollapsible = computed(() => !navConfig.flatMode.value && isTopLevel.value && hasChildren.value)
-  const isOpen = computed(() => isCollapsible.value ? navNested.nested.opened(id) : true)
+  const isTopLevel = toRef(() => depth === 0)
+  const isCollapsible = toRef(() => !navConfig.flatMode.value && isTopLevel.value && hasChildren.value)
+  const isOpen = toRef(() => isCollapsible.value ? navNested.nested.opened(id) : true)
 
   // Check if this node is an ancestor of the current route (for highlighting category headers)
-  const containsActivePage = computed(() => {
+  const containsActivePage = toRef(() => {
     if (to) return false // Links use their own active state
     return navNested.nested.isAncestorOf(id, route.path)
   })

@@ -28,7 +28,7 @@ The form composables provide a powerful interface for managing form state, valid
 
 Use `createForm` to create a new form instance:
 
-```ts
+```ts collapse no-filename
 import { createForm } from '@vuetify/v0'
 
 const form = createForm()
@@ -57,6 +57,19 @@ import { useForm } from '@vuetify/v0'
 const form = useForm()
 ```
 
+## Architecture
+
+`createForm` extends `createRegistry` with validation capabilities:
+
+```mermaid "Form Validation Flow"
+flowchart TD
+  createRegistry --> createForm
+  createForm --> useForm
+  useForm --> validate[validate/validateAll]
+  useForm --> reset[reset/resetAll]
+  useForm --> errors[error collection]
+```
+
 ## Reactivity
 
 `createForm` adds **reactive validation state** on top of `createRegistry`. Form-level and field-level state are fully reactive.
@@ -72,18 +85,5 @@ const form = useForm()
 | `ticket.isValidating` | <AppSuccessIcon /> | ShallowRef boolean |
 | `get(id)` | <AppErrorIcon /> | Returns ticket with reactive refs |
 | `values()` | <AppErrorIcon /> | Use `useProxyRegistry()` for reactive collection |
-
-## Architecture
-
-`createForm` extends `createRegistry` with validation capabilities:
-
-```mermaid "Form Validation Flow"
-flowchart TD
-  createRegistry --> createForm
-  createForm --> useForm
-  useForm --> validate[validate/validateAll]
-  useForm --> reset[reset/resetAll]
-  useForm --> errors[error collection]
-```
 
 <DocsApi />

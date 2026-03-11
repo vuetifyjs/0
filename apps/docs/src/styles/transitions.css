@@ -6,7 +6,7 @@
 /* Fade transition (opacity) */
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.15s ease;
+  transition: opacity 0.2s ease;
 }
 
 .fade-enter-from,
@@ -17,12 +17,12 @@
 /* Slide transition (horizontal) */
 .slide-enter-active,
 .slide-leave-active {
-  transition: transform 0.2s ease;
+  transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .slide-enter-from,
 .slide-leave-to {
-  transform: translateX(1rem);
+  transform: translateX(100%);
 }
 
 /* Slide-up transition (vertical, for toasts/notifications) */
@@ -51,4 +51,18 @@
 .expand-enter-from,
 .expand-leave-to {
   grid-template-rows: 0fr;
+}
+
+/* Reduced motion: disable all transitions */
+@media (prefers-reduced-motion: reduce) {
+  .fade-enter-active,
+  .fade-leave-active,
+  .slide-enter-active,
+  .slide-leave-active,
+  .slide-up-enter-active,
+  .slide-up-leave-active,
+  .expand-enter-active,
+  .expand-leave-active {
+    transition: none;
+  }
 }

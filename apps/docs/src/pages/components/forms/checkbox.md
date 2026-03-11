@@ -34,7 +34,7 @@ The Checkbox component supports two modes:
 
 ## Anatomy
 
-```vue Anatomy playground
+```vue Anatomy playground collapse no-filename
 <script setup lang="ts">
   import { Checkbox } from '@vuetify/v0'
 </script>
@@ -76,14 +76,6 @@ The Checkbox component supports two modes:
 </template>
 ```
 
-## Group Mode
-
-Wrap checkboxes in `Checkbox.Group` for multi-selection with array-based v-model:
-
-::: example
-/components/checkbox/group
-:::
-
 ## Accessibility
 
 The Checkbox.Root component renders as a button and handles all ARIA attributes automatically:
@@ -107,7 +99,17 @@ For custom implementations, use `renderless` mode and bind the `attrs` slot prop
 </template>
 ```
 
-## Form Integration
+## Recipes
+
+### Group Mode
+
+Wrap checkboxes in `Checkbox.Group` for multi-selection with array-based v-model:
+
+::: example
+/components/checkbox/group
+:::
+
+### Form Integration
 
 When the `name` prop is provided on `Checkbox.Root`, a hidden native checkbox is automatically rendered for form submission:
 
@@ -132,7 +134,7 @@ For custom form integration, use `Checkbox.HiddenInput` explicitly:
 </template>
 ```
 
-## Indeterminate State
+### Indeterminate State
 
 Use `Checkbox.SelectAll` within a group for "select all" patterns. It automatically reflects the group's aggregate state and toggles all items on click:
 

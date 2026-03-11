@@ -17,7 +17,7 @@
   import { useSettings } from '@/composables/useSettings'
 
   // Utilities
-  import { computed } from 'vue'
+  import { computed, toRef } from 'vue'
   import { useRouter } from 'vue-router'
 
   // Stores
@@ -39,12 +39,12 @@
   const search = useSearch()
   const breakpoints = useBreakpoints()
   const router = useRouter()
-  const tour = computed(() => discovery.tours.get(params.value.id))
+  const tour = toRef(() => discovery.tours.get(params.value.id))
 
-  const done = computed(() => store.steps(params.value.id))
-  const progress = computed(() => store.get(params.value.id))
-  const isCompleted = computed(() => progress.value?.status === 'completed')
-  const label = computed(() => {
+  const done = toRef(() => store.steps(params.value.id))
+  const progress = toRef(() => store.get(params.value.id))
+  const isCompleted = toRef(() => progress.value?.status === 'completed')
+  const label = toRef(() => {
     if (!progress.value) return 'Start'
     if (isCompleted.value) return 'Restart'
     return 'Resume'

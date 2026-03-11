@@ -2,16 +2,19 @@
  * @module useSelection
  *
  * @remarks
- * Base composable for managing selected items in a collection with Set-based tracking.
+ * Selection composable that extends createModel with multi-select,
+ * mandatory enforcement, auto-enrollment, and ticket self-methods.
  *
  * Key features:
  * - Set-based selectedIds for O(1) selection checks
+ * - Single or multi-select mode
  * - Mandatory selection mode (prevents deselecting last item)
  * - Auto-enrollment option (selects non-disabled items on register)
  * - Disabled item filtering
  * - Computed selectedItems and selectedValues Sets
+ * - Ticket self-methods: select(), unselect(), toggle()
  *
- * Extends useRegistry and serves as the base for useSingle, useGroup, useStep, and useFeatures.
+ * Extends createModel and serves as the base for useSingle, useGroup, useStep, and useFeatures.
  */
 
 // Foundational
@@ -19,17 +22,17 @@ import { createContext, useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
 
 // Composables
-import { createRegistry } from '#v0/composables/createRegistry'
+import { createModel } from '#v0/composables/createModel'
 
 // Utilities
 import { isUndefined, useId } from '#v0/utilities'
-import { computed, shallowReactive, toRef, toValue } from 'vue'
+import { toRaw, toValue } from 'vue'
 
 // Types
-import type { RegistryContext, RegistryOptions, RegistryTicket } from '#v0/composables/createRegistry'
+import type { ModelContext, ModelOptions, ModelTicket, ModelTicketInput } from '#v0/composables/createModel'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { ID } from '#v0/types'
-import type { MaybeRefOrGetter, App, ComputedRef, MaybeRef, Reactive, Ref } from 'vue'
+import type { App, MaybeRefOrGetter } from 'vue'
 
 /**
  * Input type for selection tickets - what users provide to register().
@@ -49,10 +52,7 @@ import type { MaybeRefOrGetter, App, ComputedRef, MaybeRef, Reactive, Ref } from
  * selection.register({ label: 'Item 1' })
  * ```
  */
-export interface SelectionTicketInput<V = unknown> extends RegistryTicket<V> {
-  /** Disabled state of the ticket (optional on input, defaults to false) */
-  disabled?: MaybeRef<boolean>
-}
+export interface SelectionTicketInput<V = unknown> extends ModelTicketInput<V> {}
 
 /**
  * Output type for selection tickets - what users receive from get().
@@ -68,11 +68,7 @@ export interface SelectionTicketInput<V = unknown> extends RegistryTicket<V> {
  * - `unselect()` - Method to unselect this ticket
  * - `toggle()` - Method to toggle selection state
  */
-export type SelectionTicket<Z extends SelectionTicketInput = SelectionTicketInput> = Z & {
-  /** Disabled state of the ticket (guaranteed to exist on output) */
-  disabled: MaybeRef<boolean>
-  /** Whether the ticket is currently selected */
-  isSelected: Readonly<Ref<boolean, boolean>>
+export type SelectionTicket<Z extends SelectionTicketInput = SelectionTicketInput> = ModelTicket<Z> & {
   /** Select self */
   select: () => void
   /** Unselect self */
@@ -90,50 +86,37 @@ export type SelectionTicket<Z extends SelectionTicketInput = SelectionTicketInpu
 export interface SelectionContext<
   Z extends SelectionTicketInput = SelectionTicketInput,
   E extends SelectionTicket<Z> = SelectionTicket<Z>,
-> extends Omit<RegistryContext<E>, 'register' | 'onboard'> {
-  /** Set of selected ticket IDs */
-  selectedIds: Reactive<Set<ID>>
-  /** Set of selected ticket instances */
-  selectedItems: ComputedRef<Set<E>>
-  /** Set of selected ticket values */
-  selectedValues: ComputedRef<Set<unknown>>
-  /** Disable state for the entire selection instance */
-  disabled: MaybeRef<boolean>
-  /** Clear all selected IDs and reindexes */
-  reset: () => void
-  /** Select a ticket by ID (Toggle ON) */
-  select: (id: ID) => void
-  /** Unselect a ticket by ID (Toggle OFF) */
-  unselect: (id: ID) => void
-  /** Toggles a ticket ON and OFF by ID */
-  toggle: (id: ID) => void
-  /** Check if a ticket is selected by ID */
-  selected: (id: ID) => boolean
-  /** Mandates selected ID based on "mandatory" Option */
-  mandate: () => void
+> extends Omit<ModelContext<Z, E>, 'register'> {
+  /** Whether the selection allows multiple selections */
+  multiple: MaybeRefOrGetter<boolean>
   /** Register a new ticket (accepts input type, returns output type) */
   register: (ticket?: Partial<Z>) => E
   /** Onboard multiple tickets at once */
   onboard: (registrations: Partial<Z>[]) => E[]
+  /** Mandate selected ID based on "mandatory" option */
+  mandate: () => void
+  /** Seek for the first/last non-disabled ticket */
+  seek: (direction?: 'first' | 'last', from?: number) => E | undefined
 }
 
-export interface SelectionOptions extends RegistryOptions {
-  /** When true, the entire selection instance is disabled. */
-  disabled?: MaybeRefOrGetter<boolean>
-  /**
-   * When true, newly registered items are automatically selected if not disabled.
-   * Useful for pre-selecting items in multi-select scenarios.
-   */
-  enroll?: MaybeRefOrGetter<boolean>
+export interface SelectionOptions extends ModelOptions {
   /**
    * Controls mandatory selection behavior:
    * - `false` (default): No mandatory selection enforcement
-   * - `true`: Prevents deselecting the last selected item (user must always have one selected)
+   * - `true`: Prevents deselecting the last selected item
    * - `'force'`: Automatically selects the first non-disabled item on registration
    */
   mandatory?: MaybeRefOrGetter<boolean | 'force'>
   /** When true, treats the selection as an array */
   multiple?: MaybeRefOrGetter<boolean>
+  /**
+   * Auto-select tickets on registration
+   *
+   * @default false
+   * @remarks Overrides createModel's default of `true`. When truthy, newly registered
+   * items are automatically selected if not disabled. Respects `multiple` mode.
+   */
+  enroll?: MaybeRefOrGetter<boolean>
 }
 
 export interface SelectionContextOptions extends SelectionOptions {
@@ -143,7 +126,8 @@ export interface SelectionContextOptions extends SelectionOptions {
 /**
  * Creates a new selection instance for managing multiple selected items.
  *
- * Extends `useRegistry` with selection tracking via a reactive `Set` of selected IDs.
+ * Extends `createModel` with multi-select, mandatory enforcement,
+ * auto-enrollment, and ticket self-methods.
  * Supports disabled items, mandatory selection enforcement, and auto-enrollment.
  *
  * @param options The options for the selection instance.
@@ -164,7 +148,7 @@ export interface SelectionContextOptions extends SelectionOptions {
  * - Enroll option auto-selects all non-disabled items on registration
  *
  * **Inheritance Chain:**
- * `useRegistry` → `createSelection` → `createSingle`/`createGroup` → `createStep`
+ * `createRegistry` → `createModel` → `createSelection` → `createSingle`/`createGroup` → `createStep`
  *
  * @see https://0.vuetifyjs.com/composables/selection/use-selection
  *
@@ -211,35 +195,20 @@ export function createSelection<
   R extends SelectionContext<Z, E> = SelectionContext<Z, E>,
 > (_options: SelectionOptions = {}): R {
   const {
-    disabled = false,
     enroll = false,
     mandatory = false,
     multiple = false,
     ...options
   } = _options
-  const registry = createRegistry<E>(options)
-  const selectedIds = shallowReactive(new Set<ID>())
 
-  const selectedItems = computed(() => {
-    return new Set(
-      Array.from(selectedIds)
-        .map(id => registry.get(id))
-        .filter((item): item is E => !isUndefined(item)),
-    )
-  })
-
-  const selectedValues = computed(() => {
-    return new Set(
-      Array.from(selectedItems.value).map(item => item.value),
-    )
-  })
+  const model = createModel<Z, E>({ ...options, enroll: false })
 
   function seek (direction: 'first' | 'last' = 'first', from?: number): E | undefined {
-    return registry.seek(direction, from, (ticket: E) => !toValue(ticket.disabled))
+    return model.seek(direction, from, (ticket: E) => !toValue(ticket.disabled))
   }
 
   function mandate () {
-    if (!toValue(mandatory) || registry.size === 0 || selectedIds.size > 0) return
+    if (!toValue(mandatory) || model.size === 0 || model.selectedIds.size > 0) return
 
     const ticket = seek('first')
 
@@ -247,96 +216,95 @@ export function createSelection<
   }
 
   function select (id: ID) {
-    if (toValue(disabled)) return
+    if (toValue(model.disabled)) return
 
-    const item = registry.get(id)
+    const item = model.get(id)
     if (!item || toValue(item.disabled)) return
 
-    if (!toValue(multiple)) selectedIds.clear()
-    selectedIds.add(id)
+    if (!toValue(multiple)) model.selectedIds.clear()
+    model.selectedIds.add(id)
   }
 
   function unselect (id: ID) {
-    if (toValue(disabled)) return
-    if (toValue(mandatory) && selectedIds.size === 1) return
+    if (toValue(model.disabled)) return
+    if (toValue(mandatory) && model.selectedIds.size === 1) return
 
-    selectedIds.delete(id)
+    model.selectedIds.delete(id)
   }
 
   function toggle (id: ID) {
-    if (toValue(disabled)) return
+    if (toValue(model.disabled)) return
 
-    if (selected(id)) unselect(id)
+    if (model.selectedIds.has(id)) unselect(id)
     else select(id)
   }
 
-  function selected (id: ID) {
-    return selectedIds.has(id)
+  function apply (values: unknown[], options?: { multiple?: boolean }): void {
+    const isMultiple = options?.multiple ?? toValue(multiple)
+    const currentIds = new Set(model.selectedIds)
+    const targetIds = new Set<ID>()
+
+    for (const value of values) {
+      const ids = model.browse(toRaw(value))
+      if (ids) {
+        for (const id of ids) targetIds.add(id)
+      }
+    }
+
+    if (isMultiple) {
+      for (const id of currentIds.difference(targetIds)) {
+        model.selectedIds.delete(id)
+      }
+      for (const id of targetIds.difference(currentIds)) {
+        model.selectedIds.add(id)
+      }
+    } else {
+      const next = targetIds.values().next().value
+      const last = currentIds.values().next().value
+      if (!isUndefined(last)) unselect(last)
+      if (!isUndefined(next)) select(next)
+    }
   }
 
   function register (registration: Partial<Z> = {}): E {
     const id = registration.id ?? useId()
-    const item: Partial<E> = {
-      disabled: false,
+    const decorated: Partial<Z> = {
       select: () => select(id),
       unselect: () => unselect(id),
       toggle: () => toggle(id),
-      isSelected: toRef(() => selected(id)),
       ...registration,
       id,
-    } as Partial<E>
+    } as Partial<Z>
 
-    const ticket = registry.register(item)
+    const ticket = model.register(decorated)
 
-    if (toValue(enroll) && !toValue(disabled) && !toValue(item.disabled)) select(ticket.id)
+    if (toValue(enroll) && !toValue(model.disabled) && !toValue(ticket.disabled)) {
+      select(ticket.id)
+    }
     if (toValue(mandatory) === 'force') mandate()
 
     return ticket
   }
 
-  function unregister (id: ID) {
-    selectedIds.delete(id)
-    registry.unregister(id)
-  }
-
-  function offboard (ids: ID[]) {
-    for (const id of ids) {
-      selectedIds.delete(id)
-    }
-    registry.offboard(ids)
-  }
-
   function onboard (registrations: Partial<Z>[]): E[] {
-    const tickets = registry.batch(() => registrations.map(registration => register(registration)))
+    const tickets = model.batch(() => registrations.map(registration => register(registration)))
     if (toValue(mandatory) === 'force') mandate()
     return tickets
   }
 
-  function reset () {
-    registry.clear()
-    selectedIds.clear()
-    mandate()
-  }
-
   return {
-    ...registry,
-    disabled,
-    selectedIds,
-    selectedItems,
-    selectedValues,
+    ...model,
+    multiple,
     register,
-    unregister,
     onboard,
-    offboard,
-    reset,
-    mandate,
-    seek,
     select,
     unselect,
     toggle,
-    selected,
+    apply,
+    mandate,
+    seek,
     get size () {
-      return registry.size
+      return model.size
     },
   } as R
 }

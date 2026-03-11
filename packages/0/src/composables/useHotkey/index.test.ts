@@ -335,6 +335,26 @@ describe('useHotkey', () => {
       expect(callback).toHaveBeenCalledTimes(1)
     })
 
+    it.each([
+      ['plus', { key: '+' }],
+      ['slash', { key: '/' }],
+      ['underscore', { key: '_' }],
+      ['shift+plus', { shiftKey: true, key: '+' }],
+      ['shift+slash', { shiftKey: true, key: '/' }],
+      ['shift+underscore', { shiftKey: true, key: '_' }],
+      ['ctrl+plus', { ctrlKey: true, key: '+' }],
+    ])('handles symbol alias %s', (keys, props) => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        useHotkey(keys, callback)
+      })
+
+      window.dispatchEvent(createKeyboardEvent(props.key, props))
+
+      expect(callback).toHaveBeenCalledTimes(1)
+    })
+
     it('handles alias in combination', () => {
       const callback = vi.fn()
 
@@ -1212,6 +1232,23 @@ describe('splitKeyCombination', () => {
     })
   })
 
+  it('parses symbol alias keys', () => {
+    expect(splitKeyCombination('plus')).toEqual({
+      keys: ['+'],
+      separators: [],
+    })
+
+    expect(splitKeyCombination('slash')).toEqual({
+      keys: ['/'],
+      separators: [],
+    })
+
+    expect(splitKeyCombination('underscore')).toEqual({
+      keys: ['_'],
+      separators: [],
+    })
+  })
+
   it('returns empty for invalid combinations', () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
@@ -1231,6 +1268,13 @@ describe('splitKeyCombination', () => {
   it('handles slash separator', () => {
     expect(splitKeyCombination('ctrl/k')).toEqual({
       keys: ['ctrl', 'k'],
+      separators: ['/'],
+    })
+  })
+
+  it('handles slash separator with aliases', () => {
+    expect(splitKeyCombination('up/down')).toEqual({
+      keys: ['arrowup', 'arrowdown'],
       separators: ['/'],
     })
   })
@@ -1282,6 +1326,17 @@ describe('splitKeyCombination', () => {
       )
       warnSpy.mockRestore()
     })
+
+    it.each(['/', '/a', 'a/', '//', 'ctrl//'])('warns on invalid slash structure: %s', value => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+      expect(splitKeyCombination(value)).toEqual({ keys: [], separators: [] })
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Invalid hotkey combination'),
+      )
+
+      warnSpy.mockRestore()
+    })
   })
 })
 
@@ -1296,6 +1351,10 @@ describe('splitKeySequence', () => {
 
   it('handles single key (not a sequence)', () => {
     expect(splitKeySequence('a')).toEqual(['a'])
+  })
+
+  it('handles standalone literal minus in sequence', () => {
+    expect(splitKeySequence('-')).toEqual(['-'])
   })
 
   it('returns empty for invalid sequences', () => {
@@ -1369,6 +1428,12 @@ describe('normalizeKey', () => {
     expect(normalizeKey('space')).toBe(' ')
     expect(normalizeKey('return')).toBe('enter')
     expect(normalizeKey('del')).toBe('delete')
+  })
+
+  it('normalizes symbol aliases', () => {
+    expect(normalizeKey('plus')).toBe('+')
+    expect(normalizeKey('slash')).toBe('/')
+    expect(normalizeKey('underscore')).toBe('_')
   })
 
   it('preserves unknown keys in lowercase', () => {

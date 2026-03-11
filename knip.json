@@ -14,28 +14,28 @@
     },
     "apps/docs": {
       "entry": [
-        "src/components.d.ts",
-        "src/composables/*.ts",
         "src/main.ts",
+        "src/App.vue",
+        "src/components/**/*.vue",
+        "src/composables/*.ts",
+        "src/constants/*.ts",
+        "src/plugins/*.ts",
+        "src/stores/*.ts",
+        "src/layouts/*.vue",
+        "src/pages/**/*.{vue,md}",
         "build/**/*.ts",
+        "vite.config.*",
         "src/examples/**/*.vue"
-      ],
-      "project": [
-        "src/**/*.{js,ts,vue,md}",
-        "build/**/*.ts"
       ],
       "ignore": [
         "src/typed-router.d.ts",
-        "src/layouts/*.vue",
-        "src/pages/**/*.vue",
         "src/components/docs/meta/*.vue",
         "src/examples/guide/building-frameworks/my-ui/src/**/*.ts",
         "src/examples/guide/building-frameworks/my-ui/vite.config.ts",
         "src/components/app/AppBrowserIcon.vue",
         "src/components/docs/DocsBrowserSupport.vue",
         "src/skillz/tours/**/index.ts",
-        "src/stores/skillz.ts",
-        "src/examples/**"
+        "src/stores/skillz.ts"
       ],
       "paths": {
         "@/*": [

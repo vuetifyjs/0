@@ -17,17 +17,14 @@
  */
 
 // Foundational
-import { createContext, useContext } from '#v0/composables/createContext'
-import { createPlugin } from '#v0/composables/createPlugin'
-import { createTrinity } from '#v0/composables/createTrinity'
+import { createPluginContext } from '#v0/composables/createPlugin'
 
 // Utilities
-import { instanceExists, isNull } from '#v0/utilities'
+import { isNull } from '#v0/utilities'
 import { nextTick, shallowReadonly, shallowRef } from 'vue'
 
 // Types
-import type { ContextTrinity } from '#v0/composables/createTrinity'
-import type { App, ShallowRef } from 'vue'
+import type { ShallowRef } from 'vue'
 
 export interface HydrationContext {
   /** True when root component has mounted (hydration complete) */
@@ -116,104 +113,23 @@ export function createFallbackHydration<
  * })
  * ```
  */
-export function createHydrationContext<
-  E extends HydrationContext = HydrationContext,
-> (_options: HydrationContextOptions = {}): ContextTrinity<E> {
-  const { namespace = 'v0:hydration' } = _options
-  const [useHydrationContext, _provideHydrationContext] = createContext<E>(namespace)
-  const context = createHydration<E>()
+export const [createHydrationContext, createHydrationPlugin, useHydration] =
+  createPluginContext<HydrationContextOptions, HydrationContext>(
+    'v0:hydration',
+    () => createHydration(),
+    {
+      fallback: () => createFallbackHydration(),
+      setup: (context, app, _options) => {
+        app.mixin({
+          async mounted () {
+            if (!isNull(this.$parent)) return
 
-  function provideHydrationContext (_context: E = context, app?: App): E {
-    return _provideHydrationContext(_context, app)
-  }
-
-  return createTrinity<E>(useHydrationContext, provideHydrationContext, context)
-}
-
-/**
- * Creates a new hydration plugin.
- *
- * @param options The options for the hydration plugin.
- * @template E The type of the hydration context.
- * @returns A new hydration plugin.
- *
- * @see https://0.vuetifyjs.com/composables/plugins/use-hydration
- *
- * @example
- * ```ts
- * import { createApp } from 'vue'
- * import { createHydrationPlugin } from '@vuetify/v0'
- * import App from './App.vue'
- *
- * const app = createApp(App)
- *
- * app.use(createHydrationPlugin())
- *
- * app.mount('#app')
- * ```
- */
-export function createHydrationPlugin<
-  E extends HydrationContext = HydrationContext,
-> (_options: HydrationPluginOptions = {}) {
-  const { namespace = 'v0:hydration', ...options } = _options
-  const [, provideHydrationContext, context] = createHydrationContext<E>({ ...options, namespace })
-
-  return createPlugin({
-    namespace,
-    provide: (app: App) => {
-      provideHydrationContext(context, app)
+            context.hydrate()
+            // Wait for next tick to allow state restoration in other onMounted hooks
+            await nextTick()
+            context.settle()
+          },
+        })
+      },
     },
-    setup: (app: App) => {
-      app.mixin({
-        async mounted () {
-          if (!isNull(this.$parent)) return
-
-          context.hydrate()
-          // Wait for next tick to allow state restoration in other onMounted hooks
-          await nextTick()
-          context.settle()
-        },
-      })
-    },
-  })
-}
-
-/**
- * Returns the current hydration instance.
- *
- * @param namespace The namespace for the hydration context. Defaults to `v0:hydration`.
- * @returns The current hydration instance.
- *
- * @see https://0.vuetifyjs.com/composables/plugins/use-hydration
- *
- * @example
- * ```vue
- * <script setup lang="ts">
- *   import { useHydration } from '@vuetify/v0'
- *
- *   const { isHydrated, isSettled } = useHydration()
- *
- *   // Use isSettled to gate animations after state restoration
- *   const transition = computed(() => isSettled.value ? 'fade' : undefined)
- * </script>
- *
- * <template>
- *   <Transition :name="transition">
- *     <div v-if="show">Animates only after hydration settles</div>
- *   </Transition>
- * </template>
- * ```
- */
-export function useHydration<
-  E extends HydrationContext = HydrationContext,
-> (namespace = 'v0:hydration'): E {
-  const fallback = createFallbackHydration<E>()
-
-  if (!instanceExists()) return fallback
-
-  try {
-    return useContext<E>(namespace, fallback)
-  } catch {
-    return fallback
-  }
-}
+  )

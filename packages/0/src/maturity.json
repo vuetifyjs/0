@@ -1,0 +1,395 @@
+{
+  "composables": {
+    "createContext": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "foundation"
+    },
+    "createPlugin": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "foundation"
+    },
+    "createTrinity": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "foundation"
+    },
+    "createSelection": {
+      "level": "preview",
+      "since": "0.1.0",
+      "category": "selection"
+    },
+    "createSingle": {
+      "level": "preview",
+      "since": "0.1.0",
+      "category": "selection"
+    },
+    "createGroup": {
+      "level": "preview",
+      "since": "0.1.0",
+      "category": "selection"
+    },
+    "createStep": {
+      "level": "preview",
+      "since": "0.1.0",
+      "category": "selection"
+    },
+    "createModel": {
+      "level": "preview",
+      "since": "0.1.5",
+      "category": "selection",
+      "notes": "Recently redesigned from selection system"
+    },
+    "createNested": {
+      "level": "preview",
+      "since": "0.1.0",
+      "category": "selection"
+    },
+    "createRegistry": {
+      "level": "preview",
+      "since": "0.1.0",
+      "category": "registration"
+    },
+    "createQueue": {
+      "level": "preview",
+      "since": "0.1.0",
+      "category": "registration"
+    },
+    "createTimeline": {
+      "level": "preview",
+      "since": "0.1.0",
+      "category": "registration"
+    },
+    "createTokens": {
+      "level": "preview",
+      "since": "0.1.0",
+      "category": "registration"
+    },
+    "createForm": {
+      "level": "preview",
+      "since": "0.1.0",
+      "category": "forms"
+    },
+    "createDataTable": {
+      "level": "preview",
+      "since": "0.1.0",
+      "category": "data"
+    },
+    "createFilter": {
+      "level": "preview",
+      "since": "0.1.0",
+      "category": "data"
+    },
+    "createPagination": {
+      "level": "preview",
+      "since": "0.1.0",
+      "category": "data"
+    },
+    "createVirtual": {
+      "level": "preview",
+      "since": "0.1.0",
+      "category": "data"
+    },
+    "createBreadcrumbs": {
+      "level": "preview",
+      "since": "0.1.0",
+      "category": "utilities"
+    },
+    "createOverflow": {
+      "level": "preview",
+      "since": "0.1.0",
+      "category": "utilities"
+    },
+    "createSlider": {
+      "level": "preview",
+      "since": "0.1.5",
+      "category": "forms"
+    },
+    "createObserver": {
+      "level": "draft",
+      "since": "0.1.0",
+      "category": "internal",
+      "notes": "Internal factory for observer composables"
+    },
+    "useBreakpoints": {
+      "level": "preview",
+      "since": "0.1.0",
+      "category": "plugins"
+    },
+    "useDate": {
+      "level": "preview",
+      "since": "0.1.0",
+      "category": "plugins"
+    },
+    "useFeatures": {
+      "level": "preview",
+      "since": "0.1.0",
+      "category": "plugins"
+    },
+    "useHydration": {
+      "level": "preview",
+      "since": "0.1.0",
+      "category": "plugins"
+    },
+    "useLocale": {
+      "level": "preview",
+      "since": "0.1.0",
+      "category": "plugins"
+    },
+    "useLogger": {
+      "level": "preview",
+      "since": "0.1.0",
+      "category": "plugins"
+    },
+    "usePermissions": {
+      "level": "preview",
+      "since": "0.1.0",
+      "category": "plugins"
+    },
+    "useStack": {
+      "level": "preview",
+      "since": "0.1.0",
+      "category": "plugins"
+    },
+    "useStorage": {
+      "level": "preview",
+      "since": "0.1.0",
+      "category": "plugins"
+    },
+    "useTheme": {
+      "level": "preview",
+      "since": "0.1.0",
+      "category": "plugins"
+    },
+    "useClickOutside": {
+      "level": "preview",
+      "since": "0.1.0",
+      "category": "system"
+    },
+    "useEventListener": {
+      "level": "preview",
+      "since": "0.1.0",
+      "category": "system"
+    },
+    "useHotkey": {
+      "level": "preview",
+      "since": "0.1.0",
+      "category": "system"
+    },
+    "useIntersectionObserver": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "system"
+    },
+    "useMutationObserver": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "system"
+    },
+    "useResizeObserver": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "system"
+    },
+    "useToggleScope": {
+      "level": "preview",
+      "since": "0.1.0",
+      "category": "system"
+    },
+    "useMediaQuery": {
+      "level": "preview",
+      "since": "0.1.0",
+      "category": "system"
+    },
+    "useLazy": {
+      "level": "preview",
+      "since": "0.1.0",
+      "category": "system"
+    },
+    "useProxyModel": {
+      "level": "preview",
+      "since": "0.1.0",
+      "category": "reactivity"
+    },
+    "useProxyRegistry": {
+      "level": "preview",
+      "since": "0.1.0",
+      "category": "reactivity"
+    },
+    "toArray": {
+      "level": "preview",
+      "since": "0.1.0",
+      "category": "transformers"
+    },
+    "toElement": {
+      "level": "preview",
+      "since": "0.1.0",
+      "category": "transformers"
+    },
+    "toReactive": {
+      "level": "preview",
+      "since": "0.1.0",
+      "category": "transformers"
+    }
+  },
+  "components": {
+    "Atom": {
+      "level": "preview",
+      "since": "0.1.0",
+      "category": "primitives"
+    },
+    "Checkbox": {
+      "level": "preview",
+      "since": "0.1.0",
+      "category": "forms"
+    },
+    "Radio": {
+      "level": "preview",
+      "since": "0.1.0",
+      "category": "forms"
+    },
+    "Switch": {
+      "level": "preview",
+      "since": "0.1.0",
+      "category": "forms"
+    },
+    "Dialog": {
+      "level": "preview",
+      "since": "0.1.0",
+      "category": "disclosure"
+    },
+    "ExpansionPanel": {
+      "level": "preview",
+      "since": "0.1.0",
+      "category": "disclosure"
+    },
+    "Popover": {
+      "level": "preview",
+      "since": "0.1.0",
+      "category": "disclosure"
+    },
+    "Tabs": {
+      "level": "preview",
+      "since": "0.1.0",
+      "category": "disclosure"
+    },
+    "Avatar": {
+      "level": "preview",
+      "since": "0.1.0",
+      "category": "semantic"
+    },
+    "Breadcrumbs": {
+      "level": "preview",
+      "since": "0.1.0",
+      "category": "semantic"
+    },
+    "Pagination": {
+      "level": "preview",
+      "since": "0.1.0",
+      "category": "semantic"
+    },
+    "Group": {
+      "level": "preview",
+      "since": "0.1.0",
+      "category": "providers"
+    },
+    "Scrim": {
+      "level": "preview",
+      "since": "0.1.0",
+      "category": "providers"
+    },
+    "Selection": {
+      "level": "preview",
+      "since": "0.1.0",
+      "category": "providers"
+    },
+    "Single": {
+      "level": "preview",
+      "since": "0.1.0",
+      "category": "providers"
+    },
+    "Slider": {
+      "level": "preview",
+      "since": "0.1.5",
+      "category": "forms"
+    },
+    "Splitter": {
+      "level": "preview",
+      "since": "0.1.5",
+      "category": "semantic"
+    },
+    "Step": {
+      "level": "preview",
+      "since": "0.1.0",
+      "category": "providers"
+    }
+  },
+  "utilities": {
+    "isFunction": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "type-guards"
+    },
+    "isString": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "type-guards"
+    },
+    "isNumber": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "type-guards"
+    },
+    "isBoolean": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "type-guards"
+    },
+    "isObject": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "type-guards"
+    },
+    "isArray": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "type-guards"
+    },
+    "isNull": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "type-guards"
+    },
+    "isUndefined": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "type-guards"
+    },
+    "isNullOrUndefined": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "type-guards"
+    },
+    "isPrimitive": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "type-guards"
+    },
+    "isSymbol": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "type-guards"
+    },
+    "isNaN": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "type-guards"
+    },
+    "isElement": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "type-guards"
+    }
+  }
+}

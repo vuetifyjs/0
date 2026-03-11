@@ -154,7 +154,7 @@ describe('radio', () => {
       })
     })
 
-    describe('a11y attrs', () => {
+    describe('accessibility', () => {
       it.each([
         ['role', 'radio'],
         ['data-state', 'unchecked'],
@@ -814,7 +814,7 @@ describe('radio', () => {
     })
   })
 
-  describe('ssr/hydration', () => {
+  describe('sSR / Hydration', () => {
     it.each([
       ['group', {}, ['role="radiogroup"', 'role="radio"']],
       ['disabled', { disabled: true }, ['aria-disabled="true"', 'data-disabled']],

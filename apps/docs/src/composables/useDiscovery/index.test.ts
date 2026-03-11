@@ -339,7 +339,7 @@ describe('useDiscovery', () => {
     })
 
     it('should do nothing if no selected item', async () => {
-      discovery.steps.reset()
+      discovery.steps.clear()
 
       await discovery.next()
 
@@ -413,7 +413,7 @@ describe('useDiscovery', () => {
     })
 
     it('should do nothing if no selected item', () => {
-      discovery.steps.reset()
+      discovery.steps.clear()
 
       discovery.prev()
 
@@ -500,7 +500,7 @@ describe('useDiscovery', () => {
     })
 
     it('should do nothing if no selected item exists', async () => {
-      discovery.steps.reset()
+      discovery.steps.clear()
 
       await discovery.step(2)
 

@@ -4,7 +4,7 @@ meta:
 - name: description
   content: Reactive storage composable with localStorage, sessionStorage, and custom adapters. Automatic serialization, caching, and SSR-safe operations for Vue 3.
 - name: keywords
-  content: useStorage, localStorage, sessionStorage, storage adapter, reactive storage, composable, Vue 3, SSR
+  content: useStorage, localStorage, sessionStorage, storage adapter, reactive storage, composable, Vue 3, SSR, TTL, cache expiration
 features:
   category: Plugin
   label: 'E: useStorage'
@@ -40,7 +40,7 @@ app.mount('#app')
 
 Once the plugin is installed, use the `useStorage` composable in any component:
 
-```vue UseStorage
+```vue collapse no-filename UseStorage
 <script setup lang="ts">
   import { useStorage } from '@vuetify/v0'
 
@@ -62,6 +62,45 @@ Once the plugin is installed, use the `useStorage` composable in any component:
   </div>
 </template>
 ```
+
+## Standalone Usage
+
+Use `createStorage` directly without the plugin system for standalone or module-level caching:
+
+```ts collapse no-filename createStorage
+import { createStorage } from '@vuetify/v0'
+
+const storage = createStorage({ prefix: 'myapp:' })
+
+storage.set('theme', 'dark')
+
+const theme = storage.get('theme', 'light')
+
+console.log(theme.value) // 'dark'
+```
+
+### TTL (Time-to-Live)
+
+Set a `ttl` option (in milliseconds) to automatically expire cached entries. Expired entries return the default value on `get()` and are removed from storage.
+
+```ts collapse no-filename TTL
+import { createStorage } from '@vuetify/v0'
+
+// Cache expires after 5 minutes
+const cache = createStorage({
+  prefix: 'api-cache:',
+  ttl: 5 * 60 * 1000,
+})
+
+// Store fetched data — automatically timestamped
+cache.set('users', await fetchUsers())
+
+// Later reads return the default if expired
+const users = cache.get('users', [])
+```
+
+> [!TIP] How TTL works
+> When `ttl` is set, values are internally wrapped as `{ __ttl, __v, __t }` with a timestamp. On `get()`, if the entry is older than the TTL, it is treated as absent and removed from storage. Non-TTL entries stored previously are read normally.
 
 ## Architecture
 

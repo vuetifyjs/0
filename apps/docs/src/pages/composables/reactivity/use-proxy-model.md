@@ -25,7 +25,7 @@ A composable for syncing refs bidirectionally with selection contexts, enabling 
 
 The `useProxyModel` composable syncs an existing ref (like from `defineModel()`) with a selection context bidirectionally. Changes in either direction automatically propagate.
 
-```ts
+```ts collapse no-filename
 import { ref } from 'vue'
 import { createSelection, useProxyModel } from '@vuetify/v0'
 

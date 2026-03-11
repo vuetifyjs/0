@@ -1,12 +1,23 @@
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Utilities
-import { ref } from 'vue'
+import { inject, ref } from 'vue'
 
 // Types
 import type { SelectionTicketInput } from './index'
 
-import { createSelection, createSelectionContext } from './index'
+import { createSelection, createSelectionContext, useSelection } from './index'
+
+vi.mock('vue', async () => {
+  const actual = await vi.importActual('vue')
+  return {
+    ...actual,
+    provide: vi.fn(),
+    inject: vi.fn(),
+  }
+})
+
+const mockInject = vi.mocked(inject)
 
 describe('createSelectionContext', () => {
   it('should return a trinity tuple', () => {
@@ -173,7 +184,7 @@ describe('useSelection', () => {
   })
 
   describe('reset', () => {
-    it('should clear registry and selectedIds', () => {
+    it('should clear selectedIds but preserve registry', () => {
       const selection = createSelection({ multiple: true })
 
       selection.onboard([
@@ -185,19 +196,15 @@ describe('useSelection', () => {
       selection.select('item-1')
       selection.select('item-2')
 
-      // Verify selectedIds has items before reset
       expect(selection.selectedIds.size).toBe(2)
-      expect(selection.selectedIds.has('item-1')).toBe(true)
-      expect(selection.selectedIds.has('item-2')).toBe(true)
 
       selection.reset()
 
-      // After reset, everything should be cleared
-      expect(selection.size).toBe(0)
+      expect(selection.size).toBe(3)
       expect(selection.selectedIds.size).toBe(0)
     })
 
-    it('should clear selectedIds and call mandate when mandatory is true', () => {
+    it('should clear selectedIds with mandatory (no mandate without selection)', () => {
       const selection = createSelection({ mandatory: true })
 
       selection.onboard([
@@ -207,14 +214,12 @@ describe('useSelection', () => {
 
       selection.select('item-2')
 
-      // Verify selectedIds before reset
       expect(selection.selectedIds.size).toBe(1)
       expect(selection.selectedIds.has('item-2')).toBe(true)
 
       selection.reset()
 
-      // After reset, registry is empty, selectedIds is cleared, mandate does nothing
-      expect(selection.size).toBe(0)
+      expect(selection.size).toBe(2)
       expect(selection.selectedIds.size).toBe(0)
     })
   })
@@ -1024,5 +1029,47 @@ describe('useSelection', () => {
       expect(tickets[0]?.exact).toBe(true)
       expect(tickets[1]?.path).toBe('/about')
     })
+  })
+})
+
+describe('useSelection consumer', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('should inject context with default namespace', () => {
+    const mockContext = createSelection()
+    mockInject.mockReturnValue(mockContext)
+
+    const result = useSelection()
+
+    expect(mockInject).toHaveBeenCalledWith('v0:selection', undefined)
+    expect(result).toBe(mockContext)
+  })
+
+  it('should inject context with custom namespace', () => {
+    const mockContext = createSelection()
+    mockInject.mockReturnValue(mockContext)
+
+    const result = useSelection('my-selection')
+
+    expect(mockInject).toHaveBeenCalledWith('my-selection', undefined)
+    expect(result).toBe(mockContext)
+  })
+
+  it('should throw when context is not provided', () => {
+    mockInject.mockReturnValue(undefined)
+
+    expect(() => useSelection()).toThrow(
+      'Context "v0:selection" not found. Ensure it\'s provided by an ancestor.',
+    )
+  })
+
+  it('should throw with custom namespace in error message', () => {
+    mockInject.mockReturnValue(undefined)
+
+    expect(() => useSelection('custom-selection')).toThrow(
+      'Context "custom-selection" not found. Ensure it\'s provided by an ancestor.',
+    )
   })
 })

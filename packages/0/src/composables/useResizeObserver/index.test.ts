@@ -1,7 +1,7 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest'
 
 // Utilities
-import { nextTick, ref } from 'vue'
+import { nextTick, readonly, ref, type Ref, shallowRef } from 'vue'
 
 import { useElementSize, useResizeObserver } from './index'
 
@@ -18,7 +18,7 @@ vi.mock('#v0/constants/globals', () => ({
 }))
 
 describe('useResizeObserver', () => {
-  let mockObserver: any
+  let mockObserver: { observe: Mock, unobserve: Mock, disconnect: Mock }
   let element: HTMLDivElement
 
   beforeEach(() => {
@@ -123,6 +123,30 @@ describe('useResizeObserver', () => {
         left: 0,
       },
     }])
+  })
+
+  it('should accept readonly refs (useTemplateRef compatibility)', async () => {
+    mockIsHydrated.value = true
+    const target = readonly(shallowRef<Element | null>(element)) as Readonly<Ref<Element | null>>
+    const callback = vi.fn()
+
+    useResizeObserver(target, callback)
+    await nextTick()
+
+    expect(globalThis.ResizeObserver).toHaveBeenCalled()
+    expect(mockObserver.observe).toHaveBeenCalledWith(element, { box: 'content-box' })
+  })
+
+  it('should accept shallowRef targets', async () => {
+    mockIsHydrated.value = true
+    const target = shallowRef<Element | null>(element)
+    const callback = vi.fn()
+
+    useResizeObserver(target, callback)
+    await nextTick()
+
+    expect(globalThis.ResizeObserver).toHaveBeenCalled()
+    expect(mockObserver.observe).toHaveBeenCalledWith(element, { box: 'content-box' })
   })
 
   it('should handle pause and resume functionality', async () => {

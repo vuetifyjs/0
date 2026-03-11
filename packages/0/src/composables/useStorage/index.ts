@@ -18,9 +18,7 @@
 import { IN_BROWSER } from '#v0/constants/globals'
 
 // Foundational
-import { createContext, useContext } from '#v0/composables/createContext'
-import { createPlugin } from '#v0/composables/createPlugin'
-import { createTrinity } from '#v0/composables/createTrinity'
+import { createPluginContext } from '#v0/composables/createPlugin'
 
 // Composables
 import { useWindowEventListener } from '#v0/composables/useEventListener'
@@ -33,9 +31,8 @@ import { isNullOrUndefined } from '#v0/utilities'
 import { ref, watch } from 'vue'
 
 // Types
-import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { StorageAdapter } from '#v0/composables/useStorage/adapters'
-import type { App, Ref } from 'vue'
+import type { Ref } from 'vue'
 
 export interface StorageContext {
   /** Check if a key exists in storage */
@@ -60,6 +57,8 @@ export interface StorageOptions {
     read: (value: string) => unknown
     write: (value: unknown) => string
   }
+  /** Time-to-live in milliseconds. When set, expired entries return the default value on `get()` and `set()` automatically timestamps entries. */
+  ttl?: number
 }
 
 export interface StorageContextOptions extends StorageOptions {
@@ -108,6 +107,7 @@ export function createStorage<
       read: JSON.parse,
       write: JSON.stringify,
     },
+    ttl,
   } = options
 
   const cache = new Map<string, Ref<any>>()
@@ -118,6 +118,39 @@ export function createStorage<
     return cache.has(prefixedKey)
   }
 
+  function readStored (prefixedKey: string) {
+    const raw = adapter?.getItem(prefixedKey)
+    if (!raw) return undefined
+
+    try {
+      const parsed = serializer.read(raw)
+
+      // TTL check: expired entries are treated as absent
+      if (ttl && parsed && typeof parsed === 'object' && '__ttl' in parsed && '__v' in parsed) {
+        if (Date.now() - (parsed as any).__t > ttl) {
+          adapter?.removeItem(prefixedKey)
+          return undefined
+        }
+        return (parsed as any).__v
+      }
+
+      return parsed
+    } catch (error) {
+      console.error(`[v0:storage] Failed to parse stored value for key "${prefixedKey}":`, error)
+      return undefined
+    }
+  }
+
+  function writeStored (prefixedKey: string, value: unknown) {
+    const wrapped = ttl ? { __ttl: 1, __v: value, __t: Date.now() } : value
+
+    try {
+      adapter?.setItem(prefixedKey, serializer.write(wrapped))
+    } catch (error) {
+      console.error(`[v0:storage] Failed to write key "${prefixedKey}":`, error)
+    }
+  }
+
   function get<T> (key: string, defaultValue?: T): Ref<T> {
     const prefixedKey = `${prefix}${key}`
 
@@ -125,28 +158,14 @@ export function createStorage<
       return cache.get(prefixedKey)!
     }
 
-    const storedValue = adapter?.getItem(prefixedKey)
-    let initialValue = defaultValue
-
-    if (storedValue) {
-      try {
-        initialValue = serializer.read(storedValue)
-      } catch (error) {
-        console.error(`[v0:storage] Failed to parse stored value for key "${prefixedKey}":`, error)
-      }
-    }
-
+    const initialValue = readStored(prefixedKey) ?? defaultValue
     const valueRef = ref<T>(initialValue as T)
 
     const stop = watch(valueRef, newValue => {
       if (isNullOrUndefined(newValue)) {
         adapter?.removeItem(prefixedKey)
       } else {
-        try {
-          adapter?.setItem(prefixedKey, serializer.write(newValue))
-        } catch (error) {
-          console.error(`[v0:storage] Failed to write key "${prefixedKey}":`, error)
-        }
+        writeStored(prefixedKey, newValue)
       }
     }, { deep: true })
 
@@ -198,17 +217,13 @@ export function createStorage<
 
       watchers.get(e.key)?.()
 
-      valueRef.value = e.newValue == null ? undefined : serializer.read(e.newValue)
+      valueRef.value = e.newValue == null ? undefined : readStored(e.key)
 
       const stop = watch(valueRef, newValue => {
         if (isNullOrUndefined(newValue)) {
           adapter?.removeItem(e.key!)
         } else {
-          try {
-            adapter?.setItem(e.key!, serializer.write(newValue))
-          } catch (error) {
-            console.error(`[v0:storage] Failed to write key "${e.key}":`, error)
-          }
+          writeStored(e.key!, newValue)
         }
       }, { deep: true })
 
@@ -225,81 +240,15 @@ export function createStorage<
   } as E
 }
 
-export function createStorageContext<
+function createStorageFallback<
   E extends StorageContext = StorageContext,
-> (_options: StorageContextOptions = {}): ContextTrinity<E> {
-  const { namespace = 'v0:storage', ...options } = _options
-  const [useStorageContext, _provideStorageContext] = createContext<E>(namespace)
-  const context = createStorage<E>(options)
-
-  function provideStorageContext (_context: E = context, app?: App): E {
-    return _provideStorageContext(_context, app)
-  }
-
-  return createTrinity<E>(useStorageContext, provideStorageContext, context)
+> (): E {
+  return createStorage<E>({ adapter: new MemoryAdapter() })
 }
 
-/**
- * Creates a new storage plugin.
- *
- * @param options The options for the storage plugin.
- * @returns A new storage plugin.
- *
- * @see https://0.vuetifyjs.com/composables/plugins/use-storage
- *
- * @example
- * ```ts
- * import { createApp } from 'vue'
- * import { createStoragePlugin } from '@vuetify/v0'
- * import App from './App.vue'
- *
- * const app = createApp(App)
- *
- * app.use(createStoragePlugin())
- *
- * app.mount('#app')
- * ```
- */
-export function createStoragePlugin<
-  E extends StorageContext = StorageContext,
-> (_options: StoragePluginOptions = {}) {
-  const { namespace = 'v0:storage', ...options } = _options
-  const [, provideStorageContext, context] = createStorageContext<E>({ ...options, namespace })
-
-  return createPlugin({
-    namespace,
-    provide: (app: App) => {
-      provideStorageContext(context, app)
-    },
-  })
-}
-
-/**
- * Returns the current storage instance.
- *
- * @param namespace The namespace for the storage context. Defaults to `'v0:storage'`.
- * @returns The current storage instance.
- *
- * @see https://0.vuetifyjs.com/composables/plugins/use-storage
- *
- * @example
- * ```vue
- * <script setup lang="ts">
- *   import { useStorage } from '@vuetify/v0'
- *
- *   const storage = useStorage()
- *   const username = storage.get('username', 'Guest')
- * </script>
- *
- * <template>
- *   <div>
- *     <p>Username: {{ username }}</p>
- *   </div>
- * </template>
- * ```
- */
-export function useStorage<
-  E extends StorageContext = StorageContext,
-> (namespace = 'v0:storage'): E {
-  return useContext<E>(namespace)
-}
+export const [createStorageContext, createStoragePlugin, useStorage] =
+  createPluginContext<StorageContextOptions, StorageContext>(
+    'v0:storage',
+    options => createStorage(options),
+    { fallback: () => createStorageFallback() },
+  )
