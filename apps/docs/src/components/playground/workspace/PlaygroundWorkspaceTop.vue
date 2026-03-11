@@ -40,8 +40,12 @@
     />
   </template>
 
-  <!-- Mobile: editor takes full height when visible -->
-  <div v-else-if="playground.editor.value" class="flex-1 min-h-0 flex">
+  <!-- Mobile: always render so tree drawer (position:fixed) stays mounted -->
+  <div
+    v-else
+    class="flex min-h-0"
+    :class="playground.editor.value ? 'flex-1' : 'h-0 overflow-hidden'"
+  >
     <slot />
   </div>
 </template>
