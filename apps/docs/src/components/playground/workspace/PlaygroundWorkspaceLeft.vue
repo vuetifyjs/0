@@ -41,6 +41,7 @@
     :default-size="20"
     :max-size="35"
     :min-size="15"
+    :style="isMobile ? { display: 'none' } : undefined"
   >
     <!-- Desktop: inline content -->
     <div v-if="!isMobile && open">
