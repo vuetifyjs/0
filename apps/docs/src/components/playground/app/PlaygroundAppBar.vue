@@ -44,16 +44,7 @@
   }
 
   function onView () {
-    if (playground.editor.value) {
-      playground.editor.value = false
-      const useSide = sidePref.value && playground.left.value && !breakpoints.isMobile.value
-      if (useSide) playground.side.value = false
-      else playground.bottom.value = false
-    } else {
-      playground.editor.value = true
-      playground.side.value = true
-      playground.bottom.value = true
-    }
+    playground.editor.value = !playground.editor.value
   }
 
   const backTo = toRef(() =>
