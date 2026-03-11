@@ -108,6 +108,7 @@
     v-bind="{ ...attrs, ...slotProps.attrs }"
     :as
     :renderless
+    :style="[attrs.style, slotProps.attrs.style]"
   >
     <slot v-bind="slotProps" />
   </Atom>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
   import { isRef, toRef, toValue } from 'vue'
+  import { Slider } from '@vuetify/v0'
   import { hueGradient, oklch, useColors } from './model'
 
   const model = useColors()
@@ -7,9 +8,9 @@
   const selected = toRef(() => [...model.selectedItems.value])
   const gradient = hueGradient()
 
-  function onHue (ticket: (typeof tickets.value)[number], event: Event) {
+  function onHue (ticket: (typeof tickets.value)[number], value: number | number[]) {
     if (isRef(ticket.value)) {
-      ticket.value.value = Number((event.target as HTMLInputElement).value)
+      ticket.value.value = Number(value)
     }
   }
 </script>
@@ -52,19 +53,24 @@
         </span>
 
         <!-- Hue slider -->
-        <input
-          class="hue-slider w-full h-1.5 rounded-full cursor-pointer outline-none appearance-none bg-[image:var(--track-gradient)]"
+        <Slider.Root
+          :model-value="toValue(ticket.value) as number"
+          class="relative flex items-center w-full h-6"
           :disabled="toValue(ticket.disabled)"
-          max="360"
-          min="0"
-          :style="{
-            '--swatch-color': oklch(toValue(ticket.value) as number),
-            '--track-gradient': gradient,
-          } as any"
-          type="range"
-          :value="toValue(ticket.value)"
-          @input="onHue(ticket, $event)"
+          :max="360"
+          :min="0"
+          @update:model-value="onHue(ticket, $event)"
         >
+          <Slider.Track
+            class="relative h-1.5 w-full rounded-full overflow-hidden"
+            :style="{ background: gradient }"
+          />
+
+          <Slider.Thumb
+            class="absolute top-1/2 size-4 rounded-full border-2 border-on-surface shadow-md -translate-x-1/2 -translate-y-1/2 cursor-grab transition-transform data-[state=dragging]:scale-125 data-[state=dragging]:cursor-grabbing"
+            :style="{ backgroundColor: oklch(toValue(ticket.value) as number) }"
+          />
+        </Slider.Root>
 
         <!-- Degree value -->
         <span class="text-on-surface-variant/45 text-right text-xs font-mono tabular-nums">
@@ -112,39 +118,12 @@
       </div>
 
       <!-- Raw output -->
-      <pre class="rounded-lg border border-divider bg-surface-variant/30 px-3 py-2 text-xs font-mono text-on-surface-variant">{{ JSON.stringify([...model.selectedValues.value], null, 2) }}</pre>
+      <pre class="rounded-lg border border-divider bg-surface-variant/30 px-3 py-2 text-xs font-mono text-on-surface-variant">{{ JSON.stringify(selected.map(item => toValue(item.value)), null, 2) }}</pre>
     </div>
   </div>
 </template>
 
 <style scoped>
-/* Slider thumb — pseudo-elements require CSS */
-.hue-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: var(--swatch-color);
-  border: 2px solid rgb(var(--v0-theme-on-surface));
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
-  cursor: grab;
-}
-
-.hue-slider::-webkit-slider-thumb:active {
-  cursor: grabbing;
-}
-
-.hue-slider::-moz-range-thumb {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: var(--swatch-color);
-  border: 2px solid rgb(var(--v0-theme-on-surface));
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
-  cursor: grab;
-}
-
 /* Composite strip — complex shadow + pseudo-elements require CSS */
 .strip-wrapper {
   box-shadow:
