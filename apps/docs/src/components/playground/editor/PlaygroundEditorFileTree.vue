@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { createNested, isString } from '@vuetify/v0'
+  import { createNested, isString, useBreakpoints } from '@vuetify/v0'
 
   // Components
   import { usePlayground } from '../app/PlaygroundApp.vue'
@@ -15,6 +15,8 @@
   const store = playground.store
   const isReady = playground.isReady
   const activeFile = toRef(() => store.activeFile?.filename)
+  const breakpoints = useBreakpoints()
+  const isMobile = breakpoints.isMobile
 
   const tree = createNested()
 
@@ -263,6 +265,7 @@
       store.setActive(id)
       const parent = tree.parents.get(id)
       targetFolder.value = (isString(parent) ? parent : null) ?? 'src'
+      if (isMobile.value) playground.tree.value = true
     } else {
       tree.flip(id)
       targetFolder.value = id
