@@ -29,6 +29,7 @@
       'data-disabled': true | undefined
       'data-readonly': true | undefined
       'data-orientation': 'horizontal' | 'vertical'
+      'style': Record<string, string>
       'onPointerdown': (e: PointerEvent) => void
     }
   }
@@ -95,6 +96,7 @@
       'data-disabled': toValue(root.disabled) ? true : undefined,
       'data-readonly': toValue(root.readonly) ? true : undefined,
       'data-orientation': toValue(root.orientation),
+      'style': { 'touch-action': 'none' },
       'onPointerdown': onPointerdown,
     },
   }))

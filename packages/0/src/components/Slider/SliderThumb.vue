@@ -175,6 +175,7 @@
       'data-readonly': isReadonly.value ? true : undefined,
       'style': {
         [isVertical.value ? 'bottom' : 'left']: `${pct.value}%`,
+        'touch-action': 'none',
       },
       'onKeydown': onKeydown,
       'onPointerdown': onPointerdown,
