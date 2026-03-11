@@ -40,25 +40,27 @@
 
   // Start collapsed (mobile-first default since isMobile defaults to true)
   const tree = shallowRef(true)
+  const bottom = shallowRef(true)
+  const side = shallowRef(true)
   left.value = true
 
-  const ctx = {
+  providePlayground({
     store,
     isReady,
     left,
     tree,
-    bottom: shallowRef(sideActive),
-    side: shallowRef(!sideActive),
+    bottom,
+    side,
     editor: shallowRef(true),
-  }
-
-  providePlayground(ctx)
+  })
 
   // When breakpoints confirm desktop, restore open state
   watch(isMobile, mobile => {
     if (!mobile) {
       tree.value = false
       left.value = storedLeft
+      bottom.value = sideActive
+      side.value = !sideActive
     }
   })
 </script>
