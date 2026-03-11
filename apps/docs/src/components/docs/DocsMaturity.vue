@@ -467,7 +467,7 @@
               <!-- Name -->
               <td class="!pl-[34px] pr-4 py-2.5 text-sm font-medium truncate">
                 <RouterLink
-                  class="text-on-surface no-underline hover:text-primary transition-colors"
+                  class="text-primary no-underline hover:underline transition-colors"
                   :to="item.path"
                 >{{ item.name }}</RouterLink>
               </td>
