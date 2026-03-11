@@ -82,8 +82,20 @@ Group selection state is **always reactive**, including the tri-state `mixedIds`
 
 ## Examples
 
+### Chip Filter
+
+Chip filters are a common pattern for narrowing content by tags. This example shows how `createGroup` handles per-item toggling, bulk selection via a tri-state header, and reactive state queries (`isAllSelected`, `isMixed`, `isNoneSelected`) — all out of the box.
+
 ::: example
-/composables/create-group/chip-filter
+/composables/create-group/context.ts 1
+/composables/create-group/TagFilter.vue 2
+/composables/create-group/chip-filter.vue 3
+
+| File | Role |
+|------|------|
+| `context.ts` | Tag type, factory, and seed data |
+| `TagFilter.vue` | Chip cloud with tri-state select-all header |
+| `chip-filter.vue` | Entry point — wires filter to a results list |
 :::
 
 <DocsApi />
