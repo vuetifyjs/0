@@ -54,7 +54,7 @@ export const useReleasesStore = defineStore('releases', {
       // Check cache on first page load
       if (this.page === 1 && this.releases.length === 0) {
         const cached = storage.get<Release[] | null>('page-1', null)
-        if (cached.value) {
+        if (Array.isArray(cached.value) && cached.value.length > 0) {
           this.releases = cached.value
           this.page = 2
           return
