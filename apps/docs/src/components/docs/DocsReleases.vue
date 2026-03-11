@@ -69,7 +69,7 @@
       link ({ href, text }) {
         const isExternal = href?.startsWith('http')
         if (isExternal) {
-          return `<a href="${href}" target="_blank" rel="noopener">${text}<span class="text-xs opacity-60 ml-0.5">↗</span></a>`
+          return `<a href="${href}" target="_blank" rel="noopener">${text}↗</a>`
         }
         return `<a href="${href}">${text}</a>`
       },
