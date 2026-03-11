@@ -98,7 +98,7 @@
 </script>
 
 <template>
-  <div class="min-h-[calc(100vh-64px)]">
+  <div class="min-h-[calc(100vh-72px)]">
     <!-- Not found state -->
     <div v-if="!tour" class="flex flex-col items-center justify-center py-16 px-8 text-center">
       <h1 class="m-0 mb-2 text-2xl">Skill Not Found</h1>
