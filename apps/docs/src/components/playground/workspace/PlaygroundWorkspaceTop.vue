@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { SplitterPanel, SplitterRoot, useStorage } from '@vuetify/v0'
+  import { SplitterPanel, SplitterRoot, useBreakpoints, useStorage } from '@vuetify/v0'
 
   // Components
   import { usePlayground } from '../app/PlaygroundApp.vue'
@@ -9,6 +9,7 @@
   import { onMounted, useTemplateRef } from 'vue'
 
   const playground = usePlayground()
+  const { isMobile } = useBreakpoints()
 
   const storage = useStorage()
   const sizes = storage.get<number[]>('playground-top-h-sizes', [])
@@ -25,14 +26,22 @@
 </script>
 
 <template>
-  <SplitterPanel :default-size="60" :max-size="playground.side.value ? 80 : 100" :min-size="20">
-    <SplitterRoot ref="root" class="h-full" orientation="horizontal" @layout="onLayout">
-      <slot />
-    </SplitterRoot>
-  </SplitterPanel>
+  <!-- Desktop: splitter layout -->
+  <template v-if="!isMobile">
+    <SplitterPanel :default-size="60" :max-size="playground.side.value ? 80 : 100" :min-size="20">
+      <SplitterRoot ref="root" class="h-full" orientation="horizontal" @layout="onLayout">
+        <slot />
+      </SplitterRoot>
+    </SplitterPanel>
 
-  <PlaygroundSplitterHandle
-    v-if="playground.side.value"
-    direction="vertical"
-  />
+    <PlaygroundSplitterHandle
+      v-if="playground.side.value"
+      direction="vertical"
+    />
+  </template>
+
+  <!-- Mobile: editor takes full height when visible -->
+  <div v-else-if="playground.editor.value" class="flex-1 min-h-0 flex">
+    <slot />
+  </div>
 </template>

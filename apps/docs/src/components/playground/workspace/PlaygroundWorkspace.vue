@@ -1,9 +1,11 @@
 <script setup lang="ts">
   // Framework
-  import { SplitterRoot, useStorage } from '@vuetify/v0'
+  import { SplitterRoot, useBreakpoints, useStorage } from '@vuetify/v0'
 
   // Utilities
   import { onMounted, useTemplateRef } from 'vue'
+
+  const { isMobile } = useBreakpoints()
 
   const storage = useStorage()
   const sizes = storage.get<number[]>('playground-v-sizes', [])
@@ -20,7 +22,11 @@
 </script>
 
 <template>
-  <SplitterRoot ref="root" class="h-full select-none" orientation="vertical" @layout="onLayout">
+  <SplitterRoot v-if="!isMobile" ref="root" class="h-full select-none" orientation="vertical" @layout="onLayout">
     <slot />
   </SplitterRoot>
+
+  <div v-else class="h-full select-none flex flex-col">
+    <slot />
+  </div>
 </template>
