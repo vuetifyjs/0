@@ -13,9 +13,8 @@
   const isMobile = breakpoints.isMobile
   const open = toRef(() => !playground.left.value)
 
-  // Splitter always collapsed on mobile; synced with context on desktop
   const collapsed = computed({
-    get: () => isMobile.value || playground.left.value,
+    get: () => playground.left.value,
     set: v => {
       playground.left.value = v
     },
@@ -33,29 +32,28 @@
 </script>
 
 <template>
-  <!-- Panel always rendered for stable Splitter indexing -->
-  <SplitterPanel
-    v-model:collapsed="collapsed"
-    :collapsed-size="0"
-    collapsible
-    :default-size="30"
-    :max-size="45"
-    :min-size="30"
-    :style="isMobile ? { display: 'none' } : undefined"
-  >
-    <!-- Desktop: inline content -->
-    <div
-      v-if="!isMobile && open"
-      class="bg-glass-surface h-full flex flex-col"
+  <template v-if="!isMobile">
+    <SplitterPanel
+      v-model:collapsed="collapsed"
+      :collapsed-size="0"
+      collapsible
+      :default-size="30"
+      :max-size="45"
+      :min-size="30"
     >
-      <slot />
-    </div>
-  </SplitterPanel>
+      <div
+        v-if="open"
+        class="bg-glass-surface h-full flex flex-col"
+      >
+        <slot />
+      </div>
+    </SplitterPanel>
 
-  <PlaygroundSplitterHandle
-    direction="horizontal"
-    :hidden="isMobile || !open"
-  />
+    <PlaygroundSplitterHandle
+      direction="horizontal"
+      :hidden="!open"
+    />
+  </template>
 
   <!-- Mobile: fixed drawer -->
   <div
