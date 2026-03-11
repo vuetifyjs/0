@@ -62,7 +62,7 @@
       bottom.value = sideActive
       side.value = !sideActive
     }
-  })
+  }, { immediate: true })
 </script>
 
 <template>

@@ -5,7 +5,7 @@ import { debounce, useTheme } from '@vuetify/v0'
 import { decodePlaygroundHash, encodePlaygroundHash } from '@/composables/usePlayground'
 
 // Utilities
-import { useStore, useVueImportMap } from '@vue/repl'
+import { useStore, useVueImportMap } from '@vue/repl/core'
 import { computed, onMounted, shallowRef, watch, watchEffect } from 'vue'
 
 // Data
