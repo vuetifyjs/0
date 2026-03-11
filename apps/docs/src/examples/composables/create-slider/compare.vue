@@ -8,7 +8,7 @@
 <template>
   <div
     :ref="(el: HTMLElement) => { track = el }"
-    class="max-w-lg mx-auto"
+    class="max-w-lg mx-auto touch-action-none"
     :class="dragging && 'cursor-grabbing'"
   >
     <CompareDisplay :on-pointerdown="onPointerdown" :split="split" />
