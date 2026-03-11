@@ -11,18 +11,18 @@
   const playground = usePlayground()
   const breakpoints = useBreakpoints()
   const isMobile = breakpoints.isMobile
-  const open = toRef(() => !playground.tree.value)
+  const open = toRef(() => playground.tree.value)
 
   const collapsed = computed({
-    get: () => playground.tree.value,
+    get: () => !playground.tree.value,
     set: v => {
-      playground.tree.value = v
+      playground.tree.value = !v
     },
   })
 
   const stack = useStack()
   const ticket = stack.register({ onDismiss: () => {
-    playground.tree.value = true
+    playground.tree.value = false
   } })
 
   watch(() => open.value && isMobile.value, visible => {
@@ -66,7 +66,7 @@
         <span class="font-medium">Tree</span>
       </div>
 
-      <AppCloseButton label="Close file tree" @click="playground.tree.value = true" />
+      <AppCloseButton label="Close file tree" @click="playground.tree.value = false" />
     </header>
 
     <slot />

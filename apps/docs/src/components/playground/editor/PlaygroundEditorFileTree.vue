@@ -265,7 +265,7 @@
       store.setActive(id)
       const parent = tree.parents.get(id)
       targetFolder.value = (isString(parent) ? parent : null) ?? 'src'
-      if (isMobile.value) playground.tree.value = true
+      if (isMobile.value) playground.tree.value = false
     } else {
       tree.flip(id)
       targetFolder.value = id

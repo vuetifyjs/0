@@ -28,14 +28,14 @@
 <template>
   <!-- Desktop: splitter layout -->
   <template v-if="!isMobile">
-    <SplitterPanel :default-size="60" :max-size="playground.side.value ? 80 : 100" :min-size="20">
+    <SplitterPanel :default-size="60" :max-size="!playground.side.value ? 80 : 100" :min-size="20">
       <SplitterRoot ref="root" class="h-full" orientation="horizontal" @layout="onLayout">
         <slot />
       </SplitterRoot>
     </SplitterPanel>
 
     <PlaygroundSplitterHandle
-      v-if="playground.side.value"
+      v-if="!playground.side.value"
       direction="vertical"
     />
   </template>

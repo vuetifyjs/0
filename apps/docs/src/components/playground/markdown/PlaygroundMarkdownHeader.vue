@@ -5,7 +5,7 @@
   const playground = usePlayground()
 
   function onClickClose () {
-    playground.left.value = true
+    playground.left.value = false
   }
 </script>
 
