@@ -50,6 +50,7 @@
       'data-state': SplitterHandleState
       'data-orientation': SplitterOrientation
       'data-disabled': true | undefined
+      'style': Record<string, string>
       'onPointerdown': (e: PointerEvent) => void
       'onPointerenter': () => void
       'onPointerleave': () => void
@@ -265,6 +266,7 @@
       'data-state': state.value,
       'data-orientation': splitter.orientation.value,
       'data-disabled': isDisabled.value || undefined,
+      'style': { 'touch-action': 'none' },
       'onPointerdown': onPointerDown,
       'onPointerenter': onPointerEnter,
       'onPointerleave': onPointerLeave,
