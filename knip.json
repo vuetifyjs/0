@@ -29,6 +29,7 @@
         "src/components/docs/meta/*.vue",
         "src/examples/guide/building-frameworks/my-ui/src/**/*.ts",
         "src/examples/guide/building-frameworks/my-ui/vite.config.ts",
+        "src/examples/composables/create-trinity/toasts.ts",
         "src/components/app/AppBrowserIcon.vue",
         "src/components/docs/DocsBrowserSupport.vue",
         "src/skillz/tours/**/index.ts",
@@ -133,7 +134,5 @@
     "interface": true,
     "type": true
   },
-  "ignoreBinaries": [
-    "http-server"
-  ]
+  "ignoreBinaries": []
 }
