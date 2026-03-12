@@ -104,7 +104,7 @@ describe('createNotifications', () => {
       })
     })
 
-    it('should snooze and unsnooze', () => {
+    it('should snooze and wake', () => {
       withScope(() => {
         const notifications = createNotifications()
         const ticket = notifications.notify({ subject: 'Test' })
@@ -113,7 +113,7 @@ describe('createNotifications', () => {
         notifications.snooze(ticket.id, until)
         expect(notifications.get(ticket.id)?.snoozedUntil).toEqual(until)
 
-        notifications.unsnooze(ticket.id)
+        notifications.wake(ticket.id)
         expect(notifications.get(ticket.id)?.snoozedUntil).toBeNull()
       })
     })
@@ -176,7 +176,7 @@ describe('createNotifications', () => {
         ticket.snooze(until)
         expect(notifications.get(ticket.id)?.snoozedUntil).toEqual(until)
 
-        ticket.unsnooze()
+        ticket.wake()
         expect(notifications.get(ticket.id)?.snoozedUntil).toBeNull()
 
         ticket.unread()
@@ -214,8 +214,8 @@ describe('createNotifications', () => {
     function adapterContext (notifications: ReturnType<typeof createNotifications>): NotificationsAdapterContext {
       return {
         notify: notifications.notify,
-        on: notifications.on.bind(notifications),
-        off: notifications.off.bind(notifications),
+        on: notifications.on,
+        off: notifications.off,
       }
     }
 

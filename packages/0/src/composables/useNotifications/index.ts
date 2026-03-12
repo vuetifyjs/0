@@ -52,7 +52,7 @@ export interface NotificationTicket extends QueueTicket<NotificationInput> {
   archive: () => void
   unarchive: () => void
   snooze: (until: Date) => void
-  unsnooze: () => void
+  wake: () => void
 }
 
 export interface NotificationsAdapterContext {
@@ -80,7 +80,7 @@ export interface NotificationsContext extends Omit<
   archive: (id: ID) => void
   unarchive: (id: ID) => void
   snooze: (id: ID, until: Date) => void
-  unsnooze: (id: ID) => void
+  wake: (id: ID) => void
 
   readAll: () => void
   archiveAll: () => void
@@ -122,7 +122,7 @@ export function createNotifications (
       archive: () => archive(id),
       unarchive: () => unarchive(id),
       snooze: (until: Date) => snooze(id, until),
-      unsnooze: () => unsnooze(id),
+      wake: () => wake(id),
     } as Partial<NotificationTicket>)
 
     queue.emit('notification:received', ticket)
@@ -162,7 +162,7 @@ export function createNotifications (
     mutate(id, { snoozedUntil: until }, 'notification:snoozed')
   }
 
-  function unsnooze (id: ID) {
+  function wake (id: ID) {
     mutate(id, { snoozedUntil: null }, 'notification:unsnoozed')
   }
 
@@ -206,7 +206,7 @@ export function createNotifications (
     archive,
     unarchive,
     snooze,
-    unsnooze,
+    wake,
     readAll,
     archiveAll,
     proxy,
@@ -235,7 +235,7 @@ function createNotificationsFallback (): NotificationsContext {
     archive: noop,
     unarchive: noop,
     snooze: noop,
-    unsnooze: noop,
+    wake: noop,
     readAll: noop,
     archiveAll: noop,
     proxy: { keys: [], values: [], entries: [], size: 0 },

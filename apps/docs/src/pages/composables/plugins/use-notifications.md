@@ -130,7 +130,7 @@ notifications.seen(id)       // Set seenAt
 notifications.archive(id)    // Set archivedAt
 notifications.unarchive(id)  // Clear archivedAt
 notifications.snooze(id, until) // Set snoozedUntil
-notifications.unsnooze(id)   // Clear snoozedUntil
+notifications.wake(id)       // Clear snoozedUntil
 notifications.unregister(id) // Remove from queue
 ```
 
@@ -193,7 +193,7 @@ stateDiagram-v2
   Read --> Archived: archive
   Unread --> Archived: archive
   Unread --> Snoozed: snooze(until)
-  Snoozed --> Unread: unsnooze
+  Snoozed --> Unread: wake
   Read --> [*]: dismiss()
   Unread --> [*]: dismiss()
   Archived --> [*]: dismiss()
