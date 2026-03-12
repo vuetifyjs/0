@@ -12,7 +12,7 @@
   const theme = useTheme()
 
   const Sandbox = defineAsyncComponent(() =>
-    import('@vue/repl').then(m => m.Sandbox)
+    import('@vue/repl').then(m => m.Sandbox),
   )
 </script>
 
@@ -28,7 +28,7 @@
     />
 
     <div v-else class="absolute inset-0 flex items-center justify-center">
-      <DocsSkeleton :lines="1" height="h-16" :widths="['w-16']" />
+      <DocsSkeleton height="h-16" :lines="1" :widths="['w-16']" />
     </div>
   </div>
 </template>

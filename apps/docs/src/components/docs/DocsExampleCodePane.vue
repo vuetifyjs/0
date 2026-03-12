@@ -106,8 +106,8 @@
       <DocsCodeActions
         v-model:wrap="lineWrap"
         bin
-        :code="code"
-        :language="language"
+        :code
+        :language
         :playground="showPlayground"
         show-copy
         show-wrap

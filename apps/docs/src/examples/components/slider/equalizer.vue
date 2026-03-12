@@ -25,6 +25,6 @@
       </button>
     </div>
 
-    <Equalizer v-model="gains" :bands="bands" />
+    <Equalizer v-model="gains" :bands />
   </div>
 </template>

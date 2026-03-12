@@ -13,7 +13,7 @@
 <template>
   <component
     :is="tag ?? 'h3'"
-    :id="id"
+    :id
   >
     <a
       class="header-anchor"

@@ -8,9 +8,9 @@
   <section id="backmatter">
     <DocsBenchmarks />
 
-    <DocsRelated :frontmatter="frontmatter" />
+    <DocsRelated :frontmatter />
 
-    <DocsFeedback :frontmatter="frontmatter" />
+    <DocsFeedback :frontmatter />
 
     <DocsBackToTop />
 

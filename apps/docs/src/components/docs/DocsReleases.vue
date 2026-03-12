@@ -171,7 +171,7 @@
 
           <template v-if="model.reactions?.total_count">
             <span class="opacity-50">&mdash;</span>
-            <template v-for="(emoji, key) in reactions" :key="key">
+            <template v-for="(emoji, key) in reactions" :key>
               <span
                 v-if="getReactionCount(model, key)"
                 class="inline-flex items-center gap-0.5 text-sm"

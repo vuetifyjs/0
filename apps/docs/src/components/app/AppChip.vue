@@ -13,7 +13,7 @@
     <AppIcon
       v-if="icon"
       :class="color"
-      :icon="icon"
+      :icon
       size="1.2em"
     />
 

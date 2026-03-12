@@ -366,7 +366,7 @@
       <div class="flex flex-wrap items-center gap-3 px-2 py-3 text-xs text-on-surface-variant">
         <span
           v-for="(config, key) in levels"
-          :key="key"
+          :key
           class="inline-flex items-center gap-1"
           :style="{ color: config.color }"
         >
@@ -530,7 +530,7 @@
               <div class="flex flex-wrap items-center gap-3 text-xs text-on-surface-variant">
                 <span
                   v-for="(config, key) in levels"
-                  :key="key"
+                  :key
                   class="inline-flex items-center gap-1"
                   :style="{ color: config.color }"
                 >

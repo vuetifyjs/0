@@ -54,11 +54,11 @@
 
         <!-- Hue slider -->
         <Slider.Root
-          :model-value="toValue(ticket.value) as number"
           class="relative flex items-center w-full h-6"
           :disabled="toValue(ticket.disabled)"
           :max="360"
           :min="0"
+          :model-value="toValue(ticket.value) as number"
           @update:model-value="onHue(ticket, $event)"
         >
           <Slider.Track

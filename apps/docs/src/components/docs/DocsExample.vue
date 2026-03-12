@@ -186,9 +186,9 @@
       <!-- Description -->
       <DocsExampleDescription
         v-if="hasDescription || title"
-        :anchor-id="anchorId"
-        :collapse="collapse"
-        :title="title"
+        :anchor-id
+        :collapse
+        :title
       >
         <slot name="description" />
       </DocsExampleDescription>
@@ -226,10 +226,10 @@
         ref="single-code-pane"
         v-model:expanded="peekExpanded"
         :code="resolvedCode"
-        :file-name="fileName"
+        :file-name
         :language="file?.split('.').pop() || 'vue'"
-        :peek="peek"
-        :peek-lines="peekLines"
+        :peek
+        :peek-lines
         :title="title || fileName"
       />
 
