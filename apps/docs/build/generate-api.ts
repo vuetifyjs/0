@@ -12,7 +12,7 @@ import { readdir } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { Project } from 'ts-morph'
+import { Node, Project } from 'ts-morph'
 import { createChecker } from 'vue-component-meta'
 
 // Types
@@ -24,6 +24,7 @@ const ROOT = resolve(__dirname, '../../..')
 const COMPONENTS_DIR = resolve(ROOT, 'packages/0/src/components')
 const COMPOSABLES_DIR = resolve(ROOT, 'packages/0/src/composables')
 const TSCONFIG = resolve(ROOT, 'tsconfig.json')
+const PACKAGE_TSCONFIG = resolve(ROOT, 'packages/0/tsconfig.json')
 
 const VIRTUAL_MODULE_ID = 'virtual:api'
 const RESOLVED_VIRTUAL_MODULE_ID = '\0' + VIRTUAL_MODULE_ID
@@ -256,7 +257,7 @@ let project: Project | null = null
 function getProject () {
   if (!project) {
     project = new Project({
-      tsConfigFilePath: TSCONFIG,
+      tsConfigFilePath: PACKAGE_TSCONFIG,
       skipAddingFilesFromTsConfig: true,
     })
   }
@@ -541,6 +542,28 @@ function extractExportedFunctions (
     const { description, example } = getJsDocInfo(fn)
 
     functions.push({ name, signature, description, example })
+  }
+
+  // Also extract exported const bindings that are function-typed
+  // Handles: export const [createXContext, createXPlugin, useX] = createPluginContext(...)
+  for (const [name, decls] of sourceFile.getExportedDeclarations()) {
+    if (seen.has(name)) continue
+
+    const decl = decls[0]
+    if (!decl) continue
+
+    // Skip type-only exports
+    if (Node.isTypeAliasDeclaration(decl) || Node.isInterfaceDeclaration(decl)) continue
+
+    const type = decl.getType()
+    const callSigs = type.getCallSignatures()
+    if (callSigs.length === 0) continue
+
+    seen.add(name)
+
+    // Clean up import paths: import("/abs/path").Type → Type
+    const signature = type.getText(decl).replace(/import\("[^"]*"\)\./g, '')
+    functions.push({ name, signature })
   }
 
   return functions
