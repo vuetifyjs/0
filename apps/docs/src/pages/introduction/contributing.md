@@ -82,8 +82,7 @@ pnpm dev:docs
 │       │   ├── utilities/     # Helper functions
 │       │   └── types/         # TypeScript types
 ├── apps/
-│   ├── docs/           # Documentation site
-│   └── storybook/      # Storybook stories
+│   └── docs/           # Documentation site
 └── playground/         # Development playground
 ```
 
