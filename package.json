@@ -42,7 +42,7 @@
     "prepare": "simple-git-hooks"
   },
   "simple-git-hooks": {
-    "pre-commit": "pnpm lint:fix && pnpm typecheck && pnpm test:run && pnpm repo:check"
+    "pre-push": "pnpm lint:fix && pnpm typecheck && pnpm test:run && pnpm repo:check"
   },
   "devDependencies": {
     "@js-temporal/polyfill": "catalog:",
