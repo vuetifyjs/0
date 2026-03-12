@@ -60,9 +60,12 @@
     }
   })
 
-  // Exit fullscreen on route change
+  // Exit fullscreen or close panel on route change
   watch(() => route.path, () => {
-    fullscreen.value = false
+    if (fullscreen.value || !isDesktop.value) {
+      fullscreen.value = false
+      ask.close()
+    }
   })
 
   async function onSubmit (question: string) {
