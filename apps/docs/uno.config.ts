@@ -1,15 +1,8 @@
-import { defineConfig, presetIcons, presetWind4 } from 'unocss'
+import { defineConfig, presetWind4 } from 'unocss'
 
 export default defineConfig({
   presets: [
     presetWind4(),
-    presetIcons({
-      scale: 1.2,
-      extraProperties: {
-        'display': 'inline-block',
-        'vertical-align': 'middle',
-      },
-    }),
   ],
   // Wind4 uses color-mix with oklch - opacity modifiers (bg-surface/50)
   // don't work with CSS variables. Color-mix utilities are in tokens.css.

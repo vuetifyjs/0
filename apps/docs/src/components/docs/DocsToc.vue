@@ -7,33 +7,9 @@
   import { useSettings } from '@/composables/useSettings'
   import { useToc } from '@/composables/useToc'
 
-  // Utilities
-  import { computed, toRef } from 'vue'
-
   const ask = useAsk()
   const toc = useToc()
   const settings = useSettings()
-
-  // Auto-collapse: when ToC has more than 8 h2 items, collapse children
-  // of non-active sections to keep it manageable
-  const COLLAPSE_THRESHOLD = 8
-  const shouldAutoCollapse = computed(() => toc.headings.value.length > COLLAPSE_THRESHOLD)
-
-  // Check if a section is the currently active one (selected heading is in this h2 section)
-  function isSectionActive (h2: { id: string, children: Array<{ id: string, children: Array<{ id: string }> }> }) {
-    const selected = toc.selectedId.value
-    if (!selected) return false
-    if (h2.id === selected) return true
-    return h2.children.some(h3 =>
-      h3.id === selected || h3.children.some(h4 => h4.id === selected)
-    )
-  }
-
-  // Show children for a section only if not auto-collapsing, or if the section is active
-  function showChildren (h2: { id: string, children: Array<{ id: string, children: Array<{ id: string }> }> }) {
-    if (!shouldAutoCollapse.value) return true
-    return isSectionActive(h2)
-  }
 
   function scrollToTop () {
     window.scrollTo({ top: 0, behavior: settings.prefersReducedMotion.value ? 'auto' : 'smooth' })
@@ -71,7 +47,7 @@
             {{ h2.text }}
           </a>
 
-          <ul v-if="h2.children.length > 0 && showChildren(h2)" class="ml-3 space-y-1">
+          <ul v-if="h2.children.length > 0" class="ml-3 space-y-1">
             <li v-for="h3 in h2.children" :key="h3.id">
               <a
                 :aria-current="toc.selectedId.value === h3.id ? 'location' : undefined"
