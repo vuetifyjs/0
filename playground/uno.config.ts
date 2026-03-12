@@ -1,7 +1,5 @@
 import { defineConfig, presetWind4 } from 'unocss'
 
-const isStorybook = process.env.STORYBOOK === '1'
-
 export default defineConfig({
   presets: [
     presetWind4(),
@@ -17,15 +15,6 @@ export default defineConfig({
       `,
     },
   ],
-  content: {
-    pipeline: {
-      include: isStorybook
-        ? [
-            './src/**/*.{vue,js,ts,jsx,tsx}',
-          ]
-        : [],
-    },
-  },
   theme: {
     colors: {
       'primary': 'var(--v0-primary)',

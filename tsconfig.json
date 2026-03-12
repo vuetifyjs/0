@@ -11,9 +11,6 @@
       "path": "./apps/docs"
     },
     {
-      "path": "./apps/storybook"
-    },
-    {
       "path": "./playground"
     }
   ],

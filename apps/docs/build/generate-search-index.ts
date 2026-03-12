@@ -80,7 +80,6 @@ function getCategoryFromPath (filePath: string): string {
     components: 'Components',
     composables: 'Composables',
     utilities: 'Utilities',
-    storybook: 'Storybook',
   }
 
   return categoryMap[parts[0]] ?? 'Other'
