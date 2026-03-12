@@ -26,15 +26,21 @@ import { createTrinity } from '#v0/composables/createTrinity'
 import { createTokens } from '#v0/composables/createTokens'
 import { useLocale } from '#v0/composables/useLocale'
 
+// Adapters
+import { isStandardSchema, toRule } from './adapters/standard'
+
 // Utilities
 import { instanceExists, isFunction, isString } from '#v0/utilities'
 
 // Types
 import type { FormValidationRule } from '#v0/composables/createForm'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
+import type { StandardSchemaV1 } from './adapters/standard'
 import type { App } from 'vue'
 
 export type { FormValidationRule } from '#v0/composables/createForm'
+export type { StandardSchemaV1 } from './adapters/standard'
+export { isStandardSchema, toRule } from './adapters/standard'
 
 type TranslateFn = (key: string, params?: Record<string, unknown>, fallback?: string) => string
 
@@ -69,9 +75,10 @@ export type RuleBuilder = RuleBuilderWithoutOptions | RuleBuilderWithOptions
 export type RuleAlias = string | [string, ...unknown[]]
 
 /**
- * Input accepted by resolve(): alias strings, alias tuples, or raw validation functions.
+ * Input accepted by resolve(): alias strings, alias tuples, raw validation functions,
+ * or Standard Schema objects (Zod v3.24+, Valibot, ArkType, etc.).
  */
-export type RuleInput = RuleAlias | FormValidationRule
+export type RuleInput = RuleAlias | FormValidationRule | StandardSchemaV1
 
 export interface RuleAliases {
   [name: string]: RuleBuilder
@@ -189,6 +196,11 @@ function createResolve (aliases: RuleAliases) {
     for (const rule of rules) {
       if (isFunction(rule)) {
         result.push(rule as FormValidationRule)
+        continue
+      }
+
+      if (isStandardSchema(rule)) {
+        result.push(toRule(rule))
         continue
       }
 

@@ -4,11 +4,13 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { inject, provide } from 'vue'
 
 // Types
-import type { RuleBuilderWithoutOptions } from './index'
+import type { RuleBuilderWithoutOptions, StandardSchemaV1 } from './index'
 
 import {
   createRules,
   createRulesContext,
+  isStandardSchema,
+  toRule,
   useRules,
 } from './index'
 
@@ -610,5 +612,133 @@ describe('useRules', () => {
 
     // In test env (no component), returns fallback — verify it's functional
     expect(typeof result.aliases.required).toBe('function')
+  })
+})
+
+/** Helper to create a mock Standard Schema object */
+function mockSchema (validate: (value: unknown) => { value?: unknown, issues?: ReadonlyArray<{ message: string }> }): StandardSchemaV1 {
+  return {
+    '~standard': {
+      version: 1,
+      vendor: 'test',
+      validate,
+    },
+  }
+}
+
+describe('standard Schema integration', () => {
+  describe('isStandardSchema', () => {
+    it('should return true for objects with ~standard property', () => {
+      const schema = mockSchema(() => ({}))
+      expect(isStandardSchema(schema)).toBe(true)
+    })
+
+    it('should return false for non-objects', () => {
+      expect(isStandardSchema('required')).toBe(false)
+      expect(isStandardSchema(42)).toBe(false)
+      expect(isStandardSchema(null)).toBe(false)
+      expect(isStandardSchema(undefined)).toBe(false)
+    })
+
+    it('should return false for objects without ~standard', () => {
+      expect(isStandardSchema({})).toBe(false)
+      expect(isStandardSchema({ validate: () => ({}) })).toBe(false)
+    })
+
+    it('should return false for functions', () => {
+      expect(isStandardSchema(() => true)).toBe(false)
+    })
+  })
+
+  describe('toRule', () => {
+    it('should return true for valid sync schema', async () => {
+      const schema = mockSchema(() => ({ value: 'ok' }))
+      const rule = toRule(schema)
+
+      expect(await rule('anything')).toBe(true)
+    })
+
+    it('should return first issue message for invalid sync schema', async () => {
+      const schema = mockSchema(() => ({
+        issues: [{ message: 'Must be a string' }],
+      }))
+      const rule = toRule(schema)
+
+      expect(await rule(42)).toBe('Must be a string')
+    })
+
+    it('should handle async validation', async () => {
+      const schema: StandardSchemaV1 = {
+        '~standard': {
+          version: 1,
+          vendor: 'test',
+          validate: async () => ({
+            issues: [{ message: 'Async error' }],
+          }),
+        },
+      }
+      const rule = toRule(schema)
+
+      expect(await rule('test')).toBe('Async error')
+    })
+
+    it('should return true for valid async schema', async () => {
+      const schema: StandardSchemaV1 = {
+        '~standard': {
+          version: 1,
+          vendor: 'test',
+          validate: async () => ({ value: 'ok' }),
+        },
+      }
+      const rule = toRule(schema)
+
+      expect(await rule('test')).toBe(true)
+    })
+
+    it('should return first issue when multiple issues exist', async () => {
+      const schema = mockSchema(() => ({
+        issues: [
+          { message: 'Error one' },
+          { message: 'Error two' },
+        ],
+      }))
+      const rule = toRule(schema)
+
+      expect(await rule('')).toBe('Error one')
+    })
+  })
+
+  describe('resolve', () => {
+    it('should auto-detect Standard Schema objects', () => {
+      const schema = mockSchema(() => ({ value: 'ok' }))
+      const rules = createRules()
+      const resolved = rules.resolve([schema])
+
+      expect(resolved).toHaveLength(1)
+      expect(typeof resolved[0]).toBe('function')
+    })
+
+    it('should handle mixed arrays of aliases, functions, and schemas', () => {
+      const schema = mockSchema(() => ({ value: 'ok' }))
+      function custom (v: unknown) {
+        return !!v || 'Required'
+      }
+      const rules = createRules()
+      const resolved = rules.resolve(['required', custom, schema])
+
+      expect(resolved).toHaveLength(3)
+    })
+
+    it('should produce working rules from auto-detected schemas', async () => {
+      const schema = mockSchema(value => {
+        if (typeof value === 'string' && value.length > 0) return { value }
+        return { issues: [{ message: 'Required' }] }
+      })
+      const rules = createRules()
+      const resolved = rules.resolve([schema])
+
+      expect(await resolved[0]!('hello')).toBe(true)
+      expect(await resolved[0]!('')).toBe('Required')
+    })
   })
 })

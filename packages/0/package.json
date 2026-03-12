@@ -55,8 +55,6 @@
       "./theme/adapters": "./dist/theme/adapters/index.mjs",
       "./theme/adapters/v0": "./dist/theme/adapters/v0/index.mjs",
       "./rules": "./dist/rules/index.mjs",
-      "./rules/adapters/zod": "./dist/rules/adapters/zod/index.mjs",
-      "./rules/adapters/yup": "./dist/rules/adapters/yup/index.mjs",
       "./types": "./dist/types/index.mjs",
       "./utilities": "./dist/utilities/index.mjs",
       "./package.json": "./package.json",
@@ -234,14 +232,6 @@
     "./rules": {
       "development": "./src/rules/index.ts",
       "default": "./dist/rules/index.mjs"
-    },
-    "./rules/adapters/zod": {
-      "development": "./src/rules/adapters/zod/index.ts",
-      "default": "./dist/rules/adapters/zod/index.mjs"
-    },
-    "./rules/adapters/yup": {
-      "development": "./src/rules/adapters/yup/index.ts",
-      "default": "./dist/rules/adapters/yup/index.mjs"
     },
     "./package.json": "./package.json",
     "./browser": {

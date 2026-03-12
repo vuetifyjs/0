@@ -22,8 +22,11 @@ import { createTrinity } from '#v0/composables/createTrinity'
 // Composables
 import { createRegistry } from '#v0/composables/createRegistry'
 
+// Adapters
+import { isStandardSchema, toRule } from '#v0/composables/useRules/adapters/standard'
+
 // Utilities
-import { isNull, isNullOrUndefined, isString } from '#v0/utilities'
+import { isFunction, isNull, isNullOrUndefined, isString } from '#v0/utilities'
 import { computed, shallowRef, toValue } from 'vue'
 
 // Transformers
@@ -32,7 +35,7 @@ import { toArray } from '#v0/composables/toArray'
 // Types
 import type { RegistryContext, RegistryOptions, RegistryTicket, RegistryTicketInput } from '#v0/composables/createRegistry'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
-import type { RuleAlias, RulesContext } from '#v0/composables/useRules'
+import type { RuleAlias, RulesContext, StandardSchemaV1 } from '#v0/composables/useRules'
 import type { ID } from '#v0/types'
 import type { App, ComputedRef, Ref, ShallowRef } from 'vue'
 
@@ -51,8 +54,8 @@ export type FormValue = Ref<unknown> | ShallowRef<unknown>
  * @template V The type of the field value.
  */
 export interface FormTicketInput<V = unknown> extends RegistryTicketInput<V> {
-  /** Validation rules for this field (functions or aliases if RulesContext linked to form) */
-  rules?: (FormValidationRule | RuleAlias)[]
+  /** Validation rules for this field (functions, aliases, or Standard Schema objects) */
+  rules?: (FormValidationRule | RuleAlias | StandardSchemaV1)[]
   /** When validation should trigger (inherits from form if not set) */
   validateOn?: 'submit' | 'change' | string
   /** Whether this field is disabled */
@@ -188,7 +191,11 @@ export function createForm<
   function register (registration: Partial<Z>): E {
     const model = shallowRef(isNullOrUndefined(registration.value) ? '' : toValue(registration.value))
     const raw = registration.rules || []
-    const rules = options?.rules ? options.rules.resolve(raw) : raw as FormValidationRule[]
+    const rules = options?.rules
+      ? options.rules.resolve(raw)
+      : raw.filter(r => isFunction(r) || isStandardSchema(r)).map(r =>
+          isStandardSchema(r) ? toRule(r) : r as FormValidationRule,
+        )
     const errors = shallowRef<string[]>([])
     const isValidating = shallowRef(false)
     const initialValue = model.value

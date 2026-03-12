@@ -1,2 +1,2 @@
-export { toRule as toZodRule } from './zod'
-export { toRule as toYupRule } from './yup'
+export type { StandardSchemaV1 } from './standard'
+export { isStandardSchema, toRule } from './standard'
