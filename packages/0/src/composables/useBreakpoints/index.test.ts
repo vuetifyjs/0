@@ -29,9 +29,12 @@ vi.mock('#v0/composables/useHydration', () => ({
   useHydration: vi.fn(),
 }))
 
-// Mock globals
+// Mock globals — use getter so SSR tests can toggle IN_BROWSER
+const { inBrowser } = vi.hoisted(() => ({ inBrowser: { value: true } }))
 vi.mock('#v0/constants/globals', () => ({
-  IN_BROWSER: true,
+  get IN_BROWSER () {
+    return inBrowser.value
+  },
 }))
 
 const mockGetCurrentInstance = vi.mocked(getCurrentInstance)
@@ -452,6 +455,108 @@ describe('useBreakpoints', () => {
       context.update()
 
       expect(context.isMobile.value).toBe(false)
+    })
+  })
+
+  describe('sSR options', () => {
+    beforeEach(() => {
+      inBrowser.value = false
+    })
+
+    afterEach(() => {
+      inBrowser.value = true
+    })
+
+    it('should initialize with SSR dimensions when not in browser', () => {
+      const context = createBreakpoints({
+        ssr: { clientWidth: 1200, clientHeight: 800 },
+      })
+
+      expect(context.width.value).toBe(1200)
+      expect(context.height.value).toBe(800)
+    })
+
+    it('should compute correct breakpoint from SSR width', () => {
+      const context = createBreakpoints({
+        ssr: { clientWidth: 1200 },
+      })
+
+      expect(context.name.value).toBe('lg')
+      expect(context.lg.value).toBe(true)
+      expect(context.lgAndUp.value).toBe(true)
+      expect(context.lgAndDown.value).toBe(true)
+      expect(context.mdAndUp.value).toBe(true)
+      expect(context.xlAndUp.value).toBe(false)
+    })
+
+    it('should compute isMobile from SSR width', () => {
+      const mobile = createBreakpoints({
+        ssr: { clientWidth: 500 },
+      })
+      expect(mobile.isMobile.value).toBe(true)
+
+      const desktop = createBreakpoints({
+        ssr: { clientWidth: 1400 },
+      })
+      expect(desktop.isMobile.value).toBe(false)
+    })
+
+    it('should set ssr flag to true', () => {
+      const context = createBreakpoints({
+        ssr: { clientWidth: 1024 },
+      })
+
+      expect(context.ssr).toBe(true)
+    })
+
+    it('should default clientHeight to 0 when omitted', () => {
+      const context = createBreakpoints({
+        ssr: { clientWidth: 1024 },
+      })
+
+      expect(context.height.value).toBe(0)
+    })
+
+    it('should detect xs from narrow SSR width', () => {
+      const context = createBreakpoints({
+        ssr: { clientWidth: 400 },
+      })
+
+      expect(context.name.value).toBe('xs')
+      expect(context.xs.value).toBe(true)
+      expect(context.smAndUp.value).toBe(false)
+    })
+
+    it('should detect xxl from wide SSR width', () => {
+      const context = createBreakpoints({
+        ssr: { clientWidth: 2500 },
+      })
+
+      expect(context.name.value).toBe('xxl')
+      expect(context.xxl.value).toBe(true)
+      expect(context.xxlAndUp.value).toBe(true)
+    })
+
+    it('should respect custom breakpoints with SSR', () => {
+      const context = createBreakpoints({
+        breakpoints: { sm: 480, md: 768 },
+        ssr: { clientWidth: 500 },
+      })
+
+      expect(context.name.value).toBe('sm')
+      expect(context.sm.value).toBe(true)
+    })
+
+    it('should ignore SSR options when in browser', () => {
+      inBrowser.value = true
+
+      const context = createBreakpoints({
+        ssr: { clientWidth: 1400, clientHeight: 900 },
+      })
+
+      expect(context.ssr).toBe(false)
+      expect(context.width.value).toBe(0)
+      expect(context.height.value).toBe(0)
     })
   })
 
