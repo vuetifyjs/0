@@ -1018,14 +1018,14 @@ export function createRegistry<
     const willReindex = indexDependentCount > 0 && ticket.index < collection.size
     if (!willReindex) invalidate()
 
-    emit('unregister:ticket', ticket)
-
     minDirtyIndex = Math.min(minDirtyIndex, ticket.index)
     if (willReindex) {
       reindex()
     } else {
       needsReindex = true
     }
+
+    emit('unregister:ticket', ticket)
   }
 
   function offboard (ids: ID[]) {

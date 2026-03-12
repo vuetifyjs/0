@@ -3,11 +3,11 @@
  * @see https://0.vuetifyjs.com/composables/plugins/use-notifications
  *
  * @remarks
- * Notification management composable built on createQueue.
+ * Notification management composable built on createRegistry.
  * Manages notification lifecycle with optional service adapters (FCM, OneSignal, Knock).
  *
  * Supports:
- * - Push notifications with severity and timeout
+ * - Push notifications with severity levels
  * - State mutations: read, seen, archived, snoozed
  * - Bulk operations: readAll, archiveAll, clear
  * - Adapter integration via event system
@@ -20,30 +20,30 @@ import { createPlugin } from '#v0/composables/createPlugin'
 import { createTrinity } from '#v0/composables/createTrinity'
 
 // Composables
-import { createQueue } from '#v0/composables/createQueue'
+import { createRegistry } from '#v0/composables/createRegistry'
 import { useProxyRegistry } from '#v0/composables/useProxyRegistry'
 
 // Utilities
 import { isFunction, useId } from '#v0/utilities'
-import { computed, hasInjectionContext } from 'vue'
+import { hasInjectionContext } from 'vue'
 
 // Types
-import type { QueueContext, QueueOptions, QueueTicket, QueueTicketInput } from '#v0/composables/createQueue'
+import type { RegistryContext, RegistryOptions, RegistryTicket, RegistryTicketInput } from '#v0/composables/createRegistry'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { ProxyRegistryContext } from '#v0/composables/useProxyRegistry'
 import type { ID } from '#v0/types'
-import type { App, ComputedRef } from 'vue'
+import type { App } from 'vue'
 
 export type NotificationSeverity = 'info' | 'warning' | 'error' | 'success'
 
-export interface NotificationInput extends QueueTicketInput {
+export interface NotificationInput extends RegistryTicketInput {
   subject?: string
   body?: string
   severity?: NotificationSeverity
   data?: Record<string, unknown>
 }
 
-export interface NotificationTicket extends QueueTicket<NotificationInput> {
+export type NotificationTicket = RegistryTicket & NotificationInput & {
   createdAt: Date
   readAt: Date | null
   seenAt: Date | null
@@ -56,6 +56,7 @@ export interface NotificationTicket extends QueueTicket<NotificationInput> {
   unarchive: () => void
   snooze: (until: Date) => void
   wake: () => void
+  dismiss: () => void
 }
 
 export interface NotificationsAdapterContext {
@@ -69,11 +70,11 @@ export interface NotificationsAdapterInterface {
   dispose?: () => void
 }
 
-export interface NotificationsOptions extends QueueOptions {}
+export interface NotificationsOptions extends RegistryOptions {}
 
 export interface NotificationsContext extends Omit<
-  QueueContext<NotificationInput, NotificationTicket>,
-  'register' | 'onboard'
+  RegistryContext<NotificationTicket>,
+  'register' | 'onboard' | 'offboard'
 > {
   notify: (input: NotificationInput) => NotificationTicket
 
@@ -89,28 +90,24 @@ export interface NotificationsContext extends Omit<
   archiveAll: () => void
 
   proxy: ProxyRegistryContext<NotificationTicket>
-  unreadItems: ComputedRef<NotificationTicket[]>
-  archivedItems: ComputedRef<NotificationTicket[]>
-  snoozedItems: ComputedRef<NotificationTicket[]>
 }
 
 export function createNotifications (
   _options: NotificationsOptions = {},
 ): NotificationsContext {
-  const { timeout = -1, ...options } = _options
-  const queue = createQueue<NotificationInput, NotificationTicket>({
-    ...options,
-    timeout,
+  const registry = createRegistry<NotificationTicket>({
+    ..._options,
     events: true,
+    reactive: true,
   })
 
-  const proxy = useProxyRegistry<NotificationTicket>(queue)
+  const proxy = useProxyRegistry<NotificationTicket>(registry)
 
   function notify (input: NotificationInput): NotificationTicket {
     const id = input.id ?? useId()
     const now = new Date()
 
-    const ticket = queue.register({
+    const ticket = registry.register({
       ...input,
       id,
       createdAt: now,
@@ -125,47 +122,48 @@ export function createNotifications (
       unarchive: () => unarchive(id),
       snooze: (until: Date) => snooze(id, until),
       wake: () => wake(id),
+      dismiss: () => registry.unregister(id),
     } as Partial<NotificationTicket>)
 
-    queue.emit('notification:received', ticket)
+    registry.emit('notification:received', ticket)
 
     return ticket
   }
 
   function read (id: ID) {
-    queue.upsert(id, { readAt: new Date() }, 'notification:read')
+    registry.upsert(id, { readAt: new Date() }, 'notification:read')
   }
 
   function unread (id: ID) {
-    queue.upsert(id, { readAt: null }, 'notification:unread')
+    registry.upsert(id, { readAt: null }, 'notification:unread')
   }
 
   function seen (id: ID) {
-    queue.upsert(id, { seenAt: new Date() }, 'notification:seen')
+    registry.upsert(id, { seenAt: new Date() }, 'notification:seen')
   }
 
   function archive (id: ID) {
-    queue.upsert(id, { archivedAt: new Date() }, 'notification:archived')
+    registry.upsert(id, { archivedAt: new Date() }, 'notification:archived')
   }
 
   function unarchive (id: ID) {
-    queue.upsert(id, { archivedAt: null }, 'notification:unarchived')
+    registry.upsert(id, { archivedAt: null }, 'notification:unarchived')
   }
 
   function snooze (id: ID, until: Date) {
-    queue.upsert(id, { snoozedUntil: until }, 'notification:snoozed')
+    registry.upsert(id, { snoozedUntil: until }, 'notification:snoozed')
   }
 
   function wake (id: ID) {
-    queue.upsert(id, { snoozedUntil: null }, 'notification:unsnoozed')
+    registry.upsert(id, { snoozedUntil: null }, 'notification:unsnoozed')
   }
 
   function readAll () {
     const now = new Date()
-    queue.batch(() => {
-      for (const ticket of queue.values()) {
+    registry.batch(() => {
+      for (const ticket of registry.values()) {
         if (!ticket.readAt) {
-          queue.upsert(ticket.id, { readAt: now }, 'notification:read')
+          registry.upsert(ticket.id, { readAt: now }, 'notification:read')
         }
       }
     })
@@ -173,20 +171,16 @@ export function createNotifications (
 
   function archiveAll () {
     const now = new Date()
-    queue.batch(() => {
-      for (const ticket of queue.values()) {
+    registry.batch(() => {
+      for (const ticket of registry.values()) {
         if (!ticket.archivedAt) {
-          queue.upsert(ticket.id, { archivedAt: now }, 'notification:archived')
+          registry.upsert(ticket.id, { archivedAt: now }, 'notification:archived')
         }
       }
     })
   }
 
-  const unreadItems = computed(() => proxy.values.filter(t => !t.readAt))
-  const archivedItems = computed(() => proxy.values.filter(t => !!t.archivedAt))
-  const snoozedItems = computed(() => proxy.values.filter(t => !!t.snoozedUntil))
-
-  const { register: _, onboard: __, ...ctx } = queue
+  const { register: _, onboard: __, offboard: ___, ...ctx } = registry
 
   return {
     ...ctx,
@@ -201,9 +195,6 @@ export function createNotifications (
     readAll,
     archiveAll,
     proxy,
-    unreadItems,
-    archivedItems,
-    snoozedItems,
   } as NotificationsContext
 }
 
@@ -224,9 +215,7 @@ export interface NotificationsPluginOptions extends NotificationsOptions {
  * ```ts
  * import { createNotificationsContext } from '@vuetify/v0'
  *
- * export const [useNotifications, provideNotifications, context] = createNotificationsContext({
- *   timeout: 5000,
- * })
+ * export const [useNotifications, provideNotifications, context] = createNotificationsContext()
  * ```
  */
 export function createNotificationsContext (
@@ -305,9 +294,6 @@ function createNotificationsFallback (): NotificationsContext {
     readAll: noop,
     archiveAll: noop,
     proxy: { keys: [], values: [], entries: [], size: 0 },
-    unreadItems: computed(() => []),
-    archivedItems: computed(() => []),
-    snoozedItems: computed(() => []),
   } as unknown as NotificationsContext
 }
 
