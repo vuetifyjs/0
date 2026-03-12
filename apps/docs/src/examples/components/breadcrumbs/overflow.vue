@@ -1,8 +1,9 @@
 <script setup lang="ts">
-  import { shallowRef } from 'vue'
-  import { Breadcrumbs } from '@vuetify/v0'
+  import { ref, toRef } from 'vue'
+  import { Breadcrumbs, Slider } from '@vuetify/v0'
 
-  const width = shallowRef(332)
+  const model = ref([332])
+  const width = toRef(() => model.value[0])
 
   const items = [
     { text: 'Home', href: '/' },
@@ -19,13 +20,13 @@
     <label class="flex items-center gap-3 mb-4 text-sm">
       <span class="text-on-surface-variant shrink-0">Container width:</span>
 
-      <input
-        v-model.number="width"
-        class="grow accent-primary"
-        max="600"
-        min="200"
-        type="range"
-      >
+      <Slider.Root v-model="model" :min="200" :max="600" class="relative flex grow items-center h-5">
+        <Slider.Track class="relative h-1 w-full rounded-full bg-surface-variant">
+          <Slider.Range class="absolute h-full rounded-full bg-primary" />
+        </Slider.Track>
+
+        <Slider.Thumb class="absolute size-5 rounded-full bg-primary -translate-x-1/2 focus:outline-2 focus:outline-primary" />
+      </Slider.Root>
 
       <span class="text-on-surface font-mono w-12 text-right">{{ width }}px</span>
     </label>
