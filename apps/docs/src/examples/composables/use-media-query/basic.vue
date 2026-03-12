@@ -1,10 +1,11 @@
 <script setup lang="ts">
-  import { useMediaQuery } from '@vuetify/v0'
-  import { shallowRef } from 'vue'
+  import { Slider, useMediaQuery } from '@vuetify/v0'
+  import { ref, toRef } from 'vue'
 
   const { matches: isLandscape } = useMediaQuery('(orientation: landscape)')
 
-  const minWidth = shallowRef(768)
+  const width = ref([768])
+  const minWidth = toRef(() => width.value[0])
   const { matches: isWide } = useMediaQuery(() => `(min-width: ${minWidth.value}px)`)
 </script>
 
@@ -28,14 +29,15 @@
 
     <div class="flex items-center gap-4 pt-4 border-t border-divider">
       <label class="text-sm">Min width threshold:</label>
-      <input
-        v-model.number="minWidth"
-        class="flex-1"
-        max="1920"
-        min="320"
-        step="10"
-        type="range"
-      >
+
+      <Slider.Root v-model="width" :min="320" :max="1920" :step="10" class="relative flex flex-1 items-center h-5">
+        <Slider.Track class="relative h-1 w-full rounded-full bg-surface-variant">
+          <Slider.Range class="absolute h-full rounded-full bg-primary" />
+        </Slider.Track>
+
+        <Slider.Thumb class="absolute size-5 rounded-full bg-primary -translate-x-1/2 focus:outline-2 focus:outline-primary" />
+      </Slider.Root>
+
       <span class="w-16 text-right font-mono text-sm">{{ minWidth }}px</span>
     </div>
   </div>
