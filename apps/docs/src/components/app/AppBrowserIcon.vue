@@ -30,7 +30,7 @@
     class="align-sub"
     :class="config.color"
     :icon="config.icon"
-    :size="size"
+    :size
     :title="config.title"
   />
 </template>

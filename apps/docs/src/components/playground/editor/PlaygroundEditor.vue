@@ -12,10 +12,10 @@
   const theme = useTheme()
 
   const Repl = defineAsyncComponent(() =>
-    import('@vue/repl').then(m => m.Repl)
+    import('@vue/repl').then(m => m.Repl),
   )
   const Monaco = defineAsyncComponent(() =>
-    import('@vue/repl/monaco-editor')
+    import('@vue/repl/monaco-editor'),
   )
 </script>
 

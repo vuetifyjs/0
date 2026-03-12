@@ -12,6 +12,6 @@
     class="icon-text text-warning"
     title="You've completed this skill!"
   >
-    <AppIcon icon="medal" :size="size" />
+    <AppIcon icon="medal" :size />
   </span>
 </template>

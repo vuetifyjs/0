@@ -18,7 +18,7 @@
 </script>
 
 <template>
-  <ExpansionPanel.Root v-model="model" class="my-accordion" :multiple="multiple">
+  <ExpansionPanel.Root v-model="model" class="my-accordion" :multiple>
     <ExpansionPanel.Item
       v-for="item in items"
       :key="item.value"

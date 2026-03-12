@@ -24,6 +24,6 @@
     :href="resolvedHref ?? undefined"
     icon="test"
     :text="resolvedCoverage.label"
-    :title="title"
+    :title
   />
 </template>

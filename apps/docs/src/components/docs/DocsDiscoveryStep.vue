@@ -83,8 +83,8 @@
 <template>
   <Discovery.Root
     v-slot="{ isFirst, isLast }"
-    :disabled="disabled"
-    :step="step"
+    :disabled
+    :step
   >
     <Discovery.Content
       class="p-4 bg-surface border border-divider rounded-xl shadow-xl max-w-xs"

@@ -185,7 +185,7 @@
     <!-- Color Groups -->
     <div
       v-for="(group, key) in COLOR_GROUPS"
-      :key="key"
+      :key
       class="space-y-2"
     >
       <div class="text-xs font-medium text-on-surface-variant">{{ group.label }}</div>

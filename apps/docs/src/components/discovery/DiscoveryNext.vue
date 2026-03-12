@@ -31,6 +31,6 @@
     type="button"
     @click="next"
   >
-    <slot :is-disabled="isDisabled" :is-last="root.isLast.value" />
+    <slot :is-disabled :is-last="root.isLast.value" />
   </button>
 </template>

@@ -53,9 +53,9 @@
     class="badge-base"
     :class="shapeClass"
     :style="badgeStyle"
-    :title="title"
+    :title
   >
-    <AppIcon v-if="icon && showIcon" :icon="icon" :size="iconSize" />
+    <AppIcon v-if="icon && showIcon" :icon :size="iconSize" />
     <span v-if="showLabel">{{ label }}</span>
   </span>
 </template>

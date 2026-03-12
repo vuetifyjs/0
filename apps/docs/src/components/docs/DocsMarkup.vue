@@ -64,7 +64,7 @@
         <DocsCodeActions
           v-model:wrap="lineWrap"
           bin
-          :bin-title="binTitle"
+          :bin-title
           :code="decodedCode"
           :language
           :playground

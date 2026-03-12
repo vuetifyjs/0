@@ -28,7 +28,7 @@
       aria-hidden="true"
       class="h-24 w-auto"
       height="96"
-      :src="src"
+      :src
       width="96"
     >
   </div>

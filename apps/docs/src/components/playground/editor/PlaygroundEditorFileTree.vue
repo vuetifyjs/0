@@ -455,10 +455,10 @@
     </div>
   </nav>
 
-    <div v-else class="border-r border-divider bg-surface shrink-0 h-full overflow-hidden">
-      <div class="flex items-center px-3 py-2">
-        <span class="text-xs font-semibold text-on-surface-variant uppercase tracking-wide">Files</span>
-      </div>
-      <DocsSkeleton :lines="4" height="h-3" :widths="['w-12', 'w-20', 'w-16', 'w-24']" class="px-3" />
+  <div v-else class="border-r border-divider bg-surface shrink-0 h-full overflow-hidden">
+    <div class="flex items-center px-3 py-2">
+      <span class="text-xs font-semibold text-on-surface-variant uppercase tracking-wide">Files</span>
     </div>
+    <DocsSkeleton class="px-3" height="h-3" :lines="4" :widths="['w-12', 'w-20', 'w-16', 'w-24']" />
+  </div>
 </template>
