@@ -87,7 +87,7 @@
 
     <DocsApiLinks
       v-if="!showInlineApi"
-      :component-apis="componentApis"
+      :component-apis
     />
 
     <template
@@ -150,7 +150,7 @@
 
     <DocsApiLinks
       v-if="!showInlineApi"
-      :composable-api="composableApi"
+      :composable-api
     />
 
     <template v-else>

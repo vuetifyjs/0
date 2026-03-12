@@ -38,5 +38,5 @@
 </script>
 
 <template>
-  <slot :on-pointerdown="onPointerdown" :track-ref="(el: HTMLElement) => { track = el }" />
+  <slot :on-pointerdown :track-ref="(el: HTMLElement) => { track = el }" />
 </template>

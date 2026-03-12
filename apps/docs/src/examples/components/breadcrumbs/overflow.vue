@@ -20,7 +20,7 @@
     <label class="flex items-center gap-3 mb-4 text-sm">
       <span class="text-on-surface-variant shrink-0">Container width:</span>
 
-      <Slider.Root v-model="model" :min="200" :max="600" class="relative flex grow items-center h-5">
+      <Slider.Root v-model="model" class="relative flex grow items-center h-5" :max="600" :min="200">
         <Slider.Track class="relative h-1 w-full rounded-full bg-surface-variant">
           <Slider.Range class="absolute h-full rounded-full bg-primary" />
         </Slider.Track>

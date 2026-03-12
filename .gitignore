@@ -1,5 +1,3 @@
-docs/plans/
-
 # Logs
 logs
 *.log
@@ -44,8 +42,6 @@ coverage
 
 # Auto-generated files
 apps/docs/build/generated/
-
-docs/
 
 # Claude Code
 .claude/worktrees/

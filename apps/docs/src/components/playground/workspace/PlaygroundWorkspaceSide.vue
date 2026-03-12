@@ -14,7 +14,9 @@
 
   const collapsed = computed({
     get: () => !playground.side.value,
-    set: v => { playground.side.value = !v },
+    set: v => {
+      playground.side.value = !v
+    },
   })
 </script>
 

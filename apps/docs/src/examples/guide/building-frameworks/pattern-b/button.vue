@@ -35,7 +35,7 @@
       <p class="text-xs text-on-surface-variant mb-3 font-mono">MyButton.vue</p>
       <div class="flex flex-wrap gap-3">
         <Atom
-          :as="as"
+          :as
           :class="classes"
           @click="clicks++"
         >

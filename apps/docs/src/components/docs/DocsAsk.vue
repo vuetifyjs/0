@@ -85,7 +85,7 @@
   <!-- Floating input (visible when panel is closed) -->
   <DocsAskInput
     v-show="!ask.isOpen.value"
-    :has-messages="hasMessages"
+    :has-messages
     @reopen="onReopen"
     @submit="onSubmit"
   />

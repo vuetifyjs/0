@@ -20,20 +20,20 @@
 <template>
   <a
     v-if="href"
-    :href="href"
+    :href
     :rel="isExternal ? 'noopener noreferrer' : undefined"
     :target="isExternal ? '_blank' : undefined"
-    :title="title"
+    :title
   >
-    <AppChip :color="color" :icon="icon" :text="text" />
+    <AppChip :color :icon :text />
   </a>
 
   <AppChip
     v-else
-    :color="color"
-    :icon="icon"
-    :text="text"
-    :title="title"
+    :color
+    :icon
+    :text
+    :title
     @click="emit('click', $event)"
   />
 </template>

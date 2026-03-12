@@ -11,6 +11,6 @@
     class="max-w-lg mx-auto touch-none"
     :class="dragging && 'cursor-grabbing'"
   >
-    <CompareDisplay :on-pointerdown="onPointerdown" :split="split" />
+    <CompareDisplay :on-pointerdown :split />
   </div>
 </template>

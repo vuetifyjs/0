@@ -82,10 +82,10 @@
   <slot
     :can-go-back="discovery.canGoBack"
     :can-go-next="discovery.canGoNext"
-    :index="index"
-    :is-active="isActive"
-    :is-first="isFirst"
-    :is-last="isLast"
-    :total="total"
+    :index
+    :is-active
+    :is-first
+    :is-last
+    :total
   />
 </template>

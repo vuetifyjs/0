@@ -33,10 +33,10 @@
   <DocsBadge
     :color="meta.color"
     :icon="meta.icon"
-    :icon-size="iconSize"
+    :icon-size
     :label="meta.label"
-    :show-icon="showIcon"
-    :show-label="showLabel"
+    :show-icon
+    :show-label
     :title="meta.title"
   />
 </template>

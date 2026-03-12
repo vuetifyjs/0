@@ -30,7 +30,13 @@
     <div class="flex items-center gap-4 pt-4 border-t border-divider">
       <label class="text-sm">Min width threshold:</label>
 
-      <Slider.Root v-model="width" :min="320" :max="1920" :step="10" class="relative flex flex-1 items-center h-5">
+      <Slider.Root
+        v-model="width"
+        class="relative flex flex-1 items-center h-5"
+        :max="1920"
+        :min="320"
+        :step="10"
+      >
         <Slider.Track class="relative h-1 w-full rounded-full bg-surface-variant">
           <Slider.Range class="absolute h-full rounded-full bg-primary" />
         </Slider.Track>

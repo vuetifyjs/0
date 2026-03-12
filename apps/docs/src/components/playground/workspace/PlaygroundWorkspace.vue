@@ -22,7 +22,13 @@
 </script>
 
 <template>
-  <SplitterRoot v-if="!isMobile" ref="root" class="h-full select-none" orientation="vertical" @layout="onLayout">
+  <SplitterRoot
+    v-if="!isMobile"
+    ref="root"
+    class="h-full select-none"
+    orientation="vertical"
+    @layout="onLayout"
+  >
     <slot />
   </SplitterRoot>
 
