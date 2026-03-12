@@ -5,7 +5,7 @@
 <template>
   <div class="flex flex-col gap-6">
     <div class="space-y-2">
-      <p class="text-sm text-secondary">Element mode — AppButton renders the &lt;button&gt;</p>
+      <p class="text-sm text-secondary">Rendered — AppButton outputs a &lt;button&gt; and applies attrs for you</p>
       <div class="flex gap-2">
         <AppButton>Primary</AppButton>
         <AppButton variant="secondary">Secondary</AppButton>
@@ -14,15 +14,10 @@
     </div>
 
     <div class="space-y-2">
-      <p class="text-sm text-secondary">Element override — as="a" swaps to &lt;a&gt;</p>
-      <AppButton as="a" href="#">Link styled as button</AppButton>
-    </div>
-
-    <div class="space-y-2">
-      <p class="text-sm text-secondary">Renderless — consumer controls the DOM, applies attrs from slot</p>
+      <p class="text-sm text-secondary">Renderless — same component, but you control the element and bind attrs yourself</p>
       <AppButton v-slot="{ attrs }" renderless variant="outline">
         <a v-bind="attrs" href="#">
-          Renderless link with button styling
+          I'm an anchor, styled by AppButton
         </a>
       </AppButton>
     </div>
