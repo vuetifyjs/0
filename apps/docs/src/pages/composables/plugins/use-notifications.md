@@ -115,44 +115,6 @@ flowchart TB
 | `archivedItems` | `ComputedRef<NotificationTicket[]>` | Notifications with `archivedAt` |
 | `snoozedItems` | `ComputedRef<NotificationTicket[]>` | Notifications with `snoozedUntil` |
 
-## State Mutations
-
-Each notification tracks timestamps rather than booleans, enabling "read 5 minutes ago" UIs and adapter sync.
-
-> [!ASKAI] Why does useNotifications use timestamps instead of booleans?
-
-### Single
-
-```ts collapse
-notifications.read(id)       // Set readAt
-notifications.unread(id)     // Clear readAt
-notifications.seen(id)       // Set seenAt
-notifications.archive(id)    // Set archivedAt
-notifications.unarchive(id)  // Clear archivedAt
-notifications.snooze(id, until) // Set snoozedUntil
-notifications.wake(id)       // Clear snoozedUntil
-notifications.unregister(id) // Remove from queue
-```
-
-Tickets also expose convenience methods directly:
-
-```ts collapse
-const ticket = notifications.notify({ subject: 'Hello' })
-
-ticket.read()
-ticket.archive()
-ticket.snooze(new Date('2026-04-01'))
-ticket.dismiss()  // Remove from queue
-```
-
-### Bulk
-
-```ts collapse
-notifications.readAll()    // Mark all as read
-notifications.archiveAll() // Archive all
-notifications.clear()      // Remove all from queue
-```
-
 ## Examples
 
 ::: example
@@ -213,24 +175,12 @@ Adapters connect external notification services to `useNotifications`. Each adap
 
 ::: code-group
 
-```ts src/firebase.ts
-import { initializeApp } from 'firebase/app'
-
-export const firebaseApp = initializeApp({
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
-})
-```
-
 ```ts src/main.ts
 import { createApp } from 'vue'
 import { createNotificationsPlugin } from '@vuetify/v0'
 import { createFcmAdapter } from '@vuetify/v0/notifications'
 import { getMessaging } from 'firebase/messaging'
-import { firebaseApp } from './firebase'
+import { firebaseApp } from './plugins/firebase'
 import App from './App.vue'
 
 const app = createApp(App)
@@ -244,6 +194,18 @@ app.use(
 app.mount('#app')
 ```
 
+```ts src/plugins/firebase.ts
+import { initializeApp } from 'firebase/app'
+
+export const firebaseApp = initializeApp({
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+})
+```
+
 :::
 
 ### OneSignal
@@ -252,21 +214,11 @@ app.mount('#app')
 
 ::: code-group
 
-```ts src/onesignal.ts
-import OneSignal from '@onesignal/web-sdk'
-
-await OneSignal.init({
-  appId: import.meta.env.VITE_ONESIGNAL_APP_ID,
-})
-
-export { OneSignal }
-```
-
 ```ts src/main.ts
 import { createApp } from 'vue'
 import { createNotificationsPlugin } from '@vuetify/v0'
 import { createOneSignalAdapter } from '@vuetify/v0/notifications'
-import { OneSignal } from './onesignal'
+import { OneSignal } from './plugins/onesignal'
 import App from './App.vue'
 
 const app = createApp(App)
@@ -280,6 +232,16 @@ app.use(
 app.mount('#app')
 ```
 
+```ts src/plugins/onesignal.ts
+import OneSignal from '@onesignal/web-sdk'
+
+await OneSignal.init({
+  appId: import.meta.env.VITE_ONESIGNAL_APP_ID,
+})
+
+export { OneSignal }
+```
+
 :::
 
 ### Knock
@@ -288,22 +250,11 @@ app.mount('#app')
 
 ::: code-group
 
-```ts src/knock.ts
-import Knock from '@knocklabs/client'
-
-export const knock = new Knock(import.meta.env.VITE_KNOCK_PUBLIC_KEY)
-knock.authenticate(userId)
-
-export const feed = knock.feeds.initialize(
-  import.meta.env.VITE_KNOCK_FEED_CHANNEL_ID
-)
-```
-
 ```ts src/main.ts
 import { createApp } from 'vue'
 import { createNotificationsPlugin } from '@vuetify/v0'
 import { createKnockAdapter } from '@vuetify/v0/notifications'
-import { feed } from './knock'
+import { feed } from './plugins/knock'
 import App from './App.vue'
 
 const app = createApp(App)
@@ -315,6 +266,17 @@ app.use(
 )
 
 app.mount('#app')
+```
+
+```ts src/plugins/knock.ts
+import Knock from '@knocklabs/client'
+
+export const knock = new Knock(import.meta.env.VITE_KNOCK_PUBLIC_KEY)
+knock.authenticate(userId)
+
+export const feed = knock.feeds.initialize(
+  import.meta.env.VITE_KNOCK_FEED_CHANNEL_ID
+)
 ```
 
 :::
