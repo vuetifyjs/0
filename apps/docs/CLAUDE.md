@@ -115,7 +115,6 @@ src/
 │   ├── composables/  # foundation, forms, plugins, registration, selection, system, transformers, utilities
 │   ├── guide/        # How-to guides
 │   ├── introduction/ # Getting started, FAQ, contributing
-│   ├── storybook/    # Storybook embed
 │   └── utilities/    # Utility docs
 ├── plugins/          # Vue plugins
 ├── stores/           # Pinia stores

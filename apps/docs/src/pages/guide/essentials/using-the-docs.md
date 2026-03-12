@@ -44,7 +44,6 @@ The docs are organized into distinct sections, each serving a specific purpose:
 | <AppLink to="/components" class="whitespace-nowrap"><AppIcon icon="layers" :size="18" class="inline-block align-text-bottom mr-1" />**Components**</AppLink> | Headless UI primitives | Building accessible interfaces (Dialog, Popover, Selection) |
 | <AppLink to="/composables" class="whitespace-nowrap"><AppIcon icon="puzzle" :size="18" class="inline-block align-text-bottom mr-1" />**Composables**</AppLink> | Logic building blocks | Adding behavior without UI (createContext, createSelection) |
 | <AppLink to="/api" class="whitespace-nowrap"><AppIcon icon="beaker" :size="18" class="inline-block align-text-bottom mr-1" />**API**</AppLink> | Complete reference | Looking up props, events, slots, methods |
-<!-- | <AppLink to="/storybook" class="whitespace-nowrap"><AppIcon icon="test" :size="18" class="inline-block align-text-bottom mr-1" />**Storybook**</AppLink> | Visual playground | Exploring component variants interactively | -->
 
 Each component and composable page follows a consistent structure: overview, usage examples, anatomy, and API reference.
 

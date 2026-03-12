@@ -52,14 +52,6 @@
         ]
       }
     },
-    "apps/storybook": {
-      "entry": [
-        "stories/**/*.{js,ts,vue}"
-      ],
-      "project": [
-        "**/*.{js,ts,vue}"
-      ]
-    },
     "packages/0": {
       "project": [
         "src/**/*.{ts,vue}",
