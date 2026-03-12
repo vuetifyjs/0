@@ -233,6 +233,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/composables/forms/create-validation': RouteRecordInfo<
+      '/composables/forms/create-validation',
+      '/composables/forms/create-validation',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/composables/foundation/create-context': RouteRecordInfo<
       '/composables/foundation/create-context',
       '/composables/foundation/create-context',
@@ -927,6 +934,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/forms/create-slider.md': {
       routes:
         | '/composables/forms/create-slider'
+      views:
+        | never
+    }
+    'src/pages/composables/forms/create-validation.md': {
+      routes:
+        | '/composables/forms/create-validation'
       views:
         | never
     }

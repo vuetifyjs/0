@@ -1,16 +1,17 @@
 <script setup lang="ts">
-  import { toRef } from 'vue'
-  import { fields, form } from './context'
+  import { fields, validation } from './context'
   import FormField from './FormField.vue'
 
-  const valid = toRef(() => form.isValid.value)
-
   async function onSubmit () {
-    await form.submit()
+    for (const field of validation.values()) {
+      await field.validate()
+    }
   }
 
   function onReset () {
-    form.reset()
+    for (const field of validation.values()) {
+      field.reset()
+    }
   }
 
   function onPrefill () {
@@ -55,7 +56,7 @@
         class="px-3 py-1.5 text-xs font-medium rounded bg-surface-variant text-on-surface-variant hover:opacity-90"
         @click="onReset"
       >
-        Reset Form
+        Reset
       </button>
 
       <button
@@ -75,7 +76,7 @@
 
     <!-- State Panel -->
     <div class="border border-divider rounded p-3 bg-surface-variant/30">
-      <p class="text-xs font-medium text-on-surface-variant mb-1.5">Form State</p>
+      <p class="text-xs font-medium text-on-surface-variant mb-1.5">Validation State</p>
 
       <div class="grid grid-cols-4 gap-3 text-xs">
         <div v-for="field in fields" :key="field.ticket.id" class="space-y-0.5">
@@ -104,18 +105,18 @@
 
       <div class="mt-2 pt-2 border-t border-divider flex gap-4 text-xs">
         <p>
-          <span class="text-on-surface-variant">form.isValid: </span>
+          <span class="text-on-surface-variant">aggregate isValid: </span>
           <span
             class="font-medium"
-            :class="valid === true ? 'text-success' : valid === false ? 'text-error' : 'text-on-surface-variant'"
+            :class="validation.isValid.value === true ? 'text-success' : validation.isValid.value === false ? 'text-error' : 'text-on-surface-variant'"
           >
-            {{ valid ?? 'null' }}
+            {{ validation.isValid.value ?? 'null' }}
           </span>
         </p>
 
         <p>
           <span class="text-on-surface-variant">fields: </span>
-          <span class="text-on-surface">{{ form.size }}</span>
+          <span class="text-on-surface">{{ validation.size }}</span>
         </p>
       </div>
     </div>

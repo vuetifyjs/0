@@ -1,8 +1,8 @@
 <script setup lang="ts">
-  import type { FormTicket } from '@vuetify/v0'
+  import type { ValidationTicket } from '@vuetify/v0'
 
   const { ticket, label, placeholder } = defineProps<{
-    ticket: FormTicket
+    ticket: ValidationTicket
     label: string
     placeholder: string
   }>()

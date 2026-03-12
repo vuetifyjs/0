@@ -1,54 +1,60 @@
-import { createForm, createRules } from '@vuetify/v0'
+import { createRules, createValidation } from '@vuetify/v0'
 
 export const rules = createRules({
   aliases: {
-    slug: (err?) => v => {
-      return !v || /^[a-z][a-z0-9-]*$/.test(String(v)) || (err ?? 'Lowercase letters, numbers, and hyphens only')
-    },
+    required: v => (v === 0 || !!v) || false,
+    email: v => !v || /^.+@\S+\.\S+$/.test(String(v)) || false,
+    slug: v => !v || /^[a-z][a-z0-9-]*$/.test(String(v)) || false,
+    prefix: v => !v || /^[A-Z]{4}$/.test(String(v)) || false,
+  },
+  messages: {
+    required: 'Required',
+    email: 'Invalid email',
+    slug: 'Lowercase letters, numbers, and hyphens only',
+    prefix: 'Must be exactly 4 uppercase letters',
   },
 })
 
-export const form = createForm({ rules })
+export const validation = createValidation({ rules, standalone: true })
 
 export const fields = [
   {
     label: 'Key Name',
     placeholder: 'e.g. production-api',
-    ticket: form.register({
+    ticket: validation.register({
       id: 'name',
       value: '',
-      rules: ['required', ['minLength', 3], ['maxLength', 30], 'slug'],
-      validateOn: 'change',
+      rules: ['required', 'slug'],
     }),
   },
   {
     label: 'Owner Email',
     placeholder: 'e.g. ops@company.com',
-    ticket: form.register({
+    ticket: validation.register({
       id: 'email',
       value: '',
       rules: ['required', 'email'],
-      validateOn: 'change',
     }),
   },
   {
     label: 'Rate Limit (req/s)',
     placeholder: '1–10000',
-    ticket: form.register({
+    ticket: validation.register({
       id: 'rate',
       value: '',
-      rules: ['required', 'number'],
-      validateOn: 'change',
+      rules: [
+        'required',
+        (v: unknown) => !v || !Number.isNaN(Number(v)) || 'Must be a number',
+      ],
     }),
   },
   {
     label: 'Prefix',
     placeholder: 'e.g. PROD',
-    ticket: form.register({
+    ticket: validation.register({
       id: 'prefix',
       value: '',
-      rules: ['required', 'capital', ['strictLength', 4]],
-      validateOn: 'change',
+      rules: ['required', 'prefix'],
     }),
   },
 ]

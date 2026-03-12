@@ -118,7 +118,8 @@ Form state management and model binding utilities.
 
 | Name | Description |
 | - | - |
-| [createForm](/composables/forms/create-form) | Form state management and validation |
+| [createValidation](/composables/forms/create-validation) | Per-field validation lifecycle |
+| [createForm](/composables/forms/create-form) | Form validation coordinator |
 
 ## Reactivity
 

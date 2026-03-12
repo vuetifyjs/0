@@ -1,30 +1,29 @@
 ---
-title: useRules - Validation Rule Aliases for Vue 3
+title: useRules - Validation Rules for Vue 3
 meta:
 - name: description
-  content: Composable for managing validation rule aliases with locale-aware error messages. Supports built-in rules, custom aliases, Standard Schema adapters, and integration with createForm.
+  content: Headless validation composable with Standard Schema support, custom aliases, locale-aware messages, and createValidation integration.
 - name: keywords
-  content: useRules, validation, rules, aliases, form, composable, Vue 3, i18n, locale, standard schema, zod, valibot, arktype
+  content: useRules, validation, rules, form, composable, Vue 3, standard schema, zod, valibot, arktype
 features:
   category: Plugin
   label: 'E: useRules'
   github: /composables/useRules/
   level: 2
 related:
+  - /composables/forms/create-validation
   - /composables/forms/create-form
-  - /composables/plugins/use-locale
-  - /composables/registration/create-tokens
 ---
 
 # useRules
 
-The `useRules` composable provides a set of named validation rule aliases — such as `required`, `email`, and `minLength` — that resolve to `FormValidationRule` functions. Error messages are stored in a token registry, making them overridable per-instance without touching your locale configuration. When a locale plugin is installed, messages are looked up through it automatically.
+Headless validation composable that resolves rules from multiple sources — [Standard Schema](https://standardschema.dev/) objects, custom aliases, and raw functions — into `FormValidationRule[]` for use with `createValidation`. No built-in validators are included; bring your own via a schema library or register custom aliases at the plugin level.
 
 <DocsPageFeatures :frontmatter />
 
 ## Installation
 
-Install the Rules plugin to make a shared rules context available across your entire app:
+Register the plugin with your app-wide aliases. Aliases are **predicates** — simple functions that return `true` on success or `false` on failure. When a predicate returns `false`, the error message is resolved via locale lookup using the key `rules.<name>`:
 
 ```ts main.ts
 import { createApp } from 'vue'
@@ -35,11 +34,15 @@ const app = createApp(App)
 
 app.use(
   createRulesPlugin({
-    messages: {
-      required: 'This field cannot be empty',
-    },
     aliases: {
-      phone: (err?) => v => /^\d{10}$/.test(String(v)) || (err ?? 'Invalid phone number'),
+      required: v => (v === 0 || !!v) || false,
+      email: v => !v || /^.+@\S+\.\S+$/.test(String(v)) || false,
+      slug: v => !v || /^[a-z][a-z0-9-]*$/.test(String(v)) || false,
+    },
+    messages: {
+      required: 'Required',
+      email: 'Invalid email',
+      slug: 'Lowercase letters, numbers, and hyphens only',
     },
   })
 )
@@ -47,165 +50,140 @@ app.use(
 app.mount('#app')
 ```
 
+> [!TIP]
+> When `useLocale` is installed, messages are resolved through the locale system using the key `$rules.<name>`. Without locale, the `messages` option provides fallback strings via the token registry.
+
 ## Usage
-
-### Standalone
-
-`createRules` works without a plugin. When called outside component scope it returns a fallback instance using default English messages:
-
-```ts
-import { createRules } from '@vuetify/v0'
-
-const rules = createRules()
-
-// Use aliases directly to build rule functions
-const required = rules.aliases.required()
-const minLen = rules.aliases.minLength(8)
-
-required('')        // 'Field is required'
-required('hello')   // true
-minLen('hi')        // 'Must be at least 8 characters'
-minLen('password')  // true
-```
-
-### Resolving Aliases
-
-Pass alias strings or tuples to `resolve()` for use with `createForm`:
-
-```ts
-import { createRules, createForm } from '@vuetify/v0'
-
-const rules = createRules()
-const form = createForm({ rules })
-
-const password = form.register({
-  id: 'password',
-  value: '',
-  rules: ['required', ['minLength', 8]],
-})
-```
 
 ### In a Component
 
-When the plugin is installed, use `useRules` to access the shared context:
+Access the shared rules context and use it with `createValidation`:
 
 ```vue
 <script setup lang="ts">
-  import { useRules } from '@vuetify/v0'
+  import { useRules, createValidation } from '@vuetify/v0'
 
   const rules = useRules()
-  const resolved = rules.resolve(['required', ['minLength', 8]])
+  const validation = createValidation({ rules })
+
+  const name = validation.register({
+    id: 'name',
+    value: '',
+    rules: ['required', 'slug'],
+  })
 </script>
 ```
 
-### Overriding Messages
+### Standalone
 
-Pass `messages` to override specific default strings per-instance. Keys correspond to alias names:
-
-```ts
-import { createRules } from '@vuetify/v0'
-
-const rules = createRules({
-  messages: {
-    required: 'Cannot be blank',
-    email: 'Enter a valid email address',
-  },
-})
-```
-
-### Custom Aliases
-
-Add custom rule aliases alongside the built-ins:
+`createRules` works without a plugin for use outside component scope:
 
 ```ts
 import { createRules } from '@vuetify/v0'
 
 const rules = createRules({
   aliases: {
-    phone: (err?) => v => /^\d{10}$/.test(String(v)) || (err ?? 'Invalid phone'),
-    zip: (err?) => v => /^\d{5}$/.test(String(v)) || (err ?? 'Invalid zip code'),
+    required: v => !!v || false,
+  },
+  messages: {
+    required: 'Required',
   },
 })
 
-const phoneRule = rules.aliases.phone()
-phoneRule('1234567890') // true
-phoneRule('abc')        // 'Invalid phone'
+rules.resolve(['required'])
 ```
 
-## Built-in Aliases
+### Custom Aliases
 
-| Alias | Signature | Description |
-| - | - | - |
-| `required` | `(err?)` | Value must be truthy or `0` |
-| `email` | `(err?)` | Must match `*@*.*` pattern |
-| `number` | `(err?)` | Must be parseable as a number |
-| `integer` | `(err?)` | Must contain only digits |
-| `capital` | `(err?)` | Must contain only uppercase letters |
-| `maxLength` | `(len, err?)` | Length must be ≤ `len` |
-| `minLength` | `(len, err?)` | Length must be ≥ `len` |
-| `strictLength` | `(len, err?)` | Length must equal `len` |
-| `exclude` | `(chars[], err?)` | Must not contain any of the given characters |
-| `notEmpty` | `(err?)` | Must have a `length` property greater than `0` |
-| `pattern` | `(re, err?)` | Must match the given regular expression |
+An alias is a **predicate** — a `FormValidationRule` that returns `true` when valid, `false` when invalid, or a string for a custom error message. When the predicate returns `false`, the error message is looked up from the token registry or locale using the key `rules.<name>`:
 
-> [!TIP]
-> Migrating from Vuetify 3? Aliases prefixed with `$` (e.g. `$required`, `$email`) are automatically stripped, so existing rule arrays work without changes.
+```ts
+app.use(
+  createRulesPlugin({
+    aliases: {
+      // Returns false on failure → message from locale/tokens
+      required: v => !!v || false,
+
+      // Domain-specific predicate
+      slug: v => !v || /^[a-z][a-z0-9-]*$/.test(String(v)) || false,
+
+      // Return a string for inline error messages (bypasses locale)
+      positive: v => Number(v) > 0 || 'Must be positive',
+    },
+    messages: {
+      required: 'This field is required',
+      slug: 'Only lowercase letters, numbers, and hyphens',
+    },
+  })
+)
+```
 
 ## Adapters
 
-`useRules` supports [Standard Schema](https://standardschema.dev/) — a universal interface implemented by Zod (v3.24+), Valibot, ArkType, and other validation libraries. No per-library adapter imports are needed.
+`useRules` supports [Standard Schema](https://standardschema.dev/) — a universal interface for validation libraries. Pass schema objects directly in `rules` arrays alongside alias strings and inline functions — `resolve()` auto-detects and wraps them.
 
-### Auto-detection in resolve()
+### Zod
 
-`resolve()` auto-detects Standard Schema objects and converts them to `FormValidationRule` functions. Pass schemas directly alongside alias strings and tuples:
+```vue
+<script setup lang="ts">
+  import { z } from 'zod'
+  import { useRules, createValidation } from '@vuetify/v0'
 
-```ts
-import { z } from 'zod'
-import { createRules } from '@vuetify/v0'
+  const rules = useRules()
+  const validation = createValidation({ rules })
 
-const rules = createRules()
+  const email = validation.register({
+    id: 'email',
+    value: '',
+    rules: ['required', z.string().email('Invalid email')],
+  })
 
-rules.resolve([
-  'required',
-  z.string().email('Must be a valid email'),
-  ['minLength', 3],
-])
+  const age = validation.register({
+    id: 'age',
+    value: '',
+    rules: [z.coerce.number().int().min(18, 'Must be 18+').max(120)],
+  })
+</script>
 ```
 
-### With createForm
+### Valibot
 
-The most common use case — schemas and aliases together in form field rules:
+```vue
+<script setup lang="ts">
+  import * as v from 'valibot'
+  import { useRules, createValidation } from '@vuetify/v0'
 
-```ts
-import { z } from 'zod'
-import { createRules, createForm } from '@vuetify/v0'
+  const rules = useRules()
+  const validation = createValidation({ rules })
 
-const rules = createRules()
-const form = createForm({ rules })
-
-const email = form.register({
-  id: 'email',
-  value: '',
-  rules: ['required', z.string().email()],
-})
+  const username = validation.register({
+    id: 'username',
+    value: '',
+    rules: ['required', v.pipe(v.string(), v.minLength(3), v.maxLength(20))],
+  })
+</script>
 ```
 
-### Standalone Conversion
+### ArkType
 
-Use `toRule()` to convert a schema to a `FormValidationRule` outside of `resolve()`:
+```vue
+<script setup lang="ts">
+  import { type } from 'arktype'
+  import { useRules, createValidation } from '@vuetify/v0'
 
-```ts
-import { toRule } from '@vuetify/v0'
-import { z } from 'zod'
+  const rules = useRules()
+  const validation = createValidation({ rules })
 
-const emailRule = toRule(z.string().email('Must be valid'))
-
-await emailRule('test@example.com') // true
-await emailRule('bad')              // 'Must be valid'
+  const score = validation.register({
+    id: 'score',
+    value: '',
+    rules: [type('1 <= number <= 100')],
+  })
+</script>
 ```
 
 > [!TIP]
-> `toRule()` returns an async rule — it handles both sync and async schema validation automatically.
+> Schema objects produce async rules. `createValidation` handles this transparently — no special handling needed in components.
 
 ### Compatible Libraries
 
@@ -217,50 +195,6 @@ Any library that implements the [Standard Schema v1 spec](https://standardschema
 | [Valibot](https://valibot.dev/) | v1.0+ | `import * as v from 'valibot'` |
 | [ArkType](https://arktype.io/) | v2.0+ | `import { type } from 'arktype'` |
 
-## Locale Integration
-
-When `createLocalePlugin` is installed, `useRules` automatically routes error message lookups through it using the key pattern `rules.<alias>`. Add rule translations to your locale messages and they will be used instead of the token registry defaults:
-
-```ts main.ts
-import { createApp } from 'vue'
-import { createLocalePlugin, createRulesPlugin } from '@vuetify/v0'
-import App from './App.vue'
-
-const app = createApp(App)
-
-app.use(
-  createLocalePlugin({
-    default: 'en',
-    messages: {
-      en: {
-        rules: {
-          required: 'This field is required',
-          email: 'Enter a valid email address',
-          minLength: 'Must be at least {0} characters',
-        },
-      },
-      es: {
-        rules: {
-          required: 'Este campo es obligatorio',
-          email: 'Introduce un correo válido',
-          minLength: 'Debe tener al menos {0} caracteres',
-        },
-      },
-    },
-  })
-)
-
-app.use(createRulesPlugin())
-
-app.mount('#app')
-```
-
-The message resolution priority is:
-1. Explicit `err` string passed to the alias builder — `rules.aliases.required('Cannot be blank')`
-2. Locale translation via `useLocale` — `rules.required` key in the active locale
-3. Token registry override — `messages` option passed to `createRulesPlugin` or `createRules`
-4. Built-in English default
-
 ## Examples
 
 ::: example
@@ -270,47 +204,46 @@ The message resolution priority is:
 
 ### API Key Manager
 
-This example wires `createRules` into `createForm` to build a 4-field key provisioning form. It exercises 7 built-in aliases (`required`, `email`, `number`, `capital`, `minLength`, `maxLength`, `strictLength`) plus a custom `slug` alias that enforces lowercase kebab-case identifiers.
+This example registers 4 custom aliases (`required`, `email`, `slug`, `prefix`) as predicates and wires them into `createValidation`. Error messages are provided via the `messages` option. A rate limit field uses an inline function rule to show that aliases and functions can coexist.
 
-The controls let you trigger validation, prefill valid or invalid data, and reset the form. The state panel reflects each field's `isValid`, `isPristine`, and error count in real time — showing the tri-state validation lifecycle (`null` → `true`/`false`) and how `form.reset()` returns everything to its initial state.
+The controls let you trigger validation, prefill valid or invalid data, and reset the form. The state panel reflects each field's `isValid`, `isPristine`, and error count in real time — showing the tri-state validation lifecycle (`null` → `true`/`false`) and how reset returns everything to its initial state.
 
 | File | Role |
 |------|------|
-| `context.ts` | Creates rules instance with custom `slug` alias, registers all form fields |
+| `context.ts` | Defines predicate aliases with messages, creates validation, registers fields |
 | `FormField.vue` | Reusable field component — binds ticket value, errors, and border state |
 | `dashboard.vue` | Entry point — renders fields, action buttons, and live state panel |
 
 **Key patterns:**
 
-- `createRules({ aliases })` registers the custom `slug` validator alongside built-ins
-- `createForm({ rules })` links the rules context so `resolve()` runs during `register()`
-- `validateOn: 'change'` triggers validation on every keystroke
-- `form.submit()` validates all fields at once
-- `form.reset()` clears errors and restores initial values
+- `createRules({ aliases, messages })` registers predicate validators with error messages
+- Aliases return `false` on failure — error messages resolve via `rules.<name>` token key
+- `createValidation({ rules })` links the rules context so `resolve()` runs during `register()`
 - Each ticket exposes `isValid`, `isPristine`, `errors` as reactive refs
+- Components decide when to call `validate()` — validation triggers are a UI concern
 
 :::
 
 ## Architecture
 
-`useRules` uses `createTokens` for message storage, integrates with `useLocale` for i18n, and auto-detects Standard Schema objects during resolution:
+`useRules` resolves aliases, functions, and Standard Schema objects into `FormValidationRule[]` for use with `createValidation`:
 
 ```mermaid "Rules Architecture"
 flowchart TD
-  createTokens --> useRules
-  useLocale --> useRules
-  useRules --> resolve[resolve aliases]
-  useRules --> createForm
+  aliases[Predicate Aliases] --> resolve
+  functions[Inline Functions] --> resolve
   StandardSchema[Standard Schema] --> resolve
+  useRules --> resolve[resolve rules]
+  resolve --> createValidation
 ```
 
 ## Reactivity
 
-`useRules` has no reactive state. Aliases are plain functions — call them to produce a `FormValidationRule`.
+`useRules` has no reactive state. Aliases are plain predicate functions — `resolve()` wraps them with locale-aware error message lookup.
 
 | Property | Reactive | Notes |
 | - | :-: | - |
-| `aliases` | <AppErrorIcon /> | Static map of builder functions |
+| `aliases` | <AppErrorIcon /> | Static map of predicate functions |
 | `resolve()` | <AppErrorIcon /> | Pure function, returns array of rule functions |
 
 <DocsApi />

@@ -31,6 +31,9 @@ export interface StandardSchemaV1 {
 /**
  * Type guard for Standard Schema objects.
  * Checks for the `~standard` property that all conforming libraries expose.
+ *
+ * @param value The value to check.
+ * @returns `true` if the value conforms to the Standard Schema interface.
  */
 export function isStandardSchema (value: unknown): value is StandardSchemaV1 {
   return isObject(value) && '~standard' in value
@@ -39,21 +42,14 @@ export function isStandardSchema (value: unknown): value is StandardSchemaV1 {
 /**
  * Converts a Standard Schema object into a `FormValidationRule`.
  *
- * Handles both sync and async validation. Returns the first issue message on failure.
+ * Used internally by `resolve()` — both for schemas passed directly and for
+ * schemas returned by alias builders. Handles both sync and async validation.
+ * Returns the first issue message on failure.
  *
- * @param schema Any Standard Schema–conforming object (Zod v3.24+, Valibot, ArkType, etc.)
+ * @param schema Any Standard Schema-conforming object (Zod v3.24+, Valibot, ArkType, etc.)
  * @returns A `FormValidationRule` that resolves to `true` or an error string.
  *
- * @example
- * ```ts
- * import { toRule } from '@vuetify/v0/rules'
- * import { z } from 'zod'
- *
- * const email = toRule(z.string().email('Must be a valid email'))
- *
- * await email('test@example.com') // true
- * await email('not-an-email')     // 'Must be a valid email'
- * ```
+ * @see https://standardschema.dev/
  */
 export function toRule (schema: StandardSchemaV1): FormValidationRule {
   return async (value: unknown) => {
