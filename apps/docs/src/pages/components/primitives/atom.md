@@ -96,12 +96,11 @@ In **element mode**, Atom renders the element and applies attrs to it. In **rend
   renderless
   v-slot="{ page, isSelected, attrs }"
 >
-  <!-- Renderless mode: consumer applies attrs -->
   <div
     v-bind="attrs"
     :class="isSelected ? 'text-primary' : ''"
   >
-    Page {{ page }} {{ isSelected.value ? '(current)' : '' }}
+    Page {{ page }} {{ isSelected ? '(current)' : '' }}
   </div>
 </PaginationItem>
 ```
