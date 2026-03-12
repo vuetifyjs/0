@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "devDependencies": {
+    "@iconify-json/mdi": "catalog:",
     "@octokit/openapi-types": "catalog:",
     "@shikijs/langs": "catalog:",
     "@shikijs/markdown-it": "catalog:",
