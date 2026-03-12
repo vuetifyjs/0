@@ -132,40 +132,32 @@ export function createNotifications (
     return ticket
   }
 
-  function mutate (id: ID, patch: Partial<NotificationTicket>, event: string) {
-    const ticket = queue.get(id)
-    if (!ticket) return
-
-    queue.upsert(id, patch)
-    queue.emit(event, id)
-  }
-
   function read (id: ID) {
-    mutate(id, { readAt: new Date() }, 'notification:read')
+    queue.upsert(id, { readAt: new Date() }, 'notification:read')
   }
 
   function unread (id: ID) {
-    mutate(id, { readAt: null }, 'notification:unread')
+    queue.upsert(id, { readAt: null }, 'notification:unread')
   }
 
   function seen (id: ID) {
-    mutate(id, { seenAt: new Date() }, 'notification:seen')
+    queue.upsert(id, { seenAt: new Date() }, 'notification:seen')
   }
 
   function archive (id: ID) {
-    mutate(id, { archivedAt: new Date() }, 'notification:archived')
+    queue.upsert(id, { archivedAt: new Date() }, 'notification:archived')
   }
 
   function unarchive (id: ID) {
-    mutate(id, { archivedAt: null }, 'notification:unarchived')
+    queue.upsert(id, { archivedAt: null }, 'notification:unarchived')
   }
 
   function snooze (id: ID, until: Date) {
-    mutate(id, { snoozedUntil: until }, 'notification:snoozed')
+    queue.upsert(id, { snoozedUntil: until }, 'notification:snoozed')
   }
 
   function wake (id: ID) {
-    mutate(id, { snoozedUntil: null }, 'notification:unsnoozed')
+    queue.upsert(id, { snoozedUntil: null }, 'notification:unsnoozed')
   }
 
   function readAll () {
@@ -173,8 +165,7 @@ export function createNotifications (
     queue.batch(() => {
       for (const ticket of queue.values()) {
         if (!ticket.readAt) {
-          queue.upsert(ticket.id, { readAt: now })
-          queue.emit('notification:read', ticket.id)
+          queue.upsert(ticket.id, { readAt: now }, 'notification:read')
         }
       }
     })
@@ -185,8 +176,7 @@ export function createNotifications (
     queue.batch(() => {
       for (const ticket of queue.values()) {
         if (!ticket.archivedAt) {
-          queue.upsert(ticket.id, { archivedAt: now })
-          queue.emit('notification:archived', ticket.id)
+          queue.upsert(ticket.id, { archivedAt: now }, 'notification:archived')
         }
       }
     })
