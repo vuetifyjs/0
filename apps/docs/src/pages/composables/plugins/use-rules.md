@@ -2,7 +2,7 @@
 title: useRules - Validation Rules for Vue 3
 meta:
 - name: description
-  content: Headless validation composable with Standard Schema support, custom aliases, locale-aware messages, and createValidation integration.
+  content: Headless validation composable with Standard Schema support, custom aliases, and createValidation integration.
 - name: keywords
   content: useRules, validation, rules, form, composable, Vue 3, standard schema, zod, valibot, arktype
 features:
@@ -19,11 +19,16 @@ related:
 
 Headless validation composable that resolves rules from multiple sources — [Standard Schema](https://standardschema.dev/) objects, custom aliases, and raw functions — into `FormValidationRule[]` for use with `createValidation`. No built-in validators are included; bring your own via a schema library or register custom aliases at the plugin level.
 
+A validation function returns one of three values:
+- **`true`** — validation passes
+- **`string`** — validation fails, the string is the error message
+- **`false`** — validation fails, the error message is resolved from the locale plugin (`$rules.<name>`)
+
 <DocsPageFeatures :frontmatter />
 
 ## Installation
 
-Register the plugin with your app-wide aliases. Aliases are **predicates** — simple functions that return `true` on success or `false` on failure. When a predicate returns `false`, the error message is resolved via locale lookup using the key `rules.<name>`:
+Register the plugin with your app-wide aliases:
 
 ```ts main.ts
 import { createApp } from 'vue'
@@ -35,14 +40,9 @@ const app = createApp(App)
 app.use(
   createRulesPlugin({
     aliases: {
-      required: v => (v === 0 || !!v) || false,
-      email: v => !v || /^.+@\S+\.\S+$/.test(String(v)) || false,
-      slug: v => !v || /^[a-z][a-z0-9-]*$/.test(String(v)) || false,
-    },
-    messages: {
-      required: 'Required',
-      email: 'Invalid email',
-      slug: 'Lowercase letters, numbers, and hyphens only',
+      required: v => (v === 0 || !!v) || 'Required',
+      email: v => !v || /^.+@\S+\.\S+$/.test(String(v)) || 'Invalid email',
+      slug: v => !v || /^[a-z][a-z0-9-]*$/.test(String(v)) || 'Invalid slug',
     },
   })
 )
@@ -51,7 +51,7 @@ app.mount('#app')
 ```
 
 > [!TIP]
-> When `useLocale` is installed, messages are resolved through the locale system using the key `$rules.<name>`. Without locale, the `messages` option provides fallback strings via the token registry.
+> Return `false` instead of a string to defer the error message to the locale plugin. When `useLocale` is installed, `false` resolves to `locale.t('$rules.<aliasName>')`. Without locale, it falls back to the alias name.
 
 ## Usage
 
@@ -83,10 +83,7 @@ import { createRules } from '@vuetify/v0'
 
 const rules = createRules({
   aliases: {
-    required: v => !!v || false,
-  },
-  messages: {
-    required: 'Required',
+    required: v => !!v || 'Required',
   },
 })
 
@@ -95,24 +92,20 @@ rules.resolve(['required'])
 
 ### Custom Aliases
 
-An alias is a **predicate** — a `FormValidationRule` that returns `true` when valid, `false` when invalid, or a string for a custom error message. When the predicate returns `false`, the error message is looked up from the token registry or locale using the key `rules.<name>`:
+An alias is a **predicate** — a `FormValidationRule` that returns `true`, a `string`, or `false`:
 
 ```ts
 app.use(
   createRulesPlugin({
     aliases: {
-      // Returns false on failure → message from locale/tokens
-      required: v => !!v || false,
+      // String return — inline error message
+      required: v => !!v || 'This field is required',
 
-      // Domain-specific predicate
-      slug: v => !v || /^[a-z][a-z0-9-]*$/.test(String(v)) || false,
+      // String return — domain-specific
+      slug: v => !v || /^[a-z][a-z0-9-]*$/.test(String(v)) || 'Invalid slug',
 
-      // Return a string for inline error messages (bypasses locale)
-      positive: v => Number(v) > 0 || 'Must be positive',
-    },
-    messages: {
-      required: 'This field is required',
-      slug: 'Only lowercase letters, numbers, and hyphens',
+      // false return — defers to locale plugin for message
+      email: v => !v || /^.+@\S+\.\S+$/.test(String(v)) || false,
     },
   })
 )
@@ -204,20 +197,20 @@ Any library that implements the [Standard Schema v1 spec](https://standardschema
 
 ### API Key Manager
 
-This example registers 4 custom aliases (`required`, `email`, `slug`, `prefix`) as predicates and wires them into `createValidation`. Error messages are provided via the `messages` option. A rate limit field uses an inline function rule to show that aliases and functions can coexist.
+This example registers 4 custom aliases (`required`, `email`, `slug`, `prefix`) as predicates with inline error strings, and wires them into `createValidation`. A rate limit field uses an inline function rule to show that aliases and functions can coexist.
 
-The controls let you trigger validation, prefill valid or invalid data, and reset the form. The state panel reflects each field's `isValid`, `isPristine`, and error count in real time — showing the tri-state validation lifecycle (`null` → `true`/`false`) and how reset returns everything to its initial state.
+The controls let you trigger validation, prefill valid or invalid data, and reset. The state panel reflects each field's `isValid`, `isPristine`, and error count in real time — showing the tri-state validation lifecycle (`null` → `true`/`false`) and how reset returns everything to its initial state.
 
 | File | Role |
 |------|------|
-| `context.ts` | Defines predicate aliases with messages, creates validation, registers fields |
+| `context.ts` | Defines predicate aliases, creates validation, registers fields |
 | `FormField.vue` | Reusable field component — binds ticket value, errors, and border state |
 | `dashboard.vue` | Entry point — renders fields, action buttons, and live state panel |
 
 **Key patterns:**
 
-- `createRules({ aliases, messages })` registers predicate validators with error messages
-- Aliases return `false` on failure — error messages resolve via `rules.<name>` token key
+- `createRules({ aliases })` registers predicate validators
+- `true` = pass, `string` = fail with message, `false` = fail with locale lookup
 - `createValidation({ rules })` links the rules context so `resolve()` runs during `register()`
 - Each ticket exposes `isValid`, `isPristine`, `errors` as reactive refs
 - Components decide when to call `validate()` — validation triggers are a UI concern
@@ -239,7 +232,7 @@ flowchart TD
 
 ## Reactivity
 
-`useRules` has no reactive state. Aliases are plain predicate functions — `resolve()` wraps them with locale-aware error message lookup.
+`useRules` has no reactive state. Aliases are plain predicate functions — `resolve()` wraps them with locale-aware error message lookup when they return `false`.
 
 | Property | Reactive | Notes |
 | - | :-: | - |

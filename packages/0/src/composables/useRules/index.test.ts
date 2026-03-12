@@ -55,7 +55,7 @@ describe('createRules', () => {
       expect(resolved).toHaveLength(1)
       expect(resolved[0]!('1234567890')).toBe(true)
       // false → locale lookup returns key when no locale is set up
-      expect(resolved[0]!('abc')).toBe('rules.phone')
+      expect(resolved[0]!('abc')).toBe('phone')
     })
 
     it('should handle mixed arrays of aliases, functions, and schemas', () => {
@@ -155,7 +155,7 @@ describe('createRules', () => {
       })
 
       const resolved = rules.resolve(['required'])
-      expect(resolved[0]!('')).toBe('rules.required')
+      expect(resolved[0]!('')).toBe('required')
     })
 
     it('should pass through string results from predicate', () => {
@@ -170,18 +170,15 @@ describe('createRules', () => {
       expect(resolved[0]!('valid')).toBe(true)
     })
 
-    it('should resolve message from token registry when predicate returns false', () => {
+    it('should fall back to alias name when no locale and predicate returns false', () => {
       const rules = createRules({
         aliases: {
           required: (v: unknown) => !!v || false,
         },
-        messages: {
-          required: 'This field is required',
-        },
       })
 
       const resolved = rules.resolve(['required'])
-      expect(resolved[0]!('')).toBe('This field is required')
+      expect(resolved[0]!('')).toBe('required')
     })
 
     it('should handle async predicate returning false', async () => {
@@ -192,7 +189,7 @@ describe('createRules', () => {
       })
 
       const resolved = rules.resolve(['asyncCheck'])
-      expect(await resolved[0]!('')).toBe('rules.asyncCheck')
+      expect(await resolved[0]!('')).toBe('asyncCheck')
       expect(await resolved[0]!('valid')).toBe(true)
     })
 

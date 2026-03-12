@@ -2,23 +2,21 @@
  * @module useRules
  *
  * @remarks
- * Validation rule composable with Standard Schema support and locale-aware error messages.
+ * Validation rule composable with Standard Schema support.
  *
  * Key features:
  * - Standard Schema auto-detection (Zod, Valibot, ArkType, etc.)
  * - String alias resolution to FormValidationRule[] via predicate lookup
- * - Locale-aware error messages via useLocale integration
- * - Token registry for message storage and per-instance overrides
  * - Custom alias registration (predicates, not builders)
  * - Trinity pattern for DI
  * - Plugin factory for app-level installation
  *
- * Aliases map to predicates (FormValidationRule). When a predicate returns
- * `false`, the error message is resolved via locale lookup (`rules.<name>`).
- * When it returns `true`, validation passes. String returns are passed through.
+ * Validation return values:
+ * - `true` — validation passes
+ * - `string` — validation fails, the string IS the error message
+ * - `false` — validation fails, error message resolved from locale (`$rules.<name>`)
  *
- * Integrates with createValidation for rule resolution, useLocale for i18n,
- * and createTokens for message storage.
+ * Integrates with createValidation for rule resolution, useLocale for i18n.
  */
 
 // Foundational
@@ -27,14 +25,13 @@ import { createPlugin } from '#v0/composables/createPlugin'
 import { createTrinity } from '#v0/composables/createTrinity'
 
 // Composables
-import { createTokens } from '#v0/composables/createTokens'
 import { useLocale } from '#v0/composables/useLocale'
 
 // Adapters
 import { isStandardSchema, toRule } from './adapters/standard'
 
 // Utilities
-import { instanceExists, isFunction, isString } from '#v0/utilities'
+import { instanceExists, isFunction } from '#v0/utilities'
 
 // Types
 import type { FormValidationRule } from '#v0/composables/createForm'
@@ -70,8 +67,6 @@ export interface RulesContext {
 export interface RulesOptions {
   /** Custom aliases to register. Each alias is a predicate (FormValidationRule). */
   aliases?: Partial<RuleAliases>
-  /** Error messages for aliases, stored in a token registry. Keys use `rules.<alias>` format. */
-  messages?: Record<string, string>
 }
 
 export interface RulesContextOptions extends RulesOptions {
@@ -82,31 +77,35 @@ export interface RulesPluginOptions extends RulesContextOptions {}
 
 /**
  * Wraps an alias predicate so that `false` results are
- * resolved to a locale-aware error message via `rules.<name>`.
+ * resolved to a locale-aware error message via `$rules.<name>`.
+ *
+ * - `true` → pass
+ * - `string` → fail with that message
+ * - `false` → fail, look up message from locale
  */
 function wrapAlias (
   name: string,
   predicate: FormValidationRule,
-  t: (key: string) => string,
+  locale?: { t: (key: string) => string },
 ): FormValidationRule {
   return (value: unknown) => {
     const result = predicate(value)
 
     if (result instanceof Promise) {
       return result.then(resolved => {
-        if (resolved === false) return t(`rules.${name}`)
         if (resolved === true) return true
+        if (resolved === false) return locale?.t(`$rules.${name}`) ?? name
         return resolved
       })
     }
 
-    if (result === false) return t(`rules.${name}`)
     if (result === true) return true
+    if (result === false) return locale?.t(`$rules.${name}`) ?? name
     return result
   }
 }
 
-function createResolve (aliases: RuleAliases, t: (key: string) => string) {
+function createResolve (aliases: RuleAliases, locale?: { t: (key: string) => string }) {
   return function resolve (rules: RuleInput[]): FormValidationRule[] {
     const result: FormValidationRule[] = []
 
@@ -125,18 +124,12 @@ function createResolve (aliases: RuleAliases, t: (key: string) => string) {
       const predicate = aliases[rule as string]
 
       if (predicate) {
-        result.push(wrapAlias(rule as string, predicate, t))
+        result.push(wrapAlias(rule as string, predicate, locale))
       }
     }
 
     return result
   }
-}
-
-function interpolate (template: string, params?: Record<string, unknown>): string {
-  return template.replace(/\{(\w+)\}/g, (match, name) => {
-    return params && name in params ? String(params[name]) : match
-  })
 }
 
 /**
@@ -162,9 +155,7 @@ function interpolate (template: string, params?: Record<string, unknown>): strin
  * ```
  */
 export function createRules (_options: RulesOptions = {}): RulesContext {
-  const { messages = {}, aliases: customAliases } = _options
-
-  const tokens = createTokens({ rules: messages })
+  const { aliases: customAliases } = _options
 
   let locale: ReturnType<typeof useLocale> | undefined
 
@@ -176,42 +167,21 @@ export function createRules (_options: RulesOptions = {}): RulesContext {
     // useLocale not available
   }
 
-  function t (key: string, params?: Record<string, unknown>, fallback?: string): string {
-    const raw = tokens.get(key)?.value
-    const tokenMsg = isString(raw) ? raw : undefined
-
-    if (locale) return locale.t(key, params, fallback ?? tokenMsg)
-
-    const template = fallback ?? tokenMsg ?? key
-
-    return interpolate(template, params)
-  }
-
   const aliases = { ...customAliases } as RuleAliases
 
-  return { resolve: createResolve(aliases, t), aliases }
+  return { resolve: createResolve(aliases, locale), aliases }
 }
 
 /**
  * Creates a fallback rules instance for use outside component scope.
- * Uses the token registry with no locale lookup.
+ * No locale lookup — `false` returns fall back to the alias name.
  *
  * @returns A standalone rules context with empty aliases.
  */
 export function createRulesFallback (): RulesContext {
-  const tokens = createTokens({})
-
-  function t (key: string, params?: Record<string, unknown>, fallback?: string): string {
-    const raw = tokens.get(key)?.value
-    const tokenMsg = isString(raw) ? raw : undefined
-    const template = fallback ?? tokenMsg ?? key
-
-    return interpolate(template, params)
-  }
-
   const aliases = {} as RuleAliases
 
-  return { resolve: createResolve(aliases, t), aliases }
+  return { resolve: createResolve(aliases), aliases }
 }
 
 /**
@@ -262,7 +232,7 @@ export function createRulesContext (_options: RulesContextOptions = {}): Context
  * const app = createApp(App)
  * app.use(createRulesPlugin({
  *   aliases: {
- *     phone: (v) => /^\d{10}$/.test(String(v)) || false,
+ *     required: (v) => !!v || false,
  *   },
  * }))
  * ```
@@ -274,7 +244,6 @@ export function createRulesPlugin (_options: RulesPluginOptions = {}) {
   return createPlugin({
     namespace,
     provide: (app: App) => {
-      // Called inside app.runWithContext() — useLocale() will resolve if locale plugin is installed
       const context = createRules(options)
       _provideRulesContext(context, app)
     },
