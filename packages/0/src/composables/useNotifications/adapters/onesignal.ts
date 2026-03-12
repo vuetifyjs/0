@@ -8,7 +8,7 @@
  *
  * @example
  * ```ts
- * import OneSignal from 'react-onesignal' // or window.OneSignalDeferred
+ * import OneSignal from '@onesignal/web-sdk'
  * import { createOneSignalAdapter } from '#v0/composables/useNotifications/adapters/onesignal'
  *
  * app.use(createNotificationsPlugin({
@@ -18,7 +18,7 @@
  */
 
 // Types
-import type { NotificationsAdapterInterface, NotificationInput } from '..'
+import type { NotificationsAdapterInterface, NotificationInput } from '../index'
 
 /**
  * Minimal subset of the OneSignal Web SDK used by this adapter.

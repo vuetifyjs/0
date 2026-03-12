@@ -29,6 +29,7 @@ import { computed } from 'vue'
 import type { QueueContext, QueueOptions, QueueTicket, QueueTicketInput } from '#v0/composables/createQueue'
 import type { ProxyRegistryContext } from '#v0/composables/useProxyRegistry'
 import type { ID } from '#v0/types'
+import type { ComputedRef } from 'vue'
 
 export type NotificationSeverity = 'info' | 'warning' | 'error' | 'success'
 
@@ -56,8 +57,8 @@ export interface NotificationTicket extends QueueTicket<NotificationInput> {
 
 export interface NotificationsAdapterContext {
   notify: (input: NotificationInput) => NotificationTicket
-  on: (event: string, handler: (...args: unknown[]) => void) => void
-  off: (event: string, handler: (...args: unknown[]) => void) => void
+  on: (event: string, handler: (data: unknown) => void) => void
+  off: (event: string, handler: (data: unknown) => void) => void
 }
 
 export interface NotificationsAdapterInterface {
@@ -69,7 +70,7 @@ export interface NotificationsOptions extends QueueOptions {}
 
 export interface NotificationsContext extends Omit<
   QueueContext<NotificationInput, NotificationTicket>,
-  'register'
+  'register' | 'onboard'
 > {
   notify: (input: NotificationInput) => NotificationTicket
 
@@ -85,9 +86,9 @@ export interface NotificationsContext extends Omit<
   archiveAll: () => void
 
   proxy: ProxyRegistryContext<NotificationTicket>
-  unreadItems: ReturnType<typeof computed<NotificationTicket[]>>
-  archivedItems: ReturnType<typeof computed<NotificationTicket[]>>
-  snoozedItems: ReturnType<typeof computed<NotificationTicket[]>>
+  unreadItems: ComputedRef<NotificationTicket[]>
+  archivedItems: ComputedRef<NotificationTicket[]>
+  snoozedItems: ComputedRef<NotificationTicket[]>
 }
 
 export function createNotifications (
@@ -172,6 +173,7 @@ export function createNotifications (
       for (const ticket of queue.values()) {
         if (!ticket.readAt) {
           queue.upsert(ticket.id, { readAt: now })
+          queue.emit('notification:read', ticket.id)
         }
       }
     })
@@ -183,6 +185,7 @@ export function createNotifications (
       for (const ticket of queue.values()) {
         if (!ticket.archivedAt) {
           queue.upsert(ticket.id, { archivedAt: now })
+          queue.emit('notification:archived', ticket.id)
         }
       }
     })
@@ -192,8 +195,10 @@ export function createNotifications (
   const archivedItems = computed(() => proxy.values.filter(t => !!t.archivedAt))
   const snoozedItems = computed(() => proxy.values.filter(t => !!t.snoozedUntil))
 
+  const { register: _, onboard: __, ...ctx } = queue
+
   return {
-    ...queue,
+    ...ctx,
     notify,
     read,
     unread,
@@ -208,12 +213,36 @@ export function createNotifications (
     unreadItems,
     archivedItems,
     snoozedItems,
-  } as unknown as NotificationsContext
+  } as NotificationsContext
 }
 
 export interface NotificationsPluginOptions extends NotificationsOptions {
   namespace?: string
   adapter?: NotificationsAdapterInterface
+}
+
+function noop () {}
+
+function createNotificationsFallback (): NotificationsContext {
+  const stub = {} as NotificationTicket
+
+  return {
+    size: 0,
+    notify: () => stub,
+    read: noop,
+    unread: noop,
+    seen: noop,
+    archive: noop,
+    unarchive: noop,
+    snooze: noop,
+    unsnooze: noop,
+    readAll: noop,
+    archiveAll: noop,
+    proxy: { keys: [], values: [], entries: [], size: 0 },
+    unreadItems: computed(() => []),
+    archivedItems: computed(() => []),
+    snoozedItems: computed(() => []),
+  } as unknown as NotificationsContext
 }
 
 export const [
@@ -224,14 +253,14 @@ export const [
   'v0:notifications',
   options => createNotifications(options),
   {
-    fallback: () => createNotifications(),
+    fallback: () => createNotificationsFallback(),
     setup: (context, app, { adapter }) => {
       if (!adapter) return
 
       adapter.setup({
         notify: context.notify,
-        on: context.on.bind(context),
-        off: context.off.bind(context),
+        on: context.on,
+        off: context.off,
       })
 
       if (isFunction(adapter.dispose)) {

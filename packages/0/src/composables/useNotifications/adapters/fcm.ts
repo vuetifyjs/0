@@ -46,14 +46,17 @@ export interface FcmAdapterOptions {
   severity?: NotificationSeverity
 }
 
+const SEVERITIES: Set<string> = new Set(['info', 'warning', 'error', 'success'])
+
 function toInput (payload: FcmMessagePayload, severity: NotificationSeverity): NotificationInput {
   const { notification, data, messageId } = payload
+  const raw = data?.severity
 
   return {
     ...(messageId && { id: messageId }),
     subject: notification?.title,
     body: notification?.body,
-    severity: (data?.severity as NotificationSeverity) ?? severity,
+    severity: (raw && SEVERITIES.has(raw) ? raw as NotificationSeverity : severity),
     data: data as Record<string, unknown> | undefined,
   }
 }

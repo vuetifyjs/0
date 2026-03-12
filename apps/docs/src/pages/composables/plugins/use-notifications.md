@@ -39,6 +39,8 @@ app.use(createNotificationsPlugin())
 app.mount('#app')
 ```
 
+> [!TIP] Notification timeout defaults to `-1` (persistent) — unlike the underlying queue's 3000ms default. Pass `timeout: 3000` per notification for auto-dismiss behavior.
+
 ## Usage
 
 Once the plugin is installed, use the `useNotifications` composable in any component:
@@ -140,6 +142,7 @@ const ticket = notifications.notify({ subject: 'Hello' })
 ticket.read()
 ticket.archive()
 ticket.snooze(new Date('2026-04-01'))
+ticket.dismiss()  // Remove from queue
 ```
 
 ### Bulk

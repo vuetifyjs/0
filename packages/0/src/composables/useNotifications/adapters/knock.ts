@@ -46,8 +46,8 @@ export interface KnockFeedItem {
 
 /** Minimal Knock feed instance interface. */
 export interface KnockFeed {
-  on: (event: string, handler: (...args: unknown[]) => void) => void
-  off: (event: string, handler: (...args: unknown[]) => void) => void
+  on: (event: string, handler: (data: unknown) => void) => void
+  off: (event: string, handler: (data: unknown) => void) => void
   markAsRead: (item: KnockFeedItem) => Promise<unknown>
   markAsArchived: (item: KnockFeedItem) => Promise<unknown>
   teardown: () => void
@@ -69,18 +69,19 @@ function mapItem (item: KnockFeedItem): NotificationInput {
 export function createKnockAdapter (feed: KnockFeed): NotificationsAdapterInterface {
   const items = new Map<string, KnockFeedItem>()
   let ctx: NotificationsAdapterContext | undefined
-  let onReceived: ((...args: unknown[]) => void) | undefined
-  let onRead: ((...args: unknown[]) => void) | undefined
-  let onArchived: ((...args: unknown[]) => void) | undefined
+  let onReceived: ((data: unknown) => void) | undefined
+  let onRead: ((data: unknown) => void) | undefined
+  let onArchived: ((data: unknown) => void) | undefined
 
   return {
     setup (_ctx: NotificationsAdapterContext) {
       ctx = _ctx
 
       // Inbound: real-time feed events -> ctx.notify()
-      onReceived = (...args: unknown[]) => {
-        const data = args[0] as { items: KnockFeedItem[] }
-        for (const item of data.items) {
+      onReceived = (data: unknown) => {
+        const payload = data as { items?: KnockFeedItem[] }
+        if (!payload?.items) return
+        for (const item of payload.items) {
           items.set(item.id, item)
           ctx!.notify(mapItem(item))
         }
@@ -90,14 +91,14 @@ export function createKnockAdapter (feed: KnockFeed): NotificationsAdapterInterf
       feed.listenForUpdates()
 
       // Outbound: notification mutations -> Knock API
-      onRead = (...args: unknown[]) => {
-        const item = items.get(String(args[0]))
-        if (item) feed.markAsRead(item)
+      onRead = (data: unknown) => {
+        const item = items.get(String(data))
+        if (item) feed.markAsRead(item).catch(() => {})
       }
 
-      onArchived = (...args: unknown[]) => {
-        const item = items.get(String(args[0]))
-        if (item) feed.markAsArchived(item)
+      onArchived = (data: unknown) => {
+        const item = items.get(String(data))
+        if (item) feed.markAsArchived(item).catch(() => {})
       }
 
       ctx.on('notification:read', onRead)
@@ -107,6 +108,7 @@ export function createKnockAdapter (feed: KnockFeed): NotificationsAdapterInterf
       if (onReceived) feed.off('items.received.realtime', onReceived)
       if (onRead && ctx) ctx.off('notification:read', onRead)
       if (onArchived && ctx) ctx.off('notification:archived', onArchived)
+      items.clear()
       feed.teardown()
     },
   }

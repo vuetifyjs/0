@@ -1,6 +1,5 @@
 <script setup lang="ts">
-  import { computed, shallowRef, watch } from 'vue'
-  import { useProxyRegistry } from '@vuetify/v0'
+  import { computed, onScopeDispose, shallowRef, watch } from 'vue'
   import { mdiClose, mdiArchiveOutline, mdiClockOutline, mdiBellOutline } from '@mdi/js'
   import { createAppNotifications, provideNotifications } from './context'
   import type { NotificationTicket } from '@vuetify/v0'
@@ -8,8 +7,7 @@
   const notifications = createAppNotifications()
   provideNotifications(notifications)
 
-  // Direct reactive proxy — guaranteed reactivity for all mutations
-  const proxy = useProxyRegistry<NotificationTicket>(notifications)
+  const { proxy } = notifications
 
   // Only show the most recent banner
   const banner = computed(() =>
@@ -42,6 +40,11 @@
         }
       }
     }
+  })
+
+  onScopeDispose(() => {
+    for (const timer of toastTimers.values()) clearTimeout(timer)
+    toastTimers.clear()
   })
 
   const inlines = computed(() =>
