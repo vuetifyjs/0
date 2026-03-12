@@ -2,13 +2,24 @@
   // Framework
   import { ExpansionPanel } from '@vuetify/v0'
 
-  defineProps<{
+  // Utilities
+  import { computed, inject, toRef } from 'vue'
+  import type { Ref } from 'vue'
+
+  const props = defineProps<{
     question: string
   }>()
+
+  const search = inject<Ref<string>>('faq-search', toRef(''))
+
+  const isFiltered = computed(() => {
+    if (!search.value) return false
+    return !props.question.toLowerCase().includes(search.value.toLowerCase())
+  })
 </script>
 
 <template>
-  <ExpansionPanel.Item>
+  <ExpansionPanel.Item v-show="!isFiltered">
     <ExpansionPanel.Activator
       v-slot="{ isSelected }"
       class="w-full list-item-bordered flex items-center gap-3 text-left"

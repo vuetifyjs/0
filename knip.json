@@ -10,6 +10,9 @@
       ]
     },
     "apps/docs": {
+      "ignoreDependencies": [
+        "@iconify-json/mdi"
+      ],
       "entry": [
         "src/main.ts",
         "src/App.vue",

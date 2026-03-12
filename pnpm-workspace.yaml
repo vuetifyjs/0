@@ -6,6 +6,7 @@ packages:
 autoInstallPeers: true
 
 catalog:
+  '@iconify-json/mdi': ^1.2.3
   '@js-temporal/polyfill': 0.5.1
   '@mdi/js': npm:mdi-js-es@7.4.47
   '@octokit/core': ^7.0.6

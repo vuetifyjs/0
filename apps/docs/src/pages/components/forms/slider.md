@@ -145,6 +145,22 @@ Three sliders for Hue, Saturation, and Lightness with reactive gradient tracks a
 
 :::
 
+::: example
+/components/slider/PillSlider.vue 1
+/components/slider/pill-slider.vue 2
+
+### MD3 Pill Variant
+
+A split-track slider inspired by Material Design 3's pill variant. The track splits into three segments around the thumb: an inactive "before" segment, the filled region, and an inactive "after" segment — separated by gaps with rounded inner corners and stop indicator dots.
+
+**Key patterns:**
+
+- `Slider.Range` used three times — once renderless for the before-segment positioning, once for the fill, and once renderless for the after-segment
+- Split-track math handled entirely in CSS `calc()` using Range's `start`/`end` slot props
+- No changes to v0 internals needed — the pill design is purely a styling/composition concern
+
+:::
+
 ## Accessibility
 
 Each `Slider.Thumb` manages its own ARIA attributes automatically.
