@@ -93,10 +93,10 @@ export interface NotificationsContext extends Omit<
 }
 
 export function createNotifications (
-  _options: NotificationsOptions = {},
+  options: NotificationsOptions = {},
 ): NotificationsContext {
   const registry = createRegistry<NotificationTicket>({
-    ..._options,
+    ...options,
     events: true,
     reactive: true,
   })

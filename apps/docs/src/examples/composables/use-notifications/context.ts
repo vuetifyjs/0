@@ -12,5 +12,5 @@ const [useNotifications, provideNotifications] = createContext<NotificationsCont
 export { provideNotifications, useNotifications }
 
 export function createAppNotifications () {
-  return createNotifications({ timeout: -1 })
+  return createNotifications()
 }
