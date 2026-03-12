@@ -29,10 +29,10 @@ import { isNull, isUndefined } from '#v0/utilities'
 import { onScopeDispose, shallowReadonly, shallowRef, toRef, toValue, watch } from 'vue'
 
 // Types
-import type { Modifier } from './parsing'
+import type { Combo, Key, KeyCombination, Modifier, Sequence } from './parsing'
 import type { MaybeRefOrGetter, Ref } from 'vue'
 
-import { splitKeyCombination, splitKeySequence, MODIFIERS } from './parsing'
+import { parseKeyCombination, MODIFIERS } from './parsing'
 
 export interface UseHotkeyOptions {
   /**
@@ -147,7 +147,7 @@ export function useHotkey (
   const isActive = toRef(() => !isNull(cleanup.value))
 
   let sequenceTimer: ReturnType<typeof setTimeout> | undefined
-  let keyGroups: string[] = []
+  let keyGroups: Exclude<KeyCombination, Sequence>[] = []
   let isSequence = false
   let groupIndex = 0
 
@@ -217,11 +217,17 @@ export function useHotkey (
     const currentKeys = toValue(keys)
     if (!currentKeys) return
 
-    const groups = splitKeySequence(currentKeys.toLowerCase())
-    if (groups.length === 0) return
+    const parsed = parseKeyCombination(currentKeys.toLowerCase())
+    if (!parsed) return
 
-    isSequence = groups.length > 1
-    keyGroups = groups
+    const parts: Exclude<KeyCombination, Sequence>[] = typeof parsed !== 'string' && parsed.type === 'sequence'
+      ? parsed.parts
+      : [parsed]
+
+    if (parts.length === 0) return
+
+    isSequence = parts.length > 1
+    keyGroups = parts
     resetSequence()
 
     cleanup.value = useWindowEventListener(toValue(event), handler)
@@ -284,17 +290,14 @@ function isModifier (key: string): key is Modifier {
   return (MODIFIERS as readonly string[]).includes(key)
 }
 
-function parseKeyGroup (group: string): ParsedKeyGroup {
-  const { keys: parts } = splitKeyCombination(group.toLowerCase())
+const emptyModifiers = Object.fromEntries(
+  MODIFIERS.map(m => [m, false]),
+) as Record<Modifier, boolean>
 
-  const modifiers = Object.fromEntries(
-    MODIFIERS.map(m => [m, false]),
-  ) as Record<Modifier, boolean>
+function parseKeyGroup (group: Combo | Key): ParsedKeyGroup {
+  const parts = typeof group === 'string' ? [group] : group.parts
 
-  if (parts.length === 0) {
-    return { modifiers, actualKey: undefined }
-  }
-
+  const modifiers = { ...emptyModifiers }
   let actualKey: string | undefined
 
   for (const part of parts) {
@@ -308,7 +311,11 @@ function parseKeyGroup (group: string): ParsedKeyGroup {
   return { modifiers, actualKey }
 }
 
-function matchesKeyGroup (e: KeyboardEvent, group: string, platformIsMac: boolean): boolean {
+function matchesKeyGroup (e: KeyboardEvent, group: Exclude<KeyCombination, Sequence>, platformIsMac: boolean): boolean {
+  if (typeof group !== 'string' && group.type === 'alternate') {
+    return group.parts.some(part => matchesKeyGroup(e, part, platformIsMac))
+  }
+
   const { modifiers, actualKey } = parseKeyGroup(group)
 
   const expectCtrl = modifiers.ctrl || (!platformIsMac && (modifiers.cmd || modifiers.meta))

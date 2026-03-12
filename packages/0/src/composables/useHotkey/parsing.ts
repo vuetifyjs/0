@@ -12,193 +12,128 @@ export const MODIFIERS = ['ctrl', 'shift', 'alt', 'meta', 'cmd'] as const
 // Types
 export type Modifier = typeof MODIFIERS[number]
 
-export interface CombinationResult {
-  readonly keys: readonly string[]
-  readonly separators: readonly string[]
+export type KeyCombination = Sequence | Alternate | Combo | Key
+
+export interface Sequence {
+  type: 'sequence'
+  parts: (Alternate | Combo | Key)[]
+}
+
+export interface Alternate {
+  type: 'alternate'
+  parts: (Combo | Key)[]
+}
+
+export interface Combo {
+  type: 'combo'
+  parts: Key[]
+}
+
+export type Key = string
+
+class ParseError extends Error {}
+
+function isSep (char: string | null): boolean {
+  return ['-', '/', '+', '_'].includes(char as string)
 }
 
 /**
- * Splits a single combination string into individual key parts.
+ * Parses a hotkey string into an AST.
  *
- * A combination is a set of keys that must be pressed simultaneously.
- * e.g. `ctrl+k`, `shift+-`
+ * Grammar:
+ *   sequence  = alternate *('-' alternate)
+ *   alternate = combo *('/' combo)
+ *   combo     = key *(('+' | '_') key)
+ *   key       = /./ *(/[^-/+_ ]/)
  *
- * @param combination - The combination string to parse
- * @param isInternal - Whether this is an internal call (suppresses warnings)
- * @returns Object with keys array and separators array
+ * @param input - The hotkey string to parse
+ * @returns The parsed AST, or '' on error
  */
-export function splitKeyCombination (combination: string, isInternal = false): CombinationResult {
-  const emptyResult: CombinationResult = { keys: [], separators: [] }
+export function parseKeyCombination (input: string): KeyCombination | '' {
+  let pos = 0
 
-  if (!combination) {
-    if (!isInternal) logger.warn('Invalid hotkey combination: empty string provided')
-    return emptyResult
-  }
-
-  const hasInvalidLeadingSeparator = (
-    combination.length > 1 &&
-    // Starts with a single separator followed by a non-separator character (e.g. '+a', '_a')
-    ['+', '/', '_'].some(v => combination.startsWith(v)) &&
-    !['++', '//', '__'].some(v => combination.startsWith(v))
-  )
-
-  const hasInvalidStructure = (
-    hasInvalidLeadingSeparator ||
-    // Disallow literal +, /, or _ keys (+ and _ require shift)
-    combination.includes('++') || combination.includes('//') || combination.includes('__') || combination === '+' || combination === '/' || combination === '_' ||
-    // Ends with a separator that is not part of a doubled literal
-    (combination.length > 1 && (combination.endsWith('+') || combination.endsWith('/') || combination.endsWith('_')) && combination.at(-2) !== combination.at(-1)) ||
-    // Stand-alone doubled separators (dangling)
-    combination === '++' || combination === '--' || combination === '__'
-  )
-
-  if (hasInvalidStructure) {
-    if (!isInternal) logger.warn(`Invalid hotkey combination: "${combination}" has invalid structure`)
-    return emptyResult
-  }
-
-  const keys: string[] = []
-  const separators: string[] = []
-  let buffer = ''
-
-  function flushBuffer (separator?: string) {
-    if (buffer) {
-      if (separator) separators.push(separator)
-      keys.push(normalizeKey(buffer))
-      buffer = ''
+  try {
+    const result = parseSequence()
+    if (!atEnd()) {
+      throw new ParseError(`Unexpected character '${peek()}' at position ${pos}`)
     }
-  }
-
-  for (let i = 0; i < combination.length; i++) {
-    const char = combination[i]!
-    const nextChar = combination[i + 1]
-
-    if (['+', '/', '_', '-'].includes(char)) {
-      /* v8 ignore start -- edge case: doubled special chars */
-      if (char === nextChar) {
-        flushBuffer(char)
-        keys.push(char)
-        i++
-      /* v8 ignore stop */
-      } else if (['+', '/', '_'].includes(char)) {
-        flushBuffer(char)
-      } else {
-        buffer += char
-      }
+    return result
+  } catch (error) {
+    if (error instanceof ParseError) {
+      logger.warn(`Invalid hotkey combination: ${error.message}\n  ${input}\n  ${' '.repeat(pos)}^`)
+      return ''
     } else {
-      buffer += char
-    }
-  }
-  flushBuffer()
-
-  // Within a combination, `-` is only valid as a literal key (e.g., `ctrl+-`).
-  // `-` cannot be part of a longer key name within a combination.
-  const hasInvalidMinus = keys.some(key => key.length > 1 && key.includes('-') && key !== '--')
-  /* v8 ignore start -- edge case: invalid minus in combination */
-  if (hasInvalidMinus) {
-    if (!isInternal) logger.warn(`Invalid hotkey combination: "${combination}" has invalid structure`)
-    return emptyResult
-  }
-
-  if (keys.length === 0 && combination) {
-    return { keys: [normalizeKey(combination)], separators }
-  }
-  /* v8 ignore stop */
-
-  return { keys, separators }
-}
-
-/**
- * Splits a hotkey string into its constituent combination groups.
- *
- * A sequence is a series of combinations that must be pressed in order.
- * e.g. `a-b`, `ctrl+k-p`
- *
- * @param str - The sequence string to parse
- * @returns Array of combination strings
- */
-export function splitKeySequence (str: string): string[] {
-  if (!str) {
-    logger.warn('Invalid hotkey sequence: empty string provided')
-    return []
-  }
-
-  // A sequence is invalid if it starts or ends with a separator,
-  // unless it is part of a combination (e.g., `shift+-`).
-  const hasInvalidStart = str.startsWith('-') && !['-', '---', '--+'].includes(str)
-  const hasInvalidEnd = str.endsWith('-') && !str.endsWith('+-') && !str.endsWith('_-') && str !== '-' && str !== '---'
-
-  if (hasInvalidStart || hasInvalidEnd) {
-    logger.warn(`Invalid hotkey sequence: "${str}" contains invalid combinations`)
-    return []
-  }
-
-  const result: string[] = []
-  let buffer = ''
-  let i = 0
-
-  while (i < str.length) {
-    const char = str[i]
-
-    if (char === '-') {
-      // Determine if this hyphen is part of the current combination
-      const prevChar = str[i - 1] ?? ''
-      const prevPrevChar = i > 1 ? str[i - 2] : undefined
-
-      const precededBySeparator = (
-        ['+', '_'].includes(prevChar) && !['+', '/'].includes(prevPrevChar ?? '')
-      )
-
-      if (precededBySeparator) {
-        // Treat as part of the combination (e.g., 'ctrl+-')
-        buffer += char
-        i++
-      } else {
-        // Treat as sequence separator
-        if (buffer) {
-          result.push(buffer)
-          buffer = ''
-        } else {
-          // Empty buffer means we have a literal '-' key
-          result.push('-') /* v8 ignore -- edge case: literal dash key */
-        }
-        i++
-      }
-    } else {
-      buffer += char
-      i++
+      throw error
     }
   }
 
-  // Add final buffer if it exists
-  if (buffer) {
-    result.push(buffer)
+  function peek (ahead = 0): string | null {
+    return pos + ahead < input.length
+      ? input[pos + ahead]!
+      : null
   }
 
-  // Collapse runs of '-' so that every second '-' is removed
-  const collapsed: string[] = []
-  let minusCount = 0
-  for (const part of result) {
-    /* v8 ignore start -- edge case: minus collapsing */
-    if (part === '-') {
-      if (minusCount % 2 === 0) collapsed.push('-')
-      minusCount++
-    /* v8 ignore stop */
-    } else {
-      minusCount = 0
-      collapsed.push(part)
+  function consume (): string {
+    if (pos >= input.length) {
+      throw new ParseError('Unexpected end of input')
     }
+    return input[pos++]!
   }
 
-  // Validate that each part of the sequence is a valid combination
-  const areAllValid = collapsed.every(s => splitKeyCombination(s, true).keys.length > 0)
-
-  /* v8 ignore start -- edge case: invalid combination in sequence */
-  if (!areAllValid) {
-    logger.warn(`Invalid hotkey sequence: "${str}" contains invalid combinations`)
-    return []
+  function atEnd (): boolean {
+    return pos >= input.length
   }
-  /* v8 ignore stop */
 
-  return collapsed
+  // sequence = alternate *('-' alternate)
+  function parseSequence (): KeyCombination {
+    const parts: (Alternate | Combo | Key)[] = [parseAlternate()]
+    while (peek() === '-') {
+      consume()
+      parts.push(parseAlternate())
+    }
+    if (parts.length === 1) return parts[0]!
+    return { type: 'sequence', parts }
+  }
+
+  // alternate = combo *('/' combo)
+  function parseAlternate (): Alternate | Combo | Key {
+    const parts: (Combo | Key)[] = [parseCombo()]
+    while (peek() === '/') {
+      consume()
+      parts.push(parseCombo())
+    }
+    if (parts.length === 1) return parts[0]!
+    return { type: 'alternate', parts }
+  }
+
+  // combo = key *(('+' | '_') key)
+  function parseCombo (): Combo | Key {
+    const keys: Key[] = [parseKey()]
+    while (['+', '_'].includes(peek() as string)) {
+      consume()
+      keys.push(parseKey())
+    }
+    if (keys.length === 1) return keys[0]!
+    return { type: 'combo', parts: keys }
+  }
+
+  // key = /./ *(/[^-/+_ ]/)
+  function parseKey (): Key {
+    const ch = peek()
+    if (ch == null) {
+      throw new ParseError('Unexpected end of input')
+    }
+    const next = peek(1)
+    if (isSep(ch) && next != null && !isSep(next)) {
+      throw new ParseError(`Unexpected separator '${ch}' at position ${pos}`)
+    }
+    const first = consume()
+    // separator keys are always a single character
+    if (isSep(first)) return first
+    const chars: string[] = [first]
+    while (!atEnd() && !isSep(peek()) && peek() !== ' ') {
+      chars.push(consume())
+    }
+    return normalizeKey(chars.join(''))
+  }
 }
