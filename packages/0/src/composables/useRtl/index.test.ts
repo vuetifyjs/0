@@ -5,7 +5,7 @@ vi.mock('#v0/constants/globals', () => ({
 }))
 
 // Utilities
-import { effectScope, hasInjectionContext, inject, nextTick, provide, shallowRef } from 'vue'
+import { effectScope, hasInjectionContext, nextTick, shallowRef } from 'vue'
 
 vi.mock('vue', async () => {
   const actual = await vi.importActual('vue')
