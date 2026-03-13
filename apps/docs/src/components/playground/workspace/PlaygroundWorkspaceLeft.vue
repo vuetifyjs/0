@@ -41,7 +41,7 @@
       :max-size="35"
       :min-size="15"
     >
-      <div v-if="open">
+      <div v-if="open" class="h-full">
         <slot />
       </div>
     </SplitterPanel>
