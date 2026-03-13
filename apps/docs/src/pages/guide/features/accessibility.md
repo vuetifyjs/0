@@ -10,6 +10,7 @@ meta:
     content: vuetify0, accessibility, a11y, ARIA, WCAG, keyboard navigation, focus management, screen reader, Vue 3
 related:
   - /composables/plugins/use-locale
+  - /composables/plugins/use-rtl
   - /guide/fundamentals/components
 ---
 
@@ -141,4 +142,6 @@ Use this checklist during manual QA:
 
 ## Internationalization
 
-v0's `useLocale` handles RTL and translated labels. See [useLocale](/composables/plugins/use-locale) for accessibility label translations.
+v0's `useLocale` handles translated labels. See [useLocale](/composables/plugins/use-locale) for accessibility label translations.
+
+For RTL (right-to-left) support, see [useRtl](/composables/plugins/use-rtl). Direction is managed independently from locale — `useRtl` provides a reactive `isRtl` boolean and sets the `dir` attribute on the target element.

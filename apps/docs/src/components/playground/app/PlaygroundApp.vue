@@ -44,6 +44,8 @@
   const side = shallowRef(false)
   left.value = false
 
+  const editor = shallowRef(false)
+
   providePlayground({
     store,
     isReady,
@@ -51,13 +53,14 @@
     tree,
     bottom,
     side,
-    editor: shallowRef(false),
+    editor,
   })
 
   // When breakpoints confirm desktop, restore open state
   watch(isMobile, mobile => {
     if (!mobile) {
       tree.value = true
+      editor.value = true
       left.value = storedLeft
       bottom.value = !sideActive
       side.value = sideActive
