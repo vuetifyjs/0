@@ -3,7 +3,7 @@
   import { useAuthStore } from '@vuetify/auth'
 
   // Framework
-  import { Avatar, useFeatures, useStack, useStorage } from '@vuetify/v0'
+  import { Avatar, useFeatures, useRtl, useStack, useStorage } from '@vuetify/v0'
 
   // Composables
   import { useCustomThemes } from '@/composables/useCustomThemes'
@@ -15,6 +15,7 @@
 
   const auth = useAuthStore()
   const features = useFeatures()
+  const rtl = useRtl()
   const storage = useStorage()
   const settings = useSettings()
   const levelFilter = useLevelFilterContext()
@@ -74,7 +75,7 @@
     ref="sheet"
     aria-labelledby="settings-title"
     aria-modal="true"
-    :class="['fixed inset-y-0 right-0 flex flex-col w-[320px] max-w-full shadow-xl outline-none', settings.showBgGlass.value ? 'bg-glass-surface' : 'bg-surface']"
+    :class="['fixed inset-y-0 end-0 flex flex-col w-[320px] max-w-full shadow-xl outline-none', settings.showBgGlass.value ? 'bg-glass-surface' : 'bg-surface']"
     role="dialog"
     :style="{ zIndex: ticket.zIndex.value }"
     tabindex="-1"
@@ -152,6 +153,15 @@
           icon="beaker"
           label="Show inline"
           title="API Reference"
+        />
+
+        <!-- Direction -->
+        <AppSettingsToggleSection
+          v-model="rtl.isRtl.value"
+          description="Switch layout direction to right-to-left"
+          icon="reflect"
+          label="RTL mode"
+          title="Direction"
         />
 
         <!-- Navigation -->

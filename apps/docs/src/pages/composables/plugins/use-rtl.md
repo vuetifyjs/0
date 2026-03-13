@@ -83,6 +83,57 @@ app.use(createRtlPlugin({ target: '#app' }))
 app.use(createRtlPlugin({ target: null }))
 ```
 
+## Styling
+
+The `dir` attribute set by the adapter enables three approaches to direction-aware styling with utility classes:
+
+### Logical Properties (preferred)
+
+CSS logical properties automatically flip based on `dir`. Use these by default:
+
+```html
+<!-- Physical (breaks in RTL) -->
+<div class="ml-4 pr-2 left-0 border-l-2">...</div>
+
+<!-- Logical (works in both directions) -->
+<div class="ms-4 pe-2 start-0 border-s-2">...</div>
+```
+
+| Physical | Logical | CSS Property |
+| - | - | - |
+| `ml-*` / `mr-*` | `ms-*` / `me-*` | `margin-inline-start` / `end` |
+| `pl-*` / `pr-*` | `ps-*` / `pe-*` | `padding-inline-start` / `end` |
+| `left-*` / `right-*` | `start-*` / `end-*` | `inset-inline-start` / `end` |
+| `border-l-*` / `border-r-*` | `border-s-*` / `border-e-*` | `border-inline-start` / `end` |
+| `rounded-l-*` / `rounded-r-*` | `rounded-s-*` / `rounded-e-*` | `border-start-*-radius` / `end` |
+| `text-left` / `text-right` | `text-start` / `text-end` | `text-align` |
+
+> [!TIP]
+> The utility class names above use UnoCSS `presetWind4` / Tailwind v4 syntax. Exact class names may vary depending on your CSS framework or preset — the underlying CSS logical properties are the same.
+
+### Direction Variants
+
+For cases logical properties can't handle (like `translate-x`), use `ltr:` and `rtl:` variants:
+
+```html
+<!-- Mobile drawer: slides from start edge -->
+<nav class="ltr:-translate-x-full rtl:translate-x-full md:ltr:translate-x-0 md:rtl:translate-x-0">
+  ...
+</nav>
+```
+
+### Symmetric Shorthand
+
+When both sides use the same value, use `inset-x-*` instead of `left-* right-*`:
+
+```html
+<!-- Before -->
+<div class="fixed left-0 right-0 top-0">...</div>
+
+<!-- After -->
+<div class="fixed inset-x-0 top-0">...</div>
+```
+
 ## Subtree Overrides
 
 Use `createRtlContext` to scope direction to a subtree:

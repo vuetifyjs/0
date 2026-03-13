@@ -58,8 +58,8 @@
   <!-- Mobile: fixed drawer -->
   <div
     v-if="isMobile"
-    class="fixed inset-0 bg-surface border-r border-divider flex flex-col transition-transform duration-200"
-    :class="open ? 'translate-x-0' : '-translate-x-full'"
+    class="fixed inset-0 bg-surface border-e border-divider flex flex-col transition-transform duration-200"
+    :class="open ? 'translate-x-0' : 'ltr:-translate-x-full rtl:translate-x-full'"
     :inert="open ? undefined : true"
     :style="{ zIndex: ticket.zIndex.value }"
   >

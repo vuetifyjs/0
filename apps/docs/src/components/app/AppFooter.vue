@@ -70,7 +70,7 @@
   <footer
     ref="footer"
     class="app-footer py-4 border-t border-divider/50"
-    :class="[inset && 'md:ml-[230px]', settings.showBgGlass.value ? 'bg-glass-surface' : 'bg-surface']"
+    :class="[inset && 'md:ms-[230px]', settings.showBgGlass.value ? 'bg-glass-surface' : 'bg-surface']"
   >
     <div class="max-w-[1200px] mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
       <div class="flex flex-col md:flex-row items-center gap-4 text-sm opacity-60">
