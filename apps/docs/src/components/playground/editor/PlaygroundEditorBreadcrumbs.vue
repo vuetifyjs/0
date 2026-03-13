@@ -53,6 +53,6 @@
   </Breadcrumbs.Root>
 
   <div v-else class="flex items-center min-h-[24px] px-3 border-b border-divider bg-surface">
-    <DocsSkeleton :lines="1" height="h-2.5" :widths="['w-24']" />
+    <DocsSkeleton height="h-2.5" :lines="1" :widths="['w-24']" />
   </div>
 </template>

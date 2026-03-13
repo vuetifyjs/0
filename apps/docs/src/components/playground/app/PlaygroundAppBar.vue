@@ -8,7 +8,6 @@
   import { usePlayground } from './PlaygroundApp.vue'
 
   // Utilities
-  import { toRef } from 'vue'
   import { RouterLink, useRouter } from 'vue-router'
 
   const router = useRouter()
@@ -47,11 +46,9 @@
     playground.editor.value = !playground.editor.value
   }
 
-  const backTo = toRef(() =>
-    router.currentRoute.value.redirectedFrom?.fullPath
+  const backTo = router.currentRoute.value.redirectedFrom?.fullPath
     ?? (IN_BROWSER ? window.history.state?.back : null)
-    ?? '/',
-  )
+    ?? '/'
 </script>
 
 <template>

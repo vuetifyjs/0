@@ -69,7 +69,7 @@
       link ({ href, text }) {
         const isExternal = href?.startsWith('http')
         if (isExternal) {
-          return `<a href="${href}" target="_blank" rel="noopener">${text}<span class="text-xs opacity-60 ml-0.5">↗</span></a>`
+          return `<a href="${href}" target="_blank" rel="noopener">${text}↗</a>`
         }
         return `<a href="${href}">${text}</a>`
       },
@@ -171,7 +171,7 @@
 
           <template v-if="model.reactions?.total_count">
             <span class="opacity-50">&mdash;</span>
-            <template v-for="(emoji, key) in reactions" :key="key">
+            <template v-for="(emoji, key) in reactions" :key>
               <span
                 v-if="getReactionCount(model, key)"
                 class="inline-flex items-center gap-0.5 text-sm"

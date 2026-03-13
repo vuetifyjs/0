@@ -72,6 +72,7 @@ declare global {
   const createLogger: typeof import('../../packages/0/src/composables/useLogger/index').createLogger
   const createLoggerContext: typeof import('../../packages/0/src/composables/useLogger/index').createLoggerContext
   const createLoggerPlugin: typeof import('../../packages/0/src/composables/useLogger/index').createLoggerPlugin
+  const createModel: typeof import('../../packages/0/src/composables/createModel/index').createModel
   const createNested: typeof import('../../packages/0/src/composables/createNested/index').createNested
   const createNestedContext: typeof import('../../packages/0/src/composables/createNested/index').createNestedContext
   const createOverflow: typeof import('../../packages/0/src/composables/createOverflow/index').createOverflow
@@ -91,6 +92,7 @@ declare global {
   const createSelectionContext: typeof import('../../packages/0/src/composables/createSelection/index').createSelectionContext
   const createSingle: typeof import('../../packages/0/src/composables/createSingle/index').createSingle
   const createSingleContext: typeof import('../../packages/0/src/composables/createSingle/index').createSingleContext
+  const createSlider: typeof import('../../packages/0/src/composables/createSlider/index').createSlider
   const createStack: typeof import('../../packages/0/src/composables/useStack/index').createStack
   const createStackContext: typeof import('../../packages/0/src/composables/useStack/index').createStackContext
   const createStackPlugin: typeof import('../../packages/0/src/composables/useStack/index').createStackPlugin
@@ -323,6 +325,9 @@ declare global {
   export type { GroupTicketInput, GroupTicket, GroupContext, GroupOptions, GroupContextOptions } from '../../packages/0/src/composables/createGroup/index'
   import('../../packages/0/src/composables/createGroup/index')
   // @ts-ignore
+  export type { ModelTicketInput, ModelTicket, ModelContext, ModelOptions } from '../../packages/0/src/composables/createModel/index'
+  import('../../packages/0/src/composables/createModel/index')
+  // @ts-ignore
   export type { UseHotkeyOptions, UseHotkeyReturn, PlatformContext } from '../../packages/0/src/composables/useHotkey/index'
   import('../../packages/0/src/composables/useHotkey/index')
   // @ts-ignore
@@ -356,7 +361,7 @@ declare global {
   export type { PermissionTicket, PermissionContext, PermissionOptions, PermissionContextOptions, PermissionPluginOptions, PermissionAdapterInterface } from '../../packages/0/src/composables/usePermissions/index'
   import('../../packages/0/src/composables/usePermissions/index')
   // @ts-ignore
-  export type { ProxyModelOptions } from '../../packages/0/src/composables/useProxyModel/index'
+  export type { ProxyModelOptions, ProxyModelTarget } from '../../packages/0/src/composables/useProxyModel/index'
   import('../../packages/0/src/composables/useProxyModel/index')
   // @ts-ignore
   export type { ProxyRegistryOptions, ProxyRegistryContext } from '../../packages/0/src/composables/useProxyRegistry/index'
@@ -373,6 +378,9 @@ declare global {
   // @ts-ignore
   export type { SelectionTicketInput, SelectionTicket, SelectionContext, SelectionOptions, SelectionContextOptions } from '../../packages/0/src/composables/createSelection/index'
   import('../../packages/0/src/composables/createSelection/index')
+  // @ts-ignore
+  export type { SliderTicketInput, SliderOptions, SliderContext } from '../../packages/0/src/composables/createSlider/index'
+  import('../../packages/0/src/composables/createSlider/index')
   // @ts-ignore
   export type { SingleTicketInput, SingleTicket, SingleContext, SingleOptions, SingleContextOptions } from '../../packages/0/src/composables/createSingle/index'
   import('../../packages/0/src/composables/createSingle/index')
@@ -470,6 +478,7 @@ declare module 'vue' {
     readonly createLogger: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['createLogger']>
     readonly createLoggerContext: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['createLoggerContext']>
     readonly createLoggerPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['createLoggerPlugin']>
+    readonly createModel: UnwrapRef<typeof import('../../packages/0/src/composables/createModel/index')['createModel']>
     readonly createNested: UnwrapRef<typeof import('../../packages/0/src/composables/createNested/index')['createNested']>
     readonly createNestedContext: UnwrapRef<typeof import('../../packages/0/src/composables/createNested/index')['createNestedContext']>
     readonly createOverflow: UnwrapRef<typeof import('../../packages/0/src/composables/createOverflow/index')['createOverflow']>
@@ -489,6 +498,7 @@ declare module 'vue' {
     readonly createSelectionContext: UnwrapRef<typeof import('../../packages/0/src/composables/createSelection/index')['createSelectionContext']>
     readonly createSingle: UnwrapRef<typeof import('../../packages/0/src/composables/createSingle/index')['createSingle']>
     readonly createSingleContext: UnwrapRef<typeof import('../../packages/0/src/composables/createSingle/index')['createSingleContext']>
+    readonly createSlider: UnwrapRef<typeof import('../../packages/0/src/composables/createSlider/index')['createSlider']>
     readonly createStack: UnwrapRef<typeof import('../../packages/0/src/composables/useStack/index')['createStack']>
     readonly createStackContext: UnwrapRef<typeof import('../../packages/0/src/composables/useStack/index')['createStackContext']>
     readonly createStackPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useStack/index')['createStackPlugin']>

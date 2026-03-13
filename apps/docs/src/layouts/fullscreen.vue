@@ -49,7 +49,7 @@
       Skip to main content
     </a>
 
-    <div class="flex flex-col min-h-[calc(100vh-72px)]" :inert="isModalOpen || undefined">
+    <div class="pt-[72px] flex flex-col min-h-[calc(100vh-72px)]" :inert="isModalOpen || undefined">
       <AppBanner />
       <AppNav />
       <AppBar />

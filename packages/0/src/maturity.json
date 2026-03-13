@@ -15,22 +15,27 @@
       "since": "0.1.0",
       "category": "foundation"
     },
-    "createSelection": {
+    "createQueue": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "selection"
+      "category": "registration"
     },
-    "createSingle": {
+    "createRegistry": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "selection"
+      "category": "registration"
+    },
+    "createTimeline": {
+      "level": "preview",
+      "since": "0.1.0",
+      "category": "registration"
+    },
+    "createTokens": {
+      "level": "preview",
+      "since": "0.1.0",
+      "category": "registration"
     },
     "createGroup": {
-      "level": "preview",
-      "since": "0.1.0",
-      "category": "selection"
-    },
-    "createStep": {
       "level": "preview",
       "since": "0.1.0",
       "category": "selection"
@@ -46,29 +51,29 @@
       "since": "0.1.0",
       "category": "selection"
     },
-    "createRegistry": {
+    "createSelection": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "registration"
+      "category": "selection"
     },
-    "createQueue": {
+    "createSingle": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "registration"
+      "category": "selection"
     },
-    "createTimeline": {
+    "createStep": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "registration"
-    },
-    "createTokens": {
-      "level": "preview",
-      "since": "0.1.0",
-      "category": "registration"
+      "category": "selection"
     },
     "createForm": {
       "level": "preview",
       "since": "0.1.0",
+      "category": "forms"
+    },
+    "createSlider": {
+      "level": "preview",
+      "since": "0.1.5",
       "category": "forms"
     },
     "createDataTable": {
@@ -94,23 +99,12 @@
     "createBreadcrumbs": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "utilities"
+      "category": "semantic"
     },
     "createOverflow": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "utilities"
-    },
-    "createSlider": {
-      "level": "preview",
-      "since": "0.1.5",
-      "category": "forms"
-    },
-    "createObserver": {
-      "level": "draft",
-      "since": "0.1.0",
-      "category": "internal",
-      "notes": "Internal factory for observer composables"
+      "category": "semantic"
     },
     "useBreakpoints": {
       "level": "preview",
@@ -182,6 +176,16 @@
       "since": "0.1.0",
       "category": "system"
     },
+    "useLazy": {
+      "level": "preview",
+      "since": "0.1.0",
+      "category": "system"
+    },
+    "useMediaQuery": {
+      "level": "preview",
+      "since": "0.1.0",
+      "category": "system"
+    },
     "useMutationObserver": {
       "level": "stable",
       "since": "0.1.0",
@@ -193,16 +197,6 @@
       "category": "system"
     },
     "useToggleScope": {
-      "level": "preview",
-      "since": "0.1.0",
-      "category": "system"
-    },
-    "useMediaQuery": {
-      "level": "preview",
-      "since": "0.1.0",
-      "category": "system"
-    },
-    "useLazy": {
       "level": "preview",
       "since": "0.1.0",
       "category": "system"
@@ -231,6 +225,12 @@
       "level": "preview",
       "since": "0.1.0",
       "category": "transformers"
+    },
+    "createObserver": {
+      "level": "draft",
+      "since": "0.1.0",
+      "category": "internal",
+      "notes": "Internal factory for observer composables"
     }
   },
   "components": {
@@ -239,9 +239,82 @@
       "since": "0.1.0",
       "category": "primitives"
     },
+    "Portal": {
+      "level": "draft",
+      "category": "primitives"
+    },
+    "Presence": {
+      "level": "draft",
+      "category": "primitives"
+    },
+    "Group": {
+      "level": "preview",
+      "since": "0.1.0",
+      "category": "providers"
+    },
+    "Locale": {
+      "level": "draft",
+      "category": "providers"
+    },
+    "Scrim": {
+      "level": "preview",
+      "since": "0.1.0",
+      "category": "providers"
+    },
+    "Selection": {
+      "level": "preview",
+      "since": "0.1.0",
+      "category": "providers"
+    },
+    "Single": {
+      "level": "preview",
+      "since": "0.1.0",
+      "category": "providers"
+    },
+    "Step": {
+      "level": "preview",
+      "since": "0.1.0",
+      "category": "providers"
+    },
+    "Theme": {
+      "level": "draft",
+      "category": "providers"
+    },
+    "Toggle": {
+      "level": "draft",
+      "category": "providers"
+    },
+    "ToggleGroup": {
+      "level": "draft",
+      "category": "providers"
+    },
+    "Button": {
+      "level": "draft",
+      "category": "forms"
+    },
     "Checkbox": {
       "level": "preview",
       "since": "0.1.0",
+      "category": "forms"
+    },
+    "Combobox": {
+      "level": "draft",
+      "category": "forms"
+    },
+    "DatePicker": {
+      "level": "draft",
+      "category": "forms"
+    },
+    "DateRangePicker": {
+      "level": "draft",
+      "category": "forms"
+    },
+    "Listbox": {
+      "level": "draft",
+      "category": "forms"
+    },
+    "NumberField": {
+      "level": "draft",
       "category": "forms"
     },
     "Radio": {
@@ -249,10 +322,35 @@
       "since": "0.1.0",
       "category": "forms"
     },
+    "Rating": {
+      "level": "draft",
+      "category": "forms"
+    },
+    "Select": {
+      "level": "draft",
+      "category": "forms"
+    },
+    "Slider": {
+      "level": "preview",
+      "since": "0.1.5",
+      "category": "forms"
+    },
     "Switch": {
       "level": "preview",
       "since": "0.1.0",
       "category": "forms"
+    },
+    "TimePicker": {
+      "level": "draft",
+      "category": "forms"
+    },
+    "AlertDialog": {
+      "level": "draft",
+      "category": "disclosure"
+    },
+    "Collapsible": {
+      "level": "draft",
+      "category": "disclosure"
     },
     "Dialog": {
       "level": "preview",
@@ -274,6 +372,18 @@
       "since": "0.1.0",
       "category": "disclosure"
     },
+    "Toast": {
+      "level": "draft",
+      "category": "disclosure"
+    },
+    "Tooltip": {
+      "level": "draft",
+      "category": "disclosure"
+    },
+    "Alert": {
+      "level": "draft",
+      "category": "semantic"
+    },
     "Avatar": {
       "level": "preview",
       "since": "0.1.0",
@@ -284,112 +394,114 @@
       "since": "0.1.0",
       "category": "semantic"
     },
+    "Carousel": {
+      "level": "draft",
+      "category": "semantic"
+    },
+    "Image": {
+      "level": "draft",
+      "category": "semantic"
+    },
+    "Overflow": {
+      "level": "draft",
+      "category": "semantic"
+    },
     "Pagination": {
       "level": "preview",
       "since": "0.1.0",
       "category": "semantic"
     },
-    "Group": {
-      "level": "preview",
-      "since": "0.1.0",
-      "category": "providers"
-    },
-    "Scrim": {
-      "level": "preview",
-      "since": "0.1.0",
-      "category": "providers"
-    },
-    "Selection": {
-      "level": "preview",
-      "since": "0.1.0",
-      "category": "providers"
-    },
-    "Single": {
-      "level": "preview",
-      "since": "0.1.0",
-      "category": "providers"
-    },
-    "Slider": {
-      "level": "preview",
-      "since": "0.1.5",
-      "category": "forms"
+    "Progress": {
+      "level": "draft",
+      "category": "semantic"
     },
     "Splitter": {
       "level": "preview",
       "since": "0.1.5",
       "category": "semantic"
     },
-    "Step": {
-      "level": "preview",
-      "since": "0.1.0",
-      "category": "providers"
+    "Treeview": {
+      "level": "draft",
+      "category": "semantic"
+    },
+    "DataGrid": {
+      "level": "draft",
+      "category": "data"
+    },
+    "Virtualizer": {
+      "level": "draft",
+      "category": "data"
+    },
+    "Tour": {
+      "level": "draft",
+      "category": "specialty"
     }
   },
   "utilities": {
-    "isFunction": {
+    "isArray": {
       "level": "stable",
       "since": "0.1.0",
-      "category": "type-guards"
-    },
-    "isString": {
-      "level": "stable",
-      "since": "0.1.0",
-      "category": "type-guards"
-    },
-    "isNumber": {
-      "level": "stable",
-      "since": "0.1.0",
-      "category": "type-guards"
+      "category": "utilities"
     },
     "isBoolean": {
       "level": "stable",
       "since": "0.1.0",
-      "category": "type-guards"
-    },
-    "isObject": {
-      "level": "stable",
-      "since": "0.1.0",
-      "category": "type-guards"
-    },
-    "isArray": {
-      "level": "stable",
-      "since": "0.1.0",
-      "category": "type-guards"
-    },
-    "isNull": {
-      "level": "stable",
-      "since": "0.1.0",
-      "category": "type-guards"
-    },
-    "isUndefined": {
-      "level": "stable",
-      "since": "0.1.0",
-      "category": "type-guards"
-    },
-    "isNullOrUndefined": {
-      "level": "stable",
-      "since": "0.1.0",
-      "category": "type-guards"
-    },
-    "isPrimitive": {
-      "level": "stable",
-      "since": "0.1.0",
-      "category": "type-guards"
-    },
-    "isSymbol": {
-      "level": "stable",
-      "since": "0.1.0",
-      "category": "type-guards"
-    },
-    "isNaN": {
-      "level": "stable",
-      "since": "0.1.0",
-      "category": "type-guards"
+      "category": "utilities"
     },
     "isElement": {
       "level": "stable",
       "since": "0.1.0",
-      "category": "type-guards"
+      "category": "utilities"
+    },
+    "isFunction": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "utilities"
+    },
+    "isNaN": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "utilities"
+    },
+    "isNull": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "utilities"
+    },
+    "isNullOrUndefined": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "utilities"
+    },
+    "isNumber": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "utilities"
+    },
+    "isObject": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "utilities"
+    },
+    "isPrimitive": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "utilities"
+    },
+    "isString": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "utilities"
+    },
+    "isSymbol": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "utilities"
+    },
+    "isUndefined": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "utilities"
     }
   }
 }

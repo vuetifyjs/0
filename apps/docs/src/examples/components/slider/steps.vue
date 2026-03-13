@@ -13,9 +13,9 @@
     <Slider.Root
       v-model="value"
       class="relative flex items-center w-full h-5"
-      :max="max"
-      :min="min"
-      :step="step"
+      :max
+      :min
+      :step
     >
       <Slider.Track class="relative h-1 w-full rounded-full bg-surface-variant">
         <Slider.Range class="absolute h-full rounded-full bg-primary" />

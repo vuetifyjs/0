@@ -60,9 +60,12 @@
     }
   })
 
-  // Exit fullscreen on route change
+  // Exit fullscreen or close panel on route change
   watch(() => route.path, () => {
-    fullscreen.value = false
+    if (fullscreen.value || !isDesktop.value) {
+      fullscreen.value = false
+      ask.close()
+    }
   })
 
   async function onSubmit (question: string) {
@@ -82,7 +85,7 @@
   <!-- Floating input (visible when panel is closed) -->
   <DocsAskInput
     v-show="!ask.isOpen.value"
-    :has-messages="hasMessages"
+    :has-messages
     @reopen="onReopen"
     @submit="onSubmit"
   />

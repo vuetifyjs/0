@@ -730,20 +730,6 @@ declare module 'vue-router/auto-routes' {
       { id: ParamValue<false> },
       | never
     >,
-    '/storybook/': RouteRecordInfo<
-      '/storybook/',
-      '/storybook',
-      Record<never, never>,
-      Record<never, never>,
-      | never
-    >,
-    '/storybook.view': RouteRecordInfo<
-      '/storybook.view',
-      '/storybook/view',
-      Record<never, never>,
-      Record<never, never>,
-      | never
-    >,
   }
 
   /**
@@ -1360,18 +1346,6 @@ declare module 'vue-router/auto-routes' {
     'src/pages/skillz.[id].vue': {
       routes:
         | '/skillz.[id]'
-      views:
-        | never
-    }
-    'src/pages/storybook/index.md': {
-      routes:
-        | '/storybook/'
-      views:
-        | never
-    }
-    'src/pages/storybook.view.vue': {
-      routes:
-        | '/storybook.view'
       views:
         | never
     }

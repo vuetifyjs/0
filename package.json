@@ -1,21 +1,19 @@
 {
   "name": "@vuetify/zero",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "pnpm --filter=playground dev",
     "dev:docs": "pnpm --filter=docs dev",
-    "dev:storybook": "pnpm --filter=storybook dev",
     "build": "pnpm --filter=\"./packages/*\" build",
     "build:0": "pnpm --filter=\"./packages/0\" build",
     "build:paper": "pnpm --filter=\"./packages/paper\" build",
     "build:packages": "pnpm --filter=\"./packages/*\" build",
     "build:playground": "pnpm --filter=playground build",
     "build:docs": "pnpm --filter=docs build",
-    "build:storybook": "pnpm --filter=storybook build",
-    "build:apps": "pnpm --filter=docs --filter=storybook --filter=playground build",
-    "build:all": "pnpm --filter=\"./packages/*\" --filter=docs --filter=storybook --filter=playground build",
+    "build:apps": "pnpm --filter=docs --filter=playground build",
+    "build:all": "pnpm --filter=\"./packages/*\" --filter=docs --filter=playground build",
     "test": "vitest",
     "test:run": "vitest run",
     "test:ui": "vitest --ui",
@@ -31,7 +29,6 @@
     "lint:fix": "eslint --fix --concurrency auto",
     "preview:playground": "pnpm --filter=playground preview",
     "preview:docs": "pnpm --filter=docs preview",
-    "preview:storybook": "pnpm --filter=storybook preview",
     "repo:knip": "knip",
     "repo:sherif": "sherif",
     "repo:check": "pnpm repo:knip && pnpm repo:sherif",
@@ -45,7 +42,7 @@
     "prepare": "simple-git-hooks"
   },
   "simple-git-hooks": {
-    "pre-commit": "pnpm lint:fix && pnpm typecheck && pnpm test:run && pnpm repo:check"
+    "pre-push": "pnpm lint:fix && pnpm typecheck && pnpm test:run && pnpm repo:check"
   },
   "devDependencies": {
     "@js-temporal/polyfill": "catalog:",
@@ -58,7 +55,6 @@
     "conventional-changelog-vuetify": "catalog:",
     "eslint": "catalog:",
     "eslint-config-vuetify": "catalog:",
-    "eslint-plugin-storybook": "catalog:",
     "eslint-plugin-vuejs-accessibility": "catalog:",
     "happy-dom": "catalog:",
     "knip": "catalog:",

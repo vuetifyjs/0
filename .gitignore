@@ -1,5 +1,3 @@
-docs/plans/
-
 # Logs
 logs
 *.log
@@ -38,8 +36,6 @@ coverage
 
 *.tsbuildinfo
 
-*storybook.log
-storybook-static
 /playground/src/Playground.vue
 
 .vite-ssg-temp
@@ -47,9 +43,8 @@ storybook-static
 # Auto-generated files
 apps/docs/build/generated/
 
-docs/
-
 # Claude Code
 .claude/worktrees/
 .claude/plans/
 .playwright-mcp/
+/docs/

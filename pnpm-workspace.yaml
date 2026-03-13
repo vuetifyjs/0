@@ -13,7 +13,6 @@ catalog:
   '@shikijs/langs': ^3.20.0
   '@shikijs/markdown-it': ^3.20.0
   '@shikijs/themes': ^3.20.0
-  '@storybook/vue3-vite': ^10.1.9
   '@tsconfig/node22': ^22.0.5
   '@types/markdown-it-attrs': ^4.1.3
   '@types/node': ^25.0.3
@@ -29,7 +28,6 @@ catalog:
   conventional-changelog-vuetify: ^2.0.2
   eslint: ^9.39.2
   eslint-config-vuetify: 4.3.4
-  eslint-plugin-storybook: ^10.1.11
   eslint-plugin-vuejs-accessibility: ^2.4.1
   fflate: ^0.8.2
   flagsmith: ^10.0.0
@@ -51,7 +49,6 @@ catalog:
   sherif: ^1.9.0
   shiki: ^3.20.0
   simple-git-hooks: ^2.13.1
-  storybook: ^10.1.9
   svg-pan-zoom: ^3.6.2
   swetrix: ^3.7.2
   ts-morph: 27.0.2
@@ -89,8 +86,6 @@ onlyBuiltDependencies:
   - unrs-resolver
 
 overrides:
-  '@storybook/builder-vite>vite': ^7.0.0
-  '@storybook/vue3-vite>vite': ^7.0.0
   vite: npm:rolldown-vite@^7.3.0
 
 patchedDependencies:

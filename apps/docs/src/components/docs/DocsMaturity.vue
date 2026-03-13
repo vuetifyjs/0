@@ -18,7 +18,7 @@
     type: ItemType
     category: string
     level: Level
-    since: string
+    since?: string
     levelOrder: number
     path: string
   }
@@ -339,7 +339,7 @@
                     item.type === 'utility' && 'bg-success/15 text-success',
                   ]"
                 >{{ item.type }}</span>
-                <span class="text-[10px] text-on-surface-variant font-mono">
+                <span v-if="item.since" class="text-[10px] text-on-surface-variant font-mono">
                   v{{ item.since }}
                 </span>
               </div>
@@ -366,7 +366,7 @@
       <div class="flex flex-wrap items-center gap-3 px-2 py-3 text-xs text-on-surface-variant">
         <span
           v-for="(config, key) in levels"
-          :key="key"
+          :key
           class="inline-flex items-center gap-1"
           :style="{ color: config.color }"
         >
@@ -505,10 +505,12 @@
               <!-- Since -->
               <td class="px-4 py-2.5 text-sm font-mono">
                 <a
+                  v-if="item.since"
                   class="text-primary no-underline hover:underline"
                   :href="`/releases/?version=v${item.since}`"
                   target="_blank"
                 >v{{ item.since }}<span class="text-xs opacity-70 ml-0.5">↗</span></a>
+                <span v-else class="text-on-surface-variant/50">—</span>
               </td>
             </tr>
           </tbody>
@@ -530,7 +532,7 @@
               <div class="flex flex-wrap items-center gap-3 text-xs text-on-surface-variant">
                 <span
                   v-for="(config, key) in levels"
-                  :key="key"
+                  :key
                   class="inline-flex items-center gap-1"
                   :style="{ color: config.color }"
                 >

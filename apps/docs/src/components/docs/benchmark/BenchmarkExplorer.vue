@@ -83,7 +83,7 @@
       <!-- Summary cards -->
       <BenchmarkSummaryCards
         v-if="!hideSummary && composables.length > 1"
-        :composables="composables"
+        :composables
         :selected-composables="selectedComposableNames"
         @select="onComposableSelect"
       />
@@ -131,7 +131,7 @@
           v-for="group in filteredGroups"
           :key="group.id"
           :expanded="expandedGroups.selected(group.id)"
-          :group="group"
+          :group
           :tier="group.tier"
           @update:expanded="onGroupToggle(group.id)"
         />

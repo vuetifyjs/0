@@ -51,9 +51,9 @@
       <path
         v-for="([d, opacity], i) in icon"
         :key="i"
-        :d="d"
+        :d
         fill="currentColor"
-        :opacity="opacity"
+        :opacity
         stroke="none"
         stroke-width="0"
       />

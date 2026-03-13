@@ -51,7 +51,7 @@
     tree,
     bottom,
     side,
-    editor: shallowRef(true),
+    editor: shallowRef(false),
   })
 
   // When breakpoints confirm desktop, restore open state
@@ -66,7 +66,7 @@
 </script>
 
 <template>
-  <div class="h-screen flex flex-col">
+  <div class="h-screen flex flex-col bg-background">
     <slot />
   </div>
 </template>

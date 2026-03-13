@@ -12,15 +12,15 @@
   const theme = useTheme()
 
   const Repl = defineAsyncComponent(() =>
-    import('@vue/repl').then(m => m.Repl)
+    import('@vue/repl').then(m => m.Repl),
   )
   const Monaco = defineAsyncComponent(() =>
-    import('@vue/repl/monaco-editor')
+    import('@vue/repl/monaco-editor'),
   )
 </script>
 
 <template>
-  <div class="flex flex-col flex-1 min-h-0 min-w-0 playground-repl">
+  <div class="flex flex-col flex-1 min-h-0 min-w-0 bg-surface playground-repl">
     <template v-if="playground.isReady.value">
       <Repl
         class="flex-1 min-h-0"
@@ -81,6 +81,16 @@
   .playground-repl :deep(iframe) {
     width: 100% !important;
     height: 100% !important;
+  }
+
+  /* @vue/repl uses .dark ancestor for dark mode but docs use [data-theme] */
+  [data-theme="dark"] .playground-repl :deep(.vue-repl) {
+    --bg: #1a1a1a;
+    --bg-soft: #242424;
+    --border: #383838;
+    --text-light: #aaa;
+    --color-branding: #42d392;
+    --color-branding-dark: #89ddff;
   }
 
   .playground-repl :deep(.editor-container) {
