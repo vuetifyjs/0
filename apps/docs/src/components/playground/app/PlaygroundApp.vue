@@ -65,11 +65,12 @@
   // Restore panel state on runtime breakpoint changes
   watch(isMobile, mobile => {
     if (!mobile) {
+      const currentSide = sidePref.value && !storedLeft
       tree.value = true
       editor.value = true
       left.value = storedLeft
-      bottom.value = !sideActive
-      side.value = sideActive
+      bottom.value = !currentSide
+      side.value = currentSide
     }
   })
 
