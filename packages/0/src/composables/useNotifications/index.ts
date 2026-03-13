@@ -21,7 +21,6 @@ import { createTrinity } from '#v0/composables/createTrinity'
 
 // Composables
 import { createRegistry } from '#v0/composables/createRegistry'
-import { useProxyRegistry } from '#v0/composables/useProxyRegistry'
 
 // Utilities
 import { isFunction, useId } from '#v0/utilities'
@@ -30,7 +29,6 @@ import { hasInjectionContext } from 'vue'
 // Types
 import type { RegistryContext, RegistryOptions, RegistryTicket, RegistryTicketInput } from '#v0/composables/createRegistry'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
-import type { ProxyRegistryContext } from '#v0/composables/useProxyRegistry'
 import type { ID } from '#v0/types'
 import type { App } from 'vue'
 
@@ -88,8 +86,6 @@ export interface NotificationsContext extends Omit<
 
   readAll: () => void
   archiveAll: () => void
-
-  proxy: ProxyRegistryContext<NotificationTicket>
 }
 
 export function createNotifications (
@@ -100,8 +96,6 @@ export function createNotifications (
     events: true,
     reactive: true,
   })
-
-  const proxy = useProxyRegistry<NotificationTicket>(registry)
 
   function notify (input: NotificationInput): NotificationTicket {
     const id = input.id ?? useId()
@@ -194,7 +188,6 @@ export function createNotifications (
     wake,
     readAll,
     archiveAll,
-    proxy,
   } as NotificationsContext
 }
 
@@ -293,7 +286,6 @@ function createNotificationsFallback (): NotificationsContext {
     wake: noop,
     readAll: noop,
     archiveAll: noop,
-    proxy: { keys: [], values: [], entries: [], size: 0 },
   } as unknown as NotificationsContext
 }
 
