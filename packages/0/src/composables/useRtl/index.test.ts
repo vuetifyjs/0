@@ -41,6 +41,41 @@ describe('vuetify0RtlAdapter', () => {
     })
     scope.stop()
   })
+
+  it('should update dir on isRtl change', async () => {
+    const scope = effectScope()
+    await scope.run(async () => {
+      const adapter = new Vuetify0RtlAdapter()
+      const el = document.createElement('div')
+      const isRtl = shallowRef(false)
+      const context = { isRtl, toggle: () => {
+        isRtl.value = !isRtl.value
+      } }
+
+      adapter.setup({} as any, context, el)
+      expect(el.dir).toBe('ltr')
+
+      isRtl.value = true
+      await nextTick()
+      expect(el.dir).toBe('rtl')
+    })
+    scope.stop()
+  })
+
+  it('should not set dir when target is null', () => {
+    const scope = effectScope()
+    scope.run(() => {
+      const adapter = new Vuetify0RtlAdapter()
+      const el = document.createElement('div')
+      const isRtl = shallowRef(false)
+      const context = { isRtl, toggle: () => {} }
+
+      adapter.setup({} as any, context, null)
+
+      expect(el.dir).toBe('')
+    })
+    scope.stop()
+  })
 })
 
 describe('useRtl', () => {
@@ -122,40 +157,5 @@ describe('useRtl', () => {
       const rtl = useRtl()
       expect(rtl.isRtl.value).toBe(false)
     })
-  })
-})
-
-describe('vuetify0RtlAdapter', () => {
-  it('should update dir on isRtl change', async () => {
-    const scope = effectScope()
-    await scope.run(async () => {
-      const adapter = new Vuetify0RtlAdapter()
-      const el = document.createElement('div')
-      const isRtl = shallowRef(false)
-      const context = { isRtl, toggle: () => {
-        isRtl.value = !isRtl.value
-      } }
-
-      adapter.setup({} as any, context, el)
-      expect(el.dir).toBe('ltr')
-
-      isRtl.value = true
-      await nextTick()
-      expect(el.dir).toBe('rtl')
-    })
-    scope.stop()
-  })
-
-  it('should not set dir when target is null', () => {
-    const scope = effectScope()
-    scope.run(() => {
-      const adapter = new Vuetify0RtlAdapter()
-      const isRtl = shallowRef(false)
-      const context = { isRtl, toggle: () => {} }
-
-      // Should not throw
-      adapter.setup({} as any, context, null)
-    })
-    scope.stop()
   })
 })
