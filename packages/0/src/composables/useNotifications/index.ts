@@ -41,7 +41,7 @@ export interface NotificationInput extends RegistryTicketInput {
   data?: Record<string, unknown>
 }
 
-export type NotificationTicket = RegistryTicket & NotificationInput & {
+export type NotificationTicket<Z extends NotificationInput = NotificationInput> = RegistryTicket & Z & {
   createdAt: Date
   readAt: Date | null
   seenAt: Date | null
@@ -57,24 +57,30 @@ export type NotificationTicket = RegistryTicket & NotificationInput & {
   dismiss: () => void
 }
 
-export interface NotificationsAdapterContext {
-  notify: (input: NotificationInput) => NotificationTicket
+export interface NotificationsAdapterContext<
+  Z extends NotificationInput = NotificationInput,
+  E extends NotificationTicket<Z> = NotificationTicket<Z>,
+> {
+  notify: (input: Z) => E
   on: (event: string, handler: (data: unknown) => void) => void
   off: (event: string, handler: (data: unknown) => void) => void
 }
 
-export interface NotificationsAdapterInterface {
-  setup: (context: NotificationsAdapterContext) => void
+export interface NotificationsAdapterInterface<
+  Z extends NotificationInput = NotificationInput,
+  E extends NotificationTicket<Z> = NotificationTicket<Z>,
+> {
+  setup: (context: NotificationsAdapterContext<Z, E>) => void
   dispose?: () => void
 }
 
 export interface NotificationsOptions extends RegistryOptions {}
 
-export interface NotificationsContext extends Omit<
-  RegistryContext<NotificationTicket>,
-  'register' | 'onboard' | 'offboard'
-> {
-  notify: (input: NotificationInput) => NotificationTicket
+export interface NotificationsContext<
+  Z extends NotificationInput = NotificationInput,
+  E extends NotificationTicket<Z> = NotificationTicket<Z>,
+> extends RegistryContext<E> {
+  notify: (input: Z) => E
 
   read: (id: ID) => void
   unread: (id: ID) => void
@@ -88,16 +94,20 @@ export interface NotificationsContext extends Omit<
   archiveAll: () => void
 }
 
-export function createNotifications (
+export function createNotifications<
+  Z extends NotificationInput = NotificationInput,
+  E extends NotificationTicket<Z> = NotificationTicket<Z>,
+  R extends NotificationsContext<Z, E> = NotificationsContext<Z, E>,
+> (
   options: NotificationsOptions = {},
-): NotificationsContext {
-  const registry = createRegistry<NotificationTicket>({
+): R {
+  const registry = createRegistry<E>({
     ...options,
     events: true,
     reactive: true,
   })
 
-  function notify (input: NotificationInput): NotificationTicket {
+  function notify (input: Z): E {
     const id = input.id ?? useId()
     const now = new Date()
 
@@ -117,7 +127,7 @@ export function createNotifications (
       snooze: (until: Date) => snooze(id, until),
       wake: () => wake(id),
       dismiss: () => registry.unregister(id),
-    } as Partial<NotificationTicket>)
+    } as unknown as Partial<E>)
 
     registry.emit('notification:received', ticket)
 
@@ -125,31 +135,31 @@ export function createNotifications (
   }
 
   function read (id: ID) {
-    registry.upsert(id, { readAt: new Date() }, 'notification:read')
+    registry.upsert(id, { readAt: new Date() } as Partial<E>, 'notification:read')
   }
 
   function unread (id: ID) {
-    registry.upsert(id, { readAt: null }, 'notification:unread')
+    registry.upsert(id, { readAt: null } as Partial<E>, 'notification:unread')
   }
 
   function seen (id: ID) {
-    registry.upsert(id, { seenAt: new Date() }, 'notification:seen')
+    registry.upsert(id, { seenAt: new Date() } as Partial<E>, 'notification:seen')
   }
 
   function archive (id: ID) {
-    registry.upsert(id, { archivedAt: new Date() }, 'notification:archived')
+    registry.upsert(id, { archivedAt: new Date() } as Partial<E>, 'notification:archived')
   }
 
   function unarchive (id: ID) {
-    registry.upsert(id, { archivedAt: null }, 'notification:unarchived')
+    registry.upsert(id, { archivedAt: null } as Partial<E>, 'notification:unarchived')
   }
 
   function snooze (id: ID, until: Date) {
-    registry.upsert(id, { snoozedUntil: until }, 'notification:snoozed')
+    registry.upsert(id, { snoozedUntil: until } as Partial<E>, 'notification:snoozed')
   }
 
   function wake (id: ID) {
-    registry.upsert(id, { snoozedUntil: null }, 'notification:unsnoozed')
+    registry.upsert(id, { snoozedUntil: null } as Partial<E>, 'notification:unsnoozed')
   }
 
   function readAll () {
@@ -157,7 +167,7 @@ export function createNotifications (
     registry.batch(() => {
       for (const ticket of registry.values()) {
         if (!ticket.readAt) {
-          registry.upsert(ticket.id, { readAt: now }, 'notification:read')
+          registry.upsert(ticket.id, { readAt: now } as Partial<E>, 'notification:read')
         }
       }
     })
@@ -168,16 +178,14 @@ export function createNotifications (
     registry.batch(() => {
       for (const ticket of registry.values()) {
         if (!ticket.archivedAt) {
-          registry.upsert(ticket.id, { archivedAt: now }, 'notification:archived')
+          registry.upsert(ticket.id, { archivedAt: now } as Partial<E>, 'notification:archived')
         }
       }
     })
   }
 
-  const { register: _, onboard: __, offboard: ___, ...ctx } = registry
-
   return {
-    ...ctx,
+    ...registry,
     notify,
     read,
     unread,
@@ -188,7 +196,10 @@ export function createNotifications (
     wake,
     readAll,
     archiveAll,
-  } as NotificationsContext
+    get size () {
+      return registry.size
+    },
+  } as R
 }
 
 export interface NotificationsPluginOptions extends NotificationsOptions {
@@ -211,18 +222,22 @@ export interface NotificationsPluginOptions extends NotificationsOptions {
  * export const [useNotifications, provideNotifications, context] = createNotificationsContext()
  * ```
  */
-export function createNotificationsContext (
+export function createNotificationsContext<
+  Z extends NotificationInput = NotificationInput,
+  E extends NotificationTicket<Z> = NotificationTicket<Z>,
+  R extends NotificationsContext<Z, E> = NotificationsContext<Z, E>,
+> (
   _options: NotificationsPluginOptions = {},
-): ContextTrinity<NotificationsContext> {
+): ContextTrinity<R> {
   const { namespace = 'v0:notifications', ...options } = _options
-  const [useNotificationsContext, _provideNotificationsContext] = createContext<NotificationsContext>(namespace)
-  const context = createNotifications(options)
+  const [useNotificationsContext, _provideNotificationsContext] = createContext<R>(namespace)
+  const context = createNotifications<Z, E, R>(options)
 
-  function provideNotificationsContext (_context: NotificationsContext = context, app?: App): NotificationsContext {
+  function provideNotificationsContext (_context: R = context, app?: App): R {
     return _provideNotificationsContext(_context, app)
   }
 
-  return createTrinity<NotificationsContext>(useNotificationsContext, provideNotificationsContext, context)
+  return createTrinity<R>(useNotificationsContext, provideNotificationsContext, context)
 }
 
 /**
@@ -313,14 +328,18 @@ function createNotificationsFallback (): NotificationsContext {
  * </script>
  * ```
  */
-export function useNotifications (namespace = 'v0:notifications'): NotificationsContext {
+export function useNotifications<
+  Z extends NotificationInput = NotificationInput,
+  E extends NotificationTicket<Z> = NotificationTicket<Z>,
+  R extends NotificationsContext<Z, E> = NotificationsContext<Z, E>,
+> (namespace = 'v0:notifications'): R {
   const fallback = createNotificationsFallback()
 
-  if (!hasInjectionContext()) return fallback
+  if (!hasInjectionContext()) return fallback as unknown as R
 
   try {
-    return useContext<NotificationsContext>(namespace)
+    return useContext<R>(namespace)
   } catch {
-    return fallback
+    return fallback as unknown as R
   }
 }
