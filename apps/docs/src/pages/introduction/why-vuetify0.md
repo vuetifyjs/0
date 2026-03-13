@@ -31,7 +31,7 @@ From the creators of [Vuetify](https://vuetifyjs.com) — **40K+ GitHub stars**,
 
 **Pure logic. Zero opinions. Your markup.**
 
-### Composable-First
+### Logic Without Components
 
 Most headless libraries give you components. v0 gives you **composables that optionally have components**. Use the logic without any rendering layer:
 
@@ -257,5 +257,3 @@ Ready to build? Pick your path:
 - **[Browse composables](/guide/fundamentals/composables)** to see what's available
 
 > [!ASKAI] What v0 composables should I start with?
-
-> [!TOUR] using-the-docs
