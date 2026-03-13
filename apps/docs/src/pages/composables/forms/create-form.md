@@ -29,19 +29,18 @@ Coordinates validation across multiple fields. A pure registry of `createValidat
 Create a form and register validation contexts. Each validation owns its own fields and rules:
 
 ```ts collapse no-filename
-import { createForm, createValidation, useRules } from '@vuetify/v0'
+import { createForm, createValidation } from '@vuetify/v0'
 
 const form = createForm()
-const rules = useRules()
+const validation = createValidation()
 
-const validation = createValidation({ rules })
 const email = validation.register({
   id: 'email',
   value: '',
   rules: ['required', 'email'],
 })
 
-form.register(validation)
+form.register({ value: validation })
 
 await form.submit()
 
@@ -56,11 +55,10 @@ When a `createValidation` instance is created inside a component that has a pare
 
 ```vue
 <script setup lang="ts">
-  import { createValidation, useRules } from '@vuetify/v0'
+  import { createValidation } from '@vuetify/v0'
 
   // Parent provides form context — this validation auto-registers
-  const rules = useRules()
-  const validation = createValidation({ rules })
+  const validation = createValidation()
 
   const email = validation.register({
     id: 'email',
@@ -68,12 +66,6 @@ When a `createValidation` instance is created inside a component that has a pare
     rules: ['required', 'email'],
   })
 </script>
-```
-
-Use `standalone: true` to opt out of auto-registration:
-
-```ts
-const validation = createValidation({ rules, standalone: true })
 ```
 
 ### Disabled and Readonly

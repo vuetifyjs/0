@@ -57,14 +57,13 @@ app.mount('#app')
 
 ### In a Component
 
-Access the shared rules context and use it with `createValidation`:
+`createValidation` resolves aliases automatically via `useRules()` — no manual wiring needed:
 
 ```vue
 <script setup lang="ts">
-  import { useRules, createValidation } from '@vuetify/v0'
+  import { createValidation } from '@vuetify/v0'
 
-  const rules = useRules()
-  const validation = createValidation({ rules })
+  const validation = createValidation()
 
   const name = validation.register({
     id: 'name',
@@ -120,10 +119,9 @@ app.use(
 ```vue
 <script setup lang="ts">
   import { z } from 'zod'
-  import { useRules, createValidation } from '@vuetify/v0'
+  import { createValidation } from '@vuetify/v0'
 
-  const rules = useRules()
-  const validation = createValidation({ rules })
+  const validation = createValidation()
 
   const email = validation.register({
     id: 'email',
@@ -144,10 +142,9 @@ app.use(
 ```vue
 <script setup lang="ts">
   import * as v from 'valibot'
-  import { useRules, createValidation } from '@vuetify/v0'
+  import { createValidation } from '@vuetify/v0'
 
-  const rules = useRules()
-  const validation = createValidation({ rules })
+  const validation = createValidation()
 
   const username = validation.register({
     id: 'username',
@@ -162,10 +159,9 @@ app.use(
 ```vue
 <script setup lang="ts">
   import { type } from 'arktype'
-  import { useRules, createValidation } from '@vuetify/v0'
+  import { createValidation } from '@vuetify/v0'
 
-  const rules = useRules()
-  const validation = createValidation({ rules })
+  const validation = createValidation()
 
   const score = validation.register({
     id: 'score',
@@ -203,15 +199,15 @@ The controls let you trigger validation, prefill valid or invalid data, and rese
 
 | File | Role |
 |------|------|
-| `context.ts` | Defines predicate aliases, creates validation, registers fields |
+| `context.ts` | Defines predicate aliases via `createRulesContext` |
 | `FormField.vue` | Reusable field component — binds ticket value, errors, and border state |
-| `dashboard.vue` | Entry point — renders fields, action buttons, and live state panel |
+| `dashboard.vue` | Provides rules context, creates validation, registers fields, renders UI |
 
 **Key patterns:**
 
-- `createRules({ aliases })` registers predicate validators
+- `createRulesContext({ aliases })` registers predicate validators
 - `true` = pass, `string` = fail with message, `false` = fail with locale lookup
-- `createValidation({ rules })` links the rules context so `resolve()` runs during `register()`
+- `createValidation()` resolves aliases automatically via `useRules()`
 - Each ticket exposes `isValid`, `isPristine`, `errors` as reactive refs
 - Components decide when to call `validate()` — validation triggers are a UI concern
 

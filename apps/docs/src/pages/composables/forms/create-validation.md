@@ -51,15 +51,14 @@ console.log(email.isPristine.value) // true
 email.reset()
 ```
 
-### With useRules
+### With Rule Aliases
 
-Link a rules context to resolve alias strings:
+When a rules context is provided via `createRulesPlugin` or `createRulesContext`, alias strings resolve automatically:
 
 ```ts
-import { createValidation, useRules } from '@vuetify/v0'
+import { createValidation } from '@vuetify/v0'
 
-const rules = useRules()
-const validation = createValidation({ rules })
+const validation = createValidation()
 
 const name = validation.register({
   id: 'name',
@@ -91,12 +90,11 @@ When created inside a component with a parent form context, `createValidation` *
 
 ```vue
 <script setup lang="ts">
-  import { createValidation, useRules } from '@vuetify/v0'
+  import { createValidation } from '@vuetify/v0'
 
   // Parent provides form context via createFormContext or createFormPlugin
   // This validation auto-registers with it
-  const rules = useRules()
-  const validation = createValidation({ rules })
+  const validation = createValidation()
 
   const email = validation.register({
     id: 'email',
@@ -106,18 +104,12 @@ When created inside a component with a parent form context, `createValidation` *
 </script>
 ```
 
-Use `standalone: true` to opt out:
-
-```ts
-const validation = createValidation({ rules, standalone: true })
-```
-
 ### Bulk Registration
 
 Use `onboard()` to register multiple fields at once:
 
 ```ts
-const validation = createValidation({ rules })
+const validation = createValidation()
 
 const fields = validation.onboard([
   { id: 'name', value: '', rules: ['required'] },
