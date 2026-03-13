@@ -1,12 +1,12 @@
 // Framework
-import { useStorage } from '@vuetify/v0'
+import { useNotifications, useStorage } from '@vuetify/v0'
 
 // Composables
 import { useDiscovery } from '@/composables/useDiscovery'
 
 // Utilities
 import { defineStore } from 'pinia'
-import { computed, shallowRef } from 'vue'
+import { computed, shallowRef, watch } from 'vue'
 
 // Types
 import type { DiscoveryStepTicket } from '@/composables/useDiscovery'
@@ -192,6 +192,25 @@ export const useSkillzStore = defineStore('skillz', () => {
     }
     return null
   })
+
+  // Publish a notification when a pending tour is detected
+  const notifications = useNotifications()
+
+  watch(pendingTour, (pending, previous) => {
+    if (previous) {
+      const existing = notifications.get(`skillz:${previous.tour.id}`)
+      if (existing) existing.dismiss()
+    }
+
+    if (pending) {
+      notifications.notify({
+        id: `skillz:${pending.tour.id}`,
+        subject: `Continue ${pending.tour.name}?`,
+        severity: 'info',
+        data: { type: 'skillz', tourId: pending.tour.id },
+      })
+    }
+  }, { immediate: true })
 
   return {
     // Actions
