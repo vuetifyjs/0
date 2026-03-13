@@ -46,13 +46,13 @@
       <!-- Search -->
       <div class="relative flex-1 min-w-48">
         <AppIcon
-          class="absolute left-2.5 top-1/2 -translate-y-1/2 text-on-surface-variant"
+          class="absolute start-2.5 top-1/2 -translate-y-1/2 text-on-surface-variant"
           icon="search"
           :size="16"
         />
         <input
           aria-label="Search benchmarks"
-          class="w-full pl-8 pr-3 py-1.5 text-sm bg-surface border border-divider rounded-lg text-on-surface placeholder:text-on-surface-variant/50 outline-none focus:border-primary transition-colors"
+          class="w-full ps-8 pe-3 py-1.5 text-sm bg-surface border border-divider rounded-lg text-on-surface placeholder:text-on-surface-variant/50 outline-none focus:border-primary transition-colors"
           placeholder="Search benchmarks..."
           type="search"
           :value="searchQuery"

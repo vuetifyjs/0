@@ -54,13 +54,13 @@
     >
       <span
         v-if="title || (language && language !== 'text')"
-        class="absolute top-3 left-3 z-10 px-1.5 py-0.5 text-xs font-mono opacity-50"
+        class="absolute top-3 start-3 z-10 px-1.5 py-0.5 text-xs font-mono opacity-50"
         :class="{ 'uppercase': !title || hideFilename }"
       >
         {{ hideFilename ? language : title ?? language }}
       </span>
 
-      <div class="absolute top-3 right-3 z-10 flex gap-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity max-md:opacity-100">
+      <div class="absolute top-3 end-3 z-10 flex gap-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity max-md:opacity-100">
         <DocsCodeActions
           v-model:wrap="lineWrap"
           bin
@@ -93,7 +93,7 @@
         <slot />
       </div>
 
-      <div v-if="shouldCollapse && !expanded" class="docs-markup-fade absolute left-0 right-0 bottom-0 h-16 rounded-b-2 pointer-events-none" />
+      <div v-if="shouldCollapse && !expanded" class="docs-markup-fade absolute inset-x-0 bottom-0 h-16 rounded-b-2 pointer-events-none" />
     </div>
 
     <button

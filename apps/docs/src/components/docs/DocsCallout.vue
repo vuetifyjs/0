@@ -84,7 +84,7 @@
 
 <template>
   <div
-    class="my-4 rounded-lg border-l-4 px-4 py-3"
+    class="my-4 rounded-lg border-s-4 px-4 py-3"
     :class="config.classes"
     :role="props.type === 'askai' || props.type === 'discord' || props.type === 'tour' ? 'button' : undefined"
     :tabindex="props.type === 'askai' || props.type === 'discord' || props.type === 'tour' ? 0 : undefined"

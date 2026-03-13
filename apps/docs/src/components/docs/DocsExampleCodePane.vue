@@ -94,14 +94,14 @@
   >
     <span
       v-if="fileName && (!shouldPeek || expanded)"
-      class="absolute top-3 left-3 z-10 px-1.5 py-0.5 text-xs font-mono opacity-50"
+      class="absolute top-3 start-3 z-10 px-1.5 py-0.5 text-xs font-mono opacity-50"
     >
       {{ fileName }}
     </span>
 
     <div
       v-if="!shouldPeek || expanded"
-      class="absolute top-3 right-3 z-10 flex gap-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity max-md:opacity-100"
+      class="absolute top-3 end-3 z-10 flex gap-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity max-md:opacity-100"
     >
       <DocsCodeActions
         v-model:wrap="lineWrap"
@@ -137,7 +137,7 @@
 
     <div
       v-if="shouldPeek && !expanded"
-      class="docs-example-fade absolute left-0 right-0 bottom-0 h-12 rounded-b-lg pointer-events-none"
+      class="docs-example-fade absolute inset-x-0 bottom-0 h-12 rounded-b-lg pointer-events-none"
     />
   </div>
 </template>

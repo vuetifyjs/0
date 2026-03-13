@@ -16,9 +16,11 @@ related:
 ---
 
 <script setup>
+import { useRtl } from '@vuetify/v0'
 import { useSettings } from '@/composables/useSettings'
 
 const { lineWrap, showInlineApi, collapsibleNav } = useSettings()
+const rtl = useRtl()
 </script>
 
 # Using the Docs
@@ -515,6 +517,14 @@ Toggle visibility of header controls to reduce clutter:
 
 <div class="max-w-xs mb-6">
   <AppSettingsHeaderButtons />
+</div>
+
+### Direction
+
+Switch the layout direction to right-to-left (RTL) for languages like Arabic and Hebrew:
+
+<div class="max-w-xs mb-6">
+  <AppSettingsToggle v-model="rtl.isRtl.value" label="RTL mode" description="Switch layout direction to right-to-left" />
 </div>
 
 ### Navigation

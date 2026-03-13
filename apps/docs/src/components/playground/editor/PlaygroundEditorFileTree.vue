@@ -343,7 +343,7 @@
     v-if="isReady"
     ref="tree-el"
     aria-label="File browser"
-    class="border-r border-divider bg-surface overflow-y-auto shrink-0 h-100%"
+    class="border-e border-divider bg-surface overflow-y-auto shrink-0 h-100%"
   >
     <div class="flex items-center justify-between px-3 py-2">
       <span class="text-xs font-semibold text-on-surface-variant uppercase tracking-wide">Files</span>
@@ -393,7 +393,7 @@
           :class="isFile(id) && id === activeFile ? 'opacity-100 bg-surface-tint' : isConfig(id) ? 'opacity-50' : 'opacity-80'"
           :data-id="id"
           role="treeitem"
-          :style="{ paddingLeft: `${depth * 8 + 8}px` }"
+          :style="{ paddingInlineStart: `${depth * 8 + 8}px` }"
           :tabindex="index === 0 ? 0 : -1"
           @click="activate(id)"
           @keydown="onKeydown($event, id)"
@@ -438,7 +438,7 @@
         <div
           v-if="inputAfter?.id === id"
           class="flex items-center gap-1.5 py-1 pr-2"
-          :style="{ paddingLeft: `${inputAfter!.inputDepth * 8 + 8}px` }"
+          :style="{ paddingInlineStart: `${inputAfter!.inputDepth * 8 + 8}px` }"
         >
           <span class="w-[14px]" />
           <input
@@ -455,7 +455,7 @@
     </div>
   </nav>
 
-  <div v-else class="border-r border-divider bg-surface shrink-0 h-full overflow-hidden">
+  <div v-else class="border-e border-divider bg-surface shrink-0 h-full overflow-hidden">
     <div class="flex items-center px-3 py-2">
       <span class="text-xs font-semibold text-on-surface-variant uppercase tracking-wide">Files</span>
     </div>
