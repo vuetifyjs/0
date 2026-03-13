@@ -10,7 +10,6 @@
  * - Form-level submit, reset, and aggregate state
  * - Exposes disabled/readonly refs for component consumption
  * - Trinity pattern for DI
- * - Plugin factory for app-level installation
  *
  * Per-field validation logic lives in createValidation.
  * createForm is the mothership — it coordinates, not creates.
