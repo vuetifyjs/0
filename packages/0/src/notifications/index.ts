@@ -8,7 +8,7 @@
  *
  * @example
  * ```ts
- * import { createFcmAdapter, createOneSignalAdapter, createKnockAdapter } from '@vuetify/v0/notifications'
+ * import { createKnockAdapter } from '@vuetify/v0/notifications'
  * ```
  */
 

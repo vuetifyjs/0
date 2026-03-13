@@ -6,10 +6,8 @@
  *
  * Import adapters from the notifications subpath:
  * ```ts
- * import { createFcmAdapter, createOneSignalAdapter, createKnockAdapter } from '@vuetify/v0/notifications'
+ * import { createKnockAdapter } from '@vuetify/v0/notifications'
  * ```
  */
 
-export * from './fcm'
 export * from './knock'
-export * from './onesignal'

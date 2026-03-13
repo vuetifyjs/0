@@ -4,7 +4,7 @@
  *
  * @remarks
  * Notification management composable built on createRegistry.
- * Manages notification lifecycle with optional service adapters (FCM, OneSignal, Knock).
+ * Manages notification lifecycle with optional service adapters (Knock).
  *
  * Supports:
  * - Push notifications with severity levels
@@ -222,14 +222,14 @@ export function createNotificationsContext (
   _options: NotificationsPluginOptions = {},
 ): ContextTrinity<NotificationsContext> {
   const { namespace = 'v0:notifications', ...options } = _options
-  const [useContext, _provide] = createContext<NotificationsContext>(namespace)
+  const [useNotificationsContext, _provideNotificationsContext] = createContext<NotificationsContext>(namespace)
   const context = createNotifications(options)
 
-  function provide (_context: NotificationsContext = context, app?: App): NotificationsContext {
-    return _provide(_context, app)
+  function provideNotificationsContext (_context: NotificationsContext = context, app?: App): NotificationsContext {
+    return _provideNotificationsContext(_context, app)
   }
 
-  return createTrinity<NotificationsContext>(useContext, provide, context)
+  return createTrinity<NotificationsContext>(useNotificationsContext, provideNotificationsContext, context)
 }
 
 /**

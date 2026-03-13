@@ -50,6 +50,7 @@ export interface KnockFeed {
   off: (event: string, handler: (data: unknown) => void) => void
   markAsRead: (item: KnockFeedItem) => Promise<unknown>
   markAsArchived: (item: KnockFeedItem) => Promise<unknown>
+  fetch: (options?: Record<string, unknown>) => Promise<unknown>
   teardown: () => void
   listenForUpdates: () => void
 }
@@ -82,13 +83,16 @@ export function createKnockAdapter (feed: KnockFeed): NotificationsAdapterInterf
         const payload = data as { items?: KnockFeedItem[] }
         if (!payload?.items) return
         for (const item of payload.items) {
+          if (items.has(item.id)) continue
           items.set(item.id, item)
           ctx!.notify(mapItem(item))
         }
       }
 
       feed.on('items.received.realtime', onReceived)
+      feed.on('items.received.page', onReceived)
       feed.listenForUpdates()
+      feed.fetch()
 
       // Outbound: notification mutations -> Knock API
       onRead = (data: unknown) => {
@@ -106,6 +110,7 @@ export function createKnockAdapter (feed: KnockFeed): NotificationsAdapterInterf
     },
     dispose () {
       if (onReceived) feed.off('items.received.realtime', onReceived)
+      if (onReceived) feed.off('items.received.page', onReceived)
       if (onRead && ctx) ctx.off('notification:read', onRead)
       if (onArchived && ctx) ctx.off('notification:archived', onArchived)
       items.clear()
