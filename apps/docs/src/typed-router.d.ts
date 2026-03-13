@@ -296,6 +296,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/composables/plugins/use-notifications': RouteRecordInfo<
+      '/composables/plugins/use-notifications',
+      '/composables/plugins/use-notifications',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/composables/plugins/use-permissions': RouteRecordInfo<
       '/composables/plugins/use-permissions',
       '/composables/plugins/use-permissions',
@@ -960,6 +967,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/plugins/use-logger.md': {
       routes:
         | '/composables/plugins/use-logger'
+      views:
+        | never
+    }
+    'src/pages/composables/plugins/use-notifications.md': {
+      routes:
+        | '/composables/plugins/use-notifications'
       views:
         | never
     }
