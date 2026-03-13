@@ -1,6 +1,6 @@
 import { createRulesContext } from '@vuetify/v0'
 
-export const [useRules, provideRules] = createRulesContext({
+export const [, provideRules] = createRulesContext({
   aliases: {
     required: v => (v === 0 || !!v) || 'Required',
     email: v => !v || /^.+@\S+\.\S+$/.test(String(v)) || 'Invalid email',
