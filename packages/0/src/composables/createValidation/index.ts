@@ -283,7 +283,7 @@ export function createValidation<
       const form = useContext<FormContext>('v0:form')
 
       if (form) {
-        const ticket = form.register(context as unknown as ValidationContext)
+        const ticket = form.register({ value: context as unknown as ValidationContext })
 
         if (getCurrentScope()) {
           onScopeDispose(() => form.unregister(ticket.id))

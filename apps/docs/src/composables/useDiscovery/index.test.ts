@@ -306,7 +306,7 @@ describe('useDiscovery', () => {
       const { createValidation } = await import('@vuetify/v0')
       const validation = createValidation({ standalone: true })
       validation.register({ rules: [] })
-      discovery.form.register(validation, 'step-1')
+      discovery.form.register({ id: 'step-1', value: validation })
 
       await discovery.next()
 
@@ -321,7 +321,7 @@ describe('useDiscovery', () => {
       const { createValidation } = await import('@vuetify/v0')
       const validation = createValidation({ standalone: true })
       validation.register({ rules: [] })
-      discovery.form.register(validation, 'step-1')
+      discovery.form.register({ id: 'step-1', value: validation })
 
       // Verify form has the field
       expect(discovery.form.has('step-1')).toBe(true)
@@ -665,7 +665,7 @@ describe('useDiscovery', () => {
       const { createValidation } = await import('@vuetify/v0')
       const validation = createValidation({ standalone: true })
       const field = validation.register({ id: 'test-field', rules: [] })
-      discovery.form.register(validation)
+      discovery.form.register({ value: validation })
 
       discovery.reset()
 

@@ -32,7 +32,7 @@ import { computed, shallowRef, toValue } from 'vue'
 import { toArray } from '#v0/composables/toArray'
 
 // Types
-import type { RegistryContext, RegistryOptions, RegistryTicket } from '#v0/composables/createRegistry'
+import type { RegistryContext, RegistryOptions, RegistryTicket, RegistryTicketInput } from '#v0/composables/createRegistry'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { ValidationContext } from '#v0/composables/createValidation'
 import type { ID } from '#v0/types'
@@ -42,21 +42,32 @@ export type FormValidationResult = string | boolean | Promise<string | boolean>
 
 export type FormValidationRule = (value: unknown) => FormValidationResult
 
+export type FormValue = ValidationContext
+
+/**
+ * User-facing input shape for form tickets.
+ */
+export interface FormTicketInput extends RegistryTicketInput<FormValue> {}
+
 /**
  * A registered validation in the form registry.
- * Wraps a ValidationContext with registry metadata.
+ *
+ * @template Z The input ticket type that extends FormTicketInput.
  */
-export interface FormTicket extends RegistryTicket {
-  /** The validation context this ticket represents. */
-  validation: ValidationContext
-}
+export type FormTicket<Z extends FormTicketInput = FormTicketInput> = RegistryTicket<FormValue> & Z
 
 /**
  * Context for coordinating validation across multiple fields.
+ *
+ * @template Z The input ticket type.
+ * @template E The output ticket type.
  */
-export interface FormContext extends Omit<RegistryContext<FormTicket>, 'register' | 'onboard'> {
-  /** Register a validation context with the form. Optionally provide an ID for targeted submit. */
-  register: (validation: ValidationContext, id?: ID) => FormTicket
+export interface FormContext<
+  Z extends FormTicketInput = FormTicketInput,
+  E extends FormTicket<Z> = FormTicket<Z>,
+> extends Omit<RegistryContext<E>, 'register' | 'onboard'> {
+  /** Register a validation context with the form. */
+  register: (registration: Partial<Z> & { value: FormValue }) => E
   /** Submit: validate specific fields or all. */
   submit: (id?: ID | ID[]) => Promise<boolean>
   /** Reset all registered validations. */
@@ -110,14 +121,18 @@ export interface FormPluginOptions extends FormContextOptions {}
  *   rules: ['required', 'email'],
  * })
  *
- * form.register(validation)
+ * form.register({ value: validation })
  *
  * await form.submit()
  * form.reset()
  * ```
  */
-export function createForm (options?: FormOptions): FormContext {
-  const registry = createRegistry<FormTicket>(options)
+export function createForm<
+  Z extends FormTicketInput = FormTicketInput,
+  E extends FormTicket<Z> = FormTicket<Z>,
+  R extends FormContext<Z, E> = FormContext<Z, E>,
+> (options?: FormOptions): R {
+  const registry = createRegistry<E>(options)
   const disabled = shallowRef(false)
   const readonly = shallowRef(false)
 
@@ -126,7 +141,7 @@ export function createForm (options?: FormOptions): FormContext {
 
   const isValidating = computed(() => {
     for (const ticket of registry.values()) {
-      if (ticket.validation.isValidating.value) return true
+      if (ticket.value.isValidating.value) return true
     }
     return false
   })
@@ -136,20 +151,20 @@ export function createForm (options?: FormOptions): FormContext {
     let hasFields = false
     for (const ticket of registry.values()) {
       hasFields = true
-      if (ticket.validation.isValid.value === false) return false
-      if (isNull(ticket.validation.isValid.value)) hasNull = true
+      if (ticket.value.isValid.value === false) return false
+      if (isNull(ticket.value.isValid.value)) hasNull = true
     }
     if (!hasFields) return null
     return hasNull ? null : true
   })
 
-  function register (validation: ValidationContext, id?: ID): FormTicket {
-    return registry.register({ validation, id } as unknown as Partial<FormTicket>)
+  function register (registration: Partial<Z> & { value: FormValue }): E {
+    return registry.register(registration as Partial<E>)
   }
 
   function reset () {
     for (const ticket of registry.values()) {
-      for (const field of ticket.validation.values()) {
+      for (const field of ticket.value.values()) {
         field.reset()
       }
     }
@@ -163,10 +178,10 @@ export function createForm (options?: FormOptions): FormContext {
         if (!ticket) return true
 
         // Submit validates all fields within each validation context
-        const validationResults = await Promise.all(
-          [...ticket.validation.values()].map(field => field.validate()),
+        const validated = await Promise.all(
+          [...ticket.value.values()].map(field => field.validate()),
         )
-        return validationResults.every(Boolean)
+        return validated.every(Boolean)
       }),
     )
     return results.every(Boolean)
@@ -184,7 +199,7 @@ export function createForm (options?: FormOptions): FormContext {
     get size () {
       return registry.size
     },
-  } as FormContext
+  } as unknown as R
 }
 
 /**
@@ -202,17 +217,21 @@ export function createForm (options?: FormOptions): FormContext {
  * export const [useMyForm, provideMyForm, myForm] = createFormContext()
  * ```
  */
-export function createFormContext (_options: FormContextOptions = {}): ContextTrinity<FormContext> {
+export function createFormContext<
+  Z extends FormTicketInput = FormTicketInput,
+  E extends FormTicket<Z> = FormTicket<Z>,
+  R extends FormContext<Z, E> = FormContext<Z, E>,
+> (_options: FormContextOptions = {}): ContextTrinity<R> {
   const { namespace = 'v0:form', ...options } = _options
-  const [useFormContext, _provideFormContext] = createContext<FormContext>(namespace)
+  const [useFormContext, _provideFormContext] = createContext<R>(namespace)
 
-  const context = createForm(options)
+  const context = createForm<Z, E, R>(options)
 
-  function provideFormContext (_context: FormContext = context, app?: App): FormContext {
+  function provideFormContext (_context: R = context, app?: App): R {
     return _provideFormContext(_context, app)
   }
 
-  return createTrinity<FormContext>(useFormContext, provideFormContext, context)
+  return createTrinity<R>(useFormContext, provideFormContext, context)
 }
 
 /**
@@ -230,14 +249,18 @@ export function createFormContext (_options: FormContextOptions = {}): ContextTr
  * app.use(createFormPlugin())
  * ```
  */
-export function createFormPlugin (_options: FormPluginOptions = {}) {
+export function createFormPlugin<
+  Z extends FormTicketInput = FormTicketInput,
+  E extends FormTicket<Z> = FormTicket<Z>,
+  R extends FormContext<Z, E> = FormContext<Z, E>,
+> (_options: FormPluginOptions = {}) {
   const { namespace = 'v0:form', ...options } = _options
-  const [, _provideFormContext] = createContext<FormContext>(namespace)
+  const [, _provideFormContext] = createContext<R>(namespace)
 
   return createPlugin({
     namespace,
     provide: (app: App) => {
-      const context = createForm(options)
+      const context = createForm<Z, E, R>(options)
       _provideFormContext(context, app)
     },
   })
@@ -260,9 +283,13 @@ export function createFormPlugin (_options: FormPluginOptions = {}) {
  * </script>
  * ```
  */
-export function useForm (namespace = 'v0:form'): FormContext | undefined {
+export function useForm<
+  Z extends FormTicketInput = FormTicketInput,
+  E extends FormTicket<Z> = FormTicket<Z>,
+  R extends FormContext<Z, E> = FormContext<Z, E>,
+> (namespace = 'v0:form'): R | undefined {
   try {
-    return useContext<FormContext>(namespace)
+    return useContext<R>(namespace)
   } catch {
     return undefined
   }

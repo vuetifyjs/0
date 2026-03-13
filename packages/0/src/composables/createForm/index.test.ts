@@ -26,10 +26,10 @@ describe('createForm', () => {
     const validation = createValidation()
     validation.register({ id: 'email', value: '', rules: [v => !!v || 'Required'] })
 
-    const ticket = form.register(validation)
+    const ticket = form.register({ value: validation })
 
     expect(form.size).toBe(1)
-    expect(ticket.validation).toBe(validation)
+    expect(ticket.value).toBe(validation)
   })
 
   it('should unregister a validation context', () => {
@@ -37,7 +37,7 @@ describe('createForm', () => {
     const validation = createValidation()
     validation.register({ id: 'email', value: '' })
 
-    const ticket = form.register(validation)
+    const ticket = form.register({ value: validation })
     expect(form.size).toBe(1)
 
     form.unregister(ticket.id)
@@ -68,7 +68,7 @@ describe('createForm', () => {
       const form = createForm()
       const validation = createValidation()
       validation.register({ id: 'f1', value: 'test', rules: [v => !!v || 'Required'] })
-      form.register(validation)
+      form.register({ value: validation })
 
       expect(form.isValid.value).toBe(null)
     })
@@ -78,11 +78,11 @@ describe('createForm', () => {
 
       const v1 = createValidation()
       const f1 = v1.register({ id: 'f1', value: 'valid', rules: [v => (v as string).length > 0 || 'Required'] })
-      form.register(v1)
+      form.register({ value: v1 })
 
       const v2 = createValidation()
       const f2 = v2.register({ id: 'f2', value: 'also valid', rules: [v => (v as string).length > 3 || 'Min 3'] })
-      form.register(v2)
+      form.register({ value: v2 })
 
       await f1.validate()
       await f2.validate()
@@ -95,11 +95,11 @@ describe('createForm', () => {
 
       const v1 = createValidation()
       const f1 = v1.register({ id: 'f1', value: 'valid', rules: [v => (v as string).length > 0 || 'Required'] })
-      form.register(v1)
+      form.register({ value: v1 })
 
       const v2 = createValidation()
       const f2 = v2.register({ id: 'f2', value: '', rules: [v => (v as string).length > 0 || 'Required'] })
-      form.register(v2)
+      form.register({ value: v2 })
 
       await f1.validate()
       await f2.validate()
@@ -112,11 +112,11 @@ describe('createForm', () => {
 
       const v1 = createValidation()
       const f1 = v1.register({ id: 'f1', value: 'valid', rules: [v => !!v || 'Required'] })
-      form.register(v1)
+      form.register({ value: v1 })
 
       const v2 = createValidation()
       v2.register({ id: 'f2', value: 'test', rules: [v => !!v || 'Required'] })
-      form.register(v2)
+      form.register({ value: v2 })
 
       await f1.validate()
 
@@ -131,7 +131,7 @@ describe('createForm', () => {
 
       const v1 = createValidation()
       v1.register({ id: 'f1', value: 'test', rules: [rule] })
-      form.register(v1)
+      form.register({ value: v1 })
 
       await form.submit()
 
@@ -143,7 +143,7 @@ describe('createForm', () => {
 
       const v1 = createValidation()
       v1.register({ id: 'f1', value: '', rules: [v => !!v || 'Required'] })
-      form.register(v1)
+      form.register({ value: v1 })
 
       const result = await form.submit()
       expect(result).toBe(false)
@@ -154,7 +154,7 @@ describe('createForm', () => {
 
       const v1 = createValidation()
       v1.register({ id: 'f1', value: 'valid', rules: [v => !!v || 'Required'] })
-      form.register(v1)
+      form.register({ value: v1 })
 
       const result = await form.submit()
       expect(result).toBe(true)
@@ -166,7 +166,7 @@ describe('createForm', () => {
 
       const v1 = createValidation()
       v1.register({ id: 'f1', value: 'test', rules: [rule] })
-      form.register(v1)
+      form.register({ value: v1 })
 
       const promise = form.submit()
       await nextTick()
@@ -184,8 +184,8 @@ describe('createForm', () => {
       v1.register({ id: 'f1', value: '', rules: [() => 'Error'] })
       const v2 = createValidation({ standalone: true })
       v2.register({ id: 'f2', value: '', rules: [() => 'Error'] })
-      form.register(v1, 'v1')
-      form.register(v2, 'v2')
+      form.register({ id: 'v1', value: v1 })
+      form.register({ id: 'v2', value: v2 })
 
       const result = await form.submit('v1')
       expect(result).toBe(false)
@@ -206,7 +206,7 @@ describe('createForm', () => {
 
       const v1 = createValidation()
       const f1 = v1.register({ id: 'f1', value: 'initial', rules: [v => !!v || 'Required'] })
-      form.register(v1)
+      form.register({ value: v1 })
 
       f1.value = 'changed'
       await f1.validate()
