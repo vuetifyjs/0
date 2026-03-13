@@ -509,7 +509,7 @@
                   class="text-primary no-underline hover:underline"
                   :href="`/releases/?version=v${item.since}`"
                   target="_blank"
-                >v{{ item.since }}<span class="text-xs opacity-70 ml-0.5">↗</span></a>
+                >v{{ item.since }} ↗</a>
                 <span v-else class="text-on-surface-variant/50">—</span>
               </td>
             </tr>
