@@ -157,7 +157,7 @@ function persistRecents (): void {
   storage?.set('search:recents', recents.value)
 }
 
-async function loadIndex (): Promise<void> {
+export async function loadIndex (): Promise<void> {
   if (miniSearch) return
   if (indexPromise) return indexPromise
 
@@ -202,7 +202,7 @@ const CATEGORY_PRIORITY: Record<string, number> = {
   API: 5,
 }
 
-function search (query: string): SearchResult[] {
+export function search (query: string): SearchResult[] {
   if (!miniSearch || !query.trim()) {
     return []
   }
