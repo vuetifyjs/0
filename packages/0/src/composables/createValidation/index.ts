@@ -5,38 +5,32 @@
  * Per-field validation lifecycle composable.
  *
  * Key features:
- * - Standalone validation (no form required)
  * - Auto-register with parent form via useForm() injection
  * - Async rule support with generation-based race safety
  * - Silent validation mode
  * - Tri-state isValid (null/true/false)
  * - isPristine tracking
- * - Trinity pattern for DI
  *
  * Uses useRules() to resolve alias strings via shared context.
  */
 
-// Foundational
-import { createContext, useContext } from '#v0/composables/createContext'
-import { createPlugin } from '#v0/composables/createPlugin'
-import { createTrinity } from '#v0/composables/createTrinity'
-
 // Composables
+import { useForm } from '#v0/composables/createForm'
 import { createRegistry } from '#v0/composables/createRegistry'
+import { useRules } from '#v0/composables/useRules'
 
 // Adapters
 import { isStandardSchema, toRule } from '#v0/composables/useRules/adapters/standard'
 
 // Utilities
-import { instanceExists, isFunction, isNull, isNullOrUndefined, isString } from '#v0/utilities'
-import { computed, getCurrentScope, onScopeDispose, shallowRef, toValue } from 'vue'
+import { isFunction, isNull, isNullOrUndefined, isString } from '#v0/utilities'
+import { computed, onScopeDispose, shallowRef, toValue } from 'vue'
 
 // Types
-import type { FormContext, FormValidationRule } from '#v0/composables/createForm'
+import type { FormValidationRule } from '#v0/composables/createForm'
 import type { RegistryContext, RegistryOptions, RegistryTicket, RegistryTicketInput } from '#v0/composables/createRegistry'
-import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { RuleAlias, RuleInput, RulesContext, StandardSchemaV1 } from '#v0/composables/useRules'
-import type { App, ComputedRef, ShallowRef } from 'vue'
+import type { ComputedRef, ShallowRef } from 'vue'
 
 export type { FormValidationRule } from '#v0/composables/createForm'
 
@@ -92,22 +86,9 @@ export interface ValidationContext<
   isValid: ComputedRef<boolean | null>
   /** Aggregate: true if any ticket is validating. */
   isValidating: ComputedRef<boolean>
-  /** Optional rules context used for alias resolution. */
-  rules?: RulesContext
 }
 
-export interface ValidationOptions extends RegistryOptions {
-  /** Rules context for alias resolution. Falls back to useRules() if available. */
-  rules?: RulesContext
-  /** Skip auto-registration with parent form. Defaults to false. */
-  standalone?: boolean
-}
-
-export interface ValidationContextOptions extends ValidationOptions {
-  namespace?: string
-}
-
-export interface ValidationPluginOptions extends ValidationContextOptions {}
+export interface ValidationOptions extends RegistryOptions {}
 
 /**
  * Resolves raw rule inputs to FormValidationRule[].
@@ -116,10 +97,10 @@ export interface ValidationPluginOptions extends ValidationContextOptions {}
  */
 function resolveRules (
   raw: RuleInput[],
-  rulesContext?: RulesContext,
+  context?: RulesContext,
 ): FormValidationRule[] {
-  if (rulesContext) {
-    return rulesContext.resolve(raw)
+  if (context) {
+    return context.resolve(raw)
   }
 
   return raw
@@ -158,10 +139,9 @@ export function createValidation<
   Z extends ValidationTicketInput = ValidationTicketInput,
   E extends ValidationTicket<Z> = ValidationTicket<Z>,
   R extends ValidationContext<Z, E> = ValidationContext<Z, E>,
-> (options?: ValidationOptions): R {
+> (options: ValidationOptions = {}): R {
   const registry = createRegistry<E>(options)
-  const rulesContext = options?.rules
-  const standalone = options?.standalone ?? false
+  const rules = useRules()
 
   const isValidating = computed(() => {
     for (const ticket of registry.values()) {
@@ -185,33 +165,33 @@ export function createValidation<
   function register (registration: Partial<Z> = {} as Partial<Z>): E {
     const model = shallowRef(isNullOrUndefined(registration.value) ? '' : toValue(registration.value))
     const raw = (registration as ValidationTicketInput).rules || []
-    const rules = resolveRules(raw, rulesContext)
+    const resolved = resolveRules(raw, rules)
     const errors = shallowRef<string[]>([])
-    const fieldIsValidating = shallowRef(false)
+    const isFieldValidating = shallowRef(false)
     const initialValue = model.value
 
     const isPristine = shallowRef(true)
-    const fieldIsValid = shallowRef<boolean | null>(null)
+    const isFieldValid = shallowRef<boolean | null>(null)
 
     function reset () {
       model.value = initialValue
       errors.value = []
       isPristine.value = true
-      fieldIsValid.value = null
-      fieldIsValidating.value = false
+      isFieldValid.value = null
+      isFieldValidating.value = false
       validationGeneration++
     }
 
     let validationGeneration = 0
 
     async function validate (silent = false): Promise<boolean> {
-      if (rules.length === 0) return fieldIsValid.value = true
+      if (resolved.length === 0) return isFieldValid.value = true
 
       const generation = ++validationGeneration
-      fieldIsValidating.value = true
+      isFieldValidating.value = true
       try {
-        const results = await Promise.all(rules.map(rule => rule(model.value)))
-        if (generation !== validationGeneration) return fieldIsValid.value ?? false
+        const results = await Promise.all(resolved.map(rule => rule(model.value)))
+        if (generation !== validationGeneration) return isFieldValid.value ?? false
 
         const errorMessages = results
           .filter(result => isString(result) || result === false)
@@ -219,26 +199,26 @@ export function createValidation<
 
         if (!silent) {
           errors.value = errorMessages
-          fieldIsValid.value = errorMessages.length === 0
+          isFieldValid.value = errorMessages.length === 0
           isPristine.value = model.value === initialValue
         }
 
         return errorMessages.length === 0
       } finally {
         if (generation === validationGeneration) {
-          fieldIsValidating.value = false
+          isFieldValidating.value = false
         }
       }
     }
 
     const item = {
       ...registration,
-      rules,
+      rules: resolved,
       errors,
       disabled: (registration as ValidationTicketInput).disabled || false,
-      isValidating: fieldIsValidating,
+      isValidating: isFieldValidating,
       isPristine,
-      isValid: fieldIsValid,
+      isValid: isFieldValid,
       reset,
       validate,
     }
@@ -252,7 +232,7 @@ export function createValidation<
       set (val) {
         model.value = val
         isPristine.value = val === initialValue
-        fieldIsValid.value = null
+        isFieldValid.value = null
       },
       enumerable: true,
       configurable: true,
@@ -271,119 +251,18 @@ export function createValidation<
     onboard,
     isValid,
     isValidating,
-    rules: rulesContext,
     get size () {
       return registry.size
     },
   } as R
 
-  // Auto-register with parent form (like CheckboxRoot → CheckboxGroup)
-  if (!standalone && instanceExists()) {
-    try {
-      const form = useContext<FormContext>('v0:form')
+  const form = useForm()
+  const ticket = form?.register({ value: context as unknown as ValidationContext })
 
-      if (form) {
-        const ticket = form.register({ value: context as unknown as ValidationContext })
-
-        if (getCurrentScope()) {
-          onScopeDispose(() => form.unregister(ticket.id))
-        }
-      }
-    } catch {
-      // No parent form, standalone mode
-    }
-  }
+  onScopeDispose(() => {
+    if (!ticket || !form) return
+    form.unregister(ticket.id)
+  }, true)
 
   return context
-}
-
-/**
- * Creates a new validation context using the Trinity pattern.
- *
- * @param options The options for the validation context.
- * @returns A Trinity tuple: [useValidationContext, provideValidationContext, validationContext]
- *
- * @see https://0.vuetifyjs.com/composables/forms/create-validation
- *
- * @example
- * ```ts
- * import { createValidationContext } from '@vuetify/v0'
- *
- * export const [useFieldValidation, provideFieldValidation, fieldValidation] =
- *   createValidationContext()
- * ```
- */
-export function createValidationContext<
-  Z extends ValidationTicketInput = ValidationTicketInput,
-  E extends ValidationTicket<Z> = ValidationTicket<Z>,
-  R extends ValidationContext<Z, E> = ValidationContext<Z, E>,
-> (_options: ValidationContextOptions = {}): ContextTrinity<R> {
-  const { namespace = 'v0:validation', ...options } = _options
-  const [useValidationContext, _provideValidationContext] = createContext<R>(namespace)
-
-  const context = createValidation<Z, E, R>(options)
-
-  function provideValidationContext (_context: R = context, app?: App): R {
-    return _provideValidationContext(_context, app)
-  }
-
-  return createTrinity<R>(useValidationContext, provideValidationContext, context)
-}
-
-/**
- * Creates a Vue plugin that provides a validation context to the entire app.
- *
- * @param options The options for the validation plugin.
- * @returns A Vue plugin.
- *
- * @see https://0.vuetifyjs.com/composables/forms/create-validation
- *
- * @example
- * ```ts
- * import { createValidationPlugin } from '@vuetify/v0'
- *
- * const app = createApp(App)
- * app.use(createValidationPlugin())
- * ```
- */
-export function createValidationPlugin (_options: ValidationPluginOptions = {}) {
-  const { namespace = 'v0:validation', ...options } = _options
-  const [, _provideValidationContext] = createContext<ValidationContext>(namespace)
-
-  return createPlugin({
-    namespace,
-    provide: (app: App) => {
-      const context = createValidation(options)
-      _provideValidationContext(context, app)
-    },
-  })
-}
-
-/**
- * Returns the current validation context.
- *
- * @param namespace The namespace for the validation context. Defaults to `'v0:validation'`.
- * @returns The current validation context, or undefined if not provided.
- *
- * @see https://0.vuetifyjs.com/composables/forms/create-validation
- *
- * @example
- * ```vue
- * <script setup lang="ts">
- *   import { useValidation } from '@vuetify/v0'
- *
- *   const validation = useValidation()
- * </script>
- * ```
- */
-export function useValidation<
-  Z extends ValidationTicketInput = ValidationTicketInput,
-  E extends ValidationTicket<Z> = ValidationTicket<Z>,
-  R extends ValidationContext<Z, E> = ValidationContext<Z, E>,
-> (namespace = 'v0:validation'): R | undefined {
-  try {
-    return useContext<R>(namespace)
-  } catch {
-    return undefined
-  }
 }

@@ -20,9 +20,7 @@
  */
 
 // Foundational
-import { createContext, useContext } from '#v0/composables/createContext'
-import { createPlugin } from '#v0/composables/createPlugin'
-import { createTrinity } from '#v0/composables/createTrinity'
+import { createPluginContext } from '#v0/composables/createPlugin'
 
 // Composables
 import { useLocale } from '#v0/composables/useLocale'
@@ -35,9 +33,7 @@ import { instanceExists, isFunction } from '#v0/utilities'
 
 // Types
 import type { FormValidationRule } from '#v0/composables/createForm'
-import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { StandardSchemaV1 } from './adapters/standard'
-import type { App } from 'vue'
 
 export type { FormValidationRule } from '#v0/composables/createForm'
 export type { StandardSchemaV1 } from './adapters/standard'
@@ -73,8 +69,6 @@ export interface RulesContextOptions extends RulesOptions {
   namespace?: string
 }
 
-export interface RulesPluginOptions extends RulesContextOptions {}
-
 /**
  * Wraps an alias predicate so that `false` results are
  * resolved to a locale-aware error message via `$rules.<name>`.
@@ -83,7 +77,7 @@ export interface RulesPluginOptions extends RulesContextOptions {}
  * - `string` → fail with that message
  * - `false` → fail, look up message from locale
  */
-function wrapAlias (
+function resolveAlias (
   name: string,
   predicate: FormValidationRule,
   locale?: { t: (key: string) => string },
@@ -124,7 +118,7 @@ function createResolve (aliases: RuleAliases, locale?: { t: (key: string) => str
       const predicate = aliases[rule as string]
 
       if (predicate) {
-        result.push(wrapAlias(rule as string, predicate, locale))
+        result.push(resolveAlias(rule as string, predicate, locale))
       }
     }
 
@@ -184,92 +178,9 @@ export function createRulesFallback (): RulesContext {
   return { resolve: createResolve(aliases), aliases }
 }
 
-/**
- * Creates a new rules context using the Trinity pattern.
- *
- * @param options The options for the rules context.
- * @returns A Trinity tuple: [useRulesContext, provideRulesContext, rulesContext]
- *
- * @see https://0.vuetifyjs.com/composables/plugins/use-rules
- *
- * @example
- * ```ts
- * import { createRulesContext } from '@vuetify/v0'
- *
- * export const [useAppRules, provideAppRules, appRules] = createRulesContext({
- *   namespace: 'app:rules',
- *   aliases: {
- *     phone: (v) => /^\d{10}$/.test(String(v)) || false,
- *   },
- * })
- * ```
- */
-export function createRulesContext (_options: RulesContextOptions = {}): ContextTrinity<RulesContext> {
-  const { namespace = 'v0:rules', ...options } = _options
-  const [_useRulesContext, _provideRulesContext] = createContext<RulesContext>(namespace)
-
-  const context = createRules(options)
-
-  function provideRulesContext (_context: RulesContext = context, app?: App): RulesContext {
-    return _provideRulesContext(_context, app)
-  }
-
-  return createTrinity<RulesContext>(_useRulesContext, provideRulesContext, context)
-}
-
-/**
- * Creates a Vue plugin that provides a rules context to the entire app.
- *
- * @param options The options for the rules plugin.
- * @returns A Vue plugin.
- *
- * @see https://0.vuetifyjs.com/composables/plugins/use-rules
- *
- * @example
- * ```ts
- * import { createRulesPlugin } from '@vuetify/v0'
- *
- * const app = createApp(App)
- * app.use(createRulesPlugin({
- *   aliases: {
- *     required: (v) => !!v || false,
- *   },
- * }))
- * ```
- */
-export function createRulesPlugin (_options: RulesPluginOptions = {}) {
-  const { namespace = 'v0:rules', ...options } = _options
-  const [, _provideRulesContext] = createContext<RulesContext>(namespace)
-
-  return createPlugin({
-    namespace,
-    provide: (app: App) => {
-      const context = createRules(options)
-      _provideRulesContext(context, app)
-    },
-  })
-}
-
-/**
- * Returns the current rules context.
- * Falls back to a standalone instance if no context is provided.
- *
- * @param namespace The namespace for the rules context. Defaults to `'v0:rules'`.
- * @returns The current rules context.
- *
- * @see https://0.vuetifyjs.com/composables/plugins/use-rules
- *
- * @example
- * ```vue
- * <script setup lang="ts">
- *   import { useRules } from '@vuetify/v0'
- *
- *   const rules = useRules()
- * </script>
- * ```
- */
-export function useRules (namespace = 'v0:rules'): RulesContext {
-  if (!instanceExists()) return createRulesFallback()
-
-  return useContext<RulesContext>(namespace, createRulesFallback())
-}
+export const [createRulesContext, createRulesPlugin, useRules] =
+  createPluginContext<RulesContextOptions, RulesContext>(
+    'v0:rules',
+    options => createRules(options),
+    { fallback: () => createRulesFallback() },
+  )

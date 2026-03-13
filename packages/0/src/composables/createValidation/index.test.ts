@@ -1,28 +1,22 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 // Composables
-import { createRules } from '#v0/composables/useRules'
+import { createRules, useRules } from '#v0/composables/useRules'
 
 // Utilities
-import { inject, nextTick, provide } from 'vue'
+import { nextTick } from 'vue'
 
-import {
-  createValidation,
-  createValidationContext,
-  useValidation,
-} from './index'
+import { createValidation } from './index'
 
-vi.mock('vue', async () => {
-  const actual = await vi.importActual('vue')
+vi.mock('#v0/composables/useRules', async () => {
+  const actual = await vi.importActual('#v0/composables/useRules')
   return {
     ...actual,
-    provide: vi.fn(),
-    inject: vi.fn(),
+    useRules: vi.fn(() => (actual as any).createRulesFallback()),
   }
 })
 
-const mockProvide = vi.mocked(provide)
-const mockInject = vi.mocked(inject)
+const mockUseRules = vi.mocked(useRules)
 
 describe('createValidation', () => {
   describe('register', () => {
@@ -462,7 +456,8 @@ describe('createValidation', () => {
         },
       })
 
-      const validation = createValidation({ rules: rulesContext })
+      mockUseRules.mockReturnValueOnce(rulesContext)
+      const validation = createValidation()
       const field = validation.register({
         id: 'test',
         value: '',
@@ -548,90 +543,5 @@ describe('createValidation', () => {
       expect(fields).toHaveLength(2)
       expect(validation.size).toBe(2)
     })
-  })
-})
-
-describe('createValidationContext', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-  })
-
-  it('should return a trinity tuple', () => {
-    const result = createValidationContext()
-
-    expect(Array.isArray(result)).toBe(true)
-    expect(result).toHaveLength(3)
-    expect(typeof result[0]).toBe('function')
-    expect(typeof result[1]).toBe('function')
-    expect(result[2]).toBeDefined()
-  })
-
-  it('should create context with default namespace', () => {
-    const [, provideValidationContext, context] = createValidationContext()
-
-    provideValidationContext(context)
-
-    expect(mockProvide).toHaveBeenCalledWith('v0:validation', context)
-  })
-
-  it('should create context with custom namespace', () => {
-    const [, provideValidationContext, context] = createValidationContext({
-      namespace: 'my-validation',
-    })
-
-    provideValidationContext(context)
-
-    expect(mockProvide).toHaveBeenCalledWith('my-validation', context)
-  })
-
-  it('should create a default validation context', () => {
-    const [,, context] = createValidationContext()
-
-    expect(context).toBeDefined()
-    expect(typeof context.register).toBe('function')
-  })
-
-  it('should provide context at app level when app is passed', () => {
-    const mockApp = {
-      provide: vi.fn(),
-    } as any
-    const [, provideValidationContext, context] = createValidationContext()
-
-    provideValidationContext(context, mockApp)
-
-    expect(mockApp.provide).toHaveBeenCalledWith('v0:validation', context)
-  })
-})
-
-describe('useValidation consumer', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-  })
-
-  it('should inject context with default namespace', () => {
-    const mockContext = createValidation()
-    mockInject.mockReturnValue(mockContext)
-
-    const result = useValidation()
-
-    expect(mockInject).toHaveBeenCalledWith('v0:validation', undefined)
-    expect(result).toBe(mockContext)
-  })
-
-  it('should inject context with custom namespace', () => {
-    const mockContext = createValidation()
-    mockInject.mockReturnValue(mockContext)
-
-    const result = useValidation('my-validation')
-
-    expect(mockInject).toHaveBeenCalledWith('my-validation', undefined)
-    expect(result).toBe(mockContext)
-  })
-
-  it('should return undefined when context is not provided', () => {
-    mockInject.mockReturnValue(undefined)
-
-    const result = useValidation()
-    expect(result).toBeUndefined()
   })
 })

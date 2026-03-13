@@ -1,6 +1,53 @@
 <script setup lang="ts">
-  import { fields, validation } from './context'
+  import { createValidation } from '@vuetify/v0'
+  import { provideRules } from './context'
   import FormField from './FormField.vue'
+
+  provideRules()
+
+  const validation = createValidation()
+
+  const fields = [
+    {
+      label: 'Key Name',
+      placeholder: 'e.g. production-api',
+      ticket: validation.register({
+        id: 'name',
+        value: '',
+        rules: ['required', 'slug'],
+      }),
+    },
+    {
+      label: 'Owner Email',
+      placeholder: 'e.g. ops@company.com',
+      ticket: validation.register({
+        id: 'email',
+        value: '',
+        rules: ['required', 'email'],
+      }),
+    },
+    {
+      label: 'Rate Limit (req/s)',
+      placeholder: '1–10000',
+      ticket: validation.register({
+        id: 'rate',
+        value: '',
+        rules: [
+          'required',
+          (v: unknown) => !v || !Number.isNaN(Number(v)) || 'Must be a number',
+        ],
+      }),
+    },
+    {
+      label: 'Prefix',
+      placeholder: 'e.g. PROD',
+      ticket: validation.register({
+        id: 'prefix',
+        value: '',
+        rules: ['required', 'prefix'],
+      }),
+    },
+  ]
 
   async function onSubmit () {
     for (const field of validation.values()) {

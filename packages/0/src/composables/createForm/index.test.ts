@@ -180,9 +180,9 @@ describe('createForm', () => {
   describe('targeted submit', () => {
     it('should validate only targeted validation by id', async () => {
       const form = createForm()
-      const v1 = createValidation({ standalone: true })
+      const v1 = createValidation()
       v1.register({ id: 'f1', value: '', rules: [() => 'Error'] })
-      const v2 = createValidation({ standalone: true })
+      const v2 = createValidation()
       v2.register({ id: 'f2', value: '', rules: [() => 'Error'] })
       form.register({ id: 'v1', value: v1 })
       form.register({ id: 'v2', value: v2 })

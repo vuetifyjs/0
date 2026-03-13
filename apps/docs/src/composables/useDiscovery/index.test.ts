@@ -304,7 +304,7 @@ describe('useDiscovery', () => {
       const validateSpy = vi.spyOn(discovery.form, 'submit')
       // Register a validation context for step-1
       const { createValidation } = await import('@vuetify/v0')
-      const validation = createValidation({ standalone: true })
+      const validation = createValidation()
       validation.register({ rules: [] })
       discovery.form.register({ id: 'step-1', value: validation })
 
@@ -319,7 +319,7 @@ describe('useDiscovery', () => {
 
       // Register a validation context for step-1
       const { createValidation } = await import('@vuetify/v0')
-      const validation = createValidation({ standalone: true })
+      const validation = createValidation()
       validation.register({ rules: [] })
       discovery.form.register({ id: 'step-1', value: validation })
 
@@ -663,7 +663,7 @@ describe('useDiscovery', () => {
 
     it('should reset form field values', async () => {
       const { createValidation } = await import('@vuetify/v0')
-      const validation = createValidation({ standalone: true })
+      const validation = createValidation()
       const field = validation.register({ id: 'test-field', rules: [] })
       discovery.form.register({ value: validation })
 

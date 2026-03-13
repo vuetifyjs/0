@@ -18,7 +18,6 @@
 
 // Foundational
 import { createContext, useContext } from '#v0/composables/createContext'
-import { createPlugin } from '#v0/composables/createPlugin'
 import { createTrinity } from '#v0/composables/createTrinity'
 
 // Composables
@@ -93,8 +92,6 @@ export interface FormContextOptions extends FormOptions {
   namespace?: string
 }
 
-export interface FormPluginOptions extends FormContextOptions {}
-
 /**
  * Creates a new form instance.
  *
@@ -114,7 +111,7 @@ export interface FormPluginOptions extends FormContextOptions {}
  * const form = createForm()
  *
  * // Validations register themselves — form is just the coordinator
- * const validation = createValidation({ rules: useRules() })
+ * const validation = createValidation()
  * const email = validation.register({
  *   id: 'email',
  *   value: '',
@@ -232,38 +229,6 @@ export function createFormContext<
   }
 
   return createTrinity<R>(useFormContext, provideFormContext, context)
-}
-
-/**
- * Creates a Vue plugin that provides a form context to the entire app.
- *
- * @param options The options for the form plugin.
- * @returns A Vue plugin.
- *
- * @see https://0.vuetifyjs.com/composables/forms/create-form
- *
- * @example
- * ```ts
- * import { createFormPlugin } from '@vuetify/v0'
- *
- * app.use(createFormPlugin())
- * ```
- */
-export function createFormPlugin<
-  Z extends FormTicketInput = FormTicketInput,
-  E extends FormTicket<Z> = FormTicket<Z>,
-  R extends FormContext<Z, E> = FormContext<Z, E>,
-> (_options: FormPluginOptions = {}) {
-  const { namespace = 'v0:form', ...options } = _options
-  const [, _provideFormContext] = createContext<R>(namespace)
-
-  return createPlugin({
-    namespace,
-    provide: (app: App) => {
-      const context = createForm<Z, E, R>(options)
-      _provideFormContext(context, app)
-    },
-  })
 }
 
 /**
