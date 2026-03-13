@@ -51,7 +51,7 @@
     tree,
     bottom,
     side,
-    editor: shallowRef(true),
+    editor: shallowRef(false),
   })
 
   // When breakpoints confirm desktop, restore open state
