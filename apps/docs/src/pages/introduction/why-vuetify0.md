@@ -19,13 +19,13 @@ logo: vzero
 
 # Why v0
 
-v0 is a meta-framework for building UI libraries. Headless composables, unstyled components, and reactive primitives — the foundation layer that UI frameworks are built on.
-
-Use it to build a full design system shared across projects, or import a single composable to solve one problem in your app. v0 scales to your ambition.
-
-From the creators of [Vuetify](https://vuetifyjs.com) — **40K+ GitHub stars**, **2M+ weekly downloads**, a decade of production use. Vuetify itself is being rebuilt on v0.
+The meta-framework for building UI libraries.
 
 <DocsPageFeatures :frontmatter />
+
+v0 provides headless composables, unstyled components, and reactive primitives — the foundation layer that UI frameworks are built on. Use it to build a full design system shared across projects, or import a single composable to solve one problem in your app. v0 scales to your ambition.
+
+From the creators of [Vuetify](https://vuetifyjs.com) — **40K+ GitHub stars**, **2M+ weekly downloads**, a decade of production use. Vuetify itself is being rebuilt on v0.
 
 ## Composable-First Architecture
 
