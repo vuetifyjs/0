@@ -54,6 +54,8 @@
       "./theme": "./dist/theme/index.mjs",
       "./theme/adapters": "./dist/theme/adapters/index.mjs",
       "./theme/adapters/v0": "./dist/theme/adapters/v0/index.mjs",
+      "./rules": "./dist/rules/index.mjs",
+      "./rules/adapters/zod": "./dist/rules/adapters/zod/index.mjs",
       "./types": "./dist/types/index.mjs",
       "./utilities": "./dist/utilities/index.mjs",
       "./package.json": "./package.json",
@@ -227,6 +229,14 @@
     "./utilities": {
       "development": "./src/utilities/index.ts",
       "default": "./dist/utilities/index.mjs"
+    },
+    "./rules": {
+      "development": "./src/rules/index.ts",
+      "default": "./dist/rules/index.mjs"
+    },
+    "./rules/adapters/zod": {
+      "development": "./src/composables/useRules/adapters/zod.ts",
+      "default": "./dist/rules/adapters/zod/index.mjs"
     },
     "./package.json": "./package.json",
     "./browser": {
