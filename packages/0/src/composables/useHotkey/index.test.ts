@@ -4,7 +4,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { effectScope, ref, nextTick } from 'vue'
 
 import { normalizeKey } from './aliases'
-import { splitKeyCombination, splitKeySequence } from './parsing'
+import { parseKeyCombination } from './parsing'
 
 import { useHotkey } from './index'
 
@@ -531,6 +531,86 @@ describe('useHotkey', () => {
       window.dispatchEvent(createKeyboardEvent('t'))
 
       expect(callback).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('alternate (OR) hotkeys', () => {
+    it('fires callback for either key in an alternate', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        useHotkey('up/down', callback)
+      })
+
+      window.dispatchEvent(createKeyboardEvent('ArrowUp'))
+      expect(callback).toHaveBeenCalledTimes(1)
+
+      window.dispatchEvent(createKeyboardEvent('ArrowDown'))
+      expect(callback).toHaveBeenCalledTimes(2)
+    })
+
+    it('does not fire for non-matching key in alternate', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        useHotkey('up/down', callback)
+      })
+
+      window.dispatchEvent(createKeyboardEvent('ArrowLeft'))
+      expect(callback).not.toHaveBeenCalled()
+    })
+
+    it('handles alternate combos with modifiers', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        useHotkey('ctrl+k/ctrl+f', callback)
+      })
+
+      window.dispatchEvent(createKeyboardEvent('k', { ctrlKey: true }))
+      expect(callback).toHaveBeenCalledTimes(1)
+
+      window.dispatchEvent(createKeyboardEvent('f', { ctrlKey: true }))
+      expect(callback).toHaveBeenCalledTimes(2)
+    })
+
+    it('handles alternate as part of a sequence', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        useHotkey('ctrl+k/ctrl+f-p', callback)
+      })
+
+      // First branch: ctrl+k then p
+      window.dispatchEvent(createKeyboardEvent('k', { ctrlKey: true }))
+      expect(callback).not.toHaveBeenCalled()
+      window.dispatchEvent(createKeyboardEvent('p'))
+      expect(callback).toHaveBeenCalledTimes(1)
+    })
+
+    it('handles alternate as part of a sequence (second branch)', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        useHotkey('ctrl+k/ctrl+f-p', callback)
+      })
+
+      // Second branch: ctrl+f then p
+      window.dispatchEvent(createKeyboardEvent('f', { ctrlKey: true }))
+      expect(callback).not.toHaveBeenCalled()
+      window.dispatchEvent(createKeyboardEvent('p'))
+      expect(callback).toHaveBeenCalledTimes(1)
+    })
+
+    it('handles alias-resolved operator characters as literal keys', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        useHotkey('shift+slash', callback)
+      })
+
+      window.dispatchEvent(createKeyboardEvent('/', { shiftKey: true }))
+      expect(callback).toHaveBeenCalledTimes(1)
     })
   })
 
@@ -1203,207 +1283,334 @@ describe('useHotkey', () => {
   })
 })
 
-describe('splitKeyCombination', () => {
-  it('splits simple combination', () => {
-    expect(splitKeyCombination('ctrl+k')).toEqual({
-      keys: ['ctrl', 'k'],
-      separators: ['+'],
+describe('parseKeyCombination', () => {
+  describe('combinations', () => {
+    it('should split simple combinations with +', () => {
+      expect(parseKeyCombination('ctrl+k')).toEqual({
+        type: 'combo',
+        parts: ['ctrl', 'k'],
+      })
+    })
+
+    it('should split simple combinations with _', () => {
+      expect(parseKeyCombination('shift_tab')).toEqual({
+        type: 'combo',
+        parts: ['shift', 'tab'],
+      })
+    })
+
+    it('should parse / as alternate (OR)', () => {
+      expect(parseKeyCombination('up/down')).toEqual({
+        type: 'alternate',
+        parts: ['arrowup', 'arrowdown'],
+      })
+    })
+
+    it('should handle multiple modifiers', () => {
+      expect(parseKeyCombination('ctrl+shift+k')).toEqual({
+        type: 'combo',
+        parts: ['ctrl', 'shift', 'k'],
+      })
+    })
+
+    it('should handle mixed + and _ separators', () => {
+      expect(parseKeyCombination('alt_shift+t')).toEqual({
+        type: 'combo',
+        parts: ['alt', 'shift', 't'],
+      })
+    })
+
+    it('should handle single literal keys', () => {
+      expect(parseKeyCombination('-')).toBe('-')
+      expect(parseKeyCombination('+')).toBe('+')
+      expect(parseKeyCombination('/')).toBe('/')
+      expect(parseKeyCombination('_')).toBe('_')
+      expect(parseKeyCombination(' ')).toBe(' ')
+    })
+
+    it('should handle doubled literal +', () => {
+      expect(parseKeyCombination('ctrl++')).toEqual({
+        type: 'combo',
+        parts: ['ctrl', '+'],
+      })
+    })
+
+    it('should handle doubled literal _', () => {
+      expect(parseKeyCombination('ctrl__')).toEqual({
+        type: 'combo',
+        parts: ['ctrl', '_'],
+      })
+    })
+
+    it('should handle doubled literal /', () => {
+      expect(parseKeyCombination('ctrl//')).toEqual({
+        type: 'alternate',
+        parts: ['ctrl', '/'],
+      })
+    })
+
+    it('should handle combination with literal minus', () => {
+      expect(parseKeyCombination('ctrl+-')).toEqual({
+        type: 'combo',
+        parts: ['ctrl', '-'],
+      })
+    })
+
+    it('should handle combination with literal space', () => {
+      expect(parseKeyCombination('ctrl+ ')).toEqual({
+        type: 'combo',
+        parts: ['ctrl', ' '],
+      })
+    })
+
+    it('should handle combinations starting with doubled + literal', () => {
+      expect(parseKeyCombination('++k')).toEqual({
+        type: 'combo',
+        parts: ['+', 'k'],
+      })
     })
   })
 
-  it('splits multiple modifiers', () => {
-    expect(splitKeyCombination('ctrl+shift+k')).toEqual({
-      keys: ['ctrl', 'shift', 'k'],
-      separators: ['+', '+'],
+  describe('key aliases', () => {
+    it('should handle all key aliases', () => {
+      // Modifier aliases
+      expect(parseKeyCombination('control')).toBe('ctrl')
+      expect(parseKeyCombination('command')).toBe('cmd')
+      expect(parseKeyCombination('option')).toBe('alt')
+
+      // Arrow key aliases
+      expect(parseKeyCombination('up')).toBe('arrowup')
+      expect(parseKeyCombination('down')).toBe('arrowdown')
+      expect(parseKeyCombination('left')).toBe('arrowleft')
+      expect(parseKeyCombination('right')).toBe('arrowright')
+
+      // Common key aliases
+      expect(parseKeyCombination('esc')).toBe('escape')
+      expect(parseKeyCombination('return')).toBe('enter')
+      expect(parseKeyCombination('del')).toBe('delete')
+      expect(parseKeyCombination('space')).toBe(' ')
+      expect(parseKeyCombination('spacebar')).toBe(' ')
+
+      // Symbol aliases
+      expect(parseKeyCombination('plus')).toBe('+')
+      expect(parseKeyCombination('slash')).toBe('/')
+      expect(parseKeyCombination('underscore')).toBe('_')
+      expect(parseKeyCombination('minus')).toBe('-')
+      expect(parseKeyCombination('hyphen')).toBe('-')
+    })
+
+    it('should handle case insensitive aliases', () => {
+      expect(parseKeyCombination('CONTROL+K')).toEqual({
+        type: 'combo',
+        parts: ['ctrl', 'k'],
+      })
+      expect(parseKeyCombination('UP')).toBe('arrowup')
+      expect(parseKeyCombination('ESC')).toBe('escape')
+      expect(parseKeyCombination('PLUS')).toBe('+')
+    })
+
+    it('should handle key aliases in complex combinations', () => {
+      const r1 = parseKeyCombination('control+option+up')
+      expect(r1).toEqual({ type: 'combo', parts: ['ctrl', 'alt', 'arrowup'] })
+
+      const r2 = parseKeyCombination('shift+plus')
+      expect(r2).toEqual({ type: 'combo', parts: ['shift', '+'] })
+
+      const r3 = parseKeyCombination('shift+slash')
+      expect(r3).toEqual({ type: 'combo', parts: ['shift', '/'] })
+
+      const r4 = parseKeyCombination('shift+minus')
+      expect(r4).toEqual({ type: 'combo', parts: ['shift', '-'] })
     })
   })
 
-  it('handles single key', () => {
-    expect(splitKeyCombination('a')).toEqual({
-      keys: ['a'],
-      separators: [],
+  describe('sequences', () => {
+    it('should split simple sequences', () => {
+      expect(parseKeyCombination('a-b')).toEqual({
+        type: 'sequence',
+        parts: ['a', 'b'],
+      })
+    })
+
+    it('should handle long sequences', () => {
+      expect(parseKeyCombination('a-b-c-d')).toEqual({
+        type: 'sequence',
+        parts: ['a', 'b', 'c', 'd'],
+      })
+    })
+
+    it('should split sequences with combinations', () => {
+      expect(parseKeyCombination('ctrl+k-p')).toEqual({
+        type: 'sequence',
+        parts: [
+          { type: 'combo', parts: ['ctrl', 'k'] },
+          'p',
+        ],
+      })
+    })
+
+    it('should handle standalone literal minus', () => {
+      expect(parseKeyCombination('-')).toBe('-')
+    })
+
+    it('should handle literal minus in sequence', () => {
+      expect(parseKeyCombination('ctrl+a-shift+-')).toEqual({
+        type: 'sequence',
+        parts: [
+          { type: 'combo', parts: ['ctrl', 'a'] },
+          { type: 'combo', parts: ['shift', '-'] },
+        ],
+      })
+    })
+
+    it('should correctly parse meta+--k', () => {
+      expect(parseKeyCombination('meta+--k')).toEqual({
+        type: 'sequence',
+        parts: [
+          { type: 'combo', parts: ['meta', '-'] },
+          'k',
+        ],
+      })
+    })
+
+    it('should correctly parse ---', () => {
+      expect(parseKeyCombination('---')).toEqual({
+        type: 'sequence',
+        parts: ['-', '-'],
+      })
+    })
+
+    it('should correctly parse --+', () => {
+      expect(parseKeyCombination('--+')).toEqual({
+        type: 'sequence',
+        parts: ['-', '+'],
+      })
+    })
+
+    it('should handle shift---alt++', () => {
+      expect(parseKeyCombination('shift---alt++')).toEqual({
+        type: 'sequence',
+        parts: [
+          'shift',
+          '-',
+          { type: 'combo', parts: ['alt', '+'] },
+        ],
+      })
+    })
+
+    it('should handle alt+++b+h', () => {
+      expect(parseKeyCombination('alt+++b+h')).toEqual({
+        type: 'combo',
+        parts: ['alt', '+', 'b', 'h'],
+      })
+    })
+
+    it('should handle cmd+shift-++k', () => {
+      expect(parseKeyCombination('cmd+shift-++k')).toEqual({
+        type: 'sequence',
+        parts: [
+          { type: 'combo', parts: ['cmd', 'shift'] },
+          { type: 'combo', parts: ['+', 'k'] },
+        ],
+      })
+    })
+
+    it('should handle cmd+shift++-k', () => {
+      expect(parseKeyCombination('cmd+shift++-k')).toEqual({
+        type: 'sequence',
+        parts: [
+          { type: 'combo', parts: ['cmd', 'shift', '+'] },
+          'k',
+        ],
+      })
     })
   })
 
-  it('normalizes key aliases', () => {
-    expect(splitKeyCombination('control+esc')).toEqual({
-      keys: ['ctrl', 'escape'],
-      separators: ['+'],
+  describe('alternates with sequences', () => {
+    it('should parse alternates within a sequence step', () => {
+      expect(parseKeyCombination('ctrl+k/ctrl+f-p')).toEqual({
+        type: 'sequence',
+        parts: [
+          {
+            type: 'alternate',
+            parts: [
+              { type: 'combo', parts: ['ctrl', 'k'] },
+              { type: 'combo', parts: ['ctrl', 'f'] },
+            ],
+          },
+          'p',
+        ],
+      })
     })
   })
 
-  it('parses symbol alias keys', () => {
-    expect(splitKeyCombination('plus')).toEqual({
-      keys: ['+'],
-      separators: [],
-    })
-
-    expect(splitKeyCombination('slash')).toEqual({
-      keys: ['/'],
-      separators: [],
-    })
-
-    expect(splitKeyCombination('underscore')).toEqual({
-      keys: ['_'],
-      separators: [],
+  describe('complex integration', () => {
+    it('should correctly parse ctrl+shift+a-alt+--k', () => {
+      expect(parseKeyCombination('ctrl+shift+a-alt+--k')).toEqual({
+        type: 'sequence',
+        parts: [
+          { type: 'combo', parts: ['ctrl', 'shift', 'a'] },
+          { type: 'combo', parts: ['alt', '-'] },
+          'k',
+        ],
+      })
     })
   })
 
-  it('returns empty for invalid combinations', () => {
-    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
-
-    expect(splitKeyCombination('')).toEqual({ keys: [], separators: [] })
-    expect(splitKeyCombination('+a')).toEqual({ keys: [], separators: [] })
-
-    warnSpy.mockRestore()
-  })
-
-  it('handles literal minus as key', () => {
-    expect(splitKeyCombination('ctrl+-')).toEqual({
-      keys: ['ctrl', '-'],
-      separators: ['+'],
+  describe('error handling', () => {
+    it('should return empty string for empty input', () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      expect(parseKeyCombination('')).toBe('')
+      warnSpy.mockRestore()
     })
-  })
 
-  it('handles slash separator', () => {
-    expect(splitKeyCombination('ctrl/k')).toEqual({
-      keys: ['ctrl', 'k'],
-      separators: ['/'],
-    })
-  })
-
-  it('handles slash separator with aliases', () => {
-    expect(splitKeyCombination('up/down')).toEqual({
-      keys: ['arrowup', 'arrowdown'],
-      separators: ['/'],
-    })
-  })
-
-  it('handles underscore separator', () => {
-    expect(splitKeyCombination('ctrl_k')).toEqual({
-      keys: ['ctrl', 'k'],
-      separators: ['_'],
-    })
-  })
-
-  it('handles mixed separators', () => {
-    expect(splitKeyCombination('ctrl+shift/k')).toEqual({
-      keys: ['ctrl', 'shift', 'k'],
-      separators: ['+', '/'],
-    })
-  })
-
-  describe('warnings', () => {
-    it('warns on empty combination', () => {
+    it('should return empty string for leading separators', () => {
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
-      splitKeyCombination('')
+      expect(parseKeyCombination('+a')).toBe('')
+      expect(parseKeyCombination('/a')).toBe('')
+      expect(parseKeyCombination('_a')).toBe('')
+      expect(parseKeyCombination('-a')).toBe('')
 
+      warnSpy.mockRestore()
+    })
+
+    it('should return empty string for trailing separators', () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+      expect(parseKeyCombination('a+')).toBe('')
+      expect(parseKeyCombination('a/')).toBe('')
+      expect(parseKeyCombination('a_')).toBe('')
+      expect(parseKeyCombination('a-')).toBe('')
+
+      warnSpy.mockRestore()
+    })
+
+    it('should return empty string for standalone doubled separators', () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+      expect(parseKeyCombination('++')).toBe('')
+      expect(parseKeyCombination('//')).toBe('')
+      expect(parseKeyCombination('--')).toBe('')
+      expect(parseKeyCombination('__')).toBe('')
+
+      warnSpy.mockRestore()
+    })
+
+    it('should return empty string for extraneous spaces', () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      expect(parseKeyCombination('shift + ')).toBe('')
+      warnSpy.mockRestore()
+    })
+
+    it('warns on invalid input', () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+      parseKeyCombination('')
       expect(warnSpy).toHaveBeenCalledWith(
         expect.stringContaining('Invalid hotkey combination'),
       )
-      warnSpy.mockRestore()
-    })
 
-    it('warns on invalid leading separator', () => {
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
-
-      splitKeyCombination('+a')
-
-      expect(warnSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Invalid hotkey combination'),
-      )
-      warnSpy.mockRestore()
-    })
-
-    it('warns on double plus separator', () => {
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
-
-      splitKeyCombination('ctrl++k')
-
-      expect(warnSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Invalid hotkey combination'),
-      )
-      warnSpy.mockRestore()
-    })
-
-    it.each(['/', '/a', 'a/', '//', 'ctrl//'])('warns on invalid slash structure: %s', value => {
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
-
-      expect(splitKeyCombination(value)).toEqual({ keys: [], separators: [] })
-      expect(warnSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Invalid hotkey combination'),
-      )
-
-      warnSpy.mockRestore()
-    })
-  })
-})
-
-describe('splitKeySequence', () => {
-  it('splits simple sequence', () => {
-    expect(splitKeySequence('g-h')).toEqual(['g', 'h'])
-  })
-
-  it('splits sequence with combinations', () => {
-    expect(splitKeySequence('ctrl+k-p')).toEqual(['ctrl+k', 'p'])
-  })
-
-  it('handles single key (not a sequence)', () => {
-    expect(splitKeySequence('a')).toEqual(['a'])
-  })
-
-  it('handles standalone literal minus in sequence', () => {
-    expect(splitKeySequence('-')).toEqual(['-'])
-  })
-
-  it('returns empty for invalid sequences', () => {
-    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
-
-    expect(splitKeySequence('')).toEqual([])
-
-    warnSpy.mockRestore()
-  })
-
-  it('handles literal minus in combination', () => {
-    expect(splitKeySequence('ctrl+-')).toEqual(['ctrl+-'])
-  })
-
-  it('splits three-key sequence', () => {
-    expect(splitKeySequence('g-i-t')).toEqual(['g', 'i', 't'])
-  })
-
-  describe('warnings', () => {
-    it('warns on empty sequence', () => {
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
-
-      splitKeySequence('')
-
-      expect(warnSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Invalid hotkey sequence'),
-      )
-      warnSpy.mockRestore()
-    })
-
-    it('warns on invalid leading separator', () => {
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
-
-      splitKeySequence('-a')
-
-      expect(warnSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Invalid hotkey sequence'),
-      )
-      warnSpy.mockRestore()
-    })
-
-    it('warns on invalid trailing separator', () => {
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
-
-      splitKeySequence('a-')
-
-      expect(warnSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Invalid hotkey sequence'),
-      )
       warnSpy.mockRestore()
     })
   })
