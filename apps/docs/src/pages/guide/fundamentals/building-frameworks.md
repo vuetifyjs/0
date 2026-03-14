@@ -2,7 +2,7 @@
 title: Building Frameworks - Using v0 as a Dependency
 features:
   order: 6
-  level: 2
+  level: 3
 meta:
   - name: description
     content: Learn how to use Vuetify0 as a foundation for building your own component framework. Covers behavior composables, component wrappers, plugins, SSR, and TypeScript patterns.
