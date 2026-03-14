@@ -204,11 +204,11 @@ Need to justify the choice to management? Here's what matters to them:
 
 | | Tool | Description |
 |:-:|------|-------------|
-| <AppIcon icon="vuetify-create" :size="20" /> | **[Vuetify Create](https://github.com/vuetifyjs/create)** | One command, project scaffolded with v0 pre-configured |
+| <AppIcon icon="vuetify-create" :size="20" /> | **[Vuetify Create](https://github.com/vuetifyjs/create)** <AppIcon icon="open-in-new" :size="14" /> | One command, project scaffolded with v0 pre-configured |
 | <AppIcon icon="vuetify-cli" :size="20" /> | **[Vuetify CLI](/guide/tooling/vuetify-cli)** | Analyze usage, generate components, debug issues |
 | <AppIcon icon="vuetify-mcp" :size="20" /> | **[Vuetify MCP](/guide/tooling/vuetify-mcp)** | AI-native API access for Claude, Cursor, and other assistants |
 | <AppIcon icon="vuetify-play" :size="20" /> | **[Vuetify Play](/playground)** | Browser IDE for experimenting with v0 in real-time |
-| <AppIcon icon="vuetify-bin" :size="20" /> | **Vuetify Bin** | Share runnable code snippets with a link |
+| <AppIcon icon="vuetify-bin" :size="20" /> | **[Vuetify Bin](https://bin.vuetifyjs.com)** <AppIcon icon="open-in-new" :size="14" /> | Share runnable code snippets with a link |
 
 ## Learn by Doing
 
