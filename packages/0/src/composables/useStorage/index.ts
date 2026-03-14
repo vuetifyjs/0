@@ -27,7 +27,7 @@ import { useWindowEventListener } from '#v0/composables/useEventListener'
 import { MemoryAdapter } from '#v0/composables/useStorage/adapters'
 
 // Utilities
-import { isNullOrUndefined } from '#v0/utilities'
+import { isNullOrUndefined, isObject } from '#v0/utilities'
 import { ref, watch } from 'vue'
 
 // Types
@@ -126,7 +126,7 @@ export function createStorage<
       const parsed = serializer.read(raw)
 
       // TTL check: expired entries are treated as absent
-      if (ttl && parsed && typeof parsed === 'object' && '__ttl' in parsed && '__v' in parsed) {
+      if (ttl && isObject(parsed) && '__ttl' in parsed && '__v' in parsed) {
         if (Date.now() - (parsed as any).__t > ttl) {
           adapter?.removeItem(prefixedKey)
           return undefined
@@ -217,7 +217,7 @@ export function createStorage<
 
       watchers.get(e.key)?.()
 
-      valueRef.value = e.newValue == null ? undefined : readStored(e.key)
+      valueRef.value = isNullOrUndefined(e.newValue) ? undefined : readStored(e.key)
 
       const stop = watch(valueRef, newValue => {
         if (isNullOrUndefined(newValue)) {
