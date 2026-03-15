@@ -69,7 +69,7 @@
 
     <div
       ref="container"
-      class="flex gap-2 overflow-x-auto snap-x snap-mandatory scrollbar-none"
+      class="carousel flex gap-2 overflow-x-auto snap-x snap-mandatory"
       @scroll.passive="onScroll"
     >
       <button
@@ -135,3 +135,13 @@
     </div>
   </div>
 </template>
+
+<style scoped>
+  .carousel {
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+</style>
