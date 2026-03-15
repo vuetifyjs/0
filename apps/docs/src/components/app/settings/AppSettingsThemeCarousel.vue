@@ -73,7 +73,7 @@
   function onPointerMove (e: PointerEvent) {
     if (!dragging) return
     const delta = e.clientX - startX
-    if (Math.abs(delta) > 3) moved = true
+    if (Math.abs(delta) > 5) moved = true
     container.value!.scrollLeft = startScroll - delta
   }
 
@@ -85,17 +85,12 @@
     el.style.scrollBehavior = 'smooth'
     el.style.scrollSnapType = ''
     el.style.cursor = ''
+    if (moved) {
+      el.addEventListener('click', ev => ev.stopPropagation(), { once: true, capture: true })
+    }
     useEventListener(el, 'scrollend', () => {
       el.style.scrollBehavior = ''
     }, { once: true })
-  }
-
-  function onClick (e: MouseEvent, id: ThemePreference) {
-    if (moved) {
-      e.preventDefault()
-      return
-    }
-    emit('select', id)
   }
 
   useResizeObserver(container, onScroll)
@@ -108,7 +103,7 @@
     <div
       ref="container"
       class="carousel flex gap-2 overflow-x-auto snap-x snap-mandatory cursor-grab select-none"
-      @pointerdown.prevent="onPointerDown"
+      @pointerdown="onPointerDown"
       @pointermove="onPointerMove"
       @pointerup="onPointerUp"
       @scroll.passive="onScroll"
@@ -124,7 +119,7 @@
             : 'border-divider hover:border-primary/50 text-on-surface',
         ]"
         type="button"
-        @click="onClick($event, option.id)"
+        @click="emit('select', option.id)"
       >
         <div class="flex items-center gap-2">
           <AppIcon :icon="option.icon" size="14" />
