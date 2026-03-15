@@ -3,8 +3,6 @@
   "version": "0.1.6",
   "description": "Vuetify Paper",
   "license": "MIT",
-  "main": "./dist/index.mjs",
-  "module": "./dist/index.mjs",
   "types": "./dist/index.d.mts",
   "type": "module",
   "files": [
@@ -28,6 +26,7 @@
       "default": "./dist/index.mjs"
     },
     "./package.json": "./package.json",
+    "./style.css": "./dist/style.css",
     "./browser": {
       "development": "./src/index.ts",
       "default": "./dist/browser/index.js"
@@ -37,6 +36,7 @@
     "exports": {
       ".": "./dist/index.mjs",
       "./package.json": "./package.json",
+      "./style.css": "./dist/style.css",
       "./browser": "./dist/browser/index.js"
     }
   },
@@ -44,6 +44,7 @@
     "@vuetify/v0": "workspace:*"
   },
   "devDependencies": {
+    "@tsdown/css": "catalog:",
     "rollup-plugin-sass": "catalog:",
     "sass": "catalog:",
     "tsdown": "catalog:",
