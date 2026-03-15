@@ -79,8 +79,12 @@
     dragging = false
     const el = container.value!
     el.releasePointerCapture(e.pointerId)
+    el.style.scrollBehavior = 'smooth'
     el.style.scrollSnapType = ''
     el.style.cursor = ''
+    el.addEventListener('scrollend', () => {
+      el.style.scrollBehavior = ''
+    }, { once: true })
   }
 
   function onClick (e: MouseEvent, id: ThemePreference) {
