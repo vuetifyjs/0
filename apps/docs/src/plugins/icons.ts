@@ -174,7 +174,7 @@ export const [useIconContext, provideIconContext, context] = createTokensContext
     'theme-material-2': '{theme-material-1}',
     'theme-material-3': '{theme-material-1}',
     'theme-ant-design': 'M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z',
-    'theme-radix': 'M11.52 24a7.68 7.68 0 0 1 0-15.36v15.36zM11.52 0H3.84v7.68h7.68V0zM11.52 0a3.84 3.84 0 1 1 0 7.68V0z',
+    'theme-radix': 'M11.52 24a7.68 7.68 0 0 1-7.68-7.68 7.68 7.68 0 0 1 7.68-7.68V24Zm0-24v7.68H3.84V0h7.68Zm4.8 7.68a3.84 3.84 0 1 1 0-7.68 3.84 3.84 0 0 1 0 7.68Z',
     'arrow-left': mdiArrowLeft,
     'plus': mdiPlus,
     'edit': '{pencil}',
