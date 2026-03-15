@@ -36,6 +36,12 @@ const PREFERENCE_ICONS: Record<string, string> = {
   'polaris': 'theme-polaris',
   'nebula': 'theme-nebula',
   'odyssey': 'theme-odyssey',
+  'tailwind': 'theme-tailwind',
+  'material-1': 'theme-material-1',
+  'material-2': 'theme-material-2',
+  'material-3': 'theme-material-3',
+  'ant-design': 'theme-ant-design',
+  'radix': 'theme-radix',
 }
 
 const PREFERENCE_LABELS: Record<string, string> = {
@@ -50,6 +56,12 @@ const PREFERENCE_LABELS: Record<string, string> = {
   'polaris': 'Polaris',
   'nebula': 'Nebula',
   'odyssey': 'Odyssey',
+  'tailwind': 'Tailwind',
+  'material-1': 'Material 1',
+  'material-2': 'Material 2',
+  'material-3': 'Material 3',
+  'ant-design': 'Ant Design',
+  'radix': 'Radix',
 }
 
 export type ThemePreference = typeof PREFERENCE_ORDER[number] | (string & {})
@@ -75,8 +87,8 @@ function isValidPreference (pref: string | undefined): pref is ThemePreference {
   if (!pref) return false
   // Preset themes
   if ((PREFERENCE_ORDER as readonly string[]).includes(pref)) return true
-  // Custom themes start with 'custom-'
   if (pref.startsWith('custom-')) return true
+  if (pref in themes) return true
   return false
 }
 let initialized = false
