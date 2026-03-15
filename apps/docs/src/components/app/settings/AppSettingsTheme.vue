@@ -55,6 +55,15 @@
     { id: 'odyssey', label: 'Odyssey', icon: 'theme-odyssey', theme: 'odyssey' },
   ]
 
+  const designSystemOptions: ThemeOption[] = [
+    { id: 'tailwind', label: 'Tailwind', icon: 'theme-tailwind', theme: 'tailwind' },
+    { id: 'material-1', label: 'Material 1', icon: 'theme-material-1', theme: 'material-1' },
+    { id: 'material-2', label: 'Material 2', icon: 'theme-material-2', theme: 'material-2' },
+    { id: 'material-3', label: 'Material 3', icon: 'theme-material-3', theme: 'material-3' },
+    { id: 'ant-design', label: 'Ant Design', icon: 'theme-ant-design', theme: 'ant-design' },
+    { id: 'radix', label: 'Radix', icon: 'theme-radix', theme: 'radix' },
+  ]
+
   // Custom themes as options
   const customOptions = computed<ThemeOption[]>(() =>
     themes_.customThemes.value.map(t => ({
@@ -232,30 +241,20 @@
       </div>
 
       <!-- Vuetify Themes -->
-      <div>
-        <div class="text-xs font-medium text-on-surface-variant mb-2">Vuetify Themes</div>
-        <div class="grid grid-cols-2 gap-2">
-          <button
-            v-for="option in vuetifyOptions"
-            :key="option.id"
-            :aria-pressed="toggle.preference.value === option.id"
-            :class="[
-              'flex flex-col items-start gap-1.5 px-3 py-2 rounded-lg border text-sm transition-colors',
-              toggle.preference.value === option.id
-                ? 'border-primary bg-primary/10 text-primary'
-                : 'border-divider hover:border-primary/50 text-on-surface',
-            ]"
-            type="button"
-            @click="toggle.setPreference(option.id)"
-          >
-            <div class="flex items-center gap-2">
-              <AppIcon :icon="option.icon" size="16" />
-              <span class="font-medium">{{ option.label }}</span>
-            </div>
-            <AppThemePreview v-if="option.theme" :theme="option.theme" />
-          </button>
-        </div>
-      </div>
+      <AppSettingsThemeCarousel
+        label="Vuetify Themes"
+        :options="vuetifyOptions"
+        :preference="toggle.preference.value"
+        @select="toggle.setPreference"
+      />
+
+      <!-- Design Systems -->
+      <AppSettingsThemeCarousel
+        label="Design Systems"
+        :options="designSystemOptions"
+        :preference="toggle.preference.value"
+        @select="toggle.setPreference"
+      />
 
       <!-- Custom Themes -->
       <div v-if="customOptions.length > 0">
