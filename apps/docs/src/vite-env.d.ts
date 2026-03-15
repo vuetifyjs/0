@@ -1,5 +1,5 @@
 /// <reference types="vite/client" />
-/// <reference types="unplugin-vue-router/client" />
+/// <reference types="vue-router/auto" />
 /// <reference types="vite-plugin-vue-layouts-next/client" />
 
 declare module '*.md' {

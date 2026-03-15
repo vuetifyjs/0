@@ -7,7 +7,7 @@
 
 // Types
 import type { FeaturesAdapterFlags, FeaturesAdapterInterface } from '../generic'
-import type { IFlagsmith, IInitConfig, IFlags, LoadingState, IRetrieveInfo } from 'flagsmith'
+import type { IFlagsmith, IInitConfig, IFlags, LoadingState, IRetrieveInfo } from '@flagsmith/flagsmith'
 
 export class FlagsmithFeatureAdapter implements FeaturesAdapterInterface {
   private client: IFlagsmith

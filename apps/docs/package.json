@@ -24,7 +24,6 @@
     "unplugin-vue": "catalog:",
     "unplugin-vue-components": "catalog:",
     "unplugin-vue-markdown": "catalog:",
-    "unplugin-vue-router": "catalog:",
     "vite": "catalog:",
     "vite-plugin-pwa": "catalog:",
     "vite-plugin-vue-layouts-next": "catalog:",

@@ -3,8 +3,6 @@
   "version": "0.1.6",
   "description": "Vuetify0",
   "license": "MIT",
-  "main": "./dist/index.mjs",
-  "module": "./dist/index.mjs",
   "types": "./dist/index.d.mts",
   "type": "module",
   "files": [
@@ -58,13 +56,13 @@
       "./permissions": "./dist/permissions/index.mjs",
       "./permissions/adapters": "./dist/permissions/adapters/index.mjs",
       "./permissions/adapters/v0": "./dist/permissions/adapters/v0/index.mjs",
+      "./rules": "./dist/rules/index.mjs",
       "./storage": "./dist/storage/index.mjs",
       "./storage/adapters": "./dist/storage/adapters/index.mjs",
       "./storage/adapters/memory": "./dist/storage/adapters/memory/index.mjs",
       "./theme": "./dist/theme/index.mjs",
       "./theme/adapters": "./dist/theme/adapters/index.mjs",
       "./theme/adapters/v0": "./dist/theme/adapters/v0/index.mjs",
-      "./rules": "./dist/rules/index.mjs",
       "./types": "./dist/types/index.mjs",
       "./utilities": "./dist/utilities/index.mjs",
       "./package.json": "./package.json",
@@ -75,13 +73,13 @@
     "@adobe/leonardo-contrast-colors": ">=1.0.0",
     "@ant-design/colors": ">=7.0.0",
     "@material/material-color-utilities": ">=0.3.0",
-    "flagsmith": "^10.0.0",
+    "@flagsmith/flagsmith": "^11.0.0",
     "launchdarkly-js-client-sdk": "^3.0.0",
     "posthog-js": "^1.0.0",
     "vue": ">=3.5.0"
   },
   "peerDependenciesMeta": {
-    "flagsmith": {
+    "@flagsmith/flagsmith": {
       "optional": true
     },
     "launchdarkly-js-client-sdk": {
@@ -105,7 +103,7 @@
     "@ant-design/colors": "catalog:",
     "@material/material-color-utilities": "catalog:",
     "@vue/test-utils": "catalog:",
-    "flagsmith": "catalog:",
+    "@flagsmith/flagsmith": "catalog:",
     "launchdarkly-js-client-sdk": "catalog:",
     "posthog-js": "catalog:",
     "tsdown": "catalog:",
@@ -262,6 +260,10 @@
       "development": "./src/permissions/adapters/v0/index.ts",
       "default": "./dist/permissions/adapters/v0/index.mjs"
     },
+    "./rules": {
+      "development": "./src/rules/index.ts",
+      "default": "./dist/rules/index.mjs"
+    },
     "./storage": {
       "development": "./src/storage/index.ts",
       "default": "./dist/storage/index.mjs"
@@ -294,10 +296,6 @@
       "development": "./src/utilities/index.ts",
       "default": "./dist/utilities/index.mjs"
     },
-    "./rules": {
-      "development": "./src/rules/index.ts",
-      "default": "./dist/rules/index.mjs"
-    },
     "./package.json": "./package.json",
     "./browser": {
       "development": "./src/index.ts",
@@ -306,5 +304,9 @@
   },
   "optionalDependencies": {
     "@js-temporal/polyfill": "catalog:"
+  },
+  "inlinedDependencies": {
+    "jsbi": "4.3.2",
+    "@js-temporal/polyfill": "0.5.1"
   }
 }
