@@ -72,12 +72,12 @@
     }
   },
   "peerDependencies": {
+    "@adobe/leonardo-contrast-colors": ">=1.0.0",
+    "@ant-design/colors": ">=7.0.0",
+    "@material/material-color-utilities": ">=0.3.0",
     "flagsmith": "^10.0.0",
     "launchdarkly-js-client-sdk": "^3.0.0",
     "posthog-js": "^1.0.0",
-    "@material/material-color-utilities": ">=0.3.0",
-    "@ant-design/colors": ">=7.0.0",
-    "@adobe/leonardo-contrast-colors": ">=1.0.0",
     "vue": ">=3.5.0"
   },
   "peerDependenciesMeta": {
@@ -104,7 +104,6 @@
     "@adobe/leonardo-contrast-colors": "catalog:",
     "@ant-design/colors": "catalog:",
     "@material/material-color-utilities": "catalog:",
-    "@radix-ui/colors": "catalog:",
     "@vue/test-utils": "catalog:",
     "flagsmith": "catalog:",
     "launchdarkly-js-client-sdk": "catalog:",
