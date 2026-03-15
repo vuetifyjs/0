@@ -9,7 +9,8 @@
         "**/dist/**",
         "**/node_modules/**",
         "**/.nuxt/**",
-        "**/.output/**"
+        "**/.output/**",
+        "uno.config.ts"
       ]
     },
     "apps/docs": {
