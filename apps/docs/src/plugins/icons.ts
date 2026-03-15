@@ -164,8 +164,16 @@ export const [useIconContext, provideIconContext, context] = createTokensContext
     'theme-odyssey': mdiRocketLaunchOutline,
     'theme-custom': mdiPalette,
     'theme-tailwind': '{tailwind}',
-    'theme-material-1': 'M2 2V22H22V2H2ZM11 17.5H5V6.5H11V17.5ZM19 17.5H13V12.5H19V17.5ZM19 11.5H13V6.5H19V11.5Z',
-    'theme-material-2': 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z',
+    'md1': {
+      $value: [
+        ['M12 0a12 12 0 1 0 0 24 12 12 0 0 0 0-24z', 0.46],
+        ['M3.6 3.6h16.8v16.8H3.6z', 0.74],
+        'M20.4 3.6 12 20.4 3.6 3.6z',
+      ],
+    },
+    'md2': '{md1}',
+    'theme-material-1': '{md1}',
+    'theme-material-2': '{md2}',
     'theme-material-3': 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z',
     'theme-ant-design': 'M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z',
     'theme-radix': 'M11.52 24a7.68 7.68 0 0 1 0-15.36v15.36zM11.52 0H3.84v7.68h7.68V0zM11.52 0a3.84 3.84 0 1 1 0 7.68V0z',
