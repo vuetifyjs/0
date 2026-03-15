@@ -54,40 +54,46 @@
 
   // Pointer drag state
   let dragging = false
+  let captured = false
   let startX = 0
   let startScroll = 0
-  let moved = false
+  let pointerId = 0
 
   function onPointerDown (e: PointerEvent) {
     const el = container.value
     if (!el) return
     dragging = true
-    moved = false
+    captured = false
     startX = e.clientX
     startScroll = el.scrollLeft
-    el.setPointerCapture(e.pointerId)
-    el.style.scrollSnapType = 'none'
-    el.style.cursor = 'grabbing'
+    pointerId = e.pointerId
   }
 
   function onPointerMove (e: PointerEvent) {
     if (!dragging) return
+    const el = container.value!
     const delta = e.clientX - startX
-    if (Math.abs(delta) > 5) moved = true
-    container.value!.scrollLeft = startScroll - delta
+    if (!captured && Math.abs(delta) > 5) {
+      captured = true
+      el.setPointerCapture(pointerId)
+      el.style.scrollSnapType = 'none'
+      el.style.cursor = 'grabbing'
+    }
+    if (captured) {
+      el.scrollLeft = startScroll - delta
+    }
   }
 
-  function onPointerUp (e: PointerEvent) {
+  function onPointerUp () {
     if (!dragging) return
     dragging = false
+    if (!captured) return
     const el = container.value!
-    el.releasePointerCapture(e.pointerId)
+    el.releasePointerCapture(pointerId)
     el.style.scrollBehavior = 'smooth'
     el.style.scrollSnapType = ''
     el.style.cursor = ''
-    if (moved) {
-      el.addEventListener('click', ev => ev.stopPropagation(), { once: true, capture: true })
-    }
+    el.addEventListener('click', ev => ev.stopPropagation(), { once: true, capture: true })
     useEventListener(el, 'scrollend', () => {
       el.style.scrollBehavior = ''
     }, { once: true })
