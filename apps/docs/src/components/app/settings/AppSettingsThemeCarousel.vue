@@ -1,6 +1,9 @@
 <script setup lang="ts">
+  // Framework
+  import { useEventListener, useResizeObserver } from '@vuetify/v0'
+
   // Utilities
-  import { onMounted, onUnmounted, shallowRef, toRef, useTemplateRef } from 'vue'
+  import { shallowRef, toRef, useTemplateRef } from 'vue'
 
   // Types
   import type { ThemePreference } from '@/composables/useThemeToggle'
@@ -82,7 +85,7 @@
     el.style.scrollBehavior = 'smooth'
     el.style.scrollSnapType = ''
     el.style.cursor = ''
-    el.addEventListener('scrollend', () => {
+    useEventListener(el, 'scrollend', () => {
       el.style.scrollBehavior = ''
     }, { once: true })
   }
@@ -95,18 +98,7 @@
     emit('select', id)
   }
 
-  let observer: ResizeObserver | undefined
-
-  onMounted(() => {
-    const el = container.value
-    if (!el) return
-    observer = new ResizeObserver(onScroll)
-    observer.observe(el)
-  })
-
-  onUnmounted(() => {
-    observer?.disconnect()
-  })
+  useResizeObserver(container, onScroll)
 </script>
 
 <template>
