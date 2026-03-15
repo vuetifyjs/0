@@ -42,7 +42,8 @@
     if (!el) return
     const max = el.scrollWidth - el.clientWidth
     if (max <= 0) {
-      active.value = 0; return
+      active.value = 0
+      return
     }
     const ratio = el.scrollLeft / max
     active.value = Math.min(Math.round(ratio * (dots.value - 1)), dots.value - 1)
