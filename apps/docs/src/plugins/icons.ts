@@ -172,7 +172,7 @@ export const [useIconContext, provideIconContext, context] = createTokensContext
       ],
     },
     'theme-material-2': '{theme-material-1}',
-    'theme-material-3': 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z',
+    'theme-material-3': '{theme-material-1}',
     'theme-ant-design': 'M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z',
     'theme-radix': 'M11.52 24a7.68 7.68 0 0 1 0-15.36v15.36zM11.52 0H3.84v7.68h7.68V0zM11.52 0a3.84 3.84 0 1 1 0 7.68V0z',
     'arrow-left': mdiArrowLeft,
