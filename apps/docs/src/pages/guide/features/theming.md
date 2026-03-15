@@ -9,6 +9,7 @@ meta:
   - name: keywords
     content: vuetify0, theming, design tokens, CSS variables, colors, useTheme, createTokens, dark mode, Vue 3
 related:
+  - /guide/features/palettes
   - /composables/plugins/use-theme
   - /composables/registration/create-tokens
   - /guide/features/accessibility
@@ -63,6 +64,9 @@ app.use(
   }),
 )
 ```
+
+> [!TIP]
+> Don't want to pick colors manually? v0 ships [pre-built palettes](/guide/features/palettes) from Material Design, Tailwind, Radix, and Ant Design — plus generators that create a full theme from a single brand color.
 
 ### 2. Use in Components
 
