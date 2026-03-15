@@ -72,8 +72,8 @@
   "peerDependencies": {
     "@adobe/leonardo-contrast-colors": ">=1.0.0",
     "@ant-design/colors": ">=7.0.0",
-    "@material/material-color-utilities": ">=0.3.0",
     "@flagsmith/flagsmith": "^11.0.0",
+    "@material/material-color-utilities": ">=0.3.0",
     "launchdarkly-js-client-sdk": "^3.0.0",
     "posthog-js": "^1.0.0",
     "vue": ">=3.5.0"
@@ -101,9 +101,9 @@
   "devDependencies": {
     "@adobe/leonardo-contrast-colors": "catalog:",
     "@ant-design/colors": "catalog:",
+    "@flagsmith/flagsmith": "catalog:",
     "@material/material-color-utilities": "catalog:",
     "@vue/test-utils": "catalog:",
-    "@flagsmith/flagsmith": "catalog:",
     "launchdarkly-js-client-sdk": "catalog:",
     "posthog-js": "catalog:",
     "tsdown": "catalog:",
