@@ -93,10 +93,10 @@ Vuetify0 includes adapters for popular feature flag services. Each adapter is im
 
 #### Flagsmith
 
-Requires `flagsmith` package.
+Requires `@flagsmith/flagsmith` package.
 
 ```ts
-import flagsmith from 'flagsmith'
+import flagsmith from '@flagsmith/flagsmith'
 import { FlagsmithFeatureAdapter } from '@vuetify/v0/features/adapters/flagsmith'
 
 app.use(createFeaturesPlugin({

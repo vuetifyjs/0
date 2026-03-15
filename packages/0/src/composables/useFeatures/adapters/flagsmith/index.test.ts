@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 
 // Types
-import type { IInitConfig } from 'flagsmith'
+import type { IInitConfig } from '@flagsmith/flagsmith'
 
 import { FlagsmithFeatureAdapter } from '.'
 

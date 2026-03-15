@@ -137,7 +137,7 @@
     "@material/material-color-utilities",
     "@vuetify/paper",
     "conventional-changelog-vuetify",
-    "flagsmith",
+    "@flagsmith/flagsmith",
     "launchdarkly-js-client-sdk",
     "posthog-js"
   ],
