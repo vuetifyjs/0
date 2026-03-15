@@ -57,11 +57,11 @@
 
   const designSystemOptions: ThemeOption[] = [
     { id: 'tailwind', label: 'Tailwind', icon: 'theme-tailwind', theme: 'tailwind' },
+    { id: 'material-3', label: 'Material', icon: 'theme-material-3', theme: 'material-3' },
+    { id: 'radix', label: 'Radix', icon: 'theme-radix', theme: 'radix' },
+    { id: 'ant-design', label: 'Ant Design', icon: 'theme-ant-design', theme: 'ant-design' },
     { id: 'material-1', label: 'Material 1', icon: 'theme-material-1', theme: 'material-1' },
     { id: 'material-2', label: 'Material 2', icon: 'theme-material-2', theme: 'material-2' },
-    { id: 'material-3', label: 'Material 3', icon: 'theme-material-3', theme: 'material-3' },
-    { id: 'ant-design', label: 'Ant Design', icon: 'theme-ant-design', theme: 'ant-design' },
-    { id: 'radix', label: 'Radix', icon: 'theme-radix', theme: 'radix' },
   ]
 
   // Custom themes as options
