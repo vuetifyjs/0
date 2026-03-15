@@ -52,6 +52,14 @@
     active.value = Math.min(Math.round(ratio * (dots.value - 1)), dots.value - 1)
   }
 
+  function scrollTo (index: number) {
+    const el = container.value
+    if (!el) return
+    const max = el.scrollWidth - el.clientWidth
+    const target = dots.value <= 1 ? 0 : (index / (dots.value - 1)) * max
+    el.scrollTo({ left: target, behavior: 'smooth' })
+  }
+
   // Pointer drag state
   let dragging = false
   let captured = false
@@ -166,13 +174,16 @@
     </div>
 
     <div v-if="dots > 1" class="flex gap-1 justify-center mt-2">
-      <span
+      <button
         v-for="i in dots"
         :key="i"
+        :aria-label="`Page ${i}`"
         :class="[
-          'w-1.5 h-1.5 rounded-full transition-colors',
-          active === i - 1 ? 'bg-primary' : 'bg-divider',
+          'w-1.5 h-1.5 rounded-full transition-colors cursor-pointer',
+          active === i - 1 ? 'bg-primary' : 'bg-divider hover:bg-primary/50',
         ]"
+        type="button"
+        @click="scrollTo(i - 1)"
       />
     </div>
   </div>
