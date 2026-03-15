@@ -302,8 +302,11 @@ describe('useDiscovery', () => {
 
     it('should validate form before moving to next step', async () => {
       const validateSpy = vi.spyOn(discovery.form, 'submit')
-      // Register form field for step-1
-      discovery.form.register({ id: 'step-1', rules: [] })
+      // Register a validation context for step-1
+      const { createValidation } = await import('@vuetify/v0')
+      const validation = createValidation()
+      validation.register({ rules: [] })
+      discovery.form.register({ id: 'step-1', value: validation })
 
       await discovery.next()
 
@@ -314,8 +317,11 @@ describe('useDiscovery', () => {
     it('should not move if form validation fails', async () => {
       const beforeId = discovery.selectedId.value
 
-      // Register form field for step-1 with validation
-      discovery.form.register({ id: 'step-1', rules: [] })
+      // Register a validation context for step-1
+      const { createValidation } = await import('@vuetify/v0')
+      const validation = createValidation()
+      validation.register({ rules: [] })
+      discovery.form.register({ id: 'step-1', value: validation })
 
       // Verify form has the field
       expect(discovery.form.has('step-1')).toBe(true)
@@ -655,13 +661,15 @@ describe('useDiscovery', () => {
       expect(discovery.tours.selectedId.value).toBeUndefined()
     })
 
-    it('should reset form field values', () => {
-      const field = discovery.form.register({ id: 'test-field', rules: [] })
+    it('should reset form field values', async () => {
+      const { createValidation } = await import('@vuetify/v0')
+      const validation = createValidation()
+      const field = validation.register({ id: 'test-field', rules: [] })
+      discovery.form.register({ value: validation })
 
       discovery.reset()
 
       // Form fields remain registered but are reset to pristine state
-      expect(discovery.form.has('test-field')).toBe(true)
       expect(field.isPristine.value).toBe(true)
     })
 
