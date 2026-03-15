@@ -233,6 +233,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/composables/forms/create-validation': RouteRecordInfo<
+      '/composables/forms/create-validation',
+      '/composables/forms/create-validation',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/composables/foundation/create-context': RouteRecordInfo<
       '/composables/foundation/create-context',
       '/composables/foundation/create-context',
@@ -299,6 +306,13 @@ declare module 'vue-router/auto-routes' {
     '/composables/plugins/use-permissions': RouteRecordInfo<
       '/composables/plugins/use-permissions',
       '/composables/plugins/use-permissions',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/composables/plugins/use-rules': RouteRecordInfo<
+      '/composables/plugins/use-rules',
+      '/composables/plugins/use-rules',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -909,6 +923,12 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/composables/forms/create-validation.md': {
+      routes:
+        | '/composables/forms/create-validation'
+      views:
+        | never
+    }
     'src/pages/composables/foundation/create-context.md': {
       routes:
         | '/composables/foundation/create-context'
@@ -966,6 +986,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/plugins/use-permissions.md': {
       routes:
         | '/composables/plugins/use-permissions'
+      views:
+        | never
+    }
+    'src/pages/composables/plugins/use-rules.md': {
+      routes:
+        | '/composables/plugins/use-rules'
       views:
         | never
     }

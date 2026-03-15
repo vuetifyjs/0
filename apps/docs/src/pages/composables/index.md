@@ -118,7 +118,8 @@ Form state management and model binding utilities.
 
 | Name | Description |
 | - | - |
-| [createForm](/composables/forms/create-form) | Form state management and validation |
+| [createValidation](/composables/forms/create-validation) | Per-field validation lifecycle |
+| [createForm](/composables/forms/create-form) | Form validation coordinator |
 
 ## Reactivity
 
@@ -157,6 +158,7 @@ Application-level features installable via Vue plugins.
 | [useLocale](/composables/plugins/use-locale) | Internationalization system |
 | [useLogger](/composables/plugins/use-logger) | Logging system with multiple adapters |
 | [usePermissions](/composables/plugins/use-permissions) | Role-based access control |
+| [useRules](/composables/plugins/use-rules) | Validation rule aliases with locale-aware messages |
 | [useStorage](/composables/plugins/use-storage) | Reactive browser storage interface |
 | [useTheme](/composables/plugins/use-theme) | Theme management with CSS custom properties |
 
