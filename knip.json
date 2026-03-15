@@ -131,9 +131,11 @@
     "pnpm-lock.yaml"
   ],
   "ignoreDependencies": [
+    "@adobe/leonardo-contrast-colors",
+    "@ant-design/colors",
     "@js-temporal/polyfill",
+    "@material/material-color-utilities",
     "@vuetify/paper",
-    "@vuetify/v0",
     "conventional-changelog-vuetify",
     "flagsmith",
     "launchdarkly-js-client-sdk",
