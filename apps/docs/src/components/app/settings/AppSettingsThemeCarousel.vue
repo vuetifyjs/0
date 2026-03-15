@@ -49,6 +49,48 @@
     active.value = Math.min(Math.round(ratio * (dots.value - 1)), dots.value - 1)
   }
 
+  // Pointer drag state
+  let dragging = false
+  let startX = 0
+  let startScroll = 0
+  let moved = false
+
+  function onPointerDown (e: PointerEvent) {
+    const el = container.value
+    if (!el) return
+    dragging = true
+    moved = false
+    startX = e.clientX
+    startScroll = el.scrollLeft
+    el.setPointerCapture(e.pointerId)
+    el.style.scrollSnapType = 'none'
+    el.style.cursor = 'grabbing'
+  }
+
+  function onPointerMove (e: PointerEvent) {
+    if (!dragging) return
+    const delta = e.clientX - startX
+    if (Math.abs(delta) > 3) moved = true
+    container.value!.scrollLeft = startScroll - delta
+  }
+
+  function onPointerUp (e: PointerEvent) {
+    if (!dragging) return
+    dragging = false
+    const el = container.value!
+    el.releasePointerCapture(e.pointerId)
+    el.style.scrollSnapType = ''
+    el.style.cursor = ''
+  }
+
+  function onClick (e: MouseEvent, id: ThemePreference) {
+    if (moved) {
+      e.preventDefault()
+      return
+    }
+    emit('select', id)
+  }
+
   let observer: ResizeObserver | undefined
 
   onMounted(() => {
@@ -69,7 +111,10 @@
 
     <div
       ref="container"
-      class="carousel flex gap-2 overflow-x-auto snap-x snap-mandatory"
+      class="carousel flex gap-2 overflow-x-auto snap-x snap-mandatory cursor-grab select-none"
+      @pointerdown.prevent="onPointerDown"
+      @pointermove="onPointerMove"
+      @pointerup="onPointerUp"
       @scroll.passive="onScroll"
     >
       <button
@@ -83,7 +128,7 @@
             : 'border-divider hover:border-primary/50 text-on-surface',
         ]"
         type="button"
-        @click="emit('select', option.id)"
+        @click="onClick($event, option.id)"
       >
         <div class="flex items-center gap-2">
           <AppIcon :icon="option.icon" size="14" />
