@@ -39,21 +39,10 @@ The Input supports text, email, password, and other native input types. Validati
 </script>
 
 <template>
-  <!-- Basic -->
-  <Input.Root>
-    <Input.Control />
-  </Input.Root>
-
-  <!-- With description and errors -->
   <Input.Root>
     <Input.Control />
     <Input.Description>Help text</Input.Description>
     <Input.Error v-slot="{ errors }">{{ errors }}</Input.Error>
-  </Input.Root>
-
-  <!-- Textarea -->
-  <Input.Root>
-    <Input.Control as="textarea" />
   </Input.Root>
 </template>
 ```
