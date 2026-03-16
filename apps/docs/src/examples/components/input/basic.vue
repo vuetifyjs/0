@@ -20,6 +20,7 @@
       <label class="text-sm font-medium text-on-surface" for="email">
         Email
       </label>
+
       <Input.Control
         class="w-full px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface placeholder:text-on-surface-variant/50 outline-none data-[focused]:border-primary data-[state=invalid]:border-error transition-colors"
         placeholder="you@example.com"
