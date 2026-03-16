@@ -155,20 +155,6 @@
               :style="{ background: colors(option.theme)!.accent }"
             />
           </div>
-          <div class="flex gap-0.5">
-            <span
-              class="flex-1 h-2.5 rounded-sm"
-              :style="{ background: colors(option.theme)!.background }"
-            />
-            <span
-              class="flex-1 h-2.5 rounded-sm"
-              :style="{ background: colors(option.theme)!.surface }"
-            />
-            <span
-              class="flex-1 h-2.5 rounded-sm"
-              :style="{ background: colors(option.theme)!['on-surface'] }"
-            />
-          </div>
         </div>
       </button>
     </div>
