@@ -429,7 +429,7 @@ describe('useStorage cross-tab sync', () => {
 
     // Mock window.localStorage
     const mockStorage = {
-      getItem: vi.fn(() => null),
+      getItem: vi.fn((): string | null => null),
       setItem: vi.fn(),
       removeItem: vi.fn(),
     }
