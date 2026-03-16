@@ -11,7 +11,7 @@ The editor ships a complete single-file component setup. Your `App.vue` runs ins
 - **UnoCSS runtime** with `presetWind4` (Tailwind v4 syntax) loaded automatically — no config needed
 - **`createThemePlugin`** installed with `light` and `dark` themes; every theme color is defined and reactive to theme switches
 
-> [!TIP] Theme colors work two ways: CSS custom properties (`var(--v0-primary)`) and UnoCSS utilities (`text-primary`, `bg-surface`, `border-divider`). Use the utilities — they're shorter and theme-aware by default.
+Theme colors work two ways: CSS custom properties (`var(--v0-primary)`) and UnoCSS utilities (`text-primary`, `bg-surface`, `border-divider`). Use the utilities — they're shorter and theme-aware by default.
 
 ## Composables
 

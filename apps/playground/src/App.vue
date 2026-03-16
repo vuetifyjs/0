@@ -85,6 +85,10 @@
       padding: 0.5rem 1rem;
     }
 
+    > .overflow-x-auto {
+      margin-bottom: 1rem;
+    }
+
     table {
       width: 100%;
       background-color: var(--v0-surface);
