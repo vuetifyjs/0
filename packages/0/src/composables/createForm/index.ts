@@ -106,14 +106,14 @@ export interface FormContextOptions extends FormOptions {
  * @example
  * ```ts
  * import { createForm, createValidation } from '@vuetify/v0'
+ * import { shallowRef } from 'vue'
  *
  * const form = createForm()
  *
- * // Validations register themselves — form is just the coordinator
- * const validation = createValidation()
- * const email = validation.register({
- *   id: 'email',
- *   value: '',
+ * // Each validation is one input — form is just the coordinator
+ * const email = shallowRef('')
+ * const validation = createValidation({
+ *   value: email,
  *   rules: ['required', 'email'],
  * })
  *
@@ -160,9 +160,7 @@ export function createForm<
 
   function reset () {
     for (const ticket of registry.values()) {
-      for (const field of ticket.value.values()) {
-        field.reset()
-      }
+      ticket.value.reset()
     }
   }
 
@@ -172,12 +170,7 @@ export function createForm<
       ids.map(async id => {
         const ticket = registry.get(id)
         if (!ticket) return true
-
-        // Submit validates all fields within each validation context
-        const validated = await Promise.all(
-          [...ticket.value.values()].map(field => field.validate()),
-        )
-        return validated.every(Boolean)
+        return ticket.value.validate()
       }),
     )
     return results.every(Boolean)

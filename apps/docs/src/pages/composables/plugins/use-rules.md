@@ -62,12 +62,11 @@ app.mount('#app')
 ```vue
 <script setup lang="ts">
   import { createValidation } from '@vuetify/v0'
+  import { shallowRef } from 'vue'
 
-  const validation = createValidation()
-
-  const name = validation.register({
-    id: 'name',
-    value: '',
+  const name = shallowRef('')
+  const validation = createValidation({
+    value: name,
     rules: ['required', 'slug'],
   })
 </script>
@@ -120,18 +119,17 @@ app.use(
 <script setup lang="ts">
   import { z } from 'zod'
   import { createValidation } from '@vuetify/v0'
+  import { shallowRef } from 'vue'
 
-  const validation = createValidation()
-
-  const email = validation.register({
-    id: 'email',
-    value: '',
+  const email = shallowRef('')
+  const emailValidation = createValidation({
+    value: email,
     rules: ['required', z.string().email('Invalid email')],
   })
 
-  const age = validation.register({
-    id: 'age',
-    value: '',
+  const age = shallowRef('')
+  const ageValidation = createValidation({
+    value: age,
     rules: [z.coerce.number().int().min(18, 'Must be 18+').max(120)],
   })
 </script>
@@ -143,12 +141,11 @@ app.use(
 <script setup lang="ts">
   import * as v from 'valibot'
   import { createValidation } from '@vuetify/v0'
+  import { shallowRef } from 'vue'
 
-  const validation = createValidation()
-
-  const username = validation.register({
-    id: 'username',
-    value: '',
+  const username = shallowRef('')
+  const validation = createValidation({
+    value: username,
     rules: ['required', v.pipe(v.string(), v.minLength(3), v.maxLength(20))],
   })
 </script>
@@ -160,12 +157,11 @@ app.use(
 <script setup lang="ts">
   import { type } from 'arktype'
   import { createValidation } from '@vuetify/v0'
+  import { shallowRef } from 'vue'
 
-  const validation = createValidation()
-
-  const score = validation.register({
-    id: 'score',
-    value: '',
+  const score = shallowRef('')
+  const validation = createValidation({
+    value: score,
     rules: [type('1 <= number <= 100')],
   })
 </script>
@@ -193,22 +189,22 @@ Any library that implements the [Standard Schema v1 spec](https://standardschema
 
 ### API Key Manager
 
-This example registers 4 custom aliases (`required`, `email`, `slug`, `prefix`) as predicates with inline error strings, and wires them into `createValidation`. A rate limit field uses an inline function rule to show that aliases and functions can coexist.
+This example registers 4 custom aliases (`required`, `email`, `slug`, `prefix`) as predicates with inline error strings. Each input gets its own `createValidation` instance with a `value` ref and rules. A rate limit field uses an inline function rule to show that aliases and functions can coexist.
 
-The controls let you trigger validation, prefill valid or invalid data, and reset. The state panel reflects each field's `isValid`, `isPristine`, and error count in real time — showing the tri-state validation lifecycle (`null` → `true`/`false`) and how reset returns everything to its initial state.
+The controls let you trigger validation, prefill valid or invalid data, and reset. The state panel reflects each validation's `isValid`, error count, and active rule count in real time — showing the tri-state validation lifecycle (`null` → `true`/`false`) and how reset returns everything to its initial state.
 
 | File | Role |
 |------|------|
 | `context.ts` | Defines predicate aliases via `createRulesContext` |
-| `FormField.vue` | Reusable field component — binds ticket value, errors, and border state |
-| `dashboard.vue` | Provides rules context, creates validation, registers fields, renders UI |
+| `FormField.vue` | Reusable field component — binds validation errors and border state |
+| `dashboard.vue` | Provides rules context, creates per-input validations, renders UI |
 
 **Key patterns:**
 
 - `createRulesContext({ aliases })` registers predicate validators
 - `true` = pass, `string` = fail with message, `false` = fail with locale lookup
-- `createValidation()` resolves aliases automatically via `useRules()`
-- Each ticket exposes `isValid`, `isPristine`, `errors` as reactive refs
+- `createValidation({ value, rules })` — one instance per input, resolves aliases via `useRules()`
+- Validation state (`errors`, `isValid`, `isValidating`) lives on the context, not on individual tickets
 - Components decide when to call `validate()` — validation triggers are a UI concern
 
 :::

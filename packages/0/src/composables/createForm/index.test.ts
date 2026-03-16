@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createValidation } from '#v0/composables/createValidation'
 
 // Utilities
-import { inject, nextTick, provide } from 'vue'
+import { inject, nextTick, provide, shallowRef } from 'vue'
 
 import { createForm, createFormContext, useForm } from './index'
 
@@ -23,8 +23,7 @@ const mockInject = vi.mocked(inject)
 describe('createForm', () => {
   it('should register a validation context', () => {
     const form = createForm()
-    const validation = createValidation()
-    validation.register({ id: 'email', value: '', rules: [v => !!v || 'Required'] })
+    const validation = createValidation({ rules: [v => !!v || 'Required'] })
 
     const ticket = form.register({ value: validation })
 
@@ -35,7 +34,6 @@ describe('createForm', () => {
   it('should unregister a validation context', () => {
     const form = createForm()
     const validation = createValidation()
-    validation.register({ id: 'email', value: '' })
 
     const ticket = form.register({ value: validation })
     expect(form.size).toBe(1)
@@ -66,8 +64,7 @@ describe('createForm', () => {
 
     it('should return null when validations have not been validated', () => {
       const form = createForm()
-      const validation = createValidation()
-      validation.register({ id: 'f1', value: 'test', rules: [v => !!v || 'Required'] })
+      const validation = createValidation({ rules: [v => !!v || 'Required'] })
       form.register({ value: validation })
 
       expect(form.isValid.value).toBe(null)
@@ -76,16 +73,14 @@ describe('createForm', () => {
     it('should return true when all validations are valid', async () => {
       const form = createForm()
 
-      const v1 = createValidation()
-      const f1 = v1.register({ id: 'f1', value: 'valid', rules: [v => (v as string).length > 0 || 'Required'] })
+      const v1 = createValidation({ rules: [v => (v as string).length > 0 || 'Required'] })
       form.register({ value: v1 })
 
-      const v2 = createValidation()
-      const f2 = v2.register({ id: 'f2', value: 'also valid', rules: [v => (v as string).length > 3 || 'Min 3'] })
+      const v2 = createValidation({ rules: [v => (v as string).length > 3 || 'Min 3'] })
       form.register({ value: v2 })
 
-      await f1.validate()
-      await f2.validate()
+      await v1.validate('valid')
+      await v2.validate('also valid')
 
       expect(form.isValid.value).toBe(true)
     })
@@ -93,16 +88,14 @@ describe('createForm', () => {
     it('should return false when any validation is invalid', async () => {
       const form = createForm()
 
-      const v1 = createValidation()
-      const f1 = v1.register({ id: 'f1', value: 'valid', rules: [v => (v as string).length > 0 || 'Required'] })
+      const v1 = createValidation({ rules: [v => (v as string).length > 0 || 'Required'] })
       form.register({ value: v1 })
 
-      const v2 = createValidation()
-      const f2 = v2.register({ id: 'f2', value: '', rules: [v => (v as string).length > 0 || 'Required'] })
+      const v2 = createValidation({ rules: [v => (v as string).length > 0 || 'Required'] })
       form.register({ value: v2 })
 
-      await f1.validate()
-      await f2.validate()
+      await v1.validate('valid')
+      await v2.validate('')
 
       expect(form.isValid.value).toBe(false)
     })
@@ -110,27 +103,25 @@ describe('createForm', () => {
     it('should return null when some validations are unvalidated', async () => {
       const form = createForm()
 
-      const v1 = createValidation()
-      const f1 = v1.register({ id: 'f1', value: 'valid', rules: [v => !!v || 'Required'] })
+      const v1 = createValidation({ rules: [v => !!v || 'Required'] })
       form.register({ value: v1 })
 
-      const v2 = createValidation()
-      v2.register({ id: 'f2', value: 'test', rules: [v => !!v || 'Required'] })
+      const v2 = createValidation({ rules: [v => !!v || 'Required'] })
       form.register({ value: v2 })
 
-      await f1.validate()
+      await v1.validate('valid')
 
       expect(form.isValid.value).toBe(null)
     })
   })
 
   describe('submit', () => {
-    it('should validate all fields across all validations', async () => {
+    it('should validate all validations', async () => {
       const form = createForm()
       const rule = vi.fn().mockResolvedValue('Error')
+      const val = shallowRef('test')
 
-      const v1 = createValidation()
-      v1.register({ id: 'f1', value: 'test', rules: [rule] })
+      const v1 = createValidation({ value: val, rules: [rule] })
       form.register({ value: v1 })
 
       await form.submit()
@@ -138,22 +129,22 @@ describe('createForm', () => {
       expect(rule).toHaveBeenCalledWith('test')
     })
 
-    it('should return false when any field fails validation', async () => {
+    it('should return false when any validation fails', async () => {
       const form = createForm()
+      const val = shallowRef('')
 
-      const v1 = createValidation()
-      v1.register({ id: 'f1', value: '', rules: [v => !!v || 'Required'] })
+      const v1 = createValidation({ value: val, rules: [v => !!v || 'Required'] })
       form.register({ value: v1 })
 
       const result = await form.submit()
       expect(result).toBe(false)
     })
 
-    it('should return true when all fields pass', async () => {
+    it('should return true when all validations pass', async () => {
       const form = createForm()
+      const val = shallowRef('valid')
 
-      const v1 = createValidation()
-      v1.register({ id: 'f1', value: 'valid', rules: [v => !!v || 'Required'] })
+      const v1 = createValidation({ value: val, rules: [v => !!v || 'Required'] })
       form.register({ value: v1 })
 
       const result = await form.submit()
@@ -163,9 +154,9 @@ describe('createForm', () => {
     it('should compute isValidating during submit', async () => {
       const form = createForm()
       const rule = vi.fn().mockResolvedValue(true)
+      const val = shallowRef('test')
 
-      const v1 = createValidation()
-      v1.register({ id: 'f1', value: 'test', rules: [rule] })
+      const v1 = createValidation({ value: val, rules: [rule] })
       form.register({ value: v1 })
 
       const promise = form.submit()
@@ -180,17 +171,18 @@ describe('createForm', () => {
   describe('targeted submit', () => {
     it('should validate only targeted validation by id', async () => {
       const form = createForm()
-      const v1 = createValidation()
-      v1.register({ id: 'f1', value: '', rules: [() => 'Error'] })
-      const v2 = createValidation()
-      v2.register({ id: 'f2', value: '', rules: [() => 'Error'] })
+      const val1 = shallowRef('')
+      const val2 = shallowRef('')
+
+      const v1 = createValidation({ value: val1, rules: [() => 'Error'] })
+      const v2 = createValidation({ value: val2, rules: [() => 'Error'] })
       form.register({ id: 'v1', value: v1 })
       form.register({ id: 'v2', value: v2 })
 
       const result = await form.submit('v1')
       expect(result).toBe(false)
-      // v2's fields should not have been validated
-      expect([...v2.values()][0]!.isValid.value).toBe(null)
+      // v2 should not have been validated
+      expect(v2.isValid.value).toBe(null)
     })
 
     it('should return true when submitting unknown id', async () => {
@@ -201,22 +193,21 @@ describe('createForm', () => {
   })
 
   describe('reset', () => {
-    it('should reset all fields across all validations', async () => {
+    it('should reset all validations', async () => {
       const form = createForm()
+      const val = shallowRef('')
 
-      const v1 = createValidation()
-      const f1 = v1.register({ id: 'f1', value: 'initial', rules: [v => !!v || 'Required'] })
+      const v1 = createValidation({ value: val, rules: [v => !!v || 'Required'] })
       form.register({ value: v1 })
 
-      f1.value = 'changed'
-      await f1.validate()
+      await v1.validate('')
+      expect(v1.isValid.value).toBe(false)
+      expect(v1.errors.value).toEqual(['Required'])
 
       form.reset()
 
-      expect(f1.value).toBe('initial')
-      expect(f1.isPristine.value).toBe(true)
-      expect(f1.isValid.value).toBe(null)
-      expect(f1.errors.value).toEqual([])
+      expect(v1.isValid.value).toBe(null)
+      expect(v1.errors.value).toEqual([])
     })
   })
 })
