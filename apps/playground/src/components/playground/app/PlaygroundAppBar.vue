@@ -48,7 +48,7 @@
       <img
         alt="Vuetify Play"
         class="h-7"
-        :src="theme.isDark
+        :src="theme.isDark.value
           ? 'https://vuetifyjs.b-cdn.net/docs/images/one/logos/vplay-logo-dark.svg'
           : 'https://vuetifyjs.b-cdn.net/docs/images/one/logos/vplay-logo-light.svg'"
       >
