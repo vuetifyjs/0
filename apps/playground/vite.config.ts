@@ -34,6 +34,7 @@ async function createMarkdownPlugin () {
   })
 
   return Markdown({
+    wrapperClasses: '',
     markdownItSetup (md) {
       md.use(
         fromHighlighter(highlighter as HighlighterGeneric<BundledLanguage, BundledTheme>, {
@@ -41,6 +42,21 @@ async function createMarkdownPlugin () {
           defaultColor: false,
         }),
       )
+
+      // Wrap tables in scrollable container
+      md.renderer.rules.table_open = () => '<div class="overflow-x-auto mb-4"><table>'
+      md.renderer.rules.table_close = () => '</table></div>'
+
+      // Open external links in new window
+      md.renderer.rules.link_open = (tokens, index, options, _env, self) => {
+        const token = tokens[index]
+        const href = token.attrGet('href') || ''
+        if (/^https?:\/\//i.test(href)) {
+          token.attrSet('target', '_blank')
+          token.attrSet('rel', 'noopener noreferrer')
+        }
+        return self.renderToken(tokens, index, options)
+      }
     },
   })
 }
