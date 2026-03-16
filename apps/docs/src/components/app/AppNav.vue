@@ -156,7 +156,7 @@
     :inert="!navigation.isOpen.value && isMobile ? true : undefined"
     :padding="-4"
     step="navigation"
-    :style="{ zIndex: ticket.zIndex.value }"
+    :style="{ zIndex: isMobile ? ticket.zIndex.value : undefined }"
   >
     <!-- Mobile header -->
     <header class="md:hidden shrink-0 px-4 py-3 -mt-4 mb-4 border-b border-divider flex items-center justify-between bg-surface">
