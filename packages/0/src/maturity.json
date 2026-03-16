@@ -301,6 +301,11 @@
       "level": "draft",
       "category": "forms"
     },
+    "Input": {
+      "level": "preview",
+      "since": "0.2.0",
+      "category": "forms"
+    },
     "DatePicker": {
       "level": "draft",
       "category": "forms"
