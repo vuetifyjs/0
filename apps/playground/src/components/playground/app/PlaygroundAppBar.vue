@@ -1,16 +1,10 @@
 <script setup lang="ts">
-  import { IN_BROWSER } from '#v0/constants/globals'
-
   // Framework
   import { useBreakpoints, useHotkey, useStorage, useTheme } from '@vuetify/v0'
 
   // Components
   import { usePlayground } from './PlaygroundApp.vue'
 
-  // Utilities
-  import { RouterLink, useRouter } from 'vue-router'
-
-  const router = useRouter()
   const theme = useTheme()
   const playground = usePlayground()
   const breakpoints = useBreakpoints()
@@ -46,16 +40,11 @@
     playground.editor.value = !playground.editor.value
   }
 
-  const backTo = router.currentRoute.value.redirectedFrom?.fullPath
-    ?? (IN_BROWSER ? window.history.state?.back : null)
-    ?? 'https://0.vuetifyjs.com'
 </script>
 
 <template>
   <header class="flex items-center justify-between h-[48px] px-3 border-b border-divider bg-surface" data-playground-bar>
     <div class="flex items-center gap-3">
-      <AppIconButton aria-label="Go back" :as="RouterLink" icon="left" :to="backTo" />
-
       <img
         alt="Vuetify Play"
         class="h-7"
