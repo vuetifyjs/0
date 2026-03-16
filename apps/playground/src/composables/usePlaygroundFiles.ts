@@ -136,6 +136,14 @@ export function usePlaygroundFiles () {
     })
   }, { once: true })
 
+  watch(theme.isDark, isDark => {
+    if (!isReady.value) return
+    const file = store.files['src/main.ts']
+    if (file) {
+      file.code = createMainTs(isDark ? 'dark' : 'light')
+    }
+  })
+
   watch(() => store.activeFile?.code, code => {
     if (code === undefined) return
     const flatPath = aliasMap.value.get(store.activeFile.filename)
