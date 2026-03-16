@@ -3,7 +3,7 @@
   import { useClipboard } from '@/composables/useClipboard'
   import { useCustomThemes, type CustomTheme } from '@/composables/useCustomThemes'
   import { useSettings } from '@/composables/useSettings'
-  import { PALETTE_ICONS, PALETTE_LABELS, PALETTES, useThemeToggle, type Palette, type ThemePreference } from '@/composables/useThemeToggle'
+  import { PALETTE_ICONS, PALETTE_LABELS, PALETTES, useThemeToggle, type ThemePreference } from '@/composables/useThemeToggle'
 
   // Utilities
   import { computed, shallowRef } from 'vue'
