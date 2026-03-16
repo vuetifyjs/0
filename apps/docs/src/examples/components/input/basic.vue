@@ -7,11 +7,8 @@
 
 <template>
   <div class="flex flex-col gap-1 max-w-sm">
-    <label class="text-sm font-medium text-on-surface" :for="undefined">
-      Email
-    </label>
-
     <Input.Root
+      id="email"
       v-model="email"
       label="Email"
       :rules="[
@@ -20,6 +17,9 @@
       ]"
       type="email"
     >
+      <label class="text-sm font-medium text-on-surface" for="email">
+        Email
+      </label>
       <Input.Control
         class="w-full px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface placeholder:text-on-surface-variant/50 outline-none data-[focused]:border-primary data-[state=invalid]:border-error transition-colors"
         placeholder="you@example.com"
