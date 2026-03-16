@@ -256,6 +256,16 @@
         </div>
       </div>
 
+      <!-- Create Theme Button -->
+      <button
+        class="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-dashed border-divider text-sm text-on-surface-variant hover:border-primary/50 hover:text-on-surface transition-colors"
+        type="button"
+        @click="startCreate"
+      >
+        <AppIcon icon="plus" size="16" />
+        <span>Create Theme</span>
+      </button>
+
       <!-- Custom Themes -->
       <div v-if="customOptions.length > 0">
         <div class="text-xs font-medium text-on-surface-variant mb-2">Custom Themes</div>
@@ -312,15 +322,6 @@
         </div>
       </div>
 
-      <!-- Create Theme Button -->
-      <button
-        class="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-dashed border-divider text-sm text-on-surface-variant hover:border-primary/50 hover:text-on-surface transition-colors"
-        type="button"
-        @click="startCreate"
-      >
-        <AppIcon icon="plus" size="16" />
-        <span>Create Theme</span>
-      </button>
     </template>
   </section>
 </template>
