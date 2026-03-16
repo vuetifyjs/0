@@ -48,7 +48,7 @@
 
   const backTo = router.currentRoute.value.redirectedFrom?.fullPath
     ?? (IN_BROWSER ? window.history.state?.back : null)
-    ?? '/'
+    ?? 'https://0.vuetifyjs.com'
 </script>
 
 <template>

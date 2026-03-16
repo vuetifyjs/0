@@ -4,7 +4,6 @@
 
   // Components
   import { usePlayground } from '../app/PlaygroundApp.vue'
-  import { Discovery } from '@/components/discovery'
 
   // Utilities
   import { computed } from 'vue'
@@ -30,15 +29,12 @@
     :default-size="40"
     :min-size="10"
   >
-    <Discovery.Activator
+    <div
       v-if="playground.bottom.value"
-      active-class="rounded-lg"
-      as="div"
       class="flex flex-1 h-full"
-      step="preview"
     >
       <slot />
-    </Discovery.Activator>
+    </div>
   </SplitterPanel>
 
   <!-- Mobile: full-height preview when editor is hidden -->

@@ -125,6 +125,6 @@
   </Tabs.Root>
 
   <div v-else class="flex items-center border-b border-divider bg-surface-variant/30 h-[31px] px-3">
-    <DocsSkeleton direction="row" height="h-3" :lines="1" :widths="['w-16']" />
+    <AppSkeleton direction="row" height="h-3" :lines="1" :widths="['w-16']" />
   </div>
 </template>

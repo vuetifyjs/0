@@ -28,7 +28,7 @@
     />
 
     <div v-else class="absolute inset-0 flex items-center justify-center">
-      <DocsSkeleton height="h-16" :lines="1" :widths="['w-16']" />
+      <AppSkeleton height="h-16" :lines="1" :widths="['w-16']" />
     </div>
   </div>
 </template>

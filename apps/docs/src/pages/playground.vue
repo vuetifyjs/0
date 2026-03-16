@@ -1,64 +1,34 @@
 <script setup lang="ts">
+  import { IN_BROWSER } from '#v0/constants/globals'
   import { useHead } from '@unhead/vue'
 
-  // Content
-  import IntroPanel from '@/skillz/intro.md'
+  const target = import.meta.env.VITE_PLAYGROUND_URL ?? 'https://v0play.vuetifyjs.com'
+  const redirect = `${target}/${window?.location?.hash ?? ''}`
 
   definePage({
     meta: {
-      layout: 'playground',
+      layout: 'default',
       level: 1,
     },
   })
 
   useHead({
-    title: 'Playground',
+    title: 'Redirecting to Vuetify Play...',
     meta: [
-      { key: 'description', name: 'description', content: 'Experiment with @vuetify/v0 headless composables and components in an interactive browser-based editor.' },
-      { key: 'og:title', property: 'og:title', content: 'Playground' },
-      { key: 'og:description', property: 'og:description', content: 'Experiment with @vuetify/v0 headless composables and components in an interactive browser-based editor.' },
+      { key: 'robots', name: 'robots', content: 'noindex' },
+      { 'http-equiv': 'refresh', 'content': `0; url=${redirect}` },
     ],
   })
+
+  if (IN_BROWSER) {
+    window.location.replace(redirect)
+  }
 </script>
 
 <template>
-  <PlaygroundApp>
-    <PlaygroundAppBar />
-
-    <PlaygroundAppContent>
-      <PlaygroundAppLeft>
-        <PlaygroundMarkdownHeader>
-          Introduction
-        </PlaygroundMarkdownHeader>
-
-        <PlaygroundMarkdown :component="IntroPanel" />
-      </PlaygroundAppLeft>
-
-      <PlaygroundAppRight>
-        <PlaygroundWorkspace>
-          <PlaygroundWorkspaceTop>
-            <PlaygroundWorkspaceLeft>
-              <PlaygroundEditorFileTree />
-            </PlaygroundWorkspaceLeft>
-
-            <PlaygroundWorkspaceRight>
-              <PlaygroundEditorTabs />
-
-              <PlaygroundEditorBreadcrumbs />
-
-              <PlaygroundEditor />
-            </PlaygroundWorkspaceRight>
-
-            <PlaygroundWorkspaceSide>
-              <PlaygroundEditorPreview />
-            </PlaygroundWorkspaceSide>
-          </PlaygroundWorkspaceTop>
-
-          <PlaygroundWorkspaceBottom>
-            <PlaygroundEditorPreview />
-          </PlaygroundWorkspaceBottom>
-        </PlaygroundWorkspace>
-      </PlaygroundAppRight>
-    </PlaygroundAppContent>
-  </PlaygroundApp>
+  <div class="flex items-center justify-center h-screen">
+    <p class="text-on-surface-variant">
+      Redirecting to <a class="text-primary underline" :href="redirect">Vuetify Play</a>...
+    </p>
+  </div>
 </template>
