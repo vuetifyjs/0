@@ -1,9 +1,9 @@
 <script setup lang="ts">
-  import { ref } from 'vue'
+  import { shallowRef } from 'vue'
   import SearchInput from './SearchInput.vue'
   import { useSearch } from './useSearch'
 
-  const query = ref('')
+  const query = shallowRef('')
   const { results, loading } = useSearch(query)
 </script>
 
