@@ -1,10 +1,10 @@
 ---
-title: createValidation - Per-Field Validation for Vue 3
+title: createValidation - Per-Input Validation for Vue 3
 meta:
 - name: description
-  content: Per-field validation lifecycle with async rule support, race-safe validation, auto-registration with parent forms, and Standard Schema support.
+  content: Per-input validation composable built on createGroup. Each rule is a ticket that can be enabled/disabled. Supports async rules, race safety, Standard Schema, and auto-registration with forms.
 - name: keywords
-  content: createValidation, validation, rules, form, composable, Vue 3, async, standard schema
+  content: createValidation, validation, rules, form, composable, Vue 3, async, standard schema, createGroup
 features:
   category: Composable
   label: 'E: createValidation'
@@ -13,12 +13,12 @@ features:
 related:
   - /composables/forms/create-form
   - /composables/plugins/use-rules
-  - /composables/registration/create-registry
+  - /composables/selection/create-group
 ---
 
 # createValidation
 
-Per-field validation lifecycle composable. Manages validation state — errors, validity, pristine tracking — for individual fields. Works standalone or auto-registers with a parent `createForm`.
+Per-input validation composable built on `createGroup`. Each registered rule becomes a ticket that can be enabled or disabled via selection methods. Only active (selected) rules run during validation.
 
 <DocsPageFeatures :frontmatter />
 
@@ -26,29 +26,40 @@ Per-field validation lifecycle composable. Manages validation state — errors, 
 
 ### Standalone
 
-Create a validation instance and register fields with rules:
+Create a validation instance with rules. Pass a value source so `validate()` reads from it automatically:
 
 ```ts collapse no-filename
 import { createValidation } from '@vuetify/v0'
+import { shallowRef } from 'vue'
 
-const validation = createValidation()
-
-const email = validation.register({
-  id: 'email',
-  value: '',
+const email = shallowRef('')
+const validation = createValidation({
+  value: email,
   rules: [
     v => !!v || 'Required',
     v => /^.+@\S+\.\S+$/.test(String(v)) || 'Invalid email',
   ],
 })
 
-await email.validate()
+await validation.validate()
 
-console.log(email.errors.value)    // ['Required']
-console.log(email.isValid.value)   // false
-console.log(email.isPristine.value) // true
+console.log(validation.errors.value)    // ['Required', 'Invalid email']
+console.log(validation.isValid.value)   // false
 
-email.reset()
+validation.reset()
+```
+
+### Explicit Value
+
+Pass the value directly to `validate()` instead of storing a value source:
+
+```ts
+const validation = createValidation({
+  rules: [v => !!v || 'Required'],
+})
+
+await validation.validate('')       // validate with empty string
+await validation.validate('hello')  // validate with 'hello'
 ```
 
 ### With Rule Aliases
@@ -56,13 +67,7 @@ email.reset()
 When a rules context is provided via `createRulesPlugin` or `createRulesContext`, alias strings resolve automatically:
 
 ```ts
-import { createValidation } from '@vuetify/v0'
-
-const validation = createValidation()
-
-const name = validation.register({
-  id: 'name',
-  value: '',
+const validation = createValidation({
   rules: ['required', 'slug'],
 })
 ```
@@ -73,15 +78,54 @@ Pass schema objects directly — they're auto-detected and wrapped:
 
 ```ts
 import { z } from 'zod'
-import { createValidation } from '@vuetify/v0'
 
-const validation = createValidation()
-
-const age = validation.register({
-  id: 'age',
-  value: '',
+const validation = createValidation({
   rules: [z.coerce.number().int().min(18, 'Must be 18+')],
 })
+```
+
+### Dynamic Rules
+
+Register rules individually after creation:
+
+```ts
+const validation = createValidation()
+
+validation.register(v => !!v || 'Required')
+validation.register(v => /^.+@\S+\.\S+$/.test(String(v)) || 'Invalid email')
+```
+
+### Enabling and Disabling Rules
+
+Each rule is a ticket with selection methods from `createGroup`. Use `enroll` to control whether rules are active by default:
+
+```ts
+const validation = createValidation({
+  rules: [
+    v => !!v || 'Required',
+    v => /^.+@\S+\.\S+$/.test(String(v)) || 'Invalid email',
+  ],
+})
+
+// Disable the email format rule
+const [, format] = [...validation.values()]
+format.unselect()
+
+await validation.validate('')
+// Only 'Required' runs — format rule is inactive
+
+// Re-enable it
+format.select()
+```
+
+### Silent Validation
+
+Check validity without updating the UI:
+
+```ts
+const valid = await validation.validate('', true) // silent = true
+// validation.errors.value is unchanged
+// validation.isValid.value is unchanged
 ```
 
 ### Auto-Registration with Forms
@@ -91,81 +135,46 @@ When created inside a component with a parent form context, `createValidation` *
 ```vue
 <script setup lang="ts">
   import { createValidation } from '@vuetify/v0'
+  import { shallowRef } from 'vue'
 
   // Parent provides form context via createFormContext or createFormPlugin
   // This validation auto-registers with it
-  const validation = createValidation()
-
-  const email = validation.register({
-    id: 'email',
-    value: '',
+  const email = shallowRef('')
+  const validation = createValidation({
+    value: email,
     rules: ['required', 'email'],
   })
 </script>
 ```
 
-### Bulk Registration
-
-Use `onboard()` to register multiple fields at once:
-
-```ts
-const validation = createValidation()
-
-const fields = validation.onboard([
-  { id: 'name', value: '', rules: ['required'] },
-  { id: 'email', value: '', rules: ['required', 'email'] },
-  { id: 'bio', value: '', rules: [v => String(v).length <= 500 || 'Too long'] },
-])
-```
-
-### Silent Validation
-
-Check validity without updating the UI:
-
-```ts
-const valid = await email.validate(true) // silent = true
-// email.errors.value is unchanged
-// email.isValid.value is unchanged
-```
-
 ## Architecture
 
-`createValidation` extends `createRegistry` with per-ticket validation state. When a parent form context exists, it auto-registers like a child component:
+`createValidation` extends `createGroup` with per-input validation state. Each ticket is a rule. When a parent form context exists, it auto-registers:
 
 ```mermaid "Validation Architecture"
 flowchart TD
-  createRegistry --> createValidation
+  createGroup --> createValidation
   createValidation -->|auto-register| createForm
-  createValidation --> ticket[ValidationTicket]
-  ticket --> validate[validate / reset]
-  ticket --> state[errors / isValid / isPristine]
-  createValidation --> aggregate[isValid / isValidating]
+  createValidation --> ticket[Rule Ticket]
+  ticket --> selection[select / unselect / toggle]
+  createValidation --> validate[validate / reset]
+  createValidation --> state[errors / isValid / isValidating]
 ```
 
 ### Race Safety
 
-Async validation uses a generation counter to prevent stale results. If a newer validation starts before an older one completes, the older result is discarded:
-
-```ts
-// User types fast — each keystroke triggers validation
-email.value = 'a'     // generation 1
-email.value = 'ab'    // generation 2 — generation 1 result discarded
-email.value = 'abc'   // generation 3 — generation 2 result discarded
-// Only generation 3 result is applied
-```
+Async validation uses a generation counter to prevent stale results. If a newer validation starts before an older one completes, the older result is discarded.
 
 ## Reactivity
 
-Field-level and aggregate state are fully reactive.
+Context-level state is fully reactive. Rule tickets inherit selection reactivity from `createGroup`.
 
 | Property/Method | Reactive | Notes |
 | - | :-: | - |
-| `isValid` | <AppSuccessIcon /> | Computed aggregate from all tickets |
-| `isValidating` | <AppSuccessIcon /> | Computed aggregate from all tickets |
-| `ticket.value` | <AppSuccessIcon /> | ShallowRef, resets isValid on change |
-| `ticket.errors` | <AppSuccessIcon /> | ShallowRef array |
-| `ticket.isValid` | <AppSuccessIcon /> | ShallowRef (null/true/false) |
-| `ticket.isPristine` | <AppSuccessIcon /> | ShallowRef boolean |
-| `ticket.isValidating` | <AppSuccessIcon /> | ShallowRef boolean |
+| `errors` | <AppSuccessIcon /> | ShallowRef array of error strings |
+| `isValid` | <AppSuccessIcon /> | ShallowRef (null/true/false) |
+| `isValidating` | <AppSuccessIcon /> | ShallowRef boolean |
+| `selectedIds` | <AppSuccessIcon /> | Reactive Set of active rule IDs |
+| `ticket.isSelected` | <AppSuccessIcon /> | Ref boolean per rule |
 
 <DocsApi />

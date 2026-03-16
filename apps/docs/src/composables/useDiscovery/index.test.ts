@@ -305,7 +305,6 @@ describe('useDiscovery', () => {
       // Register a validation context for step-1
       const { createValidation } = await import('@vuetify/v0')
       const validation = createValidation()
-      validation.register({ rules: [] })
       discovery.form.register({ id: 'step-1', value: validation })
 
       await discovery.next()
@@ -320,7 +319,6 @@ describe('useDiscovery', () => {
       // Register a validation context for step-1
       const { createValidation } = await import('@vuetify/v0')
       const validation = createValidation()
-      validation.register({ rules: [] })
       discovery.form.register({ id: 'step-1', value: validation })
 
       // Verify form has the field
@@ -661,16 +659,19 @@ describe('useDiscovery', () => {
       expect(discovery.tours.selectedId.value).toBeUndefined()
     })
 
-    it('should reset form field values', async () => {
+    it('should reset form validation state', async () => {
       const { createValidation } = await import('@vuetify/v0')
-      const validation = createValidation()
-      const field = validation.register({ id: 'test-field', rules: [] })
+      const validation = createValidation({ rules: [() => 'Error'] })
       discovery.form.register({ value: validation })
+
+      await validation.validate('')
+      expect(validation.isValid.value).toBe(false)
 
       discovery.reset()
 
-      // Form fields remain registered but are reset to pristine state
-      expect(field.isPristine.value).toBe(true)
+      // Form validations are reset to initial state
+      expect(validation.isValid.value).toBe(null)
+      expect(validation.errors.value).toEqual([])
     })
 
     it('should set isActive to false', () => {

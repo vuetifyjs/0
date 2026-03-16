@@ -2,7 +2,7 @@
 title: createForm - Form Validation Coordinator for Vue 3
 meta:
 - name: description
-  content: Coordinate validation across multiple fields with submit, reset, and aggregate state. Pure registry of createValidation instances.
+  content: Coordinate validation across multiple inputs with submit, reset, and aggregate state. Pure registry of createValidation instances.
 - name: keywords
   content: createForm, form, validation, composable, Vue 3, registry, submit, reset
 features:
@@ -18,7 +18,7 @@ related:
 
 # createForm
 
-Coordinates validation across multiple fields. A pure registry of `createValidation` instances — it provides `submit()`, `reset()`, and aggregate `isValid`/`isValidating` state. Per-field validation logic lives in `createValidation`. The form is the mothership — it coordinates, not creates.
+Coordinates validation across multiple inputs. A pure registry of `createValidation` instances — it provides `submit()`, `reset()`, and aggregate `isValid`/`isValidating` state. Per-input validation logic lives in `createValidation`. The form is the mothership — it coordinates, not creates.
 
 <DocsPageFeatures :frontmatter />
 
@@ -26,17 +26,16 @@ Coordinates validation across multiple fields. A pure registry of `createValidat
 
 ### Creating a Form
 
-Create a form and register validation contexts. Each validation owns its own fields and rules:
+Create a form and register validation contexts. Each validation owns its rules for a single input:
 
 ```ts collapse no-filename
 import { createForm, createValidation } from '@vuetify/v0'
+import { shallowRef } from 'vue'
 
 const form = createForm()
-const validation = createValidation()
-
-const email = validation.register({
-  id: 'email',
-  value: '',
+const email = shallowRef('')
+const validation = createValidation({
+  value: email,
   rules: ['required', 'email'],
 })
 
@@ -44,7 +43,7 @@ form.register({ value: validation })
 
 await form.submit()
 
-console.log(email.errors.value) // ['Required']
+console.log(validation.errors.value) // ['Required']
 
 form.reset()
 ```
@@ -56,13 +55,12 @@ When a `createValidation` instance is created inside a component that has a pare
 ```vue
 <script setup lang="ts">
   import { createValidation } from '@vuetify/v0'
+  import { shallowRef } from 'vue'
 
   // Parent provides form context — this validation auto-registers
-  const validation = createValidation()
-
-  const email = validation.register({
-    id: 'email',
-    value: '',
+  const email = shallowRef('')
+  const validation = createValidation({
+    value: email,
     rules: ['required', 'email'],
   })
 </script>
