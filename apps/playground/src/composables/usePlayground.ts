@@ -113,8 +113,7 @@ export async function usePlayground (
   const data: PlaygroundHashData = { files }
   if (imports && Object.keys(imports).length > 0) data.imports = imports
   const hash = await encodePlaygroundHash(data)
-  const base = import.meta.env.VITE_PLAYGROUND_URL ?? 'https://v0play.vuetifyjs.com'
-  return `${base}/#${hash}`
+  return `/#${hash}`
 }
 
 function isFileRecord (v: unknown): v is Record<string, string> {

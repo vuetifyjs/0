@@ -4,7 +4,6 @@
 
   // Components
   import { usePlayground } from '../app/PlaygroundApp.vue'
-  import { Discovery } from '@/components/discovery'
 
   // Utilities
   import { computed } from 'vue'
@@ -35,15 +34,12 @@
       :max-size="55"
       :min-size="15"
     >
-      <Discovery.Activator
+      <div
         v-if="playground.side.value"
-        active-class="rounded-lg"
-        as="div"
         class="flex flex-col h-full"
-        step="preview"
       >
         <slot />
-      </Discovery.Activator>
+      </div>
     </SplitterPanel>
   </template>
 </template>

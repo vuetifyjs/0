@@ -36,7 +36,7 @@
       />
     </template>
 
-    <DocsSkeleton
+    <AppSkeleton
       v-else
       class="flex-1 p-4"
       :lines="8"

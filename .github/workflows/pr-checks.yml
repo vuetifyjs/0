@@ -129,6 +129,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       docs: ${{ steps.filter.outputs.docs }}
+      playground: ${{ steps.filter.outputs.playground }}
     steps:
       - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v3
@@ -137,6 +138,8 @@ jobs:
           filters: |
             docs:
               - 'apps/docs/**'
+            playground:
+              - 'apps/playground/**'
 
   docs-check:
     needs: changes
@@ -154,3 +157,12 @@ jobs:
           lycheeVersion: v0.22.0
           args: --config lychee.toml './apps/docs/dist'
           fail: true
+
+  playground-check:
+    needs: changes
+    if: ${{ needs.changes.outputs.playground == 'true' && github.event_name == 'pull_request' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: vuetifyjs/setup-action@master
+      - run: pnpm run build:play
