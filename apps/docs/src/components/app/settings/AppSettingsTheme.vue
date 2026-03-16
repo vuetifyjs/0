@@ -195,6 +195,22 @@
         </div>
       </div>
 
+      <!-- Design Systems -->
+      <AppSettingsThemeCarousel
+        label="Design Systems"
+        :options="designSystemOptions"
+        :preference="toggle.preference.value"
+        @select="toggle.setPreference"
+      />
+
+      <!-- Vuetify Themes -->
+      <AppSettingsThemeCarousel
+        label="Vuetify Themes"
+        :options="vuetifyOptions"
+        :preference="toggle.preference.value"
+        @select="toggle.setPreference"
+      />
+
       <!-- Accessibility -->
       <div>
         <div class="text-xs font-medium text-on-surface-variant mb-2">Accessibility</div>
@@ -239,22 +255,6 @@
           </button>
         </div>
       </div>
-
-      <!-- Vuetify Themes -->
-      <AppSettingsThemeCarousel
-        label="Vuetify Themes"
-        :options="vuetifyOptions"
-        :preference="toggle.preference.value"
-        @select="toggle.setPreference"
-      />
-
-      <!-- Design Systems -->
-      <AppSettingsThemeCarousel
-        label="Design Systems"
-        :options="designSystemOptions"
-        :preference="toggle.preference.value"
-        @select="toggle.setPreference"
-      />
 
       <!-- Custom Themes -->
       <div v-if="customOptions.length > 0">
