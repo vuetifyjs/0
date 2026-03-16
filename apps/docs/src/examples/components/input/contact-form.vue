@@ -6,7 +6,7 @@
 </script>
 
 <template>
-  <div class="max-w-sm">
+  <div class="max-w-sm mx-auto">
     <div v-if="submitted" class="flex flex-col gap-2 p-4 rounded-lg bg-surface-variant text-on-surface">
       <p class="text-sm font-medium">Submitted!</p>
       <p class="text-sm">{{ submitted.name }} &lt;{{ submitted.email }}&gt;</p>
