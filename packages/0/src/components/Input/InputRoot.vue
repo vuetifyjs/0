@@ -19,7 +19,7 @@
   import { createValidation } from '#v0/composables/createValidation'
 
   // Utilities
-  import { shallowRef, toRef, toValue, useAttrs, useId } from 'vue'
+  import { shallowRef, toRef, toValue, useAttrs, useId, watch } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -53,8 +53,8 @@
     readonly descriptionId: string
     /** ID for error element (aria-errormessage) */
     readonly errorId: string
-    /** Current input value */
-    value: Readonly<Ref<string>>
+    /** Current input value — write to update both v-model and validation */
+    value: Ref<string>
     /** Whether this input is disabled */
     isDisabled: Readonly<Ref<boolean>>
     /** Whether this input is readonly */
@@ -67,8 +67,6 @@
     isPristine: Readonly<Ref<boolean>>
     /** Whether async validation is in progress */
     isValidating: Readonly<Ref<boolean>>
-    /** Update the input value */
-    set: (value: string) => void
     /** Validate the input */
     validate: () => Promise<boolean>
     /** Reset the input to initial state */
@@ -119,8 +117,6 @@
     isDisabled: boolean
     /** Whether this input is readonly */
     isReadonly: boolean
-    /** Update the input value */
-    set: (value: string) => void
     /** Validate the input */
     validate: () => Promise<boolean>
     /** Reset the input */
@@ -176,14 +172,13 @@
   const descriptionId = `${id}-description`
   const errorId = `${id}-error`
 
-  function set (val: string) {
-    model.value = val
+  watch(model, val => {
     isPristine.value = val === initialValue
 
     if (validateOn === 'input') {
       validation.validate()
     }
-  }
+  })
 
   function validate () {
     return validation.validate()
@@ -218,7 +213,6 @@
     isValid: validation.isValid,
     isPristine,
     isValidating: validation.isValidating,
-    set,
     validate,
     reset,
   }
@@ -235,7 +229,6 @@
     isValidating: validation.isValidating.value,
     isDisabled: isDisabled.value,
     isReadonly: isReadonly.value,
-    set,
     validate,
     reset,
     attrs: {
