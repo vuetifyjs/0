@@ -23,4 +23,4 @@ jobs:
           dockerfilePath: ./apps/playground/Dockerfile
           token: ${{ secrets.GITHUB_TOKEN  }}
           coolifyWebhook: ${{ secrets.COOLIFY_PLAYGROUND_WEBHOOK }}
-          coolifySecret: ${{ secrets.COOLIFY_PLAYGROUND_TOKEN }}
+          coolifySecret: ${{ secrets.COOLIFY_TOKEN }}
