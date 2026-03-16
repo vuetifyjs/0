@@ -68,7 +68,7 @@
     /** Whether async validation is in progress */
     isValidating: Readonly<Ref<boolean>>
     /** Update the input value */
-    setValue: (value: string) => void
+    set: (value: string) => void
     /** Validate the input */
     validate: () => Promise<boolean>
     /** Reset the input to initial state */
@@ -120,7 +120,7 @@
     /** Whether this input is readonly */
     isReadonly: boolean
     /** Update the input value */
-    setValue: (value: string) => void
+    set: (value: string) => void
     /** Validate the input */
     validate: () => Promise<boolean>
     /** Reset the input */
@@ -176,7 +176,7 @@
   const descriptionId = `${id}-description`
   const errorId = `${id}-error`
 
-  function setValue (val: string) {
+  function set (val: string) {
     model.value = val
     isPristine.value = val === initialValue
 
@@ -218,7 +218,7 @@
     isValid: validation.isValid,
     isPristine,
     isValidating: validation.isValidating,
-    setValue,
+    set,
     validate,
     reset,
   }
@@ -235,7 +235,7 @@
     isValidating: validation.isValidating.value,
     isDisabled: isDisabled.value,
     isReadonly: isReadonly.value,
-    setValue,
+    set,
     validate,
     reset,
     attrs: {

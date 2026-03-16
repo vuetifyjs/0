@@ -53,7 +53,7 @@
 
   function onInput (e: Event) {
     const target = e.target as HTMLInputElement
-    root.setValue(target.value)
+    root.set(target.value)
   }
 
   function onBlur () {
