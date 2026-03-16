@@ -19,68 +19,66 @@ const SHIKI_THEMES = {
   dark: 'github-dark-default',
 } as const
 
-async function createMarkdownPlugin () {
-  const highlighter = await createHighlighterCore({
-    themes: [
-      import('@shikijs/themes/github-light-default'),
-      import('@shikijs/themes/github-dark-default'),
-    ],
-    langs: [
-      import('@shikijs/langs/typescript'),
-      import('@shikijs/langs/vue'),
-      import('@shikijs/langs/bash'),
-    ],
-    engine: createJavaScriptRegexEngine(),
-  })
+const highlighter = await createHighlighterCore({
+  themes: [
+    import('@shikijs/themes/github-light-default'),
+    import('@shikijs/themes/github-dark-default'),
+  ],
+  langs: [
+    import('@shikijs/langs/typescript'),
+    import('@shikijs/langs/vue'),
+    import('@shikijs/langs/bash'),
+  ],
+  engine: createJavaScriptRegexEngine(),
+})
 
-  return Markdown({
-    wrapperClasses: '',
-    markdownItSetup (md) {
-      md.use(
-        fromHighlighter(highlighter as HighlighterGeneric<BundledLanguage, BundledTheme>, {
-          themes: SHIKI_THEMES,
-          defaultColor: false,
-        }),
-      )
+const markdownPlugin = Markdown({
+  wrapperClasses: '',
+  markdownItSetup (md) {
+    md.use(
+      fromHighlighter(highlighter as HighlighterGeneric<BundledLanguage, BundledTheme>, {
+        themes: SHIKI_THEMES,
+        defaultColor: false,
+      }),
+    )
 
-      // Wrap tables in scrollable container
-      md.renderer.rules.table_open = () => '<div class="overflow-x-auto mb-4"><table>'
-      md.renderer.rules.table_close = () => '</table></div>'
+    // Wrap tables in scrollable container
+    md.renderer.rules.table_open = () => '<div class="overflow-x-auto mb-4"><table>'
+    md.renderer.rules.table_close = () => '</table></div>'
 
-      // Open external links in new window with ↗ suffix
-      const defaultLinkClose = md.renderer.rules.link_close
+    // Open external links in new window with ↗ suffix
+    const defaultLinkClose = md.renderer.rules.link_close
 
-      md.renderer.rules.link_open = (tokens, index, options, _env, self) => {
-        const token = tokens[index]
-        const href = token.attrGet('href') || ''
-        if (/^https?:\/\//i.test(href)) {
-          token.attrSet('target', '_blank')
-          token.attrSet('rel', 'noopener noreferrer')
-          token.attrSet('data-external', '')
-        }
-        return self.renderToken(tokens, index, options)
+    md.renderer.rules.link_open = (tokens, index, options, _env, self) => {
+      const token = tokens[index]
+      const href = token.attrGet('href') || ''
+      if (/^https?:\/\//i.test(href)) {
+        token.attrSet('target', '_blank')
+        token.attrSet('rel', 'noopener noreferrer')
+        token.attrSet('data-external', '')
       }
+      return self.renderToken(tokens, index, options)
+    }
 
-      md.renderer.rules.link_close = (tokens, index, options, env, self) => {
-        for (let i = index - 1; i >= 0; i--) {
-          const open = tokens[i]
-          if (open.type === 'link_open' && open.attrGet('data-external') !== null) {
-            const close = defaultLinkClose
-              ? defaultLinkClose(tokens, index, options, env, self)
-              : self.renderToken(tokens, index, options)
-            return '↗' + close
-          }
-          if (open.type === 'link_open') break
+    md.renderer.rules.link_close = (tokens, index, options, env, self) => {
+      for (let i = index - 1; i >= 0; i--) {
+        const open = tokens[i]
+        if (open.type === 'link_open' && open.attrGet('data-external') !== null) {
+          const close = defaultLinkClose
+            ? defaultLinkClose(tokens, index, options, env, self)
+            : self.renderToken(tokens, index, options)
+          return '↗' + close
         }
-        return defaultLinkClose
-          ? defaultLinkClose(tokens, index, options, env, self)
-          : self.renderToken(tokens, index, options)
+        if (open.type === 'link_open') break
       }
-    },
-  })
-}
+      return defaultLinkClose
+        ? defaultLinkClose(tokens, index, options, env, self)
+        : self.renderToken(tokens, index, options)
+    }
+  },
+})
 
-export default defineConfig(async () => ({
+export default defineConfig({
   optimizeDeps: {
     exclude: ['@vue/repl'],
   },
@@ -101,7 +99,7 @@ export default defineConfig(async () => ({
     Vue({
       include: [/\.vue$/, /\.md$/],
     }),
-    await createMarkdownPlugin(),
+    markdownPlugin,
     Components({
       dirs: ['src/components'],
       extensions: ['vue'],
@@ -130,4 +128,4 @@ export default defineConfig(async () => ({
       allow: ['../../packages/*', '../../node_modules', '.'],
     },
   },
-}))
+})
