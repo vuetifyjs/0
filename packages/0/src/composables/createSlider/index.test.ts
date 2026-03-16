@@ -139,6 +139,60 @@ describe('createSlider', () => {
     })
   })
 
+  describe('snap with step <= 0', () => {
+    it('clamps without snapping when step is 0', () => {
+      const { slider } = setup({ min: 0, max: 100, step: 0 })
+      expect(slider.snap(50.7)).toBe(50.7)
+      expect(slider.snap(-10)).toBe(0)
+      expect(slider.snap(200)).toBe(100)
+    })
+  })
+
+  describe('fromValue with zero extent', () => {
+    it('returns 0 when min equals max', () => {
+      const { slider } = setup({ min: 50, max: 50 })
+      expect(slider.fromValue(50)).toBe(0)
+    })
+  })
+
+  describe('readonly mode', () => {
+    it('should not change value when readonly', () => {
+      const { slider, addThumb } = setup({ min: 0, max: 100, step: 1, readonly: true })
+      addThumb(50)
+      slider.set(0, 75)
+      expect(slider.values.value).toEqual([50])
+    })
+  })
+
+  describe('set with following thumb constraint', () => {
+    it('should constrain first thumb below following thumb gap', () => {
+      const { slider, addThumb } = setup({ min: 0, max: 100, step: 1, minStepsBetweenThumbs: 10 })
+      addThumb(30)
+      addThumb(70)
+      slider.set(0, 65)
+      expect(slider.values.value[0]).toBe(60)
+    })
+
+    it('should constrain second thumb above previous thumb gap', () => {
+      const { slider, addThumb } = setup({ min: 0, max: 100, step: 1, minStepsBetweenThumbs: 10 })
+      addThumb(30)
+      addThumb(70)
+      slider.set(1, 35)
+      expect(slider.values.value[1]).toBe(40)
+    })
+  })
+
+  describe('apply with constraints', () => {
+    it('should constrain values between adjacent thumbs', () => {
+      const { slider, addThumb } = setup({ min: 0, max: 100, step: 1, minStepsBetweenThumbs: 10 })
+      addThumb(0)
+      addThumb(100)
+      slider.apply([50, 55])
+      expect(slider.values.value[0]).toBe(45)
+      expect(slider.values.value[1]).toBe(60)
+    })
+  })
+
   describe('defaults', () => {
     it('uses min=0, max=100, step=1', () => {
       const { slider } = setup()
@@ -216,6 +270,74 @@ describe('createSlider', () => {
       addThumb(0)
       slider.apply([33])
       expect(slider.values.value).toEqual([30])
+    })
+
+    it('skips values beyond registered thumb count', () => {
+      const { slider, addThumb } = setup()
+      addThumb(0)
+      // Apply 3 values but only 1 thumb registered
+      slider.apply([25, 50, 75])
+      expect(slider.values.value).toEqual([25])
+    })
+
+    it('handles crossover mode in apply', () => {
+      const { slider, addThumb } = setup({ crossover: true })
+      addThumb(0)
+      addThumb(0)
+      slider.apply([75, 25])
+      expect(slider.values.value).toEqual([75, 25])
+    })
+  })
+
+  describe('crossover', () => {
+    it('should allow thumbs to cross when crossover is true', () => {
+      const { slider, addThumb } = setup({ min: 0, max: 100, step: 1, crossover: true })
+      addThumb(30)
+      addThumb(70)
+      // Set first thumb past second
+      slider.set(0, 90)
+      expect(slider.values.value[0]).toBe(90)
+    })
+  })
+
+  describe('register with object input', () => {
+    it('should accept { value } object', () => {
+      const { slider } = setup()
+      slider.register({ value: 42 })
+      expect(slider.values.value).toEqual([42])
+    })
+  })
+
+  describe('selectedValues', () => {
+    it('should be an alias for values', () => {
+      const { slider, addThumb } = setup()
+      addThumb(25)
+      addThumb(75)
+      expect(slider.selectedValues.value).toEqual([25, 75])
+      expect(slider.selectedValues.value).toEqual(slider.values.value)
+    })
+  })
+
+  describe('size', () => {
+    it('should reflect the number of registered thumbs', () => {
+      const { slider, addThumb } = setup()
+      expect(slider.size).toBe(0)
+      const ticket = addThumb(50)
+      expect(slider.size).toBe(1)
+      addThumb(75)
+      expect(slider.size).toBe(2)
+      slider.unregister(ticket.id)
+      expect(slider.size).toBe(1)
+    })
+  })
+
+  describe('disabled model registration', () => {
+    it('should ensure thumb is selected even when model is disabled', () => {
+      const { slider } = setup({ disabled: true })
+      const ticket = slider.register(50)
+      // Even with disabled model, thumb should be selected for visibility
+      expect(slider.values.value).toEqual([50])
+      expect(ticket).toBeDefined()
     })
   })
 })

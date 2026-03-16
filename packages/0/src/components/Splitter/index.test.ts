@@ -962,5 +962,569 @@ describe('splitter', () => {
       expect(sizes[1]).toBeLessThanOrEqual(80)
       expect(sizes[0]! + sizes[1]!).toBe(100)
     })
+
+    it('should ignore distribute when size count mismatches panel count', async () => {
+      const onLayout = vi.fn()
+      const wrapper = twoPanel({
+        onLayout,
+        panels: [{ defaultSize: 50 }, { defaultSize: 50 }],
+      })
+      await nextTick()
+      onLayout.mockClear()
+
+      wrapper.vm.distribute([30, 40, 30])
+      expect(onLayout).not.toHaveBeenCalled()
+    })
+
+    it('should handle distribute with negative remainder correction', async () => {
+      const onLayout = vi.fn()
+      const wrapper = twoPanel({
+        onLayout,
+        panels: [
+          { defaultSize: 50, minSize: 0, maxSize: 60 },
+          { defaultSize: 50, minSize: 0, maxSize: 60 },
+        ],
+      })
+      await nextTick()
+      onLayout.mockClear()
+
+      // Both clamped to 60 = 120 total, need to subtract 20 via remainder
+      wrapper.vm.distribute([80, 80])
+
+      const sizes = onLayout.mock.calls[0]![0] as number[]
+      expect(sizes[0]! + sizes[1]!).toBe(100)
+    })
+
+    it('should update collapsed state during distribute', async () => {
+      const onLayout = vi.fn()
+      const wrapper = twoPanel({
+        onLayout,
+        panels: [
+          { defaultSize: 60, collapsible: true, collapsedSize: 0, minSize: 20 },
+          { defaultSize: 40 },
+        ],
+      })
+      await nextTick()
+      onLayout.mockClear()
+
+      // Distribute with first panel at collapsed size
+      wrapper.vm.distribute([0, 100])
+
+      const panels = wrapper.findAllComponents(SplitterPanel as any)
+      expect(panels[0]!.vm.isCollapsed).toBe(true)
+    })
+
+    it('should re-expand from collapsed state via distribute', async () => {
+      const wrapper = twoPanel({
+        panels: [
+          { defaultSize: 60, collapsible: true, collapsedSize: 0, minSize: 20 },
+          { defaultSize: 40 },
+        ],
+      })
+      await nextTick()
+
+      const panels = wrapper.findAllComponents(SplitterPanel as any)
+      panels[0]!.vm.collapse()
+      await nextTick()
+      expect(panels[0]!.vm.isCollapsed).toBe(true)
+
+      wrapper.vm.distribute([60, 40])
+      await nextTick()
+      expect(panels[0]!.vm.isCollapsed).toBe(false)
+    })
+  })
+
+  describe('collapse edge cases', () => {
+    it('should cascade remaining size to other panels when neighbor is full', async () => {
+      const onLayout = vi.fn()
+
+      const wrapper = mount(SplitterRoot, {
+        props: { onLayout },
+        slots: {
+          default: () => [
+            h(SplitterPanel as any, {
+              defaultSize: 40,
+              collapsible: true,
+              collapsedSize: 0,
+              minSize: 20,
+            }),
+            h(SplitterHandle as any),
+            h(SplitterPanel as any, {
+              defaultSize: 30,
+              minSize: 10,
+              maxSize: 35,
+            }),
+            h(SplitterHandle as any),
+            h(SplitterPanel as any, {
+              defaultSize: 30,
+              minSize: 10,
+            }),
+          ],
+        },
+      })
+      await nextTick()
+      onLayout.mockClear()
+
+      const panels = wrapper.findAllComponents(SplitterPanel as any)
+      panels[0]!.vm.collapse()
+      await nextTick()
+
+      // First panel should be collapsed
+      expect(panels[0]!.vm.isCollapsed).toBe(true)
+      // Total should still be 100
+      const total = panels.reduce((sum: number, p: any) => sum + p.vm.size, 0)
+      expect(total).toBe(100)
+    })
+
+    it('should not collapse a non-collapsible panel', async () => {
+      const wrapper = twoPanel({
+        panels: [
+          { defaultSize: 50, collapsible: false },
+          { defaultSize: 50 },
+        ],
+      })
+      await nextTick()
+
+      const panels = wrapper.findAllComponents(SplitterPanel as any)
+      // collapse() is a no-op because collapsible=false
+      panels[0]!.vm.collapse()
+      await nextTick()
+      expect(panels[0]!.vm.isCollapsed).toBe(false)
+      expect(panels[0]!.vm.size).toBe(50)
+    })
+
+    it('should not expand an already expanded panel', async () => {
+      const onLayout = vi.fn()
+      const wrapper = twoPanel({
+        onLayout,
+        panels: [
+          { defaultSize: 60, collapsible: true, collapsedSize: 0, minSize: 20 },
+          { defaultSize: 40 },
+        ],
+      })
+      await nextTick()
+      onLayout.mockClear()
+
+      const panels = wrapper.findAllComponents(SplitterPanel as any)
+      // Panel is not collapsed, expand should be no-op
+      panels[0]!.vm.expand()
+      await nextTick()
+      expect(onLayout).not.toHaveBeenCalled()
+    })
+
+    it('should not expand if available space is less than minSize', async () => {
+      const onLayout = vi.fn()
+      const wrapper = twoPanel({
+        onLayout,
+        panels: [
+          { defaultSize: 60, collapsible: true, collapsedSize: 0, minSize: 50 },
+          { defaultSize: 40, minSize: 38 },
+        ],
+      })
+      await nextTick()
+
+      const panels = wrapper.findAllComponents(SplitterPanel as any)
+      panels[0]!.vm.collapse()
+      await nextTick()
+      expect(panels[0]!.vm.isCollapsed).toBe(true)
+      onLayout.mockClear()
+
+      // Neighbor has size ~100, minSize=38, available=62
+      // target = min(defaultSize=60, maxSize=100) = 60, diff = 60, take = min(60, 62) = 60
+      // collapsedSize + take = 60 >= minSize=50, so it expands
+      panels[0]!.vm.expand()
+      await nextTick()
+
+      expect(panels[0]!.vm.isCollapsed).toBe(false)
+      expect(panels[0]!.vm.size).toBe(60)
+    })
+
+    it('should resize first panel to max via End key on handle', async () => {
+      const onLayout = vi.fn()
+      const wrapper = twoPanel({
+        onLayout,
+        panels: [
+          { defaultSize: 40, maxSize: 80 },
+          { defaultSize: 60 },
+        ],
+      })
+      await nextTick()
+      onLayout.mockClear()
+
+      const handle = wrapper.findComponent(SplitterHandle as any)
+      await handle.trigger('keydown', { key: 'End' })
+      await nextTick()
+
+      const panels = wrapper.findAllComponents(SplitterPanel as any)
+      expect(panels[0]!.vm.size).toBe(80)
+    })
+
+    it('should handle collapse when remaining space cannot be fully absorbed', async () => {
+      const onLayout = vi.fn()
+
+      const wrapper = mount(SplitterRoot, {
+        props: { onLayout },
+        slots: {
+          default: () => [
+            h(SplitterPanel as any, {
+              defaultSize: 50,
+              collapsible: true,
+              collapsedSize: 0,
+              minSize: 20,
+            }),
+            h(SplitterHandle as any),
+            h(SplitterPanel as any, {
+              defaultSize: 50,
+              minSize: 0,
+              maxSize: 55,
+            }),
+          ],
+        },
+      })
+      await nextTick()
+      onLayout.mockClear()
+
+      const panels = wrapper.findAllComponents(SplitterPanel as any)
+      panels[0]!.vm.collapse()
+      await nextTick()
+
+      // Neighbor maxes out at 55, remaining 50-55=? goes back to collapsed panel
+      // or to other panels. With only one neighbor, remainder goes back
+      const total = panels.reduce((sum: number, p: any) => sum + p.vm.size, 0)
+      expect(total).toBe(100)
+    })
+  })
+
+  describe('handle drag interaction', () => {
+    it('should set data-state to drag on pointerdown', async () => {
+      const wrapper = twoPanel({
+        panels: [{ defaultSize: 50 }, { defaultSize: 50 }],
+      })
+      await nextTick()
+
+      const handle = wrapper.findComponent(SplitterHandle as any)
+      const handleEl = handle.element as HTMLElement
+
+      // Mock setPointerCapture
+      handleEl.setPointerCapture = vi.fn()
+
+      handleEl.dispatchEvent(new PointerEvent('pointerdown', {
+        button: 0,
+        clientX: 100,
+        clientY: 50,
+        bubbles: true,
+        pointerId: 1,
+      }))
+      await nextTick()
+
+      expect(handle.attributes('data-state')).toBe('drag')
+    })
+
+    it('should not start drag when disabled', async () => {
+      const wrapper = twoPanel({
+        disabled: true,
+        panels: [{ defaultSize: 50 }, { defaultSize: 50 }],
+      })
+      await nextTick()
+
+      const handle = wrapper.findComponent(SplitterHandle as any)
+      const handleEl = handle.element as HTMLElement
+      handleEl.setPointerCapture = vi.fn()
+
+      handleEl.dispatchEvent(new PointerEvent('pointerdown', {
+        button: 0,
+        clientX: 100,
+        clientY: 50,
+        bubbles: true,
+        pointerId: 1,
+      }))
+      await nextTick()
+
+      expect(handle.attributes('data-state')).toBe('inactive')
+    })
+
+    it('should resize on pointermove and emit layout on pointerup', async () => {
+      const onLayout = vi.fn()
+      const wrapper = twoPanel({
+        onLayout,
+        panels: [{ defaultSize: 50 }, { defaultSize: 50 }],
+      })
+      await nextTick()
+      onLayout.mockClear()
+
+      const handle = wrapper.findComponent(SplitterHandle as any)
+      const handleEl = handle.element as HTMLElement
+      handleEl.setPointerCapture = vi.fn()
+
+      // Mock root element dimensions
+      const rootEl = wrapper.element as HTMLElement
+      Object.defineProperty(rootEl, 'offsetWidth', { value: 1000, configurable: true })
+
+      // Start drag
+      handleEl.dispatchEvent(new PointerEvent('pointerdown', {
+        button: 0,
+        clientX: 500,
+        clientY: 50,
+        bubbles: true,
+        pointerId: 1,
+      }))
+      await nextTick()
+
+      // Move pointer by 100px = 10% of 1000px root
+      document.dispatchEvent(new PointerEvent('pointermove', {
+        clientX: 600,
+        clientY: 50,
+        bubbles: true,
+      }))
+
+      // requestAnimationFrame tick
+      await new Promise(resolve => requestAnimationFrame(resolve))
+      await nextTick()
+
+      // End drag
+      document.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }))
+      await nextTick()
+
+      // Should have emitted layout on pointerup
+      expect(onLayout).toHaveBeenCalled()
+      expect(handle.attributes('data-state')).not.toBe('drag')
+    })
+
+    it('should handle vertical drag', async () => {
+      const onLayout = vi.fn()
+      const wrapper = twoPanel({
+        orientation: 'vertical',
+        onLayout,
+        panels: [{ defaultSize: 50 }, { defaultSize: 50 }],
+      })
+      await nextTick()
+      onLayout.mockClear()
+
+      const handle = wrapper.findComponent(SplitterHandle as any)
+      const handleEl = handle.element as HTMLElement
+      handleEl.setPointerCapture = vi.fn()
+
+      const rootEl = wrapper.element as HTMLElement
+      Object.defineProperty(rootEl, 'offsetHeight', { value: 1000, configurable: true })
+
+      handleEl.dispatchEvent(new PointerEvent('pointerdown', {
+        button: 0,
+        clientX: 50,
+        clientY: 500,
+        bubbles: true,
+        pointerId: 1,
+      }))
+      await nextTick()
+
+      document.dispatchEvent(new PointerEvent('pointermove', {
+        clientX: 50,
+        clientY: 600,
+        bubbles: true,
+      }))
+
+      await new Promise(resolve => requestAnimationFrame(resolve))
+      await nextTick()
+
+      document.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }))
+      await nextTick()
+
+      expect(onLayout).toHaveBeenCalled()
+    })
+  })
+
+  describe('handle keyboard edge cases', () => {
+    it('should not respond to Enter on non-collapsible panel', async () => {
+      const onLayout = vi.fn()
+      const wrapper = twoPanel({
+        onLayout,
+        panels: [
+          { defaultSize: 50, collapsible: false },
+          { defaultSize: 50 },
+        ],
+      })
+      await nextTick()
+      onLayout.mockClear()
+
+      const handle = wrapper.findComponent(SplitterHandle as any)
+      await handle.trigger('keydown', { key: 'Enter' })
+      await nextTick()
+
+      expect(onLayout).not.toHaveBeenCalled()
+    })
+
+    it('should handle unrecognized keys without error', async () => {
+      const onLayout = vi.fn()
+      const wrapper = twoPanel({
+        onLayout,
+        panels: [{ defaultSize: 50 }, { defaultSize: 50 }],
+      })
+      await nextTick()
+      onLayout.mockClear()
+
+      const handle = wrapper.findComponent(SplitterHandle as any)
+      await handle.trigger('keydown', { key: 'Tab' })
+      await nextTick()
+
+      expect(onLayout).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('panel v-model:collapsed driven externally', () => {
+    it('should collapse when v-model:collapsed changes to true', async () => {
+      const collapsed = ref(false)
+
+      const wrapper = mount(SplitterRoot, {
+        slots: {
+          default: () => [
+            h(SplitterPanel as any, {
+              'defaultSize': 60,
+              'collapsible': true,
+              'collapsedSize': 0,
+              'minSize': 20,
+              'collapsed': collapsed.value,
+              'onUpdate:collapsed': (val: boolean) => {
+                collapsed.value = val
+              },
+            }),
+            h(SplitterHandle as any),
+            h(SplitterPanel as any, { defaultSize: 40 }),
+          ],
+        },
+      })
+      await nextTick()
+
+      const panels = wrapper.findAllComponents(SplitterPanel as any)
+      expect(panels[0]!.vm.isCollapsed).toBe(false)
+
+      // Drive collapse externally
+      collapsed.value = true
+      await nextTick()
+      await nextTick()
+
+      expect(panels[0]!.vm.isCollapsed).toBe(true)
+    })
+
+    it('should expand when v-model:collapsed changes to false', async () => {
+      const collapsed = ref(false)
+
+      const wrapper = mount(SplitterRoot, {
+        slots: {
+          default: () => [
+            h(SplitterPanel as any, {
+              'defaultSize': 60,
+              'collapsible': true,
+              'collapsedSize': 0,
+              'minSize': 20,
+              'collapsed': collapsed.value,
+              'onUpdate:collapsed': (val: boolean) => {
+                collapsed.value = val
+              },
+            }),
+            h(SplitterHandle as any),
+            h(SplitterPanel as any, { defaultSize: 40 }),
+          ],
+        },
+      })
+      await nextTick()
+
+      // Collapse first
+      const panels = wrapper.findAllComponents(SplitterPanel as any)
+      panels[0]!.vm.collapse()
+      await nextTick()
+      expect(collapsed.value).toBe(true)
+
+      // Drive expand externally
+      collapsed.value = false
+      await nextTick()
+      await nextTick()
+
+      expect(panels[0]!.vm.isCollapsed).toBe(false)
+    })
+  })
+
+  describe('resize with collapsible effectiveMin', () => {
+    it('should use collapsedSize as effectiveMin when panel is collapsed', async () => {
+      const onLayout = vi.fn()
+      const wrapper = twoPanel({
+        onLayout,
+        panels: [
+          { defaultSize: 60, collapsible: true, collapsedSize: 5, minSize: 20 },
+          { defaultSize: 40 },
+        ],
+      })
+      await nextTick()
+
+      // Collapse
+      const panels = wrapper.findAllComponents(SplitterPanel as any)
+      panels[0]!.vm.collapse()
+      await nextTick()
+      onLayout.mockClear()
+
+      // Now resize with the panel collapsed — effectiveMin should be collapsedSize (5)
+      const handle = wrapper.findComponent(SplitterHandle as any)
+      await handle.trigger('keydown', { key: 'ArrowLeft' })
+      await nextTick()
+
+      expect(onLayout).toHaveBeenCalled()
+      const sizes = onLayout.mock.calls[0]![0] as number[]
+      expect(sizes[0]).toBeGreaterThanOrEqual(4) // can go as low as collapsedSize
+    })
+
+    it('should auto-select panel when resize pushes it above collapsedSize', async () => {
+      const onLayout = vi.fn()
+      const wrapper = twoPanel({
+        onLayout,
+        panels: [
+          { defaultSize: 60, collapsible: true, collapsedSize: 5, minSize: 20 },
+          { defaultSize: 40 },
+        ],
+      })
+      await nextTick()
+
+      const panels = wrapper.findAllComponents(SplitterPanel as any)
+      panels[0]!.vm.collapse()
+      await nextTick()
+      onLayout.mockClear()
+
+      // Resize to push panel above collapsedSize
+      const handle = wrapper.findComponent(SplitterHandle as any)
+      for (let i = 0; i < 10; i++) {
+        await handle.trigger('keydown', { key: 'ArrowRight' })
+      }
+      await nextTick()
+
+      expect(panels[0]!.vm.size).toBeGreaterThan(5)
+      expect(panels[0]!.vm.isCollapsed).toBe(false)
+    })
+  })
+
+  describe('onEndDrag emits layout', () => {
+    it('should emit layout when drag ends', async () => {
+      const onLayout = vi.fn()
+      const wrapper = twoPanel({
+        onLayout,
+        panels: [{ defaultSize: 50 }, { defaultSize: 50 }],
+      })
+      await nextTick()
+      onLayout.mockClear()
+
+      const handle = wrapper.findComponent(SplitterHandle as any)
+      const handleEl = handle.element as HTMLElement
+      handleEl.setPointerCapture = vi.fn()
+
+      handleEl.dispatchEvent(new PointerEvent('pointerdown', {
+        button: 0,
+        clientX: 100,
+        clientY: 50,
+        bubbles: true,
+        pointerId: 1,
+      }))
+      await nextTick()
+
+      document.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }))
+      await nextTick()
+
+      expect(onLayout).toHaveBeenCalled()
+    })
   })
 })

@@ -1178,3 +1178,201 @@ describe('checkbox', () => {
     })
   })
 })
+
+// Additional coverage tests
+describe('additional coverage', () => {
+  describe('group mode select/unselect', () => {
+    it('should call ticket.select in group mode', async () => {
+      const model = ref<string[]>([])
+      const { itemProps, wait } = mountGroup({ model })
+      await wait()
+      itemProps('item-1').select()
+      await wait()
+      expect(model.value).toContain('item-1')
+    })
+
+    it('should call ticket.unselect in group mode', async () => {
+      const model = ref<string[]>(['item-1'])
+      const { itemProps, wait } = mountGroup({ model })
+      await wait()
+      itemProps('item-1').unselect()
+      await wait()
+      expect(model.value).not.toContain('item-1')
+    })
+  })
+
+  describe('selectAll keydown when disabled', () => {
+    it('should not toggle on Space when selectAll is disabled via prop', async () => {
+      const model = ref<string[]>([])
+      const { wrapper, wait } = mountSelectAll({ model, props: { disabled: true } })
+      await wait()
+      await wrapper.find('button').trigger('keydown', { key: ' ' })
+      await wait()
+      expect(model.value).toHaveLength(0)
+    })
+
+    it('should prevent default on Space even when disabled', async () => {
+      const { wrapper, wait } = mountSelectAll({ props: { disabled: true } })
+      await wait()
+      const event = new KeyboardEvent('keydown', { key: ' ', bubbles: true, cancelable: true })
+      wrapper.find('button').element.dispatchEvent(event)
+      expect(event.defaultPrevented).toBe(true)
+    })
+  })
+
+  describe('value serialization', () => {
+    it('should serialize null/undefined value as "on"', () => {
+      const wrapper = mount(Checkbox.Root, {
+        props: { name: 'agree', value: undefined },
+        slots: { default: () => h(Checkbox.Indicator as any, {}, () => 'X') },
+      })
+      expect(wrapper.find('input').attributes('value')).toBe('on')
+    })
+
+    it('should serialize object value as JSON', () => {
+      const wrapper = mount(Checkbox.Root, {
+        props: { name: 'data', value: { foo: 'bar' } },
+        slots: { default: () => h(Checkbox.Indicator as any, {}, () => 'X') },
+      })
+      expect(wrapper.find('input').attributes('value')).toBe('{"foo":"bar"}')
+    })
+  })
+
+  describe('standalone select/unselect methods', () => {
+    it('should select in standalone mode', async () => {
+      const model = ref(false)
+      const { props, wait } = mountCheckbox({ model })
+      await wait()
+      props().select()
+      await wait()
+      expect(model.value).toBe(true)
+    })
+
+    it('should unselect in standalone mode', async () => {
+      const model = ref(true)
+      const { props, wait } = mountCheckbox({ model })
+      await wait()
+      props().unselect()
+      await wait()
+      expect(model.value).toBe(false)
+    })
+
+    it('should not select when disabled', async () => {
+      const model = ref(false)
+      const { props, wait } = mountCheckbox({ model, props: { disabled: true } })
+      await wait()
+      props().select()
+      await wait()
+      expect(model.value).toBe(false)
+    })
+
+    it('should not unselect when disabled', async () => {
+      const model = ref(true)
+      const { props, wait } = mountCheckbox({ model, props: { disabled: true } })
+      await wait()
+      props().unselect()
+      await wait()
+      expect(model.value).toBe(true)
+    })
+  })
+
+  describe('keyboard edge cases', () => {
+    it('should ignore non-space keydown events', async () => {
+      const model = ref(false)
+      const { wrapper, wait } = mountCheckbox({ model })
+      await wait()
+      await wrapper.find('button').trigger('keydown', { key: 'Enter' })
+      await wait()
+      expect(model.value).toBe(false)
+    })
+  })
+
+  describe('standalone mix/unmix no-ops', () => {
+    it('should not throw when calling mix() in standalone mode', async () => {
+      const { props, wait } = mountCheckbox()
+      await wait()
+      expect(() => props().mix()).not.toThrow()
+    })
+
+    it('should not throw when calling unmix() in standalone mode', async () => {
+      const { props, wait } = mountCheckbox()
+      await wait()
+      expect(() => props().unmix()).not.toThrow()
+    })
+  })
+
+  describe('aRIA attributes with specific states', () => {
+    it('should set data-state to indeterminate when mixed', async () => {
+      const { itemProps, wait } = mountGroup({
+        items: [{ value: 'item-1', indeterminate: true }],
+      })
+      await wait()
+      expect(itemProps('item-1').attrs['data-state']).toBe('indeterminate')
+    })
+
+    it('should set aria-checked to mixed when indeterminate', async () => {
+      const { itemProps, wait } = mountGroup({
+        items: [{ value: 'item-1', indeterminate: true }],
+      })
+      await wait()
+      expect(itemProps('item-1').attrs['aria-checked']).toBe('mixed')
+    })
+
+    it('should set data-disabled when disabled', async () => {
+      const { props, wait } = mountCheckbox({ props: { disabled: true } })
+      await wait()
+      expect(props().attrs['data-disabled']).toBe(true)
+    })
+  })
+
+  describe('hidden input form validation integration', () => {
+    it('should handle null value in hidden input', () => {
+      const wrapper = mount(Checkbox.Root, {
+        props: { name: 'field', value: null as unknown as string },
+        slots: { default: () => h(Checkbox.Indicator as any, {}, () => 'X') },
+      })
+      // isNullOrUndefined(null) returns true => 'on'
+      expect(wrapper.find('input').attributes('value')).toBe('on')
+    })
+  })
+
+  describe('selectAll keyboard edge cases', () => {
+    it('should ignore non-space keydown on selectAll', async () => {
+      const model = ref<string[]>([])
+      const { wrapper, wait } = mountSelectAll({ model })
+      await wait()
+      await wrapper.find('button').trigger('keydown', { key: 'Enter' })
+      await wait()
+      expect(model.value).toHaveLength(0)
+    })
+  })
+
+  describe('selectAll data-state and disabled rendering', () => {
+    it('should set data-state to checked when all selected', async () => {
+      const model = ref<string[]>(['item-1', 'item-2'])
+      const { props, wait } = mountSelectAll({ model })
+      await wait()
+      expect(props().attrs['data-state']).toBe('checked')
+    })
+
+    it('should set data-state to indeterminate when partially selected', async () => {
+      const model = ref<string[]>(['item-1'])
+      const { props, wait } = mountSelectAll({ model })
+      await wait()
+      expect(props().attrs['data-state']).toBe('indeterminate')
+    })
+
+    it('should set data-state to unchecked when none selected', async () => {
+      const model = ref<string[]>([])
+      const { props, wait } = mountSelectAll({ model })
+      await wait()
+      expect(props().attrs['data-state']).toBe('unchecked')
+    })
+
+    it('should set data-disabled when disabled', async () => {
+      const { props, wait } = mountSelectAll({ props: { disabled: true } })
+      await wait()
+      expect(props().attrs['data-disabled']).toBe(true)
+    })
+  })
+})

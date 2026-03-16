@@ -1086,6 +1086,254 @@ describe('useDate', () => {
         const customResult = testAdapter.formatByString(testDate, 'YYYY-MM-DD')
         expect(customResult).toBe('2024-06-15')
       })
+
+      it('should evict oldest number formatter entries when cache exceeds limit', () => {
+        const testAdapter = new Vuetify0DateAdapter('en-US')
+
+        for (let i = 0; i < 60; i++) {
+          testAdapter.locale = `en-${String(i).padStart(3, '0')}`
+          try {
+            testAdapter.formatNumber('1234')
+          } catch { /* some locales invalid */ }
+        }
+
+        testAdapter.locale = 'en-US'
+        const result = testAdapter.formatNumber('1234')
+        expect(result).toBe('1,234')
+      })
+    })
+
+    describe('additional coverage', () => {
+      it('should return null for non-date non-string non-number input', () => {
+        const result = adapter.date(true as unknown)
+        expect(result).toBeNull()
+      })
+
+      it('should parse timezone-aware ISO strings in parseISO', () => {
+        const result = adapter.parseISO('2024-06-15T10:30:00Z')
+        expect(result.year).toBe(2024)
+        expect(result.month).toBe(6)
+        expect(result.day).toBe(15)
+        expect(result.hour).toBe(10)
+      })
+
+      it('should parse ISO strings with offset in parseISO', () => {
+        const result = adapter.parseISO('2024-06-15T10:30:00+00:00')
+        expect(result.year).toBe(2024)
+        expect(result.month).toBe(6)
+        expect(result.day).toBe(15)
+      })
+
+      it('should return null from parse when date() fails', () => {
+        const result = adapter.parse('completely invalid garbage', 'YYYY')
+        expect(result).toBeNull()
+      })
+
+      it('should return false for isValid with non-date non-string', () => {
+        expect(adapter.isValid(12_345)).toBe(false)
+        expect(adapter.isValid(true)).toBe(false)
+        expect(adapter.isValid({})).toBe(false)
+      })
+
+      it('should use fallback path in format for unknown format string', () => {
+        const date = Temporal.PlainDateTime.from('2024-06-15T10:30:00')
+        const result = adapter.format(date, 'unknownFormat')
+        expect(typeof result).toBe('string')
+        expect(result.length).toBeGreaterThan(0)
+      })
+
+      it('should format single-digit minute with m token', () => {
+        const date = Temporal.PlainDateTime.from('2024-06-15T10:05:09')
+        expect(adapter.formatByString(date, 'm')).toBe('5')
+      })
+
+      it('should format seconds with ss and s tokens', () => {
+        const date = Temporal.PlainDateTime.from('2024-06-15T10:30:09')
+        expect(adapter.formatByString(date, 'ss')).toBe('09')
+        expect(adapter.formatByString(date, 's')).toBe('9')
+      })
+
+      it('should format AM/PM with A and a tokens', () => {
+        const am = Temporal.PlainDateTime.from('2024-06-15T09:00:00')
+        const pm = Temporal.PlainDateTime.from('2024-06-15T15:00:00')
+
+        expect(adapter.formatByString(am, 'A')).toBe('AM')
+        expect(adapter.formatByString(am, 'a')).toBe('am')
+        expect(adapter.formatByString(pm, 'A')).toBe('PM')
+        expect(adapter.formatByString(pm, 'a')).toBe('pm')
+      })
+
+      it('should format month name with MMMM and MMM tokens', () => {
+        const date = Temporal.PlainDateTime.from('2024-06-15T10:30:00')
+        const long = adapter.formatByString(date, 'MMMM')
+        const short = adapter.formatByString(date, 'MMM')
+
+        expect(long.toLowerCase()).toContain('june')
+        expect(short.toLowerCase()).toContain('jun')
+      })
+
+      it('should format weekday with dddd and ddd tokens', () => {
+        const date = Temporal.PlainDateTime.from('2024-06-15T10:30:00')
+        const long = adapter.formatByString(date, 'dddd')
+        const short = adapter.formatByString(date, 'ddd')
+
+        expect(long.toLowerCase()).toContain('saturday')
+        expect(short.toLowerCase()).toContain('sat')
+      })
+
+      it('should return 0 for getDiff when comparing string resolves to null', () => {
+        const a = Temporal.PlainDateTime.from('2024-06-15T10:00:00')
+        const result = adapter.getDiff(a, 'completely invalid', 'days')
+        expect(result).toBe(0)
+      })
+
+      it('should return null for unknown input types', () => {
+        expect(adapter.date(Symbol('test'))).toBeNull()
+        expect(adapter.date(true)).toBeNull()
+      })
+
+      it('should parse timezone-aware ISO strings via date()', () => {
+        const result = adapter.date('2024-06-15T10:30:00Z')
+        expect(result).not.toBeNull()
+        expect(result!.year).toBe(2024)
+        expect(result!.month).toBe(6)
+        expect(result!.day).toBe(15)
+      })
+
+      it('should validate PlainDate string as valid', () => {
+        expect(adapter.isValid('2024-06-15')).toBe(true)
+      })
+
+      it('should validate invalid string as invalid via PlainDate fallback', () => {
+        expect(adapter.isValid('not-a-date-at-all')).toBe(false)
+      })
+
+      it('should compare isBeforeMonth across different years', () => {
+        const dec2023 = Temporal.PlainDateTime.from('2023-12-15T10:00:00')
+        const jan2024 = Temporal.PlainDateTime.from('2024-01-15T10:00:00')
+        expect(adapter.isBeforeMonth(dec2023, jan2024)).toBe(true)
+        expect(adapter.isBeforeMonth(jan2024, dec2023)).toBe(false)
+      })
+
+      it('should compare isAfterMonth across different years', () => {
+        const dec2023 = Temporal.PlainDateTime.from('2023-12-15T10:00:00')
+        const jan2024 = Temporal.PlainDateTime.from('2024-01-15T10:00:00')
+        expect(adapter.isAfterMonth(jan2024, dec2023)).toBe(true)
+        expect(adapter.isAfterMonth(dec2023, jan2024)).toBe(false)
+      })
+
+      it('should use format fallback path for non-preset format strings', () => {
+        const date = Temporal.PlainDateTime.from('2024-06-15T10:30:00')
+        const result = adapter.format(date, 'customNonExistentPreset')
+        expect(typeof result).toBe('string')
+        expect(result.length).toBeGreaterThan(0)
+      })
+
+      it('should format M (single-digit month) and D (single-digit day) tokens', () => {
+        const date = Temporal.PlainDateTime.from('2024-06-05T10:30:00')
+        expect(adapter.formatByString(date, 'M')).toBe('6')
+        expect(adapter.formatByString(date, 'D')).toBe('5')
+      })
+
+      it('should format YY (two-digit year) token', () => {
+        const date = Temporal.PlainDateTime.from('2024-06-15T10:30:00')
+        expect(adapter.formatByString(date, 'YY')).toBe('24')
+      })
+
+      it('should format H (single-digit hour 24h) token', () => {
+        const date = Temporal.PlainDateTime.from('2024-06-15T09:30:00')
+        expect(adapter.formatByString(date, 'H')).toBe('9')
+      })
+
+      it('should format hh (12h padded) and h (12h single) tokens', () => {
+        const date = Temporal.PlainDateTime.from('2024-06-15T14:05:00')
+        expect(adapter.formatByString(date, 'hh')).toBe('02')
+        expect(adapter.formatByString(date, 'h')).toBe('2')
+      })
+
+      it('should evict oldest format cache entry when cache is full', () => {
+        const testAdapter = new Vuetify0DateAdapter('en-US')
+        const date = Temporal.PlainDateTime.from('2024-06-15T10:30:00')
+
+        // Safe presets that work across locales (no dateStyle/timeStyle conflicts)
+        const presets = [
+          'year', 'month', 'monthShort', 'weekday', 'weekdayShort',
+          'dayOfMonth', 'hours12h', 'hours24h', 'minutes', 'seconds',
+        ]
+
+        // Valid BCP 47 locale tags
+        const locales = [
+          'en-US', 'en-GB', 'fr-FR', 'de-DE', 'es-ES', 'it-IT',
+        ]
+
+        // Each locale * preset = 6 * 10 = 60 unique cache entries, exceeding MAX_CACHE_SIZE(50)
+        for (const locale of locales) {
+          testAdapter.locale = locale
+          for (const preset of presets) {
+            testAdapter.format(date, preset)
+          }
+        }
+
+        // Restore locale and verify it still works after eviction
+        testAdapter.locale = 'en-US'
+        const result = testAdapter.format(date, 'year')
+        expect(result).toContain('2024')
+      })
+
+      it('should evict oldest number format cache entry when cache is full', () => {
+        const testAdapter = new Vuetify0DateAdapter('en-US')
+
+        // Use valid BCP 47 locale tags to fill the cache
+        const locales = [
+          'en-US', 'en-GB', 'fr-FR', 'de-DE', 'es-ES', 'it-IT', 'pt-BR', 'ja-JP',
+          'ko-KR', 'zh-CN', 'zh-TW', 'ar-SA', 'ru-RU', 'pl-PL', 'nl-NL', 'sv-SE',
+          'da-DK', 'fi-FI', 'nb-NO', 'cs-CZ', 'sk-SK', 'hu-HU', 'ro-RO', 'bg-BG',
+          'hr-HR', 'sl-SI', 'lt-LT', 'lv-LV', 'et-EE', 'el-GR', 'tr-TR', 'uk-UA',
+          'he-IL', 'th-TH', 'vi-VN', 'id-ID', 'ms-MY', 'hi-IN', 'bn-BD', 'ta-IN',
+          'te-IN', 'mr-IN', 'gu-IN', 'kn-IN', 'ml-IN', 'pa-IN', 'ur-PK', 'fa-IR',
+          'af-ZA', 'sw-KE', 'am-ET',
+        ]
+
+        for (const locale of locales) {
+          testAdapter.locale = locale
+          testAdapter.formatNumber('1234')
+        }
+
+        // Should still work after eviction
+        testAdapter.locale = 'en-US'
+        const result = testAdapter.formatNumber('1234')
+        expect(typeof result).toBe('string')
+      })
+
+      it('should get getDiff with various units', () => {
+        const a = Temporal.PlainDateTime.from('2024-06-15T10:30:45')
+        const b = Temporal.PlainDateTime.from('2024-06-15T08:15:30')
+
+        expect(adapter.getDiff(a, b, 'hours')).toBe(2)
+
+        const c = Temporal.PlainDateTime.from('2024-06-15T10:30:00')
+        const d = Temporal.PlainDateTime.from('2024-06-15T10:15:00')
+        expect(adapter.getDiff(c, d, 'minutes')).toBe(15)
+
+        const e = Temporal.PlainDateTime.from('2024-06-15T10:00:45')
+        const f = Temporal.PlainDateTime.from('2024-06-15T10:00:30')
+        expect(adapter.getDiff(e, f, 'seconds')).toBe(15)
+      })
+
+      it('should get getDiff with years, months, weeks', () => {
+        const a = Temporal.PlainDateTime.from('2025-06-15T10:00:00')
+        const b = Temporal.PlainDateTime.from('2024-06-15T10:00:00')
+
+        expect(adapter.getDiff(a, b, 'years')).toBe(1)
+
+        const c = Temporal.PlainDateTime.from('2024-09-15T10:00:00')
+        const d = Temporal.PlainDateTime.from('2024-06-15T10:00:00')
+        expect(adapter.getDiff(c, d, 'months')).toBe(3)
+
+        const e = Temporal.PlainDateTime.from('2024-06-29T10:00:00')
+        const f = Temporal.PlainDateTime.from('2024-06-15T10:00:00')
+        expect(adapter.getDiff(e, f, 'weeks')).toBe(2)
+      })
     })
   })
 

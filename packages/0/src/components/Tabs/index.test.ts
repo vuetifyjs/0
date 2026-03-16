@@ -1496,3 +1496,55 @@ describe('tabs', () => {
     })
   })
 })
+
+// Additional coverage tests
+describe('context circular prop', () => {
+  it('should expose circular through context to children', async () => {
+    let circularValue: boolean | undefined
+    const { useTabsRoot } = await import('./TabsRoot.vue')
+
+    const Spy = defineComponent({
+      setup () {
+        const tabs = useTabsRoot('v0:tabs')
+        circularValue = tabs.circular.value
+        return () => null
+      },
+    })
+
+    mount(Tabs.Root, {
+      props: { circular: false },
+      slots: {
+        default: () => h(Spy),
+      },
+    })
+
+    expect(circularValue).toBe(false)
+  })
+
+  it('should reactively update circular through context', async () => {
+    const { useTabsRoot } = await import('./TabsRoot.vue')
+    let circularRef: { value: boolean } | undefined
+
+    const Spy = defineComponent({
+      setup () {
+        const tabs = useTabsRoot('v0:tabs')
+        circularRef = tabs.circular
+        return () => null
+      },
+    })
+
+    const wrapper = mount(Tabs.Root, {
+      props: { circular: true },
+      slots: {
+        default: () => h(Spy),
+      },
+    })
+
+    await nextTick()
+    expect(circularRef!.value).toBe(true)
+
+    await wrapper.setProps({ circular: false })
+    await nextTick()
+    expect(circularRef!.value).toBe(false)
+  })
+})

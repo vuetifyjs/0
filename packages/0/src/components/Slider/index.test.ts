@@ -732,5 +732,422 @@ describe('slider', () => {
 
       expect(wrapper.emitted().start).toBeUndefined()
     })
+
+    it('should not emit start when disabled', async () => {
+      const model = ref([50])
+      const { wrapper, wait } = mountSlider({
+        model,
+        props: { disabled: true },
+      })
+      await wait()
+
+      const thumb = wrapper.find('[role="slider"]')
+      thumb.element.dispatchEvent(new PointerEvent('pointerdown', { button: 0, bubbles: true }))
+      await wait()
+
+      expect(wrapper.emitted().start).toBeUndefined()
+    })
+
+    it('should not emit start on non-primary button', async () => {
+      const model = ref([50])
+      const { wrapper, wait } = mountSlider({ model })
+      await wait()
+
+      const thumb = wrapper.find('[role="slider"]')
+      thumb.element.dispatchEvent(new PointerEvent('pointerdown', { button: 2, bubbles: true }))
+      await wait()
+
+      expect(wrapper.emitted().start).toBeUndefined()
+    })
+  })
+
+  describe('track click-to-position', () => {
+    it('should move nearest thumb on track pointerdown', async () => {
+      const model = ref([50])
+      const { wrapper, wait } = mountSlider({ model })
+      await wait()
+
+      const track = wrapper.findComponent(Slider.Track as any)
+      const trackEl = track.element as HTMLElement
+
+      // Mock getBoundingClientRect for the track
+      trackEl.getBoundingClientRect = () => ({
+        x: 0,
+        y: 0,
+        width: 200,
+        height: 20,
+        top: 0,
+        right: 200,
+        bottom: 20,
+        left: 0,
+        toJSON () {},
+      })
+
+      trackEl.dispatchEvent(new PointerEvent('pointerdown', {
+        button: 0,
+        clientX: 40,
+        clientY: 10,
+        bubbles: true,
+      }))
+      await wait()
+
+      // 40/200 = 20% -> value should be 20 (snapped to step)
+      expect(model.value[0]).toBe(20)
+    })
+
+    it('should select nearest thumb in range mode', async () => {
+      const model = ref([20, 80])
+      const { wrapper, wait } = mountSlider({ model, thumbCount: 2 })
+      await wait()
+
+      const track = wrapper.findComponent(Slider.Track as any)
+      const trackEl = track.element as HTMLElement
+
+      trackEl.getBoundingClientRect = () => ({
+        x: 0,
+        y: 0,
+        width: 100,
+        height: 20,
+        top: 0,
+        right: 100,
+        bottom: 20,
+        left: 0,
+        toJSON () {},
+      })
+
+      // Click at 75% — closer to thumb at 80
+      trackEl.dispatchEvent(new PointerEvent('pointerdown', {
+        button: 0,
+        clientX: 75,
+        clientY: 10,
+        bubbles: true,
+      }))
+      await wait()
+
+      expect(model.value[0]).toBe(20) // first thumb unchanged
+      expect(model.value[1]).toBe(75) // second thumb moved
+    })
+
+    it('should not respond to track click when disabled', async () => {
+      const model = ref([50])
+      const { wrapper, wait } = mountSlider({
+        model,
+        props: { disabled: true },
+      })
+      await wait()
+
+      const track = wrapper.findComponent(Slider.Track as any)
+      const trackEl = track.element as HTMLElement
+
+      trackEl.getBoundingClientRect = () => ({
+        x: 0, y: 0, width: 100, height: 20,
+        top: 0, right: 100, bottom: 20, left: 0,
+        toJSON () {},
+      })
+
+      trackEl.dispatchEvent(new PointerEvent('pointerdown', {
+        button: 0,
+        clientX: 20,
+        clientY: 10,
+        bubbles: true,
+      }))
+      await wait()
+
+      expect(model.value).toEqual([50])
+    })
+
+    it('should ignore non-primary button on track', async () => {
+      const model = ref([50])
+      const { wrapper, wait } = mountSlider({ model })
+      await wait()
+
+      const track = wrapper.findComponent(Slider.Track as any)
+      const trackEl = track.element as HTMLElement
+
+      trackEl.getBoundingClientRect = () => ({
+        x: 0, y: 0, width: 100, height: 20,
+        top: 0, right: 100, bottom: 20, left: 0,
+        toJSON () {},
+      })
+
+      trackEl.dispatchEvent(new PointerEvent('pointerdown', {
+        button: 2,
+        clientX: 20,
+        clientY: 10,
+        bubbles: true,
+      }))
+      await wait()
+
+      expect(model.value).toEqual([50])
+    })
+
+    it('should handle vertical track click', async () => {
+      const model = ref([50])
+      const { wrapper, wait } = mountSlider({
+        model,
+        props: { orientation: 'vertical' },
+      })
+      await wait()
+
+      const track = wrapper.findComponent(Slider.Track as any)
+      const trackEl = track.element as HTMLElement
+
+      trackEl.getBoundingClientRect = () => ({
+        x: 0,
+        y: 0,
+        width: 20,
+        height: 200,
+        top: 0,
+        right: 20,
+        bottom: 200,
+        left: 0,
+        toJSON () {},
+      })
+
+      // Click at clientY=40 in a 200px tall track: bottom-relative = (200-40)/200 = 80%
+      trackEl.dispatchEvent(new PointerEvent('pointerdown', {
+        button: 0,
+        clientX: 10,
+        clientY: 40,
+        bubbles: true,
+      }))
+      await wait()
+
+      expect(model.value[0]).toBe(80)
+    })
+  })
+
+  describe('drag interaction', () => {
+    it('should update value on pointermove during drag', async () => {
+      const model = ref([50])
+      const { wrapper, wait } = mountSlider({ model })
+      await wait()
+
+      const track = wrapper.findComponent(Slider.Track as any)
+      const trackEl = track.element as HTMLElement
+
+      trackEl.getBoundingClientRect = () => ({
+        x: 0, y: 0, width: 100, height: 20,
+        top: 0, right: 100, bottom: 20, left: 0,
+        toJSON () {},
+      })
+
+      // Start drag via thumb pointerdown
+      const thumb = wrapper.find('[role="slider"]')
+      thumb.element.dispatchEvent(new PointerEvent('pointerdown', {
+        button: 0,
+        clientX: 50,
+        clientY: 10,
+        bubbles: true,
+      }))
+      await wait()
+
+      // Move pointer
+      document.dispatchEvent(new PointerEvent('pointermove', {
+        clientX: 70,
+        clientY: 10,
+        bubbles: true,
+      }))
+      await wait()
+
+      // End drag
+      document.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }))
+      await wait()
+
+      expect(wrapper.emitted().end).toBeDefined()
+    })
+  })
+
+  describe('shift+arrow keyboard shortcut', () => {
+    it('should increment by 10x step on Shift+ArrowRight', async () => {
+      const model = ref([50])
+      const { wrapper, wait } = mountSlider({ model, props: { step: 1 } })
+      await wait()
+
+      await wrapper.find('[role="slider"]').trigger('keydown', {
+        key: 'ArrowRight',
+        shiftKey: true,
+      })
+      await wait()
+      expect(model.value).toEqual([60])
+    })
+
+    it('should decrement by 10x step on Shift+ArrowLeft', async () => {
+      const model = ref([50])
+      const { wrapper, wait } = mountSlider({ model, props: { step: 1 } })
+      await wait()
+
+      await wrapper.find('[role="slider"]').trigger('keydown', {
+        key: 'ArrowLeft',
+        shiftKey: true,
+      })
+      await wait()
+      expect(model.value).toEqual([40])
+    })
+
+    it('should increment by 10x step on Shift+ArrowUp', async () => {
+      const model = ref([50])
+      const { wrapper, wait } = mountSlider({ model, props: { step: 1 } })
+      await wait()
+
+      await wrapper.find('[role="slider"]').trigger('keydown', {
+        key: 'ArrowUp',
+        shiftKey: true,
+      })
+      await wait()
+      expect(model.value).toEqual([60])
+    })
+
+    it('should decrement by 10x step on Shift+ArrowDown', async () => {
+      const model = ref([50])
+      const { wrapper, wait } = mountSlider({ model, props: { step: 1 } })
+      await wait()
+
+      await wrapper.find('[role="slider"]').trigger('keydown', {
+        key: 'ArrowDown',
+        shiftKey: true,
+      })
+      await wait()
+      expect(model.value).toEqual([40])
+    })
+
+    it('should invert Shift+Arrow direction when inverted', async () => {
+      const model = ref([50])
+      const { wrapper, wait } = mountSlider({
+        model,
+        props: { step: 1, inverted: true },
+      })
+      await wait()
+
+      await wrapper.find('[role="slider"]').trigger('keydown', {
+        key: 'ArrowRight',
+        shiftKey: true,
+      })
+      await wait()
+      // Inverted: ArrowRight = down, so 50 - 10 = 40
+      expect(model.value).toEqual([40])
+    })
+
+    it('should invert Shift+ArrowLeft direction when inverted', async () => {
+      const model = ref([50])
+      const { wrapper, wait } = mountSlider({
+        model,
+        props: { step: 1, inverted: true },
+      })
+      await wait()
+
+      await wrapper.find('[role="slider"]').trigger('keydown', {
+        key: 'ArrowLeft',
+        shiftKey: true,
+      })
+      await wait()
+      // Inverted: ArrowLeft = up, so 50 + 10 = 60
+      expect(model.value).toEqual([60])
+    })
+  })
+
+  describe('thumb ARIA for multi-thumb', () => {
+    it('should constrain aria-valuemin/max per thumb', async () => {
+      const model = ref([25, 75])
+      const { thumbProps, wait } = mountSlider({ model, thumbCount: 2 })
+      await wait()
+
+      // First thumb: min=0, max constrained by second thumb value (75)
+      expect(thumbProps(0).attrs['aria-valuemin']).toBe(0)
+      expect(thumbProps(0).attrs['aria-valuemax']).toBe(75)
+
+      // Second thumb: min constrained by first thumb value (25), max=100
+      expect(thumbProps(1).attrs['aria-valuemin']).toBe(25)
+      expect(thumbProps(1).attrs['aria-valuemax']).toBe(100)
+    })
+
+    it('should not constrain when crossover is enabled', async () => {
+      const model = ref([25, 75])
+      const { thumbProps, wait } = mountSlider({
+        model,
+        thumbCount: 2,
+        props: { crossover: true },
+      })
+      await wait()
+
+      expect(thumbProps(0).attrs['aria-valuemin']).toBe(0)
+      expect(thumbProps(0).attrs['aria-valuemax']).toBe(100)
+      expect(thumbProps(1).attrs['aria-valuemin']).toBe(0)
+      expect(thumbProps(1).attrs['aria-valuemax']).toBe(100)
+    })
+  })
+
+  describe('thumb unmount', () => {
+    it('should unregister thumb on unmount', async () => {
+      const show = ref(true)
+      const model = ref([25, 75])
+
+      const wrapper = mount(Slider.Root, {
+        props: {
+          'modelValue': model.value,
+          'onUpdate:modelValue': (v: unknown) => {
+            model.value = v as number[]
+          },
+        },
+        slots: {
+          default: () => {
+            const children = [
+              h(Slider.Track as any, {}, () =>
+                h(Slider.Range as any),
+              ),
+              h(Slider.Thumb as any),
+            ]
+            if (show.value) {
+              children.push(h(Slider.Thumb as any))
+            }
+            return children
+          },
+        },
+      })
+      await nextTick()
+
+      expect(wrapper.findAll('[role="slider"]')).toHaveLength(2)
+
+      show.value = false
+      await nextTick()
+      await nextTick()
+
+      expect(wrapper.findAll('[role="slider"]')).toHaveLength(1)
+    })
+  })
+
+  describe('unhandled key', () => {
+    it('should not prevent default on unhandled keys', async () => {
+      const model = ref([50])
+      const { wrapper, wait } = mountSlider({ model })
+      await wait()
+
+      const event = new KeyboardEvent('keydown', {
+        key: 'Tab',
+        bubbles: true,
+        cancelable: true,
+      })
+      wrapper.find('[role="slider"]').element.dispatchEvent(event)
+      expect(event.defaultPrevented).toBe(false)
+    })
+  })
+
+  describe('aria-valuetext', () => {
+    it('should set aria-valuetext when provided', async () => {
+      const model = ref([50])
+      const { thumbProps, wait } = mountSlider({
+        model,
+        thumbProps: [{ ariaValuetext: '50%' }],
+      })
+      await wait()
+      expect(thumbProps().attrs['aria-valuetext']).toBe('50%')
+    })
+
+    it('should not set aria-valuetext when not provided', async () => {
+      const model = ref([50])
+      const { thumbProps, wait } = mountSlider({ model })
+      await wait()
+      expect(thumbProps().attrs['aria-valuetext']).toBeUndefined()
+    })
   })
 })

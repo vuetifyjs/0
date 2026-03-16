@@ -62,6 +62,42 @@ describe('vuetify0RtlAdapter', () => {
     scope.stop()
   })
 
+  it('should resolve string selector as target', () => {
+    const scope = effectScope()
+    scope.run(() => {
+      const adapter = new Vuetify0RtlAdapter()
+      const el = document.createElement('div')
+      el.id = 'rtl-target'
+      document.body.append(el)
+      const isRtl = shallowRef(true)
+      adapter.setup({} as any, { isRtl, toggle: () => {} }, '#rtl-target')
+      expect(el.dir).toBe('rtl')
+      el.remove()
+    })
+    scope.stop()
+  })
+
+  it('should use documentElement when target is undefined', () => {
+    const scope = effectScope()
+    scope.run(() => {
+      const adapter = new Vuetify0RtlAdapter()
+      const isRtl = shallowRef(false)
+      adapter.setup({} as any, { isRtl, toggle: () => {} }, undefined)
+      expect(document.documentElement.dir).toBe('ltr')
+    })
+    scope.stop()
+  })
+
+  it('should bail out when string selector does not match', () => {
+    const scope = effectScope()
+    scope.run(() => {
+      const adapter = new Vuetify0RtlAdapter()
+      const isRtl = shallowRef(false)
+      expect(() => adapter.setup({} as any, { isRtl, toggle: () => {} }, '#nonexistent')).not.toThrow()
+    })
+    scope.stop()
+  })
+
   it('should not set dir when target is null', () => {
     const scope = effectScope()
     scope.run(() => {
@@ -75,6 +111,55 @@ describe('vuetify0RtlAdapter', () => {
       expect(el.dir).toBe('')
     })
     scope.stop()
+  })
+})
+
+describe('vuetify0RtlAdapter SSR', () => {
+  it('should use unhead push in SSR mode', async () => {
+    vi.resetModules()
+
+    vi.doMock('#v0/constants/globals', () => ({
+      IN_BROWSER: false,
+    }))
+
+    const { Vuetify0RtlAdapter: SSRAdapter } = await import('./adapters/v0')
+    const { shallowRef: ssrShallowRef } = await import('vue')
+
+    const pushFn = vi.fn()
+    const mockApp = {
+      _context: {
+        provides: {
+          usehead: { push: pushFn },
+        },
+      },
+    } as any
+
+    const adapter = new SSRAdapter()
+    const isRtl = ssrShallowRef(true)
+    adapter.setup(mockApp, { isRtl, toggle: () => {} }, undefined)
+
+    expect(pushFn).toHaveBeenCalledWith({
+      htmlAttrs: { dir: 'rtl' },
+    })
+  })
+
+  it('should not throw when no unhead in SSR', async () => {
+    vi.resetModules()
+
+    vi.doMock('#v0/constants/globals', () => ({
+      IN_BROWSER: false,
+    }))
+
+    const { Vuetify0RtlAdapter: SSRAdapter } = await import('./adapters/v0')
+    const { shallowRef: ssrShallowRef } = await import('vue')
+
+    const mockApp = {
+      _context: { provides: {} },
+    } as any
+
+    const adapter = new SSRAdapter()
+    const isRtl = ssrShallowRef(false)
+    expect(() => adapter.setup(mockApp, { isRtl, toggle: () => {} }, undefined)).not.toThrow()
   })
 })
 
