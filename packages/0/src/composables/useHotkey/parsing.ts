@@ -124,7 +124,7 @@ export function parseKeyCombination (input: string): KeyCombination | '' {
       throw new ParseError('Unexpected end of input')
     }
     const next = peek(1)
-    if (isSep(ch) && next != null && !isSep(next)) {
+    if (isSep(ch) && !isNullOrUndefined(next) && !isSep(next)) {
       throw new ParseError(`Unexpected separator '${ch}' at position ${pos}`)
     }
     const first = consume()

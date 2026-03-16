@@ -220,7 +220,7 @@ export function useHotkey (
     const parsed = parseKeyCombination(currentKeys.toLowerCase())
     if (!parsed) return
 
-    const parts: Exclude<KeyCombination, Sequence>[] = typeof parsed !== 'string' && parsed.type === 'sequence'
+    const parts: Exclude<KeyCombination, Sequence>[] = !isString(parsed) && parsed.type === 'sequence'
       ? parsed.parts
       : [parsed]
 
@@ -295,7 +295,7 @@ const emptyModifiers = Object.fromEntries(
 ) as Record<Modifier, boolean>
 
 function parseKeyGroup (group: Combo | Key): ParsedKeyGroup {
-  const parts = typeof group === 'string' ? [group] : group.parts
+  const parts = isString(group) ? [group] : group.parts
 
   const modifiers = { ...emptyModifiers }
   let actualKey: string | undefined
@@ -312,7 +312,7 @@ function parseKeyGroup (group: Combo | Key): ParsedKeyGroup {
 }
 
 function matchesKeyGroup (e: KeyboardEvent, group: Exclude<KeyCombination, Sequence>, platformIsMac: boolean): boolean {
-  if (typeof group !== 'string' && group.type === 'alternate') {
+  if (!isString(group) && group.type === 'alternate') {
     return group.parts.some(part => matchesKeyGroup(e, part, platformIsMac))
   }
 
