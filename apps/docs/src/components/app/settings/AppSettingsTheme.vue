@@ -196,12 +196,27 @@
       </div>
 
       <!-- Design Systems -->
-      <AppSettingsThemeCarousel
-        label="Design Systems"
-        :options="paletteOptions"
-        :selected="toggle.palette.value"
-        @select="toggle.setPalette"
-      />
+      <div>
+        <div class="text-xs font-medium text-on-surface-variant mb-2">Design Systems</div>
+        <div class="grid grid-cols-2 gap-2">
+          <button
+            v-for="option in paletteOptions"
+            :key="option.id"
+            :aria-pressed="toggle.palette.value === option.id"
+            :class="[
+              'flex items-center gap-2 px-3 py-2 rounded-lg border text-sm transition-colors',
+              toggle.palette.value === option.id
+                ? 'border-primary bg-primary/10 text-primary'
+                : 'border-divider hover:border-primary/50 text-on-surface',
+            ]"
+            type="button"
+            @click="toggle.setPalette(option.id)"
+          >
+            <AppIcon :icon="option.icon" size="16" />
+            <span class="font-medium">{{ option.label }}</span>
+          </button>
+        </div>
+      </div>
 
       <!-- Accessibility -->
       <div>
