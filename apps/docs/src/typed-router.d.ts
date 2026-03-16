@@ -621,6 +621,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/guide/fundamentals/tree-shaking': RouteRecordInfo<
+      '/guide/fundamentals/tree-shaking',
+      '/guide/fundamentals/tree-shaking',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/guide/integration/building-docs': RouteRecordInfo<
       '/guide/integration/building-docs',
       '/guide/integration/building-docs',
@@ -1267,6 +1274,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/guide/fundamentals/styling.md': {
       routes:
         | '/guide/fundamentals/styling'
+      views:
+        | never
+    }
+    'src/pages/guide/fundamentals/tree-shaking.md': {
+      routes:
+        | '/guide/fundamentals/tree-shaking'
       views:
         | never
     }
