@@ -311,6 +311,16 @@ describe('createOverflow', () => {
     expect(result.capacity.value).toBe(4)
   })
 
+  it('should return 0 capacity in uniform mode when available is less than itemWidth', async () => {
+    const result = createOverflow({ itemWidth: 100, reserved: 170 })
+    const container = document.createElement('div')
+    result.container.value = container
+    await nextTick()
+    resizeCallback?.([{ contentRect: { width: 200, height: 50 } }])
+    await nextTick()
+    expect(result.capacity.value).toBe(0)
+  })
+
   it('should return 0 capacity in uniform mode when no space', async () => {
     const result = createOverflow({ itemWidth: 50, reserved: 300 })
 
@@ -699,6 +709,10 @@ describe('useOverflow', () => {
   it('should be a function that accepts namespace', () => {
     expect(typeof useOverflow).toBe('function')
     expect(useOverflow.length).toBe(0)
+  })
+
+  it('should throw when context is not provided', () => {
+    expect(() => useOverflow()).toThrow()
   })
 })
 

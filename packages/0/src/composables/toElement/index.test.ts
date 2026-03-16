@@ -72,6 +72,13 @@ describe('toElement', () => {
     })
   })
 
+  describe('non-element objects', () => {
+    it('should return undefined for plain object without $el', () => {
+      const obj = { someProperty: 'value' } as unknown as MaybeElementRef
+      expect(toElement(obj)).toBeUndefined()
+    })
+  })
+
   describe('null and undefined', () => {
     it('should return undefined for null', () => {
       expect(toElement(null)).toBeUndefined()
@@ -79,6 +86,14 @@ describe('toElement', () => {
 
     it('should return undefined for undefined', () => {
       expect(toElement(undefined)).toBeUndefined()
+    })
+  })
+
+  describe('non-element ref-like objects without $el', () => {
+    it('should return undefined for ref-like object with non-element, non-$el value', () => {
+      // Covers line 68: raw is truthy, not instanceof Element, and no '$el' property
+      const obj = { value: { someProperty: 'value' } } as unknown as MaybeElementRef
+      expect(toElement(obj)).toBeUndefined()
     })
   })
 })

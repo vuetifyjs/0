@@ -936,6 +936,37 @@ describe('createRegistry', () => {
     })
   })
 
+  describe('unassign edge cases', () => {
+    it('should handle unassign when catalog has no entry for value', () => {
+      const registry = createRegistry()
+
+      // Register with explicit value
+      registry.register({ id: 'item-1', value: 'value-1' })
+
+      // Manually upsert to change value, which triggers unassign on old value
+      // Then unregister to ensure old catalog entry is cleaned
+      registry.upsert('item-1', { value: 'value-2' })
+      registry.upsert('item-1', { value: 'value-3' })
+
+      // Old values should be removed from catalog
+      expect(registry.browse('value-1')).toBeUndefined()
+      expect(registry.browse('value-2')).toBeUndefined()
+      expect(registry.browse('value-3')).toEqual(['item-1'])
+    })
+  })
+
+  describe('slot operations', () => {
+    it('should provide and use registry via createRegistryContext', () => {
+      const [, provideRegistryContext, context] = createRegistryContext()
+
+      expect(context).toBeDefined()
+      expect(typeof provideRegistryContext).toBe('function')
+
+      context.register({ id: 'test' })
+      expect(context.size).toBe(1)
+    })
+  })
+
   describe('createRegistryContext', () => {
     it('should create a context trinity with default namespace', () => {
       const [useRegistryContext, provideRegistryContext, defaultContext] = createRegistryContext()
@@ -974,6 +1005,72 @@ describe('createRegistry', () => {
 
       expect(context1.size).toBe(1)
       expect(context2.size).toBe(0)
+    })
+  })
+
+  describe('move functionality', () => {
+    it('should move a ticket to a new index position', () => {
+      const registry = createRegistry()
+      registry.onboard([
+        { id: 'a', value: 'alpha' },
+        { id: 'b', value: 'beta' },
+        { id: 'c', value: 'gamma' },
+      ])
+      const result = registry.move('a', 2)
+      expect(result).toBeDefined()
+      expect(registry.keys()).toEqual(['b', 'c', 'a'])
+      expect(registry.get('b')?.index).toBe(0)
+      expect(registry.get('c')?.index).toBe(1)
+      expect(registry.get('a')?.index).toBe(2)
+    })
+
+    it('should return undefined for non-existent ticket', () => {
+      const registry = createRegistry()
+      registry.register({ id: 'a' })
+      expect(registry.move('nonexistent', 0)).toBeUndefined()
+    })
+
+    it('should return ticket when target equals current index', () => {
+      const registry = createRegistry()
+      registry.onboard([{ id: 'a', value: 'alpha' }, { id: 'b', value: 'beta' }])
+      const result = registry.move('a', 0)
+      expect(result?.id).toBe('a')
+      expect(registry.keys()).toEqual(['a', 'b'])
+    })
+
+    it('should clamp target index to valid range', () => {
+      const registry = createRegistry()
+      registry.onboard([
+        { id: 'a', value: 'alpha' },
+        { id: 'b', value: 'beta' },
+        { id: 'c', value: 'gamma' },
+      ])
+      registry.move('a', 100)
+      expect(registry.keys()).toEqual(['b', 'c', 'a'])
+      registry.move('a', -100)
+      expect(registry.keys()).toEqual(['a', 'b', 'c'])
+    })
+
+    it('should trigger lazy reindex before moving', () => {
+      const registry = createRegistry()
+      registry.onboard([{ id: 'a' }, { id: 'b' }, { id: 'c' }])
+      registry.offboard(['b'])
+      const result = registry.move('a', 1)
+      expect(result).toBeDefined()
+    })
+
+    it('should update catalog and directory after move', () => {
+      const registry = createRegistry()
+      registry.onboard([
+        { id: 'a', value: 'alpha' },
+        { id: 'b', value: 'beta' },
+        { id: 'c', value: 'gamma' },
+      ])
+      registry.move('a', 2)
+      expect(registry.lookup(0)).toBe('b')
+      expect(registry.lookup(1)).toBe('c')
+      expect(registry.lookup(2)).toBe('a')
+      expect(registry.browse('alpha')).toEqual(['a'])
     })
   })
 

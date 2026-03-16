@@ -183,6 +183,44 @@ describe('useLocale', () => {
       expect(typeof result).toBe('string')
     })
 
+    it('should return key when no locale is selected', () => {
+      const locale = createLocale({ messages: { en: { hello: 'Hello' } } })
+      expect(locale.selectedId.value).toBeUndefined()
+      expect(locale.t('hello')).toBe('hello')
+    })
+
+    it('should use fallback when no locale is selected', () => {
+      const locale = createLocale({ messages: { en: { hello: 'Hello' } } })
+      expect(locale.t('hello', {}, 'Fallback text')).toBe('Fallback text')
+    })
+
+    it('should interpolate params when no locale is selected', () => {
+      const locale = createLocale({ messages: { en: { hello: 'Hello' } } })
+      expect(locale.t('Hello {name}', { name: 'World' })).toBe('Hello World')
+    })
+
+    it('should resolve cross-locale token references', () => {
+      const locale = createLocale({
+        default: 'en',
+        messages: {
+          en: { brand: 'Vuetify' },
+          es: { welcome: 'Bienvenido a {en.brand}' },
+        },
+      })
+
+      locale.select('es')
+      expect(locale.t('welcome')).toBe('Bienvenido a Vuetify')
+    })
+
+    it('should detect circular references', () => {
+      const locale = createLocale({
+        default: 'en',
+        messages: { en: { a: '{b}', b: '{a}' } },
+      })
+      const result = locale.t('a')
+      expect(result).toContain('{')
+    })
+
     it('should handle cross-locale references', () => {
       const locale = createLocale({
         default: 'en',
