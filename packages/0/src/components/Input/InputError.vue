@@ -1,0 +1,87 @@
+/**
+ * @module InputError
+ *
+ * @remarks
+ * Error message component for the Input component.
+ * Renders validation error messages from the parent Input.Root's validation context.
+ * Connected to Input.Control via aria-errormessage.
+ * Uses aria-live="polite" for screen reader announcements.
+ * Must be used within an Input.Root component.
+ */
+
+<script lang="ts">
+  // Components
+  import { Atom } from '#v0/components/Atom'
+  import { useInputRoot } from './InputRoot.vue'
+
+  // Utilities
+  import { onBeforeUnmount, onMounted, toRef, useAttrs } from 'vue'
+
+  // Types
+  import type { AtomProps } from '#v0/components/Atom'
+
+  export interface InputErrorProps extends AtomProps {
+    /** Namespace for connecting to parent Input.Root */
+    namespace?: string
+  }
+
+  export interface InputErrorSlotProps {
+    /** ID for this error element */
+    id: string
+    /** Current validation error messages */
+    errors: string[]
+    /** Pre-computed attributes for the error element */
+    attrs: {
+      'id': string
+      'aria-live': 'polite'
+      'data-state': 'visible' | 'hidden'
+    }
+  }
+</script>
+
+<script setup lang="ts">
+  defineOptions({ name: 'InputError', inheritAttrs: false })
+
+  const attrs = useAttrs()
+
+  defineSlots<{
+    default: (props: InputErrorSlotProps) => any
+  }>()
+
+  const {
+    as = 'span',
+    renderless,
+    namespace = 'v0:input:root',
+  } = defineProps<InputErrorProps>()
+
+  const root = useInputRoot(namespace)
+  const errors = root.errors
+
+  onMounted(() => {
+    root.hasError.value = true
+  })
+
+  onBeforeUnmount(() => {
+    root.hasError.value = false
+  })
+
+  const slotProps = toRef((): InputErrorSlotProps => ({
+    id: root.errorId,
+    errors: errors.value,
+    attrs: {
+      'id': root.errorId,
+      'aria-live': 'polite',
+      'data-state': errors.value.length > 0 ? 'visible' : 'hidden',
+    },
+  }))
+</script>
+
+<template>
+  <Atom
+    v-bind="{ ...attrs, ...slotProps.attrs }"
+    :as
+    :renderless
+  >
+    <slot v-bind="slotProps" />
+  </Atom>
+</template>
