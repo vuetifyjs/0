@@ -22,20 +22,20 @@
     'vuetify0': 'vuetify-0',
     'tailwind': 'theme-tailwind',
     'material-3': 'theme-material-3',
-    'radix': 'theme-radix',
-    'ant-design': 'theme-ant-design',
     'material-1': 'theme-material-1',
     'material-2': 'theme-material-2',
+    'radix': 'theme-radix',
+    'ant-design': 'theme-ant-design',
   }
 
   const PALETTE_LABELS: Record<Palette, string> = {
     'vuetify0': 'Vuetify0',
     'tailwind': 'Tailwind',
     'material-3': 'Material',
-    'radix': 'Radix',
-    'ant-design': 'Ant Design',
     'material-1': 'Material 1',
     'material-2': 'Material 2',
+    'radix': 'Radix',
+    'ant-design': 'Ant Design',
   }
 
   const accessibilityOptions = [

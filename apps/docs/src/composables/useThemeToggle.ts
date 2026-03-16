@@ -26,10 +26,10 @@ const PALETTE_THEMES: Record<Palette, { dark: ThemeId, light: ThemeId }> = {
   'vuetify0': { dark: 'dark', light: 'light' },
   'tailwind': { dark: 'tailwind', light: 'tailwind-light' },
   'material-3': { dark: 'material-3', light: 'material-3-light' },
-  'radix': { dark: 'radix', light: 'radix-light' },
-  'ant-design': { dark: 'ant-design', light: 'ant-design-light' },
   'material-1': { dark: 'material-1', light: 'material-1-light' },
   'material-2': { dark: 'material-2', light: 'material-2-light' },
+  'radix': { dark: 'radix', light: 'radix-light' },
+  'ant-design': { dark: 'ant-design', light: 'ant-design-light' },
 }
 
 export const PALETTES = Object.keys(PALETTE_THEMES) as Palette[]
@@ -38,20 +38,20 @@ const PALETTE_ICONS: Record<Palette, string> = {
   'vuetify0': 'vuetify-0',
   'tailwind': 'theme-tailwind',
   'material-3': 'theme-material-3',
-  'radix': 'theme-radix',
-  'ant-design': 'theme-ant-design',
   'material-1': 'theme-material-1',
   'material-2': 'theme-material-2',
+  'radix': 'theme-radix',
+  'ant-design': 'theme-ant-design',
 }
 
 const PALETTE_LABELS: Record<Palette, string> = {
   'vuetify0': 'Vuetify0',
   'tailwind': 'Tailwind',
   'material-3': 'Material',
-  'radix': 'Radix',
-  'ant-design': 'Ant Design',
   'material-1': 'Material 1',
   'material-2': 'Material 2',
+  'radix': 'Radix',
+  'ant-design': 'Ant Design',
 }
 
 // Accessibility themes bypass palette — direct theme selection

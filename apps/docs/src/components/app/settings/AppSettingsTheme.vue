@@ -58,10 +58,10 @@
     { id: 'vuetify0', label: 'Vuetify0', icon: 'vuetify-0' },
     { id: 'tailwind', label: 'Tailwind', icon: 'theme-tailwind' },
     { id: 'material-3', label: 'Material', icon: 'theme-material-3' },
-    { id: 'radix', label: 'Radix', icon: 'theme-radix' },
-    { id: 'ant-design', label: 'Ant Design', icon: 'theme-ant-design' },
     { id: 'material-1', label: 'Material 1', icon: 'theme-material-1' },
     { id: 'material-2', label: 'Material 2', icon: 'theme-material-2' },
+    { id: 'radix', label: 'Radix', icon: 'theme-radix' },
+    { id: 'ant-design', label: 'Ant Design', icon: 'theme-ant-design' },
   ]
 
   // Custom themes as options
