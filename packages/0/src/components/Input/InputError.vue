@@ -15,7 +15,7 @@
   import { useInputRoot } from './InputRoot.vue'
 
   // Utilities
-  import { toRef, useAttrs } from 'vue'
+  import { onBeforeUnmount, onMounted, toRef, useAttrs } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -33,7 +33,6 @@
     /** Pre-computed attributes for the error element */
     attrs: {
       'id': string
-      'role': 'alert'
       'aria-live': 'polite'
       'data-state': 'visible' | 'hidden'
     }
@@ -58,12 +57,19 @@
   const root = useInputRoot(namespace)
   const errors = root.errors
 
+  onMounted(() => {
+    root.hasError.value = true
+  })
+
+  onBeforeUnmount(() => {
+    root.hasError.value = false
+  })
+
   const slotProps = toRef((): InputErrorSlotProps => ({
     id: root.errorId,
     errors: errors.value,
     attrs: {
       'id': root.errorId,
-      'role': 'alert',
       'aria-live': 'polite',
       'data-state': errors.value.length > 0 ? 'visible' : 'hidden',
     },

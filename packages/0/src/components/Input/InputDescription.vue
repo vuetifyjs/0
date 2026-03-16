@@ -13,7 +13,7 @@
   import { useInputRoot } from './InputRoot.vue'
 
   // Utilities
-  import { useAttrs } from 'vue'
+  import { onBeforeUnmount, onMounted, useAttrs } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -45,6 +45,14 @@
   } = defineProps<InputDescriptionProps>()
 
   const root = useInputRoot(namespace)
+
+  onMounted(() => {
+    root.hasDescription.value = true
+  })
+
+  onBeforeUnmount(() => {
+    root.hasDescription.value = false
+  })
 </script>
 
 <template>

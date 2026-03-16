@@ -66,11 +66,7 @@
   }
 
   const describedby = toRef(() => {
-    const ids = [root.descriptionId]
-    if (root.errors.value.length > 0) {
-      ids.push(root.errorId)
-    }
-    return ids.join(' ')
+    return root.hasDescription.value ? root.descriptionId : undefined
   })
 
   const controlAttrs = toRef((): Record<string, unknown> => {
@@ -87,10 +83,12 @@
       'form': root.form,
       'disabled': disabled || undefined,
       'readonly': readonly || undefined,
+      'required': root.required || undefined,
       'aria-invalid': invalid || undefined,
       'aria-label': root.label || undefined,
       'aria-describedby': describedby.value,
-      'aria-errormessage': root.errors.value.length > 0 ? root.errorId : undefined,
+      'aria-errormessage': (root.hasError.value && root.errors.value.length > 0) ? root.errorId : undefined,
+      'aria-required': root.required || undefined,
       'data-state': invalid ? 'invalid' : (root.isValid.value === true ? 'valid' : 'pristine'),
       'data-focused': isFocused ? true : undefined,
       'data-disabled': disabled ? true : undefined,

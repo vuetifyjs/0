@@ -2,8 +2,6 @@ export { default as InputControl } from './InputControl.vue'
 export { default as InputDescription } from './InputDescription.vue'
 export { default as InputError } from './InputError.vue'
 export { default as InputRoot } from './InputRoot.vue'
-
-// Context helpers
 export { provideInputRoot, useInputRoot } from './InputRoot.vue'
 
 // Types

@@ -19,8 +19,10 @@
   import { createValidation } from '#v0/composables/createValidation'
 
   // Utilities
-  import { isString } from '#v0/utilities'
-  import { shallowRef, toRef, toValue, useAttrs, useId, watch } from 'vue'
+  import { computed, shallowRef, toRef, toValue, useAttrs, useId, watch } from 'vue'
+
+  // Transformers
+  import { toArray } from '#v0/composables/toArray'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -55,10 +57,16 @@
     readonly type: string
     /** Associate with form by ID */
     readonly form?: string
+    /** Whether this input is required */
+    readonly required?: boolean
     /** ID for description element (aria-describedby) */
     readonly descriptionId: string
     /** ID for error element (aria-errormessage) */
     readonly errorId: string
+    /** Whether a Description sub-component is mounted */
+    hasDescription: ShallowRef<boolean>
+    /** Whether an Error sub-component is mounted */
+    hasError: ShallowRef<boolean>
     /** Current input value — write to update both v-model and validation */
     value: Ref<string>
     /** Whether this input has content */
@@ -98,6 +106,8 @@
     disabled?: MaybeRefOrGetter<boolean>
     /** Makes this input readonly */
     readonly?: MaybeRefOrGetter<boolean>
+    /** Whether this input is required */
+    required?: boolean
     /** Validation rules */
     rules?: (FormValidationRule | RuleAlias | StandardSchemaV1)[]
     /** When to trigger validation */
@@ -187,6 +197,7 @@
     form,
     disabled = false,
     readonly: _readonly = false,
+    required,
     rules = [],
     validateOn = 'blur',
     error = false,
@@ -195,7 +206,7 @@
   } = defineProps<InputRootProps>()
 
   const model = defineModel<string>({ default: '' })
-  const { event: triggerEvent, modifier: triggerModifier } = parseValidateOn(validateOn)
+  const parsed = toRef(() => parseValidateOn(validateOn))
 
   const validation = createValidation({ rules, value: model })
 
@@ -203,14 +214,16 @@
   const isPristine = shallowRef(true)
   const isFocused = shallowRef(false)
   const touched = shallowRef(false)
+  const hasDescription = shallowRef(false)
+  const hasError = shallowRef(false)
   const isDirty = toRef(() => model.value.length > 0)
-  const isDisabled = toRef(() => toValue(disabled) ?? false)
-  const isReadonly = toRef(() => toValue(_readonly) ?? false)
+  const isDisabled = toRef(() => toValue(disabled))
+  const isReadonly = toRef(() => toValue(_readonly))
   const descriptionId = `${id}-description`
   const errorId = `${id}-error`
 
-  const errors = toRef(() => {
-    const manual = errorMessages ? (isString(errorMessages) ? [errorMessages] : errorMessages) : []
+  const errors = computed(() => {
+    const manual = errorMessages ? toArray(errorMessages) : []
     return [...manual, ...validation.errors.value]
   })
 
@@ -221,10 +234,11 @@
   })
 
   function shouldValidate (trigger: ValidateEvent): boolean {
-    if (triggerEvent === 'submit') return false
-    if (triggerModifier === 'lazy' && !touched.value) return false
-    if (triggerModifier === 'eager' && validation.isValid.value === false) return true
-    return trigger === triggerEvent
+    const { event, modifier } = parsed.value
+    if (event === 'submit') return false
+    if (modifier === 'lazy' && !touched.value) return false
+    if (modifier === 'eager' && validation.isValid.value === false) return true
+    return trigger === event
   }
 
   watch(isFocused, val => {
@@ -261,8 +275,11 @@
     name,
     type,
     form,
+    required,
     descriptionId,
     errorId,
+    hasDescription,
+    hasError,
     value: model,
     isDirty,
     isFocused,
