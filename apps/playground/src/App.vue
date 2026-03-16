@@ -21,27 +21,27 @@
       scroll-margin-top: 5rem;
     }
 
-    > h1 {
+    h1 {
       font-size: 2.25rem;
       line-height: 2.5rem;
       margin-bottom: 1rem;
     }
 
-    > h2 {
+    h2 {
       font-size: 1.875rem;
       line-height: 2.25rem;
       margin-top: 2rem;
       margin-bottom: 0.75rem;
     }
 
-    > h3 {
+    h3 {
       font-size: 1.5rem;
       line-height: 2rem;
       margin-top: 1.5rem;
       margin-bottom: 0.5rem;
     }
 
-    > :is(h1,h2,h3) + :is(h2,h3) {
+    :is(h1,h2,h3) + :is(h2,h3) {
       margin-top: 0;
     }
 
@@ -60,18 +60,18 @@
       margin-bottom: .5rem;
     }
 
-    > ul, > ol {
+    ul, ol {
       list-style-type: disc;
       padding-left: 1.5rem;
     }
 
-    > ul:not(:last-child),
-    > ol:not(:last-child) {
+    ul:not(:last-child),
+    ol:not(:last-child) {
       margin-bottom: 1rem;
     }
 
-    > ul > li:not(:last-child),
-    > ol > li:not(:last-child) {
+    ul > li:not(:last-child),
+    ol > li:not(:last-child) {
       margin-bottom: 0.5rem;
     }
 
@@ -85,7 +85,7 @@
       padding: 0.5rem 1rem;
     }
 
-    > .overflow-x-auto {
+    .overflow-x-auto {
       margin-bottom: 1rem;
     }
 
