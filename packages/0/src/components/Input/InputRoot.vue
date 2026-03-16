@@ -19,20 +19,30 @@
   import { createValidation } from '#v0/composables/createValidation'
 
   // Utilities
+  import { isString } from '#v0/utilities'
   import { shallowRef, toRef, toValue, useAttrs, useId, watch } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
   import type { FormValidationRule } from '#v0/composables/createForm'
   import type { RuleAlias, StandardSchemaV1 } from '#v0/composables/useRules'
-  import type { ID } from '#v0/types'
-  import type { MaybeRefOrGetter, Ref } from 'vue'
+  import type { MaybeArray, ID } from '#v0/types'
+  import type { MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
 
   /** Visual state of the input for styling purposes */
   export type InputState = 'pristine' | 'valid' | 'invalid'
 
-  /** When to trigger validation */
-  export type ValidateOn = 'blur' | 'input' | 'submit'
+  /** Base validation trigger event */
+  export type ValidateEvent = 'blur' | 'input' | 'submit'
+
+  /** When to trigger validation, with optional lazy/eager modifier */
+  export type ValidateOn =
+    | ValidateEvent
+    | 'lazy' | 'eager'
+    | 'blur lazy' | 'input lazy' | 'submit lazy'
+    | 'blur eager' | 'input eager' | 'submit eager'
+    | 'lazy blur' | 'lazy input' | 'lazy submit'
+    | 'eager blur' | 'eager input' | 'eager submit'
 
   export interface InputRootContext {
     /** Unique identifier */
@@ -43,27 +53,27 @@
     readonly name?: string
     /** Input type */
     readonly type: string
-    /** Placeholder text */
-    readonly placeholder?: string
     /** Associate with form by ID */
     readonly form?: string
-    /** When validation triggers */
-    readonly validateOn: ValidateOn
     /** ID for description element (aria-describedby) */
     readonly descriptionId: string
     /** ID for error element (aria-errormessage) */
     readonly errorId: string
     /** Current input value — write to update both v-model and validation */
     value: Ref<string>
+    /** Whether this input has content */
+    isDirty: Readonly<Ref<boolean>>
+    /** Whether this input is focused */
+    focused: ShallowRef<boolean>
     /** Whether this input is disabled */
     isDisabled: Readonly<Ref<boolean>>
     /** Whether this input is readonly */
     isReadonly: Readonly<Ref<boolean>>
-    /** Validation errors */
+    /** Merged validation + manual error messages */
     errors: Readonly<Ref<string[]>>
-    /** Whether the field is valid (null = unvalidated) */
+    /** Whether the field is valid (null = unvalidated, accounts for error prop) */
     isValid: Readonly<Ref<boolean | null>>
-    /** Whether the field value hasn't changed */
+    /** Whether the field value hasn't changed since mount/reset */
     isPristine: Readonly<Ref<boolean>>
     /** Whether async validation is in progress */
     isValidating: Readonly<Ref<boolean>>
@@ -82,8 +92,6 @@
     name?: string
     /** Input type */
     type?: string
-    /** Placeholder text */
-    placeholder?: string
     /** Associate with form by ID */
     form?: string
     /** Disables this input */
@@ -94,6 +102,10 @@
     rules?: (FormValidationRule | RuleAlias | StandardSchemaV1)[]
     /** When to trigger validation */
     validateOn?: ValidateOn
+    /** Manual error state override — forces invalid regardless of validation */
+    error?: boolean
+    /** Manual error messages — merged with rule-based errors */
+    errorMessages?: MaybeArray<string>
     /** Namespace for context provision to children */
     namespace?: string
   }
@@ -105,7 +117,11 @@
     label?: string
     /** Current input value */
     value: string
-    /** Validation errors */
+    /** Whether this input has content */
+    isDirty: boolean
+    /** Whether this input is focused */
+    focused: boolean
+    /** Merged error messages */
     errors: string[]
     /** Whether the field is valid */
     isValid: boolean | null
@@ -124,12 +140,27 @@
     /** Attributes to bind to the root element */
     attrs: {
       'data-state': InputState
+      'data-dirty': true | undefined
+      'data-focused': true | undefined
       'data-disabled': true | undefined
       'data-readonly': true | undefined
     }
   }
 
   export const [useInputRoot, provideInputRoot] = createContext<InputRootContext>()
+
+  function parseValidateOn (value: ValidateOn) {
+    const parts = String(value).split(' ')
+    let event: ValidateEvent = 'blur'
+    let modifier: 'lazy' | 'eager' | undefined
+
+    for (const part of parts) {
+      if (part === 'lazy' || part === 'eager') modifier = part
+      else if (part === 'blur' || part === 'input' || part === 'submit') event = part
+    }
+
+    return { event, modifier }
+  }
 </script>
 
 <script setup lang="ts">
@@ -143,6 +174,7 @@
 
   defineEmits<{
     'update:model-value': [value: string]
+    'update:focused': [value: boolean]
   }>()
 
   const {
@@ -152,32 +184,62 @@
     label,
     name,
     type = 'text',
-    placeholder,
     form,
     disabled = false,
-    readonly: readonlyProp = false,
+    readonly: _readonly = false,
     rules = [],
     validateOn = 'blur',
+    error = false,
+    errorMessages,
     namespace = 'v0:input:root',
   } = defineProps<InputRootProps>()
 
   const model = defineModel<string>({ default: '' })
+  const { event: triggerEvent, modifier: triggerModifier } = parseValidateOn(validateOn)
 
   const validation = createValidation({ rules, value: model })
 
   const initialValue = model.value
   const isPristine = shallowRef(true)
+  const focused = shallowRef(false)
+  const touched = shallowRef(false)
+  const isDirty = toRef(() => model.value.length > 0)
   const isDisabled = toRef(() => toValue(disabled) ?? false)
-  const isReadonly = toRef(() => toValue(readonlyProp) ?? false)
+  const isReadonly = toRef(() => toValue(_readonly) ?? false)
   const descriptionId = `${id}-description`
   const errorId = `${id}-error`
 
+  // Merge manual errorMessages with rule-based validation errors
+  const errors = toRef(() => {
+    const manual = errorMessages ? (isString(errorMessages) ? [errorMessages] : errorMessages) : []
+    return [...manual, ...validation.errors.value]
+  })
+
+  // Account for error prop and manual errorMessages in validity
+  const isValid = toRef((): boolean | null => {
+    if (error) return false
+    if (errors.value.length > 0 && validation.errors.value.length === 0) return false
+    return validation.isValid.value
+  })
+
+  function shouldValidate (trigger: ValidateEvent): boolean {
+    if (triggerEvent === 'submit') return false
+    if (triggerModifier === 'lazy' && !touched.value) return false
+    if (triggerModifier === 'eager' && validation.isValid.value === false) return true
+    return trigger === triggerEvent
+  }
+
+  // Blur: mark touched, trigger blur-based validation
+  watch(focused, val => {
+    if (val) return
+    touched.value = true
+    if (shouldValidate('blur')) validation.validate()
+  })
+
+  // Input: track pristine, trigger input-based validation
   watch(model, val => {
     isPristine.value = val === initialValue
-
-    if (validateOn === 'input') {
-      validation.validate()
-    }
+    if (shouldValidate('input')) validation.validate()
   })
 
   function validate () {
@@ -187,12 +249,13 @@
   function reset () {
     model.value = initialValue
     isPristine.value = true
+    touched.value = false
     validation.reset()
   }
 
   const state = toRef((): InputState => {
-    if (validation.isValid.value === false) return 'invalid'
-    if (validation.isValid.value === true) return 'valid'
+    if (isValid.value === false) return 'invalid'
+    if (isValid.value === true) return 'valid'
     return 'pristine'
   })
 
@@ -201,16 +264,16 @@
     label,
     name,
     type,
-    placeholder,
     form,
-    validateOn,
     descriptionId,
     errorId,
     value: model,
+    isDirty,
+    focused,
     isDisabled,
     isReadonly,
-    errors: validation.errors,
-    isValid: validation.isValid,
+    errors,
+    isValid,
     isPristine,
     isValidating: validation.isValidating,
     validate,
@@ -223,8 +286,10 @@
     id,
     label,
     value: model.value,
-    errors: validation.errors.value,
-    isValid: validation.isValid.value,
+    isDirty: isDirty.value,
+    focused: focused.value,
+    errors: errors.value,
+    isValid: isValid.value,
     isPristine: isPristine.value,
     isValidating: validation.isValidating.value,
     isDisabled: isDisabled.value,
@@ -233,6 +298,8 @@
     reset,
     attrs: {
       'data-state': state.value,
+      'data-dirty': isDirty.value ? true : undefined,
+      'data-focused': focused.value ? true : undefined,
       'data-disabled': isDisabled.value ? true : undefined,
       'data-readonly': isReadonly.value ? true : undefined,
     },

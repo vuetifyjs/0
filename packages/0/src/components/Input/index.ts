@@ -10,7 +10,7 @@ export { provideInputRoot, useInputRoot } from './InputRoot.vue'
 export type { InputControlProps, InputControlSlotProps } from './InputControl.vue'
 export type { InputDescriptionProps, InputDescriptionSlotProps } from './InputDescription.vue'
 export type { InputErrorProps, InputErrorSlotProps } from './InputError.vue'
-export type { InputRootContext, InputRootProps, InputRootSlotProps, InputState, ValidateOn } from './InputRoot.vue'
+export type { InputRootContext, InputRootProps, InputRootSlotProps, InputState, ValidateEvent, ValidateOn } from './InputRoot.vue'
 
 // Components
 import Control from './InputControl.vue'

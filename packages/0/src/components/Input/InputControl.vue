@@ -16,7 +16,6 @@
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
-  import type { InputState } from './InputRoot.vue'
 
   export interface InputControlProps extends AtomProps {
     namespace?: string
@@ -25,6 +24,8 @@
   export interface InputControlSlotProps {
     /** Current input value */
     value: string
+    /** Whether this input is focused */
+    focused: boolean
     /** Whether this input is disabled */
     isDisabled: boolean
     /** Whether this input is readonly */
@@ -56,17 +57,13 @@
     root.value.value = target.value
   }
 
-  function onBlur () {
-    if (root.validateOn === 'blur') {
-      root.validate()
-    }
+  function onFocus () {
+    root.focused.value = true
   }
 
-  const state = toRef((): InputState => {
-    if (root.isValid.value === false) return 'invalid'
-    if (root.isValid.value === true) return 'valid'
-    return 'pristine'
-  })
+  function onBlur () {
+    root.focused.value = false
+  }
 
   const describedby = toRef(() => {
     const ids = [root.descriptionId]
@@ -76,26 +73,34 @@
     return ids.join(' ')
   })
 
-  const controlAttrs = toRef(() => ({
-    'id': root.id,
-    'type': root.type,
-    'name': root.name,
-    'value': root.value.value,
-    'form': root.form,
-    'placeholder': root.placeholder,
-    'disabled': root.isDisabled.value || undefined,
-    'readonly': root.isReadonly.value || undefined,
-    'aria-invalid': root.isValid.value === false || undefined,
-    'aria-label': root.label || undefined,
-    'aria-describedby': describedby.value,
-    'aria-errormessage': root.errors.value.length > 0 ? root.errorId : undefined,
-    'data-state': state.value,
-    'data-disabled': root.isDisabled.value ? true : undefined,
-    'data-readonly': root.isReadonly.value ? true : undefined,
-  }))
+  const controlAttrs = toRef((): Record<string, unknown> => {
+    const invalid = root.isValid.value === false
+    const disabled = root.isDisabled.value
+    const readonly = root.isReadonly.value
+    const focused = root.focused.value
+
+    return {
+      'id': root.id,
+      'type': root.type,
+      'name': root.name,
+      'value': root.value.value,
+      'form': root.form,
+      'disabled': disabled || undefined,
+      'readonly': readonly || undefined,
+      'aria-invalid': invalid || undefined,
+      'aria-label': root.label || undefined,
+      'aria-describedby': describedby.value,
+      'aria-errormessage': root.errors.value.length > 0 ? root.errorId : undefined,
+      'data-state': invalid ? 'invalid' : (root.isValid.value === true ? 'valid' : 'pristine'),
+      'data-focused': focused ? true : undefined,
+      'data-disabled': disabled ? true : undefined,
+      'data-readonly': readonly ? true : undefined,
+    }
+  })
 
   const slotProps = toRef((): InputControlSlotProps => ({
     value: root.value.value,
+    focused: root.focused.value,
     isDisabled: root.isDisabled.value,
     isReadonly: root.isReadonly.value,
     attrs: controlAttrs.value,
@@ -108,6 +113,7 @@
     :as
     :renderless
     @blur="onBlur"
+    @focus="onFocus"
     @input="onInput"
   >
     <slot v-bind="slotProps" />
