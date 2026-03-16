@@ -16,7 +16,11 @@
     "vue": "catalog:"
   },
   "devDependencies": {
+    "@shikijs/langs": "catalog:",
+    "@shikijs/markdown-it": "catalog:",
+    "@shikijs/themes": "catalog:",
     "@unhead/vue": "catalog:",
+    "shiki": "catalog:",
     "unocss": "catalog:",
     "unplugin-vue": "catalog:",
     "unplugin-vue-components": "catalog:",

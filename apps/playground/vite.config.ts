@@ -1,5 +1,8 @@
 import { fileURLToPath, URL } from 'node:url'
 
+import { fromHighlighter } from '@shikijs/markdown-it/core'
+import { createHighlighterCore } from 'shiki/core'
+import { createJavaScriptRegexEngine } from 'shiki/engine/javascript'
 import UnocssVitePlugin from 'unocss/vite'
 import Components from 'unplugin-vue-components/vite'
 import Markdown from 'unplugin-vue-markdown/vite'
@@ -8,7 +11,41 @@ import { defineConfig } from 'vite'
 import Layouts from 'vite-plugin-vue-layouts-next'
 import VueRouter from 'vue-router/vite'
 
-export default defineConfig({
+// Types
+import type { BundledLanguage, BundledTheme, HighlighterGeneric } from 'shiki'
+
+const SHIKI_THEMES = {
+  light: 'github-light-default',
+  dark: 'github-dark-default',
+} as const
+
+async function createMarkdownPlugin () {
+  const highlighter = await createHighlighterCore({
+    themes: [
+      import('@shikijs/themes/github-light-default'),
+      import('@shikijs/themes/github-dark-default'),
+    ],
+    langs: [
+      import('@shikijs/langs/typescript'),
+      import('@shikijs/langs/vue'),
+      import('@shikijs/langs/bash'),
+    ],
+    engine: createJavaScriptRegexEngine(),
+  })
+
+  return Markdown({
+    markdownItSetup (md) {
+      md.use(
+        fromHighlighter(highlighter as HighlighterGeneric<BundledLanguage, BundledTheme>, {
+          themes: SHIKI_THEMES,
+          defaultColor: false,
+        }),
+      )
+    },
+  })
+}
+
+export default defineConfig(async () => ({
   optimizeDeps: {
     exclude: ['@vue/repl'],
   },
@@ -29,7 +66,7 @@ export default defineConfig({
     Vue({
       include: [/\.vue$/, /\.md$/],
     }),
-    Markdown(),
+    await createMarkdownPlugin(),
     Components({
       dirs: ['src/components'],
       extensions: ['vue'],
@@ -58,4 +95,4 @@ export default defineConfig({
       allow: ['../../packages/*', '../../node_modules', '.'],
     },
   },
-})
+}))
