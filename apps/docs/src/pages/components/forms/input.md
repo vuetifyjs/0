@@ -41,8 +41,8 @@ The Input supports text, email, password, and other native input types. Validati
 <template>
   <Input.Root>
     <Input.Control />
-    <Input.Description>Help text</Input.Description>
-    <Input.Error v-slot="{ errors }">{{ errors }}</Input.Error>
+    <Input.Description />
+    <Input.Error />
   </Input.Root>
 </template>
 ```
