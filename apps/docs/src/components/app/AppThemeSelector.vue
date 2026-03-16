@@ -3,40 +3,20 @@
   import { Popover } from '@vuetify/v0'
 
   // Composables
-  import { useThemeToggle, type ModePreference, type Palette, PALETTES } from '@/composables/useThemeToggle'
+  import { PALETTE_ICONS, PALETTE_LABELS, PALETTES, useThemeToggle, type ModePreference } from '@/composables/useThemeToggle'
 
   // Utilities
-  import { ref } from 'vue'
+  import { shallowRef } from 'vue'
 
   const toggle = useThemeToggle()
 
-  const isOpen = ref(false)
+  const isOpen = shallowRef(false)
 
   const modeOptions: { id: ModePreference, label: string, icon: string }[] = [
     { id: 'system', label: 'System', icon: 'theme-system' },
     { id: 'light', label: 'Light', icon: 'theme-light' },
     { id: 'dark', label: 'Dark', icon: 'theme-dark' },
   ]
-
-  const PALETTE_ICONS: Record<Palette, string> = {
-    'vuetify0': 'vuetify-0',
-    'tailwind': 'theme-tailwind',
-    'material-3': 'theme-material-3',
-    'material-1': 'theme-material-1',
-    'material-2': 'theme-material-2',
-    'radix': 'theme-radix',
-    'ant-design': 'theme-ant-design',
-  }
-
-  const PALETTE_LABELS: Record<Palette, string> = {
-    'vuetify0': 'Vuetify0',
-    'tailwind': 'Tailwind',
-    'material-3': 'Material',
-    'material-1': 'Material 1',
-    'material-2': 'Material 2',
-    'radix': 'Radix',
-    'ant-design': 'Ant Design',
-  }
 
   const accessibilityOptions = [
     { id: 'high-contrast' as const, label: 'High Contrast', icon: 'theme-high-contrast' },

@@ -3,7 +3,7 @@
   import { useClipboard } from '@/composables/useClipboard'
   import { useCustomThemes, type CustomTheme } from '@/composables/useCustomThemes'
   import { useSettings } from '@/composables/useSettings'
-  import { useThemeToggle, type Palette, type ThemePreference } from '@/composables/useThemeToggle'
+  import { PALETTE_ICONS, PALETTE_LABELS, PALETTES, useThemeToggle, type Palette, type ThemePreference } from '@/composables/useThemeToggle'
 
   // Utilities
   import { computed, shallowRef } from 'vue'
@@ -48,21 +48,11 @@
     { id: 'tritanopia', label: 'Tritanopia', icon: 'theme-tritanopia', theme: 'tritanopia' },
   ]
 
-  interface PaletteOption {
-    id: Palette
-    label: string
-    icon: string
-  }
-
-  const paletteOptions: PaletteOption[] = [
-    { id: 'vuetify0', label: 'Vuetify0', icon: 'vuetify-0' },
-    { id: 'tailwind', label: 'Tailwind', icon: 'theme-tailwind' },
-    { id: 'material-3', label: 'Material', icon: 'theme-material-3' },
-    { id: 'material-1', label: 'Material 1', icon: 'theme-material-1' },
-    { id: 'material-2', label: 'Material 2', icon: 'theme-material-2' },
-    { id: 'radix', label: 'Radix', icon: 'theme-radix' },
-    { id: 'ant-design', label: 'Ant Design', icon: 'theme-ant-design' },
-  ]
+  const paletteOptions = PALETTES.map(id => ({
+    id,
+    label: PALETTE_LABELS[id],
+    icon: PALETTE_ICONS[id],
+  }))
 
   // Custom themes as options
   const customOptions = computed<ThemeOption[]>(() =>
