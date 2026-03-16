@@ -68,6 +68,13 @@
     "vitest": "catalog:",
     "vue-tsc": "catalog:"
   },
+  "pnpm": {
+    "peerDependencyRules": {
+      "allowedVersions": {
+        "vite": "8"
+      }
+    }
+  },
   "packageManager": "pnpm@10.26.1",
   "web-types": "dist/json/web-types.json"
 }
