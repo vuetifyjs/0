@@ -55,7 +55,7 @@
             {{ h2.text }}
           </a>
 
-          <ul v-if="h2.children.length > 0" class="ms-3 space-y-1 transition-opacity" :class="active(h2) ? 'opacity-100' : 'opacity-40'">
+          <ul v-if="h2.children.length > 0" class="ms-3 space-y-1 transition-opacity" :class="active(h2) ? 'opacity-100' : 'opacity-60'">
             <li v-for="h3 in h2.children" :key="h3.id">
               <a
                 :aria-current="toc.selectedId.value === h3.id ? 'location' : undefined"
