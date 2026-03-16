@@ -87,7 +87,7 @@
 
 <template>
   <div
-    class="h-screen flex flex-col bg-background transition-opacity duration-150"
+    class="h-screen flex flex-col overflow-hidden bg-background transition-opacity duration-150"
     :class="settled ? 'opacity-100' : 'opacity-0'"
   >
     <slot />
