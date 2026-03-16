@@ -43,7 +43,7 @@
     >
       <div
         v-if="open"
-        class="bg-glass-surface h-full min-w-0 flex flex-col overflow-hidden"
+        class="bg-surface h-full min-w-0 flex flex-col overflow-hidden"
       >
         <slot />
       </div>
