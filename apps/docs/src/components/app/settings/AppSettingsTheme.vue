@@ -185,9 +185,9 @@
         </div>
       </div>
 
-      <!-- Design Systems -->
+      <!-- Palettes -->
       <div>
-        <div class="text-xs font-medium text-on-surface-variant mb-2">Design Systems</div>
+        <div class="text-xs font-medium text-on-surface-variant mb-2">Palettes</div>
         <div class="grid grid-cols-2 gap-2">
           <button
             v-for="option in paletteOptions"

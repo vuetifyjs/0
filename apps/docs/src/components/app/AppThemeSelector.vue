@@ -70,9 +70,9 @@
         </div>
       </div>
 
-      <!-- Design Systems -->
+      <!-- Palettes -->
       <div class="mb-3">
-        <div class="text-xs font-medium text-on-surface-variant mb-2 px-1">Design Systems</div>
+        <div class="text-xs font-medium text-on-surface-variant mb-2 px-1">Palettes</div>
         <div class="grid grid-cols-2 gap-1">
           <button
             v-for="p in PALETTES"
