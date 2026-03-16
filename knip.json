@@ -2,11 +2,15 @@
   "$schema": "https://unpkg.com/knip@5/schema.json",
   "workspaces": {
     ".": {
+      "entry": [
+        "scripts/**/*.{js,ts}"
+      ],
       "ignore": [
         "**/dist/**",
         "**/node_modules/**",
         "**/.nuxt/**",
-        "**/.output/**"
+        "**/.output/**",
+        "uno.config.ts"
       ]
     },
     "apps/docs": {
@@ -54,6 +58,11 @@
       }
     },
     "packages/0": {
+      "entry": [
+        "src/*/adapters/**/*.ts",
+        "src/composables/*/adapters/**/*.ts",
+        "scripts/**/*.ts"
+      ],
       "project": [
         "src/**/*.{ts,vue}",
         "!src/**/*.test.ts",
@@ -63,6 +72,7 @@
         "src/**/*.bench.ts",
         "src/**/fixtures/**"
       ],
+
       "paths": {
         "#v0/*": [
           "src/*"
@@ -122,11 +132,13 @@
     "pnpm-lock.yaml"
   ],
   "ignoreDependencies": [
+    "@adobe/leonardo-contrast-colors",
+    "@ant-design/colors",
     "@js-temporal/polyfill",
+    "@material/material-color-utilities",
     "@vuetify/paper",
-    "@vuetify/v0",
     "conventional-changelog-vuetify",
-    "flagsmith",
+    "@flagsmith/flagsmith",
     "launchdarkly-js-client-sdk",
     "posthog-js"
   ],

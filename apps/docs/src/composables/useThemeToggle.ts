@@ -10,75 +10,82 @@ import type { UseThemeReturn } from '@vuetify/v0'
 // Themes
 import { themes, type ThemeId } from '@/themes'
 
-const PREFERENCE_ORDER = [
-  'system',
-  'light',
-  'dark',
+export type ModePreference = 'system' | 'light' | 'dark'
+
+export type Palette =
+  | 'vuetify0'
+  | 'tailwind'
+  | 'material-3'
+  | 'radix'
+  | 'ant-design'
+
+// Maps palette ID → [dark ThemeId, light ThemeId]
+const PALETTE_THEMES: Record<Palette, { dark: ThemeId, light: ThemeId }> = {
+  'vuetify0': { dark: 'dark', light: 'light' },
+  'tailwind': { dark: 'tailwind', light: 'tailwind-light' },
+  'material-3': { dark: 'material-3', light: 'material-3-light' },
+  'radix': { dark: 'radix', light: 'radix-light' },
+  'ant-design': { dark: 'ant-design', light: 'ant-design-light' },
+}
+
+export const PALETTES = Object.keys(PALETTE_THEMES) as Palette[]
+
+export const PALETTE_ICONS: Record<Palette, string> = {
+  'vuetify0': 'vuetify-0',
+  'tailwind': 'theme-tailwind',
+  'material-3': 'theme-material-3',
+  'radix': 'theme-radix',
+  'ant-design': 'theme-ant-design',
+}
+
+export const PALETTE_LABELS: Record<Palette, string> = {
+  'vuetify0': 'Vuetify0',
+  'tailwind': 'Tailwind',
+  'material-3': 'Material',
+  'radix': 'Radix',
+  'ant-design': 'Ant Design',
+}
+
+// Accessibility themes bypass palette — direct theme selection
+const ACCESSIBILITY_THEMES = [
   'high-contrast',
   'protanopia',
   'deuteranopia',
   'tritanopia',
-  'blackguard',
-  'polaris',
-  'nebula',
-  'odyssey',
 ] as const
 
-const PREFERENCE_ICONS: Record<string, string> = {
-  'system': 'theme-system',
-  'light': 'theme-light',
-  'dark': 'theme-dark',
-  'high-contrast': 'theme-high-contrast',
-  'protanopia': 'theme-protanopia',
-  'deuteranopia': 'theme-deuteranopia',
-  'tritanopia': 'theme-tritanopia',
-  'blackguard': 'theme-blackguard',
-  'polaris': 'theme-polaris',
-  'nebula': 'theme-nebula',
-  'odyssey': 'theme-odyssey',
-}
+export type AccessibilityTheme = typeof ACCESSIBILITY_THEMES[number]
 
-const PREFERENCE_LABELS: Record<string, string> = {
-  'system': 'System',
-  'light': 'Light',
-  'dark': 'Dark',
-  'high-contrast': 'High Contrast',
-  'protanopia': 'Protanopia',
-  'deuteranopia': 'Deuteranopia',
-  'tritanopia': 'Tritanopia',
-  'blackguard': 'Blackguard',
-  'polaris': 'Polaris',
-  'nebula': 'Nebula',
-  'odyssey': 'Odyssey',
-}
-
-export type ThemePreference = typeof PREFERENCE_ORDER[number] | (string & {})
+export type ThemePreference = ModePreference | AccessibilityTheme | Palette | (string & {})
 
 export interface UseThemeToggleReturn {
   theme: UseThemeReturn
   themes: typeof themes
+  mode: ShallowRef<ModePreference>
+  palette: ShallowRef<Palette>
   preference: ShallowRef<ThemePreference>
   icon: Ref<string>
   title: Ref<string>
   toggle: () => void
   setPreference: (pref: ThemePreference) => void
+  setMode: (mode: ModePreference) => void
+  setPalette: (palette: Palette) => void
   isDark: UseThemeReturn['isDark']
 }
 
-// Shared singleton state - ensures all consumers see the same preference
-const preference = shallowRef<ThemePreference>('dark')
+// Shared singleton state
+const mode = shallowRef<ModePreference>('system')
+const palette = shallowRef<Palette>('vuetify0')
+const preference = shallowRef<ThemePreference>('system')
 
-/**
- * Check if a preference is valid (preset or custom theme)
- */
-function isValidPreference (pref: string | undefined): pref is ThemePreference {
-  if (!pref) return false
-  // Preset themes
-  if ((PREFERENCE_ORDER as readonly string[]).includes(pref)) return true
-  // Custom themes start with 'custom-'
-  if (pref.startsWith('custom-')) return true
-  return false
+function isValidPalette (value: string | undefined): value is Palette {
+  return !!value && value in PALETTE_THEMES
 }
+
+function isAccessibilityTheme (value: string): value is AccessibilityTheme {
+  return (ACCESSIBILITY_THEMES as readonly string[]).includes(value)
+}
+
 let initialized = false
 
 export function useThemeToggle (): UseThemeToggleReturn {
@@ -86,53 +93,143 @@ export function useThemeToggle (): UseThemeToggleReturn {
   const storage = useStorage()
   const { matches: prefersDark } = usePrefersDark()
 
-  // Initialize once on first use
   if (!initialized) {
     initialized = true
 
-    // Load stored preference (supports preset and custom themes)
-    const storedPreference = storage.get<string>('theme')
-    preference.value = isValidPreference(storedPreference.value)
-      ? storedPreference.value
-      : 'dark'
+    const storedMode = storage.get<string>('theme-mode')
+    const storedPalette = storage.get<string>('theme-palette')
 
-    // Watch preference and system theme changes together
-    // When preference is 'system', react to prefersDark changes
+    // Migrate from old single-preference storage
+    const legacy = storage.get<string>('theme')
+    if (legacy.value && !storedMode.value) {
+      if (['system', 'light', 'dark'].includes(legacy.value)) {
+        mode.value = legacy.value as ModePreference
+      } else if (isAccessibilityTheme(legacy.value)) {
+        mode.value = 'system'
+        preference.value = legacy.value
+      } else if (isValidPalette(legacy.value)) {
+        palette.value = legacy.value
+        mode.value = 'dark'
+      } else if (legacy.value in themes) {
+        // Old design system theme selected directly
+        for (const [key, mapping] of Object.entries(PALETTE_THEMES)) {
+          if (mapping.dark === legacy.value || mapping.light === legacy.value) {
+            palette.value = key as Palette
+            mode.value = mapping.dark === legacy.value ? 'dark' : 'light'
+            break
+          }
+        }
+      }
+    } else {
+      if (storedMode.value && ['system', 'light', 'dark'].includes(storedMode.value)) {
+        mode.value = storedMode.value as ModePreference
+      }
+      if (isValidPalette(storedPalette.value)) {
+        palette.value = storedPalette.value
+      }
+    }
+
+    // Sync preference from mode (for accessibility overrides)
+    const storedAccessibility = storage.get<string>('theme-accessibility')
+    preference.value = storedAccessibility.value && isAccessibilityTheme(storedAccessibility.value) ? storedAccessibility.value : mode.value
+
     watch(
-      [preference, prefersDark],
-      ([pref, isDark]) => {
-        storage.set('theme', pref)
-        // 'system' resolves to light/dark based on OS preference
-        // All other preferences are actual theme names
-        const actualTheme: ThemeId = pref === 'system'
-          ? (isDark ? 'dark' : 'light')
-          : pref
-        theme.select(actualTheme)
+      [mode, palette, prefersDark],
+      ([m, p, isDark]) => {
+        storage.set('theme-mode', m)
+        storage.set('theme-palette', p)
+
+        // If preference is an accessibility theme, use it directly
+        if (isAccessibilityTheme(preference.value)) {
+          storage.set('theme-accessibility', preference.value)
+          theme.select(preference.value as ThemeId)
+          return
+        }
+
+        storage.set('theme-accessibility', null)
+
+        // Resolve mode
+        const dark = m === 'system' ? isDark : m === 'dark'
+        const mapping = PALETTE_THEMES[p]
+        const actual = dark ? mapping.dark : mapping.light
+        theme.select(actual)
       },
+      { immediate: true },
     )
+
+    // Also watch preference for accessibility toggle
+    watch(preference, pref => {
+      if (isAccessibilityTheme(pref)) {
+        storage.set('theme-accessibility', pref)
+        theme.select(pref as ThemeId)
+      } else {
+        storage.set('theme-accessibility', null)
+        // Re-resolve from mode + palette
+        const dark = mode.value === 'system' ? prefersDark.value : mode.value === 'dark'
+        const mapping = PALETTE_THEMES[palette.value]
+        theme.select(dark ? mapping.dark : mapping.light)
+      }
+    })
   }
 
-  const icon = toRef(() => PREFERENCE_ICONS[preference.value] ?? 'theme-custom')
-  const title = toRef(() => `Theme: ${PREFERENCE_LABELS[preference.value] ?? 'Custom'}`)
+  const icon = toRef(() => {
+    if (isAccessibilityTheme(preference.value)) {
+      return `theme-${preference.value}`
+    }
+    return PALETTE_ICONS[palette.value] ?? 'theme-custom'
+  })
+
+  const title = toRef(() => {
+    if (isAccessibilityTheme(preference.value)) {
+      return `Theme: ${preference.value}`
+    }
+    return `Theme: ${PALETTE_LABELS[palette.value] ?? 'Custom'}`
+  })
 
   function toggle () {
-    const currentIndex = PREFERENCE_ORDER.indexOf(preference.value)
-    const nextIndex = (currentIndex + 1) % PREFERENCE_ORDER.length
-    preference.value = PREFERENCE_ORDER[nextIndex]
+    const modes: ModePreference[] = ['system', 'light', 'dark']
+    const index = modes.indexOf(mode.value)
+    mode.value = modes[(index + 1) % modes.length]
+    preference.value = mode.value
   }
 
   function setPreference (pref: ThemePreference) {
-    preference.value = pref
+    if (isAccessibilityTheme(pref)) {
+      preference.value = pref
+    } else if (['system', 'light', 'dark'].includes(pref)) {
+      mode.value = pref as ModePreference
+      preference.value = pref
+    } else if (isValidPalette(pref)) {
+      palette.value = pref
+      preference.value = mode.value
+    }
+  }
+
+  function setMode (m: ModePreference) {
+    mode.value = m
+    preference.value = m
+  }
+
+  function setPalette (p: Palette) {
+    palette.value = p
+    // Clear accessibility override when picking a palette
+    if (isAccessibilityTheme(preference.value)) {
+      preference.value = mode.value
+    }
   }
 
   return {
     theme,
     themes,
+    mode,
+    palette,
     preference,
     icon,
     title,
     toggle,
     setPreference,
+    setMode,
+    setPalette,
     isDark: theme.isDark,
   }
 }

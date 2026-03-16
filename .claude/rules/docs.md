@@ -29,7 +29,7 @@ features:
   label: 'C: Dialog'          # or 'E: createSelection'
   github: /components/Dialog/  # source path under packages/0/src/
   renderless: false            # components only
-  level: 2                     # 1=index, 2=primary, 3=advanced
+  level: 2                     # See "Skill Levels" section below
 related:
   - /composables/selection/create-group
   - /components/forms/checkbox
@@ -139,6 +139,29 @@ Auto-generated at build time — no manual API tables needed.
 - **Composables**: `ts-morph` extracts functions, options, methods, properties from exports
 - Rendered by `<DocsApi />` at page bottom
 - Cached in `.cache/api-cache.json`
+
+## Skill Levels
+
+Every page needs a `features.level` (1, 2, or 3). The level is determined by the **highest prerequisite** across Vue knowledge, v0 knowledge, and web platform knowledge.
+
+| Level | Label | Vue | v0 | Web Platform |
+|-------|-------|-----|-----|-------------|
+| **1** | Beginner | Templates, props, events, slots | None | Basic HTML/CSS/JS |
+| **2** | Intermediate | Composition API (ref, computed, watch), composables, provide/inject, v-model | Uses composables, follows examples | Common patterns (forms, modals, keyboard) |
+| **3** | Advanced | effectScope, SSR/hydration internals, plugin authoring, advanced TS generics | Understands architecture (context, trinity, registry) | Specialized browser APIs (observers), ARIA |
+
+### How to assign
+
+Ask: **"What must the reader already know to use this page?"**
+
+- **Level 1**: Orientation — "What is v0?" No v0 experience needed. Index pages, introduction, tooling, meta pages.
+- **Level 2**: Consumption — "How do I use this in my app?" Reader uses composables and components. Most component and composable pages.
+- **Level 3**: Extension — "How do I build on top of v0?" Reader understands internals or needs advanced Vue/browser knowledge. Foundation composables, registration primitives, framework-building guides, observer composables.
+
+### Edge cases
+
+- A composable that **wraps** an advanced concept into a simple API (e.g., `useToggleScope` wraps effectScope, `useHydration` wraps SSR) stays Level 2 — the abstraction is the point.
+- A composable that **exposes** advanced concepts (e.g., `createContext` exposes provide/inject architecture, `createNested` exposes tree traversal strategies) is Level 3.
 
 ## Naming Conventions
 

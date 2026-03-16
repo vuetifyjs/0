@@ -46,9 +46,9 @@
     id="main-content"
     ref="main"
     :class="[
-      'pa-4 pb-6 ml-0 md:ml-[230px] relative z-0',
+      'pa-4 pb-6 ms-0 md:ms-[230px] relative z-0',
       !settings.prefersReducedMotion.value && 'transition-[padding] duration-200',
-      ask.isOpen.value ? 'xl:pr-[calc(clamp(280px,calc(100vw-230px-688px-64px),500px)+32px)]' : 'xl:pr-[232px]',
+      ask.isOpen.value ? 'xl:pe-[calc(clamp(280px,calc(100vw-230px-688px-64px),500px)+32px)]' : 'xl:pe-[232px]',
     ]"
   >
     <div class="max-w-[688px] mx-auto pb-4">

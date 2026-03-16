@@ -280,6 +280,20 @@ describe('createFeatures', () => {
     })
   })
 
+  describe('onboard', () => {
+    it('should register multiple features at once', () => {
+      const context = createFeatures({})
+      const tickets = context.onboard([
+        { id: 'f1', value: true },
+        { id: 'f2', value: false },
+      ])
+      expect(tickets.length).toBe(2)
+      expect(context.size).toBe(2)
+      expect(context.selectedIds.has('f1')).toBe(true)
+      expect(context.selectedIds.has('f2')).toBe(false)
+    })
+  })
+
   describe('edge cases', () => {
     it('should handle empty features object', () => {
       const context = createFeatures({
@@ -645,6 +659,28 @@ describe('useFeatures', () => {
 
     expect(features).toBeDefined()
     expect(features!.size).toBe(0)
+
+    app.unmount()
+  })
+
+  it('should return fallback variation value', () => {
+    let features: ReturnType<typeof useFeatures> | undefined
+
+    const app = createApp({
+      setup () {
+        features = useFeatures()
+        return {}
+      },
+      template: '<div>Test</div>',
+    })
+
+    const container = document.createElement('div')
+    app.mount(container)
+
+    // Fallback variation returns null by default
+    expect(features!.variation('any-feature')).toBeNull()
+    // Fallback variation returns custom fallback
+    expect(features!.variation('any-feature', 'custom')).toBe('custom')
 
     app.unmount()
   })

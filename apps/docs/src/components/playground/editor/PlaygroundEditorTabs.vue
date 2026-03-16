@@ -99,12 +99,12 @@
         <template #default="{ isSelected, attrs }">
           <div
             v-bind="attrs"
-            class="group/tab shrink-0 flex items-center gap-1 pl-3 py-1.5 text-xs transition-colors border-b-2 cursor-pointer"
+            class="group/tab shrink-0 flex items-center gap-1 ps-3 py-1.5 text-xs transition-colors border-b-2 cursor-pointer"
             :class="[
               isSelected
                 ? 'text-on-surface border-primary bg-surface'
                 : 'text-on-surface-variant border-transparent hover:text-on-surface hover:bg-surface-tint',
-              tabs.length > 1 ? 'pr-1' : 'pr-3',
+              tabs.length > 1 ? 'pe-1' : 'pe-3',
             ]"
           >
             <span>{{ tab.label }}</span>

@@ -464,3 +464,61 @@ describe('scrim', () => {
     })
   })
 })
+
+// Additional coverage tests
+describe('teleport dismiss', () => {
+  it('should call ticket.dismiss on click when teleported', async () => {
+    const target = document.createElement('div')
+    target.id = 'scrim-target'
+    document.body.append(target)
+
+    const ticket = createMockTicket({ blocking: false })
+    mockSelectedItems.value = new Set([ticket])
+
+    mount(Scrim, {
+      props: { teleportTo: '#scrim-target' },
+      attachTo: document.body,
+    })
+
+    await nextTick()
+    const scrim = target.querySelector('div')
+    expect(scrim).toBeTruthy()
+
+    scrim!.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    await nextTick()
+
+    expect(ticket.dismiss).toHaveBeenCalledTimes(1)
+    target.remove()
+  })
+})
+
+describe('non-teleported click dismiss', () => {
+  it('should call ticket.dismiss on click in non-teleported mode', async () => {
+    const ticket = createMockTicket({ blocking: false })
+    mockSelectedItems.value = new Set([ticket])
+
+    const wrapper = mount(Scrim, {
+      props: { teleport: false },
+    })
+
+    await nextTick()
+    // Click the scrim in the non-teleported branch (line 112)
+    await wrapper.find('div').trigger('click')
+
+    expect(ticket.dismiss).toHaveBeenCalledTimes(1)
+  })
+
+  it('should not dismiss blocking ticket on click in non-teleported mode', async () => {
+    const ticket = createMockTicket({ blocking: true })
+    mockSelectedItems.value = new Set([ticket])
+
+    const wrapper = mount(Scrim, {
+      props: { teleport: false },
+    })
+
+    await nextTick()
+    await wrapper.find('div').trigger('click')
+
+    expect(ticket.dismiss).not.toHaveBeenCalled()
+  })
+})

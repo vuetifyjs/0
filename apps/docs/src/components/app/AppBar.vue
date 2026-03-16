@@ -50,7 +50,7 @@
 <template>
   <Atom
     :as
-    :class="['flex items-center justify-between h-[48px] fixed left-0 top-[24px] right-0 px-3 text-on-surface border-b border-solid border-divider z-1', settings.showBgGlass.value ? 'bg-glass-surface' : 'bg-surface']"
+    :class="['flex items-center justify-between h-[48px] fixed inset-x-0 top-[24px] px-3 text-on-surface border-b border-solid border-divider z-1', settings.showBgGlass.value ? 'bg-glass-surface' : 'bg-surface']"
     data-app-bar
   >
     <div class="flex items-center gap-2">

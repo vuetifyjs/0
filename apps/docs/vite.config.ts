@@ -2,12 +2,12 @@ import { fileURLToPath, URL } from 'node:url'
 
 import UnocssVitePlugin from 'unocss/vite'
 import Components from 'unplugin-vue-components/vite'
-import VueRouter from 'unplugin-vue-router/vite'
 import Vue from 'unplugin-vue/rolldown'
 import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 import Layouts from 'vite-plugin-vue-layouts-next'
 import generateSitemap from 'vite-ssg-sitemap'
+import VueRouter from 'vue-router/vite'
 
 // Types
 import type { ViteSSGOptions } from 'vite-ssg'

@@ -90,6 +90,7 @@ Chip filters are a common pattern for narrowing content by tags. This example sh
 /composables/create-group/context.ts 1
 /composables/create-group/TagFilter.vue 2
 /composables/create-group/chip-filter.vue 3
+@import @mdi/js
 
 | File | Role |
 |------|------|

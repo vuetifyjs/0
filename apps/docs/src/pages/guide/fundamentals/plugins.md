@@ -13,6 +13,7 @@ related:
   - /composables/foundation/create-plugin
   - /composables/plugins/use-theme
   - /composables/plugins/use-locale
+  - /composables/plugins/use-rtl
 ---
 
 # Plugins
@@ -64,7 +65,8 @@ app.use(
 | Plugin | Purpose | Composable |
 | - | - | - |
 | `createThemePlugin` | CSS variable theming, dark mode | [useTheme](/composables/plugins/use-theme) |
-| `createLocalePlugin` | i18n, RTL support | [useLocale](/composables/plugins/use-locale) |
+| `createLocalePlugin` | i18n translations | [useLocale](/composables/plugins/use-locale) |
+| `createRtlPlugin` | RTL direction support | [useRtl](/composables/plugins/use-rtl) |
 | `createLoggerPlugin` | Structured logging | [useLogger](/composables/plugins/use-logger) |
 | `createStoragePlugin` | Reactive localStorage/sessionStorage | [useStorage](/composables/plugins/use-storage) |
 | `createPermissionsPlugin` | Role-based access control | [usePermissions](/composables/plugins/use-permissions) |

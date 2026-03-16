@@ -47,3 +47,6 @@ apps/docs/build/generated/
 .claude/worktrees/
 .claude/plans/
 .playwright-mcp/
+.superpowers/
+.worktrees/
+/docs/

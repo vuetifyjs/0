@@ -25,6 +25,9 @@ A composable for reactive CSS media query matching with automatic cleanup.
 
 The `useMediaQuery` composable wraps the browser's `matchMedia` API, providing reactive updates when the media query state changes. It supports static strings, refs, and getter functions for dynamic queries.
 
+> [!TIP] Why wrap matchMedia?
+> The native `matchMedia` API has no awareness of Vue's `effectScope` lifecycle — change listeners you add won't be removed when the scope is disposed. `useMediaQuery` integrates `onScopeDispose` for automatic cleanup, defers evaluation until after hydration for SSR safety, and supports reactive query strings that re-evaluate on change.
+
 ```vue collapse no-filename UseMediaQuery
 <script setup lang="ts">
   import { useMediaQuery } from '@vuetify/v0'

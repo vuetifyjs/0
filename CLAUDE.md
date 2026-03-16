@@ -139,6 +139,10 @@ pnpm repo:check       # knip + sherif
 - **Lint**: ESLint (vuetify config)
 - **Style**: UnoCSS
 
+## Worktrees
+
+Worktree directory: `.claude/worktrees/` — always use this location for all worktrees.
+
 ## Detailed Rules
 
 See `.claude/rules/` for path-scoped documentation:

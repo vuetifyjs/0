@@ -81,6 +81,7 @@ Value state is **always reactive**. Collection methods follow the base `createRe
 ::: example
 /composables/create-model/createCompound.ts
 /composables/create-model/compound.vue
+@import @mdi/js
 
 ### Compound Value
 

@@ -383,6 +383,184 @@ describe('useStorage consumer', () => {
   })
 })
 
+describe('useStorage edge cases', () => {
+  it('should log error when writeStored fails', async () => {
+    const failAdapter = {
+      getItem: vi.fn(() => null),
+      setItem: vi.fn(() => {
+        throw new Error('Storage full')
+      }),
+      removeItem: vi.fn(),
+    }
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const storage = createStorage({ adapter: failAdapter, prefix: 'test:' })
+    const val = storage.get('key', 'default')
+    val.value = 'new-value'
+    await nextTick()
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringContaining('[v0:storage] Failed to write key'),
+      expect.any(Error),
+    )
+    consoleSpy.mockRestore()
+  })
+
+  it('should no-op when removing a key that was never created', () => {
+    const noopAdapter = {
+      getItem: vi.fn(() => null),
+      setItem: vi.fn(),
+      removeItem: vi.fn(),
+    }
+    const storage = createStorage({ adapter: noopAdapter, prefix: 'test:' })
+    storage.remove('nonexistent')
+    expect(noopAdapter.removeItem).not.toHaveBeenCalled()
+  })
+})
+
+describe('useStorage cross-tab sync', () => {
+  beforeEach(() => {
+    vi.resetModules()
+    vi.clearAllMocks()
+  })
+
+  it('should handle cross-tab storage events for cached keys', async () => {
+    vi.doMock('#v0/constants/globals', () => ({
+      IN_BROWSER: true,
+    }))
+
+    // Mock window.localStorage
+    const mockStorage = {
+      getItem: vi.fn((): string | null => null),
+      setItem: vi.fn(),
+      removeItem: vi.fn(),
+    }
+    Object.defineProperty(globalThis.window, 'localStorage', {
+      value: mockStorage,
+      configurable: true,
+      writable: true,
+    })
+
+    const { createStorage } = await import('./index')
+    const storage = createStorage({ prefix: 'test:' })
+
+    // Create a cached key
+    const ref = storage.get('username', 'guest')
+    expect(ref.value).toBe('guest')
+
+    // Simulate a cross-tab storage event for a cached key
+    const storageEvent = new StorageEvent('storage', {
+      key: 'test:username',
+      newValue: '"updated-from-other-tab"',
+      storageArea: window.localStorage,
+    })
+
+    mockStorage.getItem.mockReturnValue('"updated-from-other-tab"')
+
+    window.dispatchEvent(storageEvent)
+    await nextTick()
+
+    expect(ref.value).toBe('updated-from-other-tab')
+  })
+
+  it('should ignore storage events for keys without matching prefix', async () => {
+    vi.doMock('#v0/constants/globals', () => ({
+      IN_BROWSER: true,
+    }))
+
+    const mockStorage = {
+      getItem: vi.fn(() => null),
+      setItem: vi.fn(),
+      removeItem: vi.fn(),
+    }
+    Object.defineProperty(globalThis.window, 'localStorage', {
+      value: mockStorage,
+      configurable: true,
+      writable: true,
+    })
+
+    const { createStorage } = await import('./index')
+    const storage = createStorage({ prefix: 'test:' })
+
+    const ref = storage.get('username', 'guest')
+
+    // Dispatch event with different prefix
+    const storageEvent = new StorageEvent('storage', {
+      key: 'other:username',
+      newValue: '"wrong"',
+      storageArea: window.localStorage,
+    })
+
+    window.dispatchEvent(storageEvent)
+    await nextTick()
+
+    expect(ref.value).toBe('guest')
+  })
+
+  it('should ignore storage events for non-cached keys', async () => {
+    vi.doMock('#v0/constants/globals', () => ({
+      IN_BROWSER: true,
+    }))
+
+    const mockStorage = {
+      getItem: vi.fn(() => null),
+      setItem: vi.fn(),
+      removeItem: vi.fn(),
+    }
+    Object.defineProperty(globalThis.window, 'localStorage', {
+      value: mockStorage,
+      configurable: true,
+      writable: true,
+    })
+
+    const { createStorage } = await import('./index')
+    createStorage({ prefix: 'test:' })
+
+    // Dispatch event for a key that was never accessed
+    const storageEvent = new StorageEvent('storage', {
+      key: 'test:unknown',
+      newValue: '"something"',
+      storageArea: window.localStorage,
+    })
+
+    // Should not throw
+    expect(() => window.dispatchEvent(storageEvent)).not.toThrow()
+  })
+
+  it('should set value to undefined when storage event newValue is null', async () => {
+    vi.doMock('#v0/constants/globals', () => ({
+      IN_BROWSER: true,
+    }))
+
+    const mockStorage = {
+      getItem: vi.fn(() => null),
+      setItem: vi.fn(),
+      removeItem: vi.fn(),
+    }
+    Object.defineProperty(globalThis.window, 'localStorage', {
+      value: mockStorage,
+      configurable: true,
+      writable: true,
+    })
+
+    const { createStorage } = await import('./index')
+    const storage = createStorage({ prefix: 'test:' })
+
+    const ref = storage.get('username', 'guest')
+    expect(ref.value).toBe('guest')
+
+    // Simulate key removal from another tab (newValue is null)
+    const storageEvent = new StorageEvent('storage', {
+      key: 'test:username',
+      newValue: null,
+      storageArea: window.localStorage,
+    })
+
+    window.dispatchEvent(storageEvent)
+    await nextTick()
+
+    expect(ref.value).toBeUndefined()
+  })
+})
+
 describe('useStorage SSR safety', () => {
   beforeEach(() => {
     vi.resetModules()
