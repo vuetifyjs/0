@@ -3,58 +3,47 @@
   import { Popover } from '@vuetify/v0'
 
   // Composables
-  import { useThemeToggle, type ThemePreference } from '@/composables/useThemeToggle'
+  import { useThemeToggle, type ModePreference, type Palette, PALETTES } from '@/composables/useThemeToggle'
 
   // Utilities
   import { ref } from 'vue'
-
-  // Types
-  // Themes
-  import type { ThemeId } from '@/themes'
 
   const toggle = useThemeToggle()
 
   const isOpen = ref(false)
 
-  interface ThemeOption {
-    id: ThemePreference
-    label: string
-    icon: string
-    theme?: ThemeId
-  }
-
-  const modeOptions: ThemeOption[] = [
+  const modeOptions: { id: ModePreference, label: string, icon: string }[] = [
     { id: 'system', label: 'System', icon: 'theme-system' },
-    { id: 'light', label: 'Light', icon: 'theme-light', theme: 'light' },
-    { id: 'dark', label: 'Dark', icon: 'theme-dark', theme: 'dark' },
+    { id: 'light', label: 'Light', icon: 'theme-light' },
+    { id: 'dark', label: 'Dark', icon: 'theme-dark' },
   ]
 
-  const accessibilityOptions: ThemeOption[] = [
-    { id: 'high-contrast', label: 'High Contrast', icon: 'theme-high-contrast', theme: 'high-contrast' },
-    { id: 'protanopia', label: 'Protanopia', icon: 'theme-protanopia', theme: 'protanopia' },
-    { id: 'deuteranopia', label: 'Deuteranopia', icon: 'theme-deuteranopia', theme: 'deuteranopia' },
-    { id: 'tritanopia', label: 'Tritanopia', icon: 'theme-tritanopia', theme: 'tritanopia' },
-  ]
-
-  const vuetifyOptions: ThemeOption[] = [
-    { id: 'blackguard', label: 'Blackguard', icon: 'theme-blackguard', theme: 'blackguard' },
-    { id: 'polaris', label: 'Polaris', icon: 'theme-polaris', theme: 'polaris' },
-    { id: 'nebula', label: 'Nebula', icon: 'theme-nebula', theme: 'nebula' },
-    { id: 'odyssey', label: 'Odyssey', icon: 'theme-odyssey', theme: 'odyssey' },
-  ]
-
-  const designSystemOptions: ThemeOption[] = [
-    { id: 'tailwind', label: 'Tailwind', icon: 'theme-tailwind', theme: 'tailwind' },
-    { id: 'material-3', label: 'Material', icon: 'theme-material-3', theme: 'material-3' },
-    { id: 'radix', label: 'Radix', icon: 'theme-radix', theme: 'radix' },
-    { id: 'ant-design', label: 'Ant Design', icon: 'theme-ant-design', theme: 'ant-design' },
-    { id: 'material-1', label: 'Material 1', icon: 'theme-material-1', theme: 'material-1' },
-    { id: 'material-2', label: 'Material 2', icon: 'theme-material-2', theme: 'material-2' },
-  ]
-
-  function selectTheme (id: ThemePreference) {
-    toggle.setPreference(id)
+  const PALETTE_ICONS: Record<Palette, string> = {
+    'vuetify0': 'vuetify-0',
+    'tailwind': 'theme-tailwind',
+    'material-3': 'theme-material-3',
+    'radix': 'theme-radix',
+    'ant-design': 'theme-ant-design',
+    'material-1': 'theme-material-1',
+    'material-2': 'theme-material-2',
   }
+
+  const PALETTE_LABELS: Record<Palette, string> = {
+    'vuetify0': 'Vuetify0',
+    'tailwind': 'Tailwind',
+    'material-3': 'Material',
+    'radix': 'Radix',
+    'ant-design': 'Ant Design',
+    'material-1': 'Material 1',
+    'material-2': 'Material 2',
+  }
+
+  const accessibilityOptions = [
+    { id: 'high-contrast' as const, label: 'High Contrast', icon: 'theme-high-contrast' },
+    { id: 'protanopia' as const, label: 'Protanopia', icon: 'theme-protanopia' },
+    { id: 'deuteranopia' as const, label: 'Deuteranopia', icon: 'theme-deuteranopia' },
+    { id: 'tritanopia' as const, label: 'Tritanopia', icon: 'theme-tritanopia' },
+  ]
 </script>
 
 <template>
@@ -85,15 +74,15 @@
           <button
             v-for="option in modeOptions"
             :key="option.id"
-            :aria-pressed="toggle.preference.value === option.id"
+            :aria-pressed="toggle.mode.value === option.id"
             :class="[
               'flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded text-xs font-medium transition-colors',
-              toggle.preference.value === option.id
+              toggle.mode.value === option.id
                 ? 'bg-primary/15 text-primary'
                 : 'hover:bg-surface-tint text-on-surface',
             ]"
             type="button"
-            @click="selectTheme(option.id)"
+            @click="toggle.setMode(option.id)"
           >
             <AppIcon :icon="option.icon" size="14" />
             <span>{{ option.label }}</span>
@@ -101,8 +90,31 @@
         </div>
       </div>
 
-      <!-- Accessibility -->
+      <!-- Design Systems -->
       <div class="mb-3">
+        <div class="text-xs font-medium text-on-surface-variant mb-2 px-1">Design Systems</div>
+        <div class="grid grid-cols-2 gap-1">
+          <button
+            v-for="p in PALETTES"
+            :key="p"
+            :aria-pressed="toggle.palette.value === p"
+            :class="[
+              'flex items-center gap-1.5 px-2 py-1.5 rounded text-xs font-medium transition-colors',
+              toggle.palette.value === p
+                ? 'bg-primary/15 text-primary'
+                : 'hover:bg-surface-tint text-on-surface',
+            ]"
+            type="button"
+            @click="toggle.setPalette(p)"
+          >
+            <AppIcon :icon="PALETTE_ICONS[p]" size="14" />
+            <span>{{ PALETTE_LABELS[p] }}</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Accessibility -->
+      <div>
         <div class="text-xs font-medium text-on-surface-variant mb-2 px-1">Accessibility</div>
         <div class="grid grid-cols-2 gap-1">
           <button
@@ -110,71 +122,16 @@
             :key="option.id"
             :aria-pressed="toggle.preference.value === option.id"
             :class="[
-              'flex flex-col items-start gap-1.5 px-2 py-1.5 rounded text-xs font-medium transition-colors',
+              'flex items-center gap-1.5 px-2 py-1.5 rounded text-xs font-medium transition-colors',
               toggle.preference.value === option.id
                 ? 'bg-primary/15 text-primary'
                 : 'hover:bg-surface-tint text-on-surface',
             ]"
             type="button"
-            @click="selectTheme(option.id)"
+            @click="toggle.setPreference(option.id)"
           >
-            <div class="flex items-center gap-1.5">
-              <AppIcon :icon="option.icon" size="14" />
-              <span>{{ option.label }}</span>
-            </div>
-            <AppThemePreview v-if="option.theme" :theme="option.theme" />
-          </button>
-        </div>
-      </div>
-
-      <!-- Vuetify Themes -->
-      <div class="mb-3">
-        <div class="text-xs font-medium text-on-surface-variant mb-2 px-1">Vuetify</div>
-        <div class="grid grid-cols-2 gap-1">
-          <button
-            v-for="option in vuetifyOptions"
-            :key="option.id"
-            :aria-pressed="toggle.preference.value === option.id"
-            :class="[
-              'flex flex-col items-start gap-1.5 px-2 py-1.5 rounded text-xs font-medium transition-colors',
-              toggle.preference.value === option.id
-                ? 'bg-primary/15 text-primary'
-                : 'hover:bg-surface-tint text-on-surface',
-            ]"
-            type="button"
-            @click="selectTheme(option.id)"
-          >
-            <div class="flex items-center gap-1.5">
-              <AppIcon :icon="option.icon" size="14" />
-              <span>{{ option.label }}</span>
-            </div>
-            <AppThemePreview v-if="option.theme" :theme="option.theme" />
-          </button>
-        </div>
-      </div>
-
-      <!-- Design Systems -->
-      <div>
-        <div class="text-xs font-medium text-on-surface-variant mb-2 px-1">Design Systems</div>
-        <div class="grid grid-cols-2 gap-1">
-          <button
-            v-for="option in designSystemOptions"
-            :key="option.id"
-            :aria-pressed="toggle.preference.value === option.id"
-            :class="[
-              'flex flex-col items-start gap-1.5 px-2 py-1.5 rounded text-xs font-medium transition-colors',
-              toggle.preference.value === option.id
-                ? 'bg-primary/15 text-primary'
-                : 'hover:bg-surface-tint text-on-surface',
-            ]"
-            type="button"
-            @click="selectTheme(option.id)"
-          >
-            <div class="flex items-center gap-1.5">
-              <AppIcon :icon="option.icon" size="14" />
-              <span>{{ option.label }}</span>
-            </div>
-            <AppThemePreview v-if="option.theme" :theme="option.theme" />
+            <AppIcon :icon="option.icon" size="14" />
+            <span>{{ option.label }}</span>
           </button>
         </div>
       </div>

@@ -5,40 +5,25 @@
   // Utilities
   import { shallowRef, toRef, useTemplateRef } from 'vue'
 
-  // Types
-  import type { ThemePreference } from '@/composables/useThemeToggle'
-  import type { ThemeId } from '@/themes'
-
-  // Themes
-  import { themes } from '@/themes'
-
-  interface ThemeOption {
-    id: ThemePreference
+  export interface Option {
+    id: string
     label: string
     icon: string
-    theme?: ThemeId
   }
 
-  const { label, options, preference } = defineProps<{
+  const { label, options, selected } = defineProps<{
     label: string
-    options: ThemeOption[]
-    preference: ThemePreference
+    options: Option[]
+    selected: string
   }>()
 
   const emit = defineEmits<{
-    select: [id: ThemePreference]
+    select: [id: string]
   }>()
 
   const container = useTemplateRef<HTMLElement>('container')
   const active = shallowRef(0)
   const dots = toRef(() => Math.ceil(options.length / 2))
-
-  function colors (id: ThemeId | undefined) {
-    if (!id) return null
-    const t = themes[id]
-    if (!t) return null
-    return t.colors
-  }
 
   function onScroll () {
     const el = container.value
@@ -125,37 +110,18 @@
       <button
         v-for="option in options"
         :key="option.id"
-        :aria-pressed="preference === option.id"
+        :aria-pressed="selected === option.id"
         :class="[
-          'flex-none w-[44%] snap-start flex flex-col gap-1.5 px-3 py-2 rounded-lg border text-sm transition-colors',
-          preference === option.id
+          'flex-none w-[44%] snap-start flex items-center gap-2 px-3 py-2 rounded-lg border text-sm transition-colors',
+          selected === option.id
             ? 'border-primary bg-primary/10 text-primary'
             : 'border-divider hover:border-primary/50 text-on-surface',
         ]"
         type="button"
         @click="emit('select', option.id)"
       >
-        <div class="flex items-center gap-2">
-          <AppIcon :icon="option.icon" size="14" />
-          <span class="font-medium truncate">{{ option.label }}</span>
-        </div>
-
-        <div v-if="option.theme && colors(option.theme)" class="w-full">
-          <div class="flex gap-0.5 mb-0.5">
-            <span
-              class="flex-1 h-5 rounded-sm"
-              :style="{ background: colors(option.theme)!.primary }"
-            />
-            <span
-              class="flex-1 h-5 rounded-sm"
-              :style="{ background: colors(option.theme)!.secondary }"
-            />
-            <span
-              class="flex-1 h-5 rounded-sm"
-              :style="{ background: colors(option.theme)!.accent }"
-            />
-          </div>
-        </div>
+        <AppIcon :icon="option.icon" size="14" />
+        <span class="font-medium truncate">{{ option.label }}</span>
       </button>
     </div>
 

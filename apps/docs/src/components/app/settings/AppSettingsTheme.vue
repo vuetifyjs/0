@@ -3,7 +3,7 @@
   import { useClipboard } from '@/composables/useClipboard'
   import { useCustomThemes, type CustomTheme } from '@/composables/useCustomThemes'
   import { useSettings } from '@/composables/useSettings'
-  import { useThemeToggle, type ThemePreference } from '@/composables/useThemeToggle'
+  import { useThemeToggle, type Palette, type ThemePreference } from '@/composables/useThemeToggle'
 
   // Utilities
   import { computed, shallowRef } from 'vue'
@@ -48,20 +48,20 @@
     { id: 'tritanopia', label: 'Tritanopia', icon: 'theme-tritanopia', theme: 'tritanopia' },
   ]
 
-  const vuetifyOptions: ThemeOption[] = [
-    { id: 'blackguard', label: 'Blackguard', icon: 'theme-blackguard', theme: 'blackguard' },
-    { id: 'polaris', label: 'Polaris', icon: 'theme-polaris', theme: 'polaris' },
-    { id: 'nebula', label: 'Nebula', icon: 'theme-nebula', theme: 'nebula' },
-    { id: 'odyssey', label: 'Odyssey', icon: 'theme-odyssey', theme: 'odyssey' },
-  ]
+  interface PaletteOption {
+    id: Palette
+    label: string
+    icon: string
+  }
 
-  const designSystemOptions: ThemeOption[] = [
-    { id: 'tailwind', label: 'Tailwind', icon: 'theme-tailwind', theme: 'tailwind' },
-    { id: 'material-3', label: 'Material', icon: 'theme-material-3', theme: 'material-3' },
-    { id: 'radix', label: 'Radix', icon: 'theme-radix', theme: 'radix' },
-    { id: 'ant-design', label: 'Ant Design', icon: 'theme-ant-design', theme: 'ant-design' },
-    { id: 'material-1', label: 'Material 1', icon: 'theme-material-1', theme: 'material-1' },
-    { id: 'material-2', label: 'Material 2', icon: 'theme-material-2', theme: 'material-2' },
+  const paletteOptions: PaletteOption[] = [
+    { id: 'vuetify0', label: 'Vuetify0', icon: 'vuetify-0' },
+    { id: 'tailwind', label: 'Tailwind', icon: 'theme-tailwind' },
+    { id: 'material-3', label: 'Material', icon: 'theme-material-3' },
+    { id: 'radix', label: 'Radix', icon: 'theme-radix' },
+    { id: 'ant-design', label: 'Ant Design', icon: 'theme-ant-design' },
+    { id: 'material-1', label: 'Material 1', icon: 'theme-material-1' },
+    { id: 'material-2', label: 'Material 2', icon: 'theme-material-2' },
   ]
 
   // Custom themes as options
@@ -179,15 +179,15 @@
           <button
             v-for="option in modeOptions"
             :key="option.id"
-            :aria-pressed="toggle.preference.value === option.id"
+            :aria-pressed="toggle.mode.value === option.id"
             :class="[
               'flex items-center justify-center gap-2 px-3 py-2 rounded-lg border text-sm transition-colors',
-              toggle.preference.value === option.id
+              toggle.mode.value === option.id
                 ? 'border-primary bg-primary/10 text-primary'
                 : 'border-divider hover:border-primary/50 text-on-surface',
             ]"
             type="button"
-            @click="toggle.setPreference(option.id)"
+            @click="toggle.setMode(option.id)"
           >
             <AppIcon :icon="option.icon" size="16" />
             <span>{{ option.label }}</span>
@@ -198,17 +198,9 @@
       <!-- Design Systems -->
       <AppSettingsThemeCarousel
         label="Design Systems"
-        :options="designSystemOptions"
-        :preference="toggle.preference.value"
-        @select="toggle.setPreference"
-      />
-
-      <!-- Vuetify Themes -->
-      <AppSettingsThemeCarousel
-        label="Vuetify Themes"
-        :options="vuetifyOptions"
-        :preference="toggle.preference.value"
-        @select="toggle.setPreference"
+        :options="paletteOptions"
+        :selected="toggle.palette.value"
+        @select="toggle.setPalette"
       />
 
       <!-- Accessibility -->
