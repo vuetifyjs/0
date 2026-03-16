@@ -25,7 +25,7 @@
     /** Current input value */
     value: string
     /** Whether this input is focused */
-    focused: boolean
+    isFocused: boolean
     /** Whether this input is disabled */
     isDisabled: boolean
     /** Whether this input is readonly */
@@ -58,11 +58,11 @@
   }
 
   function onFocus () {
-    root.focused.value = true
+    root.isFocused.value = true
   }
 
   function onBlur () {
-    root.focused.value = false
+    root.isFocused.value = false
   }
 
   const describedby = toRef(() => {
@@ -77,7 +77,7 @@
     const invalid = root.isValid.value === false
     const disabled = root.isDisabled.value
     const readonly = root.isReadonly.value
-    const focused = root.focused.value
+    const isFocused = root.isFocused.value
 
     return {
       'id': root.id,
@@ -92,7 +92,7 @@
       'aria-describedby': describedby.value,
       'aria-errormessage': root.errors.value.length > 0 ? root.errorId : undefined,
       'data-state': invalid ? 'invalid' : (root.isValid.value === true ? 'valid' : 'pristine'),
-      'data-focused': focused ? true : undefined,
+      'data-focused': isFocused ? true : undefined,
       'data-disabled': disabled ? true : undefined,
       'data-readonly': readonly ? true : undefined,
     }
@@ -100,7 +100,7 @@
 
   const slotProps = toRef((): InputControlSlotProps => ({
     value: root.value.value,
-    focused: root.focused.value,
+    isFocused: root.isFocused.value,
     isDisabled: root.isDisabled.value,
     isReadonly: root.isReadonly.value,
     attrs: controlAttrs.value,

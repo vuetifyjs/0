@@ -63,8 +63,8 @@
     value: Ref<string>
     /** Whether this input has content */
     isDirty: Readonly<Ref<boolean>>
-    /** Whether this input is focused */
-    focused: ShallowRef<boolean>
+    /** Whether this input is isFocused */
+    isFocused: ShallowRef<boolean>
     /** Whether this input is disabled */
     isDisabled: Readonly<Ref<boolean>>
     /** Whether this input is readonly */
@@ -119,8 +119,8 @@
     value: string
     /** Whether this input has content */
     isDirty: boolean
-    /** Whether this input is focused */
-    focused: boolean
+    /** Whether this input is isFocused */
+    isFocused: boolean
     /** Merged error messages */
     errors: string[]
     /** Whether the field is valid */
@@ -141,7 +141,7 @@
     attrs: {
       'data-state': InputState
       'data-dirty': true | undefined
-      'data-focused': true | undefined
+      'data-isFocused': true | undefined
       'data-disabled': true | undefined
       'data-readonly': true | undefined
     }
@@ -174,7 +174,7 @@
 
   defineEmits<{
     'update:model-value': [value: string]
-    'update:focused': [value: boolean]
+    'update:isFocused': [value: boolean]
   }>()
 
   const {
@@ -201,7 +201,7 @@
 
   const initialValue = model.value
   const isPristine = shallowRef(true)
-  const focused = shallowRef(false)
+  const isFocused = shallowRef(false)
   const touched = shallowRef(false)
   const isDirty = toRef(() => model.value.length > 0)
   const isDisabled = toRef(() => toValue(disabled) ?? false)
@@ -230,7 +230,7 @@
   }
 
   // Blur: mark touched, trigger blur-based validation
-  watch(focused, val => {
+  watch(isFocused, val => {
     if (val) return
     touched.value = true
     if (shouldValidate('blur')) validation.validate()
@@ -269,7 +269,7 @@
     errorId,
     value: model,
     isDirty,
-    focused,
+    isFocused,
     isDisabled,
     isReadonly,
     errors,
@@ -287,7 +287,7 @@
     label,
     value: model.value,
     isDirty: isDirty.value,
-    focused: focused.value,
+    isFocused: isFocused.value,
     errors: errors.value,
     isValid: isValid.value,
     isPristine: isPristine.value,
@@ -299,7 +299,7 @@
     attrs: {
       'data-state': state.value,
       'data-dirty': isDirty.value ? true : undefined,
-      'data-focused': focused.value ? true : undefined,
+      'data-isFocused': isFocused.value ? true : undefined,
       'data-disabled': isDisabled.value ? true : undefined,
       'data-readonly': isReadonly.value ? true : undefined,
     },
