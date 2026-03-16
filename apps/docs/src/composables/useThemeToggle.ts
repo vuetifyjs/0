@@ -34,7 +34,7 @@ const PALETTE_THEMES: Record<Palette, { dark: ThemeId, light: ThemeId }> = {
 
 export const PALETTES = Object.keys(PALETTE_THEMES) as Palette[]
 
-const PALETTE_ICONS: Record<Palette, string> = {
+export const PALETTE_ICONS: Record<Palette, string> = {
   'vuetify0': 'vuetify-0',
   'tailwind': 'theme-tailwind',
   'material-3': 'theme-material-3',
@@ -44,7 +44,7 @@ const PALETTE_ICONS: Record<Palette, string> = {
   'ant-design': 'theme-ant-design',
 }
 
-const PALETTE_LABELS: Record<Palette, string> = {
+export const PALETTE_LABELS: Record<Palette, string> = {
   'vuetify0': 'Vuetify0',
   'tailwind': 'Tailwind',
   'material-3': 'Material',
@@ -162,6 +162,7 @@ export function useThemeToggle (): UseThemeToggleReturn {
         const actual = dark ? mapping.dark : mapping.light
         theme.select(actual)
       },
+      { immediate: true },
     )
 
     // Also watch preference for accessibility toggle
