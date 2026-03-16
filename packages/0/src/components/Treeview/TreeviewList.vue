@@ -133,19 +133,18 @@
       }
       case 'Enter': {
         e.preventDefault()
-        if (ticket && expandable(ticket)) {
-          nested.flip(ticket.id)
+        if (ticket) {
+          if (expandable(ticket)) {
+            nested.flip(ticket.id)
+          }
+          nested.activate(ticket.id)
         }
         break
       }
       case ' ': {
         e.preventDefault()
-        if (ticket) {
-          if (nested.multiple) {
-            nested.toggle(ticket.id)
-          } else if (expandable(ticket)) {
-            nested.flip(ticket.id)
-          }
+        if (ticket && nested.multiple) {
+          nested.toggle(ticket.id)
         }
         break
       }

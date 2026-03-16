@@ -85,6 +85,7 @@
       mix: noop,
       unmix: noop,
       // NestedTicket
+      el: undefined,
       parentId: undefined,
       isOpen: shallowRef(false),
       isActive: shallowRef(false),
@@ -124,6 +125,8 @@
       'tabindex': isDisabled.value ? undefined : 0,
       'data-state': state.value,
       'data-disabled': isDisabled.value ? true : undefined,
+      'onClick': onClick,
+      'onKeydown': onKeydown,
     },
   }))
 </script>
@@ -133,8 +136,6 @@
     v-bind="slotProps.attrs"
     :as
     :renderless
-    @click="onClick"
-    @keydown="onKeydown"
   >
     <slot v-bind="slotProps" />
   </Atom>

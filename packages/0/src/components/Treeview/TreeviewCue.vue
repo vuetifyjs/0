@@ -39,6 +39,7 @@
     isOpen: isOpen.value,
     isLeaf: !item.hasContent.value,
     attrs: {
+      'aria-hidden': true,
       'data-state': state.value,
       'style': { visibility: item.hasContent.value ? 'visible' : 'hidden' },
     },

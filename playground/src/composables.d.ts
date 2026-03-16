@@ -34,7 +34,6 @@ declare global {
   const Vuetify0DateAdapter: typeof import('../../packages/0/src/composables/useDate/index').Vuetify0DateAdapter
   const Vuetify0LocaleAdapter: typeof import('../../packages/0/src/composables/useLocale/index').Vuetify0LocaleAdapter
   const Vuetify0LoggerAdapter: typeof import('../../packages/0/src/composables/useLogger/index').Vuetify0LoggerAdapter
-  const Vuetify0RtlAdapter: typeof import('../../packages/0/src/composables/useRtl/index').Vuetify0RtlAdapter
   const Vuetify0ThemeAdapter: typeof import('../../packages/0/src/composables/useTheme/index').Vuetify0ThemeAdapter
   const __LOGGER_ENABLED__: typeof import('../../packages/0/src/constants/globals').__LOGGER_ENABLED__
   const clamp: typeof import('../../packages/0/src/utilities/helpers').clamp
@@ -73,7 +72,6 @@ declare global {
   const createLogger: typeof import('../../packages/0/src/composables/useLogger/index').createLogger
   const createLoggerContext: typeof import('../../packages/0/src/composables/useLogger/index').createLoggerContext
   const createLoggerPlugin: typeof import('../../packages/0/src/composables/useLogger/index').createLoggerPlugin
-  const createModel: typeof import('../../packages/0/src/composables/createModel/index').createModel
   const createNested: typeof import('../../packages/0/src/composables/createNested/index').createNested
   const createNestedContext: typeof import('../../packages/0/src/composables/createNested/index').createNestedContext
   const createOverflow: typeof import('../../packages/0/src/composables/createOverflow/index').createOverflow
@@ -89,19 +87,10 @@ declare global {
   const createQueueContext: typeof import('../../packages/0/src/composables/createQueue/index').createQueueContext
   const createRegistry: typeof import('../../packages/0/src/composables/createRegistry/index').createRegistry
   const createRegistryContext: typeof import('../../packages/0/src/composables/createRegistry/index').createRegistryContext
-  const createRtl: typeof import('../../packages/0/src/composables/useRtl/index').createRtl
-  const createRtlContext: typeof import('../../packages/0/src/composables/useRtl/index').createRtlContext
-  const createRtlFallback: typeof import('../../packages/0/src/composables/useRtl/index').createRtlFallback
-  const createRtlPlugin: typeof import('../../packages/0/src/composables/useRtl/index').createRtlPlugin
-  const createRules: typeof import('../../packages/0/src/composables/useRules/index').createRules
-  const createRulesContext: typeof import('../../packages/0/src/composables/useRules/index').createRulesContext
-  const createRulesFallback: typeof import('../../packages/0/src/composables/useRules/index').createRulesFallback
-  const createRulesPlugin: typeof import('../../packages/0/src/composables/useRules/index').createRulesPlugin
   const createSelection: typeof import('../../packages/0/src/composables/createSelection/index').createSelection
   const createSelectionContext: typeof import('../../packages/0/src/composables/createSelection/index').createSelectionContext
   const createSingle: typeof import('../../packages/0/src/composables/createSingle/index').createSingle
   const createSingleContext: typeof import('../../packages/0/src/composables/createSingle/index').createSingleContext
-  const createSlider: typeof import('../../packages/0/src/composables/createSlider/index').createSlider
   const createStack: typeof import('../../packages/0/src/composables/useStack/index').createStack
   const createStackContext: typeof import('../../packages/0/src/composables/useStack/index').createStackContext
   const createStackPlugin: typeof import('../../packages/0/src/composables/useStack/index').createStackPlugin
@@ -118,7 +107,6 @@ declare global {
   const createTokens: typeof import('../../packages/0/src/composables/createTokens/index').createTokens
   const createTokensContext: typeof import('../../packages/0/src/composables/createTokens/index').createTokensContext
   const createTrinity: typeof import('../../packages/0/src/composables/createTrinity/index').createTrinity
-  const createValidation: typeof import('../../packages/0/src/composables/createValidation/index').createValidation
   const createVirtual: typeof import('../../packages/0/src/composables/createVirtual/index').createVirtual
   const createVirtualContext: typeof import('../../packages/0/src/composables/createVirtual/index').createVirtualContext
   const customRef: typeof import('vue').customRef
@@ -128,7 +116,6 @@ declare global {
   const defineComponent: typeof import('vue').defineComponent
   const effectScope: typeof import('vue').effectScope
   const genId: typeof import('../../packages/0/src/utilities/helpers').genId
-  const generator: typeof import('../../packages/paper/src/composables/useElevation/index').generator
   const getCurrentInstance: typeof import('vue').getCurrentInstance
   const getCurrentInstanceName: typeof import('../../packages/paper/src/utilities/getCurrentInstanceName').getCurrentInstanceName
   const getCurrentScope: typeof import('vue').getCurrentScope
@@ -155,7 +142,6 @@ declare global {
   const isRef: typeof import('vue').isRef
   const isSelfClosingTag: typeof import('../../packages/0/src/constants/htmlElements').isSelfClosingTag
   const isShallow: typeof import('vue').isShallow
-  const isStandardSchema: typeof import('../../packages/0/src/composables/useRules/index').isStandardSchema
   const isString: typeof import('../../packages/0/src/utilities/helpers').isString
   const isSymbol: typeof import('../../packages/0/src/utilities/helpers').isSymbol
   const isUndefined: typeof import('../../packages/0/src/utilities/helpers').isUndefined
@@ -193,7 +179,7 @@ declare global {
   const singleOpenStrategy: typeof import('../../packages/0/src/composables/createNested/index').singleOpenStrategy
   const toArray: typeof import('../../packages/0/src/composables/toArray/index').toArray
   const toCamelCase: typeof import('../../packages/paper/src/utilities/helpers').toCamelCase
-  const toElement: typeof import('../../packages/0/src/composables/toElement/index').toElement
+  const toElement: typeof import('../../packages/0/src/utilities/helpers').toElement
   const toKebabCase: typeof import('../../packages/paper/src/utilities/helpers').toKebabCase
   const toRaw: typeof import('vue').toRaw
   const toReactive: typeof import('../../packages/0/src/composables/toReactive/index').toReactive
@@ -248,8 +234,6 @@ declare global {
   const useRegistry: typeof import('../../packages/0/src/composables/createRegistry/index').useRegistry
   const useResizeObserver: typeof import('../../packages/0/src/composables/useResizeObserver/index').useResizeObserver
   const useRounded: typeof import('../../packages/paper/src/composables/useRounded/index').useRounded
-  const useRtl: typeof import('../../packages/0/src/composables/useRtl/index').useRtl
-  const useRules: typeof import('../../packages/0/src/composables/useRules/index').useRules
   const useSelection: typeof import('../../packages/0/src/composables/createSelection/index').useSelection
   const useSingle: typeof import('../../packages/0/src/composables/createSingle/index').useSingle
   const useSlots: typeof import('vue').useSlots
@@ -312,9 +296,6 @@ declare global {
   export type { ContextTrinity } from '../../packages/0/src/composables/createTrinity/index'
   import('../../packages/0/src/composables/createTrinity/index')
   // @ts-ignore
-  export type { MaybeElementRef } from '../../packages/0/src/composables/toElement/index'
-  import('../../packages/0/src/composables/toElement/index')
-  // @ts-ignore
   export type { BreakpointName, BreakpointsContext, BreakpointsOptions, BreakpointsPluginOptions, BreakpointsContextOptions } from '../../packages/0/src/composables/useBreakpoints/index'
   import('../../packages/0/src/composables/useBreakpoints/index')
   // @ts-ignore
@@ -333,14 +314,11 @@ declare global {
   export type { Primitive, FilterQuery, FilterItem, FilterMode, FilterFunction, FilterOptions, FilterResult, FilterContext, FilterContextOptions } from '../../packages/0/src/composables/createFilter/index'
   import('../../packages/0/src/composables/createFilter/index')
   // @ts-ignore
-  export type { FormValidationResult, FormValue, FormTicketInput, FormTicket, FormContext, FormOptions, FormContextOptions } from '../../packages/0/src/composables/createForm/index'
+  export type { FormValidationResult, FormValidationRule, FormValue, FormTicketInput, FormTicket, FormContext, FormOptions, FormContextOptions } from '../../packages/0/src/composables/createForm/index'
   import('../../packages/0/src/composables/createForm/index')
   // @ts-ignore
   export type { GroupTicketInput, GroupTicket, GroupContext, GroupOptions, GroupContextOptions } from '../../packages/0/src/composables/createGroup/index'
   import('../../packages/0/src/composables/createGroup/index')
-  // @ts-ignore
-  export type { ModelTicketInput, ModelTicket, ModelContext, ModelOptions } from '../../packages/0/src/composables/createModel/index'
-  import('../../packages/0/src/composables/createModel/index')
   // @ts-ignore
   export type { UseHotkeyOptions, UseHotkeyReturn, PlatformContext } from '../../packages/0/src/composables/useHotkey/index'
   import('../../packages/0/src/composables/useHotkey/index')
@@ -375,7 +353,7 @@ declare global {
   export type { PermissionTicket, PermissionContext, PermissionOptions, PermissionContextOptions, PermissionPluginOptions, PermissionAdapterInterface } from '../../packages/0/src/composables/usePermissions/index'
   import('../../packages/0/src/composables/usePermissions/index')
   // @ts-ignore
-  export type { ProxyModelOptions, ProxyModelTarget } from '../../packages/0/src/composables/useProxyModel/index'
+  export type { ProxyModelOptions } from '../../packages/0/src/composables/useProxyModel/index'
   import('../../packages/0/src/composables/useProxyModel/index')
   // @ts-ignore
   export type { ProxyRegistryOptions, ProxyRegistryContext } from '../../packages/0/src/composables/useProxyRegistry/index'
@@ -387,20 +365,11 @@ declare global {
   export type { RegistryTicketInput, RegistryTicket, RegistryEventName, RegistryEventMap, RegistryEventCallback, RegistryContext, RegistryOptions, RegistryContextOptions } from '../../packages/0/src/composables/createRegistry/index'
   import('../../packages/0/src/composables/createRegistry/index')
   // @ts-ignore
-  export type { RuleAlias, RuleInput, RuleAliases, RulesContext, RulesOptions, RulesContextOptions, StandardSchemaV1 } from '../../packages/0/src/composables/useRules/index'
-  import('../../packages/0/src/composables/useRules/index')
-  // @ts-ignore
   export type { ResizeObserverEntry, ResizeObserverOptions, UseResizeObserverReturn, UseElementSizeReturn } from '../../packages/0/src/composables/useResizeObserver/index'
   import('../../packages/0/src/composables/useResizeObserver/index')
   // @ts-ignore
-  export type { RtlContext, RtlOptions, RtlContextOptions, RtlPluginOptions, RtlAdapter, RtlAdapterSetupContext } from '../../packages/0/src/composables/useRtl/index'
-  import('../../packages/0/src/composables/useRtl/index')
-  // @ts-ignore
   export type { SelectionTicketInput, SelectionTicket, SelectionContext, SelectionOptions, SelectionContextOptions } from '../../packages/0/src/composables/createSelection/index'
   import('../../packages/0/src/composables/createSelection/index')
-  // @ts-ignore
-  export type { SliderTicketInput, SliderOptions, SliderContext } from '../../packages/0/src/composables/createSlider/index'
-  import('../../packages/0/src/composables/createSlider/index')
   // @ts-ignore
   export type { SingleTicketInput, SingleTicket, SingleContext, SingleOptions, SingleContextOptions } from '../../packages/0/src/composables/createSingle/index'
   import('../../packages/0/src/composables/createSingle/index')
@@ -419,9 +388,6 @@ declare global {
   // @ts-ignore
   export type { TimelineContext, TimelineTicket, TimelineOptions, TimelineContextOptions } from '../../packages/0/src/composables/createTimeline/index'
   import('../../packages/0/src/composables/createTimeline/index')
-  // @ts-ignore
-  export type { ValidationTicketInput, ValidationTicket, ValidationContext, ValidationOptions, FormValidationRule } from '../../packages/0/src/composables/createValidation/index'
-  import('../../packages/0/src/composables/createValidation/index')
   // @ts-ignore
   export type { ToggleScopeControls } from '../../packages/0/src/composables/useToggleScope/index'
   import('../../packages/0/src/composables/useToggleScope/index')
@@ -464,7 +430,6 @@ declare module 'vue' {
     readonly VirtualAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/createDataTable/index')['VirtualAdapter']>
     readonly Vuetify0LocaleAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/useLocale/index')['Vuetify0LocaleAdapter']>
     readonly Vuetify0LoggerAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['Vuetify0LoggerAdapter']>
-    readonly Vuetify0RtlAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/useRtl/index')['Vuetify0RtlAdapter']>
     readonly Vuetify0ThemeAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/useTheme/index')['Vuetify0ThemeAdapter']>
     readonly __LOGGER_ENABLED__: UnwrapRef<typeof import('../../packages/0/src/constants/globals')['__LOGGER_ENABLED__']>
     readonly clamp: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['clamp']>
@@ -502,7 +467,6 @@ declare module 'vue' {
     readonly createLogger: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['createLogger']>
     readonly createLoggerContext: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['createLoggerContext']>
     readonly createLoggerPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['createLoggerPlugin']>
-    readonly createModel: UnwrapRef<typeof import('../../packages/0/src/composables/createModel/index')['createModel']>
     readonly createNested: UnwrapRef<typeof import('../../packages/0/src/composables/createNested/index')['createNested']>
     readonly createNestedContext: UnwrapRef<typeof import('../../packages/0/src/composables/createNested/index')['createNestedContext']>
     readonly createOverflow: UnwrapRef<typeof import('../../packages/0/src/composables/createOverflow/index')['createOverflow']>
@@ -518,19 +482,10 @@ declare module 'vue' {
     readonly createQueueContext: UnwrapRef<typeof import('../../packages/0/src/composables/createQueue/index')['createQueueContext']>
     readonly createRegistry: UnwrapRef<typeof import('../../packages/0/src/composables/createRegistry/index')['createRegistry']>
     readonly createRegistryContext: UnwrapRef<typeof import('../../packages/0/src/composables/createRegistry/index')['createRegistryContext']>
-    readonly createRtl: UnwrapRef<typeof import('../../packages/0/src/composables/useRtl/index')['createRtl']>
-    readonly createRtlContext: UnwrapRef<typeof import('../../packages/0/src/composables/useRtl/index')['createRtlContext']>
-    readonly createRtlFallback: UnwrapRef<typeof import('../../packages/0/src/composables/useRtl/index')['createRtlFallback']>
-    readonly createRtlPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useRtl/index')['createRtlPlugin']>
-    readonly createRules: UnwrapRef<typeof import('../../packages/0/src/composables/useRules/index')['createRules']>
-    readonly createRulesContext: UnwrapRef<typeof import('../../packages/0/src/composables/useRules/index')['createRulesContext']>
-    readonly createRulesFallback: UnwrapRef<typeof import('../../packages/0/src/composables/useRules/index')['createRulesFallback']>
-    readonly createRulesPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useRules/index')['createRulesPlugin']>
     readonly createSelection: UnwrapRef<typeof import('../../packages/0/src/composables/createSelection/index')['createSelection']>
     readonly createSelectionContext: UnwrapRef<typeof import('../../packages/0/src/composables/createSelection/index')['createSelectionContext']>
     readonly createSingle: UnwrapRef<typeof import('../../packages/0/src/composables/createSingle/index')['createSingle']>
     readonly createSingleContext: UnwrapRef<typeof import('../../packages/0/src/composables/createSingle/index')['createSingleContext']>
-    readonly createSlider: UnwrapRef<typeof import('../../packages/0/src/composables/createSlider/index')['createSlider']>
     readonly createStack: UnwrapRef<typeof import('../../packages/0/src/composables/useStack/index')['createStack']>
     readonly createStackContext: UnwrapRef<typeof import('../../packages/0/src/composables/useStack/index')['createStackContext']>
     readonly createStackPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useStack/index')['createStackPlugin']>
@@ -547,7 +502,6 @@ declare module 'vue' {
     readonly createTokens: UnwrapRef<typeof import('../../packages/0/src/composables/createTokens/index')['createTokens']>
     readonly createTokensContext: UnwrapRef<typeof import('../../packages/0/src/composables/createTokens/index')['createTokensContext']>
     readonly createTrinity: UnwrapRef<typeof import('../../packages/0/src/composables/createTrinity/index')['createTrinity']>
-    readonly createValidation: UnwrapRef<typeof import('../../packages/0/src/composables/createValidation/index')['createValidation']>
     readonly createVirtual: UnwrapRef<typeof import('../../packages/0/src/composables/createVirtual/index')['createVirtual']>
     readonly createVirtualContext: UnwrapRef<typeof import('../../packages/0/src/composables/createVirtual/index')['createVirtualContext']>
     readonly customRef: UnwrapRef<typeof import('vue')['customRef']>
@@ -556,7 +510,6 @@ declare module 'vue' {
     readonly defineAsyncComponent: UnwrapRef<typeof import('vue')['defineAsyncComponent']>
     readonly defineComponent: UnwrapRef<typeof import('vue')['defineComponent']>
     readonly effectScope: UnwrapRef<typeof import('vue')['effectScope']>
-    readonly generator: UnwrapRef<typeof import('../../packages/paper/src/composables/useElevation/index')['generator']>
     readonly getCurrentInstance: UnwrapRef<typeof import('vue')['getCurrentInstance']>
     readonly getCurrentInstanceName: UnwrapRef<typeof import('../../packages/paper/src/utilities/getCurrentInstanceName')['getCurrentInstanceName']>
     readonly getCurrentScope: UnwrapRef<typeof import('vue')['getCurrentScope']>
@@ -583,7 +536,6 @@ declare module 'vue' {
     readonly isRef: UnwrapRef<typeof import('vue')['isRef']>
     readonly isSelfClosingTag: UnwrapRef<typeof import('../../packages/0/src/constants/htmlElements')['isSelfClosingTag']>
     readonly isShallow: UnwrapRef<typeof import('vue')['isShallow']>
-    readonly isStandardSchema: UnwrapRef<typeof import('../../packages/0/src/composables/useRules/index')['isStandardSchema']>
     readonly isString: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isString']>
     readonly isSymbol: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isSymbol']>
     readonly isUndefined: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isUndefined']>
@@ -621,7 +573,6 @@ declare module 'vue' {
     readonly singleOpenStrategy: UnwrapRef<typeof import('../../packages/0/src/composables/createNested/index')['singleOpenStrategy']>
     readonly toArray: UnwrapRef<typeof import('../../packages/0/src/composables/toArray/index')['toArray']>
     readonly toCamelCase: UnwrapRef<typeof import('../../packages/paper/src/utilities/helpers')['toCamelCase']>
-    readonly toElement: UnwrapRef<typeof import('../../packages/0/src/composables/toElement/index')['toElement']>
     readonly toKebabCase: UnwrapRef<typeof import('../../packages/paper/src/utilities/helpers')['toKebabCase']>
     readonly toRaw: UnwrapRef<typeof import('vue')['toRaw']>
     readonly toReactive: UnwrapRef<typeof import('../../packages/0/src/composables/toReactive/index')['toReactive']>
@@ -675,8 +626,6 @@ declare module 'vue' {
     readonly useRegistry: UnwrapRef<typeof import('../../packages/0/src/composables/createRegistry/index')['useRegistry']>
     readonly useResizeObserver: UnwrapRef<typeof import('../../packages/0/src/composables/useResizeObserver/index')['useResizeObserver']>
     readonly useRounded: UnwrapRef<typeof import('../../packages/paper/src/composables/useRounded/index')['useRounded']>
-    readonly useRtl: UnwrapRef<typeof import('../../packages/0/src/composables/useRtl/index')['useRtl']>
-    readonly useRules: UnwrapRef<typeof import('../../packages/0/src/composables/useRules/index')['useRules']>
     readonly useSelection: UnwrapRef<typeof import('../../packages/0/src/composables/createSelection/index')['useSelection']>
     readonly useSingle: UnwrapRef<typeof import('../../packages/0/src/composables/createSingle/index')['useSingle']>
     readonly useSlots: UnwrapRef<typeof import('vue')['useSlots']>

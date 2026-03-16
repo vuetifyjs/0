@@ -46,6 +46,7 @@
     isSelected: isSelected.value,
     isMixed: isMixed.value,
     attrs: {
+      'aria-hidden': true,
       'data-state': state.value,
       'style': { visibility: isVisible.value ? 'visible' : 'hidden' },
     },

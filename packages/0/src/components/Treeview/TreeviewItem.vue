@@ -77,7 +77,7 @@
   provideTreeviewItem(namespace, { ticket, isDisabled, hasContent })
 
   const slotProps = toRef((): TreeviewItemSlotProps<V> => ({
-    id: String(ticket.id),
+    id: ticket.id,
     value,
     isSelected: toValue(ticket.isSelected),
     isMixed: toValue(ticket.isMixed),

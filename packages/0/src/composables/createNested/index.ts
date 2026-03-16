@@ -181,7 +181,11 @@ export function createNested<
       const item = group.get(id)
       if (!item || toValue(item.disabled)) continue
 
+      openedIds.add(id)
+      resolvedOpenStrategy.onOpen?.(id, context)
+
       // Auto-reveal ancestors when opening (if enabled)
+      // Runs AFTER strategy so single-open mode doesn't close ancestors
       if (revealOnOpen) {
         let parentId = parents.get(id)
         while (!isUndefined(parentId)) {
@@ -189,9 +193,6 @@ export function createNested<
           parentId = parents.get(parentId)
         }
       }
-
-      openedIds.add(id)
-      resolvedOpenStrategy.onOpen?.(id, context)
     }
   }
 
@@ -404,9 +405,7 @@ export function createNested<
     const parentId = parents.get(id)
     if (isUndefined(parentId)) {
       // Root node - siblings are other roots
-      return group.values()
-        .filter(item => isUndefined(parents.get(item.id)))
-        .map(item => item.id)
+      return Array.from(rootIds)
     }
     return children.get(parentId) ?? []
   }
@@ -604,6 +603,7 @@ export function createNested<
     group.mixedIds.clear()
     if (toValue(mandatoryOption) && first) {
       group.selectedIds.add(first)
+      updateAncestors(first)
     }
   }
 

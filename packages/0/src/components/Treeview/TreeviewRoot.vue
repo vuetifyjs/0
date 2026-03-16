@@ -11,6 +11,13 @@
   // Foundational
   import { createContext } from '#v0/composables/createContext'
 
+  // Composables
+  import { createNested } from '#v0/composables/createNested'
+  import { useProxyModel } from '#v0/composables/useProxyModel'
+
+  // Utilities
+  import { toRef, toValue } from 'vue'
+
   // Types
   import type { NestedContext, NestedTicket } from '#v0/composables/createNested'
   import type { TreeviewRootProps, TreeviewRootSlotProps } from './types'
@@ -19,13 +26,6 @@
 </script>
 
 <script lang="ts" setup generic="T = unknown">
-  // Composables
-  import { createNested } from '#v0/composables/createNested'
-  import { useProxyModel } from '#v0/composables/useProxyModel'
-
-  // Utilities
-  import { toRef, toValue } from 'vue'
-
   defineOptions({ name: 'TreeviewRoot' })
 
   defineSlots<{
@@ -64,7 +64,7 @@
     events: true,
   })
 
-  useProxyModel(nested, model, { multiple: true })
+  useProxyModel(nested, model, { multiple })
 
   provideTreeviewRoot(namespace, nested)
 

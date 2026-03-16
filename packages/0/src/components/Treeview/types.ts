@@ -2,7 +2,7 @@
 import type { AtomProps } from '#v0/components/Atom'
 import type { NestedActiveMode, NestedOpenMode, NestedSelectionMode, NestedTicket } from '#v0/composables/createNested'
 import type { ID } from '#v0/types'
-import type { MaybeRef, Ref } from 'vue'
+import type { MaybeRefOrGetter, Ref } from 'vue'
 
 // TreeviewActivator
 export interface TreeviewActivatorProps extends AtomProps {
@@ -132,7 +132,7 @@ export interface TreeviewItemContext {
 
 export interface TreeviewItemProps<V = unknown> extends AtomProps {
   /** Unique identifier (auto-generated if not provided) */
-  id?: string
+  id?: ID
   /**
    * Value associated with this item
    *
@@ -158,14 +158,14 @@ export interface TreeviewItemProps<V = unknown> extends AtomProps {
    * </template>
    * ```
    */
-  disabled?: MaybeRef<boolean>
+  disabled?: MaybeRefOrGetter<boolean>
   /** Namespace for dependency injection */
   namespace?: string
 }
 
 export interface TreeviewItemSlotProps<V = unknown> {
   /** Unique identifier of this item */
-  id: string
+  id: ID
   /** Value associated with this item */
   value: V | undefined
   /** Whether this item is selected */
@@ -264,6 +264,8 @@ export interface TreeviewSelectAllSlotProps {
     'tabindex': 0 | undefined
     'data-state': 'checked' | 'unchecked' | 'indeterminate'
     'data-disabled': true | undefined
+    'onClick': () => void
+    'onKeydown': (e: KeyboardEvent) => void
   }
 }
 
