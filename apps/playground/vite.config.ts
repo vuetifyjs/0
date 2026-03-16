@@ -47,15 +47,34 @@ async function createMarkdownPlugin () {
       md.renderer.rules.table_open = () => '<div class="overflow-x-auto mb-4"><table>'
       md.renderer.rules.table_close = () => '</table></div>'
 
-      // Open external links in new window
+      // Open external links in new window with ↗ suffix
+      const defaultLinkClose = md.renderer.rules.link_close
+
       md.renderer.rules.link_open = (tokens, index, options, _env, self) => {
         const token = tokens[index]
         const href = token.attrGet('href') || ''
         if (/^https?:\/\//i.test(href)) {
           token.attrSet('target', '_blank')
           token.attrSet('rel', 'noopener noreferrer')
+          token.attrSet('data-external', '')
         }
         return self.renderToken(tokens, index, options)
+      }
+
+      md.renderer.rules.link_close = (tokens, index, options, env, self) => {
+        for (let i = index - 1; i >= 0; i--) {
+          const open = tokens[i]
+          if (open.type === 'link_open' && open.attrGet('data-external') !== null) {
+            const close = defaultLinkClose
+              ? defaultLinkClose(tokens, index, options, env, self)
+              : self.renderToken(tokens, index, options)
+            return '↗' + close
+          }
+          if (open.type === 'link_open') break
+        }
+        return defaultLinkClose
+          ? defaultLinkClose(tokens, index, options, env, self)
+          : self.renderToken(tokens, index, options)
       }
     },
   })
