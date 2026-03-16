@@ -6,7 +6,7 @@
 </script>
 
 <template>
-  <div class="flex flex-col gap-1 max-w-sm">
+  <div class="flex flex-col gap-1 max-w-sm mx-auto">
     <Input.Root
       id="email"
       v-model="email"
