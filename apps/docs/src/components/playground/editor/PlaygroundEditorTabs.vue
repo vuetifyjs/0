@@ -12,7 +12,6 @@
   import { INFRASTRUCTURE_FILES } from '@/data/playground-defaults'
 
   const playground = usePlayground()
-  const store = playground.store
 
   function isTabbable (f: { filename: string, hidden?: boolean }) {
     if (INFRASTRUCTURE_FILES.has(f.filename)) return false
@@ -20,17 +19,24 @@
     return true
   }
 
-  const initialActive = store.activeFile.filename
-  const initialClosed = new Set<string>()
-  for (const f of Object.values(store.files)) {
-    if (isTabbable(f) && f.filename !== initialActive) {
-      initialClosed.add(f.filename)
+  const closedTabs = shallowRef(new Set<string>())
+  const tabOrder = shallowRef<string[]>([])
+
+  watch(playground.isReady, ready => {
+    if (!ready) return
+    const s = playground.store
+    const active = s.activeFile?.filename ?? ''
+    const closed = new Set<string>()
+    for (const f of Object.values(s.files)) {
+      if (isTabbable(f) && f.filename !== active) closed.add(f.filename)
     }
-  }
-  const closedTabs = shallowRef(initialClosed)
-  const tabOrder = shallowRef<string[]>([initialActive])
+    closedTabs.value = closed
+    tabOrder.value = [active]
+  }, { immediate: true })
 
   const tabs = computed(() => {
+    if (!playground.isReady.value) return []
+    const store = playground.store
     const open = Object.values(store.files)
       .filter(f => isTabbable(f) && !closedTabs.value.has(f.filename))
     const order = tabOrder.value
@@ -47,11 +53,11 @@
   })
 
   const model = computed({
-    get: () => store.activeFile?.filename,
-    set: file => file && store.setActive(String(file)),
+    get: () => playground.isReady.value ? playground.store.activeFile?.filename : undefined,
+    set: file => file && playground.store.setActive(String(file)),
   })
 
-  watch(() => store.activeFile?.filename, file => {
+  watch(() => playground.isReady.value && playground.store.activeFile?.filename, file => {
     if (!file) return
     if (closedTabs.value.has(file)) {
       const next = new Set(closedTabs.value)
@@ -73,13 +79,13 @@
     closedTabs.value = next
 
     if (id === model.value && nextTab) {
-      store.setActive(nextTab.id)
+      playground.store.setActive(nextTab.id)
     }
   }
 </script>
 
 <template>
-  <Tabs.Root v-model="model">
+  <Tabs.Root v-if="playground.isReady.value" v-model="model">
     <Tabs.List
       class="flex items-end gap-px overflow-x-auto border-b border-divider bg-surface-variant/30"
       label="Open files"
@@ -93,12 +99,12 @@
         <template #default="{ isSelected, attrs }">
           <div
             v-bind="attrs"
-            class="group/tab shrink-0 flex items-center gap-1 pl-3 py-1.5 text-xs transition-colors border-b-2 cursor-pointer"
+            class="group/tab shrink-0 flex items-center gap-1 ps-3 py-1.5 text-xs transition-colors border-b-2 cursor-pointer"
             :class="[
               isSelected
                 ? 'text-on-surface border-primary bg-surface'
                 : 'text-on-surface-variant border-transparent hover:text-on-surface hover:bg-surface-tint',
-              tabs.length > 1 ? 'pr-1' : 'pr-3',
+              tabs.length > 1 ? 'pe-1' : 'pe-3',
             ]"
           >
             <span>{{ tab.label }}</span>
@@ -117,4 +123,8 @@
       </Tabs.Item>
     </Tabs.List>
   </Tabs.Root>
+
+  <div v-else class="flex items-center border-b border-divider bg-surface-variant/30 h-[31px] px-3">
+    <DocsSkeleton direction="row" height="h-3" :lines="1" :widths="['w-16']" />
+  </div>
 </template>

@@ -8,7 +8,7 @@
 
   // Utilities
   import { decodeBase64 } from '@/utilities/decodeBase64'
-  import { computed, nextTick, onMounted, onUnmounted, ref, shallowRef, useId, useTemplateRef, watch } from 'vue'
+  import { nextTick, onMounted, onUnmounted, ref, shallowRef, toRef, useId, useTemplateRef, watch } from 'vue'
 
   const settings = useSettings()
   const clipboard = useClipboard()
@@ -92,7 +92,7 @@
       }
     }
 
-    function handleTouchStart (e: TouchEvent) {
+    function onTouchStart (e: TouchEvent) {
       if (!instance) return
 
       if (e.touches.length === 1) {
@@ -114,7 +114,7 @@
       }
     }
 
-    function handleTouchMove (e: TouchEvent) {
+    function onTouchMove (e: TouchEvent) {
       if (!instance) return
 
       if (e.touches.length === 1) {
@@ -141,7 +141,7 @@
       }
     }
 
-    function handleTouchEnd (e: TouchEvent) {
+    function onTouchEnd (e: TouchEvent) {
       pannedX = 0
       pannedY = 0
 
@@ -157,10 +157,10 @@
         instance = options.instance
 
         cleanups.push(
-          useEventListener(options.svgElement, 'touchstart', handleTouchStart, { passive: false }),
-          useEventListener(options.svgElement, 'touchmove', handleTouchMove, { passive: false }),
-          useEventListener(options.svgElement, 'touchend', handleTouchEnd),
-          useEventListener(options.svgElement, 'touchcancel', handleTouchEnd),
+          useEventListener(options.svgElement, 'touchstart', onTouchStart, { passive: false }),
+          useEventListener(options.svgElement, 'touchmove', onTouchMove, { passive: false }),
+          useEventListener(options.svgElement, 'touchend', onTouchEnd),
+          useEventListener(options.svgElement, 'touchcancel', onTouchEnd),
         )
       },
       destroy () {
@@ -178,9 +178,9 @@
     caption?: string // base64 encoded
   }>()
 
-  const decodedCaption = computed(() => props.caption ? decodeBase64(props.caption) : undefined)
+  const decodedCaption = toRef(() => props.caption ? decodeBase64(props.caption) : undefined)
 
-  const decodedCode = computed(() => decodeBase64(props.code))
+  const decodedCode = toRef(() => decodeBase64(props.code))
 
   const svg = ref('')
   const id = `mermaid-${useId()}`

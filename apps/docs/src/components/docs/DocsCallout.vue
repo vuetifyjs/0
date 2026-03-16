@@ -13,7 +13,7 @@
   import { useSettings } from '@/composables/useSettings'
 
   // Utilities
-  import { computed } from 'vue'
+  import { computed, toRef } from 'vue'
   import { useRouter } from 'vue-router'
 
   // Stores
@@ -56,7 +56,7 @@
     return found
   })
 
-  const config = computed(() => getCalloutConfig(props.type))
+  const config = toRef(() => getCalloutConfig(props.type))
 
   function decodeQuestion (encoded: string): string {
     return decodeURIComponent(escape(atob(encoded)))
@@ -84,7 +84,7 @@
 
 <template>
   <div
-    class="my-4 rounded-lg border-l-4 px-4 py-3"
+    class="my-4 rounded-lg border-s-4 px-4 py-3"
     :class="config.classes"
     :role="props.type === 'askai' || props.type === 'discord' || props.type === 'tour' ? 'button' : undefined"
     :tabindex="props.type === 'askai' || props.type === 'discord' || props.type === 'tour' ? 0 : undefined"

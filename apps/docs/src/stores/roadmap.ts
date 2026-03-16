@@ -1,12 +1,14 @@
 // Vuetify0
 // Framework
-import { createStorage, useLogger } from '@vuetify/v0'
+import { createStorage, isArray, useLogger } from '@vuetify/v0'
 
 // Utilities
 import { defineStore } from 'pinia'
 
 // Types
 import type { components as octokitComponents } from '@octokit/openapi-types'
+
+import { CACHE_TTL } from '@/constants/cache'
 
 type GitHubMilestone = octokitComponents['schemas']['milestone']
 type GitHubIssue = octokitComponents['schemas']['issue']
@@ -19,11 +21,6 @@ export interface Milestone extends GitHubMilestone {
   issuesLoading?: boolean
 }
 
-interface CacheEntry<T> {
-  data: T
-  timestamp: number
-}
-
 interface State {
   milestones: Milestone[]
   isLoading: boolean
@@ -32,15 +29,9 @@ interface State {
 
 const GITHUB_API = 'https://api.github.com'
 const REPO = 'vuetifyjs/0'
-const CACHE_TTL = import.meta.env.DEV ? 30 * 1000 : 5 * 60 * 1000 // 30s dev, 5min prod
 
-const storage = createStorage({ prefix: 'v0-roadmap:' })
+const storage = createStorage({ prefix: 'v0-roadmap:', ttl: CACHE_TTL })
 const logger = useLogger()
-
-function isCacheValid<T> (entry: CacheEntry<T> | null): entry is CacheEntry<T> {
-  if (!entry) return false
-  return Date.now() - entry.timestamp < CACHE_TTL
-}
 
 /**
  * Assigns horizons based on due date order:
@@ -88,12 +79,12 @@ export const useRoadmapStore = defineStore('roadmap', {
 
   getters: {
     byHorizon: state => (horizon: TimeHorizon) =>
-      state.milestones.filter(m => m.horizon === horizon),
+      isArray(state.milestones) ? state.milestones.filter(m => m.horizon === horizon) : [],
 
-    now: state => state.milestones.filter(m => m.horizon === 'now'),
-    next: state => state.milestones.filter(m => m.horizon === 'next'),
-    later: state => state.milestones.filter(m => m.horizon === 'later'),
-    done: state => state.milestones.filter(m => m.horizon === 'done'),
+    now: state => isArray(state.milestones) ? state.milestones.filter(m => m.horizon === 'now') : [],
+    next: state => isArray(state.milestones) ? state.milestones.filter(m => m.horizon === 'next') : [],
+    later: state => isArray(state.milestones) ? state.milestones.filter(m => m.horizon === 'later') : [],
+    done: state => isArray(state.milestones) ? state.milestones.filter(m => m.horizon === 'done') : [],
   },
 
   actions: {
@@ -101,9 +92,9 @@ export const useRoadmapStore = defineStore('roadmap', {
       if (this.milestones.length > 0) return // Already fetched
 
       // Check cache first
-      const cached = storage.get<CacheEntry<Milestone[]> | null>('milestones', null)
-      if (isCacheValid(cached.value)) {
-        this.milestones = cached.value.data
+      const cached = storage.get<Milestone[] | null>('milestones', null)
+      if (isArray(cached.value)) {
+        this.milestones = cached.value
         return
       }
 
@@ -125,21 +116,20 @@ export const useRoadmapStore = defineStore('roadmap', {
           throw new Error(`HTTP ${openRes.status || closedRes.status}`)
         }
 
-        const [openMilestones, closedMilestones]: [GitHubMilestone[], GitHubMilestone[]] = await Promise.all([
+        const [openData, closedData] = await Promise.all([
           openRes.json(),
           closedRes.json(),
         ])
+
+        const openMilestones: GitHubMilestone[] = isArray(openData) ? openData : []
+        const closedMilestones: GitHubMilestone[] = isArray(closedData) ? closedData : []
 
         this.milestones = [
           ...assignHorizons(openMilestones),
           ...closedMilestones.map(m => ({ ...m, horizon: 'done' as TimeHorizon })),
         ]
 
-        // Cache the result
-        storage.set<CacheEntry<Milestone[]>>('milestones', {
-          data: this.milestones,
-          timestamp: Date.now(),
-        })
+        storage.set('milestones', this.milestones)
       } catch (error: unknown) {
         logger.error('Failed to fetch roadmap', error)
         this.error = error instanceof Error && error.message === 'RATE_LIMITED' ? 'GitHub API rate limit reached. Try again in a few minutes.' : 'Failed to load roadmap. Please try again.'
@@ -154,9 +144,9 @@ export const useRoadmapStore = defineStore('roadmap', {
 
       // Check cache
       const cacheKey = `issues-${milestoneNumber}`
-      const cached = storage.get<CacheEntry<GitHubIssue[]> | null>(cacheKey, null)
-      if (isCacheValid(cached.value)) {
-        milestone.issues = cached.value.data
+      const cached = storage.get<GitHubIssue[] | null>(cacheKey, null)
+      if (isArray(cached.value)) {
+        milestone.issues = cached.value
         return
       }
 
@@ -176,13 +166,10 @@ export const useRoadmapStore = defineStore('roadmap', {
           throw new Error(`HTTP ${res.status}`)
         }
 
-        milestone.issues = await res.json()
+        const data = await res.json()
+        milestone.issues = isArray(data) ? data : []
 
-        // Cache the result
-        storage.set<CacheEntry<GitHubIssue[]>>(cacheKey, {
-          data: milestone.issues,
-          timestamp: Date.now(),
-        })
+        storage.set(cacheKey, milestone.issues)
       } catch (error: unknown) {
         logger.error('Failed to fetch issues', error)
         milestone.issues = []

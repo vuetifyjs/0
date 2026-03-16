@@ -62,6 +62,14 @@ declare module 'vue' {
     SelectionRoot: typeof import('./../../packages/0/src/components/Selection/SelectionRoot.vue')['default']
     SingleItem: typeof import('./../../packages/0/src/components/Single/SingleItem.vue')['default']
     SingleRoot: typeof import('./../../packages/0/src/components/Single/SingleRoot.vue')['default']
+    SliderHiddenInput: typeof import('./../../packages/0/src/components/Slider/SliderHiddenInput.vue')['default']
+    SliderRange: typeof import('./../../packages/0/src/components/Slider/SliderRange.vue')['default']
+    SliderRoot: typeof import('./../../packages/0/src/components/Slider/SliderRoot.vue')['default']
+    SliderThumb: typeof import('./../../packages/0/src/components/Slider/SliderThumb.vue')['default']
+    SliderTrack: typeof import('./../../packages/0/src/components/Slider/SliderTrack.vue')['default']
+    SplitterHandle: typeof import('./../../packages/0/src/components/Splitter/SplitterHandle.vue')['default']
+    SplitterPanel: typeof import('./../../packages/0/src/components/Splitter/SplitterPanel.vue')['default']
+    SplitterRoot: typeof import('./../../packages/0/src/components/Splitter/SplitterRoot.vue')['default']
     StepItem: typeof import('./../../packages/0/src/components/Step/StepItem.vue')['default']
     StepRoot: typeof import('./../../packages/0/src/components/Step/StepRoot.vue')['default']
     SwitchGroup: typeof import('./../../packages/0/src/components/Switch/SwitchGroup.vue')['default']
@@ -74,7 +82,6 @@ declare module 'vue' {
     TabsList: typeof import('./../../packages/0/src/components/Tabs/TabsList.vue')['default']
     TabsPanel: typeof import('./../../packages/0/src/components/Tabs/TabsPanel.vue')['default']
     TabsRoot: typeof import('./../../packages/0/src/components/Tabs/TabsRoot.vue')['default']
-    TabsTab: typeof import('./../../packages/0/src/components/Tabs/TabsTab.vue')['default']
     V0Paper: typeof import('./../../packages/paper/src/components/V0Paper/V0Paper.vue')['default']
   }
 }

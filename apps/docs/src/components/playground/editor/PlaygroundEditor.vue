@@ -6,26 +6,41 @@
   import { usePlayground } from '../app/PlaygroundApp.vue'
 
   // Utilities
-  import { Repl } from '@vue/repl'
-  import Monaco from '@vue/repl/monaco-editor'
+  import { defineAsyncComponent } from 'vue'
 
-  const { store } = usePlayground()
+  const playground = usePlayground()
   const theme = useTheme()
+
+  const Repl = defineAsyncComponent(() =>
+    import('@vue/repl').then(m => m.Repl),
+  )
+  const Monaco = defineAsyncComponent(() =>
+    import('@vue/repl/monaco-editor'),
+  )
 </script>
 
 <template>
-  <div class="flex flex-col flex-1 min-h-0 min-w-0 playground-repl">
-    <Repl
-      class="flex-1 min-h-0"
-      :clear-console="true"
-      :editor="Monaco"
-      :editor-options="{ monacoOptions: { padding: { top: 16 } } }"
-      layout="horizontal"
-      :show-compile-output="false"
-      :show-import-map="false"
-      :show-ts-config="false"
-      :store
-      :theme="theme.isDark.value ? 'dark' : 'light'"
+  <div class="flex flex-col flex-1 min-h-0 min-w-0 bg-surface playground-repl">
+    <template v-if="playground.isReady.value">
+      <Repl
+        class="flex-1 min-h-0"
+        :clear-console="true"
+        :editor="Monaco"
+        :editor-options="{ monacoOptions: { padding: { top: 16 } } }"
+        layout="horizontal"
+        :show-compile-output="false"
+        :show-import-map="false"
+        :show-ts-config="false"
+        :store="playground.store"
+        :theme="theme.isDark.value ? 'dark' : 'light'"
+      />
+    </template>
+
+    <DocsSkeleton
+      v-else
+      class="flex-1 p-4"
+      :lines="8"
+      :widths="['w-3/4', 'w-1/2', 'w-5/6', 'w-2/3', 'w-4/5', 'w-1/3', 'w-3/5', 'w-2/5']"
     />
   </div>
 </template>
@@ -66,6 +81,16 @@
   .playground-repl :deep(iframe) {
     width: 100% !important;
     height: 100% !important;
+  }
+
+  /* @vue/repl uses .dark ancestor for dark mode but docs use [data-theme] */
+  [data-theme="dark"] .playground-repl :deep(.vue-repl) {
+    --bg: #1a1a1a;
+    --bg-soft: #242424;
+    --border: #383838;
+    --text-light: #aaa;
+    --color-branding: #42d392;
+    --color-branding-dark: #89ddff;
   }
 
   .playground-repl :deep(.editor-container) {

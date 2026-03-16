@@ -52,6 +52,10 @@ console.log(found?.label)  // 'Beta'
 // Patch a field without replacing the ticket
 registry.upsert(b.id, { label: 'Beta (updated)' })
 
+// Move to a new position
+registry.move(a.id, 2)
+console.log(a.index)       // 2
+
 // Remove one
 registry.unregister(c.id)
 console.log(registry.size) // 2
@@ -80,6 +84,13 @@ flowchart TD
 ```
 
 Each branch extends the base ticket pattern with domain-specific capabilities. See individual composable docs for their extension hierarchies.
+
+## Reactivity
+
+`createRegistry` uses **minimal reactivity by default** for performance. Collection methods are not reactive unless you opt in.
+
+> [!TIP] Need reactive collections?
+> Wrap with `useProxyRegistry(registry)` for full template reactivity, or pass `reactive: true` when creating the registry.
 
 ## Examples
 
@@ -121,6 +132,7 @@ sequenceDiagram
 - onboard — bulk-loads the initial task list in a single batch
 - `registry.register()` — adds a ticket with custom fields (`value`, `priority`, `done`)
 - `registry.upsert()` — patches a single field without touching the rest of the ticket
+- `registry.move()` — moves a ticket to a new index position, triggers reindex
 - `registry.offboard()` — batch-removes all completed tasks in one call
 - `registry.on('register:ticket')` / `on('unregister:ticket')` — reacts to lifecycle events for the audit log
 - `void version.value` inside a computed — the standard pattern for making a non-reactive `registry.values()` snapshot reactive
@@ -128,12 +140,5 @@ sequenceDiagram
 Add tasks, toggle completion, and filter by priority. Watch the event log at the bottom track every registration change in real time.
 
 :::
-
-## Reactivity
-
-`createRegistry` uses **minimal reactivity by default** for performance. Collection methods are not reactive unless you opt in.
-
-> [!TIP] Need reactive collections?
-> Wrap with `useProxyRegistry(registry)` for full template reactivity, or pass `reactive: true` when creating the registry.
 
 <DocsApi />

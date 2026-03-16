@@ -73,7 +73,6 @@ import { createRegistry } from '#v0/composables'
 
 - **Playground** (`playground/`): Dev environment
 - **Docs** (`apps/docs/`): VitePress-style documentation
-- **Storybook** (`apps/storybook/`): Component stories
 
 ## Commands
 
@@ -81,7 +80,6 @@ import { createRegistry } from '#v0/composables'
 # Development
 pnpm dev              # Playground
 pnpm dev:docs         # Documentation
-pnpm dev:storybook    # Storybook
 
 # Build
 pnpm build            # All packages
@@ -140,6 +138,10 @@ pnpm repo:check       # knip + sherif
 - **Test**: Vitest
 - **Lint**: ESLint (vuetify config)
 - **Style**: UnoCSS
+
+## Worktrees
+
+Worktree directory: `.claude/worktrees/` — always use this location for all worktrees.
 
 ## Detailed Rules
 

@@ -3,7 +3,7 @@
   import { usePageMetaOptional } from '@/composables/usePageMeta'
 
   // Utilities
-  import { computed } from 'vue'
+  import { toRef } from 'vue'
 
   const props = defineProps<{
     date?: string | null
@@ -11,7 +11,7 @@
 
   const pageMeta = usePageMetaOptional()
 
-  const resolvedDate = computed(() => props.date ?? pageMeta?.lastUpdated.value ?? null)
+  const resolvedDate = toRef(() => props.date ?? pageMeta?.lastUpdated.value ?? null)
 </script>
 
 <template>

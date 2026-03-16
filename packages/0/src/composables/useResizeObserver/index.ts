@@ -26,7 +26,8 @@ import { shallowReadonly, shallowRef } from 'vue'
 
 // Types
 import type { ObserverReturn } from '#v0/composables/createObserver'
-import type { Ref, MaybeRef } from 'vue'
+import type { MaybeElementRef } from '#v0/composables/toElement'
+import type { Ref } from 'vue'
 
 export interface ResizeObserverEntry {
   contentRect: {
@@ -88,7 +89,7 @@ export interface UseResizeObserverReturn extends ObserverReturn {}
  * ```
  */
 export function useResizeObserver (
-  target: MaybeRef<Element | null | undefined>,
+  target: MaybeElementRef,
   callback: (entries: ResizeObserverEntry[]) => void,
   options: ResizeObserverOptions = {},
 ): UseResizeObserverReturn {
@@ -159,7 +160,7 @@ export interface UseElementSizeReturn extends UseResizeObserverReturn {
  * })
  * ```
  */
-export function useElementSize (target: MaybeRef<Element | null | undefined>): UseElementSizeReturn {
+export function useElementSize (target: MaybeElementRef): UseElementSizeReturn {
   const width = shallowRef(0)
   const height = shallowRef(0)
 

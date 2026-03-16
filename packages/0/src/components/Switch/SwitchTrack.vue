@@ -70,6 +70,7 @@
   <Atom
     v-bind="slotProps.attrs"
     :as
+    dir="ltr"
     :renderless
   >
     <slot v-bind="slotProps" />

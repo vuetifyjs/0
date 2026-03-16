@@ -184,7 +184,7 @@ describe('useSelection', () => {
   })
 
   describe('reset', () => {
-    it('should clear registry and selectedIds', () => {
+    it('should clear selectedIds but preserve registry', () => {
       const selection = createSelection({ multiple: true })
 
       selection.onboard([
@@ -196,19 +196,15 @@ describe('useSelection', () => {
       selection.select('item-1')
       selection.select('item-2')
 
-      // Verify selectedIds has items before reset
       expect(selection.selectedIds.size).toBe(2)
-      expect(selection.selectedIds.has('item-1')).toBe(true)
-      expect(selection.selectedIds.has('item-2')).toBe(true)
 
       selection.reset()
 
-      // After reset, everything should be cleared
-      expect(selection.size).toBe(0)
+      expect(selection.size).toBe(3)
       expect(selection.selectedIds.size).toBe(0)
     })
 
-    it('should clear selectedIds and call mandate when mandatory is true', () => {
+    it('should clear selectedIds with mandatory (no mandate without selection)', () => {
       const selection = createSelection({ mandatory: true })
 
       selection.onboard([
@@ -218,14 +214,12 @@ describe('useSelection', () => {
 
       selection.select('item-2')
 
-      // Verify selectedIds before reset
       expect(selection.selectedIds.size).toBe(1)
       expect(selection.selectedIds.has('item-2')).toBe(true)
 
       selection.reset()
 
-      // After reset, registry is empty, selectedIds is cleared, mandate does nothing
-      expect(selection.size).toBe(0)
+      expect(selection.size).toBe(2)
       expect(selection.selectedIds.size).toBe(0)
     })
   })

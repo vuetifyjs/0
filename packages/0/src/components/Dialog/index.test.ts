@@ -910,3 +910,67 @@ describe('dialog', () => {
     })
   })
 })
+
+// Additional coverage tests
+describe('stack dismiss', () => {
+  it('should close dialog when model goes false', async () => {
+    const isOpen = ref(true)
+
+    const wrapper = mountWithStack(Dialog.Root, {
+      props: {
+        'modelValue': isOpen.value,
+        'onUpdate:modelValue': (v: unknown) => {
+          isOpen.value = v as boolean
+        },
+      },
+      slots: {
+        default: () => h(Dialog.Content, {}, () => 'Content'),
+      },
+    })
+
+    await nextTick()
+    expect(isOpen.value).toBe(true)
+
+    await wrapper.setProps({ modelValue: false })
+    await nextTick()
+
+    expect(HTMLDialogElement.prototype.close).toHaveBeenCalled()
+  })
+})
+
+describe('dialog content stack integration', () => {
+  it('should register with stack and call showModal/close on open/close', async () => {
+    const wrapper = mountWithStack(Dialog.Root, {
+      props: { modelValue: false },
+      slots: {
+        default: () => h(Dialog.Content, {}, () => 'Content'),
+      },
+    })
+
+    // Open the dialog — triggers ticket.select() (line 96) and showModal (line 107)
+    await wrapper.setProps({ modelValue: true })
+    await nextTick()
+
+    expect(HTMLDialogElement.prototype.showModal).toHaveBeenCalled()
+
+    // Close the dialog — triggers ticket.unselect() (line 98) and element.close() (line 109)
+    await wrapper.setProps({ modelValue: false })
+    await nextTick()
+
+    expect(HTMLDialogElement.prototype.close).toHaveBeenCalled()
+  })
+
+  it('should call showModal on initial mount when opened', async () => {
+    mountWithStack(Dialog.Root, {
+      props: { modelValue: true },
+      slots: {
+        default: () => h(Dialog.Content, {}, () => 'Content'),
+      },
+    })
+
+    await nextTick()
+
+    // Both the immediate watch and onMounted should call showModal
+    expect(HTMLDialogElement.prototype.showModal).toHaveBeenCalled()
+  })
+})

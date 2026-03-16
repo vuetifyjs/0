@@ -32,7 +32,7 @@ Radio buttons must be used within a `Radio.Group`. Use `v-model` on the group to
 
 ## Anatomy
 
-```vue Anatomy playground
+```vue Anatomy playground collapse no-filename
 <script setup lang="ts">
   import { Radio } from '@vuetify/v0'
 </script>
@@ -65,14 +65,6 @@ Radio buttons must be used within a `Radio.Group`. Use `v-model` on the group to
 </template>
 ```
 
-## Auto-Select First Option
-
-Radio groups are inherently mandatory—once a selection is made, it can only be changed, not cleared. Use `mandatory="force"` to automatically select the first non-disabled option on mount:
-
-::: example
-/components/radio/mandatory
-:::
-
 ## Accessibility
 
 The Radio components handle all ARIA attributes automatically:
@@ -99,8 +91,6 @@ For custom implementations, use `renderless` mode and bind the `attrs` slot prop
 </template>
 ```
 
-## Keyboard Navigation
-
 Arrow keys provide circular navigation within a radio group:
 
 | Key | Action |
@@ -111,7 +101,17 @@ Arrow keys provide circular navigation within a radio group:
 
 Navigation automatically skips disabled items and wraps around.
 
-## Form Integration
+## Recipes
+
+### Auto-Select First Option
+
+Radio groups are inherently mandatory—once a selection is made, it can only be changed, not cleared. Use `mandatory="force"` to automatically select the first non-disabled option on mount:
+
+::: example
+/components/radio/mandatory
+:::
+
+### Form Integration
 
 Set the `name` prop on `Radio.Group` to enable form submission for all radios in the group:
 

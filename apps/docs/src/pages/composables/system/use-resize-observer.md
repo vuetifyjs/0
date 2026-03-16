@@ -25,7 +25,10 @@ A composable for detecting element size changes using the Resize Observer API wi
 
 The `useResizeObserver` composable wraps the Resize Observer API to detect when an element's dimensions change. It's useful for responsive components, charts, virtualized lists, and aspect ratio maintenance.
 
-```vue UseResizeObserver
+> [!TIP] Why wrap ResizeObserver?
+> The native `ResizeObserver` has no awareness of Vue's `effectScope` lifecycle. If you create one inside a composable, it won't automatically disconnect when the scope is disposed. `useResizeObserver` integrates `onScopeDispose` for automatic cleanup, defers creation until after hydration for SSR safety, and adds reactive target tracking — things the native API can't do on its own.
+
+```vue collapse no-filename UseResizeObserver
 <script setup lang="ts">
   import { useResizeObserver } from '@vuetify/v0'
   import { ref, useTemplateRef } from 'vue'
@@ -48,12 +51,6 @@ The `useResizeObserver` composable wraps the Resize Observer API to detect when 
   </div>
 </template>
 ```
-
-## Examples
-
-::: example
-/composables/use-resize-observer/responsive-grid
-:::
 
 ## Architecture
 
@@ -82,5 +79,11 @@ flowchart TD
 | - | :-: | - |
 | `width` | <AppSuccessIcon /> | ShallowRef |
 | `height` | <AppSuccessIcon /> | ShallowRef |
+
+## Examples
+
+::: example
+/composables/use-resize-observer/responsive-grid
+:::
 
 <DocsApi />

@@ -26,8 +26,8 @@
   useRouterLinks(mainRef)
 
   // Extract page metadata from frontmatter
-  const pageTitle = computed(() => page.value?.frontmatter?.title as string | undefined)
-  const pageMeta = computed(() => page.value?.frontmatter?.meta as Array<{ name?: string, content?: string }> | undefined)
+  const pageTitle = toRef(() => page.value?.frontmatter?.title as string | undefined)
+  const pageMeta = toRef(() => page.value?.frontmatter?.meta as Array<{ name?: string, content?: string }> | undefined)
   const pageDescription = computed(() => pageMeta.value?.find(m => m.name === 'description')?.content)
 
   // Set page-level meta from frontmatter (reactive)
@@ -46,9 +46,9 @@
     id="main-content"
     ref="main"
     :class="[
-      'pa-4 pb-6 ml-0 md:ml-[230px] relative z-0',
+      'pa-4 pb-6 ms-0 md:ms-[230px] relative z-0',
       !settings.prefersReducedMotion.value && 'transition-[padding] duration-200',
-      ask.isOpen.value ? 'xl:pr-[calc(clamp(280px,calc(100vw-230px-688px-64px),500px)+32px)]' : 'xl:pr-[232px]',
+      ask.isOpen.value ? 'xl:pe-[calc(clamp(280px,calc(100vw-230px-688px-64px),500px)+32px)]' : 'xl:pe-[232px]',
     ]"
   >
     <div class="max-w-[688px] mx-auto pb-4">

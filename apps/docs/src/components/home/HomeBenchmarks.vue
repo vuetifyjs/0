@@ -4,13 +4,13 @@
   import { useCountUp } from '@/composables/useCountUp'
 
   // Utilities
-  import { computed, shallowRef } from 'vue'
+  import { shallowRef, toRef } from 'vue'
 
   const { composables, summary } = useBenchmarkData()
 
   const sectionRef = shallowRef<HTMLElement>()
   const { current: opsCount } = useCountUp(sectionRef, 100, { duration: 1500 })
-  const benchmarkCount = computed(() => summary.value.totalBenchmarks)
+  const benchmarkCount = toRef(() => summary.value.totalBenchmarks)
   const { current: testCount } = useCountUp(sectionRef, 2600, { duration: 2000 })
 
   const composablePaths: Record<string, string> = {
@@ -29,9 +29,7 @@
     slow: '<1K ops/s — performance bottleneck, needs investigation',
   }
 
-  const showcaseComposables = computed(() =>
-    composables.value.slice(0, 6),
-  )
+  const showcaseComposables = toRef(() => composables.value.slice(0, 6))
 </script>
 
 <template>

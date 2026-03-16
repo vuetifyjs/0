@@ -25,7 +25,10 @@ A composable for detecting DOM changes using the Mutation Observer API with auto
 
 The `useMutationObserver` composable wraps the Mutation Observer API to detect changes to the DOM tree. It's useful for monitoring attribute changes, child element modifications, and character data updates.
 
-```vue UseMutationObserver
+> [!TIP] Why wrap MutationObserver?
+> The native `MutationObserver` has no awareness of Vue's `effectScope` lifecycle. If you create one inside a composable, it won't automatically disconnect when the scope is disposed. `useMutationObserver` integrates `onScopeDispose` for automatic cleanup, defers creation until after hydration for SSR safety, and adds reactive target tracking — things the native API can't do on its own.
+
+```vue collapse no-filename UseMutationObserver
 <script setup lang="ts">
   import { useMutationObserver } from '@vuetify/v0'
   import { ref, useTemplateRef } from 'vue'

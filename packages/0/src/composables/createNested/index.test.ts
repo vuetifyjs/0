@@ -872,7 +872,7 @@ describe('createNested', () => {
   })
 
   describe('reset', () => {
-    it('should clear all state', () => {
+    it('should clear nested and selection state but preserve registry', () => {
       const nested = createNested()
 
       nested.register({ id: 'root', value: 'Root' })
@@ -882,7 +882,7 @@ describe('createNested', () => {
 
       nested.reset()
 
-      expect(nested.size).toBe(0)
+      expect(nested.size).toBe(2)
       expect(nested.openedIds.size).toBe(0)
       expect(nested.selectedIds.size).toBe(0)
       expect(nested.children.size).toBe(0)
@@ -1251,5 +1251,514 @@ describe('useNested', () => {
     }).toThrow()
 
     warnSpy.mockRestore()
+  })
+})
+
+describe('openedItems computed', () => {
+  it('should return set of opened ticket items', () => {
+    const nested = createNested()
+
+    nested.register({ id: 'root', value: 'Root' })
+    nested.register({ id: 'child', value: 'Child', parentId: 'root' })
+
+    nested.open('root')
+
+    const items = nested.openedItems.value
+    expect(items.size).toBe(1)
+    const ids = Array.from(items).map(item => item.id)
+    expect(ids).toContain('root')
+  })
+
+  it('should update when open state changes', () => {
+    const nested = createNested()
+
+    nested.register({ id: 'a', value: 'A' })
+    nested.register({ id: 'b', value: 'B' })
+
+    nested.open(['a', 'b'])
+    expect(nested.openedItems.value.size).toBe(2)
+
+    nested.close('a')
+    expect(nested.openedItems.value.size).toBe(1)
+  })
+})
+
+describe('revealOnOpen option', () => {
+  it('should open ancestors when opening a deep node with reveal: true', () => {
+    const nested = createNested({ reveal: true })
+
+    nested.register({ id: 'root', value: 'Root' })
+    nested.register({ id: 'child', value: 'Child', parentId: 'root' })
+    nested.register({ id: 'grandchild', value: 'Grandchild', parentId: 'child' })
+
+    nested.open('grandchild')
+
+    expect(nested.opened('grandchild')).toBe(true)
+    expect(nested.opened('child')).toBe(true)
+    expect(nested.opened('root')).toBe(true)
+  })
+
+  it('should not open ancestors when reveal is false (default)', () => {
+    const nested = createNested()
+
+    nested.register({ id: 'root', value: 'Root' })
+    nested.register({ id: 'child', value: 'Child', parentId: 'root' })
+
+    nested.open('child')
+
+    expect(nested.opened('child')).toBe(true)
+    expect(nested.opened('root')).toBe(false)
+  })
+})
+
+describe('unfold', () => {
+  it('should open node and its immediate non-leaf children', () => {
+    const nested = createNested()
+
+    nested.register({ id: 'root', value: 'Root' })
+    nested.register({ id: 'branch', value: 'Branch', parentId: 'root' })
+    nested.register({ id: 'leaf-1', value: 'Leaf 1', parentId: 'root' })
+    nested.register({ id: 'grandchild', value: 'Grandchild', parentId: 'branch' })
+
+    nested.unfold('root')
+
+    expect(nested.opened('root')).toBe(true)
+    // branch has children, so it should be opened
+    expect(nested.opened('branch')).toBe(true)
+    // leaf-1 is a leaf, should NOT be opened
+    expect(nested.opened('leaf-1')).toBe(false)
+  })
+
+  it('should skip non-existent IDs', () => {
+    const nested = createNested()
+
+    nested.register({ id: 'root', value: 'Root' })
+    nested.unfold('non-existent')
+
+    expect(nested.openedIds.size).toBe(0)
+  })
+})
+
+describe('reveal', () => {
+  it('should open all ancestors of a node', () => {
+    const nested = createNested()
+
+    nested.register({ id: 'root', value: 'Root' })
+    nested.register({ id: 'child', value: 'Child', parentId: 'root' })
+    nested.register({ id: 'grandchild', value: 'Grandchild', parentId: 'child' })
+
+    nested.reveal('grandchild')
+
+    // Ancestors should be opened
+    expect(nested.opened('root')).toBe(true)
+    expect(nested.opened('child')).toBe(true)
+    // Node itself should NOT be opened
+    expect(nested.opened('grandchild')).toBe(false)
+  })
+
+  it('should be a no-op for root nodes', () => {
+    const nested = createNested()
+
+    nested.register({ id: 'root', value: 'Root' })
+    nested.reveal('root')
+
+    expect(nested.openedIds.size).toBe(0)
+  })
+
+  it('should skip non-existent IDs', () => {
+    const nested = createNested()
+
+    nested.reveal('non-existent')
+    expect(nested.openedIds.size).toBe(0)
+  })
+})
+
+describe('expand', () => {
+  it('should fully expand a subtree', () => {
+    const nested = createNested()
+
+    nested.register({ id: 'root', value: 'Root' })
+    nested.register({ id: 'branch', value: 'Branch', parentId: 'root' })
+    nested.register({ id: 'leaf-1', value: 'Leaf 1', parentId: 'branch' })
+    nested.register({ id: 'leaf-2', value: 'Leaf 2', parentId: 'root' })
+
+    nested.expand('root')
+
+    expect(nested.opened('root')).toBe(true)
+    expect(nested.opened('branch')).toBe(true)
+    // Leaves should NOT be opened
+    expect(nested.opened('leaf-1')).toBe(false)
+    expect(nested.opened('leaf-2')).toBe(false)
+  })
+
+  it('should skip non-existent IDs', () => {
+    const nested = createNested()
+
+    nested.expand('non-existent')
+    expect(nested.openedIds.size).toBe(0)
+  })
+
+  it('should not open leaf nodes', () => {
+    const nested = createNested()
+
+    nested.register({ id: 'leaf', value: 'Leaf' })
+    nested.expand('leaf')
+
+    expect(nested.opened('leaf')).toBe(false)
+  })
+})
+
+describe('activate edge cases', () => {
+  it('should skip non-existent IDs on activate', () => {
+    const nested = createNested()
+
+    nested.activate('non-existent')
+    expect(nested.activeIds.size).toBe(0)
+  })
+})
+
+describe('isAncestorOf', () => {
+  it('should return true when node is an ancestor', () => {
+    const nested = createNested()
+
+    nested.register({ id: 'root', value: 'Root' })
+    nested.register({ id: 'child', value: 'Child', parentId: 'root' })
+    nested.register({ id: 'grandchild', value: 'Grandchild', parentId: 'child' })
+
+    expect(nested.isAncestorOf('root', 'grandchild')).toBe(true)
+    expect(nested.isAncestorOf('root', 'child')).toBe(true)
+    expect(nested.isAncestorOf('child', 'grandchild')).toBe(true)
+  })
+
+  it('should return false for same node', () => {
+    const nested = createNested()
+
+    nested.register({ id: 'root', value: 'Root' })
+
+    expect(nested.isAncestorOf('root', 'root')).toBe(false)
+  })
+
+  it('should return false for non-existent IDs', () => {
+    const nested = createNested()
+
+    nested.register({ id: 'root', value: 'Root' })
+
+    expect(nested.isAncestorOf('non-existent', 'root')).toBe(false)
+    expect(nested.isAncestorOf('root', 'non-existent')).toBe(false)
+  })
+
+  it('should return false when not an ancestor', () => {
+    const nested = createNested()
+
+    nested.register({ id: 'root', value: 'Root' })
+    nested.register({ id: 'child', value: 'Child', parentId: 'root' })
+
+    expect(nested.isAncestorOf('child', 'root')).toBe(false)
+  })
+})
+
+describe('hasAncestor', () => {
+  it('should return true when node has the given ancestor', () => {
+    const nested = createNested()
+
+    nested.register({ id: 'root', value: 'Root' })
+    nested.register({ id: 'child', value: 'Child', parentId: 'root' })
+
+    expect(nested.hasAncestor('child', 'root')).toBe(true)
+  })
+
+  it('should return false when node does not have the given ancestor', () => {
+    const nested = createNested()
+
+    nested.register({ id: 'a', value: 'A' })
+    nested.register({ id: 'b', value: 'B' })
+
+    expect(nested.hasAncestor('a', 'b')).toBe(false)
+  })
+})
+
+describe('siblings', () => {
+  it('should return sibling IDs for a child node', () => {
+    const nested = createNested()
+
+    nested.register({ id: 'root', value: 'Root' })
+    nested.register({ id: 'child-1', value: 'Child 1', parentId: 'root' })
+    nested.register({ id: 'child-2', value: 'Child 2', parentId: 'root' })
+
+    const sibs = nested.siblings('child-1')
+    expect(sibs).toContain('child-1')
+    expect(sibs).toContain('child-2')
+    expect(sibs).toHaveLength(2)
+  })
+
+  it('should return all root IDs for a root node', () => {
+    const nested = createNested()
+
+    nested.register({ id: 'root-1', value: 'Root 1' })
+    nested.register({ id: 'root-2', value: 'Root 2' })
+    nested.register({ id: 'child', value: 'Child', parentId: 'root-1' })
+
+    const sibs = nested.siblings('root-1')
+    expect(sibs).toContain('root-1')
+    expect(sibs).toContain('root-2')
+    expect(sibs).not.toContain('child')
+  })
+
+  it('should return empty array for non-existent node', () => {
+    const nested = createNested()
+
+    expect(nested.siblings('non-existent')).toEqual([])
+  })
+})
+
+describe('position', () => {
+  it('should return 1-indexed position among siblings', () => {
+    const nested = createNested()
+
+    nested.register({ id: 'root', value: 'Root' })
+    nested.register({ id: 'child-1', value: 'Child 1', parentId: 'root' })
+    nested.register({ id: 'child-2', value: 'Child 2', parentId: 'root' })
+    nested.register({ id: 'child-3', value: 'Child 3', parentId: 'root' })
+
+    expect(nested.position('child-1')).toBe(1)
+    expect(nested.position('child-2')).toBe(2)
+    expect(nested.position('child-3')).toBe(3)
+  })
+
+  it('should return 0 for non-existent node', () => {
+    const nested = createNested()
+
+    expect(nested.position('non-existent')).toBe(0)
+  })
+})
+
+describe('unselect with independent mode', () => {
+  it('should unselect only the targeted node', () => {
+    const nested = createNested({ selection: 'independent' })
+
+    nested.register({ id: 'root', value: 'Root' })
+    nested.register({ id: 'child', value: 'Child', parentId: 'root' })
+
+    nested.select('root')
+    nested.select('child')
+    nested.unselect('root')
+
+    expect(nested.selected('root')).toBe(false)
+    expect(nested.selected('child')).toBe(true)
+  })
+})
+
+describe('unselect with leaf mode', () => {
+  it('should unselect a leaf node directly', () => {
+    const nested = createNested({ selection: 'leaf' })
+
+    nested.register({ id: 'root', value: 'Root' })
+    nested.register({ id: 'leaf', value: 'Leaf', parentId: 'root' })
+
+    nested.select('leaf')
+    expect(nested.selected('leaf')).toBe(true)
+
+    nested.unselect('leaf')
+    expect(nested.selected('leaf')).toBe(false)
+  })
+
+  it('should unselect all leaf descendants when unselecting a parent', () => {
+    const nested = createNested({ selection: 'leaf' })
+
+    nested.register({ id: 'root', value: 'Root' })
+    nested.register({ id: 'branch', value: 'Branch', parentId: 'root' })
+    nested.register({ id: 'leaf-1', value: 'Leaf 1', parentId: 'branch' })
+    nested.register({ id: 'leaf-2', value: 'Leaf 2', parentId: 'branch' })
+
+    nested.select('root')
+    expect(nested.selected('leaf-1')).toBe(true)
+    expect(nested.selected('leaf-2')).toBe(true)
+
+    nested.unselect('root')
+    expect(nested.selected('leaf-1')).toBe(false)
+    expect(nested.selected('leaf-2')).toBe(false)
+  })
+})
+
+describe('toggle with leaf mode on a leaf node', () => {
+  it('should toggle a leaf node directly', () => {
+    const nested = createNested({ selection: 'leaf' })
+
+    nested.register({ id: 'root', value: 'Root' })
+    nested.register({ id: 'leaf', value: 'Leaf', parentId: 'root' })
+
+    nested.toggle('leaf')
+    expect(nested.selected('leaf')).toBe(true)
+
+    nested.toggle('leaf')
+    expect(nested.selected('leaf')).toBe(false)
+  })
+})
+
+describe('toggle cascade select branch', () => {
+  it('should select all descendants when toggling unselected parent', () => {
+    const nested = createNested()
+
+    nested.register({ id: 'root', value: 'Root' })
+    nested.register({ id: 'child-1', value: 'Child 1', parentId: 'root' })
+    nested.register({ id: 'child-2', value: 'Child 2', parentId: 'root' })
+
+    // toggle on unselected parent should select all
+    nested.toggle('root')
+
+    expect(nested.selected('root')).toBe(true)
+    expect(nested.selected('child-1')).toBe(true)
+    expect(nested.selected('child-2')).toBe(true)
+  })
+})
+
+describe('cascade selection with multiple: false', () => {
+  it('should not accumulate selections when multiple is false', () => {
+    const nested = createNested({ selection: 'cascade', multiple: false })
+
+    nested.register({ id: 'root-1', value: 'Root 1' })
+    nested.register({ id: 'child-1', value: 'Child 1', parentId: 'root-1' })
+    nested.register({ id: 'root-2', value: 'Root 2' })
+
+    nested.select('root-1')
+    expect(nested.selected('root-1')).toBe(true)
+
+    nested.select('root-2')
+    expect(nested.selected('root-2')).toBe(true)
+    expect(nested.selected('root-1')).toBe(false)
+    expect(nested.selected('child-1')).toBe(false)
+  })
+})
+
+describe('openAll option', () => {
+  it('should auto-open parent when child is registered with openAll: true', () => {
+    const nested = createNested({ openAll: true })
+
+    nested.register({ id: 'root', value: 'Root' })
+    nested.register({ id: 'child', value: 'Child', parentId: 'root' })
+
+    expect(nested.opened('root')).toBe(true)
+  })
+})
+
+describe('ticket-level methods', () => {
+  it('should provide reveal on ticket', () => {
+    const nested = createNested()
+
+    nested.register({ id: 'root', value: 'Root' })
+    nested.register({ id: 'child', value: 'Child', parentId: 'root' })
+    const grandchild = nested.register({ id: 'grandchild', value: 'Grandchild', parentId: 'child' })
+
+    grandchild.reveal()
+
+    expect(nested.opened('root')).toBe(true)
+    expect(nested.opened('child')).toBe(true)
+    expect(nested.opened('grandchild')).toBe(false)
+  })
+
+  it('should provide getPath on ticket', () => {
+    const nested = createNested()
+
+    nested.register({ id: 'root', value: 'Root' })
+    const child = nested.register({ id: 'child', value: 'Child', parentId: 'root' })
+
+    expect(child.getPath()).toEqual(['root', 'child'])
+  })
+
+  it('should provide getAncestors on ticket', () => {
+    const nested = createNested()
+
+    nested.register({ id: 'root', value: 'Root' })
+    const child = nested.register({ id: 'child', value: 'Child', parentId: 'root' })
+
+    expect(child.getAncestors()).toEqual(['root'])
+  })
+
+  it('should provide getDescendants on ticket', () => {
+    const nested = createNested()
+
+    const root = nested.register({ id: 'root', value: 'Root' })
+    nested.register({ id: 'child', value: 'Child', parentId: 'root' })
+
+    expect(root.getDescendants()).toEqual(['child'])
+  })
+
+  it('should provide isAncestorOf on ticket', () => {
+    const nested = createNested()
+
+    const root = nested.register({ id: 'root', value: 'Root' })
+    nested.register({ id: 'child', value: 'Child', parentId: 'root' })
+
+    expect(root.isAncestorOf('child')).toBe(true)
+    expect(root.isAncestorOf('root')).toBe(false)
+  })
+
+  it('should provide hasAncestor on ticket', () => {
+    const nested = createNested()
+
+    nested.register({ id: 'root', value: 'Root' })
+    const child = nested.register({ id: 'child', value: 'Child', parentId: 'root' })
+
+    expect(child.hasAncestor('root')).toBe(true)
+    expect(child.hasAncestor('child')).toBe(false)
+  })
+
+  it('should provide siblings on ticket', () => {
+    const nested = createNested()
+
+    nested.register({ id: 'root', value: 'Root' })
+    const child1 = nested.register({ id: 'child-1', value: 'Child 1', parentId: 'root' })
+    nested.register({ id: 'child-2', value: 'Child 2', parentId: 'root' })
+
+    const sibs = child1.siblings()
+    expect(sibs).toContain('child-1')
+    expect(sibs).toContain('child-2')
+  })
+
+  it('should provide position on ticket', () => {
+    const nested = createNested()
+
+    nested.register({ id: 'root', value: 'Root' })
+    const child1 = nested.register({ id: 'child-1', value: 'Child 1', parentId: 'root' })
+    const child2 = nested.register({ id: 'child-2', value: 'Child 2', parentId: 'root' })
+
+    expect(child1.position()).toBe(1)
+    expect(child2.position()).toBe(2)
+  })
+})
+
+describe('clear', () => {
+  it('should clear all nodes and nested state', () => {
+    const nested = createNested()
+
+    nested.register({ id: 'root', value: 'Root' })
+    nested.register({ id: 'child', value: 'Child', parentId: 'root' })
+    nested.open('root')
+    nested.activate('child')
+    nested.select('child')
+
+    nested.clear()
+
+    expect(nested.size).toBe(0)
+    expect(nested.openedIds.size).toBe(0)
+    expect(nested.activeIds.size).toBe(0)
+    expect(nested.children.size).toBe(0)
+    expect(nested.parents.size).toBe(0)
+    expect(nested.roots.value).toEqual([])
+  })
+})
+
+describe('provideNestedContext', () => {
+  it('should provide context via provideNestedContext', async () => {
+    const { createNestedContext } = await import('./index')
+
+    const [, provideNestedTest, defaultNested] = createNestedContext({ namespace: 'test:provide' })
+
+    // provideNestedContext should return the context
+    const result = provideNestedTest()
+    expect(result).toBeDefined()
+    expect(result.register).toBeInstanceOf(Function)
+    // Should be same as default nested
+    expect(result).toBe(defaultNested)
   })
 })

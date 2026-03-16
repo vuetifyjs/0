@@ -1,7 +1,7 @@
 <script setup lang="ts">
   // Utilities
   import { toKebab } from '@/utilities/strings'
-  import { computed } from 'vue'
+  import { toRef } from 'vue'
 
   // Types
   import type { ComponentApi, ComposableApi } from '@build/generate-api'
@@ -14,7 +14,7 @@
   }>()
 
   // Extract parent name from compound component (e.g., "Pagination" from "Pagination.Root")
-  const parentName = computed(() => {
+  const parentName = toRef(() => {
     const first = props.componentApis?.[0]?.name
     if (!first) return null
     const dotIndex = first.indexOf('.')

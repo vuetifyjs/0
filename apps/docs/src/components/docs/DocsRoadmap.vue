@@ -80,7 +80,7 @@
   })
 
   // Expand from URL when milestones load
-  watch(() => store.milestones.length, () => {
+  watch(() => store.milestones?.length, () => {
     expandFromQuery()
   })
 
@@ -168,7 +168,7 @@
         </div>
 
         <!-- Timeline line + milestones -->
-        <div class="relative pl-5 border-l-2 border-divider ml-5 space-y-6">
+        <div class="relative ps-5 border-s-2 border-divider ms-5 space-y-6">
           <ExpansionPanel.Item
             v-for="milestone in group.milestones"
             :key="milestone.id"
@@ -179,7 +179,7 @@
           >
             <!-- Timeline dot -->
             <div
-              class="absolute -left-[calc(0.5rem+1px)] top-6 w-4 h-4 rounded-full border-2 bg-background"
+              class="absolute -start-[calc(0.5rem+1px)] top-6 w-4 h-4 rounded-full border-2 bg-background"
               :class="{
                 'border-primary': group.key === 'now',
                 'border-secondary': group.key === 'next',
@@ -189,7 +189,7 @@
             />
 
             <!-- Milestone card -->
-            <div class="border border-divider rounded-lg overflow-hidden bg-surface ml-4">
+            <div class="border border-divider rounded-lg overflow-hidden bg-surface ms-4">
               <!-- Header -->
               <ExpansionPanel.Header class="!mb-0">
                 <ExpansionPanel.Activator class="w-full px-4 py-3 text-left flex items-start gap-3 hover:bg-surface-tint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset transition-colors">
@@ -234,7 +234,7 @@
               <ExpansionPanel.Content class="border-t border-divider">
                 <!-- Details from description -->
                 <div v-if="getDetails(milestone.description).length > 0" class="py-3 border-b border-divider">
-                  <ul class="list-disc ml-3 pl-5 pr-4 space-y-1">
+                  <ul class="list-disc ms-3 ps-5 pe-4 space-y-1">
                     <li
                       v-for="(line, i) in getDetails(milestone.description)"
                       :key="i"

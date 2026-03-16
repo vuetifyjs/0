@@ -4,7 +4,7 @@
 
   // Utilities
   import { useScrollToAnchor } from '@/utilities/scroll'
-  import { computed } from 'vue'
+  import { toRef } from 'vue'
 
   const props = defineProps<{
     benchmark?: BenchmarkConfig | null
@@ -14,9 +14,9 @@
   const scroll = useScrollToAnchor()
   const pageMeta = usePageMetaOptional()
 
-  const resolvedBenchmark = computed(() => props.benchmark ?? pageMeta?.benchmark.value ?? null)
+  const resolvedBenchmark = toRef(() => props.benchmark ?? pageMeta?.benchmark.value ?? null)
   // Default clickable to true only when injecting from context (real page)
-  const isClickable = computed(() => props.clickable ?? (pageMeta?.benchmark.value != null))
+  const isClickable = toRef(() => props.clickable ?? (pageMeta?.benchmark.value != null))
 </script>
 
 <template>

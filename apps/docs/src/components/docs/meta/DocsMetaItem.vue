@@ -21,22 +21,22 @@
   <a
     v-if="href"
     class="docs-meta-item icon-text hover:text-on-surface transition-colors"
-    :href="href"
+    :href
     :rel="isExternal ? 'noopener noreferrer' : undefined"
     :target="isExternal ? '_blank' : undefined"
-    :title="title"
+    :title
     @click="emit('click', $event)"
   >
-    <AppIcon :class="color" :icon="icon" size="1em" />
+    <AppIcon :class="color" :icon size="1em" />
     <span>{{ text }}</span>
   </a>
 
   <span
     v-else
     class="docs-meta-item icon-text"
-    :title="title"
+    :title
   >
-    <AppIcon :class="color" :icon="icon" size="1em" />
+    <AppIcon :class="color" :icon size="1em" />
     <span>{{ text }}</span>
   </span>
 </template>

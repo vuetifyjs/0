@@ -1,12 +1,12 @@
 <script setup lang="ts">
   // Framework
-  import { createNested, isString } from '@vuetify/v0'
+  import { createNested, isString, useBreakpoints } from '@vuetify/v0'
 
   // Components
   import { usePlayground } from '../app/PlaygroundApp.vue'
 
   // Utilities
-  import { computed, nextTick, shallowRef, useTemplateRef, watch } from 'vue'
+  import { computed, nextTick, shallowRef, toRef, useTemplateRef, watch } from 'vue'
 
   // Data
   import { REPL_BUILTIN_FILES } from '@/data/playground-defaults'
@@ -14,7 +14,9 @@
   const playground = usePlayground()
   const store = playground.store
   const isReady = playground.isReady
-  const activeFile = computed(() => store.activeFile?.filename)
+  const activeFile = toRef(() => store.activeFile?.filename)
+  const breakpoints = useBreakpoints()
+  const isMobile = breakpoints.isMobile
 
   const tree = createNested()
 
@@ -263,6 +265,7 @@
       store.setActive(id)
       const parent = tree.parents.get(id)
       targetFolder.value = (isString(parent) ? parent : null) ?? 'src'
+      if (isMobile.value) playground.tree.value = false
     } else {
       tree.flip(id)
       targetFolder.value = id
@@ -278,18 +281,18 @@
 
   function onKeydown (e: KeyboardEvent, id: string) {
     const nodes = visibleNodes.value
-    const idx = nodes.findIndex(n => n.id === id)
+    const index = nodes.findIndex(n => n.id === id)
 
     switch (e.key) {
       case 'ArrowDown': {
         e.preventDefault()
-        const next = nodes[idx + 1]
+        const next = nodes[index + 1]
         if (next) focusNode(next.id)
         break
       }
       case 'ArrowUp': {
         e.preventDefault()
-        const prev = nodes[idx - 1]
+        const prev = nodes[index - 1]
         if (prev) focusNode(prev.id)
         break
       }
@@ -297,7 +300,7 @@
         e.preventDefault()
         if (!isFile(id)) {
           if (tree.opened(id)) {
-            const first = nodes[idx + 1]
+            const first = nodes[index + 1]
             if (first && tree.hasAncestor(first.id, id)) focusNode(first.id)
           } else {
             tree.open(id)
@@ -340,7 +343,7 @@
     v-if="isReady"
     ref="tree-el"
     aria-label="File browser"
-    class="border-r border-divider bg-surface overflow-y-auto shrink-0 h-100%"
+    class="border-e border-divider bg-surface overflow-y-auto shrink-0 h-100%"
   >
     <div class="flex items-center justify-between px-3 py-2">
       <span class="text-xs font-semibold text-on-surface-variant uppercase tracking-wide">Files</span>
@@ -390,7 +393,7 @@
           :class="isFile(id) && id === activeFile ? 'opacity-100 bg-surface-tint' : isConfig(id) ? 'opacity-50' : 'opacity-80'"
           :data-id="id"
           role="treeitem"
-          :style="{ paddingLeft: `${depth * 8 + 8}px` }"
+          :style="{ paddingInlineStart: `${depth * 8 + 8}px` }"
           :tabindex="index === 0 ? 0 : -1"
           @click="activate(id)"
           @keydown="onKeydown($event, id)"
@@ -435,7 +438,7 @@
         <div
           v-if="inputAfter?.id === id"
           class="flex items-center gap-1.5 py-1 pr-2"
-          :style="{ paddingLeft: `${inputAfter!.inputDepth * 8 + 8}px` }"
+          :style="{ paddingInlineStart: `${inputAfter!.inputDepth * 8 + 8}px` }"
         >
           <span class="w-[14px]" />
           <input
@@ -451,4 +454,11 @@
       </template>
     </div>
   </nav>
+
+  <div v-else class="border-e border-divider bg-surface shrink-0 h-full overflow-hidden">
+    <div class="flex items-center px-3 py-2">
+      <span class="text-xs font-semibold text-on-surface-variant uppercase tracking-wide">Files</span>
+    </div>
+    <DocsSkeleton class="px-3" height="h-3" :lines="4" :widths="['w-12', 'w-20', 'w-16', 'w-24']" />
+  </div>
 </template>

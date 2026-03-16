@@ -1,86 +1,68 @@
 <script setup lang="ts">
   // Framework
-  import { useBreakpoints, useStack, useStorage } from '@vuetify/v0'
+  import { SplitterPanel, useBreakpoints, useStack } from '@vuetify/v0'
 
   // Components
   import { usePlayground } from './PlaygroundApp.vue'
 
   // Utilities
-  import { onMounted, onUnmounted, shallowRef, toRef, watch } from 'vue'
-
-  const DEFAULT_WIDTH = 400
-  const DEFAULT_MIN_WIDTH = DEFAULT_WIDTH
-  const DEFAULT_MAX_WIDTH = 720
+  import { computed, toRef, watch } from 'vue'
 
   const playground = usePlayground()
   const breakpoints = useBreakpoints()
-  const storage = useStorage()
-  const left = storage.get('playground-left-open', true)
-
-  const ticket = playground.register({ id: 'playground-left' })
-
   const isMobile = breakpoints.isMobile
+  const open = toRef(() => playground.left.value)
 
-  onMounted(() => {
-    if (left.value && !isMobile.value) ticket.select()
+  const collapsed = computed({
+    get: () => !playground.left.value,
+    set: v => {
+      playground.left.value = !v
+    },
   })
-
-  const modelValue = shallowRef(DEFAULT_WIDTH)
-
-  const styles = toRef(() => ({
-    width: `${modelValue.value}px`,
-  }))
-
-  onUnmounted(() => {
-    playground.unregister(ticket.id)
-  })
-
-  function onDblClick () {
-    modelValue.value = modelValue.value === DEFAULT_WIDTH ? DEFAULT_MAX_WIDTH : DEFAULT_WIDTH
-  }
 
   const stack = useStack()
-  const stackTicket = stack.register({ onDismiss: () => playground.toggle('playground-left') })
+  const ticket = stack.register({ onDismiss: () => {
+    playground.left.value = false
+  } })
 
-  watch(() => ticket.isSelected.value && isMobile.value, open => {
-    if (open) stackTicket.select()
-    else stackTicket.unselect()
+  watch(() => open.value && isMobile.value, visible => {
+    if (visible) ticket.select()
+    else ticket.unselect()
   }, { immediate: true })
-
 </script>
 
 <template>
-  <!-- Desktop: inline flex item -->
   <template v-if="!isMobile">
-    <template v-if="ticket.isSelected.value">
+    <SplitterPanel
+      v-model:collapsed="collapsed"
+      :collapsed-size="0"
+      collapsible
+      :default-size="30"
+      :max-size="45"
+      :min-size="30"
+    >
       <div
+        v-if="open"
         class="bg-glass-surface h-full flex flex-col"
-        :style="styles"
       >
         <slot />
       </div>
+    </SplitterPanel>
 
-      <PlaygroundAppResizeBar
-        v-model="modelValue"
-        class="z-1"
-        direction="horizontal"
-        :max="DEFAULT_MAX_WIDTH"
-        :min="DEFAULT_MIN_WIDTH"
-        storage-key="playground-left"
-        @dblclick="onDblClick"
-      />
-    </template>
+    <PlaygroundSplitterHandle
+      direction="horizontal"
+      :hidden="!open"
+    />
   </template>
 
-  <!-- Mobile: always mounted fixed drawer -->
-  <template v-else>
-    <div
-      class="fixed inset-0 bg-surface border-r border-divider flex flex-col transition-transform duration-200"
-      :class="ticket.isSelected.value ? 'translate-x-0' : '-translate-x-full'"
-      :inert="ticket.isSelected.value ? undefined : true"
-      :style="{ zIndex: stackTicket.zIndex.value }"
-    >
-      <slot />
-    </div>
-  </template>
+  <!-- Mobile: fixed drawer -->
+  <div
+    v-if="isMobile"
+    class="fixed inset-0 bg-surface border-e border-divider flex flex-col transition-transform duration-200"
+    :class="open ? 'translate-x-0' : 'ltr:-translate-x-full rtl:translate-x-full'"
+    :inert="open ? undefined : true"
+    :style="{ zIndex: ticket.zIndex.value }"
+  >
+    <slot />
+  </div>
 </template>

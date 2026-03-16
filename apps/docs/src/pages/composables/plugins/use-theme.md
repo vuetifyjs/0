@@ -61,7 +61,7 @@ app.mount('#app')
 
 Once the plugin is installed, use the `useTheme` composable in any component:
 
-```vue UseTheme
+```vue collapse no-filename UseTheme
 <script setup lang="ts">
   import { useTheme } from '@vuetify/v0'
 

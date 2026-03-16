@@ -3,7 +3,7 @@
   import { usePageMetaOptional } from '@/composables/usePageMeta'
 
   // Utilities
-  import { computed } from 'vue'
+  import { toRef } from 'vue'
 
   const props = defineProps<{
     renderless?: boolean
@@ -11,7 +11,7 @@
 
   const pageMeta = usePageMetaOptional()
 
-  const resolvedRenderless = computed(() => props.renderless ?? pageMeta?.renderless.value)
+  const resolvedRenderless = toRef(() => props.renderless ?? pageMeta?.renderless.value)
 </script>
 
 <template>

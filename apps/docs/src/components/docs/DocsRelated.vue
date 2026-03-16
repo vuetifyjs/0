@@ -1,5 +1,6 @@
 <script setup lang="ts">
   // Utilities
+  import { toCamel } from '@/utilities/strings'
   import { toRef } from 'vue'
 
   const props = defineProps<{
@@ -34,7 +35,7 @@
 
         const name = isComposable
           // Composables: camelCase (e.g., "use-theme" -> "useTheme")
-          ? slug.split('-').map((word, i) => i === 0 ? word : word.charAt(0).toUpperCase() + word.slice(1)).join('')
+          ? toCamel(slug)
           // Others: Title Case with spaces (e.g., "getting-started" -> "Getting Started")
           : slug.split('-').map(word => {
             if (acronyms.has(word.toLowerCase())) return word.toUpperCase()

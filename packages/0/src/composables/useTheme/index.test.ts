@@ -287,6 +287,19 @@ describe('createTheme', () => {
     })
   })
 
+  describe('onboard', () => {
+    it('should register multiple themes at once', () => {
+      const context = createTheme({})
+      const themes = context.onboard([
+        { id: 'light', value: { primary: '#1976d2' }, dark: false },
+        { id: 'dark', value: { primary: '#90caf9' }, dark: true },
+      ])
+      expect(themes.length).toBe(2)
+      expect(context.collection.size).toBe(2)
+      expect(context.size).toBe(2)
+    })
+  })
+
   describe('manual theme registration', () => {
     it('should allow registering themes dynamically', () => {
       const context = createTheme({})
@@ -657,6 +670,8 @@ describe('useTheme', () => {
     expect(theme).toBeDefined()
     expect(theme!.isDark.value).toBe(false)
     expect(theme!.size).toBe(0)
+    expect(theme!.colors.value).toEqual({})
+    theme!.cycle() // no-op, should not throw
 
     app.unmount()
   })

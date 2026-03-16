@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { useBreakpoints, useDocumentEventListener, useStack, useToggleScope } from '@vuetify/v0'
+  import { useBreakpoints, useStack, useToggleScope } from '@vuetify/v0'
 
   // Components
   import DocsAskInput from './DocsAskInput.vue'
@@ -11,12 +11,12 @@
   import { useSettings } from '@/composables/useSettings'
 
   // Utilities
-  import { computed, nextTick, shallowRef, toRef, useTemplateRef, watch } from 'vue'
+  import { nextTick, shallowRef, toRef, useTemplateRef, watch } from 'vue'
   import { useRoute } from 'vue-router'
 
   const route = useRoute()
   const breakpoints = useBreakpoints()
-  const isDesktop = computed(() => breakpoints.lgAndUp.value)
+  const isDesktop = toRef(() => !breakpoints.isMobile.value)
   const fullscreen = shallowRef(false)
   const settings = useSettings()
   const stack = useStack()
@@ -60,9 +60,12 @@
     }
   })
 
-  // Exit fullscreen on route change
+  // Exit fullscreen or close panel on route change
   watch(() => route.path, () => {
-    fullscreen.value = false
+    if (fullscreen.value || !isDesktop.value) {
+      fullscreen.value = false
+      ask.close()
+    }
   })
 
   async function onSubmit (question: string) {
@@ -76,32 +79,13 @@
     panelRef.value?.focus()
   }
 
-  // Keyboard shortcut: Cmd/Ctrl + / to focus input
-  function onKeydown (e: KeyboardEvent) {
-    if ((e.metaKey || e.ctrlKey) && e.key === '/') {
-      e.preventDefault()
-      if (ask.isOpen.value) {
-        ask.close()
-      } else {
-        ask.focus()
-      }
-    }
-
-    // Escape to close panel
-    if (e.key === 'Escape' && ask.isOpen.value) {
-      e.preventDefault()
-      ask.close()
-    }
-  }
-
-  useDocumentEventListener('keydown', onKeydown)
 </script>
 
 <template>
   <!-- Floating input (visible when panel is closed) -->
   <DocsAskInput
     v-show="!ask.isOpen.value"
-    :has-messages="hasMessages"
+    :has-messages
     @reopen="onReopen"
     @submit="onSubmit"
   />

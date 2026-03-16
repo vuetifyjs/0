@@ -58,6 +58,7 @@ export interface BreakpointsContext {
   lgAndDown: Readonly<ShallowRef<boolean>>
   xlAndDown: Readonly<ShallowRef<boolean>>
   xxlAndDown: Readonly<ShallowRef<boolean>>
+  ssr: boolean
   update: () => void
 }
 
@@ -65,6 +66,7 @@ export interface BreakpointsOptions {
   namespace?: string
   mobileBreakpoint?: BreakpointName | number
   breakpoints?: Partial<Record<BreakpointName, number>>
+  ssr?: { clientWidth: number, clientHeight?: number }
 }
 
 export interface BreakpointsPluginOptions extends BreakpointsOptions {}
@@ -120,32 +122,51 @@ function createDefaultBreakpoints () {
 export function createBreakpoints<
   E extends BreakpointsContext = BreakpointsContext,
 > (_options: BreakpointsOptions = {}): E {
+  const { ssr, ...options } = _options
   const defaults = createDefaultBreakpoints()
-  const { mobileBreakpoint, breakpoints } = mergeDeep(defaults, _options as any)
+  const { mobileBreakpoint, breakpoints } = mergeDeep(defaults, options as any)
   const sorted = Object.entries(breakpoints!).toSorted((a, b) => a[1] - b[1]) as [BreakpointName, number][]
   const names = sorted.map(([n]) => n)
   const mb = isNumber(mobileBreakpoint) ? mobileBreakpoint : breakpoints[mobileBreakpoint] ?? breakpoints.md
 
-  const name = shallowRef<BreakpointName>('xs')
-  const width = shallowRef(0)
-  const height = shallowRef(0)
-  const isMobile = shallowRef(true)
-  const xs = shallowRef(true)
-  const sm = shallowRef(false)
-  const md = shallowRef(false)
-  const lg = shallowRef(false)
-  const xl = shallowRef(false)
-  const xxl = shallowRef(false)
-  const smAndUp = shallowRef(false)
-  const mdAndUp = shallowRef(false)
-  const lgAndUp = shallowRef(false)
-  const xlAndUp = shallowRef(false)
-  const xxlAndUp = shallowRef(false)
-  const smAndDown = shallowRef(true)
-  const mdAndDown = shallowRef(true)
-  const lgAndDown = shallowRef(true)
-  const xlAndDown = shallowRef(true)
-  const xxlAndDown = shallowRef(true)
+  // When SSR options are provided and not in browser, use them for initial values
+  // so server-rendered markup reflects the expected viewport size.
+  // On hydration, update() replaces these with real window dimensions.
+  const isSSR = !IN_BROWSER && !!ssr
+  const initialWidth = isSSR ? ssr!.clientWidth : 0
+  const initialHeight = isSSR ? (ssr!.clientHeight ?? 0) : 0
+
+  let initialName: BreakpointName = 'xs'
+  if (isSSR) {
+    for (let i = sorted.length - 1; i >= 0; i--) {
+      if (initialWidth >= sorted[i]![1]) {
+        initialName = sorted[i]![0]
+        break
+      }
+    }
+  }
+  const initialIndex = names.indexOf(initialName)
+
+  const name = shallowRef<BreakpointName>(initialName)
+  const width = shallowRef(initialWidth)
+  const height = shallowRef(initialHeight)
+  const isMobile = shallowRef(isSSR ? initialWidth < mb! : true)
+  const xs = shallowRef(initialIndex === 0)
+  const sm = shallowRef(initialIndex === 1)
+  const md = shallowRef(initialIndex === 2)
+  const lg = shallowRef(initialIndex === 3)
+  const xl = shallowRef(initialIndex === 4)
+  const xxl = shallowRef(initialIndex === 5)
+  const smAndUp = shallowRef(initialIndex >= 1)
+  const mdAndUp = shallowRef(initialIndex >= 2)
+  const lgAndUp = shallowRef(initialIndex >= 3)
+  const xlAndUp = shallowRef(initialIndex >= 4)
+  const xxlAndUp = shallowRef(initialIndex >= 5)
+  const smAndDown = shallowRef(initialIndex <= 1)
+  const mdAndDown = shallowRef(initialIndex <= 2)
+  const lgAndDown = shallowRef(initialIndex <= 3)
+  const xlAndDown = shallowRef(initialIndex <= 4)
+  const xxlAndDown = shallowRef(initialIndex <= 5)
 
   function update () {
     if (!IN_BROWSER) return
@@ -206,13 +227,16 @@ export function createBreakpoints<
     lgAndDown: readonly(lgAndDown),
     xlAndDown: readonly(xlAndDown),
     xxlAndDown: readonly(xxlAndDown),
+    ssr: isSSR,
     update,
   } as E
 }
 
 function createBreakpointsFallback<
   E extends BreakpointsContext = BreakpointsContext,
-> (): E {
+> (options: BreakpointsOptions = {}): E {
+  if (options.ssr) return createBreakpoints(options)
+
   const defaults = createDefaultBreakpoints()
 
   return {
@@ -237,6 +261,7 @@ function createBreakpointsFallback<
     lgAndDown: readonly(shallowRef(false)),
     xlAndDown: readonly(shallowRef(false)),
     xxlAndDown: readonly(shallowRef(false)),
+    ssr: false,
     update: () => {},
   } as E
 }
@@ -248,6 +273,10 @@ export const [createBreakpointsContext, createBreakpointsPlugin, useBreakpoints]
     {
       fallback: () => createBreakpointsFallback(),
       setup: (context, app, _options) => {
+        // Flush initial values synchronously so they're correct
+        // before any component's onMounted runs.
+        if (IN_BROWSER) context.update()
+
         app.mixin({
           mounted () {
             if (!isNull(this.$parent)) return

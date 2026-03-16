@@ -25,7 +25,10 @@ A composable for detecting when elements enter or leave the viewport using the I
 
 The `useIntersectionObserver` composable wraps the Intersection Observer API to detect when elements become visible in the viewport. It's useful for lazy loading images, infinite scroll, entrance animations, and performance optimizations.
 
-```vue UseIntersectionObserver
+> [!TIP] Why wrap IntersectionObserver?
+> The native `IntersectionObserver` has no awareness of Vue's `effectScope` lifecycle. If you create one inside a composable, it won't automatically disconnect when the scope is disposed. `useIntersectionObserver` integrates `onScopeDispose` for automatic cleanup, defers creation until after hydration for SSR safety, and adds reactive target tracking — things the native API can't do on its own.
+
+```vue collapse no-filename UseIntersectionObserver
 <script setup lang="ts">
   import { useIntersectionObserver } from '@vuetify/v0'
   import { ref, useTemplateRef } from 'vue'
@@ -50,12 +53,6 @@ The `useIntersectionObserver` composable wraps the Intersection Observer API to 
   </div>
 </template>
 ```
-
-## Examples
-
-::: example
-/composables/use-intersection-observer/scroll-reveal
-:::
 
 ## Architecture
 
@@ -85,5 +82,11 @@ flowchart TD
 | - | :-: | - |
 | `isIntersecting` | <AppSuccessIcon /> | ShallowRef, readonly |
 | `intersectionRatio` | <AppSuccessIcon /> | ShallowRef, readonly (0.0 to 1.0) |
+
+## Examples
+
+::: example
+/composables/use-intersection-observer/scroll-reveal
+:::
 
 <DocsApi />

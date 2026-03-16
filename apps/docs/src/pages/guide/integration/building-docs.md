@@ -26,7 +26,7 @@ This documentation site is itself a proof of concept for v0. Every pattern docum
 | Layer | Technology | Purpose |
 | - | - | - |
 | SSG | [vite-ssg](https://github.com/antfu-collective/vite-ssg) | Pre-renders all routes to static HTML |
-| Routing | [unplugin-vue-router](https://github.com/posva/unplugin-vue-router) | File-based routing from `src/pages/` |
+| Routing | [vue-router](https://router.vuejs.org/) | File-based routing from `src/pages/` (built-in since v5) |
 | Markdown | [unplugin-vue-markdown](https://github.com/unplugin/unplugin-vue-markdown) + [Shiki](https://shiki.style/) | Vue components in markdown, syntax highlighting |
 | Styling | [UnoCSS](https://unocss.dev/) + [presetWind4](https://unocss.dev/presets/wind4) | Tailwind v4 utilities mapped to v0 tokens |
 | State | [Pinia](https://pinia.vuejs.org/) | App-level state (drawer, navigation) |

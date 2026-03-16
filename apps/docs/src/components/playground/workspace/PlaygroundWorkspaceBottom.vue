@@ -1,39 +1,51 @@
 <script setup lang="ts">
   // Framework
-  import { useBreakpoints, useStorage } from '@vuetify/v0'
+  import { SplitterPanel, useBreakpoints } from '@vuetify/v0'
 
   // Components
   import { usePlayground } from '../app/PlaygroundApp.vue'
   import { Discovery } from '@/components/discovery'
 
   // Utilities
-  import { onMounted, onUnmounted } from 'vue'
+  import { computed } from 'vue'
 
   const playground = usePlayground()
-  const breakpoints = useBreakpoints()
-  const storage = useStorage()
-  const side = storage.get('playground-preview-right', false)
-  const left = storage.get('playground-left-open', true)
+  const { isMobile } = useBreakpoints()
 
-  const ticket = playground.register({ id: 'workspace-bottom' })
-
-  onMounted(() => {
-    if (breakpoints.isMobile.value || (!side.value || left.value)) ticket.select()
-  })
-
-  onUnmounted(() => {
-    playground.unregister(ticket.id)
+  const collapsed = computed({
+    get: () => !playground.bottom.value,
+    set: v => {
+      playground.bottom.value = !v
+    },
   })
 </script>
 
 <template>
-  <Discovery.Activator
-    v-if="ticket.isSelected.value"
-    active-class="rounded-lg"
-    as="div"
-    class="flex flex-1"
-    step="preview"
+  <!-- Desktop: splitter panel for bottom preview -->
+  <SplitterPanel
+    v-if="!isMobile && !playground.side.value"
+    v-model:collapsed="collapsed"
+    :collapsed-size="0"
+    collapsible
+    :default-size="40"
+    :min-size="10"
+  >
+    <Discovery.Activator
+      v-if="playground.bottom.value"
+      active-class="rounded-lg"
+      as="div"
+      class="flex flex-1 h-full"
+      step="preview"
+    >
+      <slot />
+    </Discovery.Activator>
+  </SplitterPanel>
+
+  <!-- Mobile: full-height preview when editor is hidden -->
+  <div
+    v-else-if="isMobile && !playground.editor.value"
+    class="flex flex-1 min-h-0"
   >
     <slot />
-  </Discovery.Activator>
+  </div>
 </template>

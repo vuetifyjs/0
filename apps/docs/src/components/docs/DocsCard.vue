@@ -52,7 +52,7 @@
     return {}
   })
 
-  const isInteractive = computed(() => !disabled && (props.to || props.href || hoverable))
+  const isInteractive = toRef(() => !disabled && (props.to || props.href || hoverable))
 </script>
 
 <template>

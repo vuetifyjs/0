@@ -14,7 +14,7 @@
   import { useSettings } from '@/composables/useSettings'
 
   // Utilities
-  import { computed, nextTick, useTemplateRef, watch } from 'vue'
+  import { nextTick, toRef, useTemplateRef, watch } from 'vue'
 
   // Types
   import type { Message } from '@/composables/useAsk'
@@ -43,7 +43,7 @@
   const messagesRef = useTemplateRef<{ $el: HTMLElement } | null>('messages')
   const formRef = useTemplateRef<{ focus: () => void }>('form')
 
-  const isDesktop = computed(() => breakpoints.lgAndUp.value)
+  const isDesktop = toRef(() => !breakpoints.isMobile.value)
 
   // Auto-scroll until response fills the viewport
   let shouldAutoScroll = true
@@ -152,7 +152,7 @@
       isDesktop && fullscreen
         ? 'fixed inset-4 rounded-lg border border-divider shadow-lg'
         : isDesktop
-          ? 'fixed right-4 top-23 w-[clamp(280px,calc(100vw-230px-688px-64px),500px)] h-[calc(100vh-137px)] rounded-lg border border-divider shadow-lg'
+          ? 'fixed end-4 top-23 w-[clamp(280px,calc(100vw-230px-688px-64px),500px)] h-[calc(100vh-137px)] rounded-lg border border-divider shadow-lg'
           : 'fixed inset-0',
     ]"
     :role="isDesktop ? 'complementary' : 'dialog'"

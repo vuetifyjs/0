@@ -16,9 +16,11 @@ related:
 ---
 
 <script setup>
+import { useRtl } from '@vuetify/v0'
 import { useSettings } from '@/composables/useSettings'
 
 const { lineWrap, showInlineApi, collapsibleNav } = useSettings()
+const rtl = useRtl()
 </script>
 
 # Using the Docs
@@ -44,7 +46,6 @@ The docs are organized into distinct sections, each serving a specific purpose:
 | <AppLink to="/components" class="whitespace-nowrap"><AppIcon icon="layers" :size="18" class="inline-block align-text-bottom mr-1" />**Components**</AppLink> | Headless UI primitives | Building accessible interfaces (Dialog, Popover, Selection) |
 | <AppLink to="/composables" class="whitespace-nowrap"><AppIcon icon="puzzle" :size="18" class="inline-block align-text-bottom mr-1" />**Composables**</AppLink> | Logic building blocks | Adding behavior without UI (createContext, createSelection) |
 | <AppLink to="/api" class="whitespace-nowrap"><AppIcon icon="beaker" :size="18" class="inline-block align-text-bottom mr-1" />**API**</AppLink> | Complete reference | Looking up props, events, slots, methods |
-<!-- | <AppLink to="/storybook" class="whitespace-nowrap"><AppIcon icon="test" :size="18" class="inline-block align-text-bottom mr-1" />**Storybook**</AppLink> | Visual playground | Exploring component variants interactively | -->
 
 Each component and composable page follows a consistent structure: overview, usage examples, anatomy, and API reference.
 
@@ -516,6 +517,14 @@ Toggle visibility of header controls to reduce clutter:
 
 <div class="max-w-xs mb-6">
   <AppSettingsHeaderButtons />
+</div>
+
+### Direction
+
+Switch the layout direction to right-to-left (RTL) for languages like Arabic and Hebrew:
+
+<div class="max-w-xs mb-6">
+  <AppSettingsToggle v-model="rtl.isRtl.value" label="RTL mode" description="Switch layout direction to right-to-left" />
 </div>
 
 ### Navigation

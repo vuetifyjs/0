@@ -3,7 +3,7 @@
   import { useClipboard } from '@/composables/useClipboard'
   import { useCustomThemes, type CustomTheme } from '@/composables/useCustomThemes'
   import { useSettings } from '@/composables/useSettings'
-  import { useThemeToggle, type ThemePreference } from '@/composables/useThemeToggle'
+  import { PALETTE_ICONS, PALETTE_LABELS, PALETTES, useThemeToggle, type ThemePreference } from '@/composables/useThemeToggle'
 
   // Utilities
   import { computed, shallowRef } from 'vue'
@@ -48,12 +48,11 @@
     { id: 'tritanopia', label: 'Tritanopia', icon: 'theme-tritanopia', theme: 'tritanopia' },
   ]
 
-  const vuetifyOptions: ThemeOption[] = [
-    { id: 'blackguard', label: 'Blackguard', icon: 'theme-blackguard', theme: 'blackguard' },
-    { id: 'polaris', label: 'Polaris', icon: 'theme-polaris', theme: 'polaris' },
-    { id: 'nebula', label: 'Nebula', icon: 'theme-nebula', theme: 'nebula' },
-    { id: 'odyssey', label: 'Odyssey', icon: 'theme-odyssey', theme: 'odyssey' },
-  ]
+  const paletteOptions = PALETTES.map(id => ({
+    id,
+    label: PALETTE_LABELS[id],
+    icon: PALETTE_ICONS[id],
+  }))
 
   // Custom themes as options
   const customOptions = computed<ThemeOption[]>(() =>
@@ -89,7 +88,7 @@
     }
   }
 
-  function handleSave (themeData: CustomTheme) {
+  function onSave (themeData: CustomTheme) {
     // Clear inline preview styles before applying saved theme
     themes_.clearPreview()
 
@@ -118,7 +117,7 @@
     editingTheme.value = null
   }
 
-  function handleCancel () {
+  function onCancel () {
     // Clear inline preview styles and restore previous theme
     themes_.clearPreview()
     toggle.setPreference(previousPreference.value)
@@ -126,7 +125,7 @@
     editingTheme.value = null
   }
 
-  function handleDelete (id: string) {
+  function onDelete (id: string) {
     // Clear inline preview styles
     themes_.clearPreview()
     themes_.remove(id)
@@ -143,9 +142,9 @@
     <AppSettingsThemeEditor
       v-if="editingTheme"
       :theme="editingTheme"
-      @cancel="handleCancel"
-      @delete="handleDelete"
-      @save="handleSave"
+      @cancel="onCancel"
+      @delete="onDelete"
+      @save="onSave"
     />
 
     <!-- Selector Mode -->
@@ -170,18 +169,41 @@
           <button
             v-for="option in modeOptions"
             :key="option.id"
-            :aria-pressed="toggle.preference.value === option.id"
+            :aria-pressed="toggle.mode.value === option.id"
             :class="[
               'flex items-center justify-center gap-2 px-3 py-2 rounded-lg border text-sm transition-colors',
-              toggle.preference.value === option.id
+              toggle.mode.value === option.id
                 ? 'border-primary bg-primary/10 text-primary'
                 : 'border-divider hover:border-primary/50 text-on-surface',
             ]"
             type="button"
-            @click="toggle.setPreference(option.id)"
+            @click="toggle.setMode(option.id)"
           >
             <AppIcon :icon="option.icon" size="16" />
             <span>{{ option.label }}</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Palettes -->
+      <div>
+        <div class="text-xs font-medium text-on-surface-variant mb-2">Palettes</div>
+        <div class="grid grid-cols-2 gap-2">
+          <button
+            v-for="option in paletteOptions"
+            :key="option.id"
+            :aria-pressed="toggle.palette.value === option.id"
+            :class="[
+              'flex items-center gap-2 px-3 py-2 rounded-lg border text-sm transition-colors',
+              toggle.palette.value === option.id
+                ? 'border-primary bg-primary/10 text-primary'
+                : 'border-divider hover:border-primary/50 text-on-surface',
+            ]"
+            type="button"
+            @click="toggle.setPalette(option.id)"
+          >
+            <AppIcon :icon="option.icon" size="16" />
+            <span class="font-medium">{{ option.label }}</span>
           </button>
         </div>
       </div>
@@ -231,31 +253,15 @@
         </div>
       </div>
 
-      <!-- Vuetify Themes -->
-      <div>
-        <div class="text-xs font-medium text-on-surface-variant mb-2">Vuetify Themes</div>
-        <div class="grid grid-cols-2 gap-2">
-          <button
-            v-for="option in vuetifyOptions"
-            :key="option.id"
-            :aria-pressed="toggle.preference.value === option.id"
-            :class="[
-              'flex flex-col items-start gap-1.5 px-3 py-2 rounded-lg border text-sm transition-colors',
-              toggle.preference.value === option.id
-                ? 'border-primary bg-primary/10 text-primary'
-                : 'border-divider hover:border-primary/50 text-on-surface',
-            ]"
-            type="button"
-            @click="toggle.setPreference(option.id)"
-          >
-            <div class="flex items-center gap-2">
-              <AppIcon :icon="option.icon" size="16" />
-              <span class="font-medium">{{ option.label }}</span>
-            </div>
-            <AppThemePreview v-if="option.theme" :theme="option.theme" />
-          </button>
-        </div>
-      </div>
+      <!-- Create Theme Button -->
+      <button
+        class="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-dashed border-divider text-sm text-on-surface-variant hover:border-primary/50 hover:text-on-surface transition-colors"
+        type="button"
+        @click="startCreate"
+      >
+        <AppIcon icon="plus" size="16" />
+        <span>Create Theme</span>
+      </button>
 
       <!-- Custom Themes -->
       <div v-if="customOptions.length > 0">
@@ -313,15 +319,6 @@
         </div>
       </div>
 
-      <!-- Create Theme Button -->
-      <button
-        class="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-dashed border-divider text-sm text-on-surface-variant hover:border-primary/50 hover:text-on-surface transition-colors"
-        type="button"
-        @click="startCreate"
-      >
-        <AppIcon icon="plus" size="16" />
-        <span>Create Theme</span>
-      </button>
     </template>
   </section>
 </template>

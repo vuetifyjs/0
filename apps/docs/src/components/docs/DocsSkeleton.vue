@@ -3,7 +3,14 @@
    * Reusable loading skeleton component.
    * Renders animated placeholder bars for loading states.
    */
-  withDefaults(defineProps<{
+  const {
+    lines = 3,
+    height = 'h-4',
+    widths = ['w-full'],
+    gap = 'gap-2',
+    static: isStatic = false,
+    direction = 'col',
+  } = defineProps<{
     /** Number of skeleton lines to render */
     lines?: number
     /** Height class (e.g., 'h-4', 'h-6') */
@@ -16,14 +23,7 @@
     static?: boolean
     /** Layout direction */
     direction?: 'row' | 'col'
-  }>(), {
-    lines: 3,
-    height: 'h-4',
-    widths: () => ['w-full'],
-    gap: 'gap-2',
-    static: false,
-    direction: 'col',
-  })
+  }>()
 </script>
 
 <template>
@@ -37,7 +37,7 @@
       :class="[
         height,
         widths[(i - 1) % widths.length],
-        !static && 'animate-pulse',
+        !isStatic && 'animate-pulse',
       ]"
     />
   </div>

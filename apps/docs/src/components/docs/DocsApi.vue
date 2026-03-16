@@ -4,9 +4,11 @@
   // Composables
   import { useApiHelpers } from '@/composables/useApiHelpers'
   import { useSettings } from '@/composables/useSettings'
+  import { useSyncedRef } from '@/composables/useSyncedRef'
 
   // Utilities
-  import { computed, shallowRef, watch } from 'vue'
+  import { resolveItemName } from '@/utilities/strings'
+  import { computed, toRef } from 'vue'
   import { useRoute } from 'vue-router'
 
   // Types
@@ -18,35 +20,18 @@
 
   const route = useRoute()
   const data = apiData as ApiData
-  const { showInlineApi: defaultInlineApi } = useSettings()
+  const settings = useSettings()
   const helpers = useApiHelpers()
+  const showInlineApi = useSyncedRef(settings.showInlineApi)
 
-  // Local state initialized from global default, syncs when global changes
-  const showInlineApi = shallowRef(defaultInlineApi.value)
-
-  watch(defaultInlineApi, val => {
-    showInlineApi.value = val
-  })
-
-  const pageType = computed(() => {
+  const pageType = toRef(() => {
     const path = route.path
     if (path.includes('/components/')) return 'component'
     if (path.includes('/composables/')) return 'composable'
     return null
   })
 
-  const itemName = computed(() => {
-    if (props.name) return props.name
-
-    const path = route.path
-    const match = path.match(/\/(components|composables)\/[^/]+\/([^/]+)/)
-    if (!match) return null
-
-    const slug = match[2] ?? ''
-    return match[1] === 'components'
-      ? slug.split('-').map(part => part.charAt(0).toUpperCase() + part.slice(1)).join('')
-      : slug.replace(/-([a-z])/g, (_, c) => c.toUpperCase())
-  })
+  const itemName = computed(() => props.name ?? resolveItemName(route.path))
 
   const componentApis = computed(() => {
     if (pageType.value !== 'component') return []
@@ -64,7 +49,7 @@
       })
   })
 
-  const composableApi = computed(() => {
+  const composableApi = toRef(() => {
     if (pageType.value !== 'composable') return null
 
     const name = itemName.value
@@ -102,7 +87,7 @@
 
     <DocsApiLinks
       v-if="!showInlineApi"
-      :component-apis="componentApis"
+      :component-apis
     />
 
     <template
@@ -165,7 +150,7 @@
 
     <DocsApiLinks
       v-if="!showInlineApi"
-      :composable-api="composableApi"
+      :composable-api
     />
 
     <template v-else>

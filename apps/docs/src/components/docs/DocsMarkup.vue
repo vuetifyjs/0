@@ -4,12 +4,22 @@
 
   // Composables
   import { useSettings } from '@/composables/useSettings'
+  import { useSyncedRef } from '@/composables/useSyncedRef'
 
   // Utilities
   import { decodeBase64 } from '@/utilities/decodeBase64'
-  import { computed, ref, shallowRef, watch } from 'vue'
+  import { ref, toRef } from 'vue'
 
-  const props = withDefaults(defineProps<{
+  const {
+    code,
+    language,
+    title,
+    binTitle,
+    playground,
+    collapse,
+    collapseLines = 15,
+    hideFilename,
+  } = defineProps<{
     code: string // base64 encoded
     language?: string
     title?: string
@@ -18,28 +28,19 @@
     collapse?: boolean
     collapseLines?: number
     hideFilename?: boolean
-  }>(), {
-    collapseLines: 15,
-  })
+  }>()
 
   const theme = useTheme()
   const settings = useSettings()
+  const lineWrap = useSyncedRef(settings.lineWrap)
 
-  // Local state initialized from global default, per-instance
-  const lineWrap = shallowRef(settings.lineWrap.value)
-
-  // Sync when global setting changes
-  watch(() => settings.lineWrap.value, val => {
-    lineWrap.value = val
-  })
-
-  const decodedCode = computed(() => decodeBase64(props.code))
+  const decodedCode = toRef(() => decodeBase64(code))
 
   // Collapse state
   const expanded = ref(false)
-  const lineCount = computed(() => decodedCode.value.split('\n').length)
-  const shouldCollapse = computed(() => props.collapse && lineCount.value > props.collapseLines)
-  const collapsedHeight = computed(() => `${props.collapseLines * 1.5 + 2.5}rem`)
+  const lineCount = toRef(() => decodedCode.value.split('\n').length)
+  const shouldCollapse = toRef(() => collapse && lineCount.value > collapseLines)
+  const collapsedHeight = toRef(() => `${collapseLines * 1.5 + 2.5}rem`)
 </script>
 
 <template>
@@ -53,17 +54,17 @@
     >
       <span
         v-if="title || (language && language !== 'text')"
-        class="absolute top-3 left-3 z-10 px-1.5 py-0.5 text-xs font-mono opacity-50"
+        class="absolute top-3 start-3 z-10 px-1.5 py-0.5 text-xs font-mono opacity-50"
         :class="{ 'uppercase': !title || hideFilename }"
       >
         {{ hideFilename ? language : title ?? language }}
       </span>
 
-      <div class="absolute top-3 right-3 z-10 flex gap-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity max-md:opacity-100">
+      <div class="absolute top-3 end-3 z-10 flex gap-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity max-md:opacity-100">
         <DocsCodeActions
           v-model:wrap="lineWrap"
           bin
-          :bin-title="binTitle"
+          :bin-title
           :code="decodedCode"
           :language
           :playground
@@ -92,7 +93,7 @@
         <slot />
       </div>
 
-      <div v-if="shouldCollapse && !expanded" class="docs-markup-fade absolute left-0 right-0 bottom-0 h-16 rounded-b-2 pointer-events-none" />
+      <div v-if="shouldCollapse && !expanded" class="docs-markup-fade absolute inset-x-0 bottom-0 h-16 rounded-b-2 pointer-events-none" />
     </div>
 
     <button

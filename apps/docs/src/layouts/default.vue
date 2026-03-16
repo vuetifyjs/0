@@ -1,6 +1,7 @@
 <script setup lang="ts">
   // Framework
-  import { IN_BROWSER, Scrim, useBreakpoints, useStack } from '@vuetify/v0'
+  import { IN_BROWSER, Scrim, useBreakpoints, useRtl, useStack, useStorage } from '@vuetify/v0'
+  import { isUndefined } from '@vuetify/v0/utilities'
 
   // Composables
   import { useAsk } from '@/composables/useAsk'
@@ -11,7 +12,7 @@
   import { useSettings } from '@/composables/useSettings'
 
   // Utilities
-  import { computed, defineAsyncComponent, onScopeDispose, toRef, watch } from 'vue'
+  import { defineAsyncComponent, onScopeDispose, toRef, watch } from 'vue'
 
   // Stores
   import { useAppStore } from '@/stores/app'
@@ -30,6 +31,17 @@
 
   const breakpoints = useBreakpoints()
   const discovery = useDiscovery()
+
+  // Restore persisted RTL preference
+  const rtl = useRtl()
+  const storage = useStorage()
+  const savedRtl = storage.get<boolean>('rtl')
+  if (!isUndefined(savedRtl.value)) rtl.isRtl.value = savedRtl.value
+
+  // Persist RTL changes
+  watch(rtl.isRtl, value => {
+    storage.set('rtl', value)
+  })
   const ask = useAsk()
   const search = useSearch()
   const settings = useSettings()
@@ -42,7 +54,7 @@
 
   const slideTransition = toRef(() => settings.prefersReducedMotion.value ? undefined : 'slide')
 
-  const isModalOpen = computed(() => {
+  const isModalOpen = toRef(() => {
     if (search.isOpen.value) return true
     if (settings.isOpen.value) return true
     if (ask.isOpen.value && !breakpoints.lgAndUp.value) return true
@@ -64,7 +76,7 @@
 <template>
   <div class="pt-[72px]">
     <a
-      class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-on-primary focus:rounded"
+      class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:start-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-on-primary focus:rounded"
       href="#main-content"
     >
       Skip to main content
@@ -91,25 +103,3 @@
     </Transition>
   </div>
 </template>
-
-<style scoped>
-  .fade-enter-active,
-  .fade-leave-active {
-    transition: opacity 0.2s ease;
-  }
-
-  .fade-enter-from,
-  .fade-leave-to {
-    opacity: 0;
-  }
-
-  .slide-enter-active,
-  .slide-leave-active {
-    transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .slide-enter-from,
-  .slide-leave-to {
-    transform: translateX(100%);
-  }
-</style>

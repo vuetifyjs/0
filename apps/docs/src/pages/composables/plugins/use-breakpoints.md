@@ -53,13 +53,12 @@ app.mount('#app')
 
 Once the plugin is installed, use the `useBreakpoints` composable in any component. Destructure the properties you need for automatic ref unwrapping in templates:
 
-```vue UseBreakpoints
+```vue collapse
 <script setup lang="ts">
   import { useBreakpoints } from '@vuetify/v0'
 
   const { isMobile, mdAndUp, name, width, height } = useBreakpoints()
 
-  // In script, access .value
   if (isMobile.value) {
     console.log('Mobile detected')
   }
@@ -114,5 +113,26 @@ All breakpoint properties are `Readonly<ShallowRef>` and automatically update wh
 | `smAndUp` / `mdAndUp` / etc. | `ShallowRef<boolean>` | At or above breakpoint |
 | `smAndDown` / `mdAndDown` / etc. | `ShallowRef<boolean>` | At or below breakpoint |
 | `breakpoints` | `Record<string, number>` | Static config object (not reactive) |
+| `ssr` | `boolean` | `true` when running server-side with SSR options |
+
+## SSR Support
+
+By default, useBreakpoints returns `xs` / width `0` on the server. Pass `ssr` options to render at a known viewport size:
+
+```ts main.ts
+app.use(
+  createBreakpointsPlugin({
+    ssr: {
+      clientWidth: 1280,
+      clientHeight: 800,
+    },
+  })
+)
+```
+
+On the server, all breakpoint flags are computed from the SSR dimensions — so `v-if="mdAndUp"` renders correctly in SSR output. On hydration, real `window.innerWidth` / `innerHeight` replace the SSR values.
+
+> [!TIP]
+> In Nuxt, read the viewport from a cookie or user-agent hint so the SSR dimensions match the actual device. See the [Nuxt integration guide](/guide/integration/nuxt#breakpoints-ssr) for a cookie-based example.
 
 <DocsApi />

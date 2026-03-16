@@ -22,7 +22,7 @@ pnpm preview   # Preview build
 ## Stack
 
 - **SSG**: vite-ssg (generates static HTML)
-- **Routing**: unplugin-vue-router (file-based) + vite-plugin-vue-layouts-next
+- **Routing**: vue-router 5 (file-based, built-in) + vite-plugin-vue-layouts-next
 - **Markdown**: unplugin-vue-markdown + Shiki + Mermaid
 - **Styling**: UnoCSS with `presetWind4()` (Tailwind v4 syntax, integrated reset)
 - **State**: Pinia
@@ -115,7 +115,6 @@ src/
 │   ├── composables/  # foundation, forms, plugins, registration, selection, system, transformers, utilities
 │   ├── guide/        # How-to guides
 │   ├── introduction/ # Getting started, FAQ, contributing
-│   ├── storybook/    # Storybook embed
 │   └── utilities/    # Utility docs
 ├── plugins/          # Vue plugins
 ├── stores/           # Pinia stores

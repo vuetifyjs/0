@@ -23,7 +23,7 @@ import MiniSearch from 'minisearch'
 import { IN_BROWSER, useHotkey, useLogger, useStorage, useToggleScope } from '@vuetify/v0'
 
 // Utilities
-import { computed, nextTick, readonly, shallowRef, watch } from 'vue'
+import { computed, nextTick, readonly, shallowRef, toRef, watch } from 'vue'
 
 // Types
 import type { SearchDocument } from '@build/generate-search-index'
@@ -79,7 +79,7 @@ export interface UseSearchReturn {
   /** Recently visited pages from search */
   recents: Readonly<Ref<SavedResult[]>>
   /** Whether there's content to show in empty state (favorites or recents) */
-  hasEmptyStateContent: ComputedRef<boolean>
+  hasEmptyStateContent: Readonly<Ref<boolean>>
   /** Keyboard selection state and controls */
   selection: SearchSelection
   /** Open the search modal */
@@ -157,7 +157,7 @@ function persistRecents (): void {
   storage?.set('search:recents', recents.value)
 }
 
-async function loadIndex (): Promise<void> {
+export async function loadIndex (): Promise<void> {
   if (miniSearch) return
   if (indexPromise) return indexPromise
 
@@ -202,7 +202,7 @@ const CATEGORY_PRIORITY: Record<string, number> = {
   API: 5,
 }
 
-function search (query: string): SearchResult[] {
+export function search (query: string): SearchResult[] {
   if (!miniSearch || !query.trim()) {
     return []
   }
@@ -343,9 +343,7 @@ const results = computed<GroupedResults[]>(() => {
 })
 
 // Check if we have content to show in empty state
-const hasEmptyStateContent = computed(() => {
-  return favorites.value.length > 0 || recents.value.length > 0
-})
+const hasEmptyStateContent = toRef(() => favorites.value.length > 0 || recents.value.length > 0)
 
 /** Get total selectable items count (for keyboard navigation) */
 function getSelectableCount (): number {

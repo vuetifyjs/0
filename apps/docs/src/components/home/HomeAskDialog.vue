@@ -49,17 +49,6 @@
   }
 
   function onKeydown (e: KeyboardEvent) {
-    if ((e.metaKey || e.ctrlKey) && e.key === '/') {
-      e.preventDefault()
-      if (ask.isOpen.value) ask.close()
-      else ask.focus()
-    }
-
-    if (e.key === 'Escape' && ask.isOpen.value) {
-      e.preventDefault()
-      ask.close()
-    }
-
     if (e.key === 'Tab' && ask.isOpen.value) {
       const dialog = document.querySelector('[role="dialog"]') as HTMLElement
       if (!dialog) return

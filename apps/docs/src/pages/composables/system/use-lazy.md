@@ -25,9 +25,17 @@ A composable for deferring content rendering until first activation, with option
 
 The `useLazy` composable tracks whether content has been activated at least once. Content renders only after first activation (unless eager mode is enabled), reducing initial render cost for components like dialogs, menus, and tooltips.
 
-::: example
-/composables/use-lazy/basic
-:::
+```ts collapse no-filename
+import { shallowRef } from 'vue'
+import { useLazy } from '@vuetify/v0'
+
+const isOpen = shallowRef(false)
+
+const { isBooted, hasContent, onAfterLeave } = useLazy(isOpen)
+
+// hasContent becomes true after isOpen is first set to true
+// onAfterLeave resets lazy state for transition integration
+```
 
 ## Architecture
 
@@ -47,6 +55,12 @@ stateDiagram-v2
 | `hasContent` | <AppSuccessIcon /> | Computed from `isBooted \|\| eager \|\| active` |
 | `active` | <AppSuccessIcon /> | Accepts MaybeRefOrGetter, watched for changes |
 | `eager` | <AppSuccessIcon /> | Accepts MaybeRefOrGetter in options |
+
+## Examples
+
+::: example
+/composables/use-lazy/basic
+:::
 
 <DocsApi />
 

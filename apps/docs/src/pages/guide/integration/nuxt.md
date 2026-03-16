@@ -167,10 +167,49 @@ To sync theme changes back to the cookie:
 | Components | Full | All compound components work in SSR |
 | `useTheme` | Full | Auto-injects styles via Nuxt head manager |
 | `useHydration` | Full | Designed for SSR/client state sync |
-| `useBreakpoints` | Partial | Returns defaults on server, measures on client |
+| `useBreakpoints` | Full | Pass `ssr` option for server-side viewport matching |
 | `useStorage` | Partial | Uses memory adapter on server |
 | `createPagination` | Full | Width-based calculation defers to client |
 | Observer composables | Partial | No-op on server, activate on client |
+
+## Breakpoints SSR
+
+Pass `ssr` to the breakpoints plugin so the server renders at the correct viewport size. A common approach is to store the client's width in a cookie:
+
+```ts plugins/v0.ts collapse
+import { createBreakpointsPlugin, createHydrationPlugin } from '@vuetify/v0'
+
+export default defineNuxtPlugin((nuxtApp) => {
+  const widthCookie = useCookie<number>('viewport-width', {
+    default: () => 1280,
+  })
+
+  nuxtApp.vueApp.use(createHydrationPlugin())
+  nuxtApp.vueApp.use(
+    createBreakpointsPlugin({
+      ssr: {
+        clientWidth: widthCookie.value,
+      },
+    })
+  )
+})
+```
+
+Sync the cookie on the client so subsequent SSR requests use the real width:
+
+```vue App.vue
+<script setup lang="ts">
+  import { useBreakpoints } from '@vuetify/v0'
+  import { watch } from 'vue'
+
+  const { width } = useBreakpoints()
+  const widthCookie = useCookie<number>('viewport-width')
+
+  watch(width, v => {
+    widthCookie.value = v
+  })
+</script>
+```
 
 ## Common Patterns
 

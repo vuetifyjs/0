@@ -1,5 +1,4 @@
 import vuetify from 'eslint-config-vuetify'
-import storybook from 'eslint-plugin-storybook'
 
 export default vuetify({
   vue: true,
@@ -83,6 +82,7 @@ export default vuetify({
   files: ['**/*.vue'],
   rules: {
     'vue/block-order': ['warn', { order: ['script', 'template', 'style'] }],
+    'vue/v-bind-style': ['error', 'shorthand', { sameNameShorthand: 'always' }],
   },
 },
 {
@@ -118,5 +118,4 @@ export default vuetify({
     }],
   },
 },
-...storybook.configs['flat/recommended'],
 )

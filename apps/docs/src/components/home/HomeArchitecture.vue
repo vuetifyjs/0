@@ -6,7 +6,7 @@
   import { useHighlightCode } from '@/composables/useHighlightCode'
 
   // Utilities
-  import { computed, shallowRef } from 'vue'
+  import { shallowRef, toRef } from 'vue'
 
   const theme = useTheme()
   const activeTab = shallowRef('composable')
@@ -79,7 +79,7 @@
 </template>`,
   }
 
-  const currentCode = computed(() => codeSnippets[activeTab.value] ?? '')
+  const currentCode = toRef(() => codeSnippets[activeTab.value] ?? '')
   const highlighter = useHighlightCode(currentCode, { idle: true })
 </script>
 

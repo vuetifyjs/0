@@ -7,9 +7,17 @@
   import { useSettings } from '@/composables/useSettings'
   import { useToc } from '@/composables/useToc'
 
+  // Types
+  import type { TocHeading } from '@/composables/useToc'
+
   const ask = useAsk()
   const toc = useToc()
   const settings = useSettings()
+
+  function active (h2: TocHeading) {
+    const id = toc.selectedId.value
+    return id === h2.id || h2.children.some(h3 => h3.id === id || h3.children.some(h4 => h4.id === id))
+  }
 
   function scrollToTop () {
     window.scrollTo({ top: 0, behavior: settings.prefersReducedMotion.value ? 'auto' : 'smooth' })
@@ -20,7 +28,7 @@
   <Discovery.Activator
     v-if="toc.headings.value.length > 0 && !ask.isOpen.value"
     as="aside"
-    class="hidden xl:block rounded-lg fixed right-4 top-25 w-[200px] max-h-[calc(100vh-145px)] overflow-y-auto text-sm"
+    class="hidden xl:block rounded-lg fixed end-4 top-25 w-[200px] max-h-[calc(100vh-145px)] overflow-y-auto text-sm"
     :padding="8"
     step="toc"
   >
@@ -47,7 +55,7 @@
             {{ h2.text }}
           </a>
 
-          <ul v-if="h2.children.length > 0" class="ml-3 space-y-1">
+          <ul v-if="h2.children.length > 0" class="ms-3 space-y-1 transition-opacity" :class="active(h2) ? 'opacity-100' : 'opacity-60'">
             <li v-for="h3 in h2.children" :key="h3.id">
               <a
                 :aria-current="toc.selectedId.value === h3.id ? 'location' : undefined"
@@ -61,7 +69,7 @@
                 {{ h3.text }}
               </a>
 
-              <ul v-if="h3.children.length > 0" class="ml-3 space-y-0.5">
+              <ul v-if="h3.children.length > 0" class="ms-3 space-y-0.5">
                 <li v-for="h4 in h3.children" :key="h4.id">
                   <a
                     :aria-current="toc.selectedId.value === h4.id ? 'location' : undefined"

@@ -6,14 +6,14 @@
 
   const registry = createRegistry<TaskTicketInput>({ events: true })
   const version = shallowRef(0)
-  const eventLog = shallowRef<string[]>([])
+  const events = shallowRef<string[]>([])
 
   registry.on('register:ticket', ticket => {
-    eventLog.value = [...eventLog.value.slice(-4), `+ Registered "${ticket.value}"`]
+    events.value = [...events.value.slice(-4), `+ Registered "${ticket.value}"`]
   })
 
   registry.on('unregister:ticket', ticket => {
-    eventLog.value = [...eventLog.value.slice(-4), `- Removed "${ticket.value}"`]
+    events.value = [...events.value.slice(-4), `- Removed "${ticket.value}"`]
   })
 
   registry.onboard([
@@ -29,29 +29,29 @@
     return registry.values()
   })
 
-  function addTask (text: string, priority: TaskTicketInput['priority']) {
+  function add (text: string, priority: TaskTicketInput['priority']) {
     registry.register({ value: text, priority, done: false })
     version.value++
   }
 
-  function removeTask (id: string | number) {
+  function remove (id: string | number) {
     registry.unregister(id)
     version.value++
   }
 
-  function toggleDone (id: string | number) {
+  function toggle (id: string | number) {
     const ticket = registry.get(id)
     if (!ticket) return
     registry.upsert(id, { done: !ticket.done })
     version.value++
   }
 
-  function clearCompleted () {
+  function clear () {
     registry.offboard(tasks.value.filter(t => t.done).map(t => t.id))
     version.value++
   }
 
-  provideTaskRegistry({ tasks, eventLog, addTask, removeTask, toggleDone, clearCompleted })
+  provideTaskRegistry({ tasks, events, add, remove, toggle, clear })
 </script>
 
 <template>

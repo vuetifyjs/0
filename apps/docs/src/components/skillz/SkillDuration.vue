@@ -1,12 +1,10 @@
 <script setup lang="ts">
-  withDefaults(defineProps<{
+  const { minutes, iconSize = 14 } = defineProps<{
     /** Duration in minutes */
     minutes: number
     /** Icon size in pixels */
     iconSize?: number
-  }>(), {
-    iconSize: 14,
-  })
+  }>()
 </script>
 
 <template>

@@ -106,6 +106,7 @@ State management for single and multi-selection patterns.
 
 | Name | Description |
 | - | - |
+| [createModel](/composables/selection/create-model) | Value store layer with disabled guards and apply bridge |
 | [createSelection](/composables/selection/create-selection) | General selection state management |
 | [createSingle](/composables/selection/create-single) | Single-selection with automatic deselection |
 | [createGroup](/composables/selection/create-group) | Multi-selection with tri-state support |
@@ -117,7 +118,8 @@ Form state management and model binding utilities.
 
 | Name | Description |
 | - | - |
-| [createForm](/composables/forms/create-form) | Form state management and validation |
+| [createValidation](/composables/forms/create-validation) | Per-field validation lifecycle |
+| [createForm](/composables/forms/create-form) | Form validation coordinator |
 
 ## Reactivity
 
@@ -156,6 +158,7 @@ Application-level features installable via Vue plugins.
 | [useLocale](/composables/plugins/use-locale) | Internationalization system |
 | [useLogger](/composables/plugins/use-logger) | Logging system with multiple adapters |
 | [usePermissions](/composables/plugins/use-permissions) | Role-based access control |
+| [useRules](/composables/plugins/use-rules) | Validation rule aliases with locale-aware messages |
 | [useStorage](/composables/plugins/use-storage) | Reactive browser storage interface |
 | [useTheme](/composables/plugins/use-theme) | Theme management with CSS custom properties |
 

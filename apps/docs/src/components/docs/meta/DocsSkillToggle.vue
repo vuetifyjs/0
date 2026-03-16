@@ -3,7 +3,7 @@
   import { useLevelFilterContext, type Level } from '@/composables/useLevelFilter'
 
   // Utilities
-  import { computed } from 'vue'
+  import { computed, toRef } from 'vue'
 
   const props = defineProps<{
     level: Level
@@ -11,7 +11,7 @@
 
   const levelFilter = useLevelFilterContext()
 
-  const checked = computed(() => levelFilter.isSelected(props.level))
+  const checked = toRef(() => levelFilter.isSelected(props.level))
 
   const colorClass = computed(() => {
     switch (props.level) {

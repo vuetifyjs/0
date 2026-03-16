@@ -1,10 +1,11 @@
 <script setup lang="ts">
-  import AppIcon from '@/components/app/AppIcon.vue'
   import { computed, shallowRef } from 'vue'
+  import { Checkbox } from '@vuetify/v0'
+  import { useTaskRegistry } from './context'
 
-  import { useTaskRegistry, type TaskTicket } from './context'
+  import type { TaskTicket } from './context'
 
-  const { tasks, eventLog, addTask, removeTask, toggleDone, clearCompleted } = useTaskRegistry()
+  const { tasks, events, add, remove, toggle, clear } = useTaskRegistry()
 
   const newTask = shallowRef('')
   const newPriority = shallowRef<TaskTicket['priority']>('medium')
@@ -21,10 +22,10 @@
     high: tasks.value.filter(t => t.priority === 'high' && !t.done).length,
   }))
 
-  function handleAdd () {
+  function onAdd () {
     const text = newTask.value.trim()
     if (!text) return
-    addTask(text, newPriority.value)
+    add(text, newPriority.value)
     newTask.value = ''
   }
 
@@ -61,12 +62,12 @@
         v-model="newTask"
         class="flex-1 px-3 py-1.5 text-sm rounded-lg border border-divider bg-surface text-on-surface placeholder:text-on-surface-variant outline-none focus:border-primary"
         placeholder="Add a task..."
-        @keydown.enter="handleAdd"
+        @keydown.enter="onAdd"
       >
       <button
         class="px-3 py-1.5 text-sm rounded-lg bg-primary text-on-primary hover:bg-primary/90 disabled:opacity-40 transition-colors"
         :disabled="!newTask.trim()"
-        @click="handleAdd"
+        @click="onAdd"
       >
         Add
       </button>
@@ -88,7 +89,7 @@
       <button
         v-if="stats.done > 0"
         class="ml-auto text-xs text-on-surface-variant hover:text-error transition-colors"
-        @click="clearCompleted"
+        @click="clear"
       >
         Clear {{ stats.done }} completed
       </button>
@@ -104,19 +105,20 @@
           ? 'border-divider/50 bg-surface-variant/20'
           : 'border-divider hover:border-primary/30'"
       >
-        <button
+        <Checkbox.Root
           class="size-4.5 rounded border-2 flex items-center justify-center transition-all"
           :class="task.done
             ? 'border-primary bg-primary'
             : 'border-divider hover:border-primary'"
-          @click="toggleDone(task.id)"
+          :model-value="task.done"
+          @update:model-value="toggle(task.id)"
         >
-          <AppIcon v-if="task.done" class="text-on-primary" icon="check" :size="12" />
-        </button>
+          <Checkbox.Indicator class="text-on-primary text-xs">✓</Checkbox.Indicator>
+        </Checkbox.Root>
 
         <span
           class="size-2 rounded-full flex-shrink-0"
-          :class="priorityStyles[task.priority].dot"
+          :class="priorityStyles[task.priority]?.dot"
         />
 
         <span
@@ -128,7 +130,7 @@
 
         <span
           class="px-1.5 py-0.5 text-[10px] rounded font-medium"
-          :class="priorityStyles[task.priority].badge"
+          :class="priorityStyles[task.priority]?.badge"
         >
           {{ task.priority }}
         </span>
@@ -136,10 +138,17 @@
         <span class="text-[10px] font-mono text-on-surface-variant/40">#{{ task.index }}</span>
 
         <button
-          class="opacity-0 group-hover:opacity-100 text-on-surface-variant hover:text-error transition-all"
-          @click="removeTask(task.id)"
+          class="opacity-0 group-hover:opacity-100 text-on-surface-variant"
+          @click="remove(task.id)"
         >
-          <AppIcon icon="close" :size="14" />
+          <svg
+            class="size-3.5"
+            fill="none"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-width="2"
+            viewBox="0 0 14 14"
+          ><line x1="3" x2="11" y1="3" y2="11" /><line x1="11" x2="3" y1="3" y2="11" /></svg>
         </button>
       </div>
 
@@ -156,14 +165,14 @@
       <p class="text-[10px] uppercase tracking-wider text-on-surface-variant/60 mb-1.5">Event log</p>
       <div class="space-y-0.5">
         <p
-          v-for="(entry, i) in eventLog"
+          v-for="(entry, i) in events"
           :key="i"
           class="text-xs font-mono"
           :class="entry.startsWith('+') ? 'text-success' : 'text-error'"
         >
           {{ entry }}
         </p>
-        <p v-if="eventLog.length === 0" class="text-xs text-on-surface-variant/60">
+        <p v-if="events.length === 0" class="text-xs text-on-surface-variant/60">
           Events will appear here as you add and remove tasks...
         </p>
       </div>

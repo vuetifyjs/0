@@ -8,6 +8,8 @@ import { defineStore } from 'pinia'
 // Types
 import type { components as octokitComponents } from '@octokit/openapi-types'
 
+import { CACHE_TTL } from '@/constants/cache'
+
 type GitHubRelease = octokitComponents['schemas']['release']
 
 export interface Release extends GitHubRelease {
@@ -15,11 +17,6 @@ export interface Release extends GitHubRelease {
     prependIcon: string
     title: string
   }
-}
-
-interface CacheEntry<T> {
-  data: T
-  timestamp: number
 }
 
 interface State {
@@ -30,14 +27,8 @@ interface State {
 }
 
 const url = import.meta.env.VITE_API_SERVER_URL || 'https://api.vuetifyjs.com'
-const CACHE_TTL = import.meta.env.DEV ? 30 * 1000 : 5 * 60 * 1000 // 30s dev, 5min prod
-const storage = createStorage({ prefix: 'v0-releases:' })
+const storage = createStorage({ prefix: 'v0-releases:', ttl: CACHE_TTL })
 const logger = useLogger()
-
-function isCacheValid<T> (entry: CacheEntry<T> | null): entry is CacheEntry<T> {
-  if (!entry) return false
-  return Date.now() - entry.timestamp < CACHE_TTL
-}
 
 export const useReleasesStore = defineStore('releases', {
   state: (): State => ({
@@ -62,9 +53,9 @@ export const useReleasesStore = defineStore('releases', {
 
       // Check cache on first page load
       if (this.page === 1 && this.releases.length === 0) {
-        const cached = storage.get<CacheEntry<Release[]> | null>('page-1', null)
-        if (isCacheValid(cached.value)) {
-          this.releases = cached.value.data
+        const cached = storage.get<Release[] | null>('page-1', null)
+        if (Array.isArray(cached.value) && cached.value.length > 0) {
+          this.releases = cached.value
           this.page = 2
           return
         }
@@ -99,10 +90,7 @@ export const useReleasesStore = defineStore('releases', {
 
       // Cache first page only
       if (this.page === 1) {
-        storage.set<CacheEntry<Release[]>>('page-1', {
-          data: formatted,
-          timestamp: Date.now(),
-        })
+        storage.set('page-1', formatted)
       }
 
       this.isLoading = false
@@ -117,10 +105,10 @@ export const useReleasesStore = defineStore('releases', {
 
       // Check cache for this specific tag
       const cacheKey = `tag-${tag}`
-      const cached = storage.get<CacheEntry<Release> | null>(cacheKey, null)
-      if (isCacheValid(cached.value)) {
-        this.releases.push(cached.value.data)
-        return cached.value.data
+      const cached = storage.get<Release | null>(cacheKey, null)
+      if (cached.value) {
+        this.releases.push(cached.value)
+        return cached.value
       }
 
       if (this.isLoading) return // Prevent concurrent requests
@@ -155,11 +143,7 @@ export const useReleasesStore = defineStore('releases', {
         const formatted = this.format(data)
         this.releases.push(formatted)
 
-        // Cache individual tag lookup
-        storage.set<CacheEntry<Release>>(cacheKey, {
-          data: formatted,
-          timestamp: Date.now(),
-        })
+        storage.set(cacheKey, formatted)
 
         return formatted
       }

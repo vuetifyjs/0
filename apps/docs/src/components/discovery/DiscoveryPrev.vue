@@ -31,6 +31,6 @@
     type="button"
     @click="prev"
   >
-    <slot :is-disabled="isDisabled" />
+    <slot :is-disabled />
   </button>
 </template>

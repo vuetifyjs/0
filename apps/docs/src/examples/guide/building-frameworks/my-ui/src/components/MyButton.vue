@@ -32,9 +32,9 @@
 
 <template>
   <Atom
-    :as="as"
+    :as
     :class="classes"
-    :disabled="disabled"
+    :disabled
   >
     <slot />
   </Atom>

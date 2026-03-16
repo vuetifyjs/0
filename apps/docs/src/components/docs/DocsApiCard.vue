@@ -5,9 +5,10 @@
   // Composables
   import { useApiHelpers } from '@/composables/useApiHelpers'
   import { useSettings } from '@/composables/useSettings'
+  import { useSyncedRef } from '@/composables/useSyncedRef'
 
   // Utilities
-  import { computed, shallowRef, watch } from 'vue'
+  import { toRef } from 'vue'
 
   // Types
   import type { ApiEvent, ApiFunction, ApiMethod, ApiOption, ApiProp, ApiProperty, ApiSlot } from '@build/generate-api'
@@ -24,15 +25,11 @@
   const theme = useTheme()
   const settings = useSettings()
 
-  const lineWrap = shallowRef(settings.lineWrap.value)
-
-  watch(settings.lineWrap, val => {
-    lineWrap.value = val
-  })
+  const lineWrap = useSyncedRef(settings.lineWrap)
 
   const key = `${props.kind}-${props.item.name}`
 
-  const language = computed(() => {
+  const language = toRef(() => {
     if (!('example' in props.item) || !props.item.example) return null
     return /^<(?:template|script)/.test(props.item.example.trim()) ? 'vue' : 'ts'
   })
@@ -90,7 +87,8 @@
         <button
           :aria-controls="`${api.uid}-${key}`"
           :aria-expanded="api.expanded.value.has(key)"
-          class="w-full px-4 py-3 bg-transparent border-none font-inherit text-sm cursor-pointer flex items-center gap-2 text-on-surface transition-colors hover:bg-surface hover:text-primary focus-visible:bg-surface focus-visible:text-primary"
+          class="w-full px-4 py-3 bg-transparent border-none font-inherit text-sm cursor-pointer flex items-center gap-2 text-on-surface transition-colors focus-visible:bg-surface focus-visible:text-primary"
+          :class="!api.expanded.value.has(key) && 'hover:bg-surface hover:text-primary'"
           type="button"
           @click="api.toggle(key, item.example)"
         >

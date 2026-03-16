@@ -5,11 +5,20 @@
   // Composables
   import { useCodeHighlighter } from '@/composables/useCodeHighlighter'
   import { useSettings } from '@/composables/useSettings'
+  import { useSyncedRef } from '@/composables/useSyncedRef'
 
   // Utilities
-  import { computed, onMounted, onScopeDispose, shallowRef, useTemplateRef, watch } from 'vue'
+  import { onMounted, onScopeDispose, shallowRef, toRef, useTemplateRef, watch } from 'vue'
 
-  const props = withDefaults(defineProps<{
+  const {
+    code,
+    language = 'vue',
+    fileName,
+    title,
+    peek,
+    peekLines = 6,
+    showPlayground = true,
+  } = defineProps<{
     code: string
     language?: string
     fileName?: string
@@ -17,21 +26,13 @@
     peek?: boolean
     peekLines?: number
     showPlayground?: boolean
-  }>(), {
-    language: 'vue',
-    peekLines: 6,
-    showPlayground: true,
-  })
+  }>()
 
   const expanded = defineModel<boolean>('expanded', { default: false })
 
   const theme = useTheme()
   const settings = useSettings()
-  const lineWrap = shallowRef(settings.lineWrap.value)
-
-  watch(() => settings.lineWrap.value, val => {
-    lineWrap.value = val
-  })
+  const lineWrap = useSyncedRef(settings.lineWrap)
 
   // Highlighting
   const highlightedCode = shallowRef<string>()
@@ -41,10 +42,10 @@
   const { highlight: highlightCode } = useCodeHighlighter()
 
   async function highlight () {
-    if (highlightedCode.value || !props.code) return
+    if (highlightedCode.value || !code) return
     isLoading.value = true
     try {
-      const result = await highlightCode({ code: props.code, language: props.language })
+      const result = await highlightCode({ code, language })
       highlightedCode.value = result.html
     } catch (error) {
       logger.error('Failed to highlight code', error)
@@ -65,15 +66,15 @@
   )
 
   // Re-highlight when code changes
-  watch(() => props.code, () => {
+  watch(() => code, () => {
     highlightedCode.value = undefined
     highlight()
   })
 
   // Peek mode
-  const lineCount = computed(() => props.code?.split('\n').length ?? 0)
-  const shouldPeek = computed(() => props.peek && lineCount.value > props.peekLines)
-  const peekHeight = computed(() => `${props.peekLines * 1.5 + 1}rem`)
+  const lineCount = toRef(() => code?.split('\n').length ?? 0)
+  const shouldPeek = toRef(() => peek && lineCount.value > peekLines)
+  const peekHeight = toRef(() => `${peekLines * 1.5 + 1}rem`)
 
   onScopeDispose(() => {
     highlightedCode.value = undefined
@@ -93,20 +94,20 @@
   >
     <span
       v-if="fileName && (!shouldPeek || expanded)"
-      class="absolute top-3 left-3 z-10 px-1.5 py-0.5 text-xs font-mono opacity-50"
+      class="absolute top-3 start-3 z-10 px-1.5 py-0.5 text-xs font-mono opacity-50"
     >
       {{ fileName }}
     </span>
 
     <div
       v-if="!shouldPeek || expanded"
-      class="absolute top-3 right-3 z-10 flex gap-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity max-md:opacity-100"
+      class="absolute top-3 end-3 z-10 flex gap-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity max-md:opacity-100"
     >
       <DocsCodeActions
         v-model:wrap="lineWrap"
         bin
-        :code="code"
-        :language="language"
+        :code
+        :language
         :playground="showPlayground"
         show-copy
         show-wrap
@@ -136,7 +137,7 @@
 
     <div
       v-if="shouldPeek && !expanded"
-      class="docs-example-fade absolute left-0 right-0 bottom-0 h-12 rounded-b-lg pointer-events-none"
+      class="docs-example-fade absolute inset-x-0 bottom-0 h-12 rounded-b-lg pointer-events-none"
     />
   </div>
 </template>

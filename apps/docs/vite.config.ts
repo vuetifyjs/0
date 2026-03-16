@@ -2,12 +2,12 @@ import { fileURLToPath, URL } from 'node:url'
 
 import UnocssVitePlugin from 'unocss/vite'
 import Components from 'unplugin-vue-components/vite'
-import VueRouter from 'unplugin-vue-router/vite'
 import Vue from 'unplugin-vue/rolldown'
 import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 import Layouts from 'vite-plugin-vue-layouts-next'
 import generateSitemap from 'vite-ssg-sitemap'
+import VueRouter from 'vue-router/vite'
 
 // Types
 import type { ViteSSGOptions } from 'vite-ssg'
@@ -29,6 +29,9 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ['@vue/repl', 'monaco-editor'],
   },
+  ssr: {
+    noExternal: ['@vue/repl'],
+  },
   build: {
     sourcemap: true,
   },
@@ -49,7 +52,7 @@ export default defineConfig({
       ])
       const apiRoutes = apiSlugs.map(slug => `/api/${slug}`)
       const skillzRoutes = skillzSlugs.map(slug => `/skillz/${slug}`)
-      return [...paths, ...apiRoutes, ...skillzRoutes].filter(p => p !== '/playground')
+      return [...paths, ...apiRoutes, ...skillzRoutes]
     },
     onFinished () {
       generateSitemap({
@@ -104,7 +107,7 @@ export default defineConfig({
         // Exclude large on-demand chunks from precache
         // - Mermaid/Cytoscape: diagram tools, loaded only when docs use them
         // - vue.worker/playground/jsx: Monaco editor assets, only needed in the playground
-        globIgnores: ['**/*Diagram-*.js', '**/mermaid*.js', '**/cytoscape*.js', '**/vue.worker*.js', '**/playground-*.js', '**/jsx-*.js'],
+        globIgnores: ['**/*Diagram-*.js', '**/mermaid*.js', '**/cytoscape*.js', '**/vue.worker*.js', '**/playground-*.js', '**/jsx-*.js', '**/monaco-editor-*.js'],
         navigateFallback: null,
       },
     }),

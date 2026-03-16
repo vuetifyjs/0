@@ -1,10 +1,8 @@
 {
   "name": "@vuetify/v0",
-  "version": "0.1.4",
+  "version": "0.1.7",
   "description": "Vuetify0",
   "license": "MIT",
-  "main": "./dist/index.mjs",
-  "module": "./dist/index.mjs",
   "types": "./dist/index.d.mts",
   "type": "module",
   "files": [
@@ -45,9 +43,20 @@
       "./logger/adapters/consola": "./dist/logger/adapters/consola/index.mjs",
       "./logger/adapters/pino": "./dist/logger/adapters/pino/index.mjs",
       "./logger/adapters/v0": "./dist/logger/adapters/v0/index.mjs",
+      "./palettes": "./dist/palettes/index.mjs",
+      "./palettes/ant": "./dist/palettes/ant/index.mjs",
+      "./palettes/ant/generate": "./dist/palettes/ant/generate/index.mjs",
+      "./palettes/leonardo/generate": "./dist/palettes/leonardo/generate/index.mjs",
+      "./palettes/material": "./dist/palettes/material/index.mjs",
+      "./palettes/material/generate": "./dist/palettes/material/generate/index.mjs",
+      "./palettes/md1": "./dist/palettes/md1/index.mjs",
+      "./palettes/md2": "./dist/palettes/md2/index.mjs",
+      "./palettes/radix": "./dist/palettes/radix/index.mjs",
+      "./palettes/tailwind": "./dist/palettes/tailwind/index.mjs",
       "./permissions": "./dist/permissions/index.mjs",
       "./permissions/adapters": "./dist/permissions/adapters/index.mjs",
       "./permissions/adapters/v0": "./dist/permissions/adapters/v0/index.mjs",
+      "./rules": "./dist/rules/index.mjs",
       "./storage": "./dist/storage/index.mjs",
       "./storage/adapters": "./dist/storage/adapters/index.mjs",
       "./storage/adapters/memory": "./dist/storage/adapters/memory/index.mjs",
@@ -61,13 +70,16 @@
     }
   },
   "peerDependencies": {
-    "flagsmith": "^10.0.0",
+    "@adobe/leonardo-contrast-colors": ">=1.0.0",
+    "@ant-design/colors": ">=7.0.0",
+    "@flagsmith/flagsmith": "^11.0.0",
+    "@material/material-color-utilities": ">=0.3.0",
     "launchdarkly-js-client-sdk": "^3.0.0",
     "posthog-js": "^1.0.0",
     "vue": ">=3.5.0"
   },
   "peerDependenciesMeta": {
-    "flagsmith": {
+    "@flagsmith/flagsmith": {
       "optional": true
     },
     "launchdarkly-js-client-sdk": {
@@ -75,11 +87,23 @@
     },
     "posthog-js": {
       "optional": true
+    },
+    "@material/material-color-utilities": {
+      "optional": true
+    },
+    "@ant-design/colors": {
+      "optional": true
+    },
+    "@adobe/leonardo-contrast-colors": {
+      "optional": true
     }
   },
   "devDependencies": {
+    "@adobe/leonardo-contrast-colors": "catalog:",
+    "@ant-design/colors": "catalog:",
+    "@flagsmith/flagsmith": "catalog:",
+    "@material/material-color-utilities": "catalog:",
     "@vue/test-utils": "catalog:",
-    "flagsmith": "catalog:",
     "launchdarkly-js-client-sdk": "catalog:",
     "posthog-js": "catalog:",
     "tsdown": "catalog:",
@@ -184,6 +208,46 @@
       "development": "./src/logger/adapters/v0/index.ts",
       "default": "./dist/logger/adapters/v0/index.mjs"
     },
+    "./palettes": {
+      "development": "./src/palettes/index.ts",
+      "default": "./dist/palettes/index.mjs"
+    },
+    "./palettes/ant": {
+      "development": "./src/palettes/ant/index.ts",
+      "default": "./dist/palettes/ant/index.mjs"
+    },
+    "./palettes/ant/generate": {
+      "development": "./src/palettes/ant/generate/index.ts",
+      "default": "./dist/palettes/ant/generate/index.mjs"
+    },
+    "./palettes/leonardo/generate": {
+      "development": "./src/palettes/leonardo/generate/index.ts",
+      "default": "./dist/palettes/leonardo/generate/index.mjs"
+    },
+    "./palettes/material": {
+      "development": "./src/palettes/material/index.ts",
+      "default": "./dist/palettes/material/index.mjs"
+    },
+    "./palettes/material/generate": {
+      "development": "./src/palettes/material/generate/index.ts",
+      "default": "./dist/palettes/material/generate/index.mjs"
+    },
+    "./palettes/md1": {
+      "development": "./src/palettes/md1/index.ts",
+      "default": "./dist/palettes/md1/index.mjs"
+    },
+    "./palettes/md2": {
+      "development": "./src/palettes/md2/index.ts",
+      "default": "./dist/palettes/md2/index.mjs"
+    },
+    "./palettes/radix": {
+      "development": "./src/palettes/radix/index.ts",
+      "default": "./dist/palettes/radix/index.mjs"
+    },
+    "./palettes/tailwind": {
+      "development": "./src/palettes/tailwind/index.ts",
+      "default": "./dist/palettes/tailwind/index.mjs"
+    },
     "./permissions": {
       "development": "./src/permissions/index.ts",
       "default": "./dist/permissions/index.mjs"
@@ -195,6 +259,10 @@
     "./permissions/adapters/v0": {
       "development": "./src/permissions/adapters/v0/index.ts",
       "default": "./dist/permissions/adapters/v0/index.mjs"
+    },
+    "./rules": {
+      "development": "./src/rules/index.ts",
+      "default": "./dist/rules/index.mjs"
     },
     "./storage": {
       "development": "./src/storage/index.ts",
@@ -236,5 +304,9 @@
   },
   "optionalDependencies": {
     "@js-temporal/polyfill": "catalog:"
+  },
+  "inlinedDependencies": {
+    "jsbi": "4.3.2",
+    "@js-temporal/polyfill": "0.5.1"
   }
 }

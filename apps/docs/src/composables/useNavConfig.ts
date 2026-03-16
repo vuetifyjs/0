@@ -6,12 +6,13 @@ import { IN_BROWSER } from '@vuetify/v0/constants'
 import { useSettings } from '@/composables/useSettings'
 
 // Utilities
-import { computed, shallowRef, toValue, watch } from 'vue'
+import { toCamel } from '@/utilities/strings'
+import { computed, shallowRef, toRef, toValue, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 // Types
 import type { NavItem, NavItemLink } from '@/stores/app'
-import type { ComputedRef, MaybeRefOrGetter, ShallowRef } from 'vue'
+import type { ComputedRef, MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
 
 // =============================================================================
 // Constants
@@ -25,7 +26,7 @@ const STORAGE_KEY = 'v0:docs:features'
 
 export interface NavConfigContext {
   /** Flat mode - all sections expanded, no collapse buttons */
-  flatMode: ComputedRef<boolean>
+  flatMode: Readonly<Ref<boolean>>
   /** Active features filter (from URL or sessionStorage) */
   activeFeatures: ShallowRef<string[] | null>
   /** Nav filtered by active features (or original if no filter) */
@@ -43,21 +44,13 @@ export { useNavConfigContext }
 // =============================================================================
 
 /**
- * Convert kebab-case path segment to camelCase feature name
- * e.g., "create-context" -> "createContext"
- */
-function kebabToCamel (str: string): string {
-  return str.replace(/-([a-z])/g, (_, c) => c.toUpperCase())
-}
-
-/**
  * Extract feature name from nav item path
  * e.g., "/composables/foundation/create-context" -> "createContext"
  */
 function getFeatureName (to: string): string {
   const segments = to.split('/').filter(Boolean)
   const lastSegment = segments.at(-1) || ''
-  return kebabToCamel(lastSegment)
+  return toCamel(lastSegment)
 }
 
 /**
@@ -141,7 +134,7 @@ export function createNavConfig (nav: MaybeRefOrGetter<NavItem[]>) {
   }, { immediate: true })
 
   // Flat mode when collapsible setting is off
-  const flatMode = computed(() => !collapsibleNav.value)
+  const flatMode = toRef(() => !collapsibleNav.value)
 
   // Filter nav by active features (case-insensitive)
   const configuredNav = computed(() => {

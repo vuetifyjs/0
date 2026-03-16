@@ -577,6 +577,70 @@ describe('createDataTable', () => {
     })
   })
 
+  describe('enroll with async items', () => {
+    it('should auto-open groups when items arrive', async () => {
+      const items = ref<User[]>([])
+      const table = createTable({ items, groupBy: 'department', enroll: true })
+      expect(table.grouping.groups.value.length).toBe(0)
+      items.value = [...users]
+      await nextTick()
+      expect(table.grouping.groups.value.length).toBe(3)
+      expect(table.grouping.isOpen('Engineering')).toBe(true)
+      expect(table.grouping.isOpen('Design')).toBe(true)
+    })
+
+    it('should ignore empty watcher updates before items arrive', async () => {
+      const items = ref<User[]>([])
+      const table = createTable({ items, groupBy: 'department', enroll: true })
+
+      // Trigger watch with still-empty items (should be no-op via line 581)
+      items.value = []
+      await nextTick()
+      expect(table.grouping.groups.value.length).toBe(0)
+
+      // Now provide actual items
+      items.value = [...users]
+      await nextTick()
+      expect(table.grouping.groups.value.length).toBe(3)
+      expect(table.grouping.isOpen('Engineering')).toBe(true)
+    })
+  })
+
+  describe('locale resolution', () => {
+    it('should use initialLocale when no locale plugin is available', () => {
+      const table = createTable({ locale: 'de-DE' })
+
+      // The locale should be used by the adapter for sorting
+      // Verify the table works with the provided locale
+      table.sort.toggle('name')
+      expect(table.sortedItems.value.length).toBe(5)
+    })
+  })
+
+  describe('mandate with firstSortOrder desc', () => {
+    it('should cycle desc then asc then desc with mandate', () => {
+      const table = createTable({ mandate: true, firstSortOrder: 'desc' })
+      table.sort.toggle('name')
+      expect(table.sort.direction('name')).toBe('desc')
+      table.sort.toggle('name')
+      expect(table.sort.direction('name')).toBe('asc')
+      table.sort.toggle('name')
+      expect(table.sort.direction('name')).toBe('desc')
+    })
+  })
+
+  describe('selection with empty selectable scope', () => {
+    it('should handle isAllSelected and isMixed with no selectable items', () => {
+      const table = createTable({
+        selectStrategy: 'all',
+        items: [{ id: 1, name: 'Alice', email: 'a@t.com', department: 'Eng', salary: 100_000, active: false }],
+        itemSelectable: 'active',
+      })
+      expect(table.selection.isAllSelected.value).toBe(false)
+      expect(table.selection.isMixed.value).toBe(false)
+    })
+  })
+
   describe('edge cases', () => {
     it('itemValue defaults to id', () => {
       const table = createTable()

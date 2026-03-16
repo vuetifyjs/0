@@ -3,7 +3,7 @@
   import { usePageMetaOptional, type LevelConfig } from '@/composables/usePageMeta'
 
   // Utilities
-  import { computed } from 'vue'
+  import { toRef } from 'vue'
 
   const props = defineProps<{
     level?: LevelConfig | null
@@ -11,7 +11,7 @@
 
   const pageMeta = usePageMetaOptional()
 
-  const resolvedLevel = computed(() => props.level ?? pageMeta?.level.value ?? null)
+  const resolvedLevel = toRef(() => props.level ?? pageMeta?.level.value ?? null)
 </script>
 
 <template>
