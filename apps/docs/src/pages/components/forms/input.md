@@ -140,8 +140,10 @@ Input.Control renders as a native `<input>` and manages all ARIA attributes auto
 |-----------|-------|-------|
 | `aria-invalid` | `true` | When validation fails or `error` prop is set |
 | `aria-label` | Label text | From Root's `label` prop |
-| `aria-describedby` | Description ID | Auto-wired to Input.Description |
-| `aria-errormessage` | Error ID | Auto-wired to Input.Error when errors exist |
+| `aria-describedby` | Description ID | Only present when `Input.Description` is mounted |
+| `aria-errormessage` | Error ID | Only present when `Input.Error` is mounted and errors exist |
+| `aria-required` | `true` | From Root's `required` prop |
+| `required` | `true` | Native attribute, from Root's `required` prop |
 | `disabled` | `true` | Native attribute, from Root's `disabled` prop |
 | `readonly` | `true` | Native attribute, from Root's `readonly` prop |
 
