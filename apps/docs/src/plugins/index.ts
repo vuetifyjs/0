@@ -1,8 +1,8 @@
-// Components
-import DocsMarkup from '@/components/docs/DocsMarkup.vue'
-
 // Framework
 import { createNotificationsPlugin } from '@vuetify/v0'
+
+// Components
+import DocsMarkup from '@/components/docs/DocsMarkup.vue'
 
 // Composables
 import { SettingsPlugin } from '@/composables/useSettings'

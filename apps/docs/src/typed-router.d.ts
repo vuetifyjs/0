@@ -180,6 +180,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/components/semantic/snackbar': RouteRecordInfo<
+      '/components/semantic/snackbar',
+      '/components/semantic/snackbar',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/components/semantic/splitter': RouteRecordInfo<
       '/components/semantic/splitter',
       '/components/semantic/splitter',
@@ -903,6 +910,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/components/semantic/pagination.md': {
       routes:
         | '/components/semantic/pagination'
+      views:
+        | never
+    }
+    'src/pages/components/semantic/snackbar.md': {
+      routes:
+        | '/components/semantic/snackbar'
       views:
         | never
     }

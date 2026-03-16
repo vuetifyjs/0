@@ -24,6 +24,9 @@
  * ```
  */
 
+// Globals
+import { IN_BROWSER } from '#v0/constants/globals'
+
 // Types
 import type { NotificationInput, NotificationsAdapterContext, NotificationsAdapterInterface } from '../index'
 
@@ -54,6 +57,8 @@ export interface KnockFeed {
   teardown: () => void
   listenForUpdates: () => void
 }
+
+function noop () {}
 
 function mapItem (item: KnockFeedItem): NotificationInput {
   const subject = item.blocks?.find(b => b.name === 'subject')?.rendered
@@ -91,18 +96,21 @@ export function createKnockAdapter (feed: KnockFeed): NotificationsAdapterInterf
 
       feed.on('items.received.realtime', onReceived)
       feed.on('items.received.page', onReceived)
-      feed.listenForUpdates()
-      feed.fetch()
+
+      if (IN_BROWSER) {
+        feed.listenForUpdates()
+        feed.fetch().catch(noop)
+      }
 
       // Outbound: notification mutations -> Knock API
       onRead = (data: unknown) => {
         const item = items.get(String(data))
-        if (item) feed.markAsRead(item).catch(() => {})
+        if (item) feed.markAsRead(item).catch(noop)
       }
 
       onArchived = (data: unknown) => {
         const item = items.get(String(data))
-        if (item) feed.markAsArchived(item).catch(() => {})
+        if (item) feed.markAsArchived(item).catch(noop)
       }
 
       ctx.on('notification:read', onRead)

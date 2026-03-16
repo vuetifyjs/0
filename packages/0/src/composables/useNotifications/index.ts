@@ -15,22 +15,17 @@
  */
 
 // Foundational
-import { createContext, useContext } from '#v0/composables/createContext'
-import { createPlugin } from '#v0/composables/createPlugin'
-import { createTrinity } from '#v0/composables/createTrinity'
+import { createPluginContext } from '#v0/composables/createPlugin'
 
 // Composables
 import { createRegistry } from '#v0/composables/createRegistry'
 
 // Utilities
 import { isFunction, useId } from '#v0/utilities'
-import { hasInjectionContext } from 'vue'
 
 // Types
 import type { RegistryContext, RegistryOptions, RegistryTicket, RegistryTicketInput } from '#v0/composables/createRegistry'
-import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { ID } from '#v0/types'
-import type { App } from 'vue'
 
 export type NotificationSeverity = 'info' | 'warning' | 'error' | 'success'
 
@@ -207,89 +202,33 @@ export interface NotificationsPluginOptions extends NotificationsOptions {
   adapter?: NotificationsAdapterInterface
 }
 
-/**
- * Creates a notifications context triple for dependency injection.
- *
- * @param options Configuration options
- * @returns A readonly tuple: `[useNotifications, provideNotifications, context]`
- *
- * @see https://0.vuetifyjs.com/composables/plugins/use-notifications
- *
- * @example
- * ```ts
- * import { createNotificationsContext } from '@vuetify/v0'
- *
- * export const [useNotifications, provideNotifications, context] = createNotificationsContext()
- * ```
- */
-export function createNotificationsContext<
-  Z extends NotificationInput = NotificationInput,
-  E extends NotificationTicket<Z> = NotificationTicket<Z>,
-  R extends NotificationsContext<Z, E> = NotificationsContext<Z, E>,
-> (
-  _options: NotificationsPluginOptions = {},
-): ContextTrinity<R> {
-  const { namespace = 'v0:notifications', ...options } = _options
-  const [useNotificationsContext, _provideNotificationsContext] = createContext<R>(namespace)
-  const context = createNotifications<Z, E, R>(options)
-
-  function provideNotificationsContext (_context: R = context, app?: App): R {
-    return _provideNotificationsContext(_context, app)
-  }
-
-  return createTrinity<R>(useNotificationsContext, provideNotificationsContext, context)
-}
-
-/**
- * Creates a Vue plugin to provide notifications context at app level.
- *
- * @param options Configuration options including optional adapter
- * @returns Vue plugin instance
- *
- * @see https://0.vuetifyjs.com/composables/plugins/use-notifications
- *
- * @example
- * ```ts
- * import { createApp } from 'vue'
- * import { createNotificationsPlugin } from '@vuetify/v0'
- *
- * const app = createApp(App)
- * app.use(createNotificationsPlugin())
- * app.mount('#app')
- * ```
- */
-export function createNotificationsPlugin (_options: NotificationsPluginOptions = {}) {
-  const { namespace = 'v0:notifications', adapter, ...options } = _options
-  const [, provide, context] = createNotificationsContext({ ...options, namespace })
-
-  return createPlugin({
-    namespace,
-    provide: (app: App) => {
-      provide(context, app)
-    },
-    setup: adapter
-      ? (app: App) => {
-          adapter.setup({
-            notify: context.notify,
-            on: context.on,
-            off: context.off,
-          })
-
-          if (isFunction(adapter.dispose)) {
-            app.onUnmount(() => adapter.dispose!())
-          }
-        }
-      : undefined,
-  })
-}
-
 // Fallback
 function noop () {}
+const EMPTY: readonly never[] = []
 
 function createNotificationsFallback (): NotificationsContext {
-  const stub = {} as NotificationTicket
+  const stub = {
+    id: '',
+    index: 0,
+    value: 0,
+    valueIsIndex: true,
+    createdAt: new Date(0),
+    readAt: null,
+    seenAt: null,
+    archivedAt: null,
+    snoozedUntil: null,
+    read: noop,
+    unread: noop,
+    seen: noop,
+    archive: noop,
+    unarchive: noop,
+    snooze: noop,
+    wake: noop,
+    dismiss: noop,
+  } as unknown as NotificationTicket
 
   return {
+    collection: new Map(),
     size: 0,
     notify: () => stub,
     read: noop,
@@ -301,45 +240,66 @@ function createNotificationsFallback (): NotificationsContext {
     wake: noop,
     readAll: noop,
     archiveAll: noop,
+    clear: noop,
+    has: () => false,
+    get: () => undefined,
+    keys: () => EMPTY,
+    values: () => EMPTY,
+    entries: () => EMPTY,
+    browse: () => undefined,
+    lookup: () => undefined,
+    upsert: () => stub,
+    register: () => stub,
+    unregister: noop,
+    reindex: noop,
+    move: () => undefined,
+    seek: () => undefined,
+    on: noop,
+    off: noop,
+    emit: noop,
+    dispose: noop,
+    batch: (fn: () => unknown) => fn(),
+    onboard: () => EMPTY,
+    offboard: noop,
   } as unknown as NotificationsContext
 }
 
 /**
- * Returns the current notifications context.
- *
- * @param namespace The namespace for the notifications context. Defaults to `'v0:notifications'`.
- * @returns The notifications context instance
- *
- * @remarks Falls back to a lightweight stub if no provider exists.
+ * Notification management with registry, event system, and optional adapters.
  *
  * @see https://0.vuetifyjs.com/composables/plugins/use-notifications
  *
  * @example
- * ```vue
- * <script setup lang="ts">
- *   import { useNotifications } from '@vuetify/v0'
+ * ```ts
+ * import { createNotificationsPlugin, useNotifications } from '@vuetify/v0'
  *
- *   const notifications = useNotifications()
+ * // Install as plugin
+ * app.use(createNotificationsPlugin())
  *
- *   notifications.notify({
- *     subject: 'Changes saved',
- *     severity: 'success',
- *   })
- * </script>
+ * // Use in components
+ * const notifications = useNotifications()
+ * notifications.notify({ subject: 'Saved', severity: 'success' })
  * ```
  */
-export function useNotifications<
-  Z extends NotificationInput = NotificationInput,
-  E extends NotificationTicket<Z> = NotificationTicket<Z>,
-  R extends NotificationsContext<Z, E> = NotificationsContext<Z, E>,
-> (namespace = 'v0:notifications'): R {
-  const fallback = createNotificationsFallback()
+export const [createNotificationsContext, createNotificationsPlugin, useNotifications] =
+  createPluginContext<NotificationsPluginOptions, NotificationsContext>(
+    'v0:notifications',
+    options => createNotifications(options),
+    {
+      fallback: () => createNotificationsFallback(),
+      setup: (context, app, options) => {
+        const { adapter } = options
+        if (!adapter) return
 
-  if (!hasInjectionContext()) return fallback as unknown as R
+        adapter.setup({
+          notify: context.notify,
+          on: context.on,
+          off: context.off,
+        })
 
-  try {
-    return useContext<R>(namespace)
-  } catch {
-    return fallback as unknown as R
-  }
-}
+        if (isFunction(adapter.dispose)) {
+          app.onUnmount(() => adapter.dispose!())
+        }
+      },
+    },
+  )

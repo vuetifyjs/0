@@ -48,7 +48,7 @@
       Cycles through info → success → warning → error
     </p>
 
-    <Snackbar.Portal :teleport="false" class="absolute bottom-4 right-4 flex flex-col gap-2 w-72">
+    <Snackbar.Portal class="absolute bottom-4 right-4 flex flex-col gap-2 w-72" :teleport="false">
       <TransitionGroup
         enter-active-class="transition duration-200 ease-out"
         enter-from-class="opacity-0 translate-y-2"
@@ -61,9 +61,9 @@
         <Snackbar.Root
           v-for="ticket in proxy.values"
           :key="ticket.id"
-          :severity="ticket.severity"
           class="flex items-center gap-3 px-4 py-2.5 rounded-lg shadow-lg text-sm"
           :class="classes[ticket.severity]"
+          :severity="ticket.severity"
         >
           <Snackbar.Content class="flex-1">
             {{ ticket.subject }}
@@ -73,7 +73,7 @@
             class="p-1 -mr-1 opacity-70 hover:opacity-100"
             @click="ticket.dismiss()"
           >
-            <svg class="w-4 h-4" viewBox="0 0 24 24" aria-hidden="true">
+            <svg aria-hidden="true" class="w-4 h-4" viewBox="0 0 24 24">
               <path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" fill="currentColor" />
             </svg>
           </Snackbar.Close>

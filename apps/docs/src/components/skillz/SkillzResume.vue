@@ -12,11 +12,11 @@
   import { toRef } from 'vue'
   import { useRoute, useRouter } from 'vue-router'
 
-  // Stores
-  import { useSkillzStore } from '@/stores/skillz'
-
   // Types
   import type { NotificationTicket } from '@vuetify/v0'
+
+  // Stores
+  import { useSkillzStore } from '@/stores/skillz'
 
   const store = useSkillzStore()
   const route = useRoute()

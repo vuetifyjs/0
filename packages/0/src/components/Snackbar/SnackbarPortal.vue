@@ -10,8 +10,17 @@
  */
 
 <script lang="ts">
+  // Components
+  import { Atom } from '#v0/components/Atom'
+
   // Foundational
   import { createContext } from '#v0/composables/createContext'
+
+  // Composables
+  import { useStack } from '#v0/composables/useStack'
+
+  // Utilities
+  import { onUnmounted, toRef } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -35,15 +44,6 @@
 </script>
 
 <script setup lang="ts">
-  // Components
-  import { Atom } from '#v0/components/Atom'
-
-  // Composables
-  import { useStack } from '#v0/composables/useStack'
-
-  // Utilities
-  import { onUnmounted, toRef } from 'vue'
-
   defineOptions({ name: 'SnackbarPortal' })
 
   defineSlots<{
