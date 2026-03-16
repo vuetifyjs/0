@@ -9,7 +9,7 @@
 </script>
 
 <template>
-  <div class="markdown-body flex-1 min-h-0 overflow-y-auto px-5 py-4">
+  <div class="markdown-body flex-1 min-h-0 min-w-0 overflow-auto px-5 py-4">
     <component
       :is="props.component"
       v-if="props.component"
