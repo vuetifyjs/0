@@ -1,8 +1,8 @@
 <script setup lang="ts">
   import { Input } from '@vuetify/v0'
-  import { ref } from 'vue'
+  import { shallowRef } from 'vue'
 
-  const email = ref('')
+  const email = shallowRef('')
 </script>
 
 <template>
