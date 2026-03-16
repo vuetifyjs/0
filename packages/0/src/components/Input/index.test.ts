@@ -11,10 +11,6 @@ import type { VueWrapper } from '@vue/test-utils'
 
 import { Input } from './index'
 
-// ============================================================================
-// Test Helpers
-// ============================================================================
-
 interface MountResult {
   wrapper: VueWrapper
   props: () => InputRootSlotProps
@@ -64,10 +60,6 @@ function mountInput (options: {
     wait: () => nextTick(),
   }
 }
-
-// ============================================================================
-// Tests
-// ============================================================================
 
 describe('input', () => {
   describe('v-model binding', () => {
