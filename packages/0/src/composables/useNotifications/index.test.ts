@@ -132,14 +132,16 @@ describe('createNotifications', () => {
       })
     })
 
-    it('should dismiss via ticket.dismiss()', () => {
+    it('should dismiss from queue but keep in registry', () => {
       withScope(() => {
         const notifications = createNotifications()
         const ticket = notifications.send({ subject: 'Test' })
         expect(notifications.values().length).toBe(1)
+        expect(notifications.queue.values().length).toBe(1)
 
         ticket.dismiss()
-        expect(notifications.values().length).toBe(0)
+        expect(notifications.values().length).toBe(1)
+        expect(notifications.queue.values().length).toBe(0)
       })
     })
 
@@ -268,22 +270,22 @@ describe('createNotifications', () => {
   })
 
   describe('dismissal', () => {
-    it('should update values when dismissing first of two items', () => {
+    it('should remove from queue when dismissing first of two items', () => {
       withScope(() => {
         const notifications = createNotifications()
         const a = notifications.send({ subject: 'A' })
         notifications.send({ subject: 'B' })
 
-        expect(notifications.values()).toHaveLength(2)
+        expect(notifications.queue.values()).toHaveLength(2)
 
         a.dismiss()
 
-        expect(notifications.values()).toHaveLength(1)
-        expect(notifications.values()[0]!.subject).toBe('B')
+        expect(notifications.queue.values()).toHaveLength(1)
+        expect(notifications.values()).toHaveLength(2)
       })
     })
 
-    it('should update values when dismissing second of two items', () => {
+    it('should remove from queue when dismissing second of two items', () => {
       withScope(() => {
         const notifications = createNotifications()
         notifications.send({ subject: 'A' })
@@ -291,8 +293,8 @@ describe('createNotifications', () => {
 
         b.dismiss()
 
-        expect(notifications.values()).toHaveLength(1)
-        expect(notifications.values()[0]!.subject).toBe('A')
+        expect(notifications.queue.values()).toHaveLength(1)
+        expect(notifications.values()).toHaveLength(2)
       })
     })
 
@@ -307,8 +309,105 @@ describe('createNotifications', () => {
         b.dismiss()
         c.dismiss()
 
+        expect(notifications.queue.values()).toHaveLength(0)
+        expect(notifications.values()).toHaveLength(3)
+      })
+    })
+  })
+
+  describe('queue', () => {
+    it('should add to both registry and queue on send', () => {
+      withScope(() => {
+        const notifications = createNotifications()
+        notifications.send({ subject: 'Test' })
+
+        expect(notifications.values()).toHaveLength(1)
+        expect(notifications.queue.values()).toHaveLength(1)
+      })
+    })
+
+    it('should add to registry only on onboard', () => {
+      withScope(() => {
+        const notifications = createNotifications()
+        notifications.onboard([
+          { subject: 'A' } as any,
+          { subject: 'B' } as any,
+        ])
+
+        expect(notifications.values()).toHaveLength(2)
+        expect(notifications.queue.values()).toHaveLength(0)
+      })
+    })
+
+    it('should remove from both on unregister', () => {
+      withScope(() => {
+        const notifications = createNotifications()
+        const ticket = notifications.send({ subject: 'Test' })
+
+        ticket.unregister()
+
         expect(notifications.values()).toHaveLength(0)
-        expect(notifications.values().length).toBe(0)
+        expect(notifications.queue.values()).toHaveLength(0)
+      })
+    })
+
+    it('should respect per-notification timeout override', () => {
+      withScope(() => {
+        const notifications = createNotifications({ timeout: 5000 })
+        notifications.send({ subject: 'Custom', timeout: 1000 })
+
+        const queued = notifications.queue.values()[0]!
+        expect(queued.timeout).toBe(1000)
+      })
+    })
+
+    it('should respect persistent timeout', () => {
+      withScope(() => {
+        const notifications = createNotifications()
+        notifications.send({ subject: 'Persistent', timeout: -1 })
+
+        const queued = notifications.queue.values()[0]!
+        expect(queued.timeout).toBe(-1)
+      })
+    })
+
+    it('should expose pause and resume', () => {
+      withScope(() => {
+        const notifications = createNotifications()
+        notifications.send({ subject: 'Test' })
+
+        const paused = notifications.queue.pause()
+        expect(paused?.isPaused).toBe(true)
+
+        const resumed = notifications.queue.resume()
+        expect(resumed?.isPaused).toBe(false)
+      })
+    })
+
+    it('should use default timeout from options', () => {
+      withScope(() => {
+        const notifications = createNotifications({ timeout: 7000 })
+        notifications.send({ subject: 'Test' })
+
+        const queued = notifications.queue.values()[0]!
+        expect(queued.timeout).toBe(7000)
+      })
+    })
+
+    it('should auto-dismiss from queue but keep in registry', () => {
+      withScope(() => {
+        vi.useFakeTimers()
+        const notifications = createNotifications({ timeout: 1000 })
+        notifications.send({ subject: 'Test' })
+
+        expect(notifications.queue.values()).toHaveLength(1)
+        expect(notifications.values()).toHaveLength(1)
+
+        vi.advanceTimersByTime(1000)
+
+        expect(notifications.queue.values()).toHaveLength(0)
+        expect(notifications.values()).toHaveLength(1)
+        vi.useRealTimers()
       })
     })
   })

@@ -3,13 +3,15 @@
  * @see https://0.vuetifyjs.com/composables/plugins/use-notifications
  *
  * @remarks
- * Notification management composable built on createRegistry.
- * Manages notification lifecycle with optional service adapters (Knock).
+ * Notification management composable built on createRegistry and createQueue.
+ * Registry stores the full notification lifecycle (permanent record).
+ * Queue manages the display surface (toasts) with FIFO ordering and auto-dismiss.
  *
  * Supports:
- * - Push notifications with severity levels
+ * - Push notifications with severity levels and configurable timeouts
  * - State mutations: read, seen, archived, snoozed
  * - Bulk operations: readAll, archiveAll, clear
+ * - Toast queue with pause/resume and auto-dismiss
  * - Adapter integration via event system
  * - Plugin installation via createNotificationsPlugin
  */
@@ -18,12 +20,14 @@
 import { createPluginContext } from '#v0/composables/createPlugin'
 
 // Composables
+import { createQueue } from '#v0/composables/createQueue'
 import { createRegistry } from '#v0/composables/createRegistry'
 
 // Utilities
-import { isFunction, useId } from '#v0/utilities'
+import { isFunction, isUndefined, useId } from '#v0/utilities'
 
 // Types
+import type { QueueContext } from '#v0/composables/createQueue'
 import type { RegistryContext, RegistryOptions, RegistryTicket, RegistryTicketInput } from '#v0/composables/createRegistry'
 import type { ID } from '#v0/types'
 
@@ -34,6 +38,7 @@ export interface NotificationInput extends RegistryTicketInput {
   body?: string
   severity?: NotificationSeverity
   data?: Record<string, unknown>
+  timeout?: number
 }
 
 export type NotificationTicket<Z extends NotificationInput = NotificationInput> = RegistryTicket & Z & {
@@ -69,13 +74,16 @@ export interface NotificationsAdapterInterface<
   dispose?: () => void
 }
 
-export interface NotificationsOptions extends RegistryOptions {}
+export interface NotificationsOptions extends RegistryOptions {
+  timeout?: number
+}
 
 export interface NotificationsContext<
   Z extends NotificationInput = NotificationInput,
   E extends NotificationTicket<Z> = NotificationTicket<Z>,
 > extends RegistryContext<E> {
   send: (input: Z) => E
+  queue: QueueContext
 
   read: (id: ID) => void
   unread: (id: ID) => void
@@ -96,10 +104,25 @@ export function createNotifications<
 > (
   options: NotificationsOptions = {},
 ): R {
+  const { timeout = 3000, ...registryOptions } = options
+
   const registry = createRegistry<E>({
-    ...options,
+    ...registryOptions,
     events: true,
     reactive: true,
+  })
+
+  const queue = createQueue({
+    timeout,
+    events: true,
+    reactive: true,
+  })
+
+  // When a ticket is removed from registry, also remove from queue
+  registry.on('unregister:ticket', (ticket: E) => {
+    if (queue.has(ticket.id)) {
+      queue.unregister(ticket.id)
+    }
   })
 
   function send (input: Z): E {
@@ -121,8 +144,10 @@ export function createNotifications<
       unarchive: () => unarchive(id),
       snooze: (until: Date) => snooze(id, until),
       wake: () => wake(id),
-      dismiss: () => registry.unregister(id),
+      dismiss: () => queue.unregister(id),
     } as unknown as Partial<E>)
+
+    queue.register(isUndefined(input.timeout) ? { id } : { id, timeout: input.timeout })
 
     registry.emit('notification:received', ticket)
 
@@ -182,6 +207,7 @@ export function createNotifications<
   return {
     ...registry,
     send,
+    queue,
     read,
     unread,
     seen,
@@ -231,6 +257,33 @@ function createNotificationsFallback (): NotificationsContext {
     collection: new Map(),
     size: 0,
     send: () => stub,
+    queue: {
+      collection: new Map(),
+      size: 0,
+      register: () => ({}) as any,
+      unregister: () => undefined,
+      has: () => false,
+      get: () => undefined,
+      keys: () => EMPTY,
+      values: () => EMPTY,
+      entries: () => EMPTY,
+      browse: () => undefined,
+      lookup: () => undefined,
+      upsert: () => ({}) as any,
+      seek: () => undefined,
+      move: () => undefined,
+      on: noop,
+      off: noop,
+      emit: noop,
+      dispose: noop,
+      clear: noop,
+      reindex: noop,
+      batch: (fn: () => unknown) => fn(),
+      onboard: () => EMPTY,
+      offboard: noop,
+      pause: () => undefined,
+      resume: () => undefined,
+    } as unknown as QueueContext,
     read: noop,
     unread: noop,
     seen: noop,
