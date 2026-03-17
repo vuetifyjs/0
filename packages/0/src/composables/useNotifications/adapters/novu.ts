@@ -59,26 +59,36 @@ export interface NovuClient {
   on: (event: string, handler: (data: unknown) => void) => () => void
 }
 
-const SEVERITY_MAP: Record<string, NotificationSeverity> = {
+export interface NovuAdapterOptions {
+  /** Map a Novu severity string to a NotificationSeverity. Defaults to critical/high→error, medium→warning, low→info. */
+  severity?: (novuSeverity: string) => NotificationSeverity | undefined
+}
+
+const DEFAULT_SEVERITY_MAP: Record<string, NotificationSeverity> = {
   critical: 'error',
   high: 'error',
   medium: 'warning',
   low: 'info',
 }
 
+function defaultSeverity (s: string): NotificationSeverity | undefined {
+  return DEFAULT_SEVERITY_MAP[s.toLowerCase()]
+}
+
 function noop () {}
 
-function mapItem (item: NovuNotification): NotificationInput {
+function mapItem (item: NovuNotification, resolveSeverity: (s: string) => NotificationSeverity | undefined): NotificationInput {
   return {
     id: item.id,
     subject: item.subject,
     body: item.body,
     data: item.data,
-    severity: item.severity ? (SEVERITY_MAP[item.severity.toLowerCase()] ?? 'info') : undefined,
+    severity: item.severity ? resolveSeverity(item.severity) : undefined,
   }
 }
 
-export function createNovuAdapter (novu: NovuClient): NotificationsAdapterInterface {
+export function createNovuAdapter (novu: NovuClient, options: NovuAdapterOptions = {}): NotificationsAdapterInterface {
+  const resolveSeverity = options.severity ?? defaultSeverity
   const ids = new Set<string>()
   let ctx: NotificationsAdapterContext | undefined
   const unsubscribers: Array<() => void> = []
@@ -98,7 +108,7 @@ export function createNovuAdapter (novu: NovuClient): NotificationsAdapterInterf
         const item = data as NovuNotification
         if (!item?.id || ids.has(item.id)) return
         ids.add(item.id)
-        ctx!.send(mapItem(item))
+        ctx!.send(mapItem(item, resolveSeverity))
       })
 
       unsubscribers.push(unsub)
@@ -109,7 +119,7 @@ export function createNovuAdapter (novu: NovuClient): NotificationsAdapterInterf
           for (const item of data?.notifications ?? []) {
             if (!item.id || ids.has(item.id)) continue
             ids.add(item.id)
-            ctx!.send(mapItem(item))
+            ctx!.send(mapItem(item, resolveSeverity))
           }
         }).catch(noop)
       }
