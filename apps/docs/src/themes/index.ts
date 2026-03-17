@@ -20,7 +20,7 @@ export const themes = {
     icon: 'theme-light',
     dark: false,
     colors: {
-      'primary': '#3b82f6',
+      'primary': '#7c5cf6',
       'secondary': '#64748b',
       'accent': '#6366f1',
       'error': '#ef4444',
