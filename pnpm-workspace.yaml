@@ -24,6 +24,7 @@ catalog:
   '@unhead/addons': ^2.1.12
   '@unhead/vue': ^2.1.12
   '@vitest/coverage-v8': ^4.1.0
+  '@vue/compiler-dom': ^3.5.30
   '@vue/repl': ^4.7.1
   '@vue/test-utils': ^2.4.6
   '@vue/tsconfig': ^0.9.0
@@ -91,3 +92,7 @@ onlyBuiltDependencies:
 
 patchedDependencies:
   '@vue/repl@4.7.1': patches/@vue__repl@4.7.1.patch
+
+peerDependencyRules:
+  allowedVersions:
+    vite: '8'

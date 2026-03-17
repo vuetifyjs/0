@@ -165,6 +165,7 @@
     "@vue/repl",
     "@vuetify/paper",
     "conventional-changelog-vuetify",
+    "@vue/compiler-dom",
     "@flagsmith/flagsmith",
     "launchdarkly-js-client-sdk",
     "posthog-js"
