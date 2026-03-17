@@ -8,7 +8,7 @@
   <h1>Hello World</h1>
 </template>`,
     'main.ts': `import { createApp } from 'vue'
-import App from './App.vue'
+${'import'} App from './App.vue'
 
 createApp(App).mount('#app')`,
     'style.css': `body {

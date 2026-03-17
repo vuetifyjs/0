@@ -168,8 +168,8 @@ export function createForm<
   async function submit (id?: ID | ID[]): Promise<boolean> {
     const ids = id ? toArray(id) : [...registry.keys()]
     const results = await Promise.all(
-      ids.map(async id => {
-        const ticket = registry.get(id)
+      ids.map(async key => {
+        const ticket = registry.get(key)
         if (!ticket) return true
         return ticket.value.validate()
       }),
