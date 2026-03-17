@@ -25,22 +25,27 @@
 </script>
 
 <template>
-  <!-- Desktop: only render SplitterPanel when open. When closed, the panel
-       is removed entirely so PlaygroundAppRight takes full width naturally.
-       No collapse timing issues — the Splitter never needs to redistribute. -->
-  <template v-if="!isMobile && open">
-    <SplitterPanel
-      :default-size="30"
-      :max-size="45"
-      :min-size="30"
+  <!-- Desktop: SplitterPanel is ALWAYS mounted to preserve registration order
+       with the SplitterRoot. Unmounting on mobile would cause it to re-register
+       at the end, inverting panel order and breaking drag direction. -->
+  <SplitterPanel
+    :default-size="30"
+    :max-size="45"
+    :min-size="open && !isMobile ? 30 : 0"
+  >
+    <div
+      v-if="!isMobile && open"
+      class="bg-surface h-full min-w-0 flex flex-col overflow-hidden"
     >
-      <div class="bg-surface h-full min-w-0 flex flex-col overflow-hidden">
-        <slot />
-      </div>
-    </SplitterPanel>
+      <slot />
+    </div>
+  </SplitterPanel>
 
-    <PlaygroundSplitterHandle direction="horizontal" />
-  </template>
+  <PlaygroundSplitterHandle
+    v-if="!isMobile"
+    direction="horizontal"
+    :hidden="!open"
+  />
 
   <!-- Mobile: fixed drawer -->
   <div
