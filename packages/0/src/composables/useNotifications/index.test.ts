@@ -108,7 +108,9 @@ describe('createNotifications', () => {
     it('should readAll', () => {
       withScope(() => {
         const notifications = createNotifications()
-        notifications.send({ subject: 'A' }, { subject: 'B' }, { subject: 'C' })
+        notifications.send({ subject: 'A' })
+        notifications.send({ subject: 'B' })
+        notifications.send({ subject: 'C' })
 
         notifications.readAll()
         for (const ticket of notifications.values()) {
@@ -120,7 +122,8 @@ describe('createNotifications', () => {
     it('should archiveAll', () => {
       withScope(() => {
         const notifications = createNotifications()
-        notifications.send({ subject: 'A' }, { subject: 'B' })
+        notifications.send({ subject: 'A' })
+        notifications.send({ subject: 'B' })
 
         notifications.archiveAll()
         for (const ticket of notifications.values()) {
