@@ -2,9 +2,13 @@
   // Framework
   import { SplitterRoot, useStorage } from '@vuetify/v0'
 
+  // Components
+  import { usePlayground } from './PlaygroundApp.vue'
+
   // Utilities
   import { onMounted, useTemplateRef } from 'vue'
 
+  const playground = usePlayground()
   const storage = useStorage()
   const sizes = storage.get<number[]>('playground-h-sizes', [])
 
@@ -14,8 +18,13 @@
 
   const root = useTemplateRef<{ distribute: (sizes: number[]) => void }>('root')
 
+  // Only restore persisted sizes when the left panel is open.
+  // When closed, the SplitterPanel's collapsed model handles sizing
+  // via collapse() — distributing stale sizes here would override it.
   onMounted(() => {
-    if (sizes.value.length > 0) root.value?.distribute(sizes.value)
+    if (sizes.value.length > 0 && playground.left.value) {
+      root.value?.distribute(sizes.value)
+    }
   })
 </script>
 
