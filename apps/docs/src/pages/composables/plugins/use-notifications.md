@@ -52,7 +52,7 @@ Once the plugin is installed, use the `useNotifications` composable in any compo
   const notifications = useNotifications()
 
   function onSave () {
-    notifications.notify({
+    notifications.send({
       subject: 'Changes saved',
       severity: 'success',
       timeout: 3000,
@@ -60,7 +60,7 @@ Once the plugin is installed, use the `useNotifications` composable in any compo
   }
 
   function onError () {
-    notifications.notify({
+    notifications.send({
       subject: 'Build failed',
       severity: 'error',
       timeout: -1,
@@ -101,7 +101,7 @@ flowchart TB
   Queue --> Core
   Core --> Plugin
   Plugin --> Use
-  Adapter -.->|inbound: notify| Core
+  Adapter -.->|inbound: send| Core
   Core -.->|outbound: events| Events
   Events -.-> Adapter
 ```
@@ -148,7 +148,7 @@ Click **Simulate Event** repeatedly to cycle through banner, snackbar, and inbox
 
 ```mermaid "Notification Lifecycle"
 stateDiagram-v2
-  [*] --> Unseen: notify()
+  [*] --> Unseen: send()
   Unseen --> Unread: inbox opened (seen)
   Unread --> Read: mark read
   Read --> Unread: mark unread

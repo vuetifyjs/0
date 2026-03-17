@@ -56,7 +56,7 @@ export interface NotificationsAdapterContext<
   Z extends NotificationInput = NotificationInput,
   E extends NotificationTicket<Z> = NotificationTicket<Z>,
 > {
-  notify: (input: Z) => E
+  send: (input: Z) => E
   on: (event: string, handler: (data: unknown) => void) => void
   off: (event: string, handler: (data: unknown) => void) => void
 }
@@ -75,7 +75,7 @@ export interface NotificationsContext<
   Z extends NotificationInput = NotificationInput,
   E extends NotificationTicket<Z> = NotificationTicket<Z>,
 > extends RegistryContext<E> {
-  notify: (input: Z) => E
+  send: (input: Z) => E
 
   read: (id: ID) => void
   unread: (id: ID) => void
@@ -102,7 +102,7 @@ export function createNotifications<
     reactive: true,
   })
 
-  function notify (input: Z): E {
+  function send (input: Z): E {
     const id = input.id ?? useId()
     const now = new Date()
 
@@ -181,7 +181,7 @@ export function createNotifications<
 
   return {
     ...registry,
-    notify,
+    send,
     read,
     unread,
     seen,
@@ -230,7 +230,7 @@ function createNotificationsFallback (): NotificationsContext {
   return {
     collection: new Map(),
     size: 0,
-    notify: () => stub,
+    send: () => stub,
     read: noop,
     unread: noop,
     seen: noop,
@@ -278,7 +278,7 @@ function createNotificationsFallback (): NotificationsContext {
  *
  * // Use in components
  * const notifications = useNotifications()
- * notifications.notify({ subject: 'Saved', severity: 'success' })
+ * notifications.send({ subject: 'Saved', severity: 'success' })
  * ```
  */
 export const [createNotificationsContext, createNotificationsPlugin, useNotifications] =
@@ -292,7 +292,7 @@ export const [createNotificationsContext, createNotificationsPlugin, useNotifica
         if (!adapter) return
 
         adapter.setup({
-          notify: context.notify,
+          send: context.send,
           on: context.on,
           off: context.off,
         })

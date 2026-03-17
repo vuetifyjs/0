@@ -5,7 +5,7 @@
  * Knock adapter for useNotifications.
  * Bridges a Knock feed instance with the notification system.
  *
- * Inbound: Maps real-time feed events to ctx.notify()
+ * Inbound: Maps real-time feed events to ctx.send()
  * Outbound: Listens to notification:read and notification:archived
  *           events and calls feed.markAsRead/markAsArchived
  *
@@ -83,14 +83,14 @@ export function createKnockAdapter (feed: KnockFeed): NotificationsAdapterInterf
     setup (_ctx: NotificationsAdapterContext) {
       ctx = _ctx
 
-      // Inbound: real-time feed events -> ctx.notify()
+      // Inbound: real-time feed events -> ctx.send()
       onReceived = (data: unknown) => {
         const payload = data as { items?: KnockFeedItem[] }
         if (!payload?.items) return
         for (const item of payload.items) {
           if (items.has(item.id)) continue
           items.set(item.id, item)
-          ctx!.notify(mapItem(item))
+          ctx!.send(mapItem(item))
         }
       }
 

@@ -24,10 +24,10 @@ describe('createNotifications', () => {
       })
     })
 
-    it('should notify and add to items', () => {
+    it('should send and add to items', () => {
       withScope(() => {
         const notifications = createNotifications()
-        const ticket = notifications.notify({
+        const ticket = notifications.send({
           subject: 'Test',
           severity: 'info',
         })
@@ -47,7 +47,7 @@ describe('createNotifications', () => {
     it('should assign dismiss to ticket', () => {
       withScope(() => {
         const notifications = createNotifications()
-        const ticket = notifications.notify({ subject: 'Test' })
+        const ticket = notifications.send({ subject: 'Test' })
         expect(ticket.dismiss).toBeTypeOf('function')
       })
     })
@@ -57,7 +57,7 @@ describe('createNotifications', () => {
     it('should read and unread', () => {
       withScope(() => {
         const notifications = createNotifications()
-        const ticket = notifications.notify({ subject: 'Test' })
+        const ticket = notifications.send({ subject: 'Test' })
 
         notifications.read(ticket.id)
         expect(notifications.get(ticket.id)?.readAt).toBeInstanceOf(Date)
@@ -70,7 +70,7 @@ describe('createNotifications', () => {
     it('should seen', () => {
       withScope(() => {
         const notifications = createNotifications()
-        const ticket = notifications.notify({ subject: 'Test' })
+        const ticket = notifications.send({ subject: 'Test' })
         expect(notifications.get(ticket.id)?.seenAt).toBeNull()
 
         notifications.seen(ticket.id)
@@ -81,7 +81,7 @@ describe('createNotifications', () => {
     it('should archive and unarchive', () => {
       withScope(() => {
         const notifications = createNotifications()
-        const ticket = notifications.notify({ subject: 'Test' })
+        const ticket = notifications.send({ subject: 'Test' })
 
         notifications.archive(ticket.id)
         expect(notifications.get(ticket.id)?.archivedAt).toBeInstanceOf(Date)
@@ -94,7 +94,7 @@ describe('createNotifications', () => {
     it('should snooze and wake', () => {
       withScope(() => {
         const notifications = createNotifications()
-        const ticket = notifications.notify({ subject: 'Test' })
+        const ticket = notifications.send({ subject: 'Test' })
         const until = new Date(Date.now() + 60_000)
 
         notifications.snooze(ticket.id, until)
@@ -108,9 +108,7 @@ describe('createNotifications', () => {
     it('should readAll', () => {
       withScope(() => {
         const notifications = createNotifications()
-        notifications.notify({ subject: 'A' })
-        notifications.notify({ subject: 'B' })
-        notifications.notify({ subject: 'C' })
+        notifications.send({ subject: 'A' }, { subject: 'B' }, { subject: 'C' })
 
         notifications.readAll()
         for (const ticket of notifications.values()) {
@@ -122,8 +120,7 @@ describe('createNotifications', () => {
     it('should archiveAll', () => {
       withScope(() => {
         const notifications = createNotifications()
-        notifications.notify({ subject: 'A' })
-        notifications.notify({ subject: 'B' })
+        notifications.send({ subject: 'A' }, { subject: 'B' })
 
         notifications.archiveAll()
         for (const ticket of notifications.values()) {
@@ -135,7 +132,7 @@ describe('createNotifications', () => {
     it('should dismiss via ticket.dismiss()', () => {
       withScope(() => {
         const notifications = createNotifications()
-        const ticket = notifications.notify({ subject: 'Test' })
+        const ticket = notifications.send({ subject: 'Test' })
         expect(notifications.values().length).toBe(1)
 
         ticket.dismiss()
@@ -146,7 +143,7 @@ describe('createNotifications', () => {
     it('should use ticket convenience methods', () => {
       withScope(() => {
         const notifications = createNotifications()
-        const ticket = notifications.notify({ subject: 'Test' })
+        const ticket = notifications.send({ subject: 'Test' })
 
         ticket.read()
         expect(notifications.get(ticket.id)?.readAt).toBeInstanceOf(Date)
@@ -174,13 +171,13 @@ describe('createNotifications', () => {
   })
 
   describe('events', () => {
-    it('should emit notification:received on notify', () => {
+    it('should emit notification:received on send', () => {
       withScope(() => {
         const notifications = createNotifications()
         const handler = vi.fn()
         notifications.on('notification:received', handler)
 
-        notifications.notify({ subject: 'Test' })
+        notifications.send({ subject: 'Test' })
         expect(handler).toHaveBeenCalledOnce()
       })
     })
@@ -191,7 +188,7 @@ describe('createNotifications', () => {
         const handler = vi.fn()
         notifications.on('notification:read', handler)
 
-        const ticket = notifications.notify({ subject: 'Test' })
+        const ticket = notifications.send({ subject: 'Test' })
         notifications.read(ticket.id)
         expect(handler).toHaveBeenCalledWith(ticket.id)
       })
@@ -201,7 +198,7 @@ describe('createNotifications', () => {
   describe('adapter', () => {
     function adapterContext (notifications: ReturnType<typeof createNotifications>): NotificationsAdapterContext {
       return {
-        notify: notifications.notify,
+        send: notifications.send,
         on: notifications.on,
         off: notifications.off,
       }
@@ -216,7 +213,7 @@ describe('createNotifications', () => {
 
         expect(setup).toHaveBeenCalledOnce()
         const ctx = setup.mock.calls[0]![0]
-        expect(ctx).toHaveProperty('notify')
+        expect(ctx).toHaveProperty('send')
         expect(ctx).toHaveProperty('on')
         expect(ctx).toHaveProperty('off')
       })
@@ -234,11 +231,11 @@ describe('createNotifications', () => {
       })
     })
 
-    it('should allow adapter to push notifications', () => {
+    it('should allow adapter to send notifications', () => {
       withScope(() => {
         const adapter = {
           setup (ctx: NotificationsAdapterContext) {
-            ctx.notify({ subject: 'From adapter', severity: 'info' })
+            ctx.send({ subject: 'From adapter', severity: 'info' })
           },
         }
         const notifications = createNotifications()
@@ -260,7 +257,7 @@ describe('createNotifications', () => {
         const notifications = createNotifications()
         adapter.setup(adapterContext(notifications))
 
-        const ticket = notifications.notify({ subject: 'Test' })
+        const ticket = notifications.send({ subject: 'Test' })
         notifications.read(ticket.id)
         expect(reads).toEqual([ticket.id])
       })
@@ -271,8 +268,8 @@ describe('createNotifications', () => {
     it('should update values when dismissing first of two items', () => {
       withScope(() => {
         const notifications = createNotifications()
-        const a = notifications.notify({ subject: 'A' })
-        notifications.notify({ subject: 'B' })
+        const a = notifications.send({ subject: 'A' })
+        notifications.send({ subject: 'B' })
 
         expect(notifications.values()).toHaveLength(2)
 
@@ -286,8 +283,8 @@ describe('createNotifications', () => {
     it('should update values when dismissing second of two items', () => {
       withScope(() => {
         const notifications = createNotifications()
-        notifications.notify({ subject: 'A' })
-        const b = notifications.notify({ subject: 'B' })
+        notifications.send({ subject: 'A' })
+        const b = notifications.send({ subject: 'B' })
 
         b.dismiss()
 
@@ -299,9 +296,9 @@ describe('createNotifications', () => {
     it('should handle rapid sequential dismissals', () => {
       withScope(() => {
         const notifications = createNotifications()
-        const a = notifications.notify({ subject: 'A' })
-        const b = notifications.notify({ subject: 'B' })
-        const c = notifications.notify({ subject: 'C' })
+        const a = notifications.send({ subject: 'A' })
+        const b = notifications.send({ subject: 'B' })
+        const c = notifications.send({ subject: 'C' })
 
         a.dismiss()
         b.dismiss()

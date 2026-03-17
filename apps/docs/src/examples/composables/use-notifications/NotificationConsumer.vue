@@ -55,7 +55,7 @@
   let index = 0
 
   function simulate () {
-    notifications.notify(scenarios[index % scenarios.length]!)
+    notifications.send(scenarios[index % scenarios.length]!)
     index++
   }
 </script>

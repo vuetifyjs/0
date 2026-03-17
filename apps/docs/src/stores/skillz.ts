@@ -203,7 +203,7 @@ export const useSkillzStore = defineStore('skillz', () => {
     }
 
     if (pending) {
-      notifications.notify({
+      notifications.send({
         id: `skillz:${pending.tour.id}`,
         subject: `Continue ${pending.tour.name}?`,
         severity: 'info',
