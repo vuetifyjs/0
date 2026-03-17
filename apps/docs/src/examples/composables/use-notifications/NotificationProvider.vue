@@ -1,51 +1,27 @@
 <script setup lang="ts">
-  import { computed, onScopeDispose, shallowRef, watch } from 'vue'
+  import { computed, shallowRef } from 'vue'
   import { mdiClose, mdiArchiveOutline, mdiClockOutline, mdiBellOutline } from '@mdi/js'
+  import { Snackbar, useProxyRegistry } from '@vuetify/v0'
   import { createAppNotifications, provideNotifications } from './context'
   import type { NotificationTicket } from '@vuetify/v0'
 
   const notifications = createAppNotifications()
   provideNotifications(notifications)
 
-  const { proxy } = notifications
+  const proxy = useProxyRegistry(notifications)
+  const queueProxy = useProxyRegistry(notifications.queue)
 
   // Only show the most recent banner
   const banner = computed(() =>
     proxy.values.find(t => t.data?.type === 'banner'),
   )
 
+  // Toasts — driven by the queue (auto-dismiss handled by timeout)
   const toasts = computed(() =>
-    proxy.values.filter(t => t.data?.type === 'toast'),
+    queueProxy.values
+      .map(q => notifications.get(q.id))
+      .filter(n => n?.data?.type === 'toast'),
   )
-
-  // Auto-dismiss toasts after 4s (independent of queue FIFO)
-  const toastTimers = new Map<string | number, ReturnType<typeof setTimeout>>()
-  watch(toasts, (current, previous = []) => {
-    const previousIds = new Set(previous.map(t => t.id))
-    for (const toast of current) {
-      if (!previousIds.has(toast.id) && !toastTimers.has(toast.id)) {
-        toastTimers.set(toast.id, setTimeout(() => {
-          toastTimers.delete(toast.id)
-          toast.dismiss()
-        }, 4000))
-      }
-    }
-    // Clean up timers for removed toasts
-    for (const prev of previous) {
-      if (!current.some(t => t.id === prev.id)) {
-        const timer = toastTimers.get(prev.id)
-        if (timer) {
-          clearTimeout(timer)
-          toastTimers.delete(prev.id)
-        }
-      }
-    }
-  })
-
-  onScopeDispose(() => {
-    for (const timer of toastTimers.values()) clearTimeout(timer)
-    toastTimers.clear()
-  })
 
   const inlines = computed(() =>
     proxy.values.filter(t => t.data?.type === 'inline'),
@@ -229,19 +205,37 @@
       </div>
     </div>
 
-    <!-- Toasts -->
-    <div class="absolute bottom-4 right-4 flex flex-col gap-2 z-10">
-      <div
-        v-for="ticket in toasts"
-        :key="ticket.id"
-        class="flex items-center gap-3 px-4 py-2.5 rounded-lg shadow-lg text-sm min-w-64"
-        :class="severity[ticket.severity ?? 'info']"
+    <!-- Toasts — rendered from notifications.queue via Snackbar -->
+    <Snackbar.Portal class="absolute bottom-4 right-4 flex flex-col gap-2 z-10" :teleport="false">
+      <TransitionGroup
+        enter-active-class="transition duration-200 ease-out"
+        enter-from-class="opacity-0 translate-y-2"
+        enter-to-class="opacity-100 translate-y-0"
+        leave-active-class="transition duration-150 ease-in absolute w-full"
+        leave-from-class="opacity-100"
+        leave-to-class="opacity-0"
+        move-class="transition duration-200"
       >
-        <span class="flex-1">{{ ticket.subject }}</span>
-        <button class="p-1 -mr-1 opacity-70 hover:opacity-100" @click.stop="notifications.unregister(ticket.id)">
-          <svg class="w-4 h-4 pointer-events-none" viewBox="0 0 24 24"><path :d="mdiClose" fill="currentColor" /></svg>
-        </button>
-      </div>
-    </div>
+        <Snackbar.Root
+          v-for="ticket in toasts"
+          :key="ticket!.id"
+          class="flex items-center gap-3 px-4 py-2.5 rounded-lg shadow-lg text-sm min-w-64"
+          :class="severity[ticket!.severity ?? 'info']"
+          :severity="ticket!.severity"
+        >
+          <Snackbar.Content class="flex-1">
+            {{ ticket!.subject }}
+          </Snackbar.Content>
+          <Snackbar.Close
+            class="p-1 -mr-1 opacity-70 hover:opacity-100"
+            @click="ticket!.dismiss()"
+          >
+            <svg aria-hidden="true" class="w-4 h-4 pointer-events-none" viewBox="0 0 24 24">
+              <path :d="mdiClose" fill="currentColor" />
+            </svg>
+          </Snackbar.Close>
+        </Snackbar.Root>
+      </TransitionGroup>
+    </Snackbar.Portal>
   </div>
 </template>
