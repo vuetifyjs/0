@@ -18,11 +18,13 @@
 
   const root = useTemplateRef<{ distribute: (sizes: number[]) => void }>('root')
 
-  // Only restore persisted sizes when the left panel is open.
-  // When closed, the SplitterPanel's collapsed model handles sizing
-  // via collapse() — distributing stale sizes here would override it.
   onMounted(() => {
-    if (sizes.value.length > 0 && playground.left.value) {
+    if (!playground.left.value) {
+      // SplitterPanel's collapsed watch (immediate + flush:post) fires before
+      // sibling panels register, so collapse() silently fails. By onMounted,
+      // all panels are registered — force the collapsed layout directly.
+      root.value?.distribute([0, 100])
+    } else if (sizes.value.length > 0) {
       root.value?.distribute(sizes.value)
     }
   })
