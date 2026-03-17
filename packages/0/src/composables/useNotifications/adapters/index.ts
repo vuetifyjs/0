@@ -11,3 +11,4 @@
  */
 
 export * from './knock'
+export * from './novu'
