@@ -65,6 +65,8 @@ export interface RegistryTicket<V = unknown> {
    * @remarks Set to true when no explicit value is provided during registration. It's not recommended to manually set this.
    */
   valueIsIndex: boolean
+  /** Remove this ticket from the registry. Semantic sugar for `registry.unregister(ticket.id)`. */
+  unregister: () => void
 }
 
 /** Valid event names for registry operations */
@@ -987,6 +989,7 @@ export function createRegistry<
       index,
       value,
       valueIsIndex,
+      unregister: () => unregister(id),
     } as E
 
     const ticket = reactive ? shallowReactive(rawTicket) : rawTicket
