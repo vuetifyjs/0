@@ -2,24 +2,25 @@
 title: useNotifications - Notification Lifecycle Management
 meta:
 - name: description
-  content: A composable for managing notification lifecycle with state mutations, reactive
-    counters, and optional service adapters for Firebase, OneSignal, Knock, or custom backends.
+  content: A composable for managing notification lifecycle with state mutations,
+    toast queue with auto-dismiss, and optional service adapters.
 - name: keywords
   content: useNotifications, createNotifications, notifications, toast, snackbar, adapter,
-    Firebase, OneSignal, Knock, notification queue, composable
+    Knock, notification registry, notification queue, composable
 features:
   category: Plugin
   label: 'E: useNotifications'
   github: /composables/useNotifications/
   level: 2
 related:
+  - /composables/registration/create-registry
   - /composables/registration/create-queue
   - /composables/foundation/create-plugin
 ---
 
 # useNotifications
 
-Headless notification management built on `createQueue`. Manages notification lifecycle with severity levels, state mutations, and optional service adapter integration.
+Headless notification management built on `createRegistry` and `createQueue`. Registry stores the full notification lifecycle. Queue manages the toast display surface with FIFO ordering and auto-dismiss.
 
 <DocsPageFeatures :frontmatter />
 
@@ -38,8 +39,6 @@ app.use(createNotificationsPlugin())
 
 app.mount('#app')
 ```
-
-> [!TIP] Notification timeout defaults to `-1` (persistent) — unlike the underlying queue's 3000ms default. Pass `timeout: 3000` per notification for auto-dismiss behavior.
 
 ## Usage
 
@@ -77,7 +76,7 @@ Once the plugin is installed, use the `useNotifications` composable in any compo
 
 ## Architecture
 
-`useNotifications` layers notification semantics on top of the queue and registry primitives, with plugin installation via `createPluginContext`:
+`createNotifications` layers notification semantics on top of the registry and queue primitives, with plugin installation via `createPluginContext`:
 
 ```mermaid "Notification Architecture"
 flowchart TB
@@ -93,11 +92,11 @@ flowchart TB
   end
 
   subgraph Integration
-    Adapter["Adapter (FCM / OneSignal / Knock)"]
+    Adapter["Adapter (Knock)"]
     Events["Events (notification:read, etc.)"]
   end
 
-  Registry --> Queue
+  Registry --> Core
   Queue --> Core
   Core --> Plugin
   Plugin --> Use
@@ -106,14 +105,18 @@ flowchart TB
   Events -.-> Adapter
 ```
 
-## Reactivity
+## API
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `proxy` | `ProxyRegistryContext` | Reactive proxy — `proxy.values`, `proxy.keys`, `proxy.size` |
-| `unreadItems` | `ComputedRef<NotificationTicket[]>` | Notifications without `readAt` |
-| `archivedItems` | `ComputedRef<NotificationTicket[]>` | Notifications with `archivedAt` |
-| `snoozedItems` | `ComputedRef<NotificationTicket[]>` | Notifications with `snoozedUntil` |
+| Method | Description |
+|--------|-------------|
+| `send(input)` | Create notification + enqueue for toast display |
+| `queue` | Queue context — `queue.values()`, `queue.pause()`, `queue.resume()` |
+| `read(id)` / `unread(id)` | Toggle read state |
+| `seen(id)` | Mark as seen |
+| `archive(id)` / `unarchive(id)` | Toggle archive state |
+| `snooze(id, until)` / `wake(id)` | Snooze with expiry |
+| `readAll()` / `archiveAll()` | Bulk operations |
+| `onboard(items)` | Bulk load into registry (no toast) |
 
 ## Examples
 
