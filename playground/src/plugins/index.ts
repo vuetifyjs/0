@@ -78,7 +78,7 @@ export function registerPlugins (app: App) {
         },
         minimalSlate: {
           colors: {
-            'primary': '{palette.tw.blue.500}',
+            'primary': '{palette.tw.violet.500}',
             'secondary': '{palette.tw.slate.500}',
             'accent': '{palette.tw.indigo.500}',
             'error': '{palette.tw.red.500}',
