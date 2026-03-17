@@ -31,12 +31,15 @@
 
   // Persisted open state (true = open)
   const left = storage.get('playground-left-open', true)
-  const storedLeft = left.value
 
   // Persisted user preference for side preview position
   const sidePref = storage.get('playground-preview-right', false)
   // Side preview active when preferred and left panel is closed
   const sideActive = sidePref.value && !left.value
+
+  // Track the desktop left-panel state so it survives mobile transitions.
+  // Updated whenever isMobile flips to true, restored when it flips back.
+  const desktop$ = { left: left.value }
 
   // Initialize panels based on current viewport.
   // Breakpoints plugin flushes initial values synchronously during install,
@@ -46,7 +49,7 @@
   const editor = shallowRef(desktop)
   const bottom = shallowRef(desktop && !sideActive)
   const side = shallowRef(desktop && sideActive)
-  left.value = desktop ? storedLeft : false
+  left.value = desktop ? desktop$.left : false
 
   // Invisible until layout stabilizes — prevents hydration flash
   // while panels and splitters resolve to their persisted sizes.
@@ -64,11 +67,18 @@
 
   // Restore panel state on runtime breakpoint changes
   watch(isMobile, mobile => {
-    if (!mobile) {
-      const currentSide = sidePref.value && !storedLeft
+    if (mobile) {
+      desktop$.left = left.value
+      tree.value = false
+      editor.value = false
+      left.value = false
+      bottom.value = false
+      side.value = false
+    } else {
+      const currentSide = sidePref.value && !desktop$.left
       tree.value = true
       editor.value = true
-      left.value = storedLeft
+      left.value = desktop$.left
       bottom.value = !currentSide
       side.value = currentSide
     }

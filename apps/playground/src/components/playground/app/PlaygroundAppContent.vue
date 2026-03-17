@@ -2,13 +2,9 @@
   // Framework
   import { SplitterRoot, useStorage } from '@vuetify/v0'
 
-  // Components
-  import { usePlayground } from './PlaygroundApp.vue'
-
   // Utilities
   import { onMounted, useTemplateRef } from 'vue'
 
-  const playground = usePlayground()
   const storage = useStorage()
   const sizes = storage.get<number[]>('playground-h-sizes', [])
 
@@ -19,14 +15,7 @@
   const root = useTemplateRef<{ distribute: (sizes: number[]) => void }>('root')
 
   onMounted(() => {
-    if (!playground.left.value) {
-      // SplitterPanel's collapsed watch (immediate + flush:post) fires before
-      // sibling panels register, so collapse() silently fails. By onMounted,
-      // all panels are registered — force the collapsed layout directly.
-      root.value?.distribute([0, 100])
-    } else if (sizes.value.length > 0) {
-      root.value?.distribute(sizes.value)
-    }
+    if (sizes.value.length > 0) root.value?.distribute(sizes.value)
   })
 </script>
 
