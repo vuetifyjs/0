@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createValidation } from '#v0/composables/createValidation'
 
 // Utilities
-import { inject, nextTick, provide, shallowRef } from 'vue'
+import { inject, nextTick, provide, shallowRef, toValue } from 'vue'
 
 import { createForm, createFormContext, useForm } from './index'
 
@@ -42,18 +42,18 @@ describe('createForm', () => {
     expect(form.size).toBe(0)
   })
 
-  it('should have disabled and readonly refs', () => {
+  it('should have disabled and readonly options', () => {
     const form = createForm({ disabled: true, readonly: true })
 
-    expect(form.disabled.value).toBe(true)
-    expect(form.readonly.value).toBe(true)
+    expect(toValue(form.disabled)).toBe(true)
+    expect(toValue(form.readonly)).toBe(true)
   })
 
   it('should default disabled and readonly to false', () => {
     const form = createForm()
 
-    expect(form.disabled.value).toBe(false)
-    expect(form.readonly.value).toBe(false)
+    expect(toValue(form.disabled)).toBe(false)
+    expect(toValue(form.readonly)).toBe(false)
   })
 
   describe('isValid computation', () => {

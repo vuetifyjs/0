@@ -104,6 +104,7 @@
     "@ant-design/colors": "catalog:",
     "@flagsmith/flagsmith": "catalog:",
     "@material/material-color-utilities": "catalog:",
+    "@vue/compiler-dom": "catalog:",
     "@vue/test-utils": "catalog:",
     "launchdarkly-js-client-sdk": "catalog:",
     "posthog-js": "catalog:",

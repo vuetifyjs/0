@@ -72,6 +72,7 @@ import { createRegistry } from '#v0/composables'
 ## Apps
 
 - **Playground** (`playground/`): Dev environment
+- **Playground (REPL)** (`apps/playground/`): Browser-based editor with live preview
 - **Docs** (`apps/docs/`): VitePress-style documentation
 
 ## Commands
@@ -120,6 +121,7 @@ pnpm repo:check       # knip + sherif
 ### Styling
 - **UnoCSS utility classes** in examples/docs/playground
 - Component library stays headless
+- **Never use `ltr:` variant** — it requires an explicit `dir="ltr"` attribute on an ancestor. Use the bare class for default (LTR) behavior, `rtl:` for the override (e.g. `-translate-x-full rtl:translate-x-full`, not `ltr:-translate-x-full rtl:translate-x-full`)
 
 ### Testing
 - Vitest + happy-dom

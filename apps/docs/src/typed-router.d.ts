@@ -96,6 +96,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/components/forms/input': RouteRecordInfo<
+      '/components/forms/input',
+      '/components/forms/input',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/components/forms/radio': RouteRecordInfo<
       '/components/forms/radio',
       '/components/forms/radio',
@@ -838,6 +845,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/components/forms/checkbox.md': {
       routes:
         | '/components/forms/checkbox'
+      views:
+        | never
+    }
+    'src/pages/components/forms/input.md': {
+      routes:
+        | '/components/forms/input'
       views:
         | never
     }

@@ -23,8 +23,8 @@ import { createTrinity } from '#v0/composables/createTrinity'
 import { createRegistry } from '#v0/composables/createRegistry'
 
 // Utilities
-import { isNull, isNullOrUndefined } from '#v0/utilities'
-import { computed, shallowRef, toValue } from 'vue'
+import { isNull } from '#v0/utilities'
+import { computed } from 'vue'
 
 // Transformers
 import { toArray } from '#v0/composables/toArray'
@@ -34,7 +34,7 @@ import type { RegistryContext, RegistryOptions, RegistryTicket, RegistryTicketIn
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { ValidationContext } from '#v0/composables/createValidation'
 import type { ID } from '#v0/types'
-import type { App, ComputedRef, MaybeRefOrGetter, ShallowRef } from 'vue'
+import type { App, ComputedRef, MaybeRefOrGetter } from 'vue'
 
 export type FormValidationResult = string | boolean | Promise<string | boolean>
 
@@ -71,9 +71,9 @@ export interface FormContext<
   /** Reset all registered validations. */
   reset: () => void
   /** Whether the form is disabled. Components can read this to conditionally disable inputs. */
-  disabled: ShallowRef<boolean>
+  disabled: MaybeRefOrGetter<boolean>
   /** Whether the form is readonly. Components can read this to conditionally disable inputs. */
-  readonly: ShallowRef<boolean>
+  readonly: MaybeRefOrGetter<boolean>
   /** Aggregate: true if all validations valid, false if any invalid, null if any unvalidated. */
   isValid: ComputedRef<boolean | null>
   /** Aggregate: true if any validation is in progress. */
@@ -127,13 +127,14 @@ export function createForm<
   Z extends FormTicketInput = FormTicketInput,
   E extends FormTicket<Z> = FormTicket<Z>,
   R extends FormContext<Z, E> = FormContext<Z, E>,
-> (options?: FormOptions): R {
-  const registry = createRegistry<E>(options)
-  const disabled = shallowRef(false)
-  const readonly = shallowRef(false)
+> (options: FormOptions = {}): R {
+  const {
+    disabled = false,
+    readonly = false,
+    ..._options
+  } = options
 
-  if (!isNullOrUndefined(options?.disabled)) disabled.value = toValue(options.disabled) ?? false
-  if (!isNullOrUndefined(options?.readonly)) readonly.value = toValue(options.readonly) ?? false
+  const registry = createRegistry<E>({ ..._options, reactive: true })
 
   const isValidating = computed(() => {
     for (const ticket of registry.values()) {
