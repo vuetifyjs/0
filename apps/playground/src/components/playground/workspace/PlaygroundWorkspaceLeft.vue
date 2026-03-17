@@ -56,7 +56,7 @@
   <div
     v-if="isMobile"
     class="fixed top-0 bottom-0 start-0 w-[280px] bg-surface border-e border-divider flex flex-col transition-transform duration-200"
-    :class="open ? 'translate-x-0' : 'ltr:-translate-x-full rtl:translate-x-full'"
+    :class="open ? 'translate-x-0' : '-translate-x-full rtl:translate-x-full'"
     :inert="open ? undefined : true"
     :style="{ zIndex: ticket.zIndex.value }"
   >
