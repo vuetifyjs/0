@@ -22,7 +22,7 @@ export async function fetchNpmVersions (
     return Object.keys(json.versions)
       .filter(v => semverGte(v, minVersion))
       .filter(v => includePrerelease || !v.includes('-'))
-      .reverse()
+      .toReversed()
   } catch {
     return []
   }
