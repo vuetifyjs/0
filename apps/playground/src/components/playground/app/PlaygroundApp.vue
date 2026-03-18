@@ -9,6 +9,7 @@
   import { nextTick, onMounted, shallowRef, watch } from 'vue'
 
   // Types
+  import type { Ref } from 'vue'
   import type { ReplStore } from '@vue/repl'
 
   export interface PlaygroundContext {
@@ -19,13 +20,19 @@
     bottom: { value: boolean }
     side: { value: boolean }
     editor: { value: boolean }
+    vueVersion: Ref<string | null>
+    v0Version: Ref<string>
+    vueVersions: Ref<string[]>
+    v0Versions: Ref<string[]>
+    fetching: Ref<boolean>
+    fetchVersions: () => Promise<void>
   }
 
   export const [usePlayground, providePlayground] = createContext<PlaygroundContext>('v0:playground')
 </script>
 
 <script setup lang="ts">
-  const { store, isReady } = usePlaygroundFiles()
+  const { store, isReady, vueVersion, v0Version, vueVersions, v0Versions, fetching, fetchVersions } = usePlaygroundFiles()
   const storage = useStorage()
   const { isMobile } = useBreakpoints()
 
@@ -63,6 +70,12 @@
     bottom,
     side,
     editor,
+    vueVersion,
+    v0Version,
+    vueVersions,
+    v0Versions,
+    fetching,
+    fetchVersions,
   })
 
   // Restore panel state on runtime breakpoint changes
