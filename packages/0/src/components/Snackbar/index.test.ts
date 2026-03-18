@@ -1,22 +1,21 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Composables
+import { createNotificationsContext } from '#v0/composables/useNotifications'
 import { createStackPlugin } from '#v0/composables/useStack'
 
 // Utilities
 import { mount } from '@vue/test-utils'
-import { h } from 'vue'
+import { defineComponent, h, provide } from 'vue'
 
 import { Snackbar } from './index'
 
-// Create fresh stack plugin for each test to avoid "Ticket already exists" warnings
 let stackPlugin: ReturnType<typeof createStackPlugin>
 
 beforeEach(() => {
   stackPlugin = createStackPlugin()
 })
 
-// Helper to mount with stack plugin
 function mountWithStack<T extends Parameters<typeof mount>[0]> (
   component: T,
   options: Parameters<typeof mount<T>>[1] = {},
@@ -46,76 +45,117 @@ describe('snackbar', () => {
   })
 
   describe('root', () => {
-    describe('aria role', () => {
-      it('should render role="status" for default severity (info)', () => {
-        const wrapper = mount(Snackbar.Root, {
-          slots: { default: () => h('span', 'Message') },
-        })
+    it('should auto-generate id when not provided', () => {
+      let slotProps: any
 
-        expect(wrapper.attributes('role')).toBe('status')
+      mount(Snackbar.Root, {
+        slots: {
+          default: (props: any) => {
+            slotProps = props
+            return h('div', 'Content')
+          },
+        },
       })
 
-      it('should render role="status" for success severity', () => {
-        const wrapper = mount(Snackbar.Root, {
-          props: { severity: 'success' },
-          slots: { default: () => h('span', 'Message') },
-        })
-
-        expect(wrapper.attributes('role')).toBe('status')
-      })
-
-      it('should render role="alert" for error severity', () => {
-        const wrapper = mount(Snackbar.Root, {
-          props: { severity: 'error' },
-          slots: { default: () => h('span', 'Message') },
-        })
-
-        expect(wrapper.attributes('role')).toBe('alert')
-      })
-
-      it('should render role="alert" for warning severity', () => {
-        const wrapper = mount(Snackbar.Root, {
-          props: { severity: 'warning' },
-          slots: { default: () => h('span', 'Message') },
-        })
-
-        expect(wrapper.attributes('role')).toBe('alert')
-      })
+      expect(slotProps.id).toBeTruthy()
+      expect(typeof slotProps.id).toBe('string')
     })
 
-    describe('slot props', () => {
-      it('should expose severity in slot props', () => {
-        let slotProps: any
+    it('should use provided id', () => {
+      let slotProps: any
 
-        mount(Snackbar.Root, {
-          props: { severity: 'error' },
-          slots: {
-            default: (props: any) => {
-              slotProps = props
-              return h('div', 'Content')
-            },
+      mount(Snackbar.Root, {
+        props: { id: 'my-toast' },
+        slots: {
+          default: (props: any) => {
+            slotProps = props
+            return h('div', 'Content')
           },
-        })
-
-        expect(slotProps).toBeDefined()
-        expect(slotProps.severity).toBe('error')
+        },
       })
+
+      expect(slotProps.id).toBe('my-toast')
+    })
+
+    it('should emit dismiss with id when no queue context', async () => {
+      const wrapper = mount(Snackbar.Root, {
+        props: { id: 'test-id' },
+        slots: {
+          default: () => h(Snackbar.Close),
+        },
+      })
+
+      await wrapper.findComponent(Snackbar.Close as any).trigger('click')
+
+      expect(wrapper.emitted('dismiss')).toBeTruthy()
+      expect(wrapper.emitted('dismiss')![0]).toEqual(['test-id'])
+    })
+
+    it('should call queue dismiss when inside queue context', async () => {
+      const dismiss = vi.fn()
+
+      const wrapper = mount(
+        defineComponent({
+          setup () {
+            provide('v0:snackbar:queue', { dismiss })
+          },
+          render () {
+            return h(Snackbar.Root, { id: 'test-id' }, () => h(Snackbar.Close))
+          },
+        }),
+      )
+
+      await wrapper.findComponent(Snackbar.Close as any).trigger('click')
+
+      expect(dismiss).toHaveBeenCalledWith('test-id')
+    })
+
+    it('should pass role attribute through to element', () => {
+      const wrapper = mount(Snackbar.Root, {
+        attrs: { role: 'alert' },
+        slots: { default: () => h('span', 'Message') },
+      })
+
+      expect(wrapper.attributes('role')).toBe('alert')
     })
   })
 
   describe('close', () => {
-    it('should render aria-label="Close" by default', () => {
+    it('should render aria-label="Close"', () => {
       const wrapper = mount(Snackbar.Close)
-
       expect(wrapper.attributes('aria-label')).toBe('Close')
     })
 
-    it('should render custom label via label prop', () => {
-      const wrapper = mount(Snackbar.Close, {
-        props: { label: 'Dismiss notification' },
-      })
+    it('should render as button with type="button"', () => {
+      const wrapper = mount(Snackbar.Close)
+      expect(wrapper.element.tagName).toBe('BUTTON')
+      expect(wrapper.attributes('type')).toBe('button')
+    })
 
-      expect(wrapper.attributes('aria-label')).toBe('Dismiss notification')
+    it('should call onDismiss from root context on click', async () => {
+      const onDismiss = vi.fn()
+
+      const wrapper = mount(
+        defineComponent({
+          setup () {
+            provide('v0:snackbar:root', { id: 'x', onDismiss })
+          },
+          render () {
+            return h(Snackbar.Close)
+          },
+        }),
+      )
+
+      await wrapper.findComponent(Snackbar.Close as any).trigger('click')
+
+      expect(onDismiss).toHaveBeenCalledOnce()
+    })
+
+    it('should be a no-op when used without root context', async () => {
+      const wrapper = mount(Snackbar.Close)
+      // Should not throw
+      await wrapper.trigger('click')
+      expect(true).toBe(true)
     })
   })
 
@@ -140,35 +180,120 @@ describe('snackbar', () => {
     })
   })
 
-  describe('integration', () => {
-    it('should render Portal > Root > Content + Action + Close', () => {
-      const wrapper = mountWithStack(Snackbar.Portal, {
-        props: { teleport: false },
+  describe('queue', () => {
+    function makeNotificationsPlugin () {
+      const [, provide, context] = createNotificationsContext()
+      return { context, install: (app: any) => app.runWithContext(() => provide(context, app)) }
+    }
+
+    it('should expose items via slot', async () => {
+      const { context, install } = makeNotificationsPlugin()
+      let slotProps: any
+
+      const wrapper = mount(Snackbar.Queue, {
+        global: { plugins: [stackPlugin, { install }] },
         slots: {
-          default: () => h(Snackbar.Root, { severity: 'success' }, () => [
-            h(Snackbar.Content, {}, () => 'File uploaded'),
-            h(Snackbar.Action, {}, () => 'View'),
-            h(Snackbar.Close),
-          ]),
+          default: (props: any) => {
+            slotProps = props
+            return h('div')
+          },
         },
       })
 
-      const root = wrapper.findComponent(Snackbar.Root as any)
-      expect(root.exists()).toBe(true)
-      expect(root.attributes('role')).toBe('status')
+      expect(slotProps).toBeDefined()
+      expect(Array.isArray(slotProps.items)).toBe(true)
+      expect(slotProps.items).toHaveLength(0)
 
-      const content = wrapper.findComponent(Snackbar.Content as any)
-      expect(content.exists()).toBe(true)
-      expect(content.text()).toContain('File uploaded')
+      context.send({ subject: 'Test' })
+      await wrapper.vm.$nextTick()
 
-      const action = wrapper.findComponent(Snackbar.Action as any)
-      expect(action.exists()).toBe(true)
-      expect(action.attributes('type')).toBe('button')
-      expect(action.text()).toBe('View')
+      expect(slotProps.items).toHaveLength(1)
+      expect(slotProps.items[0].subject).toBe('Test')
+    })
 
-      const close = wrapper.findComponent(Snackbar.Close as any)
-      expect(close.exists()).toBe(true)
-      expect(close.attributes('aria-label')).toBe('Close')
+    it('should provide queue dismiss context', async () => {
+      const { context, install } = makeNotificationsPlugin()
+
+      context.send({ subject: 'Test', id: 'abc' })
+
+      const wrapper = mount(Snackbar.Queue, {
+        global: { plugins: [stackPlugin, { install }] },
+        slots: {
+          default: ({ items }: any) =>
+            items.map((item: any) =>
+              h(Snackbar.Root, { id: item.id }, () => h(Snackbar.Close)),
+            ),
+        },
+      })
+
+      await wrapper.findComponent(Snackbar.Close as any).trigger('click')
+
+      expect(context.values()).toHaveLength(0)
+    })
+
+    it('should pause queue on mouseenter', async () => {
+      const { context, install } = makeNotificationsPlugin()
+      context.send({ subject: 'Test', timeout: 5000 })
+
+      const wrapper = mount(Snackbar.Queue, {
+        global: { plugins: [stackPlugin, { install }] },
+        slots: { default: () => h('div') },
+      })
+
+      await wrapper.trigger('mouseenter')
+
+      const first = context.queue.values()[0]
+      expect(first?.isPaused).toBe(true)
+    })
+
+    it('should resume queue on mouseleave', async () => {
+      const { context, install } = makeNotificationsPlugin()
+      context.send({ subject: 'Test', timeout: 5000 })
+
+      const wrapper = mount(Snackbar.Queue, {
+        global: { plugins: [stackPlugin, { install }] },
+        slots: { default: () => h('div') },
+      })
+
+      await wrapper.trigger('mouseenter')
+      await wrapper.trigger('mouseleave')
+
+      const first = context.queue.values()[0]
+      expect(first?.isPaused).toBe(false)
+    })
+  })
+
+  describe('integration', () => {
+    it('should render Portal > Queue > Root > Content + Close', () => {
+      const [, provide, context] = createNotificationsContext()
+      context.send({ subject: 'File uploaded', id: 'upload-1' })
+
+      const wrapper = mountWithStack(Snackbar.Portal, {
+        props: { teleport: false },
+        global: {
+          plugins: [
+            stackPlugin,
+            {
+              install: (app: any) => app.runWithContext(() => provide(context, app)),
+            },
+          ],
+        },
+        slots: {
+          default: () =>
+            h(Snackbar.Queue, {}, ({ items }: any) =>
+              items.map((item: any) =>
+                h(Snackbar.Root, { id: item.id }, () => [
+                  h(Snackbar.Content, {}, () => item.subject),
+                  h(Snackbar.Close),
+                ]),
+              ),
+            ),
+        },
+      })
+
+      expect(wrapper.findComponent(Snackbar.Root as any).exists()).toBe(true)
+      expect(wrapper.findComponent(Snackbar.Content as any).text()).toBe('File uploaded')
+      expect(wrapper.findComponent(Snackbar.Close as any).attributes('aria-label')).toBe('Close')
     })
   })
 })
