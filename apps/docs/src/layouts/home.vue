@@ -1,7 +1,11 @@
 <script setup lang="ts">
+  // Framework
+  import { Scrim, useStack } from '@vuetify/v0'
+
   // Composables
   import { createLevelFilter } from '@/composables/useLevelFilter'
   import { createNavConfig } from '@/composables/useNavConfig'
+  import { useScrollLock } from '@/composables/useScrollLock'
 
   // Utilities
   import { defineAsyncComponent } from 'vue'
@@ -20,6 +24,9 @@
   // Capture ?features= param even on home page
   const navConfig = createNavConfig(levelFilter.filteredNav)
   navConfig.provide()
+
+  const stack = useStack()
+  useScrollLock(() => stack.isActive.value)
 </script>
 
 <template>
@@ -31,5 +38,7 @@
 
     <HomeAskDialog />
     <DocsSearch />
+
+    <Scrim class="fixed inset-0 bg-black/30 transition-opacity" :teleport="false" />
   </div>
 </template>

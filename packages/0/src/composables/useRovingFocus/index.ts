@@ -15,12 +15,14 @@
  * Perfect for toolbars, menus, tree items, grids, and other composite widgets.
  */
 
+// Constants
+import { IN_BROWSER } from '#v0/constants/globals'
+
 // Composables
 import { useEventListener } from '#v0/composables/useEventListener'
 
 // Utilities
 import { isUndefined } from '#v0/utilities'
-// Framework
 import { nextTick, shallowRef, toValue } from 'vue'
 
 // Types
@@ -60,6 +62,12 @@ export interface RovingFocusReturn {
 
 function mod (length: number, index: number) {
   return ((index % length) + length) % length
+}
+
+function isRtl (e: KeyboardEvent): boolean {
+  if (!IN_BROWSER) return false
+  const el = e.currentTarget as HTMLElement | null
+  return el ? getComputedStyle(el).direction === 'rtl' : false
 }
 
 export function useRovingFocus (
@@ -190,7 +198,7 @@ export function useRovingFocus (
   }
 
   function isTabbable (id: ID): boolean {
-    if (focusedId.value != null) return focusedId.value === id
+    if (!isUndefined(focusedId.value)) return focusedId.value === id
 
     const list = enabled()
     return list.length > 0 && list[0]?.id === id
@@ -198,18 +206,19 @@ export function useRovingFocus (
 
   function onKeydown (e: KeyboardEvent) {
     const cols = toValue(_columns)
+    const rtl = isRtl(e)
 
     // Grid mode: all 4 arrows have distinct meanings
     if (cols) {
       switch (e.key) {
         case 'ArrowRight': {
           e.preventDefault()
-          step(1)
+          step(rtl ? -1 : 1)
           break
         }
         case 'ArrowLeft': {
           e.preventDefault()
-          step(-1)
+          step(rtl ? 1 : -1)
           break
         }
         case 'ArrowDown': {
@@ -248,8 +257,8 @@ export function useRovingFocus (
     }
 
     if (orientation === 'horizontal' || orientation === 'both') {
-      prevKeys.push('ArrowLeft')
-      nextKeys.push('ArrowRight')
+      prevKeys.push(rtl ? 'ArrowRight' : 'ArrowLeft')
+      nextKeys.push(rtl ? 'ArrowLeft' : 'ArrowRight')
     }
 
     if (prevKeys.includes(e.key)) {

@@ -92,6 +92,32 @@
         "sass"
       ]
     },
+    "apps/playground": {
+      "entry": [
+        "src/main.ts",
+        "src/App.vue",
+        "src/components/**/*.vue",
+        "src/composables/*.ts",
+        "src/plugins/*.ts",
+        "src/layouts/*.vue",
+        "src/pages/**/*.{vue,md}",
+        "vite.config.*"
+      ],
+      "ignore": [
+        "src/typed-router.d.ts"
+      ],
+      "paths": {
+        "@/*": [
+          "src/*"
+        ],
+        "@vuetify/v0": [
+          "../../packages/0/src"
+        ],
+        "#v0": [
+          "../../packages/0/src"
+        ]
+      }
+    },
     "playground": {
       "entry": [
         "src/main.ts"
@@ -136,8 +162,10 @@
     "@ant-design/colors",
     "@js-temporal/polyfill",
     "@material/material-color-utilities",
+    "@vue/repl",
     "@vuetify/paper",
     "conventional-changelog-vuetify",
+    "@vue/compiler-dom",
     "@flagsmith/flagsmith",
     "launchdarkly-js-client-sdk",
     "posthog-js"
