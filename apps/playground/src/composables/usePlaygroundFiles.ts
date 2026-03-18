@@ -1,5 +1,5 @@
 // Framework
-import { debounce, isNullOrUndefined, useTheme } from '@vuetify/v0'
+import { debounce, useTheme } from '@vuetify/v0'
 
 // Composables
 import { decodePlaygroundHash, encodePlaygroundHash } from '@/composables/usePlayground'
@@ -121,7 +121,7 @@ export function usePlaygroundFiles () {
   const updateHash = debounce(async (files: Record<string, string>, active: string | undefined) => {
     if (Object.keys(files).length === 0) return
     const settings: { vue?: string; v0?: string } = {}
-    if (!isNullOrUndefined(vueVersion.value)) settings.vue = vueVersion.value
+    if (vueVersion.value) settings.vue = vueVersion.value
     if (v0Version.value !== 'latest') settings.v0 = v0Version.value
     const data: PlaygroundHashData = { files, active, imports: extraImports.value }
     if (Object.keys(settings).length) data.settings = settings

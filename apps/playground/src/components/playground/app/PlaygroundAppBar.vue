@@ -117,9 +117,9 @@
         <AppIcon icon="cog" />
       </button>
 
-      <PlaygroundSettings v-if="open" @close="open = false" />
-
       <AppThemeToggle />
     </div>
+
+    <PlaygroundSettings v-if="open" @close="open = false" />
   </header>
 </template>
