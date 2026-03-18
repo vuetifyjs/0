@@ -50,7 +50,8 @@
     return 'expand'
   })
 
-  const isActive = toRef(() => to && (route.path === to || route.path.startsWith(`${to}/`)))
+  const isExternal = toRef(() => !!to?.startsWith('http'))
+  const isActive = toRef(() => !isExternal.value && to && (route.path === to || route.path.startsWith(`${to}/`)))
   // Check children Map directly for reactivity
   const childIds = toRef(() => navNested.nested.children.get(id) ?? [])
   const hasChildren = toRef(() => childIds.value.length > 0)
@@ -148,9 +149,26 @@
       <!-- Dash prefix for top-level solo links (only when collapsible nav is enabled) -->
       <span v-else-if="isTopLevel && !navConfig.flatMode.value" aria-hidden="true" class="size-5 shrink-0 flex items-center justify-center text-divider">–</span>
 
-      <!-- Link (navigable) -->
+      <!-- External link -->
       <Atom
-        v-if="to"
+        v-if="to && isExternal"
+        as="a"
+        class="font-semibold icon-text flex-1 min-w-0"
+        :class="[
+          'hover:underline hover:text-primary focus-visible:underline focus-visible:text-primary',
+          !isTopLevel && !hasChildren && 'opacity-70 hover:opacity-100 focus-visible:opacity-100',
+        ]"
+        :href="to"
+        rel="noopener"
+        target="_blank"
+      >
+        <span class="truncate">{{ name }}</span>
+        <span v-if="emphasized" class="w-2 h-2 rounded-[2px] shrink-0" :class="devmode ? 'bg-error' : 'bg-success'" />
+      </Atom>
+
+      <!-- Internal link (navigable) -->
+      <Atom
+        v-else-if="to"
         :aria-current="isActive ? 'page' : undefined"
         :as
         class="font-semibold icon-text flex-1 min-w-0"

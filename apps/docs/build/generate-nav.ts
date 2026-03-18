@@ -230,7 +230,7 @@ async function generateNav (): Promise<NavItem[]> {
     pages.get(key)!.push(pageInfo)
   }
 
-  standalonePages.push({ item: { name: 'Playground', to: '/playground' }, order: 1.6 })
+  standalonePages.push({ item: { name: 'Playground', to: 'https://v0play.vuetifyjs.com' }, order: 1.6 })
 
   const nav: NavItem[] = []
   const sectionEntries = Object.entries(SECTIONS).toSorted((a, b) => a[1].order - b[1].order)
