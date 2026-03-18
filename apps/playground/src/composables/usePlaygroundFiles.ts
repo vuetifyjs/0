@@ -1,12 +1,16 @@
 // Framework
-import { debounce, useTheme } from '@vuetify/v0'
+import { debounce, isNullOrUndefined, useTheme } from '@vuetify/v0'
 
 // Composables
 import { decodePlaygroundHash, encodePlaygroundHash } from '@/composables/usePlayground'
+import { usePlaygroundSettings } from '@/composables/usePlaygroundSettings'
 
 // Utilities
-import { compileFile, useStore, useVueImportMap } from '@vue/repl/core'
+import { compileFile, useStore } from '@vue/repl/core'
 import { computed, onMounted, shallowRef, watch, watchEffect } from 'vue'
+
+// Types
+import type { PlaygroundHashData } from '@/composables/usePlayground'
 
 // Data
 import { createMainTs, DEFAULT_CODE, UNO_CONFIG_TS } from '@/data/playground-defaults'
@@ -14,16 +18,12 @@ import { createMainTs, DEFAULT_CODE, UNO_CONFIG_TS } from '@/data/playground-def
 export function usePlaygroundFiles () {
   const theme = useTheme()
 
-  const { importMap, vueVersion } = useVueImportMap({
-    runtimeDev: 'https://cdn.jsdelivr.net/npm/@vue/runtime-dom/dist/runtime-dom.esm-browser.js',
-    runtimeProd: 'https://cdn.jsdelivr.net/npm/@vue/runtime-dom/dist/runtime-dom.esm-browser.prod.js',
-    serverRenderer: 'https://cdn.jsdelivr.net/npm/@vue/server-renderer/dist/server-renderer.esm-browser.js',
-  })
+  const { importMap, vueVersion, v0Version, vueVersions, v0Versions, fetching, fetchVersions } = usePlaygroundSettings()
 
   const builtinImportMap = computed(() => ({
     imports: {
       ...importMap.value?.imports,
-      '@vuetify/v0': 'https://cdn.jsdelivr.net/npm/@vuetify/v0@latest/dist/index.mjs',
+      '@vuetify/v0': `https://cdn.jsdelivr.net/npm/@vuetify/v0@${v0Version.value}/dist/index.mjs`,
     },
   }))
 
@@ -43,6 +43,8 @@ export function usePlaygroundFiles () {
     const decoded = hash ? await decodePlaygroundHash(hash) : null
 
     if (decoded) {
+      if (decoded.settings?.vue) vueVersion.value = decoded.settings.vue
+      if (decoded.settings?.v0) v0Version.value = decoded.settings.v0
       await loadExample(decoded.files, decoded.active)
       if (decoded.imports && Object.keys(decoded.imports).length > 0) {
         extraImports.value = decoded.imports
@@ -118,13 +120,21 @@ export function usePlaygroundFiles () {
 
   const updateHash = debounce(async (files: Record<string, string>, active: string | undefined) => {
     if (Object.keys(files).length === 0) return
-    const hash = await encodePlaygroundHash({ files, active, imports: extraImports.value })
+    const settings: { vue?: string; v0?: string } = {}
+    if (!isNullOrUndefined(vueVersion.value)) settings.vue = vueVersion.value
+    if (v0Version.value !== 'latest') settings.v0 = v0Version.value
+    const data: PlaygroundHashData = { files, active, imports: extraImports.value }
+    if (Object.keys(settings).length) data.settings = settings
+    const hash = await encodePlaygroundHash(data)
     history.replaceState(null, '', `#${hash}`)
   }, 500)
 
   watch(isReady, ready => {
     if (!ready) return
     watchEffect(() => {
+      // Track version refs so hash updates when versions change
+      vueVersion.value  // eslint-disable-line @typescript-eslint/no-unused-expressions
+      v0Version.value   // eslint-disable-line @typescript-eslint/no-unused-expressions
       const aliases = new Set(aliasMap.value.values())
       const files: Record<string, string> = {}
       for (const [path, file] of Object.entries(store.files)) {
@@ -153,5 +163,5 @@ export function usePlaygroundFiles () {
     }
   })
 
-  return { store, isReady, loadExample }
+  return { store, isReady, loadExample, vueVersion, v0Version, vueVersions, v0Versions, fetching, fetchVersions }
 }
