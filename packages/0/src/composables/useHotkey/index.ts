@@ -25,7 +25,7 @@ import { IN_BROWSER } from '#v0/constants/globals'
 import { useWindowEventListener } from '#v0/composables/useEventListener'
 
 // Utilities
-import { isNull, isUndefined } from '#v0/utilities'
+import { isNull, isString, isUndefined } from '#v0/utilities'
 import { onScopeDispose, shallowReadonly, shallowRef, toRef, toValue, watch } from 'vue'
 
 // Types
