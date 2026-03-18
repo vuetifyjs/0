@@ -44,7 +44,7 @@
 </script>
 
 <script setup lang="ts">
-  defineOptions({ name: 'SnackbarPortal' })
+  defineOptions({ name: 'SnackbarPortal', inheritAttrs: false })
 
   defineSlots<{
     default: (props: SnackbarPortalSlotProps) => any
@@ -57,9 +57,8 @@
 
   const stack = useStack()
   const ticket = stack.register()
-  ticket.select()
 
-  onUnmounted(() => ticket.unselect())
+  onUnmounted(() => ticket.unregister())
 
   provideSnackbarContext('v0:snackbar', {
     zIndex: ticket.zIndex,
@@ -74,12 +73,12 @@
 
 <template>
   <Teleport v-if="teleport" :to="teleport">
-    <Atom :as :style="styles">
+    <Atom :as :style="styles" v-bind="$attrs">
       <slot v-bind="slotProps" />
     </Atom>
   </Teleport>
 
-  <Atom v-else :as :style="styles">
+  <Atom v-else :as :style="styles" v-bind="$attrs">
     <slot v-bind="slotProps" />
   </Atom>
 </template>

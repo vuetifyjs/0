@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { shallowRef } from 'vue'
+  import { computed, shallowRef } from 'vue'
   import { Snackbar, createQueue, useProxyRegistry } from '@vuetify/v0'
   import type { NotificationSeverity } from '@vuetify/v0'
 
@@ -33,10 +33,89 @@
     index.value++
     queue.register({ subject: messages[severity], severity })
   }
+
+  // Newest first — i=0 is front of stack
+  const toasts = computed(() => proxy.values.toReversed())
+
+  const hovered = shallowRef(false)
+
+  // Each toast row is ~44px. Gap between expanded items is 8px.
+  const ITEM_H = 44
+  const GAP = 8
+  // How many px each stacked item peeks above the one in front
+  const PEEK = 16
+  const MAX_STACK = 3
+
+  const containerHeight = computed(() => {
+    const n = Math.min(toasts.value.length, MAX_STACK)
+    if (!n) return 0
+    return hovered.value
+      ? toasts.value.length * ITEM_H + (toasts.value.length - 1) * GAP
+      : ITEM_H + (n - 1) * PEEK
+  })
+
+  function itemStyle (i: number) {
+    if (hovered.value) {
+      return {
+        bottom: `${i * (ITEM_H + GAP)}px`,
+        left: 0,
+        right: 0,
+        transform: 'none',
+        opacity: 1,
+        pointerEvents: 'auto' as const,
+      }
+    }
+
+    // Items beyond the visible stack: position them as if they're the next layer
+    // so they animate outward from behind the stack when expanded
+    if (i >= MAX_STACK) {
+      const depth = MAX_STACK
+      return {
+        bottom: 0,
+        left: `${depth * 8}px`,
+        right: `${depth * 8}px`,
+        transform: `translateY(${-depth * PEEK}px) scale(${1 - depth * 0.04})`,
+        transformOrigin: 'bottom center',
+        opacity: 0,
+        pointerEvents: 'none' as const,
+        zIndex: -1,
+      }
+    }
+
+    return {
+      bottom: 0,
+      left: `${i * 8}px`,
+      right: `${i * 8}px`,
+      transform: `translateY(${-i * PEEK}px) scale(${1 - i * 0.04})`,
+      transformOrigin: 'bottom center',
+      opacity: Math.max(0, 1 - i * 0.2),
+      zIndex: MAX_STACK - i,
+      pointerEvents: i === 0 ? 'auto' as const : 'none' as const,
+    }
+  }
+
+  let leaveTimer: ReturnType<typeof setTimeout> | null = null
+
+  function onEnter () {
+    if (leaveTimer) {
+      clearTimeout(leaveTimer)
+      leaveTimer = null
+    }
+    hovered.value = true
+    queue.pause()
+  }
+
+  function onLeave () {
+    leaveTimer = setTimeout(() => {
+      hovered.value = false
+      queue.resume()
+      leaveTimer = null
+    }, 150)
+  }
 </script>
 
 <template>
-  <div class="relative flex flex-col items-center gap-6 min-h-48 p-6 bg-background rounded-lg border border-divider overflow-hidden">
+  <div class="flex flex-col items-center gap-6 min-h-48 p-6 bg-background rounded-lg border border-divider">
     <button
       class="px-4 py-2 bg-primary text-on-primary rounded-md text-sm font-medium"
       @click="onShow"
@@ -47,20 +126,25 @@
     <p class="text-sm opacity-40">
       Cycles through info → success → warning → error
     </p>
+  </div>
 
-    <Snackbar.Portal class="absolute bottom-4 right-4 flex flex-col gap-2 w-72" :teleport="false">
-      <TransitionGroup
-        enter-active-class="transition duration-200 ease-out"
-        enter-from-class="opacity-0 translate-y-2"
-        enter-to-class="opacity-100 translate-y-0"
-        leave-active-class="transition duration-150 ease-in absolute w-full"
-        leave-from-class="opacity-100"
-        leave-to-class="opacity-0"
-        move-class="transition duration-200"
+  <Snackbar.Portal
+    class="fixed bottom-4 right-4 w-72"
+    @mouseenter="onEnter"
+    @mouseleave="onLeave"
+  >
+    <!-- Container height transitions between stacked and expanded -->
+    <div
+      class="relative transition-all duration-300 ease-out"
+      :style="{ height: `${containerHeight}px` }"
+    >
+      <div
+        v-for="(ticket, i) in toasts"
+        :key="ticket.id"
+        class="absolute left-0 right-0 transition-all duration-300 ease-out"
+        :style="itemStyle(i)"
       >
         <Snackbar.Root
-          v-for="ticket in proxy.values"
-          :key="ticket.id"
           class="flex items-center gap-3 px-4 py-2.5 rounded-lg shadow-lg text-sm"
           :class="classes[ticket.severity]"
           :severity="ticket.severity"
@@ -70,7 +154,8 @@
           </Snackbar.Content>
 
           <Snackbar.Close
-            class="p-1 -mr-1 opacity-70 hover:opacity-100"
+            v-show="hovered || i === 0"
+            class="p-1 -mr-1 opacity-70 hover:opacity-100 shrink-0"
             @click="ticket.dismiss()"
           >
             <svg aria-hidden="true" class="w-4 h-4" viewBox="0 0 24 24">
@@ -78,7 +163,7 @@
             </svg>
           </Snackbar.Close>
         </Snackbar.Root>
-      </TransitionGroup>
-    </Snackbar.Portal>
-  </div>
+      </div>
+    </div>
+  </Snackbar.Portal>
 </template>
