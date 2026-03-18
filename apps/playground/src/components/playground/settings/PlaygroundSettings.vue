@@ -20,7 +20,7 @@
 
 <template>
   <Teleport to="body">
-    <div class="fixed inset-0 z-50 flex items-center justify-center">
+    <div class="fixed inset-0 z-50 flex items-center justify-center" tabindex="-1" @keydown.esc="$emit('close')">
       <!-- Backdrop -->
       <div
         class="absolute inset-0 bg-black/50"
@@ -28,7 +28,7 @@
       />
 
       <!-- Modal -->
-      <div class="relative bg-surface border border-divider rounded-lg shadow-xl w-[560px] max-h-[80vh] flex overflow-hidden">
+      <div class="relative bg-surface border border-divider rounded-lg shadow-xl w-[560px] max-h-[80vh] flex overflow-hidden" role="dialog" aria-modal="true" aria-labelledby="settings-title">
         <!-- Left nav -->
         <nav class="w-40 shrink-0 border-r border-divider flex flex-col py-2">
           <button
@@ -55,7 +55,7 @@
         <!-- Content -->
         <div class="flex-1 flex flex-col min-h-0">
           <div class="flex items-center justify-between px-4 py-3 border-b border-divider">
-            <h2 class="text-sm font-medium">
+            <h2 id="settings-title" class="text-sm font-medium">
               {{ sections.find(s => s.id === active)?.label }}
             </h2>
             <AppCloseButton @click="$emit('close')" />
