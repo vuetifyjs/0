@@ -2,9 +2,9 @@
 title: Snackbar - Toast and Snackbar Notifications
 meta:
 - name: description
-  content: Headless compound component for rendering toast and snackbar notifications with severity-driven ARIA roles, useStack z-index coordination, and teleport support.
+  content: Headless compound component for rendering toast and snackbar notifications. Snackbar.Queue connects to useNotifications for queue-driven toast stacks.
 - name: keywords
-  content: snackbar, toast, notification, alert, status, headless, compound component
+  content: snackbar, toast, notification, alert, status, headless, compound component, queue
 features:
   category: Component
   label: 'C: Snackbar'
@@ -24,13 +24,17 @@ A headless compound component for rendering toast and snackbar notifications.
 
 ## Usage
 
-The Snackbar component is purely presentational — it renders whatever items you give it. Bring your own queue (`createQueue`, `useNotifications`, or manual state) and map items to `Snackbar.Root`. Severity drives the ARIA role; positioning and styling are handled with utility classes.
+The Snackbar component is purely presentational — it renders whatever items you give it. Use `Snackbar.Queue` to connect to `useNotifications` for queue-driven stacks with auto-dismiss, or render `Snackbar.Root` directly for manual control.
 
 ::: example
 /components/snackbar/basic
 :::
 
 ## Anatomy
+
+### Standalone
+
+A single snackbar — render directly when you control the lifecycle yourself.
 
 ```vue Anatomy playground collapse
 <script setup lang="ts">
@@ -39,7 +43,7 @@ The Snackbar component is purely presentational — it renders whatever items yo
 
 <template>
   <Snackbar.Portal>
-    <Snackbar.Root severity="info">
+    <Snackbar.Root>
       <Snackbar.Content />
 
       <Snackbar.Action />
@@ -50,43 +54,79 @@ The Snackbar component is purely presentational — it renders whatever items yo
 </template>
 ```
 
-## Examples
+### Queue-driven
 
-### With useNotifications
+Connect to `useNotifications` via `Snackbar.Queue`. The queue provides items in order; `Snackbar.Root` provides dismiss context to `Snackbar.Close`.
 
-Filter notifications by type to drive the snackbar stack from a shared notification center:
-
-```vue collapse no-filename
+```vue Anatomy playground collapse
 <script setup lang="ts">
-  import { toRef } from 'vue'
-  import { Snackbar, useNotifications } from '@vuetify/v0'
-
-  const notifications = useNotifications()
-  const toasts = toRef(() =>
-    notifications.proxy.values.filter(t => t.data?.type === 'toast'),
-  )
+  import { Snackbar } from '@vuetify/v0'
 </script>
 
 <template>
   <Snackbar.Portal>
-    <Snackbar.Root
-      v-for="ticket in toasts"
-      :key="ticket.id"
-      :severity="ticket.severity"
-    >
-      <Snackbar.Content>{{ ticket.subject }}</Snackbar.Content>
+    <Snackbar.Queue v-slot="{ items }">
+      <template v-for="item in items" :key="item.id">
+        <Snackbar.Root :id="item.id">
+          <Snackbar.Content />
 
-      <Snackbar.Action v-if="ticket.data?.undo" @click="ticket.data.undo()">
-        Undo
-      </Snackbar.Action>
-
-      <Snackbar.Close @click="ticket.dismiss()" />
-    </Snackbar.Root>
+          <Snackbar.Close />
+        </Snackbar.Root>
+      </template>
+    </Snackbar.Queue>
   </Snackbar.Portal>
 </template>
 ```
 
-> [!TIP] `useNotifications` requires the `createNotificationsPlugin` to be installed. See [useNotifications](/composables/plugins/use-notifications) for setup.
+## Examples
+
+### With useNotifications
+
+`Snackbar.Queue` connects to `useNotifications` and exposes queue items via slot. `Snackbar.Close` auto-wires to the nearest `Snackbar.Root` — no `@click` needed:
+
+```vue collapse no-filename
+<script setup lang="ts">
+  import { Snackbar, useNotifications } from '@vuetify/v0'
+
+  const notifications = useNotifications()
+</script>
+
+<template>
+  <Snackbar.Portal>
+    <Snackbar.Queue v-slot="{ items }">
+      <template v-for="item in items" :key="item.id">
+        <Snackbar.Root :id="item.id">
+          <Snackbar.Content>{{ item.subject }}</Snackbar.Content>
+
+          <Snackbar.Close />
+        </Snackbar.Root>
+      </template>
+    </Snackbar.Queue>
+  </Snackbar.Portal>
+</template>
+```
+
+> [!TIP] `Snackbar.Queue` requires `createNotificationsPlugin` to be installed. See [useNotifications](/composables/plugins/use-notifications) for setup.
+
+### ARIA role
+
+Set `role` directly on `Snackbar.Root` to control how screen readers announce the notification:
+
+```vue collapse no-filename
+<template>
+  <!-- Polite — waits for user to be idle -->
+  <Snackbar.Root role="status">
+    <Snackbar.Content>Changes saved</Snackbar.Content>
+    <Snackbar.Close />
+  </Snackbar.Root>
+
+  <!-- Assertive — interrupts immediately -->
+  <Snackbar.Root role="alert">
+    <Snackbar.Content>Build failed — check logs</Snackbar.Content>
+    <Snackbar.Close />
+  </Snackbar.Root>
+</template>
+```
 
 ### Inline rendering
 
@@ -96,10 +136,14 @@ Pass `:teleport="false"` to render the portal inline instead of teleporting to `
 <template>
   <div class="relative h-48">
     <Snackbar.Portal :teleport="false" class="absolute bottom-4 right-4">
-      <Snackbar.Root v-for="item in items" :key="item.id">
-        <Snackbar.Content>{{ item.subject }}</Snackbar.Content>
-        <Snackbar.Close @click="item.dismiss()" />
-      </Snackbar.Root>
+      <Snackbar.Queue v-slot="{ items }">
+        <template v-for="item in items" :key="item.id">
+          <Snackbar.Root :id="item.id">
+            <Snackbar.Content>{{ item.subject }}</Snackbar.Content>
+            <Snackbar.Close />
+          </Snackbar.Root>
+        </template>
+      </Snackbar.Queue>
     </Snackbar.Portal>
   </div>
 </template>
@@ -109,10 +153,10 @@ Pass `:teleport="false"` to render the portal inline instead of teleporting to `
 
 | Concern | Implementation |
 |---------|---------------|
-| Live region | Each `Snackbar.Root` sets its own `role`. No `aria-live` on `Portal` to avoid nesting conflicts. |
-| `info` / `success` | `role="status"` — implicit `aria-live="polite"`. Screen reader waits for idle. |
-| `error` / `warning` | `role="alert"` — implicit `aria-live="assertive"`. Screen reader interrupts. |
-| Close button | `aria-label="Close"` default on `Snackbar.Close`. Override via prop. |
+| Live region | Set `role` directly on `Snackbar.Root`. No `aria-live` on `Portal` to avoid nesting conflicts. |
+| `role="status"` | Implicit `aria-live="polite"` — screen reader waits for idle. Use for confirmations and info. |
+| `role="alert"` | Implicit `aria-live="assertive"` — screen reader interrupts. Use for errors and warnings. |
+| Close button | `aria-label="Close"` hardcoded on `Snackbar.Close`. |
 | Focus | No focus trap — snackbars are non-modal. |
 | Keyboard | No keyboard interaction required — snackbars are informational. |
 
