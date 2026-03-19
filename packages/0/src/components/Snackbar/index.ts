@@ -1,11 +1,15 @@
 export { default as SnackbarPortal } from './SnackbarPortal.vue'
 export { provideSnackbarContext, useSnackbarContext } from './SnackbarPortal.vue'
+export { default as SnackbarQueue } from './SnackbarQueue.vue'
+export { provideSnackbarQueueContext, useSnackbarQueueContext } from './SnackbarQueue.vue'
 export { default as SnackbarRoot } from './SnackbarRoot.vue'
+export { provideSnackbarRootContext, useSnackbarRootContext } from './SnackbarRoot.vue'
 export { default as SnackbarContent } from './SnackbarContent.vue'
 export { default as SnackbarAction } from './SnackbarAction.vue'
 export { default as SnackbarClose } from './SnackbarClose.vue'
 export type { SnackbarContext, SnackbarPortalProps, SnackbarPortalSlotProps } from './SnackbarPortal.vue'
-export type { SnackbarRootProps, SnackbarRootSlotProps } from './SnackbarRoot.vue'
+export type { SnackbarQueueContext, SnackbarQueueProps, SnackbarQueueSlotProps } from './SnackbarQueue.vue'
+export type { SnackbarRootContext, SnackbarRootProps, SnackbarRootSlotProps } from './SnackbarRoot.vue'
 export type { SnackbarContentProps } from './SnackbarContent.vue'
 export type { SnackbarActionProps } from './SnackbarAction.vue'
 export type { SnackbarCloseProps, SnackbarCloseSlotProps } from './SnackbarClose.vue'
@@ -15,6 +19,7 @@ import Action from './SnackbarAction.vue'
 import Close from './SnackbarClose.vue'
 import Content from './SnackbarContent.vue'
 import Portal from './SnackbarPortal.vue'
+import Queue from './SnackbarQueue.vue'
 import Root from './SnackbarRoot.vue'
 
 /**
@@ -30,10 +35,14 @@ import Root from './SnackbarRoot.vue'
  *
  * <template>
  *   <Snackbar.Portal>
- *     <Snackbar.Root v-for="item in items" :key="item.id" :severity="item.severity">
- *       <Snackbar.Content>{{ item.subject }}</Snackbar.Content>
- *       <Snackbar.Close @click="item.dismiss()" />
- *     </Snackbar.Root>
+ *     <Snackbar.Queue v-slot="{ items }">
+ *       <template v-for="item in items" :key="item.id">
+ *         <Snackbar.Root :id="item.id">
+ *           <Snackbar.Content>{{ item.subject }}</Snackbar.Content>
+ *           <Snackbar.Close />
+ *         </Snackbar.Root>
+ *       </template>
+ *     </Snackbar.Queue>
  *   </Snackbar.Portal>
  * </template>
  * ```
@@ -53,14 +62,33 @@ export const Snackbar = {
    */
   Portal,
   /**
-   * A single snackbar instance. Sets ARIA role based on severity.
+   * Connects to useNotifications and exposes queue items via slot.
+   * Pauses the queue on mouseenter, resumes on mouseleave.
+   *
+   * @see https://0.vuetifyjs.com/components/snackbar#snackbarqueue
+   *
+   * @example
+   * ```vue
+   * <Snackbar.Queue v-slot="{ items }">
+   *   <Snackbar.Root v-for="item in items" :key="item.id" :id="item.id">
+   *     <Snackbar.Content>{{ item.subject }}</Snackbar.Content>
+   *     <Snackbar.Close />
+   *   </Snackbar.Root>
+   * </Snackbar.Queue>
+   * ```
+   */
+  Queue,
+  /**
+   * A single snackbar instance. Provides dismiss context to Snackbar.Close.
+   * Set role="alert" for urgent notifications, role="status" for informational.
    *
    * @see https://0.vuetifyjs.com/components/snackbar#snackbarroot
    *
    * @example
    * ```vue
-   * <Snackbar.Root severity="error">
-   *   <Snackbar.Content>Something went wrong</Snackbar.Content>
+   * <Snackbar.Root :id="item.id">
+   *   <Snackbar.Content>Changes saved</Snackbar.Content>
+   *   <Snackbar.Close />
    * </Snackbar.Root>
    * ```
    */
@@ -88,13 +116,13 @@ export const Snackbar = {
    */
   Action,
   /**
-   * Dismiss button with aria-label="Close".
+   * Dismiss button. Auto-wires to nearest Snackbar.Root context.
    *
    * @see https://0.vuetifyjs.com/components/snackbar#snackbarclose
    *
    * @example
    * ```vue
-   * <Snackbar.Close @click="item.dismiss()" />
+   * <Snackbar.Close />
    * ```
    */
   Close,
