@@ -24,7 +24,7 @@ A headless compound component for rendering toast and snackbar notifications.
 
 ## Usage
 
-The Snackbar component is purely presentational — it renders whatever items you give it. Use `Snackbar.Queue` to connect to `useNotifications` for queue-driven stacks with auto-dismiss, or render `Snackbar.Root` directly for manual control.
+A single snackbar — render directly when you control the lifecycle yourself.
 
 ::: example
 /components/snackbar/basic
@@ -32,47 +32,29 @@ The Snackbar component is purely presentational — it renders whatever items yo
 
 ## Anatomy
 
-### Standalone
-
-A single snackbar — render directly when you control the lifecycle yourself.
-
 ```vue Anatomy playground collapse
 <script setup lang="ts">
   import { Snackbar } from '@vuetify/v0'
 </script>
 
 <template>
+  <!-- Standalone -->
   <Snackbar.Portal>
     <Snackbar.Root>
       <Snackbar.Content />
-
       <Snackbar.Action />
-
       <Snackbar.Close />
     </Snackbar.Root>
   </Snackbar.Portal>
-</template>
-```
 
-### Queue-driven
-
-Connect to `useNotifications` via `Snackbar.Queue`. The queue provides items in order; `Snackbar.Root` provides dismiss context to `Snackbar.Close`.
-
-```vue Anatomy playground collapse
-<script setup lang="ts">
-  import { Snackbar } from '@vuetify/v0'
-</script>
-
-<template>
+  <!-- Queue-driven -->
   <Snackbar.Portal>
-    <Snackbar.Queue v-slot="{ items }">
-      <template v-for="item in items" :key="item.id">
-        <Snackbar.Root :id="item.id">
-          <Snackbar.Content />
-
-          <Snackbar.Close />
-        </Snackbar.Root>
-      </template>
+    <Snackbar.Queue>
+      <Snackbar.Root>
+        <Snackbar.Content />
+        <Snackbar.Action />
+        <Snackbar.Close />
+      </Snackbar.Root>
     </Snackbar.Queue>
   </Snackbar.Portal>
 </template>
@@ -80,33 +62,13 @@ Connect to `useNotifications` via `Snackbar.Queue`. The queue provides items in 
 
 ## Examples
 
-### With useNotifications
+### Notification queue
 
-`Snackbar.Queue` connects to `useNotifications` and exposes queue items via slot. `Snackbar.Close` auto-wires to the nearest `Snackbar.Root` — no `@click` needed:
+`Snackbar.Queue` connects to `useNotifications` and exposes queue items newest-first. `Snackbar.Close` auto-wires dismiss to the nearest `Snackbar.Root` — no `@click` needed.
 
-```vue collapse no-filename
-<script setup lang="ts">
-  import { Snackbar, useNotifications } from '@vuetify/v0'
-
-  const notifications = useNotifications()
-</script>
-
-<template>
-  <Snackbar.Portal>
-    <Snackbar.Queue v-slot="{ items }">
-      <template v-for="item in items" :key="item.id">
-        <Snackbar.Root :id="item.id">
-          <Snackbar.Content>{{ item.subject }}</Snackbar.Content>
-
-          <Snackbar.Close />
-        </Snackbar.Root>
-      </template>
-    </Snackbar.Queue>
-  </Snackbar.Portal>
-</template>
-```
-
-> [!TIP] `Snackbar.Queue` requires `createNotificationsPlugin` to be installed. See [useNotifications](/composables/plugins/use-notifications) for setup.
+::: example
+/components/snackbar/queue
+:::
 
 ### ARIA role
 
@@ -136,14 +98,10 @@ Pass `:teleport="false"` to render the portal inline instead of teleporting to `
 <template>
   <div class="relative h-48">
     <Snackbar.Portal :teleport="false" class="absolute bottom-4 right-4">
-      <Snackbar.Queue v-slot="{ items }">
-        <template v-for="item in items" :key="item.id">
-          <Snackbar.Root :id="item.id">
-            <Snackbar.Content>{{ item.subject }}</Snackbar.Content>
-            <Snackbar.Close />
-          </Snackbar.Root>
-        </template>
-      </Snackbar.Queue>
+      <Snackbar.Root>
+        <Snackbar.Content>Changes saved</Snackbar.Content>
+        <Snackbar.Close />
+      </Snackbar.Root>
     </Snackbar.Portal>
   </div>
 </template>
