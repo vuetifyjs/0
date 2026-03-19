@@ -85,6 +85,7 @@
     background: color-mix(in srgb, var(--v0-background) 85%, transparent);
 
     &.dot-grid::before {
+      --dot-opacity: 12%;
       content: '';
       position: absolute;
       top: 0;
@@ -94,10 +95,7 @@
       z-index: 0;
       pointer-events: none;
       background:
-        radial-gradient(circle, light-dark(
-          color-mix(in srgb, var(--v0-on-background) 12%, transparent),
-          color-mix(in srgb, var(--v0-on-background) 10%, transparent)
-        ) 1px, transparent 1px);
+        radial-gradient(circle, color-mix(in srgb, var(--v0-on-background) var(--dot-opacity), transparent) 1px, transparent 1px);
       background-size: 24px 24px;
       background-position: 18px 0;
       mask-image: linear-gradient(
@@ -112,6 +110,10 @@
         black 15%,
         transparent 35%
       );
+    }
+
+    [data-theme="dark"] &.dot-grid::before {
+      --dot-opacity: 10%;
     }
 
     &.dot-grid > * {

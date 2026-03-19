@@ -231,6 +231,42 @@
       "since": "0.1.0",
       "category": "internal",
       "notes": "Internal factory for observer composables"
+    },
+    "createFocusTraversal": {
+      "level": "draft",
+      "since": "0.1.8",
+      "category": "internal",
+      "notes": "Internal factory for useRovingFocus and useVirtualFocus"
+    },
+    "createValidation": {
+      "level": "preview",
+      "since": "0.1.8",
+      "category": "forms"
+    },
+    "usePopover": {
+      "level": "preview",
+      "since": "0.1.8",
+      "category": "system"
+    },
+    "useRovingFocus": {
+      "level": "preview",
+      "since": "0.1.8",
+      "category": "system"
+    },
+    "useRtl": {
+      "level": "preview",
+      "since": "0.1.7",
+      "category": "plugins"
+    },
+    "useRules": {
+      "level": "preview",
+      "since": "0.1.7",
+      "category": "forms"
+    },
+    "useVirtualFocus": {
+      "level": "preview",
+      "since": "0.1.8",
+      "category": "system"
     }
   },
   "components": {
@@ -301,8 +337,14 @@
       "level": "draft",
       "category": "forms"
     },
+    "Form": {
+      "level": "preview",
+      "since": "0.1.8",
+      "category": "forms"
+    },
     "Input": {
-      "level": "draft",
+      "level": "preview",
+      "since": "0.1.8",
       "category": "forms"
     },
     "DatePicker": {
@@ -331,7 +373,8 @@
       "category": "forms"
     },
     "Select": {
-      "level": "draft",
+      "level": "preview",
+      "since": "0.1.8",
       "category": "forms"
     },
     "Slider": {
