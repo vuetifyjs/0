@@ -7,6 +7,9 @@
 
   // Utilities
   import { shallowRef } from 'vue'
+  import { useRouter } from 'vue-router'
+
+  const router = useRouter()
 
   const toggle = useThemeToggle()
 
@@ -17,6 +20,11 @@
     { id: 'light', label: 'Light', icon: 'theme-light' },
     { id: 'dark', label: 'Dark', icon: 'theme-dark' },
   ]
+
+  function onBrowse () {
+    isOpen.value = false
+    router.push('/guide/features/palettes')
+  }
 
   const accessibilityOptions = [
     { id: 'high-contrast' as const, label: 'High Contrast', icon: 'theme-high-contrast' },
@@ -91,6 +99,14 @@
             <span>{{ PALETTE_LABELS[p] }}</span>
           </button>
         </div>
+
+        <button
+          class="w-full text-xs text-primary border border-primary rounded py-1.5 transition-colors hover:bg-primary/15 text-center mt-1"
+          type="button"
+          @click="onBrowse"
+        >
+          Browse Palettes
+        </button>
       </div>
 
       <!-- Accessibility -->
