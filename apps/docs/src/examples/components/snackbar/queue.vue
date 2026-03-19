@@ -57,7 +57,7 @@
     }
 
     if (i >= MAX_STACK) {
-      const depth = MAX_STACK
+      const depth = MAX_STACK - 1
       return {
         bottom: 0,
         left: `${depth * 8}px`,
