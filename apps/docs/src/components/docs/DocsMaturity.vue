@@ -506,7 +506,7 @@
               <td class="px-4 py-2.5 text-sm font-mono">
                 <a
                   v-if="item.since"
-                  class="text-primary no-underline hover:underline"
+                  class="text-primary no-underline hover:underline whitespace-nowrap"
                   :href="`/releases/?version=v${item.since}`"
                   target="_blank"
                 >v{{ item.since }} ↗</a>
