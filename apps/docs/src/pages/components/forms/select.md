@@ -1,0 +1,176 @@
+---
+title: Select - Accessible Dropdown Select for Vue 3
+meta:
+- name: description
+  content: Headless dropdown select component with single and multi-selection, virtual focus keyboard navigation, native popover positioning, and full ARIA compliance.
+- name: keywords
+  content: select, dropdown, combobox, listbox, form control, Vue 3, headless, accessibility, ARIA
+features:
+  category: Component
+  label: 'C: Select'
+  github: /components/Select/
+  level: 2
+related:
+  - /composables/selection/create-selection
+  - /composables/utilities/use-virtual-focus
+  - /components/disclosure/popover
+---
+
+# Select
+
+A headless dropdown select component with single and multi-selection support. Uses [createSelection](/composables/selection/create-selection) for state management, [useVirtualFocus](/composables/utilities/use-virtual-focus) for keyboard navigation, and [usePopover](/composables/utilities/use-popover) for native popover positioning.
+
+<DocsPageFeatures :frontmatter />
+
+## Usage
+
+The Select component provides a compound pattern for building accessible dropdown selects. It supports `v-model` for both single values and arrays (multi-select mode).
+
+::: example
+/components/select/basic
+:::
+
+## Anatomy
+
+```vue Anatomy playground collapse no-filename
+<script setup lang="ts">
+  import { Select } from '@vuetify/v0'
+</script>
+
+<template>
+  <Select.Root>
+    <Select.Activator>
+      <Select.Value />
+    </Select.Activator>
+
+    <Select.Content>
+      <Select.Item />
+    </Select.Content>
+  </Select.Root>
+</template>
+```
+
+## Architecture
+
+The Root creates selection, virtual focus, and popover contexts. The Activator serves as the combobox trigger with keyboard event handling. Content renders via the native popover API with CSS anchor positioning. Each Item registers with the selection context and provides data attributes for styling.
+
+```mermaid "Select Architecture"
+flowchart TD
+  CreateSelection["createSelection"]
+  UseVirtualFocus["useVirtualFocus"]
+  UsePopover["usePopover"]
+  Root["Select.Root"]:::primary
+  Activator["Select.Activator"]
+  Value["Select.Value"]
+  Content["Select.Content"]
+  Item["Select.Item"]
+
+  CreateSelection --> Root
+  UseVirtualFocus --> Root
+  UsePopover --> Root
+  Root --> Activator
+  Root --> Content
+  Activator --> Value
+  Content --> Item
+```
+
+## Examples
+
+::: example
+/components/select/disabled
+
+### Disabled States
+
+Both individual items and the entire select can be disabled. Disabled items are skipped by virtual focus keyboard navigation. The `disabled` prop on Root prevents the dropdown from opening.
+
+:::
+
+::: example
+/components/select/multiple
+
+### Multi-Select
+
+Set `multiple` on Root to enable multi-selection. The dropdown stays open after each selection. `v-model` binds to an array of IDs. The Value slot receives `selectedIds` for rendering chips, tags, or comma-separated text.
+
+:::
+
+## Accessibility
+
+The Select implements the [WAI-ARIA Combobox](https://www.w3.org/WAI/ARIA/apd/patterns/combobox/) pattern with a listbox popup.
+
+### ARIA Attributes
+
+| Attribute | Value | Component |
+|-----------|-------|-----------|
+| `role` | `combobox` | Activator |
+| `role` | `listbox` | Content |
+| `role` | `option` | Item |
+| `aria-expanded` | `true` / `false` | Activator |
+| `aria-haspopup` | `listbox` | Activator |
+| `aria-controls` | listbox ID | Activator |
+| `aria-selected` | `true` / `false` | Item |
+| `aria-disabled` | `true` | Item (when disabled) |
+| `aria-multiselectable` | `true` | Content (when multiple) |
+
+### Keyboard Navigation
+
+| Key | Action |
+|-----|--------|
+| `Enter` / `Space` | Open dropdown, or select highlighted item |
+| `ArrowDown` | Open dropdown, or move highlight down |
+| `ArrowUp` | Open dropdown, or move highlight up |
+| `Home` | Move highlight to first item |
+| `End` | Move highlight to last item |
+| `Escape` | Close dropdown |
+| `Tab` | Close dropdown and move focus |
+
+<DocsApi />
+
+## Recipes
+
+### Form Submission
+
+Set `name` on Root to auto-render hidden inputs for form submission — one per selected value in multi-select mode:
+
+```vue
+<template>
+  <Select.Root v-model="value" name="color">
+    <!-- ... -->
+  </Select.Root>
+</template>
+```
+
+### Mandatory Selection
+
+Use `mandatory` to prevent deselecting the last item, or `mandatory="force"` to auto-select the first item on mount:
+
+```vue
+<template>
+  <Select.Root v-model="value" mandatory="force">
+    <!-- First non-disabled item is selected automatically -->
+  </Select.Root>
+</template>
+```
+
+### Custom Positioning
+
+Control dropdown placement with CSS anchor positioning props on Content:
+
+```vue
+<template>
+  <Select.Content position-area="top" position-try="flip-block">
+    <!-- Dropdown appears above the activator -->
+  </Select.Content>
+</template>
+```
+
+### Data Attributes
+
+Style interactive states without slot props:
+
+| Attribute | Values | Component |
+|-----------|--------|-----------|
+| `data-selected` | `true` | Item |
+| `data-highlighted` | `""` | Item |
+| `data-disabled` | `true` | Item |
+| `data-select-open` | `""` | Activator |
