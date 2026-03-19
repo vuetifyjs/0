@@ -79,7 +79,7 @@ export interface LocaleContext<
    * // If not found: returns 'Go to page 5'
    * ```
    */
-  t: (key: string, params?: Record<string, unknown>, fallback?: string) => string
+  t: (key: string, params?: Record<string, unknown> | unknown[], fallback?: string) => string
   n: (value: number) => string
   /** Register a locale (accepts input type, returns output type) */
   register: (registration?: Partial<Z>) => E
@@ -126,7 +126,7 @@ export function createLocale<
 
   function t (
     key: string,
-    params?: Record<string, unknown>,
+    params?: Record<string, unknown> | unknown[],
     fallback?: string,
   ): string {
     const locale = registry.selectedId.value
@@ -197,7 +197,7 @@ export function createLocaleFallback<
     size: 0,
     t: (
       key: string,
-      _params?: Record<string, unknown>,
+      _params?: Record<string, unknown> | unknown[],
       fallback?: string,
     ) => fallback ?? key,
     n: String,
