@@ -66,19 +66,20 @@ Default behavior (no options) is unchanged.
 
 ### `usePlaygroundFiles` — additions
 
-Two new items returned:
+Two new items returned (with explicit types for `PlaygroundContext`):
+- `activePreset: ShallowRef<string>`
+- `applyPreset: (id: string) => Promise<void>`
 
-**`activePreset`** — `ShallowRef<string>` initialized to `'default'`. Decoded from `settings.preset` in the hash on mount. Included in `updateHash` serialization.
+**`activePreset`** — `ShallowRef<string>` initialized to `'default'`. Decoded from `settings.preset` in the hash on mount **before** `loadExample` is called — this is required (not informational) so the theme watcher regenerates `main.ts` correctly after reload. Included in `updateHash` serialization.
 
 **`applyPreset(id)`** — async function that:
-1. Sets `activePreset.value = id`
-2. Generates `createMainTs(theme, preset.mainOptions)` as the fresh main.ts
-3. Calls `loadExample(preset.files)` — reuses existing file-loading flow
-4. Calls `store.setImportMap({ imports: preset.imports }, true)` if the preset has extra imports; clears extra imports if not
-5. Calls `store.setLinks({ css: preset.css })` if the preset has CSS links (Vuetify); calls `store.setLinks({ css: [] })` otherwise to clear previous CSS
-6. Updates `extraImports.value` to reflect the preset's imports (so they survive hash encode/decode)
+1. Sets `activePreset.value = id` (must happen first so `createMainTs` inside `loadExample` uses the right options)
+2. Sets `extraImports.value = preset.imports ?? undefined` (explicitly clears when preset has no imports)
+3. Calls `loadExample(preset.files)` — `loadExample` reads `activePreset.value` to pass `mainOptions` to `createMainTs` internally
+4. Calls `store.setImportMap({ imports: preset.imports ?? {} }, true)` — clears import map when preset has no imports
+5. Calls `store.setLinks({ css: preset.css ?? [] })` — clears CSS links when preset has no CSS
 
-`loadExample` gains an optional third argument `mainOptions?: MainOptions` passed to `createMainTs` internally. `applyPreset` passes the preset's `mainOptions` through this path.
+`loadExample` does **not** gain a third argument. Instead it reads `activePreset.value` via closure to get the current `mainOptions` when calling `createMainTs`. This keeps one canonical source of truth for which options are active.
 
 **Theme watcher** updated to use `createMainTs(isDark ? 'dark' : 'light', PRESETS.find(p => p.id === activePreset.value)?.mainOptions)`.
 
@@ -90,7 +91,7 @@ Two new items returned:
 settings?: { vue?: string; v0?: string; preset?: string }
 ```
 
-On decode: `settings.preset` is read to restore `activePreset.value` (informational — files in hash are the authoritative state). `isValidSettings` updated to allow the new field.
+On decode: `settings.preset` is read to restore `activePreset.value` **before** `loadExample` runs. This is required — the theme watcher uses `activePreset.value` to regenerate `main.ts`, so an incorrect value here would corrupt `main.ts` on the next dark/light switch. `isValidSettings` updated to allow the new field.
 
 On encode: `settings.preset` written when `activePreset.value !== 'default'`.
 
@@ -100,7 +101,7 @@ On encode: `settings.preset` written when `activePreset.value !== 'default'`.
 
 ### `PlaygroundSettingsPresets.vue` — new component
 
-Replaces `component: null` in the `sections` array of `PlaygroundSettings.vue`. `available` changes to `true`.
+Replaces `component: null` in the `sections` array of `PlaygroundSettings.vue`. `available` changes to `true`. The `sections` array's `as const` assertion must be removed and replaced with an explicit typed array so that `component` accepts both `null` and real component objects without TypeScript errors.
 
 Renders a vertical list of preset cards. Each card shows:
 - Icon + label (bold when active)
@@ -131,7 +132,7 @@ Only one confirmation is visible at a time. A second click on another preset whi
 | `src/data/playground-defaults.ts` | Extend `createMainTs` to accept `MainOptions?` |
 | `src/composables/usePlayground.ts` | Add `preset?` to `settings` in `PlaygroundHashData`; update `isValidSettings` |
 | `src/composables/usePlaygroundFiles.ts` | Add `activePreset`, `applyPreset`; update `loadExample` for `mainOptions`; update theme watcher; include preset in hash |
-| `src/components/playground/app/PlaygroundApp.vue` | Add `activePreset`, `applyPreset` to `PlaygroundContext` |
+| `src/components/playground/app/PlaygroundApp.vue` | Add `activePreset: ShallowRef<string>` and `applyPreset: (id: string) => Promise<void>` to `PlaygroundContext` interface and `providePlayground` call |
 | `src/components/playground/settings/PlaygroundSettings.vue` | Set `available: true` + `component: PlaygroundSettingsPresets` for presets entry |
 | `src/components/playground/settings/PlaygroundSettingsPresets.vue` | **New** — preset cards + inline confirmation UI |
 
