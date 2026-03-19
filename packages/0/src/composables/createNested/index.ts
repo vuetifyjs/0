@@ -11,7 +11,6 @@
  * Inheritance chain: createSelection → createGroup → createNested
  */
 
-// Factories
 // Foundational
 import { createContext, useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
@@ -44,10 +43,6 @@ import type { App } from 'vue'
 
 // Strategies
 import { multipleOpenStrategy, singleOpenStrategy } from './strategies'
-
-// Re-export types
-
-// Re-export strategies
 
 /**
  * Resolves open mode to an OpenStrategy.
@@ -855,7 +850,7 @@ export function createNested<
     activated,
     deactivateAll,
     toFlat,
-    multiple: multipleOption,
+    multiple: toValue(multipleOption),
     openStrategy: resolvedOpenStrategy,
     select,
     unselect,

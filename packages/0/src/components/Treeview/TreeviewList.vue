@@ -110,7 +110,7 @@
 
   function onKeydown (e: KeyboardEvent) {
     const id = roving.focusedId.value
-    const ticket = id == null ? undefined : nested.get(id)
+    const ticket = isNullOrUndefined(id) ? undefined : nested.get(id)
     const rtl = isRtl(e)
 
     switch (e.key) {
@@ -160,7 +160,7 @@
       }
       case ' ': {
         e.preventDefault()
-        if (ticket && nested.multiple) {
+        if (ticket) {
           nested.toggle(ticket.id)
         }
         break

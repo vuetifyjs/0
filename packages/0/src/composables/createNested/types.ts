@@ -224,15 +224,15 @@ export type NestedOpenMode = 'single' | 'multiple'
 export type NestedSelectionMode = 'cascade' | 'independent' | 'leaf'
 
 /**
- * Options for creating a nested instance.
- */
-/**
  * Active mode for nested items.
  * - `'single'` (default): Only one item can be active at a time
  * - `'multiple'`: Multiple items can be active simultaneously
  */
 export type NestedActiveMode = 'single' | 'multiple'
 
+/**
+ * Options for creating a nested instance.
+ */
 export interface NestedOptions extends GroupOptions {
   /**
    * Controls how nodes expand/collapse.
