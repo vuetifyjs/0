@@ -1,21 +1,30 @@
 <script setup lang="ts">
   // Components
+  import PlaygroundSettingsPresets from './PlaygroundSettingsPresets.vue'
   import PlaygroundSettingsVersions from './PlaygroundSettingsVersions.vue'
   import AppCloseButton from '@/components/app/AppCloseButton.vue'
   import AppIcon from '@/components/app/AppIcon.vue'
 
   // Utilities
-  import { shallowRef } from 'vue'
+  import { type Component, shallowRef } from 'vue'
 
   defineEmits<{ close: [] }>()
 
   const active = shallowRef('versions')
 
-  const sections = [
+  interface Section {
+    id: string
+    label: string
+    icon: string
+    component: Component | null
+    available: boolean
+  }
+
+  const sections: Section[] = [
     { id: 'versions', label: 'Versions', icon: 'cog', component: PlaygroundSettingsVersions, available: true },
-    { id: 'presets', label: 'Presets', icon: 'folder', component: null, available: false },
+    { id: 'presets', label: 'Presets', icon: 'folder', component: PlaygroundSettingsPresets, available: true },
     { id: 'export', label: 'Export', icon: 'file-plus', component: null, available: false },
-  ] as const
+  ]
 </script>
 
 <template>
