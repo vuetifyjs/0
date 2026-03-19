@@ -120,11 +120,11 @@ export function usePlaygroundFiles () {
 
   const updateHash = debounce(async (files: Record<string, string>, active: string | undefined) => {
     if (Object.keys(files).length === 0) return
-    const settings: { vue?: string; v0?: string } = {}
+    const settings: { vue?: string, v0?: string } = {}
     if (vueVersion.value) settings.vue = vueVersion.value
     if (v0Version.value !== 'latest') settings.v0 = v0Version.value
     const data: PlaygroundHashData = { files, active, imports: extraImports.value }
-    if (Object.keys(settings).length) data.settings = settings
+    if (Object.keys(settings).length > 0) data.settings = settings
     const hash = await encodePlaygroundHash(data)
     history.replaceState(null, '', `#${hash}`)
   }, 500)
@@ -133,8 +133,8 @@ export function usePlaygroundFiles () {
     if (!ready) return
     watchEffect(() => {
       // Track version refs so hash updates when versions change
-      vueVersion.value  // eslint-disable-line @typescript-eslint/no-unused-expressions
-      v0Version.value   // eslint-disable-line @typescript-eslint/no-unused-expressions
+      vueVersion.value // eslint-disable-line @typescript-eslint/no-unused-expressions
+      v0Version.value // eslint-disable-line @typescript-eslint/no-unused-expressions
       const aliases = new Set(aliasMap.value.values())
       const files: Record<string, string> = {}
       for (const [path, file] of Object.entries(store.files)) {

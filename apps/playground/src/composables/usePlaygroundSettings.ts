@@ -1,9 +1,8 @@
+// Data
 // Utilities
+import { fetchNpmVersions } from '@/utilities/npm'
 import { useVueImportMap } from '@vue/repl/core'
 import { shallowRef } from 'vue'
-
-// Data
-import { fetchNpmVersions } from '@/utilities/npm'
 
 export function usePlaygroundSettings () {
   const { importMap, vueVersion } = useVueImportMap({

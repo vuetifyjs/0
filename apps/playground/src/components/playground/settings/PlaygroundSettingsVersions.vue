@@ -14,7 +14,7 @@
   <div class="flex flex-col gap-5">
     <!-- Vue version -->
     <div class="flex flex-col gap-1.5">
-      <label for="select-vue" class="text-xs font-medium opacity-60 uppercase tracking-wide">Vue</label>
+      <label class="text-xs font-medium opacity-60 uppercase tracking-wide" for="select-vue">Vue</label>
       <div v-if="playground.fetching.value" class="version-select-skeleton" />
       <select
         v-else
@@ -35,7 +35,7 @@
 
     <!-- v0 version -->
     <div class="flex flex-col gap-1.5">
-      <label for="select-v0" class="text-xs font-medium opacity-60 uppercase tracking-wide">@vuetify/v0</label>
+      <label class="text-xs font-medium opacity-60 uppercase tracking-wide" for="select-v0">@vuetify/v0</label>
       <div v-if="playground.fetching.value" class="version-select-skeleton" />
       <select
         v-else

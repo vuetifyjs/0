@@ -9,8 +9,8 @@
   import { nextTick, onMounted, shallowRef, watch } from 'vue'
 
   // Types
-  import type { Ref } from 'vue'
   import type { ReplStore } from '@vue/repl'
+  import type { Ref } from 'vue'
 
   export interface PlaygroundContext {
     store: ReplStore

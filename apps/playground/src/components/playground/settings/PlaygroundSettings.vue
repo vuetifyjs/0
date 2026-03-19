@@ -28,7 +28,7 @@
       />
 
       <!-- Modal -->
-      <div class="relative bg-surface border border-divider rounded-lg shadow-xl w-[560px] max-h-[80vh] flex overflow-hidden" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+      <div aria-labelledby="settings-title" aria-modal="true" class="relative bg-surface border border-divider rounded-lg shadow-xl w-[560px] max-h-[80vh] flex overflow-hidden" role="dialog">
         <!-- Left nav -->
         <nav class="w-40 shrink-0 border-r border-divider flex flex-col py-2">
           <button
