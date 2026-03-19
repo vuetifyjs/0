@@ -175,16 +175,23 @@ export function usePlaygroundFiles () {
     const preset = PRESETS.find(p => p.id === id)
     if (!preset) return
 
-    // Set activePreset first — loadExample reads it via closure for createMainTs
     activePreset.value = id
-
-    // Sync extra imports ref (drives hash encoding)
     extraImports.value = preset.imports ?? undefined
+    aliasMap.value = new Map() // presets use direct paths, no aliases
 
-    // Reset file state with preset template
-    await loadExample(preset.files, 'src/App.vue')
+    const theme_ = theme.isDark.value ? 'dark' : 'light'
+    await store.setFiles(
+      {
+        'src/main.ts': createMainTs(theme_, preset.mainOptions),
+        'src/uno.config.ts': UNO_CONFIG_TS,
+        ...preset.files,
+      },
+      'src/main.ts', // must be main.ts so the sandbox runs it (installs plugins)
+    )
+    store.files['src/main.ts']!.hidden = true
+    store.files['src/uno.config.ts']!.hidden = true
+    store.setActive('src/App.vue')
 
-    // Apply extra JS imports to the store's import map
     store.setImportMap({ imports: preset.imports ?? {} }, true)
   }
 
