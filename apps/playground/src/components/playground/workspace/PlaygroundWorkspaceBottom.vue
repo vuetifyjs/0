@@ -37,10 +37,12 @@
     </div>
   </SplitterPanel>
 
-  <!-- Mobile: full-height preview when editor is hidden -->
+  <!-- Mobile: keep preview mounted so the iframe survives editor↔preview toggles.
+       CSS hide instead of v-if to match how WorkspaceTop keeps the editor alive. -->
   <div
-    v-else-if="isMobile && !playground.editor.value"
-    class="flex flex-1 min-h-0"
+    v-else-if="isMobile"
+    class="flex min-h-0"
+    :class="!playground.editor.value ? 'flex-1' : 'h-0 overflow-hidden'"
   >
     <slot />
   </div>
