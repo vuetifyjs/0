@@ -8,6 +8,9 @@
  */
 
 <script lang="ts">
+  // Constants
+  import { IN_BROWSER } from '#v0/constants/globals'
+
   // Components
   import { Atom } from '#v0/components/Atom'
   import { useTreeviewRoot } from './TreeviewRoot.vue'
@@ -19,6 +22,7 @@
   import { useRovingFocus } from '#v0/composables/useRovingFocus'
 
   // Utilities
+  import { isNullOrUndefined } from '#v0/utilities'
   import { toRef, toValue } from 'vue'
 
   // Types
@@ -79,9 +83,35 @@
     return (el?.hasAttribute('aria-expanded') ?? false) || !toValue(ticket.isLeaf)
   }
 
+  function isRtl (e: KeyboardEvent): boolean {
+    if (!IN_BROWSER) return false
+    const el = e.currentTarget as HTMLElement | null
+    return el ? getComputedStyle(el).direction === 'rtl' : false
+  }
+
+  function openOrChild (ticket: NonNullable<ReturnType<typeof nested.get>>) {
+    if (expandable(ticket) && !toValue(ticket.isOpen)) {
+      nested.open(ticket.id)
+    } else if (toValue(ticket.isOpen)) {
+      const childIds = nested.children.get(ticket.id)
+      if (childIds?.length) {
+        roving.focus(childIds[0]!)
+      }
+    }
+  }
+
+  function closeOrParent (ticket: NonNullable<ReturnType<typeof nested.get>>) {
+    if (toValue(ticket.isOpen) && expandable(ticket)) {
+      nested.close(ticket.id)
+    } else if (!isNullOrUndefined(ticket.parentId)) {
+      roving.focus(ticket.parentId)
+    }
+  }
+
   function onKeydown (e: KeyboardEvent) {
     const id = roving.focusedId.value
     const ticket = id == null ? undefined : nested.get(id)
+    const rtl = isRtl(e)
 
     switch (e.key) {
       case 'ArrowUp': {
@@ -97,28 +127,15 @@
       case 'ArrowRight': {
         e.preventDefault()
         if (!ticket) break
-        if (expandable(ticket) && !toValue(ticket.isOpen)) {
-          // Closed node with content: open it
-          nested.open(ticket.id)
-        } else if (toValue(ticket.isOpen)) {
-          // Open node: focus first child
-          const childIds = nested.children.get(ticket.id)
-          if (childIds?.length) {
-            roving.focus(childIds[0]!)
-          }
-        }
+        if (rtl) closeOrParent(ticket)
+        else openOrChild(ticket)
         break
       }
       case 'ArrowLeft': {
         e.preventDefault()
         if (!ticket) break
-        if (toValue(ticket.isOpen) && expandable(ticket)) {
-          // Open node: close it
-          nested.close(ticket.id)
-        } else if (ticket.parentId != null) {
-          // Closed or leaf: focus parent
-          roving.focus(ticket.parentId)
-        }
+        if (rtl) openOrChild(ticket)
+        else closeOrParent(ticket)
         break
       }
       case 'Home': {
