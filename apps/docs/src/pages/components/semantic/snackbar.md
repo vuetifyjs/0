@@ -74,6 +74,8 @@ A single snackbar — render directly when you control the lifecycle yourself.
 /components/snackbar/queue
 :::
 
+## Recipes
+
 ### ARIA role
 
 Set `role` directly on `Snackbar.Root` to control how screen readers announce the notification:
