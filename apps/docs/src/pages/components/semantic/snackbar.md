@@ -42,7 +42,9 @@ A single snackbar — render directly when you control the lifecycle yourself.
   <Snackbar.Portal>
     <Snackbar.Root>
       <Snackbar.Content />
+
       <Snackbar.Action />
+
       <Snackbar.Close />
     </Snackbar.Root>
   </Snackbar.Portal>
@@ -52,7 +54,9 @@ A single snackbar — render directly when you control the lifecycle yourself.
     <Snackbar.Queue>
       <Snackbar.Root>
         <Snackbar.Content />
+
         <Snackbar.Action />
+
         <Snackbar.Close />
       </Snackbar.Root>
     </Snackbar.Queue>
