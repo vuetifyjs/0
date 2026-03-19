@@ -199,7 +199,7 @@ export const PRESETS: PresetDefinition[] = [
       'src/counter.ts': PINIA_COUNTER,
     },
     imports: {
-      pinia: 'https://cdn.jsdelivr.net/npm/pinia@latest/dist/pinia.esm-browser.mjs',
+      pinia: 'https://cdn.jsdelivr.net/npm/pinia@latest/dist/pinia.esm-browser.js',
     },
   },
   {
