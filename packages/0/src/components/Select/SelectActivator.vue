@@ -8,6 +8,14 @@
  */
 
 <script lang="ts">
+  // Components
+  import { Atom } from '#v0/components/Atom'
+  import { useSelectContext } from './SelectRoot.vue'
+
+  // Utilities
+  import { isUndefined } from '#v0/utilities'
+  import { toRef, useTemplateRef, watchEffect } from 'vue'
+
   // Types
   import type { AtomProps } from '#v0/components/Atom'
 
@@ -33,14 +41,6 @@
 </script>
 
 <script setup lang="ts">
-  // Components
-  import { Atom } from '#v0/components/Atom'
-  import { useSelectContext } from './SelectRoot.vue'
-
-  // Utilities
-  import { isUndefined } from '#v0/utilities'
-  import { toRef, useTemplateRef, watchEffect } from 'vue'
-
   defineOptions({ name: 'SelectActivator' })
 
   defineSlots<{
@@ -54,10 +54,9 @@
 
   const context = useSelectContext(namespace)
 
-  // Populate activator element ref in context
-  const activator = useTemplateRef('activator')
+  const activatorEl = useTemplateRef('activator')
   watchEffect(() => {
-    context.activatorEl.value = activator.value?.element ?? null
+    context.activatorEl.value = activatorEl.value?.element ?? null
   })
 
   function onClick () {
@@ -66,7 +65,6 @@
 
   function onKeydown (e: KeyboardEvent) {
     if (context.isOpen.value) {
-      // Open state
       switch (e.key) {
         case ' ':
         case 'Enter': {
@@ -94,7 +92,6 @@
         }
       }
     } else {
-      // Closed state
       switch (e.key) {
         case ' ':
         case 'Enter':

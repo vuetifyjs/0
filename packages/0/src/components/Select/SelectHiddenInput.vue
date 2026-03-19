@@ -8,6 +8,13 @@
  */
 
 <script lang="ts">
+  // Components
+  import { useSelectContext } from './SelectRoot.vue'
+
+  // Utilities
+  import { isNullOrUndefined, isObject } from '#v0/utilities'
+  import { toRef, toValue } from 'vue'
+
   const visuallyHiddenStyle = {
     position: 'absolute',
     width: '1px',
@@ -22,12 +29,6 @@
 </script>
 
 <script setup lang="ts">
-  // Components
-  import { useSelectContext } from './SelectRoot.vue'
-
-  // Utilities
-  import { isNullOrUndefined, isObject } from '#v0/utilities'
-  import { toRef, toValue } from 'vue'
 
   defineOptions({ name: 'SelectHiddenInput' })
 

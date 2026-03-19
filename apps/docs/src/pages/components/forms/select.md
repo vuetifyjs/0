@@ -41,6 +41,9 @@ The Select component provides a compound pattern for building accessible dropdow
   <Select.Root>
     <Select.Activator>
       <Select.Value />
+      <Select.Placeholder />
+
+      <Select.Cue />
     </Select.Activator>
 
     <Select.Content>
@@ -62,6 +65,8 @@ flowchart TD
   Root["Select.Root"]:::primary
   Activator["Select.Activator"]
   Value["Select.Value"]
+  Placeholder["Select.Placeholder"]
+  Cue["Select.Cue"]
   Content["Select.Content"]
   Item["Select.Item"]
 
@@ -71,6 +76,8 @@ flowchart TD
   Root --> Activator
   Root --> Content
   Activator --> Value
+  Activator --> Placeholder
+  Activator --> Cue
   Content --> Item
 ```
 
@@ -90,7 +97,7 @@ Both individual items and the entire select can be disabled. Disabled items are 
 
 ### Multi-Select
 
-Set `multiple` on Root to enable multi-selection. The dropdown stays open after each selection. `v-model` binds to an array of IDs. The Value slot receives `selectedIds` for rendering chips, tags, or comma-separated text.
+Set `multiple` on Root to enable multi-selection. The dropdown stays open after each selection. `v-model` binds to an array of IDs. The Value slot receives `selectedValues` for rendering chips, tags, or comma-separated text.
 
 :::
 
@@ -174,3 +181,4 @@ Style interactive states without slot props:
 | `data-highlighted` | `""` | Item |
 | `data-disabled` | `true` | Item |
 | `data-select-open` | `""` | Activator |
+| `data-state` | `"open"` / `"closed"` | Cue |

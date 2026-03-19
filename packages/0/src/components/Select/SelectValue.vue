@@ -2,36 +2,13 @@
  * @module SelectValue
  *
  * @remarks
- * Display component for the selected value(s) in a select. Slot-based only —
- * does not resolve display text from values. Consumers provide their own
- * rendering via the default slot. Shows placeholder when nothing is selected.
+ * Display component for the selected value(s) in a select. Slot-based —
+ * consumers provide their own rendering via the default slot. Only renders
+ * content when a value is selected. Use alongside Select.Placeholder for
+ * empty state text.
  */
 
 <script lang="ts">
-  // Types
-  import type { AtomProps } from '#v0/components/Atom'
-  import type { ID } from '#v0/types'
-
-  export interface SelectValueProps extends AtomProps {
-    /** Namespace for dependency injection */
-    namespace?: string
-    /** Text shown when no value is selected */
-    placeholder?: string
-  }
-
-  export interface SelectValueSlotProps {
-    /** Array of currently selected IDs */
-    selectedIds: ID[]
-    /** Whether any value is selected */
-    hasValue: boolean
-    /** Placeholder text */
-    placeholder: string | undefined
-    /** Attributes to bind to the value element */
-    attrs: Record<string, never>
-  }
-</script>
-
-<script setup lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
   import { useSelectContext } from './SelectRoot.vue'
@@ -39,6 +16,31 @@
   // Utilities
   import { toRef } from 'vue'
 
+  // Types
+  import type { AtomProps } from '#v0/components/Atom'
+
+  export interface SelectValueProps extends AtomProps {
+    /** Namespace for dependency injection */
+    namespace?: string
+  }
+
+  export interface SelectValueSlotProps {
+    /** The first selected item (ticket) — useful for single select */
+    selectedItem: unknown | undefined
+    /** All selected items (tickets) — useful for multi select */
+    selectedItems: unknown[]
+    /** The first selected value — useful for single select */
+    selectedValue: unknown | undefined
+    /** All selected values — useful for multi select */
+    selectedValues: unknown[]
+    /** Whether any value is selected */
+    hasValue: boolean
+    /** Attributes to bind to the value element */
+    attrs: Record<string, never>
+  }
+</script>
+
+<script setup lang="ts">
   defineOptions({ name: 'SelectValue' })
 
   defineSlots<{
@@ -48,26 +50,28 @@
   const {
     as = 'span',
     namespace = 'v0:select',
-    placeholder,
   } = defineProps<SelectValueProps>()
 
   const context = useSelectContext(namespace)
 
-  const selectedIds = toRef(() => Array.from(context.selection.selectedIds))
+  const items = toRef(() => Array.from(context.selection.selectedItems.value))
+  const values = toRef(() => Array.from(context.selection.selectedValues.value))
   const hasValue = toRef(() => context.selection.selectedIds.size > 0)
 
   const slotProps = toRef((): SelectValueSlotProps => ({
-    selectedIds: selectedIds.value,
+    selectedItem: items.value[0],
+    selectedItems: items.value,
+    selectedValue: values.value[0],
+    selectedValues: values.value,
     hasValue: hasValue.value,
-    placeholder,
     attrs: {},
   }))
 </script>
 
 <template>
-  <Atom :as>
+  <Atom v-if="hasValue" :as>
     <slot v-bind="slotProps">
-      {{ hasValue ? '' : placeholder }}
+      {{ values[0] }}
     </slot>
   </Atom>
 </template>
