@@ -7,6 +7,9 @@
 
   // Utilities
   import { shallowRef } from 'vue'
+  import { useRouter } from 'vue-router'
+
+  const router = useRouter()
 
   const toggle = useThemeToggle()
 
@@ -17,6 +20,11 @@
     { id: 'light', label: 'Light', icon: 'theme-light' },
     { id: 'dark', label: 'Dark', icon: 'theme-dark' },
   ]
+
+  function onBrowse () {
+    isOpen.value = false
+    router.push('/guide/features/palettes')
+  }
 
   const accessibilityOptions = [
     { id: 'high-contrast' as const, label: 'High Contrast', icon: 'theme-high-contrast' },
@@ -54,10 +62,10 @@
           <button
             v-for="option in modeOptions"
             :key="option.id"
-            :aria-pressed="toggle.mode.value === option.id"
+            :aria-pressed="!toggle.isAccessibilityActive.value && toggle.mode.value === option.id"
             :class="[
               'flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded text-xs font-medium transition-colors',
-              toggle.mode.value === option.id
+              !toggle.isAccessibilityActive.value && toggle.mode.value === option.id
                 ? 'bg-primary/15 text-primary'
                 : 'hover:bg-surface-tint text-on-surface',
             ]"
@@ -77,10 +85,10 @@
           <button
             v-for="p in PALETTES"
             :key="p"
-            :aria-pressed="toggle.palette.value === p"
+            :aria-pressed="!toggle.isAccessibilityActive.value && toggle.palette.value === p"
             :class="[
               'flex items-center gap-1.5 px-2 py-1.5 rounded text-xs font-medium transition-colors',
-              toggle.palette.value === p
+              !toggle.isAccessibilityActive.value && toggle.palette.value === p
                 ? 'bg-primary/15 text-primary'
                 : 'hover:bg-surface-tint text-on-surface',
             ]"
@@ -91,6 +99,14 @@
             <span>{{ PALETTE_LABELS[p] }}</span>
           </button>
         </div>
+
+        <button
+          class="w-full text-xs text-primary border border-primary rounded py-1.5 transition-colors hover:bg-primary/15 text-center mt-1"
+          type="button"
+          @click="onBrowse"
+        >
+          Browse Palettes
+        </button>
       </div>
 
       <!-- Accessibility -->

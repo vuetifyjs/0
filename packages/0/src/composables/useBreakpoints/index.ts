@@ -38,6 +38,7 @@ export type BreakpointName = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl'
 
 export interface BreakpointsContext {
   breakpoints: Readonly<Record<BreakpointName, number>>
+  mobileBreakpoint: BreakpointName | number
   name: Readonly<ShallowRef<BreakpointName>>
   width: Readonly<ShallowRef<number>>
   height: Readonly<ShallowRef<number>>
@@ -207,6 +208,7 @@ export function createBreakpoints<
 
   return {
     breakpoints,
+    mobileBreakpoint,
     name: readonly(name),
     width: readonly(width),
     height: readonly(height),
@@ -241,6 +243,7 @@ function createBreakpointsFallback<
 
   return {
     breakpoints: defaults.breakpoints,
+    mobileBreakpoint: defaults.mobileBreakpoint,
     name: readonly(shallowRef<BreakpointName>('xs')),
     width: readonly(shallowRef(0)),
     height: readonly(shallowRef(0)),

@@ -79,7 +79,7 @@ export interface LocaleContext<
    * // If not found: returns 'Go to page 5'
    * ```
    */
-  t: (key: string, params?: Record<string, unknown>, fallback?: string) => string
+  t: (key: string, params?: Record<string, unknown> | unknown[], fallback?: string) => string
   n: (value: number) => string
   /** Register a locale (accepts input type, returns output type) */
   register: (registration?: Partial<Z>) => E
@@ -112,7 +112,7 @@ export function createLocale<
   E extends LocaleTicket<Z> = LocaleTicket<Z>,
   R extends LocaleContext<Z, E> = LocaleContext<Z, E>,
 > (_options: LocaleOptions = {}): R {
-  const { adapter = new Vuetify0LocaleAdapter(), messages = {}, ...options } = _options
+  const { adapter = new Vuetify0LocaleAdapter(), messages = {}, fallback: fallbackLocale, ...options } = _options
   const tokens = createTokens(messages)
   const registry = createSingle<Z, E>(options)
 
@@ -126,7 +126,7 @@ export function createLocale<
 
   function t (
     key: string,
-    params?: Record<string, unknown>,
+    params?: Record<string, unknown> | unknown[],
     fallback?: string,
   ): string {
     const locale = registry.selectedId.value
@@ -138,11 +138,18 @@ export function createLocale<
     const path = `${locale}.${key}`
     const message = tokens.get(path)?.value
 
-    // If the key exists in messages, resolve it with token references
-    // Otherwise, use the fallback or key itself as a template string
-    const template = isString(message) ? resolve(locale, message) : (fallback ?? key)
+    if (isString(message)) {
+      return adapter.t(resolve(locale, message), ...args)
+    }
 
-    return adapter.t(template, ...args)
+    if (fallbackLocale) {
+      const fbMessage = tokens.get(`${fallbackLocale}.${key}`)?.value
+      if (isString(fbMessage)) {
+        return adapter.t(resolve(fallbackLocale, fbMessage), ...args)
+      }
+    }
+
+    return adapter.t(fallback ?? key, ...args)
   }
 
   function n (value: number, ...params: unknown[]): string {
@@ -190,7 +197,7 @@ export function createLocaleFallback<
     size: 0,
     t: (
       key: string,
-      _params?: Record<string, unknown>,
+      _params?: Record<string, unknown> | unknown[],
       fallback?: string,
     ) => fallback ?? key,
     n: String,
