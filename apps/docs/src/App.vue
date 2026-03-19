@@ -85,7 +85,7 @@
     background: color-mix(in srgb, var(--v0-background) 85%, transparent);
 
     &.dot-grid::before {
-      --dot-opacity: 12%;
+      --dot-opacity: 24%;
       content: '';
       position: absolute;
       top: 0;
