@@ -161,11 +161,11 @@ describe('select', () => {
       await nextTick()
       expect(selected.value).toContain('Apple')
 
-      // Selecting again is idempotent (select always adds, does not toggle)
+      // Selecting again toggles it off in multi-select mode
       itemSlotProps.value.Apple.select()
       await nextTick()
-      expect(selected.value).toContain('Apple')
-      expect(selected.value).toHaveLength(1)
+      expect(selected.value).not.toContain('Apple')
+      expect(selected.value).toHaveLength(0)
     })
 
     it('should sync with v-model', async () => {
@@ -557,7 +557,10 @@ describe('select', () => {
             return h(Select.Root as any, {}, {
               default: () => [
                 h(Select.Activator as any, {}, {
-                  default: () => h(Select.Value as any, { placeholder: 'Choose...' }),
+                  default: () => [
+                    h(Select.Value as any),
+                    h(Select.Placeholder as any, {}, () => 'Choose...'),
+                  ],
                 }),
                 h(Select.Content as any, {}, {
                   default: () => h(Select.Item as any, { value: 'A' }, () => 'A'),
@@ -570,11 +573,12 @@ describe('select', () => {
 
       await nextTick()
 
-      const value = wrapper.findComponent(Select.Value as any)
-      expect(value.text()).toBe('Choose...')
+      const placeholder = wrapper.findComponent(Select.Placeholder as any)
+      expect(placeholder.exists()).toBe(true)
+      expect(placeholder.text()).toBe('Choose...')
     })
 
-    it('should expose selectedIds via slot props', async () => {
+    it('should expose selectedValues via slot props', async () => {
       let valueSlotProps: any
       let rootSlotProps: any
 
@@ -616,7 +620,7 @@ describe('select', () => {
 
       expect(valueSlotProps).toBeDefined()
       expect(valueSlotProps.hasValue).toBe(true)
-      expect(valueSlotProps.selectedIds.length).toBeGreaterThan(0)
+      expect(valueSlotProps.selectedValues.length).toBeGreaterThan(0)
     })
   })
 

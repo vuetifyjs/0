@@ -1,19 +1,25 @@
 export { default as SelectActivator } from './SelectActivator.vue'
 export { default as SelectContent } from './SelectContent.vue'
+export { default as SelectCue } from './SelectCue.vue'
 export { default as SelectItem } from './SelectItem.vue'
+export { default as SelectPlaceholder } from './SelectPlaceholder.vue'
 export { provideSelectContext, useSelectContext } from './SelectRoot.vue'
 export { default as SelectRoot } from './SelectRoot.vue'
 export { default as SelectValue } from './SelectValue.vue'
 export type { SelectActivatorProps, SelectActivatorSlotProps } from './SelectActivator.vue'
 export type { SelectContentProps, SelectContentSlotProps } from './SelectContent.vue'
+export type { SelectCueProps, SelectCueSlotProps } from './SelectCue.vue'
 export type { SelectItemProps, SelectItemSlotProps } from './SelectItem.vue'
+export type { SelectPlaceholderProps, SelectPlaceholderSlotProps } from './SelectPlaceholder.vue'
 export type { SelectContext, SelectRootProps, SelectRootSlotProps } from './SelectRoot.vue'
 export type { SelectValueProps, SelectValueSlotProps } from './SelectValue.vue'
 
 // Components
 import Activator from './SelectActivator.vue'
 import Content from './SelectContent.vue'
+import Cue from './SelectCue.vue'
 import Item from './SelectItem.vue'
+import Placeholder from './SelectPlaceholder.vue'
 import Root from './SelectRoot.vue'
 import Value from './SelectValue.vue'
 
@@ -39,9 +45,10 @@ import Value from './SelectValue.vue'
  * <template>
  *   <Select.Root v-model="selected">
  *     <Select.Activator>
- *       <Select.Value placeholder="Pick a fruit" v-slot="{ selectedIds }">
- *         {{ items.find(i => i.id === selectedIds[0])?.label }}
+ *       <Select.Value v-slot="{ selectedValue }">
+ *         {{ selectedValue }}
  *       </Select.Value>
+ *       <Select.Placeholder>Pick a fruit</Select.Placeholder>
  *     </Select.Activator>
  *
  *     <Select.Content>
@@ -77,7 +84,8 @@ export const Select = {
    * <template>
    *   <Select.Root v-model="selected">
    *     <Select.Activator>
-   *       <Select.Value placeholder="Choose..." />
+   *       <Select.Value />
+ *       <Select.Placeholder>Choose...</Select.Placeholder>
    *     </Select.Activator>
    *     <Select.Content>
    *       <Select.Item id="a" value="A">Option A</Select.Item>
@@ -118,9 +126,10 @@ export const Select = {
    * </script>
    *
    * <template>
-   *   <Select.Value placeholder="Pick one" v-slot="{ selectedIds }">
-   *     {{ selectedIds.join(', ') }}
+   *   <Select.Value v-slot="{ selectedValue }">
+   *     {{ selectedValue }}
    *   </Select.Value>
+   *   <Select.Placeholder>Pick one</Select.Placeholder>
    * </template>
    * ```
    */
@@ -146,6 +155,23 @@ export const Select = {
    */
   Content,
   /**
+   * Visual cue for open/close state. Exposes `data-state="open|closed"` for CSS-driven styling.
+   *
+   * @see https://0.vuetifyjs.com/components/select#selectcue
+   *
+   * @example
+   * ```vue
+   * <Select.Activator>
+   *   <Select.Value />
+   *   <Select.Placeholder>Choose...</Select.Placeholder>
+   *   <Select.Cue v-slot="{ isOpen }">
+   *     {{ isOpen ? '▲' : '▼' }}
+   *   </Select.Cue>
+   * </Select.Activator>
+   * ```
+   */
+  Cue,
+  /**
    * Option item within the select dropdown. Registers with selection and virtual focus.
    *
    * @see https://0.vuetifyjs.com/components/select#selectitem
@@ -164,4 +190,19 @@ export const Select = {
    * ```
    */
   Item,
+  /**
+   * Placeholder text shown when no value is selected. Automatically hidden when a selection exists.
+   *
+   * @see https://0.vuetifyjs.com/components/select#selectplaceholder
+   *
+   * @example
+   * ```vue
+   * <Select.Activator>
+   *   <Select.Value />
+   *   <Select.Placeholder>Choose an option…</Select.Placeholder>
+   *   <Select.Cue />
+   * </Select.Activator>
+   * ```
+   */
+  Placeholder,
 }

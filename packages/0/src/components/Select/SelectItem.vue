@@ -8,6 +8,13 @@
  */
 
 <script lang="ts">
+  // Components
+  import { Atom } from '#v0/components/Atom'
+  import { useSelectContext } from './SelectRoot.vue'
+
+  // Utilities
+  import { onUnmounted, toRef, toValue } from 'vue'
+
   // Types
   import type { AtomProps } from '#v0/components/Atom'
   import type { MaybeRefOrGetter } from 'vue'
@@ -49,13 +56,6 @@
 </script>
 
 <script lang="ts" setup generic="V = unknown">
-  // Components
-  import { Atom } from '#v0/components/Atom'
-  import { useSelectContext } from './SelectRoot.vue'
-
-  // Utilities
-  import { onUnmounted, toRef, toValue } from 'vue'
-
   defineOptions({ name: 'SelectItem' })
 
   defineSlots<{

@@ -22,24 +22,44 @@
     </label>
 
     <Select.Root v-model="size" :disabled>
-      <Select.Activator class="activator" :class="{ 'is-disabled': disabled }">
-        <Select.Value v-slot="{ selectedIds }" placeholder="Choose a size…">
-          {{ sizes.find(s => s.id === selectedIds[0])?.label }}
+      <Select.Activator
+        class="flex items-center justify-between w-full px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm cursor-pointer focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2"
+        :class="disabled && 'opacity-50 cursor-not-allowed'"
+      >
+        <Select.Value v-slot="{ selectedValue }">
+          {{ selectedValue }}
         </Select.Value>
+        <Select.Placeholder class="text-on-surface-variant">Choose a size…</Select.Placeholder>
 
-        <span aria-hidden="true" class="chevron">&#x25BE;</span>
+        <Select.Cue v-slot="{ isOpen }" class="text-xs opacity-50">
+          {{ isOpen ? '&#x25B4;' : '&#x25BE;' }}
+        </Select.Cue>
       </Select.Activator>
 
-      <Select.Content class="content">
+      <Select.Content class="p-1 rounded-lg border border-divider bg-surface shadow-lg" :style="{ minWidth: 'anchor-size(width)' }">
         <Select.Item
           v-for="item in sizes"
           :id="item.id"
           :key="item.id"
-          class="option"
           :disabled="item.disabled"
           :value="item.label"
         >
-          {{ item.label }}
+          <template #default="{ isSelected, isHighlighted, isDisabled }">
+            <div
+              class="px-3 py-2 rounded-md cursor-default select-none text-sm"
+              :class="[
+                isDisabled
+                  ? 'opacity-30 line-through cursor-not-allowed'
+                  : isHighlighted
+                    ? 'bg-primary text-on-primary'
+                    : isSelected
+                      ? 'text-primary font-medium'
+                      : 'text-on-surface hover:bg-surface-variant',
+              ]"
+            >
+              {{ item.label }}
+            </div>
+          </template>
         </Select.Item>
       </Select.Content>
     </Select.Root>
@@ -49,83 +69,3 @@
     </p>
   </div>
 </template>
-
-<style scoped>
-.activator {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  padding: 0.5rem 0.75rem;
-  border-radius: 0.5rem;
-  border: 1px solid var(--v0-divider);
-  background: var(--v0-surface);
-  color: var(--v0-on-surface);
-  cursor: pointer;
-  font-size: 0.875rem;
-}
-
-.activator:focus-visible {
-  outline: 2px solid var(--v0-primary);
-  outline-offset: 2px;
-}
-
-.activator.is-disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.chevron {
-  font-size: 0.75rem;
-  opacity: 0.5;
-}
-
-.content {
-  min-width: anchor-size(width);
-  border-radius: 0.5rem;
-  border: 1px solid var(--v0-divider);
-  background: var(--v0-surface);
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  padding: 0.25rem;
-}
-
-.option {
-  padding: 0.5rem 0.75rem;
-  border-radius: 0.375rem;
-  cursor: default;
-  user-select: none;
-  font-size: 0.875rem;
-  color: var(--v0-on-surface);
-}
-
-.option:hover {
-  background: var(--v0-surface-variant);
-  opacity: 0.8;
-}
-
-.option[data-highlighted] {
-  background: var(--v0-primary);
-  color: var(--v0-on-primary);
-  opacity: 1;
-}
-
-.option[data-selected] {
-  color: var(--v0-primary);
-  font-weight: 500;
-}
-
-.option[data-selected]:hover {
-  opacity: 1;
-}
-
-.option[data-selected][data-highlighted] {
-  background: var(--v0-primary);
-  color: var(--v0-on-primary);
-}
-
-.option[data-disabled] {
-  opacity: 0.3;
-  cursor: not-allowed;
-  text-decoration: line-through;
-}
-</style>

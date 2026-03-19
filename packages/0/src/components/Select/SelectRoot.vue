@@ -9,8 +9,22 @@
  */
 
 <script lang="ts">
+  // Components
+  import { Atom } from '#v0/components/Atom'
+  import SelectHiddenInput from './SelectHiddenInput.vue'
+
   // Foundational
   import { createContext } from '#v0/composables/createContext'
+
+  // Composables
+  import { createSelection } from '#v0/composables/createSelection'
+  import { usePopover } from '#v0/composables/usePopover'
+  import { useProxyModel } from '#v0/composables/useProxyModel'
+  import { useVirtualFocus } from '#v0/composables/useVirtualFocus'
+
+  // Utilities
+  import { isUndefined } from '#v0/utilities'
+  import { nextTick, shallowRef, toRef, toValue, useId, watch } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -96,20 +110,6 @@
 </script>
 
 <script setup lang="ts">
-  // Components
-  import { Atom } from '#v0/components/Atom'
-  import SelectHiddenInput from './SelectHiddenInput.vue'
-
-  // Composables
-  import { createSelection } from '#v0/composables/createSelection'
-  import { usePopover } from '#v0/composables/usePopover'
-  import { useProxyModel } from '#v0/composables/useProxyModel'
-  import { useVirtualFocus } from '#v0/composables/useVirtualFocus'
-
-  // Utilities
-  import { isUndefined } from '#v0/utilities'
-  import { nextTick, shallowRef, toRef, toValue, useId, watch } from 'vue'
-
   defineOptions({ name: 'SelectRoot' })
 
   defineSlots<{
@@ -137,8 +137,6 @@
   const listboxId = `${id}-listbox`
   const activatorId = `${id}-activator`
 
-  // Selection
-
   const selection = createSelection({
     multiple,
     mandatory,
@@ -148,26 +146,18 @@
 
   useProxyModel(selection, model, { multiple })
 
-  // Derived single-select helper
-
   const selectedId = toRef(() => {
     const ids = Array.from(selection.selectedIds)
     return ids.length > 0 ? ids[0] : undefined
   })
 
-  // Popover
-
   const popover = usePopover({ id })
   const isOpen = popover.isOpen
 
-  // Activator element (populated by SelectActivator on mount)
-
   const activatorEl = shallowRef<HTMLElement | null>(null)
 
-  // Virtual focus
-
   const virtualFocus = useVirtualFocus(
-    () => Array.from(selection.values()).map(ticket => ({
+    () => selection.values().map(ticket => ({
       id: ticket.id,
       el: () => document.querySelector<HTMLElement>(`#${CSS.escape(`${id}-option-${ticket.id}`)}`),
       disabled: ticket.disabled,
@@ -179,24 +169,19 @@
     },
   )
 
-  // Open/close with post-flush highlight
-
   watch(isOpen, open => {
     if (!open) {
       virtualFocus.clear()
       return
     }
+
     nextTick(() => {
       const selected = selectedId.value
-      if (isUndefined(selected)) {
-        virtualFocus.first()
-      } else {
+      if (!isUndefined(selected)) {
         virtualFocus.highlight(String(selected))
       }
     })
   }, { flush: 'post' })
-
-  // Actions
 
   function open () {
     if (!isOpen.value && !toValue(disabled)) isOpen.value = true
@@ -212,11 +197,13 @@
   }
 
   function select (itemId: ID) {
-    selection.select(itemId)
-    if (!multiple) close()
+    if (multiple) {
+      selection.toggle(itemId)
+    } else {
+      selection.select(itemId)
+      close()
+    }
   }
-
-  // Context
 
   provideSelectContext(namespace, {
     isOpen,
@@ -253,6 +240,7 @@
     renderless
   >
     <slot v-bind="slotProps" />
-    <SelectHiddenInput v-if="name" :namespace />
   </Atom>
+
+  <SelectHiddenInput v-if="name" />
 </template>
