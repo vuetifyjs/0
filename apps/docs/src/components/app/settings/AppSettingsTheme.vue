@@ -169,10 +169,10 @@
           <button
             v-for="option in modeOptions"
             :key="option.id"
-            :aria-pressed="toggle.mode.value === option.id"
+            :aria-pressed="!toggle.isAccessibilityActive.value && toggle.mode.value === option.id"
             :class="[
               'flex items-center justify-center gap-2 px-3 py-2 rounded-lg border text-sm transition-colors',
-              toggle.mode.value === option.id
+              !toggle.isAccessibilityActive.value && toggle.mode.value === option.id
                 ? 'border-primary bg-primary/10 text-primary'
                 : 'border-divider hover:border-primary/50 text-on-surface',
             ]"
@@ -192,10 +192,10 @@
           <button
             v-for="option in paletteOptions"
             :key="option.id"
-            :aria-pressed="toggle.palette.value === option.id"
+            :aria-pressed="!toggle.isAccessibilityActive.value && toggle.palette.value === option.id"
             :class="[
               'flex items-center gap-2 px-3 py-2 rounded-lg border text-sm transition-colors',
-              toggle.palette.value === option.id
+              !toggle.isAccessibilityActive.value && toggle.palette.value === option.id
                 ? 'border-primary bg-primary/10 text-primary'
                 : 'border-divider hover:border-primary/50 text-on-surface',
             ]"
