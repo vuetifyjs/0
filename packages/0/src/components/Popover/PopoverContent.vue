@@ -42,7 +42,7 @@
   import { usePopoverContext } from './PopoverRoot.vue'
 
   // Utilities
-  import { onMounted, toRef, toValue, useTemplateRef, watch } from 'vue'
+  import { toRef, useTemplateRef } from 'vue'
 
   defineOptions({ name: 'PopoverContent' })
 
@@ -51,8 +51,8 @@
   }>()
 
   const {
-    positionArea = 'bottom',
-    positionTry = 'most-width bottom',
+    positionArea,
+    positionTry,
     ...props
   } = defineProps<PopoverContentProps>()
 
@@ -63,53 +63,30 @@
   const ref = useTemplateRef('ref')
 
   const id = toRef(() => props.id ?? context.id)
-  const style = toRef(() => ({
-    // Anchor positioning requires explicit position and unsetting UA margin
-    'position': 'fixed',
-    'margin': 'unset',
-    // Use both property names for browser compatibility
-    // inset-area was the original Chromium name, position-area is the standard
-    'inset-area': positionArea,
-    'position-area': positionArea,
-    'position-anchor': `--${toValue(id)}`,
-    'position-try-fallbacks': positionTry,
-  }))
-
-  /* v8 ignore start -- browser popover API */
-  onMounted(() => {
-    if (context.isSelected.value) {
-      ref.value?.element?.showPopover()
+  const style = toRef(() => {
+    if (props.id) {
+      return {
+        'position': 'fixed',
+        'margin': 'unset',
+        'inset-area': positionArea ?? 'bottom',
+        'position-area': positionArea ?? 'bottom',
+        'position-anchor': `--${props.id}`,
+        'position-try-fallbacks': positionTry ?? 'most-width bottom',
+      }
     }
+    return context.contentStyles.value
   })
 
-  watch(context.isSelected, isOpen => {
-    const element = ref.value?.element
-    // Guard against operations on disconnected elements (e.g., during unmount)
-    if (!element?.isConnected) return
-    if (isOpen === element.matches?.(':popover-open')) return
-
-    if (isOpen) {
-      element.showPopover?.()
-    } else {
-      element.hidePopover?.()
-    }
-  })
-
-  function onToggle (e: ToggleEvent) {
-    // Guard against events firing during unmount
-    if (!ref.value?.element?.isConnected) return
-    context.isSelected.value = e.newState === 'open'
-  }
-  /* v8 ignore stop */
+  context.attach(() => ref.value?.element)
 
   function onBeforeToggle (e: ToggleEvent) {
     emit('beforetoggle', e)
   }
 
   const slotProps = toRef((): PopoverContentSlotProps => ({
-    isOpen: context.isSelected.value,
+    isOpen: context.isOpen.value,
     attrs: {
-      id: toValue(id),
+      id: id.value,
       popover: '',
     },
   }))
@@ -122,7 +99,6 @@
     :style
     v-bind="slotProps.attrs"
     @beforetoggle="onBeforeToggle"
-    @toggle="onToggle"
   >
     <slot v-bind="slotProps" />
   </Atom>

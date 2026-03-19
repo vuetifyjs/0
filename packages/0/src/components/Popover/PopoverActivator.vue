@@ -48,16 +48,19 @@
 
   const popovertarget = toRef(() => props.target ?? context.id)
 
-  const style = toRef(() => ({
-    anchorName: `--${toValue(popovertarget)}`,
-  }))
+  const style = toRef(() => {
+    if (props.target) {
+      return { anchorName: `--${props.target}` }
+    }
+    return context.anchorStyles.value
+  })
 
   const slotProps = toRef((): PopoverActivatorSlotProps => ({
-    isOpen: context.isSelected.value,
+    isOpen: context.isOpen.value,
     attrs: {
       'popovertarget': toValue(popovertarget),
       'type': as === 'button' ? 'button' : undefined,
-      'data-popover-open': context.isSelected.value ? '' : undefined,
+      'data-popover-open': context.isOpen.value ? '' : undefined,
     },
   }))
 </script>
