@@ -280,14 +280,15 @@ describe('snackbar', () => {
         },
         slots: {
           default: () =>
-            h(Snackbar.Queue, {}, ({ items }: any) =>
-              items.map((item: any) =>
-                h(Snackbar.Root, { id: item.id }, () => [
-                  h(Snackbar.Content, {}, () => item.subject),
-                  h(Snackbar.Close),
-                ]),
-              ),
-            ),
+            h(Snackbar.Queue, {}, {
+              default: ({ items }: any) =>
+                items.map((item: any) =>
+                  h(Snackbar.Root, { id: item.id }, () => [
+                    h(Snackbar.Content, {}, () => item.subject),
+                    h(Snackbar.Close),
+                  ]),
+                ),
+            }),
         },
       })
 

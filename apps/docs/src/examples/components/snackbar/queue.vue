@@ -44,7 +44,7 @@
       : ITEM_H + (n - 1) * PEEK
   })
 
-  function itemStyle (i: number, _total: number) {
+  function itemStyle (i: number) {
     if (hovered.value) {
       return {
         bottom: `${i * (ITEM_H + GAP)}px`,
@@ -128,7 +128,7 @@
           v-for="(item, i) in items"
           :key="item.id"
           class="absolute left-0 right-0 transition-all duration-300 ease-out"
-          :style="itemStyle(i, items.length)"
+          :style="itemStyle(i)"
         >
           <Snackbar.Root
             :id="item.id"

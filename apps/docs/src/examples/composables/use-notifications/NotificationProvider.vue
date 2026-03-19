@@ -221,7 +221,6 @@
           :key="ticket!.id"
           class="flex items-center gap-3 px-4 py-2.5 rounded-lg shadow-lg text-sm min-w-64"
           :class="severity[ticket!.severity ?? 'info']"
-          :severity="ticket!.severity"
         >
           <Snackbar.Content class="flex-1">
             {{ ticket!.subject }}

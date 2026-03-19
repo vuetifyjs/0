@@ -50,24 +50,22 @@
     default: (props: SnackbarRootSlotProps) => any
   }>()
 
-  const { as = 'div', id: _id } = defineProps<SnackbarRootProps>()
-
-  const id = toRef(() => _id ?? useId())
+  const { as = 'div', id = useId() } = defineProps<SnackbarRootProps>()
 
   // Optionally detect Queue context — null when used standalone
   const queueContext = inject<{ dismiss: (id: ID) => void } | null>('v0:snackbar:queue', null)
 
   function onDismiss () {
     if (queueContext) {
-      queueContext.dismiss(id.value)
+      queueContext.dismiss(id)
     } else {
-      emit('dismiss', id.value)
+      emit('dismiss', id)
     }
   }
 
-  provideSnackbarRootContext({ id: id.value, onDismiss })
+  provideSnackbarRootContext({ id, onDismiss })
 
-  const slotProps = toRef((): SnackbarRootSlotProps => ({ id: id.value }))
+  const slotProps = toRef((): SnackbarRootSlotProps => ({ id }))
 </script>
 
 <template>
