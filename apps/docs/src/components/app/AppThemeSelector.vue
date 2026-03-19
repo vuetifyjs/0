@@ -54,10 +54,10 @@
           <button
             v-for="option in modeOptions"
             :key="option.id"
-            :aria-pressed="toggle.mode.value === option.id"
+            :aria-pressed="!toggle.isAccessibilityActive.value && toggle.mode.value === option.id"
             :class="[
               'flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded text-xs font-medium transition-colors',
-              toggle.mode.value === option.id
+              !toggle.isAccessibilityActive.value && toggle.mode.value === option.id
                 ? 'bg-primary/15 text-primary'
                 : 'hover:bg-surface-tint text-on-surface',
             ]"
@@ -77,10 +77,10 @@
           <button
             v-for="p in PALETTES"
             :key="p"
-            :aria-pressed="toggle.palette.value === p"
+            :aria-pressed="!toggle.isAccessibilityActive.value && toggle.palette.value === p"
             :class="[
               'flex items-center gap-1.5 px-2 py-1.5 rounded text-xs font-medium transition-colors',
-              toggle.palette.value === p
+              !toggle.isAccessibilityActive.value && toggle.palette.value === p
                 ? 'bg-primary/15 text-primary'
                 : 'hover:bg-surface-tint text-on-surface',
             ]"
