@@ -184,7 +184,7 @@ export const PRESETS: PresetDefinition[] = [
       'src/About.vue': ROUTER_ABOUT,
     },
     imports: {
-      'vue-router': 'https://cdn.jsdelivr.net/npm/vue-router@latest/dist/vue-router.esm-browser.js',
+      'vue-router': 'https://cdn.jsdelivr.net/npm/vue-router@latest/dist/vue-router.esm-browser.prod.js',
     },
   },
   {
@@ -198,7 +198,7 @@ export const PRESETS: PresetDefinition[] = [
       'src/counter.ts': PINIA_COUNTER,
     },
     imports: {
-      pinia: 'https://cdn.jsdelivr.net/npm/pinia@latest/dist/pinia.esm-browser.js',
+      pinia: 'https://cdn.jsdelivr.net/npm/pinia@latest/dist/pinia.esm-browser.prod.js',
     },
   },
   {

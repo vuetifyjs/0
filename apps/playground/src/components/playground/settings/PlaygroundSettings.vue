@@ -37,7 +37,7 @@
       />
 
       <!-- Modal -->
-      <div aria-labelledby="settings-title" aria-modal="true" class="relative bg-surface border border-divider rounded-lg shadow-xl w-[560px] max-h-[80vh] flex overflow-hidden" role="dialog">
+      <div aria-labelledby="settings-title" aria-modal="true" class="relative bg-surface border border-divider rounded-lg shadow-xl w-[560px] h-[460px] flex overflow-hidden" role="dialog">
         <!-- Left nav -->
         <nav class="w-40 shrink-0 border-r border-divider flex flex-col py-2">
           <button
