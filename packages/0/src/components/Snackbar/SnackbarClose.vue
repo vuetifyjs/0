@@ -17,15 +17,13 @@
   import type { AtomProps } from '#v0/components/Atom'
 
   export type SnackbarCloseProps = AtomProps
-
-  export interface SnackbarCloseSlotProps {}
 </script>
 
 <script setup lang="ts">
   defineOptions({ name: 'SnackbarClose' })
 
   defineSlots<{
-    default: (props: SnackbarCloseSlotProps) => any
+    default: () => any
   }>()
 
   const { as = 'button' } = defineProps<SnackbarCloseProps>()

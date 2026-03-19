@@ -12,7 +12,7 @@ export type { SnackbarQueueContext, SnackbarQueueProps, SnackbarQueueSlotProps }
 export type { SnackbarRootContext, SnackbarRootProps, SnackbarRootSlotProps } from './SnackbarRoot.vue'
 export type { SnackbarContentProps } from './SnackbarContent.vue'
 export type { SnackbarActionProps } from './SnackbarAction.vue'
-export type { SnackbarCloseProps, SnackbarCloseSlotProps } from './SnackbarClose.vue'
+export type { SnackbarCloseProps } from './SnackbarClose.vue'
 
 // Components
 import Action from './SnackbarAction.vue'

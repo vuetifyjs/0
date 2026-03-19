@@ -54,6 +54,7 @@ export type NotificationTicket<Z extends NotificationInput = NotificationInput> 
   unarchive: () => void
   snooze: (until: Date) => void
   wake: () => void
+  /** Removes from the display queue only. Registry entry is preserved for inbox/history. Use `ticket.unregister()` for full removal. */
   dismiss: () => void
 }
 
@@ -341,6 +342,11 @@ export const [createNotificationsContext, createNotificationsPlugin, useNotifica
     {
       fallback: () => createNotificationsFallback(),
       setup: (context, app, options) => {
+        app.onUnmount(() => {
+          context.dispose()
+          context.queue.dispose()
+        })
+
         const { adapter } = options
         if (!adapter) return
 

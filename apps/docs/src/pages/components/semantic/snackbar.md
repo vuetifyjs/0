@@ -70,6 +70,8 @@ A single snackbar — render directly when you control the lifecycle yourself.
 
 `Snackbar.Queue` connects to `useNotifications` and exposes queue items newest-first. `Snackbar.Close` auto-wires dismiss to the nearest `Snackbar.Root` — no `@click` needed.
 
+> [!WARNING] Inside a `Snackbar.Queue`, clicking `Snackbar.Close` permanently removes the notification from both the queue and the registry. To remove from the toast surface while keeping the notification in the inbox, call `ticket.dismiss()` directly on the `NotificationTicket`.
+
 ::: example
 /components/snackbar/queue
 :::

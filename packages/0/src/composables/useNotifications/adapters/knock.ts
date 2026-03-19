@@ -117,10 +117,11 @@ export function createKnockAdapter (feed: KnockFeed): NotificationsAdapterInterf
       ctx.on('notification:archived', onArchived)
     },
     dispose () {
-      if (onReceived) feed.off('items.received.realtime', onReceived)
-      if (onReceived) feed.off('items.received.page', onReceived)
-      if (onRead && ctx) ctx.off('notification:read', onRead)
-      if (onArchived && ctx) ctx.off('notification:archived', onArchived)
+      if (!ctx) return
+      feed.off('items.received.realtime', onReceived!)
+      feed.off('items.received.page', onReceived!)
+      ctx.off('notification:read', onRead!)
+      ctx.off('notification:archived', onArchived!)
       items.clear()
       feed.teardown()
     },

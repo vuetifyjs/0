@@ -16,6 +16,7 @@
   // Types
   import type { AtomProps } from '#v0/components/Atom'
   import type { ID } from '#v0/types'
+  import type { SnackbarQueueContext } from './SnackbarQueue.vue'
 
   export interface SnackbarRootContext {
     id: ID
@@ -53,7 +54,7 @@
   const { as = 'div', id = useId() } = defineProps<SnackbarRootProps>()
 
   // Optionally detect Queue context — null when used standalone
-  const queueContext = inject<{ dismiss: (id: ID) => void } | null>('v0:snackbar:queue', null)
+  const queueContext = inject<SnackbarQueueContext | null>('v0:snackbar:queue', null)
 
   function onDismiss () {
     if (queueContext) {

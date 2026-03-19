@@ -198,6 +198,80 @@ describe('createNotifications', () => {
         expect(handler).toHaveBeenCalledWith(ticket.id)
       })
     })
+
+    it('should emit notification:unread on unread', () => {
+      withScope(() => {
+        const notifications = createNotifications()
+        const handler = vi.fn()
+        notifications.on('notification:unread', handler)
+
+        const ticket = notifications.send({ subject: 'Test' })
+        notifications.read(ticket.id)
+        notifications.unread(ticket.id)
+        expect(handler).toHaveBeenCalledWith(ticket.id)
+      })
+    })
+
+    it('should emit notification:seen on seen', () => {
+      withScope(() => {
+        const notifications = createNotifications()
+        const handler = vi.fn()
+        notifications.on('notification:seen', handler)
+
+        const ticket = notifications.send({ subject: 'Test' })
+        notifications.seen(ticket.id)
+        expect(handler).toHaveBeenCalledWith(ticket.id)
+      })
+    })
+
+    it('should emit notification:archived on archive', () => {
+      withScope(() => {
+        const notifications = createNotifications()
+        const handler = vi.fn()
+        notifications.on('notification:archived', handler)
+
+        const ticket = notifications.send({ subject: 'Test' })
+        notifications.archive(ticket.id)
+        expect(handler).toHaveBeenCalledWith(ticket.id)
+      })
+    })
+
+    it('should emit notification:unarchived on unarchive', () => {
+      withScope(() => {
+        const notifications = createNotifications()
+        const handler = vi.fn()
+        notifications.on('notification:unarchived', handler)
+
+        const ticket = notifications.send({ subject: 'Test' })
+        notifications.unarchive(ticket.id)
+        expect(handler).toHaveBeenCalledWith(ticket.id)
+      })
+    })
+
+    it('should emit notification:snoozed on snooze', () => {
+      withScope(() => {
+        const notifications = createNotifications()
+        const handler = vi.fn()
+        notifications.on('notification:snoozed', handler)
+
+        const ticket = notifications.send({ subject: 'Test' })
+        notifications.snooze(ticket.id, new Date(Date.now() + 60_000))
+        expect(handler).toHaveBeenCalledWith(ticket.id)
+      })
+    })
+
+    it('should emit notification:unsnoozed on wake', () => {
+      withScope(() => {
+        const notifications = createNotifications()
+        const handler = vi.fn()
+        notifications.on('notification:unsnoozed', handler)
+
+        const ticket = notifications.send({ subject: 'Test' })
+        notifications.snooze(ticket.id, new Date(Date.now() + 60_000))
+        notifications.wake(ticket.id)
+        expect(handler).toHaveBeenCalledWith(ticket.id)
+      })
+    })
   })
 
   describe('adapter', () => {
@@ -363,11 +437,17 @@ describe('createNotifications', () => {
 
     it('should respect persistent timeout', () => {
       withScope(() => {
+        vi.useFakeTimers()
         const notifications = createNotifications()
         notifications.send({ subject: 'Persistent', timeout: -1 })
 
         const queued = notifications.queue.values()[0]!
         expect(queued.timeout).toBe(-1)
+
+        vi.advanceTimersByTime(10_000)
+
+        expect(notifications.queue.values()).toHaveLength(1)
+        vi.useRealTimers()
       })
     })
 
