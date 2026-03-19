@@ -9,7 +9,6 @@ export interface PresetDefinition {
   mainOptions?: MainOptions
   files: Record<string, string>
   imports?: Record<string, string>
-  css?: string[]
 }
 
 // ── Preset file templates ────────────────────────────────────────────────
@@ -212,6 +211,5 @@ export const PRESETS: PresetDefinition[] = [
     imports: {
       vuetify: 'https://cdn.jsdelivr.net/npm/vuetify@latest/dist/vuetify.esm.js',
     },
-    css: ['https://cdn.jsdelivr.net/npm/vuetify@latest/dist/vuetify.min.css'],
   },
 ]

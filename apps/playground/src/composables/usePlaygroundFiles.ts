@@ -184,9 +184,6 @@ export function usePlaygroundFiles () {
 
     // Apply extra JS imports to the store's import map
     store.setImportMap({ imports: preset.imports ?? {} }, true)
-
-    // Apply (or clear) CSS links
-    store.setLinks({ css: preset.css ?? [] })
   }
 
   return { store, isReady, loadExample, vueVersion, v0Version, vueVersions, v0Versions, fetching, fetchVersions, activePreset, applyPreset }

@@ -17,6 +17,7 @@ export interface MainOptions {
 export function createMainTs (defaultTheme: 'light' | 'dark' = 'light', options?: MainOptions): string {
   const extraImports: string[] = []
   const extraPlugins: string[] = []
+  const extraSetup: string[] = []
 
   if (options?.router) {
     extraImports.push(`import router from './router'`)
@@ -28,17 +29,24 @@ export function createMainTs (defaultTheme: 'light' | 'dark' = 'light', options?
   }
   if (options?.vuetify) {
     extraImports.push(`import { createVuetify } from 'vuetify'`)
+    extraSetup.push(
+      `const link = document.createElement('link')`,
+      `link.rel = 'stylesheet'`,
+      `link.href = 'https://cdn.jsdelivr.net/npm/vuetify@latest/dist/vuetify.min.css'`,
+      `document.head.appendChild(link)`,
+    )
     extraPlugins.push(`app.use(createVuetify())`)
   }
 
   const importBlock = extraImports.length > 0 ? '\n' + extraImports.join('\n') : ''
+  const setupBlock = extraSetup.length > 0 ? '\n' + extraSetup.join('\n') + '\n' : ''
   const pluginBlock = extraPlugins.length > 0 ? extraPlugins.join('\n') + '\n' : ''
 
   return `import { createApp } from 'vue'
 import App from './App.vue'
 import { createThemePlugin } from '@vuetify/v0'
 import './uno.config.ts'${importBlock}
-
+${setupBlock}
 const theme = createThemePlugin({
   default: '${defaultTheme}',
   themes: {
