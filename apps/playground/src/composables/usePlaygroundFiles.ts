@@ -25,6 +25,8 @@ export function usePlaygroundFiles () {
     imports: {
       ...importMap.value?.imports,
       '@vuetify/v0': `https://cdn.jsdelivr.net/npm/@vuetify/v0@${v0Version.value}/dist/index.mjs`,
+      // Always available — pinia/vue-router prod builds import this at runtime to detect devtools
+      '@vue/devtools-api': 'https://esm.sh/@vue/devtools-api@6',
     },
   }))
 
