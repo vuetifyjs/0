@@ -180,7 +180,7 @@ export function usePlaygroundFiles () {
     extraImports.value = preset.imports ?? undefined
 
     // Reset file state with preset template
-    await loadExample(preset.files)
+    await loadExample(preset.files, 'src/App.vue')
 
     // Apply extra JS imports to the store's import map
     store.setImportMap({ imports: preset.imports ?? {} }, true)

@@ -17,7 +17,9 @@ export interface MainOptions {
 export function createMainTs (defaultTheme: 'light' | 'dark' = 'light', options?: MainOptions): string {
   const extraImports: string[] = []
   const extraPlugins: string[] = []
-  const extraSetup: string[] = []
+  const extraSetup: string[] = [`document.querySelectorAll('link[data-preset-css]').forEach(el => el.remove())`]
+
+  // Always clean up previously injected preset CSS (e.g. when switching away from Vuetify)
 
   if (options?.router) {
     extraImports.push(`import router from './router'`)
@@ -32,6 +34,7 @@ export function createMainTs (defaultTheme: 'light' | 'dark' = 'light', options?
     extraSetup.push(
       `const link = document.createElement('link')`,
       `link.rel = 'stylesheet'`,
+      `link.setAttribute('data-preset-css', 'vuetify')`,
       `link.href = 'https://cdn.jsdelivr.net/npm/vuetify@latest/dist/vuetify.min.css'`,
       `document.head.appendChild(link)`,
     )
