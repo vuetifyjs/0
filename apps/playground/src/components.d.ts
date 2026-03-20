@@ -15,6 +15,7 @@ declare module 'vue' {
     AppIcon: typeof import('./components/app/AppIcon.vue')['default']
     AppIconButton: typeof import('./components/app/AppIconButton.vue')['default']
     AppLoaderIcon: typeof import('./components/app/AppLoaderIcon.vue')['default']
+    AppSelect: typeof import('./components/app/AppSelect.vue')['default']
     AppSkeleton: typeof import('./components/app/AppSkeleton.vue')['default']
     AppThemeToggle: typeof import('./components/app/AppThemeToggle.vue')['default']
     PlaygroundApp: typeof import('./components/playground/app/PlaygroundApp.vue')['default']
