@@ -1,5 +1,5 @@
 // Framework
-import { isObject, isString, isUndefined } from '@vuetify/v0'
+import { isArray, isObject, isString, isUndefined } from '@vuetify/v0'
 
 // Utilities
 import { toPascal } from '@/utilities/strings'
@@ -160,7 +160,7 @@ export async function decodePlaygroundHash (hash: string): Promise<PlaygroundHas
     }
 
     // Format 4: Vuetify play tuple [files, vueVersion, vuetifyVersion, appendJson, activeFile, ...]
-    if (Array.isArray(parsed)) {
+    if (isArray(parsed)) {
       const [rawFiles, vueVer, , , rawActive] = parsed as [
         Record<string, unknown>,
         unknown,
@@ -169,16 +169,33 @@ export async function decodePlaygroundHash (hash: string): Promise<PlaygroundHas
         unknown,
       ]
       if (!isFileRecord(rawFiles)) return null
+
+      // Extract infrastructure files before building the src/-prefixed file map
+      const linksJson = rawFiles['links.json']
       const files: Record<string, string> = {}
       for (const [key, code] of Object.entries(rawFiles)) {
+        if (key === 'import-map.json' || key === 'links.json') continue
         files[key.startsWith('src/') ? key : `src/${key}`] = code
       }
+
+      // Inject CSS from links.json into setup.ts (which defines loadStylesheet)
+      if (linksJson) {
+        try {
+          const links = JSON.parse(linksJson)
+          const setup = files['src/setup.ts']
+          const urls = isArray(links.css) ? links.css.filter(isString) : []
+          if (setup && urls.length > 0) {
+            files['src/setup.ts'] = setup + '\n' + urls.map(url => `loadStylesheet('${url}')`).join('\n') + '\n'
+          }
+        } catch { /* ignore malformed links.json */ }
+      }
+
       const active = isString(rawActive)
         ? (rawActive.startsWith('src/') ? rawActive : `src/${rawActive}`)
         : undefined
-      const settings: PlaygroundHashData['settings'] = {}
+      const settings: PlaygroundHashData['settings'] = { preset: 'vuetify' }
       if (isString(vueVer)) settings.vue = vueVer
-      return { files, active, settings: Object.keys(settings).length > 0 ? settings : undefined }
+      return { files, active, settings }
     }
 
     // Formats 2 & 3: current object { files, active, imports, settings? }
