@@ -11,6 +11,19 @@ export interface PresetDefinition {
   imports?: Record<string, string>
 }
 
+export interface AddonDefinition {
+  id: string
+  label: string
+  icon: string
+  description: string
+  mainOptions?: Partial<MainOptions>
+  /** Files added on enable and removed on disable */
+  files?: Record<string, string>
+  /** Files replaced on enable but left alone on disable */
+  replaceFiles?: Record<string, string>
+  imports?: Record<string, string>
+}
+
 // ── Preset file templates ────────────────────────────────────────────────
 
 const DEFAULT_APP = `<script lang="ts" setup>
@@ -111,47 +124,6 @@ const ROUTER_ABOUT = `<template>
 
 // ── Pinia ─────────────────────────────────────────────────────────────────
 
-const PINIA_APP = `<script lang="ts" setup>
-  import { useCounterStore } from './stores/counter'
-
-  const counter = useCounterStore()
-</script>
-
-<template>
-  <div class="min-h-screen bg-background p-6 flex flex-col gap-6">
-    <header>
-      <h1 class="text-xl font-semibold text-on-surface">Counter App</h1>
-      <p class="text-sm text-on-surface-variant mt-1">Powered by Pinia</p>
-    </header>
-
-    <div class="flex flex-col gap-4">
-      <div class="text-7xl font-mono font-light text-primary text-center py-6">
-        {{ counter.count }}
-      </div>
-
-      <div class="flex gap-3 justify-center">
-        <button
-          class="w-10 h-10 rounded-full bg-surface-variant text-on-surface text-xl font-medium hover:bg-primary hover:text-on-primary transition-colors"
-          @click="counter.decrement"
-        >−</button>
-        <button
-          class="w-10 h-10 rounded-full bg-surface-variant text-on-surface text-xl font-medium hover:bg-primary hover:text-on-primary transition-colors"
-          @click="counter.increment"
-        >+</button>
-        <button
-          class="px-4 h-10 rounded-full border border-divider text-on-surface-variant text-sm hover:bg-surface-tint transition-colors"
-          @click="counter.reset"
-        >Reset</button>
-      </div>
-
-      <p class="text-sm text-center text-on-surface-variant">
-        Double: <span class="text-on-surface font-medium">{{ counter.doubleCount }}</span>
-      </p>
-    </div>
-  </div>
-</template>
-`
-
 const PINIA_COUNTER = `import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 
@@ -234,22 +206,40 @@ const VUETIFY_APP = `<script lang="ts" setup>
 export const PRESETS: PresetDefinition[] = [
   {
     id: 'default',
-    label: 'Default',
-    icon: 'editor',
+    label: 'Vuetify0',
+    icon: 'vuetify-0',
     description: 'Headless composables with @vuetify/v0',
     files: { 'src/App.vue': DEFAULT_APP },
   },
   {
+    id: 'vuetify',
+    label: 'Vuetify',
+    icon: 'vuetify',
+    description: 'Material Design components with Vuetify 4',
+    mainOptions: { vuetify: true, v0: false },
+    files: { 'src/App.vue': VUETIFY_APP },
+    imports: {
+      vuetify: 'https://cdn.jsdelivr.net/npm/vuetify@latest/dist/vuetify.esm.js',
+    },
+  },
+]
+
+// ── Addon registry ────────────────────────────────────────────────────────
+
+export const ADDONS: AddonDefinition[] = [
+  {
     id: 'router',
     label: 'Vue Router',
-    icon: 'folder',
-    description: 'Multi-page app with vue-router',
+    icon: 'vue-router',
+    description: 'Adds routing infrastructure and example pages',
     mainOptions: { router: true },
     files: {
-      'src/App.vue': ROUTER_APP,
       'src/router.ts': ROUTER_TS,
       'src/pages/Home.vue': ROUTER_HOME,
       'src/pages/About.vue': ROUTER_ABOUT,
+    },
+    replaceFiles: {
+      'src/App.vue': ROUTER_APP,
     },
     imports: {
       'vue-router': 'https://cdn.jsdelivr.net/npm/vue-router@latest/dist/vue-router.esm-browser.js',
@@ -258,26 +248,14 @@ export const PRESETS: PresetDefinition[] = [
   {
     id: 'pinia',
     label: 'Pinia',
-    icon: 'cog',
-    description: 'State management with pinia',
+    icon: 'pinia',
+    description: 'Adds a state store and example counter',
     mainOptions: { pinia: true },
     files: {
-      'src/App.vue': PINIA_APP,
       'src/stores/counter.ts': PINIA_COUNTER,
     },
     imports: {
       pinia: 'https://cdn.jsdelivr.net/npm/pinia@latest/dist/pinia.esm-browser.js',
-    },
-  },
-  {
-    id: 'vuetify',
-    label: 'Vuetify',
-    icon: 'lang-vue',
-    description: 'Material Design components with Vuetify 4',
-    mainOptions: { vuetify: true },
-    files: { 'src/App.vue': VUETIFY_APP },
-    imports: {
-      vuetify: 'https://cdn.jsdelivr.net/npm/vuetify@latest/dist/vuetify.esm.js',
     },
   },
 ]

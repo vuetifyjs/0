@@ -124,7 +124,7 @@ export interface PlaygroundHashData {
   files: Record<string, string>
   active?: string
   imports?: Record<string, string>
-  settings?: { vue?: string, v0?: string, preset?: string }
+  settings?: { vue?: string, v0?: string, preset?: string, addons?: string }
 }
 
 /**
@@ -134,12 +134,13 @@ export async function encodePlaygroundHash (data: PlaygroundHashData): Promise<s
   return utoa(JSON.stringify(data))
 }
 
-function isValidSettings (v: unknown): v is { vue?: string, v0?: string, preset?: string } {
+function isValidSettings (v: unknown): v is { vue?: string, v0?: string, preset?: string, addons?: string } {
   if (!isObject(v)) return false
   const s = v as Record<string, unknown>
   return (isUndefined(s.vue) || isString(s.vue))
     && (isUndefined(s.v0) || isString(s.v0))
     && (isUndefined(s.preset) || isString(s.preset))
+    && (isUndefined(s.addons) || isString(s.addons))
 }
 
 /**

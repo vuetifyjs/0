@@ -12,14 +12,15 @@ export interface MainOptions {
   router?: boolean
   pinia?: boolean
   vuetify?: boolean
+  /** Set to false to omit @vuetify/v0 theme plugin and UnoCSS (e.g. for Vuetify 4 preset) */
+  v0?: boolean
 }
 
 export function createMainTs (defaultTheme: 'light' | 'dark' = 'light', options?: MainOptions): string {
+  const useV0 = options?.v0 !== false
   const extraImports: string[] = []
   const extraPlugins: string[] = []
   const extraSetup: string[] = [`document.querySelectorAll('link[data-preset-css]').forEach(el => el.remove())`]
-
-  // Always clean up previously injected preset CSS (e.g. when switching away from Vuetify)
 
   if (options?.router) {
     extraImports.push(`import router from './router'`)
@@ -44,6 +45,15 @@ export function createMainTs (defaultTheme: 'light' | 'dark' = 'light', options?
   const importBlock = extraImports.length > 0 ? '\n' + extraImports.join('\n') : ''
   const setupBlock = extraSetup.length > 0 ? '\n' + extraSetup.join('\n') + '\n' : ''
   const pluginBlock = extraPlugins.length > 0 ? extraPlugins.join('\n') + '\n' : ''
+
+  if (!useV0) {
+    return `import { createApp } from 'vue'
+import App from './App.vue'${importBlock}
+${setupBlock}
+const app = createApp(App)
+${pluginBlock}app.mount('#app')
+`
+  }
 
   return `import { createApp } from 'vue'
 import App from './App.vue'

@@ -21,9 +21,9 @@
   }
 
   const sections: Section[] = [
-    { id: 'versions', label: 'Versions', icon: 'cog', component: PlaygroundSettingsVersions, available: true },
-    { id: 'presets', label: 'Presets', icon: 'folder', component: PlaygroundSettingsPresets, available: true },
-    { id: 'export', label: 'Export', icon: 'file-plus', component: null, available: false },
+    { id: 'versions', label: 'Versions', icon: 'tags', component: PlaygroundSettingsVersions, available: true },
+    { id: 'presets', label: 'Presets', icon: 'layers', component: PlaygroundSettingsPresets, available: true },
+    { id: 'export', label: 'Export', icon: 'download', component: null, available: false },
   ]
 </script>
 
