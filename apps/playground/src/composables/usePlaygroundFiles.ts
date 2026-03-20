@@ -345,26 +345,30 @@ export function usePlaygroundFiles () {
       }
     }
 
-    // Inject CSS from links.json into setup.ts
-    if (linksJson) {
-      try {
-        const links = JSON.parse(linksJson)
-        const setup = files['src/setup.ts']
-        const urls = isArray(links.css) ? links.css.filter(isString) : []
-        if (setup && urls.length > 0) {
-          files['src/setup.ts'] = setup + '\n' + urls.map((url: string) => `loadStylesheet('${url}')`).join('\n') + '\n'
-        }
-      } catch { /* ignore malformed links.json */ }
+    // Inject CSS from links.json into setup.ts (vuetify template only)
+    if (files['src/setup.ts']) {
+      if (linksJson) {
+        try {
+          const links = JSON.parse(linksJson)
+          const setup = files['src/setup.ts']!
+          const urls = isArray(links.css) ? links.css.filter(isString) : []
+          if (setup && urls.length > 0) {
+            files['src/setup.ts'] = setup + '\n' + urls.map((url: string) => `loadStylesheet('${url}')`).join('\n') + '\n'
+          }
+        } catch { /* ignore malformed links.json */ }
+      }
+
+      // Fallback: ensure vuetify-labs.css is loaded even without links.json
+      const setup = files['src/setup.ts']!
+      if (setup.includes('loadStylesheet') && !setup.includes('vuetify-labs.css')) {
+        files['src/setup.ts'] = `${setup}\nloadStylesheet('https://cdn.jsdelivr.net/npm/vuetify@latest/dist/vuetify-labs.css')\n`
+      }
     }
 
-    // Fallback: ensure vuetify-labs.css is loaded even without links.json
-    const setup = files['src/setup.ts']
-    if (setup && setup.includes('loadStylesheet') && !setup.includes('vuetify-labs.css')) {
-      files['src/setup.ts'] = `${setup}\nloadStylesheet('https://cdn.jsdelivr.net/npm/vuetify@latest/dist/vuetify-labs.css')\n`
-    }
-
-    // Set vuetify preset
-    activePreset.value = 'vuetify'
+    // Detect preset: vuetify template has 'vuetify' in the import map and setup.ts;
+    // v0 template uses @vuetify/v0 with createThemePlugin in main.ts
+    const isVuetifyPreset = 'vuetify' in imports || !!files['src/vuetify.ts'] || !!files['src/setup.ts']
+    activePreset.value = isVuetifyPreset ? 'vuetify' : 'default'
     activeAddons.value = []
     extraImports.value = Object.keys(imports).length > 0 ? imports : undefined
     aliasMap.value = new Map()
