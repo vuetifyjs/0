@@ -1,5 +1,5 @@
 // Framework
-import { debounce, useTheme } from '@vuetify/v0'
+import { debounce, isArray, isObject, isString, useTheme } from '@vuetify/v0'
 
 // Composables
 import { decodePlaygroundHash, encodePlaygroundHash } from '@/composables/usePlayground'
@@ -298,5 +298,56 @@ export function usePlaygroundFiles () {
     filesVersion.value++
   }
 
-  return { store, isReady, filesVersion, loadExample, vueVersion, v0Version, vueVersions, v0Versions, fetching, fetchVersions, activePreset, applyPreset, activeAddons, toggleAddon }
+  async function openPlayground (content: string) {
+    const parsed = JSON.parse(content)
+    if (!isArray(parsed) || !isObject(parsed[0])) return
+
+    const [rawFiles, vueVer, , , rawActive] = parsed as [
+      Record<string, string>, unknown, unknown, unknown, unknown,
+    ]
+
+    // Strip infrastructure, prefix with src/
+    const linksJson = rawFiles['links.json']
+    const files: Record<string, string> = {}
+    for (const [key, code] of Object.entries(rawFiles)) {
+      if (key === 'import-map.json' || key === 'links.json') continue
+      files[key.startsWith('src/') ? key : `src/${key}`] = code
+    }
+
+    // Inject CSS from links.json into setup.ts
+    if (linksJson) {
+      try {
+        const links = JSON.parse(linksJson)
+        const setup = files['src/setup.ts']
+        const urls = isArray(links.css) ? links.css.filter(isString) : []
+        if (setup && urls.length > 0) {
+          files['src/setup.ts'] = setup + '\n' + urls.map((url: string) => `loadStylesheet('${url}')`).join('\n') + '\n'
+        }
+      } catch { /* ignore malformed links.json */ }
+    }
+
+    // Fallback: ensure vuetify-labs.css is loaded even without links.json
+    const setup = files['src/setup.ts']
+    if (setup && setup.includes('loadStylesheet') && !setup.includes('vuetify-labs.css')) {
+      files['src/setup.ts'] = `${setup}\nloadStylesheet('https://cdn.jsdelivr.net/npm/vuetify@latest/dist/vuetify-labs.css')\n`
+    }
+
+    // Set vuetify preset
+    activePreset.value = 'vuetify'
+    activeAddons.value = []
+    extraImports.value = undefined
+    aliasMap.value = new Map()
+
+    if (isString(vueVer)) vueVersion.value = vueVer
+
+    const active = isString(rawActive)
+      ? (rawActive.startsWith('src/') ? rawActive : `src/${rawActive}`)
+      : undefined
+
+    await loadExample(files, active)
+    rebuildImportMap()
+    filesVersion.value++
+  }
+
+  return { store, isReady, filesVersion, loadExample, vueVersion, v0Version, vueVersions, v0Versions, fetching, fetchVersions, activePreset, applyPreset, activeAddons, toggleAddon, openPlayground }
 }

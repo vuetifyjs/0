@@ -31,13 +31,14 @@
     activeAddons: ShallowRef<string[]>
     toggleAddon: (id: string) => Promise<void>
     filesVersion: ShallowRef<number>
+    openPlayground: (content: string) => Promise<void>
   }
 
   export const [usePlayground, providePlayground] = createContext<PlaygroundContext>('v0:playground')
 </script>
 
 <script setup lang="ts">
-  const { store, isReady, filesVersion, vueVersion, v0Version, vueVersions, v0Versions, fetching, fetchVersions, activePreset, applyPreset, activeAddons, toggleAddon } = usePlaygroundFiles()
+  const { store, isReady, filesVersion, vueVersion, v0Version, vueVersions, v0Versions, fetching, fetchVersions, activePreset, applyPreset, activeAddons, toggleAddon, openPlayground } = usePlaygroundFiles()
   const storage = useStorage()
   const { isMobile } = useBreakpoints()
 
@@ -86,6 +87,7 @@
     activeAddons,
     toggleAddon,
     filesVersion,
+    openPlayground,
   })
 
   // Restore panel state on runtime breakpoint changes
