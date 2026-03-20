@@ -51,8 +51,10 @@
     return children
   }
 
-  watch(isReady, ready => {
-    if (!ready) return
+  function rebuildFileTree () {
+    showConfig.value = false
+    targetFolder.value = 'src'
+    tree.clear()
 
     const srcFiles: string[] = []
     for (const [filename, file] of Object.entries(store.files)) {
@@ -72,7 +74,17 @@
       if (!isString(id)) continue
       if (id.startsWith('src/') && !/\.\w+$/.test(id)) tree.open(id)
     }
+  }
+
+  watch(isReady, ready => {
+    if (!ready) return
+    rebuildFileTree()
   }, { immediate: true })
+
+  watch(() => playground.filesVersion.value, () => {
+    if (!isReady.value) return
+    rebuildFileTree()
+  })
 
   const PROTECTED = new Set(['src/App.vue', 'src/main.ts', 'src/uno.config.ts', 'import-map.json', 'tsconfig.json', 'src', '/'])
   const VALID_EXT = /\.(vue|jsx?|tsx?|css|json)$/
