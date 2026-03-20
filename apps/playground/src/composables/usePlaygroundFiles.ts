@@ -14,7 +14,7 @@ import type { PlaygroundHashData } from '@/composables/usePlayground'
 
 // Data
 import { createMainTs, DEFAULT_CODE, UNO_CONFIG_TS } from '@/data/playground-defaults'
-import { PRESETS } from '@/data/presets'
+import { ADDONS, PRESETS } from '@/data/presets'
 
 export function usePlaygroundFiles () {
   const theme = useTheme()
@@ -37,10 +37,40 @@ export function usePlaygroundFiles () {
   })
 
   const isReady = shallowRef(false)
+  const filesVersion = shallowRef(0)
 
   const aliasMap = shallowRef(new Map<string, string>())
   const extraImports = shallowRef<Record<string, string>>()
   const activePreset = shallowRef('default')
+  const activeAddons = shallowRef<string[]>([])
+
+  function mergedMainOptions () {
+    const preset = PRESETS.find(p => p.id === activePreset.value)
+    const result = { ...preset?.mainOptions }
+    for (const id of activeAddons.value) {
+      const addon = ADDONS.find(a => a.id === id)
+      if (addon?.mainOptions) Object.assign(result, addon.mainOptions)
+    }
+    return result
+  }
+
+  function rebuildMain () {
+    const file = store.files['src/main.ts']
+    if (!file) return
+    file.code = createMainTs(theme.isDark.value ? 'dark' : 'light', mergedMainOptions())
+    compileFile(store, file)
+  }
+
+  function rebuildImportMap () {
+    const preset = PRESETS.find(p => p.id === activePreset.value)
+    const imports: Record<string, string> = { ...preset?.imports }
+    for (const id of activeAddons.value) {
+      const addon = ADDONS.find(a => a.id === id)
+      if (addon?.imports) Object.assign(imports, addon.imports)
+    }
+    if (extraImports.value) Object.assign(imports, extraImports.value)
+    store.setImportMap({ imports }, true)
+  }
 
   onMounted(async () => {
     const hash = window.location.hash.slice(1)
@@ -50,11 +80,12 @@ export function usePlaygroundFiles () {
       if (decoded.settings?.preset) activePreset.value = decoded.settings.preset
       if (decoded.settings?.vue) vueVersion.value = decoded.settings.vue
       if (decoded.settings?.v0) v0Version.value = decoded.settings.v0
+      if (decoded.settings?.addons) activeAddons.value = decoded.settings.addons.split(',').filter(Boolean)
       await loadExample(decoded.files, decoded.active)
       if (decoded.imports && Object.keys(decoded.imports).length > 0) {
         extraImports.value = decoded.imports
-        store.setImportMap({ imports: decoded.imports }, true)
       }
+      rebuildImportMap()
     } else {
       const theme_ = theme.isDark.value ? 'dark' : 'light'
       await store.setFiles(
@@ -104,7 +135,7 @@ export function usePlaygroundFiles () {
     const theme_ = theme.isDark.value ? 'dark' : 'light'
     await store.setFiles(
       {
-        'src/main.ts': createMainTs(theme_, PRESETS.find(p => p.id === activePreset.value)?.mainOptions),
+        'src/main.ts': createMainTs(theme_, mergedMainOptions()),
         'src/uno.config.ts': UNO_CONFIG_TS,
         ...files,
         ...aliases,
@@ -125,10 +156,11 @@ export function usePlaygroundFiles () {
 
   const updateHash = debounce(async (files: Record<string, string>, active: string | undefined) => {
     if (Object.keys(files).length === 0) return
-    const settings: { vue?: string, v0?: string, preset?: string } = {}
+    const settings: PlaygroundHashData['settings'] = {}
     if (vueVersion.value) settings.vue = vueVersion.value
     if (v0Version.value !== 'latest') settings.v0 = v0Version.value
     if (activePreset.value !== 'default') settings.preset = activePreset.value
+    if (activeAddons.value.length > 0) settings.addons = activeAddons.value.join(',')
     const data: PlaygroundHashData = { files, active, imports: extraImports.value }
     if (Object.keys(settings).length > 0) data.settings = settings
     const hash = await encodePlaygroundHash(data)
@@ -138,10 +170,11 @@ export function usePlaygroundFiles () {
   watch(isReady, ready => {
     if (!ready) return
     watchEffect(() => {
-      // Track version refs so hash updates when versions change
+      // Track version/preset/addon refs so hash updates when they change
       vueVersion.value // eslint-disable-line @typescript-eslint/no-unused-expressions
       v0Version.value // eslint-disable-line @typescript-eslint/no-unused-expressions
       activePreset.value // eslint-disable-line @typescript-eslint/no-unused-expressions
+      activeAddons.value // eslint-disable-line @typescript-eslint/no-unused-expressions
       const aliases = new Set(aliasMap.value.values())
       const files: Record<string, string> = {}
       for (const [path, file] of Object.entries(store.files)) {
@@ -157,8 +190,7 @@ export function usePlaygroundFiles () {
     if (!isReady.value) return
     const file = store.files['src/main.ts']
     if (file) {
-      const mainOptions = PRESETS.find(p => p.id === activePreset.value)?.mainOptions
-      file.code = createMainTs(isDark ? 'dark' : 'light', mainOptions)
+      file.code = createMainTs(isDark ? 'dark' : 'light', mergedMainOptions())
       compileFile(store, file)
     }
   })
@@ -176,6 +208,7 @@ export function usePlaygroundFiles () {
     if (!preset) return
 
     activePreset.value = id
+    activeAddons.value = []
     extraImports.value = preset.imports ?? undefined
     aliasMap.value = new Map() // presets use direct paths, no aliases
 
@@ -192,8 +225,54 @@ export function usePlaygroundFiles () {
     store.files['src/uno.config.ts']!.hidden = true
     store.setActive('src/App.vue')
 
-    store.setImportMap({ imports: preset.imports ?? {} }, true)
+    rebuildImportMap()
+    filesVersion.value++
   }
 
-  return { store, isReady, loadExample, vueVersion, v0Version, vueVersions, v0Versions, fetching, fetchVersions, activePreset, applyPreset }
+  async function toggleAddon (id: string) {
+    const addon = ADDONS.find(a => a.id === id)
+    if (!addon) return
+
+    const enabled = activeAddons.value.includes(id)
+
+    if (enabled) {
+      for (const filename of Object.keys(addon.files ?? {})) {
+        if (store.files[filename]) store.deleteFile(filename)
+      }
+      // Restore replaceFiles to the preset's default
+      const preset = PRESETS.find(p => p.id === activePreset.value)
+      for (const filename of Object.keys(addon.replaceFiles ?? {})) {
+        const code = preset?.files[filename]
+        const file = store.files[filename]
+        if (file && code) {
+          file.code = code
+          compileFile(store, file)
+        }
+      }
+      activeAddons.value = activeAddons.value.filter(a => a !== id)
+    } else {
+      for (const [filename, code] of Object.entries(addon.files ?? {})) {
+        store.addFile(filename)
+        const file = store.files[filename]
+        if (file) {
+          file.code = code
+          compileFile(store, file)
+        }
+      }
+      for (const [filename, code] of Object.entries(addon.replaceFiles ?? {})) {
+        const file = store.files[filename]
+        if (file) {
+          file.code = code
+          compileFile(store, file)
+        }
+      }
+      activeAddons.value = [...activeAddons.value, id]
+    }
+
+    rebuildMain()
+    rebuildImportMap()
+    filesVersion.value++
+  }
+
+  return { store, isReady, filesVersion, loadExample, vueVersion, v0Version, vueVersions, v0Versions, fetching, fetchVersions, activePreset, applyPreset, activeAddons, toggleAddon }
 }

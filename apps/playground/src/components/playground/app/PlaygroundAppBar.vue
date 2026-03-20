@@ -10,12 +10,27 @@
   import { shallowRef } from 'vue'
 
   const open = shallowRef(false)
+  const confirming = shallowRef(false)
+  let confirmTimer = 0
 
   const theme = useTheme()
   const playground = usePlayground()
   const breakpoints = useBreakpoints()
   const storage = useStorage()
   const sidePref = storage.get('playground-preview-right', false)
+
+  function onReset () {
+    if (confirming.value) {
+      clearTimeout(confirmTimer)
+      confirming.value = false
+      playground.applyPreset(playground.activePreset.value)
+    } else {
+      confirming.value = true
+      confirmTimer = window.setTimeout(() => {
+        confirming.value = false
+      }, 3000)
+    }
+  }
 
   useHotkey('ctrl+b', () => {
     playground.tree.value = !playground.tree.value
@@ -104,6 +119,17 @@
         @click="onView"
       >
         <AppIcon :icon="playground.editor.value ? 'editor' : 'eye'" />
+      </button>
+
+      <button
+        class="pa-1 inline-flex items-center gap-1.5 rounded text-sm font-medium focus-visible:outline-none cursor-pointer transition-colors"
+        :class="confirming ? 'text-error opacity-100 bg-error/10 hover:bg-error/20' : 'opacity-50 hover:opacity-80 hover:bg-surface-tint focus-visible:opacity-80 focus-visible:bg-surface-tint'"
+        :title="confirming ? 'Click again to confirm reset' : 'Reset playground'"
+        type="button"
+        @click="onReset"
+      >
+        <AppIcon icon="reset" />
+        <span v-if="confirming" class="text-xs">Reset?</span>
       </button>
 
       <button
