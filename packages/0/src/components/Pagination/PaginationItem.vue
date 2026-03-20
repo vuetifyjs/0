@@ -89,8 +89,8 @@
 
   const ariaLabel = toRef(() => {
     return isSelected.value
-      ? locale.t('Pagination.currentPage', { page: value }, `Page ${value}, current page`)
-      : locale.t('Pagination.goToPage', { page: value }, `Go to page ${value}`)
+      ? locale.t('Pagination.currentPage', { page: value })
+      : locale.t('Pagination.goToPage', { page: value })
   })
 
   function select () {

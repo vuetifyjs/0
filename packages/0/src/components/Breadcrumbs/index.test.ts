@@ -62,14 +62,14 @@ describe('breadcrumbs', () => {
     })
 
     describe('accessibility', () => {
-      it('should have aria-label="Breadcrumb"', () => {
+      it('should have aria-label from locale key', () => {
         const wrapper = mount(Breadcrumbs.Root, {
           slots: {
             default: () => h('div', 'Content'),
           },
         })
 
-        expect(wrapper.find('nav').attributes('aria-label')).toBe('Breadcrumb')
+        expect(wrapper.find('nav').attributes('aria-label')).toBe('Breadcrumbs.label')
       })
 
       it('should not have role="navigation" when as="nav"', () => {
@@ -530,7 +530,7 @@ describe('breadcrumbs', () => {
       expect(wrapper.find('nav').exists()).toBe(true)
       expect(wrapper.find('ol').exists()).toBe(true)
       expect(wrapper.findAll('li').length).toBeGreaterThan(0)
-      expect(wrapper.find('[aria-label="Breadcrumb"]').exists()).toBe(true)
+      expect(wrapper.find('[aria-label="Breadcrumbs.label"]').exists()).toBe(true)
       expect(wrapper.find('[role="list"]').exists()).toBe(true)
     })
 
@@ -907,7 +907,7 @@ describe('breadcrumbs', () => {
       expect(html).toBeTruthy()
       expect(html).toContain('Home')
       expect(html).toContain('Current')
-      expect(html).toContain('aria-label="Breadcrumb"')
+      expect(html).toContain('aria-label="Breadcrumbs.label"')
       expect(html).toContain('role="list"')
       expect(html).toContain('aria-current="page"')
     })

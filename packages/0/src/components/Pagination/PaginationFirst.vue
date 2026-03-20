@@ -87,7 +87,7 @@
     isDisabled: isDisabled.value,
     first,
     attrs: {
-      'aria-label': locale.t('Pagination.first', undefined, 'Go to first page'),
+      'aria-label': locale.t('Pagination.first'),
       'aria-disabled': isDisabled.value,
       'data-disabled': isDisabled.value || undefined,
       'disabled': as === 'button' ? isDisabled.value : undefined,

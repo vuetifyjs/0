@@ -1,5 +1,5 @@
 // Utilities
-import { isArray } from '#v0/utilities'
+import { isObject } from '#v0/utilities'
 
 // Types
 import type { LocaleAdapter } from '../adapter'
@@ -20,12 +20,14 @@ export class VueI18nLocaleAdapter implements LocaleAdapter {
     this.composer = i18n.global
   }
 
-  t (key: string, params?: Record<string, unknown> | unknown[], fallback?: string): string {
-    if (fallback && !this.composer.te(key)) return fallback
+  t (key: string, ...params: unknown[]): string {
+    if (params.length > 0 && isObject(params[0])) {
+      return this.composer.t(key, params[0] as Record<string, unknown>)
+    }
 
-    return isArray(params)
-      ? this.composer.t(key, params as unknown[])
-      : this.composer.t(key, params ?? {})
+    return params.length > 0
+      ? this.composer.t(key, params)
+      : this.composer.t(key)
   }
 
   n (value: number): string {

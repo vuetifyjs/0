@@ -11,6 +11,6 @@ export interface LocaleAdapterContext {
 }
 
 export interface LocaleAdapter {
-  t: (key: string, params?: Record<string, unknown> | unknown[], fallback?: string) => string
+  t: (key: string, ...params: unknown[]) => string
   n: (value: number) => string
 }
