@@ -305,7 +305,6 @@ export function usePlaygroundFiles () {
     const [rawFiles, vueVer, , , rawActive] = parsed as [
       Record<string, string>, unknown, unknown, unknown, unknown,
     ]
-
     // Extract infrastructure files before building the src/-prefixed file map
     const linksJson = rawFiles['links.json']
     const importMapJson = rawFiles['import-map.json']
@@ -316,7 +315,7 @@ export function usePlaygroundFiles () {
     }
 
     // Parse custom imports from import-map.json
-    let imports: Record<string, string> | undefined
+    let imports: Record<string, string> = {}
     if (importMapJson) {
       try {
         const parsed_ = JSON.parse(importMapJson)
@@ -324,6 +323,26 @@ export function usePlaygroundFiles () {
           imports = parsed_.imports as Record<string, string>
         }
       } catch { /* ignore malformed import-map.json */ }
+    }
+
+    // Auto-resolve bare import specifiers not covered by the stored import map.
+    // Vuetify Play's dependency panel adds packages at runtime but the stored
+    // content only captures the template's base import map.
+    const knownSpecifiers = new Set([
+      ...Object.keys(imports),
+      'vue', 'vue/server-renderer', '@vue/devtools-api',
+      '@vuetify/v0', 'vuetify',
+    ])
+    const bareImportRe = /\bfrom\s+['"]([^./][^'"]*)['"]/g
+    for (const code of Object.values(files)) {
+      for (const match of code.matchAll(bareImportRe)) {
+        const specifier = match[1]!
+        const pkg = specifier.startsWith('@') ? specifier.split('/').slice(0, 2).join('/') : specifier.split('/')[0]!
+        if (!knownSpecifiers.has(pkg)) {
+          imports[pkg] = `https://esm.sh/${pkg}`
+          knownSpecifiers.add(pkg)
+        }
+      }
     }
 
     // Inject CSS from links.json into setup.ts
@@ -347,7 +366,7 @@ export function usePlaygroundFiles () {
     // Set vuetify preset
     activePreset.value = 'vuetify'
     activeAddons.value = []
-    extraImports.value = imports
+    extraImports.value = Object.keys(imports).length > 0 ? imports : undefined
     aliasMap.value = new Map()
 
     if (isString(vueVer)) vueVersion.value = vueVer
