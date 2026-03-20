@@ -22,6 +22,8 @@ export interface AddonDefinition {
   /** Files replaced on enable but left alone on disable */
   replaceFiles?: Record<string, string>
   imports?: Record<string, string>
+  /** Addon IDs that conflict with this one — auto-disabled when this addon is enabled */
+  excludes?: string[]
 }
 
 // ── Preset file templates ────────────────────────────────────────────────

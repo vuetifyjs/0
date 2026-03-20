@@ -242,6 +242,25 @@ export function usePlaygroundFiles () {
     filesVersion.value++
   }
 
+  function disableAddon (id: string) {
+    const addon = ADDONS.find(a => a.id === id)
+    if (!addon || !activeAddons.value.includes(id)) return
+
+    for (const filename of Object.keys(addon.files ?? {})) {
+      if (store.files[filename]) store.deleteFile(filename)
+    }
+    const preset = PRESETS.find(p => p.id === activePreset.value)
+    for (const filename of Object.keys(addon.replaceFiles ?? {})) {
+      const code = preset?.files[filename]
+      const file = store.files[filename]
+      if (file && code) {
+        file.code = code
+        compileFile(store, file)
+      }
+    }
+    activeAddons.value = activeAddons.value.filter(a => a !== id)
+  }
+
   async function toggleAddon (id: string) {
     const addon = ADDONS.find(a => a.id === id)
     if (!addon) return
@@ -249,21 +268,13 @@ export function usePlaygroundFiles () {
     const enabled = activeAddons.value.includes(id)
 
     if (enabled) {
-      for (const filename of Object.keys(addon.files ?? {})) {
-        if (store.files[filename]) store.deleteFile(filename)
-      }
-      // Restore replaceFiles to the preset's default
-      const preset = PRESETS.find(p => p.id === activePreset.value)
-      for (const filename of Object.keys(addon.replaceFiles ?? {})) {
-        const code = preset?.files[filename]
-        const file = store.files[filename]
-        if (file && code) {
-          file.code = code
-          compileFile(store, file)
-        }
-      }
-      activeAddons.value = activeAddons.value.filter(a => a !== id)
+      disableAddon(id)
     } else {
+      // Disable conflicting addons first
+      for (const excludeId of addon.excludes ?? []) {
+        disableAddon(excludeId)
+      }
+
       for (const [filename, code] of Object.entries(addon.files ?? {})) {
         store.addFile(filename)
         const file = store.files[filename]
