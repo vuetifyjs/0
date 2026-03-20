@@ -2,50 +2,100 @@
 import { IN_BROWSER } from '#v0/constants/globals'
 
 // Utilities
-import { isObject, isUndefined } from '#v0/utilities'
+import { isObject, isString, isUndefined } from '#v0/utilities'
+
+// Transformers
+import { toArray } from '#v0/composables/toArray'
 
 // Types
 import type { ID } from '#v0/types'
-import type { LocaleAdapter } from './adapter'
+import type { LocaleAdapter, LocaleAdapterContext } from './adapter'
 
 /**
- * Vuetify0.x locale adapter implementation
+ * Default locale adapter for @vuetify/v0.
  *
- * This adapter provides translation and number formatting
- * capabilities using the Intl API and supports both
- * numbered ({0}, {1}) and named ({name}) variables in translation strings.
+ * Handles the full translation pipeline: key lookup via tokens,
+ * fallback chain, token reference resolution, and placeholder interpolation.
  */
 export class Vuetify0LocaleAdapter implements LocaleAdapter {
-  t (message: string, ...params: unknown[]): string {
-    let resolvedMessage = message
+  private context: LocaleAdapterContext
 
-    // Handle named variables if the first param is an object
-    if (params.length > 0 && isObject(params[0])) {
-      const variables = params[0] as Record<string, unknown>
-      resolvedMessage = resolvedMessage.replace(/{([a-zA-Z][a-zA-Z0-9_]*)}/g, (match, name) => {
-        return isUndefined(variables[name]) ? match : String(variables[name])
-      })
-      // Remove the variables object from params so numbered placeholders can use the rest
-      params = params.slice(1)
+  constructor (context: LocaleAdapterContext) {
+    this.context = context
+  }
+
+  t (key: string, params?: Record<string, unknown> | unknown[], fallback?: string): string {
+    const locale = this.context.selectedId.value
+    const args = toArray(params)
+
+    if (!locale) return this.interpolate(fallback ?? key, args)
+
+    const message = this.context.tokens.get(`${locale}.${key}`)?.value
+
+    if (isString(message)) {
+      return this.interpolate(this.resolve(locale, message), args)
     }
 
-    // Handle numbered placeholders with remaining params
-    resolvedMessage = resolvedMessage.replace(/\{(\d+)\}/g, (match, index) => {
-      const idx = Number.parseInt(index, 10)
-      if (!isUndefined(params[idx])) {
-        return String(params[idx])
+    if (this.context.fallbackLocale) {
+      const fbMessage = this.context.tokens.get(`${this.context.fallbackLocale}.${key}`)?.value
+      if (isString(fbMessage)) {
+        return this.interpolate(this.resolve(this.context.fallbackLocale, fbMessage), args)
+      }
+    }
+
+    return this.interpolate(fallback ?? key, args)
+  }
+
+  n (value: number): string {
+    const locale = this.context.selectedId.value
+
+    if (!IN_BROWSER || !locale) return value.toString()
+
+    return new Intl.NumberFormat(String(locale)).format(value)
+  }
+
+  private resolve (locale: ID, str: string, visited = new Set<string>()): string {
+    return str.replace(/{([a-zA-Z0-9.\-_]+)}/g, (match, key) => {
+      const [prefix, ...rest] = key.split('.')
+      const target = this.context.has(prefix) ? prefix : locale
+      const name = this.context.has(prefix) ? rest.join('.') : key
+
+      const path = `${target}.${name}`
+
+      if (visited.has(path)) return match
+
+      visited.add(path)
+
+      const resolved = this.context.tokens.get(path)?.value
+
+      if (isString(resolved)) {
+        return this.resolve(target, resolved, visited)
+      }
+
+      return match
+    })
+  }
+
+  private interpolate (message: string, args: unknown[]): string {
+    let result = message
+    let rest = args
+
+    if (rest.length > 0 && isObject(rest[0])) {
+      const variables = rest[0] as Record<string, unknown>
+      result = result.replace(/{([a-zA-Z][a-zA-Z0-9_]*)}/g, (match, name) => {
+        return isUndefined(variables[name]) ? match : String(variables[name])
+      })
+      rest = rest.slice(1)
+    }
+
+    result = result.replace(/\{(\d+)\}/g, (match, index) => {
+      const i = Number.parseInt(index, 10)
+      if (!isUndefined(rest[i])) {
+        return String(rest[i])
       }
       return match
     })
 
-    return resolvedMessage
-  }
-
-  n (value: number, locale: ID | undefined, ...params: unknown[]): string {
-    if (!IN_BROWSER || !locale) return value.toString()
-
-    const options = params[0] as Intl.NumberFormatOptions | undefined
-
-    return new Intl.NumberFormat(String(locale), options).format(value)
+    return result
   }
 }
