@@ -31,6 +31,8 @@ declare module 'vue' {
     PlaygroundMarkdown: typeof import('./components/playground/markdown/PlaygroundMarkdown.vue')['default']
     PlaygroundMarkdownFooter: typeof import('./components/playground/markdown/PlaygroundMarkdownFooter.vue')['default']
     PlaygroundMarkdownHeader: typeof import('./components/playground/markdown/PlaygroundMarkdownHeader.vue')['default']
+    PlaygroundMenuBar: typeof import('./components/playground/app/PlaygroundMenuBar.vue')['default']
+    PlaygroundOpenDialog: typeof import('./components/playground/app/PlaygroundOpenDialog.vue')['default']
     PlaygroundSettings: typeof import('./components/playground/settings/PlaygroundSettings.vue')['default']
     PlaygroundSettingsPresets: typeof import('./components/playground/settings/PlaygroundSettingsPresets.vue')['default']
     PlaygroundSettingsVersions: typeof import('./components/playground/settings/PlaygroundSettingsVersions.vue')['default']
