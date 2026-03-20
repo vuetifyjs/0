@@ -11,8 +11,10 @@
   "dependencies": {
     "@mdi/js": "catalog:",
     "@vue/repl": "catalog:",
+    "@vuetify/auth": "catalog:",
     "@vuetify/v0": "workspace:*",
     "fflate": "catalog:",
+    "pinia": "catalog:",
     "vue": "catalog:"
   },
   "devDependencies": {
