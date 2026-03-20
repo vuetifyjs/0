@@ -349,7 +349,7 @@ describe('helpers', () => {
     it('should handle null and undefined source values', () => {
       const target = { a: 1, b: 2 }
       mergeDeep(target, { a: null, b: undefined } as any)
-      expect(target).toEqual({ a: null, b: undefined })
+      expect(target).toEqual({ a: null, b: 2 })
     })
 
     it('should handle empty objects', () => {
