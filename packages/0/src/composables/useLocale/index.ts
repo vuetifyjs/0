@@ -24,12 +24,6 @@ import { createTokens } from '#v0/composables/createTokens'
 // Adapters
 import { Vuetify0LocaleAdapter } from '#v0/composables/useLocale/adapters/v0'
 
-// Utilities
-import { isString } from '#v0/utilities'
-
-// Transformers
-import { toArray } from '#v0/composables/toArray'
-
 // Types
 import type { SingleContext, SingleOptions, SingleTicket, SingleTicketInput } from '#v0/composables/createSingle'
 import type { TokenCollection } from '#v0/composables/createTokens'
@@ -39,7 +33,7 @@ import type { LocaleAdapter } from './adapters'
 // Exports
 export { Vuetify0LocaleAdapter } from '#v0/composables/useLocale/adapters'
 
-export type { LocaleAdapter } from '#v0/composables/useLocale/adapters'
+export type { LocaleAdapter, LocaleAdapterContext } from '#v0/composables/useLocale/adapters'
 
 export type LocaleRecord = TokenCollection
 
@@ -112,7 +106,7 @@ export function createLocale<
   E extends LocaleTicket<Z> = LocaleTicket<Z>,
   R extends LocaleContext<Z, E> = LocaleContext<Z, E>,
 > (_options: LocaleOptions = {}): R {
-  const { adapter = new Vuetify0LocaleAdapter(), messages = {}, fallback: fallbackLocale, ...options } = _options
+  const { adapter: externalAdapter, messages = {}, fallback: fallbackLocale, ...options } = _options
   const tokens = createTokens(messages)
   const registry = createSingle<Z, E>(options)
 
@@ -124,58 +118,23 @@ export function createLocale<
     }
   }
 
+  const adapter = externalAdapter ?? new Vuetify0LocaleAdapter({
+    tokens,
+    selectedId: registry.selectedId,
+    fallbackLocale,
+    has: id => registry.has(id),
+  })
+
   function t (
     key: string,
     params?: Record<string, unknown> | unknown[],
     fallback?: string,
   ): string {
-    const locale = registry.selectedId.value
-    const args = toArray(params)
-
-    if (!locale) return adapter.t(fallback ?? key, ...args)
-
-    // Look up the full flattened path in the token registry
-    const path = `${locale}.${key}`
-    const message = tokens.get(path)?.value
-
-    if (isString(message)) {
-      return adapter.t(resolve(locale, message), ...args)
-    }
-
-    if (fallbackLocale) {
-      const fbMessage = tokens.get(`${fallbackLocale}.${key}`)?.value
-      if (isString(fbMessage)) {
-        return adapter.t(resolve(fallbackLocale, fbMessage), ...args)
-      }
-    }
-
-    return adapter.t(fallback ?? key, ...args)
+    return adapter.t(key, params, fallback)
   }
 
-  function n (value: number, ...params: unknown[]): string {
-    return adapter.n(value, registry.selectedId.value, ...params)
-  }
-
-  function resolve (locale: ID, str: string, visited = new Set<string>()): string {
-    return str.replace(/{([a-zA-Z0-9.-_]+)}/g, (match, key) => {
-      const [prefix, ...rest] = key.split('.')
-      const target = registry.has(prefix) ? prefix : locale
-      const name = registry.has(prefix) ? rest.join('.') : key
-
-      const path = `${target}.${name}`
-
-      if (visited.has(path)) return match
-
-      visited.add(path)
-
-      const resolved = tokens.get(path)?.value
-
-      if (isString(resolved)) {
-        return resolve(target, resolved, visited)
-      }
-
-      return match
-    })
+  function n (value: number): string {
+    return adapter.n(value)
   }
 
   return {
