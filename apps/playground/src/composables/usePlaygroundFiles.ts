@@ -3,27 +3,30 @@ import { debounce, useTheme } from '@vuetify/v0'
 
 // Composables
 import { decodePlaygroundHash, encodePlaygroundHash } from '@/composables/usePlayground'
+import { usePlaygroundSettings } from '@/composables/usePlaygroundSettings'
 
 // Utilities
-import { compileFile, useStore, useVueImportMap } from '@vue/repl/core'
+import { compileFile, useStore } from '@vue/repl/core'
 import { computed, onMounted, shallowRef, watch, watchEffect } from 'vue'
+
+// Types
+import type { PlaygroundHashData } from '@/composables/usePlayground'
 
 // Data
 import { createMainTs, DEFAULT_CODE, UNO_CONFIG_TS } from '@/data/playground-defaults'
+import { PRESETS } from '@/data/presets'
 
 export function usePlaygroundFiles () {
   const theme = useTheme()
 
-  const { importMap, vueVersion } = useVueImportMap({
-    runtimeDev: 'https://cdn.jsdelivr.net/npm/@vue/runtime-dom/dist/runtime-dom.esm-browser.js',
-    runtimeProd: 'https://cdn.jsdelivr.net/npm/@vue/runtime-dom/dist/runtime-dom.esm-browser.prod.js',
-    serverRenderer: 'https://cdn.jsdelivr.net/npm/@vue/server-renderer/dist/server-renderer.esm-browser.js',
-  })
+  const { importMap, vueVersion, v0Version, vueVersions, v0Versions, fetching, fetchVersions } = usePlaygroundSettings()
 
   const builtinImportMap = computed(() => ({
     imports: {
       ...importMap.value?.imports,
-      '@vuetify/v0': 'https://cdn.jsdelivr.net/npm/@vuetify/v0@latest/dist/index.mjs',
+      '@vuetify/v0': `https://cdn.jsdelivr.net/npm/@vuetify/v0@${v0Version.value}/dist/index.mjs`,
+      // Always available — pinia/vue-router prod builds import this at runtime to detect devtools
+      '@vue/devtools-api': 'https://esm.sh/@vue/devtools-api@6',
     },
   }))
 
@@ -37,12 +40,16 @@ export function usePlaygroundFiles () {
 
   const aliasMap = shallowRef(new Map<string, string>())
   const extraImports = shallowRef<Record<string, string>>()
+  const activePreset = shallowRef('default')
 
   onMounted(async () => {
     const hash = window.location.hash.slice(1)
     const decoded = hash ? await decodePlaygroundHash(hash) : null
 
     if (decoded) {
+      if (decoded.settings?.preset) activePreset.value = decoded.settings.preset
+      if (decoded.settings?.vue) vueVersion.value = decoded.settings.vue
+      if (decoded.settings?.v0) v0Version.value = decoded.settings.v0
       await loadExample(decoded.files, decoded.active)
       if (decoded.imports && Object.keys(decoded.imports).length > 0) {
         extraImports.value = decoded.imports
@@ -97,7 +104,7 @@ export function usePlaygroundFiles () {
     const theme_ = theme.isDark.value ? 'dark' : 'light'
     await store.setFiles(
       {
-        'src/main.ts': createMainTs(theme_),
+        'src/main.ts': createMainTs(theme_, PRESETS.find(p => p.id === activePreset.value)?.mainOptions),
         'src/uno.config.ts': UNO_CONFIG_TS,
         ...files,
         ...aliases,
@@ -118,13 +125,23 @@ export function usePlaygroundFiles () {
 
   const updateHash = debounce(async (files: Record<string, string>, active: string | undefined) => {
     if (Object.keys(files).length === 0) return
-    const hash = await encodePlaygroundHash({ files, active, imports: extraImports.value })
+    const settings: { vue?: string, v0?: string, preset?: string } = {}
+    if (vueVersion.value) settings.vue = vueVersion.value
+    if (v0Version.value !== 'latest') settings.v0 = v0Version.value
+    if (activePreset.value !== 'default') settings.preset = activePreset.value
+    const data: PlaygroundHashData = { files, active, imports: extraImports.value }
+    if (Object.keys(settings).length > 0) data.settings = settings
+    const hash = await encodePlaygroundHash(data)
     history.replaceState(null, '', `#${hash}`)
   }, 500)
 
   watch(isReady, ready => {
     if (!ready) return
     watchEffect(() => {
+      // Track version refs so hash updates when versions change
+      vueVersion.value // eslint-disable-line @typescript-eslint/no-unused-expressions
+      v0Version.value // eslint-disable-line @typescript-eslint/no-unused-expressions
+      activePreset.value // eslint-disable-line @typescript-eslint/no-unused-expressions
       const aliases = new Set(aliasMap.value.values())
       const files: Record<string, string> = {}
       for (const [path, file] of Object.entries(store.files)) {
@@ -140,7 +157,8 @@ export function usePlaygroundFiles () {
     if (!isReady.value) return
     const file = store.files['src/main.ts']
     if (file) {
-      file.code = createMainTs(isDark ? 'dark' : 'light')
+      const mainOptions = PRESETS.find(p => p.id === activePreset.value)?.mainOptions
+      file.code = createMainTs(isDark ? 'dark' : 'light', mainOptions)
       compileFile(store, file)
     }
   })
@@ -153,5 +171,29 @@ export function usePlaygroundFiles () {
     }
   })
 
-  return { store, isReady, loadExample }
+  async function applyPreset (id: string) {
+    const preset = PRESETS.find(p => p.id === id)
+    if (!preset) return
+
+    activePreset.value = id
+    extraImports.value = preset.imports ?? undefined
+    aliasMap.value = new Map() // presets use direct paths, no aliases
+
+    const theme_ = theme.isDark.value ? 'dark' : 'light'
+    await store.setFiles(
+      {
+        'src/main.ts': createMainTs(theme_, preset.mainOptions),
+        'src/uno.config.ts': UNO_CONFIG_TS,
+        ...preset.files,
+      },
+      'src/main.ts', // must be main.ts so the sandbox runs it (installs plugins)
+    )
+    store.files['src/main.ts']!.hidden = true
+    store.files['src/uno.config.ts']!.hidden = true
+    store.setActive('src/App.vue')
+
+    store.setImportMap({ imports: preset.imports ?? {} }, true)
+  }
+
+  return { store, isReady, loadExample, vueVersion, v0Version, vueVersions, v0Versions, fetching, fetchVersions, activePreset, applyPreset }
 }
