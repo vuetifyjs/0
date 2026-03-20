@@ -15,9 +15,15 @@
   const storage = useStorage()
   const sidePref = storage.get('playground-preview-right', false)
 
+  const fileMenu = shallowRef(false)
   const confirming = shallowRef(false)
   const dialog = shallowRef(false)
   let confirmTimer = 0
+
+  function onOpen () {
+    fileMenu.value = false
+    dialog.value = true
+  }
 
   function onReset () {
     if (confirming.value) {
@@ -49,7 +55,7 @@
 <template>
   <div class="flex items-center gap-1">
     <!-- File menu -->
-    <Popover.Root>
+    <Popover.Root v-model="fileMenu">
       <Popover.Activator
         class="px-2 py-1 text-xs text-on-surface-variant rounded hover:bg-surface-tint transition-colors cursor-pointer"
         target="playground-file-menu"
@@ -65,7 +71,7 @@
         <button
           class="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-on-surface hover:bg-surface-tint transition-colors text-left"
           type="button"
-          @click="dialog = true"
+          @click="onOpen"
         >
           Open...
         </button>
