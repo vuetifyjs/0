@@ -9,13 +9,15 @@ import { createBreakpointsPlugin, createHydrationPlugin, createLoggerPlugin, cre
 import App from './App.vue'
 
 import { createIconPlugin } from './plugins/icons'
+import pinia from './plugins/pinia'
 
 import 'virtual:uno.css'
 
 export const createApp = ViteSSG(
   App,
   { routes: setupLayouts(routes) },
-  ({ app }) => {
+  async ({ app, initialState }) => {
+    app.use(pinia)
     app.use(createIconPlugin())
     app.use(createLoggerPlugin())
     app.use(createHydrationPlugin())
@@ -90,5 +92,15 @@ export const createApp = ViteSSG(
         },
       }),
     )
+
+    if (import.meta.env.SSR)
+      initialState.pinia = pinia.state.value
+    else
+      pinia.state.value = initialState.pinia || {}
+
+    if (!import.meta.env.SSR) {
+      const { useAuthStore } = await import('@vuetify/auth')
+      useAuthStore().verify()
+    }
   },
 )

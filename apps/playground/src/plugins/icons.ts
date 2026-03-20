@@ -2,6 +2,7 @@
 import {
   mdiBookOpenBlankVariant,
   mdiBookOutline,
+  mdiCheck,
   mdiChevronDown,
   mdiChevronLeft,
   mdiChevronUp,
@@ -42,6 +43,7 @@ export const [useIconContext, provideIconContext, context] = createTokensContext
     'left': mdiChevronLeft,
     'book-open': mdiBookOpenBlankVariant,
     'book-closed': mdiBookOutline,
+    'check': mdiCheck,
     'folder': mdiFolderOutline,
     'folder-open': mdiFolderOpenOutline,
     'folder-plus': mdiFolderPlusOutline,
