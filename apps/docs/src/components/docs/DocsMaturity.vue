@@ -214,7 +214,7 @@
     {
       from: 'Stable',
       to: 'Mature',
-      requirements: 'Used in production downstream (e.g. Vuetify 4), adapter ecosystem (if applicable), API frozen — breaking changes require major version.',
+      requirements: 'Used in production downstream (e.g. Vuetify 5), adapter ecosystem (if applicable), API frozen — breaking changes require major version.',
     },
     {
       from: 'Any',
