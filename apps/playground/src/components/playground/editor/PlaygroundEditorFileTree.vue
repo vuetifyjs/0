@@ -51,6 +51,9 @@
     return children
   }
 
+  const showConfig = shallowRef(false)
+  const targetFolder = shallowRef('src')
+
   function rebuildFileTree () {
     showConfig.value = false
     targetFolder.value = 'src'
@@ -97,8 +100,6 @@
 
   const CONFIG_IDS = new Set(CONFIG_FILES.map(f => f.id))
 
-  const showConfig = shallowRef(false)
-
   function toggleConfig () {
     showConfig.value = !showConfig.value
     if (showConfig.value) {
@@ -133,7 +134,6 @@
   const creatingType = shallowRef<'file' | 'folder'>('file')
   const pending = shallowRef('')
   const input = shallowRef<HTMLInputElement | null>(null)
-  const targetFolder = shallowRef('src')
 
   function isFile (id: string) {
     return VALID_EXT.test(id)
