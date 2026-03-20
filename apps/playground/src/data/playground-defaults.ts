@@ -36,7 +36,7 @@ export function createMainTs (defaultTheme: 'light' | 'dark' = 'light', options?
       `const link = document.createElement('link')`,
       `link.rel = 'stylesheet'`,
       `link.setAttribute('data-preset-css', 'vuetify')`,
-      `link.href = 'https://cdn.jsdelivr.net/npm/vuetify@latest/dist/vuetify.min.css'`,
+      `link.href = 'https://cdn.jsdelivr.net/npm/vuetify@latest/dist/vuetify-labs.css'`,
       `document.head.appendChild(link)`,
     )
     extraPlugins.push(`app.use(createVuetify())`)

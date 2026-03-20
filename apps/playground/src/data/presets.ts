@@ -219,7 +219,7 @@ export const PRESETS: PresetDefinition[] = [
     mainOptions: { vuetify: true, v0: false },
     files: { 'src/App.vue': VUETIFY_APP },
     imports: {
-      vuetify: 'https://cdn.jsdelivr.net/npm/vuetify@latest/dist/vuetify.esm.js',
+      vuetify: 'https://cdn.jsdelivr.net/npm/vuetify@latest/dist/vuetify-labs.esm.js',
     },
   },
 ]
