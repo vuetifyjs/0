@@ -89,6 +89,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/components/disclosure/treeview': RouteRecordInfo<
+      '/components/disclosure/treeview',
+      '/components/disclosure/treeview',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/components/forms/checkbox': RouteRecordInfo<
       '/components/forms/checkbox',
       '/components/forms/checkbox',
@@ -860,6 +867,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/components/disclosure/tabs.md': {
       routes:
         | '/components/disclosure/tabs'
+      views:
+        | never
+    }
+    'src/pages/components/disclosure/treeview.md': {
+      routes:
+        | '/components/disclosure/treeview'
       views:
         | never
     }

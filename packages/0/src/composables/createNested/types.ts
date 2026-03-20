@@ -1,7 +1,7 @@
 // Types
 import type { GroupContext, GroupContextOptions, GroupOptions, GroupTicket, GroupTicketInput } from '#v0/composables/createGroup'
 import type { ID } from '#v0/types'
-import type { ComputedRef, Reactive, Ref } from 'vue'
+import type { ComputedRef, MaybeRefOrGetter, Reactive, Ref } from 'vue'
 
 /**
  * Input type for nested tickets - what users provide to register().
@@ -14,6 +14,8 @@ export interface NestedTicketInput<V = unknown> extends GroupTicketInput<V> {
   parentId?: ID
   /** Whether this ticket is initially active */
   active?: boolean
+  /** Reference to the DOM element for focus management */
+  el?: MaybeRefOrGetter<HTMLElement | null | undefined>
 }
 
 /**
@@ -23,8 +25,10 @@ export interface NestedTicketInput<V = unknown> extends GroupTicketInput<V> {
  * @template Z The input ticket type that extends NestedTicketInput.
  */
 export type NestedTicket<Z extends NestedTicketInput = NestedTicketInput> = GroupTicket<Z> & {
-  /** ID of the parent ticket, or undefined if this is a root item */
+  /** ID of the parent ticket, or undefined if this is a root item. Static — set at registration time. */
   parentId: ID | undefined
+  /** Reference to the DOM element for focus management */
+  el: MaybeRefOrGetter<HTMLElement | null | undefined> | undefined
   /** Whether this ticket is currently open/expanded */
   isOpen: Readonly<Ref<boolean>>
   /** Whether this ticket is currently active/highlighted */
@@ -157,7 +161,7 @@ export interface NestedContext<
   /** Collapse all nodes */
   collapseAll: () => void
   /** Convert tree to flat array with parentId references */
-  toFlat: () => Array<{ id: ID, parentId: ID | undefined, value: unknown }>
+  toFlat: () => Array<{ id: ID, parentId: ID | undefined, value: Z extends NestedTicketInput<infer V> ? V : unknown }>
   /** Get the path from root to the specified item (inclusive) */
   getPath: (id: ID) => ID[]
   /** Get all descendants of an item */
@@ -180,6 +184,10 @@ export interface NestedContext<
   roots: ComputedRef<E[]>
   /** Computed array of leaf items (items with no children) */
   leaves: ComputedRef<E[]>
+  /** Returns depth-first traversal of visible (open) nodes for keyboard navigation */
+  visibleItems: () => E[]
+  /** Whether multiple items can be selected */
+  readonly multiple: boolean
   /** Strategy controlling how items are opened */
   openStrategy: OpenStrategy
   /** Select item(s) and all descendants, updating ancestor mixed states */
@@ -216,15 +224,15 @@ export type NestedOpenMode = 'single' | 'multiple'
 export type NestedSelectionMode = 'cascade' | 'independent' | 'leaf'
 
 /**
- * Options for creating a nested instance.
- */
-/**
  * Active mode for nested items.
  * - `'single'` (default): Only one item can be active at a time
  * - `'multiple'`: Multiple items can be active simultaneously
  */
 export type NestedActiveMode = 'single' | 'multiple'
 
+/**
+ * Options for creating a nested instance.
+ */
 export interface NestedOptions extends GroupOptions {
   /**
    * Controls how nodes expand/collapse.

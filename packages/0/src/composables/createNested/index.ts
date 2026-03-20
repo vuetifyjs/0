@@ -11,7 +11,6 @@
  * Inheritance chain: createSelection → createGroup → createNested
  */
 
-// Factories
 // Foundational
 import { createContext, useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
@@ -44,10 +43,6 @@ import type { App } from 'vue'
 
 // Strategies
 import { multipleOpenStrategy, singleOpenStrategy } from './strategies'
-
-// Re-export types
-
-// Re-export strategies
 
 /**
  * Resolves open mode to an OpenStrategy.
@@ -175,10 +170,17 @@ export function createNested<
   }
 
   function open (ids: ID | ID[]): void {
+    if (toValue(group.disabled)) return
     for (const id of toArray(ids)) {
       if (!group.has(id)) continue
+      const item = group.get(id)
+      if (!item || toValue(item.disabled)) continue
+
+      openedIds.add(id)
+      resolvedOpenStrategy.onOpen?.(id, context)
 
       // Auto-reveal ancestors when opening (if enabled)
+      // Runs AFTER strategy so single-open mode doesn't close ancestors
       if (revealOnOpen) {
         let parentId = parents.get(id)
         while (!isUndefined(parentId)) {
@@ -186,23 +188,26 @@ export function createNested<
           parentId = parents.get(parentId)
         }
       }
-
-      openedIds.add(id)
-      resolvedOpenStrategy.onOpen?.(id, context)
     }
   }
 
   function close (ids: ID | ID[]): void {
+    if (toValue(group.disabled)) return
     for (const id of toArray(ids)) {
       if (!group.has(id)) continue
+      const item = group.get(id)
+      if (!item || toValue(item.disabled)) continue
       openedIds.delete(id)
       resolvedOpenStrategy.onClose?.(id, context)
     }
   }
 
   function flip (ids: ID | ID[]): void {
+    if (toValue(group.disabled)) return
     for (const id of toArray(ids)) {
       if (!group.has(id)) continue
+      const item = group.get(id)
+      if (!item || toValue(item.disabled)) continue
       if (opened(id)) {
         close(id)
       } else {
@@ -261,15 +266,25 @@ export function createNested<
   }
 
   function expandAll (): void {
+    if (toValue(group.disabled)) return
     for (const [id, childList] of children) {
       if (childList.length > 0) {
+        const item = group.get(id)
+        if (item && toValue(item.disabled)) continue
         openedIds.add(id)
       }
     }
   }
 
   function collapseAll (): void {
-    openedIds.clear()
+    if (toValue(group.disabled)) return
+    const toClose = [...openedIds].filter(id => {
+      const item = group.get(id)
+      return !item || !toValue(item.disabled)
+    })
+    for (const id of toClose) {
+      openedIds.delete(id)
+    }
   }
 
   function activated (id: ID): boolean {
@@ -385,9 +400,7 @@ export function createNested<
     const parentId = parents.get(id)
     if (isUndefined(parentId)) {
       // Root node - siblings are other roots
-      return group.values()
-        .filter(item => isUndefined(parents.get(item.id)))
-        .map(item => item.id)
+      return Array.from(rootIds)
     }
     return children.get(parentId) ?? []
   }
@@ -400,6 +413,34 @@ export function createNested<
     const sibs = siblings(id)
     const index = sibs.indexOf(id)
     return index === -1 ? 0 : index + 1
+  }
+
+  /**
+   * Returns depth-first traversal of visible (open) nodes.
+   * A node is visible if all its ancestors are open.
+   * Used by useRovingFocus to determine keyboard navigation order.
+   */
+  function visibleItems (): E[] {
+    const result: E[] = []
+    const rootItems = Array.from(rootIds)
+
+    function walk (ids: ID[]) {
+      for (const id of ids) {
+        const item = group.get(id) as E | undefined
+        if (!item) continue
+        result.push(item)
+
+        if (opened(id)) {
+          const childIds = children.get(id)
+          if (childIds?.length) {
+            walk(childIds)
+          }
+        }
+      }
+    }
+
+    walk(rootItems)
+    return result
   }
 
   // Cascading selection helpers (used when selectionMode === 'cascade')
@@ -433,8 +474,11 @@ export function createNested<
   }
 
   function select (ids: ID | ID[]): void {
+    if (toValue(group.disabled)) return
     for (const id of toArray(ids)) {
       if (!group.has(id)) continue
+      const item = group.get(id)
+      if (!item || toValue(item.disabled)) continue
 
       if (selectionMode === 'independent') {
         group.select(id)
@@ -455,6 +499,8 @@ export function createNested<
         mixedIds.delete(id)
         selectedIds.add(id)
         for (const did of getDescendants(id)) {
+          const desc = group.get(did)
+          if (desc && toValue(desc.disabled)) continue
           mixedIds.delete(did)
           selectedIds.add(did)
         }
@@ -464,8 +510,11 @@ export function createNested<
   }
 
   function unselect (ids: ID | ID[]): void {
+    if (toValue(group.disabled)) return
     for (const id of toArray(ids)) {
       if (!group.has(id)) continue
+      const item = group.get(id)
+      if (!item || toValue(item.disabled)) continue
 
       if (selectionMode === 'independent') {
         group.unselect(id)
@@ -486,6 +535,8 @@ export function createNested<
         mixedIds.delete(id)
         selectedIds.delete(id)
         for (const did of getDescendants(id)) {
+          const desc = group.get(did)
+          if (desc && toValue(desc.disabled)) continue
           mixedIds.delete(did)
           selectedIds.delete(did)
         }
@@ -495,7 +546,10 @@ export function createNested<
   }
 
   function toggle (ids: ID | ID[]): void {
+    if (toValue(group.disabled)) return
     for (const id of toArray(ids)) {
+      const item = group.get(id)
+      if (!item || toValue(item.disabled)) continue
       if (selectionMode === 'independent') {
         // Independent: just toggle this node
         group.toggle(id)
@@ -525,6 +579,32 @@ export function createNested<
         }
       }
     }
+  }
+
+  function selectAll (): void {
+    if (toValue(group.disabled)) return
+    const { selectedIds, mixedIds } = group
+    for (const item of group.values()) {
+      if (toValue(item.disabled)) continue
+      selectedIds.add(item.id)
+    }
+    mixedIds.clear()
+  }
+
+  function unselectAll (): void {
+    if (toValue(group.disabled)) return
+    const first = group.selectedIds.values().next().value
+    group.selectedIds.clear()
+    group.mixedIds.clear()
+    if (toValue(mandatoryOption) && first) {
+      group.selectedIds.add(first)
+      updateAncestors(first)
+    }
+  }
+
+  function toggleAll (): void {
+    if (group.isAllSelected.value) unselectAll()
+    else selectAll()
   }
 
   /**
@@ -586,6 +666,7 @@ export function createNested<
     const item = {
       ...rest,
       id,
+      el: registration.el,
       parentId: batching ? pendingParents!.get(id) : parents.get(id),
       isOpen: toRef(() => opened(id)),
       isActive: toRef(() => activated(id)),
@@ -607,6 +688,11 @@ export function createNested<
     }
 
     const ticket = group.register(item as Partial<GroupTicketInput>) as unknown as E
+
+    // Override group-level selection methods with cascade-aware versions
+    ticket.select = () => select(id)
+    ticket.unselect = () => unselect(id)
+    ticket.toggle = () => toggle(id)
 
     if (registration.active) {
       activate(id)
@@ -740,6 +826,7 @@ export function createNested<
     activeIndexes,
     roots,
     leaves,
+    visibleItems,
     getPath,
     getAncestors,
     getDescendants,
@@ -763,10 +850,14 @@ export function createNested<
     activated,
     deactivateAll,
     toFlat,
+    multiple: toValue(multipleOption),
     openStrategy: resolvedOpenStrategy,
     select,
     unselect,
     toggle,
+    selectAll,
+    unselectAll,
+    toggleAll,
     register,
     unregister,
     offboard,
