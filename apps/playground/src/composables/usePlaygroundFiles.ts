@@ -306,12 +306,24 @@ export function usePlaygroundFiles () {
       Record<string, string>, unknown, unknown, unknown, unknown,
     ]
 
-    // Strip infrastructure, prefix with src/
+    // Extract infrastructure files before building the src/-prefixed file map
     const linksJson = rawFiles['links.json']
+    const importMapJson = rawFiles['import-map.json']
     const files: Record<string, string> = {}
     for (const [key, code] of Object.entries(rawFiles)) {
       if (key === 'import-map.json' || key === 'links.json') continue
       files[key.startsWith('src/') ? key : `src/${key}`] = code
+    }
+
+    // Parse custom imports from import-map.json
+    let imports: Record<string, string> | undefined
+    if (importMapJson) {
+      try {
+        const parsed_ = JSON.parse(importMapJson)
+        if (isObject(parsed_) && isObject(parsed_.imports)) {
+          imports = parsed_.imports as Record<string, string>
+        }
+      } catch { /* ignore malformed import-map.json */ }
     }
 
     // Inject CSS from links.json into setup.ts
@@ -335,7 +347,7 @@ export function usePlaygroundFiles () {
     // Set vuetify preset
     activePreset.value = 'vuetify'
     activeAddons.value = []
-    extraImports.value = undefined
+    extraImports.value = imports
     aliasMap.value = new Map()
 
     if (isString(vueVer)) vueVersion.value = vueVer
