@@ -1,7 +1,117 @@
 <script setup lang="ts">
-  defineEmits<{ close: [] }>()
+  // Components
+  import { usePlayground } from './PlaygroundApp.vue'
+  import AppCloseButton from '@/components/app/AppCloseButton.vue'
+
+  // Utilities
+  import { onMounted, ref, shallowRef } from 'vue'
+
+  interface VuetifyPlayground {
+    id: string
+    title: string
+    content: string
+    created_at: string
+    updated_at: string
+  }
+
+  const emit = defineEmits<{ close: [] }>()
+
+  const playground = usePlayground()
+  const items = ref<VuetifyPlayground[]>([])
+  const loading = shallowRef(true)
+  const error = shallowRef<string>()
+
+  onMounted(async () => {
+    try {
+      const res = await fetch('https://api.vuetifyjs.com/one/playgrounds', {
+        credentials: 'include',
+      })
+
+      if (!res.ok) {
+        error.value = res.status === 401
+          ? 'Session expired. Please sign in again.'
+          : `Failed to load playgrounds (${res.status})`
+        return
+      }
+
+      items.value = await res.json()
+    } catch {
+      error.value = 'Failed to load playgrounds'
+    } finally {
+      loading.value = false
+    }
+  })
+
+  function formatDate (iso: string) {
+    return new Date(iso).toLocaleDateString(undefined, {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    })
+  }
+
+  async function open (item: VuetifyPlayground) {
+    emit('close')
+    await playground.openPlayground(item.content)
+  }
 </script>
 
 <template>
-  <div />
+  <Teleport to="body">
+    <div
+      class="fixed inset-0 z-50 flex items-center justify-center"
+      tabindex="-1"
+      @keydown.esc="$emit('close')"
+    >
+      <div
+        class="absolute inset-0 bg-black/50"
+        @click="$emit('close')"
+      />
+
+      <div
+        aria-labelledby="open-title"
+        aria-modal="true"
+        class="relative bg-surface border border-divider rounded-lg shadow-xl w-[480px] max-h-[520px] flex flex-col overflow-hidden"
+        role="dialog"
+      >
+        <div class="flex items-center justify-between px-4 py-3 border-b border-divider">
+          <h2 id="open-title" class="text-sm font-medium">
+            Open Playground
+          </h2>
+          <AppCloseButton @click="$emit('close')" />
+        </div>
+
+        <div class="flex-1 overflow-y-auto">
+          <!-- Loading -->
+          <div v-if="loading" class="p-4 flex flex-col gap-3">
+            <div v-for="i in 4" :key="i" class="h-12 rounded bg-surface-tint animate-pulse" />
+          </div>
+
+          <!-- Error -->
+          <div v-else-if="error" class="p-6 text-center">
+            <p class="text-sm text-on-surface-variant">{{ error }}</p>
+          </div>
+
+          <!-- Empty -->
+          <div v-else-if="items.length === 0" class="p-6 text-center">
+            <p class="text-sm text-on-surface-variant">No playgrounds found</p>
+          </div>
+
+          <!-- List -->
+          <template v-else>
+            <button
+              v-for="item in items"
+              :key="item.id"
+              class="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-surface-tint transition-colors border-b border-divider last:border-b-0"
+              type="button"
+              @click="open(item)"
+            >
+              <span class="text-sm text-on-surface truncate">{{ item.title || 'Untitled' }}</span>
+              <span class="text-xs text-on-surface-variant shrink-0 ml-4">{{ formatDate(item.updated_at || item.created_at) }}</span>
+            </button>
+          </template>
+        </div>
+      </div>
+    </div>
+  </Teleport>
 </template>
