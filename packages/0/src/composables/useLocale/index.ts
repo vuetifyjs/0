@@ -52,11 +52,10 @@ export interface LocaleContext<
   E extends LocaleTicket<Z> = LocaleTicket<Z>,
 > extends Omit<SingleContext<Z, E>, 'register'> {
   /**
-   * Translate a message key with optional parameters and fallback.
+   * Translate a message key with optional parameters.
    *
    * @param key - The message key to look up
-   * @param params - Optional object with named parameters for interpolation
-   * @param fallback - Optional fallback string if key not found in messages
+   * @param params - Optional named params object, followed by positional params
    * @returns The translated and interpolated message
    *
    * @example
@@ -64,16 +63,14 @@ export interface LocaleContext<
    * // Simple key lookup
    * locale.t('hello') // Returns message for 'hello' or 'hello' if not found
    *
-   * // With parameters
+   * // With named parameters
    * locale.t('greeting', { name: 'World' }) // 'Hello {name}' → 'Hello World'
    *
-   * // With fallback (useful for dynamic keys)
-   * locale.t('Pagination.goToPage', { page: 5 }, `Go to page 5`)
-   * // If 'pagination.goToPage' exists: uses that message with {page} replaced
-   * // If not found: returns 'Go to page 5'
+   * // With positional parameters
+   * locale.t('sum', 1, 2, 3) // 'Sum: {0} + {1} = {2}' → 'Sum: 1 + 2 = 3'
    * ```
    */
-  t: (key: string, params?: Record<string, unknown> | unknown[], fallback?: string) => string
+  t: (key: string, ...params: unknown[]) => string
   n: (value: number) => string
   /** Register a locale (accepts input type, returns output type) */
   register: (registration?: Partial<Z>) => E
@@ -125,12 +122,8 @@ export function createLocale<
     has: id => registry.has(id),
   })
 
-  function t (
-    key: string,
-    params?: Record<string, unknown> | unknown[],
-    fallback?: string,
-  ): string {
-    return adapter.t(key, params, fallback)
+  function t (key: string, ...params: unknown[]): string {
+    return adapter.t(key, ...params)
   }
 
   function n (value: number): string {
@@ -154,11 +147,7 @@ export function createLocaleFallback<
 > (): R {
   return {
     size: 0,
-    t: (
-      key: string,
-      _params?: Record<string, unknown> | unknown[],
-      fallback?: string,
-    ) => fallback ?? key,
+    t: (key: string) => key,
     n: String,
   } as unknown as R
 }

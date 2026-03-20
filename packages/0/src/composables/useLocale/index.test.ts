@@ -90,33 +90,7 @@ describe('useLocale', () => {
       expect(locale.t('missing')).toBe('missing')
     })
 
-    it('should use fallback when translation not found', () => {
-      const locale = createLocale({
-        default: 'en',
-        messages: {
-          en: { hello: 'Hello' },
-        },
-      })
-
-      expect(locale.t('missing.key', { page: 5 }, 'Go to page 5')).toBe('Go to page 5')
-    })
-
-    it('should use translation over fallback when found', () => {
-      const locale = createLocale({
-        default: 'en',
-        messages: {
-          en: {
-            Pagination: {
-              goToPage: 'Navigate to page {page}',
-            },
-          },
-        },
-      })
-
-      expect(locale.t('Pagination.goToPage', { page: 5 }, 'Go to page 5')).toBe('Navigate to page 5')
-    })
-
-    it('should support nested message structures', () => {
+    it('should translate nested message structures', () => {
       const locale = createLocale({
         default: 'en',
         messages: {
@@ -129,8 +103,8 @@ describe('useLocale', () => {
         },
       })
 
-      expect(locale.t('Pagination.goToPage', { page: 5 }, 'Go to page 5')).toBe('Navigate to page 5')
-      expect(locale.t('Pagination.currentPage', { page: 3 }, 'Page 3')).toBe('Page 3, current')
+      expect(locale.t('Pagination.goToPage', { page: 5 })).toBe('Navigate to page 5')
+      expect(locale.t('Pagination.currentPage', { page: 3 })).toBe('Page 3, current')
     })
 
     it('should switch locale and translate accordingly', () => {
@@ -190,11 +164,6 @@ describe('useLocale', () => {
       const locale = createLocale({ messages: { en: { hello: 'Hello' } } })
       expect(locale.selectedId.value).toBeUndefined()
       expect(locale.t('hello')).toBe('hello')
-    })
-
-    it('should use fallback when no locale is selected', () => {
-      const locale = createLocale({ messages: { en: { hello: 'Hello' } } })
-      expect(locale.t('hello', {}, 'Fallback text')).toBe('Fallback text')
     })
 
     it('should interpolate params when no locale is selected', () => {
@@ -265,17 +234,12 @@ describe('useLocale', () => {
 
     it('should handle numbered placeholders', () => {
       const adapter = createAdapter({ en: { sum: 'Sum: {0} + {1} = {2}' } }, 'en')
-      expect(adapter.t('sum', [1, 2, 3])).toBe('Sum: 1 + 2 = 3')
+      expect(adapter.t('sum', 1, 2, 3)).toBe('Sum: 1 + 2 = 3')
     })
 
     it('should return key when translation not found', () => {
       const adapter = createAdapter({ en: { hello: 'Hello' } }, 'en')
       expect(adapter.t('missing')).toBe('missing')
-    })
-
-    it('should return fallback when translation not found', () => {
-      const adapter = createAdapter({ en: { hello: 'Hello' } }, 'en')
-      expect(adapter.t('missing', undefined, 'Fallback')).toBe('Fallback')
     })
 
     it('should format numbers', () => {

@@ -253,7 +253,7 @@
     prev: breadcrumbs.prev,
     select: breadcrumbs.select,
     attrs: {
-      'aria-label': label ?? locale.t('Breadcrumbs.label', undefined, 'Breadcrumb'),
+      'aria-label': label ?? locale.t('Breadcrumbs.label'),
       'role': as === 'nav' ? undefined : 'navigation',
     },
   }))

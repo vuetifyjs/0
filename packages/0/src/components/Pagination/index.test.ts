@@ -783,7 +783,7 @@ describe('pagination', () => {
       vi.advanceTimersByTime(100)
       await nextTick()
 
-      expect(statusProps.text).toContain('2')
+      expect(statusProps.text).toBe('Pagination.status')
 
       vi.useRealTimers()
     })

@@ -4,9 +4,6 @@ import { IN_BROWSER } from '#v0/constants/globals'
 // Utilities
 import { isObject, isString, isUndefined } from '#v0/utilities'
 
-// Transformers
-import { toArray } from '#v0/composables/toArray'
-
 // Types
 import type { ID } from '#v0/types'
 import type { LocaleAdapter, LocaleAdapterContext } from './adapter'
@@ -24,26 +21,25 @@ export class Vuetify0LocaleAdapter implements LocaleAdapter {
     this.context = context
   }
 
-  t (key: string, params?: Record<string, unknown> | unknown[], fallback?: string): string {
+  t (key: string, ...params: unknown[]): string {
     const locale = this.context.selectedId.value
-    const args = toArray(params)
 
-    if (!locale) return this.interpolate(fallback ?? key, args)
+    if (!locale) return this.interpolate(key, params)
 
     const message = this.context.tokens.get(`${locale}.${key}`)?.value
 
     if (isString(message)) {
-      return this.interpolate(this.resolve(locale, message), args)
+      return this.interpolate(this.resolve(locale, message), params)
     }
 
     if (this.context.fallbackLocale) {
       const fbMessage = this.context.tokens.get(`${this.context.fallbackLocale}.${key}`)?.value
       if (isString(fbMessage)) {
-        return this.interpolate(this.resolve(this.context.fallbackLocale, fbMessage), args)
+        return this.interpolate(this.resolve(this.context.fallbackLocale, fbMessage), params)
       }
     }
 
-    return this.interpolate(fallback ?? key, args)
+    return this.interpolate(key, params)
   }
 
   n (value: number): string {
