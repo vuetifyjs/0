@@ -17,19 +17,7 @@
 
   const confirming = shallowRef(false)
   const dialog = shallowRef(false)
-  const authenticated = shallowRef(false)
   let confirmTimer = 0
-
-  // Check auth state
-  if (!import.meta.env.SSR) {
-    import('@vuetify/auth').then(({ useAuthStore }) => {
-      const auth = useAuthStore()
-      authenticated.value = auth.isAuthenticated
-      auth.$subscribe(() => {
-        authenticated.value = auth.isAuthenticated
-      })
-    })
-  }
 
   function onReset () {
     if (confirming.value) {
@@ -59,19 +47,22 @@
 </script>
 
 <template>
-  <div class="flex items-center gap-0.5">
+  <div class="flex items-center gap-1">
     <!-- File menu -->
     <Popover.Root>
-      <Popover.Activator class="px-2 py-1 text-xs text-on-surface-variant rounded hover:bg-surface-tint transition-colors cursor-pointer">
+      <Popover.Activator
+        class="px-2 py-1 text-xs text-on-surface-variant rounded hover:bg-surface-tint transition-colors cursor-pointer"
+        target="playground-file-menu"
+      >
         File
       </Popover.Activator>
 
       <Popover.Content
-        class="bg-surface border border-divider rounded-md shadow-lg py-1 min-w-40"
+        id="playground-file-menu"
+        class="bg-surface border border-divider rounded-md shadow-lg py-1 min-w-48"
         position-area="bottom span-right"
       >
         <button
-          v-if="authenticated"
           class="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-on-surface hover:bg-surface-tint transition-colors text-left"
           type="button"
           @click="dialog = true"
@@ -92,12 +83,16 @@
 
     <!-- View menu -->
     <Popover.Root>
-      <Popover.Activator class="px-2 py-1 text-xs text-on-surface-variant rounded hover:bg-surface-tint transition-colors cursor-pointer">
+      <Popover.Activator
+        class="px-2 py-1 text-xs text-on-surface-variant rounded hover:bg-surface-tint transition-colors cursor-pointer"
+        target="playground-view-menu"
+      >
         View
       </Popover.Activator>
 
       <Popover.Content
-        class="bg-surface border border-divider rounded-md shadow-lg py-1 min-w-40"
+        id="playground-view-menu"
+        class="bg-surface border border-divider rounded-md shadow-lg py-1 min-w-48"
         position-area="bottom span-right"
       >
         <button
