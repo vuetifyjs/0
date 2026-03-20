@@ -186,6 +186,7 @@ const aboutRoute = createRoute({
 
 const routeTree = rootRoute.addChildren([homeRoute, aboutRoute])
 
+// @ts-expect-error - strictNullChecks not enabled in REPL tsconfig
 export const router = createRouter({
   routeTree,
   history: createMemoryHistory(),
