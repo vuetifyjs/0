@@ -1,55 +1,25 @@
 <script setup lang="ts">
   // Framework
-  import { useBreakpoints, useHotkey, useStorage, useTheme } from '@vuetify/v0'
+  import { useHotkey, useStorage, useTheme } from '@vuetify/v0'
 
   // Components
   import { usePlayground } from './PlaygroundApp.vue'
+  import PlaygroundMenuBar from './PlaygroundMenuBar.vue'
   import PlaygroundSettings from '@/components/playground/settings/PlaygroundSettings.vue'
 
   // Utilities
   import { shallowRef } from 'vue'
 
   const open = shallowRef(false)
-  const confirming = shallowRef(false)
-  let confirmTimer = 0
 
   const theme = useTheme()
   const playground = usePlayground()
-  const breakpoints = useBreakpoints()
   const storage = useStorage()
   const sidePref = storage.get('playground-preview-right', false)
-
-  function onReset () {
-    if (confirming.value) {
-      clearTimeout(confirmTimer)
-      confirming.value = false
-      playground.applyPreset(playground.activePreset.value)
-    } else {
-      confirming.value = true
-      confirmTimer = window.setTimeout(() => {
-        confirming.value = false
-      }, 3000)
-    }
-  }
 
   useHotkey('ctrl+b', () => {
     playground.tree.value = !playground.tree.value
   }, { inputs: true })
-
-  function onLeft () {
-    playground.left.value = !playground.left.value
-    const open = playground.left.value
-
-    if (open && !breakpoints.isMobile.value && playground.side.value) {
-      // Opening intro with side preview: force to bottom
-      playground.side.value = false
-      playground.bottom.value = true
-    } else if (!open && !breakpoints.isMobile.value && sidePref.value && !playground.side.value) {
-      // Closing intro: restore side preview if that was the user's preference
-      playground.side.value = true
-      playground.bottom.value = false
-    }
-  }
 
   function onSide () {
     playground.side.value = !playground.side.value
@@ -73,20 +43,11 @@
           ? 'https://vuetifyjs.b-cdn.net/docs/images/one/logos/vplay-logo-dark.svg'
           : 'https://vuetifyjs.b-cdn.net/docs/images/one/logos/vplay-logo-light.svg'"
       >
+
+      <PlaygroundMenuBar />
     </div>
 
     <div class="flex items-center gap-2">
-      <button
-        :aria-pressed="playground.left.value"
-        class="pa-1 inline-flex rounded hover:opacity-80 hover:bg-surface-tint focus-visible:opacity-80 focus-visible:bg-surface-tint focus-visible:outline-none cursor-pointer transition-opacity"
-        :class="playground.left.value ? 'opacity-80' : 'opacity-50'"
-        title="Toggle documentation panel"
-        type="button"
-        @click="onLeft"
-      >
-        <AppIcon :icon="playground.left.value ? 'book-open' : 'book-closed'" />
-      </button>
-
       <button
         :aria-pressed="playground.tree.value"
         class="pa-1 inline-flex rounded hover:opacity-80 hover:bg-surface-tint focus-visible:opacity-80 focus-visible:bg-surface-tint focus-visible:outline-none cursor-pointer transition-opacity"
@@ -119,17 +80,6 @@
         @click="onView"
       >
         <AppIcon :icon="playground.editor.value ? 'editor' : 'eye'" />
-      </button>
-
-      <button
-        class="pa-1 inline-flex items-center gap-1.5 rounded text-sm font-medium focus-visible:outline-none cursor-pointer transition-colors"
-        :class="confirming ? 'text-error opacity-100 bg-error/10 hover:bg-error/20' : 'opacity-50 hover:opacity-80 hover:bg-surface-tint focus-visible:opacity-80 focus-visible:bg-surface-tint'"
-        :title="confirming ? 'Click again to confirm reset' : 'Reset playground'"
-        type="button"
-        @click="onReset"
-      >
-        <AppIcon icon="reset" />
-        <span v-if="confirming" class="text-xs">Reset?</span>
       </button>
 
       <button
