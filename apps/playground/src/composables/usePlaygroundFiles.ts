@@ -81,6 +81,19 @@ export function usePlaygroundFiles () {
       if (decoded.settings?.vue) vueVersion.value = decoded.settings.vue
       if (decoded.settings?.v0) v0Version.value = decoded.settings.v0
       if (decoded.settings?.addons) activeAddons.value = decoded.settings.addons.split(',').filter(Boolean)
+
+      // Vuetify Play hashes (Format 4 and re-encoded Format 2/3) include infrastructure
+      // files the v0 playground doesn't process. When the vuetify preset is active and
+      // setup.ts has a loadStylesheet helper, inject Vuetify CSS loading into it.
+      if (activePreset.value === 'vuetify') {
+        const setup = decoded.files['src/setup.ts']
+        if (setup && setup.includes('loadStylesheet') && !setup.includes('vuetify-labs.css')) {
+          decoded.files['src/setup.ts'] = `${setup}\nloadStylesheet('https://cdn.jsdelivr.net/npm/vuetify@latest/dist/vuetify-labs.css')\n`
+        }
+        delete decoded.files['src/links.json']
+        delete decoded.files['src/import-map.json']
+      }
+
       await loadExample(decoded.files, decoded.active)
       if (decoded.imports && Object.keys(decoded.imports).length > 0) {
         extraImports.value = decoded.imports
