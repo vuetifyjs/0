@@ -126,7 +126,7 @@ const ROUTER_ABOUT = `<template>
 
 // ── TanStack Router ──────────────────────────────────────────────────────
 
-const TANSTACK_APP = `<script setup lang="ts">
+const TANSTACK_APP = `<script lang="ts" setup>
   import { RouterProvider } from '@tanstack/vue-router'
   import { router } from './router'
 </script>
@@ -136,7 +136,7 @@ const TANSTACK_APP = `<script setup lang="ts">
 </template>
 `
 
-const TANSTACK_ROOT = `<script setup lang="ts">
+const TANSTACK_ROOT = `<script lang="ts" setup>
   import { Link, Outlet } from '@tanstack/vue-router'
 </script>
 
