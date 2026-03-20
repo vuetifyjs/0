@@ -124,6 +124,74 @@ const ROUTER_ABOUT = `<template>
 </template>
 `
 
+// ── TanStack Router ──────────────────────────────────────────────────────
+
+const TANSTACK_APP = `<script setup lang="ts">
+  import { RouterProvider } from '@tanstack/vue-router'
+  import { router } from './router'
+</script>
+
+<template>
+  <RouterProvider :router="router" />
+</template>
+`
+
+const TANSTACK_ROOT = `<script setup lang="ts">
+  import { Link, Outlet } from '@tanstack/vue-router'
+</script>
+
+<template>
+  <div class="min-h-screen bg-background">
+    <header class="border-b border-divider px-6 py-3 flex items-center gap-6">
+      <span class="text-sm font-semibold text-on-surface">My App</span>
+      <nav class="flex gap-4">
+        <Link
+          class="text-sm text-on-surface-variant hover:text-on-surface transition-colors"
+          :activeProps="{ class: 'text-primary font-medium' }"
+          to="/"
+          :activeOptions="{ exact: true }"
+        >Home</Link>
+        <Link
+          class="text-sm text-on-surface-variant hover:text-on-surface transition-colors"
+          :activeProps="{ class: 'text-primary font-medium' }"
+          to="/about"
+        >About</Link>
+      </nav>
+    </header>
+    <main class="p-6">
+      <Outlet />
+    </main>
+  </div>
+</template>
+`
+
+const TANSTACK_ROUTER_TS = `import { createMemoryHistory, createRootRoute, createRoute, createRouter } from '@tanstack/vue-router'
+import Root from './Root.vue'
+import Home from './pages/Home.vue'
+import About from './pages/About.vue'
+
+const rootRoute = createRootRoute({ component: Root })
+
+const homeRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/',
+  component: Home,
+})
+
+const aboutRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/about',
+  component: About,
+})
+
+const routeTree = rootRoute.addChildren([homeRoute, aboutRoute])
+
+export const router = createRouter({
+  routeTree,
+  history: createMemoryHistory(),
+})
+`
+
 // ── Pinia ─────────────────────────────────────────────────────────────────
 
 const PINIA_COUNTER = `import { defineStore } from 'pinia'
@@ -234,6 +302,7 @@ export const ADDONS: AddonDefinition[] = [
     label: 'Vue Router',
     icon: 'vue-router',
     description: 'Adds routing infrastructure and example pages',
+    excludes: ['tanstack-router'],
     mainOptions: { router: true },
     files: {
       'src/router.ts': ROUTER_TS,
@@ -258,6 +327,25 @@ export const ADDONS: AddonDefinition[] = [
     },
     imports: {
       pinia: 'https://cdn.jsdelivr.net/npm/pinia@latest/dist/pinia.esm-browser.js',
+    },
+  },
+  {
+    id: 'tanstack-router',
+    label: 'TanStack Router',
+    icon: 'tanstack',
+    description: 'Adds type-safe routing with TanStack Router',
+    excludes: ['router'],
+    files: {
+      'src/router.ts': TANSTACK_ROUTER_TS,
+      'src/Root.vue': TANSTACK_ROOT,
+      'src/pages/Home.vue': ROUTER_HOME,
+      'src/pages/About.vue': ROUTER_ABOUT,
+    },
+    replaceFiles: {
+      'src/App.vue': TANSTACK_APP,
+    },
+    imports: {
+      '@tanstack/vue-router': 'https://esm.sh/@tanstack/vue-router?external=vue',
     },
   },
 ]
