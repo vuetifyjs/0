@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { Select } from '@vuetify/v0'
+  import { isArray, Select } from '@vuetify/v0'
 
   // Components
   import AppIcon from './AppIcon.vue'
@@ -29,7 +29,7 @@
   const model = defineModel<ID | ID[]>()
 
   const selectedLabel = toRef(() => {
-    const id = Array.isArray(model.value) ? model.value[0] : model.value
+    const id = isArray(model.value) ? model.value[0] : model.value
     return items.find(item => item.id === id)?.label ?? placeholder
   })
 </script>

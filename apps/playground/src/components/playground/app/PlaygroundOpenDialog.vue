@@ -44,11 +44,11 @@
 
       const data = await res.json()
       items.value = data.playgrounds ?? data
-      nextTick(() => input.value?.focus())
     } catch {
       error.value = 'Failed to load playgrounds'
     } finally {
       loading.value = false
+      nextTick(() => input.value?.focus())
     }
   })
 

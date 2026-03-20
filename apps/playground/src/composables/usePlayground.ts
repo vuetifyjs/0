@@ -116,8 +116,90 @@ export async function usePlayground (
   return `/#${hash}`
 }
 
-function isFileRecord (v: unknown): v is Record<string, string> {
+export function isFileRecord (v: unknown): v is Record<string, string> {
   return isObject(v) && Object.values(v).every(x => isString(x))
+}
+
+/**
+ * Parse a Vuetify Play tuple format: [files, vueVersion, vuetifyVersion, appendJson, activeFile, ...]
+ * Shared between decodePlaygroundHash and openPlayground.
+ */
+export function parseVuetifyPlayTuple (parsed: unknown[]): { files: Record<string, string>, imports: Record<string, string>, active?: string, vue?: string } | null {
+  const [rawFiles, vueVer, , , rawActive] = parsed as [
+    unknown, unknown, unknown, unknown, unknown,
+  ]
+  if (!isFileRecord(rawFiles)) return null
+
+  // Extract infrastructure files before building the src/-prefixed file map
+  const linksJson = rawFiles['links.json']
+  const importMapJson = rawFiles['import-map.json']
+  const files: Record<string, string> = {}
+  for (const [key, code] of Object.entries(rawFiles)) {
+    if (key === 'import-map.json' || key === 'links.json') continue
+    files[key.startsWith('src/') ? key : `src/${key}`] = code
+  }
+
+  // Parse custom imports from import-map.json
+  let imports: Record<string, string> = {}
+  if (importMapJson) {
+    try {
+      const map = JSON.parse(importMapJson)
+      if (isObject(map) && isObject(map.imports)) {
+        imports = map.imports as Record<string, string>
+      }
+    } catch { /* ignore malformed import-map.json */ }
+  }
+
+  // Auto-resolve bare import specifiers not covered by the stored import map.
+  // Vuetify Play's dependency panel adds packages at runtime but the stored
+  // content only captures the template's base import map.
+  const knownSpecifiers = new Set([
+    ...Object.keys(imports),
+    'vue', 'vue/server-renderer', '@vue/devtools-api',
+    '@vuetify/v0', 'vuetify',
+  ])
+  const bareImportRe = /\bfrom\s+['"]([^./][^'"]*)['"]/g
+  for (const code of Object.values(files)) {
+    for (const match of code.matchAll(bareImportRe)) {
+      const specifier = match[1]!
+      const pkg = specifier.startsWith('@') ? specifier.split('/').slice(0, 2).join('/') : specifier.split('/')[0]!
+      if (!knownSpecifiers.has(pkg)) {
+        imports[pkg] = `https://esm.sh/${pkg}`
+        knownSpecifiers.add(pkg)
+      }
+    }
+  }
+
+  // Inject CSS from links.json into setup.ts (which defines loadStylesheet)
+  if (files['src/setup.ts'] && linksJson) {
+    try {
+      const links = JSON.parse(linksJson)
+      const setup = files['src/setup.ts']!
+      const urls = isArray(links.css) ? links.css.filter(isString) : []
+      if (urls.length > 0) {
+        files['src/setup.ts'] = setup + '\n' + urls.map((url: string) => `loadStylesheet('${url}')`).join('\n') + '\n'
+      }
+    } catch { /* ignore malformed links.json */ }
+  }
+
+  // Fallback: ensure vuetify-labs.css is loaded even without links.json
+  if (files['src/setup.ts']) {
+    const setup = files['src/setup.ts']!
+    if (setup.includes('loadStylesheet') && !setup.includes('vuetify-labs.css')) {
+      files['src/setup.ts'] = `${setup}\nloadStylesheet('https://cdn.jsdelivr.net/npm/vuetify@latest/dist/vuetify-labs.css')\n`
+    }
+  }
+
+  const active = isString(rawActive)
+    ? (rawActive.startsWith('src/') ? rawActive : `src/${rawActive}`)
+    : undefined
+
+  return {
+    files,
+    imports,
+    active,
+    vue: isString(vueVer) ? vueVer : undefined,
+  }
 }
 
 export interface PlaygroundHashData {
@@ -161,41 +243,13 @@ export async function decodePlaygroundHash (hash: string): Promise<PlaygroundHas
 
     // Format 4: Vuetify play tuple [files, vueVersion, vuetifyVersion, appendJson, activeFile, ...]
     if (isArray(parsed)) {
-      const [rawFiles, vueVer, , , rawActive] = parsed as [
-        Record<string, unknown>,
-        unknown,
-        unknown,
-        unknown,
-        unknown,
-      ]
-      if (!isFileRecord(rawFiles)) return null
+      const result = parseVuetifyPlayTuple(parsed)
+      if (!result) return null
 
-      // Extract infrastructure files before building the src/-prefixed file map
-      const linksJson = rawFiles['links.json']
-      const files: Record<string, string> = {}
-      for (const [key, code] of Object.entries(rawFiles)) {
-        if (key === 'import-map.json' || key === 'links.json') continue
-        files[key.startsWith('src/') ? key : `src/${key}`] = code
-      }
-
-      // Inject CSS from links.json into setup.ts (which defines loadStylesheet)
-      if (linksJson) {
-        try {
-          const links = JSON.parse(linksJson)
-          const setup = files['src/setup.ts']
-          const urls = isArray(links.css) ? links.css.filter(isString) : []
-          if (setup && urls.length > 0) {
-            files['src/setup.ts'] = setup + '\n' + urls.map(url => `loadStylesheet('${url}')`).join('\n') + '\n'
-          }
-        } catch { /* ignore malformed links.json */ }
-      }
-
-      const active = isString(rawActive)
-        ? (rawActive.startsWith('src/') ? rawActive : `src/${rawActive}`)
-        : undefined
       const settings: PlaygroundHashData['settings'] = { preset: 'vuetify' }
-      if (isString(vueVer)) settings.vue = vueVer
-      return { files, active, settings }
+      if (result.vue) settings.vue = result.vue
+      const imports = Object.keys(result.imports).length > 0 ? result.imports : undefined
+      return { files: result.files, active: result.active, imports, settings }
     }
 
     // Formats 2 & 3: current object { files, active, imports, settings? }

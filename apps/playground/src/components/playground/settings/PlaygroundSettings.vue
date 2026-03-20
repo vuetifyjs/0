@@ -6,7 +6,7 @@
   import AppIcon from '@/components/app/AppIcon.vue'
 
   // Utilities
-  import { type Component, shallowRef } from 'vue'
+  import { type Component, shallowRef, toRef } from 'vue'
 
   defineEmits<{ close: [] }>()
 
@@ -25,6 +25,8 @@
     { id: 'presets', label: 'Presets', icon: 'layers', component: PlaygroundSettingsPresets, available: true },
     { id: 'export', label: 'Export', icon: 'download', component: null, available: false },
   ]
+
+  const current = toRef(() => sections.find(s => s.id === active.value))
 </script>
 
 <template>
@@ -65,14 +67,14 @@
         <div class="flex-1 flex flex-col min-h-0">
           <div class="flex items-center justify-between px-4 py-3 border-b border-divider">
             <h2 id="settings-title" class="text-sm font-medium">
-              {{ sections.find(s => s.id === active)?.label }}
+              {{ current?.label }}
             </h2>
             <AppCloseButton @click="$emit('close')" />
           </div>
 
           <div class="flex-1 overflow-y-auto p-4">
             <component
-              :is="sections.find(s => s.id === active)?.component"
+              :is="current?.component"
             />
           </div>
         </div>

@@ -1,8 +1,8 @@
 // Framework
-import { debounce, isArray, isObject, isString, useTheme } from '@vuetify/v0'
+import { debounce, isArray, useTheme } from '@vuetify/v0'
 
 // Composables
-import { decodePlaygroundHash, encodePlaygroundHash } from '@/composables/usePlayground'
+import { decodePlaygroundHash, encodePlaygroundHash, parseVuetifyPlayTuple } from '@/composables/usePlayground'
 import { usePlaygroundSettings } from '@/composables/usePlaygroundSettings'
 
 // Utilities
@@ -13,8 +13,8 @@ import { computed, onMounted, shallowRef, watch, watchEffect } from 'vue'
 import type { PlaygroundHashData } from '@/composables/usePlayground'
 
 // Data
-import { createMainTs, DEFAULT_CODE, UNO_CONFIG_TS } from '@/data/playground-defaults'
-import { ADDONS, PRESETS } from '@/data/presets'
+import { createMainTs, UNO_CONFIG_TS } from '@/data/playground-defaults'
+import { ADDONS, DEFAULT_APP, PRESETS } from '@/data/presets'
 
 export function usePlaygroundFiles () {
   const theme = useTheme()
@@ -105,7 +105,7 @@ export function usePlaygroundFiles () {
         {
           'src/main.ts': createMainTs(theme_),
           'src/uno.config.ts': UNO_CONFIG_TS,
-          'src/App.vue': DEFAULT_CODE,
+          'src/App.vue': DEFAULT_APP,
         },
         'src/main.ts',
       )
@@ -299,89 +299,29 @@ export function usePlaygroundFiles () {
   }
 
   async function openPlayground (content: string) {
-    const parsed = JSON.parse(content)
-    if (!isArray(parsed) || !isObject(parsed[0])) return
+    try {
+      const parsed = JSON.parse(content)
+      if (!isArray(parsed)) return
 
-    const [rawFiles, vueVer, , , rawActive] = parsed as [
-      Record<string, string>, unknown, unknown, unknown, unknown,
-    ]
-    // Extract infrastructure files before building the src/-prefixed file map
-    const linksJson = rawFiles['links.json']
-    const importMapJson = rawFiles['import-map.json']
-    const files: Record<string, string> = {}
-    for (const [key, code] of Object.entries(rawFiles)) {
-      if (key === 'import-map.json' || key === 'links.json') continue
-      files[key.startsWith('src/') ? key : `src/${key}`] = code
-    }
+      const result = parseVuetifyPlayTuple(parsed)
+      if (!result) return
 
-    // Parse custom imports from import-map.json
-    let imports: Record<string, string> = {}
-    if (importMapJson) {
-      try {
-        const parsed_ = JSON.parse(importMapJson)
-        if (isObject(parsed_) && isObject(parsed_.imports)) {
-          imports = parsed_.imports as Record<string, string>
-        }
-      } catch { /* ignore malformed import-map.json */ }
-    }
+      const { files, imports, active, vue } = result
 
-    // Auto-resolve bare import specifiers not covered by the stored import map.
-    // Vuetify Play's dependency panel adds packages at runtime but the stored
-    // content only captures the template's base import map.
-    const knownSpecifiers = new Set([
-      ...Object.keys(imports),
-      'vue', 'vue/server-renderer', '@vue/devtools-api',
-      '@vuetify/v0', 'vuetify',
-    ])
-    const bareImportRe = /\bfrom\s+['"]([^./][^'"]*)['"]/g
-    for (const code of Object.values(files)) {
-      for (const match of code.matchAll(bareImportRe)) {
-        const specifier = match[1]!
-        const pkg = specifier.startsWith('@') ? specifier.split('/').slice(0, 2).join('/') : specifier.split('/')[0]!
-        if (!knownSpecifiers.has(pkg)) {
-          imports[pkg] = `https://esm.sh/${pkg}`
-          knownSpecifiers.add(pkg)
-        }
-      }
-    }
+      // Detect preset: vuetify template has 'vuetify' in the import map and setup.ts;
+      // v0 template uses @vuetify/v0 with createThemePlugin in main.ts
+      const isVuetifyPreset = 'vuetify' in imports || !!files['src/vuetify.ts'] || !!files['src/setup.ts']
+      activePreset.value = isVuetifyPreset ? 'vuetify' : 'default'
+      activeAddons.value = []
+      extraImports.value = Object.keys(imports).length > 0 ? imports : undefined
+      aliasMap.value = new Map()
 
-    // Inject CSS from links.json into setup.ts (vuetify template only)
-    if (files['src/setup.ts']) {
-      if (linksJson) {
-        try {
-          const links = JSON.parse(linksJson)
-          const setup = files['src/setup.ts']!
-          const urls = isArray(links.css) ? links.css.filter(isString) : []
-          if (setup && urls.length > 0) {
-            files['src/setup.ts'] = setup + '\n' + urls.map((url: string) => `loadStylesheet('${url}')`).join('\n') + '\n'
-          }
-        } catch { /* ignore malformed links.json */ }
-      }
+      if (vue) vueVersion.value = vue
 
-      // Fallback: ensure vuetify-labs.css is loaded even without links.json
-      const setup = files['src/setup.ts']!
-      if (setup.includes('loadStylesheet') && !setup.includes('vuetify-labs.css')) {
-        files['src/setup.ts'] = `${setup}\nloadStylesheet('https://cdn.jsdelivr.net/npm/vuetify@latest/dist/vuetify-labs.css')\n`
-      }
-    }
-
-    // Detect preset: vuetify template has 'vuetify' in the import map and setup.ts;
-    // v0 template uses @vuetify/v0 with createThemePlugin in main.ts
-    const isVuetifyPreset = 'vuetify' in imports || !!files['src/vuetify.ts'] || !!files['src/setup.ts']
-    activePreset.value = isVuetifyPreset ? 'vuetify' : 'default'
-    activeAddons.value = []
-    extraImports.value = Object.keys(imports).length > 0 ? imports : undefined
-    aliasMap.value = new Map()
-
-    if (isString(vueVer)) vueVersion.value = vueVer
-
-    const active = isString(rawActive)
-      ? (rawActive.startsWith('src/') ? rawActive : `src/${rawActive}`)
-      : undefined
-
-    await loadExample(files, active)
-    rebuildImportMap()
-    filesVersion.value++
+      await loadExample(files, active)
+      rebuildImportMap()
+      filesVersion.value++
+    } catch { /* ignore malformed content */ }
   }
 
   return { store, isReady, filesVersion, loadExample, vueVersion, v0Version, vueVersions, v0Versions, fetching, fetchVersions, activePreset, applyPreset, activeAddons, toggleAddon, openPlayground }
