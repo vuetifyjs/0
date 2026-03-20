@@ -9,9 +9,9 @@
   interface VuetifyPlayground {
     id: string
     title: string
-    content: string
-    created_at: string
-    updated_at: string
+    content?: string
+    createdAt: string
+    updatedAt: string
   }
 
   const emit = defineEmits<{ close: [] }>()
@@ -34,7 +34,8 @@
         return
       }
 
-      items.value = await res.json()
+      const data = await res.json()
+      items.value = data.playgrounds ?? data
     } catch {
       error.value = 'Failed to load playgrounds'
     } finally {
@@ -51,8 +52,18 @@
   }
 
   async function open (item: VuetifyPlayground) {
+    let content = item.content
+    if (!content) {
+      const res = await fetch(`https://api.vuetifyjs.com/one/playgrounds/${item.id}`, {
+        credentials: 'include',
+      })
+      if (!res.ok) return
+      const data = await res.json()
+      content = data.content ?? data.playground?.content
+    }
+    if (!content) return
     emit('close')
-    await playground.openPlayground(item.content)
+    await playground.openPlayground(content)
   }
 </script>
 
@@ -107,7 +118,7 @@
               @click="open(item)"
             >
               <span class="text-sm text-on-surface truncate">{{ item.title || 'Untitled' }}</span>
-              <span class="text-xs text-on-surface-variant shrink-0 ml-4">{{ formatDate(item.updated_at || item.created_at) }}</span>
+              <span class="text-xs text-on-surface-variant shrink-0 ml-4">{{ formatDate(item.updatedAt || item.createdAt) }}</span>
             </button>
           </template>
         </div>
