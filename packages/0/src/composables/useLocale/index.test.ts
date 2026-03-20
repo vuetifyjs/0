@@ -249,7 +249,7 @@ describe('useLocale', () => {
         tokens,
         selectedId: shallowRef(locale) as any,
         fallbackLocale: undefined,
-        has: (id: string) => id in messages,
+        has: id => String(id) in messages,
       })
     }
 
