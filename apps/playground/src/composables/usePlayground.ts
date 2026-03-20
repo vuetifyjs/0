@@ -1,5 +1,5 @@
 // Framework
-import { isObject, isString } from '@vuetify/v0'
+import { isObject, isString, isUndefined } from '@vuetify/v0'
 
 // Utilities
 import { toPascal } from '@/utilities/strings'
@@ -124,6 +124,7 @@ export interface PlaygroundHashData {
   files: Record<string, string>
   active?: string
   imports?: Record<string, string>
+  settings?: { vue?: string, v0?: string, preset?: string }
 }
 
 /**
@@ -133,29 +134,73 @@ export async function encodePlaygroundHash (data: PlaygroundHashData): Promise<s
   return utoa(JSON.stringify(data))
 }
 
+function isValidSettings (v: unknown): v is { vue?: string, v0?: string, preset?: string } {
+  if (!isObject(v)) return false
+  const s = v as Record<string, unknown>
+  return (isUndefined(s.vue) || isString(s.vue))
+    && (isUndefined(s.v0) || isString(s.v0))
+    && (isUndefined(s.preset) || isString(s.preset))
+}
+
 /**
  * Decode an editor hash back to editor state.
- * Handles both the current { files, active } format and the legacy plain Record<string, string> format.
+ * Handles 4 formats:
+ * 1. Legacy plain Record<string, string>
+ * 2 & 3. Current object { files, active, imports, settings? }
+ * 4. Vuetify play tuple [files, vueVersion, vuetifyVersion, appendJson, activeFile, ...]
  */
 export async function decodePlaygroundHash (hash: string): Promise<PlaygroundHashData | null> {
   try {
     const parsed: unknown = JSON.parse(await atou(hash))
+
+    // Format 1: legacy plain Record<string, string>
     if (isFileRecord(parsed)) {
       return { files: parsed }
     }
+
+    // Format 4: Vuetify play tuple [files, vueVersion, vuetifyVersion, appendJson, activeFile, ...]
+    if (Array.isArray(parsed)) {
+      const [rawFiles, vueVer, , , rawActive] = parsed as [
+        Record<string, unknown>,
+        unknown,
+        unknown,
+        unknown,
+        unknown,
+      ]
+      if (!isFileRecord(rawFiles)) return null
+      const files: Record<string, string> = {}
+      for (const [key, code] of Object.entries(rawFiles)) {
+        files[key.startsWith('src/') ? key : `src/${key}`] = code
+      }
+      const active = isString(rawActive)
+        ? (rawActive.startsWith('src/') ? rawActive : `src/${rawActive}`)
+        : undefined
+      const settings: PlaygroundHashData['settings'] = {}
+      if (isString(vueVer)) settings.vue = vueVer
+      return { files, active, settings: Object.keys(settings).length > 0 ? settings : undefined }
+    }
+
+    // Formats 2 & 3: current object { files, active, imports, settings? }
     if (
       typeof parsed === 'object'
       && parsed !== null
       && 'files' in parsed
       && isFileRecord((parsed as { files: unknown }).files)
     ) {
-      const { files, active, imports } = parsed as { files: Record<string, string>, active?: unknown, imports?: unknown }
+      const { files, active, imports, settings } = parsed as {
+        files: Record<string, string>
+        active?: unknown
+        imports?: unknown
+        settings?: unknown
+      }
       return {
         files,
         active: isString(active) ? active : undefined,
         imports: isFileRecord(imports) ? imports : undefined,
+        settings: isValidSettings(settings) ? settings : undefined,
       }
     }
+
     return null
   } catch {
     return null

@@ -4,6 +4,12 @@
 
   // Components
   import { usePlayground } from './PlaygroundApp.vue'
+  import PlaygroundSettings from '@/components/playground/settings/PlaygroundSettings.vue'
+
+  // Utilities
+  import { shallowRef } from 'vue'
+
+  const open = shallowRef(false)
 
   const theme = useTheme()
   const playground = usePlayground()
@@ -100,7 +106,20 @@
         <AppIcon :icon="playground.editor.value ? 'editor' : 'eye'" />
       </button>
 
+      <button
+        :aria-pressed="open"
+        class="pa-1 inline-flex rounded hover:opacity-80 hover:bg-surface-tint focus-visible:opacity-80 focus-visible:bg-surface-tint focus-visible:outline-none cursor-pointer transition-opacity"
+        :class="open ? 'opacity-80' : 'opacity-50'"
+        title="Settings"
+        type="button"
+        @click="open = true"
+      >
+        <AppIcon icon="cog" />
+      </button>
+
       <AppThemeToggle />
     </div>
+
+    <PlaygroundSettings v-if="open" @close="open = false" />
   </header>
 </template>

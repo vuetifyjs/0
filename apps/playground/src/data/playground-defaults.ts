@@ -8,12 +8,48 @@ export const REPL_BUILTIN_FILES = ['import-map.json', 'tsconfig.json'] as const
 
 // ── Template files (matching Vuetify Play's v0 template) ────────────────
 
-export function createMainTs (defaultTheme: 'light' | 'dark' = 'light'): string {
+export interface MainOptions {
+  router?: boolean
+  pinia?: boolean
+  vuetify?: boolean
+}
+
+export function createMainTs (defaultTheme: 'light' | 'dark' = 'light', options?: MainOptions): string {
+  const extraImports: string[] = []
+  const extraPlugins: string[] = []
+  const extraSetup: string[] = [`document.querySelectorAll('link[data-preset-css]').forEach(el => el.remove())`]
+
+  // Always clean up previously injected preset CSS (e.g. when switching away from Vuetify)
+
+  if (options?.router) {
+    extraImports.push(`import router from './router'`)
+    extraPlugins.push(`app.use(router)`)
+  }
+  if (options?.pinia) {
+    extraImports.push(`import { createPinia } from 'pinia'`)
+    extraPlugins.push(`app.use(createPinia())`)
+  }
+  if (options?.vuetify) {
+    extraImports.push(`import { createVuetify } from 'vuetify'`)
+    extraSetup.push(
+      `const link = document.createElement('link')`,
+      `link.rel = 'stylesheet'`,
+      `link.setAttribute('data-preset-css', 'vuetify')`,
+      `link.href = 'https://cdn.jsdelivr.net/npm/vuetify@latest/dist/vuetify.min.css'`,
+      `document.head.appendChild(link)`,
+    )
+    extraPlugins.push(`app.use(createVuetify())`)
+  }
+
+  const importBlock = extraImports.length > 0 ? '\n' + extraImports.join('\n') : ''
+  const setupBlock = extraSetup.length > 0 ? '\n' + extraSetup.join('\n') + '\n' : ''
+  const pluginBlock = extraPlugins.length > 0 ? extraPlugins.join('\n') + '\n' : ''
+
   return `import { createApp } from 'vue'
 import App from './App.vue'
 import { createThemePlugin } from '@vuetify/v0'
-import './uno.config.ts'
-
+import './uno.config.ts'${importBlock}
+${setupBlock}
 const theme = createThemePlugin({
   default: '${defaultTheme}',
   themes: {
@@ -76,7 +112,7 @@ const theme = createThemePlugin({
 
 const app = createApp(App)
 app.use(theme)
-app.mount('#app')
+${pluginBlock}app.mount('#app')
 `
 }
 

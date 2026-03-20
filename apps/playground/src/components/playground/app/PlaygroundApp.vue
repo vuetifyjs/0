@@ -10,6 +10,7 @@
 
   // Types
   import type { ReplStore } from '@vue/repl'
+  import type { Ref, ShallowRef } from 'vue'
 
   export interface PlaygroundContext {
     store: ReplStore
@@ -19,13 +20,21 @@
     bottom: { value: boolean }
     side: { value: boolean }
     editor: { value: boolean }
+    vueVersion: Ref<string | null>
+    v0Version: Ref<string>
+    vueVersions: Ref<string[]>
+    v0Versions: Ref<string[]>
+    fetching: Ref<boolean>
+    fetchVersions: () => Promise<void>
+    activePreset: ShallowRef<string>
+    applyPreset: (id: string) => Promise<void>
   }
 
   export const [usePlayground, providePlayground] = createContext<PlaygroundContext>('v0:playground')
 </script>
 
 <script setup lang="ts">
-  const { store, isReady } = usePlaygroundFiles()
+  const { store, isReady, vueVersion, v0Version, vueVersions, v0Versions, fetching, fetchVersions, activePreset, applyPreset } = usePlaygroundFiles()
   const storage = useStorage()
   const { isMobile } = useBreakpoints()
 
@@ -63,6 +72,14 @@
     bottom,
     side,
     editor,
+    vueVersion,
+    v0Version,
+    vueVersions,
+    v0Versions,
+    fetching,
+    fetchVersions,
+    activePreset,
+    applyPreset,
   })
 
   // Restore panel state on runtime breakpoint changes
