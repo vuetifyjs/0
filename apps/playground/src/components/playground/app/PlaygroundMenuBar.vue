@@ -8,7 +8,7 @@
   import AppIcon from '@/components/app/AppIcon.vue'
 
   // Utilities
-  import { shallowRef } from 'vue'
+  import { onBeforeUnmount, shallowRef } from 'vue'
 
   const playground = usePlayground()
   const breakpoints = useBreakpoints()
@@ -19,6 +19,8 @@
   const confirming = shallowRef(false)
   const dialog = shallowRef(false)
   let confirmTimer = 0
+
+  onBeforeUnmount(() => clearTimeout(confirmTimer))
 
   function onOpen () {
     fileMenu.value = false

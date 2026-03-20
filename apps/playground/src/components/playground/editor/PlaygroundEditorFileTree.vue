@@ -133,7 +133,7 @@
   const creating = shallowRef<string | null>(null)
   const creatingType = shallowRef<'file' | 'folder'>('file')
   const pending = shallowRef('')
-  const input = shallowRef<HTMLInputElement | null>(null)
+  const input = useTemplateRef<HTMLInputElement>('new-file-input')
 
   function isFile (id: string) {
     return VALID_EXT.test(id)
@@ -454,7 +454,7 @@
         >
           <span class="w-[14px]" />
           <input
-            :ref="el => input = el as HTMLInputElement"
+            ref="new-file-input"
             v-model="pending"
             class="flex-1 min-w-0 bg-transparent text-sm text-on-surface outline-none border-b border-primary"
             :placeholder="creatingType === 'file' ? 'filename.vue' : 'folder-name'"

@@ -4,6 +4,13 @@ import { createPinia } from 'pinia'
 // Types
 import type { PiniaPluginContext } from 'pinia'
 
+declare module 'pinia' {
+  interface PiniaCustomProperties {
+    url: string
+    id: string[]
+  }
+}
+
 const pinia = createPinia()
 
 function one (id: string[], url: string) {

@@ -47,9 +47,6 @@
 
   // Persisted user preference for side preview position
   const sidePref = storage.get('playground-preview-right', false)
-  // Side preview active when preferred and left panel is closed
-  const sideActive = sidePref.value && !left.value
-
   // Track the desktop left-panel state so it survives mobile transitions.
   // Updated whenever isMobile flips to true, restored when it flips back.
   const desktop$ = { left: left.value }
@@ -60,8 +57,8 @@
   const desktop = !isMobile.value
   const tree = shallowRef(desktop)
   const editor = shallowRef(desktop)
-  const bottom = shallowRef(desktop && !sideActive)
-  const side = shallowRef(desktop && sideActive)
+  const bottom = shallowRef(desktop && !(sidePref.value && !left.value))
+  const side = shallowRef(desktop && (sidePref.value && !left.value))
   left.value = desktop ? desktop$.left : false
 
   // Invisible until layout stabilizes — prevents hydration flash

@@ -61,7 +61,7 @@
 
       <button
         :aria-disabled="playground.left.value"
-        :aria-pressed="sidePref"
+        :aria-pressed="sidePref.value"
         class="hidden md:inline-flex pa-1 rounded transition-opacity"
         :class="playground.left.value ? 'opacity-25 cursor-not-allowed' : 'opacity-50 hover:opacity-80 hover:bg-surface-tint focus-visible:opacity-80 focus-visible:bg-surface-tint focus-visible:outline-none cursor-pointer'"
         :title="playground.left.value ? 'Close the documentation panel to change preview position' : sidePref.value ? 'Move preview to bottom' : 'Move preview to right'"

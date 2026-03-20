@@ -1,4 +1,7 @@
 <script setup lang="ts">
+  // Framework
+  import { isArray } from '@vuetify/v0'
+
   // Components
   import AppSelect from '@/components/app/AppSelect.vue'
   import { usePlayground } from '@/components/playground/app/PlaygroundApp.vue'
@@ -18,7 +21,7 @@
   const vueModel = computed({
     get: (): ID => playground.vueVersion.value ?? 'latest',
     set: (id: ID | ID[]) => {
-      const value = Array.isArray(id) ? id[0] : id
+      const value = isArray(id) ? id[0] : id
       playground.vueVersion.value = value === 'latest' ? null : String(value)
     },
   })
@@ -27,7 +30,7 @@
   const v0Model = computed({
     get: (): ID => playground.v0Version.value,
     set: (id: ID | ID[]) => {
-      playground.v0Version.value = String(Array.isArray(id) ? id[0] : id)
+      playground.v0Version.value = String(isArray(id) ? id[0] : id)
     },
   })
 

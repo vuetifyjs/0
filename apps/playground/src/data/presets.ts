@@ -28,7 +28,7 @@ export interface AddonDefinition {
 
 // ── Preset file templates ────────────────────────────────────────────────
 
-const DEFAULT_APP = `<script lang="ts" setup>
+export const DEFAULT_APP = `<script lang="ts" setup>
   import { createSingle } from '@vuetify/v0'
 
   const single = createSingle({ mandatory: 'force' })
