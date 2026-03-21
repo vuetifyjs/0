@@ -8,22 +8,36 @@
   import AppIcon from '@/components/app/AppIcon.vue'
 
   // Utilities
-  import { onBeforeUnmount, shallowRef } from 'vue'
+  import { onBeforeUnmount, shallowRef, watch } from 'vue'
 
   const playground = usePlayground()
   const breakpoints = useBreakpoints()
   const storage = useStorage()
   const sidePref = storage.get('playground-preview-right', false)
 
-  const fileMenu = shallowRef(false)
+  const menu = shallowRef(false)
+  const file = shallowRef(false)
+  const view = shallowRef(false)
   const confirming = shallowRef(false)
   const dialog = shallowRef(false)
   let confirmTimer = 0
 
   onBeforeUnmount(() => clearTimeout(confirmTimer))
 
+  watch(menu, open => {
+    if (!open) {
+      clearTimeout(confirmTimer)
+      confirming.value = false
+    }
+  })
+
+  function onSubmenu (target: 'file' | 'view') {
+    file.value = target === 'file'
+    view.value = target === 'view'
+  }
+
   function onOpen () {
-    fileMenu.value = false
+    menu.value = false
     dialog.value = true
   }
 
@@ -31,6 +45,7 @@
     if (confirming.value) {
       clearTimeout(confirmTimer)
       confirming.value = false
+      menu.value = false
       playground.applyPreset(playground.activePreset.value)
     } else {
       confirming.value = true
@@ -41,6 +56,7 @@
   }
 
   function onIntro () {
+    menu.value = false
     playground.left.value = !playground.left.value
     const open = playground.left.value
 
@@ -55,70 +71,88 @@
 </script>
 
 <template>
-  <div class="flex items-center gap-1">
-    <!-- File menu -->
-    <Popover.Root v-model="fileMenu">
-      <Popover.Activator
-        class="px-2 py-1 text-xs text-on-surface-variant rounded hover:bg-surface-tint transition-colors cursor-pointer"
-        target="playground-file-menu"
-      >
-        File
-      </Popover.Activator>
+  <Popover.Root v-model="menu">
+    <Popover.Activator
+      class="pa-1 inline-flex rounded hover:opacity-80 hover:bg-surface-tint focus-visible:opacity-80 focus-visible:bg-surface-tint focus-visible:outline-none cursor-pointer transition-opacity"
+      :class="menu ? 'opacity-80' : 'opacity-50'"
+      target="playground-menu"
+      title="Menu"
+    >
+      <AppIcon icon="menu" />
+    </Popover.Activator>
 
-      <Popover.Content
-        id="playground-file-menu"
-        class="bg-surface border border-divider rounded-md shadow-lg py-1 min-w-48"
-        position-area="bottom span-right"
-      >
-        <button
-          class="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-on-surface hover:bg-surface-tint transition-colors text-left"
-          type="button"
-          @click="onOpen"
+    <Popover.Content
+      id="playground-menu"
+      class="bg-surface border border-divider rounded-md shadow-lg py-1 min-w-40"
+      position-area="bottom span-right"
+    >
+      <!-- File submenu -->
+      <Popover.Root v-model="file">
+        <Popover.Activator
+          class="w-full flex items-center justify-between px-3 py-1.5 text-xs text-on-surface hover:bg-surface-tint transition-colors cursor-pointer text-left"
+          target="playground-menu-file"
+          @focus="onSubmenu('file')"
+          @mouseenter="onSubmenu('file')"
         >
-          Open...
-        </button>
+          <span>File</span>
+          <AppIcon icon="chevron-right" :size="14" />
+        </Popover.Activator>
 
-        <button
-          class="w-full flex items-center gap-2 px-3 py-1.5 text-xs transition-colors text-left"
-          :class="confirming ? 'text-error bg-error/10' : 'text-on-surface hover:bg-surface-tint'"
-          type="button"
-          @click="onReset"
+        <Popover.Content
+          id="playground-menu-file"
+          class="bg-surface border border-divider rounded-md shadow-lg py-1 min-w-48"
+          style="position-area: unset; inset-area: unset; top: anchor(top); left: anchor(right); position-try-fallbacks: flip-block;"
         >
-          {{ confirming ? 'Reset? Click to confirm' : 'Reset Playground' }}
-        </button>
-      </Popover.Content>
-    </Popover.Root>
+          <button
+            class="w-full flex items-center justify-between px-3 py-1.5 text-xs text-on-surface hover:bg-surface-tint transition-colors text-left"
+            type="button"
+            @click="onOpen"
+          >
+            Open...
+          </button>
 
-    <!-- View menu -->
-    <Popover.Root>
-      <Popover.Activator
-        class="px-2 py-1 text-xs text-on-surface-variant rounded hover:bg-surface-tint transition-colors cursor-pointer"
-        target="playground-view-menu"
-      >
-        View
-      </Popover.Activator>
+          <div class="border-t border-divider my-1" />
 
-      <Popover.Content
-        id="playground-view-menu"
-        class="bg-surface border border-divider rounded-md shadow-lg py-1 min-w-48"
-        position-area="bottom span-right"
-      >
-        <button
-          class="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-on-surface hover:bg-surface-tint transition-colors text-left"
-          type="button"
-          @click="onIntro"
+          <button
+            class="w-full flex items-center justify-between px-3 py-1.5 text-xs transition-colors text-left"
+            :class="confirming ? 'text-error bg-error/10' : 'text-on-surface hover:bg-surface-tint'"
+            type="button"
+            @click="onReset"
+          >
+            {{ confirming ? 'Click to confirm' : 'Reset Playground' }}
+          </button>
+        </Popover.Content>
+      </Popover.Root>
+
+      <!-- View submenu -->
+      <Popover.Root v-model="view">
+        <Popover.Activator
+          class="w-full flex items-center justify-between px-3 py-1.5 text-xs text-on-surface hover:bg-surface-tint transition-colors cursor-pointer text-left"
+          target="playground-menu-view"
+          @focus="onSubmenu('view')"
+          @mouseenter="onSubmenu('view')"
         >
-          <AppIcon
-            v-if="playground.left.value"
-            icon="check"
-            :size="12"
-          />
-          <span v-else class="w-3" />
-          Intro Panel
-        </button>
-      </Popover.Content>
-    </Popover.Root>
-  </div>
+          <span>View</span>
+          <AppIcon icon="chevron-right" :size="14" />
+        </Popover.Activator>
+
+        <Popover.Content
+          id="playground-menu-view"
+          class="bg-surface border border-divider rounded-md shadow-lg py-1 min-w-48"
+          style="position-area: unset; inset-area: unset; top: anchor(top); left: anchor(right); position-try-fallbacks: flip-block;"
+        >
+          <button
+            class="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-on-surface hover:bg-surface-tint transition-colors text-left"
+            type="button"
+            @click="onIntro"
+          >
+            <AppIcon :icon="playground.left.value ? 'book-open' : 'book-closed'" :size="14" />
+            Intro Panel
+          </button>
+        </Popover.Content>
+      </Popover.Root>
+    </Popover.Content>
+  </Popover.Root>
 
   <PlaygroundOpenDialog
     v-if="dialog"
