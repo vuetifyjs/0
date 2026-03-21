@@ -20,7 +20,7 @@ import { IN_BROWSER } from '#v0/constants/globals'
 
 // Utilities
 import { isUndefined } from '#v0/utilities'
-import { onScopeDispose, toRef } from 'vue'
+import { onScopeDispose, shallowRef, toRef } from 'vue'
 
 // Types
 import type { Ref } from 'vue'
@@ -62,14 +62,14 @@ export interface UseRafReturn {
 export function useRaf (
   callback: (timestamp: DOMHighResTimeStamp) => void,
 ): UseRafReturn {
-  let rafId: number | undefined
+  const id = shallowRef<number>()
 
-  const isActive = toRef(() => !isUndefined(rafId))
+  const isActive = toRef(() => !isUndefined(id.value))
 
   function cancel (): void {
-    if (!isUndefined(rafId)) {
-      cancelAnimationFrame(rafId)
-      rafId = undefined
+    if (!isUndefined(id.value)) {
+      cancelAnimationFrame(id.value)
+      id.value = undefined
     }
   }
 
@@ -77,8 +77,8 @@ export function useRaf (
     if (!IN_BROWSER) return
 
     cancel()
-    rafId = requestAnimationFrame(timestamp => {
-      rafId = undefined
+    id.value = requestAnimationFrame(timestamp => {
+      id.value = undefined
       callback(timestamp)
     })
   }
