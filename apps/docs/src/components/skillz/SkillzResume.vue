@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { useBreakpoints } from '@vuetify/v0'
+  import { useBreakpoints, useNotifications, useProxyRegistry } from '@vuetify/v0'
 
   // Composables
   import { useAsk } from '@/composables/useAsk'
@@ -12,12 +12,22 @@
   import { toRef } from 'vue'
   import { useRoute, useRouter } from 'vue-router'
 
+  // Types
+  import type { NotificationTicket } from '@vuetify/v0'
+
   // Stores
   import { useSkillzStore } from '@/stores/skillz'
 
   const store = useSkillzStore()
   const route = useRoute()
   const router = useRouter()
+
+  const notifications = useNotifications()
+  const proxy = useProxyRegistry<NotificationTicket>(notifications)
+
+  const ticket = toRef(() =>
+    proxy.values.find(t => t.data?.type === 'skillz'),
+  )
 
   const isSkillzPage = toRef(() => route.path.startsWith('/skillz/'))
   const ask = useAsk()
@@ -50,6 +60,7 @@
     if (pending) {
       store.dismiss(pending.tour.id)
     }
+    ticket.value?.dismiss()
   }
 </script>
 
@@ -57,11 +68,11 @@
   <Teleport to="body">
     <Transition name="slide-up">
       <div
-        v-if="store.pendingTour && !isSkillzPage"
+        v-if="ticket && !isSkillzPage"
         class="fixed top-16 inset-x-0 mx-auto w-max z-50 flex items-center gap-3 px-4 py-3 bg-surface border border-divider rounded-xl shadow-xl"
       >
         <span class="text-sm text-on-surface">
-          Continue <strong>{{ store.pendingTour.tour.name }}</strong>?
+          {{ ticket.subject }}
         </span>
 
         <div class="flex gap-2">

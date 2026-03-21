@@ -20,6 +20,7 @@
     "vue-router": "catalog:"
   },
   "dependencies": {
+    "@mdi/js": "catalog:",
     "@vuetify/paper": "workspace:*",
     "@vuetify/v0": "workspace:*",
     "vue": "catalog:"
