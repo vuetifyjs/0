@@ -16,6 +16,7 @@
 
   // Composables
   import { useDocumentEventListener } from '#v0/composables/useEventListener'
+  import { useRaf } from '#v0/composables/useRaf'
   import { useToggleScope } from '#v0/composables/useToggleScope'
 
   // Utilities
@@ -87,7 +88,6 @@
 
   const hovering = shallowRef(false)
   const startPosition = shallowRef(0)
-  let rafId = 0
   let latestPos = 0
 
   const isDisabled = toRef(() => disabled || splitter.disabled.value)
@@ -128,27 +128,26 @@
   }
 
   useToggleScope(() => splitter.draggingHandle.value === ticket.index, () => {
+    const update = useRaf(() => {
+      const root = splitter.rootEl.value
+      if (!root) return
+
+      const rootSize = isHorizontal.value ? root.offsetWidth : root.offsetHeight
+      if (!rootSize) return
+
+      const delta = ((latestPos - startPosition.value) / rootSize) * 100
+      startPosition.value = latestPos
+
+      splitter.resize(ticket.index, delta)
+    })
+
     useDocumentEventListener('pointermove', (e: PointerEvent) => {
       latestPos = isHorizontal.value ? e.clientX : e.clientY
-      if (rafId) return
-      rafId = requestAnimationFrame(() => {
-        const root = splitter.rootEl.value
-        if (!root) return
-
-        const rootSize = isHorizontal.value ? root.offsetWidth : root.offsetHeight
-        if (!rootSize) return
-
-        const delta = ((latestPos - startPosition.value) / rootSize) * 100
-        startPosition.value = latestPos
-
-        splitter.resize(ticket.index, delta)
-        rafId = 0
-      })
+      update()
     })
 
     useDocumentEventListener('pointerup', () => {
-      if (rafId) cancelAnimationFrame(rafId)
-      rafId = 0
+      update.cancel()
       if (IN_BROWSER) {
         document.documentElement.style.userSelect = ''
         document.documentElement.style.touchAction = ''
@@ -157,8 +156,6 @@
     })
 
     onScopeDispose(() => {
-      if (rafId) cancelAnimationFrame(rafId)
-      rafId = 0
       splitter.onEndDrag()
       if (IN_BROWSER) {
         document.documentElement.style.userSelect = ''
