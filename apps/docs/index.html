@@ -6,6 +6,23 @@
     <title>Vuetify0</title>
     <link rel="preconnect" href="https://cdn.vuetifyjs.com" crossorigin>
     <link rel="icon" type="image/png" href="/0.png">
+    <script>
+      // Set data-theme before first paint to prevent FOUC on dark themes
+      ;(function () {
+        try {
+          var raw = localStorage.getItem('v0:theme')
+          var theme = raw ? JSON.parse(raw) : null
+          var light = { light: 1, odyssey: 1, 'tailwind-light': 1, 'material-3-light': 1, 'ant-design-light': 1, 'radix-light': 1 }
+          var valid = { light: 1, dark: 1, 'high-contrast': 1, protanopia: 1, deuteranopia: 1, tritanopia: 1, blackguard: 1, polaris: 1, nebula: 1, odyssey: 1, tailwind: 1, 'tailwind-light': 1, 'material-3': 1, 'material-3-light': 1, 'ant-design': 1, 'ant-design-light': 1, radix: 1, 'radix-light': 1 }
+          if (!theme || theme === 'system') {
+            theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+          }
+          if (!(theme in valid)) theme = 'light'
+          document.documentElement.dataset.theme = theme
+          document.documentElement.style.colorScheme = theme in light ? 'light' : 'dark'
+        } catch (e) {}
+      })()
+    </script>
   </head>
   <body>
     <div id="app"></div>

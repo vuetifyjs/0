@@ -112,7 +112,7 @@
       );
     }
 
-    [data-theme="dark"] &.dot-grid::before {
+    [data-theme]:not([data-theme="light"]):not([data-theme="odyssey"]):not([data-theme="tailwind-light"]):not([data-theme="material-3-light"]):not([data-theme="ant-design-light"]):not([data-theme="radix-light"]) &.dot-grid::before {
       --dot-opacity: 10%;
     }
 
@@ -374,8 +374,8 @@
 
   /* Shiki theme switching */
   .shiki {
-    --shiki-light-bg: var(--v0-surface) !important;
-    --shiki-dark-bg: var(--v0-surface) !important;
+    --shiki-light-bg: var(--v0-surface, #fff) !important;
+    --shiki-dark-bg: var(--v0-surface, #1a1a1a) !important;
     background-color: var(--shiki-light-bg);
     border: thin solid var(--v0-divider);
     border-radius: 0.5rem;
@@ -395,15 +395,27 @@
     background-color: var(--shiki-light-bg);
   }
 
-  [data-theme="dark"] .shiki {
-    background-color: var(--shiki-dark-bg);
-  }
-
   [data-theme="light"] .shiki span {
     color: var(--shiki-light);
   }
 
-  [data-theme="dark"] .shiki span {
+  /* Dark mode: match any data-theme that isn't a known light theme */
+  [data-theme]:not([data-theme="light"]):not([data-theme="odyssey"]):not([data-theme="tailwind-light"]):not([data-theme="material-3-light"]):not([data-theme="ant-design-light"]):not([data-theme="radix-light"]) .shiki {
+    background-color: var(--shiki-dark-bg);
+  }
+
+  [data-theme]:not([data-theme="light"]):not([data-theme="odyssey"]):not([data-theme="tailwind-light"]):not([data-theme="material-3-light"]):not([data-theme="ant-design-light"]):not([data-theme="radix-light"]) .shiki span {
     color: var(--shiki-dark);
+  }
+
+  /* Fallback before JS sets data-theme */
+  @media (prefers-color-scheme: dark) {
+    html:not([data-theme]) .shiki {
+      background-color: var(--shiki-dark-bg);
+    }
+
+    html:not([data-theme]) .shiki span {
+      color: var(--shiki-dark);
+    }
   }
 </style>
