@@ -115,6 +115,12 @@ All breakpoint properties are `Readonly<ShallowRef>` and automatically update wh
 | `breakpoints` | `Record<string, number>` | Static config object (not reactive) |
 | `ssr` | `boolean` | `true` when running server-side with SSR options |
 
+## Examples
+
+::: example
+/composables/use-breakpoints/responsive-layout
+:::
+
 ## SSR Support
 
 By default, useBreakpoints returns `xs` / width `0` on the server. Pass `ssr` options to render at a known viewport size:

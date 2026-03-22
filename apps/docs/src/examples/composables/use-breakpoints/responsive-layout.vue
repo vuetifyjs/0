@@ -1,5 +1,7 @@
 <script setup lang="ts">
-  import { useBreakpoints } from '@vuetify/v0'
+  import { useBreakpoints, useEventListener } from '@vuetify/v0'
+  import { IN_BROWSER } from '@vuetify/v0/constants'
+  import { shallowRef } from 'vue'
 
   const {
     name,
@@ -16,6 +18,36 @@
   } = useBreakpoints()
 
   const sizes = ['xs', 'sm', 'md', 'lg', 'xl', 'xxl'] as const
+
+  // CSS media query results for comparison
+  const cssBreakpoint = shallowRef<string>('')
+  const innerWidth = shallowRef(0)
+  const preciseWidth = shallowRef(0)
+  const matched = shallowRef(true)
+
+  function onMeasure () {
+    if (!IN_BROWSER) return
+
+    innerWidth.value = window.innerWidth
+
+    const el = document.documentElement
+    const scrollbar = window.innerWidth - el.clientWidth
+    preciseWidth.value = Math.round((el.getBoundingClientRect().width + scrollbar) * 100) / 100
+
+    // Check what CSS media queries report
+    let css = 'xs'
+    for (let i = sizes.length - 1; i >= 0; i--) {
+      if (window.matchMedia(`(min-width: ${breakpoints[sizes[i]]}px)`).matches) {
+        css = sizes[i]
+        break
+      }
+    }
+    cssBreakpoint.value = css
+    matched.value = css === name.value
+  }
+
+  if (IN_BROWSER) onMeasure()
+  useEventListener(IN_BROWSER ? window : null, 'resize', onMeasure, { passive: true })
 </script>
 
 <template>
@@ -25,7 +57,7 @@
         {{ name }}
       </div>
       <span class="text-sm text-on-surface-variant font-mono">
-        {{ width }} x {{ height }}
+        {{ preciseWidth }} x {{ height }}
       </span>
       <span
         class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium"
@@ -61,8 +93,39 @@
       </div>
     </div>
 
+    <div class="rounded-lg border border-divider overflow-hidden">
+      <div class="px-3 py-2 bg-surface-variant text-xs font-medium text-on-surface-variant">
+        Zoom alignment
+      </div>
+      <div class="p-3 flex flex-col gap-2 text-sm font-mono">
+        <div class="flex justify-between">
+          <span class="text-on-surface-variant">JS breakpoint</span>
+          <span class="font-medium">{{ name }}</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-on-surface-variant">CSS @media</span>
+          <span class="font-medium">{{ cssBreakpoint }}</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-on-surface-variant">window.innerWidth</span>
+          <span>{{ innerWidth }}px</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-on-surface-variant">Precise width</span>
+          <span>{{ preciseWidth }}px</span>
+        </div>
+        <div
+          class="mt-1 flex items-center gap-2 px-3 py-1.5 rounded text-xs font-medium"
+          :class="matched ? 'bg-success/10 text-success' : 'bg-error/10 text-error'"
+        >
+          <span class="w-2 h-2 rounded-full" :class="matched ? 'bg-success' : 'bg-error'" />
+          {{ matched ? 'JS and CSS agree' : 'Mismatch detected — zoom rounding issue' }}
+        </div>
+      </div>
+    </div>
+
     <p class="text-xs text-on-surface-variant text-center">
-      Resize the browser window to see breakpoints change
+      Zoom your browser and resize to test alignment between JS and CSS breakpoints
     </p>
   </div>
 </template>
