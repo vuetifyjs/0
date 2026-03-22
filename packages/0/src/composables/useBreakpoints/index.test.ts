@@ -56,6 +56,10 @@ describe('useBreakpoints', () => {
       innerHeight: 768,
       addEventListener: vi.fn(),
       removeEventListener: vi.fn(),
+      matchMedia: (query: string) => {
+        const match = query.match(/\(min-width:\s*(\d+)px\)/)
+        return { matches: match ? (mockWindow.innerWidth as number) >= Number(match[1]) : false }
+      },
     }
     globalThis.window = mockWindow as unknown as Window & typeof globalThis
 

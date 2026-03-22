@@ -175,9 +175,11 @@ export function createBreakpoints<
     width.value = window.innerWidth
     height.value = window.innerHeight
 
+    // Use matchMedia for breakpoint detection to guarantee
+    // alignment with CSS media queries at any zoom level.
     let current: BreakpointName = 'xs'
     for (let i = sorted.length - 1; i >= 0; i--) {
-      if (width.value >= sorted[i]![1]) {
+      if (window.matchMedia(`(min-width: ${sorted[i]![1]}px)`).matches) {
         current = sorted[i]![0]
         break
       }
@@ -187,7 +189,9 @@ export function createBreakpoints<
 
     const index = names.indexOf(current)
 
-    isMobile.value = width.value < mb!
+    isMobile.value = isNumber(mb)
+      ? !window.matchMedia(`(min-width: ${mb}px)`).matches
+      : index < names.indexOf(mobileBreakpoint as BreakpointName)
     xs.value = index === 0
     sm.value = index === 1
     md.value = index === 2

@@ -1,7 +1,7 @@
 <script setup lang="ts">
-  import { useBreakpoints, useEventListener } from '@vuetify/v0'
+  import { useBreakpoints } from '@vuetify/v0'
   import { IN_BROWSER } from '@vuetify/v0/constants'
-  import { shallowRef } from 'vue'
+  import { shallowRef, toRef, watch } from 'vue'
 
   const {
     name,
@@ -19,22 +19,15 @@
 
   const sizes = ['xs', 'sm', 'md', 'lg', 'xl', 'xxl'] as const
 
-  // CSS media query results for comparison
-  const cssBreakpoint = shallowRef<string>('')
+  const cssBreakpoint = shallowRef('')
   const innerWidth = shallowRef(0)
-  const preciseWidth = shallowRef(0)
-  const matched = shallowRef(true)
 
-  function onMeasure () {
+  // Check CSS media queries whenever the composable updates
+  watch(name, () => {
     if (!IN_BROWSER) return
 
     innerWidth.value = window.innerWidth
 
-    const el = document.documentElement
-    const scrollbar = window.innerWidth - el.clientWidth
-    preciseWidth.value = Math.round((el.getBoundingClientRect().width + scrollbar) * 100) / 100
-
-    // Check what CSS media queries report
     let css = 'xs'
     for (let i = sizes.length - 1; i >= 0; i--) {
       if (window.matchMedia(`(min-width: ${breakpoints[sizes[i]]}px)`).matches) {
@@ -43,11 +36,9 @@
       }
     }
     cssBreakpoint.value = css
-    matched.value = css === name.value
-  }
+  }, { immediate: true })
 
-  if (IN_BROWSER) onMeasure()
-  useEventListener(IN_BROWSER ? window : null, 'resize', onMeasure, { passive: true })
+  const matched = toRef(() => !cssBreakpoint.value || cssBreakpoint.value === name.value)
 </script>
 
 <template>
@@ -57,7 +48,7 @@
         {{ name }}
       </div>
       <span class="text-sm text-on-surface-variant font-mono">
-        {{ preciseWidth }} x {{ height }}
+        {{ width }} x {{ height }}
       </span>
       <span
         class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium"
@@ -112,7 +103,7 @@
         </div>
         <div class="flex justify-between">
           <span class="text-on-surface-variant">Precise width</span>
-          <span>{{ preciseWidth }}px</span>
+          <span>{{ width }}px</span>
         </div>
         <div
           class="mt-1 flex items-center gap-2 px-3 py-1.5 rounded text-xs font-medium"
