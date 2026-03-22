@@ -518,7 +518,7 @@ describe('createObserver', () => {
         once: true,
         create: factory,
         observe: (obs, el) => obs.observe(el),
-        shouldStop: entries => entries[0]?.ready === true,
+        shouldStop: entries => (entries[0] as Record<string, unknown>)?.ready === true,
       })
       await nextTick()
 
