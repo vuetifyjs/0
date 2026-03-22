@@ -6,16 +6,11 @@
         "scripts/**/*.{js,ts}"
       ],
       "ignore": [
-        "**/dist/**",
-        "**/node_modules/**",
-        "**/.nuxt/**",
-        "**/.output/**",
         "uno.config.ts"
       ]
     },
     "apps/docs": {
       "entry": [
-        "src/main.ts",
         "src/App.vue",
         "src/components/**/*.vue",
         "src/composables/*.ts",
@@ -30,14 +25,10 @@
       ],
       "ignore": [
         "src/typed-router.d.ts",
-        "src/components/docs/meta/*.vue",
         "src/examples/guide/building-frameworks/my-ui/src/**/*.ts",
         "src/examples/guide/building-frameworks/my-ui/vite.config.ts",
         "src/examples/composables/create-trinity/toasts.ts",
-        "src/components/app/AppBrowserIcon.vue",
-        "src/components/docs/DocsBrowserSupport.vue",
-        "src/skillz/tours/**/index.ts",
-        "src/stores/skillz.ts"
+        "src/skillz/tours/**/index.ts"
       ],
       "paths": {
         "@/*": [
@@ -69,8 +60,7 @@
         "!src/**/*.spec.ts"
       ],
       "ignore": [
-        "src/**/*.bench.ts",
-        "src/**/fixtures/**"
+        "src/**/*.bench.ts"
       ],
 
       "paths": {
@@ -94,7 +84,6 @@
     },
     "apps/playground": {
       "entry": [
-        "src/main.ts",
         "src/App.vue",
         "src/components/**/*.vue",
         "src/composables/*.ts",
@@ -119,9 +108,7 @@
       }
     },
     "playground": {
-      "entry": [
-        "src/main.ts"
-      ],
+      "entry": [],
       "project": [
         "**/*.{js,ts,vue}",
         "src/composables.d.ts",
@@ -150,12 +137,7 @@
     }
   },
   "ignore": [
-    "**/*.d.ts",
-    "**/dist/**",
-    "**/node_modules/**",
-    "**/.nuxt/**",
-    "**/.output/**",
-    "pnpm-lock.yaml"
+    "**/*.d.ts"
   ],
   "ignoreDependencies": [
     "@adobe/leonardo-contrast-colors",
@@ -168,7 +150,8 @@
     "@vue/compiler-dom",
     "@flagsmith/flagsmith",
     "launchdarkly-js-client-sdk",
-    "posthog-js"
+    "posthog-js",
+    "vue-i18n"
   ],
   "ignoreExportsUsedInFile": {
     "interface": true,
