@@ -115,14 +115,14 @@ export function createNovuAdapter (novu: NovuClient, options: NovuAdapterOptions
 
       unsubscribers.push(unsub)
 
-      // Inbound: seed registry from initial fetch
+      // Inbound: seed registry from initial fetch (no toast queue)
       if (IN_BROWSER) {
         novu.notifications.list({ limit: 30 }).then(({ data }) => {
           if (disposed) return
           for (const item of data?.notifications ?? []) {
             if (!item.id || ids.has(item.id)) continue
             ids.add(item.id)
-            ctx!.send(mapItem(item, resolveSeverity))
+            ctx!.seed(mapItem(item, resolveSeverity))
           }
         }).catch(noop)
       }

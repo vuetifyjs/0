@@ -119,11 +119,11 @@ Pass `:teleport="false"` to render the portal inline instead of teleporting to `
 
 | Concern | Implementation |
 |---------|---------------|
-| Live region | Set `role` directly on `Snackbar.Root`. No `aria-live` on `Portal` to avoid nesting conflicts. |
+| Live region | `Snackbar.Root` defaults to `role="status"`. Override with `role="alert"` for urgent notifications. No `aria-live` on `Portal` to avoid nesting conflicts. |
 | `role="status"` | Implicit `aria-live="polite"` — screen reader waits for idle. Use for confirmations and info. |
 | `role="alert"` | Implicit `aria-live="assertive"` — screen reader interrupts. Use for errors and warnings. |
 | Close button | `aria-label="Close"` hardcoded on `Snackbar.Close`. |
+| Timing | Auto-dismiss pauses on hover and focus (WCAG 2.2.1). Tabbing into a snackbar pauses the queue; focus leaving the container resumes it. |
 | Focus | No focus trap — snackbars are non-modal. |
-| Keyboard | No keyboard interaction required — snackbars are informational. |
 
 <DocsApi />

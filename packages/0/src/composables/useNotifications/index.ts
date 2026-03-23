@@ -63,6 +63,8 @@ export interface NotificationsAdapterContext<
   E extends NotificationTicket<Z> = NotificationTicket<Z>,
 > {
   send: (input: Z) => E
+  /** Register into registry only (no toast queue). Use for initial/historical items. */
+  seed: (input: Z) => E
   on: (event: string, handler: (data: unknown) => void) => void
   off: (event: string, handler: (data: unknown) => void) => void
 }
@@ -84,6 +86,7 @@ export interface NotificationsContext<
   E extends NotificationTicket<Z> = NotificationTicket<Z>,
 > extends RegistryContext<E> {
   send: (input: Z) => E
+  seed: (input: Z) => E
   queue: QueueContext
 
   read: (id: ID) => void
@@ -126,11 +129,11 @@ export function createNotifications<
     }
   })
 
-  function send (input: Z): E {
+  function enrich (input: Z): Partial<E> {
     const id = input.id ?? useId()
     const now = new Date()
 
-    const ticket = registry.register({
+    return {
       ...input,
       id,
       createdAt: now,
@@ -146,13 +149,22 @@ export function createNotifications<
       snooze: (until: Date) => snooze(id, until),
       wake: () => wake(id),
       dismiss: () => queue.unregister(id),
-    } as unknown as Partial<E>)
+    } as unknown as Partial<E>
+  }
 
-    queue.register(isUndefined(input.timeout) ? { id } : { id, timeout: input.timeout })
+  function send (input: Z): E {
+    const ticket = registry.register(enrich(input))
+
+    queue.register(isUndefined(input.timeout) ? { id: ticket.id } : { id: ticket.id, timeout: input.timeout })
 
     registry.emit('notification:received', ticket)
 
     return ticket
+  }
+
+  /** Register into registry only (no toast queue). Use for historical/seeded items. */
+  function seed (input: Z): E {
+    return registry.register(enrich(input))
   }
 
   function read (id: ID) {
@@ -208,6 +220,7 @@ export function createNotifications<
   return {
     ...registry,
     send,
+    seed,
     queue,
     read,
     unread,
@@ -259,10 +272,11 @@ function createNotificationsFallback (): NotificationsContext {
     collection: new Map(),
     size: 0,
     send: () => stub,
+    seed: () => stub,
     queue: {
       collection: new Map(),
       size: 0,
-      register: () => ({}) as any,
+      register: () => ({}) as never,
       unregister: () => undefined,
       has: () => false,
       get: () => undefined,
@@ -271,7 +285,7 @@ function createNotificationsFallback (): NotificationsContext {
       entries: () => EMPTY,
       browse: () => undefined,
       lookup: () => undefined,
-      upsert: () => ({}) as any,
+      upsert: () => ({}) as never,
       seek: () => undefined,
       move: () => undefined,
       on: noop,
@@ -353,6 +367,7 @@ export const [createNotificationsContext, createNotificationsPlugin, useNotifica
 
         adapter.setup({
           send: context.send,
+          seed: context.seed,
           on: context.on,
           off: context.off,
         })

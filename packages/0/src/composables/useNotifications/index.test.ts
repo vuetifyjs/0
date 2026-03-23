@@ -278,6 +278,7 @@ describe('createNotifications', () => {
     function adapterContext (notifications: ReturnType<typeof createNotifications>): NotificationsAdapterContext {
       return {
         send: notifications.send,
+        seed: notifications.seed,
         on: notifications.on,
         off: notifications.off,
       }
@@ -400,16 +401,16 @@ describe('createNotifications', () => {
       })
     })
 
-    it('should add to registry only on onboard', () => {
+    it('should add to registry only on seed', () => {
       withScope(() => {
         const notifications = createNotifications()
-        notifications.onboard([
-          { subject: 'A' } as any,
-          { subject: 'B' } as any,
-        ])
+        const ticket = notifications.seed({ subject: 'A' })
 
-        expect(notifications.values()).toHaveLength(2)
+        expect(notifications.values()).toHaveLength(1)
         expect(notifications.queue.values()).toHaveLength(0)
+        expect(ticket.subject).toBe('A')
+        expect(ticket.createdAt).toBeInstanceOf(Date)
+        expect(ticket.readAt).toBeNull()
       })
     })
 

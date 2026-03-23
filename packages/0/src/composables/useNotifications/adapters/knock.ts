@@ -76,6 +76,7 @@ export function createKnockAdapter (feed: KnockFeed): NotificationsAdapterInterf
   const items = new Map<string, KnockFeedItem>()
   let ctx: NotificationsAdapterContext | undefined
   let onReceived: ((data: unknown) => void) | undefined
+  let onPage: ((data: unknown) => void) | undefined
   let onRead: ((data: unknown) => void) | undefined
   let onArchived: ((data: unknown) => void) | undefined
 
@@ -83,7 +84,7 @@ export function createKnockAdapter (feed: KnockFeed): NotificationsAdapterInterf
     setup (_ctx: NotificationsAdapterContext) {
       ctx = _ctx
 
-      // Inbound: real-time feed events -> ctx.send()
+      // Inbound: real-time → send (toast + registry)
       onReceived = (data: unknown) => {
         const payload = data as { items?: KnockFeedItem[] }
         if (!payload?.items) return
@@ -94,8 +95,19 @@ export function createKnockAdapter (feed: KnockFeed): NotificationsAdapterInterf
         }
       }
 
+      // Inbound: page fetch → seed (registry only, no toast)
+      onPage = (data: unknown) => {
+        const payload = data as { items?: KnockFeedItem[] }
+        if (!payload?.items) return
+        for (const item of payload.items) {
+          if (items.has(item.id)) continue
+          items.set(item.id, item)
+          ctx!.seed(mapItem(item))
+        }
+      }
+
       feed.on('items.received.realtime', onReceived)
-      feed.on('items.received.page', onReceived)
+      feed.on('items.received.page', onPage)
 
       if (IN_BROWSER) {
         feed.listenForUpdates()
@@ -119,7 +131,7 @@ export function createKnockAdapter (feed: KnockFeed): NotificationsAdapterInterf
     dispose () {
       if (!ctx) return
       feed.off('items.received.realtime', onReceived!)
-      feed.off('items.received.page', onReceived!)
+      feed.off('items.received.page', onPage!)
       ctx.off('notification:read', onRead!)
       ctx.off('notification:archived', onArchived!)
       items.clear()

@@ -4,7 +4,7 @@
  * @remarks
  * Connects to useNotifications and exposes queue items via slot.
  * Provides dismiss context consumed by Snackbar.Root/Close.
- * Pauses the queue on mouseenter, resumes on mouseleave.
+ * Pauses the queue on mouseenter/focusin, resumes on mouseleave/focusout.
  */
 
 <script lang="ts">
@@ -18,11 +18,11 @@
   import { useNotifications } from '#v0/composables/useNotifications'
 
   // Utilities
-  import { isUndefined } from '#v0/utilities'
-  import { computed, toRef } from 'vue'
+  import { isElement, isUndefined } from '#v0/utilities'
+  import { computed, toRef, useTemplateRef } from 'vue'
 
   // Types
-  import type { AtomProps } from '#v0/components/Atom'
+  import type { AtomExpose, AtomProps } from '#v0/components/Atom'
   import type { NotificationTicket } from '#v0/composables/useNotifications'
   import type { ID } from '#v0/types'
 
@@ -69,12 +69,33 @@
       .toReversed(),
   )
 
-  function onEnter () {
+  const container = useTemplateRef<AtomExpose>('container')
+  const reasons = new Set<string>()
+
+  function pause (reason: string) {
+    reasons.add(reason)
     notifications.queue.pause()
   }
 
+  function resume (reason: string) {
+    reasons.delete(reason)
+    if (reasons.size === 0) notifications.queue.resume()
+  }
+
+  function onEnter () {
+    pause('hover')
+  }
   function onLeave () {
-    notifications.queue.resume()
+    resume('hover')
+  }
+  function onFocusin () {
+    pause('focus')
+  }
+
+  function onFocusout (e: FocusEvent) {
+    const el = container.value?.element ?? null
+    if (isElement(el) && isElement(e.relatedTarget) && el.contains(e.relatedTarget)) return
+    resume('focus')
   }
 
   const slotProps = toRef((): SnackbarQueueSlotProps => ({ items: items.value }))
@@ -82,7 +103,10 @@
 
 <template>
   <Atom
+    ref="container"
     :as
+    @focusin="onFocusin"
+    @focusout="onFocusout"
     @mouseenter="onEnter"
     @mouseleave="onLeave"
   >

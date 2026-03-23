@@ -13,9 +13,6 @@
   // Components
   import { Atom } from '#v0/components/Atom'
 
-  // Foundational
-  import { createContext } from '#v0/composables/createContext'
-
   // Composables
   import { useStack } from '#v0/composables/useStack'
 
@@ -24,11 +21,6 @@
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
-  import type { ComputedRef } from 'vue'
-
-  export interface SnackbarContext {
-    zIndex: ComputedRef<number>
-  }
 
   export interface SnackbarPortalProps extends AtomProps {
     /** Teleport target. `false` renders inline. @default 'body' */
@@ -39,8 +31,6 @@
     /** Calculated z-index from useStack */
     zIndex: number
   }
-
-  export const [useSnackbarContext, provideSnackbarContext] = createContext<SnackbarContext>()
 </script>
 
 <script setup lang="ts">
@@ -59,10 +49,6 @@
   const ticket = stack.register()
 
   onUnmounted(() => ticket.unregister())
-
-  provideSnackbarContext('v0:snackbar', {
-    zIndex: ticket.zIndex,
-  })
 
   const styles = toRef(() => ({ zIndex: ticket.zIndex.value }))
 

@@ -7,7 +7,6 @@
  */
 
 export { default as SnackbarPortal } from './SnackbarPortal.vue'
-export { provideSnackbarContext, useSnackbarContext } from './SnackbarPortal.vue'
 export { default as SnackbarQueue } from './SnackbarQueue.vue'
 export { provideSnackbarQueueContext, useSnackbarQueueContext } from './SnackbarQueue.vue'
 export { default as SnackbarRoot } from './SnackbarRoot.vue'
@@ -15,7 +14,7 @@ export { provideSnackbarRootContext, useSnackbarRootContext } from './SnackbarRo
 export { default as SnackbarContent } from './SnackbarContent.vue'
 export { default as SnackbarAction } from './SnackbarAction.vue'
 export { default as SnackbarClose } from './SnackbarClose.vue'
-export type { SnackbarContext, SnackbarPortalProps, SnackbarPortalSlotProps } from './SnackbarPortal.vue'
+export type { SnackbarPortalProps, SnackbarPortalSlotProps } from './SnackbarPortal.vue'
 export type { SnackbarQueueContext, SnackbarQueueProps, SnackbarQueueSlotProps } from './SnackbarQueue.vue'
 export type { SnackbarRootContext, SnackbarRootProps, SnackbarRootSlotProps } from './SnackbarRoot.vue'
 export type { SnackbarContentProps } from './SnackbarContent.vue'
