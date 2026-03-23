@@ -35,7 +35,9 @@
 
 <template>
   <header class="flex items-center justify-between h-[48px] px-3 border-b border-divider bg-surface" data-playground-bar>
-    <div class="flex items-center gap-3">
+    <div class="flex items-center gap-2">
+      <PlaygroundMenuBar />
+
       <img
         alt="Vuetify Play"
         class="h-7"
@@ -43,8 +45,6 @@
           ? 'https://vuetifyjs.b-cdn.net/docs/images/one/logos/vplay-logo-dark.svg'
           : 'https://vuetifyjs.b-cdn.net/docs/images/one/logos/vplay-logo-light.svg'"
       >
-
-      <PlaygroundMenuBar />
     </div>
 
     <div class="flex items-center gap-2">
