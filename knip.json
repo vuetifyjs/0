@@ -82,6 +82,16 @@
         "sass"
       ]
     },
+    "packages/emerald": {
+      "project": [
+        "src/**/*.{ts,vue}",
+        "!src/**/*.test.ts",
+        "!src/**/*.spec.ts"
+      ],
+      "ignoreDependencies": [
+        "@vuetify/v0"
+      ]
+    },
     "apps/playground": {
       "entry": [
         "src/App.vue",
