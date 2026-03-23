@@ -9,11 +9,15 @@
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
-  // Sibling context
+  // Composables
   import { useSnackbarQueueContext } from './SnackbarQueue.vue'
 
   // Foundational
   import { createContext } from '#v0/composables/createContext'
+
+  // Utilities
+  import { useId } from '#v0/utilities'
+  import { toRef } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -43,10 +47,6 @@
 </script>
 
 <script setup lang="ts">
-  // Utilities
-  import { useId } from '#v0/utilities'
-  import { toRef } from 'vue'
-
   defineOptions({ name: 'SnackbarRoot' })
 
   const emit = defineEmits<{

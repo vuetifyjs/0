@@ -13,6 +13,9 @@
   // Composables
   import { useSnackbarRootContext } from './SnackbarRoot.vue'
 
+  // Utilities
+  import { toRef } from 'vue'
+
   // Types
   import type { AtomProps } from '#v0/components/Atom'
 
@@ -32,9 +35,6 @@
 </script>
 
 <script setup lang="ts">
-  // Utilities
-  import { toRef } from 'vue'
-
   defineOptions({ name: 'SnackbarClose' })
 
   defineSlots<{
