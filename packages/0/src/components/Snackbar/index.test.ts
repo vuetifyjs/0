@@ -42,6 +42,19 @@ describe('snackbar', () => {
       expect(wrapper.find('.snackbar-child').exists()).toBe(true)
       expect(wrapper.find('.snackbar-child').text()).toBe('Portal content')
     })
+
+    it('should render with default teleport without throwing', () => {
+      const wrapper = mountWithStack(Snackbar.Portal, {
+        slots: {
+          default: () => h('div', { class: 'teleported' }, 'Teleported content'),
+        },
+      })
+
+      // Component mounts without error — content is teleported to body
+      expect(wrapper.exists()).toBe(true)
+      // Teleported content is not in wrapper's own DOM tree
+      expect(wrapper.find('.teleported').exists()).toBe(false)
+    })
   })
 
   describe('root', () => {
@@ -249,6 +262,55 @@ describe('snackbar', () => {
 
       await wrapper.trigger('mouseenter')
       await wrapper.trigger('mouseleave')
+
+      const first = context.queue.values()[0]
+      expect(first?.isPaused).toBe(false)
+    })
+
+    it('should pause queue on focusin', async () => {
+      const { context, install } = makeNotificationsPlugin()
+      context.send({ subject: 'Test', timeout: 5000 })
+
+      const wrapper = mount(Snackbar.Queue, {
+        global: { plugins: [stackPlugin, { install }] },
+        slots: { default: () => h('div') },
+      })
+
+      await wrapper.trigger('focusin')
+
+      const first = context.queue.values()[0]
+      expect(first?.isPaused).toBe(true)
+    })
+
+    it('should resume queue on focusout', async () => {
+      const { context, install } = makeNotificationsPlugin()
+      context.send({ subject: 'Test', timeout: 5000 })
+
+      const wrapper = mount(Snackbar.Queue, {
+        global: { plugins: [stackPlugin, { install }] },
+        slots: { default: () => h('div') },
+      })
+
+      await wrapper.trigger('focusin')
+      await wrapper.trigger('focusout')
+
+      const first = context.queue.values()[0]
+      expect(first?.isPaused).toBe(false)
+    })
+
+    it('should resume queue when component unmounts while paused', async () => {
+      const { context, install } = makeNotificationsPlugin()
+      context.send({ subject: 'Test', timeout: 5000 })
+
+      const wrapper = mount(Snackbar.Queue, {
+        global: { plugins: [stackPlugin, { install }] },
+        slots: { default: () => h('div') },
+      })
+
+      await wrapper.trigger('mouseenter')
+      expect(context.queue.values()[0]?.isPaused).toBe(true)
+
+      wrapper.unmount()
 
       const first = context.queue.values()[0]
       expect(first?.isPaused).toBe(false)

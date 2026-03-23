@@ -7,7 +7,7 @@ import { effectScope } from 'vue'
 import type { ID } from '#v0/types'
 import type { NotificationsAdapterContext } from './index'
 
-import { createNotifications } from './index'
+import { createNotifications, useNotifications } from './index'
 
 function withScope<T> (fn: () => T): T {
   const scope = effectScope()
@@ -490,6 +490,153 @@ describe('createNotifications', () => {
         expect(notifications.values()).toHaveLength(1)
         vi.useRealTimers()
       })
+    })
+  })
+
+  describe('onboard', () => {
+    it('should hydrate multiple items into registry without queue', () => {
+      withScope(() => {
+        const notifications = createNotifications()
+        const tickets = notifications.onboard([
+          { subject: 'First' },
+          { subject: 'Second' },
+          { subject: 'Third' },
+        ])
+
+        expect(tickets).toHaveLength(3)
+        expect(notifications.values()).toHaveLength(3)
+        expect(notifications.queue.values()).toHaveLength(0)
+      })
+    })
+
+    it('should return hydrated tickets with lifecycle methods', () => {
+      withScope(() => {
+        const notifications = createNotifications()
+        const tickets = notifications.onboard([
+          { id: 'ob-1', subject: 'Onboarded' },
+        ])
+
+        const ticket = tickets[0]!
+        expect(ticket.id).toBe('ob-1')
+        expect(ticket.subject).toBe('Onboarded')
+        expect(ticket.createdAt).toBeInstanceOf(Date)
+        expect(ticket.readAt).toBeNull()
+        expect(ticket.seenAt).toBeNull()
+        expect(ticket.archivedAt).toBeNull()
+        expect(ticket.snoozedUntil).toBeNull()
+
+        // Lifecycle methods work
+        ticket.read()
+        expect(notifications.get('ob-1')?.readAt).toBeInstanceOf(Date)
+
+        ticket.archive()
+        expect(notifications.get('ob-1')?.archivedAt).toBeInstanceOf(Date)
+      })
+    })
+
+    it('should handle empty array', () => {
+      withScope(() => {
+        const notifications = createNotifications()
+        const tickets = notifications.onboard([])
+
+        expect(tickets).toHaveLength(0)
+        expect(notifications.values()).toHaveLength(0)
+      })
+    })
+  })
+
+  describe('fallback', () => {
+    it('should return a fallback context when called outside component instance', () => {
+      const notifications = useNotifications()
+
+      expect(notifications).toBeDefined()
+      expect(notifications.collection).toBeInstanceOf(Map)
+      expect(notifications.size).toBe(0)
+    })
+
+    it('should return a stub ticket from send', () => {
+      const notifications = useNotifications()
+      const ticket = notifications.send({ subject: 'Test' })
+
+      expect(ticket).toBeDefined()
+      expect(ticket.id).toBe('')
+      expect(ticket.createdAt).toBeInstanceOf(Date)
+      expect(ticket.readAt).toBeNull()
+      expect(ticket.seenAt).toBeNull()
+      expect(ticket.archivedAt).toBeNull()
+      expect(ticket.snoozedUntil).toBeNull()
+    })
+
+    it('should have noop lifecycle methods', () => {
+      const notifications = useNotifications()
+
+      // These should not throw
+      notifications.read('any')
+      notifications.unread('any')
+      notifications.seen('any')
+      notifications.archive('any')
+      notifications.unarchive('any')
+      notifications.snooze('any', new Date())
+      notifications.wake('any')
+      notifications.readAll()
+      notifications.archiveAll()
+      notifications.clear()
+    })
+
+    it('should have working stub methods on send ticket', () => {
+      const notifications = useNotifications()
+      const ticket = notifications.send({ subject: 'Test' })
+
+      // Stub convenience methods should not throw
+      ticket.read()
+      ticket.unread()
+      ticket.seen()
+      ticket.archive()
+      ticket.unarchive()
+      ticket.snooze(new Date())
+      ticket.wake()
+      ticket.dismiss()
+      ticket.unregister()
+    })
+
+    it('should return empty arrays from collection methods', () => {
+      const notifications = useNotifications()
+
+      expect(notifications.keys()).toEqual([])
+      expect(notifications.values()).toEqual([])
+      expect(notifications.entries()).toEqual([])
+      expect(notifications.has('any')).toBe(false)
+      expect(notifications.get('any')).toBeUndefined()
+      expect(notifications.browse('any')).toBeUndefined()
+      expect(notifications.lookup(0)).toBeUndefined()
+    })
+
+    it('should have working queue stubs', () => {
+      const notifications = useNotifications()
+      const { queue } = notifications
+
+      expect(queue.collection).toBeInstanceOf(Map)
+      expect(queue.size).toBe(0)
+      expect(queue.has('any')).toBe(false)
+      expect(queue.get('any')).toBeUndefined()
+      expect(queue.keys()).toEqual([])
+      expect(queue.values()).toEqual([])
+      expect(queue.entries()).toEqual([])
+
+      // Noop methods should not throw
+      queue.dispose()
+      queue.clear()
+      queue.reindex()
+      queue.offboard([])
+    })
+
+    it('should execute batch callback and return its result', () => {
+      const notifications = useNotifications()
+      const result = notifications.batch(() => 42)
+      expect(result).toBe(42)
+
+      const queueResult = notifications.queue.batch(() => 'ok')
+      expect(queueResult).toBe('ok')
     })
   })
 })

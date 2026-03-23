@@ -557,9 +557,6 @@ importers:
 
   playground:
     dependencies:
-      '@mdi/js':
-        specifier: 'catalog:'
-        version: mdi-js-es@7.4.47
       '@vuetify/paper':
         specifier: workspace:*
         version: link:../packages/paper
