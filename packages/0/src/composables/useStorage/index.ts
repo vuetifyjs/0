@@ -17,10 +17,8 @@
 // Globals
 import { IN_BROWSER } from '#v0/constants/globals'
 
-// Foundational
-import { createPluginContext } from '#v0/composables/createPlugin'
-
 // Composables
+import { createPluginContext } from '#v0/composables/createPlugin'
 import { useWindowEventListener } from '#v0/composables/useEventListener'
 
 // Adapters

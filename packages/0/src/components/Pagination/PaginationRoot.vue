@@ -26,10 +26,8 @@
   // Components
   import { Atom } from '#v0/components/Atom'
 
-  // Foundational
-  import { createContext } from '#v0/composables/createContext'
-
   // Composables
+  import { createContext } from '#v0/composables/createContext'
   import { createOverflow } from '#v0/composables/createOverflow'
   import { createPagination } from '#v0/composables/createPagination'
   import { createRegistry } from '#v0/composables/createRegistry'

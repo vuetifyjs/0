@@ -17,12 +17,10 @@
  * Extends createModel and serves as the base for useSingle, useGroup, useStep, and useFeatures.
  */
 
-// Foundational
-import { createContext, useContext } from '#v0/composables/createContext'
-import { createTrinity } from '#v0/composables/createTrinity'
-
 // Composables
+import { createContext, useContext } from '#v0/composables/createContext'
 import { createModel } from '#v0/composables/createModel'
+import { createTrinity } from '#v0/composables/createTrinity'
 
 // Utilities
 import { isUndefined, useId } from '#v0/utilities'

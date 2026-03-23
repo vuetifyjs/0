@@ -11,10 +11,8 @@
   // Components
   import { Atom } from '#v0/components/Atom'
 
-  // Foundational
-  import { createContext } from '#v0/composables/createContext'
-
   // Composables
+  import { createContext } from '#v0/composables/createContext'
   import { createGroup } from '#v0/composables/createGroup'
   import { useProxyModel } from '#v0/composables/useProxyModel'
 

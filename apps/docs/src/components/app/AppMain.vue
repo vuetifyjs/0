@@ -1,10 +1,6 @@
 <script setup lang="ts">
   import { useHead } from '@unhead/vue'
 
-  // Components
-  import DocsToc from '../docs/DocsToc.vue'
-  import DocsPageLogo from '../docs/meta/DocsPageLogo.vue'
-
   // Composables
   import { useAsk } from '@/composables/useAsk'
   import { useRouterLinks } from '@/composables/useRouterLinks'
@@ -12,6 +8,10 @@
 
   // Utilities
   import { computed, shallowRef, toRef, useTemplateRef } from 'vue'
+
+  // Components
+  import DocsToc from '../docs/DocsToc.vue'
+  import DocsPageLogo from '../docs/meta/DocsPageLogo.vue'
 
   const ask = useAsk()
   const settings = useSettings()

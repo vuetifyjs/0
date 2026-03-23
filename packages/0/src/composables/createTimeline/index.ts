@@ -14,12 +14,10 @@
  * Extends createRegistry with temporal navigation capabilities.
  */
 
-// Foundational
-import { createContext, useContext } from '#v0/composables/createContext'
-import { createTrinity } from '#v0/composables/createTrinity'
-
 // Composables
+import { createContext, useContext } from '#v0/composables/createContext'
 import { createRegistry } from '#v0/composables/createRegistry'
+import { createTrinity } from '#v0/composables/createTrinity'
 
 // Types
 import type { RegistryContext, RegistryOptions, RegistryTicket } from '#v0/composables/createRegistry'

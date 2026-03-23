@@ -14,12 +14,10 @@
  * expires or is removed, the next ticket in the queue automatically becomes active.
  */
 
-// Foundational
-import { createContext, useContext } from '#v0/composables/createContext'
-import { createTrinity } from '#v0/composables/createTrinity'
-
 // Composables
+import { createContext, useContext } from '#v0/composables/createContext'
 import { createRegistry } from '#v0/composables/createRegistry'
+import { createTrinity } from '#v0/composables/createTrinity'
 import { useTimer } from '#v0/composables/useTimer'
 
 // Utilities

@@ -9,9 +9,9 @@
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
-  // Composables
   import { useSnackbarQueueContext } from './SnackbarQueue.vue'
 
+  // Composables
   // Foundational
   import { createContext } from '#v0/composables/createContext'
 
