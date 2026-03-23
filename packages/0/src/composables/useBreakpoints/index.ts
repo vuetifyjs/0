@@ -53,12 +53,10 @@ export interface BreakpointsContext {
   mdAndUp: Readonly<ShallowRef<boolean>>
   lgAndUp: Readonly<ShallowRef<boolean>>
   xlAndUp: Readonly<ShallowRef<boolean>>
-  xxlAndUp: Readonly<ShallowRef<boolean>>
   smAndDown: Readonly<ShallowRef<boolean>>
   mdAndDown: Readonly<ShallowRef<boolean>>
   lgAndDown: Readonly<ShallowRef<boolean>>
   xlAndDown: Readonly<ShallowRef<boolean>>
-  xxlAndDown: Readonly<ShallowRef<boolean>>
   ssr: boolean
   update: () => void
 }
@@ -162,12 +160,10 @@ export function createBreakpoints<
   const mdAndUp = shallowRef(initialIndex >= 2)
   const lgAndUp = shallowRef(initialIndex >= 3)
   const xlAndUp = shallowRef(initialIndex >= 4)
-  const xxlAndUp = shallowRef(initialIndex >= 5)
   const smAndDown = shallowRef(initialIndex <= 1)
   const mdAndDown = shallowRef(initialIndex <= 2)
   const lgAndDown = shallowRef(initialIndex <= 3)
   const xlAndDown = shallowRef(initialIndex <= 4)
-  const xxlAndDown = shallowRef(initialIndex <= 5)
 
   function update () {
     if (!IN_BROWSER) return
@@ -202,12 +198,10 @@ export function createBreakpoints<
     mdAndUp.value = index >= 2
     lgAndUp.value = index >= 3
     xlAndUp.value = index >= 4
-    xxlAndUp.value = index >= 5
     smAndDown.value = index <= 1
     mdAndDown.value = index <= 2
     lgAndDown.value = index <= 3
     xlAndDown.value = index <= 4
-    xxlAndDown.value = index <= 5
   }
 
   return {
@@ -227,12 +221,10 @@ export function createBreakpoints<
     mdAndUp: readonly(mdAndUp),
     lgAndUp: readonly(lgAndUp),
     xlAndUp: readonly(xlAndUp),
-    xxlAndUp: readonly(xxlAndUp),
     smAndDown: readonly(smAndDown),
     mdAndDown: readonly(mdAndDown),
     lgAndDown: readonly(lgAndDown),
     xlAndDown: readonly(xlAndDown),
-    xxlAndDown: readonly(xxlAndDown),
     ssr: isSSR,
     update,
   } as E
@@ -262,12 +254,10 @@ function createBreakpointsFallback<
     mdAndUp: readonly(shallowRef(false)),
     lgAndUp: readonly(shallowRef(false)),
     xlAndUp: readonly(shallowRef(false)),
-    xxlAndUp: readonly(shallowRef(false)),
     smAndDown: readonly(shallowRef(false)),
     mdAndDown: readonly(shallowRef(false)),
     lgAndDown: readonly(shallowRef(false)),
     xlAndDown: readonly(shallowRef(false)),
-    xxlAndDown: readonly(shallowRef(false)),
     ssr: false,
     update: () => {},
   } as E

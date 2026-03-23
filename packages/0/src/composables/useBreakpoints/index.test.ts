@@ -95,12 +95,10 @@ describe('useBreakpoints', () => {
       expect(context).toHaveProperty('mdAndUp')
       expect(context).toHaveProperty('lgAndUp')
       expect(context).toHaveProperty('xlAndUp')
-      expect(context).toHaveProperty('xxlAndUp')
       expect(context).toHaveProperty('smAndDown')
       expect(context).toHaveProperty('mdAndDown')
       expect(context).toHaveProperty('lgAndDown')
       expect(context).toHaveProperty('xlAndDown')
-      expect(context).toHaveProperty('xxlAndDown')
     })
 
     it('should initialize with default breakpoint values', () => {
@@ -275,7 +273,6 @@ describe('useBreakpoints', () => {
       expect(context.isMobile.value).toBe(false)
       expect(context.xlAndUp.value).toBe(true)
       expect(context.xlAndDown.value).toBe(true)
-      expect(context.xxlAndUp.value).toBe(false)
     })
 
     it('should detect xxl breakpoint correctly', () => {
@@ -288,8 +285,6 @@ describe('useBreakpoints', () => {
       expect(context.name.value).toBe('xxl')
       expect(context.xxl.value).toBe(true)
       expect(context.isMobile.value).toBe(false)
-      expect(context.xxlAndUp.value).toBe(true)
-      expect(context.xxlAndDown.value).toBe(true)
     })
   })
 
@@ -538,7 +533,6 @@ describe('useBreakpoints', () => {
 
       expect(context.name.value).toBe('xxl')
       expect(context.xxl.value).toBe(true)
-      expect(context.xxlAndUp.value).toBe(true)
     })
 
     it('should respect custom breakpoints with SSR', () => {
