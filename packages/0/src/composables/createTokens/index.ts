@@ -30,6 +30,7 @@ import { isObject, isString, isUndefined } from '#v0/utilities'
 // Types
 import type { RegistryContext, RegistryContextOptions, RegistryOptions, RegistryTicket } from '#v0/composables/createRegistry'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
+import type { ID } from '#v0/types'
 import type { App } from 'vue'
 
 export interface TokenAlias<T = unknown> {
@@ -259,7 +260,15 @@ export function createTokens<
     return result
   }
 
-  const { register: _register, upsert: _upsert, unregister: _unregister } = registry
+  const {
+    register: _register,
+    upsert: _upsert,
+    unregister: _unregister,
+    onboard: _onboard,
+    offboard: _offboard,
+    move: _move,
+    clear: _clear,
+  } = registry
 
   function register (registration: Partial<Z>) {
     cache.clear()
@@ -276,11 +285,35 @@ export function createTokens<
     return _unregister(id)
   }
 
+  function onboard (registrations: Partial<Z>[]) {
+    cache.clear()
+    return _onboard(registrations)
+  }
+
+  function offboard (ids: ID[]) {
+    cache.clear()
+    return _offboard(ids)
+  }
+
+  function move (id: string, index: number) {
+    cache.clear()
+    return _move(id, index)
+  }
+
+  function clear () {
+    cache.clear()
+    return _clear()
+  }
+
   return {
     ...registry,
     register,
     upsert,
     unregister,
+    onboard,
+    offboard,
+    move,
+    clear,
     resolve,
     isAlias,
     get size () {
