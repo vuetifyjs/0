@@ -76,6 +76,9 @@ declare global {
   const createModel: typeof import('../../packages/0/src/composables/createModel/index').createModel
   const createNested: typeof import('../../packages/0/src/composables/createNested/index').createNested
   const createNestedContext: typeof import('../../packages/0/src/composables/createNested/index').createNestedContext
+  const createNotifications: typeof import('../../packages/0/src/composables/useNotifications/index').createNotifications
+  const createNotificationsContext: typeof import('../../packages/0/src/composables/useNotifications/index').createNotificationsContext
+  const createNotificationsPlugin: typeof import('../../packages/0/src/composables/useNotifications/index').createNotificationsPlugin
   const createOverflow: typeof import('../../packages/0/src/composables/createOverflow/index').createOverflow
   const createOverflowContext: typeof import('../../packages/0/src/composables/createOverflow/index').createOverflowContext
   const createPagination: typeof import('../../packages/0/src/composables/createPagination/index').createPagination
@@ -236,6 +239,7 @@ declare global {
   const useModel: typeof import('vue').useModel
   const useMutationObserver: typeof import('../../packages/0/src/composables/useMutationObserver/index').useMutationObserver
   const useNested: typeof import('../../packages/0/src/composables/createNested/index').useNested
+  const useNotifications: typeof import('../../packages/0/src/composables/useNotifications/index').useNotifications
   const useOverflow: typeof import('../../packages/0/src/composables/createOverflow/index').useOverflow
   const usePagination: typeof import('../../packages/0/src/composables/createPagination/index').usePagination
   const usePermissions: typeof import('../../packages/0/src/composables/usePermissions/index').usePermissions
@@ -365,6 +369,9 @@ declare global {
   // @ts-ignore
   export type { ObservableNodeList, MutationObserverRecord, UseMutationObserverOptions, UseMutationObserverReturn } from '../../packages/0/src/composables/useMutationObserver/index'
   import('../../packages/0/src/composables/useMutationObserver/index')
+  // @ts-ignore
+  export type { NotificationSeverity, NotificationInput, NotificationTicket, NotificationsAdapterContext, NotificationsAdapterInterface, NotificationsOptions, NotificationsContext, NotificationsPluginOptions } from '../../packages/0/src/composables/useNotifications/index'
+  import('../../packages/0/src/composables/useNotifications/index')
   // @ts-ignore
   export type { OverflowOptions, OverflowContext, OverflowContextOptions } from '../../packages/0/src/composables/createOverflow/index'
   import('../../packages/0/src/composables/createOverflow/index')
@@ -505,6 +512,9 @@ declare module 'vue' {
     readonly createModel: UnwrapRef<typeof import('../../packages/0/src/composables/createModel/index')['createModel']>
     readonly createNested: UnwrapRef<typeof import('../../packages/0/src/composables/createNested/index')['createNested']>
     readonly createNestedContext: UnwrapRef<typeof import('../../packages/0/src/composables/createNested/index')['createNestedContext']>
+    readonly createNotifications: UnwrapRef<typeof import('../../packages/0/src/composables/useNotifications/index')['createNotifications']>
+    readonly createNotificationsContext: UnwrapRef<typeof import('../../packages/0/src/composables/useNotifications/index')['createNotificationsContext']>
+    readonly createNotificationsPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useNotifications/index')['createNotificationsPlugin']>
     readonly createOverflow: UnwrapRef<typeof import('../../packages/0/src/composables/createOverflow/index')['createOverflow']>
     readonly createOverflowContext: UnwrapRef<typeof import('../../packages/0/src/composables/createOverflow/index')['createOverflowContext']>
     readonly createPagination: UnwrapRef<typeof import('../../packages/0/src/composables/createPagination/index')['createPagination']>
@@ -662,6 +672,7 @@ declare module 'vue' {
     readonly useModel: UnwrapRef<typeof import('vue')['useModel']>
     readonly useMutationObserver: UnwrapRef<typeof import('../../packages/0/src/composables/useMutationObserver/index')['useMutationObserver']>
     readonly useNested: UnwrapRef<typeof import('../../packages/0/src/composables/createNested/index')['useNested']>
+    readonly useNotifications: UnwrapRef<typeof import('../../packages/0/src/composables/useNotifications/index')['useNotifications']>
     readonly useOverflow: UnwrapRef<typeof import('../../packages/0/src/composables/createOverflow/index')['useOverflow']>
     readonly usePagination: UnwrapRef<typeof import('../../packages/0/src/composables/createPagination/index')['usePagination']>
     readonly usePermissions: UnwrapRef<typeof import('../../packages/0/src/composables/usePermissions/index')['usePermissions']>

@@ -201,6 +201,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/components/semantic/snackbar': RouteRecordInfo<
+      '/components/semantic/snackbar',
+      '/components/semantic/snackbar',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/components/semantic/splitter': RouteRecordInfo<
       '/components/semantic/splitter',
       '/components/semantic/splitter',
@@ -323,6 +330,13 @@ declare module 'vue-router/auto-routes' {
     '/composables/plugins/use-logger': RouteRecordInfo<
       '/composables/plugins/use-logger',
       '/composables/plugins/use-logger',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/composables/plugins/use-notifications': RouteRecordInfo<
+      '/composables/plugins/use-notifications',
+      '/composables/plugins/use-notifications',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -959,6 +973,12 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/components/semantic/snackbar.md': {
+      routes:
+        | '/components/semantic/snackbar'
+      views:
+        | never
+    }
     'src/pages/components/semantic/splitter.md': {
       routes:
         | '/components/semantic/splitter'
@@ -1064,6 +1084,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/plugins/use-logger.md': {
       routes:
         | '/composables/plugins/use-logger'
+      views:
+        | never
+    }
+    'src/pages/composables/plugins/use-notifications.md': {
+      routes:
+        | '/composables/plugins/use-notifications'
       views:
         | never
     }

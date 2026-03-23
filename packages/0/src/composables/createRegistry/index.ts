@@ -269,7 +269,7 @@ export interface RegistryContext<
    * const patched = registry.upsert('ticket-id', { value: 'updated-value' })
    * ```
   */
-  upsert: (id: ID, ticket?: Partial<Z>) => E
+  upsert: (id: ID, ticket?: Partial<Z>, event?: string) => E
   /**
    * Get all values of registered tickets
    *
@@ -770,7 +770,7 @@ export function createRegistry<
     return collection.get(id)
   }
 
-  function upsert (id: ID, patch: Partial<Z> = {}) {
+  function upsert (id: ID, patch: Partial<Z> = {}, event?: string) {
     const existing = get(id)
 
     if (!existing) return register({ ...patch, id } as Partial<Z & RegistryTicket>)
@@ -814,6 +814,7 @@ export function createRegistry<
     collection.set(id, updated)
     invalidate()
     emit('update:ticket', updated)
+    if (event) emit(event, id)
 
     return updated
   }
@@ -1020,14 +1021,14 @@ export function createRegistry<
     const willReindex = indexDependentCount > 0 && ticket.index < collection.size
     if (!willReindex) invalidate()
 
-    emit('unregister:ticket', ticket)
-
     minDirtyIndex = Math.min(minDirtyIndex, ticket.index)
     if (willReindex) {
       reindex()
     } else {
       needsReindex = true
     }
+
+    emit('unregister:ticket', ticket)
   }
 
   function offboard (ids: ID[]) {
