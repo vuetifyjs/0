@@ -49,11 +49,9 @@ A single snackbar — render directly when you control the lifecycle yourself.
 
   <!-- Queue-driven -->
   <Snackbar.Portal>
-    <Snackbar.Queue v-slot="{ items }">
-      <Snackbar.Root v-for="item in items" :key="item.id" :id="item.id">
+    <Snackbar.Queue>
+      <Snackbar.Root>
         <Snackbar.Content />
-
-        <Snackbar.Action />
 
         <Snackbar.Close />
       </Snackbar.Root>
