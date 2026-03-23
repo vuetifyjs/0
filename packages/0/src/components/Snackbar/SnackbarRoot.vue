@@ -59,7 +59,6 @@
 
   const { as = 'div', namespace = 'v0:notifications', id = useId() } = defineProps<SnackbarRootProps>()
 
-  // Optionally detect Queue context — null when used standalone
   const queue = useSnackbarQueueContext(namespace, null)
 
   function onDismiss () {
