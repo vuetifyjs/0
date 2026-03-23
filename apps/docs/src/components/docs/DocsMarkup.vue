@@ -1,7 +1,4 @@
 <script setup lang="ts">
-  // Framework
-  import { useTheme } from '@vuetify/v0'
-
   // Composables
   import { useSettings } from '@/composables/useSettings'
   import { useSyncedRef } from '@/composables/useSyncedRef'
@@ -30,7 +27,6 @@
     hideFilename?: boolean
   }>()
 
-  const theme = useTheme()
   const settings = useSettings()
   const lineWrap = useSyncedRef(settings.lineWrap)
 
@@ -87,7 +83,6 @@
 
       <div
         class="transition-[max-height] duration-300 ease-out"
-        :data-theme="theme.isDark.value ? 'dark' : 'light'"
         :style="shouldCollapse && !expanded ? { maxHeight: collapsedHeight } : undefined"
       >
         <slot />
