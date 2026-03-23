@@ -64,6 +64,7 @@ export interface UseThemeToggleReturn {
   mode: ShallowRef<ModePreference>
   palette: ShallowRef<Palette>
   preference: ShallowRef<ThemePreference>
+  isAccessibilityActive: Ref<boolean>
   icon: Ref<string>
   title: Ref<string>
   toggle: () => void
@@ -172,6 +173,8 @@ export function useThemeToggle (): UseThemeToggleReturn {
     })
   }
 
+  const isAccessibilityActive = toRef(() => isAccessibilityTheme(preference.value))
+
   const icon = toRef(() => {
     if (isAccessibilityTheme(preference.value)) {
       return `theme-${preference.value}`
@@ -224,6 +227,7 @@ export function useThemeToggle (): UseThemeToggleReturn {
     mode,
     palette,
     preference,
+    isAccessibilityActive,
     icon,
     title,
     toggle,

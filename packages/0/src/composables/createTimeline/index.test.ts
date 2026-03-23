@@ -245,9 +245,10 @@ describe('createTimeline', () => {
     expect(timeline.values().map(t => t.value)).toEqual(['A', 'B'])
 
     timeline.redo()
-    // redo() calls registry.register() directly (not the overridden register)
-    // So it just adds C back without handling overflow, resulting in [A, B, C]
-    expect(timeline.values().map(t => t.value)).toEqual(['A', 'B', 'C'])
+    // Redo reverses the undo: pushes oldest back to overflow, adds redo item
+    // Timeline: [B, C], Overflow: [A]
+    expect(timeline.size).toBe(2)
+    expect(timeline.values().map(t => t.value)).toEqual(['B', 'C'])
   })
 
   it('should maintain correct indexes throughout operations', () => {

@@ -87,7 +87,7 @@
     isDisabled: isDisabled.value,
     last,
     attrs: {
-      'aria-label': locale.t('Pagination.last', undefined, 'Go to last page'),
+      'aria-label': locale.t('Pagination.last'),
       'aria-disabled': isDisabled.value,
       'data-disabled': isDisabled.value || undefined,
       'disabled': as === 'button' ? isDisabled.value : undefined,

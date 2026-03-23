@@ -172,6 +172,13 @@ export function createTimeline<
 
     const item = stack.pop()!
 
+    if (registry.size >= size) {
+      const oldest = registry.seek('first')!
+      if (overflow.length === size) overflow.shift()
+      overflow.push(oldest)
+      registry.unregister(oldest.id)
+    }
+
     const ticket = registry.register(item)
     registry.reindex()
 

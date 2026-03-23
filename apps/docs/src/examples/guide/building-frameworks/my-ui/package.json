@@ -9,7 +9,7 @@
     "./plugin": "./src/plugin.ts"
   },
   "peerDependencies": {
-    "@vuetify/v0": "^0.0.24",
+    "@vuetify/v0": "^0.1.8",
     "vue": "^3.5.0"
   }
 }

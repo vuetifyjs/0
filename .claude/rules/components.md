@@ -33,6 +33,7 @@ All components follow the **compound component pattern** in `packages/0/src/comp
 | **Group** | Multi-selection + tri-state | Root, Item |
 | **Pagination** | Page navigation with ellipsis | Root, Item, First, Prev, Next, Last, Ellipsis, Status |
 | **Popover** | Toggle/visibility | Root, Anchor, Content |
+| **Select** | Dropdown select with single/multi mode | Root, Activator, Value, Content, Item |
 | **Selection** | Generic single/multi via `multiple` prop | Root, Item |
 | **Single** | Single-selection specialization | Root, Item |
 | **Step** | Stepper navigation | Root, Item |

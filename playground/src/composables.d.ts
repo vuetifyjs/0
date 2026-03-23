@@ -566,7 +566,6 @@ declare module 'vue' {
     readonly defineAsyncComponent: UnwrapRef<typeof import('vue')['defineAsyncComponent']>
     readonly defineComponent: UnwrapRef<typeof import('vue')['defineComponent']>
     readonly effectScope: UnwrapRef<typeof import('vue')['effectScope']>
-    readonly generator: UnwrapRef<typeof import('../../packages/paper/src/composables/useElevation/index')['generator']>
     readonly getCurrentInstance: UnwrapRef<typeof import('vue')['getCurrentInstance']>
     readonly getCurrentInstanceName: UnwrapRef<typeof import('../../packages/paper/src/utilities/getCurrentInstanceName')['getCurrentInstanceName']>
     readonly getCurrentScope: UnwrapRef<typeof import('vue')['getCurrentScope']>

@@ -51,8 +51,13 @@
     return children
   }
 
-  watch(isReady, ready => {
-    if (!ready) return
+  const showConfig = shallowRef(false)
+  const targetFolder = shallowRef('src')
+
+  function rebuildFileTree () {
+    showConfig.value = false
+    targetFolder.value = 'src'
+    tree.clear()
 
     const srcFiles: string[] = []
     for (const [filename, file] of Object.entries(store.files)) {
@@ -72,7 +77,17 @@
       if (!isString(id)) continue
       if (id.startsWith('src/') && !/\.\w+$/.test(id)) tree.open(id)
     }
+  }
+
+  watch(isReady, ready => {
+    if (!ready) return
+    rebuildFileTree()
   }, { immediate: true })
+
+  watch(() => playground.filesVersion.value, () => {
+    if (!isReady.value) return
+    rebuildFileTree()
+  })
 
   const PROTECTED = new Set(['src/App.vue', 'src/main.ts', 'src/uno.config.ts', 'import-map.json', 'tsconfig.json', 'src', '/'])
   const VALID_EXT = /\.(vue|jsx?|tsx?|css|json)$/
@@ -84,8 +99,6 @@
   ]
 
   const CONFIG_IDS = new Set(CONFIG_FILES.map(f => f.id))
-
-  const showConfig = shallowRef(false)
 
   function toggleConfig () {
     showConfig.value = !showConfig.value
@@ -120,8 +133,7 @@
   const creating = shallowRef<string | null>(null)
   const creatingType = shallowRef<'file' | 'folder'>('file')
   const pending = shallowRef('')
-  const input = shallowRef<HTMLInputElement | null>(null)
-  const targetFolder = shallowRef('src')
+  const input = useTemplateRef<HTMLInputElement>('new-file-input')
 
   function isFile (id: string) {
     return VALID_EXT.test(id)
@@ -442,7 +454,7 @@
         >
           <span class="w-[14px]" />
           <input
-            :ref="el => input = el as HTMLInputElement"
+            ref="new-file-input"
             v-model="pending"
             class="flex-1 min-w-0 bg-transparent text-sm text-on-surface outline-none border-b border-primary"
             :placeholder="creatingType === 'file' ? 'filename.vue' : 'folder-name'"

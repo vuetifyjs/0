@@ -96,6 +96,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/components/forms/form': RouteRecordInfo<
+      '/components/forms/form',
+      '/components/forms/form',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/components/forms/input': RouteRecordInfo<
       '/components/forms/input',
       '/components/forms/input',
@@ -106,6 +113,13 @@ declare module 'vue-router/auto-routes' {
     '/components/forms/radio': RouteRecordInfo<
       '/components/forms/radio',
       '/components/forms/radio',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/components/forms/select': RouteRecordInfo<
+      '/components/forms/select',
+      '/components/forms/select',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -502,6 +516,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/composables/system/use-popover': RouteRecordInfo<
+      '/composables/system/use-popover',
+      '/composables/system/use-popover',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/composables/system/use-resize-observer': RouteRecordInfo<
       '/composables/system/use-resize-observer',
       '/composables/system/use-resize-observer',
@@ -509,9 +530,23 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/composables/system/use-roving-focus': RouteRecordInfo<
+      '/composables/system/use-roving-focus',
+      '/composables/system/use-roving-focus',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/composables/system/use-toggle-scope': RouteRecordInfo<
       '/composables/system/use-toggle-scope',
       '/composables/system/use-toggle-scope',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/composables/system/use-virtual-focus': RouteRecordInfo<
+      '/composables/system/use-virtual-focus',
+      '/composables/system/use-virtual-focus',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -848,6 +883,12 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/components/forms/form.md': {
+      routes:
+        | '/components/forms/form'
+      views:
+        | never
+    }
     'src/pages/components/forms/input.md': {
       routes:
         | '/components/forms/input'
@@ -857,6 +898,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/components/forms/radio.md': {
       routes:
         | '/components/forms/radio'
+      views:
+        | never
+    }
+    'src/pages/components/forms/select.md': {
+      routes:
+        | '/components/forms/select'
       views:
         | never
     }
@@ -1196,15 +1243,33 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/composables/system/use-popover.md': {
+      routes:
+        | '/composables/system/use-popover'
+      views:
+        | never
+    }
     'src/pages/composables/system/use-resize-observer.md': {
       routes:
         | '/composables/system/use-resize-observer'
       views:
         | never
     }
+    'src/pages/composables/system/use-roving-focus.md': {
+      routes:
+        | '/composables/system/use-roving-focus'
+      views:
+        | never
+    }
     'src/pages/composables/system/use-toggle-scope.md': {
       routes:
         | '/composables/system/use-toggle-scope'
+      views:
+        | never
+    }
+    'src/pages/composables/system/use-virtual-focus.md': {
+      routes:
+        | '/composables/system/use-virtual-focus'
       views:
         | never
     }

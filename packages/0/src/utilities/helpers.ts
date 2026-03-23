@@ -320,6 +320,8 @@ export function mergeDeep<T extends object> (target: T, ...sources: DeepPartial<
       if (!Object.prototype.hasOwnProperty.call(source, key)) continue
 
       const sourceValue = source[key]
+      if (isUndefined(sourceValue)) continue
+
       const targetValue = (target as Record<string, unknown>)[key]
 
       if (isObject(sourceValue)) {

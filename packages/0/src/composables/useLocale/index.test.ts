@@ -1,10 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+// Composables
+import { createTokens } from '#v0/composables/createTokens'
+
 // Adapters
 import { Vuetify0LocaleAdapter } from './adapters/v0'
 
 // Utilities
-import { hasInjectionContext, inject, provide } from 'vue'
+import { hasInjectionContext, inject, provide, shallowRef } from 'vue'
 
 import { createLocale, createLocaleContext, createLocalePlugin, useLocale } from './index'
 
@@ -87,33 +90,7 @@ describe('useLocale', () => {
       expect(locale.t('missing')).toBe('missing')
     })
 
-    it('should use fallback when translation not found', () => {
-      const locale = createLocale({
-        default: 'en',
-        messages: {
-          en: { hello: 'Hello' },
-        },
-      })
-
-      expect(locale.t('missing.key', { page: 5 }, 'Go to page 5')).toBe('Go to page 5')
-    })
-
-    it('should use translation over fallback when found', () => {
-      const locale = createLocale({
-        default: 'en',
-        messages: {
-          en: {
-            Pagination: {
-              goToPage: 'Navigate to page {page}',
-            },
-          },
-        },
-      })
-
-      expect(locale.t('Pagination.goToPage', { page: 5 }, 'Go to page 5')).toBe('Navigate to page 5')
-    })
-
-    it('should support nested message structures', () => {
+    it('should translate nested message structures', () => {
       const locale = createLocale({
         default: 'en',
         messages: {
@@ -126,8 +103,8 @@ describe('useLocale', () => {
         },
       })
 
-      expect(locale.t('Pagination.goToPage', { page: 5 }, 'Go to page 5')).toBe('Navigate to page 5')
-      expect(locale.t('Pagination.currentPage', { page: 3 }, 'Page 3')).toBe('Page 3, current')
+      expect(locale.t('Pagination.goToPage', { page: 5 })).toBe('Navigate to page 5')
+      expect(locale.t('Pagination.currentPage', { page: 3 })).toBe('Page 3, current')
     })
 
     it('should switch locale and translate accordingly', () => {
@@ -189,11 +166,6 @@ describe('useLocale', () => {
       expect(locale.t('hello')).toBe('hello')
     })
 
-    it('should use fallback when no locale is selected', () => {
-      const locale = createLocale({ messages: { en: { hello: 'Hello' } } })
-      expect(locale.t('hello', {}, 'Fallback text')).toBe('Fallback text')
-    })
-
     it('should interpolate params when no locale is selected', () => {
       const locale = createLocale({ messages: { en: { hello: 'Hello' } } })
       expect(locale.t('Hello {name}', { name: 'World' })).toBe('Hello World')
@@ -239,55 +211,46 @@ describe('useLocale', () => {
   })
 
   describe('vuetify0LocaleAdapter', () => {
-    let adapter: Vuetify0LocaleAdapter
+    function createAdapter (messages: Record<string, Record<string, string>>, locale?: string) {
+      const tokens = createTokens(messages)
 
-    beforeEach(() => {
-      adapter = new Vuetify0LocaleAdapter()
-    })
+      return new Vuetify0LocaleAdapter({
+        tokens,
+        selectedId: shallowRef(locale) as any,
+        fallbackLocale: undefined,
+        has: id => String(id) in messages,
+      })
+    }
 
     it('should translate simple messages', () => {
-      expect(adapter.t('Hello')).toBe('Hello')
-    })
-
-    it('should handle numbered placeholders', () => {
-      expect(adapter.t('Hello {0}', 'World')).toBe('Hello World')
-      expect(adapter.t('Sum: {0} + {1} = {2}', 1, 2, 3)).toBe('Sum: 1 + 2 = 3')
+      const adapter = createAdapter({ en: { hello: 'Hello' } }, 'en')
+      expect(adapter.t('hello')).toBe('Hello')
     })
 
     it('should handle named placeholders', () => {
-      expect(adapter.t('Hello {name}', { name: 'World' })).toBe('Hello World')
-      expect(adapter.t('Hello {firstName} {lastName}', { firstName: 'John', lastName: 'Doe' }))
-        .toBe('Hello John Doe')
+      const adapter = createAdapter({ en: { greet: 'Hello {name}' } }, 'en')
+      expect(adapter.t('greet', { name: 'World' })).toBe('Hello World')
     })
 
-    it('should handle mixed placeholders', () => {
-      expect(adapter.t('Hello {name}, you have {0} messages', { name: 'John' }, 5))
-        .toBe('Hello John, you have 5 messages')
+    it('should handle numbered placeholders', () => {
+      const adapter = createAdapter({ en: { sum: 'Sum: {0} + {1} = {2}' } }, 'en')
+      expect(adapter.t('sum', 1, 2, 3)).toBe('Sum: 1 + 2 = 3')
     })
 
-    it('should preserve unresolved placeholders', () => {
-      expect(adapter.t('Hello {name}', {})).toBe('Hello {name}')
-      expect(adapter.t('Hello {0}')).toBe('Hello {0}')
-    })
-
-    it('should handle special characters in named placeholders', () => {
-      expect(adapter.t('Hello {name123}', { name123: 'Test' })).toBe('Hello Test')
-      expect(adapter.t('Hello {first_name}', { first_name: 'John' })).toBe('Hello John')
+    it('should return key when translation not found', () => {
+      const adapter = createAdapter({ en: { hello: 'Hello' } }, 'en')
+      expect(adapter.t('missing')).toBe('missing')
     })
 
     it('should format numbers', () => {
-      const result = adapter.n(1234.56, 'en-US')
+      const adapter = createAdapter({ 'en-US': {} }, 'en-US')
+      const result = adapter.n(1234.56)
       expect(typeof result).toBe('string')
     })
 
     it('should handle undefined locale in n()', () => {
-      const result = adapter.n(1234.56, undefined)
-      expect(result).toBe('1234.56')
-    })
-
-    it('should handle number formatting options', () => {
-      const result = adapter.n(1234.56, 'en-US', { style: 'currency', currency: 'USD' })
-      expect(typeof result).toBe('string')
+      const adapter = createAdapter({})
+      expect(adapter.n(1234.56)).toBe('1234.56')
     })
   })
 
@@ -312,7 +275,10 @@ describe('useLocale', () => {
     })
 
     it('should accept custom adapter', () => {
-      const customAdapter = new Vuetify0LocaleAdapter()
+      const customAdapter = {
+        t: (key: string) => key,
+        n: String,
+      }
       const plugin = createLocalePlugin({
         adapter: customAdapter,
         messages: {

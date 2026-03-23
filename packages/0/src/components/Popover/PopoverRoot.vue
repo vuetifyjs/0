@@ -13,12 +13,12 @@
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
-  import type { ShallowRef } from 'vue'
+  import type { PopoverReturn } from '#v0/composables/usePopover'
+  import type { Ref } from 'vue'
 
-  export interface PopoverContext {
-    isSelected: ShallowRef<boolean>
-    id: string
-    toggle: () => void
+  export interface PopoverContext extends PopoverReturn {
+    /** @deprecated Use `isOpen` instead */
+    isSelected: Ref<boolean>
   }
 
   export interface PopoverRootProps extends AtomProps {
@@ -42,8 +42,11 @@
   // Components
   import { Atom } from '#v0/components/Atom'
 
+  // Composables
+  import { usePopover } from '#v0/composables/usePopover'
+
   // Utilities
-  import { toRef, useId } from 'vue'
+  import { toRef } from 'vue'
 
   defineOptions({ name: 'PopoverRoot' })
 
@@ -55,22 +58,17 @@
 
   const isSelected = defineModel<boolean>({ default: false })
 
-  const id = _id ?? useId()
-
-  function toggle () {
-    isSelected.value = !isSelected.value
-  }
+  const popover = usePopover({ id: _id, isOpen: isSelected })
 
   providePopoverContext({
+    ...popover,
     isSelected,
-    toggle,
-    id,
   })
 
   const slotProps = toRef((): PopoverRootSlotProps => ({
-    id,
+    id: popover.id,
     isSelected: isSelected.value,
-    toggle,
+    toggle: popover.toggle,
   }))
 </script>
 

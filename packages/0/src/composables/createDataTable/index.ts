@@ -330,8 +330,8 @@ export function createDataTable<T extends Record<string, unknown>> (
     function setNone () {
       group.unselect(key)
       group.unmix(key)
-      const idx = order.indexOf(key)
-      if (idx !== -1) order.splice(idx, 1)
+      const index = order.indexOf(key)
+      if (index !== -1) order.splice(index, 1)
     }
 
     if (!isAsc && !isDesc) {

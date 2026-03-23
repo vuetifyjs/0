@@ -8,12 +8,58 @@ export const REPL_BUILTIN_FILES = ['import-map.json', 'tsconfig.json'] as const
 
 // ── Template files (matching Vuetify Play's v0 template) ────────────────
 
-export function createMainTs (defaultTheme: 'light' | 'dark' = 'light'): string {
+export interface MainOptions {
+  router?: boolean
+  pinia?: boolean
+  vuetify?: boolean
+  /** Set to false to omit @vuetify/v0 theme plugin and UnoCSS (e.g. for Vuetify 4 preset) */
+  v0?: boolean
+}
+
+export function createMainTs (defaultTheme: 'light' | 'dark' = 'light', options?: MainOptions): string {
+  const useV0 = options?.v0 !== false
+  const extraImports: string[] = []
+  const extraPlugins: string[] = []
+  const extraSetup: string[] = [`document.querySelectorAll('link[data-preset-css]').forEach(el => el.remove())`]
+
+  if (options?.router) {
+    extraImports.push(`import router from './router'`)
+    extraPlugins.push(`app.use(router)`)
+  }
+  if (options?.pinia) {
+    extraImports.push(`import { createPinia } from 'pinia'`)
+    extraPlugins.push(`app.use(createPinia())`)
+  }
+  if (options?.vuetify) {
+    extraImports.push(`import { createVuetify } from 'vuetify'`)
+    extraSetup.push(
+      `const link = document.createElement('link')`,
+      `link.rel = 'stylesheet'`,
+      `link.setAttribute('data-preset-css', 'vuetify')`,
+      `link.href = 'https://cdn.jsdelivr.net/npm/vuetify@latest/dist/vuetify-labs.css'`,
+      `document.head.appendChild(link)`,
+    )
+    extraPlugins.push(`app.use(createVuetify())`)
+  }
+
+  const importBlock = extraImports.length > 0 ? '\n' + extraImports.join('\n') : ''
+  const setupBlock = extraSetup.length > 0 ? '\n' + extraSetup.join('\n') + '\n' : ''
+  const pluginBlock = extraPlugins.length > 0 ? extraPlugins.join('\n') + '\n' : ''
+
+  if (!useV0) {
+    return `import { createApp } from 'vue'
+import App from './App.vue'${importBlock}
+${setupBlock}
+const app = createApp(App)
+${pluginBlock}app.mount('#app')
+`
+  }
+
   return `import { createApp } from 'vue'
 import App from './App.vue'
 import { createThemePlugin } from '@vuetify/v0'
-import './uno.config.ts'
-
+import './uno.config.ts'${importBlock}
+${setupBlock}
 const theme = createThemePlugin({
   default: '${defaultTheme}',
   themes: {
@@ -76,7 +122,7 @@ const theme = createThemePlugin({
 
 const app = createApp(App)
 app.use(theme)
-app.mount('#app')
+${pluginBlock}app.mount('#app')
 `
 }
 
@@ -125,43 +171,4 @@ defineConfig({
     },
   },
 })
-`
-
-// ── Default App.vue ─────────────────────────────────────────────────────
-
-export const DEFAULT_CODE = `<script lang="ts" setup>
-  import { createSingle } from '@vuetify/v0'
-
-  const single = createSingle({ mandatory: 'force' })
-
-  single.onboard([
-    { id: 'home', value: 'Home' },
-    { id: 'profile', value: 'Profile' },
-    { id: 'settings', value: 'Settings' },
-  ])
-
-  const tabs = single.values()
-</script>
-
-<template>
-  <div class="p-6">
-    <div class="flex border-b border-divider mb-6">
-      <button
-        v-for="tab in tabs"
-        :key="tab.id"
-        class="px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors"
-        :class="tab.isSelected.value
-          ? 'text-primary border-primary'
-          : 'text-on-surface-variant border-transparent hover:text-on-surface'"
-        @click="tab.toggle()"
-      >
-        {{ tab.value }}
-      </button>
-    </div>
-
-    <p class="text-sm text-on-surface-variant">
-      Active tab: <strong class="text-on-surface">{{ single.selectedId.value }}</strong>
-    </p>
-  </div>
-</template>
 `

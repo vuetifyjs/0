@@ -10,6 +10,7 @@
 
   // Types
   import type { ReplStore } from '@vue/repl'
+  import type { Ref, ShallowRef } from 'vue'
 
   export interface PlaygroundContext {
     store: ReplStore
@@ -19,13 +20,25 @@
     bottom: { value: boolean }
     side: { value: boolean }
     editor: { value: boolean }
+    vueVersion: Ref<string | null>
+    v0Version: Ref<string>
+    vueVersions: Ref<string[]>
+    v0Versions: Ref<string[]>
+    fetching: Ref<boolean>
+    fetchVersions: () => Promise<void>
+    activePreset: ShallowRef<string>
+    applyPreset: (id: string) => Promise<void>
+    activeAddons: ShallowRef<string[]>
+    toggleAddon: (id: string) => Promise<void>
+    filesVersion: ShallowRef<number>
+    openPlayground: (content: string) => Promise<void>
   }
 
   export const [usePlayground, providePlayground] = createContext<PlaygroundContext>('v0:playground')
 </script>
 
 <script setup lang="ts">
-  const { store, isReady } = usePlaygroundFiles()
+  const { store, isReady, filesVersion, vueVersion, v0Version, vueVersions, v0Versions, fetching, fetchVersions, activePreset, applyPreset, activeAddons, toggleAddon, openPlayground } = usePlaygroundFiles()
   const storage = useStorage()
   const { isMobile } = useBreakpoints()
 
@@ -34,9 +47,6 @@
 
   // Persisted user preference for side preview position
   const sidePref = storage.get('playground-preview-right', false)
-  // Side preview active when preferred and left panel is closed
-  const sideActive = sidePref.value && !left.value
-
   // Track the desktop left-panel state so it survives mobile transitions.
   // Updated whenever isMobile flips to true, restored when it flips back.
   const desktop$ = { left: left.value }
@@ -47,8 +57,8 @@
   const desktop = !isMobile.value
   const tree = shallowRef(desktop)
   const editor = shallowRef(desktop)
-  const bottom = shallowRef(desktop && !sideActive)
-  const side = shallowRef(desktop && sideActive)
+  const bottom = shallowRef(desktop && !(sidePref.value && !left.value))
+  const side = shallowRef(desktop && (sidePref.value && !left.value))
   left.value = desktop ? desktop$.left : false
 
   // Invisible until layout stabilizes — prevents hydration flash
@@ -63,6 +73,18 @@
     bottom,
     side,
     editor,
+    vueVersion,
+    v0Version,
+    vueVersions,
+    v0Versions,
+    fetching,
+    fetchVersions,
+    activePreset,
+    applyPreset,
+    activeAddons,
+    toggleAddon,
+    filesVersion,
+    openPlayground,
   })
 
   // Restore panel state on runtime breakpoint changes

@@ -619,8 +619,8 @@ describe('useTokens registry integration', () => {
       const context = createTokens(tokens)
       const entries = context.entries()
 
-      for (const [idx, entry] of entries.entries()) {
-        expect(entry[1].index).toBe(idx)
+      for (const [index, entry] of entries.entries()) {
+        expect(entry[1].index).toBe(index)
       }
     })
   })
@@ -3138,8 +3138,8 @@ describe('useTokens with fixture data', () => {
       const spacings = ['none', 'xs', 'sm', 'md', 'lg', 'xl', '2xl', '3xl']
       const values = [0, 4, 8, 12, 16, 24, 32, 48]
 
-      for (const [idx, name] of spacings.entries()) {
-        expect(context.resolve(`theme.spacing.${name}`)).toBe(values[idx])
+      for (const [index, name] of spacings.entries()) {
+        expect(context.resolve(`theme.spacing.${name}`)).toBe(values[index])
       }
     })
 
@@ -3370,8 +3370,8 @@ describe('token registration order and index assignment', () => {
     const context = createTokensContext({ namespace: 'test', tokens })[2]
     const entries = context.entries()
 
-    for (const [idx, entry] of entries.entries()) {
-      expect(entry[1].index).toBe(idx)
+    for (const [index, entry] of entries.entries()) {
+      expect(entry[1].index).toBe(index)
     }
   })
 
