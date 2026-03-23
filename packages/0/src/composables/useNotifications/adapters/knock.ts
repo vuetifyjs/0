@@ -95,7 +95,7 @@ export function createKnockAdapter (feed: KnockFeed): NotificationsAdapterInterf
         }
       }
 
-      // Inbound: page fetch → seed (registry only, no toast)
+      // Inbound: page fetch → register (registry only, no toast)
       onPage = (data: unknown) => {
         const payload = data as { items?: KnockFeedItem[] }
         if (!payload?.items) return

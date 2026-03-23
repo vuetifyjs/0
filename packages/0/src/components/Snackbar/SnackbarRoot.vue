@@ -37,7 +37,7 @@
   export interface SnackbarRootSlotProps {
     id: ID
     attrs: {
-      role: 'status' | 'alert'
+      role: string
     }
   }
 </script>
