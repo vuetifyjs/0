@@ -4,7 +4,7 @@
  * @remarks
  * Dismiss button for snackbar notifications.
  * Auto-wires to the nearest Snackbar.Root context — calls onDismiss() on click.
- * No-op when used outside a Snackbar.Root.
+ * Must be used inside a Snackbar.Root.
  */
 
 <script lang="ts">
@@ -43,7 +43,7 @@
 
   const { as = 'button', namespace = 'v0:notifications' } = defineProps<SnackbarCloseProps>()
 
-  const context = useSnackbarRootContext(namespace, { id: '', onDismiss: () => {} })
+  const context = useSnackbarRootContext(namespace)
 
   function onClick () {
     context.onDismiss()

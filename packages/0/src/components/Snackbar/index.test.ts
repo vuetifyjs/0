@@ -122,14 +122,20 @@ describe('snackbar', () => {
 
   describe('close', () => {
     it('should render aria-label="Close"', () => {
-      const wrapper = mount(Snackbar.Close)
-      expect(wrapper.attributes('aria-label')).toBe('Close')
+      const wrapper = mount(Snackbar.Root, {
+        slots: { default: () => h(Snackbar.Close) },
+      })
+      const close = wrapper.findComponent(Snackbar.Close as any)
+      expect(close.attributes('aria-label')).toBe('Close')
     })
 
     it('should render as button with type="button"', () => {
-      const wrapper = mount(Snackbar.Close)
-      expect(wrapper.element.tagName).toBe('BUTTON')
-      expect(wrapper.attributes('type')).toBe('button')
+      const wrapper = mount(Snackbar.Root, {
+        slots: { default: () => h(Snackbar.Close) },
+      })
+      const close = wrapper.findComponent(Snackbar.Close as any)
+      expect(close.element.tagName).toBe('BUTTON')
+      expect(close.attributes('type')).toBe('button')
     })
 
     it('should call onDismiss from root context on click', async () => {
@@ -151,11 +157,8 @@ describe('snackbar', () => {
       expect(onDismiss).toHaveBeenCalledOnce()
     })
 
-    it('should be a no-op when used without root context', async () => {
-      const wrapper = mount(Snackbar.Close)
-      // Should not throw
-      await wrapper.trigger('click')
-      expect(true).toBe(true)
+    it('should throw when used without root context', () => {
+      expect(() => mount(Snackbar.Close)).toThrow()
     })
   })
 
