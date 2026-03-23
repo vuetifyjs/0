@@ -20,13 +20,25 @@
     /** Namespace for dependency injection. @default 'v0:notifications' */
     namespace?: string
   }
+
+  export interface SnackbarCloseSlotProps {
+    /** Attributes to bind to the close button element */
+    attrs: {
+      'type': 'button' | undefined
+      'aria-label': 'Close'
+      'onClick': () => void
+    }
+  }
 </script>
 
 <script setup lang="ts">
+  // Utilities
+  import { toRef } from 'vue'
+
   defineOptions({ name: 'SnackbarClose' })
 
   defineSlots<{
-    default: () => any
+    default: (props: SnackbarCloseSlotProps) => any
   }>()
 
   const { as = 'button', namespace = 'v0:notifications' } = defineProps<SnackbarCloseProps>()
@@ -36,15 +48,21 @@
   function onClick () {
     context.onDismiss()
   }
+
+  const slotProps = toRef((): SnackbarCloseSlotProps => ({
+    attrs: {
+      'type': as === 'button' ? 'button' : undefined,
+      'aria-label': 'Close',
+      'onClick': onClick,
+    },
+  }))
 </script>
 
 <template>
   <Atom
-    aria-label="Close"
+    v-bind="slotProps.attrs"
     :as
-    :type="as === 'button' ? 'button' : undefined"
-    @click="onClick"
   >
-    <slot />
+    <slot v-bind="slotProps" />
   </Atom>
 </template>

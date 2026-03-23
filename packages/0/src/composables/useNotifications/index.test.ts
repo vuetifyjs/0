@@ -278,7 +278,7 @@ describe('createNotifications', () => {
     function adapterContext (notifications: ReturnType<typeof createNotifications>): NotificationsAdapterContext {
       return {
         send: notifications.send,
-        seed: notifications.seed,
+        register: notifications.register,
         on: notifications.on,
         off: notifications.off,
       }
@@ -401,10 +401,10 @@ describe('createNotifications', () => {
       })
     })
 
-    it('should add to registry only on seed', () => {
+    it('should add to registry only on register', () => {
       withScope(() => {
         const notifications = createNotifications()
-        const ticket = notifications.seed({ subject: 'A' })
+        const ticket = notifications.register({ subject: 'A' })
 
         expect(notifications.values()).toHaveLength(1)
         expect(notifications.queue.values()).toHaveLength(0)

@@ -102,7 +102,7 @@ export function createKnockAdapter (feed: KnockFeed): NotificationsAdapterInterf
         for (const item of payload.items) {
           if (items.has(item.id)) continue
           items.set(item.id, item)
-          ctx!.seed(mapItem(item))
+          ctx!.register(mapItem(item))
         }
       }
 

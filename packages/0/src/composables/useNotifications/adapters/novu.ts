@@ -122,7 +122,7 @@ export function createNovuAdapter (novu: NovuClient, options: NovuAdapterOptions
           for (const item of data?.notifications ?? []) {
             if (!item.id || ids.has(item.id)) continue
             ids.add(item.id)
-            ctx!.seed(mapItem(item, resolveSeverity))
+            ctx!.register(mapItem(item, resolveSeverity))
           }
         }).catch(noop)
       }

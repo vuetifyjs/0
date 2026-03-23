@@ -12,17 +12,14 @@ export { provideSnackbarQueueContext, useSnackbarQueueContext } from './Snackbar
 export { default as SnackbarRoot } from './SnackbarRoot.vue'
 export { provideSnackbarRootContext, useSnackbarRootContext } from './SnackbarRoot.vue'
 export { default as SnackbarContent } from './SnackbarContent.vue'
-export { default as SnackbarAction } from './SnackbarAction.vue'
 export { default as SnackbarClose } from './SnackbarClose.vue'
 export type { SnackbarPortalProps, SnackbarPortalSlotProps } from './SnackbarPortal.vue'
 export type { SnackbarQueueContext, SnackbarQueueProps, SnackbarQueueSlotProps } from './SnackbarQueue.vue'
 export type { SnackbarRootContext, SnackbarRootProps, SnackbarRootSlotProps } from './SnackbarRoot.vue'
 export type { SnackbarContentProps } from './SnackbarContent.vue'
-export type { SnackbarActionProps } from './SnackbarAction.vue'
-export type { SnackbarCloseProps } from './SnackbarClose.vue'
+export type { SnackbarCloseProps, SnackbarCloseSlotProps } from './SnackbarClose.vue'
 
 // Components
-import Action from './SnackbarAction.vue'
 import Close from './SnackbarClose.vue'
 import Content from './SnackbarContent.vue'
 import Portal from './SnackbarPortal.vue'
@@ -111,17 +108,6 @@ export const Snackbar = {
    * ```
    */
   Content,
-  /**
-   * Optional action button (undo, retry, view, etc.).
-   *
-   * @see https://0.vuetifyjs.com/components/snackbar#snackbaraction
-   *
-   * @example
-   * ```vue
-   * <Snackbar.Action @click="undo()">Undo</Snackbar.Action>
-   * ```
-   */
-  Action,
   /**
    * Dismiss button. Auto-wires to nearest Snackbar.Root context.
    *

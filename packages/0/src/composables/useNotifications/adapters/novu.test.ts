@@ -44,7 +44,7 @@ function mockNovu (): NovuClient {
 function adapterContext (notifications: ReturnType<typeof createNotifications>): NotificationsAdapterContext {
   return {
     send: notifications.send,
-    seed: notifications.seed,
+    register: notifications.register,
     on: notifications.on,
     off: notifications.off,
   }

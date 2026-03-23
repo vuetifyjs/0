@@ -41,7 +41,7 @@ function mockFeed (): KnockFeed & { _emit: (event: string, data: unknown) => voi
 function adapterContext (notifications: ReturnType<typeof createNotifications>): NotificationsAdapterContext {
   return {
     send: notifications.send,
-    seed: notifications.seed,
+    register: notifications.register,
     on: notifications.on,
     off: notifications.off,
   }

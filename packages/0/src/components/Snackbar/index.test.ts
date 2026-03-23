@@ -159,17 +159,6 @@ describe('snackbar', () => {
     })
   })
 
-  describe('action', () => {
-    it('should render as button with type="button"', () => {
-      const wrapper = mount(Snackbar.Action, {
-        slots: { default: () => 'Undo' },
-      })
-
-      expect(wrapper.element.tagName).toBe('BUTTON')
-      expect(wrapper.attributes('type')).toBe('button')
-    })
-  })
-
   describe('content', () => {
     it('should render slot content', () => {
       const wrapper = mount(Snackbar.Content, {

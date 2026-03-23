@@ -110,7 +110,7 @@ flowchart TB
 | Method | Description |
 |--------|-------------|
 | `send(input)` | Create notification + enqueue for toast display |
-| `seed(input)` | Create notification in registry only (no toast). Use for historical items |
+| `register(input)` | Create notification in registry only (no toast). Use for historical items |
 | `queue` | Queue context — `queue.values()`, `queue.pause()`, `queue.resume()` |
 | `read(id)` / `unread(id)` | Toggle read state |
 | `seen(id)` | Mark as seen |

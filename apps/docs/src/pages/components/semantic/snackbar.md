@@ -43,8 +43,6 @@ A single snackbar — render directly when you control the lifecycle yourself.
     <Snackbar.Root>
       <Snackbar.Content />
 
-      <Snackbar.Action />
-
       <Snackbar.Close />
     </Snackbar.Root>
   </Snackbar.Portal>

@@ -29,75 +29,125 @@ import { isFunction, isNull, isUndefined, useId } from '#v0/utilities'
 // Types
 import type { QueueContext } from '#v0/composables/createQueue'
 import type { RegistryContext, RegistryOptions, RegistryTicket, RegistryTicketInput } from '#v0/composables/createRegistry'
-import type { ID } from '#v0/types'
+import type { Extensible, ID } from '#v0/types'
 
-export type NotificationSeverity = 'info' | 'warning' | 'error' | 'success'
+/** Notification urgency level. Maps to ARIA roles: `'error'`/`'warning'` → `role="alert"`, `'info'`/`'success'` → `role="status"`. Extensible — custom values like `'critical'` are allowed with autocomplete for defaults. */
+export type NotificationSeverity = Extensible<'info' | 'warning' | 'error' | 'success'>
 
+/** Input shape for creating a notification via {@link send} or {@link register}. */
 export interface NotificationInput extends RegistryTicketInput {
+  /** Notification headline. */
   subject?: string
+  /** Extended message body. */
   body?: string
+  /** Urgency level for styling and ARIA role selection. */
   severity?: NotificationSeverity
+  /** Arbitrary payload for routing, filtering, or rendering. */
   data?: Record<string, unknown>
+  /** Auto-dismiss duration in ms. Overrides the global default. `undefined` uses the global timeout. */
   timeout?: number
 }
 
+/**
+ * Hydrated notification with lifecycle state and convenience methods.
+ * Returned by {@link send}, {@link register}, and {@link onboard}.
+ */
 export type NotificationTicket<Z extends NotificationInput = NotificationInput> = RegistryTicket & Z & {
+  /** When the notification was created. */
   createdAt: Date
+  /** When the notification was marked as read, or `null` if unread. */
   readAt: Date | null
+  /** When the notification was seen in the viewport, or `null` if unseen. */
   seenAt: Date | null
+  /** When the notification was archived, or `null` if active. */
   archivedAt: Date | null
+  /** Snooze expiry, or `null` if not snoozed. */
   snoozedUntil: Date | null
+  /** Mark as read. Sets `readAt` to now. */
   read: () => void
+  /** Mark as unread. Clears `readAt`. */
   unread: () => void
+  /** Mark as seen. Sets `seenAt` to now. */
   seen: () => void
+  /** Archive. Sets `archivedAt` to now. */
   archive: () => void
+  /** Restore from archive. Clears `archivedAt`. */
   unarchive: () => void
+  /** Snooze until the given time. */
   snooze: (until: Date) => void
+  /** Cancel snooze. Clears `snoozedUntil`. */
   wake: () => void
-  /** Removes from the display queue only. Registry entry is preserved for inbox/history. Use `ticket.unregister()` for full removal. */
+  /** Remove from the display queue only. Registry entry is preserved for inbox/history. Use `ticket.unregister()` for full removal. */
   dismiss: () => void
 }
 
+/**
+ * Context passed to adapter `setup()`. Provides methods for inbound
+ * notification creation and event subscription for outbound sync.
+ */
 export interface NotificationsAdapterContext<
   Z extends NotificationInput = NotificationInput,
   E extends NotificationTicket<Z> = NotificationTicket<Z>,
 > {
+  /** Create a notification and enqueue for toast display. Use for real-time inbound items. */
   send: (input: Z) => E
-  /** Register into registry only (no toast queue). Use for initial/historical items. */
-  seed: (input: Z) => E
+  /** Create a notification in registry only (no toast). Use for initial/historical items. */
+  register: (input: Z) => E
+  /** Subscribe to notification lifecycle events (e.g., `'notification:read'`). */
   on: (event: string, handler: (data: unknown) => void) => void
+  /** Unsubscribe from a lifecycle event. */
   off: (event: string, handler: (data: unknown) => void) => void
 }
 
+/**
+ * Adapter interface for bridging external notification services.
+ * Adapters receive an {@link NotificationsAdapterContext} on setup
+ * and optionally clean up on dispose.
+ */
 export interface NotificationsAdapterInterface<
   Z extends NotificationInput = NotificationInput,
   E extends NotificationTicket<Z> = NotificationTicket<Z>,
 > {
+  /** Called once when the plugin installs. Wire inbound/outbound sync here. */
   setup: (context: NotificationsAdapterContext<Z, E>) => void
+  /** Called on app unmount. Tear down listeners and connections. */
   dispose?: () => void
 }
 
+/** Options for {@link createNotifications}. */
 export interface NotificationsOptions extends RegistryOptions {
+  /** Default auto-dismiss timeout in ms for the toast queue. @default 3000 */
   timeout?: number
 }
 
+/** Full notification context returned by {@link createNotifications} and {@link useNotifications}. */
 export interface NotificationsContext<
   Z extends NotificationInput = NotificationInput,
   E extends NotificationTicket<Z> = NotificationTicket<Z>,
 > extends RegistryContext<E> {
+  /** Create a notification and enqueue for toast display. */
   send: (input: Z) => E
-  seed: (input: Z) => E
+  /** The toast display queue. Access `queue.values()`, `queue.pause()`, `queue.resume()`. */
   queue: QueueContext
 
+  /** Mark as read. Emits `notification:read`. */
   read: (id: ID) => void
+  /** Mark as unread. Emits `notification:unread`. */
   unread: (id: ID) => void
+  /** Mark as seen. Emits `notification:seen`. */
   seen: (id: ID) => void
+  /** Archive. Emits `notification:archived`. */
   archive: (id: ID) => void
+  /** Restore from archive. Emits `notification:unarchived`. */
   unarchive: (id: ID) => void
+  /** Snooze until the given time. Emits `notification:snoozed`. */
   snooze: (id: ID, until: Date) => void
+  /** Cancel snooze. Emits `notification:unsnoozed`. */
   wake: (id: ID) => void
 
+  /** Mark all unread notifications as read. */
   readAll: () => void
+  /** Archive all unarchived notifications. */
   archiveAll: () => void
 }
 
@@ -129,6 +179,13 @@ export function createNotifications<
     }
   })
 
+  /**
+   * Build a full {@link NotificationTicket} from raw input
+   *
+   * @param input The notification input to hydrate.
+   * @returns A partial ticket with timestamps, lifecycle methods, and an ID.
+   * @internal Used by {@link send}, {@link register}, and {@link onboard}.
+   */
   function hydrate (input: Z): Partial<E> {
     const id = input.id ?? useId()
     const now = new Date()
@@ -152,6 +209,39 @@ export function createNotifications<
     } as unknown as Partial<E>
   }
 
+  /**
+   * Create a notification and enqueue it for toast display
+   *
+   * @param input The notification input to create.
+   * @returns The hydrated notification ticket.
+   * @remarks Hydrates the input with timestamps and lifecycle methods, registers
+   * it in the registry, adds it to the display queue, and emits
+   * `notification:received`. The ticket auto-dismisses after the configured
+   * timeout unless paused.
+   *
+   * @see https://0.vuetifyjs.com/composables/plugins/use-notifications#send
+   *
+   * @example
+   * ```ts
+   * import { useNotifications } from '@vuetify/v0'
+   *
+   * const notifications = useNotifications()
+   *
+   * // Basic toast
+   * notifications.send({ subject: 'Changes saved', severity: 'success' })
+   *
+   * // With custom timeout
+   * const ticket = notifications.send({ subject: 'Connection lost', severity: 'error', timeout: 10000 })
+   *
+   * console.log(ticket.id)        // 'generated-id'
+   * console.log(ticket.createdAt) // Date
+   * console.log(ticket.readAt)    // null
+   *
+   * // Ticket convenience methods
+   * ticket.read()    // marks as read
+   * ticket.dismiss() // removes from toast queue, keeps in registry
+   * ```
+   */
   function send (input: Z): E {
     const ticket = registry.register(hydrate(input))
 
@@ -162,43 +252,254 @@ export function createNotifications<
     return ticket
   }
 
-  /** Register into registry only (no toast queue). Use for historical/seeded items. */
-  function seed (input: Z): E {
+  /**
+   * Register a notification in the registry without adding it to the toast queue
+   *
+   * @param input The notification input to register.
+   * @returns The hydrated notification ticket.
+   * @remarks Overrides the base registry `register` to hydrate the input with
+   * timestamps and lifecycle methods. Use for historical or pre-existing items
+   * that should appear in an inbox but not pop up as toasts.
+   *
+   * @see https://0.vuetifyjs.com/composables/plugins/use-notifications#register
+   *
+   * @example
+   * ```ts
+   * import { useNotifications } from '@vuetify/v0'
+   *
+   * const notifications = useNotifications()
+   *
+   * // Register a historical item (appears in inbox, not as toast)
+   * const ticket = notifications.register({ id: 'old-1', subject: 'Deployed v2.1' })
+   *
+   * console.log(ticket.createdAt) // Date
+   * console.log(ticket.readAt)    // null
+   *
+   * // Lifecycle methods work the same as send()
+   * ticket.read()
+   * ticket.archive()
+   * ```
+   */
+  function register (input: Z): E {
     return registry.register(hydrate(input))
   }
 
+  /**
+   * Bulk version of {@link register}
+   *
+   * @param inputs Array of notification inputs to register.
+   * @returns Array of hydrated notification tickets.
+   * @remarks Registers multiple notifications into the registry without toast
+   * display. Wraps all registrations in a single `registry.batch()` call so
+   * reactive updates are deferred until the entire batch completes.
+   *
+   * @see https://0.vuetifyjs.com/composables/plugins/use-notifications#onboard
+   *
+   * @example
+   * ```ts
+   * import { useNotifications } from '@vuetify/v0'
+   *
+   * const notifications = useNotifications()
+   *
+   * // Load historical items on mount
+   * const tickets = notifications.onboard([
+   *   { id: 'n1', subject: 'Welcome to the team' },
+   *   { id: 'n2', subject: 'Setup complete', severity: 'success' },
+   * ])
+   *
+   * console.log(tickets.length)              // 2
+   * console.log(notifications.queue.values()) // [] (no toasts)
+   * console.log(notifications.values().length) // 2 (in registry)
+   * ```
+   */
   function onboard (inputs: Z[]): E[] {
-    return registry.batch(() => inputs.map(input => seed(input)))
+    return registry.batch(() => inputs.map(input => register(input)))
   }
 
+  /**
+   * Mark a notification as read
+   *
+   * @param id The ID of the notification to mark as read.
+   * @remarks Sets `readAt` to the current time and emits `notification:read`.
+   * Adapters listen to this event for outbound sync.
+   *
+   * @see https://0.vuetifyjs.com/composables/plugins/use-notifications#read
+   *
+   * @example
+   * ```ts
+   * import { useNotifications } from '@vuetify/v0'
+   *
+   * const notifications = useNotifications()
+   *
+   * const ticket = notifications.send({ subject: 'New message' })
+   *
+   * notifications.read(ticket.id)
+   * console.log(ticket.readAt) // Date
+   *
+   * // Or via ticket convenience method
+   * ticket.read()
+   * ```
+   */
   function read (id: ID) {
     registry.upsert(id, { readAt: new Date() } as Partial<E>, 'notification:read')
   }
 
+  /**
+   * Mark a notification as unread
+   *
+   * @param id The ID of the notification to mark as unread.
+   * @remarks Clears `readAt` and emits `notification:unread`.
+   *
+   * @see https://0.vuetifyjs.com/composables/plugins/use-notifications#unread
+   *
+   * @example
+   * ```ts
+   * import { useNotifications } from '@vuetify/v0'
+   *
+   * const notifications = useNotifications()
+   *
+   * notifications.unread('notif-1')
+   * ```
+   */
   function unread (id: ID) {
     registry.upsert(id, { readAt: null } as Partial<E>, 'notification:unread')
   }
 
+  /**
+   * Mark a notification as seen
+   *
+   * @param id The ID of the notification to mark as seen.
+   * @remarks Sets `seenAt` to the current time and emits `notification:seen`.
+   * Distinct from read — seen tracks whether the notification appeared in the
+   * user's viewport, while read indicates the user actively engaged with it.
+   *
+   * @see https://0.vuetifyjs.com/composables/plugins/use-notifications#seen
+   *
+   * @example
+   * ```ts
+   * import { useNotifications } from '@vuetify/v0'
+   *
+   * const notifications = useNotifications()
+   *
+   * // Mark as seen when visible in inbox viewport
+   * notifications.seen('notif-1')
+   * ```
+   */
   function seen (id: ID) {
     registry.upsert(id, { seenAt: new Date() } as Partial<E>, 'notification:seen')
   }
 
+  /**
+   * Archive a notification
+   *
+   * @param id The ID of the notification to archive.
+   * @remarks Sets `archivedAt` to the current time and emits `notification:archived`.
+   *
+   * @see https://0.vuetifyjs.com/composables/plugins/use-notifications#archive
+   *
+   * @example
+   * ```ts
+   * import { useNotifications } from '@vuetify/v0'
+   *
+   * const notifications = useNotifications()
+   *
+   * notifications.archive('notif-1')
+   * ```
+   */
   function archive (id: ID) {
     registry.upsert(id, { archivedAt: new Date() } as Partial<E>, 'notification:archived')
   }
 
+  /**
+   * Restore an archived notification
+   *
+   * @param id The ID of the notification to unarchive.
+   * @remarks Clears `archivedAt` and emits `notification:unarchived`.
+   *
+   * @see https://0.vuetifyjs.com/composables/plugins/use-notifications#unarchive
+   *
+   * @example
+   * ```ts
+   * import { useNotifications } from '@vuetify/v0'
+   *
+   * const notifications = useNotifications()
+   *
+   * notifications.unarchive('notif-1')
+   * ```
+   */
   function unarchive (id: ID) {
     registry.upsert(id, { archivedAt: null } as Partial<E>, 'notification:unarchived')
   }
 
+  /**
+   * Snooze a notification until a given time
+   *
+   * @param id The ID of the notification to snooze.
+   * @param until The time at which the snooze expires.
+   * @remarks Sets `snoozedUntil` and emits `notification:snoozed`. The composable
+   * does not auto-wake — consumers are responsible for calling {@link wake} when
+   * the snooze expires (e.g., via a timer or server push).
+   *
+   * @see https://0.vuetifyjs.com/composables/plugins/use-notifications#snooze
+   *
+   * @example
+   * ```ts
+   * import { useNotifications } from '@vuetify/v0'
+   *
+   * const notifications = useNotifications()
+   *
+   * const tomorrow = new Date(Date.now() + 86_400_000)
+   * notifications.snooze('notif-1', tomorrow)
+   * ```
+   */
   function snooze (id: ID, until: Date) {
     registry.upsert(id, { snoozedUntil: until } as Partial<E>, 'notification:snoozed')
   }
 
+  /**
+   * Cancel a snooze
+   *
+   * @param id The ID of the notification to wake.
+   * @remarks Clears `snoozedUntil` and emits `notification:unsnoozed`.
+   *
+   * @see https://0.vuetifyjs.com/composables/plugins/use-notifications#wake
+   *
+   * @example
+   * ```ts
+   * import { useNotifications } from '@vuetify/v0'
+   *
+   * const notifications = useNotifications()
+   *
+   * notifications.wake('notif-1')
+   * ```
+   */
   function wake (id: ID) {
     registry.upsert(id, { snoozedUntil: null } as Partial<E>, 'notification:unsnoozed')
   }
 
+  /**
+   * Mark all unread notifications as read
+   *
+   * @remarks Iterates all notifications and marks unread ones as read in a single
+   * batch. Skips already-read notifications to preserve their original `readAt`
+   * timestamp. Emits `notification:read` for each affected notification.
+   *
+   * @see https://0.vuetifyjs.com/composables/plugins/use-notifications#readall
+   *
+   * @example
+   * ```ts
+   * import { useNotifications } from '@vuetify/v0'
+   *
+   * const notifications = useNotifications()
+   *
+   * notifications.send({ subject: 'Message 1' })
+   * notifications.send({ subject: 'Message 2' })
+   *
+   * notifications.readAll()
+   *
+   * console.log(notifications.values().every(t => t.readAt !== null)) // true
+   * ```
+   */
   function readAll () {
     const now = new Date()
     registry.batch(() => {
@@ -210,6 +511,29 @@ export function createNotifications<
     })
   }
 
+  /**
+   * Archive all unarchived notifications
+   *
+   * @remarks Iterates all notifications and archives unarchived ones in a single
+   * batch. Skips already-archived notifications to preserve their original
+   * `archivedAt` timestamp. Emits `notification:archived` for each affected notification.
+   *
+   * @see https://0.vuetifyjs.com/composables/plugins/use-notifications#archiveall
+   *
+   * @example
+   * ```ts
+   * import { useNotifications } from '@vuetify/v0'
+   *
+   * const notifications = useNotifications()
+   *
+   * notifications.send({ subject: 'Alert 1' })
+   * notifications.send({ subject: 'Alert 2' })
+   *
+   * notifications.archiveAll()
+   *
+   * console.log(notifications.values().every(t => t.archivedAt !== null)) // true
+   * ```
+   */
   function archiveAll () {
     const now = new Date()
     registry.batch(() => {
@@ -224,8 +548,7 @@ export function createNotifications<
   return {
     ...registry,
     send,
-    seed,
-    register: seed,
+    register,
     onboard,
     queue,
     read,
@@ -278,7 +601,6 @@ function createNotificationsFallback (): NotificationsContext {
     collection: new Map(),
     size: 0,
     send: () => stub,
-    seed: () => stub,
     queue: {
       collection: new Map(),
       size: 0,
@@ -373,7 +695,7 @@ export const [createNotificationsContext, createNotificationsPlugin, useNotifica
 
         adapter.setup({
           send: context.send,
-          seed: context.seed,
+          register: context.register,
           on: context.on,
           off: context.off,
         })
