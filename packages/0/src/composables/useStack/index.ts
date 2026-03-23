@@ -14,17 +14,15 @@
  * Built on createSelection for consistent ticket-based management.
  */
 
-// Foundational
+// Composables
 import { createContext, useContext } from '#v0/composables/createContext'
 import { createPlugin } from '#v0/composables/createPlugin'
-import { createTrinity } from '#v0/composables/createTrinity'
-
-// Composables
 import { createSelection } from '#v0/composables/createSelection'
+import { createTrinity } from '#v0/composables/createTrinity'
 
 // Utilities
 import { instanceExists, useId } from '#v0/utilities'
-import { computed, onScopeDispose, toRef } from 'vue'
+import { onScopeDispose, toRef } from 'vue'
 
 // Types
 import type { SelectionContext, SelectionOptions, SelectionTicket, SelectionTicketInput } from '#v0/composables/createSelection'
@@ -220,13 +218,13 @@ export function createStack<
     const blocking = input.blocking ?? false
     const onDismiss = input.onDismiss
 
-    const zIndex = computed(() => {
+    const zIndex = toRef(() => {
       const position = ids().indexOf(id)
       if (position === -1) return baseZIndex
       return baseZIndex + position * increment
     })
 
-    const globalTop = computed(() => {
+    const globalTop = toRef(() => {
       const list = ids()
       if (list.length === 0) return false
       return list.at(-1) === id
