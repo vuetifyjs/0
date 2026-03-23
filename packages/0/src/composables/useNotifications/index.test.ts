@@ -570,33 +570,35 @@ describe('createNotifications', () => {
     it('should have noop lifecycle methods', () => {
       const notifications = useNotifications()
 
-      // These should not throw
-      notifications.read('any')
-      notifications.unread('any')
-      notifications.seen('any')
-      notifications.archive('any')
-      notifications.unarchive('any')
-      notifications.snooze('any', new Date())
-      notifications.wake('any')
-      notifications.readAll()
-      notifications.archiveAll()
-      notifications.clear()
+      expect(() => {
+        notifications.read('any')
+        notifications.unread('any')
+        notifications.seen('any')
+        notifications.archive('any')
+        notifications.unarchive('any')
+        notifications.snooze('any', new Date())
+        notifications.wake('any')
+        notifications.readAll()
+        notifications.archiveAll()
+        notifications.clear()
+      }).not.toThrow()
     })
 
     it('should have working stub methods on send ticket', () => {
       const notifications = useNotifications()
       const ticket = notifications.send({ subject: 'Test' })
 
-      // Stub convenience methods should not throw
-      ticket.read()
-      ticket.unread()
-      ticket.seen()
-      ticket.archive()
-      ticket.unarchive()
-      ticket.snooze(new Date())
-      ticket.wake()
-      ticket.dismiss()
-      ticket.unregister()
+      expect(() => {
+        ticket.read()
+        ticket.unread()
+        ticket.seen()
+        ticket.archive()
+        ticket.unarchive()
+        ticket.snooze(new Date())
+        ticket.wake()
+        ticket.dismiss()
+        ticket.unregister()
+      }).not.toThrow()
     })
 
     it('should return empty arrays from collection methods', () => {
