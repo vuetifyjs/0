@@ -3,9 +3,9 @@
   import { Popover, useBreakpoints, useStorage } from '@vuetify/v0'
 
   // Components
+  import AppIcon from '@/components/app/AppIcon.vue'
   import { usePlayground } from './PlaygroundApp.vue'
   import PlaygroundOpenDialog from './PlaygroundOpenDialog.vue'
-  import AppIcon from '@/components/app/AppIcon.vue'
 
   // Utilities
   import { onBeforeUnmount, shallowRef, watch } from 'vue'

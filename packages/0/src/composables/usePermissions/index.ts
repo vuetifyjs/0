@@ -16,10 +16,8 @@
  * Built on useTokens for flexible permission configuration.
  */
 
-// Foundational
-import { createPluginContext } from '#v0/composables/createPlugin'
-
 // Composables
+import { createPluginContext } from '#v0/composables/createPlugin'
 import { createTokens } from '#v0/composables/createTokens'
 
 // Adapters

@@ -2,11 +2,11 @@
   // Framework
   import { SplitterPanel, SplitterRoot, useBreakpoints, useStorage } from '@vuetify/v0'
 
-  // Components
-  import { usePlayground } from '../app/PlaygroundApp.vue'
-
   // Utilities
   import { onMounted, useTemplateRef } from 'vue'
+
+  // Components
+  import { usePlayground } from '../app/PlaygroundApp.vue'
 
   const playground = usePlayground()
   const { isMobile } = useBreakpoints()

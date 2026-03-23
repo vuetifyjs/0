@@ -13,7 +13,7 @@
  * Independent from useLocale — Vuetify connects them via adapter.
  */
 
-// Foundational
+// Composables
 import { createPluginContext } from '#v0/composables/createPlugin'
 
 // Adapters

@@ -16,10 +16,8 @@
   import { Atom } from '#v0/components/Atom'
   import SliderHiddenInput from './SliderHiddenInput.vue'
 
-  // Foundational
-  import { createContext } from '#v0/composables/createContext'
-
   // Composables
+  import { createContext } from '#v0/composables/createContext'
   import { createSlider } from '#v0/composables/createSlider'
   import { useDocumentEventListener } from '#v0/composables/useEventListener'
   import { useProxyModel } from '#v0/composables/useProxyModel'

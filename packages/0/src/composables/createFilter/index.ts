@@ -15,7 +15,7 @@
  * Filters arrays based on query strings with configurable matching strategies.
  */
 
-// Foundational
+// Composables
 import { createContext, useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
 

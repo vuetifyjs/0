@@ -3,9 +3,9 @@
   import { isNull, useBreakpoints } from '@vuetify/v0'
 
   // Components
-  import DocsAskMessage from './DocsAskMessage.vue'
   import AppIcon from '@/components/app/AppIcon.vue'
   import { Discovery } from '@/components/discovery'
+  import DocsAskMessage from './DocsAskMessage.vue'
 
   // Composables
   import { getBinUrl } from '@/composables/bin'

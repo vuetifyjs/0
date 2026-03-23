@@ -2,14 +2,14 @@
   // Framework
   import { createNested, isString, useBreakpoints } from '@vuetify/v0'
 
-  // Components
-  import { usePlayground } from '../app/PlaygroundApp.vue'
-
   // Utilities
   import { computed, nextTick, shallowRef, toRef, useTemplateRef, watch } from 'vue'
 
   // Data
   import { REPL_BUILTIN_FILES } from '@/data/playground-defaults'
+
+  // Components
+  import { usePlayground } from '../app/PlaygroundApp.vue'
 
   const playground = usePlayground()
   const store = playground.store

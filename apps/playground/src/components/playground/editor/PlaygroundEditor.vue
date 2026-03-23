@@ -2,11 +2,11 @@
   // Framework
   import { useTheme } from '@vuetify/v0'
 
-  // Components
-  import { usePlayground } from '../app/PlaygroundApp.vue'
-
   // Utilities
   import { defineAsyncComponent } from 'vue'
+
+  // Components
+  import { usePlayground } from '../app/PlaygroundApp.vue'
 
   const playground = usePlayground()
   const theme = useTheme()
