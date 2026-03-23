@@ -148,12 +148,12 @@
     v-bind="{ ...attrs, ...slotProps.attrs }"
     :as
     :renderless
-    :style="{
+    :style="[attrs.style, slotProps.attrs.style, {
       flexGrow: 0,
       flexShrink: 0,
       flexBasis: `${size}%`,
       overflow: 'hidden',
-    }"
+    }]"
   >
     <slot v-bind="slotProps" />
   </Atom>

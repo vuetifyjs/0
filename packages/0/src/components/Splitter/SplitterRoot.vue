@@ -322,10 +322,10 @@
     v-bind="{ ...attrs, ...slotProps.attrs }"
     :as
     :renderless
-    :style="{
+    :style="[attrs.style, slotProps.attrs.style, {
       display: 'flex',
       flexDirection: orientation === 'horizontal' ? 'row' : 'column',
-    }"
+    }]"
   >
     <slot v-bind="slotProps" />
   </Atom>
