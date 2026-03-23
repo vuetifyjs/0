@@ -211,6 +211,21 @@ describe('createKnockAdapter', () => {
     })
   })
 
+  it('should ignore page event with missing items', () => {
+    withScope(() => {
+      const feed = mockFeed()
+      const adapter = createKnockAdapter(feed)
+      const notifications = createNotifications()
+      adapter.setup(adapterContext(notifications))
+
+      feed._emit('items.received.page', {})
+      feed._emit('items.received.page', null)
+      feed._emit('items.received.page', { items: undefined })
+
+      expect(notifications.values()).toHaveLength(0)
+    })
+  })
+
   it('should sync read event outbound', () => {
     withScope(() => {
       const feed = mockFeed()

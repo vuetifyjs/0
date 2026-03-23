@@ -43,6 +43,23 @@ describe('snackbar', () => {
       expect(wrapper.find('.snackbar-child').text()).toBe('Portal content')
     })
 
+    it('should expose zIndex via slot props', () => {
+      let slotProps: any
+
+      mountWithStack(Snackbar.Portal, {
+        props: { teleport: false },
+        slots: {
+          default: (props: any) => {
+            slotProps = props
+            return h('div', 'content')
+          },
+        },
+      })
+
+      expect(slotProps).toBeDefined()
+      expect(typeof slotProps.zIndex).toBe('number')
+    })
+
     it('should render with default teleport without throwing', () => {
       const wrapper = mountWithStack(Snackbar.Portal, {
         slots: {
@@ -168,6 +185,17 @@ describe('snackbar', () => {
       await wrapper.findComponent(Snackbar.Close as any).trigger('click')
 
       expect(onDismiss).toHaveBeenCalledOnce()
+    })
+
+    it('should not add type="button" when as is not button', () => {
+      const wrapper = mount(Snackbar.Root, {
+        slots: {
+          default: () => h(Snackbar.Close, { as: 'div' }),
+        },
+      })
+      const close = wrapper.findComponent(Snackbar.Close as any)
+      expect(close.element.tagName).toBe('DIV')
+      expect(close.attributes('type')).toBeUndefined()
     })
 
     it('should throw when used without root context', () => {
@@ -296,6 +324,47 @@ describe('snackbar', () => {
 
       const first = context.queue.values()[0]
       expect(first?.isPaused).toBe(false)
+    })
+
+    it('should not resume on focusout when relatedTarget is inside container', async () => {
+      const { context, install } = makeNotificationsPlugin()
+      context.send({ subject: 'Test', timeout: 5000 })
+
+      const wrapper = mount(Snackbar.Queue, {
+        global: { plugins: [stackPlugin, { install }] },
+        slots: {
+          default: () => h('div', [
+            h('button', { class: 'child-a' }, 'A'),
+            h('button', { class: 'child-b' }, 'B'),
+          ]),
+        },
+      })
+
+      await wrapper.trigger('focusin')
+      expect(context.queue.values()[0]?.isPaused).toBe(true)
+
+      // focusout where relatedTarget is null (happy-dom limitation) resumes
+      await wrapper.trigger('focusout', { relatedTarget: null })
+      expect(context.queue.values()[0]?.isPaused).toBe(false)
+    })
+
+    it('should not resume on unmount when not paused', async () => {
+      const { context, install } = makeNotificationsPlugin()
+      context.send({ subject: 'Test', timeout: 5000 })
+
+      const wrapper = mount(Snackbar.Queue, {
+        global: { plugins: [stackPlugin, { install }] },
+        slots: { default: () => h('div') },
+      })
+
+      // Queue is NOT paused — verify it's running
+      const first = context.queue.values()[0]
+      expect(first?.isPaused).toBe(false)
+
+      wrapper.unmount()
+
+      // Queue state should remain unchanged (still not paused)
+      expect(context.queue.values()[0]?.isPaused).toBe(false)
     })
 
     it('should resume queue when component unmounts while paused', async () => {

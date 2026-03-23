@@ -640,5 +640,66 @@ describe('createNotifications', () => {
       const queueResult = notifications.queue.batch(() => 'ok')
       expect(queueResult).toBe('ok')
     })
+
+    it('should have noop queue mutation methods', () => {
+      const notifications = useNotifications()
+      const { queue } = notifications
+
+      expect(() => {
+        queue.unregister('any')
+        queue.emit('test', {})
+        queue.on('test', () => {})
+        queue.off('test', () => {})
+        queue.pause()
+        queue.resume()
+      }).not.toThrow()
+
+      expect(queue.seek()).toBeUndefined()
+      expect(queue.move('a', 0)).toBeUndefined()
+      expect(queue.browse('any')).toBeUndefined()
+      expect(queue.lookup(0)).toBeUndefined()
+      expect(queue.onboard([])).toEqual([])
+    })
+
+    it('should have noop context mutation methods', () => {
+      const notifications = useNotifications()
+
+      expect(() => {
+        notifications.unregister('any')
+        notifications.emit('test', {})
+        notifications.on('test', () => {})
+        notifications.off('test', () => {})
+        notifications.dispose()
+        notifications.reindex()
+        notifications.offboard([])
+      }).not.toThrow()
+
+      expect(notifications.seek()).toBeUndefined()
+      expect(notifications.move('a', 0)).toBeUndefined()
+    })
+  })
+
+  describe('hydrate', () => {
+    it('should auto-generate id when not provided', () => {
+      withScope(() => {
+        const notifications = createNotifications()
+        const ticket = notifications.send({ subject: 'No ID' })
+        expect(ticket.id).toBeTruthy()
+        expect(typeof ticket.id).toBe('string')
+      })
+    })
+  })
+
+  describe('queue cascade', () => {
+    it('should remove from queue when unregistered from registry', () => {
+      withScope(() => {
+        const notifications = createNotifications()
+        notifications.send({ id: 'cascade-1', subject: 'Test' })
+
+        expect(notifications.queue.has('cascade-1')).toBe(true)
+        notifications.unregister('cascade-1')
+        expect(notifications.queue.has('cascade-1')).toBe(false)
+      })
+    })
   })
 })

@@ -242,6 +242,83 @@ describe('createNovuAdapter', () => {
     })
   })
 
+  it('should handle empty list response gracefully', async () => {
+    await withScope(async () => {
+      const novu = mockNovu()
+      vi.mocked(novu.notifications.list).mockResolvedValue({ data: null })
+
+      const adapter = createNovuAdapter(novu)
+      const notifications = createNotifications()
+      adapter.setup(adapterContext(notifications))
+
+      await vi.waitFor(() => {
+        expect(novu.notifications.list).toHaveBeenCalled()
+      })
+
+      // Give microtasks a chance to flush
+      await new Promise(r => setTimeout(r, 0))
+
+      expect(notifications.values()).toHaveLength(0)
+    })
+  })
+
+  it('should handle list response with missing notifications array', async () => {
+    await withScope(async () => {
+      const novu = mockNovu()
+      vi.mocked(novu.notifications.list).mockResolvedValue({ data: { notifications: undefined } })
+
+      const adapter = createNovuAdapter(novu)
+      const notifications = createNotifications()
+      adapter.setup(adapterContext(notifications))
+
+      await vi.waitFor(() => {
+        expect(novu.notifications.list).toHaveBeenCalled()
+      })
+
+      await new Promise(r => setTimeout(r, 0))
+
+      expect(notifications.values()).toHaveLength(0)
+    })
+  })
+
+  it('should ignore realtime events after dispose via disposed flag', () => {
+    withScope(() => {
+      const listeners = new Map<string, Set<(data: unknown) => void>>()
+
+      // Custom mock that does NOT remove listeners on unsubscribe
+      // to verify the disposed flag is the guard
+      const novu: NovuClient & { _emit: (e: string, d: unknown) => void } = {
+        notifications: {
+          list: vi.fn().mockResolvedValue({ data: { notifications: [] } }),
+          read: vi.fn().mockResolvedValue({}),
+          unread: vi.fn().mockResolvedValue({}),
+          archive: vi.fn().mockResolvedValue({}),
+          unarchive: vi.fn().mockResolvedValue({}),
+          seenAll: vi.fn().mockResolvedValue({}),
+        },
+        on: vi.fn((event: string, handler: (data: unknown) => void) => {
+          if (!listeners.has(event)) listeners.set(event, new Set())
+          listeners.get(event)!.add(handler)
+          // Return a noop unsubscriber — handler stays registered
+          return () => {}
+        }),
+        _emit (event: string, data: unknown) {
+          for (const h of listeners.get(event) ?? []) h(data)
+        },
+      }
+
+      const adapter = createNovuAdapter(novu)
+      const notifications = createNotifications()
+      adapter.setup(adapterContext(notifications))
+
+      adapter.dispose!()
+
+      // Handler still registered but disposed flag should guard
+      novu._emit('notifications.notification_received', { id: 'post-dispose', subject: 'Ignored' })
+      expect(notifications.values()).toHaveLength(0)
+    })
+  })
+
   it('should clean up on dispose', () => {
     withScope(() => {
       const novu = mockNovu()
