@@ -53,69 +53,109 @@ import Root from './SnackbarRoot.vue'
  */
 export const Snackbar = {
   /**
-   * Container that teleports to body and manages z-index via useStack.
+   * Container that teleports to `<body>` and manages z-index via useStack.
+   * Coordinates layering with Dialog and Scrim. Pass `:teleport="false"`
+   * for inline rendering (docs, Storybook, scoped containers).
    *
    * @see https://0.vuetifyjs.com/components/snackbar
    *
    * @example
    * ```vue
-   * <Snackbar.Portal>
-   *   <!-- Snackbar.Root items -->
-   * </Snackbar.Portal>
+   * <script setup lang="ts">
+   *   import { Snackbar } from '@vuetify/v0'
+   * </script>
+   *
+   * <template>
+   *   <Snackbar.Portal>
+   *     <Snackbar.Root>
+   *       <Snackbar.Content>Saved</Snackbar.Content>
+   *       <Snackbar.Close />
+   *     </Snackbar.Root>
+   *   </Snackbar.Portal>
+   * </template>
    * ```
    */
   Portal,
   /**
-   * Connects to useNotifications and exposes queue items via slot.
-   * Pauses the queue on mouseenter, resumes on mouseleave.
+   * Connects to useNotifications by namespace and exposes queue items
+   * via scoped slot. Pauses auto-dismiss on hover and focus (WCAG 2.2.1).
+   * Re-pauses after dismiss when hover/focus is still active.
    *
    * @see https://0.vuetifyjs.com/components/snackbar#snackbarqueue
    *
    * @example
    * ```vue
-   * <Snackbar.Queue v-slot="{ items }">
-   *   <Snackbar.Root v-for="item in items" :key="item.id" :id="item.id">
-   *     <Snackbar.Content>{{ item.subject }}</Snackbar.Content>
-   *     <Snackbar.Close />
-   *   </Snackbar.Root>
-   * </Snackbar.Queue>
+   * <script setup lang="ts">
+   *   import { Snackbar } from '@vuetify/v0'
+   * </script>
+   *
+   * <template>
+   *   <Snackbar.Queue v-slot="{ items }">
+   *     <Snackbar.Root v-for="item in items" :key="item.id" :id="item.id">
+   *       <Snackbar.Content>{{ item.subject }}</Snackbar.Content>
+   *       <Snackbar.Close />
+   *     </Snackbar.Root>
+   *   </Snackbar.Queue>
+   * </template>
    * ```
    */
   Queue,
   /**
-   * A single snackbar instance. Provides dismiss context to Snackbar.Close.
-   * Set role="alert" for urgent notifications, role="status" for informational.
+   * A single snackbar instance. Provides dismiss context to child
+   * Snackbar.Close components. Defaults to `role="status"` (polite
+   * live region) — override with `role="alert"` for urgent notifications.
    *
    * @see https://0.vuetifyjs.com/components/snackbar#snackbarroot
    *
    * @example
    * ```vue
-   * <Snackbar.Root :id="item.id">
-   *   <Snackbar.Content>Changes saved</Snackbar.Content>
-   *   <Snackbar.Close />
-   * </Snackbar.Root>
+   * <script setup lang="ts">
+   *   import { Snackbar } from '@vuetify/v0'
+   * </script>
+   *
+   * <template>
+   *   <Snackbar.Root :id="item.id">
+   *     <Snackbar.Content>{{ item.subject }}</Snackbar.Content>
+   *     <Snackbar.Close />
+   *   </Snackbar.Root>
+   * </template>
    * ```
    */
   Root,
   /**
    * Semantic wrapper for the notification message text.
+   * Renders as a `<div>` by default. Polymorphic via the `as` prop.
    *
    * @see https://0.vuetifyjs.com/components/snackbar#snackbarcontent
    *
    * @example
    * ```vue
-   * <Snackbar.Content>Changes saved</Snackbar.Content>
+   * <script setup lang="ts">
+   *   import { Snackbar } from '@vuetify/v0'
+   * </script>
+   *
+   * <template>
+   *   <Snackbar.Content>Changes saved</Snackbar.Content>
+   * </template>
    * ```
    */
   Content,
   /**
-   * Dismiss button. Auto-wires to nearest Snackbar.Root context.
+   * Dismiss button that auto-wires to the nearest Snackbar.Root context.
+   * Renders with `aria-label="Close"` and `type="button"`. In renderless
+   * mode, all attributes including `onClick` are available via `slotProps.attrs`.
    *
    * @see https://0.vuetifyjs.com/components/snackbar#snackbarclose
    *
    * @example
    * ```vue
-   * <Snackbar.Close />
+   * <script setup lang="ts">
+   *   import { Snackbar } from '@vuetify/v0'
+   * </script>
+   *
+   * <template>
+   *   <Snackbar.Close />
+   * </template>
    * ```
    */
   Close,

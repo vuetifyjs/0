@@ -18,7 +18,7 @@ related:
 
 # Snackbar
 
-A headless compound component for rendering toast and snackbar notifications.
+A headless compound component for rendering toast and snackbar notifications. Pairs with [useNotifications](/composables/plugins/use-notifications) for queue-driven toast stacks with auto-dismiss, pause on hover/focus, and adapter integration.
 
 <DocsPageFeatures :frontmatter />
 
@@ -64,9 +64,9 @@ A single snackbar — render directly when you control the lifecycle yourself.
 
 ### Notification queue
 
-`Snackbar.Queue` connects to `useNotifications` and exposes queue items newest-first. `Snackbar.Close` auto-wires dismiss to the nearest `Snackbar.Root` — no `@click` needed.
+`Snackbar.Queue` connects to [useNotifications](/composables/plugins/use-notifications) and exposes queue items newest-first. `Snackbar.Close` auto-wires dismiss to the nearest `Snackbar.Root` — no `@click` needed.
 
-> [!WARNING] Inside a `Snackbar.Queue`, clicking `Snackbar.Close` permanently removes the notification from both the queue and the registry. To remove from the toast surface while keeping the notification in the inbox, call `ticket.dismiss()` directly on the `NotificationTicket`.
+> [!WARNING] Inside a `Snackbar.Queue`, clicking `Snackbar.Close` permanently removes the notification from both the queue and the registry. To remove from the toast surface while keeping the notification in the inbox, call `ticket.dismiss()` directly on the [NotificationTicket](/composables/plugins/use-notifications#notificationticket).
 
 ::: example
 /components/snackbar/queue
