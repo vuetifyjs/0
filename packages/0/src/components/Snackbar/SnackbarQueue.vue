@@ -19,7 +19,7 @@
 
   // Utilities
   import { isElement, isUndefined } from '#v0/utilities'
-  import { computed, toRef, useTemplateRef } from 'vue'
+  import { computed, onUnmounted, toRef, useTemplateRef } from 'vue'
 
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
@@ -40,6 +40,12 @@
 
   export interface SnackbarQueueSlotProps {
     items: NotificationTicket[]
+    attrs: {
+      onMouseenter: () => void
+      onMouseleave: () => void
+      onFocusin: () => void
+      onFocusout: (e: FocusEvent) => void
+    }
   }
 </script>
 
@@ -57,6 +63,7 @@
   // Full removal: removes from registry (cascades to queue)
   function dismiss (id: ID) {
     notifications.unregister(id)
+    if (reasons.size > 0) notifications.queue.pause()
   }
 
   provideSnackbarQueueContext(namespace, { dismiss })
@@ -98,17 +105,29 @@
     resume('focus')
   }
 
-  const slotProps = toRef((): SnackbarQueueSlotProps => ({ items: items.value }))
+  onUnmounted(() => {
+    if (reasons.size > 0) {
+      reasons.clear()
+      notifications.queue.resume()
+    }
+  })
+
+  const slotProps = toRef((): SnackbarQueueSlotProps => ({
+    items: items.value,
+    attrs: {
+      onMouseenter: onEnter,
+      onMouseleave: onLeave,
+      onFocusin: onFocusin,
+      onFocusout: onFocusout,
+    },
+  }))
 </script>
 
 <template>
   <Atom
     ref="container"
+    v-bind="slotProps.attrs"
     :as
-    @focusin="onFocusin"
-    @focusout="onFocusout"
-    @mouseenter="onEnter"
-    @mouseleave="onLeave"
   >
     <slot v-bind="slotProps" />
   </Atom>

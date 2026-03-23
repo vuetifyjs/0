@@ -6,7 +6,7 @@ meta:
     toast queue with auto-dismiss, and optional service adapters.
 - name: keywords
   content: useNotifications, createNotifications, notifications, toast, snackbar, adapter,
-    Knock, notification registry, notification queue, composable
+    Knock, Novu, notification registry, notification queue, composable
 features:
   category: Plugin
   label: 'E: useNotifications'
@@ -117,7 +117,7 @@ flowchart TB
 | `archive(id)` / `unarchive(id)` | Toggle archive state |
 | `snooze(id, until)` / `wake(id)` | Snooze with expiry |
 | `readAll()` / `archiveAll()` | Bulk operations |
-| `onboard(items)` | Bulk load into registry (no toast) |
+| `onboard(items)` | Bulk-register enriched notifications into registry (no toast) |
 | `clear()` | Remove all notifications from the registry |
 | `dispose()` | Tear down event listeners and clear the registry |
 

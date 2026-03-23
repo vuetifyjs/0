@@ -36,6 +36,9 @@
 
   export interface SnackbarRootSlotProps {
     id: ID
+    attrs: {
+      role: 'status' | 'alert'
+    }
   }
 </script>
 
@@ -57,11 +60,11 @@
   const { as = 'div', namespace = 'v0:notifications', id = useId() } = defineProps<SnackbarRootProps>()
 
   // Optionally detect Queue context — null when used standalone
-  const queueContext = useSnackbarQueueContext(namespace, null)
+  const queue = useSnackbarQueueContext(namespace, null)
 
   function onDismiss () {
-    if (queueContext) {
-      queueContext.dismiss(id)
+    if (queue) {
+      queue.dismiss(id)
     } else {
       emit('dismiss', id)
     }
@@ -69,11 +72,16 @@
 
   provideSnackbarRootContext(namespace, { id, onDismiss })
 
-  const slotProps = toRef((): SnackbarRootSlotProps => ({ id }))
+  const slotProps = toRef((): SnackbarRootSlotProps => ({
+    id,
+    attrs: {
+      role: 'status',
+    },
+  }))
 </script>
 
 <template>
-  <Atom :as role="status">
+  <Atom v-bind="slotProps.attrs" :as>
     <slot v-bind="slotProps" />
   </Atom>
 </template>

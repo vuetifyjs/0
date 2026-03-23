@@ -19,6 +19,10 @@
 <script setup lang="ts">
   defineOptions({ name: 'SnackbarAction' })
 
+  defineSlots<{
+    default: () => any
+  }>()
+
   const { as = 'button' } = defineProps<SnackbarActionProps>()
 </script>
 

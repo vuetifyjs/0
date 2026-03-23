@@ -167,6 +167,10 @@ export function createNotifications<
     return registry.register(enrich(input))
   }
 
+  function onboard (inputs: Z[]): E[] {
+    return registry.batch(() => inputs.map(input => seed(input)))
+  }
+
   function read (id: ID) {
     registry.upsert(id, { readAt: new Date() } as Partial<E>, 'notification:read')
   }
@@ -221,6 +225,8 @@ export function createNotifications<
     ...registry,
     send,
     seed,
+    register: seed,
+    onboard,
     queue,
     read,
     unread,
@@ -234,7 +240,7 @@ export function createNotifications<
     get size () {
       return registry.size
     },
-  } as R
+  } as unknown as R
 }
 
 export interface NotificationsPluginOptions extends NotificationsOptions {
