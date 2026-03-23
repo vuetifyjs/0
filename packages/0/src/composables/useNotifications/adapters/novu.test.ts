@@ -148,6 +148,99 @@ describe('createNovuAdapter', () => {
     })
   })
 
+  it('should sync unread event outbound', () => {
+    withScope(() => {
+      const novu = mockNovu() as NovuClient & { _emit: (e: string, d: unknown) => void }
+      const adapter = createNovuAdapter(novu)
+      const notifications = createNotifications()
+      adapter.setup(adapterContext(notifications))
+
+      novu._emit('notifications.notification_received', { id: 'n1', subject: 'Test' })
+      notifications.unread('n1')
+
+      expect(novu.notifications.unread).toHaveBeenCalledWith({ notificationId: 'n1' })
+    })
+  })
+
+  it('should sync seen event outbound', () => {
+    withScope(() => {
+      const novu = mockNovu() as NovuClient & { _emit: (e: string, d: unknown) => void }
+      const adapter = createNovuAdapter(novu)
+      const notifications = createNotifications()
+      adapter.setup(adapterContext(notifications))
+
+      novu._emit('notifications.notification_received', { id: 'n1', subject: 'Test' })
+      notifications.seen('n1')
+
+      expect(novu.notifications.seenAll).toHaveBeenCalledWith({ notificationIds: ['n1'] })
+    })
+  })
+
+  it('should sync unarchive event outbound', () => {
+    withScope(() => {
+      const novu = mockNovu() as NovuClient & { _emit: (e: string, d: unknown) => void }
+      const adapter = createNovuAdapter(novu)
+      const notifications = createNotifications()
+      adapter.setup(adapterContext(notifications))
+
+      novu._emit('notifications.notification_received', { id: 'n1', subject: 'Test' })
+      notifications.unarchive('n1')
+
+      expect(novu.notifications.unarchive).toHaveBeenCalledWith({ notificationId: 'n1' })
+    })
+  })
+
+  it('should seed notifications from initial list call', async () => {
+    await withScope(async () => {
+      const items: NovuNotification[] = [
+        { id: 'seed-1', subject: 'First' },
+        { id: 'seed-2', subject: 'Second', severity: 'high' },
+      ]
+      const novu = mockNovu()
+      vi.mocked(novu.notifications.list).mockResolvedValue({ data: { notifications: items } })
+
+      const adapter = createNovuAdapter(novu)
+      const notifications = createNotifications()
+      adapter.setup(adapterContext(notifications))
+
+      await vi.waitFor(() => {
+        expect(notifications.values()).toHaveLength(2)
+      })
+
+      expect(notifications.values()[0]!.subject).toBe('First')
+      expect(notifications.values()[1]!.subject).toBe('Second')
+      expect(notifications.values()[1]!.severity).toBe('error')
+    })
+  })
+
+  it('should not register notifications if disposed before list resolves', async () => {
+    await withScope(async () => {
+      let resolve!: (value: { data: { notifications: NovuNotification[] } }) => void
+      const deferred = new Promise<{ data: { notifications: NovuNotification[] } }>(r => {
+        resolve = r
+      })
+
+      const novu = mockNovu()
+      vi.mocked(novu.notifications.list).mockReturnValue(deferred)
+
+      const adapter = createNovuAdapter(novu)
+      const notifications = createNotifications()
+      adapter.setup(adapterContext(notifications))
+
+      // Dispose before the list request resolves
+      adapter.dispose!()
+
+      // Now resolve with items
+      resolve({ data: { notifications: [{ id: 'late-1', subject: 'Late' }] } })
+      await deferred
+
+      // Give microtasks a chance to flush
+      await new Promise(r => setTimeout(r, 0))
+
+      expect(notifications.values()).toHaveLength(0)
+    })
+  })
+
   it('should clean up on dispose', () => {
     withScope(() => {
       const novu = mockNovu()

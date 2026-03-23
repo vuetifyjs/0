@@ -91,6 +91,7 @@ export function createNovuAdapter (novu: NovuClient, options: NovuAdapterOptions
   const resolveSeverity = options.severity ?? defaultSeverity
   const ids = new Set<string>()
   let ctx: NotificationsAdapterContext | undefined
+  let disposed = false
   const unsubscribers: Array<() => void> = []
 
   let onRead: ((data: unknown) => void) | undefined
@@ -102,11 +103,12 @@ export function createNovuAdapter (novu: NovuClient, options: NovuAdapterOptions
   return {
     setup (_ctx: NotificationsAdapterContext) {
       ctx = _ctx
+      disposed = false
 
       // Inbound: real-time new notifications -> ctx.send()
       const unsub = novu.on('notifications.notification_received', (data: unknown) => {
         const item = data as NovuNotification
-        if (!item?.id || ids.has(item.id)) return
+        if (disposed || !item?.id || ids.has(item.id)) return
         ids.add(item.id)
         ctx!.send(mapItem(item, resolveSeverity))
       })
@@ -116,6 +118,7 @@ export function createNovuAdapter (novu: NovuClient, options: NovuAdapterOptions
       // Inbound: seed registry from initial fetch
       if (IN_BROWSER) {
         novu.notifications.list({ limit: 30 }).then(({ data }) => {
+          if (disposed) return
           for (const item of data?.notifications ?? []) {
             if (!item.id || ids.has(item.id)) continue
             ids.add(item.id)
@@ -158,6 +161,7 @@ export function createNovuAdapter (novu: NovuClient, options: NovuAdapterOptions
     },
 
     dispose () {
+      disposed = true
       for (const unsub of unsubscribers) unsub()
       unsubscribers.length = 0
 

@@ -24,7 +24,7 @@ import { createQueue } from '#v0/composables/createQueue'
 import { createRegistry } from '#v0/composables/createRegistry'
 
 // Utilities
-import { isFunction, isUndefined, useId } from '#v0/utilities'
+import { isFunction, isNull, isUndefined, useId } from '#v0/utilities'
 
 // Types
 import type { QueueContext } from '#v0/composables/createQueue'
@@ -187,7 +187,7 @@ export function createNotifications<
     const now = new Date()
     registry.batch(() => {
       for (const ticket of registry.values()) {
-        if (!ticket.readAt) {
+        if (isNull(ticket.readAt)) {
           registry.upsert(ticket.id, { readAt: now } as Partial<E>, 'notification:read')
         }
       }
@@ -198,7 +198,7 @@ export function createNotifications<
     const now = new Date()
     registry.batch(() => {
       for (const ticket of registry.values()) {
-        if (!ticket.archivedAt) {
+        if (isNull(ticket.archivedAt)) {
           registry.upsert(ticket.id, { archivedAt: now } as Partial<E>, 'notification:archived')
         }
       }
@@ -252,6 +252,7 @@ function createNotificationsFallback (): NotificationsContext {
     snooze: noop,
     wake: noop,
     dismiss: noop,
+    unregister: noop,
   } as unknown as NotificationTicket
 
   return {
@@ -279,7 +280,7 @@ function createNotificationsFallback (): NotificationsContext {
       dispose: noop,
       clear: noop,
       reindex: noop,
-      batch: (fn: () => unknown) => fn(),
+      batch: <R>(fn: () => R): R => fn(),
       onboard: () => EMPTY,
       offboard: noop,
       pause: () => undefined,
@@ -312,7 +313,7 @@ function createNotificationsFallback (): NotificationsContext {
     off: noop,
     emit: noop,
     dispose: noop,
-    batch: (fn: () => unknown) => fn(),
+    batch: <R>(fn: () => R): R => fn(),
     onboard: () => EMPTY,
     offboard: noop,
   } as unknown as NotificationsContext

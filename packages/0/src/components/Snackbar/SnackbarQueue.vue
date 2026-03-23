@@ -31,7 +31,7 @@
   }
 
   export const [useSnackbarQueueContext, provideSnackbarQueueContext] =
-    createContext<SnackbarQueueContext>('v0:snackbar:queue')
+    createContext<SnackbarQueueContext | null>({ suffix: 'queue' })
 
   export interface SnackbarQueueProps extends AtomProps {
     /** Which notifications instance to connect to. @default 'v0:notifications' */
@@ -59,7 +59,7 @@
     notifications.unregister(id)
   }
 
-  provideSnackbarQueueContext({ dismiss })
+  provideSnackbarQueueContext(namespace, { dismiss })
 
   // Newest first — visual ordering decoupled from FIFO dismissal order
   const items = computed((): NotificationTicket[] =>

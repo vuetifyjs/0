@@ -1,3 +1,11 @@
+/**
+ * @module Snackbar
+ *
+ * @remarks
+ * Headless compound component for toast and snackbar notifications.
+ * Integrates with useNotifications for queue-driven toast stacks.
+ */
+
 export { default as SnackbarPortal } from './SnackbarPortal.vue'
 export { provideSnackbarContext, useSnackbarContext } from './SnackbarPortal.vue'
 export { default as SnackbarQueue } from './SnackbarQueue.vue'

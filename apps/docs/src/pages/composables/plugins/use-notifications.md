@@ -92,7 +92,7 @@ flowchart TB
   end
 
   subgraph Integration
-    Adapter["Adapter (Knock)"]
+    Adapter["Adapter (Knock, Novu)"]
     Events["Events (notification:read, etc.)"]
   end
 
@@ -117,6 +117,8 @@ flowchart TB
 | `snooze(id, until)` / `wake(id)` | Snooze with expiry |
 | `readAll()` / `archiveAll()` | Bulk operations |
 | `onboard(items)` | Bulk load into registry (no toast) |
+| `clear()` | Remove all notifications from the registry |
+| `dispose()` | Tear down event listeners and clear the registry |
 
 ## Examples
 
@@ -205,6 +207,43 @@ knock.authenticate(userId)
 export const feed = knock.feeds.initialize(
   import.meta.env.VITE_KNOCK_FEED_CHANNEL_ID
 )
+```
+
+:::
+
+### Novu
+
+[Novu](https://novu.co) is an open-source notification infrastructure with in-app feeds, digests, and multi-channel delivery. Install their [JavaScript SDK](https://docs.novu.co/sdks/javascript) to get started. Supports both inbound (feed → notifications) and outbound (read/archive → Novu API).
+
+The adapter maps Novu severity strings to `NotificationSeverity` by default: `critical`/`high` → `error`, `medium` → `warning`, `low` → `info`. Pass a custom `severity` function to override.
+
+::: code-group
+
+```ts src/main.ts
+import { createApp } from 'vue'
+import { createNotificationsPlugin } from '@vuetify/v0'
+import { createNovuAdapter } from '@vuetify/v0/notifications'
+import { novu } from './plugins/novu'
+import App from './App.vue'
+
+const app = createApp(App)
+
+app.use(
+  createNotificationsPlugin({
+    adapter: createNovuAdapter(novu),
+  })
+)
+
+app.mount('#app')
+```
+
+```ts src/plugins/novu.ts
+import { Novu } from '@novu/js'
+
+export const novu = new Novu({
+  subscriberId: userId,
+  applicationIdentifier: import.meta.env.VITE_NOVU_APP_ID,
+})
 ```
 
 :::

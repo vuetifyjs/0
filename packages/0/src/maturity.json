@@ -253,6 +253,10 @@
       "since": "0.1.8",
       "category": "system"
     },
+    "useNotifications": {
+      "level": "preview",
+      "category": "plugins"
+    },
     "useRtl": {
       "level": "preview",
       "since": "0.1.7",
@@ -414,6 +418,10 @@
       "level": "preview",
       "since": "0.1.0",
       "category": "disclosure"
+    },
+    "Snackbar": {
+      "level": "preview",
+      "category": "semantic"
     },
     "Toast": {
       "level": "draft",

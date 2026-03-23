@@ -97,7 +97,7 @@ describe('snackbar', () => {
       const wrapper = mount(
         defineComponent({
           setup () {
-            provide('v0:snackbar:queue', { dismiss })
+            provide('v0:notifications:queue', { dismiss })
           },
           render () {
             return h(Snackbar.Root, { id: 'test-id' }, () => h(Snackbar.Close))
@@ -138,7 +138,7 @@ describe('snackbar', () => {
       const wrapper = mount(
         defineComponent({
           setup () {
-            provide('v0:snackbar:root', { id: 'x', onDismiss })
+            provide('v0:notifications:root', { id: 'x', onDismiss })
           },
           render () {
             return h(Snackbar.Close)

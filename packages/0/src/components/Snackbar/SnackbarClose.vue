@@ -16,7 +16,10 @@
   // Types
   import type { AtomProps } from '#v0/components/Atom'
 
-  export type SnackbarCloseProps = AtomProps
+  export interface SnackbarCloseProps extends AtomProps {
+    /** Namespace for dependency injection. @default 'v0:notifications' */
+    namespace?: string
+  }
 </script>
 
 <script setup lang="ts">
@@ -26,9 +29,9 @@
     default: () => any
   }>()
 
-  const { as = 'button' } = defineProps<SnackbarCloseProps>()
+  const { as = 'button', namespace = 'v0:notifications' } = defineProps<SnackbarCloseProps>()
 
-  const context = useSnackbarRootContext()
+  const context = useSnackbarRootContext(namespace, { id: '', onDismiss: () => {} })
 
   function onClick () {
     context.onDismiss()

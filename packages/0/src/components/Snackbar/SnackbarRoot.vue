@@ -9,6 +9,8 @@
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
+  // Sibling context
+  import { useSnackbarQueueContext } from './SnackbarQueue.vue'
 
   // Foundational
   import { createContext } from '#v0/composables/createContext'
@@ -16,7 +18,6 @@
   // Types
   import type { AtomProps } from '#v0/components/Atom'
   import type { ID } from '#v0/types'
-  import type { SnackbarQueueContext } from './SnackbarQueue.vue'
 
   export interface SnackbarRootContext {
     id: ID
@@ -24,9 +25,11 @@
   }
 
   export const [useSnackbarRootContext, provideSnackbarRootContext] =
-    createContext<SnackbarRootContext>('v0:snackbar:root', { id: '', onDismiss: () => {} })
+    createContext<SnackbarRootContext>({ suffix: 'root' })
 
   export interface SnackbarRootProps extends AtomProps {
+    /** Namespace for dependency injection. @default 'v0:notifications' */
+    namespace?: string
     /** Unique identifier. Auto-generated if not provided. */
     id?: ID
   }
@@ -39,7 +42,7 @@
 <script setup lang="ts">
   // Utilities
   import { useId } from '#v0/utilities'
-  import { inject, toRef } from 'vue'
+  import { toRef } from 'vue'
 
   defineOptions({ name: 'SnackbarRoot' })
 
@@ -51,10 +54,10 @@
     default: (props: SnackbarRootSlotProps) => any
   }>()
 
-  const { as = 'div', id = useId() } = defineProps<SnackbarRootProps>()
+  const { as = 'div', namespace = 'v0:notifications', id = useId() } = defineProps<SnackbarRootProps>()
 
   // Optionally detect Queue context — null when used standalone
-  const queueContext = inject<SnackbarQueueContext | null>('v0:snackbar:queue', null)
+  const queueContext = useSnackbarQueueContext(namespace, null)
 
   function onDismiss () {
     if (queueContext) {
@@ -64,13 +67,13 @@
     }
   }
 
-  provideSnackbarRootContext({ id, onDismiss })
+  provideSnackbarRootContext(namespace, { id, onDismiss })
 
   const slotProps = toRef((): SnackbarRootSlotProps => ({ id }))
 </script>
 
 <template>
-  <Atom :as>
+  <Atom :as role="status">
     <slot v-bind="slotProps" />
   </Atom>
 </template>
