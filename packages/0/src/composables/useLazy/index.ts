@@ -17,6 +17,9 @@
  * conditionally rendered content.
  */
 
+// Composables
+import { useTimer } from '#v0/composables/useTimer'
+
 // Utilities
 import { onScopeDispose, shallowReadonly, shallowRef, toRef, toValue, watch } from 'vue'
 
@@ -29,6 +32,13 @@ export interface LazyOptions {
    * @default false
    */
   eager?: MaybeRefOrGetter<boolean>
+  /**
+   * Delay in milliseconds before activation. Prevents flash on quick
+   * hover-throughs by requiring the active state to persist for this
+   * duration before booting content.
+   * @default 0
+   */
+  delay?: number
 }
 
 export interface LazyContext {
@@ -98,15 +108,29 @@ export function useLazy (
   active: MaybeRefOrGetter<boolean>,
   options: LazyOptions = {},
 ): LazyContext {
-  const { eager = false } = options
+  const { eager = false, delay = 0 } = options
 
   const isBooted = shallowRef(false)
   const hasContent = toRef(() => isBooted.value || toValue(eager) || toValue(active))
 
+  const timer = delay > 0
+    ? useTimer(() => {
+        isBooted.value = true
+      }, { duration: delay })
+    : undefined
+
   const stop = watch(
     () => toValue(active),
     value => {
-      if (value) isBooted.value = true
+      if (value) {
+        if (timer) {
+          timer.start()
+        } else {
+          isBooted.value = true
+        }
+      } else {
+        timer?.stop()
+      }
     },
     { immediate: true },
   )

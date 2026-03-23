@@ -19,6 +19,7 @@
 
 // Composables
 import { useEventListener } from '#v0/composables/useEventListener'
+import { useTimer } from '#v0/composables/useTimer'
 
 // Utilities
 import { useId } from '#v0/utilities'
@@ -36,6 +37,10 @@ export interface PopoverOptions {
   positionTry?: string
   /** External ref for bidirectional open state (e.g., from defineModel) */
   isOpen?: Ref<boolean>
+  /** Delay in ms before showing the popover. @default 0 */
+  showDelay?: number
+  /** Delay in ms before hiding the popover. @default 0 */
+  hideDelay?: number
 }
 
 export interface PopoverReturn {
@@ -64,21 +69,50 @@ export function usePopover (options: PopoverOptions = {}): PopoverReturn {
     id: _id,
     positionArea = 'bottom',
     positionTry = 'most-width bottom',
+    showDelay = 0,
+    hideDelay = 0,
   } = options
 
   const id = _id ?? useId()
   const isOpen = options.isOpen ?? shallowRef(false)
 
+  const showTimer = showDelay > 0
+    ? useTimer(() => {
+        isOpen.value = true
+      }, { duration: showDelay })
+    : undefined
+  const hideTimer = hideDelay > 0
+    ? useTimer(() => {
+        isOpen.value = false
+      }, { duration: hideDelay })
+    : undefined
+
   function open () {
-    isOpen.value = true
+    hideTimer?.stop()
+
+    if (showTimer) {
+      showTimer.start()
+    } else {
+      isOpen.value = true
+    }
   }
 
   function close () {
-    isOpen.value = false
+    showTimer?.stop()
+
+    if (hideTimer) {
+      hideTimer.start()
+    } else {
+      isOpen.value = false
+    }
   }
 
   function toggle () {
-    isOpen.value = !isOpen.value
+    if (isOpen.value) {
+      close()
+    } else {
+      open()
+    }
   }
 
   const anchorStyles = toRef(() => ({
