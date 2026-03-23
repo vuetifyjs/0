@@ -577,6 +577,10 @@ export function createSlider (options: SliderOptions = {}): SliderContext {
     set(index, max)
   }
 
+  function onboard (registrations: (number | { value: number } | Partial<SliderTicketInput>)[]): ModelTicket<SliderTicketInput>[] {
+    return model.batch(() => registrations.map(r => register(r as number | { value: number })))
+  }
+
   return {
     ...model,
     values,
@@ -593,6 +597,7 @@ export function createSlider (options: SliderOptions = {}): SliderContext {
     orientation,
     inverted,
     register,
+    onboard,
     snap,
     fromValue,
     fromPercent,

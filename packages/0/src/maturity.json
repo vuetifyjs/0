@@ -257,6 +257,11 @@
       "level": "preview",
       "category": "plugins"
     },
+    "useRaf": {
+      "level": "preview",
+      "since": "0.1.9",
+      "category": "system"
+    },
     "useRtl": {
       "level": "preview",
       "since": "0.1.7",
@@ -266,6 +271,11 @@
       "level": "preview",
       "since": "0.1.7",
       "category": "forms"
+    },
+    "useTimer": {
+      "level": "preview",
+      "since": "0.1.9",
+      "category": "system"
     },
     "useVirtualFocus": {
       "level": "preview",

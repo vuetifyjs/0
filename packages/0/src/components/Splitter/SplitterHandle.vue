@@ -277,7 +277,7 @@
     v-bind="{ ...attrs, ...slotProps.attrs }"
     :as
     :renderless
-    :style="{ flexShrink: 0 }"
+    :style="[attrs.style, slotProps.attrs.style, { flexShrink: 0 }]"
   >
     <slot v-bind="slotProps" />
   </Atom>
