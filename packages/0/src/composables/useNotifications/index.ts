@@ -129,7 +129,7 @@ export function createNotifications<
     }
   })
 
-  function enrich (input: Z): Partial<E> {
+  function hydrate (input: Z): Partial<E> {
     const id = input.id ?? useId()
     const now = new Date()
 
@@ -153,7 +153,7 @@ export function createNotifications<
   }
 
   function send (input: Z): E {
-    const ticket = registry.register(enrich(input))
+    const ticket = registry.register(hydrate(input))
 
     queue.register(isUndefined(input.timeout) ? { id: ticket.id } : { id: ticket.id, timeout: input.timeout })
 
@@ -164,7 +164,7 @@ export function createNotifications<
 
   /** Register into registry only (no toast queue). Use for historical/seeded items. */
   function seed (input: Z): E {
-    return registry.register(enrich(input))
+    return registry.register(hydrate(input))
   }
 
   function onboard (inputs: Z[]): E[] {
