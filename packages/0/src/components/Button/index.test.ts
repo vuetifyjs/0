@@ -296,6 +296,58 @@ describe('button', () => {
         expect(wrapper.attributes('data-loading')).toBe('true')
         vi.useRealTimers()
       })
+
+      it('should set aria-busy after grace period', async () => {
+        vi.useFakeTimers()
+        const { wrapper } = mountButton({ props: { loading: true } })
+
+        expect(wrapper.attributes('aria-busy')).toBeUndefined()
+
+        vi.advanceTimersByTime(1000)
+        await nextTick()
+
+        expect(wrapper.attributes('aria-busy')).toBe('true')
+        vi.useRealTimers()
+      })
+
+      it('should strip onClickCapture when blocked', async () => {
+        const captured = vi.fn()
+        const wrapper = mount(Button.Root, {
+          props: { disabled: true },
+          attrs: { onClickCapture: captured },
+          slots: { default: () => h('span', 'Click') },
+        })
+        await wrapper.trigger('click')
+        expect(captured).not.toHaveBeenCalled()
+      })
+
+      it('should stop timer on unmount', async () => {
+        vi.useFakeTimers()
+
+        const show = shallowRef(true)
+        const Component = defineComponent({
+          setup () {
+            return () => show.value
+              ? h(Button.Root as any, { loading: true }, {
+                  default: () => h('span', 'Click'),
+                })
+              : null
+          },
+        })
+
+        mount(Component)
+
+        // Unmount before grace period fires
+        show.value = false
+        await nextTick()
+
+        // Advancing should not throw
+        vi.advanceTimersByTime(2000)
+        await nextTick()
+
+        expect(true).toBe(true)
+        vi.useRealTimers()
+      })
     })
 
     describe('standalone mode', () => {

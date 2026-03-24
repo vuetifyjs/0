@@ -15,7 +15,6 @@
   import { useButtonGroup } from './ButtonGroup.vue'
 
   // Composables
-  // Foundational
   import { createContext } from '#v0/composables/createContext'
   import { createSingle } from '#v0/composables/createSingle'
   import { useTimer } from '#v0/composables/useTimer'
@@ -80,6 +79,7 @@
       'role': 'button'
       'disabled': true | undefined
       'aria-disabled': true | undefined
+      'aria-busy': true | undefined
       'aria-pressed': boolean | undefined
       'aria-label': string | undefined
       'tabindex': 0 | -1 | undefined
@@ -163,7 +163,7 @@
   // Filter onClick from attrs when blocked to prevent external handlers from firing
   const filteredAttrs = toRef(() => {
     if (!isBlocked.value) return attrs
-    const { onClick, ...rest } = attrs as Record<string, unknown>
+    const { onClick, onClickCapture, ...rest } = attrs as Record<string, unknown>
     return rest
   })
 
@@ -179,6 +179,7 @@
   }
 
   onUnmounted(() => {
+    timer.stop()
     if (!ticket || !group) return
     group.unregister(ticket.id)
   })
@@ -194,12 +195,12 @@
 
   provideButtonRoot(namespace, context)
 
-  const boundAttrs = toRef(() => ({
-    ...filteredAttrs.value,
+  const elementAttrs = toRef((): ButtonRootSlotProps['attrs'] => ({
     'type': as === 'button' ? 'button' : undefined,
     'role': 'button',
     'disabled': isDisabled.value ? true : undefined,
     'aria-disabled': isPassive.value ? true : undefined,
+    'aria-busy': isLoading.value ? true : undefined,
     'aria-pressed': group ? isSelected.value : undefined,
     'aria-label': ariaLabel || undefined,
     'tabindex': isDisabled.value ? -1 : 0,
@@ -210,26 +211,18 @@
     'data-selected': group && isSelected.value ? true : undefined,
   }))
 
+  const boundAttrs = toRef(() => ({
+    ...filteredAttrs.value,
+    ...elementAttrs.value,
+  }))
+
   const slotProps = toRef((): ButtonRootSlotProps => ({
     isLoading: isLoading.value,
     isDisabled: isDisabled.value,
     isReadonly: isReadonly.value,
     isPassive: isPassive.value,
     isSelected: isSelected.value,
-    attrs: {
-      'type': as === 'button' ? 'button' : undefined,
-      'role': 'button',
-      'disabled': isDisabled.value ? true : undefined,
-      'aria-disabled': isPassive.value ? true : undefined,
-      'aria-pressed': group ? isSelected.value : undefined,
-      'aria-label': ariaLabel || undefined,
-      'tabindex': isDisabled.value ? -1 : 0,
-      'data-loading': isLoading.value ? true : undefined,
-      'data-passive': isPassive.value ? true : undefined,
-      'data-readonly': isReadonly.value ? true : undefined,
-      'data-disabled': isDisabled.value ? true : undefined,
-      'data-selected': group && isSelected.value ? true : undefined,
-    },
+    attrs: elementAttrs.value,
   }))
 </script>
 
