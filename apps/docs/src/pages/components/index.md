@@ -37,6 +37,14 @@ Pure context providers for state management. Always renderless—they provide lo
 | [Group](/components/providers/group) | Multi-selection with tri-state support |
 | [Step](/components/providers/step) | Sequential navigation (first, last, next, prev) |
 
+## Actions
+
+Interactive controls for user-initiated actions.
+
+| Name | Description |
+| - | - |
+| [Button](/components/actions/button) | Button with loading grace period, toggle groups, and icon accessibility |
+
 ## Forms
 
 Form control components with accessibility and validation support.

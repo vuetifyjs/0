@@ -77,6 +77,7 @@
     isDragging: boolean
     distribute: (sizes: number[]) => void
     attrs: {
+      'style'?: Record<string, string>
       'data-orientation': SplitterOrientation
       'data-dragging': true | undefined
     }
@@ -320,7 +321,7 @@
     v-bind="{ ...attrs, ...slotProps.attrs }"
     :as
     :renderless
-    :style="[attrs.style, {
+    :style="[attrs.style, slotProps.attrs.style, {
       display: 'flex',
       flexDirection: orientation === 'horizontal' ? 'row' : 'column',
     }]"
