@@ -1,0 +1,54 @@
+import { describe, expect, it } from 'vitest'
+
+// Composables
+import { createThemePlugin, useTheme } from '#v0/composables/useTheme'
+
+// Utilities
+import { mount } from '@vue/test-utils'
+import { defineComponent, h } from 'vue'
+
+import { Theme } from './index'
+
+describe('theme', () => {
+  const plugin = createThemePlugin({
+    default: 'light',
+    themes: {
+      light: { dark: false, colors: { primary: '#1976d2' } },
+      dark: { dark: true, colors: { primary: '#90caf9' } },
+    },
+  })
+
+  it('should render a wrapper element with data-theme attribute', () => {
+    const wrapper = mount(Theme, {
+      props: { theme: 'dark' },
+      global: { plugins: [plugin] },
+      slots: { default: () => h('span', 'content') },
+    })
+
+    expect(wrapper.element.tagName).toBe('DIV')
+    expect(wrapper.attributes('data-theme')).toBe('dark')
+    expect(wrapper.text()).toBe('content')
+  })
+
+  it('should render custom tag via as prop', () => {
+    const wrapper = mount(Theme, {
+      props: { theme: 'dark', as: 'section' },
+      global: { plugins: [plugin] },
+      slots: { default: () => h('span', 'content') },
+    })
+
+    expect(wrapper.element.tagName).toBe('SECTION')
+  })
+
+  it('should pass attrs via slot in renderless mode', () => {
+    const wrapper = mount(Theme, {
+      props: { theme: 'dark', renderless: true },
+      global: { plugins: [plugin] },
+      slots: {
+        default: (props: any) => h('section', props.attrs, 'content'),
+      },
+    })
+
+    expect(wrapper.find('section').attributes('data-theme')).toBe('dark')
+  })
+})
