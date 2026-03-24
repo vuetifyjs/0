@@ -61,6 +61,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/components/actions/button': RouteRecordInfo<
+      '/components/actions/button',
+      '/components/actions/button',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/components/disclosure/dialog': RouteRecordInfo<
       '/components/disclosure/dialog',
       '/components/disclosure/dialog',
@@ -871,6 +878,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/components/index.md': {
       routes:
         | '/components/'
+      views:
+        | never
+    }
+    'src/pages/components/actions/button.md': {
+      routes:
+        | '/components/actions/button'
       views:
         | never
     }
