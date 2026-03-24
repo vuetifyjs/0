@@ -77,6 +77,7 @@
     isDragging: boolean
     distribute: (sizes: number[]) => void
     attrs: {
+      'style'?: Record<string, string>
       'data-orientation': SplitterOrientation
       'data-dragging': true | undefined
     }

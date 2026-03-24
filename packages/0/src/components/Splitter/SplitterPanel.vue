@@ -43,6 +43,7 @@
     expand: () => void
     attrs: {
       'id': string
+      'style'?: Record<string, string>
       'data-orientation': SplitterOrientation
       'data-panel-index': number
       'data-collapsed': true | undefined
