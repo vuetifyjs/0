@@ -175,15 +175,30 @@ describe('button', () => {
         expect(props().isReadonly).toBe(true)
       })
 
-      it('should block click events', async () => {
-        const clicked = vi.fn()
-        const wrapper = mount(Button.Root, {
-          props: { readonly: true },
-          attrs: { onClick: clicked },
-          slots: { default: () => h('span', 'Click') },
+      it('should not toggle in group when readonly', async () => {
+        const model = ref<string | undefined>(undefined)
+        const { wrapper } = mountGroup({ model, items: [{ value: 'a' }, { value: 'b' }] })
+        const buttons = wrapper.findAll('button')
+
+        await buttons[0].trigger('click')
+        await nextTick()
+        expect(model.value).toBe('a')
+
+        // Re-mount with readonly — click should not change selection
+        const wrapper2 = mount(Button.Group, {
+          props: { 'modelValue': 'a', 'onUpdate:modelValue': (v: unknown) => {
+            model.value = v as string
+          } },
+          slots: {
+            default: () => [
+              h(Button.Root as any, { value: 'a', readonly: true }, { default: () => h('span', 'A') }),
+              h(Button.Root as any, { value: 'b' }, { default: () => h('span', 'B') }),
+            ],
+          },
         })
-        await wrapper.trigger('click')
-        expect(clicked).not.toHaveBeenCalled()
+        await wrapper2.findAll('button')[0].trigger('click')
+        await nextTick()
+        expect(model.value).toBe('a')
       })
     })
 
@@ -213,28 +228,42 @@ describe('button', () => {
         expect(props().isPassive).toBe(true)
       })
 
-      it('should block click events', async () => {
-        const clicked = vi.fn()
-        const wrapper = mount(Button.Root, {
-          props: { passive: true },
-          attrs: { onClick: clicked },
-          slots: { default: () => h('span', 'Click') },
+      it('should not toggle in group when passive', async () => {
+        const model = ref<string | undefined>('a')
+        const wrapper = mount(Button.Group, {
+          props: { 'modelValue': 'a', 'onUpdate:modelValue': (v: unknown) => {
+            model.value = v as string
+          } },
+          slots: {
+            default: () => [
+              h(Button.Root as any, { value: 'a', passive: true }, { default: () => h('span', 'A') }),
+              h(Button.Root as any, { value: 'b' }, { default: () => h('span', 'B') }),
+            ],
+          },
         })
-        await wrapper.trigger('click')
-        expect(clicked).not.toHaveBeenCalled()
+        await wrapper.findAll('button')[0].trigger('click')
+        await nextTick()
+        expect(model.value).toBe('a')
       })
     })
 
     describe('loading state', () => {
-      it('should block click events while loading', async () => {
-        const clicked = vi.fn()
-        const wrapper = mount(Button.Root, {
-          props: { loading: true },
-          attrs: { onClick: clicked },
-          slots: { default: () => h('span', 'Click') },
+      it('should not toggle in group while loading', async () => {
+        const model = ref<string | undefined>('a')
+        const wrapper = mount(Button.Group, {
+          props: { 'modelValue': 'a', 'onUpdate:modelValue': (v: unknown) => {
+            model.value = v as string
+          } },
+          slots: {
+            default: () => [
+              h(Button.Root as any, { value: 'a', loading: true }, { default: () => h('span', 'A') }),
+              h(Button.Root as any, { value: 'b' }, { default: () => h('span', 'B') }),
+            ],
+          },
         })
-        await wrapper.trigger('click')
-        expect(clicked).not.toHaveBeenCalled()
+        await wrapper.findAll('button')[0].trigger('click')
+        await nextTick()
+        expect(model.value).toBe('a')
       })
 
       it('should not show isLoading before grace period', () => {
@@ -308,17 +337,6 @@ describe('button', () => {
 
         expect(wrapper.attributes('aria-busy')).toBe('true')
         vi.useRealTimers()
-      })
-
-      it('should strip onClickCapture when blocked', async () => {
-        const captured = vi.fn()
-        const wrapper = mount(Button.Root, {
-          props: { disabled: true },
-          attrs: { onClickCapture: captured },
-          slots: { default: () => h('span', 'Click') },
-        })
-        await wrapper.trigger('click')
-        expect(captured).not.toHaveBeenCalled()
       })
 
       it('should stop timer on unmount', async () => {

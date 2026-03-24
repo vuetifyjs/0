@@ -136,7 +136,6 @@
     : false,
   )
 
-  // Loading grace period: only show loading UI after 1s delay
   const isLoading = shallowRef(false)
 
   const timer = useTimer(() => {
@@ -152,26 +151,10 @@
     }
   }, { immediate: true })
 
-  // Internal single selection for Loading/Content visibility
   const single = createSingle({ mandatory: 'force' })
 
-  // Blocked state: clicks should not fire
-  const isBlocked = toRef(() =>
-    isDisabled.value || isReadonly.value || isPassive.value || loading,
-  )
-
-  // Filter onClick from attrs when blocked to prevent external handlers from firing
-  const filteredAttrs = toRef(() => {
-    if (!isBlocked.value) return attrs
-    const { onClick, onClickCapture, ...rest } = attrs as Record<string, unknown>
-    return rest
-  })
-
-  function onClick (e: Event) {
-    if (isBlocked.value) {
-      e.preventDefault()
-      return
-    }
+  function onClick () {
+    if (isDisabled.value || isReadonly.value || isPassive.value || loading) return
 
     if (ticket) {
       ticket.toggle()
@@ -211,11 +194,6 @@
     'data-selected': group && isSelected.value ? true : undefined,
   }))
 
-  const boundAttrs = toRef(() => ({
-    ...filteredAttrs.value,
-    ...elementAttrs.value,
-  }))
-
   const slotProps = toRef((): ButtonRootSlotProps => ({
     isLoading: isLoading.value,
     isDisabled: isDisabled.value,
@@ -228,7 +206,7 @@
 
 <template>
   <Atom
-    v-bind="boundAttrs"
+    v-bind="{ ...attrs, ...slotProps.attrs }"
     :as
     :renderless
     @click="onClick"

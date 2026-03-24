@@ -27,6 +27,10 @@
   export interface ButtonIconSlotProps {
     /** Whether this is an icon-only button (only child of Root) */
     isSolo: boolean
+    /** Attributes to bind to the icon element */
+    attrs: {
+      'aria-hidden': true
+    }
   }
 </script>
 
@@ -69,13 +73,16 @@
 
   const slotProps = toRef((): ButtonIconSlotProps => ({
     isSolo: isSolo.value,
+    attrs: {
+      'aria-hidden': true,
+    },
   }))
 </script>
 
 <template>
   <Atom
     ref="element"
-    aria-hidden="true"
+    v-bind="slotProps.attrs"
     :as
     :renderless
   >
