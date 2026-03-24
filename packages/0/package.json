@@ -35,7 +35,6 @@
       "./features/adapters/flagsmith": "./dist/features/adapters/flagsmith/index.mjs",
       "./features/adapters/launchdarkly": "./dist/features/adapters/launchdarkly/index.mjs",
       "./features/adapters/posthog": "./dist/features/adapters/posthog/index.mjs",
-      "./notifications": "./dist/notifications/index.mjs",
       "./locale": "./dist/locale/index.mjs",
       "./locale/adapters": "./dist/locale/adapters/index.mjs",
       "./locale/adapters/v0": "./dist/locale/adapters/v0/index.mjs",
@@ -45,6 +44,7 @@
       "./logger/adapters/consola": "./dist/logger/adapters/consola/index.mjs",
       "./logger/adapters/pino": "./dist/logger/adapters/pino/index.mjs",
       "./logger/adapters/v0": "./dist/logger/adapters/v0/index.mjs",
+      "./notifications": "./dist/notifications/index.mjs",
       "./palettes": "./dist/palettes/index.mjs",
       "./palettes/ant": "./dist/palettes/ant/index.mjs",
       "./palettes/ant/generate": "./dist/palettes/ant/generate/index.mjs",
@@ -184,10 +184,6 @@
       "development": "./src/features/adapters/posthog/index.ts",
       "default": "./dist/features/adapters/posthog/index.mjs"
     },
-    "./notifications": {
-      "development": "./src/notifications/index.ts",
-      "default": "./dist/notifications/index.mjs"
-    },
     "./locale": {
       "development": "./src/locale/index.ts",
       "default": "./dist/locale/index.mjs"
@@ -223,6 +219,10 @@
     "./logger/adapters/v0": {
       "development": "./src/logger/adapters/v0/index.ts",
       "default": "./dist/logger/adapters/v0/index.mjs"
+    },
+    "./notifications": {
+      "development": "./src/notifications/index.ts",
+      "default": "./dist/notifications/index.mjs"
     },
     "./palettes": {
       "development": "./src/palettes/index.ts",
