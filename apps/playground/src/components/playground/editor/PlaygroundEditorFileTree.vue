@@ -133,7 +133,7 @@
   const creating = shallowRef<string | null>(null)
   const creatingType = shallowRef<'file' | 'folder'>('file')
   const pending = shallowRef('')
-  const input = useTemplateRef<HTMLInputElement>('new-file-input')
+  const vFocus = { mounted: (el: HTMLElement) => el.focus() }
 
   function isFile (id: string) {
     return VALID_EXT.test(id)
@@ -149,7 +149,6 @@
     creatingType.value = type
     pending.value = ''
     tree.open(targetFolder.value)
-    nextTick(() => input.value?.focus())
   }
 
   function confirm () {
@@ -184,7 +183,7 @@
     if (type === 'file') {
       store.addFile(itemId)
       if (itemId.endsWith('.vue')) {
-        store.files[itemId]!.code = '<script setup lang="ts"><' + '/script>\n\n<template>\n  <div>\n    <slot />\n  </div>\n</template>\n'
+        store.files[itemId]!.code = '<script setup lang="ts">\n  //\n<' + '/script>\n\n<template>\n  <div>\n    <slot />\n  </div>\n</template>\n'
       }
       store.setActive(itemId)
     } else {
@@ -224,26 +223,31 @@
     }
   }
 
-  function getVisibleNodes (parentId?: string, depth = 0): {
+  interface TreeNode {
     id: string
     depth: number
-    ext?: {
-      icon: string
-      color: string
-    }
-  }[] {
+    ext?: { icon: string, color: string }
+    ghost?: string
+  }
+
+  function getVisibleNodes (parentId?: string, depth = 0): TreeNode[] {
     const ids = parentId
       ? tree.children.get(parentId) ?? []
       : tree.roots.value.map(r => r.id)
 
-    return (ids as readonly (string | number)[]).flatMap(id => {
+    const result: TreeNode[] = (ids as readonly (string | number)[]).flatMap(id => {
       const sid = String(id)
-      const result: { id: string, depth: number, ext?: { icon: string, color: string } }[] = [{ id: sid, depth, ext: isFile(sid) ? fileExt(sid) : undefined }]
+      const nodes: TreeNode[] = [{ id: sid, depth, ext: isFile(sid) ? fileExt(sid) : undefined }]
       if (!isFile(sid) && tree.opened(id)) {
-        result.push(...getVisibleNodes(sid, depth + 1))
+        nodes.push(...getVisibleNodes(sid, depth + 1))
+        if (!creating.value) {
+          nodes.push({ id: `__ghost:${sid}`, depth: depth + 1, ghost: sid })
+        }
       }
-      return result
+      return nodes
     })
+
+    return result
   }
 
   const visibleNodes = computed(() => {
@@ -259,15 +263,15 @@
     if (folderIndex === -1) return null
 
     const inputDepth = nodes[folderIndex]!.depth + 1
-    let lastIdx = folderIndex
+    let lastIndex = folderIndex
     for (let i = folderIndex + 1; i < nodes.length; i++) {
       if (tree.hasAncestor(nodes[i]!.id, folder)) {
-        lastIdx = i
+        lastIndex = i
       } else {
         break
       }
     }
-    return { id: nodes[lastIdx]!.id, inputDepth }
+    return { id: nodes[lastIndex]!.id, inputDepth }
   })
 
   const treeEl = useTemplateRef<HTMLElement>('tree-el')
@@ -292,7 +296,7 @@
   }
 
   function onKeydown (e: KeyboardEvent, id: string) {
-    const nodes = visibleNodes.value
+    const nodes = visibleNodes.value.filter(n => !n.ghost)
     const index = nodes.findIndex(n => n.id === id)
 
     switch (e.key) {
@@ -357,7 +361,7 @@
     aria-label="File browser"
     class="border-e border-divider bg-surface overflow-y-auto shrink-0 h-100% bg-surface-tint"
   >
-    <div class="flex items-center justify-between px-3 py-2">
+    <div class="flex items-center justify-between pe-3 py-2 ps-4.5">
       <span class="text-xs font-semibold text-on-surface-variant uppercase tracking-wide">Files</span>
 
       <div class="flex items-center gap-1.5">
@@ -393,12 +397,26 @@
       </div>
     </div>
 
-    <div aria-label="Project files" role="tree">
+    <div aria-label="Project files" class="ps-2.5" role="tree">
       <template
-        v-for="({ id, depth, ext }, index) in visibleNodes"
+        v-for="({ id, depth, ext, ghost }, index) in visibleNodes"
         :key="id"
       >
         <div
+          v-if="ghost"
+          :aria-label="`Create new file in ${ghost}`"
+          class="flex items-center gap-1.5 py-1 pr-2 text-sm cursor-pointer select-none opacity-40 hover:opacity-60 transition-opacity"
+          role="treeitem"
+          :style="{ paddingInlineStart: `${depth * 8 + 8}px` }"
+          tabindex="-1"
+          @click="targetFolder = ghost; add('file')"
+        >
+          <AppIcon icon="file-plus" :size="14" />
+          <span class="truncate italic">New File...</span>
+        </div>
+
+        <div
+          v-else
           :aria-expanded="!isFile(id) ? tree.opened(id) : undefined"
           :aria-selected="isFile(id) && id === activeFile ? true : undefined"
           class="group/row flex items-center gap-1.5 py-1 pr-2 text-sm cursor-pointer select-none hover:bg-surface-tint transition-colors"
@@ -449,14 +467,14 @@
 
         <div
           v-if="inputAfter?.id === id"
-          class="flex items-center gap-1.5 py-1 pr-2"
+          class="flex items-center gap-1.5 py-1 pr-2 text-sm"
           :style="{ paddingInlineStart: `${inputAfter!.inputDepth * 8 + 8}px` }"
         >
           <span class="w-[14px]" />
           <input
-            ref="new-file-input"
             v-model="pending"
-            class="flex-1 min-w-0 bg-transparent text-sm text-on-surface outline-none border-b border-primary"
+            v-focus
+            class="flex-1 min-w-0 bg-transparent text-sm text-on-surface outline-none shadow-[inset_0_-1px_0] shadow-primary"
             :placeholder="creatingType === 'file' ? 'filename.vue' : 'folder-name'"
             @blur="confirm"
             @keydown.enter="confirm"
