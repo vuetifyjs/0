@@ -44,14 +44,14 @@
   const {
     namespace = 'v0:button:root',
     name,
-    value: valueProp,
+    value: _value,
     form,
   } = defineProps<ButtonHiddenInputProps>()
 
   const root = useButtonRoot(namespace)
 
   const value = toRef(() => {
-    const v = valueProp ?? 'on'
+    const v = _value ?? root.value ?? 'on'
     if (isObject(v)) return JSON.stringify(v)
     return String(v)
   })

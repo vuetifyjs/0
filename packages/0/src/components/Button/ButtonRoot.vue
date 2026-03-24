@@ -30,6 +30,8 @@
   import type { Ref } from 'vue'
 
   export interface ButtonRootContext {
+    /** The button's value (for group registration / form submission) */
+    value: unknown
     /** Whether the button is in the loading state (after grace period) */
     isLoading: Readonly<Ref<boolean>>
     /** Whether the button is disabled */
@@ -176,6 +178,7 @@
   })
 
   const context: ButtonRootContext = {
+    value,
     isLoading: toRef(() => isLoading.value),
     isDisabled,
     isReadonly,
