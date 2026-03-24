@@ -13,6 +13,7 @@
   // Components
   import { Atom } from '#v0/components/Atom'
   import { useButtonGroup } from './ButtonGroup.vue'
+  import ButtonHiddenInput from './ButtonHiddenInput.vue'
 
   // Composables
   import { createContext } from '#v0/composables/createContext'
@@ -32,6 +33,10 @@
   export interface ButtonRootContext {
     /** The button's value (for group registration / form submission) */
     value: unknown
+    /** Form field name */
+    name?: string
+    /** Form association ID */
+    form?: string
     /** Whether the button is in the loading state (after grace period) */
     isLoading: Readonly<Ref<boolean>>
     /** Whether the button is disabled */
@@ -65,6 +70,10 @@
     namespace?: string
     /** Namespace for connecting to parent Button.Group */
     groupNamespace?: string
+    /** Form field name — auto-renders HiddenInput when set */
+    name?: string
+    /** Associate with form by ID */
+    form?: string
     /** Accessible label for the button */
     ariaLabel?: string
   }
@@ -121,6 +130,8 @@
     loading = false,
     grace = 0,
     value,
+    name,
+    form,
     ariaLabel,
     namespace = 'v0:button:root',
     groupNamespace = 'v0:button:group',
@@ -179,6 +190,8 @@
 
   const context: ButtonRootContext = {
     value,
+    name,
+    form,
     isLoading: toRef(() => isLoading.value),
     isDisabled,
     isReadonly,
@@ -226,4 +239,6 @@
   >
     <slot v-bind="slotProps" />
   </Atom>
+
+  <ButtonHiddenInput v-if="name" />
 </template>

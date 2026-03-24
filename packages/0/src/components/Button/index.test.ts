@@ -39,7 +39,7 @@ function mountButton (options: {
   })
 
   return {
-    wrapper,
+    wrapper: wrapper.find(options.props?.as as string || 'button') as unknown as VueWrapper,
     props: () => capturedProps,
     wait: () => nextTick(),
   }
@@ -564,7 +564,7 @@ describe('button', () => {
       })
 
       await nextTick()
-      expect(wrapper.attributes('data-solo')).toBe('true')
+      expect(wrapper.find('button').attributes('data-solo')).toBe('true')
     })
 
     it('should not set data-solo when Content is present', async () => {
@@ -610,7 +610,7 @@ describe('button', () => {
       })
 
       await nextTick()
-      expect(wrapper.attributes('aria-label')).toBeDefined()
+      expect(wrapper.find('button').attributes('aria-label')).toBeDefined()
     })
 
     it('should use explicit aria-label over default', async () => {
@@ -624,7 +624,7 @@ describe('button', () => {
       })
 
       await nextTick()
-      expect(wrapper.attributes('aria-label')).toBe('Close')
+      expect(wrapper.find('button').attributes('aria-label')).toBe('Close')
     })
   })
 
