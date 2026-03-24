@@ -17,7 +17,7 @@
   // Composables
   import { createContext } from '#v0/composables/createContext'
   import { createSingle } from '#v0/composables/createSingle'
-  import { createLogger } from '#v0/composables/useLogger'
+  import { useLocale } from '#v0/composables/useLocale'
   import { useTimer } from '#v0/composables/useTimer'
 
   // Utilities
@@ -92,6 +92,7 @@
       'data-disabled': true | undefined
       'data-selected': true | undefined
       'data-solo': true | undefined
+      'onClick': () => void
     }
   }
 
@@ -157,13 +158,7 @@
 
   const single = createSingle({ mandatory: 'force' })
   const isSolo = shallowRef(false)
-  const logger = createLogger({ prefix: '[ButtonRoot]' })
-
-  watch(isSolo, solo => {
-    if (solo && !ariaLabel) {
-      logger.warn('Icon-only button requires an aria-label for accessibility')
-    }
-  })
+  const locale = useLocale()
 
   function onClick () {
     if (isDisabled.value || isReadonly.value || isPassive.value || loading) return
@@ -198,7 +193,7 @@
     'aria-disabled': isPassive.value ? true : undefined,
     'aria-busy': isLoading.value ? true : undefined,
     'aria-pressed': group ? isSelected.value : undefined,
-    'aria-label': ariaLabel || undefined,
+    'aria-label': ariaLabel || (isSolo.value ? locale.t('Button.label') : undefined),
     'tabindex': isDisabled.value ? -1 : 0,
     'data-loading': isLoading.value ? true : undefined,
     'data-passive': isPassive.value ? true : undefined,
@@ -206,6 +201,7 @@
     'data-disabled': isDisabled.value ? true : undefined,
     'data-selected': group && isSelected.value ? true : undefined,
     'data-solo': isSolo.value ? true : undefined,
+    'onClick': onClick,
   }))
 
   const slotProps = toRef((): ButtonRootSlotProps => ({
@@ -223,7 +219,6 @@
     v-bind="{ ...attrs, ...slotProps.attrs }"
     :as
     :renderless
-    @click="onClick"
   >
     <slot v-bind="slotProps" />
   </Atom>

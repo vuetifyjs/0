@@ -594,10 +594,8 @@ describe('button', () => {
       expect(captured.isSolo).toBe(true)
     })
 
-    it('should warn when solo icon lacks aria-label', async () => {
-      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
-
-      mount(Button.Root, {
+    it('should provide default aria-label when solo and none given', async () => {
+      const wrapper = mount(Button.Root, {
         slots: {
           default: () => h(Button.Icon as any, {}, {
             default: () => h('span', '✕'),
@@ -606,14 +604,11 @@ describe('button', () => {
       })
 
       await nextTick()
-      expect(warn).toHaveBeenCalled()
-      warn.mockRestore()
+      expect(wrapper.attributes('aria-label')).toBeDefined()
     })
 
-    it('should not warn when solo icon has aria-label', async () => {
-      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
-
-      mount(Button.Root, {
+    it('should use explicit aria-label over default', async () => {
+      const wrapper = mount(Button.Root, {
         props: { ariaLabel: 'Close' },
         slots: {
           default: () => h(Button.Icon as any, {}, {
@@ -623,8 +618,7 @@ describe('button', () => {
       })
 
       await nextTick()
-      expect(warn).not.toHaveBeenCalled()
-      warn.mockRestore()
+      expect(wrapper.attributes('aria-label')).toBe('Close')
     })
   })
 
