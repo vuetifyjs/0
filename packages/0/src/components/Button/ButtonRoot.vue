@@ -14,10 +14,9 @@
   import { Atom } from '#v0/components/Atom'
   import { useButtonGroup } from './ButtonGroup.vue'
 
+  // Composables
   // Foundational
   import { createContext } from '#v0/composables/createContext'
-
-  // Composables
   import { createSingle } from '#v0/composables/createSingle'
   import { useTimer } from '#v0/composables/useTimer'
 
@@ -108,7 +107,7 @@
     as = 'button',
     renderless,
     disabled = false,
-    readonly: readonlyProp = false,
+    readonly: _readonly = false,
     passive = false,
     loading = false,
     value,
@@ -117,15 +116,11 @@
     groupNamespace = 'v0:button:group',
   } = defineProps<ButtonRootProps<V>>()
 
-  // Dual-mode: try to inject group context, null if standalone
   let group: SelectionContext<SelectionTicket> | null = null
   try {
     group = useButtonGroup(groupNamespace)
-  } catch {
-    // No group context, standalone mode
-  }
+  } catch {}
 
-  // Register with group if present
   const ticket = group?.register({ value, disabled })
 
   const isDisabled = toRef(() => group && ticket
@@ -133,7 +128,7 @@
     : disabled,
   )
 
-  const isReadonly = toRef(() => readonlyProp)
+  const isReadonly = toRef(() => _readonly)
   const isPassive = toRef(() => passive)
 
   const isSelected = toRef(() => ticket

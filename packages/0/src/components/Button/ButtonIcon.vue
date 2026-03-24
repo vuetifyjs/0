@@ -26,7 +26,7 @@
 
   export interface ButtonIconSlotProps {
     /** Whether this is an icon-only button (only child of Root) */
-    iconOnly: boolean
+    isSolo: boolean
   }
 </script>
 
@@ -44,7 +44,7 @@
 
   const logger = createLogger({ prefix: '[ButtonIcon]' })
   const element = useTemplateRef<HTMLElement>('element')
-  const iconOnly = shallowRef(false)
+  const isSolo = shallowRef(false)
 
   onMounted(() => {
     if (!element.value) return
@@ -58,8 +58,8 @@
     )
 
     if (siblings.length === 0) {
-      iconOnly.value = true
-      parent.dataset.iconOnly = ''
+      isSolo.value = true
+      parent.dataset.solo = ''
 
       if (!parent.getAttribute('aria-label')) {
         logger.warn('Icon-only button requires an aria-label on ButtonRoot for accessibility')
@@ -68,7 +68,7 @@
   })
 
   const slotProps = toRef((): ButtonIconSlotProps => ({
-    iconOnly: iconOnly.value,
+    isSolo: isSolo.value,
   }))
 </script>
 

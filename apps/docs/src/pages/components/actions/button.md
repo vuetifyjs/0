@@ -147,8 +147,19 @@ Use `Button.Icon` to wrap icon content. It sets `aria-hidden="true"` on itself a
 Use `Button.HiddenInput` inside a group to submit toggle state with forms. It renders a visually hidden checkbox that reflects the button's selected state.
 
 ```vue
+<script setup lang="ts">
+  import { Button, Form } from '@vuetify/v0'
+  import { shallowRef } from 'vue'
+
+  const answer = shallowRef<string>()
+
+  function onSubmit () {
+    console.log('Answer:', answer.value)
+  }
+</script>
+
 <template>
-  <form @submit.prevent="onSubmit">
+  <Form @submit="onSubmit">
     <Button.Group v-model="answer">
       <Button.Root value="yes">
         Yes
@@ -162,7 +173,7 @@ Use `Button.HiddenInput` inside a group to submit toggle state with forms. It re
     </Button.Group>
 
     <button type="submit">Submit</button>
-  </form>
+  </Form>
 </template>
 ```
 

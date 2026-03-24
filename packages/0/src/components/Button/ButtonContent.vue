@@ -19,7 +19,6 @@
   import { onUnmounted, toRef } from 'vue'
 
   export interface ButtonContentSlotProps {
-    /** Whether this content area is currently selected/visible */
     isSelected: boolean
   }
 </script>
@@ -37,7 +36,6 @@
 
   const root = useButtonRoot(namespace)
 
-  // Register as fallback — mandatory: 'force' ensures this gets selected by default
   const ticket = root.single.register({ id: 'content' })
 
   onUnmounted(() => {

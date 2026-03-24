@@ -43,16 +43,12 @@
     disabled: true,
   })
 
-  // When isLoading activates (after grace period), enable and select self
-  // When isLoading deactivates, disable self so selection falls back to Content
   watch(root.isLoading, active => {
     if (active) {
       ticket.disabled = false
       ticket.select()
     } else {
       ticket.disabled = true
-      // Directly select content — mandate() won't work because loading
-      // ticket is still in selectedIds (mandatory prevents unselecting last)
       root.single.select('content')
     }
   }, { immediate: true })

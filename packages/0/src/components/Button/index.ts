@@ -116,7 +116,7 @@ export const Button = {
   /**
    * Icon wrapper with accessibility enforcement.
    *
-   * Sets `aria-hidden="true"` on itself. Detects icon-only buttons
+   * Sets `aria-hidden="true"` on itself. Detects solo buttons
    * and warns when `aria-label` is missing on Root.
    *
    * @see https://0.vuetifyjs.com/components/actions/button#icon
