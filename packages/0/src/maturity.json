@@ -339,8 +339,8 @@
       "category": "providers"
     },
     "Button": {
-      "level": "draft",
-      "category": "forms"
+      "level": "preview",
+      "category": "actions"
     },
     "Checkbox": {
       "level": "preview",
