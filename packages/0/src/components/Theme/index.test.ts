@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest'
 
 // Composables
-import { createThemePlugin, useTheme } from '#v0/composables/useTheme'
+import { createThemePlugin } from '#v0/composables/useTheme'
 
 // Utilities
 import { mount } from '@vue/test-utils'
-import { defineComponent, h } from 'vue'
+import { h } from 'vue'
 
 import { Theme } from './index'
 

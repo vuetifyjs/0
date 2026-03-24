@@ -1,5 +1,5 @@
 // Utilities
-import { isUndefined } from '#v0/utilities'
+import { hexToRgb, isUndefined } from '#v0/utilities'
 
 // Types
 import type { ID } from '#v0/types'
@@ -59,15 +59,8 @@ export abstract class ThemeAdapter implements ThemeAdapterInterface {
   }
 
   private decompose (hex: string): string {
-    const clean = hex.startsWith('#') ? hex.slice(1) : hex
-    const r = Number.parseInt(clean.slice(0, 2), 16)
-    const g = Number.parseInt(clean.slice(2, 4), 16)
-    const b = Number.parseInt(clean.slice(4, 6), 16)
-    if (clean.length === 8) {
-      const a = Number.parseInt(clean.slice(6, 8), 16)
-      return `${r}, ${g}, ${b}, ${a}`
-    }
-    return `${r}, ${g}, ${b}`
+    const { r, g, b, a } = hexToRgb(hex)
+    return isUndefined(a) ? `${r}, ${g}, ${b}` : `${r}, ${g}, ${b}, ${a}`
   }
 
   abstract setup<T extends ThemeAdapterSetupContext>(

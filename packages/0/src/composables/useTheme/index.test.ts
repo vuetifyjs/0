@@ -579,10 +579,11 @@ describe('createThemePlugin', () => {
         adapter: {
           prefix: 'custom',
           stylesheetId: 'custom-theme-styles',
+          rgb: false,
           setup: setupFn,
           update: updateFn,
           generate: () => '',
-        },
+        } as any,
         themes: {
           light: {
             colors: { primary: '#1976d2' },
