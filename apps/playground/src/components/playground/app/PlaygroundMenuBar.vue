@@ -55,6 +55,18 @@
     }
   }
 
+  function onTree () {
+    menu.value = false
+    playground.tree.value = !playground.tree.value
+  }
+
+  function onSide () {
+    menu.value = false
+    playground.side.value = !playground.side.value
+    playground.bottom.value = !playground.bottom.value
+    sidePref.value = playground.side.value
+  }
+
   function onIntro () {
     menu.value = false
     playground.left.value = !playground.left.value
@@ -141,6 +153,28 @@
           class="bg-surface border border-divider rounded-md shadow-lg py-1 min-w-48"
           style="position-area: unset; inset-area: unset; top: anchor(top); left: anchor(right); position-try-fallbacks: flip-block;"
         >
+          <button
+            class="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-on-surface hover:bg-surface-tint transition-colors text-left"
+            type="button"
+            @click="onTree"
+          >
+            <AppIcon :icon="playground.tree.value ? 'folder-open' : 'folder'" :size="14" />
+            <span class="flex-1">File Tree</span>
+            <span class="text-on-surface/40 text-2.5">Ctrl+B</span>
+          </button>
+
+          <button
+            class="w-full flex items-center gap-2 px-3 py-1.5 text-xs transition-colors text-left"
+            :class="playground.left.value ? 'text-on-surface/40 cursor-not-allowed' : 'text-on-surface hover:bg-surface-tint'"
+            type="button"
+            @click="!playground.left.value && onSide()"
+          >
+            <AppIcon :icon="playground.side.value ? 'layout-vertical' : 'layout-horizontal'" :size="14" />
+            {{ playground.side.value ? 'Preview Bottom' : 'Preview Right' }}
+          </button>
+
+          <div class="border-t border-divider my-1" />
+
           <button
             class="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-on-surface hover:bg-surface-tint transition-colors text-left"
             type="button"
