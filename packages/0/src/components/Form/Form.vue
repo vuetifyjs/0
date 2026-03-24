@@ -42,10 +42,8 @@
   // Components
   import { Atom } from '#v0/components/Atom'
 
-  // Foundational
-  import { provideContext } from '#v0/composables/createContext'
-
   // Composables
+  import { provideContext } from '#v0/composables/createContext'
   import { createForm } from '#v0/composables/createForm'
 
   // Utilities

@@ -11,7 +11,7 @@
   // Components
   import { Atom } from '#v0/components/Atom'
 
-  // Foundational
+  // Composables
   import { createContext } from '#v0/composables/createContext'
 
   // Types

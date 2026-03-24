@@ -3,9 +3,9 @@
   import { useHotkey, useStorage, useTheme } from '@vuetify/v0'
 
   // Components
+  import PlaygroundSettings from '@/components/playground/settings/PlaygroundSettings.vue'
   import { usePlayground } from './PlaygroundApp.vue'
   import PlaygroundMenuBar from './PlaygroundMenuBar.vue'
-  import PlaygroundSettings from '@/components/playground/settings/PlaygroundSettings.vue'
 
   // Utilities
   import { shallowRef } from 'vue'

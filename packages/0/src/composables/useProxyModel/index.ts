@@ -95,8 +95,9 @@ export function useProxyModel (
 
   context.apply(modelAsArray, applyOptions)
 
+  const selected = new Set(context.selectedValues.value)
   for (const value of modelAsArray) {
-    if (Array.from(context.selectedValues.value).includes(value)) {
+    if (selected.has(value)) {
       pending.delete(value)
     }
   }

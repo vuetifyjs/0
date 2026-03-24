@@ -14,7 +14,6 @@
  * context/plugin/consumer triple for plugin composables, eliminating boilerplate.
  */
 
-// Foundational
 import { createContext, useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
 

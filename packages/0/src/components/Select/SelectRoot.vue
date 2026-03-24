@@ -13,10 +13,8 @@
   import { Atom } from '#v0/components/Atom'
   import SelectHiddenInput from './SelectHiddenInput.vue'
 
-  // Foundational
-  import { createContext } from '#v0/composables/createContext'
-
   // Composables
+  import { createContext } from '#v0/composables/createContext'
   import { createSelection } from '#v0/composables/createSelection'
   import { usePopover } from '#v0/composables/usePopover'
   import { useProxyModel } from '#v0/composables/useProxyModel'
@@ -146,10 +144,7 @@
 
   useProxyModel(selection, model, { multiple })
 
-  const selectedId = toRef(() => {
-    const ids = Array.from(selection.selectedIds)
-    return ids.length > 0 ? ids[0] : undefined
-  })
+  const selectedId = toRef(() => selection.selectedIds.values().next().value)
 
   const popover = usePopover({ id })
   const isOpen = popover.isOpen

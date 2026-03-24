@@ -17,10 +17,8 @@
  * Integrates with createSingle for selection and useTokens for color resolution.
  */
 
-// Foundational
-import { createPluginContext } from '#v0/composables/createPlugin'
-
 // Composables
+import { createPluginContext } from '#v0/composables/createPlugin'
 import { createSingle } from '#v0/composables/createSingle'
 import { createTokens } from '#v0/composables/createTokens'
 
@@ -251,7 +249,7 @@ export function createTheme<
 
   type InternalTicket = SingleTicket<SingleTicketInput<ThemeColors>> & { dark: boolean, lazy: boolean }
 
-  const names = computed(() => registry.keys())
+  const names = toRef(() => registry.keys())
   const colors = computed(() => {
     const resolved = {} as Record<ID, Colors>
     for (const theme of registry.values() as InternalTicket[]) {

@@ -2,14 +2,14 @@
   // Framework
   import { Tabs } from '@vuetify/v0'
 
-  // Components
-  import { usePlayground } from '../app/PlaygroundApp.vue'
-
   // Utilities
   import { computed, shallowRef, watch } from 'vue'
 
   // Data
   import { INFRASTRUCTURE_FILES } from '@/data/playground-defaults'
+
+  // Components
+  import { usePlayground } from '../app/PlaygroundApp.vue'
 
   const playground = usePlayground()
 

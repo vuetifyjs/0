@@ -80,6 +80,19 @@ async function getComposableData (): Promise<{
       }
     }
 
+    // Find destructured const exports (plugin trinities, etc.)
+    // Matches: export const [createXContext, createXPlugin, useX] =
+    const destructuredExports = content.matchAll(/export\s+const\s+\[([^\]]+)\]/g)
+    for (const match of destructuredExports) {
+      const bindings = match[1].split(',').map(s => s.trim())
+      for (const binding of bindings) {
+        if (COMPOSABLE_PATTERN.test(binding)) {
+          names.add(binding)
+          toDir[binding] = dir
+        }
+      }
+    }
+
     // Also add the directory name itself (the primary export)
     names.add(dir)
     toDir[dir] = dir

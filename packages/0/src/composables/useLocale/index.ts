@@ -14,10 +14,8 @@
  * Integrates with createSingle for locale selection and useTokens for message resolution.
  */
 
-// Foundational
-import { createPluginContext } from '#v0/composables/createPlugin'
-
 // Composables
+import { createPluginContext } from '#v0/composables/createPlugin'
 import { createSingle } from '#v0/composables/createSingle'
 import { createTokens } from '#v0/composables/createTokens'
 

@@ -1,6 +1,6 @@
 {
   "name": "@vuetify/v0",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "A meta UI framework for building applications, component libraries, and design systems with Vue 3",
   "license": "MIT",
   "types": "./dist/index.d.mts",
@@ -44,6 +44,7 @@
       "./logger/adapters/consola": "./dist/logger/adapters/consola/index.mjs",
       "./logger/adapters/pino": "./dist/logger/adapters/pino/index.mjs",
       "./logger/adapters/v0": "./dist/logger/adapters/v0/index.mjs",
+      "./notifications": "./dist/notifications/index.mjs",
       "./palettes": "./dist/palettes/index.mjs",
       "./palettes/ant": "./dist/palettes/ant/index.mjs",
       "./palettes/ant/generate": "./dist/palettes/ant/generate/index.mjs",
@@ -218,6 +219,10 @@
     "./logger/adapters/v0": {
       "development": "./src/logger/adapters/v0/index.ts",
       "default": "./dist/logger/adapters/v0/index.mjs"
+    },
+    "./notifications": {
+      "development": "./src/notifications/index.ts",
+      "default": "./dist/notifications/index.mjs"
     },
     "./palettes": {
       "development": "./src/palettes/index.ts",

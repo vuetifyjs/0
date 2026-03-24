@@ -19,10 +19,8 @@
  * Integrates with createValidation for rule resolution, useLocale for i18n.
  */
 
-// Foundational
-import { createPluginContext } from '#v0/composables/createPlugin'
-
 // Composables
+import { createPluginContext } from '#v0/composables/createPlugin'
 import { useLocale } from '#v0/composables/useLocale'
 
 // Adapters

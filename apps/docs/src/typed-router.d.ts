@@ -201,6 +201,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/components/semantic/snackbar': RouteRecordInfo<
+      '/components/semantic/snackbar',
+      '/components/semantic/snackbar',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/components/semantic/splitter': RouteRecordInfo<
       '/components/semantic/splitter',
       '/components/semantic/splitter',
@@ -323,6 +330,13 @@ declare module 'vue-router/auto-routes' {
     '/composables/plugins/use-logger': RouteRecordInfo<
       '/composables/plugins/use-logger',
       '/composables/plugins/use-logger',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/composables/plugins/use-notifications': RouteRecordInfo<
+      '/composables/plugins/use-notifications',
+      '/composables/plugins/use-notifications',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -509,6 +523,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/composables/system/use-raf': RouteRecordInfo<
+      '/composables/system/use-raf',
+      '/composables/system/use-raf',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/composables/system/use-resize-observer': RouteRecordInfo<
       '/composables/system/use-resize-observer',
       '/composables/system/use-resize-observer',
@@ -519,6 +540,13 @@ declare module 'vue-router/auto-routes' {
     '/composables/system/use-roving-focus': RouteRecordInfo<
       '/composables/system/use-roving-focus',
       '/composables/system/use-roving-focus',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/composables/system/use-timer': RouteRecordInfo<
+      '/composables/system/use-timer',
+      '/composables/system/use-timer',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -540,6 +568,13 @@ declare module 'vue-router/auto-routes' {
     '/composables/transformers/to-array': RouteRecordInfo<
       '/composables/transformers/to-array',
       '/composables/transformers/to-array',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/composables/transformers/to-element': RouteRecordInfo<
+      '/composables/transformers/to-element',
+      '/composables/transformers/to-element',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -959,6 +994,12 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/components/semantic/snackbar.md': {
+      routes:
+        | '/components/semantic/snackbar'
+      views:
+        | never
+    }
     'src/pages/components/semantic/splitter.md': {
       routes:
         | '/components/semantic/splitter'
@@ -1064,6 +1105,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/plugins/use-logger.md': {
       routes:
         | '/composables/plugins/use-logger'
+      views:
+        | never
+    }
+    'src/pages/composables/plugins/use-notifications.md': {
+      routes:
+        | '/composables/plugins/use-notifications'
       views:
         | never
     }
@@ -1223,6 +1270,12 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/composables/system/use-raf.md': {
+      routes:
+        | '/composables/system/use-raf'
+      views:
+        | never
+    }
     'src/pages/composables/system/use-resize-observer.md': {
       routes:
         | '/composables/system/use-resize-observer'
@@ -1232,6 +1285,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/system/use-roving-focus.md': {
       routes:
         | '/composables/system/use-roving-focus'
+      views:
+        | never
+    }
+    'src/pages/composables/system/use-timer.md': {
+      routes:
+        | '/composables/system/use-timer'
       views:
         | never
     }
@@ -1250,6 +1309,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/transformers/to-array.md': {
       routes:
         | '/composables/transformers/to-array'
+      views:
+        | never
+    }
+    'src/pages/composables/transformers/to-element.md': {
+      routes:
+        | '/composables/transformers/to-element'
       views:
         | never
     }
