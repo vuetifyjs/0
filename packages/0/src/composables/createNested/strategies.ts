@@ -50,10 +50,9 @@ export const multipleOpenStrategy: OpenStrategy = {
 export const singleOpenStrategy: OpenStrategy = {
   onOpen: (id: ID, context: OpenStrategyContext) => {
     // Close all other items
-    for (const openedId of context.openedIds) {
-      if (openedId !== id) {
-        context.openedIds.delete(openedId)
-      }
+    const toClose = [...context.openedIds].filter(openedId => openedId !== id)
+    for (const openedId of toClose) {
+      context.openedIds.delete(openedId)
     }
   },
   onClose: undefined,

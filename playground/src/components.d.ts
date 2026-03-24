@@ -92,6 +92,15 @@ declare module 'vue' {
     TabsList: typeof import('./../../packages/0/src/components/Tabs/TabsList.vue')['default']
     TabsPanel: typeof import('./../../packages/0/src/components/Tabs/TabsPanel.vue')['default']
     TabsRoot: typeof import('./../../packages/0/src/components/Tabs/TabsRoot.vue')['default']
+    TreeviewActivator: typeof import('./../../packages/0/src/components/Treeview/TreeviewActivator.vue')['default']
+    TreeviewCheckbox: typeof import('./../../packages/0/src/components/Treeview/TreeviewCheckbox.vue')['default']
+    TreeviewContent: typeof import('./../../packages/0/src/components/Treeview/TreeviewContent.vue')['default']
+    TreeviewCue: typeof import('./../../packages/0/src/components/Treeview/TreeviewCue.vue')['default']
+    TreeviewGroup: typeof import('./../../packages/0/src/components/Treeview/TreeviewGroup.vue')['default']
+    TreeviewIndicator: typeof import('./../../packages/0/src/components/Treeview/TreeviewIndicator.vue')['default']
+    TreeviewItem: typeof import('./../../packages/0/src/components/Treeview/TreeviewItem.vue')['default']
+    TreeviewList: typeof import('./../../packages/0/src/components/Treeview/TreeviewList.vue')['default']
+    TreeviewRoot: typeof import('./../../packages/0/src/components/Treeview/TreeviewRoot.vue')['default']
     V0Paper: typeof import('./../../packages/paper/src/components/V0Paper/V0Paper.vue')['default']
   }
 }
