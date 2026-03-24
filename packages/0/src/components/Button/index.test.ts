@@ -266,16 +266,21 @@ describe('button', () => {
         expect(model.value).toBe('a')
       })
 
+      it('should show isLoading immediately with default grace', () => {
+        const { props } = mountButton({ props: { loading: true } })
+        expect(props().isLoading).toBe(true)
+      })
+
       it('should not show isLoading before grace period', () => {
         vi.useFakeTimers()
-        const { props } = mountButton({ props: { loading: true } })
+        const { props } = mountButton({ props: { loading: true, grace: 1000 } })
         expect(props().isLoading).toBe(false)
         vi.useRealTimers()
       })
 
       it('should activate isLoading after grace period', async () => {
         vi.useFakeTimers()
-        const { props } = mountButton({ props: { loading: true } })
+        const { props } = mountButton({ props: { loading: true, grace: 1000 } })
 
         expect(props().isLoading).toBe(false)
 
@@ -294,6 +299,7 @@ describe('button', () => {
           setup () {
             return () => h(Button.Root as any, {
               loading: loading.value,
+              grace: 1000,
             }, {
               default: (p: any) => h('span', { 'data-loading': p.isLoading }, 'Click'),
             })
@@ -315,7 +321,7 @@ describe('button', () => {
 
       it('should set data-loading after grace period', async () => {
         vi.useFakeTimers()
-        const { wrapper } = mountButton({ props: { loading: true } })
+        const { wrapper } = mountButton({ props: { loading: true, grace: 1000 } })
 
         expect(wrapper.attributes('data-loading')).toBeUndefined()
 
@@ -328,7 +334,7 @@ describe('button', () => {
 
       it('should set aria-busy after grace period', async () => {
         vi.useFakeTimers()
-        const { wrapper } = mountButton({ props: { loading: true } })
+        const { wrapper } = mountButton({ props: { loading: true, grace: 1000 } })
 
         expect(wrapper.attributes('aria-busy')).toBeUndefined()
 
@@ -346,7 +352,7 @@ describe('button', () => {
         const Component = defineComponent({
           setup () {
             return () => show.value
-              ? h(Button.Root as any, { loading: true }, {
+              ? h(Button.Root as any, { loading: true, grace: 1000 }, {
                   default: () => h('span', 'Click'),
                 })
               : null
@@ -416,7 +422,7 @@ describe('button', () => {
       let loadingProps: any
 
       mount(Button.Root, {
-        props: { loading: true },
+        props: { loading: true, grace: 1000 },
         slots: {
           default: () => [
             h(Button.Loading as any, {}, {

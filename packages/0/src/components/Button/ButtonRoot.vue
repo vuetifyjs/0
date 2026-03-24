@@ -55,6 +55,8 @@
     passive?: boolean
     /** Triggers loading state with grace period before visual indicator */
     loading?: boolean
+    /** Duration in ms before loading UI appears (0 to show immediately) */
+    grace?: number
     /** Value for use inside Button.Group */
     value?: V
     /** Namespace for context provision to children */
@@ -115,6 +117,7 @@
     readonly: _readonly = false,
     passive = false,
     loading = false,
+    grace = 0,
     value,
     ariaLabel,
     namespace = 'v0:button:root',
@@ -145,14 +148,16 @@
 
   const timer = useTimer(() => {
     isLoading.value = true
-  }, { duration: 1000 })
+  }, { duration: grace })
 
   watch(() => loading, active => {
-    if (active) {
-      timer.start()
-    } else {
+    if (!active) {
       timer.stop()
       isLoading.value = false
+    } else if (grace > 0) {
+      timer.start()
+    } else {
+      isLoading.value = true
     }
   }, { immediate: true })
 
@@ -161,11 +166,8 @@
   const locale = useLocale()
 
   function onClick () {
-    if (isDisabled.value || isReadonly.value || isPassive.value || loading) return
-
-    if (ticket) {
-      ticket.toggle()
-    }
+    if (isDisabled.value || isReadonly.value || isPassive.value || loading || !ticket) return
+    ticket.toggle()
   }
 
   onUnmounted(() => {
