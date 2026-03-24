@@ -12,6 +12,13 @@
  */
 
 <script lang="ts">
+  // Composables
+  import { provideContext } from '#v0/composables/createContext'
+  import { useTheme } from '#v0/composables/useTheme'
+
+  // Utilities
+  import { toRef } from 'vue'
+
   // Types
   import type { DOMElement } from '#v0/types'
 
@@ -41,13 +48,6 @@
 </script>
 
 <script setup lang="ts">
-  // Composables
-  import { provideContext } from '#v0/composables/createContext'
-  import { useTheme } from '#v0/composables/useTheme'
-
-  // Utilities
-  import { toRef } from 'vue'
-
   defineOptions({ name: 'Theme', inheritAttrs: false })
 
   defineSlots<{
