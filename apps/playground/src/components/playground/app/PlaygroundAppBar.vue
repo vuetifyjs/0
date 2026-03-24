@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { useHotkey, useTheme } from '@vuetify/v0'
+  import { useHotkey, useTheme, useTimer } from '@vuetify/v0'
 
   // Components
   import PlaygroundSettings from '@/components/playground/settings/PlaygroundSettings.vue'
@@ -12,10 +12,12 @@
 
   const open = shallowRef(false)
   const copied = shallowRef(false)
-  let timer: ReturnType<typeof setTimeout>
 
   const theme = useTheme()
   const playground = usePlayground()
+  const { start } = useTimer(() => {
+    copied.value = false
+  }, { duration: 2000 })
 
   useHotkey('ctrl+b', () => {
     playground.tree.value = !playground.tree.value
@@ -27,12 +29,9 @@
 
   function onShare () {
     navigator.clipboard.writeText(window.location.href).then(() => {
-      clearTimeout(timer)
       copied.value = true
-      timer = setTimeout(() => {
-        copied.value = false
-      }, 2000)
-    })
+      start()
+    }).catch(() => {})
   }
 
 </script>
