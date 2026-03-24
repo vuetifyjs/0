@@ -34,6 +34,7 @@ const MAX_CACHE_SIZE = 50
 
 export class Vuetify0DateAdapter implements DateAdapter<PlainDateTime> {
   private _locale: string
+  private _firstDayOfWeek = 0
 
   /** Cache for Intl.DateTimeFormat instances, keyed by locale + options */
   private formatCache = new Map<string, Intl.DateTimeFormat>()
@@ -50,12 +51,20 @@ export class Vuetify0DateAdapter implements DateAdapter<PlainDateTime> {
     return this._locale
   }
 
+  get firstDayOfWeek (): number {
+    return this._firstDayOfWeek
+  }
+
   set locale (value: string) {
     if (this._locale !== value) {
       this._locale = value
       this.formatCache.clear()
       this.numberFormatCache.clear()
     }
+  }
+
+  set firstDayOfWeek (value: number) {
+    this._firstDayOfWeek = value
   }
 
   // ============================================
@@ -366,15 +375,15 @@ export class Vuetify0DateAdapter implements DateAdapter<PlainDateTime> {
     return date.with({ hour: 23, minute: 59, second: 59, millisecond: 999, microsecond: 999, nanosecond: 999 })
   }
 
-  startOfWeek (date: PlainDateTime, firstDayOfWeek = 0): PlainDateTime {
+  startOfWeek (date: PlainDateTime): PlainDateTime {
     const dayOfWeek = date.dayOfWeek % 7 // Temporal: 1=Mon...7=Sun, we want 0=Sun
-    const diff = (dayOfWeek - firstDayOfWeek + 7) % 7
+    const diff = (dayOfWeek - this.firstDayOfWeek + 7) % 7
 
     return this.startOfDay(date.subtract({ days: diff }))
   }
 
-  endOfWeek (date: PlainDateTime, firstDayOfWeek = 0): PlainDateTime {
-    const start = this.startOfWeek(date, firstDayOfWeek)
+  endOfWeek (date: PlainDateTime): PlainDateTime {
+    const start = this.startOfWeek(date)
 
     return this.endOfDay(start.add({ days: 6 }))
   }
@@ -549,25 +558,25 @@ export class Vuetify0DateAdapter implements DateAdapter<PlainDateTime> {
     }
   }
 
-  getWeek (date: PlainDateTime, firstDayOfWeek = 0, minimalDays = 1): number {
-    const currentWeekStart = this.startOfWeek(date, firstDayOfWeek)
+  getWeek (date: PlainDateTime, minimalDays = 1): number {
+    const currentWeekStart = this.startOfWeek(date)
     const currentWeekEnd = this.addDays(currentWeekStart, 6)
 
     let year = this.getYear(currentWeekStart)
     if (year < this.getYear(currentWeekEnd)) {
       const nextYearStart = new Temporal.PlainDateTime(year + 1, 1, 1)
-      const nextYearFirstWeekSize = 7 - this.getDiff(nextYearStart, this.startOfWeek(nextYearStart, firstDayOfWeek), 'days')
+      const nextYearFirstWeekSize = 7 - this.getDiff(nextYearStart, this.startOfWeek(nextYearStart), 'days')
       if (nextYearFirstWeekSize >= minimalDays) {
         year++
       }
     }
 
     const yearStart = new Temporal.PlainDateTime(year, 1, 1)
-    const firstWeekSize = 7 - this.getDiff(yearStart, this.startOfWeek(yearStart, firstDayOfWeek), 'days')
-    const firstDayOfWeek1 = firstWeekSize >= minimalDays
+    const firstWeekSize = 7 - this.getDiff(yearStart, this.startOfWeek(yearStart), 'days')
+    const weekOneStart = firstWeekSize >= minimalDays
       ? yearStart.add({ days: firstWeekSize }).add({ weeks: -1 })
       : yearStart.add({ days: firstWeekSize })
-    return 1 + this.getDiff(currentWeekStart, firstDayOfWeek1, 'weeks')
+    return 1 + this.getDiff(currentWeekStart, weekOneStart, 'weeks')
   }
 
   getDaysInMonth (date: PlainDateTime): number {
@@ -606,14 +615,14 @@ export class Vuetify0DateAdapter implements DateAdapter<PlainDateTime> {
   // Calendar Utilities
   // ============================================
 
-  getWeekdays (firstDayOfWeek = 0, format: 'long' | 'short' | 'narrow' = 'short'): string[] {
+  getWeekdays (format: 'long' | 'short' | 'narrow' = 'short'): string[] {
     const weekdays: string[] = []
     // Use a known Sunday as reference (Jan 4, 2015 is a Sunday)
     const refDate = Temporal.PlainDate.from('2015-01-04')
     const formatter = this.getFormatter({ weekday: format })
 
     for (let i = 0; i < 7; i++) {
-      const day = refDate.add({ days: (i + firstDayOfWeek) % 7 })
+      const day = refDate.add({ days: (i + this.firstDayOfWeek) % 7 })
       const jsDate = new Date(day.year, day.month - 1, day.day)
 
       weekdays.push(formatter.format(jsDate))
@@ -622,12 +631,12 @@ export class Vuetify0DateAdapter implements DateAdapter<PlainDateTime> {
     return weekdays
   }
 
-  getWeekArray (date: PlainDateTime, firstDayOfWeek = 0): PlainDateTime[][] {
+  getWeekArray (date: PlainDateTime): PlainDateTime[][] {
     const weeks: PlainDateTime[][] = []
     const monthStart = this.startOfMonth(date)
     const monthEnd = this.endOfMonth(date)
 
-    let current = this.startOfWeek(monthStart, firstDayOfWeek)
+    let current = this.startOfWeek(monthStart)
     const end = this.endOfWeek(monthEnd)
 
     while (Temporal.PlainDateTime.compare(current, end) <= 0) {

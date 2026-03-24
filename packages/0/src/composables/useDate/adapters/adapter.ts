@@ -17,6 +17,8 @@ import type { Temporal } from '@js-temporal/polyfill'
 export interface DateAdapter<T = Temporal.PlainDateTime> {
   /** Current locale for formatting */
   locale?: string
+  /** First day of week. 0=Sunday, 1=Monday, ... 6=Saturday. Managed by the plugin. */
+  firstDayOfWeek?: number
 
   // ============================================
   // Construction & Conversion
@@ -62,10 +64,8 @@ export interface DateAdapter<T = Temporal.PlainDateTime> {
 
   startOfDay: (date: T) => T
   endOfDay: (date: T) => T
-  /** @param firstDayOfWeek - 0=Sunday, 1=Monday, etc. */
-  startOfWeek: (date: T, firstDayOfWeek?: number) => T
-  /** @param firstDayOfWeek - 0=Sunday, 1=Monday, etc. */
-  endOfWeek: (date: T, firstDayOfWeek?: number) => T
+  startOfWeek: (date: T) => T
+  endOfWeek: (date: T) => T
   startOfMonth: (date: T) => T
   endOfMonth: (date: T) => T
   startOfYear: (date: T) => T
@@ -115,7 +115,7 @@ export interface DateAdapter<T = Temporal.PlainDateTime> {
   /** @param comparing - Can be T or ISO string */
   getDiff: (date: T, comparing: T | string, unit?: string) => number
   /** @param minimalDays - Minimum days in first week for it to count as week 1 */
-  getWeek: (date: T, firstDayOfWeek?: number, minimalDays?: number) => number
+  getWeek: (date: T, minimalDays?: number) => number
   /** Get number of days in the month */
   getDaysInMonth: (date: T) => number
 
@@ -134,8 +134,8 @@ export interface DateAdapter<T = Temporal.PlainDateTime> {
   // Calendar Utilities
   // ============================================
 
-  getWeekdays: (firstDayOfWeek?: number, weekdayFormat?: 'long' | 'short' | 'narrow') => string[]
-  getWeekArray: (date: T, firstDayOfWeek?: number) => T[][]
+  getWeekdays: (weekdayFormat?: 'long' | 'short' | 'narrow') => string[]
+  getWeekArray: (date: T) => T[][]
   /** Get array of months in a year (12 dates, one for each month) */
   getMonthArray: (date: T) => T[]
   /** Get array of years between start and end dates */
