@@ -13,12 +13,10 @@
  * Inheritance chain: createRegistry → createSelection → createSingle → createBreadcrumbs
  */
 
-// Foundational
-import { createContext, useContext } from '#v0/composables/createContext'
-import { createTrinity } from '#v0/composables/createTrinity'
-
 // Composables
+import { createContext, useContext } from '#v0/composables/createContext'
 import { createSingle } from '#v0/composables/createSingle'
+import { createTrinity } from '#v0/composables/createTrinity'
 
 // Utilities
 import { toRef } from 'vue'

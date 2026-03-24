@@ -8,7 +8,7 @@
  */
 
 // Framework
-import { IN_BROWSER, useDocumentEventListener } from '@vuetify/v0'
+import { IN_BROWSER, useDocumentEventListener, useRaf } from '@vuetify/v0'
 
 // Composables
 import { useSettings } from './useSettings'
@@ -394,10 +394,8 @@ export function useAsk (): UseAskReturn {
 
       // Buffer chunks and batch updates at ~60fps for performance
       let pendingContent = ''
-      let rafId: number | null = null
 
       function flushPendingContent () {
-        rafId = null
         if (!pendingContent) return
 
         const lastMessage = messages.value.at(-1)
@@ -410,20 +408,18 @@ export function useAsk (): UseAskReturn {
         pendingContent = ''
       }
 
+      const flush = useRaf(flushPendingContent)
+
       while (true) {
         const { done, value } = await reader.read()
         if (done) break
 
         pendingContent += decoder.decode(value, { stream: true })
-
-        // Schedule update on next animation frame (batches rapid chunks)
-        if (!rafId) {
-          rafId = requestAnimationFrame(flushPendingContent)
-        }
+        flush()
       }
 
       // Cancel pending frame and flush remaining content
-      if (rafId) cancelAnimationFrame(rafId)
+      flush.cancel()
       pendingContent += decoder.decode()
       flushPendingContent()
     } catch (error_) {

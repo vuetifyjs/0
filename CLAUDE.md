@@ -17,7 +17,6 @@ Vue 3 headless UI primitives and composables. Unstyled, logic-focused building b
 | `useId()` | SSR-safe ID (Vue's useId in components, counter fallback) |
 | `clamp(value, min, max)` | Clamp number to range |
 | `range(length, start)` | Create sequential number array |
-| `debounce(fn, delay)` | Debounce with `.clear()` and `.immediate()` |
 
 ### Use Built-in Types (`#v0/types`)
 

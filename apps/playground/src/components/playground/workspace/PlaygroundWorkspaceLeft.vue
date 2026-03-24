@@ -2,11 +2,11 @@
   // Framework
   import { SplitterPanel, useBreakpoints, useStack } from '@vuetify/v0'
 
-  // Components
-  import { usePlayground } from '../app/PlaygroundApp.vue'
-
   // Utilities
   import { computed, toRef, watch } from 'vue'
+
+  // Components
+  import { usePlayground } from '../app/PlaygroundApp.vue'
 
   const playground = usePlayground()
   const breakpoints = useBreakpoints()

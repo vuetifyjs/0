@@ -17,12 +17,10 @@
  * Integrates with createSingle for selection and useTokens for color resolution.
  */
 
-// Foundational
-import { createPluginContext } from '#v0/composables/createPlugin'
-
 // Composables
+import { createPluginContext } from '#v0/composables/createPlugin'
 import { createSingle } from '#v0/composables/createSingle'
-import { createTokens } from '#v0/composables/createTokens'
+import { createTokens, flatten } from '#v0/composables/createTokens'
 
 // Adapters
 import { Vuetify0ThemeAdapter } from '#v0/composables/useTheme/adapters'
@@ -62,6 +60,12 @@ export type ThemeRecord = {
  * Extend this interface to add custom properties.
  */
 export interface ThemeTicketInput extends SingleTicketInput<ThemeColors> {
+  /**
+   * Theme color definitions. When provided to `register()`, these are
+   * onboarded as flat tokens for alias resolution and stored as the
+   * ticket value.
+   */
+  colors?: ThemeColors
   /**
    * Indicates whether the theme is dark or light.
    *
@@ -158,7 +162,21 @@ export interface ThemeContext<
    * ```
    */
   cycle: (themes?: ID[]) => void
-  /** Register a theme (accepts input type, returns output type) */
+  /**
+   * Register a theme with optional colors.
+   *
+   * When `colors` is provided, onboards them as flat tokens for
+   * alias resolution and stores them as the ticket value.
+   *
+   * @example
+   * ```ts
+   * const theme = createTheme({ themes: { light, dark }, default: 'light' })
+   *
+   * // Register a custom theme at runtime
+   * theme.register({ id: 'custom', dark: true, colors: { primary: '#ff5722' } })
+   * theme.select('custom')
+   * ```
+   */
   register: (registration?: Partial<Z>) => E
 }
 
@@ -251,7 +269,7 @@ export function createTheme<
 
   type InternalTicket = SingleTicket<SingleTicketInput<ThemeColors>> & { dark: boolean, lazy: boolean }
 
-  const names = computed(() => registry.keys())
+  const names = toRef(() => registry.keys())
   const colors = computed(() => {
     const resolved = {} as Record<ID, Colors>
     for (const theme of registry.values() as InternalTicket[]) {
@@ -282,10 +300,17 @@ export function createTheme<
   }
 
   function register (registration: Partial<Z> = {} as Partial<Z>): E {
+    const { colors, ...rest } = registration as Partial<Z> & { colors?: ThemeColors }
+
+    if (colors && rest.id && !registry.has(rest.id)) {
+      tokens.onboard(flatten({ [rest.id]: { colors } }, '', true))
+    }
+
     const item = {
       lazy: false,
       dark: false,
-      ...registration,
+      ...rest,
+      ...(colors ? { value: colors } : {}),
     }
 
     return registry.register(item as unknown as Partial<SingleTicketInput<ThemeColors>>) as unknown as E

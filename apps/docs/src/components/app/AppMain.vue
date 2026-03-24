@@ -1,10 +1,6 @@
 <script setup lang="ts">
   import { useHead } from '@unhead/vue'
 
-  // Components
-  import DocsToc from '../docs/DocsToc.vue'
-  import DocsPageLogo from '../docs/meta/DocsPageLogo.vue'
-
   // Composables
   import { useAsk } from '@/composables/useAsk'
   import { useRouterLinks } from '@/composables/useRouterLinks'
@@ -12,6 +8,10 @@
 
   // Utilities
   import { computed, shallowRef, toRef, useTemplateRef } from 'vue'
+
+  // Components
+  import DocsToc from '../docs/DocsToc.vue'
+  import DocsPageLogo from '../docs/meta/DocsPageLogo.vue'
 
   const ask = useAsk()
   const settings = useSettings()
@@ -48,10 +48,10 @@
     :class="[
       'pa-4 pb-6 ms-0 md:ms-[230px] relative z-0',
       !settings.prefersReducedMotion.value && 'transition-[padding] duration-200',
-      ask.isOpen.value ? 'xl:pe-[calc(clamp(280px,calc(100vw-230px-688px-64px),500px)+32px)]' : 'xl:pe-[232px]',
+      ask.isOpen.value ? 'xl:pe-[calc(clamp(280px,calc(100vw-230px-730px-64px),500px)+32px)]' : 'xl:pe-[232px]',
     ]"
   >
-    <div class="max-w-[688px] mx-auto pb-4">
+    <div class="max-w-[730px] mx-auto pb-4">
       <DocsPageLogo :frontmatter="page?.frontmatter" />
 
       <router-view v-slot="{ Component }">

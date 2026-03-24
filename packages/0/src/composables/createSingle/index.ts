@@ -12,15 +12,13 @@
  * Inheritance chain: useRegistry → useSelection → useSingle
  */
 
-// Foundational
+// Composables
 import { createContext, useContext } from '#v0/composables/createContext'
+import { createSelection } from '#v0/composables/createSelection'
 import { createTrinity } from '#v0/composables/createTrinity'
 
-// Composables
-import { createSelection } from '#v0/composables/createSelection'
-
 // Utilities
-import { computed } from 'vue'
+import { toRef } from 'vue'
 
 // Types
 import type { SelectionContext, SelectionContextOptions, SelectionOptions, SelectionTicket, SelectionTicketInput } from '#v0/composables/createSelection'
@@ -135,10 +133,10 @@ export function createSingle<
   const { mandatory = false, multiple = false, ...options } = _options
   const registry = createSelection<Z, E>({ ...options, mandatory, multiple })
 
-  const selectedId = computed(() => registry.selectedIds.values().next().value)
-  const selectedItem = computed(() => registry.selectedItems.value.values().next().value)
-  const selectedIndex = computed(() => selectedItem.value?.index ?? -1)
-  const selectedValue = computed(() => selectedItem.value?.value)
+  const selectedId = toRef(() => registry.selectedIds.values().next().value)
+  const selectedItem = toRef(() => registry.selectedItems.value.values().next().value)
+  const selectedIndex = toRef(() => selectedItem.value?.index ?? -1)
+  const selectedValue = toRef(() => selectedItem.value?.value)
 
   function unselect (id: ID) {
     registry.unselect(id)

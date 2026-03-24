@@ -9,7 +9,7 @@ import type { TokenAlias, TokenCollection } from './index'
 
 import fixtureTokens from './fixtures/tokens'
 
-import { createTokens, createTokensContext, useTokens } from './index'
+import { createTokens, createTokensContext, flatten, useTokens } from './index'
 
 describe('createTokensContext', () => {
   describe('basic functionality', () => {
@@ -619,8 +619,8 @@ describe('useTokens registry integration', () => {
       const context = createTokens(tokens)
       const entries = context.entries()
 
-      for (const [idx, entry] of entries.entries()) {
-        expect(entry[1].index).toBe(idx)
+      for (const [index, entry] of entries.entries()) {
+        expect(entry[1].index).toBe(index)
       }
     })
   })
@@ -3138,8 +3138,8 @@ describe('useTokens with fixture data', () => {
       const spacings = ['none', 'xs', 'sm', 'md', 'lg', 'xl', '2xl', '3xl']
       const values = [0, 4, 8, 12, 16, 24, 32, 48]
 
-      for (const [idx, name] of spacings.entries()) {
-        expect(context.resolve(`theme.spacing.${name}`)).toBe(values[idx])
+      for (const [index, name] of spacings.entries()) {
+        expect(context.resolve(`theme.spacing.${name}`)).toBe(values[index])
       }
     })
 
@@ -3370,8 +3370,8 @@ describe('token registration order and index assignment', () => {
     const context = createTokensContext({ namespace: 'test', tokens })[2]
     const entries = context.entries()
 
-    for (const [idx, entry] of entries.entries()) {
-      expect(entry[1].index).toBe(idx)
+    for (const [index, entry] of entries.entries()) {
+      expect(entry[1].index).toBe(index)
     }
   })
 
@@ -3775,5 +3775,44 @@ describe('multiple contexts with same namespace', () => {
     expect(ctx.resolve('base')).toBe('#007BFF')
     expect(ctx.resolve('primary')).toBe('#007BFF')
     expect(ctx.resolve('accent')).toBe('#007BFF')
+  })
+})
+
+describe('flatten', () => {
+  it('should flatten nested objects to dot-notation entries', () => {
+    const result = flatten({
+      en: {
+        greeting: 'Hello',
+        nested: { deep: 'value' },
+      },
+    })
+
+    expect(result).toHaveLength(2)
+    expect(result).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: 'en.greeting', value: 'Hello' }),
+        expect.objectContaining({ id: 'en.nested.deep', value: 'value' }),
+      ]),
+    )
+  })
+
+  it('should apply prefix to all token IDs', () => {
+    const result = flatten({ greeting: 'Hello' }, 'app')
+
+    expect(result).toHaveLength(1)
+    expect(result[0]).toEqual(
+      expect.objectContaining({ id: 'app.greeting', value: 'Hello' }),
+    )
+  })
+
+  it('should work with onboard for runtime token registration', () => {
+    const tokens = createTokens({ en: { greeting: 'Hello' } })
+
+    expect(tokens.get('en.greeting')?.value).toBe('Hello')
+    expect(tokens.has('nl.greeting')).toBe(false)
+
+    tokens.onboard(flatten({ nl: { greeting: 'Hallo' } }))
+
+    expect(tokens.get('nl.greeting')?.value).toBe('Hallo')
   })
 })

@@ -103,17 +103,28 @@ flowchart LR
 
 All breakpoint properties are `Readonly<ShallowRef>` and automatically update when the viewport size changes. Use `.value` in script; destructure for template auto-unwrapping.
 
+Breakpoints are **range-based**, not exact pixel matches. The `name` is the **highest** breakpoint whose threshold the viewport meets or exceeds. For example, at `1200px` with default thresholds, `name` is `lg` because `1200 >= 1145` (the `lg` threshold) but `1200 < 1545` (the `xl` threshold). The individual flags like `lg` mean "the current breakpoint **is** lg", while `lgAndUp` means "the viewport is **at least** lg" (i.e., `lg`, `xl`, or `xxl`).
+
 | Property | Type | Notes |
 | - | - | - |
-| `name` | `ShallowRef<BreakpointName>` | Current breakpoint name |
+| `name` | `ShallowRef<BreakpointName>` | Current breakpoint name (highest matching threshold) |
 | `width` | `ShallowRef<number>` | Viewport width in pixels |
 | `height` | `ShallowRef<number>` | Viewport height in pixels |
 | `isMobile` | `ShallowRef<boolean>` | Below mobile breakpoint threshold |
-| `xs` / `sm` / `md` / `lg` / `xl` / `xxl` | `ShallowRef<boolean>` | Exact breakpoint matches |
-| `smAndUp` / `mdAndUp` / etc. | `ShallowRef<boolean>` | At or above breakpoint |
-| `smAndDown` / `mdAndDown` / etc. | `ShallowRef<boolean>` | At or below breakpoint |
+| `xs` / `sm` / `md` / `lg` / `xl` / `xxl` | `ShallowRef<boolean>` | True when this is the current breakpoint |
+| `smAndUp` / `mdAndUp` / `lgAndUp` / `xlAndUp` | `ShallowRef<boolean>` | At or above breakpoint |
+| `smAndDown` / `mdAndDown` / `lgAndDown` / `xlAndDown` | `ShallowRef<boolean>` | At or below breakpoint |
 | `breakpoints` | `Record<string, number>` | Static config object (not reactive) |
 | `ssr` | `boolean` | `true` when running server-side with SSR options |
+
+> [!TIP]
+> `xs` is always equivalent to "xsAndDown" (nothing is below xs), and `xxl` is always equivalent to "xxlAndUp" (nothing is above xxl). These redundant combinations are intentionally not provided.
+
+## Examples
+
+::: example
+/composables/use-breakpoints/responsive-layout
+:::
 
 ## SSR Support
 

@@ -16,7 +16,6 @@
  * Essential for composables that need to behave differently during SSR vs client-side.
  */
 
-// Foundational
 import { createPluginContext } from '#v0/composables/createPlugin'
 
 // Utilities

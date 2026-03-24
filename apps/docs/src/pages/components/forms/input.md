@@ -114,7 +114,7 @@ Debounced search with `validateOn="input"` for real-time validation. The composa
 **Key patterns:**
 
 - `validateOn="input"` validates on every keystroke (minimum 2 characters)
-- The composable watches the query ref with `debounce` from `@vuetify/v0/utilities`, demonstrating that `value` is a standard writable Ref
+- The composable watches the query ref with `useTimer` from `@vuetify/v0`, demonstrating that `value` is a standard writable Ref
 - `data-[focused]:border-primary` and `data-[state=invalid]:border-error` style the input purely through data attributes — no slot props needed for visual states
 
 :::

@@ -24,16 +24,16 @@ import { IN_BROWSER, SUPPORTS_MATCH_MEDIA } from '#v0/constants/globals'
 import { useHydration } from '#v0/composables/useHydration'
 
 // Utilities
-import { computed, onScopeDispose, shallowReadonly, shallowRef, toValue, watch } from 'vue'
+import { onScopeDispose, shallowReadonly, shallowRef, toRef, toValue, watch } from 'vue'
 
 // Types
-import type { ComputedRef, MaybeRefOrGetter, ShallowRef } from 'vue'
+import type { MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
 
 export interface MediaQueryContext {
   /** Whether the media query currently matches */
   readonly matches: Readonly<ShallowRef<boolean>>
   /** The current media query string */
-  readonly query: ComputedRef<string>
+  readonly query: Readonly<Ref<string>>
   /** The underlying MediaQueryList (null on server) */
   readonly mediaQueryList: Readonly<ShallowRef<MediaQueryList | null>>
   /** Stop listening and clean up */
@@ -65,7 +65,7 @@ export interface MediaQueryContext {
 export function useMediaQuery (query: MaybeRefOrGetter<string>): MediaQueryContext {
   const matches = shallowRef(false)
   const mediaQueryList = shallowRef<MediaQueryList | null>(null)
-  const resolvedQuery = computed(() => toValue(query))
+  const resolvedQuery = toRef(() => toValue(query))
   const hydration = useHydration()
 
   let cleanup: (() => void) | null = null

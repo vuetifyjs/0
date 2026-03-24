@@ -231,6 +231,57 @@
       "since": "0.1.0",
       "category": "internal",
       "notes": "Internal factory for observer composables"
+    },
+    "createFocusTraversal": {
+      "level": "draft",
+      "since": "0.1.8",
+      "category": "internal",
+      "notes": "Internal factory for useRovingFocus and useVirtualFocus"
+    },
+    "createValidation": {
+      "level": "preview",
+      "since": "0.1.8",
+      "category": "forms"
+    },
+    "usePopover": {
+      "level": "preview",
+      "since": "0.1.8",
+      "category": "system"
+    },
+    "useRovingFocus": {
+      "level": "preview",
+      "since": "0.1.8",
+      "category": "system"
+    },
+    "useNotifications": {
+      "level": "preview",
+      "since": "0.1.9",
+      "category": "plugins"
+    },
+    "useRaf": {
+      "level": "preview",
+      "since": "0.1.9",
+      "category": "system"
+    },
+    "useRtl": {
+      "level": "preview",
+      "since": "0.1.7",
+      "category": "plugins"
+    },
+    "useRules": {
+      "level": "preview",
+      "since": "0.1.7",
+      "category": "forms"
+    },
+    "useTimer": {
+      "level": "preview",
+      "since": "0.1.9",
+      "category": "system"
+    },
+    "useVirtualFocus": {
+      "level": "preview",
+      "since": "0.1.8",
+      "category": "system"
     }
   },
   "components": {
@@ -289,8 +340,8 @@
       "category": "providers"
     },
     "Button": {
-      "level": "draft",
-      "category": "forms"
+      "level": "preview",
+      "category": "actions"
     },
     "Checkbox": {
       "level": "preview",
@@ -301,8 +352,14 @@
       "level": "draft",
       "category": "forms"
     },
+    "Form": {
+      "level": "preview",
+      "since": "0.1.8",
+      "category": "forms"
+    },
     "Input": {
-      "level": "draft",
+      "level": "preview",
+      "since": "0.1.8",
       "category": "forms"
     },
     "DatePicker": {
@@ -310,10 +367,6 @@
       "category": "forms"
     },
     "DateRangePicker": {
-      "level": "draft",
-      "category": "forms"
-    },
-    "Listbox": {
       "level": "draft",
       "category": "forms"
     },
@@ -331,7 +384,8 @@
       "category": "forms"
     },
     "Select": {
-      "level": "draft",
+      "level": "preview",
+      "since": "0.1.8",
       "category": "forms"
     },
     "Slider": {
@@ -375,6 +429,11 @@
       "level": "preview",
       "since": "0.1.0",
       "category": "disclosure"
+    },
+    "Snackbar": {
+      "level": "preview",
+      "since": "0.1.9",
+      "category": "semantic"
     },
     "Toast": {
       "level": "draft",

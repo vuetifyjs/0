@@ -1,6 +1,6 @@
 {
   "name": "@vuetify-private/playground",
-  "version": "0.0.0",
+  "version": "0.1.10",
   "private": true,
   "type": "module",
   "scripts": {
@@ -11,8 +11,10 @@
   "dependencies": {
     "@mdi/js": "catalog:",
     "@vue/repl": "catalog:",
+    "@vuetify/auth": "catalog:",
     "@vuetify/v0": "workspace:*",
     "fflate": "catalog:",
+    "pinia": "catalog:",
     "vue": "catalog:"
   },
   "devDependencies": {

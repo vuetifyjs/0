@@ -35,12 +35,10 @@
  * ```
  */
 
-// Foundational
+// Composables
 import { createContext, useContext } from '#v0/composables/createContext'
 import { createPlugin } from '#v0/composables/createPlugin'
 import { createTrinity } from '#v0/composables/createTrinity'
-
-// Composables
 import { useLocale } from '#v0/composables/useLocale'
 
 // Utilities

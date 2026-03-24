@@ -15,17 +15,16 @@
  * within a range, making it efficient for large page counts.
  */
 
-// Foundational
 import { createContext, useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
 
 // Utilities
 import { isNaN, range } from '#v0/utilities'
-import { computed, isRef, shallowRef, toValue } from 'vue'
+import { computed, isRef, shallowRef, toRef, toValue } from 'vue'
 
 // Types
 import type { ContextTrinity } from '#v0/composables/createTrinity'
-import type { App, ComputedRef, MaybeRefOrGetter, ShallowRef } from 'vue'
+import type { App, ComputedRef, MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
 
 export type PaginationTicket =
   | { type: 'page', value: number }
@@ -45,13 +44,13 @@ export interface PaginationContext {
   /** Visible page numbers and ellipsis for rendering */
   items: ComputedRef<PaginationTicket[]>
   /** Start index of items on current page (0-indexed) */
-  pageStart: ComputedRef<number>
+  pageStart: Readonly<Ref<number>>
   /** End index of items on current page (exclusive, 0-indexed) */
-  pageStop: ComputedRef<number>
+  pageStop: Readonly<Ref<number>>
   /** Whether current page is the first page */
-  isFirst: ComputedRef<boolean>
+  isFirst: Readonly<Ref<boolean>>
   /** Whether current page is the last page */
-  isLast: ComputedRef<boolean>
+  isLast: Readonly<Ref<boolean>>
   /** Go to first page */
   first: () => void
   /** Go to last page */
@@ -148,10 +147,10 @@ export function createPagination (_options: PaginationOptions = {}): PaginationC
     }
   }
 
-  const isFirst = computed(() => page.value <= 1)
-  const isLast = computed(() => page.value >= pages.value)
-  const pageStart = computed(() => (page.value - 1) * toValue(_itemsPerPage))
-  const pageStop = computed(() => Math.min(pageStart.value + toValue(_itemsPerPage), toValue(_size)))
+  const isFirst = toRef(() => page.value <= 1)
+  const isLast = toRef(() => page.value >= pages.value)
+  const pageStart = toRef(() => (page.value - 1) * toValue(_itemsPerPage))
+  const pageStop = toRef(() => Math.min(pageStart.value + toValue(_itemsPerPage), toValue(_size)))
 
   function toPage (value: number): PaginationTicket {
     return { type: 'page', value }

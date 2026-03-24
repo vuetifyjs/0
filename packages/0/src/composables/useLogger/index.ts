@@ -19,7 +19,7 @@
 // Globals
 import { __LOGGER_ENABLED__, IN_BROWSER } from '#v0/constants/globals'
 
-// Foundational
+// Composables
 import { createPluginContext } from '#v0/composables/createPlugin'
 
 // Adapters

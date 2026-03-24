@@ -15,24 +15,21 @@
  * Perfect for toolbars, menus, tree items, grids, and other composite widgets.
  */
 
-// Constants
-import { IN_BROWSER } from '#v0/constants/globals'
-
 // Composables
+import { createFocusTraversal } from '#v0/composables/createFocusTraversal'
 import { useEventListener } from '#v0/composables/useEventListener'
 
 // Utilities
 import { isUndefined } from '#v0/utilities'
-import { nextTick, shallowRef, toValue } from 'vue'
+import { nextTick, toValue } from 'vue'
 
 // Types
+import type { TraversalItem } from '#v0/composables/createFocusTraversal'
 import type { ID } from '#v0/types'
 import type { MaybeRefOrGetter, ShallowRef } from 'vue'
 
-export interface RovingItem {
-  id: ID
+export interface RovingItem extends TraversalItem {
   el?: MaybeRefOrGetter<HTMLElement | null | undefined>
-  disabled?: MaybeRefOrGetter<boolean>
 }
 
 export interface RovingFocusOptions {
@@ -60,234 +57,69 @@ export interface RovingFocusReturn {
   onKeydown: (e: KeyboardEvent) => void
 }
 
-function mod (length: number, index: number) {
-  return ((index % length) + length) % length
-}
-
-function isRtl (e: KeyboardEvent): boolean {
-  if (!IN_BROWSER) return false
-  const el = e.currentTarget as HTMLElement | null
-  return el ? getComputedStyle(el).direction === 'rtl' : false
-}
-
 export function useRovingFocus (
   items: () => RovingItem[],
   options: RovingFocusOptions = {},
 ): RovingFocusReturn {
   const {
-    orientation = 'vertical',
-    circular = false,
-    columns: _columns,
+    orientation,
+    circular,
+    columns,
     onFocus,
     target,
   } = options
 
-  const focusedId = shallowRef<ID | undefined>()
-
-  function enabled () {
-    return items().filter(item => !toValue(item.disabled))
-  }
-
-  function indexOf (id: ID) {
-    return items().findIndex(item => item.id === id)
-  }
-
-  function step (stride: number) {
-    const all = items()
-    const length = all.length
-    if (!length) return
-
-    const current = isUndefined(focusedId.value)
-      ? -1
-      : indexOf(focusedId.value)
-
-    const direction = stride > 0 ? 1 : -1
-    const absStride = Math.abs(stride)
-    let index = current + stride
-    // Max attempts: for stride=1 check all items, for larger strides check proportionally
-    const maxHops = Math.ceil(length / absStride)
-    let hops = 0
-
-    if (circular) {
-      index = mod(length, index)
-    } else if (index < 0 || index >= length) {
-      return
-    }
-
-    while (hops < maxHops) {
-      const item = all[index]
-      if (item && !toValue(item.disabled)) {
-        focus(item.id)
-        return
-      }
-      hops++
-      index = circular
-        ? mod(length, index + stride)
-        : index + (direction * absStride)
-      if (!circular && (index < 0 || index >= length)) return
-    }
-  }
-
-  function focus (id: ID) {
-    focusedId.value = id
-    onFocus?.(id)
-
+  function applyFocus (id: ID) {
     const item = items().find(i => i.id === id)
-    if (!item?.el) return
+    if (!item?.el) return false
+
+    onFocus?.(id)
 
     nextTick(() => {
       const el = toValue(item.el)
       el?.focus()
     })
+
+    return true
   }
 
-  function next () {
-    step(1)
-  }
+  const traversal = createFocusTraversal(
+    items,
+    id => applyFocus(id),
+    { orientation, circular, columns },
+  )
 
-  function prev () {
-    step(-1)
-  }
-
-  function first () {
-    const list = enabled()
-    if (list.length > 0) focus(list[0]!.id)
-  }
-
-  function last () {
-    const list = enabled()
-    if (list.length > 0) focus(list.at(-1)!.id)
-  }
-
-  /** Focus first non-disabled item in the current row (grid mode) */
-  function rowFirst () {
-    const cols = toValue(_columns) ?? 0
-    if (!cols) return first()
-
-    const all = items()
-    const current = isUndefined(focusedId.value) ? 0 : indexOf(focusedId.value)
-    const rowStart = current - (current % cols)
-    const rowEnd = Math.min(rowStart + cols, all.length)
-
-    for (let i = rowStart; i < rowEnd; i++) {
-      const item = all[i]
-      if (item && !toValue(item.disabled)) {
-        focus(item.id)
-        return
-      }
+  function focus (id: ID) {
+    const prev = traversal.activeId.value
+    traversal.activeId.value = id
+    if (!applyFocus(id)) {
+      traversal.activeId.value = prev
     }
   }
 
-  /** Focus last non-disabled item in the current row (grid mode) */
-  function rowLast () {
-    const cols = toValue(_columns) ?? 0
-    if (!cols) return last()
-
-    const all = items()
-    const current = isUndefined(focusedId.value) ? 0 : indexOf(focusedId.value)
-    const rowStart = current - (current % cols)
-    const rowEnd = Math.min(rowStart + cols, all.length)
-
-    for (let i = rowEnd - 1; i >= rowStart; i--) {
-      const item = all[i]
-      if (item && !toValue(item.disabled)) {
-        focus(item.id)
-        return
-      }
-    }
+  function enabled () {
+    return items().filter(item => !toValue(item.disabled))
   }
 
   function isTabbable (id: ID): boolean {
-    if (!isUndefined(focusedId.value)) return focusedId.value === id
+    if (!isUndefined(traversal.activeId.value)) return traversal.activeId.value === id
 
     const list = enabled()
     return list.length > 0 && list[0]?.id === id
   }
 
-  function onKeydown (e: KeyboardEvent) {
-    const cols = toValue(_columns)
-    const rtl = isRtl(e)
-
-    // Grid mode: all 4 arrows have distinct meanings
-    if (cols) {
-      switch (e.key) {
-        case 'ArrowRight': {
-          e.preventDefault()
-          step(rtl ? -1 : 1)
-          break
-        }
-        case 'ArrowLeft': {
-          e.preventDefault()
-          step(rtl ? 1 : -1)
-          break
-        }
-        case 'ArrowDown': {
-          e.preventDefault()
-          step(cols)
-          break
-        }
-        case 'ArrowUp': {
-          e.preventDefault()
-          step(-cols)
-          break
-        }
-        case 'Home': {
-          e.preventDefault()
-          if (e.ctrlKey) first()
-          else rowFirst()
-          break
-        }
-        case 'End': {
-          e.preventDefault()
-          if (e.ctrlKey) last()
-          else rowLast()
-          break
-        }
-      }
-      return
-    }
-
-    // Linear mode: orientation determines arrow mapping
-    const prevKeys: string[] = []
-    const nextKeys: string[] = []
-
-    if (orientation === 'vertical' || orientation === 'both') {
-      prevKeys.push('ArrowUp')
-      nextKeys.push('ArrowDown')
-    }
-
-    if (orientation === 'horizontal' || orientation === 'both') {
-      prevKeys.push(rtl ? 'ArrowRight' : 'ArrowLeft')
-      nextKeys.push(rtl ? 'ArrowLeft' : 'ArrowRight')
-    }
-
-    if (prevKeys.includes(e.key)) {
-      e.preventDefault()
-      prev()
-    } else if (nextKeys.includes(e.key)) {
-      e.preventDefault()
-      next()
-    } else if (e.key === 'Home') {
-      e.preventDefault()
-      first()
-    } else if (e.key === 'End') {
-      e.preventDefault()
-      last()
-    }
-  }
-
   if (target) {
-    useEventListener(target, 'keydown', onKeydown)
+    useEventListener(target, 'keydown', traversal.onKeydown)
   }
 
   return {
-    focusedId,
+    focusedId: traversal.activeId,
     isTabbable,
     focus,
-    next,
-    prev,
-    first,
-    last,
-    onKeydown,
+    next: traversal.next,
+    prev: traversal.prev,
+    first: traversal.first,
+    last: traversal.last,
+    onKeydown: traversal.onKeydown,
   }
 }

@@ -46,6 +46,7 @@ apps/docs/build/generated/
 # Claude Code
 .claude/worktrees/
 .claude/plans/
+.claude/specs/
 .playwright-mcp/
 .superpowers/
 .worktrees/

@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { debounce, useTheme } from '@vuetify/v0'
+  import { useTheme, useTimer } from '@vuetify/v0'
 
   // Composables
   import { useCustomThemes, type CustomTheme } from '@/composables/useCustomThemes'
@@ -24,9 +24,9 @@
   const themeSystem = useTheme()
 
   // Debounce preview updates to avoid lag during color picker drag
-  const debouncedPreview = debounce((colors: Record<string, string>, dark: boolean) => {
-    customThemes.preview(colors, dark)
-  }, 16) // ~60fps
+  const { start: debouncedPreview } = useTimer(() => {
+    customThemes.preview({ ...draft.colors }, draft.dark)
+  }, { duration: 16 }) // ~60fps
 
   // Color groups for organized editing
   const COLOR_GROUPS = {
@@ -87,9 +87,7 @@
   // Real-time preview - watch draft changes and apply them
   watch(
     () => ({ colors: { ...draft.colors }, dark: draft.dark }),
-    ({ colors, dark }) => {
-      debouncedPreview(colors, dark)
-    },
+    () => debouncedPreview(),
     { immediate: true, deep: true },
   )
 

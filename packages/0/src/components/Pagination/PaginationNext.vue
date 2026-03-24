@@ -87,7 +87,7 @@
     isDisabled: isDisabled.value,
     next,
     attrs: {
-      'aria-label': locale.t('Pagination.next', undefined, 'Go to next page'),
+      'aria-label': locale.t('Pagination.next'),
       'aria-disabled': isDisabled.value,
       'data-disabled': isDisabled.value || undefined,
       'disabled': as === 'button' ? isDisabled.value : undefined,

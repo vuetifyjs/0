@@ -26,10 +26,8 @@
   // Components
   import { Atom } from '#v0/components/Atom'
 
-  // Foundational
-  import { createContext } from '#v0/composables/createContext'
-
   // Composables
+  import { createContext } from '#v0/composables/createContext'
   import { createOverflow } from '#v0/composables/createOverflow'
   import { createPagination } from '#v0/composables/createPagination'
   import { createRegistry } from '#v0/composables/createRegistry'
@@ -201,7 +199,7 @@
     prev: pagination.prev,
     select: pagination.select,
     attrs: {
-      'aria-label': locale.t('Pagination.label', undefined, 'Pagination'),
+      'aria-label': locale.t('Pagination.label'),
       'role': as === 'nav' ? undefined : 'navigation',
     },
   }))

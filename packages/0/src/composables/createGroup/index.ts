@@ -19,12 +19,10 @@
  * Extended by: useFeatures
  */
 
-// Foundational
-import { createContext, useContext } from '#v0/composables/createContext'
-import { createTrinity } from '#v0/composables/createTrinity'
-
 // Composables
+import { createContext, useContext } from '#v0/composables/createContext'
 import { createSelection } from '#v0/composables/createSelection'
+import { createTrinity } from '#v0/composables/createTrinity'
 import { useProxyRegistry } from '#v0/composables/useProxyRegistry'
 
 // Utilities

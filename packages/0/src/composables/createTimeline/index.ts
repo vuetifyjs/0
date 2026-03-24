@@ -14,12 +14,10 @@
  * Extends createRegistry with temporal navigation capabilities.
  */
 
-// Foundational
-import { createContext, useContext } from '#v0/composables/createContext'
-import { createTrinity } from '#v0/composables/createTrinity'
-
 // Composables
+import { createContext, useContext } from '#v0/composables/createContext'
 import { createRegistry } from '#v0/composables/createRegistry'
+import { createTrinity } from '#v0/composables/createTrinity'
 
 // Types
 import type { RegistryContext, RegistryOptions, RegistryTicket } from '#v0/composables/createRegistry'
@@ -171,6 +169,13 @@ export function createTimeline<
     if (stack.length === 0) return undefined
 
     const item = stack.pop()!
+
+    if (registry.size >= size) {
+      const oldest = registry.seek('first')!
+      if (overflow.length === size) overflow.shift()
+      overflow.push(oldest)
+      registry.unregister(oldest.id)
+    }
 
     const ticket = registry.register(item)
     registry.reindex()

@@ -1,7 +1,7 @@
 {
   "name": "@vuetify/v0",
-  "version": "0.1.7",
-  "description": "Vuetify0",
+  "version": "0.1.10",
+  "description": "A meta UI framework for building applications, component libraries, and design systems with Vue 3",
   "license": "MIT",
   "types": "./dist/index.d.mts",
   "type": "module",
@@ -38,11 +38,13 @@
       "./locale": "./dist/locale/index.mjs",
       "./locale/adapters": "./dist/locale/adapters/index.mjs",
       "./locale/adapters/v0": "./dist/locale/adapters/v0/index.mjs",
+      "./locale/adapters/vue-i18n": "./dist/locale/adapters/vue-i18n/index.mjs",
       "./logger": "./dist/logger/index.mjs",
       "./logger/adapters": "./dist/logger/adapters/index.mjs",
       "./logger/adapters/consola": "./dist/logger/adapters/consola/index.mjs",
       "./logger/adapters/pino": "./dist/logger/adapters/pino/index.mjs",
       "./logger/adapters/v0": "./dist/logger/adapters/v0/index.mjs",
+      "./notifications": "./dist/notifications/index.mjs",
       "./palettes": "./dist/palettes/index.mjs",
       "./palettes/ant": "./dist/palettes/ant/index.mjs",
       "./palettes/ant/generate": "./dist/palettes/ant/generate/index.mjs",
@@ -76,7 +78,8 @@
     "@material/material-color-utilities": ">=0.3.0",
     "launchdarkly-js-client-sdk": "^3.0.0",
     "posthog-js": "^1.0.0",
-    "vue": ">=3.5.0"
+    "vue": ">=3.5.0",
+    "vue-i18n": ">=10.0.0"
   },
   "peerDependenciesMeta": {
     "@flagsmith/flagsmith": {
@@ -96,6 +99,9 @@
     },
     "@adobe/leonardo-contrast-colors": {
       "optional": true
+    },
+    "vue-i18n": {
+      "optional": true
     }
   },
   "devDependencies": {
@@ -112,7 +118,8 @@
     "typescript": "catalog:",
     "unplugin-vue": "catalog:",
     "vue": "catalog:",
-    "vue-component-meta": "catalog:"
+    "vue-component-meta": "catalog:",
+    "vue-i18n": "catalog:"
   },
   "imports": {
     "#v0/*": {
@@ -189,6 +196,10 @@
       "development": "./src/locale/adapters/v0/index.ts",
       "default": "./dist/locale/adapters/v0/index.mjs"
     },
+    "./locale/adapters/vue-i18n": {
+      "development": "./src/locale/adapters/vue-i18n/index.ts",
+      "default": "./dist/locale/adapters/vue-i18n/index.mjs"
+    },
     "./logger": {
       "development": "./src/logger/index.ts",
       "default": "./dist/logger/index.mjs"
@@ -208,6 +219,10 @@
     "./logger/adapters/v0": {
       "development": "./src/logger/adapters/v0/index.ts",
       "default": "./dist/logger/adapters/v0/index.mjs"
+    },
+    "./notifications": {
+      "development": "./src/notifications/index.ts",
+      "default": "./dist/notifications/index.mjs"
     },
     "./palettes": {
       "development": "./src/palettes/index.ts",

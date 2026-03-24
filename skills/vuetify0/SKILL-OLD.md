@@ -395,14 +395,12 @@ Transformers
 ## Utility Functions
 
 ```ts
-import { mergeDeep, clamp, range, debounce, useId } from '@vuetify/v0/utilities'
+import { mergeDeep, clamp, range, useId } from '@vuetify/v0/utilities'
 
 mergeDeep({}, defaults, overrides) // Deep merge (prototype-pollution safe)
 clamp(value, 0, 100)              // Clamp to range
 range(5)                           // [0, 1, 2, 3, 4]
 range(5, 1)                        // [1, 2, 3, 4, 5]
-
-const search = debounce(fn, 300)   // With .clear() and .immediate()
 const id = useId()                 // SSR-safe unique ID
 ```
 

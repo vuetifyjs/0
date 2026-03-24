@@ -177,7 +177,7 @@ Ask: **"What must the reader already know to use this page?"**
 | Category | Components |
 |----------|-----------|
 | `disclosure` | Dialog, ExpansionPanel, Popover, Tabs |
-| `forms` | Checkbox, Switch, Radio, Slider |
+| `forms` | Checkbox, Switch, Radio, Slider, Select |
 | `primitives` | Atom |
 | `semantic` | Avatar, Pagination, Breadcrumbs |
 | `providers` | (context providers) |

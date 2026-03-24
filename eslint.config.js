@@ -20,6 +20,8 @@ export default vuetify({
 {
   files: ['**/*.ts', '**/*.vue'],
   rules: {
+    // TODO: re-enable once existing violations are resolved
+    // '@typescript-eslint/no-explicit-any': 'warn',
     'import/consistent-type-specifier-style': ['error', 'prefer-top-level'],
     'unicorn/no-array-callback-reference': 'off',
     'unicorn/no-unreadable-array-destructuring': 'off',
@@ -37,8 +39,8 @@ export default vuetify({
         'framework',
         { newlinesBetween: 'always', commentAbove: 'Components' },
         'components',
-        { newlinesBetween: 'always', commentAbove: 'Foundational' },
-        'foundation',
+        { newlinesBetween: 'ignore' },
+        'context',
         { newlinesBetween: 'always', commentAbove: 'Composables' },
         'composables',
         { newlinesBetween: 'always', commentAbove: 'Adapters' },
@@ -58,8 +60,8 @@ export default vuetify({
         value: {
           framework: '^@vuetify/v0',
           adapters: '/adapters',
-          components: ['/components/', String.raw`\.vue$`],
-          foundation: ['/create(Context|Plugin|Trinity)'],
+          components: ['/components/'],
+          context: [String.raw`^\./.*\.vue$`],
           transformers: ['/to[A-Z]'],
           composables: ['/composables/', '/use[A-Z]'],
           utilities: ['/utilities', '/utils', '/helpers', '^vue$', '^vue-router$', '^pinia$', '^@vue/'],

@@ -16,10 +16,8 @@
   // Components
   import { Atom } from '#v0/components/Atom'
 
-  // Foundational
-  import { createContext } from '#v0/composables/createContext'
-
   // Composables
+  import { createContext } from '#v0/composables/createContext'
   import { createRegistry } from '#v0/composables/createRegistry'
   import { createSelection } from '#v0/composables/createSelection'
 
@@ -79,6 +77,7 @@
     isDragging: boolean
     distribute: (sizes: number[]) => void
     attrs: {
+      'style'?: Record<string, string>
       'data-orientation': SplitterOrientation
       'data-dragging': true | undefined
     }
@@ -322,10 +321,10 @@
     v-bind="{ ...attrs, ...slotProps.attrs }"
     :as
     :renderless
-    :style="{
+    :style="[attrs.style, slotProps.attrs.style, {
       display: 'flex',
       flexDirection: orientation === 'horizontal' ? 'row' : 'column',
-    }"
+    }]"
   >
     <slot v-bind="slotProps" />
   </Atom>

@@ -14,12 +14,11 @@
  * expires or is removed, the next ticket in the queue automatically becomes active.
  */
 
-// Foundational
-import { createContext, useContext } from '#v0/composables/createContext'
-import { createTrinity } from '#v0/composables/createTrinity'
-
 // Composables
+import { createContext, useContext } from '#v0/composables/createContext'
 import { createRegistry } from '#v0/composables/createRegistry'
+import { createTrinity } from '#v0/composables/createTrinity'
+import { useTimer } from '#v0/composables/useTimer'
 
 // Utilities
 import { isUndefined, useId } from '#v0/utilities'
@@ -28,6 +27,7 @@ import { onScopeDispose } from 'vue'
 // Types
 import type { RegistryContext, RegistryOptions, RegistryTicket, RegistryTicketInput } from '#v0/composables/createRegistry'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
+import type { TimerContext } from '#v0/composables/useTimer'
 import type { ID } from '#v0/types'
 import type { App } from 'vue'
 
@@ -311,26 +311,27 @@ export function createQueue<
 > (_options: QueueOptions = {}): R {
   const { timeout: _timeout = 3000, ...options } = _options
   const registry = createRegistry<E>({ ...options, events: true })
-  const timeouts = new Map<ID, ReturnType<typeof setTimeout>>()
+  const timers = new Map<ID, TimerContext>()
 
-  function startTimeout (ticket: E) {
+  function createTicketTimer (ticket: E) {
     if (isUndefined(ticket.timeout) || ticket.timeout < 0 || ticket.isPaused) return
 
-    const timeout = setTimeout(() => {
-      timeouts.delete(ticket.id)
+    const timer = useTimer(() => {
+      timers.delete(ticket.id)
       registry.unregister(ticket.id)
 
       resume()
-    }, ticket.timeout)
+    }, { duration: ticket.timeout })
 
-    timeouts.set(ticket.id, timeout)
+    timers.set(ticket.id, timer)
+    timer.start()
   }
 
-  function clearTimeout (id: ID) {
-    const timeout = timeouts.get(id)
-    if (timeout) {
-      globalThis.clearTimeout(timeout)
-      timeouts.delete(id)
+  function stopTimer (id: ID) {
+    const timer = timers.get(id)
+    if (timer) {
+      timer.stop()
+      timers.delete(id)
     }
   }
 
@@ -349,7 +350,7 @@ export function createQueue<
 
     const registered = registry.register(ticket as unknown as Partial<E>) as E
 
-    startTimeout(registered)
+    createTicketTimer(registered)
 
     return registered
   }
@@ -360,7 +361,7 @@ export function createQueue<
 
     const wasFirst = ticket.index === 0
 
-    clearTimeout(ticket.id)
+    stopTimer(ticket.id)
     registry.unregister(ticket.id)
 
     if (wasFirst) resume()
@@ -376,7 +377,7 @@ export function createQueue<
       if (!ticket) continue
 
       if (ticket.index === 0) hadFirst = true
-      clearTimeout(ticket.id)
+      stopTimer(ticket.id)
     }
 
     registry.offboard(ids)
@@ -388,7 +389,7 @@ export function createQueue<
     const ticket = registry.seek('first')
     if (!ticket || ticket.isPaused) return undefined
 
-    clearTimeout(ticket.id)
+    timers.get(ticket.id)?.pause()
 
     return registry.upsert(ticket.id, { isPaused: true } as Partial<E>)
   }
@@ -399,13 +400,19 @@ export function createQueue<
 
     const updated = registry.upsert(ticket.id, { isPaused: false } as Partial<E>)
 
-    startTimeout(updated)
+    const timer = timers.get(updated.id)
+    if (timer) {
+      timer.start()
+    } else {
+      createTicketTimer(updated)
+    }
 
     return updated
   }
 
   function clear () {
-    for (const id of timeouts.keys()) clearTimeout(id)
+    for (const timer of timers.values()) timer.stop()
+    timers.clear()
     registry.clear()
   }
 

@@ -17,12 +17,10 @@
  * - Trinity pattern for dependency injection
  */
 
-// Foundational
-import { createContext, useContext } from '#v0/composables/createContext'
-import { createTrinity } from '#v0/composables/createTrinity'
-
 // Composables
+import { createContext, useContext } from '#v0/composables/createContext'
 import { createGroup } from '#v0/composables/createGroup'
+import { createTrinity } from '#v0/composables/createTrinity'
 import { useLocale } from '#v0/composables/useLocale'
 
 // Adapters
@@ -330,8 +328,8 @@ export function createDataTable<T extends Record<string, unknown>> (
     function setNone () {
       group.unselect(key)
       group.unmix(key)
-      const idx = order.indexOf(key)
-      if (idx !== -1) order.splice(idx, 1)
+      const index = order.indexOf(key)
+      if (index !== -1) order.splice(index, 1)
     }
 
     if (!isAsc && !isDesc) {

@@ -3,9 +3,9 @@
   import { isNull, useBreakpoints } from '@vuetify/v0'
 
   // Components
-  import DocsAskMessage from './DocsAskMessage.vue'
   import AppIcon from '@/components/app/AppIcon.vue'
   import { Discovery } from '@/components/discovery'
+  import DocsAskMessage from './DocsAskMessage.vue'
 
   // Composables
   import { getBinUrl } from '@/composables/bin'
@@ -152,7 +152,7 @@
       isDesktop && fullscreen
         ? 'fixed inset-4 rounded-lg border border-divider shadow-lg'
         : isDesktop
-          ? 'fixed end-4 top-23 w-[clamp(280px,calc(100vw-230px-688px-64px),500px)] h-[calc(100vh-137px)] rounded-lg border border-divider shadow-lg'
+          ? 'fixed end-4 top-23 w-[clamp(280px,calc(100vw-230px-730px-64px),500px)] h-[calc(100vh-137px)] rounded-lg border border-divider shadow-lg'
           : 'fixed inset-0',
     ]"
     :role="isDesktop ? 'complementary' : 'dialog'"

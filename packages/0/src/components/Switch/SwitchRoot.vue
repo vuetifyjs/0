@@ -16,7 +16,7 @@
   import { useSwitchGroup } from './SwitchGroup.vue'
   import SwitchHiddenInput from './SwitchHiddenInput.vue'
 
-  // Foundational
+  // Composables
   import { createContext } from '#v0/composables/createContext'
 
   // Utilities

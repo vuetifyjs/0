@@ -16,12 +16,10 @@
  * Used by useTheme, useLocale, and useFeatures for token-based configuration.
  */
 
-// Foundational
-import { createContext, useContext } from '#v0/composables/createContext'
-import { createTrinity } from '#v0/composables/createTrinity'
-
 // Composables
+import { createContext, useContext } from '#v0/composables/createContext'
 import { createRegistry } from '#v0/composables/createRegistry'
+import { createTrinity } from '#v0/composables/createTrinity'
 import { useLogger } from '#v0/composables/useLogger'
 
 // Utilities
@@ -30,6 +28,7 @@ import { isObject, isString, isUndefined } from '#v0/utilities'
 // Types
 import type { RegistryContext, RegistryContextOptions, RegistryOptions, RegistryTicket } from '#v0/composables/createRegistry'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
+import type { ID } from '#v0/types'
 import type { App } from 'vue'
 
 export interface TokenAlias<T = unknown> {
@@ -259,7 +258,15 @@ export function createTokens<
     return result
   }
 
-  const { register: _register, upsert: _upsert, unregister: _unregister } = registry
+  const {
+    register: _register,
+    upsert: _upsert,
+    unregister: _unregister,
+    onboard: _onboard,
+    offboard: _offboard,
+    move: _move,
+    clear: _clear,
+  } = registry
 
   function register (registration: Partial<Z>) {
     cache.clear()
@@ -276,11 +283,35 @@ export function createTokens<
     return _unregister(id)
   }
 
+  function onboard (registrations: Partial<Z>[]) {
+    cache.clear()
+    return _onboard(registrations)
+  }
+
+  function offboard (ids: ID[]) {
+    cache.clear()
+    return _offboard(ids)
+  }
+
+  function move (id: string, index: number) {
+    cache.clear()
+    return _move(id, index)
+  }
+
+  function clear () {
+    cache.clear()
+    return _clear()
+  }
+
   return {
     ...registry,
     register,
     upsert,
     unregister,
+    onboard,
+    offboard,
+    move,
+    clear,
     resolve,
     isAlias,
     get size () {
@@ -362,7 +393,7 @@ export function useTokens<
  * @param prefix An optional prefix to prepend to each token ID.
  * @returns An array of flattened tokens, each with an ID and value.
  */
-function flatten (tokens: TokenCollection, prefix = '', flat = false): FlatTokenCollection[] {
+export function flatten (tokens: TokenCollection, prefix = '', flat = false): FlatTokenCollection[] {
   const flattened: FlatTokenCollection[] = []
   const stack: { tokens: TokenCollection, prefix: string, flat: boolean }[] = [{ tokens, prefix, flat }]
 

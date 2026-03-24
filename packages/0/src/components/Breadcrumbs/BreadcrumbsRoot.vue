@@ -16,11 +16,9 @@
   // Components
   import { Atom } from '#v0/components/Atom'
 
-  // Foundational
-  import { createContext } from '#v0/composables/createContext'
-
   // Composables
   import { createBreadcrumbs } from '#v0/composables/createBreadcrumbs'
+  import { createContext } from '#v0/composables/createContext'
   import { createGroup } from '#v0/composables/createGroup'
   import { createOverflow } from '#v0/composables/createOverflow'
   import { useLocale } from '#v0/composables/useLocale'
@@ -253,7 +251,7 @@
     prev: breadcrumbs.prev,
     select: breadcrumbs.select,
     attrs: {
-      'aria-label': label ?? locale.t('Breadcrumbs.label', undefined, 'Breadcrumb'),
+      'aria-label': label ?? locale.t('Breadcrumbs.label'),
       'role': as === 'nav' ? undefined : 'navigation',
     },
   }))

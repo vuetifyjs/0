@@ -14,21 +14,13 @@
  * Integrates with createSingle for locale selection and useTokens for message resolution.
  */
 
-// Foundational
-import { createPluginContext } from '#v0/composables/createPlugin'
-
 // Composables
+import { createPluginContext } from '#v0/composables/createPlugin'
 import { createSingle } from '#v0/composables/createSingle'
-import { createTokens } from '#v0/composables/createTokens'
+import { createTokens, flatten } from '#v0/composables/createTokens'
 
 // Adapters
 import { Vuetify0LocaleAdapter } from '#v0/composables/useLocale/adapters/v0'
-
-// Utilities
-import { isString } from '#v0/utilities'
-
-// Transformers
-import { toArray } from '#v0/composables/toArray'
 
 // Types
 import type { SingleContext, SingleOptions, SingleTicket, SingleTicketInput } from '#v0/composables/createSingle'
@@ -39,14 +31,16 @@ import type { LocaleAdapter } from './adapters'
 // Exports
 export { Vuetify0LocaleAdapter } from '#v0/composables/useLocale/adapters'
 
-export type { LocaleAdapter } from '#v0/composables/useLocale/adapters'
+export type { LocaleAdapter, LocaleAdapterContext } from '#v0/composables/useLocale/adapters'
 
 export type LocaleRecord = TokenCollection
 
 /**
  * Input type for locale tickets - what users provide to register().
  */
-export interface LocaleTicketInput extends SingleTicketInput {}
+export interface LocaleTicketInput extends SingleTicketInput {
+  messages?: LocaleRecord
+}
 
 /**
  * Output type for locale tickets - what users receive from get().
@@ -58,11 +52,10 @@ export interface LocaleContext<
   E extends LocaleTicket<Z> = LocaleTicket<Z>,
 > extends Omit<SingleContext<Z, E>, 'register'> {
   /**
-   * Translate a message key with optional parameters and fallback.
+   * Translate a message key with optional parameters.
    *
    * @param key - The message key to look up
-   * @param params - Optional object with named parameters for interpolation
-   * @param fallback - Optional fallback string if key not found in messages
+   * @param params - Optional named params object, followed by positional params
    * @returns The translated and interpolated message
    *
    * @example
@@ -70,18 +63,32 @@ export interface LocaleContext<
    * // Simple key lookup
    * locale.t('hello') // Returns message for 'hello' or 'hello' if not found
    *
-   * // With parameters
+   * // With named parameters
    * locale.t('greeting', { name: 'World' }) // 'Hello {name}' → 'Hello World'
    *
-   * // With fallback (useful for dynamic keys)
-   * locale.t('Pagination.goToPage', { page: 5 }, `Go to page 5`)
-   * // If 'pagination.goToPage' exists: uses that message with {page} replaced
-   * // If not found: returns 'Go to page 5'
+   * // With positional parameters
+   * locale.t('sum', 1, 2, 3) // 'Sum: {0} + {1} = {2}' → 'Sum: 1 + 2 = 3'
    * ```
    */
-  t: (key: string, params?: Record<string, unknown>, fallback?: string) => string
+  t: (key: string, ...params: unknown[]) => string
   n: (value: number) => string
-  /** Register a locale (accepts input type, returns output type) */
+  /**
+   * Register a locale with optional messages.
+   *
+   * When `messages` is provided, flattens them to dot-notation tokens
+   * and onboards them into the token registry before registering the
+   * locale for selection.
+   *
+   * @example
+   * ```ts
+   * const locale = createLocale({ messages: { en }, default: 'en' })
+   *
+   * // Lazy-load Dutch at runtime
+   * const nl = await import('./locales/nl')
+   * locale.register({ id: 'nl', messages: nl.default })
+   * locale.select('nl')
+   * ```
+   */
   register: (registration?: Partial<Z>) => E
 }
 
@@ -112,7 +119,7 @@ export function createLocale<
   E extends LocaleTicket<Z> = LocaleTicket<Z>,
   R extends LocaleContext<Z, E> = LocaleContext<Z, E>,
 > (_options: LocaleOptions = {}): R {
-  const { adapter = new Vuetify0LocaleAdapter(), messages = {}, ...options } = _options
+  const { adapter: externalAdapter, messages = {}, fallback: fallbackLocale, ...options } = _options
   const tokens = createTokens(messages)
   const registry = createSingle<Z, E>(options)
 
@@ -124,57 +131,36 @@ export function createLocale<
     }
   }
 
-  function t (
-    key: string,
-    params?: Record<string, unknown>,
-    fallback?: string,
-  ): string {
-    const locale = registry.selectedId.value
-    const args = toArray(params)
+  const adapter = externalAdapter ?? new Vuetify0LocaleAdapter({
+    tokens,
+    selectedId: registry.selectedId,
+    fallbackLocale,
+    has: id => registry.has(id),
+  })
 
-    if (!locale) return adapter.t(fallback ?? key, ...args)
-
-    // Look up the full flattened path in the token registry
-    const path = `${locale}.${key}`
-    const message = tokens.get(path)?.value
-
-    // If the key exists in messages, resolve it with token references
-    // Otherwise, use the fallback or key itself as a template string
-    const template = isString(message) ? resolve(locale, message) : (fallback ?? key)
-
-    return adapter.t(template, ...args)
+  function t (key: string, ...params: unknown[]): string {
+    return adapter.t(key, ...params)
   }
 
-  function n (value: number, ...params: unknown[]): string {
-    return adapter.n(value, registry.selectedId.value, ...params)
+  function n (value: number): string {
+    return adapter.n(value)
   }
 
-  function resolve (locale: ID, str: string, visited = new Set<string>()): string {
-    return str.replace(/{([a-zA-Z0-9.-_]+)}/g, (match, key) => {
-      const [prefix, ...rest] = key.split('.')
-      const target = registry.has(prefix) ? prefix : locale
-      const name = registry.has(prefix) ? rest.join('.') : key
+  function register (registration: Partial<Z> = {} as Partial<Z>): E {
+    const { messages: msgs, ...rest } = registration as Partial<Z> & { messages?: LocaleRecord }
 
-      const path = `${target}.${name}`
+    if (msgs && rest.id && !registry.has(rest.id)) {
+      tokens.onboard(flatten({ [rest.id]: msgs }))
+    }
 
-      if (visited.has(path)) return match
-
-      visited.add(path)
-
-      const resolved = tokens.get(path)?.value
-
-      if (isString(resolved)) {
-        return resolve(target, resolved, visited)
-      }
-
-      return match
-    })
+    return registry.register(rest as unknown as Partial<Z>)
   }
 
   return {
     ...registry,
     t,
     n,
+    register,
     get size () {
       return registry.size
     },
@@ -188,11 +174,7 @@ export function createLocaleFallback<
 > (): R {
   return {
     size: 0,
-    t: (
-      key: string,
-      _params?: Record<string, unknown>,
-      fallback?: string,
-    ) => fallback ?? key,
+    t: (key: string) => key,
     n: String,
   } as unknown as R
 }
