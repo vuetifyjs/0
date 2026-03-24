@@ -625,6 +625,59 @@ describe('treeview', () => {
         expect(parentProps.isOpen).toBe(!initial)
       })
     })
+
+    describe('active state', () => {
+      it('should set data-active when activated', async () => {
+        let itemProps: any
+
+        const wrapper = mount(Treeview.Root, {
+          slots: {
+            default: () =>
+              h(Treeview.Item as any, { value: 'item-1' }, {
+                default: (props: any) => {
+                  itemProps = props
+                  return h('div', 'Item')
+                },
+              }),
+          },
+        })
+
+        await nextTick()
+
+        itemProps.activate()
+        await nextTick()
+
+        const item = wrapper.findComponent(Treeview.Item as any)
+        expect(item.attributes('data-active')).toBe('true')
+      })
+
+      it('should remove data-active when deactivated', async () => {
+        let itemProps: any
+
+        const wrapper = mount(Treeview.Root, {
+          slots: {
+            default: () =>
+              h(Treeview.Item as any, { value: 'item-1' }, {
+                default: (props: any) => {
+                  itemProps = props
+                  return h('div', 'Item')
+                },
+              }),
+          },
+        })
+
+        await nextTick()
+
+        itemProps.activate()
+        await nextTick()
+
+        itemProps.deactivate()
+        await nextTick()
+
+        const item = wrapper.findComponent(Treeview.Item as any)
+        expect(item.attributes('data-active')).toBeUndefined()
+      })
+    })
   })
 
   describe('list', () => {
@@ -874,6 +927,36 @@ describe('treeview', () => {
         expect(activator.attributes('disabled')).toBe('')
       })
     })
+
+    describe('activator attributes', () => {
+      it('should set role=button on non-button elements', () => {
+        const wrapper = mount(Treeview.Root, {
+          slots: {
+            default: () =>
+              h(Treeview.Item as any, { value: 'item-1' }, () =>
+                h(Treeview.Activator, { as: 'div' }, () => 'Click me'),
+              ),
+          },
+        })
+
+        const activator = wrapper.findComponent(Treeview.Activator as any)
+        expect(activator.attributes('role')).toBe('button')
+      })
+
+      it('should not set role on native button', () => {
+        const wrapper = mount(Treeview.Root, {
+          slots: {
+            default: () =>
+              h(Treeview.Item as any, { value: 'item-1' }, () =>
+                h(Treeview.Activator, {}, () => 'Click me'),
+              ),
+          },
+        })
+
+        const activator = wrapper.findComponent(Treeview.Activator as any)
+        expect(activator.attributes('role')).toBeUndefined()
+      })
+    })
   })
 
   describe('checkbox', () => {
@@ -964,6 +1047,108 @@ describe('treeview', () => {
         expect(slotProps.attrs['role']).toBe('checkbox')
         expect(slotProps.attrs['aria-checked']).toBeDefined()
         expect(typeof slotProps.attrs.onClick).toBe('function')
+      })
+    })
+
+    describe('mixed state', () => {
+      it('should show aria-checked=mixed for mixed parent', async () => {
+        const selected = ref<string[]>([])
+
+        let parentProps: any
+        let child1Props: any
+
+        const wrapper = mount(Treeview.Root, {
+          props: {
+            'modelValue': selected.value,
+            'onUpdate:modelValue': (value: unknown) => {
+              selected.value = value as string[]
+            },
+            'selection': 'cascade',
+          },
+          slots: {
+            default: () =>
+              h(Treeview.Item as any, { value: 'parent' }, {
+                default: (props: any) => {
+                  parentProps = props
+                  return [
+                    h(Treeview.Checkbox as any, {}, () => 'Check'),
+                    h(Treeview.Content as any, () =>
+                      h(Treeview.Group as any, {}, () => [
+                        h(Treeview.Item as any, { value: 'child-1' }, {
+                          default: (props: any) => {
+                            child1Props = props
+                            return h('span', 'Child 1')
+                          },
+                        }),
+                        h(Treeview.Item as any, { value: 'child-2' }, () => 'Child 2'),
+                      ]),
+                    ),
+                  ]
+                },
+              }),
+          },
+        })
+
+        await nextTick()
+
+        parentProps.open()
+        await nextTick()
+
+        child1Props.select()
+        await nextTick()
+
+        const checkbox = wrapper.findComponent(Treeview.Checkbox as any)
+        expect(checkbox.attributes('aria-checked')).toBe('mixed')
+      })
+
+      it('should show data-mixed on mixed checkbox', async () => {
+        const selected = ref<string[]>([])
+
+        let parentProps: any
+        let child1Props: any
+
+        const wrapper = mount(Treeview.Root, {
+          props: {
+            'modelValue': selected.value,
+            'onUpdate:modelValue': (value: unknown) => {
+              selected.value = value as string[]
+            },
+            'selection': 'cascade',
+          },
+          slots: {
+            default: () =>
+              h(Treeview.Item as any, { value: 'parent' }, {
+                default: (props: any) => {
+                  parentProps = props
+                  return [
+                    h(Treeview.Checkbox as any, {}, () => 'Check'),
+                    h(Treeview.Content as any, () =>
+                      h(Treeview.Group as any, {}, () => [
+                        h(Treeview.Item as any, { value: 'child-1' }, {
+                          default: (props: any) => {
+                            child1Props = props
+                            return h('span', 'Child 1')
+                          },
+                        }),
+                        h(Treeview.Item as any, { value: 'child-2' }, () => 'Child 2'),
+                      ]),
+                    ),
+                  ]
+                },
+              }),
+          },
+        })
+
+        await nextTick()
+
+        parentProps.open()
+        await nextTick()
+
+        child1Props.select()
+        await nextTick()
+
+        const checkbox = wrapper.findComponent(Treeview.Checkbox as any)
+        expect(checkbox.attributes('data-mixed')).toBe('true')
       })
     })
   })
@@ -1621,6 +1806,22 @@ describe('treeview', () => {
       const cue = wrapper.findComponent(Treeview.Cue as any)
       expect(cue.attributes('data-state')).toBe('closed')
     })
+
+    it('should be hidden on leaf nodes', async () => {
+      const wrapper = mount(Treeview.Root, {
+        slots: {
+          default: () =>
+            h(Treeview.Item as any, { value: 'leaf' }, () =>
+              h(Treeview.Cue as any, {}, () => 'cue'),
+            ),
+        },
+      })
+
+      await nextTick()
+
+      const cue = wrapper.findComponent(Treeview.Cue as any)
+      expect(cue.attributes('style')).toContain('visibility: hidden')
+    })
   })
 
   describe('indicator', () => {
@@ -1666,6 +1867,50 @@ describe('treeview', () => {
 
       const indicator = wrapper.findComponent(Treeview.Indicator as any)
       expect(indicator.attributes('data-state')).toBe('unchecked')
+    })
+
+    it('should be hidden when unchecked and not mixed', async () => {
+      const wrapper = mount(Treeview.Root, {
+        slots: {
+          default: () =>
+            h(Treeview.Item as any, { value: 'item-1' }, () =>
+              h(Treeview.Checkbox as any, {}, () =>
+                h(Treeview.Indicator as any, {}, () => 'indicator'),
+              ),
+            ),
+        },
+      })
+
+      await nextTick()
+
+      const indicator = wrapper.findComponent(Treeview.Indicator as any)
+      expect(indicator.attributes('style')).toContain('visibility: hidden')
+    })
+
+    it('should be visible when checked', async () => {
+      let itemProps: any
+
+      const wrapper = mount(Treeview.Root, {
+        slots: {
+          default: () =>
+            h(Treeview.Item as any, { value: 'item-1' }, {
+              default: (props: any) => {
+                itemProps = props
+                return h(Treeview.Checkbox as any, {}, () =>
+                  h(Treeview.Indicator as any, {}, () => 'indicator'),
+                )
+              },
+            }),
+        },
+      })
+
+      await nextTick()
+
+      itemProps.select()
+      await nextTick()
+
+      const indicator = wrapper.findComponent(Treeview.Indicator as any)
+      expect(indicator.attributes('style')).toContain('visibility: visible')
     })
   })
 
@@ -1844,6 +2089,239 @@ describe('treeview', () => {
         expect(selected.value).toContain('item-1')
         expect(selected.value).toContain('item-2')
       })
+    })
+
+    describe('keyboard handling', () => {
+      it('should toggle selection on Enter key', async () => {
+        const selected = ref<string[]>([])
+
+        const wrapper = mount(Treeview.Root, {
+          props: {
+            'modelValue': selected.value,
+            'onUpdate:modelValue': (value: unknown) => {
+              selected.value = value as string[]
+            },
+          },
+          slots: {
+            default: () => [
+              h(Treeview.SelectAll as any, {}, () => 'Select All'),
+              h(Treeview.Item as any, { value: 'item-1' }, () => 'Item 1'),
+              h(Treeview.Item as any, { value: 'item-2' }, () => 'Item 2'),
+            ],
+          },
+        })
+
+        await nextTick()
+
+        const selectAll = wrapper.findComponent(Treeview.SelectAll as any)
+        await selectAll.trigger('keydown', { key: 'Enter' })
+        await nextTick()
+
+        expect(selected.value).toHaveLength(2)
+        expect(selected.value).toContain('item-1')
+        expect(selected.value).toContain('item-2')
+      })
+
+      it('should toggle selection on Space key', async () => {
+        const selected = ref<string[]>([])
+
+        const wrapper = mount(Treeview.Root, {
+          props: {
+            'modelValue': selected.value,
+            'onUpdate:modelValue': (value: unknown) => {
+              selected.value = value as string[]
+            },
+          },
+          slots: {
+            default: () => [
+              h(Treeview.SelectAll as any, {}, () => 'Select All'),
+              h(Treeview.Item as any, { value: 'item-1' }, () => 'Item 1'),
+              h(Treeview.Item as any, { value: 'item-2' }, () => 'Item 2'),
+            ],
+          },
+        })
+
+        await nextTick()
+
+        const selectAll = wrapper.findComponent(Treeview.SelectAll as any)
+        await selectAll.trigger('keydown', { key: ' ' })
+        await nextTick()
+
+        expect(selected.value).toHaveLength(2)
+        expect(selected.value).toContain('item-1')
+        expect(selected.value).toContain('item-2')
+      })
+
+      it('should not toggle when disabled', async () => {
+        const selected = ref<string[]>([])
+
+        const wrapper = mount(Treeview.Root, {
+          props: {
+            'modelValue': selected.value,
+            'onUpdate:modelValue': (value: unknown) => {
+              selected.value = value as string[]
+            },
+          },
+          slots: {
+            default: () => [
+              h(Treeview.SelectAll as any, { disabled: true }, () => 'Select All'),
+              h(Treeview.Item as any, { value: 'item-1' }, () => 'Item 1'),
+              h(Treeview.Item as any, { value: 'item-2' }, () => 'Item 2'),
+            ],
+          },
+        })
+
+        await nextTick()
+
+        const selectAll = wrapper.findComponent(Treeview.SelectAll as any)
+        await selectAll.trigger('click')
+        await nextTick()
+
+        expect(selected.value).toHaveLength(0)
+
+        await selectAll.trigger('keydown', { key: 'Enter' })
+        await nextTick()
+
+        expect(selected.value).toHaveLength(0)
+      })
+    })
+  })
+
+  describe('mixed state', () => {
+    it('should show mixed state when some children selected', async () => {
+      const selected = ref<string[]>([])
+
+      let parentProps: any
+      let child1Props: any
+
+      const wrapper = mount(Treeview.Root, {
+        props: {
+          'modelValue': selected.value,
+          'onUpdate:modelValue': (value: unknown) => {
+            selected.value = value as string[]
+          },
+          'selection': 'cascade',
+        },
+        slots: {
+          default: () =>
+            h(Treeview.Item as any, { value: 'parent' }, {
+              default: (props: any) => {
+                parentProps = props
+                return [
+                  h(Treeview.Checkbox as any, {}, () => 'Check'),
+                  h(Treeview.Content as any, () =>
+                    h(Treeview.Group as any, {}, () => [
+                      h(Treeview.Item as any, { value: 'child-1' }, {
+                        default: (props: any) => {
+                          child1Props = props
+                          return h('span', 'Child 1')
+                        },
+                      }),
+                      h(Treeview.Item as any, { value: 'child-2' }, () => 'Child 2'),
+                    ]),
+                  ),
+                ]
+              },
+            }),
+        },
+      })
+
+      await nextTick()
+
+      // Open parent so children mount
+      parentProps.open()
+      await nextTick()
+
+      // Select only one child
+      child1Props.select()
+      await nextTick()
+
+      expect(parentProps.isMixed).toBe(true)
+
+      // Parent's checkbox should reflect mixed state
+      const checkbox = wrapper.findComponent(Treeview.Checkbox as any)
+      expect(checkbox.attributes('aria-checked')).toBe('mixed')
+    })
+
+    it('should show indeterminate on Indicator when mixed', async () => {
+      const selected = ref<string[]>([])
+
+      let parentProps: any
+      let child1Props: any
+
+      const wrapper = mount(Treeview.Root, {
+        props: {
+          'modelValue': selected.value,
+          'onUpdate:modelValue': (value: unknown) => {
+            selected.value = value as string[]
+          },
+          'selection': 'cascade',
+        },
+        slots: {
+          default: () =>
+            h(Treeview.Item as any, { value: 'parent' }, {
+              default: (props: any) => {
+                parentProps = props
+                return [
+                  h(Treeview.Checkbox as any, {}, () =>
+                    h(Treeview.Indicator as any, {}, () => 'indicator'),
+                  ),
+                  h(Treeview.Content as any, () =>
+                    h(Treeview.Group as any, {}, () => [
+                      h(Treeview.Item as any, { value: 'child-1' }, {
+                        default: (props: any) => {
+                          child1Props = props
+                          return h('span', 'Child 1')
+                        },
+                      }),
+                      h(Treeview.Item as any, { value: 'child-2' }, () => 'Child 2'),
+                    ]),
+                  ),
+                ]
+              },
+            }),
+        },
+      })
+
+      await nextTick()
+
+      // Open parent so children mount
+      parentProps.open()
+      await nextTick()
+
+      // Select only one child
+      child1Props.select()
+      await nextTick()
+
+      const indicator = wrapper.findComponent(Treeview.Indicator as any)
+      expect(indicator.attributes('data-state')).toBe('indeterminate')
+    })
+  })
+
+  describe('item without list', () => {
+    it('should render without TreeviewList', async () => {
+      let itemProps: any
+
+      const wrapper = mount(Treeview.Root, {
+        slots: {
+          default: () =>
+            h(Treeview.Item as any, { value: 'item-1' }, {
+              default: (props: any) => {
+                itemProps = props
+                return h('div', 'Item 1')
+              },
+            }),
+        },
+      })
+
+      await nextTick()
+
+      const item = wrapper.findComponent(Treeview.Item as any)
+
+      // Without a List wrapper, there's no roving focus → tabindex is undefined
+      expect(item.attributes('tabindex')).toBeUndefined()
+      expect(itemProps.value).toBe('item-1')
+      expect(item.attributes('role')).toBe('treeitem')
     })
   })
 
