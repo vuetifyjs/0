@@ -531,6 +531,103 @@ describe('button', () => {
     })
   })
 
+  describe('icon', () => {
+    it('should set aria-hidden on the icon element', () => {
+      const wrapper = mount(Button.Root, {
+        slots: {
+          default: () => [
+            h(Button.Icon as any, {}, { default: () => h('span', '✕') }),
+            h('span', 'Close'),
+          ],
+        },
+      })
+
+      const icon = wrapper.find('span[aria-hidden]')
+      expect(icon.exists()).toBe(true)
+      expect(icon.attributes('aria-hidden')).toBe('true')
+    })
+
+    it('should set data-solo when icon is alone', async () => {
+      const wrapper = mount(Button.Root, {
+        props: { ariaLabel: 'Close' },
+        slots: {
+          default: () => h(Button.Icon as any, {}, {
+            default: () => h('span', '✕'),
+          }),
+        },
+      })
+
+      await nextTick()
+      expect(wrapper.attributes('data-solo')).toBe('true')
+    })
+
+    it('should not set data-solo when Content is present', async () => {
+      const wrapper = mount(Button.Root, {
+        slots: {
+          default: () => [
+            h(Button.Icon as any, {}, { default: () => h('span', '✕') }),
+            h(Button.Content as any, {}, { default: () => h('span', 'Close') }),
+          ],
+        },
+      })
+
+      await nextTick()
+      expect(wrapper.attributes('data-solo')).toBeUndefined()
+    })
+
+    it('should expose isSolo in slot props', async () => {
+      let captured: any
+
+      mount(Button.Root, {
+        props: { ariaLabel: 'Close' },
+        slots: {
+          default: () => h(Button.Icon as any, {}, {
+            default: (p: any) => {
+              captured = p
+              return h('span', '✕')
+            },
+          }),
+        },
+      })
+
+      await nextTick()
+      expect(captured.isSolo).toBe(true)
+    })
+
+    it('should warn when solo icon lacks aria-label', async () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+      mount(Button.Root, {
+        slots: {
+          default: () => h(Button.Icon as any, {}, {
+            default: () => h('span', '✕'),
+          }),
+        },
+      })
+
+      await nextTick()
+      expect(warn).toHaveBeenCalled()
+      warn.mockRestore()
+    })
+
+    it('should not warn when solo icon has aria-label', async () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+      mount(Button.Root, {
+        props: { ariaLabel: 'Close' },
+        slots: {
+          default: () => h(Button.Icon as any, {}, {
+            default: () => h('span', '✕'),
+          }),
+        },
+      })
+
+      await nextTick()
+      expect(warn).not.toHaveBeenCalled()
+      warn.mockRestore()
+    })
+  })
+
   describe('hidden input', () => {
     it('should render hidden input with name and value', () => {
       const wrapper = mount(Button.Root, {
@@ -549,6 +646,26 @@ describe('button', () => {
       expect(input.attributes('type')).toBe('checkbox')
       expect(input.attributes('tabindex')).toBe('-1')
       expect(input.attributes('inert')).toBe('')
+    })
+
+    it('should default value to "on" when not provided', () => {
+      const wrapper = mount(Button.Root, {
+        slots: {
+          default: () => h(Button.HiddenInput as any, { name: 'toggle' }),
+        },
+      })
+
+      expect(wrapper.find('input').attributes('value')).toBe('on')
+    })
+
+    it('should serialize object values to JSON', () => {
+      const wrapper = mount(Button.Root, {
+        slots: {
+          default: () => h(Button.HiddenInput as any, { name: 'data', value: { foo: 'bar' } }),
+        },
+      })
+
+      expect(wrapper.find('input').attributes('value')).toBe('{"foo":"bar"}')
     })
   })
 })

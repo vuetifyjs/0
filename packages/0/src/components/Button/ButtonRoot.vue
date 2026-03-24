@@ -17,6 +17,7 @@
   // Composables
   import { createContext } from '#v0/composables/createContext'
   import { createSingle } from '#v0/composables/createSingle'
+  import { createLogger } from '#v0/composables/useLogger'
   import { useTimer } from '#v0/composables/useTimer'
 
   // Utilities
@@ -39,6 +40,8 @@
     isPassive: Readonly<Ref<boolean>>
     /** Whether the button is selected (in group mode) */
     isSelected: Readonly<Ref<boolean>>
+    /** Whether the button is an icon-only button */
+    isSolo: Ref<boolean>
     /** Internal single selection for Loading/Content visibility */
     single: SingleContext
   }
@@ -88,6 +91,7 @@
       'data-readonly': true | undefined
       'data-disabled': true | undefined
       'data-selected': true | undefined
+      'data-solo': true | undefined
     }
   }
 
@@ -152,6 +156,14 @@
   }, { immediate: true })
 
   const single = createSingle({ mandatory: 'force' })
+  const isSolo = shallowRef(false)
+  const logger = createLogger({ prefix: '[ButtonRoot]' })
+
+  watch(isSolo, solo => {
+    if (solo && !ariaLabel) {
+      logger.warn('Icon-only button requires an aria-label for accessibility')
+    }
+  })
 
   function onClick () {
     if (isDisabled.value || isReadonly.value || isPassive.value || loading) return
@@ -173,6 +185,7 @@
     isReadonly,
     isPassive,
     isSelected,
+    isSolo,
     single,
   }
 
@@ -192,6 +205,7 @@
     'data-readonly': isReadonly.value ? true : undefined,
     'data-disabled': isDisabled.value ? true : undefined,
     'data-selected': group && isSelected.value ? true : undefined,
+    'data-solo': isSolo.value ? true : undefined,
   }))
 
   const slotProps = toRef((): ButtonRootSlotProps => ({

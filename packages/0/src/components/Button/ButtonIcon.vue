@@ -9,12 +9,10 @@
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
-
-  // Composables
-  import { createLogger } from '#v0/composables/useLogger'
+  import { useButtonRoot } from './ButtonRoot.vue'
 
   // Utilities
-  import { onMounted, shallowRef, toRef, useTemplateRef } from 'vue'
+  import { onMounted, toRef } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -25,7 +23,7 @@
   }
 
   export interface ButtonIconSlotProps {
-    /** Whether this is an icon-only button (only child of Root) */
+    /** Whether this is an icon-only button */
     isSolo: boolean
     /** Attributes to bind to the icon element */
     attrs: {
@@ -44,35 +42,18 @@
   const {
     as = 'span',
     renderless,
+    namespace = 'v0:button:root',
   } = defineProps<ButtonIconProps>()
 
-  const logger = createLogger({ prefix: '[ButtonIcon]' })
-  const element = useTemplateRef<HTMLElement>('element')
-  const isSolo = shallowRef(false)
+  const root = useButtonRoot(namespace)
 
   onMounted(() => {
-    if (!element.value) return
-
-    const parent = element.value.parentElement
-    if (!parent) return
-
-    // Check if icon is the only element child
-    const siblings = Array.from(parent.children).filter(
-      child => child !== element.value,
-    )
-
-    if (siblings.length === 0) {
-      isSolo.value = true
-      parent.dataset.solo = ''
-
-      if (!parent.getAttribute('aria-label')) {
-        logger.warn('Icon-only button requires an aria-label on ButtonRoot for accessibility')
-      }
-    }
+    if (root.single.size > 0) return
+    root.isSolo.value = true
   })
 
   const slotProps = toRef((): ButtonIconSlotProps => ({
-    isSolo: isSolo.value,
+    isSolo: root.isSolo.value,
     attrs: {
       'aria-hidden': true,
     },
@@ -81,7 +62,6 @@
 
 <template>
   <Atom
-    ref="element"
     v-bind="slotProps.attrs"
     :as
     :renderless
