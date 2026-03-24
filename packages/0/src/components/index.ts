@@ -1,6 +1,7 @@
 export * from './Atom'
 export * from './Avatar'
 export * from './Breadcrumbs'
+export * from './Button'
 export * from './Checkbox'
 export * from './Dialog'
 export * from './ExpansionPanel'
