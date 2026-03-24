@@ -17,7 +17,7 @@
 // Composables
 import { createPluginContext } from '#v0/composables/createPlugin'
 import { createSingle } from '#v0/composables/createSingle'
-import { createTokens } from '#v0/composables/createTokens'
+import { createTokens, flatten } from '#v0/composables/createTokens'
 
 // Adapters
 import { Vuetify0LocaleAdapter } from '#v0/composables/useLocale/adapters/v0'
@@ -38,7 +38,9 @@ export type LocaleRecord = TokenCollection
 /**
  * Input type for locale tickets - what users provide to register().
  */
-export interface LocaleTicketInput extends SingleTicketInput {}
+export interface LocaleTicketInput extends SingleTicketInput {
+  messages?: LocaleRecord
+}
 
 /**
  * Output type for locale tickets - what users receive from get().
@@ -70,7 +72,23 @@ export interface LocaleContext<
    */
   t: (key: string, ...params: unknown[]) => string
   n: (value: number) => string
-  /** Register a locale (accepts input type, returns output type) */
+  /**
+   * Register a locale with optional messages.
+   *
+   * When `messages` is provided, flattens them to dot-notation tokens
+   * and onboards them into the token registry before registering the
+   * locale for selection.
+   *
+   * @example
+   * ```ts
+   * const locale = createLocale({ messages: { en }, default: 'en' })
+   *
+   * // Lazy-load Dutch at runtime
+   * const nl = await import('./locales/nl')
+   * locale.register({ id: 'nl', messages: nl.default })
+   * locale.select('nl')
+   * ```
+   */
   register: (registration?: Partial<Z>) => E
 }
 
@@ -128,10 +146,21 @@ export function createLocale<
     return adapter.n(value)
   }
 
+  function register (registration: Partial<Z> = {} as Partial<Z>): E {
+    const { messages: msgs, ...rest } = registration as Partial<Z> & { messages?: LocaleRecord }
+
+    if (msgs && rest.id && !registry.has(rest.id)) {
+      tokens.onboard(flatten({ [rest.id]: msgs }))
+    }
+
+    return registry.register(rest as unknown as Partial<Z>)
+  }
+
   return {
     ...registry,
     t,
     n,
+    register,
     get size () {
       return registry.size
     },

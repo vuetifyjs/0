@@ -393,7 +393,7 @@ export function useTokens<
  * @param prefix An optional prefix to prepend to each token ID.
  * @returns An array of flattened tokens, each with an ID and value.
  */
-function flatten (tokens: TokenCollection, prefix = '', flat = false): FlatTokenCollection[] {
+export function flatten (tokens: TokenCollection, prefix = '', flat = false): FlatTokenCollection[] {
   const flattened: FlatTokenCollection[] = []
   const stack: { tokens: TokenCollection, prefix: string, flat: boolean }[] = [{ tokens, prefix, flat }]
 

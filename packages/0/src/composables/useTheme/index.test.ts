@@ -778,3 +778,54 @@ describe('themeAdapter', () => {
     expect(css).toContain('color-scheme: dark')
   })
 })
+
+describe('register with colors', () => {
+  it('should register a theme with colors at runtime', () => {
+    const theme = createTheme({
+      default: 'light',
+      themes: {
+        light: { dark: false, colors: { primary: '#1976d2' } },
+      },
+    })
+
+    expect(theme.has('custom')).toBe(false)
+
+    theme.register({ id: 'custom', dark: true, colors: { primary: '#ff5722' } })
+
+    expect(theme.has('custom')).toBe(true)
+    theme.select('custom')
+    expect(theme.isDark.value).toBe(true)
+    expect(theme.colors.value.custom).toBeDefined()
+    expect(theme.colors.value.custom.primary).toBe('#ff5722')
+  })
+
+  it('should resolve palette aliases in runtime-registered themes', () => {
+    const theme = createTheme({
+      default: 'light',
+      palette: {
+        blue: { 500: '#3b82f6' },
+      },
+      themes: {
+        light: { dark: false, colors: { primary: '#1976d2' } },
+      },
+    })
+
+    theme.register({ id: 'custom', colors: { primary: '{palette.blue.500}' } })
+    theme.select('custom')
+
+    expect(theme.colors.value.custom.primary).toBe('#3b82f6')
+  })
+
+  it('should register without colors (existing behavior)', () => {
+    const theme = createTheme({
+      default: 'light',
+      themes: {
+        light: { dark: false, colors: { primary: '#1976d2' } },
+      },
+    })
+
+    theme.register({ id: 'empty' })
+
+    expect(theme.has('empty')).toBe(true)
+  })
+})

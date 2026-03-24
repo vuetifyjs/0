@@ -474,3 +474,78 @@ describe('useLocale consumer', () => {
     expect(typeof result.t).toBe('function')
   })
 })
+
+describe('register with messages', () => {
+  it('should register a locale with messages at runtime', () => {
+    const locale = createLocale({
+      default: 'en',
+      messages: {
+        en: { greeting: 'Hello' },
+      },
+    })
+
+    expect(locale.has('nl')).toBe(false)
+
+    locale.register({ id: 'nl', messages: { greeting: 'Hallo' } })
+
+    expect(locale.has('nl')).toBe(true)
+    locale.select('nl')
+    expect(locale.t('greeting')).toBe('Hallo')
+  })
+
+  it('should register nested messages at runtime', () => {
+    const locale = createLocale({
+      default: 'en',
+      messages: {
+        en: { dataTable: { sortBy: 'Sort by' } },
+      },
+    })
+
+    locale.register({
+      id: 'de',
+      messages: { dataTable: { sortBy: 'Sortieren nach' } },
+    })
+
+    locale.select('de')
+    expect(locale.t('dataTable.sortBy')).toBe('Sortieren nach')
+  })
+
+  it('should fall back to default locale for missing keys in registered locale', () => {
+    const locale = createLocale({
+      default: 'en',
+      fallback: 'en',
+      messages: {
+        en: { greeting: 'Hello', farewell: 'Goodbye' },
+      },
+    })
+
+    locale.register({ id: 'nl', messages: { greeting: 'Hallo' } })
+    locale.select('nl')
+
+    expect(locale.t('greeting')).toBe('Hallo')
+    expect(locale.t('farewell')).toBe('Goodbye')
+  })
+
+  it('should not duplicate locale if already registered', () => {
+    const locale = createLocale({
+      default: 'en',
+      messages: { en: { greeting: 'Hello' } },
+    })
+
+    const before = locale.size
+    locale.register({ id: 'en', messages: { greeting: 'Hi' } })
+
+    expect(locale.size).toBe(before)
+  })
+
+  it('should register without messages (existing behavior)', () => {
+    const locale = createLocale({
+      default: 'en',
+      messages: { en: { greeting: 'Hello' } },
+    })
+
+    locale.register({ id: 'fr' })
+
+    expect(locale.has('fr')).toBe(true)
+  })
+})
