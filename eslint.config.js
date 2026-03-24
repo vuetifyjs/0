@@ -71,7 +71,7 @@ export default vuetify({
   },
 },
 {
-  files: ['**/*.test.ts', '**/*.bench.ts'],
+  files: ['**/*.test.ts'],
   rules: {
     'vitest/prefer-lowercase-title': 'error',
     'vitest/prefer-hooks-in-order': 'error',
