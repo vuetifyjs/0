@@ -26,6 +26,7 @@ import { createTokens, flatten } from '#v0/composables/createTokens'
 import { Vuetify0ThemeAdapter } from '#v0/composables/useTheme/adapters'
 
 // Utilities
+import { foreground as foregroundFn } from '#v0/utilities'
 import { computed, shallowRef, toRef } from 'vue'
 
 // Types
@@ -192,9 +193,23 @@ export interface ThemeOptions<Z extends ThemeRecord = ThemeRecord> extends Regis
    */
   default?: ID
   /**
+   * Automatically generate `on-*` foreground colors for each theme color
+   * using APCA contrast analysis.
+   *
+   * @remarks Defaults to `false`.
+   */
+  foreground?: boolean
+  /**
    * A collection of tokens to use for resolving theme colors.
    */
   palette?: TokenCollection
+  /**
+   * Output CSS variable values as decomposed RGB channels (`R, G, B`)
+   * instead of hex strings.
+   *
+   * @remarks Defaults to `false`.
+   */
+  rgb?: boolean
   /**
    * A record of themes to register.
    */
@@ -253,7 +268,7 @@ export function createTheme<
   E extends ThemeTicket<Z> = ThemeTicket<Z>,
   R extends ThemeContext<Z, E> = ThemeContext<Z, E>,
 > (_options: ThemeOptions = {}): R {
-  const { themes = {}, palette = {}, ...options } = _options
+  const { themes = {}, palette = {}, foreground: genForeground, ...options } = _options
   const tokens = createTokens({ palette, ...themes }, { flat: true })
   const registry = createSingle<SingleTicketInput<ThemeColors>, SingleTicket<SingleTicketInput<ThemeColors>>>(options)
 
@@ -275,7 +290,18 @@ export function createTheme<
     for (const theme of registry.values() as InternalTicket[]) {
       if (theme.lazy && theme.id !== registry.selectedId.value) continue
 
-      resolved[theme.id] = resolve(theme.value as Colors)
+      const themeColors = resolve(theme.value as Colors)
+
+      if (genForeground) {
+        for (const [key, value] of Object.entries(themeColors)) {
+          const onKey = `on-${key}`
+          if (!key.startsWith('on-') && !(onKey in themeColors)) {
+            themeColors[onKey] = foregroundFn(value)
+          }
+        }
+      }
+
+      resolved[theme.id] = themeColors
     }
 
     return resolved
@@ -352,7 +378,8 @@ export const [createThemeContext, createThemePlugin, useTheme] =
     options => createTheme(options),
     {
       fallback: () => createThemeFallback(),
-      setup: (context, app, { adapter = new Vuetify0ThemeAdapter(), target }) => {
+      setup: (context, app, { adapter = new Vuetify0ThemeAdapter(), target, rgb }) => {
+        if (rgb) adapter.rgb = true
         adapter.setup(app, context, target)
       },
     },

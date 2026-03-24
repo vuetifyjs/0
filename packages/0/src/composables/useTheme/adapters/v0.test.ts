@@ -381,6 +381,30 @@ describe('vuetify0ThemeAdapter', () => {
       scope.stop()
     })
 
+    it('should decompose hex to RGB when rgb is true', () => {
+      const adapter = new Vuetify0ThemeAdapter()
+      adapter.rgb = true
+
+      const css = adapter.generate(
+        { light: { primary: '#1976d2', secondary: '#424242' } },
+        false,
+      )
+
+      expect(css).toContain('--v0-primary: 25, 118, 210')
+      expect(css).toContain('--v0-secondary: 66, 66, 66')
+    })
+
+    it('should output raw hex when rgb is false', () => {
+      const adapter = new Vuetify0ThemeAdapter()
+
+      const css = adapter.generate(
+        { light: { primary: '#1976d2' } },
+        false,
+      )
+
+      expect(css).toContain('--v0-primary: #1976d2')
+    })
+
     it('should stop watcher on scope dispose', async () => {
       const app = createMockApp()
       const isDark = ref(false)

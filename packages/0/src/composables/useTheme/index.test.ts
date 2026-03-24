@@ -829,3 +829,68 @@ describe('register with colors', () => {
     expect(theme.has('empty')).toBe(true)
   })
 })
+
+describe('foreground option', () => {
+  it('should generate on-* colors when foreground is true', () => {
+    const context = createTheme({
+      foreground: true,
+      default: 'light',
+      themes: {
+        light: {
+          colors: {
+            primary: '#1976d2',
+            surface: '#ffffff',
+          },
+        },
+      },
+    })
+
+    const colors = context.colors.value.light
+    expect(colors['on-primary']).toBe('#ffffff')
+    expect(colors['on-surface']).toBe('#000000')
+  })
+
+  it('should not overwrite user-provided on-* colors', () => {
+    const context = createTheme({
+      foreground: true,
+      default: 'light',
+      themes: {
+        light: {
+          colors: {
+            'primary': '#1976d2',
+            'on-primary': '#ff0000',
+          },
+        },
+      },
+    })
+
+    expect(context.colors.value.light['on-primary']).toBe('#ff0000')
+  })
+
+  it('should not generate on-* colors when foreground is false', () => {
+    const context = createTheme({
+      default: 'light',
+      themes: {
+        light: { colors: { primary: '#1976d2' } },
+      },
+    })
+
+    expect(context.colors.value.light['on-primary']).toBeUndefined()
+  })
+
+  it('should not generate on-* for on-* colors', () => {
+    const context = createTheme({
+      foreground: true,
+      default: 'light',
+      themes: {
+        light: {
+          colors: { primary: '#1976d2' },
+        },
+      },
+    })
+
+    const colors = context.colors.value.light
+    expect(colors['on-primary']).toBeDefined()
+    expect(colors['on-on-primary']).toBeUndefined()
+  })
+})

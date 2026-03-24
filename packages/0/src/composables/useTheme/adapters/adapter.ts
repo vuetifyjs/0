@@ -27,6 +27,7 @@ export interface ThemeAdapterInterface {
 export abstract class ThemeAdapter implements ThemeAdapterInterface {
   public stylesheetId = 'v0-theme-stylesheet'
   public prefix: string
+  public rgb = false
 
   constructor (prefix: string) {
     this.prefix = prefix
@@ -44,7 +45,7 @@ export abstract class ThemeAdapter implements ThemeAdapterInterface {
       if (!themeColors) continue
 
       const vars = Object.entries(themeColors)
-        .map(([key, val]) => `  --${this.prefix}-${key}: ${val};`)
+        .map(([key, val]) => `  --${this.prefix}-${key}: ${this.rgb ? this.decompose(val) : val};`)
         .join('\n')
 
       css += `[data-theme="${theme}"] {\n${vars}\n}\n`
@@ -55,6 +56,18 @@ export abstract class ThemeAdapter implements ThemeAdapterInterface {
     }
 
     return css
+  }
+
+  private decompose (hex: string): string {
+    const clean = hex.startsWith('#') ? hex.slice(1) : hex
+    const r = Number.parseInt(clean.slice(0, 2), 16)
+    const g = Number.parseInt(clean.slice(2, 4), 16)
+    const b = Number.parseInt(clean.slice(4, 6), 16)
+    if (clean.length === 8) {
+      const a = Number.parseInt(clean.slice(6, 8), 16)
+      return `${r}, ${g}, ${b}, ${a}`
+    }
+    return `${r}, ${g}, ${b}`
   }
 
   abstract setup<T extends ThemeAdapterSetupContext>(
