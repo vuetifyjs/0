@@ -255,6 +255,7 @@
     },
     "useNotifications": {
       "level": "preview",
+      "since": "0.1.9",
       "category": "plugins"
     },
     "useRaf": {
@@ -431,6 +432,7 @@
     },
     "Snackbar": {
       "level": "preview",
+      "since": "0.1.9",
       "category": "semantic"
     },
     "Toast": {
