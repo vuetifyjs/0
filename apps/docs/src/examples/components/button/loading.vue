@@ -15,6 +15,7 @@
 <template>
   <Button.Root
     class="relative px-4 py-2 bg-primary text-on-primary rounded-md text-sm font-medium hover:opacity-90 transition-opacity data-[loading]:cursor-wait"
+    :grace="1000"
     :loading
     @click="onSave"
   >

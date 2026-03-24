@@ -14,7 +14,7 @@
     <Button.Root
       v-for="option in ['left', 'center', 'right']"
       :key="option"
-      class="px-3 py-2 text-sm font-medium bg-surface hover:bg-surface-tint data-[selected]:bg-primary data-[selected]:text-on-primary transition-colors border-r border-divider last:border-r-0"
+      class="px-3 py-2 text-sm font-medium bg-surface hover:bg-surface-tint data-[selected]:bg-primary data-[selected]:hover:bg-primary/90 data-[selected]:text-on-primary transition-colors border-r border-divider last:border-r-0"
       :value="option"
     >
       {{ option[0].toUpperCase() + option.slice(1) }}

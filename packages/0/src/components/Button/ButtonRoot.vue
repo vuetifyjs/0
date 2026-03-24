@@ -105,7 +105,7 @@
       'data-disabled': true | undefined
       'data-selected': true | undefined
       'data-solo': true | undefined
-      'onClick': () => void
+      'onClick': (() => void) | undefined
     }
   }
 
@@ -218,7 +218,7 @@
     'data-disabled': isDisabled.value ? true : undefined,
     'data-selected': group && isSelected.value ? true : undefined,
     'data-solo': isSolo.value ? true : undefined,
-    'onClick': onClick,
+    'onClick': ticket ? onClick : undefined,
   }))
 
   const slotProps = toRef((): ButtonRootSlotProps => ({
@@ -236,6 +236,7 @@
     v-bind="{ ...attrs, ...slotProps.attrs }"
     :as
     :renderless
+    @click="onClick"
   >
     <slot v-bind="slotProps" />
   </Atom>
