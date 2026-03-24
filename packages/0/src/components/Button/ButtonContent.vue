@@ -7,16 +7,21 @@
  */
 
 <script lang="ts">
-  export interface ButtonContentProps {
-    /** Namespace for context injection from parent Button.Root */
-    namespace?: string
-  }
-
   // Components
   import { useButtonRoot } from './ButtonRoot.vue'
 
   // Utilities
-  import { onUnmounted, toRef } from 'vue'
+  import { onUnmounted, toRef, useId } from 'vue'
+
+  // Types
+  import type { ID } from '#v0/types'
+
+  export interface ButtonContentProps {
+    /** Unique identifier for ticket registration */
+    id?: ID
+    /** Namespace for context injection from parent Button.Root */
+    namespace?: string
+  }
 
   export interface ButtonContentSlotProps {
     isSelected: boolean
@@ -31,12 +36,13 @@
   }>()
 
   const {
+    id = useId(),
     namespace = 'v0:button:root',
   } = defineProps<ButtonContentProps>()
 
   const root = useButtonRoot(namespace)
 
-  const ticket = root.single.register({ id: 'content' })
+  const ticket = root.single.register({ id })
 
   onUnmounted(() => {
     root.single.unregister(ticket.id)

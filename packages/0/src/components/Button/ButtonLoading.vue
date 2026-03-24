@@ -8,16 +8,21 @@
  */
 
 <script lang="ts">
-  export interface ButtonLoadingProps {
-    /** Namespace for context injection from parent Button.Root */
-    namespace?: string
-  }
-
   // Components
   import { useButtonRoot } from './ButtonRoot.vue'
 
   // Utilities
-  import { onUnmounted, toRef, watch } from 'vue'
+  import { onUnmounted, toRef, useId, watch } from 'vue'
+
+  // Types
+  import type { ID } from '#v0/types'
+
+  export interface ButtonLoadingProps {
+    /** Unique identifier for ticket registration */
+    id?: ID
+    /** Namespace for context injection from parent Button.Root */
+    namespace?: string
+  }
 
   export interface ButtonLoadingSlotProps {
     /** Whether this loading indicator is currently selected/visible */
@@ -33,13 +38,14 @@
   }>()
 
   const {
+    id = useId(),
     namespace = 'v0:button:root',
   } = defineProps<ButtonLoadingProps>()
 
   const root = useButtonRoot(namespace)
 
   const ticket = root.single.register({
-    id: 'loading',
+    id,
     disabled: true,
   })
 
@@ -49,7 +55,8 @@
       ticket.select()
     } else {
       ticket.disabled = true
-      root.single.select('content')
+      const fallback = root.single.seek('first')
+      if (fallback) fallback.select()
     }
   }, { immediate: true })
 
