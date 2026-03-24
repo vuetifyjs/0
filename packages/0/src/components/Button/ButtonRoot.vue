@@ -172,8 +172,7 @@
 
   onUnmounted(() => {
     timer.stop()
-    if (!ticket || !group) return
-    group.unregister(ticket.id)
+    ticket?.unregister()
   })
 
   const context: ButtonRootContext = {

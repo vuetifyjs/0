@@ -44,9 +44,7 @@
 
   const ticket = root.single.register({ id })
 
-  onUnmounted(() => {
-    root.single.unregister(ticket.id)
-  })
+  onUnmounted(() => ticket.unregister())
 
   const slotProps = toRef((): ButtonContentSlotProps => ({
     isSelected: ticket.isSelected.value,

@@ -60,9 +60,7 @@
     }
   }, { immediate: true })
 
-  onUnmounted(() => {
-    root.single.unregister(ticket.id)
-  })
+  onUnmounted(() => ticket.unregister())
 
   const slotProps = toRef((): ButtonLoadingSlotProps => ({
     isSelected: ticket.isSelected.value,
