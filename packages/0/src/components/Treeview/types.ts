@@ -1,8 +1,8 @@
 // Types
 import type { AtomProps } from '#v0/components/Atom'
-import type { NestedActiveMode, NestedOpenMode, NestedSelectionMode, NestedTicket } from '#v0/composables/createNested'
+import type { NestedActiveMode, NestedOpenMode, NestedSelectionMode } from '#v0/composables/createNested'
 import type { ID } from '#v0/types'
-import type { MaybeRefOrGetter, Ref } from 'vue'
+import type { MaybeRefOrGetter } from 'vue'
 
 // TreeviewActivator
 export interface TreeviewActivatorProps extends AtomProps {
@@ -124,12 +124,6 @@ export interface TreeviewIndicatorSlotProps {
 }
 
 // TreeviewItem
-export interface TreeviewItemContext {
-  ticket: NestedTicket
-  isDisabled: Readonly<Ref<boolean>>
-  hasContent: Ref<boolean>
-}
-
 export interface TreeviewItemProps<V = unknown> extends AtomProps {
   /** Unique identifier (auto-generated if not provided) */
   id?: ID

@@ -15,10 +15,8 @@
   import { Atom } from '#v0/components/Atom'
   import { useTreeviewRoot } from './TreeviewRoot.vue'
 
-  // Foundational
-  import { createContext } from '#v0/composables/createContext'
-
   // Composables
+  import { createContext } from '#v0/composables/createContext'
   import { useRovingFocus } from '#v0/composables/useRovingFocus'
 
   // Utilities
@@ -29,7 +27,9 @@
   import type { RovingFocusReturn } from '#v0/composables/useRovingFocus'
   import type { TreeviewListProps, TreeviewListSlotProps } from './types'
 
-  export const [useTreeviewList, provideTreeviewList] = createContext<RovingFocusReturn>({ suffix: 'list' })
+  export type TreeviewListContext = RovingFocusReturn
+
+  export const [useTreeviewList, provideTreeviewList] = createContext<TreeviewListContext | null>({ suffix: 'list' })
 </script>
 
 <script setup lang="ts">

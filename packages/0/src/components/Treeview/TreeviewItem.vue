@@ -13,7 +13,7 @@
   import { useTreeviewList } from './TreeviewList.vue'
   import { useTreeviewRoot } from './TreeviewRoot.vue'
 
-  // Foundational
+  // Composables
   import { createContext } from '#v0/composables/createContext'
 
   // Utilities
@@ -21,10 +21,17 @@
 
   // Types
   import type { AtomExpose } from '#v0/components/Atom'
-  import type { ID } from '#v0/types'
-  import type { TreeviewItemContext, TreeviewItemProps, TreeviewItemSlotProps } from './types'
+  import type { NestedTicket } from '#v0/composables/createNested'
+  import type { TreeviewItemProps, TreeviewItemSlotProps } from './types'
+  import type { Ref } from 'vue'
 
-  export const [useTreeviewItem, provideTreeviewItem] = createContext<TreeviewItemContext>({ suffix: 'item' })
+  export interface TreeviewItemContext {
+    ticket: NestedTicket
+    isDisabled: Readonly<Ref<boolean>>
+    hasContent: Ref<boolean>
+  }
+
+  export const [useTreeviewItem, provideTreeviewItem] = createContext<TreeviewItemContext | null>({ suffix: 'item' })
 </script>
 
 <script lang="ts" setup generic="V = unknown">
@@ -50,26 +57,16 @@
   // but TypeScript doesn't reflect this - cast corrects the type
   const el = toRef(() => (rootRef.value?.element as HTMLElement | null | undefined) ?? undefined)
 
-  // Try to get parent item context for implicit nesting
-  let parentId: ID | undefined
-  try {
-    const parent = useTreeviewItem(namespace)
-    parentId = parent.ticket.id
-  } catch {
-    // No parent item — this is a root-level item
-  }
+  // Get parent item context for implicit nesting (null if root-level)
+  const parent = useTreeviewItem(namespace, null)
+  const parentId = parent?.ticket.id
 
   const ticket = nested.register({ id, value, disabled, parentId, el })
   const isDisabled = toRef(() => toValue(ticket.disabled) || toValue(nested.disabled))
   const hasContent = shallowRef(false)
 
-  // Roving focus for keyboard navigation (provided by TreeviewList)
-  let roving: ReturnType<typeof useTreeviewList> | undefined
-  try {
-    roving = useTreeviewList(namespace)
-  } catch {
-    // No TreeviewList ancestor — keyboard navigation not available
-  }
+  // Roving focus for keyboard navigation (null if no TreeviewList ancestor)
+  const roving = useTreeviewList(namespace, null)
 
   onBeforeUnmount(() => nested.unregister(ticket.id))
 

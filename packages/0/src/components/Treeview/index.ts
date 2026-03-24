@@ -16,15 +16,18 @@ export { default as TreeviewGroup } from './TreeviewGroup.vue'
 export type { TreeviewIndicatorProps, TreeviewIndicatorSlotProps } from './types'
 export { default as TreeviewIndicator } from './TreeviewIndicator.vue'
 
-export type { TreeviewItemContext, TreeviewItemProps, TreeviewItemSlotProps } from './types'
+export type { TreeviewItemProps, TreeviewItemSlotProps } from './types'
+export type { TreeviewItemContext } from './TreeviewItem.vue'
 export { provideTreeviewItem, useTreeviewItem } from './TreeviewItem.vue'
 export { default as TreeviewItem } from './TreeviewItem.vue'
 
 export type { TreeviewListProps, TreeviewListSlotProps } from './types'
+export type { TreeviewListContext } from './TreeviewList.vue'
 export { provideTreeviewList, useTreeviewList } from './TreeviewList.vue'
 export { default as TreeviewList } from './TreeviewList.vue'
 
 export type { TreeviewRootProps, TreeviewRootSlotProps } from './types'
+export type { TreeviewRootContext } from './TreeviewRoot.vue'
 export { provideTreeviewRoot, useTreeviewRoot } from './TreeviewRoot.vue'
 export { default as TreeviewRoot } from './TreeviewRoot.vue'
 

@@ -8,10 +8,8 @@
  */
 
 <script lang="ts">
-  // Foundational
-  import { createContext } from '#v0/composables/createContext'
-
   // Composables
+  import { createContext } from '#v0/composables/createContext'
   import { createNested } from '#v0/composables/createNested'
   import { useProxyModel } from '#v0/composables/useProxyModel'
 
@@ -22,7 +20,9 @@
   import type { NestedContext, NestedTicket } from '#v0/composables/createNested'
   import type { TreeviewRootProps, TreeviewRootSlotProps } from './types'
 
-  export const [useTreeviewRoot, provideTreeviewRoot] = createContext<NestedContext<NestedTicket>>()
+  export type TreeviewRootContext = NestedContext<NestedTicket>
+
+  export const [useTreeviewRoot, provideTreeviewRoot] = createContext<TreeviewRootContext>()
 </script>
 
 <script lang="ts" setup generic="T = unknown">
