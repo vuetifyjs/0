@@ -400,7 +400,6 @@ import {
   mergeDeep,
   clamp,
   range,
-  debounce,
   useId
 } from '@vuetify/v0/utilities'
 
@@ -413,11 +412,6 @@ const clamped = clamp(value, 0, 100)
 // Create number array
 const nums = range(5) // [0, 1, 2, 3, 4]
 const nums2 = range(5, 1) // [1, 2, 3, 4, 5]
-
-// Debounce with controls
-const search = debounce(query, 300)
-search.clear()
-search.immediate()
 
 // SSR-safe unique ID
 const id = useId()

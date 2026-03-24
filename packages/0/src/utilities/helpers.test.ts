@@ -1,4 +1,4 @@
-import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 // Utilities
 import {
@@ -17,7 +17,6 @@ import {
   mergeDeep,
   clamp,
   range,
-  debounce,
   useId,
 } from './helpers'
 
@@ -457,122 +456,6 @@ describe('helpers', () => {
     it('should create single element array', () => {
       expect(range(1)).toEqual([0])
       expect(range(1, 5)).toEqual([5])
-    })
-  })
-
-  describe('debounce', () => {
-    beforeEach(() => {
-      vi.useFakeTimers()
-    })
-
-    afterEach(() => {
-      vi.useRealTimers()
-    })
-
-    it('should delay function execution', () => {
-      const fn = vi.fn()
-      const debounced = debounce(fn, 100)
-
-      debounced()
-      expect(fn).not.toHaveBeenCalled()
-
-      vi.advanceTimersByTime(99)
-      expect(fn).not.toHaveBeenCalled()
-
-      vi.advanceTimersByTime(1)
-      expect(fn).toHaveBeenCalledTimes(1)
-    })
-
-    it('should reset timer on subsequent calls', () => {
-      const fn = vi.fn()
-      const debounced = debounce(fn, 100)
-
-      debounced()
-      vi.advanceTimersByTime(50)
-      debounced()
-      vi.advanceTimersByTime(50)
-      debounced()
-      vi.advanceTimersByTime(50)
-
-      expect(fn).not.toHaveBeenCalled()
-
-      vi.advanceTimersByTime(50)
-      expect(fn).toHaveBeenCalledTimes(1)
-    })
-
-    it('should pass arguments to the function', () => {
-      const fn = vi.fn()
-      const debounced = debounce(fn, 100)
-
-      debounced('arg1', 'arg2')
-      vi.advanceTimersByTime(100)
-
-      expect(fn).toHaveBeenCalledWith('arg1', 'arg2')
-    })
-
-    it('should use latest arguments when called multiple times', () => {
-      const fn = vi.fn()
-      const debounced = debounce(fn, 100)
-
-      debounced('first')
-      debounced('second')
-      debounced('third')
-      vi.advanceTimersByTime(100)
-
-      expect(fn).toHaveBeenCalledTimes(1)
-      expect(fn).toHaveBeenCalledWith('third')
-    })
-
-    describe('clear', () => {
-      it('should cancel pending execution', () => {
-        const fn = vi.fn()
-        const debounced = debounce(fn, 100)
-
-        debounced()
-        vi.advanceTimersByTime(50)
-        debounced.clear()
-        vi.advanceTimersByTime(100)
-
-        expect(fn).not.toHaveBeenCalled()
-      })
-
-      it('should be safe to call when no pending execution', () => {
-        const fn = vi.fn()
-        const debounced = debounce(fn, 100)
-
-        expect(() => debounced.clear()).not.toThrow()
-      })
-    })
-
-    describe('immediate', () => {
-      it('should execute function immediately', () => {
-        const fn = vi.fn()
-        const debounced = debounce(fn, 100)
-
-        debounced.immediate()
-        expect(fn).toHaveBeenCalledTimes(1)
-      })
-
-      it('should pass arguments when called immediately', () => {
-        const fn = vi.fn()
-        const debounced = debounce(fn, 100)
-
-        debounced.immediate('immediate-arg')
-        expect(fn).toHaveBeenCalledWith('immediate-arg')
-      })
-
-      it('should cancel any pending execution', () => {
-        const fn = vi.fn()
-        const debounced = debounce(fn, 100)
-
-        debounced('pending')
-        vi.advanceTimersByTime(50)
-        debounced.immediate('immediate')
-        vi.advanceTimersByTime(100)
-
-        expect(fn).toHaveBeenCalledTimes(1)
-        expect(fn).toHaveBeenCalledWith('immediate')
-      })
     })
   })
 

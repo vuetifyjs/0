@@ -19,7 +19,6 @@ Before writing new helpers, check `#v0/utilities`. Use these instead of creating
 | `useId()` | SSR-safe ID generation |
 | `clamp(value, min, max)` | Clamp number to range |
 | `range(length, start)` | Create sequential number array |
-| `debounce(fn, delay)` | Debounce with `.clear()` and `.immediate()` |
 
 All helpers are tree-shakeable (`#__NO_SIDE_EFFECTS__`).
 
