@@ -11,7 +11,7 @@
   import { useTreeviewItem } from './TreeviewItem.vue'
 
   // Utilities
-  import { onBeforeUnmount, toValue } from 'vue'
+  import { onActivated, onBeforeUnmount, onDeactivated, toValue } from 'vue'
 
   // Types
   import type { TreeviewContentProps, TreeviewContentSlotProps } from './types'
@@ -26,8 +26,14 @@
     namespace = 'v0:treeview',
   } = defineProps<TreeviewContentProps>()
 
-  const item = useTreeviewItem(namespace)
+  const item = useTreeviewItem(namespace)!
   item.hasContent.value = true
+  onDeactivated(() => {
+    item.hasContent.value = false
+  })
+  onActivated(() => {
+    item.hasContent.value = true
+  })
   onBeforeUnmount(() => {
     item.hasContent.value = false
   })

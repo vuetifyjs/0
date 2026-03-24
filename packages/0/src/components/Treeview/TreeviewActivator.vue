@@ -30,7 +30,7 @@
     namespace = 'v0:treeview',
   } = defineProps<TreeviewActivatorProps>()
 
-  const item = useTreeviewItem(namespace)
+  const item = useTreeviewItem(namespace)!
 
   const slotProps = toRef((): TreeviewActivatorSlotProps => ({
     isOpen: toValue(item.ticket.isOpen),

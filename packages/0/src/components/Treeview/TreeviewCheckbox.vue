@@ -30,7 +30,7 @@
     namespace = 'v0:treeview',
   } = defineProps<TreeviewCheckboxProps>()
 
-  const item = useTreeviewItem(namespace)
+  const item = useTreeviewItem(namespace)!
 
   const slotProps = toRef((): TreeviewCheckboxSlotProps => ({
     isSelected: toValue(item.ticket.isSelected),

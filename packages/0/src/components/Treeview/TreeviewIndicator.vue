@@ -31,7 +31,7 @@
     namespace = 'v0:treeview',
   } = defineProps<TreeviewIndicatorProps>()
 
-  const item = useTreeviewItem(namespace)
+  const item = useTreeviewItem(namespace)!
 
   const isSelected = toRef(() => toValue(item.ticket.isSelected))
   const isMixed = toRef(() => toValue(item.ticket.isMixed))

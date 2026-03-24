@@ -30,7 +30,7 @@
     namespace = 'v0:treeview',
   } = defineProps<TreeviewCueProps>()
 
-  const item = useTreeviewItem(namespace)
+  const item = useTreeviewItem(namespace)!
 
   const isOpen = toRef(() => toValue(item.ticket.isOpen))
   const state = toRef((): 'open' | 'closed' => isOpen.value ? 'open' : 'closed')
