@@ -1022,6 +1022,653 @@ describe('treeview', () => {
     })
   })
 
+  describe('keyboard navigation', () => {
+    it('should move focus with ArrowDown', async () => {
+      const wrapper = mount(Treeview.Root, {
+        slots: {
+          default: () =>
+            h(Treeview.List as any, {}, () => [
+              h(Treeview.Item as any, { value: 'item-1' }, () => 'Item 1'),
+              h(Treeview.Item as any, { value: 'item-2' }, () => 'Item 2'),
+              h(Treeview.Item as any, { value: 'item-3' }, () => 'Item 3'),
+            ]),
+        },
+      })
+
+      await nextTick()
+
+      const list = wrapper.findComponent(Treeview.List as any)
+
+      // ArrowDown focuses first item
+      await list.trigger('keydown', { key: 'ArrowDown' })
+      await nextTick()
+
+      const items = wrapper.findAllComponents(Treeview.Item as any)
+      expect(items[0]!.attributes('tabindex')).toBe('0')
+
+      // ArrowDown again focuses second item
+      await list.trigger('keydown', { key: 'ArrowDown' })
+      await nextTick()
+
+      expect(items[1]!.attributes('tabindex')).toBe('0')
+      expect(items[0]!.attributes('tabindex')).toBe('-1')
+    })
+
+    it('should expand with ArrowRight and collapse with ArrowLeft', async () => {
+      let parentProps: any
+
+      const wrapper = mount(Treeview.Root, {
+        slots: {
+          default: () =>
+            h(Treeview.List as any, {}, () =>
+              h(Treeview.Item as any, { value: 'parent' }, {
+                default: (props: any) => {
+                  parentProps = props
+                  return [
+                    h('span', 'Parent'),
+                    h(Treeview.Content as any, () =>
+                      h(Treeview.Group as any, {}, () =>
+                        h(Treeview.Item as any, { value: 'child' }, () => 'Child'),
+                      ),
+                    ),
+                  ]
+                },
+              }),
+            ),
+        },
+      })
+
+      await nextTick()
+
+      const list = wrapper.findComponent(Treeview.List as any)
+
+      // Focus parent
+      await list.trigger('keydown', { key: 'ArrowDown' })
+      await nextTick()
+
+      // ArrowRight expands
+      await list.trigger('keydown', { key: 'ArrowRight' })
+      await nextTick()
+
+      expect(parentProps.isOpen).toBe(true)
+
+      // ArrowLeft collapses
+      await list.trigger('keydown', { key: 'ArrowLeft' })
+      await nextTick()
+
+      expect(parentProps.isOpen).toBe(false)
+    })
+
+    it('should move focus to parent with ArrowLeft on closed item', async () => {
+      const wrapper = mount(Treeview.Root, {
+        slots: {
+          default: () =>
+            h(Treeview.List as any, {}, () =>
+              h(Treeview.Item as any, { value: 'grandparent' }, {
+                default: () => [
+                  h('span', 'Grandparent'),
+                  h(Treeview.Content as any, () =>
+                    h(Treeview.Group as any, {}, () =>
+                      h(Treeview.Item as any, { value: 'parent' }, {
+                        default: () => [
+                          h('span', 'Parent'),
+                          h(Treeview.Content as any, () =>
+                            h(Treeview.Group as any, {}, () =>
+                              h(Treeview.Item as any, { value: 'child' }, () => 'Child'),
+                            ),
+                          ),
+                        ],
+                      }),
+                    ),
+                  ),
+                ],
+              }),
+            ),
+        },
+      })
+
+      await nextTick()
+
+      const list = wrapper.findComponent(Treeview.List as any)
+
+      // Focus grandparent
+      await list.trigger('keydown', { key: 'ArrowDown' })
+      await nextTick()
+
+      // Expand grandparent
+      await list.trigger('keydown', { key: 'ArrowRight' })
+      await nextTick()
+
+      // Move to parent
+      await list.trigger('keydown', { key: 'ArrowDown' })
+      await nextTick()
+
+      const items = wrapper.findAllComponents(Treeview.Item as any)
+      expect(items[1]!.attributes('tabindex')).toBe('0')
+
+      // ArrowLeft on closed parent should focus grandparent
+      await list.trigger('keydown', { key: 'ArrowLeft' })
+      await nextTick()
+
+      expect(items[0]!.attributes('tabindex')).toBe('0')
+    })
+
+    it('should move focus with Home and End keys', async () => {
+      const wrapper = mount(Treeview.Root, {
+        slots: {
+          default: () =>
+            h(Treeview.List as any, {}, () => [
+              h(Treeview.Item as any, { value: 'item-1' }, () => 'Item 1'),
+              h(Treeview.Item as any, { value: 'item-2' }, () => 'Item 2'),
+              h(Treeview.Item as any, { value: 'item-3' }, () => 'Item 3'),
+            ]),
+        },
+      })
+
+      await nextTick()
+
+      const list = wrapper.findComponent(Treeview.List as any)
+
+      // Focus first item
+      await list.trigger('keydown', { key: 'ArrowDown' })
+      await nextTick()
+
+      // Move to second
+      await list.trigger('keydown', { key: 'ArrowDown' })
+      await nextTick()
+
+      const items = wrapper.findAllComponents(Treeview.Item as any)
+      expect(items[1]!.attributes('tabindex')).toBe('0')
+
+      // Home moves to first
+      await list.trigger('keydown', { key: 'Home' })
+      await nextTick()
+
+      expect(items[0]!.attributes('tabindex')).toBe('0')
+
+      // End moves to last
+      await list.trigger('keydown', { key: 'End' })
+      await nextTick()
+
+      expect(items[2]!.attributes('tabindex')).toBe('0')
+    })
+
+    it('should expand all siblings with asterisk (*)', async () => {
+      let parent1Props: any
+      let parent2Props: any
+
+      const wrapper = mount(Treeview.Root, {
+        slots: {
+          default: () =>
+            h(Treeview.List as any, {}, () => [
+              h(Treeview.Item as any, { value: 'parent-1' }, {
+                default: (props: any) => {
+                  parent1Props = props
+                  return [
+                    h('span', 'Parent 1'),
+                    h(Treeview.Content as any, () =>
+                      h(Treeview.Group as any, {}, () =>
+                        h(Treeview.Item as any, { value: 'child-1' }, () => 'Child 1'),
+                      ),
+                    ),
+                  ]
+                },
+              }),
+              h(Treeview.Item as any, { value: 'parent-2' }, {
+                default: (props: any) => {
+                  parent2Props = props
+                  return [
+                    h('span', 'Parent 2'),
+                    h(Treeview.Content as any, () =>
+                      h(Treeview.Group as any, {}, () =>
+                        h(Treeview.Item as any, { value: 'child-2' }, () => 'Child 2'),
+                      ),
+                    ),
+                  ]
+                },
+              }),
+            ]),
+        },
+      })
+
+      await nextTick()
+
+      const list = wrapper.findComponent(Treeview.List as any)
+
+      // Focus first parent
+      await list.trigger('keydown', { key: 'ArrowDown' })
+      await nextTick()
+
+      // Press * to expand all siblings
+      await list.trigger('keydown', { key: '*' })
+      await nextTick()
+
+      expect(parent1Props.isOpen).toBe(true)
+      expect(parent2Props.isOpen).toBe(true)
+    })
+
+    it('should expandAll and collapseAll via root slot props', async () => {
+      let rootProps: any
+      let parent1Props: any
+      let parent2Props: any
+
+      mount(Treeview.Root, {
+        slots: {
+          default: (props: any) => {
+            rootProps = props
+            return h(Treeview.List as any, {}, () => [
+              h(Treeview.Item as any, { value: 'parent-1' }, {
+                default: (props: any) => {
+                  parent1Props = props
+                  return h(Treeview.Item as any, { value: 'child-1' }, () => 'Child 1')
+                },
+              }),
+              h(Treeview.Item as any, { value: 'parent-2' }, {
+                default: (props: any) => {
+                  parent2Props = props
+                  return h(Treeview.Item as any, { value: 'child-2' }, () => 'Child 2')
+                },
+              }),
+            ])
+          },
+        },
+      })
+
+      await nextTick()
+
+      rootProps.expandAll()
+      await nextTick()
+
+      expect(parent1Props.isOpen).toBe(true)
+      expect(parent2Props.isOpen).toBe(true)
+
+      rootProps.collapseAll()
+      await nextTick()
+
+      expect(parent1Props.isOpen).toBe(false)
+      expect(parent2Props.isOpen).toBe(false)
+    })
+  })
+
+  describe('selection modes', () => {
+    it('should cascade selection from parent to children', async () => {
+      const selected = ref<string[]>([])
+
+      let parentProps: any
+      let child1Props: any
+      let child2Props: any
+
+      mount(Treeview.Root, {
+        props: {
+          'modelValue': selected.value,
+          'onUpdate:modelValue': (value: unknown) => {
+            selected.value = value as string[]
+          },
+          'selection': 'cascade',
+        },
+        slots: {
+          default: () =>
+            h(Treeview.Item as any, { value: 'parent' }, {
+              default: (props: any) => {
+                parentProps = props
+                return [
+                  h('span', 'Parent'),
+                  h(Treeview.Content as any, () =>
+                    h(Treeview.Group as any, {}, () => [
+                      h(Treeview.Item as any, { value: 'child-1' }, {
+                        default: (props: any) => {
+                          child1Props = props
+                          return h('span', 'Child 1')
+                        },
+                      }),
+                      h(Treeview.Item as any, { value: 'child-2' }, {
+                        default: (props: any) => {
+                          child2Props = props
+                          return h('span', 'Child 2')
+                        },
+                      }),
+                    ]),
+                  ),
+                ]
+              },
+            }),
+        },
+      })
+
+      await nextTick()
+
+      // Open parent first so children mount
+      parentProps.open()
+      await nextTick()
+
+      // Select parent — both children should be selected
+      parentProps.select()
+      await nextTick()
+
+      expect(child1Props.isSelected).toBe(true)
+      expect(child2Props.isSelected).toBe(true)
+
+      // Unselect one child — parent should be mixed
+      child1Props.unselect()
+      await nextTick()
+
+      expect(parentProps.isMixed).toBe(true)
+    })
+
+    it('should not cascade in independent mode', async () => {
+      const selected = ref<string[]>([])
+
+      let parentProps: any
+      let child1Props: any
+
+      mount(Treeview.Root, {
+        props: {
+          'modelValue': selected.value,
+          'onUpdate:modelValue': (value: unknown) => {
+            selected.value = value as string[]
+          },
+          'selection': 'independent',
+        },
+        slots: {
+          default: () =>
+            h(Treeview.Item as any, { value: 'parent' }, {
+              default: (props: any) => {
+                parentProps = props
+                return [
+                  h('span', 'Parent'),
+                  h(Treeview.Content as any, () =>
+                    h(Treeview.Group as any, {}, () =>
+                      h(Treeview.Item as any, { value: 'child-1' }, {
+                        default: (props: any) => {
+                          child1Props = props
+                          return h('span', 'Child 1')
+                        },
+                      }),
+                    ),
+                  ),
+                ]
+              },
+            }),
+        },
+      })
+
+      await nextTick()
+
+      // Open parent so child mounts
+      parentProps.open()
+      await nextTick()
+
+      // Select parent — child should NOT be selected
+      parentProps.select()
+      await nextTick()
+
+      expect(parentProps.isSelected).toBe(true)
+      expect(child1Props.isSelected).toBe(false)
+    })
+
+    it('should only select leaves in leaf mode', async () => {
+      const selected = ref<string[]>([])
+
+      let parentProps: any
+      let child1Props: any
+      let child2Props: any
+
+      mount(Treeview.Root, {
+        props: {
+          'modelValue': selected.value,
+          'onUpdate:modelValue': (value: unknown) => {
+            selected.value = value as string[]
+          },
+          'selection': 'leaf',
+        },
+        slots: {
+          default: () =>
+            h(Treeview.Item as any, { value: 'parent' }, {
+              default: (props: any) => {
+                parentProps = props
+                return [
+                  h('span', 'Parent'),
+                  h(Treeview.Content as any, () =>
+                    h(Treeview.Group as any, {}, () => [
+                      h(Treeview.Item as any, { value: 'child-1' }, {
+                        default: (props: any) => {
+                          child1Props = props
+                          return h('span', 'Child 1')
+                        },
+                      }),
+                      h(Treeview.Item as any, { value: 'child-2' }, {
+                        default: (props: any) => {
+                          child2Props = props
+                          return h('span', 'Child 2')
+                        },
+                      }),
+                    ]),
+                  ),
+                ]
+              },
+            }),
+        },
+      })
+
+      await nextTick()
+
+      // Open parent so children mount
+      parentProps.open()
+      await nextTick()
+
+      // Toggle parent — only leaf children get selected
+      parentProps.toggle()
+      await nextTick()
+
+      expect(child1Props.isSelected).toBe(true)
+      expect(child2Props.isSelected).toBe(true)
+    })
+  })
+
+  describe('open modes', () => {
+    it('should only allow one open item in single mode', async () => {
+      let parent1Props: any
+      let parent2Props: any
+
+      mount(Treeview.Root, {
+        props: {
+          open: 'single',
+        },
+        slots: {
+          default: () => [
+            h(Treeview.Item as any, { value: 'parent-1' }, {
+              default: (props: any) => {
+                parent1Props = props
+                return [
+                  h('span', 'Parent 1'),
+                  h(Treeview.Content as any, () =>
+                    h(Treeview.Group as any, {}, () =>
+                      h(Treeview.Item as any, { value: 'child-1' }, () => 'Child 1'),
+                    ),
+                  ),
+                ]
+              },
+            }),
+            h(Treeview.Item as any, { value: 'parent-2' }, {
+              default: (props: any) => {
+                parent2Props = props
+                return [
+                  h('span', 'Parent 2'),
+                  h(Treeview.Content as any, () =>
+                    h(Treeview.Group as any, {}, () =>
+                      h(Treeview.Item as any, { value: 'child-2' }, () => 'Child 2'),
+                    ),
+                  ),
+                ]
+              },
+            }),
+          ],
+        },
+      })
+
+      await nextTick()
+
+      // Open first parent
+      parent1Props.open()
+      await nextTick()
+
+      expect(parent1Props.isOpen).toBe(true)
+
+      // Open second parent — first should close
+      parent2Props.open()
+      await nextTick()
+
+      expect(parent2Props.isOpen).toBe(true)
+      expect(parent1Props.isOpen).toBe(false)
+    })
+  })
+
+  describe('3-level nesting', () => {
+    it('should track correct depths for grandparent > parent > leaf', async () => {
+      let grandparentProps: any
+      let parentProps: any
+      let leafProps: any
+
+      mount(Treeview.Root, {
+        slots: {
+          default: () =>
+            h(Treeview.Item as any, { value: 'grandparent' }, {
+              default: (props: any) => {
+                grandparentProps = props
+                return h(Treeview.Item as any, { value: 'parent' }, {
+                  default: (props: any) => {
+                    parentProps = props
+                    return h(Treeview.Item as any, { value: 'leaf' }, {
+                      default: (props: any) => {
+                        leafProps = props
+                        return h('div', 'Leaf')
+                      },
+                    })
+                  },
+                })
+              },
+            }),
+        },
+      })
+
+      await nextTick()
+
+      expect(grandparentProps.depth).toBe(0)
+      expect(parentProps.depth).toBe(1)
+      expect(leafProps.depth).toBe(2)
+    })
+  })
+
+  describe('cue', () => {
+    it('should expose data-state="open" when parent is open', async () => {
+      let itemProps: any
+
+      const wrapper = mount(Treeview.Root, {
+        slots: {
+          default: () =>
+            h(Treeview.Item as any, { value: 'parent' }, {
+              default: (props: any) => {
+                itemProps = props
+                return [
+                  h(Treeview.Cue as any, {}, () => 'cue'),
+                  h(Treeview.Content as any, () =>
+                    h(Treeview.Group as any, {}, () =>
+                      h(Treeview.Item as any, { value: 'child' }, () => 'Child'),
+                    ),
+                  ),
+                ]
+              },
+            }),
+        },
+      })
+
+      await nextTick()
+
+      itemProps.open()
+      await nextTick()
+
+      const cue = wrapper.findComponent(Treeview.Cue as any)
+      expect(cue.attributes('data-state')).toBe('open')
+    })
+
+    it('should expose data-state="closed" when parent is closed', async () => {
+      let itemProps: any
+
+      const wrapper = mount(Treeview.Root, {
+        slots: {
+          default: () =>
+            h(Treeview.Item as any, { value: 'parent' }, {
+              default: (props: any) => {
+                itemProps = props
+                return [
+                  h(Treeview.Cue as any, {}, () => 'cue'),
+                  h(Treeview.Content as any, () =>
+                    h(Treeview.Group as any, {}, () =>
+                      h(Treeview.Item as any, { value: 'child' }, () => 'Child'),
+                    ),
+                  ),
+                ]
+              },
+            }),
+        },
+      })
+
+      await nextTick()
+
+      itemProps.close()
+      await nextTick()
+
+      const cue = wrapper.findComponent(Treeview.Cue as any)
+      expect(cue.attributes('data-state')).toBe('closed')
+    })
+  })
+
+  describe('indicator', () => {
+    it('should expose data-state="checked" when selected', async () => {
+      let itemProps: any
+
+      const wrapper = mount(Treeview.Root, {
+        slots: {
+          default: () =>
+            h(Treeview.Item as any, { value: 'item-1' }, {
+              default: (props: any) => {
+                itemProps = props
+                return h(Treeview.Checkbox as any, {}, () =>
+                  h(Treeview.Indicator as any, {}, () => 'indicator'),
+                )
+              },
+            }),
+        },
+      })
+
+      await nextTick()
+
+      itemProps.select()
+      await nextTick()
+
+      const indicator = wrapper.findComponent(Treeview.Indicator as any)
+      expect(indicator.attributes('data-state')).toBe('checked')
+    })
+
+    it('should expose data-state="unchecked" when not selected', async () => {
+      const wrapper = mount(Treeview.Root, {
+        slots: {
+          default: () =>
+            h(Treeview.Item as any, { value: 'item-1' }, () =>
+              h(Treeview.Checkbox as any, {}, () =>
+                h(Treeview.Indicator as any, {}, () => 'indicator'),
+              ),
+            ),
+        },
+      })
+
+      await nextTick()
+
+      const indicator = wrapper.findComponent(Treeview.Indicator as any)
+      expect(indicator.attributes('data-state')).toBe('unchecked')
+    })
+  })
+
   describe('integration', () => {
     it('should work as a full tree structure', async () => {
       const selected = ref<string[]>([])
