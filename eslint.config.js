@@ -20,6 +20,7 @@ export default vuetify({
 {
   files: ['**/*.ts', '**/*.vue'],
   rules: {
+    '@typescript-eslint/no-explicit-any': 'warn',
     'import/consistent-type-specifier-style': ['error', 'prefer-top-level'],
     'unicorn/no-array-callback-reference': 'off',
     'unicorn/no-unreadable-array-destructuring': 'off',
@@ -69,8 +70,9 @@ export default vuetify({
   },
 },
 {
-  files: ['**/*.test.ts'],
+  files: ['**/*.test.ts', '**/*.bench.ts'],
   rules: {
+    '@typescript-eslint/no-explicit-any': 'off',
     'vitest/prefer-lowercase-title': 'error',
     'vitest/prefer-hooks-in-order': 'error',
     'vitest/prefer-hooks-on-top': 'error',
