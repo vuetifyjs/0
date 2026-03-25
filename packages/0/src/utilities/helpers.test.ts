@@ -382,7 +382,7 @@ describe('helpers', () => {
 
       it('should ignore nested pollution attempts', () => {
         const malicious = JSON.parse('{"nested": {"__proto__": {"polluted": true}}}')
-        const result = mergeDeep({ nested: {} } as Record<string, unknown>, malicious)
+        mergeDeep({ nested: {} } as Record<string, unknown>, malicious)
 
         expect(({} as any).polluted).toBeUndefined()
       })
