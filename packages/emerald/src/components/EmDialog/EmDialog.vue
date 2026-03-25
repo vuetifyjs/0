@@ -1,19 +1,27 @@
 <script lang="ts">
-  import { V0Paper } from '@vuetify/paper'
+  // Framework
+  import { DialogRoot } from '@vuetify/v0'
 
-  import type { V0PaperProps } from '@vuetify/paper'
-
-  export interface EmDialogProps extends V0PaperProps {}
+  export interface EmDialogProps {
+    id?: string
+  }
 </script>
 
 <script setup lang="ts">
   defineOptions({ name: 'EmDialog' })
 
-  const {} = defineProps<EmDialogProps>()
+  const { id } = defineProps<EmDialogProps>()
+
+  const model = defineModel<boolean>({ default: false })
 </script>
 
 <template>
-  <V0Paper as="div" class="emerald-dialog">
-    <slot />
-  </V0Paper>
+  <DialogRoot
+    :id
+    v-model="model"
+  >
+    <template #default="slotProps">
+      <slot v-bind="slotProps" />
+    </template>
+  </DialogRoot>
 </template>
