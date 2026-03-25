@@ -278,14 +278,14 @@ export function isNaN (item: unknown): item is number {
 }
 
 /**
- * Deeply merges source objects into a target object
+ * Deeply merges source objects into a target object, returning a new object
  *
- * @param target The target object to merge into (will be mutated)
+ * @param target The base object to merge into
  * @param sources One or more source objects to merge from
- * @returns The mutated target object
+ * @returns A new merged object (inputs are not mutated)
  *
  * @remarks
- * - Mutates the target object in place
+ * - Creates and returns a new object — inputs are never mutated
  * - Nested objects are recursively merged
  * - Arrays are replaced, not merged
  * - Primitives from sources overwrite target values
@@ -293,8 +293,9 @@ export function isNaN (item: unknown): item is number {
  * @example
  * ```ts
  * const target = { a: 1, b: { c: 2 } }
- * mergeDeep(target, { b: { d: 3 } })
- * // target is now { a: 1, b: { c: 2, d: 3 } }
+ * const result = mergeDeep(target, { b: { d: 3 } })
+ * // result is { a: 1, b: { c: 2, d: 3 } }
+ * // target is unchanged
  *
  * // Multiple sources
  * mergeDeep({}, { a: 1 }, { b: 2 }) // { a: 1, b: 2 }
@@ -306,38 +307,35 @@ export function isNaN (item: unknown): item is number {
 // Keys that could lead to prototype pollution
 const UNSAFE_KEYS = new Set(['__proto__', 'constructor', 'prototype'])
 
+/* #__NO_SIDE_EFFECTS__ */
 export function mergeDeep<T extends object> (target: T, ...sources: DeepPartial<T>[]): T {
-  if (sources.length === 0) return target
+  const out: Record<string, unknown> = {}
 
-  const source = sources.shift()
+  // Copy all properties from target
+  for (const key in target) {
+    if (Object.prototype.hasOwnProperty.call(target, key)) {
+      out[key] = target[key]
+    }
+  }
 
-  // Ensure both target and source are objects before attempting to merge
-  if (isObject(target) && isObject(source)) {
+  for (const source of sources) {
+    if (!isObject(source)) continue
+
     for (const key in source) {
       // Skip prototype pollution vectors and non-own properties
       if (UNSAFE_KEYS.has(key)) continue
       if (!Object.prototype.hasOwnProperty.call(source, key)) continue
 
-      const sourceValue = source[key]
+      const sourceValue = (source as Record<string, unknown>)[key]
       if (isUndefined(sourceValue)) continue
 
-      const targetValue = (target as Record<string, unknown>)[key]
+      const targetValue = out[key]
 
-      if (isObject(sourceValue)) {
-        if (!isObject(targetValue)) {
-          // If targetValue is not an object, initialize it as an empty object
-          Object.assign(target, { [key]: {} })
-        }
-        // Recursively merge using fresh reference from target
-        ;(target as Record<string, unknown>)[key] = mergeDeep((target as Record<string, unknown>)[key] as object, sourceValue as object)
-      } else {
-        // Directly assign primitive values or arrays
-        Object.assign(target, { [key]: sourceValue })
-      }
+      out[key] = isObject(sourceValue) && isObject(targetValue) ? mergeDeep(targetValue as object, sourceValue as object) : sourceValue
     }
   }
 
-  return mergeDeep(target, ...sources)
+  return out as T
 }
 
 // Utilities

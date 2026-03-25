@@ -42,9 +42,15 @@
       [data-theme]:not([data-theme="light"]):not([data-theme="odyssey"]):not([data-theme="tailwind-light"]):not([data-theme="material-3-light"]):not([data-theme="ant-design-light"]):not([data-theme="radix-light"]) .shiki span {
         color: var(--shiki-dark);
       }
+      /* Prevent logo flash: CSS-driven visibility before Vue hydrates */
+      .logo-dark { display: none }
+      [data-theme]:not([data-theme="light"]):not([data-theme="odyssey"]):not([data-theme="tailwind-light"]):not([data-theme="material-3-light"]):not([data-theme="ant-design-light"]):not([data-theme="radix-light"]) .logo-light { display: none }
+      [data-theme]:not([data-theme="light"]):not([data-theme="odyssey"]):not([data-theme="tailwind-light"]):not([data-theme="material-3-light"]):not([data-theme="ant-design-light"]):not([data-theme="radix-light"]) .logo-dark { display: inline }
       @media (prefers-color-scheme: dark) {
         html:not([data-theme]) .shiki { background-color: var(--shiki-dark-bg, #0d1117) }
         html:not([data-theme]) .shiki span { color: var(--shiki-dark) }
+        html:not([data-theme]) .logo-light { display: none }
+        html:not([data-theme]) .logo-dark { display: inline }
       }
     </style>
   </head>

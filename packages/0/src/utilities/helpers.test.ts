@@ -278,59 +278,61 @@ describe('helpers', () => {
   })
 
   describe('mergeDeep', () => {
-    it('should return target if no sources', () => {
+    it('should return a new object even with no sources', () => {
       const target = { a: 1 }
-      expect(mergeDeep(target)).toBe(target)
-      expect(target).toEqual({ a: 1 })
+      const result = mergeDeep(target)
+      expect(result).toEqual({ a: 1 })
+      expect(result).not.toBe(target)
+    })
+
+    it('should not mutate the original target', () => {
+      const target = { a: 1, b: { c: 2 } }
+      const result = mergeDeep(target, { a: 99, b: { d: 3 } } as any)
+      expect(result).toEqual({ a: 99, b: { c: 2, d: 3 } })
+      expect(target).toEqual({ a: 1, b: { c: 2 } })
     })
 
     it('should merge simple properties', () => {
-      const target: Record<string, number> = { a: 1 }
-      const result = mergeDeep(target, { b: 2 })
+      const result = mergeDeep<Record<string, number>>({ a: 1 }, { b: 2 })
       expect(result).toEqual({ a: 1, b: 2 })
-      expect(result).toBe(target)
     })
 
     it('should overwrite primitives', () => {
-      const target = { a: 1, b: 'old' }
-      mergeDeep(target, { a: 2, b: 'new' })
-      expect(target).toEqual({ a: 2, b: 'new' })
+      const result = mergeDeep({ a: 1, b: 'old' }, { a: 2, b: 'new' })
+      expect(result).toEqual({ a: 2, b: 'new' })
     })
 
     it('should deeply merge nested objects', () => {
-      const target: Record<string, unknown> = { a: 1, b: { c: 2 } }
-      mergeDeep(target, { b: { d: 3 } })
-      expect(target).toEqual({ a: 1, b: { c: 2, d: 3 } })
+      const result = mergeDeep<Record<string, unknown>>({ a: 1, b: { c: 2 } }, { b: { d: 3 } })
+      expect(result).toEqual({ a: 1, b: { c: 2, d: 3 } })
     })
 
     it('should replace arrays, not merge them', () => {
-      const target = { arr: [1, 2, 3] }
-      mergeDeep(target, { arr: [4, 5] })
-      expect(target).toEqual({ arr: [4, 5] })
+      const result = mergeDeep({ arr: [1, 2, 3] }, { arr: [4, 5] })
+      expect(result).toEqual({ arr: [4, 5] })
     })
 
     it('should merge multiple sources left to right', () => {
-      const target: Record<string, number> = { a: 1 }
-      mergeDeep(target, { b: 2 }, { c: 3 }, { a: 4 })
-      expect(target).toEqual({ a: 4, b: 2, c: 3 })
+      const result = mergeDeep<Record<string, number>>({ a: 1 }, { b: 2 }, { c: 3 }, { a: 4 })
+      expect(result).toEqual({ a: 4, b: 2, c: 3 })
     })
 
     it('should replace non-object target with object from source', () => {
-      const target = { a: 'string' } as Record<string, unknown>
-      mergeDeep(target, { a: { nested: true } })
-      expect(target).toEqual({ a: { nested: true } })
+      const result = mergeDeep({ a: 'string' } as Record<string, unknown>, { a: { nested: true } })
+      expect(result).toEqual({ a: { nested: true } })
     })
 
     it('should merge into existing nested objects', () => {
-      const target: Record<string, Record<string, unknown>> = { a: { existing: 1 } }
-      mergeDeep(target, { a: { nested: true } })
-      expect(target).toEqual({ a: { existing: 1, nested: true } })
+      const result = mergeDeep<Record<string, Record<string, unknown>>>({ a: { existing: 1 } }, { a: { nested: true } })
+      expect(result).toEqual({ a: { existing: 1, nested: true } })
     })
 
     it('should handle deeply nested merges', () => {
-      const target: Record<string, unknown> = { level1: { level2: { level3: { a: 1 } } } }
-      mergeDeep(target, { level1: { level2: { level3: { b: 2 } } } })
-      expect(target).toEqual({ level1: { level2: { level3: { a: 1, b: 2 } } } })
+      const result = mergeDeep<Record<string, unknown>>(
+        { level1: { level2: { level3: { a: 1 } } } },
+        { level1: { level2: { level3: { b: 2 } } } },
+      )
+      expect(result).toEqual({ level1: { level2: { level3: { a: 1, b: 2 } } } })
     })
 
     it('should not merge inherited properties', () => {
@@ -338,56 +340,49 @@ describe('helpers', () => {
       const source = Object.create(proto)
       source.own = 'value'
 
-      const target = {} as Record<string, unknown>
-      mergeDeep(target, source)
+      const result = mergeDeep({} as Record<string, unknown>, source)
 
-      expect(target).toEqual({ own: 'value' })
-      expect(target.inherited).toBeUndefined()
+      expect(result).toEqual({ own: 'value' })
+      expect(result.inherited).toBeUndefined()
     })
 
     it('should handle null and undefined source values', () => {
-      const target = { a: 1, b: 2 }
-      mergeDeep(target, { a: null, b: undefined } as any)
-      expect(target).toEqual({ a: null, b: 2 })
+      const result = mergeDeep({ a: 1, b: 2 }, { a: null, b: undefined } as any)
+      expect(result).toEqual({ a: null, b: 2 })
     })
 
     it('should handle empty objects', () => {
-      const target = { a: 1 }
-      mergeDeep(target, {})
-      expect(target).toEqual({ a: 1 })
+      const result = mergeDeep({ a: 1 }, {})
+      expect(result).toEqual({ a: 1 })
     })
 
     describe('prototype pollution protection', () => {
       it('should ignore __proto__ key', () => {
-        const target = {}
         const malicious = JSON.parse('{"__proto__": {"polluted": true}}')
-        mergeDeep(target, malicious)
+        const result = mergeDeep({}, malicious)
 
-        expect((target as any).__proto__.polluted).toBeUndefined()
+        expect((result as any).__proto__.polluted).toBeUndefined()
         expect(({} as any).polluted).toBeUndefined()
       })
 
       it('should ignore constructor key', () => {
-        const target = {}
         const malicious = JSON.parse('{"constructor": {"prototype": {"polluted": true}}}')
-        mergeDeep(target, malicious)
+        const result = mergeDeep({}, malicious)
 
-        expect((target as any).constructor).toBe(Object)
+        expect((result as any).constructor).toBe(Object)
         expect(({} as any).polluted).toBeUndefined()
       })
 
       it('should ignore prototype key', () => {
-        const target = {}
         const malicious = { prototype: { polluted: true } }
-        mergeDeep(target, malicious as any)
+        const result = mergeDeep({}, malicious as any)
 
-        expect((target as any).prototype).toBeUndefined()
+        expect((result as any).prototype).toBeUndefined()
       })
 
       it('should ignore nested pollution attempts', () => {
-        const target: Record<string, unknown> = { nested: {} }
         const malicious = JSON.parse('{"nested": {"__proto__": {"polluted": true}}}')
-        mergeDeep(target, malicious)
+        const result = mergeDeep({ nested: {} } as Record<string, unknown>, malicious)
 
         expect(({} as any).polluted).toBeUndefined()
       })

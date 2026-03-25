@@ -3,7 +3,7 @@
   import { useAuthStore } from '@vuetify/auth'
 
   // Framework
-  import { Atom, useBreakpoints, useFeatures, useStorage, useTheme } from '@vuetify/v0'
+  import { Atom, useBreakpoints, useFeatures, useStorage } from '@vuetify/v0'
 
   // Components
   import { Discovery } from '@/components/discovery'
@@ -31,7 +31,6 @@
 
   const breakpoints = useBreakpoints()
   const features = useFeatures()
-  const theme = useTheme()
   const search = useSearch()
   const settings = useSettings()
 
@@ -41,10 +40,8 @@
     storage.set('devmode', isSelected)
   })
 
-  const src = toRef(() => theme.isDark.value
-    ? 'https://cdn.vuetifyjs.com/docs/images/logos/vzero-logo-dark.svg'
-    : 'https://cdn.vuetifyjs.com/docs/images/logos/vzero-logo-light.svg',
-  )
+  const darkLogo = 'https://cdn.vuetifyjs.com/docs/images/logos/vzero-logo-dark.svg'
+  const lightLogo = 'https://cdn.vuetifyjs.com/docs/images/logos/vzero-logo-light.svg'
 </script>
 
 <template>
@@ -57,10 +54,20 @@
       <router-link to="/">
         <img
           alt="Vuetify0 Logo"
+          class="logo-light"
           decoding="async"
           fetchpriority="high"
           height="52"
-          :src
+          :src="lightLogo"
+          width="128"
+        >
+        <img
+          alt="Vuetify0 Logo"
+          class="logo-dark"
+          decoding="async"
+          fetchpriority="high"
+          height="52"
+          :src="darkLogo"
           width="128"
         >
       </router-link>
