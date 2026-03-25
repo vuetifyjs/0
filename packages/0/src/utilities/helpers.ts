@@ -306,7 +306,6 @@ export function isNaN (item: unknown): item is number {
 // Keys that could lead to prototype pollution
 const UNSAFE_KEYS = new Set(['__proto__', 'constructor', 'prototype'])
 
-/* #__NO_SIDE_EFFECTS__ */
 export function mergeDeep<T extends object> (target: T, ...sources: DeepPartial<T>[]): T {
   if (sources.length === 0) return target
 
