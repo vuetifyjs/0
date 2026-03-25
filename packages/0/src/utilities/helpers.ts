@@ -330,7 +330,7 @@ export function mergeDeep<T extends object> (target: T, ...sources: DeepPartial<
           Object.assign(target, { [key]: {} })
         }
         // Recursively merge using fresh reference from target
-        mergeDeep((target as Record<string, unknown>)[key] as object, sourceValue as object)
+        ;(target as Record<string, unknown>)[key] = mergeDeep((target as Record<string, unknown>)[key] as object, sourceValue as object)
       } else {
         // Directly assign primitive values or arrays
         Object.assign(target, { [key]: sourceValue })
