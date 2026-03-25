@@ -112,6 +112,8 @@
   const rootEl = toRef(() => (rootAtom.value?.element as HTMLElement | null | undefined) ?? null)
   const draggingHandle = shallowRef<number | null>(null)
   const dragging = toRef(() => !isNull(draggingHandle.value))
+  const expandAccum = new Map<string | number, number>()
+  const EXPAND_THRESHOLD = 5
 
   const panels = createSelection<SplitterPanelInput>({
     multiple: true,
@@ -160,16 +162,46 @@
     const lower = Math.max(min1, total - after.maxSize)
     const upper = Math.min(before.maxSize, total - min2)
 
-    const size = clamp(before.size + delta, lower, upper)
+    let size = clamp(before.size + delta, lower, upper)
+
+    // Collapse snap: dragging a collapsible panel below minSize snaps to collapsedSize
+    const beforeCollapsed = !toValue(before.isSelected)
+    if (before.collapsible && !beforeCollapsed && size <= before.minSize && delta < 0) {
+      size = before.collapsedSize
+      before.unselect()
+      expandAccum.set(before.id, 0)
+    } else if (before.collapsible && beforeCollapsed && delta > 0) {
+      const accum = (expandAccum.get(before.id) ?? 0) + delta
+      expandAccum.set(before.id, accum)
+      if (accum >= EXPAND_THRESHOLD) {
+        size = clamp(Math.max(accum, before.minSize), before.minSize, before.maxSize)
+        before.select()
+        expandAccum.delete(before.id)
+      } else {
+        size = before.collapsedSize
+      }
+    }
+
+    const afterSize = total - size
+    const afterCollapsed = !toValue(after.isSelected)
+    if (after.collapsible && !afterCollapsed && afterSize <= after.minSize && delta > 0) {
+      size = total - after.collapsedSize
+      after.unselect()
+      expandAccum.set(after.id, 0)
+    } else if (after.collapsible && afterCollapsed && delta < 0) {
+      const accum = (expandAccum.get(after.id) ?? 0) + Math.abs(delta)
+      expandAccum.set(after.id, accum)
+      if (accum >= EXPAND_THRESHOLD) {
+        size = total - clamp(Math.max(accum, after.minSize), after.minSize, after.maxSize)
+        after.select()
+        expandAccum.delete(after.id)
+      } else {
+        size = total - after.collapsedSize
+      }
+    }
+
     before.size = size
     after.size = total - size
-
-    for (const p of [before, after]) {
-      if (!p.collapsible) continue
-      const collapsed = !toValue(p.isSelected)
-      if (!collapsed && p.size <= p.collapsedSize) p.unselect()
-      else if (collapsed && p.size > p.collapsedSize) p.select()
-    }
 
     if (options?.emit) emitLayout()
   }
@@ -276,6 +308,7 @@
 
   function onEndDrag () {
     draggingHandle.value = null
+    expandAccum.clear()
     emitLayout()
   }
 

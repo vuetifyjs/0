@@ -38,7 +38,7 @@
       :collapsed-size="0"
       collapsible
       :default-size="20"
-      :max-size="35"
+      max-size="450px"
       :min-size="15"
     >
       <div v-if="open" class="h-full">
@@ -48,7 +48,7 @@
 
     <PlaygroundSplitterHandle
       direction="horizontal"
-      :hidden="!open || !playground.editor.value"
+      :hidden="!playground.editor.value"
     />
   </template>
 
