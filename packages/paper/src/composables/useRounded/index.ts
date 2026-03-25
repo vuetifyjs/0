@@ -1,22 +1,18 @@
 // Utilities
-import { getCurrentInstanceName } from '#paper/utilities/getCurrentInstanceName'
 import { toRef } from 'vue'
 
 export interface RoundedProps {
   borderRadius?: string
 }
 
-export function useRounded (
-  props: RoundedProps,
-  name = getCurrentInstanceName(),
-) {
-  const roundedStyles = toRef(() => {
-    return {
-      [`--v0-${name}-border-radius`]: props.borderRadius,
-    }
+export function useRounded (props: RoundedProps) {
+  const roundedClasses = toRef(() => {
+    const classes: string[] = []
+
+    if (props.borderRadius) classes.push(`rounded-${props.borderRadius}`)
+
+    return classes
   })
 
-  return {
-    roundedStyles,
-  }
+  return { roundedClasses }
 }
