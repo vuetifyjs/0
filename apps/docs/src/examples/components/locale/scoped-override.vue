@@ -3,7 +3,7 @@
   import LocaleCard from './LocaleCard.vue'
   import LocaleSection from './LocaleSection.vue'
 
-  const [provideLocale] = createLocaleContext({
+  const [, provideLocale] = createLocaleContext({
     default: 'en',
     messages: {
       en: {

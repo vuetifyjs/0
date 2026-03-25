@@ -1,9 +1,8 @@
 <script setup lang="ts">
-  import { createThemeContext } from '@vuetify/v0'
+  import { createThemeContext, Theme } from '@vuetify/v0'
   import ThemeCard from './ThemeCard.vue'
-  import ThemeSection from './ThemeSection.vue'
 
-  const [provideTheme] = createThemeContext({
+  const [, provideTheme] = createThemeContext({
     default: 'light',
     themes: {
       light: {
@@ -39,18 +38,48 @@
     </div>
 
     <!-- Scoped override to dark -->
-    <ThemeSection label="Scoped to dark" theme="dark">
-      <ThemeCard />
+    <Theme theme="dark">
+      <div class="rounded-lg border border-divider overflow-hidden">
+        <div class="px-4 py-2 bg-surface-variant">
+          <span class="text-xs font-medium text-on-surface-variant uppercase tracking-wider">
+            Scoped to dark
+          </span>
+        </div>
 
-      <!-- Nested override back to light inside dark -->
-      <ThemeSection label="Nested back to light" theme="light">
-        <ThemeCard />
-      </ThemeSection>
-    </ThemeSection>
+        <div class="p-4 space-y-3">
+          <ThemeCard theme="dark" />
+
+          <!-- Nested override back to light inside dark -->
+          <Theme theme="light">
+            <div class="rounded-lg border border-divider overflow-hidden">
+              <div class="px-4 py-2 bg-surface-variant">
+                <span class="text-xs font-medium text-on-surface-variant uppercase tracking-wider">
+                  Nested back to light
+                </span>
+              </div>
+
+              <div class="p-4">
+                <ThemeCard theme="light" />
+              </div>
+            </div>
+          </Theme>
+        </div>
+      </div>
+    </Theme>
 
     <!-- Another scoped override to dark, independent of the above -->
-    <ThemeSection label="Independent dark scope" theme="dark">
-      <ThemeCard />
-    </ThemeSection>
+    <Theme theme="dark">
+      <div class="rounded-lg border border-divider overflow-hidden">
+        <div class="px-4 py-2 bg-surface-variant">
+          <span class="text-xs font-medium text-on-surface-variant uppercase tracking-wider">
+            Independent dark scope
+          </span>
+        </div>
+
+        <div class="p-4">
+          <ThemeCard theme="dark" />
+        </div>
+      </div>
+    </Theme>
   </div>
 </template>

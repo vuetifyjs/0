@@ -1,0 +1,19 @@
+diff --git a/dist/index.mjs b/dist/index.mjs
+index 6fec988ac4ea9d84011934f4ac235485a5732353..fc1b760dffc73b437a65e1faa2a26f119d60f185 100644
+--- a/dist/index.mjs
++++ b/dist/index.mjs
+@@ -51,13 +51,12 @@ function ViteSSG(App, routerOptions, fn, options) {
+     app.use(router);
+     let entryRoutePath;
+     let isFirstRoute = true;
+-    router.beforeEach((to, from, next) => {
++    router.beforeEach((to) => {
+       if (isFirstRoute || entryRoutePath && entryRoutePath === to.path) {
+         isFirstRoute = false;
+         entryRoutePath = to.path;
+         to.meta.state = context.initialState;
+       }
+-      next();
+     });
+     if (import.meta.env.SSR) {
+       const route = context.routePath ?? "/";

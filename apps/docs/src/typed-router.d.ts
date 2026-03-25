@@ -17,7 +17,8 @@ import type {
 
 declare module 'vue-router' {
   interface TypesConfig {
-    ParamParsers: never
+    ParamParsers:
+      | never
   }
 }
 
@@ -166,6 +167,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/components/providers/locale': RouteRecordInfo<
+      '/components/providers/locale',
+      '/components/providers/locale',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/components/providers/scrim': RouteRecordInfo<
       '/components/providers/scrim',
       '/components/providers/scrim',
@@ -190,6 +198,13 @@ declare module 'vue-router/auto-routes' {
     '/components/providers/step': RouteRecordInfo<
       '/components/providers/step',
       '/components/providers/step',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/components/providers/theme': RouteRecordInfo<
+      '/components/providers/theme',
+      '/components/providers/theme',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -978,6 +993,12 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/components/providers/locale.md': {
+      routes:
+        | '/components/providers/locale'
+      views:
+        | never
+    }
     'src/pages/components/providers/scrim.md': {
       routes:
         | '/components/providers/scrim'
@@ -999,6 +1020,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/components/providers/step.md': {
       routes:
         | '/components/providers/step'
+      views:
+        | never
+    }
+    'src/pages/components/providers/theme.md': {
+      routes:
+        | '/components/providers/theme'
       views:
         | never
     }

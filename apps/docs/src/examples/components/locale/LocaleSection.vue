@@ -13,8 +13,8 @@
 <template>
   <Locale :locale>
     <div class="rounded-lg border border-divider overflow-hidden">
-      <div class="px-4 py-2 bg-surface-variant/30">
-        <span class="text-xs font-medium text-on-surface-variant/50 uppercase tracking-wider">
+      <div class="px-4 py-2 bg-surface-variant">
+        <span class="text-xs font-medium text-on-surface-variant uppercase tracking-wider">
           {{ label || locale }}
         </span>
       </div>
