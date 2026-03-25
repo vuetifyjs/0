@@ -1,7 +1,7 @@
 packages:
   - packages/*
   - apps/*
-  - playground
+  - dev
 
 autoInstallPeers: true
 
@@ -73,8 +73,8 @@ catalog:
   vitest: ^4.1.0
   vue: 3.5.30
   vue-component-meta: ^3.2.5
-  'vue-i18n': ^10.0.0
-  vue-router: ^5.0.3
+  vue-i18n: ^10.0.0
+  vue-router: ^5.0.4
   vue-tsc: ^3.2.5
 
 catalogMode: strict
@@ -93,6 +93,7 @@ onlyBuiltDependencies:
 
 patchedDependencies:
   '@vue/repl@4.7.1': patches/@vue__repl@4.7.1.patch
+  vite-ssg@28.3.0: patches/vite-ssg@28.3.0.patch
 
 peerDependencyRules:
   allowedVersions:

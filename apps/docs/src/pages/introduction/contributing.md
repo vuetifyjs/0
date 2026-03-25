@@ -64,7 +64,7 @@ cd 0
 # Install dependencies
 pnpm install
 
-# Start the playground
+# Start the dev environment
 pnpm dev
 
 # Start the docs site
@@ -83,14 +83,14 @@ pnpm dev:docs
 │       │   └── types/         # TypeScript types
 ├── apps/
 │   └── docs/           # Documentation site
-└── playground/         # Development playground
+└── dev/               # Development environment
 ```
 
 ### Useful Commands
 
 ```bash
 # Development
-pnpm dev              # Start playground
+pnpm dev              # Start dev environment
 pnpm dev:docs         # Start docs site
 
 # Testing

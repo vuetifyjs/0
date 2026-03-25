@@ -107,7 +107,7 @@
         ]
       }
     },
-    "playground": {
+    "dev": {
       "entry": [],
       "project": [
         "**/*.{js,ts,vue}",
