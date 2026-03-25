@@ -21,6 +21,7 @@ import generateLlmsFullPlugin from './build/generate-llms-full'
 import generateNavPlugin from './build/generate-nav'
 import generatePageDatesPlugin from './build/generate-page-dates'
 import generateSearchIndexPlugin from './build/generate-search-index'
+import generateThemeCssPlugin from './build/generate-theme-css'
 import Markdown from './build/markdown'
 import { getSkillzSlugs } from './build/skillz-tours'
 import pkg from './package.json' with { type: 'json' }
@@ -85,6 +86,7 @@ export default defineConfig({
     generateSearchIndexPlugin(),
     generateNavPlugin(),
     generatePageDatesPlugin(),
+    generateThemeCssPlugin(),
     VitePWA({
       injectRegister: 'script-defer',
       registerType: 'autoUpdate',
