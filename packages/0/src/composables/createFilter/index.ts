@@ -86,11 +86,11 @@ function defaultFilter (
   const stringValues = values.map(v => String(v).toLowerCase())
 
   if (mode === 'some') {
-    return stringValues.some(val => val.includes(queries[0]!))
+    return queries.some(q => stringValues.some(val => val.includes(q)))
   }
 
   if (mode === 'every') {
-    return stringValues.every(val => val.includes(queries[0]!))
+    return queries.every(q => stringValues.every(val => val.includes(q)))
   }
 
   // For union/intersection, join values into single string for faster matching
