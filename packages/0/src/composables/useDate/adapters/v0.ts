@@ -32,6 +32,18 @@ const FORMAT_TOKEN_REGEX = /YYYY|YY|MMMM|MMM|MM|M|dddd|ddd|DD|D|HH|H|hh|h|mm|m|s
 /** Maximum cache size to prevent memory leaks */
 const MAX_CACHE_SIZE = 50
 
+/** Derive first day of week from locale using Intl.Locale */
+function deriveFirstDayOfWeek (locale: string): number {
+  try {
+    const loc = new Intl.Locale(locale)
+    const info = (loc as any).getWeekInfo?.() ?? (loc as any).weekInfo
+    // Intl weekInfo.firstDay: 1=Mon...7=Sun, convert to 0=Sun...6=Sat
+    return info?.firstDay === 7 ? 0 : info?.firstDay ?? 0
+  } catch {
+    return 0
+  }
+}
+
 export class Vuetify0DateAdapter implements DateAdapter<PlainDateTime> {
   private _locale: string
   private _firstDayOfWeek = 0
@@ -44,6 +56,7 @@ export class Vuetify0DateAdapter implements DateAdapter<PlainDateTime> {
 
   constructor (locale = 'en-US') {
     this._locale = locale
+    this._firstDayOfWeek = deriveFirstDayOfWeek(locale)
   }
 
   /** Current locale. Setting a new locale clears format caches. */
@@ -58,6 +71,7 @@ export class Vuetify0DateAdapter implements DateAdapter<PlainDateTime> {
   set locale (value: string) {
     if (this._locale !== value) {
       this._locale = value
+      this._firstDayOfWeek = deriveFirstDayOfWeek(value)
       this.formatCache.clear()
       this.numberFormatCache.clear()
     }
@@ -177,7 +191,7 @@ export class Vuetify0DateAdapter implements DateAdapter<PlainDateTime> {
   }
 
   toISO (date: PlainDateTime): string {
-    return date.toString()
+    return date.toPlainDate().toString()
   }
 
   /**
@@ -272,12 +286,12 @@ export class Vuetify0DateAdapter implements DateAdapter<PlainDateTime> {
       hours24h: { hour: 'numeric', hour12: false },
       minutes: { minute: 'numeric' },
       seconds: { second: 'numeric' },
-      fullTime: { timeStyle: 'medium' },
-      fullTime12h: { hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: true },
-      fullTime24h: { hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false },
+      fullTime: { timeStyle: 'short' },
+      fullTime12h: { hour: 'numeric', minute: 'numeric', hour12: true },
+      fullTime24h: { hour: 'numeric', minute: 'numeric', hour12: false },
       fullDateTime: { dateStyle: 'full', timeStyle: 'short' },
-      fullDateTime12h: { dateStyle: 'full', hour: 'numeric', minute: 'numeric', hour12: true },
-      fullDateTime24h: { dateStyle: 'full', hour: 'numeric', minute: 'numeric', hour12: false },
+      fullDateTime12h: { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long', hour: 'numeric', minute: 'numeric', hour12: true },
+      fullDateTime24h: { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long', hour: 'numeric', minute: 'numeric', hour12: false },
       keyboardDate: { year: 'numeric', month: '2-digit', day: '2-digit' },
       keyboardDateTime: { year: 'numeric', month: '2-digit', day: '2-digit', hour: 'numeric', minute: 'numeric' },
       keyboardDateTime12h: { year: 'numeric', month: '2-digit', day: '2-digit', hour: 'numeric', minute: 'numeric', hour12: true },
@@ -615,7 +629,7 @@ export class Vuetify0DateAdapter implements DateAdapter<PlainDateTime> {
   // Calendar Utilities
   // ============================================
 
-  getWeekdays (format: 'long' | 'short' | 'narrow' = 'short'): string[] {
+  getWeekdays (format: 'long' | 'short' | 'narrow' = 'narrow'): string[] {
     const weekdays: string[] = []
     // Use a known Sunday as reference (Jan 4, 2015 is a Sunday)
     const refDate = Temporal.PlainDate.from('2015-01-04')

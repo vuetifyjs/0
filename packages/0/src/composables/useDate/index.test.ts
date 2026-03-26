@@ -140,7 +140,7 @@ describe('useDate', () => {
         const date = Temporal.PlainDateTime.from('2024-06-15T10:30:00')
         const iso = adapter.toISO(date)
 
-        expect(iso).toBe('2024-06-15T10:30:00')
+        expect(iso).toBe('2024-06-15')
       })
 
       it('should validate dates', () => {
