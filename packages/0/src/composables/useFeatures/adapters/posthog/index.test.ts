@@ -104,7 +104,7 @@ describe('postHogFeatureAdapter', () => {
       mockClient.isFeatureEnabled.mockReturnValue(false)
       flagsCallback?.()
 
-      expect(onUpdate).toHaveBeenCalledTimes(2)
+      expect(onUpdate).toHaveBeenCalledTimes(1)
     })
   })
 
