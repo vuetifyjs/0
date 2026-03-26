@@ -54,19 +54,22 @@ The Tabs component provides a compound pattern for building accessible tab inter
 
 ### Keyboard Navigation
 
-The component implements full WAI-ARIA keyboard support:
+The component implements full WAI-ARIA keyboard support. Keyboard behavior depends on the activation mode:
 
-- **Arrow Left/Right** (horizontal) or **Arrow Up/Down** (vertical): Navigate between tabs
-- **Home**: Jump to first tab
-- **End**: Jump to last tab
-- **Enter/Space**: Activate tab (in manual mode)
+| Key | Automatic | Manual |
+| - | - | - |
+| Arrow Left/Right (horizontal) | Moves focus **and** activates tab | Moves focus only |
+| Arrow Up/Down (vertical) | Moves focus **and** activates tab | Moves focus only |
+| Home | Focuses **and** activates first tab | Focuses first tab only |
+| End | Focuses **and** activates last tab | Focuses last tab only |
+| Enter/Space | — | Activates the focused tab |
 
 ### Activation Modes
 
 Control when tabs activate with the `activation` prop:
 
-- **automatic** (default): Tab activates when focused via arrow keys
-- **manual**: Tab only activates on Enter/Space key press
+- **automatic** (default): Arrow keys move focus and activate the tab simultaneously
+- **manual**: Arrow keys move focus without activating — the user must press Enter or Space to confirm their selection
 
 ```vue
 <template>
