@@ -63,7 +63,7 @@ flowchart LR
 
 | Property/Method | Reactive | Notes |
 | - | :-: | - |
-| `page` | <AppSuccessIcon /> | ShallowRef, supports v-model binding |
+| `page` | <AppSuccessIcon /> | WritableComputedRef, auto-clamps when total pages shrinks |
 | `items` | <AppSuccessIcon /> | Computed, visible page buttons with ellipsis |
 | `pageStart` | <AppSuccessIcon /> | Computed, start index for current page |
 | `pageStop` | <AppSuccessIcon /> | Computed, end index for current page |
