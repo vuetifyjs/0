@@ -17,7 +17,7 @@
   import { createValidation } from '#v0/composables/createValidation'
 
   // Utilities
-  import { computed, shallowRef, toRef, toValue, useAttrs, useId, watch } from 'vue'
+  import { computed, nextTick, shallowRef, toRef, toValue, useAttrs, useId, watch } from 'vue'
 
   // Transformers
   import { toArray } from '#v0/composables/toArray'
@@ -245,9 +245,11 @@
     if (shouldValidate('blur')) validation.validate()
   })
 
+  let resetting = false
+
   watch(model, val => {
     isPristine.value = val === initialValue
-    if (shouldValidate('input')) validation.validate()
+    if (!resetting && shouldValidate('input')) validation.validate()
   })
 
   function validate () {
@@ -255,10 +257,14 @@
   }
 
   function reset () {
+    resetting = true
     model.value = initialValue
     isPristine.value = true
     touched.value = false
     validation.reset()
+    nextTick(() => {
+      resetting = false
+    })
   }
 
   const state = toRef((): InputState => {

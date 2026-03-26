@@ -349,6 +349,34 @@ describe('input', () => {
 
       expect(props().isPristine).toBe(true)
     })
+
+    it('should not re-trigger validation after reset with validateOn input', async () => {
+      const model = ref('')
+      function rule (v: unknown) {
+        return !!v || 'Required'
+      }
+      const { wrapper, props, wait } = mountInput({
+        model,
+        props: { rules: [rule], validateOn: 'input' },
+      })
+
+      // Type something then clear to trigger validation errors
+      await wrapper.setProps({ modelValue: 'hello' })
+      await wait()
+      await wait()
+      await wrapper.setProps({ modelValue: '' })
+      await wait()
+      await wait()
+      expect(props().errors.length).toBeGreaterThan(0)
+
+      // Reset should clear errors and NOT re-validate
+      props().reset()
+      await wait()
+      await wait()
+
+      expect(props().errors.length).toBe(0)
+      expect(props().isValid).toBeNull()
+    })
   })
 
   describe('error prop', () => {
