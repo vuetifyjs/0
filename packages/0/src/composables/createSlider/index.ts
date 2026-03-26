@@ -25,6 +25,12 @@ import { createModel } from '#v0/composables/createModel'
 import { clamp, isObject, isUndefined } from '#v0/utilities'
 import { computed, isRef, shallowRef, toRef, toValue } from 'vue'
 
+function decimalPlaces (n: number): number {
+  const s = String(n)
+  const dot = s.indexOf('.')
+  return dot === -1 ? 0 : s.length - dot - 1
+}
+
 // Types
 import type { ModelContext, ModelTicket, ModelTicketInput } from '#v0/composables/createModel'
 import type { ID } from '#v0/types'
@@ -465,11 +471,16 @@ export function createSlider (options: SliderOptions = {}): SliderContext {
   const values = computed(() => thumbs.value.map(t => toValue(t.value)))
   const selectedValues = computed(() => values.value)
 
+  // Count decimal places for floating-point precision correction
+  const decimals = Math.max(decimalPlaces(step), decimalPlaces(min))
+
   function snap (value: number): number {
     if (step <= 0) return clamp(value, min, max)
     const clamped = clamp(value, min, max)
     const steps = Math.round((clamped - min) / step)
-    return clamp(min + steps * step, min, max)
+    const result = min + steps * step
+    // Fix floating-point artifacts (e.g., 3 * 0.1 → 0.30000000000000004 → 0.3)
+    return clamp(decimals > 0 ? +result.toFixed(decimals) : result, min, max)
   }
 
   function fromValue (value: number): number {

@@ -26,8 +26,21 @@ describe('createSlider', () => {
 
     it('handles decimal steps', () => {
       const { slider } = setup({ min: 0, max: 1, step: 0.1 })
-      expect(slider.snap(0.34)).toBeCloseTo(0.3)
-      expect(slider.snap(0.36)).toBeCloseTo(0.4)
+      expect(slider.snap(0.34)).toBe(0.3)
+      expect(slider.snap(0.36)).toBe(0.4)
+    })
+
+    it('produces exact values for common decimal steps', () => {
+      const { slider } = setup({ min: 0, max: 1, step: 0.1 })
+      for (let i = 0; i <= 10; i++) {
+        expect(slider.snap(i * 0.1)).toBe(+(i * 0.1).toFixed(1))
+      }
+    })
+
+    it('handles decimal steps with non-zero min', () => {
+      const { slider } = setup({ min: 0.05, max: 1, step: 0.1 })
+      expect(slider.snap(0.16)).toBe(0.15)
+      expect(slider.snap(0.34)).toBe(0.35)
     })
 
     it('clamps to min/max', () => {
