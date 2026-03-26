@@ -24,15 +24,15 @@ import { computed, isRef, shallowRef, toRef, toValue } from 'vue'
 
 // Types
 import type { ContextTrinity } from '#v0/composables/createTrinity'
-import type { App, ComputedRef, MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
+import type { App, ComputedRef, MaybeRefOrGetter, Ref, ShallowRef, WritableComputedRef } from 'vue'
 
 export type PaginationTicket =
   | { type: 'page', value: number }
   | { type: 'ellipsis', value: string }
 
 export interface PaginationContext {
-  /** Current page (1-indexed) */
-  page: ShallowRef<number>
+  /** Current page (1-indexed, auto-clamped to total pages) */
+  page: WritableComputedRef<number>
   /** Items per page */
   itemsPerPage: number
   /** Total number of items */
@@ -111,7 +111,7 @@ export function createPagination (_options: PaginationOptions = {}): PaginationC
     ellipsis = '...',
   } = _options
 
-  const page: ShallowRef<number> = isRef(_page) ? _page : shallowRef(_page)
+  const _raw = isRef(_page) ? _page : shallowRef(_page)
 
   // Compute total pages from size (total items) and itemsPerPage
   const pages = computed(() => {
@@ -119,6 +119,17 @@ export function createPagination (_options: PaginationOptions = {}): PaginationC
     const perPage = toValue(_itemsPerPage)
     if (size <= 0 || isNaN(size)) return 0
     return Math.ceil(size / perPage)
+  })
+
+  // Writable computed auto-clamps page to valid range
+  const page = computed({
+    get: () => {
+      const p = pages.value
+      return p > 0 && _raw.value > p ? p : _raw.value
+    },
+    set: (v: number) => {
+      _raw.value = v
+    },
   })
 
   function first () {
