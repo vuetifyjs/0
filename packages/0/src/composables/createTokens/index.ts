@@ -174,9 +174,8 @@ export function createTokens<
 
   function resolve (token: string | TokenAlias, visited = new Set<string>()): unknown | undefined {
     const cacheKey = isString(token) ? token : JSON.stringify(token)
-    const cached = cache.get(cacheKey)
 
-    if (!isUndefined(cached)) return cached
+    if (cache.has(cacheKey)) return cache.get(cacheKey)
 
     const reference: unknown = isTokenAlias(token) ? token.$value : token
     const isAliasReference = isString(reference) && isAlias(reference)

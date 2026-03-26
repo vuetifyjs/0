@@ -3653,9 +3653,8 @@ describe('cache invalidation scenarios', () => {
 
     expect(first).toBeUndefined()
     expect(second).toBeUndefined()
-    // Each resolve call triggers circular detection warning (cache stores undefined
-    // which doesn't early-return since cache check uses !isUndefined)
-    expect(warnSpy).toHaveBeenCalledTimes(2)
+    // Cache stores undefined for circular aliases, second resolve returns from cache
+    expect(warnSpy).toHaveBeenCalledTimes(1)
 
     warnSpy.mockRestore()
   })
