@@ -83,7 +83,7 @@
 
   defineEmits<{
     /** Emitted when the expanded panels change */
-    'update:model-value': T | T[]
+    'update:model-value': [value: T | T[]]
   }>()
 
   const {

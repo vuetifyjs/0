@@ -108,7 +108,7 @@
 
   defineEmits<{
     /** Emitted when the pagination changes */
-    'update:model-value': T | T[]
+    'update:model-value': [value: T | T[]]
   }>()
 
   const {
