@@ -387,6 +387,30 @@ describe('helpers', () => {
         expect(({} as any).polluted).toBeUndefined()
       })
     })
+
+    it('should replace Date instead of recursing into it', () => {
+      const date = new Date('2025-06-01')
+      const result = mergeDeep({ d: { x: 1 } } as any, { d: date } as any)
+      expect(result.d).toBe(date)
+    })
+
+    it('should replace RegExp instead of recursing into it', () => {
+      const re = /abc/gi
+      const result = mergeDeep({ p: { x: 1 } } as any, { p: re } as any)
+      expect(result.p).toBe(re)
+    })
+
+    it('should replace Set instead of recursing into it', () => {
+      const set = new Set([1, 2, 3])
+      const result = mergeDeep({ s: new Set([4, 5]) } as any, { s: set } as any)
+      expect(result.s).toBe(set)
+    })
+
+    it('should replace Map instead of recursing into it', () => {
+      const map = new Map([['a', 1]])
+      const result = mergeDeep({ m: new Map() } as any, { m: map } as any)
+      expect(result.m).toBe(map)
+    })
   })
 
   describe('clamp', () => {

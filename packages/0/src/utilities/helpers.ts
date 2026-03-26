@@ -307,6 +307,12 @@ export function isNaN (item: unknown): item is number {
 // Keys that could lead to prototype pollution
 const UNSAFE_KEYS = new Set(['__proto__', 'constructor', 'prototype'])
 
+function isPlainObject (value: unknown): value is Record<string, unknown> {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) return false
+  const proto = Object.getPrototypeOf(value)
+  return proto === Object.prototype || proto === null
+}
+
 /* #__NO_SIDE_EFFECTS__ */
 export function mergeDeep<T extends object> (target: T, ...sources: DeepPartial<T>[]): T {
   const out: Record<string, unknown> = {}
@@ -331,7 +337,7 @@ export function mergeDeep<T extends object> (target: T, ...sources: DeepPartial<
 
       const targetValue = out[key]
 
-      out[key] = isObject(sourceValue) && isObject(targetValue) ? mergeDeep(targetValue as object, sourceValue as object) : sourceValue
+      out[key] = isPlainObject(sourceValue) && isPlainObject(targetValue) ? mergeDeep(targetValue as object, sourceValue as object) : sourceValue
     }
   }
 
