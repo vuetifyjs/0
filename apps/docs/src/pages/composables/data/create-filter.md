@@ -68,6 +68,20 @@ flowchart LR
 > [!TIP] Reactive filtering
 > Both the query and items passed to `apply()` can be reactive. The filtered result automatically updates when either changes.
 
+## Filter Modes
+
+When the query is an array, each mode controls how multiple queries are matched against item values:
+
+| Mode | Behavior | Passes when |
+| - | - | - |
+| `some` (default) | Iterates all queries and all values | **Any** query matches **any** value |
+| `every` | Iterates all queries and all values | **All** queries match **all** values |
+| `union` | Joins values, checks each query | **Any** query matches the joined string |
+| `intersection` | Joins values, checks each query | **All** queries match the joined string |
+
+> [!TIP] some vs union
+> `some` and `union` both pass when any query matches, but `some` checks each value independently while `union` joins all values into a single string. The difference matters when a match spans multiple fields.
+
 ## Examples
 
 ::: example
