@@ -125,7 +125,7 @@ describe('createPlugin', () => {
     expect(executionOrder).toEqual(['provide', 'setup'])
   })
 
-  it('should only call setup once when installed twice on the same app', () => {
+  it('should only call provide and setup once when installed twice on the same app', () => {
     const options: PluginOptions = {
       namespace: 'duplicate-guard',
       provide: mockProvide,
@@ -136,8 +136,8 @@ describe('createPlugin', () => {
     plugin.install(mockApp)
     plugin.install(mockApp)
 
+    expect(mockProvide).toHaveBeenCalledOnce()
     expect(mockSetup).toHaveBeenCalledOnce()
-    expect(mockProvide).toHaveBeenCalledTimes(2)
   })
 })
 

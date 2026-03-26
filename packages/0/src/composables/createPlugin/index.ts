@@ -69,12 +69,11 @@ export function createPlugin<Z extends Plugin = Plugin> (options: PluginOptions)
   return {
     install (app: App) {
       app.runWithContext(() => {
-        options.provide(app)
-
         const installed = getInstalled(app)
         if (installed.has(options.namespace)) return
         installed.add(options.namespace)
 
+        options.provide(app)
         options.setup?.(app)
       })
     },
