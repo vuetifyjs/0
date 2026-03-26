@@ -80,4 +80,14 @@ flowchart TD
 | `isPaused` | <AppSuccessIcon /> | ShallowRef, readonly |
 | `target` | <AppSuccessIcon /> | Accepts MaybeRef, watched for changes |
 
+## Examples
+
+### Basic
+
+Add and remove child elements, toggle attributes, and observe the mutation log in real time. Use the pause/resume button to control observation.
+
+::: example
+/composables/use-mutation-observer/basic
+:::
+
 <DocsApi />
