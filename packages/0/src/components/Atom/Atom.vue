@@ -72,7 +72,7 @@
 </script>
 
 <script setup lang="ts" generic="T extends Record<string, any> = {}">
-  defineOptions({ name: 'Atom' })
+  defineOptions({ name: 'Atom', inheritAttrs: false })
 
   defineSlots<AtomSlots<T>>()
 
