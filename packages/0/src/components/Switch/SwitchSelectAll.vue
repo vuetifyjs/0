@@ -77,15 +77,16 @@
     default: (props: SwitchSelectAllSlotProps) => any
   }>()
 
-  const props = defineProps<SwitchSelectAllProps>()
-
   const {
     as = 'button',
     renderless,
     label,
+    disabled,
     namespace = 'v0:switch:root',
     groupNamespace = 'v0:switch:group',
-  } = props
+    ariaLabelledby,
+    ariaDescribedby,
+  } = defineProps<SwitchSelectAllProps>()
 
   const group = useSwitchGroup(groupNamespace)
 
@@ -93,7 +94,7 @@
 
   const isAllSelected = toRef(() => group.isAllSelected.value)
   const isMixed = toRef(() => group.isMixed.value)
-  const isDisabled = toRef(() => toValue(props.disabled) || toValue(group.disabled))
+  const isDisabled = toRef(() => toValue(disabled) || toValue(group.disabled))
   const dataState = toRef((): SwitchState => isMixed.value
     ? 'indeterminate'
     : (isAllSelected.value ? 'checked' : 'unchecked'),
@@ -143,8 +144,8 @@
       'aria-checked': isMixed.value ? 'mixed' : isAllSelected.value,
       'aria-disabled': isDisabled.value || undefined,
       'aria-label': label || undefined,
-      'aria-labelledby': props.ariaLabelledby || undefined,
-      'aria-describedby': props.ariaDescribedby || undefined,
+      'aria-labelledby': ariaLabelledby || undefined,
+      'aria-describedby': ariaDescribedby || undefined,
       'tabindex': isDisabled.value ? undefined : 0,
       'data-state': dataState.value,
       'data-disabled': isDisabled.value ? true : undefined,
