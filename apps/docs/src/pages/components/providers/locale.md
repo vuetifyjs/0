@@ -23,7 +23,7 @@ A headless component that scopes a locale to a subtree. Descendant `useLocale()`
 
 ## Usage
 
-Wrap any section of your template in `<Locale>` to override the active locale for that subtree. Children calling `useLocale()` will see the scoped locale as the current selection.
+Wrap any section of your template in `<Locale>` to override the active locale for that subtree. Children calling `useLocale()` will see the scoped locale as the current selection, and `t()` / `n()` calls will resolve against the scoped locale — not the parent's.
 
 ```vue
 <script setup lang="ts">
@@ -75,6 +75,9 @@ Nest `<Locale>` components to create layered locale contexts. Each card reads it
 | `LocaleSection.vue` | Wrapper — uses `<Locale>` to scope a locale to a section |
 | `scoped-override.vue` | Entry — sets up locales and nests scoped overrides |
 :::
+
+> [!TIP] Scoped translations
+> `t()` and `n()` are fully scoped. A `<Locale locale="fr">` subtree resolves all translations against the French messages, even when nested inside another `<Locale>` override. Each scope is independent.
 
 ## Renderless Mode
 
