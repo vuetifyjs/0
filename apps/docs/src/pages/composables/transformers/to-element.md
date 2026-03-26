@@ -76,4 +76,14 @@ const resolved = computed(() => toElement(targetRef))
 > [!TIP] Structural typing
 > Uses `{ readonly value: T }` instead of Vue's nominal `Ref<T>` to avoid type mismatches across Vue versions.
 
+## Examples
+
+### Basic
+
+Switch between input types to see how `toElement` resolves refs, getters, raw elements, and null values to a DOM element.
+
+::: example
+/composables/to-element/basic
+:::
+
 <DocsApi />
