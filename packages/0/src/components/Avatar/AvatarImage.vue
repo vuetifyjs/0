@@ -59,9 +59,9 @@
   const {
     as = 'img',
     renderless,
+    src,
     priority = 0,
     namespace = 'v0:avatar',
-    ...props
   } = defineProps<AvatarImageProps>()
 
   const emit = defineEmits<AvatarImageEmits>()
@@ -95,9 +95,9 @@
     isSelected: ticket.isSelected.value,
     attrs: {
       role: 'img',
+      src,
       onLoad,
       onError,
-      ...props,
     },
   }))
 </script>

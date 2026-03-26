@@ -42,15 +42,15 @@
     default: (props: PopoverActivatorSlotProps) => any
   }>()
 
-  const { as = 'button', ...props } = defineProps<PopoverActivatorProps>()
+  const { as = 'button', target } = defineProps<PopoverActivatorProps>()
 
   const context = usePopoverContext()
 
-  const popovertarget = toRef(() => props.target ?? context.id)
+  const popovertarget = toRef(() => target ?? context.id)
 
   const style = toRef(() => {
-    if (props.target) {
-      return { anchorName: `--${props.target}` }
+    if (target) {
+      return { anchorName: `--${target}` }
     }
     return context.anchorStyles.value
   })
