@@ -65,10 +65,45 @@
   const selectedId = toRef(() => locale)
   const selectedItem = toRef(() => parent.get(locale))
 
+  // Resolve the root t/n (the actual adapter, not a nested Locale wrapper).
+  // Each Locale propagates _rootT/_rootN so nested scopes bypass intermediate wrappers.
+  const rootT = (parent as any)._rootT ?? parent.t
+  const rootN = (parent as any)._rootN ?? parent.n
+
+  // The adapter's t() reads selectedId from selectedIds. Temporarily swap
+  // selectedIds so the adapter resolves messages for the scoped locale.
+  function t (key: string, ...params: unknown[]): string {
+    const prev = new Set(parent.selectedIds)
+    parent.selectedIds.clear()
+    parent.selectedIds.add(locale)
+    try {
+      return rootT(key, ...params)
+    } finally {
+      parent.selectedIds.clear()
+      for (const id of prev) parent.selectedIds.add(id)
+    }
+  }
+
+  function n (value: number): string {
+    const prev = new Set(parent.selectedIds)
+    parent.selectedIds.clear()
+    parent.selectedIds.add(locale)
+    try {
+      return rootN(value)
+    } finally {
+      parent.selectedIds.clear()
+      for (const id of prev) parent.selectedIds.add(id)
+    }
+  }
+
   const scoped = {
     ...parent,
     selectedId,
     selectedItem,
+    t,
+    n,
+    _rootT: rootT,
+    _rootN: rootN,
   }
 
   provideContext('v0:locale', scoped)
