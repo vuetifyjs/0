@@ -1,6 +1,7 @@
 <script lang="ts">
   import { V0Paper } from '@vuetify/paper'
 
+  // Types
   import type { V0PaperProps } from '@vuetify/paper'
 
   export interface EmLoadingProps extends V0PaperProps {}
