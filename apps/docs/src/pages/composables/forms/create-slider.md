@@ -55,12 +55,15 @@ Slider state is **always reactive**. Values and derived properties update automa
 | `disabled` | <AppSuccessIcon /> | Ref — accepts MaybeRefOrGetter |
 | `orientation` | <AppSuccessIcon /> | Ref — accepts MaybeRefOrGetter |
 | `inverted` | <AppSuccessIcon /> | Ref — accepts MaybeRefOrGetter |
-| `snap` | <AppErrorIcon /> | Pure function — rounds to nearest step |
+| `snap` | <AppErrorIcon /> | Pure function — rounds to nearest step with decimal precision correction |
 | `fromValue` | <AppErrorIcon /> | Pure function — value to percentage |
 | `fromPercent` | <AppErrorIcon /> | Pure function — percentage to value |
 
 > [!TIP] Value constraints
 > `set` automatically clamps to min/max, snaps to the nearest step, and enforces minimum distance between adjacent thumbs via `minStepsBetweenThumbs`.
+
+> [!TIP] Decimal precision
+> `snap` uses `toFixed` to correct floating-point artifacts. The number of decimal places is derived from `step` and `min`, so `snap(3 * 0.1)` returns `0.3` — not `0.30000000000000004`.
 
 ## Examples
 
