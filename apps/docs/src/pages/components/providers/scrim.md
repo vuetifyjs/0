@@ -68,6 +68,16 @@ The Scrim component renders a backdrop that appears when any overlay is active. 
 </template>
 ```
 
+## Examples
+
+### Basic
+
+Demonstrates a dismissible overlay and a blocking overlay. Click the scrim to dismiss the first; the blocking overlay requires explicit action.
+
+::: example
+/components/scrim/basic
+:::
+
 ## Custom Styling via Slot Props
 
 Access the stack state through slot props for custom rendering:
