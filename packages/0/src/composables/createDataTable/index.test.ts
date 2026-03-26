@@ -177,6 +177,21 @@ describe('createDataTable', () => {
       expect(table.sort.columns.value.length).toBe(0)
     })
 
+    it('sorts null and undefined values consistently', () => {
+      const items = [
+        { id: 1, name: null, email: '', department: '', salary: 0, active: true },
+        { id: 2, name: 'Bob', email: '', department: '', salary: 0, active: true },
+        { id: 3, name: undefined, email: '', department: '', salary: 0, active: true },
+        { id: 4, name: 'Alice', email: '', department: '', salary: 0, active: true },
+      ] as unknown as User[]
+
+      const table = createTable({ items })
+      table.sort.toggle('name')
+      const names = table.sortedItems.value.map(i => (i as any).name)
+      // Non-null values sorted first, null/undefined grouped at end
+      expect(names).toEqual(['Alice', 'Bob', null, undefined])
+    })
+
     it('sorts items by column ascending', () => {
       const table = createTable()
       table.sort.toggle('name')

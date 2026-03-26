@@ -89,8 +89,11 @@ function getNestedValue (obj: Record<string, unknown>, key: string): unknown {
 
 function compareValues (a: unknown, b: unknown, locale?: string): number {
   if (a === b) return 0
-  if (isNullOrUndefined(a)) return 1
-  if (isNullOrUndefined(b)) return -1
+  const aNil = isNullOrUndefined(a)
+  const bNil = isNullOrUndefined(b)
+  if (aNil && bNil) return 0
+  if (aNil) return 1
+  if (bNil) return -1
 
   if (isString(a) && isString(b)) {
     return a.localeCompare(b, locale)
