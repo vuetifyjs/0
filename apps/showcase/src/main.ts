@@ -18,6 +18,9 @@ const router = createRouter({
     { path: '/:ds/tokens', component: () => import('./pages/[ds]/tokens.vue') },
     { path: '/:ds/components', component: () => import('./pages/[ds]/components.vue') },
     { path: '/:ds/components/:component', component: () => import('./pages/[ds]/components/[component].vue') },
+    { path: '/:ds/composables', component: () => import('./pages/[ds]/composables.vue') },
+    { path: '/:ds/composables/:composable', component: () => import('./pages/[ds]/composables/[composable].vue') },
+    { path: '/:ds/coverage', component: () => import('./pages/[ds]/coverage.vue') },
     { path: '/:ds/:section', component: () => import('./pages/[ds]/[section].vue') },
   ],
 })
