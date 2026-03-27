@@ -1,20 +1,31 @@
 <script lang="ts">
-  import { V0Paper } from '@vuetify/paper'
-
-  // Types
-  import type { V0PaperProps } from '@vuetify/paper'
-
-  export interface CxIconProps extends V0PaperProps {}
+  export interface CxIconProps {
+    size?: string | number
+  }
 </script>
 
 <script setup lang="ts">
   defineOptions({ name: 'CxIcon' })
 
-  const {} = defineProps<CxIconProps>()
+  const { size = 18 } = defineProps<CxIconProps>()
 </script>
 
 <template>
-  <V0Paper as="span" class="codex-icon">
+  <i
+    class="codex-icon"
+    :style="{ width: `${size}px`, height: `${size}px` }"
+  >
     <slot />
-  </V0Paper>
+  </i>
 </template>
+
+<style scoped>
+  .codex-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    vertical-align: middle;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+</style>
