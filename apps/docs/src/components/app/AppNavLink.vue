@@ -126,7 +126,7 @@
 
 <template>
   <li ref="item" class="px-3">
-    <div class="flex items-center gap-1">
+    <div class="flex items-center gap-1" :class="isTopLevel && navConfig.flatMode.value && 'pl-1'">
       <!-- Expand/collapse toggle button (only for top-level) -->
       <button
         v-if="isCollapsible"

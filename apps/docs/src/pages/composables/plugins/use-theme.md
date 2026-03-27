@@ -108,4 +108,24 @@ Theme selection and computed colors are reactive. Switching themes automatically
 | `colors` | <AppSuccessIcon /> | Resolved colors with aliases |
 | `isDark` | <AppSuccessIcon /> | Current theme is dark |
 
+## Examples
+
+### Color Studio
+
+::: example
+/composables/use-theme/context.ts 1
+/composables/use-theme/Preview.vue 2
+/composables/use-theme/color-studio.vue 3
+
+### Color Studio
+
+A theme explorer using `createTheme` with a shared palette of token aliases. Switch between predefined themes, inspect resolved colors, and register new themes at runtime.
+
+| File | Role |
+|------|------|
+| `context.ts` | Creates `createTheme` with palette aliases and four themes |
+| `Preview.vue` | Mini app UI that renders using resolved theme colors |
+| `color-studio.vue` | Theme selector, swatch grid, and dynamic registration |
+:::
+
 <DocsApi />
