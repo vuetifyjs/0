@@ -68,30 +68,42 @@ function analyzePackage (target: PaperAnalyzerTarget, root: string): AnalysisRes
   if (target.importMap) {
     const mapPath = resolve(root, target.importMap)
     if (existsSync(mapPath)) {
-      const map = JSON.parse(readFileSync(mapPath, 'utf-8'))
+      const map = JSON.parse(readFileSync(mapPath, 'utf8'))
       importMapComponents = new Set(Object.keys(map.components || {}))
     }
   }
 
   const entryPath = resolveEntryPath(target, root)
   if (entryPath) {
-    const source = readFileSync(entryPath, 'utf-8')
+    const source = readFileSync(entryPath, 'utf8')
     const exports = extractExports(source)
 
     for (const { name, isType } of exports) {
       const type = classify(name, isType, importMapComponents)
       switch (type) {
-        case 'component': { result.components.push(name); break
+        case 'component': {
+          result.components.push(name)
+          break
         }
-        case 'composable': { result.composables.push(name); break
+        case 'composable': {
+          result.composables.push(name)
+          break
         }
-        case 'plugin': { result.plugins.push(name); break
+        case 'plugin': {
+          result.plugins.push(name)
+          break
         }
-        case 'constant': { result.constants.push(name); break
+        case 'constant': {
+          result.constants.push(name)
+          break
         }
-        case 'type': { result.types.push(name); break
+        case 'type': {
+          result.types.push(name)
+          break
         }
-        case 'util': { result.utils.push(name); break
+        case 'util': {
+          result.utils.push(name)
+          break
         }
       }
     }

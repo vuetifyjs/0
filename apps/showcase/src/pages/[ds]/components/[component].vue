@@ -44,7 +44,6 @@
   })
 
   const activeTab = shallowRef<string>('')
-  const resolvedTab = toRef(() => activeTab.value || tabItems.value[0]?.value || '')
 
   const siblings = toRef(() => {
     const components = ds.value?.components ?? []
