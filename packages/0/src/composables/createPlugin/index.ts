@@ -18,7 +18,8 @@ import { createContext, useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
 
 // Utilities
-import { hasInjectionContext } from 'vue'
+import { isNullOrUndefined } from '#v0/utilities'
+import { hasInjectionContext, watch } from 'vue'
 
 // Types
 import type { ContextTrinity } from '#v0/composables/createTrinity'
@@ -96,6 +97,24 @@ export interface PluginContextConfig<O, E> {
    * Receives the requested namespace so error messages can include it.
    */
   fallback?: (namespace: string) => E
+  /** Returns the value to persist. Called reactively inside a watch source. */
+  persist?: (context: E) => unknown
+  /** Restores previously persisted state into the context. Called before setup. */
+  restore?: (context: E, saved: unknown) => void
+}
+
+function deriveKey (namespace: string): string {
+  return namespace.startsWith('v0:') ? namespace.slice(3) : namespace
+}
+
+// Minimal storage shape needed for persist/restore.
+// Uses useContext('v0:storage') directly to avoid circular import with useStorage.
+interface PersistedStorage {
+  get: (key: string) => { value: unknown }
+}
+
+function getPersistedStorage (): PersistedStorage {
+  return useContext('v0:storage')
 }
 
 /**
@@ -123,21 +142,21 @@ export interface PluginContextConfig<O, E> {
  * ```
  */
 export function createPluginContext<
-  O extends { namespace?: string } = Record<never, never>,
+  O extends { namespace?: string, persist?: boolean } = Record<never, never>,
   E = unknown,
 > (
   defaultNamespace: string,
-  factory: (options: Omit<O, 'namespace'>) => E,
-  config?: PluginContextConfig<Omit<O, 'namespace'>, E>,
+  factory: (options: Omit<O, 'namespace' | 'persist'>) => E,
+  config?: PluginContextConfig<Omit<O, 'namespace' | 'persist'>, E>,
 ): readonly [
   <_E extends E = E>(_options?: O) => ContextTrinity<_E>,
   (_options?: O) => Plugin,
   <_E extends E = E>(namespace?: string) => _E,
 ] {
   function createXContext<_E extends E = E> (_options: O = {} as O): ContextTrinity<_E> {
-    const { namespace = defaultNamespace, ...options } = _options as O & { namespace?: string }
+    const { namespace = defaultNamespace, persist: _persist, ...options } = _options as O & { namespace?: string, persist?: boolean }
     const [_use, _provide] = createContext<_E>(namespace)
-    const context = factory(options as Omit<O, 'namespace'>) as _E
+    const context = factory(options as Omit<O, 'namespace' | 'persist'>) as _E
 
     function provide (_context: _E = context, app?: App): _E {
       return _provide(_context, app)
@@ -147,16 +166,39 @@ export function createPluginContext<
   }
 
   function createXPlugin (_options: O = {} as O): Plugin {
-    const { namespace = defaultNamespace, ...options } = _options as O & { namespace?: string }
+    const { namespace = defaultNamespace, persist: shouldPersist, ...options } = _options as O & { namespace?: string, persist?: boolean }
     const [, provide, context] = createXContext({ ...options, namespace } as O)
 
     return createPlugin({
       namespace,
       provide: app => {
         provide(context, app)
+
+        if (shouldPersist && config?.restore) {
+          const storage = getPersistedStorage()
+          const key = deriveKey(namespace)
+          const saved = storage.get(key)
+          if (!isNullOrUndefined(saved.value)) {
+            config.restore(context, saved.value)
+          }
+        }
       },
-      setup: config?.setup
-        ? app => config.setup!(context, app, options as Omit<O, 'namespace'>)
+      setup: (config?.setup || shouldPersist)
+        ? app => {
+          config?.setup?.(context, app, options as Omit<O, 'namespace' | 'persist'>)
+
+          if (shouldPersist && config?.persist) {
+            const storage = getPersistedStorage()
+            const key = deriveKey(namespace)
+            const stored = storage.get(key)
+            watch(
+              () => config.persist!(context),
+              val => {
+                stored.value = val
+              },
+            )
+          }
+        }
         : undefined,
     })
   }

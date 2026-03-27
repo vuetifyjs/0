@@ -102,7 +102,9 @@ export interface LocaleContextOptions extends LocaleOptions {
   namespace?: string
 }
 
-export interface LocalePluginOptions extends LocaleContextOptions {}
+export interface LocalePluginOptions extends LocaleContextOptions {
+  persist?: boolean
+}
 
 /**
  * Creates a new locale instance.
@@ -180,8 +182,12 @@ export function createLocaleFallback<
 }
 
 export const [createLocaleContext, createLocalePlugin, useLocale] =
-  createPluginContext<LocaleContextOptions, LocaleContext>(
+  createPluginContext<LocalePluginOptions, LocaleContext>(
     'v0:locale',
     options => createLocale(options),
-    { fallback: () => createLocaleFallback() },
+    {
+      fallback: () => createLocaleFallback(),
+      persist: ctx => ctx.selectedId.value,
+      restore: (ctx, saved) => ctx.select(saved),
+    },
   )

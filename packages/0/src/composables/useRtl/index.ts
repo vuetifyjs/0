@@ -51,7 +51,9 @@ export interface RtlContextOptions extends RtlOptions {
   namespace?: string
 }
 
-export interface RtlPluginOptions extends RtlContextOptions {}
+export interface RtlPluginOptions extends RtlContextOptions {
+  persist?: boolean
+}
 
 /**
  * Creates a new RTL direction instance.
@@ -79,13 +81,17 @@ export function createRtlFallback (): RtlContext {
 }
 
 export const [createRtlContext, createRtlPlugin, useRtl] =
-  createPluginContext<RtlContextOptions, RtlContext>(
+  createPluginContext<RtlPluginOptions, RtlContext>(
     'v0:rtl',
     options => createRtl(options),
     {
       fallback: () => createRtlFallback(),
       setup: (context, app, { adapter = new Vuetify0RtlAdapter(), target }) => {
         adapter.setup(app, context, target)
+      },
+      persist: ctx => ctx.isRtl.value,
+      restore: (ctx, saved) => {
+        ctx.isRtl.value = saved
       },
     },
   )

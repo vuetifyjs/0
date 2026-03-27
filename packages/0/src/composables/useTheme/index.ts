@@ -226,7 +226,9 @@ export interface ThemeContextOptions extends ThemeOptions {
   namespace?: string
 }
 
-export interface ThemePluginOptions extends ThemeContextOptions {}
+export interface ThemePluginOptions extends ThemeContextOptions {
+  persist?: boolean
+}
 
 /**
  * Creates a new theme instance.
@@ -382,5 +384,7 @@ export const [createThemeContext, createThemePlugin, useTheme] =
         if (rgb) adapter.rgb = true
         adapter.setup(app, context, target)
       },
+      persist: ctx => ctx.selectedId.value,
+      restore: (ctx, saved) => ctx.select(saved),
     },
   )

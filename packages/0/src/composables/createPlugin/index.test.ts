@@ -1,5 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+// Composables
+import { createStoragePlugin, useStorage } from '#v0/composables/useStorage'
+
+// Utilities
+import { createApp, nextTick, shallowRef } from 'vue'
+
 // Types
 import type { PluginOptions } from './index'
 import type { App } from 'vue'
@@ -229,5 +235,99 @@ describe('createPluginContext', () => {
 
     expect(result).toEqual({ fallback: true })
     expect(fallback).toHaveBeenCalledWith('v0:fallback-test')
+  })
+
+  describe('persist/restore', () => {
+    it('should restore persisted value before setup', () => {
+      const order: string[] = []
+      const state = shallowRef('initial')
+
+      const [, createXPlugin] = createPluginContext<
+        { namespace?: string, persist?: boolean },
+        { state: typeof state }
+      >(
+        'v0:persist-test',
+        () => ({ state }),
+        {
+          persist: context => context.state.value,
+          restore: (context, saved) => {
+            order.push('restore')
+            context.state.value = saved
+          },
+          setup: () => {
+            order.push('setup')
+          },
+        },
+      )
+
+      const app = createApp({ render: () => null })
+      app.use(createStoragePlugin())
+
+      // Pre-seed storage with a persisted value
+      app.runWithContext(() => {
+        const storage = useStorage()
+        storage.set('persist-test', 'restored-value')
+      })
+
+      app.use(createXPlugin({ persist: true }))
+
+      expect(state.value).toBe('restored-value')
+      expect(order).toEqual(['restore', 'setup'])
+    })
+
+    it('should auto-save when persisted value changes', async () => {
+      const state = shallowRef('initial')
+
+      const [, createXPlugin] = createPluginContext<
+        { namespace?: string, persist?: boolean },
+        { state: typeof state }
+      >(
+        'v0:autosave-test',
+        () => ({ state }),
+        {
+          persist: context => context.state.value,
+          restore: (context, saved) => {
+            context.state.value = saved
+          },
+        },
+      )
+
+      const app = createApp({ render: () => null })
+      app.use(createStoragePlugin())
+      app.use(createXPlugin({ persist: true }))
+
+      state.value = 'updated-value'
+      await nextTick()
+
+      let stored: unknown
+      app.runWithContext(() => {
+        const storage = useStorage()
+        stored = storage.get('autosave-test').value
+      })
+
+      expect(stored).toBe('updated-value')
+    })
+
+    it('should not persist when persist option is absent', () => {
+      const restore = vi.fn()
+
+      const [, createXPlugin] = createPluginContext<
+        { namespace?: string, persist?: boolean },
+        { value: string }
+      >(
+        'v0:no-persist-test',
+        () => ({ value: 'test' }),
+        {
+          persist: context => context.value,
+          restore,
+        },
+      )
+
+      const app = createApp({ render: () => null })
+      app.use(createStoragePlugin())
+      app.use(createXPlugin())
+
+      expect(restore).not.toHaveBeenCalled()
+    })
   })
 })
