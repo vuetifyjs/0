@@ -145,6 +145,30 @@
           "../packages/paper/src"
         ]
       }
+    },
+    "apps/showcase": {
+      "entry": [
+        "src/main.ts",
+        "src/App.vue",
+        "src/components/**/*.vue",
+        "src/composables/*.ts",
+        "src/pages/**/*.vue",
+        "vite.config.*"
+      ],
+      "ignoreDependencies": [
+        "uno.css"
+      ],
+      "paths": {
+        "@/*": [
+          "src/*"
+        ],
+        "@paper/codex": [
+          "../../packages/codex/src"
+        ],
+        "@vuetify/paper": [
+          "../../packages/paper/src"
+        ]
+      }
     }
   },
   "ignore": [
