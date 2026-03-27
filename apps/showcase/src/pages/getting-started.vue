@@ -1,12 +1,23 @@
 <script setup lang="ts">
   import {
-    CxCallout, CxCalloutHeader,
-    CxCodeBlock, CxHeaderAnchor,
+    CxBreadcrumbs,
+    CxCallout,
+    CxCalloutHeader,
+    CxCodeBlock,
+    CxHeaderAnchor,
+    CxPackageManagerTabs,
   } from '@paper/codex'
+
+  const breadcrumbs = [
+    { label: 'Home', to: '/' },
+    { label: 'Getting Started' },
+  ]
 </script>
 
 <template>
   <div class="p-8 max-w-3xl">
+    <CxBreadcrumbs class="mb-6" :items="breadcrumbs" />
+
     <h1 class="text-3xl font-bold mb-2">Getting Started</h1>
     <p class="text-on-surface-variant mb-8">Learn how Paper design systems work and how to use them.</p>
 
@@ -45,11 +56,7 @@
     </CxHeaderAnchor>
 
     <p class="mb-4">Install the package:</p>
-    <CxCodeBlock
-      class="mb-4"
-      code="pnpm add @paper/emerald"
-      language="bash"
-    />
+    <CxPackageManagerTabs class="mb-6" package="@paper/emerald" />
 
     <p class="mb-4">Create the plugin and register it with your app:</p>
     <CxCodeBlock
