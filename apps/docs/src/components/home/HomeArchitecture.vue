@@ -1,12 +1,12 @@
 <script setup lang="ts">
   // Framework
-  import { Selection, Tabs, useTheme } from '@vuetify/v0'
+  import { Selection, Tabs, useIntersectionObserver, useTheme } from '@vuetify/v0'
 
   // Composables
   import { useHighlightCode } from '@/composables/useHighlightCode'
 
   // Utilities
-  import { shallowRef, toRef } from 'vue'
+  import { shallowRef, toRef, useTemplateRef, watch } from 'vue'
 
   const theme = useTheme()
   const activeTab = shallowRef('composable')
@@ -80,11 +80,23 @@
   }
 
   const currentCode = toRef(() => codeSnippets[activeTab.value] ?? '')
-  const highlighter = useHighlightCode(currentCode, { idle: true })
+  const highlighter = useHighlightCode(currentCode, { immediate: false })
+
+  const section = useTemplateRef<HTMLElement>('section')
+  const { stop } = useIntersectionObserver(section, entries => {
+    if (entries[0]?.isIntersecting) {
+      highlighter.highlight()
+      stop()
+      // Start watching for tab changes after first highlight
+      watch(currentCode, value => {
+        if (value) highlighter.highlight(value)
+      })
+    }
+  })
 </script>
 
 <template>
-  <section class="home-architecture py-20 md:py-28">
+  <section ref="section" class="home-architecture py-20 md:py-28">
     <div class="text-center mb-12">
       <p class="section-overline mb-3">COMPOSABLE ARCHITECTURE</p>
 

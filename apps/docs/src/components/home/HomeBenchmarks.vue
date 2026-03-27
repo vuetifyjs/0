@@ -1,4 +1,7 @@
 <script setup lang="ts">
+  // Framework
+  import { useIntersectionObserver } from '@vuetify/v0'
+
   // Composables
   import { TIER_CONFIG, useBenchmarkData } from '@/composables/useBenchmarkData'
   import { useCountUp } from '@/composables/useCountUp'
@@ -6,9 +9,16 @@
   // Utilities
   import { shallowRef, toRef } from 'vue'
 
-  const { composables, summary } = useBenchmarkData()
-
   const sectionRef = shallowRef<HTMLElement>()
+  const visible = shallowRef(false)
+  const { stop } = useIntersectionObserver(sectionRef, entries => {
+    if (entries[0]?.isIntersecting) {
+      visible.value = true
+      stop()
+    }
+  })
+
+  const { composables, summary } = useBenchmarkData({ trigger: visible })
   const { current: opsCount } = useCountUp(sectionRef, 100, { duration: 1500 })
   const benchmarkCount = toRef(() => summary.value.totalBenchmarks)
   const { current: testCount } = useCountUp(sectionRef, 2600, { duration: 2000 })

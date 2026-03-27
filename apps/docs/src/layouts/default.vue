@@ -3,6 +3,9 @@
   import { IN_BROWSER, Scrim, useBreakpoints, useRtl, useStack, useStorage } from '@vuetify/v0'
   import { isUndefined } from '@vuetify/v0/utilities'
 
+  // Components
+  import DocsHighlight from '@/components/docs/DocsHighlight.vue'
+
   // Composables
   import { useAsk } from '@/composables/useAsk'
   import { useDiscovery } from '@/composables/useDiscovery'
@@ -101,5 +104,8 @@
     <Transition :name="slideTransition">
       <AppSettingsSheet v-if="settings.isOpen.value" />
     </Transition>
+
+    <DocsApiHover />
+    <DocsHighlight />
   </div>
 </template>

@@ -7,7 +7,6 @@
 
   // Components
   import AppMeshBg from '@/components/app/AppMeshBg.vue'
-  import DocsHighlight from '@/components/docs/DocsHighlight.vue'
 
   // Composables
   import { useScrollPersist } from './composables/useScrollPersist'
@@ -56,9 +55,6 @@
     <router-view />
   </main>
 
-  <DocsApiHover />
-
-  <DocsHighlight />
 </template>
 
 <style>

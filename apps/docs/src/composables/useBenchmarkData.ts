@@ -2,11 +2,10 @@
 import { createFilter, createGroup } from '@vuetify/v0'
 
 // Utilities
-import { computed, onBeforeMount, shallowRef } from 'vue'
+import { type ComputedRef, type MaybeRefOrGetter, type ShallowRef, computed, onBeforeMount, shallowRef, toValue, watch } from 'vue'
 
 // Types
 import type { GroupContext } from '@vuetify/v0'
-import type { ComputedRef, ShallowRef } from 'vue'
 
 export interface RawBenchmarkEntry {
   id: string
@@ -90,6 +89,8 @@ export interface BenchmarkSummary {
 export interface UseBenchmarkDataOptions {
   /** Restrict to a single composable (embed mode). Accepts a reactive getter. */
   composable?: string | (() => string | undefined)
+  /** Defer data loading until this value becomes truthy. */
+  trigger?: MaybeRefOrGetter<boolean>
 }
 
 export interface UseBenchmarkDataReturn {
@@ -277,7 +278,7 @@ export function useBenchmarkData (options?: UseBenchmarkDataOptions): UseBenchma
   const sortDesc = shallowRef(true)
 
   // Fetch full benchmark data
-  onBeforeMount(async () => {
+  async function load () {
     const m = await import('@/data/metrics.json')
     metricsData.value = m.default as Record<string, { benchmarks?: Record<string, { tier?: Tier }> }>
 
@@ -293,7 +294,15 @@ export function useBenchmarkData (options?: UseBenchmarkDataOptions): UseBenchma
         isLoading.value = false
       }
     }
-  })
+  }
+
+  if (options?.trigger) {
+    watch(() => toValue(options.trigger), value => {
+      if (value) load()
+    }, { once: true, immediate: true })
+  } else {
+    onBeforeMount(load)
+  }
 
   // Normalized composables
   const composables = computed<NormalizedComposable[]>(() => {
