@@ -1,6 +1,6 @@
 {
   "name": "@vuetify/v0",
-  "version": "0.1.12",
+  "version": "0.1.13",
   "description": "A meta UI framework for building applications, component libraries, and design systems with Vue 3",
   "license": "MIT",
   "types": "./dist/index.d.mts",
