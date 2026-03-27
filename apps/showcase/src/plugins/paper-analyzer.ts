@@ -121,21 +121,23 @@ function analyzePackage (target: PaperAnalyzerTarget, root: string): AnalysisRes
 export function paperAnalyzer (options: PaperAnalyzerOptions): Plugin {
   const analyses = new Map<string, AnalysisResult & { coverage: CoverageReport }>()
   let root = ''
+  let isDev = false
 
   return {
     name: 'paper-analyzer',
     configResolved (config) {
       root = config.root
+      isDev = config.command === 'serve'
     },
     buildStart () {
       for (const target of options.targets) {
         const result = analyzePackage(target, root)
         analyses.set(target.slug, result)
 
-        if (result.coverage.stubs.length > 0) {
+        if (isDev && result.coverage.stubs.length > 0) {
           this.warn(`[paper-analyzer] ${target.slug}: ${result.coverage.stubs.length} exports missing from manifest: ${result.coverage.stubs.join(', ')}`)
         }
-        if (result.coverage.missing.length > 0) {
+        if (isDev && result.coverage.missing.length > 0) {
           this.warn(`[paper-analyzer] ${target.slug}: ${result.coverage.missing.length} manifest entries not found in exports: ${result.coverage.missing.join(', ')}`)
         }
       }
