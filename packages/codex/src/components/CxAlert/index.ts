@@ -6,3 +6,6 @@ export { default as CxAlertTitle } from './CxAlertTitle.vue'
 
 export type { CxAlertContentProps } from './CxAlertContent.vue'
 export { default as CxAlertContent } from './CxAlertContent.vue'
+
+export type { CxAlertDismissProps } from './CxAlertDismiss.vue'
+export { default as CxAlertDismiss } from './CxAlertDismiss.vue'

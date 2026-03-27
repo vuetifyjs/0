@@ -5,8 +5,6 @@
   import type { V0PaperProps } from '@vuetify/paper'
 
   export interface CxExampleProps extends V0PaperProps {
-    /** Optional title for the example */
-    title?: string
     /** Anchor id for deep linking */
     id?: string
   }
@@ -16,7 +14,6 @@
   defineOptions({ name: 'CxExample' })
 
   const {
-    title,
     id,
     ...paperProps
   } = defineProps<CxExampleProps>()
@@ -29,14 +26,7 @@
     as="div"
     class="codex-example"
   >
-    <div v-if="title" class="codex-example__header">
-      <span class="codex-example__title">{{ title }}</span>
-    </div>
-
-    <!-- Preview area (default slot) -->
-    <div class="codex-example__preview">
-      <slot />
-    </div>
+    <slot />
   </V0Paper>
 </template>
 
@@ -45,20 +35,5 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
-  }
-
-  .codex-example__header {
-    display: flex;
-    align-items: center;
-  }
-
-  .codex-example__title {
-    font-weight: 600;
-    font-size: 0.875rem;
-  }
-
-  .codex-example__preview {
-    display: flex;
-    flex-direction: column;
   }
 </style>

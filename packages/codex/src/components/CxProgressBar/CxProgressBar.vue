@@ -4,8 +4,6 @@
     value: number
     /** Color variant */
     color?: 'primary' | 'success' | 'warning' | 'error'
-    /** Show percentage label */
-    showLabel?: boolean
     /** Size variant */
     size?: 'sm' | 'md'
   }
@@ -17,7 +15,6 @@
   const {
     value,
     color = 'primary',
-    showLabel = true,
     size = 'sm',
   } = defineProps<CxProgressBarProps>()
 </script>
@@ -39,12 +36,7 @@
       />
     </div>
 
-    <span
-      v-if="showLabel"
-      class="codex-progress-bar__label"
-    >
-      {{ Math.round(value) }}%
-    </span>
+    <slot />
   </div>
 </template>
 
@@ -73,13 +65,5 @@
     height: 100%;
     border-radius: 9999px;
     transition: width 300ms ease;
-  }
-
-  .codex-progress-bar__label {
-    font-size: 0.75rem;
-    font-weight: 500;
-    font-variant-numeric: tabular-nums;
-    width: 3rem;
-    text-align: end;
   }
 </style>
