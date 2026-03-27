@@ -25,6 +25,15 @@ export interface DSComponent {
   examples?: DSExample[]
 }
 
+export interface DSSection {
+  /** Section title shown in nav */
+  title: string
+  /** URL slug for this section */
+  slug: string
+  /** Lazy-loaded page component */
+  component: () => Promise<{ default: Component }>
+}
+
 export interface DSManifest {
   /** Display name of the design system */
   name: string
@@ -32,10 +41,16 @@ export interface DSManifest {
   slug: string
   /** Component prefix (Em, Cx, Ox, etc.) */
   prefix: string
+  /** Short description */
+  description?: string
+  /** Package name for install instructions */
+  package?: string
   /** Design tokens */
   tokens: DSTokens
   /** Component inventory */
   components: DSComponent[]
+  /** Custom sections (rendered after overview, shown in nav) */
+  sections?: DSSection[]
   /** Optional plugin installer */
   plugin?: (app: any) => void
 }

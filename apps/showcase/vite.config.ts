@@ -11,6 +11,8 @@ export default defineConfig({
   ],
   define: {
     __DEV__: process.env.NODE_ENV !== 'production',
+    __VERSION__: '"0.1.0"',
+    __VITE_LOGGER_ENABLED__: 'false',
     __VUE_OPTIONS_API__: 'true',
     __VUE_PROD_DEVTOOLS__: 'false',
     __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: 'false',

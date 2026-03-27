@@ -7,6 +7,8 @@ registerDesignSystem({
   name: 'Codex',
   slug: 'codex',
   prefix: 'Cx',
+  description: 'Documentation design system — batteries-included components for building docs sites.',
+  package: '@paper/codex',
   tokens: codexTheme,
   components: [
     { name: 'CxButton', category: 'actions', description: 'Primary action button' },

@@ -89,7 +89,6 @@
         "!src/**/*.spec.ts"
       ],
       "ignoreDependencies": [
-        "shiki",
         "unocss"
       ]
     },
@@ -148,7 +147,6 @@
     },
     "apps/showcase": {
       "entry": [
-        "src/main.ts",
         "src/App.vue",
         "src/components/**/*.vue",
         "src/composables/*.ts",
@@ -156,6 +154,7 @@
         "vite.config.*"
       ],
       "ignoreDependencies": [
+        "@paper/emerald",
         "uno.css"
       ],
       "paths": {
