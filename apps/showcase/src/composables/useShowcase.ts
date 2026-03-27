@@ -26,11 +26,24 @@ export function useShowcase () {
     return [...new Set(ds.components.map(c => c.category))]
   }
 
+  function getComposable (slug: string, name: string) {
+    const ds = getDS(slug)
+    return ds?.composables?.find(c => c.name === name)
+  }
+
+  function getComposableCategories (slug: string): string[] {
+    const ds = getDS(slug)
+    if (!ds?.composables) return []
+    return [...new Set(ds.composables.map(c => c.category))]
+  }
+
   return {
     designSystems,
     getDS,
     getComponent,
     getCategories,
+    getComposable,
+    getComposableCategories,
     registerDesignSystem,
   }
 }
