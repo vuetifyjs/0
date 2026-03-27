@@ -1,20 +1,37 @@
 <script lang="ts">
-  import { V0Paper } from '@vuetify/paper'
+  // Framework
+  import { ExpansionPanel } from '@vuetify/v0'
 
   // Types
-  import type { V0PaperProps } from '@vuetify/paper'
+  import type { ID } from '@vuetify/v0'
 
-  export interface CxFaqProps extends V0PaperProps {}
+  export interface CxFaqProps {
+    /** Allow multiple items to be expanded simultaneously */
+    multiple?: boolean
+  }
 </script>
 
 <script setup lang="ts">
   defineOptions({ name: 'CxFaq' })
 
-  const {} = defineProps<CxFaqProps>()
+  const { multiple = true } = defineProps<CxFaqProps>()
+
+  const model = defineModel<ID | ID[]>()
 </script>
 
 <template>
-  <V0Paper as="div" class="codex-faq">
+  <ExpansionPanel.Root
+    v-model="model"
+    class="codex-faq"
+    :multiple
+  >
     <slot />
-  </V0Paper>
+  </ExpansionPanel.Root>
 </template>
+
+<style scoped>
+  .codex-faq {
+    display: flex;
+    flex-direction: column;
+  }
+</style>

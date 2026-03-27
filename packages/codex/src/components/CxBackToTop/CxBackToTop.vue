@@ -1,20 +1,64 @@
 <script lang="ts">
-  import { V0Paper } from '@vuetify/paper'
+  // Framework
+  import {
+    IN_BROWSER,
+    useDocumentEventListener,
+    useWindowEventListener,
+  } from '@vuetify/v0'
 
-  // Types
-  import type { V0PaperProps } from '@vuetify/paper'
+  // Utilities
+  import { shallowRef } from 'vue'
 
-  export interface CxBackToTopProps extends V0PaperProps {}
+  export interface CxBackToTopProps {
+    /** Label text for the button */
+    label?: string
+    /** Scroll behavior: 'smooth' or 'auto' */
+    behavior?: ScrollBehavior
+  }
 </script>
 
 <script setup lang="ts">
   defineOptions({ name: 'CxBackToTop' })
 
-  const {} = defineProps<CxBackToTopProps>()
+  const {
+    label = 'Back to Top \u2191',
+    behavior = 'smooth',
+  } = defineProps<CxBackToTopProps>()
+
+  const visible = shallowRef(false)
+
+  function update () {
+    if (!IN_BROWSER) return
+    visible.value = document.documentElement.scrollHeight > window.innerHeight + 1
+  }
+
+  useWindowEventListener('resize', update)
+  useDocumentEventListener('scroll', update)
+
+  function onClick () {
+    if (!IN_BROWSER) return
+    window.scrollTo({ top: 0, behavior })
+  }
 </script>
 
 <template>
-  <V0Paper as="button" class="codex-back-to-top">
-    <slot />
-  </V0Paper>
+  <button
+    v-if="visible"
+    class="codex-back-to-top"
+    type="button"
+    @click="onClick"
+  >
+    <slot>{{ label }}</slot>
+  </button>
 </template>
+
+<style scoped>
+  .codex-back-to-top {
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    font: inherit;
+  }
+</style>

@@ -1,20 +1,27 @@
 <script lang="ts">
-  import { V0Paper } from '@vuetify/paper'
-
-  // Types
-  import type { V0PaperProps } from '@vuetify/paper'
-
-  export interface CxKbdProps extends V0PaperProps {}
+  export interface CxKbdProps {}
 </script>
 
 <script setup lang="ts">
   defineOptions({ name: 'CxKbd' })
 
-  const {} = defineProps<CxKbdProps>()
+  defineProps<CxKbdProps>()
 </script>
 
 <template>
-  <V0Paper as="kbd" class="codex-kbd">
+  <kbd class="codex-kbd">
     <slot />
-  </V0Paper>
+  </kbd>
 </template>
+
+<style scoped>
+  .codex-kbd {
+    display: inline-block;
+    padding: 0.125em 0.375em;
+    border-radius: 0.25rem;
+    font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+    font-size: 0.75em;
+    line-height: 1.5;
+    vertical-align: baseline;
+  }
+</style>

@@ -1,20 +1,85 @@
 <script lang="ts">
-  import { V0Paper } from '@vuetify/paper'
-
-  // Types
-  import type { V0PaperProps } from '@vuetify/paper'
-
-  export interface CxProgressBarProps extends V0PaperProps {}
+  export interface CxProgressBarProps {
+    /** Progress value (0-100) */
+    value: number
+    /** Color variant */
+    color?: 'primary' | 'success' | 'warning' | 'error'
+    /** Show percentage label */
+    showLabel?: boolean
+    /** Size variant */
+    size?: 'sm' | 'md'
+  }
 </script>
 
 <script setup lang="ts">
   defineOptions({ name: 'CxProgressBar' })
 
-  const {} = defineProps<CxProgressBarProps>()
+  const {
+    value,
+    color = 'primary',
+    showLabel = true,
+    size = 'sm',
+  } = defineProps<CxProgressBarProps>()
 </script>
 
 <template>
-  <V0Paper as="div" class="codex-progress-bar">
-    <slot />
-  </V0Paper>
+  <div class="codex-progress-bar">
+    <div
+      aria-valuemax="100"
+      aria-valuemin="0"
+      :aria-valuenow="Math.round(value)"
+      class="codex-progress-bar__track"
+      :class="size === 'sm' ? 'codex-progress-bar__track--sm' : 'codex-progress-bar__track--md'"
+      role="progressbar"
+    >
+      <div
+        class="codex-progress-bar__fill"
+        :class="`bg-${color}`"
+        :style="{ width: `${Math.min(100, Math.max(0, value))}%` }"
+      />
+    </div>
+
+    <span
+      v-if="showLabel"
+      class="codex-progress-bar__label"
+    >
+      {{ Math.round(value) }}%
+    </span>
+  </div>
 </template>
+
+<style scoped>
+  .codex-progress-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .codex-progress-bar__track {
+    flex: 1;
+    border-radius: 9999px;
+    overflow: hidden;
+  }
+
+  .codex-progress-bar__track--sm {
+    height: 0.5rem;
+  }
+
+  .codex-progress-bar__track--md {
+    height: 0.75rem;
+  }
+
+  .codex-progress-bar__fill {
+    height: 100%;
+    border-radius: 9999px;
+    transition: width 300ms ease;
+  }
+
+  .codex-progress-bar__label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    width: 3rem;
+    text-align: end;
+  }
+</style>
