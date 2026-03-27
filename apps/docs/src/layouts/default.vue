@@ -1,7 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { IN_BROWSER, Scrim, useBreakpoints, useRtl, useStack, useStorage } from '@vuetify/v0'
-  import { isUndefined } from '@vuetify/v0/utilities'
+  import { IN_BROWSER, Scrim, useBreakpoints, useStack } from '@vuetify/v0'
 
   // Components
   import DocsHighlight from '@/components/docs/DocsHighlight.vue'
@@ -35,16 +34,6 @@
   const breakpoints = useBreakpoints()
   const discovery = useDiscovery()
 
-  // Restore persisted RTL preference
-  const rtl = useRtl()
-  const storage = useStorage()
-  const savedRtl = storage.get<boolean>('rtl')
-  if (!isUndefined(savedRtl.value)) rtl.isRtl.value = savedRtl.value
-
-  // Persist RTL changes
-  watch(rtl.isRtl, value => {
-    storage.set('rtl', value)
-  })
   const ask = useAsk()
   const search = useSearch()
   const settings = useSettings()

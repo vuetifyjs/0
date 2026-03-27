@@ -100,6 +100,63 @@ flowchart LR
   install --> app.runWithContext
 ```
 
+## Persistence
+
+Plugins can automatically save and restore state across page reloads using `useStorage`. Add `persist` and `restore` hooks to the plugin config, then consumers opt in with `persist: true`.
+
+### Plugin author
+
+Define what to save and how to restore in the `createPluginContext` config:
+
+```ts collapse no-filename
+import { createPluginContext } from '@vuetify/v0'
+
+export const [createThemeContext, createThemePlugin, useTheme] =
+  createPluginContext('v0:theme', createTheme, {
+    setup: (context, app, options) => {
+      // adapter setup...
+    },
+    // Return the value to save — called reactively
+    persist: ctx => ctx.selectedId.value,
+    // Apply saved value on load — called before setup
+    restore: (ctx, saved) => ctx.select(saved),
+  })
+```
+
+### Consumer
+
+```ts no-filename
+app.use(createThemePlugin({ persist: true }))
+```
+
+When `persist: true` is passed, the plugin automatically:
+
+1. Reads from `useStorage` using the plugin namespace as key
+2. Calls `restore` with the saved value before `setup` runs
+3. Watches the `persist` return value and writes changes to storage
+
+> [!TIP]
+> The `default` option becomes the true default — it's only used when no persisted value exists.
+
+### Lifecycle
+
+```mermaid "Persist Lifecycle"
+flowchart LR
+  A[provide] --> B[restore]
+  B --> C[setup]
+  C --> D["watch(persist)"]
+```
+
+The critical ordering is **restore before setup**. This means adapters (like the theme CSS variable injector) see the correct restored state on their first run — no flash of wrong values.
+
+### Built-in support
+
+| Plugin | Persists | Storage key |
+|--------|----------|-------------|
+| `createThemePlugin` | Selected theme ID | `v0:theme` |
+| `createRtlPlugin` | RTL direction | `v0:rtl` |
+| `createLocalePlugin` | Selected locale | `v0:locale` |
+
 ## Examples
 
 ::: example

@@ -17,7 +17,7 @@
           if (!theme || theme === 'system') {
             theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
           }
-          if (!(theme in valid)) theme = 'light'
+          if (!(theme in valid)) theme = 'dark'
           document.documentElement.dataset.theme = theme
           document.documentElement.style.colorScheme = theme in light ? 'light' : 'dark'
           // Force dark page background before CSS loads to prevent white flash
