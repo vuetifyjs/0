@@ -32,21 +32,24 @@ const FORMAT_TOKEN_REGEX = /YYYY|YY|MMMM|MMM|MM|M|dddd|ddd|DD|D|HH|H|hh|h|mm|m|s
 /** Maximum cache size to prevent memory leaks */
 const MAX_CACHE_SIZE = 50
 
-/** Derive first day of week from locale using Intl.Locale */
-function deriveFirstDayOfWeek (locale: string): number {
+/** Derive week info from locale using Intl.Locale */
+function deriveWeekInfo (locale: string): { firstDay: number, minimalDays: number } {
   try {
     const loc = new Intl.Locale(locale)
     const info = (loc as any).getWeekInfo?.() ?? (loc as any).weekInfo
     // Intl weekInfo.firstDay: 1=Mon...7=Sun, convert to 0=Sun...6=Sat
-    return info?.firstDay === 7 ? 0 : info?.firstDay ?? 0
+    const firstDay = info?.firstDay === 7 ? 0 : info?.firstDay ?? 0
+    const minimalDays = info?.minimalDays ?? 1
+    return { firstDay, minimalDays }
   } catch {
-    return 0
+    return { firstDay: 0, minimalDays: 1 }
   }
 }
 
 export class Vuetify0DateAdapter implements DateAdapter<PlainDateTime> {
   private _locale: string
   private _firstDayOfWeek = 0
+  private _minimalDays = 1
 
   /** Cache for Intl.DateTimeFormat instances, keyed by locale + options */
   private formatCache = new Map<string, Intl.DateTimeFormat>()
@@ -56,7 +59,9 @@ export class Vuetify0DateAdapter implements DateAdapter<PlainDateTime> {
 
   constructor (locale = 'en-US') {
     this._locale = locale
-    this._firstDayOfWeek = deriveFirstDayOfWeek(locale)
+    const info = deriveWeekInfo(locale)
+    this._firstDayOfWeek = info.firstDay
+    this._minimalDays = info.minimalDays
   }
 
   /** Current locale. Setting a new locale clears format caches. */
@@ -71,7 +76,9 @@ export class Vuetify0DateAdapter implements DateAdapter<PlainDateTime> {
   set locale (value: string) {
     if (this._locale !== value) {
       this._locale = value
-      this._firstDayOfWeek = deriveFirstDayOfWeek(value)
+      const info = deriveWeekInfo(value)
+      this._firstDayOfWeek = info.firstDay
+      this._minimalDays = info.minimalDays
       this.formatCache.clear()
       this.numberFormatCache.clear()
     }
@@ -572,7 +579,8 @@ export class Vuetify0DateAdapter implements DateAdapter<PlainDateTime> {
     }
   }
 
-  getWeek (date: PlainDateTime, minimalDays = 1): number {
+  getWeek (date: PlainDateTime, minimalDays?: number): number {
+    const md = minimalDays ?? this._minimalDays
     const currentWeekStart = this.startOfWeek(date)
     const currentWeekEnd = this.addDays(currentWeekStart, 6)
 
@@ -580,14 +588,14 @@ export class Vuetify0DateAdapter implements DateAdapter<PlainDateTime> {
     if (year < this.getYear(currentWeekEnd)) {
       const nextYearStart = new Temporal.PlainDateTime(year + 1, 1, 1)
       const nextYearFirstWeekSize = 7 - this.getDiff(nextYearStart, this.startOfWeek(nextYearStart), 'days')
-      if (nextYearFirstWeekSize >= minimalDays) {
+      if (nextYearFirstWeekSize >= md) {
         year++
       }
     }
 
     const yearStart = new Temporal.PlainDateTime(year, 1, 1)
     const firstWeekSize = 7 - this.getDiff(yearStart, this.startOfWeek(yearStart), 'days')
-    const weekOneStart = firstWeekSize >= minimalDays
+    const weekOneStart = firstWeekSize >= md
       ? yearStart.add({ days: firstWeekSize }).add({ weeks: -1 })
       : yearStart.add({ days: firstWeekSize })
     return 1 + this.getDiff(currentWeekStart, weekOneStart, 'weeks')
