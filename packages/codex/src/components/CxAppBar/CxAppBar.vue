@@ -23,7 +23,7 @@
   <V0Paper
     v-bind="paperProps"
     as="header"
-    class="codex-app-bar"
+    class="codex-app-bar bg-surface border-b border-divider"
     data-app-bar
     :style="{ height }"
   >

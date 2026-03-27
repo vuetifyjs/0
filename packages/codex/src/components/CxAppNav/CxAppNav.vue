@@ -36,7 +36,7 @@
     v-bind="paperProps"
     aria-label="Main navigation"
     as="nav"
-    class="codex-app-nav"
+    class="codex-app-nav bg-surface border-e border-divider"
     :data-open="open || undefined"
     :style="{ width }"
   >

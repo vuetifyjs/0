@@ -26,7 +26,7 @@
   <V0Paper
     v-bind="paperProps"
     as="main"
-    class="codex-app-main"
+    class="codex-app-main bg-background"
     :style="{
       '--codex-app-main-nav-width': navWidth,
       '--codex-app-main-max-width': maxWidth,
