@@ -26,14 +26,12 @@
       "development": "./src/index.ts",
       "default": "./dist/index.mjs"
     },
-    "./package.json": "./package.json",
-    "./style.css": "./dist/style.css"
+    "./package.json": "./package.json"
   },
   "publishConfig": {
     "exports": {
       ".": "./dist/index.mjs",
-      "./package.json": "./package.json",
-      "./style.css": "./dist/style.css"
+      "./package.json": "./package.json"
     }
   },
   "dependencies": {
