@@ -32,18 +32,33 @@ const FORMAT_TOKEN_REGEX = /YYYY|YY|MMMM|MMM|MM|M|dddd|ddd|DD|D|HH|H|hh|h|mm|m|s
 /** Maximum cache size to prevent memory leaks */
 const MAX_CACHE_SIZE = 50
 
-/** Derive week info from locale using Intl.Locale */
+/**
+ * Derive week info from locale.
+ *
+ * Uses Intl.Locale.getWeekInfo() when available, with a hardcoded
+ * fallback table for minimalDays (not available in all runtimes).
+ * Data sourced from CLDR via Intl.Locale.getWeekInfo() spec.
+ */
 function deriveWeekInfo (locale: string): { firstDay: number, minimalDays: number } {
   try {
     const loc = new Intl.Locale(locale)
     const info = (loc as any).getWeekInfo?.() ?? (loc as any).weekInfo
     // Intl weekInfo.firstDay: 1=Mon...7=Sun, convert to 0=Sun...6=Sat
     const firstDay = info?.firstDay === 7 ? 0 : info?.firstDay ?? 0
-    const minimalDays = info?.minimalDays ?? 1
+    const minimalDays = info?.minimalDays ?? deriveMinimalDays(locale)
     return { firstDay, minimalDays }
   } catch {
     return { firstDay: 0, minimalDays: 1 }
   }
+}
+
+/** Fallback minimalDays lookup when Intl.Locale doesn't provide it */
+function deriveMinimalDays (locale: string): number {
+  const code = locale.slice(-2).toUpperCase()
+  // ISO 8601 regions using minimalDays=4 (first week must contain Thursday)
+  const md4 = 'AD AN AT AX BE BG CH CZ DE DK EE ES FI FJ FO FR GB GF GP GR HU IE IS IT LI LT LU MC MQ NL NO PL PT RE RU SE SK SM VA'
+  if (md4.includes(code)) return 4
+  return 1
 }
 
 export class Vuetify0DateAdapter implements DateAdapter<PlainDateTime> {
