@@ -1,2 +1,2 @@
-export type { CxTocProps } from './CxToc.vue'
+export type { CxTocHeading, CxTocProps } from './CxToc.vue'
 export { default as CxToc } from './CxToc.vue'
