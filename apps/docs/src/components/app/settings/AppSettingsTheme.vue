@@ -307,7 +307,14 @@
             label="Dot grid pattern"
           />
           <AppSettingsToggle
+            v-model="settings.showMeshGrid.value"
+            description="Colorful gradient background"
+            label="Mesh gradient"
+          />
+          <AppSettingsToggle
+            v-if="settings.showMeshGrid.value"
             v-model="settings.showMeshTransition.value"
+            class="ml-4"
             description="Animate background on scroll"
             label="Mesh transition"
           />

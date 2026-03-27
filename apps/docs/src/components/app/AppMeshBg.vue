@@ -13,7 +13,7 @@
   const toggle = useThemeToggle()
   const { isDark } = toggle
 
-  const showMesh = toRef(() => toggle.preference.value !== 'high-contrast')
+  const showMesh = toRef(() => settings.showMeshGrid.value && toggle.preference.value !== 'high-contrast')
   const showBottomMesh = shallowRef(false)
 
   useWindowEventListener('scroll', () => {
