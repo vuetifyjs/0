@@ -113,22 +113,26 @@
       <!-- Code panel -->
       <div class="demo-code rounded-xl border overflow-hidden bg-surface flex flex-col h-[350px] md:h-[510px]">
         <Tabs.Root v-model="activeTab">
-          <Tabs.List class="px-2 py-2 bg-surface-tint border-b flex items-center gap-2" label="Code examples">
-            <Tabs.Item
-              as="button"
-              class="px-3 py-1 rounded-md text-xs font-medium transition-colors text-on-surface opacity-60 hover:opacity-100 hover:bg-surface-variant data-[selected]:bg-primary data-[selected]:text-on-primary data-[selected]:opacity-100 data-[selected]:hover:bg-primary"
-              value="composable"
-            >
-              Composable
-            </Tabs.Item>
+          <div class="px-2 py-2 bg-surface-tint border-b flex items-center gap-2">
+            <Tabs.List class="flex items-center gap-2" label="Code examples">
+              <Tabs.Item v-slot="{ attrs }" renderless value="composable">
+                <button
+                  v-bind="{ ...attrs, 'aria-controls': undefined }"
+                  class="px-3 py-1 rounded-md text-xs font-medium transition-colors text-on-surface opacity-60 hover:opacity-100 hover:bg-surface-variant data-[selected]:bg-primary data-[selected]:text-on-primary data-[selected]:opacity-100 data-[selected]:hover:bg-primary"
+                >
+                  Composable
+                </button>
+              </Tabs.Item>
 
-            <Tabs.Item
-              as="button"
-              class="px-3 py-1 rounded-md text-xs font-medium transition-colors text-on-surface opacity-60 hover:opacity-100 hover:bg-surface-variant data-[selected]:bg-primary data-[selected]:text-on-primary data-[selected]:opacity-100 data-[selected]:hover:bg-primary"
-              value="component"
-            >
-              Component
-            </Tabs.Item>
+              <Tabs.Item v-slot="{ attrs }" renderless value="component">
+                <button
+                  v-bind="{ ...attrs, 'aria-controls': undefined }"
+                  class="px-3 py-1 rounded-md text-xs font-medium transition-colors text-on-surface opacity-60 hover:opacity-100 hover:bg-surface-variant data-[selected]:bg-primary data-[selected]:text-on-primary data-[selected]:opacity-100 data-[selected]:hover:bg-primary"
+                >
+                  Component
+                </button>
+              </Tabs.Item>
+            </Tabs.List>
 
             <div class="flex-1" />
 
@@ -138,7 +142,7 @@
               playground
               show-copy
             />
-          </Tabs.List>
+          </div>
         </Tabs.Root>
 
         <div

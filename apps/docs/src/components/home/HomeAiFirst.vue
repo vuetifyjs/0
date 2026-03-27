@@ -75,6 +75,7 @@
           <AppAskInline v-else />
 
           <router-link
+            :aria-label="`Learn more about ${feature.title}`"
             class="self-start mt-1 text-xs text-primary/70 hover:text-primary transition-colors inline-flex items-center gap-1"
             :to="feature.to"
           >
