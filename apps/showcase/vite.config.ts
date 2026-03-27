@@ -4,10 +4,20 @@ import UnocssVitePlugin from 'unocss/vite'
 import Vue from 'unplugin-vue/rolldown'
 import { defineConfig } from 'vite'
 
+import { paperAnalyzer } from './src/plugins/paper-analyzer'
+
 export default defineConfig({
   plugins: [
     Vue(),
     UnocssVitePlugin(),
+    paperAnalyzer({
+      targets: [{
+        slug: 'codex',
+        package: '@paper/codex',
+        manifestComponents: [],
+        manifestComposables: [],
+      }],
+    }),
   ],
   define: {
     __DEV__: process.env.NODE_ENV !== 'production',
