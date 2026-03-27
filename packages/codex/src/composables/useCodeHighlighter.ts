@@ -55,8 +55,10 @@ async function load (
 
   loading = (async () => {
     try {
-      // @ts-expect-error shiki is an optional peer dependency
-      const { createHighlighter } = await import('shiki')
+      // Dynamic import with variable to prevent Vite static analysis
+      // shiki is an optional peer dependency
+      const module = 'shiki'
+      const { createHighlighter } = await import(/* @vite-ignore */ module)
 
       instance = await createHighlighter({
         themes: [theme],

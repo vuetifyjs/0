@@ -10,18 +10,18 @@
 
 <template>
   <CxDocLayout>
-    <CxAppBar>
+    <CxAppBar class="bg-surface border-b border-divider px-4">
       <CxAppBarStart>
-        <router-link class="font-bold text-lg" to="/">Paper Showcase</router-link>
+        <router-link class="font-bold text-lg text-on-surface" to="/">Paper Showcase</router-link>
       </CxAppBarStart>
       <CxAppBarEnd />
     </CxAppBar>
 
-    <CxAppNav>
+    <CxAppNav class="bg-surface border-r border-divider pt-14 px-2">
       <ShowcaseNav />
     </CxAppNav>
 
-    <CxAppMain>
+    <CxAppMain class="pt-16 px-8">
       <router-view />
     </CxAppMain>
   </CxDocLayout>
