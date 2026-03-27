@@ -82,6 +82,17 @@
         "sass"
       ]
     },
+    "packages/codex": {
+      "project": [
+        "src/**/*.{ts,vue}",
+        "!src/**/*.test.ts",
+        "!src/**/*.spec.ts"
+      ],
+      "ignoreDependencies": [
+        "shiki",
+        "unocss"
+      ]
+    },
     "apps/playground": {
       "entry": [
         "src/App.vue",

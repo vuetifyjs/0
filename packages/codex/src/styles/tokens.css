@@ -1,0 +1,36 @@
+:root {
+  /* Easing */
+  --ease-snappy-in: cubic-bezier(0.32, 0, 0.67, 0);
+  --ease-snappy-out: cubic-bezier(0.33, 1, 0.68, 1);
+  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --ease-reveal: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Durations */
+  --duration-fast: 100ms;
+  --duration-normal: 200ms;
+  --duration-slow: 300ms;
+  --duration-reveal: 600ms;
+
+  /* Stagger */
+  --reveal-stagger: 80ms;
+
+  /* Z-Index Layers */
+  --z-content: 1;
+  --z-chrome: 100;
+  --z-dropdown: 200;
+  --z-modal: 500;
+  --z-overlay: 1000;
+}
+
+/* Scroll reveal animation */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(1.5rem);
+  transition: opacity var(--duration-reveal) var(--ease-reveal),
+              transform var(--duration-reveal) var(--ease-reveal);
+}
+
+[data-reveal][data-visible] {
+  opacity: 1;
+  transform: translateY(0);
+}
