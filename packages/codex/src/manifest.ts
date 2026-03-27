@@ -17,12 +17,38 @@ export interface DSExample {
   component: () => Promise<{ default: Component }>
 }
 
+export interface DSComposableReturn {
+  name: string
+  type: string
+  description?: string
+}
+
+export interface DSComposable {
+  name: string
+  description: string
+  category: string
+  signature?: string
+  returns?: DSComposableReturn[]
+  examples?: DSExample[]
+  v0?: string
+}
+
+export interface DSProp {
+  name: string
+  type: string
+  default?: string
+  description?: string
+  options?: string[]
+}
+
 export interface DSComponent {
   name: string
   description?: string
   category: string
   subComponents?: string[]
   examples?: DSExample[]
+  props?: DSProp[]
+  v0?: string
 }
 
 export interface DSSection {
@@ -53,4 +79,13 @@ export interface DSManifest {
   sections?: DSSection[]
   /** Optional plugin installer */
   plugin?: (app: any) => void
+  /** Composable inventory */
+  composables?: DSComposable[]
+  /** v0 primitive links by name */
+  v0Links?: Record<string, string>
+  /** Build-time analyzer configuration */
+  analyzer?: {
+    package: string
+    importMap?: string
+  }
 }
