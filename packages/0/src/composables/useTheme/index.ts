@@ -289,8 +289,9 @@ export function createTheme<
   const names = toRef(() => registry.keys())
   const colors = computed(() => {
     const resolved = {} as Record<ID, Colors>
+    const currentId = registry.selectedId.value
     for (const theme of registry.values() as InternalTicket[]) {
-      if (theme.lazy && theme.id !== registry.selectedId.value) continue
+      if (theme.lazy && theme.id !== currentId) continue
 
       const themeColors = resolve(theme.value as Colors)
 
