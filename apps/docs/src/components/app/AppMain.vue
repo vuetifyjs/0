@@ -16,7 +16,8 @@
   const ask = useAsk()
   const settings = useSettings()
   const page = shallowRef<{ frontmatter?: Record<string, unknown> }>()
-  const mainRef = useTemplateRef<HTMLElement>('main')
+  const mainComponent = useTemplateRef<{ $el: HTMLElement }>('main')
+  const mainRef = toRef(() => mainComponent.value?.$el)
   const pageTransition = toRef(() => settings.prefersReducedMotion.value ? undefined : 'page')
 
   function onLeave (_el: Element, done: () => void) {
