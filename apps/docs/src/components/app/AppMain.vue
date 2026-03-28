@@ -42,11 +42,11 @@
 </script>
 
 <template>
-  <main
+  <HxAppMain
     id="main-content"
     ref="main"
     :class="[
-      'pa-4 pb-6 ms-0 md:ms-[230px] relative z-0',
+      'pa-4 pb-6 z-0',
       !settings.prefersReducedMotion.value && 'transition-[padding] duration-200',
       ask.isOpen.value ? 'xl:pe-[calc(clamp(280px,calc(100vw-230px-730px-64px),500px)+32px)]' : 'xl:pe-[232px]',
     ]"
@@ -68,7 +68,7 @@
     </div>
 
     <DocsToc />
-  </main>
+  </HxAppMain>
 </template>
 
 <style>
