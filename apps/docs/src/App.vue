@@ -240,6 +240,11 @@
       margin-bottom: 0.5rem;
     }
 
+    pre.shiki {
+      padding-inline: 0;
+      padding-bottom: 0;
+    }
+
     .shiki {
       overflow: hidden;
     }
