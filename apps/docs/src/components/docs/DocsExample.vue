@@ -2,9 +2,6 @@
   // Framework
   import { createOverflow, isUndefined, Tabs } from '@vuetify/v0'
 
-  // Components
-  import DocsSkeleton from './DocsSkeleton.vue'
-
   // Composables
   import { getMultiFileBinUrl } from '@/composables/bin'
   import { useExamples } from '@/composables/useExamples'
@@ -209,7 +206,7 @@
           type="button"
           @click="toggleCode"
         >
-          <AppLoaderIcon v-if="isLoading" variant="orbit" />
+          <HxLoaderIcon v-if="isLoading" variant="orbit" />
           <AppIcon v-else-if="showCode && hasHighlightedCode" icon="chevron-up" :size="16" />
           <AppIcon v-else class="transition-colors group-hover:text-primary" icon="code" :size="16" />
           <span v-if="hasMultipleFiles" class="ml-auto opacity-60 font-mono text-[0.8125rem]">
@@ -237,7 +234,7 @@
       <div v-if="showSkeleton" class="border-t border-divider">
         <!-- Fake tab bar -->
         <div class="flex items-center gap-2 px-3 py-3 bg-surface border-b border-divider">
-          <DocsSkeleton
+          <HxSkeleton
             direction="row"
             gap="gap-2"
             height="h-[30px]"
@@ -247,7 +244,7 @@
         </div>
         <!-- Fake code area -->
         <div class="p-4 bg-pre">
-          <DocsSkeleton :lines="6" :widths="['w-1/4', 'w-3/4', 'w-1/2', 'w-2/3', 'w-1/3', 'w-4/5']" />
+          <HxSkeleton :lines="6" :widths="['w-1/4', 'w-3/4', 'w-1/2', 'w-2/3', 'w-1/3', 'w-4/5']" />
         </div>
       </div>
 

@@ -77,7 +77,7 @@
 <template>
   <div aria-label="Benchmark explorer" class="space-y-4" role="region">
     <!-- Loading state -->
-    <DocsSkeleton v-if="isLoading" class="h-48" />
+    <HxSkeleton v-if="isLoading" class="h-48" />
 
     <template v-else-if="composables.length > 0">
       <!-- Summary cards -->

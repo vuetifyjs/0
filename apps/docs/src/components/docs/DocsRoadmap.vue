@@ -2,10 +2,6 @@
   // Framework
   import { ExpansionPanel } from '@vuetify/v0'
 
-  // Components
-  import DocsProgressBar from './DocsProgressBar.vue'
-  import DocsSkeleton from './DocsSkeleton.vue'
-
   // Utilities
   import { computed, onBeforeMount, watch } from 'vue'
   import { useRoute, useRouter } from 'vue-router'
@@ -122,9 +118,9 @@
     <!-- Loading -->
     <div v-if="store.isLoading" class="space-y-8">
       <div v-for="i in 3" :key="i" class="space-y-4">
-        <DocsSkeleton height="h-6" :lines="1" :widths="['w-24']" />
+        <HxSkeleton height="h-6" :lines="1" :widths="['w-24']" />
         <div class="border border-divider rounded-lg p-4">
-          <DocsSkeleton gap="gap-3" :lines="3" :widths="['w-1/3', 'w-full', 'w-full']" />
+          <HxSkeleton gap="gap-3" :lines="3" :widths="['w-1/3', 'w-full', 'w-full']" />
         </div>
       </div>
     </div>
@@ -247,7 +243,7 @@
 
                 <!-- Loading issues -->
                 <div v-if="milestone.issuesLoading" class="p-4">
-                  <DocsSkeleton :lines="3" />
+                  <HxSkeleton :lines="3" />
                 </div>
 
                 <!-- Issues list -->

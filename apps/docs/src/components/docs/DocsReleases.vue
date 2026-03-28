@@ -5,9 +5,6 @@
   // Framework
   import { createFilter, IN_BROWSER, Popover, useDate } from '@vuetify/v0'
 
-  // Components
-  import DocsSkeleton from './DocsSkeleton.vue'
-
   // Composables
   import { useClipboard } from '@/composables/useClipboard'
 
@@ -339,7 +336,7 @@
 
     <!-- Loading skeleton -->
     <div v-else-if="store.isLoading" class="p-4">
-      <DocsSkeleton
+      <HxSkeleton
         gap="gap-4"
         :lines="4"
         :widths="['w-1/3', 'w-full', 'w-full', 'w-2/3']"
