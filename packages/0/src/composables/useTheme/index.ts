@@ -23,7 +23,7 @@ import { createSingle } from '#v0/composables/createSingle'
 import { createTokens, flatten } from '#v0/composables/createTokens'
 
 // Adapters
-import { Vuetify0ThemeAdapter } from '#v0/composables/useTheme/adapters'
+import { V0StyleSheetThemeAdapter } from '#v0/composables/useTheme/adapters'
 
 // Utilities
 import { foreground as foregroundFn } from '#v0/utilities'
@@ -38,7 +38,7 @@ import type { ID } from '#v0/types'
 import type { ComputedRef, Ref } from 'vue'
 
 // Exports
-export { Vuetify0ThemeAdapter } from '#v0/composables/useTheme/adapters'
+export { V0StyleSheetThemeAdapter, V0UnheadThemeAdapter, Vuetify0ThemeAdapter } from '#v0/composables/useTheme/adapters'
 
 export type { ThemeAdapter } from '#v0/composables/useTheme/adapters'
 
@@ -185,7 +185,7 @@ export interface ThemeOptions<Z extends ThemeRecord = ThemeRecord> extends Regis
   /**
    * The theme adapter to use.
    *
-   * @remarks Defaults to `Vuetify0ThemeAdapter`.
+   * @remarks Defaults to `V0StyleSheetThemeAdapter`.
    */
   adapter?: ThemeAdapter
   /**
@@ -380,11 +380,11 @@ export const [createThemeContext, createThemePlugin, useTheme] =
     options => createTheme(options),
     {
       fallback: () => createThemeFallback(),
-      setup: (context, app, { adapter = new Vuetify0ThemeAdapter(), target, rgb }) => {
+      setup: (context, app, { adapter = new V0StyleSheetThemeAdapter(), target, rgb }) => {
         if (rgb) adapter.rgb = true
         adapter.setup(app, context, target)
       },
       persist: ctx => ctx.selectedId.value,
-      restore: (ctx, saved) => ctx.select(saved),
+      restore: (ctx, saved) => ctx.select(saved as ID),
     },
   )

@@ -6,7 +6,7 @@
  *
  * @example
  * ```ts
- * import { Vuetify0ThemeAdapter } from '@vuetify/v0/theme/adapters'
+ * import { V0StyleSheetThemeAdapter, V0UnheadThemeAdapter } from '@vuetify/v0/theme/adapters'
  * ```
  */
 

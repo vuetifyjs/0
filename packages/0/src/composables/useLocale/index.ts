@@ -188,6 +188,6 @@ export const [createLocaleContext, createLocalePlugin, useLocale] =
     {
       fallback: () => createLocaleFallback(),
       persist: ctx => ctx.selectedId.value,
-      restore: (ctx, saved) => ctx.select(saved),
+      restore: (ctx, saved) => ctx.select(saved as ID),
     },
   )

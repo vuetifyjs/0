@@ -65,6 +65,7 @@
       "./theme": "./dist/theme/index.mjs",
       "./theme/adapters": "./dist/theme/adapters/index.mjs",
       "./theme/adapters/v0": "./dist/theme/adapters/v0/index.mjs",
+      "./theme/adapters/unhead": "./dist/theme/adapters/unhead/index.mjs",
       "./types": "./dist/types/index.mjs",
       "./utilities": "./dist/utilities/index.mjs",
       "./package.json": "./package.json",
@@ -303,6 +304,10 @@
     "./theme/adapters/v0": {
       "development": "./src/theme/adapters/v0/index.ts",
       "default": "./dist/theme/adapters/v0/index.mjs"
+    },
+    "./theme/adapters/unhead": {
+      "development": "./src/theme/adapters/unhead/index.ts",
+      "default": "./dist/theme/adapters/unhead/index.mjs"
     },
     "./types": {
       "development": "./src/types/index.ts",

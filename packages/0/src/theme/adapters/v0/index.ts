@@ -3,7 +3,7 @@
  *
  * @example
  * ```ts
- * import { Vuetify0ThemeAdapter } from '@vuetify/v0/theme/adapters/v0'
+ * import { V0StyleSheetThemeAdapter } from '@vuetify/v0/theme/adapters/v0'
  * ```
  */
 

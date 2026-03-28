@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Adapters
-import { Vuetify0ThemeAdapter } from './adapters/v0'
+import { V0StyleSheetThemeAdapter } from './adapters/v0'
 
 // Utilities
 import { createApp, nextTick } from 'vue'
@@ -750,7 +750,7 @@ describe('useTheme', () => {
 
 describe('themeAdapter', () => {
   it('should generate CSS with data-theme selectors and variables', () => {
-    const adapter = new Vuetify0ThemeAdapter()
+    const adapter = new V0StyleSheetThemeAdapter()
 
     const css = adapter.generate(
       {
@@ -769,7 +769,7 @@ describe('themeAdapter', () => {
   })
 
   it('should generate dark color-scheme when isDark is true', () => {
-    const adapter = new Vuetify0ThemeAdapter()
+    const adapter = new V0StyleSheetThemeAdapter()
 
     const css = adapter.generate(
       { dark: { primary: '#90caf9' } },
