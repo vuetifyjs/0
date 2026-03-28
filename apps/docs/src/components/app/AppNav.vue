@@ -140,108 +140,114 @@
 </script>
 
 <template>
-  <Discovery.Activator
-    id="main-navigation"
+  <HxAppNav
     ref="nav"
-    active-class="rounded-lg"
-    aria-label="Main navigation"
-    as="nav"
-    class="flex flex-col fixed w-[230px] py-4 top-0 md:top-[72px] bottom-0"
     :class="[
-      'flex flex-col fixed w-[230px] overflow-y-auto py-4 top-0 md:top-[72px] bottom-0 start-0 ltr:-translate-x-full rtl:translate-x-full md:ltr:translate-x-0 md:rtl:translate-x-0 border-e border-solid border-divider',
+      'py-4 !flex -translate-x-full md:translate-x-0 rtl:translate-x-full md:rtl:translate-x-0',
       settings.showBgGlass.value ? 'bg-glass-surface' : 'bg-surface',
       navigation.isOpen.value && '!translate-x-0',
       !settings.prefersReducedMotion.value && 'transition-transform duration-200 ease-in-out',
     ]"
     :inert="!navigation.isOpen.value && isMobile ? true : undefined"
-    :padding="-4"
-    step="navigation"
-    :style="{ zIndex: isMobile ? ticket.zIndex.value : undefined }"
+    :open="navigation.isOpen.value"
+    :style="{
+      top: isMobile ? '0px' : '72px',
+      zIndex: isMobile ? ticket.zIndex.value : undefined,
+    }"
   >
-    <!-- Mobile header -->
-    <header class="md:hidden shrink-0 px-4 py-3 -mt-4 mb-4 border-b border-divider flex items-center justify-between bg-surface">
-      <div class="flex items-center gap-2">
-        <AppIcon class="text-primary" icon="menu" />
-        <span class="font-medium">Navigation</span>
+    <Discovery.Activator
+      id="main-navigation"
+      active-class="rounded-lg"
+      as="div"
+      class="flex flex-col h-full"
+      :padding="-4"
+      step="navigation"
+    >
+      <!-- Mobile header -->
+      <header class="md:hidden shrink-0 px-4 py-3 -mt-4 mb-4 border-b border-divider flex items-center justify-between bg-surface">
+        <div class="flex items-center gap-2">
+          <AppIcon class="text-primary" icon="menu" />
+          <span class="font-medium">Navigation</span>
+        </div>
+
+        <HxCloseButton label="Close navigation" @click="navigation.close" />
+      </header>
+
+      <!-- URL filter banner -->
+      <div v-if="navConfig.activeFeatures.value" class="-mt-4 px-4 py-3 mb-4 bg-surface-variant-50 border-b border-divider">
+        <p class="text-xs text-on-surface-variant mb-2">
+          Showing docs for your project
+        </p>
+        <button
+          class="text-xs text-primary hover:underline"
+          type="button"
+          @click="navConfig.clearFilter"
+        >
+          Show all docs
+        </button>
       </div>
 
-      <HxCloseButton label="Close navigation" @click="navigation.close" />
-    </header>
+      <ul class="flex gap-2 flex-col">
+        <template v-if="filteredOutPage">
+          <li class="px-4 section-label">
+            Active page
+          </li>
 
-    <!-- URL filter banner -->
-    <div v-if="navConfig.activeFeatures.value" class="-mt-4 px-4 py-3 mb-4 bg-surface-variant-50 border-b border-divider">
-      <p class="text-xs text-on-surface-variant mb-2">
-        Showing docs for your project
-      </p>
-      <button
-        class="text-xs text-primary hover:underline"
-        type="button"
-        @click="navConfig.clearFilter"
-      >
-        Show all docs
-      </button>
-    </div>
+          <li class="px-4">
+            <router-link
+              aria-current="page"
+              class="font-semibold text-primary underline"
+              :to="filteredOutPage.to"
+            >
+              {{ filteredOutPage.name }}
+            </router-link>
+          </li>
 
-    <ul class="flex gap-2 flex-col">
-      <template v-if="filteredOutPage">
-        <li class="px-4 section-label">
-          Active page
-        </li>
+          <li class="px-4">
+            <HxDivider />
+          </li>
+        </template>
 
-        <li class="px-4">
-          <router-link
-            aria-current="page"
-            class="font-semibold text-primary underline"
-            :to="filteredOutPage.to"
-          >
-            {{ filteredOutPage.name }}
-          </router-link>
-        </li>
+        <template v-for="(nav, i) in visibleNav" :key="i">
+          <li v-if="'divider' in nav" class="px-4">
+            <HxDivider />
+          </li>
 
-        <li class="px-4">
-          <HxDivider />
-        </li>
-      </template>
+          <AppNavLink
+            v-else-if="'to' in nav"
+            :id="nav.to"
+            class="px-4"
+            :devmode="nav.devmode"
+            :emphasized="nav.emphasized"
+            :name="nav.name"
+            :to="nav.to"
+          />
 
-      <template v-for="(nav, i) in visibleNav" :key="i">
-        <li v-if="'divider' in nav" class="px-4">
-          <HxDivider />
-        </li>
+          <AppNavLink
+            v-else
+            :id="`category-root-${i}`"
+            class="px-4"
+            :name="nav.name"
+          />
+        </template>
 
-        <AppNavLink
-          v-else-if="'to' in nav"
-          :id="nav.to"
-          class="px-4"
-          :devmode="nav.devmode"
-          :emphasized="nav.emphasized"
-          :name="nav.name"
-          :to="nav.to"
-        />
+        <template v-if="levelFilter.selectedLevels.size > 0">
+          <!-- Skip divider if Active page section already added one and nav has no real content -->
+          <li v-if="!filteredOutPage || hasNavContent" class="px-4">
+            <HxDivider />
+          </li>
 
-        <AppNavLink
-          v-else
-          :id="`category-root-${i}`"
-          class="px-4"
-          :name="nav.name"
-        />
-      </template>
-
-      <template v-if="levelFilter.selectedLevels.size > 0">
-        <!-- Skip divider if Active page section already added one and nav has no real content -->
-        <li v-if="!filteredOutPage || hasNavContent" class="px-4">
-          <HxDivider />
-        </li>
-
-        <li class="px-4">
-          <router-link
-            class="flex items-center gap-2 text-sm text-on-surface-variant hover:text-primary hover:underline transition-colors"
-            to="/guide/essentials/using-the-docs#skill-levels"
-          >
-            <AppIcon icon="info" size="16" />
-            <span>Missing pages?</span>
-          </router-link>
-        </li>
-      </template>
-    </ul>
-  </Discovery.Activator>
+          <li class="px-4">
+            <router-link
+              class="flex items-center gap-2 text-sm text-on-surface-variant hover:text-primary hover:underline transition-colors"
+              to="/guide/essentials/using-the-docs#skill-levels"
+            >
+              <AppIcon icon="info" size="16" />
+              <span>Missing pages?</span>
+            </router-link>
+          </li>
+        </template>
+      </ul>
+    </Discovery.Activator>
+  </HxAppNav>
 </template>
