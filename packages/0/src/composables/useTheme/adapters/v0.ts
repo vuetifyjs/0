@@ -17,8 +17,6 @@ export interface Vuetify0ThemeOptions {
   cspNonce?: string
   stylesheetId?: string
   prefix?: string
-  /** Selector to also inject theme vars on. Default: ':root'. False to disable. */
-  rootTarget?: string | false
 }
 
 /**
@@ -29,13 +27,11 @@ export interface Vuetify0ThemeOptions {
 export class Vuetify0ThemeAdapter extends ThemeAdapter {
   cspNonce?: string
   sheet?: CSSStyleSheet
-  rootTarget: string | false
 
   constructor (options: Vuetify0ThemeOptions = {}) {
     super(options.prefix ?? 'v0')
     this.cspNonce = options.cspNonce
     this.stylesheetId = options.stylesheetId ?? this.stylesheetId
-    this.rootTarget = options.rootTarget === undefined ? ':root' : options.rootTarget
   }
 
   override generate (
@@ -54,17 +50,6 @@ export class Vuetify0ThemeAdapter extends ThemeAdapter {
         .join('\n')
 
       css += `[data-theme="${theme}"] {\n${vars}\n}\n`
-    }
-
-    if (this.rootTarget !== false) {
-      const allVars = Object.values(colors)
-        .flatMap(themeColors => themeColors ? Object.entries(themeColors) : [])
-        .map(([key, val]) => `  --${this.prefix}-${key}: ${this.rgb ? this.decompose(val) : val};`)
-        .join('\n')
-
-      if (allVars) {
-        css += `${this.rootTarget} {\n${allVars}\n}\n`
-      }
     }
 
     if (!isUndefined(isDark)) {

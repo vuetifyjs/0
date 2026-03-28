@@ -58,7 +58,7 @@ export abstract class ThemeAdapter implements ThemeAdapterInterface {
     return css
   }
 
-  protected decompose (hex: string): string {
+  private decompose (hex: string): string {
     const { r, g, b, a } = hexToRgb(hex)
     return isUndefined(a) ? `${r}, ${g}, ${b}` : `${r}, ${g}, ${b}, ${a}`
   }
