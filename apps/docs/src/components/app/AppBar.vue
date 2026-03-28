@@ -3,7 +3,7 @@
   import { useAuthStore } from '@vuetify/auth'
 
   // Framework
-  import { Atom, useBreakpoints, useFeatures, useStorage } from '@vuetify/v0'
+  import { useBreakpoints, useFeatures, useStorage } from '@vuetify/v0'
 
   // Components
   import { Discovery } from '@/components/discovery'
@@ -16,11 +16,6 @@
   // Utilities
   import { toRef, watch } from 'vue'
   import { useRoute } from 'vue-router'
-
-  // Types
-  import type { AtomProps } from '@vuetify/v0'
-
-  const { as = 'header' } = defineProps<AtomProps>()
 
   const auth = useAuthStore()
   const navigation = useNavigation()
@@ -45,12 +40,11 @@
 </script>
 
 <template>
-  <Atom
-    :as
-    :class="['flex items-center justify-between h-[48px] fixed inset-x-0 top-[24px] px-3 text-on-surface border-b border-solid border-divider z-1', settings.showBgGlass.value ? 'bg-glass-surface' : 'bg-surface']"
-    data-app-bar
+  <HxAppBar
+    :class="['px-3 text-on-surface', settings.showBgGlass.value ? 'bg-glass-surface' : 'bg-surface']"
+    :style="{ top: '24px' }"
   >
-    <div class="flex items-center gap-2">
+    <HxAppBarStart>
       <router-link to="/">
         <img
           alt="Vuetify0 Logo"
@@ -98,9 +92,9 @@
           <kbd class="hidden md:inline-flex shrink-0 px-1.5 py-0.5 rounded bg-surface-tint text-on-surface-tint text-[10px] font-mono items-center rounded-r-lg">Ctrl+K</kbd>
         </button>
       </Discovery.Activator>
-    </div>
+    </HxAppBarStart>
 
-    <div class="flex align-center items-center gap-3">
+    <HxAppBarEnd class="gap-3">
       <AppSkillFilter v-if="!isHomePage && settings.showSkillFilter.value && breakpoints.width.value >= 440" />
 
       <AppThemeToggle v-if="isHomePage || settings.showThemeToggle.value" />
@@ -132,6 +126,6 @@
       <AppAccount v-if="!isHomePage" />
 
       <AppSettings v-if="!isHomePage && !auth.isAuthenticated" />
-    </div>
-  </Atom>
+    </HxAppBarEnd>
+  </HxAppBar>
 </template>
