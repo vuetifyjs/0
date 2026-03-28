@@ -241,7 +241,7 @@ export default async function MarkdownPlugin () {
         if (inlineToken?.type === 'inline' && inlineToken.content?.startsWith('??? ')) {
           const question = inlineToken.content.slice(4).trim()
           // Close previous FAQ item if one is open
-          const closeTag = env._inFaqItem ? '</DocsFaqItem>\n' : ''
+          const closeTag = env._inFaqItem ? '</HxFaqItem>\n' : ''
           env._inFaqItem = true
           env._faqQuestionPara = true
           inlineToken.content = ''

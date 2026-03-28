@@ -157,6 +157,8 @@ declare module 'vue' {
     HxCloseButton: typeof import('@paper/helix')['HxCloseButton']
     HxDivider: typeof import('@paper/helix')['HxDivider']
     HxExampleCode: typeof import('@paper/helix')['HxExampleCode']
+    HxFaq: typeof import('@paper/helix')['HxFaq']
+    HxFaqItem: typeof import('@paper/helix')['HxFaqItem']
     HxHeaderAnchor: typeof import('@paper/helix')['HxHeaderAnchor']
     HxLink: typeof import('@paper/helix')['HxLink']
     HxLoaderIcon: typeof import('@paper/helix')['HxLoaderIcon']
