@@ -20,6 +20,6 @@
         <p v-if="description" class="text-xs text-on-surface-variant/60">{{ description }}</p>
       </div>
     </div>
-    <AppSwitch v-model="model" :label="`Toggle ${label.toLowerCase()}`" />
+    <HxSwitch v-model="model" :label="`Toggle ${label.toLowerCase()}`" />
   </label>
 </template>

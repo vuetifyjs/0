@@ -326,7 +326,7 @@
           <span class="popover-name">{{ displayName }}</span>
           <span v-if="vueApi" class="popover-kind popover-kind-vue">{{ vueApi.category }}</span>
           <span v-else class="popover-kind" :class="`popover-kind-${activeApiType}`">{{ (activeApi as Api).kind }}</span>
-          <AppCloseButton class="ml-auto" @click.stop="hidePopover" />
+          <HxCloseButton class="ml-auto" @click.stop="hidePopover" />
         </div>
 
         <!-- Vue API content -->

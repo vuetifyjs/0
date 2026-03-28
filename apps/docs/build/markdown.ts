@@ -133,12 +133,12 @@ export default async function MarkdownPlugin () {
           if (tokens[index].nesting === 1) {
             const info = (tokens[index] as MarkdownToken & { info?: string }).info?.trim() || ''
             const isSingle = info.includes('single')
-            return `<DocsFaq :multiple="${!isSingle}">\n`
+            return `<HxFaq :multiple="${!isSingle}">\n`
           }
           // Close final FAQ item when container closes
-          const closeItem = env._inFaqItem ? '</DocsFaqItem>\n' : ''
+          const closeItem = env._inFaqItem ? '</HxFaqItem>\n' : ''
           delete env._inFaqItem
-          return `${closeItem}</DocsFaq>\n`
+          return `${closeItem}</HxFaq>\n`
         },
       })
 
@@ -246,7 +246,7 @@ export default async function MarkdownPlugin () {
           env._faqQuestionPara = true
           inlineToken.content = ''
           inlineToken.children = []
-          return `${closeTag}<DocsFaqItem question="${md.utils.escapeHtml(question)}">\n`
+          return `${closeTag}<HxFaqItem question="${md.utils.escapeHtml(question)}">\n`
         }
         return defaultParagraphOpen
           ? defaultParagraphOpen(tokens, index, options, env, self)

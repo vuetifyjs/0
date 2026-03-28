@@ -39,7 +39,7 @@
       <!-- Header -->
       <div class="flex items-center justify-between mb-2 ps-1">
         <span class="text-xs font-semibold text-on-surface">Skill Level</span>
-        <AppCloseButton size="sm" @click="isOpen = false" />
+        <HxCloseButton size="sm" @click="isOpen = false" />
       </div>
 
       <button

@@ -93,17 +93,17 @@
           v-for="api in componentApis"
           :key="api.name"
         >
-          <DocsHeaderAnchor
+          <HxHeaderAnchor
             :id="helpers.toKebab(api.name)"
             tag="h2"
           >
             {{ api.name }}
-          </DocsHeaderAnchor>
+          </HxHeaderAnchor>
 
           <template v-if="api.props.length > 0">
-            <DocsHeaderAnchor :id="`${helpers.toKebab(api.name)}-props`">
+            <HxHeaderAnchor :id="`${helpers.toKebab(api.name)}-props`">
               Props
-            </DocsHeaderAnchor>
+            </HxHeaderAnchor>
 
             <div class="space-y-4">
               <DocsApiCard
@@ -117,9 +117,9 @@
           </template>
 
           <template v-if="api.events.length > 0">
-            <DocsHeaderAnchor :id="`${helpers.toKebab(api.name)}-events`">
+            <HxHeaderAnchor :id="`${helpers.toKebab(api.name)}-events`">
               Events
-            </DocsHeaderAnchor>
+            </HxHeaderAnchor>
 
             <div class="space-y-4">
               <DocsApiCard
@@ -133,9 +133,9 @@
           </template>
 
           <template v-if="api.slots.length > 0">
-            <DocsHeaderAnchor :id="`${helpers.toKebab(api.name)}-slots`">
+            <HxHeaderAnchor :id="`${helpers.toKebab(api.name)}-slots`">
               Slots
-            </DocsHeaderAnchor>
+            </HxHeaderAnchor>
 
             <div class="space-y-4">
               <DocsApiCard
@@ -158,12 +158,12 @@
         <p class="lead">API reference for the {{ composableApi.name }} composable.</p>
 
         <template v-if="composableApi.functions?.length">
-          <DocsHeaderAnchor
+          <HxHeaderAnchor
             id="functions"
             tag="h2"
           >
             Functions
-          </DocsHeaderAnchor>
+          </HxHeaderAnchor>
 
           <div class="space-y-4">
             <DocsApiCard
@@ -177,12 +177,12 @@
         </template>
 
         <template v-if="composableApi.options?.length">
-          <DocsHeaderAnchor
+          <HxHeaderAnchor
             id="options"
             tag="h2"
           >
             Options
-          </DocsHeaderAnchor>
+          </HxHeaderAnchor>
 
           <div class="space-y-4">
             <DocsApiCard
@@ -196,13 +196,13 @@
         </template>
 
         <template v-if="composableApi.properties?.length">
-          <DocsHeaderAnchor
+          <HxHeaderAnchor
             id="properties"
             class="mt-8"
             tag="h2"
           >
             Properties
-          </DocsHeaderAnchor>
+          </HxHeaderAnchor>
 
           <div class="space-y-4">
             <DocsApiCard
@@ -216,13 +216,13 @@
         </template>
 
         <template v-if="composableApi.methods?.length">
-          <DocsHeaderAnchor
+          <HxHeaderAnchor
             id="methods"
             class="mt-8"
             tag="h2"
           >
             Methods
-          </DocsHeaderAnchor>
+          </HxHeaderAnchor>
 
           <div class="space-y-4">
             <DocsApiCard

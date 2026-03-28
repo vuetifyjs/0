@@ -12,7 +12,7 @@
 
     <DocsFeedback :frontmatter />
 
-    <DocsBackToTop />
+    <HxBackToTop />
 
     <DocsNavigator />
   </section>

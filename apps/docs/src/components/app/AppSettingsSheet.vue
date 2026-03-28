@@ -88,7 +88,7 @@
         <span id="settings-title" class="font-medium">Settings</span>
       </div>
 
-      <AppCloseButton label="Close settings" @click="settings.close" />
+      <HxCloseButton label="Close settings" @click="settings.close" />
     </header>
 
     <!-- Content -->

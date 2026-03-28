@@ -10,12 +10,12 @@
 
 <template>
   <template v-if="items?.length">
-    <DocsHeaderAnchor
+    <HxHeaderAnchor
       :id="anchorId"
       :class="$props.class"
     >
       {{ title }}
-    </DocsHeaderAnchor>
+    </HxHeaderAnchor>
 
     <div class="space-y-4">
       <DocsApiCard

@@ -50,7 +50,7 @@
 
 <template>
   <section v-if="links.length > 0" class="markdown-body mt-8">
-    <DocsHeaderAnchor id="related" tag="h2">Related</DocsHeaderAnchor>
+    <HxHeaderAnchor id="related" tag="h2">Related</HxHeaderAnchor>
 
     <p>Explore these related pages for additional context and usage patterns.</p>
 

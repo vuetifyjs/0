@@ -66,13 +66,13 @@
     class="mt-8 mb-12 markdown-body"
   >
     <div class="markdown-body flex items-center justify-between gap-4 mb-3">
-      <DocsHeaderAnchor
+      <HxHeaderAnchor
         id="api-reference"
         class="!my-0"
         tag="h2"
       >
         API Reference
-      </DocsHeaderAnchor>
+      </HxHeaderAnchor>
 
       <button
         class="text-sm text-primary hover:underline focus-visible:underline focus-visible:outline-none whitespace-nowrap"
@@ -95,9 +95,9 @@
       v-else
       :key="api.name"
     >
-      <DocsHeaderAnchor :id="helpers.toKebab(api.name)" class="mt-8">
+      <HxHeaderAnchor :id="helpers.toKebab(api.name)" class="mt-8">
         {{ api.name }}
-      </DocsHeaderAnchor>
+      </HxHeaderAnchor>
 
       <DocsApiSection
         :anchor-id="`${helpers.toKebab(api.name)}-props`"
@@ -129,13 +129,13 @@
     class="markdown-body mt-8 mb-12"
   >
     <div class="flex items-center justify-between gap-4 markdown-body">
-      <DocsHeaderAnchor
+      <HxHeaderAnchor
         id="api-reference"
         class="!mb-0"
         tag="h2"
       >
         API Reference
-      </DocsHeaderAnchor>
+      </HxHeaderAnchor>
 
       <button
         class="text-sm text-primary hover:underline focus-visible:underline focus-visible:outline-none whitespace-nowrap"

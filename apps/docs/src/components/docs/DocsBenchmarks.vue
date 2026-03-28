@@ -41,7 +41,7 @@
     v-if="hasBenchmarks && itemName"
     class="markdown-body mt-8"
   >
-    <DocsHeaderAnchor id="benchmarks" tag="h2">Benchmarks</DocsHeaderAnchor>
+    <HxHeaderAnchor id="benchmarks" tag="h2">Benchmarks</HxHeaderAnchor>
 
     <p>
       Every operation is profiled across multiple dataset sizes to measure real-world throughput.

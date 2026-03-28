@@ -216,7 +216,7 @@
             <AppIcon :icon="fullscreen ? 'fullscreen-exit' : 'fullscreen'" size="16" />
           </button>
 
-          <AppCloseButton @click="emit('close')" />
+          <HxCloseButton @click="emit('close')" />
         </div>
       </header>
     </Discovery.Activator>

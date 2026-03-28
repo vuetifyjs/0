@@ -165,7 +165,7 @@
         <span class="font-medium">Navigation</span>
       </div>
 
-      <AppCloseButton label="Close navigation" @click="navigation.close" />
+      <HxCloseButton label="Close navigation" @click="navigation.close" />
     </header>
 
     <!-- URL filter banner -->
