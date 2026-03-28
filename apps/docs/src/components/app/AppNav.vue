@@ -13,7 +13,7 @@
   import { useSettings } from '@/composables/useSettings'
 
   // Utilities
-  import { computed, onMounted, shallowRef, useTemplateRef, watch } from 'vue'
+  import { computed, onMounted, shallowRef, toRef, useTemplateRef, watch } from 'vue'
   import { useRoute } from 'vue-router'
 
   // Types
@@ -82,7 +82,8 @@
   const hasNavContent = computed(() =>
     visibleNav.value.some(item => !('divider' in item)),
   )
-  const navRef = useTemplateRef<HTMLElement>('nav')
+  const navComponent = useTemplateRef<{ $el: HTMLElement }>('nav')
+  const navRef = toRef(() => navComponent.value?.$el)
 
   // Match Tailwind's md breakpoint (768px) for nav visibility
   const isMobile = shallowRef(true)
