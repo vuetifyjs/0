@@ -57,6 +57,14 @@
   })
 
   const config = toRef(() => getCalloutConfig(props.type))
+  const interactive = toRef(() => props.type === 'askai' || props.type === 'discord' || props.type === 'tour')
+
+  const title = toRef(() => {
+    if (props.type === 'tour') {
+      return `Take a tour on: ${tour.value?.name ?? 'this feature'}`
+    }
+    return undefined
+  })
 
   function decodeQuestion (encoded: string): string {
     return decodeURIComponent(escape(atob(encoded)))
@@ -83,74 +91,30 @@
 </script>
 
 <template>
-  <div
-    class="my-4 rounded-lg border-s-4 px-4 py-3"
-    :class="config.classes"
-    :role="props.type === 'askai' || props.type === 'discord' || props.type === 'tour' ? 'button' : undefined"
-    :tabindex="props.type === 'askai' || props.type === 'discord' || props.type === 'tour' ? 0 : undefined"
+  <HxCallout
+    :interactive
+    :title
+    :type="props.type"
     @click="onClick"
-    @keydown.enter="onClick"
-    @keydown.space.prevent="onClick"
   >
+    <template #icon>
+      <AppIcon :icon="config.icon" :size="18" />
+    </template>
+
     <template v-if="props.type === 'askai'">
-      <div class="flex items-center gap-2 font-semibold mb-1">
-        <AppIcon :icon="config.icon" :size="18" />
-
-        <span>{{ config.title }}</span>
-      </div>
-
-      <div class="text-on-surface">
-        {{ props.question ? decodeQuestion(props.question) : '' }}
-      </div>
+      {{ props.question ? decodeQuestion(props.question) : '' }}
     </template>
 
     <template v-else-if="props.type === 'discord'">
-      <div class="flex items-center gap-2 font-semibold mb-1">
-        <AppIcon :icon="config.icon" :size="18" />
-
-        <span>{{ config.title }}</span>
-      </div>
-
-      <div class="text-on-surface">
-        Need help? Join our community for support and discussions ↗
-      </div>
+      Need help? Join our community for support and discussions ↗
     </template>
 
     <template v-else-if="props.type === 'tour'">
-      <div class="flex items-center gap-2 mb-1">
-        <AppIcon :icon="config.icon" :size="18" />
-
-        <span>
-          <span class="font-semibold">Take a tour on:</span>
-          {{ tour?.name ?? 'this feature' }}
-        </span>
-      </div>
-
-      <div class="text-on-surface">
-        {{ tour?.description ?? 'Click to start this interactive tour' }}
-      </div>
+      {{ tour?.description ?? 'Click to start this interactive tour' }}
     </template>
 
     <template v-else>
-      <div class="flex items-center gap-2 font-semibold mb-1">
-        <AppIcon :icon="config.icon" :size="18" />
-
-        <span>{{ config.title }}</span>
-      </div>
-
-      <div class="docs-alert-content text-on-surface">
-        <slot />
-      </div>
+      <slot />
     </template>
-  </div>
+  </HxCallout>
 </template>
-
-<style scoped>
-  .docs-alert-content :deep(> p:first-child) {
-    margin-top: 0;
-  }
-
-  .docs-alert-content :deep(> p:last-child) {
-    margin-bottom: 0;
-  }
-</style>

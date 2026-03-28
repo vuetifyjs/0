@@ -11,6 +11,7 @@
 
   // Types
   import type { NavItem } from '@/stores/app'
+  import type { HxPageNavigatorLink } from '@paper/helix'
 
   const navConfig = useNavConfigContext()
   const route = useRoute()
@@ -30,9 +31,16 @@
     return routes
   }
 
+  function toLink (path: string): HxPageNavigatorLink {
+    return {
+      label: path.split('/').pop()!.replace(/-/g, ' '),
+      to: path,
+    }
+  }
+
   // Use refs updated via watch to avoid reactivity timing issues during navigation
-  const prev = shallowRef<string | false>(false)
-  const next = shallowRef<string | false>(false)
+  const prev = shallowRef<HxPageNavigatorLink | false>(false)
+  const next = shallowRef<HxPageNavigatorLink | false>(false)
 
   watch(
     [() => route.path, navConfig.configuredNav],
@@ -46,8 +54,11 @@
       const normalizedPath = `/${path.split('/').slice(1).join('/')}`
       const index = pages.indexOf(normalizedPath)
 
-      prev.value = index > 0 ? pages[index - 1] ?? false : false
-      next.value = index >= 0 && index < pages.length - 1 ? pages[index + 1] ?? false : false
+      const prevPath = index > 0 ? pages[index - 1] : undefined
+      const nextPath = index >= 0 && index < pages.length - 1 ? pages[index + 1] : undefined
+
+      prev.value = prevPath && prevPath !== '/' ? toLink(prevPath) : false
+      next.value = nextPath && nextPath !== '/' ? toLink(nextPath) : false
     },
     { immediate: true },
   )
@@ -58,48 +69,15 @@
     <hr class="my-4">
 
     <Discovery.Activator class="rounded-lg" step="page-navigator">
-      <nav
-        aria-label="Document navigation"
-        class="flex gap-2"
-      >
-        <RouterLink
-          v-if="prev && prev !== '/'"
-          :key="prev"
-          class="flex-1 basis-0 list-item-bordered capitalize pa-2"
-          :to="prev"
-        >
-          <div class="inline-flex align-center text-xs text-on-surface opacity-60">
-            <AppIcon icon="left" />
+      <HxPageNavigator :next :prev>
+        <template #prev-icon>
+          <AppIcon icon="left" />
+        </template>
 
-            Previous page
-          </div>
-
-          <div class="font-medium ps-1 text-on-surface">
-            {{ prev.split('/').pop()!.replace(/-/g, ' ') }}
-          </div>
-        </RouterLink>
-
-        <span v-else class="flex-1 basis-0" />
-
-        <RouterLink
-          v-if="next && next !== '/'"
-          :key="next"
-          class="flex-1 basis-0 list-item-bordered capitalize pa-2 text-end"
-          :to="next"
-        >
-          <div class="inline-flex align-center text-xs text-on-surface opacity-60">
-            Next page
-
-            <AppIcon icon="right" />
-          </div>
-
-          <div class="font-medium pe-1 text-on-surface">
-            {{ next.split('/').pop()!.replace(/-/g, ' ') }}
-          </div>
-        </RouterLink>
-
-        <span v-else class="flex-1 basis-0" />
-      </nav>
+        <template #next-icon>
+          <AppIcon icon="right" />
+        </template>
+      </HxPageNavigator>
     </Discovery.Activator>
   </template>
 </template>

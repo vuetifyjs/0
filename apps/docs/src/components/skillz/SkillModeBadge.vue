@@ -1,7 +1,4 @@
 <script setup lang="ts">
-  // Components
-  import DocsBadge from '@/components/docs/DocsBadge.vue'
-
   // Utilities
   import { toRef } from 'vue'
 
@@ -30,13 +27,13 @@
 </script>
 
 <template>
-  <DocsBadge
+  <HxBadge
+    :background-opacity="15"
     :color="meta.color"
-    :icon="meta.icon"
-    :icon-size
-    :label="meta.label"
-    :show-icon
-    :show-label
+    shape="rounded"
     :title="meta.description"
-  />
+  >
+    <AppIcon v-if="showIcon" :icon="meta.icon" :size="iconSize" />
+    <span v-if="showLabel">{{ meta.label }}</span>
+  </HxBadge>
 </template>
