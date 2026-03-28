@@ -1,7 +1,7 @@
 import posthog from 'posthog-js'
 
 // Framework
-import { createBreakpointsPlugin, createDatePlugin, createFeaturesPlugin, createHydrationPlugin, createLocalePlugin, createLoggerPlugin, createPermissionsPlugin, createRtlPlugin, createStackPlugin, createStoragePlugin, createThemePlugin, IN_BROWSER } from '@vuetify/v0'
+import { createBreakpointsPlugin, createDatePlugin, createFeaturesPlugin, createHydrationPlugin, createLocalePlugin, createLoggerPlugin, createPermissionsPlugin, createRtlPlugin, createStackPlugin, createStoragePlugin, createThemePlugin, IN_BROWSER, V0UnheadThemeAdapter } from '@vuetify/v0'
 import { Vuetify0DateAdapter } from '@vuetify/v0/date'
 import { PostHogFeatureAdapter } from '@vuetify/v0/features/adapters/posthog'
 
@@ -63,6 +63,7 @@ export default function zero (app: App) {
 
   app.use(
     createThemePlugin({
+      adapter: new V0UnheadThemeAdapter(),
       persist: true,
       default: 'dark',
       target: 'html',

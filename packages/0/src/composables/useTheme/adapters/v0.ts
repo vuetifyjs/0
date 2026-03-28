@@ -106,6 +106,3 @@ export class V0StyleSheetThemeAdapter extends ThemeAdapter {
     this.sheet.replaceSync(styles)
   }
 }
-
-/** @deprecated Use `V0StyleSheetThemeAdapter` instead. */
-export const Vuetify0ThemeAdapter = V0StyleSheetThemeAdapter
