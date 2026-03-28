@@ -1,89 +1,103 @@
 <script setup lang="ts">
-  import { CxDropdown, CxDropdownContent, CxDropdownTrigger, CxNavGroup, CxNavLink } from '@paper/codex'
-
   import CoverageBadge from './CoverageBadge.vue'
+  import ShowcaseNavLink from './ShowcaseNavLink.vue'
 
   // Composables
   import { useShowcase } from '../composables/useShowcase'
+  import { createShowcaseNav } from '../composables/useShowcaseNav'
 
   // Utilities
   import { toRef } from 'vue'
   import { useRoute } from 'vue-router'
 
+  // Types
+  import type { ShowcaseNavItem } from '../composables/useShowcaseNav'
+
   const route = useRoute()
   const { designSystems, getCategories, getComposableCategories } = useShowcase()
   const slug = toRef(() => route.params.ds as string)
   const ds = toRef(() => designSystems.value.find(d => d.slug === slug.value))
-  const categories = toRef(() => ds.value ? getCategories(slug.value) : [])
-  const composableCategories = toRef(() => ds.value ? getComposableCategories(slug.value) : [])
+
+  const nav = toRef((): ShowcaseNavItem[] => {
+    const items: ShowcaseNavItem[] = [
+      { name: 'Home', to: '/' },
+      { name: 'Getting Started', to: '/getting-started' },
+    ]
+
+    const current = ds.value
+    if (!current) return items
+
+    items.push({ divider: true }, {
+      name: 'Overview',
+      children: [
+        { name: 'Getting Started', to: `/${current.slug}` },
+        { name: 'Design Tokens', to: `/${current.slug}/tokens` },
+      ],
+    })
+
+    // Components by category
+    const componentChildren: ShowcaseNavItem[] = []
+    for (const category of getCategories(current.slug)) {
+      componentChildren.push({
+        name: category,
+        children: current.components
+          .filter(c => c.category === category)
+          .map(c => ({ name: c.name, to: `/${current.slug}/components/${c.name}` })),
+      })
+    }
+    componentChildren.push({ name: 'All Components', to: `/${current.slug}/components` })
+    items.push({ name: 'Components', children: componentChildren })
+
+    // Composables by category
+    if (current.composables?.length) {
+      const composableChildren: ShowcaseNavItem[] = []
+      for (const category of getComposableCategories(current.slug)) {
+        composableChildren.push({
+          name: category,
+          children: current.composables!
+            .filter(c => c.category === category)
+            .map(c => ({ name: c.name, to: `/${current.slug}/composables/${c.name}` })),
+        })
+      }
+      composableChildren.push({ name: 'All Composables', to: `/${current.slug}/composables` })
+      items.push({ name: 'Composables', children: composableChildren })
+    }
+
+    // Coverage
+    items.push({ name: 'Coverage', to: `/${current.slug}/coverage` })
+
+    return items
+  })
+
+  const { provide } = createShowcaseNav(nav)
+  provide()
+
 </script>
 
 <template>
-  <ul class="list-none p-0 m-0">
-    <!-- DS selector -->
-    <li v-if="designSystems.length > 1" class="mb-2">
-      <CxDropdown>
-        <CxDropdownTrigger class="w-full">
-          {{ ds?.name ?? 'Select design system' }}
-        </CxDropdownTrigger>
-        <CxDropdownContent>
-          <ul class="list-none p-0 m-0">
-            <li v-for="d in designSystems" :key="d.slug">
-              <router-link
-                class="block px-3 py-1.5 hover:bg-surface-variant rounded text-sm"
-                :class="{ 'font-semibold': d.slug === slug }"
-                :to="`/${d.slug}`"
-              >
-                {{ d.name }}
-              </router-link>
-            </li>
-          </ul>
-        </CxDropdownContent>
-      </CxDropdown>
-    </li>
-
-    <!-- Top-level links -->
-    <CxNavLink label="Home" to="/" />
-    <CxNavLink label="Getting Started" to="/getting-started" />
-
-    <template v-if="ds">
-      <!-- Overview -->
-      <CxNavGroup label="Overview">
-        <CxNavLink label="Getting Started" :to="`/${ds.slug}`" />
-        <CxNavLink label="Design Tokens" :to="`/${ds.slug}/tokens`" />
-      </CxNavGroup>
-
-      <!-- Components -->
-      <CxNavGroup label="Components">
-        <CxNavGroup v-for="category in categories" :key="category" :label="category">
-          <CxNavLink
-            v-for="component in ds.components.filter(c => c.category === category)"
-            :key="component.name"
-            :label="component.name"
-            :to="`/${ds.slug}/components/${component.name}`"
-          />
-        </CxNavGroup>
-        <CxNavLink label="All Components" :to="`/${ds.slug}/components`" />
-      </CxNavGroup>
-
-      <!-- Composables -->
-      <CxNavGroup v-if="ds.composables?.length" label="Composables">
-        <CxNavGroup v-for="category in composableCategories" :key="category" :label="category">
-          <CxNavLink
-            v-for="composable in ds.composables!.filter(c => c.category === category)"
-            :key="composable.name"
-            :label="composable.name"
-            :to="`/${ds.slug}/composables/${composable.name}`"
-          />
-        </CxNavGroup>
-        <CxNavLink label="All Composables" :to="`/${ds.slug}/composables`" />
-      </CxNavGroup>
-
-      <!-- Coverage -->
-      <li class="flex items-center gap-2 mt-2">
-        <CxNavLink class="flex-1" label="Coverage" :to="`/${ds.slug}/coverage`" />
-        <CoverageBadge />
+  <ul class="flex gap-2 flex-col py-2">
+    <template v-for="(item, i) in nav" :key="i">
+      <li v-if="'divider' in item" class="px-3 my-1">
+        <div class="border-t border-divider" />
       </li>
+
+      <ShowcaseNavLink
+        v-else-if="'to' in item"
+        :id="item.to"
+        :name="item.name"
+        :to="item.to"
+      />
+
+      <ShowcaseNavLink
+        v-else
+        :id="`category-root-${i}`"
+        :name="item.name"
+      />
     </template>
+
+    <!-- Coverage badge -->
+    <li v-if="ds" class="px-3 flex items-center gap-2">
+      <CoverageBadge />
+    </li>
   </ul>
 </template>
