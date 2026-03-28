@@ -13,7 +13,7 @@
   import { useAppStore } from '@/stores/app'
   import { useReleasesStore } from '@/stores/releases'
 
-  defineProps<{
+  const { inset = false } = defineProps<{
     inset?: boolean
   }>()
 
@@ -67,10 +67,11 @@
 </script>
 
 <template>
-  <footer
+  <HxAppFooter
     ref="footer"
-    class="app-footer py-4 border-t border-divider/50"
+    class="py-4 border-t border-divider/50"
     :class="[inset && 'md:ms-[230px]', settings.showBgGlass.value ? 'bg-glass-surface' : 'bg-surface']"
+    :inset
   >
     <div class="max-w-[1200px] mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
       <div class="flex flex-col md:flex-row items-center gap-4 text-sm opacity-60">
@@ -137,5 +138,5 @@
         </button>
       </div>
     </div>
-  </footer>
+  </HxAppFooter>
 </template>
