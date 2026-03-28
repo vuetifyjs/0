@@ -1,22 +1,9 @@
-<script setup lang="ts">
-  // Framework
-  import { Atom } from '@vuetify/v0'
-
-  // Types
-  import type { AtomProps } from '@vuetify/v0'
-
-  const { as = 'header' } = defineProps<AtomProps>()
-</script>
-
 <template>
-  <Atom
-    :as
-    class="flex items-center justify-center h-[24px] fixed inset-x-0 top-0 px-3 text-xs gap-2 text-on-warning z-1 bg-glass-warning"
-  >
+  <HxAppBanner class="px-3 text-xs gap-2 text-on-warning bg-glass-warning">
     <AppIcon icon="alert" :size="14" />
 
     <div>
       You are viewing Pre-Alpha documentation. <span class="hidden md:inline">See the <RouterLink class="underline underline-offset-2" to="/roadmap">roadmap</RouterLink> for updates.</span>
     </div>
-  </Atom>
+  </HxAppBanner>
 </template>
