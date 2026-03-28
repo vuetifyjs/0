@@ -26,7 +26,7 @@
   <V0Paper
     v-bind="paperProps"
     as="main"
-    class="helix-app-main bg-background"
+    class="helix-app-main"
     :style="{
       '--helix-app-main-nav-width': navWidth,
       '--helix-app-main-max-width': maxWidth,

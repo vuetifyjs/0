@@ -23,7 +23,7 @@
   <V0Paper
     v-bind="paperProps"
     as="header"
-    class="helix-app-bar bg-surface border-b border-divider"
+    class="helix-app-bar"
     data-app-bar
     :style="{ height }"
   >
