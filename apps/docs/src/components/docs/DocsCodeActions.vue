@@ -1,4 +1,6 @@
 <script setup lang="ts">
+  import { HxIconButton } from '@paper/helix'
+
   // Composables
   import { getBinUrl } from '@/composables/bin'
   import { useClipboard } from '@/composables/useClipboard'
@@ -36,40 +38,56 @@
 
 <template>
   <div class="flex gap-1">
-    <AppIconButton
+    <HxIconButton
       v-if="playground"
       aria-label="Open in Vuetify Play"
+      class="pa-1 inline-flex rounded opacity-50 hover:opacity-80 hover:bg-surface-tint focus-visible:opacity-80 focus-visible:bg-surface-tint focus-visible:outline-none max-md:opacity-80 max-md:bg-surface/50"
       icon="vuetify-play"
       title="Open in Vuetify Play"
-      type="button"
       @click="openInPlayground"
-    />
+    >
+      <template #icon="{ icon, size }">
+        <AppIcon aria-hidden="true" :icon :size />
+      </template>
+    </HxIconButton>
 
-    <AppIconButton
+    <HxIconButton
       v-if="bin"
       aria-label="Open in Vuetify Bin"
+      class="pa-1 inline-flex rounded opacity-50 hover:opacity-80 hover:bg-surface-tint focus-visible:opacity-80 focus-visible:bg-surface-tint focus-visible:outline-none max-md:opacity-80 max-md:bg-surface/50"
       icon="vuetify-bin"
       title="Open in Vuetify Bin"
-      type="button"
       @click="openInBin"
-    />
+    >
+      <template #icon="{ icon, size }">
+        <AppIcon aria-hidden="true" :icon :size />
+      </template>
+    </HxIconButton>
 
-    <AppIconButton
+    <HxIconButton
       v-if="showWrap"
       :aria-label="wrap ? 'Disable line wrap' : 'Enable line wrap'"
+      class="pa-1 inline-flex rounded opacity-50 hover:opacity-80 hover:bg-surface-tint focus-visible:opacity-80 focus-visible:bg-surface-tint focus-visible:outline-none max-md:opacity-80 max-md:bg-surface/50"
       :icon="wrap ? 'nowrap' : 'wrap'"
       :title="wrap ? 'Disable line wrap' : 'Enable line wrap'"
-      type="button"
       @click="wrap = !wrap"
-    />
+    >
+      <template #icon="{ icon, size }">
+        <AppIcon aria-hidden="true" :icon :size />
+      </template>
+    </HxIconButton>
 
-    <AppIconButton
+    <HxIconButton
       v-if="showCopy"
       :aria-label="!clipboard.copied.value ? 'Copy code' : 'Copied'"
+      class="pa-1 inline-flex rounded opacity-50 hover:opacity-80 hover:bg-surface-tint focus-visible:opacity-80 focus-visible:bg-surface-tint focus-visible:outline-none max-md:opacity-80 max-md:bg-surface/50"
       :icon="!clipboard.copied.value ? 'copy' : 'success'"
       :title="!clipboard.copied.value ? 'Copy code' : 'Copied'"
-      type="button"
       @click="copyCode"
-    />
+    >
+      <template #icon="{ icon, size }">
+        <AppIcon aria-hidden="true" :icon :size />
+      </template>
+    </HxIconButton>
   </div>
 </template>

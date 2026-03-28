@@ -7,6 +7,12 @@
   export interface HxIconButtonProps extends V0PaperProps {
     ariaLabel?: string
     disabled?: boolean
+    /** Icon identifier passed to the icon slot */
+    icon?: string
+    /** Icon size passed to the icon slot */
+    size?: string | number
+    /** Tooltip text; also used as aria-label fallback */
+    title?: string
   }
 </script>
 
@@ -16,6 +22,9 @@
   const {
     ariaLabel,
     disabled = false,
+    icon,
+    size = 18,
+    title,
     ...paperProps
   } = defineProps<HxIconButtonProps>()
 
@@ -32,15 +41,18 @@
 <template>
   <V0Paper
     v-bind="paperProps"
-    :aria-label
+    :aria-label="ariaLabel ?? title"
     as="button"
     class="helix-icon-button"
     :data-disabled="disabled || undefined"
     :disabled="disabled || undefined"
+    :title
     type="button"
     @click="onClick"
   >
-    <slot />
+    <slot :icon :size>
+      <slot :icon name="icon" :size />
+    </slot>
   </V0Paper>
 </template>
 

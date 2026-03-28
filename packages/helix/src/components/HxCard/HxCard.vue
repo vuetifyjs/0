@@ -35,7 +35,7 @@
 
   const tag = toRef(() => {
     if (disabled) return 'div'
-    if (to) return RouterLink as unknown as DOMElement
+    if (to) return RouterLink
     if (href) return 'a'
     return paperProps.as ?? 'div'
   })
