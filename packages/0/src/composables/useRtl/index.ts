@@ -91,7 +91,7 @@ export const [createRtlContext, createRtlPlugin, useRtl] =
       },
       persist: ctx => ctx.isRtl.value,
       restore: (ctx, saved) => {
-        ctx.isRtl.value = saved
+        ctx.isRtl.value = saved as boolean
       },
     },
   )

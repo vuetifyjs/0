@@ -252,7 +252,7 @@ describe('createPluginContext', () => {
           persist: context => context.state.value,
           restore: (context, saved) => {
             order.push('restore')
-            context.state.value = saved
+            context.state.value = saved as string
           },
           setup: () => {
             order.push('setup')
@@ -287,7 +287,7 @@ describe('createPluginContext', () => {
         {
           persist: context => context.state.value,
           restore: (context, saved) => {
-            context.state.value = saved
+            context.state.value = saved as string
           },
         },
       )
