@@ -1,11 +1,11 @@
 <script setup lang="ts">
   import {
-    CxBadge,
-    CxBreadcrumbs,
-    CxCodeBlock,
-    CxLink,
-    CxPageNavigator,
-  } from '@paper/codex'
+    HxBadge,
+    HxBreadcrumbs,
+    HxCodeBlock,
+    HxLink,
+    HxPageNavigator,
+  } from '@paper/helix'
 
   // Composables
   import { useShowcase } from '../../../composables/useShowcase'
@@ -55,20 +55,20 @@
 
 <template>
   <div v-if="composable" class="p-8 max-w-4xl">
-    <CxBreadcrumbs class="mb-6" :items="breadcrumbs" />
+    <HxBreadcrumbs class="mb-6" :items="breadcrumbs" />
 
     <!-- Header -->
     <div class="mb-8">
       <div class="flex flex-wrap items-center gap-3 mb-2">
         <h1 class="text-3xl font-bold font-mono">{{ composable.name }}</h1>
-        <CxBadge color="primary" variant="subtle">{{ composable.category }}</CxBadge>
-        <CxLink
+        <HxBadge color="primary" variant="subtle">{{ composable.category }}</HxBadge>
+        <HxLink
           v-if="composable.v0"
           class="no-underline"
           :to="composable.v0"
         >
-          <CxBadge color="secondary" variant="outlined">v0</CxBadge>
-        </CxLink>
+          <HxBadge color="secondary" variant="outlined">v0</HxBadge>
+        </HxLink>
       </div>
       <p v-if="composable.description" class="text-on-surface-variant">{{ composable.description }}</p>
     </div>
@@ -76,7 +76,7 @@
     <!-- Signature -->
     <template v-if="composable.signature">
       <h2 class="text-xl font-semibold mb-3">Signature</h2>
-      <CxCodeBlock
+      <HxCodeBlock
         class="mb-8"
         :code="composable.signature"
         language="ts"
@@ -124,7 +124,7 @@
       </div>
     </template>
 
-    <CxPageNavigator class="mt-10" :next :prev />
+    <HxPageNavigator class="mt-10" :next :prev />
   </div>
 
   <div v-else class="p-8">

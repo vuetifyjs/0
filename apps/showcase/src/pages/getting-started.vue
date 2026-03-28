@@ -1,12 +1,12 @@
 <script setup lang="ts">
   import {
-    CxBreadcrumbs,
-    CxCallout,
-    CxCalloutHeader,
-    CxCodeBlock,
-    CxHeaderAnchor,
-    CxPackageManagerTabs,
-  } from '@paper/codex'
+    HxBreadcrumbs,
+    HxCallout,
+    HxCalloutHeader,
+    HxCodeBlock,
+    HxHeaderAnchor,
+    HxPackageManagerTabs,
+  } from '@paper/helix'
 
   const breadcrumbs = [
     { label: 'Home', to: '/' },
@@ -16,25 +16,25 @@
 
 <template>
   <div class="p-8 max-w-3xl">
-    <CxBreadcrumbs class="mb-6" :items="breadcrumbs" />
+    <HxBreadcrumbs class="mb-6" :items="breadcrumbs" />
 
     <h1 class="text-3xl font-bold mb-2">Getting Started</h1>
     <p class="text-on-surface-variant mb-8">Learn how Paper design systems work and how to use them.</p>
 
-    <CxHeaderAnchor id="what-is-paper" tag="h2">
+    <HxHeaderAnchor id="what-is-paper" tag="h2">
       What is Paper?
-    </CxHeaderAnchor>
+    </HxHeaderAnchor>
     <p class="mb-4">
       Paper is a layered design system architecture. At the bottom is
       <strong>v0</strong> — headless, unstyled UI primitives. On top of v0,
       <strong>Paper</strong> adds styling tokens and layout primitives. Design
-      systems like <strong>Emerald</strong> and <strong>Codex</strong> build on
+      systems like <strong>Emerald</strong> and <strong>Helix</strong> build on
       Paper to provide fully styled, ready-to-use component libraries.
     </p>
 
-    <CxHeaderAnchor id="how-design-systems-work" tag="h2">
+    <HxHeaderAnchor id="how-design-systems-work" tag="h2">
       How Design Systems Work
-    </CxHeaderAnchor>
+    </HxHeaderAnchor>
     <p class="mb-4">
       Each design system is a complete framework: tokens for colors, spacing,
       and typography; a full set of components; and optional plugins for
@@ -43,23 +43,23 @@
       layer without rewriting logic.
     </p>
 
-    <CxCallout class="mb-6" type="tip">
-      <CxCalloutHeader type="tip" />
+    <HxCallout class="mb-6" type="tip">
+      <HxCalloutHeader type="tip" />
       <p class="mt-2">
         You can register multiple design systems in the showcase to compare
         them side by side.
       </p>
-    </CxCallout>
+    </HxCallout>
 
-    <CxHeaderAnchor id="installation" tag="h2">
+    <HxHeaderAnchor id="installation" tag="h2">
       Installing a Design System
-    </CxHeaderAnchor>
+    </HxHeaderAnchor>
 
     <p class="mb-4">Install the package:</p>
-    <CxPackageManagerTabs class="mb-6" package="@paper/emerald" />
+    <HxPackageManagerTabs class="mb-6" package="@paper/emerald" />
 
     <p class="mb-4">Create the plugin and register it with your app:</p>
-    <CxCodeBlock
+    <HxCodeBlock
       class="mb-4"
       :code="`import { createApp } from 'vue'
 import { createEmeraldPlugin } from '@paper/emerald'
@@ -71,7 +71,7 @@ app.mount('#app')`"
     />
 
     <p class="mb-4">Import and use components:</p>
-    <CxCodeBlock
+    <HxCodeBlock
       class="mb-6"
       :code="`<script setup lang=&quot;ts&quot;>
   import { EmButton } from '@paper/emerald'
@@ -83,12 +83,12 @@ app.mount('#app')`"
       language="vue"
     />
 
-    <CxCallout class="mb-6" type="info">
-      <CxCalloutHeader type="info" />
+    <HxCallout class="mb-6" type="info">
+      <HxCalloutHeader type="info" />
       <p class="mt-2">
         Each design system ships its own plugin factory. Check the
         overview page for the exact import path and package name.
       </p>
-    </CxCallout>
+    </HxCallout>
   </div>
 </template>

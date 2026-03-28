@@ -1,6 +1,6 @@
 <script setup lang="ts">
-  import * as codexComponents from '@paper/codex'
-  import { CxCodeBlock } from '@paper/codex'
+  import * as helixComponents from '@paper/helix'
+  import { HxCodeBlock } from '@paper/helix'
 
   // Components
   import PropControls from './PropControls.vue'
@@ -9,7 +9,7 @@
   import { ref, toRef } from 'vue'
 
   // Types
-  import type { DSComponent } from '@paper/codex'
+  import type { DSComponent } from '@paper/helix'
 
   const { component } = defineProps<{
     component: DSComponent
@@ -19,18 +19,18 @@
   const propValues = ref<Record<string, unknown>>({})
 
   const resolved = toRef(() => {
-    return (codexComponents as Record<string, unknown>)[component.name]
+    return (helixComponents as Record<string, unknown>)[component.name]
   })
 
   // Components that accept a default slot get placeholder text
   const SLOT_COMPONENTS = new Set([
-    'CxButton', 'CxIconButton', 'CxBadge', 'CxChip', 'CxLink',
-    'CxCallout', 'CxAlert', 'CxKbd',
+    'HxButton', 'HxIconButton', 'HxBadge', 'HxChip', 'HxLink',
+    'HxCallout', 'HxAlert', 'HxKbd',
   ])
 
   const slotContent = toRef(() => {
     if (SLOT_COMPONENTS.has(component.name)) {
-      return component.name.replace(/^Cx/, '')
+      return component.name.replace(/^Hx/, '')
     }
     return ''
   })
@@ -92,7 +92,7 @@
 
     <!-- Code block -->
     <div class="border-t border-divider">
-      <CxCodeBlock :code="source" language="html" />
+      <HxCodeBlock :code="source" language="html" />
     </div>
   </div>
 </template>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { CxBadge, CxCard, CxSearchInput } from '@paper/codex'
+  import { HxBadge, HxCard, HxSearchInput } from '@paper/helix'
 
   // Composables
   import { useShowcase } from '../../composables/useShowcase'
@@ -38,7 +38,7 @@
       </p>
     </div>
 
-    <CxSearchInput
+    <HxSearchInput
       v-model:query="query"
       class="mb-8 max-w-sm"
       placeholder="Filter composables..."
@@ -58,17 +58,17 @@
           class="no-underline text-on-surface"
           :to="`/${slug}/composables/${composable.name}`"
         >
-          <CxCard class="p-4 h-full" hoverable>
+          <HxCard class="p-4 h-full" hoverable>
             <div class="flex items-start justify-between gap-2 mb-1">
               <span class="font-semibold font-mono text-sm">{{ composable.name }}</span>
-              <CxBadge color="primary" variant="subtle">
+              <HxBadge color="primary" variant="subtle">
                 {{ composable.category }}
-              </CxBadge>
+              </HxBadge>
             </div>
             <p v-if="composable.description" class="text-on-surface-variant text-xs">
               {{ composable.description }}
             </p>
-          </CxCard>
+          </HxCard>
         </router-link>
       </div>
     </template>

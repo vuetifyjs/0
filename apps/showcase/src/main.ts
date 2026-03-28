@@ -1,4 +1,4 @@
-import { createCodexPlugin } from '@paper/codex'
+import { createHelixPlugin } from '@paper/helix'
 
 import App from './App.vue'
 
@@ -26,6 +26,6 @@ const router = createRouter({
 })
 
 const app = createApp(App)
-app.use(createCodexPlugin())
+app.use(createHelixPlugin())
 app.use(router)
 app.mount('#app')

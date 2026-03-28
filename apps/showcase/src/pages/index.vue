@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { CxCard, CxBadge, CxProgressBar } from '@paper/codex'
+  import { HxCard, HxBadge, HxProgressBar } from '@paper/helix'
 
   // Composables
   import { useCoverage } from '../composables/useCoverage'
@@ -33,10 +33,10 @@
         class="no-underline text-on-surface"
         :to="`/${ds.slug}`"
       >
-        <CxCard class="p-6 h-full flex flex-col gap-4" hoverable>
+        <HxCard class="p-6 h-full flex flex-col gap-4" hoverable>
           <div class="flex items-start justify-between gap-2">
             <h2 class="text-xl font-semibold leading-tight">{{ ds.name }}</h2>
-            <CxBadge color="primary" variant="outlined">{{ ds.prefix }}</CxBadge>
+            <HxBadge color="primary" variant="outlined">{{ ds.prefix }}</HxBadge>
           </div>
 
           <p v-if="ds.description" class="text-on-surface-variant text-sm flex-1">
@@ -45,12 +45,12 @@
           <div v-else class="flex-1" />
 
           <div class="flex flex-wrap gap-2">
-            <CxBadge color="info" variant="subtle">
+            <HxBadge color="info" variant="subtle">
               {{ ds.components.length }} components
-            </CxBadge>
-            <CxBadge v-if="ds.composables?.length" color="info" variant="subtle">
+            </HxBadge>
+            <HxBadge v-if="ds.composables?.length" color="info" variant="subtle">
               {{ ds.composables.length }} composables
-            </CxBadge>
+            </HxBadge>
           </div>
 
           <div class="flex flex-col gap-1">
@@ -58,12 +58,12 @@
               <span>Coverage</span>
               <span>{{ coverage(ds.slug) }}%</span>
             </div>
-            <CxProgressBar
+            <HxProgressBar
               :color="coverageColor(coverage(ds.slug))"
               :value="coverage(ds.slug)"
             />
           </div>
-        </CxCard>
+        </HxCard>
       </router-link>
     </div>
   </div>

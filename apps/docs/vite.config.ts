@@ -76,6 +76,13 @@ export default defineConfig({
       extensions: ['vue'],
       include: [/\.vue$/, /\.vue\?vue/, /\.md$/],
       dts: './src/components.d.ts',
+      resolvers: [
+        name => {
+          if (name.startsWith('Hx')) {
+            return { name, from: '@paper/helix' }
+          }
+        },
+      ],
     }),
     UnocssVitePlugin(),
     Layouts(),
@@ -132,6 +139,8 @@ export default defineConfig({
       // internal
       '#v0': fileURLToPath(new URL('../../packages/0/src', import.meta.url)),
       '#paper': fileURLToPath(new URL('../../packages/paper/src', import.meta.url)),
+      '#helix': fileURLToPath(new URL('../../packages/helix/src', import.meta.url)),
+      '@paper/helix': fileURLToPath(new URL('../../packages/helix/src', import.meta.url)),
     },
   },
   server: {

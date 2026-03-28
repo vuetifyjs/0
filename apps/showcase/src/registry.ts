@@ -1,22 +1,22 @@
-import { codexTheme } from '@paper/codex'
+import { helixTheme } from '@paper/helix'
 
 // Composables
 import { registerDesignSystem } from './composables/useShowcase'
 
 registerDesignSystem({
-  name: 'Codex',
-  slug: 'codex',
-  prefix: 'Cx',
+  name: 'Helix',
+  slug: 'helix',
+  prefix: 'Hx',
   description: 'Documentation design system — batteries-included components for building docs sites.',
-  package: '@paper/codex',
-  tokens: codexTheme,
+  package: '@paper/helix',
+  tokens: helixTheme,
   analyzer: {
-    package: '@paper/codex',
+    package: '@paper/helix',
   },
   components: [
     // actions
     {
-      name: 'CxButton',
+      name: 'HxButton',
       description: 'Themed button with variant, size, and icon support',
       category: 'actions',
       props: [
@@ -26,24 +26,24 @@ registerDesignSystem({
       ],
     },
     {
-      name: 'CxIconButton',
+      name: 'HxIconButton',
       description: 'Icon-only action button',
       category: 'actions',
     },
     {
-      name: 'CxCloseButton',
+      name: 'HxCloseButton',
       description: 'Dismiss/close action button',
       category: 'actions',
     },
     {
-      name: 'CxBackToTop',
+      name: 'HxBackToTop',
       description: 'Scroll-to-top floating button',
       category: 'actions',
     },
 
     // forms
     {
-      name: 'CxInput',
+      name: 'HxInput',
       description: 'Text input field with label and validation',
       category: 'forms',
       props: [
@@ -53,7 +53,7 @@ registerDesignSystem({
       ],
     },
     {
-      name: 'CxSwitch',
+      name: 'HxSwitch',
       description: 'Toggle switch for boolean settings',
       category: 'forms',
       props: [
@@ -62,94 +62,94 @@ registerDesignSystem({
       ],
     },
     {
-      name: 'CxSearch',
+      name: 'HxSearch',
       description: 'Full-screen search dialog with keyboard support',
       category: 'forms',
-      subComponents: ['CxSearchInput', 'CxSearchResult', 'CxSearchEmpty', 'CxSearchFooter'],
+      subComponents: ['HxSearchInput', 'HxSearchResult', 'HxSearchEmpty', 'HxSearchFooter'],
     },
 
     // feedback
     {
-      name: 'CxAlert',
+      name: 'HxAlert',
       description: 'Dismissible notification banner',
       category: 'feedback',
-      subComponents: ['CxAlertTitle', 'CxAlertContent', 'CxAlertDismiss'],
+      subComponents: ['HxAlertTitle', 'HxAlertContent', 'HxAlertDismiss'],
       props: [
         { name: 'variant', type: 'enum', default: 'info', options: ['info', 'success', 'warning', 'error'] },
         { name: 'dismissible', type: 'boolean', default: 'false' },
       ],
     },
     {
-      name: 'CxCallout',
+      name: 'HxCallout',
       description: 'Inline highlighted content callout',
       category: 'feedback',
-      subComponents: ['CxCalloutHeader'],
+      subComponents: ['HxCalloutHeader'],
       props: [
         { name: 'type', type: 'enum', default: 'note', options: ['note', 'tip', 'warning', 'danger'] },
       ],
     },
     {
-      name: 'CxProgressBar',
+      name: 'HxProgressBar',
       description: 'Linear progress indicator',
       category: 'feedback',
-      subComponents: ['CxProgressBarLabel'],
+      subComponents: ['HxProgressBarLabel'],
       props: [
         { name: 'value', type: 'number', default: '0' },
         { name: 'max', type: 'number', default: '100' },
       ],
     },
     {
-      name: 'CxLoaderIcon',
+      name: 'HxLoaderIcon',
       description: 'Animated loading spinner icon',
       category: 'feedback',
     },
     {
-      name: 'CxSkeleton',
+      name: 'HxSkeleton',
       description: 'Content placeholder skeleton loader',
       category: 'feedback',
     },
 
     // layout
     {
-      name: 'CxAppBar',
+      name: 'HxAppBar',
       description: 'Top application navigation bar',
       category: 'layout',
-      subComponents: ['CxAppBarStart', 'CxAppBarEnd'],
+      subComponents: ['HxAppBarStart', 'HxAppBarEnd'],
     },
     {
-      name: 'CxAppNav',
+      name: 'HxAppNav',
       description: 'Side navigation panel',
       category: 'layout',
     },
     {
-      name: 'CxAppMain',
+      name: 'HxAppMain',
       description: 'Main content area wrapper',
       category: 'layout',
     },
     {
-      name: 'CxAppBanner',
+      name: 'HxAppBanner',
       description: 'Full-width announcement banner',
       category: 'layout',
     },
     {
-      name: 'CxAppFooter',
+      name: 'HxAppFooter',
       description: 'Page footer container',
       category: 'layout',
     },
     {
-      name: 'CxDocLayout',
+      name: 'HxDocLayout',
       description: 'Full documentation page layout shell',
       category: 'layout',
     },
     {
-      name: 'CxDivider',
+      name: 'HxDivider',
       description: 'Horizontal or vertical separator line',
       category: 'layout',
     },
 
     // content
     {
-      name: 'CxCard',
+      name: 'HxCard',
       description: 'Content card container with optional header and actions',
       category: 'content',
       props: [
@@ -157,7 +157,7 @@ registerDesignSystem({
       ],
     },
     {
-      name: 'CxBadge',
+      name: 'HxBadge',
       description: 'Status or category badge label',
       category: 'content',
       props: [
@@ -165,45 +165,45 @@ registerDesignSystem({
       ],
     },
     {
-      name: 'CxChip',
+      name: 'HxChip',
       description: 'Compact tag or filter chip',
       category: 'content',
     },
     {
-      name: 'CxKbd',
+      name: 'HxKbd',
       description: 'Keyboard shortcut key display',
       category: 'content',
     },
     {
-      name: 'CxLink',
+      name: 'HxLink',
       description: 'Styled anchor with router-link support',
       category: 'content',
     },
     {
-      name: 'CxIcon',
+      name: 'HxIcon',
       description: 'SVG icon renderer',
       category: 'content',
     },
     {
-      name: 'CxBreadcrumbs',
+      name: 'HxBreadcrumbs',
       description: 'Hierarchical navigation breadcrumb trail',
       category: 'content',
     },
     {
-      name: 'CxHeaderAnchor',
+      name: 'HxHeaderAnchor',
       description: 'Heading with copyable anchor link',
       category: 'content',
     },
 
     // interactive
     {
-      name: 'CxDropdown',
+      name: 'HxDropdown',
       description: 'Floating dropdown menu',
       category: 'interactive',
-      subComponents: ['CxDropdownTrigger', 'CxDropdownContent'],
+      subComponents: ['HxDropdownTrigger', 'HxDropdownContent'],
     },
     {
-      name: 'CxTooltip',
+      name: 'HxTooltip',
       description: 'Hover or focus tooltip popover',
       category: 'interactive',
       props: [
@@ -212,109 +212,109 @@ registerDesignSystem({
       ],
     },
     {
-      name: 'CxTabs',
+      name: 'HxTabs',
       description: 'Tabbed content switcher',
       category: 'interactive',
-      subComponents: ['CxTabPanel'],
+      subComponents: ['HxTabPanel'],
     },
     {
-      name: 'CxAccordion',
+      name: 'HxAccordion',
       description: 'Collapsible disclosure sections',
       category: 'interactive',
-      subComponents: ['CxAccordionItem'],
+      subComponents: ['HxAccordionItem'],
     },
 
     // code
     {
-      name: 'CxCodeBlock',
+      name: 'HxCodeBlock',
       description: 'Syntax-highlighted code block with copy action',
       category: 'code',
-      subComponents: ['CxCodeBlockHeader', 'CxCodeBlockActions'],
+      subComponents: ['HxCodeBlockHeader', 'HxCodeBlockActions'],
     },
     {
-      name: 'CxCodeGroup',
+      name: 'HxCodeGroup',
       description: 'Tabbed multi-file code block group',
       category: 'code',
     },
     {
-      name: 'CxExampleCode',
+      name: 'HxExampleCode',
       description: 'Live example with embedded source code',
       category: 'code',
     },
     {
-      name: 'CxCopyCommand',
+      name: 'HxCopyCommand',
       description: 'Copyable CLI command display',
       category: 'code',
-      subComponents: ['CxCopyCommandAction', 'CxCopyCommandText'],
+      subComponents: ['HxCopyCommandAction', 'HxCopyCommandText'],
     },
     {
-      name: 'CxPackageManagerTabs',
+      name: 'HxPackageManagerTabs',
       description: 'Tabbed npm/pnpm/yarn install commands',
       category: 'code',
     },
 
     // navigation
     {
-      name: 'CxNavGroup',
+      name: 'HxNavGroup',
       description: 'Collapsible sidebar navigation group',
       category: 'navigation',
     },
     {
-      name: 'CxNavLink',
+      name: 'HxNavLink',
       description: 'Sidebar navigation link with active state',
       category: 'navigation',
     },
     {
-      name: 'CxPageNavigator',
+      name: 'HxPageNavigator',
       description: 'Previous/next page navigation links',
       category: 'navigation',
     },
     {
-      name: 'CxToc',
+      name: 'HxToc',
       description: 'Sticky table of contents sidebar',
       category: 'navigation',
     },
 
     // display
     {
-      name: 'CxExample',
+      name: 'HxExample',
       description: 'Interactive component demo with preview and code',
       category: 'display',
-      subComponents: ['CxExampleTitle'],
+      subComponents: ['HxExampleTitle'],
     },
     {
-      name: 'CxApiCard',
+      name: 'HxApiCard',
       description: 'API reference card for a single prop, slot, or event',
       category: 'display',
-      subComponents: ['CxApiCardBadge', 'CxApiCardDefault', 'CxApiCardDescription', 'CxApiCardName', 'CxApiCardType'],
+      subComponents: ['HxApiCardBadge', 'HxApiCardDefault', 'HxApiCardDescription', 'HxApiCardName', 'HxApiCardType'],
     },
     {
-      name: 'CxApiTable',
+      name: 'HxApiTable',
       description: 'Full props/events/slots API reference table',
       category: 'display',
     },
     {
-      name: 'CxFaq',
+      name: 'HxFaq',
       description: 'Frequently asked questions accordion list',
       category: 'display',
-      subComponents: ['CxFaqItem'],
+      subComponents: ['HxFaqItem'],
     },
     {
-      name: 'CxMermaid',
+      name: 'HxMermaid',
       description: 'Mermaid diagram renderer',
       category: 'display',
-      subComponents: ['CxMermaidCaption', 'CxMermaidSource'],
+      subComponents: ['HxMermaidCaption', 'HxMermaidSource'],
     },
 
     // settings
     {
-      name: 'CxSettings',
+      name: 'HxSettings',
       description: 'Settings panel with grouped toggles',
       category: 'settings',
-      subComponents: ['CxSettingsSection', 'CxSettingsSectionTitle', 'CxSettingsToggle', 'CxSettingsToggleDescription', 'CxSettingsToggleLabel'],
+      subComponents: ['HxSettingsSection', 'HxSettingsSectionTitle', 'HxSettingsToggle', 'HxSettingsToggleDescription', 'HxSettingsToggleLabel'],
     },
     {
-      name: 'CxThemeToggle',
+      name: 'HxThemeToggle',
       description: 'Light/dark theme switcher button',
       category: 'settings',
     },

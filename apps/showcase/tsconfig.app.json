@@ -12,8 +12,8 @@
       "#v0/*": ["../../packages/0/src/*"],
       "#paper": ["../../packages/paper/src"],
       "#paper/*": ["../../packages/paper/src/*"],
-      "#codex": ["../../packages/codex/src"],
-      "#codex/*": ["../../packages/codex/src/*"]
+      "#helix": ["../../packages/helix/src"],
+      "#helix/*": ["../../packages/helix/src/*"]
     },
     "lib": ["dom", "dom.iterable", "esnext"],
     "skipLibCheck": true,
@@ -33,6 +33,6 @@
   ],
   "references": [
     { "path": "../../packages/0" },
-    { "path": "../../packages/codex" }
+    { "path": "../../packages/helix" }
   ]
 }

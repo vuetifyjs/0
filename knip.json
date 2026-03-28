@@ -82,7 +82,7 @@
         "sass"
       ]
     },
-    "packages/codex": {
+    "packages/helix": {
       "project": [
         "src/**/*.{ts,vue}",
         "!src/**/*.test.ts",
@@ -161,8 +161,8 @@
         "@/*": [
           "src/*"
         ],
-        "@paper/codex": [
-          "../../packages/codex/src"
+        "@paper/helix": [
+          "../../packages/helix/src"
         ],
         "@vuetify/paper": [
           "../../packages/paper/src"

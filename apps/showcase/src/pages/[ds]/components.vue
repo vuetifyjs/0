@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { CxBadge, CxCard, CxSearchInput } from '@paper/codex'
+  import { HxBadge, HxCard, HxSearchInput } from '@paper/helix'
 
   // Composables
   import { useCoverage } from '../../composables/useCoverage'
@@ -49,7 +49,7 @@
       </p>
     </div>
 
-    <CxSearchInput
+    <HxSearchInput
       v-model:query="query"
       class="mb-8 max-w-sm"
       placeholder="Filter components..."
@@ -69,40 +69,40 @@
           class="no-underline text-on-surface"
           :to="`/${slug}/components/${component.name}`"
         >
-          <CxCard class="p-4 h-full" hoverable>
+          <HxCard class="p-4 h-full" hoverable>
             <div class="flex items-start justify-between gap-2 mb-1">
               <span class="font-semibold font-mono text-sm">{{ component.name }}</span>
               <div class="flex items-center gap-1 shrink-0">
-                <CxBadge v-if="component.subComponents?.length" color="primary" variant="subtle">
+                <HxBadge v-if="component.subComponents?.length" color="primary" variant="subtle">
                   +{{ component.subComponents.length }}
-                </CxBadge>
-                <CxBadge
+                </HxBadge>
+                <HxBadge
                   v-if="coverageStatus(component.name) === 'stub'"
                   color="warning"
                   variant="subtle"
                 >
                   stub
-                </CxBadge>
-                <CxBadge
+                </HxBadge>
+                <HxBadge
                   v-else-if="coverageStatus(component.name) === 'missing'"
                   color="error"
                   variant="subtle"
                 >
                   missing
-                </CxBadge>
-                <CxBadge
+                </HxBadge>
+                <HxBadge
                   v-else-if="coverageStatus(component.name) === 'documented'"
                   color="success"
                   variant="subtle"
                 >
                   docs
-                </CxBadge>
+                </HxBadge>
               </div>
             </div>
             <p v-if="component.description" class="text-on-surface-variant text-xs">
               {{ component.description }}
             </p>
-          </CxCard>
+          </HxCard>
         </router-link>
       </div>
     </template>

@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@paper/codex": "workspace:*",
+    "@paper/helix": "workspace:*",
     "@vuetify/paper": "workspace:*",
     "vue": "catalog:"
   },

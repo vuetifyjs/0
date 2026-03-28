@@ -298,6 +298,9 @@ importers:
       '@octokit/core':
         specifier: 'catalog:'
         version: 7.0.6
+      '@paper/helix':
+        specifier: workspace:*
+        version: link:../../packages/helix
       '@unhead/addons':
         specifier: 'catalog:'
         version: 2.1.12(rollup@2.80.0)(unhead@2.1.12)
@@ -480,9 +483,9 @@ importers:
 
   apps/showcase:
     dependencies:
-      '@paper/codex':
+      '@paper/helix':
         specifier: workspace:*
-        version: link:../../packages/codex
+        version: link:../../packages/helix
       '@vuetify/paper':
         specifier: workspace:*
         version: link:../../packages/paper
@@ -595,7 +598,7 @@ importers:
         specifier: 'catalog:'
         version: 0.5.1
 
-  packages/codex:
+  packages/helix:
     dependencies:
       '@vuetify/paper':
         specifier: workspace:*

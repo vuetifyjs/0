@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { CxBadge } from '@paper/codex'
+  import { HxBadge } from '@paper/helix'
 
   // Composables
   import { useCoverage } from '../composables/useCoverage'
@@ -16,5 +16,5 @@
 </script>
 
 <template>
-  <CxBadge :color>{{ value }}%</CxBadge>
+  <HxBadge :color>{{ value }}%</HxBadge>
 </template>

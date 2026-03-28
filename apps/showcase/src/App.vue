@@ -1,13 +1,13 @@
 <script setup lang="ts">
   import {
-    CxAppBar, CxAppBarEnd, CxAppBarStart,
-    CxAppMain, CxAppNav, CxDocLayout,
-    CxDropdown, CxDropdownContent, CxDropdownTrigger,
-    CxKbd, CxSearch, CxSettings,
-    CxSettingsSection, CxSettingsSectionTitle,
-    CxSettingsToggle, CxSettingsToggleLabel,
-    CxThemeToggle, CxToc,
-  } from '@paper/codex'
+    HxAppBar, HxAppBarEnd, HxAppBarStart,
+    HxAppMain, HxAppNav, HxDocLayout,
+    HxDropdown, HxDropdownContent, HxDropdownTrigger,
+    HxKbd, HxSearch, HxSettings,
+    HxSettingsSection, HxSettingsSectionTitle,
+    HxSettingsToggle, HxSettingsToggleLabel,
+    HxThemeToggle, HxToc,
+  } from '@paper/helix'
 
   // Components
   import ShowcaseNav from './components/ShowcaseNav.vue'
@@ -24,40 +24,40 @@
 </script>
 
 <template>
-  <CxDocLayout>
-    <CxAppBar class="bg-surface border-b border-divider px-4">
-      <CxAppBarStart>
+  <HxDocLayout>
+    <HxAppBar class="bg-surface border-b border-divider px-4">
+      <HxAppBarStart>
         <router-link class="font-bold text-lg text-on-surface" to="/">Paper Showcase</router-link>
-      </CxAppBarStart>
-      <CxAppBarEnd class="flex items-center gap-2">
-        <CxSearch>
-          <CxKbd>⌘K</CxKbd>
-        </CxSearch>
-        <CxDropdown>
-          <CxDropdownTrigger />
-          <CxDropdownContent>
-            <CxSettings>
-              <CxSettingsSection>
-                <CxSettingsSectionTitle>Appearance</CxSettingsSectionTitle>
-                <CxSettingsToggle>
-                  <CxSettingsToggleLabel>Compact mode</CxSettingsToggleLabel>
-                </CxSettingsToggle>
-              </CxSettingsSection>
-            </CxSettings>
-          </CxDropdownContent>
-        </CxDropdown>
-        <CxThemeToggle />
-      </CxAppBarEnd>
-    </CxAppBar>
+      </HxAppBarStart>
+      <HxAppBarEnd class="flex items-center gap-2">
+        <HxSearch>
+          <HxKbd>⌘K</HxKbd>
+        </HxSearch>
+        <HxDropdown>
+          <HxDropdownTrigger />
+          <HxDropdownContent>
+            <HxSettings>
+              <HxSettingsSection>
+                <HxSettingsSectionTitle>Appearance</HxSettingsSectionTitle>
+                <HxSettingsToggle>
+                  <HxSettingsToggleLabel>Compact mode</HxSettingsToggleLabel>
+                </HxSettingsToggle>
+              </HxSettingsSection>
+            </HxSettings>
+          </HxDropdownContent>
+        </HxDropdown>
+        <HxThemeToggle />
+      </HxAppBarEnd>
+    </HxAppBar>
 
-    <CxAppNav class="bg-surface border-r border-divider pt-14 px-2">
+    <HxAppNav class="bg-surface border-r border-divider pt-14 px-2">
       <ShowcaseNav />
-    </CxAppNav>
+    </HxAppNav>
 
-    <CxAppMain class="pt-16 px-8">
+    <HxAppMain class="pt-16 px-8">
       <router-view />
-    </CxAppMain>
+    </HxAppMain>
 
-    <CxToc v-if="showToc" class="pt-14" />
-  </CxDocLayout>
+    <HxToc v-if="showToc" class="pt-14" />
+  </HxDocLayout>
 </template>

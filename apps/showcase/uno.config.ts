@@ -1,12 +1,12 @@
-import { presetCodex } from '@paper/codex'
+import { presetHelix } from '@paper/helix'
 import { defineConfig, presetWind4 } from 'unocss'
 
 export default defineConfig({
   content: {
     filesystem: [
-      '../../packages/codex/src/**/*.vue',
-      '../../packages/codex/src/**/*.ts',
+      '../../packages/helix/src/**/*.vue',
+      '../../packages/helix/src/**/*.ts',
     ],
   },
-  presets: [presetWind4(), presetCodex()],
+  presets: [presetWind4(), presetHelix()],
 })

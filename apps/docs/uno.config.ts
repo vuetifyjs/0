@@ -1,6 +1,12 @@
 import { defineConfig, presetWind4 } from 'unocss'
 
 export default defineConfig({
+  content: {
+    filesystem: [
+      '../../packages/helix/src/**/*.vue',
+      '../../packages/helix/src/**/*.ts',
+    ],
+  },
   presets: [
     presetWind4(),
   ],

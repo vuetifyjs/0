@@ -1,11 +1,11 @@
 <script setup lang="ts">
-  import { CxInput, CxSwitch } from '@paper/codex'
+  import { HxInput, HxSwitch } from '@paper/helix'
 
   // Utilities
   import { ref, watch } from 'vue'
 
   // Types
-  import type { DSProp } from '@paper/codex'
+  import type { DSProp } from '@paper/helix'
 
   const { props: propDefs = [] } = defineProps<{
     props?: DSProp[]
@@ -57,7 +57,7 @@
       </div>
 
       <!-- boolean: switch -->
-      <CxSwitch
+      <HxSwitch
         v-else-if="prop.type === 'boolean'"
         :model-value="values[prop.name] as boolean"
         small
@@ -65,7 +65,7 @@
       />
 
       <!-- number -->
-      <CxInput
+      <HxInput
         v-else-if="prop.type === 'number'"
         :model-value="String(values[prop.name] ?? '')"
         type="number"
@@ -73,7 +73,7 @@
       />
 
       <!-- string (default) -->
-      <CxInput
+      <HxInput
         v-else
         :model-value="String(values[prop.name] ?? '')"
         @update:model-value="update(prop.name, $event)"

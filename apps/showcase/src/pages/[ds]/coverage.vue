@@ -1,12 +1,12 @@
 <script setup lang="ts">
   import {
-    CxAccordion,
-    CxAccordionItem,
-    CxAlert,
-    CxBadge,
-    CxProgressBar,
-    CxProgressBarLabel,
-  } from '@paper/codex'
+    HxAccordion,
+    HxAccordionItem,
+    HxAlert,
+    HxBadge,
+    HxProgressBar,
+    HxProgressBarLabel,
+  } from '@paper/helix'
 
   // Composables
   import { useCoverage } from '../../composables/useCoverage'
@@ -43,19 +43,19 @@
         <span class="text-sm font-semibold text-on-surface-variant">Overall Coverage</span>
         <span class="text-lg font-bold">{{ coverage }}%</span>
       </div>
-      <CxProgressBar
+      <HxProgressBar
         :color="coverage >= 80 ? 'success' : coverage >= 50 ? 'warning' : 'error'"
         size="md"
         :value="coverage"
       >
-        <CxProgressBarLabel>{{ coverage }}%</CxProgressBarLabel>
-      </CxProgressBar>
+        <HxProgressBarLabel>{{ coverage }}%</HxProgressBarLabel>
+      </HxProgressBar>
     </div>
 
     <!-- Sections -->
-    <CxAccordion>
+    <HxAccordion>
       <!-- Documented -->
-      <CxAccordionItem
+      <HxAccordionItem
         :title="`Documented (${documented.length})`"
       >
         <div class="pt-2 pb-4">
@@ -68,15 +68,15 @@
               :key="name"
               class="flex items-center gap-2 py-1 border-b border-divider last:border-0"
             >
-              <CxBadge color="success" variant="subtle">docs</CxBadge>
+              <HxBadge color="success" variant="subtle">docs</HxBadge>
               <span class="font-mono text-sm">{{ name }}</span>
             </li>
           </ul>
         </div>
-      </CxAccordionItem>
+      </HxAccordionItem>
 
       <!-- Stubs -->
-      <CxAccordionItem
+      <HxAccordionItem
         :title="`Stubs (${stubs.length})`"
       >
         <div class="pt-2 pb-4">
@@ -89,7 +89,7 @@
               :key="name"
               class="flex items-center gap-2 py-1 border-b border-divider last:border-0"
             >
-              <CxBadge color="warning" variant="subtle">stub</CxBadge>
+              <HxBadge color="warning" variant="subtle">stub</HxBadge>
               <router-link
                 class="font-mono text-sm"
                 :to="`/${slug}/components/${name}`"
@@ -99,24 +99,24 @@
             </li>
           </ul>
         </div>
-      </CxAccordionItem>
+      </HxAccordionItem>
 
       <!-- Missing -->
-      <CxAccordionItem
+      <HxAccordionItem
         :title="`Missing (${missing.length})`"
       >
         <div class="pt-2 pb-4">
           <template v-if="missing.length > 0">
-            <CxAlert class="mb-4 p-3" type="warning">
+            <HxAlert class="mb-4 p-3" type="warning">
               These manifest entries were not found in the package exports. They may have been renamed or removed.
-            </CxAlert>
+            </HxAlert>
             <ul class="flex flex-col gap-1">
               <li
                 v-for="name in missing"
                 :key="name"
                 class="flex items-center gap-2 py-1 border-b border-divider last:border-0"
               >
-                <CxBadge color="error" variant="subtle">missing</CxBadge>
+                <HxBadge color="error" variant="subtle">missing</HxBadge>
                 <span class="font-mono text-sm">{{ name }}</span>
               </li>
             </ul>
@@ -125,8 +125,8 @@
             No missing exports.
           </div>
         </div>
-      </CxAccordionItem>
-    </CxAccordion>
+      </HxAccordionItem>
+    </HxAccordion>
   </div>
 
   <div v-else class="p-8">

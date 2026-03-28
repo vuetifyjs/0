@@ -2,7 +2,7 @@
 import { shallowRef } from 'vue'
 
 // Types
-import type { DSComponent, DSManifest } from '@paper/codex'
+import type { DSComponent, DSManifest } from '@paper/helix'
 
 const designSystems = shallowRef<DSManifest[]>([])
 

@@ -1,11 +1,11 @@
 <script setup lang="ts">
   import {
-    CxBadge,
-    CxCard,
-    CxTabPanel,
-    CxTabs,
-    CxTooltip,
-  } from '@paper/codex'
+    HxBadge,
+    HxCard,
+    HxTabPanel,
+    HxTabs,
+    HxTooltip,
+  } from '@paper/helix'
 
   // Composables
   import { useShowcase } from '../../composables/useShowcase'
@@ -63,17 +63,17 @@
     <h1 class="text-3xl font-bold mb-2">{{ ds.name }} — Tokens</h1>
     <p class="text-on-surface-variant mb-8">Design tokens powering the {{ ds.name }} system.</p>
 
-    <CxTabs :items="tabs">
+    <HxTabs :items="tabs">
       <!-- Colors -->
-      <CxTabPanel value="colors">
+      <HxTabPanel value="colors">
         <div class="pt-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-          <CxTooltip
+          <HxTooltip
             v-for="color in flattenColors(tokens.colors!)"
             :key="color.key"
             placement="top"
             :text="color.value"
           >
-            <CxCard class="overflow-hidden">
+            <HxCard class="overflow-hidden">
               <div
                 class="h-16"
                 :style="{ backgroundColor: color.value }"
@@ -82,19 +82,19 @@
                 <div class="text-xs font-semibold truncate">{{ color.key }}</div>
                 <div class="text-xs text-on-surface-variant font-mono">{{ color.value }}</div>
               </div>
-            </CxCard>
-          </CxTooltip>
+            </HxCard>
+          </HxTooltip>
         </div>
-      </CxTabPanel>
+      </HxTabPanel>
 
       <!-- Typography -->
-      <CxTabPanel value="typography">
+      <HxTabPanel value="typography">
         <div class="pt-6 flex flex-col gap-6">
           <template v-if="tokens.fontFamily">
             <div>
               <h3 class="text-sm font-semibold text-on-surface-variant mb-3 uppercase tracking-wide">Font Families</h3>
               <div class="flex flex-col gap-3">
-                <CxCard
+                <HxCard
                   v-for="(value, name) in tokens.fontFamily"
                   :key="name"
                   class="p-4"
@@ -104,7 +104,7 @@
                     The quick brown fox jumps over the lazy dog
                   </div>
                   <div class="text-xs text-on-surface-variant font-mono mt-1 truncate">{{ value }}</div>
-                </CxCard>
+                </HxCard>
               </div>
             </div>
           </template>
@@ -126,10 +126,10 @@
             </div>
           </template>
         </div>
-      </CxTabPanel>
+      </HxTabPanel>
 
       <!-- Spacing -->
-      <CxTabPanel value="spacing">
+      <HxTabPanel value="spacing">
         <div class="pt-6 flex flex-col gap-2">
           <div
             v-for="(value, name) in tokens.spacing"
@@ -144,28 +144,28 @@
             <div class="text-xs text-on-surface-variant font-mono">{{ String(value) }}</div>
           </div>
         </div>
-      </CxTabPanel>
+      </HxTabPanel>
 
       <!-- Shadows -->
-      <CxTabPanel value="shadows">
+      <HxTabPanel value="shadows">
         <div class="pt-6 flex flex-wrap gap-6">
           <div
             v-for="(value, name) in tokens.boxShadow"
             :key="name"
             class="flex flex-col items-center gap-3"
           >
-            <CxCard
+            <HxCard
               class="w-28 h-28 flex items-center justify-center"
               :style="{ boxShadow: String(value) }"
             >
               <span class="text-xs font-semibold">{{ name }}</span>
-            </CxCard>
+            </HxCard>
           </div>
         </div>
-      </CxTabPanel>
+      </HxTabPanel>
 
       <!-- Border Radius -->
-      <CxTabPanel value="border-radius">
+      <HxTabPanel value="border-radius">
         <div class="pt-6 flex flex-wrap gap-6">
           <div
             v-for="(value, name) in tokens.borderRadius"
@@ -182,10 +182,10 @@
             </div>
           </div>
         </div>
-      </CxTabPanel>
+      </HxTabPanel>
 
       <!-- Z-Index -->
-      <CxTabPanel value="z-index">
+      <HxTabPanel value="z-index">
         <div class="pt-6 flex flex-col gap-3">
           <div
             v-for="(value, name) in asRecord(tokens.zIndex)"
@@ -193,13 +193,13 @@
             class="flex items-center gap-3 py-2 border-b border-divider last:border-none"
           >
             <div class="flex-1 text-sm font-medium">{{ name }}</div>
-            <CxBadge color="primary" variant="subtle">{{ value }}</CxBadge>
+            <HxBadge color="primary" variant="subtle">{{ value }}</HxBadge>
           </div>
         </div>
-      </CxTabPanel>
+      </HxTabPanel>
 
       <!-- Easing -->
-      <CxTabPanel value="easing">
+      <HxTabPanel value="easing">
         <div class="pt-6 flex flex-col gap-3">
           <div
             v-for="(value, name) in asRecord(tokens.easing)"
@@ -210,10 +210,10 @@
             <div class="text-xs text-on-surface-variant font-mono">{{ value }}</div>
           </div>
         </div>
-      </CxTabPanel>
+      </HxTabPanel>
 
       <!-- Duration -->
-      <CxTabPanel value="duration">
+      <HxTabPanel value="duration">
         <div class="pt-6 flex flex-col gap-3">
           <div
             v-for="(value, name) in asRecord(tokens.duration)"
@@ -221,11 +221,11 @@
             class="flex items-center gap-3 py-2 border-b border-divider last:border-none"
           >
             <div class="flex-1 text-sm font-medium">{{ name }}</div>
-            <CxBadge color="primary" variant="subtle">{{ value }}</CxBadge>
+            <HxBadge color="primary" variant="subtle">{{ value }}</HxBadge>
           </div>
         </div>
-      </CxTabPanel>
-    </CxTabs>
+      </HxTabPanel>
+    </HxTabs>
   </div>
 
   <div v-else class="p-8">

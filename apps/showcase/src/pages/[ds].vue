@@ -1,13 +1,13 @@
 <script setup lang="ts">
   import {
-    CxBadge,
-    CxBreadcrumbs,
-    CxCallout,
-    CxCalloutHeader,
-    CxCard,
-    CxCodeBlock,
-    CxPackageManagerTabs,
-  } from '@paper/codex'
+    HxBadge,
+    HxBreadcrumbs,
+    HxCallout,
+    HxCalloutHeader,
+    HxCard,
+    HxCodeBlock,
+    HxPackageManagerTabs,
+  } from '@paper/helix'
 
   // Composables
   import { useCoverage } from '../composables/useCoverage'
@@ -61,52 +61,52 @@ app.use(create${name}Plugin())`
 
 <template>
   <div v-if="ds" class="p-8 max-w-3xl">
-    <CxBreadcrumbs class="mb-6" :items="breadcrumbs" />
+    <HxBreadcrumbs class="mb-6" :items="breadcrumbs" />
 
     <div class="mb-8">
       <div class="flex items-center gap-3 mb-2">
         <h1 class="text-3xl font-bold">{{ ds.name }}</h1>
-        <CxBadge color="primary" variant="outlined">{{ ds.prefix }}</CxBadge>
+        <HxBadge color="primary" variant="outlined">{{ ds.prefix }}</HxBadge>
       </div>
       <p v-if="ds.description" class="text-on-surface-variant">{{ ds.description }}</p>
     </div>
 
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-10">
-      <CxCard class="p-4 flex flex-col gap-1">
+      <HxCard class="p-4 flex flex-col gap-1">
         <div class="text-2xl font-bold">{{ ds.components.length }}</div>
         <div class="text-sm text-on-surface-variant">Components</div>
-      </CxCard>
-      <CxCard class="p-4 flex flex-col gap-1">
+      </HxCard>
+      <HxCard class="p-4 flex flex-col gap-1">
         <div class="text-2xl font-bold">{{ composableCount }}</div>
         <div class="text-sm text-on-surface-variant">Composables</div>
-      </CxCard>
-      <CxCard class="p-4 flex flex-col gap-1">
+      </HxCard>
+      <HxCard class="p-4 flex flex-col gap-1">
         <div class="text-2xl font-bold">{{ tokenCount }}</div>
         <div class="text-sm text-on-surface-variant">Token Groups</div>
-      </CxCard>
-      <CxCard class="p-4 flex flex-col gap-1">
+      </HxCard>
+      <HxCard class="p-4 flex flex-col gap-1">
         <div class="text-2xl font-bold">{{ coverage }}%</div>
         <div class="text-sm text-on-surface-variant">Coverage</div>
-      </CxCard>
+      </HxCard>
     </div>
 
-    <CxCallout v-if="hasStubs" class="mb-8" type="warning">
-      <CxCalloutHeader type="warning" />
+    <HxCallout v-if="hasStubs" class="mb-8" type="warning">
+      <HxCalloutHeader type="warning" />
       <p class="mt-2">
         {{ stubCount }} component{{ stubCount === 1 ? '' : 's' }} in this design system
         {{ stubCount === 1 ? 'is' : 'are' }} placeholder stubs without full documentation.
       </p>
-    </CxCallout>
+    </HxCallout>
 
     <h2 class="text-xl font-semibold mb-4">Installation</h2>
 
     <template v-if="ds.package">
       <p class="mb-3 text-on-surface-variant">Install the package:</p>
-      <CxPackageManagerTabs class="mb-6" :package="ds.package" />
+      <HxPackageManagerTabs class="mb-6" :package="ds.package" />
     </template>
 
     <p class="mb-3 text-on-surface-variant">Register the plugin:</p>
-    <CxCodeBlock class="mb-10" :code="pluginCode" language="ts" />
+    <HxCodeBlock class="mb-10" :code="pluginCode" language="ts" />
 
     <h2 class="text-xl font-semibold mb-4">Explore</h2>
 
@@ -115,20 +115,20 @@ app.use(create${name}Plugin())`
         class="no-underline text-on-surface"
         :to="`/${ds.slug}/tokens`"
       >
-        <CxCard class="p-4 flex flex-col gap-1" hoverable>
+        <HxCard class="p-4 flex flex-col gap-1" hoverable>
           <div class="font-semibold">Tokens</div>
           <div class="text-sm text-on-surface-variant">{{ tokenCount }} groups</div>
-        </CxCard>
+        </HxCard>
       </router-link>
 
       <router-link
         class="no-underline text-on-surface"
         :to="`/${ds.slug}/components`"
       >
-        <CxCard class="p-4 flex flex-col gap-1" hoverable>
+        <HxCard class="p-4 flex flex-col gap-1" hoverable>
           <div class="font-semibold">Components</div>
           <div class="text-sm text-on-surface-variant">{{ ds.components.length }} total</div>
-        </CxCard>
+        </HxCard>
       </router-link>
 
       <router-link
@@ -136,20 +136,20 @@ app.use(create${name}Plugin())`
         class="no-underline text-on-surface"
         :to="`/${ds.slug}/composables`"
       >
-        <CxCard class="p-4 flex flex-col gap-1" hoverable>
+        <HxCard class="p-4 flex flex-col gap-1" hoverable>
           <div class="font-semibold">Composables</div>
           <div class="text-sm text-on-surface-variant">{{ composableCount }} total</div>
-        </CxCard>
+        </HxCard>
       </router-link>
 
       <router-link
         class="no-underline text-on-surface"
         :to="`/${ds.slug}/coverage`"
       >
-        <CxCard class="p-4 flex flex-col gap-1" hoverable>
+        <HxCard class="p-4 flex flex-col gap-1" hoverable>
           <div class="font-semibold">Coverage</div>
           <div class="text-sm text-on-surface-variant">{{ coverage }}% documented</div>
-        </CxCard>
+        </HxCard>
       </router-link>
     </div>
 

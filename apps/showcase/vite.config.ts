@@ -12,8 +12,8 @@ export default defineConfig({
     UnocssVitePlugin(),
     paperAnalyzer({
       targets: [{
-        slug: 'codex',
-        package: '@paper/codex',
+        slug: 'helix',
+        package: '@paper/helix',
         manifestComponents: [],
         manifestComposables: [],
       }],
@@ -34,8 +34,8 @@ export default defineConfig({
       '#v0': fileURLToPath(new URL('../../packages/0/src', import.meta.url)),
       '@vuetify/paper': fileURLToPath(new URL('../../packages/paper/src', import.meta.url)),
       '#paper': fileURLToPath(new URL('../../packages/paper/src', import.meta.url)),
-      '@paper/codex': fileURLToPath(new URL('../../packages/codex/src', import.meta.url)),
-      '#codex': fileURLToPath(new URL('../../packages/codex/src', import.meta.url)),
+      '@paper/helix': fileURLToPath(new URL('../../packages/helix/src', import.meta.url)),
+      '#helix': fileURLToPath(new URL('../../packages/helix/src', import.meta.url)),
     },
   },
   server: {

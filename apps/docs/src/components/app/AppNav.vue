@@ -199,13 +199,13 @@
         </li>
 
         <li class="px-4">
-          <AppDivider />
+          <HxDivider />
         </li>
       </template>
 
       <template v-for="(nav, i) in visibleNav" :key="i">
         <li v-if="'divider' in nav" class="px-4">
-          <AppDivider />
+          <HxDivider />
         </li>
 
         <AppNavLink
@@ -229,7 +229,7 @@
       <template v-if="levelFilter.selectedLevels.size > 0">
         <!-- Skip divider if Active page section already added one and nav has no real content -->
         <li v-if="!filteredOutPage || hasNavContent" class="px-4">
-          <AppDivider />
+          <HxDivider />
         </li>
 
         <li class="px-4">

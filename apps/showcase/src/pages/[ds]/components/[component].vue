@@ -1,12 +1,12 @@
 <script setup lang="ts">
   import {
-    CxBadge,
-    CxBreadcrumbs,
-    CxLink,
-    CxPageNavigator,
-    CxTabPanel,
-    CxTabs,
-  } from '@paper/codex'
+    HxBadge,
+    HxBreadcrumbs,
+    HxLink,
+    HxPageNavigator,
+    HxTabPanel,
+    HxTabs,
+  } from '@paper/helix'
 
   // Components
   import ComponentDemo from '../../../components/ComponentDemo.vue'
@@ -69,20 +69,20 @@
 
 <template>
   <div v-if="component" class="p-8 max-w-4xl">
-    <CxBreadcrumbs class="mb-6" :items="breadcrumbs" />
+    <HxBreadcrumbs class="mb-6" :items="breadcrumbs" />
 
     <!-- Header -->
     <div class="mb-8">
       <div class="flex flex-wrap items-center gap-3 mb-2">
         <h1 class="text-3xl font-bold font-mono">{{ component.name }}</h1>
-        <CxBadge color="primary" variant="subtle">{{ component.category }}</CxBadge>
-        <CxLink
+        <HxBadge color="primary" variant="subtle">{{ component.category }}</HxBadge>
+        <HxLink
           v-if="component.v0"
           class="no-underline"
           :to="component.v0"
         >
-          <CxBadge color="secondary" variant="outlined">v0</CxBadge>
-        </CxLink>
+          <HxBadge color="secondary" variant="outlined">v0</HxBadge>
+        </HxLink>
       </div>
       <p v-if="component.description" class="text-on-surface-variant">{{ component.description }}</p>
     </div>
@@ -96,14 +96,14 @@
     />
 
     <!-- Tabs -->
-    <CxTabs
+    <HxTabs
       v-if="tabItems.length > 0"
       v-model="activeTab"
       class="mb-6"
       :items="tabItems"
     >
       <!-- API tab -->
-      <CxTabPanel value="api">
+      <HxTabPanel value="api">
         <div class="mt-4 overflow-x-auto">
           <table class="w-full text-sm border-collapse">
             <thead>
@@ -128,24 +128,24 @@
             </tbody>
           </table>
         </div>
-      </CxTabPanel>
+      </HxTabPanel>
 
       <!-- Sub-components tab -->
-      <CxTabPanel value="sub-components">
+      <HxTabPanel value="sub-components">
         <div class="mt-4 flex flex-wrap gap-2">
-          <CxBadge
+          <HxBadge
             v-for="sub in component.subComponents"
             :key="sub"
             color="primary"
             variant="outlined"
           >
             {{ sub }}
-          </CxBadge>
+          </HxBadge>
         </div>
-      </CxTabPanel>
+      </HxTabPanel>
 
       <!-- Examples tab -->
-      <CxTabPanel value="examples">
+      <HxTabPanel value="examples">
         <div class="mt-4">
           <div
             v-for="example in component.examples"
@@ -157,10 +157,10 @@
             <component :is="example.component" />
           </div>
         </div>
-      </CxTabPanel>
-    </CxTabs>
+      </HxTabPanel>
+    </HxTabs>
 
-    <CxPageNavigator class="mt-10" :next :prev />
+    <HxPageNavigator class="mt-10" :next :prev />
   </div>
 
   <div v-else class="p-8">
