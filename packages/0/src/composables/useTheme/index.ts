@@ -38,7 +38,7 @@ import type { ID } from '#v0/types'
 import type { ComputedRef, Ref } from 'vue'
 
 // Exports
-export { V0StyleSheetThemeAdapter, V0UnheadThemeAdapter, Vuetify0ThemeAdapter } from '#v0/composables/useTheme/adapters'
+export { V0StyleSheetThemeAdapter, V0UnheadThemeAdapter } from '#v0/composables/useTheme/adapters'
 
 export type { ThemeAdapter } from '#v0/composables/useTheme/adapters'
 
