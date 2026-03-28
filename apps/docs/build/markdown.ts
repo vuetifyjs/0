@@ -133,12 +133,12 @@ export default async function MarkdownPlugin () {
           if (tokens[index].nesting === 1) {
             const info = (tokens[index] as MarkdownToken & { info?: string }).info?.trim() || ''
             const isSingle = info.includes('single')
-            return `<HxFaq :multiple="${!isSingle}">\n`
+            return `<DocsFaq :multiple="${!isSingle}">\n`
           }
           // Close final FAQ item when container closes
-          const closeItem = env._inFaqItem ? '</HxFaqItem>\n' : ''
+          const closeItem = env._inFaqItem ? '</DocsFaqItem>\n' : ''
           delete env._inFaqItem
-          return `${closeItem}</HxFaq>\n`
+          return `${closeItem}</DocsFaq>\n`
         },
       })
 
@@ -241,12 +241,12 @@ export default async function MarkdownPlugin () {
         if (inlineToken?.type === 'inline' && inlineToken.content?.startsWith('??? ')) {
           const question = inlineToken.content.slice(4).trim()
           // Close previous FAQ item if one is open
-          const closeTag = env._inFaqItem ? '</HxFaqItem>\n' : ''
+          const closeTag = env._inFaqItem ? '</DocsFaqItem>\n' : ''
           env._inFaqItem = true
           env._faqQuestionPara = true
           inlineToken.content = ''
           inlineToken.children = []
-          return `${closeTag}<HxFaqItem question="${md.utils.escapeHtml(question)}">\n`
+          return `${closeTag}<DocsFaqItem question="${md.utils.escapeHtml(question)}">\n`
         }
         return defaultParagraphOpen
           ? defaultParagraphOpen(tokens, index, options, env, self)
