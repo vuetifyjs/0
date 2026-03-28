@@ -6,7 +6,16 @@
 
   // Types
   import type { V0PaperProps } from '@vuetify/paper'
-  import type { Instance as PanZoomInstance } from 'svg-pan-zoom'
+  // svg-pan-zoom is an optional peer dep — inline the type to avoid import failure
+  interface PanZoomInstance {
+    zoom: (scale: number) => void
+    getZoom: () => number
+    resetZoom: () => void
+    resize: () => void
+    fit: () => void
+    center: () => void
+    destroy: () => void
+  }
 
   export interface HxMermaidProps extends V0PaperProps {
     /** Rendered SVG/HTML content to display */
@@ -38,7 +47,8 @@
   // --- Pan-zoom ---
 
   async function loadPanZoom () {
-    const { default: svgPanZoom } = await import('svg-pan-zoom')
+    const mod = 'svg-pan-zoom'
+    const { default: svgPanZoom } = await import(/* @vite-ignore */ mod)
     return svgPanZoom
   }
 
