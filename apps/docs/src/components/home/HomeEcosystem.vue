@@ -40,12 +40,12 @@
           <p class="opacity-60">Growing every release.</p>
         </div>
 
-        <AppLink
+        <HxLink
           class="hidden md:flex items-center gap-1 text-primary hover:underline font-medium"
           to="/components"
         >
           View all
-        </AppLink>
+        </HxLink>
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -68,12 +68,12 @@
         </router-link>
       </div>
 
-      <AppLink
+      <HxLink
         class="md:hidden flex items-center justify-center gap-1 text-primary hover:underline font-medium mt-6"
         to="/components"
       >
         View all components
-      </AppLink>
+      </HxLink>
     </div>
 
     <!-- Composables -->
@@ -84,12 +84,12 @@
           <p class="opacity-60">Reactive utilities for any use case</p>
         </div>
 
-        <AppLink
+        <HxLink
           class="hidden md:flex items-center gap-1 text-primary hover:underline font-medium"
           to="/composables"
         >
           View all
-        </AppLink>
+        </HxLink>
       </div>
 
       <div class="grid grid-cols-2 md:flex md:flex-wrap gap-3">
@@ -113,12 +113,12 @@
         </router-link>
       </div>
 
-      <AppLink
+      <HxLink
         class="md:hidden flex items-center justify-center gap-1 text-primary hover:underline font-medium mt-6"
         to="/composables"
       >
         View all composables
-      </AppLink>
+      </HxLink>
     </div>
   </section>
 </template>

@@ -68,7 +68,7 @@
       <p class="text-sm opacity-60 text-center mb-6">Works with</p>
 
       <div class="grid grid-cols-2 sm:flex sm:flex-wrap sm:justify-center gap-3 sm:gap-4 max-w-[640px] mx-auto">
-        <AppLink
+        <HxLink
           v-for="fw in frameworks"
           :key="fw.name"
           class="flex items-center justify-center sm:justify-start gap-2 px-4 sm:px-5 py-2.5 rounded-lg border bg-surface hover:border-primary transition-all duration-150"
@@ -77,7 +77,7 @@
         >
           <AppIcon :icon="fw.icon" :size="18" />
           <span class="text-sm font-medium">{{ fw.name }}</span>
-        </AppLink>
+        </HxLink>
       </div>
     </div>
   </section>

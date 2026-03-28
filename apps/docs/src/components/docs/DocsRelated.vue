@@ -65,9 +65,9 @@
         <tbody>
           <tr v-for="link in links" :key="link.to">
             <td>
-              <AppLink :to="link.to">
+              <HxLink :to="link.to">
                 {{ link.name }}
-              </AppLink>
+              </HxLink>
             </td>
             <td>{{ link.category }}</td>
           </tr>

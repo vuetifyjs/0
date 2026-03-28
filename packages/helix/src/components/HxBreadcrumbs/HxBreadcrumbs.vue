@@ -13,6 +13,7 @@
 
   // Types
   import type { V0PaperProps } from '@vuetify/paper'
+  import type { Component } from 'vue'
 
   export interface HxBreadcrumbItem {
     label: string
@@ -22,6 +23,8 @@
 
   export interface HxBreadcrumbsProps extends V0PaperProps {
     items?: HxBreadcrumbItem[]
+    /** Component to render links with `to` (e.g. RouterLink) */
+    linkComponent?: Component
   }
 </script>
 
@@ -30,6 +33,7 @@
 
   const {
     items = [] as HxBreadcrumbItem[],
+    linkComponent,
     ...paperProps
   } = defineProps<HxBreadcrumbsProps>()
 </script>
@@ -55,10 +59,18 @@
 
           <BreadcrumbsItem :text="item.label">
             <BreadcrumbsLink
-              v-if="item.to || item.href"
+              v-if="item.to && linkComponent"
+              :as="linkComponent"
               class="helix-breadcrumbs__link"
-              :href="item.href"
               :to="item.to"
+            >
+              {{ item.label }}
+            </BreadcrumbsLink>
+
+            <BreadcrumbsLink
+              v-else-if="item.to || item.href"
+              class="helix-breadcrumbs__link"
+              :href="item.href || item.to"
             >
               {{ item.label }}
             </BreadcrumbsLink>

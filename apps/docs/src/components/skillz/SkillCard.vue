@@ -1,6 +1,7 @@
 <script setup lang="ts">
   // Components
-  import DocsCard from '@/components/docs/DocsCard.vue'
+  import { HxCard } from '@paper/helix'
+
   import SkillMasteredBadge from './SkillMasteredBadge.vue'
 
   // Utilities
@@ -22,7 +23,7 @@
 </script>
 
 <template>
-  <DocsCard
+  <HxCard
     class="flex flex-col h-full"
     :class="{ 'border-success': done }"
     :disabled="isLocked"
@@ -51,5 +52,5 @@
         <SkillDuration :minutes="skill.minutes" />
       </div>
     </div>
-  </DocsCard>
+  </HxCard>
 </template>

@@ -4,6 +4,7 @@
 
   // Utilities
   import { toRef } from 'vue'
+  import { RouterLink } from 'vue-router'
 
   // Types
   import type { AtomProps } from '@vuetify/v0'
@@ -23,9 +24,10 @@
 
   const external = toRef(() => to.startsWith('http://') || to.startsWith('https://'))
 
+  const tag = toRef(() => external.value ? 'a' : RouterLink)
   const attrs = toRef(() => external.value
     ? { href: to, target: '_blank', rel: 'noopener noreferrer' }
-    : { href: to },
+    : { to },
   )
 
   const suffix = toRef(() => !noSuffix && external.value ? '\u2197' : '')
@@ -33,7 +35,7 @@
 
 <template>
   <Atom
-    as="a"
+    :as="tag"
     class="helix-link"
     v-bind="{ ...attrs, ...props }"
   >
