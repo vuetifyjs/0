@@ -42,10 +42,10 @@ The docs are organized into distinct sections, each serving a specific purpose:
 
 | Section | Purpose | When to use |
 |---------|---------|-------------|
-| <AppLink to="/guide" class="whitespace-nowrap"><AppIcon icon="book" :size="18" class="inline-block align-text-bottom mr-1" />**Guide**</AppLink> | Conceptual learning | Understanding architecture, patterns, best practices |
-| <AppLink to="/components" class="whitespace-nowrap"><AppIcon icon="layers" :size="18" class="inline-block align-text-bottom mr-1" />**Components**</AppLink> | Headless UI primitives | Building accessible interfaces (Dialog, Popover, Selection) |
-| <AppLink to="/composables" class="whitespace-nowrap"><AppIcon icon="puzzle" :size="18" class="inline-block align-text-bottom mr-1" />**Composables**</AppLink> | Logic building blocks | Adding behavior without UI (createContext, createSelection) |
-| <AppLink to="/api" class="whitespace-nowrap"><AppIcon icon="beaker" :size="18" class="inline-block align-text-bottom mr-1" />**API**</AppLink> | Complete reference | Looking up props, events, slots, methods |
+| <HxLink to="/guide" class="whitespace-nowrap"><AppIcon icon="book" :size="18" class="inline-block align-text-bottom mr-1" />**Guide**</HxLink> | Conceptual learning | Understanding architecture, patterns, best practices |
+| <HxLink to="/components" class="whitespace-nowrap"><AppIcon icon="layers" :size="18" class="inline-block align-text-bottom mr-1" />**Components**</HxLink> | Headless UI primitives | Building accessible interfaces (Dialog, Popover, Selection) |
+| <HxLink to="/composables" class="whitespace-nowrap"><AppIcon icon="puzzle" :size="18" class="inline-block align-text-bottom mr-1" />**Composables**</HxLink> | Logic building blocks | Adding behavior without UI (createContext, createSelection) |
+| <HxLink to="/api" class="whitespace-nowrap"><AppIcon icon="beaker" :size="18" class="inline-block align-text-bottom mr-1" />**API**</HxLink> | Complete reference | Looking up props, events, slots, methods |
 
 Each component and composable page follows a consistent structure: overview, usage examples, anatomy, and API reference.
 
