@@ -1,3 +1,6 @@
+// Styles (loaded when plugin is installed)
+import './styles'
+
 // Framework
 import {
   createHydrationPlugin,
