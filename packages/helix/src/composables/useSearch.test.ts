@@ -6,12 +6,13 @@ import { effectScope } from 'vue'
 // Types
 import type { SearchItem } from './useSearch'
 
-// Mock useHotkey to avoid side effects in tests
+// Mock useHotkey and useToggleScope to avoid side effects in tests
 vi.mock('@vuetify/v0', async importOriginal => {
   const original = await importOriginal<Record<string, unknown>>()
   return {
     ...original,
     useHotkey: vi.fn(),
+    useToggleScope: vi.fn(),
   }
 })
 
@@ -126,5 +127,59 @@ describe('useSearch', () => {
     query.value = 'something'
     clear()
     expect(query.value).toBe('')
+  })
+
+  describe('selection', () => {
+    it('selection.index starts at 0', () => {
+      const { selection } = setup()
+      expect(selection.index.value).toBe(0)
+    })
+
+    it('selection.current() returns undefined when no results', () => {
+      const { selection } = setup()
+      expect(selection.current()).toBeUndefined()
+    })
+
+    it('selection.current() returns the selected result', () => {
+      const { query, selection } = setup()
+      query.value = 'api'
+      expect(selection.current()?.id).toBe('2')
+    })
+
+    it('selection.next() wraps around', () => {
+      const { query, selection } = setup()
+      query.value = 'api'
+      // 2 results: index 0, 1
+      selection.next()
+      expect(selection.index.value).toBe(1)
+      selection.next()
+      expect(selection.index.value).toBe(0)
+    })
+
+    it('selection.prev() wraps around', () => {
+      const { query, selection } = setup()
+      query.value = 'api'
+      // 2 results: start at 0, prev should wrap to 1
+      selection.prev()
+      expect(selection.index.value).toBe(1)
+    })
+
+    it('open() resets selection index', () => {
+      const { query, selection, open } = setup()
+      query.value = 'api'
+      selection.next()
+      expect(selection.index.value).toBe(1)
+      open()
+      expect(selection.index.value).toBe(0)
+    })
+
+    it('clear() resets selection index', () => {
+      const { query, selection, clear } = setup()
+      query.value = 'api'
+      selection.next()
+      expect(selection.index.value).toBe(1)
+      clear()
+      expect(selection.index.value).toBe(0)
+    })
   })
 })

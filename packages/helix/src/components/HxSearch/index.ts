@@ -1,4 +1,4 @@
-export type { HxSearchProps } from './HxSearch.vue'
+export type { HxSearchGroupedResults, HxSearchProps } from './HxSearch.vue'
 export { default as HxSearch } from './HxSearch.vue'
 
 export type { HxSearchInputProps } from './HxSearchInput.vue'
