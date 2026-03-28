@@ -18,9 +18,9 @@
     }
   })
 
-  const { composables, summary } = useBenchmarkData({ trigger: visible })
+  const { composables } = useBenchmarkData({ trigger: visible })
   const { current: opsCount } = useCountUp(sectionRef, 100, { duration: 1500 })
-  const benchmarkCount = toRef(() => summary.value.totalBenchmarks)
+  const { current: benchmarkCount } = useCountUp(sectionRef, 292, { duration: 1800 })
   const { current: testCount } = useCountUp(sectionRef, 2600, { duration: 2000 })
 
   const composablePaths: Record<string, string> = {
