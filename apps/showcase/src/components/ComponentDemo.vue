@@ -22,6 +22,19 @@
     return (codexComponents as Record<string, unknown>)[component.name]
   })
 
+  // Components that accept a default slot get placeholder text
+  const SLOT_COMPONENTS = new Set([
+    'CxButton', 'CxIconButton', 'CxBadge', 'CxChip', 'CxLink',
+    'CxCallout', 'CxAlert', 'CxKbd',
+  ])
+
+  const slotContent = toRef(() => {
+    if (SLOT_COMPONENTS.has(component.name)) {
+      return component.name.replace(/^Cx/, '')
+    }
+    return ''
+  })
+
   const source = toRef(() => generateSource())
 
   function generateSource (): string {
@@ -36,6 +49,10 @@
       })
       .join(' ')
     const tag = component.name
+    const text = slotContent.value
+    if (text) {
+      return attrs ? `<${tag} ${attrs}>${text}</${tag}>` : `<${tag}>${text}</${tag}>`
+    }
     return attrs ? `<${tag} ${attrs} />` : `<${tag} />`
   }
 
@@ -50,14 +67,15 @@
     <div class="flex min-h-48">
       <!-- Preview pane -->
       <div
-        class="flex-1 flex items-center justify-center p-8"
-        style="background-image: repeating-conic-gradient(var(--cx-color-surface-variant, #f0f0f0) 0% 25%, transparent 0% 50%); background-size: 16px 16px;"
+        class="flex-1 flex items-center justify-center p-8 bg-surface-tint rounded-tl-lg"
       >
         <component
           :is="resolved"
           v-if="resolved"
           v-bind="propValues"
-        />
+        >
+          {{ slotContent }}
+        </component>
         <div v-else class="text-xs text-on-surface-variant font-mono opacity-50">
           {{ component.name }} (not resolved)
         </div>
