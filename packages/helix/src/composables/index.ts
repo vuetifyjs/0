@@ -29,7 +29,7 @@ export { useScrollSpy } from './useScrollSpy'
 export type { ScrollSpyOptions, ScrollSpyReturn } from './useScrollSpy'
 
 export { useSearch } from './useSearch'
-export type { SearchItem, UseSearchOptions, UseSearchReturn } from './useSearch'
+export type { SearchItem, SearchSelection, UseSearchOptions, UseSearchReturn } from './useSearch'
 
 export { provideSettings, useSettings } from './useSettings'
 export type { HelixSettings, PackageManager, UseSettingsReturn } from './useSettings'

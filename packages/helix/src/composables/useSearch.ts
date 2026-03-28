@@ -4,13 +4,14 @@
  * Generic client-side search composable.
  * Filters items by query matching title, description, and category.
  * Uses useHotkey for keyboard shortcut (default: ctrl+k).
+ * Includes keyboard selection for navigating results.
  */
 
 // Framework
-import { useHotkey } from '@vuetify/v0'
+import { useHotkey, useToggleScope } from '@vuetify/v0'
 
 // Utilities
-import { computed, shallowRef, toValue } from 'vue'
+import { computed, shallowRef, toValue, watch } from 'vue'
 
 // Types
 import type { ComputedRef, MaybeRefOrGetter, ShallowRef } from 'vue'
@@ -21,6 +22,17 @@ export interface SearchItem {
   description?: string
   category?: string
   href?: string
+}
+
+export interface SearchSelection {
+  /** Currently selected result index */
+  index: ShallowRef<number>
+  /** Get the currently selected result */
+  current: () => SearchItem | undefined
+  /** Select previous result */
+  prev: () => void
+  /** Select next result */
+  next: () => void
 }
 
 export interface UseSearchOptions {
@@ -36,6 +48,8 @@ export interface UseSearchReturn {
   query: ShallowRef<string>
   /** Filtered search results */
   results: ComputedRef<SearchItem[]>
+  /** Keyboard selection state and controls */
+  selection: SearchSelection
   /** Open the search */
   open: () => void
   /** Close the search */
@@ -56,6 +70,7 @@ export function useSearch (options: UseSearchOptions): UseSearchReturn {
   const { hotkey = 'ctrl+k' } = options
   const isOpen = shallowRef(false)
   const query = shallowRef('')
+  const selectedIndex = shallowRef(0)
 
   const results = computed(() => {
     const trimmed = query.value.trim().toLowerCase()
@@ -73,9 +88,31 @@ export function useSearch (options: UseSearchOptions): UseSearchReturn {
     )
   })
 
+  // Reset selection when results change
+  watch(results, () => {
+    selectedIndex.value = 0
+  })
+
+  function getCurrent (): SearchItem | undefined {
+    return results.value[selectedIndex.value]
+  }
+
+  function selectPrev () {
+    const total = results.value.length
+    if (total === 0) return
+    selectedIndex.value = (selectedIndex.value - 1 + total) % total
+  }
+
+  function selectNext () {
+    const total = results.value.length
+    if (total === 0) return
+    selectedIndex.value = (selectedIndex.value + 1) % total
+  }
+
   function open () {
     isOpen.value = true
     query.value = ''
+    selectedIndex.value = 0
   }
 
   function close () {
@@ -93,6 +130,7 @@ export function useSearch (options: UseSearchOptions): UseSearchReturn {
 
   function clear () {
     query.value = ''
+    selectedIndex.value = 0
   }
 
   useHotkey(hotkey, (e: KeyboardEvent) => {
@@ -100,10 +138,25 @@ export function useSearch (options: UseSearchOptions): UseSearchReturn {
     toggle()
   })
 
+  // Keyboard navigation - only active when modal is open
+  useToggleScope(() => isOpen.value, () => {
+    useHotkey('escape', close, { inputs: true })
+    useHotkey('up', selectPrev, { inputs: true })
+    useHotkey('down', selectNext, { inputs: true })
+  })
+
+  const selection: SearchSelection = {
+    index: selectedIndex,
+    current: getCurrent,
+    prev: selectPrev,
+    next: selectNext,
+  }
+
   return {
     isOpen,
     query,
     results,
+    selection,
     open,
     close,
     toggle,

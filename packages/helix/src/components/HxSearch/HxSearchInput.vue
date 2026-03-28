@@ -2,6 +2,10 @@
   export interface HxSearchInputProps {
     /** Placeholder text for the search input */
     placeholder?: string
+    /** aria-activedescendant ID for keyboard navigation */
+    activeDescendant?: string
+    /** Whether results are expanded */
+    expanded?: boolean
   }
 </script>
 
@@ -13,6 +17,8 @@
 
   const {
     placeholder = 'Search...',
+    activeDescendant,
+    expanded,
   } = defineProps<HxSearchInputProps>()
 
   const emit = defineEmits<{
@@ -26,6 +32,8 @@
   onMounted(() => {
     input.value?.focus()
   })
+
+  defineExpose({ input })
 </script>
 
 <template>
@@ -50,12 +58,43 @@
     <input
       ref="input"
       v-model="query"
+      :aria-activedescendant="activeDescendant"
+      aria-autocomplete="list"
+      aria-controls="helix-search-listbox"
+      :aria-expanded="expanded"
       class="helix-search__input-field"
       :placeholder
+      role="combobox"
       type="search"
       @blur="emit('blur', $event)"
       @focus="emit('focus', $event)"
     >
+
+    <button
+      v-if="query"
+      aria-label="Clear search"
+      class="helix-search__input-clear"
+      type="button"
+      @click="query = ''"
+    >
+      <svg
+        aria-hidden="true"
+        fill="none"
+        height="14"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        viewBox="0 0 24 24"
+        width="14"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path d="M18 6 6 18" />
+        <path d="m6 6 12 12" />
+      </svg>
+    </button>
+
+    <slot name="append" />
   </div>
 </template>
 
@@ -82,5 +121,23 @@
     font: inherit;
     color: inherit;
     width: 100%;
+  }
+
+  .helix-search__input-clear {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.25rem;
+    border: none;
+    border-radius: 0.25rem;
+    background: transparent;
+    color: inherit;
+    opacity: 0.5;
+    cursor: pointer;
+  }
+
+  .helix-search__input-clear:hover {
+    opacity: 1;
   }
 </style>

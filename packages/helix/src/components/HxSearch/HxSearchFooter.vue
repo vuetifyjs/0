@@ -8,9 +8,12 @@
 
 <template>
   <div class="helix-search__footer">
-    <span class="helix-search__footer-hint"><kbd>↑↓</kbd> navigate</span>
-    <span class="helix-search__footer-hint"><kbd>↵</kbd> select</span>
-    <span class="helix-search__footer-hint"><kbd>esc</kbd> close</span>
+    <div class="helix-search__footer-hints">
+      <span class="helix-search__footer-hint"><kbd>↑↓</kbd> navigate</span>
+      <span class="helix-search__footer-hint"><kbd>↵</kbd> select</span>
+      <span class="helix-search__footer-hint"><kbd>esc</kbd> close</span>
+    </div>
+    <slot name="append" />
   </div>
 </template>
 
@@ -18,11 +21,17 @@
   .helix-search__footer {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    justify-content: space-between;
     padding: 0.5rem 1rem;
     border-top: 1px solid currentColor;
     opacity: 0.8;
     font-size: 0.75em;
+  }
+
+  .helix-search__footer-hints {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
   }
 
   .helix-search__footer-hint {
