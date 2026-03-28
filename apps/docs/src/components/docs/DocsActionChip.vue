@@ -1,4 +1,6 @@
 <script setup lang="ts">
+  import { HxChip } from '@paper/helix'
+
   // Utilities
   import { toRef } from 'vue'
 
@@ -25,15 +27,21 @@
     :target="isExternal ? '_blank' : undefined"
     :title
   >
-    <AppChip :color :icon :text />
+    <HxChip :text>
+      <template v-if="icon" #icon>
+        <AppIcon :class="color" :icon size="1.2em" />
+      </template>
+    </HxChip>
   </a>
 
-  <AppChip
+  <HxChip
     v-else
-    :color
-    :icon
     :text
     :title
     @click="emit('click', $event)"
-  />
+  >
+    <template v-if="icon" #icon>
+      <AppIcon :class="color" :icon size="1.2em" />
+    </template>
+  </HxChip>
 </template>

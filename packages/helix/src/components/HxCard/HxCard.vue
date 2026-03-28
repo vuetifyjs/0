@@ -7,7 +7,6 @@
 
   // Types
   import type { V0PaperProps } from '@vuetify/paper'
-  import type { DOMElement } from '@vuetify/v0'
 
   export interface HxCardProps extends V0PaperProps {
     /** Make card hoverable with interactive effects */
