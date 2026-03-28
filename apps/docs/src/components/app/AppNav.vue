@@ -144,7 +144,7 @@
   <HxAppNav
     ref="nav"
     :class="[
-      'py-4 !flex -translate-x-full md:translate-x-0 rtl:translate-x-full md:rtl:translate-x-0 border-e border-solid border-divider',
+      'py-4 !flex -translate-x-full md:translate-x-0 rtl:translate-x-full md:rtl:translate-x-0 border-e border-divider',
       settings.showBgGlass.value ? 'bg-glass-surface' : 'bg-surface',
       navigation.isOpen.value && '!translate-x-0',
       !settings.prefersReducedMotion.value && 'transition-transform duration-200 ease-in-out',
