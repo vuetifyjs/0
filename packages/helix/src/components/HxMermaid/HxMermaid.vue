@@ -9,8 +9,13 @@
   // svg-pan-zoom is an optional peer dep — inline the type to avoid import failure
   interface PanZoomInstance {
     zoom: (scale: number) => void
+    zoomIn: () => void
+    zoomOut: () => void
+    zoomAtPoint: (scale: number, point: { x: number, y: number }) => void
     getZoom: () => number
     resetZoom: () => void
+    resetPan: () => void
+    panBy: (point: { x: number, y: number }) => void
     resize: () => void
     fit: () => void
     center: () => void

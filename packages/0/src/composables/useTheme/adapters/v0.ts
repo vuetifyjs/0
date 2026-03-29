@@ -2,7 +2,7 @@
 import { IN_BROWSER } from '#v0/constants/globals'
 
 // Utilities
-import { isNull, isString, isUndefined } from '#v0/utilities'
+import { isNull, isString } from '#v0/utilities'
 import { onScopeDispose, watch } from 'vue'
 
 // Types
@@ -32,31 +32,6 @@ export class Vuetify0ThemeAdapter extends ThemeAdapter {
     super(options.prefix ?? 'v0')
     this.cspNonce = options.cspNonce
     this.stylesheetId = options.stylesheetId ?? this.stylesheetId
-  }
-
-  override generate (
-    colors: Record<ID, Colors>,
-    isDark?: boolean,
-  ): string {
-    let css = ''
-
-    for (const theme in colors) {
-      const themeColors = colors[theme]
-
-      if (!themeColors) continue
-
-      const vars = Object.entries(themeColors)
-        .map(([key, val]) => `  --${this.prefix}-${key}: ${this.rgb ? this.decompose(val) : val};`)
-        .join('\n')
-
-      css += `[data-theme="${theme}"] {\n${vars}\n}\n`
-    }
-
-    if (!isUndefined(isDark)) {
-      css += `:root {\n  color-scheme: ${isDark ? 'dark' : 'light'};\n}\n`
-    }
-
-    return css
   }
 
   setup <T extends ThemeAdapterSetupContext>(

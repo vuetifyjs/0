@@ -186,7 +186,7 @@
 
         <slot name="input" :query :set-input-ref="onInputRef">
           <HxSearchInput
-            :ref="el => { if (el?.$el) inputRef = el.$el.querySelector('input') }"
+            :ref="(el: any) => { if (el?.$el) inputRef = el.$el.querySelector('input') }"
             v-model:query="query"
             :active-descendant="getActiveDescendantId()"
             :expanded="flatCount > 0"

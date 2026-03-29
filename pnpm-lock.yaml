@@ -211,7 +211,7 @@ catalogs:
       specifier: ^10.0.0
       version: 10.0.8
     vue-router:
-      specifier: ^5.0.4
+      specifier: 5.0.4
       version: 5.0.4
     vue-tsc:
       specifier: ^3.2.5
@@ -622,6 +622,9 @@ importers:
       unplugin-vue:
         specifier: 'catalog:'
         version: 7.1.1(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(sass-embedded@1.98.0)(sass@1.98.0)(terser@5.46.0)(tsx@4.21.0)(vue@3.5.30(typescript@5.9.3))(yaml@2.8.2)
+      vue-router:
+        specifier: 'catalog:'
+        version: 5.0.4(@vue/compiler-sfc@3.5.30)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.30(typescript@5.9.3)))(vue@3.5.30(typescript@5.9.3))
 
   packages/paper:
     dependencies:

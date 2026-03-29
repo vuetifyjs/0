@@ -43,6 +43,7 @@
   "devDependencies": {
     "tsdown": "catalog:",
     "typescript": "catalog:",
-    "unplugin-vue": "catalog:"
+    "unplugin-vue": "catalog:",
+    "vue-router": "catalog:"
   }
 }
