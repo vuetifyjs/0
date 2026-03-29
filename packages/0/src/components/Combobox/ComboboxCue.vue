@@ -28,6 +28,7 @@
     attrs: {
       'aria-hidden': true
       'data-state': 'open' | 'closed'
+      'onClick': () => void
     }
   }
 </script>
@@ -55,6 +56,7 @@
     attrs: {
       'aria-hidden': true,
       'data-state': context.isOpen.value ? 'open' : 'closed',
+      'onClick': onClick,
     },
   }))
 </script>

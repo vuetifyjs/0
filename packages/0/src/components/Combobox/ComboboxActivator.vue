@@ -28,6 +28,7 @@
     /** Attributes to bind to the activator element */
     attrs: {
       'data-state': 'open' | 'closed'
+      'onClick': () => void
     }
   }
 </script>
@@ -56,6 +57,7 @@
     isOpen: context.isOpen.value,
     attrs: {
       'data-state': context.isOpen.value ? 'open' : 'closed',
+      'onClick': onClick,
     },
   }))
 </script>

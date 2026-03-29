@@ -56,6 +56,7 @@
       'data-highlighted': '' | undefined
       'data-disabled': true | undefined
       'data-id': string
+      'onClick': () => void
     }
   }
 </script>
@@ -109,6 +110,7 @@
       'data-highlighted': isHighlighted.value ? '' : undefined,
       'data-disabled': isDisabled.value || undefined,
       'data-id': String(ticket.id),
+      'onClick': onClick,
     },
   }))
 </script>

@@ -40,6 +40,9 @@
       'aria-expanded': boolean
       'aria-haspopup': 'listbox'
       'aria-controls': string
+      'onInput': (e: Event) => void
+      'onFocus': () => void
+      'onKeydown': (e: KeyboardEvent) => void
     }
   }
 </script>
@@ -127,6 +130,9 @@
       'aria-expanded': context.isOpen.value,
       'aria-haspopup': 'listbox',
       'aria-controls': context.listboxId,
+      'onInput': onInput,
+      'onFocus': onFocus,
+      'onKeydown': onKeydown,
     },
   }))
 </script>
