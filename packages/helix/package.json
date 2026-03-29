@@ -14,10 +14,14 @@
   },
   "peerDependencies": {
     "unocss": ">=0.65.0",
-    "vue": ">=3.3.0"
+    "vue": ">=3.3.0",
+    "vue-router": ">=4.0.0"
   },
   "peerDependenciesMeta": {
     "unocss": {
+      "optional": true
+    },
+    "vue-router": {
       "optional": true
     }
   },
@@ -43,10 +47,6 @@
   "devDependencies": {
     "tsdown": "catalog:",
     "typescript": "catalog:",
-    "unplugin-vue": "catalog:",
-    "vue-router": "catalog:"
-  },
-  "inlinedDependencies": {
-    "vue-router": "5.0.4"
+    "unplugin-vue": "catalog:"
   }
 }
