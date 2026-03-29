@@ -49,6 +49,7 @@
     "tsdown": "catalog:",
     "typescript": "catalog:",
     "unplugin-vue": "catalog:",
+    "unplugin-vue-components": "catalog:",
     "vite": "catalog:"
   }
 }
