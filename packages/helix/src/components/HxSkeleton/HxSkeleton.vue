@@ -65,6 +65,7 @@
 
   .helix-skeleton__line {
     border-radius: 0.25rem;
+    background-color: var(--v0-surface-variant);
   }
 
   .helix-skeleton__line--animated {

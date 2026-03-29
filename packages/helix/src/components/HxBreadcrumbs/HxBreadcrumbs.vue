@@ -96,16 +96,33 @@
     list-style: none;
     margin: 0;
     padding: 0;
+    font-size: 0.875rem;
   }
 
   .helix-breadcrumbs__divider {
     display: flex;
     align-items: center;
     flex-shrink: 0;
+    color: var(--v0-on-surface-variant);
   }
 
   .helix-breadcrumbs__chevron {
     width: 0.875rem;
     height: 0.875rem;
+  }
+
+  .helix-breadcrumbs__link {
+    color: var(--v0-primary);
+    text-decoration: none;
+    transition: opacity 0.15s;
+  }
+
+  .helix-breadcrumbs__link:hover {
+    opacity: 0.8;
+  }
+
+  .helix-breadcrumbs__page {
+    color: var(--v0-on-surface);
+    font-weight: 500;
   }
 </style>

@@ -32,6 +32,7 @@
 <style scoped>
   .helix-header-anchor {
     position: relative;
+    color: var(--v0-on-surface);
   }
 
   .helix-header-anchor__link {
@@ -43,6 +44,7 @@
     content: '#';
     position: absolute;
     inset-inline-start: -1.25em;
-    opacity: 0.5;
+    color: var(--v0-primary);
+    opacity: 0.7;
   }
 </style>

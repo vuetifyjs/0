@@ -49,8 +49,23 @@
 </template>
 
 <style scoped>
+  .helix-link {
+    color: var(--v0-primary);
+    text-decoration: none;
+    transition: opacity 0.15s;
+  }
+
+  .helix-link:hover {
+    text-decoration: underline;
+  }
+
+  .helix-link:visited {
+    opacity: 0.85;
+  }
+
   .helix-link__external {
     font-size: 0.75em;
     margin-inline-start: 0.125rem;
+    opacity: 0.7;
   }
 </style>

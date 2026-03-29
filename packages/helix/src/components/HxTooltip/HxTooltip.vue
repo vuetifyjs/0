@@ -69,6 +69,13 @@
 }
 
 .helix-tooltip {
+  padding: 0.375rem 0.625rem;
+  border-radius: 0.375rem;
+  background-color: var(--v0-on-surface);
+  color: var(--v0-surface);
+  font-size: 0.75rem;
+  line-height: 1.4;
   pointer-events: none;
+  white-space: nowrap;
 }
 </style>

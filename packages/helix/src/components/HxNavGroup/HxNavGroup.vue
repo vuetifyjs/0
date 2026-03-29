@@ -69,13 +69,25 @@
   width: 100%;
   padding: 0.375rem 0.75rem;
   border: none;
+  border-radius: 0.375rem;
   background: none;
+  color: var(--v0-on-surface);
   font-weight: 600;
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   cursor: pointer;
   user-select: none;
+  transition: background-color 150ms ease;
+}
+
+.helix-nav-group__header:hover {
+  background-color: var(--v0-surface-tint);
+}
+
+.helix-nav-group__header:focus-visible {
+  outline: 2px solid var(--v0-primary);
+  outline-offset: -2px;
 }
 
 .helix-nav-group__label {
@@ -88,6 +100,7 @@
   height: 0.875rem;
   transition: transform 200ms ease;
   flex-shrink: 0;
+  color: var(--v0-on-surface-variant);
 }
 
 .helix-nav-group__chevron[data-expanded] {
@@ -98,5 +111,6 @@
   list-style: none;
   padding: 0;
   margin: 0;
+  background-color: var(--v0-surface);
 }
 </style>

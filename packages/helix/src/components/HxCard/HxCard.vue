@@ -71,15 +71,31 @@
 <style scoped>
   .helix-card {
     display: block;
+    padding: 1rem;
+    border: 1px solid var(--v0-divider);
+    border-radius: 0.5rem;
+    background-color: var(--v0-surface);
     text-decoration: none;
     color: inherit;
+    transition: border-color 0.2s, box-shadow 0.2s;
   }
 
   .helix-card[data-disabled] {
+    opacity: 0.6;
     cursor: not-allowed;
   }
 
   .helix-card[data-interactive] {
     cursor: pointer;
+  }
+
+  .helix-card[data-interactive]:hover {
+    border-color: var(--v0-primary);
+    box-shadow: 0 4px 12px rgb(0 0 0 / 0.1);
+  }
+
+  .helix-card[data-interactive]:focus-visible {
+    outline: 2px solid var(--v0-primary);
+    outline-offset: 2px;
   }
 </style>

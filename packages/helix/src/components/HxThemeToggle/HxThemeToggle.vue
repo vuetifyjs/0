@@ -44,7 +44,24 @@
     cursor: pointer;
     background: none;
     border: none;
-    padding: 0;
+    border-radius: 0.375rem;
+    padding: 0.375rem 0.5rem;
     font: inherit;
+    color: var(--v0-on-surface);
+    transition: background-color 150ms ease;
+  }
+
+  .helix-theme-toggle:hover {
+    background-color: var(--v0-surface-tint);
+  }
+
+  .helix-theme-toggle:focus-visible {
+    outline: 2px solid var(--v0-primary);
+    outline-offset: -2px;
+  }
+
+  .helix-theme-toggle__label {
+    font-size: 0.875rem;
+    color: var(--v0-on-surface-variant);
   }
 </style>

@@ -55,6 +55,8 @@
     display: flex;
     flex-direction: column;
     min-height: 100dvh;
+    color: var(--v0-on-background);
+    background-color: var(--v0-background);
   }
 
   .helix-doc-layout__skip {
@@ -63,6 +65,12 @@
     left: 16px;
     z-index: 100;
     padding: 8px 16px;
+    background-color: var(--v0-primary);
+    color: var(--v0-on-primary);
+    border-radius: 0.25rem;
+    font-weight: 500;
+    font-size: 0.875rem;
+    text-decoration: none;
   }
 
   .helix-doc-layout__skip:focus {

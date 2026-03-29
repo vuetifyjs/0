@@ -13,5 +13,6 @@
     font-size: 0.875rem;
     font-weight: 500;
     line-height: 1.25;
+    color: var(--v0-on-surface);
   }
 </style>

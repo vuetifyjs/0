@@ -74,10 +74,14 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    background-color: var(--v0-surface);
+    border: 1px solid var(--v0-divider);
+    border-radius: 0.5rem;
   }
 
   .helix-code-block__content {
     overflow-x: auto;
+    padding: 1rem;
   }
 
   .helix-code-block__content pre {
@@ -86,5 +90,7 @@
 
   .helix-code-block__content code {
     font-family: monospace;
+    font-size: 0.875rem;
+    line-height: 1.6;
   }
 </style>

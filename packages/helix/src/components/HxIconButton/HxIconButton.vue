@@ -63,12 +63,25 @@
     justify-content: center;
     cursor: pointer;
     border: none;
-    background: none;
-    padding: 0;
+    background: transparent;
+    padding: 0.375rem;
+    border-radius: 0.375rem;
+    color: var(--v0-on-surface);
+    transition: background-color 0.15s;
+  }
+
+  .helix-icon-button:hover {
+    background-color: var(--v0-surface-tint);
+  }
+
+  .helix-icon-button:focus-visible {
+    outline: 2px solid var(--v0-primary);
+    outline-offset: 2px;
   }
 
   .helix-icon-button[data-disabled] {
     cursor: default;
     pointer-events: none;
+    opacity: 0.38;
   }
 </style>

@@ -47,12 +47,21 @@
   margin-inline-start: auto;
   padding: 0.25rem;
   border: none;
-  background: none;
+  background: transparent;
+  border-radius: 0.25rem;
   cursor: pointer;
+  color: var(--v0-on-surface-variant);
   opacity: 0.6;
+  transition: opacity 0.15s, background-color 0.15s;
 }
 
 .helix-alert__dismiss:hover {
   opacity: 1;
+  background-color: var(--v0-surface-variant);
+}
+
+.helix-alert__dismiss:focus-visible {
+  outline: 2px solid var(--v0-primary);
+  outline-offset: 2px;
 }
 </style>

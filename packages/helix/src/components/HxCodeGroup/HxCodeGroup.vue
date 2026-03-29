@@ -72,5 +72,36 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    border: 1px solid var(--v0-divider);
+    border-radius: 0.5rem;
+    background-color: var(--v0-surface);
+  }
+
+  .helix-code-group :deep(.helix-code-block) {
+    border: none;
+    border-radius: 0;
+  }
+
+  .helix-code-group :deep([role='tablist']) {
+    display: flex;
+    background-color: var(--v0-surface-tint);
+    border-bottom: 1px solid var(--v0-divider);
+  }
+
+  .helix-code-group :deep([role='tab']) {
+    padding: 0.5rem 1rem;
+    font-size: 0.8125rem;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--v0-on-surface-variant);
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+  }
+
+  .helix-code-group :deep([role='tab'][data-selected]),
+  .helix-code-group :deep([role='tab'][aria-selected='true']) {
+    color: var(--v0-primary);
+    border-bottom-color: var(--v0-primary);
   }
 </style>

@@ -12,5 +12,6 @@
   .helix-api-card__description {
     margin: 0;
     font-size: 0.875rem;
+    color: var(--v0-on-surface-variant);
   }
 </style>

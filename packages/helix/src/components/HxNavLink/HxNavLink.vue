@@ -95,6 +95,13 @@
     display: flex;
     align-items: center;
     gap: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.375rem;
+    transition: background-color 150ms ease;
+  }
+
+  .helix-nav-link__row:hover {
+    background-color: var(--v0-surface-tint);
   }
 
   .helix-nav-link__toggle {
@@ -105,9 +112,21 @@
     cursor: pointer;
     background: none;
     border: none;
+    border-radius: 0.25rem;
     padding: 0;
     width: 1.25rem;
     height: 1.25rem;
+    color: var(--v0-on-surface-variant);
+    transition: background-color 150ms ease;
+  }
+
+  .helix-nav-link__toggle:hover {
+    background-color: var(--v0-surface-variant);
+  }
+
+  .helix-nav-link__toggle:focus-visible {
+    outline: 2px solid var(--v0-primary);
+    outline-offset: -2px;
   }
 
   .helix-nav-link__chevron {
@@ -127,8 +146,28 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     text-decoration: none;
-    color: inherit;
+    color: var(--v0-on-surface-variant);
     cursor: pointer;
+    padding: 0.125rem 0.25rem;
+    border-radius: 0.25rem;
+    transition: color 150ms ease;
+  }
+
+  .helix-nav-link__label:hover {
+    color: var(--v0-primary);
+  }
+
+  .helix-nav-link__label:focus-visible {
+    outline: 2px solid var(--v0-primary);
+    outline-offset: -2px;
+  }
+
+  .helix-nav-link__label[data-active] {
+    color: var(--v0-primary);
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 0.25rem;
+    text-decoration-thickness: 2px;
   }
 
   .helix-nav-link__children {

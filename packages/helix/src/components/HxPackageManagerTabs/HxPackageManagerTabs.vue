@@ -95,20 +95,34 @@
   .helix-package-manager-tabs {
     display: flex;
     flex-direction: column;
+    border: 1px solid var(--v0-divider);
+    border-radius: 0.5rem;
+    overflow: hidden;
   }
 
   .helix-package-manager-tabs__list {
     display: flex;
     gap: 0;
+    background-color: var(--v0-surface-tint);
+    border-bottom: 1px solid var(--v0-divider);
   }
 
   .helix-package-manager-tabs__tab {
     cursor: pointer;
     background: none;
     border: none;
+    border-bottom: 2px solid transparent;
     font: inherit;
     font-size: 0.8125rem;
     padding: 0.375rem 0.75rem;
+    color: var(--v0-on-surface-variant);
+    transition: color 0.15s, border-color 0.15s;
+  }
+
+  .helix-package-manager-tabs__tab[data-selected],
+  .helix-package-manager-tabs__tab[aria-selected='true'] {
+    color: var(--v0-primary);
+    border-bottom-color: var(--v0-primary);
   }
 
   .helix-package-manager-tabs__panel {
@@ -116,6 +130,8 @@
     align-items: center;
     justify-content: space-between;
     gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background-color: var(--v0-surface);
   }
 
   .helix-package-manager-tabs__code {
@@ -125,14 +141,24 @@
     overflow-x: auto;
     flex: 1;
     min-width: 0;
+    color: var(--v0-on-surface);
   }
 
   .helix-package-manager-tabs__copy {
     flex-shrink: 0;
     cursor: pointer;
-    background: none;
-    border: none;
+    background: transparent;
+    border: 1px solid var(--v0-divider);
+    border-radius: 0.25rem;
+    padding: 0.25rem 0.5rem;
     font: inherit;
     font-size: 0.75rem;
+    color: var(--v0-on-surface-variant);
+    transition: color 0.15s, background-color 0.15s;
+  }
+
+  .helix-package-manager-tabs__copy:hover {
+    color: var(--v0-on-surface);
+    background-color: var(--v0-surface-tint);
   }
 </style>

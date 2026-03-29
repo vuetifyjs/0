@@ -63,11 +63,12 @@
 <style scoped>
   .helix-code-block__actions {
     position: absolute;
-    top: 0;
-    inset-inline-end: 0;
+    top: 0.5rem;
+    inset-inline-end: 0.5rem;
     display: flex;
     gap: 0.25rem;
     opacity: 0;
+    transition: opacity 0.15s;
   }
 
   :global(.group:hover) .helix-code-block__actions,
@@ -78,9 +79,18 @@
   .helix-code-block__action {
     flex-shrink: 0;
     cursor: pointer;
-    background: none;
-    border: none;
+    background: transparent;
+    border: 1px solid var(--v0-divider);
+    border-radius: 0.25rem;
+    padding: 0.25rem 0.5rem;
     font: inherit;
     font-size: 0.75rem;
+    color: var(--v0-on-surface-variant);
+    transition: color 0.15s, background-color 0.15s;
+  }
+
+  .helix-code-block__action:hover {
+    color: var(--v0-on-surface);
+    background-color: var(--v0-surface-tint);
   }
 </style>

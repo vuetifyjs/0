@@ -55,11 +55,32 @@
 
 <style scoped>
   .helix-back-to-top {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
     display: inline-flex;
     align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
     cursor: pointer;
-    background: transparent;
+    background-color: var(--v0-primary);
+    color: var(--v0-on-primary);
     border: none;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgb(0 0 0 / 0.2);
     font: inherit;
+    font-size: 1.125rem;
+    transition: opacity 150ms ease;
+    z-index: 100;
+  }
+
+  .helix-back-to-top:hover {
+    opacity: 0.85;
+  }
+
+  .helix-back-to-top:focus-visible {
+    outline: 2px solid var(--v0-primary);
+    outline-offset: 2px;
   }
 </style>

@@ -57,13 +57,35 @@
 <style scoped>
   .helix-tabs__list {
     display: flex;
-    gap: 0;
+    gap: 0.25rem;
+    border-bottom: 1px solid var(--v0-divider);
   }
 
   .helix-tabs__tab {
     cursor: pointer;
     background: none;
     border: none;
+    border-bottom: 2px solid transparent;
+    padding: 0.5rem 1rem;
     font: inherit;
+    color: var(--v0-on-surface-variant);
+    transition: color 150ms ease, border-color 150ms ease;
+    margin-bottom: -1px;
+  }
+
+  .helix-tabs__tab:hover {
+    color: var(--v0-on-surface);
+    background-color: var(--v0-surface-tint);
+  }
+
+  .helix-tabs__tab:focus-visible {
+    outline: 2px solid var(--v0-primary);
+    outline-offset: -2px;
+  }
+
+  .helix-tabs__tab[data-selected] {
+    color: var(--v0-primary);
+    border-bottom-color: var(--v0-primary);
+    font-weight: 600;
   }
 </style>

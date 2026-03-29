@@ -85,6 +85,9 @@
 <style scoped>
   .helix-api-card {
     overflow: hidden;
+    background-color: var(--v0-surface);
+    border: 1px solid var(--v0-divider);
+    border-radius: 0.5rem;
   }
 
   .helix-api-card__header {
@@ -92,15 +95,17 @@
     flex-direction: column;
     gap: 0.25rem;
     padding: 0.75rem 1rem;
+    background-color: var(--v0-surface-tint);
   }
 
   .helix-api-card__heading {
     margin: 0;
     font-size: 0.875rem;
     line-height: 1.25;
+    color: var(--v0-on-surface);
   }
 
   .helix-api-card__required {
-    color: var(--color-error, #ef4444);
+    color: var(--v0-error);
   }
 </style>

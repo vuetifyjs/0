@@ -73,9 +73,66 @@
     display: block;
     border-inline-start-width: 4px;
     border-inline-start-style: solid;
+    border-inline-start-color: var(--v0-divider);
     border-radius: 0.5rem;
     padding: 0.75rem 1rem;
     margin-block: 1rem;
+    background-color: var(--v0-surface-tint);
+    color: var(--v0-on-surface);
+  }
+
+  .helix-callout[data-type='tip'] {
+    border-inline-start-color: var(--v0-success);
+    background-color: color-mix(in srgb, var(--v0-success) 10%, transparent);
+  }
+
+  .helix-callout[data-type='tip'] .helix-callout__header {
+    color: var(--v0-success);
+  }
+
+  .helix-callout[data-type='info'] {
+    border-inline-start-color: var(--v0-info);
+    background-color: color-mix(in srgb, var(--v0-info) 10%, transparent);
+  }
+
+  .helix-callout[data-type='info'] .helix-callout__header {
+    color: var(--v0-info);
+  }
+
+  .helix-callout[data-type='warning'] {
+    border-inline-start-color: var(--v0-warning);
+    background-color: color-mix(in srgb, var(--v0-warning) 10%, transparent);
+  }
+
+  .helix-callout[data-type='warning'] .helix-callout__header {
+    color: var(--v0-warning);
+  }
+
+  .helix-callout[data-type='error'] {
+    border-inline-start-color: var(--v0-error);
+    background-color: color-mix(in srgb, var(--v0-error) 10%, transparent);
+  }
+
+  .helix-callout[data-type='error'] .helix-callout__header {
+    color: var(--v0-error);
+  }
+
+  .helix-callout[data-type='askai'] {
+    border-inline-start-color: var(--v0-primary);
+    background-color: color-mix(in srgb, var(--v0-primary) 10%, transparent);
+  }
+
+  .helix-callout[data-type='askai'] .helix-callout__header {
+    color: var(--v0-primary);
+  }
+
+  .helix-callout[data-type='tour'] {
+    border-inline-start-color: var(--v0-accent);
+    background-color: color-mix(in srgb, var(--v0-accent) 10%, transparent);
+  }
+
+  .helix-callout[data-type='tour'] .helix-callout__header {
+    color: var(--v0-accent);
   }
 
   .helix-callout__header {
@@ -96,5 +153,10 @@
 
   .helix-callout[role='button'] {
     cursor: pointer;
+    transition: background-color 0.15s;
+  }
+
+  .helix-callout[role='button']:hover {
+    filter: brightness(0.95);
   }
 </style>

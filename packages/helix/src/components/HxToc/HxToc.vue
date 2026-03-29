@@ -135,15 +135,20 @@
   .helix-toc__label {
     display: block;
     font-size: 0.75rem;
-    font-weight: 500;
+    font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.05em;
+    color: var(--v0-on-surface);
+    margin-bottom: 0.5rem;
   }
 
   .helix-toc__list {
     list-style: none;
     margin: 0;
     padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
   }
 
   .helix-toc__list--nested {
@@ -155,13 +160,34 @@
     opacity: 0.6;
   }
 
+  .helix-toc__list--deep {
+    margin-inline-start: 0.75rem;
+  }
+
   .helix-toc__link {
     display: block;
+    padding: 0.125rem 0.25rem;
     text-decoration: none;
-    color: inherit;
+    color: var(--v0-on-surface-variant);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    border-radius: 0.25rem;
+    transition: color 150ms ease;
+  }
+
+  .helix-toc__link:hover {
+    color: var(--v0-primary);
+  }
+
+  .helix-toc__link:focus-visible {
+    outline: 2px solid var(--v0-primary);
+    outline-offset: -2px;
+  }
+
+  .helix-toc__link[data-active] {
+    color: var(--v0-primary);
+    font-weight: 600;
   }
 
   .helix-toc__link--sub {

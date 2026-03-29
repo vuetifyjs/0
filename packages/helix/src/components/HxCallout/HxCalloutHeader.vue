@@ -31,5 +31,6 @@
     align-items: center;
     gap: 0.5rem;
     font-weight: 600;
+    color: var(--v0-on-surface);
   }
 </style>

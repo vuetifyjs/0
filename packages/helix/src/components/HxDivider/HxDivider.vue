@@ -29,15 +29,18 @@
   .helix-divider {
     border: none;
     flex-shrink: 0;
+    background-color: var(--v0-divider);
   }
 
   .helix-divider--horizontal {
     width: 100%;
     height: 1px;
+    margin-block: 0.5rem;
   }
 
   .helix-divider--vertical {
     width: 1px;
     height: 100%;
+    margin-inline: 0.5rem;
   }
 </style>

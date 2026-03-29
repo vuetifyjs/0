@@ -33,6 +33,17 @@
     display: inline-flex;
     align-items: center;
     gap: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    border: 1px solid var(--v0-divider);
+    border-radius: 1rem;
+    background-color: var(--v0-surface);
+    font-size: 0.75rem;
+    line-height: 1.5;
     cursor: pointer;
+    transition: background-color 0.15s;
+  }
+
+  .helix-chip:hover {
+    background-color: var(--v0-surface-tint);
   }
 </style>

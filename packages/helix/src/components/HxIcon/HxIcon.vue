@@ -27,5 +27,12 @@
     vertical-align: middle;
     line-height: 1;
     flex-shrink: 0;
+    color: inherit;
+  }
+
+  .helix-icon :deep(svg) {
+    width: 100%;
+    height: 100%;
+    fill: currentColor;
   }
 </style>

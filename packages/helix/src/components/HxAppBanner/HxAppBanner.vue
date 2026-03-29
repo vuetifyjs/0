@@ -39,5 +39,9 @@
     inset-inline: 0;
     top: 0;
     z-index: 1;
+    background-color: var(--v0-warning);
+    color: var(--v0-on-warning);
+    font-size: 0.75rem;
+    font-weight: 500;
   }
 </style>

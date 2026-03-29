@@ -39,6 +39,14 @@
     cursor: pointer;
     background: transparent;
     border: none;
+    border-radius: 0.25rem;
+    padding: 0.25rem;
     font: inherit;
+    color: var(--v0-on-surface-variant);
+    transition: color 0.15s;
+  }
+
+  .helix-copy-command__action:hover {
+    color: var(--v0-on-surface);
   }
 </style>

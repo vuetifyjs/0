@@ -31,5 +31,10 @@
     font-family: monospace;
     font-size: 0.875rem;
     max-width: 100%;
+    background-color: var(--v0-surface-tint);
+    border: 1px solid var(--v0-divider);
+    border-radius: 0.375rem;
+    padding: 0.5rem 0.75rem;
+    color: var(--v0-on-surface);
   }
 </style>

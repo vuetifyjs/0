@@ -48,15 +48,37 @@
 </template>
 
 <style scoped>
+.helix-input {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--v0-divider);
+  border-radius: 0.375rem;
+  background-color: var(--v0-surface);
+  transition: border-color 0.15s;
+}
+
+.helix-input:focus-within {
+  border-color: var(--v0-primary);
+  outline: 1px solid var(--v0-primary);
+}
+
 .helix-input__control {
   border: none;
   outline: none;
   background: transparent;
   font: inherit;
+  color: var(--v0-on-surface);
   width: 100%;
 }
 
+.helix-input__control::placeholder {
+  color: var(--v0-on-surface-variant);
+  opacity: 0.6;
+}
+
 .helix-input[data-disabled] {
+  opacity: 0.5;
   cursor: not-allowed;
   pointer-events: none;
 }

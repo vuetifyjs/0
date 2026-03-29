@@ -12,6 +12,6 @@
   .helix-settings-toggle__description {
     font-size: 0.75rem;
     line-height: 1.25;
-    opacity: 0.7;
+    color: var(--v0-on-surface-variant);
   }
 </style>

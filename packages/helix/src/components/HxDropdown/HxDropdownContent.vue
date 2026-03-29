@@ -42,5 +42,11 @@
 <style scoped>
 .helix-dropdown__content {
   min-width: 8rem;
+  padding: 0.5rem;
+  background-color: var(--v0-surface);
+  border: 1px solid var(--v0-divider);
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 12px rgb(0 0 0 / 0.12);
+  color: var(--v0-on-surface);
 }
 </style>

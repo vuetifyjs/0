@@ -33,5 +33,8 @@
   .helix-accordion {
     display: flex;
     flex-direction: column;
+    border: 1px solid var(--v0-divider);
+    border-radius: 0.5rem;
+    overflow: hidden;
   }
 </style>

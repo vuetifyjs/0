@@ -9,8 +9,14 @@
 </template>
 
 <style scoped>
+  .helix-api-card__default {
+    font-size: 0.8125rem;
+    color: var(--v0-on-surface-variant);
+  }
+
   .helix-api-card__default code {
     font-family: monospace;
     font-size: 0.8125rem;
+    color: var(--v0-on-surface);
   }
 </style>

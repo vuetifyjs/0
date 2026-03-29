@@ -103,10 +103,14 @@
     flex-direction: column;
     position: relative;
     overflow: hidden;
+    background-color: var(--v0-surface);
+    border: 1px solid var(--v0-divider);
+    border-radius: 0.5rem;
   }
 
   .helix-example-code__content {
     overflow-x: auto;
+    padding: 1rem;
   }
 
   .helix-example-code__content pre {
@@ -115,6 +119,8 @@
 
   .helix-example-code__content code {
     font-family: monospace;
+    font-size: 0.875rem;
+    line-height: 1.6;
   }
 
   .helix-example-code__fade {
@@ -124,8 +130,7 @@
     right: 0;
     height: 3rem;
     pointer-events: none;
-    background: linear-gradient(transparent, var(--helix-example-code-fade, currentcolor));
-    opacity: 0.1;
+    background: linear-gradient(transparent, var(--v0-surface));
   }
 
   .helix-example-code[data-truncated] .helix-example-code__fade {
@@ -139,5 +144,12 @@
     border: none;
     font: inherit;
     font-size: 0.8125rem;
+    color: var(--v0-primary);
+    padding: 0.5rem 1rem;
+    transition: opacity 0.15s;
+  }
+
+  .helix-example-code__toggle:hover {
+    opacity: 0.8;
   }
 </style>

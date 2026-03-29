@@ -25,13 +25,13 @@
 
 <style scoped>
   .helix-code-block__header {
-    position: absolute;
-    top: 0;
-    inset-inline-start: 0;
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    opacity: 0.6;
+    padding: 0.5rem 1rem;
+    background-color: var(--v0-surface-tint);
+    border-bottom: 1px solid var(--v0-divider);
+    color: var(--v0-on-surface-variant);
   }
 
   .helix-code-block__filename {
@@ -45,5 +45,6 @@
   .helix-code-block__language {
     font-size: 0.75rem;
     text-transform: uppercase;
+    letter-spacing: 0.05em;
   }
 </style>
