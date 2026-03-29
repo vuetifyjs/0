@@ -69,45 +69,123 @@ import Root from './ComboboxRoot.vue'
 export const Combobox = {
   /**
    * Root component for comboboxes. Creates selection, virtual focus, popover,
-   * and adapter contexts.
+   * and adapter contexts. Bridges v-model to the internal selection state.
    *
    * @see https://0.vuetifyjs.com/components/combobox
+   *
+   * @example
+   * ```vue
+   * <script lang="ts" setup>
+   *   import { Combobox } from '@vuetify/v0'
+   *   import { ref } from 'vue'
+   *
+   *   const selected = ref()
+   * </script>
+   *
+   * <template>
+   *   <Combobox.Root v-model="selected" strict>
+   *     <Combobox.Activator>
+   *       <Combobox.Input placeholder="Search..." />
+   *       <Combobox.Cue />
+   *     </Combobox.Activator>
+   *     <Combobox.Content>
+   *       <Combobox.Item id="a" value="A">Option A</Combobox.Item>
+   *     </Combobox.Content>
+   *   </Combobox.Root>
+   * </template>
+   * ```
    */
   Root,
   /**
-   * Wrapper for the input and cue. Sets CSS anchor-name for popover positioning.
+   * Wrapper for the input and cue. Sets CSS anchor-name so the dropdown
+   * positions relative to this element.
    *
    * @see https://0.vuetifyjs.com/components/combobox#comboboxactivator
+   *
+   * @example
+   * ```vue
+   * <Combobox.Activator>
+   *   <Combobox.Input placeholder="Type to search..." />
+   *   <Combobox.Cue />
+   * </Combobox.Activator>
+   * ```
    */
   Activator,
   /**
-   * Text input that drives query and keyboard navigation.
+   * Text input that drives the query string and keyboard navigation.
+   * Binds `role="combobox"` and manages `aria-activedescendant` via virtual focus.
    *
    * @see https://0.vuetifyjs.com/components/combobox#comboboxinput
+   *
+   * @example
+   * ```vue
+   * <!-- Opens on focus (default) -->
+   * <Combobox.Input placeholder="Search fruits..." />
+   *
+   * <!-- Opens only when the user starts typing -->
+   * <Combobox.Input open-on="input" placeholder="Start typing..." />
+   * ```
    */
   Input,
   /**
-   * Visual cue for open/close state. Clicking toggles the dropdown.
+   * Visual cue for open/close state. Exposes `data-state="open|closed"` for
+   * CSS-driven styling. Clicking toggles the dropdown.
    *
    * @see https://0.vuetifyjs.com/components/combobox#comboboxcue
+   *
+   * @example
+   * ```vue
+   * <Combobox.Cue v-slot="{ isOpen }">
+   *   {{ isOpen ? '▲' : '▼' }}
+   * </Combobox.Cue>
+   * ```
    */
   Cue,
   /**
-   * Dropdown content container using native popover API with CSS anchor positioning.
+   * Dropdown content container using native popover API with CSS anchor
+   * positioning. Renders `role="listbox"` with lazy mounting.
    *
    * @see https://0.vuetifyjs.com/components/combobox#comboboxcontent
+   *
+   * @example
+   * ```vue
+   * <Combobox.Content>
+   *   <Combobox.Item id="a" value="A">Option A</Combobox.Item>
+   *   <Combobox.Item id="b" value="B">Option B</Combobox.Item>
+   *   <Combobox.Empty>No results found</Combobox.Empty>
+   * </Combobox.Content>
+   * ```
    */
   Content,
   /**
-   * Option item within the combobox dropdown. Registers with selection, shown/hidden via filter.
+   * Option item within the combobox dropdown. Registers with selection and
+   * virtual focus. Hidden via `v-show` when filtered out so selection state
+   * is preserved.
    *
    * @see https://0.vuetifyjs.com/components/combobox#comboboxitem
+   *
+   * @example
+   * ```vue
+   * <Combobox.Item id="apple" value="Apple" v-slot="{ isSelected, isHighlighted, attrs }">
+   *   <div v-bind="attrs" :class="{ highlighted: isHighlighted }">
+   *     Apple {{ isSelected ? '✓' : '' }}
+   *   </div>
+   * </Combobox.Item>
+   * ```
    */
   Item,
   /**
-   * Empty state shown when no items match the current query.
+   * Empty state shown when no items match the current query. Exposes the
+   * query string via slot props for contextual messaging.
    *
    * @see https://0.vuetifyjs.com/components/combobox#comboboxempty
+   *
+   * @example
+   * ```vue
+   * <Combobox.Empty v-slot="{ query }">
+   *   No results for "{{ query }}"
+   * </Combobox.Empty>
+   * ```
    */
   Empty,
 }
