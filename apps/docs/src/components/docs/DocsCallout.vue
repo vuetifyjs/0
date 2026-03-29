@@ -92,6 +92,7 @@
 
 <template>
   <HxCallout
+    :class="config.classes"
     :interactive
     :title
     :type="props.type"
@@ -102,19 +103,37 @@
     </template>
 
     <template v-if="props.type === 'askai'">
-      {{ props.question ? decodeQuestion(props.question) : '' }}
+      <div class="text-on-surface">
+        {{ props.question ? decodeQuestion(props.question) : '' }}
+      </div>
     </template>
 
     <template v-else-if="props.type === 'discord'">
-      Need help? Join our community for support and discussions ↗
+      <div class="text-on-surface">
+        Need help? Join our community for support and discussions ↗
+      </div>
     </template>
 
     <template v-else-if="props.type === 'tour'">
-      {{ tour?.description ?? 'Click to start this interactive tour' }}
+      <div class="text-on-surface">
+        {{ tour?.description ?? 'Click to start this interactive tour' }}
+      </div>
     </template>
 
     <template v-else>
-      <slot />
+      <div class="docs-alert-content text-on-surface">
+        <slot />
+      </div>
     </template>
   </HxCallout>
 </template>
+
+<style scoped>
+  .docs-alert-content :deep(> p:first-child) {
+    margin-top: 0;
+  }
+
+  .docs-alert-content :deep(> p:last-child) {
+    margin-bottom: 0;
+  }
+</style>

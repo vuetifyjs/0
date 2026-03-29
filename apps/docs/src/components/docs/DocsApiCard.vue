@@ -112,3 +112,35 @@
     </template>
   </HxApiCard>
 </template>
+
+<style scoped>
+  :deep(.helix-api-card__header) {
+    background-color: var(--v0-surface);
+  }
+
+  :deep(.helix-api-card__type code) {
+    display: inline-block;
+    margin-top: 0.25rem;
+    background-color: var(--v0-surface-variant);
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+  }
+
+  :deep(.helix-api-card__description) {
+    color: var(--v0-on-surface);
+    margin-top: 0.25rem;
+  }
+
+  :deep(.helix-api-card__default) {
+    font-size: 0.75rem;
+    color: var(--v0-on-surface-variant);
+    margin-top: 0.5rem;
+    margin-bottom: 0;
+  }
+
+  :deep(.helix-api-card__default code) {
+    background-color: var(--v0-surface-variant);
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+  }
+</style>

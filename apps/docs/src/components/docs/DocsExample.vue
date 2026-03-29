@@ -178,3 +178,67 @@
     </HxExample>
   </div>
 </template>
+
+<style scoped>
+  :deep(.helix-example) {
+    --helix-example-border: var(--v0-divider);
+  }
+
+  :deep(.helix-example__preview) {
+    background-color: var(--v0-surface);
+  }
+
+  :deep(.helix-example__toggle-bar) {
+    background-color: var(--v0-surface-tint);
+  }
+
+  :deep(.helix-example__toggle-btn) {
+    color: var(--v0-on-surface);
+    transition: color 0.15s, background-color 0.15s;
+  }
+
+  :deep(.helix-example__toggle-btn:hover) {
+    background-color: var(--v0-surface);
+  }
+
+  :deep(.helix-example__tabs) {
+    background-color: var(--v0-surface);
+    border-top: 1px solid var(--v0-divider);
+    min-height: 3rem;
+  }
+
+  :deep(.helix-example__tab) {
+    background-color: var(--v0-surface-tint);
+    border: 1px solid var(--v0-divider);
+    color: var(--v0-on-surface-tint);
+  }
+
+  :deep(.helix-example__tab:hover) {
+    background-color: var(--v0-surface-variant);
+  }
+
+  :deep(.helix-example__tab[data-selected]) {
+    background-color: var(--v0-primary);
+    color: var(--v0-on-primary);
+    border-color: transparent;
+  }
+
+  :deep(.helix-example__tab-overflow) {
+    background-color: var(--v0-surface-tint);
+    border: 1px solid var(--v0-divider);
+    color: var(--v0-on-surface);
+  }
+
+  :deep(.helix-example__tab-all) {
+    color: var(--v0-on-surface-variant);
+  }
+
+  :deep(.helix-example__tab-action-btn) {
+    color: var(--v0-on-surface-variant);
+    transition: background-color 0.15s;
+  }
+
+  :deep(.helix-example__tab-action-btn:hover) {
+    background-color: var(--v0-surface-variant);
+  }
+</style>

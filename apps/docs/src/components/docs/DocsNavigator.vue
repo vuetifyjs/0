@@ -69,7 +69,7 @@
     <hr class="my-4">
 
     <Discovery.Activator class="rounded-lg" step="page-navigator">
-      <HxPageNavigator :next :prev>
+      <HxPageNavigator class="docs-navigator" :next :prev>
         <template #prev-icon>
           <AppIcon icon="left" />
         </template>
@@ -81,3 +81,24 @@
     </Discovery.Activator>
   </template>
 </template>
+
+<style scoped>
+  .docs-navigator :deep(.helix-page-navigator__link) {
+    text-transform: capitalize;
+    color: var(--v0-on-surface);
+  }
+
+  .docs-navigator :deep(.helix-page-navigator__direction) {
+    color: var(--v0-on-surface);
+  }
+
+  .docs-navigator :deep(.helix-page-navigator__link--prev .helix-page-navigator__label) {
+    padding-inline-start: 0.25rem;
+    color: var(--v0-on-surface);
+  }
+
+  .docs-navigator :deep(.helix-page-navigator__link--next .helix-page-navigator__label) {
+    padding-inline-end: 0.25rem;
+    color: var(--v0-on-surface);
+  }
+</style>

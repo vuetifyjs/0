@@ -94,7 +94,7 @@
       </Discovery.Activator>
     </HxAppBarStart>
 
-    <HxAppBarEnd class="gap-3">
+    <HxAppBarEnd class="!gap-3">
       <AppSkillFilter v-if="!isHomePage && settings.showSkillFilter.value && breakpoints.width.value >= 440" />
 
       <AppThemeToggle v-if="isHomePage || settings.showThemeToggle.value" />
