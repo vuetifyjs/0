@@ -34,7 +34,7 @@
     :class="[direction === 'row' ? 'helix-skeleton--row' : 'helix-skeleton--col', gap]"
     role="status"
   >
-    <span class="sr-only">Loading...</span>
+    <span class="helix-sr-only">Loading...</span>
 
     <div
       v-for="i in lines"
@@ -78,5 +78,17 @@
     50% {
       opacity: 0.5;
     }
+  }
+
+  .helix-sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
   }
 </style>

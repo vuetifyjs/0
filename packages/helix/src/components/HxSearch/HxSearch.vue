@@ -181,7 +181,7 @@
         class="helix-search"
         @keydown.enter.prevent="onEnter"
       >
-        <Dialog.Title class="sr-only">Search</Dialog.Title>
+        <Dialog.Title class="helix-sr-only">Search</Dialog.Title>
 
         <slot name="input" :query :set-input-ref="onInputRef">
           <HxSearchInput
@@ -203,7 +203,7 @@
           <!-- Loading skeleton -->
           <slot v-if="loading" name="loading">
             <div role="status">
-              <span class="sr-only">Loading search results...</span>
+              <span class="helix-sr-only">Loading search results...</span>
               <div v-for="group in 2" :key="group" aria-hidden="true">
                 <div class="helix-search__skeleton-header" />
                 <div v-for="item in 3" :key="item" class="helix-search__skeleton-item">
@@ -324,5 +324,17 @@
     width: 33%;
     border-radius: 0.25rem;
     opacity: 0.1;
+  }
+
+  .helix-sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
   }
 </style>

@@ -20,14 +20,14 @@
 </script>
 
 <script setup lang="ts">
+  // Components
+  import HxCodeBlock from '#helix/components/HxCodeBlock/HxCodeBlock.vue'
+  import HxCodeBlockActions from '#helix/components/HxCodeBlock/HxCodeBlockActions.vue'
+  import HxTabPanel from '#helix/components/HxTabs/HxTabPanel.vue'
+  import HxTabs from '#helix/components/HxTabs/HxTabs.vue'
+
   // Utilities
   import { toRef } from 'vue'
-
-  // Components
-  import HxCodeBlock from '../HxCodeBlock/HxCodeBlock.vue'
-  import HxCodeBlockActions from '../HxCodeBlock/HxCodeBlockActions.vue'
-  import HxTabPanel from '../HxTabs/HxTabPanel.vue'
-  import HxTabs from '../HxTabs/HxTabs.vue'
 
   defineOptions({ name: 'HxCodeGroup' })
 
