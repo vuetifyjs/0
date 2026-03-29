@@ -80,8 +80,7 @@
         ]
       },
       "ignoreDependencies": [
-        "unocss",
-        "vue-router"
+        "unocss"
       ]
     },
     "packages/paper": {
