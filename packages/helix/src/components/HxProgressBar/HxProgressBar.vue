@@ -26,12 +26,12 @@
       aria-valuemin="0"
       :aria-valuenow="Math.round(value)"
       class="helix-progress-bar__track"
-      :class="size === 'sm' ? 'helix-progress-bar__track--sm' : 'helix-progress-bar__track--md'"
+      :data-size="size"
       role="progressbar"
     >
       <div
         class="helix-progress-bar__fill"
-        :class="`bg-${color}`"
+        :data-color="color"
         :style="{ width: `${Math.min(100, Math.max(0, value))}%` }"
       />
     </div>
@@ -53,11 +53,11 @@
     overflow: hidden;
   }
 
-  .helix-progress-bar__track--sm {
+  .helix-progress-bar__track[data-size='sm'] {
     height: 0.5rem;
   }
 
-  .helix-progress-bar__track--md {
+  .helix-progress-bar__track[data-size='md'] {
     height: 0.75rem;
   }
 
@@ -65,5 +65,21 @@
     height: 100%;
     border-radius: 9999px;
     transition: width 300ms ease;
+  }
+
+  .helix-progress-bar__fill[data-color='primary'] {
+    background-color: var(--v0-primary);
+  }
+
+  .helix-progress-bar__fill[data-color='success'] {
+    background-color: var(--v0-success);
+  }
+
+  .helix-progress-bar__fill[data-color='warning'] {
+    background-color: var(--v0-warning);
+  }
+
+  .helix-progress-bar__fill[data-color='error'] {
+    background-color: var(--v0-error);
   }
 </style>
