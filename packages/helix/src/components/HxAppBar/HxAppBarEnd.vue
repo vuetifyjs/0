@@ -16,6 +16,5 @@
   .helix-app-bar__end {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
   }
 </style>
