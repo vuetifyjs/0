@@ -125,15 +125,13 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
   const items = toRef(() => [...selection.values()])
 
   // Setup adapter (defaults to pass-through if none provided)
-  const adapterResult = adapter
+  const { filtered, isLoading, isEmpty } = adapter
     ? adapter.setup({ query, items })
     : {
         filtered: toRef(() => new Set<ID>(selection.values().map(t => t.id))),
         isLoading: shallowRef(false),
         isEmpty: toRef(() => selection.size === 0),
       }
-
-  const { filtered, isLoading, isEmpty } = adapterResult
 
   const popover = usePopover({ id })
   const isOpen = popover.isOpen
@@ -155,7 +153,7 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
 
   const selectedId = toRef(() => selection.selectedIds.values().next().value as ID | undefined)
 
-  function getSelectedLabel (): string {
+  function label (): string {
     const id = selectedId.value
     if (isUndefined(id)) return ''
     const ticket = selection.get(id)
@@ -171,8 +169,7 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
 
   function close () {
     if (toValue(strict) && !toValue(multiple)) {
-      const label = getSelectedLabel()
-      query.value = selection.selectedIds.size > 0 ? label : ''
+      query.value = selection.selectedIds.size > 0 ? label() : ''
     }
     isOpen.value = false
   }
@@ -188,7 +185,7 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
       query.value = ''
     } else {
       selection.select(itemId)
-      query.value = getSelectedLabel()
+      query.value = label()
       close()
     }
   }
