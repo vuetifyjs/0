@@ -21,7 +21,6 @@ export class ServerAdapter implements ComboboxAdapterInterface {
   setup (context: ComboboxAdapterContext): ComboboxAdapterResult {
     const isLoading = shallowRef(false)
 
-    // Pass-through: all registered items are visible
     const filtered = toRef(() => {
       return new Set<ID>(context.items.value.map(t => t.id))
     })
