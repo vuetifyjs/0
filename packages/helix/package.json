@@ -9,7 +9,7 @@
     "dist"
   ],
   "scripts": {
-    "dev": "vite --config dev/vite.config.ts dev/",
+    "dev": "vite --config ./dev/vite.config.ts ./dev",
     "build": "tsdown",
     "typecheck": "vue-tsc --noEmit --incremental"
   },
@@ -48,7 +48,7 @@
   "devDependencies": {
     "tsdown": "catalog:",
     "typescript": "catalog:",
-    "vite": "catalog:",
-    "unplugin-vue": "catalog:"
+    "unplugin-vue": "catalog:",
+    "vite": "catalog:"
   }
 }

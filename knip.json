@@ -70,6 +70,9 @@
       }
     },
     "packages/helix": {
+      "entry": [
+        "dev/**/*.{ts,vue}"
+      ],
       "project": [
         "src/**/*.{ts,vue}",
         "!src/**/*.test.ts"
@@ -80,7 +83,8 @@
         ]
       },
       "ignoreDependencies": [
-        "unocss"
+        "unocss",
+        "vue-router"
       ]
     },
     "packages/paper": {
