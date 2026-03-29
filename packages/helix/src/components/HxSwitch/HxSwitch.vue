@@ -59,7 +59,7 @@
     transition: background-color 0.15s;
   }
 
-  .helix-switch__track:deep([data-state='checked']) {
+  .helix-switch__track[data-state='checked'] {
     background-color: var(--v0-primary);
   }
 
@@ -79,7 +79,7 @@
     transform: translateX(0.25rem);
   }
 
-  .helix-switch__thumb:deep([data-state='checked']) {
+  .helix-switch__thumb[data-state='checked'] {
     transform: translateX(1.5rem);
   }
 
@@ -89,7 +89,7 @@
     transform: translateX(0.125rem);
   }
 
-  .helix-switch__thumb--small:deep([data-state='checked']) {
+  .helix-switch__thumb--small[data-state='checked'] {
     transform: translateX(0.9375rem);
   }
 </style>
