@@ -23,22 +23,9 @@
   <V0Paper
     v-bind="paperProps"
     as="header"
-    class="helix-app-bar"
     data-app-bar
     :style="{ height }"
   >
     <slot />
   </V0Paper>
 </template>
-
-<style scoped>
-  .helix-app-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: fixed;
-    inset-inline: 0;
-    top: 0;
-    z-index: 1;
-  }
-</style>

@@ -41,8 +41,7 @@
 
 <template>
   <HxAppBar
-    :class="['px-3 text-on-surface', settings.showBgGlass.value ? 'bg-glass-surface' : 'bg-surface']"
-    :style="{ top: '24px', borderBottom: '1px solid var(--v0-divider)' }"
+    :class="['flex items-center justify-between h-[48px] fixed inset-x-0 top-[24px] px-3 text-on-surface border-b border-solid border-divider z-1', settings.showBgGlass.value ? 'bg-glass-surface' : 'bg-surface']"
   >
     <HxAppBarStart>
       <router-link to="/">
