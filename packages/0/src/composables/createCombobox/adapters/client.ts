@@ -36,7 +36,7 @@ export class ClientAdapter implements ComboboxAdapterInterface {
   setup (context: ComboboxAdapterContext): ComboboxAdapterResult {
     const { mode, keys, filter: customFilter } = this.options
 
-    const filterInstance = createFilter({
+    const filter = createFilter({
       mode,
       keys,
       customFilter: customFilter
@@ -45,7 +45,7 @@ export class ClientAdapter implements ComboboxAdapterInterface {
     })
 
     const values = computed(() => context.items.value.map(t => t.value as FilterItem))
-    const { items: filteredValues } = filterInstance.apply(context.query, values)
+    const { items: filteredValues } = filter.apply(context.query, values)
 
     const filtered = computed(() => {
       const q = String(context.query.value).trim()

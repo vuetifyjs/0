@@ -62,6 +62,7 @@
     ...context.popover.contentAttrs.value,
     'id': context.listboxId,
     'role': 'listbox',
+    'aria-labelledby': context.inputId,
     'aria-multiselectable': context.multiple || undefined,
     'tabindex': -1,
   }))

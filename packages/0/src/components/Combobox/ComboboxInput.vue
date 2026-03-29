@@ -13,6 +13,7 @@
   import { useComboboxContext } from './ComboboxRoot.vue'
 
   // Utilities
+  import { isUndefined } from '#v0/utilities'
   import { toRef, toValue, useTemplateRef, watchEffect } from 'vue'
 
   // Types
@@ -83,7 +84,7 @@
         case 'Enter': {
           e.preventDefault()
           const highlighted = context.virtualFocus.highlightedId.value
-          if (highlighted !== undefined) {
+          if (!isUndefined(highlighted)) {
             context.select(highlighted)
             if (!context.multiple) context.close()
           }

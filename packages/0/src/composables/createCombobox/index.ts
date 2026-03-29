@@ -24,7 +24,7 @@ import { useVirtualFocus } from '#v0/composables/useVirtualFocus'
 
 // Utilities
 import { isUndefined, useId } from '#v0/utilities'
-import { computed, nextTick, shallowRef, toRef, toValue, watch } from 'vue'
+import { nextTick, shallowRef, toRef, toValue, watch } from 'vue'
 
 // Types
 import type { SelectionContext } from '#v0/composables/createSelection'
@@ -100,7 +100,7 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
   const inputEl = shallowRef<HTMLElement | null>(null)
 
   // items ref for the adapter — derived from selection.values()
-  const items = computed(() => [...selection.values()])
+  const items = toRef(() => [...selection.values()])
 
   // Setup adapter (defaults to pass-through if none provided)
   const adapterResult = adapter
@@ -114,7 +114,7 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
   const { filtered, isLoading, isEmpty } = adapterResult
 
   const popover = usePopover({ id })
-  const isOpen = popover.isOpen as ShallowRef<boolean>
+  const isOpen = popover.isOpen
 
   const virtualFocus = useVirtualFocus(
     () => selection.values()
