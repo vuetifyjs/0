@@ -64,10 +64,9 @@
 
 <template>
   <Atom
+    v-bind="slotProps.attrs"
     :as
-    :data-state="slotProps.attrs['data-state']"
     :style
-    @click="onClick"
   >
     <slot v-bind="slotProps" />
   </Atom>

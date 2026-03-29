@@ -140,13 +140,10 @@
 <template>
   <Atom
     ref="input"
+    v-bind="slotProps.attrs"
     :as
     :placeholder
     :value="context.query.value"
-    v-bind="slotProps.attrs"
-    @focus="onFocus"
-    @input="onInput"
-    @keydown="onKeydown"
   >
     <slot v-bind="slotProps" />
   </Atom>

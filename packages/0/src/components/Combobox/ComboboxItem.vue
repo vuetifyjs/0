@@ -118,9 +118,8 @@
 <template>
   <Atom
     v-show="isFiltered"
-    :as
     v-bind="slotProps.attrs"
-    @click="onClick"
+    :as
   >
     <slot v-bind="slotProps" />
   </Atom>
