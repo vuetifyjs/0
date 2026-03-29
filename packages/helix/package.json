@@ -9,6 +9,7 @@
     "dist"
   ],
   "scripts": {
+    "dev": "vite --config dev/vite.config.ts dev/",
     "build": "tsdown",
     "typecheck": "vue-tsc --noEmit --incremental"
   },
