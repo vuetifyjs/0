@@ -1,5 +1,6 @@
 // Composables
 export * from './createBreadcrumbs'
+export * from './createCombobox'
 export * from './createContext'
 export * from './createDataTable'
 export * from './createPlugin'
