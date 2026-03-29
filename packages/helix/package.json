@@ -48,6 +48,7 @@
   "devDependencies": {
     "tsdown": "catalog:",
     "typescript": "catalog:",
+    "vite": "catalog:",
     "unplugin-vue": "catalog:"
   }
 }
