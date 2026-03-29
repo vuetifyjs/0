@@ -73,6 +73,28 @@ export interface ComboboxContext {
   clear: () => void
 }
 
+/**
+ * Creates a combobox context that orchestrates selection, popover, virtual
+ * focus, and adapter-based filtering into a single coordinated state.
+ *
+ * @param options - Configuration for selection mode, filtering adapter, and behavior.
+ * @returns A combobox context with all composed systems and action methods.
+ *
+ * @see https://0.vuetifyjs.com/composables/combobox/create-combobox
+ *
+ * @example
+ * ```ts
+ * import { createCombobox } from '@vuetify/v0'
+ *
+ * const combobox = createCombobox({ strict: true })
+ *
+ * combobox.selection.register({ id: 'a', value: 'Apple' })
+ * combobox.selection.register({ id: 'b', value: 'Banana' })
+ *
+ * combobox.open()
+ * combobox.select('a') // query → 'Apple', dropdown closes
+ * ```
+ */
 export function createCombobox (options: ComboboxOptions = {}): ComboboxContext {
   const {
     multiple = false,
@@ -148,7 +170,7 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
   }
 
   function close () {
-    if (toValue(strict) && !toValue(multiple as MaybeRefOrGetter<boolean>)) {
+    if (toValue(strict) && !toValue(multiple)) {
       const label = getSelectedLabel()
       query.value = selection.selectedIds.size > 0 ? label : ''
     }
@@ -161,7 +183,7 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
   }
 
   function select (itemId: ID) {
-    if (toValue(multiple as MaybeRefOrGetter<boolean>)) {
+    if (toValue(multiple)) {
       selection.toggle(itemId)
       query.value = ''
     } else {
@@ -207,7 +229,7 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
     inputId,
     listboxId,
     inputEl,
-    multiple: toValue(multiple as MaybeRefOrGetter<boolean>),
+    multiple: toValue(multiple),
     strict,
     disabled,
     name,
@@ -220,6 +242,24 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
   }
 }
 
+/**
+ * Creates a combobox context with dependency injection support.
+ *
+ * @param options - Combobox options plus an optional namespace for DI.
+ * @returns A context trinity: `[useCombobox, provideCombobox, defaultCombobox]`.
+ *
+ * @see https://0.vuetifyjs.com/composables/combobox/create-combobox
+ *
+ * @example
+ * ```ts
+ * import { createComboboxContext } from '@vuetify/v0'
+ *
+ * const [useCombobox, provideCombobox, combobox] = createComboboxContext({
+ *   namespace: 'my-combobox',
+ *   strict: true,
+ * })
+ * ```
+ */
 export function createComboboxContext (
   options: ComboboxOptions & { namespace?: string } = {},
 ): ContextTrinity<ComboboxContext> {
@@ -234,6 +274,22 @@ export function createComboboxContext (
   return createTrinity<ComboboxContext>(_useCombobox, provideCombobox, context)
 }
 
+/**
+ * Injects the current combobox context from a parent provider.
+ *
+ * @param namespace - DI namespace. Defaults to `'v0:combobox'`.
+ * @returns The combobox context from the nearest provider.
+ *
+ * @see https://0.vuetifyjs.com/composables/combobox/create-combobox
+ *
+ * @example
+ * ```ts
+ * import { useCombobox } from '@vuetify/v0'
+ *
+ * const combobox = useCombobox()
+ * combobox.query.value = 'search term'
+ * ```
+ */
 export function useCombobox (namespace = 'v0:combobox'): ComboboxContext {
   const [_useCombobox] = createContext<ComboboxContext>(namespace)
   return _useCombobox()

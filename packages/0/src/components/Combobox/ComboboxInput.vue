@@ -41,6 +41,7 @@
       'aria-expanded': boolean
       'aria-haspopup': 'listbox'
       'aria-controls': string
+      'aria-disabled': boolean | undefined
       'onInput': (e: Event) => void
       'onFocus': () => void
       'onKeydown': (e: KeyboardEvent) => void
@@ -131,6 +132,7 @@
       'aria-expanded': context.isOpen.value,
       'aria-haspopup': 'listbox',
       'aria-controls': context.listboxId,
+      'aria-disabled': toValue(context.disabled) || undefined,
       'onInput': onInput,
       'onFocus': onFocus,
       'onKeydown': onKeydown,
