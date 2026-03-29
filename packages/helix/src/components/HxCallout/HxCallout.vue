@@ -44,6 +44,7 @@
 <template>
   <V0Paper
     v-bind="paperProps"
+    :aria-label="interactive ? (title ?? config.title) : undefined"
     as="div"
     class="helix-callout"
     :data-type="type"

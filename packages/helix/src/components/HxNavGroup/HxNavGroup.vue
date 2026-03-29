@@ -32,6 +32,7 @@
       <span class="helix-nav-group__label">{{ label }}</span>
 
       <svg
+        aria-hidden="true"
         class="helix-nav-group__chevron"
         :data-expanded="expanded || undefined"
         fill="none"

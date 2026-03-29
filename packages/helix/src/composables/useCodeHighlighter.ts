@@ -8,7 +8,7 @@ import { useIdleCallback } from './useIdleCallback'
 import { readonly, shallowRef } from 'vue'
 
 // Types
-import type { Ref } from 'vue'
+import type { Ref, ShallowRef } from 'vue'
 
 export interface UseCodeHighlighterOptions {
   theme?: string
@@ -30,10 +30,17 @@ interface ShikiHighlighter {
 const DEFAULT_THEME = 'github-dark'
 const DEFAULT_LANGUAGES = ['vue', 'ts', 'bash', 'json']
 
+// Singleton state — lazily initialized inside IN_BROWSER guard
+// to prevent SSR leaks across requests
 let instance: ShikiHighlighter | null = null
 let loading: Promise<ShikiHighlighter | null> | null = null
 let loadedTheme: string | null = null
-const ready = shallowRef(false)
+let ready: ShallowRef<boolean> | null = null
+
+function getReady (): ShallowRef<boolean> {
+  if (!ready) ready = shallowRef(false)
+  return ready
+}
 
 function escape (code: string): string {
   return code
@@ -66,7 +73,7 @@ async function load (
       }) as unknown as ShikiHighlighter
 
       loadedTheme = theme
-      ready.value = true
+      getReady().value = true
       return instance
     } catch {
       loading = null
@@ -114,6 +121,6 @@ export function useCodeHighlighter (options?: UseCodeHighlighterOptions): UseCod
 
   return {
     highlight,
-    isReady: readonly(ready),
+    isReady: readonly(getReady()),
   }
 }

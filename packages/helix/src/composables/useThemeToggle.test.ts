@@ -10,6 +10,7 @@ const mockSelect = vi.fn((name: string) => {
 })
 
 vi.mock('@vuetify/v0', () => ({
+  IN_BROWSER: true,
   useTheme: () => ({
     isDark: mockIsDark,
     select: mockSelect,

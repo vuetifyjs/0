@@ -16,6 +16,7 @@
   // Types
   import type { SearchItem } from '#helix/composables/useSearch'
   import type { V0PaperProps } from '@vuetify/paper'
+  import type { ComponentPublicInstance } from 'vue'
 
   export interface HxSearchGroupedResults {
     category: string
@@ -56,9 +57,7 @@
 
   const emit = defineEmits<{
     /** Fired when a result is selected (Enter or click) */
-    'select': [item: SearchItem]
-    /** Fired when the query changes */
-    'update:query': [value: string]
+    select: [item: SearchItem]
   }>()
 
   const open = defineModel<boolean>('open', { default: false })
@@ -182,11 +181,11 @@
         class="helix-search"
         @keydown.enter.prevent="onEnter"
       >
-        <span class="sr-only">Search</span>
+        <Dialog.Title class="sr-only">Search</Dialog.Title>
 
         <slot name="input" :query :set-input-ref="onInputRef">
           <HxSearchInput
-            :ref="(el: any) => { if (el?.$el) inputRef = el.$el.querySelector('input') }"
+            :ref="(el: ComponentPublicInstance | Element | null) => { if ((el as ComponentPublicInstance)?.$el) inputRef = (el as ComponentPublicInstance).$el.querySelector('input') }"
             v-model:query="query"
             :active-descendant="getActiveDescendantId()"
             :expanded="flatCount > 0"

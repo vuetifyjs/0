@@ -32,7 +32,6 @@
         as="div"
         class="helix-dropdown__content"
         :data-align="align"
-        role="menu"
       >
         <slot v-bind="slotProps" />
       </V0Paper>

@@ -38,7 +38,7 @@
 
 <script setup lang="ts">
   // Utilities
-  import { computed, ref, shallowRef, toRef, useId, useSlots, watch } from 'vue'
+  import { computed, shallowRef, toRef, useId, useSlots, watch } from 'vue'
 
   defineOptions({ name: 'HxExample' })
 
@@ -57,9 +57,9 @@
 
   const slots = useSlots()
   const uid = useId()
-  const showCode = ref(false)
-  const peekExpanded = ref(false)
-  const combinedView = ref(false)
+  const showCode = shallowRef(false)
+  const peekExpanded = shallowRef(false)
+  const combinedView = shallowRef(false)
 
   // Sort files by display order if fileOrders specified
   const displayFiles = computed(() => {
@@ -71,7 +71,7 @@
   })
 
   const hasMultipleFiles = toRef(() => displayFiles.value && displayFiles.value.length > 1)
-  const selectedTab = ref<string>()
+  const selectedTab = shallowRef<string>()
   const hasDescription = toRef(() => !!slots.description)
 
   watch(() => displayFiles.value, f => {

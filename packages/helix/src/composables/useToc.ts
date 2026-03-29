@@ -165,6 +165,8 @@ export function useToc (options: UseTocOptions): UseTocReturn {
    * Cancels any pending scan when called again.
    */
   function debouncedScan () {
+    if (!IN_BROWSER) return
+
     if (scanTimeoutId) {
       clearTimeout(scanTimeoutId)
       scanTimeoutId = null
@@ -210,7 +212,7 @@ export function useToc (options: UseTocOptions): UseTocReturn {
 
   onScopeDispose(() => {
     if (scanTimeoutId) clearTimeout(scanTimeoutId)
-    if (scanRafId) cancelAnimationFrame(scanRafId)
+    if (IN_BROWSER && scanRafId) cancelAnimationFrame(scanRafId)
     scanTimeoutId = null
     scanRafId = null
   })

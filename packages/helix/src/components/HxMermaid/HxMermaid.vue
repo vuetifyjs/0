@@ -34,7 +34,7 @@
 
 <script setup lang="ts">
   // Utilities
-  import { nextTick, onUnmounted, ref, shallowRef, useTemplateRef, watch } from 'vue'
+  import { nextTick, onUnmounted, shallowRef, useTemplateRef, watch } from 'vue'
 
   defineOptions({ name: 'HxMermaid' })
 
@@ -45,16 +45,21 @@
     ...paperProps
   } = defineProps<HxMermaidProps>()
 
-  const isOpen = ref(false)
+  const isOpen = shallowRef(false)
   const panZoomInstance = shallowRef<PanZoomInstance>()
   const dialogSvgRef = useTemplateRef<HTMLElement>('dialogSvg')
 
   // --- Pan-zoom ---
 
   async function loadPanZoom () {
-    const mod = 'svg-pan-zoom'
-    const { default: svgPanZoom } = await import(/* @vite-ignore */ mod)
-    return svgPanZoom
+    try {
+      const mod = 'svg-pan-zoom'
+      const { default: svgPanZoom } = await import(/* @vite-ignore */ mod)
+      return svgPanZoom
+    } catch {
+      console.warn('[helix] HxMermaid: svg-pan-zoom failed to load, pan-zoom disabled')
+      return null
+    }
   }
 
   function createTouchEventsHandler () {
@@ -166,6 +171,8 @@
     }
 
     const svgPanZoom = await loadPanZoom()
+    if (!svgPanZoom || !isOpen.value) return
+
     panZoomInstance.value = svgPanZoom(svgElement, {
       zoomEnabled: true,
       controlIconsEnabled: false,

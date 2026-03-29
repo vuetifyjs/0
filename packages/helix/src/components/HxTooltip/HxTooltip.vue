@@ -42,8 +42,10 @@
     :aria-describedby="popover.contentAttrs.value.id"
     class="helix-tooltip-anchor"
     :style="popover.anchorStyles.value"
+    tabindex="0"
     @blur="popover.close()"
     @focus="popover.open()"
+    @keydown.escape="popover.close()"
     @mouseenter="popover.open()"
     @mouseleave="popover.close()"
   >

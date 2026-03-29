@@ -160,11 +160,23 @@ export function createHelixPlugin (options: HelixPluginOptions = {}): Plugin {
       // Theme — merge user options with Helix defaults
       if (options.theme !== false) {
         const defaults = helixThemeDefaults()
-        const theme = options.theme
-          ? { ...defaults, ...options.theme, themes: { ...defaults.themes, ...options.theme.themes } }
-          : defaults
-
-        app.use(createThemePlugin(theme))
+        if (options.theme) {
+          // Deep merge themes so partial color overrides don't lose defaults
+          const merged = { ...defaults, ...options.theme }
+          if (options.theme.themes) {
+            merged.themes = { ...defaults.themes }
+            for (const key in options.theme.themes) {
+              const base = defaults.themes?.[key]
+              const override = options.theme.themes[key]
+              merged.themes[key] = base && override
+                ? { ...base, ...override, colors: { ...base.colors, ...override.colors } }
+                : override ?? base
+            }
+          }
+          app.use(createThemePlugin(merged as typeof defaults))
+        } else {
+          app.use(createThemePlugin(defaults))
+        }
       }
     },
   }

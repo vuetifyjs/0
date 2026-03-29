@@ -1,5 +1,5 @@
 // Types
-import type { Component } from 'vue'
+import type { App, Component } from 'vue'
 
 export interface DSTokens {
   [key: string]: unknown
@@ -78,7 +78,7 @@ export interface DSManifest {
   /** Custom sections (rendered after overview, shown in nav) */
   sections?: DSSection[]
   /** Optional plugin installer */
-  plugin?: (app: any) => void
+  plugin?: (app: App) => void
   /** Composable inventory */
   composables?: DSComposable[]
   /** v0 primitive links by name */
