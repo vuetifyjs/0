@@ -42,6 +42,7 @@
       'aria-haspopup': 'listbox'
       'aria-controls': string
       'aria-disabled': boolean | undefined
+      'disabled': boolean | undefined
       'onInput': (e: Event) => void
       'onFocus': () => void
       'onKeydown': (e: KeyboardEvent) => void
@@ -87,7 +88,6 @@
           const highlighted = context.virtualFocus.highlightedId.value
           if (!isUndefined(highlighted)) {
             context.select(highlighted)
-            if (!context.multiple) context.close()
           }
           break
         }
@@ -133,6 +133,7 @@
       'aria-haspopup': 'listbox',
       'aria-controls': context.listboxId,
       'aria-disabled': toValue(context.disabled) || undefined,
+      'disabled': toValue(context.disabled) || undefined,
       'onInput': onInput,
       'onFocus': onFocus,
       'onKeydown': onKeydown,

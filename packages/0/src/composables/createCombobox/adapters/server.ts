@@ -11,25 +11,18 @@
  */
 
 // Utilities
-import { computed, shallowRef, toRef } from 'vue'
+import { shallowRef, toRef } from 'vue'
 
 // Types
 import type { ID } from '#v0/types'
 import type { ComboboxAdapterContext, ComboboxAdapterInterface, ComboboxAdapterResult } from './adapter'
 
-export interface ServerAdapterOptions {
-  /** Debounce delay in ms before query changes propagate. Default: 300 */
-  debounce?: number
-}
-
 export class ServerAdapter implements ComboboxAdapterInterface {
-  constructor (_options: ServerAdapterOptions = {}) {}
-
   setup (context: ComboboxAdapterContext): ComboboxAdapterResult {
     const isLoading = shallowRef(false)
 
     // Pass-through: all registered items are visible
-    const filtered = computed(() => {
+    const filtered = toRef(() => {
       return new Set<ID>(context.items.value.map(t => t.id))
     })
 
