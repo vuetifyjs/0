@@ -489,6 +489,9 @@ importers:
       '@vuetify/paper':
         specifier: workspace:*
         version: link:../../packages/paper
+      '@vuetify/v0':
+        specifier: workspace:*
+        version: link:../../packages/0
       vue:
         specifier: 'catalog:'
         version: 3.5.30(typescript@5.9.3)
