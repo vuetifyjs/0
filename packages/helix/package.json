@@ -45,5 +45,8 @@
     "typescript": "catalog:",
     "unplugin-vue": "catalog:",
     "vue-router": "catalog:"
+  },
+  "inlinedDependencies": {
+    "vue-router": "5.0.4"
   }
 }

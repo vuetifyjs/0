@@ -169,6 +169,7 @@ declare module 'vue' {
     HxProgressBar: typeof import('@paper/helix')['HxProgressBar']
     HxSkeleton: typeof import('@paper/helix')['HxSkeleton']
     HxSwitch: typeof import('@paper/helix')['HxSwitch']
+    HxToc: typeof import('@paper/helix')['HxToc']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SkillCard: typeof import('./components/skillz/SkillCard.vue')['default']
