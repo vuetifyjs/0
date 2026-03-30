@@ -12,7 +12,7 @@
   import { useComboboxContext } from './ComboboxRoot.vue'
 
   // Utilities
-  import { toRef, toValue } from 'vue'
+  import { toRef } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -28,7 +28,6 @@
     /** Attributes to bind to the activator element */
     attrs: {
       'data-state': 'open' | 'closed'
-      'onClick': () => void
     }
   }
 </script>
@@ -49,15 +48,10 @@
 
   const style = toRef(() => context.popover.anchorStyles.value)
 
-  function onClick () {
-    if (!toValue(context.disabled)) context.open()
-  }
-
   const slotProps = toRef((): ComboboxActivatorSlotProps => ({
     isOpen: context.isOpen.value,
     attrs: {
       'data-state': context.isOpen.value ? 'open' : 'closed',
-      'onClick': onClick,
     },
   }))
 </script>

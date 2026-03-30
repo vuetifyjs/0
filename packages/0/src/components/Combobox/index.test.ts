@@ -858,13 +858,13 @@ describe('combobox', () => {
   })
 
   describe('open/close behavior', () => {
-    it('activator click opens dropdown', async () => {
+    it('input focus opens dropdown', async () => {
       const { wrapper, isOpen } = await createCombobox()
 
       expect(isOpen()).toBe(false)
 
-      const activator = wrapper.findComponent(Combobox.Activator as any)
-      await activator.trigger('click')
+      const input = wrapper.find('input')
+      await input.trigger('focus')
       await nextTick()
 
       expect(isOpen()).toBe(true)
