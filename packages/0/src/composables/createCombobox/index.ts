@@ -261,14 +261,14 @@ export function createComboboxContext (
   options: ComboboxOptions & { namespace?: string } = {},
 ): ContextTrinity<ComboboxContext> {
   const { namespace = 'v0:combobox', ...rest } = options
-  const [_useCombobox, _provideCombobox] = createContext<ComboboxContext>(namespace)
+  const [useCombobox, _provideCombobox] = createContext<ComboboxContext>(namespace)
   const context = createCombobox(rest)
 
   function provideCombobox (_context: ComboboxContext = context, app?: App): ComboboxContext {
     return _provideCombobox(_context, app)
   }
 
-  return createTrinity<ComboboxContext>(_useCombobox, provideCombobox, context)
+  return createTrinity<ComboboxContext>(useCombobox, provideCombobox, context)
 }
 
 /**
