@@ -63,6 +63,7 @@
 
   export interface SplitterRootExpose {
     distribute: (sizes: number[]) => void
+    dragging: Readonly<Ref<boolean>>
   }
 
   export interface SplitterRootProps extends AtomProps {
@@ -113,7 +114,7 @@
   const draggingHandle = shallowRef<number | null>(null)
   const dragging = toRef(() => !isNull(draggingHandle.value))
   const expandAccum = new Map<string | number, number>()
-  const EXPAND_THRESHOLD = 5
+  const EXPAND_THRESHOLD = 10
 
   const panels = createSelection<SplitterPanelInput>({
     multiple: true,
@@ -146,9 +147,12 @@
   }
 
   function effectiveMin (ticket: SplitterPanelTicket) {
-    return ticket.collapsible && !toValue(ticket.isSelected)
-      ? ticket.collapsedSize
-      : ticket.minSize
+    if (!ticket.collapsible) return ticket.minSize
+    if (!toValue(ticket.isSelected)) return ticket.collapsedSize
+    // During drag, a freshly-expanded panel may still be below minSize.
+    // Allow it to track the cursor smoothly instead of snapping.
+    if (dragging.value && ticket.size < ticket.minSize) return ticket.collapsedSize
+    return ticket.minSize
   }
 
   function resize (index: number, delta: number, options?: { emit?: boolean }) {
@@ -174,7 +178,7 @@
       const accum = (expandAccum.get(before.id) ?? 0) + delta
       expandAccum.set(before.id, accum)
       if (accum >= EXPAND_THRESHOLD) {
-        size = clamp(Math.max(accum, before.minSize), before.minSize, before.maxSize)
+        size = clamp(accum, before.collapsedSize, before.maxSize)
         before.select()
         expandAccum.delete(before.id)
       } else {
@@ -192,7 +196,7 @@
       const accum = (expandAccum.get(after.id) ?? 0) + Math.abs(delta)
       expandAccum.set(after.id, accum)
       if (accum >= EXPAND_THRESHOLD) {
-        size = total - clamp(Math.max(accum, after.minSize), after.minSize, after.maxSize)
+        size = total - clamp(accum, after.collapsedSize, after.maxSize)
         after.select()
         expandAccum.delete(after.id)
       } else {
@@ -333,7 +337,7 @@
     distribute,
   })
 
-  defineExpose<SplitterRootExpose>({ distribute })
+  defineExpose<SplitterRootExpose>({ distribute, dragging })
 
   const slotProps = toRef((): SplitterRootSlotProps => ({
     orientation,

@@ -1498,6 +1498,112 @@ describe('splitter', () => {
     })
   })
 
+  describe('drag expand from collapsed', () => {
+    it('should expand a collapsed panel when dragged past threshold', async () => {
+      const onLayout = vi.fn()
+      const wrapper = twoPanel({
+        onLayout,
+        panels: [
+          { defaultSize: 50, collapsible: true, collapsedSize: 0, minSize: 15 },
+          { defaultSize: 50 },
+        ],
+      })
+      await nextTick()
+
+      // Collapse the first panel
+      const panels = wrapper.findAllComponents(SplitterPanel as any)
+      panels[0].vm.collapse()
+      await nextTick()
+      expect(panels[0].vm.isCollapsed).toBe(true)
+      expect(panels[0].vm.size).toBe(0)
+      onLayout.mockClear()
+
+      const handle = wrapper.findComponent(SplitterHandle as any)
+      const handleEl = handle.element as HTMLElement
+      handleEl.setPointerCapture = vi.fn()
+
+      const rootEl = wrapper.element as HTMLElement
+      Object.defineProperty(rootEl, 'offsetWidth', { value: 1000, configurable: true })
+
+      // Start drag
+      handleEl.dispatchEvent(new PointerEvent('pointerdown', {
+        button: 0,
+        clientX: 0,
+        clientY: 50,
+        bubbles: true,
+        pointerId: 1,
+      }))
+      await nextTick()
+
+      // Drag past EXPAND_THRESHOLD (10%) — move 120px = 12%
+      document.dispatchEvent(new PointerEvent('pointermove', {
+        clientX: 120,
+        clientY: 50,
+        bubbles: true,
+      }))
+      await new Promise(resolve => requestAnimationFrame(resolve))
+      await nextTick()
+
+      // Panel should be expanded and track cursor (12%), not snap to minSize (15%)
+      expect(panels[0].vm.isCollapsed).toBe(false)
+      expect(panels[0].vm.size).toBe(12)
+    })
+
+    it('should allow panel to stay below minSize during drag', async () => {
+      const wrapper = twoPanel({
+        panels: [
+          { defaultSize: 50, collapsible: true, collapsedSize: 0, minSize: 15 },
+          { defaultSize: 50 },
+        ],
+      })
+      await nextTick()
+
+      // Collapse, then expand via drag just past threshold
+      const panels = wrapper.findAllComponents(SplitterPanel as any)
+      panels[0].vm.collapse()
+      await nextTick()
+
+      const handle = wrapper.findComponent(SplitterHandle as any)
+      const handleEl = handle.element as HTMLElement
+      handleEl.setPointerCapture = vi.fn()
+
+      const rootEl = wrapper.element as HTMLElement
+      Object.defineProperty(rootEl, 'offsetWidth', { value: 1000, configurable: true })
+
+      handleEl.dispatchEvent(new PointerEvent('pointerdown', {
+        button: 0,
+        clientX: 0,
+        clientY: 50,
+        bubbles: true,
+        pointerId: 1,
+      }))
+      await nextTick()
+
+      // Drag to 11% — just past threshold, below minSize (15%)
+      document.dispatchEvent(new PointerEvent('pointermove', {
+        clientX: 110,
+        clientY: 50,
+        bubbles: true,
+      }))
+      await new Promise(resolve => requestAnimationFrame(resolve))
+      await nextTick()
+
+      expect(panels[0].vm.isCollapsed).toBe(false)
+      expect(panels[0].vm.size).toBe(11)
+
+      // Continue drag to 13% — still below minSize, should track cursor
+      document.dispatchEvent(new PointerEvent('pointermove', {
+        clientX: 130,
+        clientY: 50,
+        bubbles: true,
+      }))
+      await new Promise(resolve => requestAnimationFrame(resolve))
+      await nextTick()
+
+      expect(panels[0].vm.size).toBe(13)
+    })
+  })
+
   describe('onEndDrag emits layout', () => {
     it('should emit layout when drag ends', async () => {
       const onLayout = vi.fn()

@@ -14,30 +14,65 @@
   const storage = useStorage()
   const sizes = storage.get<number[]>('playground-top-h-sizes', [])
 
+  // Snapshot preferred sizes immediately — layout events during mount
+  // (including HMR-triggered auto-redistribution) can overwrite storage
+  // with default values before our distribute() runs.
+  let preferred = sizes.value.length > 0 ? [...sizes.value] : []
+
+  let settled = false
+
   function onLayout (values: number[]) {
+    if (!settled) return
     // Don't persist collapsed distributions — preserve the user's
     // preferred split so it can be restored when the panel reopens.
-    if (values[0]! > 0) sizes.value = values
+    if (values[0]! > 0) {
+      preferred = values
+      sizes.value = values
+    }
   }
 
-  const rootEl = useTemplateRef<{ distribute: (sizes: number[]) => void }>('root')
+  const rootEl = useTemplateRef<{ distribute: (sizes: number[]) => void, dragging: boolean }>('root')
 
   function distribute () {
-    if (sizes.value.length < 2) return
+    if (preferred.length < 2) return
 
     if (playground.tree.value) {
-      rootEl.value?.distribute(sizes.value)
+      rootEl.value?.distribute(preferred)
     } else {
-      const adjusted = [...sizes.value]
+      const adjusted = [...preferred]
       adjusted[1]! += adjusted[0]!
       adjusted[0] = 0
       rootEl.value?.distribute(adjusted)
     }
   }
 
-  onMounted(distribute)
+  onMounted(() => {
+    distribute()
+    nextTick(() => {
+      settled = true
+    })
+  })
 
-  watch(() => playground.tree.value, () => nextTick(distribute), { flush: 'post' })
+  // Snapshot preferred BEFORE nextTick — SplitterPanel's collapsed watcher
+  // (also flush: post, fires after ours) triggers expand() → onLayout
+  // which would overwrite preferred before the nextTick can use it.
+  // Skip during drag — the Splitter positions the panel directly.
+  watch(() => playground.tree.value, () => {
+    if (rootEl.value?.dragging) return
+
+    const snapshot = [...preferred]
+    nextTick(() => {
+      if (snapshot.length < 2) return
+
+      if (playground.tree.value) {
+        rootEl.value?.distribute(snapshot)
+      } else {
+        snapshot[1]! += snapshot[0]!
+        snapshot[0] = 0
+        rootEl.value?.distribute(snapshot)
+      }
+    })
+  }, { flush: 'post' })
 </script>
 
 <template>
