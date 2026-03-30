@@ -1,5 +1,6 @@
 <script setup lang="ts">
   // Framework
+  import { Select } from '@vuetify/v0'
   import { ant } from '@vuetify/v0/palettes/ant'
   import { material } from '@vuetify/v0/palettes/material'
   import { md1 } from '@vuetify/v0/palettes/md1'
@@ -104,18 +105,37 @@
         Browse Palettes
       </div>
 
-      <select
-        v-model="selected"
-        class="h-[30px] px-2 text-xs font-medium bg-surface-tint border border-divider rounded"
+      <Select.Root
+        mandatory
+        :model-value="selected"
+        @update:model-value="selected = String($event)"
       >
-        <option
-          v-for="(entry, key) in PALETTES"
-          :key
-          :value="key"
-        >
-          {{ entry.label }}
-        </option>
-      </select>
+        <Select.Activator class="h-[30px] px-2 text-xs font-medium bg-surface-tint border border-divider rounded inline-flex items-center gap-1 cursor-pointer">
+          <Select.Value v-slot="{ selectedValue }">{{ PALETTES[String(selectedValue)]?.label }}</Select.Value>
+          <Select.Cue v-slot="{ isOpen }" class="text-[10px] opacity-50">{{ isOpen ? '&#x25B4;' : '&#x25BE;' }}</Select.Cue>
+        </Select.Activator>
+
+        <Select.Content class="p-1 rounded-lg border border-divider bg-surface shadow-lg" :style="{ minWidth: 'anchor-size(width)' }">
+          <Select.Item
+            v-for="(entry, key) in PALETTES"
+            :id="key"
+            :key
+            v-slot="{ isSelected, isHighlighted }"
+            :value="key"
+          >
+            <div
+              class="px-3 py-1.5 rounded-md cursor-default select-none text-xs"
+              :class="[
+                isHighlighted ? 'bg-primary text-on-primary'
+                : isSelected ? 'text-primary font-medium'
+                  : 'text-on-surface hover:bg-surface-variant',
+              ]"
+            >
+              {{ entry.label }}
+            </div>
+          </Select.Item>
+        </Select.Content>
+      </Select.Root>
     </div>
 
     <!-- Swatch grid — fixed height container, uniform cell sizes -->

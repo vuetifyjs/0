@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { toReactive } from '@vuetify/v0'
+  import { Select, toReactive } from '@vuetify/v0'
   import { ref, watch } from 'vue'
 
   const config = ref({
@@ -11,6 +11,13 @@
   })
 
   const settings = toReactive(config)
+
+  const languages = [
+    { id: 'en', label: 'English' },
+    { id: 'es', label: 'Spanish' },
+    { id: 'fr', label: 'French' },
+    { id: 'ja', label: 'Japanese' },
+  ]
 
   const history = ref<string[]>([])
 
@@ -61,16 +68,37 @@
       <!-- Language -->
       <div class="flex items-center justify-between">
         <span class="text-sm text-on-surface">Language</span>
-        <select
-          class="px-2 py-1 text-xs rounded-lg border border-divider bg-surface text-on-surface"
-          :value="settings.language"
-          @change="settings.language = ($event.target as HTMLSelectElement).value"
+        <Select.Root
+          mandatory
+          :model-value="settings.language"
+          @update:model-value="settings.language = String($event)"
         >
-          <option value="en">English</option>
-          <option value="es">Spanish</option>
-          <option value="fr">French</option>
-          <option value="ja">Japanese</option>
-        </select>
+          <Select.Activator class="inline-flex items-center gap-1 px-2 py-1 text-xs rounded-lg border border-divider bg-surface text-on-surface cursor-pointer">
+            <Select.Value v-slot="{ selectedValue }">{{ languages.find(l => l.id === selectedValue)?.label }}</Select.Value>
+            <Select.Cue v-slot="{ isOpen }" class="text-[10px] opacity-50">{{ isOpen ? '&#x25B4;' : '&#x25BE;' }}</Select.Cue>
+          </Select.Activator>
+
+          <Select.Content class="p-1 rounded-lg border border-divider bg-surface shadow-lg" :style="{ minWidth: 'anchor-size(width)' }">
+            <Select.Item
+              v-for="lang in languages"
+              :id="lang.id"
+              :key="lang.id"
+              v-slot="{ isSelected, isHighlighted }"
+              :value="lang.id"
+            >
+              <div
+                class="px-3 py-1.5 rounded-md cursor-default select-none text-xs"
+                :class="[
+                  isHighlighted ? 'bg-primary text-on-primary'
+                  : isSelected ? 'text-primary font-medium'
+                    : 'text-on-surface hover:bg-surface-variant',
+                ]"
+              >
+                {{ lang.label }}
+              </div>
+            </Select.Item>
+          </Select.Content>
+        </Select.Root>
       </div>
 
       <!-- Font size -->

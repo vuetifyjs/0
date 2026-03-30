@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { createOverflow, isUndefined, Tabs } from '@vuetify/v0'
+  import { createOverflow, isUndefined, Select, Tabs } from '@vuetify/v0'
 
   // Components
   import DocsSkeleton from './DocsSkeleton.vue'
@@ -282,18 +282,41 @@
               </Tabs.List>
 
               <!-- Dropdown for hidden files -->
-              <select
+              <Select.Root
                 v-if="hiddenFiles.length > 0"
-                aria-label="Additional files"
-                class="ml-1 h-[30px] px-2 text-xs font-medium bg-surface-tint border border-divider rounded text-on-surface cursor-pointer"
-                :value="hiddenFiles.some(f => f.name === selectedTab) ? selectedTab : ''"
-                @change="selectedTab = ($event.target as HTMLSelectElement).value"
+                :model-value="hiddenFiles.some(f => f.name === selectedTab) ? selectedTab : undefined"
+                @update:model-value="selectedTab = String($event)"
               >
-                <option disabled value="">+{{ hiddenFiles.length }} more</option>
-                <option v-for="f in hiddenFiles" :key="f.name" :value="f.name">
-                  {{ f.name }}
-                </option>
-              </select>
+                <Select.Activator
+                  aria-label="Additional files"
+                  class="ml-1 h-[30px] px-2 text-xs font-medium bg-surface-tint border border-divider rounded text-on-surface cursor-pointer inline-flex items-center gap-1"
+                >
+                  <Select.Value v-slot="{ selectedValue }">{{ selectedValue }}</Select.Value>
+                  <Select.Placeholder>+{{ hiddenFiles.length }} more</Select.Placeholder>
+                  <Select.Cue v-slot="{ isOpen }" class="text-[10px] opacity-50">{{ isOpen ? '&#x25B4;' : '&#x25BE;' }}</Select.Cue>
+                </Select.Activator>
+
+                <Select.Content class="p-1 rounded-lg border border-divider bg-surface shadow-lg" :style="{ minWidth: 'anchor-size(width)' }">
+                  <Select.Item
+                    v-for="f in hiddenFiles"
+                    :id="f.name"
+                    :key="f.name"
+                    v-slot="{ isSelected, isHighlighted }"
+                    :value="f.name"
+                  >
+                    <div
+                      class="px-3 py-1.5 rounded-md cursor-default select-none text-xs font-mono"
+                      :class="[
+                        isHighlighted ? 'bg-primary text-on-primary'
+                        : isSelected ? 'text-primary font-medium'
+                          : 'text-on-surface hover:bg-surface-variant',
+                      ]"
+                    >
+                      {{ f.name }}
+                    </div>
+                  </Select.Item>
+                </Select.Content>
+              </Select.Root>
             </template>
 
             <span

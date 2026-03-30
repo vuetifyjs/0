@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import { Select } from '@vuetify/v0'
   import { shallowRef, toRef } from 'vue'
   import { useToasts } from './toasts'
   import type { Toast } from './toasts'
@@ -14,6 +15,13 @@
 
   const message = shallowRef('')
   const type = shallowRef<Toast['type']>('info')
+
+  const types = [
+    { id: 'info', label: 'Info' },
+    { id: 'success', label: 'Success' },
+    { id: 'warning', label: 'Warning' },
+    { id: 'error', label: 'Error' },
+  ] as const
 
   const typeStyles: Record<Toast['type'], { bg: string, symbol: string, symbolClass: string, border: string }> = {
     info: { bg: 'bg-primary/10', symbol: 'ℹ', symbolClass: 'text-primary', border: 'border-l-primary' },
@@ -50,15 +58,37 @@
 
     <!-- Custom message -->
     <div class="flex gap-2">
-      <select
-        v-model="type"
-        class="px-2 py-1.5 text-sm rounded-lg border border-divider bg-surface text-on-surface"
+      <Select.Root
+        mandatory
+        :model-value="type"
+        @update:model-value="type = $event as Toast['type']"
       >
-        <option value="info">Info</option>
-        <option value="success">Success</option>
-        <option value="warning">Warning</option>
-        <option value="error">Error</option>
-      </select>
+        <Select.Activator class="inline-flex items-center gap-1 px-2 py-1.5 text-sm rounded-lg border border-divider bg-surface text-on-surface cursor-pointer">
+          <Select.Value v-slot="{ selectedValue }">{{ types.find(t => t.id === selectedValue)?.label }}</Select.Value>
+          <Select.Cue v-slot="{ isOpen }" class="text-xs opacity-50">{{ isOpen ? '&#x25B4;' : '&#x25BE;' }}</Select.Cue>
+        </Select.Activator>
+
+        <Select.Content class="p-1 rounded-lg border border-divider bg-surface shadow-lg" :style="{ minWidth: 'anchor-size(width)' }">
+          <Select.Item
+            v-for="t in types"
+            :id="t.id"
+            :key="t.id"
+            v-slot="{ isSelected, isHighlighted }"
+            :value="t.id"
+          >
+            <div
+              class="px-3 py-1.5 rounded-md cursor-default select-none text-sm"
+              :class="[
+                isHighlighted ? 'bg-primary text-on-primary'
+                : isSelected ? 'text-primary font-medium'
+                  : 'text-on-surface hover:bg-surface-variant',
+              ]"
+            >
+              {{ t.label }}
+            </div>
+          </Select.Item>
+        </Select.Content>
+      </Select.Root>
       <input
         v-model="message"
         class="flex-1 px-3 py-1.5 text-sm rounded-lg border border-divider bg-surface text-on-surface placeholder:text-on-surface-variant outline-none focus:border-primary"

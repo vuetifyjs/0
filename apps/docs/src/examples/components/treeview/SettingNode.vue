@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { Treeview } from '@vuetify/v0'
+  import { Select, Treeview } from '@vuetify/v0'
 
   interface Setting {
     label: string
@@ -24,8 +24,8 @@
     emit('update', setting, !setting.value)
   }
 
-  function onSelect (setting: Setting, event: Event) {
-    emit('update', setting, (event.target as HTMLSelectElement).value)
+  function onSelect (setting: Setting, value: string) {
+    emit('update', setting, value)
   }
 </script>
 
@@ -81,15 +81,39 @@
       </span>
 
       <!-- Select -->
-      <select
-        v-else-if="node.type === 'select'"
-        class="bg-transparent border border-divider rounded px-1.5 py-0.5 text-xs text-on-surface cursor-pointer"
-        :value="node.value"
-        @change="onSelect(node, $event)"
-        @click.stop
-      >
-        <option v-for="opt in node.options" :key="opt" class="bg-surface text-on-surface" :value="opt">{{ opt }}</option>
-      </select>
+      <span v-else-if="node.type === 'select'" @click.stop>
+        <Select.Root
+          mandatory
+          :model-value="node.value"
+          @update:model-value="onSelect(node, String($event))"
+        >
+          <Select.Activator as="div" class="inline-flex items-center gap-1 bg-transparent border border-divider rounded px-1.5 py-0.5 text-xs text-on-surface cursor-pointer">
+            <Select.Value v-slot="{ selectedValue }">{{ selectedValue }}</Select.Value>
+            <Select.Cue v-slot="{ isOpen }" class="text-[10px] opacity-50">{{ isOpen ? '&#x25B4;' : '&#x25BE;' }}</Select.Cue>
+          </Select.Activator>
+
+          <Select.Content class="p-1 rounded-lg border border-divider bg-surface shadow-lg" :style="{ minWidth: 'anchor-size(width)' }">
+            <Select.Item
+              v-for="opt in node.options"
+              :id="opt"
+              :key="opt"
+              v-slot="{ isSelected, isHighlighted }"
+              :value="opt"
+            >
+              <div
+                class="px-3 py-1.5 rounded-md cursor-default select-none text-xs"
+                :class="[
+                  isHighlighted ? 'bg-primary text-on-primary'
+                  : isSelected ? 'text-primary font-medium'
+                    : 'text-on-surface hover:bg-surface-variant',
+                ]"
+              >
+                {{ opt }}
+              </div>
+            </Select.Item>
+          </Select.Content>
+        </Select.Root>
+      </span>
     </button>
   </Treeview.Item>
 </template>

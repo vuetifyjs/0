@@ -159,6 +159,76 @@ Use `mandatory` to prevent deselecting the last item, or `mandatory="force"` to 
 </template>
 ```
 
+### Understanding `id` vs `value`
+
+Each `Select.Item` has two key props:
+
+- **`id`** — Internal key for the selection registry. Used for virtual focus, ARIA attributes, and ticket lookup.
+- **`value`** — The value synced to `v-model`. This is what `Select.Value`'s `selectedValue` slot prop exposes.
+
+The model always receives the `value` prop, not the `id`. When `id` and `value` differ, use the `selectedValue` slot prop to look up a display label:
+
+```vue
+<script setup lang="ts">
+  import { Select } from '@vuetify/v0'
+  import { shallowRef } from 'vue'
+
+  const language = shallowRef('en')
+
+  const languages = [
+    { id: 'en', label: 'English' },
+    { id: 'es', label: 'Spanish' },
+    { id: 'fr', label: 'French' },
+  ]
+</script>
+
+<template>
+  <Select.Root v-model="language" mandatory>
+    <Select.Activator>
+      <Select.Value v-slot="{ selectedValue }">
+        {{ languages.find(l => l.id === selectedValue)?.label }}
+      </Select.Value>
+      <Select.Cue />
+    </Select.Activator>
+
+    <Select.Content>
+      <Select.Item
+        v-for="lang in languages"
+        :id="lang.id"
+        :key="lang.id"
+        :value="lang.id"
+      >
+        {{ lang.label }}
+      </Select.Item>
+    </Select.Content>
+  </Select.Root>
+</template>
+```
+
+> [!TIP]
+> When `id` and `value` are the same (the common case), `Select.Value` displays the model value directly — no lookup needed.
+
+### Pre-Selected Values
+
+Select supports pre-selected values via `v-model` or `:model-value`. The `Select.Value` component shows the model value immediately, even before the dropdown has been opened. `Select.Placeholder` automatically hides when a model value is present:
+
+```vue
+<template>
+  <!-- "Banana" shows immediately, no dropdown open needed -->
+  <Select.Root v-model="fruit" mandatory>
+    <Select.Activator>
+      <Select.Value v-slot="{ selectedValue }">{{ selectedValue }}</Select.Value>
+      <Select.Placeholder>Pick a fruit…</Select.Placeholder>
+    </Select.Activator>
+
+    <Select.Content>
+      <Select.Item value="Apple">Apple</Select.Item>
+      <Select.Item value="Banana">Banana</Select.Item>
+    </Select.Content>
+  </Select.Root>
+</template>
+```
+
 ### Custom Positioning
 
 Control dropdown placement with CSS anchor positioning props on Content:
