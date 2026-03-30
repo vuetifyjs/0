@@ -40,7 +40,7 @@ export function createRowSpanning<T extends Record<string, unknown>> (
 
     // Track which cells are covered by a span from a previous row
     // covered[colIndex] = number of remaining rows to skip
-    const covered = Array.from({ length: columns.length }).fill(0)
+    const covered = Array.from<number>({ length: columns.length }).fill(0)
 
     for (let row = 0; row < list.length; row++) {
       const item = list[row]
