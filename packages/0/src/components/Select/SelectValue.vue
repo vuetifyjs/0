@@ -14,6 +14,7 @@
   import { useSelectContext } from './SelectRoot.vue'
 
   // Utilities
+  import { isNullOrUndefined } from '#v0/utilities'
   import { toRef } from 'vue'
 
   // Types
@@ -56,16 +57,28 @@
 
   const items = toRef(() => Array.from(context.selection.selectedItems.value))
   const values = toRef(() => Array.from(context.selection.selectedValues.value))
-  const hasValue = toRef(() => context.selection.selectedIds.size > 0)
+  const hasSelected = toRef(() => context.selection.selectedIds.size > 0)
 
-  const slotProps = toRef((): SelectValueSlotProps => ({
-    selectedItem: items.value[0],
-    selectedItems: items.value,
-    selectedValue: values.value[0],
-    selectedValues: values.value,
-    hasValue: hasValue.value,
-    attrs: {},
-  }))
+  // Fall back to raw model value when items haven't registered yet (useLazy)
+  const pendingValues = toRef(() => {
+    const mv = context.modelValue.value
+    if (isNullOrUndefined(mv)) return []
+    return Array.isArray(mv) ? mv : [mv]
+  })
+
+  const hasValue = toRef(() => hasSelected.value || pendingValues.value.length > 0)
+
+  const slotProps = toRef((): SelectValueSlotProps => {
+    const resolved = hasSelected.value
+    return {
+      selectedItem: resolved ? items.value[0] : undefined,
+      selectedItems: resolved ? items.value : [],
+      selectedValue: resolved ? values.value[0] : pendingValues.value[0],
+      selectedValues: resolved ? values.value : pendingValues.value,
+      hasValue: hasValue.value,
+      attrs: {},
+    }
+  })
 </script>
 
 <template>

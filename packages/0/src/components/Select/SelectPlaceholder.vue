@@ -13,6 +13,7 @@
   import { useSelectContext } from './SelectRoot.vue'
 
   // Utilities
+  import { isNullOrUndefined } from '#v0/utilities'
   import { toRef } from 'vue'
 
   // Types
@@ -41,7 +42,10 @@
 
   const context = useSelectContext(namespace)
 
-  const hasValue = toRef(() => context.selection.selectedIds.size > 0)
+  const hasValue = toRef(() =>
+    context.selection.selectedIds.size > 0
+    || !isNullOrUndefined(context.modelValue.value),
+  )
 </script>
 
 <template>

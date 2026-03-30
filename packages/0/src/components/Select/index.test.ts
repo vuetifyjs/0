@@ -578,6 +578,65 @@ describe('select', () => {
       expect(placeholder.text()).toBe('Choose...')
     })
 
+    it('should show pending model value before items register', async () => {
+      let valueSlotProps: any
+
+      mount(
+        defineComponent({
+          render () {
+            return h(Select.Root as any, { modelValue: 'Apple' }, {
+              default: () => [
+                h(Select.Activator as any, {}, {
+                  default: () => h(Select.Value as any, {}, {
+                    default: (props: any) => {
+                      valueSlotProps = props
+                      return h('span', String(props.selectedValue ?? ''))
+                    },
+                  }),
+                }),
+                h(Select.Content as any, {}, {
+                  default: () => h(Select.Item as any, { value: 'Apple' }, () => 'Apple'),
+                }),
+              ],
+            })
+          },
+        }),
+      )
+
+      await nextTick()
+
+      // Items haven't registered (dropdown never opened), but model has a value
+      expect(valueSlotProps.hasValue).toBe(true)
+      expect(valueSlotProps.selectedValue).toBe('Apple')
+    })
+
+    it('should hide placeholder when model has pending value', async () => {
+      const wrapper = mount(
+        defineComponent({
+          render () {
+            return h(Select.Root as any, { modelValue: 'Apple' }, {
+              default: () => [
+                h(Select.Activator as any, {}, {
+                  default: () => [
+                    h(Select.Value as any),
+                    h(Select.Placeholder as any, {}, () => 'Choose...'),
+                  ],
+                }),
+                h(Select.Content as any, {}, {
+                  default: () => h(Select.Item as any, { value: 'Apple' }, () => 'Apple'),
+                }),
+              ],
+            })
+          },
+        }),
+      )
+
+      await nextTick()
+
+      const placeholder = wrapper.findComponent(Select.Placeholder as any)
+      expect(placeholder.text()).toBe('')
+    })
+
     it('should expose selectedValues via slot props', async () => {
       let valueSlotProps: any
       let rootSlotProps: any

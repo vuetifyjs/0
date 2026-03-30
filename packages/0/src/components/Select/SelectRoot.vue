@@ -65,6 +65,8 @@
     toggle: () => void
     /** Select an item by ID, closing dropdown in single-select mode */
     select: (id: ID) => void
+    /** Raw model value for fallback display before items register */
+    modelValue: Ref<ID | ID[] | undefined>
   }
 
   export interface SelectRootProps extends AtomProps {
@@ -217,6 +219,7 @@
     close,
     toggle,
     select,
+    modelValue: model,
   })
 
   const slotProps = toRef((): SelectRootSlotProps => ({
