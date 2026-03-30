@@ -106,6 +106,14 @@
         case 'Home':
         case 'End': {
           e.preventDefault()
+          // Seed highlight to first selected item on initial keyboard nav
+          if (isUndefined(context.virtualFocus.highlightedId.value)) {
+            const selected = context.selection.selectedIds.values().next().value
+            if (!isUndefined(selected)) {
+              context.virtualFocus.highlight(selected)
+              break
+            }
+          }
           context.virtualFocus.onKeydown(e)
           break
         }
