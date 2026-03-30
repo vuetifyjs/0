@@ -195,6 +195,7 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
       selection.toggle(itemId)
       query.value = ''
       pristine.value = true
+      virtualFocus.highlight(itemId)
       inputEl.value?.focus()
     } else {
       selection.select(itemId)
