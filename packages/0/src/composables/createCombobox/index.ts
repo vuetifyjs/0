@@ -27,7 +27,7 @@ import { ClientAdapter } from './adapters'
 
 // Utilities
 import { isUndefined, useId } from '#v0/utilities'
-import { computed, nextTick, shallowRef, toRef, toValue, watch } from 'vue'
+import { computed, shallowRef, toRef, toValue, watch } from 'vue'
 
 // Types
 import type { SelectionContext } from '#v0/composables/createSelection'
@@ -213,18 +213,8 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
   watch(isOpen, open => {
     if (!open) {
       virtualFocus.clear()
-      return
     }
-
-    nextTick(() => {
-      const selected = selectedId.value
-      if (isUndefined(selected)) {
-        virtualFocus.first()
-      } else {
-        virtualFocus.highlight(String(selected))
-      }
-    })
-  }, { flush: 'post' })
+  })
 
   return {
     selection,

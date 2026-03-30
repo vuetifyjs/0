@@ -105,6 +105,7 @@
         case 'ArrowUp':
         case 'Home':
         case 'End': {
+          e.preventDefault()
           context.virtualFocus.onKeydown(e)
           break
         }

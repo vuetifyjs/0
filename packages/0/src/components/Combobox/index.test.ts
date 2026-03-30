@@ -470,24 +470,20 @@ describe('combobox', () => {
       const { wrapper, open } = await createCombobox()
 
       open()
-      // Wait two ticks: one for isOpen reactive update, one for the nested nextTick
-      // inside the watch that calls virtualFocus.first()
-      await nextTick()
       await nextTick()
 
-      // Apple should be highlighted (virtualFocus.first() was called)
       const input = wrapper.find('input')
-      const atFirst = wrapper.findAllComponents(Combobox.Item as any)
-        .find(item => (item.element as HTMLElement).dataset.highlighted === '')
-      expect(atFirst?.text()).toBe('Apple')
 
-      // ArrowDown to Banana, then ArrowUp back to Apple
+      // ArrowDown to Apple, then ArrowDown to Banana
+      await input.trigger('keydown', { key: 'ArrowDown' })
+      await nextTick()
       await input.trigger('keydown', { key: 'ArrowDown' })
       await nextTick()
       const atSecond = wrapper.findAllComponents(Combobox.Item as any)
         .find(item => (item.element as HTMLElement).dataset.highlighted === '')
       expect(atSecond?.text()).toBe('Banana')
 
+      // ArrowUp back to Apple
       await input.trigger('keydown', { key: 'ArrowUp' })
       await nextTick()
       const afterUp = wrapper.findAllComponents(Combobox.Item as any)
@@ -551,12 +547,13 @@ describe('combobox', () => {
       const { wrapper, open } = await createCombobox()
 
       open()
-      // Wait two ticks for virtualFocus.first() to settle (watch uses nested nextTick)
-      await nextTick()
       await nextTick()
 
       const input = wrapper.find('input')
-      // Navigate to Banana via ArrowDown
+
+      // Navigate to Banana via two ArrowDowns
+      await input.trigger('keydown', { key: 'ArrowDown' })
+      await nextTick()
       await input.trigger('keydown', { key: 'ArrowDown' })
       await nextTick()
       const atBanana = wrapper.findAllComponents(Combobox.Item as any)
@@ -576,16 +573,11 @@ describe('combobox', () => {
       const { wrapper, open } = await createCombobox()
 
       open()
-      // Wait two ticks for virtualFocus.first() to settle
-      await nextTick()
       await nextTick()
 
-      // Apple is highlighted from first()
       const input = wrapper.find('input')
-      const atFirst = wrapper.findAllComponents(Combobox.Item as any)
-        .find(item => (item.element as HTMLElement).dataset.highlighted === '')
-      expect(atFirst?.text()).toBe('Apple')
 
+      // End goes directly to last item
       await input.trigger('keydown', { key: 'End' })
       await nextTick()
       const atEnd = wrapper.findAllComponents(Combobox.Item as any)
