@@ -656,6 +656,71 @@ describe('createDataTable', () => {
     })
   })
 
+  describe('recursive columns', () => {
+    it('uses leaf columns for the data pipeline', () => {
+      const table = createDataTable({
+        items: [
+          { id: 1, name: 'Alice', email: 'a@b.com', phone: '555' },
+          { id: 2, name: 'Bob', email: 'b@b.com', phone: '666' },
+        ],
+        columns: [
+          { key: 'name', title: 'Name', sortable: true, filterable: true },
+          {
+            key: 'contact',
+            title: 'Contact',
+            children: [
+              { key: 'email', title: 'Email', filterable: true },
+              { key: 'phone', title: 'Phone' },
+            ],
+          },
+        ],
+      })
+
+      expect(table.leaves).toHaveLength(3)
+      expect(table.leaves.map(c => c.key)).toEqual(['name', 'email', 'phone'])
+
+      table.search('a@b')
+      expect(table.items.value).toHaveLength(1)
+      expect(table.items.value[0]!.name).toBe('Alice')
+    })
+
+    it('exposes resolved 2D headers', () => {
+      const table = createDataTable({
+        items: [],
+        columns: [
+          { key: 'name', title: 'Name' },
+          {
+            key: 'contact',
+            title: 'Contact',
+            children: [
+              { key: 'email', title: 'Email' },
+              { key: 'phone', title: 'Phone' },
+            ],
+          },
+        ],
+      })
+
+      expect(table.headers.value).toHaveLength(2)
+      expect(table.headers.value[0]).toHaveLength(2)
+      expect(table.headers.value[1]).toHaveLength(2)
+      expect(table.headers.value[0]![0]!.rowspan).toBe(2)
+      expect(table.headers.value[0]![1]!.colspan).toBe(2)
+    })
+
+    it('flat columns produce single header row', () => {
+      const table = createDataTable({
+        items: [],
+        columns: [
+          { key: 'name', title: 'Name' },
+          { key: 'email', title: 'Email' },
+        ],
+      })
+
+      expect(table.headers.value).toHaveLength(1)
+      expect(table.headers.value[0]).toHaveLength(2)
+    })
+  })
+
   describe('edge cases', () => {
     it('itemValue defaults to id', () => {
       const table = createTable()

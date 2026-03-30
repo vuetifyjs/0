@@ -37,7 +37,7 @@ export interface DataTableAdapterContext<T extends Record<string, unknown>> {
   /** Search query ref */
   search: ShallowRef<string>
   /** Column keys eligible for filtering */
-  filterableKeys: ReadonlyArray<keyof T & string>
+  filterableKeys: readonly string[]
   /** Current sort state derived from sort controls */
   sortBy: Readonly<Ref<SortEntry[]>>
   /** Locale for sorting (reactive, from useLocale or options) */

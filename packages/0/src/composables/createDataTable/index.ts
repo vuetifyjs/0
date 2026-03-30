@@ -38,7 +38,11 @@ import type { PaginationContext, PaginationOptions } from '#v0/composables/creat
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { ID } from '#v0/types'
 import type { DataTableAdapterInterface, SortDirection, SortEntry } from './adapters/adapter'
-import type { MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
+import type { InternalHeader } from './columns'
+import type { App, MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
+
+// Column utilities
+import { extractLeaves, resolveHeaders } from './columns'
 
 // Re-export adapter types
 export { DataTableAdapter } from './adapters'
@@ -46,13 +50,17 @@ export type { DataTableAdapterContext, DataTableAdapterInterface, DataTableAdapt
 export { ClientAdapter, ServerAdapter, VirtualAdapter } from './adapters'
 export type { ServerAdapterOptions } from './adapters'
 
+// Re-export column utilities
+export { computeDepth, extractLeaves, resolveHeaders } from './columns'
+export type { ColumnNode, InternalHeader } from './columns'
+
 /** Extract keys of T whose value type extends V */
 type KeysOfType<T, V> = { [K in keyof T]: T[K] extends V ? K : never }[keyof T] & string
 
 export type SelectStrategy = 'single' | 'page' | 'all'
 
 export interface DataTableColumn<T extends Record<string, unknown> = Record<string, unknown>> {
-  readonly key: keyof T & string
+  readonly key: string
   readonly title?: string
   readonly sortable?: boolean
   readonly filterable?: boolean
@@ -60,6 +68,7 @@ export interface DataTableColumn<T extends Record<string, unknown> = Record<stri
   readonly sort?: (a: unknown, b: unknown) => number
   /** Custom filter function for this column */
   readonly filter?: (value: unknown, query: string) => boolean
+  readonly children?: readonly DataTableColumn<T>[]
 }
 
 export interface DataTableSort {
@@ -189,6 +198,10 @@ export interface DataTableContext<T extends Record<string, unknown>> {
   sortedItems: Readonly<Ref<readonly T[]>>
   /** Column definitions */
   columns: readonly DataTableColumn<T>[]
+  /** Leaf columns (no children) used by the data pipeline */
+  leaves: readonly DataTableColumn<T>[]
+  /** 2D header grid with colspan/rowspan for rendering thead */
+  headers: Readonly<Ref<InternalHeader[][]>>
   /** Set the search query */
   search: (value: string) => void
   /** Current search query (readonly) */
@@ -291,7 +304,10 @@ export function createDataTable<T extends Record<string, unknown>> (
     return initialLocale
   })
 
-  const sortable = columns.filter(col => col.sortable === true)
+  const leaves = extractLeaves(columns)
+  const headers = toRef(() => resolveHeaders(columns))
+
+  const sortable = leaves.filter(col => col.sortable === true)
 
   const group = createGroup({ multiple: sortMultiple })
 
@@ -390,19 +406,19 @@ export function createDataTable<T extends Record<string, unknown>> (
     reset,
   }
 
-  const filterable = columns
+  const filterable = leaves
     .filter(col => col.filterable === true)
     .map(col => col.key)
 
   // Build per-column custom sort comparators
-  const customSorts: Partial<Record<keyof T & string, (a: unknown, b: unknown) => number>> = {}
-  for (const col of columns) {
+  const customSorts: Partial<Record<string, (a: unknown, b: unknown) => number>> = {}
+  for (const col of leaves) {
     if (col.sort) customSorts[col.key] = col.sort
   }
 
   // Build per-column custom filter functions
-  const customColumnFilters: Partial<Record<keyof T & string, (value: unknown, query: string) => boolean>> = {}
-  for (const col of columns) {
+  const customColumnFilters: Partial<Record<string, (value: unknown, query: string) => boolean>> = {}
+  for (const col of leaves) {
     if (col.filter) customColumnFilters[col.key] = col.filter
   }
 
@@ -621,6 +637,8 @@ export function createDataTable<T extends Record<string, unknown>> (
     filteredItems,
     sortedItems,
     columns,
+    leaves,
+    headers,
     search,
     query: _query as Readonly<ShallowRef<string>>,
     sort,
