@@ -22,9 +22,12 @@ import { createTrinity } from '#v0/composables/createTrinity'
 import { usePopover } from '#v0/composables/usePopover'
 import { useVirtualFocus } from '#v0/composables/useVirtualFocus'
 
+// Adapters
+import { ClientAdapter } from './adapters'
+
 // Utilities
 import { isUndefined, useId } from '#v0/utilities'
-import { nextTick, shallowRef, toRef, toValue, watch } from 'vue'
+import { computed, nextTick, shallowRef, toRef, toValue, watch } from 'vue'
 
 // Types
 import type { SelectionContext } from '#v0/composables/createSelection'
@@ -121,17 +124,22 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
   const query = shallowRef('')
   const inputEl = shallowRef<HTMLElement | null>(null)
 
-  // items ref for the adapter — derived from selection.values()
-  const items = toRef(() => [...selection.values()])
+  // items for the adapter — track registration events to trigger reactivity
+  // since selection.values() is not natively reactive
+  const version = shallowRef(0)
+  selection.on('register:ticket', () => {
+    version.value++
+  })
+  selection.on('unregister:ticket', () => {
+    version.value++
+  })
+  const items = computed(() => {
+    void version.value
+    return [...selection.values()]
+  })
 
-  // Setup adapter (defaults to pass-through if none provided)
-  const { filtered, isLoading, isEmpty } = adapter
-    ? adapter.setup({ query, items })
-    : {
-        filtered: toRef(() => new Set<ID>(selection.values().map(t => t.id))),
-        isLoading: shallowRef(false),
-        isEmpty: toRef(() => selection.size === 0),
-      }
+  // Setup adapter (defaults to ClientAdapter for local filtering)
+  const { filtered, isLoading, isEmpty } = (adapter ?? new ClientAdapter()).setup({ query, items })
 
   const popover = usePopover({ id })
   const isOpen = popover.isOpen
