@@ -23,9 +23,7 @@
           class="flex-1 bg-transparent outline-none text-on-surface placeholder:text-on-surface-variant"
           placeholder="Search fruits…"
         />
-        <Combobox.Cue v-slot="{ isOpen }" class="text-xs opacity-50 cursor-pointer">
-          {{ isOpen ? '&#x25B4;' : '&#x25BE;' }}
-        </Combobox.Cue>
+        <Combobox.Cue class="text-xs opacity-50 cursor-pointer" />
       </Combobox.Activator>
 
       <Combobox.Content class="p-1 rounded-lg border border-divider bg-surface shadow-lg" :style="{ minWidth: 'anchor-size(width)' }">
@@ -33,23 +31,10 @@
           v-for="item in fruits"
           :id="item.id"
           :key="item.id"
+          class="px-3 py-2 rounded-md cursor-default select-none text-sm text-on-surface data-[highlighted]:bg-primary data-[highlighted]:text-on-primary data-[selected]:text-primary data-[selected]:font-medium"
           :value="item.label"
         >
-          <template #default="{ isSelected, isHighlighted, attrs }">
-            <div
-              v-bind="attrs"
-              class="px-3 py-2 rounded-md cursor-default select-none text-sm"
-              :class="[
-                isHighlighted
-                  ? 'bg-primary text-on-primary'
-                  : isSelected
-                    ? 'text-primary font-medium'
-                    : 'text-on-surface hover:bg-surface-variant',
-              ]"
-            >
-              {{ item.label }}
-            </div>
-          </template>
+          {{ item.label }}
         </Combobox.Item>
 
         <Combobox.Empty v-slot="{ query }" class="px-3 py-2 text-sm text-on-surface-variant">

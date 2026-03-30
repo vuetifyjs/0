@@ -20,11 +20,11 @@
     <Combobox.Root v-model="selected" multiple>
       <Combobox.Activator class="flex items-center gap-1 flex-wrap w-full min-h-10 px-3 py-1.5 rounded-lg border border-divider bg-surface text-on-surface text-sm">
         <span
-          v-for="label in selected"
-          :key="label"
+          v-for="val in selected"
+          :key="val"
           class="inline-flex items-center px-2 py-0.5 rounded-full bg-primary text-on-primary text-xs font-medium"
         >
-          {{ label }}
+          {{ val }}
         </span>
 
         <Combobox.Input
@@ -32,9 +32,7 @@
           placeholder="Search languages…"
         />
 
-        <Combobox.Cue v-slot="{ isOpen }" class="text-xs opacity-50 cursor-pointer ms-auto">
-          {{ isOpen ? '&#x25B4;' : '&#x25BE;' }}
-        </Combobox.Cue>
+        <Combobox.Cue class="text-xs opacity-50 cursor-pointer ms-auto" />
       </Combobox.Activator>
 
       <Combobox.Content class="p-1 rounded-lg border border-divider bg-surface shadow-lg" :style="{ minWidth: 'anchor-size(width)' }">
@@ -42,24 +40,12 @@
           v-for="item in languages"
           :id="item.id"
           :key="item.id"
+          v-slot="{ isSelected }"
+          class="flex items-center gap-2 px-3 py-2 rounded-md cursor-default select-none text-sm text-on-surface data-[highlighted]:bg-primary data-[highlighted]:text-on-primary data-[selected]:text-primary data-[selected]:font-medium"
           :value="item.label"
         >
-          <template #default="{ isSelected, isHighlighted, attrs }">
-            <div
-              v-bind="attrs"
-              class="flex items-center gap-2 px-3 py-2 rounded-md cursor-default select-none text-sm"
-              :class="[
-                isHighlighted
-                  ? 'bg-primary text-on-primary'
-                  : isSelected
-                    ? 'text-primary font-medium'
-                    : 'text-on-surface hover:bg-surface-variant',
-              ]"
-            >
-              <span class="w-4 text-xs" :class="isSelected ? 'visible' : 'invisible'">&#x2713;</span>
-              {{ item.label }}
-            </div>
-          </template>
+          <span class="w-4 text-xs" :class="isSelected ? 'visible' : 'invisible'">&#x2713;</span>
+          {{ item.label }}
         </Combobox.Item>
 
         <Combobox.Empty v-slot="{ query }" class="px-3 py-2 text-sm text-on-surface-variant">
