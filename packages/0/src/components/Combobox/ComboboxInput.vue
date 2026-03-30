@@ -72,6 +72,7 @@
   })
 
   function onInput (e: Event) {
+    context.pristine.value = false
     context.query.value = (e.target as HTMLInputElement).value
     if (openOn === 'input') context.open()
   }

@@ -56,6 +56,7 @@ export interface ComboboxContext {
   popover: PopoverReturn
   virtualFocus: VirtualFocusReturn
   query: ShallowRef<string>
+  pristine: ShallowRef<boolean>
   filtered: Ref<Set<ID>>
   isEmpty: Ref<boolean>
   isLoading: ShallowRef<boolean>
@@ -122,6 +123,8 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
   })
 
   const query = shallowRef('')
+  const pristine = shallowRef(true)
+  const search = toRef(() => pristine.value ? '' : query.value)
   const inputEl = shallowRef<HTMLElement | null>(null)
 
   // items for the adapter — track registration events to trigger reactivity
@@ -139,7 +142,7 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
   })
 
   // Setup adapter (defaults to ClientAdapter for local filtering)
-  const { filtered, isLoading, isEmpty } = (adapter ?? new ClientAdapter()).setup({ query, items })
+  const { filtered, isLoading, isEmpty } = (adapter ?? new ClientAdapter()).setup({ query: search, items })
 
   const popover = usePopover({ id })
   const isOpen = popover.isOpen
@@ -191,9 +194,11 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
     if (toValue(multiple)) {
       selection.toggle(itemId)
       query.value = ''
+      pristine.value = true
     } else {
       selection.select(itemId)
       query.value = label()
+      pristine.value = true
       close()
     }
   }
@@ -226,6 +231,7 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
     popover,
     virtualFocus,
     query,
+    pristine,
     filtered,
     isEmpty,
     isLoading,
