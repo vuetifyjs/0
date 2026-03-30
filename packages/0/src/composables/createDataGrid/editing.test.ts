@@ -5,7 +5,7 @@ import { createCellEditing } from './editing'
 describe('createCellEditing', () => {
   const columns = [
     { key: 'name', editable: true },
-    { key: 'email', editable: true, validate: (v: unknown) => typeof v === 'string' && v.includes('@') || 'Invalid email' },
+    { key: 'email', editable: true, validate: (v: unknown) => (typeof v === 'string' && v.includes('@')) || 'Invalid email' },
     { key: 'id', editable: false },
   ]
 
