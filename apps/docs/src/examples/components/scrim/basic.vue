@@ -1,8 +1,9 @@
 <script setup lang="ts">
-  import { shallowRef, watch } from 'vue'
-  import { Scrim, useStack } from '@vuetify/v0'
+  import { provide, shallowRef, watch } from 'vue'
+  import { createStack, Scrim } from '@vuetify/v0'
 
-  const stack = useStack()
+  const stack = createStack()
+  provide('v0:stack', stack)
 
   const open = shallowRef(false)
   const ticket = stack.register({
