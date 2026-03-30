@@ -3,9 +3,9 @@
  *
  * @remarks
  * Dropdown content for the combobox. Uses the popover composable from Root
- * context for native popover API, CSS anchor positioning, and light dismiss.
- * Single element — renders an Atom with popover attrs, positioning styles,
- * and listbox ARIA.
+ * context for native popover API and CSS anchor positioning. Uses manual
+ * popover mode to prevent light-dismiss from closing the dropdown when the
+ * user clicks the input/activator area. Dismiss is handled via useClickOutside.
  *
  * Uses `useLazy` to defer slot rendering until the dropdown is first opened.
  */
@@ -16,6 +16,7 @@
   import { useComboboxContext } from './ComboboxRoot.vue'
 
   // Composables
+  import { useClickOutside } from '#v0/composables/useClickOutside'
   import { useLazy } from '#v0/composables/useLazy'
 
   // Utilities
@@ -54,6 +55,16 @@
 
   const { hasContent } = useLazy(context.isOpen)
 
+  // Manual popover mode — dismiss on click outside both content and activator
+  const activator = toRef(() => context.inputEl.value?.closest('[data-state]') as HTMLElement | null)
+
+  useClickOutside(
+    [() => content.value?.element, activator],
+    () => {
+      if (context.isOpen.value) context.close()
+    },
+  )
+
   const slotProps = toRef((): ComboboxContentSlotProps => ({
     isOpen: context.isOpen.value,
   }))
@@ -64,6 +75,7 @@
     'role': 'listbox',
     'aria-labelledby': context.inputId,
     'aria-multiselectable': context.multiple || undefined,
+    'popover': 'manual',
     'tabindex': -1,
   }))
 
