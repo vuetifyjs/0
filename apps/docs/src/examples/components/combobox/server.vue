@@ -2,11 +2,10 @@
   import { Combobox, ComboboxServerAdapter, useComboboxContext } from '@vuetify/v0'
   import { defineComponent, shallowRef, watch } from 'vue'
 
-  // QueryWatcher syncs the Root query to the parent via emit
   const QueryWatcher = defineComponent({
     emits: ['query'],
     setup (_, { emit }) {
-      const ctx = useComboboxContext()
+      const ctx = useComboboxContext('v0:combobox')
       watch(ctx.query, q => emit('query', q))
     },
     render: () => null,
