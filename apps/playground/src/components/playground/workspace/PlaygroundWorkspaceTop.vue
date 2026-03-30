@@ -15,13 +15,25 @@
   const sizes = storage.get<number[]>('playground-top-h-sizes', [])
 
   function onLayout (values: number[]) {
-    sizes.value = values
+    // Don't persist collapsed distributions — preserve the user's
+    // preferred split so it can be restored when the panel reopens.
+    if (values[0]! > 0) sizes.value = values
   }
 
   const rootEl = useTemplateRef<{ distribute: (sizes: number[]) => void }>('root')
 
   onMounted(() => {
-    if (sizes.value.length > 0) rootEl.value?.distribute(sizes.value)
+    if (sizes.value.length === 0) return
+
+    // If tree is collapsed, zero out its size and give it to the editor
+    if (!playground.tree.value && sizes.value.length >= 2) {
+      const adjusted = [...sizes.value]
+      adjusted[1]! += adjusted[0]!
+      adjusted[0] = 0
+      rootEl.value?.distribute(adjusted)
+    } else {
+      rootEl.value?.distribute(sizes.value)
+    }
   })
 </script>
 
