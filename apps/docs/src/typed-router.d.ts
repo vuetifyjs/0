@@ -111,6 +111,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/components/forms/combobox': RouteRecordInfo<
+      '/components/forms/combobox',
+      '/components/forms/combobox',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/components/forms/form': RouteRecordInfo<
       '/components/forms/form',
       '/components/forms/form',
@@ -942,6 +949,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/components/forms/checkbox.md': {
       routes:
         | '/components/forms/checkbox'
+      views:
+        | never
+    }
+    'src/pages/components/forms/combobox.md': {
+      routes:
+        | '/components/forms/combobox'
       views:
         | never
     }

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { Combobox, ServerAdapter, useComboboxContext } from '@vuetify/v0'
+  import { Combobox, ComboboxServerAdapter, useComboboxContext } from '@vuetify/v0'
   import { defineComponent, shallowRef, watch } from 'vue'
 
   // QueryWatcher syncs the Root query to the parent via emit
@@ -13,7 +13,7 @@
   })
 
   const selected = shallowRef<string>()
-  const adapter = new ServerAdapter()
+  const adapter = new ComboboxServerAdapter()
 
   const ALL_COLORS = [
     { id: 'red', label: 'Red' },
