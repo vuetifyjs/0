@@ -312,6 +312,142 @@ describe('combobox', () => {
     })
   })
 
+  describe('pristine flag', () => {
+    it('after selection all items remain visible (pristine=true)', async () => {
+      const selected = ref<string>()
+      const { itemSlotProps, open } = await createCombobox({
+        'adapter': new ClientAdapter(),
+        'modelValue': selected.value,
+        'onUpdate:modelValue': v => {
+          selected.value = v as string
+        },
+      })
+
+      open()
+      await nextTick()
+
+      // Select an item — sets pristine=true
+      ;(itemSlotProps.value.Apple as { select: () => void }).select()
+      await nextTick()
+
+      // Re-open (single mode closes on select)
+      open()
+      await nextTick()
+
+      // All items should pass filter (pristine search = empty string)
+      expect((itemSlotProps.value.Apple as { isFiltered: boolean }).isFiltered).toBe(true)
+      expect((itemSlotProps.value.Banana as { isFiltered: boolean }).isFiltered).toBe(true)
+      expect((itemSlotProps.value.Cherry as { isFiltered: boolean }).isFiltered).toBe(true)
+    })
+
+    it('after typing only matching items are visible (pristine=false)', async () => {
+      const { wrapper, itemSlotProps, open } = await createCombobox({
+        adapter: new ClientAdapter(),
+      })
+
+      open()
+      await nextTick()
+
+      const input = wrapper.find('input')
+      await input.setValue('Ban')
+      await input.trigger('input')
+      await nextTick()
+
+      // Only Banana passes the filter
+      expect((itemSlotProps.value.Banana as { isFiltered: boolean }).isFiltered).toBe(true)
+      expect((itemSlotProps.value.Apple as { isFiltered: boolean }).isFiltered).toBe(false)
+      expect((itemSlotProps.value.Cherry as { isFiltered: boolean }).isFiltered).toBe(false)
+    })
+
+    it('after selecting then typing, filter activates', async () => {
+      const selected = ref<string>()
+      const { wrapper, itemSlotProps, open } = await createCombobox({
+        'adapter': new ClientAdapter(),
+        'modelValue': selected.value,
+        'onUpdate:modelValue': v => {
+          selected.value = v as string
+        },
+      })
+
+      open()
+      await nextTick()
+
+      // Select Apple — pristine becomes true
+      ;(itemSlotProps.value.Apple as { select: () => void }).select()
+      await nextTick()
+
+      // Re-open
+      open()
+      await nextTick()
+
+      // All items visible while pristine
+      expect((itemSlotProps.value.Apple as { isFiltered: boolean }).isFiltered).toBe(true)
+      expect((itemSlotProps.value.Banana as { isFiltered: boolean }).isFiltered).toBe(true)
+
+      // Type to activate filter — sets pristine=false
+      const input = wrapper.find('input')
+      await input.setValue('Ban')
+      await input.trigger('input')
+      await nextTick()
+
+      expect((itemSlotProps.value.Banana as { isFiltered: boolean }).isFiltered).toBe(true)
+      expect((itemSlotProps.value.Apple as { isFiltered: boolean }).isFiltered).toBe(false)
+    })
+  })
+
+  describe('multi-select focus and highlight', () => {
+    it('after multi-select click input gets focus', async () => {
+      const selected = ref<string[]>([])
+      const { wrapper, open } = await createCombobox({
+        'multiple': true,
+        'modelValue': selected.value,
+        'onUpdate:modelValue': v => {
+          selected.value = v as string[]
+        },
+      })
+
+      open()
+      await nextTick()
+
+      const items = wrapper.findAllComponents(Combobox.Item as any)
+      const apple = items.find(i => i.text() === 'Apple')!
+      await apple.trigger('click')
+      await nextTick()
+
+      const input = wrapper.find('input')
+      expect(document.activeElement).toBe(input.element)
+    })
+
+    it('after multi-select click ArrowDown highlights next item not first', async () => {
+      const selected = ref<string[]>([])
+      const { wrapper, open } = await createCombobox({
+        'multiple': true,
+        'modelValue': selected.value,
+        'onUpdate:modelValue': v => {
+          selected.value = v as string[]
+        },
+      })
+
+      open()
+      await nextTick()
+
+      // Click Python → currently item 1 (Apple) gets highlighted; let's click Banana (index 1)
+      const items = wrapper.findAllComponents(Combobox.Item as any)
+      const banana = items.find(i => i.text() === 'Banana')!
+      await banana.trigger('click')
+      await nextTick()
+
+      // Banana is now highlighted; ArrowDown should move to Cherry
+      const input = wrapper.find('input')
+      await input.trigger('keydown', { key: 'ArrowDown' })
+      await nextTick()
+
+      const highlighted = wrapper.findAllComponents(Combobox.Item as any)
+        .find(item => (item.element as HTMLElement).dataset.highlighted === '')
+      expect(highlighted?.text()).toBe('Cherry')
+    })
+  })
+
   describe('filtering', () => {
     it('client adapter filters items by query', async () => {
       const { wrapper, itemSlotProps, open } = await createCombobox({
