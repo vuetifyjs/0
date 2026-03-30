@@ -3,7 +3,7 @@
   import { SplitterPanel, SplitterRoot, useBreakpoints, useStorage } from '@vuetify/v0'
 
   // Utilities
-  import { onMounted, useTemplateRef } from 'vue'
+  import { nextTick, onMounted, useTemplateRef, watch } from 'vue'
 
   // Components
   import { usePlayground } from '../app/PlaygroundApp.vue'
@@ -22,19 +22,22 @@
 
   const rootEl = useTemplateRef<{ distribute: (sizes: number[]) => void }>('root')
 
-  onMounted(() => {
-    if (sizes.value.length === 0) return
+  function distribute () {
+    if (sizes.value.length < 2) return
 
-    // If tree is collapsed, zero out its size and give it to the editor
-    if (!playground.tree.value && sizes.value.length >= 2) {
+    if (playground.tree.value) {
+      rootEl.value?.distribute(sizes.value)
+    } else {
       const adjusted = [...sizes.value]
       adjusted[1]! += adjusted[0]!
       adjusted[0] = 0
       rootEl.value?.distribute(adjusted)
-    } else {
-      rootEl.value?.distribute(sizes.value)
     }
-  })
+  }
+
+  onMounted(distribute)
+
+  watch(() => playground.tree.value, () => nextTick(distribute), { flush: 'post' })
 </script>
 
 <template>
