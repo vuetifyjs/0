@@ -58,37 +58,38 @@ export class V0UnheadThemeAdapter extends ThemeAdapter {
     }
 
     if (IN_BROWSER) {
-      const stopWatch = watch([context.colors, context.isDark], ([colors, isDark]) => {
-        this.update(colors, isDark)
-      })
+      let targetEl: HTMLElement | null = null
 
-      onScopeDispose(stopWatch, true)
+      if (!isNull(target)) {
+        targetEl = target instanceof HTMLElement
+          ? target
+          : (isString(target)
+              ? document.querySelector(target) as HTMLElement | null
+              : (app._container as HTMLElement | undefined) || document.querySelector('#app') as HTMLElement | null || document.body)
+      }
 
-      if (isNull(target)) return
-
-      const targetEl = target instanceof HTMLElement
-        ? target
-        : (isString(target)
-            ? document.querySelector(target) as HTMLElement | null
-            : (app._container as HTMLElement | undefined) || document.querySelector('#app') as HTMLElement | null || document.body)
-
-      if (!targetEl) return
-
-      if (context.selectedId.value) {
+      if (targetEl && context.selectedId.value) {
         targetEl.dataset.theme = String(context.selectedId.value)
       }
 
-      const stopTheme = watch(context.selectedId, id => {
-        if (!id) return
+      // Single watcher for both style and htmlAttrs — unhead's entry.patch()
+      // replaces the entire input, so separate patches would clobber each other.
+      const stopWatch = watch(
+        [context.colors, context.isDark, context.selectedId],
+        ([colors, isDark, id]) => {
+          if (targetEl && id) targetEl.dataset.theme = String(id)
 
-        targetEl.dataset.theme = String(id)
+          this.entry?.patch({
+            htmlAttrs: { 'data-theme': id ? String(id) : '' },
+            style: [{
+              innerHTML: this.generate(colors, isDark),
+              id: this.stylesheetId,
+            }],
+          })
+        },
+      )
 
-        this.entry?.patch({
-          htmlAttrs: { 'data-theme': String(id) },
-        })
-      })
-
-      onScopeDispose(stopTheme, true)
+      onScopeDispose(stopWatch, true)
     }
   }
 
