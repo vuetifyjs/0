@@ -172,18 +172,8 @@ export function createColumnLayout (defs: readonly GridColumnDef[]): ColumnLayou
   })
 
   const columns = toRef((): ResolvedColumn[] => {
-    const r = resolved()
-    const region = pinned.value
-    // Return all columns in display order with offsets already set
-    return order.value.map(key => r.get(key)!).map(col => {
-      // Offsets are set by splitRegions — return updated col
-      const regions = [region.left, region.scrollable, region.right]
-      for (const reg of regions) {
-        const found = reg.find(c => c.key === col.key)
-        if (found) return found
-      }
-      return col
-    })
+    const { left, scrollable, right } = pinned.value
+    return [...left, ...scrollable, ...right]
   })
 
   function pin (key: string, position: PinPosition) {

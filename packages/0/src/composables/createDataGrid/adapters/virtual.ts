@@ -20,6 +20,8 @@ import type { ID } from '#v0/types'
 import type { DataTableAdapterContext, DataTableAdapterResult } from '../../createDataTable/adapters/adapter'
 import type { ShallowRef } from 'vue'
 
+import { applyOrder } from './order'
+
 export class VirtualGridAdapter<T extends Record<string, unknown>> extends DataTableAdapter<T> {
   private rowOrder: ShallowRef<ID[]>
   private itemKey: string
@@ -37,27 +39,7 @@ export class VirtualGridAdapter<T extends Record<string, unknown>> extends DataT
     const sortedItems = this.sort(filteredItems, sortBy, locale, customSorts)
 
     const orderedItems = computed(() => {
-      const order = this.rowOrder.value
-      if (order.length === 0) return sortedItems.value
-
-      const map = new Map<ID, T>()
-      for (const item of sortedItems.value) {
-        map.set(item[this.itemKey] as ID, item)
-      }
-
-      const result: T[] = []
-      for (const id of order) {
-        const item = map.get(id)
-        if (item) result.push(item)
-      }
-
-      for (const item of sortedItems.value) {
-        if (!order.includes(item[this.itemKey] as ID)) {
-          result.push(item)
-        }
-      }
-
-      return result
+      return applyOrder(sortedItems.value, this.rowOrder.value, this.itemKey)
     })
 
     const size = toRef(() => orderedItems.value.length)

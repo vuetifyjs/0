@@ -31,7 +31,7 @@ import type { VirtualOptions } from '#v0/composables/createVirtual'
 import type { ID } from '#v0/types'
 import type { CellEditing } from './editing'
 import type { ColumnLayout, GridColumnDef } from './layout'
-import type { RowSpanningOptions, SpanEntry } from './spanning'
+import type { SpanEntry } from './spanning'
 import type { App, ComputedRef, MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
 
 // Grid modules
@@ -122,16 +122,10 @@ export function createDataGrid<T extends Record<string, unknown>> (
     rowSpanning,
   } = options
 
-  // 1. Extract leaves from possibly nested column definitions
   const leaves = extractLeaves(columns)
-
-  // 2. Create row ordering state
   const ordering = createRowOrdering()
-
-  // 3. Create adapter: use ClientGridAdapter (closes over ordering) unless custom provided
   const adapter = customAdapter ?? new ClientGridAdapter<T>(ordering.order, itemValue)
 
-  // 4. Create the data table with the grid adapter
   const table = createDataTable<T>({
     items,
     columns,
@@ -142,25 +136,20 @@ export function createDataGrid<T extends Record<string, unknown>> (
     adapter,
   })
 
-  // 5. Watch sort changes to reset row order (unless preserveRowOrder)
   if (!preserveRowOrder) {
     watch(table.sort.columns, () => {
       ordering.reset()
     })
   }
 
-  // 6. Create column layout
   const layout = createColumnLayout(columns)
-
-  // 7. Resolve headers (toRef wrapping resolveHeaders)
   const headers = toRef(() => resolveHeaders(columns))
 
-  // 8. Create cell editing
   const editableColumns = leaves
-    .filter(col => col.editable !== undefined || col.validate !== undefined)
+    .filter(col => col.editable === true || typeof col.editable === 'function')
     .map(col => ({
       key: col.key,
-      editable: col.editable as boolean | ((item: unknown) => boolean) | undefined,
+      editable: col.editable as boolean | ((item: unknown) => boolean),
       validate: col.validate as ((value: unknown, item?: unknown) => boolean | string) | undefined,
     }))
 
@@ -176,19 +165,12 @@ export function createDataGrid<T extends Record<string, unknown>> (
       : undefined,
   })
 
-  // 9. Create row spanning
-  const columnKeys = leaves.map(col => col.key)
-
-  const spanOptions: RowSpanningOptions<T> = {
+  const spans = createRowSpanning<T>({
     items: table.items as Ref<readonly T[]>,
-    columns: columnKeys,
+    columns: leaves.map(col => col.key),
     itemKey: itemValue,
     rowSpanning,
-  }
-
-  const spans = createRowSpanning<T>(spanOptions)
-
-  // 10. Return merged context (table + grid features)
+  })
   return {
     ...table,
     layout,

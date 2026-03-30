@@ -60,9 +60,10 @@ export function createRowOrdering (): RowOrdering {
       if (item) result.push(item)
     }
 
-    // Append any items not in the order (new items added after reorder)
+    // Append items not in the order (new items added after reorder)
+    const ordered = new Set(order.value)
     for (const item of items) {
-      if (!order.value.includes(item[itemKey] as ID)) {
+      if (!ordered.has(item[itemKey] as ID)) {
         result.push(item)
       }
     }

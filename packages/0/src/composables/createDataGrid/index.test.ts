@@ -1,8 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
 
-// Utilities
-import { inject, provide } from 'vue'
-
 import { createDataGrid } from './index'
 
 vi.mock('vue', async () => {
@@ -13,9 +10,6 @@ vi.mock('vue', async () => {
     inject: vi.fn(),
   }
 })
-
-vi.mocked(provide)
-vi.mocked(inject)
 
 const items = [
   { id: 1, name: 'Alice', email: 'alice@test.com', age: 30, dept: 'Eng' },
