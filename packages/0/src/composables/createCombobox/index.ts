@@ -56,6 +56,7 @@ export interface ComboboxContext {
   popover: PopoverReturn
   virtualFocus: VirtualFocusReturn
   query: ShallowRef<string>
+  search: Readonly<Ref<string>>
   pristine: ShallowRef<boolean>
   filtered: Ref<Set<ID>>
   isEmpty: Ref<boolean>
@@ -223,6 +224,7 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
     popover,
     virtualFocus,
     query,
+    search,
     pristine,
     filtered,
     isEmpty,

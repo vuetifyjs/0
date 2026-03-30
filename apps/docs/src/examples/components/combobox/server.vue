@@ -2,11 +2,11 @@
   import { Combobox, ComboboxServerAdapter, useComboboxContext } from '@vuetify/v0'
   import { defineComponent, shallowRef, watch } from 'vue'
 
-  const QueryWatcher = defineComponent({
-    emits: ['query'],
+  const SearchWatcher = defineComponent({
+    emits: ['search'],
     setup (_, { emit }) {
       const ctx = useComboboxContext('v0:combobox')
-      watch(ctx.query, q => emit('query', q))
+      watch(ctx.search, q => emit('search', q))
     },
     render: () => null,
   })
@@ -29,7 +29,7 @@
 
   let timer: ReturnType<typeof setTimeout>
 
-  function onQuery (q: string) {
+  function onSearch (q: string) {
     loading.value = true
     clearTimeout(timer)
     timer = setTimeout(() => {
@@ -45,7 +45,7 @@
 <template>
   <div class="flex flex-col gap-4 max-w-xs mx-auto">
     <Combobox.Root v-model="selected" :adapter>
-      <QueryWatcher @query="onQuery" />
+      <SearchWatcher @search="onSearch" />
 
       <Combobox.Activator class="flex items-center gap-1 w-full px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm">
         <Combobox.Input
