@@ -14,7 +14,7 @@
 
   // Utilities
   import { isUndefined } from '#v0/utilities'
-  import { onUnmounted, toRef, toValue, useAttrs, useTemplateRef } from 'vue'
+  import { mergeProps, onUnmounted, toRef, toValue, useAttrs, useTemplateRef } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -186,7 +186,7 @@
 <template>
   <Atom
     ref="thumb"
-    v-bind="{ ...attrs, ...slotProps.attrs }"
+    v-bind="mergeProps(attrs, slotProps.attrs)"
     :as
     :renderless
     :style="[attrs.style, slotProps.attrs.style]"

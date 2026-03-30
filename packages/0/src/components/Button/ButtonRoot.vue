@@ -22,7 +22,7 @@
   import { useTimer } from '#v0/composables/useTimer'
 
   // Utilities
-  import { onUnmounted, shallowRef, toRef, toValue, useAttrs, watch } from 'vue'
+  import { mergeProps, onUnmounted, shallowRef, toRef, toValue, useAttrs, watch } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -233,10 +233,9 @@
 
 <template>
   <Atom
-    v-bind="{ ...attrs, ...slotProps.attrs }"
+    v-bind="mergeProps(attrs, slotProps.attrs)"
     :as
     :renderless
-    @click="onClick"
   >
     <slot v-bind="slotProps" />
   </Atom>
