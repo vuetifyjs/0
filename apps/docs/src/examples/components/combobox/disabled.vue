@@ -29,7 +29,7 @@
           class="flex-1 bg-transparent outline-none text-on-surface placeholder:text-on-surface-variant"
           placeholder="Search roles…"
         />
-        <Combobox.Cue class="text-xs opacity-50 cursor-pointer">&#x25BE;</Combobox.Cue>
+        <Combobox.Cue class="opacity-50 cursor-pointer"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 9l7 7 7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" /></svg></Combobox.Cue>
       </Combobox.Activator>
 
       <Combobox.Content class="p-1 rounded-lg border border-divider bg-surface shadow-lg" :style="{ minWidth: 'anchor-size(width)' }">
