@@ -37,7 +37,7 @@
           v-for="item in roles"
           :id="item.id"
           :key="item.id"
-          class="px-3 py-2 rounded-md cursor-default select-none text-sm text-on-surface data-[highlighted]:bg-primary data-[highlighted]:text-on-primary data-[selected]:text-primary data-[selected]:font-medium data-[disabled]:opacity-30 data-[disabled]:line-through data-[disabled]:cursor-not-allowed"
+          class="px-3 py-2 rounded-md cursor-default select-none text-sm text-on-surface data-[highlighted]:bg-primary data-[highlighted]:text-on-primary data-[selected]:font-medium data-[disabled]:opacity-30 data-[disabled]:line-through data-[disabled]:cursor-not-allowed"
           :disabled="item.disabled"
           :value="item.label"
         >

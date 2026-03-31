@@ -41,7 +41,7 @@
           :id="item.id"
           :key="item.id"
           v-slot="{ isSelected }"
-          class="flex items-center gap-2 px-3 py-2 rounded-md cursor-default select-none text-sm text-on-surface data-[highlighted]:bg-primary data-[highlighted]:text-on-primary data-[selected]:text-primary data-[selected]:font-medium"
+          class="flex items-center gap-2 px-3 py-2 rounded-md cursor-default select-none text-sm text-on-surface data-[highlighted]:bg-primary data-[highlighted]:text-on-primary data-[selected]:font-medium"
           :value="item.label"
         >
           <span class="w-4 text-xs" :class="isSelected ? 'visible' : 'invisible'">&#x2713;</span>

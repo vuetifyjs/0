@@ -31,7 +31,7 @@
           v-for="item in fruits"
           :id="item.id"
           :key="item.id"
-          class="px-3 py-2 rounded-md cursor-default select-none text-sm text-on-surface data-[highlighted]:bg-primary data-[highlighted]:text-on-primary data-[selected]:text-primary data-[selected]:font-medium"
+          class="px-3 py-2 rounded-md cursor-default select-none text-sm text-on-surface data-[selected]:font-medium data-[highlighted]:bg-primary data-[highlighted]:text-on-primary"
           :value="item.label"
         >
           {{ item.label }}
