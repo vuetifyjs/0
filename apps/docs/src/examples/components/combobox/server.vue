@@ -53,7 +53,7 @@
           placeholder="Search colors…"
         />
         <span v-if="loading" class="text-xs opacity-50 select-none">…</span>
-        <Combobox.Cue v-else class="text-xs opacity-50 cursor-pointer" />
+        <Combobox.Cue v-else class="text-xs opacity-50 cursor-pointer">&#x25BE;</Combobox.Cue>
       </Combobox.Activator>
 
       <Combobox.Content class="p-1 rounded-lg border border-divider bg-surface shadow-lg" :style="{ minWidth: 'anchor-size(width)' }">

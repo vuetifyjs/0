@@ -32,7 +32,7 @@
           placeholder="Search languages…"
         />
 
-        <Combobox.Cue class="text-xs opacity-50 cursor-pointer ms-auto" />
+        <Combobox.Cue class="text-xs opacity-50 cursor-pointer ms-auto">&#x25BE;</Combobox.Cue>
       </Combobox.Activator>
 
       <Combobox.Content class="p-1 rounded-lg border border-divider bg-surface shadow-lg" :style="{ minWidth: 'anchor-size(width)' }">
