@@ -2,17 +2,15 @@
  * @module Theme
  *
  * @remarks
- * Scoped theme provider component. Wraps children in a theme context
- * override so descendant `useTheme()` calls resolve to the specified theme.
- *
- * Supports both wrapper mode (renders a DOM element) and renderless mode
- * (passes attrs via slot scope).
- *
- * @see https://0.vuetifyjs.com/components/providers/theme
+ * Scoped theme provider component.
  */
 
 <script lang="ts">
+  // Components
+  import { Atom } from '#v0/components/Atom'
+
   // Composables
+  // Foundational
   import { provideContext } from '#v0/composables/createContext'
   import { useTheme } from '#v0/composables/useTheme'
 
@@ -20,30 +18,18 @@
   import { toRef } from 'vue'
 
   // Types
-  import type { DOMElement } from '#v0/types'
+  import type { AtomProps } from '#v0/components/Atom'
+  import type { ID } from '#v0/types'
 
-  export interface ThemeProps {
-    /**
-     * Theme ID to scope to
-     */
-    theme: string
-    /**
-     * Skip wrapper element, pass attrs via slot
-     *
-     * @default false
-     */
-    renderless?: boolean
-    /**
-     * Wrapper element tag
-     *
-     * @default 'div'
-     */
-    as?: DOMElement
+  export interface ThemeProps extends AtomProps {
+    theme?: ID
+    namespace?: string
   }
 
   export interface ThemeSlotProps {
-    /** Attributes including data-theme for binding */
     attrs: Record<string, unknown>
+    theme: ID | null | undefined
+    isDark: boolean
   }
 </script>
 
@@ -55,42 +41,59 @@
   }>()
 
   const {
-    theme,
-    renderless = false,
     as = 'div',
+    renderless,
+    theme,
+    namespace = 'v0:theme',
   } = defineProps<ThemeProps>()
 
   const parent = useTheme()
 
-  const selectedId = toRef(() => theme)
-  const selectedItem = toRef(() => parent.get(theme))
-  const isDark = toRef(() => selectedItem.value?.dark ?? false)
+  const selectedId = toRef(() => theme ?? parent.selectedId.value)
+  const isDark = toRef(() => {
+    if (!selectedId.value) return parent.isDark.value
+    const ticket = parent.get(selectedId.value)
+    return ticket?.dark ?? parent.isDark.value
+  })
 
-  const scoped = {
+  const context = {
     ...parent,
     selectedId,
-    selectedItem,
     isDark,
+    selectedItem: toRef(() => {
+      if (!selectedId.value) return parent.selectedItem.value
+      return parent.get(selectedId.value) ?? parent.selectedItem.value
+    }),
+    selectedIndex: toRef(() => {
+      if (!selectedId.value) return parent.selectedIndex.value
+      return parent.get(selectedId.value)?.index ?? -1
+    }),
+    selectedValue: toRef(() => {
+      if (!selectedId.value) return parent.selectedValue.value
+      return parent.get(selectedId.value)?.value
+    }),
   }
 
-  provideContext('v0:theme', scoped)
+  provideContext(namespace, context)
 
   const attrs = toRef((): Record<string, unknown> => ({
-    'data-theme': theme,
+    'data-theme': selectedId.value,
+  }))
+
+  const slotProps = toRef((): ThemeSlotProps => ({
+    attrs: attrs.value,
+    theme: selectedId.value,
+    isDark: isDark.value,
   }))
 </script>
 
 <template>
-  <slot
-    v-if="renderless"
-    :attrs
-  />
-
-  <component
-    :is="as"
-    v-else
-    v-bind="attrs"
+  <Atom
+    :as
+    :data-theme="selectedId"
+    :renderless
+    v-bind="$attrs"
   >
-    <slot :attrs />
-  </component>
+    <slot v-bind="slotProps" />
+  </Atom>
 </template>

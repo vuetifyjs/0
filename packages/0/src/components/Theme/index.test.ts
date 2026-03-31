@@ -40,6 +40,27 @@ describe('theme', () => {
     expect(wrapper.element.tagName).toBe('SECTION')
   })
 
+  it('should fall back to parent theme when no theme prop', () => {
+    const wrapper = mount(Theme, {
+      global: { plugins: [plugin] },
+      slots: { default: () => h('span', 'content') },
+    })
+
+    expect(wrapper.attributes('data-theme')).toBe('light')
+  })
+
+  it('should expose theme and isDark via slot props', () => {
+    const wrapper = mount(Theme, {
+      props: { theme: 'dark' },
+      global: { plugins: [plugin] },
+      slots: {
+        default: (props: any) => h('span', `${props.theme}-${props.isDark}`),
+      },
+    })
+
+    expect(wrapper.text()).toBe('dark-true')
+  })
+
   it('should pass attrs via slot in renderless mode', () => {
     const wrapper = mount(Theme, {
       props: { theme: 'dark', renderless: true },
