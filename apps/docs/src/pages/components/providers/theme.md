@@ -23,7 +23,7 @@ A headless component that scopes a theme to a subtree. Descendant `useTheme()` c
 
 ## Usage
 
-Wrap any section of your template in `<Theme>` to override the active theme for that subtree. Children calling `useTheme()` will see the scoped theme as the current selection.
+Wrap any section of your template in `<Theme>` to override the active theme for that subtree. Children calling `useTheme()` will see the scoped theme as the current selection. When no `theme` prop is provided, it inherits the parent theme — useful for wrapping content that needs the `data-theme` attribute without changing the active theme.
 
 ```vue
 <script setup lang="ts">
@@ -51,6 +51,11 @@ Wrap any section of your template in `<Theme>` to override the active theme for 
     <div>Dark-scoped content</div>
   </Theme>
 
+  <!-- Polymorphic rendering -->
+  <Theme theme="dark" as="section">
+    <div>Renders as section element</div>
+  </Theme>
+
   <!-- Renderless mode -->
   <Theme theme="dark" renderless v-slot="{ attrs }">
     <section v-bind="attrs">Custom element</section>
@@ -74,22 +79,38 @@ Nest `<Theme>` components to create layered theme contexts. Each section applies
 | `scoped-override.vue` | Entry — sets up themes and nests scoped overrides |
 :::
 
-## Renderless Mode
+## Recipes
 
-When `renderless` is set, the component does not render a wrapper element. Instead, it passes `attrs` (including `data-theme`) via the slot scope for you to bind to your own element:
+### Polymorphic Rendering
+
+Theme extends `Atom`, so it accepts the `as` prop to render as any HTML element:
 
 ```vue
-<script setup lang="ts">
-  import { Theme } from '@vuetify/v0'
-</script>
+<Theme theme="dark" as="section">
+  <!-- renders as <section data-theme="dark"> -->
+</Theme>
+```
 
-<template>
-  <Theme theme="dark" renderless v-slot="{ attrs }">
-    <section v-bind="attrs">
-      No extra wrapper div
-    </section>
-  </Theme>
-</template>
+### Renderless Mode
+
+Set `renderless` to skip the wrapper element. The slot exposes `attrs` (including `data-theme`) for you to bind to your own element:
+
+```vue
+<Theme theme="dark" renderless v-slot="{ attrs }">
+  <section v-bind="attrs">
+    No extra wrapper div
+  </section>
+</Theme>
+```
+
+### Slot Props
+
+The default slot exposes `theme` (the active ID), `isDark` (boolean), and `attrs` for conditional rendering:
+
+```vue
+<Theme v-slot="{ theme, isDark }" theme="dark">
+  <span>{{ theme }} — dark: {{ isDark }}</span>
+</Theme>
 ```
 
 <DocsApi />
