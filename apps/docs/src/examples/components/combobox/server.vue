@@ -6,7 +6,7 @@
     emits: ['search'],
     setup (_, { emit }) {
       const ctx = useComboboxContext('v0:combobox')
-      watch(ctx.search, q => emit('search', q))
+      watch(ctx.query, q => emit('search', q))
     },
     render: () => null,
   })

@@ -49,6 +49,8 @@
     strict?: boolean
     /** Filtering/loading adapter (client-side or server-side) */
     adapter?: ComboboxAdapterInterface
+    /** Maps selected value to input display text. Defaults to String(value). */
+    displayValue?: (value: unknown) => string
   }
 
   export interface ComboboxRootSlotProps {
@@ -99,6 +101,7 @@
     mandatory = false,
     strict = false,
     adapter,
+    displayValue,
   } = defineProps<ComboboxRootProps>()
 
   const model = defineModel<ID | ID[]>()
@@ -112,6 +115,7 @@
     mandatory,
     strict,
     adapter,
+    displayValue,
   })
 
   useProxyModel(context.selection, model, { multiple })

@@ -46,6 +46,7 @@ export interface ComboboxOptions {
   disabled?: MaybeRefOrGetter<boolean>
   strict?: MaybeRefOrGetter<boolean>
   adapter?: ComboboxAdapterInterface
+  displayValue?: (value: unknown) => string
   id?: string
   name?: string
   form?: string
@@ -56,7 +57,7 @@ export interface ComboboxContext {
   popover: PopoverReturn
   virtualFocus: VirtualFocusReturn
   query: ShallowRef<string>
-  search: Readonly<Ref<string>>
+  display: Readonly<Ref<string>>
   pristine: ShallowRef<boolean>
   filtered: Ref<Set<ID>>
   isEmpty: Ref<boolean>
@@ -107,6 +108,7 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
     disabled = false,
     strict = false,
     adapter,
+    displayValue = v => String(v ?? ''),
     id: _id,
     name,
     form,
@@ -125,7 +127,6 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
 
   const query = shallowRef('')
   const pristine = shallowRef(true)
-  const search = toRef(() => pristine.value ? '' : query.value)
   const inputEl = shallowRef<HTMLElement | null>(null)
 
   // items for the adapter — track registration events to trigger reactivity
@@ -143,7 +144,7 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
   })
 
   // Setup adapter (defaults to ClientAdapter for local filtering)
-  const { filtered, isLoading, isEmpty } = (adapter ?? new ClientAdapter()).setup({ query: search, items })
+  const { filtered, isLoading, isEmpty } = (adapter ?? new ClientAdapter()).setup({ query, items })
 
   const popover = usePopover({ id })
   const isOpen = popover.isOpen
@@ -165,13 +166,12 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
 
   const selectedId = toRef(() => selection.selectedIds.values().next().value as ID | undefined)
 
-  function label (): string {
-    const id = selectedId.value
-    if (isUndefined(id)) return ''
-    const ticket = selection.get(id)
-    if (!ticket) return ''
-    return String(ticket.value ?? '')
-  }
+  const display = toRef(() => {
+    if (!pristine.value) return query.value
+    if (toValue(multiple)) return query.value
+    const ticket = isUndefined(selectedId.value) ? undefined : selection.get(selectedId.value)
+    return ticket ? displayValue(ticket.value) : ''
+  })
 
   function open () {
     if (!isOpen.value && !toValue(disabled)) {
@@ -180,9 +180,8 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
   }
 
   function close () {
-    if (toValue(strict) && !toValue(multiple)) {
-      query.value = selection.selectedIds.size > 0 ? label() : ''
-    }
+    query.value = ''
+    pristine.value = true
     isOpen.value = false
   }
 
@@ -200,7 +199,7 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
       inputEl.value?.focus()
     } else {
       selection.select(itemId)
-      query.value = label()
+      query.value = ''
       pristine.value = true
       close()
     }
@@ -224,7 +223,7 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
     popover,
     virtualFocus,
     query,
-    search,
+    display,
     pristine,
     filtered,
     isEmpty,

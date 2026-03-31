@@ -821,7 +821,7 @@ describe('combobox', () => {
       expect(query()).toBe('')
     })
 
-    it('non-strict mode keeps query as-is on close', async () => {
+    it('non-strict mode clears query on close', async () => {
       const { wrapper, open, close, query } = await createCombobox({ strict: false })
 
       open()
@@ -835,7 +835,7 @@ describe('combobox', () => {
       close()
       await nextTick()
 
-      expect(query()).toBe('partial')
+      expect(query()).toBe('')
     })
   })
 

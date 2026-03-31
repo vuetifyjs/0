@@ -156,7 +156,7 @@
     v-bind="slotProps.attrs"
     :as
     :placeholder
-    :value="context.query.value"
+    :value="context.display.value"
   >
     <slot v-bind="slotProps" />
   </Atom>
