@@ -188,6 +188,45 @@ describe('useStorage', () => {
     expect(mockAdapter.setItem).toHaveBeenCalledWith('test:username', 'john')
   })
 
+  it('should clone defaultValue to prevent shared reference mutation', () => {
+    const storage = createStorage({ adapter: mockAdapter, prefix: 'test:' })
+    const defaults = { theme: 'light', flags: [] as string[] }
+
+    const a = storage.get('a', defaults)
+    const b = storage.get('b', defaults)
+
+    a.value.theme = 'dark'
+    a.value.flags.push('beta')
+
+    expect(b.value.theme).toBe('light')
+    expect(b.value.flags).toEqual([])
+    expect(defaults.theme).toBe('light')
+    expect(defaults.flags).toEqual([])
+  })
+
+  it('should preserve empty string values', () => {
+    mockAdapter.getItem.mockReturnValue('""')
+    const storage = createStorage({ adapter: mockAdapter, prefix: 'test:' })
+
+    const val = storage.get('key', 'fallback')
+
+    expect(val.value).toBe('')
+  })
+
+  it('should check adapter for has() even if key was never accessed', () => {
+    mockAdapter.getItem.mockReturnValue('"exists"')
+    const storage = createStorage({ adapter: mockAdapter, prefix: 'test:' })
+
+    expect(storage.has('key')).toBe(true)
+    expect(mockAdapter.getItem).toHaveBeenCalledWith('test:key')
+  })
+
+  it('should return false from has() when key is absent from adapter', () => {
+    const storage = createStorage({ adapter: mockAdapter, prefix: 'test:' })
+
+    expect(storage.has('missing')).toBe(false)
+  })
+
   it('should handle deep reactive objects', async () => {
     const storage = createStorage({ adapter: mockAdapter, prefix: 'test:' })
 
@@ -244,6 +283,19 @@ describe('useStorage', () => {
 
       expect(val.value).toBe('default')
       expect(mockAdapter.removeItem).toHaveBeenCalledWith('v0:key')
+    })
+
+    it('should return false from has() when entry is expired', () => {
+      const now = 1_000_000
+      vi.spyOn(Date, 'now').mockReturnValue(now)
+
+      mockAdapter.getItem.mockReturnValue(
+        JSON.stringify({ __ttl: 1, __v: 'stale', __t: now - 10_000 }),
+      )
+
+      const storage = createStorage({ adapter: mockAdapter, ttl: 5000 })
+
+      expect(storage.has('key')).toBe(false)
     })
 
     it('should not wrap values when ttl is not set', async () => {

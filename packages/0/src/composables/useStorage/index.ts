@@ -25,7 +25,7 @@ import { useWindowEventListener } from '#v0/composables/useEventListener'
 import { MemoryAdapter } from '#v0/composables/useStorage/adapters'
 
 // Utilities
-import { isNullOrUndefined, isObject } from '#v0/utilities'
+import { isArray, isNullOrUndefined, isObject } from '#v0/utilities'
 import { ref, watch } from 'vue'
 
 // Types
@@ -113,12 +113,12 @@ export function createStorage<
 
   function has (key: string) {
     const prefixedKey = `${prefix}${key}`
-    return cache.has(prefixedKey)
+    return cache.has(prefixedKey) || !isNullOrUndefined(readStored(prefixedKey))
   }
 
   function readStored (prefixedKey: string) {
     const raw = adapter?.getItem(prefixedKey)
-    if (!raw) return undefined
+    if (isNullOrUndefined(raw)) return undefined
 
     try {
       const parsed = serializer.read(raw)
@@ -156,7 +156,10 @@ export function createStorage<
       return cache.get(prefixedKey)!
     }
 
-    const initialValue = readStored(prefixedKey) ?? defaultValue
+    const stored = readStored(prefixedKey)
+    const initialValue = stored ?? (isObject(defaultValue) || isArray(defaultValue)
+      ? structuredClone(defaultValue)
+      : defaultValue)
     const valueRef = ref<T>(initialValue as T)
 
     const stop = watch(valueRef, newValue => {
