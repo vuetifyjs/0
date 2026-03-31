@@ -4,7 +4,7 @@
  * @remarks
  * Text input for the combobox. Handles query updates, keyboard navigation,
  * and ARIA combobox role. Populates the inputEl ref on the context so
- * virtualFocus can manage aria-activedescendant automatically via control.
+ * useVirtualFocus can manage aria-activedescendant automatically via control.
  */
 
 <script lang="ts">
@@ -86,7 +86,7 @@
       switch (e.key) {
         case 'Enter': {
           e.preventDefault()
-          const highlighted = context.virtualFocus.highlightedId.value
+          const highlighted = context.cursor.highlightedId.value
           if (!isUndefined(highlighted)) {
             context.select(highlighted)
           }
@@ -106,14 +106,14 @@
         case 'Home':
         case 'End': {
           e.preventDefault()
-          if (isUndefined(context.virtualFocus.highlightedId.value)) {
+          if (isUndefined(context.cursor.highlightedId.value)) {
             const selected = context.selection.selectedIds.values().next().value
             if (!isUndefined(selected)) {
-              context.virtualFocus.highlight(selected)
+              context.cursor.highlight(selected)
               break
             }
           }
-          context.virtualFocus.onKeydown(e)
+          context.cursor.onKeydown(e)
           break
         }
       }

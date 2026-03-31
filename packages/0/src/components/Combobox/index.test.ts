@@ -15,7 +15,7 @@ beforeEach(() => {
   HTMLElement.prototype.hidePopover = vi.fn()
 })
 
-// Clean up DOM between tests — virtualFocus uses document.querySelector (global),
+// Clean up DOM between tests — cursor uses document.querySelector (global),
 // so stale elements from prior tests cause false matches if not cleared
 afterEach(() => {
   while (document.body.firstChild) {
@@ -28,7 +28,7 @@ afterEach(() => {
  * register with the selection context (useLazy defers rendering
  * until isOpen becomes true).
  *
- * Attaches to document.body so virtualFocus can resolve item elements
+ * Attaches to document.body so cursor can resolve item elements
  * via document.querySelector (needed for aria-activedescendant).
  */
 async function createCombobox (options: {

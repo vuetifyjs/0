@@ -82,7 +82,7 @@
   const elementId = `${context.id}-option-${ticket.id}`
   const isSelected = toRef(() => toValue(ticket.isSelected))
   const isDisabled = toRef(() => toValue(ticket.disabled) || toValue(context.disabled))
-  const isHighlighted = toRef(() => context.virtualFocus.highlightedId.value === ticket.id)
+  const isHighlighted = toRef(() => context.cursor.highlightedId.value === ticket.id)
   const isFiltered = toRef(() => context.filtered.value.has(ticket.id))
 
   function onClick () {

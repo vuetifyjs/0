@@ -55,7 +55,7 @@ export interface ComboboxOptions {
 export interface ComboboxContext {
   selection: SelectionContext
   popover: PopoverReturn
-  virtualFocus: VirtualFocusReturn
+  cursor: VirtualFocusReturn
   query: ShallowRef<string>
   display: Readonly<Ref<string>>
   pristine: ShallowRef<boolean>
@@ -149,7 +149,7 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
   const popover = usePopover({ id })
   const isOpen = popover.isOpen
 
-  const virtualFocus = useVirtualFocus(
+  const cursor = useVirtualFocus(
     () => selection.values()
       .filter(ticket => filtered.value.has(ticket.id) && !toValue(ticket.disabled))
       .map(ticket => ({
@@ -195,7 +195,7 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
       selection.toggle(itemId)
       query.value = ''
       pristine.value = true
-      virtualFocus.highlight(itemId)
+      cursor.highlight(itemId)
       inputEl.value?.focus()
     } else {
       selection.select(itemId)
@@ -214,14 +214,14 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
 
   watch(isOpen, open => {
     if (!open) {
-      virtualFocus.clear()
+      cursor.clear()
     }
   })
 
   return {
     selection,
     popover,
-    virtualFocus,
+    cursor,
     query,
     display,
     pristine,
