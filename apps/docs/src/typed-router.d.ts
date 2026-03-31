@@ -111,6 +111,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/components/forms/combobox': RouteRecordInfo<
+      '/components/forms/combobox',
+      '/components/forms/combobox',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/components/forms/form': RouteRecordInfo<
       '/components/forms/form',
       '/components/forms/form',
@@ -275,6 +282,13 @@ declare module 'vue-router/auto-routes' {
     '/composables/data/create-virtual': RouteRecordInfo<
       '/composables/data/create-virtual',
       '/composables/data/create-virtual',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/composables/forms/create-combobox': RouteRecordInfo<
+      '/composables/forms/create-combobox',
+      '/composables/forms/create-combobox',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -945,6 +959,12 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/components/forms/combobox.md': {
+      routes:
+        | '/components/forms/combobox'
+      views:
+        | never
+    }
     'src/pages/components/forms/form.md': {
       routes:
         | '/components/forms/form'
@@ -1086,6 +1106,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/data/create-virtual.md': {
       routes:
         | '/composables/data/create-virtual'
+      views:
+        | never
+    }
+    'src/pages/composables/forms/create-combobox.md': {
+      routes:
+        | '/composables/forms/create-combobox'
       views:
         | never
     }

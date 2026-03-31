@@ -76,6 +76,10 @@
       "since": "0.1.5",
       "category": "forms"
     },
+    "createCombobox": {
+      "level": "draft",
+      "category": "forms"
+    },
     "createDataTable": {
       "level": "preview",
       "since": "0.1.0",

@@ -1,11 +1,11 @@
 /**
- * @module SelectContent
+ * @module ComboboxContent
  *
  * @remarks
- * Dropdown content for the select. Uses the popover composable from Root
- * context for native popover API, CSS anchor positioning, and light dismiss.
- * Single element — renders an Atom with popover attrs, positioning styles,
- * and listbox ARIA.
+ * Dropdown content for the combobox. Uses the popover composable from Root
+ * context for native popover API and CSS anchor positioning. Uses manual
+ * popover mode to prevent light-dismiss from closing the dropdown when the
+ * user clicks the input/activator area. Dismiss is handled via useClickOutside.
  *
  * Uses `useLazy` to defer slot rendering until the dropdown is first opened.
  */
@@ -13,9 +13,10 @@
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
-  import { useSelectContext } from './SelectRoot.vue'
+  import { useComboboxContext } from './ComboboxRoot.vue'
 
   // Composables
+  import { useClickOutside } from '#v0/composables/useClickOutside'
   import { useLazy } from '#v0/composables/useLazy'
 
   // Utilities
@@ -24,14 +25,14 @@
   // Types
   import type { AtomProps } from '#v0/components/Atom'
 
-  export interface SelectContentProps extends AtomProps {
+  export interface ComboboxContentProps extends AtomProps {
     /** Namespace for dependency injection */
     namespace?: string
     /** Render content immediately without waiting for first open */
     eager?: boolean
   }
 
-  export interface SelectContentSlotProps {
+  export interface ComboboxContentSlotProps {
     /** Whether the dropdown is open */
     isOpen: boolean
     /** Attributes to bind to the content element */
@@ -40,32 +41,44 @@
 </script>
 
 <script setup lang="ts">
-  defineOptions({ name: 'SelectContent' })
+  defineOptions({ name: 'ComboboxContent' })
 
   defineSlots<{
-    default: (props: SelectContentSlotProps) => any
+    default: (props: ComboboxContentSlotProps) => any
   }>()
 
   const {
     as = 'div',
-    namespace = 'v0:select',
+    namespace = 'v0:combobox',
     eager = false,
-  } = defineProps<SelectContentProps>()
+  } = defineProps<ComboboxContentProps>()
 
-  const context = useSelectContext(namespace)
+  const context = useComboboxContext(namespace)
   const content = useTemplateRef('content')
 
   context.popover.attach(() => content.value?.element)
 
   const { hasContent } = useLazy(context.isOpen, { eager })
 
-  const slotProps = toRef((): SelectContentSlotProps => ({
+  // Manual popover mode — dismiss on click outside both content and activator
+  const activator = toRef(() => context.inputEl.value?.closest('[data-state]') as HTMLElement | null)
+
+  useClickOutside(
+    [() => content.value?.element, activator],
+    () => {
+      if (context.isOpen.value) context.close()
+    },
+  )
+
+  const slotProps = toRef((): ComboboxContentSlotProps => ({
     isOpen: context.isOpen.value,
     attrs: {
       ...context.popover.contentAttrs.value,
       'id': context.listboxId,
       'role': 'listbox',
+      'aria-labelledby': context.inputId,
       'aria-multiselectable': context.multiple || undefined,
+      'popover': 'manual',
       'tabindex': -1,
     },
   }))
