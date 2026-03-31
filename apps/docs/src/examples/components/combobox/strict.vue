@@ -35,11 +35,9 @@
           v-for="item in countries"
           :id="item.id"
           :key="item.id"
-          v-slot="{ isSelected }"
-          class="flex items-center gap-2 px-3 py-2 rounded-md cursor-default select-none text-sm text-on-surface data-[highlighted]:bg-primary data-[highlighted]:text-on-primary"
+          class="px-3 py-2 rounded-md cursor-default select-none text-sm text-on-surface data-[selected]:text-primary data-[selected]:font-medium data-[highlighted]:bg-primary data-[highlighted]:text-on-primary data-[highlighted]:data-[selected]:text-on-primary"
           :value="item.label"
         >
-          <span class="w-4 text-xs" :class="isSelected ? 'visible' : 'invisible'">&#x2713;</span>
           {{ item.label }}
         </Combobox.Item>
 
