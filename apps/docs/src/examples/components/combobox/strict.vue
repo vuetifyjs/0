@@ -23,7 +23,7 @@
 
     <Combobox.Root v-model="selected" strict>
       <Combobox.Activator class="flex items-center gap-1 w-full px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm">
-        <Combobox.Input
+        <Combobox.Control
           class="flex-1 bg-transparent outline-none text-on-surface placeholder:text-on-surface-variant"
           placeholder="Search countries…"
         />

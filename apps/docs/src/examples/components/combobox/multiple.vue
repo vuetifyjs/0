@@ -27,7 +27,7 @@
           {{ val }}
         </span>
 
-        <Combobox.Input
+        <Combobox.Control
           class="flex-1 min-w-24 bg-transparent outline-none text-on-surface placeholder:text-on-surface-variant"
           placeholder="Search languages…"
         />

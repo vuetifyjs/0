@@ -24,7 +24,7 @@
   // Types
   import type { AtomProps } from '#v0/components/Atom'
   import type { ComboboxAdapterInterface, ComboboxContext } from '#v0/composables/createCombobox'
-  import type { ID } from '#v0/types'
+  import type { MaybeArray, ID } from '#v0/types'
 
   export interface ComboboxRootProps extends AtomProps {
     /** Namespace for dependency injection */
@@ -47,6 +47,10 @@
     mandatory?: boolean
     /** Strict mode: reverts query to selected value on close if no match */
     strict?: boolean
+    /** Manual error state override — forces invalid regardless of error messages */
+    error?: boolean
+    /** Manual error messages */
+    errorMessages?: MaybeArray<string>
     /** Filtering/loading adapter (client-side or server-side) */
     adapter?: ComboboxAdapterInterface
     /** Maps selected value to input display text. Defaults to String(value). */
@@ -66,6 +70,10 @@
     isLoading: boolean
     /** Whether the combobox is disabled */
     isDisabled: boolean
+    /** Validation error messages */
+    errors: string[]
+    /** Whether the combobox is valid (null = no opinion) */
+    isValid: boolean | null
     /** Open the dropdown */
     open: () => void
     /** Close the dropdown */
@@ -100,6 +108,8 @@
     multiple = false,
     mandatory = false,
     strict = false,
+    error = false,
+    errorMessages,
     adapter,
     displayValue,
   } = defineProps<ComboboxRootProps>()
@@ -114,6 +124,8 @@
     multiple,
     mandatory,
     strict,
+    error: () => error,
+    errorMessages: () => errorMessages,
     adapter,
     displayValue,
   })
@@ -129,6 +141,8 @@
     isEmpty: context.isEmpty.value,
     isLoading: context.isLoading.value,
     isDisabled: toValue(context.disabled),
+    errors: context.errors.value,
+    isValid: context.isValid.value,
     open: context.open,
     close: context.close,
     toggle: context.toggle,

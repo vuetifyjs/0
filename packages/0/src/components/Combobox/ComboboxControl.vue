@@ -1,5 +1,5 @@
 /**
- * @module ComboboxInput
+ * @module ComboboxControl
  *
  * @remarks
  * Text input for the combobox. Handles query updates, keyboard navigation,
@@ -19,7 +19,7 @@
   // Types
   import type { AtomProps } from '#v0/components/Atom'
 
-  export interface ComboboxInputProps extends AtomProps {
+  export interface ComboboxControlProps extends AtomProps {
     /** Namespace for dependency injection */
     namespace?: string
     /** When to open the dropdown */
@@ -28,7 +28,7 @@
     placeholder?: string
   }
 
-  export interface ComboboxInputSlotProps {
+  export interface ComboboxControlSlotProps {
     /** Current query value */
     query: string
     /** Whether the dropdown is open */
@@ -41,6 +41,9 @@
       'aria-expanded': boolean
       'aria-haspopup': 'listbox'
       'aria-controls': string
+      'aria-describedby': string | undefined
+      'aria-errormessage': string | undefined
+      'aria-invalid': boolean | undefined
       'aria-disabled': boolean | undefined
       'disabled': boolean | undefined
       'onInput': (e: Event) => void
@@ -51,10 +54,10 @@
 </script>
 
 <script setup lang="ts">
-  defineOptions({ name: 'ComboboxInput' })
+  defineOptions({ name: 'ComboboxControl' })
 
   defineSlots<{
-    default: (props: ComboboxInputSlotProps) => any
+    default: (props: ComboboxControlSlotProps) => any
   }>()
 
   const {
@@ -62,7 +65,7 @@
     namespace = 'v0:combobox',
     openOn = 'focus',
     placeholder,
-  } = defineProps<ComboboxInputProps>()
+  } = defineProps<ComboboxControlProps>()
 
   const context = useComboboxContext(namespace)
 
@@ -130,8 +133,9 @@
   }
 
   const strict = toRef(() => toValue(context.strict))
+  const invalid = toRef(() => context.isValid.value === false)
 
-  const slotProps = toRef((): ComboboxInputSlotProps => ({
+  const slotProps = toRef((): ComboboxControlSlotProps => ({
     query: context.query.value,
     isOpen: context.isOpen.value,
     attrs: {
@@ -141,6 +145,9 @@
       'aria-expanded': context.isOpen.value,
       'aria-haspopup': 'listbox',
       'aria-controls': context.listboxId,
+      'aria-describedby': context.hasDescription.value ? context.descriptionId : undefined,
+      'aria-errormessage': (context.hasError.value && context.errors.value.length > 0) ? context.errorId : undefined,
+      'aria-invalid': invalid.value || undefined,
       'aria-disabled': toValue(context.disabled) || undefined,
       'disabled': toValue(context.disabled) || undefined,
       'onInput': onInput,

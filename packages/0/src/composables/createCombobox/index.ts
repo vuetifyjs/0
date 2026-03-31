@@ -29,12 +29,15 @@ import { ClientAdapter } from './adapters'
 import { isUndefined, useId } from '#v0/utilities'
 import { computed, shallowRef, toRef, toValue, watch } from 'vue'
 
+// Transformers
+import { toArray } from '#v0/composables/toArray'
+
 // Types
 import type { SelectionContext } from '#v0/composables/createSelection'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { PopoverReturn } from '#v0/composables/usePopover'
 import type { VirtualFocusReturn } from '#v0/composables/useVirtualFocus'
-import type { ID } from '#v0/types'
+import type { MaybeArray, ID } from '#v0/types'
 import type { ComboboxAdapterInterface } from './adapters'
 import type { App, MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
 
@@ -45,6 +48,8 @@ export interface ComboboxOptions {
   mandatory?: MaybeRefOrGetter<boolean>
   disabled?: MaybeRefOrGetter<boolean>
   strict?: MaybeRefOrGetter<boolean>
+  error?: MaybeRefOrGetter<boolean>
+  errorMessages?: MaybeRefOrGetter<MaybeArray<string> | undefined>
   adapter?: ComboboxAdapterInterface
   displayValue?: (value: unknown) => string
   id?: string
@@ -66,6 +71,12 @@ export interface ComboboxContext {
   id: string
   inputId: string
   listboxId: string
+  descriptionId: string
+  errorId: string
+  hasDescription: ShallowRef<boolean>
+  hasError: ShallowRef<boolean>
+  errors: Readonly<Ref<string[]>>
+  isValid: Readonly<Ref<boolean | null>>
   inputEl: ShallowRef<HTMLElement | null>
   multiple: boolean
   strict: MaybeRefOrGetter<boolean>
@@ -107,6 +118,8 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
     mandatory = false,
     disabled = false,
     strict = false,
+    error = false,
+    errorMessages,
     adapter,
     displayValue = v => String(v ?? ''),
     id: _id,
@@ -117,6 +130,21 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
   const id = _id ?? useId()
   const inputId = `${id}-input`
   const listboxId = `${id}-listbox`
+  const descriptionId = `${id}-description`
+  const errorId = `${id}-error`
+  const hasDescription = shallowRef(false)
+  const hasError = shallowRef(false)
+
+  const errors = computed(() => {
+    const messages = toValue(errorMessages)
+    return messages ? toArray(messages) : []
+  })
+
+  const isValid = toRef((): boolean | null => {
+    if (toValue(error)) return false
+    if (errors.value.length > 0) return false
+    return null
+  })
 
   const selection = createSelection({
     multiple,
@@ -233,6 +261,12 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
     id,
     inputId,
     listboxId,
+    descriptionId,
+    errorId,
+    hasDescription,
+    hasError,
+    errors,
+    isValid,
     inputEl,
     multiple: toValue(multiple),
     strict,

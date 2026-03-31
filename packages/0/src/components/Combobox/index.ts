@@ -1,16 +1,20 @@
 export { default as ComboboxActivator } from './ComboboxActivator.vue'
 export { default as ComboboxContent } from './ComboboxContent.vue'
+export { default as ComboboxControl } from './ComboboxControl.vue'
 export { default as ComboboxCue } from './ComboboxCue.vue'
+export { default as ComboboxDescription } from './ComboboxDescription.vue'
 export { default as ComboboxEmpty } from './ComboboxEmpty.vue'
-export { default as ComboboxInput } from './ComboboxInput.vue'
+export { default as ComboboxError } from './ComboboxError.vue'
 export { default as ComboboxItem } from './ComboboxItem.vue'
 export { provideComboboxContext, useComboboxContext } from './ComboboxRoot.vue'
 export { default as ComboboxRoot } from './ComboboxRoot.vue'
 export type { ComboboxActivatorProps, ComboboxActivatorSlotProps } from './ComboboxActivator.vue'
 export type { ComboboxContentProps, ComboboxContentSlotProps } from './ComboboxContent.vue'
+export type { ComboboxControlProps, ComboboxControlSlotProps } from './ComboboxControl.vue'
 export type { ComboboxCueProps, ComboboxCueSlotProps } from './ComboboxCue.vue'
+export type { ComboboxDescriptionProps, ComboboxDescriptionSlotProps } from './ComboboxDescription.vue'
 export type { ComboboxEmptyProps, ComboboxEmptySlotProps } from './ComboboxEmpty.vue'
-export type { ComboboxInputProps, ComboboxInputSlotProps } from './ComboboxInput.vue'
+export type { ComboboxErrorProps, ComboboxErrorSlotProps } from './ComboboxError.vue'
 export type { ComboboxItemProps, ComboboxItemSlotProps } from './ComboboxItem.vue'
 export type { ComboboxContext } from '#v0/composables/createCombobox'
 export type { ComboboxRootProps, ComboboxRootSlotProps } from './ComboboxRoot.vue'
@@ -18,9 +22,11 @@ export type { ComboboxRootProps, ComboboxRootSlotProps } from './ComboboxRoot.vu
 // Components
 import Activator from './ComboboxActivator.vue'
 import Content from './ComboboxContent.vue'
+import Control from './ComboboxControl.vue'
 import Cue from './ComboboxCue.vue'
+import Description from './ComboboxDescription.vue'
 import Empty from './ComboboxEmpty.vue'
-import Input from './ComboboxInput.vue'
+import Error from './ComboboxError.vue'
 import Item from './ComboboxItem.vue'
 import Root from './ComboboxRoot.vue'
 
@@ -46,7 +52,7 @@ import Root from './ComboboxRoot.vue'
  * <template>
  *   <Combobox.Root v-model="selected">
  *     <Combobox.Activator>
- *       <Combobox.Input placeholder="Search..." />
+ *       <Combobox.Control placeholder="Search..." />
  *       <Combobox.Cue />
  *     </Combobox.Activator>
  *
@@ -85,7 +91,7 @@ export const Combobox = {
    * <template>
    *   <Combobox.Root v-model="selected" strict>
    *     <Combobox.Activator>
-   *       <Combobox.Input placeholder="Search..." />
+   *       <Combobox.Control placeholder="Search..." />
    *       <Combobox.Cue />
    *     </Combobox.Activator>
    *     <Combobox.Content>
@@ -97,7 +103,7 @@ export const Combobox = {
    */
   Root,
   /**
-   * Wrapper for the input and cue. Sets CSS anchor-name so the dropdown
+   * Wrapper for the control and cue. Sets CSS anchor-name so the dropdown
    * positions relative to this element.
    *
    * @see https://0.vuetifyjs.com/components/combobox#comboboxactivator
@@ -105,7 +111,7 @@ export const Combobox = {
    * @example
    * ```vue
    * <Combobox.Activator>
-   *   <Combobox.Input placeholder="Type to search..." />
+   *   <Combobox.Control placeholder="Type to search..." />
    *   <Combobox.Cue />
    * </Combobox.Activator>
    * ```
@@ -115,18 +121,18 @@ export const Combobox = {
    * Text input that drives the query string and keyboard navigation.
    * Binds `role="combobox"` and manages `aria-activedescendant` via virtual focus.
    *
-   * @see https://0.vuetifyjs.com/components/combobox#comboboxinput
+   * @see https://0.vuetifyjs.com/components/combobox#comboboxcontrol
    *
    * @example
    * ```vue
    * <!-- Opens on focus (default) -->
-   * <Combobox.Input placeholder="Search fruits..." />
+   * <Combobox.Control placeholder="Search fruits..." />
    *
    * <!-- Opens only when the user starts typing -->
-   * <Combobox.Input open-on="input" placeholder="Start typing..." />
+   * <Combobox.Control open-on="input" placeholder="Start typing..." />
    * ```
    */
-  Input,
+  Control,
   /**
    * Visual cue for open/close state. Exposes `data-state="open|closed"` for
    * CSS-driven styling. Clicking toggles the dropdown.
@@ -188,4 +194,43 @@ export const Combobox = {
    * ```
    */
   Empty,
+  /**
+   * Help text component connected via aria-describedby.
+   * Auto-generates an ID that Combobox.Control references in its
+   * aria-describedby attribute for accessibility.
+   *
+   * @see https://0.vuetifyjs.com/components/combobox#comboboxdescription
+   *
+   * @example
+   * ```vue
+   * <Combobox.Root v-model="selected">
+   *   <Combobox.Activator>
+   *     <Combobox.Control placeholder="Search..." />
+   *   </Combobox.Activator>
+   *   <Combobox.Description>Select a fruit from the list.</Combobox.Description>
+   * </Combobox.Root>
+   * ```
+   */
+  Description,
+  /**
+   * Error message component with aria-live announcements.
+   * Renders error messages from Root's errorMessages prop.
+   * Connected to Control via aria-errormessage. Uses aria-live="polite"
+   * for screen reader announcements when errors appear.
+   *
+   * @see https://0.vuetifyjs.com/components/combobox#comboboxerror
+   *
+   * @example
+   * ```vue
+   * <Combobox.Root v-model="selected" :error-messages="['Selection required']">
+   *   <Combobox.Activator>
+   *     <Combobox.Control placeholder="Search..." />
+   *   </Combobox.Activator>
+   *   <Combobox.Error v-slot="{ errors }">
+   *     <span v-for="error in errors" :key="error">{{ error }}</span>
+   *   </Combobox.Error>
+   * </Combobox.Root>
+   * ```
+   */
+  Error,
 }

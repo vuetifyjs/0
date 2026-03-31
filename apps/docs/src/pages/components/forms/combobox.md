@@ -25,7 +25,7 @@ A headless autocomplete combobox with client and server-side filtering support. 
 
 ## Usage
 
-The Combobox component follows the same compound pattern as Select, but replaces the activator button with an `Input` that accepts free text. Filtering happens automatically as the user types.
+The Combobox component follows the same compound pattern as Select, but replaces the activator button with a `Control` input that accepts free text. Filtering happens automatically as the user types.
 
 ::: example
 /components/combobox/basic
@@ -41,10 +41,14 @@ The Combobox component follows the same compound pattern as Select, but replaces
 <template>
   <Combobox.Root>
     <Combobox.Activator>
-      <Combobox.Input />
+      <Combobox.Control />
 
       <Combobox.Cue />
     </Combobox.Activator>
+
+    <Combobox.Description />
+
+    <Combobox.Error />
 
     <Combobox.Content>
       <Combobox.Item />
@@ -59,7 +63,7 @@ The Combobox component follows the same compound pattern as Select, but replaces
 
 ## Architecture
 
-Root creates selection, virtual focus, popover, and adapter contexts. Input drives the query string — the adapter translates queries into a filtered ID set. Items register with selection and use `v-show` (not `v-if`) against the filtered set, preserving selection state even when hidden. Empty renders when the filtered set is empty.
+Root creates selection, virtual focus, popover, and adapter contexts. Control drives the query string — the adapter translates queries into a filtered ID set. Items register with selection and use `v-show` (not `v-if`) against the filtered set, preserving selection state even when hidden. Empty renders when the filtered set is empty. Description and Error provide accessible help text and validation messages linked to Control via ARIA attributes.
 
 ```mermaid "Combobox Architecture"
 flowchart TD
@@ -69,8 +73,10 @@ flowchart TD
   Adapter["ComboboxClientAdapter / ComboboxServerAdapter"]
   Root["Combobox.Root"]:::primary
   Activator["Combobox.Activator"]
-  Input["Combobox.Input"]
+  Control["Combobox.Control"]
   Cue["Combobox.Cue"]
+  Description["Combobox.Description"]
+  Error["Combobox.Error"]
   Content["Combobox.Content"]
   Item["Combobox.Item"]
   Empty["Combobox.Empty"]
@@ -80,8 +86,10 @@ flowchart TD
   UsePopover --> Root
   Adapter --> Root
   Root --> Activator
+  Root --> Description
+  Root --> Error
   Root --> Content
-  Activator --> Input
+  Activator --> Control
   Activator --> Cue
   Content --> Item
   Content --> Empty
@@ -133,18 +141,22 @@ The Combobox implements the [WAI-ARIA Combobox](https://www.w3.org/WAI/ARIA/apd/
 
 | Attribute | Value | Component |
 |-----------|-------|-----------|
-| `role` | `combobox` | Input |
+| `role` | `combobox` | Control |
 | `role` | `listbox` | Content |
 | `role` | `option` | Item |
-| `aria-autocomplete` | `list` / `both` | Input |
-| `aria-expanded` | `true` / `false` | Input |
-| `aria-haspopup` | `listbox` | Input |
-| `aria-controls` | listbox ID | Input |
-| `aria-activedescendant` | highlighted option ID | Input |
+| `aria-autocomplete` | `list` / `both` | Control |
+| `aria-expanded` | `true` / `false` | Control |
+| `aria-haspopup` | `listbox` | Control |
+| `aria-controls` | listbox ID | Control |
+| `aria-activedescendant` | highlighted option ID | Control |
+| `aria-describedby` | description ID | Control (when Description mounted) |
+| `aria-errormessage` | error ID | Control (when Error mounted and errors exist) |
+| `aria-invalid` | `true` | Control (when invalid) |
 | `aria-selected` | `true` / `false` | Item |
 | `aria-disabled` | `true` | Item (when disabled) |
 | `aria-multiselectable` | `true` | Content (when multiple) |
 | `aria-hidden` | `true` | Cue |
+| `aria-live` | `polite` | Error |
 
 > [!TIP]
 > `aria-autocomplete="both"` is set automatically when `strict` is enabled, signaling that the input value will revert to a valid option on close.
@@ -198,11 +210,11 @@ Pass a `ComboboxClientAdapter` with a custom `filter` function to override the d
 
 ### Open on Input Only
 
-By default the dropdown opens on focus. Set `open-on="input"` on Input to only open when the user starts typing — useful for server search where an empty query should not trigger a fetch:
+By default the dropdown opens on focus. Set `open-on="input"` on Control to only open when the user starts typing — useful for server search where an empty query should not trigger a fetch:
 
 ```vue
 <template>
-  <Combobox.Input open-on="input" placeholder="Type to search…" />
+  <Combobox.Control open-on="input" placeholder="Type to search…" />
 </template>
 ```
 

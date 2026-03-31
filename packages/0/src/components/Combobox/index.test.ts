@@ -75,7 +75,7 @@ async function createCombobox (options: {
             return [
               h(Combobox.Activator as any, {}, {
                 default: () => [
-                  h(Combobox.Input as any, { openOn }),
+                  h(Combobox.Control as any, { openOn }),
                   h(Combobox.Cue as any),
                 ],
               }),
@@ -1117,6 +1117,141 @@ describe('combobox', () => {
     })
   })
 
+  describe('description', () => {
+    it('sets aria-describedby on control when Description is mounted', async () => {
+      const wrapper = mount(
+        defineComponent({
+          render () {
+            return h(Combobox.Root as any, { id: 'desc-test' }, {
+              default: () => [
+                h(Combobox.Activator as any, {}, {
+                  default: () => h(Combobox.Control as any),
+                }),
+                h(Combobox.Description as any, {}, {
+                  default: () => 'Help text',
+                }),
+              ],
+            })
+          },
+        }),
+        { attachTo: document.body },
+      )
+
+      await nextTick()
+
+      const input = wrapper.find('input')
+      expect(input.attributes('aria-describedby')).toBe('desc-test-description')
+
+      const desc = wrapper.findComponent(Combobox.Description as any)
+      expect(desc.attributes('id')).toBe('desc-test-description')
+    })
+
+    it('does not set aria-describedby when Description is absent', async () => {
+      const { wrapper } = await createCombobox()
+
+      const input = wrapper.find('input')
+      expect(input.attributes('aria-describedby')).toBeUndefined()
+    })
+  })
+
+  describe('error', () => {
+    it('sets aria-errormessage and aria-invalid when errors exist', async () => {
+      const wrapper = mount(
+        defineComponent({
+          render () {
+            return h(Combobox.Root as any, {
+              id: 'err-test',
+              errorMessages: ['Required'],
+            }, {
+              default: () => [
+                h(Combobox.Activator as any, {}, {
+                  default: () => h(Combobox.Control as any),
+                }),
+                h(Combobox.Error as any, {}, {
+                  default: (sp: { errors: string[] }) => sp.errors.join(', '),
+                }),
+              ],
+            })
+          },
+        }),
+        { attachTo: document.body },
+      )
+
+      await nextTick()
+
+      const input = wrapper.find('input')
+      expect(input.attributes('aria-errormessage')).toBe('err-test-error')
+      expect(input.attributes('aria-invalid')).toBe('true')
+
+      const error = wrapper.findComponent(Combobox.Error as any)
+      expect(error.attributes('id')).toBe('err-test-error')
+      expect(error.attributes('aria-live')).toBe('polite')
+      expect(error.attributes('data-state')).toBe('visible')
+    })
+
+    it('does not set aria-errormessage when Error is absent', async () => {
+      const { wrapper } = await createCombobox()
+
+      const input = wrapper.find('input')
+      expect(input.attributes('aria-errormessage')).toBeUndefined()
+      expect(input.attributes('aria-invalid')).toBeUndefined()
+    })
+
+    it('error prop forces invalid without messages', async () => {
+      const wrapper = mount(
+        defineComponent({
+          render () {
+            return h(Combobox.Root as any, {
+              id: 'err-force',
+              error: true,
+            }, {
+              default: () => [
+                h(Combobox.Activator as any, {}, {
+                  default: () => h(Combobox.Control as any),
+                }),
+                h(Combobox.Error as any, {}, {
+                  default: () => 'Error zone',
+                }),
+              ],
+            })
+          },
+        }),
+        { attachTo: document.body },
+      )
+
+      await nextTick()
+
+      const input = wrapper.find('input')
+      expect(input.attributes('aria-invalid')).toBe('true')
+
+      const error = wrapper.findComponent(Combobox.Error as any)
+      expect(error.attributes('data-state')).toBe('hidden')
+    })
+
+    it('exposes errors and isValid in root slot props', () => {
+      let sp: Record<string, unknown>
+
+      mount(
+        defineComponent({
+          render () {
+            return h(Combobox.Root as any, {
+              errorMessages: ['Field required'],
+            }, {
+              default: (slotProps: Record<string, unknown>) => {
+                sp = slotProps
+                return h('div')
+              },
+            })
+          },
+        }),
+        { attachTo: document.body },
+      )
+
+      expect(sp!.errors).toEqual(['Field required'])
+      expect(sp!.isValid).toBe(false)
+    })
+  })
+
   describe('edge cases', () => {
     it('handles empty items list', async () => {
       const { wrapper } = await createCombobox({ items: [] })
@@ -1175,7 +1310,7 @@ describe('combobox', () => {
                 ctx = sp
                 return [
                   h(Combobox.Activator as any, {}, {
-                    default: () => h(Combobox.Input as any),
+                    default: () => h(Combobox.Control as any),
                   }),
                   h(Combobox.Content as any, {}, {
                     default: () => this.items.map((item: { value: string }) =>
