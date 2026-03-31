@@ -207,6 +207,7 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
 
   function clear () {
     query.value = ''
+    pristine.value = true
     for (const id of Array.from(selection.selectedIds)) {
       selection.unselect(id)
     }

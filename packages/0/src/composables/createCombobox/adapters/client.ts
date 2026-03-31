@@ -44,7 +44,7 @@ export class ClientAdapter implements ComboboxAdapterInterface {
         : undefined,
     })
 
-    const values = computed(() => context.items.value.map(t => t.value as FilterItem))
+    const values = toRef(() => context.items.value.map(t => t.value as FilterItem))
     const { items: filteredValues } = filter.apply(context.query, values)
 
     const filtered = computed(() => {
