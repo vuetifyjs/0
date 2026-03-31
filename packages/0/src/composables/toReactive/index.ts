@@ -18,7 +18,148 @@
 import { isRef, reactive, unref } from 'vue'
 
 // Types
-import type { MaybeRef, UnwrapNestedRefs } from 'vue'
+import type { MaybeRef, Ref, UnwrapNestedRefs } from 'vue'
+
+function createMapProxy<Z extends object> (refObject: Ref<Z>): UnwrapNestedRefs<Z> {
+  let mapProxy: Map<unknown, unknown>
+
+  const mapHandlers: Record<string | symbol, Function> = {
+    get: (key: unknown) => unref((refObject.value as Map<unknown, unknown>).get(key)),
+    set: (key: unknown, value: unknown) => {
+      const map = refObject.value as Map<unknown, unknown>
+      const existingValue = map.get(key)
+      if (isRef(existingValue)) {
+        existingValue.value = unref(value)
+      } else {
+        map.set(key, value)
+      }
+      return mapProxy
+    },
+    has: (key: unknown) => (refObject.value as Map<unknown, unknown>).has(key),
+    delete: (key: unknown) => (refObject.value as Map<unknown, unknown>).delete(key),
+    clear: () => (refObject.value as Map<unknown, unknown>).clear(),
+    keys: () => (refObject.value as Map<unknown, unknown>).keys(),
+    * values () {
+      for (const value of (refObject.value as Map<unknown, unknown>).values()) {
+        yield unref(value)
+      }
+    },
+    * entries () {
+      for (const [key, value] of (refObject.value as Map<unknown, unknown>).entries()) {
+        yield [key, unref(value)] as [unknown, unknown]
+      }
+    },
+    forEach: (callback: (value: unknown, key: unknown, map: Map<unknown, unknown>) => void, thisArg?: unknown) => {
+      ;for (const [key, value] of (refObject.value as Map<unknown, unknown>).entries()) {
+        callback.call(thisArg, unref(value), key, mapProxy)
+      }
+    },
+  }
+  mapHandlers[Symbol.iterator] = mapHandlers.entries
+
+  const proxy = new Proxy(new Map(), {
+    get (_, p) {
+      if (p === 'size') return (refObject.value as Map<unknown, unknown>).size
+      if (Object.prototype.hasOwnProperty.call(mapHandlers, p)) return mapHandlers[p as keyof typeof mapHandlers]
+
+      const map = refObject.value as Map<unknown, unknown>
+      const value = Reflect.get(map, p)
+      return typeof value === 'function' ? value.bind(map) : value
+    },
+  })
+  mapProxy = proxy
+  return reactive(mapProxy) as UnwrapNestedRefs<Z>
+}
+
+function createSetProxy<Z extends object> (refObject: Ref<Z>): UnwrapNestedRefs<Z> {
+  let setProxy: Set<unknown>
+
+  const setHandlers: Record<string | symbol, Function> = {
+    add: (value: unknown) => {
+      ;(refObject.value as Set<unknown>).add(value)
+      return setProxy
+    },
+    has: (value: unknown) => (refObject.value as Set<unknown>).has(value),
+    delete: (value: unknown) => (refObject.value as Set<unknown>).delete(value),
+    clear: () => (refObject.value as Set<unknown>).clear(),
+    * keys () {
+      for (const value of (refObject.value as Set<unknown>).values()) {
+        yield unref(value)
+      }
+    },
+    * values () {
+      for (const value of (refObject.value as Set<unknown>).values()) {
+        yield unref(value)
+      }
+    },
+    * entries () {
+      for (const value of (refObject.value as Set<unknown>).values()) {
+        const unreffedValue = unref(value)
+        yield [unreffedValue, unreffedValue] as [unknown, unknown]
+      }
+    },
+    forEach: (callback: (value: unknown, value2: unknown, set: Set<unknown>) => void, thisArg?: unknown) => {
+      ;for (const value of (refObject.value as Set<unknown>)) {
+        const unreffedValue = unref(value)
+        callback.call(thisArg, unreffedValue, unreffedValue, setProxy)
+      }
+    },
+  }
+  setHandlers[Symbol.iterator] = setHandlers.values
+
+  const proxy = new Proxy(new Set(), {
+    get (_, p) {
+      if (p === 'size') return (refObject.value as Set<unknown>).size
+      if (Object.prototype.hasOwnProperty.call(setHandlers, p)) return setHandlers[p as keyof typeof setHandlers]
+
+      const set = refObject.value as Set<unknown>
+      const value = Reflect.get(set, p)
+      return typeof value === 'function' ? value.bind(set) : value
+    },
+  })
+  setProxy = proxy
+  return reactive(setProxy) as UnwrapNestedRefs<Z>
+}
+
+function createObjectProxy<Z extends object> (refObject: Ref<Z>): UnwrapNestedRefs<Z> {
+  const proxy = new Proxy({}, {
+    get (_, p, receiver) {
+      return unref(Reflect.get(refObject.value, p, receiver))
+    },
+    set (_, p, value) {
+      return Reflect.set(refObject.value, p, value)
+    },
+    deleteProperty (_, p) {
+      return Reflect.deleteProperty(refObject.value, p)
+    },
+    has (_, p) {
+      return Reflect.has(refObject.value, p)
+    },
+    ownKeys () {
+      return Reflect.ownKeys(refObject.value)
+    },
+    getOwnPropertyDescriptor (_, p) {
+      const desc = Reflect.getOwnPropertyDescriptor(refObject.value, p)
+      if (!desc) {
+        return undefined
+      }
+      const newDesc: PropertyDescriptor = {
+        configurable: true,
+        enumerable: desc.enumerable,
+      }
+      if ('value' in desc) {
+        newDesc.value = unref(desc.value)
+        newDesc.writable = desc.writable
+      } else {
+        newDesc.get = desc.get
+        newDesc.set = desc.set
+      }
+      return newDesc
+    },
+  })
+
+  return reactive(proxy) as UnwrapNestedRefs<Z>
+}
 
 /**
  * Converts a `MaybeRef` to a `UnwrapNestedRefs`.
@@ -46,166 +187,15 @@ export function toReactive<Z extends object> (
   if (!isRef(objectRef))
     return reactive(objectRef)
 
-  const target = objectRef.value
+  const refObject = objectRef as Ref<Z>
+  const target = refObject.value
 
   // Handle Map collections
-  if (target instanceof Map) {
-    const mapProxy = new Proxy(new Map(), {
-      get (_, p) {
-        const map = objectRef.value as Map<unknown, unknown>
-        if (p === 'get') {
-          return (key: unknown) => unref(map.get(key))
-        }
-        if (p === 'set') {
-          return (key: unknown, value: unknown) => {
-            const existingValue = map.get(key)
-            if (isRef(existingValue)) {
-              existingValue.value = unref(value)
-            } else {
-              map.set(key, value)
-            }
-            return mapProxy
-          }
-        }
-        if (p === 'has') {
-          return (key: unknown) => map.has(key)
-        }
-        if (p === 'delete') {
-          return (key: unknown) => map.delete(key)
-        }
-        if (p === 'clear') {
-          return () => map.clear()
-        }
-        if (p === 'size') {
-          return map.size
-        }
-        if (p === 'keys') {
-          return () => map.keys()
-        }
-        if (p === 'values') {
-          return function* () {
-            for (const value of map.values()) {
-              yield unref(value)
-            }
-          }
-        }
-        if (p === 'entries') {
-          return function* () {
-            for (const [key, value] of map.entries()) {
-              yield [key, unref(value)] as [unknown, unknown]
-            }
-          }
-        }
-        if (p === 'forEach') {
-          return (callback: (value: unknown, key: unknown, map: Map<unknown, unknown>) => void, thisArg?: unknown) => {
-            for (const [key, value] of map.entries()) {
-              callback.call(thisArg, unref(value), key, mapProxy)
-            }
-          }
-        }
-        if (p === Symbol.iterator) {
-          return function* () {
-            for (const [key, value] of map.entries()) {
-              yield [key, unref(value)] as [unknown, unknown]
-            }
-          }
-        }
-        return Reflect.get(map, p)
-      },
-    })
-    return reactive(mapProxy) as UnwrapNestedRefs<Z>
-  }
+  if (target instanceof Map) return createMapProxy(refObject)
 
   // Handle Set collections
-  if (target instanceof Set) {
-    const setProxy = new Proxy(new Set(), {
-      get (_, p) {
-        const set = objectRef.value as Set<unknown>
-        if (p === 'add') {
-          return (value: unknown) => {
-            set.add(value)
-            return setProxy
-          }
-        }
-        if (p === 'has') {
-          return (value: unknown) => set.has(value)
-        }
-        if (p === 'delete') {
-          return (value: unknown) => set.delete(value)
-        }
-        if (p === 'clear') {
-          return () => set.clear()
-        }
-        if (p === 'size') {
-          return set.size
-        }
-        if (p === 'keys' || p === 'values') {
-          return function* () {
-            for (const value of set.values()) {
-              yield unref(value)
-            }
-          }
-        }
-        if (p === 'entries') {
-          return function* () {
-            for (const value of set.values()) {
-              const unreffedValue = unref(value)
-              yield [unreffedValue, unreffedValue] as [unknown, unknown]
-            }
-          }
-        }
-        if (p === 'forEach') {
-          return (callback: (value: unknown, value2: unknown, set: Set<unknown>) => void, thisArg?: unknown) => {
-            for (const value of set) {
-              const unreffedValue = unref(value)
-              callback.call(thisArg, unreffedValue, unreffedValue, setProxy)
-            }
-          }
-        }
-        if (p === Symbol.iterator) {
-          return function* () {
-            for (const value of set.values()) {
-              yield unref(value)
-            }
-          }
-        }
-        return Reflect.get(set, p)
-      },
-    })
-    return reactive(setProxy) as UnwrapNestedRefs<Z>
-  }
+  if (target instanceof Set) return createSetProxy(refObject)
 
   // Handle regular objects and arrays
-  const proxy = new Proxy({}, {
-    get (_, p, receiver) {
-      return unref(Reflect.get(objectRef.value, p, receiver))
-    },
-    set (_, p, value) {
-      const currentTarget = objectRef.value as Record<PropertyKey, unknown>
-      currentTarget[p] = value
-      return true
-    },
-    deleteProperty (_, p) {
-      return Reflect.deleteProperty(objectRef.value, p)
-    },
-    has (_, p) {
-      return Reflect.has(objectRef.value, p)
-    },
-    ownKeys () {
-      return Object.keys(objectRef.value)
-    },
-    getOwnPropertyDescriptor (_, p) {
-      const desc = Reflect.getOwnPropertyDescriptor(objectRef.value, p)
-      if (!desc) {
-        return undefined
-      }
-      const newDesc = { ...desc, configurable: true }
-      if ('value' in newDesc) {
-        newDesc.value = unref(newDesc.value)
-      }
-      return newDesc
-    },
-  })
-
-  return reactive(proxy) as UnwrapNestedRefs<Z>
+  return createObjectProxy(refObject)
 }
