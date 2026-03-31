@@ -35,6 +35,8 @@
   export interface ComboboxContentSlotProps {
     /** Whether the dropdown is open */
     isOpen: boolean
+    /** Attributes to bind to the content element */
+    attrs: Record<string, unknown>
   }
 </script>
 
@@ -70,16 +72,15 @@
 
   const slotProps = toRef((): ComboboxContentSlotProps => ({
     isOpen: context.isOpen.value,
-  }))
-
-  const attrs = toRef(() => ({
-    ...context.popover.contentAttrs.value,
-    'id': context.listboxId,
-    'role': 'listbox',
-    'aria-labelledby': context.inputId,
-    'aria-multiselectable': context.multiple || undefined,
-    'popover': 'manual',
-    'tabindex': -1,
+    attrs: {
+      ...context.popover.contentAttrs.value,
+      'id': context.listboxId,
+      'role': 'listbox',
+      'aria-labelledby': context.inputId,
+      'aria-multiselectable': context.multiple || undefined,
+      'popover': 'manual',
+      'tabindex': -1,
+    },
   }))
 
   const style = toRef(() => context.popover.contentStyles.value)
@@ -88,9 +89,9 @@
 <template>
   <Atom
     ref="content"
+    v-bind="slotProps.attrs"
     :as
     :style
-    v-bind="attrs"
   >
     <slot v-if="hasContent" v-bind="slotProps" />
   </Atom>
