@@ -27,6 +27,8 @@
   export interface SelectContentProps extends AtomProps {
     /** Namespace for dependency injection */
     namespace?: string
+    /** Render content immediately without waiting for first open */
+    eager?: boolean
   }
 
   export interface SelectContentSlotProps {
@@ -45,6 +47,7 @@
   const {
     as = 'div',
     namespace = 'v0:select',
+    eager = false,
   } = defineProps<SelectContentProps>()
 
   const context = useSelectContext(namespace)
@@ -52,7 +55,7 @@
 
   context.popover.attach(() => content.value?.element)
 
-  const { hasContent } = useLazy(context.isOpen)
+  const { hasContent } = useLazy(context.isOpen, { eager })
 
   const slotProps = toRef((): SelectContentSlotProps => ({
     isOpen: context.isOpen.value,

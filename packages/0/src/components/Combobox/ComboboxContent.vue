@@ -28,6 +28,8 @@
   export interface ComboboxContentProps extends AtomProps {
     /** Namespace for dependency injection */
     namespace?: string
+    /** Render content immediately without waiting for first open */
+    eager?: boolean
   }
 
   export interface ComboboxContentSlotProps {
@@ -46,6 +48,7 @@
   const {
     as = 'div',
     namespace = 'v0:combobox',
+    eager = false,
   } = defineProps<ComboboxContentProps>()
 
   const context = useComboboxContext(namespace)
@@ -53,7 +56,7 @@
 
   context.popover.attach(() => content.value?.element)
 
-  const { hasContent } = useLazy(context.isOpen)
+  const { hasContent } = useLazy(context.isOpen, { eager })
 
   // Manual popover mode — dismiss on click outside both content and activator
   const activator = toRef(() => context.inputEl.value?.closest('[data-state]') as HTMLElement | null)
