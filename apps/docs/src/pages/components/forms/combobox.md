@@ -42,11 +42,13 @@ The Combobox component follows the same compound pattern as Select, but replaces
   <Combobox.Root>
     <Combobox.Activator>
       <Combobox.Input />
+
       <Combobox.Cue />
     </Combobox.Activator>
 
     <Combobox.Content>
       <Combobox.Item />
+
       <Combobox.Empty />
     </Combobox.Content>
   </Combobox.Root>
