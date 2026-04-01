@@ -63,17 +63,24 @@ export interface MediaQueryContext {
  * ```
  */
 export function useMediaQuery (query: MaybeRefOrGetter<string>): MediaQueryContext {
-  const matches = shallowRef(false)
-  const mediaQueryList = shallowRef<MediaQueryList | null>(null)
   const resolvedQuery = toRef(() => toValue(query))
-  const hydration = useHydration()
 
+  // Read matchMedia synchronously on the client so consumers get the real
+  // value immediately (e.g. usePrefersDark during theme resolution).
+  // Only the change *listener* is deferred until after hydration.
+  const initialQuery = toValue(query)
+  const initialMql = IN_BROWSER && SUPPORTS_MATCH_MEDIA
+    ? window.matchMedia(initialQuery)
+    : null
+  const matches = shallowRef(initialMql?.matches ?? false)
+  const mediaQueryList = shallowRef<MediaQueryList | null>(initialMql)
+
+  const hydration = useHydration()
   let cleanup: (() => void) | null = null
 
-  function update (): void {
+  function listen (): void {
     if (!IN_BROWSER || !SUPPORTS_MATCH_MEDIA) return
 
-    // Clean up previous listener
     cleanup?.()
     cleanup = null
 
@@ -89,14 +96,13 @@ export function useMediaQuery (query: MaybeRefOrGetter<string>): MediaQueryConte
     cleanup = () => mql.removeEventListener('change', handler)
   }
 
-  // Watch for query changes, defer until hydrated to prevent SSR mismatch.
-  // During SSR and hydration, matches stays false. Once hydration completes,
-  // the effect runs and updates to the actual media query value.
-  // Query changes during hydration are queued and applied after hydration.
+  // Defer the change listener until after hydration to avoid SSR mismatches
+  // from event-driven updates. The initial value is already correct from the
+  // synchronous matchMedia read above.
   const stopWatch = watch(
     [resolvedQuery, () => hydration.isHydrated.value],
     ([_, hydrated]) => {
-      if (hydrated) update()
+      if (hydrated) listen()
     },
     { immediate: true },
   )

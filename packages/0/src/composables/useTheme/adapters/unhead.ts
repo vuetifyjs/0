@@ -74,13 +74,17 @@ export class V0UnheadThemeAdapter extends ThemeAdapter {
 
       // Single watcher for both style and htmlAttrs — unhead's entry.patch()
       // replaces the entire input, so separate patches would clobber each other.
+      // Skip redundant data-theme writes to avoid DOM thrash during hydration.
       const stopWatch = watch(
         [context.colors, context.isDark, context.selectedId],
         ([colors, isDark, id]) => {
-          if (targetEl && id) targetEl.dataset.theme = String(id)
+          const themeStr = id ? String(id) : ''
+          if (targetEl && themeStr && targetEl.dataset.theme !== themeStr) {
+            targetEl.dataset.theme = themeStr
+          }
 
           this.entry?.patch({
-            htmlAttrs: { 'data-theme': id ? String(id) : '' },
+            htmlAttrs: { 'data-theme': themeStr },
             style: [{
               innerHTML: this.generate(colors, isDark),
               id: this.stylesheetId,
