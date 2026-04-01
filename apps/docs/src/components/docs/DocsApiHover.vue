@@ -383,8 +383,19 @@
         </template>
 
         <!-- Footer link -->
-        <button class="popover-footer" type="button" @click.stop="navigateToApi">
-          {{ isExternalLink ? 'View Vue docs ↗' : 'View API →' }}
+        <a
+          v-if="isExternalLink"
+          class="popover-footer"
+          :href="apiLink"
+          rel="noopener noreferrer"
+          target="_blank"
+          @click.stop="hidePopover"
+        >
+          View Vue docs ↗
+        </a>
+
+        <button v-else class="popover-footer" type="button" @click.stop="navigateToApi">
+          View API →
         </button>
       </div>
     </Transition>
@@ -478,12 +489,15 @@
 }
 
 .popover-footer {
+  display: block;
   flex-shrink: 0;
   margin: 0 -12px -12px;
   padding: 12px;
   border-top: 1px solid var(--v0-divider);
   font-size: 12px;
   color: var(--v0-primary);
+  text-align: center;
+  text-decoration: none;
   cursor: pointer;
 }
 
