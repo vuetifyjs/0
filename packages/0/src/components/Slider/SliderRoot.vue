@@ -91,6 +91,22 @@
     isReadonly: boolean
     /** Slider orientation */
     orientation: 'horizontal' | 'vertical'
+    /** Round a value to the nearest step, clamped to min/max */
+    snap: (value: number) => number
+    /** Convert a value to a 0–100 percentage */
+    fromValue: (value: number) => number
+    /** Convert a 0–100 percentage to a snapped value */
+    fromPercent: (percent: number) => number
+    /** Set the value at a thumb index */
+    set: (index: number, value: number) => void
+    /** Increment a thumb's value by step × multiplier */
+    up: (index: number, multiplier?: number) => void
+    /** Decrement a thumb's value by step × multiplier */
+    down: (index: number, multiplier?: number) => void
+    /** Set a thumb to the minimum value */
+    floor: (index: number) => void
+    /** Set a thumb to the maximum value */
+    ceil: (index: number) => void
     /** Pre-computed attributes for binding */
     attrs: {
       'data-disabled': true | undefined
@@ -244,6 +260,14 @@
     isDisabled: isDisabled.value,
     isReadonly: isReadonly.value,
     orientation: toValue(slider.orientation),
+    snap: slider.snap,
+    fromValue: slider.fromValue,
+    fromPercent: slider.fromPercent,
+    set: slider.set,
+    up: slider.up,
+    down: slider.down,
+    floor: slider.floor,
+    ceil: slider.ceil,
     attrs: {
       'data-disabled': isDisabled.value ? true : undefined,
       'data-readonly': isReadonly.value ? true : undefined,
