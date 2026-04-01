@@ -32,7 +32,7 @@ v0 ships composables and components across three maturity levels:
 | **Preview** | 50 | 29 | Feature-complete and documented. API may evolve in minor releases. |
 | **Draft** | 2 | 19 | Experimental. Subject to major changes. |
 
-That's **58 composables**, **48 components**, and **13 type-safe utilities** — covering selection, forms, data, layout, disclosure, and more. Browse the full list in the [composable](/composables) and [component](/components) docs.
+That's **58 composables**, **48 components**, and **13 type-safe utilities** — covering selection, forms, data, layout, disclosure, and more. Browse the full list in the [composables](/composables) and [components](/components) docs.
 
 ## What alpha means
 
@@ -59,3 +59,5 @@ See the [Roadmap](/roadmap) for detailed milestone tracking and the full maturit
 **Contribute code** — PRs are welcome. See the [contributing guide](/introduction/contributing) for how to get started.
 
 **Try it** — [Install v0](/introduction/getting-started) and start building.
+
+> [!DISCORD]
