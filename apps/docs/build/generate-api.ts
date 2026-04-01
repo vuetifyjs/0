@@ -632,7 +632,7 @@ function extractExportedFunctions (
 function extractComposableApi (filePath: string, composableName: string): ComposableApi | null {
   try {
     const proj = getProject()
-    const sourceFile = proj.addSourceFileAtPath(filePath)
+    const sourceFile = proj.getSourceFile(filePath) ?? proj.addSourceFileAtPath(filePath)
 
     // Get module description from first JSDoc comment
     const firstStatement = sourceFile.getStatements()[0]
@@ -696,28 +696,41 @@ function extractComposableApi (filePath: string, composableName: string): Compos
       return undefined
     }
 
+    function findFirst (...names: (string | null | undefined)[]): InterfaceDeclaration | undefined {
+      for (const name of names) {
+        if (!name) continue
+        const found = findInterface(name)
+        if (found) return found
+      }
+      return undefined
+    }
+
     // Find Options interface with multiple naming patterns
     // Try: RegistryOptions, UseRegistryOptions, etc.
-    const optionsInterface = findInterface(`${baseName}Options`)
-      ?? findInterface(`${baseNameSingular}Options`)
-      ?? (isUse ? findInterface(`${pascalName}Options`) : undefined)
-      ?? (isCreate ? findInterface(`${pascalName}Options`) : undefined)
-      ?? (secondWord ? findInterface(`${secondWord}Options`) : undefined)
+    const optionsInterface = findFirst(
+      `${baseName}Options`,
+      `${baseNameSingular}Options`,
+      isUse ? `${pascalName}Options` : null,
+      isCreate ? `${pascalName}Options` : null,
+      secondWord ? `${secondWord}Options` : null,
+    )
 
     // Find Context/Return interface with multiple naming patterns
-    // Try: RegistryContext, UseRegistryReturn, etc.
-    const contextInterface = findInterface(`${baseName}Context`)
-      ?? findInterface(`${baseNameSingular}Context`)
-      ?? (isUse ? findInterface(`${pascalName}Return`) : undefined)
-      ?? (isCreate ? findInterface(`${pascalName}Context`) : undefined)
-      ?? (secondWord ? findInterface(`${secondWord}Context`) : undefined)
+    // Try: RegistryContext, RegistryReturn, UseRegistryReturn, etc.
+    const contextInterface = findFirst(
+      `${baseName}Context`,
+      `${baseNameSingular}Context`,
+      `${baseName}Return`,
+      `${baseNameSingular}Return`,
+      isUse ? `${pascalName}Return` : null,
+      isCreate ? `${pascalName}Context` : null,
+      secondWord ? `${secondWord}Context` : null,
+      secondWord ? `${secondWord}Return` : null,
+    )
 
     const functions = extractExportedFunctions(sourceFile)
     const options = extractOptionsMembers(optionsInterface)
     const { methods, properties } = extractInterfaceMembers(contextInterface)
-
-    // Remove source file to avoid memory leak
-    proj.removeSourceFile(sourceFile)
 
     // Only return if we found meaningful content
     if (functions.length === 0 && options.length === 0 && methods.length === 0 && properties.length === 0) {
@@ -733,7 +746,8 @@ function extractComposableApi (filePath: string, composableName: string): Compos
       methods,
       properties,
     }
-  } catch {
+  } catch (error) {
+    console.warn(`[generate-api] Failed to extract API for composable "${composableName}":`, error instanceof Error ? error.message : error)
     return null
   }
 }
