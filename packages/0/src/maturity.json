@@ -77,7 +77,8 @@
       "category": "forms"
     },
     "createCombobox": {
-      "level": "draft",
+      "level": "preview",
+      "since": "0.2.0",
       "category": "forms"
     },
     "createDataTable": {
@@ -252,6 +253,10 @@
       "since": "0.1.8",
       "category": "system"
     },
+    "usePresence": {
+      "level": "draft",
+      "category": "system"
+    },
     "useRovingFocus": {
       "level": "preview",
       "since": "0.1.8",
@@ -308,7 +313,8 @@
       "category": "providers"
     },
     "Locale": {
-      "level": "draft",
+      "level": "preview",
+      "since": "0.1.11",
       "category": "providers"
     },
     "Scrim": {
@@ -332,7 +338,8 @@
       "category": "providers"
     },
     "Theme": {
-      "level": "draft",
+      "level": "preview",
+      "since": "0.1.11",
       "category": "providers"
     },
     "Toggle": {
@@ -345,6 +352,7 @@
     },
     "Button": {
       "level": "preview",
+      "since": "0.1.10",
       "category": "actions"
     },
     "Checkbox": {
@@ -353,7 +361,8 @@
       "category": "forms"
     },
     "Combobox": {
-      "level": "draft",
+      "level": "preview",
+      "since": "0.2.0",
       "category": "forms"
     },
     "Form": {
@@ -488,7 +497,8 @@
       "category": "semantic"
     },
     "Treeview": {
-      "level": "draft",
+      "level": "preview",
+      "since": "0.1.11",
       "category": "semantic"
     },
     "DataGrid": {
