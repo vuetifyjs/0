@@ -254,7 +254,8 @@
       "category": "system"
     },
     "usePresence": {
-      "level": "draft",
+      "level": "preview",
+      "since": null,
       "category": "system"
     },
     "useRovingFocus": {
@@ -304,7 +305,8 @@
       "category": "primitives"
     },
     "Presence": {
-      "level": "draft",
+      "level": "preview",
+      "since": null,
       "category": "primitives"
     },
     "Group": {
