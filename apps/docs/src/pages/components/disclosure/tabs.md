@@ -48,8 +48,6 @@ The Tabs component provides a compound pattern for building accessible tab inter
 </template>
 ```
 
-<DocsApi />
-
 ## Features
 
 ### Keyboard Navigation
@@ -102,3 +100,5 @@ Control whether navigation wraps around at boundaries:
   </Tabs.Root>
 </template>
 ```
+
+<DocsApi />

@@ -10,6 +10,7 @@ features:
   label: 'C: Form'
   level: 2
   github: /components/Form/
+  renderless: false
 related:
   - /composables/forms/create-form
   - /composables/forms/create-validation
@@ -75,19 +76,6 @@ function onSubmit ({ valid }: { valid: boolean }) {
 }
 ```
 
-## Accessibility
-
-`Form` renders a native `<form>` element, so all standard form semantics apply. No custom ARIA is needed — the browser handles submit on Enter, associates labels with inputs via `id`/`for`, and reports validation errors to assistive technology through child inputs.
-
-### Keyboard Interaction
-
-| Key | Behavior |
-|-----|----------|
-| `Enter` (in input) | Submits the form |
-| `Escape` | No default behavior — handle in your submit handler |
-
-<DocsApi />
-
 ## Recipes
 
 ### Slot Props
@@ -152,3 +140,16 @@ Call `submit()` from slot props when you need to trigger validation without a su
 
 > [!TIP]
 > Calling `submit()` or `reset()` via slot props invokes the form methods directly and does **not** emit `@submit` or `@reset`. Those events only fire from native form submission/reset.
+
+## Accessibility
+
+`Form` renders a native `<form>` element, so all standard form semantics apply. No custom ARIA is needed — the browser handles submit on Enter, associates labels with inputs via `id`/`for`, and reports validation errors to assistive technology through child inputs.
+
+### Keyboard Interaction
+
+| Key | Behavior |
+|-----|----------|
+| `Enter` (in input) | Submits the form |
+| `Escape` | No default behavior — handle in your submit handler |
+
+<DocsApi />

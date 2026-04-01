@@ -10,6 +10,7 @@ features:
   label: 'C: Input'
   level: 2
   github: /components/Input/
+  renderless: false
 related:
   - /composables/forms/create-validation
   - /composables/forms/create-form
@@ -119,29 +120,6 @@ Debounced search with `validateOn="input"` for real-time validation. The composa
 
 :::
 
-## Accessibility
-
-Input.Control renders as a native `<input>` and manages all ARIA attributes automatically.
-
-### ARIA Attributes
-
-| Attribute | Value | Notes |
-|-----------|-------|-------|
-| `aria-invalid` | `true` | When validation fails or `error` prop is set |
-| `aria-label` | Label text | From Root's `label` prop |
-| `aria-describedby` | Description ID | Only present when `Input.Description` is mounted |
-| `aria-errormessage` | Error ID | Only present when `Input.Error` is mounted and errors exist |
-| `aria-required` | `true` | From Root's `required` prop |
-| `required` | `true` | Native attribute, from Root's `required` prop |
-| `disabled` | `true` | Native attribute, from Root's `disabled` prop |
-| `readonly` | `true` | Native attribute, from Root's `readonly` prop |
-
-### Keyboard Navigation
-
-Standard native `<input>` keyboard behavior. No custom key handlers — the browser handles focus, selection, and editing.
-
-<DocsApi />
-
 ## Recipes
 
 ### validateOn Modes
@@ -203,3 +181,26 @@ Style interactive states without slot props:
 | `data-focused` | `true` | Root, Control |
 | `data-disabled` | `true` | Root, Control |
 | `data-readonly` | `true` | Root, Control |
+
+## Accessibility
+
+Input.Control renders as a native `<input>` and manages all ARIA attributes automatically.
+
+### ARIA Attributes
+
+| Attribute | Value | Notes |
+|-----------|-------|-------|
+| `aria-invalid` | `true` | When validation fails or `error` prop is set |
+| `aria-label` | Label text | From Root's `label` prop |
+| `aria-describedby` | Description ID | Only present when `Input.Description` is mounted |
+| `aria-errormessage` | Error ID | Only present when `Input.Error` is mounted and errors exist |
+| `aria-required` | `true` | From Root's `required` prop |
+| `required` | `true` | Native attribute, from Root's `required` prop |
+| `disabled` | `true` | Native attribute, from Root's `disabled` prop |
+| `readonly` | `true` | Native attribute, from Root's `readonly` prop |
+
+### Keyboard Navigation
+
+Standard native `<input>` keyboard behavior. No custom key handlers — the browser handles focus, selection, and editing.
+
+<DocsApi />

@@ -10,6 +10,7 @@ features:
   label: 'C: Checkbox'
   level: 2
   github: /components/Checkbox/
+  renderless: false
 related:
   - /composables/selection/create-group
   - /components/providers/group
@@ -76,29 +77,6 @@ The Checkbox component supports two modes:
 </template>
 ```
 
-## Accessibility
-
-The Checkbox.Root component renders as a button and handles all ARIA attributes automatically:
-
-- `role="checkbox"` for proper semantics
-- `aria-checked` reflects state (`true`, `false`, or `"mixed"`)
-- `aria-disabled` when checkbox is disabled
-- `aria-label` from the `label` prop
-- `tabindex="0"` for keyboard focus (removed when disabled)
-- Space key toggles the checkbox (Enter works when rendered as button)
-
-For custom implementations, use `renderless` mode and bind the `attrs` slot prop to your element:
-
-```vue
-<template>
-  <Checkbox.Root v-slot="{ attrs }" renderless>
-    <div v-bind="attrs">
-      <!-- Custom checkbox visual -->
-    </div>
-  </Checkbox.Root>
-</template>
-```
-
 ## Recipes
 
 ### Group Mode
@@ -147,5 +125,28 @@ The `SelectAll` component:
 - Calls `toggleAll` on click
 - Does NOT register as a group item
 - Sets `aria-checked="mixed"` and `data-state="indeterminate"` when partially selected
+
+## Accessibility
+
+The Checkbox.Root component renders as a button and handles all ARIA attributes automatically:
+
+- `role="checkbox"` for proper semantics
+- `aria-checked` reflects state (`true`, `false`, or `"mixed"`)
+- `aria-disabled` when checkbox is disabled
+- `aria-label` from the `label` prop
+- `tabindex="0"` for keyboard focus (removed when disabled)
+- Space key toggles the checkbox (Enter works when rendered as button)
+
+For custom implementations, use `renderless` mode and bind the `attrs` slot prop to your element:
+
+```vue
+<template>
+  <Checkbox.Root v-slot="{ attrs }" renderless>
+    <div v-bind="attrs">
+      <!-- Custom checkbox visual -->
+    </div>
+  </Checkbox.Root>
+</template>
+```
 
 <DocsApi />

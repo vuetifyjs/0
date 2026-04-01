@@ -167,6 +167,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/components/primitives/portal': RouteRecordInfo<
+      '/components/primitives/portal',
+      '/components/primitives/portal',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/components/providers/group': RouteRecordInfo<
       '/components/providers/group',
       '/components/providers/group',
@@ -664,6 +671,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/guide/features/constants': RouteRecordInfo<
+      '/guide/features/constants',
+      '/guide/features/constants',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/guide/features/palettes': RouteRecordInfo<
       '/guide/features/palettes',
       '/guide/features/palettes',
@@ -674,6 +688,13 @@ declare module 'vue-router/auto-routes' {
     '/guide/features/theming': RouteRecordInfo<
       '/guide/features/theming',
       '/guide/features/theming',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/guide/features/types': RouteRecordInfo<
+      '/guide/features/types',
+      '/guide/features/types',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -1004,6 +1025,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/components/primitives/atom.md': {
       routes:
         | '/components/primitives/atom'
+      views:
+        | never
+    }
+    'src/pages/components/primitives/portal.md': {
+      routes:
+        | '/components/primitives/portal'
       views:
         | never
     }
@@ -1433,6 +1460,12 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/guide/features/constants.md': {
+      routes:
+        | '/guide/features/constants'
+      views:
+        | never
+    }
     'src/pages/guide/features/palettes.md': {
       routes:
         | '/guide/features/palettes'
@@ -1442,6 +1475,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/guide/features/theming.md': {
       routes:
         | '/guide/features/theming'
+      views:
+        | never
+    }
+    'src/pages/guide/features/types.md': {
+      routes:
+        | '/guide/features/types'
       views:
         | never
     }

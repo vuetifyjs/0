@@ -10,6 +10,7 @@ features:
   label: 'C: Radio'
   level: 2
   github: /components/Radio/
+  renderless: false
 related:
   - /composables/selection/create-single
   - /components/providers/single

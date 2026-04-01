@@ -23,7 +23,7 @@ A compound component for building accessible hierarchical tree interfaces with e
 
 ## Usage
 
-The Treeview component provides a compound pattern for building accessible tree structures. It uses the `createNested` composable internally for hierarchical state management — tracking parent-child relationships, open/close state, and cascade selection.
+The Treeview component provides a compound pattern for building accessible tree structures. It uses the [createNested](/composables/selection/create-nested) composable internally for hierarchical state management — tracking parent-child relationships, open/close state, and cascade selection.
 
 ::: example
 /components/treeview/basic

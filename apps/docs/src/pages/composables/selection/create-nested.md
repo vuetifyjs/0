@@ -82,8 +82,6 @@ flowchart TD
 /composables/create-nested/basic
 :::
 
-<DocsApi />
-
 ## Options
 
 ### open
@@ -301,3 +299,5 @@ provideTree()
 // In child components
 const tree = useTree()
 ```
+
+<DocsApi />

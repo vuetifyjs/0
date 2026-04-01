@@ -10,16 +10,17 @@ features:
   label: 'C: Combobox'
   github: /components/Combobox/
   level: 2
+  renderless: false
 related:
   - /composables/selection/create-selection
-  - /composables/utilities/use-virtual-focus
+  - /composables/system/use-virtual-focus
   - /components/disclosure/popover
   - /components/forms/select
 ---
 
 # Combobox
 
-A headless autocomplete combobox with client and server-side filtering support. Uses [createSelection](/composables/selection/create-selection) for state management, [useVirtualFocus](/composables/utilities/use-virtual-focus) for keyboard navigation, and [usePopover](/composables/utilities/use-popover) for native popover positioning. Unlike Select, the Combobox renders a real `<input>` — the query drives filtering and the selection stores the chosen value.
+A headless autocomplete combobox with client and server-side filtering support. Uses [createSelection](/composables/selection/create-selection) for state management, [useVirtualFocus](/composables/system/use-virtual-focus) for keyboard navigation, and [usePopover](/composables/system/use-popover) for native popover positioning. Unlike Select, the Combobox renders a real `<input>` — the query drives filtering and the selection stores the chosen value.
 
 <DocsPageFeatures :frontmatter />
 
@@ -133,47 +134,6 @@ Pass a `ComboboxServerAdapter` instance via the `adapter` prop to disable client
 
 :::
 
-## Accessibility
-
-The Combobox implements the [WAI-ARIA Combobox](https://www.w3.org/WAI/ARIA/apd/patterns/combobox/) pattern with a listbox popup.
-
-### ARIA Attributes
-
-| Attribute | Value | Component |
-|-----------|-------|-----------|
-| `role` | `combobox` | Control |
-| `role` | `listbox` | Content |
-| `role` | `option` | Item |
-| `aria-autocomplete` | `list` / `both` | Control |
-| `aria-expanded` | `true` / `false` | Control |
-| `aria-haspopup` | `listbox` | Control |
-| `aria-controls` | listbox ID | Control |
-| `aria-activedescendant` | highlighted option ID | Control |
-| `aria-describedby` | description ID | Control (when Description mounted) |
-| `aria-errormessage` | error ID | Control (when Error mounted and errors exist) |
-| `aria-invalid` | `true` | Control (when invalid) |
-| `aria-selected` | `true` / `false` | Item |
-| `aria-disabled` | `true` | Item (when disabled) |
-| `aria-multiselectable` | `true` | Content (when multiple) |
-| `aria-hidden` | `true` | Cue |
-| `aria-live` | `polite` | Error |
-
-> [!TIP]
-> `aria-autocomplete="both"` is set automatically when `strict` is enabled, signaling that the input value will revert to a valid option on close.
-
-### Keyboard Navigation
-
-| Key | Action |
-|-----|--------|
-| `ArrowDown` / `ArrowUp` | Open dropdown, or move highlight down / up |
-| `Enter` | Select highlighted item |
-| `Escape` | Close dropdown |
-| `Tab` | Close dropdown and move focus |
-| `Home` | Move highlight to first item |
-| `End` | Move highlight to last item |
-
-<DocsApi />
-
 ## Recipes
 
 ### Form Submission
@@ -228,3 +188,44 @@ Style interactive states without slot props:
 | `data-highlighted` | `""` | Item |
 | `data-disabled` | `true` | Item |
 | `data-state` | `"open"` / `"closed"` | Activator, Cue |
+
+## Accessibility
+
+The Combobox implements the [WAI-ARIA Combobox](https://www.w3.org/WAI/ARIA/apd/patterns/combobox/) pattern with a listbox popup.
+
+### ARIA Attributes
+
+| Attribute | Value | Component |
+|-----------|-------|-----------|
+| `role` | `combobox` | Control |
+| `role` | `listbox` | Content |
+| `role` | `option` | Item |
+| `aria-autocomplete` | `list` / `both` | Control |
+| `aria-expanded` | `true` / `false` | Control |
+| `aria-haspopup` | `listbox` | Control |
+| `aria-controls` | listbox ID | Control |
+| `aria-activedescendant` | highlighted option ID | Control |
+| `aria-describedby` | description ID | Control (when Description mounted) |
+| `aria-errormessage` | error ID | Control (when Error mounted and errors exist) |
+| `aria-invalid` | `true` | Control (when invalid) |
+| `aria-selected` | `true` / `false` | Item |
+| `aria-disabled` | `true` | Item (when disabled) |
+| `aria-multiselectable` | `true` | Content (when multiple) |
+| `aria-hidden` | `true` | Cue |
+| `aria-live` | `polite` | Error |
+
+> [!TIP]
+> `aria-autocomplete="both"` is set automatically when `strict` is enabled, signaling that the input value will revert to a valid option on close.
+
+### Keyboard Navigation
+
+| Key | Action |
+|-----|--------|
+| `ArrowDown` / `ArrowUp` | Open dropdown, or move highlight down / up |
+| `Enter` | Select highlighted item |
+| `Escape` | Close dropdown |
+| `Tab` | Close dropdown and move focus |
+| `Home` | Move highlight to first item |
+| `End` | Move highlight to last item |
+
+<DocsApi />

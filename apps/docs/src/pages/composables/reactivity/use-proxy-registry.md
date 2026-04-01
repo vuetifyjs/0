@@ -65,8 +65,6 @@ flowchart LR
 > [!TIP] Deep vs shallow
 > Pass `{ deep: true }` for `reactive()`, or omit for `shallowReactive()` (default). Shallow is more performant when ticket internals don't need tracking.
 
-<DocsApi />
-
 ## Frequently Asked Questions
 
 ::: faq
@@ -165,3 +163,5 @@ selection.selectedIds // Set of selected IDs
 
 The proxy only exposes registry properties. For reactive selection state, use the selection instance directly or create a custom reactive wrapper.
 :::
+
+<DocsApi />

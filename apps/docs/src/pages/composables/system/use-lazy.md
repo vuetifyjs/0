@@ -62,8 +62,6 @@ stateDiagram-v2
 /composables/use-lazy/basic
 :::
 
-<DocsApi />
-
 ## Eager Mode
 
 Use the `eager` option to render content immediately without waiting for activation:
@@ -99,3 +97,5 @@ The `onAfterLeave` callback resets the lazy state after the leave transition com
 ```
 
 This allows memory to be reclaimed when the content is hidden, while preserving the content during the leave animation.
+
+<DocsApi />

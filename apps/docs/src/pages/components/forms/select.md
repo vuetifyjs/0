@@ -10,15 +10,16 @@ features:
   label: 'C: Select'
   github: /components/Select/
   level: 2
+  renderless: false
 related:
   - /composables/selection/create-selection
-  - /composables/utilities/use-virtual-focus
+  - /composables/system/use-virtual-focus
   - /components/disclosure/popover
 ---
 
 # Select
 
-A headless dropdown select component with single and multi-selection support. Uses [createSelection](/composables/selection/create-selection) for state management, [useVirtualFocus](/composables/utilities/use-virtual-focus) for keyboard navigation, and [usePopover](/composables/utilities/use-popover) for native popover positioning.
+A headless dropdown select component with single and multi-selection support. Uses [createSelection](/composables/selection/create-selection) for state management, [useVirtualFocus](/composables/system/use-virtual-focus) for keyboard navigation, and [usePopover](/composables/system/use-popover) for native popover positioning.
 
 <DocsPageFeatures :frontmatter />
 
@@ -100,38 +101,6 @@ Both individual items and the entire select can be disabled. Disabled items are 
 Set `multiple` on Root to enable multi-selection. The dropdown stays open after each selection. `v-model` binds to an array of IDs. The Value slot receives `selectedValues` for rendering chips, tags, or comma-separated text.
 
 :::
-
-## Accessibility
-
-The Select implements the [WAI-ARIA Combobox](https://www.w3.org/WAI/ARIA/apd/patterns/combobox/) pattern with a listbox popup.
-
-### ARIA Attributes
-
-| Attribute | Value | Component |
-|-----------|-------|-----------|
-| `role` | `combobox` | Activator |
-| `role` | `listbox` | Content |
-| `role` | `option` | Item |
-| `aria-expanded` | `true` / `false` | Activator |
-| `aria-haspopup` | `listbox` | Activator |
-| `aria-controls` | listbox ID | Activator |
-| `aria-selected` | `true` / `false` | Item |
-| `aria-disabled` | `true` | Item (when disabled) |
-| `aria-multiselectable` | `true` | Content (when multiple) |
-
-### Keyboard Navigation
-
-| Key | Action |
-|-----|--------|
-| `Enter` / `Space` | Open dropdown, or select highlighted item |
-| `ArrowDown` | Open dropdown, or move highlight down |
-| `ArrowUp` | Open dropdown, or move highlight up |
-| `Home` | Move highlight to first item |
-| `End` | Move highlight to last item |
-| `Escape` | Close dropdown |
-| `Tab` | Close dropdown and move focus |
-
-<DocsApi />
 
 ## Recipes
 
@@ -252,3 +221,35 @@ Style interactive states without slot props:
 | `data-disabled` | `true` | Item |
 | `data-select-open` | `""` | Activator |
 | `data-state` | `"open"` / `"closed"` | Cue |
+
+## Accessibility
+
+The Select implements the [WAI-ARIA Combobox](https://www.w3.org/WAI/ARIA/apd/patterns/combobox/) pattern with a listbox popup.
+
+### ARIA Attributes
+
+| Attribute | Value | Component |
+|-----------|-------|-----------|
+| `role` | `combobox` | Activator |
+| `role` | `listbox` | Content |
+| `role` | `option` | Item |
+| `aria-expanded` | `true` / `false` | Activator |
+| `aria-haspopup` | `listbox` | Activator |
+| `aria-controls` | listbox ID | Activator |
+| `aria-selected` | `true` / `false` | Item |
+| `aria-disabled` | `true` | Item (when disabled) |
+| `aria-multiselectable` | `true` | Content (when multiple) |
+
+### Keyboard Navigation
+
+| Key | Action |
+|-----|--------|
+| `Enter` / `Space` | Open dropdown, or select highlighted item |
+| `ArrowDown` | Open dropdown, or move highlight down |
+| `ArrowUp` | Open dropdown, or move highlight up |
+| `Home` | Move highlight to first item |
+| `End` | Move highlight to last item |
+| `Escape` | Close dropdown |
+| `Tab` | Close dropdown and move focus |
+
+<DocsApi />

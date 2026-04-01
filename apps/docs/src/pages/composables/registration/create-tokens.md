@@ -99,8 +99,6 @@ A design system with four token categories — color palettes, semantic aliases,
 
 :::
 
-<DocsApi />
-
 ## Frequently Asked Questions
 
 ::: faq
@@ -226,3 +224,5 @@ Keep alias chains shallow (2-3 levels max) for predictable performance. If you n
 
 The spec is still in draft, so `createTokens` focuses on the stable patterns. For CSS custom property output, pair with [useTheme](/composables/plugins/use-theme) which handles CSS variable generation.
 :::
+
+<DocsApi />

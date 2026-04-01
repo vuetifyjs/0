@@ -10,6 +10,7 @@ features:
   label: 'C: Button'
   level: 2
   github: /components/Button/
+  renderless: false
 related:
   - /composables/selection/create-selection
   - /components/providers/single

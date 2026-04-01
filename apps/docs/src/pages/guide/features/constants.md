@@ -1,0 +1,111 @@
+---
+title: Constants - Environment Detection for Vue 3
+meta:
+- name: description
+  content: SSR-safe environment detection constants from Vuetify0. Browser checks, touch support, observer availability, and more.
+- name: keywords
+  content: constants, SSR, browser detection, IN_BROWSER, SUPPORTS_TOUCH, environment, Vue 3
+features:
+  order: 6
+  level: 2
+related:
+  - /guide/features/utilities
+  - /guide/features/types
+---
+
+# Constants
+
+SSR-safe boolean constants for environment detection. All evaluate at module load time and are tree-shakeable.
+
+<DocsPageFeatures :frontmatter />
+
+```ts
+import { IN_BROWSER, SUPPORTS_TOUCH } from '@vuetify/v0/constants'
+```
+
+## IN_BROWSER
+
+`true` when running in a browser context. Use this instead of raw `typeof window !== 'undefined'` checks.
+
+```ts
+import { IN_BROWSER } from '@vuetify/v0/constants'
+
+if (IN_BROWSER) {
+  // Safe to access window, document, localStorage, etc.
+  window.addEventListener('resize', onResize)
+}
+```
+
+## SUPPORTS_TOUCH
+
+`true` when the device supports touch input. Checks for `ontouchstart` on `window` or `navigator.maxTouchPoints > 0`.
+
+```ts
+import { SUPPORTS_TOUCH } from '@vuetify/v0/constants'
+
+if (SUPPORTS_TOUCH) {
+  // Bind touch-specific handlers
+}
+```
+
+## SUPPORTS_MATCH_MEDIA
+
+`true` when `window.matchMedia` is available. Required by `useMediaQuery` and `useBreakpoints`.
+
+```ts
+import { SUPPORTS_MATCH_MEDIA } from '@vuetify/v0/constants'
+
+if (SUPPORTS_MATCH_MEDIA) {
+  const mq = window.matchMedia('(prefers-color-scheme: dark)')
+}
+```
+
+## SUPPORTS_OBSERVER
+
+`true` when `ResizeObserver` is available. Required by `useResizeObserver`.
+
+```ts
+import { SUPPORTS_OBSERVER } from '@vuetify/v0/constants'
+
+if (SUPPORTS_OBSERVER) {
+  const observer = new ResizeObserver(onResize)
+}
+```
+
+## SUPPORTS_INTERSECTION_OBSERVER
+
+`true` when `IntersectionObserver` is available. Required by `useIntersectionObserver`.
+
+```ts
+import { SUPPORTS_INTERSECTION_OBSERVER } from '@vuetify/v0/constants'
+
+if (SUPPORTS_INTERSECTION_OBSERVER) {
+  const observer = new IntersectionObserver(onIntersect)
+}
+```
+
+## SUPPORTS_MUTATION_OBSERVER
+
+`true` when `MutationObserver` is available. Required by `useMutationObserver`.
+
+```ts
+import { SUPPORTS_MUTATION_OBSERVER } from '@vuetify/v0/constants'
+
+if (SUPPORTS_MUTATION_OBSERVER) {
+  const observer = new MutationObserver(onMutate)
+}
+```
+
+## Reference
+
+| Constant | Checks |
+| - | - |
+| `IN_BROWSER` | `typeof window !== 'undefined'` |
+| `SUPPORTS_TOUCH` | `ontouchstart` or `maxTouchPoints > 0` |
+| `SUPPORTS_MATCH_MEDIA` | `window.matchMedia` exists and is a function |
+| `SUPPORTS_OBSERVER` | `window.ResizeObserver` exists |
+| `SUPPORTS_INTERSECTION_OBSERVER` | `window.IntersectionObserver` exists |
+| `SUPPORTS_MUTATION_OBSERVER` | `window.MutationObserver` exists |
+
+> [!TIP]
+> All `SUPPORTS_*` constants depend on `IN_BROWSER`—they are always `false` during SSR. You don't need to check `IN_BROWSER` separately when using them.

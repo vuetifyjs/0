@@ -47,6 +47,19 @@ The `useRaf` composable wraps `requestAnimationFrame` with a cancel-then-request
 </script>
 ```
 
+## Architecture
+
+`useRaf` provides a lightweight wrapper around `requestAnimationFrame`:
+
+```mermaid "useRaf Hierarchy"
+flowchart TD
+  RAF["requestAnimationFrame API"] --> useRaf
+  IN_BROWSER --> useRaf
+  useRaf --> ScrollThrottle["Scroll Throttling"]
+  useRaf --> Animations["Animation Updates"]
+  useRaf --> LayoutMeasure["Layout Measurement"]
+```
+
 ## Examples
 
 ::: example
@@ -82,18 +95,5 @@ const update = useRaf(callback)
 ### SSR Safe
 
 The composable is a no-op in non-browser environments. `isActive` always returns `false` during SSR.
-
-## Architecture
-
-`useRaf` provides a lightweight wrapper around `requestAnimationFrame`:
-
-```mermaid "useRaf Hierarchy"
-flowchart TD
-  RAF["requestAnimationFrame API"] --> useRaf
-  IN_BROWSER --> useRaf
-  useRaf --> ScrollThrottle["Scroll Throttling"]
-  useRaf --> Animations["Animation Updates"]
-  useRaf --> LayoutMeasure["Layout Measurement"]
-```
 
 <DocsApi />

@@ -323,3 +323,99 @@ flowchart LR
 
 Each layer is reactive—changing the search query refilters, which updates pagination, which updates the virtual list.
 
+## Type Guards
+
+Type-narrowing functions that replace raw `typeof` / `===` checks. All are tree-shakeable.
+
+```ts
+import { isString, isNullOrUndefined, isObject } from '@vuetify/v0'
+
+if (isString(value)) {
+  // value is string
+}
+
+if (!isNullOrUndefined(x)) {
+  // x is defined
+}
+```
+
+| Guard | Narrows to |
+| - | - |
+| `isFunction(x)` | `Function` |
+| `isString(x)` | `string` |
+| `isNumber(x)` | `number` (includes NaN) |
+| `isBoolean(x)` | `boolean` |
+| `isObject(x)` | `Record<string, unknown>` (excludes null and arrays) |
+| `isArray(x)` | `unknown[]` |
+| `isElement(x)` | `Element` |
+| `isNull(x)` | `null` |
+| `isUndefined(x)` | `undefined` |
+| `isNullOrUndefined(x)` | `null \| undefined` |
+| `isPrimitive(x)` | `string \| number \| boolean` |
+| `isSymbol(x)` | `symbol` |
+| `isNaN(x)` | `number` (only the NaN value) |
+
+> [!TIP]
+> Prefer these over raw comparisons. `isNaN` uses `Number.isNaN()` internally—it won't coerce strings like the global `isNaN()`.
+
+## Helpers
+
+General-purpose utilities for numbers, arrays, and objects.
+
+### clamp
+
+Clamp a number between a minimum and maximum:
+
+```ts
+import { clamp } from '@vuetify/v0'
+
+clamp(15, 0, 10)  // 10
+clamp(-5, 0, 10)  // 0
+clamp(5, 0, 10)   // 5
+clamp(0.5)         // 0.5 (defaults: min=0, max=1)
+```
+
+### range
+
+Create an array of sequential numbers:
+
+```ts
+import { range } from '@vuetify/v0'
+
+range(5)      // [0, 1, 2, 3, 4]
+range(3, 1)   // [1, 2, 3]
+range(5, 10)  // [10, 11, 12, 13, 14]
+range(0)      // []
+```
+
+### mergeDeep
+
+Deep-merge objects without mutating inputs. Arrays are replaced, not concatenated:
+
+```ts
+import { mergeDeep } from '@vuetify/v0'
+
+mergeDeep({ a: { b: 1 } }, { a: { c: 2 } })
+// { a: { b: 1, c: 2 } }
+
+mergeDeep({}, { a: 1 }, { b: 2 })
+// { a: 1, b: 2 }
+
+mergeDeep({ arr: [1, 2] }, { arr: [3] })
+// { arr: [3] }
+```
+
+### useId
+
+SSR-safe unique ID generation. Uses Vue's `useId()` inside components, falls back to a counter outside:
+
+```ts
+import { useId } from '@vuetify/v0'
+
+// In component setup
+const id = useId()  // 'v:0' (Vue's format)
+
+// Outside component
+const id = useId()  // 'v0-0', 'v0-1', ...
+```
+

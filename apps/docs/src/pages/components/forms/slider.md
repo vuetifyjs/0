@@ -10,6 +10,7 @@ features:
   label: 'C: Slider'
   level: 2
   github: /components/Slider/
+  renderless: false
 related:
   - /composables/forms/create-slider
 ---
@@ -145,38 +146,6 @@ Three sliders for Hue, Saturation, and Lightness with reactive gradient tracks a
 
 :::
 
-## Accessibility
-
-Each `Slider.Thumb` manages its own ARIA attributes automatically.
-
-### ARIA Attributes
-
-| Attribute | Value | Notes |
-|-----------|-------|-------|
-| `role` | `slider` | Applied to each Thumb |
-| `aria-valuenow` | Current value | Updates on drag/keyboard |
-| `aria-valuemin` | Min value | From Root's `min` prop |
-| `aria-valuemax` | Max value | From Root's `max` prop |
-| `aria-valuetext` | Custom text | Optional, via Thumb prop |
-| `aria-orientation` | `horizontal` / `vertical` | Reflects Root orientation |
-| `aria-disabled` | `true` | When slider is disabled |
-| `aria-readonly` | `true` | When slider is readonly |
-| `tabindex` | `0` / removed | Removed when disabled |
-
-### Keyboard Navigation
-
-| Key | Action |
-|-----|--------|
-| `ArrowRight` / `ArrowUp` | Increment by one step |
-| `ArrowLeft` / `ArrowDown` | Decrement by one step |
-| `Shift+Arrow` | Increment/decrement by 10 steps |
-| `PageUp` | Increment by 10 steps |
-| `PageDown` | Decrement by 10 steps |
-| `Home` | Set to minimum |
-| `End` | Set to maximum |
-
-<DocsApi />
-
 ## Recipes
 
 ### Form Integration
@@ -231,3 +200,35 @@ Style interactive states without slot props:
 | `data-disabled` | `true` | Root, Track, Range, Thumb |
 | `data-readonly` | `true` | Root, Track, Range, Thumb |
 | `data-orientation` | `horizontal`, `vertical` | Root, Track, Range |
+
+## Accessibility
+
+Each `Slider.Thumb` manages its own ARIA attributes automatically.
+
+### ARIA Attributes
+
+| Attribute | Value | Notes |
+|-----------|-------|-------|
+| `role` | `slider` | Applied to each Thumb |
+| `aria-valuenow` | Current value | Updates on drag/keyboard |
+| `aria-valuemin` | Min value | From Root's `min` prop |
+| `aria-valuemax` | Max value | From Root's `max` prop |
+| `aria-valuetext` | Custom text | Optional, via Thumb prop |
+| `aria-orientation` | `horizontal` / `vertical` | Reflects Root orientation |
+| `aria-disabled` | `true` | When slider is disabled |
+| `aria-readonly` | `true` | When slider is readonly |
+| `tabindex` | `0` / removed | Removed when disabled |
+
+### Keyboard Navigation
+
+| Key | Action |
+|-----|--------|
+| `ArrowRight` / `ArrowUp` | Increment by one step |
+| `ArrowLeft` / `ArrowDown` | Decrement by one step |
+| `Shift+Arrow` | Increment/decrement by 10 steps |
+| `PageUp` | Increment by 10 steps |
+| `PageDown` | Decrement by 10 steps |
+| `Home` | Set to minimum |
+| `End` | Set to maximum |
+
+<DocsApi />

@@ -468,4 +468,18 @@ import { isObject, isString } from '@vuetify/v0/utilities'
 import { IN_BROWSER } from '@vuetify/v0/constants'
 ```
 
+## Next Steps
+
+Now that v0 is installed, choose your path:
+
+| Goal | Start Here |
+| - | - |
+| Understand the architecture | [Components](/guide/fundamentals/components) → [Composables](/guide/fundamentals/composables) → [Core](/guide/fundamentals/core) |
+| Build production UIs now | [Theming](/guide/features/theming) → [Accessibility](/guide/features/accessibility) |
+| Build a component library | [Building Frameworks](/guide/fundamentals/building-frameworks) |
+| Explore interactively | [Playground](/playground) |
+
+> [!TIP]
+> Use `Cmd+/` on any documentation page to ask AI questions about v0.
+
 > [!DISCORD]

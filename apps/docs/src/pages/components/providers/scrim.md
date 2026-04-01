@@ -9,7 +9,7 @@ features:
   category: Component
   label: 'C: Scrim'
   github: /components/Scrim/
-  renderless: true
+  renderless: false
   level: 2
 related:
   - /composables/plugins/use-stack

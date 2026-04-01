@@ -6,7 +6,7 @@ meta:
 - name: keywords
   content: createTrinity, context, trinity pattern, provide inject, singleton, composable, Vue 3
 features:
-  category: Factory
+  category: Composable
   label: 'E: createTrinity'
   github: /composables/createTrinity/
   level: 3

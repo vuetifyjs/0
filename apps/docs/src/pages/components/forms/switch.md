@@ -10,6 +10,7 @@ features:
   label: 'C: Switch'
   level: 2
   github: /components/Switch/
+  renderless: false
 related:
   - /composables/selection/create-group
   - /components/providers/group

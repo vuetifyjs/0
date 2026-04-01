@@ -6,7 +6,7 @@ meta:
 - name: keywords
   content: createContext, context, dependency injection, provide inject, composable, Vue 3, state management
 features:
-  category: Factory
+  category: Composable
   label: 'E: createContext'
   github: /composables/createContext/
   level: 3

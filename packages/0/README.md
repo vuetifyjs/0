@@ -39,7 +39,7 @@ This is a **pnpm monorepo** containing:
 | [`@vuetify/v0`](./packages/0) | Core headless components and composables |
 | [`@vuetify/paper`](./packages/paper) | Styling and layout primitives |
 | [`apps/docs`](./apps/docs) | Documentation site ([0.vuetifyjs.com](https://0.vuetifyjs.com)) |
-| [`playground`](./playground) | Interactive development environment |
+| [`apps/playground`](./apps/playground) | Interactive development environment |
 
 ## Requirements
 
@@ -77,23 +77,63 @@ import { ... } from '@vuetify/v0/date'       // Date adapter and utilities
 
 ### Components
 
+#### Primitives
+
 | Component | Description |
 |-----------|-------------|
-| **Atom** | Polymorphic base element. Renders as any HTML element via `as` prop with renderless mode support |
-| **Avatar** | Image with fallback display. Compound component with Root, Image, and Fallback sub-components |
-| **Breadcrumbs** | Responsive navigation trail with overflow support. Root, List, Item, Link, Page, Divider, Ellipsis sub-components |
-| **Checkbox** | Standalone or group checkbox with tri-state. Root, Group, SelectAll, Indicator, HiddenInput sub-components |
-| **Dialog** | Modal dialog using native `<dialog>`. Root, Activator, Content, Title, Description, Close sub-components |
-| **ExpansionPanel** | Accordion/collapsible panels. Supports single (accordion) or multi-expand modes |
-| **Group** | Multi-selection with tri-state support. Provides `selectAll`, `unselectAll`, `toggleAll` |
-| **Pagination** | Page navigation with ellipsis. Root, Item, First, Prev, Next, Last, Ellipsis, Status sub-components |
-| **Popover** | CSS anchor-positioned popup. Root, Anchor, and Content sub-components |
-| **Radio** | Radio button group with single-selection. Group, Root, Indicator, HiddenInput sub-components |
-| **Scrim** | Backdrop/scrim overlay for overlay systems |
-| **Selection** | Generic single/multi-selection. Configurable via `multiple` prop |
-| **Single** | Single-selection specialization of Selection |
-| **Step** | Navigation/stepper with first, last, next, prev controls |
-| **Tabs** | Accessible tab interface. Root, List, Item, Panel sub-components |
+| **Atom** | Polymorphic base element with dynamic `as` prop and renderless mode |
+| **Portal** | Teleport wrapper with automatic z-index stacking via useStack |
+
+#### Providers
+
+| Component | Description |
+|-----------|-------------|
+| **Group** | Multi-selection with tri-state support |
+| **Locale** | Locale context provider for internationalization |
+| **Scrim** | Overlay backdrop with click-to-dismiss and z-index management |
+| **Selection** | Multi-selection state with v-model binding |
+| **Single** | Single-selection with automatic deselection |
+| **Step** | Sequential navigation (first, last, next, prev) |
+| **Theme** | Theme context provider with CSS variable injection |
+
+#### Actions
+
+| Component | Description |
+|-----------|-------------|
+| **Button** | Button with loading grace period, toggle groups, and icon accessibility |
+
+#### Forms
+
+| Component | Description |
+|-----------|-------------|
+| **Checkbox** | Dual-mode checkbox (standalone/group) with tri-state support |
+| **Combobox** | Filterable selection with autocomplete, virtual focus, and custom input |
+| **Form** | Form validation coordinator with submit handling and error aggregation |
+| **Input** | Text input with label, description, error messages, and character counting |
+| **Radio** | Radio group with single-selection and keyboard navigation |
+| **Select** | Dropdown selection with virtual focus and multi-select support |
+| **Slider** | Range input with snapping, range mode, and custom tracks |
+| **Switch** | Toggle switch with on/off states and label association |
+
+#### Disclosure
+
+| Component | Description |
+|-----------|-------------|
+| **Dialog** | Modal dialog using native `<dialog>` with focus management |
+| **ExpansionPanel** | Accordion-style collapsible panels |
+| **Popover** | CSS anchor-positioned popup content |
+| **Tabs** | Tab panel navigation with keyboard support and lazy content rendering |
+| **Treeview** | Hierarchical tree with nested selection and expand/collapse |
+
+#### Semantic
+
+| Component | Description |
+|-----------|-------------|
+| **Avatar** | Image/fallback avatar with priority loading |
+| **Breadcrumbs** | Navigation breadcrumbs with overflow detection and truncation |
+| **Pagination** | Page navigation with semantic `<nav>` wrapper |
+| **Snackbar** | Toast notification with queue, positioning, and auto-dismiss |
+| **Splitter** | Resizable panel layout with drag handles |
 
 ### Composables
 
@@ -113,22 +153,31 @@ Base data structures that most other composables build upon:
 - **`createQueue`** - FIFO queue with timeout management (notifications/toasts)
 - **`createTimeline`** - Bounded undo/redo history
 - **`createTokens`** - Design token registry with alias resolution
+
+#### Data
+
 - **`createDataTable`** - Data table with sort, filter, pagination, row selection, grouping, and adapter pattern
+- **`createFilter`** - Reactive array filtering with multiple modes
+- **`createPagination`** - Lightweight page navigation
+- **`createVirtual`** - Virtual scrolling for large lists
 
 #### Selection
 
 Selection management composables built on `createRegistry`:
 
 - **`createSelection`** - Base selection with Set-based tracking
+- **`createModel`** - Value store for single-value state
 - **`createGroup`** - Multi-selection with tri-state/mixed support
 - **`createSingle`** - Single-selection specialization
 - **`createStep`** - Navigation through items (first, last, next, prev)
-- **`createBreadcrumbs`** - Breadcrumb navigation model with depth tracking, truncation, and path traversal
 - **`createNested`** - Hierarchical tree management with parent-child relationships and open state
 
 #### Forms
 
 - **`createForm`** - Form validation and state management with async rules
+- **`createValidation`** - Field-level validation with sync/async rules
+- **`createCombobox`** - Combobox state management with filtering and virtual focus
+- **`createSlider`** - Slider state with snapping, range mode, and step control
 
 #### Reactivity
 
@@ -137,14 +186,13 @@ Selection management composables built on `createRegistry`:
 
 #### Utilities
 
-- **`useFilter`** - Reactive array filtering with multiple modes
-- **`usePagination`** - Lightweight page navigation (non-registry based)
-- **`useVirtual`** - Virtual scrolling for large lists
-- **`useOverflow`** - Container overflow measurement for item capacity
+- **`createBreadcrumbs`** - Breadcrumb navigation model with depth tracking and path traversal
+- **`createOverflow`** - Container overflow measurement for item capacity
 
 #### Transformers
 
 - **`toArray`** - Array transformation utilities
+- **`toElement`** - Normalize refs, selectors, and elements to DOM elements
 - **`toReactive`** - Reactive object conversion
 
 #### System
@@ -156,8 +204,13 @@ Selection management composables built on `createRegistry`:
 - **`useLazy`** - Deferred content rendering for dialogs, menus, and tooltips
 - **`useMediaQuery`** - Reactive CSS media query matching
 - **`useMutationObserver`** - DOM mutation observation
+- **`usePopover`** - Popover positioning and anchor management
+- **`useRaf`** - requestAnimationFrame loop with start/stop control
 - **`useResizeObserver`** - Resize observer utilities
+- **`useRovingFocus`** - Roving tabindex keyboard navigation
+- **`useTimer`** - Countdown and interval timer with pause/resume
 - **`useToggleScope`** - Conditional effect scope management
+- **`useVirtualFocus`** - Virtual focus management via aria-activedescendant
 
 #### Plugins
 
@@ -169,7 +222,10 @@ Plugin-capable composables following the trinity pattern:
 - **`useHydration`** - SSR hydration helpers
 - **`useLocale`** - Internationalization with message interpolation
 - **`useLogger`** - Logging adapter (consola/pino/custom)
+- **`useNotifications`** - Toast/snackbar queue management with positioning
 - **`usePermissions`** - RBAC/ABAC permission system
+- **`useRtl`** - Right-to-left text direction detection and management
+- **`useRules`** - Validation rule adapter with built-in rule library
 - **`useStack`** - Overlay z-index stacking with automatic scrim coordination
 - **`useStorage`** - Storage adapter (localStorage/sessionStorage/memory)
 - **`useTheme`** - Theme management with CSS variable injection

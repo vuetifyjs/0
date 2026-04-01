@@ -13,7 +13,7 @@ features:
   level: 2
 related:
   - /components/disclosure/dialog
-  - /components/semantic/scrim
+  - /components/providers/scrim
   - /composables/plugins/use-stack
 ---
 

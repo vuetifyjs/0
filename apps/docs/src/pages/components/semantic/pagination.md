@@ -58,4 +58,25 @@ The Pagination component provides a compound component pattern for building page
 > [!WARNING]
 > For responsive sizing to work accurately, **all pagination buttons must have the same width**. The component measures a sample button and uses that width to calculate how many buttons fit. If buttons have variable widths (e.g., single-digit "1" vs double-digit "50"), the calculation will be inaccurate and items may overflow or leave excess space.
 
+## Accessibility
+
+The Pagination component renders semantic HTML and manages ARIA attributes automatically:
+
+- Wraps controls in a `<nav>` element with `aria-label="pagination"` for landmark navigation
+- Current page button is marked with `aria-current="page"` so screen readers announce it as the active page
+- Arrow keys navigate between page buttons; Enter and Space select the focused page
+- Page changes are announced to screen readers via `aria-live` region updates
+
+For custom implementations, use `renderless` mode and bind the `attrs` slot prop to preserve all ARIA attributes:
+
+```vue
+<template>
+  <Pagination.Root v-slot="{ attrs }" renderless>
+    <nav v-bind="attrs">
+      <!-- Custom pagination controls -->
+    </nav>
+  </Pagination.Root>
+</template>
+```
+
 <DocsApi />

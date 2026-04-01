@@ -109,6 +109,57 @@ app.use(
 )
 ```
 
+## Architecture
+
+`useRules` resolves aliases, functions, and Standard Schema objects into `FormValidationRule[]` for use with `createValidation`:
+
+```mermaid "Rules Architecture"
+flowchart TD
+  aliases[Predicate Aliases] --> resolve
+  functions[Inline Functions] --> resolve
+  StandardSchema[Standard Schema] --> resolve
+  useRules --> resolve[resolve rules]
+  resolve --> createValidation
+```
+
+## Reactivity
+
+`useRules` has no reactive state. Aliases are plain predicate functions — `resolve()` wraps them with locale-aware error message lookup when they return `false`.
+
+| Property | Reactive | Notes |
+| - | :-: | - |
+| `aliases` | <AppErrorIcon /> | Static map of predicate functions |
+| `resolve()` | <AppErrorIcon /> | Pure function, returns array of rule functions |
+
+## Examples
+
+::: example
+/composables/use-rules/context.ts 1
+/composables/use-rules/FormField.vue 2
+/composables/use-rules/dashboard.vue 3
+
+### API Key Manager
+
+This example registers 4 custom aliases (`required`, `email`, `slug`, `prefix`) as predicates with inline error strings. Each input gets its own `createValidation` instance with a `value` ref and rules. A rate limit field uses an inline function rule to show that aliases and functions can coexist.
+
+The controls let you trigger validation, prefill valid or invalid data, and reset. The state panel reflects each validation's `isValid`, error count, and active rule count in real time — showing the tri-state validation lifecycle (`null` → `true`/`false`) and how reset returns everything to its initial state.
+
+| File | Role |
+|------|------|
+| `context.ts` | Defines predicate aliases via `createRulesContext` |
+| `FormField.vue` | Reusable field component — binds validation errors and border state |
+| `dashboard.vue` | Provides rules context, creates per-input validations, renders UI |
+
+**Key patterns:**
+
+- `createRulesContext({ aliases })` registers predicate validators
+- `true` = pass, `string` = fail with message, `false` = fail with locale lookup
+- `createValidation({ value, rules })` — one instance per input, resolves aliases via `useRules()`
+- Validation state (`errors`, `isValid`, `isValidating`) lives on the context, not on individual tickets
+- Components decide when to call `validate()` — validation triggers are a UI concern
+
+:::
+
 ## Adapters
 
 `useRules` supports [Standard Schema](https://standardschema.dev/) — a universal interface for validation libraries. Pass schema objects directly in `rules` arrays alongside alias strings and inline functions — `resolve()` auto-detects and wraps them.
@@ -179,56 +230,5 @@ Any library that implements the [Standard Schema v1 spec](https://standardschema
 | [Zod](https://zod.dev/) | v3.24+ | `import { z } from 'zod'` |
 | [Valibot](https://valibot.dev/) | v1.0+ | `import * as v from 'valibot'` |
 | [ArkType](https://arktype.io/) | v2.0+ | `import { type } from 'arktype'` |
-
-## Examples
-
-::: example
-/composables/use-rules/context.ts 1
-/composables/use-rules/FormField.vue 2
-/composables/use-rules/dashboard.vue 3
-
-### API Key Manager
-
-This example registers 4 custom aliases (`required`, `email`, `slug`, `prefix`) as predicates with inline error strings. Each input gets its own `createValidation` instance with a `value` ref and rules. A rate limit field uses an inline function rule to show that aliases and functions can coexist.
-
-The controls let you trigger validation, prefill valid or invalid data, and reset. The state panel reflects each validation's `isValid`, error count, and active rule count in real time — showing the tri-state validation lifecycle (`null` → `true`/`false`) and how reset returns everything to its initial state.
-
-| File | Role |
-|------|------|
-| `context.ts` | Defines predicate aliases via `createRulesContext` |
-| `FormField.vue` | Reusable field component — binds validation errors and border state |
-| `dashboard.vue` | Provides rules context, creates per-input validations, renders UI |
-
-**Key patterns:**
-
-- `createRulesContext({ aliases })` registers predicate validators
-- `true` = pass, `string` = fail with message, `false` = fail with locale lookup
-- `createValidation({ value, rules })` — one instance per input, resolves aliases via `useRules()`
-- Validation state (`errors`, `isValid`, `isValidating`) lives on the context, not on individual tickets
-- Components decide when to call `validate()` — validation triggers are a UI concern
-
-:::
-
-## Architecture
-
-`useRules` resolves aliases, functions, and Standard Schema objects into `FormValidationRule[]` for use with `createValidation`:
-
-```mermaid "Rules Architecture"
-flowchart TD
-  aliases[Predicate Aliases] --> resolve
-  functions[Inline Functions] --> resolve
-  StandardSchema[Standard Schema] --> resolve
-  useRules --> resolve[resolve rules]
-  resolve --> createValidation
-```
-
-## Reactivity
-
-`useRules` has no reactive state. Aliases are plain predicate functions — `resolve()` wraps them with locale-aware error message lookup when they return `false`.
-
-| Property | Reactive | Notes |
-| - | :-: | - |
-| `aliases` | <AppErrorIcon /> | Static map of predicate functions |
-| `resolve()` | <AppErrorIcon /> | Pure function, returns array of rule functions |
 
 <DocsApi />

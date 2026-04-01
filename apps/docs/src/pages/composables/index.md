@@ -79,6 +79,30 @@ const proxy = useProxyRegistry(registry)
 
 This pattern lets you choose reactivity granularity—pay for what you use
 
+## Naming Conventions
+
+Composable names signal how they're used:
+
+### `create*` — Factory Functions
+
+Factory functions construct a new instance of stateful logic. They return an object you can provide, pass around, or destructure.
+
+| Pattern | Example | When to Use |
+| - | - | - |
+| Context factories | `createContext`, `createTrinity` | Building reusable provide/inject pairs |
+| State factories | `createSelection`, `createRegistry` | Creating isolated state instances |
+| Feature factories | `createDataTable`, `createForm` | Composing multiple primitives into a feature |
+
+### `use*` — Composables
+
+Composables consume existing context or wrap browser APIs. They're called inside `setup()` and return reactive state.
+
+| Pattern | Example | When to Use |
+| - | - | - |
+| Plugin consumers | `useTheme`, `useLocale`, `useStorage` | Reading app-level plugin state (requires plugin installation) |
+| Browser wrappers | `useEventListener`, `useResizeObserver` | Safe, lifecycle-managed browser API access |
+| Behavior composables | `useHotkey`, `useClickOutside` | Adding interactive behavior to elements |
+
 ## Foundation
 
 Core factories that provide the foundation for all other composables.

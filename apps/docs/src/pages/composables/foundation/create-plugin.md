@@ -6,7 +6,7 @@ meta:
 - name: keywords
   content: createPlugin, Vue plugin, plugin factory, composable, context provision, app-level state, Vue 3
 features:
-  category: Factory
+  category: Composable
   label: 'E: createPlugin'
   github: /composables/createPlugin/
   level: 3
