@@ -23,8 +23,8 @@
     clipboard.copy(props.code)
   }
 
-  function openInBin () {
-    const url = getBinUrl(props.code, props.language || 'markdown', props.binTitle || props.title)
+  async function openInBin () {
+    const url = await getBinUrl(props.code, props.language || 'markdown', props.binTitle || props.title)
     window.open(url, '_blank')
   }
 

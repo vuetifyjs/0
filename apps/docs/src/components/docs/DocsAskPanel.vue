@@ -120,8 +120,8 @@
       .join('\n\n---\n\n')
   }
 
-  function openInBin () {
-    const url = getBinUrl(getConversationMarkdown(), 'markdown', 'Ask AI Conversation')
+  async function openInBin () {
+    const url = await getBinUrl(getConversationMarkdown(), 'markdown', 'Ask AI Conversation')
     window.open(url, '_blank')
   }
 

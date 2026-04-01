@@ -57,6 +57,7 @@ export default defineConfig({
     onFinished () {
       generateSitemap({
         hostname: 'https://0.vuetifyjs.com',
+        generateRobotsTxt: false,
       })
     },
   } as ViteSSGOptions,

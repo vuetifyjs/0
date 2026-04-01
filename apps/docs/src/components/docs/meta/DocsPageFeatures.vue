@@ -16,11 +16,22 @@
   import { onBeforeUnmount, shallowRef, toRef } from 'vue'
   import { useRoute } from 'vue-router'
 
-  // Data
-  import metrics from '@/data/metrics.json'
-
   const scroll = useScrollToAnchor()
   const logger = useLogger()
+
+  const metricsData = shallowRef<Record<string, MetricEntry> | null>(null)
+
+  let metricsPromise: Promise<Record<string, MetricEntry>> | null = null
+  function loadMetrics () {
+    if (!metricsPromise) {
+      metricsPromise = import('@/data/metrics.json').then(m => m.default as Record<string, MetricEntry>)
+    }
+    return metricsPromise
+  }
+
+  loadMetrics().then(m => {
+    metricsData.value = m
+  }).catch(() => {})
 
   interface MetricCoverage {
     overall: number
@@ -118,8 +129,8 @@
   // Get metrics for this item
   const itemMetrics = toRef(() => {
     const name = itemName.value
-    if (!name) return null
-    return (metrics as Record<string, MetricEntry>)[name] ?? null
+    if (!name || !metricsData.value) return null
+    return metricsData.value[name] ?? null
   })
 
   // Coverage data

@@ -172,10 +172,10 @@
     window.open(url, '_blank')
   }
 
-  function openAllInBin () {
+  async function openAllInBin () {
     if (!displayFiles.value?.length) return
     const files = displayFiles.value.map(f => ({ name: f.name, code: f.code, language: f.language }))
-    const url = getMultiFileBinUrl(files, title)
+    const url = await getMultiFileBinUrl(files, title)
     window.open(url, '_blank')
   }
 </script>

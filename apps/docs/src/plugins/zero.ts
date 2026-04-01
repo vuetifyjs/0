@@ -1,12 +1,10 @@
-import posthog from 'posthog-js'
-
 // Framework
-import { createBreakpointsPlugin, createDatePlugin, createFeaturesPlugin, createHydrationPlugin, createLocalePlugin, createLoggerPlugin, createPermissionsPlugin, createRtlPlugin, createStackPlugin, createStoragePlugin, createThemePlugin, IN_BROWSER, V0UnheadThemeAdapter } from '@vuetify/v0'
+import { createBreakpointsPlugin, createDatePlugin, createFeaturesPlugin, createHydrationPlugin, createLocalePlugin, createLoggerPlugin, createPermissionsPlugin, createRtlPlugin, createStackPlugin, createStoragePlugin, createThemePlugin, IN_BROWSER, useFeatures, V0UnheadThemeAdapter } from '@vuetify/v0'
 import { Vuetify0DateAdapter } from '@vuetify/v0/date'
-import { PostHogFeatureAdapter } from '@vuetify/v0/features/adapters/posthog'
 
 // Composables
 import { createDiscoveryPlugin } from '@/composables/useDiscovery'
+import { useIdleCallback } from '@/composables/useIdleCallback'
 
 // Types
 import type { App } from 'vue'
@@ -26,12 +24,8 @@ export default function zero (app: App) {
   app.use(createStackPlugin())
   app.use(createDiscoveryPlugin())
 
-  if (IN_BROWSER) {
-    posthog.init('phc_NNCtIDpiEgt5TsyxTItPnU9dA14asv6OR6IziSLQa97', { api_host: 'https://app.posthog.com' })
-  }
   app.use(
     createFeaturesPlugin({
-      adapter: new PostHogFeatureAdapter(posthog),
       features: {
         devmode: {
           $value: IN_BROWSER ? localStorage.getItem('v0:devmode') === 'true' : false,
@@ -40,6 +34,20 @@ export default function zero (app: App) {
       },
     }),
   )
+
+  if (IN_BROWSER) {
+    useIdleCallback(async () => {
+      const [{ default: posthog }, { PostHogFeatureAdapter }] = await Promise.all([
+        import('posthog-js'),
+        import('@vuetify/v0/features/adapters/posthog'),
+      ])
+      posthog.init('phc_NNCtIDpiEgt5TsyxTItPnU9dA14asv6OR6IziSLQa97', { api_host: 'https://app.posthog.com' })
+      const adapter = new PostHogFeatureAdapter(posthog)
+      const features = app.runWithContext(() => useFeatures())
+      features.sync(adapter.setup(flags => features.sync(flags)))
+    }, 2000)
+  }
+
   app.use(
     createPermissionsPlugin({
       permissions: {
