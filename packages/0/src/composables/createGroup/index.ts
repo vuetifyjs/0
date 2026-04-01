@@ -321,12 +321,13 @@ export function createGroup<
   }
 
   function unselectAll () {
-    const first = selection.selectedIds.values().next().value
     selection.selectedIds.clear()
 
-    if (!toValue(mandatory) || !first) return
+    if (!toValue(mandatory)) return
 
-    selection.select(first)
+    const ticket = selection.seek('first')
+
+    if (ticket) selection.select(ticket.id)
   }
 
   function toggleAll () {

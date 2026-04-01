@@ -19,7 +19,7 @@ import { createContext, useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
 
 // Utilities
-import { isNaN, range } from '#v0/utilities'
+import { clamp, isNaN, range } from '#v0/utilities'
 import { computed, isRef, shallowRef, toRef, toValue } from 'vue'
 
 // Types
@@ -125,7 +125,7 @@ export function createPagination (_options: PaginationOptions = {}): PaginationC
   const page = computed({
     get: () => {
       const p = pages.value
-      return p > 0 && _raw.value > p ? p : _raw.value
+      return p > 0 ? clamp(_raw.value, 1, p) : _raw.value
     },
     set: (v: number) => {
       _raw.value = v

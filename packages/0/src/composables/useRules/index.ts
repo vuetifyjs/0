@@ -117,6 +117,8 @@ function createResolve (aliases: RuleAliases, locale?: { t: (key: string) => str
 
       if (predicate) {
         result.push(resolveAlias(rule as string, predicate, locale))
+      } else if (typeof __DEV__ !== 'undefined' && __DEV__) {
+        console.warn(`[v0 warn] Unknown validation rule alias "${rule}". Register it via rules.aliases or install a rules plugin.`)
       }
     }
 

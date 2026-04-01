@@ -147,7 +147,7 @@ export function createBreakpoints<
   const name = shallowRef<BreakpointName>(initialName)
   const width = shallowRef(initialWidth)
   const height = shallowRef(initialHeight)
-  const isMobile = shallowRef(isSSR ? initialWidth < mb! : true)
+  const isMobile = shallowRef(initialWidth < mb!)
   const xs = shallowRef(initialIndex === 0)
   const sm = shallowRef(initialIndex === 1)
   const md = shallowRef(initialIndex === 2)

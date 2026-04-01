@@ -70,7 +70,7 @@ export function createObserver<O extends { disconnect: () => void }, E> (
   const resolved = toRef(() => toElement(target))
   const observer = shallowRef<O | null | undefined>(undefined)
   const isPaused = shallowRef(false)
-  const isActive = toRef(() => !!observer.value)
+  const isActive = toRef(() => !!observer.value && !isPaused.value)
 
   function invoke (entries: E[]) {
     config.onEntry?.(entries)
