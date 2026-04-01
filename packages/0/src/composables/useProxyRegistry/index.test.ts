@@ -134,11 +134,12 @@ describe('useProxyRegistry', () => {
       expect(registry.off).not.toHaveBeenCalled()
 
       scope.stop()
-      expect(registry.off).toHaveBeenCalledTimes(4)
+      expect(registry.off).toHaveBeenCalledTimes(5)
       expect(registry.off).toHaveBeenCalledWith('register:ticket', expect.any(Function))
       expect(registry.off).toHaveBeenCalledWith('unregister:ticket', expect.any(Function))
       expect(registry.off).toHaveBeenCalledWith('update:ticket', expect.any(Function))
       expect(registry.off).toHaveBeenCalledWith('clear:registry', expect.any(Function))
+      expect(registry.off).toHaveBeenCalledWith('reindex:registry', expect.any(Function))
     })
   })
 })
