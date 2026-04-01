@@ -12,12 +12,7 @@
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
-
-  // Composables
-  import { useStack } from '#v0/composables/useStack'
-
-  // Utilities
-  import { onUnmounted, toRef } from 'vue'
+  import { Portal } from '#v0/components/Portal'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -44,27 +39,14 @@
     as = 'div',
     teleport = 'body',
   } = defineProps<SnackbarPortalProps>()
-
-  const stack = useStack()
-  const ticket = stack.register()
-
-  onUnmounted(() => ticket.unregister())
-
-  const styles = toRef(() => ({ zIndex: ticket.zIndex.value }))
-
-  const slotProps = toRef((): SnackbarPortalSlotProps => ({
-    zIndex: ticket.zIndex.value,
-  }))
 </script>
 
 <template>
-  <Teleport v-if="teleport" :to="teleport">
-    <Atom :as :style="styles" v-bind="$attrs">
-      <slot v-bind="slotProps" />
-    </Atom>
-  </Teleport>
-
-  <Atom v-else :as :style="styles" v-bind="$attrs">
-    <slot v-bind="slotProps" />
-  </Atom>
+  <Portal :disabled="teleport === false" :to="teleport || 'body'">
+    <template #default="{ zIndex }">
+      <Atom :as :style="{ zIndex }" v-bind="$attrs">
+        <slot v-bind="{ zIndex }" />
+      </Atom>
+    </template>
+  </Portal>
 </template>
