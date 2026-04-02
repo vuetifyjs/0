@@ -178,7 +178,7 @@ function formatMean (mean: number): string {
 }
 
 function extractComposableName (filepath: string): string {
-  const match = filepath.match(/composables\/(\w+)\//)
+  const match = filepath.match(/(?:composables|utilities)\/(\w+)(?:\/|\.bench\.ts)/)
   return match?.[1] ?? filepath
 }
 
@@ -297,9 +297,12 @@ export function useBenchmarkData (options?: UseBenchmarkDataOptions): UseBenchma
   }
 
   if (options?.trigger) {
-    watch(() => toValue(options.trigger), value => {
-      if (value) load()
-    }, { once: true, immediate: true })
+    const unwatch = watch(() => toValue(options.trigger), value => {
+      if (value) {
+        load()
+        unwatch()
+      }
+    }, { immediate: true })
   } else {
     onBeforeMount(load)
   }

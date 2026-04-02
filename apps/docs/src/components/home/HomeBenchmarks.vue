@@ -7,7 +7,7 @@
   import { useCountUp } from '@/composables/useCountUp'
 
   // Utilities
-  import { shallowRef, toRef } from 'vue'
+  import { computed, shallowRef } from 'vue'
 
   const sectionRef = shallowRef<HTMLElement>()
   const visible = shallowRef(false)
@@ -18,10 +18,19 @@
     }
   })
 
-  const { composables } = useBenchmarkData({ trigger: visible })
-  const { current: opsCount } = useCountUp(sectionRef, 100, { duration: 1500 })
-  const { current: benchmarkCount } = useCountUp(sectionRef, 292, { duration: 1800 })
-  const { current: testCount } = useCountUp(sectionRef, 2600, { duration: 2000 })
+  const { composables, summary } = useBenchmarkData({ trigger: visible })
+
+  const peakOps = computed(() => {
+    let max = 0
+    for (const c of composables.value) {
+      if (c.fastest.hz > max) max = c.fastest.hz
+    }
+    return Math.floor(max / 1_000_000)
+  })
+
+  const { current: opsCount } = useCountUp(sectionRef, peakOps, { duration: 1500 })
+  const { current: benchmarkCount } = useCountUp(sectionRef, () => summary.value.totalBenchmarks, { duration: 1800 })
+  const { current: testCount } = useCountUp(sectionRef, 4300, { duration: 2000 })
 
   const composablePaths: Record<string, string> = {
     createFilter: '/composables/data/create-filter',
@@ -39,7 +48,7 @@
     slow: '<1K ops/s — performance bottleneck, needs investigation',
   }
 
-  const showcaseComposables = toRef(() => composables.value.slice(0, 6))
+  const showcaseComposables = computed(() => composables.value.filter(c => c.name in composablePaths).slice(0, 6))
 </script>
 
 <template>
@@ -66,7 +75,7 @@
       >
         <AppDotGrid :coverage="60" :density="12" origin="top left" />
 
-        <div class="relative stat-number">{{ opsCount }}K+</div>
+        <div class="relative stat-number">{{ opsCount }}M+</div>
         <div class="relative stat-label">ops/s peak</div>
       </div>
 
