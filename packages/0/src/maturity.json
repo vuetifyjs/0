@@ -348,10 +348,6 @@
       "level": "draft",
       "category": "providers"
     },
-    "ToggleGroup": {
-      "level": "draft",
-      "category": "providers"
-    },
     "Button": {
       "level": "preview",
       "since": "0.1.10",
