@@ -325,9 +325,5 @@
   },
   "optionalDependencies": {
     "@js-temporal/polyfill": "catalog:"
-  },
-  "inlinedDependencies": {
-    "jsbi": "4.3.2",
-    "@js-temporal/polyfill": "0.5.1"
   }
 }

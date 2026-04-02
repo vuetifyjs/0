@@ -119,6 +119,7 @@ import { ... } from '@vuetify/v0/date'       // Date adapter and utilities
 
 | Component | Description |
 |-----------|-------------|
+| **Collapsible** | Single-item disclosure toggle for showing and hiding content |
 | **Dialog** | Modal dialog using native `<dialog>` with focus management |
 | **ExpansionPanel** | Accordion-style collapsible panels |
 | **Popover** | CSS anchor-positioned popup content |

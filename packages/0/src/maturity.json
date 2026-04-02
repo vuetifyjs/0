@@ -422,7 +422,8 @@
       "category": "disclosure"
     },
     "Collapsible": {
-      "level": "draft",
+      "level": "preview",
+      "since": "0.2.0",
       "category": "disclosure"
     },
     "Dialog": {

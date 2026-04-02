@@ -69,6 +69,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/components/disclosure/collapsible': RouteRecordInfo<
+      '/components/disclosure/collapsible',
+      '/components/disclosure/collapsible',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/components/disclosure/dialog': RouteRecordInfo<
       '/components/disclosure/dialog',
       '/components/disclosure/dialog',
@@ -170,6 +177,13 @@ declare module 'vue-router/auto-routes' {
     '/components/primitives/portal': RouteRecordInfo<
       '/components/primitives/portal',
       '/components/primitives/portal',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/components/primitives/presence': RouteRecordInfo<
+      '/components/primitives/presence',
+      '/components/primitives/presence',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -573,6 +587,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/composables/system/use-presence': RouteRecordInfo<
+      '/composables/system/use-presence',
+      '/composables/system/use-presence',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/composables/system/use-raf': RouteRecordInfo<
       '/composables/system/use-raf',
       '/composables/system/use-raf',
@@ -944,6 +965,12 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/components/disclosure/collapsible.md': {
+      routes:
+        | '/components/disclosure/collapsible'
+      views:
+        | never
+    }
     'src/pages/components/disclosure/dialog.md': {
       routes:
         | '/components/disclosure/dialog'
@@ -1031,6 +1058,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/components/primitives/portal.md': {
       routes:
         | '/components/primitives/portal'
+      views:
+        | never
+    }
+    'src/pages/components/primitives/presence.md': {
+      routes:
+        | '/components/primitives/presence'
       views:
         | never
     }
@@ -1373,6 +1406,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/system/use-popover.md': {
       routes:
         | '/composables/system/use-popover'
+      views:
+        | never
+    }
+    'src/pages/composables/system/use-presence.md': {
+      routes:
+        | '/composables/system/use-presence'
       views:
         | never
     }
