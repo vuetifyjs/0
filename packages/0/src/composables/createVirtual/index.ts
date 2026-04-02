@@ -654,6 +654,8 @@ export function createVirtual<T = unknown> (
   }
 
   onScopeDispose(() => {
+    if (!IN_BROWSER) return
+
     cancelAnimationFrame(raf)
     cancelAnimationFrame(rebuildRaf)
     cancelAnimationFrame(edgeRaf)
