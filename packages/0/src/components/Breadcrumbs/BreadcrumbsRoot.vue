@@ -24,6 +24,7 @@
   import { useLocale } from '#v0/composables/useLocale'
 
   // Utilities
+  import { isNull } from '#v0/utilities'
   import { shallowRef, toRef, useTemplateRef, watch } from 'vue'
 
   // Types
@@ -139,12 +140,12 @@
   }
 
   function measureElement (index: number, type: 'item' | 'divider', el: Element | undefined) {
-    if (type === 'item' && (_firstItemIndex === null || index <= _firstItemIndex)) {
+    if (type === 'item' && (isNull(_firstItemIndex) || index <= _firstItemIndex)) {
       _firstItemIndex = el ? index : null
       measureToRef(el, firstItemWidth)
       return
     }
-    if (type === 'divider' && (_firstDividerIndex === null || index <= _firstDividerIndex)) {
+    if (type === 'divider' && (isNull(_firstDividerIndex) || index <= _firstDividerIndex)) {
       _firstDividerIndex = el ? index : null
       measureToRef(el, firstDividerWidth)
       return

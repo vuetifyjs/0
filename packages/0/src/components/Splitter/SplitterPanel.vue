@@ -16,7 +16,7 @@
   import { useResizeObserver } from '#v0/composables/useResizeObserver'
 
   // Utilities
-  import { isString, useId } from '#v0/utilities'
+  import { isString, isUndefined, useId } from '#v0/utilities'
   import { onUnmounted, shallowRef, toRef, toValue, useAttrs, watch, watchEffect } from 'vue'
 
   // Types
@@ -143,14 +143,14 @@
 
   // Sync v-model:collapsed → internal state (post flush ensures siblings are registered)
   watch(collapsed, val => {
-    if (val === undefined) return
+    if (isUndefined(val)) return
     if (val && !isCollapsed.value) collapse()
     else if (!val && isCollapsed.value) expand()
   }, { immediate: true, flush: 'post' })
 
   // Sync internal state → v-model:collapsed
   watch(isCollapsed, val => {
-    if (collapsed.value === undefined) return
+    if (isUndefined(collapsed.value)) return
     collapsed.value = val
   })
 

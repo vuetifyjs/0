@@ -14,7 +14,7 @@
   import { useSelectContext } from './SelectRoot.vue'
 
   // Utilities
-  import { isNullOrUndefined } from '#v0/utilities'
+  import { isArray, isNullOrUndefined } from '#v0/utilities'
   import { toRef } from 'vue'
 
   // Types
@@ -63,7 +63,7 @@
   const pendingValues = toRef(() => {
     const mv = context.modelValue.value
     if (isNullOrUndefined(mv)) return []
-    return Array.isArray(mv) ? mv : [mv]
+    return isArray(mv) ? mv : [mv]
   })
 
   const hasValue = toRef(() => hasSelected.value || pendingValues.value.length > 0)

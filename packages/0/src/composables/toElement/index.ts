@@ -9,6 +9,9 @@
  * avoid cross-version Vue Ref incompatibilities.
  */
 
+// Utilities
+import { isElement, isFunction, isObject } from '#v0/utilities'
+
 // Types
 import type { ComponentPublicInstance } from 'vue'
 
@@ -56,13 +59,13 @@ export type MaybeElementRef =
  */
 /* #__NO_SIDE_EFFECTS__ */
 export function toElement (target: MaybeElementRef): Element | undefined {
-  const raw = typeof target === 'function'
+  const raw = isFunction(target)
     ? target()
-    : (target && typeof target === 'object' && 'value' in target
+    : (target && isObject(target) && 'value' in target
         ? target.value
         : target)
   if (!raw) return undefined
-  if (raw instanceof Element) return raw
+  if (isElement(raw)) return raw
   // ComponentPublicInstance — extract $el
   if ('$el' in raw) return raw.$el as Element | undefined
   return undefined

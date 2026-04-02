@@ -15,6 +15,7 @@
  */
 
 // Utilities
+import { isFunction } from '#v0/utilities'
 import { isRef, reactive, unref } from 'vue'
 
 // Types
@@ -64,7 +65,7 @@ function createMapProxy<Z extends object> (refObject: Ref<Z>): UnwrapNestedRefs<
 
       const map = refObject.value as Map<unknown, unknown>
       const value = Reflect.get(map, p)
-      return typeof value === 'function' ? value.bind(map) : value
+      return isFunction(value) ? value.bind(map) : value
     },
   })
   mapProxy = proxy
@@ -114,7 +115,7 @@ function createSetProxy<Z extends object> (refObject: Ref<Z>): UnwrapNestedRefs<
 
       const set = refObject.value as Set<unknown>
       const value = Reflect.get(set, p)
-      return typeof value === 'function' ? value.bind(set) : value
+      return isFunction(value) ? value.bind(set) : value
     },
   })
   setProxy = proxy

@@ -5,8 +5,11 @@
  * PostHog adapter for feature flags.
  */
 
-// Utilities
+// Constants
 import { IN_BROWSER } from '#v0/constants/globals'
+
+// Utilities
+import { isBoolean, isNullOrUndefined } from '#v0/utilities'
 
 // Types
 import type { FeaturesAdapterFlags, FeaturesAdapterInterface } from '../generic'
@@ -27,11 +30,11 @@ export class PostHogFeatureAdapter implements FeaturesAdapterInterface {
         const isEnabled = this.client.isFeatureEnabled(key) ?? false
         const payload = this.client.getFeatureFlagPayload(key)
 
-        if (payload !== undefined && payload !== null) {
-          flags[key] = { $value: isEnabled, $variation: payload }
-        } else {
+        if (isNullOrUndefined(payload)) {
           const variant = this.client.getFeatureFlag(key)
-          flags[key] = variant !== true && variant !== false && variant !== undefined && variant !== null ? { $value: true, $variation: variant } : isEnabled
+          flags[key] = !isBoolean(variant) && !isNullOrUndefined(variant) ? { $value: true, $variation: variant } : isEnabled
+        } else {
+          flags[key] = { $value: isEnabled, $variation: payload }
         }
       }
       return flags

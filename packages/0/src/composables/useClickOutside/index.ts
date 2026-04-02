@@ -26,7 +26,7 @@ import {
 } from '#v0/composables/useEventListener'
 
 // Utilities
-import { isFunction, isNull, isNullOrUndefined, isString } from '#v0/utilities'
+import { isElement, isFunction, isNull, isNullOrUndefined, isString } from '#v0/utilities'
 import { onScopeDispose, shallowReadonly, shallowRef, toRef, toValue } from 'vue'
 
 // Transformers
@@ -247,7 +247,7 @@ export function useClickOutside (
     const [selectors, elements] = resolveIgnoreTargets()
     if (selectors.length === 0 && elements.length === 0) return false
 
-    return path.some(node => node instanceof Element && isIgnored(node, selectors, elements))
+    return path.some(node => isElement(node) && isIgnored(node, selectors, elements))
   }
 
   /**
@@ -285,7 +285,7 @@ export function useClickOutside (
    * Validate that the target is still in the DOM.
    */
   function isValidTarget (eventTarget: EventTarget | null): eventTarget is Element {
-    if (!(eventTarget instanceof Element)) return false /* v8 ignore -- type guard */
+    if (!isElement(eventTarget)) return false /* v8 ignore -- type guard */
     if (!eventTarget.isConnected) return false
     return true
   }
