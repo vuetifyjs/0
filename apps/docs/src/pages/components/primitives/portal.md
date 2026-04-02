@@ -25,14 +25,14 @@ Renderless teleport wrapper with automatic z-index stacking.
 
 ## Usage
 
-Portal wraps Vue's `<Teleport>` with automatic [useStack](/composables/plugins/use-stack) integration. Content is teleported to `body` by default and receives a `zIndex` via slot props for proper overlay ordering.
+Portal wraps Vue's `<Teleport>` with automatic `useStack` integration. Content is teleported to `body` by default and receives a `zIndex` via slot props for proper overlay ordering.
 
 ::: example
 /components/portal/basic
 
 ### Basic
 
-Toggle a floating element that teleports to the body on desktop or renders inline on mobile. Uses `disabled` with [useBreakpoints](/composables/plugins/use-breakpoints) for responsive behavior. Portal registers with the stack and provides `zIndex` for proper layering.
+Toggle a floating element that teleports to the body on desktop or renders inline on mobile. Uses `disabled` with `useBreakpoints` for responsive behavior. Portal registers with the stack and provides `zIndex` for proper layering.
 
 :::
 
@@ -76,7 +76,7 @@ The `disabled` prop controls teleporting — when `true`, content renders inline
 
 ### Stacking
 
-Each Portal registers its own stack ticket. Add multiple layers to see how [useStack](/composables/plugins/use-stack) assigns incrementing `zIndex` values — each new Portal layers above the previous one. The `zIndex` slot prop updates reactively as layers are added and removed.
+Each Portal registers its own stack ticket. Add multiple layers to see how `useStack` assigns incrementing `zIndex` values — each new Portal layers above the previous one. The `zIndex` slot prop updates reactively as layers are added and removed.
 
 :::
 
@@ -101,7 +101,7 @@ Portal is transparent — it adds no DOM elements, ARIA attributes, or keyboard 
 ::: faq
 ??? When should I use Portal vs native Teleport?
 
-Use Portal when your teleported content needs z-index coordination with other overlays. Portal auto-registers with [useStack](/composables/plugins/use-stack) so your content stacks correctly alongside Dialogs, Snackbars, and other overlay components.
+Use Portal when your teleported content needs z-index coordination with other overlays. Portal auto-registers with `useStack` so your content stacks correctly alongside Dialogs, Snackbars, and other overlay components.
 
 If you don't need stacking — for example, teleporting a non-overlay element to a specific container — Vue's native [Teleport](https://vuejs.org/guide/built-ins/teleport) works fine.
 

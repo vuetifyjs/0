@@ -125,7 +125,7 @@ The documentation site uses these modern CSS and browser features:
 
 ### CSS Anchor Positioning
 
-The [Popover](/components/disclosure/popover) component uses CSS Anchor Positioning for automatic placement relative to trigger elements. This is a new CSS feature with limited support:
+The `Popover` component uses CSS Anchor Positioning for automatic placement relative to trigger elements. This is a new CSS feature with limited support:
 
 - <AppBrowserIcon browser="chrome" /> **Chrome 125+**: Full support
 - <AppBrowserIcon browser="edge" /> **Edge 125+**: Full support

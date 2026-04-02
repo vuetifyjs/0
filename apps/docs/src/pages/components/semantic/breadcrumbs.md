@@ -27,7 +27,7 @@ A headless component for creating responsive breadcrumb navigation with proper A
 
 ## Usage
 
-The Breadcrumbs component provides a compound component pattern for building navigation trails. It uses [createBreadcrumbs](/composables/utilities/create-breadcrumbs), [createGroup](/composables/selection/create-group), and [createOverflow](/composables/utilities/create-overflow) internally.
+The Breadcrumbs component provides a compound component pattern for building navigation trails. It uses `createBreadcrumbs`, `createGroup`, and `createOverflow` internally.
 
 ::: example
 /components/breadcrumbs/basic
@@ -63,7 +63,7 @@ The Breadcrumbs component provides a compound component pattern for building nav
 
 ## Architecture
 
-The Root component composes three internal systems: [createBreadcrumbs](/composables/utilities/create-breadcrumbs) for navigation state, [createGroup](/composables/selection/create-group) for visibility tracking, and [createOverflow](/composables/utilities/create-overflow) for width measurement.
+The Root component composes three internal systems: `createBreadcrumbs` for navigation state, `createGroup` for visibility tracking, and `createOverflow` for width measurement.
 
 ```mermaid "Breadcrumbs Architecture"
 flowchart TD
@@ -98,7 +98,7 @@ The Root creates three internal composables: `createBreadcrumbs` manages the nav
 
 ### Responsive Overflow
 
-Breadcrumb trails can easily exceed their container in sidebars, mobile viewports, or resizable panels. Rather than wrapping or clipping, the Root measures each item's width via [createOverflow](/composables/utilities/create-overflow) and hides items from the beginning when space runs out. The Ellipsis component appears automatically to indicate hidden items.
+Breadcrumb trails can easily exceed their container in sidebars, mobile viewports, or resizable panels. Rather than wrapping or clipping, the Root measures each item's width via `createOverflow` and hides items from the beginning when space runs out. The Ellipsis component appears automatically to indicate hidden items.
 
 **Key patterns:**
 
@@ -213,7 +213,7 @@ Breadcrumbs integrates with v0's plugin system for internationalization.
 
 ### Locale
 
-The Root uses [useLocale](/composables/plugins/use-locale) internally for the navigation landmark's `aria-label`. Without any configuration, it defaults to `"Breadcrumb"`.
+The Root uses `useLocale` internally for the navigation landmark's `aria-label`. Without any configuration, it defaults to `"Breadcrumb"`.
 
 **Override with a prop** — no plugin needed:
 

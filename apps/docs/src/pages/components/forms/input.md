@@ -20,7 +20,7 @@ related:
 
 # Input
 
-A headless text input component with integrated validation. Creates a [createValidation](/composables/forms/create-validation) context internally and auto-registers with parent [createForm](/composables/forms/create-form) instances.
+A headless text input component with integrated validation. Creates a `createValidation` context internally and auto-registers with parent `createForm` instances.
 
 <DocsPageFeatures :frontmatter />
 

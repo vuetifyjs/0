@@ -86,7 +86,7 @@ registry.register({ value: 'item' })
 console.log(proxy.size) // 1 - correct
 ```
 
-Events add minimal overhead but aren't enabled by default since many use cases don't need reactivity. See [createRegistry](/composables/registration/create-registry) for the full events API.
+Events add minimal overhead but aren't enabled by default since many use cases don't need reactivity. See `createRegistry` for the full events API.
 
 ??? What's the performance cost compared to raw createRegistry?
 

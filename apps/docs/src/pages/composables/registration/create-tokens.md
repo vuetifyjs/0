@@ -73,7 +73,7 @@ flowchart TD
 `createTokens` uses **minimal reactivity** like its parent `createRegistry`. Token resolution is cached but not reactive.
 
 > [!TIP] For reactive theming
-> Use [useTheme](/composables/plugins/use-theme) which builds on `createTokens` with proper reactivity for theme switching.
+> Use `useTheme` which builds on `createTokens` with proper reactivity for theme switching.
 
 ## Examples
 
@@ -167,7 +167,7 @@ const primaryColor = computed(() =>
 )
 ```
 
-For fully reactive theming, see [useTheme](/composables/plugins/use-theme) which builds on `createTokens`.
+For fully reactive theming, see `useTheme` which builds on `createTokens`.
 
 ??? Can tokens reference tokens in different collections?
 
@@ -198,7 +198,7 @@ tokens.register({ id: 'color.primary', value: '#ef4444' })
 tokens.resolve('color.primary') // '#ef4444'
 ```
 
-For theme switching, consider [useTheme](/composables/plugins/use-theme) which handles this pattern with proper reactivity.
+For theme switching, consider `useTheme` which handles this pattern with proper reactivity.
 
 ??? What's the performance of alias resolution at scale?
 
@@ -222,7 +222,7 @@ Keep alias chains shallow (2-3 levels max) for predictable performance. If you n
 | Alias syntax `{path.to.token}` | Supported via `resolve()` |
 | Nested groups | Flattened with dot notation |
 
-The spec is still in draft, so `createTokens` focuses on the stable patterns. For CSS custom property output, pair with [useTheme](/composables/plugins/use-theme) which handles CSS variable generation.
+The spec is still in draft, so `createTokens` focuses on the stable patterns. For CSS custom property output, pair with `useTheme` which handles CSS variable generation.
 :::
 
 <DocsApi />

@@ -19,7 +19,7 @@ related:
 
 # Select
 
-A headless dropdown select component with single and multi-selection support. Uses [createSelection](/composables/selection/create-selection) for state management, [useVirtualFocus](/composables/system/use-virtual-focus) for keyboard navigation, and [usePopover](/composables/system/use-popover) for native popover positioning.
+A headless dropdown select component with single and multi-selection support. Uses `createSelection` for state management, `useVirtualFocus` for keyboard navigation, and `usePopover` for native popover positioning.
 
 <DocsPageFeatures :frontmatter />
 

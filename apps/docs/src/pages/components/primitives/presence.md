@@ -51,7 +51,7 @@ Side-by-side comparison of `v-if` and Presence. The left panel vanishes instantl
 
 ## Architecture
 
-Presence wraps the [usePresence](/composables/system/use-presence) composable, which implements a four-state machine:
+Presence wraps the `usePresence` composable, which implements a four-state machine:
 
 ```mermaid "Presence State Machine"
 stateDiagram-v2
@@ -124,7 +124,7 @@ Presence cancels the leave and transitions back to `present`. The content stays 
 
 ??? Should I use the composable or the component?
 
-Use `<Presence>` for template-driven conditional rendering. Use [usePresence](/composables/system/use-presence) when building custom components that need mount lifecycle control in their setup function.
+Use `<Presence>` for template-driven conditional rendering. Use `usePresence` when building custom components that need mount lifecycle control in their setup function.
 :::
 
 <DocsApi />

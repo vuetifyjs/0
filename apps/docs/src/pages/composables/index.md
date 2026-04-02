@@ -62,7 +62,7 @@ registry.on('unregister:ticket', ticket => {
 
 ### useProxyRegistry for Full Reactivity
 
-When you need automatic template updates for registry data, wrap it with [useProxyRegistry](/composables/reactivity/use-proxy-registry):
+When you need automatic template updates for registry data, wrap it with `useProxyRegistry`:
 
 ```ts
 import { createRegistry, useProxyRegistry } from '@vuetify/v0'

@@ -20,7 +20,7 @@ related:
 
 # Combobox
 
-A headless autocomplete combobox with client and server-side filtering support. Uses [createSelection](/composables/selection/create-selection) for state management, [useVirtualFocus](/composables/system/use-virtual-focus) for keyboard navigation, and [usePopover](/composables/system/use-popover) for native popover positioning. Unlike Select, the Combobox renders a real `<input>` — the query drives filtering and the selection stores the chosen value.
+A headless autocomplete combobox with client and server-side filtering support. Uses `createSelection` for state management, `useVirtualFocus` for keyboard navigation, and `usePopover` for native popover positioning. Unlike Select, the Combobox renders a real `<input>` — the query drives filtering and the selection stores the chosen value.
 
 <DocsPageFeatures :frontmatter />
 

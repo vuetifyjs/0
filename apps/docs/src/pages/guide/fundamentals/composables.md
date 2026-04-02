@@ -390,5 +390,5 @@ const selection = createSelection()
 console.log(toRaw(selection.selectedIds)) // Plain Set, not reactive proxy
 ```
 
-For registry-based composables, enable `events: true` to trace registration changes via [useProxyRegistry](/composables/reactivity/use-proxy-registry).
+For registry-based composables, enable `events: true` to trace registration changes via `useProxyRegistry`.
 :::

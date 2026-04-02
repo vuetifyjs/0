@@ -34,12 +34,12 @@ Headless UI libraries must be fast—they're foundational infrastructure. v0 ben
 
 | Composable | Why It's Benchmarked |
 | - | - |
-| [createRegistry](/composables/registration/create-registry) | Foundation for all collections—performance here affects everything |
-| [createSelection](/composables/selection/create-selection) | Base for all selection patterns—select, toggle, mandatory, batch |
-| [createTokens](/composables/registration/create-tokens) | Design tokens can grow large—alias resolution must scale |
-| [createFilter](/composables/data/create-filter) | Search/filter on large datasets must remain responsive |
-| [createVirtual](/composables/data/create-virtual) | Virtual scrolling is performance-critical by definition |
-| [useDate](/composables/plugins/use-date) | Date operations are frequent in UIs |
+| `createRegistry` | Foundation for all collections—performance here affects everything |
+| `createSelection` | Base for all selection patterns—select, toggle, mandatory, batch |
+| `createTokens` | Design tokens can grow large—alias resolution must scale |
+| `createFilter` | Search/filter on large datasets must remain responsive |
+| `createVirtual` | Virtual scrolling is performance-critical by definition |
+| `useDate` | Date operations are frequent in UIs |
 
 ### Operation Categories
 
@@ -168,13 +168,13 @@ Most v0 composables handle 10,000+ items at interactive speeds (>60fps). For typ
 - **<100 items** — Instant, no optimization needed
 - **100-1,000 items** — Smooth, standard usage
 - **1,000-10,000 items** — Consider virtual scrolling
-- **10,000+ items** — Use [createVirtual](/composables/data/create-virtual), paginate, or filter
+- **10,000+ items** — Use `createVirtual`, paginate, or filter
 
 ??? Should I use events or polling?
 
 - **Events** — Real-time updates, notifications, debugging
 - **Polling (`values()`)** — Periodic snapshots, non-critical freshness
-- **[useProxyRegistry](/composables/reactivity/use-proxy-registry)** — Template-bound lists that must stay current
+- **`useProxyRegistry`** — Template-bound lists that must stay current
 
 Events add minimal overhead when enabled. Benchmarks show raw operation cost; event emission adds ~1-5% overhead.
 
@@ -186,11 +186,11 @@ Vue's reactivity system is powerful but not free. Each reactive wrapper adds:
 - CPU cycles for change detection
 - Potential for unnecessary re-renders
 
-By keeping reactivity minimal, v0 composables stay predictable—you know exactly what triggers updates. When you need reactivity, opt in explicitly with [useProxyRegistry](/composables/reactivity/use-proxy-registry).
+By keeping reactivity minimal, v0 composables stay predictable—you know exactly what triggers updates. When you need reactivity, opt in explicitly with `useProxyRegistry`.
 
 ??? How do I compare raw vs reactive performance?
 
-Compare [createRegistry](/composables/registration/create-registry) benchmarks with [useProxyRegistry](/composables/reactivity/use-proxy-registry) to see the reactivity overhead. It's worth it when needed, but shouldn't be the default.
+Compare `createRegistry` benchmarks with `useProxyRegistry` to see the reactivity overhead. It's worth it when needed, but shouldn't be the default.
 :::
 
 ## Explorer

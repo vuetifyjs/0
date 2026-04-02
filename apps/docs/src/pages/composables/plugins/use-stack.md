@@ -136,7 +136,7 @@ Click a button to open an overlay. Open multiple overlays to observe z-index lay
 
 ## Scrim Integration
 
-Use the [Scrim](/components/providers/scrim) component alongside `useStack` to provide a backdrop for your overlays. The Scrim automatically positions itself below the topmost overlay:
+Use the `Scrim` component alongside `useStack` to provide a backdrop for your overlays. The Scrim automatically positions itself below the topmost overlay:
 
 ```vue
 <script setup lang="ts">

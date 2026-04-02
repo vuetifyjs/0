@@ -17,7 +17,7 @@ related:
 
 # Slider
 
-A headless slider component for building single-value and range inputs with pointer drag, keyboard navigation, and step snapping. Uses [createSlider](/composables/forms/create-slider) internally, which delegates value storage to [createModel](/composables/selection/create-model).
+A headless slider component for building single-value and range inputs with pointer drag, keyboard navigation, and step snapping. Uses `createSlider` internally, which delegates value storage to `createModel`.
 
 <DocsPageFeatures :frontmatter />
 
@@ -71,7 +71,7 @@ The Slider supports single-value and range modes. Add one `Slider.Thumb` for a s
 
 ## Architecture
 
-The Root component composes [createSlider](/composables/forms/create-slider) for pointer/keyboard interaction and [createModel](/composables/selection/create-model) for value storage. Each Thumb registers via a ticket and receives its position as a percentage.
+The Root component composes `createSlider` for pointer/keyboard interaction and `createModel` for value storage. Each Thumb registers via a ticket and receives its position as a percentage.
 
 ```mermaid "Slider Architecture"
 flowchart TD
