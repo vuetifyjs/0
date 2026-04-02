@@ -3,7 +3,7 @@
   import { createStep } from '@vuetify/v0'
 
   // Utilities
-  import { computed } from 'vue'
+  import { toRef } from 'vue'
 
   interface Milestone {
     id: string
@@ -32,7 +32,7 @@
     step.select(milestones[active].id)
   }
 
-  const currentIndex = computed(() => step.selectedIndex.value)
+  const currentIndex = toRef(() => step.selectedIndex.value)
 </script>
 
 <template>
