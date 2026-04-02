@@ -18,7 +18,7 @@
  */
 
 // Constants
-import { IN_BROWSER } from '#v0/constants/globals'
+import { IN_BROWSER, SUPPORTS_MATCH_MEDIA } from '#v0/constants/globals'
 
 // Composables
 import { createPluginContext } from '#v0/composables/createPlugin'
@@ -93,7 +93,6 @@ function createDefaultBreakpoints () {
  * Creates a new breakpoints instance.
  *
  * @param options The options for the breakpoints instance.
- * @template E The type of the breakpoints context.
  * @returns A new breakpoints instance.
  *
  * @see https://0.vuetifyjs.com/composables/plugins/use-breakpoints
@@ -116,9 +115,7 @@ function createDefaultBreakpoints () {
  * })
  * ```
  */
-export function createBreakpoints<
-  E extends BreakpointsContext = BreakpointsContext,
-> (_options: BreakpointsOptions = {}): E {
+export function createBreakpoints (_options: BreakpointsOptions = {}): BreakpointsContext {
   const { ssr, ...options } = _options
   const defaults = createDefaultBreakpoints()
   const { mobileBreakpoint, breakpoints } = mergeDeep(defaults, options as any)
@@ -126,20 +123,22 @@ export function createBreakpoints<
   const names = sorted.map(([n]) => n)
   const mb = isNumber(mobileBreakpoint) ? mobileBreakpoint : breakpoints[mobileBreakpoint] ?? breakpoints.md
 
-  // When SSR options are provided and not in browser, use them for initial values
-  // so server-rendered markup reflects the expected viewport size.
-  // On hydration, update() replaces these with real window dimensions.
-  const isSSR = !IN_BROWSER && !!ssr
-  const initialWidth = isSSR ? ssr!.clientWidth : 0
-  const initialHeight = isSSR ? (ssr!.clientHeight ?? 0) : 0
+  // When SSR is configured, both server and client use the same dimensions
+  // so rendered markup matches and avoids hydration mismatch.
+  // After hydration, update() replaces these with real window dimensions.
+  // Without SSR, browser reads window dimensions immediately.
+  const initialWidth = ssr
+    ? ssr.clientWidth
+    : (IN_BROWSER ? window.innerWidth : 0)
+  const initialHeight = ssr
+    ? (ssr.clientHeight ?? 0)
+    : (IN_BROWSER ? window.innerHeight : 0)
 
   let initialName: BreakpointName = 'xs'
-  if (isSSR) {
-    for (let i = sorted.length - 1; i >= 0; i--) {
-      if (initialWidth >= sorted[i]![1]) {
-        initialName = sorted[i]![0]
-        break
-      }
+  for (let i = sorted.length - 1; i >= 0; i--) {
+    if (initialWidth >= sorted[i]![1]) {
+      initialName = sorted[i]![0]
+      break
     }
   }
   const initialIndex = names.indexOf(initialName)
@@ -171,9 +170,11 @@ export function createBreakpoints<
 
     // Use matchMedia for breakpoint detection to guarantee
     // alignment with CSS media queries at any zoom level.
+    // Falls back to innerWidth comparison when matchMedia is unavailable.
     let current: BreakpointName = 'xs'
     for (let i = sorted.length - 1; i >= 0; i--) {
-      if (window.matchMedia(`(min-width: ${sorted[i]![1]}px)`).matches) {
+      const px = sorted[i]![1]
+      if (SUPPORTS_MATCH_MEDIA ? window.matchMedia(`(min-width: ${px}px)`).matches : width.value >= px) {
         current = sorted[i]![0]
         break
       }
@@ -184,7 +185,7 @@ export function createBreakpoints<
     const index = names.indexOf(current)
 
     isMobile.value = isNumber(mb)
-      ? !window.matchMedia(`(min-width: ${mb}px)`).matches
+      ? (SUPPORTS_MATCH_MEDIA ? !window.matchMedia(`(min-width: ${mb}px)`).matches : width.value < mb)
       : index < names.indexOf(mobileBreakpoint as BreakpointName)
     xs.value = index === 0
     sm.value = index === 1
@@ -223,14 +224,12 @@ export function createBreakpoints<
     mdAndDown: readonly(mdAndDown),
     lgAndDown: readonly(lgAndDown),
     xlAndDown: readonly(xlAndDown),
-    ssr: isSSR,
+    ssr: !!ssr,
     update,
-  } as E
+  }
 }
 
-function createBreakpointsFallback<
-  E extends BreakpointsContext = BreakpointsContext,
-> (options: BreakpointsOptions = {}): E {
+function createBreakpointsFallback (options: BreakpointsOptions = {}): BreakpointsContext {
   if (options.ssr) return createBreakpoints(options)
 
   const defaults = createDefaultBreakpoints()
@@ -258,7 +257,7 @@ function createBreakpointsFallback<
     xlAndDown: readonly(shallowRef(true)),
     ssr: false,
     update: () => {},
-  } as E
+  }
 }
 
 export const [createBreakpointsContext, createBreakpointsPlugin, useBreakpoints] =
@@ -268,9 +267,9 @@ export const [createBreakpointsContext, createBreakpointsPlugin, useBreakpoints]
     {
       fallback: () => createBreakpointsFallback(),
       setup: (context, app, _options) => {
-        // Flush initial values synchronously so they're correct
-        // before any component's onMounted runs.
-        if (IN_BROWSER) context.update()
+        // In SSR mode, skip the synchronous update to avoid hydration mismatch.
+        // The hydration watcher below will call update() after hydration completes.
+        if (IN_BROWSER && !_options?.ssr) context.update()
 
         app.mixin({
           mounted () {

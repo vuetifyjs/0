@@ -35,6 +35,7 @@ vi.mock('#v0/constants/globals', () => ({
   get IN_BROWSER () {
     return inBrowser.value
   },
+  SUPPORTS_MATCH_MEDIA: true,
 }))
 
 const mockGetCurrentInstance = vi.mocked(getCurrentInstance)
@@ -101,19 +102,19 @@ describe('useBreakpoints', () => {
       expect(context).toHaveProperty('xlAndDown')
     })
 
-    it('should initialize with default breakpoint values', () => {
+    it('should initialize with window dimensions in browser', () => {
       mockWindow.innerWidth = 1024
       mockWindow.innerHeight = 768
 
       const context = createBreakpoints()
 
-      expect(context.name.value).toBe('xs')
-      expect(context.width.value).toBe(0)
-      expect(context.height.value).toBe(0)
+      expect(context.name.value).toBe('md')
+      expect(context.width.value).toBe(1024)
+      expect(context.height.value).toBe(768)
       expect(context.isMobile.value).toBe(true)
-      expect(context.xs.value).toBe(true)
+      expect(context.xs.value).toBe(false)
       expect(context.sm.value).toBe(false)
-      expect(context.md.value).toBe(false)
+      expect(context.md.value).toBe(true)
       expect(context.lg.value).toBe(false)
       expect(context.xl.value).toBe(false)
       expect(context.xxl.value).toBe(false)
@@ -170,14 +171,16 @@ describe('useBreakpoints', () => {
     })
 
     it('should update dimensions when update is called', () => {
-      mockWindow.innerWidth = 1200
-      mockWindow.innerHeight = 800
+      mockWindow.innerWidth = 1024
+      mockWindow.innerHeight = 768
 
       const context = createBreakpoints()
 
-      expect(context.width.value).toBe(0)
-      expect(context.height.value).toBe(0)
+      expect(context.width.value).toBe(1024)
+      expect(context.height.value).toBe(768)
 
+      mockWindow.innerWidth = 1200
+      mockWindow.innerHeight = 800
       context.update()
 
       expect(context.width.value).toBe(1200)
@@ -185,13 +188,14 @@ describe('useBreakpoints', () => {
     })
 
     it('should detect correct breakpoint when update is called', () => {
-      mockWindow.innerWidth = 1200
-      mockWindow.innerHeight = 800
+      mockWindow.innerWidth = 1024
+      mockWindow.innerHeight = 768
 
       const context = createBreakpoints()
 
-      expect(context.name.value).toBe('xs')
+      expect(context.name.value).toBe('md')
 
+      mockWindow.innerWidth = 1200
       context.update()
 
       expect(context.name.value).toBe('lg')
@@ -545,27 +549,26 @@ describe('useBreakpoints', () => {
       expect(context.sm.value).toBe(true)
     })
 
-    it('should ignore SSR options when in browser', () => {
+    it('should use SSR dimensions in browser for hydration match', () => {
       inBrowser.value = true
 
       const context = createBreakpoints({
         ssr: { clientWidth: 1400, clientHeight: 900 },
       })
 
-      expect(context.ssr).toBe(false)
-      expect(context.width.value).toBe(0)
-      expect(context.height.value).toBe(0)
+      expect(context.ssr).toBe(true)
+      expect(context.width.value).toBe(1400)
+      expect(context.height.value).toBe(900)
     })
   })
 
   describe('sSR safety', () => {
-    it('should initialize with default values in SSR mode', () => {
+    it('should initialize with window dimensions when no SSR config', () => {
       const context = createBreakpoints()
 
-      expect(context.name.value).toBe('xs')
-      expect(context.width.value).toBe(0)
-      expect(context.height.value).toBe(0)
-      expect(context.isMobile.value).toBe(true)
+      expect(context.width.value).toBe(1024)
+      expect(context.height.value).toBe(768)
+      expect(context.ssr).toBe(false)
     })
 
     it('should handle context creation without errors', () => {
