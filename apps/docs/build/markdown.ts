@@ -10,7 +10,7 @@ import Markdown from 'unplugin-vue-markdown/vite'
 import type { BundledLanguage, BundledTheme, HighlighterGeneric } from 'shiki'
 
 // Local
-import { createApiTransformer, renderVueApiInlineCode } from './shiki-api-transformer'
+import { createApiTransformer, renderV0ApiInlineCode, renderVueApiInlineCode } from './shiki-api-transformer'
 
 interface MarkdownToken {
   nesting: number
@@ -345,6 +345,10 @@ export default async function MarkdownPlugin () {
       md.renderer.rules.code_inline = (tokens, index, options, env, self) => {
         const token = tokens[index]
         const content = token.content
+
+        // Check if content is a v0 API
+        const v0Code = renderV0ApiInlineCode(content, md.utils.escapeHtml)
+        if (v0Code) return v0Code
 
         // Check if content is a Vue API
         const vueCode = renderVueApiInlineCode(content, md.utils.escapeHtml)
