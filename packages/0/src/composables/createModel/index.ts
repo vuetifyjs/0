@@ -491,5 +491,5 @@ export function createModel<
     get size () {
       return registry.size
     },
-  } as R
+  } as unknown as R
 }

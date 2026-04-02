@@ -26,9 +26,9 @@ export interface ProxyRegistryOptions {
 }
 
 export interface ProxyRegistryContext<Z extends RegistryTicket = RegistryTicket> {
-  keys: ID[]
-  values: Z[]
-  entries: [ID, Z][]
+  keys: readonly ID[]
+  values: readonly Z[]
+  entries: readonly [ID, Z][]
   size: number
 }
 

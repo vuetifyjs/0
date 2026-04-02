@@ -360,7 +360,7 @@ export function createGroup<
     get size () {
       return selection.size
     },
-  } as R
+  } as unknown as R
 }
 
 /**

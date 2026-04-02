@@ -24,7 +24,7 @@ catalog:
   '@unhead/addons': ^2.1.12
   '@unhead/vue': ^2.1.12
   '@vitest/coverage-v8': ^4.1.2
-  '@vue/compiler-dom': ^3.5.30
+  '@vue/compiler-dom': ^3.5.31
   '@vue/repl': ^4.7.1
   '@vue/test-utils': ^2.4.6
   '@vue/tsconfig': ^0.9.1
@@ -59,7 +59,7 @@ catalog:
   ts-morph: 27.0.2
   tsdown: ^0.21.7
   tsx: 4.21.0
-  typescript: 5.9.3
+  typescript: 6.0.2
   unocss: ^66.6.7
   unplugin-auto-import: ^21.0.0
   unplugin-vue: ^7.1.1
@@ -71,11 +71,11 @@ catalog:
   vite-ssg: ^28.3.0
   vite-ssg-sitemap: ^0.10.0
   vitest: ^4.1.2
-  vue: 3.5.30
-  vue-component-meta: 3.2.5
+  vue: 3.5.31
+  vue-component-meta: 3.2.6
   vue-i18n: ^11.3.0
   vue-router: ^5.0.4
-  vue-tsc: 3.2.5
+  vue-tsc: 3.2.6
 
 catalogMode: strict
 

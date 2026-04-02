@@ -866,7 +866,7 @@ export function createNested<
     get size () {
       return group.size
     },
-  } as R
+  } as unknown as R
 
   return context
 }
