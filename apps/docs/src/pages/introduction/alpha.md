@@ -44,11 +44,13 @@ This isn't a proof of concept. v0 is feature-complete enough to build with and e
 
 ## Road to v1
 
-- **Alpha** (April 7, 2026) — Open for feedback, bug reports, and contributions. APIs mostly stable, may evolve.
-- **Beta** (June 1, 2026) — API freeze. Focus shifts to stability, documentation, and edge cases.
-- **v1.0** — Milestone-driven. Ships when the [milestones](https://github.com/vuetifyjs/0/milestones) are met.
+<DocsTimeline :milestones="[
+  { id: 'alpha', label: 'Alpha', date: 'April 7, 2026', description: 'Open for feedback, bug reports, and contributions. APIs mostly stable, may evolve.', active: true },
+  { id: 'beta', label: 'Beta', date: 'June 1, 2026', description: 'API freeze. Focus shifts to stability, documentation, and edge cases.' },
+  { id: 'v1', label: 'v1.0', description: 'Milestone-driven. Ships when the milestones are met.' },
+]" />
 
-See the [Roadmap](/roadmap) for detailed milestone tracking and the full maturity matrix.
+See the [Roadmap](/roadmap) for detailed milestone tracking and the [v1.0 milestones](https://github.com/vuetifyjs/0/milestones) on GitHub.
 
 ## Get involved
 
