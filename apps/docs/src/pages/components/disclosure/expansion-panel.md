@@ -37,13 +37,15 @@ The ExpansionPanel component provides a wrapper and item pattern for managing ex
 </script>
 
 <template>
-  <ExpansionPanel.Root>
-    <ExpansionPanel.Item>
-      <ExpansionPanel.Activator />
+  <ExpansionPanel.Group>
+    <ExpansionPanel.Root>
+      <ExpansionPanel.Activator>
+        <ExpansionPanel.Cue />
+      </ExpansionPanel.Activator>
 
       <ExpansionPanel.Content />
-    </ExpansionPanel.Item>
-  </ExpansionPanel.Root>
+    </ExpansionPanel.Root>
+  </ExpansionPanel.Group>
 </template>
 ```
 
@@ -55,15 +57,17 @@ For instances where you need to wrap the activator in a heading element **(h3)**
 </script>
 
 <template>
-  <ExpansionPanel.Root>
-    <ExpansionPanel.Item>
+  <ExpansionPanel.Group>
+    <ExpansionPanel.Root>
       <ExpansionPanel.Header>
-        <ExpansionPanel.Activator />
+        <ExpansionPanel.Activator>
+          <ExpansionPanel.Cue />
+        </ExpansionPanel.Activator>
       </ExpansionPanel.Header>
 
       <ExpansionPanel.Content />
-    </ExpansionPanel.Item>
-  </ExpansionPanel.Root>
+    </ExpansionPanel.Root>
+  </ExpansionPanel.Group>
 </template>
 ```
 

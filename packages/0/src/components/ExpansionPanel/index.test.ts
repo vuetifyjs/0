@@ -13,7 +13,7 @@ describe('expansionPanel', () => {
       it('should update v-model when panel is clicked (single mode)', async () => {
         const selected = ref<string>()
 
-        const wrapper = mount(ExpansionPanel.Root, {
+        const wrapper = mount(ExpansionPanel.Group, {
           props: {
             'modelValue': selected.value,
             'onUpdate:modelValue': (value: unknown) => {
@@ -23,7 +23,7 @@ describe('expansionPanel', () => {
           slots: {
             default: () =>
               h(
-                ExpansionPanel.Item as any,
+                ExpansionPanel.Root as any,
                 { id: 'item-1', value: 'value-1' },
                 () => h(ExpansionPanel.Activator, {}, () => 'Header'),
               ),
@@ -40,7 +40,7 @@ describe('expansionPanel', () => {
       it('should support multiple selected panels (multiple mode)', async () => {
         const selected = ref<string[]>([])
 
-        const wrapper = mount(ExpansionPanel.Root, {
+        const wrapper = mount(ExpansionPanel.Group, {
           props: {
             'multiple': true,
             'modelValue': selected.value,
@@ -51,12 +51,12 @@ describe('expansionPanel', () => {
           slots: {
             default: () => [
               h(
-                ExpansionPanel.Item as any,
+                ExpansionPanel.Root as any,
                 { id: 'item-1', value: 'value-1' },
                 () => h(ExpansionPanel.Activator, {}, () => 'Header 1'),
               ),
               h(
-                ExpansionPanel.Item as any,
+                ExpansionPanel.Root as any,
                 { id: 'item-2', value: 'value-2' },
                 () => h(ExpansionPanel.Activator, {}, () => 'Header 2'),
               ),
@@ -78,7 +78,7 @@ describe('expansionPanel', () => {
       it('should prevent collapsing last panel when mandatory=true', async () => {
         const selected = ref('value-1')
 
-        const wrapper = mount(ExpansionPanel.Root, {
+        const wrapper = mount(ExpansionPanel.Group, {
           props: {
             'mandatory': true,
             'modelValue': selected.value,
@@ -89,7 +89,7 @@ describe('expansionPanel', () => {
           slots: {
             default: () =>
               h(
-                ExpansionPanel.Item as any,
+                ExpansionPanel.Root as any,
                 { id: 'item-1', value: 'value-1' },
                 () => h(ExpansionPanel.Activator, {}, () => 'Header'),
               ),
@@ -107,14 +107,14 @@ describe('expansionPanel', () => {
 
     describe('disabled prop', () => {
       it('should expose disabled state via native disabled attribute on buttons', () => {
-        const wrapper = mount(ExpansionPanel.Root, {
+        const wrapper = mount(ExpansionPanel.Group, {
           props: {
             disabled: true,
           },
           slots: {
             default: () =>
               h(
-                ExpansionPanel.Item as any,
+                ExpansionPanel.Root as any,
                 { id: 'item-1', value: 'value-1' },
                 () => h(ExpansionPanel.Activator, {}, () => 'Header'),
               ),
@@ -129,7 +129,7 @@ describe('expansionPanel', () => {
       it('should expose disabled state in slot props', () => {
         let capturedProps: any
 
-        mount(ExpansionPanel.Root, {
+        mount(ExpansionPanel.Group, {
           props: {
             disabled: true,
           },
@@ -149,7 +149,7 @@ describe('expansionPanel', () => {
       it('should expose correct slot props', () => {
         let capturedProps: any
 
-        mount(ExpansionPanel.Root, {
+        mount(ExpansionPanel.Group, {
           props: {
             multiple: true,
             disabled: false,
@@ -173,11 +173,11 @@ describe('expansionPanel', () => {
   describe('item', () => {
     describe('registration lifecycle', () => {
       it('should register with parent on mount', () => {
-        const wrapper = mount(ExpansionPanel.Root, {
+        const wrapper = mount(ExpansionPanel.Group, {
           slots: {
             default: () =>
               h(
-                ExpansionPanel.Item as any,
+                ExpansionPanel.Root as any,
                 { id: 'item-1', value: 'value-1' },
                 () => h(ExpansionPanel.Activator),
               ),
@@ -192,12 +192,12 @@ describe('expansionPanel', () => {
       it('should unregister from parent on unmount', async () => {
         const showItem = ref(true)
 
-        const wrapper = mount(ExpansionPanel.Root, {
+        const wrapper = mount(ExpansionPanel.Group, {
           slots: {
             default: () =>
               showItem.value
                 ? h(
-                    ExpansionPanel.Item as any,
+                    ExpansionPanel.Root as any,
                     { id: 'item-1', value: 'value-1' },
                     () => h(ExpansionPanel.Activator),
                   )
@@ -214,11 +214,11 @@ describe('expansionPanel', () => {
       })
 
       it('should use provided ID when given', () => {
-        const wrapper = mount(ExpansionPanel.Root, {
+        const wrapper = mount(ExpansionPanel.Group, {
           slots: {
             default: () =>
               h(
-                ExpansionPanel.Item as any,
+                ExpansionPanel.Root as any,
                 { id: 'custom-id', value: 'value-1' },
                 () => h(ExpansionPanel.Activator),
               ),
@@ -232,11 +232,11 @@ describe('expansionPanel', () => {
 
     describe('context provision', () => {
       it('should provide correct headerId and contentId', () => {
-        const wrapper = mount(ExpansionPanel.Root, {
+        const wrapper = mount(ExpansionPanel.Group, {
           slots: {
             default: () =>
               h(
-                ExpansionPanel.Item as any,
+                ExpansionPanel.Root as any,
                 { id: 'panel-123', value: 'value' },
                 () => [h(ExpansionPanel.Activator), h(ExpansionPanel.Content)],
               ),
@@ -255,14 +255,14 @@ describe('expansionPanel', () => {
 
     describe('disabled state', () => {
       it('should be disabled when root is disabled', () => {
-        const wrapper = mount(ExpansionPanel.Root, {
+        const wrapper = mount(ExpansionPanel.Group, {
           props: {
             disabled: true,
           },
           slots: {
             default: () =>
               h(
-                ExpansionPanel.Item as any,
+                ExpansionPanel.Root as any,
                 { id: 'item-1', value: 'value-1', disabled: false },
                 () => h(ExpansionPanel.Activator),
               ),
@@ -275,14 +275,14 @@ describe('expansionPanel', () => {
       })
 
       it('should be disabled when item disabled=true', () => {
-        const wrapper = mount(ExpansionPanel.Root, {
+        const wrapper = mount(ExpansionPanel.Group, {
           props: {
             disabled: false,
           },
           slots: {
             default: () =>
               h(
-                ExpansionPanel.Item as any,
+                ExpansionPanel.Root as any,
                 { id: 'item-1', value: 'value-1', disabled: true },
                 () => h(ExpansionPanel.Activator),
               ),
@@ -295,14 +295,14 @@ describe('expansionPanel', () => {
       })
 
       it('should not be disabled when both are false', () => {
-        const wrapper = mount(ExpansionPanel.Root, {
+        const wrapper = mount(ExpansionPanel.Group, {
           props: {
             disabled: false,
           },
           slots: {
             default: () =>
               h(
-                ExpansionPanel.Item as any,
+                ExpansionPanel.Root as any,
                 { id: 'item-1', value: 'value-1', disabled: false },
                 () => h(ExpansionPanel.Activator),
               ),
@@ -319,7 +319,7 @@ describe('expansionPanel', () => {
       it('should use value for v-model binding', async () => {
         const selected = ref<string>()
 
-        const wrapper = mount(ExpansionPanel.Root, {
+        const wrapper = mount(ExpansionPanel.Group, {
           props: {
             'modelValue': selected.value,
             'onUpdate:modelValue': (value: unknown) => {
@@ -329,7 +329,7 @@ describe('expansionPanel', () => {
           slots: {
             default: () =>
               h(
-                ExpansionPanel.Item as any,
+                ExpansionPanel.Root as any,
                 { id: 'item-1', value: 'custom-value' },
                 () => h(ExpansionPanel.Activator),
               ),
@@ -348,11 +348,11 @@ describe('expansionPanel', () => {
   describe('activator', () => {
     describe('accessibility', () => {
       it('should set correct ARIA attributes when not expanded', () => {
-        const wrapper = mount(ExpansionPanel.Root, {
+        const wrapper = mount(ExpansionPanel.Group, {
           slots: {
             default: () =>
               h(
-                ExpansionPanel.Item as any,
+                ExpansionPanel.Root as any,
                 { id: 'item-1', value: 'value-1' },
                 () => h(ExpansionPanel.Activator),
               ),
@@ -374,14 +374,14 @@ describe('expansionPanel', () => {
       it('should set aria-expanded=true when panel is expanded', async () => {
         const selected = ref('value-1')
 
-        const wrapper = mount(ExpansionPanel.Root, {
+        const wrapper = mount(ExpansionPanel.Group, {
           props: {
             modelValue: selected.value,
           },
           slots: {
             default: () =>
               h(
-                ExpansionPanel.Item as any,
+                ExpansionPanel.Root as any,
                 { id: 'item-1', value: 'value-1' },
                 () => h(ExpansionPanel.Activator),
               ),
@@ -395,11 +395,11 @@ describe('expansionPanel', () => {
       })
 
       it('should set disabled attribute when item is disabled', () => {
-        const wrapper = mount(ExpansionPanel.Root, {
+        const wrapper = mount(ExpansionPanel.Group, {
           slots: {
             default: () =>
               h(
-                ExpansionPanel.Item as any,
+                ExpansionPanel.Root as any,
                 { id: 'item-1', value: 'value-1', disabled: true },
                 () => h(ExpansionPanel.Activator),
               ),
@@ -413,11 +413,11 @@ describe('expansionPanel', () => {
       })
 
       it('should not set ARIA attributes when renderless=true', () => {
-        const wrapper = mount(ExpansionPanel.Root, {
+        const wrapper = mount(ExpansionPanel.Group, {
           slots: {
             default: () =>
               h(
-                ExpansionPanel.Item as any,
+                ExpansionPanel.Root as any,
                 { id: 'item-1', value: 'value-1' },
                 () => h(ExpansionPanel.Activator, { renderless: true }),
               ),
@@ -435,7 +435,7 @@ describe('expansionPanel', () => {
       it('should toggle on Enter key', async () => {
         const selected = ref<string>()
 
-        const wrapper = mount(ExpansionPanel.Root, {
+        const wrapper = mount(ExpansionPanel.Group, {
           props: {
             'modelValue': selected.value,
             'onUpdate:modelValue': (value: unknown) => {
@@ -445,7 +445,7 @@ describe('expansionPanel', () => {
           slots: {
             default: () =>
               h(
-                ExpansionPanel.Item as any,
+                ExpansionPanel.Root as any,
                 { id: 'item-1', value: 'value-1' },
                 () => h(ExpansionPanel.Activator),
               ),
@@ -462,7 +462,7 @@ describe('expansionPanel', () => {
       it('should toggle on Space key', async () => {
         const selected = ref<string>()
 
-        const wrapper = mount(ExpansionPanel.Root, {
+        const wrapper = mount(ExpansionPanel.Group, {
           props: {
             'modelValue': selected.value,
             'onUpdate:modelValue': (value: unknown) => {
@@ -472,7 +472,7 @@ describe('expansionPanel', () => {
           slots: {
             default: () =>
               h(
-                ExpansionPanel.Item as any,
+                ExpansionPanel.Root as any,
                 { id: 'item-1', value: 'value-1' },
                 () => h(ExpansionPanel.Activator),
               ),
@@ -491,7 +491,7 @@ describe('expansionPanel', () => {
       it('should toggle panel on click', async () => {
         const selected = ref<string>()
 
-        const wrapper = mount(ExpansionPanel.Root, {
+        const wrapper = mount(ExpansionPanel.Group, {
           props: {
             'modelValue': selected.value,
             'onUpdate:modelValue': (value: unknown) => {
@@ -501,7 +501,7 @@ describe('expansionPanel', () => {
           slots: {
             default: () =>
               h(
-                ExpansionPanel.Item as any,
+                ExpansionPanel.Root as any,
                 { id: 'item-1', value: 'value-1' },
                 () => h(ExpansionPanel.Activator),
               ),
@@ -524,11 +524,11 @@ describe('expansionPanel', () => {
       it('should expose correct bindable props in slot', () => {
         let slotProps: any
 
-        mount(ExpansionPanel.Root, {
+        mount(ExpansionPanel.Group, {
           slots: {
             default: () =>
               h(
-                ExpansionPanel.Item as any,
+                ExpansionPanel.Root as any,
                 { id: 'item-1', value: 'value-1' },
                 () =>
                   h(ExpansionPanel.Activator, {}, {
@@ -560,11 +560,11 @@ describe('expansionPanel', () => {
 
     describe('as prop', () => {
       it('should render as button by default', () => {
-        const wrapper = mount(ExpansionPanel.Root, {
+        const wrapper = mount(ExpansionPanel.Group, {
           slots: {
             default: () =>
               h(
-                ExpansionPanel.Item as any,
+                ExpansionPanel.Root as any,
                 { id: 'item-1', value: 'value-1' },
                 () => h(ExpansionPanel.Activator),
               ),
@@ -576,11 +576,11 @@ describe('expansionPanel', () => {
       })
 
       it('should render as custom element when as prop is provided', () => {
-        const wrapper = mount(ExpansionPanel.Root, {
+        const wrapper = mount(ExpansionPanel.Group, {
           slots: {
             default: () =>
               h(
-                ExpansionPanel.Item as any,
+                ExpansionPanel.Root as any,
                 { id: 'item-1', value: 'value-1' },
                 () => h(ExpansionPanel.Activator, { as: 'div' }),
               ),
@@ -596,11 +596,11 @@ describe('expansionPanel', () => {
   describe('content', () => {
     describe('accessibility', () => {
       it('should set correct ARIA attributes', () => {
-        const wrapper = mount(ExpansionPanel.Root, {
+        const wrapper = mount(ExpansionPanel.Group, {
           slots: {
             default: () =>
               h(
-                ExpansionPanel.Item as any,
+                ExpansionPanel.Root as any,
                 { id: 'item-1', value: 'value-1' },
                 () => h(ExpansionPanel.Content),
               ),
@@ -615,11 +615,11 @@ describe('expansionPanel', () => {
       })
 
       it('should not set ARIA attributes when renderless=true', () => {
-        const wrapper = mount(ExpansionPanel.Root, {
+        const wrapper = mount(ExpansionPanel.Group, {
           slots: {
             default: () =>
               h(
-                ExpansionPanel.Item as any,
+                ExpansionPanel.Root as any,
                 { id: 'item-1', value: 'value-1' },
                 () => h(ExpansionPanel.Content, { renderless: true }),
               ),
@@ -633,11 +633,11 @@ describe('expansionPanel', () => {
       })
 
       it('should use correct IDs for ARIA relationship', () => {
-        const wrapper = mount(ExpansionPanel.Root, {
+        const wrapper = mount(ExpansionPanel.Group, {
           slots: {
             default: () =>
               h(
-                ExpansionPanel.Item as any,
+                ExpansionPanel.Root as any,
                 { id: 'custom-panel', value: 'value' },
                 () => [h(ExpansionPanel.Activator), h(ExpansionPanel.Content)],
               ),
@@ -658,11 +658,11 @@ describe('expansionPanel', () => {
       it('should expose correct bindable props in slot', () => {
         let slotProps: any
 
-        mount(ExpansionPanel.Root, {
+        mount(ExpansionPanel.Group, {
           slots: {
             default: () =>
               h(
-                ExpansionPanel.Item as any,
+                ExpansionPanel.Root as any,
                 { id: 'item-1', value: 'value-1' },
                 () =>
                   h(ExpansionPanel.Content, {}, {
@@ -687,14 +687,14 @@ describe('expansionPanel', () => {
         let slotProps: any
         const selected = ref('value-1')
 
-        mount(ExpansionPanel.Root, {
+        mount(ExpansionPanel.Group, {
           props: {
             modelValue: selected.value,
           },
           slots: {
             default: () =>
               h(
-                ExpansionPanel.Item as any,
+                ExpansionPanel.Root as any,
                 { id: 'item-1', value: 'value-1' },
                 () =>
                   h(ExpansionPanel.Content, {}, {
@@ -715,11 +715,11 @@ describe('expansionPanel', () => {
 
     describe('as prop', () => {
       it('should render as div by default', () => {
-        const wrapper = mount(ExpansionPanel.Root, {
+        const wrapper = mount(ExpansionPanel.Group, {
           slots: {
             default: () =>
               h(
-                ExpansionPanel.Item as any,
+                ExpansionPanel.Root as any,
                 { id: 'item-1', value: 'value-1' },
                 () => h(ExpansionPanel.Content),
               ),
@@ -731,11 +731,11 @@ describe('expansionPanel', () => {
       })
 
       it('should render as custom element when as prop is provided', () => {
-        const wrapper = mount(ExpansionPanel.Root, {
+        const wrapper = mount(ExpansionPanel.Group, {
           slots: {
             default: () =>
               h(
-                ExpansionPanel.Item as any,
+                ExpansionPanel.Root as any,
                 { id: 'item-1', value: 'value-1' },
                 () => h(ExpansionPanel.Content, { as: 'section' }),
               ),
@@ -750,11 +750,11 @@ describe('expansionPanel', () => {
 
   describe('header', () => {
     it('should render as h3 by default', () => {
-      const wrapper = mount(ExpansionPanel.Root, {
+      const wrapper = mount(ExpansionPanel.Group, {
         slots: {
           default: () =>
             h(
-              ExpansionPanel.Item as any,
+              ExpansionPanel.Root as any,
               { id: 'item-1', value: 'value-1' },
               () => h(ExpansionPanel.Header, {}, () => h(ExpansionPanel.Activator, {}, () => 'Title')),
             ),
@@ -766,11 +766,11 @@ describe('expansionPanel', () => {
     })
 
     it('should render as custom element when as prop is provided', () => {
-      const wrapper = mount(ExpansionPanel.Root, {
+      const wrapper = mount(ExpansionPanel.Group, {
         slots: {
           default: () =>
             h(
-              ExpansionPanel.Item as any,
+              ExpansionPanel.Root as any,
               { id: 'item-1', value: 'value-1' },
               () => h(ExpansionPanel.Header, { as: 'h2' }, () => h(ExpansionPanel.Activator, {}, () => 'Title')),
             ),
@@ -784,14 +784,14 @@ describe('expansionPanel', () => {
     it('should expose correct slot props', () => {
       let slotProps: any
 
-      mount(ExpansionPanel.Root, {
+      mount(ExpansionPanel.Group, {
         props: {
           modelValue: 'value-1',
         },
         slots: {
           default: () =>
             h(
-              ExpansionPanel.Item as any,
+              ExpansionPanel.Root as any,
               { id: 'item-1', value: 'value-1' },
               () =>
                 h(ExpansionPanel.Header, {}, {
@@ -812,11 +812,11 @@ describe('expansionPanel', () => {
     it('should expose isSelected=false when panel is collapsed', () => {
       let slotProps: any
 
-      mount(ExpansionPanel.Root, {
+      mount(ExpansionPanel.Group, {
         slots: {
           default: () =>
             h(
-              ExpansionPanel.Item as any,
+              ExpansionPanel.Root as any,
               { id: 'item-1', value: 'value-1' },
               () =>
                 h(ExpansionPanel.Header, {}, {
@@ -834,11 +834,11 @@ describe('expansionPanel', () => {
     })
 
     it('should support renderless mode', () => {
-      const wrapper = mount(ExpansionPanel.Root, {
+      const wrapper = mount(ExpansionPanel.Group, {
         slots: {
           default: () =>
             h(
-              ExpansionPanel.Item as any,
+              ExpansionPanel.Root as any,
               { id: 'item-1', value: 'value-1' },
               () => h(ExpansionPanel.Header, { renderless: true }, () => h('h4', { class: 'custom' }, 'Title')),
             ),
@@ -850,14 +850,14 @@ describe('expansionPanel', () => {
     })
 
     it('should use custom namespace for context', () => {
-      const wrapper = mount(ExpansionPanel.Root, {
+      const wrapper = mount(ExpansionPanel.Group, {
         props: {
           namespace: 'custom-panel',
         },
         slots: {
           default: () =>
             h(
-              ExpansionPanel.Item as any,
+              ExpansionPanel.Root as any,
               { id: 'item-1', value: 'value-1', namespace: 'custom-panel' },
               () => h(ExpansionPanel.Header, { namespace: 'custom-panel' }, () => h(ExpansionPanel.Activator, { namespace: 'custom-panel' }, () => 'Title')),
             ),
@@ -871,11 +871,11 @@ describe('expansionPanel', () => {
 
   describe('integration', () => {
     it('should have matching ARIA relationship between Activator and Content', () => {
-      const wrapper = mount(ExpansionPanel.Root, {
+      const wrapper = mount(ExpansionPanel.Group, {
         slots: {
           default: () =>
             h(
-              ExpansionPanel.Item as any,
+              ExpansionPanel.Root as any,
               { id: 'panel-1', value: 'value-1' },
               () => [h(ExpansionPanel.Activator), h(ExpansionPanel.Content)],
             ),
@@ -897,7 +897,7 @@ describe('expansionPanel', () => {
     it('should work as full accordion', async () => {
       const selected = ref<string>()
 
-      const wrapper = mount(ExpansionPanel.Root, {
+      const wrapper = mount(ExpansionPanel.Group, {
         props: {
           'modelValue': selected.value,
           'onUpdate:modelValue': (value: unknown) => {
@@ -907,7 +907,7 @@ describe('expansionPanel', () => {
         slots: {
           default: () => [
             h(
-              ExpansionPanel.Item as any,
+              ExpansionPanel.Root as any,
               { id: 'panel-1', value: 'value-1' },
               () => [
                 h(ExpansionPanel.Activator, {}, () => 'Panel 1'),
@@ -915,7 +915,7 @@ describe('expansionPanel', () => {
               ],
             ),
             h(
-              ExpansionPanel.Item as any,
+              ExpansionPanel.Root as any,
               { id: 'panel-2', value: 'value-2' },
               () => [
                 h(ExpansionPanel.Activator, {}, () => 'Panel 2'),
@@ -942,9 +942,9 @@ describe('expansionPanel', () => {
     it('should render to string on server without errors', async () => {
       const app = createSSRApp(defineComponent({
         render: () =>
-          h(ExpansionPanel.Root as any, { modelValue: 'value-1' }, () =>
+          h(ExpansionPanel.Group as any, { modelValue: 'value-1' }, () =>
             h(
-              ExpansionPanel.Item as any,
+              ExpansionPanel.Root as any,
               { id: 'panel-1', value: 'value-1' },
               () => [
                 h(ExpansionPanel.Activator as any, {}, () => 'Header'),
@@ -966,9 +966,9 @@ describe('expansionPanel', () => {
     it('should render ARIA attributes on server', async () => {
       const app = createSSRApp(defineComponent({
         render: () =>
-          h(ExpansionPanel.Root as any, { modelValue: 'value-1' }, () =>
+          h(ExpansionPanel.Group as any, { modelValue: 'value-1' }, () =>
             h(
-              ExpansionPanel.Item as any,
+              ExpansionPanel.Root as any,
               { id: 'panel-1', value: 'value-1' },
               () => h(ExpansionPanel.Activator as any, {}, () => 'Header'),
             ),
@@ -988,9 +988,9 @@ describe('expansionPanel', () => {
     it('should render collapsed state correctly on server', async () => {
       const app = createSSRApp(defineComponent({
         render: () =>
-          h(ExpansionPanel.Root as any, {}, () =>
+          h(ExpansionPanel.Group as any, {}, () =>
             h(
-              ExpansionPanel.Item as any,
+              ExpansionPanel.Root as any,
               { id: 'panel-1', value: 'value-1' },
               () => h(ExpansionPanel.Activator as any, {}, () => 'Header'),
             ),
@@ -1005,9 +1005,9 @@ describe('expansionPanel', () => {
     it('should render disabled state on server', async () => {
       const app = createSSRApp(defineComponent({
         render: () =>
-          h(ExpansionPanel.Root as any, { disabled: true }, () =>
+          h(ExpansionPanel.Group as any, { disabled: true }, () =>
             h(
-              ExpansionPanel.Item as any,
+              ExpansionPanel.Root as any,
               { id: 'panel-1', value: 'value-1' },
               () => h(ExpansionPanel.Activator as any, {}, () => 'Header'),
             ),
@@ -1024,19 +1024,19 @@ describe('expansionPanel', () => {
     it('should render multiple panels on server', async () => {
       const app = createSSRApp(defineComponent({
         render: () =>
-          h(ExpansionPanel.Root as any, { modelValue: ['value-1', 'value-2'], multiple: true }, () => [
+          h(ExpansionPanel.Group as any, { modelValue: ['value-1', 'value-2'], multiple: true }, () => [
             h(
-              ExpansionPanel.Item as any,
+              ExpansionPanel.Root as any,
               { id: 'panel-1', value: 'value-1' },
               () => h(ExpansionPanel.Activator as any, {}, () => 'Panel 1'),
             ),
             h(
-              ExpansionPanel.Item as any,
+              ExpansionPanel.Root as any,
               { id: 'panel-2', value: 'value-2' },
               () => h(ExpansionPanel.Activator as any, {}, () => 'Panel 2'),
             ),
             h(
-              ExpansionPanel.Item as any,
+              ExpansionPanel.Root as any,
               { id: 'panel-3', value: 'value-3' },
               () => h(ExpansionPanel.Activator as any, {}, () => 'Panel 3'),
             ),
@@ -1053,9 +1053,9 @@ describe('expansionPanel', () => {
     it('should render Content region with proper ARIA on server', async () => {
       const app = createSSRApp(defineComponent({
         render: () =>
-          h(ExpansionPanel.Root as any, {}, () =>
+          h(ExpansionPanel.Group as any, {}, () =>
             h(
-              ExpansionPanel.Item as any,
+              ExpansionPanel.Root as any,
               { id: 'panel-1', value: 'value-1' },
               () => [
                 h(ExpansionPanel.Activator as any, {}, () => 'Header'),
@@ -1076,9 +1076,9 @@ describe('expansionPanel', () => {
     it('should hydrate without mismatches', async () => {
       const Component = defineComponent({
         render: () =>
-          h(ExpansionPanel.Root as any, { modelValue: 'value-1' }, () =>
+          h(ExpansionPanel.Group as any, { modelValue: 'value-1' }, () =>
             h(
-              ExpansionPanel.Item as any,
+              ExpansionPanel.Root as any,
               { id: 'panel-1', value: 'value-1' },
               () => [
                 h(ExpansionPanel.Activator as any, {}, () => 'Header'),

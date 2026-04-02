@@ -149,7 +149,7 @@
     </div>
 
     <!-- Timeline -->
-    <ExpansionPanel.Root v-else v-model="expanded" class="space-y-10" multiple>
+    <ExpansionPanel.Group v-else v-model="expanded" class="space-y-10" multiple>
       <section v-for="group in groupedMilestones" :key="group.key">
         <!-- Horizon Header -->
         <div class="flex items-center gap-3 mb-4">
@@ -169,7 +169,7 @@
 
         <!-- Timeline line + milestones -->
         <div class="relative ps-5 border-s-2 border-divider ms-5 space-y-6">
-          <ExpansionPanel.Item
+          <ExpansionPanel.Root
             v-for="milestone in group.milestones"
             :key="milestone.id"
             v-slot="{ isSelected }"
@@ -287,10 +287,10 @@
                 </a>
               </ExpansionPanel.Content>
             </div>
-          </ExpansionPanel.Item>
+          </ExpansionPanel.Root>
         </div>
       </section>
-    </ExpansionPanel.Root>
+    </ExpansionPanel.Group>
 
     <!-- Disclaimer -->
     <p class="mt-8 text-sm opacity-60 text-center">

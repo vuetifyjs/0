@@ -2,126 +2,118 @@
  * @module ExpansionPanelRoot
  *
  * @remarks
- * Root component for managing expansion panel state using the createSelection composable.
- * Provides context to child ExpansionPanelItem components and supports both single and
- * multi-expansion modes with v-model binding.
+ * Individual expansion panel that registers with the parent ExpansionPanelGroup.
+ * Provides context to child components (ExpansionPanelActivator and ExpansionPanelContent)
+ * via dependency injection, including the selection ticket and ARIA element IDs.
  *
- * Built on createSelection composable. Supports mandatory selection (prevent collapsing
- * last item) and auto-enrollment of items on registration.
+ * Manages registration lifecycle, automatically registering on mount and unregistering
+ * on unmount. Computes combined disabled state from both item-level and group-level props.
  */
 
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
+  import { useExpansionPanelGroup } from './ExpansionPanelGroup.vue'
 
   // Composables
   import { createContext } from '#v0/composables/createContext'
-  import { createSelection } from '#v0/composables/createSelection'
-  import { useProxyModel } from '#v0/composables/useProxyModel'
 
   // Utilities
-  import { type Ref, toRef } from 'vue'
+  import { onBeforeUnmount, toRef, toValue } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
-  import type { SelectionContext, SelectionTicket } from '#v0/composables/createSelection'
-  import type { ID } from '#v0/types'
+  import type { SelectionTicket } from '#v0/composables/createSelection'
+  import type { MaybeRefOrGetter, Ref } from 'vue'
 
-  export interface ExpansionPanelOptionsContext {
-    /** Disabled state of the entire expansion panel */
-    isDisabled: Readonly<Ref<boolean>>
-  }
-
-  export interface ExpansionPanelRootProps extends AtomProps {
-    /** Namespace for dependency injection (default: 'v0:expansion-panel') */
+  export interface ExpansionPanelRootProps<V = unknown> extends AtomProps {
+    /** Unique identifier for the panel item (auto-generated if not provided) */
+    id?: string
+    /** Value associated with this panel item for v-model binding */
+    value?: V
+    /** Disables this specific panel item */
+    disabled?: MaybeRefOrGetter<boolean>
+    /** Namespace to retrieve the parent ExpansionPanelGroup context (default: 'v0:expansion-panel') */
     namespace?: string
-    /** Disables the entire expansion panel instance and all items */
-    disabled?: boolean
-    /** Auto-expand non-disabled items when registered */
-    enroll?: boolean
-    /**
-     * Mandatory expansion behavior:
-     * - false (default): All panels can be collapsed
-     * - true: Prevents collapsing the last expanded panel
-     * - 'force': Automatically expands the first non-disabled panel
-     */
-    mandatory?: boolean | 'force'
-    /**
-     * Enable multi-expansion mode
-     * - false (default): Single panel expanded at a time (accordion mode)
-     * - true: Multiple panels can be expanded simultaneously
-     * Note: Changes v-model type from T to T[]
-     */
-    multiple?: boolean
   }
 
-  export interface ExpansionPanelRootSlotProps {
-    /** Disables the entire expansion panel instance and all registered items */
+  /**
+   * Context provided to child components (ExpansionPanelActivator and ExpansionPanelContent)
+   * via dependency injection using the itemNamespace.
+   */
+  export interface ExpansionPanelRootContext {
+    /** Selection ticket from the parent ExpansionPanel registry */
+    ticket: SelectionTicket
+    /** Unique ID for the header/activator element (for aria-controls) */
+    headerId: Readonly<Ref<string>>
+    /** Unique ID for the content region (for aria-labelledby) */
+    contentId: Readonly<Ref<string>>
+    /** Combined disabled state from item and parent */
     isDisabled: Readonly<Ref<boolean>>
-    /** Select a panel by ID */
-    select: (id: ID) => void
-    /** Unselect a panel by ID */
-    unselect: (id: ID) => void
-    /** Toggle a panel's expansion state by ID */
-    toggle: (id: ID) => void
   }
 
-  export const [useExpansionPanelRoot, provideExpansionPanelRoot] = createContext<SelectionContext<SelectionTicket>>()
+  /**
+   * Slot props provided to the default slot of ExpansionPanelRoot
+   */
+  export interface ExpansionPanelRootSlotProps {
+    /** Whether this panel is currently selected/expanded */
+    isSelected: boolean
+    /** Combined disabled state from item and parent */
+    isDisabled: boolean
+    /** Attributes to bind to the root element for accessibility */
+    attrs: {
+      /** Data attribute for selected state */
+      'data-selected': true | undefined
+    }
+  }
+
+  export const [useExpansionPanelRoot, provideExpansionPanelRoot] = createContext<ExpansionPanelRootContext>({ suffix: 'item' })
 </script>
 
-/**
- * Generic type parameter T represents the value type for v-model binding.
- * When multiple=false, v-model type is T.
- * When multiple=true, v-model type is T[].
- */
-<script lang="ts" setup generic="T = unknown">
+<script lang="ts" setup generic="V = unknown">
   defineOptions({ name: 'ExpansionPanelRoot' })
 
   defineSlots<{
     default: (props: ExpansionPanelRootSlotProps) => any
   }>()
 
-  defineEmits<{
-    /** Emitted when the expanded panels change */
-    'update:model-value': [value: T | T[]]
-  }>()
-
   const {
     as,
     renderless,
+    id,
+    value,
+    disabled,
     namespace = 'v0:expansion-panel',
-    disabled = false,
-    enroll = false,
-    mandatory = false,
-    multiple = false,
-  } = defineProps<ExpansionPanelRootProps>()
+  } = defineProps<ExpansionPanelRootProps<V>>()
 
-  const model = defineModel<T | T[]>()
+  const selection = useExpansionPanelGroup(namespace)
+  const ticket = selection.register({ id, value, disabled })
 
-  const isDisabled = toRef(() => disabled)
-
-  const selection = createSelection({
-    disabled: isDisabled,
-    enroll,
-    mandatory,
-    multiple,
-    events: true,
-  })
-
-  useProxyModel(selection, model, { multiple })
+  const headerId = toRef(() => `${ticket.id}-header`)
+  const contentId = toRef(() => `${ticket.id}-content`)
+  const isDisabled = toRef(() => toValue(ticket.disabled) || toValue(selection.disabled))
 
   const slotProps = toRef((): ExpansionPanelRootSlotProps => ({
-    isDisabled,
-    select: selection.select,
-    unselect: selection.unselect,
-    toggle: selection.toggle,
+    isSelected: ticket.isSelected.value,
+    isDisabled: isDisabled.value,
+    attrs: {
+      'data-selected': ticket.isSelected.value || undefined,
+    },
   }))
 
-  provideExpansionPanelRoot(namespace, selection)
+  onBeforeUnmount(() => selection.unregister(ticket.id))
+
+  provideExpansionPanelRoot(namespace, {
+    ticket,
+    headerId,
+    contentId,
+    isDisabled,
+  })
 </script>
 
 <template>
   <Atom
+    v-bind="slotProps.attrs"
     :as
     :renderless
   >

@@ -3,7 +3,7 @@
  *
  * @remarks
  * Content container for an expansion panel item that displays when the panel is expanded.
- * Consumes the ExpansionPanelItemContext via dependency injection and provides ARIA region
+ * Consumes the ExpansionPanelRootContext via dependency injection and provides ARIA region
  * attributes for accessibility.
  *
  * Automatically manages ARIA labelledby relationship with the corresponding header element.
@@ -13,7 +13,7 @@
   // Components
   import { Atom } from '#v0/components/Atom'
   // Composables
-  import { useExpansionPanelItem } from './ExpansionPanelItem.vue'
+  import { useExpansionPanelRoot } from './ExpansionPanelRoot.vue'
 
   // Utilities
   import { toRef } from 'vue'
@@ -57,7 +57,7 @@
     namespace = 'v0:expansion-panel',
   } = defineProps<ExpansionPanelContentProps>()
 
-  const item = useExpansionPanelItem(namespace)
+  const item = useExpansionPanelRoot(namespace)
 
   const slotProps = toRef((): ExpansionPanelContentSlotProps => ({
     isSelected: item.ticket.isSelected.value,

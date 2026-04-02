@@ -14,7 +14,7 @@
   // Components
   import { Atom } from '#v0/components/Atom'
   // Composables
-  import { useExpansionPanelItem } from './ExpansionPanelItem.vue'
+  import { useExpansionPanelRoot } from './ExpansionPanelRoot.vue'
 
   // Utilities
   import { toRef } from 'vue'
@@ -23,7 +23,7 @@
   import type { AtomProps } from '#v0/components/Atom'
 
   export interface ExpansionPanelHeaderProps extends AtomProps {
-    /** Namespace for retrieving the parent ExpansionPanelItem context (default: 'v0:expansion-panel') */
+    /** Namespace for retrieving the parent ExpansionPanelRoot context (default: 'v0:expansion-panel') */
     namespace?: string
   }
 
@@ -51,7 +51,7 @@
     namespace = 'v0:expansion-panel',
   } = defineProps<ExpansionPanelHeaderProps>()
 
-  const item = useExpansionPanelItem(namespace)
+  const item = useExpansionPanelRoot(namespace)
 
   const slotProps = toRef((): ExpansionPanelHeaderSlotProps => ({
     isSelected: item.ticket.isSelected.value,

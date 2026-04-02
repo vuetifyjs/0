@@ -188,8 +188,8 @@ Import and use components directly - no plugin installation required:
 </script>
 
 <template>
-  <ExpansionPanel.Root v-model="expanded" multiple>
-    <ExpansionPanel.Item value="item-1">
+  <ExpansionPanel.Group v-model="expanded" multiple>
+    <ExpansionPanel.Root value="item-1">
       <ExpansionPanel.Activator>
         Section 1
       </ExpansionPanel.Activator>
@@ -197,8 +197,8 @@ Import and use components directly - no plugin installation required:
       <ExpansionPanel.Content>
         Content for section 1
       </ExpansionPanel.Content>
-    </ExpansionPanel.Item>
-  </ExpansionPanel.Root>
+    </ExpansionPanel.Root>
+  </ExpansionPanel.Group>
 </template>
 ```
 
