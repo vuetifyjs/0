@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import { useHead } from '@unhead/vue'
   import apiData from 'virtual:api'
 
   // Composables
@@ -58,6 +59,22 @@
   const composableApi = computed<ComposableApi | null>(() => {
     if (!isComposable.value || !itemName.value) return null
     return data.composables[itemName.value] || null
+  })
+
+  const title = toRef(() => itemName.value ? `${itemName.value} API` : 'API Reference')
+  const description = toRef(() => {
+    if (!itemName.value) return undefined
+    return isComponent.value
+      ? `API reference for the ${itemName.value} component.`
+      : `API reference for the ${itemName.value} composable.`
+  })
+
+  useHead({
+    title,
+    meta: toRef(() => description.value
+      ? [{ key: 'description', name: 'description', content: description.value }]
+      : [],
+    ),
   })
 
 </script>

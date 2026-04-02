@@ -78,7 +78,7 @@
           src="https://cdn.vuetifyjs.com/docs/images/one/logos/vone.svg"
         >
 
-        <Dialog.Title class="text-lg font-semibold text-on-surface text-center mb-1">
+        <Dialog.Title as="div" class="text-lg font-semibold text-on-surface text-center mb-1">
           Sign in to Vuetify One
         </Dialog.Title>
 

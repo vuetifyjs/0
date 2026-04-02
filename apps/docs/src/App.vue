@@ -13,7 +13,7 @@
   import { useSettings } from './composables/useSettings'
 
   // Utilities
-  import { watch } from 'vue'
+  import { toRef, watch } from 'vue'
   import { useRoute } from 'vue-router'
 
   useScrollPersist()
@@ -30,6 +30,8 @@
   const head = injectHead()
   head.use(InferSeoMetaPlugin())
 
+  const url = toRef(() => `https://0.vuetifyjs.com${route.path}`)
+
   useHead({
     title: 'Vuetify0',
     titleTemplate: '%s — Vuetify0',
@@ -37,11 +39,12 @@
       { rel: 'preconnect', href: 'https://api.github.com' },
       { rel: 'preconnect', href: 'https://cdn.vuetifyjs.com' },
       { rel: 'dns-prefetch', href: 'https://api.npmjs.org' },
+      { key: 'canonical', rel: 'canonical', href: url },
     ],
     meta: [
       { key: 'description', name: 'description', content: 'Headless components and composables for building modern applications and design systems' },
       { key: 'og:type', property: 'og:type', content: 'website' },
-      { key: 'og:url', property: 'og:url', content: 'https://0.vuetifyjs.com' },
+      { key: 'og:url', property: 'og:url', content: url },
       { key: 'og:image', property: 'og:image', content: 'https://cdn.vuetifyjs.com/docs/images/one/logos/vzero-logo-og.png' },
       { key: 'twitter:card', name: 'twitter:card', content: 'summary' },
     ],

@@ -58,6 +58,8 @@ export default defineConfig({
       generateSitemap({
         hostname: 'https://0.vuetifyjs.com',
         generateRobotsTxt: false,
+        changefreq: 'daily',
+        priority: 0.7,
       })
     },
   } as ViteSSGOptions,
