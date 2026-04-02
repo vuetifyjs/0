@@ -1,15 +1,16 @@
+import { ViteSSG } from 'vite-ssg'
+
 // Components
 import App from './App.vue'
-
-// Utilities
-import { createApp } from 'vue'
-
-import { registerPlugins } from './plugins'
+import Playground from './Playground.vue'
 
 import 'virtual:uno.css'
 
-const app = createApp(App)
+import { registerPlugins } from './plugins'
 
-registerPlugins(app)
-
-app.mount('#app')
+export const createApp = ViteSSG(
+  App,
+  { routes: [{ path: '/', component: Playground }] },
+  async ({ app }) => {
+    registerPlugins(app)
+  })

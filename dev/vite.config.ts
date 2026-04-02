@@ -45,8 +45,8 @@ export default defineConfig({
     '__VITE_LOGGER_ENABLED__': JSON.stringify(process.env.VITE_LOGGER_ENABLED ?? 'false'),
     '__VERSION__': '"0.0.1"',
     '__VUE_OPTIONS_API__': 'true',
-    '__VUE_PROD_DEVTOOLS__': 'false',
-    '__VUE_PROD_HYDRATION_MISMATCH_DETAILS__': 'false',
+    '__VUE_PROD_DEVTOOLS__': 'true',
+    '__VUE_PROD_HYDRATION_MISMATCH_DETAILS__': 'true',
   },
   resolve: {
     alias: {
@@ -57,6 +57,10 @@ export default defineConfig({
       '#v0': fileURLToPath(new URL('../packages/0/src', import.meta.url)),
       '#paper': fileURLToPath(new URL('../packages/paper/src', import.meta.url)),
     },
+  },
+  build: {
+    minify: false,
+    sourcemap: true,
   },
   server: {
     fs: {
