@@ -14,7 +14,7 @@
  */
 
 // Utilities
-import { isFunction } from '#v0/utilities'
+import { isArray, isFunction } from '#v0/utilities'
 import { onScopeDispose, toValue, watch } from 'vue'
 
 // Transformers
@@ -102,20 +102,33 @@ export function useProxyModel (
     }
   }
 
+  let syncing = false
+
+  function shallowEqual (a: unknown, b: unknown): boolean {
+    if (a === b) return true
+    if (!isArray(a) || !isArray(b) || a.length !== b.length) return false
+    return a.every((v, index) => v === b[index])
+  }
+
   const contextWatch = watch(context.selectedValues as Ref, val => {
+    if (syncing) return
+
     modelWatch.pause()
-
     model.value = transformOut(Array.from(toValue(val)))
-
     modelWatch.resume()
   }, { flush: 'sync' })
 
   const modelWatch = watch(model, val => {
+    if (syncing) return
+
+    syncing = true
     contextWatch.pause()
-
     context.apply(transformIn(val), applyOptions)
-
+    // Sync model back to actual selection state (apply may have rejected due to disabled/mandatory)
+    const actual = transformOut(Array.from(context.selectedValues.value))
+    if (!shallowEqual(val, actual)) model.value = actual
     contextWatch.resume()
+    syncing = false
   }, { flush: 'sync', deep: toValue(multiple) })
 
   function onRegister (data: unknown) {
