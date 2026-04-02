@@ -19,9 +19,9 @@ related:
 
 # useTheme
 
-The `useTheme` composable provides comprehensive theme management capabilities, allowing you to register multiple themes, switch between them dynamically, and automatically generate CSS custom properties. Built on `createSingle` for single-theme selection and `createTokens` for design token alias resolution.
-
 <DocsPageFeatures :frontmatter />
+
+Theme management with multiple themes, CSS custom properties, and token alias resolution.
 
 ## Installation
 
@@ -80,6 +80,15 @@ Once the plugin is installed, use the `useTheme` composable in any component:
   </div>
 </template>
 ```
+
+## Adapters
+
+Adapters let you swap the underlying CSS injection strategy without changing your application code.
+
+| Adapter | Import | Description |
+|---------|--------|-------------|
+| `V0StyleSheetThemeAdapter` | `@vuetify/v0` | Injects CSS via `<style>` elements (default) |
+| `V0UnheadThemeAdapter` | `@vuetify/v0/theme/adapters/unhead` | Injects CSS via [Unhead](https://unhead.unjs.io/) for SSR |
 
 ## Architecture
 

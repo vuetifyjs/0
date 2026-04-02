@@ -17,9 +17,9 @@ related:
 
 # useRtl
 
-The `useRtl` composable provides reactive RTL (right-to-left) direction management. It manages a boolean direction state and sets the `dir` attribute on a target element via the adapter pattern. Independent from `useLocale` — direction is a layout concern, not a content concern.
-
 <DocsPageFeatures :frontmatter />
+
+Right-to-left text direction management with reactive state and subtree overrides.
 
 ## Installation
 
@@ -71,9 +71,15 @@ rtl.isRtl.value = false // Back to LTR
 | `isRtl` | `Ref<boolean>` | Writable ref — `true` for RTL, `false` for LTR |
 | `toggle` | `() => void` | Flips the current direction |
 
-## Adapter
+## Adapters
 
-The default `Vuetify0RtlAdapter` sets the `dir` attribute on the target element (defaults to `document.documentElement`). This enables native browser RTL support including CSS logical properties and the `:dir()` pseudo-class.
+Adapters let you swap the underlying `dir` attribute management without changing your application code.
+
+| Adapter | Import | Description |
+|---------|--------|-------------|
+| `Vuetify0RtlAdapter` | `@vuetify/v0` | Sets `dir` on target element (default) |
+
+The default adapter sets the `dir` attribute on the target element (defaults to `document.documentElement`), enabling native browser RTL support including CSS logical properties and the `:dir()` pseudo-class.
 
 ```ts
 // Custom target element

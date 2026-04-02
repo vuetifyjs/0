@@ -16,9 +16,9 @@ related:
 
 # useFeatures
 
-Manage feature flags and simple variations across your app. Register features, toggle them, and query a variation value for A/B-style behavior.
-
 <DocsPageFeatures :frontmatter />
+
+Manage feature flags and variations across your application.
 
 ## Installation
 
@@ -85,11 +85,17 @@ Optionally register features at runtime:
 
 ## Adapters
 
-`useFeatures` supports an adapter pattern to integrate with external feature flag providers.
+Adapters let you swap the underlying feature flag provider without changing your application code.
+
+| Adapter | Import | Description |
+|---------|--------|-------------|
+| `PostHogFeatureAdapter` | `@vuetify/v0/features/adapters/posthog` | [PostHog](https://posthog.com/) integration |
+| `FlagsmithFeatureAdapter` | `@vuetify/v0/features/adapters/flagsmith` | [Flagsmith](https://flagsmith.com/) integration |
+| `LaunchDarklyFeatureAdapter` | `@vuetify/v0/features/adapters/launchdarkly` | [LaunchDarkly](https://launchdarkly.com/) integration |
 
 ### Built-in Adapters
 
-Vuetify0 includes adapters for popular feature flag services. Each adapter is imported from its own nested subpath under `@vuetify/v0/features/adapters/`.
+Each adapter is imported from its own nested subpath under `@vuetify/v0/features/adapters/`.
 
 #### Flagsmith
 

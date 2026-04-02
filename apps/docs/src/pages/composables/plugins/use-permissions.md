@@ -16,9 +16,9 @@ related:
 
 # usePermissions
 
-Manage role-based permissions across your app. Register permissions for roles, actions, and subjects with optional context-aware conditions.
-
 <DocsPageFeatures :frontmatter />
+
+Role-based access control with actions, subjects, and context-aware conditions.
 
 ## Installation
 
@@ -103,6 +103,14 @@ Optionally register permissions at runtime:
   const canBan = permissions.can('moderator', 'ban', 'user', { userLevel: 2 })
 </script>
 ```
+
+## Adapters
+
+Adapters let you swap the underlying permission resolution strategy without changing your application code.
+
+| Adapter | Import | Description |
+|---------|--------|-------------|
+| `Vuetify0PermissionAdapter` | `@vuetify/v0/permissions/adapters/v0` | Token-based permission lookup (default) |
 
 ## Architecture
 

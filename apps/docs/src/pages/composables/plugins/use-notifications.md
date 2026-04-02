@@ -20,9 +20,9 @@ related:
 
 # useNotifications
 
-Headless notification management built on `createRegistry` and `createQueue`. Registry stores the full notification lifecycle. Queue manages the toast display surface with FIFO ordering and auto-dismiss.
-
 <DocsPageFeatures :frontmatter />
+
+Notification lifecycle management with severity levels, state mutations, toast queuing, and auto-dismiss.
 
 ## Installation
 
@@ -171,7 +171,12 @@ stateDiagram-v2
 
 ## Adapters
 
-Adapters connect external notification services to `useNotifications`. Each adapter handles mapping between the service's SDK and the notification lifecycle. Import adapters from `@vuetify/v0/notifications`.
+Adapters let you swap the underlying notification service without changing your application code.
+
+| Adapter | Import | Description |
+|---------|--------|-------------|
+| `createKnockAdapter` | `@vuetify/v0/notifications` | [Knock](https://knock.app) integration |
+| `createNovuAdapter` | `@vuetify/v0/notifications` | [Novu](https://novu.co) integration |
 
 > [!ASKAI] How do I write a custom adapter for my backend?
 

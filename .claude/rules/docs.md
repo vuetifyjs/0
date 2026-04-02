@@ -36,6 +36,52 @@ related:
 ---
 ```
 
+## Page Intro
+
+Every page must have a **1-2 sentence intro** immediately after `<DocsPageFeatures>`. The intro should be a brief, plain description of what the composable/component does — not a feature list, not multiple paragraphs, not bullet points.
+
+```markdown
+<!-- GOOD: brief, one sentence -->
+Manage feature flags and variations across your application.
+
+<!-- GOOD: two short sentences when needed -->
+Headless notification management built on createRegistry and createQueue.
+Supports push notifications, severity levels, auto-dismiss toasts, and adapter integration.
+
+<!-- BAD: verbose, clause-heavy -->
+The `useBreakpoints` composable provides comprehensive responsive design capabilities
+through reactive viewport dimension detection, automatically tracking window size changes
+and exposing named breakpoint state via a configurable threshold system.
+
+<!-- BAD: list/bullets as intro -->
+- Reactive viewport tracking
+- Named breakpoints
+- SSR-safe
+```
+
+## Adapter Sections
+
+Composables that accept an `adapter` option must have an **Adapters** section documenting:
+
+1. What the adapter does (one sentence)
+2. The adapter interface name
+3. Built-in implementations as a table
+4. A code example showing custom adapter usage
+
+```markdown
+## Adapters
+
+Adapters let you swap the underlying implementation without changing your application code.
+
+| Adapter | Import | Description |
+|---------|--------|-------------|
+| `Vuetify0LoggerAdapter` | `@vuetify/v0` | Console-based (default) |
+| `PinoLoggerAdapter` | `@vuetify/v0/logger/adapters/pino` | Pino integration |
+| `ConsolaLoggerAdapter` | `@vuetify/v0/logger/adapters/consola` | Consola integration |
+```
+
+**Canonical import path** for adapters is the domain subpath: `@vuetify/v0/{domain}/adapters/{name}`.
+
 ## Component Page Structure
 
 1. **H1 title** — component name
@@ -63,12 +109,14 @@ related:
 
 1. **H1 title** — composable name
 2. `<DocsPageFeatures :frontmatter />`
-3. **Usage** — code example in `` ```ts collapse `` `` block
-4. **Architecture** — Mermaid diagram showing composable hierarchy
-5. **Reactivity** — table of reactive properties/methods
-6. **Examples** — `::: example` with live demos
-7. **FAQ** — `::: faq` container
-8. `<DocsApi />` — auto-generated API reference (functions/options/methods/properties)
+3. **Intro** — 1-2 sentence description (see Page Intro rules)
+4. **Usage** — code example in `` ```ts collapse `` `` block
+5. **Architecture** — Mermaid diagram showing composable hierarchy
+6. **Adapters** — if the composable accepts adapters (see Adapter Sections rules)
+7. **Reactivity** — table of reactive properties/methods
+8. **Examples** — `::: example` with live demos
+9. **FAQ** — `::: faq` container
+10. `<DocsApi />` — auto-generated API reference (functions/options/methods/properties)
 
 ## Examples
 

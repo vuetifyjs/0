@@ -17,9 +17,9 @@ related:
 
 # useBreakpoints
 
-The `useBreakpoints` composable provides comprehensive responsive design capabilities through reactive viewport dimension detection. It automatically tracks window size changes and provides boolean flags for current breakpoint ranges, enabling mobile-first and responsive layouts.
-
 <DocsPageFeatures :frontmatter />
+
+Reactive viewport detection for building responsive layouts with named breakpoints.
 
 ## Installation
 

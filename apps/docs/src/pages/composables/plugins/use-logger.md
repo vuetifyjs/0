@@ -17,9 +17,9 @@ related:
 
 # useLogger
 
-The `useLogger` composable provides a flexible, adapter-based logging system for Vue applications. It supports multiple log levels, runtime enable/disable toggling, and integrates seamlessly with popular logging libraries like Consola and Pino through a simple adapter pattern.
-
 <DocsPageFeatures :frontmatter />
+
+Application logging with configurable levels, filtering, and swappable adapters for popular logging libraries.
 
 ## Installation
 
@@ -64,6 +64,16 @@ Once the plugin is installed, use the `useLogger` composable in any component:
   </div>
 </template>
 ```
+
+## Adapters
+
+Adapters let you swap the underlying logging implementation without changing your application code.
+
+| Adapter | Import | Description |
+|---------|--------|-------------|
+| `Vuetify0LoggerAdapter` | `@vuetify/v0` | Console-based logging (default) |
+| `PinoLoggerAdapter` | `@vuetify/v0/logger/adapters/pino` | [Pino](https://getpino.io/) integration |
+| `ConsolaLoggerAdapter` | `@vuetify/v0/logger/adapters/consola` | [Consola](https://github.com/unjs/consola) integration |
 
 ## Architecture
 

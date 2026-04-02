@@ -16,9 +16,9 @@ related:
 
 # useLocale
 
-The `useLocale` composable provides comprehensive internationalization (i18n) capabilities, allowing you to manage multiple locales, switch between them dynamically, and translate messages with variable replacement and message linking. Built on `createSingle` for single-locale selection and supports custom adapters for integration with different i18n libraries.
-
 <DocsPageFeatures :frontmatter />
+
+Internationalization with translations, variable interpolation, number formatting, and locale switching.
 
 ## Installation
 
@@ -110,7 +110,12 @@ Locale selection is reactive via `createSingle`. Translation methods return stat
 
 ## Adapters
 
-`useLocale` supports an adapter pattern to integrate with external i18n libraries. Pass a custom `adapter` to delegate `t()` and `n()` to an external provider instead.
+Adapters let you swap the underlying i18n implementation without changing your application code.
+
+| Adapter | Import | Description |
+|---------|--------|-------------|
+| `Vuetify0LocaleAdapter` | `@vuetify/v0` | Token-based translation with fallback chain (default) |
+| `VueI18nLocaleAdapter` | `@vuetify/v0/locale/adapters/vue-i18n` | [vue-i18n](https://vue-i18n.intlify.dev/) v10+ integration |
 
 ### v0 (default)
 

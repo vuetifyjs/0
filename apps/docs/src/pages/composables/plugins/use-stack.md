@@ -18,9 +18,9 @@ related:
 
 # useStack
 
-A composable for managing overlay z-index stacking with automatic calculation, scrim integration, and parent/child tracking for nested overlays.
-
 <DocsPageFeatures :frontmatter />
+
+Overlay z-index coordination with automatic stacking, scrim integration, and parent-child tracking.
 
 ## Installation
 

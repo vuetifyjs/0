@@ -16,9 +16,9 @@ related:
 
 # useStorage
 
-The `useStorage` composable provides reactive storage management with support for multiple storage backends (localStorage, sessionStorage, memory). Built with an adapter pattern for flexibility, it automatically serializes values, manages reactive refs, and provides SSR-safe operations.
-
 <DocsPageFeatures :frontmatter />
+
+Reactive storage with automatic serialization, caching, and SSR-safe operations.
 
 ## Installation
 
@@ -101,6 +101,16 @@ const users = cache.get('users', [])
 
 > [!TIP] How TTL works
 > When `ttl` is set, values are internally wrapped as `{ __ttl, __v, __t }` with a timestamp. On `get()`, if the entry is older than the TTL, it is treated as absent and removed from storage. Non-TTL entries stored previously are read normally.
+
+## Adapters
+
+Adapters let you swap the underlying storage backend without changing your application code.
+
+| Adapter | Import | Description |
+|---------|--------|-------------|
+| `localStorage` | — | Browser localStorage (default in browser) |
+| `sessionStorage` | — | Browser sessionStorage |
+| `MemoryAdapter` | `@vuetify/v0/storage/adapters/memory` | In-memory storage (default in SSR) |
 
 ## Architecture
 

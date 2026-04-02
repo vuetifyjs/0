@@ -17,9 +17,9 @@ related:
 
 # useDate
 
-The `useDate` composable provides comprehensive date manipulation capabilities using the adapter pattern. The default adapter uses the [Temporal API](https://tc39.es/proposal-temporal/docs/) for modern, immutable date operations with locale-aware formatting via `Intl.DateTimeFormat`. Integrates with `useLocale` for automatic locale synchronization.
-
 <DocsPageFeatures :frontmatter />
+
+Date manipulation using the Temporal API with locale-aware formatting and adapter support.
 
 ## Installation
 
@@ -72,6 +72,14 @@ Once the plugin is installed, use the `useDate` composable in any component:
 ::: example
 /composables/use-date/basic
 :::
+
+## Adapters
+
+Adapters let you swap the underlying date library without changing your application code.
+
+| Adapter | Import | Description |
+|---------|--------|-------------|
+| `Vuetify0DateAdapter` | `@vuetify/v0/date` | [Temporal API](https://tc39.es/proposal-temporal/docs/) adapter (requires `@js-temporal/polyfill`) |
 
 ### DateAdapter Interface
 

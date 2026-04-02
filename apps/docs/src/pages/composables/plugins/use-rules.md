@@ -17,14 +17,9 @@ related:
 
 # useRules
 
-Headless validation composable that resolves rules from multiple sources — [Standard Schema](https://standardschema.dev/) objects, custom aliases, and raw functions — into `FormValidationRule[]` for use with `createValidation`. No built-in validators are included; bring your own via a schema library or register custom aliases at the plugin level.
-
-A validation function returns one of three values:
-- **`true`** — validation passes
-- **`string`** — validation fails, the string is the error message
-- **`false`** — validation fails, the error message is resolved from the locale plugin (`$rules.<name>`)
-
 <DocsPageFeatures :frontmatter />
+
+Validation rule management with Standard Schema support and custom aliases.
 
 ## Installation
 

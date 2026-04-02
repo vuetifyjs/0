@@ -18,9 +18,9 @@ related:
 
 # useHydration
 
-The `useHydration` composable provides SSR hydration state management, allowing you to detect when your application has been hydrated on the client side. This is essential for preventing hydration mismatches and controlling when browser-only features should activate.
-
 <DocsPageFeatures :frontmatter />
+
+Control SSR hydration timing to prevent mismatches and optimize client-side rendering.
 
 ## Installation
 
