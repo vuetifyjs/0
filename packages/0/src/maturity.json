@@ -330,6 +330,11 @@
       "level": "preview",
       "since": "0.1.8",
       "category": "system"
+    },
+    "useTour": {
+      "level": "preview",
+      "since": "0.2.0",
+      "category": "plugins"
     }
   },
   "components": {
@@ -561,7 +566,8 @@
       "category": "data"
     },
     "Tour": {
-      "level": "draft",
+      "level": "preview",
+      "since": null,
       "category": "disclosure"
     }
   },
