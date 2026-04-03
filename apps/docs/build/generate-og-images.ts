@@ -171,9 +171,13 @@ export async function generateOgImages (): Promise<void> {
   const start = performance.now()
   let count = 0
 
-  // Generate for markdown pages
-  const files: Array<{ path: string, title: string, description: string, category?: string }> = []
+  const files: Array<{ path: string, title: string, description: string, category?: string }> = [{
+    path: '/',
+    title: 'Vuetify0',
+    description: 'Headless components and composables for building modern applications and design systems',
+  }]
 
+  // Generate for markdown pages
   for await (const file of glob(`${PAGES_DIR}/**/*.md`)) {
     const raw = readFileSync(file, 'utf8')
     const { frontmatter } = parseFrontmatter(raw)
