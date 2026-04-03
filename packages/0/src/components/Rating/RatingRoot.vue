@@ -22,7 +22,7 @@
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
-  import type { RatingContext, RatingItem } from '#v0/composables/createRating'
+  import type { RatingContext, RatingItemDescriptor } from '#v0/composables/createRating'
   import type { MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
 
   export interface RatingRootContext extends RatingContext {
@@ -59,7 +59,7 @@
     /** Current rating value */
     value: number
     /** Array of rating items */
-    items: RatingItem[]
+    items: RatingItemDescriptor[]
     /** Whether user is hovering */
     isHovering: boolean
     /** Whether rating is disabled */

@@ -32,7 +32,7 @@ import type { App, ComputedRef, MaybeRefOrGetter, Ref, ShallowRef, WritableCompu
 
 export type RatingItemState = 'full' | 'half' | 'empty'
 
-export interface RatingItem {
+export interface RatingItemDescriptor {
   /** 1-based position */
   value: number
   /** Derived visual state */
@@ -47,7 +47,7 @@ export interface RatingContext {
   /** Whether half-steps are enabled */
   half: boolean
   /** Array of items with computed state */
-  items: ComputedRef<RatingItem[]>
+  items: ComputedRef<RatingItemDescriptor[]>
   /** Whether value is at minimum (0) */
   isFirst: Readonly<Ref<boolean>>
   /** Whether value is at maximum (size) */
@@ -151,10 +151,10 @@ export function createRating<
     return 'empty'
   }
 
-  const items = computed<RatingItem[]>(() => {
+  const items = computed<RatingItemDescriptor[]>(() => {
     const size = toValue(_size)
     const current = value.value
-    const result: RatingItem[] = []
+    const result: RatingItemDescriptor[] = []
 
     for (let i = 1; i <= size; i++) {
       result.push({
