@@ -87,5 +87,6 @@ Components for showing/hiding content.
 | [ExpansionPanel](/components/disclosure/expansion-panel) | Accordion-style collapsible panels |
 | [Popover](/components/disclosure/popover) | CSS anchor-positioned popup content |
 | [Tabs](/components/disclosure/tabs) | Tab panel navigation with keyboard support and lazy content rendering |
+| [Tour](/components/disclosure/tour) | Guided tour with step navigation, validation gates, and keyboard support |
 | [Treeview](/components/disclosure/treeview) | Hierarchical tree with nested selection and expand/collapse |
 

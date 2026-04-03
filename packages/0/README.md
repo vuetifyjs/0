@@ -124,6 +124,7 @@ import { ... } from '@vuetify/v0/date'       // Date adapter and utilities
 | **ExpansionPanel** | Accordion-style collapsible panels |
 | **Popover** | CSS anchor-positioned popup content |
 | **Tabs** | Tab panel navigation with keyboard support and lazy content rendering |
+| **Tour** | Guided tour with step navigation, validation gates, and keyboard support |
 | **Treeview** | Hierarchical tree with nested selection and expand/collapse |
 
 #### Semantic
@@ -230,6 +231,7 @@ Plugin-capable composables following the trinity pattern:
 - **`useStack`** - Overlay z-index stacking with automatic scrim coordination
 - **`useStorage`** - Storage adapter (localStorage/sessionStorage/memory)
 - **`useTheme`** - Theme management with CSS variable injection
+- **`useTour`** - Guided tour orchestration with step navigation and validation gates
 
 ## Design Principles
 
