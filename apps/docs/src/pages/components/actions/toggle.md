@@ -65,20 +65,20 @@ The Toggle component supports two modes:
 
 ## Examples
 
-### Group
+### Toolbar
 
-Use `Toggle.Group` with a `v-model` to manage single selection across toggle buttons. The `mandatory` prop prevents deselecting all items.
+Use `Toggle.Group` with `multiple` to build a formatting toolbar. Each toggle operates independently — any combination can be active.
 
 ::: example
-/components/toggle/group
+/components/toggle/toolbar
 :::
 
-### Multiple
+### View Switcher
 
-Set `multiple` on `Toggle.Group` to allow any combination of toggles to be active simultaneously.
+Use `Toggle.Group` with `mandatory` for mutually exclusive options like layout switchers. The `mandatory` prop prevents deselecting all items.
 
 ::: example
-/components/toggle/multiple
+/components/toggle/view-switcher
 :::
 
 ## Accessibility
