@@ -76,8 +76,8 @@ function template (title: string, description: string, category?: string) {
                 type: 'img',
                 props: {
                   src: logo,
-                  width: 180,
-                  height: 58,
+                  width: 260,
+                  height: 84,
                   style: {},
                 },
               },
@@ -86,7 +86,7 @@ function template (title: string, description: string, category?: string) {
                     type: 'div',
                     props: {
                       style: {
-                        fontSize: '18px',
+                        fontSize: '22px',
                         color: 'rgba(255, 255, 255, 0.4)',
                         marginLeft: '4px',
                       },
@@ -111,10 +111,10 @@ function template (title: string, description: string, category?: string) {
                 type: 'div',
                 props: {
                   style: {
-                    fontSize: '48px',
+                    fontSize: '56px',
                     fontWeight: 700,
                     lineHeight: '1.2',
-                    marginBottom: '20px',
+                    marginBottom: '24px',
                     color: 'white',
                   },
                   children: title,
@@ -125,7 +125,7 @@ function template (title: string, description: string, category?: string) {
                     type: 'div',
                     props: {
                       style: {
-                        fontSize: '22px',
+                        fontSize: '26px',
                         color: 'rgba(255, 255, 255, 0.7)',
                         lineHeight: '1.5',
                       },
@@ -142,7 +142,7 @@ function template (title: string, description: string, category?: string) {
             style: {
               display: 'flex',
               alignItems: 'center',
-              fontSize: '18px',
+              fontSize: '22px',
               color: 'rgba(255, 255, 255, 0.5)',
             },
             children: '0.vuetifyjs.com',
