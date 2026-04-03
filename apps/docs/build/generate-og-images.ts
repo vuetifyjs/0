@@ -6,6 +6,9 @@ import { fileURLToPath } from 'node:url'
 import { Resvg } from '@resvg/resvg-js'
 import satori from 'satori'
 
+// Types
+import type { Frontmatter } from './frontmatter'
+
 import { getApiNamesGrouped } from './api-names'
 import { parseFrontmatter } from './frontmatter'
 
@@ -45,6 +48,20 @@ function getPath (file: string): string {
 function cleanTitle (raw: string): string {
   // Strip " - description suffix" from titles like "Dialog - Accessible modal dialogs"
   return raw.includes(' - ') ? raw.split(' - ')[0] : raw
+}
+
+const CATEGORY_MAP: Record<string, string> = {
+  introduction: 'Introduction',
+  guide: 'Guide',
+  components: 'Components',
+  composables: 'Composables',
+  utilities: 'Utilities',
+  api: 'API Reference',
+}
+
+function inferCategory (path: string, frontmatter: Frontmatter): string | undefined {
+  if (frontmatter.features?.category) return frontmatter.features.category
+  return CATEGORY_MAP[path.split('/')[1]]
 }
 
 function template (title: string, description: string, category?: string) {
@@ -111,7 +128,7 @@ function template (title: string, description: string, category?: string) {
                 type: 'div',
                 props: {
                   style: {
-                    fontSize: '56px',
+                    fontSize: '76px',
                     fontWeight: 700,
                     lineHeight: '1.2',
                     marginBottom: '24px',
@@ -125,7 +142,7 @@ function template (title: string, description: string, category?: string) {
                     type: 'div',
                     props: {
                       style: {
-                        fontSize: '26px',
+                        fontSize: '34px',
                         color: 'rgba(255, 255, 255, 0.7)',
                         lineHeight: '1.5',
                       },
@@ -184,11 +201,12 @@ export async function generateOgImages (): Promise<void> {
 
     if (!frontmatter.title) continue
 
+    const path = getPath(file)
     files.push({
-      path: getPath(file),
+      path,
       title: cleanTitle(frontmatter.title),
       description: frontmatter.description ?? '',
-      category: frontmatter.features?.category,
+      category: inferCategory(path, frontmatter),
     })
   }
 
