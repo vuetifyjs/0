@@ -101,6 +101,7 @@ import { ... } from '@vuetify/v0/date'       // Date adapter and utilities
 | Component | Description |
 |-----------|-------------|
 | **Button** | Button with loading grace period, toggle groups, and icon accessibility |
+| [Toggle](./src/components/Toggle/) | Pressable on/off button with standalone and group modes |
 
 #### Forms
 

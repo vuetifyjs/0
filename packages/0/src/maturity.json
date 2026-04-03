@@ -350,8 +350,9 @@
       "category": "providers"
     },
     "Toggle": {
-      "level": "draft",
-      "category": "providers"
+      "level": "preview",
+      "since": "0.2.0",
+      "category": "actions"
     },
     "Button": {
       "level": "preview",
