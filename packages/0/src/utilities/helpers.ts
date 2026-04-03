@@ -10,7 +10,7 @@
 import { IN_BROWSER } from '#v0/constants/globals'
 
 // Types
-import type { DeepPartial } from '#v0/types'
+import type { DeepPartial, ID } from '#v0/types'
 
 /**
  * Checks if a value is a function
@@ -421,4 +421,25 @@ export function clamp (value: number, min = 0, max = 1): number {
 /* #__NO_SIDE_EFFECTS__ */
 export function range (length: number, start = 0): number[] {
   return Array.from({ length }, (_, index) => start + index)
+}
+
+/**
+ * Resolves an iterable of IDs to their items via a getter,
+ * filtering out any that return undefined.
+ */
+/* #__NO_SIDE_EFFECTS__ */
+export function resolveIds<E> (ids: Iterable<ID>, getter: (id: ID) => E | undefined): E[] {
+  return Array.from(ids)
+    .map(id => getter(id))
+    .filter((item): item is E => !isUndefined(item))
+}
+
+/**
+ * Extracts defined index values from an iterable of items.
+ */
+/* #__NO_SIDE_EFFECTS__ */
+export function resolveIndexes (items: Iterable<{ index?: number }>): number[] {
+  return Array.from(items)
+    .map(item => item?.index)
+    .filter((index): index is number => !isUndefined(index))
 }

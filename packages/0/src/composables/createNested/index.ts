@@ -19,7 +19,7 @@ import { createTrinity } from '#v0/composables/createTrinity'
 import { useLogger } from '#v0/composables/useLogger'
 
 // Utilities
-import { isUndefined, useId } from '#v0/utilities'
+import { isUndefined, resolveIds, resolveIndexes, useId } from '#v0/utilities'
 import { computed, shallowReactive, toRef, toValue } from 'vue'
 
 // Transformers
@@ -126,35 +126,13 @@ export function createNested<
   let pendingRoots: Set<ID> | undefined
 
   // Computed collections
-  const activeItems = computed(() => {
-    return new Set(
-      Array.from(activeIds)
-        .map(id => group.get(id))
-        .filter((item): item is E => !isUndefined(item)),
-    )
-  })
+  const activeItems = computed(() => new Set(resolveIds(activeIds, group.get)))
 
-  const activeIndexes = computed(() => {
-    return new Set(
-      Array.from(activeItems.value)
-        .map(item => item?.index)
-        .filter((index): index is number => !isUndefined(index)),
-    )
-  })
+  const activeIndexes = computed(() => new Set(resolveIndexes(activeItems.value)))
 
-  const openedItems = computed(() => {
-    return new Set(
-      Array.from(openedIds)
-        .map(id => group.get(id))
-        .filter((item): item is E => !isUndefined(item)),
-    )
-  })
+  const openedItems = computed(() => new Set(resolveIds(openedIds, group.get)))
 
-  const roots = computed(() => {
-    return Array.from(rootIds)
-      .map(id => group.get(id))
-      .filter((item): item is E => !isUndefined(item))
-  })
+  const roots = computed(() => resolveIds(rootIds, group.get))
 
   const leaves = computed(() => {
     return group.values().filter(item => {

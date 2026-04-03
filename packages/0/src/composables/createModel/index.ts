@@ -19,7 +19,7 @@
 import { createRegistry } from '#v0/composables/createRegistry'
 
 // Utilities
-import { isUndefined, useId } from '#v0/utilities'
+import { isUndefined, resolveIds, useId } from '#v0/utilities'
 import { computed, isRef, shallowReactive, toRef, toRaw, toValue } from 'vue'
 
 // Types
@@ -361,13 +361,7 @@ export function createModel<
   const registry = createRegistry<Z, E>(options)
   const selectedIds = shallowReactive(new Set<ID>())
 
-  const selectedItems = computed(() => {
-    return new Set(
-      Array.from(selectedIds)
-        .map(id => registry.get(id))
-        .filter((item): item is E => !isUndefined(item)),
-    )
-  })
+  const selectedItems = computed(() => new Set(resolveIds(selectedIds, registry.get)))
 
   const selectedValues = computed(() => {
     return new Set(

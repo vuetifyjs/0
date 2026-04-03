@@ -26,7 +26,7 @@ import { createTrinity } from '#v0/composables/createTrinity'
 import { useProxyRegistry } from '#v0/composables/useProxyRegistry'
 
 // Utilities
-import { isUndefined, useId } from '#v0/utilities'
+import { resolveIds, resolveIndexes, useId } from '#v0/utilities'
 import { computed, shallowReactive, toRef, toValue } from 'vue'
 
 // Transformers
@@ -192,21 +192,9 @@ export function createGroup<
   const proxy = useProxyRegistry<E>(selection)
   const mixedIds = shallowReactive(new Set<ID>())
 
-  const selectedIndexes = computed(() => {
-    return new Set(
-      Array.from(selection.selectedItems.value)
-        .map(item => item?.index)
-        .filter((index): index is number => !isUndefined(index)),
-    )
-  })
+  const selectedIndexes = computed(() => new Set(resolveIndexes(selection.selectedItems.value)))
 
-  const mixedItems = computed(() => {
-    return new Set(
-      Array.from(mixedIds)
-        .map(id => selection.get(id))
-        .filter((item): item is E => !isUndefined(item)),
-    )
-  })
+  const mixedItems = computed(() => new Set(resolveIds(mixedIds, selection.get)))
 
   function mixed (id: ID) {
     return mixedIds.has(id)
