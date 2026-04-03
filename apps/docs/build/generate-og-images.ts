@@ -174,7 +174,7 @@ export async function generateOgImages (): Promise<void> {
   const files: Array<{ path: string, title: string, description: string, category?: string }> = [{
     path: '/',
     title: 'The AI-native headless framework for Vue',
-    description: '',
+    description: 'Headless components and composables for building modern applications and design systems',
   }]
 
   // Generate for markdown pages
