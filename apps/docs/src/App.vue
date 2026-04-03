@@ -46,7 +46,7 @@
       { key: 'og:type', property: 'og:type', content: 'website' },
       { key: 'og:url', property: 'og:url', content: url },
       { key: 'og:image', property: 'og:image', content: 'https://cdn.vuetifyjs.com/docs/images/one/logos/vzero-logo-og.png' },
-      { key: 'twitter:card', name: 'twitter:card', content: 'summary' },
+      { key: 'twitter:card', name: 'twitter:card', content: 'summary_large_image' },
     ],
   })
 </script>
