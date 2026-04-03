@@ -19,6 +19,7 @@ import generateApiWhitelistPlugin from './build/generate-api-whitelist'
 import generateExamplesPlugin from './build/generate-examples'
 import generateLlmsFullPlugin from './build/generate-llms-full'
 import generateNavPlugin from './build/generate-nav'
+import { generateOgImages } from './build/generate-og-images'
 import generatePageDatesPlugin from './build/generate-page-dates'
 import generateSearchIndexPlugin from './build/generate-search-index'
 import Markdown from './build/markdown'
@@ -54,13 +55,14 @@ export default defineConfig({
       const skillzRoutes = skillzSlugs.map(slug => `/skillz/${slug}`)
       return [...paths, ...apiRoutes, ...skillzRoutes]
     },
-    onFinished () {
+    async onFinished () {
       generateSitemap({
         hostname: 'https://0.vuetifyjs.com',
         generateRobotsTxt: false,
         changefreq: 'daily',
         priority: 0.7,
       })
+      await generateOgImages()
     },
   } as ViteSSGOptions,
   plugins: [

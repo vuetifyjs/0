@@ -8,12 +8,14 @@
 
   // Utilities
   import { computed, shallowRef, toRef, useTemplateRef } from 'vue'
+  import { useRoute } from 'vue-router'
 
   // Components
   import DocsToc from '../docs/DocsToc.vue'
   import DocsPageLogo from '../docs/meta/DocsPageLogo.vue'
 
   const ask = useAsk()
+  const route = useRoute()
   const settings = useSettings()
   const page = shallowRef<{ frontmatter?: Record<string, unknown> }>()
   const mainRef = useTemplateRef<HTMLElement>('main')
@@ -30,14 +32,24 @@
   const pageMeta = toRef(() => page.value?.frontmatter?.meta as Array<{ name?: string, content?: string }> | undefined)
   const pageDescription = computed(() => pageMeta.value?.find(m => m.name === 'description')?.content)
 
+  // Per-page OG image based on route path
+  const ogImage = toRef(() => {
+    const path = route.path === '/' ? '/index' : route.path
+    return `https://0.vuetifyjs.com/og${path}.png`
+  })
+
   // Set page-level meta from frontmatter (reactive)
   // InferSeoMetaPlugin auto-generates og:title and og:description
   useHead({
     title: pageTitle,
-    meta: computed(() => pageDescription.value
-      ? [{ key: 'description', name: 'description', content: pageDescription.value }]
-      : [],
-    ),
+    meta: toRef(() => {
+      const meta: Array<Record<string, string>> = []
+      if (pageDescription.value) {
+        meta.push({ key: 'description', name: 'description', content: pageDescription.value })
+      }
+      meta.push({ key: 'og:image', property: 'og:image', content: ogImage.value })
+      return meta
+    }),
   })
 </script>
 

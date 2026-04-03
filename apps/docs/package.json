@@ -10,6 +10,7 @@
   },
   "devDependencies": {
     "@octokit/openapi-types": "catalog:",
+    "@resvg/resvg-js": "catalog:",
     "@shikijs/langs": "catalog:",
     "@shikijs/markdown-it": "catalog:",
     "@shikijs/themes": "catalog:",
@@ -17,6 +18,7 @@
     "@unhead/vue": "catalog:",
     "markdown-it-anchor": "catalog:",
     "markdown-it-attrs": "catalog:",
+    "satori": "catalog:",
     "shiki": "catalog:",
     "ts-morph": "catalog:",
     "tsx": "catalog:",
