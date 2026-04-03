@@ -6,30 +6,25 @@
 </script>
 
 <template>
-  <Toggle.Root
-    v-model="saved"
-    class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-divider font-medium transition-colors data-[state=on]:bg-primary data-[state=on]:text-on-primary data-[state=on]:border-primary"
-  >
-    <Toggle.Indicator v-slot="{ isPressed }">
+  <div class="flex justify-center">
+    <Toggle.Root
+      v-model="saved"
+      class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-divider font-medium data-[state=on]:bg-primary data-[state=on]:text-on-primary data-[state=on]:border-primary"
+    >
       <svg
-        class="size-5"
-        fill="none"
+        class="size-5 data-[state=off]:opacity-40"
+        :data-state="saved ? 'on' : 'off'"
         stroke="currentColor"
         stroke-width="2"
         viewBox="0 0 24 24"
       >
         <path
-          v-if="isPressed"
           d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"
-          fill="currentColor"
-        />
-        <path
-          v-else
-          d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"
+          :fill="saved ? 'currentColor' : 'none'"
         />
       </svg>
-    </Toggle.Indicator>
 
-    {{ saved ? 'Saved' : 'Save' }}
-  </Toggle.Root>
+      Bookmark
+    </Toggle.Root>
+  </div>
 </template>

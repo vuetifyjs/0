@@ -50,15 +50,32 @@ The Toggle component supports two modes:
 
   <!-- Group (single select) -->
   <Toggle.Group>
-    <Toggle.Root />
-    <Toggle.Root />
-    <Toggle.Root />
+    <Toggle.Root>
+      <Toggle.Indicator />
+    </Toggle.Root>
+
+    <Toggle.Root>
+      <Toggle.Indicator />
+    </Toggle.Root>
+
+    <Toggle.Root>
+      <Toggle.Indicator />
+    </Toggle.Root>
   </Toggle.Group>
 
   <!-- Group (multi select) -->
   <Toggle.Group multiple>
-    <Toggle.Root />
-    <Toggle.Root />
+    <Toggle.Root>
+      <Toggle.Indicator />
+    </Toggle.Root>
+
+    <Toggle.Root>
+      <Toggle.Indicator />
+    </Toggle.Root>
+
+    <Toggle.Root>
+      <Toggle.Indicator />
+    </Toggle.Root>
   </Toggle.Group>
 </template>
 ```

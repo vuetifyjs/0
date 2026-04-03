@@ -19,7 +19,7 @@
     <div class="flex items-center justify-between">
       <span class="text-sm font-medium text-on-surface-variant">{{ items.length }} folders</span>
 
-      <Toggle.Group v-model="view" class="inline-flex rounded-lg border border-divider" mandatory>
+      <Toggle.Group v-model="view" class="inline-flex rounded-lg border border-divider overflow-hidden" mandatory>
         <Toggle.Root
           class="p-2 transition-colors data-[state=on]:bg-primary data-[state=on]:text-on-primary"
           value="grid"
