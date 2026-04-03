@@ -61,6 +61,7 @@ Form control components with accessibility and validation support.
 | [Input](/components/forms/input) | Text input with label, description, error messages, and character counting |
 | [Radio](/components/forms/radio) | Radio group with single-selection and keyboard navigation |
 | [Select](/components/forms/select) | Dropdown selection with virtual focus and multi-select support |
+| [Rating](/components/forms/rating) | Star/icon rating with hover preview, half-stars, and keyboard navigation |
 | [Slider](/components/forms/slider) | Range input with snapping, range mode, and custom tracks |
 | [Switch](/components/forms/switch) | Toggle switch with on/off states and label association |
 

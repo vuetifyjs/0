@@ -112,6 +112,7 @@ import { ... } from '@vuetify/v0/date'       // Date adapter and utilities
 | **Input** | Text input with label, description, error messages, and character counting |
 | **Radio** | Radio group with single-selection and keyboard navigation |
 | **Select** | Dropdown selection with virtual focus and multi-select support |
+| **Rating** | Star/icon rating with hover preview, half-stars, and keyboard navigation |
 | **Slider** | Range input with snapping, range mode, and custom tracks |
 | **Switch** | Toggle switch with on/off states and label association |
 
@@ -178,6 +179,7 @@ Selection management composables built on `createRegistry`:
 - **`createForm`** - Form validation and state management with async rules
 - **`createValidation`** - Field-level validation with sync/async rules
 - **`createCombobox`** - Combobox state management with filtering and virtual focus
+- **`createRating`** - Bounded rating value with discrete items and half-step support
 - **`createSlider`** - Slider state with snapping, range mode, and step control
 
 #### Reactivity

@@ -20,6 +20,11 @@
       "since": "0.1.0",
       "category": "registration"
     },
+    "createRating": {
+      "level": "preview",
+      "since": "0.2.0",
+      "category": "forms"
+    },
     "createRegistry": {
       "level": "preview",
       "since": "0.1.0",
@@ -391,7 +396,8 @@
       "category": "forms"
     },
     "Rating": {
-      "level": "draft",
+      "level": "preview",
+      "since": "0.2.0",
       "category": "forms"
     },
     "Select": {
