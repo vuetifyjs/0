@@ -48,6 +48,7 @@ Interactive controls for user-initiated actions.
 | Name | Description |
 | - | - |
 | [Button](/components/actions/button) | Button with loading grace period, toggle groups, and icon accessibility |
+| [Toggle](/components/actions/toggle) | Pressable on/off button with standalone and group modes |
 
 ## Forms
 
