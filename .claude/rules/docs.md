@@ -88,7 +88,7 @@ Adapters let you swap the underlying implementation without changing your applic
 2. `<DocsPageFeatures :frontmatter />` — renders badges from frontmatter
 3. `<DocsBrowserSupport>` — optional, for native API features
 4. **Usage** — brief intro + code fence (not a live example)
-5. **Anatomy** — Vue template tree in `` ```vue playground collapse `` `` code fence
+5. **Anatomy** — Vue template tree in `` ```vue Anatomy playground `` `` code fence. **Show only component hierarchy** — no props, no slot bindings, no text content, no directives (`v-if`, `v-slot`, `@click`). Use self-closing tags (`<Tour.Title />` not `<Tour.Title>Title</Tour.Title>`)
 6. **Architecture** — optional Mermaid diagram
 7. **Examples** — `::: example` blocks, each with 2+ files
 8. **Recipes** — code fences or single-file `::: example` blocks

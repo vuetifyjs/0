@@ -104,6 +104,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/components/disclosure/tour': RouteRecordInfo<
+      '/components/disclosure/tour',
+      '/components/disclosure/tour',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/components/disclosure/treeview': RouteRecordInfo<
       '/components/disclosure/treeview',
       '/components/disclosure/treeview',
@@ -443,6 +450,13 @@ declare module 'vue-router/auto-routes' {
     '/composables/plugins/use-theme': RouteRecordInfo<
       '/composables/plugins/use-theme',
       '/composables/plugins/use-theme',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/composables/plugins/use-tour': RouteRecordInfo<
+      '/composables/plugins/use-tour',
+      '/composables/plugins/use-tour',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -995,6 +1009,12 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/components/disclosure/tour.md': {
+      routes:
+        | '/components/disclosure/tour'
+      views:
+        | never
+    }
     'src/pages/components/disclosure/treeview.md': {
       routes:
         | '/components/disclosure/treeview'
@@ -1286,6 +1306,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/plugins/use-theme.md': {
       routes:
         | '/composables/plugins/use-theme'
+      views:
+        | never
+    }
+    'src/pages/composables/plugins/use-tour.md': {
+      routes:
+        | '/composables/plugins/use-tour'
       views:
         | never
     }

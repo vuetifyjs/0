@@ -292,6 +292,11 @@
       "level": "preview",
       "since": "0.1.8",
       "category": "system"
+    },
+    "useTour": {
+      "level": "preview",
+      "since": "0.2.0",
+      "category": "plugins"
     }
   },
   "components": {
@@ -346,7 +351,7 @@
     },
     "Toggle": {
       "level": "draft",
-      "category": "providers"
+      "category": "actions"
     },
     "Button": {
       "level": "preview",
@@ -447,10 +452,6 @@
       "since": "0.1.9",
       "category": "semantic"
     },
-    "Toast": {
-      "level": "draft",
-      "category": "disclosure"
-    },
     "Tooltip": {
       "level": "draft",
       "category": "disclosure"
@@ -509,8 +510,9 @@
       "category": "data"
     },
     "Tour": {
-      "level": "draft",
-      "category": "specialty"
+      "level": "preview",
+      "since": "0.2.0",
+      "category": "disclosure"
     }
   },
   "utilities": {
