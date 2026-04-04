@@ -201,21 +201,6 @@ function template (title: string, description: string, category?: string) {
             ],
           },
         },
-        // Left accent stripe
-        {
-          type: 'div',
-          props: {
-            style: {
-              position: 'absolute',
-              top: '0',
-              left: '0',
-              width: '6px',
-              height: '100%',
-              background: 'linear-gradient(180deg, #1867C0 0%, #42A5F5 50%, #1867C0 100%)',
-            },
-            children: '',
-          },
-        },
       ],
     },
   }
