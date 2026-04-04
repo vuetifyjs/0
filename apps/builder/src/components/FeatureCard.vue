@@ -26,17 +26,16 @@
   <button
     class="flex items-start gap-3 p-4 rounded-lg border text-left w-full"
     :class="[
-      auto
-        ? 'border-dashed border-divider bg-surface/50 opacity-70 cursor-default transition-all'
+      auto && !active
+        ? 'border-dashed border-divider bg-surface/50 opacity-70 cursor-pointer transition-all hover:opacity-100'
         : active
           ? 'border-primary bg-primary/5 ring-1 ring-primary/30 cursor-pointer transition-all hover:shadow-sm'
           : 'border-divider bg-surface cursor-pointer transition-all hover:shadow-sm hover:border-primary',
     ]"
-    :disabled="auto"
   >
     <!-- Checkbox indicator -->
     <div class="w-6 h-6 flex items-center justify-center flex-shrink-0 mt-0.5">
-      <template v-if="auto">
+      <template v-if="auto && !active">
         <svg class="w-5 h-5 text-on-surface-variant" fill="none" viewBox="0 0 20 20">
           <circle
             cx="10"
@@ -81,7 +80,7 @@
         <span class="font-semibold text-xs px-2 py-0.5 rounded-full" :class="maturityClass">
           {{ feature.maturity }}
         </span>
-        <span v-if="auto" class="text-xs text-on-surface-variant">auto-included</span>
+        <span v-if="auto && !active" class="text-xs text-on-surface-variant">auto-included</span>
       </div>
 
       <p class="text-sm text-on-surface-variant">
