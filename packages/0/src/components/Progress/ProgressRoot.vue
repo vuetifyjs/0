@@ -3,12 +3,8 @@
  *
  * @remarks
  * Root component for progress bars. Creates progress context, provides it to
- * child components (Track, Fill, Buffer, Value, Label, HiddenInput),
- * bridges v-model to registry segments, and emits ARIA progressbar attributes.
- *
- * Supports both single-value (`v-model="50"`) and multi-segment
- * (`v-model="[30, 20]"`) progress. When no value is provided, the
- * progress bar enters an indeterminate state.
+ * child components, bridges v-model via useProxyModel, and emits ARIA
+ * progressbar attributes.
  */
 
 <script lang="ts">
@@ -19,10 +15,11 @@
   // Composables
   import { createContext } from '#v0/composables/createContext'
   import { createProgress } from '#v0/composables/createProgress'
+  import { useProxyModel } from '#v0/composables/useProxyModel'
 
   // Utilities
-  import { isArray, isNullOrUndefined } from '#v0/utilities'
-  import { mergeProps, shallowRef, toRef, useAttrs, watch } from 'vue'
+  import { isArray, isNullOrUndefined, isUndefined } from '#v0/utilities'
+  import { computed, mergeProps, shallowRef, toRef, useAttrs } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -82,62 +79,22 @@
   } = defineProps<ProgressRootProps>()
 
   const model = defineModel<number | number[]>()
+  const scalar = !isArray(model.value) && !isUndefined(model.value) && !isNullOrUndefined(model.value)
 
-  const progress = createProgress({ min, max, value: isNullOrUndefined(model.value) ? undefined : 0 })
-
-  const managed = shallowRef<ProgressTicket[]>([])
-  let syncing = false
-
-  function sync () {
-    const value = model.value
-
-    if (isNullOrUndefined(value)) {
-      for (const segment of managed.value) {
-        progress.unregister(segment.id)
-      }
-      managed.value = []
-      return
-    }
-
-    const values = isArray(value) ? value : [value]
-    const current = managed.value
-
-    if (values.length > current.length) {
-      const added = [...current]
-      for (let index = current.length; index < values.length; index++) {
-        added.push(progress.register({ value: values[index] }))
-      }
-      managed.value = added
-    }
-
-    if (values.length < current.length) {
-      const kept = current.slice(0, values.length)
-      const removed = current.slice(values.length)
-      for (const segment of removed) {
-        progress.unregister(segment.id)
-      }
-      managed.value = kept
-    }
-
-    syncing = true
-    for (const [index, v] of values.entries()) {
-      if (managed.value[index]) {
-        managed.value[index].value.value = v
-      }
-    }
-    syncing = false
-  }
-
-  watch(() => model.value, sync, { immediate: true, deep: true })
-
-  watch(
-    () => managed.value.map(s => s.value.value),
-    values => {
-      if (syncing) return
-      if (isNullOrUndefined(model.value)) return
-      model.value = isArray(model.value) ? values : (values[0] ?? 0)
+  const internal = computed({
+    get: () => {
+      if (isNullOrUndefined(model.value)) return []
+      return isArray(model.value) ? model.value : [model.value]
     },
-  )
+    set: (arr: number[]) => {
+      if (isNullOrUndefined(model.value) && arr.length === 0) return
+      model.value = scalar ? (arr[0] ?? 0) : arr
+    },
+  })
+
+  const progress = createProgress({ min, max })
+
+  useProxyModel(progress, internal, { multiple: true })
 
   const labelId = shallowRef<string | undefined>()
 
@@ -152,11 +109,11 @@
   const slotProps = toRef((): ProgressRootSlotProps => {
     const indeterminate = progress.isIndeterminate.value
     const total = progress.total.value
-    const percent = progress.percent.value
+    const pct = progress.percent.value
 
     return {
       total,
-      percent,
+      percent: pct,
       isIndeterminate: indeterminate,
       segments: progress.segments.value,
       attrs: {
@@ -164,7 +121,7 @@
         'aria-valuenow': indeterminate ? undefined : total,
         'aria-valuemin': min,
         'aria-valuemax': max,
-        'aria-valuetext': indeterminate ? undefined : `${Math.round(percent)}%`,
+        'aria-valuetext': indeterminate ? undefined : `${Math.round(pct)}%`,
         'aria-labelledby': labelId.value,
         'aria-busy': indeterminate ? true : undefined,
         'data-state': indeterminate ? 'indeterminate' : 'determinate',

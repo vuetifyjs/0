@@ -4,52 +4,56 @@
  * @see https://0.vuetifyjs.com/composables/semantic/create-progress
  *
  * @remarks
- * Registry-based progress composable with segment tracking.
+ * Progress composable built on createModel for segment tracking.
  *
  * Key features:
- * - Segment registration for multi-part progress bars
- * - Indeterminate state detection
- * - Clamped total with configurable min/max
- * - Percent computation for each segment and overall
+ * - Model-based segment registration (extends createModel)
+ * - Computed total and percent from registered segments
+ * - Value-driven indeterminate mode
+ * - Compatible with useProxyModel for v-model bridging
  * - Trinity pattern for dependency injection
  *
- * Each segment tracks its own value and percent contribution,
- * while the root context provides aggregated total and percent.
+ * Each segment is a model ticket with a ShallowRef<number> value.
+ * All segments stay selected (multiple: true, enroll: true) so
+ * selectedValues always reflects the full set of segment values.
  */
 
 // Composables
 import { createContext, useContext } from '#v0/composables/createContext'
-import { createRegistry } from '#v0/composables/createRegistry'
+import { createModel } from '#v0/composables/createModel'
 import { createTrinity } from '#v0/composables/createTrinity'
 
 // Utilities
-import { clamp, isNullOrUndefined, useId } from '#v0/utilities'
-import { computed, shallowRef, toRef } from 'vue'
+import { clamp, isNullOrUndefined, isUndefined } from '#v0/utilities'
+import { computed, isRef, shallowRef, toRef, toValue } from 'vue'
 
 // Types
-import type { RegistryTicket, RegistryTicketInput } from '#v0/composables/createRegistry'
+import type { ModelContext, ModelOptions, ModelTicket, ModelTicketInput } from '#v0/composables/createModel'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
-import type { ID } from '#v0/types'
-import type { App, ComputedRef, Ref, ShallowRef } from 'vue'
+import type { App, ComputedRef, ShallowRef } from 'vue'
 
-export interface ProgressTicketInput extends RegistryTicketInput<ShallowRef<number>> {}
+export interface ProgressTicketInput extends ModelTicketInput<ShallowRef<number>> {}
 
-export type ProgressTicket = RegistryTicket<ShallowRef<number>> & {
+export type ProgressTicket = ModelTicket<ProgressTicketInput> & {
   percent: ComputedRef<number>
 }
 
-export interface ProgressContext {
-  min: number
-  max: number
-  segments: Ref<readonly ProgressTicket[]>
-  total: Ref<number>
-  percent: Ref<number>
-  isIndeterminate: Ref<boolean>
+export interface ProgressContext extends Omit<
+  ModelContext<ProgressTicketInput, ProgressTicket>,
+  'selectedValues' | 'apply' | 'register'
+> {
+  readonly min: number
+  readonly max: number
+  segments: ComputedRef<ProgressTicket[]>
+  selectedValues: ComputedRef<number[]>
+  total: ComputedRef<number>
+  percent: ComputedRef<number>
+  isIndeterminate: ComputedRef<boolean>
+  apply: (values: unknown[], options?: { multiple?: boolean }) => void
   register: (input?: { value?: number }) => ProgressTicket
-  unregister: (id: ID) => void
 }
 
-export interface ProgressOptions {
+export interface ProgressOptions extends ModelOptions {
   value?: number
   min?: number
   max?: number
@@ -60,7 +64,7 @@ export interface ProgressContextOptions extends ProgressOptions {
 }
 
 /**
- * Creates a progress instance with segment tracking.
+ * Creates a progress instance with model-based segment tracking.
  *
  * @param options The options for the progress instance.
  * @returns A progress context with segment registration.
@@ -69,14 +73,9 @@ export interface ProgressContextOptions extends ProgressOptions {
  * ```ts
  * import { createProgress } from '@vuetify/v0'
  *
- * // Basic usage with a single segment
  * const progress = createProgress({ max: 100 })
  * const segment = progress.register({ value: 50 })
  * progress.percent.value // 50
- *
- * // Indeterminate (no value, no segments)
- * const progress = createProgress()
- * progress.isIndeterminate.value // true
  * ```
  */
 export function createProgress<
@@ -84,80 +83,112 @@ export function createProgress<
 > (_options: ProgressOptions = {}): P {
   const {
     value: _value,
-    min: _min = 0,
-    max: _max = 100,
+    min = 0,
+    max = 100,
+    ...options
   } = _options
 
   const _hasInitialValue = !isNullOrUndefined(_value)
-  const range = _max - _min
+  const extent = max - min
 
-  const registry = createRegistry<ProgressTicket>({ reactive: true })
+  const model = createModel<ProgressTicketInput, ProgressTicket>({
+    ...options,
+    multiple: true,
+    events: true,
+  })
 
-  function register (input?: { value?: number }): ProgressTicket {
-    const id = useId()
-    const value = shallowRef(input?.value ?? 0)
+  let pending: number[] | null = null
 
-    const percent = computed(() => {
-      if (range === 0) return 0
-      return (value.value / range) * 100
-    })
+  const segments = computed(() =>
+    Array.from(model.selectedItems.value).toSorted((a, b) => a.index - b.index),
+  )
 
-    const ticket = {
-      id,
-      value,
-      percent,
-    }
-
-    const registered = registry.register(ticket as unknown as Partial<ProgressTicket>)
-    registered.value = value
-    registered.percent = percent
-
-    return registered
-  }
-
-  const segments = toRef(() => registry.values())
+  const selectedValues = computed(() => segments.value.map(t => toValue(t.value)))
 
   const total = toRef(() => {
-    const values = registry.values()
+    const values = selectedValues.value
+
     if (values.length === 0 && _hasInitialValue) {
-      return clamp(_value!, _min, _max)
+      return clamp(_value!, min, max)
     }
 
     let sum = 0
-    for (const segment of values) {
-      sum += segment.value.value
+    for (const v of values) {
+      sum += v ?? 0
     }
-
-    return clamp(sum, _min, _max)
+    return clamp(sum, min, max)
   })
 
   const percent = toRef(() => {
-    if (range === 0) return 0
-    return ((total.value - _min) / range) * 100
+    if (extent === 0) return 0
+    return ((total.value - min) / extent) * 100
   })
 
   const isIndeterminate = toRef(() => {
     if (_hasInitialValue) return false
-    const values = registry.values()
+    const values = selectedValues.value
     if (values.length === 0) return true
-    for (const seg of values) {
-      if (seg.value.value > 0) return false
+    for (const v of values) {
+      if ((v ?? 0) > 0) return false
     }
     return true
   })
 
+  function register (input?: { value?: number }): ProgressTicket {
+    const initialValue = input?.value
+    const index = segments.value.length
+    const pendingValue = pending?.[index]
+    const val = isUndefined(pendingValue) ? (initialValue ?? 0) : pendingValue
+
+    const ticket = model.register({
+      value: shallowRef(val),
+    })
+
+    if (!model.selectedIds.has(ticket.id)) {
+      model.selectedIds.add(ticket.id)
+    }
+
+    ticket.percent = computed(() => {
+      if (extent === 0) return 0
+      return (clamp(toValue(ticket.value) as number, 0, extent) / extent) * 100
+    })
+
+    if (pending && segments.value.length >= pending.length) {
+      pending = null
+    }
+
+    return ticket
+  }
+
+  function apply (incoming: unknown[], _options?: { multiple?: boolean }): void {
+    const clamped = incoming.map(v => clamp(Number(v), min, max))
+
+    if (segments.value.length === 0) {
+      pending = clamped
+      return
+    }
+
+    for (const [index, element] of clamped.entries()) {
+      const ticket = segments.value[index]
+      if (!ticket || !isRef(ticket.value)) continue
+      ticket.value.value = element!
+    }
+  }
+
   return {
-    ...registry,
+    ...model,
     segments,
+    selectedValues,
     total,
     percent,
     isIndeterminate,
     register,
+    apply,
     get min () {
-      return _min
+      return min
     },
     get max () {
-      return _max
+      return max
     },
   } as unknown as P
 }
@@ -167,18 +198,6 @@ export function createProgress<
  *
  * @param options The options including namespace.
  * @returns A trinity: [useProgress, provideProgress, defaultContext]
- *
- * @example
- * ```ts
- * const [useProgress, provideProgressContext] = createProgressContext({ max: 100 })
- *
- * // Parent component
- * provideProgressContext()
- *
- * // Child component
- * const progress = useProgress()
- * const segment = progress.register({ value: 25 })
- * ```
  */
 export function createProgressContext<
   P extends ProgressContext = ProgressContext,
@@ -199,19 +218,6 @@ export function createProgressContext<
  *
  * @param namespace The namespace. @default 'v0:progress'
  * @returns The progress context.
- *
- * @example
- * ```vue
- * <script setup lang="ts">
- *   import { useProgress } from '@vuetify/v0'
- *
- *   const progress = useProgress()
- * </script>
- *
- * <template>
- *   <div>{{ progress.percent.value }}%</div>
- * </template>
- * ```
  */
 export function useProgress<
   P extends ProgressContext = ProgressContext,
