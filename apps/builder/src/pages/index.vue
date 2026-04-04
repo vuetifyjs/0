@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { mdiFormatListBulletedSquare, mdiRobot, mdiShoeprint } from '@mdi/js'
+  import { mdiCompass, mdiFormatListBulletedSquare, mdiRobot } from '@mdi/js'
 
   // Utilities
   import { useRouter } from 'vue-router'
@@ -18,7 +18,7 @@
       <div class="flex flex-col gap-4">
         <ModeCard
           description="Walk through what you're building step by step. We'll recommend features based on your project."
-          :icon="mdiShoeprint"
+          :icon="mdiCompass"
           title="Guided"
           @click="router.push('/guided')"
         />
