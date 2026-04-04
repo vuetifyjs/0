@@ -37,10 +37,10 @@
 
     <div class="flex items-center gap-3">
       <span
-        v-if="store.selected.size > 0"
+        v-if="store.selectedCount > 0"
         class="bg-primary/10 text-primary text-xs px-2 py-0.5 rounded-full"
       >
-        {{ store.selected.size }} features
+        {{ store.selectedCount }} features
       </span>
 
       <button
