@@ -11,7 +11,7 @@
 </script>
 
 <template>
-  <div class="max-w-2xl mx-auto px-6 py-32">
+  <div class="py-32">
     <h1 class="text-4xl md:text-5xl font-bold mb-2">v0 <span class="text-primary">Framework</span> Builder</h1>
     <p class="text-on-surface-variant mb-2">
       Pick the composables, components, and plugins you need — then try them in the playground.
