@@ -71,7 +71,7 @@
 
     <!-- AI Builder -->
     <div v-else class="flex min-h-screen">
-      <div class="flex-1 flex flex-col max-w-2xl mx-auto px-6">
+      <div class="flex-1 flex flex-col">
         <div class="flex items-center justify-between py-4">
           <button class="text-sm text-on-surface-variant hover:text-on-surface transition-colors" @click="router.push('/')">
             <svg class="w-4 h-4 inline mr-1" viewBox="0 0 24 24"><path :d="mdiArrowLeft" fill="currentColor" /></svg>

@@ -22,7 +22,7 @@
 </script>
 
 <template>
-  <div class="max-w-2xl mx-auto px-6 py-12">
+  <div class="py-12">
     <div class="flex items-center justify-between mb-8">
       <button class="text-sm text-on-surface-variant hover:text-on-surface transition-colors" @click="router.back()">
         <svg class="w-4 h-4 inline mr-1" viewBox="0 0 24 24"><path :d="mdiArrowLeft" fill="currentColor" /></svg>

@@ -100,7 +100,7 @@
 </script>
 
 <template>
-  <div class="max-w-2xl mx-auto px-6 py-12">
+  <div class="py-12">
     <!-- Header -->
     <div class="flex items-center justify-between mb-8">
       <button class="text-sm text-on-surface-variant hover:text-on-surface transition-colors" @click="onBack">
