@@ -2,10 +2,12 @@
   const {
     title,
     description,
+    icon,
     active = false,
   } = defineProps<{
     title: string
     description: string
+    icon?: string
     active?: boolean
   }>()
 </script>
@@ -21,6 +23,9 @@
     >
       &#10003;
     </div>
+    <svg v-if="icon" class="w-8 h-8 mb-2" :class="active ? 'text-primary' : 'text-on-surface-variant'" viewBox="0 0 24 24">
+      <path :d="icon" fill="currentColor" />
+    </svg>
     <h4 class="font-semibold text-on-surface">{{ title }}</h4>
     <p class="text-sm text-on-surface-variant mt-1">{{ description }}</p>
   </button>
