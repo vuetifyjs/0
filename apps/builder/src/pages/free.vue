@@ -5,6 +5,7 @@
   import { computed, shallowRef } from 'vue'
   import { useRouter } from 'vue-router'
 
+  import { CATEGORY_ICONS } from '@/data/features'
   import { useBuilderStore } from '@/stores/builder'
 
   const store = useBuilderStore()
@@ -40,78 +41,79 @@
 </script>
 
 <template>
-  <div class="min-h-screen bg-background text-on-background">
-    <div class="max-w-2xl mx-auto px-6 py-12">
-      <div class="flex items-center justify-between mb-8">
-        <button class="text-sm text-on-surface-variant hover:text-on-surface transition-colors" @click="router.push('/')">
-          <svg class="w-4 h-4 inline mr-1" viewBox="0 0 24 24"><path :d="mdiArrowLeft" fill="currentColor" /></svg>
-          Back
+  <div class="max-w-2xl mx-auto px-6 py-12">
+    <div class="flex items-center justify-between mb-8">
+      <button class="text-sm text-on-surface-variant hover:text-on-surface transition-colors" @click="router.push('/')">
+        <svg class="w-4 h-4 inline mr-1" viewBox="0 0 24 24"><path :d="mdiArrowLeft" fill="currentColor" /></svg>
+        Back
+      </button>
+      <button
+        class="text-sm bg-primary text-on-primary px-3 py-1.5 rounded-lg font-semibold hover:opacity-90 transition-opacity"
+        :class="{ 'opacity-50 cursor-not-allowed': store.selected.size === 0 }"
+        :disabled="store.selected.size === 0"
+        @click="onReview"
+      >
+        Review ({{ store.selected.size }})
+      </button>
+    </div>
+
+    <h2 class="text-xl font-bold mb-2">All Features</h2>
+    <p class="text-on-surface-variant mb-6">Browse and select what you need.</p>
+
+    <!-- Sticky selection summary -->
+    <div
+      v-if="store.selected.size > 0"
+      class="sticky top-0 z-10 bg-background/90 backdrop-blur-sm border-b border-divider -mx-6 px-6 py-3 mb-6 flex items-center justify-between"
+    >
+      <span class="text-sm font-medium text-on-surface">
+        {{ store.selected.size }} features selected
+      </span>
+      <div class="flex gap-3">
+        <button class="text-xs text-on-surface-variant hover:text-on-surface" @click="store.reset()">
+          Clear all
         </button>
         <button
-          class="text-sm bg-primary text-on-primary px-3 py-1.5 rounded-lg font-semibold hover:opacity-90 transition-opacity"
-          :class="{ 'opacity-50 cursor-not-allowed': store.selected.size === 0 }"
-          :disabled="store.selected.size === 0"
+          class="text-sm bg-primary text-on-primary px-3 py-1 rounded-lg font-semibold hover:opacity-90"
           @click="onReview"
         >
-          Review ({{ store.selected.size }})
+          Review
         </button>
       </div>
-
-      <h2 class="text-xl font-bold mb-2">All Features</h2>
-      <p class="text-on-surface-variant mb-6">Browse and select what you need.</p>
-
-      <!-- Sticky selection summary -->
-      <div
-        v-if="store.selected.size > 0"
-        class="sticky top-0 z-10 bg-background/90 backdrop-blur-sm border-b border-divider -mx-6 px-6 py-3 mb-6 flex items-center justify-between"
-      >
-        <span class="text-sm font-medium text-on-surface">
-          {{ store.selected.size }} features selected
-        </span>
-        <div class="flex gap-3">
-          <button class="text-xs text-on-surface-variant hover:text-on-surface" @click="store.reset()">
-            Clear all
-          </button>
-          <button
-            class="text-sm bg-primary text-on-primary px-3 py-1 rounded-lg font-semibold hover:opacity-90"
-            @click="onReview"
-          >
-            Review
-          </button>
-        </div>
-      </div>
-
-      <div class="relative mb-8">
-        <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" viewBox="0 0 24 24">
-          <path :d="mdiMagnify" fill="currentColor" />
-        </svg>
-        <input
-          v-model="query"
-          class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-divider bg-surface text-on-surface placeholder:text-on-surface-variant/50 focus:border-primary focus:outline-none transition-colors"
-          placeholder="Search features..."
-          type="text"
-        >
-      </div>
-
-      <div v-for="[category, features] in grouped" :key="category" class="mb-8">
-        <h3 class="text-sm font-semibold text-on-surface-variant uppercase tracking-wide mb-3 capitalize">
-          {{ category }} ({{ features.length }})
-        </h3>
-        <div class="flex flex-col gap-2">
-          <FeatureCard
-            v-for="feature in features"
-            :key="feature.id"
-            :active="store.selected.has(feature.id)"
-            :auto="!store.selected.has(feature.id) && store.resolved.autoIncluded.includes(feature.id)"
-            :feature
-            @click="store.toggle(feature.id)"
-          />
-        </div>
-      </div>
-
-      <p v-if="filtered.length === 0" class="text-center text-on-surface-variant py-8">
-        No features match "{{ query }}"
-      </p>
     </div>
+
+    <div class="relative mb-8">
+      <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" viewBox="0 0 24 24">
+        <path :d="mdiMagnify" fill="currentColor" />
+      </svg>
+      <input
+        v-model="query"
+        class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-divider bg-surface text-on-surface placeholder:text-on-surface-variant/50 focus:border-primary focus:outline-none transition-colors"
+        placeholder="Search features..."
+        type="text"
+      >
+    </div>
+
+    <div v-for="[category, features] in grouped" :key="category" class="mb-8">
+      <h3 class="text-sm font-semibold text-on-surface-variant uppercase tracking-wide mb-3 capitalize flex items-center gap-2">
+        <svg v-if="CATEGORY_ICONS[category]" class="w-4 h-4" viewBox="0 0 24 24">
+          <path :d="CATEGORY_ICONS[category]" fill="currentColor" />
+        </svg>
+        {{ category }} ({{ features.length }})
+      </h3>
+      <div class="flex flex-col gap-2">
+        <FeatureCard
+          v-for="feature in features"
+          :key="feature.id"
+          :active="store.selected.has(feature.id)"
+          :auto="!store.selected.has(feature.id) && store.resolved.autoIncluded.includes(feature.id)"
+          :feature
+          @click="store.toggle(feature.id)"
+        />
+      </div>
+    </div>
+
+    <p v-if="filtered.length === 0" class="text-center text-on-surface-variant py-8">
+      No features match "{{ query }}"
+    </p>
   </div>
 </template>

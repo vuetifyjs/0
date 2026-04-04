@@ -7,6 +7,7 @@
   // Types
   import type { Intent } from '@/data/types'
 
+  import { CATEGORY_ICONS } from '@/data/features'
   import { useBuilderStore } from '@/stores/builder'
 
   const store = useBuilderStore()
@@ -168,7 +169,10 @@
       <p class="text-xs text-on-surface-variant uppercase tracking-wide mb-1">
         Step {{ store.step + 1 }} of {{ steps.length }}
       </p>
-      <h2 class="text-xl font-bold mb-2 capitalize">
+      <h2 class="text-xl font-bold mb-2 capitalize flex items-center gap-2">
+        <svg v-if="CATEGORY_ICONS[steps[store.step]]" class="w-6 h-6 text-primary" viewBox="0 0 24 24">
+          <path :d="CATEGORY_ICONS[steps[store.step]]" fill="currentColor" />
+        </svg>
         {{ categoryInfo[steps[store.step]]?.title ?? steps[store.step] }}
       </h2>
       <p class="text-on-surface-variant mb-6">

@@ -33,7 +33,7 @@
 </script>
 
 <template>
-  <div class="min-h-screen bg-background text-on-background">
+  <div>
     <!-- Auth gate -->
     <div v-if="!authenticated" class="flex flex-col items-center justify-center min-h-screen px-6">
       <svg class="w-12 h-12 text-on-surface-variant mb-4" viewBox="0 0 24 24">
