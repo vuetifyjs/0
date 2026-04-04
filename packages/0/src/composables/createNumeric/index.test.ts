@@ -184,6 +184,19 @@ describe('createNumeric', () => {
       expect(n.snap(-5)).toBe(0)
     })
 
+    it('snap still aligns to step when only max is infinite', () => {
+      const n = setup({ min: 0, step: 5 })
+      expect(n.snap(47)).toBe(45)
+      expect(n.snap(48)).toBe(50)
+      expect(n.snap(0)).toBe(0)
+    })
+
+    it('snap skips alignment when min is infinite', () => {
+      const n = setup({ max: 100, step: 5 })
+      expect(n.snap(47)).toBe(47)
+      expect(n.snap(110)).toBe(100)
+    })
+
     it('fromValue returns 0 with infinite extent', () => {
       const n = setup()
       expect(n.fromValue(50)).toBe(0)

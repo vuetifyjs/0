@@ -12,7 +12,6 @@ features:
   level: 2
 related:
   - /composables/forms/create-slider
-  - /composables/forms/create-number-field
   - /composables/forms/create-rating
 ---
 

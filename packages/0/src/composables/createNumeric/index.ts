@@ -66,7 +66,7 @@ export function createNumeric (options: NumericOptions = {}): NumericContext {
   )
 
   function snap (value: number): number {
-    if (step <= 0 || !Number.isFinite(min) || !Number.isFinite(max)) return clamp(value, min, max)
+    if (step <= 0 || !Number.isFinite(min)) return clamp(value, min, max)
     const clamped = clamp(value, min, max)
     const steps = Math.round((clamped - min) / step)
     const result = min + steps * step
