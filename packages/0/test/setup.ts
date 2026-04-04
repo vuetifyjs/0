@@ -1,4 +1,4 @@
-/// <reference path="./globals.d.ts" />
+import './globals'
 
 import { cleanup } from '@testing-library/vue'
 import { afterEach, beforeAll } from 'vitest'

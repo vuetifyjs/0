@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // Adapters
 import { ClientAdapter } from '#v0/composables/createCombobox/adapters/client'
@@ -8,12 +8,6 @@ import { mount } from '@vue/test-utils'
 import { defineComponent, h, nextTick, ref } from 'vue'
 
 import { Combobox } from './index'
-
-// Mock showPopover/hidePopover — not supported in happy-dom
-beforeEach(() => {
-  HTMLElement.prototype.showPopover = vi.fn()
-  HTMLElement.prototype.hidePopover = vi.fn()
-})
 
 // Clean up DOM between tests — cursor uses document.querySelector (global),
 // so stale elements from prior tests cause false matches if not cleared
