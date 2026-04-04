@@ -9,8 +9,8 @@ export default defineConfig({
     },
   },
   test: {
+    environment: 'node',
     globals: true,
-    include: ['**/*.{test,spec}.?(c|m)[jt]s?(x)'],
-    testTimeout: 20_000,
+    include: ['src/**/*.{test,spec}.?(c|m)[jt]s?(x)'],
   },
 })
