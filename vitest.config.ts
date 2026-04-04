@@ -2,7 +2,7 @@ import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
   test: {
-    projects: ['packages/*', 'apps/docs'],
+    projects: ['packages/*', 'apps/docs', 'apps/builder'],
     globals: true,
     include: ['**/*.{test,spec}.?(c|m)[jt]s?(x)'],
     testTimeout: 20_000,
