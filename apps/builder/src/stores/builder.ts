@@ -76,7 +76,7 @@ export const useBuilderStore = defineStore('builder', () => {
   }
 
   function isSelected (id: string): boolean {
-    return features.selectedIds.has(id)
+    return features.selected(id)
   }
 
   function reset () {
