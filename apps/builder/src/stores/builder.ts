@@ -77,7 +77,7 @@ export const useBuilderStore = defineStore('builder', () => {
         resolved: resolved.value.autoIncluded,
         adapters: {},
       },
-      'https://play.vuetifyjs.com',
+      'https://v0play.vuetifyjs.com',
     )
     window.open(url, '_blank')
   }
