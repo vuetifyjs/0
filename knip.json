@@ -86,6 +86,7 @@
       "entry": [
         "src/App.vue",
         "src/components/**/*.vue",
+        "src/layouts/*.vue",
         "src/data/*.ts",
         "src/engine/*.ts",
         "src/plugins/*.ts",
