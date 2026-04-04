@@ -3,7 +3,7 @@
   import { useAuthStore } from '@vuetify/auth'
 
   // Framework
-  import { Atom, useBreakpoints, useFeatures, useStorage } from '@vuetify/v0'
+  import { Atom, useBreakpoints, useFeatures, useStorage, useTheme } from '@vuetify/v0'
 
   // Components
   import { Discovery } from '@/components/discovery'
@@ -33,6 +33,7 @@
   const features = useFeatures()
   const search = useSearch()
   const settings = useSettings()
+  const theme = useTheme()
 
   const devmode = features.get('devmode')!
 
@@ -51,8 +52,9 @@
     data-app-bar
   >
     <div class="flex items-center gap-2">
-      <router-link to="/">
+      <router-link class="inline-block w-[128px]" to="/">
         <img
+          v-if="!theme.isDark.value"
           alt="Vuetify0 Logo"
           class="logo-light"
           decoding="async"
@@ -62,6 +64,7 @@
           width="128"
         >
         <img
+          v-else
           alt="Vuetify0 Logo"
           class="logo-dark"
           decoding="async"
