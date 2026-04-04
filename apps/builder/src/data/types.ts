@@ -10,6 +10,8 @@ export interface Feature {
   dependencies: string[]
   tags: string[]
   icon?: string
+  description?: string
+  example?: string
 }
 
 export interface FeatureMeta {
@@ -18,6 +20,8 @@ export interface FeatureMeta {
   useCases: string[]
   tags: string[]
   icon?: string
+  description?: string
+  example?: string
 }
 
 export interface DependencyGraph {
