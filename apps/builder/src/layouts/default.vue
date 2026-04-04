@@ -5,10 +5,10 @@
 </script>
 
 <template>
-  <div class="min-h-screen bg-background text-on-background">
+  <div class="min-h-screen bg-background text-on-background flex flex-col">
     <AppBar />
 
-    <main class="pt-14">
+    <main class="pt-14 flex-1">
       <router-view />
     </main>
 
