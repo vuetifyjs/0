@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it } from 'vitest'
 
 // Adapters
 import { ClientAdapter } from '#v0/composables/createCombobox/adapters/client'

@@ -23,7 +23,7 @@ export default defineConfig({
   },
   test: {
     name: 'v0:unit',
-    environment: 'jsdom',
+    environment: 'happy-dom',
     globals: true,
     include: ['**/*.test.{ts,tsx}'],
     exclude: ['**/*.browser.test.{ts,tsx}'],
