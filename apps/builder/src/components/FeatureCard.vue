@@ -77,9 +77,6 @@
 
     <div class="flex-1 min-w-0">
       <div class="flex items-center gap-2 mb-1">
-        <svg v-if="feature.icon" class="w-4 h-4 text-on-surface-variant flex-shrink-0" viewBox="0 0 24 24">
-          <path :d="feature.icon" fill="currentColor" />
-        </svg>
         <span class="font-semibold text-on-surface">{{ feature.name }}</span>
         <span class="font-semibold text-xs px-2 py-0.5 rounded-full" :class="maturityClass">
           {{ feature.maturity }}
