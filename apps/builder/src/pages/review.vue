@@ -11,7 +11,7 @@
   const router = useRouter()
 
   const selectedFeatures = computed(() => {
-    return store.catalog.filter(f => store.selected.has(f.id))
+    return store.catalog.filter(f => store.isSelected(f.id))
   })
 
   const autoFeatures = computed(() => {

@@ -1,6 +1,9 @@
+// Framework
+import { createGroup, createSingle, createStep } from '@vuetify/v0'
+
 // Utilities
 import { defineStore } from 'pinia'
-import { computed, shallowRef } from 'vue'
+import { computed, toRef } from 'vue'
 
 // Types
 import type { DependencyGraph, Feature, Intent, ResolvedSet } from '@/data/types'
@@ -14,15 +17,37 @@ export const useBuilderStore = defineStore('builder', () => {
   const catalog = buildCatalog()
   const graph = dependencyGraph as DependencyGraph
 
-  // State
-  const intent = shallowRef<Intent | null>(null)
-  const selected = shallowRef(new Set<string>())
-  const mode = shallowRef<'guided' | 'free'>('guided')
-  const step = shallowRef(0)
+  // Intent — single select for project type
+  const intent = createSingle()
+  intent.onboard([
+    { id: 'spa', value: 'spa' },
+    { id: 'component-library', value: 'component-library' },
+    { id: 'design-system', value: 'design-system' },
+    { id: 'admin-dashboard', value: 'admin-dashboard' },
+    { id: 'content-site', value: 'content-site' },
+    { id: 'mobile-first', value: 'mobile-first' },
+  ])
+
+  // Feature selection — multi-select group
+  const features = createGroup()
+  features.onboard(catalog.map(f => ({ id: f.id, value: f.id })))
+
+  // Wizard stepper
+  const stepper = createStep()
+
+  // Mode — single select (guided vs free)
+  const mode = createSingle({ mandatory: 'force' })
+  mode.onboard([
+    { id: 'guided', value: 'guided' },
+    { id: 'free', value: 'free' },
+  ])
+  mode.select('guided')
 
   // Derived
+  const selectedIds = toRef(() => features.selectedIds)
+
   const resolved = computed<ResolvedSet>(() => {
-    return resolve([...selected.value], graph)
+    return resolve([...features.selectedIds] as string[], graph)
   })
 
   const categories = computed(() => {
@@ -35,45 +60,54 @@ export const useBuilderStore = defineStore('builder', () => {
     return cats
   })
 
+  const selectedCount = toRef(() => features.selectedIds.size)
+
   // Actions
   function toggle (id: string) {
-    const next = new Set(selected.value)
-    if (next.has(id)) {
-      next.delete(id)
-    } else {
-      next.add(id)
-    }
-    selected.value = next
+    features.toggle(id)
   }
 
   function select (id: string) {
-    const next = new Set(selected.value)
-    next.add(id)
-    selected.value = next
+    features.select(id)
   }
 
   function deselect (id: string) {
-    const next = new Set(selected.value)
-    next.delete(id)
-    selected.value = next
+    features.unselect(id)
+  }
+
+  function isSelected (id: string): boolean {
+    return features.selectedIds.has(id)
   }
 
   function reset () {
-    intent.value = null
-    selected.value = new Set()
-    step.value = 0
+    if (intent.selectedId.value) {
+      intent.unselect(intent.selectedId.value)
+    }
+    features.unselectAll()
+    stepper.first()
   }
 
   function setIntent (value: Intent) {
-    intent.value = value
-    selected.value = new Set(getRecommendations(value))
+    intent.select(value)
+    features.unselectAll()
+    for (const id of getRecommendations(value)) {
+      if (features.has(id)) {
+        features.select(id)
+      }
+    }
+  }
+
+  function initSteps (stepIds: string[]) {
+    stepper.reset()
+    stepper.onboard(stepIds.map(id => ({ id, value: id })))
+    stepper.first()
   }
 
   async function openInPlayground () {
     const url = await toPlaygroundUrl(
       {
-        intent: intent.value ?? undefined,
-        features: [...selected.value],
+        intent: intent.selectedValue.value as string | undefined,
+        features: [...features.selectedIds] as string[],
         resolved: resolved.value.autoIncluded,
         adapters: {},
       },
@@ -83,18 +117,29 @@ export const useBuilderStore = defineStore('builder', () => {
   }
 
   return {
-    catalog,
+    // Raw composables
     intent,
-    selected,
+    features,
+    stepper,
     mode,
-    step,
+
+    // Data
+    catalog,
+
+    // Derived
+    selectedIds,
+    selectedCount,
     resolved,
     categories,
+
+    // Actions
     toggle,
     select,
     deselect,
+    isSelected,
     reset,
     setIntent,
+    initSteps,
     openInPlayground,
   }
 })

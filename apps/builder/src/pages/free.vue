@@ -49,11 +49,11 @@
       </button>
       <button
         class="text-sm bg-primary text-on-primary px-3 py-1.5 rounded-lg font-semibold hover:opacity-90 transition-opacity"
-        :class="{ 'opacity-50 cursor-not-allowed': store.selected.size === 0 }"
-        :disabled="store.selected.size === 0"
+        :class="{ 'opacity-50 cursor-not-allowed': store.selectedCount === 0 }"
+        :disabled="store.selectedCount === 0"
         @click="onReview"
       >
-        Review ({{ store.selected.size }})
+        Review ({{ store.selectedCount }})
       </button>
     </div>
 
@@ -62,11 +62,11 @@
 
     <!-- Sticky selection summary -->
     <div
-      v-if="store.selected.size > 0"
+      v-if="store.selectedCount > 0"
       class="sticky top-0 z-10 bg-background/90 backdrop-blur-sm border-b border-divider -mx-6 px-6 py-3 mb-6 flex items-center justify-between"
     >
       <span class="text-sm font-medium text-on-surface">
-        {{ store.selected.size }} features selected
+        {{ store.selectedCount }} features selected
       </span>
       <div class="flex gap-3">
         <button class="text-xs text-on-surface-variant hover:text-on-surface" @click="store.reset()">
@@ -104,8 +104,8 @@
         <FeatureCard
           v-for="feature in features"
           :key="feature.id"
-          :active="store.selected.has(feature.id)"
-          :auto="!store.selected.has(feature.id) && store.resolved.autoIncluded.includes(feature.id)"
+          :active="store.isSelected(feature.id)"
+          :auto="!store.isSelected(feature.id) && store.resolved.autoIncluded.includes(feature.id)"
           :feature
           @click="store.toggle(feature.id)"
         />

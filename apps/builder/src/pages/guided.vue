@@ -2,6 +2,7 @@
   import { mdiApplication, mdiArrowLeft, mdiArrowRight, mdiCellphone, mdiFileDocument, mdiPackageVariant, mdiPaletteAdvanced, mdiViewDashboard } from '@mdi/js'
 
   // Utilities
+  import { onMounted } from 'vue'
   import { useRouter } from 'vue-router'
 
   // Types
@@ -73,29 +74,35 @@
     'semantic',
   ]
 
-  const steps = ['Intent', ...categoryOrder.filter(c => store.categories.has(c)), 'Review']
+  const steps = ['intent', ...categoryOrder.filter(c => store.categories.has(c)), 'review']
+
+  onMounted(() => {
+    store.initSteps(steps)
+  })
 
   function onIntent (id: Intent) {
     store.setIntent(id)
   }
 
   function onNext () {
-    if (store.step < steps.length - 1) {
-      store.step++
-    }
+    store.stepper.next()
   }
 
   function onBack () {
-    if (store.step > 0) {
-      store.step--
+    if (store.stepper.selectedIndex.value > 0) {
+      store.stepper.prev()
     } else {
       router.push('/')
     }
   }
 
   function onSwitchToFree () {
-    store.mode = 'free'
+    store.mode.select('free')
     router.push('/free')
+  }
+
+  function currentStep () {
+    return steps[store.stepper.selectedIndex.value] ?? 'intent'
   }
 </script>
 
@@ -118,28 +125,28 @@
         <div
           class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0 transition-colors"
           :class="[
-            index < store.step
+            index < store.stepper.selectedIndex.value
               ? 'bg-primary text-on-primary'
-              : index === store.step
+              : index === store.stepper.selectedIndex.value
                 ? 'bg-primary text-on-primary ring-4 ring-primary/20'
                 : 'bg-surface-variant text-on-surface-variant',
           ]"
         >
-          <template v-if="index < store.step">&#10003;</template>
+          <template v-if="index < store.stepper.selectedIndex.value">&#10003;</template>
           <template v-else>{{ index + 1 }}</template>
         </div>
         <div
           v-if="index < steps.length - 1"
           class="h-0.5 flex-1 transition-colors"
-          :class="index < store.step ? 'bg-primary' : 'bg-divider'"
+          :class="index < store.stepper.selectedIndex.value ? 'bg-primary' : 'bg-divider'"
         />
       </template>
     </div>
 
     <!-- Intent step -->
-    <template v-if="store.step === 0">
+    <template v-if="currentStep() === 'intent'">
       <p class="text-xs text-on-surface-variant uppercase tracking-wide mb-1">
-        Step {{ store.step + 1 }} of {{ steps.length }}
+        Step {{ store.stepper.selectedIndex.value + 1 }} of {{ steps.length }}
       </p>
       <h2 class="text-xl font-bold mb-2">What are you building?</h2>
       <p class="text-on-surface-variant mb-6">Pick a project type and we'll seed the right features for you.</p>
@@ -148,7 +155,7 @@
         <IntentCard
           v-for="item in intents"
           :key="item.id"
-          :active="store.intent === item.id"
+          :active="store.intent.selectedId.value === item.id"
           :description="item.description"
           :icon="item.icon"
           :title="item.title"
@@ -157,41 +164,41 @@
       </div>
 
       <div
-        v-if="store.intent"
+        v-if="store.intent.selectedId.value"
         class="bg-primary/5 text-primary text-sm p-3 rounded-lg mt-4"
       >
-        Great choice! We've pre-selected {{ store.selected.size }} features for you.
+        Great choice! We've pre-selected {{ store.selectedCount }} features for you.
       </div>
     </template>
 
     <!-- Category steps -->
-    <template v-else-if="store.step < steps.length - 1">
+    <template v-else-if="currentStep() !== 'review'">
       <p class="text-xs text-on-surface-variant uppercase tracking-wide mb-1">
-        Step {{ store.step + 1 }} of {{ steps.length }}
+        Step {{ store.stepper.selectedIndex.value + 1 }} of {{ steps.length }}
       </p>
       <h2 class="text-xl font-bold mb-2 capitalize flex items-center gap-2">
-        <svg v-if="CATEGORY_ICONS[steps[store.step]]" class="w-6 h-6 text-primary" viewBox="0 0 24 24">
-          <path :d="CATEGORY_ICONS[steps[store.step]]" fill="currentColor" />
+        <svg v-if="CATEGORY_ICONS[currentStep()]" class="w-6 h-6 text-primary" viewBox="0 0 24 24">
+          <path :d="CATEGORY_ICONS[currentStep()]" fill="currentColor" />
         </svg>
-        {{ categoryInfo[steps[store.step]]?.title ?? steps[store.step] }}
+        {{ categoryInfo[currentStep()]?.title ?? currentStep() }}
       </h2>
       <p class="text-on-surface-variant mb-6">
-        {{ categoryInfo[steps[store.step]]?.description ?? 'Select the features you need from this category.' }}
+        {{ categoryInfo[currentStep()]?.description ?? 'Select the features you need from this category.' }}
       </p>
 
       <div class="flex flex-col gap-3">
         <FeatureCard
-          v-for="feature in store.categories.get(steps[store.step]) ?? []"
+          v-for="feature in store.categories.get(currentStep()) ?? []"
           :key="feature.id"
-          :active="store.selected.has(feature.id)"
-          :auto="!store.selected.has(feature.id) && store.resolved.autoIncluded.includes(feature.id)"
+          :active="store.isSelected(feature.id)"
+          :auto="!store.isSelected(feature.id) && store.resolved.autoIncluded.includes(feature.id)"
           :feature
           @click="store.toggle(feature.id)"
         />
       </div>
 
       <p
-        v-if="(store.categories.get(steps[store.step]) ?? []).length === 0"
+        v-if="(store.categories.get(currentStep()) ?? []).length === 0"
         class="text-on-surface-variant text-sm"
       >
         No features in this category yet.
@@ -199,7 +206,7 @@
 
       <div class="mt-8 pt-6 border-t border-divider flex items-center justify-between">
         <div class="text-sm text-on-surface-variant">
-          <span class="font-semibold text-on-surface">{{ store.selected.size }}</span> features selected
+          <span class="font-semibold text-on-surface">{{ store.selectedCount }}</span> features selected
           <span v-if="store.resolved.autoIncluded.length > 0" class="ml-2">
             + <span class="font-semibold text-accent">{{ store.resolved.autoIncluded.length }}</span> auto-included
           </span>
@@ -207,14 +214,14 @@
       </div>
     </template>
 
-    <!-- Review step (inline for now, Task 10 creates the full review page) -->
+    <!-- Review step -->
     <template v-else>
       <p class="text-xs text-on-surface-variant uppercase tracking-wide mb-1">
-        Step {{ store.step + 1 }} of {{ steps.length }}
+        Step {{ store.stepper.selectedIndex.value + 1 }} of {{ steps.length }}
       </p>
       <h2 class="text-xl font-bold mb-2">Review</h2>
       <p class="text-on-surface-variant mb-4">
-        {{ store.resolved.selected.length }} selected, {{ store.resolved.autoIncluded.length }} auto-included.
+        {{ store.selectedCount }} selected, {{ store.resolved.autoIncluded.length }} auto-included.
       </p>
       <button
         class="px-4 py-2 bg-primary text-on-primary rounded-lg font-semibold hover:opacity-90"
@@ -234,11 +241,11 @@
       </button>
       <button
         class="px-4 py-2 text-sm bg-primary text-on-primary rounded-lg font-semibold hover:opacity-90 transition-opacity"
-        :class="{ 'opacity-50 cursor-not-allowed': store.step === 0 && !store.intent }"
-        :disabled="store.step === 0 && !store.intent"
+        :class="{ 'opacity-50 cursor-not-allowed': currentStep() === 'intent' && !store.intent.selectedId.value }"
+        :disabled="currentStep() === 'intent' && !store.intent.selectedId.value"
         @click="onNext"
       >
-        {{ store.step === steps.length - 2 ? 'Review' : 'Continue' }}
+        {{ currentStep() === steps[steps.length - 2] ? 'Review' : 'Continue' }}
         <svg class="w-4 h-4 inline ml-1" viewBox="0 0 24 24"><path :d="mdiArrowRight" fill="currentColor" /></svg>
       </button>
     </div>
