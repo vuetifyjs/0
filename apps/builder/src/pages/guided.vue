@@ -2,7 +2,6 @@
   import { mdiApplication, mdiArrowLeft, mdiArrowRight, mdiCellphone, mdiFileDocument, mdiPackageVariant, mdiPaletteAdvanced, mdiViewDashboard } from '@mdi/js'
 
   // Utilities
-  import { onMounted } from 'vue'
   import { useRouter } from 'vue-router'
 
   // Types
@@ -76,9 +75,7 @@
 
   const steps = ['intent', ...categoryOrder.filter(c => store.categories.has(c)), 'review']
 
-  onMounted(() => {
-    store.initSteps(steps)
-  })
+  store.initSteps(steps)
 
   function onIntent (id: Intent) {
     store.setIntent(id)
@@ -102,7 +99,7 @@
   }
 
   function currentStep () {
-    return steps[store.stepper.selectedIndex.value] ?? 'intent'
+    return steps[store.stepper.selectedIndex.value ?? 0] ?? 'intent'
   }
 </script>
 
