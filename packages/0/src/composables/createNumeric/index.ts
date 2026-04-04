@@ -34,11 +34,11 @@ export interface NumericOptions {
 }
 
 export interface NumericContext {
-  readonly min: number
-  readonly max: number
-  readonly step: number
-  readonly leap: number
-  readonly wrap: boolean
+  min: number
+  max: number
+  step: number
+  leap: number
+  wrap: boolean
   snap: (value: number) => number
   fromValue: (value: number) => number
   fromPercent: (percent: number) => number

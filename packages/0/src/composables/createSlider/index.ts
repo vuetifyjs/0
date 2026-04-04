@@ -193,17 +193,17 @@ export interface SliderContext extends Omit<
   /** Whether inverted. Reactive ref derived from the `inverted` option. */
   inverted: Readonly<Ref<boolean>>
   /** Minimum value. */
-  readonly min: number
+  min: number
   /** Maximum value. */
-  readonly max: number
+  max: number
   /** Step increment. */
-  readonly step: number
+  step: number
   /** Minimum steps required between adjacent thumbs. */
-  readonly minStepsBetweenThumbs: number
+  minStepsBetweenThumbs: number
   /** Whether thumbs can cross each other. */
-  readonly crossover: boolean
+  crossover: boolean
   /** Whether this is a range slider. */
-  readonly range: boolean
+  range: boolean
   /**
    * Register a new thumb and return its ticket.
    *
