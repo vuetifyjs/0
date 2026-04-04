@@ -14,7 +14,7 @@ interface DependencyGraph {
 function extractV0Imports (filePath: string): string[] {
   let content: string
   try {
-    content = readFileSync(filePath, 'utf-8')
+    content = readFileSync(filePath, 'utf8')
   } catch {
     return []
   }
@@ -51,7 +51,7 @@ function scanDirectory (dir: string): Record<string, string[]> {
       }
     } catch { /* empty */ }
 
-    graph[entry] = [...new Set(deps)].filter(d => d !== entry).sort()
+    graph[entry] = [...new Set(deps)].filter(d => d !== entry).toSorted()
   }
 
   return graph
