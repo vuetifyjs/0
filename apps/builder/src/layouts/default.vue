@@ -1,6 +1,7 @@
 <script setup lang="ts">
   // Components
   import AppBar from '@/components/app/AppBar.vue'
+  import AppFooter from '@/components/app/AppFooter.vue'
 </script>
 
 <template>
@@ -10,5 +11,7 @@
     <main class="pt-14">
       <router-view />
     </main>
+
+    <AppFooter />
   </div>
 </template>
