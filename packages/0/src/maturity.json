@@ -86,6 +86,16 @@
       "since": "0.2.0",
       "category": "forms"
     },
+    "createInput": {
+      "level": "preview",
+      "since": "0.2.0",
+      "category": "forms"
+    },
+    "createNumeric": {
+      "level": "preview",
+      "since": "0.2.0",
+      "category": "forms"
+    },
     "createDataTable": {
       "level": "preview",
       "since": "0.1.0",
