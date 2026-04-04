@@ -17,61 +17,45 @@
  * while the root context provides aggregated total and percent.
  */
 
+// Composables
 import { createContext, useContext } from '#v0/composables/createContext'
+import { createRegistry } from '#v0/composables/createRegistry'
 import { createTrinity } from '#v0/composables/createTrinity'
 
 // Utilities
 import { clamp, isNullOrUndefined, useId } from '#v0/utilities'
-import { computed, onScopeDispose, shallowRef, toRef, triggerRef } from 'vue'
+import { computed, shallowRef, toRef } from 'vue'
 
 // Types
+import type { RegistryTicket, RegistryTicketInput } from '#v0/composables/createRegistry'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { ID } from '#v0/types'
-import type { App, ComputedRef, ShallowRef } from 'vue'
+import type { App, ComputedRef, Ref, ShallowRef } from 'vue'
 
-export interface ProgressSegment {
-  /** Unique segment identifier */
-  id: ID
-  /** Current segment value */
-  value: ShallowRef<number>
-  /** Segment's contribution as a percentage of the range */
+export interface ProgressTicketInput extends RegistryTicketInput<ShallowRef<number>> {}
+
+export type ProgressTicket = RegistryTicket<ShallowRef<number>> & {
   percent: ComputedRef<number>
-  /** Remove this segment from the registry */
-  unregister: () => void
-  /** Position among registered segments */
-  get index (): number
 }
 
 export interface ProgressContext {
-  /** Minimum value of the range */
   min: number
-  /** Maximum value of the range */
   max: number
-  /** Registered segments as a readonly array */
-  segments: ComputedRef<ProgressSegment[]>
-  /** Sum of all segment values, clamped to [min, max] */
-  total: ComputedRef<number>
-  /** Overall progress as a percentage of the range */
-  percent: ComputedRef<number>
-  /** True when progress state cannot be determined */
-  isIndeterminate: ComputedRef<boolean>
-  /** Register a new segment and return its descriptor */
-  register: (input?: { value?: number }) => ProgressSegment
-  /** Remove a segment by ID */
+  segments: Ref<readonly ProgressTicket[]>
+  total: Ref<number>
+  percent: Ref<number>
+  isIndeterminate: Ref<boolean>
+  register: (input?: { value?: number }) => ProgressTicket
   unregister: (id: ID) => void
 }
 
 export interface ProgressOptions {
-  /** Initial value when no segments are registered. @default undefined */
   value?: number
-  /** Minimum bound. @default 0 */
   min?: number
-  /** Maximum bound. @default 100 */
   max?: number
 }
 
 export interface ProgressContextOptions extends ProgressOptions {
-  /** Namespace for dependency injection */
   namespace?: string
 }
 
@@ -105,20 +89,42 @@ export function createProgress<
   } = _options
 
   const _hasInitialValue = !isNullOrUndefined(_value)
-  const _segments = shallowRef<Map<ID, ProgressSegment>>(new Map())
-
   const range = _max - _min
 
-  const segments = toRef(() => Array.from(_segments.value.values()) as ProgressSegment[])
+  const registry = createRegistry<ProgressTicket>({ reactive: true })
+
+  function register (input?: { value?: number }): ProgressTicket {
+    const id = useId()
+    const value = shallowRef(input?.value ?? 0)
+
+    const percent = computed(() => {
+      if (range === 0) return 0
+      return (value.value / range) * 100
+    })
+
+    const ticket = {
+      id,
+      value,
+      percent,
+    }
+
+    const registered = registry.register(ticket as unknown as Partial<ProgressTicket>)
+    registered.value = value
+    registered.percent = percent
+
+    return registered
+  }
+
+  const segments = toRef(() => registry.values())
 
   const total = toRef(() => {
-    const map = _segments.value
-    if (map.size === 0 && _hasInitialValue) {
+    const values = registry.values()
+    if (values.length === 0 && _hasInitialValue) {
       return clamp(_value!, _min, _max)
     }
 
     let sum = 0
-    for (const segment of map.values()) {
+    for (const segment of values) {
       sum += segment.value.value
     }
 
@@ -132,58 +138,21 @@ export function createProgress<
 
   const isIndeterminate = toRef(() => {
     if (_hasInitialValue) return false
-    if (_segments.value.size === 0) return true
-    for (const seg of _segments.value.values()) {
+    const values = registry.values()
+    if (values.length === 0) return true
+    for (const seg of values) {
       if (seg.value.value > 0) return false
     }
     return true
   })
 
-  function unregister (id: ID) {
-    _segments.value.delete(id)
-    triggerRef(_segments)
-  }
-
-  function register (input?: { value?: number }): ProgressSegment {
-    const id = useId()
-    const value = shallowRef(input?.value ?? 0)
-
-    const percent = computed(() => {
-      if (range === 0) return 0
-      return (value.value / range) * 100
-    })
-
-    const segment: ProgressSegment = {
-      id,
-      get index () {
-        const entries = Array.from(_segments.value.keys())
-        return entries.indexOf(id)
-      },
-      value,
-      percent,
-      unregister () {
-        _segments.value.delete(id)
-        triggerRef(_segments)
-      },
-    }
-
-    _segments.value.set(id, segment)
-    triggerRef(_segments)
-
-    onScopeDispose(() => {
-      segment.unregister()
-    })
-
-    return segment
-  }
-
   return {
+    ...registry,
     segments,
     total,
     percent,
     isIndeterminate,
     register,
-    unregister,
     get min () {
       return _min
     },

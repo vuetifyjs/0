@@ -14,12 +14,14 @@
 
   // Utilities
   import { useId } from '#v0/utilities'
-  import { onBeforeUnmount, toRef, useAttrs } from 'vue'
+  import { mergeProps, onBeforeUnmount, toRef, useAttrs } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
 
   export interface ProgressLabelProps extends AtomProps {
+    /** Custom ID for the label element */
+    id?: string
     /** Namespace for context injection from parent Progress.Root */
     namespace?: string
   }
@@ -50,12 +52,11 @@
   const {
     as = 'label',
     renderless,
+    id = useId(),
     namespace = 'v0:progress:root',
   } = defineProps<ProgressLabelProps>()
 
   const root = useProgressRoot(namespace)
-
-  const id = useId()
 
   root.labelId.value = id
 
@@ -77,7 +78,7 @@
 
 <template>
   <Atom
-    v-bind="{ ...attrs, ...slotProps.attrs }"
+    v-bind="mergeProps(attrs, slotProps.attrs)"
     :as
     :renderless
   >

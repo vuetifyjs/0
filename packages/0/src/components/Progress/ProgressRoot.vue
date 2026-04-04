@@ -22,43 +22,31 @@
 
   // Utilities
   import { isArray, isNullOrUndefined } from '#v0/utilities'
-  import { onBeforeUnmount, shallowRef, toRef, triggerRef, useAttrs, watch } from 'vue'
+  import { mergeProps, shallowRef, toRef, useAttrs, watch } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
-  import type { ProgressContext, ProgressSegment } from '#v0/composables/createProgress'
+  import type { ProgressContext, ProgressTicket } from '#v0/composables/createProgress'
   import type { ShallowRef } from 'vue'
 
   export interface ProgressRootContext extends ProgressContext {
-    /** Form field name */
     readonly name?: string
-    /** ID of the associated label element, set by ProgressLabel */
     labelId: ShallowRef<string | undefined>
   }
 
   export interface ProgressRootProps extends AtomProps {
-    /** Current progress value or array of segment values */
     modelValue?: number | number[]
-    /** Minimum value of the range */
     min?: number
-    /** Maximum value of the range */
     max?: number
-    /** Form field name — triggers hidden input */
     name?: string
-    /** Namespace for context provision */
     namespace?: string
   }
 
   export interface ProgressRootSlotProps {
-    /** Sum of all segment values, clamped to [min, max] */
     total: number
-    /** Overall progress as a percentage of the range */
     percent: number
-    /** Whether the progress state is indeterminate */
     isIndeterminate: boolean
-    /** Registered progress segments */
-    segments: ProgressSegment[]
-    /** Pre-computed ARIA attributes for binding */
+    segments: readonly ProgressTicket[]
     attrs: {
       'role': 'progressbar'
       'aria-valuenow': number | undefined
@@ -95,63 +83,53 @@
 
   const model = defineModel<number | number[]>()
 
-  const progress = createProgress({ min, max })
+  const progress = createProgress({ min, max, value: isNullOrUndefined(model.value) ? undefined : 0 })
 
-  // ── v-model ↔ segment bridge ──────────────────────────────────
-  const managed = shallowRef<ProgressSegment[]>([])
+  const managed = shallowRef<ProgressTicket[]>([])
   let syncing = false
 
   function sync () {
     const value = model.value
 
     if (isNullOrUndefined(value)) {
-      // Indeterminate — remove all managed segments
       for (const segment of managed.value) {
-        segment.unregister()
+        progress.unregister(segment.id)
       }
       managed.value = []
-      triggerRef(managed)
       return
     }
 
     const values = isArray(value) ? value : [value]
     const current = managed.value
 
-    // Add segments if needed
     if (values.length > current.length) {
       const added = [...current]
       for (let index = current.length; index < values.length; index++) {
         added.push(progress.register({ value: values[index] }))
       }
       managed.value = added
-      triggerRef(managed)
     }
 
-    // Remove segments if needed
     if (values.length < current.length) {
       const kept = current.slice(0, values.length)
       const removed = current.slice(values.length)
       for (const segment of removed) {
-        segment.unregister()
+        progress.unregister(segment.id)
       }
       managed.value = kept
-      triggerRef(managed)
     }
 
-    // Update values
     syncing = true
-    for (const [index, value_] of values.entries()) {
+    for (const [index, v] of values.entries()) {
       if (managed.value[index]) {
-        managed.value[index].value.value = value_
+        managed.value[index].value.value = v
       }
     }
     syncing = false
   }
 
-  // Watch model → segments
   watch(() => model.value, sync, { immediate: true, deep: true })
 
-  // Watch segments → model (preserve number vs number[] shape)
   watch(
     () => managed.value.map(s => s.value.value),
     values => {
@@ -161,18 +139,8 @@
     },
   )
 
-  // Cleanup on unmount
-  onBeforeUnmount(() => {
-    for (const segment of managed.value) {
-      segment.unregister()
-    }
-    managed.value = []
-  })
-
-  // ── Label ID (set by ProgressLabel) ──────────────────────────
   const labelId = shallowRef<string | undefined>()
 
-  // ── Context provision ─────────────────────────────────────────
   const context: ProgressRootContext = {
     ...progress,
     name,
@@ -181,7 +149,6 @@
 
   provideProgressRoot(namespace, context)
 
-  // ── Slot props with ARIA ──────────────────────────────────────
   const slotProps = toRef((): ProgressRootSlotProps => {
     const indeterminate = progress.isIndeterminate.value
     const total = progress.total.value
@@ -209,7 +176,7 @@
 
 <template>
   <Atom
-    v-bind="{ ...attrs, ...slotProps.attrs }"
+    v-bind="mergeProps(attrs, slotProps.attrs)"
     :as
     :renderless
   >

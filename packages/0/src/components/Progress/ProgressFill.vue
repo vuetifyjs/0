@@ -14,7 +14,7 @@
   import { useProgressRoot } from './ProgressRoot.vue'
 
   // Utilities
-  import { toRef, useAttrs, watch, onBeforeUnmount } from 'vue'
+  import { mergeProps, onBeforeUnmount, toRef, useAttrs, watch } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -68,7 +68,7 @@
   })
 
   onBeforeUnmount(() => {
-    segment.unregister()
+    root.unregister(segment.id)
   })
 
   const slotProps = toRef((): ProgressFillSlotProps => ({
@@ -85,7 +85,7 @@
 
 <template>
   <Atom
-    v-bind="{ ...attrs, ...slotProps.attrs }"
+    v-bind="mergeProps(attrs, slotProps.attrs)"
     :as
     :renderless
     :style="[attrs.style, slotProps.attrs.style]"
