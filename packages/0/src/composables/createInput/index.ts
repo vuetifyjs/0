@@ -13,7 +13,7 @@
 import { createValidation } from '#v0/composables/createValidation'
 
 // Utilities
-import { computed, shallowRef, toRef, toValue, useId } from 'vue'
+import { computed, shallowRef, toRef, toValue, useId, watch } from 'vue'
 
 // Transformers
 import { toArray } from '#v0/composables/toArray'
@@ -126,7 +126,11 @@ export function createInput<T = string> (options: InputOptions<T>): InputContext
     return typeof value.value === 'string' ? value.value.length > 0 : value.value != null
   })
 
-  const isPristine = toRef(() => equals(value.value, initialValue))
+  const isPristine = shallowRef(true)
+
+  watch(value, val => {
+    isPristine.value = equals(val, initialValue)
+  }, { flush: 'sync' })
 
   const errors = computed(() => {
     const manual = toValue(errorMessages)
@@ -152,6 +156,7 @@ export function createInput<T = string> (options: InputOptions<T>): InputContext
 
   function reset () {
     value.value = initialValue
+    isPristine.value = true
     isTouched.value = false
     validation.reset()
   }
