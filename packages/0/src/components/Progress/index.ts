@@ -175,8 +175,8 @@ export const Progress = {
    * </script>
    *
    * <template>
-   *   <Progress.Value v-slot="{ percentage }">
-   *     {{ Math.round(percentage) }}%
+   *   <Progress.Value v-slot="{ percent }">
+   *     {{ Math.round(percent) }}%
    *   </Progress.Value>
    * </template>
    * ```

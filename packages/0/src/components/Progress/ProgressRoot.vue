@@ -121,7 +121,7 @@
     if (values.length > current.length) {
       const added = [...current]
       for (let index = current.length; index < values.length; index++) {
-        added.push(progress.register(values[index]))
+        added.push(progress.register({ value: values[index] }))
       }
       managed.value = added
       triggerRef(managed)
@@ -129,11 +129,12 @@
 
     // Remove segments if needed
     if (values.length < current.length) {
-      const removed = current.splice(values.length)
+      const kept = current.slice(0, values.length)
+      const removed = current.slice(values.length)
       for (const segment of removed) {
         segment.unregister()
       }
-      managed.value = [...current]
+      managed.value = kept
       triggerRef(managed)
     }
 

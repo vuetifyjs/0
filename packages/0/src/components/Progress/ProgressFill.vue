@@ -61,7 +61,7 @@
 
   const root = useProgressRoot(namespace)
 
-  const segment = root.register(props.value ?? 0)
+  const segment = root.register({ value: props.value ?? 0 })
 
   watch(() => props.value, v => {
     segment.value.value = v ?? 0

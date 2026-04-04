@@ -22,7 +22,7 @@ import { createTrinity } from '#v0/composables/createTrinity'
 
 // Utilities
 import { clamp, isNullOrUndefined, useId } from '#v0/utilities'
-import { computed, onScopeDispose, shallowRef, triggerRef } from 'vue'
+import { computed, onScopeDispose, shallowRef, toRef, triggerRef } from 'vue'
 
 // Types
 import type { ContextTrinity } from '#v0/composables/createTrinity'
@@ -56,7 +56,9 @@ export interface ProgressContext {
   /** True when progress state cannot be determined */
   isIndeterminate: ComputedRef<boolean>
   /** Register a new segment and return its descriptor */
-  register: (initial?: number) => ProgressSegment
+  register: (input?: { value?: number }) => ProgressSegment
+  /** Remove a segment by ID */
+  unregister: (id: ID) => void
 }
 
 export interface ProgressOptions {
@@ -85,7 +87,7 @@ export interface ProgressContextOptions extends ProgressOptions {
  *
  * // Basic usage with a single segment
  * const progress = createProgress({ max: 100 })
- * const segment = progress.register(50)
+ * const segment = progress.register({ value: 50 })
  * progress.percent.value // 50
  *
  * // Indeterminate (no value, no segments)
@@ -107,9 +109,9 @@ export function createProgress<
 
   const range = _max - _min
 
-  const segments = computed<ProgressSegment[]>(() => Array.from(_segments.value.values()))
+  const segments = toRef(() => Array.from(_segments.value.values()) as ProgressSegment[])
 
-  const total = computed(() => {
+  const total = toRef(() => {
     const map = _segments.value
     if (map.size === 0 && _hasInitialValue) {
       return clamp(_value!, _min, _max)
@@ -123,18 +125,28 @@ export function createProgress<
     return clamp(sum, _min, _max)
   })
 
-  const percent = computed(() => {
+  const percent = toRef(() => {
     if (range === 0) return 0
     return ((total.value - _min) / range) * 100
   })
 
-  const isIndeterminate = computed(() => {
-    return _segments.value.size === 0 && !_hasInitialValue
+  const isIndeterminate = toRef(() => {
+    if (_hasInitialValue) return false
+    if (_segments.value.size === 0) return true
+    for (const seg of _segments.value.values()) {
+      if (seg.value.value > 0) return false
+    }
+    return true
   })
 
-  function register (initial = 0): ProgressSegment {
+  function unregister (id: ID) {
+    _segments.value.delete(id)
+    triggerRef(_segments)
+  }
+
+  function register (input?: { value?: number }): ProgressSegment {
     const id = useId()
-    const value = shallowRef(initial)
+    const value = shallowRef(input?.value ?? 0)
 
     const percent = computed(() => {
       if (range === 0) return 0
@@ -171,13 +183,14 @@ export function createProgress<
     percent,
     isIndeterminate,
     register,
+    unregister,
     get min () {
       return _min
     },
     get max () {
       return _max
     },
-  } as P
+  } as unknown as P
 }
 
 /**
@@ -195,7 +208,7 @@ export function createProgress<
  *
  * // Child component
  * const progress = useProgress()
- * const segment = progress.register(25)
+ * const segment = progress.register({ value: 25 })
  * ```
  */
 export function createProgressContext<
