@@ -1,0 +1,27 @@
+{
+  "name": "@vuetify-private/builder",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@mdi/js": "catalog:",
+    "@vuetify/auth": "catalog:",
+    "@vuetify/v0": "workspace:*",
+    "fflate": "catalog:",
+    "pinia": "catalog:",
+    "vue": "catalog:"
+  },
+  "devDependencies": {
+    "unocss": "catalog:",
+    "unplugin-vue": "catalog:",
+    "unplugin-vue-components": "catalog:",
+    "vite": "catalog:",
+    "vite-plugin-vue-layouts-next": "catalog:",
+    "vue-router": "catalog:"
+  }
+}

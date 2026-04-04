@@ -13,7 +13,7 @@
     "build:dev": "pnpm --filter=dev build",
     "build:play": "pnpm --filter=@vuetify-private/playground build",
     "build:docs": "pnpm --filter=docs build",
-    "build:apps": "pnpm --filter=docs --filter=dev --filter=@vuetify-private/playground build",
+    "build:apps": "pnpm --filter=docs --filter=dev --filter=@vuetify-private/playground --filter=@vuetify-private/builder build",
     "build:all": "pnpm --filter=\"./packages/*\" --filter=docs --filter=dev --filter=@vuetify-private/playground build",
     "test": "vitest",
     "test:run": "vitest run",
