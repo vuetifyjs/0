@@ -144,6 +144,8 @@ Form state management and model binding utilities.
 | - | - |
 | [createValidation](/composables/forms/create-validation) | Per-field validation lifecycle |
 | [createForm](/composables/forms/create-form) | Form validation coordinator |
+| [createInput](/composables/forms/create-input) | Shared form field primitive: validation, field state, ARIA IDs |
+| [createNumeric](/composables/forms/create-numeric) | Pure numeric math: clamp, snap, step, percentage conversion |
 | [createRating](/composables/forms/create-rating) | Bounded rating value with discrete items and half-step support |
 
 ## Reactivity
