@@ -22,6 +22,7 @@ function load (path: string): ArrayBuffer {
 }
 
 const logo = `data:image/png;base64,${readFileSync(resolve(__dirname, 'fonts/vuetify0-logo.png')).toString('base64')}`
+const icon = `data:image/png;base64,${readFileSync(resolve(__dirname, '../public/pwa-512x512.png')).toString('base64')}`
 
 const fonts = [
   {
@@ -70,50 +71,36 @@ function template (title: string, description: string, category?: string) {
     props: {
       style: {
         display: 'flex',
-        flexDirection: 'column',
         width: '100%',
         height: '100%',
-        padding: '60px',
         background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
         color: 'white',
         fontFamily: 'Inter',
       },
       children: [
+        // Watermark icon — top right
         {
           type: 'div',
           props: {
             style: {
               display: 'flex',
-              alignItems: 'center',
-              gap: '12px',
-              marginBottom: '40px',
+              position: 'absolute',
+              top: '-40px',
+              right: '-60px',
+              opacity: 0.07,
             },
-            children: [
-              {
-                type: 'img',
-                props: {
-                  src: logo,
-                  width: 260,
-                  height: 84,
-                  style: {},
-                },
+            children: [{
+              type: 'img',
+              props: {
+                src: icon,
+                width: 420,
+                height: 420,
+                style: {},
               },
-              ...(category
-                ? [{
-                    type: 'div',
-                    props: {
-                      style: {
-                        fontSize: '22px',
-                        color: 'rgba(255, 255, 255, 0.4)',
-                        marginLeft: '4px',
-                      },
-                      children: `/ ${category}`,
-                    },
-                  }]
-                : []),
-            ],
+            }],
           },
         },
+        // Content area with radial glow
         {
           type: 'div',
           props: {
@@ -121,48 +108,112 @@ function template (title: string, description: string, category?: string) {
               display: 'flex',
               flexDirection: 'column',
               flex: '1',
-              justifyContent: 'center',
+              padding: '60px',
+              backgroundImage: 'radial-gradient(ellipse at 0% 0%, rgba(24, 103, 192, 0.15) 0%, transparent 60%)',
             },
             children: [
               {
                 type: 'div',
                 props: {
                   style: {
-                    fontSize: '76px',
-                    fontWeight: 700,
-                    lineHeight: '1.2',
-                    marginBottom: '24px',
-                    color: 'white',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    marginBottom: '40px',
                   },
-                  children: title,
+                  children: [
+                    {
+                      type: 'img',
+                      props: {
+                        src: logo,
+                        width: 260,
+                        height: 84,
+                        style: {},
+                      },
+                    },
+                    ...(category
+                      ? [{
+                          type: 'div',
+                          props: {
+                            style: {
+                              fontSize: '22px',
+                              color: 'rgba(255, 255, 255, 0.4)',
+                              marginLeft: '4px',
+                            },
+                            children: `/ ${category}`,
+                          },
+                        }]
+                      : []),
+                  ],
                 },
               },
-              ...(description
-                ? [{
-                    type: 'div',
-                    props: {
-                      style: {
-                        fontSize: '34px',
-                        color: 'rgba(255, 255, 255, 0.7)',
-                        lineHeight: '1.5',
+              {
+                type: 'div',
+                props: {
+                  style: {
+                    display: 'flex',
+                    flexDirection: 'column',
+                    flex: '1',
+                    justifyContent: 'center',
+                  },
+                  children: [
+                    {
+                      type: 'div',
+                      props: {
+                        style: {
+                          fontSize: '76px',
+                          fontWeight: 700,
+                          lineHeight: '1.2',
+                          marginBottom: '24px',
+                          color: 'white',
+                        },
+                        children: title,
                       },
-                      children: description,
                     },
-                  }]
-                : []),
+                    ...(description
+                      ? [{
+                          type: 'div',
+                          props: {
+                            style: {
+                              fontSize: '34px',
+                              color: 'rgba(255, 255, 255, 0.7)',
+                              lineHeight: '1.5',
+                            },
+                            children: description,
+                          },
+                        }]
+                      : []),
+                  ],
+                },
+              },
+              {
+                type: 'div',
+                props: {
+                  style: {
+                    display: 'flex',
+                    alignItems: 'center',
+                    fontSize: '22px',
+                    color: 'rgba(255, 255, 255, 0.5)',
+                  },
+                  children: '0.vuetifyjs.com',
+                },
+              },
             ],
           },
         },
+        // Left accent stripe
         {
           type: 'div',
           props: {
             style: {
-              display: 'flex',
-              alignItems: 'center',
-              fontSize: '22px',
-              color: 'rgba(255, 255, 255, 0.5)',
+              position: 'absolute',
+              top: '0',
+              left: '0',
+              width: '6px',
+              height: '100%',
+              background: 'linear-gradient(180deg, #1867C0 0%, #42A5F5 50%, #1867C0 100%)',
             },
-            children: '0.vuetifyjs.com',
+            children: '',
           },
         },
       ],
