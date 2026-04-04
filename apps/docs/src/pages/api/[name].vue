@@ -75,6 +75,23 @@
       ? [{ key: 'description', name: 'description', content: description.value }]
       : [],
     ),
+    script: toRef(() => itemName.value
+      ? [{
+        key: 'jsonld-api',
+        type: 'application/ld+json',
+        innerHTML: JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'SoftwareSourceCode',
+          'name': itemName.value,
+          'description': description.value,
+          'programmingLanguage': 'TypeScript',
+          'runtimePlatform': 'Vue 3',
+          'codeRepository': 'https://github.com/vuetifyjs/0',
+          'license': 'https://opensource.org/licenses/MIT',
+        }),
+      }]
+      : [],
+    ),
   })
 
 </script>
