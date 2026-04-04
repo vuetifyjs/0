@@ -74,17 +74,34 @@
       </div>
 
       <!-- Step indicator -->
-      <div class="flex gap-1.5 mb-8">
-        <div
-          v-for="(s, index) in steps"
-          :key="s"
-          class="h-1 flex-1 rounded-full transition-colors"
-          :class="index <= store.step ? 'bg-primary' : 'bg-divider'"
-        />
+      <div class="flex items-center gap-0 mb-8">
+        <template v-for="(s, index) in steps" :key="s">
+          <div
+            class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0 transition-colors"
+            :class="[
+              index < store.step
+                ? 'bg-primary text-on-primary'
+                : index === store.step
+                  ? 'bg-primary text-on-primary ring-4 ring-primary/20'
+                  : 'bg-surface-variant text-on-surface-variant',
+            ]"
+          >
+            <template v-if="index < store.step">&#10003;</template>
+            <template v-else>{{ index + 1 }}</template>
+          </div>
+          <div
+            v-if="index < steps.length - 1"
+            class="h-0.5 flex-1 transition-colors"
+            :class="index < store.step ? 'bg-primary' : 'bg-divider'"
+          />
+        </template>
       </div>
 
       <!-- Intent step -->
       <template v-if="store.step === 0">
+        <p class="text-xs text-on-surface-variant uppercase tracking-wide mb-1">
+          Step {{ store.step + 1 }} of {{ steps.length }}
+        </p>
         <h2 class="text-xl font-bold mb-2">What are you building?</h2>
         <p class="text-on-surface-variant mb-6">This helps us recommend the right features for your project.</p>
 
@@ -102,6 +119,9 @@
 
       <!-- Category steps -->
       <template v-else-if="store.step < steps.length - 1">
+        <p class="text-xs text-on-surface-variant uppercase tracking-wide mb-1">
+          Step {{ store.step + 1 }} of {{ steps.length }}
+        </p>
         <h2 class="text-xl font-bold mb-2 capitalize">{{ steps[store.step] }}</h2>
         <p class="text-on-surface-variant mb-6">Select the features you need from this category.</p>
 
@@ -126,6 +146,9 @@
 
       <!-- Review step (inline for now, Task 10 creates the full review page) -->
       <template v-else>
+        <p class="text-xs text-on-surface-variant uppercase tracking-wide mb-1">
+          Step {{ store.step + 1 }} of {{ steps.length }}
+        </p>
         <h2 class="text-xl font-bold mb-2">Review</h2>
         <p class="text-on-surface-variant mb-4">
           {{ store.resolved.selected.length }} selected, {{ store.resolved.autoIncluded.length }} auto-included.
