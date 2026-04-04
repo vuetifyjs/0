@@ -13,6 +13,7 @@
 import { createValidation } from '#v0/composables/createValidation'
 
 // Utilities
+import { isNullOrUndefined, isString } from '#v0/utilities'
 import { computed, shallowRef, toRef, toValue, useId, watch } from 'vue'
 
 // Transformers
@@ -100,7 +101,7 @@ export function createInput<T = string> (options: InputOptions<T>): InputContext
     form,
     required,
     disabled = false,
-    readonly: readonlyProp = false,
+    readonly: _readonly = false,
     rules = [],
     error = false,
     errorMessages,
@@ -117,13 +118,13 @@ export function createInput<T = string> (options: InputOptions<T>): InputContext
   const hasError = shallowRef(false)
 
   const isDisabled = toRef(() => toValue(disabled))
-  const isReadonly = toRef(() => toValue(readonlyProp))
+  const isReadonly = toRef(() => toValue(_readonly))
   const descriptionId = `${id}-description`
   const errorId = `${id}-error`
 
   const isDirty = toRef(() => {
     if (dirtyFn) return dirtyFn(value.value)
-    return typeof value.value === 'string' ? value.value.length > 0 : value.value != null
+    return isString(value.value) ? value.value.length > 0 : !isNullOrUndefined(value.value)
   })
 
   const isPristine = shallowRef(true)
