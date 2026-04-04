@@ -7,6 +7,7 @@
       { key: 'description', name: 'description', content: 'Build custom design systems with Vuetify0. Headless, composable-first components for Vue with published benchmarks, MCP integration, and zero styling opinions.' },
       { key: 'og:title', property: 'og:title', content: 'Vuetify0 - The AI-Native Headless Framework for Vue' },
       { key: 'og:description', property: 'og:description', content: 'Headless, composable-first components for Vue with AI-integrated docs, published benchmarks, and the backing of Vuetify.' },
+      { key: 'og:image', property: 'og:image', content: 'https://0.vuetifyjs.com/og/index.png' },
     ],
   })
 </script>
