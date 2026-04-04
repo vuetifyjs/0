@@ -4,21 +4,28 @@
   // Utilities
   import { useRouter } from 'vue-router'
 
+  import { useBuilderStore } from '@/stores/builder'
+
+  const store = useBuilderStore()
   const router = useRouter()
 </script>
 
 <template>
   <div class="min-h-screen bg-background text-on-background">
-    <div class="max-w-2xl mx-auto px-6 py-24">
-      <h1 class="text-3xl font-bold mb-2">v0 Framework Builder</h1>
-      <p class="text-on-surface-variant mb-12">
+    <div class="max-w-2xl mx-auto px-6 py-32">
+      <h1 class="text-4xl md:text-5xl font-bold mb-2">v0 <span class="text-primary">Framework</span> Builder</h1>
+      <p class="text-on-surface-variant mb-2">
         Pick the composables, components, and plugins you need — then try them in the playground.
+      </p>
+      <p class="text-sm text-on-surface-variant/70 mb-12">
+        {{ store.catalog.length }} features available
       </p>
 
       <div class="flex flex-col gap-4">
         <ModeCard
           description="Walk through what you're building step by step. We'll recommend features based on your project."
           :icon="mdiCompass"
+          recommended
           title="Guided"
           @click="router.push('/guided')"
         />

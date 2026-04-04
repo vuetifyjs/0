@@ -60,6 +60,27 @@
       <h2 class="text-xl font-bold mb-2">All Features</h2>
       <p class="text-on-surface-variant mb-6">Browse and select what you need.</p>
 
+      <!-- Sticky selection summary -->
+      <div
+        v-if="store.selected.size > 0"
+        class="sticky top-0 z-10 bg-background/90 backdrop-blur-sm border-b border-divider -mx-6 px-6 py-3 mb-6 flex items-center justify-between"
+      >
+        <span class="text-sm font-medium text-on-surface">
+          {{ store.selected.size }} features selected
+        </span>
+        <div class="flex gap-3">
+          <button class="text-xs text-on-surface-variant hover:text-on-surface" @click="store.reset()">
+            Clear all
+          </button>
+          <button
+            class="text-sm bg-primary text-on-primary px-3 py-1 rounded-lg font-semibold hover:opacity-90"
+            @click="onReview"
+          >
+            Review
+          </button>
+        </div>
+      </div>
+
       <div class="relative mb-8">
         <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" viewBox="0 0 24 24">
           <path :d="mdiMagnify" fill="currentColor" />
@@ -74,7 +95,7 @@
 
       <div v-for="[category, features] in grouped" :key="category" class="mb-8">
         <h3 class="text-sm font-semibold text-on-surface-variant uppercase tracking-wide mb-3 capitalize">
-          {{ category }}
+          {{ category }} ({{ features.length }})
         </h3>
         <div class="flex flex-col gap-2">
           <FeatureCard

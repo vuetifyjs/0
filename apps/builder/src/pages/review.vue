@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { mdiArrowLeft, mdiOpenInNew } from '@mdi/js'
+  import { mdiArrowLeft } from '@mdi/js'
 
   // Utilities
   import { computed } from 'vue'
@@ -36,9 +36,25 @@
         {{ total }} features total — {{ selectedFeatures.length }} selected, {{ autoFeatures.length }} auto-included.
       </p>
 
+      <!-- Stats grid -->
+      <div class="grid grid-cols-3 gap-4 mb-8">
+        <div class="bg-surface rounded-lg p-4 text-center border border-divider">
+          <div class="text-2xl font-bold text-primary">{{ selectedFeatures.length }}</div>
+          <div class="text-xs text-on-surface-variant mt-1">Selected</div>
+        </div>
+        <div class="bg-surface rounded-lg p-4 text-center border border-divider">
+          <div class="text-2xl font-bold text-accent">{{ autoFeatures.length }}</div>
+          <div class="text-xs text-on-surface-variant mt-1">Auto-included</div>
+        </div>
+        <div class="bg-surface rounded-lg p-4 text-center border border-divider">
+          <div class="text-2xl font-bold text-on-surface">{{ total }}</div>
+          <div class="text-xs text-on-surface-variant mt-1">Total</div>
+        </div>
+      </div>
+
       <!-- Selected -->
       <div v-if="selectedFeatures.length > 0" class="mb-8">
-        <h3 class="text-sm font-semibold text-on-surface-variant uppercase tracking-wide mb-3">You selected</h3>
+        <h3 class="text-sm font-semibold text-on-surface-variant uppercase tracking-wide mb-3 pl-3 border-l-2 border-primary">You selected</h3>
         <div class="flex flex-col gap-2">
           <div
             v-for="feature in selectedFeatures"
@@ -58,7 +74,7 @@
 
       <!-- Auto-included -->
       <div v-if="autoFeatures.length > 0" class="mb-8">
-        <h3 class="text-sm font-semibold text-on-surface-variant uppercase tracking-wide mb-3">Auto-included dependencies</h3>
+        <h3 class="text-sm font-semibold text-on-surface-variant uppercase tracking-wide mb-3 pl-3 border-l-2 border-accent">Auto-included dependencies</h3>
         <div class="flex flex-col gap-2">
           <div
             v-for="feature in autoFeatures"
@@ -96,8 +112,7 @@
           :disabled="selectedFeatures.length === 0"
           @click="store.openInPlayground()"
         >
-          Open in Playground
-          <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiOpenInNew" fill="currentColor" /></svg>
+          Try in Playground →
         </button>
       </div>
     </div>
