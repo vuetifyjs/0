@@ -8,7 +8,7 @@
     <AppBar />
 
     <main class="pt-14">
-      <slot />
+      <router-view />
     </main>
   </div>
 </template>
