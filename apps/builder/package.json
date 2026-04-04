@@ -4,8 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "generate": "tsx build/generate-dependencies.ts",
+    "dev": "pnpm generate && vite",
+    "build": "pnpm generate && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -17,6 +18,7 @@
     "vue": "catalog:"
   },
   "devDependencies": {
+    "tsx": "catalog:",
     "unocss": "catalog:",
     "unplugin-vue": "catalog:",
     "unplugin-vue-components": "catalog:",
