@@ -207,8 +207,8 @@ export function buildCatalog (): Feature[] {
   const features: Feature[] = []
 
   for (const [id, meta] of Object.entries(META)) {
-    const composable = (maturity.composables as Record<string, { level: string, since?: string | null, category: string }>)[id]
-    const component = (maturity.components as Record<string, { level: string, since?: string | null, category: string }>)[id]
+    const composable = (maturity.composables as unknown as Record<string, { level: string, since?: string | null, category: string }>)[id]
+    const component = (maturity.components as unknown as Record<string, { level: string, since?: string | null, category: string }>)[id]
     const entry = composable ?? component
 
     if (!entry) continue
