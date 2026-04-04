@@ -77,16 +77,29 @@
 
     <div class="flex-1 min-w-0">
       <div class="flex items-center gap-2 mb-1">
+        <svg v-if="feature.icon" class="w-4 h-4 text-on-surface-variant flex-shrink-0" viewBox="0 0 24 24">
+          <path :d="feature.icon" fill="currentColor" />
+        </svg>
         <span class="font-semibold text-on-surface">{{ feature.name }}</span>
         <span class="font-semibold text-xs px-2 py-0.5 rounded-full" :class="maturityClass">
           {{ feature.maturity }}
         </span>
         <span v-if="auto" class="text-xs text-on-surface-variant">auto-included</span>
       </div>
-      <p class="text-sm text-on-surface-variant">{{ feature.summary }}</p>
+
+      <p class="text-sm text-on-surface-variant">
+        {{ feature.description || feature.summary }}
+      </p>
+
       <p v-if="feature.useCases.length > 0" class="text-xs text-on-surface-variant/70 mt-1">
         {{ feature.useCases.join(' &middot; ') }}
       </p>
+
+      <!-- Code example shown when selected -->
+      <pre
+        v-if="active && feature.example"
+        class="bg-surface-variant/50 rounded-lg p-3 text-xs font-mono text-on-surface mt-2 overflow-x-auto"
+      >{{ feature.example }}</pre>
     </div>
   </button>
 </template>
