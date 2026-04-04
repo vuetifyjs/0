@@ -33,7 +33,7 @@ export function resolve (selected: string[], graph: DependencyGraph): ResolvedSe
 
   const autoIncluded = [...allDeps]
     .filter(id => !selectedSet.has(id))
-    .sort()
+    .toSorted()
 
   return {
     selected: [...selected],

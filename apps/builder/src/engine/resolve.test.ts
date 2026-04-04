@@ -34,19 +34,19 @@ describe('resolve', () => {
   it('auto-includes transitive dependencies', () => {
     const result = resolve(['createSelection'], graph)
     expect(result.selected).toEqual(['createSelection'])
-    expect(result.autoIncluded.sort()).toEqual(['createContext', 'createModel', 'createTrinity'])
+    expect(result.autoIncluded.toSorted()).toEqual(['createContext', 'createModel', 'createTrinity'])
   })
 
   it('does not duplicate features in selected and autoIncluded', () => {
     const result = resolve(['createSelection', 'createContext'], graph)
-    expect(result.selected.sort()).toEqual(['createContext', 'createSelection'])
-    expect(result.autoIncluded.sort()).toEqual(['createModel', 'createTrinity'])
+    expect(result.selected.toSorted()).toEqual(['createContext', 'createSelection'])
+    expect(result.autoIncluded.toSorted()).toEqual(['createModel', 'createTrinity'])
   })
 
   it('resolves deep transitive chains', () => {
     const result = resolve(['createStep'], graph)
     expect(result.selected).toEqual(['createStep'])
-    expect(result.autoIncluded.sort()).toEqual([
+    expect(result.autoIncluded.toSorted()).toEqual([
       'createContext',
       'createModel',
       'createSelection',
