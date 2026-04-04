@@ -30,7 +30,7 @@
     <img
       :alt="theme.isDark.value ? 'v0 dark logo' : 'v0 light logo'"
       class="w-24"
-      :src="logo.value"
+      :src="logo"
     >
 
     <span class="text-sm font-semibold text-on-surface-variant">Framework Builder</span>
@@ -48,7 +48,7 @@
         @click="onToggle"
       >
         <svg class="w-5 h-5" viewBox="0 0 24 24">
-          <path :d="icon.value" fill="currentColor" />
+          <path :d="icon" fill="currentColor" />
         </svg>
       </button>
     </div>
