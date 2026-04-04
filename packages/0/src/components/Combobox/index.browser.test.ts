@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it } from 'vitest'
 
 // Adapters
 import { ClientComboboxAdapter } from '#v0/composables/createCombobox/adapters/client'
@@ -8,12 +8,6 @@ import { Combobox } from './index'
 // Utilities
 import { mount } from '@vue/test-utils'
 import { defineComponent, h, nextTick, ref } from 'vue'
-
-// Mock showPopover/hidePopover — not supported in happy-dom
-beforeEach(() => {
-  HTMLElement.prototype.showPopover = vi.fn()
-  HTMLElement.prototype.hidePopover = vi.fn()
-})
 
 // Track every mounted wrapper so afterEach can unmount each one. Without
 // unmount, attachTo: document.body leaks both DOM nodes and Vue effect scopes

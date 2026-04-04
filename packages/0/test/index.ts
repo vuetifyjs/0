@@ -10,13 +10,15 @@ export function waitAnimationFrame () {
 }
 
 export function touch (element: Element) {
-  const trigger = (eventName: string) => (clientX: number, clientY: number) => {
-    const touches = [{ clientX, clientY }]
-    const event = new Event(eventName)
-    ;(event as any).touches = touches
-    ;(event as any).changedTouches = touches
-    element.dispatchEvent(event)
-    return touch(element)
+  function trigger (eventName: string) {
+    return (clientX: number, clientY: number) => {
+      const touches = [{ clientX, clientY }]
+      const event = new Event(eventName)
+      ;(event as any).touches = touches
+      ;(event as any).changedTouches = touches
+      element.dispatchEvent(event)
+      return touch(element)
+    }
   }
 
   return {
