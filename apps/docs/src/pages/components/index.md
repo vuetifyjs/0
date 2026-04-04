@@ -84,6 +84,7 @@ Components for showing/hiding content.
 
 | Name | Description |
 | - | - |
+| [AlertDialog](/components/disclosure/alert-dialog) | Confirmation dialog with deferred close for async actions |
 | [Collapsible](/components/disclosure/collapsible) | Single-item disclosure toggle for showing and hiding content |
 | [Dialog](/components/disclosure/dialog) | Modal dialog with focus management |
 | [ExpansionPanel](/components/disclosure/expansion-panel) | Accordion-style collapsible panels |
