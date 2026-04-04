@@ -17,17 +17,16 @@
   import { createInput } from '#v0/composables/createInput'
 
   // Utilities
-  import { nextTick, toRef, useAttrs, useId, watch } from 'vue'
+  import { useId } from '#v0/utilities'
+  import { nextTick, toRef, useAttrs, watch } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
   import type { FormValidationRule } from '#v0/composables/createForm'
+  import type { InputState } from '#v0/composables/createInput'
   import type { RuleAlias, StandardSchemaV1 } from '#v0/composables/useRules'
   import type { MaybeArray, ID } from '#v0/types'
   import type { MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
-
-  /** Visual state of the input for styling purposes */
-  export type InputState = 'pristine' | 'valid' | 'invalid'
 
   /** Base validation trigger event */
   export type ValidateEvent = 'blur' | 'input' | 'submit'

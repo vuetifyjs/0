@@ -170,4 +170,42 @@ describe('createNumeric', () => {
       expect(n.wrap).toBe(false)
     })
   })
+
+  describe('infinite bounds', () => {
+    it('snap returns value unchanged with default bounds', () => {
+      const n = setup()
+      expect(n.snap(42)).toBe(42)
+      expect(n.snap(-100)).toBe(-100)
+    })
+
+    it('snap clamps with one finite bound', () => {
+      const n = setup({ min: 0 })
+      expect(n.snap(42)).toBe(42)
+      expect(n.snap(-5)).toBe(0)
+    })
+
+    it('fromValue returns 0 with infinite extent', () => {
+      const n = setup()
+      expect(n.fromValue(50)).toBe(0)
+    })
+
+    it('fromPercent returns snapped 0 with infinite extent', () => {
+      const n = setup()
+      expect(n.fromPercent(50)).toBe(0)
+    })
+
+    it('up/down work with default bounds', () => {
+      const n = setup()
+      expect(n.up(50)).toBe(51)
+      expect(n.down(50)).toBe(49)
+    })
+  })
+
+  describe('wrap near boundary', () => {
+    it('clamps to max before wrapping on next call', () => {
+      const n = setup({ min: 0, max: 100, step: 10, wrap: true })
+      expect(n.up(95)).toBe(100)
+      expect(n.up(100)).toBe(0)
+    })
+  })
 })

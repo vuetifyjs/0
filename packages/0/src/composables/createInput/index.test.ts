@@ -210,4 +210,59 @@ describe('createInput', () => {
       expect(input.isDirty.value).toBe(true)
     })
   })
+
+  describe('async validation', () => {
+    it('tracks isValidating during async rules', async () => {
+      const input = createInput({
+        value: ref(''),
+        rules: [async v => {
+          await new Promise(r => setTimeout(r, 10))
+          return !!v || 'Required'
+        }],
+      })
+      const promise = input.validate()
+      expect(input.isValidating.value).toBe(true)
+      await promise
+      expect(input.isValidating.value).toBe(false)
+    })
+  })
+
+  describe('multiple rules', () => {
+    it('accumulates errors from multiple rules', async () => {
+      const input = createInput({
+        value: ref(''),
+        rules: [
+          v => !!v || 'Required',
+          v => (v as string).length >= 3 || 'Too short',
+        ],
+      })
+      await input.validate()
+      expect(input.errors.value).toContain('Required')
+      expect(input.errors.value).toContain('Too short')
+    })
+
+    it('merges manual and rule-based errors', async () => {
+      const input = createInput({
+        value: ref(''),
+        rules: [v => !!v || 'Required'],
+        errorMessages: 'Server error',
+      })
+      await input.validate()
+      expect(input.errors.value).toContain('Server error')
+      expect(input.errors.value).toContain('Required')
+    })
+  })
+
+  describe('reactive errorMessages', () => {
+    it('updates errors when errorMessages ref changes', () => {
+      const messages = ref<string | undefined>(undefined)
+      const input = createInput({
+        value: ref('hello'),
+        errorMessages: () => messages.value,
+      })
+      expect(input.errors.value).toEqual([])
+      messages.value = 'Server error'
+      expect(input.errors.value).toContain('Server error')
+    })
+  })
 })

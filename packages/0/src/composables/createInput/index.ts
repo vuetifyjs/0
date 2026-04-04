@@ -1,6 +1,8 @@
 /**
  * @module createInput
  *
+ * @see https://0.vuetifyjs.com/composables/forms/create-input
+ *
  * @remarks
  * Shared form field primitive. Owns validation, field state, and ARIA IDs.
  * Extracted from InputRoot.vue — consumed by Input, NumberField, Select, Combobox.
@@ -13,8 +15,8 @@
 import { createValidation } from '#v0/composables/createValidation'
 
 // Utilities
-import { isNullOrUndefined, isString } from '#v0/utilities'
-import { computed, shallowRef, toRef, toValue, useId, watch } from 'vue'
+import { isNullOrUndefined, isString, useId } from '#v0/utilities'
+import { computed, shallowRef, toRef, toValue, watch } from 'vue'
 
 // Transformers
 import { toArray } from '#v0/composables/toArray'
@@ -95,7 +97,7 @@ export interface InputContext<T = string> {
 export function createInput<T = string> (options: InputOptions<T>): InputContext<T> {
   const {
     value,
-    id = useId()!,
+    id = useId(),
     label,
     name,
     form,

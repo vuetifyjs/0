@@ -1,6 +1,8 @@
 /**
  * @module createNumeric
  *
+ * @see https://0.vuetifyjs.com/composables/forms/create-numeric
+ *
  * @remarks
  * Pure numeric math primitive. No reactivity, no registry, no DOM events.
  * Provides clamp, snap, step, and percentage conversion for bounded numeric values.
@@ -64,7 +66,7 @@ export function createNumeric (options: NumericOptions = {}): NumericContext {
   )
 
   function snap (value: number): number {
-    if (step <= 0) return clamp(value, min, max)
+    if (step <= 0 || !Number.isFinite(min) || !Number.isFinite(max)) return clamp(value, min, max)
     const clamped = clamp(value, min, max)
     const steps = Math.round((clamped - min) / step)
     const result = min + steps * step
@@ -72,11 +74,13 @@ export function createNumeric (options: NumericOptions = {}): NumericContext {
   }
 
   function fromValue (value: number): number {
+    if (!Number.isFinite(extent)) return 0
     if (extent === 0) return 0
     return ((value - min) / extent) * 100
   }
 
   function fromPercent (percent: number): number {
+    if (!Number.isFinite(extent)) return snap(0)
     return snap(min + (percent / 100) * extent)
   }
 
