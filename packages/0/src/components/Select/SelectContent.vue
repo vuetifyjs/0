@@ -1,6 +1,8 @@
 /**
  * @module SelectContent
  *
+ * @see https://0.vuetifyjs.com/components/forms/select
+ *
  * @remarks
  * Dropdown content for the select. Uses the popover composable from Root
  * context for native popover API, CSS anchor positioning, and light dismiss.

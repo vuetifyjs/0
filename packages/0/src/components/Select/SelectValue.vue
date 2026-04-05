@@ -1,6 +1,8 @@
 /**
  * @module SelectValue
  *
+ * @see https://0.vuetifyjs.com/components/forms/select
+ *
  * @remarks
  * Display component for the selected value(s) in a select. Slot-based —
  * consumers provide their own rendering via the default slot. Only renders
