@@ -1,6 +1,8 @@
 /**
  * @module useProxyRegistry
  *
+ * @see https://0.vuetifyjs.com/composables/reactivity/use-proxy-registry
+ *
  * @remarks
  * Proxy composable for reactive registry keys, values, entries, and size.
  *
