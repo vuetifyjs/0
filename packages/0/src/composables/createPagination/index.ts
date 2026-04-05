@@ -1,5 +1,5 @@
 /**
- * @module usePagination
+ * @module createPagination
  *
  * @remarks
  * Lightweight pagination composable for navigating through pages.
