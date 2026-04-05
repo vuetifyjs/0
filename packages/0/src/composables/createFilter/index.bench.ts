@@ -1,5 +1,5 @@
 /**
- * useFilter Performance Benchmarks
+ * createFilter Performance Benchmarks
  *
  * Structure:
  * - READ-ONLY operations use shared fixtures (safe - filter.apply() doesn't mutate state)
@@ -74,7 +74,7 @@ function createFilterWithMode (mode: 'some' | 'every' | 'union' | 'intersection'
 // BENCHMARKS
 // =============================================================================
 
-describe('useFilter benchmarks', () => {
+describe('createFilter benchmarks', () => {
   // ===========================================================================
   // INITIALIZATION - Measures filter creation cost
   // Fresh fixture per iteration (required - we're measuring creation itself)
