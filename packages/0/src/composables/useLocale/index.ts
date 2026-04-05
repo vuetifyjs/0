@@ -11,7 +11,7 @@
  * - Token-based message storage with createTokens
  * - Numbered and named placeholder support ({0}, {name})
  * - Number formatting with Intl.NumberFormat
- * - Adapter pattern for integration with i18n providers
+ * - Adapter pattern for integration with i18n providers (VueI18nLocaleAdapter included)
  *
  * Integrates with createSingle for locale selection and createTokens for message resolution.
  */
