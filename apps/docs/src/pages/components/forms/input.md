@@ -30,6 +30,11 @@ The Input supports text, email, password, and other native input types. Validati
 
 ::: example
 /components/input/basic
+
+### Basic Input with Validation
+
+Email input with validation rules, inline error display, and helper text.
+
 :::
 
 ## Anatomy
