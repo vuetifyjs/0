@@ -88,6 +88,26 @@ import { useForm } from '@vuetify/v0'
 const form = useForm() // Returns undefined if no parent form
 ```
 
+## Context / DI
+
+Use `createFormContext` to share a form instance across a component tree:
+
+```ts
+import { createFormContext } from '@vuetify/v0'
+
+export const [useContactForm, provideContactForm, contactForm] =
+  createFormContext({ namespace: 'app:contact-form' })
+
+// In parent component (e.g., ContactForm.vue)
+provideContactForm()
+
+// In any child component (e.g., submit button, field)
+const form = useContactForm()
+await form.submit()
+```
+
+Validations inside the component tree auto-register with the provided form — no manual `form.register()` needed.
+
 ## Architecture
 
 `createForm` is a pure registry. Validations register with it for coordination:
