@@ -1,6 +1,8 @@
 /**
  * @module createSingle
  *
+ * @see https://0.vuetifyjs.com/composables/selection/create-single
+ *
  * @remarks
  * Single-selection composable that extends createSelection to enforce only one selected item.
  *
