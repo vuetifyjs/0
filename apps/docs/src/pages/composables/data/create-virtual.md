@@ -99,6 +99,11 @@ flowchart LR
 
 ::: example
 /composables/create-virtual/basic
+
+### 10,000-Item Virtual List
+
+A scrollable list of 10,000 items that only renders visible rows, with jump-to-index and add-items controls.
+
 :::
 
 <DocsApi />
