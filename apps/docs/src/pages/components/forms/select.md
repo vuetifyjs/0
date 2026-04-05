@@ -29,6 +29,11 @@ The Select component provides a compound pattern for building accessible dropdow
 
 ::: example
 /components/select/basic
+
+### Basic Select
+
+A single-select color dropdown with placeholder text and selected value display.
+
 :::
 
 ## Anatomy
