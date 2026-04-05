@@ -342,6 +342,20 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/composables/forms/create-input': RouteRecordInfo<
+      '/composables/forms/create-input',
+      '/composables/forms/create-input',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/composables/forms/create-numeric': RouteRecordInfo<
+      '/composables/forms/create-numeric',
+      '/composables/forms/create-numeric',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/composables/forms/create-rating': RouteRecordInfo<
       '/composables/forms/create-rating',
       '/composables/forms/create-rating',
@@ -1224,6 +1238,18 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/forms/create-form.md': {
       routes:
         | '/composables/forms/create-form'
+      views:
+        | never
+    }
+    'src/pages/composables/forms/create-input.md': {
+      routes:
+        | '/composables/forms/create-input'
+      views:
+        | never
+    }
+    'src/pages/composables/forms/create-numeric.md': {
+      routes:
+        | '/composables/forms/create-numeric'
       views:
         | never
     }
