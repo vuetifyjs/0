@@ -1,6 +1,8 @@
 /**
  * @module InputRoot
  *
+ * @see https://0.vuetifyjs.com/components/forms/input
+ *
  * @remarks
  * Root component for text inputs with integrated validation.
  * Composes createInput for field state, validation, and ARIA IDs.
