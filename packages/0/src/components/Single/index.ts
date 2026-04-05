@@ -19,7 +19,7 @@ export const Single = {
   /**
    * Root component for single-selection. Only one item can be selected at a time.
    *
-   * @see https://0.vuetifyjs.com/components/providers/single#singleroot
+   * @see https://0.vuetifyjs.com/components/providers/single
    *
    * @example
    * ```vue
@@ -44,7 +44,7 @@ export const Single = {
   /**
    * Component representing a selectable item within Single.Root.
    *
-   * @see https://0.vuetifyjs.com/components/providers/single#singleitem
+   * @see https://0.vuetifyjs.com/components/providers/single
    *
    * @example
    * ```vue
