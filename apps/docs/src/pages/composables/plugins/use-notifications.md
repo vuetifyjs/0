@@ -106,6 +106,19 @@ flowchart TB
   Events -.-> Adapter
 ```
 
+## Severity Levels
+
+The `severity` field categorizes notifications by urgency. It maps to ARIA live region roles automatically:
+
+| Value | ARIA role | Use for |
+|-------|-----------|---------|
+| `'error'` | `role="alert"` | Failures, errors, destructive outcomes |
+| `'warning'` | `role="alert"` | Degraded state, approaching limits |
+| `'info'` | `role="status"` | Neutral updates, background activity |
+| `'success'` | `role="status"` | Completed actions, positive outcomes |
+
+`NotificationSeverity` is extensible — custom values like `'critical'` are accepted with autocomplete for the four defaults.
+
 ## API
 
 | Method | Description |
