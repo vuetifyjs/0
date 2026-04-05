@@ -60,6 +60,11 @@ stateDiagram-v2
 
 ::: example
 /composables/use-lazy/basic
+
+### Lazy Content Panel
+
+A collapsible panel that defers rendering until first open (800ms simulated delay), with a loading state while content initializes.
+
 :::
 
 ## Eager Mode
