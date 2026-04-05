@@ -28,6 +28,7 @@ export const CATEGORY_ICONS: Record<string, string> = {
   plugins: mdiPuzzle,
   system: mdiNetwork,
   reactivity: mdiCog,
+  transformers: mdiCog,
   semantic: mdiStar,
   utilities: mdiFilterVariant,
 }
@@ -407,6 +408,309 @@ const next = date.addDays(today, 7)`,
     useCases: ['Lazy loading', 'Infinite scroll', 'Analytics'],
     tags: ['intersection', 'visibility', 'lazy'],
     icon: mdiNetwork,
+  },
+
+  // System (missing)
+  useMutationObserver: {
+    name: 'Mutation Observer',
+    summary: 'Watch for DOM changes on elements',
+    description: 'Wraps the MutationObserver API with lifecycle management, pause/resume controls, and automatic cleanup. SSR-safe and hydration-aware with configurable observation options.',
+    example: `const { stop } = useMutationObserver(el, records => {
+  // React to DOM mutations
+}, { childList: true, attributes: true })`,
+    useCases: ['Dynamic content', 'DOM monitoring', 'Attribute tracking'],
+    tags: ['mutation', 'observer', 'dom'],
+    icon: mdiNetwork,
+  },
+  useMediaQuery: {
+    name: 'Media Query',
+    summary: 'Reactive CSS media query matching',
+    description: 'Reactive matchMedia integration that returns a boolean ref tracking whether a CSS media query matches. SSR-safe and hydration-aware with automatic listener cleanup.',
+    example: `const { matches } = useMediaQuery('(prefers-color-scheme: dark)')
+// matches.value — true when dark mode preferred`,
+    useCases: ['Responsive conditionals', 'Preference detection', 'Adaptive rendering'],
+    tags: ['media', 'query', 'responsive'],
+    icon: mdiNetwork,
+  },
+  useTimer: {
+    name: 'Timer',
+    summary: 'Reactive countdown with pause/resume',
+    description: 'A reactive timer with start, stop, pause, and resume controls. Tracks remaining time and supports one-shot or repeating modes with automatic scope cleanup.',
+    example: `const timer = useTimer({ duration: 5000 })
+timer.start()
+// timer.remaining.value — ms left`,
+    useCases: ['Auto-dismiss', 'Countdowns', 'Polling intervals'],
+    tags: ['timer', 'countdown', 'delay'],
+    icon: mdiNetwork,
+  },
+  usePresence: {
+    name: 'Presence',
+    summary: 'Animation-agnostic mount lifecycle',
+    description: 'Manages the full DOM presence lifecycle: lazy mount, enter, exit delay, and unmount. Consumers control exit timing via a done() callback, making it compatible with CSS transitions, GSAP, or no animation at all.',
+    example: `const { isMounted, isLeaving, done } = usePresence({
+  present: isOpen,
+  lazy: true,
+})
+// Call done() when exit animation finishes`,
+    useCases: ['Transition wrappers', 'Lazy mount', 'Exit animations'],
+    tags: ['presence', 'animation', 'mount'],
+    icon: mdiNetwork,
+  },
+  useLazy: {
+    name: 'Lazy',
+    summary: 'Deferred content rendering for performance',
+    description: 'Defers content rendering until first activation with optional delay. Supports eager mode bypass and keeps content mounted after first boot for instant re-show.',
+    example: `const { isBooted, isActive } = useLazy(isOpen, {
+  delay: 200,
+})
+// Content renders only after first open`,
+    useCases: ['Dialog content', 'Menu panels', 'Tooltip bodies'],
+    tags: ['lazy', 'defer', 'performance'],
+    icon: mdiNetwork,
+  },
+  useToggleScope: {
+    name: 'Toggle Scope',
+    summary: 'Conditional effect scope management',
+    description: 'Creates and destroys a Vue effect scope based on a reactive boolean. All reactive effects within the scope are automatically cleaned up when the condition becomes false.',
+    example: `useToggleScope(isOpen, () => {
+  // Effects only run while isOpen is true
+  watch(source, handler)
+})`,
+    useCases: ['Conditional side effects', 'Feature flags', 'Performance optimization'],
+    tags: ['scope', 'toggle', 'effects'],
+    icon: mdiNetwork,
+  },
+  useRovingFocus: {
+    name: 'Roving Focus',
+    summary: 'Keyboard navigation with roving tabindex',
+    description: 'Arrow key navigation for composite widgets using the roving tabindex pattern. Supports horizontal, vertical, and grid modes with automatic disabled-item skipping and circular navigation.',
+    example: `const { focusedId, register } = useRovingFocus({
+  orientation: 'horizontal',
+})
+// Arrow keys move focus between registered items`,
+    useCases: ['Toolbars', 'Menu items', 'Grid navigation'],
+    tags: ['focus', 'keyboard', 'roving'],
+    icon: mdiNetwork,
+  },
+  useVirtualFocus: {
+    name: 'Virtual Focus',
+    summary: 'aria-activedescendant keyboard navigation',
+    description: 'Virtual focus management where DOM focus stays on a control element while a virtual cursor highlights list items. Sets aria-activedescendant and data-highlighted attributes automatically.',
+    example: `const { highlightedId, register } = useVirtualFocus({
+  control: inputRef,
+})
+// Arrow keys move highlight, focus stays on input`,
+    useCases: ['Comboboxes', 'Autocomplete', 'Listboxes'],
+    tags: ['virtual', 'focus', 'aria'],
+    icon: mdiNetwork,
+  },
+  useRaf: {
+    name: 'Request Animation Frame',
+    summary: 'Scope-safe requestAnimationFrame wrapper',
+    description: 'Wraps requestAnimationFrame with a cancel-then-request pattern for deduplicating rapid calls. Automatically cleans up on scope disposal and is SSR-safe.',
+    example: `const update = useRaf(() => {
+  // Runs on next animation frame
+})
+update() // Request frame
+update.cancel() // Cancel pending`,
+    useCases: ['Smooth updates', 'Frame throttling', 'Visual animations'],
+    tags: ['raf', 'animation', 'frame'],
+    icon: mdiNetwork,
+  },
+
+  // Reactivity (missing)
+  useProxyModel: {
+    name: 'Proxy Model',
+    summary: 'Bridge selection state to v-model',
+    description: 'Bidirectional sync between a model context (Selection, Slider, etc.) and a Vue v-model ref. Supports array and single-value modes with automatic cleanup.',
+    example: `useProxyModel(selection, modelValue, {
+  multiple: true,
+})
+// v-model now syncs with selection state`,
+    useCases: ['Component v-model', 'Two-way binding', 'Selection bridges'],
+    tags: ['proxy', 'model', 'vmodel'],
+    icon: mdiCog,
+  },
+  useProxyRegistry: {
+    name: 'Proxy Registry',
+    summary: 'Reactive proxy for registry data',
+    description: 'Transforms a Map-based registry into reactive refs for keys, values, entries, and size. Updates via registry events with deep or shallow reactivity options.',
+    example: `const proxy = useProxyRegistry(registry)
+// proxy.values — reactive array of tickets
+// proxy.size — reactive count`,
+    useCases: ['Template iteration', 'Reactive lists', 'Registry binding'],
+    tags: ['proxy', 'registry', 'reactive'],
+    icon: mdiCog,
+  },
+
+  // Transformers (missing)
+  toArray: {
+    name: 'To Array',
+    summary: 'Normalize values into arrays',
+    description: 'Converts single values into single-element arrays, passes arrays through unchanged, and returns empty arrays for null/undefined. Essential for APIs that accept T | T[].',
+    example: `toArray('hello')  // ['hello']
+toArray([1, 2])   // [1, 2]
+toArray(null)      // []`,
+    useCases: ['Input normalization', 'API flexibility', 'Safe iteration'],
+    tags: ['array', 'normalize', 'transform'],
+    icon: mdiCog,
+  },
+  toElement: {
+    name: 'To Element',
+    summary: 'Resolve refs to DOM elements',
+    description: 'Resolves refs, getters, raw DOM elements, or Vue component instances to a plain Element. Uses structural typing to avoid cross-version Vue Ref incompatibilities.',
+    example: `const el = toElement(templateRef)
+// Resolves Ref, getter, component, or Element`,
+    useCases: ['Observer targets', 'DOM operations', 'Component refs'],
+    tags: ['element', 'ref', 'resolve'],
+    icon: mdiCog,
+  },
+  toReactive: {
+    name: 'To Reactive',
+    summary: 'Convert values to reactive proxies',
+    description: 'Converts plain objects and refs into deep reactive proxies with automatic ref unwrapping. Supports Map and Set collections with nested reactivity and type preservation.',
+    example: `const state = toReactive(ref({ count: 0 }))
+state.count++ // Reactive, unwrapped`,
+    useCases: ['State conversion', 'Ref unwrapping', 'Reactive collections'],
+    tags: ['reactive', 'proxy', 'unwrap'],
+    icon: mdiCog,
+  },
+
+  // Plugins (missing)
+  useHydration: {
+    name: 'Hydration',
+    summary: 'SSR hydration state management',
+    description: 'Tracks SSR hydration lifecycle with isHydrated and isSettled states. Essential for composables that need to behave differently during server-side rendering vs. client-side execution.',
+    example: `const { isHydrated, isSettled } = useHydration()
+// isHydrated — root component has mounted
+// isSettled — safe for animations`,
+    useCases: ['SSR safety', 'Hydration-aware rendering', 'Animation deferral'],
+    tags: ['hydration', 'ssr', 'mount'],
+    icon: mdiPuzzle,
+  },
+  useRtl: {
+    name: 'RTL',
+    summary: 'Right-to-left direction management',
+    description: 'Reactive RTL direction state with adapter pattern for DOM integration. Supports subtree overrides via context provision and is independent from useLocale.',
+    example: `const { isRtl, toggle } = useRtl()
+toggle() // Flip LTR ↔ RTL`,
+    useCases: ['RTL layouts', 'Bidirectional text', 'Direction-aware components'],
+    tags: ['rtl', 'direction', 'ltr'],
+    icon: mdiPuzzle,
+  },
+  useNotifications: {
+    name: 'Notifications',
+    summary: 'Push notification lifecycle management',
+    description: 'Full notification system with push, read, archive, snooze, and bulk operations. Built on createRegistry for persistence and createQueue for toast-style auto-dismiss with pause/resume.',
+    example: `const notifications = useNotifications()
+notifications.send({
+  subject: 'Saved',
+  severity: 'success',
+  timeout: 3000,
+})`,
+    useCases: ['Toast messages', 'Notification center', 'Alert management'],
+    tags: ['notifications', 'toast', 'alerts'],
+    icon: mdiPuzzle,
+  },
+
+  // Registration (missing)
+  createQueue: {
+    name: 'Queue',
+    summary: 'Time-based FIFO queue with auto-dismiss',
+    description: 'Manages a FIFO queue with automatic timeout-based removal, pause/resume, and manual dismissal. Only the first ticket is active at any time; when it expires, the next auto-activates.',
+    example: `const queue = createQueue({ timeout: 3000 })
+queue.register({ id: 'msg-1' })
+// Auto-dismissed after 3s`,
+    useCases: ['Toast queues', 'Notification stacks', 'Timed content'],
+    tags: ['queue', 'fifo', 'timeout'],
+    icon: mdiArchive,
+  },
+  createTimeline: {
+    name: 'Timeline',
+    summary: 'Bounded undo/redo history',
+    description: 'Bounded undo/redo system with fixed-size history and overflow management. Extends createRegistry with temporal navigation for command patterns and history tracking.',
+    example: `const timeline = createTimeline({ max: 10 })
+timeline.register({ id: 'action-1' })
+timeline.undo()
+timeline.redo()`,
+    useCases: ['Undo/redo', 'Command history', 'Action replay'],
+    tags: ['timeline', 'undo', 'redo'],
+    icon: mdiArchive,
+  },
+  createTokens: {
+    name: 'Tokens',
+    summary: 'Design token registry with alias resolution',
+    description: 'Design token registry supporting W3C Design Tokens format with alias resolution, circular reference detection, and nested flattening. Used internally by useTheme, useLocale, and useFeatures.',
+    example: `const tokens = createTokens({
+  colors: { primary: '{colors.blue.500}' },
+})
+tokens.resolve('{colors.primary}')`,
+    useCases: ['Design tokens', 'Theme variables', 'Configuration'],
+    tags: ['tokens', 'design', 'alias'],
+    icon: mdiArchive,
+  },
+
+  // Selection (missing)
+  createNested: {
+    name: 'Nested',
+    summary: 'Hierarchical tree management',
+    description: 'Extends createGroup with parent-child relationship tracking, open/close state, and tree traversal utilities. Supports single and multiple open strategies for tree views and nested navigation.',
+    example: `const nested = createNested({ open: 'single' })
+// Tracks parent-child relationships
+// getPath, getDescendants, open/close`,
+    useCases: ['Tree views', 'Nested navigation', 'File explorers'],
+    tags: ['nested', 'tree', 'hierarchy'],
+    icon: mdiCheckboxMarked,
+  },
+
+  // Forms (missing)
+  createValidation: {
+    name: 'Validation',
+    summary: 'Per-input validation with rule management',
+    description: 'Per-input validation built on createGroup where each ticket is a rule that can be enabled/disabled. Supports async validation, Standard Schema (Zod, Valibot), and auto-registers with parent forms.',
+    example: `const validation = createValidation()
+validation.register({ value: v => !!v || 'Required' })
+await validation.validate(inputValue)`,
+    useCases: ['Input validation', 'Field rules', 'Async validation'],
+    tags: ['validation', 'rules', 'input'],
+    icon: mdiTextBox,
+  },
+  useRules: {
+    name: 'Rules',
+    summary: 'Validation rule resolution with Standard Schema',
+    description: 'Resolves validation rules from alias strings, functions, or Standard Schema objects (Zod, Valibot, ArkType). Provides a shared rule alias registry via plugin context with locale-aware error messages.',
+    example: `const rules = useRules()
+const resolved = rules.resolve(['required', 'email'])
+// Returns FormValidationRule[] array`,
+    useCases: ['Rule aliases', 'Schema integration', 'Shared rules'],
+    tags: ['rules', 'schema', 'validation'],
+    icon: mdiTextBox,
+  },
+
+  // Semantic (missing)
+  createBreadcrumbs: {
+    name: 'Breadcrumbs',
+    summary: 'Breadcrumb navigation with path truncation',
+    description: 'Breadcrumb navigation built on createSingle with depth tracking, root detection, and path truncation. Provides first(), prev(), and select() for navigating hierarchical paths.',
+    example: `const breadcrumbs = createBreadcrumbs()
+// breadcrumbs.depth — path length
+// breadcrumbs.prev() — go up one level`,
+    useCases: ['Breadcrumb trails', 'Path navigation', 'Hierarchical UI'],
+    tags: ['breadcrumbs', 'navigation', 'path'],
+    icon: mdiStar,
+  },
+  createOverflow: {
+    name: 'Overflow',
+    summary: 'Container capacity measurement',
+    description: 'Computes how many items fit in a container based on available width using ResizeObserver. Supports variable-width and uniform-width modes with reserved space for navigation elements.',
+    example: `const overflow = createOverflow({
+  container: containerRef,
+  gap: 8,
+})
+// overflow.capacity — items that fit`,
+    useCases: ['Responsive truncation', 'Pagination sizing', 'Breadcrumb collapse'],
+    tags: ['overflow', 'capacity', 'responsive'],
+    icon: mdiStar,
   },
 }
 
