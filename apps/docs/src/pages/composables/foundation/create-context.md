@@ -56,7 +56,9 @@ flowchart TD
   createContext --> createPlugin
   createTrinity --> createRegistry
   createTrinity --> createTokens
-  createRegistry --> createSelection
+  createRegistry --> createModel
+  createModel --> createSelection
+  createModel --> createSlider
   createSelection --> createSingle
   createSelection --> createGroup
 ```
