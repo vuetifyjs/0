@@ -9,6 +9,7 @@
  * Key features:
  * - Reactive refs that sync with storage
  * - localStorage, sessionStorage, and memory adapters
+ * - TTL (time-to-live) for time-based cache expiration
  * - Custom serialization support
  * - SSR fallback to memory adapter
  * - Automatic cleanup on remove/clear
