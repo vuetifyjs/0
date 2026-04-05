@@ -28,6 +28,11 @@ The Collapsible component provides a simple open/closed toggle for a single cont
 
 ::: example
 /components/collapsible/basic
+
+### Basic Collapsible
+
+A simple collapsible section with a rotating chevron cue and toggled content.
+
 :::
 
 ## Anatomy
@@ -56,6 +61,11 @@ Use `v-model` to control the open state externally. The `disabled` prop prevents
 
 ::: example
 /components/collapsible/controlled
+
+### Controlled Collapsible
+
+Externally controlled open/close/toggle buttons with a disabled state.
+
 :::
 
 ### FAQ
