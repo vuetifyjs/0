@@ -11,6 +11,8 @@ features:
   level: 2
   github: /composables/createRating/
 related:
+  - /composables/forms/create-numeric
+  - /composables/forms/create-slider
   - /components/forms/rating
   - /composables/data/create-pagination
 ---
