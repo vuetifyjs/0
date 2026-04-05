@@ -11,6 +11,7 @@ features:
   github: /composables/usePopover/
   level: 2
 related:
+  - /components/disclosure/popover
   - /composables/system/use-click-outside
   - /composables/system/use-event-listener
 ---
