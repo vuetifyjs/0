@@ -18,7 +18,7 @@ import Root from './CollapsibleRoot.vue'
 /**
  * A single-item disclosure toggle for showing and hiding content.
  *
- * @see https://0.vuetifyjs.com/components/collapsible
+ * @see https://0.vuetifyjs.com/components/disclosure/collapsible
  *
  * @example
  * ```vue
