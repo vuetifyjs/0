@@ -10,7 +10,7 @@
     <Progress.Root v-model="value">
       <Progress.Label class="text-sm font-medium">Loading...</Progress.Label>
 
-      <Progress.Track class="relative h-2 w-full overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-800">
+      <Progress.Track class="relative h-2 w-full overflow-hidden rounded-full bg-surface-variant">
         <Progress.Fill class="h-full rounded-full bg-primary" />
       </Progress.Track>
 
