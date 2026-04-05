@@ -65,6 +65,17 @@ stateDiagram-v2
 | `isLeaving` | `Ref<boolean>` | Whether an exit is in progress |
 | `done` | `() => void` | Signal that exit animation is complete |
 
+## Examples
+
+::: example
+/composables/use-presence/basic
+
+### CSS Transition
+
+Toggle content with a CSS-driven enter/exit animation. `isMounted` drives `v-if`, `state` drives the transition classes, and `done()` is called on `transitionend` to signal the leaving cycle is complete.
+
+:::
+
 ## Questions
 
 ::: faq
