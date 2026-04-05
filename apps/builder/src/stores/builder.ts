@@ -1,9 +1,9 @@
 // Framework
-import { createGroup, createSingle, createStep } from '@vuetify/v0'
+import { createGroup, createSingle, createStep, useStorage } from '@vuetify/v0'
 
 // Utilities
 import { defineStore } from 'pinia'
-import { computed, toRef } from 'vue'
+import { computed, toRef, watch } from 'vue'
 
 // Types
 import type { DependencyGraph, Feature, Intent, ResolvedSet } from '@/data/types'
@@ -124,6 +124,31 @@ export const useBuilderStore = defineStore('builder', () => {
       }
     }
   }
+
+  // Persistence
+  const storage = useStorage()
+  const savedIntent = storage.get<string>('builder:intent', '')
+  const savedFeatures = storage.get<string[]>('builder:features', [])
+
+  // Restore saved state
+  if (savedIntent.value) {
+    setIntent(savedIntent.value as Intent)
+  } else if (savedFeatures.value.length > 0) {
+    for (const id of savedFeatures.value) {
+      if (features.has(id)) {
+        features.select(id)
+      }
+    }
+  }
+
+  // Watch and persist
+  watch(() => intent.selectedId.value, id => {
+    storage.set('builder:intent', id ?? '')
+  })
+
+  watch(selectedIds, ids => {
+    storage.set('builder:features', [...ids])
+  }, { deep: true })
 
   async function openInPlayground () {
     const url = await toPlaygroundUrl(
