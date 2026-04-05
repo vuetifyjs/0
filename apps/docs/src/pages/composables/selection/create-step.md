@@ -17,7 +17,7 @@ related:
 
 # createStep
 
-A composable for managing navigation through multi-step processes like forms, wizards, or onboarding flows, with support for step tracking, completion, and navigation controls.
+Extends `createSingle` with bounded or circular navigation. Built for wizards, multi-step forms, and onboarding flows.
 
 <DocsPageFeatures :frontmatter />
 
