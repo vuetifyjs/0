@@ -82,12 +82,13 @@ flowchart TD
 
 ## Examples
 
-### Basic
-
-Add and remove child elements, toggle attributes, and observe the mutation log in real time. Use the pause/resume button to control observation.
-
 ::: example
 /composables/use-mutation-observer/basic
+
+### DOM Mutation Logger
+
+Add and remove child elements, toggle attributes, and observe the mutation log in real time, with pause/resume and clear controls.
+
 :::
 
 <DocsApi />
