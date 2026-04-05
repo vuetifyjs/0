@@ -82,6 +82,21 @@ flowchart LR
   C --> Fallback
 ```
 
+## Plugin Trinity
+
+When building a Vue plugin, use [`createPluginContext`](/composables/foundation/create-plugin) instead of wiring `createContext + createTrinity` manually. It generates the same trinity tuple from a factory function with far less boilerplate:
+
+```ts no-filename
+// Manual (createTrinity) — needed for non-plugin state
+export const [useUser, provideUser, userContext] = createUserContext()
+
+// Plugin (createPluginContext) — preferred for app.use() plugins
+export const [createThemeContext, createThemePlugin, useTheme] =
+  createPluginContext('v0:theme', options => createTheme(options))
+```
+
+`createTrinity` is the right tool when you want a shared singleton *without* a Vue plugin — component-scoped contexts, library utilities, or any state that doesn't need `app.use()` lifecycle hooks.
+
 ## Examples
 
 ::: example
