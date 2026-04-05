@@ -28,6 +28,11 @@ Rating supports whole and half-star modes. Items expose their state via data att
 
 ::: example
 /components/rating/basic
+
+### Star Rating
+
+A 5-star rating with hover preview and filled/empty star display.
+
 :::
 
 ## Anatomy
