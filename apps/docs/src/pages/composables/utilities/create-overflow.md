@@ -75,4 +75,15 @@ flowchart LR
 | `reserved` | <AppSuccessIcon /> | Accepts MaybeRefOrGetter |
 | `itemWidth` | <AppSuccessIcon /> | Accepts MaybeRefOrGetter (uniform mode) |
 
+## Examples
+
+::: example
+/composables/create-overflow/tag-overflow
+
+### Tag Overflow
+
+A tag list that hides tags when they overflow the container, showing a count badge for hidden items, driven by the reactive `capacity` value.
+
+:::
+
 <DocsApi />

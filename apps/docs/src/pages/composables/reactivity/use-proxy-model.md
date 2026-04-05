@@ -80,4 +80,15 @@ flowchart LR
 > [!TIP] Automatic cleanup
 > The watchers are disposed automatically via `onScopeDispose`. The returned `stop()` function allows early manual cleanup.
 
+## Examples
+
+::: example
+/composables/use-proxy-model/color-picker
+
+### Color Picker
+
+A color swatch selector wired to a `v-model`-style ref via `useProxyModel`, keeping selection state and external model in sync bidirectionally.
+
+:::
+
 <DocsApi />

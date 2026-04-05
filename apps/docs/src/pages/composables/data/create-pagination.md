@@ -73,4 +73,15 @@ flowchart LR
 > [!TIP] v-model support
 > Pass a ref as the `page` option to enable two-way binding with your component's page state.
 
+## Examples
+
+::: example
+/composables/create-pagination/paginated-list
+
+### Paginated List
+
+Category-filtered list with page navigation controls, demonstrating `select()`, `next()`, `prev()`, and reactive `pageStart`/`pageStop` slicing.
+
+:::
+
 <DocsApi />

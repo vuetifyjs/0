@@ -164,4 +164,15 @@ selection.selectedIds // Set of selected IDs
 The proxy only exposes registry properties. For reactive selection state, use the selection instance directly or create a custom reactive wrapper.
 :::
 
+## Examples
+
+::: example
+/composables/use-proxy-registry/notification-center
+
+### Notification Center
+
+A registry-based notification queue using `useProxyRegistry` to make the item list reactively drive the template without manual event subscriptions.
+
+:::
+
 <DocsApi />
