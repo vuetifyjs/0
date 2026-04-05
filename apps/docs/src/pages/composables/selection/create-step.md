@@ -91,6 +91,11 @@ Step navigation state is **always reactive**. Navigation guards (`canPrev`, `can
 
 ::: example
 /composables/create-step/stepper
+
+### Multi-Step Stepper
+
+Numbered steps with a progress bar, clickable navigation, and a disabled step that auto-skips.
+
 :::
 
 <DocsApi />
