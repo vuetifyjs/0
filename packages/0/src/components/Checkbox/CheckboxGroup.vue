@@ -1,6 +1,8 @@
 /**
  * @module CheckboxGroup
  *
+ * @see https://0.vuetifyjs.com/components/forms/checkbox
+ *
  * @remarks
  * Group component for managing multiple checkboxes with tri-state support.
  * Provides group context to child Checkbox.Root components. Supports batch
