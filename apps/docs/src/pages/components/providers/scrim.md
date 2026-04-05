@@ -18,7 +18,7 @@ related:
 
 # Scrim
 
-A headless backdrop component that integrates with the stack system to provide a shared overlay for all active modals and dialogs.
+Headless backdrop component for overlay systems with automatic z-index management and dismiss handling.
 
 <DocsPageFeatures :frontmatter />
 

@@ -19,7 +19,7 @@ related:
 
 # Radio
 
-A headless radio button component for single-selection groups with keyboard navigation and roving tabindex.
+Headless radio button for single-selection groups with keyboard navigation and full ARIA compliance.
 
 <DocsPageFeatures :frontmatter />
 
