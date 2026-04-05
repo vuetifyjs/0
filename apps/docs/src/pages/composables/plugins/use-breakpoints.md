@@ -124,6 +124,11 @@ Breakpoints are **range-based**, not exact pixel matches. The `name` is the **hi
 
 ::: example
 /composables/use-breakpoints/responsive-layout
+
+### Responsive Layout Detection
+
+Live viewport dimensions, active breakpoint name, and mobile/desktop flags — confirms JS and CSS breakpoints align.
+
 :::
 
 ## SSR Support
