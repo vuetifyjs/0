@@ -1,6 +1,8 @@
 /**
  * @module useResizeObserver
  *
+ * @see https://0.vuetifyjs.com/composables/system/use-resize-observer
+ *
  * @remarks
  * ResizeObserver composable with lifecycle management.
  *
