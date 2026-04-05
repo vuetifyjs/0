@@ -1,8 +1,8 @@
 /**
- * @module useStep
+ * @module createStep
  *
  * @remarks
- * Navigation composable that extends useSingle with first/last/next/prev/step methods.
+ * Navigation composable that extends createSingle with first/last/next/prev/step methods.
  *
  * Key features:
  * - Configurable circular or bounded navigation
@@ -10,7 +10,7 @@
  * - Arbitrary step counts (positive/negative)
  * - Perfect for wizards, carousels, pagination, onboarding flows
  *
- * Inheritance chain: useRegistry → useSelection → useSingle → useStep
+ * Inheritance chain: createRegistry → createSelection → createSingle → createStep
  */
 
 // Composables
