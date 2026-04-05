@@ -12,6 +12,9 @@
   import { Atom } from '#v0/components/Atom'
   import { useNumberFieldRoot } from './NumberFieldRoot.vue'
 
+  // Composables
+  import { useRaf } from '#v0/composables/useRaf'
+
   // Utilities
   import { toRef, useAttrs } from 'vue'
 
@@ -56,21 +59,25 @@
   let accumulator = 0
   let locked = false
 
+  const raf = useRaf(() => {
+    const steps = Math.trunc(accumulator / sensitivity)
+    if (steps === 0) return
+
+    accumulator -= steps * sensitivity
+
+    if (steps > 0) {
+      root.increment(steps)
+    } else {
+      root.decrement(-steps)
+    }
+  })
+
   function onPointermove (e: PointerEvent) {
     if (!locked) return
     if (root.isDisabled.value || root.isReadonly.value) return
 
     accumulator += e.movementX
-
-    const steps = Math.trunc(accumulator / sensitivity)
-    if (steps !== 0) {
-      accumulator -= steps * sensitivity
-      if (steps > 0) {
-        for (let index = 0; index < steps; index++) root.increment()
-      } else {
-        for (let index = 0; index < -steps; index++) root.decrement()
-      }
-    }
+    raf()
   }
 
   function onPointerdown (e: PointerEvent) {
@@ -86,6 +93,7 @@
   function onPointerup () {
     if (!locked) return
     locked = false
+    raf.cancel()
     document.exitPointerLock()
   }
 
