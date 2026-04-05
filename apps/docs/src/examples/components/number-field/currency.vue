@@ -3,33 +3,65 @@
   import { ref } from 'vue'
 
   const price = ref<number | null>(42)
+  const tip = ref<number | null>(15)
 </script>
 
 <template>
-  <div class="flex flex-col gap-2">
-    <NumberField.Root
-      v-model="price"
-      :format="{ style: 'currency', currency: 'USD' }"
-      locale="en-US"
-      :max="10000"
-      :min="0"
-      :step="0.01"
-    >
-      <NumberField.Scrub class="text-sm font-medium cursor-ew-resize select-none">
-        Price
-      </NumberField.Scrub>
+  <div class="flex flex-col items-center gap-6">
+    <div class="flex flex-col gap-4 w-64">
+      <NumberField.Root
+        v-model="price"
+        :format="{ style: 'currency', currency: 'USD' }"
+        locale="en-US"
+        :max="10000"
+        :min="0"
+        :step="0.01"
+      >
+        <NumberField.Scrub class="text-sm font-medium cursor-ew-resize select-none mb-1">
+          Amount
+        </NumberField.Scrub>
 
-      <div class="flex items-center">
-        <NumberField.Decrement class="px-3 py-2 border rounded-l-lg hover:bg-surface-tint disabled:opacity-50">
-          &minus;
-        </NumberField.Decrement>
+        <div class="flex items-center">
+          <NumberField.Decrement class="px-3 py-2 border border-divider rounded-l-lg hover:bg-surface-tint disabled:opacity-50">
+            &minus;
+          </NumberField.Decrement>
 
-        <NumberField.Control class="w-32 text-center border-y py-2 outline-none" />
+          <NumberField.Control class="w-full text-center border-y border-divider py-2 outline-none bg-transparent" />
 
-        <NumberField.Increment class="px-3 py-2 border rounded-r-lg hover:bg-surface-tint disabled:opacity-50">
-          +
-        </NumberField.Increment>
-      </div>
-    </NumberField.Root>
+          <NumberField.Increment class="px-3 py-2 border border-divider rounded-r-lg hover:bg-surface-tint disabled:opacity-50">
+            +
+          </NumberField.Increment>
+        </div>
+      </NumberField.Root>
+
+      <NumberField.Root
+        v-model="tip"
+        :format="{ style: 'percent', minimumFractionDigits: 0, maximumFractionDigits: 0 }"
+        locale="en-US"
+        :max="100"
+        :min="0"
+        :step="5"
+      >
+        <NumberField.Scrub class="text-sm font-medium cursor-ew-resize select-none mb-1">
+          Tip
+        </NumberField.Scrub>
+
+        <div class="flex items-center">
+          <NumberField.Decrement class="px-3 py-2 border border-divider rounded-l-lg hover:bg-surface-tint disabled:opacity-50">
+            &minus;
+          </NumberField.Decrement>
+
+          <NumberField.Control class="w-full text-center border-y border-divider py-2 outline-none bg-transparent" />
+
+          <NumberField.Increment class="px-3 py-2 border border-divider rounded-r-lg hover:bg-surface-tint disabled:opacity-50">
+            +
+          </NumberField.Increment>
+        </div>
+      </NumberField.Root>
+    </div>
+
+    <p class="text-sm text-on-surface-variant">
+      Total: {{ ((price ?? 0) * (1 + (tip ?? 0) / 100)).toLocaleString('en-US', { style: 'currency', currency: 'USD' }) }}
+    </p>
   </div>
 </template>
