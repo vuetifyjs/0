@@ -1,6 +1,8 @@
 /**
  * @module createStep
  *
+ * @see https://0.vuetifyjs.com/composables/selection/create-step
+ *
  * @remarks
  * Navigation composable that extends createSingle with first/last/next/prev/step methods.
  *
