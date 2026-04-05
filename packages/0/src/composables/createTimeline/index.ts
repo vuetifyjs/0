@@ -32,7 +32,7 @@ export interface TimelineContext<Z extends TimelineTicket> extends RegistryConte
    *
    * @return The removed ticket, or undefined if there are no tickets to undo.
    *
-   * @see https://0.vuetifyjs.com/composables/registration/create-timeline#undo
+   * @see https://0.vuetifyjs.com/composables/registration/create-timeline
    *
    * @example
    * ```ts
@@ -55,7 +55,7 @@ export interface TimelineContext<Z extends TimelineTicket> extends RegistryConte
    *
    * @returns The restored ticket, or undefined if there are no tickets to redo.
    *
-   * @see https://0.vuetifyjs.com/composables/registration/create-timeline#redo
+   * @see https://0.vuetifyjs.com/composables/registration/create-timeline
    *
    * @example
    * ```ts
