@@ -8,6 +8,8 @@
  *
  * Key features:
  * - IntersectionObserver API wrapper
+ * - `isActive` reactive flag
+ * - `once` option for single-fire observation
  * - Pause/resume/stop functionality
  * - Automatic cleanup on unmount
  * - SSR-safe (checks SUPPORTS_INTERSECTION_OBSERVER)
