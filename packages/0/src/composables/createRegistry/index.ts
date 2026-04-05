@@ -6,10 +6,11 @@
  * @remarks
  * A foundational composable for managing collections of items (tickets) with:
  * - Unique ID-based access
- * - Index-based ordering
+ * - Index-based ordering and reordering via `move()`
  * - Value-based reverse lookup
+ * - `unregister()` for individual item removal
  * - Automatic reindexing
- * - Optional event emission
+ * - Batched event dispatch to prevent N cache invalidations
  * - Performance-optimized caching
  *
  * The registry serves as the base for many other composables in the system,
