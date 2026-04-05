@@ -46,6 +46,25 @@ timeline.redo()
 console.log(timeline.size) // 3
 ```
 
+## Context / DI
+
+Use `createTimelineContext` to share a timeline instance across a component tree:
+
+```ts
+import { createTimelineContext } from '@vuetify/v0'
+
+export const [useHistory, provideHistory, history] =
+  createTimelineContext({ namespace: 'my:history', size: 50 })
+
+// In parent component
+provideHistory()
+
+// In child component
+const timeline = useHistory()
+timeline.register({ id: 'action-1', value: 'Created item' })
+timeline.undo()
+```
+
 ## Architecture
 
 `createTimeline` extends `createRegistry` with bounded history and overflow management:
