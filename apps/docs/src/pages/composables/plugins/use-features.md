@@ -11,6 +11,7 @@ features:
   github: /composables/useFeatures/
   level: 2
 related:
+  - /composables/plugins/use-permissions
   - /composables/registration/create-tokens
 ---
 
