@@ -62,7 +62,7 @@ export const ExpansionPanel = {
   /**
    * Root component representing a single expansion panel.
    *
-   * @see https://0.vuetifyjs.com/components/disclosure/expansion-panel#expansionpanelroot
+   * @see https://0.vuetifyjs.com/components/disclosure/expansion-panel
    *
    * @example
    * ```vue
@@ -89,7 +89,7 @@ export const ExpansionPanel = {
   /**
    * (optional) Component for the header section of an expansion panel item.
    *
-   * @see https://0.vuetifyjs.com/components/disclosure/expansion-panel#expansionpanelheader
+   * @see https://0.vuetifyjs.com/components/disclosure/expansion-panel
    *
    * @example
    * ```vue
@@ -110,7 +110,7 @@ export const ExpansionPanel = {
   /**
    * Component for the activator section of an expansion panel header.
    *
-   * @see https://0.vuetifyjs.com/components/disclosure/expansion-panel#expansionpanelactivator
+   * @see https://0.vuetifyjs.com/components/disclosure/expansion-panel
    *
    * @example
    * ```vue
@@ -129,7 +129,7 @@ export const ExpansionPanel = {
   /**
    * Visual cue for expansion state (e.g., chevron icon).
    *
-   * @see https://0.vuetifyjs.com/components/disclosure/expansion-panel#expansionpanelcue
+   * @see https://0.vuetifyjs.com/components/disclosure/expansion-panel
    *
    * @example
    * ```vue
@@ -149,7 +149,7 @@ export const ExpansionPanel = {
   /**
    * Component for the content section of an expansion panel item.
    *
-   * @see https://0.vuetifyjs.com/components/disclosure/expansion-panel#expansionpanelcontent
+   * @see https://0.vuetifyjs.com/components/disclosure/expansion-panel
    *
    * @example
    * ```vue
