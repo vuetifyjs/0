@@ -1,6 +1,8 @@
 /**
  * @module useHotkey
  *
+ * @see https://0.vuetifyjs.com/composables/system/use-hotkey
+ *
  * @remarks
  * Hotkey listener composable with key combination and sequence support.
  *
