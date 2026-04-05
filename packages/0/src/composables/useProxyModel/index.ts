@@ -8,7 +8,8 @@
  *
  * Key features:
  * - Bidirectional synchronization
- * - Array and single-value modes
+ * - `multiple` option controls array vs single-value mode (must be explicit — not inferred)
+ * - `MaybeRefOrGetter` support for the `multiple` option
  * - Automatic cleanup on scope disposal
  * - Works with any ModelContext (Selection, Slider, etc.)
  *
