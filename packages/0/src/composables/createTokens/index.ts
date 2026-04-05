@@ -63,7 +63,7 @@ export interface TokenContext<Z extends TokenTicket> extends RegistryContext<Z> 
    * @returns True if the token is an alias, false otherwise.
    * @remarks An alias is a string that starts with "{" and ends with "}".
    *
-   * @see https://0.vuetifyjs.com/composables/registration/create-tokens#is-alias
+   * @see https://0.vuetifyjs.com/composables/registration/create-tokens
    *
    * @example
    * ```ts
@@ -86,7 +86,7 @@ export interface TokenContext<Z extends TokenTicket> extends RegistryContext<Z> 
    * @returns The resolved value of the token or alias, or undefined if not found.
    * @remarks This function can resolve nested aliases and supports token paths using dot notation.
    *
-   * @see https://0.vuetifyjs.com/composables/registration/create-tokens#resolve
+   * @see https://0.vuetifyjs.com/composables/registration/create-tokens
    *
    * @example
    * ```ts
