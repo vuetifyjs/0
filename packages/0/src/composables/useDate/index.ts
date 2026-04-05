@@ -1,6 +1,8 @@
 /**
  * @module useDate
  *
+ * @see https://0.vuetifyjs.com/composables/plugins/use-date
+ *
  * @remarks
  * Date manipulation composable with adapter pattern for date operations.
  *
