@@ -1,6 +1,8 @@
 /**
  * @module SliderRoot
  *
+ * @see https://0.vuetifyjs.com/components/forms/slider
+ *
  * @remarks
  * Root component for sliders. Creates slider context, provides it to
  * child components (Track, Range, Thumb, HiddenInput), and bridges v-model.

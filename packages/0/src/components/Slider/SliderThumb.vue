@@ -1,6 +1,8 @@
 /**
  * @module SliderThumb
  *
+ * @see https://0.vuetifyjs.com/components/forms/slider
+ *
  * @remarks
  * Draggable thumb control for sliders. Auto-registers with parent
  * Slider.Root to get its index. Handles pointer drag and keyboard
