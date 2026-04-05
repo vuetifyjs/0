@@ -47,6 +47,8 @@ The Progress supports single-value and multi-segment modes. Bind a number for a 
     </Progress.Track>
 
     <Progress.Value />
+
+    <Progress.HiddenInput />
   </Progress.Root>
 </template>
 ```
