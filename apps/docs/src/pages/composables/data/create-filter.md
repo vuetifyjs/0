@@ -47,6 +47,30 @@ console.log(filtered.value)
 // ]
 ```
 
+## Context / DI
+
+Use `createFilterContext` when you need to share a filter instance across a component tree:
+
+```ts
+import { createFilterContext } from '@vuetify/v0'
+
+export const [useSearchFilter, provideSearchFilter, searchFilter] =
+  createFilterContext({
+    namespace: 'app:search',
+    mode: 'union',
+    keys: ['title', 'description'],
+  })
+
+// In parent component
+provideSearchFilter()
+
+// In child component
+const filter = useSearchFilter()
+const { items: filtered } = filter.apply(query, products)
+```
+
+Returns the standard trinity `[useSearchFilter, provideSearchFilter, searchFilter]`. The third element gives standalone access without injection — useful for testing and server-side use.
+
 ## Architecture
 
 `createFilter` provides pure filtering logic with context support:
