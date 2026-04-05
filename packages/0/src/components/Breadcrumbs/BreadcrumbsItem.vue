@@ -1,6 +1,8 @@
 /**
  * @module BreadcrumbsItem
  *
+ * @see https://0.vuetifyjs.com/components/semantic/breadcrumbs
+ *
  * @remarks
  * Individual breadcrumb item that registers with the parent BreadcrumbsRoot.
  * Registers with both the breadcrumbs composable (navigation model) and the

@@ -1,6 +1,8 @@
 /**
  * @module BreadcrumbsLink
  *
+ * @see https://0.vuetifyjs.com/components/semantic/breadcrumbs
+ *
  * @remarks
  * Navigable breadcrumb link rendered inside a BreadcrumbsItem.
  * Renders as an anchor by default. All attributes (href, to, etc.)

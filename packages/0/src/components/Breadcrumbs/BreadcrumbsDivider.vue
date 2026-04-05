@@ -1,6 +1,8 @@
 /**
  * @module BreadcrumbsDivider
  *
+ * @see https://0.vuetifyjs.com/components/semantic/breadcrumbs
+ *
  * @remarks
  * Visual separator between breadcrumb items. Registers with the parent
  * BreadcrumbsRoot and self-measures width. Supports inline override of
