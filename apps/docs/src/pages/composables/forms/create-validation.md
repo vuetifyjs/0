@@ -76,15 +76,35 @@ const validation = createValidation({
 
 ### With Standard Schema
 
-Pass schema objects directly — they're auto-detected and wrapped:
+Any [Standard Schema](https://standardschema.dev)-compliant library works without an adapter — pass the schema object directly and it's auto-detected:
 
-```ts
+::: code-group
+
+```ts zod
 import { z } from 'zod'
 
 const validation = createValidation({
   rules: [z.coerce.number().int().min(18, 'Must be 18+')],
 })
 ```
+
+```ts valibot
+import * as v from 'valibot'
+
+const validation = createValidation({
+  rules: [v.pipe(v.string(), v.email('Invalid email'))],
+})
+```
+
+```ts arktype
+import { type } from 'arktype'
+
+const validation = createValidation({
+  rules: [type('string.email')],
+})
+```
+
+:::
 
 ### Dynamic Rules
 
