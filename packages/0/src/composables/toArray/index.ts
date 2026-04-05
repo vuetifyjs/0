@@ -1,6 +1,8 @@
 /**
  * @module toArray
  *
+ * @see https://0.vuetifyjs.com/composables/transformers/to-array
+ *
  * @remarks
  * Utility function to normalize single values and arrays into arrays.
  *
