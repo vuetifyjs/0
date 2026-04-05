@@ -1,6 +1,8 @@
 /**
  * @module ComboboxDescription
  *
+ * @see https://0.vuetifyjs.com/components/forms/combobox
+ *
  * @remarks
  * Help text component for the Combobox component.
  * Auto-connected to Combobox.Control via aria-describedby.
