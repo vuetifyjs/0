@@ -1,6 +1,8 @@
 /**
  * @module useVirtualFocus
  *
+ * @see https://0.vuetifyjs.com/composables/system/use-virtual-focus
+ *
  * @remarks
  * Virtual focus composable for aria-activedescendant keyboard navigation.
  * DOM focus stays on a control element while a virtual cursor highlights
