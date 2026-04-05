@@ -1,6 +1,8 @@
 /**
  * @module Theme
  *
+ * @see https://0.vuetifyjs.com/components/providers/theme
+ *
  * @remarks
  * Scoped theme provider component.
  */
