@@ -1,6 +1,8 @@
 /**
  * @module createTimeline
  *
+ * @see https://0.vuetifyjs.com/composables/registration/create-timeline
+ *
  * @remarks
  * Bounded undo/redo system with overflow management.
  *
