@@ -1,5 +1,5 @@
 /**
- * @module useOverflow
+ * @module createOverflow
  *
  * @remarks
  * Composable for computing how many items fit in a container based on available width.
