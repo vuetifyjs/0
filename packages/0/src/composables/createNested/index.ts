@@ -8,6 +8,8 @@
  * - Parent-child relationship tracking (children/parents Maps)
  * - Open/close state management
  * - Tree traversal utilities (getPath, getDescendants, etc.)
+ * - Cascade selection propagation through nested registers
+ * - `rootIds` tracking for top-level item detection
  * - Pluggable open strategies
  *
  * Inheritance chain: createSelection → createGroup → createNested
