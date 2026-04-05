@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { Progress } from '@vuetify/v0'
+  import { Progress, Slider } from '@vuetify/v0'
   import { shallowRef } from 'vue'
 
   const value = shallowRef(65)
@@ -17,6 +17,12 @@
       <Progress.Value class="text-sm text-neutral-500" />
     </Progress.Root>
 
-    <input v-model.number="value" max="100" min="0" type="range">
+    <Slider.Root v-model="value" class="relative flex items-center w-full h-5">
+      <Slider.Track class="relative h-1 w-full rounded-full bg-surface-variant">
+        <Slider.Range class="absolute h-full rounded-full bg-primary" />
+      </Slider.Track>
+
+      <Slider.Thumb class="absolute size-5 rounded-full bg-primary -translate-x-1/2 focus:outline-2 focus:outline-primary" />
+    </Slider.Root>
   </div>
 </template>
