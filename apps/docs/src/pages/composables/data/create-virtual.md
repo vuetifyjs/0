@@ -50,6 +50,29 @@ The `createVirtual` composable efficiently renders large lists by only mounting 
 </template>
 ```
 
+## Context / DI
+
+Use `createVirtualContext` to share a virtual scroll instance across a component tree:
+
+```ts
+import { createVirtualContext } from '@vuetify/v0'
+import { shallowRef } from 'vue'
+
+const items = shallowRef([...])
+
+export const [useVirtual, provideVirtual, virtual] =
+  createVirtualContext(items, {
+    namespace: 'my:virtual',
+    itemHeight: 40,
+  })
+
+// In parent component
+provideVirtual()
+
+// In child component
+const { items: visible, offset, size, scroll } = useVirtual()
+```
+
 ## Architecture
 
 The rendering pipeline transforms scroll events into visible item ranges:
