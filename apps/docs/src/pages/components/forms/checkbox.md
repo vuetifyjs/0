@@ -31,6 +31,11 @@ The Checkbox component supports two modes:
 
 ::: example
 /components/checkbox/basic
+
+### Basic Checkbox
+
+A standalone checkbox with checkmark indicator and label.
+
 :::
 
 ## Anatomy
@@ -85,6 +90,11 @@ Wrap checkboxes in `Checkbox.Group` for multi-selection with array-based v-model
 
 ::: example
 /components/checkbox/group
+
+### Checkbox Group
+
+Multi-select checkbox group with three fruit options showing the selected state.
+
 :::
 
 ### Form Integration
@@ -118,6 +128,11 @@ Use `Checkbox.SelectAll` within a group for "select all" patterns. It automatica
 
 ::: example
 /components/checkbox/indeterminate
+
+### Indeterminate / Select All
+
+A "select all" checkbox with tri-state behavior (checked, unchecked, indeterminate) over nested items.
+
 :::
 
 The `SelectAll` component:
