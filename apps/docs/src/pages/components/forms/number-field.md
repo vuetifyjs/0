@@ -1,10 +1,10 @@
 ---
 title: NumberField - Numeric Input with Formatting
 meta:
-- name: description
-  content: Headless numeric input with increment/decrement controls, locale-aware formatting, drag-to-scrub, and WAI-ARIA spinbutton compliance.
-- name: keywords
-  content: number field, number input, stepper, spinbutton, increment, decrement, scrub, currency, vuetify, headless
+  - name: description
+    content: Headless numeric input with increment/decrement controls, locale-aware formatting, drag-to-scrub, and WAI-ARIA spinbutton compliance.
+  - name: keywords
+    content: number field, number input, stepper, spinbutton, increment, decrement, scrub, currency, vuetify, headless
 features:
   category: Component
   label: 'C: NumberField'
@@ -19,7 +19,7 @@ related:
 
 # NumberField
 
-Headless numeric input with increment/decrement buttons, locale-aware formatting via `Intl.NumberFormat`, drag-to-scrub, and WAI-ARIA spinbutton semantics. Uses `createNumberField` internally.
+Numeric input with increment/decrement buttons, drag-to-scrub, and locale-aware formatting. Supports currency, percent, and unit display via `Intl.NumberFormat`.
 
 <DocsPageFeatures :frontmatter />
 
@@ -165,6 +165,7 @@ NumberField.Input renders with `role="spinbutton"` and full ARIA attributes per 
 | `aria-valuenow` | Current value | `undefined` when empty |
 | `aria-valuemin` | Min value | Only when finite |
 | `aria-valuemax` | Max value | Only when finite |
+| `aria-valuetext` | Formatted string | Screen readers announce "$42.00" not "42" |
 | `aria-invalid` | `true` | When validation fails |
 | `aria-label` | Label text | From Root's `label` prop |
 | `aria-describedby` | Description ID | When Description is mounted |
@@ -181,8 +182,8 @@ Increment and Decrement buttons use `tabindex="-1"` to keep them out of the tab 
 | `ArrowDown` | Decrement by one step |
 | `Shift+ArrowUp` | Increment by 10 steps |
 | `Shift+ArrowDown` | Decrement by 10 steps |
-| `PageUp` | Increment by 10 steps |
-| `PageDown` | Decrement by 10 steps |
+| `PageUp` | Increment by leap (default step × 10) |
+| `PageDown` | Decrement by leap (default step × 10) |
 | `Home` | Set to minimum |
 | `End` | Set to maximum |
 | `Enter` | Commit the typed value |

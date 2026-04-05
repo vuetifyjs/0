@@ -1,10 +1,10 @@
 ---
 title: createNumberField - Numeric Input Composable
 meta:
-- name: description
-  content: Composable for numeric input state with Intl.NumberFormat, step snapping, and field validation for Vue 3.
-- name: keywords
-  content: createNumberField, number input, composable, formatting, stepping, Vue 3, headless
+  - name: description
+    content: Composable for numeric input state with Intl.NumberFormat, step snapping, and field validation for Vue 3.
+  - name: keywords
+    content: createNumberField, number input, composable, formatting, stepping, Vue 3, headless
 features:
   category: Composable
   label: 'E: createNumberField'
@@ -18,7 +18,7 @@ related:
 
 # createNumberField
 
-Orchestrator that composes `createInput` + `createNumeric` + `Intl.NumberFormat`. Manages a numeric value with locale-aware formatting, parsing, step snapping, and field validation.
+Numeric value with locale-aware formatting, step snapping, and field validation. Give it a min/max/step, get increment/decrement, formatted display, and parse/commit for text input.
 
 <DocsPageFeatures :frontmatter />
 
