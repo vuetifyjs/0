@@ -47,9 +47,7 @@ NumberField renders a spinbutton input with optional increment, decrement, and s
     <NumberField.Input />
     <NumberField.Increment>+</NumberField.Increment>
 
-    <NumberField.Error v-slot="{ errors }">
-      <span v-for="error in errors">{{ error }}</span>
-    </NumberField.Error>
+    <NumberField.Error />
 
     <NumberField.HiddenInput />
   </NumberField.Root>
