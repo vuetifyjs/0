@@ -10,9 +10,9 @@
 
 <template>
   <Progress.Root v-model="model">
-    <Progress.Track class="relative h-1 w-full overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-800">
+    <Progress.Track class="relative h-1 w-full overflow-hidden rounded-full bg-surface-variant">
       <Progress.Buffer
-        class="absolute inset-y-0 left-0 rounded-full bg-neutral-300 dark:bg-neutral-600"
+        class="absolute inset-y-0 left-0 rounded-full bg-on-surface/20"
         :value="buffer"
       />
 
