@@ -1,6 +1,8 @@
 /**
  * @module createFilter
  *
+ * @see https://0.vuetifyjs.com/composables/data/create-filter
+ *
  * @remarks
  * Reactive array filtering composable with multiple filter modes.
  *
