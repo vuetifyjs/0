@@ -12,6 +12,7 @@
  * - Single or multi-select mode
  * - Mandatory selection mode (prevents deselecting last item)
  * - Auto-enrollment option (selects non-disabled items on register)
+ * - `MaybeRefOrGetter` support for `mandatory`, `multiple`, and `enroll` options
  * - Disabled item filtering
  * - Computed selectedItems and selectedValues Sets
  * - Ticket self-methods: select(), unselect(), toggle()
