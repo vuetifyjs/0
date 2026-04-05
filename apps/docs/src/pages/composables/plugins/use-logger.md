@@ -75,6 +75,8 @@ Adapters let you swap the underlying logging implementation without changing you
 | `PinoLoggerAdapter` | `@vuetify/v0/logger/adapters/pino` | [Pino](https://getpino.io/) integration |
 | `ConsolaLoggerAdapter` | `@vuetify/v0/logger/adapters/consola` | [Consola](https://github.com/unjs/consola) integration |
 
+The default `Vuetify0LoggerAdapter` maps each level to the correct native console method — `debug` → `console.debug`, `info` → `console.info`, `warn` → `console.warn`, `error`/`fatal` → `console.error`. This ensures browser DevTools can correctly filter by level.
+
 ## Architecture
 
 `useLogger` uses the plugin pattern with a log adapter:
