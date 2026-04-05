@@ -13,6 +13,7 @@ features:
   github: /composables/useHydration/
   level: 2
 related:
+  - /composables/plugins/use-storage
   - /guide/fundamentals/plugins
 ---
 
