@@ -87,7 +87,7 @@ export interface SingleContextOptions extends SelectionContextOptions {}
  * - `selectedValue`: The value of the selected item (undefined if none selected)
  *
  * **Inheritance Chain:**
- * `useRegistry` → `createSelection` → `createSingle` → `createStep`
+ * `createRegistry` → `createSelection` → `createSingle` → `createStep`
  *
  * @see https://0.vuetifyjs.com/composables/selection/use-single
  *
