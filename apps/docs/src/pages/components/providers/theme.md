@@ -13,6 +13,7 @@ features:
   level: 2
 related:
   - /composables/plugins/use-theme
+  - /composables/registration/create-tokens
 ---
 
 # Theme
