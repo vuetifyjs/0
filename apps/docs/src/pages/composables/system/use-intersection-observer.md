@@ -87,6 +87,11 @@ flowchart TD
 
 ::: example
 /composables/use-intersection-observer/scroll-reveal
+
+### Scroll Reveal with Visibility Percentage
+
+Cards that fade in and slide up with a staggered delay as they scroll into view, with a progress bar showing each card's visibility percentage.
+
 :::
 
 <DocsApi />
