@@ -11,6 +11,7 @@ features:
   github: /composables/createNumeric/
   level: 2
 related:
+  - /components/forms/input
   - /composables/forms/create-slider
   - /composables/forms/create-rating
 ---
