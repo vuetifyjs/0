@@ -240,6 +240,11 @@ Examples render as functional components you can interact with directly:
 
 ::: example
 /components/group/basic
+
+### Live Preview
+
+An interactive multi-selection group — the same live previews you'll see throughout the docs.
+
 :::
 
 ### Code Toggle
