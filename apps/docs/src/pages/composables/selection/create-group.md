@@ -13,6 +13,7 @@ features:
 related:
   - /composables/selection/create-selection
   - /components/providers/group
+  - /components/forms/checkbox
 ---
 
 # createGroup
