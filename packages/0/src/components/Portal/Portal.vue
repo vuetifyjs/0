@@ -2,6 +2,8 @@
   /**
    * @module Portal
    *
+   * @see https://0.vuetifyjs.com/components/primitives/portal
+   *
    * @remarks
    * Renderless component wrapping Vue's Teleport with automatic
    * useStack integration for z-index coordination.
