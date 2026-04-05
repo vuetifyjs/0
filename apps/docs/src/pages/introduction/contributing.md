@@ -155,7 +155,7 @@ type(scope): subject
 ### Examples
 
 ```bash
-feat(useSelection): add toggle method
+feat(createSelection): add toggle method
 fix(ExpansionPanel): correct aria-expanded state
 docs(getting-started): update installation instructions
 refactor(createRegistry): simplify reindex logic
