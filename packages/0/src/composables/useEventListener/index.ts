@@ -1,6 +1,8 @@
 /**
  * @module useEventListener
  *
+ * @see https://0.vuetifyjs.com/composables/system/use-event-listener
+ *
  * @remarks
  * Event listener composable with automatic cleanup on scope disposal.
  *
