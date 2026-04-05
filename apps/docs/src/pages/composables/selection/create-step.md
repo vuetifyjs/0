@@ -57,6 +57,24 @@ carousel.next()   // Wraps to slide1
 carousel.prev()   // Wraps to slide3
 ```
 
+## Context / DI
+
+Use `createStepContext` to share a step navigation instance across a component tree:
+
+```ts
+import { createStepContext } from '@vuetify/v0'
+
+export const [useWizard, provideWizard, wizard] =
+  createStepContext({ namespace: 'my:wizard', circular: false })
+
+// In parent component
+provideWizard()
+
+// In child component
+const step = useWizard()
+step.next()
+```
+
 ## Architecture
 
 `createStep` extends `createSingle` with directional navigation:
