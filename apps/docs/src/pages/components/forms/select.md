@@ -20,7 +20,7 @@ related:
 
 # Select
 
-A headless dropdown select component with single and multi-selection support. Uses `createSelection` for state management, `useVirtualFocus` for keyboard navigation, and `usePopover` for native popover positioning.
+Headless dropdown select with single and multi-selection, keyboard navigation, and native popover positioning.
 
 <DocsPageFeatures :frontmatter />
 
