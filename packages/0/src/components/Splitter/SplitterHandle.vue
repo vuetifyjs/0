@@ -1,6 +1,8 @@
 /**
  * @module SplitterHandle
  *
+ * @see https://0.vuetifyjs.com/components/semantic/splitter
+ *
  * @remarks
  * Draggable resize handle between two splitter panels. Implements the
  * WAI-ARIA window splitter pattern with pointer drag and keyboard support.

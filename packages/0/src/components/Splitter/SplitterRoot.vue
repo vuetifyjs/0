@@ -1,6 +1,8 @@
 /**
  * @module SplitterRoot
  *
+ * @see https://0.vuetifyjs.com/components/semantic/splitter
+ *
  * @remarks
  * Root component for splitter layouts. Provides context to child
  * SplitterPanel and SplitterHandle components. Manages panel sizes
