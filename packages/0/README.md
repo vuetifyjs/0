@@ -83,6 +83,7 @@ import { ... } from '@vuetify/v0/date'       // Date adapter and utilities
 |-----------|-------------|
 | **Atom** | Polymorphic base element with dynamic `as` prop and renderless mode |
 | **Portal** | Teleport wrapper with automatic z-index stacking via useStack |
+| **Presence** | Animation-agnostic mount lifecycle with lazy mounting and exit timing |
 
 #### Providers
 
