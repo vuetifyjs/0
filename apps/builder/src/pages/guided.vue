@@ -64,7 +64,7 @@
 
   const steps = store.wizardSteps
 
-  const stepIndex = computed(() => store.stepper.selectedIndex.value ?? 0)
+  const stepIndex = computed(() => store.stepper.selectedIndex ?? 0)
 
   function onIntent (id: Intent) {
     store.setIntent(id)
@@ -141,7 +141,7 @@
         <IntentCard
           v-for="item in intents"
           :key="item.id"
-          :active="store.intent.selectedId.value === item.id"
+          :active="store.intent.selectedId === item.id"
           :description="item.description"
           :icon="item.icon"
           :title="item.title"
@@ -150,7 +150,7 @@
       </div>
 
       <div
-        v-if="store.intent.selectedId.value"
+        v-if="store.intent.selectedId"
         class="bg-primary/5 text-primary text-sm p-3 rounded-lg mt-4"
       >
         Great choice! We've pre-selected {{ store.selectedCount }} features for you.
@@ -227,8 +227,8 @@
       </button>
       <button
         class="px-4 py-2 text-sm bg-primary text-on-primary rounded-lg font-semibold hover:opacity-90 transition-opacity"
-        :class="{ 'opacity-50 cursor-not-allowed': currentStep() === 'intent' && !store.intent.selectedId.value }"
-        :disabled="currentStep() === 'intent' && !store.intent.selectedId.value"
+        :class="{ 'opacity-50 cursor-not-allowed': currentStep() === 'intent' && !store.intent.selectedId }"
+        :disabled="currentStep() === 'intent' && !store.intent.selectedId"
         @click="onNext"
       >
         {{ currentStep() === steps[steps.length - 2] ? 'Review' : 'Continue' }}
