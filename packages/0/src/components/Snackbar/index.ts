@@ -1,6 +1,8 @@
 /**
  * @module Snackbar
  *
+ * @see https://0.vuetifyjs.com/components/semantic/snackbar
+ *
  * @remarks
  * Headless compound component for toast and snackbar notifications.
  * Integrates with useNotifications for queue-driven toast stacks.
