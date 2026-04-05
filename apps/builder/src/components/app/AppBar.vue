@@ -31,20 +31,6 @@
     'mobile-first': 'Mobile-First',
   }
 
-  const STEP_LABELS: Record<string, string> = {
-    intent: 'Project Type',
-    foundation: 'Foundation',
-    selection: 'Selection',
-    forms: 'Forms',
-    data: 'Data',
-    plugins: 'Plugins',
-    system: 'System',
-    registration: 'Registration',
-    reactivity: 'Reactivity',
-    semantic: 'Semantic',
-    review: 'Review',
-  }
-
   const breadcrumbs = computed(() => {
     const path = route.path
     const crumbs: string[] = ['Builder']
@@ -58,9 +44,12 @@
           crumbs.push(INTENT_LABELS[intentId] ?? intentId)
         }
 
-        const stepId = store.stepper.selectedId as string | undefined
-        if (stepId && stepId !== 'intent') {
-          crumbs.push(STEP_LABELS[stepId] ?? stepId)
+        const qi = store.questionIndex
+        const qc = store.questionCount
+        if (qi >= 0 && qi < qc) {
+          crumbs.push(`Question ${qi + 1}/${qc}`)
+        } else if (qi >= qc && qc > 0) {
+          crumbs.push('Review')
         }
 
         break

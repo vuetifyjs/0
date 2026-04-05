@@ -1,17 +1,18 @@
 <script setup lang="ts">
-  import { mdiArrowLeft, mdiArrowRight, mdiCellphone, mdiChartBar, mdiCheckCircle, mdiCompass, mdiCube, mdiEyedropper, mdiMonitor, mdiNewspaperVariant, mdiPuzzle } from '@mdi/js'
+  import { mdiArrowLeft, mdiArrowRight, mdiCellphone, mdiChartBar, mdiCheckCircle, mdiCompass, mdiEyedropper, mdiMonitor, mdiNewspaperVariant, mdiPuzzle } from '@mdi/js'
 
   // Framework
   import { useHotkey } from '@vuetify/v0'
 
   // Utilities
-  import { computed } from 'vue'
+  import { computed, shallowRef, watch } from 'vue'
   import { useRouter } from 'vue-router'
 
   // Types
   import type { Intent } from '@/data/types'
 
   import { CATEGORY_ICONS } from '@/data/features'
+  import { getQuestions } from '@/data/questions'
   import { useBuilderStore } from '@/stores/builder'
 
   const store = useBuilderStore()
@@ -40,60 +41,77 @@
     { id: 'mobile-first', title: 'Mobile-First', description: 'Touch-optimized responsive application', icon: mdiCellphone },
   ]
 
-  const categoryInfo: Record<string, { title: string, description: string }> = {
-    foundation: {
-      title: 'Foundation',
-      description: 'Core building blocks that power everything else. These provide dependency injection, structured APIs, and plugin architecture.',
-    },
-    selection: {
-      title: 'Selection',
-      description: 'State management for selected items — tabs, dropdowns, toggles, and multi-select patterns.',
-    },
-    forms: {
-      title: 'Forms',
-      description: 'Input handling, validation, and specialized form controls like sliders, ratings, and autocomplete.',
-    },
-    data: {
-      title: 'Data',
-      description: 'Tools for displaying and navigating large datasets — tables, filters, pagination, and virtual scrolling.',
-    },
-    plugins: {
-      title: 'Plugins',
-      description: 'App-level features that install once and are available everywhere — theming, i18n, storage, permissions, and more.',
-    },
-    system: {
-      title: 'System',
-      description: 'Low-level browser integration — event listeners, keyboard shortcuts, popovers, observers, and overlay management.',
-    },
-    registration: {
-      title: 'Registration',
-      description: 'Track and manage groups of child components — used by tabs, accordions, carousels, and similar patterns.',
-    },
-    reactivity: {
-      title: 'Reactivity',
-      description: 'Vue reactivity utilities for proxy models, scoped effects, and reactive transformations.',
-    },
-    semantic: {
-      title: 'Semantic',
-      description: 'Domain-specific composables for breadcrumbs, overflow detection, and content organization.',
-    },
+  // Question flow
+  const questions = computed(() => {
+    const intentId = store.intent.selectedId as string | undefined
+    if (!intentId) return []
+    return getQuestions(intentId as Intent)
+  })
+
+  const answers = shallowRef<Record<string, boolean>>({})
+  const currentQuestionIndex = shallowRef(0)
+  const started = shallowRef(false)
+
+  const currentQuestion = computed(() => questions.value[currentQuestionIndex.value])
+  const allAnswered = computed(() => started.value && currentQuestionIndex.value >= questions.value.length)
+
+  // Phase helpers
+  const phase = computed(() => {
+    if (!store.intent.selectedId || !started.value) return 'intent'
+    if (!allAnswered.value) return 'questions'
+    return 'review'
+  })
+
+  // Sync question state to store for AppBar breadcrumbs
+  watch([currentQuestionIndex, questions, () => store.intent.selectedId, started], () => {
+    store.questionCount = questions.value.length
+    if (phase.value === 'intent') {
+      store.questionIndex = -1
+    } else if (allAnswered.value) {
+      store.questionIndex = questions.value.length
+    } else {
+      store.questionIndex = currentQuestionIndex.value
+    }
+  }, { immediate: true })
+
+  function onAnswer (yes: boolean) {
+    const q = currentQuestion.value
+    if (!q) return
+
+    answers.value = { ...answers.value, [q.id]: yes }
+
+    if (yes) {
+      store.select(q.feature)
+    }
+
+    currentQuestionIndex.value++
   }
-
-  const steps = store.wizardSteps
-
-  const stepIndex = computed(() => store.stepper.selectedIndex ?? 0)
 
   function onIntent (id: Intent) {
     store.setIntent(id)
-  }
-
-  function onNext () {
-    store.stepper.next()
+    // Reset question state when intent changes
+    currentQuestionIndex.value = 0
+    answers.value = {}
+    started.value = true
   }
 
   function onBack () {
-    if (stepIndex.value > 0) {
-      store.stepper.prev()
+    if (allAnswered.value) {
+      // Go back to last question
+      currentQuestionIndex.value = questions.value.length - 1
+    } else if (currentQuestionIndex.value > 0) {
+      // Go back to previous question and undo answer
+      currentQuestionIndex.value--
+      const q = questions.value[currentQuestionIndex.value]
+      if (q && answers.value[q.id]) {
+        store.deselect(q.feature)
+      }
+      const next = { ...answers.value }
+      delete next[q.id]
+      answers.value = next
+    } else if (started.value) {
+      // Go back to intent selection
+      started.value = false
     } else {
       router.push('/')
     }
@@ -104,20 +122,14 @@
     router.push('/free')
   }
 
-  function currentStep () {
-    return steps[stepIndex.value ?? 0] ?? 'intent'
-  }
-
-  function stepIcon (step: string): string {
-    if (step === 'intent') return mdiCompass
-    if (step === 'review') return mdiCheckCircle
-    return CATEGORY_ICONS[step] ?? mdiCube
-  }
-
   // Keyboard navigation
-  useHotkey('arrowright', () => store.stepper.next(), { preventDefault: false })
+  useHotkey('arrowright', () => {
+    if (phase.value === 'intent' && store.intent.selectedId) {
+      // Move to first question (intent auto-advances, but just in case)
+    }
+  }, { preventDefault: false })
   useHotkey('arrowleft', () => {
-    if (stepIndex.value > 0) store.stepper.prev()
+    onBack()
   }, { preventDefault: false })
 </script>
 
@@ -134,40 +146,38 @@
       </button>
     </div>
 
-    <!-- Step indicator -->
+    <!-- Phase indicator -->
     <div class="flex items-center gap-0 mb-8">
-      <template v-for="(s, index) in steps" :key="s">
-        <component
-          :is="index < stepIndex ? 'button' : 'div'"
+      <template v-for="(step, index) in ['Intent', 'Questions', 'Review']" :key="step">
+        <div
           class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-colors"
           :class="[
-            index < stepIndex
-              ? 'bg-primary text-on-primary cursor-pointer hover:ring-4 hover:ring-primary/20'
-              : index === stepIndex
+            index < ['intent', 'questions', 'review'].indexOf(phase)
+              ? 'bg-primary text-on-primary'
+              : index === ['intent', 'questions', 'review'].indexOf(phase)
                 ? 'bg-primary text-on-primary ring-4 ring-primary/20'
                 : 'bg-surface-variant text-on-surface-variant',
           ]"
-          @click="index < stepIndex ? store.stepper.select(steps[index]) : undefined"
         >
-          <svg v-if="index < stepIndex" class="w-4 h-4" viewBox="0 0 24 24">
+          <svg v-if="index < ['intent', 'questions', 'review'].indexOf(phase)" class="w-4 h-4" viewBox="0 0 24 24">
             <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="currentColor" />
           </svg>
           <svg v-else class="w-4 h-4" viewBox="0 0 24 24">
-            <path :d="stepIcon(s)" fill="currentColor" />
+            <path :d="index === 0 ? mdiCompass : index === 2 ? mdiCheckCircle : mdiArrowRight" fill="currentColor" />
           </svg>
-        </component>
+        </div>
         <div
-          v-if="index < steps.length - 1"
+          v-if="index < 2"
           class="h-0.5 flex-1 transition-colors"
-          :class="index < stepIndex ? 'bg-primary' : 'bg-divider'"
+          :class="index < ['intent', 'questions', 'review'].indexOf(phase) ? 'bg-primary' : 'bg-divider'"
         />
       </template>
     </div>
 
     <!-- Intent step -->
-    <template v-if="currentStep() === 'intent'">
+    <template v-if="phase === 'intent'">
       <p class="text-xs text-on-surface-variant uppercase tracking-wide mb-1">
-        Step {{ stepIndex + 1 }} of {{ steps.length }}
+        Step 1 of 3
       </p>
       <h2 class="text-xl font-bold mb-2">What are you building?</h2>
       <p class="text-on-surface-variant mb-6">Pick a project type and we'll seed the right features for you.</p>
@@ -192,105 +202,53 @@
       </div>
     </template>
 
-    <!-- Category steps -->
-    <template v-else-if="currentStep() !== 'review'">
+    <!-- Question step -->
+    <template v-else-if="!allAnswered">
       <p class="text-xs text-on-surface-variant uppercase tracking-wide mb-1">
-        Step {{ stepIndex + 1 }} of {{ steps.length }}
+        Question {{ currentQuestionIndex + 1 }} of {{ questions.length }}
       </p>
-      <h2 class="text-xl font-bold mb-2 capitalize flex items-center gap-2">
-        <svg v-if="CATEGORY_ICONS[currentStep()]" class="w-6 h-6 text-primary" viewBox="0 0 24 24">
-          <path :d="CATEGORY_ICONS[currentStep()]" fill="currentColor" />
-        </svg>
-        {{ categoryInfo[currentStep()]?.title ?? currentStep() }}
-      </h2>
-      <p class="text-on-surface-variant mb-6">
-        {{ categoryInfo[currentStep()]?.description ?? 'Select the features you need from this category.' }}
-      </p>
+      <h2 class="text-xl font-bold mb-4">{{ currentQuestion.question }}</h2>
+      <p class="text-on-surface-variant mb-8">{{ currentQuestion.description }}</p>
 
-      <!-- Legend -->
-      <div class="flex items-center gap-4 text-xs text-on-surface-variant mb-4">
-        <div class="flex items-center gap-1.5">
-          <svg class="w-4 h-4" viewBox="0 0 20 20">
-            <circle
-              class="text-primary"
-              cx="10"
-              cy="10"
-              fill="currentColor"
-              r="10"
-            />
-            <path
-              class="text-on-primary"
-              d="M6 10l3 3 5-5"
-              fill="none"
-              stroke="currentColor"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-            />
+      <div class="grid grid-cols-2 gap-4">
+        <button
+          class="p-6 rounded-lg border border-divider bg-surface hover:border-primary hover:shadow-md transition-all text-left"
+          @click="onAnswer(true)"
+        >
+          <svg class="w-6 h-6 text-primary mb-3" viewBox="0 0 24 24">
+            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="currentColor" />
           </svg>
-          Selected
-        </div>
-        <div class="flex items-center gap-1.5">
-          <svg class="w-4 h-4 text-on-surface-variant/50" fill="none" viewBox="0 0 20 20">
-            <circle
-              cx="10"
-              cy="10"
-              r="9"
-              stroke="currentColor"
-              stroke-width="1.5"
-            />
+          <h3 class="font-semibold text-on-surface mb-1">Yes, add this</h3>
+          <p class="text-sm text-on-surface-variant">Include {{ currentQuestion.feature }} in your framework</p>
+        </button>
+
+        <button
+          class="p-6 rounded-lg border border-divider bg-surface hover:border-on-surface-variant hover:shadow-md transition-all text-left"
+          @click="onAnswer(false)"
+        >
+          <svg class="w-6 h-6 text-on-surface-variant mb-3" viewBox="0 0 24 24">
+            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" fill="currentColor" />
           </svg>
-          Available
-        </div>
-        <div class="flex items-center gap-1.5">
-          <svg class="w-4 h-4 text-on-surface-variant" fill="none" viewBox="0 0 20 20">
-            <circle
-              cx="10"
-              cy="10"
-              r="9"
-              stroke="currentColor"
-              stroke-dasharray="3 2"
-              stroke-width="1.5"
-            />
-            <path d="M8 7l4 3-4 3" fill="currentColor" />
-          </svg>
-          Dependency
-        </div>
+          <h3 class="font-semibold text-on-surface mb-1">No, skip</h3>
+          <p class="text-sm text-on-surface-variant">I don't need this right now</p>
+        </button>
       </div>
 
-      <div class="flex flex-col gap-3">
-        <FeatureCard
-          v-for="feature in store.categories.get(currentStep()) ?? []"
-          :key="feature.id"
-          :active="store.isSelected(feature.id)"
-          :auto="!store.isSelected(feature.id) && store.resolved.autoIncluded.includes(feature.id)"
-          :feature
-          :reason="store.resolved.reasons[feature.id]"
-          @click="store.toggle(feature.id)"
+      <!-- Progress dots -->
+      <div class="flex justify-center gap-2 mt-8">
+        <div
+          v-for="(q, i) in questions"
+          :key="q.id"
+          class="w-2 h-2 rounded-full transition-colors"
+          :class="i < currentQuestionIndex ? 'bg-primary' : i === currentQuestionIndex ? 'bg-primary ring-2 ring-primary/30' : 'bg-divider'"
         />
-      </div>
-
-      <p
-        v-if="(store.categories.get(currentStep()) ?? []).length === 0"
-        class="text-on-surface-variant text-sm"
-      >
-        No features in this category yet.
-      </p>
-
-      <div class="mt-8 pt-6 border-t border-divider flex items-center justify-between">
-        <div class="text-sm text-on-surface-variant">
-          <span class="font-semibold text-on-surface">{{ store.selectedCount }}</span> features selected
-          <span v-if="store.resolved.autoIncluded.length > 0" class="ml-2">
-            + <span class="font-semibold text-accent">{{ store.resolved.autoIncluded.length }}</span> auto-included
-          </span>
-        </div>
       </div>
     </template>
 
     <!-- Review step -->
     <template v-else>
       <p class="text-xs text-on-surface-variant uppercase tracking-wide mb-1">
-        Step {{ stepIndex + 1 }} of {{ steps.length }}
+        Step 3 of 3
       </p>
       <h2 class="text-xl font-bold mb-2 flex items-center gap-2">
         <svg class="w-6 h-6 text-primary" viewBox="0 0 24 24">
@@ -394,15 +352,6 @@
         @click="onBack"
       >
         Back
-      </button>
-      <button
-        class="px-4 py-2 text-sm bg-primary text-on-primary rounded-lg font-semibold hover:opacity-90 transition-opacity"
-        :class="{ 'opacity-50 cursor-not-allowed': currentStep() === 'intent' && !store.intent.selectedId }"
-        :disabled="currentStep() === 'intent' && !store.intent.selectedId"
-        @click="onNext"
-      >
-        {{ currentStep() === steps[steps.length - 2] ? 'Review' : 'Continue' }}
-        <svg class="w-4 h-4 inline ml-1" viewBox="0 0 24 24"><path :d="mdiArrowRight" fill="currentColor" /></svg>
       </button>
     </div>
   </div>
