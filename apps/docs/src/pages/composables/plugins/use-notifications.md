@@ -13,6 +13,7 @@ features:
   github: /composables/useNotifications/
   level: 2
 related:
+  - /components/semantic/snackbar
   - /composables/registration/create-registry
   - /composables/registration/create-queue
   - /composables/foundation/create-plugin
