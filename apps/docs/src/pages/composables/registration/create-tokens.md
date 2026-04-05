@@ -57,6 +57,32 @@ const features = createTokens({
 features.resolve('rtl') // { value: true, variation: 'toggle' }
 ```
 
+## Context / DI
+
+Use `createTokensContext` to share a token registry across a component tree:
+
+```ts
+import { createTokensContext } from '@vuetify/v0'
+
+export const [useTokens, provideTokens, tokens] =
+  createTokensContext({
+    namespace: 'my:tokens',
+    tokens: {
+      colors: {
+        primary: '#3b82f6',
+        secondary: '{colors.primary}',  // alias
+      },
+    },
+  })
+
+// In parent component
+provideTokens()
+
+// In child component
+const tokens = useTokens()
+tokens.resolve('colors.primary')  // '#3b82f6'
+```
+
 ## Architecture
 
 `createTokens` extends `createRegistry` and powers token-based systems:
