@@ -7,6 +7,7 @@
  * Virtual scrolling composable for efficiently rendering large lists.
  *
  * Key features:
+ * - Trinity pattern for dependency injection (`createVirtualContext`, `useVirtual`)
  * - Renders only visible items (viewport + overscan)
  * - Dynamic or fixed item heights
  * - SSR-safe (checks IN_BROWSER)
