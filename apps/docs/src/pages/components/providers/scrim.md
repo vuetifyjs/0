@@ -76,6 +76,11 @@ Demonstrates a dismissible overlay and a blocking overlay. Click the scrim to di
 
 ::: example
 /components/scrim/basic
+
+### Dismissible and Blocking Overlays
+
+Dismissible and blocking scrims with backdrop, stack management, and z-index control.
+
 :::
 
 ## Custom Styling via Slot Props
