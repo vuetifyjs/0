@@ -1,6 +1,8 @@
 /**
  * @module PaginationRoot
  *
+ * @see https://0.vuetifyjs.com/components/semantic/pagination
+ *
  * @remarks
  * Root component for pagination controls that manages page state and provides context
  * to child components. Supports automatic calculation of visible page buttons based on

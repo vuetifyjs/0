@@ -1,6 +1,8 @@
 /**
  * @module PaginationItem
  *
+ * @see https://0.vuetifyjs.com/components/semantic/pagination
+ *
  * @remarks
  * Individual page button that navigates to a specific page number when clicked.
  * Registers with the parent PaginationRoot for width calculations and provides

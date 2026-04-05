@@ -1,6 +1,8 @@
 /**
  * @module PaginationLast
  *
+ * @see https://0.vuetifyjs.com/components/semantic/pagination
+ *
  * @remarks
  * Navigation button that jumps to the last page. Automatically disables when
  * already on the last page. Provides localized aria-label for accessibility.

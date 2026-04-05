@@ -1,6 +1,8 @@
 /**
  * @module PaginationPrev
  *
+ * @see https://0.vuetifyjs.com/components/semantic/pagination
+ *
  * @remarks
  * Navigation button that moves to the previous page. Automatically disables when
  * already on the first page. Provides localized aria-label for accessibility.
