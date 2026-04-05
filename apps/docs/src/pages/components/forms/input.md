@@ -12,6 +12,7 @@ features:
   github: /components/Input/
   renderless: false
 related:
+  - /composables/forms/create-input
   - /composables/forms/create-validation
   - /composables/forms/create-form
   - /components/forms/checkbox
