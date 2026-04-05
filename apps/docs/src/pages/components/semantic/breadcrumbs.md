@@ -31,6 +31,11 @@ The Breadcrumbs component provides a compound component pattern for building nav
 
 ::: example
 /components/breadcrumbs/basic
+
+### Basic Breadcrumb Trail
+
+A simple breadcrumb with dividers and an ellipsis component for overflow.
+
 :::
 
 ## Anatomy
