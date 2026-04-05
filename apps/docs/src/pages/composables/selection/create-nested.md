@@ -72,6 +72,7 @@ flowchart TD
 | `parents` | <AppSuccessIcon /> | ShallowReactive Map |
 | `openedIds` | <AppSuccessIcon /> | ShallowReactive Set |
 | `openedItems` | <AppSuccessIcon /> | Computed from openedIds |
+| `rootIds` | <AppSuccessIcon /> | ShallowReactive Set — IDs of all top-level (parentless) nodes |
 | `roots` | <AppSuccessIcon /> | Computed, root nodes |
 | `leaves` | <AppSuccessIcon /> | Computed, leaf nodes |
 | `ticket.isOpen` | <AppSuccessIcon /> | Ref via toRef() |
