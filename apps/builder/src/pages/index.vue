@@ -20,7 +20,7 @@
       {{ store.catalog.length }} features available
     </p>
 
-    <div class="flex flex-col gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
       <ModeCard
         description="Walk through what you're building step by step. We'll recommend features based on your project."
         :icon="mdiCompass"
