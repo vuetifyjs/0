@@ -93,6 +93,57 @@
       >
     </div>
 
+    <!-- Legend -->
+    <div class="flex items-center gap-4 text-xs text-on-surface-variant mb-6">
+      <div class="flex items-center gap-1.5">
+        <svg class="w-4 h-4" viewBox="0 0 20 20">
+          <circle
+            class="text-primary"
+            cx="10"
+            cy="10"
+            fill="currentColor"
+            r="10"
+          />
+          <path
+            class="text-on-primary"
+            d="M6 10l3 3 5-5"
+            fill="none"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+          />
+        </svg>
+        Selected
+      </div>
+      <div class="flex items-center gap-1.5">
+        <svg class="w-4 h-4 text-on-surface-variant/50" fill="none" viewBox="0 0 20 20">
+          <circle
+            cx="10"
+            cy="10"
+            r="9"
+            stroke="currentColor"
+            stroke-width="1.5"
+          />
+        </svg>
+        Available
+      </div>
+      <div class="flex items-center gap-1.5">
+        <svg class="w-4 h-4 text-on-surface-variant" fill="none" viewBox="0 0 20 20">
+          <circle
+            cx="10"
+            cy="10"
+            r="9"
+            stroke="currentColor"
+            stroke-dasharray="3 2"
+            stroke-width="1.5"
+          />
+          <path d="M8 7l4 3-4 3" fill="currentColor" />
+        </svg>
+        Dependency
+      </div>
+    </div>
+
     <div v-for="[category, features] in grouped" :key="category" class="mb-8">
       <h3 class="text-sm font-semibold text-on-surface-variant uppercase tracking-wide mb-3 capitalize flex items-center gap-2">
         <svg v-if="CATEGORY_ICONS[category]" class="w-4 h-4" viewBox="0 0 24 24">
