@@ -17,7 +17,7 @@ related:
 
 # Avatar
 
-A headless component for managing image loading with priority-based fallback system.
+Headless image component with automatic fallback to icon or text content.
 
 <DocsPageFeatures :frontmatter />
 
