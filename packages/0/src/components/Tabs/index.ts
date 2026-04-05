@@ -53,19 +53,19 @@ export const Tabs = {
   /**
    * Container for tab triggers with tablist role.
    *
-   * @see https://0.vuetifyjs.com/components/disclosure/tabs#tabslist
+   * @see https://0.vuetifyjs.com/components/disclosure/tabs
    */
   List,
   /**
    * Individual tab trigger.
    *
-   * @see https://0.vuetifyjs.com/components/disclosure/tabs#tabsitem
+   * @see https://0.vuetifyjs.com/components/disclosure/tabs
    */
   Item,
   /**
    * Content panel associated with a tab.
    *
-   * @see https://0.vuetifyjs.com/components/disclosure/tabs#tabspanel
+   * @see https://0.vuetifyjs.com/components/disclosure/tabs
    */
   Panel,
 }
