@@ -1,6 +1,8 @@
 /**
  * @module createSelection
  *
+ * @see https://0.vuetifyjs.com/composables/selection/create-selection
+ *
  * @remarks
  * Selection composable that extends createModel with multi-select,
  * mandatory enforcement, auto-enrollment, and ticket self-methods.
