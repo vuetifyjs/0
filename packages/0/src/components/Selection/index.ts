@@ -12,13 +12,13 @@ import Root from './SelectionRoot.vue'
 /**
  * Selection component with sub-components for managing item selection state.
  *
- * @see https://0.vuetifyjs.com/components/selection
+ * @see https://0.vuetifyjs.com/components/providers/selection
  */
 export const Selection = {
   /**
    * Root component for selection contexts.
    *
-   * @see https://0.vuetifyjs.com/components/selection#selectionroot
+   * @see https://0.vuetifyjs.com/components/providers/selection#selectionroot
    *
    * @example
    * ```vue
@@ -43,7 +43,7 @@ export const Selection = {
   /**
    * Item component for selection contexts.
    *
-   * @see https://0.vuetifyjs.com/components/selection#selectionitem
+   * @see https://0.vuetifyjs.com/components/providers/selection#selectionitem
    *
    * @example
    * ```vue
