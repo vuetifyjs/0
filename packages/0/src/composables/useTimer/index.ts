@@ -1,6 +1,8 @@
 /**
  * @module useTimer
  *
+ * @see https://0.vuetifyjs.com/composables/system/use-timer
+ *
  * @remarks
  * A reactive timer composable with pause/resume support.
  *
