@@ -72,6 +72,7 @@ Value state is **always reactive**. Collection methods follow the base `createRe
 | `selectedItems` | <AppSuccessIcon /> | Computed from `selectedIds` |
 | `selectedValues` | <AppSuccessIcon /> | Computed from `selectedItems`, unwraps refs via `toValue` |
 | ticket `isSelected` | <AppSuccessIcon /> | Computed from `selectedIds` |
+| `apply(values, options?)` | <AppErrorIcon /> | Sets selection from an array of values — used by `useProxyModel` to sync a ref with the model |
 
 > [!TIP] Value vs Collection
 > Most UI patterns only need **value reactivity** (which is always on). You rarely need the collection itself to be reactive.
