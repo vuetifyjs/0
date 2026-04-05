@@ -17,7 +17,7 @@ related:
 
 # createQueue
 
-A queue composable for managing time-based collections with automatic timeout-based removal, pause/resume functionality, and FIFO (First In, First Out) ordering.
+FIFO queue for time-based collections with automatic timeout removal and pause/resume support.
 
 <DocsPageFeatures :frontmatter />
 

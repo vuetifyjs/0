@@ -20,7 +20,7 @@ related:
 
 # createForm
 
-Coordinates validation across multiple inputs. A pure registry of `createValidation` instances — it provides `submit()`, `reset()`, and aggregate `isValid`/`isValidating` state. Per-input validation logic lives in `createValidation`. The form is the mothership — it coordinates, not creates.
+Coordinates validation across multiple inputs. Provides `submit()`, `reset()`, and aggregate validity state.
 
 <DocsPageFeatures :frontmatter />
 
