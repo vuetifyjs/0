@@ -13,13 +13,13 @@ import Root from './StepRoot.vue'
 /**
  * Step component with sub-components for building stepper navigation.
  *
- * @see https://0.vuetifyjs.com/components/step
+ * @see https://0.vuetifyjs.com/components/providers/step
  */
 export const Step = {
   /**
    * Root component for step navigation.
    *
-   * @see https://0.vuetifyjs.com/components/step
+   * @see https://0.vuetifyjs.com/components/providers/step
    *
    * @example
    * ```vue
@@ -42,7 +42,7 @@ export const Step = {
   /**
    * Component representing a single step item.
    *
-   * @see https://0.vuetifyjs.com/components/step#stepitem
+   * @see https://0.vuetifyjs.com/components/providers/step#stepitem
    *
    * @example
    * ```vue
