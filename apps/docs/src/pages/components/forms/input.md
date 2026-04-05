@@ -13,6 +13,7 @@ features:
   renderless: false
 related:
   - /composables/forms/create-input
+  - /composables/forms/create-numeric
   - /composables/forms/create-validation
   - /composables/forms/create-form
   - /components/forms/checkbox
