@@ -27,6 +27,11 @@ The Pagination component provides a compound component pattern for building page
 
 ::: example
 /components/pagination/basic
+
+### Pagination Controls
+
+First, prev, next, and last buttons with ellipsis support across 200 items.
+
 :::
 
 ## Anatomy
