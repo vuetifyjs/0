@@ -196,9 +196,15 @@
 
       <div
         v-if="store.intent.selectedId"
-        class="bg-primary/5 text-primary text-sm p-3 rounded-lg mt-4"
+        class="bg-primary/5 text-primary text-sm p-3 rounded-lg mt-4 flex items-center justify-between"
       >
-        Great choice! We've pre-selected {{ store.selectedCount }} features for you.
+        <span>Great choice! We've pre-selected {{ store.selectedCount }} features for you.</span>
+        <button
+          class="px-4 py-1.5 bg-primary text-on-primary rounded-lg font-semibold text-sm hover:opacity-90 transition-opacity"
+          @click="started = true"
+        >
+          Continue
+        </button>
       </div>
     </template>
 
