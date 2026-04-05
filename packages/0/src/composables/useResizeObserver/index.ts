@@ -8,6 +8,8 @@
  *
  * Key features:
  * - ResizeObserver API wrapper
+ * - `isActive` reactive flag
+ * - `once` option for single-fire observation
  * - Pause/resume/stop functionality
  * - Automatic cleanup on unmount
  * - SSR-safe (checks SUPPORTS_OBSERVER)
