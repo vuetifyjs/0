@@ -167,16 +167,16 @@ export const useBuilderStore = defineStore('builder', () => {
 })
 
 function getRecommendations (intent: Intent): string[] {
-  const base = ['createContext', 'createTrinity', 'useTheme']
-
+  // Only select differentiating features — foundation composables
+  // like createContext/createTrinity auto-include as dependencies
   const presets: Record<Intent, string[]> = {
-    'spa': [...base, 'createSelection', 'createSingle', 'useStorage', 'useBreakpoints'],
-    'component-library': [...base, 'createRegistry', 'createSelection', 'createGroup'],
-    'design-system': [...base, 'createRegistry', 'createSelection', 'createGroup', 'useLocale', 'useBreakpoints'],
-    'admin-dashboard': [...base, 'createDataTable', 'createForm', 'createSelection', 'useStorage', 'useBreakpoints', 'usePermissions'],
-    'content-site': [...base, 'useBreakpoints', 'useIntersectionObserver', 'useStorage'],
-    'mobile-first': [...base, 'createSelection', 'useBreakpoints', 'useStorage', 'useEventListener'],
+    'spa': ['createSelection', 'createSingle', 'useTheme', 'useStorage', 'useBreakpoints'],
+    'component-library': ['createRegistry', 'createSelection', 'createGroup', 'useTheme'],
+    'design-system': ['createRegistry', 'createSelection', 'createGroup', 'useTheme', 'useLocale', 'useBreakpoints'],
+    'admin-dashboard': ['createDataTable', 'createForm', 'createSelection', 'useTheme', 'useStorage', 'useBreakpoints', 'usePermissions'],
+    'content-site': ['useTheme', 'useBreakpoints', 'useIntersectionObserver', 'useStorage'],
+    'mobile-first': ['createSelection', 'useTheme', 'useBreakpoints', 'useStorage', 'useEventListener'],
   }
 
-  return presets[intent] ?? base
+  return presets[intent] ?? ['useTheme']
 }

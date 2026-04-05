@@ -9,10 +9,12 @@
     feature,
     active = false,
     auto = false,
+    reason,
   } = defineProps<{
     feature: Feature
     active?: boolean
     auto?: boolean
+    reason?: string
   }>()
 
   const maturityClass = toRef(() => {
@@ -80,7 +82,9 @@
         <span class="font-semibold text-xs px-2 py-0.5 rounded-full" :class="maturityClass">
           {{ feature.maturity }}
         </span>
-        <span v-if="auto && !active" class="text-xs text-on-surface-variant">auto-included</span>
+        <span v-if="auto && !active" class="text-xs text-on-surface-variant">
+          required by {{ reason ?? 'another feature' }}
+        </span>
       </div>
 
       <p class="text-sm text-on-surface-variant">

@@ -55,6 +55,13 @@ describe('resolve', () => {
     ])
   })
 
+  it('tracks reasons for auto-included dependencies', () => {
+    const result = resolve(['createSelection'], graph)
+    expect(result.reasons.createContext).toBe('createSelection')
+    expect(result.reasons.createModel).toBe('createSelection')
+    expect(result.reasons.createTrinity).toBe('createSelection')
+  })
+
   it('warns for features not in the graph', () => {
     const result = resolve(['nonExistent'], graph)
     expect(result.warnings).toEqual([

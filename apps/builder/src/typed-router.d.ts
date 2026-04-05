@@ -34,6 +34,34 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/ai': RouteRecordInfo<
+      '/ai',
+      '/ai',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/free': RouteRecordInfo<
+      '/free',
+      '/free',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/guided': RouteRecordInfo<
+      '/guided',
+      '/guided',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/review': RouteRecordInfo<
+      '/review',
+      '/review',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
   }
 
   /**
@@ -50,6 +78,30 @@ declare module 'vue-router/auto-routes' {
     'src/pages/index.vue': {
       routes:
         | '/'
+      views:
+        | never
+    }
+    'src/pages/ai.vue': {
+      routes:
+        | '/ai'
+      views:
+        | never
+    }
+    'src/pages/free.vue': {
+      routes:
+        | '/free'
+      views:
+        | never
+    }
+    'src/pages/guided.vue': {
+      routes:
+        | '/guided'
+      views:
+        | never
+    }
+    'src/pages/review.vue': {
+      routes:
+        | '/review'
       views:
         | never
     }
