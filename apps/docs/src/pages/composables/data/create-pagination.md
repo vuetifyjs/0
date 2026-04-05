@@ -11,6 +11,7 @@ features:
   github: /composables/createPagination/
   level: 2
 related:
+  - /composables/data/create-data-table
   - /composables/data/create-filter
   - /components/semantic/pagination
 ---
