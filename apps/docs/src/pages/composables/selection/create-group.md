@@ -92,6 +92,10 @@ Chip filters are a common pattern for narrowing content by tags. This example sh
 /composables/create-group/chip-filter.vue 3
 @import @mdi/js
 
+### Chip Tag Filter
+
+Toggleable tag chips with a tri-state select-all header, showing `isAllSelected`, `isMixed`, and `isNoneSelected` update live.
+
 | File | Role |
 |------|------|
 | `context.ts` | Tag type, factory, and seed data |
