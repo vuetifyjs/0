@@ -12,6 +12,7 @@ features:
   github: /composables/createRegistry/
   level: 3
 related:
+  - /composables/reactivity/use-proxy-registry
   - /composables/selection/create-selection
   - /composables/registration/create-tokens
   - /composables/forms/create-form
