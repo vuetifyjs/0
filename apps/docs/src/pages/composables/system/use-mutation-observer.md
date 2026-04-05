@@ -72,6 +72,12 @@ flowchart TD
   useMutationObserver --> AttributeWatch["Attribute Watching"]
 ```
 
+## Options
+
+| Option | Type | Default | Notes |
+| - | - | - | - |
+| `once` | `boolean` | `false` | Stop observing after the first callback fires |
+
 ## Reactivity
 
 | Property/Method | Reactive | Notes |
