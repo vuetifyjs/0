@@ -63,6 +63,34 @@ The `useHotkey` composable registers hotkey handlers on the window with automati
 </template>
 ```
 
+## Key Aliases
+
+Key strings are normalized before matching, so you can use human-friendly names instead of exact `KeyboardEvent.key` values:
+
+| Alias | Canonical |
+| - | - |
+| `esc` | `escape` |
+| `return` | `enter` |
+| `del` | `delete` |
+| `space`, `spacebar` | ` ` (space character) |
+| `up` / `down` / `left` / `right` | `arrowup` / `arrowdown` / `arrowleft` / `arrowright` |
+| `control` | `ctrl` |
+| `command` | `cmd` |
+| `option` | `alt` |
+| `plus` | `+` |
+| `minus`, `hyphen` | `-` |
+| `slash` | `/` |
+| `underscore` | `_` |
+
+```ts no-filename
+// These are equivalent:
+useHotkey('escape', close)
+useHotkey('esc', close)
+
+useHotkey('ctrl+plus', zoomIn)   // matches Ctrl ++
+useHotkey('cmd+minus', zoomOut)  // matches Cmd +-
+```
+
 ## Architecture
 
 `useHotkey` builds on `useEventListener` for keyboard event handling:
