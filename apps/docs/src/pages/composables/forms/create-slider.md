@@ -18,7 +18,7 @@ related:
 
 # createSlider
 
-A composable for managing slider state: value math, step snapping, percentage conversion, and multi-thumb value operations. Designed for single-thumb, range, and multi-thumb sliders.
+Slider state composable for single-thumb, range, and multi-thumb sliders. Handles value math, step snapping, and percentage conversion.
 
 <DocsPageFeatures :frontmatter />
 
