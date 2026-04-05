@@ -1,6 +1,8 @@
 /**
  * @module createModel
  *
+ * @see https://0.vuetifyjs.com/composables/selection/create-model
+ *
  * @remarks
  * Value store layer that extends createRegistry with a reactive Set of
  * selected IDs, disabled guards, and an `apply` bridge for useProxyModel sync.
