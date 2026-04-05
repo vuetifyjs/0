@@ -146,7 +146,7 @@ export interface GroupContextOptions extends SelectionContextOptions {}
  * - Non-existent IDs are silently ignored
  *
  * **Inheritance Chain:**
- * `useRegistry` → `createSelection` → `createGroup`
+ * `createRegistry` → `createSelection` → `createGroup`
  *
  * **Used By:**
  * - `createFeatures` for feature flag management with multiple selections
