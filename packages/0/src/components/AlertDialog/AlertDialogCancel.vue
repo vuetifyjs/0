@@ -1,6 +1,8 @@
 /**
  * @module AlertDialogCancel
  *
+ * @see https://0.vuetifyjs.com/components/disclosure/alert-dialog
+ *
  * @remarks
  * Cancel button component for alert dialogs. Closes the dialog immediately
  * when clicked. This is the safest action and should receive focus on dialog open.

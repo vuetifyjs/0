@@ -1,6 +1,8 @@
 /**
  * @module AlertDialogActivator
  *
+ * @see https://0.vuetifyjs.com/components/disclosure/alert-dialog
+ *
  * @remarks
  * Trigger component for alert dialogs. Provides the element that opens
  * the alert dialog when clicked. Automatically handles click events

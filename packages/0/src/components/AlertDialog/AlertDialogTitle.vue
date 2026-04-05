@@ -1,6 +1,8 @@
 /**
  * @module AlertDialogTitle
  *
+ * @see https://0.vuetifyjs.com/components/disclosure/alert-dialog
+ *
  * @remarks
  * Title component for alert dialogs. Provides the accessible name for the
  * dialog via aria-labelledby. Should be used inside AlertDialogContent.

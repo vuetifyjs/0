@@ -1,6 +1,8 @@
 /**
  * @module AlertDialogClose
  *
+ * @see https://0.vuetifyjs.com/components/disclosure/alert-dialog
+ *
  * @remarks
  * Close button component for alert dialogs. Closes the dialog when clicked.
  * Should be used inside AlertDialogContent.
