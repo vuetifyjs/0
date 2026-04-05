@@ -18,7 +18,7 @@ related:
 
 # Snackbar
 
-A headless compound component for rendering toast and snackbar notifications. Pairs with `useNotifications` for queue-driven toast stacks with auto-dismiss, pause on hover/focus, and adapter integration.
+Headless compound component for toast and snackbar notifications. Pairs with `useNotifications` for queue-driven stacks with auto-dismiss and pause on hover.
 
 <DocsPageFeatures :frontmatter />
 
