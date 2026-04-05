@@ -1,6 +1,8 @@
 /**
  * @module SwitchThumb
  *
+ * @see https://0.vuetifyjs.com/components/forms/switch
+ *
  * @remarks
  * Sliding knob indicator for switches. Must be used within a
  * Switch.Root component which provides the switch state.
