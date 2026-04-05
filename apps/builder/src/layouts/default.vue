@@ -5,7 +5,7 @@
 </script>
 
 <template>
-  <div class="min-h-screen bg-background text-on-background flex flex-col overflow-y-scroll">
+  <div class="min-h-screen bg-background text-on-background flex flex-col [scrollbar-gutter:stable]">
     <AppBar />
 
     <main class="pt-14 flex-1 max-w-2xl mx-auto px-6 w-full">
