@@ -18,23 +18,33 @@
   const time = toRef(() => format((elapsed.value / 100) * duration))
   const total = toRef(() => format(duration))
 
-  const timer = useTimer(() => {
+  const playback = useTimer(() => {
     elapsed.value = Math.min(elapsed.value + step, 100)
-    buffered.value = Math.min(buffered.value + step * 3, 100)
 
     if (elapsed.value >= 100) {
       playing.value = false
-      timer.stop()
+      playback.stop()
+      buffer.stop()
     }
   }, { duration: 1000, repeat: true })
+
+  const buffer = useTimer(() => {
+    buffered.value = Math.min(buffered.value + step * 2, 100)
+
+    if (buffered.value >= 100) {
+      buffer.stop()
+    }
+  }, { duration: 350, repeat: true })
 
   function toggle () {
     playing.value = !playing.value
 
     if (playing.value) {
-      timer.start()
+      playback.start()
+      buffer.start()
     } else {
-      timer.pause()
+      playback.pause()
+      buffer.pause()
     }
   }
 
@@ -42,7 +52,8 @@
     elapsed.value = 0
     buffered.value = 0
     playing.value = false
-    timer.stop()
+    playback.stop()
+    buffer.stop()
   }
 </script>
 
