@@ -28,6 +28,11 @@ The Tabs component provides a compound pattern for building accessible tab inter
 
 ::: example
 /components/tabs/basic
+
+### Tab Navigation
+
+Profile, password, and billing tabs with content switching via v-model binding.
+
 :::
 
 ## Anatomy
