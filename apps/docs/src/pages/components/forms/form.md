@@ -29,6 +29,11 @@ Wrap your inputs in `<Form>`. Native `<button type="submit">` and `<button type=
 
 ::: example
 /components/form/basic
+
+### Form with Validation
+
+Email and password fields with validation rules, submit/reset buttons, and success feedback on completion.
+
 :::
 
 ## Anatomy
