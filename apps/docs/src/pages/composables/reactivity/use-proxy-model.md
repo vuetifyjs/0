@@ -48,6 +48,34 @@ selection.select('banana')
 console.log(model.value) // 'Banana'
 ```
 
+### Multiple mode
+
+Pass `multiple: true` to sync an array model with a multi-select context. This **must be explicit** — `multiple` is never inferred from the context:
+
+```ts no-filename
+const model = ref<string[]>([])
+const selection = createGroup({ events: true })
+
+selection.onboard([
+  { id: 'red', value: 'Red' },
+  { id: 'green', value: 'Green' },
+  { id: 'blue', value: 'Blue' },
+])
+
+const stop = useProxyModel(selection, model, { multiple: true })
+
+selection.toggle('red')
+selection.toggle('blue')
+console.log(model.value) // ['Red', 'Blue']
+```
+
+The `multiple` option accepts `MaybeRefOrGetter<boolean>`, so you can drive it from a prop or computed:
+
+```ts no-filename
+const props = defineProps<{ multiple?: boolean }>()
+const stop = useProxyModel(selection, model, { multiple: () => props.multiple ?? false })
+```
+
 ## Architecture
 
 `useProxyModel` creates bidirectional sync between v-model refs and selection state:
