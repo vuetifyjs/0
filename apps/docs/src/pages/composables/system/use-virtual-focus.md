@@ -11,6 +11,7 @@ features:
   github: /composables/useVirtualFocus/
   level: 2
 related:
+  - /components/forms/combobox
   - /composables/system/use-roving-focus
   - /composables/system/use-event-listener
   - /composables/selection/create-single
