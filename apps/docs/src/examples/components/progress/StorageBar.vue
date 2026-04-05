@@ -22,7 +22,7 @@
       <Progress.Fill
         v-for="cat in categories"
         :key="cat.name"
-        class="h-full transition-all"
+        class="h-full"
         :class="cat.color"
         :value="cat.value"
       />

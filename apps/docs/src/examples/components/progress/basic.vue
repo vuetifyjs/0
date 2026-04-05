@@ -11,7 +11,7 @@
       <Progress.Label class="text-sm font-medium">Loading...</Progress.Label>
 
       <Progress.Track class="relative h-2 w-full overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-800">
-        <Progress.Fill class="h-full rounded-full bg-blue-500 transition-all" />
+        <Progress.Fill class="h-full rounded-full bg-blue-500" />
       </Progress.Track>
 
       <Progress.Value class="text-sm text-neutral-500" />
