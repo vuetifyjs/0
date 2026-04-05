@@ -80,6 +80,11 @@ flowchart TD
 
 ::: example
 /composables/create-nested/basic
+
+### Collapsible Navigation Tree
+
+A nested tree with expand/collapse all, multi-select checkboxes, and visual parent/child relationship indicators.
+
 :::
 
 ## Options
