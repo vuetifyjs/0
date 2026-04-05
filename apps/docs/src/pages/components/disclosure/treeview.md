@@ -27,6 +27,11 @@ The Treeview component provides a compound pattern for building accessible tree 
 
 ::: example
 /components/treeview/basic
+
+### Hierarchical Tree
+
+A categorized tree with expand/collapse and multi-select checkboxes.
+
 :::
 
 ## Anatomy
