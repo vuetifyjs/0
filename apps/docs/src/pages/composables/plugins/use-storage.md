@@ -132,6 +132,7 @@ The `get()` method returns reactive refs that sync with storage automatically.
 | Property | Reactive | Notes |
 | - | :-: | - |
 | `get()` return value | <AppSuccessIcon /> | Returns `Ref<T>` synced with storage |
+| `has()` | <AppErrorIcon /> | Returns `boolean` — checks if key exists (TTL-aware) |
 
 > [!TIP] Auto-persistence
 > Refs returned by `get()` are watched with `{ deep: true }`. Any changes to the ref value automatically persist to storage.
