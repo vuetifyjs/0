@@ -68,13 +68,13 @@ Externally controlled open/close/toggle buttons with a disabled state.
 
 :::
 
-### FAQ
-
-Build a reusable FAQ component by wrapping Collapsible in a custom `FaqItem` component. Each item is an independent Collapsible instance — they don't coordinate with each other.
-
 ::: example
 /components/collapsible/FaqItem.vue 1
 /components/collapsible/faq.vue 2
+
+### FAQ
+
+Build a reusable FAQ component by wrapping Collapsible in a custom `FaqItem` component. Each item is an independent Collapsible instance — they don't coordinate with each other.
 
 | File | Role |
 |------|------|
