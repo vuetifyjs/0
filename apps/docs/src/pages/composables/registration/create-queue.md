@@ -46,6 +46,24 @@ queue.pause()
 queue.resume()
 ```
 
+## Context / DI
+
+Use `createQueueContext` to share a queue instance across a component tree:
+
+```ts
+import { createQueueContext } from '@vuetify/v0'
+
+export const [useToasts, provideToasts, toasts] =
+  createQueueContext({ namespace: 'my:toasts', timeout: 5000 })
+
+// In parent component
+provideToasts()
+
+// In child component
+const queue = useToasts()
+queue.register({ id: crypto.randomUUID(), value: 'Saved!' })
+```
+
 ## Architecture
 
 `createQueue` extends `createRegistry` with FIFO ordering and timeout management:
