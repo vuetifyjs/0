@@ -155,7 +155,7 @@ The controls let you trigger validation, prefill valid or invalid data, and rese
 
 :::
 
-## Adapters
+## Standard Schema
 
 `useRules` supports [Standard Schema](https://standardschema.dev/) — a universal interface for validation libraries. Pass schema objects directly in `rules` arrays alongside alias strings and inline functions — `resolve()` auto-detects and wraps them.
 
