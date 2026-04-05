@@ -17,7 +17,7 @@ related:
 
 # useRaf
 
-A composable for scope-disposed safe requestAnimationFrame with automatic cleanup.
+Debounced `requestAnimationFrame` wrapper with automatic cleanup when the component is unmounted.
 
 <DocsPageFeatures :frontmatter />
 

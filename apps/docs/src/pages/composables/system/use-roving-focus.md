@@ -19,7 +19,7 @@ related:
 
 # useRovingFocus
 
-A composable for keyboard navigation within composite widgets using the roving tabindex pattern.
+Keyboard navigation for composite widgets where arrow keys move focus between items, skipping disabled ones.
 
 <DocsPageFeatures :frontmatter />
 
