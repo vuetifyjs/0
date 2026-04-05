@@ -118,6 +118,9 @@ registry.get('item-1')      // Get by ID
 registry.browse('First')    // Get IDs by value
 registry.lookup(0)          // Get ID by index
 
+// Reorder
+registry.move('item-1', 2)  // Move to index 2
+
 // Cleanup
 registry.unregister('item-1')
 ```
