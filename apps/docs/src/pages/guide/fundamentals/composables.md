@@ -103,6 +103,8 @@ State management for selection patterns:
 
 | Composable | Purpose |
 | - | - |
+| [createModel](/composables/selection/create-model) | Value store with disabled guards and apply bridge |
+| [createNested](/composables/selection/create-nested) | Hierarchical parent-child relationships |
 | [createSelection](/composables/selection/create-selection) | Multi-select base |
 | [createSingle](/composables/selection/create-single) | Radio, tabs, accordion |
 | [createGroup](/composables/selection/create-group) | Checkboxes, tri-state |
