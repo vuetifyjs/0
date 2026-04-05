@@ -53,7 +53,7 @@ export const Input = {
    * Renders as `<input>` by default. Binds ARIA attributes from Root context
    * and triggers validation on blur or input based on Root's validateOn prop.
    *
-   * @see https://0.vuetifyjs.com/components/forms/input#control
+   * @see https://0.vuetifyjs.com/components/forms/input
    *
    * @example
    * ```vue
@@ -69,7 +69,7 @@ export const Input = {
    * Auto-generates an ID that Input.Control references in its
    * aria-describedby attribute for accessibility.
    *
-   * @see https://0.vuetifyjs.com/components/forms/input#description
+   * @see https://0.vuetifyjs.com/components/forms/input
    *
    * @example
    * ```vue
@@ -87,7 +87,7 @@ export const Input = {
    * Connected to Control via aria-errormessage. Uses aria-live="polite"
    * for screen reader announcements when errors appear.
    *
-   * @see https://0.vuetifyjs.com/components/forms/input#error
+   * @see https://0.vuetifyjs.com/components/forms/input
    *
    * @example
    * ```vue
@@ -107,7 +107,7 @@ export const Input = {
    * context to child components. Supports v-model for value binding and
    * auto-registers with parent form when used inside createForm.
    *
-   * @see https://0.vuetifyjs.com/components/forms/input#root
+   * @see https://0.vuetifyjs.com/components/forms/input
    *
    * @example
    * ```vue
