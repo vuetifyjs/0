@@ -367,7 +367,7 @@ const filter = createFilter()
 const pagination = createPagination({ itemsPerPage: 10 })
 
 // Wire them together
-const filtered = filter.apply(query, items)
+const { items: filtered } = filter.apply(query, items)
 const paginated = computed(() =>
   filtered.value.slice(pagination.pageStart.value, pagination.pageStop.value)
 )
