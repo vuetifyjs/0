@@ -18,7 +18,7 @@ export const Selection = {
   /**
    * Root component for selection contexts.
    *
-   * @see https://0.vuetifyjs.com/components/providers/selection#selectionroot
+   * @see https://0.vuetifyjs.com/components/providers/selection
    *
    * @example
    * ```vue
@@ -43,7 +43,7 @@ export const Selection = {
   /**
    * Item component for selection contexts.
    *
-   * @see https://0.vuetifyjs.com/components/providers/selection#selectionitem
+   * @see https://0.vuetifyjs.com/components/providers/selection
    *
    * @example
    * ```vue
