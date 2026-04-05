@@ -1,6 +1,8 @@
 /**
  * @module createCombobox
  *
+ * @see https://0.vuetifyjs.com/composables/forms/create-combobox
+ *
  * @remarks
  * Orchestrator composable that coordinates selection, popover, and virtual focus
  * for a combobox (autocomplete/typeahead) pattern. Does not extend the selection
