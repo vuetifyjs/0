@@ -84,11 +84,10 @@ Once the plugin is installed, use the `useLocale` composable in any component:
 
 ```mermaid "Locale Hierarchy"
 flowchart TD
-  createRegistry --> createSelection
-  createRegistry --> createTokens
+  createRegistry --> createModel
+  createModel --> createSelection
   createSelection --> createSingle
   createSingle --> useLocale
-  createTokens --> useLocale
   Adapter --> useLocale
 ```
 
