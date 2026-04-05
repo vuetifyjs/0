@@ -13,7 +13,7 @@
  * - Performance-optimized caching
  *
  * The registry serves as the base for many other composables in the system,
- * including useSelection, useForm, useTimeline, and more.
+ * including createSelection, createForm, createTimeline, and more.
  */
 
 // Composables
