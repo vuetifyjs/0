@@ -46,19 +46,18 @@
     default: (props: ProgressFillSlotProps) => any
   }>()
 
-  const props = defineProps<ProgressFillProps>()
-
   const {
     as = 'div',
     renderless,
+    value: _value,
     namespace = 'v0:progress:root',
-  } = props
+  } = defineProps<ProgressFillProps>()
 
   const root = useProgressRoot(namespace)
 
-  const ticket = root.register(props.value)
+  const ticket = root.register(_value)
 
-  watch(() => props.value, v => {
+  watch(() => _value, v => {
     (ticket.value as ShallowRef<number>).value = v ?? 0
   })
 
