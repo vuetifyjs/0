@@ -11,7 +11,7 @@ features:
   github: /composables/useProxyRegistry/
   level: 3
 related:
-- /composables/registration/create-registry
+  - /composables/registration/create-registry
 ---
 
 # useProxyRegistry
