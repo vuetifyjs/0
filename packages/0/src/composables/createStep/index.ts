@@ -124,7 +124,7 @@ export interface StepContextOptions extends SingleContextOptions {
  * **Inheritance Chain:**
  * `createRegistry` → `createSelection` → `createSingle` → `createStep`
  *
- * @see https://0.vuetifyjs.com/composables/selection/use-step
+ * @see https://0.vuetifyjs.com/composables/selection/create-step
  *
  * @example
  * ```ts
@@ -237,7 +237,7 @@ export function createStep<
  * @template R The context type.
  * @returns A new step context.
  *
- * @see https://0.vuetifyjs.com/composables/selection/use-step
+ * @see https://0.vuetifyjs.com/composables/selection/create-step
  *
  * @example
  * ```ts
@@ -279,7 +279,7 @@ export function createStepContext<
  * @template R The context type.
  * @returns The current step instance.
  *
- * @see https://0.vuetifyjs.com/composables/selection/use-step
+ * @see https://0.vuetifyjs.com/composables/selection/create-step
  *
  * @example
  * ```vue
