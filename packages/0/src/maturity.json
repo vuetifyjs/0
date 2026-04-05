@@ -296,7 +296,7 @@
     "useRules": {
       "level": "preview",
       "since": "0.1.7",
-      "category": "forms"
+      "category": "plugins"
     },
     "useTimer": {
       "level": "preview",
