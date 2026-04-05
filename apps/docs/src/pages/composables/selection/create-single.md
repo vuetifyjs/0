@@ -45,6 +45,24 @@ single.select('banana')
 console.log(single.selectedId.value) // 'banana' (replaces apple)
 ```
 
+## Context / DI
+
+Use `createSingleContext` to share a single-selection instance across a component tree:
+
+```ts
+import { createSingleContext } from '@vuetify/v0'
+
+export const [useTabSelection, provideTabSelection, tabSelection] =
+  createSingleContext({ namespace: 'my:tabs', mandatory: true })
+
+// In parent component
+provideTabSelection()
+
+// In child component
+const selection = useTabSelection()
+selection.select('tab-home')
+```
+
 ## Architecture
 
 The `createSingle` composable is comprised of the following hierarchy:
