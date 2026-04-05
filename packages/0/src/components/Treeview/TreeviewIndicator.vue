@@ -1,6 +1,8 @@
 /**
  * @module TreeviewIndicator
  *
+ * @see https://0.vuetifyjs.com/components/disclosure/treeview
+ *
  * @remarks
  * Visual indicator for selection state within a TreeviewCheckbox.
  * Consumes TreeviewItem context. Self-hides when unchecked and not

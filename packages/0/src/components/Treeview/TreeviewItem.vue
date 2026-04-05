@@ -1,6 +1,8 @@
 /**
  * @module TreeviewItem
  *
+ * @see https://0.vuetifyjs.com/components/disclosure/treeview
+ *
  * @remarks
  * Tree node component. Registers with the parent TreeviewRoot's nested context.
  * Injects parent ID from nearest ancestor TreeviewItem via context injection

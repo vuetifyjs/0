@@ -1,6 +1,8 @@
 /**
  * @module TreeviewActivator
  *
+ * @see https://0.vuetifyjs.com/components/disclosure/treeview
+ *
  * @remarks
  * Click-to-toggle trigger for a treeview item. Consumes TreeviewItem context
  * and calls ticket.flip() on click. Renders a button by default with ARIA

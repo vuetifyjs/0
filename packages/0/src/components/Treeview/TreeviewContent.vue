@@ -1,6 +1,8 @@
 /**
  * @module TreeviewContent
  *
+ * @see https://0.vuetifyjs.com/components/disclosure/treeview
+ *
  * @remarks
  * Collapse gate for tree node children. Conditionally renders default slot
  * based on parent TreeviewItem's isOpen state. Renderless — no DOM output.
