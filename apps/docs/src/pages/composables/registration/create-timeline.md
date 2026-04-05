@@ -11,8 +11,8 @@ features:
   github: /composables/createTimeline/
   level: 3
 related:
-- /composables/registration/create-registry
-- /composables/registration/create-queue
+  - /composables/registration/create-registry
+  - /composables/registration/create-queue
 ---
 
 # createTimeline
