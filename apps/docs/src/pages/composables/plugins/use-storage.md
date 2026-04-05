@@ -11,6 +11,7 @@ features:
   github: /composables/useStorage/
   level: 2
 related:
+  - /composables/plugins/use-hydration
   - /guide/fundamentals/plugins
 ---
 
