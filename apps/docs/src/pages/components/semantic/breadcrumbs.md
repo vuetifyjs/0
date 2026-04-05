@@ -12,9 +12,9 @@ features:
   renderless: false
   level: 2
 related:
-  - /composables/utilities/create-breadcrumbs
+  - /composables/semantic/create-breadcrumbs
   - /composables/selection/create-group
-  - /composables/utilities/create-overflow
+  - /composables/semantic/create-overflow
   - /composables/plugins/use-locale
   - /components/semantic/pagination
 ---

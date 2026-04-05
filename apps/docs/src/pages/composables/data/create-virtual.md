@@ -12,7 +12,7 @@ features:
   level: 2
 related:
   - /composables/data/create-filter
-  - /composables/utilities/create-overflow
+  - /composables/semantic/create-overflow
 ---
 
 # createVirtual

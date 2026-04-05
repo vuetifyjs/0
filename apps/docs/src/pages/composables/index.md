@@ -198,21 +198,14 @@ Composables for filtering, sorting, paginating, and virtualizing collections.
 | [createPagination](/composables/data/create-pagination) | Pagination state with navigation methods |
 | [createVirtual](/composables/data/create-virtual) | Virtual scrolling for large lists |
 
-## Utilities
-
-Standalone helpers for common UI patterns.
-
-| Name | Description |
-| - | - |
-| [createBreadcrumbs](/composables/utilities/create-breadcrumbs) | Breadcrumb navigation with path truncation |
-| [createOverflow](/composables/utilities/create-overflow) | Compute item capacity for responsive truncation |
-
 ## Semantic
 
-Composables for presentational/semantic components.
+Composables for presentational and semantic components.
 
 | Name | Description |
 | - | - |
+| [createBreadcrumbs](/composables/semantic/create-breadcrumbs) | Breadcrumb navigation with path truncation |
+| [createOverflow](/composables/semantic/create-overflow) | Compute item capacity for responsive truncation |
 | [createProgress](/composables/semantic/create-progress/) | Progress tracking with multi-segment registration |
 
 ## Transformers

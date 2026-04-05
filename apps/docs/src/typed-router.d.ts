@@ -566,6 +566,20 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/composables/semantic/create-breadcrumbs': RouteRecordInfo<
+      '/composables/semantic/create-breadcrumbs',
+      '/composables/semantic/create-breadcrumbs',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/composables/semantic/create-overflow': RouteRecordInfo<
+      '/composables/semantic/create-overflow',
+      '/composables/semantic/create-overflow',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/composables/semantic/create-progress': RouteRecordInfo<
       '/composables/semantic/create-progress',
       '/composables/semantic/create-progress',
@@ -695,20 +709,6 @@ declare module 'vue-router/auto-routes' {
     '/composables/transformers/to-reactive': RouteRecordInfo<
       '/composables/transformers/to-reactive',
       '/composables/transformers/to-reactive',
-      Record<never, never>,
-      Record<never, never>,
-      | never
-    >,
-    '/composables/utilities/create-breadcrumbs': RouteRecordInfo<
-      '/composables/utilities/create-breadcrumbs',
-      '/composables/utilities/create-breadcrumbs',
-      Record<never, never>,
-      Record<never, never>,
-      | never
-    >,
-    '/composables/utilities/create-overflow': RouteRecordInfo<
-      '/composables/utilities/create-overflow',
-      '/composables/utilities/create-overflow',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -1433,6 +1433,18 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/composables/semantic/create-breadcrumbs.md': {
+      routes:
+        | '/composables/semantic/create-breadcrumbs'
+      views:
+        | never
+    }
+    'src/pages/composables/semantic/create-overflow.md': {
+      routes:
+        | '/composables/semantic/create-overflow'
+      views:
+        | never
+    }
     'src/pages/composables/semantic/create-progress.md': {
       routes:
         | '/composables/semantic/create-progress'
@@ -1544,18 +1556,6 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/transformers/to-reactive.md': {
       routes:
         | '/composables/transformers/to-reactive'
-      views:
-        | never
-    }
-    'src/pages/composables/utilities/create-breadcrumbs.md': {
-      routes:
-        | '/composables/utilities/create-breadcrumbs'
-      views:
-        | never
-    }
-    'src/pages/composables/utilities/create-overflow.md': {
-      routes:
-        | '/composables/utilities/create-overflow'
       views:
         | never
     }
