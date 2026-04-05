@@ -64,6 +64,11 @@ flowchart TD
 
 ::: example
 /composables/use-raf/scroll-throttle
+
+### Scroll Throttle
+
+A scrollable container that tracks position, percentage, and update count — demonstrating RAF throttling of rapid scroll events.
+
 :::
 
 ## Key Features
