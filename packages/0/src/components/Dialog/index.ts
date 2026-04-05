@@ -76,7 +76,7 @@ export const Dialog = {
   /**
    * Activator component that opens the dialog.
    *
-   * @see https://0.vuetifyjs.com/components/disclosure/dialog#dialogactivator
+   * @see https://0.vuetifyjs.com/components/disclosure/dialog
    *
    * @example
    * ```vue
@@ -95,7 +95,7 @@ export const Dialog = {
   /**
    * Content container for the dialog using native `<dialog>` element.
    *
-   * @see https://0.vuetifyjs.com/components/disclosure/dialog#dialogcontent
+   * @see https://0.vuetifyjs.com/components/disclosure/dialog
    *
    * @example
    * ```vue
@@ -116,7 +116,7 @@ export const Dialog = {
   /**
    * Title component for accessible dialog labeling.
    *
-   * @see https://0.vuetifyjs.com/components/disclosure/dialog#dialogtitle
+   * @see https://0.vuetifyjs.com/components/disclosure/dialog
    *
    * @example
    * ```vue
@@ -133,7 +133,7 @@ export const Dialog = {
   /**
    * Description component for accessible dialog description.
    *
-   * @see https://0.vuetifyjs.com/components/disclosure/dialog#dialogdescription
+   * @see https://0.vuetifyjs.com/components/disclosure/dialog
    *
    * @example
    * ```vue
@@ -152,7 +152,7 @@ export const Dialog = {
   /**
    * Close button component for closing the dialog.
    *
-   * @see https://0.vuetifyjs.com/components/disclosure/dialog#dialogclose
+   * @see https://0.vuetifyjs.com/components/disclosure/dialog
    *
    * @example
    * ```vue
