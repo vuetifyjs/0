@@ -12,7 +12,7 @@
  * - Auto-selection of enabled features
  * - Multi-select support for feature combinations
  * - Perfect for A/B testing, progressive rollout, feature toggles
- * - Adapter pattern for external feature flag services
+ * - Adapter pattern for external feature flag services (Generic, LaunchDarkly, Flagsmith)
  *
  * Inheritance chain: createRegistry → createSelection → createGroup → createFeatures
  * Integrates with createTokens for token-based features.
