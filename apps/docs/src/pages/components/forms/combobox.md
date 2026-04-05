@@ -30,6 +30,11 @@ The Combobox component follows the same compound pattern as Select, but replaces
 
 ::: example
 /components/combobox/basic
+
+### Searchable Combobox
+
+A filterable fruit list with an empty state when no results match.
+
 :::
 
 ## Anatomy
