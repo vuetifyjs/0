@@ -36,6 +36,11 @@ The Dialog component leverages the native `showModal()` API for proper modal beh
 
 ::: example
 /components/dialog/basic
+
+### Basic Modal Dialog
+
+A modal dialog with title, description, and cancel/confirm buttons using the native HTML `<dialog>` element.
+
 :::
 
 ## Anatomy
