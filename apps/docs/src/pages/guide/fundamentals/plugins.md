@@ -72,6 +72,11 @@ app.use(
 | `createPermissionsPlugin` | Role-based access control | [usePermissions](/composables/plugins/use-permissions) |
 | `createBreakpointsPlugin` | Responsive breakpoint detection | [useBreakpoints](/composables/plugins/use-breakpoints) |
 | `createHydrationPlugin` | SSR hydration management | [useHydration](/composables/plugins/use-hydration) |
+| `createFeaturesPlugin` | Feature flags with adapter support | [useFeatures](/composables/plugins/use-features) |
+| `createRulesPlugin` | Validation rule aliases and Standard Schema | [useRules](/composables/plugins/use-rules) |
+| `createDatePlugin` | Date utilities with adapter pattern | [useDate](/composables/plugins/use-date) |
+| `createNotificationsPlugin` | Notification lifecycle and toast queue | [useNotifications](/composables/plugins/use-notifications) |
+| `createStackPlugin` | Overlay z-index stacking | [useStack](/composables/plugins/use-stack) |
 
 > [!TIP]
 > All plugins are optional. Only install what you need—v0 works without any plugins installed.
