@@ -11,6 +11,8 @@ features:
   github: /composables/createSlider/
   level: 2
 related:
+  - /composables/forms/create-numeric
+  - /composables/forms/create-rating
   - /components/forms/slider
 ---
 
