@@ -47,6 +47,24 @@ console.log(pagination.items.value)
 // ]
 ```
 
+## Context / DI
+
+Use `createPaginationContext` to share a pagination instance across a component tree:
+
+```ts
+import { createPaginationContext } from '@vuetify/v0'
+
+export const [usePagination, providePagination, pagination] =
+  createPaginationContext({ size: 100, itemsPerPage: 10 })
+
+// In parent component
+providePagination()
+
+// In child component
+const pagination = usePagination()
+pagination.next()
+```
+
 ## Architecture
 
 `createPagination` computes page state and navigation:
