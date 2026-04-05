@@ -11,6 +11,7 @@
  * - Token alias resolution via createTokens
  * - Lazy theme loading (compute colors only when selected)
  * - CSS variable generation via adapter pattern
+ * - `isDark` reactive flag on the theme context
  * - SSR support with head integration
  * - Theme cycling
  *
