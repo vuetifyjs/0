@@ -11,7 +11,7 @@ features:
   github: /composables/createSelection/
   level: 2
 related:
-  - /composables/registration/create-registry
+  - /composables/selection/create-model
   - /composables/selection/create-single
   - /composables/selection/create-group
   - /components/providers/selection
