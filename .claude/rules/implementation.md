@@ -49,8 +49,8 @@ interface RegistryTicket {
 Composables extend via object spreading:
 
 ```ts
-function useSelection() {
-  const registry = useRegistry()
+function createSelection() {
+  const registry = createRegistry()
   const selectedIds = shallowReactive(new Set())
 
   return {
