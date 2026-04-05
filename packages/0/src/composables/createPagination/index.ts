@@ -1,6 +1,8 @@
 /**
  * @module createPagination
  *
+ * @see https://0.vuetifyjs.com/composables/data/create-pagination
+ *
  * @remarks
  * Lightweight pagination composable for navigating through pages.
  *
