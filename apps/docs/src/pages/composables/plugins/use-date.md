@@ -71,6 +71,11 @@ Once the plugin is installed, use the `useDate` composable in any component:
 
 ::: example
 /composables/use-date/basic
+
+### Date Format Presets
+
+Today's date rendered in multiple formats — fullDate, shortDate, weekday, and time — using the current locale.
+
 :::
 
 ## Adapters
@@ -245,6 +250,11 @@ The following examples demonstrate common date operations using the default Temp
 
 ::: example
 /composables/use-date/calendar
+
+### Interactive Calendar
+
+A navigable month/year calendar with prev/next controls, today highlighted, and a consistent 5-week grid.
+
 :::
 
 ## Locale Integration
