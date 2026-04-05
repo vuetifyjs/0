@@ -1,6 +1,8 @@
 /**
  * @module RatingHiddenInput
  *
+ * @see https://0.vuetifyjs.com/components/forms/rating
+ *
  * @remarks
  * Hidden native input for form submission. Auto-rendered by Root
  * when `name` prop is provided. Same pattern as Slider.HiddenInput.

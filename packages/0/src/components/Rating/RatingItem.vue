@@ -1,6 +1,8 @@
 /**
  * @module RatingItem
  *
+ * @see https://0.vuetifyjs.com/components/forms/rating
+ *
  * @remarks
  * Individual rating item (star). Consumes Rating context,
  * computes its visual state from the current or hovered value,
