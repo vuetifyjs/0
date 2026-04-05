@@ -9,6 +9,7 @@
  * Key features:
  * - Adapter pattern for date library abstraction
  * - Locale-aware formatting via Intl.DateTimeFormat
+ * - `firstDayOfWeek` derived from locale and propagated to adapter
  * - Integration with useLocale for automatic locale sync
  *
  * @example Using the built-in Temporal adapter
