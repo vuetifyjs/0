@@ -52,7 +52,8 @@ tree.select('child-1')
 
 ```mermaid "Nested Hierarchy"
 flowchart TD
-  createRegistry --> createSelection
+  createRegistry --> createModel
+  createModel --> createSelection
   createSelection --> createGroup
   createGroup --> createNested
   createNested --> children[children Map]

@@ -41,7 +41,8 @@ A clickable file-path breadcrumb trail — selecting an earlier crumb truncates 
 
 ```mermaid "Breadcrumbs Hierarchy"
 flowchart TD
-  createRegistry --> createSelection
+  createRegistry --> createModel
+  createModel --> createSelection
   createSelection --> createSingle
   createSingle --> createBreadcrumbs:::primary
 ```

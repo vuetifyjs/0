@@ -58,7 +58,8 @@ console.log(group.selectedIndexes.value) // Set {}
 
 ```mermaid "Group Selection Hierarchy"
 flowchart TD
-  createRegistry --> createSelection
+  createRegistry --> createModel
+  createModel --> createSelection
   createSelection --> createGroup
   createGroup --> mixedIds[mixedIds Set]
   createGroup --> selectedIds[selectedIds Set]

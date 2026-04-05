@@ -51,7 +51,8 @@ The `createSingle` composable is comprised of the following hierarchy:
 
 ```mermaid "Single Selection Hierarchy"
 flowchart TD
-  createRegistry --> createSelection
+  createRegistry --> createModel
+  createModel --> createSelection
   createSelection --> createSingle
 ```
 

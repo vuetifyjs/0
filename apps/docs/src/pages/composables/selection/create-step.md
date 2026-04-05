@@ -63,7 +63,8 @@ carousel.prev()   // Wraps to slide3
 
 ```mermaid "Step Navigation Hierarchy"
 flowchart TD
-  createRegistry --> createSelection
+  createRegistry --> createModel
+  createModel --> createSelection
   createSelection --> createSingle
   createSingle --> createStep
   createStep --> first/last
