@@ -28,6 +28,11 @@ The Single component is a specialization of Selection that enforces single-selec
 
 ::: example
 /components/single/basic
+
+### Single-Select Group
+
+Radio-button-style single selection with size options that automatically deselects the previous choice.
+
 :::
 
 ## Anatomy
