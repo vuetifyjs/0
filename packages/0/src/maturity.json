@@ -317,11 +317,12 @@
     },
     "Portal": {
       "level": "preview",
+      "since": "0.2.0",
       "category": "primitives"
     },
     "Presence": {
       "level": "preview",
-      "since": null,
+      "since": "0.2.0",
       "category": "primitives"
     },
     "Group": {
