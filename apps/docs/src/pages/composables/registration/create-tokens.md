@@ -12,9 +12,10 @@ features:
   github: /composables/createTokens/
   level: 3
 related:
-- /composables/registration/create-registry
-- /composables/plugins/use-theme
-- /guide/features/theming
+  - /components/providers/theme
+  - /composables/registration/create-registry
+  - /composables/plugins/use-theme
+  - /guide/features/theming
 ---
 
 # createTokens
