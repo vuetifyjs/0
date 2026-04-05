@@ -27,7 +27,7 @@ import Root from './ExpansionPanelRoot.vue'
 /**
  * ExpansionPanel component with sub-components for building expansion panels.
  *
- * @see https://0.vuetifyjs.com/components/expansion-panels
+ * @see https://0.vuetifyjs.com/components/disclosure/expansion-panel
  *
  * @example
  * ```vue
@@ -56,13 +56,13 @@ export const ExpansionPanel = {
   /**
    * Group component for coordinating expansion panels.
    *
-   * @see https://0.vuetifyjs.com/components/expansion-panels
+   * @see https://0.vuetifyjs.com/components/disclosure/expansion-panel
    */
   Group,
   /**
    * Root component representing a single expansion panel.
    *
-   * @see https://0.vuetifyjs.com/components/expansion-panels#expansionpanelroot
+   * @see https://0.vuetifyjs.com/components/disclosure/expansion-panel#expansionpanelroot
    *
    * @example
    * ```vue
@@ -89,7 +89,7 @@ export const ExpansionPanel = {
   /**
    * (optional) Component for the header section of an expansion panel item.
    *
-   * @see https://0.vuetifyjs.com/components/expansion-panels#expansionpanelheader
+   * @see https://0.vuetifyjs.com/components/disclosure/expansion-panel#expansionpanelheader
    *
    * @example
    * ```vue
@@ -110,7 +110,7 @@ export const ExpansionPanel = {
   /**
    * Component for the activator section of an expansion panel header.
    *
-   * @see https://0.vuetifyjs.com/components/expansion-panels#expansionpanelactivator
+   * @see https://0.vuetifyjs.com/components/disclosure/expansion-panel#expansionpanelactivator
    *
    * @example
    * ```vue
@@ -129,7 +129,7 @@ export const ExpansionPanel = {
   /**
    * Visual cue for expansion state (e.g., chevron icon).
    *
-   * @see https://0.vuetifyjs.com/components/expansion-panels#expansionpanelcue
+   * @see https://0.vuetifyjs.com/components/disclosure/expansion-panel#expansionpanelcue
    *
    * @example
    * ```vue
@@ -149,7 +149,7 @@ export const ExpansionPanel = {
   /**
    * Component for the content section of an expansion panel item.
    *
-   * @see https://0.vuetifyjs.com/components/expansion-panels#expansionpanelcontent
+   * @see https://0.vuetifyjs.com/components/disclosure/expansion-panel#expansionpanelcontent
    *
    * @example
    * ```vue
