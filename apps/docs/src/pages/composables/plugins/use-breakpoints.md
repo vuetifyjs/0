@@ -12,6 +12,7 @@ features:
   github: /composables/useBreakpoints/
   level: 2
 related:
+  - /composables/system/use-media-query
   - /guide/fundamentals/plugins
 ---
 
