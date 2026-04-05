@@ -3,7 +3,7 @@ export type { PresenceAttrs, PresenceProps, PresenceSlotProps } from './Presence
 /**
  * Renderless mount lifecycle component with exit animation support.
  *
- * @see https://0.vuetifyjs.com/components/presence
+ * @see https://0.vuetifyjs.com/components/primitives/presence
  *
  * @example
  * Basic usage with CSS animations:
