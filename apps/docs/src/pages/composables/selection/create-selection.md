@@ -70,4 +70,34 @@ Selection state is **always reactive**. Collection methods follow the base `crea
 > [!TIP] Selection vs Collection
 > Most UI patterns only need **selection reactivity** (which is always on). You rarely need the collection itself to be reactive.
 
+## Examples
+
+::: example
+/composables/create-selection/bookmark-manager 1
+/composables/create-selection/context.ts 2
+/composables/create-selection/BookmarkProvider.vue 3
+/composables/create-selection/BookmarkConsumer.vue 4
+
+### Bookmark Manager
+
+Multi-component bookmark manager using provide/inject. The provider creates and shares the selection context; consumers read and toggle selections independently.
+
+| File | Role |
+|------|------|
+| `bookmark-manager.vue` | Entry point composing provider and consumers |
+| `context.ts` | Creates and types the bookmark selection context |
+| `BookmarkProvider.vue` | Provides the selection context and renders item list |
+| `BookmarkConsumer.vue` | Consumes context to display and toggle selections |
+
+:::
+
+::: example
+/composables/create-selection/file-picker
+
+### File Picker
+
+Multi-selectable file list with disabled states, demonstrating `mandatory`, `select()`, `unselect()`, and the `isSelected` ticket property.
+
+:::
+
 <DocsApi />

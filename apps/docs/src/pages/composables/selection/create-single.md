@@ -70,4 +70,15 @@ Single-selection state is **always reactive**. All computed properties update au
 > [!TIP] Perfect for UI controls
 > `selectedId`, `selectedValue`, and `selectedIndex` work directly in templates without any extra setup.
 
+## Examples
+
+::: example
+/composables/create-single/theme-picker
+
+### Theme Picker
+
+Single-selection color theme switcher. Clicking a swatch selects it exclusively and reflects the active state visually.
+
+:::
+
 <DocsApi />
