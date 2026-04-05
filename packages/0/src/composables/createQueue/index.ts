@@ -1,6 +1,8 @@
 /**
  * @module createQueue
  *
+ * @see https://0.vuetifyjs.com/composables/registration/create-queue
+ *
  * @remarks
  * A queue composable for managing time-based collections with:
  * - Automatic timeout-based removal
