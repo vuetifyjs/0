@@ -119,7 +119,7 @@
     "createBreadcrumbs": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "semantic"
+      "category": "utilities"
     },
     "createOverflow": {
       "level": "preview",
