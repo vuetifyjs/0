@@ -39,30 +39,19 @@ NumberField renders a spinbutton input with optional increment, decrement, and s
 </script>
 
 <template>
-  <!-- Minimal -->
   <NumberField.Root>
-    <NumberField.Input />
-  </NumberField.Root>
+    <NumberField.Scrub>Label</NumberField.Scrub>
+    <NumberField.Description>Help text</NumberField.Description>
 
-  <!-- With buttons -->
-  <NumberField.Root>
-    <NumberField.Decrement>-</NumberField.Decrement>
-    <NumberField.Input />
-    <NumberField.Increment>+</NumberField.Increment>
-  </NumberField.Root>
-
-  <!-- With scrub label and description -->
-  <NumberField.Root>
-    <NumberField.Scrub>Amount</NumberField.Scrub>
-    <NumberField.Description>Enter a value</NumberField.Description>
-
-    <NumberField.Decrement>-</NumberField.Decrement>
+    <NumberField.Decrement>−</NumberField.Decrement>
     <NumberField.Input />
     <NumberField.Increment>+</NumberField.Increment>
 
     <NumberField.Error v-slot="{ errors }">
       <span v-for="error in errors">{{ error }}</span>
     </NumberField.Error>
+
+    <NumberField.HiddenInput />
   </NumberField.Root>
 </template>
 ```
