@@ -40,7 +40,7 @@ export const Group = {
   /**
    * Item component for multi-selection groups.
    *
-   * @see https://0.vuetifyjs.com/components/providers/group#groupitem
+   * @see https://0.vuetifyjs.com/components/providers/group
    *
    * @example
    * ```vue
