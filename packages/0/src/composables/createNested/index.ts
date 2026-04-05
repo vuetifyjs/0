@@ -1,6 +1,8 @@
 /**
  * @module createNested
  *
+ * @see https://0.vuetifyjs.com/composables/selection/create-nested
+ *
  * @remarks
  * Hierarchical tree management composable extending createGroup with:
  * - Parent-child relationship tracking (children/parents Maps)
