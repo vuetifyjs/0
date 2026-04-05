@@ -1,6 +1,8 @@
 /**
  * @module SingleItem
  *
+ * @see https://0.vuetifyjs.com/components/providers/single
+ *
  * @remarks
  * Item component for single-selection contexts. Registers with parent SingleRoot
  * and provides selection state and methods via scoped slot. Automatically

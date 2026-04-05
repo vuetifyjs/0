@@ -1,6 +1,8 @@
 /**
  * @module SingleRoot
  *
+ * @see https://0.vuetifyjs.com/components/providers/single
+ *
  * @remarks
  * Root component for single-selection contexts. Creates and provides single
  * context to child SingleItem components. Only one item can be selected at
