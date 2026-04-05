@@ -1,5 +1,5 @@
 /**
- * @module useFilter
+ * @module createFilter
  *
  * @remarks
  * Reactive array filtering composable with multiple filter modes.
