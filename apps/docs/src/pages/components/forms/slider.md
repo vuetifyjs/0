@@ -17,7 +17,7 @@ related:
 
 # Slider
 
-A headless slider component for building single-value and range inputs with pointer drag, keyboard navigation, and step snapping. Uses `createSlider` internally, which delegates value storage to `createModel`.
+Headless slider for single-value and range inputs with pointer drag, keyboard navigation, and step snapping.
 
 <DocsPageFeatures :frontmatter />
 
