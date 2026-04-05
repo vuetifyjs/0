@@ -116,6 +116,7 @@ Breakpoints are **range-based**, not exact pixel matches. The `name` is the **hi
 | `smAndUp` / `mdAndUp` / `lgAndUp` / `xlAndUp` | `ShallowRef<boolean>` | At or above breakpoint |
 | `smAndDown` / `mdAndDown` / `lgAndDown` / `xlAndDown` | `ShallowRef<boolean>` | At or below breakpoint |
 | `breakpoints` | `Record<string, number>` | Static config object (not reactive) |
+| `mobileBreakpoint` | `BreakpointName \| number` | The threshold used to compute `isMobile` (static) |
 | `ssr` | `boolean` | `true` when running server-side with SSR options |
 
 > [!TIP]
