@@ -28,6 +28,11 @@ The Group component is a specialization of Selection that enforces multi-selecti
 
 ::: example
 /components/group/basic
+
+### Multi-Selection Group
+
+Button items in a group with shared multi-selection state — toggling any item updates the shared selection.
+
 :::
 
 ## Anatomy
