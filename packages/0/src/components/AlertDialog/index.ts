@@ -82,7 +82,7 @@ export const AlertDialog = {
   /**
    * Activator component that opens the alert dialog.
    *
-   * @see https://0.vuetifyjs.com/components/disclosure/alert-dialog#alertdialogactivator
+   * @see https://0.vuetifyjs.com/components/disclosure/alert-dialog
    *
    * @example
    * ```vue
@@ -101,7 +101,7 @@ export const AlertDialog = {
   /**
    * Content container for the alert dialog using native `<dialog>` element.
    *
-   * @see https://0.vuetifyjs.com/components/disclosure/alert-dialog#alertdialogcontent
+   * @see https://0.vuetifyjs.com/components/disclosure/alert-dialog
    *
    * @example
    * ```vue
@@ -123,7 +123,7 @@ export const AlertDialog = {
   /**
    * Title component for accessible alert dialog labeling.
    *
-   * @see https://0.vuetifyjs.com/components/disclosure/alert-dialog#alertdialogtitle
+   * @see https://0.vuetifyjs.com/components/disclosure/alert-dialog
    *
    * @example
    * ```vue
@@ -140,7 +140,7 @@ export const AlertDialog = {
   /**
    * Description component for accessible alert dialog description.
    *
-   * @see https://0.vuetifyjs.com/components/disclosure/alert-dialog#alertdialogdescription
+   * @see https://0.vuetifyjs.com/components/disclosure/alert-dialog
    *
    * @example
    * ```vue
@@ -159,7 +159,7 @@ export const AlertDialog = {
   /**
    * Cancel button component for dismissing the alert dialog.
    *
-   * @see https://0.vuetifyjs.com/components/disclosure/alert-dialog#alertdialogcancel
+   * @see https://0.vuetifyjs.com/components/disclosure/alert-dialog
    *
    * @example
    * ```vue
@@ -176,7 +176,7 @@ export const AlertDialog = {
   /**
    * Close button component for closing the alert dialog.
    *
-   * @see https://0.vuetifyjs.com/components/disclosure/alert-dialog#alertdialogclose
+   * @see https://0.vuetifyjs.com/components/disclosure/alert-dialog
    *
    * @example
    * ```vue
@@ -193,7 +193,7 @@ export const AlertDialog = {
   /**
    * Action button component for confirming the alert dialog.
    *
-   * @see https://0.vuetifyjs.com/components/disclosure/alert-dialog#alertdialogaction
+   * @see https://0.vuetifyjs.com/components/disclosure/alert-dialog
    *
    * @example
    * ```vue
