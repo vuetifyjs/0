@@ -1,5 +1,8 @@
 <script setup lang="ts">
-  import { mdiApplication, mdiArrowLeft, mdiArrowRight, mdiCellphone, mdiCheckCircle, mdiFileDocument, mdiPackageVariant, mdiPaletteAdvanced, mdiViewDashboard } from '@mdi/js'
+  import { mdiArrowLeft, mdiArrowRight, mdiCellphone, mdiChartBar, mdiCheckCircle, mdiCompass, mdiCube, mdiEyedropper, mdiMonitor, mdiNewspaperVariant, mdiPuzzle } from '@mdi/js'
+
+  // Framework
+  import { useHotkey } from '@vuetify/v0'
 
   // Utilities
   import { computed } from 'vue'
@@ -29,11 +32,11 @@
   })
 
   const intents: Array<{ id: Intent, title: string, description: string, icon: string }> = [
-    { id: 'spa', title: 'SPA', description: 'Single-page application with routing and state', icon: mdiApplication },
-    { id: 'component-library', title: 'Component Library', description: 'Reusable components for your team', icon: mdiPackageVariant },
-    { id: 'design-system', title: 'Design System', description: 'Full design system with tokens and patterns', icon: mdiPaletteAdvanced },
-    { id: 'admin-dashboard', title: 'Admin Dashboard', description: 'Data-heavy internal tools and panels', icon: mdiViewDashboard },
-    { id: 'content-site', title: 'Content Site', description: 'Blog, docs, or marketing pages', icon: mdiFileDocument },
+    { id: 'spa', title: 'SPA', description: 'Single-page application with routing and state', icon: mdiMonitor },
+    { id: 'component-library', title: 'Component Library', description: 'Reusable components for your team', icon: mdiPuzzle },
+    { id: 'design-system', title: 'Design System', description: 'Full design system with tokens and patterns', icon: mdiEyedropper },
+    { id: 'admin-dashboard', title: 'Admin Dashboard', description: 'Data-heavy internal tools and panels', icon: mdiChartBar },
+    { id: 'content-site', title: 'Content Site', description: 'Blog, docs, or marketing pages', icon: mdiNewspaperVariant },
     { id: 'mobile-first', title: 'Mobile-First', description: 'Touch-optimized responsive application', icon: mdiCellphone },
   ]
 
@@ -104,6 +107,18 @@
   function currentStep () {
     return steps[stepIndex.value ?? 0] ?? 'intent'
   }
+
+  function stepIcon (step: string): string {
+    if (step === 'intent') return mdiCompass
+    if (step === 'review') return mdiCheckCircle
+    return CATEGORY_ICONS[step] ?? mdiCube
+  }
+
+  // Keyboard navigation
+  useHotkey('arrowright', () => store.stepper.next(), { preventDefault: false })
+  useHotkey('arrowleft', () => {
+    if (stepIndex.value > 0) store.stepper.prev()
+  }, { preventDefault: false })
 </script>
 
 <template>
@@ -122,19 +137,25 @@
     <!-- Step indicator -->
     <div class="flex items-center gap-0 mb-8">
       <template v-for="(s, index) in steps" :key="s">
-        <div
-          class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0 transition-colors"
+        <component
+          :is="index < stepIndex ? 'button' : 'div'"
+          class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-colors"
           :class="[
             index < stepIndex
-              ? 'bg-primary text-on-primary'
+              ? 'bg-primary text-on-primary cursor-pointer hover:ring-4 hover:ring-primary/20'
               : index === stepIndex
                 ? 'bg-primary text-on-primary ring-4 ring-primary/20'
                 : 'bg-surface-variant text-on-surface-variant',
           ]"
+          @click="index < stepIndex ? store.stepper.select(steps[index]) : undefined"
         >
-          <template v-if="index < stepIndex">&#10003;</template>
-          <template v-else>{{ index + 1 }}</template>
-        </div>
+          <svg v-if="index < stepIndex" class="w-4 h-4" viewBox="0 0 24 24">
+            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="currentColor" />
+          </svg>
+          <svg v-else class="w-4 h-4" viewBox="0 0 24 24">
+            <path :d="stepIcon(s)" fill="currentColor" />
+          </svg>
+        </component>
         <div
           v-if="index < steps.length - 1"
           class="h-0.5 flex-1 transition-colors"
