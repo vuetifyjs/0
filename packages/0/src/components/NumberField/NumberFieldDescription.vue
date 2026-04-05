@@ -3,7 +3,7 @@
  *
  * @remarks
  * Help text component for number fields.
- * Auto-connected to NumberField.Input via aria-describedby.
+ * Auto-connected to NumberField.Control via aria-describedby.
  * Must be used within a NumberField.Root component.
  */
 

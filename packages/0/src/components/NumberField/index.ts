@@ -1,3 +1,5 @@
+export { default as NumberFieldControl } from './NumberFieldControl.vue'
+
 export { default as NumberFieldDecrement } from './NumberFieldDecrement.vue'
 
 export { default as NumberFieldDescription } from './NumberFieldDescription.vue'
@@ -6,27 +8,25 @@ export { default as NumberFieldError } from './NumberFieldError.vue'
 
 export { default as NumberFieldIncrement } from './NumberFieldIncrement.vue'
 
-export { default as NumberFieldInput } from './NumberFieldInput.vue'
-
 export { default as NumberFieldRoot } from './NumberFieldRoot.vue'
 export { provideNumberFieldRoot, useNumberFieldRoot } from './NumberFieldRoot.vue'
 
 export { default as NumberFieldScrub } from './NumberFieldScrub.vue'
 
+export type { NumberFieldControlProps, NumberFieldControlSlotProps } from './NumberFieldControl.vue'
 export type { NumberFieldDecrementProps, NumberFieldDecrementSlotProps } from './NumberFieldDecrement.vue'
 export type { NumberFieldDescriptionProps, NumberFieldDescriptionSlotProps } from './NumberFieldDescription.vue'
 export type { NumberFieldErrorProps, NumberFieldErrorSlotProps } from './NumberFieldError.vue'
 export type { NumberFieldIncrementProps, NumberFieldIncrementSlotProps } from './NumberFieldIncrement.vue'
-export type { NumberFieldInputProps, NumberFieldInputSlotProps } from './NumberFieldInput.vue'
 export type { NumberFieldRootContext, NumberFieldRootProps, NumberFieldRootSlotProps } from './NumberFieldRoot.vue'
 export type { NumberFieldScrubProps, NumberFieldScrubSlotProps } from './NumberFieldScrub.vue'
 
 // Components
+import Control from './NumberFieldControl.vue'
 import Decrement from './NumberFieldDecrement.vue'
 import Description from './NumberFieldDescription.vue'
 import Error from './NumberFieldError.vue'
 import Increment from './NumberFieldIncrement.vue'
-import Input from './NumberFieldInput.vue'
 import Root from './NumberFieldRoot.vue'
 import Scrub from './NumberFieldScrub.vue'
 
@@ -47,7 +47,7 @@ import Scrub from './NumberFieldScrub.vue'
  * <template>
  *   <NumberField.Root v-model="value" :min="0" :max="100">
  *     <NumberField.Decrement>-</NumberField.Decrement>
- *     <NumberField.Input />
+ *     <NumberField.Control />
  *     <NumberField.Increment>+</NumberField.Increment>
  *   </NumberField.Root>
  * </template>
@@ -74,7 +74,7 @@ export const NumberField = {
    *
    * <template>
    *   <NumberField.Root v-model="value" :min="0" :max="100">
-   *     <NumberField.Input />
+   *     <NumberField.Control />
    *   </NumberField.Root>
    * </template>
    * ```
@@ -91,10 +91,10 @@ export const NumberField = {
    *
    * @example
    * ```vue
-   * <NumberField.Input />
+   * <NumberField.Control />
    * ```
    */
-  Input,
+  Control,
   /**
    * Increment button with spin-on-hold behavior.
    *
@@ -144,7 +144,7 @@ export const NumberField = {
    * Help text component connected via aria-describedby.
    *
    * Auto-registers with parent Root to wire up the ARIA relationship
-   * to the Input element.
+   * to the Control element.
    *
    * @see https://0.vuetifyjs.com/components/number-field#description
    *

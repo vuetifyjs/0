@@ -46,7 +46,7 @@ NumberField renders a spinbutton input with optional increment, decrement, and s
 
     <NumberField.Decrement />
 
-    <NumberField.Input />
+    <NumberField.Control />
 
     <NumberField.Increment />
 
@@ -67,7 +67,7 @@ flowchart TD
   CreateInput["createInput"]
   CreateNumeric["createNumeric"]
   Root["NumberField.Root"]:::primary
-  Input["NumberField.Input"]
+  Input["NumberField.Control"]
   Increment["NumberField.Increment"]
   Decrement["NumberField.Decrement"]
   Scrub["NumberField.Scrub"]
@@ -113,7 +113,7 @@ Increment and Decrement buttons repeat automatically when held. Configure timing
 <template>
   <NumberField.Root :spin-delay="300" :spin-rate="40">
     <NumberField.Decrement>-</NumberField.Decrement>
-    <NumberField.Input />
+    <NumberField.Control />
     <NumberField.Increment>+</NumberField.Increment>
   </NumberField.Root>
 </template>
@@ -126,7 +126,7 @@ Enable value adjustment via scroll wheel when the input is focused:
 ```vue
 <template>
   <NumberField.Root v-model="value" wheel>
-    <NumberField.Input />
+    <NumberField.Control />
   </NumberField.Root>
 </template>
 ```
@@ -137,21 +137,21 @@ Style interactive states without slot props:
 
 | Attribute | Values | Components |
 |-----------|--------|------------|
-| `data-state` | `valid`, `invalid`, `pristine` | Root, Input |
+| `data-state` | `valid`, `invalid`, `pristine` | Root, Control |
 | `data-dirty` | `true` | Root |
-| `data-focused` | `true` | Root, Input |
-| `data-disabled` | `true` | Root, Input, Increment, Decrement, Scrub |
-| `data-readonly` | `true` | Root, Input, Scrub |
+| `data-focused` | `true` | Root, Control |
+| `data-disabled` | `true` | Root, Control, Increment, Decrement, Scrub |
+| `data-readonly` | `true` | Root, Control, Scrub |
 
 ## Accessibility
 
-NumberField.Input renders with `role="spinbutton"` and full ARIA attributes per the [WAI-ARIA Spinbutton pattern](https://www.w3.org/WAI/ARIA/apg/patterns/spinbutton/).
+NumberField.Control renders with `role="spinbutton"` and full ARIA attributes per the [WAI-ARIA Spinbutton pattern](https://www.w3.org/WAI/ARIA/apg/patterns/spinbutton/).
 
 ### ARIA Attributes
 
 | Attribute | Value | Notes |
 |-----------|-------|-------|
-| `role` | `spinbutton` | Applied to Input |
+| `role` | `spinbutton` | Applied to Control |
 | `aria-valuenow` | Current value | `undefined` when empty |
 | `aria-valuemin` | Min value | Only when finite |
 | `aria-valuemax` | Max value | Only when finite |

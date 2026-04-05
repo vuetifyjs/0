@@ -12,7 +12,7 @@
         &minus;
       </NumberField.Decrement>
 
-      <NumberField.Input class="w-20 text-center border-y py-2 outline-none" />
+      <NumberField.Control class="w-20 text-center border-y py-2 outline-none" />
 
       <NumberField.Increment class="px-3 py-2 border rounded-r-lg hover:bg-surface-tint disabled:opacity-50">
         +

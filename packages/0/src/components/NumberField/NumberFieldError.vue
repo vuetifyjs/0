@@ -4,7 +4,7 @@
  * @remarks
  * Error message component for number fields.
  * Renders validation error messages from the parent NumberField.Root's validation context.
- * Connected to NumberField.Input via aria-errormessage.
+ * Connected to NumberField.Control via aria-errormessage.
  * Uses aria-live="polite" for screen reader announcements.
  * Must be used within a NumberField.Root component.
  */

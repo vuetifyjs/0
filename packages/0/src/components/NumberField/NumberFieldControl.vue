@@ -1,5 +1,5 @@
 /**
- * @module NumberFieldInput
+ * @module NumberFieldControl
  *
  * @remarks
  * Native input element for number fields with spinbutton semantics.
@@ -20,12 +20,12 @@
   // Types
   import type { AtomProps } from '#v0/components/Atom'
 
-  export interface NumberFieldInputProps extends AtomProps {
+  export interface NumberFieldControlProps extends AtomProps {
     /** Namespace for connecting to parent NumberField.Root */
     namespace?: string
   }
 
-  export interface NumberFieldInputSlotProps {
+  export interface NumberFieldControlSlotProps {
     /** Current display value */
     value: string
     /** Whether this field is focused */
@@ -40,19 +40,19 @@
 </script>
 
 <script setup lang="ts">
-  defineOptions({ name: 'NumberFieldInput', inheritAttrs: false })
+  defineOptions({ name: 'NumberFieldControl', inheritAttrs: false })
 
   const attrs = useAttrs()
 
   defineSlots<{
-    default: (props: NumberFieldInputSlotProps) => any
+    default: (props: NumberFieldControlSlotProps) => any
   }>()
 
   const {
     as = 'input',
     renderless,
     namespace = 'v0:number-field:root',
-  } = defineProps<NumberFieldInputProps>()
+  } = defineProps<NumberFieldControlProps>()
 
   const root = useNumberFieldRoot(namespace)
 
@@ -182,7 +182,7 @@
     }
   })
 
-  const slotProps = toRef((): NumberFieldInputSlotProps => ({
+  const slotProps = toRef((): NumberFieldControlSlotProps => ({
     value: displayValue.value,
     isFocused: root.isFocused.value,
     isDisabled: root.isDisabled.value,
