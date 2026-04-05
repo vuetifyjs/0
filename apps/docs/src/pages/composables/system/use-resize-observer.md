@@ -84,6 +84,11 @@ flowchart TD
 
 ::: example
 /composables/use-resize-observer/responsive-grid
+
+### Responsive Grid
+
+A manually resizable container that adapts from 1 to 3 columns based on its own width, with live dimension readout.
+
 :::
 
 <DocsApi />
