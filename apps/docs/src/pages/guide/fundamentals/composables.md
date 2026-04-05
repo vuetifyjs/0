@@ -116,7 +116,13 @@ Form state and validation:
 
 | Composable | Purpose |
 | - | - |
-| [createForm](/composables/forms/create-form) | Validation, dirty tracking |
+| [createCombobox](/composables/forms/create-combobox) | Autocomplete with filtering and virtual focus |
+| [createForm](/composables/forms/create-form) | Form validation coordinator |
+| [createInput](/composables/forms/create-input) | Shared form field primitive with ARIA IDs |
+| [createNumeric](/composables/forms/create-numeric) | Bounded numeric math with step and clamp |
+| [createRating](/composables/forms/create-rating) | Bounded rating with discrete items |
+| [createSlider](/composables/forms/create-slider) | Multi-thumb slider with step snapping |
+| [createValidation](/composables/forms/create-validation) | Per-field validation lifecycle |
 
 ### Reactivity
 
