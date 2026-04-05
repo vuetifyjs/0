@@ -11,9 +11,9 @@ features:
   github: /composables/useStack/
   level: 2
 related:
-- /composables/registration/create-registry
-- /composables/registration/create-queue
-- /components/providers/scrim
+  - /components/providers/scrim
+  - /composables/registration/create-registry
+  - /composables/registration/create-queue
 ---
 
 # useStack
