@@ -18,7 +18,7 @@ related:
 
 # createNumeric
 
-Pure numeric math for bounded values. Snap to step, clamp to range, convert between values and percentages, with floating-point precision correction.
+Pure numeric math for bounded values with step snapping, range clamping, and floating-point precision correction.
 
 <DocsPageFeatures :frontmatter />
 
