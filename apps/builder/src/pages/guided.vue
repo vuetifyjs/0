@@ -2,6 +2,7 @@
   import { mdiApplication, mdiArrowLeft, mdiArrowRight, mdiCellphone, mdiFileDocument, mdiPackageVariant, mdiPaletteAdvanced, mdiViewDashboard } from '@mdi/js'
 
   // Utilities
+  import { toRef } from 'vue'
   import { useRouter } from 'vue-router'
 
   // Types
@@ -77,6 +78,8 @@
 
   store.initSteps(steps)
 
+  const stepIndex = toRef(() => stepIndex.value ?? 0)
+
   function onIntent (id: Intent) {
     store.setIntent(id)
   }
@@ -86,7 +89,7 @@
   }
 
   function onBack () {
-    if (store.stepper.selectedIndex.value > 0) {
+    if (stepIndex.value > 0) {
       store.stepper.prev()
     } else {
       router.push('/')
@@ -99,7 +102,7 @@
   }
 
   function currentStep () {
-    return steps[store.stepper.selectedIndex.value ?? 0] ?? 'intent'
+    return steps[stepIndex.value ?? 0] ?? 'intent'
   }
 </script>
 
@@ -122,20 +125,20 @@
         <div
           class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0 transition-colors"
           :class="[
-            index < store.stepper.selectedIndex.value
+            index < stepIndex.value
               ? 'bg-primary text-on-primary'
-              : index === store.stepper.selectedIndex.value
+              : index === stepIndex.value
                 ? 'bg-primary text-on-primary ring-4 ring-primary/20'
                 : 'bg-surface-variant text-on-surface-variant',
           ]"
         >
-          <template v-if="index < store.stepper.selectedIndex.value">&#10003;</template>
+          <template v-if="index < stepIndex.value">&#10003;</template>
           <template v-else>{{ index + 1 }}</template>
         </div>
         <div
           v-if="index < steps.length - 1"
           class="h-0.5 flex-1 transition-colors"
-          :class="index < store.stepper.selectedIndex.value ? 'bg-primary' : 'bg-divider'"
+          :class="index < stepIndex.value ? 'bg-primary' : 'bg-divider'"
         />
       </template>
     </div>
@@ -143,7 +146,7 @@
     <!-- Intent step -->
     <template v-if="currentStep() === 'intent'">
       <p class="text-xs text-on-surface-variant uppercase tracking-wide mb-1">
-        Step {{ store.stepper.selectedIndex.value + 1 }} of {{ steps.length }}
+        Step {{ stepIndex.value + 1 }} of {{ steps.length }}
       </p>
       <h2 class="text-xl font-bold mb-2">What are you building?</h2>
       <p class="text-on-surface-variant mb-6">Pick a project type and we'll seed the right features for you.</p>
@@ -171,7 +174,7 @@
     <!-- Category steps -->
     <template v-else-if="currentStep() !== 'review'">
       <p class="text-xs text-on-surface-variant uppercase tracking-wide mb-1">
-        Step {{ store.stepper.selectedIndex.value + 1 }} of {{ steps.length }}
+        Step {{ stepIndex.value + 1 }} of {{ steps.length }}
       </p>
       <h2 class="text-xl font-bold mb-2 capitalize flex items-center gap-2">
         <svg v-if="CATEGORY_ICONS[currentStep()]" class="w-6 h-6 text-primary" viewBox="0 0 24 24">
@@ -214,7 +217,7 @@
     <!-- Review step -->
     <template v-else>
       <p class="text-xs text-on-surface-variant uppercase tracking-wide mb-1">
-        Step {{ store.stepper.selectedIndex.value + 1 }} of {{ steps.length }}
+        Step {{ stepIndex.value + 1 }} of {{ steps.length }}
       </p>
       <h2 class="text-xl font-bold mb-2">Review</h2>
       <p class="text-on-surface-variant mb-4">
