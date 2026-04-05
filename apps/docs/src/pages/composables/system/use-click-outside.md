@@ -66,6 +66,11 @@ flowchart TD
 
 ::: example
 /composables/use-click-outside/basic
+
+### Dropdown with Outside Dismiss
+
+A dropdown menu that opens on button click and automatically closes when clicking anywhere outside the menu.
+
 :::
 
 <DocsApi />
