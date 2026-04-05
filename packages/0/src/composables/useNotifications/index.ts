@@ -483,7 +483,7 @@ export function createNotifications<
    * batch. Skips already-read notifications to preserve their original `readAt`
    * timestamp. Emits `notification:read` for each affected notification.
    *
-   * @see https://0.vuetifyjs.com/composables/plugins/use-notificationsall
+   * @see https://0.vuetifyjs.com/composables/plugins/use-notifications
    *
    * @example
    * ```ts
@@ -517,7 +517,7 @@ export function createNotifications<
    * batch. Skips already-archived notifications to preserve their original
    * `archivedAt` timestamp. Emits `notification:archived` for each affected notification.
    *
-   * @see https://0.vuetifyjs.com/composables/plugins/use-notificationsall
+   * @see https://0.vuetifyjs.com/composables/plugins/use-notifications
    *
    * @example
    * ```ts
