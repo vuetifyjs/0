@@ -50,7 +50,7 @@ export interface ProxyModelTarget {
  * @param options The options for the proxy model.
  * @returns A function to stop the sync.
  *
- * @see https://0.vuetifyjs.com/composables/forms/use-proxy-model
+ * @see https://0.vuetifyjs.com/composables/reactivity/use-proxy-model
  *
  * @example
  * ```ts
