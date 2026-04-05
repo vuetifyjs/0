@@ -1,6 +1,8 @@
 /**
  * @module usePopover
  *
+ * @see https://0.vuetifyjs.com/composables/system/use-popover
+ *
  * @remarks
  * Composable for native popover API behavior with CSS anchor positioning.
  * Manages open/close state, anchor styles, content attributes, and
