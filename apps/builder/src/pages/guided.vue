@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { mdiApplication, mdiArrowLeft, mdiArrowRight, mdiCellphone, mdiFileDocument, mdiPackageVariant, mdiPaletteAdvanced, mdiViewDashboard } from '@mdi/js'
+  import { mdiApplication, mdiArrowLeft, mdiArrowRight, mdiCellphone, mdiCheckCircle, mdiFileDocument, mdiPackageVariant, mdiPaletteAdvanced, mdiViewDashboard } from '@mdi/js'
 
   // Utilities
   import { computed } from 'vue'
@@ -13,6 +13,20 @@
 
   const store = useBuilderStore()
   const router = useRouter()
+
+  const selectedFeatures = computed(() => store.catalog.filter(f => store.isSelected(f.id)))
+  const autoFeatures = computed(() => store.catalog.filter(f => store.resolved.autoIncluded.includes(f.id)))
+  const total = computed(() => selectedFeatures.value.length + autoFeatures.value.length)
+
+  const selectedByCategory = computed(() => {
+    const map = new Map<string, typeof selectedFeatures.value>()
+    for (const f of selectedFeatures.value) {
+      const list = map.get(f.category) ?? []
+      list.push(f)
+      map.set(f.category, list)
+    }
+    return map
+  })
 
   const intents: Array<{ id: Intent, title: string, description: string, icon: string }> = [
     { id: 'spa', title: 'SPA', description: 'Single-page application with routing and state', icon: mdiApplication },
@@ -257,15 +271,98 @@
       <p class="text-xs text-on-surface-variant uppercase tracking-wide mb-1">
         Step {{ stepIndex + 1 }} of {{ steps.length }}
       </p>
-      <h2 class="text-xl font-bold mb-2">Review</h2>
-      <p class="text-on-surface-variant mb-4">
-        {{ store.selectedCount }} selected, {{ store.resolved.autoIncluded.length }} auto-included.
+      <h2 class="text-xl font-bold mb-2 flex items-center gap-2">
+        <svg class="w-6 h-6 text-primary" viewBox="0 0 24 24">
+          <path :d="mdiCheckCircle" fill="currentColor" />
+        </svg>
+        Your Framework
+      </h2>
+      <p class="text-on-surface-variant mb-6">
+        {{ total }} features ready to go.
       </p>
+
+      <!-- Stats grid -->
+      <div class="grid grid-cols-3 gap-4 mb-8">
+        <div class="bg-surface rounded-lg p-4 text-center border border-divider">
+          <div class="text-2xl font-bold text-primary">{{ selectedFeatures.length }}</div>
+          <div class="text-xs text-on-surface-variant mt-1">Selected</div>
+        </div>
+        <div class="bg-surface rounded-lg p-4 text-center border border-divider">
+          <div class="text-2xl font-bold text-accent">{{ autoFeatures.length }}</div>
+          <div class="text-xs text-on-surface-variant mt-1">Auto-included</div>
+        </div>
+        <div class="bg-surface rounded-lg p-4 text-center border border-divider">
+          <div class="text-2xl font-bold text-on-surface">{{ total }}</div>
+          <div class="text-xs text-on-surface-variant mt-1">Total</div>
+        </div>
+      </div>
+
+      <!-- Selected features by category -->
+      <div v-if="selectedFeatures.length > 0" class="mb-8">
+        <h3 class="text-sm font-semibold text-on-surface-variant uppercase tracking-wide mb-3 pl-3 border-l-2 border-primary">You selected</h3>
+        <div class="flex flex-col gap-4">
+          <div v-for="[category, features] in selectedByCategory" :key="category">
+            <div class="flex items-center gap-2 mb-2">
+              <svg v-if="CATEGORY_ICONS[category]" class="w-4 h-4 text-on-surface-variant" viewBox="0 0 24 24">
+                <path :d="CATEGORY_ICONS[category]" fill="currentColor" />
+              </svg>
+              <span class="text-xs font-semibold text-on-surface-variant uppercase tracking-wide">{{ category }}</span>
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <div
+                v-for="feature in features"
+                :key="feature.id"
+                class="flex items-center justify-between py-2 px-3 rounded-lg border border-primary/30 bg-surface"
+              >
+                <div>
+                  <span class="font-medium text-on-surface text-sm">{{ feature.name }}</span>
+                  <span class="text-xs text-on-surface-variant ml-2">{{ feature.summary }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Auto-included dependencies -->
+      <div v-if="autoFeatures.length > 0" class="mb-8">
+        <h3 class="text-sm font-semibold text-on-surface-variant uppercase tracking-wide mb-3 pl-3 border-l-2 border-accent">Auto-included dependencies</h3>
+        <div class="flex flex-wrap gap-2">
+          <span
+            v-for="feature in autoFeatures"
+            :key="feature.id"
+            class="text-xs py-1 px-2.5 rounded-full border border-dashed border-divider text-on-surface-variant bg-surface/50"
+          >
+            {{ feature.name }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Warnings -->
+      <div v-if="store.resolved.warnings.length > 0" class="mb-8">
+        <h3 class="text-sm font-semibold text-warning uppercase tracking-wide mb-3">Warnings</h3>
+        <div
+          v-for="warning in store.resolved.warnings"
+          :key="warning.featureId"
+          class="p-3 rounded-lg border border-warning/30 bg-warning/5 text-sm text-on-surface-variant"
+        >
+          {{ warning.message }}
+        </div>
+      </div>
+
+      <!-- Empty state -->
+      <div v-if="selectedFeatures.length === 0" class="text-center py-12">
+        <p class="text-on-surface-variant">No features selected. Go back and pick some!</p>
+      </div>
+
+      <!-- Open in Playground -->
       <button
-        class="px-4 py-2 bg-primary text-on-primary rounded-lg font-semibold hover:opacity-90"
+        class="w-full px-4 py-3 bg-primary text-on-primary rounded-lg font-semibold hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+        :class="{ 'opacity-50 cursor-not-allowed': selectedFeatures.length === 0 }"
+        :disabled="selectedFeatures.length === 0"
         @click="store.openInPlayground()"
       >
-        Open in Playground
+        Try in Playground →
       </button>
     </template>
 
