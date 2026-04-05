@@ -1,6 +1,8 @@
 /**
  * @module StepItem
  *
+ * @see https://0.vuetifyjs.com/components/providers/step
+ *
  * @remarks
  * Item component for step/stepper contexts. Registers with parent StepRoot
  * and provides selection state and methods via scoped slot. Supports
