@@ -16,13 +16,13 @@ import Root from './AvatarRoot.vue'
 /**
  * Avatar component with sub-components for building avatars.
  *
- * @see https://0.vuetifyjs.com/components/avatar
+ * @see https://0.vuetifyjs.com/components/semantic/avatar
  */
 export const Avatar = {
   /**
    * Root component for avatars.
    *
-   * @see https://0.vuetifyjs.com/components/avatar
+   * @see https://0.vuetifyjs.com/components/semantic/avatar
    *
    * @example
    * ```vue
@@ -43,7 +43,7 @@ export const Avatar = {
   /**
    * Component for displaying the avatar image.
    *
-   * @see https://0.vuetifyjs.com/components/avatar#avatarimage
+   * @see https://0.vuetifyjs.com/components/semantic/avatar#avatarimage
    *
    * @example
    * ```vue
@@ -60,7 +60,7 @@ export const Avatar = {
   /**
    * Component for displaying fallback content when image fails to load.
    *
-   * @see https://0.vuetifyjs.com/components/avatar#avatarfallback
+   * @see https://0.vuetifyjs.com/components/semantic/avatar#avatarfallback
    *
    * @example
    * ```vue
