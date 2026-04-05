@@ -11,6 +11,7 @@ features:
   github: /composables/useLazy/
   level: 2
 related:
+  - /composables/system/use-presence
   - /composables/system/use-toggle-scope
   - /composables/system/use-intersection-observer
 ---
