@@ -18,7 +18,7 @@ related:
 
 # Rating
 
-A headless rating component for building star/icon rating inputs with hover preview, keyboard navigation, and half-step support. Uses `createRating` internally for value management.
+Headless rating input with hover preview, keyboard navigation, and half-step support.
 
 <DocsPageFeatures :frontmatter />
 
