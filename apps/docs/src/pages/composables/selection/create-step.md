@@ -102,6 +102,10 @@ Step navigation state is **always reactive**. Navigation guards (`canPrev`, `can
 | `selectedValue` | <AppSuccessIcon /> | Computed — current step value |
 | `canPrev` | <AppSuccessIcon /> | Computed — `false` at first step (bounded mode) |
 | `canNext` | <AppSuccessIcon /> | Computed — `false` at last step (bounded mode) |
+| `step(count)` | <AppErrorIcon /> | Move by `count` positions — positive forward, negative backward |
+
+> [!TIP] step(count)
+> `step(-2)` moves back two positions; `step(3)` skips ahead three. In circular mode it wraps at both ends; in bounded mode it clamps at the first and last steps. Disabled steps are skipped automatically.
 
 > [!TIP] Navigation guards
 > Use `canPrev` and `canNext` to disable navigation buttons. They respect the `circular` option automatically.
