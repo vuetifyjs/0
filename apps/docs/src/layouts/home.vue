@@ -36,7 +36,7 @@
 </script>
 
 <template>
-  <div class="pt-[72px]">
+  <div class="pt-[calc(48px+var(--app-banner-h,24px))]">
     <AppBanner />
     <AppBar />
     <AppHomePage />
