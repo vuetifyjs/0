@@ -97,7 +97,7 @@ Uses iterative stack (not recursive) for performance.
 
 ```ts
 import { ID } from '#v0/types'
-import { useRegistry } from '#v0/composables/useRegistry'
+import { useRegistry } from '#v0/composables/createRegistry'
 import { isObject } from '#v0/utilities'
 ```
 
