@@ -27,6 +27,11 @@ The Slider supports single-value and range modes. Add one `Slider.Thumb` for a s
 
 ::: example
 /components/slider/basic
+
+### Single and Range Slider
+
+A single-value slider and a range slider with track and thumb components.
+
 :::
 
 ## Anatomy
