@@ -37,7 +37,7 @@ export type ContextTrinity<Z = unknown> = readonly [
  *
  * The returned tuple is readonly (using `as const`) to ensure proper type inference.
  *
- * @see https://0.vuetifyjs.com/composables/foundation/create-trinity#create-trinity
+ * @see https://0.vuetifyjs.com/composables/foundation/create-trinity
  *
  * @example
  * ```ts
