@@ -43,7 +43,7 @@ export const Avatar = {
   /**
    * Component for displaying the avatar image.
    *
-   * @see https://0.vuetifyjs.com/components/semantic/avatar#avatarimage
+   * @see https://0.vuetifyjs.com/components/semantic/avatar
    *
    * @example
    * ```vue
@@ -60,7 +60,7 @@ export const Avatar = {
   /**
    * Component for displaying fallback content when image fails to load.
    *
-   * @see https://0.vuetifyjs.com/components/semantic/avatar#avatarfallback
+   * @see https://0.vuetifyjs.com/components/semantic/avatar
    *
    * @example
    * ```vue
