@@ -18,7 +18,6 @@
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
-  import type { ShallowRef } from 'vue'
 
   export interface ProgressFillProps extends AtomProps {
     value?: number
@@ -58,7 +57,7 @@
   const ticket = root.register(_value)
 
   watch(() => _value, v => {
-    (ticket.value as ShallowRef<number>).value = v ?? 0
+    ticket.value.value = v ?? 0
   })
 
   onUnmounted(() => {
