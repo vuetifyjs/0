@@ -139,10 +139,19 @@ App-level features installed via `app.use()`:
 
 | Composable | Purpose |
 | - | - |
-| [useTheme](/composables/plugins/use-theme) | Dark/light mode |
-| [useLocale](/composables/plugins/use-locale) | i18n, RTL |
 | [useBreakpoints](/composables/plugins/use-breakpoints) | Responsive queries |
-| [useStorage](/composables/plugins/use-storage) | Persistent state |
+| [useDate](/composables/plugins/use-date) | Date utilities with adapter pattern |
+| [useFeatures](/composables/plugins/use-features) | Feature flags with adapter support |
+| [useHydration](/composables/plugins/use-hydration) | SSR hydration management |
+| [useLocale](/composables/plugins/use-locale) | i18n translations |
+| [useLogger](/composables/plugins/use-logger) | Structured logging with adapters |
+| [useNotifications](/composables/plugins/use-notifications) | Notification lifecycle and toast queue |
+| [usePermissions](/composables/plugins/use-permissions) | Role-based access control |
+| [useRtl](/composables/plugins/use-rtl) | RTL direction support |
+| [useRules](/composables/plugins/use-rules) | Validation rule aliases |
+| [useStack](/composables/plugins/use-stack) | Overlay z-index stacking |
+| [useStorage](/composables/plugins/use-storage) | Reactive localStorage/sessionStorage |
+| [useTheme](/composables/plugins/use-theme) | CSS variable theming, dark mode |
 
 ### Data
 
