@@ -28,6 +28,11 @@ The `createBreadcrumbs` composable manages an ordered path of items. When you se
 
 ::: example
 /composables/create-breadcrumbs/basic
+
+### Breadcrumb Navigation
+
+A clickable file-path breadcrumb trail — selecting an earlier crumb truncates everything after it.
+
 :::
 
 ## Architecture
