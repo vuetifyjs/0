@@ -106,6 +106,11 @@ Locale selection is reactive via `createSingle`. Translation methods return stat
 
 ::: example
 /composables/use-locale/locale-switcher
+
+### Locale Switcher
+
+Switch between English, Spanish, and Japanese — translated strings, navigation items, and formatted numbers all update reactively.
+
 :::
 
 ## Adapters
