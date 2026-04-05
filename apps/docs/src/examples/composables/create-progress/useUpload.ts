@@ -20,7 +20,7 @@ export function useUpload () {
   const timers: ReturnType<typeof setInterval>[] = []
 
   function upload (name: string) {
-    const ticket = progress.register(0)
+    const ticket = progress.register()
 
     const file: UploadFile = {
       name,

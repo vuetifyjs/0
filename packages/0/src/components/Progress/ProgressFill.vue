@@ -54,11 +54,11 @@
 
   const root = useProgressRoot(namespace)
 
-  const ticket = root.register(_value)
+  const ticket = root.register()
 
   watch(() => _value, v => {
     ticket.value.value = v ?? 0
-  })
+  }, { immediate: true })
 
   onUnmounted(() => {
     ticket.unregister()

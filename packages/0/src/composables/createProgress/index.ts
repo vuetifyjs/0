@@ -18,7 +18,7 @@ import { createModel } from '#v0/composables/createModel'
 import { createTrinity } from '#v0/composables/createTrinity'
 
 // Utilities
-import { clamp, isNullOrUndefined, isObject, isUndefined } from '#v0/utilities'
+import { clamp, isNullOrUndefined, isUndefined } from '#v0/utilities'
 import { computed, isRef, shallowRef, toRef, toValue } from 'vue'
 
 // Types
@@ -49,7 +49,7 @@ export interface ProgressContext extends Omit<
   isIndeterminate: ComputedRef<boolean>
   fromValue: (value: number) => number
   apply: (values: unknown[], options?: { multiple?: boolean }) => void
-  register: (input?: number | { value: number }) => ModelTicket<ProgressTicketInput>
+  register: (registration?: Partial<ProgressTicketInput>) => ModelTicket<ProgressTicketInput>
 }
 
 export interface ProgressContextOptions extends ProgressOptions {
@@ -128,14 +128,14 @@ export function createProgress (options: ProgressOptions = {}): ProgressContext 
     return (clamp(value, 0, extent) / extent) * 100
   }
 
-  function register (input?: number | { value: number }): ModelTicket<ProgressTicketInput> {
-    const initialValue = isObject(input) ? input.value : input
+  function register (registration: Partial<ProgressTicketInput> = {}): ModelTicket<ProgressTicketInput> {
     const index = segments.value.length
     const pendingValue = pending?.[index]
-    const val = isUndefined(pendingValue) ? (initialValue ?? 0) : pendingValue
+    const val = isUndefined(pendingValue) ? 0 : pendingValue
 
     const ticket = model.register({
-      value: shallowRef(val),
+      ...registration,
+      value: registration.value ?? shallowRef(val),
     })
 
     if (!model.selectedIds.has(ticket.id)) {
