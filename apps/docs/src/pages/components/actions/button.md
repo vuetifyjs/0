@@ -19,7 +19,7 @@ related:
 
 # Button
 
-A headless button component with four interaction states, loading grace period, toggle groups, and icon accessibility.
+Headless button with loading state, toggle group support, and icon accessibility.
 
 <DocsPageFeatures :frontmatter />
 
