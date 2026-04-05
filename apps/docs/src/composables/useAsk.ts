@@ -169,7 +169,7 @@ async function getBenchmarksData (): Promise<Record<string, BenchmarkSummary[]>>
 /** Extract the page slug from path for matching examples/api */
 function getPageSlug (path: string): string | null {
   // /components/*/step -> step
-  // /composables/*/use-selection -> use-selection
+  // /composables/*/create-selection -> create-selection
   const match = path.match(/\/(components|composables)\/[^/]+\/([^/]+)/)
   return match?.[2] ?? null
 }
