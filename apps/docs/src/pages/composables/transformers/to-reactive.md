@@ -61,4 +61,15 @@ flowchart LR
 - Pass reactive state to non-Vue code expecting plain objects
 - Create reactive proxies over ref-wrapped collections
 
+## Examples
+
+::: example
+/composables/to-reactive/settings
+
+### Reactive Settings Object
+
+Wraps a ref-based config object with `toReactive`, letting templates access properties directly without `.value`.
+
+:::
+
 <DocsApi />

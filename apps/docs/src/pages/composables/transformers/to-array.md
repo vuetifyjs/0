@@ -53,4 +53,15 @@ flowchart LR
 const items = computed(() => toArray(props.items))
 ```
 
+## Examples
+
+::: example
+/composables/to-array/normalize
+
+### Normalize Inputs
+
+Shows `toArray` converting various input types — single values, arrays, `null`, `undefined` — to a consistent array output.
+
+:::
+
 <DocsApi />
