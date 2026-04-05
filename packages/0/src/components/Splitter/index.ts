@@ -69,7 +69,7 @@ export const Splitter = {
   /**
    * Resizable panel within a splitter layout, sized via flex-basis percentage.
    *
-   * @see https://0.vuetifyjs.com/components/semantic/splitter#splitterpanel
+   * @see https://0.vuetifyjs.com/components/semantic/splitter
    *
    * @example
    * ```vue
@@ -82,7 +82,7 @@ export const Splitter = {
   /**
    * Draggable resize handle between two adjacent panels.
    *
-   * @see https://0.vuetifyjs.com/components/semantic/splitter#splitterhandle
+   * @see https://0.vuetifyjs.com/components/semantic/splitter
    *
    * @example
    * ```vue
