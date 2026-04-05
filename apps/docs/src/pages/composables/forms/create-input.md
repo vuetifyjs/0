@@ -18,7 +18,7 @@ related:
 
 # createInput
 
-Shared form field primitive. Owns validation lifecycle, field state tracking (dirty, pristine, focused, touched), ARIA ID generation, and error merging. Consumed by Input, NumberField, Select, and Combobox internally.
+Shared form field primitive providing validation lifecycle, field state tracking, ARIA ID generation, and error merging. Used internally by Input, NumberField, Select, and Combobox.
 
 <DocsPageFeatures :frontmatter />
 
