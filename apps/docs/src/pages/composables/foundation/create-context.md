@@ -24,6 +24,12 @@ Type-safe dependency injection factory built on Vue's provide/inject. Shares sta
 
 ## Usage
 
+`createContext` has two modes depending on whether you pass a key:
+
+### Static Key Mode
+
+For singletons — one instance for the entire app (theme, locale, breakpoints):
+
 ```ts collapse
 import { shallowRef } from 'vue'
 import { createContext } from '@vuetify/v0'
@@ -38,12 +44,44 @@ interface MyContext {
 const [useContext, provideContext] = createContext<MyContext>('namespace')
 
 provideContext({
-  isDisabled: shallowRef(false) ,
+  isDisabled: shallowRef(false),
   isSelected: shallowRef(true),
   type: 'primary',
 })
 
 export { useContext }
+```
+
+### Dynamic Key Mode
+
+For multiple independent instances of the same context type (nested panels, tabs within tabs). Omit the key — both `provide` and `use` accept a runtime key at call time:
+
+```ts
+interface PanelContext {
+  isOpen: ShallowRef<boolean>
+  toggle: () => void
+}
+
+const [usePanel, providePanel] = createContext<PanelContext>()
+
+// Provider — runtime key identifies this instance
+providePanel('panel-main', mainContext)
+providePanel('panel-sidebar', sidebarContext)
+
+// Consumer — same runtime key to inject
+const panel = usePanel('panel-main')
+```
+
+### Suffix Pattern
+
+For parent-child context hierarchies where a child needs to know which parent it belongs to:
+
+```ts
+// Item context appends ':item' to whatever parent key it's given
+const [useItem, provideItem] = createContext<ItemContext>({ suffix: 'item' })
+
+provideItem('v0:panel', itemContext)  // Provides to 'v0:panel:item'
+const item = useItem('v0:panel')      // Injects from 'v0:panel:item'
 ```
 
 ## Architecture
