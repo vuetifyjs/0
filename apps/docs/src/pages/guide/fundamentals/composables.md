@@ -144,12 +144,13 @@ App-level features installed via `app.use()`:
 | [useBreakpoints](/composables/plugins/use-breakpoints) | Responsive queries |
 | [useStorage](/composables/plugins/use-storage) | Persistent state |
 
-### Utilities
+### Data
 
-Standalone helpers:
+Filtering, pagination, and virtualization for collections:
 
 | Composable | Purpose |
 | - | - |
+| [createDataTable](/composables/data/create-data-table) | Data table with sort, filter, paginate, and select |
 | [createFilter](/composables/data/create-filter) | Array filtering |
 | [createPagination](/composables/data/create-pagination) | Page navigation |
 | [createVirtual](/composables/data/create-virtual) | Virtual scrolling |
