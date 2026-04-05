@@ -88,12 +88,12 @@
     },
     "createInput": {
       "level": "preview",
-      "since": "0.2.0",
+      "since": null,
       "category": "forms"
     },
     "createNumeric": {
       "level": "preview",
-      "since": "0.2.0",
+      "since": null,
       "category": "internal"
     },
     "createDataTable": {
