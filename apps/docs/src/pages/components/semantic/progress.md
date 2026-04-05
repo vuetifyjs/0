@@ -37,32 +37,12 @@ The Progress supports single-value and multi-segment modes. Bind a number for a 
 </script>
 
 <template>
-  <!-- Basic -->
   <Progress.Root>
-    <Progress.Label>Loading...</Progress.Label>
-
+    <Progress.Label />
     <Progress.Track>
       <Progress.Fill />
     </Progress.Track>
-
     <Progress.Value />
-  </Progress.Root>
-
-  <!-- With buffer -->
-  <Progress.Root>
-    <Progress.Track>
-      <Progress.Buffer />
-      <Progress.Fill />
-    </Progress.Track>
-  </Progress.Root>
-
-  <!-- Multi-segment -->
-  <Progress.Root>
-    <Progress.Track>
-      <Progress.Fill :value="30" />
-      <Progress.Fill :value="20" />
-      <Progress.Fill :value="10" />
-    </Progress.Track>
   </Progress.Root>
 </template>
 ```
