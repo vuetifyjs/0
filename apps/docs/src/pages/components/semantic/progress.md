@@ -41,9 +41,9 @@ The Progress supports single-value and multi-segment modes. Bind a number for a 
     <Progress.Label />
 
     <Progress.Track>
-      <Progress.Buffer />
-
       <Progress.Fill />
+
+      <Progress.Buffer />
     </Progress.Track>
 
     <Progress.Value />
