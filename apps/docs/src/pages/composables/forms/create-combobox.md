@@ -18,7 +18,7 @@ related:
 
 # createCombobox
 
-An orchestrator composable that wires together selection, popover, virtual focus, and adapter-based filtering into a single coordinated combobox context. Most consumers will use the `Combobox` component directly — reach for `createCombobox` when building a custom combobox or integrating the logic into a design system.
+Low-level combobox coordinator for custom implementations. Most users should use the `Combobox` component instead.
 
 <DocsPageFeatures :frontmatter />
 

@@ -20,7 +20,7 @@ related:
 
 # createValidation
 
-Per-input validation composable built on `createGroup`. Each registered rule becomes a ticket that can be enabled or disabled via selection methods. Only active (selected) rules run during validation.
+Per-input validation with reactive rules, async validation, and Standard Schema support.
 
 <DocsPageFeatures :frontmatter />
 

@@ -18,7 +18,7 @@ related:
 
 # createInput
 
-Shared form field primitive with validation state, ARIA ID generation, and form registration. Used internally by Input, NumberField, Select, and Combobox.
+Shared form field primitive with validation state, ARIA ID generation, and automatic form registration.
 
 <DocsPageFeatures :frontmatter />
 
