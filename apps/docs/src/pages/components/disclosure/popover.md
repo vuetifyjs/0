@@ -12,6 +12,7 @@ features:
   renderless: true
   level: 2
 related:
+  - /composables/system/use-popover
   - /components/disclosure/expansion-panel
 ---
 
