@@ -1,6 +1,8 @@
 /**
  * @module useProxyModel
  *
+ * @see https://0.vuetifyjs.com/composables/reactivity/use-proxy-model
+ *
  * @remarks
  * Proxy composable for bidirectional sync between a model context and v-model.
  *
