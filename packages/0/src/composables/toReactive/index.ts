@@ -1,6 +1,8 @@
 /**
  * @module toReactive
  *
+ * @see https://0.vuetifyjs.com/composables/transformers/to-reactive
+ *
  * @remarks
  * Utility function to convert values and refs into reactive proxies with ref unwrapping.
  *
