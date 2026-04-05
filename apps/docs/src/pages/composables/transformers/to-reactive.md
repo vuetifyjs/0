@@ -16,7 +16,7 @@ related:
 
 # toReactive
 
-The `toReactive` utility function converts a `MaybeRef` object to a reactive proxy, automatically unwrapping ref values. It provides special handling for `Map`, `Set`, and regular objects.
+Converts a `MaybeRef` object to a reactive proxy with automatic ref unwrapping and `Map`/`Set` support.
 
 <DocsPageFeatures :frontmatter />
 
