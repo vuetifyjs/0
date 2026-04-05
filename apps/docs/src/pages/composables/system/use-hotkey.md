@@ -87,6 +87,11 @@ flowchart TD
 
 ::: example
 /composables/use-hotkey/command-palette
+
+### Command Palette
+
+A searchable command palette (Cmd+J) with arrow-key navigation, filtered results, and per-command shortcuts.
+
 :::
 
 <DocsApi />
