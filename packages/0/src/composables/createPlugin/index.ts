@@ -12,6 +12,7 @@
  *
  * Also exports `createPluginContext` — a higher-level factory that generates the standard
  * context/plugin/consumer triple for plugin composables, eliminating boilerplate.
+ * Supports `persist()` / `restore()` lifecycle hooks for saving and rehydrating plugin state.
  */
 
 import { createContext, useContext } from '#v0/composables/createContext'
