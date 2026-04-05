@@ -6,12 +6,12 @@
  *
  * Key features:
  * - Locale selection with createSingle
- * - Token-based message storage with useTokens
+ * - Token-based message storage with createTokens
  * - Numbered and named placeholder support ({0}, {name})
  * - Number formatting with Intl.NumberFormat
  * - Adapter pattern for integration with i18n providers
  *
- * Integrates with createSingle for locale selection and useTokens for message resolution.
+ * Integrates with createSingle for locale selection and createTokens for message resolution.
  */
 
 // Composables
