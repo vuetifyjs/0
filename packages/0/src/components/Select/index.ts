@@ -26,7 +26,7 @@ import Value from './SelectValue.vue'
 /**
  * Select component with sub-components for building dropdown selects.
  *
- * @see https://0.vuetifyjs.com/components/select
+ * @see https://0.vuetifyjs.com/components/forms/select
  *
  * @example
  * ```vue
@@ -70,7 +70,7 @@ export const Select = {
   /**
    * Root component for selects. Creates selection, virtual focus, and popover contexts.
    *
-   * @see https://0.vuetifyjs.com/components/select
+   * @see https://0.vuetifyjs.com/components/forms/select
    *
    * @example
    * ```vue
@@ -98,7 +98,7 @@ export const Select = {
   /**
    * Activator button that opens the select dropdown.
    *
-   * @see https://0.vuetifyjs.com/components/select#selectactivator
+   * @see https://0.vuetifyjs.com/components/forms/select#selectactivator
    *
    * @example
    * ```vue
@@ -117,7 +117,7 @@ export const Select = {
   /**
    * Display component for the selected value. Slot-based — consumers provide rendering.
    *
-   * @see https://0.vuetifyjs.com/components/select#selectvalue
+   * @see https://0.vuetifyjs.com/components/forms/select#selectvalue
    *
    * @example
    * ```vue
@@ -137,7 +137,7 @@ export const Select = {
   /**
    * Dropdown content container using native popover API with CSS anchor positioning.
    *
-   * @see https://0.vuetifyjs.com/components/select#selectcontent
+   * @see https://0.vuetifyjs.com/components/forms/select#selectcontent
    *
    * @example
    * ```vue
@@ -157,7 +157,7 @@ export const Select = {
   /**
    * Visual cue for open/close state. Exposes `data-state="open|closed"` for CSS-driven styling.
    *
-   * @see https://0.vuetifyjs.com/components/select#selectcue
+   * @see https://0.vuetifyjs.com/components/forms/select#selectcue
    *
    * @example
    * ```vue
@@ -174,7 +174,7 @@ export const Select = {
   /**
    * Option item within the select dropdown. Registers with selection and virtual focus.
    *
-   * @see https://0.vuetifyjs.com/components/select#selectitem
+   * @see https://0.vuetifyjs.com/components/forms/select#selectitem
    *
    * @example
    * ```vue
@@ -193,7 +193,7 @@ export const Select = {
   /**
    * Placeholder text shown when no value is selected. Automatically hidden when a selection exists.
    *
-   * @see https://0.vuetifyjs.com/components/select#selectplaceholder
+   * @see https://0.vuetifyjs.com/components/forms/select#selectplaceholder
    *
    * @example
    * ```vue
