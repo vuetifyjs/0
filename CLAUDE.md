@@ -43,14 +43,15 @@ Vue 3 headless UI primitives and composables. Unstyled, logic-focused building b
 
 **Foundation**: `createContext`, `createTrinity`, `createPlugin`
 **Registry**: `createRegistry`, `useProxyRegistry`
-**Selection**: `createSelection`, `createSingle`, `createGroup`, `createStep`
+**Selection**: `createSelection`, `createSingle`, `createGroup`, `createStep`, `createModel`, `createNested`
 **Observers**: `useResizeObserver`, `useIntersectionObserver`, `useMutationObserver`
 **Events**: `useEventListener`, `useHotkey`, `useClickOutside`
-**Reactivity**: `useProxyModel`, `useToggleScope`, `toReactive`, `toArray`
-**Features**: `useFeatures`, `usePermissions`, `useTheme`, `useLocale`, `useLogger`
-**Data**: `useFilter`, `usePagination`, `useVirtual`, `useDate`, `createForm`, `createQueue`, `createTimeline`
-**Browser**: `useBreakpoints`, `useMediaQuery`, `useStorage`, `useHydration`, `useOverflow`, `useLazy`
-**Tokens**: `createTokens`
+**Reactivity**: `useProxyModel`, `useToggleScope`, `toReactive`, `toArray`, `toElement`
+**Plugins**: `useFeatures`, `usePermissions`, `useTheme`, `useLocale`, `useLogger`, `useNotifications`, `useRtl`, `useStack`, `useRules`
+**Data**: `createFilter`, `createPagination`, `createVirtual`, `useDate`, `createForm`, `createQueue`, `createTimeline`, `createTokens`
+**Browser**: `useBreakpoints`, `useMediaQuery`, `useStorage`, `useHydration`, `createOverflow`, `useLazy`, `usePopover`, `usePresence`, `useRaf`, `useTimer`
+**Forms**: `createValidation`, `createCombobox`, `createSlider`, `createInput`, `createNumeric`, `createRating`
+**Focus**: `useVirtualFocus`, `useRovingFocus`, `createFocusTraversal`, `createBreadcrumbs`
 
 ## Path Alias
 
