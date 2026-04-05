@@ -11,6 +11,7 @@ features:
   github: /composables/useProxyModel/
   level: 2
 related:
+  - /composables/selection/create-model
   - /composables/selection/create-selection
   - /composables/selection/create-single
 ---
