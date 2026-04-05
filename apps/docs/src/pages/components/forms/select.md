@@ -13,6 +13,7 @@ features:
   renderless: false
 related:
   - /composables/selection/create-selection
+  - /composables/selection/create-group
   - /composables/system/use-virtual-focus
   - /components/disclosure/popover
 ---
