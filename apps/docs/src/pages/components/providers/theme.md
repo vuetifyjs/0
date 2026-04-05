@@ -18,7 +18,7 @@ related:
 
 # Theme
 
-A headless component that scopes a theme to a subtree. Descendant `useTheme()` calls resolve to the specified theme without affecting the rest of the application.
+Scopes a theme to a component subtree for independently themed sections of your app.
 
 <DocsPageFeatures :frontmatter />
 

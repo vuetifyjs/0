@@ -17,7 +17,7 @@ related:
 
 # Locale
 
-A headless component that scopes a locale to a subtree. Descendant `useLocale()` calls resolve to the specified locale without affecting the rest of the application.
+Scopes a locale to a component subtree for localized sections of your app.
 
 <DocsPageFeatures :frontmatter />
 
