@@ -11,6 +11,7 @@ features:
   github: /composables/createValidation/
   level: 2
 related:
+  - /components/forms/input
   - /composables/forms/create-input
   - /composables/forms/create-form
   - /composables/plugins/use-rules
