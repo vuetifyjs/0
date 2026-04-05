@@ -12,7 +12,7 @@ features:
   level: 2
 related:
   - /composables/selection/create-selection
-  - /composables/utilities/use-virtual-focus
+  - /composables/system/use-virtual-focus
   - /components/forms/combobox
 ---
 
