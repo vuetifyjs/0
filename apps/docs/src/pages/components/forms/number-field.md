@@ -41,10 +41,13 @@ NumberField renders a spinbutton input with optional increment, decrement, and s
 <template>
   <NumberField.Root>
     <NumberField.Scrub />
+
     <NumberField.Description />
 
     <NumberField.Decrement />
+
     <NumberField.Input />
+
     <NumberField.Increment />
 
     <NumberField.Error />
