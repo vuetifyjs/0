@@ -66,6 +66,20 @@ Keyboard navigation for composite widgets where arrow keys move focus between it
 </template>
 ```
 
+## useRovingFocus vs useVirtualFocus
+
+Both manage keyboard navigation, but they use different focus strategies:
+
+| | `useRovingFocus` | `useVirtualFocus` |
+|-|------------------|-------------------|
+| **DOM focus** | Moves to each item | Stays on the control (e.g., `<input>`) |
+| **tabindex** | Managed per item | Not used |
+| **ARIA** | Items receive focus directly | `aria-activedescendant` on control |
+| **Use for** | Toolbars, menus, grids, tabs | Comboboxes, autocompletes, searchable selects |
+| **Keyboard pattern** | Items are real focusable elements | Items are virtual — only one DOM node has focus |
+
+Choose `useRovingFocus` when items are real interactive elements (buttons, links). Choose `useVirtualFocus` when a single input drives a list of options that aren't individually focusable.
+
 ## Architecture
 
 `useRovingFocus` builds on `useEventListener` for keydown handling. It is a standalone composable — not part of the registry/selection hierarchy — making it composable alongside `createSingle` or `createSelection` for widgets that separate focus from selection (e.g., listboxes, selects).
