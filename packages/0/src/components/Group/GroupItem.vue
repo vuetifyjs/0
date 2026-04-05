@@ -1,6 +1,8 @@
 /**
  * @module GroupItem
  *
+ * @see https://0.vuetifyjs.com/components/providers/group
+ *
  * @remarks
  * Item component for multi-selection groups. Registers with parent GroupRoot
  * and provides selection state and methods via scoped slot. Supports tri-state
