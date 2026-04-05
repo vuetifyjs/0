@@ -56,6 +56,11 @@ table.selection.toggle('user-1')
 /composables/create-data-table/basic/BasicTable.vue
 /composables/create-data-table/basic/columns.ts
 /composables/create-data-table/basic/data.ts
+
+### Basic Data Table
+
+A sortable, filterable, paginated table with row selection — wired entirely from `createDataTable`.
+
 :::
 
 ## Adapters
