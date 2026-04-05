@@ -18,7 +18,7 @@
 
 <template>
   <button
-    class="flex flex-col items-start gap-4 p-8 rounded-lg border bg-surface text-left transition-all min-h-64"
+    class="flex flex-col items-start gap-3 p-6 rounded-lg border bg-surface text-left transition-all min-h-80"
     :class="[
       locked
         ? 'opacity-60 cursor-not-allowed border-divider'
