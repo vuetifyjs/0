@@ -179,6 +179,7 @@
           :active="store.isSelected(feature.id)"
           :auto="!store.isSelected(feature.id) && store.resolved.autoIncluded.includes(feature.id)"
           :feature
+          :reason="store.resolved.reasons[feature.id]"
           @click="store.toggle(feature.id)"
         />
       </div>

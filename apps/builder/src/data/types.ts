@@ -32,6 +32,7 @@ export interface DependencyGraph {
 export interface ResolvedSet {
   selected: string[]
   autoIncluded: string[]
+  reasons: Record<string, string>
   warnings: Warning[]
 }
 
