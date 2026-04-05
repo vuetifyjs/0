@@ -88,4 +88,15 @@ All properties are `Readonly<ShallowRef>` and update when the root component mou
 | `isHydrated` | `ShallowRef<boolean>` | True after root component mounts |
 | `isSettled` | `ShallowRef<boolean>` | True after next tick post-hydration |
 
+## Examples
+
+::: example
+/composables/use-hydration/hydration-state
+
+### Hydration State
+
+Displays the live `isHydrated` and `isSettled` states as the component mounts and the next tick resolves, illustrating the SSR hydration lifecycle.
+
+:::
+
 <DocsApi />

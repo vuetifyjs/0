@@ -84,4 +84,15 @@ flowchart TD
 | `contentAttrs` | <AppSuccessIcon /> | Readonly Ref, `id` and `popover` attribute for the content element |
 | `contentStyles` | <AppSuccessIcon /> | Readonly Ref, CSS anchor positioning styles for the content element |
 
+## Examples
+
+::: example
+/composables/use-popover/anchor-positioning
+
+### CSS Anchor Positioning
+
+A popover positioned relative to its trigger using the native Popover API and CSS anchor positioning, demonstrating `anchorStyles`, `contentAttrs`, and `contentStyles`.
+
+:::
+
 <DocsApi />

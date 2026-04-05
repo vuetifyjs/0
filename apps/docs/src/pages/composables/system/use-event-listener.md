@@ -88,4 +88,15 @@ flowchart LR
 > [!TIP] Reactive inputs
 > All parameters accept reactive values. When any input changes, listeners are automatically re-registered.
 
+## Examples
+
+::: example
+/composables/use-event-listener/mouse-tracker
+
+### Mouse Tracker
+
+Tracks real-time mouse coordinates within a bounded element using `useEventListener`, with automatic cleanup on unmount.
+
+:::
+
 <DocsApi />
