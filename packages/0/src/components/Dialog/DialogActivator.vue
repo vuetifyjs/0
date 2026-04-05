@@ -1,6 +1,8 @@
 /**
  * @module DialogActivator
  *
+ * @see https://0.vuetifyjs.com/components/disclosure/dialog
+ *
  * @remarks
  * Trigger component for dialogs. Provides the element that opens
  * the dialog when clicked. Automatically handles click events
