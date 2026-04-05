@@ -97,12 +97,14 @@ Adapters let you swap the underlying CSS injection strategy without changing you
 
 ```mermaid "Theme Hierarchy"
 flowchart TD
-  createRegistry --> createSelection
+  createRegistry --> createModel
+  createModel --> createSelection
   createSelection --> createSingle
   createSingle --> useTheme
   createTokens --> useTheme
   useTheme --> Adapter[ThemeAdapter]
   Adapter --> CSS[CSS Variables]
+  Adapter --> Attr["data-theme attribute"]
 ```
 
 ## Reactivity
