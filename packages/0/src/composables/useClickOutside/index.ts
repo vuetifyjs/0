@@ -8,6 +8,7 @@
  *
  * Key features:
  * - Two-phase detection (pointerdown → pointerup) prevents drag-out false positives
+ * - `bounds` mode: coordinate-based detection for native `<dialog>` backdrop clicks
  * - Touch scroll threshold ignores swipes/scrolls on mobile
  * - Capture phase listeners work with stopPropagation
  * - Pause/resume/stop functionality
