@@ -1,6 +1,8 @@
 /**
  * @module createVirtual
  *
+ * @see https://0.vuetifyjs.com/composables/data/create-virtual
+ *
  * @remarks
  * Virtual scrolling composable for efficiently rendering large lists.
  *
