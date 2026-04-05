@@ -122,7 +122,7 @@ export interface StepContextOptions extends SingleContextOptions {
  * - Perfect for pagination, wizards with explicit completion, forms
  *
  * **Inheritance Chain:**
- * `useRegistry` → `createSelection` → `createSingle` → `createStep`
+ * `createRegistry` → `createSelection` → `createSingle` → `createStep`
  *
  * @see https://0.vuetifyjs.com/composables/selection/use-step
  *
