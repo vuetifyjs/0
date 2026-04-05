@@ -123,7 +123,7 @@ export interface RegistryContext<
    *
    * @remarks Removes all tickets from the registry. This operation invalidates cached results from `keys()`, `values()`, and `entries()`.
    *
-   * @see https://0.vuetifyjs.com/composables/registration/use-registry#clear
+   * @see https://0.vuetifyjs.com/composables/registration/create-registry#clear
    *
    * @example
    * ```ts
@@ -148,7 +148,7 @@ export interface RegistryContext<
    * @param id The ID of the ticket to check.
    * @remarks Calls `collection.has` internally.
    *
-   * @see https://0.vuetifyjs.com/composables/registration/use-registry#has
+   * @see https://0.vuetifyjs.com/composables/registration/create-registry#has
    *
    * @example
    * ```ts
@@ -167,7 +167,7 @@ export interface RegistryContext<
    *
    * @remarks Calls `collection.keys` internally with caching. First call is O(n), subsequent calls are O(1) until cache invalidation.
    *
-   * @see https://0.vuetifyjs.com/composables/registration/use-registry#keys
+   * @see https://0.vuetifyjs.com/composables/registration/create-registry#keys
    *
    * @example
    * ```ts
@@ -188,7 +188,7 @@ export interface RegistryContext<
    * @param value The value to browse for.
    * @remarks Returns an array of IDs that share the given value, or undefined if no match is found.
    *
-   * @see https://0.vuetifyjs.com/composables/registration/use-registry#browse
+   * @see https://0.vuetifyjs.com/composables/registration/create-registry#browse
    *
    * @example
    * ```ts
@@ -211,7 +211,7 @@ export interface RegistryContext<
    * @param index The index number to lookup.
    * @remarks Maps do not support indexing by default, this method provides a way to retrieve an ID based on its index in the registry.
    *
-   * @see https://0.vuetifyjs.com/composables/registration/use-registry#lookup
+   * @see https://0.vuetifyjs.com/composables/registration/create-registry#lookup
    *
    * @example
    * ```ts
@@ -231,7 +231,7 @@ export interface RegistryContext<
    * @param id The ID of the ticket to retrieve.
    * @remarks Calls `collection.get` internally.
    *
-   * @see https://0.vuetifyjs.com/composables/registration/use-registry#get
+   * @see https://0.vuetifyjs.com/composables/registration/create-registry#get
    *
    * @example
    * ```ts
@@ -252,7 +252,7 @@ export interface RegistryContext<
    * @param ticket The partial ticket data to update or insert.
    * @remarks If the ticket exists, it will be updated with the provided data. If it doesn't exist, a new ticket will be created with the given ID and data. This operation invalidates cached results from `keys()`, `values()`, and `entries()`.
    *
-   * @see https://0.vuetifyjs.com/composables/registration/use-registry#upsert
+   * @see https://0.vuetifyjs.com/composables/registration/create-registry#upsert
    *
    * @example
    * ```ts
@@ -273,7 +273,7 @@ export interface RegistryContext<
    *
    * @remarks Calls `collection.values` internally with caching. First call is O(n), subsequent calls are O(1) until cache invalidation.
    *
-   * @see https://0.vuetifyjs.com/composables/registration/use-registry#values
+   * @see https://0.vuetifyjs.com/composables/registration/create-registry#values
    *
    * @example
    * ```ts
@@ -293,7 +293,7 @@ export interface RegistryContext<
    *
    * @remarks Calls `collection.entries` internally with caching. First call is O(n), subsequent calls are O(1) until cache invalidation.
    *
-   * @see https://0.vuetifyjs.com/composables/registration/use-registry#entries
+   * @see https://0.vuetifyjs.com/composables/registration/create-registry#entries
    *
    * @example
    * ```ts
@@ -314,7 +314,7 @@ export interface RegistryContext<
    * @param ticket The partial ticket data to register.
    * @remarks If no ID is provided, a unique ID will be generated automatically. If no value is provided, it defaults to the ticket's index. This operation invalidates cached results from `keys()`, `values()`, and `entries()`.
    *
-   * @see https://0.vuetifyjs.com/composables/registration/use-registry#register
+   * @see https://0.vuetifyjs.com/composables/registration/create-registry#register
    *
    * @example
    * ```ts
@@ -334,7 +334,7 @@ export interface RegistryContext<
    * @param id The ID of the ticket to unregister.
    * @remarks Removes the ticket from the registry and reindexes the remaining tickets. This operation invalidates cached results from `keys()`, `values()`, and `entries()`.
    *
-   * @see https://0.vuetifyjs.com/composables/registration/use-registry#unregister
+   * @see https://0.vuetifyjs.com/composables/registration/create-registry#unregister
    *
    * @example
    * ```ts
@@ -353,7 +353,7 @@ export interface RegistryContext<
    *
    * @remarks Rebuilds the internal index mapping and ensures all tickets have correct index values. This operation invalidates cached results from `keys()`, `values()`, and `entries()`.
    *
-   * @see https://0.vuetifyjs.com/composables/registration/use-registry#reindex
+   * @see https://0.vuetifyjs.com/composables/registration/create-registry#reindex
    *
    * @example
    * ```ts
@@ -377,7 +377,7 @@ export interface RegistryContext<
    * @param predicate An optional function to test each ticket. The first ticket that satisfies the predicate will be returned.
    * @remarks This method allows for flexible searching within the registry, either from the start or end, and can filter tickets based on custom criteria.
    *
-   * @see https://0.vuetifyjs.com/composables/registration/use-registry#seek
+   * @see https://0.vuetifyjs.com/composables/registration/create-registry#seek
    *
    * @example
    * ```ts
@@ -446,7 +446,7 @@ export interface RegistryContext<
    * - `clear:registry` - Emitted when the registry is cleared
    * - `reindex:registry` - Emitted when the registry is reindexed
    *
-   * @see https://0.vuetifyjs.com/composables/registration/use-registry#on
+   * @see https://0.vuetifyjs.com/composables/registration/create-registry#on
    *
    * @example
    * ```ts
@@ -469,7 +469,7 @@ export interface RegistryContext<
    * @param cb The callback function to remove.
    * @remarks Must be enabled via the `events` option when creating the registry.
    *
-   * @see https://0.vuetifyjs.com/composables/registration/use-registry#off
+   * @see https://0.vuetifyjs.com/composables/registration/create-registry#off
    *
    * @example
    * ```ts
@@ -499,7 +499,7 @@ export interface RegistryContext<
    * @param data The data to pass to event listeners.
    * @remarks Must be enabled via the `events` option when creating the registry.
    *
-   * @see https://0.vuetifyjs.com/composables/registration/use-registry#emit
+   * @see https://0.vuetifyjs.com/composables/registration/create-registry#emit
    *
    * @example
    * ```ts
@@ -520,7 +520,7 @@ export interface RegistryContext<
    *
    * @remarks Disposes of the registry by clearing all tickets and removing all event listeners.
    *
-   * @see https://0.vuetifyjs.com/composables/registration/use-registry#dispose
+   * @see https://0.vuetifyjs.com/composables/registration/create-registry#dispose
    *
    * @example
    * ```ts
@@ -543,7 +543,7 @@ export interface RegistryContext<
    * @param registrations An array of partial ticket data to register.
    * @remarks Registers multiple tickets in a single operation and returns the array of registered tickets.
    *
-   * @see https://0.vuetifyjs.com/composables/registration/use-registry#onboard
+   * @see https://0.vuetifyjs.com/composables/registration/create-registry#onboard
    *
    * @example
    * ```ts
@@ -566,7 +566,7 @@ export interface RegistryContext<
    * @param ids An array of ticket IDs to unregister.
    * @remarks Unregisters multiple tickets in a single operation with optimized reindexing.
    *
-   * @see https://0.vuetifyjs.com/composables/registration/use-registry#offboard
+   * @see https://0.vuetifyjs.com/composables/registration/create-registry#offboard
    *
    * @example
    * ```ts
@@ -591,7 +591,7 @@ export interface RegistryContext<
    *
    * @remarks Reflects the current size of the internal ticket collection.
    *
-   * @see https://0.vuetifyjs.com/composables/registration/use-registry#size
+   * @see https://0.vuetifyjs.com/composables/registration/create-registry#size
    *
    * @example
    * ```ts
@@ -613,7 +613,7 @@ export interface RegistryContext<
    * @returns The return value of the batch function.
    * @remarks Useful for bulk operations like onboard(). Invalidation and events happen once at the end, not after each operation.
    *
-   * @see https://0.vuetifyjs.com/composables/registration/use-registry#batch
+   * @see https://0.vuetifyjs.com/composables/registration/create-registry#batch
    *
    * @example
    * ```ts
