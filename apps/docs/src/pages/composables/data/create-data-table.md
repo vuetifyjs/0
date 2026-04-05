@@ -63,6 +63,31 @@ A sortable, filterable, paginated table with row selection — wired entirely fr
 
 :::
 
+## Context / DI
+
+Use `createDataTableContext` to share a data table instance across a component tree:
+
+```ts
+import { createDataTableContext } from '@vuetify/v0'
+
+const [useUsersTable, provideUsersTable, usersTable] =
+  createDataTableContext({
+    namespace: 'app:users',
+    items: users,
+    columns: [
+      { key: 'name', title: 'Name', sortable: true },
+      { key: 'email', title: 'Email' },
+    ],
+  })
+
+// In parent component
+provideUsersTable()
+
+// In child component (e.g., a toolbar or pagination control)
+const table = useUsersTable()
+table.sort('name', 'asc')
+```
+
 ## Adapters
 
 Adapters control the data pipeline strategy. Pass one via the `adapter` option.
