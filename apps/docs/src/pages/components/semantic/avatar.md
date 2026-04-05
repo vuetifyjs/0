@@ -27,6 +27,11 @@ The Avatar component provides a robust image loading system with automatic fallb
 
 ::: example
 /components/avatar/basic
+
+### Image and Fallback
+
+Two avatars showing successful image loading and graceful fallback to initials when the image fails.
+
 :::
 
 ## Anatomy
