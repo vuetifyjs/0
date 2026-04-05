@@ -4,7 +4,7 @@ meta:
 - name: description
   content: Lightweight composable for pagination state. Includes navigation methods (first, last, next, prev), computed visible pages, and v-model binding for Vue 3.
 - name: keywords
-  content: createPagination, pagination, navigation, composable, Vue 3, pages, page state, goto
+  content: createPagination, pagination, navigation, composable, Vue 3, pages, page state, select
 features:
   category: Composable
   label: 'E: createPagination'
