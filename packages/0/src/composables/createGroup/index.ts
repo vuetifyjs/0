@@ -151,7 +151,7 @@ export interface GroupContextOptions extends SelectionContextOptions {}
  * **Used By:**
  * - `createFeatures` for feature flag management with multiple selections
  *
- * @see https://0.vuetifyjs.com/composables/selection/use-group
+ * @see https://0.vuetifyjs.com/composables/selection/create-group
  *
  * @example
  * ```ts
@@ -360,7 +360,7 @@ export function createGroup<
  * @template R The context type.
  * @returns A new group context.
  *
- * @see https://0.vuetifyjs.com/composables/selection/use-group
+ * @see https://0.vuetifyjs.com/composables/selection/create-group
  *
  * @example
  * ```ts
@@ -404,7 +404,7 @@ export function createGroupContext<
  * @template R The context type.
  * @returns The current group instance.
  *
- * @see https://0.vuetifyjs.com/composables/selection/use-group
+ * @see https://0.vuetifyjs.com/composables/selection/create-group
  *
  * @example
  * ```vue
