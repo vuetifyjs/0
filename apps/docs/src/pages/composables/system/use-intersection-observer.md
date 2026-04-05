@@ -67,6 +67,12 @@ flowchart TD
   useIntersectionObserver --> Animations["Entrance Animations"]
 ```
 
+## Options
+
+| Option | Type | Default | Notes |
+| - | - | - | - |
+| `once` | `boolean` | `false` | Stop observing after the first intersection fires |
+
 ## Reactivity
 
 | Property/Method | Reactive | Notes |
