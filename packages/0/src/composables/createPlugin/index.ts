@@ -48,7 +48,7 @@ function getInstalled (app: App): Set<string> {
  * @param options The plugin options.
  * @returns A new Vue plugin.
  *
- * @see https://0.vuetifyjs.com/composables/foundation/create-plugin#create-plugin
+ * @see https://0.vuetifyjs.com/composables/foundation/create-plugin
  *
  * @example
  * ```ts
