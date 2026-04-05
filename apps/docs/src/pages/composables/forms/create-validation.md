@@ -177,4 +177,24 @@ Context-level state is fully reactive. Rule tickets inherit selection reactivity
 | `selectedIds` | <AppSuccessIcon /> | Reactive Set of active rule IDs |
 | `ticket.isSelected` | <AppSuccessIcon /> | Ref boolean per rule |
 
+## Examples
+
+::: example
+/composables/create-validation/async-validation
+
+### Async Validation
+
+Username availability check with async rules and generation-based race safety. Demonstrates `isValidating` spinner, error display, and tri-state `isValid`.
+
+:::
+
+::: example
+/composables/create-validation/toggle-rules
+
+### Enabling and Disabling Rules
+
+Toggle individual validation rules on/off at runtime using the selection API inherited from `createGroup`.
+
+:::
+
 <DocsApi />

@@ -221,4 +221,15 @@ const combobox = useCombobox('my-combobox')
 
 `useCombobox(namespace?)` injects the nearest combobox context (default namespace: `'v0:combobox'`).
 
+## Examples
+
+::: example
+/composables/create-combobox/basic
+
+### Basic Combobox
+
+A filterable fruit picker demonstrating keyboard navigation (arrow keys, Enter, Escape), virtual focus for highlighting, query-driven filtering, and ARIA combobox attributes.
+
+:::
+
 <DocsApi />
