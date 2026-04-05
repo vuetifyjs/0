@@ -13,13 +13,13 @@ import Root from './SingleRoot.vue'
 /**
  * Single component with sub-components for building single-selection interfaces.
  *
- * @see https://0.vuetifyjs.com/components/single
+ * @see https://0.vuetifyjs.com/components/providers/single
  */
 export const Single = {
   /**
    * Root component for single-selection. Only one item can be selected at a time.
    *
-   * @see https://0.vuetifyjs.com/components/single#singleroot
+   * @see https://0.vuetifyjs.com/components/providers/single#singleroot
    *
    * @example
    * ```vue
@@ -44,7 +44,7 @@ export const Single = {
   /**
    * Component representing a selectable item within Single.Root.
    *
-   * @see https://0.vuetifyjs.com/components/single#singleitem
+   * @see https://0.vuetifyjs.com/components/providers/single#singleitem
    *
    * @example
    * ```vue
