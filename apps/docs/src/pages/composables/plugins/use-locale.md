@@ -11,6 +11,7 @@ features:
   github: /composables/useLocale/
   level: 2
 related:
+  - /components/providers/locale
   - /guide/features/accessibility
 ---
 
