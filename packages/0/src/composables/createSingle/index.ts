@@ -1,15 +1,15 @@
 /**
- * @module useSingle
+ * @module createSingle
  *
  * @remarks
- * Single-selection composable that extends useSelection to enforce only one selected item.
+ * Single-selection composable that extends createSelection to enforce only one selected item.
  *
  * Key features:
  * - Auto-clears previous selection when selecting new item
  * - Singular computed properties (selectedId, selectedItem, selectedIndex, selectedValue)
  * - Perfect for tabs, radio buttons, theme selectors
  *
- * Inheritance chain: useRegistry → useSelection → useSingle
+ * Inheritance chain: createRegistry → createSelection → createSingle
  */
 
 // Composables
