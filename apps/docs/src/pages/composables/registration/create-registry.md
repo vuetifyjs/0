@@ -110,6 +110,18 @@ Each branch extends the base ticket pattern with domain-specific capabilities. S
 
 `createRegistry` uses **minimal reactivity by default** for performance. Collection methods are not reactive unless you opt in.
 
+| Method | Notes |
+| - | - |
+| `register(ticket)` | Add a ticket to the registry |
+| `unregister(id)` | Remove a ticket by ID |
+| `upsert(id, partial)` | Register or update a ticket |
+| `move(id, index)` | Reorder a ticket to a new index position |
+| `onboard(tickets)` | Batch-register an array of tickets |
+| `offboard(ids)` | Batch-unregister an array of IDs |
+| `get(id)` | Retrieve a ticket by ID |
+| `browse(value)` | Reverse-lookup — find ticket ID(s) by value |
+| `lookup(index)` | Find ticket ID by zero-based index |
+
 > [!TIP] Need reactive collections?
 > Wrap with `useProxyRegistry(registry)` for full template reactivity, or pass `reactive: true` when creating the registry.
 
