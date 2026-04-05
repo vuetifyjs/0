@@ -544,7 +544,7 @@ export interface RegistryContext<
    * @param registrations An array of partial ticket data to register.
    * @remarks Registers multiple tickets in a single operation and returns the array of registered tickets.
    *
-   * @see https://0.vuetifyjs.com/composables/registration/create-registryboard
+   * @see https://0.vuetifyjs.com/composables/registration/create-registry
    *
    * @example
    * ```ts
@@ -567,7 +567,7 @@ export interface RegistryContext<
    * @param ids An array of ticket IDs to unregister.
    * @remarks Unregisters multiple tickets in a single operation with optimized reindexing.
    *
-   * @see https://0.vuetifyjs.com/composables/registration/create-registryboard
+   * @see https://0.vuetifyjs.com/composables/registration/create-registry
    *
    * @example
    * ```ts
@@ -1161,7 +1161,7 @@ export function createRegistry<
  * @template E The type of registry context that extends RegistryContext<Z>. Use this when extending the registry with additional methods.
  * @returns A new registry context.
  *
- * @see https://0.vuetifyjs.com/composables/registration/create-registry-context
+ * @see https://0.vuetifyjs.com/composables/registration/create-registry
  *
  * @example
  * ```ts
