@@ -28,6 +28,11 @@ A single snackbar — render directly when you control the lifecycle yourself.
 
 ::: example
 /components/snackbar/basic
+
+### Single Snackbar
+
+A single snackbar with show/dismiss controls and a success status message.
+
 :::
 
 ## Anatomy
@@ -70,6 +75,11 @@ A single snackbar — render directly when you control the lifecycle yourself.
 
 ::: example
 /components/snackbar/queue
+
+### Notification Queue
+
+Queued toasts cycling through info, success, warning, and error severity with stacking behavior.
+
 :::
 
 ## Recipes
