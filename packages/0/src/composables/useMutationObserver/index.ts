@@ -1,6 +1,8 @@
 /**
  * @module useMutationObserver
  *
+ * @see https://0.vuetifyjs.com/composables/system/use-mutation-observer
+ *
  * @remarks
  * MutationObserver composable with lifecycle management.
  *
