@@ -1,5 +1,5 @@
 /**
- * @module useSelection
+ * @module createSelection
  *
  * @remarks
  * Selection composable that extends createModel with multi-select,
@@ -14,7 +14,7 @@
  * - Computed selectedItems and selectedValues Sets
  * - Ticket self-methods: select(), unselect(), toggle()
  *
- * Extends createModel and serves as the base for useSingle, useGroup, useStep, and useFeatures.
+ * Extends createModel and serves as the base for createSingle, createGroup, createStep, and useFeatures.
  */
 
 // Composables
