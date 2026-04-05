@@ -17,7 +17,7 @@ related:
 
 # createGroup
 
-The `createGroup` composable is designed to manage a group of related components, allowing for shared state and behavior across them. It supports tri-state (mixed/indeterminate) for checkbox trees and similar use cases where items can be selected, unselected, or in a mixed state.
+Multi-selection with tri-state (mixed/indeterminate) support for checkbox trees, grouped toggles, and any pattern where items can be partially selected.
 
 <DocsPageFeatures :frontmatter />
 
