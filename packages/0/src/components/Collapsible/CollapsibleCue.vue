@@ -1,6 +1,8 @@
 /**
  * @module CollapsibleCue
  *
+ * @see https://0.vuetifyjs.com/components/disclosure/collapsible
+ *
  * @remarks
  * Visual cue for open/close state. Typically a chevron icon that rotates
  * when the collapsible opens. Exposes `data-state="open|closed"` for

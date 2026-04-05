@@ -1,6 +1,8 @@
 /**
  * @module CollapsibleActivator
  *
+ * @see https://0.vuetifyjs.com/components/disclosure/collapsible
+ *
  * @remarks
  * Toggle button for a collapsible disclosure. Consumes the CollapsibleContext
  * via dependency injection and provides complete ARIA attributes and keyboard

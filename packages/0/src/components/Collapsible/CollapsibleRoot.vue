@@ -1,6 +1,8 @@
 /**
  * @module CollapsibleRoot
  *
+ * @see https://0.vuetifyjs.com/components/disclosure/collapsible
+ *
  * @remarks
  * Root component for a collapsible disclosure. Creates and provides context
  * to child Collapsible components. Manages open/closed state via v-model binding.
