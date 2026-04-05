@@ -14,8 +14,8 @@
  * - Perfect for A/B testing, progressive rollout, feature toggles
  * - Adapter pattern for external feature flag services
  *
- * Inheritance chain: useRegistry → createSelection → createGroup → createFeatures
- * Integrates with useTokens for token-based features.
+ * Inheritance chain: createRegistry → createSelection → createGroup → createFeatures
+ * Integrates with createTokens for token-based features.
  */
 
 // Composables
