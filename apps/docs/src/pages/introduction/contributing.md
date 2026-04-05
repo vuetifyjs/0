@@ -202,7 +202,7 @@ test(useForm): add validation edge cases
 - Use `describe` blocks to organize related tests
 
 ```ts
-describe('useSelection', () => {
+describe('createSelection', () => {
   it('should select an item', () => {
     // ...
   })
