@@ -22,7 +22,7 @@ import { clamp, isNullOrUndefined, isObject, isUndefined } from '#v0/utilities'
 import { computed, isRef, shallowRef, toRef, toValue } from 'vue'
 
 // Types
-import type { ModelContext, ModelOptions, ModelTicket, ModelTicketInput } from '#v0/composables/createModel'
+import type { ModelContext, ModelTicket, ModelTicketInput } from '#v0/composables/createModel'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { App, ComputedRef, ShallowRef } from 'vue'
 
@@ -30,28 +30,26 @@ export interface ProgressTicketInput extends ModelTicketInput<ShallowRef<number>
   value: ShallowRef<number>
 }
 
-export type ProgressTicket = ModelTicket<ProgressTicketInput>
+export interface ProgressOptions {
+  value?: number
+  min?: number
+  max?: number
+}
 
 export interface ProgressContext extends Omit<
-  ModelContext<ProgressTicketInput, ProgressTicket>,
+  ModelContext<ProgressTicketInput, ModelTicket<ProgressTicketInput>>,
   'selectedValues' | 'apply' | 'register'
 > {
   readonly min: number
   readonly max: number
-  segments: ComputedRef<ProgressTicket[]>
+  segments: ComputedRef<ModelTicket<ProgressTicketInput>[]>
   selectedValues: ComputedRef<number[]>
   total: ComputedRef<number>
   percent: ComputedRef<number>
   isIndeterminate: ComputedRef<boolean>
   fromValue: (value: number) => number
   apply: (values: unknown[], options?: { multiple?: boolean }) => void
-  register: (input?: number | { value: number }) => ProgressTicket
-}
-
-export interface ProgressOptions extends ModelOptions {
-  value?: number
-  min?: number
-  max?: number
+  register: (input?: number | { value: number }) => ModelTicket<ProgressTicketInput>
 }
 
 export interface ProgressContextOptions extends ProgressOptions {
@@ -73,21 +71,17 @@ export interface ProgressContextOptions extends ProgressOptions {
  * progress.percent.value // 50
  * ```
  */
-export function createProgress<
-  P extends ProgressContext = ProgressContext,
-> (_options: ProgressOptions = {}): P {
+export function createProgress (options: ProgressOptions = {}): ProgressContext {
   const {
     value: _value,
     min = 0,
     max = 100,
-    ...options
-  } = _options
+  } = options
 
   const _hasInitialValue = !isNullOrUndefined(_value)
   const extent = max - min
 
-  const model = createModel<ProgressTicketInput, ProgressTicket>({
-    ...options,
+  const model = createModel<ProgressTicketInput, ModelTicket<ProgressTicketInput>>({
     multiple: true,
     events: true,
   })
@@ -134,7 +128,7 @@ export function createProgress<
     return (clamp(value, 0, extent) / extent) * 100
   }
 
-  function register (input?: number | { value: number }): ProgressTicket {
+  function register (input?: number | { value: number }): ModelTicket<ProgressTicketInput> {
     const initialValue = isObject(input) ? input.value : input
     const index = segments.value.length
     const pendingValue = pending?.[index]
@@ -186,7 +180,7 @@ export function createProgress<
     get max () {
       return max
     },
-  } as unknown as P
+  } as unknown as ProgressContext
 }
 
 /**
@@ -195,18 +189,16 @@ export function createProgress<
  * @param options The options including namespace.
  * @returns A trinity: [useProgress, provideProgress, defaultContext]
  */
-export function createProgressContext<
-  P extends ProgressContext = ProgressContext,
-> (_options: ProgressContextOptions = {}): ContextTrinity<P> {
+export function createProgressContext (_options: ProgressContextOptions = {}): ContextTrinity<ProgressContext> {
   const { namespace = 'v0:progress', ...options } = _options
-  const [useProgressContext, _provideProgressContext] = createContext<P>(namespace)
-  const context = createProgress<P>(options)
+  const [use, _provide] = createContext<ProgressContext>(namespace)
+  const context = createProgress(options)
 
-  function provideProgressContext (_context: P = context, app?: App): P {
-    return _provideProgressContext(_context, app)
+  function provide (_context: ProgressContext = context, app?: App): ProgressContext {
+    return _provide(_context, app)
   }
 
-  return createTrinity<P>(useProgressContext, provideProgressContext, context)
+  return createTrinity<ProgressContext>(use, provide, context)
 }
 
 /**
@@ -215,8 +207,6 @@ export function createProgressContext<
  * @param namespace The namespace. @default 'v0:progress'
  * @returns The progress context.
  */
-export function useProgress<
-  P extends ProgressContext = ProgressContext,
-> (namespace = 'v0:progress'): P {
-  return useContext<P>(namespace)
+export function useProgress (namespace = 'v0:progress'): ProgressContext {
+  return useContext<ProgressContext>(namespace)
 }

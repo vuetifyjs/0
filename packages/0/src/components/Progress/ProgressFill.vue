@@ -64,7 +64,7 @@
   })
 
   onUnmounted(() => {
-    root.unregister(ticket.id)
+    ticket.unregister()
   })
 
   const current = toRef(() => toValue(ticket.value) as number)

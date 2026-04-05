@@ -18,12 +18,13 @@
   import { useProxyModel } from '#v0/composables/useProxyModel'
 
   // Utilities
-  import { isArray, isNullOrUndefined, isUndefined, useId } from '#v0/utilities'
+  import { isArray, isNullOrUndefined, useId } from '#v0/utilities'
   import { computed, mergeProps, toRef, useAttrs } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
-  import type { ProgressContext, ProgressTicket } from '#v0/composables/createProgress'
+  import type { ModelTicket } from '#v0/composables/createModel'
+  import type { ProgressContext, ProgressTicketInput } from '#v0/composables/createProgress'
 
   export interface ProgressRootContext extends ProgressContext {
     readonly id: string
@@ -45,7 +46,7 @@
     total: number
     percent: number
     isIndeterminate: boolean
-    segments: readonly ProgressTicket[]
+    segments: readonly ModelTicket<ProgressTicketInput>[]
     attrs: {
       'role': 'progressbar'
       'aria-valuenow': number | undefined
@@ -82,7 +83,7 @@
   } = defineProps<ProgressRootProps>()
 
   const model = defineModel<number | number[]>()
-  const scalar = !isArray(model.value) && !isUndefined(model.value) && !isNullOrUndefined(model.value)
+  const scalar = !isArray(model.value) && !isNullOrUndefined(model.value)
 
   const internal = computed({
     get: () => {
