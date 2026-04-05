@@ -89,7 +89,7 @@ export interface SingleContextOptions extends SelectionContextOptions {}
  * **Inheritance Chain:**
  * `createRegistry` → `createSelection` → `createSingle` → `createStep`
  *
- * @see https://0.vuetifyjs.com/composables/selection/use-single
+ * @see https://0.vuetifyjs.com/composables/selection/create-single
  *
  * @example
  * ```ts
@@ -170,7 +170,7 @@ export function createSingle<
  * @template R The context type.
  * @returns A new single selection context.
  *
- * @see https://0.vuetifyjs.com/composables/selection/use-single
+ * @see https://0.vuetifyjs.com/composables/selection/create-single
  *
  * @example
  * ```ts
@@ -212,7 +212,7 @@ export function createSingleContext<
  * @template R The context type.
  * @returns The current single selection instance.
  *
- * @see https://0.vuetifyjs.com/composables/selection/use-single
+ * @see https://0.vuetifyjs.com/composables/selection/create-single
  *
  * @example
  * ```vue
