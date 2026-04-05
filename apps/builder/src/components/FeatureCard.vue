@@ -51,12 +51,19 @@
         </svg>
       </template>
       <template v-else-if="active">
-        <svg class="w-5 h-5 text-primary" viewBox="0 0 20 20">
-          <circle cx="10" cy="10" fill="currentColor" r="10" />
+        <svg class="w-5 h-5" viewBox="0 0 20 20">
+          <circle
+            class="text-primary"
+            cx="10"
+            cy="10"
+            fill="currentColor"
+            r="10"
+          />
           <path
+            class="text-on-primary"
             d="M6 10l3 3 5-5"
             fill="none"
-            stroke="white"
+            stroke="currentColor"
             stroke-linecap="round"
             stroke-linejoin="round"
             stroke-width="2"
@@ -83,7 +90,7 @@
           {{ feature.maturity }}
         </span>
         <span v-if="auto && !active" class="text-xs text-on-surface-variant">
-          required by {{ reason ?? 'another feature' }}
+          needed by {{ reason ?? 'another feature' }}
         </span>
       </div>
 
@@ -92,14 +99,8 @@
       </p>
 
       <p v-if="feature.useCases.length > 0" class="text-xs text-on-surface-variant/70 mt-1">
-        {{ feature.useCases.join(' &middot; ') }}
+        Build: {{ feature.useCases.join(', ') }}
       </p>
-
-      <!-- Code example shown when selected -->
-      <pre
-        v-if="active && feature.example"
-        class="bg-surface-variant/50 rounded-lg p-3 text-xs font-mono text-on-surface mt-2 overflow-x-auto"
-      >{{ feature.example }}</pre>
     </div>
   </button>
 </template>
