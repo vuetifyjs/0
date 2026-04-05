@@ -136,7 +136,7 @@ export interface SelectionContextOptions extends SelectionOptions {
  *
  * @remarks
  * **Key Features:**
- * - Multi-selection support (unlike `useSingle` which enforces single selection)
+ * - Multi-selection support (unlike `createSingle` which enforces single selection)
  * - Set-based `selectedIds` tracking for efficient lookups
  * - Computed `selectedItems` and `selectedValues` for reactive access
  * - Each ticket gets `isSelected`, `select()`, `unselect()`, and `toggle()` methods
