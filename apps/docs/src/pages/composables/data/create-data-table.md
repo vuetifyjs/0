@@ -18,7 +18,7 @@ related:
 
 # createDataTable
 
-A composable data table that composes v0 primitives into a complete data pipeline with sorting, filtering, pagination, selection, expansion, and grouping.
+Composable data table built on v0 primitives. Composes sorting, filtering, pagination, selection, and expansion into a single pipeline.
 
 <DocsPageFeatures :frontmatter />
 
