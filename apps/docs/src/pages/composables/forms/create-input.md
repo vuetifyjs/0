@@ -118,6 +118,17 @@ createInput<ID | ID[]>({
 })
 ```
 
+## Examples
+
+::: example
+/composables/create-input/basic
+
+### Text Field with State Tracking
+
+A minimal text field built on `createInput`, showing all six reactive field states — `isDirty`, `isPristine`, `isTouched`, `isFocused`, `isValid`, and `state` — updating live as you type, focus, and blur.
+
+:::
+
 ::: faq
 
 ??? Why doesn't createInput handle events like blur or input?
