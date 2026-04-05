@@ -35,7 +35,7 @@ export const Breadcrumbs = {
    * Root component for breadcrumb navigation.
    * Creates breadcrumbs composable + Group + Overflow context.
    *
-   * @see https://0.vuetifyjs.com/components/semantic/breadcrumbs#breadcrumbsroot
+   * @see https://0.vuetifyjs.com/components/semantic/breadcrumbs
    *
    * @example
    * ```vue
@@ -73,7 +73,7 @@ export const Breadcrumbs = {
    * Semantic list wrapper for breadcrumb items.
    * Renders as an ordered list with role="list".
    *
-   * @see https://0.vuetifyjs.com/components/semantic/breadcrumbs#breadcrumbslist
+   * @see https://0.vuetifyjs.com/components/semantic/breadcrumbs
    *
    * @example
    * ```vue
@@ -89,7 +89,7 @@ export const Breadcrumbs = {
    * Individual breadcrumb item. Registers with root and
    * self-measures for overflow visibility.
    *
-   * @see https://0.vuetifyjs.com/components/semantic/breadcrumbs#breadcrumbsitem
+   * @see https://0.vuetifyjs.com/components/semantic/breadcrumbs
    *
    * @example
    * ```vue
@@ -116,7 +116,7 @@ export const Breadcrumbs = {
    * Navigable breadcrumb link. Renders as an anchor by default.
    * All attributes (href, to, etc.) fall through to the underlying element.
    *
-   * @see https://0.vuetifyjs.com/components/semantic/breadcrumbs#breadcrumbslink
+   * @see https://0.vuetifyjs.com/components/semantic/breadcrumbs
    *
    * @example
    * ```vue
@@ -143,7 +143,7 @@ export const Breadcrumbs = {
    * Current page indicator. Renders as a span with
    * aria-current="page".
    *
-   * @see https://0.vuetifyjs.com/components/semantic/breadcrumbs#breadcrumbspage
+   * @see https://0.vuetifyjs.com/components/semantic/breadcrumbs
    *
    * @example
    * ```vue
@@ -161,7 +161,7 @@ export const Breadcrumbs = {
    * item with aria-hidden="true". Uses divider character from Root
    * by default, or override via prop or slot content.
    *
-   * @see https://0.vuetifyjs.com/components/semantic/breadcrumbs#breadcrumbsdivider
+   * @see https://0.vuetifyjs.com/components/semantic/breadcrumbs
    *
    * @example
    * ```vue
@@ -187,7 +187,7 @@ export const Breadcrumbs = {
    * Auto-hidden until overflow is detected. Renders with
    * aria-hidden="true".
    *
-   * @see https://0.vuetifyjs.com/components/semantic/breadcrumbs#breadcrumbsellipsis
+   * @see https://0.vuetifyjs.com/components/semantic/breadcrumbs
    *
    * @example
    * ```vue
