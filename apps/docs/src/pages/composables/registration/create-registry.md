@@ -71,6 +71,24 @@ registry.onboard([
 registry.offboard(['x', 'y'])
 ```
 
+## Context / DI
+
+Use `createRegistryContext` to share a registry across a component tree:
+
+```ts
+import { createRegistryContext } from '@vuetify/v0'
+
+export const [useItems, provideItems, items] =
+  createRegistryContext({ namespace: 'my:items' })
+
+// In parent component
+provideItems()
+
+// In child component
+const registry = useItems()
+registry.register({ id: 'item-1', value: 'First' })
+```
+
 ## Architecture
 
 `createRegistry` is the foundation for specialized registration systems:
