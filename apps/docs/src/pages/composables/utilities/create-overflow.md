@@ -52,6 +52,24 @@ The `createOverflow` composable provides reactive container width tracking and c
 </template>
 ```
 
+## Context / DI
+
+Use `createOverflowContext` to share an overflow instance across a component tree:
+
+```ts
+import { createOverflowContext } from '@vuetify/v0'
+
+export const [useNavOverflow, provideNavOverflow, navOverflow] =
+  createOverflowContext({ namespace: 'my:nav-overflow' })
+
+// In parent component
+provideNavOverflow()
+
+// In child component
+const overflow = useNavOverflow()
+overflow.capacity.value  // number of items that fit
+```
+
 ## Architecture
 
 `createOverflow` uses ResizeObserver to compute container capacity:
