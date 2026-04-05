@@ -65,6 +65,12 @@ flowchart TD
   useResizeObserver --> VirtualLists["Virtual Lists"]
 ```
 
+## Options
+
+| Option | Type | Default | Notes |
+| - | - | - | - |
+| `once` | `boolean` | `false` | Stop observing after the first callback fires |
+
 ## Reactivity
 
 | Property/Method | Reactive | Notes |
