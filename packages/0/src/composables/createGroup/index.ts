@@ -1,6 +1,8 @@
 /**
  * @module createGroup
  *
+ * @see https://0.vuetifyjs.com/composables/selection/create-group
+ *
  * @remarks
  * Multi-selection composable that extends createSelection with batch operations and tri-state support.
  *
