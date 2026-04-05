@@ -33,6 +33,11 @@ The Toggle component supports two modes:
 
 ::: example
 /components/toggle/basic
+
+### Basic Toggle
+
+A standalone bookmark toggle with icon and label driven by v-model.
+
 :::
 
 ## Anatomy
@@ -88,6 +93,11 @@ Use `Toggle.Group` with `multiple` to build a formatting toolbar. Each toggle op
 
 ::: example
 /components/toggle/toolbar
+
+### Formatting Toolbar
+
+Multi-select bold, italic, underline, and strikethrough toggles that apply text formatting.
+
 :::
 
 ### View Switcher
@@ -96,6 +106,11 @@ Use `Toggle.Group` with `mandatory` for mutually exclusive options like layout s
 
 ::: example
 /components/toggle/view-switcher
+
+### View Switcher
+
+Mandatory single-select toggle between grid and list views controlling layout display.
+
 :::
 
 ## Accessibility
