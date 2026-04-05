@@ -1,6 +1,8 @@
 /**
  * @module useRtl
  *
+ * @see https://0.vuetifyjs.com/composables/plugins/use-rtl
+ *
  * @remarks
  * RTL (right-to-left) direction composable with adapter pattern.
  *
