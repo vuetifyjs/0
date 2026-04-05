@@ -1,6 +1,8 @@
 /**
  * @module toElement
  *
+ * @see https://0.vuetifyjs.com/composables/transformers/to-element
+ *
  * @remarks
  * Resolves various element reference types to a DOM Element.
  *
