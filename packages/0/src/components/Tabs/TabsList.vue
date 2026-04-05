@@ -1,6 +1,8 @@
 /**
  * @module TabsList
  *
+ * @see https://0.vuetifyjs.com/components/disclosure/tabs
+ *
  * @remarks
  * Container component for tab triggers. Provides the `tablist` ARIA role
  * and orientation attribute for accessibility. Does not manage state -

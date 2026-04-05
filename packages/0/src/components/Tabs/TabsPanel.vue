@@ -1,6 +1,8 @@
 /**
  * @module TabsPanel
  *
+ * @see https://0.vuetifyjs.com/components/disclosure/tabs
+ *
  * @remarks
  * Content panel associated with a tab. Matches with TabsItem via the `value`
  * prop. Provides ARIA tabpanel role and labelledby relationship with the
