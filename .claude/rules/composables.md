@@ -107,10 +107,10 @@ tokens.resolve('{colors.primary}')  // '#3b82f6'
 | `createTimeline` | Bounded undo/redo |
 | `useTheme` | Theme management with CSS variable injection |
 | `createQueue` | FIFO queue for notifications/toasts |
-| `usePagination` | Integer-based page navigation |
-| `useVirtual` | Virtual scrolling |
-| `useOverflow` | Container measurement |
-| `useFilter` | Array filtering |
+| `createPagination` | Integer-based page navigation |
+| `createVirtual` | Virtual scrolling |
+| `createOverflow` | Container measurement |
+| `createFilter` | Array filtering |
 | `usePermissions` | RBAC/ABAC on `createTokens` |
 | `useLocale` | i18n with interpolation |
 | `useBreakpoints` | Responsive breakpoint detection |
