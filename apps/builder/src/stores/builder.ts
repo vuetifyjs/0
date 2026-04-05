@@ -3,7 +3,7 @@ import { createGroup, createSingle, createStep, useStorage } from '@vuetify/v0'
 
 // Utilities
 import { defineStore } from 'pinia'
-import { computed, toRef, watch } from 'vue'
+import { computed, shallowRef, toRef, watch } from 'vue'
 
 // Types
 import type { DependencyGraph, Feature, Intent, ResolvedSet } from '@/data/types'
@@ -89,6 +89,11 @@ export const useBuilderStore = defineStore('builder', () => {
   })
 
   const selectedCount = toRef(() => features.selectedIds.size)
+
+  // Guided question flow state (exposed for AppBar breadcrumbs)
+  // -1 = intent step, 0+ = question index, >= questionCount = review
+  const questionIndex = shallowRef(-1)
+  const questionCount = shallowRef(0)
 
   // Actions
   function toggle (id: string) {
@@ -178,6 +183,10 @@ export const useBuilderStore = defineStore('builder', () => {
     selectedCount,
     resolved,
     categories,
+
+    // Guided question flow
+    questionIndex,
+    questionCount,
 
     // Actions
     toggle,
