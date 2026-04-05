@@ -20,7 +20,7 @@ related:
 
 # createTokens
 
-A utility for managing design tokens with support for hierarchical collections, aliases, and token resolution across your application's design system. Inspired by [Design Tokens](https://www.designtokens.org/tr/drafts/format/#design-token).
+Design token registry with hierarchical collections, alias resolution, and namespace support.
 
 <DocsPageFeatures :frontmatter />
 
