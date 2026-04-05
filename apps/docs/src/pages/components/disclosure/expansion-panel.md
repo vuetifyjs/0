@@ -27,6 +27,11 @@ The ExpansionPanel component provides a wrapper and item pattern for managing ex
 
 ::: example
 /components/expansion-panel/basic
+
+### Accordion Panels
+
+Multiple expandable panels with accordion behavior and a multi-expand mode that allows several panels open at once.
+
 :::
 
 ## Anatomy
