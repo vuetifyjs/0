@@ -19,7 +19,7 @@ related:
 
 <DocsPageFeatures :frontmatter />
 
-Internationalization with translations, variable interpolation, number formatting, and locale switching.
+i18n plugin with message translation, number formatting, and locale switching.
 
 ## Installation
 

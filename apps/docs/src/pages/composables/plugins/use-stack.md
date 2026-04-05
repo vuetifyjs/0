@@ -20,7 +20,7 @@ related:
 
 <DocsPageFeatures :frontmatter />
 
-Overlay z-index coordination with automatic stacking, scrim integration, and parent-child tracking.
+Overlay z-index coordinator with automatic stacking order and parent-child nesting support.
 
 ## Installation
 
