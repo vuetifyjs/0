@@ -2,7 +2,7 @@
   import { mdiApplication, mdiArrowLeft, mdiArrowRight, mdiCellphone, mdiFileDocument, mdiPackageVariant, mdiPaletteAdvanced, mdiViewDashboard } from '@mdi/js'
 
   // Utilities
-  import { toRef } from 'vue'
+  import { computed } from 'vue'
   import { useRouter } from 'vue-router'
 
   // Types
@@ -78,7 +78,7 @@
 
   store.initSteps(steps)
 
-  const stepIndex = toRef(() => stepIndex.value ?? 0)
+  const stepIndex = computed(() => store.stepper.selectedIndex.value ?? 0)
 
   function onIntent (id: Intent) {
     store.setIntent(id)
