@@ -32,8 +32,36 @@ export const useBuilderStore = defineStore('builder', () => {
   const features = createGroup()
   features.onboard(catalog.map(f => ({ id: f.id, value: f.id })))
 
-  // Wizard stepper
+  // Category order for guided wizard
+  const categoryOrder = [
+    'foundation',
+    'selection',
+    'forms',
+    'data',
+    'plugins',
+    'system',
+    'registration',
+    'reactivity',
+    'semantic',
+  ]
+
+  // Wizard stepper — initialized with steps immediately
   const stepper = createStep()
+
+  // Build and populate steps based on available categories
+  function buildSteps (): string[] {
+    const cats = new Map<string, Feature[]>()
+    for (const feature of catalog) {
+      const list = cats.get(feature.category) ?? []
+      list.push(feature)
+      cats.set(feature.category, list)
+    }
+    return ['intent', ...categoryOrder.filter(c => cats.has(c)), 'review']
+  }
+
+  const wizardSteps = buildSteps()
+  stepper.onboard(wizardSteps.map(id => ({ id, value: id })))
+  stepper.first()
 
   // Mode — single select (guided vs free)
   const mode = createSingle({ mandatory: 'force' })
@@ -97,12 +125,6 @@ export const useBuilderStore = defineStore('builder', () => {
     }
   }
 
-  function initSteps (stepIds: string[]) {
-    stepper.reset()
-    stepper.onboard(stepIds.map(id => ({ id, value: id })))
-    stepper.first()
-  }
-
   async function openInPlayground () {
     const url = await toPlaygroundUrl(
       {
@@ -139,7 +161,7 @@ export const useBuilderStore = defineStore('builder', () => {
     isSelected,
     reset,
     setIntent,
-    initSteps,
+    wizardSteps,
     openInPlayground,
   }
 })

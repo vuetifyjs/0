@@ -62,21 +62,7 @@
     },
   }
 
-  const categoryOrder = [
-    'foundation',
-    'selection',
-    'forms',
-    'data',
-    'plugins',
-    'system',
-    'registration',
-    'reactivity',
-    'semantic',
-  ]
-
-  const steps = ['intent', ...categoryOrder.filter(c => store.categories.has(c)), 'review']
-
-  store.initSteps(steps)
+  const steps = store.wizardSteps
 
   const stepIndex = computed(() => store.stepper.selectedIndex.value ?? 0)
 
