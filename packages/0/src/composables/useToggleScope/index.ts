@@ -1,6 +1,8 @@
 /**
  * @module useToggleScope
  *
+ * @see https://0.vuetifyjs.com/composables/system/use-toggle-scope
+ *
  * @remarks
  * Conditionally manages an effect scope based on a reactive boolean condition.
  * When the source becomes true, creates and runs an effect scope. When false, stops the scope.
