@@ -8,13 +8,13 @@
  *
  * Key features:
  * - Single-selection theme switching (extends createSingle)
- * - Token alias resolution via useTokens
+ * - Token alias resolution via createTokens
  * - Lazy theme loading (compute colors only when selected)
  * - CSS variable generation via adapter pattern
  * - SSR support with head integration
  * - Theme cycling
  *
- * Integrates with createSingle for selection and useTokens for color resolution.
+ * Integrates with createSingle for selection and createTokens for color resolution.
  */
 
 // Composables
