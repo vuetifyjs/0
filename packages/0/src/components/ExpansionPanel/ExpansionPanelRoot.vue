@@ -1,6 +1,8 @@
 /**
  * @module ExpansionPanelRoot
  *
+ * @see https://0.vuetifyjs.com/components/disclosure/expansion-panel
+ *
  * @remarks
  * Individual expansion panel that registers with the parent ExpansionPanelGroup.
  * Provides context to child components (ExpansionPanelActivator and ExpansionPanelContent)

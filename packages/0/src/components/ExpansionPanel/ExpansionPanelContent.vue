@@ -1,6 +1,8 @@
 /**
  * @module ExpansionPanelContent
  *
+ * @see https://0.vuetifyjs.com/components/disclosure/expansion-panel
+ *
  * @remarks
  * Content container for an expansion panel item that displays when the panel is expanded.
  * Consumes the ExpansionPanelRootContext via dependency injection and provides ARIA region
