@@ -182,6 +182,7 @@ Selection management composables built on `createRegistry`:
 - **`createInput`** - Shared form field state: validation, dirty/pristine, ARIA IDs
 - **`createValidation`** - Field-level validation with sync/async rules
 - **`createCombobox`** - Combobox state management with filtering and virtual focus
+- **`createNumeric`** - Bounded numeric math with step, snap, clamp, and circular wrapping
 - **`createRating`** - Bounded rating value with discrete items and half-step support
 - **`createSlider`** - Slider state with snapping, range mode, and step control
 
@@ -214,6 +215,7 @@ Selection management composables built on `createRegistry`:
 - **`useRaf`** - requestAnimationFrame loop with start/stop control
 - **`useResizeObserver`** - Resize observer utilities
 - **`useRovingFocus`** - Roving tabindex keyboard navigation
+- **`usePresence`** - Animation-agnostic mount lifecycle with lazy mounting and exit timing
 - **`useTimer`** - Countdown and interval timer with pause/resume
 - **`useToggleScope`** - Conditional effect scope management
 - **`useVirtualFocus`** - Virtual focus management via aria-activedescendant
