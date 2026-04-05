@@ -154,4 +154,15 @@ const [useLocalRtl, provideLocalRtl] = createRtlContext({ default: true })
 > [!TIP]
 > Direction is independent from locale. To connect them (e.g., Arabic → RTL), use a custom adapter that watches `useLocale().selectedId` and sets `isRtl` based on a language→direction mapping.
 
+## Examples
+
+::: example
+/composables/use-rtl/direction-toggle
+
+### Direction Toggle
+
+Live RTL/LTR switcher showing `isRtl` toggling the `dir` attribute and text-alignment classes in real time.
+
+:::
+
 <DocsApi />

@@ -135,4 +135,15 @@ The `get()` method returns reactive refs that sync with storage automatically.
 > [!TIP] Auto-persistence
 > Refs returned by `get()` are watched with `{ deep: true }`. Any changes to the ref value automatically persist to storage.
 
+## Examples
+
+::: example
+/composables/use-storage/persistent-settings
+
+### Persistent Settings
+
+A settings panel that survives page refreshes using `useStorage` with a memory adapter, showing reactive `get()` refs with deep-watch auto-persistence.
+
+:::
+
 <DocsApi />

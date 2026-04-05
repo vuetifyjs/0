@@ -110,4 +110,15 @@ Form-level state is fully reactive.
 | `disabled` | <AppSuccessIcon /> | ShallowRef, read by components |
 | `readonly` | <AppSuccessIcon /> | ShallowRef, read by components |
 
+## Examples
+
+::: example
+/composables/create-form/contact-form
+
+### Contact Form
+
+A contact form with field validation using `createValidation`, demonstrating `submit()`, `reset()`, and aggregate `isValid`/`isValidating` state.
+
+:::
+
 <DocsApi />

@@ -137,4 +137,15 @@ Permissions are stored in a token registry. There are no reactive properties —
 const canEdit = computed(() => permissions.can(user.role, 'edit', 'post'))
 ```
 
+## Examples
+
+::: example
+/composables/use-permissions/role-checker
+
+### Role Checker
+
+Displays a matrix of resource/action permissions per role, using `can()` inside a `computed` to reactively reflect the active role's access level.
+
+:::
+
 <DocsApi />

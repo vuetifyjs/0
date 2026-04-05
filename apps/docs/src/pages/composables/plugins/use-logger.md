@@ -91,4 +91,15 @@ flowchart LR
 
 The logger uses internal reactive state for level and enabled, but exposes only functions. There are no reactive properties — all interactions are through imperative methods.
 
+## Examples
+
+::: example
+/composables/use-logger/log-console
+
+### Log Console
+
+Interactive logger level control with live console output, demonstrating `debug()`, `info()`, `warn()`, and `error()` across all log levels.
+
+:::
+
 <DocsApi />

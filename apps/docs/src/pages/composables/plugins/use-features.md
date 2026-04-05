@@ -256,4 +256,15 @@ Feature flags inherit reactivity from `createGroup`. Selection state is reactive
 | `selectedItems` | <AppSuccessIcon /> | Computed array of enabled features |
 | ticket `isSelected` | <AppSuccessIcon /> | Computed from `selectedIds` |
 
+## Examples
+
+::: example
+/composables/use-features/feature-flags
+
+### Feature Flag Panel
+
+Toggle boolean and variation feature flags at runtime, using `isEnabled()`, `select()`, and `unselect()` to control which features are active.
+
+:::
+
 <DocsApi />
