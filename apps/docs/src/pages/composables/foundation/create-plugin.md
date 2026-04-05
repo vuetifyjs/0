@@ -24,7 +24,46 @@ Factory for creating Vue plugins with typed dependency injection and lifecycle h
 
 ## Usage
 
-Use in conjunction with the [createContext](/composables/foundation/create-context "createContext Documentation") composable to make [Vue plugins](https://vuejs.org/guide/reusability/plugins "Vue Plugins Documentation") that work seemlessly with [Vue Provide / Inject](https://vuejs.org/guide/components/provide-inject "Vue Provide / Inject Documentation").
+For most cases, use `createPluginContext` — it generates the full plugin tuple from a factory function:
+
+```ts collapse no-filename
+import { createPluginContext } from '@vuetify/v0'
+
+interface AnalyticsOptions {
+  trackPageviews?: boolean
+}
+
+interface AnalyticsContext {
+  track: (event: string) => void
+}
+
+export const [createAnalyticsContext, createAnalyticsPlugin, useAnalytics] =
+  createPluginContext<AnalyticsOptions, AnalyticsContext>(
+    'my:analytics',
+    (options) => ({
+      track: (event) => {
+        if (options.trackPageviews) console.log(event)
+      },
+    }),
+  )
+```
+
+```ts src/main.ts
+app.use(createAnalyticsPlugin({ trackPageviews: true }))
+```
+
+```vue src/components/MyComponent.vue
+<script setup lang="ts">
+  import { useAnalytics } from './plugins/analytics'
+
+  const analytics = useAnalytics()
+  analytics.track('page_view')
+</script>
+```
+
+## Low-level API
+
+Use `createPlugin` directly when you need fine-grained control over plugin setup, or when composing with existing `createContext` instances:
 
 ```ts collapse
 import { createContext, createPlugin } from '@vuetify/v0'
@@ -33,7 +72,6 @@ interface MyPluginContext {
   app: string
 }
 
-// use is the inject function and provide is the provide function
 export const [useMyContext, provideMyContext] = createContext<MyPluginContext>('provide-namespace')
 
 export function createMyPlugin () {
@@ -54,32 +92,7 @@ export function createMyPlugin () {
 ```
 
 > [!TIP]
-> The **setup** and **provide** functions do the same thing, they are separated for semantic purposes.
-
-Then, in your main application file, register the plugin like so:
-
-```ts { resource="src/main.ts" }
-import { createApp } from 'vue'
-import { createMyPlugin } from './path/to/plugin'
-
-const app = createApp(App)
-
-app.use(createMyPlugin())
-```
-
-Now, whenever your application starts, the plugin is registered and the context is provided. Use the `useMyContext` function to access this context in any component:
-
-```vue { resource="src/components/MyComponent.vue" }
-<template>
-  <div>{{ context.app }}</div>
-</template>
-
-<script setup lang="ts">
-  import { useMyContext } from './path/to/plugin'
-
-  const context = useMyContext()
-</script>
-```
+> The **setup** and **provide** hooks are separated for semantic purposes — `provide` is for DI context, `setup` is for side effects (watchers, adapters, globals).
 
 ## Architecture
 
