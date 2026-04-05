@@ -20,7 +20,7 @@ related:
 
 # createRegistry
 
-A foundational composable for building registration-based systems, managing collections of registered items with automatic indexing, and lifecycle management.
+Foundation for ordered, keyed collections. Items are registered with IDs and indexes, and can be looked up by ID, index, or value.
 
 <DocsPageFeatures :frontmatter />
 

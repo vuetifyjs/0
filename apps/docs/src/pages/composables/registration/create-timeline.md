@@ -17,7 +17,7 @@ related:
 
 # createTimeline
 
-A bounded undo/redo system that manages a fixed-size timeline of registered items with automatic overflow handling and history management.
+Bounded undo/redo history built on `createRegistry` with a configurable size limit.
 
 <DocsPageFeatures :frontmatter />
 
