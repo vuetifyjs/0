@@ -1,8 +1,8 @@
 /**
- * @module useGroup
+ * @module createGroup
  *
  * @remarks
- * Multi-selection composable that extends useSelection with batch operations and tri-state support.
+ * Multi-selection composable that extends createSelection with batch operations and tri-state support.
  *
  * Key features:
  * - Batch operations (select/unselect/toggle accept ID | ID[])
@@ -15,7 +15,7 @@
  * - select() clears mixed state, mix() clears selected state (mutually exclusive)
  * - toggle() on a mixed item selects it (resolves positively)
  *
- * Inheritance chain: useRegistry → useSelection → useGroup
+ * Inheritance chain: createRegistry → createSelection → createGroup
  * Extended by: useFeatures
  */
 
