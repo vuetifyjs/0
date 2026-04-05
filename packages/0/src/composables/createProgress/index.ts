@@ -6,16 +6,10 @@
  * @remarks
  * Progress composable built on createModel for segment tracking.
  *
- * Key features:
- * - Model-based segment registration (extends createModel)
- * - Computed total and percent from registered segments
- * - Value-driven indeterminate mode
- * - Compatible with useProxyModel for v-model bridging
- * - Trinity pattern for dependency injection
- *
  * Each segment is a model ticket with a ShallowRef<number> value.
  * All segments stay selected (multiple: true, enroll: true) so
  * selectedValues always reflects the full set of segment values.
+ * Compatible with useProxyModel for v-model bridging.
  */
 
 // Composables
@@ -24,7 +18,7 @@ import { createModel } from '#v0/composables/createModel'
 import { createTrinity } from '#v0/composables/createTrinity'
 
 // Utilities
-import { clamp, isNullOrUndefined, isUndefined } from '#v0/utilities'
+import { clamp, isNullOrUndefined, isObject, isUndefined } from '#v0/utilities'
 import { computed, isRef, shallowRef, toRef, toValue } from 'vue'
 
 // Types
@@ -32,11 +26,11 @@ import type { ModelContext, ModelOptions, ModelTicket, ModelTicketInput } from '
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { App, ComputedRef, ShallowRef } from 'vue'
 
-export interface ProgressTicketInput extends ModelTicketInput<ShallowRef<number>> {}
-
-export type ProgressTicket = ModelTicket<ProgressTicketInput> & {
-  percent: ComputedRef<number>
+export interface ProgressTicketInput extends ModelTicketInput<ShallowRef<number>> {
+  value: ShallowRef<number>
 }
+
+export type ProgressTicket = ModelTicket<ProgressTicketInput>
 
 export interface ProgressContext extends Omit<
   ModelContext<ProgressTicketInput, ProgressTicket>,
@@ -49,8 +43,9 @@ export interface ProgressContext extends Omit<
   total: ComputedRef<number>
   percent: ComputedRef<number>
   isIndeterminate: ComputedRef<boolean>
+  fromValue: (value: number) => number
   apply: (values: unknown[], options?: { multiple?: boolean }) => void
-  register: (input?: { value?: number }) => ProgressTicket
+  register: (input?: number | { value: number }) => ProgressTicket
 }
 
 export interface ProgressOptions extends ModelOptions {
@@ -134,8 +129,13 @@ export function createProgress<
     return true
   })
 
-  function register (input?: { value?: number }): ProgressTicket {
-    const initialValue = input?.value
+  function fromValue (value: number): number {
+    if (extent === 0) return 0
+    return (clamp(value, 0, extent) / extent) * 100
+  }
+
+  function register (input?: number | { value: number }): ProgressTicket {
+    const initialValue = isObject(input) ? input.value : input
     const index = segments.value.length
     const pendingValue = pending?.[index]
     const val = isUndefined(pendingValue) ? (initialValue ?? 0) : pendingValue
@@ -147,11 +147,6 @@ export function createProgress<
     if (!model.selectedIds.has(ticket.id)) {
       model.selectedIds.add(ticket.id)
     }
-
-    ticket.percent = computed(() => {
-      if (extent === 0) return 0
-      return (clamp(toValue(ticket.value) as number, 0, extent) / extent) * 100
-    })
 
     if (pending && segments.value.length >= pending.length) {
       pending = null
@@ -182,6 +177,7 @@ export function createProgress<
     total,
     percent,
     isIndeterminate,
+    fromValue,
     register,
     apply,
     get min () {

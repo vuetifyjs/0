@@ -18,20 +18,21 @@
   import { useProxyModel } from '#v0/composables/useProxyModel'
 
   // Utilities
-  import { isArray, isNullOrUndefined, isUndefined } from '#v0/utilities'
-  import { computed, mergeProps, shallowRef, toRef, useAttrs } from 'vue'
+  import { isArray, isNullOrUndefined, isUndefined, useId } from '#v0/utilities'
+  import { computed, mergeProps, toRef, useAttrs } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
   import type { ProgressContext, ProgressTicket } from '#v0/composables/createProgress'
-  import type { ShallowRef } from 'vue'
 
   export interface ProgressRootContext extends ProgressContext {
+    readonly id: string
     readonly name?: string
-    labelId: ShallowRef<string | undefined>
+    readonly labelId: string
   }
 
   export interface ProgressRootProps extends AtomProps {
+    id?: string
     modelValue?: number | number[]
     min?: number
     max?: number
@@ -40,6 +41,7 @@
   }
 
   export interface ProgressRootSlotProps {
+    id: string
     total: number
     percent: number
     isIndeterminate: boolean
@@ -50,7 +52,7 @@
       'aria-valuemin': number
       'aria-valuemax': number
       'aria-valuetext': string | undefined
-      'aria-labelledby': string | undefined
+      'aria-labelledby': string
       'aria-busy': true | undefined
       'data-state': 'determinate' | 'indeterminate'
       'data-complete': true | undefined
@@ -72,6 +74,7 @@
   const {
     as = 'div',
     renderless,
+    id = useId(),
     min = 0,
     max = 100,
     name,
@@ -96,10 +99,11 @@
 
   useProxyModel(progress, internal, { multiple: true })
 
-  const labelId = shallowRef<string | undefined>()
+  const labelId = `${id}-label`
 
   const context: ProgressRootContext = {
     ...progress,
+    id,
     name,
     labelId,
   }
@@ -112,6 +116,7 @@
     const pct = progress.percent.value
 
     return {
+      id,
       total,
       percent: pct,
       isIndeterminate: indeterminate,
@@ -122,7 +127,7 @@
         'aria-valuemin': min,
         'aria-valuemax': max,
         'aria-valuetext': indeterminate ? undefined : `${Math.round(pct)}%`,
-        'aria-labelledby': labelId.value,
+        'aria-labelledby': labelId,
         'aria-busy': indeterminate ? true : undefined,
         'data-state': indeterminate ? 'indeterminate' : 'determinate',
         'data-complete': total >= max ? true : undefined,

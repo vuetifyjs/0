@@ -14,26 +14,22 @@
   import { useProgressRoot } from './ProgressRoot.vue'
 
   // Utilities
-  import { mergeProps, onBeforeUnmount, toRef, useAttrs, watch } from 'vue'
+  import { mergeProps, onUnmounted, toRef, toValue, useAttrs, watch } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
+  // Types
+  import type { ShallowRef } from 'vue'
 
   export interface ProgressFillProps extends AtomProps {
-    /** Segment value */
     value?: number
-    /** Namespace for context injection from parent Progress.Root */
     namespace?: string
   }
 
   export interface ProgressFillSlotProps {
-    /** Current segment value */
     value: number
-    /** Segment contribution as a percentage */
     percent: number
-    /** Position among registered segments */
     index: number
-    /** Pre-computed attributes for binding */
     attrs: {
       'data-index': number
       'data-state': 'determinate' | 'indeterminate'
@@ -61,24 +57,27 @@
 
   const root = useProgressRoot(namespace)
 
-  const segment = root.register({ value: props.value ?? 0 })
+  const ticket = root.register(props.value)
 
   watch(() => props.value, v => {
-    segment.value.value = v ?? 0
+    (ticket.value as ShallowRef<number>).value = v ?? 0
   })
 
-  onBeforeUnmount(() => {
-    root.unregister(segment.id)
+  onUnmounted(() => {
+    root.unregister(ticket.id)
   })
+
+  const current = toRef(() => toValue(ticket.value) as number)
+  const percent = toRef(() => root.fromValue(current.value))
 
   const slotProps = toRef((): ProgressFillSlotProps => ({
-    value: segment.value.value,
-    percent: segment.percent.value,
-    index: segment.index,
+    value: current.value,
+    percent: percent.value,
+    index: ticket.index,
     attrs: {
-      'data-index': segment.index,
+      'data-index': ticket.index,
       'data-state': root.isIndeterminate.value ? 'indeterminate' : 'determinate',
-      'style': { width: `${segment.percent.value}%` },
+      'style': { width: `${percent.value}%` },
     },
   }))
 </script>
