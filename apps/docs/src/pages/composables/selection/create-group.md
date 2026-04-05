@@ -52,6 +52,24 @@ group.unselect('apple')
 console.log(group.selectedIndexes.value) // Set {}
 ```
 
+## Context / DI
+
+Use `createGroupContext` to share a group-selection instance across a component tree:
+
+```ts
+import { createGroupContext } from '@vuetify/v0'
+
+export const [useCheckboxGroup, provideCheckboxGroup, checkboxGroup] =
+  createGroupContext({ namespace: 'my:checkboxes' })
+
+// In parent component
+provideCheckboxGroup()
+
+// In child component
+const group = useCheckboxGroup()
+group.selectAll()
+```
+
 ## Architecture
 
 `createGroup` extends `createSelection` with multi-select and tri-state capabilities:
