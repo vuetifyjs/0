@@ -86,6 +86,11 @@ When the query is an array, each mode controls how multiple queries are matched 
 
 ::: example
 /composables/create-filter/live-search
+
+### Live Search with Highlighting
+
+Filter a list of cities by typing a name or country. Matching text is highlighted in the results.
+
 :::
 
 <DocsApi />
