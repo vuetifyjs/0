@@ -117,7 +117,7 @@ export interface ThemeContext<
    *
    * @remarks The colors are resolved by replacing any token aliases with their actual values.
    *
-   * @see https://0.vuetifyjs.com/composables/plugins/use-theme#colors
+   * @see https://0.vuetifyjs.com/composables/plugins/use-theme
    *
    * @example
    * ```ts
@@ -134,7 +134,7 @@ export interface ThemeContext<
    *
    * @remarks Returns `true` if the current theme has `dark: true`, otherwise `false`.
    *
-   * @see https://0.vuetifyjs.com/composables/plugins/use-theme#isDark
+   * @see https://0.vuetifyjs.com/composables/plugins/use-theme
    *
    * @example
    * ```ts
@@ -151,7 +151,7 @@ export interface ThemeContext<
    *
    * @param themes An array of theme IDs to cycle through. Defaults to all registered themes.
    *
-   * @see https://0.vuetifyjs.com/composables/plugins/use-theme#cycle
+   * @see https://0.vuetifyjs.com/composables/plugins/use-theme
    *
    * @example
    * ```ts
