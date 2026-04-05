@@ -39,9 +39,11 @@ The Progress supports single-value and multi-segment modes. Bind a number for a 
 <template>
   <Progress.Root>
     <Progress.Label />
+
     <Progress.Track>
       <Progress.Fill />
     </Progress.Track>
+
     <Progress.Value />
   </Progress.Root>
 </template>
