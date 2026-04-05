@@ -1,6 +1,8 @@
 /**
  * @module ButtonContent
  *
+ * @see https://0.vuetifyjs.com/components/actions/button
+ *
  * @remarks
  * Default content area for buttons. Registers with Root's internal
  * createSingle selection as the fallback — selected when Loading is not active.
