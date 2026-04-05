@@ -12,9 +12,9 @@ features:
   github: /composables/createRegistry/
   level: 3
 related:
-- /composables/selection/create-selection
-- /composables/registration/create-tokens
-- /composables/forms/create-form
+  - /composables/selection/create-selection
+  - /composables/registration/create-tokens
+  - /composables/forms/create-form
 ---
 
 # createRegistry
