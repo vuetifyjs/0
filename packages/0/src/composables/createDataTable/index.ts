@@ -1,6 +1,8 @@
 /**
  * @module createDataTable
  *
+ * @see https://0.vuetifyjs.com/composables/data/create-data-table
+ *
  * @remarks
  * Composable data table that composes existing v0 primitives rather than
  * reimplementing their logic. Uses createGroup's tri-state for sort direction
