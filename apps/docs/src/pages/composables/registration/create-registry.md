@@ -77,7 +77,9 @@ registry.offboard(['x', 'y'])
 
 ```mermaid "Registry Hierarchy"
 flowchart TD
-  createRegistry:::primary --> createSelection
+  createRegistry:::primary --> createModel
+  createModel --> createSelection
+  createModel --> createSlider
   createRegistry --> createTokens
   createRegistry --> createForm
   createRegistry --> createQueue
