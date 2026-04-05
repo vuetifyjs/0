@@ -17,7 +17,7 @@ related:
 
 # createNested
 
-The `createNested` composable extends `createGroup` to manage hierarchical tree structures. It provides parent-child relationship tracking, open/close state management, tree traversal utilities, and pluggable open strategies.
+Hierarchical tree management built on `createGroup`, with parent-child relationships, open/close state, and pluggable traversal strategies.
 
 <DocsPageFeatures :frontmatter />
 
