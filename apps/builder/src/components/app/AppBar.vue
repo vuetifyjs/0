@@ -1,16 +1,18 @@
 <script setup lang="ts">
-  import { mdiWeatherNight, mdiWeatherSunny } from '@mdi/js'
+  import { mdiChevronRight, mdiWeatherNight, mdiWeatherSunny } from '@mdi/js'
 
   // Framework
   import { useTheme } from '@vuetify/v0'
 
   // Utilities
-  import { toRef } from 'vue'
+  import { computed, toRef } from 'vue'
+  import { useRoute } from 'vue-router'
 
   import { useBuilderStore } from '@/stores/builder'
 
   const theme = useTheme()
   const store = useBuilderStore()
+  const route = useRoute()
 
   const logo = toRef(() =>
     theme.isDark.value
@@ -19,6 +21,70 @@
   )
 
   const icon = toRef(() => theme.isDark.value ? mdiWeatherSunny : mdiWeatherNight)
+
+  const INTENT_LABELS: Record<string, string> = {
+    'spa': 'SPA',
+    'component-library': 'Component Library',
+    'design-system': 'Design System',
+    'admin-dashboard': 'Admin Dashboard',
+    'content-site': 'Content Site',
+    'mobile-first': 'Mobile-First',
+  }
+
+  const STEP_LABELS: Record<string, string> = {
+    intent: 'Project Type',
+    foundation: 'Foundation',
+    selection: 'Selection',
+    forms: 'Forms',
+    data: 'Data',
+    plugins: 'Plugins',
+    system: 'System',
+    registration: 'Registration',
+    reactivity: 'Reactivity',
+    semantic: 'Semantic',
+    review: 'Review',
+  }
+
+  const breadcrumbs = computed(() => {
+    const path = route.path
+    const crumbs: string[] = ['Builder']
+
+    switch (path) {
+      case '/guided': {
+        crumbs.push('Guided')
+
+        const intentId = store.intent.selectedId as string | undefined
+        if (intentId) {
+          crumbs.push(INTENT_LABELS[intentId] ?? intentId)
+        }
+
+        const stepId = store.stepper.selectedId as string | undefined
+        if (stepId && stepId !== 'intent') {
+          crumbs.push(STEP_LABELS[stepId] ?? stepId)
+        }
+
+        break
+      }
+      case '/free': {
+        crumbs.push('Free Pick')
+
+        break
+      }
+      case '/ai': {
+        crumbs.push('AI Builder')
+
+        break
+      }
+      case '/review': {
+        crumbs.push('Review')
+
+        break
+      }
+    // No default
+    }
+
+    return crumbs
+  })
 
   function onToggle () {
     theme.select(theme.isDark.value ? 'light' : 'dark')
@@ -33,7 +99,20 @@
       :src="logo"
     >
 
-    <span class="text-sm font-semibold text-on-surface-variant">Framework Builder</span>
+    <nav class="flex items-center gap-1 text-sm">
+      <template v-for="(crumb, index) in breadcrumbs" :key="index">
+        <svg v-if="index > 0" class="w-4 h-4 text-on-surface-variant/40" viewBox="0 0 24 24">
+          <path :d="mdiChevronRight" fill="currentColor" />
+        </svg>
+        <span
+          :class="index === breadcrumbs.length - 1
+            ? 'font-semibold text-on-surface'
+            : 'text-on-surface-variant'"
+        >
+          {{ crumb }}
+        </span>
+      </template>
+    </nav>
 
     <div class="flex items-center gap-3">
       <span
