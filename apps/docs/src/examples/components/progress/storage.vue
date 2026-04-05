@@ -11,6 +11,15 @@
   ])
 
   const values = ref(categories.value.map(c => c.value))
+  const capacity = 128
+
+  function remaining (index: number) {
+    let used = 0
+    for (let i = 0; i < categories.value.length; i++) {
+      if (i !== index) used += categories.value[i].value
+    }
+    return capacity - used
+  }
 </script>
 
 <template>
@@ -22,7 +31,7 @@
         <span class="size-3 rounded-full" :class="cat.color" />
         <span class="text-sm min-w-18">{{ cat.name }}</span>
 
-        <Slider.Root v-model="categories[index].value" class="relative flex flex-1 items-center h-5" :max="64">
+        <Slider.Root v-model="categories[index].value" class="relative flex flex-1 items-center h-5" :max="remaining(index)">
           <Slider.Track class="relative h-1 w-full rounded-full bg-surface-variant">
             <Slider.Range class="absolute h-full rounded-full bg-primary" />
           </Slider.Track>
