@@ -42,7 +42,7 @@ export const Step = {
   /**
    * Component representing a single step item.
    *
-   * @see https://0.vuetifyjs.com/components/providers/step#stepitem
+   * @see https://0.vuetifyjs.com/components/providers/step
    *
    * @example
    * ```vue
