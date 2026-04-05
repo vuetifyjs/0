@@ -146,7 +146,7 @@ Form state management and model binding utilities.
 | [createCombobox](/composables/forms/create-combobox) | Coordinate selection, popover, virtual focus, and filtering for autocomplete |
 | [createForm](/composables/forms/create-form) | Form validation coordinator |
 | [createInput](/composables/forms/create-input) | Shared form field primitive: validation, field state, ARIA IDs |
-| [createNumeric](/composables/forms/create-numeric) | Bounded numeric math with step, snap, clamp, and circular wrapping |
+| [createNumberField](/composables/forms/create-number-field) | Numeric input state with formatting, parsing, and validation |
 | [createRating](/composables/forms/create-rating) | Bounded rating value with discrete items and half-step support |
 | [createSlider](/composables/forms/create-slider) | Slider state with multi-thumb support, step snapping, and value math |
 | [createValidation](/composables/forms/create-validation) | Per-field validation lifecycle |

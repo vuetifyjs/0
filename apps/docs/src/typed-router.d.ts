@@ -153,6 +153,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/components/forms/number-field': RouteRecordInfo<
+      '/components/forms/number-field',
+      '/components/forms/number-field',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/components/forms/radio': RouteRecordInfo<
       '/components/forms/radio',
       '/components/forms/radio',
@@ -345,6 +352,13 @@ declare module 'vue-router/auto-routes' {
     '/composables/forms/create-input': RouteRecordInfo<
       '/composables/forms/create-input',
       '/composables/forms/create-input',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/composables/forms/create-number-field': RouteRecordInfo<
+      '/composables/forms/create-number-field',
+      '/composables/forms/create-number-field',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -1079,6 +1093,12 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/components/forms/number-field.md': {
+      routes:
+        | '/components/forms/number-field'
+      views:
+        | never
+    }
     'src/pages/components/forms/radio.md': {
       routes:
         | '/components/forms/radio'
@@ -1244,6 +1264,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/forms/create-input.md': {
       routes:
         | '/composables/forms/create-input'
+      views:
+        | never
+    }
+    'src/pages/composables/forms/create-number-field.md': {
+      routes:
+        | '/composables/forms/create-number-field'
       views:
         | never
     }
