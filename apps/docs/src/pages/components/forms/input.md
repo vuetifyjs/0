@@ -22,7 +22,7 @@ related:
 
 # Input
 
-A headless text input component with integrated validation. Creates a `createValidation` context internally and auto-registers with parent `createForm` instances.
+Headless text input with integrated validation and automatic form registration.
 
 <DocsPageFeatures :frontmatter />
 
