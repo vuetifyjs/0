@@ -7,11 +7,11 @@
  * Responsive breakpoint detection composable with window resize handling.
  *
  * Key features:
- * - Window matchMedia integration
- * - Six built-in breakpoints (xs, sm, md, lg, xl, xxl)
+ * - matchMedia-based detection for zoom-accurate breakpoints
+ * - Six built-in breakpoints (xs, sm, md, lg, xl, xxl) with Vuetify 4 default widths
+ * - `isMobile` flag and configurable `mobileBreakpoint`
  * - Automatic resize listener with cleanup
- * - SSR-safe (checks IN_BROWSER)
- * - Hydration-aware
+ * - SSR-safe with hydration flush
  * - Custom breakpoint configuration
  *
  * Perfect for responsive layouts and conditional rendering based on screen size.
