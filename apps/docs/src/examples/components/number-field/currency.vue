@@ -36,7 +36,7 @@
 
       <NumberField.Root
         v-model="tip"
-        :format="{ style: 'percent', minimumFractionDigits: 0, maximumFractionDigits: 0 }"
+        :format="{ style: 'unit', unit: 'percent', maximumFractionDigits: 0 }"
         locale="en-US"
         :max="100"
         :min="0"
