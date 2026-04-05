@@ -12,6 +12,7 @@ features:
   github: /composables/useTheme/
   level: 2
 related:
+  - /components/providers/theme
   - /composables/system/use-media-query
   - /composables/registration/create-tokens
   - /guide/features/theming
