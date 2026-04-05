@@ -18,7 +18,7 @@ related:
 
 # createTrinity
 
-The **createTrinity** factory function is a type-safe utility for generating a 3-item tuple—called a **trinity**—which contains a context consumer, a provider, and the underlying context object.
+Generates a typed `[useX, provideX, defaultX]` tuple for Vue's provide/inject dependency injection pattern.
 
 <DocsPageFeatures :frontmatter />
 

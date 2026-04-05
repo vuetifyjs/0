@@ -18,7 +18,7 @@ related:
 
 # createSingle
 
-A composable that extends `createSelection` to enforce single-item selection. Automatically clears the previous selection before selecting a new item, ensuring only one item is selected at any time.
+Extends `createSelection` to enforce single-item selection, automatically clearing the previous selection.
 
 <DocsPageFeatures :frontmatter />
 

@@ -18,7 +18,7 @@ related:
 
 # createPlugin
 
-This composable allows you to create a Vue plugin with specific functionality that can be registered and used within your application.
+Factory for creating Vue plugins with typed dependency injection and lifecycle hooks.
 
 <DocsPageFeatures :frontmatter />
 
