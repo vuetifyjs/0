@@ -142,13 +142,36 @@ When both sides use the same value, use `inset-x-*` instead of `left-* right-*`:
 
 ## Subtree Overrides
 
-Use `createRtlContext` to scope direction to a subtree:
+Use `createRtlContext` to scope direction to a subtree — isolated from the app-level direction:
 
 ```ts
 import { createRtlContext } from '@vuetify/v0'
 
-// Create a scoped RTL context
-const [useLocalRtl, provideLocalRtl] = createRtlContext({ default: true })
+export const [useLocalRtl, provideLocalRtl, localRtl] =
+  createRtlContext({ default: true })
+```
+
+```vue collapse no-filename ParentComponent
+<script setup lang="ts">
+  import { provideLocalRtl } from './rtl-context'
+
+  // Provide to all descendants
+  provideLocalRtl()
+</script>
+
+<template>
+  <slot />
+</template>
+```
+
+```vue collapse no-filename ChildComponent
+<script setup lang="ts">
+  import { useLocalRtl } from './rtl-context'
+
+  const rtl = useLocalRtl()
+  // rtl.isRtl.value  → true (isolated from app-level direction)
+  // rtl.toggle()     → scoped toggle, doesn't affect the rest of the app
+</script>
 ```
 
 > [!TIP]
