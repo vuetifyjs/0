@@ -1,12 +1,13 @@
 <script setup lang="ts">
   import MediaProgress from './MediaProgress.vue'
-  import { onUnmounted, shallowRef, toRef } from 'vue'
+  import { useTimer } from '@vuetify/v0'
+  import { shallowRef, toRef } from 'vue'
 
   const elapsed = shallowRef(0)
   const buffered = shallowRef(0)
   const playing = shallowRef(false)
   const duration = 180
-  let timer: ReturnType<typeof setInterval> | null = null
+  const step = 100 / duration
 
   function format (seconds: number) {
     const m = Math.floor(seconds / 60)
@@ -17,21 +18,23 @@
   const time = toRef(() => format((elapsed.value / 100) * duration))
   const total = toRef(() => format(duration))
 
+  const timer = useTimer(() => {
+    elapsed.value = Math.min(elapsed.value + step, 100)
+    buffered.value = Math.min(buffered.value + step * 3, 100)
+
+    if (elapsed.value >= 100) {
+      playing.value = false
+      timer.stop()
+    }
+  }, { duration: 1000, repeat: true })
+
   function toggle () {
     playing.value = !playing.value
 
     if (playing.value) {
-      timer = setInterval(() => {
-        elapsed.value = Math.min(elapsed.value + (100 / duration), 100)
-        buffered.value = Math.min(buffered.value + (100 / duration) * 3, 100)
-
-        if (elapsed.value >= 100) {
-          playing.value = false
-          if (timer) clearInterval(timer)
-        }
-      }, 333)
-    } else if (timer) {
-      clearInterval(timer)
+      timer.start()
+    } else {
+      timer.pause()
     }
   }
 
@@ -39,12 +42,8 @@
     elapsed.value = 0
     buffered.value = 0
     playing.value = false
-    if (timer) clearInterval(timer)
+    timer.stop()
   }
-
-  onUnmounted(() => {
-    if (timer) clearInterval(timer)
-  })
 </script>
 
 <template>
