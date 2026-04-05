@@ -53,6 +53,24 @@ bound.select(4)
 value.value // 4
 ```
 
+## Context / DI
+
+Use `createRatingContext` to share a rating instance across a component tree:
+
+```ts
+import { createRatingContext } from '@vuetify/v0'
+
+export const [useProductRating, provideProductRating, productRating] =
+  createRatingContext({ namespace: 'my:rating', max: 5 })
+
+// In parent component
+provideProductRating()
+
+// In child component
+const rating = useProductRating()
+rating.select(4)
+```
+
 ## Reactivity
 
 | Property | Type | Reactive | Description |
