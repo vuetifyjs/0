@@ -124,7 +124,7 @@ export const Rating = {
    * be used explicitly for custom form integration scenarios where
    * you need manual control over the hidden input placement.
    *
-   * @see https://0.vuetifyjs.com/components/forms/rating#form-integration
+   * @see https://0.vuetifyjs.com/components/forms/rating
    * @internal
    *
    * @example
