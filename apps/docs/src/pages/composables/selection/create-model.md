@@ -19,7 +19,7 @@ related:
 
 # createModel
 
-Manage a reactive value with two-way sync — wrap a ref in a model and `useProxyModel` keeps it in sync automatically.
+Reactive value store that wraps a ref with two-way selection binding.
 
 <DocsPageFeatures :frontmatter />
 
