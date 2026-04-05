@@ -91,6 +91,11 @@
       "since": "0.2.0",
       "category": "forms"
     },
+    "createNumberField": {
+      "level": "preview",
+      "since": null,
+      "category": "forms"
+    },
     "createNumeric": {
       "level": "preview",
       "since": "0.2.0",
@@ -399,7 +404,8 @@
       "category": "forms"
     },
     "NumberField": {
-      "level": "draft",
+      "level": "preview",
+      "since": null,
       "category": "forms"
     },
     "Radio": {
