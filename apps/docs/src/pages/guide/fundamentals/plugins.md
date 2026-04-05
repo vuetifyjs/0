@@ -85,7 +85,53 @@ app.use(
 
 ## Creating Custom Plugins
 
-### Basic Plugin
+### Using createPluginContext
+
+`createPluginContext` is the recommended factory for new plugins. It generates the full `[createXContext, createXPlugin, useX]` tuple in a single call, eliminating the boilerplate of wiring together `createContext` and `createPlugin` manually.
+
+```ts src/plugins/analytics.ts
+import { createPluginContext } from '@vuetify/v0'
+
+interface AnalyticsContext {
+  track: (event: string, data?: Record<string, unknown>) => void
+  identify: (userId: string) => void
+}
+
+interface AnalyticsOptions {
+  apiKey: string
+  debug?: boolean
+}
+
+export const [createAnalyticsContext, createAnalyticsPlugin, useAnalytics] =
+  createPluginContext<AnalyticsOptions, AnalyticsContext>(
+    'my:analytics',
+    ({ apiKey, debug = false }) => ({
+      track: (event, data) => {
+        if (debug) console.log('Track:', event, data)
+        // send to analytics service using apiKey
+      },
+      identify: (userId) => {
+        // identify user
+      },
+    }),
+  )
+```
+
+```ts main.ts
+app.use(createAnalyticsPlugin({ apiKey: 'xxx', debug: true }))
+```
+
+```vue MyComponent.vue
+<script setup>
+  import { useAnalytics } from './plugins/analytics'
+  const analytics = useAnalytics()
+  analytics.track('page_view')
+</script>
+```
+
+### Manual Approach
+
+For fine-grained control over the plugin lifecycle, use `createContext` and `createPlugin` directly:
 
 ```ts src/plugins/analytics.ts
 import { createContext, createPlugin } from '@vuetify/v0'
