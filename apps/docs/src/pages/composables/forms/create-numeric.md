@@ -72,6 +72,11 @@ createNumeric is a pure function factory — it returns plain functions, not rea
 
 ::: example
 /composables/create-numeric/basic
+
+### Bounded Stepper
+
+Increment/decrement buttons with `canUp`/`canDown` guards and a percentage display, showing how `createNumeric` handles boundary enforcement and value-to-percent conversion.
+
 :::
 
 ::: faq
