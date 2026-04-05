@@ -1,6 +1,8 @@
 /**
  * @module ToggleRoot
  *
+ * @see https://0.vuetifyjs.com/components/actions/toggle
+ *
  * @remarks
  * Pressable toggle button with dual-mode support. In standalone mode,
  * manages a boolean v-model. In group mode, registers with the parent
