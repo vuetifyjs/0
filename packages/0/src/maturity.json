@@ -94,7 +94,7 @@
     "createNumeric": {
       "level": "preview",
       "since": "0.2.0",
-      "category": "forms"
+      "category": "internal"
     },
     "createDataTable": {
       "level": "preview",

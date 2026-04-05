@@ -180,7 +180,6 @@ Selection management composables built on `createRegistry`:
 
 - **`createForm`** - Form validation and state management with async rules
 - **`createInput`** - Shared form field state: validation, dirty/pristine, ARIA IDs
-- **`createNumeric`** - Pure numeric math: clamp, snap, step, and percentage conversion
 - **`createValidation`** - Field-level validation with sync/async rules
 - **`createCombobox`** - Combobox state management with filtering and virtual focus
 - **`createRating`** - Bounded rating value with discrete items and half-step support
