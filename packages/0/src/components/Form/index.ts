@@ -3,7 +3,7 @@ export type { FormProps, FormSlotProps } from './Form.vue'
 /**
  * Form component for coordinating validation across fields.
  *
- * @see https://0.vuetifyjs.com/components/form
+ * @see https://0.vuetifyjs.com/components/forms/form
  *
  * @example
  * ```vue
