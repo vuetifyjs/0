@@ -81,6 +81,11 @@ flowchart TD
 
 ::: example
 /composables/use-media-query/basic
+
+### Dynamic Min-Width Detection
+
+Reactively detects landscape orientation and a slider-adjustable min-width threshold, showing how media queries update live as conditions change.
+
 :::
 
 <DocsApi />
