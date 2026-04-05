@@ -1,6 +1,8 @@
 /**
  * @module SnackbarPortal
  *
+ * @see https://0.vuetifyjs.com/components/semantic/snackbar
+ *
  * @remarks
  * Container component for snackbar notifications. Teleports to body
  * and registers with useStack for z-index coordination with Dialog/Scrim.

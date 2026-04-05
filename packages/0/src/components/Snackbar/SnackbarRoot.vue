@@ -1,6 +1,8 @@
 /**
  * @module SnackbarRoot
  *
+ * @see https://0.vuetifyjs.com/components/semantic/snackbar
+ *
  * @remarks
  * A single snackbar instance. Provides dismiss context for Snackbar.Close.
  * Set ARIA role directly: role="alert" for urgent, role="status" for informational.

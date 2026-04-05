@@ -1,6 +1,8 @@
 /**
  * @module SnackbarClose
  *
+ * @see https://0.vuetifyjs.com/components/semantic/snackbar
+ *
  * @remarks
  * Dismiss button for snackbar notifications.
  * Auto-wires to the nearest Snackbar.Root context — calls onDismiss() on click.

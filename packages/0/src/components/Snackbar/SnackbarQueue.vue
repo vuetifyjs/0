@@ -1,6 +1,8 @@
 /**
  * @module SnackbarQueue
  *
+ * @see https://0.vuetifyjs.com/components/semantic/snackbar
+ *
  * @remarks
  * Connects to useNotifications and exposes queue items via slot.
  * Provides dismiss context consumed by Snackbar.Root/Close.
