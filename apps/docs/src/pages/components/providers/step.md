@@ -28,6 +28,11 @@ The Step component extends Single with navigation methods for moving through a s
 
 ::: example
 /components/step/basic
+
+### Step Wizard
+
+A 3-step wizard with next/previous navigation buttons and per-step content rendering.
+
 :::
 
 ## Anatomy
