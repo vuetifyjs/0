@@ -18,7 +18,6 @@
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
-  // Types
   import type { ShallowRef } from 'vue'
 
   export interface ProgressFillProps extends AtomProps {
