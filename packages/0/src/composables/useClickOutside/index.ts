@@ -1,6 +1,8 @@
 /**
  * @module useClickOutside
  *
+ * @see https://0.vuetifyjs.com/composables/system/use-click-outside
+ *
  * @remarks
  * Detects clicks outside of specified element(s) with automatic cleanup.
  *
