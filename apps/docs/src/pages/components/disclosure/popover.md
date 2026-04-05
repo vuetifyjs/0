@@ -35,6 +35,11 @@ The Popover component leverages the CSS Anchor Positioning API to create popover
 
 ::: example
 /components/popover/basic
+
+### Anchored Popover
+
+A simple popover positioned via CSS anchor positioning, opened and closed by a button trigger.
+
 :::
 
 ## Anatomy
