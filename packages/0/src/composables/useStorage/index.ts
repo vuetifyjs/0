@@ -1,6 +1,8 @@
 /**
  * @module useStorage
  *
+ * @see https://0.vuetifyjs.com/composables/plugins/use-storage
+ *
  * @remarks
  * Reactive storage composable with adapter pattern for localStorage, sessionStorage, or memory.
  *
