@@ -517,7 +517,7 @@
     "Treeview": {
       "level": "preview",
       "since": "0.1.11",
-      "category": "semantic"
+      "category": "disclosure"
     },
     "DataGrid": {
       "level": "draft",
