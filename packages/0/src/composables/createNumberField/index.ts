@@ -42,6 +42,10 @@ export interface NumberFieldOptions extends NumericOptions {
   name?: string
   /** Validation rules. */
   rules?: InputOptions<number | null>['rules']
+  /** Manual error state override — forces invalid. */
+  error?: InputOptions<number | null>['error']
+  /** Manual error messages — merged with rule-based errors. */
+  errorMessages?: InputOptions<number | null>['errorMessages']
 }
 
 export interface NumberFieldContext {
@@ -90,6 +94,8 @@ export function createNumberField (options: NumberFieldOptions = {}): NumberFiel
     label,
     name,
     rules,
+    error,
+    errorMessages,
   } = options
 
   const numeric = createNumeric({ min, max, step, leap, wrap })
@@ -102,6 +108,8 @@ export function createNumberField (options: NumberFieldOptions = {}): NumberFiel
     disabled,
     readonly: _readonly,
     rules,
+    error,
+    errorMessages,
     dirty: v => !isNull(v),
     equals: (a, b) => Object.is(a, b),
   })
