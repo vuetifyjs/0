@@ -139,7 +139,9 @@ interface RegistryTicket {
 
 ```mermaid "Extension Chain"
 flowchart LR
-    R[createRegistry] --> S[createSelection]
+    R[createRegistry] --> M[createModel]
+    M --> S[createSelection]
+    M --> Sl[createSlider]
     R --> T[createTokens]
     R --> F[createForm]
     S --> Si[createSingle]
@@ -150,10 +152,12 @@ flowchart LR
 | Composable | Extends | Adds |
 | - | - | - |
 | `createRegistry` | — | Base collection management |
-| `createSelection` | Registry | `selectedIds` Set |
+| `createModel` | Registry | `selectedIds` Set, `multiple`, `enroll` |
+| `createSelection` | Model | Mandatory enforcement, disabled guards |
 | `createSingle` | Selection | Single selection constraint |
 | `createGroup` | Selection | Tri-state, batch ops |
 | `createStep` | Single | Navigation (next/prev/first/last) |
+| `createSlider` | Model | Per-thumb value math, step snapping |
 | `createTokens` | Registry | Alias resolution |
 | `createForm` | Registry | Validation |
 
