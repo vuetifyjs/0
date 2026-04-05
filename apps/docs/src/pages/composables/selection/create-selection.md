@@ -43,6 +43,24 @@ console.log(selection.selectedValues.value) // Set(2) { 'Apple', 'Banana' }
 console.log(selection.has('apple')) // true
 ```
 
+## Context / DI
+
+Use `createSelectionContext` to share a selection instance across a component tree:
+
+```ts
+import { createSelectionContext } from '@vuetify/v0'
+
+export const [useTabs, provideTabs, tabs] =
+  createSelectionContext({ namespace: 'my:tabs', multiple: false })
+
+// In parent component
+provideTabs()
+
+// In child component
+const selection = useTabs()
+selection.select('tab-1')
+```
+
 ## Architecture
 
 `createSelection` extends `createModel` with auto-enrollment and ticket self-methods:
