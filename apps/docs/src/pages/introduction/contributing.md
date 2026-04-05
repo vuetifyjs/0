@@ -158,7 +158,7 @@ type(scope): subject
 feat(useSelection): add toggle method
 fix(ExpansionPanel): correct aria-expanded state
 docs(getting-started): update installation instructions
-refactor(useRegistry): simplify reindex logic
+refactor(createRegistry): simplify reindex logic
 test(useForm): add validation edge cases
 ```
 
