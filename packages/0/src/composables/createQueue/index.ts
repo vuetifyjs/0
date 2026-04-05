@@ -101,7 +101,7 @@ export interface QueueContext<
    * - Subsequent tickets are paused until they become first in queue
    * - Each ticket receives a `dismiss()` method for convenience
    *
-   * @see https://0.vuetifyjs.com/composables/registration/create-queue#register
+   * @see https://0.vuetifyjs.com/composables/registration/create-queue
    *
    * @example
    * ```ts
@@ -129,7 +129,7 @@ export interface QueueContext<
    * - If the removed ticket was first in queue, automatically resumes the next ticket
    * - Returns the unregistered ticket or `undefined` if not found
    *
-   * @see https://0.vuetifyjs.com/composables/registration/create-queue#unregister
+   * @see https://0.vuetifyjs.com/composables/registration/create-queue
    *
    * @example
    * ```ts
@@ -157,7 +157,7 @@ export interface QueueContext<
    * - Returns the paused ticket or `undefined` if no pausable ticket exists
    * - The timeout will not progress while paused
    *
-   * @see https://0.vuetifyjs.com/composables/registration/create-queue#pause
+   * @see https://0.vuetifyjs.com/composables/registration/create-queue
    *
    * @example
    * ```ts
@@ -182,7 +182,7 @@ export interface QueueContext<
    * - Returns the resumed ticket or `undefined` if no resumable ticket exists
    * - The timeout will continue from its full duration (not from where it was paused)
    *
-   * @see https://0.vuetifyjs.com/composables/registration/create-queue#resume
+   * @see https://0.vuetifyjs.com/composables/registration/create-queue
    *
    * @example
    * ```ts
@@ -208,7 +208,7 @@ export interface QueueContext<
    * - Clears all active timeouts
    * - Resets the queue to an empty state
    *
-   * @see https://0.vuetifyjs.com/composables/registration/create-queue#clear
+   * @see https://0.vuetifyjs.com/composables/registration/create-queue
    *
    * @example
    * ```ts
@@ -236,7 +236,7 @@ export interface QueueContext<
    * - Should be called when the queue is no longer needed
    * - Automatically called on scope disposal
    *
-   * @see https://0.vuetifyjs.com/composables/registration/create-queue#dispose
+   * @see https://0.vuetifyjs.com/composables/registration/create-queue
    *
    * @example
    * ```ts
