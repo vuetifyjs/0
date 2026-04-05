@@ -88,12 +88,12 @@
     },
     "createInput": {
       "level": "preview",
-      "since": null,
+      "since": "0.2.0",
       "category": "forms"
     },
     "createNumeric": {
       "level": "preview",
-      "since": null,
+      "since": "0.2.0",
       "category": "forms"
     },
     "createDataTable": {
@@ -270,7 +270,7 @@
     },
     "usePresence": {
       "level": "preview",
-      "since": null,
+      "since": "0.2.0",
       "category": "system"
     },
     "useRovingFocus": {
