@@ -41,10 +41,9 @@
 
     if (playing.value) {
       playback.start()
-      buffer.start()
+      if (!buffer.isActive.value) buffer.start()
     } else {
       playback.pause()
-      buffer.pause()
     }
   }
 
