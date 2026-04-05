@@ -85,6 +85,13 @@ Selection state is **always reactive**. Collection methods follow the base `crea
 | `selectedValues` | <AppSuccessIcon /> | Computed from `selectedItems` |
 | ticket `isSelected` | <AppSuccessIcon /> | Computed from `selectedIds` |
 
+> [!TIP] Reactive options
+> The `mandatory`, `multiple`, and `enroll` options all accept `MaybeRefOrGetter<boolean>`. Pass a getter to drive selection behavior from a prop or computed:
+> ```ts no-filename
+> const props = defineProps<{ multiple?: boolean }>()
+> const selection = createSelection({ multiple: () => props.multiple ?? false })
+> ```
+
 > [!TIP] Selection vs Collection
 > Most UI patterns only need **selection reactivity** (which is always on). You rarely need the collection itself to be reactive.
 
