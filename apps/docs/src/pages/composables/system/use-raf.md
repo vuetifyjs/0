@@ -17,7 +17,7 @@ related:
 
 # useRaf
 
-Debounced `requestAnimationFrame` wrapper with automatic cleanup when the component is unmounted.
+Throttles callbacks to the next animation frame with cancel-then-request deduplication. Cleans up automatically on scope disposal.
 
 <DocsPageFeatures :frontmatter />
 
