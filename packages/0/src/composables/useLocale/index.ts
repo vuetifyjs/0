@@ -1,6 +1,8 @@
 /**
  * @module useLocale
  *
+ * @see https://0.vuetifyjs.com/composables/plugins/use-locale
+ *
  * @remarks
  * Internationalization (i18n) composable with adapter pattern for message translation.
  *
