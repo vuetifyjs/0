@@ -22,14 +22,14 @@
 
     if (playing.value) {
       timer = setInterval(() => {
-        elapsed.value = Math.min(elapsed.value + (100 / duration) * 3, 100)
-        buffered.value = Math.min(buffered.value + (100 / duration) * 9, 100)
+        elapsed.value = Math.min(elapsed.value + (100 / duration), 100)
+        buffered.value = Math.min(buffered.value + (100 / duration) * 3, 100)
 
         if (elapsed.value >= 100) {
           playing.value = false
           if (timer) clearInterval(timer)
         }
-      }, 1000)
+      }, 333)
     } else if (timer) {
       clearInterval(timer)
     }
