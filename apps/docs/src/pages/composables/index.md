@@ -207,6 +207,14 @@ Standalone helpers for common UI patterns.
 | [createBreadcrumbs](/composables/utilities/create-breadcrumbs) | Breadcrumb navigation with path truncation |
 | [createOverflow](/composables/utilities/create-overflow) | Compute item capacity for responsive truncation |
 
+## Semantic
+
+Composables for presentational/semantic components.
+
+| Name | Description |
+| - | - |
+| [createProgress](/composables/semantic/create-progress/) | Progress tracking with multi-segment registration |
+
 ## Transformers
 
 Value transformation utilities.

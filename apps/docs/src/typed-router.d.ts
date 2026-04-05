@@ -69,6 +69,20 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/components/actions/toggle': RouteRecordInfo<
+      '/components/actions/toggle',
+      '/components/actions/toggle',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/components/disclosure/alert-dialog': RouteRecordInfo<
+      '/components/disclosure/alert-dialog',
+      '/components/disclosure/alert-dialog',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/components/disclosure/collapsible': RouteRecordInfo<
       '/components/disclosure/collapsible',
       '/components/disclosure/collapsible',
@@ -142,6 +156,13 @@ declare module 'vue-router/auto-routes' {
     '/components/forms/radio': RouteRecordInfo<
       '/components/forms/radio',
       '/components/forms/radio',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/components/forms/rating': RouteRecordInfo<
+      '/components/forms/rating',
+      '/components/forms/rating',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -258,6 +279,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/components/semantic/progress': RouteRecordInfo<
+      '/components/semantic/progress',
+      '/components/semantic/progress',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/components/semantic/snackbar': RouteRecordInfo<
       '/components/semantic/snackbar',
       '/components/semantic/snackbar',
@@ -317,6 +345,13 @@ declare module 'vue-router/auto-routes' {
     '/composables/forms/create-form': RouteRecordInfo<
       '/composables/forms/create-form',
       '/composables/forms/create-form',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/composables/forms/create-rating': RouteRecordInfo<
+      '/composables/forms/create-rating',
+      '/composables/forms/create-rating',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -527,6 +562,13 @@ declare module 'vue-router/auto-routes' {
     '/composables/selection/create-step': RouteRecordInfo<
       '/composables/selection/create-step',
       '/composables/selection/create-step',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/composables/semantic/create-progress': RouteRecordInfo<
+      '/composables/semantic/create-progress',
+      '/composables/semantic/create-progress',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -965,6 +1007,18 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/components/actions/toggle.md': {
+      routes:
+        | '/components/actions/toggle'
+      views:
+        | never
+    }
+    'src/pages/components/disclosure/alert-dialog.md': {
+      routes:
+        | '/components/disclosure/alert-dialog'
+      views:
+        | never
+    }
     'src/pages/components/disclosure/collapsible.md': {
       routes:
         | '/components/disclosure/collapsible'
@@ -1028,6 +1082,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/components/forms/radio.md': {
       routes:
         | '/components/forms/radio'
+      views:
+        | never
+    }
+    'src/pages/components/forms/rating.md': {
+      routes:
+        | '/components/forms/rating'
       views:
         | never
     }
@@ -1127,6 +1187,12 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/components/semantic/progress.md': {
+      routes:
+        | '/components/semantic/progress'
+      views:
+        | never
+    }
     'src/pages/components/semantic/snackbar.md': {
       routes:
         | '/components/semantic/snackbar'
@@ -1178,6 +1244,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/forms/create-form.md': {
       routes:
         | '/composables/forms/create-form'
+      views:
+        | never
+    }
+    'src/pages/composables/forms/create-rating.md': {
+      routes:
+        | '/composables/forms/create-rating'
       views:
         | never
     }
@@ -1358,6 +1430,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/selection/create-step.md': {
       routes:
         | '/composables/selection/create-step'
+      views:
+        | never
+    }
+    'src/pages/composables/semantic/create-progress.md': {
+      routes:
+        | '/composables/semantic/create-progress'
       views:
         | never
     }
