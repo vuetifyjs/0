@@ -91,14 +91,23 @@ Group selection state is **always reactive**, including the tri-state `mixedIds`
 | - | :-: | - |
 | `selectedIds` | <AppSuccessIcon /> | `shallowReactive(Set)` — always reactive |
 | `mixedIds` | <AppSuccessIcon /> | `shallowReactive(Set)` — tracks indeterminate state |
+| `mixedItems` | <AppSuccessIcon /> | `ComputedRef<Set>` — ticket instances in mixed state |
 | `selectedIndexes` | <AppSuccessIcon /> | Computed from `selectedIds` |
-| `isAllSelected` | <AppSuccessIcon /> | Computed from `selectedIds` and collection size |
 | `selectedItems` | <AppSuccessIcon /> | Computed from `selectedIds` |
 | `selectedValues` | <AppSuccessIcon /> | Computed from `selectedItems` |
+| `isAllSelected` | <AppSuccessIcon /> | `true` when all non-disabled items are selected |
+| `isNoneSelected` | <AppSuccessIcon /> | `true` when no items are selected |
+| `isMixed` | <AppSuccessIcon /> | `true` when some but not all items are selected — use for header checkbox |
+| `selectAll()` | - | Select all non-disabled items |
+| `unselectAll()` | - | Unselect all items |
+| `toggleAll()` | - | Toggle all non-disabled items |
+| `mix(ids)` | - | Set one or more tickets to indeterminate state |
+| `unmix(ids)` | - | Clear indeterminate state from one or more tickets |
+| `mixed(id)` | - | Returns `true` if the ticket is in mixed state |
 | ticket `isSelected` | <AppSuccessIcon /> | Computed from `selectedIds` |
-
-> [!TIP] Tri-state support
-> `mixedIds` is reactive and updates automatically for indeterminate checkbox states in tree structures.
+| ticket `isMixed` | <AppSuccessIcon /> | `Readonly<Ref<boolean>>` — whether this ticket is indeterminate |
+| ticket `mix()` | - | Set this ticket to indeterminate state |
+| ticket `unmix()` | - | Clear indeterminate state from this ticket |
 
 ## Examples
 
