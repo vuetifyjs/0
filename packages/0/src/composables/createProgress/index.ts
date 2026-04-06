@@ -24,7 +24,7 @@ import { computed, isRef, shallowRef, toRef, toValue } from 'vue'
 // Types
 import type { ModelContext, ModelTicket, ModelTicketInput } from '#v0/composables/createModel'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
-import type { App, ComputedRef, ShallowRef } from 'vue'
+import type { App, ComputedRef, Ref, ShallowRef } from 'vue'
 
 export type ProgressTicketInput = ModelTicketInput<ShallowRef<number>>
 export type ProgressTicket = ModelTicket<ProgressTicketInput>
@@ -39,9 +39,9 @@ export interface ProgressContext extends ModelContext<ProgressTicketInput, Progr
   readonly min: number
   readonly max: number
   segments: ComputedRef<ProgressTicket[]>
-  total: ComputedRef<number>
-  percent: ComputedRef<number>
-  isIndeterminate: ComputedRef<boolean>
+  total: Readonly<Ref<number>>
+  percent: Readonly<Ref<number>>
+  isIndeterminate: Readonly<Ref<boolean>>
   fromValue: (value: number) => number
 }
 
