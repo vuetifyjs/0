@@ -87,7 +87,7 @@ flowchart TD
 | `isOpen` | `ShallowRef<boolean>` | <AppSuccessIcon /> | Popover open state |
 | `selection` | `SelectionContext` | — | Full selection API |
 | `popover` | `PopoverReturn` | — | Popover positioning API |
-| `virtualFocus` | `VirtualFocusReturn` | — | Keyboard focus API |
+| `cursor` | `VirtualFocusReturn` | — | Keyboard focus API |
 | `inputEl` | `ShallowRef<HTMLElement \| null>` | <AppSuccessIcon /> | Reference to the `<input>` element |
 
 ## Options
@@ -213,7 +213,7 @@ In `multiple` mode, `select(id)` differs from single mode:
 - Toggles the item (select → deselect on second click) via `selection.toggle()`.
 - Clears the query so the user can search for the next item.
 - Keeps the dropdown open.
-- Highlights the clicked item via `virtualFocus.highlight(id)` so ArrowDown continues from that position.
+- Highlights the clicked item via `cursor.highlight(id)` so ArrowDown continues from that position.
 - Refocuses the input so keyboard navigation continues immediately.
 
 ## Dependency Injection
