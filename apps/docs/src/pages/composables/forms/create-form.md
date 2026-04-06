@@ -108,6 +108,13 @@ await form.submit()
 
 Validations inside the component tree auto-register with the provided form — no manual `form.register()` needed.
 
+## Options
+
+| Option | Type | Default | Notes |
+| - | - | - | - |
+| `disabled` | `MaybeRefOrGetter<boolean>` | `false` | When truthy, child components should disable interaction. Read via `form.disabled` |
+| `readonly` | `MaybeRefOrGetter<boolean>` | `false` | When truthy, child components should prevent editing. Read via `form.readonly` |
+
 ## Architecture
 
 `createForm` is a pure registry. Validations register with it for coordination:
