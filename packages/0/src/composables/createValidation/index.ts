@@ -109,13 +109,9 @@ const UNSET = Symbol('unset')
  * validation.reset()
  * ```
  */
-export function createValidation<
-  Z extends ValidationTicketInput = ValidationTicketInput,
-  E extends ValidationTicket<Z> = ValidationTicket<Z>,
-  R extends ValidationContext<Z, E> = ValidationContext<Z, E>,
-> (_options: ValidationOptions = {}): R {
+export function createValidation (_options: ValidationOptions = {}): ValidationContext {
   const { rules: initialRules = [], value: valueSource, enroll = true, ...options } = _options
-  const group = createGroup<Z, E>({ ...options, enroll, multiple: true })
+  const group = createGroup({ ...options, enroll, multiple: true })
   const rulesContext = useRules()
 
   const errors = shallowRef<string[]>([])
@@ -123,15 +119,15 @@ export function createValidation<
   const isValidating = shallowRef(false)
   let generation = 0
 
-  function register (input: RuleInput | Partial<Z>): E {
+  function register (input: RuleInput | Partial<ValidationTicketInput>): ValidationTicket {
     if (isFunction(input) || isString(input) || isStandardSchema(input)) {
       const resolved = rulesContext.resolve([input as RuleInput])
-      return group.register({ value: resolved[0] ?? (() => true) } as unknown as Partial<Z>)
+      return group.register({ value: resolved[0] ?? (() => true) } as Partial<ValidationTicketInput>)
     }
-    return group.register(input as Partial<Z>)
+    return group.register(input as Partial<ValidationTicketInput>)
   }
 
-  function onboard (rules: (RuleInput | Partial<Z>)[]): E[] {
+  function onboard (rules: (RuleInput | Partial<ValidationTicketInput>)[]): ValidationTicket[] {
     return group.batch(() => rules.map(r => register(r)))
   }
 
@@ -194,7 +190,7 @@ export function createValidation<
     get size () {
       return group.size
     },
-  } as R
+  } as ValidationContext
 
   // Auto-register with parent form
   const form = useForm()

@@ -178,11 +178,7 @@ export interface StackPluginOptions extends StackContextOptions {}
  * ticket.unselect()  // Deactivate overlay
  * ```
  */
-export function createStack<
-  Z extends StackTicketInput = StackTicketInput,
-  E extends StackTicket<Z> = StackTicket<Z>,
-  R extends StackContext<Z, E> = StackContext<Z, E>,
-> (_options: StackOptions = {}): R {
+export function createStack (_options: StackOptions = {}): StackContext {
   const {
     baseZIndex = 2000,
     increment = 10,
@@ -199,7 +195,7 @@ export function createStack<
   const top = toRef(() => {
     const ids = Array.from(selection.selectedIds)
     if (ids.length === 0) return undefined
-    return selection.get(ids.at(-1)!) as E | undefined
+    return selection.get(ids.at(-1)!) as StackTicket | undefined
   })
 
   const scrimZIndex = toRef(() => {
@@ -213,7 +209,7 @@ export function createStack<
     return Array.from(selection.selectedIds)
   }
 
-  function register (input: Partial<Z> = {} as Partial<Z>): E {
+  function register (input: Partial<StackTicketInput> = {} as Partial<StackTicketInput>): StackTicket {
     const id = input.id ?? useId()
     const blocking = input.blocking ?? false
     const onDismiss = input.onDismiss
@@ -244,7 +240,7 @@ export function createStack<
       dismiss,
       ...input,
       id,
-    } as unknown as Partial<Z>)
+    } as unknown as Partial<StackTicketInput>)
 
     // Auto-cleanup when called within component setup
     if (instanceExists()) {
@@ -253,7 +249,7 @@ export function createStack<
       }, true)
     }
 
-    return ticket as unknown as E
+    return ticket as unknown as StackTicket
   }
 
   return {
@@ -266,7 +262,7 @@ export function createStack<
     get size () {
       return selection.size
     },
-  } as unknown as R
+  } as unknown as StackContext
 }
 
 /**
@@ -293,20 +289,16 @@ export function createStack<
  * const stack = useMyStack()
  * ```
  */
-export function createStackContext<
-  Z extends StackTicketInput = StackTicketInput,
-  E extends StackTicket<Z> = StackTicket<Z>,
-  R extends StackContext<Z, E> = StackContext<Z, E>,
-> (_options: StackContextOptions = {}): ContextTrinity<R> {
+export function createStackContext (_options: StackContextOptions = {}): ContextTrinity<StackContext> {
   const { namespace = 'v0:stack', ...options } = _options
-  const [useStackContext, _provideStackContext] = createContext<R>(namespace)
-  const context = createStack<Z, E, R>(options)
+  const [useStackContext, _provideStackContext] = createContext<StackContext>(namespace)
+  const context = createStack(options)
 
-  function provideStackContext (_context: R = context, app?: App): R {
+  function provideStackContext (_context: StackContext = context, app?: App): StackContext {
     return _provideStackContext(_context, app)
   }
 
-  return createTrinity<R>(useStackContext, provideStackContext, context)
+  return createTrinity<StackContext>(useStackContext, provideStackContext, context)
 }
 
 /**
@@ -327,13 +319,9 @@ export function createStackContext<
  * app.mount('#app')
  * ```
  */
-export function createStackPlugin<
-  Z extends StackTicketInput = StackTicketInput,
-  E extends StackTicket<Z> = StackTicket<Z>,
-  R extends StackContext<Z, E> = StackContext<Z, E>,
-> (_options: StackPluginOptions = {}) {
+export function createStackPlugin (_options: StackPluginOptions = {}) {
   const { namespace = 'v0:stack', ...options } = _options
-  const [, provideStackContext, context] = createStackContext<Z, E, R>({ ...options, namespace })
+  const [, provideStackContext, context] = createStackContext({ ...options, namespace })
 
   return createPlugin({
     namespace,
@@ -394,17 +382,13 @@ function getStackFallback (): StackContext {
  * </template>
  * ```
  */
-export function useStack<
-  Z extends StackTicketInput = StackTicketInput,
-  E extends StackTicket<Z> = StackTicket<Z>,
-  R extends StackContext<Z, E> = StackContext<Z, E>,
-> (namespace = 'v0:stack'): R {
-  const fallback = getStackFallback() as unknown as R
+export function useStack (namespace = 'v0:stack'): StackContext {
+  const fallback = getStackFallback()
 
   if (!instanceExists()) return fallback
 
   try {
-    return useContext<R>(namespace)
+    return useContext<StackContext>(namespace)
   } catch {
     return fallback
   }

@@ -94,8 +94,6 @@ export interface FeaturePluginOptions extends FeatureContextOptions {
  * Creates a new features instance.
  *
  * @param options The options for the features instance.
- * @template Z The type of the feature ticket.
- * @template E The type of the feature context.
  * @returns A new features instance.
  *
  * @see https://0.vuetifyjs.com/composables/plugins/use-features
@@ -113,18 +111,14 @@ export interface FeaturePluginOptions extends FeatureContextOptions {
  * })
  * ```
  */
-export function createFeatures<
-  Z extends FeatureTicketInput = FeatureTicketInput,
-  E extends FeatureTicket<Z> = FeatureTicket<Z>,
-  R extends FeatureContext<Z, E> = FeatureContext<Z, E>,
-> (_options: FeatureOptions = {}): R {
+export function createFeatures (_options: FeatureOptions = {}): FeatureContext {
   const { features, ...options } = _options
 
   const tokens = createTokens(features, { flat: true })
-  const registry = createGroup<Z, E>({ ...options, reactive: true })
+  const registry = createGroup({ ...options, reactive: true })
 
   for (const [id, { value }] of tokens.entries()) {
-    register({ id, value } as unknown as Partial<Z>)
+    register({ id, value } as Partial<FeatureTicketInput>)
   }
 
   function variation (id: ID, fallback: unknown = null) {
@@ -135,13 +129,13 @@ export function createFeatures<
     return isObject(ticket.value) ? ticket.value.$variation ?? fallback : ticket.value ?? fallback
   }
 
-  function register (registration: Partial<Z> = {} as Partial<Z>): E {
+  function register (registration: Partial<FeatureTicketInput> = {} as Partial<FeatureTicketInput>): FeatureTicket {
     const item = {
       value: false,
       ...registration,
     }
 
-    const ticket = registry.register(item as unknown as Partial<Z>)
+    const ticket = registry.register(item as Partial<FeatureTicketInput>)
 
     if (
       (isBoolean(ticket.value) && ticket.value === true) || (
@@ -166,7 +160,7 @@ export function createFeatures<
           ? value === true
           : isObject(value) && isBoolean(value.$value) && value.$value === true
 
-        registry.upsert(id, { value } as unknown as Partial<E>)
+        registry.upsert(id, { value } as Partial<FeatureTicket>)
 
         if (shouldSelect) {
           registry.select(id)
@@ -174,12 +168,12 @@ export function createFeatures<
           registry.unselect(id)
         }
       } else {
-        register({ id, value } as Partial<Z>)
+        register({ id, value } as Partial<FeatureTicketInput>)
       }
     }
   }
 
-  function onboard (registrations: Partial<Z>[]): E[] {
+  function onboard (registrations: Partial<FeatureTicketInput>[]): FeatureTicket[] {
     return registry.batch(() => registrations.map(registration => register(registration)))
   }
 
@@ -192,19 +186,15 @@ export function createFeatures<
     get size () {
       return registry.size
     },
-  } as unknown as R
+  } as unknown as FeatureContext
 }
 
-function createFeaturesFallback<
-  Z extends FeatureTicketInput = FeatureTicketInput,
-  E extends FeatureTicket<Z> = FeatureTicket<Z>,
-  R extends FeatureContext<Z, E> = FeatureContext<Z, E>,
-> (): R {
+function createFeaturesFallback (): FeatureContext {
   return {
     size: 0,
     variation: (_id: ID, fallback: unknown = null) => fallback,
     sync: () => {},
-  } as unknown as R
+  } as unknown as FeatureContext
 }
 
 export const [createFeaturesContext, createFeaturesPlugin, useFeatures] =
