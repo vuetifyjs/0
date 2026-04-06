@@ -22,6 +22,8 @@
   import type { AtomProps } from '#v0/components/Atom'
 
   export interface InputDescriptionProps extends AtomProps {
+    /** Unique identifier (auto-generated if not provided) */
+    id?: string
     /** Namespace for connecting to parent Input.Root */
     namespace?: string
   }
@@ -44,12 +46,13 @@
   const {
     as = 'span',
     renderless,
+    id = useId(),
     namespace = 'v0:input:root',
   } = defineProps<InputDescriptionProps>()
 
   const root = useInputRoot(namespace)
 
-  root.descriptions.register({ id: useId() })
+  root.descriptions.register({ id })
 </script>
 
 <template>

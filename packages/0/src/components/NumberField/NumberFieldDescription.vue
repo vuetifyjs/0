@@ -20,6 +20,8 @@
   import type { AtomProps } from '#v0/components/Atom'
 
   export interface NumberFieldDescriptionProps extends AtomProps {
+    /** Unique identifier (auto-generated if not provided) */
+    id?: string
     /** Namespace for connecting to parent NumberField.Root */
     namespace?: string
   }
@@ -42,12 +44,13 @@
   const {
     as = 'span',
     renderless,
+    id = useId(),
     namespace = 'v0:number-field:root',
   } = defineProps<NumberFieldDescriptionProps>()
 
   const root = useNumberFieldRoot(namespace)
 
-  root.descriptions.register({ id: useId() })
+  root.descriptions.register({ id })
 </script>
 
 <template>

@@ -22,6 +22,8 @@
   import type { AtomProps } from '#v0/components/Atom'
 
   export interface NumberFieldErrorProps extends AtomProps {
+    /** Unique identifier (auto-generated if not provided) */
+    id?: string
     /** Namespace for connecting to parent NumberField.Root */
     namespace?: string
   }
@@ -52,13 +54,14 @@
   const {
     as = 'span',
     renderless,
+    id = useId(),
     namespace = 'v0:number-field:root',
   } = defineProps<NumberFieldErrorProps>()
 
   const root = useNumberFieldRoot(namespace)
   const errors = root.errors
 
-  root.fieldErrors.register({ id: useId() })
+  root.fieldErrors.register({ id })
 
   const slotProps = toRef((): NumberFieldErrorSlotProps => ({
     id: root.errorId,

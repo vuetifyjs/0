@@ -102,7 +102,6 @@
   }
 
   function onBlur () {
-    // Parse text and commit
     const parsed = root.parse(text.value)
     root.value.value = parsed
     root.commit()
@@ -113,7 +112,6 @@
   function onKeydown (e: KeyboardEvent) {
     if (root.isDisabled.value || root.isReadonly.value) return
 
-    // Shift + Arrow = 10x step
     if (e.shiftKey && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
       e.preventDefault()
       if (e.key === 'ArrowUp') root.increment(10)

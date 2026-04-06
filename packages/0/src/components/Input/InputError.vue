@@ -24,6 +24,8 @@
   import type { AtomProps } from '#v0/components/Atom'
 
   export interface InputErrorProps extends AtomProps {
+    /** Unique identifier (auto-generated if not provided) */
+    id?: string
     /** Namespace for connecting to parent Input.Root */
     namespace?: string
   }
@@ -54,13 +56,14 @@
   const {
     as = 'span',
     renderless,
+    id = useId(),
     namespace = 'v0:input:root',
   } = defineProps<InputErrorProps>()
 
   const root = useInputRoot(namespace)
   const errors = root.errors
 
-  root.fieldErrors.register({ id: useId() })
+  root.fieldErrors.register({ id })
 
   const slotProps = toRef((): InputErrorSlotProps => ({
     id: root.errorId,

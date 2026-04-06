@@ -226,7 +226,7 @@
 
   const model = defineModel<number | null>({ default: null })
 
-  const field = createNumberField({
+  const { input, ...field } = createNumberField({
     value: model,
     id,
     label,
@@ -245,8 +245,6 @@
     error,
     errorMessages,
   })
-
-  const { input } = field
 
   const parsed = toRef(() => parseValidateOn(validateOn))
 
@@ -280,6 +278,7 @@
 
   const context: NumberFieldRootContext = {
     ...field,
+    input,
     id: input.id,
     label,
     name,
