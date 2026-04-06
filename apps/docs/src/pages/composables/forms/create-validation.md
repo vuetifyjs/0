@@ -119,7 +119,7 @@ validation.register(v => /^.+@\S+\.\S+$/.test(String(v)) || 'Invalid email')
 
 ### Enabling and Disabling Rules
 
-Each rule is a ticket with selection methods from `createGroup`. Use `enroll` to control whether rules are active by default:
+Each rule is a ticket with selection methods from `createGroup`. The `enroll` option (default `true`) controls whether newly registered rules are active immediately. Set `enroll: false` to register rules in an inactive state:
 
 ```ts
 const validation = createValidation({
