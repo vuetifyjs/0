@@ -35,6 +35,47 @@ A 3-step wizard with next/previous navigation buttons and per-step content rende
 
 :::
 
+## Features
+
+### Navigation Methods
+
+The default slot exposes navigation methods for moving through steps:
+
+```vue
+<template>
+  <Step.Root v-model="current">
+    <template #default="{ first, last, next, prev, step }">
+      <Step.Item value="details">Details</Step.Item>
+      <Step.Item value="payment">Payment</Step.Item>
+      <Step.Item value="confirm">Confirm</Step.Item>
+
+      <button @click="prev">Back</button>
+      <button @click="next">Continue</button>
+
+      <!-- Jump by count: step(2) advances two steps, step(-1) goes back one -->
+      <button @click="step(2)">Skip ahead</button>
+    </template>
+  </Step.Root>
+</template>
+```
+
+### Disabled Item Skipping
+
+Disabled items are automatically skipped by `next`, `prev`, and `step`. Use this to conditionally hide steps based on form state:
+
+```vue
+<template>
+  <Step.Root v-model="current">
+    <Step.Item value="details">Details</Step.Item>
+
+    <!-- Skipped by next/prev when needsShipping is false -->
+    <Step.Item value="shipping" :disabled="!needsShipping">Shipping</Step.Item>
+
+    <Step.Item value="confirm">Confirm</Step.Item>
+  </Step.Root>
+</template>
+```
+
 ## Anatomy
 
 ```vue Anatomy playground
