@@ -37,7 +37,7 @@ export interface ProgressOptions {
 
 export interface ProgressContext extends Omit<
   ModelContext<ProgressTicketInput, ProgressTicket>,
-  'selectedValues' | 'apply' | 'register'
+  'selectedValues'
 > {
   readonly min: number
   readonly max: number
@@ -47,8 +47,6 @@ export interface ProgressContext extends Omit<
   percent: ComputedRef<number>
   isIndeterminate: ComputedRef<boolean>
   fromValue: (value: number) => number
-  apply: (values: unknown[], options?: { multiple?: boolean }) => void
-  register: (registration?: Partial<ProgressTicketInput>) => ProgressTicket
 }
 
 export interface ProgressContextOptions extends ProgressOptions {
