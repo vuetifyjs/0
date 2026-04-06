@@ -69,7 +69,9 @@ flowchart TD
 
 | Option | Type | Default | Notes |
 | - | - | - | - |
+| `immediate` | `boolean` | `false` | Fire the callback immediately on mount before any resize |
 | `once` | `boolean` | `false` | Stop observing after the first callback fires |
+| `box` | `'content-box' \| 'border-box'` | `'content-box'` | Which box model to observe |
 
 ## Reactivity
 
