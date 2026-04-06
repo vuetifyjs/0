@@ -68,6 +68,15 @@ A collapsible panel that defers rendering until first open (800ms simulated dela
 
 :::
 
+## Delay
+
+Use the `delay` option to defer the first mount by a fixed number of milliseconds. This prevents a flash of content for operations that complete very quickly:
+
+```ts
+const { hasContent } = useLazy(isOpen, { delay: 200 })
+// Content only mounts if isOpen stays true for 200ms
+```
+
 ## Eager Mode
 
 Use the `eager` option to render content immediately without waiting for activation:
