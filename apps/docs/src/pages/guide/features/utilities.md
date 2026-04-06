@@ -228,6 +228,51 @@ const config = toReactive(configRef)
 config.debug  // Reactive access
 ```
 
+## Color
+
+Color manipulation utilities for hex and RGB formats.
+
+### hexToRgb / rgbToHex
+
+Convert between hex strings and `RGB` objects:
+
+```ts
+import { hexToRgb, rgbToHex } from '@vuetify/v0'
+
+hexToRgb('#1976d2')  // { r: 25, g: 118, b: 210 }
+hexToRgb('#fff')     // { r: 255, g: 255, b: 255 }
+
+rgbToHex({ r: 25, g: 118, b: 210 })  // '#1976d2'
+```
+
+The `RGB` interface is available for typing:
+
+```ts
+import type { RGB } from '@vuetify/v0'
+
+const color: RGB = { r: 255, g: 0, b: 0 }
+```
+
+### APCA Contrast
+
+[APCA](https://github.com/Myndex/SAPC-APCA) (Advanced Perceptual Contrast Algorithm) for accessible color pairings. Returns a signed contrast value — higher magnitude means more contrast:
+
+```ts
+import { apca, foreground, hexToRgb } from '@vuetify/v0'
+
+// Raw APCA contrast between two colors
+const text = hexToRgb('#1a1a1a')
+const bg   = hexToRgb('#ffffff')
+apca(text, bg)  // ~-106 (high contrast, dark on light)
+
+// Pick black or white text for a background
+foreground('#1976d2')  // '#ffffff' (white reads better on this blue)
+foreground('#ffd600')  // '#000000' (black reads better on yellow)
+```
+
+> [!TIP]
+> `foreground` is ideal for computing on-color text in design tokens. It uses APCA to select the higher-contrast option.
+
 ## Best Practices
 
 ### Combine Utilities
