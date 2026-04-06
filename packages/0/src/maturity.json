@@ -116,6 +116,11 @@
       "since": "0.1.0",
       "category": "data"
     },
+    "createProgress": {
+      "level": "draft",
+      "since": null,
+      "category": "semantic"
+    },
     "createVirtual": {
       "level": "preview",
       "since": "0.1.0",

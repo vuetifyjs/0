@@ -12,7 +12,7 @@ related:
   - /composables/data/create-filter
   - /composables/data/create-pagination
   - /composables/data/create-virtual
-  - /composables/utilities/create-overflow
+  - /composables/semantic/create-overflow
 ---
 
 # Utilities
@@ -28,7 +28,7 @@ Standalone helpers for common UI patterns. These composables don't depend on con
 | [createFilter](/composables/data/create-filter) | Filter arrays with search queries |
 | [createPagination](/composables/data/create-pagination) | Page navigation state |
 | [createVirtual](/composables/data/create-virtual) | Virtual scrolling for large lists |
-| [createOverflow](/composables/utilities/create-overflow) | Compute visible item capacity |
+| [createOverflow](/composables/semantic/create-overflow) | Compute visible item capacity |
 
 > [!TIP]
 > These utilities are standalone—they don't require plugins or context. Use them anywhere, including outside Vue components.
