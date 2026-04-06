@@ -54,7 +54,8 @@ Slider state is **always reactive**. Values and derived properties update automa
 | Property/Method | Reactive | Notes |
 | - | :-: | - |
 | `values` | <AppSuccessIcon /> | Ref — all thumb values |
-| `disabled` | <AppSuccessIcon /> | Ref — accepts MaybeRefOrGetter |
+| `disabled` | <AppSuccessIcon /> | Ref — accepts MaybeRefOrGetter; blocks all mutations |
+| `readonly` | <AppSuccessIcon /> | Ref — accepts MaybeRefOrGetter; thumbs remain focusable but `set`, `up`, `down`, `floor`, `ceil` are no-ops |
 | `orientation` | <AppSuccessIcon /> | Ref — accepts MaybeRefOrGetter |
 | `inverted` | <AppSuccessIcon /> | Ref — accepts MaybeRefOrGetter |
 | `snap` | <AppErrorIcon /> | Pure function — rounds to nearest step with decimal precision correction |
