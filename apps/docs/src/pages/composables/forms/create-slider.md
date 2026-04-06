@@ -38,10 +38,14 @@ slider.up(0)               // values: [55]
 slider.fromValue(50)       // 50
 slider.snap(47)            // 45 (nearest step of 5)
 
-// Range — register two thumbs
+// Range — register two thumbs individually
 const slider2 = createSlider({ min: 0, max: 100, step: 1 })
 slider2.register({ value: 25 })
 slider2.register({ value: 75 })
+
+// Or register multiple thumbs at once with onboard()
+const slider3 = createSlider({ min: 0, max: 100, step: 1 })
+slider3.onboard([{ value: 0 }, { value: 50 }, { value: 100 }])
 
 slider2.set(0, 30)         // values: [30, 75]
 slider2.set(1, 60)         // values: [30, 60]
