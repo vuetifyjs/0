@@ -118,6 +118,7 @@ Breakpoints are **range-based**, not exact pixel matches. The `name` is the **hi
 | `breakpoints` | `Record<string, number>` | Static config object (not reactive) |
 | `mobileBreakpoint` | `BreakpointName \| number` | The threshold used to compute `isMobile` (static) |
 | `ssr` | `boolean` | `true` when running server-side with SSR options |
+| `update()` | — | Manually trigger viewport dimension and breakpoint recalculation |
 
 > [!TIP]
 > `xs` is always equivalent to "xsAndDown" (nothing is below xs), and `xxl` is always equivalent to "xxlAndUp" (nothing is above xxl). These redundant combinations are intentionally not provided.
