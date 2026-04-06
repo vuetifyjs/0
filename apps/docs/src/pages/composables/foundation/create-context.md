@@ -72,6 +72,20 @@ providePanel('panel-sidebar', sidebarContext)
 const panel = usePanel('panel-main')
 ```
 
+### Default Values
+
+By default, `useContext` throws if the context isn't found. Pass a `defaultValue` to make injection optional — useful for components that work with or without a parent:
+
+```ts
+// Static key — default passed at creation time
+const [usePanel, providePanel] = createContext<PanelContext>('v0:panel', fallbackContext)
+const panel = usePanel() // returns fallbackContext if not provided
+
+// Dynamic key — default passed at call time
+const [usePanel, providePanel] = createContext<PanelContext>()
+const panel = usePanel('v0:panel', fallbackContext)
+```
+
 ### Suffix Pattern
 
 For parent-child context hierarchies where a child needs to know which parent it belongs to:
