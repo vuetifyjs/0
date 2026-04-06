@@ -118,6 +118,7 @@ Each branch extends the base ticket pattern with domain-specific capabilities. S
 | `move(id, index)` | Reorder a ticket to a new index position |
 | `onboard(tickets)` | Batch-register an array of tickets |
 | `offboard(ids)` | Batch-unregister an array of IDs |
+| `batch(fn)` | Run multiple mutations with a single cache invalidation and deferred events |
 | `get(id)` | Retrieve a ticket by ID |
 | `browse(value)` | Reverse-lookup — find ticket ID(s) by value |
 | `lookup(index)` | Find ticket ID by zero-based index |
