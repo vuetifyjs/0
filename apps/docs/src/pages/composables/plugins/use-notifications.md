@@ -229,6 +229,36 @@ app.use(createNotificationsPlugin({ adapter: new MyBackendAdapter() }))
 | `on(event, handler)` | Subscribe to outbound lifecycle events |
 | `off(event, handler)` | Unsubscribe from a lifecycle event |
 
+### Custom Ticket Fields
+
+Extend `NotificationInput` to add domain-specific fields. Pass the type parameter through the adapter and plugin:
+
+```ts
+import type { NotificationInput, NotificationsAdapterInterface, NotificationsAdapterContext } from '@vuetify/v0'
+
+interface AppNotification extends NotificationInput {
+  priority: 'low' | 'medium' | 'high'
+  imageUrl?: string
+}
+
+class MyBackendAdapter implements NotificationsAdapterInterface<AppNotification> {
+  setup (context: NotificationsAdapterContext<AppNotification>) {
+    myBackend.onMessage(msg => {
+      context.send({
+        id: msg.id,
+        subject: msg.title,
+        priority: msg.priority,    // custom field
+        imageUrl: msg.imageUrl,    // custom field
+      })
+    })
+  }
+}
+
+app.use(createNotificationsPlugin<AppNotification>({ adapter: new MyBackendAdapter() }))
+```
+
+Custom fields are preserved on the ticket and accessible anywhere you inject the notifications context.
+
 > [!ASKAI] How do I write a custom adapter for my backend?
 
 ### Knock
