@@ -84,7 +84,7 @@ flowchart LR
 | - | :-: | - |
 | `page` | <AppSuccessIcon /> | WritableComputedRef, auto-clamps when total pages shrinks |
 | `pages` | <AppSuccessIcon /> | Total page count, computed from `size / itemsPerPage` |
-| `items` | <AppSuccessIcon /> | Computed, visible page buttons with ellipsis |
+| `items` | <AppSuccessIcon /> | Computed array of `PaginationTicket` — each is `{ type: 'page', value: number }` or `{ type: 'ellipsis', value: string }` |
 | `pageStart` | <AppSuccessIcon /> | Computed, start index for current page |
 | `pageStop` | <AppSuccessIcon /> | Computed, end index for current page |
 | `isFirst` | <AppSuccessIcon /> | Computed, true when on first page |
