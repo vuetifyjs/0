@@ -43,6 +43,14 @@ const { isMounted, isPresent, isLeaving, state, done } = usePresence({
 // done() — call when exit animation finishes
 ```
 
+## Options
+
+| Option | Type | Default | Notes |
+| - | - | - | - |
+| `present` | `MaybeRefOrGetter<boolean>` | — | Required. Drives visibility — when truthy, content enters; when falsy, begins leaving |
+| `lazy` | `boolean` | `false` | Delay first mount until `present` is `true` for the first time |
+| `immediate` | `boolean` | `true` | Auto-resolve the `leaving` state on the next tick if `done()` is not called. Set to `false` for JS-driven animations that need full timing control |
+
 ## Architecture
 
 ```mermaid "usePresence State Machine"
