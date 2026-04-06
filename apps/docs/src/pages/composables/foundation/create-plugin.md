@@ -162,6 +162,19 @@ flowchart LR
 
 The critical ordering is **restore before setup**. This means adapters (like the theme CSS variable injector) see the correct restored state on their first run — no flash of wrong values.
 
+### Hook signatures
+
+```ts
+interface PluginContextConfig<O, E> {
+  /** Return the value to persist — called reactively inside a watch source */
+  persist?: (context: E) => unknown
+  /** Restore previously persisted state — called before setup */
+  restore?: (context: E, saved: unknown) => void
+}
+```
+
+The `persist` return value is stored under the plugin namespace key (e.g. `v0:theme`). `restore` receives whatever was stored — cast to the expected type inside the hook.
+
 ### Built-in support
 
 | Plugin | Persists | Storage key |
