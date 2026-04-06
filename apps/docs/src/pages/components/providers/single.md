@@ -35,6 +35,37 @@ Radio-button-style single selection with size options that automatically deselec
 
 :::
 
+## Features
+
+### Auto-Enrollment
+
+Set `enroll` to automatically select the first registered item. Useful when items are rendered dynamically:
+
+```vue
+<template>
+  <!-- First item to register is selected automatically -->
+  <Single.Root enroll v-model="selected">
+    <Single.Item v-for="opt in options" :key="opt" :value="opt">
+      {{ opt }}
+    </Single.Item>
+  </Single.Root>
+</template>
+```
+
+### Mandatory Selection
+
+Use `mandatory` to prevent deselecting the currently selected item. Use `mandatory="force"` to also auto-select the first item on mount:
+
+```vue
+<template>
+  <!-- User cannot deselect — at least one item must remain selected -->
+  <Single.Root mandatory v-model="selected">
+    <Single.Item value="a">Option A</Single.Item>
+    <Single.Item value="b">Option B</Single.Item>
+  </Single.Root>
+</template>
+```
+
 ## Anatomy
 
 ```vue Anatomy playground
