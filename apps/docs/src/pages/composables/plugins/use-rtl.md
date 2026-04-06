@@ -119,14 +119,17 @@ CSS logical properties automatically flip based on `dir`. Use these by default:
 
 ### Direction Variants
 
-For cases logical properties can't handle (like `translate-x`), use `ltr:` and `rtl:` variants:
+For cases logical properties can't handle (like `translate-x`), use the bare class as the LTR default and the `rtl:` variant as the override:
 
 ```html
 <!-- Mobile drawer: slides from start edge -->
-<nav class="ltr:-translate-x-full rtl:translate-x-full md:ltr:translate-x-0 md:rtl:translate-x-0">
+<nav class="-translate-x-full rtl:translate-x-full md:translate-x-0">
   ...
 </nav>
 ```
+
+> [!TIP]
+> Avoid the `ltr:` variant — it only applies when an ancestor has an explicit `dir="ltr"` attribute, not as the default. Use the bare utility class for LTR behavior and `rtl:` for the RTL override.
 
 ### Symmetric Shorthand
 
