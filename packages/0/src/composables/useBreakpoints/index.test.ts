@@ -380,7 +380,7 @@ describe('useBreakpoints', () => {
         _context: {},
         runWithContext: vi.fn((callback: () => void) => callback()),
         provide: vi.fn(),
-        mixin: vi.fn(),
+        mount: vi.fn(() => ({}) as any),
       }
 
       plugin.install(mockApp as unknown as App)
@@ -395,7 +395,7 @@ describe('useBreakpoints', () => {
         _context: {},
         runWithContext: vi.fn((callback: () => void) => callback()),
         provide: vi.fn(),
-        mixin: vi.fn(),
+        mount: vi.fn(() => ({}) as any),
       }
 
       expect(() => plugin.install(mockApp as unknown as App)).not.toThrow()
@@ -615,122 +615,96 @@ describe('useBreakpoints', () => {
     })
   })
 
-  describe('plugin mixin behavior', () => {
-    it('should register mixin on app.mixin during install', () => {
+  describe('plugin app.mount wrapping', () => {
+    it('should wrap app.mount during install', () => {
       const plugin = createBreakpointsPlugin()
-      const mockApp = {
+      const originalMount = vi.fn(() => ({}) as any)
+      const mockApp: Record<string, any> = {
         _context: {},
         runWithContext: vi.fn((callback: () => void) => callback()),
         provide: vi.fn(),
-        mixin: vi.fn(),
+        mount: originalMount,
       }
 
       plugin.install(mockApp as unknown as App)
 
-      expect(mockApp.mixin).toHaveBeenCalled()
-      const mixinArg = mockApp.mixin.mock.calls[0]![0]
-      expect(mixinArg).toHaveProperty('mounted')
+      expect(mockApp.mount).not.toBe(originalMount)
     })
 
-    it('should skip mixin mounted logic when component has parent', () => {
+    it('should setup hydration watcher and resize listener on mount', () => {
       const plugin = createBreakpointsPlugin()
-      let registeredMixin: Record<string, (...args: unknown[]) => void>
-
-      const mockApp = {
+      const originalMount = vi.fn(() => ({}) as any)
+      const mockApp: Record<string, any> = {
         _context: {},
         runWithContext: vi.fn((callback: () => void) => callback()),
         provide: vi.fn(),
-        mixin: vi.fn((mixin: Record<string, (...args: unknown[]) => void>) => {
-          registeredMixin = mixin
-        }),
+        mount: originalMount,
       }
 
       plugin.install(mockApp as unknown as App)
 
-      const mockComponentWithParent = {
-        $parent: {},
-      }
+      mockApp.mount('#app')
 
-      expect(() => registeredMixin!.mounted!.call(mockComponentWithParent)).not.toThrow()
-    })
-
-    it('should setup resize listener for root component', () => {
-      const plugin = createBreakpointsPlugin()
-      let registeredMixin: Record<string, (...args: unknown[]) => void>
-
-      const mockApp = {
-        _context: {},
-        runWithContext: vi.fn((callback: () => void) => callback()),
-        provide: vi.fn(),
-        mixin: vi.fn((mixin: Record<string, (...args: unknown[]) => void>) => {
-          registeredMixin = mixin
-        }),
-      }
-
-      plugin.install(mockApp as unknown as App)
-
-      const mockRootComponent = {
-        $parent: null,
-      }
-
-      expect(() => registeredMixin!.mounted!.call(mockRootComponent)).not.toThrow()
-
+      expect(originalMount).toHaveBeenCalledWith('#app')
       expect(mockUseHydration).toHaveBeenCalled()
+    })
+
+    it('should restore original mount after first call', () => {
+      const plugin = createBreakpointsPlugin()
+      const originalMount = vi.fn(() => ({}) as any)
+      const mockApp: Record<string, any> = {
+        _context: {},
+        runWithContext: vi.fn((callback: () => void) => callback()),
+        provide: vi.fn(),
+        mount: originalMount,
+      }
+
+      plugin.install(mockApp as unknown as App)
+
+      mockApp.mount('#app')
+
+      expect(mockApp.mount).toBe(originalMount)
     })
 
     it('should register cleanup on scope dispose', () => {
       const plugin = createBreakpointsPlugin()
-      let registeredMixin: Record<string, (...args: unknown[]) => void>
-
-      const mockApp = {
+      const originalMount = vi.fn(() => ({}) as any)
+      const mockApp: Record<string, any> = {
         _context: {},
         runWithContext: vi.fn((callback: () => void) => callback()),
         provide: vi.fn(),
-        mixin: vi.fn((mixin: Record<string, (...args: unknown[]) => void>) => {
-          registeredMixin = mixin
-        }),
+        mount: originalMount,
       }
 
       plugin.install(mockApp as unknown as App)
 
-      const mockRootComponent = {
-        $parent: null,
-      }
-
-      registeredMixin!.mounted!.call(mockRootComponent)
+      mockApp.mount('#app')
 
       expect(mockOnScopeDispose).toHaveBeenCalled()
       expect(mockOnScopeDispose.mock.calls[0]![1]).toBe(true)
     })
 
     it('should call cleanup function when scope is disposed', () => {
-      const plugin = createBreakpointsPlugin()
-      let registeredMixin: Record<string, (...args: unknown[]) => void>
       let cleanupFn: (() => void) | undefined
 
       mockOnScopeDispose.mockImplementation((fn: () => void) => {
         cleanupFn = fn
       })
 
-      const mockApp = {
+      const plugin = createBreakpointsPlugin()
+      const originalMount = vi.fn(() => ({}) as any)
+      const mockApp: Record<string, any> = {
         _context: {},
         runWithContext: vi.fn((callback: () => void) => callback()),
         provide: vi.fn(),
-        mixin: vi.fn((mixin: Record<string, (...args: unknown[]) => void>) => {
-          registeredMixin = mixin
-        }),
+        mount: originalMount,
       }
 
       plugin.install(mockApp as unknown as App)
 
-      const mockRootComponent = {
-        $parent: null,
-      }
-
-      registeredMixin!.mounted!.call(mockRootComponent)
+      mockApp.mount('#app')
 
       expect(cleanupFn).toBeDefined()
-
       expect(() => cleanupFn!()).not.toThrow()
     })
   })

@@ -26,7 +26,7 @@ import { useWindowEventListener } from '#v0/composables/useEventListener'
 import { useHydration } from '#v0/composables/useHydration'
 
 // Utilities
-import { isNull, isNumber, mergeDeep } from '#v0/utilities'
+import { isNumber, mergeDeep } from '#v0/utilities'
 import { onScopeDispose, readonly, shallowRef, watch } from 'vue'
 
 // Types
@@ -271,27 +271,29 @@ export const [createBreakpointsContext, createBreakpointsPlugin, useBreakpoints]
         // The hydration watcher below will call update() after hydration completes.
         if (IN_BROWSER && !_options?.ssr) context.update()
 
-        app.mixin({
-          mounted () {
-            if (!isNull(this.$parent)) return
+        const { mount } = app
+        app.mount = (...args) => {
+          const vm = mount(...args)
 
-            const hydration = useHydration()
+          const hydration = useHydration()
 
-            function listener () {
-              context.update()
-            }
+          function listener () {
+            context.update()
+          }
 
-            const unwatch = watch(hydration.isHydrated, hydrated => {
-              if (hydrated) listener()
-            }, { immediate: true })
+          const unwatch = watch(hydration.isHydrated, hydrated => {
+            if (hydrated) listener()
+          }, { immediate: true })
 
-            const cleanup = useWindowEventListener('resize', listener, { passive: true })
-            onScopeDispose(() => {
-              cleanup()
-              unwatch()
-            }, true)
-          },
-        })
+          const cleanup = useWindowEventListener('resize', listener, { passive: true })
+          onScopeDispose(() => {
+            cleanup()
+            unwatch()
+          }, true)
+
+          app.mount = mount
+          return vm
+        }
       },
     },
   )
