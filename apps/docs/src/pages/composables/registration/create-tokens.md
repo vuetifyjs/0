@@ -83,6 +83,24 @@ const tokens = useTokens()
 tokens.resolve('colors.primary')  // '#3b82f6'
 ```
 
+## Options
+
+### createTokens
+
+| Option | Type | Default | Notes |
+| - | - | - | - |
+| `flat` | `boolean` | `false` | Keep nested objects as-is at their base key instead of flattening |
+| `prefix` | `string` | — | Prepend a string to every token ID on registration (e.g. `'color.'`) |
+
+### createTokensContext
+
+Accepts all `createTokens` options plus:
+
+| Option | Type | Default | Notes |
+| - | - | - | - |
+| `namespace` | `string` | — | DI namespace string (e.g. `'my:tokens'`) |
+| `tokens` | `TokenCollection` | — | Initial token collection registered when the context is created |
+
 ## Architecture
 
 `createTokens` extends `createRegistry` and powers token-based systems:
