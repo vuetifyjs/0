@@ -13,6 +13,9 @@
   import { Atom } from '#v0/components/Atom'
   import { useNumberFieldRoot } from './NumberFieldRoot.vue'
 
+  // Composables
+  import { useTimer } from '#v0/composables/useTimer'
+
   // Utilities
   import { mergeProps, toRef, useAttrs } from 'vue'
 
@@ -53,18 +56,12 @@
     return root.isDisabled.value || root.isReadonly.value || !root.canIncrement.value
   })
 
-  let delayTimer: ReturnType<typeof setTimeout> | undefined
-  let spinTimer: ReturnType<typeof setInterval> | undefined
+  const spin = useTimer(() => root.increment(), { duration: root.spinRate, repeat: true })
+  const delay = useTimer(() => spin.start(), { duration: root.spinDelay })
 
-  function clearTimers () {
-    if (delayTimer) {
-      clearTimeout(delayTimer)
-      delayTimer = undefined
-    }
-    if (spinTimer) {
-      clearInterval(spinTimer)
-      spinTimer = undefined
-    }
+  function stop () {
+    delay.stop()
+    spin.stop()
   }
 
   function onPointerdown (e: PointerEvent) {
@@ -73,24 +70,19 @@
     e.preventDefault()
 
     root.increment()
-
-    delayTimer = setTimeout(() => {
-      spinTimer = setInterval(() => {
-        root.increment()
-      }, root.spinRate)
-    }, root.spinDelay)
+    delay.start()
   }
 
   function onPointerup () {
-    clearTimers()
+    stop()
   }
 
   function onPointercancel () {
-    clearTimers()
+    stop()
   }
 
   function onBlur () {
-    clearTimers()
+    stop()
   }
 
   const controlAttrs = toRef((): Record<string, unknown> => {

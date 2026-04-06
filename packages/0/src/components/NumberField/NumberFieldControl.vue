@@ -58,7 +58,6 @@
 
   const leap = Math.max(1, Math.round(root.numeric.leap / root.numeric.step))
 
-  // Internal text shown while editing
   const text = shallowRef('')
 
   function syncText () {
@@ -67,14 +66,12 @@
 
   onMounted(syncText)
 
-  // When value changes externally (not from typing), update internal text
   watch(() => root.value.value, () => {
     if (!root.isFocused.value) {
       syncText()
     }
   })
 
-  // Display: raw text while focused, formatted while blurred
   const displayValue = toRef(() => {
     return root.isFocused.value ? text.value : root.display.value
   })
