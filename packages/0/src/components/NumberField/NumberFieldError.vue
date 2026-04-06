@@ -16,7 +16,7 @@
 
   // Utilities
   import { useId } from '#v0/utilities'
-  import { mergeProps, toRef, useAttrs } from 'vue'
+  import { mergeProps, onBeforeUnmount, toRef, useAttrs } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -61,7 +61,9 @@
   const root = useNumberFieldRoot(namespace)
   const errors = root.errors
 
-  root.fieldErrors.register({ id })
+  const ticket = root.fieldErrors.register({ id })
+
+  onBeforeUnmount(() => ticket.unregister())
 
   const slotProps = toRef((): NumberFieldErrorSlotProps => ({
     id: root.errorId,

@@ -16,7 +16,7 @@
 
   // Utilities
   import { useId } from '#v0/utilities'
-  import { useAttrs } from 'vue'
+  import { onBeforeUnmount, useAttrs } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -52,7 +52,9 @@
 
   const root = useInputRoot(namespace)
 
-  root.descriptions.register({ id })
+  const ticket = root.descriptions.register({ id })
+
+  onBeforeUnmount(() => ticket.unregister())
 </script>
 
 <template>
