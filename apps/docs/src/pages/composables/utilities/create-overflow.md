@@ -70,6 +70,14 @@ const overflow = useNavOverflow()
 overflow.capacity.value  // number of items that fit
 ```
 
+Use `useOverflow` to inject the default (unnamespaced) overflow context provided by a parent:
+
+```ts
+import { useOverflow } from '@vuetify/v0'
+
+const overflow = useOverflow()  // Injects the nearest provided overflow context
+```
+
 ## Architecture
 
 `createOverflow` uses ResizeObserver to compute container capacity:
