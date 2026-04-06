@@ -16,7 +16,7 @@
 
   // Utilities
   import { useId } from '#v0/utilities'
-  import { onBeforeUnmount, useAttrs } from 'vue'
+  import { mergeProps, onBeforeUnmount, toRef, useAttrs } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -55,15 +55,22 @@
   const ticket = root.descriptions.register({ id })
 
   onBeforeUnmount(() => ticket.unregister())
+
+  const descriptionAttrs = toRef(() => ({
+    id: root.descriptionId,
+  }))
+
+  const slotProps = toRef((): InputDescriptionSlotProps => ({
+    id: root.descriptionId,
+  }))
 </script>
 
 <template>
   <Atom
-    v-bind="attrs"
-    :id="root.descriptionId"
+    v-bind="mergeProps(attrs, descriptionAttrs)"
     :as
     :renderless
   >
-    <slot :id="root.descriptionId" />
+    <slot v-bind="slotProps" />
   </Atom>
 </template>
