@@ -117,6 +117,16 @@ validation.register(v => !!v || 'Required')
 validation.register(v => /^.+@\S+\.\S+$/.test(String(v)) || 'Invalid email')
 ```
 
+Use `onboard()` to register multiple rules at once:
+
+```ts
+validation.onboard([
+  v => !!v || 'Required',
+  v => v.length >= 8 || 'Min 8 characters',
+  v => /[A-Z]/.test(String(v)) || 'Must contain uppercase',
+])
+```
+
 ### Enabling and Disabling Rules
 
 Each rule is a ticket with selection methods from `createGroup`. The `enroll` option (default `true`) controls whether newly registered rules are active immediately. Set `enroll: false` to register rules in an inactive state:
