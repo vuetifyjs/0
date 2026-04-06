@@ -297,7 +297,7 @@ export function createGroup<
     return items.every(item => selection.selectedIds.has(item.id))
   })
 
-  const isNoneSelected = computed(() => selection.selectedIds.size === 0)
+  const isNoneSelected = toRef(() => selection.selectedIds.size === 0)
 
   const isMixed = computed(() => {
     return mixedIds.size > 0 || (!isNoneSelected.value && !isAllSelected.value)

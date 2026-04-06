@@ -5,6 +5,9 @@
  * LaunchDarkly adapter for feature flags.
  */
 
+// Utilities
+import { isBoolean } from '#v0/utilities'
+
 // Types
 import type { FeaturesAdapterFlags, FeaturesAdapterInterface } from '../generic'
 import type { LDClient } from 'launchdarkly-js-client-sdk'
@@ -18,7 +21,7 @@ export class LaunchDarklyFeatureAdapter implements FeaturesAdapterInterface {
       const flags: FeaturesAdapterFlags = {}
 
       for (const [key, value] of Object.entries(allFlags)) {
-        flags[key] = typeof value === 'boolean'
+        flags[key] = isBoolean(value)
           ? value
           : { $value: true, $variation: value }
       }

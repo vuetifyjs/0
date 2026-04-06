@@ -23,7 +23,7 @@ import { createContext, useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
 
 // Utilities
-import { clamp } from '#v0/utilities'
+import { clamp, range } from '#v0/utilities'
 import { computed, isRef, shallowRef, toRef, toValue } from 'vue'
 
 // Types
@@ -127,13 +127,13 @@ export function createRating<
 
   function next () {
     if (value.value < toValue(_size)) {
-      value.value = Math.min(value.value + step.value, toValue(_size))
+      value.value = clamp(value.value + step.value, 0, toValue(_size))
     }
   }
 
   function prev () {
     if (value.value > 0) {
-      value.value = Math.max(value.value - step.value, 0)
+      value.value = clamp(value.value - step.value, 0, toValue(_size))
     }
   }
 
@@ -152,18 +152,12 @@ export function createRating<
   }
 
   const items = computed<RatingItemDescriptor[]>(() => {
-    const size = toValue(_size)
     const current = value.value
-    const result: RatingItemDescriptor[] = []
 
-    for (let i = 1; i <= size; i++) {
-      result.push({
-        value: i,
-        state: getState(i, current),
-      })
-    }
-
-    return result
+    return range(toValue(_size), 1).map(i => ({
+      value: i,
+      state: getState(i, current),
+    }))
   })
 
   return {
