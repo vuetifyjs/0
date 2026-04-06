@@ -43,6 +43,35 @@ A simple popover positioned via CSS anchor positioning, opened and closed by a b
 
 :::
 
+## Features
+
+### Positioning
+
+Use `position-area` on `Popover.Content` to control where the popover appears relative to its anchor. Accepts any [CSS `position-area`](https://developer.mozilla.org/en-US/docs/Web/CSS/position-area) value (default: `'bottom'`):
+
+```vue
+<template>
+  <Popover.Content position-area="top">
+    <!-- Appears above the anchor -->
+  </Popover.Content>
+
+  <Popover.Content position-area="end">
+    <!-- Appears to the right of the anchor -->
+  </Popover.Content>
+</template>
+```
+
+Use `position-try` to specify fallback positions when the preferred position doesn't fit in the viewport (default: `'most-width bottom'`):
+
+```vue
+<template>
+  <!-- Try bottom first; fall back to most available width -->
+  <Popover.Content position-area="bottom" position-try="most-width bottom">
+    Tooltip content
+  </Popover.Content>
+</template>
+```
+
 ## Anatomy
 
 ```vue Anatomy playground
