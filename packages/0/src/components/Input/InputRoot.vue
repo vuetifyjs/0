@@ -26,6 +26,7 @@
   import type { AtomProps } from '#v0/components/Atom'
   import type { FormValidationRule } from '#v0/composables/createForm'
   import type { InputState } from '#v0/composables/createInput'
+  import type { RegistryContext } from '#v0/composables/createRegistry'
   import type { RuleAlias, StandardSchemaV1 } from '#v0/composables/useRules'
   import type { MaybeArray, ID } from '#v0/types'
   import type { MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
@@ -59,10 +60,14 @@
     readonly descriptionId: string
     /** ID for error element (aria-errormessage) */
     readonly errorId: string
+    /** Registry of mounted Description sub-components */
+    descriptions: RegistryContext
+    /** Registry of mounted Error sub-components */
+    fieldErrors: RegistryContext
     /** Whether a Description sub-component is mounted */
-    hasDescription: ShallowRef<boolean>
+    hasDescription: Readonly<Ref<boolean>>
     /** Whether an Error sub-component is mounted */
-    hasError: ShallowRef<boolean>
+    hasError: Readonly<Ref<boolean>>
     /** Current input value — write to update both v-model and validation */
     value: Ref<string>
     /** Whether this input has content */
@@ -256,6 +261,8 @@
     required,
     descriptionId: input.descriptionId,
     errorId: input.errorId,
+    descriptions: input.descriptions,
+    fieldErrors: input.fieldErrors,
     hasDescription: input.hasDescription,
     hasError: input.hasError,
     value: model,

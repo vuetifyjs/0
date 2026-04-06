@@ -12,6 +12,7 @@
  */
 
 // Composables
+import { createRegistry } from '#v0/composables/createRegistry'
 import { createValidation } from '#v0/composables/createValidation'
 
 // Utilities
@@ -23,6 +24,7 @@ import { toArray } from '#v0/composables/toArray'
 
 // Types
 import type { FormValidationRule } from '#v0/composables/createForm'
+import type { RegistryContext } from '#v0/composables/createRegistry'
 import type { RuleAlias, StandardSchemaV1 } from '#v0/composables/useRules'
 import type { ID, MaybeArray } from '#v0/types'
 import type { MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
@@ -69,8 +71,10 @@ export interface InputContext<T = string> {
   // ARIA IDs
   readonly descriptionId: string
   readonly errorId: string
-  hasDescription: ShallowRef<boolean>
-  hasError: ShallowRef<boolean>
+  descriptions: RegistryContext
+  fieldErrors: RegistryContext
+  hasDescription: Readonly<Ref<boolean>>
+  hasError: Readonly<Ref<boolean>>
 
   // Value
   value: Ref<T>
@@ -116,8 +120,10 @@ export function createInput<T = string> (options: InputOptions<T>): InputContext
   const initialValue = value.value
   const isFocused = shallowRef(false)
   const isTouched = shallowRef(false)
-  const hasDescription = shallowRef(false)
-  const hasError = shallowRef(false)
+  const descriptions = createRegistry({ reactive: true })
+  const fieldErrors = createRegistry({ reactive: true })
+  const hasDescription = toRef(() => descriptions.size > 0)
+  const hasError = toRef(() => fieldErrors.size > 0)
 
   const isDisabled = toRef(() => toValue(disabled))
   const isReadonly = toRef(() => toValue(_readonly))
@@ -166,7 +172,7 @@ export function createInput<T = string> (options: InputOptions<T>): InputContext
 
   return {
     id, label, name, form, required,
-    descriptionId, errorId, hasDescription, hasError,
+    descriptionId, errorId, descriptions, fieldErrors, hasDescription, hasError,
     value,
     isDirty, isFocused, isDisabled, isReadonly, isPristine, isTouched,
     errors, isValid, isValidating: validation.isValidating, validate, reset,

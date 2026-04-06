@@ -17,7 +17,8 @@
   import { useInputRoot } from './InputRoot.vue'
 
   // Utilities
-  import { onBeforeUnmount, onMounted, toRef, useAttrs } from 'vue'
+  import { useId } from '#v0/utilities'
+  import { toRef, useAttrs } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -59,13 +60,7 @@
   const root = useInputRoot(namespace)
   const errors = root.errors
 
-  onMounted(() => {
-    root.hasError.value = true
-  })
-
-  onBeforeUnmount(() => {
-    root.hasError.value = false
-  })
+  root.fieldErrors.register({ id: useId() })
 
   const slotProps = toRef((): InputErrorSlotProps => ({
     id: root.errorId,

@@ -15,7 +15,8 @@
   import { useInputRoot } from './InputRoot.vue'
 
   // Utilities
-  import { onBeforeUnmount, onMounted, useAttrs } from 'vue'
+  import { useId } from '#v0/utilities'
+  import { useAttrs } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -48,13 +49,7 @@
 
   const root = useInputRoot(namespace)
 
-  onMounted(() => {
-    root.hasDescription.value = true
-  })
-
-  onBeforeUnmount(() => {
-    root.hasDescription.value = false
-  })
+  root.descriptions.register({ id: useId() })
 </script>
 
 <template>

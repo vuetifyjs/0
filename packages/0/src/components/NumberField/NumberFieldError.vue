@@ -15,7 +15,8 @@
   import { useNumberFieldRoot } from './NumberFieldRoot.vue'
 
   // Utilities
-  import { mergeProps, onBeforeUnmount, onMounted, toRef, useAttrs } from 'vue'
+  import { useId } from '#v0/utilities'
+  import { mergeProps, toRef, useAttrs } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -57,13 +58,7 @@
   const root = useNumberFieldRoot(namespace)
   const errors = root.errors
 
-  onMounted(() => {
-    root.hasError.value = true
-  })
-
-  onBeforeUnmount(() => {
-    root.hasError.value = false
-  })
+  root.fieldErrors.register({ id: useId() })
 
   const slotProps = toRef((): NumberFieldErrorSlotProps => ({
     id: root.errorId,
