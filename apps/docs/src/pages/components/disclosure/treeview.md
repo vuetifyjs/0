@@ -97,6 +97,66 @@ For trees with selection, add [Treeview.Checkbox](#treeviewcheckbox) and [Treevi
 </template>
 ```
 
+## Configuration
+
+### Expansion Mode
+
+Control how many nodes can be open at once with the `open` prop:
+
+```vue
+<!-- Default: multiple nodes can be open simultaneously -->
+<Treeview.Root open="multiple">
+
+<!-- Accordion: only one node open at a time -->
+<Treeview.Root open="single">
+```
+
+Use `open-all` to expand all nodes on mount:
+
+```vue
+<Treeview.Root open-all>
+  <!-- All nodes start expanded -->
+</Treeview.Root>
+```
+
+### Selection Mode
+
+The `selection` prop controls how selection propagates through the hierarchy:
+
+| Value | Behavior |
+|-------|----------|
+| `cascade` (default) | Selecting a parent selects all descendants; parents show tri-state when partially selected |
+| `independent` | Each node selected independently, no cascading |
+| `leaf` | Only leaf nodes can be selected; selecting a parent selects all its leaf descendants |
+
+```vue
+<Treeview.Root v-model="selected" selection="leaf">
+  <!-- Only leaf nodes appear in v-model -->
+</Treeview.Root>
+```
+
+### Active Item
+
+The `active` prop controls single vs. multi-highlight mode (independent of selection):
+
+```vue
+<!-- Default: only one item highlighted at a time -->
+<Treeview.Root active="single">
+
+<!-- Multiple items can be highlighted simultaneously -->
+<Treeview.Root active="multiple">
+```
+
+### Reveal
+
+Set `reveal` to automatically open all ancestor nodes when a descendant is opened. Useful for "navigate to item" patterns where a deep node is programmatically opened:
+
+```vue
+<Treeview.Root reveal>
+  <!-- Opening a deep node opens its entire ancestor chain -->
+</Treeview.Root>
+```
+
 ## Examples
 
 ::: example
