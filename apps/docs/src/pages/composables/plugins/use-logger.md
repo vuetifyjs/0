@@ -129,7 +129,21 @@ flowchart LR
 
 ## Reactivity
 
-The logger uses internal reactive state for level and enabled, but exposes only functions. There are no reactive properties — all interactions are through imperative methods.
+The logger exposes only functions — no reactive properties. All interactions are imperative.
+
+| Method | Notes |
+| - | - |
+| `debug(msg, ...args)` | Log at debug level |
+| `info(msg, ...args)` | Log at info level |
+| `warn(msg, ...args)` | Log at warn level |
+| `error(msg, ...args)` | Log at error level |
+| `trace(msg, ...args)` | Log at trace level |
+| `fatal(msg, ...args)` | Log at fatal level |
+| `level(newLevel)` | Change the active log level at runtime |
+| `current()` | Return the current `LogLevel` string |
+| `enabled()` | Return `true` if logging is enabled |
+| `enable()` | Enable logging |
+| `disable()` | Disable logging (silences all output) |
 
 ## Examples
 
