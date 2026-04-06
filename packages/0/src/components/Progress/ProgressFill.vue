@@ -14,7 +14,7 @@
   import { useProgressRoot } from './ProgressRoot.vue'
 
   // Utilities
-  import { mergeProps, onUnmounted, shallowRef, toRef, toValue, useAttrs, watch } from 'vue'
+  import { mergeProps, onUnmounted, toRef, toValue, useAttrs } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -54,11 +54,7 @@
 
   const root = useProgressRoot(namespace)
 
-  const ticket = root.register({ value: shallowRef(_value ?? 0) })
-
-  watch(() => _value, v => {
-    ticket.value.value = v ?? 0
-  })
+  const ticket = root.register({ value: toRef(() => _value ?? 0) })
 
   onUnmounted(() => {
     ticket.unregister()
