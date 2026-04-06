@@ -109,6 +109,30 @@ const tree = createNested({ open: 'multiple' })
 const accordion = createNested({ open: 'single' })
 ```
 
+### mandatory
+
+When `true`, deselecting is prevented if it would leave no items selected:
+
+```ts
+const tree = createNested({ selection: 'cascade', mandatory: true })
+
+tree.select('child-1')
+tree.unselect('child-1') // no-op — would deselect the only selected item
+```
+
+`unselectAll()` with `mandatory: true` keeps the first selected item rather than clearing.
+
+### multiple
+
+When `false`, selecting a node in cascade mode clears previous selections first (default: `true`):
+
+```ts
+const tree = createNested({ selection: 'cascade', multiple: false })
+
+tree.select('child-1')
+tree.select('child-2') // child-1 is deselected first
+```
+
 ### selection
 
 Controls how selection cascades through the hierarchy:
