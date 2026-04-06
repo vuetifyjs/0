@@ -76,6 +76,20 @@ const props = defineProps<{ multiple?: boolean }>()
 const stop = useProxyModel(selection, model, { multiple: () => props.multiple ?? false })
 ```
 
+### Disabled items
+
+When a new item registers with the selection, `useProxyModel` checks whether the model already holds that item's value and selects it if so — this is how items that were selected before they mounted get their initial state. The check is skipped if the item is disabled. The `disabled` property is automatically unwrapped if it is a `Ref<boolean>`:
+
+```ts no-filename
+selection.onboard([
+  { id: 'a', value: 'A' },
+  { id: 'b', value: 'B', disabled: ref(true) }, // reactive disabled
+])
+
+model.value = 'B'
+// 'b' is NOT auto-selected because disabled is true at registration time
+```
+
 ## Architecture
 
 `useProxyModel` creates bidirectional sync between v-model refs and selection state:
