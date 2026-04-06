@@ -43,6 +43,32 @@ A modal dialog with title, description, and cancel/confirm buttons using the nat
 
 :::
 
+## Features
+
+### Click-Outside Dismissal
+
+By default, clicking the backdrop closes the dialog. Set `closeOnClickOutside` to `false` on `Dialog.Content` to prevent this:
+
+```vue
+<template>
+  <Dialog.Content :close-on-click-outside="false">
+    <!-- Dialog won't close on backdrop click -->
+  </Dialog.Content>
+</template>
+```
+
+### Blocking Dialogs
+
+The `blocking` prop disables scrim-based dismissal entirely — the dialog can only be closed programmatically. Use this for critical confirmations where the user must make an explicit choice:
+
+```vue
+<template>
+  <Dialog.Content blocking>
+    <!-- No scrim, no click-outside close — must use Dialog.Close or v-model -->
+  </Dialog.Content>
+</template>
+```
+
 ## Anatomy
 
 ```vue Anatomy playground
