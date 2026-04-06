@@ -71,7 +71,11 @@ flowchart TD
 
 | Option | Type | Default | Notes |
 | - | - | - | - |
+| `immediate` | `boolean` | `false` | Fire the callback immediately on mount before any intersection |
 | `once` | `boolean` | `false` | Stop observing after the first intersection fires |
+| `threshold` | `number \| number[]` | `0` | Intersection ratio(s) at which the callback fires |
+| `root` | `Element \| null` | `null` | Ancestor to use as viewport (null = browser viewport) |
+| `rootMargin` | `string` | `'0px'` | CSS margin around the root for intersection calculations |
 
 ## Reactivity
 
