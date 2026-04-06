@@ -87,6 +87,17 @@ flowchart TD
   useVirtualFocus --> Combobox["Combobox / Autocomplete"]
 ```
 
+## Options
+
+| Option | Type | Default | Notes |
+| - | - | - | - |
+| `control` | `MaybeRefOrGetter<HTMLElement \| null>` | — | Required. Element that holds DOM focus and receives `aria-activedescendant` |
+| `target` | `MaybeRefOrGetter<HTMLElement \| null>` | `control` | Element to attach keydown listener to (defaults to `control`) |
+| `orientation` | `'horizontal' \| 'vertical' \| 'both'` | `'vertical'` | Arrow key axis. Ignored when `columns` is set — grid navigation uses all 4 arrows |
+| `circular` | `boolean` | `false` | Wrap around when navigating past first/last item |
+| `columns` | `MaybeRefOrGetter<number>` | — | Column count for 2D grid navigation. Left/Right step ±1, Up/Down step ±columns, Home/End jump to row edges, Ctrl+Home/End go to first/last item |
+| `onHighlight` | `(id: ID) => void` | — | Called when the highlighted item changes |
+
 ## Reactivity
 
 | Property/Method | Reactive | Notes |
