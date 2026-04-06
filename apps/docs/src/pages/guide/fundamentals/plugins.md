@@ -129,6 +129,9 @@ app.use(createAnalyticsPlugin({ apiKey: 'xxx', debug: true }))
 </script>
 ```
 
+> [!TIP]
+> `createPluginContext` also supports `persist`/`restore` lifecycle hooks for automatically saving and rehydrating plugin state across page loads. See [createPlugin](/composables/foundation/create-plugin#persistence) for details.
+
 ### Manual Approach
 
 For fine-grained control over the plugin lifecycle, use `createContext` and `createPlugin` directly:
