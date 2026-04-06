@@ -114,6 +114,11 @@ flowchart LR
 | `offset` | <AppSuccessIcon /> | ShallowRef, readonly (top spacer height) |
 | `size` | <AppSuccessIcon /> | ShallowRef, readonly (bottom spacer height) |
 | `state` | <AppSuccessIcon /> | ShallowRef (`'loading'` \| `'empty'` \| `'error'` \| `'ok'`) |
+| `scroll()` | <AppErrorIcon /> | Call on `@scroll`; schedules a visible-range update via rAF |
+| `scrollend()` | <AppErrorIcon /> | Call on `@scrollend`; alias of `scroll()` |
+| `scrollTo(index, options?)` | <AppErrorIcon /> | Scroll to item by index; accepts `behavior`, `block`, `offset` |
+| `resize(index, height)` | <AppErrorIcon /> | Notify of a dynamic item height change; triggers offset rebuild |
+| `reset()` | <AppErrorIcon /> | Reset state to `'ok'` and restore scroll anchor |
 
 > [!TIP] Source items
 > The `items` ref passed to `createVirtual()` is watched for changes. When items change, the virtual scroller updates automatically.
