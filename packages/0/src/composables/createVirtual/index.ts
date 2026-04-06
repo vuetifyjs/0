@@ -1,10 +1,13 @@
 /**
  * @module createVirtual
  *
+ * @see https://0.vuetifyjs.com/composables/data/create-virtual
+ *
  * @remarks
  * Virtual scrolling composable for efficiently rendering large lists.
  *
  * Key features:
+ * - Trinity pattern for dependency injection (`createVirtualContext`, `useVirtual`)
  * - Renders only visible items (viewport + overscan)
  * - Dynamic or fixed item heights
  * - SSR-safe (checks IN_BROWSER)
@@ -323,7 +326,7 @@ export interface VirtualContextOptions extends VirtualOptions {
  * @param options Configuration options
  * @returns Virtual scrolling context
  *
- * @see https://0.vuetifyjs.com/composables/utilities/create-virtual
+ * @see https://0.vuetifyjs.com/composables/data/create-virtual
  *
  * @example
  * ```vue
@@ -683,7 +686,7 @@ export function createVirtual<T = unknown> (
  * @template T The type of the items
  * @returns Trinity tuple: [useVirtual, provideVirtual, defaultVirtual]
  *
- * @see https://0.vuetifyjs.com/composables/utilities/create-virtual
+ * @see https://0.vuetifyjs.com/composables/data/create-virtual
  *
  * @example
  * ```ts
@@ -729,7 +732,7 @@ export function createVirtualContext<T = unknown> (
  *
  * @throws An error if the virtual context is not found and no default is provided.
  *
- * @see https://0.vuetifyjs.com/composables/utilities/create-virtual
+ * @see https://0.vuetifyjs.com/composables/data/create-virtual
  *
  * @example
  * ```vue

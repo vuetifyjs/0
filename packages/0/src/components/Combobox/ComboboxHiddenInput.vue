@@ -1,6 +1,8 @@
 /**
  * @module ComboboxHiddenInput
  *
+ * @see https://0.vuetifyjs.com/components/forms/combobox
+ *
  * @remarks
  * Hidden native input for form submission. Internal component — not exported.
  * Auto-rendered by ComboboxRoot when `name` prop is provided. Renders one hidden

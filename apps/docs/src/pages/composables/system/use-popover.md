@@ -11,6 +11,7 @@ features:
   github: /composables/usePopover/
   level: 2
 related:
+  - /components/disclosure/popover
   - /composables/system/use-click-outside
   - /composables/system/use-event-listener
 ---
@@ -71,6 +72,17 @@ flowchart TD
   usePopover --> Tooltip["Tooltip / Menu"]
 ```
 
+## Options
+
+| Option | Type | Default | Notes |
+| - | - | - | - |
+| `id` | `string` | auto | Base ID for anchor name and popover `id`. Auto-generated if not provided |
+| `positionArea` | `string` | `'bottom'` | CSS `position-area` value — controls where the content appears relative to the anchor |
+| `positionTry` | `string` | `'most-width bottom'` | CSS `position-try-fallbacks` value — fallback positions when the primary area overflows |
+| `isOpen` | `Ref<boolean>` | — | External ref for bidirectional open state (e.g., from `defineModel`) |
+| `showDelay` | `number` | `0` | Milliseconds to wait before showing the popover (hover/focus use cases) |
+| `hideDelay` | `number` | `0` | Milliseconds to wait before hiding the popover (prevents premature close on mouse leave) |
+
 ## Reactivity
 
 | Property/Method | Reactive | Notes |
@@ -83,5 +95,16 @@ flowchart TD
 | `anchorStyles` | <AppSuccessIcon /> | Readonly Ref, CSS `anchor-name` for the activator element |
 | `contentAttrs` | <AppSuccessIcon /> | Readonly Ref, `id` and `popover` attribute for the content element |
 | `contentStyles` | <AppSuccessIcon /> | Readonly Ref, CSS anchor positioning styles for the content element |
+
+## Examples
+
+::: example
+/composables/use-popover/anchor-positioning
+
+### CSS Anchor Positioning
+
+A popover positioned relative to its trigger using the native Popover API and CSS anchor positioning, demonstrating `anchorStyles`, `contentAttrs`, and `contentStyles`.
+
+:::
 
 <DocsApi />

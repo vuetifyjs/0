@@ -1,6 +1,8 @@
 /**
  * @module CheckboxRoot
  *
+ * @see https://0.vuetifyjs.com/components/forms/checkbox
+ *
  * @remarks
  * Root component for individual checkboxes with dual-mode support:
  * - **Standalone mode**: Uses v-model for boolean state

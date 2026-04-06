@@ -1,6 +1,8 @@
 /**
  * @module PopoverRoot
  *
+ * @see https://0.vuetifyjs.com/components/disclosure/popover
+ *
  * @remarks
  * Root component for popover contexts. Creates and provides popover context
  * to child PopoverActivator and PopoverContent components. Manages open/closed

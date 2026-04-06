@@ -13,13 +13,13 @@ import Root from './GroupRoot.vue'
 /**
  * Group component with sub-components for multi-selection.
  *
- * @see https://0.vuetifyjs.com/components/group
+ * @see https://0.vuetifyjs.com/components/providers/group
  */
 export const Group = {
   /**
    * Root component for multi-selection groups.
    *
-   * @see https://0.vuetifyjs.com/components/group
+   * @see https://0.vuetifyjs.com/components/providers/group
    *
    * @example
    * ```vue
@@ -40,7 +40,7 @@ export const Group = {
   /**
    * Item component for multi-selection groups.
    *
-   * @see https://0.vuetifyjs.com/components/group#groupitem
+   * @see https://0.vuetifyjs.com/components/providers/group
    *
    * @example
    * ```vue

@@ -1,6 +1,8 @@
 /**
  * @module TabsRoot
  *
+ * @see https://0.vuetifyjs.com/components/disclosure/tabs
+ *
  * @remarks
  * Root component for tabs navigation. Creates and provides step context
  * to child TabsItem and TabsPanel components. Supports horizontal/vertical

@@ -1,5 +1,5 @@
 /**
- * useTokens Performance Benchmarks
+ * createTokens Performance Benchmarks
  *
  * Structure:
  * - READ-ONLY operations use shared fixtures (safe, isolates operation cost)
@@ -83,7 +83,7 @@ const BATCH_PATHS: string[] = [
 // BENCHMARKS
 // =============================================================================
 
-describe('useTokens benchmarks', () => {
+describe('createTokens benchmarks', () => {
   // ===========================================================================
   // INITIALIZATION - Measures setup/creation cost
   // Fresh fixture per iteration (required - we're measuring creation itself)

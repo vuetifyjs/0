@@ -11,6 +11,7 @@ features:
   github: /composables/useLazy/
   level: 2
 related:
+  - /composables/system/use-presence
   - /composables/system/use-toggle-scope
   - /composables/system/use-intersection-observer
 ---
@@ -60,7 +61,21 @@ stateDiagram-v2
 
 ::: example
 /composables/use-lazy/basic
+
+### Lazy Content Panel
+
+A collapsible panel that defers rendering until first open (800ms simulated delay), with a loading state while content initializes.
+
 :::
+
+## Delay
+
+Use the `delay` option to defer the first mount by a fixed number of milliseconds. This prevents a flash of content for operations that complete very quickly:
+
+```ts
+const { hasContent } = useLazy(isOpen, { delay: 200 })
+// Content only mounts if isOpen stays true for 200ms
+```
 
 ## Eager Mode
 

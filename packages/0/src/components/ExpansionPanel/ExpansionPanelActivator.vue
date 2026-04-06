@@ -1,6 +1,8 @@
 /**
  * @module ExpansionPanelActivator
  *
+ * @see https://0.vuetifyjs.com/components/disclosure/expansion-panel
+ *
  * @remarks
  * Header/button element for an expansion panel item that controls expansion/collapse.
  * Consumes the ExpansionPanelRootContext via dependency injection and provides complete

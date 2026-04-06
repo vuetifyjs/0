@@ -3,7 +3,7 @@ export type { PortalProps, PortalSlotProps } from './Portal.vue'
 /**
  * Renderless teleport wrapper with automatic useStack integration.
  *
- * @see https://0.vuetifyjs.com/components/portal
+ * @see https://0.vuetifyjs.com/components/primitives/portal
  *
  * @example
  * ```vue

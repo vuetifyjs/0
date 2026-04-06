@@ -11,6 +11,7 @@ features:
   github: /composables/createFilter/
   level: 2
 related:
+  - /composables/data/create-data-table
   - /composables/data/create-pagination
   - /composables/data/create-virtual
 ---
@@ -44,6 +45,52 @@ console.log(filtered.value)
 //   { name: 'John Doe', age: 30, city: 'New York' },
 //   { name: 'Jane Doe', age: 25, city: 'Los Angeles' }
 // ]
+```
+
+## Context / DI
+
+Use `createFilterContext` when you need to share a filter instance across a component tree:
+
+```ts
+import { createFilterContext } from '@vuetify/v0'
+
+export const [useSearchFilter, provideSearchFilter, searchFilter] =
+  createFilterContext({
+    namespace: 'app:search',
+    mode: 'union',
+    keys: ['title', 'description'],
+  })
+
+// In parent component
+provideSearchFilter()
+
+// In child component
+const filter = useSearchFilter()
+const { items: filtered } = filter.apply(query, products)
+```
+
+Returns the standard trinity `[useSearchFilter, provideSearchFilter, searchFilter]`. The third element gives standalone access without injection — useful for testing and server-side use.
+
+## Options
+
+| Option | Type | Default | Notes |
+| - | - | - | - |
+| `mode` | `'some' \| 'every' \| 'union' \| 'intersection'` | `'some'` | Multi-query matching strategy. See Filter Modes below |
+| `keys` | `string[]` | — | Object keys to filter on. When omitted, all values are checked |
+| `customFilter` | `(query, item) => boolean` | — | Bypass built-in logic entirely with a custom predicate |
+
+```ts
+// Filter only by name + email, using intersection mode
+const filter = createFilter({
+  keys: ['name', 'email'],
+  mode: 'intersection',
+})
+
+// Custom filter (overrides keys and mode)
+const filter = createFilter({
+  customFilter: (query, item) =>
+    String(item.name).toLowerCase().startsWith(String(query).toLowerCase()),
+})
 ```
 
 ## Architecture
@@ -86,6 +133,11 @@ When the query is an array, each mode controls how multiple queries are matched 
 
 ::: example
 /composables/create-filter/live-search
+
+### Live Search with Highlighting
+
+Filter a list of cities by typing a name or country. Matching text is highlighted in the results.
+
 :::
 
 <DocsApi />

@@ -14,13 +14,13 @@ import Root from './PopoverRoot.vue'
 /**
  * Popover component with sub-components for building popovers.
  *
- * @see https://0.vuetifyjs.com/components/popover
+ * @see https://0.vuetifyjs.com/components/disclosure/popover
  */
 export const Popover = {
   /**
    * Root component for popovers.
    *
-   * @see https://0.vuetifyjs.com/components/popover
+   * @see https://0.vuetifyjs.com/components/disclosure/popover
    *
    * @example
    * ```vue
@@ -45,7 +45,7 @@ export const Popover = {
   /**
    * Activator component that opens the popover.
    *
-   * @see https://0.vuetifyjs.com/components/popover#popoveractivator
+   * @see https://0.vuetifyjs.com/components/disclosure/popover
    *
    * @example
    * ```vue
@@ -64,7 +64,7 @@ export const Popover = {
   /**
    * Component for the content section of a popover.
    *
-   * @see https://0.vuetifyjs.com/components/popover#popovercontent
+   * @see https://0.vuetifyjs.com/components/disclosure/popover
    *
    * @example
    * ```vue

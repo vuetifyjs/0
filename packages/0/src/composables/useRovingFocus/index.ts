@@ -1,6 +1,8 @@
 /**
  * @module useRovingFocus
  *
+ * @see https://0.vuetifyjs.com/composables/system/use-roving-focus
+ *
  * @remarks
  * Roving tabindex composable for keyboard navigation within composite widgets.
  *

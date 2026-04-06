@@ -286,7 +286,7 @@ bunx @vuetify/cli analyze --reporter json
 The analyzer scans your project and detects all imports from `@vuetify/v0`:
 
 - **Components** — `VBtn`, `VCard`, `VDataTable`, etc.
-- **Composables** — `useDisplay`, `useTheme`, `useFilter`, etc.
+- **Composables** — `useDisplay`, `useTheme`, `createFilter`, etc.
 - **Plugins** — `createVuetify`, `createIconsPlugin`, etc.
 - **Utilities and constants**
 

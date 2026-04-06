@@ -1,5 +1,7 @@
 /**
- * @module useOverflow
+ * @module createOverflow
+ *
+ * @see https://0.vuetifyjs.com/composables/utilities/create-overflow
  *
  * @remarks
  * Composable for computing how many items fit in a container based on available width.

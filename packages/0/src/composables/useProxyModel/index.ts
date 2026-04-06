@@ -1,12 +1,15 @@
 /**
  * @module useProxyModel
  *
+ * @see https://0.vuetifyjs.com/composables/reactivity/use-proxy-model
+ *
  * @remarks
  * Proxy composable for bidirectional sync between a model context and v-model.
  *
  * Key features:
  * - Bidirectional synchronization
- * - Array and single-value modes
+ * - `multiple` option controls array vs single-value mode (must be explicit — not inferred)
+ * - `MaybeRefOrGetter` support for the `multiple` option
  * - Automatic cleanup on scope disposal
  * - Works with any ModelContext (Selection, Slider, etc.)
  *
@@ -50,7 +53,7 @@ export interface ProxyModelTarget {
  * @param options The options for the proxy model.
  * @returns A function to stop the sync.
  *
- * @see https://0.vuetifyjs.com/composables/forms/use-proxy-model
+ * @see https://0.vuetifyjs.com/composables/reactivity/use-proxy-model
  *
  * @example
  * ```ts

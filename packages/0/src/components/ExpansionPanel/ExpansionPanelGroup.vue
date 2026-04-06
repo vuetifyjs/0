@@ -1,6 +1,8 @@
 /**
  * @module ExpansionPanelGroup
  *
+ * @see https://0.vuetifyjs.com/components/disclosure/expansion-panel
+ *
  * @remarks
  * Group component for managing expansion panel state using the createSelection composable.
  * Provides context to child ExpansionPanelRoot components and supports both single and

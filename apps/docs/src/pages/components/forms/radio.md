@@ -19,7 +19,7 @@ related:
 
 # Radio
 
-A headless radio button component for single-selection groups with keyboard navigation and roving tabindex.
+Headless radio button for single-selection groups with keyboard navigation and full ARIA compliance.
 
 <DocsPageFeatures :frontmatter />
 
@@ -29,6 +29,11 @@ Radio buttons must be used within a `Radio.Group`. Use `v-model` on the group to
 
 ::: example
 /components/radio/group
+
+### Radio Group
+
+Three size options with shared single-selection state showing the active value.
+
 :::
 
 ## Anatomy
@@ -110,6 +115,11 @@ Radio groups are inherently mandatory—once a selection is made, it can only be
 
 ::: example
 /components/radio/mandatory
+
+### Mandatory Selection
+
+Plan options (free, pro, enterprise) with mandatory mode that auto-selects the first item on mount.
+
 :::
 
 ### Form Integration

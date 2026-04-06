@@ -1,5 +1,7 @@
 /**
- * @module useFilter
+ * @module createFilter
+ *
+ * @see https://0.vuetifyjs.com/composables/data/create-filter
  *
  * @remarks
  * Reactive array filtering composable with multiple filter modes.
@@ -115,7 +117,7 @@ function defaultFilter (
  * @template E The type of the filter context
  * @returns A filter context
  *
- * @see https://0.vuetifyjs.com/composables/utilities/use-filter
+ * @see https://0.vuetifyjs.com/composables/data/create-filter
  *
  * @example
  * ```ts
@@ -174,7 +176,7 @@ export function createFilter<
  * @template E The type of the filter context
  * @returns A trinity tuple: [useContext, provideContext, defaultContext]
  *
- * @see https://0.vuetifyjs.com/composables/utilities/use-filter
+ * @see https://0.vuetifyjs.com/composables/data/create-filter
  *
  * @example
  * ```ts
@@ -217,7 +219,7 @@ export function createFilterContext<
  * @template E The type of the filter context.
  * @returns The current filter context.
  *
- * @see https://0.vuetifyjs.com/composables/utilities/use-filter
+ * @see https://0.vuetifyjs.com/composables/data/create-filter
  *
  * @example
  * ```vue

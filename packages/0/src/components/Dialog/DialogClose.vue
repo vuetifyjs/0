@@ -1,6 +1,8 @@
 /**
  * @module DialogClose
  *
+ * @see https://0.vuetifyjs.com/components/disclosure/dialog
+ *
  * @remarks
  * Close button component for dialogs. Closes the dialog when clicked.
  * Should be used inside DialogContent.

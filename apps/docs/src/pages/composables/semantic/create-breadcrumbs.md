@@ -28,7 +28,30 @@ The `createBreadcrumbs` composable manages an ordered path of items. When you se
 
 ::: example
 /composables/create-breadcrumbs/basic
+
+### Breadcrumb Navigation
+
+A clickable file-path breadcrumb trail — selecting an earlier crumb truncates everything after it.
+
 :::
+
+## Context / DI
+
+Use `createBreadcrumbsContext` to share a breadcrumbs instance across a component tree:
+
+```ts
+import { createBreadcrumbsContext } from '@vuetify/v0'
+
+export const [useBreadcrumbs, provideBreadcrumbs, breadcrumbs] =
+  createBreadcrumbsContext({ namespace: 'my:breadcrumbs' })
+
+// In parent component
+provideBreadcrumbs()
+
+// In child component
+const nav = useBreadcrumbs()
+nav.register({ text: 'Settings' })
+```
 
 ## Architecture
 
@@ -36,7 +59,8 @@ The `createBreadcrumbs` composable manages an ordered path of items. When you se
 
 ```mermaid "Breadcrumbs Hierarchy"
 flowchart TD
-  createRegistry --> createSelection
+  createRegistry --> createModel
+  createModel --> createSelection
   createSelection --> createSingle
   createSingle --> createBreadcrumbs:::primary
 ```

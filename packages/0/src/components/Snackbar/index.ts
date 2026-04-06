@@ -1,6 +1,8 @@
 /**
  * @module Snackbar
  *
+ * @see https://0.vuetifyjs.com/components/semantic/snackbar
+ *
  * @remarks
  * Headless compound component for toast and snackbar notifications.
  * Integrates with useNotifications for queue-driven toast stacks.
@@ -29,7 +31,7 @@ import Root from './SnackbarRoot.vue'
 /**
  * Snackbar component with sub-components for building toast notifications.
  *
- * @see https://0.vuetifyjs.com/components/snackbar
+ * @see https://0.vuetifyjs.com/components/semantic/snackbar
  *
  * @example
  * ```vue
@@ -57,7 +59,7 @@ export const Snackbar = {
    * Coordinates layering with Dialog and Scrim. Pass `:teleport="false"`
    * for inline rendering (docs, Storybook, scoped containers).
    *
-   * @see https://0.vuetifyjs.com/components/snackbar
+   * @see https://0.vuetifyjs.com/components/semantic/snackbar
    *
    * @example
    * ```vue
@@ -81,7 +83,7 @@ export const Snackbar = {
    * via scoped slot. Pauses auto-dismiss on hover and focus (WCAG 2.2.1).
    * Re-pauses after dismiss when hover/focus is still active.
    *
-   * @see https://0.vuetifyjs.com/components/snackbar#snackbarqueue
+   * @see https://0.vuetifyjs.com/components/semantic/snackbar
    *
    * @example
    * ```vue
@@ -105,7 +107,7 @@ export const Snackbar = {
    * Snackbar.Close components. Defaults to `role="status"` (polite
    * live region) — override with `role="alert"` for urgent notifications.
    *
-   * @see https://0.vuetifyjs.com/components/snackbar#snackbarroot
+   * @see https://0.vuetifyjs.com/components/semantic/snackbar
    *
    * @example
    * ```vue
@@ -126,7 +128,7 @@ export const Snackbar = {
    * Semantic wrapper for the notification message text.
    * Renders as a `<div>` by default. Polymorphic via the `as` prop.
    *
-   * @see https://0.vuetifyjs.com/components/snackbar#snackbarcontent
+   * @see https://0.vuetifyjs.com/components/semantic/snackbar
    *
    * @example
    * ```vue
@@ -145,7 +147,7 @@ export const Snackbar = {
    * Renders with `aria-label="Close"` and `type="button"`. In renderless
    * mode, all attributes including `onClick` are available via `slotProps.attrs`.
    *
-   * @see https://0.vuetifyjs.com/components/snackbar#snackbarclose
+   * @see https://0.vuetifyjs.com/components/semantic/snackbar
    *
    * @example
    * ```vue

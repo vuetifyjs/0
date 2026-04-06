@@ -1,12 +1,15 @@
 /**
  * @module useStorage
  *
+ * @see https://0.vuetifyjs.com/composables/plugins/use-storage
+ *
  * @remarks
  * Reactive storage composable with adapter pattern for localStorage, sessionStorage, or memory.
  *
  * Key features:
  * - Reactive refs that sync with storage
  * - localStorage, sessionStorage, and memory adapters
+ * - TTL (time-to-live) for time-based cache expiration
  * - Custom serialization support
  * - SSR fallback to memory adapter
  * - Automatic cleanup on remove/clear

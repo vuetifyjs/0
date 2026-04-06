@@ -1,6 +1,8 @@
 /**
  * @module TreeviewSelectAll
  *
+ * @see https://0.vuetifyjs.com/components/disclosure/treeview
+ *
  * @remarks
  * A "select all" checkbox that binds to its parent TreeviewRoot's
  * aggregate state. Automatically reflects isAllSelected/isMixed state

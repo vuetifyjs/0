@@ -79,7 +79,7 @@ const ITEMS_1K: BenchmarkItem[] = Array.from({ length: 1_000 }, (_, i) => ({
 }))
 
 function createPopulatedRegistry (count: number): RegistryContext<RegistryTicket> {
-  const registry = useRegistry()
+  const registry = createRegistry()
   registry.onboard(count === 1_000 ? ITEMS_1K : ITEMS_10K)
   return registry
 }

@@ -20,16 +20,11 @@
 
 // Composables
 import { createModel } from '#v0/composables/createModel'
+import { createNumeric } from '#v0/composables/createNumeric'
 
 // Utilities
 import { clamp, isObject, isUndefined } from '#v0/utilities'
 import { computed, isRef, shallowRef, toRef, toValue } from 'vue'
-
-function decimalPlaces (n: number): number {
-  const s = String(n)
-  const dot = s.indexOf('.')
-  return dot === -1 ? 0 : s.length - dot - 1
-}
 
 // Types
 import type { ModelContext, ModelTicket, ModelTicketInput } from '#v0/composables/createModel'
@@ -198,17 +193,17 @@ export interface SliderContext extends Omit<
   /** Whether inverted. Reactive ref derived from the `inverted` option. */
   inverted: Readonly<Ref<boolean>>
   /** Minimum value. */
-  readonly min: number
+  min: number
   /** Maximum value. */
-  readonly max: number
+  max: number
   /** Step increment. */
-  readonly step: number
+  step: number
   /** Minimum steps required between adjacent thumbs. */
-  readonly minStepsBetweenThumbs: number
+  minStepsBetweenThumbs: number
   /** Whether thumbs can cross each other. */
-  readonly crossover: boolean
+  crossover: boolean
   /** Whether this is a range slider. */
-  readonly range: boolean
+  range: boolean
   /**
    * Register a new thumb and return its ticket.
    *
@@ -455,12 +450,12 @@ export function createSlider (options: SliderOptions = {}): SliderContext {
     events: true,
   })
 
+  const numeric = createNumeric({ min, max, step })
+
   const disabled = toRef(() => toValue(disabledProp))
   const readonly = toRef(() => toValue(readonlyProp))
   const orientation = toRef(() => toValue(orientationProp))
   const inverted = toRef(() => toValue(invertedProp))
-
-  const extent = max - min
 
   let pending: number[] | null = null
 
@@ -471,27 +466,18 @@ export function createSlider (options: SliderOptions = {}): SliderContext {
   const values = computed(() => thumbs.value.map(t => toValue(t.value)))
   const selectedValues = computed(() => values.value)
 
-  // Count decimal places for floating-point precision correction
-  const decimals = Math.max(decimalPlaces(step), decimalPlaces(min))
-
   function snap (value: number): number {
-    if (step <= 0) return clamp(value, min, max)
-    const clamped = clamp(value, min, max)
-    const steps = Math.round((clamped - min) / step)
-    const result = min + steps * step
-    // Fix floating-point artifacts (e.g., 3 * 0.1 → 0.30000000000000004 → 0.3)
-    return clamp(decimals > 0 ? +result.toFixed(decimals) : result, min, max)
+    return numeric.snap(value)
   }
 
   function fromValue (value: number): number {
-    if (extent === 0) return 0
-    const p = ((value - min) / extent) * 100
+    const p = numeric.fromValue(value)
     return inverted.value ? 100 - p : p
   }
 
   function fromPercent (p: number): number {
     const adjusted = inverted.value ? 100 - p : p
-    return snap(min + (adjusted / 100) * extent)
+    return numeric.fromPercent(adjusted)
   }
 
   function register (input?: number | { value: number }): ModelTicket<SliderTicketInput> {

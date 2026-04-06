@@ -1,6 +1,8 @@
 /**
  * @module SwitchTrack
  *
+ * @see https://0.vuetifyjs.com/components/forms/switch
+ *
  * @remarks
  * Track/rail component for switches. Always visible, provides data-state
  * attribute for CSS styling. Must be used within a Switch.Root component.

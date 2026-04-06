@@ -1,6 +1,8 @@
 /**
  * @module ExpansionPanelHeader
  *
+ * @see https://0.vuetifyjs.com/components/disclosure/expansion-panel
+ *
  * @remarks
  * Semantic heading wrapper for the expansion panel activator. Renders a heading
  * element (h3 by default) that wraps the activator button for proper document

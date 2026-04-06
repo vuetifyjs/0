@@ -1,6 +1,8 @@
 /**
  * @module CheckboxSelectAll
  *
+ * @see https://0.vuetifyjs.com/components/forms/checkbox
+ *
  * @remarks
  * A "select all" checkbox that binds to its parent Checkbox.Group's
  * aggregate state. Automatically reflects isAllSelected/isMixed state

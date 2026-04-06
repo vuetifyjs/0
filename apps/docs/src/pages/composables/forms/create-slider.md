@@ -11,12 +11,14 @@ features:
   github: /composables/createSlider/
   level: 2
 related:
+  - /composables/forms/create-numeric
+  - /composables/forms/create-rating
   - /components/forms/slider
 ---
 
 # createSlider
 
-A composable for managing slider state: value math, step snapping, percentage conversion, and multi-thumb value operations. Designed for single-thumb, range, and multi-thumb sliders.
+Slider state composable for single-thumb, range, and multi-thumb sliders. Handles value math, step snapping, and percentage conversion.
 
 <DocsPageFeatures :frontmatter />
 
@@ -36,10 +38,14 @@ slider.up(0)               // values: [55]
 slider.fromValue(50)       // 50
 slider.snap(47)            // 45 (nearest step of 5)
 
-// Range — register two thumbs
+// Range — register two thumbs individually
 const slider2 = createSlider({ min: 0, max: 100, step: 1 })
 slider2.register({ value: 25 })
 slider2.register({ value: 75 })
+
+// Or register multiple thumbs at once with onboard()
+const slider3 = createSlider({ min: 0, max: 100, step: 1 })
+slider3.onboard([{ value: 0 }, { value: 50 }, { value: 100 }])
 
 slider2.set(0, 30)         // values: [30, 75]
 slider2.set(1, 60)         // values: [30, 60]
@@ -52,7 +58,8 @@ Slider state is **always reactive**. Values and derived properties update automa
 | Property/Method | Reactive | Notes |
 | - | :-: | - |
 | `values` | <AppSuccessIcon /> | Ref — all thumb values |
-| `disabled` | <AppSuccessIcon /> | Ref — accepts MaybeRefOrGetter |
+| `disabled` | <AppSuccessIcon /> | Ref — accepts MaybeRefOrGetter; blocks all mutations |
+| `readonly` | <AppSuccessIcon /> | Ref — accepts MaybeRefOrGetter; thumbs remain focusable but `set`, `up`, `down`, `floor`, `ceil` are no-ops |
 | `orientation` | <AppSuccessIcon /> | Ref — accepts MaybeRefOrGetter |
 | `inverted` | <AppSuccessIcon /> | Ref — accepts MaybeRefOrGetter |
 | `snap` | <AppErrorIcon /> | Pure function — rounds to nearest step with decimal precision correction |

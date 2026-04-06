@@ -52,7 +52,7 @@ export const Button = {
    * Registers with Root's internal selection as the fallback.
    * Always rendered, selected when Loading is not active.
    *
-   * @see https://0.vuetifyjs.com/components/actions/button#content
+   * @see https://0.vuetifyjs.com/components/actions/button
    *
    * @example
    * ```vue
@@ -71,7 +71,7 @@ export const Button = {
   /**
    * Selection container for toggle button groups.
    *
-   * @see https://0.vuetifyjs.com/components/actions/button#group
+   * @see https://0.vuetifyjs.com/components/actions/button
    *
    * @example
    * ```vue
@@ -94,7 +94,7 @@ export const Button = {
   /**
    * Hidden input component for form submission.
    *
-   * @see https://0.vuetifyjs.com/components/actions/button#hiddeninput
+   * @see https://0.vuetifyjs.com/components/actions/button
    *
    * @example
    * ```vue
@@ -119,7 +119,7 @@ export const Button = {
    * Sets `aria-hidden="true"` on itself. Detects solo buttons
    * and warns when `aria-label` is missing on Root.
    *
-   * @see https://0.vuetifyjs.com/components/actions/button#icon
+   * @see https://0.vuetifyjs.com/components/actions/button
    *
    * @example
    * ```vue
@@ -141,7 +141,7 @@ export const Button = {
    * Registers with Root's internal selection. Enabled and selected
    * when Root's isLoading becomes true (after grace period).
    *
-   * @see https://0.vuetifyjs.com/components/actions/button#loading
+   * @see https://0.vuetifyjs.com/components/actions/button
    *
    * @example
    * ```vue
@@ -168,7 +168,7 @@ export const Button = {
    * disabled, readonly, passive, and loading states. When inside
    * a Button.Group, registers as a toggle button.
    *
-   * @see https://0.vuetifyjs.com/components/actions/button#root
+   * @see https://0.vuetifyjs.com/components/actions/button
    *
    * @example
    * ```vue

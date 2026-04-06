@@ -6,44 +6,6 @@
     <title>Vuetify0</title>
     <link rel="preconnect" href="https://cdn.vuetifyjs.com" crossorigin>
     <link rel="icon" type="image/png" href="/0.png">
-    <script>
-      // Resolve theme before first paint to prevent FOUC.
-      // Also seeds localStorage so Vue hydration (createThemePlugin restore +
-      // useThemeToggle) selects the same theme — eliminating the dark→light
-      // flash that occurs when the plugin falls back to default 'dark'.
-      ;(function () {
-        try {
-          var g = function (k) { var r = localStorage.getItem('v0:' + k); return r ? JSON.parse(r) : null }
-          var s = function (k, v) { localStorage.setItem('v0:' + k, JSON.stringify(v)) }
-          var accessibility = g('theme-accessibility')
-          var a11y = { 'high-contrast': 1, protanopia: 1, deuteranopia: 1, tritanopia: 1 }
-          var light = { light: 1, odyssey: 1, 'tailwind-light': 1, 'material-3-light': 1, 'ant-design-light': 1, 'radix-light': 1 }
-          var valid = { light: 1, dark: 1, 'high-contrast': 1, protanopia: 1, deuteranopia: 1, tritanopia: 1, blackguard: 1, polaris: 1, nebula: 1, odyssey: 1, tailwind: 1, 'tailwind-light': 1, 'material-3': 1, 'material-3-light': 1, 'ant-design': 1, 'ant-design-light': 1, radix: 1, 'radix-light': 1 }
-          var theme
-          if (accessibility && accessibility in a11y) {
-            theme = accessibility
-            if (g('theme') !== theme) s('theme', theme)
-          } else {
-            // Resolve from mode + palette — keep in sync with PALETTE_THEMES in useThemeToggle.ts
-            var palettes = { vuetify0: ['dark', 'light'], tailwind: ['tailwind', 'tailwind-light'], 'material-3': ['material-3', 'material-3-light'], radix: ['radix', 'radix-light'], 'ant-design': ['ant-design', 'ant-design-light'] }
-            var mode = g('theme-mode')
-            var m = mode && { system: 1, light: 1, dark: 1 }[mode] ? mode : 'system'
-            var palette = g('theme-palette') || 'vuetify0'
-            var p = palettes[palette] || palettes.vuetify0
-            var dark = m === 'system' ? matchMedia('(prefers-color-scheme: dark)').matches : m === 'dark'
-            theme = dark ? p[0] : p[1]
-            // Sync v0:theme so createThemePlugin restore agrees with this script
-            if (g('theme') !== theme) s('theme', theme)
-            // Seed mode/palette on first visit so useThemeToggle skips legacy migration
-            if (!mode) { s('theme-mode', m); s('theme-palette', palette) }
-          }
-          if (!(theme in valid)) theme = 'dark'
-          document.documentElement.dataset.theme = theme
-          document.documentElement.style.colorScheme = theme in light ? 'light' : 'dark'
-          document.documentElement.style.backgroundColor = theme in light ? '' : '#121212'
-        } catch (e) {}
-      })()
-    </script>
     <style>
       /* Critical inline CSS — styles Shiki and logos before external CSS loads.
          The inline script above always sets data-theme, so these selectors are

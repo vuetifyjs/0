@@ -1,15 +1,17 @@
 /**
- * @module useSingle
+ * @module createSingle
+ *
+ * @see https://0.vuetifyjs.com/composables/selection/create-single
  *
  * @remarks
- * Single-selection composable that extends useSelection to enforce only one selected item.
+ * Single-selection composable that extends createSelection to enforce only one selected item.
  *
  * Key features:
  * - Auto-clears previous selection when selecting new item
  * - Singular computed properties (selectedId, selectedItem, selectedIndex, selectedValue)
  * - Perfect for tabs, radio buttons, theme selectors
  *
- * Inheritance chain: useRegistry → useSelection → useSingle
+ * Inheritance chain: createRegistry → createSelection → createSingle
  */
 
 // Composables
@@ -87,9 +89,9 @@ export interface SingleContextOptions extends SelectionContextOptions {}
  * - `selectedValue`: The value of the selected item (undefined if none selected)
  *
  * **Inheritance Chain:**
- * `useRegistry` → `createSelection` → `createSingle` → `createStep`
+ * `createRegistry` → `createSelection` → `createSingle` → `createStep`
  *
- * @see https://0.vuetifyjs.com/composables/selection/use-single
+ * @see https://0.vuetifyjs.com/composables/selection/create-single
  *
  * @example
  * ```ts
@@ -170,7 +172,7 @@ export function createSingle<
  * @template R The context type.
  * @returns A new single selection context.
  *
- * @see https://0.vuetifyjs.com/composables/selection/use-single
+ * @see https://0.vuetifyjs.com/composables/selection/create-single
  *
  * @example
  * ```ts
@@ -212,7 +214,7 @@ export function createSingleContext<
  * @template R The context type.
  * @returns The current single selection instance.
  *
- * @see https://0.vuetifyjs.com/composables/selection/use-single
+ * @see https://0.vuetifyjs.com/composables/selection/create-single
  *
  * @example
  * ```vue

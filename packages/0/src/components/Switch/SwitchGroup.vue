@@ -1,6 +1,8 @@
 /**
  * @module SwitchGroup
  *
+ * @see https://0.vuetifyjs.com/components/forms/switch
+ *
  * @remarks
  * Group component for managing multiple switches with tri-state support.
  * Provides group context to child Switch.Root components. Supports batch

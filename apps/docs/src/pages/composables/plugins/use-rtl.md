@@ -89,6 +89,48 @@ app.use(createRtlPlugin({ target: '#app' }))
 app.use(createRtlPlugin({ target: null }))
 ```
 
+### Custom Adapters
+
+Implement `RtlAdapter` to control how RTL direction is applied to the DOM:
+
+```ts
+import type { RtlAdapter } from '@vuetify/v0'
+
+class CustomRtlAdapter implements RtlAdapter {
+  setup (app, context, target) {
+    // context.isRtl — reactive ref, write to it to change direction
+    // context.toggle — flips isRtl
+    watchEffect(() => {
+      const el = typeof target === 'string' ? document.querySelector(target) : target
+      if (el) el.setAttribute('dir', context.isRtl.value ? 'rtl' : 'ltr')
+    })
+  }
+}
+
+app.use(createRtlPlugin({ adapter: new CustomRtlAdapter() }))
+```
+
+```ts
+interface RtlAdapter {
+  setup: (app: App, context: { isRtl: Ref<boolean>; toggle: () => void }, target?: string | HTMLElement | null) => void
+}
+```
+
+## Standalone Usage
+
+Use `createRtl` to create a raw RTL context without the plugin system — useful for testing or embedding in other composables:
+
+```ts
+import { createRtl } from '@vuetify/v0'
+
+const rtl = createRtl({ default: true }) // starts in RTL
+rtl.isRtl.value  // true
+rtl.toggle()
+rtl.isRtl.value  // false
+```
+
+`createRtl` accepts `default?: boolean` (initial direction) and returns `{ isRtl: ShallowRef<boolean>, toggle: () => void }`. No `app` is required.
+
 ## Styling
 
 The `dir` attribute set by the adapter enables three approaches to direction-aware styling with utility classes:
@@ -119,14 +161,17 @@ CSS logical properties automatically flip based on `dir`. Use these by default:
 
 ### Direction Variants
 
-For cases logical properties can't handle (like `translate-x`), use `ltr:` and `rtl:` variants:
+For cases logical properties can't handle (like `translate-x`), use the bare class as the LTR default and the `rtl:` variant as the override:
 
 ```html
 <!-- Mobile drawer: slides from start edge -->
-<nav class="ltr:-translate-x-full rtl:translate-x-full md:ltr:translate-x-0 md:rtl:translate-x-0">
+<nav class="-translate-x-full rtl:translate-x-full md:translate-x-0">
   ...
 </nav>
 ```
+
+> [!TIP]
+> Avoid the `ltr:` variant — it only applies when an ancestor has an explicit `dir="ltr"` attribute, not as the default. Use the bare utility class for LTR behavior and `rtl:` for the RTL override.
 
 ### Symmetric Shorthand
 
@@ -142,16 +187,50 @@ When both sides use the same value, use `inset-x-*` instead of `left-* right-*`:
 
 ## Subtree Overrides
 
-Use `createRtlContext` to scope direction to a subtree:
+Use `createRtlContext` to scope direction to a subtree — isolated from the app-level direction:
 
 ```ts
 import { createRtlContext } from '@vuetify/v0'
 
-// Create a scoped RTL context
-const [useLocalRtl, provideLocalRtl] = createRtlContext({ default: true })
+export const [useLocalRtl, provideLocalRtl, localRtl] =
+  createRtlContext({ default: true })
+```
+
+```vue collapse no-filename ParentComponent
+<script setup lang="ts">
+  import { provideLocalRtl } from './rtl-context'
+
+  // Provide to all descendants
+  provideLocalRtl()
+</script>
+
+<template>
+  <slot />
+</template>
+```
+
+```vue collapse no-filename ChildComponent
+<script setup lang="ts">
+  import { useLocalRtl } from './rtl-context'
+
+  const rtl = useLocalRtl()
+  // rtl.isRtl.value  → true (isolated from app-level direction)
+  // rtl.toggle()     → scoped toggle, doesn't affect the rest of the app
+</script>
 ```
 
 > [!TIP]
 > Direction is independent from locale. To connect them (e.g., Arabic → RTL), use a custom adapter that watches `useLocale().selectedId` and sets `isRtl` based on a language→direction mapping.
+
+## Examples
+
+::: example
+/composables/use-rtl/direction-toggle
+
+### Direction Toggle
+
+Live RTL/LTR switcher showing `isRtl` toggling the `dir` attribute and text-alignment classes in real time.
+
+:::
 
 <DocsApi />

@@ -1,6 +1,8 @@
 /**
  * @module SelectHiddenInput
  *
+ * @see https://0.vuetifyjs.com/components/forms/select
+ *
  * @remarks
  * Hidden native input for form submission. Internal component — not exported.
  * Auto-rendered by SelectRoot when `name` prop is provided. Renders one hidden

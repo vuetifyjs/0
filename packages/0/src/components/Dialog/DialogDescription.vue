@@ -1,6 +1,8 @@
 /**
  * @module DialogDescription
  *
+ * @see https://0.vuetifyjs.com/components/disclosure/dialog
+ *
  * @remarks
  * Description component for dialogs. Provides supplementary description
  * for the dialog via aria-describedby. Should be used inside DialogContent.

@@ -1,8 +1,10 @@
 /**
- * @module useGroup
+ * @module createGroup
+ *
+ * @see https://0.vuetifyjs.com/composables/selection/create-group
  *
  * @remarks
- * Multi-selection composable that extends useSelection with batch operations and tri-state support.
+ * Multi-selection composable that extends createSelection with batch operations and tri-state support.
  *
  * Key features:
  * - Batch operations (select/unselect/toggle accept ID | ID[])
@@ -15,7 +17,7 @@
  * - select() clears mixed state, mix() clears selected state (mutually exclusive)
  * - toggle() on a mixed item selects it (resolves positively)
  *
- * Inheritance chain: useRegistry → useSelection → useGroup
+ * Inheritance chain: createRegistry → createSelection → createGroup
  * Extended by: useFeatures
  */
 
@@ -146,12 +148,12 @@ export interface GroupContextOptions extends SelectionContextOptions {}
  * - Non-existent IDs are silently ignored
  *
  * **Inheritance Chain:**
- * `useRegistry` → `createSelection` → `createGroup`
+ * `createRegistry` → `createSelection` → `createGroup`
  *
  * **Used By:**
  * - `createFeatures` for feature flag management with multiple selections
  *
- * @see https://0.vuetifyjs.com/composables/selection/use-group
+ * @see https://0.vuetifyjs.com/composables/selection/create-group
  *
  * @example
  * ```ts
@@ -295,7 +297,7 @@ export function createGroup<
     return items.every(item => selection.selectedIds.has(item.id))
   })
 
-  const isNoneSelected = computed(() => selection.selectedIds.size === 0)
+  const isNoneSelected = toRef(() => selection.selectedIds.size === 0)
 
   const isMixed = computed(() => {
     return mixedIds.size > 0 || (!isNoneSelected.value && !isAllSelected.value)
@@ -360,7 +362,7 @@ export function createGroup<
  * @template R The context type.
  * @returns A new group context.
  *
- * @see https://0.vuetifyjs.com/composables/selection/use-group
+ * @see https://0.vuetifyjs.com/composables/selection/create-group
  *
  * @example
  * ```ts
@@ -404,7 +406,7 @@ export function createGroupContext<
  * @template R The context type.
  * @returns The current group instance.
  *
- * @see https://0.vuetifyjs.com/composables/selection/use-group
+ * @see https://0.vuetifyjs.com/composables/selection/create-group
  *
  * @example
  * ```vue

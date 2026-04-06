@@ -1,10 +1,12 @@
 /**
  * @module InputRoot
  *
+ * @see https://0.vuetifyjs.com/components/forms/input
+ *
  * @remarks
  * Root component for text inputs with integrated validation.
- * Creates a validation context internally and provides input context
- * to child components (Control, Description, Error).
+ * Composes createInput for field state, validation, and ARIA IDs.
+ * Provides context to child components (Control, Description, Error).
  * Auto-registers with parent form via createValidation's useForm() injection.
  */
 
@@ -14,23 +16,19 @@
 
   // Composables
   import { createContext } from '#v0/composables/createContext'
-  import { createValidation } from '#v0/composables/createValidation'
+  import { createInput } from '#v0/composables/createInput'
 
   // Utilities
-  import { computed, nextTick, shallowRef, toRef, toValue, useAttrs, useId, watch } from 'vue'
-
-  // Transformers
-  import { toArray } from '#v0/composables/toArray'
+  import { useId } from '#v0/utilities'
+  import { nextTick, toRef, useAttrs, watch } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
   import type { FormValidationRule } from '#v0/composables/createForm'
+  import type { InputState } from '#v0/composables/createInput'
   import type { RuleAlias, StandardSchemaV1 } from '#v0/composables/useRules'
   import type { MaybeArray, ID } from '#v0/types'
   import type { MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
-
-  /** Visual state of the input for styling purposes */
-  export type InputState = 'pristine' | 'valid' | 'invalid'
 
   /** Base validation trigger event */
   export type ValidateEvent = 'blur' | 'input' | 'submit'
@@ -204,121 +202,97 @@
   } = defineProps<InputRootProps>()
 
   const model = defineModel<string>({ default: '' })
+
+  const input = createInput({
+    value: model,
+    id,
+    label,
+    name,
+    form,
+    required,
+    disabled,
+    readonly: _readonly,
+    rules,
+    error,
+    errorMessages,
+  })
+
   const parsed = toRef(() => parseValidateOn(validateOn))
-
-  const validation = createValidation({ rules, value: model })
-
-  const initialValue = model.value
-  const isPristine = shallowRef(true)
-  const isFocused = shallowRef(false)
-  const touched = shallowRef(false)
-  const hasDescription = shallowRef(false)
-  const hasError = shallowRef(false)
-  const isDirty = toRef(() => model.value.length > 0)
-  const isDisabled = toRef(() => toValue(disabled))
-  const isReadonly = toRef(() => toValue(_readonly))
-  const descriptionId = `${id}-description`
-  const errorId = `${id}-error`
-
-  const errors = computed(() => {
-    const manual = errorMessages ? toArray(errorMessages) : []
-    return [...manual, ...validation.errors.value]
-  })
-
-  const isValid = toRef((): boolean | null => {
-    if (error) return false
-    if (errors.value.length > 0 && validation.errors.value.length === 0) return false
-    return validation.isValid.value
-  })
 
   function shouldValidate (trigger: ValidateEvent): boolean {
     const { event, modifier } = parsed.value
     if (event === 'submit') return false
-    if (modifier === 'lazy' && !touched.value) return false
-    if (modifier === 'eager' && validation.isValid.value === false) return true
+    if (modifier === 'lazy' && !input.isTouched.value) return false
+    if (modifier === 'eager' && input.isValid.value === false) return true
     return trigger === event
   }
 
-  watch(isFocused, val => {
+  watch(input.isFocused, val => {
     if (val) return
-    touched.value = true
-    if (shouldValidate('blur')) validation.validate()
+    input.isTouched.value = true
+    if (shouldValidate('blur')) input.validate()
   })
 
   let resetting = false
 
-  watch(model, val => {
-    isPristine.value = val === initialValue
-    if (!resetting && shouldValidate('input')) validation.validate()
+  watch(model, () => {
+    if (!resetting && shouldValidate('input')) input.validate()
   })
-
-  function validate () {
-    return validation.validate()
-  }
 
   function reset () {
     resetting = true
-    model.value = initialValue
-    isPristine.value = true
-    touched.value = false
-    validation.reset()
+    input.reset()
     nextTick(() => {
       resetting = false
     })
   }
 
-  const state = toRef((): InputState => {
-    if (isValid.value === false) return 'invalid'
-    if (isValid.value === true) return 'valid'
-    return 'pristine'
-  })
-
   const context: InputRootContext = {
-    id,
+    id: input.id,
     label,
     name,
     type,
     form,
     required,
-    descriptionId,
-    errorId,
-    hasDescription,
-    hasError,
+    descriptionId: input.descriptionId,
+    errorId: input.errorId,
+    hasDescription: input.hasDescription,
+    hasError: input.hasError,
     value: model,
-    isDirty,
-    isFocused,
-    isDisabled,
-    isReadonly,
-    errors,
-    isValid,
-    isPristine,
-    isValidating: validation.isValidating,
-    validate,
+    isDirty: input.isDirty,
+    isFocused: input.isFocused,
+    isDisabled: input.isDisabled,
+    isReadonly: input.isReadonly,
+    errors: input.errors,
+    isValid: input.isValid,
+    isPristine: input.isPristine,
+    isValidating: input.isValidating,
+    validate: input.validate,
     reset,
   }
 
   provideInputRoot(namespace, context)
 
   const slotProps = toRef((): InputRootSlotProps => ({
-    id,
+    id: input.id,
     label,
     value: model.value,
-    isDirty: isDirty.value,
-    isFocused: isFocused.value,
-    errors: errors.value,
-    isValid: isValid.value,
-    isPristine: isPristine.value,
-    isValidating: validation.isValidating.value,
-    isDisabled: isDisabled.value,
-    isReadonly: isReadonly.value,
-    validate,
+    isDirty: input.isDirty.value,
+    isFocused: input.isFocused.value,
+    errors: input.errors.value,
+    isValid: input.isValid.value,
+    isPristine: input.isPristine.value,
+    isValidating: input.isValidating.value,
+    isDisabled: input.isDisabled.value,
+    isReadonly: input.isReadonly.value,
+    validate: input.validate,
     reset,
     attrs: {
-      'data-state': state.value,
-      'data-dirty': isDirty.value ? true : undefined,
-      'data-focused': isFocused.value ? true : undefined,
-      'data-disabled': isDisabled.value ? true : undefined,
-      'data-readonly': isReadonly.value ? true : undefined,
+      'data-state': input.state.value,
+      'data-dirty': input.isDirty.value ? true : undefined,
+      'data-focused': input.isFocused.value ? true : undefined,
+      'data-disabled': input.isDisabled.value ? true : undefined,
+      'data-readonly': input.isReadonly.value ? true : undefined,
     },
   }))
 </script>

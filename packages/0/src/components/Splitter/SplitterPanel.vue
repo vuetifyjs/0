@@ -1,6 +1,8 @@
 /**
  * @module SplitterPanel
  *
+ * @see https://0.vuetifyjs.com/components/semantic/splitter
+ *
  * @remarks
  * Resizable panel within a splitter layout. Registers with the parent
  * SplitterRoot's selection context and receives its size from the ticket.

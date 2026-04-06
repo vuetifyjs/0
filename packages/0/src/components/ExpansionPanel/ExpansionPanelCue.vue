@@ -1,6 +1,8 @@
 /**
  * @module ExpansionPanelCue
  *
+ * @see https://0.vuetifyjs.com/components/disclosure/expansion-panel
+ *
  * @remarks
  * Visual cue for open/close state. Typically a chevron icon that rotates
  * when the panel expands. Exposes `data-state="open|closed"` for

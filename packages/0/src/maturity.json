@@ -86,6 +86,16 @@
       "since": "0.2.0",
       "category": "forms"
     },
+    "createInput": {
+      "level": "preview",
+      "since": "0.2.0",
+      "category": "forms"
+    },
+    "createNumeric": {
+      "level": "preview",
+      "since": "0.2.0",
+      "category": "forms"
+    },
     "createDataTable": {
       "level": "preview",
       "since": "0.1.0",
@@ -114,12 +124,12 @@
     "createBreadcrumbs": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "semantic"
+      "category": "utilities"
     },
     "createOverflow": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "semantic"
+      "category": "utilities"
     },
     "useBreakpoints": {
       "level": "preview",
@@ -265,7 +275,7 @@
     },
     "usePresence": {
       "level": "preview",
-      "since": null,
+      "since": "0.2.0",
       "category": "system"
     },
     "useRovingFocus": {
@@ -291,7 +301,7 @@
     "useRules": {
       "level": "preview",
       "since": "0.1.7",
-      "category": "forms"
+      "category": "plugins"
     },
     "useTimer": {
       "level": "preview",
@@ -312,11 +322,12 @@
     },
     "Portal": {
       "level": "preview",
+      "since": "0.2.0",
       "category": "primitives"
     },
     "Presence": {
       "level": "preview",
-      "since": null,
+      "since": "0.2.0",
       "category": "primitives"
     },
     "Group": {
@@ -511,7 +522,7 @@
     "Treeview": {
       "level": "preview",
       "since": "0.1.11",
-      "category": "semantic"
+      "category": "disclosure"
     },
     "DataGrid": {
       "level": "draft",

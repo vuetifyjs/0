@@ -11,6 +11,7 @@ features:
   github: /composables/useLocale/
   level: 2
 related:
+  - /components/providers/locale
   - /guide/features/accessibility
 ---
 
@@ -18,7 +19,7 @@ related:
 
 <DocsPageFeatures :frontmatter />
 
-Internationalization with translations, variable interpolation, number formatting, and locale switching.
+i18n plugin with message translation, number formatting, and locale switching.
 
 ## Installation
 
@@ -83,11 +84,10 @@ Once the plugin is installed, use the `useLocale` composable in any component:
 
 ```mermaid "Locale Hierarchy"
 flowchart TD
-  createRegistry --> createSelection
-  createRegistry --> createTokens
+  createRegistry --> createModel
+  createModel --> createSelection
   createSelection --> createSingle
   createSingle --> useLocale
-  createTokens --> useLocale
   Adapter --> useLocale
 ```
 
@@ -106,6 +106,11 @@ Locale selection is reactive via `createSingle`. Translation methods return stat
 
 ::: example
 /composables/use-locale/locale-switcher
+
+### Locale Switcher
+
+Switch between English, Spanish, and Japanese — translated strings, navigation items, and formatted numbers all update reactively.
+
 :::
 
 ## Adapters

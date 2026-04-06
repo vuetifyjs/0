@@ -25,7 +25,7 @@ import Track from './SliderTrack.vue'
 /**
  * Slider component with sub-components for range input controls.
  *
- * @see https://0.vuetifyjs.com/components/slider
+ * @see https://0.vuetifyjs.com/components/forms/slider
  *
  * @example
  * ```vue
@@ -56,7 +56,7 @@ export const Slider = {
    * props. When `name` prop is provided, automatically renders hidden
    * inputs for form submission.
    *
-   * @see https://0.vuetifyjs.com/components/slider
+   * @see https://0.vuetifyjs.com/components/forms/slider
    *
    * @example
    * ```vue
@@ -85,7 +85,7 @@ export const Slider = {
    * the nearest thumb to that value, and initiates drag. Must contain
    * Slider.Range as a child.
    *
-   * @see https://0.vuetifyjs.com/components/slider#anatomy
+   * @see https://0.vuetifyjs.com/components/forms/slider#anatomy
    *
    * @example
    * ```vue
@@ -102,7 +102,7 @@ export const Slider = {
    * For range sliders, fills between the lowest and highest thumb
    * values. Must be used within a Slider.Track component.
    *
-   * @see https://0.vuetifyjs.com/components/slider#anatomy
+   * @see https://0.vuetifyjs.com/components/forms/slider#anatomy
    *
    * @example
    * ```vue
@@ -121,7 +121,7 @@ export const Slider = {
    * valuemin/valuemax for multi-thumb sliders. Render multiple Thumbs
    * for range sliders.
    *
-   * @see https://0.vuetifyjs.com/components/slider#anatomy
+   * @see https://0.vuetifyjs.com/components/forms/slider#anatomy
    *
    * @example
    * ```vue
@@ -136,7 +136,7 @@ export const Slider = {
    * per thumb value. Can also be used explicitly for custom form
    * integration.
    *
-   * @see https://0.vuetifyjs.com/components/slider#form-integration
+   * @see https://0.vuetifyjs.com/components/forms/slider#form-integration
    * @internal
    *
    * @example

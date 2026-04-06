@@ -29,6 +29,11 @@ The Selection component provides a wrapper and item pattern for managing selecti
 
 ::: example
 /components/selection/basic
+
+### Basic Multi-Selection
+
+Button items with shared multi-selection state via array v-model binding.
+
 :::
 
 ## Anatomy

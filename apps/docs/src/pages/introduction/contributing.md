@@ -155,10 +155,10 @@ type(scope): subject
 ### Examples
 
 ```bash
-feat(useSelection): add toggle method
+feat(createSelection): add toggle method
 fix(ExpansionPanel): correct aria-expanded state
 docs(getting-started): update installation instructions
-refactor(useRegistry): simplify reindex logic
+refactor(createRegistry): simplify reindex logic
 test(useForm): add validation edge cases
 ```
 
@@ -202,7 +202,7 @@ test(useForm): add validation edge cases
 - Use `describe` blocks to organize related tests
 
 ```ts
-describe('useSelection', () => {
+describe('createSelection', () => {
   it('should select an item', () => {
     // ...
   })

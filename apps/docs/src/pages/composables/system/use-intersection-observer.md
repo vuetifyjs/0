@@ -67,6 +67,16 @@ flowchart TD
   useIntersectionObserver --> Animations["Entrance Animations"]
 ```
 
+## Options
+
+| Option | Type | Default | Notes |
+| - | - | - | - |
+| `immediate` | `boolean` | `false` | Fire the callback immediately on mount before any intersection |
+| `once` | `boolean` | `false` | Stop observing after the first intersection fires |
+| `threshold` | `number \| number[]` | `0` | Intersection ratio(s) at which the callback fires |
+| `root` | `Element \| null` | `null` | Ancestor to use as viewport (null = browser viewport) |
+| `rootMargin` | `string` | `'0px'` | CSS margin around the root for intersection calculations |
+
 ## Reactivity
 
 | Property/Method | Reactive | Notes |
@@ -75,6 +85,9 @@ flowchart TD
 | `isIntersecting` | <AppSuccessIcon /> | ShallowRef, readonly |
 | `isPaused` | <AppSuccessIcon /> | ShallowRef, readonly |
 | `target` | <AppSuccessIcon /> | Accepts MaybeRef, watched for changes |
+| `pause()` | — | Temporarily stop observing without disconnecting |
+| `resume()` | — | Resume after `pause()` |
+| `stop()` | — | Disconnect the observer permanently |
 
 ### useElementIntersection
 
@@ -87,6 +100,11 @@ flowchart TD
 
 ::: example
 /composables/use-intersection-observer/scroll-reveal
+
+### Scroll Reveal with Visibility Percentage
+
+Cards that fade in and slide up with a staggered delay as they scroll into view, with a progress bar showing each card's visibility percentage.
+
 :::
 
 <DocsApi />

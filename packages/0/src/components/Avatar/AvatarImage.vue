@@ -1,6 +1,8 @@
 /**
  * @module AvatarImage
  *
+ * @see https://0.vuetifyjs.com/components/semantic/avatar
+ *
  * @remarks
  * Image component that registers with the Avatar context and manages loading state.
  * Automatically shows when loaded and hides on error. Supports priority ordering

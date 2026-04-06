@@ -1,6 +1,8 @@
 /**
  * @module AvatarFallback
  *
+ * @see https://0.vuetifyjs.com/components/semantic/avatar
+ *
  * @remarks
  * Fallback content component shown when no images are loaded. Registers with
  * the lowest implicit priority so it only displays when all images fail.

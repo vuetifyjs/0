@@ -22,7 +22,7 @@ import Root from './RatingRoot.vue'
  * Uses `createRating` internally for value management and exposes
  * state via data attributes for CSS-only styling.
  *
- * @see https://0.vuetifyjs.com/components/rating
+ * @see https://0.vuetifyjs.com/components/forms/rating
  *
  * @example
  * ```vue
@@ -58,7 +58,7 @@ export const Rating = {
    * renders a hidden input for form submission. Supports both whole
    * and half-star modes via the `half` prop.
    *
-   * @see https://0.vuetifyjs.com/components/rating
+   * @see https://0.vuetifyjs.com/components/forms/rating
    *
    * @example
    * ```vue
@@ -95,7 +95,7 @@ export const Rating = {
    * mode is active, detects left/right half of the element for
    * half-star hover precision.
    *
-   * @see https://0.vuetifyjs.com/components/rating#anatomy
+   * @see https://0.vuetifyjs.com/components/forms/rating#anatomy
    *
    * @example
    * ```vue
@@ -124,7 +124,7 @@ export const Rating = {
    * be used explicitly for custom form integration scenarios where
    * you need manual control over the hidden input placement.
    *
-   * @see https://0.vuetifyjs.com/components/rating#form-integration
+   * @see https://0.vuetifyjs.com/components/forms/rating
    * @internal
    *
    * @example

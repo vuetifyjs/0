@@ -1,6 +1,8 @@
 /**
  * @module AlertDialogContent
  *
+ * @see https://0.vuetifyjs.com/components/disclosure/alert-dialog
+ *
  * @remarks
  * Content component for alert dialogs. Renders the dialog panel using the
  * native dialog element with `showModal()` for proper modal behavior.

@@ -1,6 +1,8 @@
 /**
  * @module BreadcrumbsEllipsis
  *
+ * @see https://0.vuetifyjs.com/components/semantic/breadcrumbs
+ *
  * @remarks
  * Ellipsis indicator for truncated breadcrumb items. Registers with
  * BreadcrumbsRoot as type='ellipsis'. Root's watcher controls visibility

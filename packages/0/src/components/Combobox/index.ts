@@ -33,7 +33,7 @@ import Root from './ComboboxRoot.vue'
 /**
  * Combobox component with sub-components for building autocomplete inputs.
  *
- * @see https://0.vuetifyjs.com/components/combobox
+ * @see https://0.vuetifyjs.com/components/forms/combobox
  *
  * @example
  * ```vue
@@ -77,7 +77,7 @@ export const Combobox = {
    * Root component for comboboxes. Creates selection, virtual focus, popover,
    * and adapter contexts. Bridges v-model to the internal selection state.
    *
-   * @see https://0.vuetifyjs.com/components/combobox
+   * @see https://0.vuetifyjs.com/components/forms/combobox
    *
    * @example
    * ```vue
@@ -106,7 +106,7 @@ export const Combobox = {
    * Wrapper for the control and cue. Sets CSS anchor-name so the dropdown
    * positions relative to this element.
    *
-   * @see https://0.vuetifyjs.com/components/combobox#comboboxactivator
+   * @see https://0.vuetifyjs.com/components/forms/combobox
    *
    * @example
    * ```vue
@@ -121,7 +121,7 @@ export const Combobox = {
    * Text input that drives the query string and keyboard navigation.
    * Binds `role="combobox"` and manages `aria-activedescendant` via virtual focus.
    *
-   * @see https://0.vuetifyjs.com/components/combobox#comboboxcontrol
+   * @see https://0.vuetifyjs.com/components/forms/combobox
    *
    * @example
    * ```vue
@@ -137,7 +137,7 @@ export const Combobox = {
    * Visual cue for open/close state. Exposes `data-state="open|closed"` for
    * CSS-driven styling. Clicking toggles the dropdown.
    *
-   * @see https://0.vuetifyjs.com/components/combobox#comboboxcue
+   * @see https://0.vuetifyjs.com/components/forms/combobox
    *
    * @example
    * ```vue
@@ -151,7 +151,7 @@ export const Combobox = {
    * Dropdown content container using native popover API with CSS anchor
    * positioning. Renders `role="listbox"` with lazy mounting.
    *
-   * @see https://0.vuetifyjs.com/components/combobox#comboboxcontent
+   * @see https://0.vuetifyjs.com/components/forms/combobox
    *
    * @example
    * ```vue
@@ -168,7 +168,7 @@ export const Combobox = {
    * virtual focus. Hidden via `v-show` when filtered out so selection state
    * is preserved.
    *
-   * @see https://0.vuetifyjs.com/components/combobox#comboboxitem
+   * @see https://0.vuetifyjs.com/components/forms/combobox
    *
    * @example
    * ```vue
@@ -184,7 +184,7 @@ export const Combobox = {
    * Empty state shown when no items match the current query. Exposes the
    * query string via slot props for contextual messaging.
    *
-   * @see https://0.vuetifyjs.com/components/combobox#comboboxempty
+   * @see https://0.vuetifyjs.com/components/forms/combobox
    *
    * @example
    * ```vue
@@ -199,7 +199,7 @@ export const Combobox = {
    * Auto-generates an ID that Combobox.Control references in its
    * aria-describedby attribute for accessibility.
    *
-   * @see https://0.vuetifyjs.com/components/combobox#comboboxdescription
+   * @see https://0.vuetifyjs.com/components/forms/combobox
    *
    * @example
    * ```vue
@@ -218,7 +218,7 @@ export const Combobox = {
    * Connected to Control via aria-errormessage. Uses aria-live="polite"
    * for screen reader announcements when errors appear.
    *
-   * @see https://0.vuetifyjs.com/components/combobox#comboboxerror
+   * @see https://0.vuetifyjs.com/components/forms/combobox
    *
    * @example
    * ```vue

@@ -155,7 +155,7 @@ The controls let you trigger validation, prefill valid or invalid data, and rese
 
 :::
 
-## Adapters
+## Standard Schema
 
 `useRules` supports [Standard Schema](https://standardschema.dev/) — a universal interface for validation libraries. Pass schema objects directly in `rules` arrays alongside alias strings and inline functions — `resolve()` auto-detects and wraps them.
 
@@ -225,5 +225,19 @@ Any library that implements the [Standard Schema v1 spec](https://standardschema
 | [Zod](https://zod.dev/) | v3.24+ | `import { z } from 'zod'` |
 | [Valibot](https://valibot.dev/) | v1.0+ | `import * as v from 'valibot'` |
 | [ArkType](https://arktype.io/) | v2.0+ | `import { type } from 'arktype'` |
+
+### isStandardSchema()
+
+`isStandardSchema(value)` is exported for use in custom rule factories. Returns `true` if the value implements the Standard Schema v1 interface (`~standard.version === 1`):
+
+```ts
+import { isStandardSchema } from '@vuetify/v0'
+
+function myRuleFactory (input: unknown) {
+  if (isStandardSchema(input)) {
+    // wrap as standard schema rule
+  }
+}
+```
 
 <DocsApi />

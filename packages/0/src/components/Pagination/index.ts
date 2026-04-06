@@ -31,13 +31,13 @@ import Status from './PaginationStatus.vue'
 /**
  * Pagination component with sub-components for building pagination controls.
  *
- * @see https://0.vuetifyjs.com/components/pagination
+ * @see https://0.vuetifyjs.com/components/semantic/pagination
  */
 export const Pagination = {
   /**
    * Root component for pagination controls.
    *
-   * @see https://0.vuetifyjs.com/components/pagination
+   * @see https://0.vuetifyjs.com/components/semantic/pagination
    *
    * @example
    * ```vue
@@ -68,7 +68,7 @@ export const Pagination = {
   /**
    * Individual page button that navigates to a specific page number.
    *
-   * @see https://0.vuetifyjs.com/components/pagination#paginationitem
+   * @see https://0.vuetifyjs.com/components/semantic/pagination
    *
    * @example
    * ```vue
@@ -91,7 +91,7 @@ export const Pagination = {
    * Navigation button that jumps to the first page. Automatically
    * disables when already on the first page.
    *
-   * @see https://0.vuetifyjs.com/components/pagination#paginationfirst
+   * @see https://0.vuetifyjs.com/components/semantic/pagination
    *
    * @example
    * ```vue
@@ -119,7 +119,7 @@ export const Pagination = {
    * Navigation button that moves to the previous page. Automatically
    * disables when already on the first page.
    *
-   * @see https://0.vuetifyjs.com/components/pagination#paginationprev
+   * @see https://0.vuetifyjs.com/components/semantic/pagination
    *
    * @example
    * ```vue
@@ -148,7 +148,7 @@ export const Pagination = {
    * readers via aria-hidden. Inherits ellipsis character from Root
    * or can be overridden via prop.
    *
-   * @see https://0.vuetifyjs.com/components/pagination#paginationellipsis
+   * @see https://0.vuetifyjs.com/components/semantic/pagination
    *
    * @example
    * ```vue
@@ -170,7 +170,7 @@ export const Pagination = {
    * Navigation button that moves to the next page. Automatically
    * disables when already on the last page.
    *
-   * @see https://0.vuetifyjs.com/components/pagination#paginationnext
+   * @see https://0.vuetifyjs.com/components/semantic/pagination
    *
    * @example
    * ```vue
@@ -198,7 +198,7 @@ export const Pagination = {
    * Navigation button that jumps to the last page. Automatically
    * disables when already on the last page.
    *
-   * @see https://0.vuetifyjs.com/components/pagination#paginationlast
+   * @see https://0.vuetifyjs.com/components/semantic/pagination
    *
    * @example
    * ```vue
@@ -226,7 +226,7 @@ export const Pagination = {
    * Visually-hidden live region that announces page changes to screen
    * readers. Should be styled with sr-only/visually-hidden CSS.
    *
-   * @see https://0.vuetifyjs.com/components/pagination#paginationstatus
+   * @see https://0.vuetifyjs.com/components/semantic/pagination
    *
    * @example
    * ```vue

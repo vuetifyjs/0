@@ -13,7 +13,7 @@
  * - Token-based permission storage
  * - Adapter pattern for custom permission systems
  *
- * Built on useTokens for flexible permission configuration.
+ * Built on createTokens for flexible permission configuration.
  */
 
 // Composables

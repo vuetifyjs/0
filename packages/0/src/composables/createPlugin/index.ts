@@ -12,6 +12,7 @@
  *
  * Also exports `createPluginContext` — a higher-level factory that generates the standard
  * context/plugin/consumer triple for plugin composables, eliminating boilerplate.
+ * Supports `persist()` / `restore()` lifecycle hooks for saving and rehydrating plugin state.
  */
 
 import { createContext, useContext } from '#v0/composables/createContext'
@@ -48,7 +49,7 @@ function getInstalled (app: App): Set<string> {
  * @param options The plugin options.
  * @returns A new Vue plugin.
  *
- * @see https://0.vuetifyjs.com/composables/foundation/create-plugin#create-plugin
+ * @see https://0.vuetifyjs.com/composables/foundation/create-plugin
  *
  * @example
  * ```ts

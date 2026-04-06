@@ -1,6 +1,8 @@
 /**
  * @module PopoverContent
  *
+ * @see https://0.vuetifyjs.com/components/disclosure/popover
+ *
  * @remarks
  * Content component for popovers. Renders the popover panel using the native
  * popover API. Supports CSS anchor positioning for automatic placement relative

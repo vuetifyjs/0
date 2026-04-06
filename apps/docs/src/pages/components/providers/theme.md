@@ -13,11 +13,12 @@ features:
   level: 2
 related:
   - /composables/plugins/use-theme
+  - /composables/registration/create-tokens
 ---
 
 # Theme
 
-A headless component that scopes a theme to a subtree. Descendant `useTheme()` calls resolve to the specified theme without affecting the rest of the application.
+Scopes a theme to a component subtree for independently themed sections of your app.
 
 <DocsPageFeatures :frontmatter />
 
@@ -102,6 +103,22 @@ Set `renderless` to skip the wrapper element. The slot exposes `attrs` (includin
   </section>
 </Theme>
 ```
+
+### Isolated Context
+
+By default, `<Theme>` provides its context under the `'v0:theme'` key — the same key used by `useTheme()`. If you're building a component that needs its own theme scope that doesn't interfere with the app's global theme, pass a custom `namespace`:
+
+```vue
+<template>
+  <!-- Isolated: useTheme() in descendants won't affect the global theme -->
+  <Theme theme="dark" namespace="my-widget:theme">
+    <slot />
+  </Theme>
+</template>
+```
+
+> [!TIP]
+> The `namespace` prop is only needed when building reusable components that must be theme-isolated. Most apps don't need it.
 
 ### Slot Props
 

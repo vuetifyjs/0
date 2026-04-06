@@ -1,6 +1,8 @@
 /**
  * @module createValidation
  *
+ * @see https://0.vuetifyjs.com/composables/forms/create-validation
+ *
  * @remarks
  * Per-input validation composable built on createGroup.
  *
@@ -8,6 +10,7 @@
  * - Each ticket is a rule — enable/disable via select/unselect
  * - Auto-register with parent form via useForm() injection
  * - Async rule support with generation-based race safety
+ * - Standard Schema support (Zod, Valibot, ArkType, etc.)
  * - Silent validation mode
  * - Tri-state isValid (null/true/false)
  *

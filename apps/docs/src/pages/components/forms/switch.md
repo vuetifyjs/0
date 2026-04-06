@@ -31,6 +31,11 @@ The Switch component supports two modes:
 
 ::: example
 /components/switch/basic
+
+### Basic Switch
+
+A standalone boolean switch with label and slide animation.
+
 :::
 
 ## Anatomy
@@ -120,6 +125,11 @@ Wrap switches in `Switch.Group` for multi-selection with array-based v-model:
 
 ::: example
 /components/switch/group
+
+### Switch Group
+
+Multi-select switch group managing an array of connectivity options (WiFi, Bluetooth, Location).
+
 :::
 
 ### Form Integration
@@ -157,6 +167,11 @@ Use `Switch.SelectAll` within a group for "select all" patterns. It automaticall
 
 ::: example
 /components/switch/indeterminate
+
+### Select-All Switch
+
+A "select all" switch with indeterminate state over nested permission toggles.
+
 :::
 
 The `SelectAll` component:

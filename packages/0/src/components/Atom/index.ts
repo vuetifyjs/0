@@ -3,7 +3,7 @@ export type { AtomExpose, AtomProps, AtomSlots } from './Atom.vue'
 /**
  * Polymorphic foundation component that can render as any HTML element.
  *
- * @see https://0.vuetifyjs.com/components/atom
+ * @see https://0.vuetifyjs.com/components/primitives/atom
  *
  * @example
  * ```vue

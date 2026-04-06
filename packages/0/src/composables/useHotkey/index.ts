@@ -1,6 +1,8 @@
 /**
  * @module useHotkey
  *
+ * @see https://0.vuetifyjs.com/composables/system/use-hotkey
+ *
  * @remarks
  * Hotkey listener composable with key combination and sequence support.
  *
@@ -10,7 +12,7 @@
  * - Platform-aware modifiers (Mac: cmd→meta, others: cmd→ctrl)
  * - Input focus detection (skip when typing in inputs)
  * - Sequence timeout with automatic reset
- * - Key alias normalization
+ * - Key and symbol word alias normalization (`plus` → `+`, `esc` → `escape`, etc.)
  * - Pause/resume/stop functionality
  * - Automatic cleanup on scope disposal
  * - SSR-safe (no-op when not in browser)

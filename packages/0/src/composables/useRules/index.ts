@@ -1,6 +1,8 @@
 /**
  * @module useRules
  *
+ * @see https://0.vuetifyjs.com/composables/plugins/use-rules
+ *
  * @remarks
  * Validation rule composable with Standard Schema support.
  *

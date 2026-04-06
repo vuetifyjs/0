@@ -6,7 +6,7 @@
  * Wraps createForm and renders a native form element via Atom.
  * Fields using createValidation auto-register via useForm() injection.
  *
- * @see https://0.vuetifyjs.com/components/form
+ * @see https://0.vuetifyjs.com/components/forms/form
  */
 
 <script lang="ts">

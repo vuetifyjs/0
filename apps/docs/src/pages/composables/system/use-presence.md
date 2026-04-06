@@ -43,6 +43,14 @@ const { isMounted, isPresent, isLeaving, state, done } = usePresence({
 // done() — call when exit animation finishes
 ```
 
+## Options
+
+| Option | Type | Default | Notes |
+| - | - | - | - |
+| `present` | `MaybeRefOrGetter<boolean>` | — | Required. Drives visibility — when truthy, content enters; when falsy, begins leaving |
+| `lazy` | `boolean` | `false` | Delay first mount until `present` is `true` for the first time |
+| `immediate` | `boolean` | `true` | Auto-resolve the `leaving` state on the next tick if `done()` is not called. Set to `false` for JS-driven animations that need full timing control |
+
 ## Architecture
 
 ```mermaid "usePresence State Machine"
@@ -64,6 +72,17 @@ stateDiagram-v2
 | `isPresent` | `Ref<boolean>` | Whether content is logically active |
 | `isLeaving` | `Ref<boolean>` | Whether an exit is in progress |
 | `done` | `() => void` | Signal that exit animation is complete |
+
+## Examples
+
+::: example
+/composables/use-presence/basic
+
+### CSS Transition
+
+Toggle content with a CSS-driven enter/exit animation. `isMounted` drives `v-if`, `state` drives the transition classes, and `done()` is called on `transitionend` to signal the leaving cycle is complete.
+
+:::
 
 ## Questions
 

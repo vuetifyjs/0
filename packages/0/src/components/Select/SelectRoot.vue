@@ -1,6 +1,8 @@
 /**
  * @module SelectRoot
  *
+ * @see https://0.vuetifyjs.com/components/forms/select
+ *
  * @remarks
  * Root component for select contexts. Creates and provides select context
  * to child Select components. Manages selection state, open/close state,

@@ -12,6 +12,7 @@ features:
   github: /composables/useTheme/
   level: 2
 related:
+  - /components/providers/theme
   - /composables/system/use-media-query
   - /composables/registration/create-tokens
   - /guide/features/theming
@@ -87,8 +88,15 @@ Adapters let you swap the underlying CSS injection strategy without changing you
 
 | Adapter | Import | Description |
 |---------|--------|-------------|
-| `V0StyleSheetThemeAdapter` | `@vuetify/v0` | Injects CSS via `<style>` elements (default) |
-| `V0UnheadThemeAdapter` | `@vuetify/v0/theme/adapters/unhead` | Injects CSS via [Unhead](https://unhead.unjs.io/) for SSR |
+| `V0StyleSheetThemeAdapter` | `@vuetify/v0` | Injects CSS via `adoptedStyleSheets` (default, SPA only) |
+| `V0UnheadThemeAdapter` | `@vuetify/v0/theme/adapters/unhead` | Injects CSS via [Unhead](https://unhead.unjs.io/) for SSR/SSG |
+
+Both adapters set a `data-theme` attribute on the root element. Theme CSS is scoped to `[data-theme="light"]` / `[data-theme="dark"]` selectors so multiple themes can coexist in the same stylesheet.
+
+**When to use each:**
+
+- **`V0StyleSheetThemeAdapter`** (default) — SPAs without SSR. Uses `document.adoptedStyleSheets` to inject a live `CSSStyleSheet` — no DOM `<style>` element, zero flicker, works well with CSP when configured.
+- **`V0UnheadThemeAdapter`** — SSR or SSG (Nuxt, VitePress). Manages the `<style>` tag and `data-theme` attribute via Unhead so the correct theme is rendered in the initial HTML, avoiding a flash of the wrong theme on hydration. Requires `@unhead/vue`.
 
 ## Architecture
 
@@ -96,19 +104,21 @@ Adapters let you swap the underlying CSS injection strategy without changing you
 
 ```mermaid "Theme Hierarchy"
 flowchart TD
-  createRegistry --> createSelection
+  createRegistry --> createModel
+  createModel --> createSelection
   createSelection --> createSingle
   createSingle --> useTheme
   createTokens --> useTheme
   useTheme --> Adapter[ThemeAdapter]
   Adapter --> CSS[CSS Variables]
+  Adapter --> Attr["data-theme attribute"]
 ```
 
 ## Reactivity
 
 Theme selection and computed colors are reactive. Switching themes automatically updates CSS variables.
 
-| Property | Reactive | Notes |
+| Property/Method | Reactive | Notes |
 | - | :-: | - |
 | `selectedId` | <AppSuccessIcon /> | Current theme ID |
 | `selectedItem` | <AppSuccessIcon /> | Current theme ticket |
@@ -116,6 +126,8 @@ Theme selection and computed colors are reactive. Switching themes automatically
 | `selectedIndex` | <AppSuccessIcon /> | Index in registry |
 | `colors` | <AppSuccessIcon /> | Resolved colors with aliases |
 | `isDark` | <AppSuccessIcon /> | Current theme is dark |
+| `select(id)` | — | Switch to a specific theme by ID |
+| `cycle(ids?)` | — | Advance to the next theme. Pass an array to restrict which themes to cycle |
 
 ## Examples
 

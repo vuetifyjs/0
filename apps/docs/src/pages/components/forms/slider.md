@@ -17,7 +17,7 @@ related:
 
 # Slider
 
-A headless slider component for building single-value and range inputs with pointer drag, keyboard navigation, and step snapping. Uses `createSlider` internally, which delegates value storage to `createModel`.
+Headless slider for single-value and range inputs with pointer drag, keyboard navigation, and step snapping.
 
 <DocsPageFeatures :frontmatter />
 
@@ -27,6 +27,11 @@ The Slider supports single-value and range modes. Add one `Slider.Thumb` for a s
 
 ::: example
 /components/slider/basic
+
+### Single and Range Slider
+
+A single-value slider and a range slider with track and thumb components.
+
 :::
 
 ## Anatomy

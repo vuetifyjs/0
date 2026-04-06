@@ -18,7 +18,7 @@ related:
 
 # Snackbar
 
-A headless compound component for rendering toast and snackbar notifications. Pairs with `useNotifications` for queue-driven toast stacks with auto-dismiss, pause on hover/focus, and adapter integration.
+Headless compound component for toast and snackbar notifications. Pairs with `useNotifications` for queue-driven stacks with auto-dismiss and pause on hover.
 
 <DocsPageFeatures :frontmatter />
 
@@ -28,6 +28,11 @@ A single snackbar — render directly when you control the lifecycle yourself.
 
 ::: example
 /components/snackbar/basic
+
+### Single Snackbar
+
+A single snackbar with show/dismiss controls and a success status message.
+
 :::
 
 ## Anatomy
@@ -70,6 +75,11 @@ A single snackbar — render directly when you control the lifecycle yourself.
 
 ::: example
 /components/snackbar/queue
+
+### Notification Queue
+
+Queued toasts cycling through info, success, warning, and error severity with stacking behavior.
+
 :::
 
 ## Recipes

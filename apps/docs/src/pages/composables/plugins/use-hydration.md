@@ -13,6 +13,7 @@ features:
   github: /composables/useHydration/
   level: 2
 related:
+  - /composables/plugins/use-storage
   - /guide/fundamentals/plugins
 ---
 
@@ -87,5 +88,29 @@ All properties are `Readonly<ShallowRef>` and update when the root component mou
 | - | - | - |
 | `isHydrated` | `ShallowRef<boolean>` | True after root component mounts |
 | `isSettled` | `ShallowRef<boolean>` | True after next tick post-hydration |
+
+## Fallback Hydration
+
+When `useHydration()` is called without the plugin installed (no `createHydrationPlugin` in your app), it returns a fallback context where `isHydrated` and `isSettled` are **immediately `true`**. This means components that conditionally render based on `isHydrated` work correctly in client-only apps without any plugin setup.
+
+```ts no-filename
+// Without plugin: isHydrated.value === true immediately
+// With plugin:    isHydrated.value starts false, becomes true after mount
+const { isHydrated } = useHydration()
+```
+
+> [!TIP]
+> The fallback is also what SSR-aware composables like `useResizeObserver` use internally — they call `useHydration()` to defer observation until after hydration, but work correctly even in environments where the plugin isn't installed.
+
+## Examples
+
+::: example
+/composables/use-hydration/hydration-state
+
+### Hydration State
+
+Displays the live `isHydrated` and `isSettled` states as the component mounts and the next tick resolves, illustrating the SSR hydration lifecycle.
+
+:::
 
 <DocsApi />

@@ -1,6 +1,8 @@
 /**
  * @module SelectPlaceholder
  *
+ * @see https://0.vuetifyjs.com/components/forms/select
+ *
  * @remarks
  * Placeholder text shown when no value is selected. Automatically hides
  * when a selection is made. Typically rendered alongside Select.Value

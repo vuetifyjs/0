@@ -78,12 +78,13 @@ const resolved = computed(() => toElement(targetRef))
 
 ## Examples
 
-### Basic
-
-Switch between input types to see how `toElement` resolves refs, getters, raw elements, and null values to a DOM element.
-
 ::: example
 /composables/to-element/basic
+
+### Source Type Resolver
+
+Switch between input types (ref, getter, raw element, null) to see how `toElement` resolves each to a DOM element or undefined.
+
 :::
 
 <DocsApi />

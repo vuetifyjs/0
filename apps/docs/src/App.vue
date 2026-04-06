@@ -48,6 +48,23 @@
       { key: 'og:image', property: 'og:image', content: 'https://cdn.vuetifyjs.com/docs/images/one/logos/vzero-logo-og.png' },
       { key: 'twitter:card', name: 'twitter:card', content: 'summary_large_image' },
     ],
+    script: [{
+      key: 'website-schema',
+      type: 'application/ld+json',
+      innerHTML: JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'WebSite',
+        'name': 'Vuetify0',
+        'url': 'https://0.vuetifyjs.com',
+        'description': 'Headless components and composables for building modern applications and design systems',
+        'publisher': {
+          '@type': 'Organization',
+          'name': 'Vuetify',
+          'url': 'https://vuetifyjs.com',
+          'logo': 'https://cdn.vuetifyjs.com/docs/images/one/logos/vzero-logo-og.png',
+        },
+      }),
+    }],
   })
 </script>
 

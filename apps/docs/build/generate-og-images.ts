@@ -22,7 +22,7 @@ function load (path: string): ArrayBuffer {
 }
 
 const logo = `data:image/png;base64,${readFileSync(resolve(__dirname, 'fonts/vuetify0-logo.png')).toString('base64')}`
-const icon = `data:image/png;base64,${readFileSync(resolve(__dirname, '../public/pwa-512x512.png')).toString('base64')}`
+const icon = `data:image/png;base64,${readFileSync(resolve(__dirname, 'fonts/vzero-icon-white.png')).toString('base64')}`
 
 const fonts = [
   {
@@ -73,7 +73,14 @@ function template (title: string, description: string, category?: string) {
         display: 'flex',
         width: '100%',
         height: '100%',
-        background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
+        backgroundImage: [
+          'radial-gradient(at 40% 20%, rgba(124, 92, 246, 0.4) 0px, transparent 70%)',
+          'radial-gradient(at 90% -10%, rgba(24, 103, 192, 0.35) 0px, transparent 70%)',
+          'radial-gradient(at -10% 60%, rgba(239, 68, 68, 0.25) 0px, transparent 70%)',
+          'radial-gradient(at 90% 60%, rgba(34, 197, 94, 0.3) 0px, transparent 70%)',
+          'radial-gradient(at 20% 110%, rgba(245, 158, 11, 0.2) 0px, transparent 70%)',
+        ].join(', '),
+        backgroundColor: '#121212',
         color: 'white',
         fontFamily: 'Inter',
       },
@@ -85,16 +92,16 @@ function template (title: string, description: string, category?: string) {
             style: {
               display: 'flex',
               position: 'absolute',
-              top: '-40px',
-              right: '-60px',
-              opacity: 0.07,
+              top: '80px',
+              right: '40px',
+              opacity: 0.08,
             },
             children: [{
               type: 'img',
               props: {
                 src: icon,
-                width: 420,
-                height: 420,
+                width: 345,
+                height: 300,
                 style: {},
               },
             }],
@@ -199,21 +206,6 @@ function template (title: string, description: string, category?: string) {
                 },
               },
             ],
-          },
-        },
-        // Left accent stripe
-        {
-          type: 'div',
-          props: {
-            style: {
-              position: 'absolute',
-              top: '0',
-              left: '0',
-              width: '6px',
-              height: '100%',
-              background: 'linear-gradient(180deg, #1867C0 0%, #42A5F5 50%, #1867C0 100%)',
-            },
-            children: '',
           },
         },
       ],

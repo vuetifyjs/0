@@ -7,6 +7,7 @@
  * Reactive media query composable with automatic cleanup.
  *
  * Key features:
+ * - Synchronous matchMedia read on client mount (prevents FOUC)
  * - Window matchMedia integration
  * - Reactive query string support
  * - SSR-safe (returns false on server)

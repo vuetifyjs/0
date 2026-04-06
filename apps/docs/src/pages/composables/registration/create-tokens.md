@@ -12,14 +12,15 @@ features:
   github: /composables/createTokens/
   level: 3
 related:
-- /composables/registration/create-registry
-- /composables/plugins/use-theme
-- /guide/features/theming
+  - /components/providers/theme
+  - /composables/registration/create-registry
+  - /composables/plugins/use-theme
+  - /guide/features/theming
 ---
 
 # createTokens
 
-A utility for managing design tokens with support for hierarchical collections, aliases, and token resolution across your application's design system. Inspired by [Design Tokens](https://www.designtokens.org/tr/drafts/format/#design-token).
+Design token registry with hierarchical collections, alias resolution, and namespace support.
 
 <DocsPageFeatures :frontmatter />
 
@@ -55,6 +56,50 @@ const features = createTokens({
 // With flat: true, nested objects are kept as-is at their base id
 features.resolve('rtl') // { value: true, variation: 'toggle' }
 ```
+
+## Context / DI
+
+Use `createTokensContext` to share a token registry across a component tree:
+
+```ts
+import { createTokensContext } from '@vuetify/v0'
+
+export const [useTokens, provideTokens, tokens] =
+  createTokensContext({
+    namespace: 'my:tokens',
+    tokens: {
+      colors: {
+        primary: '#3b82f6',
+        secondary: '{colors.primary}',  // alias
+      },
+    },
+  })
+
+// In parent component
+provideTokens()
+
+// In child component
+const tokens = useTokens()
+tokens.resolve('colors.primary')  // '#3b82f6'
+```
+
+## Options
+
+### createTokens
+
+| Option | Type | Default | Notes |
+| - | - | - | - |
+| `flat` | `boolean` | `false` | Keep nested objects as-is at their base key instead of flattening |
+| `prefix` | `string` | — | Prepend a string to every token ID on registration (e.g. `'color.'`) |
+
+### createTokensContext
+
+Accepts all `createTokens` options plus:
+
+| Option | Type | Default | Notes |
+| - | - | - | - |
+| `namespace` | `string` | — | DI namespace string (e.g. `'my:tokens'`) |
+| `tokens` | `TokenCollection` | — | Initial token collection registered when the context is created |
 
 ## Architecture
 

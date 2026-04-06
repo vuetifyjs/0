@@ -1,12 +1,15 @@
 /**
  * @module useDate
  *
+ * @see https://0.vuetifyjs.com/composables/plugins/use-date
+ *
  * @remarks
  * Date manipulation composable with adapter pattern for date operations.
  *
  * Key features:
  * - Adapter pattern for date library abstraction
  * - Locale-aware formatting via Intl.DateTimeFormat
+ * - `firstDayOfWeek` derived from locale and propagated to adapter
  * - Integration with useLocale for automatic locale sync
  *
  * @example Using the built-in Temporal adapter

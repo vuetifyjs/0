@@ -110,12 +110,12 @@
     return `${baseUrl}&label=${encodeURIComponent(label)}`
   })
 
-  // Extract name from github path (e.g., /composables/useRegistry/ -> useRegistry)
+  // Extract name from github path (e.g., /composables/createRegistry/ -> createRegistry)
   const itemName = toRef(() => {
     const github = props.frontmatter?.features?.github
     if (!github) return null
 
-    // Match composables: /composables/useRegistry/
+    // Match composables: /composables/createRegistry/
     const composableMatch = github.match(/\/composables\/([^/]+)\/?$/)
     if (composableMatch) return composableMatch[1]
 

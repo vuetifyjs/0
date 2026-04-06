@@ -1,6 +1,8 @@
 /**
  * @module ButtonRoot
  *
+ * @see https://0.vuetifyjs.com/components/actions/button
+ *
  * @remarks
  * Root component for buttons with support for disabled, readonly, passive, and loading states.
  * - **Standalone mode**: Renders as a clickable button element

@@ -1,6 +1,8 @@
 /**
  * @module ToggleIndicator
  *
+ * @see https://0.vuetifyjs.com/components/actions/toggle
+ *
  * @remarks
  * Visual indicator for the pressed state of a toggle. Consumes
  * ToggleRootContext and exposes isPressed for rendering icons,

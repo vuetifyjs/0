@@ -55,17 +55,59 @@ flowchart TD
   useClickOutside --> Popovers
 ```
 
+## Multiple Targets
+
+Pass an array of refs to ignore clicks inside any of them:
+
+```ts
+import { useClickOutside } from '@vuetify/v0'
+import { useTemplateRef } from 'vue'
+
+const trigger = useTemplateRef('trigger')
+const panel = useTemplateRef('panel')
+
+// Clicks inside EITHER trigger or panel are ignored
+useClickOutside([trigger, panel], () => {
+  console.log('Clicked outside both elements')
+})
+```
+
+The `target` parameter accepts `MaybeArray<ClickOutsideTarget>` — a single ref/getter or an array of refs/getters.
+
+## Options
+
+| Option | Type | Default | Description |
+| - | - | - | - |
+| `bounds` | `boolean` | `false` | Use bounding-rect detection instead of DOM containment. Required for native `<dialog>` elements — backdrop clicks have the `<dialog>` as the event target, so containment checks always pass |
+
+```ts
+import { useClickOutside } from '@vuetify/v0'
+
+const dialog = useTemplateRef('dialog')
+
+// For native <dialog> — backdrop clicks are detected via coordinates
+useClickOutside(dialog, () => dialog.value?.close(), { bounds: true })
+```
+
 ## Reactivity
 
 | Property/Method | Reactive | Notes |
 | - | :-: | - |
 | `isActive` | <AppSuccessIcon /> | Computed from `!isPaused` |
 | `isPaused` | <AppSuccessIcon /> | ShallowRef, readonly |
+| `pause()` | - | Stop detection, preserve state |
+| `resume()` | - | Resume detection |
+| `stop()` | - | Stop and clean up listeners |
 
 ## Examples
 
 ::: example
 /composables/use-click-outside/basic
+
+### Dropdown with Outside Dismiss
+
+A dropdown menu that opens on button click and automatically closes when clicking anywhere outside the menu.
+
 :::
 
 <DocsApi />

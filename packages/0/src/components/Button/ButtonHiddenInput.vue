@@ -1,6 +1,8 @@
 /**
  * @module ButtonHiddenInput
  *
+ * @see https://0.vuetifyjs.com/components/actions/button
+ *
  * @remarks
  * Hidden native input for form submission. Must be used within a
  * Button.Root component. Reads selected state from Root context.

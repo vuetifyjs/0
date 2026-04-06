@@ -13,13 +13,14 @@ features:
   renderless: false
 related:
   - /composables/selection/create-selection
+  - /composables/selection/create-group
   - /composables/system/use-virtual-focus
   - /components/disclosure/popover
 ---
 
 # Select
 
-A headless dropdown select component with single and multi-selection support. Uses `createSelection` for state management, `useVirtualFocus` for keyboard navigation, and `usePopover` for native popover positioning.
+Headless dropdown select with single and multi-selection, keyboard navigation, and native popover positioning.
 
 <DocsPageFeatures :frontmatter />
 
@@ -29,6 +30,11 @@ The Select component provides a compound pattern for building accessible dropdow
 
 ::: example
 /components/select/basic
+
+### Basic Select
+
+A single-select color dropdown with placeholder text and selected value display.
+
 :::
 
 ## Anatomy

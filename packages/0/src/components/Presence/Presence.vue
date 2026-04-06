@@ -2,7 +2,7 @@
   /**
    * @module Presence
    *
-   * @see https://0.vuetifyjs.com/components/presence
+   * @see https://0.vuetifyjs.com/components/primitives/presence
    *
    * @remarks
    * Renderless component for animation-agnostic mount lifecycle.

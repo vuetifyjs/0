@@ -1,11 +1,15 @@
 /**
  * @module useMutationObserver
  *
+ * @see https://0.vuetifyjs.com/composables/system/use-mutation-observer
+ *
  * @remarks
  * MutationObserver composable with lifecycle management.
  *
  * Key features:
  * - MutationObserver API wrapper
+ * - `isActive` reactive flag
+ * - `once` option for single-fire observation
  * - Pause/resume/stop functionality
  * - Automatic cleanup on unmount
  * - SSR-safe (checks SUPPORTS_MUTATION_OBSERVER)

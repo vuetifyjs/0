@@ -1,6 +1,8 @@
 /**
  * @module ComboboxItem
  *
+ * @see https://0.vuetifyjs.com/components/forms/combobox
+ *
  * @remarks
  * Option component for the combobox dropdown. Registers with the parent selection
  * context and provides selection state via scoped slots. Element ID follows the

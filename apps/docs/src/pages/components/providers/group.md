@@ -28,7 +28,53 @@ The Group component is a specialization of Selection that enforces multi-selecti
 
 ::: example
 /components/group/basic
+
+### Multi-Selection Group
+
+Button items in a group with shared multi-selection state — toggling any item updates the shared selection.
+
 :::
+
+## Features
+
+### Batch Operations
+
+The default slot exposes `selectAll`, `unselectAll`, and `toggleAll` methods for operating on all items at once:
+
+```vue
+<template>
+  <Group.Root v-model="selected">
+    <template #default="{ selectAll, unselectAll, toggleAll, isAllSelected, isMixed }">
+      <button @click="toggleAll">
+        {{ isAllSelected ? 'Deselect All' : 'Select All' }}
+      </button>
+
+      <Group.Item v-for="item in items" :key="item" :value="item">
+        {{ item }}
+      </Group.Item>
+    </template>
+  </Group.Root>
+</template>
+```
+
+### Tri-State
+
+The slot props `isAllSelected`, `isNoneSelected`, and `isMixed` reflect the aggregate selection state — useful for driving an "indeterminate" checkbox:
+
+```vue
+<template>
+  <Group.Root v-model="selected">
+    <template #default="{ isAllSelected, isMixed, toggleAll }">
+      <input
+        type="checkbox"
+        :checked="isAllSelected"
+        :indeterminate="isMixed"
+        @change="toggleAll"
+      />
+    </template>
+  </Group.Root>
+</template>
+```
 
 ## Anatomy
 

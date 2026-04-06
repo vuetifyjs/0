@@ -1,6 +1,8 @@
 /**
  * @module ButtonGroup
  *
+ * @see https://0.vuetifyjs.com/components/actions/button
+ *
  * @remarks
  * Selection container for toggle button groups. Uses createSelection
  * to manage single or multi-select state across child Button.Root components.

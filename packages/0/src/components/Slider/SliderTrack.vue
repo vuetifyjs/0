@@ -1,6 +1,8 @@
 /**
  * @module SliderTrack
  *
+ * @see https://0.vuetifyjs.com/components/forms/slider
+ *
  * @remarks
  * Track element for sliders. Handles click-to-position interaction:
  * on pointerdown, calculates value from pointer position, snaps nearest

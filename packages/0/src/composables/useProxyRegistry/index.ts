@@ -1,6 +1,8 @@
 /**
  * @module useProxyRegistry
  *
+ * @see https://0.vuetifyjs.com/composables/reactivity/use-proxy-registry
+ *
  * @remarks
  * Proxy composable for reactive registry keys, values, entries, and size.
  *
@@ -41,7 +43,7 @@ export interface ProxyRegistryContext<Z extends RegistryTicket = RegistryTicket>
  * @template E The output ticket type (what users receive from get/values).
  * @returns A proxy registry with reactive objects.
  *
- * @see https://0.vuetifyjs.com/composables/registration/use-proxy-registry
+ * @see https://0.vuetifyjs.com/composables/reactivity/use-proxy-registry
  *
  * @example
  * ```ts

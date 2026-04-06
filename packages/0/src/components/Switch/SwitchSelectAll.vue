@@ -1,6 +1,8 @@
 /**
  * @module SwitchSelectAll
  *
+ * @see https://0.vuetifyjs.com/components/forms/switch
+ *
  * @remarks
  * A "select all" switch that binds to its parent Switch.Group's
  * aggregate state. Automatically reflects isAllSelected/isMixed state

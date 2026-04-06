@@ -28,6 +28,11 @@ AlertDialog mirrors Dialog but with stricter defaults: no close on click outside
 
 ::: example
 /components/alert-dialog/basic
+
+### Confirmation Dialog
+
+A confirmation dialog with title, description, and cancel/delete action buttons.
+
 :::
 
 ## Anatomy
@@ -64,6 +69,11 @@ Use the `wait()`/`close()` pattern to keep the dialog open during async operatio
 
 ::: example
 /components/alert-dialog/async
+
+### Async Confirmation
+
+Uses `wait()`/`close()` to hold the dialog open during an async operation, showing a loading state.
+
 :::
 
 ## Accessibility

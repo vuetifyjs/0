@@ -650,9 +650,9 @@ function extractComposableApi (filePath: string, composableName: string): Compos
     }
 
     // Build list of possible interface name patterns
-    // For useRegistry -> Registry, RegistryOptions, RegistryContext
+    // For useTheme -> Theme, ThemeOptions, ThemeContext
     // For createContext -> CreateContext, Context, Plugin, etc.
-    // Also try UseRegistryOptions pattern (some composables use this)
+    // Also try UseThemeOptions pattern (some composables use this)
     const baseName = composableName.replace(/^use/, '')
     const baseNameSingular = baseName.replace(/s$/, '')
 

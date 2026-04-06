@@ -11,6 +11,8 @@ features:
   level: 2
   github: /composables/createRating/
 related:
+  - /composables/forms/create-numeric
+  - /composables/forms/create-slider
   - /components/forms/rating
   - /composables/data/create-pagination
 ---
@@ -49,6 +51,24 @@ const value = shallowRef(0)
 const bound = createRating({ value, size: 5 })
 bound.select(4)
 value.value // 4
+```
+
+## Context / DI
+
+Use `createRatingContext` to share a rating instance across a component tree:
+
+```ts
+import { createRatingContext } from '@vuetify/v0'
+
+export const [useProductRating, provideProductRating, productRating] =
+  createRatingContext({ namespace: 'my:rating', max: 5 })
+
+// In parent component
+provideProductRating()
+
+// In child component
+const rating = useProductRating()
+rating.select(4)
 ```
 
 ## Reactivity

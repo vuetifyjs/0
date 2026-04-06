@@ -80,6 +80,19 @@ registry.onboard([...])     // Bulk register
 - `first()`, `last()`, `next()`, `prev()`, `step(count)`
 - Circular navigation, skips disabled
 
+### `createModel` - Value Store
+- Sits between registry and selection
+- `enroll` option: auto-select on register
+- `apply()` for computed property application
+- `multiple` option for multi-select accumulation
+- Accepts getters via `MaybeRefOrGetter`
+
+### `createNested` - Hierarchical Selection
+- Parent-child tree relationships
+- Active state management with cascade
+- Cascade ticket selection through nested registers
+- `mandatory` + `multiple` in cascade selection
+
 ## Token System
 
 ### `createTokens` - Design Token Registry
@@ -107,14 +120,29 @@ tokens.resolve('{colors.primary}')  // '#3b82f6'
 | `createTimeline` | Bounded undo/redo |
 | `useTheme` | Theme management with CSS variable injection |
 | `createQueue` | FIFO queue for notifications/toasts |
-| `usePagination` | Integer-based page navigation |
-| `useVirtual` | Virtual scrolling |
-| `useOverflow` | Container measurement |
-| `useFilter` | Array filtering |
+| `createPagination` | Integer-based page navigation |
+| `createVirtual` | Virtual scrolling |
+| `createOverflow` | Container measurement |
+| `createFilter` | Array filtering |
 | `usePermissions` | RBAC/ABAC on `createTokens` |
 | `useLocale` | i18n with interpolation |
 | `useBreakpoints` | Responsive breakpoint detection |
 | `useLogger` | Pluggable logging with adapters |
+| `useNotifications` | Notification lifecycle with registry + queue, push adapters |
+| `useRtl` | Reactive RTL text direction, `createRtl` factory for custom instances |
+| `useStack` | Overlay z-index stacking, SSR-safe global coordination |
+| `useRules` | Validation rule aliases with locale-aware messages |
+| `createValidation` | Per-field validation with Standard Schema support |
+| `createCombobox` | Autocomplete: coordinates selection, popover, virtual focus, filtering |
+| `createSlider` | Multi-thumb slider: value math, step snapping, constraints |
+| `createInput` | Form field primitive: validation state, ARIA IDs, error messages |
+| `createNumeric` | Bounded numeric math: step, snap, clamp, circular wrapping |
+| `createRating` | Bounded rating with discrete items and half-step support |
+| `useVirtualFocus` | Virtual focus for aria-activedescendant patterns |
+| `useRovingFocus` | Roving tabindex keyboard navigation for composite widgets |
+| `createFocusTraversal` | Focus management primitive with nested contexts |
+| `createBreadcrumbs` | Breadcrumb navigation with path truncation |
+| `createDataTable` | Full data table: sort, filter, paginate, select, expand |
 
 ## Reactivity
 
@@ -131,7 +159,11 @@ tokens.resolve('{colors.primary}')  // '#3b82f6'
 - **Date**: `useDate` (date manipulation with adapter pattern)
 - **Media**: `useMediaQuery` (reactive media query matching)
 - **Lazy**: `useLazy` (deferred content rendering for dialogs, menus, tooltips)
-- **Transformers**: `toReactive`, `toArray`
+- **Presence**: `usePresence` (animation-agnostic mount lifecycle state machine)
+- **RAF**: `useRaf` (scope-safe requestAnimationFrame with cancel-then-request pattern)
+- **Timer**: `useTimer` (reactive timer with pause/resume, one-shot or repeating)
+- **Popover**: `usePopover` (native Popover API with CSS anchor positioning)
+- **Transformers**: `toReactive`, `toArray`, `toElement`
 
 ## Trinity Pattern
 
@@ -151,9 +183,13 @@ const [useMyTheme, provideMyTheme, defaultTheme] = createTheme({
 ## Adapter Pattern
 
 Adapters enable framework-agnostic logic:
-- **Theme**: `ThemeAdapter` - CSS variable injection
-- **Logger**: console/pino/consola
-- **Locale**: i18n providers
+- **Theme**: `V0StyleSheetThemeAdapter`, `V0UnheadThemeAdapter`
+- **RTL**: `Vuetify0RtlAdapter`
+- **Locale**: `VueI18nLocaleAdapter`
+- **Features**: Generic, LaunchDarkly, Flagsmith adapters
+- **Date**: multiple calendar libraries
+- **Logger**: Consola, Pino, v0 fallback
+- **Notifications**: Knock, Novu adapters
 - **Storage**: localStorage/sessionStorage/memory
 
 Location: `composables/useX/adapters/`

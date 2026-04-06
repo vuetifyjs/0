@@ -72,6 +72,19 @@ flowchart TD
   useMutationObserver --> AttributeWatch["Attribute Watching"]
 ```
 
+## Options
+
+| Option | Type | Default | Notes |
+| - | - | - | - |
+| `immediate` | `boolean` | `false` | Fire the callback immediately on mount before any mutation |
+| `once` | `boolean` | `false` | Stop observing after the first callback fires |
+| `childList` | `boolean` | `true` | Observe child node additions and removals |
+| `attributes` | `boolean` | `false` | Observe attribute changes |
+| `characterData` | `boolean` | `false` | Observe text content changes |
+| `subtree` | `boolean` | `false` | Extend observation to all descendant nodes |
+| `attributeFilter` | `string[]` | — | Limit attribute observation to specific attribute names |
+| `characterDataOldValue` | `boolean` | `false` | Record previous text value in mutation records |
+
 ## Reactivity
 
 | Property/Method | Reactive | Notes |
@@ -79,15 +92,19 @@ flowchart TD
 | `isActive` | <AppSuccessIcon /> | Computed from observer ref |
 | `isPaused` | <AppSuccessIcon /> | ShallowRef, readonly |
 | `target` | <AppSuccessIcon /> | Accepts MaybeRef, watched for changes |
+| `pause()` | — | Temporarily stop observing without disconnecting |
+| `resume()` | — | Resume after `pause()` |
+| `stop()` | — | Disconnect the observer permanently |
 
 ## Examples
 
-### Basic
-
-Add and remove child elements, toggle attributes, and observe the mutation log in real time. Use the pause/resume button to control observation.
-
 ::: example
 /composables/use-mutation-observer/basic
+
+### DOM Mutation Logger
+
+Add and remove child elements, toggle attributes, and observe the mutation log in real time, with pause/resume and clear controls.
+
 :::
 
 <DocsApi />

@@ -1,11 +1,15 @@
 /**
  * @module createNested
  *
+ * @see https://0.vuetifyjs.com/composables/selection/create-nested
+ *
  * @remarks
  * Hierarchical tree management composable extending createGroup with:
  * - Parent-child relationship tracking (children/parents Maps)
  * - Open/close state management
  * - Tree traversal utilities (getPath, getDescendants, etc.)
+ * - Cascade selection propagation through nested registers
+ * - `rootIds` tracking for top-level item detection
  * - Pluggable open strategies
  *
  * Inheritance chain: createSelection → createGroup → createNested
@@ -70,7 +74,7 @@ function resolveOpenStrategy (open: NestedOpenMode = 'multiple') {
  * - Adds computed properties: `roots`, `leaves`, `isLeaf()`, `getDepth()`
  * - Adds open state management: `open()`, `close()`, `flip()`, `opened()`
  *
- * @see https://0.vuetifyjs.com/composables/selection/use-nested
+ * @see https://0.vuetifyjs.com/composables/selection/create-nested
  *
  * @example
  * ```ts
@@ -855,7 +859,7 @@ export function createNested<
  * @param options The options for the nested context.
  * @returns A trinity tuple [useNested, provideNested, defaultNested]
  *
- * @see https://0.vuetifyjs.com/composables/selection/use-nested
+ * @see https://0.vuetifyjs.com/composables/selection/create-nested
  *
  * @example
  * ```ts
@@ -889,7 +893,7 @@ export function createNestedContext<
  * @param namespace The namespace for the nested context. Defaults to `'v0:nested'`.
  * @returns The current nested instance.
  *
- * @see https://0.vuetifyjs.com/composables/selection/use-nested
+ * @see https://0.vuetifyjs.com/composables/selection/create-nested
  */
 export function useNested<
   Z extends NestedTicketInput = NestedTicketInput,

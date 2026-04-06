@@ -1,6 +1,8 @@
 /**
  * @module TreeviewCue
  *
+ * @see https://0.vuetifyjs.com/components/disclosure/treeview
+ *
  * @remarks
  * Visual cue for expand/collapse state. Consumes TreeviewItem context.
  * Self-hides when no TreeviewContent is present (leaf nodes).

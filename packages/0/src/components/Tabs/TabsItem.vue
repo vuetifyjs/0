@@ -1,6 +1,8 @@
 /**
  * @module TabsItem
  *
+ * @see https://0.vuetifyjs.com/components/disclosure/tabs
+ *
  * @remarks
  * Individual tab trigger that registers with the parent TabsRoot.
  * Provides complete ARIA attributes, roving tabindex, and keyboard

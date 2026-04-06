@@ -165,6 +165,11 @@ Use v0's composables directly when you need complex state management—selection
 
 ::: example
 /guide/building-frameworks/pattern-a/tabs-basic
+
+### Behavior-Focused Tabs
+
+Custom tabs using `createSingle` and `useProxyRegistry` with ARIA attributes and accessible keyboard navigation.
+
 :::
 
 ### Adding Keyboard Navigation
@@ -173,6 +178,11 @@ v0 composables handle state; you add the interaction layer:
 
 ::: example
 /guide/building-frameworks/pattern-a/tabs-keyboard
+
+### Keyboard Navigation
+
+Arrow key, Home, and End key support added to the tabs above.
+
 :::
 
 ### Multi-Selection with Groups
@@ -181,6 +191,11 @@ Use `createGroup` for checkbox-style multi-selection with tri-state support:
 
 ::: example
 /guide/building-frameworks/pattern-a/accordion
+
+### Multi-Select Accordion
+
+Accordion with expand/collapse-all using `createGroup` and tri-state support.
+
 :::
 
 > [!ASKAI] How does this compare to v0's built-in Tabs component?
@@ -195,6 +210,11 @@ The `Atom` component provides polymorphic rendering via the `as` prop—render a
 
 ::: example
 /guide/building-frameworks/pattern-b/button
+
+### Polymorphic Button
+
+An Atom-based button with BEM class names and style/size/color variants.
+
 :::
 
 > [!TIP]
@@ -206,6 +226,11 @@ Wrap v0's compound components with custom CSS. The components expose data attrib
 
 ::: example
 /guide/building-frameworks/pattern-b/card
+
+### Styled ExpansionPanel
+
+ExpansionPanel wrapped with custom CSS targeting data attributes and slot props for visual state.
+
 :::
 
 ### Form Components
@@ -214,6 +239,11 @@ v0's form components handle focus, keyboard interaction, and ARIA attributes. Ap
 
 ::: example
 /guide/building-frameworks/pattern-b/input
+
+### Styled Checkbox
+
+Checkbox wrapped with label and description, styled via data attributes for checked and disabled states.
+
 :::
 
 ## Plugin Architecture
@@ -222,10 +252,52 @@ v0's plugins follow Vue's [plugin pattern](https://vuejs.org/guide/reusability/p
 
 ::: example
 /guide/building-frameworks/plugins/setup
+
+### Plugin Access
+
+Reading and toggling theme and breakpoint state anywhere in the component tree via `useTheme` and `useBreakpoints`.
+
 :::
 
 > [!TIP]
 > v0 plugins are designed to be order-independent. Each plugin gracefully handles missing dependencies by providing sensible fallbacks.
+
+### Creating Custom Plugins
+
+Use `createPluginContext` to build your own plugins without boilerplate. It returns the standard `[createContext, createPlugin, useContext]` triple:
+
+```ts
+import { createPluginContext } from '@vuetify/v0'
+
+interface ThemeOptions {
+  namespace?: string
+  primary?: string
+}
+
+interface ThemeContext {
+  primary: string
+  setPrimary: (color: string) => void
+}
+
+function createThemeFeature (options: Omit<ThemeOptions, 'namespace'>): ThemeContext {
+  const primary = shallowRef(options.primary ?? '#1976d2')
+  return { primary, setPrimary: (color) => { primary.value = color } }
+}
+
+export const [createMyThemeContext, createMyThemePlugin, useMyTheme] =
+  createPluginContext<ThemeOptions, ThemeContext>(
+    'my-ui:theme',
+    options => createThemeFeature(options),
+  )
+
+// In main.ts
+app.use(createMyThemePlugin({ primary: '#e91e63' }))
+
+// In any component
+const { primary, setPrimary } = useMyTheme()
+```
+
+See [createPlugin](/composables/foundation/create-plugin) for the full API including `persist`/`restore` lifecycle hooks for saving and rehydrating plugin state.
 
 ## SSR Safety
 
@@ -247,6 +319,11 @@ The `isHydrated` shallowRef is `false` during SSR and becomes `true` after the r
 
 ::: example
 /guide/building-frameworks/ssr/hydration-guard
+
+### SSR Hydration Guard
+
+Using `useHydration()` and `IN_BROWSER` to safely defer browser-only rendering until after hydration.
+
 :::
 
 ## TypeScript Patterns
@@ -255,6 +332,11 @@ v0 uses generics extensively. When extending composables, provide your custom ti
 
 ::: example
 /guide/building-frameworks/typescript/type-extension
+
+### Type Extension
+
+Extending `SelectionTicket` and `SelectionContext` with custom properties for type-safe file selection.
+
 :::
 
 Vue's [shallowReactive](https://vuejs.org/api/reactivity-advanced.html#shallowreactive) and [computed](https://vuejs.org/api/reactivity-core.html#computed) are used internally—understanding these helps when debugging reactivity issues.
@@ -265,6 +347,11 @@ To see everything come together, we've included a complete example library that 
 
 ::: example
 /guide/building-frameworks/my-ui/demo
+
+### Complete Design System
+
+MyButton, MyTabs, and MyAccordion assembled from v0 primitives — all patterns from this guide working together.
+
 :::
 
 The example package includes:

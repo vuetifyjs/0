@@ -1,6 +1,8 @@
 /**
  * @module SwitchRoot
  *
+ * @see https://0.vuetifyjs.com/components/forms/switch
+ *
  * @remarks
  * Root component for individual switches with dual-mode support:
  * - **Standalone mode**: Uses v-model for boolean state

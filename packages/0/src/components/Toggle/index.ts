@@ -38,7 +38,7 @@ export const Toggle = {
   /**
    * Group container managing selection across child Toggle.Root components.
    *
-   * @see https://0.vuetifyjs.com/components/actions/toggle#group
+   * @see https://0.vuetifyjs.com/components/actions/toggle
    *
    * @example
    * ```vue
@@ -65,7 +65,7 @@ export const Toggle = {
    * Renders as a span and only displays when pressed.
    * Must be used within a Toggle.Root component.
    *
-   * @see https://0.vuetifyjs.com/components/actions/toggle#indicator
+   * @see https://0.vuetifyjs.com/components/actions/toggle
    *
    * @example
    * ```vue
@@ -87,7 +87,7 @@ export const Toggle = {
    * Supports standalone mode with v-model (boolean) or group mode
    * within Toggle.Group where pressed state is derived from selection.
    *
-   * @see https://0.vuetifyjs.com/components/actions/toggle#root
+   * @see https://0.vuetifyjs.com/components/actions/toggle
    *
    * @example
    * ```vue

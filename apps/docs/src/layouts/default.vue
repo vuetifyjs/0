@@ -66,7 +66,7 @@
 </script>
 
 <template>
-  <div class="pt-[72px]">
+  <div class="pt-[calc(48px+var(--app-banner-h,24px))]">
     <a
       class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:start-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-on-primary focus:rounded"
       href="#main-content"
@@ -74,7 +74,7 @@
       Skip to main content
     </a>
 
-    <div class="min-h-[calc(100vh-72px)] flex flex-col" :inert="isModalOpen || undefined">
+    <div class="min-h-[calc(100vh-48px-var(--app-banner-h,24px))] flex flex-col" :inert="isModalOpen || undefined">
       <AppBanner />
       <AppNav />
       <AppBar />

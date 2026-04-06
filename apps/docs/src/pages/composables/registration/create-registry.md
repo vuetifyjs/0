@@ -12,14 +12,15 @@ features:
   github: /composables/createRegistry/
   level: 3
 related:
-- /composables/selection/create-selection
-- /composables/registration/create-tokens
-- /composables/forms/create-form
+  - /composables/reactivity/use-proxy-registry
+  - /composables/selection/create-selection
+  - /composables/registration/create-tokens
+  - /composables/forms/create-form
 ---
 
 # createRegistry
 
-A foundational composable for building registration-based systems, managing collections of registered items with automatic indexing, and lifecycle management.
+Foundation for ordered, keyed collections. Items are registered with IDs and indexes, and can be looked up by ID, index, or value.
 
 <DocsPageFeatures :frontmatter />
 
@@ -70,13 +71,33 @@ registry.onboard([
 registry.offboard(['x', 'y'])
 ```
 
+## Context / DI
+
+Use `createRegistryContext` to share a registry across a component tree:
+
+```ts
+import { createRegistryContext } from '@vuetify/v0'
+
+export const [useItems, provideItems, items] =
+  createRegistryContext({ namespace: 'my:items' })
+
+// In parent component
+provideItems()
+
+// In child component
+const registry = useItems()
+registry.register({ id: 'item-1', value: 'First' })
+```
+
 ## Architecture
 
 `createRegistry` is the foundation for specialized registration systems:
 
 ```mermaid "Registry Hierarchy"
 flowchart TD
-  createRegistry:::primary --> createSelection
+  createRegistry:::primary --> createModel
+  createModel --> createSelection
+  createModel --> createSlider
   createRegistry --> createTokens
   createRegistry --> createForm
   createRegistry --> createQueue
@@ -88,6 +109,26 @@ Each branch extends the base ticket pattern with domain-specific capabilities. S
 ## Reactivity
 
 `createRegistry` uses **minimal reactivity by default** for performance. Collection methods are not reactive unless you opt in.
+
+| Method | Notes |
+| - | - |
+| `register(ticket)` | Add a ticket to the registry |
+| `unregister(id)` | Remove a ticket by ID |
+| `upsert(id, partial)` | Register or update a ticket |
+| `move(id, index)` | Reorder a ticket to a new index position |
+| `onboard(tickets)` | Batch-register an array of tickets |
+| `offboard(ids)` | Batch-unregister an array of IDs |
+| `batch(fn)` | Run multiple mutations with a single cache invalidation and deferred events |
+| `get(id)` | Retrieve a ticket by ID |
+| `has(id)` | Check whether a ticket ID is registered |
+| `browse(value)` | Reverse-lookup — find ticket ID(s) by value |
+| `lookup(index)` | Find ticket ID by zero-based index |
+| `seek(direction, from?, predicate?)` | Find `'first'` or `'last'` ticket, optionally starting from an index and/or filtered by predicate |
+| `keys()` | All registered IDs as a readonly array |
+| `values()` | All registered tickets as a readonly array |
+| `entries()` | All `[id, ticket]` pairs as a readonly array |
+| `clear()` | Remove all tickets |
+| `dispose()` | Remove all tickets and clear event listeners |
 
 > [!TIP] Need reactive collections?
 > Wrap with `useProxyRegistry(registry)` for full template reactivity, or pass `reactive: true` when creating the registry.

@@ -65,6 +65,14 @@ flowchart TD
   useResizeObserver --> VirtualLists["Virtual Lists"]
 ```
 
+## Options
+
+| Option | Type | Default | Notes |
+| - | - | - | - |
+| `immediate` | `boolean` | `false` | Fire the callback immediately on mount before any resize |
+| `once` | `boolean` | `false` | Stop observing after the first callback fires |
+| `box` | `'content-box' \| 'border-box'` | `'content-box'` | Which box model to observe |
+
 ## Reactivity
 
 | Property/Method | Reactive | Notes |
@@ -72,6 +80,9 @@ flowchart TD
 | `isActive` | <AppSuccessIcon /> | Computed from observer ref |
 | `isPaused` | <AppSuccessIcon /> | ShallowRef, readonly |
 | `target` | <AppSuccessIcon /> | Accepts MaybeRef, watched for changes |
+| `pause()` | — | Temporarily stop observing without disconnecting |
+| `resume()` | — | Resume after `pause()` |
+| `stop()` | — | Disconnect the observer permanently |
 
 ### useElementSize
 
@@ -84,6 +95,11 @@ flowchart TD
 
 ::: example
 /composables/use-resize-observer/responsive-grid
+
+### Responsive Grid
+
+A manually resizable container that adapts from 1 to 3 columns based on its own width, with live dimension readout.
+
 :::
 
 <DocsApi />

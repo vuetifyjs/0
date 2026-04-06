@@ -50,6 +50,29 @@ The `createVirtual` composable efficiently renders large lists by only mounting 
 </template>
 ```
 
+## Context / DI
+
+Use `createVirtualContext` to share a virtual scroll instance across a component tree:
+
+```ts
+import { createVirtualContext } from '@vuetify/v0'
+import { shallowRef } from 'vue'
+
+const items = shallowRef([...])
+
+export const [useVirtual, provideVirtual, virtual] =
+  createVirtualContext(items, {
+    namespace: 'my:virtual',
+    itemHeight: 40,
+  })
+
+// In parent component
+provideVirtual()
+
+// In child component
+const { items: visible, offset, size, scroll } = useVirtual()
+```
+
 ## Architecture
 
 The rendering pipeline transforms scroll events into visible item ranges:
@@ -91,6 +114,11 @@ flowchart LR
 | `offset` | <AppSuccessIcon /> | ShallowRef, readonly (top spacer height) |
 | `size` | <AppSuccessIcon /> | ShallowRef, readonly (bottom spacer height) |
 | `state` | <AppSuccessIcon /> | ShallowRef (`'loading'` \| `'empty'` \| `'error'` \| `'ok'`) |
+| `scroll()` | <AppErrorIcon /> | Call on `@scroll`; schedules a visible-range update via rAF |
+| `scrollend()` | <AppErrorIcon /> | Call on `@scrollend`; alias of `scroll()` |
+| `scrollTo(index, options?)` | <AppErrorIcon /> | Scroll to item by index; accepts `behavior`, `block`, `offset` |
+| `resize(index, height)` | <AppErrorIcon /> | Notify of a dynamic item height change; triggers offset rebuild |
+| `reset()` | <AppErrorIcon /> | Reset state to `'ok'` and restore scroll anchor |
 
 > [!TIP] Source items
 > The `items` ref passed to `createVirtual()` is watched for changes. When items change, the virtual scroller updates automatically.
@@ -99,6 +127,11 @@ flowchart LR
 
 ::: example
 /composables/create-virtual/basic
+
+### 10,000-Item Virtual List
+
+A scrollable list of 10,000 items that only renders visible rows, with jump-to-index and add-items controls.
+
 :::
 
 <DocsApi />

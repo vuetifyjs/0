@@ -131,6 +131,7 @@ State management for single and multi-selection patterns.
 | Name | Description |
 | - | - |
 | [createModel](/composables/selection/create-model) | Value store layer with disabled guards and apply bridge |
+| [createNested](/composables/selection/create-nested) | Hierarchical parent-child relationships with open/close state and tree traversal |
 | [createSelection](/composables/selection/create-selection) | General selection state management |
 | [createSingle](/composables/selection/create-single) | Single-selection with automatic deselection |
 | [createGroup](/composables/selection/create-group) | Multi-selection with tri-state support |
@@ -142,9 +143,13 @@ Form state management and model binding utilities.
 
 | Name | Description |
 | - | - |
-| [createValidation](/composables/forms/create-validation) | Per-field validation lifecycle |
+| [createCombobox](/composables/forms/create-combobox) | Coordinate selection, popover, virtual focus, and filtering for autocomplete |
 | [createForm](/composables/forms/create-form) | Form validation coordinator |
+| [createInput](/composables/forms/create-input) | Shared form field primitive: validation, field state, ARIA IDs |
+| [createNumeric](/composables/forms/create-numeric) | Bounded numeric math with step, snap, clamp, and circular wrapping |
 | [createRating](/composables/forms/create-rating) | Bounded rating value with discrete items and half-step support |
+| [createSlider](/composables/forms/create-slider) | Slider state with multi-thumb support, step snapping, and value math |
+| [createValidation](/composables/forms/create-validation) | Per-field validation lifecycle |
 
 ## Reactivity
 
@@ -165,10 +170,17 @@ Browser API wrappers with automatic lifecycle cleanup.
 | [useEventListener](/composables/system/use-event-listener) | Handle DOM events with automatic cleanup |
 | [useHotkey](/composables/system/use-hotkey) | Handle hotkey combinations and sequences |
 | [useIntersectionObserver](/composables/system/use-intersection-observer) | Intersection Observer API for visibility detection |
+| [useLazy](/composables/system/use-lazy) | Defer rendering until first activation for dialogs, menus, and tooltips |
 | [useMediaQuery](/composables/system/use-media-query) | Reactive CSS media query matching |
 | [useMutationObserver](/composables/system/use-mutation-observer) | Mutation Observer API for DOM change detection |
+| [usePopover](/composables/system/use-popover) | Native Popover API behavior with CSS anchor positioning |
+| [usePresence](/composables/system/use-presence) | Animation-agnostic mount lifecycle with lazy mounting and exit timing |
+| [useRaf](/composables/system/use-raf) | Scope-safe requestAnimationFrame with automatic cleanup |
 | [useResizeObserver](/composables/system/use-resize-observer) | Resize Observer API for element size changes |
+| [useRovingFocus](/composables/system/use-roving-focus) | Roving tabindex keyboard navigation for composite widgets |
+| [useTimer](/composables/system/use-timer) | Reactive timer with pause/resume controls and remaining time tracking |
 | [useToggleScope](/composables/system/use-toggle-scope) | Conditional effect scope management |
+| [useVirtualFocus](/composables/system/use-virtual-focus) | Virtual focus for aria-activedescendant keyboard navigation patterns |
 
 ## Plugins
 
@@ -182,8 +194,11 @@ Application-level features installable via Vue plugins.
 | [useHydration](/composables/plugins/use-hydration) | SSR hydration management |
 | [useLocale](/composables/plugins/use-locale) | Internationalization system |
 | [useLogger](/composables/plugins/use-logger) | Logging system with multiple adapters |
+| [useNotifications](/composables/plugins/use-notifications) | Notification lifecycle with toast queue and service adapter integration |
 | [usePermissions](/composables/plugins/use-permissions) | Role-based access control |
+| [useRtl](/composables/plugins/use-rtl) | Reactive RTL text direction with dir attribute management |
 | [useRules](/composables/plugins/use-rules) | Validation rule aliases with locale-aware messages |
+| [useStack](/composables/plugins/use-stack) | Overlay z-index stacking with automatic calculation and scrim integration |
 | [useStorage](/composables/plugins/use-storage) | Reactive browser storage interface |
 | [useTheme](/composables/plugins/use-theme) | Theme management with CSS custom properties |
 
@@ -215,5 +230,6 @@ Value transformation utilities.
 | Name | Description |
 | - | - |
 | [toArray](/composables/transformers/to-array) | Convert any value to an array |
+| [toElement](/composables/transformers/to-element) | Resolve refs, getters, or component instances to a plain DOM element |
 | [toReactive](/composables/transformers/to-reactive) | Convert MaybeRef objects to reactive proxies |
 

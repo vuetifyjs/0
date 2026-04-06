@@ -3,7 +3,7 @@
   import { useAuthStore } from '@vuetify/auth'
 
   // Framework
-  import { Atom, useBreakpoints, useFeatures, useStorage } from '@vuetify/v0'
+  import { Atom, useBreakpoints, useFeatures, useStorage, useTheme } from '@vuetify/v0'
 
   // Components
   import { Discovery } from '@/components/discovery'
@@ -33,6 +33,7 @@
   const features = useFeatures()
   const search = useSearch()
   const settings = useSettings()
+  const theme = useTheme()
 
   const devmode = features.get('devmode')!
 
@@ -47,12 +48,13 @@
 <template>
   <Atom
     :as
-    :class="['flex items-center justify-between h-[48px] fixed inset-x-0 top-[24px] px-3 text-on-surface border-b border-solid border-divider z-1', settings.showBgGlass.value ? 'bg-glass-surface' : 'bg-surface']"
+    :class="['flex items-center justify-between h-[48px] fixed inset-x-0 top-[var(--app-banner-h,24px)] px-3 text-on-surface border-b border-solid border-divider z-1', settings.showBgGlass.value ? 'bg-glass-surface' : 'bg-surface']"
     data-app-bar
   >
     <div class="flex items-center gap-2">
-      <router-link to="/">
+      <router-link class="inline-block w-[128px]" to="/">
         <img
+          v-if="!theme.isDark.value"
           alt="Vuetify0 Logo"
           class="logo-light"
           decoding="async"
@@ -62,6 +64,7 @@
           width="128"
         >
         <img
+          v-else
           alt="Vuetify0 Logo"
           class="logo-dark"
           decoding="async"

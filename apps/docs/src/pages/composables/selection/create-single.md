@@ -18,7 +18,7 @@ related:
 
 # createSingle
 
-A composable that extends `createSelection` to enforce single-item selection. Automatically clears the previous selection before selecting a new item, ensuring only one item is selected at any time.
+Extends `createSelection` to enforce single-item selection, automatically clearing the previous selection.
 
 <DocsPageFeatures :frontmatter />
 
@@ -45,13 +45,32 @@ single.select('banana')
 console.log(single.selectedId.value) // 'banana' (replaces apple)
 ```
 
+## Context / DI
+
+Use `createSingleContext` to share a single-selection instance across a component tree:
+
+```ts
+import { createSingleContext } from '@vuetify/v0'
+
+export const [useTabSelection, provideTabSelection, tabSelection] =
+  createSingleContext({ namespace: 'my:tabs', mandatory: true })
+
+// In parent component
+provideTabSelection()
+
+// In child component
+const selection = useTabSelection()
+selection.select('tab-home')
+```
+
 ## Architecture
 
 The `createSingle` composable is comprised of the following hierarchy:
 
 ```mermaid "Single Selection Hierarchy"
 flowchart TD
-  createRegistry --> createSelection
+  createRegistry --> createModel
+  createModel --> createSelection
   createSelection --> createSingle
 ```
 
@@ -69,5 +88,16 @@ Single-selection state is **always reactive**. All computed properties update au
 
 > [!TIP] Perfect for UI controls
 > `selectedId`, `selectedValue`, and `selectedIndex` work directly in templates without any extra setup.
+
+## Examples
+
+::: example
+/composables/create-single/theme-picker
+
+### Theme Picker
+
+Single-selection color theme switcher. Clicking a swatch selects it exclusively and reflects the active state visually.
+
+:::
 
 <DocsApi />

@@ -12,6 +12,8 @@ features:
   github: /components/Input/
   renderless: false
 related:
+  - /composables/forms/create-input
+  - /composables/forms/create-numeric
   - /composables/forms/create-validation
   - /composables/forms/create-form
   - /components/forms/checkbox
@@ -20,7 +22,7 @@ related:
 
 # Input
 
-A headless text input component with integrated validation. Creates a `createValidation` context internally and auto-registers with parent `createForm` instances.
+Headless text input with integrated validation and automatic form registration.
 
 <DocsPageFeatures :frontmatter />
 
@@ -30,6 +32,11 @@ The Input supports text, email, password, and other native input types. Validati
 
 ::: example
 /components/input/basic
+
+### Basic Input with Validation
+
+Email input with validation rules, inline error display, and helper text.
+
 :::
 
 ## Anatomy

@@ -11,6 +11,7 @@ features:
   github: /composables/useFeatures/
   level: 2
 related:
+  - /composables/plugins/use-permissions
   - /composables/registration/create-tokens
 ---
 
@@ -254,6 +255,18 @@ Feature flags inherit reactivity from `createGroup`. Selection state is reactive
 | - | :-: | - |
 | `selectedIds` | <AppSuccessIcon /> | Set of enabled feature IDs |
 | `selectedItems` | <AppSuccessIcon /> | Computed array of enabled features |
-| ticket `isSelected` | <AppSuccessIcon /> | Computed from `selectedIds` |
+| ticket `isSelected` | <AppSuccessIcon /> | `true` when this feature is enabled |
+| `variation(id, fallback?)` | <AppErrorIcon /> | Returns the `$variation` value for a feature, or `fallback` if unset |
+
+## Examples
+
+::: example
+/composables/use-features/feature-flags
+
+### Feature Flag Panel
+
+Toggle boolean and variation feature flags at runtime, using ticket `isSelected`, `select()`, `unselect()`, and `variation()` to read and control which features are active.
+
+:::
 
 <DocsApi />

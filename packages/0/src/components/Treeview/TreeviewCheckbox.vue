@@ -1,6 +1,8 @@
 /**
  * @module TreeviewCheckbox
  *
+ * @see https://0.vuetifyjs.com/components/disclosure/treeview
+ *
  * @remarks
  * Optional tri-state checkbox for treeview selection. Consumes TreeviewItem
  * context. Toggles selection on click. Shows mixed state for partially-selected

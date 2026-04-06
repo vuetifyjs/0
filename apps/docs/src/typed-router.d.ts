@@ -279,13 +279,6 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
-    '/components/semantic/progress': RouteRecordInfo<
-      '/components/semantic/progress',
-      '/components/semantic/progress',
-      Record<never, never>,
-      Record<never, never>,
-      | never
-    >,
     '/components/semantic/snackbar': RouteRecordInfo<
       '/components/semantic/snackbar',
       '/components/semantic/snackbar',
@@ -345,6 +338,20 @@ declare module 'vue-router/auto-routes' {
     '/composables/forms/create-form': RouteRecordInfo<
       '/composables/forms/create-form',
       '/composables/forms/create-form',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/composables/forms/create-input': RouteRecordInfo<
+      '/composables/forms/create-input',
+      '/composables/forms/create-input',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/composables/forms/create-numeric': RouteRecordInfo<
+      '/composables/forms/create-numeric',
+      '/composables/forms/create-numeric',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -566,27 +573,6 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
-    '/composables/semantic/create-breadcrumbs': RouteRecordInfo<
-      '/composables/semantic/create-breadcrumbs',
-      '/composables/semantic/create-breadcrumbs',
-      Record<never, never>,
-      Record<never, never>,
-      | never
-    >,
-    '/composables/semantic/create-overflow': RouteRecordInfo<
-      '/composables/semantic/create-overflow',
-      '/composables/semantic/create-overflow',
-      Record<never, never>,
-      Record<never, never>,
-      | never
-    >,
-    '/composables/semantic/create-progress': RouteRecordInfo<
-      '/composables/semantic/create-progress',
-      '/composables/semantic/create-progress',
-      Record<never, never>,
-      Record<never, never>,
-      | never
-    >,
     '/composables/system/use-click-outside': RouteRecordInfo<
       '/composables/system/use-click-outside',
       '/composables/system/use-click-outside',
@@ -709,6 +695,20 @@ declare module 'vue-router/auto-routes' {
     '/composables/transformers/to-reactive': RouteRecordInfo<
       '/composables/transformers/to-reactive',
       '/composables/transformers/to-reactive',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/composables/utilities/create-breadcrumbs': RouteRecordInfo<
+      '/composables/utilities/create-breadcrumbs',
+      '/composables/utilities/create-breadcrumbs',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/composables/utilities/create-overflow': RouteRecordInfo<
+      '/composables/utilities/create-overflow',
+      '/composables/utilities/create-overflow',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -1187,12 +1187,6 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
-    'src/pages/components/semantic/progress.md': {
-      routes:
-        | '/components/semantic/progress'
-      views:
-        | never
-    }
     'src/pages/components/semantic/snackbar.md': {
       routes:
         | '/components/semantic/snackbar'
@@ -1244,6 +1238,18 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/forms/create-form.md': {
       routes:
         | '/composables/forms/create-form'
+      views:
+        | never
+    }
+    'src/pages/composables/forms/create-input.md': {
+      routes:
+        | '/composables/forms/create-input'
+      views:
+        | never
+    }
+    'src/pages/composables/forms/create-numeric.md': {
+      routes:
+        | '/composables/forms/create-numeric'
       views:
         | never
     }
@@ -1433,24 +1439,6 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
-    'src/pages/composables/semantic/create-breadcrumbs.md': {
-      routes:
-        | '/composables/semantic/create-breadcrumbs'
-      views:
-        | never
-    }
-    'src/pages/composables/semantic/create-overflow.md': {
-      routes:
-        | '/composables/semantic/create-overflow'
-      views:
-        | never
-    }
-    'src/pages/composables/semantic/create-progress.md': {
-      routes:
-        | '/composables/semantic/create-progress'
-      views:
-        | never
-    }
     'src/pages/composables/system/use-click-outside.md': {
       routes:
         | '/composables/system/use-click-outside'
@@ -1556,6 +1544,18 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/transformers/to-reactive.md': {
       routes:
         | '/composables/transformers/to-reactive'
+      views:
+        | never
+    }
+    'src/pages/composables/utilities/create-breadcrumbs.md': {
+      routes:
+        | '/composables/utilities/create-breadcrumbs'
+      views:
+        | never
+    }
+    'src/pages/composables/utilities/create-overflow.md': {
+      routes:
+        | '/composables/utilities/create-overflow'
       views:
         | never
     }

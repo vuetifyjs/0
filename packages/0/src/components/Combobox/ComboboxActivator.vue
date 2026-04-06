@@ -1,6 +1,8 @@
 /**
  * @module ComboboxActivator
  *
+ * @see https://0.vuetifyjs.com/components/forms/combobox
+ *
  * @remarks
  * Anchor wrapper for the combobox input and cue. Sets CSS anchor-name for
  * popover positioning. Opens the dropdown on click when not disabled.

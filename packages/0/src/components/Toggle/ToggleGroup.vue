@@ -1,6 +1,8 @@
 /**
  * @module ToggleGroup
  *
+ * @see https://0.vuetifyjs.com/components/actions/toggle
+ *
  * @remarks
  * Group container managing selection across child Toggle.Root components.
  * Uses createSingle for single-select and createGroup for multi-select.

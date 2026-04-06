@@ -1,6 +1,8 @@
 /**
  * @module CheckboxIndicator
  *
+ * @see https://0.vuetifyjs.com/components/forms/checkbox
+ *
  * @remarks
  * Visual indicator component for checkboxes. Must be used within a
  * Checkbox.Root component which provides the checkbox state and actions.

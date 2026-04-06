@@ -1,6 +1,8 @@
 /**
  * @module ButtonIcon
  *
+ * @see https://0.vuetifyjs.com/components/actions/button
+ *
  * @remarks
  * Icon wrapper with accessibility enforcement. Sets aria-hidden on itself
  * and detects icon-only buttons to warn when aria-label is missing.

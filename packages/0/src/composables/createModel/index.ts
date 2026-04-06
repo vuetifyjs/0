@@ -1,6 +1,8 @@
 /**
  * @module createModel
  *
+ * @see https://0.vuetifyjs.com/composables/selection/create-model
+ *
  * @remarks
  * Value store layer that extends createRegistry with a reactive Set of
  * selected IDs, disabled guards, and an `apply` bridge for useProxyModel sync.
@@ -8,7 +10,8 @@
  * Think of it as a creative way to store a single value — more like
  * `defineModel` than `createSelection`. Selection-specific concepts
  * (mandatory) belong in createSelection. The `multiple` option here
- * controls whether `select()` accumulates or replaces.
+ * controls whether `select()` accumulates or replaces. The `enroll` option
+ * auto-selects items on register.
  *
  * Both Selection and Slider extend this layer:
  * - createRegistry → createModel → createSelection → createSingle/createGroup/createStep

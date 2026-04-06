@@ -11,6 +11,7 @@ features:
   github: /composables/useStorage/
   level: 2
 related:
+  - /composables/plugins/use-hydration
   - /guide/fundamentals/plugins
 ---
 
@@ -131,8 +132,23 @@ The `get()` method returns reactive refs that sync with storage automatically.
 | Property | Reactive | Notes |
 | - | :-: | - |
 | `get()` return value | <AppSuccessIcon /> | Returns `Ref<T>` synced with storage |
+| `has()` | <AppErrorIcon /> | Returns `boolean` — checks if key exists (TTL-aware) |
 
 > [!TIP] Auto-persistence
 > Refs returned by `get()` are watched with `{ deep: true }`. Any changes to the ref value automatically persist to storage.
+
+> [!TIP] Empty strings are preserved
+> `get()` uses nullish coalescing (`??`) internally, so an empty string `''` is a valid stored value — it is never treated as absent or replaced by the default. Only `null` and `undefined` trigger the default.
+
+## Examples
+
+::: example
+/composables/use-storage/persistent-settings
+
+### Persistent Settings
+
+A settings panel that survives page refreshes using `useStorage` with a memory adapter, showing reactive `get()` refs with deep-watch auto-persistence.
+
+:::
 
 <DocsApi />

@@ -1,6 +1,8 @@
 /**
  * @module SnackbarContent
  *
+ * @see https://0.vuetifyjs.com/components/semantic/snackbar
+ *
  * @remarks
  * Semantic wrapper for the notification message text.
  */

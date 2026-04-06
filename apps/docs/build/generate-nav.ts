@@ -79,7 +79,7 @@ function getNavName (frontmatter: Frontmatter, filename: string): string {
   if (name === 'index') return ''
 
   // Convert kebab-case to proper name
-  // use-registry -> useRegistry
+  // use-breakpoints -> useBreakpoints
   // create-context -> createContext
   if (name.startsWith('use-') || name.startsWith('to-')) {
     const parts = name.split('-')

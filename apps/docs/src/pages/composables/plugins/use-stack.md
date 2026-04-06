@@ -11,16 +11,16 @@ features:
   github: /composables/useStack/
   level: 2
 related:
-- /composables/registration/create-registry
-- /composables/registration/create-queue
-- /components/providers/scrim
+  - /components/providers/scrim
+  - /composables/registration/create-registry
+  - /composables/registration/create-queue
 ---
 
 # useStack
 
 <DocsPageFeatures :frontmatter />
 
-Overlay z-index coordination with automatic stacking, scrim integration, and parent-child tracking.
+Overlay z-index coordinator with automatic stacking order and parent-child nesting support.
 
 ## Installation
 
@@ -65,6 +65,25 @@ watch(isOpen, open => {
 // ticket.zIndex.value = 2000 when first overlay
 // ticket.zIndex.value = 2010 when second overlay
 // ticket.globalTop.value = true when this is the topmost overlay
+```
+
+## Context / DI
+
+Use `createStackContext` when you need a separate z-index namespace (e.g., overlays inside a modal):
+
+```ts
+import { createStackContext } from '@vuetify/v0'
+
+const [useModalStack, provideModalStack, modalStack] =
+  createStackContext({ namespace: 'my:modal-stack', baseZIndex: 3000 })
+
+// In parent component
+provideModalStack()
+
+// In child overlay component
+const stack = useModalStack()
+const ticket = stack.register({ id: 'tooltip-1' })
+ticket.zIndex.value  // z-index for this overlay
 ```
 
 ## Architecture

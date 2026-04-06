@@ -1,6 +1,8 @@
 /**
  * @module RatingRoot
  *
+ * @see https://0.vuetifyjs.com/components/forms/rating
+ *
  * @remarks
  * Root component for ratings. Creates rating context, provides it to
  * child components (Item, HiddenInput), bridges v-model, and handles

@@ -19,7 +19,7 @@ related:
 
 # Form
 
-A headless form component that coordinates validation across child fields. Renders a native `<form>` element and intercepts submit/reset — child inputs using `createValidation` (including `Input.Root`) auto-register via `useForm()` injection.
+A form wrapper that coordinates validation across child input fields and handles submit/reset events.
 
 <DocsPageFeatures :frontmatter />
 
@@ -29,6 +29,11 @@ Wrap your inputs in `<Form>`. Native `<button type="submit">` and `<button type=
 
 ::: example
 /components/form/basic
+
+### Form with Validation
+
+Email and password fields with validation rules, submit/reset buttons, and success feedback on completion.
+
 :::
 
 ## Anatomy

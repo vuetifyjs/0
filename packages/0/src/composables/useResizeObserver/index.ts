@@ -1,11 +1,15 @@
 /**
  * @module useResizeObserver
  *
+ * @see https://0.vuetifyjs.com/composables/system/use-resize-observer
+ *
  * @remarks
  * ResizeObserver composable with lifecycle management.
  *
  * Key features:
  * - ResizeObserver API wrapper
+ * - `isActive` reactive flag
+ * - `once` option for single-fire observation
  * - Pause/resume/stop functionality
  * - Automatic cleanup on unmount
  * - SSR-safe (checks SUPPORTS_OBSERVER)
@@ -144,7 +148,7 @@ export interface UseElementSizeReturn extends UseResizeObserverReturn {
  * @param target The element to observe.
  * @returns An object with the element's width and height.
  *
- * @see https://0.vuetifyjs.com/composables/system/use-resize-observer#use-element-size
+ * @see https://0.vuetifyjs.com/composables/system/use-resize-observer
  *
  * @example
  * ```ts

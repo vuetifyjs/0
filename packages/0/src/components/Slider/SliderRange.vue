@@ -1,6 +1,8 @@
 /**
  * @module SliderRange
  *
+ * @see https://0.vuetifyjs.com/components/forms/slider
+ *
  * @remarks
  * Filled region of the slider track. For single thumb, spans from
  * track start to thumb position. For range (two thumbs), spans

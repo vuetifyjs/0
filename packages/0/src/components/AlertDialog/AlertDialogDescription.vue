@@ -1,6 +1,8 @@
 /**
  * @module AlertDialogDescription
  *
+ * @see https://0.vuetifyjs.com/components/disclosure/alert-dialog
+ *
  * @remarks
  * Description component for alert dialogs. Provides supplementary description
  * for the dialog via aria-describedby. Should be used inside AlertDialogContent.

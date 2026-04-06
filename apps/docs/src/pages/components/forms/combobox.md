@@ -12,6 +12,7 @@ features:
   level: 2
   renderless: false
 related:
+  - /composables/forms/create-combobox
   - /composables/selection/create-selection
   - /composables/system/use-virtual-focus
   - /components/disclosure/popover
@@ -20,7 +21,7 @@ related:
 
 # Combobox
 
-A headless autocomplete combobox with client and server-side filtering support. Uses `createSelection` for state management, `useVirtualFocus` for keyboard navigation, and `usePopover` for native popover positioning. Unlike Select, the Combobox renders a real `<input>` — the query drives filtering and the selection stores the chosen value.
+A headless autocomplete input that filters options as the user types, with client and server-side filtering support.
 
 <DocsPageFeatures :frontmatter />
 
@@ -30,6 +31,11 @@ The Combobox component follows the same compound pattern as Select, but replaces
 
 ::: example
 /components/combobox/basic
+
+### Searchable Combobox
+
+A filterable fruit list with an empty state when no results match.
+
 :::
 
 ## Anatomy

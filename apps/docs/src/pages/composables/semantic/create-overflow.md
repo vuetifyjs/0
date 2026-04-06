@@ -11,6 +11,8 @@ features:
   github: /composables/createOverflow/
   level: 2
 related:
+  - /components/semantic/breadcrumbs
+  - /components/semantic/pagination
   - /composables/data/create-virtual
 ---
 
@@ -50,6 +52,32 @@ The `createOverflow` composable provides reactive container width tracking and c
 </template>
 ```
 
+## Context / DI
+
+Use `createOverflowContext` to share an overflow instance across a component tree:
+
+```ts
+import { createOverflowContext } from '@vuetify/v0'
+
+export const [useNavOverflow, provideNavOverflow, navOverflow] =
+  createOverflowContext({ namespace: 'my:nav-overflow' })
+
+// In parent component
+provideNavOverflow()
+
+// In child component
+const overflow = useNavOverflow()
+overflow.capacity.value  // number of items that fit
+```
+
+Use `useOverflow` to inject the default (unnamespaced) overflow context provided by a parent:
+
+```ts
+import { useOverflow } from '@vuetify/v0'
+
+const overflow = useOverflow()  // Injects the nearest provided overflow context
+```
+
 ## Architecture
 
 `createOverflow` uses ResizeObserver to compute container capacity:
@@ -74,5 +102,16 @@ flowchart LR
 | `gap` | <AppSuccessIcon /> | Accepts MaybeRefOrGetter |
 | `reserved` | <AppSuccessIcon /> | Accepts MaybeRefOrGetter |
 | `itemWidth` | <AppSuccessIcon /> | Accepts MaybeRefOrGetter (uniform mode) |
+
+## Examples
+
+::: example
+/composables/create-overflow/tag-overflow
+
+### Tag Overflow
+
+A tag list that hides tags when they overflow the container, showing a count badge for hidden items, driven by the reactive `capacity` value.
+
+:::
 
 <DocsApi />

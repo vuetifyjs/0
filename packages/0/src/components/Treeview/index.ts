@@ -49,7 +49,7 @@ import SelectAll from './TreeviewSelectAll.vue'
 /**
  * Treeview component with sub-components for hierarchical data.
  *
- * @see https://0.vuetifyjs.com/components/treeview
+ * @see https://0.vuetifyjs.com/components/disclosure/treeview
  *
  * @example
  * ```vue
@@ -79,7 +79,7 @@ export const Treeview = {
   /**
    * Root component that creates and provides the nested context.
    *
-   * @see https://0.vuetifyjs.com/components/treeview
+   * @see https://0.vuetifyjs.com/components/disclosure/treeview
    *
    * @example
    * ```vue
@@ -100,7 +100,7 @@ export const Treeview = {
   /**
    * Top-level list container with `role="tree"` and `aria-multiselectable`.
    *
-   * @see https://0.vuetifyjs.com/components/treeview#treeviewlist
+   * @see https://0.vuetifyjs.com/components/disclosure/treeview
    *
    * @example
    * ```vue
@@ -114,7 +114,7 @@ export const Treeview = {
    * Tree node with `role="treeitem"`. Registers with the nearest Root context
    * and auto-nests under the closest ancestor Item.
    *
-   * @see https://0.vuetifyjs.com/components/treeview#treeviewitem
+   * @see https://0.vuetifyjs.com/components/disclosure/treeview
    *
    * @example
    * ```vue
@@ -134,7 +134,7 @@ export const Treeview = {
   /**
    * Click-to-toggle trigger for expand/collapse. Renders a button by default.
    *
-   * @see https://0.vuetifyjs.com/components/treeview#treeviewactivator
+   * @see https://0.vuetifyjs.com/components/disclosure/treeview
    *
    * @example
    * ```vue
@@ -147,7 +147,7 @@ export const Treeview = {
   /**
    * Collapse gate for child nodes. Conditionally renders when the parent Item is open.
    *
-   * @see https://0.vuetifyjs.com/components/treeview#treeviewcontent
+   * @see https://0.vuetifyjs.com/components/disclosure/treeview
    *
    * @example
    * ```vue
@@ -163,7 +163,7 @@ export const Treeview = {
    * Visual cue for expand/collapse state. Hides itself on leaf nodes.
    * Exposes `data-state="open|closed"` for CSS-driven styling.
    *
-   * @see https://0.vuetifyjs.com/components/treeview#treeviewcue
+   * @see https://0.vuetifyjs.com/components/disclosure/treeview
    *
    * @example
    * ```vue
@@ -176,7 +176,7 @@ export const Treeview = {
   /**
    * Wrapper with `role="group"` for nested child items inside Content.
    *
-   * @see https://0.vuetifyjs.com/components/treeview#treeviewgroup
+   * @see https://0.vuetifyjs.com/components/disclosure/treeview
    *
    * @example
    * ```vue
@@ -193,7 +193,7 @@ export const Treeview = {
    * Tri-state checkbox for selection. Toggles selection on click
    * and shows mixed state for partially-selected parents.
    *
-   * @see https://0.vuetifyjs.com/components/treeview#treeviewcheckbox
+   * @see https://0.vuetifyjs.com/components/disclosure/treeview
    *
    * @example
    * ```vue
@@ -207,7 +207,7 @@ export const Treeview = {
    * Visual indicator for selection state. Shows checked, unchecked,
    * or indeterminate via `data-state`.
    *
-   * @see https://0.vuetifyjs.com/components/treeview#treeviewindicator
+   * @see https://0.vuetifyjs.com/components/disclosure/treeview
    *
    * @example
    * ```vue
@@ -224,7 +224,7 @@ export const Treeview = {
    * isAllSelected/isMixed and calls toggleAll on click. Does NOT
    * register as a tree item. Must be used within a Treeview.Root.
    *
-   * @see https://0.vuetifyjs.com/components/treeview#treeviewselectall
+   * @see https://0.vuetifyjs.com/components/disclosure/treeview
    *
    * @example
    * ```vue

@@ -12,6 +12,7 @@ features:
   github: /composables/useBreakpoints/
   level: 2
 related:
+  - /composables/system/use-media-query
   - /guide/fundamentals/plugins
 ---
 
@@ -115,15 +116,25 @@ Breakpoints are **range-based**, not exact pixel matches. The `name` is the **hi
 | `smAndUp` / `mdAndUp` / `lgAndUp` / `xlAndUp` | `ShallowRef<boolean>` | At or above breakpoint |
 | `smAndDown` / `mdAndDown` / `lgAndDown` / `xlAndDown` | `ShallowRef<boolean>` | At or below breakpoint |
 | `breakpoints` | `Record<string, number>` | Static config object (not reactive) |
+| `mobileBreakpoint` | `BreakpointName \| number` | The threshold used to compute `isMobile` (static) |
 | `ssr` | `boolean` | `true` when running server-side with SSR options |
+| `update()` | — | Manually trigger viewport dimension and breakpoint recalculation |
 
 > [!TIP]
 > `xs` is always equivalent to "xsAndDown" (nothing is below xs), and `xxl` is always equivalent to "xxlAndUp" (nothing is above xxl). These redundant combinations are intentionally not provided.
+
+> [!TIP] Zoom-accurate detection
+> Breakpoints use `window.matchMedia` rather than `window.innerWidth`. `matchMedia` reports CSS pixels that account for browser zoom, giving accurate breakpoint detection at all zoom levels.
 
 ## Examples
 
 ::: example
 /composables/use-breakpoints/responsive-layout
+
+### Responsive Layout Detection
+
+Live viewport dimensions, active breakpoint name, and mobile/desktop flags — confirms JS and CSS breakpoints align.
+
 :::
 
 ## SSR Support

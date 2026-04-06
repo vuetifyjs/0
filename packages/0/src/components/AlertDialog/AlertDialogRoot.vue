@@ -1,6 +1,8 @@
 /**
  * @module AlertDialogRoot
  *
+ * @see https://0.vuetifyjs.com/components/disclosure/alert-dialog
+ *
  * @remarks
  * Root component for alert dialog contexts. Creates and provides alert dialog
  * context to child AlertDialog components. Manages open/closed state via v-model

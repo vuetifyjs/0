@@ -1,6 +1,8 @@
 /**
  * @module AlertDialogAction
  *
+ * @see https://0.vuetifyjs.com/components/disclosure/alert-dialog
+ *
  * @remarks
  * Confirm button for alert dialogs with deferred close support.
  * Emits an `action` event with `wait()`/`close()` control:

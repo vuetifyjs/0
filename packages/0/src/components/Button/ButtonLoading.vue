@@ -1,6 +1,8 @@
 /**
  * @module ButtonLoading
  *
+ * @see https://0.vuetifyjs.com/components/actions/button
+ *
  * @remarks
  * Loading indicator component that becomes visible after the Root's
  * loading grace period elapses. Registers with Root's internal

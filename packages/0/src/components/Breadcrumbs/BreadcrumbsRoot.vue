@@ -1,6 +1,8 @@
 /**
  * @module BreadcrumbsRoot
  *
+ * @see https://0.vuetifyjs.com/components/semantic/breadcrumbs
+ *
  * @remarks
  * Root component for responsive breadcrumb navigation using declarative children.
  *

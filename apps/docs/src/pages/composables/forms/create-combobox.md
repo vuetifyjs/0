@@ -12,13 +12,13 @@ features:
   level: 2
 related:
   - /composables/selection/create-selection
-  - /composables/utilities/use-virtual-focus
+  - /composables/system/use-virtual-focus
   - /components/forms/combobox
 ---
 
 # createCombobox
 
-An orchestrator composable that wires together selection, popover, virtual focus, and adapter-based filtering into a single coordinated combobox context. Most consumers will use the `Combobox` component directly — reach for `createCombobox` when building a custom combobox or integrating the logic into a design system.
+Low-level combobox coordinator for custom implementations. Most users should use the `Combobox` component instead.
 
 <DocsPageFeatures :frontmatter />
 
@@ -87,7 +87,7 @@ flowchart TD
 | `isOpen` | `ShallowRef<boolean>` | <AppSuccessIcon /> | Popover open state |
 | `selection` | `SelectionContext` | — | Full selection API |
 | `popover` | `PopoverReturn` | — | Popover positioning API |
-| `virtualFocus` | `VirtualFocusReturn` | — | Keyboard focus API |
+| `cursor` | `VirtualFocusReturn` | — | Keyboard focus API |
 | `inputEl` | `ShallowRef<HTMLElement \| null>` | <AppSuccessIcon /> | Reference to the `<input>` element |
 
 ## Options
@@ -99,6 +99,7 @@ interface ComboboxOptions {
   disabled?: MaybeRefOrGetter<boolean>   // Disable all interaction
   strict?: MaybeRefOrGetter<boolean>     // Revert query on close if no match
   adapter?: ComboboxAdapterInterface     // Filtering strategy (default: ClientAdapter)
+  displayValue?: (value: unknown) => string  // Format selected value for display in input
   id?: string                            // Base ID for ARIA attributes
   name?: string                          // Hidden input name for form submission
   form?: string                          // Associated form ID
@@ -128,6 +129,20 @@ interface ComboboxOptions {
 ## Adapters
 
 Adapters implement `ComboboxAdapterInterface` and translate a reactive query into a filtered ID set.
+
+```ts
+interface ComboboxAdapterInterface {
+  setup: (context: ComboboxAdapterContext) => ComboboxAdapterResult
+}
+
+interface ComboboxAdapterResult {
+  filtered: Ref<Set<ID>>          // IDs that should be visible
+  isLoading: ShallowRef<boolean>  // shows loading state in the UI
+  isEmpty: Ref<boolean>           // true when no items match the query
+}
+```
+
+The `context` exposes `query` (the current search string), `selection` (the underlying selection context), and `items` (all registered IDs). Return the three refs above and the combobox wires them to the dropdown state automatically.
 
 ### ClientAdapter
 
@@ -198,7 +213,7 @@ In `multiple` mode, `select(id)` differs from single mode:
 - Toggles the item (select → deselect on second click) via `selection.toggle()`.
 - Clears the query so the user can search for the next item.
 - Keeps the dropdown open.
-- Highlights the clicked item via `virtualFocus.highlight(id)` so ArrowDown continues from that position.
+- Highlights the clicked item via `cursor.highlight(id)` so ArrowDown continues from that position.
 - Refocuses the input so keyboard navigation continues immediately.
 
 ## Dependency Injection
@@ -220,5 +235,16 @@ const combobox = useCombobox('my-combobox')
 ```
 
 `useCombobox(namespace?)` injects the nearest combobox context (default namespace: `'v0:combobox'`).
+
+## Examples
+
+::: example
+/composables/create-combobox/basic
+
+### Basic Combobox
+
+A filterable fruit picker demonstrating keyboard navigation (arrow keys, Enter, Escape), virtual focus for highlighting, query-driven filtering, and ARIA combobox attributes.
+
+:::
 
 <DocsApi />

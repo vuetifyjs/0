@@ -1,6 +1,8 @@
 /**
  * @module CollapsibleContent
  *
+ * @see https://0.vuetifyjs.com/components/disclosure/collapsible
+ *
  * @remarks
  * Content container for a collapsible disclosure that displays when open.
  * Consumes the CollapsibleContext via dependency injection and provides

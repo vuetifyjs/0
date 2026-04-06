@@ -1,8 +1,10 @@
 /**
- * @module useStep
+ * @module createStep
+ *
+ * @see https://0.vuetifyjs.com/composables/selection/create-step
  *
  * @remarks
- * Navigation composable that extends useSingle with first/last/next/prev/step methods.
+ * Navigation composable that extends createSingle with first/last/next/prev/step methods.
  *
  * Key features:
  * - Configurable circular or bounded navigation
@@ -10,7 +12,7 @@
  * - Arbitrary step counts (positive/negative)
  * - Perfect for wizards, carousels, pagination, onboarding flows
  *
- * Inheritance chain: useRegistry → useSelection → useSingle → useStep
+ * Inheritance chain: createRegistry → createSelection → createSingle → createStep
  */
 
 // Composables
@@ -122,9 +124,9 @@ export interface StepContextOptions extends SingleContextOptions {
  * - Perfect for pagination, wizards with explicit completion, forms
  *
  * **Inheritance Chain:**
- * `useRegistry` → `createSelection` → `createSingle` → `createStep`
+ * `createRegistry` → `createSelection` → `createSingle` → `createStep`
  *
- * @see https://0.vuetifyjs.com/composables/selection/use-step
+ * @see https://0.vuetifyjs.com/composables/selection/create-step
  *
  * @example
  * ```ts
@@ -237,7 +239,7 @@ export function createStep<
  * @template R The context type.
  * @returns A new step context.
  *
- * @see https://0.vuetifyjs.com/composables/selection/use-step
+ * @see https://0.vuetifyjs.com/composables/selection/create-step
  *
  * @example
  * ```ts
@@ -279,7 +281,7 @@ export function createStepContext<
  * @template R The context type.
  * @returns The current step instance.
  *
- * @see https://0.vuetifyjs.com/composables/selection/use-step
+ * @see https://0.vuetifyjs.com/composables/selection/create-step
  *
  * @example
  * ```vue

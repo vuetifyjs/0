@@ -1,6 +1,8 @@
 /**
  * @module DialogRoot
  *
+ * @see https://0.vuetifyjs.com/components/disclosure/dialog
+ *
  * @remarks
  * Root component for dialog contexts. Creates and provides dialog context
  * to child Dialog components. Manages open/closed state via v-model binding.

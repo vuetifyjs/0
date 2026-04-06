@@ -103,6 +103,8 @@ State management for selection patterns:
 
 | Composable | Purpose |
 | - | - |
+| [createModel](/composables/selection/create-model) | Value store with disabled guards and apply bridge |
+| [createNested](/composables/selection/create-nested) | Hierarchical parent-child relationships |
 | [createSelection](/composables/selection/create-selection) | Multi-select base |
 | [createSingle](/composables/selection/create-single) | Radio, tabs, accordion |
 | [createGroup](/composables/selection/create-group) | Checkboxes, tri-state |
@@ -114,7 +116,13 @@ Form state and validation:
 
 | Composable | Purpose |
 | - | - |
-| [createForm](/composables/forms/create-form) | Validation, dirty tracking |
+| [createCombobox](/composables/forms/create-combobox) | Autocomplete with filtering and virtual focus |
+| [createForm](/composables/forms/create-form) | Form validation coordinator |
+| [createInput](/composables/forms/create-input) | Shared form field primitive with ARIA IDs |
+| [createNumeric](/composables/forms/create-numeric) | Bounded numeric math with step and clamp |
+| [createRating](/composables/forms/create-rating) | Bounded rating with discrete items |
+| [createSlider](/composables/forms/create-slider) | Multi-thumb slider with step snapping |
+| [createValidation](/composables/forms/create-validation) | Per-field validation lifecycle |
 
 ### Reactivity
 
@@ -131,17 +139,27 @@ App-level features installed via `app.use()`:
 
 | Composable | Purpose |
 | - | - |
-| [useTheme](/composables/plugins/use-theme) | Dark/light mode |
-| [useLocale](/composables/plugins/use-locale) | i18n, RTL |
 | [useBreakpoints](/composables/plugins/use-breakpoints) | Responsive queries |
-| [useStorage](/composables/plugins/use-storage) | Persistent state |
+| [useDate](/composables/plugins/use-date) | Date utilities with adapter pattern |
+| [useFeatures](/composables/plugins/use-features) | Feature flags with adapter support |
+| [useHydration](/composables/plugins/use-hydration) | SSR hydration management |
+| [useLocale](/composables/plugins/use-locale) | i18n translations |
+| [useLogger](/composables/plugins/use-logger) | Structured logging with adapters |
+| [useNotifications](/composables/plugins/use-notifications) | Notification lifecycle and toast queue |
+| [usePermissions](/composables/plugins/use-permissions) | Role-based access control |
+| [useRtl](/composables/plugins/use-rtl) | RTL direction support |
+| [useRules](/composables/plugins/use-rules) | Validation rule aliases |
+| [useStack](/composables/plugins/use-stack) | Overlay z-index stacking |
+| [useStorage](/composables/plugins/use-storage) | Reactive localStorage/sessionStorage |
+| [useTheme](/composables/plugins/use-theme) | CSS variable theming, dark mode |
 
-### Utilities
+### Data
 
-Standalone helpers:
+Filtering, pagination, and virtualization for collections:
 
 | Composable | Purpose |
 | - | - |
+| [createDataTable](/composables/data/create-data-table) | Data table with sort, filter, paginate, and select |
 | [createFilter](/composables/data/create-filter) | Array filtering |
 | [createPagination](/composables/data/create-pagination) | Page navigation |
 | [createVirtual](/composables/data/create-virtual) | Virtual scrolling |
@@ -367,7 +385,7 @@ const filter = createFilter()
 const pagination = createPagination({ itemsPerPage: 10 })
 
 // Wire them together
-const filtered = filter.apply(query, items)
+const { items: filtered } = filter.apply(query, items)
 const paginated = computed(() =>
   filtered.value.slice(pagination.pageStart.value, pagination.pageStop.value)
 )

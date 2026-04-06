@@ -19,7 +19,7 @@ related:
 
 # Button
 
-A headless button component with four interaction states, loading grace period, toggle groups, and icon accessibility.
+Headless button with loading state, toggle group support, and icon accessibility.
 
 <DocsPageFeatures :frontmatter />
 
@@ -29,6 +29,11 @@ The Button component renders as a native `<button>` by default (or an anchor, ro
 
 ::: example
 /components/button/basic
+
+### Basic Button
+
+A basic button with a click handler and an `<a>`-tag variant with hover effects.
+
 :::
 
 ## Anatomy
@@ -77,6 +82,11 @@ Button supports four states that block click events. Each state has a distinct s
 
 ::: example
 /components/button/states
+
+### Button States
+
+Disabled, readonly, passive, and loading states with visual styling for each.
+
 :::
 
 ### Data Attributes
@@ -104,6 +114,11 @@ Use `Button.Loading` and `Button.Content` to swap between loading and default co
 
 ::: example
 /components/button/loading
+
+### Loading State with Grace Period
+
+Loading spinner with a grace period before it appears, swapping between spinner and label with opacity transitions.
+
 :::
 
 `Button.Loading` and `Button.Content` use an internal selection context. Only one is "selected" at a time — `Content` by default, `Loading` after the grace period elapses. Use the `isSelected` slot prop to drive visibility.
@@ -114,6 +129,11 @@ Wrap buttons in `Button.Group` for toggle behavior with v-model support. Each `B
 
 ::: example
 /components/button/group
+
+### Button Group Toggle
+
+Text alignment toggle group with v-model binding showing the active selection.
+
 :::
 
 `Button.Group` supports `multiple` for multi-select and `mandatory` to prevent deselecting the last item:
@@ -141,6 +161,11 @@ Use `Button.Icon` to wrap icon content. It sets `aria-hidden="true"` on itself a
 
 ::: example
 /components/button/icon
+
+### Icon Buttons
+
+Button with icon and label, and an icon-only button with `aria-label` for accessibility.
+
 :::
 
 ### Form Submission

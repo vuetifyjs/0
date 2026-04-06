@@ -1,11 +1,14 @@
 /**
  * @module useClickOutside
  *
+ * @see https://0.vuetifyjs.com/composables/system/use-click-outside
+ *
  * @remarks
  * Detects clicks outside of specified element(s) with automatic cleanup.
  *
  * Key features:
  * - Two-phase detection (pointerdown → pointerup) prevents drag-out false positives
+ * - `bounds` mode: coordinate-based detection for native `<dialog>` backdrop clicks
  * - Touch scroll threshold ignores swipes/scrolls on mobile
  * - Capture phase listeners work with stopPropagation
  * - Pause/resume/stop functionality

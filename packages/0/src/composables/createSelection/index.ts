@@ -1,5 +1,7 @@
 /**
- * @module useSelection
+ * @module createSelection
+ *
+ * @see https://0.vuetifyjs.com/composables/selection/create-selection
  *
  * @remarks
  * Selection composable that extends createModel with multi-select,
@@ -10,11 +12,12 @@
  * - Single or multi-select mode
  * - Mandatory selection mode (prevents deselecting last item)
  * - Auto-enrollment option (selects non-disabled items on register)
+ * - `MaybeRefOrGetter` support for `mandatory`, `multiple`, and `enroll` options
  * - Disabled item filtering
  * - Computed selectedItems and selectedValues Sets
  * - Ticket self-methods: select(), unselect(), toggle()
  *
- * Extends createModel and serves as the base for useSingle, useGroup, useStep, and useFeatures.
+ * Extends createModel and serves as the base for createSingle, createGroup, createStep, and useFeatures.
  */
 
 // Composables
@@ -136,7 +139,7 @@ export interface SelectionContextOptions extends SelectionOptions {
  *
  * @remarks
  * **Key Features:**
- * - Multi-selection support (unlike `useSingle` which enforces single selection)
+ * - Multi-selection support (unlike `createSingle` which enforces single selection)
  * - Set-based `selectedIds` tracking for efficient lookups
  * - Computed `selectedItems` and `selectedValues` for reactive access
  * - Each ticket gets `isSelected`, `select()`, `unselect()`, and `toggle()` methods
@@ -148,7 +151,7 @@ export interface SelectionContextOptions extends SelectionOptions {
  * **Inheritance Chain:**
  * `createRegistry` → `createModel` → `createSelection` → `createSingle`/`createGroup` → `createStep`
  *
- * @see https://0.vuetifyjs.com/composables/selection/use-selection
+ * @see https://0.vuetifyjs.com/composables/selection/create-selection
  *
  * @example
  * ```ts
@@ -316,7 +319,7 @@ export function createSelection<
  * @template R The context type. Defaults to SelectionContext<Z, E>.
  * @returns A new selection context.
  *
- * @see https://0.vuetifyjs.com/composables/selection/use-selection
+ * @see https://0.vuetifyjs.com/composables/selection/create-selection
  *
  * @example
  * ```ts
@@ -372,7 +375,7 @@ export function createSelectionContext<
  * @template R The context type.
  * @returns The current selection instance.
  *
- * @see https://0.vuetifyjs.com/composables/selection/use-selection
+ * @see https://0.vuetifyjs.com/composables/selection/create-selection
  *
  * @example
  * ```vue

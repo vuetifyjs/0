@@ -8,13 +8,14 @@
  *
  * Key features:
  * - Single-selection theme switching (extends createSingle)
- * - Token alias resolution via useTokens
+ * - Token alias resolution via createTokens
  * - Lazy theme loading (compute colors only when selected)
  * - CSS variable generation via adapter pattern
+ * - `isDark` reactive flag on the theme context
  * - SSR support with head integration
  * - Theme cycling
  *
- * Integrates with createSingle for selection and useTokens for color resolution.
+ * Integrates with createSingle for selection and createTokens for color resolution.
  */
 
 // Composables
@@ -117,7 +118,7 @@ export interface ThemeContext<
    *
    * @remarks The colors are resolved by replacing any token aliases with their actual values.
    *
-   * @see https://0.vuetifyjs.com/composables/plugins/use-theme#colors
+   * @see https://0.vuetifyjs.com/composables/plugins/use-theme
    *
    * @example
    * ```ts
@@ -134,7 +135,7 @@ export interface ThemeContext<
    *
    * @remarks Returns `true` if the current theme has `dark: true`, otherwise `false`.
    *
-   * @see https://0.vuetifyjs.com/composables/plugins/use-theme#isDark
+   * @see https://0.vuetifyjs.com/composables/plugins/use-theme
    *
    * @example
    * ```ts
@@ -151,7 +152,7 @@ export interface ThemeContext<
    *
    * @param themes An array of theme IDs to cycle through. Defaults to all registered themes.
    *
-   * @see https://0.vuetifyjs.com/composables/plugins/use-theme#cycle
+   * @see https://0.vuetifyjs.com/composables/plugins/use-theme
    *
    * @example
    * ```ts

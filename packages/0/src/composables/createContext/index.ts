@@ -39,7 +39,7 @@ export interface CreateContextOptions {
  * @throws An error if the context is not found and no default is provided.
  *
  * @see https://vuejs.org/api/composition-api-dependency-injection.html#inject
- * @see https://0.vuetifyjs.com/composables/foundation/create-context#use-context
+ * @see https://0.vuetifyjs.com/composables/foundation/create-context
  *
  * @example
  * ```ts
@@ -74,7 +74,7 @@ export function useContext<Z> (key: ContextKey<Z>, defaultValue?: Z) {
  * When omitted, the context is provided at the current component level and available to descendants only.
  *
  * @see https://vuejs.org/api/composition-api-dependency-injection.html#provide
- * @see https://0.vuetifyjs.com/composables/foundation/create-context#provide-context
+ * @see https://0.vuetifyjs.com/composables/foundation/create-context
  *
  * @example
  * ```ts
@@ -107,7 +107,7 @@ export function provideContext<Z> (key: ContextKey<Z>, context: Z, app?: App) {
  * @returns A tuple containing the `useContext` and `provideContext` functions.
  *
  * @see https://vuejs.org/api/composition-api-dependency-injection.html
- * @see https://0.vuetifyjs.com/composables/foundation/create-context#create-context
+ * @see https://0.vuetifyjs.com/composables/foundation/create-context
  *
  * @example
  * ```ts

@@ -1,6 +1,8 @@
 /**
  * @module createCombobox
  *
+ * @see https://0.vuetifyjs.com/composables/forms/create-combobox
+ *
  * @remarks
  * Orchestrator composable that coordinates selection, popover, and virtual focus
  * for a combobox (autocomplete/typeahead) pattern. Does not extend the selection
@@ -97,7 +99,7 @@ export interface ComboboxContext {
  * @param options - Configuration for selection mode, filtering adapter, and behavior.
  * @returns A combobox context with all composed systems and action methods.
  *
- * @see https://0.vuetifyjs.com/composables/combobox/create-combobox
+ * @see https://0.vuetifyjs.com/composables/forms/create-combobox
  *
  * @example
  * ```ts
@@ -287,7 +289,7 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
  * @param options - Combobox options plus an optional namespace for DI.
  * @returns A context trinity: `[useCombobox, provideCombobox, defaultCombobox]`.
  *
- * @see https://0.vuetifyjs.com/composables/combobox/create-combobox
+ * @see https://0.vuetifyjs.com/composables/forms/create-combobox
  *
  * @example
  * ```ts
@@ -319,7 +321,7 @@ export function createComboboxContext (
  * @param namespace - DI namespace. Defaults to `'v0:combobox'`.
  * @returns The combobox context from the nearest provider.
  *
- * @see https://0.vuetifyjs.com/composables/combobox/create-combobox
+ * @see https://0.vuetifyjs.com/composables/forms/create-combobox
  *
  * @example
  * ```ts

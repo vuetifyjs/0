@@ -56,7 +56,7 @@ export const Switch = {
   /**
    * Group component for managing multiple switches with tri-state support.
    *
-   * @see https://0.vuetifyjs.com/components/forms/switch#group
+   * @see https://0.vuetifyjs.com/components/forms/switch
    *
    * @example
    * ```vue
@@ -92,7 +92,7 @@ export const Switch = {
    * Auto-rendered by Root when `name` prop is provided.
    * Can also be used explicitly for custom form integration.
    *
-   * @see https://0.vuetifyjs.com/components/forms/switch#hiddeninput
+   * @see https://0.vuetifyjs.com/components/forms/switch
    *
    * @example
    * ```vue
@@ -117,7 +117,7 @@ export const Switch = {
    * v-model or group mode within Switch.Group. When `name` prop is
    * provided, automatically renders a hidden input for form submission.
    *
-   * @see https://0.vuetifyjs.com/components/forms/switch#root
+   * @see https://0.vuetifyjs.com/components/forms/switch
    *
    * @example
    * ```vue
@@ -148,7 +148,7 @@ export const Switch = {
    * isAllSelected/isMixed and calls toggleAll on click. Does NOT
    * register as a group item. Must be used within a Switch.Group.
    *
-   * @see https://0.vuetifyjs.com/components/forms/switch#selectall
+   * @see https://0.vuetifyjs.com/components/forms/switch
    *
    * @example
    * ```vue
@@ -186,7 +186,7 @@ export const Switch = {
    * Hidden via `visibility: hidden` when unchecked and not mixed.
    * Must be used within a Switch.Root or Switch.SelectAll.
    *
-   * @see https://0.vuetifyjs.com/components/forms/switch#thumb
+   * @see https://0.vuetifyjs.com/components/forms/switch
    *
    * @example
    * ```vue
@@ -204,7 +204,7 @@ export const Switch = {
    * Always visible, provides `data-state` attribute for CSS styling.
    * Must be used within a Switch.Root or Switch.SelectAll.
    *
-   * @see https://0.vuetifyjs.com/components/forms/switch#track
+   * @see https://0.vuetifyjs.com/components/forms/switch
    *
    * @example
    * ```vue

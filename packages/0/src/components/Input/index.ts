@@ -8,7 +8,8 @@ export { provideInputRoot, useInputRoot } from './InputRoot.vue'
 export type { InputControlProps, InputControlSlotProps } from './InputControl.vue'
 export type { InputDescriptionProps, InputDescriptionSlotProps } from './InputDescription.vue'
 export type { InputErrorProps, InputErrorSlotProps } from './InputError.vue'
-export type { InputRootContext, InputRootProps, InputRootSlotProps, InputState, ValidateEvent, ValidateOn } from './InputRoot.vue'
+export type { InputState } from '#v0/composables/createInput'
+export type { InputRootContext, InputRootProps, InputRootSlotProps, ValidateEvent, ValidateOn } from './InputRoot.vue'
 
 // Components
 import Control from './InputControl.vue'
@@ -52,7 +53,7 @@ export const Input = {
    * Renders as `<input>` by default. Binds ARIA attributes from Root context
    * and triggers validation on blur or input based on Root's validateOn prop.
    *
-   * @see https://0.vuetifyjs.com/components/forms/input#control
+   * @see https://0.vuetifyjs.com/components/forms/input
    *
    * @example
    * ```vue
@@ -68,7 +69,7 @@ export const Input = {
    * Auto-generates an ID that Input.Control references in its
    * aria-describedby attribute for accessibility.
    *
-   * @see https://0.vuetifyjs.com/components/forms/input#description
+   * @see https://0.vuetifyjs.com/components/forms/input
    *
    * @example
    * ```vue
@@ -86,7 +87,7 @@ export const Input = {
    * Connected to Control via aria-errormessage. Uses aria-live="polite"
    * for screen reader announcements when errors appear.
    *
-   * @see https://0.vuetifyjs.com/components/forms/input#error
+   * @see https://0.vuetifyjs.com/components/forms/input
    *
    * @example
    * ```vue
@@ -106,7 +107,7 @@ export const Input = {
    * context to child components. Supports v-model for value binding and
    * auto-registers with parent form when used inside createForm.
    *
-   * @see https://0.vuetifyjs.com/components/forms/input#root
+   * @see https://0.vuetifyjs.com/components/forms/input
    *
    * @example
    * ```vue

@@ -1,6 +1,8 @@
 /**
  * @module SelectionItem
  *
+ * @see https://0.vuetifyjs.com/components/providers/selection
+ *
  * @remarks
  * Item component for selection contexts. Registers with parent SelectionRoot
  * and provides selection state and methods via scoped slot. Supports both

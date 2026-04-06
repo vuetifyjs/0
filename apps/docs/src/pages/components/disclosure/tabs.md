@@ -12,6 +12,7 @@ features:
   renderless: false
   level: 2
 related:
+  - /composables/selection/create-step
   - /components/disclosure/expansion-panel
   - /components/disclosure/dialog
 ---
@@ -28,6 +29,11 @@ The Tabs component provides a compound pattern for building accessible tab inter
 
 ::: example
 /components/tabs/basic
+
+### Tab Navigation
+
+Profile, password, and billing tabs with content switching via v-model binding.
+
 :::
 
 ## Anatomy
@@ -97,6 +103,21 @@ Control whether navigation wraps around at boundaries:
 <template>
   <Tabs.Root :circular="false">
     <!-- Navigation stops at first/last tab -->
+  </Tabs.Root>
+</template>
+```
+
+### Auto-Enrollment
+
+Set `enroll` to auto-select the first registered tab. Useful when tabs are rendered dynamically and the initial selection should track whichever tab mounts first:
+
+```vue
+<template>
+  <Tabs.Root enroll>
+    <!-- First tab to register is automatically selected -->
+    <Tabs.Tab v-for="tab in dynamicTabs" :key="tab.id" :value="tab.id">
+      {{ tab.label }}
+    </Tabs.Tab>
   </Tabs.Root>
 </template>
 ```

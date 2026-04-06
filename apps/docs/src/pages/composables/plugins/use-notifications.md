@@ -13,6 +13,7 @@ features:
   github: /composables/useNotifications/
   level: 2
 related:
+  - /components/semantic/snackbar
   - /composables/registration/create-registry
   - /composables/registration/create-queue
   - /composables/foundation/create-plugin
@@ -105,6 +106,19 @@ flowchart TB
   Events -.-> Adapter
 ```
 
+## Severity Levels
+
+The `severity` field categorizes notifications by urgency. It maps to ARIA live region roles automatically:
+
+| Value | ARIA role | Use for |
+|-------|-----------|---------|
+| `'error'` | `role="alert"` | Failures, errors, destructive outcomes |
+| `'warning'` | `role="alert"` | Degraded state, approaching limits |
+| `'info'` | `role="status"` | Neutral updates, background activity |
+| `'success'` | `role="status"` | Completed actions, positive outcomes |
+
+`NotificationSeverity` is extensible — custom values like `'critical'` are accepted with autocomplete for the four defaults.
+
 ## API
 
 | Method | Description |
@@ -177,6 +191,73 @@ Adapters let you swap the underlying notification service without changing your 
 |---------|--------|-------------|
 | `createKnockAdapter` | `@vuetify/v0/notifications` | [Knock](https://knock.app) integration |
 | `createNovuAdapter` | `@vuetify/v0/notifications` | [Novu](https://novu.co) integration |
+
+### Custom Adapters
+
+Implement `NotificationsAdapterInterface` to connect any backend:
+
+```ts
+import type { NotificationsAdapterInterface, NotificationsAdapterContext } from '@vuetify/v0'
+
+class MyBackendAdapter implements NotificationsAdapterInterface {
+  setup (context: NotificationsAdapterContext) {
+    // Wire inbound: push notifications into the registry
+    myBackend.onMessage(msg => {
+      context.send({ id: msg.id, title: msg.title, body: msg.body })
+    })
+
+    // Wire outbound: sync read/archive actions back to the backend
+    context.on('notification:read', (data: any) => {
+      myBackend.markRead(data.id)
+    })
+  }
+
+  dispose () {
+    myBackend.disconnect()
+  }
+}
+
+app.use(createNotificationsPlugin({ adapter: new MyBackendAdapter() }))
+```
+
+**Adapter context methods:**
+
+| Method | Purpose |
+| - | - |
+| `send(input)` | Register and enqueue for toast display (real-time inbound) |
+| `register(input)` | Register in history only — no toast (initial/historical load) |
+| `on(event, handler)` | Subscribe to outbound lifecycle events |
+| `off(event, handler)` | Unsubscribe from a lifecycle event |
+
+### Custom Ticket Fields
+
+Extend `NotificationInput` to add domain-specific fields. Pass the type parameter through the adapter and plugin:
+
+```ts
+import type { NotificationInput, NotificationsAdapterInterface, NotificationsAdapterContext } from '@vuetify/v0'
+
+interface AppNotification extends NotificationInput {
+  priority: 'low' | 'medium' | 'high'
+  imageUrl?: string
+}
+
+class MyBackendAdapter implements NotificationsAdapterInterface<AppNotification> {
+  setup (context: NotificationsAdapterContext<AppNotification>) {
+    myBackend.onMessage(msg => {
+      context.send({
+        id: msg.id,
+        subject: msg.title,
+        priority: msg.priority,    // custom field
+        imageUrl: msg.imageUrl,    // custom field
+      })
+    })
+  }
+}
+
+app.use(createNotificationsPlugin<AppNotification>({ adapter: new MyBackendAdapter() }))
+```
+
+Custom fields are preserved on the ticket and accessible anywhere you inject the notifications context.
 
 > [!ASKAI] How do I write a custom adapter for my backend?
 

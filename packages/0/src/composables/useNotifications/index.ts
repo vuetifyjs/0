@@ -218,7 +218,7 @@ export function createNotifications<
    * `notification:received`. The ticket auto-dismisses after the configured
    * timeout unless paused.
    *
-   * @see https://0.vuetifyjs.com/composables/plugins/use-notifications#send
+   * @see https://0.vuetifyjs.com/composables/plugins/use-notifications
    *
    * @example
    * ```ts
@@ -260,7 +260,7 @@ export function createNotifications<
    * timestamps and lifecycle methods. Use for historical or pre-existing items
    * that should appear in an inbox but not pop up as toasts.
    *
-   * @see https://0.vuetifyjs.com/composables/plugins/use-notifications#register
+   * @see https://0.vuetifyjs.com/composables/plugins/use-notifications
    *
    * @example
    * ```ts
@@ -292,7 +292,7 @@ export function createNotifications<
    * display. Wraps all registrations in a single `registry.batch()` call so
    * reactive updates are deferred until the entire batch completes.
    *
-   * @see https://0.vuetifyjs.com/composables/plugins/use-notifications#onboard
+   * @see https://0.vuetifyjs.com/composables/plugins/use-notifications
    *
    * @example
    * ```ts
@@ -322,7 +322,7 @@ export function createNotifications<
    * @remarks Sets `readAt` to the current time and emits `notification:read`.
    * Adapters listen to this event for outbound sync.
    *
-   * @see https://0.vuetifyjs.com/composables/plugins/use-notifications#read
+   * @see https://0.vuetifyjs.com/composables/plugins/use-notifications
    *
    * @example
    * ```ts
@@ -349,7 +349,7 @@ export function createNotifications<
    * @param id The ID of the notification to mark as unread.
    * @remarks Clears `readAt` and emits `notification:unread`.
    *
-   * @see https://0.vuetifyjs.com/composables/plugins/use-notifications#unread
+   * @see https://0.vuetifyjs.com/composables/plugins/use-notifications
    *
    * @example
    * ```ts
@@ -372,7 +372,7 @@ export function createNotifications<
    * Distinct from read — seen tracks whether the notification appeared in the
    * user's viewport, while read indicates the user actively engaged with it.
    *
-   * @see https://0.vuetifyjs.com/composables/plugins/use-notifications#seen
+   * @see https://0.vuetifyjs.com/composables/plugins/use-notifications
    *
    * @example
    * ```ts
@@ -394,7 +394,7 @@ export function createNotifications<
    * @param id The ID of the notification to archive.
    * @remarks Sets `archivedAt` to the current time and emits `notification:archived`.
    *
-   * @see https://0.vuetifyjs.com/composables/plugins/use-notifications#archive
+   * @see https://0.vuetifyjs.com/composables/plugins/use-notifications
    *
    * @example
    * ```ts
@@ -415,7 +415,7 @@ export function createNotifications<
    * @param id The ID of the notification to unarchive.
    * @remarks Clears `archivedAt` and emits `notification:unarchived`.
    *
-   * @see https://0.vuetifyjs.com/composables/plugins/use-notifications#unarchive
+   * @see https://0.vuetifyjs.com/composables/plugins/use-notifications
    *
    * @example
    * ```ts
@@ -439,7 +439,7 @@ export function createNotifications<
    * does not auto-wake — consumers are responsible for calling {@link wake} when
    * the snooze expires (e.g., via a timer or server push).
    *
-   * @see https://0.vuetifyjs.com/composables/plugins/use-notifications#snooze
+   * @see https://0.vuetifyjs.com/composables/plugins/use-notifications
    *
    * @example
    * ```ts
@@ -461,7 +461,7 @@ export function createNotifications<
    * @param id The ID of the notification to wake.
    * @remarks Clears `snoozedUntil` and emits `notification:unsnoozed`.
    *
-   * @see https://0.vuetifyjs.com/composables/plugins/use-notifications#wake
+   * @see https://0.vuetifyjs.com/composables/plugins/use-notifications
    *
    * @example
    * ```ts
@@ -483,7 +483,7 @@ export function createNotifications<
    * batch. Skips already-read notifications to preserve their original `readAt`
    * timestamp. Emits `notification:read` for each affected notification.
    *
-   * @see https://0.vuetifyjs.com/composables/plugins/use-notifications#readall
+   * @see https://0.vuetifyjs.com/composables/plugins/use-notifications
    *
    * @example
    * ```ts
@@ -517,7 +517,7 @@ export function createNotifications<
    * batch. Skips already-archived notifications to preserve their original
    * `archivedAt` timestamp. Emits `notification:archived` for each affected notification.
    *
-   * @see https://0.vuetifyjs.com/composables/plugins/use-notifications#archiveall
+   * @see https://0.vuetifyjs.com/composables/plugins/use-notifications
    *
    * @example
    * ```ts

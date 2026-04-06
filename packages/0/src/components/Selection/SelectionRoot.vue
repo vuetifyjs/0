@@ -1,6 +1,8 @@
 /**
  * @module SelectionRoot
  *
+ * @see https://0.vuetifyjs.com/components/providers/selection
+ *
  * @remarks
  * Root component for generic selection contexts. Creates and provides selection
  * context to child SelectionItem components. Supports both single and multi-selection
