@@ -112,23 +112,17 @@ export interface LocalePluginOptions extends LocaleContextOptions {
  * Creates a new locale instance.
  *
  * @param options The options for the locale instance.
- * @template Z The type of the locale ticket.
- * @template E The type of the locale context.
  * @returns A new locale instance.
  *
  * @see https://0.vuetifyjs.com/composables/plugins/use-locale
  */
-export function createLocale<
-  Z extends LocaleTicketInput = LocaleTicketInput,
-  E extends LocaleTicket<Z> = LocaleTicket<Z>,
-  R extends LocaleContext<Z, E> = LocaleContext<Z, E>,
-> (_options: LocaleOptions = {}): R {
+export function createLocale (_options: LocaleOptions = {}): LocaleContext {
   const { adapter: externalAdapter, messages = {}, fallback: fallbackLocale, ...options } = _options
   const tokens = createTokens(messages)
-  const registry = createSingle<Z, E>(options)
+  const registry = createSingle(options)
 
   for (const id in messages) {
-    registry.register({ id } as unknown as Partial<Z>)
+    registry.register({ id })
 
     if (id === options.default && !registry.selectedId.value) {
       registry.select(id as ID)
@@ -150,14 +144,14 @@ export function createLocale<
     return adapter.n(value)
   }
 
-  function register (registration: Partial<Z> = {} as Partial<Z>): E {
-    const { messages: msgs, ...rest } = registration as Partial<Z> & { messages?: LocaleRecord }
+  function register (registration: Partial<LocaleTicketInput> = {}): LocaleTicket {
+    const { messages: msgs, ...rest } = registration as Partial<LocaleTicketInput> & { messages?: LocaleRecord }
 
     if (msgs && rest.id && !registry.has(rest.id)) {
       tokens.onboard(flatten({ [rest.id]: msgs }))
     }
 
-    return registry.register(rest as unknown as Partial<Z>)
+    return registry.register(rest)
   }
 
   return {
@@ -168,19 +162,15 @@ export function createLocale<
     get size () {
       return registry.size
     },
-  } as unknown as R
+  } as LocaleContext
 }
 
-export function createLocaleFallback<
-  Z extends LocaleTicketInput = LocaleTicketInput,
-  E extends LocaleTicket<Z> = LocaleTicket<Z>,
-  R extends LocaleContext<Z, E> = LocaleContext<Z, E>,
-> (): R {
+export function createLocaleFallback (): LocaleContext {
   return {
     size: 0,
     t: (key: string) => key,
     n: String,
-  } as unknown as R
+  } as unknown as LocaleContext
 }
 
 export const [createLocaleContext, createLocalePlugin, useLocale] =

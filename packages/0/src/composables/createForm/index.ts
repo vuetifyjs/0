@@ -123,18 +123,14 @@ export interface FormContextOptions extends FormOptions {
  * form.reset()
  * ```
  */
-export function createForm<
-  Z extends FormTicketInput = FormTicketInput,
-  E extends FormTicket<Z> = FormTicket<Z>,
-  R extends FormContext<Z, E> = FormContext<Z, E>,
-> (options: FormOptions = {}): R {
+export function createForm (options: FormOptions = {}): FormContext {
   const {
     disabled = false,
     readonly = false,
     ..._options
   } = options
 
-  const registry = createRegistry<E>({ ..._options, reactive: true })
+  const registry = createRegistry<FormTicket>({ ..._options, reactive: true })
 
   const isValidating = computed(() => {
     for (const ticket of registry.values()) {
@@ -155,8 +151,8 @@ export function createForm<
     return hasNull ? null : true
   })
 
-  function register (registration: Partial<Z> & { value: FormValue }): E {
-    return registry.register(registration as Partial<E>)
+  function register (registration: Partial<FormTicketInput> & { value: FormValue }): FormTicket {
+    return registry.register(registration as Partial<FormTicket>)
   }
 
   function reset () {
@@ -189,7 +185,7 @@ export function createForm<
     get size () {
       return registry.size
     },
-  } as unknown as R
+  } as FormContext
 }
 
 /**
@@ -207,21 +203,17 @@ export function createForm<
  * export const [useMyForm, provideMyForm, myForm] = createFormContext()
  * ```
  */
-export function createFormContext<
-  Z extends FormTicketInput = FormTicketInput,
-  E extends FormTicket<Z> = FormTicket<Z>,
-  R extends FormContext<Z, E> = FormContext<Z, E>,
-> (_options: FormContextOptions = {}): ContextTrinity<R> {
+export function createFormContext (_options: FormContextOptions = {}): ContextTrinity<FormContext> {
   const { namespace = 'v0:form', ...options } = _options
-  const [useFormContext, _provideFormContext] = createContext<R>(namespace)
+  const [useFormContext, _provideFormContext] = createContext<FormContext>(namespace)
 
-  const context = createForm<Z, E, R>(options)
+  const context = createForm(options)
 
-  function provideFormContext (_context: R = context, app?: App): R {
+  function provideFormContext (_context: FormContext = context, app?: App): FormContext {
     return _provideFormContext(_context, app)
   }
 
-  return createTrinity<R>(useFormContext, provideFormContext, context)
+  return createTrinity<FormContext>(useFormContext, provideFormContext, context)
 }
 
 /**

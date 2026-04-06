@@ -349,11 +349,7 @@ export interface ModelOptions extends RegistryOptions {
  * model.select('a') // no-op
  * ```
  */
-export function createModel<
-  Z extends ModelTicketInput = ModelTicketInput,
-  E extends ModelTicket<Z> = ModelTicket<Z>,
-  R extends ModelContext<Z, E> = ModelContext<Z, E>,
-> (_options: ModelOptions = {}): R {
+export function createModel (_options: ModelOptions = {}): ModelContext {
   const {
     disabled = false,
     enroll = true,
@@ -361,7 +357,7 @@ export function createModel<
     ...options
   } = _options
 
-  const registry = createRegistry<Z, E>(options)
+  const registry = createRegistry<ModelTicketInput, ModelTicket>(options)
   const selectedIds = shallowReactive(new Set<ID>())
 
   const selectedItems = computed(() => new Set(resolveIds(selectedIds, registry.get)))
@@ -419,14 +415,14 @@ export function createModel<
     if (!isUndefined(id)) selectedIds.add(id)
   }
 
-  function register (registration: Partial<Z> = {}): E {
+  function register (registration: Partial<ModelTicketInput> = {}): ModelTicket {
     const id = registration.id ?? useId()
-    const item: Partial<E> = {
+    const item: Partial<ModelTicket> = {
       disabled: false,
       ...registration,
       isSelected: toRef(() => selected(id)),
       id,
-    } as Partial<E>
+    }
 
     const ticket = registry.register(item)
 
@@ -442,7 +438,7 @@ export function createModel<
     registry.unregister(id)
   }
 
-  function onboard (registrations: Partial<Z>[]): E[] {
+  function onboard (registrations: Partial<ModelTicketInput>[]): ModelTicket[] {
     return registry.batch(() => registrations.map(r => register(r)))
   }
 
@@ -488,5 +484,5 @@ export function createModel<
     get size () {
       return registry.size
     },
-  } as unknown as R
+  } as ModelContext
 }

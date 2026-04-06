@@ -91,9 +91,7 @@ export interface LoggerPluginOptions extends LoggerContextOptions {}
  * logger.debug('This debug message will now be logged')
  * ```
  */
-export function createLogger<
-  E extends LoggerContext = LoggerContext,
-> (options: LoggerOptions = {}): E {
+export function createLogger (options: LoggerOptions = {}): LoggerContext {
   const {
     adapter = new Vuetify0LoggerAdapter({ prefix: options.prefix }),
     level: initialLevel = 'info',
@@ -181,12 +179,10 @@ export function createLogger<
     enabled,
     enable,
     disable,
-  } as E
+  } as LoggerContext
 }
 
-function createFallbackLogger<
-  E extends LoggerContext = LoggerContext,
-> (namespace = 'v0:logger'): E {
+function createFallbackLogger (namespace = 'v0:logger'): LoggerContext {
   function format (message: string, type: string): string {
     return `[${namespace} ${type}] ${message}`
   }
@@ -203,7 +199,7 @@ function createFallbackLogger<
     enabled: () => true,
     enable: () => {},
     disable: () => {},
-  } as unknown as E
+  } as unknown as LoggerContext
 }
 
 /**

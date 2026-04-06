@@ -76,10 +76,7 @@ export interface PermissionPluginOptions extends PermissionContextOptions {}
  * })
  * ```
  */
-export function createPermissions<
-  Z extends PermissionTicket = PermissionTicket,
-  E extends PermissionContext<Z> = PermissionContext<Z>,
-> (_options: PermissionOptions = {}): E {
+export function createPermissions (_options: PermissionOptions = {}): PermissionContext {
   const { adapter = new Vuetify0PermissionAdapter(), permissions = {}, ...options } = _options
 
   const record: Record<string, Record<string, Record<string, any>>> = {}
@@ -96,16 +93,16 @@ export function createPermissions<
     }
   }
 
-  const tokens = createTokens<Z, E>(record, options)
+  const tokens = createTokens(record, options)
 
   function can (id: ID, action: string, subject: string, context: Record<string, any> = {}) {
-    return adapter.can(id, action, subject, context, tokens)
+    return adapter.can(id, action, subject, context, tokens as PermissionContext)
   }
 
   return {
     ...tokens,
     can,
-  } as E
+  } as PermissionContext
 }
 
 /**
@@ -131,14 +128,11 @@ export function createPermissions<
  * })
  * ```
  */
-function createPermissionsFallback<
-  Z extends PermissionTicket = PermissionTicket,
-  E extends PermissionContext<Z> = PermissionContext<Z>,
-> (): E {
+function createPermissionsFallback (): PermissionContext {
   return {
     size: 0,
     can: () => false,
-  } as unknown as E
+  } as unknown as PermissionContext
 }
 
 export const [createPermissionsContext, createPermissionsPlugin, usePermissions] =
