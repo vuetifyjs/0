@@ -92,6 +92,7 @@ Selection state is **always reactive**. Collection methods follow the base `crea
 | `selectedItems` | <AppSuccessIcon /> | Computed from `selectedIds` |
 | `selectedValues` | <AppSuccessIcon /> | Computed from `selectedItems` |
 | ticket `isSelected` | <AppSuccessIcon /> | Computed from `selectedIds` |
+| `apply(values, options?)` | — | Sync selection from external values — resolves values to IDs via `browse()`, then adds/removes to match |
 
 > [!TIP] Reactive options
 > The `mandatory`, `multiple`, and `enroll` options all accept `MaybeRefOrGetter<boolean>`. Pass a getter to drive selection behavior from a prop or computed:
