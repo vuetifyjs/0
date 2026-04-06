@@ -89,6 +89,48 @@ app.use(createRtlPlugin({ target: '#app' }))
 app.use(createRtlPlugin({ target: null }))
 ```
 
+### Custom Adapters
+
+Implement `RtlAdapter` to control how RTL direction is applied to the DOM:
+
+```ts
+import type { RtlAdapter } from '@vuetify/v0'
+
+class CustomRtlAdapter implements RtlAdapter {
+  setup (app, context, target) {
+    // context.isRtl — reactive ref, write to it to change direction
+    // context.toggle — flips isRtl
+    watchEffect(() => {
+      const el = typeof target === 'string' ? document.querySelector(target) : target
+      if (el) el.setAttribute('dir', context.isRtl.value ? 'rtl' : 'ltr')
+    })
+  }
+}
+
+app.use(createRtlPlugin({ adapter: new CustomRtlAdapter() }))
+```
+
+```ts
+interface RtlAdapter {
+  setup: (app: App, context: { isRtl: Ref<boolean>; toggle: () => void }, target?: string | HTMLElement | null) => void
+}
+```
+
+## Standalone Usage
+
+Use `createRtl` to create a raw RTL context without the plugin system — useful for testing or embedding in other composables:
+
+```ts
+import { createRtl } from '@vuetify/v0'
+
+const rtl = createRtl({ default: true }) // starts in RTL
+rtl.isRtl.value  // true
+rtl.toggle()
+rtl.isRtl.value  // false
+```
+
+`createRtl` accepts `default?: boolean` (initial direction) and returns `{ isRtl: ShallowRef<boolean>, toggle: () => void }`. No `app` is required.
+
 ## Styling
 
 The `dir` attribute set by the adapter enables three approaches to direction-aware styling with utility classes:
