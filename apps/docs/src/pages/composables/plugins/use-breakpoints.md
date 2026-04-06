@@ -122,6 +122,9 @@ Breakpoints are **range-based**, not exact pixel matches. The `name` is the **hi
 > [!TIP]
 > `xs` is always equivalent to "xsAndDown" (nothing is below xs), and `xxl` is always equivalent to "xxlAndUp" (nothing is above xxl). These redundant combinations are intentionally not provided.
 
+> [!TIP] Zoom-accurate detection
+> Breakpoints use `window.matchMedia` rather than `window.innerWidth`. `matchMedia` reports CSS pixels that account for browser zoom, giving accurate breakpoint detection at all zoom levels.
+
 ## Examples
 
 ::: example
