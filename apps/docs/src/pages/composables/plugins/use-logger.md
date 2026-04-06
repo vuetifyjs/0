@@ -77,6 +77,44 @@ Adapters let you swap the underlying logging implementation without changing you
 
 The default `Vuetify0LoggerAdapter` maps each level to the correct native console method — `debug` → `console.debug`, `info` → `console.info`, `warn` → `console.warn`, `error`/`fatal` → `console.error`. This ensures browser DevTools can correctly filter by level.
 
+### Custom Adapters
+
+Implement `LoggerAdapter` to route logs to any destination:
+
+```ts
+import type { LoggerAdapter } from '@vuetify/v0'
+
+class DatadogLoggerAdapter implements LoggerAdapter {
+  debug (message: string, ...args: unknown[]) {
+    datadogLogs.logger.debug(message, ...args)
+  }
+  info (message: string, ...args: unknown[]) {
+    datadogLogs.logger.info(message, ...args)
+  }
+  warn (message: string, ...args: unknown[]) {
+    datadogLogs.logger.warn(message, ...args)
+  }
+  error (message: string, ...args: unknown[]) {
+    datadogLogs.logger.error(message, ...args)
+  }
+}
+
+app.use(createLoggerPlugin({ adapter: new DatadogLoggerAdapter() }))
+```
+
+```ts
+interface LoggerAdapter {
+  debug: (message: string, ...args: unknown[]) => void
+  info:  (message: string, ...args: unknown[]) => void
+  warn:  (message: string, ...args: unknown[]) => void
+  error: (message: string, ...args: unknown[]) => void
+  trace?: (message: string, ...args: unknown[]) => void  // optional
+  fatal?: (message: string, ...args: unknown[]) => void  // optional
+}
+```
+
+`trace` and `fatal` are optional — if omitted, those calls are silently dropped.
+
 ## Architecture
 
 `useLogger` uses the plugin pattern with a log adapter:
