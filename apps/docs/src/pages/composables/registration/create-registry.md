@@ -120,8 +120,15 @@ Each branch extends the base ticket pattern with domain-specific capabilities. S
 | `offboard(ids)` | Batch-unregister an array of IDs |
 | `batch(fn)` | Run multiple mutations with a single cache invalidation and deferred events |
 | `get(id)` | Retrieve a ticket by ID |
+| `has(id)` | Check whether a ticket ID is registered |
 | `browse(value)` | Reverse-lookup — find ticket ID(s) by value |
 | `lookup(index)` | Find ticket ID by zero-based index |
+| `seek(direction, from?, predicate?)` | Find `'first'` or `'last'` ticket, optionally starting from an index and/or filtered by predicate |
+| `keys()` | All registered IDs as a readonly array |
+| `values()` | All registered tickets as a readonly array |
+| `entries()` | All `[id, ticket]` pairs as a readonly array |
+| `clear()` | Remove all tickets |
+| `dispose()` | Remove all tickets and clear event listeners |
 
 > [!TIP] Need reactive collections?
 > Wrap with `useProxyRegistry(registry)` for full template reactivity, or pass `reactive: true` when creating the registry.
