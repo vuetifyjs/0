@@ -14,7 +14,7 @@
   import { useNumberFieldRoot } from './NumberFieldRoot.vue'
 
   // Utilities
-  import { toRef, useAttrs } from 'vue'
+  import { mergeProps, toRef, useAttrs } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -102,6 +102,10 @@
       'aria-label': 'Increment',
       'disabled': disabled || undefined,
       'data-disabled': disabled ? true : undefined,
+      onBlur,
+      onPointercancel,
+      onPointerdown,
+      onPointerup,
     }
   })
 
@@ -113,13 +117,9 @@
 
 <template>
   <Atom
-    v-bind="{ ...attrs, ...controlAttrs }"
+    v-bind="mergeProps(attrs, controlAttrs)"
     :as
     :renderless
-    @blur="onBlur"
-    @pointercancel="onPointercancel"
-    @pointerdown="onPointerdown"
-    @pointerup="onPointerup"
   >
     <slot v-bind="slotProps" />
   </Atom>

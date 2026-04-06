@@ -1,9 +1,9 @@
 <script setup lang="ts">
   import { NumberField } from '@vuetify/v0'
-  import { ref } from 'vue'
+  import { shallowRef } from 'vue'
 
-  const price = ref<number | null>(42)
-  const tip = ref<number | null>(15)
+  const price = shallowRef<number | null>(42)
+  const tip = shallowRef<number | null>(15)
 </script>
 
 <template>

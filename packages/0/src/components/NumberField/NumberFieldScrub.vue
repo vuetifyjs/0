@@ -16,7 +16,7 @@
   import { useRaf } from '#v0/composables/useRaf'
 
   // Utilities
-  import { toRef, useAttrs } from 'vue'
+  import { mergeProps, toRef, useAttrs } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -97,25 +97,29 @@
     document.exitPointerLock()
   }
 
-  const scrubAttrs = toRef((): NumberFieldScrubSlotProps['attrs'] => ({
+  const scrubAttrs = toRef((): Record<string, unknown> => ({
     'style': { cursor: 'ew-resize' },
     'data-disabled': root.isDisabled.value ? true : undefined,
     'data-readonly': root.isReadonly.value ? true : undefined,
+    onPointerdown,
+    onPointermove,
+    onPointerup,
   }))
 
   const slotProps = toRef((): NumberFieldScrubSlotProps => ({
-    attrs: scrubAttrs.value,
+    attrs: {
+      'style': { cursor: 'ew-resize' },
+      'data-disabled': root.isDisabled.value ? true : undefined,
+      'data-readonly': root.isReadonly.value ? true : undefined,
+    },
   }))
 </script>
 
 <template>
   <Atom
-    v-bind="{ ...attrs, ...scrubAttrs }"
+    v-bind="mergeProps(attrs, scrubAttrs)"
     :as
     :renderless
-    @pointerdown="onPointerdown"
-    @pointermove="onPointermove"
-    @pointerup="onPointerup"
   >
     <slot v-bind="slotProps" />
   </Atom>

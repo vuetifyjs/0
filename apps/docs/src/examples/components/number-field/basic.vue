@@ -1,8 +1,8 @@
 <script setup lang="ts">
   import { NumberField } from '@vuetify/v0'
-  import { ref } from 'vue'
+  import { shallowRef } from 'vue'
 
-  const quantity = ref<number | null>(1)
+  const quantity = shallowRef<number | null>(1)
 </script>
 
 <template>

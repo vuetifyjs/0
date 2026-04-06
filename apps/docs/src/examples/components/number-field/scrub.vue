@@ -1,11 +1,11 @@
 <script setup lang="ts">
   import { NumberField } from '@vuetify/v0'
-  import { ref, toRef } from 'vue'
+  import { shallowRef, toRef } from 'vue'
 
-  const x = ref<number | null>(120)
-  const y = ref<number | null>(80)
-  const width = ref<number | null>(200)
-  const height = ref<number | null>(140)
+  const x = shallowRef<number | null>(120)
+  const y = shallowRef<number | null>(80)
+  const width = shallowRef<number | null>(200)
+  const height = shallowRef<number | null>(140)
 
   const style = toRef(() => ({
     left: `${x.value ?? 0}px`,

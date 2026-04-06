@@ -197,6 +197,12 @@
       'data-focused': isFocused ? true : undefined,
       'data-disabled': disabled ? true : undefined,
       'data-readonly': readonly ? true : undefined,
+      onBeforeinput,
+      onBlur,
+      onFocus,
+      onInput,
+      onKeydown,
+      onWheel,
     }
   })
 
@@ -214,12 +220,6 @@
     v-bind="mergeProps(attrs, controlAttrs)"
     :as
     :renderless
-    @beforeinput="onBeforeinput"
-    @blur="onBlur"
-    @focus="onFocus"
-    @input="onInput"
-    @keydown="onKeydown"
-    @wheel.passive="onWheel"
   >
     <slot v-bind="slotProps" />
   </Atom>

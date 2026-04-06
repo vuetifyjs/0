@@ -26,7 +26,7 @@ Numeric value with locale-aware formatting, step snapping, and field validation.
 
 ```ts collapse
 import { createNumberField } from '@vuetify/v0'
-import { ref } from 'vue'
+import { shallowRef } from 'vue'
 
 // Basic — standalone counter
 const field = createNumberField({ min: 0, max: 100, step: 1 })
@@ -36,7 +36,7 @@ field.value.value       // 6
 field.display.value     // '6'
 
 // Currency formatting
-const price = ref<number | null>(42)
+const price = shallowRef<number | null>(42)
 const currency = createNumberField({
   value: price,
   min: 0,
