@@ -133,6 +133,24 @@ tree.select('child-1')
 tree.select('child-2') // child-1 is deselected first
 ```
 
+### disabled
+
+When `true`, all tree mutations (`open()`, `close()`, `select()`, `unselect()`, `toggle()`) become no-ops. Individual tickets can also carry a `disabled` flag to skip only that node:
+
+```ts
+const tree = createNested({ disabled: true })
+
+tree.open('branch-1')   // no-op — tree is disabled
+tree.select('leaf-1')   // no-op
+```
+
+Accepts `MaybeRefOrGetter<boolean>` for reactive toggling:
+
+```ts
+const isLocked = shallowRef(false)
+const tree = createNested({ disabled: isLocked })
+```
+
 ### selection
 
 Controls how selection cascades through the hierarchy:
