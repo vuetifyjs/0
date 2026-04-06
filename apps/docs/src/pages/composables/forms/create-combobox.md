@@ -99,6 +99,7 @@ interface ComboboxOptions {
   disabled?: MaybeRefOrGetter<boolean>   // Disable all interaction
   strict?: MaybeRefOrGetter<boolean>     // Revert query on close if no match
   adapter?: ComboboxAdapterInterface     // Filtering strategy (default: ClientAdapter)
+  displayValue?: (value: unknown) => string  // Format selected value for display in input
   id?: string                            // Base ID for ARIA attributes
   name?: string                          // Hidden input name for form submission
   form?: string                          // Associated form ID
