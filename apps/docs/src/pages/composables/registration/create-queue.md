@@ -76,9 +76,41 @@ flowchart TD
   createQueue --> first[first item active]
 ```
 
+## Timeout Behavior
+
+The `timeout` option controls how long a ticket stays in the queue before auto-removal:
+
+| Value | Behavior |
+|-------|----------|
+| `undefined` | Uses the global default from queue options (default: `3000`ms) |
+| `number` | Auto-removed after that many milliseconds |
+| `-1` | Persistent — never auto-removed, must call `ticket.dismiss()` manually |
+
+Only the **first ticket** runs its timer at any time. All others wait with `isPaused: true` until they reach the front.
+
+```ts
+const queue = createQueue({ timeout: 5000 }) // global default
+
+queue.register({ value: 'Auto (5s)' })             // uses 5000ms
+queue.register({ value: 'Custom (10s)', timeout: 10000 })
+queue.register({ value: 'Sticky', timeout: -1 })   // must be dismissed
+```
+
+> [!TIP] Hover-to-pause pattern
+> Call `queue.pause()` on `mouseenter` and `queue.resume()` on `mouseleave` to pause the active toast while the user reads it.
+
 ## Reactivity
 
 `createQueue` extends `createRegistry` with **minimal reactivity** for performance. Timeout state is managed internally.
+
+| Property/Method | Notes |
+| - | - |
+| `register(ticket?)` | Add to queue; starts timer if first, otherwise paused |
+| `unregister(id?)` | Remove by ID, or first ticket if omitted. Returns the removed ticket |
+| `pause()` | Pause the first ticket's timer. Returns the paused ticket or `undefined` |
+| `resume()` | Resume the first paused ticket's timer. Resets to full duration |
+| ticket `isPaused` | `true` while waiting in queue or manually paused |
+| ticket `dismiss()` | Shorthand for `queue.unregister(ticket.id)` |
 
 > [!TIP] Need reactive queue items?
 > Wrap with `useProxyRegistry(queue)` for full template reactivity.
