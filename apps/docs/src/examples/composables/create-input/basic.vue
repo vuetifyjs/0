@@ -6,8 +6,8 @@
   const input = createInput({
     value,
     rules: [
-      (v: string) => !!v || 'This field is required.',
-      (v: string) => v.length >= 3 || 'Must be at least 3 characters.',
+      (v: string | unknown) => v ? String(v).length > 0 : 'This field is required.',
+      (v: string | unknown) => v ? String(v).length > 3 : 'Must be at least 3 characters.',
     ],
   })
 
@@ -25,14 +25,14 @@
 <template>
   <div class="flex flex-col gap-4 max-w-sm mx-auto p-4">
     <div class="flex flex-col gap-1">
-      <label :for="input.id" class="text-sm font-medium text-on-surface">
+      <label class="text-sm font-medium text-on-surface" :for="String(input.id)">
         Username
       </label>
 
       <input
-        :id="input.id"
+        :id="String(input.id)"
         v-model="value"
-        :aria-describedby="input.errors.length ? input.errorId : input.descriptionId"
+        :aria-describedby="input.errors.value.length > 0 ? input.errorId : input.descriptionId"
         :aria-invalid="input.isValid.value === false"
         class="px-3 py-2 rounded border bg-surface text-on-surface text-sm focus:outline-none transition-colors"
         :class="{
@@ -46,7 +46,7 @@
       >
 
       <p
-        v-if="input.errors.value.length"
+        v-if="input.errors.value.length > 0"
         :id="input.errorId"
         class="text-xs text-error"
       >
