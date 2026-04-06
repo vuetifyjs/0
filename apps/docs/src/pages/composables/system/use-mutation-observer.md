@@ -92,6 +92,9 @@ flowchart TD
 | `isActive` | <AppSuccessIcon /> | Computed from observer ref |
 | `isPaused` | <AppSuccessIcon /> | ShallowRef, readonly |
 | `target` | <AppSuccessIcon /> | Accepts MaybeRef, watched for changes |
+| `pause()` | — | Temporarily stop observing without disconnecting |
+| `resume()` | — | Resume after `pause()` |
+| `stop()` | — | Disconnect the observer permanently |
 
 ## Examples
 

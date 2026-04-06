@@ -85,6 +85,9 @@ flowchart TD
 | `isIntersecting` | <AppSuccessIcon /> | ShallowRef, readonly |
 | `isPaused` | <AppSuccessIcon /> | ShallowRef, readonly |
 | `target` | <AppSuccessIcon /> | Accepts MaybeRef, watched for changes |
+| `pause()` | — | Temporarily stop observing without disconnecting |
+| `resume()` | — | Resume after `pause()` |
+| `stop()` | — | Disconnect the observer permanently |
 
 ### useElementIntersection
 
