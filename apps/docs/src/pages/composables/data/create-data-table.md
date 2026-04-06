@@ -313,8 +313,10 @@ table.grouping.closeAll()
 | `sort.columns` | <AppSuccessIcon /> | Computed — current sort entries |
 | `pagination.page` | <AppSuccessIcon /> | ShallowRef — current page |
 | `pagination.items` | <AppSuccessIcon /> | Computed — visible page buttons |
+| `selection.selectedIds` | <AppSuccessIcon /> | `shallowReactive(Set)` — currently selected row IDs |
 | `selection.isAllSelected` | <AppSuccessIcon /> | Computed — all in scope selected |
 | `selection.isMixed` | <AppSuccessIcon /> | Computed — some but not all selected |
+| `expansion.expandedIds` | <AppSuccessIcon /> | `shallowReactive(Set)` — currently expanded row IDs |
 | `grouping.groups` | <AppSuccessIcon /> | Computed — grouped items |
 | `total` | <AppSuccessIcon /> | Computed — total row count |
 | `loading` | <AppSuccessIcon /> | Computed — adapter loading state |
