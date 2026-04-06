@@ -61,6 +61,7 @@ Form control components with accessibility and validation support.
 | [Combobox](/components/forms/combobox) | Filterable selection with autocomplete, virtual focus, and custom input |
 | [Form](/components/forms/form) | Form validation coordinator with submit handling and error aggregation |
 | [Input](/components/forms/input) | Text input with label, description, error messages, and character counting |
+| [NumberField](/components/forms/number-field) | Numeric input with increment/decrement, formatting, and scrub |
 | [Radio](/components/forms/radio) | Radio group with single-selection and keyboard navigation |
 | [Select](/components/forms/select) | Dropdown selection with virtual focus and multi-select support |
 | [Rating](/components/forms/rating) | Star/icon rating with hover preview, half-stars, and keyboard navigation |

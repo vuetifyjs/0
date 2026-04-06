@@ -1,36 +1,34 @@
 /**
- * @module InputError
- *
- * @see https://0.vuetifyjs.com/components/forms/input
+ * @module NumberFieldError
  *
  * @remarks
- * Error message component for the Input component.
- * Renders validation error messages from the parent Input.Root's validation context.
- * Connected to Input.Control via aria-errormessage.
+ * Error message component for number fields.
+ * Renders validation error messages from the parent NumberField.Root's validation context.
+ * Connected to NumberField.Control via aria-errormessage.
  * Uses aria-live="polite" for screen reader announcements.
- * Must be used within an Input.Root component.
+ * Must be used within a NumberField.Root component.
  */
 
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
-  import { useInputRoot } from './InputRoot.vue'
+  import { useNumberFieldRoot } from './NumberFieldRoot.vue'
 
   // Utilities
   import { useId } from '#v0/utilities'
-  import { onBeforeUnmount, toRef, useAttrs } from 'vue'
+  import { mergeProps, onBeforeUnmount, toRef, useAttrs } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
 
-  export interface InputErrorProps extends AtomProps {
+  export interface NumberFieldErrorProps extends AtomProps {
     /** Unique identifier (auto-generated if not provided) */
     id?: string
-    /** Namespace for connecting to parent Input.Root */
+    /** Namespace for connecting to parent NumberField.Root */
     namespace?: string
   }
 
-  export interface InputErrorSlotProps {
+  export interface NumberFieldErrorSlotProps {
     /** Current validation error messages */
     errors: string[]
     /** Pre-computed attributes for the error element */
@@ -43,29 +41,29 @@
 </script>
 
 <script setup lang="ts">
-  defineOptions({ name: 'InputError', inheritAttrs: false })
+  defineOptions({ name: 'NumberFieldError', inheritAttrs: false })
 
   const attrs = useAttrs()
 
   defineSlots<{
-    default: (props: InputErrorSlotProps) => any
+    default: (props: NumberFieldErrorSlotProps) => any
   }>()
 
   const {
     as = 'span',
     renderless,
     id = useId(),
-    namespace = 'v0:input:root',
-  } = defineProps<InputErrorProps>()
+    namespace = 'v0:number-field:root',
+  } = defineProps<NumberFieldErrorProps>()
 
-  const root = useInputRoot(namespace)
+  const root = useNumberFieldRoot(namespace)
   const errors = root.errors
 
   const ticket = root.fieldErrors.register({ id })
 
   onBeforeUnmount(() => ticket.unregister())
 
-  const slotProps = toRef((): InputErrorSlotProps => ({
+  const slotProps = toRef((): NumberFieldErrorSlotProps => ({
     errors: errors.value,
     attrs: {
       'id': root.errorId,
@@ -77,7 +75,7 @@
 
 <template>
   <Atom
-    v-bind="{ ...attrs, ...slotProps.attrs }"
+    v-bind="mergeProps(attrs, slotProps.attrs)"
     :as
     :renderless
   >

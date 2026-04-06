@@ -1,13 +1,10 @@
 /**
- * @module InputRoot
- *
- * @see https://0.vuetifyjs.com/components/forms/input
+ * @module NumberFieldRoot
  *
  * @remarks
- * Root component for text inputs with integrated validation.
- * Composes createInput for field state, validation, and ARIA IDs.
- * Provides context to child components (Control, Description, Error).
- * Auto-registers with parent form via createValidation's useForm() injection.
+ * Root component for number fields. Creates number field context via
+ * createNumberField, manages validation timing, and provides context
+ * to child components (Input, Increment, Decrement, Scrub, Description, Error).
  */
 
 <script lang="ts">
@@ -16,45 +13,33 @@
 
   // Composables
   import { createContext } from '#v0/composables/createContext'
-  import { createInput } from '#v0/composables/createInput'
+  import { createNumberField } from '#v0/composables/createNumberField'
 
   // Utilities
   import { useId } from '#v0/utilities'
-  import { nextTick, toRef, useAttrs, watch } from 'vue'
+  import { mergeProps, nextTick, toRef, useAttrs, watch } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
+  import type { ValidateEvent, ValidateOn } from '#v0/components/Input'
   import type { FormValidationRule } from '#v0/composables/createForm'
   import type { InputState } from '#v0/composables/createInput'
+  import type { NumberFieldContext } from '#v0/composables/createNumberField'
   import type { RegistryContext } from '#v0/composables/createRegistry'
   import type { RuleAlias, StandardSchemaV1 } from '#v0/composables/useRules'
   import type { MaybeArray, ID } from '#v0/types'
   import type { MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
 
-  /** Base validation trigger event */
-  export type ValidateEvent = 'blur' | 'input' | 'submit'
-
-  /** When to trigger validation, with optional lazy/eager modifier */
-  export type ValidateOn =
-    | ValidateEvent
-    | 'lazy' | 'eager'
-    | 'blur lazy' | 'input lazy' | 'submit lazy'
-    | 'blur eager' | 'input eager' | 'submit eager'
-    | 'lazy blur' | 'lazy input' | 'lazy submit'
-    | 'eager blur' | 'eager input' | 'eager submit'
-
-  export interface InputRootContext {
+  export interface NumberFieldRootContext extends NumberFieldContext {
     /** Unique identifier */
     readonly id: ID
     /** Optional display label */
     readonly label?: string
     /** Form field name */
     readonly name?: string
-    /** Input type */
-    readonly type: string
     /** Associate with form by ID */
     readonly form?: string
-    /** Whether this input is required */
+    /** Whether this field is required */
     readonly required?: boolean
     /** ID for description element (aria-describedby) */
     readonly descriptionId: string
@@ -68,69 +53,99 @@
     hasDescription: Readonly<Ref<boolean>>
     /** Whether an Error sub-component is mounted */
     hasError: Readonly<Ref<boolean>>
-    /** Current input value — write to update both v-model and validation */
-    value: Ref<string>
-    /** Whether this input has content */
+    /** Whether this field has content */
     isDirty: Readonly<Ref<boolean>>
-    /** Whether this input is focused */
+    /** Whether this field is focused */
     isFocused: ShallowRef<boolean>
-    /** Whether this input is disabled */
+    /** Whether this field is disabled */
     isDisabled: Readonly<Ref<boolean>>
-    /** Whether this input is readonly */
+    /** Whether this field is readonly */
     isReadonly: Readonly<Ref<boolean>>
     /** Merged validation + manual error messages */
     errors: Readonly<Ref<string[]>>
-    /** Whether the field is valid (null = unvalidated, accounts for error prop) */
+    /** Whether the field is valid (null = unvalidated) */
     isValid: Readonly<Ref<boolean | null>>
     /** Whether the field value hasn't changed since mount/reset */
     isPristine: Readonly<Ref<boolean>>
     /** Whether async validation is in progress */
     isValidating: Readonly<Ref<boolean>>
-    /** Validate the input */
+    /** Validate the field */
     validate: () => Promise<boolean>
-    /** Reset the input to initial state */
+    /** Reset the field to initial state */
     reset: () => void
+    /** Delay in ms before spin-on-hold starts */
+    spinDelay: number
+    /** Interval in ms for repeated spin */
+    spinRate: number
+    /** Whether mouse wheel adjusts value */
+    wheel: boolean
   }
 
-  export interface InputRootProps extends AtomProps {
+  export interface NumberFieldRootProps extends AtomProps {
     /** Unique identifier (auto-generated if not provided) */
     id?: ID
     /** Optional display label */
     label?: string
     /** Form field name */
     name?: string
-    /** Input type */
-    type?: string
     /** Associate with form by ID */
     form?: string
-    /** Disables this input */
-    disabled?: MaybeRefOrGetter<boolean>
-    /** Makes this input readonly */
-    readonly?: MaybeRefOrGetter<boolean>
-    /** Whether this input is required */
+    /** Whether this field is required */
     required?: boolean
+    /** Disables this field */
+    disabled?: MaybeRefOrGetter<boolean>
+    /** Makes this field readonly */
+    readonly?: MaybeRefOrGetter<boolean>
+    /** Minimum value */
+    min?: number
+    /** Maximum value */
+    max?: number
+    /** Step increment (default: 1) */
+    step?: number
+    /** Leap increment for PageUp/PageDown */
+    leap?: number
+    /** Wrap around at boundaries */
+    wrap?: boolean
+    /** BCP 47 locale tag (default: 'en-US') */
+    locale?: string
+    /** Intl.NumberFormat options */
+    format?: Intl.NumberFormatOptions
+    /** Whether commit() clamps to min/max (default: true) */
+    clamp?: boolean
     /** Validation rules */
     rules?: (FormValidationRule | RuleAlias | StandardSchemaV1)[]
     /** When to trigger validation */
     validateOn?: ValidateOn
-    /** Manual error state override — forces invalid regardless of validation */
+    /** Manual error state override — forces invalid */
     error?: boolean
     /** Manual error messages — merged with rule-based errors */
     errorMessages?: MaybeArray<string>
-    /** Namespace for context provision to children */
+    /** Delay in ms before spin-on-hold starts (default: 400) */
+    spinDelay?: number
+    /** Interval in ms for repeated spin (default: 60) */
+    spinRate?: number
+    /** Whether mouse wheel adjusts value (default: false) */
+    wheel?: boolean
+    /** Namespace for context provision */
     namespace?: string
   }
 
-  export interface InputRootSlotProps {
+  export interface NumberFieldRootSlotProps {
     /** Unique identifier */
     id: ID
-    /** Optional display label */
-    label?: string
-    /** Current input value */
-    value: string
-    /** Whether this input has content */
-    isDirty: boolean
-    /** Whether this input is focused */
+    /** Current numeric value */
+    value: number | null
+    /** Formatted display string */
+    display: string
+    /** Whether the value can be incremented */
+    canIncrement: boolean
+    /** Whether the value can be decremented */
+    canDecrement: boolean
+    /** Whether this field is disabled */
+    isDisabled: boolean
+    /** Whether this field is readonly */
+    isReadonly: boolean
+    /** Whether this field is focused */
     isFocused: boolean
     /** Merged error messages */
     errors: string[]
@@ -138,15 +153,9 @@
     isValid: boolean | null
     /** Whether the field value hasn't changed */
     isPristine: boolean
-    /** Whether async validation is in progress */
-    isValidating: boolean
-    /** Whether this input is disabled */
-    isDisabled: boolean
-    /** Whether this input is readonly */
-    isReadonly: boolean
-    /** Validate the input */
+    /** Validate the field */
     validate: () => Promise<boolean>
-    /** Reset the input */
+    /** Reset the field */
     reset: () => void
     /** Attributes to bind to the root element */
     attrs: {
@@ -158,7 +167,7 @@
     }
   }
 
-  export const [useInputRoot, provideInputRoot] = createContext<InputRootContext>()
+  export const [useNumberFieldRoot, provideNumberFieldRoot] = createContext<NumberFieldRootContext>()
 
   function parseValidateOn (value: ValidateOn) {
     const parts = String(value).split(' ')
@@ -175,17 +184,16 @@
 </script>
 
 <script setup lang="ts">
-  defineOptions({ name: 'InputRoot', inheritAttrs: false })
+  defineOptions({ name: 'NumberFieldRoot', inheritAttrs: false })
 
   const attrs = useAttrs()
 
   defineSlots<{
-    default: (props: InputRootSlotProps) => any
+    default: (props: NumberFieldRootSlotProps) => any
   }>()
 
   defineEmits<{
-    'update:model-value': [value: string]
-    'update:isFocused': [value: boolean]
+    'update:model-value': [value: number | null]
   }>()
 
   const {
@@ -194,29 +202,45 @@
     id = useId(),
     label,
     name,
-    type = 'text',
     form,
+    required,
     disabled = false,
     readonly: _readonly = false,
-    required,
+    min,
+    max,
+    step,
+    leap,
+    wrap,
+    locale,
+    format: formatOptions,
+    clamp: shouldClamp,
     rules = [],
     validateOn = 'blur',
     error = false,
     errorMessages,
-    namespace = 'v0:input:root',
-  } = defineProps<InputRootProps>()
+    spinDelay = 400,
+    spinRate = 60,
+    wheel = false,
+    namespace = 'v0:number-field:root',
+  } = defineProps<NumberFieldRootProps>()
 
-  const model = defineModel<string>({ default: '' })
+  const model = defineModel<number | null>({ default: null })
 
-  const input = createInput({
+  const { input, ...field } = createNumberField({
     value: model,
     id,
     label,
     name,
-    form,
-    required,
+    locale,
+    format: formatOptions,
+    clamp: shouldClamp,
     disabled,
     readonly: _readonly,
+    min,
+    max,
+    step,
+    leap,
+    wrap,
     rules,
     error,
     errorMessages,
@@ -252,11 +276,12 @@
     })
   }
 
-  const context: InputRootContext = {
+  const context: NumberFieldRootContext = {
+    ...field,
+    input,
     id: input.id,
     label,
     name,
-    type,
     form,
     required,
     descriptionId: input.descriptionId,
@@ -265,7 +290,6 @@
     fieldErrors: input.fieldErrors,
     hasDescription: input.hasDescription,
     hasError: input.hasError,
-    value: model,
     isDirty: input.isDirty,
     isFocused: input.isFocused,
     isDisabled: input.isDisabled,
@@ -276,22 +300,25 @@
     isValidating: input.isValidating,
     validate: input.validate,
     reset,
+    spinDelay,
+    spinRate,
+    wheel,
   }
 
-  provideInputRoot(namespace, context)
+  provideNumberFieldRoot(namespace, context)
 
-  const slotProps = toRef((): InputRootSlotProps => ({
+  const slotProps = toRef((): NumberFieldRootSlotProps => ({
     id: input.id,
-    label,
     value: model.value,
-    isDirty: input.isDirty.value,
+    display: field.display.value,
+    canIncrement: field.canIncrement.value,
+    canDecrement: field.canDecrement.value,
+    isDisabled: input.isDisabled.value,
+    isReadonly: input.isReadonly.value,
     isFocused: input.isFocused.value,
     errors: input.errors.value,
     isValid: input.isValid.value,
     isPristine: input.isPristine.value,
-    isValidating: input.isValidating.value,
-    isDisabled: input.isDisabled.value,
-    isReadonly: input.isReadonly.value,
     validate: input.validate,
     reset,
     attrs: {
@@ -306,7 +333,7 @@
 
 <template>
   <Atom
-    v-bind="{ ...attrs, ...slotProps.attrs }"
+    v-bind="mergeProps(attrs, slotProps.attrs)"
     :as
     :renderless
   >

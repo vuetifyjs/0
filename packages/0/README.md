@@ -112,6 +112,7 @@ import { ... } from '@vuetify/v0/date'       // Date adapter and utilities
 | [Combobox](https://0.vuetifyjs.com/components/forms/combobox) | Filterable selection with autocomplete, virtual focus, and custom input |
 | [Form](https://0.vuetifyjs.com/components/forms/form) | Form validation coordinator with submit handling and error aggregation |
 | [Input](https://0.vuetifyjs.com/components/forms/input) | Text input with label, description, error messages, and character counting |
+| [NumberField](https://0.vuetifyjs.com/components/forms/number-field) | Numeric input with increment/decrement, scrub, and Intl formatting |
 | [Radio](https://0.vuetifyjs.com/components/forms/radio) | Radio group with single-selection and keyboard navigation |
 | [Select](https://0.vuetifyjs.com/components/forms/select) | Dropdown selection with virtual focus and multi-select support |
 | [Rating](https://0.vuetifyjs.com/components/forms/rating) | Star/icon rating with hover preview, half-stars, and keyboard navigation |
@@ -181,9 +182,9 @@ Selection management composables built on `createRegistry`:
 
 - [`createForm`](https://0.vuetifyjs.com/composables/forms/create-form) - Form validation and state management with async rules
 - [`createInput`](https://0.vuetifyjs.com/composables/forms/create-input) - Shared form field state: validation, dirty/pristine, ARIA IDs
+- [`createNumberField`](https://0.vuetifyjs.com/composables/forms/create-number-field) - Numeric input state with formatting, stepping, and validation
 - [`createValidation`](https://0.vuetifyjs.com/composables/forms/create-validation) - Field-level validation with sync/async rules
 - [`createCombobox`](https://0.vuetifyjs.com/composables/forms/create-combobox) - Combobox state management with filtering and virtual focus
-- [`createNumeric`](https://0.vuetifyjs.com/composables/forms/create-numeric) - Bounded numeric math with step, snap, clamp, and circular wrapping
 - [`createRating`](https://0.vuetifyjs.com/composables/forms/create-rating) - Bounded rating value with discrete items and half-step support
 - [`createSlider`](https://0.vuetifyjs.com/composables/forms/create-slider) - Slider state with snapping, range mode, and step control
 

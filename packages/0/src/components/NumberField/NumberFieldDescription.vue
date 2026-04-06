@@ -1,18 +1,16 @@
 /**
- * @module InputDescription
- *
- * @see https://0.vuetifyjs.com/components/forms/input
+ * @module NumberFieldDescription
  *
  * @remarks
- * Help text component for the Input component.
- * Auto-connected to Input.Control via aria-describedby.
- * Must be used within an Input.Root component.
+ * Help text component for number fields.
+ * Auto-connected to NumberField.Control via aria-describedby.
+ * Must be used within a NumberField.Root component.
  */
 
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
-  import { useInputRoot } from './InputRoot.vue'
+  import { useNumberFieldRoot } from './NumberFieldRoot.vue'
 
   // Utilities
   import { useId } from '#v0/utilities'
@@ -21,36 +19,36 @@
   // Types
   import type { AtomProps } from '#v0/components/Atom'
 
-  export interface InputDescriptionProps extends AtomProps {
+  export interface NumberFieldDescriptionProps extends AtomProps {
     /** Unique identifier (auto-generated if not provided) */
     id?: string
-    /** Namespace for connecting to parent Input.Root */
+    /** Namespace for connecting to parent NumberField.Root */
     namespace?: string
   }
 
-  export interface InputDescriptionSlotProps {
+  export interface NumberFieldDescriptionSlotProps {
     /** ID for this description element */
     id: string
   }
 </script>
 
 <script setup lang="ts">
-  defineOptions({ name: 'InputDescription', inheritAttrs: false })
+  defineOptions({ name: 'NumberFieldDescription', inheritAttrs: false })
 
   const attrs = useAttrs()
 
   defineSlots<{
-    default: (props: InputDescriptionSlotProps) => any
+    default: (props: NumberFieldDescriptionSlotProps) => any
   }>()
 
   const {
     as = 'span',
     renderless,
     id = useId(),
-    namespace = 'v0:input:root',
-  } = defineProps<InputDescriptionProps>()
+    namespace = 'v0:number-field:root',
+  } = defineProps<NumberFieldDescriptionProps>()
 
-  const root = useInputRoot(namespace)
+  const root = useNumberFieldRoot(namespace)
 
   const ticket = root.descriptions.register({ id })
 
@@ -60,7 +58,7 @@
     id: root.descriptionId,
   }))
 
-  const slotProps = toRef((): InputDescriptionSlotProps => ({
+  const slotProps = toRef((): NumberFieldDescriptionSlotProps => ({
     id: root.descriptionId,
   }))
 </script>
