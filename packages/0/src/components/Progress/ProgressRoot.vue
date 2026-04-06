@@ -23,8 +23,7 @@
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
-  import type { ModelTicket } from '#v0/composables/createModel'
-  import type { ProgressContext, ProgressTicketInput } from '#v0/composables/createProgress'
+  import type { ProgressContext, ProgressTicket } from '#v0/composables/createProgress'
 
   export interface ProgressRootContext extends ProgressContext {
     readonly id: string
@@ -46,7 +45,7 @@
     total: number
     percent: number
     isIndeterminate: boolean
-    segments: readonly ModelTicket<ProgressTicketInput>[]
+    segments: readonly ProgressTicket[]
     attrs: {
       'role': 'progressbar'
       'aria-valuenow': number | undefined

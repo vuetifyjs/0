@@ -26,9 +26,8 @@ import type { ModelContext, ModelTicket, ModelTicketInput } from '#v0/composable
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { App, ComputedRef, ShallowRef } from 'vue'
 
-export interface ProgressTicketInput extends ModelTicketInput<ShallowRef<number>> {
-  value: ShallowRef<number>
-}
+export type ProgressTicketInput = ModelTicketInput<ShallowRef<number>>
+export type ProgressTicket = ModelTicket<ProgressTicketInput>
 
 export interface ProgressOptions {
   value?: number
@@ -37,19 +36,19 @@ export interface ProgressOptions {
 }
 
 export interface ProgressContext extends Omit<
-  ModelContext<ProgressTicketInput, ModelTicket<ProgressTicketInput>>,
+  ModelContext<ProgressTicketInput, ProgressTicket>,
   'selectedValues' | 'apply' | 'register'
 > {
   readonly min: number
   readonly max: number
-  segments: ComputedRef<ModelTicket<ProgressTicketInput>[]>
+  segments: ComputedRef<ProgressTicket[]>
   selectedValues: ComputedRef<number[]>
   total: ComputedRef<number>
   percent: ComputedRef<number>
   isIndeterminate: ComputedRef<boolean>
   fromValue: (value: number) => number
   apply: (values: unknown[], options?: { multiple?: boolean }) => void
-  register: (registration?: Partial<ProgressTicketInput>) => ModelTicket<ProgressTicketInput>
+  register: (registration?: Partial<ProgressTicketInput>) => ProgressTicket
 }
 
 export interface ProgressContextOptions extends ProgressOptions {
@@ -81,7 +80,7 @@ export function createProgress (options: ProgressOptions = {}): ProgressContext 
   const _hasInitialValue = !isNullOrUndefined(_value)
   const extent = max - min
 
-  const model = createModel<ProgressTicketInput, ModelTicket<ProgressTicketInput>>({
+  const model = createModel<ProgressTicketInput, ProgressTicket>({
     multiple: true,
     events: true,
   })
@@ -128,7 +127,7 @@ export function createProgress (options: ProgressOptions = {}): ProgressContext 
     return (clamp(value, 0, extent) / extent) * 100
   }
 
-  function register (registration: Partial<ProgressTicketInput> = {}): ModelTicket<ProgressTicketInput> {
+  function register (registration: Partial<ProgressTicketInput> = {}): ProgressTicket {
     const index = segments.value.length
     const pendingValue = pending?.[index]
     const val = isUndefined(pendingValue) ? 0 : pendingValue
