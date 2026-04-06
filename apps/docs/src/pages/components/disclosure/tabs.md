@@ -107,4 +107,19 @@ Control whether navigation wraps around at boundaries:
 </template>
 ```
 
+### Auto-Enrollment
+
+Set `enroll` to auto-select the first registered tab. Useful when tabs are rendered dynamically and the initial selection should track whichever tab mounts first:
+
+```vue
+<template>
+  <Tabs.Root enroll>
+    <!-- First tab to register is automatically selected -->
+    <Tabs.Tab v-for="tab in dynamicTabs" :key="tab.id" :value="tab.id">
+      {{ tab.label }}
+    </Tabs.Tab>
+  </Tabs.Root>
+</template>
+```
+
 <DocsApi />
