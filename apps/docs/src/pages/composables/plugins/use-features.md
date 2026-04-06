@@ -255,7 +255,8 @@ Feature flags inherit reactivity from `createGroup`. Selection state is reactive
 | - | :-: | - |
 | `selectedIds` | <AppSuccessIcon /> | Set of enabled feature IDs |
 | `selectedItems` | <AppSuccessIcon /> | Computed array of enabled features |
-| ticket `isSelected` | <AppSuccessIcon /> | Computed from `selectedIds` |
+| ticket `isSelected` | <AppSuccessIcon /> | `true` when this feature is enabled |
+| `variation(id, fallback?)` | <AppErrorIcon /> | Returns the `$variation` value for a feature, or `fallback` if unset |
 
 ## Examples
 
@@ -264,7 +265,7 @@ Feature flags inherit reactivity from `createGroup`. Selection state is reactive
 
 ### Feature Flag Panel
 
-Toggle boolean and variation feature flags at runtime, using `isEnabled()`, `select()`, and `unselect()` to control which features are active.
+Toggle boolean and variation feature flags at runtime, using ticket `isSelected`, `select()`, `unselect()`, and `variation()` to read and control which features are active.
 
 :::
 
