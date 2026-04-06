@@ -56,6 +56,8 @@
 
   const root = useNumberFieldRoot(namespace)
 
+  const leap = Math.max(1, Math.round(root.numeric.leap / root.numeric.step))
+
   // Internal text shown while editing
   const text = shallowRef('')
 
@@ -76,6 +78,21 @@
   const displayValue = toRef(() => {
     return root.isFocused.value ? text.value : root.display.value
   })
+
+  function onBeforeinput (e: InputEvent) {
+    if (root.isDisabled.value || root.isReadonly.value) return
+    if (!e.data) return
+
+    const input = e.target as HTMLInputElement
+    const { value: existing, selectionStart, selectionEnd } = input
+
+    const next = existing.slice(0, selectionStart ?? 0) + e.data + existing.slice(selectionEnd ?? 0)
+
+    // Allow: optional minus at start, digits, optional single decimal point, digits
+    if (!/^-?\d*\.?\d*$/.test(next)) {
+      e.preventDefault()
+    }
+  }
 
   function onInput (e: Event) {
     const target = e.target as HTMLInputElement
@@ -111,8 +128,8 @@
     const actions: Record<string, () => void> = {
       ArrowUp: () => root.increment(),
       ArrowDown: () => root.decrement(),
-      PageUp: () => root.increment(10),
-      PageDown: () => root.decrement(10),
+      PageUp: () => root.increment(leap),
+      PageDown: () => root.decrement(leap),
       Home: () => root.floor(),
       End: () => root.ceil(),
       Enter: () => {
@@ -168,6 +185,7 @@
       'autocorrect': 'off',
       'spellcheck': false,
       'aria-valuenow': isNull(val) ? undefined : val,
+      'aria-valuetext': isNull(val) ? undefined : root.display.value,
       'aria-valuemin': Number.isFinite(root.numeric.min) ? root.numeric.min : undefined,
       'aria-valuemax': Number.isFinite(root.numeric.max) ? root.numeric.max : undefined,
       'aria-invalid': invalid || undefined,
@@ -196,6 +214,7 @@
     v-bind="mergeProps(attrs, controlAttrs)"
     :as
     :renderless
+    @beforeinput="onBeforeinput"
     @blur="onBlur"
     @focus="onFocus"
     @input="onInput"
