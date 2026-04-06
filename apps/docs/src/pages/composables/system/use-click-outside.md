@@ -55,12 +55,30 @@ flowchart TD
   useClickOutside --> Popovers
 ```
 
+## Options
+
+| Option | Type | Default | Description |
+| - | - | - | - |
+| `bounds` | `boolean` | `false` | Use bounding-rect detection instead of DOM containment. Required for native `<dialog>` elements — backdrop clicks have the `<dialog>` as the event target, so containment checks always pass |
+
+```ts
+import { useClickOutside } from '@vuetify/v0'
+
+const dialog = useTemplateRef('dialog')
+
+// For native <dialog> — backdrop clicks are detected via coordinates
+useClickOutside(dialog, () => dialog.value?.close(), { bounds: true })
+```
+
 ## Reactivity
 
 | Property/Method | Reactive | Notes |
 | - | :-: | - |
 | `isActive` | <AppSuccessIcon /> | Computed from `!isPaused` |
 | `isPaused` | <AppSuccessIcon /> | ShallowRef, readonly |
+| `pause()` | - | Stop detection, preserve state |
+| `resume()` | - | Resume detection |
+| `stop()` | - | Stop and clean up listeners |
 
 ## Examples
 
