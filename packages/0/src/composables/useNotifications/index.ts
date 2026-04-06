@@ -150,16 +150,12 @@ export interface NotificationsContext<
   archiveAll: () => void
 }
 
-export function createNotifications<
-  Z extends NotificationInput = NotificationInput,
-  E extends NotificationTicket<Z> = NotificationTicket<Z>,
-  R extends NotificationsContext<Z, E> = NotificationsContext<Z, E>,
-> (
+export function createNotifications (
   options: NotificationsOptions = {},
-): R {
+): NotificationsContext {
   const { timeout = 3000, ...registryOptions } = options
 
-  const registry = createRegistry<E>({
+  const registry = createRegistry<NotificationTicket>({
     ...registryOptions,
     events: true,
     reactive: true,
@@ -172,7 +168,7 @@ export function createNotifications<
   })
 
   // When a ticket is removed from registry, also remove from queue
-  registry.on('unregister:ticket', (ticket: E) => {
+  registry.on('unregister:ticket', (ticket: NotificationTicket) => {
     if (queue.has(ticket.id)) {
       queue.unregister(ticket.id)
     }
@@ -185,7 +181,7 @@ export function createNotifications<
    * @returns A partial ticket with timestamps, lifecycle methods, and an ID.
    * @internal Used by {@link send}, {@link register}, and {@link onboard}.
    */
-  function hydrate (input: Z): Partial<E> {
+  function hydrate (input: NotificationInput): Partial<NotificationTicket> {
     const id = input.id ?? useId()
     const now = new Date()
 
@@ -205,7 +201,7 @@ export function createNotifications<
       snooze: (until: Date) => snooze(id, until),
       wake: () => wake(id),
       dismiss: () => queue.unregister(id),
-    } as unknown as Partial<E>
+    } as unknown as Partial<NotificationTicket>
   }
 
   /**
@@ -241,7 +237,7 @@ export function createNotifications<
    * ticket.dismiss() // removes from toast queue, keeps in registry
    * ```
    */
-  function send (input: Z): E {
+  function send (input: NotificationInput): NotificationTicket {
     const ticket = registry.register(hydrate(input))
 
     queue.register(isUndefined(input.timeout) ? { id: ticket.id } : { id: ticket.id, timeout: input.timeout })
@@ -279,7 +275,7 @@ export function createNotifications<
    * ticket.archive()
    * ```
    */
-  function register (input: Z): E {
+  function register (input: NotificationInput): NotificationTicket {
     return registry.register(hydrate(input))
   }
 
@@ -311,7 +307,7 @@ export function createNotifications<
    * console.log(notifications.values().length) // 2 (in registry)
    * ```
    */
-  function onboard (inputs: Z[]): E[] {
+  function onboard (inputs: NotificationInput[]): NotificationTicket[] {
     return registry.batch(() => inputs.map(input => register(input)))
   }
 
@@ -340,7 +336,7 @@ export function createNotifications<
    * ```
    */
   function read (id: ID) {
-    registry.upsert(id, { readAt: new Date() } as Partial<E>, 'notification:read')
+    registry.upsert(id, { readAt: new Date() } as Partial<NotificationTicket>, 'notification:read')
   }
 
   /**
@@ -361,7 +357,7 @@ export function createNotifications<
    * ```
    */
   function unread (id: ID) {
-    registry.upsert(id, { readAt: null } as Partial<E>, 'notification:unread')
+    registry.upsert(id, { readAt: null } as Partial<NotificationTicket>, 'notification:unread')
   }
 
   /**
@@ -385,7 +381,7 @@ export function createNotifications<
    * ```
    */
   function seen (id: ID) {
-    registry.upsert(id, { seenAt: new Date() } as Partial<E>, 'notification:seen')
+    registry.upsert(id, { seenAt: new Date() } as Partial<NotificationTicket>, 'notification:seen')
   }
 
   /**
@@ -406,7 +402,7 @@ export function createNotifications<
    * ```
    */
   function archive (id: ID) {
-    registry.upsert(id, { archivedAt: new Date() } as Partial<E>, 'notification:archived')
+    registry.upsert(id, { archivedAt: new Date() } as Partial<NotificationTicket>, 'notification:archived')
   }
 
   /**
@@ -427,7 +423,7 @@ export function createNotifications<
    * ```
    */
   function unarchive (id: ID) {
-    registry.upsert(id, { archivedAt: null } as Partial<E>, 'notification:unarchived')
+    registry.upsert(id, { archivedAt: null } as Partial<NotificationTicket>, 'notification:unarchived')
   }
 
   /**
@@ -452,7 +448,7 @@ export function createNotifications<
    * ```
    */
   function snooze (id: ID, until: Date) {
-    registry.upsert(id, { snoozedUntil: until } as Partial<E>, 'notification:snoozed')
+    registry.upsert(id, { snoozedUntil: until } as Partial<NotificationTicket>, 'notification:snoozed')
   }
 
   /**
@@ -473,7 +469,7 @@ export function createNotifications<
    * ```
    */
   function wake (id: ID) {
-    registry.upsert(id, { snoozedUntil: null } as Partial<E>, 'notification:unsnoozed')
+    registry.upsert(id, { snoozedUntil: null } as Partial<NotificationTicket>, 'notification:unsnoozed')
   }
 
   /**
@@ -504,7 +500,7 @@ export function createNotifications<
     registry.batch(() => {
       for (const ticket of registry.values()) {
         if (isNull(ticket.readAt)) {
-          registry.upsert(ticket.id, { readAt: now } as Partial<E>, 'notification:read')
+          registry.upsert(ticket.id, { readAt: now } as Partial<NotificationTicket>, 'notification:read')
         }
       }
     })
@@ -538,7 +534,7 @@ export function createNotifications<
     registry.batch(() => {
       for (const ticket of registry.values()) {
         if (isNull(ticket.archivedAt)) {
-          registry.upsert(ticket.id, { archivedAt: now } as Partial<E>, 'notification:archived')
+          registry.upsert(ticket.id, { archivedAt: now } as Partial<NotificationTicket>, 'notification:archived')
         }
       }
     })
@@ -562,7 +558,7 @@ export function createNotifications<
     get size () {
       return registry.size
     },
-  } as unknown as R
+  } as unknown as NotificationsContext
 }
 
 export interface NotificationsPluginOptions extends NotificationsOptions {

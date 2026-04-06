@@ -122,9 +122,9 @@ export function createValidation (_options: ValidationOptions = {}): ValidationC
   function register (input: RuleInput | Partial<ValidationTicketInput>): ValidationTicket {
     if (isFunction(input) || isString(input) || isStandardSchema(input)) {
       const resolved = rulesContext.resolve([input as RuleInput])
-      return group.register({ value: resolved[0] ?? (() => true) } as Partial<ValidationTicketInput>)
+      return group.register({ value: resolved[0] ?? (() => true) }) as ValidationTicket
     }
-    return group.register(input as Partial<ValidationTicketInput>)
+    return group.register(input) as ValidationTicket
   }
 
   function onboard (rules: (RuleInput | Partial<ValidationTicketInput>)[]): ValidationTicket[] {

@@ -30,7 +30,7 @@ import { computed, shallowReactive, toRef, toValue } from 'vue'
 import { toArray } from '#v0/composables/toArray'
 
 // Types
-import type { GroupTicket, GroupTicketInput } from '#v0/composables/createGroup'
+import type { GroupTicketInput } from '#v0/composables/createGroup'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { ID } from '#v0/types'
 import type {
@@ -62,8 +62,6 @@ function resolveOpenStrategy (open: NestedOpenMode = 'multiple') {
  * and hierarchical data structures.
  *
  * @param options The options for the nested instance.
- * @template Z The type of the nested ticket.
- * @template E The type of the nested context.
  * @returns A new nested instance with tree management capabilities.
  *
  * @remarks
@@ -94,11 +92,7 @@ function resolveOpenStrategy (open: NestedOpenMode = 'multiple') {
  * console.log(tree.opened('root')) // true
  * ```
  */
-export function createNested<
-  Z extends NestedTicketInput = NestedTicketInput,
-  E extends NestedTicket<Z> = NestedTicket<Z>,
-  R extends NestedContext<Z, E> = NestedContext<Z, E>,
-> (_options: NestedOptions = {}): R {
+export function createNested (_options: NestedOptions = {}): NestedContext {
   const {
     open: openMode = 'multiple',
     openAll = false,
@@ -115,7 +109,7 @@ export function createNested<
   // Resolve open strategy: explicit openStrategy takes precedence over open mode
   const resolvedOpenStrategy = openStrategy ?? resolveOpenStrategy(openMode)
 
-  const group = createGroup<GroupTicketInput, GroupTicket>(options)
+  const group = createGroup(options)
   const logger = useLogger()
 
   const children = shallowReactive(new Map<ID, ID[]>())
@@ -401,13 +395,13 @@ export function createNested<
    * A node is visible if all its ancestors are open.
    * Used by useRovingFocus to determine keyboard navigation order.
    */
-  function visibleItems (): E[] {
-    const result: E[] = []
+  function visibleItems (): NestedTicket[] {
+    const result: NestedTicket[] = []
     const rootItems = Array.from(rootIds)
 
     function walk (ids: ID[]) {
       for (const id of ids) {
-        const item = group.get(id) as E | undefined
+        const item = group.get(id) as NestedTicket | undefined
         if (!item) continue
         result.push(item)
 
@@ -601,7 +595,7 @@ export function createNested<
   }
 
   // Registration
-  function register (registration: NestedRegistration<Z> = {} as NestedRegistration<Z>): E {
+  function register (registration: NestedRegistration<NestedTicketInput> = {} as NestedRegistration<NestedTicketInput>): NestedTicket {
     const id = registration.id ?? useId()
     const parentId = registration.parentId
     const nested = registration.children
@@ -668,7 +662,7 @@ export function createNested<
       position: () => position(id),
     }
 
-    const ticket = group.register(item as Partial<GroupTicketInput>) as unknown as E
+    const ticket = group.register(item as Partial<GroupTicketInput>) as unknown as NestedTicket
 
     // Override group-level selection methods with cascade-aware versions
     ticket.select = () => select(id)
@@ -682,7 +676,7 @@ export function createNested<
     // Recursively register nested children
     if (nested?.length) {
       for (const child of nested) {
-        register({ ...child, parentId: id } as NestedRegistration<Z>)
+        register({ ...child, parentId: id } as NestedRegistration<NestedTicketInput>)
       }
     }
 
@@ -750,7 +744,7 @@ export function createNested<
     }
   }
 
-  function onboard (registrations: NestedRegistration<Z>[]): E[] {
+  function onboard (registrations: NestedRegistration<NestedTicketInput>[]): NestedTicket[] {
     batching = true
     pendingChildren = new Map()
     pendingParents = new Map()
@@ -848,7 +842,7 @@ export function createNested<
     get size () {
       return group.size
     },
-  } as unknown as R
+  } as unknown as NestedContext
 
   return context
 }
@@ -871,20 +865,16 @@ export function createNested<
  * // In child: const tree = useTree()
  * ```
  */
-export function createNestedContext<
-  Z extends NestedTicketInput = NestedTicketInput,
-  E extends NestedTicket<Z> = NestedTicket<Z>,
-  R extends NestedContext<Z, E> = NestedContext<Z, E>,
-> (_options: NestedContextOptions = {}): ContextTrinity<R> {
+export function createNestedContext (_options: NestedContextOptions = {}): ContextTrinity<NestedContext> {
   const { namespace = 'v0:nested', ...options } = _options
-  const [useNestedContext, _provideNestedContext] = createContext<R>(namespace)
-  const context = createNested<Z, E, R>(options)
+  const [useNestedContext, _provideNestedContext] = createContext<NestedContext>(namespace)
+  const context = createNested(options)
 
-  function provideNestedContext (_context: R = context, app?: App): R {
+  function provideNestedContext (_context: NestedContext = context, app?: App): NestedContext {
     return _provideNestedContext(_context, app)
   }
 
-  return createTrinity<R>(useNestedContext, provideNestedContext, context)
+  return createTrinity<NestedContext>(useNestedContext, provideNestedContext, context)
 }
 
 /**
@@ -895,12 +885,8 @@ export function createNestedContext<
  *
  * @see https://0.vuetifyjs.com/composables/selection/create-nested
  */
-export function useNested<
-  Z extends NestedTicketInput = NestedTicketInput,
-  E extends NestedTicket<Z> = NestedTicket<Z>,
-  R extends NestedContext<Z, E> = NestedContext<Z, E>,
-> (namespace = 'v0:nested'): R {
-  return useContext<R>(namespace)
+export function useNested (namespace = 'v0:nested'): NestedContext {
+  return useContext<NestedContext>(namespace)
 }
 
 export { type NestedActiveMode, type NestedContext, type NestedContextOptions, type NestedOpenMode, type NestedOptions, type NestedRegistration, type NestedSelectionMode, type NestedTicket, type NestedTicketInput, type OpenStrategy, type OpenStrategyContext } from './types'

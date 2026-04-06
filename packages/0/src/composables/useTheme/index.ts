@@ -235,8 +235,6 @@ export interface ThemePluginOptions extends ThemeContextOptions {
  * Creates a new theme instance.
  *
  * @param options The options for the theme instance.
- * @template Z The type of the theme ticket.
- * @template E The type of the theme context.
  * @returns A new theme instance.
  *
  * @see https://0.vuetifyjs.com/composables/plugins/use-theme
@@ -266,11 +264,7 @@ export interface ThemePluginOptions extends ThemeContextOptions {
  * ```
  */
 
-export function createTheme<
-  Z extends ThemeTicketInput = ThemeTicketInput,
-  E extends ThemeTicket<Z> = ThemeTicket<Z>,
-  R extends ThemeContext<Z, E> = ThemeContext<Z, E>,
-> (_options: ThemeOptions = {}): R {
+export function createTheme (_options: ThemeOptions = {}): ThemeContext {
   const { themes = {}, palette = {}, foreground: genForeground, ...options } = _options
   const tokens = createTokens({ palette, ...themes }, { flat: true })
   const registry = createSingle<SingleTicketInput<ThemeColors>, SingleTicket<SingleTicketInput<ThemeColors>>>(options)
@@ -278,7 +272,7 @@ export function createTheme<
   for (const id in themes) {
     const { colors: value, ...theme } = themes[id]!
 
-    register({ id, value, ...theme } as Partial<Z>)
+    register({ id, value, ...theme } as Partial<ThemeTicketInput>)
 
     if (id === options.default && !registry.selectedId.value) {
       registry.select(id as ID)
@@ -329,8 +323,8 @@ export function createTheme<
     return resolved
   }
 
-  function register (registration: Partial<Z> = {} as Partial<Z>): E {
-    const { colors, ...rest } = registration as Partial<Z> & { colors?: ThemeColors }
+  function register (registration: Partial<ThemeTicketInput> = {} as Partial<ThemeTicketInput>): ThemeTicket {
+    const { colors, ...rest } = registration as Partial<ThemeTicketInput> & { colors?: ThemeColors }
 
     if (colors && rest.id && !registry.has(rest.id)) {
       tokens.onboard(flatten({ [rest.id]: { colors } }, '', true))
@@ -343,10 +337,10 @@ export function createTheme<
       ...(colors ? { value: colors } : {}),
     }
 
-    return registry.register(item as unknown as Partial<SingleTicketInput<ThemeColors>>) as unknown as E
+    return registry.register(item as unknown as Partial<SingleTicketInput<ThemeColors>>) as unknown as ThemeTicket
   }
 
-  function onboard (registrations: Partial<Z>[]): E[] {
+  function onboard (registrations: Partial<ThemeTicketInput>[]): ThemeTicket[] {
     return registry.batch(() => registrations.map(registration => register(registration)))
   }
 
@@ -360,20 +354,16 @@ export function createTheme<
     get size () {
       return registry.size
     },
-  } as unknown as R
+  } as unknown as ThemeContext
 }
 
-function createThemeFallback<
-  Z extends ThemeTicketInput = ThemeTicketInput,
-  E extends ThemeTicket<Z> = ThemeTicket<Z>,
-  R extends ThemeContext<Z, E> = ThemeContext<Z, E>,
-> (): R {
+function createThemeFallback (): ThemeContext {
   return {
     size: 0,
     colors: computed(() => ({})),
     isDark: shallowRef(false),
     cycle: () => {},
-  } as unknown as R
+  } as unknown as ThemeContext
 }
 
 export const [createThemeContext, createThemePlugin, useTheme] =
