@@ -72,6 +72,17 @@ flowchart TD
   usePopover --> Tooltip["Tooltip / Menu"]
 ```
 
+## Options
+
+| Option | Type | Default | Notes |
+| - | - | - | - |
+| `id` | `string` | auto | Base ID for anchor name and popover `id`. Auto-generated if not provided |
+| `positionArea` | `string` | `'bottom'` | CSS `position-area` value — controls where the content appears relative to the anchor |
+| `positionTry` | `string` | `'most-width bottom'` | CSS `position-try-fallbacks` value — fallback positions when the primary area overflows |
+| `isOpen` | `Ref<boolean>` | — | External ref for bidirectional open state (e.g., from `defineModel`) |
+| `showDelay` | `number` | `0` | Milliseconds to wait before showing the popover (hover/focus use cases) |
+| `hideDelay` | `number` | `0` | Milliseconds to wait before hiding the popover (prevents premature close on mouse leave) |
+
 ## Reactivity
 
 | Property/Method | Reactive | Notes |
