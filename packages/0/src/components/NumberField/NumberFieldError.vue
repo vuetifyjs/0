@@ -29,8 +29,6 @@
   }
 
   export interface NumberFieldErrorSlotProps {
-    /** ID for this error element */
-    id: string
     /** Current validation error messages */
     errors: string[]
     /** Pre-computed attributes for the error element */
@@ -66,7 +64,6 @@
   onBeforeUnmount(() => ticket.unregister())
 
   const slotProps = toRef((): NumberFieldErrorSlotProps => ({
-    id: root.errorId,
     errors: errors.value,
     attrs: {
       'id': root.errorId,
