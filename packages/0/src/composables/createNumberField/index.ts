@@ -198,11 +198,15 @@ export function createNumberField (options: NumberFieldOptions = {}): NumberFiel
 
   function commit (): void {
     if (isNull(value.value)) return
-    let result = numeric.snap(value.value)
     if (!shouldClamp && (value.value < numeric.min || value.value > numeric.max)) {
-      result = value.value
+      // Snap to nearest step without clamping to [min, max]
+      if (numeric.step > 0 && Number.isFinite(numeric.min)) {
+        const steps = Math.round((value.value - numeric.min) / numeric.step)
+        value.value = numeric.min + steps * numeric.step
+      }
+      return
     }
-    value.value = result
+    value.value = numeric.snap(value.value)
   }
 
   return {

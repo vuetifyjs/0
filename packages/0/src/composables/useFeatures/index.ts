@@ -68,6 +68,8 @@ export interface FeatureContext<
   sync: (flags: FeaturesAdapterFlags) => void
   /** Register a feature (accepts input type, returns output type) */
   register: (registration?: Partial<Z>) => E
+  /** Bulk-register multiple features in a single batch. */
+  onboard: (registrations: Partial<Z>[]) => E[]
 }
 
 export interface FeatureOptions extends RegistryOptions {
@@ -194,6 +196,7 @@ function createFeaturesFallback (): FeatureContext {
     size: 0,
     variation: (_id: ID, fallback: unknown = null) => fallback,
     sync: () => {},
+    onboard: () => [],
   } as unknown as FeatureContext
 }
 

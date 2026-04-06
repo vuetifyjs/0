@@ -180,6 +180,8 @@ export interface ThemeContext<
    * ```
    */
   register: (registration?: Partial<Z>) => E
+  /** Bulk-register multiple themes in a single batch. */
+  onboard: (registrations: Partial<Z>[]) => E[]
 }
 
 export interface ThemeOptions<Z extends ThemeRecord = ThemeRecord> extends RegistryOptions {
@@ -363,7 +365,8 @@ function createThemeFallback (): ThemeContext {
     colors: computed(() => ({})),
     isDark: shallowRef(false),
     cycle: () => {},
-  } as ThemeContext
+    onboard: () => [],
+  } as unknown as ThemeContext
 }
 
 export const [createThemeContext, createThemePlugin, useTheme] =

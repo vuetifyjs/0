@@ -229,7 +229,7 @@ export const [createLoggerContext, createLoggerPlugin, useLogger] =
       fallback: ns => createFallbackLogger(ns),
       setup: (context, _app, _options) => {
         if (typeof __DEV__ !== 'undefined' && __DEV__ && IN_BROWSER) {
-          ;(window as any).__v0Logger__ = context
+          ;(window as unknown as Record<string, unknown>).__v0Logger__ = context
         }
       },
     },
