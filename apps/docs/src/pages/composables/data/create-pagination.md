@@ -83,11 +83,20 @@ flowchart LR
 | Property/Method | Reactive | Notes |
 | - | :-: | - |
 | `page` | <AppSuccessIcon /> | WritableComputedRef, auto-clamps when total pages shrinks |
+| `pages` | <AppSuccessIcon /> | Total page count, computed from `size / itemsPerPage` |
 | `items` | <AppSuccessIcon /> | Computed, visible page buttons with ellipsis |
 | `pageStart` | <AppSuccessIcon /> | Computed, start index for current page |
 | `pageStop` | <AppSuccessIcon /> | Computed, end index for current page |
 | `isFirst` | <AppSuccessIcon /> | Computed, true when on first page |
 | `isLast` | <AppSuccessIcon /> | Computed, true when on last page |
+| `itemsPerPage` | <AppErrorIcon /> | Getter — current items per page (reflects option) |
+| `size` | <AppErrorIcon /> | Getter — total item count (reflects option) |
+| `ellipsis` | <AppErrorIcon /> | Getter — the ellipsis string or `false` when disabled |
+| `select(page)` | - | Navigate to a specific page number |
+| `next()` | - | Go to next page (no-op if already last) |
+| `prev()` | - | Go to previous page (no-op if already first) |
+| `first()` | - | Jump to page 1 |
+| `last()` | - | Jump to final page |
 
 > [!TIP] v-model support
 > Pass a ref as the `page` option to enable two-way binding with your component's page state.
