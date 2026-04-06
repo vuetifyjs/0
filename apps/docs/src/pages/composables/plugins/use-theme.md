@@ -88,8 +88,15 @@ Adapters let you swap the underlying CSS injection strategy without changing you
 
 | Adapter | Import | Description |
 |---------|--------|-------------|
-| `V0StyleSheetThemeAdapter` | `@vuetify/v0` | Injects CSS via `<style>` elements (default) |
-| `V0UnheadThemeAdapter` | `@vuetify/v0/theme/adapters/unhead` | Injects CSS via [Unhead](https://unhead.unjs.io/) for SSR |
+| `V0StyleSheetThemeAdapter` | `@vuetify/v0` | Injects CSS via `adoptedStyleSheets` (default, SPA only) |
+| `V0UnheadThemeAdapter` | `@vuetify/v0/theme/adapters/unhead` | Injects CSS via [Unhead](https://unhead.unjs.io/) for SSR/SSG |
+
+Both adapters set a `data-theme` attribute on the root element. Theme CSS is scoped to `[data-theme="light"]` / `[data-theme="dark"]` selectors so multiple themes can coexist in the same stylesheet.
+
+**When to use each:**
+
+- **`V0StyleSheetThemeAdapter`** (default) — SPAs without SSR. Uses `document.adoptedStyleSheets` to inject a live `CSSStyleSheet` — no DOM `<style>` element, zero flicker, works well with CSP when configured.
+- **`V0UnheadThemeAdapter`** — SSR or SSG (Nuxt, VitePress). Manages the `<style>` tag and `data-theme` attribute via Unhead so the correct theme is rendered in the initial HTML, avoiding a flash of the wrong theme on hydration. Requires `@unhead/vue`.
 
 ## Architecture
 
