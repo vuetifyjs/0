@@ -24,11 +24,19 @@ All helpers are tree-shakeable (`#__NO_SIDE_EFFECTS__`).
 
 ## Ticket Pattern
 
-"Tickets" represent registered items. Base interface:
+"Tickets" represent registered items. Hierarchy:
 
+```
+RegistryTicketInput → ModelTicketInput → SelectionTicketInput → SingleTicketInput → StepTicketInput
+                                        └→ GroupTicketInput → NestedTicketInput
+                   └→ QueueTicketInput
+                   └→ FormTicketInput
+```
+
+Base interface:
 ```ts
 interface RegistryTicket {
-  id: ID               // Unique (auto-generated if not provided)
+  id: ID               // Unique (auto-generated via useId() if not provided)
   index: number        // Position in registry
   value: unknown       // Associated value
   valueIsIndex: boolean // True if value wasn't set
@@ -38,26 +46,28 @@ interface RegistryTicket {
 **Extensions**:
 | Ticket Type | Added Properties |
 |-------------|------------------|
-| `SelectionTicket` | `disabled`, `isSelected`, `select()`, `unselect()`, `toggle()` |
-| `GroupTicket` | `isMixed`, `mix()`, `unmix()`, `indeterminate` |
-| `FormTicket` | `validate()`, `reset()`, `errors`, `isValid`, `isPristine`, `rules` |
+| `ModelTicket` | `disabled`, `isSelected: Readonly<Ref<boolean>>` |
+| `SelectionTicket` | `select()`, `unselect()`, `toggle()` |
+| `GroupTicket` | `isMixed: Readonly<Ref<boolean>>`, `mix()`, `unmix()`, `indeterminate` |
+| `NestedTicket` | `isOpen`, `isActive`, `isLeaf`, `depth`, tree traversal methods |
 | `QueueTicket` | `timeout`, `isPaused`, `dismiss()` |
-| `ThemeTicket` | `lazy`, `dark` |
+| `FormTicket` | `validate()`, `reset()`, `errors`, `isValid`, `isPristine`, `rules` |
 
-## Spread Pattern for Extension
+**Input → Output naming**: Always `FooTicketInput` → `FooTicket`. Both defined as a pair.
 
-Composables extend via object spreading:
+**Ticket state typing**:
+- Boolean state: `Readonly<Ref<boolean>>` (e.g., `isSelected`, `isMixed`)
+- Methods: plain functions, no parameters (self-reference via closure)
+- Config: `MaybeRefOrGetter<T>` on input, plain on output
+
+## Spread Pattern for Extension (100% enforced)
+
+Composables extend via object spreading. Never override — spread then add:
 
 ```ts
-function createSelection() {
-  const registry = createRegistry()
-  const selectedIds = shallowReactive(new Set())
-
-  return {
-    ...registry,    // Spread base
-    selectedIds,    // Add new
-    select,
-  } as E
+function createSelection(options) {
+  const model = createModel(options)
+  return { ...model, selectedIds, select, toggle } as E
 }
 ```
 
@@ -67,29 +77,46 @@ function createSelection() {
 - `computed()` for derived collections
 - Cache iterations in Maps, invalidate on mutation
 
-## Validation Patterns
+## Adapter Pattern
 
-Async validation signature:
+Adapters enable framework-agnostic logic. Located in `composables/useX/adapters/`.
+
+**Standard adapter structure**:
 ```ts
-type Rule = (value: T) => string | true | Promise<string | true>
+// Interface: what the adapter must implement
+export interface FooAdapter {
+  setup?: (context: FooAdapterContext) => void
+  dispose?: () => void
+  // domain-specific methods
+}
+
+// Default: V0-prefixed
+export class V0FooAdapter implements FooAdapter { ... }
+
+// Third-party: original branding
+export class PinoLoggerAdapter implements LoggerAdapter { ... }
 ```
-- String = error message
-- `true` = valid
+
+**Adapter lifecycle** (when setup exists):
+```ts
+// In plugin setup:
+adapter.setup(context)
+if (adapter.dispose) {
+  app.onUnmount(() => adapter.dispose!())
+}
+```
+
+**Fallback strategies** (pick one per composable):
+1. **Required** — throw if missing (useDate)
+2. **Default instance** — V0 adapter as fallback (useLogger, useStorage)
+3. **Empty context** — functional but empty (useTheme, useFeatures)
+4. **Graceful degradation** — partial functionality (useLocale, useRtl)
 
 ## SSR Support
 
 - `IN_BROWSER` constant from `#v0/constants/globals`
 - `useHydration` composable (SSR-aware, used internally by observers)
-- Theme adapter checks `IN_BROWSER` before DOM ops
-
-## Token Flattening
-
-`createTokens` flattens nested objects:
-```ts
-{ colors: { blue: { 500: '#3b82f6' } } }
-// → 'colors.blue.500' -> '#3b82f6'
-```
-Uses iterative stack (not recursive) for performance.
+- Adapters with DOM access must check `IN_BROWSER` in their own setters
 
 ## Path Alias
 
@@ -97,7 +124,7 @@ Uses iterative stack (not recursive) for performance.
 
 ```ts
 import { ID } from '#v0/types'
-import { useRegistry } from '#v0/composables/createRegistry'
+import { createRegistry } from '#v0/composables/createRegistry'
 import { isObject } from '#v0/utilities'
 ```
 
@@ -105,12 +132,16 @@ import { isObject } from '#v0/utilities'
 
 ```
 packages/0/src/
-├── components/       # Vue components
+├── components/       # Vue components (compound pattern)
 ├── composables/      # Composable functions
-│   └── useX/
-│       ├── index.ts
-│       ├── index.test.ts
-│       └── adapters/
+│   └── createX/
+│       ├── index.ts        # Implementation
+│       ├── index.test.ts   # Tests (colocated)
+│       ├── index.bench.ts  # Benchmarks (if performance-critical)
+│       └── adapters/       # Adapter implementations (if applicable)
+│           ├── index.ts    # Barrel: exports all adapters + interface
+│           ├── v0.ts       # Default V0 adapter
+│           └── pino.ts     # Third-party adapter (optional)
 ├── constants/        # IN_BROWSER, htmlElements
 ├── types/            # Shared types (ID, etc.)
 └── utilities/        # Helpers (use these!)

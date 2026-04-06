@@ -6,32 +6,180 @@ paths: packages/0/src/composables/**
 
 Composables live in `packages/0/src/composables/`.
 
-## Foundation Layer
+## Naming Rules (100% enforced)
 
-### `createContext` - Dependency Injection
-```ts
-const [useContext, provideContext] = createContext<MyContext>('namespace')
-```
-- Type-safe Vue DI wrapper
-- `useContext()` throws if context not found
-- `provideContext(value, app?)` provides to app or component tree
+| Prefix | When to Use | Creates State? | Example |
+|--------|-------------|---------------|---------|
+| `create` | Factory returning new stateful instance. Can be instantiated multiple times. | Yes | `createRegistry()`, `createSelection()` |
+| `use` | DI consumer (`createPluginContext`), browser API wrapper, or lifecycle-aware hook | Varies | `useTheme()`, `useEventListener()` |
+| `to` | Pure stateless transformer — no side effects, no reactivity | No | `toArray()`, `toElement()` |
 
-### `createTrinity` - Context Triple Pattern
-```ts
-const [useX, provideX, defaultX] = createTrinity(useContext, provideContext, defaultContext)
-```
-- Returns readonly tuple: `[use, provide, default]`
-- Third element is fallback context instance
-- Most complex composables export a trinity
+**Trinity export**: When a composable needs subtree scoping via Vue DI.
+- `createXContext()` → registries: returns `[useX, provideX, defaultX]`
+- `createPluginContext()` → plugins: returns `[createXContext, createXPlugin, useX]`
+- **No trinity** → plain factories owned by caller or internal helpers
 
-### `createPlugin` - Vue Plugin Factory
+## Factory Function Pattern (100% enforced)
+
 ```ts
-createPlugin({
-  namespace: 'v0:feature',
-  provide: (app) => { /* provide context */ },
-  setup: (app) => { /* optional setup */ }
-})
+/**
+ * @module createFoo
+ * @see https://0.vuetifyjs.com/composables/category/create-foo
+ * @remarks Description of what this composable does.
+ * @example
+ * ```ts
+ * const foo = createFoo({ bar: true })
+ * ```
+ */
+
+// Globals
+import { IN_BROWSER } from '#v0/constants/globals'
+
+// Composables
+import { createRegistry } from '#v0/composables/createRegistry'
+
+// Utilities
+import { isNull } from '#v0/utilities'
+
+// Types
+import type { ID } from '#v0/types'
+
+export interface FooOptions extends RegistryOptions {
+  disabled?: MaybeRefOrGetter<boolean>  // Reactive state → MaybeRefOrGetter
+  namespace?: string                     // Configuration → plain value
+}
+
+export interface FooContext<
+  Z extends FooTicketInput = FooTicketInput,
+  E extends FooTicket<Z> = FooTicket<Z>,
+> extends Omit<RegistryContext<Z, E>, 'register'> {
+  register: (registration?: Partial<Z>) => E
+}
+
+export function createFoo<
+  Z extends FooTicketInput = FooTicketInput,
+  E extends FooTicket<Z> = FooTicket<Z>,
+>(options: FooOptions = {}): FooContext<Z, E> {
+  const { disabled, namespace = 'v0:foo' } = options
+
+  const registry = createRegistry<Z, E>(options)
+
+  // ... implementation
+
+  return {
+    ...registry,     // Always spread parent
+    // new properties
+  } as FooContext<Z, E>
+}
 ```
+
+### Import Section Order (100% enforced)
+
+Always grouped with comments, always `#v0/` alias:
+1. `// Globals` — imports from `#v0/constants/globals`
+2. `// Composables` — imports from `#v0/composables/`
+3. `// Adapters` — imports from local `./adapters/`
+4. `// Utilities` — imports from `#v0/utilities`
+5. `// Transformers` — imports from `#v0/composables/toX`
+6. `// Types` — `import type` blocks (always last)
+7. `// Exports` — re-exports of adapter types (if applicable)
+
+### JSDoc (100% enforced)
+
+Every composable requires at the top of `index.ts`:
+- `@module` — composable name
+- `@see` — link to docs page
+- `@remarks` — purpose and key features
+- `@example` — usage example (at least one)
+
+## Reactive Primitives (100% enforced)
+
+| Primitive | When to Use |
+|-----------|-------------|
+| `shallowRef(value)` | Single mutable UI state (booleans, numbers, strings) |
+| `shallowReactive(new Set())` | Mutable ID collections |
+| `computed(() => ...)` | Derived state (filtering, mapping, aggregation) |
+| `toRef(() => ...)` | Simple property access, ternaries, cheap derivations |
+| `ref(value)` | Mutable objects/arrays that need deep tracking |
+| `readonly()` / `shallowReadonly()` | Plugin singletons exposed to consumers |
+
+**Rule**: Registry collections stay mutable. Plugin singletons get readonly wrapping.
+
+## Options Reactivity (100% enforced)
+
+| Option Type | Pattern | Example |
+|-------------|---------|---------|
+| UI state (disabled, readonly, error) | `MaybeRefOrGetter<T>` | `disabled?: MaybeRefOrGetter<boolean>` |
+| Configuration (events, namespace) | Plain `T` | `namespace?: string` |
+| Reactive logic (keys, filters) | `MaybeRefOrGetter<T>` | `keys?: MaybeRefOrGetter<string[]>` |
+
+## Error Handling Philosophy (95% enforced)
+
+| Situation | Action |
+|-----------|--------|
+| Missing required context/plugin | `throw new Error()` |
+| Data integrity (duplicate IDs, circular refs) | `logger.warn()` via `useLogger()` |
+| Runtime logic (disabled, not found) | Silent return (`return` / `return false`) |
+
+**Never** use `console.warn` directly — always `useLogger()`.
+
+## Cleanup Pattern
+
+| Composable Type | Cleanup |
+|-----------------|---------|
+| DOM observers, event listeners | `onScopeDispose(cleanup)` |
+| Performance-critical DOM observers | `onScopeDispose(cleanup, true)` (deferred) |
+| Pure data structures, computed state | No cleanup needed (Vue handles it) |
+
+## Composition Patterns (4 canonical styles)
+
+### 1. Extension (spread override)
+```ts
+// Child spreads parent and adds/overrides
+const selection = createModel(options)
+return { ...selection, selectedIds, select, toggle }
+```
+Used by: Selection chain (createModel → createSelection → createSingle → createGroup → createStep)
+
+### 2. Aggregation (multi-system)
+```ts
+// Orchestrator composes independent systems
+return { selection: createSelection(), popover: usePopover(), cursor: useVirtualFocus() }
+```
+Used by: createCombobox, createDataTable
+
+### 3. Plugin Context (singleton)
+```ts
+// App-level state via createPluginContext
+export const [createXContext, createXPlugin, useX] = createPluginContext('v0:x', ...)
+```
+Used by: useTheme, useLocale, useLogger, useStack, etc.
+
+### 4. Adapter (pluggable implementation)
+```ts
+// Swappable behavior via adapter interface
+function createFoo({ adapter = new V0FooAdapter() }) { adapter.setup(context) }
+```
+Used by: Theme, Logger, Date, Locale, Storage, Notifications, DataTable, Combobox
+
+## Dependency Layers
+
+```
+Layer 0: Foundation (no v0 deps)
+  createContext, createRegistry, createModel, createNumeric,
+  createObserver, createPlugin, createTrinity,
+  toArray, toElement, toReactive,
+  useEventListener, useHydration, useTimer, useMediaQuery, etc.
+
+Layer 1: Single-layer deps
+  useBreakpoints, useLocale, useTheme, useRules, etc.
+
+Layer 2: Complex orchestrators
+  createSelection → createSingle → createGroup → createStep
+  createCombobox, createDataTable
+```
+
+**Never** depend upward. Foundation must not import from Layer 1+.
 
 ## Registry System
 
@@ -39,167 +187,27 @@ createPlugin({
 
 **Core Concept**: Manages "tickets" with `id`, `index`, `value`, `valueIsIndex`
 
-**Features**:
-- **Collection**: `Map<ID, Ticket>`
-- **Catalog**: Reverse lookup `value -> ID(s)` via `browse(value)`
-- **Directory**: Index lookup via `lookup(index)`
-- **Caching**: `keys()`, `values()`, `entries()` cached, invalidated on mutation
-- **Events**: Optional `register`/`unregister` emission
-
-**API**:
-```ts
-registry.register({ id: 'item-1', value: 'foo' })
-registry.get('item-1')
-registry.browse('foo')      // Find ID(s) by value
-registry.lookup(0)          // Get ID by index
-registry.upsert('item-1', {...})
-registry.unregister('item-1')
-registry.move('item-1', 2)  // Move to index 2
-registry.onboard([...])     // Bulk register
-```
+**Extension**: Always via `...spread` pattern. 100% consistent across all 27 registry-based composables.
 
 ## Selection System
 
 ### `createSelection` - Base Selection
-- `selectedIds`: `Set<ID>` (reactive)
-- `mandatory`: Prevents deselecting last item
-- `enroll`: Auto-select non-disabled on register
-- Tickets get: `isSelected`, `select()`, `unselect()`, `toggle()`
-
 ### `createSingle` - Single Selection
-- Clears `selectedIds` before selecting
-- Adds: `selectedId`, `selectedItem`, `selectedIndex`, `selectedValue`
-
 ### `createGroup` - Multi-Selection + Tri-State
-- Accepts `ID | ID[]` for batch ops
-- Tri-state: `isMixed`, `mix()`, `unmix()`, `indeterminate`
-- Batch: `selectAll()`, `unselectAll()`, `toggleAll()`
-
 ### `createStep` - Navigation
-- Extends `createSingle`
-- `first()`, `last()`, `next()`, `prev()`, `step(count)`
-- Circular navigation, skips disabled
-
 ### `createModel` - Value Store
-- Sits between registry and selection
-- `enroll` option: auto-select on register
-- `apply()` for computed property application
-- `multiple` option for multi-select accumulation
-- Accepts getters via `MaybeRefOrGetter`
-
 ### `createNested` - Hierarchical Selection
-- Parent-child tree relationships
-- Active state management with cascade
-- Cascade ticket selection through nested registers
-- `mandatory` + `multiple` in cascade selection
 
-## Token System
+See CLAUDE.md for full API reference.
 
-### `createTokens` - Design Token Registry
-```ts
-const tokens = createTokens({
-  colors: {
-    blue: { 500: '#3b82f6' },
-    primary: '{colors.blue.500}'  // Alias
-  }
-}, { flat: true })
+## Scope Guards
 
-tokens.resolve('{colors.primary}')  // '#3b82f6'
-```
+| Composable Type | Guard |
+|-----------------|-------|
+| Needs global/injected context | `instanceExists()` check with fallback |
+| Pure utilities | No check — works anywhere |
+| Vue framework integration | `hasInjectionContext()` check |
 
-- Alias syntax: `{path.to.token}`
-- Nested flattening with dot notation
-- Circular alias protection
+## ID Generation (100% enforced)
 
-## Specialized Composables
-
-| Composable | Purpose |
-|------------|---------|
-| `useFeatures` | Feature flags with variations (on `createGroup` + `createTokens`) |
-| `createForm` | Form validation with async rules |
-| `createTimeline` | Bounded undo/redo |
-| `useTheme` | Theme management with CSS variable injection |
-| `createQueue` | FIFO queue for notifications/toasts |
-| `createPagination` | Integer-based page navigation |
-| `createVirtual` | Virtual scrolling |
-| `createOverflow` | Container measurement |
-| `createFilter` | Array filtering |
-| `usePermissions` | RBAC/ABAC on `createTokens` |
-| `useLocale` | i18n with interpolation |
-| `useBreakpoints` | Responsive breakpoint detection |
-| `useLogger` | Pluggable logging with adapters |
-| `useNotifications` | Notification lifecycle with registry + queue, push adapters |
-| `useRtl` | Reactive RTL text direction, `createRtl` factory for custom instances |
-| `useStack` | Overlay z-index stacking, SSR-safe global coordination |
-| `useRules` | Validation rule aliases with locale-aware messages |
-| `createValidation` | Per-field validation with Standard Schema support |
-| `createCombobox` | Autocomplete: coordinates selection, popover, virtual focus, filtering |
-| `createSlider` | Multi-thumb slider: value math, step snapping, constraints |
-| `createInput` | Form field primitive: validation state, ARIA IDs, error messages |
-| `createNumeric` | Bounded numeric math: step, snap, clamp, circular wrapping |
-| `createRating` | Bounded rating with discrete items and half-step support |
-| `useVirtualFocus` | Virtual focus for aria-activedescendant patterns |
-| `useRovingFocus` | Roving tabindex keyboard navigation for composite widgets |
-| `createFocusTraversal` | Focus management primitive with nested contexts |
-| `createBreadcrumbs` | Breadcrumb navigation with path truncation |
-| `createDataTable` | Full data table: sort, filter, paginate, select, expand |
-
-## Reactivity
-
-- **`useProxyModel`**: Bridges selection ↔ v-model
-- **`useProxyRegistry`**: Registry Map → reactive object
-
-## Other Composables
-
-- **`useToggleScope`**: Conditional effect scope management
-- **Observers**: `useResizeObserver`, `useIntersectionObserver`, `useMutationObserver`
-- **Events**: `useEventListener`, `useHotkey`, `useClickOutside`
-- **Storage**: `useStorage` (localStorage/sessionStorage/memory adapters)
-- **Hydration**: `useHydration` (SSR hydration state)
-- **Date**: `useDate` (date manipulation with adapter pattern)
-- **Media**: `useMediaQuery` (reactive media query matching)
-- **Lazy**: `useLazy` (deferred content rendering for dialogs, menus, tooltips)
-- **Presence**: `usePresence` (animation-agnostic mount lifecycle state machine)
-- **RAF**: `useRaf` (scope-safe requestAnimationFrame with cancel-then-request pattern)
-- **Timer**: `useTimer` (reactive timer with pause/resume, one-shot or repeating)
-- **Popover**: `usePopover` (native Popover API with CSS anchor positioning)
-- **Transformers**: `toReactive`, `toArray`, `toElement`
-
-## Trinity Pattern
-
-All applicable composables export both:
-1. Direct `useX()` for standalone use
-2. `createX()` returning trinity
-
-```ts
-const theme = useTheme()
-
-const [useMyTheme, provideMyTheme, defaultTheme] = createTheme({
-  namespace: 'my-theme',
-  ...options
-})
-```
-
-## Adapter Pattern
-
-Adapters enable framework-agnostic logic:
-- **Theme**: `V0StyleSheetThemeAdapter`, `V0UnheadThemeAdapter`
-- **RTL**: `Vuetify0RtlAdapter`
-- **Locale**: `VueI18nLocaleAdapter`
-- **Features**: Generic, LaunchDarkly, Flagsmith adapters
-- **Date**: multiple calendar libraries
-- **Logger**: Consola, Pino, v0 fallback
-- **Notifications**: Knock, Novu adapters
-- **Storage**: localStorage/sessionStorage/memory
-
-Location: `composables/useX/adapters/`
-
-## Conventions
-
-- `use` prefix for composables, `create` for factories
-- Each in own directory with `index.ts`
-- **@module JSDoc required** at line 1
-- Tests colocated: `index.test.ts`
-- Benchmarks: `index.bench.ts` where performance-critical
-- Generic constraints: `Z extends TicketType`, `E extends ContextType`
-- Path alias: `#v0/` → `packages/0/src/`
+Always use `useId()` from `#v0/utilities`. Never auto-increment. SSR-safe.

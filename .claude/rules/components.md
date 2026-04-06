@@ -6,93 +6,231 @@ paths: packages/0/src/components/**
 
 All components follow the **compound component pattern** in `packages/0/src/components/`.
 
-## Pattern Overview
+## Directory Structure (92% compound)
 
-- **Compound**: Root + sub-components (e.g., `SelectionRoot`, `SelectionItem`)
-- **Context-driven**: Root creates/provides, items consume
-- **Generic v-model**: `<script setup generic="T">` for type-safe binding
-- **ProxyModel**: `useProxyModel` bridges selection ↔ v-model
-- **Devtools**: Include `defineEmits` alongside `defineModel`
-
-```vue
-<SelectionRoot v-model="selected" multiple>
-  <SelectionItem value="a">Option A</SelectionItem>
-  <SelectionItem value="b">Option B</SelectionItem>
-</SelectionRoot>
+```
+ComponentName/
+├── ComponentNameRoot.vue      # Required: creates context, provides to children
+├── ComponentNameItem.vue      # Sub-component consuming context
+├── ComponentNameActivator.vue # Sub-component (optional)
+├── ComponentNameContent.vue   # Sub-component (optional)
+├── index.ts                   # Barrel exports (required)
+├── index.test.ts              # Tests (required)
+└── types.ts                   # Shared types (only if needed across sub-components)
 ```
 
-## Component List
+**Exceptions**: Form, Portal, Presence, Scrim are single-file components (no sub-components).
 
-| Component | Description | Sub-components |
-|-----------|-------------|----------------|
-| **Atom** | Polymorphic foundation. `as` prop for element type. | — |
-| **Avatar** | Image with fallback | Root, Image, Fallback |
-| **Checkbox** | Standalone or group checkbox with tri-state | Root, Group, SelectAll, Indicator, HiddenInput |
-| **Dialog** | Modal overlay with focus trapping | Root, Activator, Content, Title, Description, Close |
-| **ExpansionPanel** | Accordion/collapsible | Root, Item, Header, Activator, Content |
-| **Group** | Multi-selection + tri-state | Root, Item |
-| **Pagination** | Page navigation with ellipsis | Root, Item, First, Prev, Next, Last, Ellipsis, Status |
-| **Popover** | Toggle/visibility | Root, Anchor, Content |
-| **Select** | Dropdown select with single/multi mode | Root, Activator, Value, Content, Item |
-| **Selection** | Generic single/multi via `multiple` prop | Root, Item |
-| **Single** | Single-selection specialization | Root, Item |
-| **Step** | Stepper navigation | Root, Item |
+## Script Structure (92% dual-script)
+
+**Standard**: Dual-script with imports/types in regular script, logic in setup:
+
+```vue
+<script lang="ts">
+  // Components
+  import { Atom } from '#v0/components/Atom'
+
+  // Composables
+  import { createContext } from '#v0/composables'
+
+  // Utilities
+  import { useId } from '#v0/utilities'
+
+  // Types
+  import type { AtomProps } from '#v0/components/Atom'
+
+  export interface ComponentRootProps extends AtomProps {
+    namespace?: string
+    disabled?: boolean
+  }
+
+  export interface ComponentRootSlotProps {
+    isDisabled: boolean
+    attrs: {
+      'role': string
+      'aria-disabled': true | undefined
+      'data-disabled': true | undefined
+    }
+  }
+
+  export const [useComponentRoot, provideComponentRoot] = createContext<ComponentContext>()
+</script>
+
+<script setup lang="ts">
+  defineOptions({ name: 'ComponentRoot' })
+
+  const {
+    as = 'div',
+    namespace = 'v0:component',
+    disabled = false,
+  } = defineProps<ComponentRootProps>()
+
+  // ... composition logic
+</script>
+
+<template>
+  <Atom :as :renderless>
+    <slot v-bind="slotProps" />
+  </Atom>
+</template>
+```
+
+**With generics**: `<script lang="ts" setup generic="T = unknown">`
+
+### Rules
+- `defineOptions({ name: '...' })` — **always required** (100%)
+- All imports go in `<script lang="ts">`, not `<script setup>`
+- Props interface and slot props interface exported from regular script
+- Context `[useX, provideX]` exported from regular script
 
 ## Context Provision Pattern
 
 ```ts
-// In Root component
-const [, provideSelectionControl, context] = createSelectionContext({
-  mandatory,
-  multiple: false,
-  enroll
-})
-provideSelectionControl(context)
+// Root creates and provides
+export const [useComponentRoot, provideComponentRoot] = createContext<Type>()
 
-// Connect to v-model
+// Sub-components consume
+const context = useComponentRoot(namespace)
+```
+
+**Naming convention**: Use `useComponentRoot` / `provideComponentRoot` for Root-level context.
+
+**Dual context**: Button, Radio, Toggle provide both Root and Group contexts (for standalone vs grouped usage).
+
+## Props Pattern (100% enforced)
+
+```ts
+export interface ComponentRootProps extends AtomProps {
+  namespace?: string    // Always present on Root + sub-components
+  disabled?: boolean    // Always present on interactive Root
+  id?: string           // Auto-generated via useId() if not provided
+}
+
+// Defaults in destructuring, never in interface
+const {
+  as = 'div',
+  namespace = 'v0:component',
+  disabled = false,
+} = defineProps<ComponentRootProps>()
+```
+
+**Never** re-declare inherited AtomProps (`as`, `renderless`).
+
+## Slot Props Pattern (100% enforced)
+
+```ts
+export interface ComponentRootSlotProps {
+  // Boolean state: always `is<State>`
+  isDisabled: boolean
+  isSelected: boolean
+  isOpen: boolean
+
+  // Attrs object: ARIA + data + handlers
+  attrs: {
+    'role': string
+    'aria-disabled': true | undefined
+    'aria-selected': boolean
+    'data-disabled': true | undefined
+    'data-state': 'checked' | 'unchecked' | undefined
+    'onClick': () => void
+    'onKeydown': (e: KeyboardEvent) => void
+  }
+}
+
+// Always computed via toRef
+const slotProps = toRef((): ComponentRootSlotProps => ({
+  isDisabled: isDisabled.value,
+  attrs: { ... },
+}))
+```
+
+**Template**: Always `<slot v-bind="slotProps" />`
+
+## Data Attribute Pattern (100% enforced)
+
+| Attribute | Purpose | Values |
+|-----------|---------|--------|
+| `data-state` | Visual state for CSS | Semantic strings: `checked`, `unchecked`, `indeterminate`, `open`, `closed`, `valid`, `invalid`, `dragging`, `idle` |
+| `data-disabled` | Disabled styling | `true \| undefined` |
+| `data-selected` | Selected styling | `true \| undefined` |
+| `data-open` | Open/expanded | `true \| undefined` |
+| `data-orientation` | Layout direction | `'horizontal' \| 'vertical'` |
+
+**Rule**: Always `true | undefined` (not `true | false`). Undefined removes the attribute from DOM.
+
+## ARIA Pattern (100% WAI-ARIA compliant)
+
+Every interactive component must have:
+1. Correct `role` attribute
+2. Relevant `aria-*` state attributes
+3. `aria-disabled` when disabled
+4. Keyboard event handlers
+
+## Disabled Pattern (100% enforced)
+
+All interactive components implement three-pronged approach:
+1. `aria-disabled` — assistive technology
+2. `data-disabled` — CSS styling target
+3. `tabindex` management — prevent focus when appropriate
+
+## Hidden Input Pattern
+
+Components with `name` prop render `<ComponentHiddenInput>`:
+- Always `inert` and `tabindex="-1"`
+- Synced with parent state
+- JSON serialization for complex values
+- Used by: Checkbox, Switch, Radio, Button, Progress, Slider, Rating
+
+## Focus Management (3 strategies)
+
+| Strategy | When | Components |
+|----------|------|-----------|
+| Static tabindex | Single focusable element | Most components |
+| Roving tabindex (`useRovingFocus`) | Group keyboard navigation | Radio, Tabs, Treeview, Splitter |
+| Virtual focus (`useVirtualFocus`) | Large lists, aria-activedescendant | Combobox, Select |
+
+## Keyboard Navigation Pattern (100% enforced)
+
+```ts
+function onKeydown(e: KeyboardEvent) {
+  if (isDisabled.value) return       // Always check first
+  if (e.key === 'Enter') {
+    e.preventDefault()                // Always prevent default
+    action()                          // Then perform action
+  }
+}
+```
+
+## Model Bridging Pattern
+
+```ts
+// In Root component
+const model = defineModel<T | T[]>()
+const [, , context] = createFooContext(options)
 useProxyModel(context, model, { multiple })
 ```
 
-## Guidelines
+**Do not** declare `defineEmits('update:model-value')` alongside `defineModel` — it's redundant.
 
-- **Headless first**: Logic/accessibility, not styling
-- **Slot-driven**: Comprehensive slot APIs
-- **Single-layer**: No internal component composition
-- **CSS variables**: `--v0-*` prefix only
-- **No global state**: Local or context-based only
+## Barrel Export Pattern (100% enforced)
 
-## Props Inheritance
-
-When extending `AtomProps`, don't re-declare inherited props (`as`, `renderless`):
+**NEVER** `export *` from Vue files — breaks Volar slot type inference.
 
 ```ts
-// BAD - redundant declarations
-export interface MyProps extends AtomProps {
-  as?: AtomProps['as']      // Already inherited
-  renderless?: boolean      // Already inherited
-  myProp: string
-}
+// Named exports for tree-shaking
+export type { ComponentRootProps, ComponentRootSlotProps } from './ComponentRoot.vue'
+export { default as ComponentRoot } from './ComponentRoot.vue'
+export { useComponentRoot, provideComponentRoot } from './ComponentRoot.vue'
 
-// GOOD - only add new props
-export interface MyProps extends AtomProps {
-  myProp: string
-}
-
-// GOOD - use type alias if no new props
-export type MyProps = AtomProps
+// Object compound export for dot notation
+import ComponentRoot from './ComponentRoot.vue'
+import ComponentItem from './ComponentItem.vue'
+export const Component = { Root: ComponentRoot, Item: ComponentItem }
 ```
 
-Runtime defaults (e.g., `as = 'span'` instead of `'div'`) are set in `defineProps` destructuring, not the interface.
+## Template Pattern (100% enforced)
 
-## Barrel Export Pattern
-
-**NEVER use `export *` for Vue components** - breaks Volar slot type inference:
-
-```ts
-// BAD
-export * from './SelectionRoot.vue'
-
-// GOOD
-export type { SelectionRootProps, SelectionRootSlotProps } from './SelectionRoot.vue'
-export { default as SelectionRoot } from './SelectionRoot.vue'
-```
+- Root element is always `<Atom :as :renderless>`
+- Slot props via `<slot v-bind="slotProps" />`
+- Hidden inputs conditionally rendered: `<ComponentHiddenInput v-if="name" />`
+- `v-if` for structural conditionals, never `v-show` (except Combobox filtered items)
