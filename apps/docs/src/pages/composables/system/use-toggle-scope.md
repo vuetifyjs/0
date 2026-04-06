@@ -69,6 +69,9 @@ flowchart TD
 | - | :-: | - |
 | `isActive` | <AppSuccessIcon /> | Computed from scope ref |
 | `source` | <AppSuccessIcon /> | WatchSource, triggers scope on/off |
+| `start()` | <AppErrorIcon /> | Create and run the effect scope |
+| `stop()` | <AppErrorIcon /> | Stop and clean up all effects in the scope |
+| `reset()` | <AppErrorIcon /> | Stop then immediately restart the scope |
 
 ## Examples
 
