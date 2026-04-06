@@ -164,12 +164,8 @@ export function createProgress (options: ProgressOptions = {}): ProgressContext 
     fromValue,
     register,
     apply,
-    get min () {
-      return min
-    },
-    get max () {
-      return max
-    },
+    min,
+    max,
   } as unknown as ProgressContext
 }
 
