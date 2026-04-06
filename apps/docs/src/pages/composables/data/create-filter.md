@@ -71,6 +71,28 @@ const { items: filtered } = filter.apply(query, products)
 
 Returns the standard trinity `[useSearchFilter, provideSearchFilter, searchFilter]`. The third element gives standalone access without injection — useful for testing and server-side use.
 
+## Options
+
+| Option | Type | Default | Notes |
+| - | - | - | - |
+| `mode` | `'some' \| 'every' \| 'union' \| 'intersection'` | `'some'` | Multi-query matching strategy. See Filter Modes below |
+| `keys` | `string[]` | — | Object keys to filter on. When omitted, all values are checked |
+| `customFilter` | `(query, item) => boolean` | — | Bypass built-in logic entirely with a custom predicate |
+
+```ts
+// Filter only by name + email, using intersection mode
+const filter = createFilter({
+  keys: ['name', 'email'],
+  mode: 'intersection',
+})
+
+// Custom filter (overrides keys and mode)
+const filter = createFilter({
+  customFilter: (query, item) =>
+    String(item.name).toLowerCase().startsWith(String(query).toLowerCase()),
+})
+```
+
 ## Architecture
 
 `createFilter` provides pure filtering logic with context support:
