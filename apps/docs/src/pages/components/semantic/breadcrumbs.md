@@ -200,6 +200,21 @@ The Root exposes navigation state and methods through its default slot:
 </template>
 ```
 
+### Item Gap
+
+The `gap` prop controls the pixel gap between items used when calculating overflow capacity (default: `8`). Adjust it to match your CSS gap so the overflow calculation stays accurate:
+
+```vue
+<template>
+  <!-- CSS gap is 16px — tell the component so overflow math is correct -->
+  <Breadcrumbs.Root :gap="16" class="flex gap-4">
+    <Breadcrumbs.Item v-for="crumb in crumbs" :key="crumb.path">
+      <Breadcrumbs.Link :href="crumb.path">{{ crumb.label }}</Breadcrumbs.Link>
+    </Breadcrumbs.Item>
+  </Breadcrumbs.Root>
+</template>
+```
+
 ### Custom Ellipsis
 
 Override the ellipsis globally on Root or per-instance:
