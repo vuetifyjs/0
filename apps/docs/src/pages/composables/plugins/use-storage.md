@@ -137,6 +137,9 @@ The `get()` method returns reactive refs that sync with storage automatically.
 > [!TIP] Auto-persistence
 > Refs returned by `get()` are watched with `{ deep: true }`. Any changes to the ref value automatically persist to storage.
 
+> [!TIP] Empty strings are preserved
+> `get()` uses nullish coalescing (`??`) internally, so an empty string `''` is a valid stored value — it is never treated as absent or replaced by the default. Only `null` and `undefined` trigger the default.
+
 ## Examples
 
 ::: example
