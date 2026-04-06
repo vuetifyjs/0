@@ -26,6 +26,18 @@ A headless component for creating page navigation with proper ARIA support.
 
 The Pagination component provides a compound component pattern for building page navigation interfaces. It uses the `createPagination` and `createOverflow` composable internally.
 
+The two core props are `size` (total item count) and `items-per-page` (items per page, default `10`). Together they determine the page count:
+
+```vue
+<template>
+  <!-- 200 items at 10 per page = 20 pages -->
+  <Pagination.Root :size="200" :items-per-page="10" v-model="page" />
+
+  <!-- 200 items at 25 per page = 8 pages -->
+  <Pagination.Root :size="200" :items-per-page="25" v-model="page" />
+</template>
+```
+
 ::: example
 /components/pagination/basic
 
