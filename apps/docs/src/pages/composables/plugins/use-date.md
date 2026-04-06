@@ -93,6 +93,8 @@ The adapter provides a comprehensive API compatible with [date-io](https://githu
 ```ts collapse
 interface DateAdapter<T> {
   locale?: string
+  /** First day of week: 0 = Sunday, 1 = Monday, … 6 = Saturday. Set by the plugin from locale. */
+  firstDayOfWeek?: number
 
   // Construction & Conversion
   date (value?: unknown): T | null
