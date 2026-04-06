@@ -192,6 +192,43 @@ Adapters let you swap the underlying notification service without changing your 
 | `createKnockAdapter` | `@vuetify/v0/notifications` | [Knock](https://knock.app) integration |
 | `createNovuAdapter` | `@vuetify/v0/notifications` | [Novu](https://novu.co) integration |
 
+### Custom Adapters
+
+Implement `NotificationsAdapterInterface` to connect any backend:
+
+```ts
+import type { NotificationsAdapterInterface, NotificationsAdapterContext } from '@vuetify/v0'
+
+class MyBackendAdapter implements NotificationsAdapterInterface {
+  setup (context: NotificationsAdapterContext) {
+    // Wire inbound: push notifications into the registry
+    myBackend.onMessage(msg => {
+      context.send({ id: msg.id, title: msg.title, body: msg.body })
+    })
+
+    // Wire outbound: sync read/archive actions back to the backend
+    context.on('notification:read', (data: any) => {
+      myBackend.markRead(data.id)
+    })
+  }
+
+  dispose () {
+    myBackend.disconnect()
+  }
+}
+
+app.use(createNotificationsPlugin({ adapter: new MyBackendAdapter() }))
+```
+
+**Adapter context methods:**
+
+| Method | Purpose |
+| - | - |
+| `send(input)` | Register and enqueue for toast display (real-time inbound) |
+| `register(input)` | Register in history only — no toast (initial/historical load) |
+| `on(event, handler)` | Subscribe to outbound lifecycle events |
+| `off(event, handler)` | Unsubscribe from a lifecycle event |
+
 > [!ASKAI] How do I write a custom adapter for my backend?
 
 ### Knock
