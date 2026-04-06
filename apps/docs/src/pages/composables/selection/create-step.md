@@ -92,7 +92,7 @@ flowchart TD
 
 ## Reactivity
 
-Step navigation state is **always reactive**. Navigation guards (`canPrev`, `canNext`) update automatically.
+Step navigation state is **always reactive**. Use `selectedIndex` to derive disabled states for navigation buttons.
 
 | Property/Method | Reactive | Notes |
 | - | :-: | - |
@@ -100,15 +100,18 @@ Step navigation state is **always reactive**. Navigation guards (`canPrev`, `can
 | `selectedIndex` | <AppSuccessIcon /> | Computed — current step position |
 | `selectedItem` | <AppSuccessIcon /> | Computed — current step ticket |
 | `selectedValue` | <AppSuccessIcon /> | Computed — current step value |
-| `canPrev` | <AppSuccessIcon /> | Computed — `false` at first step (bounded mode) |
-| `canNext` | <AppSuccessIcon /> | Computed — `false` at last step (bounded mode) |
 | `step(count)` | <AppErrorIcon /> | Move by `count` positions — positive forward, negative backward |
 
 > [!TIP] step(count)
 > `step(-2)` moves back two positions; `step(3)` skips ahead three. In circular mode it wraps at both ends; in bounded mode it clamps at the first and last steps. Disabled steps are skipped automatically.
 
-> [!TIP] Navigation guards
-> Use `canPrev` and `canNext` to disable navigation buttons. They respect the `circular` option automatically.
+> [!TIP] Navigation button state
+> Derive boundary checks from `selectedIndex` and registry size:
+> ```ts
+> const atFirst = toRef(() => selection.selectedIndex.value === 0)
+> const atLast  = toRef(() => selection.selectedIndex.value === selection.size - 1)
+> ```
+> In circular mode, buttons are never disabled.
 
 ## Examples
 
