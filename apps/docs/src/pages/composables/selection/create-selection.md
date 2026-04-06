@@ -74,6 +74,14 @@ flowchart TD
   createSingle --> createStep
 ```
 
+## Options
+
+| Option | Type | Default | Notes |
+| - | - | - | - |
+| `mandatory` | `MaybeRefOrGetter<boolean>` | `false` | Prevent deselecting the last selected item |
+| `multiple` | `MaybeRefOrGetter<boolean>` | `false` | Allow multiple IDs to be selected simultaneously |
+| `enroll` | `MaybeRefOrGetter<boolean>` | `false` | Auto-select tickets on registration (note: `createModel` defaults to `true`) |
+
 ## Reactivity
 
 Selection state is **always reactive**. Collection methods follow the base `createRegistry` pattern.
