@@ -118,7 +118,7 @@ flowchart TD
 
 Theme selection and computed colors are reactive. Switching themes automatically updates CSS variables.
 
-| Property | Reactive | Notes |
+| Property/Method | Reactive | Notes |
 | - | :-: | - |
 | `selectedId` | <AppSuccessIcon /> | Current theme ID |
 | `selectedItem` | <AppSuccessIcon /> | Current theme ticket |
@@ -126,6 +126,8 @@ Theme selection and computed colors are reactive. Switching themes automatically
 | `selectedIndex` | <AppSuccessIcon /> | Index in registry |
 | `colors` | <AppSuccessIcon /> | Resolved colors with aliases |
 | `isDark` | <AppSuccessIcon /> | Current theme is dark |
+| `select(id)` | — | Switch to a specific theme by ID |
+| `cycle(ids?)` | — | Advance to the next theme. Pass an array to restrict which themes to cycle |
 
 ## Examples
 
