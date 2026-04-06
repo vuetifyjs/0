@@ -166,7 +166,7 @@ export function createProgress (options: ProgressOptions = {}): ProgressContext 
     apply,
     min,
     max,
-  } as unknown as ProgressContext
+  } as ProgressContext
 }
 
 /**

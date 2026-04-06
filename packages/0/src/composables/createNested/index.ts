@@ -662,7 +662,7 @@ export function createNested (_options: NestedOptions = {}): NestedContext {
       position: () => position(id),
     }
 
-    const ticket = group.register(item as Partial<GroupTicketInput>) as unknown as NestedTicket
+    const ticket = group.register(item as Partial<GroupTicketInput>) as NestedTicket
 
     // Override group-level selection methods with cascade-aware versions
     ticket.select = () => select(id)

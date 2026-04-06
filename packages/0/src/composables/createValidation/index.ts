@@ -194,7 +194,7 @@ export function createValidation (_options: ValidationOptions = {}): ValidationC
 
   // Auto-register with parent form
   const form = useForm()
-  const ticket = form?.register({ value: context as unknown as ValidationContext })
+  const ticket = form?.register({ value: context as ValidationContext })
 
   onScopeDispose(() => {
     if (!ticket || !form) return

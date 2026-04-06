@@ -240,7 +240,7 @@ export function createStack (_options: StackOptions = {}): StackContext {
       dismiss,
       ...input,
       id,
-    } as unknown as Partial<StackTicketInput>)
+    } as Partial<StackTicketInput>)
 
     // Auto-cleanup when called within component setup
     if (instanceExists()) {
@@ -249,7 +249,7 @@ export function createStack (_options: StackOptions = {}): StackContext {
       }, true)
     }
 
-    return ticket as unknown as StackTicket
+    return ticket as StackTicket
   }
 
   return {
@@ -262,7 +262,7 @@ export function createStack (_options: StackOptions = {}): StackContext {
     get size () {
       return selection.size
     },
-  } as unknown as StackContext
+  } as StackContext
 }
 
 /**

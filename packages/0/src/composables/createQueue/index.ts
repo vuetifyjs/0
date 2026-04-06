@@ -344,7 +344,7 @@ export function createQueue (_options: QueueOptions = {}): QueueContext {
       dismiss: () => unregister(id),
     }
 
-    const registered = registry.register(ticket as unknown as Partial<QueueTicket>)
+    const registered = registry.register(ticket as Partial<QueueTicket>)
 
     createTicketTimer(registered)
 

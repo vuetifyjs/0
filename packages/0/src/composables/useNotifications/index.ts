@@ -201,7 +201,7 @@ export function createNotifications (
       snooze: (until: Date) => snooze(id, until),
       wake: () => wake(id),
       dismiss: () => queue.unregister(id),
-    } as unknown as Partial<NotificationTicket>
+    } as Partial<NotificationTicket>
   }
 
   /**
@@ -558,7 +558,7 @@ export function createNotifications (
     get size () {
       return registry.size
     },
-  } as unknown as NotificationsContext
+  } as NotificationsContext
 }
 
 export interface NotificationsPluginOptions extends NotificationsOptions {
@@ -590,7 +590,7 @@ function createNotificationsFallback (): NotificationsContext {
     wake: noop,
     dismiss: noop,
     unregister: noop,
-  } as unknown as NotificationTicket
+  } as NotificationTicket
 
   return {
     collection: new Map(),

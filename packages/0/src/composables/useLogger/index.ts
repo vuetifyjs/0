@@ -199,7 +199,7 @@ function createFallbackLogger (namespace = 'v0:logger'): LoggerContext {
     enabled: () => true,
     enable: () => {},
     disable: () => {},
-  } as unknown as LoggerContext
+  } as LoggerContext
 }
 
 /**

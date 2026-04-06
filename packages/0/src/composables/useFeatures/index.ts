@@ -186,7 +186,7 @@ export function createFeatures (_options: FeatureOptions = {}): FeatureContext {
     get size () {
       return registry.size
     },
-  } as unknown as FeatureContext
+  } as FeatureContext
 }
 
 function createFeaturesFallback (): FeatureContext {

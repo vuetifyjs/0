@@ -337,7 +337,7 @@ export function createTheme (_options: ThemeOptions = {}): ThemeContext {
       ...(colors ? { value: colors } : {}),
     }
 
-    return registry.register(item as unknown as Partial<SingleTicketInput<ThemeColors>>) as unknown as ThemeTicket
+    return registry.register(item as Partial<SingleTicketInput<ThemeColors>>) as ThemeTicket
   }
 
   function onboard (registrations: Partial<ThemeTicketInput>[]): ThemeTicket[] {
@@ -354,7 +354,7 @@ export function createTheme (_options: ThemeOptions = {}): ThemeContext {
     get size () {
       return registry.size
     },
-  } as unknown as ThemeContext
+  } as ThemeContext
 }
 
 function createThemeFallback (): ThemeContext {
@@ -363,7 +363,7 @@ function createThemeFallback (): ThemeContext {
     colors: computed(() => ({})),
     isDark: shallowRef(false),
     cycle: () => {},
-  } as unknown as ThemeContext
+  } as ThemeContext
 }
 
 export const [createThemeContext, createThemePlugin, useTheme] =
