@@ -214,7 +214,7 @@ function template (title: string, description: string, category?: string) {
 }
 
 async function render (title: string, description: string, category?: string): Promise<Buffer> {
-  const svg = await satori(template(title, description, category) as any, {
+  const svg = await satori(template(title, description, category) as Parameters<typeof satori>[0], {
     width: 1200,
     height: 630,
     fonts,

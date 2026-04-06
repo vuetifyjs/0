@@ -87,7 +87,7 @@ export const COMMON_ELEMENTS = {
  * Check if an element is self-closing
  */
 export function isSelfClosingTag (tag: keyof HTMLElementTagNameMap): boolean {
-  return SELF_CLOSING_TAGS.has(tag.toLowerCase() as any)
+  return SELF_CLOSING_TAGS.has(tag.toLowerCase() as SelfClosingElement)
 }
 
 /**

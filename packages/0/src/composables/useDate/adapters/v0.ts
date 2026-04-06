@@ -41,8 +41,8 @@ const MAX_CACHE_SIZE = 50
  */
 function deriveWeekInfo (locale: string): { firstDay: number, minimalDays: number } {
   try {
-    const loc = new Intl.Locale(locale)
-    const info = (loc as any).getWeekInfo?.() ?? (loc as any).weekInfo
+    const loc = new Intl.Locale(locale) as unknown as Record<string, unknown>
+    const info = (typeof loc.getWeekInfo === 'function' ? loc.getWeekInfo() : loc.weekInfo) as { firstDay?: number, minimalDays?: number } | undefined
     // Intl weekInfo.firstDay: 1=Mon...7=Sun, convert to 0=Sun...6=Sat
     const firstDay = info?.firstDay === 7 ? 0 : info?.firstDay ?? 0
     const minimalDays = info?.minimalDays ?? deriveMinimalDays(locale)

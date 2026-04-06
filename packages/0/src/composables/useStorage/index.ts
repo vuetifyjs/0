@@ -111,7 +111,7 @@ export function createStorage<
     ttl,
   } = options
 
-  const cache = new Map<string, Ref<any>>()
+  const cache = new Map<string, Ref<unknown>>()
   const watchers = new Map<string, () => void>()
 
   function has (key: string) {
@@ -128,11 +128,12 @@ export function createStorage<
 
       // TTL check: expired entries are treated as absent
       if (ttl && isObject(parsed) && '__ttl' in parsed && '__v' in parsed) {
-        if (Date.now() - (parsed as any).__t > ttl) {
+        const envelope = parsed as { __ttl: number, __v: unknown, __t: number }
+        if (Date.now() - envelope.__t > ttl) {
           adapter?.removeItem(prefixedKey)
           return undefined
         }
-        return (parsed as any).__v
+        return envelope.__v
       }
 
       return parsed
@@ -156,7 +157,7 @@ export function createStorage<
     const prefixedKey = `${prefix}${key}`
 
     if (cache.has(prefixedKey)) {
-      return cache.get(prefixedKey)!
+      return cache.get(prefixedKey)! as Ref<T>
     }
 
     const stored = readStored(prefixedKey)

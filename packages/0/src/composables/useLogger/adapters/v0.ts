@@ -96,9 +96,9 @@ export class Vuetify0LoggerAdapter implements LoggerAdapter {
     const style = this.style(level)
 
     if (IN_BROWSER && style && isFunction(console[method])) {
-      ;(console[method] as any)(`%c${formattedMessage}`, style, ...restArgs)
+      ;(console[method] as (...data: unknown[]) => void)(`%c${formattedMessage}`, style, ...restArgs)
     } else if (isFunction(console[method])) {
-      ;(console[method] as any)(formattedMessage, ...restArgs)
+      ;(console[method] as (...data: unknown[]) => void)(formattedMessage, ...restArgs)
     }
   }
 }

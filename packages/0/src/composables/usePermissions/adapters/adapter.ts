@@ -7,7 +7,7 @@ export interface PermissionAdapterInterface {
     role: ID,
     action: string,
     subject: string,
-    context: Record<string, any>,
+    context: Record<string, unknown>,
     permissions: PermissionContext<Z>,
   ) => boolean
 }
@@ -17,7 +17,7 @@ export abstract class PermissionAdapter implements PermissionAdapterInterface {
     role: ID,
     action: string,
     subject: string,
-    context: Record<string, any>,
+    context: Record<string, unknown>,
     permissions: PermissionContext<Z>
   ): boolean
 }

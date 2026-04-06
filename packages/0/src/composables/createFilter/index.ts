@@ -34,7 +34,7 @@ import type { App, ComputedRef, MaybeRefOrGetter, ShallowRef } from 'vue'
 
 export type Primitive = string | number | boolean
 export type FilterQuery = MaybeRefOrGetter<Primitive | Primitive[]>
-export type FilterItem = Primitive | Record<string, any>
+export type FilterItem = Primitive | Record<string, unknown>
 export type FilterMode = 'some' | 'every' | 'union' | 'intersection'
 export type FilterFunction = (query: Primitive | Primitive[], item: FilterItem) => boolean
 

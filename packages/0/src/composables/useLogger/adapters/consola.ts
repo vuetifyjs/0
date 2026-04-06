@@ -2,9 +2,9 @@
 import type { LoggerAdapter } from './adapter'
 
 export class ConsolaLoggerAdapter implements LoggerAdapter {
-  private consola: any
+  private consola: LoggerAdapter
 
-  constructor (consolaInstance: any) {
+  constructor (consolaInstance: LoggerAdapter) {
     if (!consolaInstance) {
       throw new Error('Consola instance is required for ConsolaLoggerAdapter')
     }

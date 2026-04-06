@@ -118,7 +118,7 @@ function createDefaultBreakpoints () {
 export function createBreakpoints (_options: BreakpointsOptions = {}): BreakpointsContext {
   const { ssr, ...options } = _options
   const defaults = createDefaultBreakpoints()
-  const { mobileBreakpoint, breakpoints } = mergeDeep(defaults, options as any)
+  const { mobileBreakpoint, breakpoints } = mergeDeep(defaults, options as typeof defaults)
   const sorted = Object.entries(breakpoints!).toSorted((a, b) => a[1] - b[1]) as [BreakpointName, number][]
   const names = sorted.map(([n]) => n)
   const mb = isNumber(mobileBreakpoint) ? mobileBreakpoint : breakpoints[mobileBreakpoint] ?? breakpoints.md

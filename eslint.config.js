@@ -20,12 +20,18 @@ export default vuetify({
 {
   files: ['**/*.ts', '**/*.vue'],
   rules: {
-    // TODO: re-enable once existing violations are resolved
-    // '@typescript-eslint/no-explicit-any': 'warn',
+    '@typescript-eslint/no-explicit-any': 'warn',
     'import/consistent-type-specifier-style': ['error', 'prefer-top-level'],
     'unicorn/no-array-callback-reference': 'off',
     'unicorn/no-unreadable-array-destructuring': 'off',
     'func-style': ['error', 'declaration'],
+    'one-var': ['error', 'never'],
+    'no-restricted-syntax': ['error',
+      {
+        selector: 'CallExpression[callee.name="withDefaults"]',
+        message: 'Use destructuring with defaults instead of withDefaults.',
+      },
+    ],
     'perfectionist/sort-exports': 'off',
     'perfectionist/sort-imports': ['error', {
       type: 'natural',
@@ -71,6 +77,7 @@ export default vuetify({
 {
   files: ['**/*.test.ts'],
   rules: {
+    '@typescript-eslint/no-explicit-any': 'off',
     'vitest/prefer-lowercase-title': 'error',
     'vitest/prefer-hooks-in-order': 'error',
     'vitest/prefer-hooks-on-top': 'error',
@@ -79,9 +86,16 @@ export default vuetify({
   },
 },
 {
+  files: ['**/scripts/**/*.ts', '**/build/**/*.ts'],
+  rules: {
+    '@typescript-eslint/no-explicit-any': 'off',
+  },
+},
+{
   files: ['**/*.vue'],
   rules: {
-    'vue/block-order': ['warn', { order: ['script', 'template', 'style'] }],
+    '@typescript-eslint/no-explicit-any': 'off',
+    'vue/block-order': ['error', { order: ['script', 'template', 'style'] }],
     'vue/v-bind-style': ['error', 'shorthand', { sameNameShorthand: 'always' }],
   },
 },

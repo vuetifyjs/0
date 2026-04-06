@@ -36,15 +36,15 @@ export { PermissionAdapter } from '#v0/composables/usePermissions/adapters'
 
 export type { PermissionAdapterInterface } from '#v0/composables/usePermissions/adapters'
 
-export interface PermissionTicket extends TokenTicket<boolean | ((context: Record<string, any>) => boolean)> {}
+export interface PermissionTicket extends TokenTicket<boolean | ((context: Record<string, unknown>) => boolean)> {}
 
 export interface PermissionContext<Z extends PermissionTicket = PermissionTicket> extends TokenContext<Z> {
-  can: (id: ID, action: string, subject: string, context?: Record<string, any>) => boolean
+  can: (id: ID, action: string, subject: string, context?: Record<string, unknown>) => boolean
 }
 
 export interface PermissionOptions extends TokenOptions {
   adapter?: PermissionAdapter
-  permissions?: Record<ID, any>
+  permissions?: Record<ID, [string | string[], string | string[], (boolean | ((context: Record<string, unknown>) => boolean))?][]>
 }
 
 export interface PermissionContextOptions extends PermissionOptions {
@@ -79,7 +79,7 @@ export interface PermissionPluginOptions extends PermissionContextOptions {}
 export function createPermissions (_options: PermissionOptions = {}): PermissionContext {
   const { adapter = new Vuetify0PermissionAdapter(), permissions = {}, ...options } = _options
 
-  const record: Record<string, Record<string, Record<string, any>>> = {}
+  const record: Record<string, Record<string, Record<string, boolean | ((context: Record<string, unknown>) => boolean)>>> = {}
   for (const role in permissions) {
     if (!record[role]) record[role] = {}
     for (const [actions, subjects, condition = true] of permissions[role]!) {
@@ -95,7 +95,7 @@ export function createPermissions (_options: PermissionOptions = {}): Permission
 
   const tokens = createTokens(record, options)
 
-  function can (id: ID, action: string, subject: string, context: Record<string, any> = {}) {
+  function can (id: ID, action: string, subject: string, context: Record<string, unknown> = {}) {
     return adapter.can(id, action, subject, context, tokens as PermissionContext)
   }
 

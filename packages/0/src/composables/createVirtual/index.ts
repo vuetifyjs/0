@@ -408,7 +408,7 @@ export function createVirtual<T = unknown> (
     if (!IN_BROWSER || !el?.style) return
 
     /* v8 ignore start -- browser-only style assignments */
-    if (momentum) (el.style as any).webkitOverflowScrolling = 'touch'
+    if (momentum) (el.style as unknown as Record<string, string>).webkitOverflowScrolling = 'touch'
     if (!elastic) el.style.overscrollBehavior = 'none'
     /* v8 ignore stop */
   })
