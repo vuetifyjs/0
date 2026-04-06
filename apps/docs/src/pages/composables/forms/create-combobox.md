@@ -129,6 +129,20 @@ interface ComboboxOptions {
 
 Adapters implement `ComboboxAdapterInterface` and translate a reactive query into a filtered ID set.
 
+```ts
+interface ComboboxAdapterInterface {
+  setup: (context: ComboboxAdapterContext) => ComboboxAdapterResult
+}
+
+interface ComboboxAdapterResult {
+  filtered: Ref<Set<ID>>          // IDs that should be visible
+  isLoading: ShallowRef<boolean>  // shows loading state in the UI
+  isEmpty: Ref<boolean>           // true when no items match the query
+}
+```
+
+The `context` exposes `query` (the current search string), `selection` (the underlying selection context), and `items` (all registered IDs). Return the three refs above and the combobox wires them to the dropdown state automatically.
+
 ### ClientAdapter
 
 The default. Filters registered items locally using substring matching (case-insensitive). Pass custom `filter` options to override the matching logic:
