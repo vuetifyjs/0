@@ -60,7 +60,7 @@
     ticket.unregister()
   })
 
-  const current = toRef(() => toValue(ticket.value))
+  const current = toRef(() => toValue(ticket.value) ?? 0)
   const percent = toRef(() => root.fromValue(current.value))
 
   const slotProps = toRef((): ProgressFillSlotProps => ({
