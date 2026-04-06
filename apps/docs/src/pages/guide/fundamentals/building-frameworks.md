@@ -262,6 +262,43 @@ Reading and toggling theme and breakpoint state anywhere in the component tree v
 > [!TIP]
 > v0 plugins are designed to be order-independent. Each plugin gracefully handles missing dependencies by providing sensible fallbacks.
 
+### Creating Custom Plugins
+
+Use `createPluginContext` to build your own plugins without boilerplate. It returns the standard `[createContext, createPlugin, useContext]` triple:
+
+```ts
+import { createPluginContext } from '@vuetify/v0'
+
+interface ThemeOptions {
+  namespace?: string
+  primary?: string
+}
+
+interface ThemeContext {
+  primary: string
+  setPrimary: (color: string) => void
+}
+
+function createThemeFeature (options: Omit<ThemeOptions, 'namespace'>): ThemeContext {
+  const primary = shallowRef(options.primary ?? '#1976d2')
+  return { primary, setPrimary: (color) => { primary.value = color } }
+}
+
+export const [createMyThemeContext, createMyThemePlugin, useMyTheme] =
+  createPluginContext<ThemeOptions, ThemeContext>(
+    'my-ui:theme',
+    options => createThemeFeature(options),
+  )
+
+// In main.ts
+app.use(createMyThemePlugin({ primary: '#e91e63' }))
+
+// In any component
+const { primary, setPrimary } = useMyTheme()
+```
+
+See [createPlugin](/composables/foundation/create-plugin) for the full API including `persist`/`restore` lifecycle hooks for saving and rehydrating plugin state.
+
 ## SSR Safety
 
 v0 is designed for universal rendering. Use the provided constants and composables to guard browser-only code:
