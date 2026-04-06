@@ -62,6 +62,16 @@ flowchart TD
   createModel -. "useProxyModel" .-> defineModel["defineModel / v-model"]
 ```
 
+## Options
+
+| Option | Type | Default | Notes |
+| - | - | - | - |
+| `disabled` | `MaybeRefOrGetter<boolean>` | `false` | When truthy, all selection operations are silently skipped |
+| `enroll` | `MaybeRefOrGetter<boolean>` | `true` | Auto-select tickets on registration; `createSelection` overrides this to `false` |
+| `multiple` | `MaybeRefOrGetter<boolean>` | `false` | When `true`, `select()` accumulates IDs without clearing first |
+
+All three options accept a static value, a ref, or a getter — they are resolved with `toValue()` at call time.
+
 ## Reactivity
 
 Value state is **always reactive**. Collection methods follow the base `createRegistry` pattern.
