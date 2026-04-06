@@ -104,6 +104,22 @@ Set `renderless` to skip the wrapper element. The slot exposes `attrs` (includin
 </Theme>
 ```
 
+### Isolated Context
+
+By default, `<Theme>` provides its context under the `'v0:theme'` key — the same key used by `useTheme()`. If you're building a component that needs its own theme scope that doesn't interfere with the app's global theme, pass a custom `namespace`:
+
+```vue
+<template>
+  <!-- Isolated: useTheme() in descendants won't affect the global theme -->
+  <Theme theme="dark" namespace="my-widget:theme">
+    <slot />
+  </Theme>
+</template>
+```
+
+> [!TIP]
+> The `namespace` prop is only needed when building reusable components that must be theme-isolated. Most apps don't need it.
+
 ### Slot Props
 
 The default slot exposes `theme` (the active ID), `isDark` (boolean), and `attrs` for conditional rendering:
