@@ -35,14 +35,10 @@ export interface ProgressOptions {
   max?: number
 }
 
-export interface ProgressContext extends Omit<
-  ModelContext<ProgressTicketInput, ProgressTicket>,
-  'selectedValues'
-> {
+export interface ProgressContext extends ModelContext<ProgressTicketInput, ProgressTicket> {
   readonly min: number
   readonly max: number
   segments: ComputedRef<ProgressTicket[]>
-  selectedValues: ComputedRef<number[]>
   total: ComputedRef<number>
   percent: ComputedRef<number>
   isIndeterminate: ComputedRef<boolean>
@@ -89,18 +85,16 @@ export function createProgress (options: ProgressOptions = {}): ProgressContext 
     Array.from(model.selectedItems.value).toSorted((a, b) => a.index - b.index),
   )
 
-  const selectedValues = computed(() => segments.value.map(t => toValue(t.value)))
-
   const total = toRef(() => {
-    const values = selectedValues.value
+    const segs = segments.value
 
-    if (values.length === 0 && _hasInitialValue) {
+    if (segs.length === 0 && _hasInitialValue) {
       return clamp(_value!, min, max)
     }
 
     let sum = 0
-    for (const v of values) {
-      sum += v ?? 0
+    for (const seg of segs) {
+      sum += toValue(seg.value) ?? 0
     }
     return clamp(sum, min, max)
   })
@@ -112,10 +106,10 @@ export function createProgress (options: ProgressOptions = {}): ProgressContext 
 
   const isIndeterminate = toRef(() => {
     if (_hasInitialValue) return false
-    const values = selectedValues.value
-    if (values.length === 0) return true
-    for (const v of values) {
-      if ((v ?? 0) > 0) return false
+    const segs = segments.value
+    if (segs.length === 0) return true
+    for (const seg of segs) {
+      if ((toValue(seg.value) ?? 0) > 0) return false
     }
     return true
   })
@@ -164,7 +158,6 @@ export function createProgress (options: ProgressOptions = {}): ProgressContext 
   return {
     ...model,
     segments,
-    selectedValues,
     total,
     percent,
     isIndeterminate,
