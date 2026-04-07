@@ -49,6 +49,7 @@
       'aria-disabled': boolean
       'data-selected': true | undefined
       'data-disabled': true | undefined
+      'onClick': () => void
     }
   }
 </script>
@@ -96,6 +97,7 @@
       'aria-disabled': toValue(isDisabled),
       'data-selected': toValue(ticket.isSelected) || undefined,
       'data-disabled': toValue(isDisabled) || undefined,
+      'onClick': ticket.toggle,
     },
   }))
 </script>

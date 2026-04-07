@@ -60,6 +60,7 @@
       'data-selected': true | undefined
       'data-disabled': true | undefined
       'data-mixed': true | undefined
+      'onClick': () => void
     }
   }
 </script>
@@ -113,6 +114,7 @@
       'data-selected': toValue(ticket.isSelected) || undefined,
       'data-disabled': toValue(isDisabled) || undefined,
       'data-mixed': toValue(ticket.isMixed) || undefined,
+      'onClick': ticket.toggle,
     },
   }))
 </script>
