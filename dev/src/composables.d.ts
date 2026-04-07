@@ -73,6 +73,7 @@ declare global {
   const createHydration: typeof import('../../packages/0/src/composables/useHydration/index').createHydration
   const createHydrationContext: typeof import('../../packages/0/src/composables/useHydration/index').createHydrationContext
   const createHydrationPlugin: typeof import('../../packages/0/src/composables/useHydration/index').createHydrationPlugin
+  const createInput: typeof import('../../packages/0/src/composables/createInput/index').createInput
   const createLocale: typeof import('../../packages/0/src/composables/useLocale/index').createLocale
   const createLocaleContext: typeof import('../../packages/0/src/composables/useLocale/index').createLocaleContext
   const createLocaleFallback: typeof import('../../packages/0/src/composables/useLocale/index').createLocaleFallback
@@ -86,6 +87,8 @@ declare global {
   const createNotifications: typeof import('../../packages/0/src/composables/useNotifications/index').createNotifications
   const createNotificationsContext: typeof import('../../packages/0/src/composables/useNotifications/index').createNotificationsContext
   const createNotificationsPlugin: typeof import('../../packages/0/src/composables/useNotifications/index').createNotificationsPlugin
+  const createNumberField: typeof import('../../packages/0/src/composables/createNumberField/index').createNumberField
+  const createNumeric: typeof import('../../packages/0/src/composables/createNumeric/index').createNumeric
   const createOverflow: typeof import('../../packages/0/src/composables/createOverflow/index').createOverflow
   const createOverflowContext: typeof import('../../packages/0/src/composables/createOverflow/index').createOverflowContext
   const createPagination: typeof import('../../packages/0/src/composables/createPagination/index').createPagination
@@ -338,11 +341,74 @@ declare global {
   export type { SelectStrategy, DataTableColumn, DataTableSort, DataTableSelection, DataTableGroup, DataTableGrouping, DataTableExpansion, DataTableOptions, DataTableContext, DataTableContextOptions, DataTableAdapterContext, DataTableAdapterInterface, DataTableAdapterResult, SortDirection, SortEntry, ServerAdapterOptions } from '../../packages/0/src/composables/createDataTable/index'
   import('../../packages/0/src/composables/createDataTable/index')
   // @ts-ignore
+  export type { Primitive, FilterQuery, FilterItem, FilterMode, FilterFunction, FilterOptions, FilterResult, FilterContext, FilterContextOptions } from '../../packages/0/src/composables/createFilter/index'
+  import('../../packages/0/src/composables/createFilter/index')
+  // @ts-ignore
+  export type { FormValidationResult, FormValue, FormTicketInput, FormTicket, FormContext, FormOptions, FormContextOptions } from '../../packages/0/src/composables/createForm/index'
+  import('../../packages/0/src/composables/createForm/index')
+  // @ts-ignore
+  export type { GroupTicketInput, GroupTicket, GroupContext, GroupOptions, GroupContextOptions } from '../../packages/0/src/composables/createGroup/index'
+  import('../../packages/0/src/composables/createGroup/index')
+  // @ts-ignore
+  export type { InputState, InputOptions, InputContext } from '../../packages/0/src/composables/createInput/index'
+  import('../../packages/0/src/composables/createInput/index')
+  // @ts-ignore
+  export type { ModelTicketInput, ModelTicket, ModelContext, ModelOptions } from '../../packages/0/src/composables/createModel/index'
+  import('../../packages/0/src/composables/createModel/index')
+  // @ts-ignore
+  export type { NumberFieldOptions, NumberFieldContext } from '../../packages/0/src/composables/createNumberField/index'
+  import('../../packages/0/src/composables/createNumberField/index')
+  // @ts-ignore
+  export type { NumericOptions, NumericContext } from '../../packages/0/src/composables/createNumeric/index'
+  import('../../packages/0/src/composables/createNumeric/index')
+  // @ts-ignore
+  export type { OverflowOptions, OverflowContext, OverflowContextOptions } from '../../packages/0/src/composables/createOverflow/index'
+  import('../../packages/0/src/composables/createOverflow/index')
+  // @ts-ignore
+  export type { PaginationTicket, PaginationContext, PaginationOptions, PaginationContextOptions } from '../../packages/0/src/composables/createPagination/index'
+  import('../../packages/0/src/composables/createPagination/index')
+  // @ts-ignore
   export type { PluginOptions, Plugin, PluginContextConfig } from '../../packages/0/src/composables/createPlugin/index'
   import('../../packages/0/src/composables/createPlugin/index')
   // @ts-ignore
+  export type { ProgressTicketInput, ProgressTicket, ProgressOptions, ProgressContext, ProgressContextOptions } from '../../packages/0/src/composables/createProgress/index'
+  import('../../packages/0/src/composables/createProgress/index')
+  // @ts-ignore
+  export type { QueueTicketInput, QueueTicket, QueueContext, QueueOptions, QueueContextOptions } from '../../packages/0/src/composables/createQueue/index'
+  import('../../packages/0/src/composables/createQueue/index')
+  // @ts-ignore
+  export type { RatingItemState, RatingItemDescriptor, RatingContext, RatingOptions, RatingContextOptions } from '../../packages/0/src/composables/createRating/index'
+  import('../../packages/0/src/composables/createRating/index')
+  // @ts-ignore
+  export type { RegistryTicketInput, RegistryTicket, RegistryEventName, RegistryEventMap, RegistryEventCallback, RegistryContext, RegistryOptions, RegistryContextOptions } from '../../packages/0/src/composables/createRegistry/index'
+  import('../../packages/0/src/composables/createRegistry/index')
+  // @ts-ignore
+  export type { SelectionTicketInput, SelectionTicket, SelectionContext, SelectionOptions, SelectionContextOptions } from '../../packages/0/src/composables/createSelection/index'
+  import('../../packages/0/src/composables/createSelection/index')
+  // @ts-ignore
+  export type { SingleTicketInput, SingleTicket, SingleContext, SingleOptions, SingleContextOptions } from '../../packages/0/src/composables/createSingle/index'
+  import('../../packages/0/src/composables/createSingle/index')
+  // @ts-ignore
+  export type { SliderTicketInput, SliderOptions, SliderContext } from '../../packages/0/src/composables/createSlider/index'
+  import('../../packages/0/src/composables/createSlider/index')
+  // @ts-ignore
+  export type { StepTicketInput, StepTicket, StepContext, StepOptions, StepContextOptions } from '../../packages/0/src/composables/createStep/index'
+  import('../../packages/0/src/composables/createStep/index')
+  // @ts-ignore
+  export type { TimelineContext, TimelineTicket, TimelineOptions, TimelineContextOptions } from '../../packages/0/src/composables/createTimeline/index'
+  import('../../packages/0/src/composables/createTimeline/index')
+  // @ts-ignore
+  export type { TokenAlias, TokenPrimitive, TokenValue, TokenCollection, FlatTokenCollection, TokenTicket, TokenContext, TokenOptions, TokenContextOptions } from '../../packages/0/src/composables/createTokens/index'
+  import('../../packages/0/src/composables/createTokens/index')
+  // @ts-ignore
   export type { ContextTrinity } from '../../packages/0/src/composables/createTrinity/index'
   import('../../packages/0/src/composables/createTrinity/index')
+  // @ts-ignore
+  export type { ValidationTicketInput, ValidationTicket, ValidationContext, ValidationOptions } from '../../packages/0/src/composables/createValidation/index'
+  import('../../packages/0/src/composables/createValidation/index')
+  // @ts-ignore
+  export type { VirtualDirection, VirtualState, VirtualAnchor, ScrollToOptions, VirtualOptions, VirtualItem, VirtualContext, VirtualContextOptions } from '../../packages/0/src/composables/createVirtual/index'
+  import('../../packages/0/src/composables/createVirtual/index')
   // @ts-ignore
   export type { MaybeElementRef } from '../../packages/0/src/composables/toElement/index'
   import('../../packages/0/src/composables/toElement/index')
@@ -361,18 +427,6 @@ declare global {
   // @ts-ignore
   export type { FeatureTicketInput, FeatureTicket, FeatureContext, FeatureOptions, FeatureContextOptions, FeaturePluginOptions, FeaturesAdapterFlags, FeaturesAdapterInterface, FeaturesAdapterValue } from '../../packages/0/src/composables/useFeatures/index'
   import('../../packages/0/src/composables/useFeatures/index')
-  // @ts-ignore
-  export type { Primitive, FilterQuery, FilterItem, FilterMode, FilterFunction, FilterOptions, FilterResult, FilterContext, FilterContextOptions } from '../../packages/0/src/composables/createFilter/index'
-  import('../../packages/0/src/composables/createFilter/index')
-  // @ts-ignore
-  export type { FormValidationResult, FormValue, FormTicketInput, FormTicket, FormContext, FormOptions, FormContextOptions } from '../../packages/0/src/composables/createForm/index'
-  import('../../packages/0/src/composables/createForm/index')
-  // @ts-ignore
-  export type { GroupTicketInput, GroupTicket, GroupContext, GroupOptions, GroupContextOptions } from '../../packages/0/src/composables/createGroup/index'
-  import('../../packages/0/src/composables/createGroup/index')
-  // @ts-ignore
-  export type { ModelTicketInput, ModelTicket, ModelContext, ModelOptions } from '../../packages/0/src/composables/createModel/index'
-  import('../../packages/0/src/composables/createModel/index')
   // @ts-ignore
   export type { UseHotkeyOptions, UseHotkeyReturn, PlatformContext } from '../../packages/0/src/composables/useHotkey/index'
   import('../../packages/0/src/composables/useHotkey/index')
@@ -401,15 +455,6 @@ declare global {
   export type { NotificationSeverity, NotificationInput, NotificationTicket, NotificationsAdapterContext, NotificationsAdapterInterface, NotificationsOptions, NotificationsContext, NotificationsPluginOptions } from '../../packages/0/src/composables/useNotifications/index'
   import('../../packages/0/src/composables/useNotifications/index')
   // @ts-ignore
-  export type { OverflowOptions, OverflowContext, OverflowContextOptions } from '../../packages/0/src/composables/createOverflow/index'
-  import('../../packages/0/src/composables/createOverflow/index')
-  // @ts-ignore
-  export type { PaginationTicket, PaginationContext, PaginationOptions, PaginationContextOptions } from '../../packages/0/src/composables/createPagination/index'
-  import('../../packages/0/src/composables/createPagination/index')
-  // @ts-ignore
-  export type { ProgressTicketInput, ProgressOptions, ProgressContext, ProgressContextOptions } from '../../packages/0/src/composables/createProgress/index'
-  import('../../packages/0/src/composables/createProgress/index')
-  // @ts-ignore
   export type { PermissionTicket, PermissionContext, PermissionOptions, PermissionContextOptions, PermissionPluginOptions, PermissionAdapterInterface } from '../../packages/0/src/composables/usePermissions/index'
   import('../../packages/0/src/composables/usePermissions/index')
   // @ts-ignore
@@ -428,18 +473,6 @@ declare global {
   export type { UseRafReturn } from '../../packages/0/src/composables/useRaf/index'
   import('../../packages/0/src/composables/useRaf/index')
   // @ts-ignore
-  export type { QueueTicketInput, QueueTicket, QueueContext, QueueOptions, QueueContextOptions } from '../../packages/0/src/composables/createQueue/index'
-  import('../../packages/0/src/composables/createQueue/index')
-  // @ts-ignore
-  export type { RatingItemState, RatingItemDescriptor, RatingContext, RatingOptions, RatingContextOptions } from '../../packages/0/src/composables/createRating/index'
-  import('../../packages/0/src/composables/createRating/index')
-  // @ts-ignore
-  export type { RegistryTicketInput, RegistryTicket, RegistryEventName, RegistryEventMap, RegistryEventCallback, RegistryContext, RegistryOptions, RegistryContextOptions } from '../../packages/0/src/composables/createRegistry/index'
-  import('../../packages/0/src/composables/createRegistry/index')
-  // @ts-ignore
-  export type { RuleAlias, RuleInput, RuleAliases, RulesContext, RulesOptions, RulesContextOptions, StandardSchemaV1 } from '../../packages/0/src/composables/useRules/index'
-  import('../../packages/0/src/composables/useRules/index')
-  // @ts-ignore
   export type { ResizeObserverEntry, ResizeObserverOptions, UseResizeObserverReturn, UseElementSizeReturn } from '../../packages/0/src/composables/useResizeObserver/index'
   import('../../packages/0/src/composables/useResizeObserver/index')
   // @ts-ignore
@@ -449,20 +482,11 @@ declare global {
   export type { RtlContext, RtlOptions, RtlContextOptions, RtlPluginOptions, RtlAdapter, RtlAdapterSetupContext } from '../../packages/0/src/composables/useRtl/index'
   import('../../packages/0/src/composables/useRtl/index')
   // @ts-ignore
-  export type { SelectionTicketInput, SelectionTicket, SelectionContext, SelectionOptions, SelectionContextOptions } from '../../packages/0/src/composables/createSelection/index'
-  import('../../packages/0/src/composables/createSelection/index')
-  // @ts-ignore
-  export type { SliderTicketInput, SliderOptions, SliderContext } from '../../packages/0/src/composables/createSlider/index'
-  import('../../packages/0/src/composables/createSlider/index')
-  // @ts-ignore
-  export type { SingleTicketInput, SingleTicket, SingleContext, SingleOptions, SingleContextOptions } from '../../packages/0/src/composables/createSingle/index'
-  import('../../packages/0/src/composables/createSingle/index')
+  export type { RuleAlias, RuleInput, RuleAliases, RulesContext, RulesOptions, RulesContextOptions, FormValidationRule, StandardSchemaV1 } from '../../packages/0/src/composables/useRules/index'
+  import('../../packages/0/src/composables/useRules/index')
   // @ts-ignore
   export type { StackTicketInput, StackTicket, StackContext, StackOptions, StackContextOptions, StackPluginOptions } from '../../packages/0/src/composables/useStack/index'
   import('../../packages/0/src/composables/useStack/index')
-  // @ts-ignore
-  export type { StepTicketInput, StepTicket, StepContext, StepOptions, StepContextOptions } from '../../packages/0/src/composables/createStep/index'
-  import('../../packages/0/src/composables/createStep/index')
   // @ts-ignore
   export type { StorageContext, StorageOptions, StorageContextOptions, StoragePluginOptions, StorageAdapter, StorageType } from '../../packages/0/src/composables/useStorage/index'
   import('../../packages/0/src/composables/useStorage/index')
@@ -473,20 +497,8 @@ declare global {
   export type { TimerOptions, TimerContext } from '../../packages/0/src/composables/useTimer/index'
   import('../../packages/0/src/composables/useTimer/index')
   // @ts-ignore
-  export type { TimelineContext, TimelineTicket, TimelineOptions, TimelineContextOptions } from '../../packages/0/src/composables/createTimeline/index'
-  import('../../packages/0/src/composables/createTimeline/index')
-  // @ts-ignore
-  export type { ValidationTicketInput, ValidationTicket, ValidationContext, ValidationOptions, FormValidationRule } from '../../packages/0/src/composables/createValidation/index'
-  import('../../packages/0/src/composables/createValidation/index')
-  // @ts-ignore
   export type { ToggleScopeControls } from '../../packages/0/src/composables/useToggleScope/index'
   import('../../packages/0/src/composables/useToggleScope/index')
-  // @ts-ignore
-  export type { TokenAlias, TokenPrimitive, TokenValue, TokenCollection, FlatTokenCollection, TokenTicket, TokenContext, TokenOptions, TokenContextOptions } from '../../packages/0/src/composables/createTokens/index'
-  import('../../packages/0/src/composables/createTokens/index')
-  // @ts-ignore
-  export type { VirtualDirection, VirtualState, VirtualAnchor, ScrollToOptions, VirtualOptions, VirtualItem, VirtualContext, VirtualContextOptions } from '../../packages/0/src/composables/createVirtual/index'
-  import('../../packages/0/src/composables/createVirtual/index')
   // @ts-ignore
   export type { VirtualFocusItem, VirtualFocusOptions, VirtualFocusReturn } from '../../packages/0/src/composables/useVirtualFocus/index'
   import('../../packages/0/src/composables/useVirtualFocus/index')
@@ -563,6 +575,7 @@ declare module 'vue' {
     readonly createHydration: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['createHydration']>
     readonly createHydrationContext: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['createHydrationContext']>
     readonly createHydrationPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['createHydrationPlugin']>
+    readonly createInput: UnwrapRef<typeof import('../../packages/0/src/composables/createInput/index')['createInput']>
     readonly createLocale: UnwrapRef<typeof import('../../packages/0/src/composables/useLocale/index')['createLocale']>
     readonly createLocaleContext: UnwrapRef<typeof import('../../packages/0/src/composables/useLocale/index')['createLocaleContext']>
     readonly createLocaleFallback: UnwrapRef<typeof import('../../packages/0/src/composables/useLocale/index')['createLocaleFallback']>
@@ -576,6 +589,8 @@ declare module 'vue' {
     readonly createNotifications: UnwrapRef<typeof import('../../packages/0/src/composables/useNotifications/index')['createNotifications']>
     readonly createNotificationsContext: UnwrapRef<typeof import('../../packages/0/src/composables/useNotifications/index')['createNotificationsContext']>
     readonly createNotificationsPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useNotifications/index')['createNotificationsPlugin']>
+    readonly createNumberField: UnwrapRef<typeof import('../../packages/0/src/composables/createNumberField/index')['createNumberField']>
+    readonly createNumeric: UnwrapRef<typeof import('../../packages/0/src/composables/createNumeric/index')['createNumeric']>
     readonly createOverflow: UnwrapRef<typeof import('../../packages/0/src/composables/createOverflow/index')['createOverflow']>
     readonly createOverflowContext: UnwrapRef<typeof import('../../packages/0/src/composables/createOverflow/index')['createOverflowContext']>
     readonly createPagination: UnwrapRef<typeof import('../../packages/0/src/composables/createPagination/index')['createPagination']>
