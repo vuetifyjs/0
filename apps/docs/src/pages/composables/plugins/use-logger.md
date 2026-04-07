@@ -77,6 +77,82 @@ Adapters let you swap the underlying logging implementation without changing you
 
 The default `Vuetify0LoggerAdapter` maps each level to the correct native console method — `debug` → `console.debug`, `info` → `console.info`, `warn` → `console.warn`, `error`/`fatal` → `console.error`. This ensures browser DevTools can correctly filter by level.
 
+### Pino
+
+[Pino](https://getpino.io/) is a high-performance JSON logger. Requires the `pino` package.
+
+::: code-group no-filename
+
+```bash pnpm
+pnpm add pino
+```
+
+```bash npm
+npm install pino
+```
+
+```bash yarn
+yarn add pino
+```
+
+```bash bun
+bun add pino
+```
+
+:::
+
+```ts src/plugins/zero.ts
+import pino from 'pino'
+import { PinoLoggerAdapter } from '@vuetify/v0/logger/adapters/pino'
+import { createLoggerPlugin } from '@vuetify/v0'
+
+const logger = pino({ level: 'debug' })
+
+app.use(
+  createLoggerPlugin({
+    adapter: new PinoLoggerAdapter(logger),
+  })
+)
+```
+
+### Consola
+
+[Consola](https://github.com/unjs/consola) is an elegant console logger by UnJS. Requires the `consola` package.
+
+::: code-group no-filename
+
+```bash pnpm
+pnpm add consola
+```
+
+```bash npm
+npm install consola
+```
+
+```bash yarn
+yarn add consola
+```
+
+```bash bun
+bun add consola
+```
+
+:::
+
+```ts src/plugins/zero.ts
+import { createConsola } from 'consola'
+import { ConsolaLoggerAdapter } from '@vuetify/v0/logger/adapters/consola'
+import { createLoggerPlugin } from '@vuetify/v0'
+
+const consola = createConsola({ level: 4 })
+
+app.use(
+  createLoggerPlugin({
+    adapter: new ConsolaLoggerAdapter(consola),
+  })
+)
+```
+
 ### Custom Adapters
 
 Implement `LoggerAdapter` to route logs to any destination:

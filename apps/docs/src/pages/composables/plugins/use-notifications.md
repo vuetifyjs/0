@@ -192,6 +192,120 @@ Adapters let you swap the underlying notification service without changing your 
 | `createKnockAdapter` | `@vuetify/v0/notifications` | [Knock](https://knock.app) integration |
 | `createNovuAdapter` | `@vuetify/v0/notifications` | [Novu](https://novu.co) integration |
 
+### Knock
+
+[Knock](https://knock.app) is a notification infrastructure platform with feeds, preferences, and multi-channel delivery. Install their [JavaScript SDK](https://docs.knock.app/sdks/javascript/overview) to get started. Supports both inbound (feed → notifications) and outbound (read/archive → Knock API).
+
+::: code-group no-filename
+
+```bash pnpm
+pnpm add @knocklabs/client
+```
+
+```bash npm
+npm install @knocklabs/client
+```
+
+```bash yarn
+yarn add @knocklabs/client
+```
+
+```bash bun
+bun add @knocklabs/client
+```
+
+:::
+
+::: code-group
+
+```ts src/main.ts
+import { createApp } from 'vue'
+import { createNotificationsPlugin } from '@vuetify/v0'
+import { createKnockAdapter } from '@vuetify/v0/notifications'
+import { feed } from './plugins/knock'
+import App from './App.vue'
+
+const app = createApp(App)
+
+app.use(
+  createNotificationsPlugin({
+    adapter: createKnockAdapter(feed),
+  })
+)
+
+app.mount('#app')
+```
+
+```ts src/plugins/knock.ts
+import Knock from '@knocklabs/client'
+
+export const knock = new Knock(import.meta.env.VITE_KNOCK_PUBLIC_KEY)
+knock.authenticate(import.meta.env.VITE_KNOCK_USER_ID)
+
+export const feed = knock.feeds.initialize(
+  import.meta.env.VITE_KNOCK_FEED_CHANNEL_ID
+)
+```
+
+:::
+
+### Novu
+
+[Novu](https://novu.co) is an open-source notification infrastructure with in-app feeds, digests, and multi-channel delivery. Install their [JavaScript SDK](https://docs.novu.co/sdks/javascript) to get started. Supports both inbound (feed → notifications) and outbound (read/unread/seen/archive/unarchive → Novu API).
+
+The adapter maps Novu severity strings to `NotificationSeverity` by default: `critical`/`high` → `error`, `medium` → `warning`, `low` → `info`. Pass a custom `severity` function to override.
+
+::: code-group no-filename
+
+```bash pnpm
+pnpm add @novu/js
+```
+
+```bash npm
+npm install @novu/js
+```
+
+```bash yarn
+yarn add @novu/js
+```
+
+```bash bun
+bun add @novu/js
+```
+
+:::
+
+::: code-group
+
+```ts src/main.ts
+import { createApp } from 'vue'
+import { createNotificationsPlugin } from '@vuetify/v0'
+import { createNovuAdapter } from '@vuetify/v0/notifications'
+import { novu } from './plugins/novu'
+import App from './App.vue'
+
+const app = createApp(App)
+
+app.use(
+  createNotificationsPlugin({
+    adapter: createNovuAdapter(novu),
+  })
+)
+
+app.mount('#app')
+```
+
+```ts src/plugins/novu.ts
+import { Novu } from '@novu/js'
+
+export const novu = new Novu({
+  subscriberId: import.meta.env.VITE_NOVU_SUBSCRIBER_ID,
+  applicationIdentifier: import.meta.env.VITE_NOVU_APP_ID,
+})
+```
+
+:::
+
 ### Custom Adapters
 
 Implement `NotificationsAdapterInterface` to connect any backend:
@@ -260,79 +374,5 @@ app.use(createNotificationsPlugin<AppNotification>({ adapter: new MyBackendAdapt
 Custom fields are preserved on the ticket and accessible anywhere you inject the notifications context.
 
 > [!ASKAI] How do I write a custom adapter for my backend?
-
-### Knock
-
-[Knock](https://knock.app) is a notification infrastructure platform with feeds, preferences, and multi-channel delivery. Install their [JavaScript SDK](https://docs.knock.app/sdks/javascript/overview) to get started. Supports both inbound (feed → notifications) and outbound (read/archive → Knock API).
-
-::: code-group
-
-```ts src/main.ts
-import { createApp } from 'vue'
-import { createNotificationsPlugin } from '@vuetify/v0'
-import { createKnockAdapter } from '@vuetify/v0/notifications'
-import { feed } from './plugins/knock'
-import App from './App.vue'
-
-const app = createApp(App)
-
-app.use(
-  createNotificationsPlugin({
-    adapter: createKnockAdapter(feed),
-  })
-)
-
-app.mount('#app')
-```
-
-```ts src/plugins/knock.ts
-import Knock from '@knocklabs/client'
-
-export const knock = new Knock(import.meta.env.VITE_KNOCK_PUBLIC_KEY)
-knock.authenticate(userId)
-
-export const feed = knock.feeds.initialize(
-  import.meta.env.VITE_KNOCK_FEED_CHANNEL_ID
-)
-```
-
-:::
-
-### Novu
-
-[Novu](https://novu.co) is an open-source notification infrastructure with in-app feeds, digests, and multi-channel delivery. Install their [JavaScript SDK](https://docs.novu.co/sdks/javascript) to get started. Supports both inbound (feed → notifications) and outbound (read/unread/seen/archive/unarchive → Novu API).
-
-The adapter maps Novu severity strings to `NotificationSeverity` by default: `critical`/`high` → `error`, `medium` → `warning`, `low` → `info`. Pass a custom `severity` function to override.
-
-::: code-group
-
-```ts src/main.ts
-import { createApp } from 'vue'
-import { createNotificationsPlugin } from '@vuetify/v0'
-import { createNovuAdapter } from '@vuetify/v0/notifications'
-import { novu } from './plugins/novu'
-import App from './App.vue'
-
-const app = createApp(App)
-
-app.use(
-  createNotificationsPlugin({
-    adapter: createNovuAdapter(novu),
-  })
-)
-
-app.mount('#app')
-```
-
-```ts src/plugins/novu.ts
-import { Novu } from '@novu/js'
-
-export const novu = new Novu({
-  subscriberId: userId,
-  applicationIdentifier: import.meta.env.VITE_NOVU_APP_ID,
-})
-```
-
-:::
 
 <DocsApi />

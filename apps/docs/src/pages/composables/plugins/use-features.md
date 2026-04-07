@@ -94,13 +94,29 @@ Adapters let you swap the underlying feature flag provider without changing your
 | `FlagsmithFeatureAdapter` | `@vuetify/v0/features/adapters/flagsmith` | [Flagsmith](https://flagsmith.com/) integration |
 | `LaunchDarklyFeatureAdapter` | `@vuetify/v0/features/adapters/launchdarkly` | [LaunchDarkly](https://launchdarkly.com/) integration |
 
-### Built-in Adapters
+### Flagsmith
 
-Each adapter is imported from its own nested subpath under `@vuetify/v0/features/adapters/`.
+[Flagsmith](https://flagsmith.com/) is an open-source feature flag platform. Requires the `@flagsmith/flagsmith` package.
 
-#### Flagsmith
+::: code-group no-filename
 
-Requires `@flagsmith/flagsmith` package.
+```bash pnpm
+pnpm add @flagsmith/flagsmith
+```
+
+```bash npm
+npm install @flagsmith/flagsmith
+```
+
+```bash yarn
+yarn add @flagsmith/flagsmith
+```
+
+```bash bun
+bun add @flagsmith/flagsmith
+```
+
+:::
 
 ```ts
 import flagsmith from '@flagsmith/flagsmith'
@@ -114,9 +130,29 @@ app.use(createFeaturesPlugin({
 }))
 ```
 
-#### LaunchDarkly
+### LaunchDarkly
 
-Requires `launchdarkly-js-client-sdk` package.
+[LaunchDarkly](https://launchdarkly.com/) is a feature management platform. Requires the `launchdarkly-js-client-sdk` package.
+
+::: code-group no-filename
+
+```bash pnpm
+pnpm add launchdarkly-js-client-sdk
+```
+
+```bash npm
+npm install launchdarkly-js-client-sdk
+```
+
+```bash yarn
+yarn add launchdarkly-js-client-sdk
+```
+
+```bash bun
+bun add launchdarkly-js-client-sdk
+```
+
+:::
 
 ```ts
 import * as LDClient from 'launchdarkly-js-client-sdk'
@@ -131,9 +167,29 @@ app.use(createFeaturesPlugin({
 }))
 ```
 
-#### PostHog
+### PostHog
 
-Requires `posthog-js` package.
+[PostHog](https://posthog.com/) is an open-source product analytics and feature flag platform. Requires the `posthog-js` package.
+
+::: code-group no-filename
+
+```bash pnpm
+pnpm add posthog-js
+```
+
+```bash npm
+npm install posthog-js
+```
+
+```bash yarn
+yarn add posthog-js
+```
+
+```bash bun
+bun add posthog-js
+```
+
+:::
 
 ```ts
 import posthog from 'posthog-js'
