@@ -42,7 +42,7 @@
       <PlaygroundMenuBar />
 
       <img
-        alt="Vuetify Play"
+        alt="Vuetify0 Play"
         class="h-7"
         :src="theme.isDark.value
           ? 'https://vuetifyjs.b-cdn.net/docs/images/one/logos/vplay-logo-dark.svg'
