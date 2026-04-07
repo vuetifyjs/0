@@ -23,6 +23,17 @@ export function registerPlugins (app: App) {
   )
 
   app.use(
+    createRulesPlugin({
+      aliases: {
+        required: v => (v === 0 || !!v) || 'This field is required',
+        email: v => !v || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(v)) || 'Must be a valid email',
+        slug: v => !v || /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(String(v)) || 'Must be a valid slug',
+        prefix: v => !v || String(v).startsWith('/') || 'Must start with /',
+      },
+    }),
+  )
+
+  app.use(
     createLocalePlugin({
       default: 'en',
       messages: {
