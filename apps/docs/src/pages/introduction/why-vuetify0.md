@@ -230,7 +230,7 @@ Active Discord. Weekly releases. Responsive maintainers. The kind of support tha
 
 ### Vuetify Convergence
 
-This isn't theoretical — v0 is already being merged into Vuetify's next major release. The first PR has landed. Investing in v0 now means your foundation aligns with where the entire Vuetify ecosystem is actively heading.
+Vuetify0 is already being merged into Vuetify's next major release. The first PR has landed. Investing in v0 now means your foundation aligns with where the entire Vuetify ecosystem is actively heading.
 
 ### Road to v1
 
@@ -242,9 +242,9 @@ What comes after v1: **Vuetify Paper** — a styled layer built on v0 that provi
 
 Need to justify the choice to management? Here's what matters to them:
 
-- **Proven track record:** 10+ years, 40K+ stars, 371K+ dependents — not a gamble
+- **Proven track record:** 10+ years, 41K+ stars, 324K+ dependents — not a gamble
 - **Active development:** Weekly releases, thousands of PRs merged, public roadmap
-- **Ecosystem convergence:** v0 is already being merged into Vuetify's next major release — long-term investment, not a dead end
+- **Ecosystem convergence:** v0 is already being merged into Vuetify's next major release
 - **Enterprise adoption:** Production use across industries
 - **Community health:** Active Discord, dedicated maintainer team, massive documentation investment
 - **Enterprise support:** [Dedicated support options available](https://vuetifyjs.com/introduction/enterprise-support/) for teams that need SLA guarantees
@@ -297,14 +297,14 @@ Headless component libraries solve one problem well: unstyled UI primitives. v0 
 | CLI tooling | <AppIcon icon="close" class="text-error" /> | <AppIcon icon="success" class="text-success" /> |
 | 10+ years ecosystem | <AppIcon icon="close" class="text-error" /> | <AppIcon icon="success" class="text-success" /> |
 
-Need a full styled framework today? [Vuetify 3](https://vuetifyjs.com) has 80+ Material Design components ready to go. Need headless components that v0 doesn't have yet? Other options exist. v0 complements all of them — it's the foundation layer, not a replacement.
+Need a full styled framework today? [Vuetify 4](https://vuetifyjs.com) has 80+ Material Design components ready to go. Need headless components that v0 doesn't have yet? Other options exist. v0 complements all of them — it's the foundation layer, not a replacement.
 
 ## Get Started
 
 Ready to build? Pick your path:
 
 ```sh
-pnpm add @vuetify/v0@alpha
+pnpm add @vuetify/v0
 ```
 
 - **[Install v0](/introduction/getting-started)** and start building
