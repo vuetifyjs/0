@@ -317,7 +317,12 @@ export function useBenchmarkData (options?: UseBenchmarkDataOptions): UseBenchma
     if (name) {
       return all.filter(c => c.name === name)
     }
-    return all
+    return all.toSorted((a, b) => {
+      const aIsComposable = /^(?:create|use)/.test(a.name)
+      const bIsComposable = /^(?:create|use)/.test(b.name)
+      if (aIsComposable !== bIsComposable) return aIsComposable ? -1 : 1
+      return a.name.localeCompare(b.name)
+    })
   })
 
   // Build a searchable flat list for createFilter

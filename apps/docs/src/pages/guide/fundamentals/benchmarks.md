@@ -1,13 +1,13 @@
 ---
-title: Benchmarks - Performance Metrics and Size Ratings
+title: Benchmarks - Performance Metrics and Tiers
 features:
   order: 5
-  level: 3
+  level: 2
 meta:
   - name: description
-    content: Understand Vuetify0 benchmark methodology, performance tiers, and size ratings. Learn what gets benchmarked and how to interpret metrics.
+    content: Understand Vuetify0 benchmark methodology, performance tiers, and how to interpret results. Learn what gets benchmarked and how metrics are calculated.
   - name: keywords
-    content: vuetify0, benchmarks, performance, metrics, size ratings, ops/s, vitest bench
+    content: vuetify0, benchmarks, performance, metrics, tiers, ops/s, vitest bench
 related:
   - /composables
   - /guide/fundamentals/core
@@ -35,11 +35,15 @@ Headless UI libraries must be fast—they're foundational infrastructure. v0 ben
 | Composable | Why It's Benchmarked |
 | - | - |
 | `createRegistry` | Foundation for all collections—performance here affects everything |
+| `createModel` | Value store underlying all selection—selection benchmarks depend on it |
 | `createSelection` | Base for all selection patterns—select, toggle, mandatory, batch |
+| `createNested` | Hierarchical trees with cascade—tree traversal scales with depth |
 | `createTokens` | Design tokens can grow large—alias resolution must scale |
 | `createFilter` | Search/filter on large datasets must remain responsive |
 | `createVirtual` | Virtual scrolling is performance-critical by definition |
+| `createDataTable` | Composed orchestrator—measures sorting, filtering, and pagination together |
 | `useDate` | Date operations are frequent in UIs |
+| `useProxyRegistry` | Reactive proxy for templates—shows reactivity overhead vs raw registry |
 
 ### Operation Categories
 
@@ -115,17 +119,18 @@ Tiers adjust based on detected algorithmic complexity:
 
 | Pattern in Benchmark Name | Complexity |
 | - | - |
-| "single item", "single query" | O(1) |
-| "1,000 items", "all keys" | O(n) |
-| "nested", "recursive" | O(n²) |
+| "single" or "one item/query/key" | O(1) |
+| Number + items/objects/entries/elements | O(n) — default for most benchmarks |
+| "nested" or "recursive" | O(n²) |
+| No pattern matched | O(n) — conservative fallback |
 
 ### Reading Results
 
 ```bash
 ✓ createRegistry/index.bench.ts
   lookup operations
-    ✓ Get item by id (1,000 items)     1,234,567 ops/s
-    ✓ Get item by id (10,000 items)    1,198,432 ops/s
+    ✓ Get by id (1,000 items)          1,234,567 ops/s
+    ✓ Get by id (10,000 items)         1,198,432 ops/s
 ```
 
 - **ops/s** — Operations per second (higher is better)
@@ -195,7 +200,7 @@ Compare `createRegistry` benchmarks with `useProxyRegistry` to see the reactivit
 
 ## Explorer
 
-Browse all benchmark results. Filter by composable, performance tier, or search for specific operations.
+Browse all benchmark results. Select a composable to filter, or expand groups to compare individual operations.
 
 <BenchmarkExplorer />
 
@@ -208,4 +213,4 @@ New composables should include benchmarks if they:
 - Have user-perceived latency (loading, transitions)
 - Are called frequently (every render, every keystroke)
 
-See [createRegistry benchmarks](https://github.com/vuetifyjs/v0/blob/master/packages/0/src/composables/createRegistry/index.bench.ts) for the canonical example.
+See [createRegistry benchmarks](https://github.com/vuetifyjs/0/blob/master/packages/0/src/composables/createRegistry/index.bench.ts) for the canonical example.
