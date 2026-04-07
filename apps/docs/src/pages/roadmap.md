@@ -37,7 +37,7 @@ We're opening v0 for feedback, bug reports, and contributions. Your input shapes
 
 <DocsTimeline :milestones="[
   { id: 'alpha', label: 'Alpha', date: 'April 7, 2026', description: 'Open for feedback, bug reports, and contributions. APIs mostly stable, may evolve.', active: true },
-  { id: 'beta', label: 'Beta', date: 'May 2026', description: 'API freeze. Focus shifts to stability, documentation, and edge cases.' },
+  { id: 'beta', label: 'Beta', date: 'June 2026', description: 'API freeze. Focus shifts to stability, documentation, and edge cases.' },
   { id: 'v1', label: 'v1.0', date: 'July 2026', description: 'Milestone-driven. Ships when the milestones are met.' },
 ]" />
 

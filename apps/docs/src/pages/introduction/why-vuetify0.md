@@ -23,9 +23,9 @@ The meta-framework for building UI libraries.
 
 <DocsPageFeatures :frontmatter />
 
-v0 provides headless composables, unstyled components, and reactive primitives — the foundation layer that UI frameworks are built on. **47 components, 63+ composables** — all unstyled, all accessible, built on standard Vue SFCs using the latest macros (`defineModel`, `defineSlots`, generics). No custom compiler, no proprietary patterns. Use it to build a full design system shared across projects, or import a single composable to solve one problem in your app. v0 scales to your ambition.
+v0 provides headless composables, unstyled components, and reactive primitives — the foundation layer that UI frameworks are built on. **46 components, 63+ composables** — all unstyled, all accessible, built on standard Vue SFCs using the latest macros (`defineModel`, `defineSlots`, generics). No custom compiler, no proprietary patterns. Use it to build a full design system shared across projects, or import a single composable to solve one problem in your app. v0 scales to your ambition.
 
-From the creators of [Vuetify](https://vuetifyjs.com) — **40K+ GitHub stars**, **2M+ weekly downloads**, a decade of production use. Vuetify itself is being rebuilt on v0.
+From the creators of [Vuetify](https://vuetifyjs.com) — **41K+ GitHub stars**, **4M+ monthly downloads**, a decade of production use. Vuetify itself is being rebuilt on v0.
 
 ## Composable-First Architecture
 
@@ -218,7 +218,7 @@ While v0 is new, its patterns are not. Registration, selection, theming, forms �
 
 ### The Platform Behind v0
 
-- **40K+ GitHub stars**, **2M+ weekly downloads**, **371K+ dependent projects**
+- **41K+ GitHub stars**, **4M+ monthly downloads**, **324K+ dependent projects**
 - **10+ years** of continuous development
 - Weekly release cadence maintained consistently
 - Thousands of issues dispositioned, thousands of PRs merged, tens of thousands of commits
@@ -234,7 +234,7 @@ This isn't theoretical — v0 is already being merged into Vuetify's next major 
 
 ### Road to v1
 
-**Alpha (April 7, 2026) → Beta (May 2026) → v1.0 (July 2026)** — [see the full roadmap](/roadmap).
+**Alpha (April 7, 2026) → Beta (June 2026) → v1.0 (July 2026)** — [see the full roadmap](/roadmap).
 
 What comes after v1: **Vuetify Paper** — a styled layer built on v0 that provides opinionated design system primitives. Emerald and Onyx are the first design systems. Build on v0 today; Paper gives you a head start on the styled layer when you're ready.
 
