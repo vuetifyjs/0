@@ -121,7 +121,7 @@ Loading spinner with a grace period before it appears, swapping between spinner 
 
 :::
 
-`Button.Loading` and `Button.Content` use an internal selection context. Only one is "selected" at a time — `Content` by default, `Loading` after the grace period elapses. Use the `isSelected` slot prop to drive visibility.
+`Button.Loading` and `Button.Content` conditionally render based on the loading state. Only one is visible at a time — `Content` by default, `Loading` after the grace period elapses.
 
 ### Toggle Groups
 

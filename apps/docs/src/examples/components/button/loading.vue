@@ -19,16 +19,14 @@
     :loading
     @click="onSave"
   >
-    <Button.Loading v-slot="{ isSelected }">
-      <span class="absolute inset-0 flex items-center justify-center transition-opacity" :class="isSelected ? 'opacity-100' : 'opacity-0'">
+    <Button.Loading>
+      <span class="absolute inset-0 flex items-center justify-center">
         Saving...
       </span>
     </Button.Loading>
 
-    <Button.Content v-slot="{ isSelected }">
-      <span class="transition-opacity" :class="isSelected ? 'opacity-100' : 'opacity-0'">
-        Save
-      </span>
+    <Button.Content>
+      Save
     </Button.Content>
   </Button.Root>
 

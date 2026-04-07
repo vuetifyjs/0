@@ -54,5 +54,7 @@
 </script>
 
 <template>
-  <slot v-bind="slotProps" />
+  <span :style="{ visibility: ticket.isSelected.value ? 'visible' : 'hidden' }">
+    <slot v-bind="slotProps" />
+  </span>
 </template>

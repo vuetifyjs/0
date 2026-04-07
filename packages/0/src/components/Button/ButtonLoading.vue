@@ -70,5 +70,5 @@
 </script>
 
 <template>
-  <slot v-bind="slotProps" />
+  <slot v-if="ticket.isSelected.value" v-bind="slotProps" />
 </template>

@@ -390,16 +390,12 @@ describe('button', () => {
   describe('loading/content visibility', () => {
     it('should show content by default', () => {
       let contentProps: any
-      let loadingProps: any
 
-      mount(Button.Root, {
+      const wrapper = mount(Button.Root, {
         slots: {
           default: () => [
             h(Button.Loading as any, {}, {
-              default: (p: any) => {
-                loadingProps = p
-                return h('span', 'Loading...')
-              },
+              default: () => h('span', 'Loading...'),
             }),
             h(Button.Content as any, {}, {
               default: (p: any) => {
@@ -412,7 +408,8 @@ describe('button', () => {
       })
 
       expect(contentProps.isSelected).toBe(true)
-      expect(loadingProps.isSelected).toBe(false)
+      expect(wrapper.text()).toContain('Content')
+      expect(wrapper.text()).not.toContain('Loading...')
     })
 
     it('should switch to loading after grace period', async () => {
@@ -421,7 +418,7 @@ describe('button', () => {
       let contentProps: any
       let loadingProps: any
 
-      mount(Button.Root, {
+      const wrapper = mount(Button.Root, {
         props: { loading: true, grace: 1000 },
         slots: {
           default: () => [
@@ -441,16 +438,18 @@ describe('button', () => {
         },
       })
 
-      // Before grace period
+      // Before grace period — content visible, loading not rendered
       expect(contentProps.isSelected).toBe(true)
-      expect(loadingProps.isSelected).toBe(false)
+      expect(wrapper.find('span[style*="visible"]').exists()).toBe(true)
+      expect(wrapper.text()).not.toContain('Loading...')
 
       vi.advanceTimersByTime(1000)
       await nextTick()
 
-      // After grace period
+      // After grace period — loading rendered, content hidden
       expect(loadingProps.isSelected).toBe(true)
-      expect(contentProps.isSelected).toBe(false)
+      expect(wrapper.text()).toContain('Loading...')
+      expect(wrapper.find('span[style*="hidden"]').exists()).toBe(true)
 
       vi.useRealTimers()
     })

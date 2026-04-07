@@ -60,19 +60,20 @@
 
     <div class="flex flex-col items-center gap-1">
       <Button.Root
-        class="px-4 py-2 rounded-md text-sm font-medium bg-primary text-on-primary min-w-24 relative inline-flex items-center justify-center data-[loading]:cursor-default"
+        class="px-4 py-2 rounded-md text-sm font-medium bg-primary text-on-primary min-w-24 relative inline-flex items-center justify-center data-[loading]:cursor-default data-[passive]:cursor-default"
         :grace="1000"
         :loading
+        :passive="loaded"
         @click="onLoad"
       >
-        <Button.Loading v-slot="{ isSelected }">
-          <span class="absolute inset-0 flex items-center justify-center transition-opacity" :class="isSelected ? 'opacity-100' : 'opacity-0'">
+        <Button.Loading>
+          <span class="absolute inset-0 flex items-center justify-center">
             <span class="inline-block w-4 h-4 border-2 border-on-primary border-t-transparent rounded-full animate-spin" />
           </span>
         </Button.Loading>
 
-        <Button.Content v-slot="{ isSelected }">
-          <span :class="isSelected ? 'visible' : 'invisible'">{{ loaded ? 'Loaded' : 'Load' }}</span>
+        <Button.Content>
+          {{ loaded ? 'Loaded' : 'Load' }}
         </Button.Content>
       </Button.Root>
       <span class="text-xs text-on-surface-variant">1s grace period</span>
