@@ -6,6 +6,7 @@
 
   const props = defineProps<{
     code: string
+    playgroundCode?: string
     language?: string
     title?: string
     binTitle?: string
@@ -29,7 +30,7 @@
   }
 
   async function openInPlayground () {
-    const url = await usePlayground([{ name: props.title ?? 'Example.vue', code: props.code }])
+    const url = await usePlayground([{ name: props.title ?? 'Example.vue', code: props.playgroundCode ?? props.code }])
     window.open(url, '_blank')
   }
 </script>

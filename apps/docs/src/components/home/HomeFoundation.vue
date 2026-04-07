@@ -21,7 +21,7 @@
       </h2>
 
       <p class="opacity-60 max-w-[640px] mx-auto leading-relaxed">
-        40K+ stars. 2M+ weekly downloads. A decade of Vue expertise.
+        41K+ stars. 4M+ monthly downloads. A decade of Vue expertise.
       </p>
     </div>
 

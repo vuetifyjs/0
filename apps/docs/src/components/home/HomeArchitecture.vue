@@ -79,19 +79,105 @@
 </template>`,
   }
 
+  const playgroundSnippets: Record<string, string> = {
+    composable: `<script setup lang="ts">
+  import { createSelection } from '@vuetify/v0'
+
+  const selection = createSelection({
+    multiple: true,
+  })
+
+  const items = selection.onboard([
+    { id: 1, value: 'Option A' },
+    { id: 2, value: 'Option B' },
+    { id: 3, value: 'Option C' },
+  ])
+<\/script>
+
+<template>
+  <div class="p-6 flex flex-col items-center gap-6">
+    <div class="flex flex-wrap gap-3">
+      <button
+        v-for="item in items"
+        :key="item.id"
+        :aria-pressed="item.isSelected.value"
+        class="px-5 py-2.5 rounded-lg border font-medium transition-all"
+        :class="item.isSelected.value
+          ? 'bg-primary text-on-primary border-primary'
+          : 'bg-surface hover:bg-surface-tint'"
+        @click="item.toggle"
+      >
+        {{ item.value }}
+      </button>
+    </div>
+
+    <p class="text-sm opacity-60">
+      Selected: <span class="font-mono">{{ [...selection.selectedIds].join(', ') || 'none' }}</span>
+    </p>
+  </div>
+</template>`,
+
+    component: `<script setup lang="ts">
+  import { Selection } from '@vuetify/v0'
+  import { shallowRef } from 'vue'
+
+  const items = [
+    { id: 1, label: 'Option A' },
+    { id: 2, label: 'Option B' },
+    { id: 3, label: 'Option C' },
+  ]
+
+  const selected = shallowRef<number[]>([])
+<\/script>
+
+<template>
+  <div class="p-6 flex flex-col items-center gap-6">
+    <Selection.Root v-model="selected" multiple>
+      <div class="flex flex-wrap gap-3">
+        <Selection.Item
+          v-for="item in items"
+          :key="item.id"
+          v-slot="{ isSelected, toggle }"
+          :value="item.id"
+        >
+          <button
+            :aria-pressed="isSelected"
+            class="px-5 py-2.5 rounded-lg border font-medium transition-all"
+            :class="isSelected
+              ? 'bg-primary text-on-primary border-primary'
+              : 'bg-surface hover:bg-surface-tint'"
+            @click="toggle"
+          >
+            {{ item.label }}
+          </button>
+        </Selection.Item>
+      </div>
+    </Selection.Root>
+
+    <p class="text-sm opacity-60">
+      Selected: <span class="font-mono">{{ selected.join(', ') || 'none' }}</span>
+    </p>
+  </div>
+</template>`,
+  }
+
   const currentCode = toRef(() => codeSnippets[activeTab.value] ?? '')
+  const currentPlaygroundCode = toRef(() => playgroundSnippets[activeTab.value] ?? '')
   const highlighter = useHighlightCode(currentCode, { immediate: false })
 
   const section = useTemplateRef<HTMLElement>('section')
+  const visible = shallowRef(false)
+
   const { stop } = useIntersectionObserver(section, entries => {
     if (entries[0]?.isIntersecting) {
+      visible.value = true
       highlighter.highlight()
       stop()
-      // Start watching for tab changes after first highlight
-      watch(currentCode, value => {
-        if (value) highlighter.highlight(value)
-      })
     }
+  })
+
+  watch(currentCode, value => {
+    if (visible.value && value) highlighter.highlight(value)
   })
 </script>
 
@@ -140,6 +226,7 @@
               :code="currentCode"
               language="vue"
               playground
+              :playground-code="currentPlaygroundCode"
               show-copy
             />
           </div>
