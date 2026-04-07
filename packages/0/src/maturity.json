@@ -477,10 +477,6 @@
       "since": "0.1.9",
       "category": "semantic"
     },
-    "Toast": {
-      "level": "draft",
-      "category": "disclosure"
-    },
     "Tooltip": {
       "level": "draft",
       "category": "disclosure"
