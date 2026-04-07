@@ -12,8 +12,8 @@
 
   const notifications = useNotifications()
 
-  // Seed banner notification (replaced by CMS adapter later)
-  if (!notifications.has('pre-alpha-banner')) {
+  // Seed banner notification (repla
+  if (!notifications.has('alpha-banner')) {
     notifications.register({
       id: 'alpha-banner',
       subject: 'Vuetify0 is now in alpha!',
