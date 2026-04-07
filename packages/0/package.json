@@ -17,7 +17,10 @@
   "scripts": {
     "build": "tsdown && pnpm generate:web-types",
     "generate:web-types": "tsx scripts/generate-web-types.ts",
-    "typecheck": "vue-tsc --noEmit --incremental"
+    "typecheck": "vue-tsc --noEmit --incremental",
+    "test:unit": "vitest --project v0:unit",
+    "test:browser": "vitest --project v0:browser",
+    "test:open": "TEST_BAIL=1 vitest --project v0:browser -w"
   },
   "publishConfig": {
     "exports": {
@@ -110,8 +113,11 @@
     "@ant-design/colors": "catalog:",
     "@flagsmith/flagsmith": "catalog:",
     "@material/material-color-utilities": "catalog:",
+    "@testing-library/vue": "catalog:",
+    "@vitest/browser-playwright": "catalog:",
     "@vue/compiler-dom": "catalog:",
     "@vue/test-utils": "catalog:",
+    "jsdom": "catalog:",
     "launchdarkly-js-client-sdk": "catalog:",
     "posthog-js": "catalog:",
     "tsdown": "catalog:",

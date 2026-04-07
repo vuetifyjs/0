@@ -2,7 +2,12 @@ import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
   test: {
-    projects: ['packages/*', 'apps/docs'],
+    projects: [
+      'packages/0',
+      'packages/0/vitest.browser.config.ts',
+      'packages/paper',
+      'apps/docs',
+    ],
     globals: true,
     include: ['**/*.{test,spec}.?(c|m)[jt]s?(x)'],
     testTimeout: 20_000,
@@ -12,6 +17,7 @@ export default defineConfig({
       include: ['packages/0/src/**/*.ts', 'packages/0/src/**/*.vue'],
       exclude: [
         '**/*.test.ts',
+        '**/*.browser.test.ts',
         '**/*.spec.ts',
         '**/*.bench.ts',
         '**/*.d.ts',

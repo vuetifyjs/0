@@ -1,16 +1,10 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 // Utilities
 import { mount } from '@vue/test-utils'
 import { defineComponent, h, nextTick, ref } from 'vue'
 
 import { Select } from './index'
-
-// Mock showPopover/hidePopover — not supported in happy-dom
-beforeEach(() => {
-  HTMLElement.prototype.showPopover = vi.fn()
-  HTMLElement.prototype.hidePopover = vi.fn()
-})
 
 /**
  * Helper to mount a complete Select compound and open it so items
