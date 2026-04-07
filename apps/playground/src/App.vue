@@ -45,6 +45,12 @@
       margin-top: 0;
     }
 
+    hr {
+      border: none;
+      border-top: thin solid var(--v0-divider);
+      margin-block: 0.5rem;
+    }
+
     blockquote {
       margin: 1rem 0;
       padding: 0.5rem 1rem;
