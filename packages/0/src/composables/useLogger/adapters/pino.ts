@@ -11,7 +11,7 @@ import type { LoggerAdapter } from './adapter'
  * providing high-performance structured logging optimized
  * for Node.js applications with minimal overhead.
  */
-interface PinoInstance {
+export interface PinoInstance {
   debug: (obj: Record<string, unknown>) => void
   info: (obj: Record<string, unknown>) => void
   warn: (obj: Record<string, unknown>) => void
@@ -23,7 +23,7 @@ interface PinoInstance {
 export class PinoLoggerAdapter implements LoggerAdapter {
   private pino: PinoInstance
 
-  constructor (pinoInstance: PinoInstance) {
+  constructor (pinoInstance: PinoInstance | null | undefined) {
     if (!pinoInstance) {
       throw new Error('Pino instance is required for PinoLoggerAdapter')
     }

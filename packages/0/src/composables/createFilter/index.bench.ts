@@ -20,6 +20,7 @@ import { createFilter } from './index'
 // =============================================================================
 
 interface BenchmarkObject {
+  [key: string]: unknown
   id: string
   name: string
   email: string

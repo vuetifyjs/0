@@ -1,9 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+// Types
+import type { PinoInstance } from './pino'
+
 import { PinoLoggerAdapter } from './pino'
 
 describe('pinoLoggerAdapter', () => {
-  let mockPino: Record<string, ReturnType<typeof vi.fn>>
+  let mockPino: PinoInstance
 
   beforeEach(() => {
     mockPino = {
