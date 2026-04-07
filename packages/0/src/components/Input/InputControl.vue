@@ -95,6 +95,9 @@
       'data-focused': isFocused ? true : undefined,
       'data-disabled': disabled ? true : undefined,
       'data-readonly': readonly ? true : undefined,
+      'onInput': onInput,
+      'onFocus': onFocus,
+      'onBlur': onBlur,
     }
   })
 
@@ -112,9 +115,6 @@
     v-bind="{ ...attrs, ...controlAttrs }"
     :as
     :renderless
-    @blur="onBlur"
-    @focus="onFocus"
-    @input="onInput"
   >
     <slot v-bind="slotProps" />
   </Atom>
