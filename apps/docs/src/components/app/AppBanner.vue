@@ -15,8 +15,8 @@
   // Seed banner notification (replaced by CMS adapter later)
   if (!notifications.has('pre-alpha-banner')) {
     notifications.register({
-      id: 'pre-alpha-banner',
-      subject: 'You are viewing Pre-Alpha documentation.',
+      id: 'alpha-banner',
+      subject: 'Vuetify0 is now in alpha!',
       severity: 'warning',
       data: { type: 'banner' },
     })
@@ -49,12 +49,12 @@
   <Atom
     v-if="visible"
     :as
-    class="flex items-center justify-center h-[24px] fixed inset-x-0 top-0 px-3 text-xs gap-2 text-on-warning z-1 bg-glass-warning"
+    class="flex items-center justify-center h-[24px] fixed inset-x-0 top-0 px-3 text-xs gap-2 text-on-primary z-1 bg-glass-primary"
   >
-    <AppIcon icon="alert" :size="14" />
+    <AppIcon icon="vuetify-0" :size="14" />
 
     <div>
-      {{ banner?.subject }} <span class="hidden md:inline">See the <RouterLink class="underline underline-offset-2" to="/roadmap">roadmap</RouterLink> for updates.</span>
+      {{ banner?.subject }} <span class="hidden md:inline">See the <RouterLink class="underline underline-offset-2" to="/roadmap#alpha">roadmap</RouterLink> for details.</span>
     </div>
 
     <button
