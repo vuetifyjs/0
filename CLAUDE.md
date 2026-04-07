@@ -152,3 +152,5 @@ See `.claude/rules/` for path-scoped documentation:
 - `composables.md` - Architecture for `packages/0/src/composables/**`
 - `components.md` - Architecture for `packages/0/src/components/**`
 - `benchmarks.md` - Standards for `*.bench.ts` files
+- `docs.md` - Architecture for `apps/docs/**`
+- `testing.md` - Standards for `*.test.ts` files
