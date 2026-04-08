@@ -1,6 +1,6 @@
 <script setup lang="ts">
   import { useMutationObserver } from '@vuetify/v0'
-  import { ref, useTemplateRef } from 'vue'
+  import { ref, shallowRef, useTemplateRef } from 'vue'
 
   interface MutationEntry {
     type: string
@@ -9,7 +9,8 @@
 
   const target = useTemplateRef<HTMLElement>('target')
   const mutations = ref<MutationEntry[]>([])
-  const childCount = ref(0)
+  const childCount = shallowRef(0)
+  const activeChildren = shallowRef(0)
 
   const { isPaused, pause, resume } = useMutationObserver(
     target,
@@ -60,12 +61,14 @@
     child.textContent = `Child ${childCount.value}`
     child.className = 'px-3 py-1 rounded bg-surface-variant text-on-surface-variant text-sm'
     el.append(child)
+    activeChildren.value++
   }
 
   function onRemoveChild () {
     const el = target.value
     if (!el?.lastElementChild) return
     el.lastElementChild.remove()
+    activeChildren.value--
   }
 
   function onToggleAttribute () {
@@ -116,7 +119,7 @@
       class="min-h-16 p-3 rounded-lg border-2 border-dashed border-divider flex flex-wrap gap-2 items-start"
     >
       <span
-        v-if="!target?.children.length"
+        v-if="activeChildren === 0"
         class="text-sm text-on-surface-variant opacity-60"
       >
         Add children to observe mutations
