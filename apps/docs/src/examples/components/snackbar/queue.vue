@@ -115,8 +115,8 @@
   </div>
 
   <Snackbar.Portal
-    :teleport="false"
     class="fixed bottom-4 right-4 w-72"
+    :teleport="false"
     @mouseenter="onEnter"
     @mouseleave="onLeave"
   >

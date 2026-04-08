@@ -206,7 +206,7 @@
     </div>
 
     <!-- Toasts — rendered from notifications.queue via Snackbar -->
-    <Snackbar.Portal :teleport="false" class="fixed bottom-4 right-4 flex flex-col gap-2">
+    <Snackbar.Portal class="fixed bottom-4 right-4 flex flex-col gap-2" :teleport="false">
       <TransitionGroup
         enter-active-class="transition duration-200 ease-out"
         enter-from-class="opacity-0 translate-y-2"
