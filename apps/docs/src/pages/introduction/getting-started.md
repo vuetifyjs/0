@@ -192,6 +192,7 @@ Import and use components directly - no plugin installation required:
     <ExpansionPanel.Root value="item-1">
       <ExpansionPanel.Activator>
         Section 1
+        <ExpansionPanel.Cue />
       </ExpansionPanel.Activator>
 
       <ExpansionPanel.Content>
@@ -388,9 +389,9 @@ Type-safe access via `useCssModule()`:
 > [!TIP]
 > For dark mode, custom themes, and design tokens, see the [Theming Guide](/guide/features/theming).
 
-## Nuxt 3
+## Nuxt
 
-v0 works with Nuxt 3 via a standard plugin.
+v0 works with Nuxt 3 and Nuxt 4 via a standard plugin.
 
 ### 1. Create Plugin
 
