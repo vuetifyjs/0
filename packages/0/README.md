@@ -283,7 +283,7 @@ pnpm validate
 
 ## Contributing
 
-We are not currently accepting external contributions. Check back later or join our [Discord community](https://community.vuetifyjs.com) for updates.
+v0 is in alpha — open for feedback, bug reports, and contributions. See the [Alpha Roadmap](https://vuetify0.com/roadmap#alpha) for what's planned and how to get involved.
 
 ## License
 
