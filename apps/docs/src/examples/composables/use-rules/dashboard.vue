@@ -69,6 +69,7 @@
         :label="field.label"
         :placeholder="field.placeholder"
         :validation="field.validation"
+        :value="field.value.value"
         @input="field.value.value = $event"
       />
     </div>
