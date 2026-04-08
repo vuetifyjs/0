@@ -291,12 +291,8 @@ export function createStack (_options: StackOptions = {}): StackContext {
  */
 export function createStackContext (_options: StackContextOptions = {}): ContextTrinity<StackContext> {
   const { namespace = 'v0:stack', ...options } = _options
-  const [useStackContext, _provideStackContext] = createContext<StackContext>(namespace)
+  const [useStackContext, provideStackContext] = createContext<StackContext>(namespace)
   const context = createStack(options)
-
-  function provideStackContext (_context: StackContext = context, app?: App): StackContext {
-    return _provideStackContext(_context, app)
-  }
 
   return createTrinity<StackContext>(useStackContext, provideStackContext, context)
 }

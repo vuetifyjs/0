@@ -29,7 +29,6 @@ import { shallowReactive } from 'vue'
 // Types
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { Extensible, ID } from '#v0/types'
-import type { App } from 'vue'
 
 /**
  * User-facing input shape for registry tickets.
@@ -1186,13 +1185,9 @@ export function createRegistryContext<
   E extends RegistryTicket & Z = RegistryTicket & Z,
 > (_options: RegistryContextOptions = {}): ContextTrinity<RegistryContext<Z, E>> {
   const { namespace = 'v0:registry', ...options } = _options
-  const [useRegistryContext, _provideRegistryContext] = createContext<RegistryContext<Z, E>>(namespace)
+  const [useRegistryContext, provideRegistryContext] = createContext<RegistryContext<Z, E>>(namespace)
 
   const context = createRegistry<Z, E>(options)
-
-  function provideRegistryContext (_context: RegistryContext<Z, E> = context, app?: App): RegistryContext<Z, E> {
-    return _provideRegistryContext(_context, app)
-  }
 
   return createTrinity<RegistryContext<Z, E>>(useRegistryContext, provideRegistryContext, context)
 }

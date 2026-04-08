@@ -247,12 +247,8 @@ export function createDateContext<
   E extends DateContext<Z> = DateContext<Z>,
 > (options: DateContextOptions<Z>): ContextTrinity<E> {
   const { namespace = 'v0:date', ...dateOptions } = options
-  const [useDateContext, _provideDateContext] = createContext<E>(namespace)
+  const [useDateContext, provideDateContext] = createContext<E>(namespace)
   const context = createDate<Z, E>(dateOptions)
-
-  function provideDateContext (_context: E = context, app?: App): E {
-    return _provideDateContext(_context, app)
-  }
 
   return createTrinity<E>(useDateContext, provideDateContext, context)
 }

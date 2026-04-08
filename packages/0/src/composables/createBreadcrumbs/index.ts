@@ -27,7 +27,7 @@ import { toRef } from 'vue'
 import type { SingleContext, SingleContextOptions, SingleOptions, SingleTicket, SingleTicketInput } from '#v0/composables/createSingle'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { ID } from '#v0/types'
-import type { App, Ref } from 'vue'
+import type { Ref } from 'vue'
 
 /**
  * Input type for breadcrumb tickets.
@@ -185,12 +185,8 @@ export function createBreadcrumbsContext<
   R extends BreadcrumbsContext<Z, E> = BreadcrumbsContext<Z, E>,
 > (_options: BreadcrumbsContextOptions = {}): ContextTrinity<R> {
   const { namespace = 'v0:breadcrumbs', ...options } = _options
-  const [useBreadcrumbsContext, _provideBreadcrumbsContext] = createContext<R>(namespace)
+  const [useBreadcrumbsContext, provideBreadcrumbsContext] = createContext<R>(namespace)
   const context = createBreadcrumbs<Z, E, R>(options)
-
-  function provideBreadcrumbsContext (_context: R = context, app?: App): R {
-    return _provideBreadcrumbsContext(_context, app)
-  }
 
   return createTrinity<R>(useBreadcrumbsContext, provideBreadcrumbsContext, context)
 }

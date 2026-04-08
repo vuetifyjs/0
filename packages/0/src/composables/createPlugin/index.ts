@@ -156,12 +156,8 @@ export function createPluginContext<
 ] {
   function createXContext<_E extends E = E> (_options: O = {} as O): ContextTrinity<_E> {
     const { namespace = defaultNamespace, persist: _persist, ...options } = _options as O & { namespace?: string, persist?: boolean }
-    const [_use, _provide] = createContext<_E>(namespace)
+    const [_use, provide] = createContext<_E>(namespace)
     const context = factory(options as Omit<O, 'namespace' | 'persist'>) as _E
-
-    function provide (_context: _E = context, app?: App): _E {
-      return _provide(_context, app)
-    }
 
     return createTrinity<_E>(_use, provide, context)
   }

@@ -26,7 +26,7 @@ import { toRef } from 'vue'
 import type { SelectionContext, SelectionContextOptions, SelectionOptions, SelectionTicket, SelectionTicketInput } from '#v0/composables/createSelection'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { ID } from '#v0/types'
-import type { App, ComputedRef } from 'vue'
+import type { ComputedRef } from 'vue'
 
 /**
  * Input type for single selection tickets.
@@ -184,12 +184,8 @@ export function createSingleContext<
   R extends SingleContext<Z, E> = SingleContext<Z, E>,
 > (_options: SingleContextOptions = {}): ContextTrinity<R> {
   const { namespace = 'v0:single', ...options } = _options
-  const [useSingleContext, _provideSingleContext] = createContext<R>(namespace)
+  const [useSingleContext, provideSingleContext] = createContext<R>(namespace)
   const context = createSingle<Z, E, R>(options)
-
-  function provideSingleContext (_context: R = context, app?: App): R {
-    return _provideSingleContext(_context, app)
-  }
 
   return createTrinity<R>(useSingleContext, provideSingleContext, context)
 }

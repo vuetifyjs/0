@@ -38,7 +38,7 @@ import { toArray } from '#v0/composables/toArray'
 import type { SelectionContext, SelectionContextOptions, SelectionOptions, SelectionTicket, SelectionTicketInput } from '#v0/composables/createSelection'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { ID } from '#v0/types'
-import type { App, ComputedRef, MaybeRefOrGetter, Reactive, Ref } from 'vue'
+import type { ComputedRef, MaybeRefOrGetter, Reactive, Ref } from 'vue'
 
 /**
  * Input type for group tickets.
@@ -387,12 +387,8 @@ export function createGroupContext<
   R extends GroupContext<Z, E> = GroupContext<Z, E>,
 > (_options: GroupContextOptions = {}): ContextTrinity<R> {
   const { namespace = 'v0:group', ...options } = _options
-  const [useGroupContext, _provideGroupContext] = createContext<R>(namespace)
+  const [useGroupContext, provideGroupContext] = createContext<R>(namespace)
   const context = createGroup<Z, E, R>(options)
-
-  function provideGroupContext (_context: R = context, app?: App): R {
-    return _provideGroupContext(_context, app)
-  }
 
   return createTrinity<R>(useGroupContext, provideGroupContext, context)
 }

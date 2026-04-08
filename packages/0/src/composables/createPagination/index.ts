@@ -26,7 +26,7 @@ import { computed, isRef, shallowRef, toRef, toValue } from 'vue'
 
 // Types
 import type { ContextTrinity } from '#v0/composables/createTrinity'
-import type { App, ComputedRef, MaybeRefOrGetter, Ref, ShallowRef, WritableComputedRef } from 'vue'
+import type { ComputedRef, MaybeRefOrGetter, Ref, ShallowRef, WritableComputedRef } from 'vue'
 
 export type PaginationTicket =
   | { type: 'page', value: number }
@@ -278,12 +278,8 @@ export function createPagination (_options: PaginationOptions = {}): PaginationC
  */
 export function createPaginationContext (_options: PaginationContextOptions = {}): ContextTrinity<PaginationContext> {
   const { namespace = 'v0:pagination', ...options } = _options
-  const [usePaginationContext, _providePaginationContext] = createContext<PaginationContext>(namespace)
+  const [usePaginationContext, providePaginationContext] = createContext<PaginationContext>(namespace)
   const context = createPagination(options)
-
-  function providePaginationContext (_context: PaginationContext = context, app?: App): PaginationContext {
-    return _providePaginationContext(_context, app)
-  }
 
   return createTrinity<PaginationContext>(usePaginationContext, providePaginationContext, context)
 }

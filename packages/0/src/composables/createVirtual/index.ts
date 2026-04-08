@@ -34,7 +34,7 @@ import { computed, onScopeDispose, readonly, ref, shallowRef, watch } from 'vue'
 
 // Types
 import type { ContextTrinity } from '#v0/composables/createTrinity'
-import type { App, ComputedRef, Ref, ShallowRef } from 'vue'
+import type { ComputedRef, Ref, ShallowRef } from 'vue'
 
 export type VirtualDirection = 'forward' | 'reverse'
 export type VirtualState = 'loading' | 'empty' | 'error' | 'ok'
@@ -712,13 +712,9 @@ export function createVirtualContext<T = unknown> (
     ...options
   } = _options
 
-  const [useVirtualContext, _provideVirtualContext] = createContext<VirtualContext<T>>(namespace)
+  const [useVirtualContext, provideVirtualContext] = createContext<VirtualContext<T>>(namespace)
 
   const context = createVirtual<T>(items, options)
-
-  function provideVirtualContext (_context: VirtualContext<T> = context, app?: App): VirtualContext<T> {
-    return _provideVirtualContext(_context, app)
-  }
 
   return createTrinity<VirtualContext<T>>(useVirtualContext, provideVirtualContext, context)
 }

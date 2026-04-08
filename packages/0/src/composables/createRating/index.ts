@@ -28,7 +28,7 @@ import { computed, isRef, shallowRef, toRef, toValue } from 'vue'
 
 // Types
 import type { ContextTrinity } from '#v0/composables/createTrinity'
-import type { App, ComputedRef, MaybeRefOrGetter, Ref, ShallowRef, WritableComputedRef } from 'vue'
+import type { ComputedRef, MaybeRefOrGetter, Ref, ShallowRef, WritableComputedRef } from 'vue'
 
 export type RatingItemState = 'full' | 'half' | 'empty'
 
@@ -201,12 +201,8 @@ export function createRatingContext<
   R extends RatingContext = RatingContext,
 > (_options: RatingContextOptions = {}): ContextTrinity<R> {
   const { namespace = 'v0:rating', ...options } = _options
-  const [useRatingContext, _provideRatingContext] = createContext<R>(namespace)
+  const [useRatingContext, provideRatingContext] = createContext<R>(namespace)
   const context = createRating<R>(options)
-
-  function provideRatingContext (_context: R = context, app?: App): R {
-    return _provideRatingContext(_context, app)
-  }
 
   return createTrinity<R>(useRatingContext, provideRatingContext, context)
 }

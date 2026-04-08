@@ -32,7 +32,7 @@ import { computed, shallowRef, toRef, toValue } from 'vue'
 
 // Types
 import type { ContextTrinity } from '#v0/composables/createTrinity'
-import type { App, ComputedRef, MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
+import type { ComputedRef, MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
 
 export interface OverflowOptions {
   /**
@@ -264,13 +264,9 @@ export function createOverflowContext<
     ...options
   } = _options
 
-  const [useOverflowContext, _provideOverflowContext] = createContext<E>(namespace)
+  const [useOverflowContext, provideOverflowContext] = createContext<E>(namespace)
 
   const context = createOverflow<E>(options)
-
-  function provideOverflowContext (_context: E = context, app?: App): E {
-    return _provideOverflowContext(_context, app)
-  }
 
   return createTrinity<E>(useOverflowContext, provideOverflowContext, context)
 }

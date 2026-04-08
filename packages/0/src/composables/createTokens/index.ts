@@ -29,7 +29,6 @@ import { isObject, isString, isUndefined } from '#v0/utilities'
 import type { RegistryContext, RegistryContextOptions, RegistryOptions, RegistryTicket } from '#v0/composables/createRegistry'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { ID } from '#v0/types'
-import type { App } from 'vue'
 
 export interface TokenAlias<T = unknown> {
   [key: string]: unknown
@@ -350,13 +349,9 @@ export function createTokensContext<
   E extends TokenContext<Z> = TokenContext<Z>,
 > (_options: TokenContextOptions): ContextTrinity<E> {
   const { namespace = 'v0:tokens', tokens = {}, ...options } = _options
-  const [useTokensContext, _provideTokensContext] = createContext<E>(namespace)
+  const [useTokensContext, provideTokensContext] = createContext<E>(namespace)
 
   const context = createTokens<Z, E>(tokens, options)
-
-  function provideTokensContext (_context: E = context, app?: App): E {
-    return _provideTokensContext(_context, app)
-  }
 
   return createTrinity<E>(useTokensContext, provideTokensContext, context)
 }

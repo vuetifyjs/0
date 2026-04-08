@@ -31,7 +31,6 @@ import type { RegistryContext, RegistryOptions, RegistryTicket, RegistryTicketIn
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { TimerContext } from '#v0/composables/useTimer'
 import type { ID } from '#v0/types'
-import type { App } from 'vue'
 
 /**
  * Input type for queue tickets - what users provide to register().
@@ -458,12 +457,8 @@ export function createQueue (_options: QueueOptions = {}): QueueContext {
  */
 export function createQueueContext (_options: QueueContextOptions = {}): ContextTrinity<QueueContext> {
   const { namespace = 'v0:queue', ...options } = _options
-  const [useQueueContext, _provideQueueContext] = createContext<QueueContext>(namespace)
+  const [useQueueContext, provideQueueContext] = createContext<QueueContext>(namespace)
   const context = createQueue(options)
-
-  function provideQueueContext (_context: QueueContext = context, app?: App): QueueContext {
-    return _provideQueueContext(_context, app)
-  }
 
   return createTrinity<QueueContext>(useQueueContext, provideQueueContext, context)
 }

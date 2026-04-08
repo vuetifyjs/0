@@ -34,7 +34,7 @@ import type { RegistryContext, RegistryOptions, RegistryTicket, RegistryTicketIn
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { ValidationContext } from '#v0/composables/createValidation'
 import type { ID } from '#v0/types'
-import type { App, ComputedRef, MaybeRefOrGetter } from 'vue'
+import type { ComputedRef, MaybeRefOrGetter } from 'vue'
 
 export type FormValidationResult = string | boolean | Promise<string | boolean>
 
@@ -205,13 +205,9 @@ export function createForm (options: FormOptions = {}): FormContext {
  */
 export function createFormContext (_options: FormContextOptions = {}): ContextTrinity<FormContext> {
   const { namespace = 'v0:form', ...options } = _options
-  const [useFormContext, _provideFormContext] = createContext<FormContext>(namespace)
+  const [useFormContext, provideFormContext] = createContext<FormContext>(namespace)
 
   const context = createForm(options)
-
-  function provideFormContext (_context: FormContext = context, app?: App): FormContext {
-    return _provideFormContext(_context, app)
-  }
 
   return createTrinity<FormContext>(useFormContext, provideFormContext, context)
 }

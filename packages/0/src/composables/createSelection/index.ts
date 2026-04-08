@@ -33,7 +33,7 @@ import { toRaw, toValue } from 'vue'
 import type { ModelContext, ModelOptions, ModelTicket, ModelTicketInput } from '#v0/composables/createModel'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { ID } from '#v0/types'
-import type { App, MaybeRefOrGetter } from 'vue'
+import type { MaybeRefOrGetter } from 'vue'
 
 /**
  * Input type for selection tickets - what users provide to register().
@@ -345,12 +345,8 @@ export function createSelectionContext<
   R extends SelectionContext<Z, E> = SelectionContext<Z, E>,
 > (_options: SelectionContextOptions = {}): ContextTrinity<R> {
   const { namespace = 'v0:selection', ...options } = _options
-  const [useSelectionContext, _provideSelectionContext] = createContext<R>(namespace)
+  const [useSelectionContext, provideSelectionContext] = createContext<R>(namespace)
   const context = createSelection<Z, E, R>(options)
-
-  function provideSelectionContext (_context: R = context, app?: App): R {
-    return _provideSelectionContext(_context, app)
-  }
 
   return createTrinity<R>(useSelectionContext, provideSelectionContext, context)
 }

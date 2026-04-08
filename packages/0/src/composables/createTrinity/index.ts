@@ -47,13 +47,9 @@ export type ContextTrinity<Z = unknown> = readonly [
  * }
  *
  * export function createMyFeature<E extends MyContext = MyContext>() {
- *   const [useContext, _provideContext] = createContext<E>('my-context')
+ *   const [useContext, provideContext] = createContext<E>('my-context')
  *
  *   const context = { foo: 'hello', bar: 42 }
- *
- *   function provideContext (_context: E = context, app?: App): E {
- *     return _provideContext(_context, app)
- *   }
  *
  *   return createTrinity<E>(useContext, provideContext, context)
  * }
@@ -61,7 +57,7 @@ export type ContextTrinity<Z = unknown> = readonly [
  */
 export function createTrinity<Z = unknown> (
   useContext: () => Z,
-  provideContext: (_context?: Z, app?: App) => Z,
+  provideContext: (context: Z, app?: App) => Z,
   context: Z,
 ): ContextTrinity<Z> {
   return [

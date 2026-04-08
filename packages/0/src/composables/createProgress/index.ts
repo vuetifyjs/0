@@ -24,7 +24,7 @@ import { computed, isRef, shallowRef, toRef, toValue } from 'vue'
 // Types
 import type { ModelContext, ModelTicket, ModelTicketInput } from '#v0/composables/createModel'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
-import type { App, ComputedRef, Ref, ShallowRef } from 'vue'
+import type { ComputedRef, Ref, ShallowRef } from 'vue'
 
 export type ProgressTicketInput = ModelTicketInput<ShallowRef<number>>
 export type ProgressTicket = ModelTicket<ProgressTicketInput>
@@ -177,12 +177,8 @@ export function createProgress (options: ProgressOptions = {}): ProgressContext 
  */
 export function createProgressContext (_options: ProgressContextOptions = {}): ContextTrinity<ProgressContext> {
   const { namespace = 'v0:progress', ...options } = _options
-  const [use, _provide] = createContext<ProgressContext>(namespace)
+  const [use, provide] = createContext<ProgressContext>(namespace)
   const context = createProgress(options)
-
-  function provide (_context: ProgressContext = context, app?: App): ProgressContext {
-    return _provide(_context, app)
-  }
 
   return createTrinity<ProgressContext>(use, provide, context)
 }

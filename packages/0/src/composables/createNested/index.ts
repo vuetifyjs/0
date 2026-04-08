@@ -42,7 +42,6 @@ import type {
   NestedTicket,
   NestedTicketInput,
 } from './types'
-import type { App } from 'vue'
 
 // Strategies
 import { multipleOpenStrategy, singleOpenStrategy } from './strategies'
@@ -867,12 +866,8 @@ export function createNested (_options: NestedOptions = {}): NestedContext {
  */
 export function createNestedContext (_options: NestedContextOptions = {}): ContextTrinity<NestedContext> {
   const { namespace = 'v0:nested', ...options } = _options
-  const [useNestedContext, _provideNestedContext] = createContext<NestedContext>(namespace)
+  const [useNestedContext, provideNestedContext] = createContext<NestedContext>(namespace)
   const context = createNested(options)
-
-  function provideNestedContext (_context: NestedContext = context, app?: App): NestedContext {
-    return _provideNestedContext(_context, app)
-  }
 
   return createTrinity<NestedContext>(useNestedContext, provideNestedContext, context)
 }

@@ -27,7 +27,6 @@ import { toValue } from 'vue'
 // Types
 import type { SingleContext, SingleContextOptions, SingleOptions, SingleTicket, SingleTicketInput } from '#v0/composables/createSingle'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
-import type { App } from 'vue'
 
 /**
  * Input type for step tickets.
@@ -262,12 +261,8 @@ export function createStepContext<
   R extends StepContext<Z, E> = StepContext<Z, E>,
 > (_options: StepContextOptions = {}): ContextTrinity<R> {
   const { namespace = 'v0:step', ...options } = _options
-  const [useStepContext, _provideStepContext] = createContext<R>(namespace)
+  const [useStepContext, provideStepContext] = createContext<R>(namespace)
   const context = createStep<Z, E, R>(options)
-
-  function provideStepContext (_context: R = context, app?: App): R {
-    return _provideStepContext(_context, app)
-  }
 
   return createTrinity<R>(useStepContext, provideStepContext, context)
 }

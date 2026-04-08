@@ -24,7 +24,6 @@ import { createTrinity } from '#v0/composables/createTrinity'
 // Types
 import type { RegistryContext, RegistryOptions, RegistryTicket } from '#v0/composables/createRegistry'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
-import type { App } from 'vue'
 
 export interface TimelineContext<Z extends TimelineTicket> extends RegistryContext<Z> {
   /**
@@ -229,12 +228,8 @@ export function createTimelineContext<
   E extends TimelineContext<Z> = TimelineContext<Z>,
 > (_options: TimelineContextOptions = {}): ContextTrinity<E> {
   const { namespace = 'v0:timeline', ...options } = _options
-  const [useTimelineContext, _provideTimelineContext] = createContext<E>(namespace)
+  const [useTimelineContext, provideTimelineContext] = createContext<E>(namespace)
   const context = createTimeline<Z, E>(options)
-
-  function provideTimelineContext (_context: E = context, app?: App): E {
-    return _provideTimelineContext(_context, app)
-  }
 
   return createTrinity<E>(useTimelineContext, provideTimelineContext, context)
 }

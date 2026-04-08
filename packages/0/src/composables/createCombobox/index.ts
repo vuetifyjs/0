@@ -41,7 +41,7 @@ import type { PopoverReturn } from '#v0/composables/usePopover'
 import type { VirtualFocusReturn } from '#v0/composables/useVirtualFocus'
 import type { MaybeArray, ID } from '#v0/types'
 import type { ComboboxAdapterInterface } from './adapters'
-import type { App, MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
+import type { MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
 
 export type { ComboboxAdapterContext, ComboboxAdapterInterface, ComboboxAdapterResult } from './adapters'
 
@@ -305,12 +305,8 @@ export function createComboboxContext (
   options: ComboboxOptions & { namespace?: string } = {},
 ): ContextTrinity<ComboboxContext> {
   const { namespace = 'v0:combobox', ...rest } = options
-  const [useCombobox, _provideCombobox] = createContext<ComboboxContext>(namespace)
+  const [useCombobox, provideCombobox] = createContext<ComboboxContext>(namespace)
   const context = createCombobox(rest)
-
-  function provideCombobox (_context: ComboboxContext = context, app?: App): ComboboxContext {
-    return _provideCombobox(_context, app)
-  }
 
   return createTrinity<ComboboxContext>(useCombobox, provideCombobox, context)
 }

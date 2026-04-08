@@ -38,7 +38,7 @@ import type { PaginationContext, PaginationOptions } from '#v0/composables/creat
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { ID } from '#v0/types'
 import type { DataTableAdapterInterface, SortDirection, SortEntry } from './adapters/adapter'
-import type { App, MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
+import type { MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
 
 // Re-export adapter types
 export { DataTableAdapter } from './adapters'
@@ -663,12 +663,8 @@ export function createDataTableContext<T extends Record<string, unknown>> (
   _options: DataTableContextOptions<T>,
 ): ContextTrinity<DataTableContext<T>> {
   const { namespace = 'v0:data-table', ...options } = _options
-  const [useDataTableContext, _provideDataTableContext] = createContext<DataTableContext<T>>(namespace)
+  const [useDataTableContext, provideDataTableContext] = createContext<DataTableContext<T>>(namespace)
   const context = createDataTable(options)
-
-  function provideDataTableContext (_context: DataTableContext<T> = context, app?: App): DataTableContext<T> {
-    return _provideDataTableContext(_context, app)
-  }
 
   return createTrinity<DataTableContext<T>>(useDataTableContext, provideDataTableContext, context)
 }

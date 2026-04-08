@@ -30,7 +30,7 @@ import { toArray } from '#v0/composables/toArray'
 
 // Types
 import type { ContextTrinity } from '#v0/composables/createTrinity'
-import type { App, ComputedRef, MaybeRefOrGetter, ShallowRef } from 'vue'
+import type { ComputedRef, MaybeRefOrGetter, ShallowRef } from 'vue'
 
 export type Primitive = string | number | boolean
 export type FilterQuery = MaybeRefOrGetter<Primitive | Primitive[]>
@@ -201,12 +201,8 @@ export function createFilterContext<
   E extends FilterContext<Z> = FilterContext<Z>,
 > (_options: FilterContextOptions = {}): ContextTrinity<E> {
   const { namespace = 'v0:filter', ...options } = _options
-  const [useFilterContext, _provideFilterContext] = createContext<E>(namespace)
+  const [useFilterContext, provideFilterContext] = createContext<E>(namespace)
   const context = createFilter<Z, E>(options)
-
-  function provideFilterContext (_context: E = context, app?: App): E {
-    return _provideFilterContext(_context, app)
-  }
 
   return createTrinity<E>(useFilterContext, provideFilterContext, context)
 }
