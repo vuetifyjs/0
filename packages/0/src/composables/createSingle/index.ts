@@ -140,23 +140,12 @@ export function createSingle<
   const selectedIndex = toRef(() => selectedItem.value?.index ?? -1)
   const selectedValue = toRef(() => selectedItem.value?.value)
 
-  function unselect (id: ID) {
-    registry.unselect(id)
-  }
-
-  function toggle (id: ID) {
-    if (registry.selectedIds.has(id)) unselect(id)
-    else registry.select(id)
-  }
-
   return {
     ...registry,
     selectedId,
     selectedItem,
     selectedIndex,
     selectedValue,
-    unselect,
-    toggle,
     get size () {
       return registry.size
     },

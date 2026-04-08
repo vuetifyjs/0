@@ -202,7 +202,7 @@ export function createSelection<
     ...options
   } = _options
 
-  const model = createModel<Z, E>({ ...options, enroll: false })
+  const model = createModel<Z, E>({ ...options, multiple, enroll: false })
 
   function seek (direction: 'first' | 'last' = 'first', from?: number): E | undefined {
     return model.seek(direction, from, (ticket: E) => !toValue(ticket.disabled))
@@ -213,17 +213,7 @@ export function createSelection<
 
     const ticket = seek('first')
 
-    if (ticket) select(ticket.id)
-  }
-
-  function select (id: ID) {
-    if (toValue(model.disabled)) return
-
-    const item = model.get(id)
-    if (!item || toValue(item.disabled)) return
-
-    if (!toValue(multiple)) model.selectedIds.clear()
-    model.selectedIds.add(id)
+    if (ticket) model.select(ticket.id)
   }
 
   function unselect (id: ID) {
@@ -237,7 +227,7 @@ export function createSelection<
     if (toValue(model.disabled)) return
 
     if (model.selectedIds.has(id)) unselect(id)
-    else select(id)
+    else model.select(id)
   }
 
   function apply (values: unknown[], options?: { multiple?: boolean }): void {
@@ -263,14 +253,14 @@ export function createSelection<
       const next = targetIds.values().next().value
       const last = currentIds.values().next().value
       if (!isUndefined(last)) unselect(last)
-      if (!isUndefined(next)) select(next)
+      if (!isUndefined(next)) model.select(next)
     }
   }
 
   function register (registration: Partial<Z> = {}): E {
     const id = registration.id ?? useId()
     const decorated: Partial<Z> = {
-      select: () => select(id),
+      select: () => model.select(id),
       unselect: () => unselect(id),
       toggle: () => toggle(id),
       ...registration,
@@ -280,7 +270,7 @@ export function createSelection<
     const ticket = model.register(decorated)
 
     if (toValue(enroll) && !toValue(model.disabled) && !toValue(ticket.disabled)) {
-      select(ticket.id)
+      model.select(ticket.id)
     }
     if (toValue(mandatory) === 'force') mandate()
 
@@ -298,7 +288,6 @@ export function createSelection<
     multiple,
     register,
     onboard,
-    select,
     unselect,
     toggle,
     apply,

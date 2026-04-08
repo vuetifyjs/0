@@ -204,7 +204,7 @@ export interface ModelContext<
    * Apply external values to the model
    *
    * @param values Array of values to apply. Only `values[0]` is used (single-value store).
-   * @param options Options for API compatibility with createSelection. The `multiple` field is accepted but ignored.
+   * @param options Optional. Accepted for interface compatibility with `createSelection`; ignored at this layer.
    * @remarks Used internally by `useProxyModel` to sync a ref with the model. Executes two steps sequentially:
    * 1. **Ref write**: Writes `values[0]` to any selected ticket whose value is a ref.
    * 2. **Browse resolution**: Clears `selectedIds`, resolves `values[0]` via `registry.browse()`, and selects the match.
