@@ -45,7 +45,10 @@
 
   const stack = useStack()
   const ticket = stack.register()
-  ticket.select()
+
+  if (!disabled) {
+    ticket.select()
+  }
 
   const slotProps = toRef((): PortalSlotProps => ({
     zIndex: ticket.zIndex.value,
