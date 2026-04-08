@@ -320,11 +320,12 @@
 
         <!-- Cards -->
         <div v-if="table.grouping.isOpen(group.key)" class="grid gap-2 pl-2 mb-3">
-          <RouterLink
+          <component
+            :is="(item as MaturityItem).level === 'draft' ? 'div' : RouterLink"
             v-for="item in group.items"
             :key="item.id"
             class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-glass-surface no-underline transition-colors hover:bg-surface-variant/80"
-            :to="String(item.path)"
+            :to="(item as MaturityItem).level !== 'draft' ? String(item.path) : undefined"
           >
             <div class="flex-1 min-w-0">
               <div class="text-sm font-medium text-on-surface truncate">
@@ -350,7 +351,7 @@
             >
               <AppIcon :icon="levels[item.level]?.icon" :size="14" />
             </span>
-          </RouterLink>
+          </component>
         </div>
       </template>
 
@@ -466,10 +467,11 @@
             >
               <!-- Name -->
               <td class="!pl-[34px] pr-4 py-2.5 text-sm font-medium truncate">
-                <RouterLink
-                  class="text-primary no-underline hover:underline transition-colors"
-                  :to="item.path"
-                >{{ item.name }}</RouterLink>
+                <component
+                  :is="(item as MaturityItem).level === 'draft' ? 'span' : RouterLink"
+                  :class="(item as MaturityItem).level === 'draft' ? 'text-on-surface-variant' : 'text-primary no-underline hover:underline transition-colors'"
+                  :to="(item as MaturityItem).level !== 'draft' ? item.path : undefined"
+                >{{ item.name }}</component>
               </td>
 
               <!-- Type badge -->
