@@ -39,7 +39,7 @@
  */
 
 // Composables
-import { createContext, useContext } from '#v0/composables/createContext'
+import { useContext } from '#v0/composables/createContext'
 import { createPlugin } from '#v0/composables/createPlugin'
 import { createTrinity } from '#v0/composables/createTrinity'
 import { useLocale } from '#v0/composables/useLocale'
@@ -247,10 +247,9 @@ export function createDateContext<
   E extends DateContext<Z> = DateContext<Z>,
 > (options: DateContextOptions<Z>): ContextTrinity<E> {
   const { namespace = 'v0:date', ...dateOptions } = options
-  const [useDateContext, provideDateContext] = createContext<E>(namespace)
   const context = createDate<Z, E>(dateOptions)
 
-  return createTrinity<E>(useDateContext, provideDateContext, context)
+  return createTrinity<E>(namespace, context)
 }
 
 /**

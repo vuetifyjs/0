@@ -16,7 +16,7 @@
  */
 
 // Composables
-import { createContext, useContext } from '#v0/composables/createContext'
+import { useContext } from '#v0/composables/createContext'
 import { createSingle } from '#v0/composables/createSingle'
 import { createTrinity } from '#v0/composables/createTrinity'
 
@@ -185,10 +185,9 @@ export function createBreadcrumbsContext<
   R extends BreadcrumbsContext<Z, E> = BreadcrumbsContext<Z, E>,
 > (_options: BreadcrumbsContextOptions = {}): ContextTrinity<R> {
   const { namespace = 'v0:breadcrumbs', ...options } = _options
-  const [useBreadcrumbsContext, provideBreadcrumbsContext] = createContext<R>(namespace)
   const context = createBreadcrumbs<Z, E, R>(options)
 
-  return createTrinity<R>(useBreadcrumbsContext, provideBreadcrumbsContext, context)
+  return createTrinity<R>(namespace, context)
 }
 
 /**

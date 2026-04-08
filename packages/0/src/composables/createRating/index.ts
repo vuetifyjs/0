@@ -19,7 +19,7 @@
  * for any star/icon rating use case.
  */
 
-import { createContext, useContext } from '#v0/composables/createContext'
+import { useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
 
 // Utilities
@@ -201,10 +201,9 @@ export function createRatingContext<
   R extends RatingContext = RatingContext,
 > (_options: RatingContextOptions = {}): ContextTrinity<R> {
   const { namespace = 'v0:rating', ...options } = _options
-  const [useRatingContext, provideRatingContext] = createContext<R>(namespace)
   const context = createRating<R>(options)
 
-  return createTrinity<R>(useRatingContext, provideRatingContext, context)
+  return createTrinity<R>(namespace, context)
 }
 
 /**

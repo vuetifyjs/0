@@ -15,7 +15,7 @@
  */
 
 // Composables
-import { createContext, useContext } from '#v0/composables/createContext'
+import { useContext } from '#v0/composables/createContext'
 import { createPlugin } from '#v0/composables/createPlugin'
 import { createSelection } from '#v0/composables/createSelection'
 import { createTrinity } from '#v0/composables/createTrinity'
@@ -291,10 +291,9 @@ export function createStack (_options: StackOptions = {}): StackContext {
  */
 export function createStackContext (_options: StackContextOptions = {}): ContextTrinity<StackContext> {
   const { namespace = 'v0:stack', ...options } = _options
-  const [useStackContext, provideStackContext] = createContext<StackContext>(namespace)
   const context = createStack(options)
 
-  return createTrinity<StackContext>(useStackContext, provideStackContext, context)
+  return createTrinity<StackContext>(namespace, context)
 }
 
 /**

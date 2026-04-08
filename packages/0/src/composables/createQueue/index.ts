@@ -17,7 +17,7 @@
  */
 
 // Composables
-import { createContext, useContext } from '#v0/composables/createContext'
+import { useContext } from '#v0/composables/createContext'
 import { createRegistry } from '#v0/composables/createRegistry'
 import { createTrinity } from '#v0/composables/createTrinity'
 import { useTimer } from '#v0/composables/useTimer'
@@ -457,10 +457,9 @@ export function createQueue (_options: QueueOptions = {}): QueueContext {
  */
 export function createQueueContext (_options: QueueContextOptions = {}): ContextTrinity<QueueContext> {
   const { namespace = 'v0:queue', ...options } = _options
-  const [useQueueContext, provideQueueContext] = createContext<QueueContext>(namespace)
   const context = createQueue(options)
 
-  return createTrinity<QueueContext>(useQueueContext, provideQueueContext, context)
+  return createTrinity<QueueContext>(namespace, context)
 }
 
 /**

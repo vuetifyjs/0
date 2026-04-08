@@ -17,7 +17,7 @@
  */
 
 // Composables
-import { createContext, useContext } from '#v0/composables/createContext'
+import { useContext } from '#v0/composables/createContext'
 import { createRegistry } from '#v0/composables/createRegistry'
 import { createTrinity } from '#v0/composables/createTrinity'
 
@@ -228,10 +228,9 @@ export function createTimelineContext<
   E extends TimelineContext<Z> = TimelineContext<Z>,
 > (_options: TimelineContextOptions = {}): ContextTrinity<E> {
   const { namespace = 'v0:timeline', ...options } = _options
-  const [useTimelineContext, provideTimelineContext] = createContext<E>(namespace)
   const context = createTimeline<Z, E>(options)
 
-  return createTrinity<E>(useTimelineContext, provideTimelineContext, context)
+  return createTrinity<E>(namespace, context)
 }
 
 /**

@@ -16,7 +16,7 @@
  */
 
 // Composables
-import { createContext, useContext } from '#v0/composables/createContext'
+import { useContext } from '#v0/composables/createContext'
 import { createSingle } from '#v0/composables/createSingle'
 import { createTrinity } from '#v0/composables/createTrinity'
 
@@ -261,10 +261,9 @@ export function createStepContext<
   R extends StepContext<Z, E> = StepContext<Z, E>,
 > (_options: StepContextOptions = {}): ContextTrinity<R> {
   const { namespace = 'v0:step', ...options } = _options
-  const [useStepContext, provideStepContext] = createContext<R>(namespace)
   const context = createStep<Z, E, R>(options)
 
-  return createTrinity<R>(useStepContext, provideStepContext, context)
+  return createTrinity<R>(namespace, context)
 }
 
 /**

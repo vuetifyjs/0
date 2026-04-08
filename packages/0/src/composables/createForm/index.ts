@@ -18,7 +18,7 @@
  */
 
 // Composables
-import { createContext, useContext } from '#v0/composables/createContext'
+import { useContext } from '#v0/composables/createContext'
 import { createRegistry } from '#v0/composables/createRegistry'
 import { createTrinity } from '#v0/composables/createTrinity'
 
@@ -205,11 +205,9 @@ export function createForm (options: FormOptions = {}): FormContext {
  */
 export function createFormContext (_options: FormContextOptions = {}): ContextTrinity<FormContext> {
   const { namespace = 'v0:form', ...options } = _options
-  const [useFormContext, provideFormContext] = createContext<FormContext>(namespace)
-
   const context = createForm(options)
 
-  return createTrinity<FormContext>(useFormContext, provideFormContext, context)
+  return createTrinity<FormContext>(namespace, context)
 }
 
 /**

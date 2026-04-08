@@ -18,7 +18,7 @@
  */
 
 // Composables
-import { createContext, useContext } from '#v0/composables/createContext'
+import { useContext } from '#v0/composables/createContext'
 import { createSelection } from '#v0/composables/createSelection'
 import { createTrinity } from '#v0/composables/createTrinity'
 import { usePopover } from '#v0/composables/usePopover'
@@ -305,10 +305,9 @@ export function createComboboxContext (
   options: ComboboxOptions & { namespace?: string } = {},
 ): ContextTrinity<ComboboxContext> {
   const { namespace = 'v0:combobox', ...rest } = options
-  const [useCombobox, provideCombobox] = createContext<ComboboxContext>(namespace)
   const context = createCombobox(rest)
 
-  return createTrinity<ComboboxContext>(useCombobox, provideCombobox, context)
+  return createTrinity<ComboboxContext>(namespace, context)
 }
 
 /**

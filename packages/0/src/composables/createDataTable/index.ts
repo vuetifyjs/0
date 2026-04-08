@@ -20,7 +20,7 @@
  */
 
 // Composables
-import { createContext, useContext } from '#v0/composables/createContext'
+import { useContext } from '#v0/composables/createContext'
 import { createGroup } from '#v0/composables/createGroup'
 import { createTrinity } from '#v0/composables/createTrinity'
 import { useLocale } from '#v0/composables/useLocale'
@@ -663,10 +663,9 @@ export function createDataTableContext<T extends Record<string, unknown>> (
   _options: DataTableContextOptions<T>,
 ): ContextTrinity<DataTableContext<T>> {
   const { namespace = 'v0:data-table', ...options } = _options
-  const [useDataTableContext, provideDataTableContext] = createContext<DataTableContext<T>>(namespace)
   const context = createDataTable(options)
 
-  return createTrinity<DataTableContext<T>>(useDataTableContext, provideDataTableContext, context)
+  return createTrinity<DataTableContext<T>>(namespace, context)
 }
 
 /**

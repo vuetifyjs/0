@@ -24,7 +24,7 @@
 import { IN_BROWSER } from '#v0/constants/globals'
 
 // Composables
-import { createContext, useContext } from '#v0/composables/createContext'
+import { useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
 import { useResizeObserver } from '#v0/composables/useResizeObserver'
 
@@ -712,11 +712,9 @@ export function createVirtualContext<T = unknown> (
     ...options
   } = _options
 
-  const [useVirtualContext, provideVirtualContext] = createContext<VirtualContext<T>>(namespace)
-
   const context = createVirtual<T>(items, options)
 
-  return createTrinity<VirtualContext<T>>(useVirtualContext, provideVirtualContext, context)
+  return createTrinity<VirtualContext<T>>(namespace, context)
 }
 
 /**

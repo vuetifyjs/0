@@ -22,7 +22,7 @@
 import { IN_BROWSER } from '#v0/constants/globals'
 
 // Composables
-import { createContext, useContext } from '#v0/composables/createContext'
+import { useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
 import { useElementSize } from '#v0/composables/useResizeObserver'
 
@@ -264,11 +264,9 @@ export function createOverflowContext<
     ...options
   } = _options
 
-  const [useOverflowContext, provideOverflowContext] = createContext<E>(namespace)
-
   const context = createOverflow<E>(options)
 
-  return createTrinity<E>(useOverflowContext, provideOverflowContext, context)
+  return createTrinity<E>(namespace, context)
 }
 
 /**

@@ -15,7 +15,7 @@
  * Supports `persist()` / `restore()` lifecycle hooks for saving and rehydrating plugin state.
  */
 
-import { createContext, useContext } from '#v0/composables/createContext'
+import { useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
 
 // Utilities
@@ -156,10 +156,9 @@ export function createPluginContext<
 ] {
   function createXContext<_E extends E = E> (_options: O = {} as O): ContextTrinity<_E> {
     const { namespace = defaultNamespace, persist: _persist, ...options } = _options as O & { namespace?: string, persist?: boolean }
-    const [_use, provide] = createContext<_E>(namespace)
     const context = factory(options as Omit<O, 'namespace' | 'persist'>) as _E
 
-    return createTrinity<_E>(_use, provide, context)
+    return createTrinity<_E>(namespace, context)
   }
 
   function createXPlugin (_options: O = {} as O): Plugin {

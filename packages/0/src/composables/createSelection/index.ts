@@ -21,7 +21,7 @@
  */
 
 // Composables
-import { createContext, useContext } from '#v0/composables/createContext'
+import { useContext } from '#v0/composables/createContext'
 import { createModel } from '#v0/composables/createModel'
 import { createTrinity } from '#v0/composables/createTrinity'
 
@@ -345,10 +345,9 @@ export function createSelectionContext<
   R extends SelectionContext<Z, E> = SelectionContext<Z, E>,
 > (_options: SelectionContextOptions = {}): ContextTrinity<R> {
   const { namespace = 'v0:selection', ...options } = _options
-  const [useSelectionContext, provideSelectionContext] = createContext<R>(namespace)
   const context = createSelection<Z, E, R>(options)
 
-  return createTrinity<R>(useSelectionContext, provideSelectionContext, context)
+  return createTrinity<R>(namespace, context)
 }
 
 /**

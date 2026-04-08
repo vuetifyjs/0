@@ -17,7 +17,7 @@
  */
 
 // Composables
-import { createContext, useContext } from '#v0/composables/createContext'
+import { useContext } from '#v0/composables/createContext'
 import { createRegistry } from '#v0/composables/createRegistry'
 import { createTrinity } from '#v0/composables/createTrinity'
 import { useLogger } from '#v0/composables/useLogger'
@@ -349,11 +349,9 @@ export function createTokensContext<
   E extends TokenContext<Z> = TokenContext<Z>,
 > (_options: TokenContextOptions): ContextTrinity<E> {
   const { namespace = 'v0:tokens', tokens = {}, ...options } = _options
-  const [useTokensContext, provideTokensContext] = createContext<E>(namespace)
-
   const context = createTokens<Z, E>(tokens, options)
 
-  return createTrinity<E>(useTokensContext, provideTokensContext, context)
+  return createTrinity<E>(namespace, context)
 }
 
 /**

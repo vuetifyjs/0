@@ -22,7 +22,7 @@
  */
 
 // Composables
-import { createContext, useContext } from '#v0/composables/createContext'
+import { useContext } from '#v0/composables/createContext'
 import { createSelection } from '#v0/composables/createSelection'
 import { createTrinity } from '#v0/composables/createTrinity'
 import { useProxyRegistry } from '#v0/composables/useProxyRegistry'
@@ -387,10 +387,9 @@ export function createGroupContext<
   R extends GroupContext<Z, E> = GroupContext<Z, E>,
 > (_options: GroupContextOptions = {}): ContextTrinity<R> {
   const { namespace = 'v0:group', ...options } = _options
-  const [useGroupContext, provideGroupContext] = createContext<R>(namespace)
   const context = createGroup<Z, E, R>(options)
 
-  return createTrinity<R>(useGroupContext, provideGroupContext, context)
+  return createTrinity<R>(namespace, context)
 }
 
 /**

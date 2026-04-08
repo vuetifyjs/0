@@ -18,7 +18,7 @@
  */
 
 // Composables
-import { createContext, useContext } from '#v0/composables/createContext'
+import { useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
 
 // Utilities
@@ -201,10 +201,9 @@ export function createFilterContext<
   E extends FilterContext<Z> = FilterContext<Z>,
 > (_options: FilterContextOptions = {}): ContextTrinity<E> {
   const { namespace = 'v0:filter', ...options } = _options
-  const [useFilterContext, provideFilterContext] = createContext<E>(namespace)
   const context = createFilter<Z, E>(options)
 
-  return createTrinity<E>(useFilterContext, provideFilterContext, context)
+  return createTrinity<E>(namespace, context)
 }
 
 /**

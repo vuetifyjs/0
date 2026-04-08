@@ -17,7 +17,7 @@
  * within a range, making it efficient for large page counts.
  */
 
-import { createContext, useContext } from '#v0/composables/createContext'
+import { useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
 
 // Utilities
@@ -278,10 +278,9 @@ export function createPagination (_options: PaginationOptions = {}): PaginationC
  */
 export function createPaginationContext (_options: PaginationContextOptions = {}): ContextTrinity<PaginationContext> {
   const { namespace = 'v0:pagination', ...options } = _options
-  const [usePaginationContext, providePaginationContext] = createContext<PaginationContext>(namespace)
   const context = createPagination(options)
 
-  return createTrinity<PaginationContext>(usePaginationContext, providePaginationContext, context)
+  return createTrinity<PaginationContext>(namespace, context)
 }
 
 /**

@@ -18,7 +18,7 @@
  */
 
 // Composables
-import { createContext, useContext } from '#v0/composables/createContext'
+import { useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
 import { useLogger } from '#v0/composables/useLogger'
 
@@ -1185,11 +1185,10 @@ export function createRegistryContext<
   E extends RegistryTicket & Z = RegistryTicket & Z,
 > (_options: RegistryContextOptions = {}): ContextTrinity<RegistryContext<Z, E>> {
   const { namespace = 'v0:registry', ...options } = _options
-  const [useRegistryContext, provideRegistryContext] = createContext<RegistryContext<Z, E>>(namespace)
 
   const context = createRegistry<Z, E>(options)
 
-  return createTrinity<RegistryContext<Z, E>>(useRegistryContext, provideRegistryContext, context)
+  return createTrinity<RegistryContext<Z, E>>(namespace, context)
 }
 
 /**

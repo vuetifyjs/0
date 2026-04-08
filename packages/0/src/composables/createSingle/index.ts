@@ -15,7 +15,7 @@
  */
 
 // Composables
-import { createContext, useContext } from '#v0/composables/createContext'
+import { useContext } from '#v0/composables/createContext'
 import { createSelection } from '#v0/composables/createSelection'
 import { createTrinity } from '#v0/composables/createTrinity'
 
@@ -184,10 +184,9 @@ export function createSingleContext<
   R extends SingleContext<Z, E> = SingleContext<Z, E>,
 > (_options: SingleContextOptions = {}): ContextTrinity<R> {
   const { namespace = 'v0:single', ...options } = _options
-  const [useSingleContext, provideSingleContext] = createContext<R>(namespace)
   const context = createSingle<Z, E, R>(options)
 
-  return createTrinity<R>(useSingleContext, provideSingleContext, context)
+  return createTrinity<R>(namespace, context)
 }
 
 /**

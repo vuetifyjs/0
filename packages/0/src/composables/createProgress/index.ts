@@ -13,7 +13,7 @@
  */
 
 // Composables
-import { createContext, useContext } from '#v0/composables/createContext'
+import { useContext } from '#v0/composables/createContext'
 import { createModel } from '#v0/composables/createModel'
 import { createTrinity } from '#v0/composables/createTrinity'
 
@@ -177,10 +177,9 @@ export function createProgress (options: ProgressOptions = {}): ProgressContext 
  */
 export function createProgressContext (_options: ProgressContextOptions = {}): ContextTrinity<ProgressContext> {
   const { namespace = 'v0:progress', ...options } = _options
-  const [use, provide] = createContext<ProgressContext>(namespace)
   const context = createProgress(options)
 
-  return createTrinity<ProgressContext>(use, provide, context)
+  return createTrinity<ProgressContext>(namespace, context)
 }
 
 /**

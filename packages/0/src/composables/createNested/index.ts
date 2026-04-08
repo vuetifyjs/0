@@ -17,7 +17,7 @@
 
 // Factories
 // Composables
-import { createContext, useContext } from '#v0/composables/createContext'
+import { useContext } from '#v0/composables/createContext'
 import { createGroup } from '#v0/composables/createGroup'
 import { createTrinity } from '#v0/composables/createTrinity'
 import { useLogger } from '#v0/composables/useLogger'
@@ -866,10 +866,9 @@ export function createNested (_options: NestedOptions = {}): NestedContext {
  */
 export function createNestedContext (_options: NestedContextOptions = {}): ContextTrinity<NestedContext> {
   const { namespace = 'v0:nested', ...options } = _options
-  const [useNestedContext, provideNestedContext] = createContext<NestedContext>(namespace)
   const context = createNested(options)
 
-  return createTrinity<NestedContext>(useNestedContext, provideNestedContext, context)
+  return createTrinity<NestedContext>(namespace, context)
 }
 
 /**
