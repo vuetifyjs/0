@@ -252,7 +252,7 @@ describe('useStorage', () => {
 
       expect(mockAdapter.setItem).toHaveBeenCalledWith(
         'v0:key',
-        JSON.stringify({ __ttl: 1, __v: 'hello', __t: now }),
+        JSON.stringify({ __v0: 1, __v: 'hello', __t: now }),
       )
     })
 
@@ -261,7 +261,7 @@ describe('useStorage', () => {
       vi.spyOn(Date, 'now').mockReturnValue(now)
 
       mockAdapter.getItem.mockReturnValue(
-        JSON.stringify({ __ttl: 1, __v: 'fresh', __t: now - 3000 }),
+        JSON.stringify({ __v0: 1, __v: 'fresh', __t: now - 3000 }),
       )
 
       const storage = createStorage({ adapter: mockAdapter, ttl: 5000 })
@@ -275,7 +275,7 @@ describe('useStorage', () => {
       vi.spyOn(Date, 'now').mockReturnValue(now)
 
       mockAdapter.getItem.mockReturnValue(
-        JSON.stringify({ __ttl: 1, __v: 'stale', __t: now - 10_000 }),
+        JSON.stringify({ __v0: 1, __v: 'stale', __t: now - 10_000 }),
       )
 
       const storage = createStorage({ adapter: mockAdapter, ttl: 5000 })
@@ -290,7 +290,7 @@ describe('useStorage', () => {
       vi.spyOn(Date, 'now').mockReturnValue(now)
 
       mockAdapter.getItem.mockReturnValue(
-        JSON.stringify({ __ttl: 1, __v: 'stale', __t: now - 10_000 }),
+        JSON.stringify({ __v0: 1, __v: 'stale', __t: now - 10_000 }),
       )
 
       const storage = createStorage({ adapter: mockAdapter, ttl: 5000 })
@@ -317,6 +317,17 @@ describe('useStorage', () => {
       const val = storage.get('key', 'default')
 
       expect(val.value).toBe('legacy')
+    })
+
+    it('should not misinterpret user data with __ttl and __v keys as TTL envelope', () => {
+      const userData = { __ttl: 1, __v: 'fake', __t: 0 }
+      mockAdapter.getItem.mockReturnValue(JSON.stringify(userData))
+
+      const storage = createStorage({ adapter: mockAdapter, ttl: 5000 })
+      const val = storage.get('key', 'default')
+
+      // Should return the full object, not unwrap __v
+      expect(val.value).toEqual(userData)
     })
   })
 })
@@ -466,6 +477,38 @@ describe('useStorage edge cases', () => {
     storage.remove('nonexistent')
     expect(noopAdapter.removeItem).not.toHaveBeenCalled()
   })
+
+  it('should no-op clear when no keys were ever accessed', () => {
+    const noopAdapter = {
+      getItem: vi.fn(() => null),
+      setItem: vi.fn(),
+      removeItem: vi.fn(),
+    }
+    const storage = createStorage({ adapter: noopAdapter, prefix: 'test:' })
+
+    // Clear on empty storage should not throw or call removeItem
+    storage.clear()
+    expect(noopAdapter.removeItem).not.toHaveBeenCalled()
+  })
+
+  it('should handle has() returning true from cache without hitting adapter', () => {
+    const adapter = {
+      getItem: vi.fn(() => null),
+      setItem: vi.fn(),
+      removeItem: vi.fn(),
+    }
+    const storage = createStorage({ adapter, prefix: 'test:' })
+
+    // Access the key to put it in cache
+    storage.get('cached', 'value')
+
+    // Reset to check if adapter is called
+    adapter.getItem.mockClear()
+
+    // has() should return true from cache without calling adapter
+    expect(storage.has('cached')).toBe(true)
+    expect(adapter.getItem).not.toHaveBeenCalled()
+  })
 })
 
 describe('useStorage cross-tab sync', () => {
@@ -575,6 +618,84 @@ describe('useStorage cross-tab sync', () => {
 
     // Should not throw
     expect(() => window.dispatchEvent(storageEvent)).not.toThrow()
+  })
+
+  it('should re-sync to storage when value changes after cross-tab event', async () => {
+    vi.doMock('#v0/constants/globals', () => ({
+      IN_BROWSER: true,
+    }))
+
+    const mockStorage = {
+      getItem: vi.fn((): string | null => null),
+      setItem: vi.fn(),
+      removeItem: vi.fn(),
+    }
+    Object.defineProperty(globalThis.window, 'localStorage', {
+      value: mockStorage,
+      configurable: true,
+      writable: true,
+    })
+
+    const { createStorage } = await import('./index')
+    const storage = createStorage({ prefix: 'test:' })
+
+    const ref = storage.get('key', 'initial')
+
+    // Simulate cross-tab update
+    mockStorage.getItem.mockReturnValue('"from-other-tab"')
+    const storageEvent = new StorageEvent('storage', {
+      key: 'test:key',
+      newValue: '"from-other-tab"',
+      storageArea: window.localStorage,
+    })
+    window.dispatchEvent(storageEvent)
+    await nextTick()
+
+    expect(ref.value).toBe('from-other-tab')
+
+    // Now change the value locally — the re-created watcher should sync it back
+    mockStorage.setItem.mockClear()
+    ref.value = 'local-change'
+    await nextTick()
+
+    expect(mockStorage.setItem).toHaveBeenCalledWith('test:key', '"local-change"')
+  })
+
+  it('should remove from storage when value set to null after cross-tab event', async () => {
+    vi.doMock('#v0/constants/globals', () => ({
+      IN_BROWSER: true,
+    }))
+
+    const mockStorage = {
+      getItem: vi.fn((): string | null => null),
+      setItem: vi.fn(),
+      removeItem: vi.fn(),
+    }
+    Object.defineProperty(globalThis.window, 'localStorage', {
+      value: mockStorage,
+      configurable: true,
+      writable: true,
+    })
+
+    const { createStorage } = await import('./index')
+    const storage = createStorage({ prefix: 'test:' })
+
+    const ref = storage.get('key', 'initial')
+
+    // Simulate cross-tab update
+    mockStorage.getItem.mockReturnValue('"synced"')
+    window.dispatchEvent(new StorageEvent('storage', {
+      key: 'test:key',
+      newValue: '"synced"',
+      storageArea: window.localStorage,
+    }))
+    await nextTick()
+
+    // Set to null — should trigger removeItem via the re-created watcher
+    ref.value = null as any
+    await nextTick()
+
+    expect(mockStorage.removeItem).toHaveBeenCalledWith('test:key')
   })
 
   it('should set value to undefined when storage event newValue is null', async () => {

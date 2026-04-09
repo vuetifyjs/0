@@ -430,6 +430,22 @@ describe('createRegistry', () => {
       expect(listener1).toHaveBeenCalledOnce()
       expect(listener2).toHaveBeenCalledOnce()
     })
+
+    it('should warn when listener count exceeds 100', () => {
+      const registry = createRegistry({ events: true })
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+      for (let index = 0; index <= 100; index++) {
+        registry.on('test-event', vi.fn())
+      }
+
+      expect(warnSpy).toHaveBeenCalledTimes(1)
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('101 listeners'),
+      )
+
+      warnSpy.mockRestore()
+    })
   })
 
   describe('cache management', () => {

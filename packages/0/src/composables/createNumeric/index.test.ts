@@ -49,6 +49,13 @@ describe('createNumeric', () => {
       expect(n.snap(-10)).toBe(0)
       expect(n.snap(200)).toBe(100)
     })
+
+    it('should return min for NaN and Infinity', () => {
+      const n = setup({ min: 0, max: 100, step: 10 })
+      expect(n.snap(Number.NaN)).toBe(0)
+      expect(n.snap(Infinity)).toBe(0)
+      expect(n.snap(-Infinity)).toBe(0)
+    })
   })
 
   describe('fromValue', () => {

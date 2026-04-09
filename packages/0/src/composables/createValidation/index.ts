@@ -161,6 +161,15 @@ export function createValidation (_options: ValidationOptions = {}): ValidationC
       }
 
       return errorMessages.length === 0
+    } catch (error) {
+      if (gen !== generation) return isValid.value ?? false
+
+      if (!silent) {
+        errors.value = [error instanceof Error ? error.message : 'Validation error']
+        isValid.value = false
+      }
+
+      return false
     } finally {
       if (gen === generation && !silent) {
         isValidating.value = false

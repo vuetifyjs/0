@@ -296,8 +296,14 @@ export function createNested (_options: NestedOptions = {}): NestedContext {
   function getPath (id: ID): ID[] {
     const path: ID[] = []
     let currentId: ID | undefined = id
+    const visited = new Set<ID>()
 
     while (!isUndefined(currentId)) {
+      if (visited.has(currentId)) {
+        logger.warn(`Circular parent reference detected at "${currentId}".`)
+        break
+      }
+      visited.add(currentId)
       path.unshift(currentId)
       currentId = parents.get(currentId)
     }

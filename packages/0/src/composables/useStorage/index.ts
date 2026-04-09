@@ -127,8 +127,8 @@ export function createStorage<
       const parsed = serializer.read(raw)
 
       // TTL check: expired entries are treated as absent
-      if (ttl && isObject(parsed) && '__ttl' in parsed && '__v' in parsed) {
-        const envelope = parsed as { __ttl: number, __v: unknown, __t: number }
+      if (ttl && isObject(parsed) && '__v0' in parsed && '__v' in parsed) {
+        const envelope = parsed as { __v0: number, __v: unknown, __t: number }
         if (Date.now() - envelope.__t > ttl) {
           adapter?.removeItem(prefixedKey)
           return undefined
@@ -144,7 +144,7 @@ export function createStorage<
   }
 
   function writeStored (prefixedKey: string, value: unknown) {
-    const wrapped = ttl ? { __ttl: 1, __v: value, __t: Date.now() } : value
+    const wrapped = ttl ? { __v0: 1, __v: value, __t: Date.now() } : value
 
     try {
       adapter?.setItem(prefixedKey, serializer.write(wrapped))

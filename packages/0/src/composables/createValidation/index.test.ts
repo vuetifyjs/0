@@ -225,6 +225,21 @@ describe('createValidation', () => {
       await promise
       expect(validation.isValidating.value).toBe(false)
     })
+
+    it('should catch throwing rules and surface error message', async () => {
+      const validation = createValidation({
+        rules: [() => {
+          throw new Error('Network failure')
+        }],
+      })
+
+      const result = await validation.validate('test')
+
+      expect(result).toBe(false)
+      expect(validation.errors.value).toEqual(['Network failure'])
+      expect(validation.isValid.value).toBe(false)
+      expect(validation.isValidating.value).toBe(false)
+    })
   })
 
   describe('reset', () => {

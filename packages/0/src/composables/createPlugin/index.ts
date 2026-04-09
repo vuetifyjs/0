@@ -187,12 +187,13 @@ export function createPluginContext<
             const storage = getPersistedStorage()
             const key = deriveKey(namespace)
             const stored = storage.get(key)
-            watch(
+            const stop = watch(
               () => config.persist!(context),
               val => {
                 stored.value = val
               },
             )
+            app.onUnmount(stop)
           }
         }
         : undefined,

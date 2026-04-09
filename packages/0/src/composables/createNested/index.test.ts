@@ -249,6 +249,25 @@ describe('createNested', () => {
     })
   })
 
+  describe('circular reference protection', () => {
+    it('should not infinite loop in getPath when circular parent exists', () => {
+      const nested = createNested()
+
+      nested.register({ id: 'a', value: 'A' })
+      nested.register({ id: 'b', value: 'B', parentId: 'a' })
+
+      // Manually inject a circular reference (a→b→a)
+      // Cast past ReadonlyMap to simulate corrupted state
+      ;(nested.parents as Map<any, any>).set('a', 'b')
+
+      // Without protection this would hang forever
+      const path = nested.getPath('a')
+
+      // Should terminate and return a finite path
+      expect(path.length).toBeLessThanOrEqual(3)
+    })
+  })
+
   describe('open state management', () => {
     it('should open single node by ID', () => {
       const nested = createNested()

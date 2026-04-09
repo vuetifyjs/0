@@ -308,6 +308,50 @@ describe('createPluginContext', () => {
       expect(stored).toBe('updated-value')
     })
 
+    it('should stop persist watcher on app unmount', async () => {
+      const state = shallowRef('initial')
+
+      const [, createXPlugin] = createPluginContext<
+        { namespace?: string, persist?: boolean },
+        { state: typeof state }
+      >(
+        'v0:stop-watcher-test',
+        () => ({ state }),
+        {
+          persist: context => context.state.value,
+          restore: (context, saved) => {
+            context.state.value = saved as string
+          },
+        },
+      )
+
+      const host = document.createElement('div')
+      const app = createApp({ render: () => null })
+      app.use(createStoragePlugin())
+      app.use(createXPlugin({ persist: true }))
+      app.mount(host)
+
+      state.value = 'before-unmount'
+      await nextTick()
+
+      app.unmount()
+
+      state.value = 'after-unmount'
+      await nextTick()
+
+      // Storage should still hold the pre-unmount value
+      const app2 = createApp({ render: () => null })
+      app2.use(createStoragePlugin())
+
+      let stored: unknown
+      app2.runWithContext(() => {
+        const storage = useStorage()
+        stored = storage.get('stop-watcher-test').value
+      })
+
+      expect(stored).toBe('before-unmount')
+    })
+
     it('should not persist when persist option is absent', () => {
       const restore = vi.fn()
 

@@ -26,7 +26,7 @@ import { createFocusTraversal } from '#v0/composables/createFocusTraversal'
 import { useEventListener } from '#v0/composables/useEventListener'
 
 // Utilities
-import { toValue } from 'vue'
+import { onScopeDispose, toValue } from 'vue'
 
 // Types
 import type { TraversalItem } from '#v0/composables/createFocusTraversal'
@@ -141,6 +141,10 @@ export function useVirtualFocus (
   if (listener) {
     useEventListener(listener, 'keydown', traversal.onKeydown)
   }
+
+  onScopeDispose(() => {
+    clear()
+  })
 
   return {
     highlightedId: traversal.activeId,

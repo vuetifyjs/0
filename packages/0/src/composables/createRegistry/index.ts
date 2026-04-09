@@ -748,7 +748,12 @@ export function createRegistry<
     }
 
     if (!listeners.has(event)) listeners.set(event, new Set())
-    listeners.get(event)!.add(cb)
+    const cbs = listeners.get(event)!
+    cbs.add(cb)
+
+    if (__DEV__ && cbs.size === 101) {
+      logger.warn(`Event "${event}" has ${cbs.size} listeners. Possible memory leak.`)
+    }
   }
 
   function off (event: string, cb: InternalEventCallback) {
