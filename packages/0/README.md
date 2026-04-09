@@ -283,7 +283,7 @@ pnpm validate
 
 ## Contributing
 
-v0 is in alpha — open for feedback, bug reports, and contributions. See the [Alpha Roadmap](https://vuetify0.com/roadmap#alpha) for what's planned and how to get involved.
+v0 is in alpha — open for feedback, bug reports, and contributions. See the [Alpha Roadmap](https://0.vuetifyjs.com/roadmap#alpha) for what's planned and how to get involved.
 
 ## License
 
