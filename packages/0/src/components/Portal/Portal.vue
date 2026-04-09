@@ -23,15 +23,15 @@
     to?: string | HTMLElement
     /** Render inline instead of teleporting. @default false */
     disabled?: boolean
-    /** Block scrim dismissal. @default false */
+    /** Block scrim close. @default false */
     blocking?: boolean
   }
 
   export interface PortalSlotProps {
     /** Calculated z-index from useStack */
     zIndex: number
-    /** Dismiss this portal (unselects from stack) */
-    dismiss: () => void
+    /** Close this portal (unselects from stack) */
+    close: () => void
   }
 </script>
 
@@ -43,7 +43,7 @@
   }>()
 
   const emit = defineEmits<{
-    dismiss: []
+    close: []
   }>()
 
   const {
@@ -56,13 +56,13 @@
   const ticket = stack.register({
     disabled,
     blocking,
-    onDismiss: () => emit('dismiss'),
+    onDismiss: () => emit('close'),
   })
   ticket.select()
 
   const slotProps = toRef((): PortalSlotProps => ({
     zIndex: ticket.zIndex.value,
-    dismiss: ticket.dismiss,
+    close: ticket.dismiss,
   }))
 </script>
 

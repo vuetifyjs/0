@@ -76,16 +76,7 @@ The `disabled` prop controls teleporting — when `true`, content renders inline
 
 ### Stacking
 
-Each Portal registers its own stack ticket. Add multiple layers to see how `useStack` assigns incrementing `zIndex` values — each new Portal layers above the previous one. The `zIndex` slot prop updates reactively as layers are added and removed.
-
-:::
-
-::: example
-/components/portal/custom-target
-
-### Custom Target
-
-Teleport content into a specific container using the `to` prop with a CSS selector. Items added in the input panel are rendered inside the target panel via Portal — demonstrating how content can originate in one part of the tree and appear in another.
+Each Portal registers its own stack ticket. Add multiple layers to see how `useStack` assigns incrementing `zIndex` values — each new Portal layers above the previous one. Layers can be dismissed via the close button or programmatically. The `zIndex` slot prop updates reactively as layers are added and removed.
 
 :::
 

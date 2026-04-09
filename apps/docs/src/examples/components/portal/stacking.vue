@@ -9,7 +9,7 @@
     layers.value.push(next++)
   }
 
-  function onRemove (index: number) {
+  function onClose (index: number) {
     layers.value.splice(index, 1)
   }
 </script>
@@ -29,8 +29,12 @@
       </span>
     </div>
 
-    <Portal v-for="(id, index) in layers" :key="id">
-      <template #default="{ zIndex }">
+    <Portal
+      v-for="(id, index) in layers"
+      :key="id"
+      @close="onClose(index)"
+    >
+      <template #default="{ zIndex, close }">
         <div
           class="fixed rounded-lg border border-divider bg-surface p-4 shadow-xl"
           :style="{
@@ -48,11 +52,18 @@
 
             <button
               class="rounded px-2 py-1 text-xs text-on-surface-variant hover:bg-surface-variant hover:text-on-surface"
-              @click="onRemove(index)"
+              @click="close"
             >
               close
             </button>
           </div>
+
+          <button
+            class="mt-3 w-full rounded bg-primary/10 px-3 py-1.5 text-xs text-primary hover:bg-primary/20"
+            @click="onAdd"
+          >
+            Add another layer
+          </button>
         </div>
       </template>
     </Portal>

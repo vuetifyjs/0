@@ -11,27 +11,39 @@
     <div class="flex items-center gap-4">
       <button
         class="rounded bg-primary px-4 py-2 text-on-primary"
-        @click="show = !show"
+        @click="show = true"
       >
-        {{ show ? 'Hide' : 'Show' }} Portal
+        Show overlay
       </button>
 
       <span class="text-sm text-on-surface-variant">
-        {{ mobile ? 'Mobile — renders inline below' : 'Desktop — teleported to body (bottom-right)' }}
+        {{ mobile ? 'Mobile — renders inline below' : 'Desktop — teleported to body' }}
       </span>
     </div>
 
-    <Portal v-if="show" :disabled="mobile">
-      <template #default="{ zIndex }">
+    <Portal v-if="show" :disabled="mobile" @close="show = false">
+      <template #default="{ zIndex, close }">
         <div
           class="rounded-lg bg-surface-variant p-4 shadow-lg"
           :class="mobile ? '' : 'fixed bottom-4 right-4'"
           :style="mobile ? {} : { zIndex }"
         >
-          <p class="text-sm font-medium">Portal Content</p>
-          <p class="mt-1 text-xs text-on-surface-variant">
-            z-index: {{ zIndex }} · {{ mobile ? 'inline' : 'teleported to body' }}
-          </p>
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <p class="text-sm font-medium">Portal Content</p>
+
+              <p class="mt-1 text-xs text-on-surface-variant">
+                z-index: {{ zIndex }} · {{ mobile ? 'inline' : 'teleported' }}
+              </p>
+            </div>
+
+            <button
+              class="rounded px-2 py-1 text-xs text-on-surface-variant hover:bg-surface hover:text-on-surface"
+              @click="close"
+            >
+              close
+            </button>
+          </div>
         </div>
       </template>
     </Portal>
