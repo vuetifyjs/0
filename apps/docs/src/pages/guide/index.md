@@ -139,7 +139,7 @@ If you have an existing styled component library and want to adopt v0's headless
   const tabs = createSingle({ mandatory: true })
 
   // Bulk register tabs - first is auto-selected due to mandatory
-  tabs.onboard([
+  const items = tabs.onboard([
     { id: 'home', value: 'Home' },
     { id: 'profile', value: 'Profile' },
     { id: 'settings', value: 'Settings' },
@@ -149,10 +149,10 @@ If you have an existing styled component library and want to adopt v0's headless
 <template>
   <div class="my-tabs">
     <button
-      v-for="tab in tabs.items"
+      v-for="tab in items"
       :key="tab.id"
-      :class="{ active: tab.isSelected }"
-      @click="tab.select"
+      :class="{ active: tab.isSelected.value }"
+      @click="tab.select()"
     >
       {{ tab.value }}
     </button>
