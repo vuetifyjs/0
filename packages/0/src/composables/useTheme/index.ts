@@ -114,9 +114,11 @@ export interface ThemeContext<
   E extends ThemeTicket<Z> = ThemeTicket<Z>,
 > extends Omit<SingleContext<Z, E>, 'register'> {
   /**
-   * A computed reference to the resolved colors of the current theme.
+   * A computed reference to the resolved colors of all registered themes.
    *
-   * @remarks The colors are resolved by replacing any token aliases with their actual values.
+   * @remarks Returns a record keyed by theme ID. Each value contains the theme's colors
+   * with any token aliases resolved to their actual values. Lazy themes are excluded
+   * unless they are currently selected.
    *
    * @see https://0.vuetifyjs.com/composables/plugins/use-theme
    *

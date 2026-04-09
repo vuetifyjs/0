@@ -124,7 +124,7 @@ Theme selection and computed colors are reactive. Switching themes automatically
 | `selectedItem` | <AppSuccessIcon /> | Current theme ticket |
 | `selectedValue` | <AppSuccessIcon /> | Current theme colors |
 | `selectedIndex` | <AppSuccessIcon /> | Index in registry |
-| `colors` | <AppSuccessIcon /> | Resolved colors with aliases |
+| `colors` | <AppSuccessIcon /> | Resolved colors for all registered themes (keyed by theme ID) |
 | `isDark` | <AppSuccessIcon /> | Current theme is dark |
 | `select(id)` | — | Switch to a specific theme by ID |
 | `cycle(ids?)` | — | Advance to the next theme. Pass an array to restrict which themes to cycle |
