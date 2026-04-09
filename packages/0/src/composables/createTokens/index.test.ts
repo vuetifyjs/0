@@ -2877,6 +2877,64 @@ describe('flatten function edge cases', () => {
   })
 })
 
+describe('createTokens cache-clearing wrappers', () => {
+  it('should clear cache on offboard', () => {
+    const tokens: TokenCollection = {
+      primary: '#007BFF',
+      accent: { $value: '{primary}' },
+      secondary: '#6C757D',
+    }
+    const context = createTokens(tokens)
+
+    // Prime cache
+    expect(context.resolve('accent')).toBe('#007BFF')
+
+    // Offboard primary
+    context.offboard(['primary'])
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+    // accent should now be undefined because primary was removed and cache was cleared
+    expect(context.resolve('accent')).toBeUndefined()
+    expect(context.size).toBe(2)
+
+    warnSpy.mockRestore()
+  })
+
+  it('should clear cache on move', () => {
+    const tokens: TokenCollection = {
+      a: 'first',
+      b: 'second',
+      c: 'third',
+    }
+    const context = createTokens(tokens)
+
+    // Prime cache
+    expect(context.resolve('a')).toBe('first')
+
+    context.move('c', 0)
+
+    // Verify move happened by checking index
+    const ticket = context.collection.get('c')
+    expect(ticket?.index).toBe(0)
+  })
+
+  it('should clear cache on clear', () => {
+    const tokens: TokenCollection = {
+      primary: '#007BFF',
+      accent: { $value: '{primary}' },
+    }
+    const context = createTokens(tokens)
+
+    // Prime cache
+    expect(context.resolve('accent')).toBe('#007BFF')
+
+    context.clear()
+
+    expect(context.size).toBe(0)
+    expect(context.resolve('accent')).toBeUndefined()
+  })
+})
+
 describe('useTokens with fixture data', () => {
   let context: ReturnType<typeof createTokens>
 

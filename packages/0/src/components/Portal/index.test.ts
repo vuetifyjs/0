@@ -171,5 +171,148 @@ describe('portal', () => {
 
       expect(document.body.querySelector('.cleanup-test')).toBeNull()
     })
+
+    it('should unregister from stack on unmount', async () => {
+      const zIndexes: number[] = []
+
+      const Host = defineComponent({
+        data: () => ({ showFirst: true, showSecond: true }),
+        render () {
+          const children = []
+          if (this.showFirst) {
+            children.push(h(Portal, null, {
+              default: (props: any) => {
+                zIndexes[0] = props.zIndex
+                return h('div', { class: 'first' }, 'First')
+              },
+            }))
+          }
+          if (this.showSecond) {
+            children.push(h(Portal, null, {
+              default: (props: any) => {
+                zIndexes[1] = props.zIndex
+                return h('div', { class: 'second' }, 'Second')
+              },
+            }))
+          }
+          return children
+        },
+      })
+
+      const wrapper = mount(Host)
+
+      expect(zIndexes[0]).toBe(2000)
+      expect(zIndexes[1]).toBe(2010)
+
+      await wrapper.setData({ showFirst: false })
+      await nextTick()
+
+      // First portal content removed from DOM
+      expect(document.body.querySelector('.first')).toBeNull()
+      // Second portal still renders
+      expect(document.body.querySelector('.second')).not.toBeNull()
+
+      wrapper.unmount()
+    })
+  })
+
+  describe('teleport target', () => {
+    it('should teleport to an HTMLElement target', () => {
+      const target = document.createElement('div')
+      document.body.append(target)
+
+      const wrapper = mount(Portal, {
+        props: { to: target as any },
+        slots: {
+          default: () => h('div', { class: 'element-target' }, 'Content'),
+        },
+      })
+
+      expect(target.querySelector('.element-target')).not.toBeNull()
+      expect(target.querySelector('.element-target')!.textContent).toBe('Content')
+
+      wrapper.unmount()
+      target.remove()
+    })
+
+    it('should default to body when no to prop is provided', () => {
+      const wrapper = mount(Portal, {
+        slots: {
+          default: () => h('div', { class: 'default-target' }, 'Default'),
+        },
+      })
+
+      expect(document.body.querySelector('.default-target')).not.toBeNull()
+
+      wrapper.unmount()
+    })
+  })
+
+  describe('close slot prop', () => {
+    it('should expose close function in slot props', () => {
+      let slotProps: any
+
+      const wrapper = mount(Portal, {
+        slots: {
+          default: (props: any) => {
+            slotProps = props
+            return h('div', 'Content')
+          },
+        },
+      })
+
+      expect(slotProps).toBeDefined()
+      expect(typeof slotProps.close).toBe('function')
+
+      wrapper.unmount()
+    })
+
+    it('should emit close when close slot prop is called', async () => {
+      let slotProps: any
+
+      const wrapper = mount(Portal, {
+        slots: {
+          default: (props: any) => {
+            slotProps = props
+            return h('div', 'Content')
+          },
+        },
+      })
+
+      slotProps.close()
+      await nextTick()
+
+      expect(wrapper.emitted('close')).toHaveLength(1)
+
+      wrapper.unmount()
+    })
+  })
+
+  describe('blocking prop', () => {
+    it('should register with blocking when blocking prop is true', () => {
+      const wrapper = mount(Portal, {
+        props: { blocking: true },
+        slots: {
+          default: () => h('div', 'Blocking'),
+        },
+      })
+
+      // Portal renders without error with blocking=true
+      expect(document.body.querySelector('div')).not.toBeNull()
+
+      wrapper.unmount()
+    })
+
+    it('should register without blocking by default', () => {
+      const wrapper = mount(Portal, {
+        slots: {
+          default: () => h('div', 'Non-blocking'),
+        },
+      })
+
+      expect(document.body.querySelector('div')).not.toBeNull()
+
+      wrapper.unmount()
+    })
   })
 })

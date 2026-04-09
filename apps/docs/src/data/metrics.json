@@ -1,4 +1,12 @@
 {
+  "AlertDialog": {
+    "coverage": {
+      "statements": 100,
+      "functions": 100,
+      "branches": 100,
+      "overall": 100
+    }
+  },
   "Atom": {
     "coverage": {
       "statements": 100,
@@ -41,10 +49,10 @@
   },
   "Collapsible": {
     "coverage": {
-      "statements": 4.2,
-      "functions": 0,
-      "branches": 0,
-      "overall": 2.1
+      "statements": 100,
+      "functions": 100,
+      "branches": 100,
+      "overall": 100
     }
   },
   "Combobox": {
@@ -89,18 +97,26 @@
   },
   "Input": {
     "coverage": {
-      "statements": 90.9,
-      "functions": 75,
+      "statements": 100,
+      "functions": 100,
       "branches": 100,
-      "overall": 88
+      "overall": 100
     }
   },
   "Locale": {
     "coverage": {
-      "statements": 0,
-      "functions": 0,
+      "statements": 100,
+      "functions": 100,
+      "branches": 100,
+      "overall": 100
+    }
+  },
+  "NumberField": {
+    "coverage": {
+      "statements": 90.9,
+      "functions": 75,
       "branches": 0,
-      "overall": 0
+      "overall": 68
     }
   },
   "Pagination": {
@@ -135,6 +151,14 @@
       "overall": 100
     }
   },
+  "Progress": {
+    "coverage": {
+      "statements": 100,
+      "functions": 100,
+      "branches": 0,
+      "overall": 80
+    }
+  },
   "Radio": {
     "coverage": {
       "statements": 100,
@@ -145,10 +169,10 @@
   },
   "Rating": {
     "coverage": {
-      "statements": 3,
-      "functions": 0,
+      "statements": 100,
+      "functions": 100,
       "branches": 0,
-      "overall": 1.5
+      "overall": 80
     }
   },
   "Scrim": {
@@ -233,10 +257,10 @@
   },
   "Theme": {
     "coverage": {
-      "statements": 60,
-      "functions": 62.5,
-      "branches": 37.5,
-      "overall": 56.3
+      "statements": 84,
+      "functions": 100,
+      "branches": 100,
+      "overall": 92
     }
   },
   "Toggle": {
@@ -257,18 +281,18 @@
   },
   "createBreadcrumbs": {
     "coverage": {
-      "statements": 97.3,
+      "statements": 97.1,
       "functions": 100,
       "branches": 100,
-      "overall": 98.7
+      "overall": 98.6
     }
   },
   "createCombobox": {
     "coverage": {
-      "statements": 92.6,
-      "functions": 87.5,
-      "branches": 85.2,
-      "overall": 89.6
+      "statements": 100,
+      "functions": 100,
+      "branches": 100,
+      "overall": 100
     }
   },
   "createContext": {
@@ -1127,10 +1151,10 @@
   },
   "createFilter": {
     "coverage": {
-      "statements": 97.7,
+      "statements": 97.6,
       "functions": 100,
       "branches": 100,
-      "overall": 98.9
+      "overall": 98.8
     },
     "benchmarks": {
       "_groups": {
@@ -1662,6 +1686,14 @@
     }
   },
   "createGroup": {
+    "coverage": {
+      "statements": 100,
+      "functions": 100,
+      "branches": 100,
+      "overall": 100
+    }
+  },
+  "createInput": {
     "coverage": {
       "statements": 100,
       "functions": 100,
@@ -3450,6 +3482,22 @@
       }
     }
   },
+  "createNumberField": {
+    "coverage": {
+      "statements": 98.3,
+      "functions": 100,
+      "branches": 100,
+      "overall": 99.2
+    }
+  },
+  "createNumeric": {
+    "coverage": {
+      "statements": 100,
+      "functions": 100,
+      "branches": 100,
+      "overall": 100
+    }
+  },
   "createObserver": {
     "coverage": {
       "statements": 100,
@@ -3460,17 +3508,17 @@
   },
   "createOverflow": {
     "coverage": {
-      "statements": 98.2,
-      "functions": 90,
-      "branches": 95.2,
-      "overall": 95.1
+      "statements": 100,
+      "functions": 100,
+      "branches": 100,
+      "overall": 100
     }
   },
   "createPagination": {
     "coverage": {
       "statements": 100,
       "functions": 100,
-      "branches": 97,
+      "branches": 96.9,
       "overall": 99.4
     }
   },
@@ -3482,12 +3530,20 @@
       "overall": 98.9
     }
   },
+  "createProgress": {
+    "coverage": {
+      "statements": 89.5,
+      "functions": 83.3,
+      "branches": 87.5,
+      "overall": 87.2
+    }
+  },
   "createQueue": {
     "coverage": {
-      "statements": 96,
-      "functions": 84.2,
+      "statements": 100,
+      "functions": 100,
       "branches": 100,
-      "overall": 93.3
+      "overall": 100
     }
   },
   "createRating": {
@@ -3500,10 +3556,10 @@
   },
   "createRegistry": {
     "coverage": {
-      "statements": 98.8,
-      "functions": 94.4,
-      "branches": 97.2,
-      "overall": 97.2
+      "statements": 99.2,
+      "functions": 97.1,
+      "branches": 98.6,
+      "overall": 98.4
     },
     "benchmarks": {
       "_groups": {
@@ -4236,10 +4292,10 @@
   },
   "createSelection": {
     "coverage": {
-      "statements": 97.2,
-      "functions": 94.7,
-      "branches": 96.9,
-      "overall": 96.4
+      "statements": 98.4,
+      "functions": 100,
+      "branches": 100,
+      "overall": 99.2
     },
     "benchmarks": {
       "_groups": {
@@ -4908,10 +4964,10 @@
   },
   "createSlider": {
     "coverage": {
-      "statements": 96.7,
-      "functions": 88.5,
+      "statements": 100,
+      "functions": 100,
       "branches": 100,
-      "overall": 94.9
+      "overall": 100
     }
   },
   "createStep": {
@@ -4924,18 +4980,18 @@
   },
   "createTimeline": {
     "coverage": {
-      "statements": 95.7,
+      "statements": 95.6,
       "functions": 100,
       "branches": 100,
-      "overall": 97.9
+      "overall": 97.8
     }
   },
   "createTokens": {
     "coverage": {
-      "statements": 94.3,
-      "functions": 81.3,
+      "statements": 99.2,
+      "functions": 100,
       "branches": 100,
-      "overall": 91.5
+      "overall": 99.6
     },
     "benchmarks": {
       "_groups": {
@@ -5395,10 +5451,10 @@
   },
   "createVirtual": {
     "coverage": {
-      "statements": 96.1,
-      "functions": 95.7,
-      "branches": 98.8,
-      "overall": 96.5
+      "statements": 96.6,
+      "functions": 100,
+      "branches": 100,
+      "overall": 98.3
     },
     "benchmarks": {
       "_groups": {
@@ -6064,10 +6120,10 @@
   },
   "useBreakpoints": {
     "coverage": {
-      "statements": 97.7,
-      "functions": 92.9,
+      "statements": 98.9,
+      "functions": 100,
       "branches": 100,
-      "overall": 96.7
+      "overall": 99.5
     }
   },
   "useClickOutside": {
@@ -6080,10 +6136,10 @@
   },
   "useDate": {
     "coverage": {
-      "statements": 96,
+      "statements": 95.8,
       "functions": 100,
       "branches": 100,
-      "overall": 98
+      "overall": 97.9
     },
     "benchmarks": {
       "_groups": {
@@ -6646,9 +6702,9 @@
   "useFeatures": {
     "coverage": {
       "statements": 100,
-      "functions": 93.8,
+      "functions": 100,
       "branches": 100,
-      "overall": 98.1
+      "overall": 100
     }
   },
   "useHotkey": {
@@ -6662,9 +6718,9 @@
   "useHydration": {
     "coverage": {
       "statements": 100,
-      "functions": 80,
-      "branches": 100,
-      "overall": 94
+      "functions": 100,
+      "branches": 0,
+      "overall": 80
     }
   },
   "useIntersectionObserver": {
@@ -6677,10 +6733,10 @@
   },
   "useLazy": {
     "coverage": {
-      "statements": 88.9,
-      "functions": 85.7,
+      "statements": 100,
+      "functions": 100,
       "branches": 100,
-      "overall": 90.2
+      "overall": 100
     }
   },
   "useLocale": {
@@ -6709,18 +6765,18 @@
   },
   "useMutationObserver": {
     "coverage": {
-      "statements": 88.9,
-      "functions": 66.7,
+      "statements": 100,
+      "functions": 100,
       "branches": 100,
-      "overall": 84.5
+      "overall": 100
     }
   },
   "useNotifications": {
     "coverage": {
-      "statements": 82.2,
-      "functions": 86.2,
-      "branches": 77.8,
-      "overall": 82.5
+      "statements": 100,
+      "functions": 100,
+      "branches": 100,
+      "overall": 100
     }
   },
   "usePermissions": {
@@ -6749,10 +6805,10 @@
   },
   "useProxyModel": {
     "coverage": {
-      "statements": 92.7,
+      "statements": 94.5,
       "functions": 100,
       "branches": 100,
-      "overall": 96.4
+      "overall": 97.3
     }
   },
   "useProxyRegistry": {
@@ -7280,10 +7336,10 @@
   },
   "useRtl": {
     "coverage": {
-      "statements": 70,
-      "functions": 66.7,
-      "branches": 66.7,
-      "overall": 68.4
+      "statements": 100,
+      "functions": 100,
+      "branches": 100,
+      "overall": 100
     }
   },
   "useRules": {
@@ -7304,18 +7360,18 @@
   },
   "useStorage": {
     "coverage": {
-      "statements": 95.8,
-      "functions": 92.9,
-      "branches": 96,
-      "overall": 95
+      "statements": 100,
+      "functions": 100,
+      "branches": 100,
+      "overall": 100
     }
   },
   "useTheme": {
     "coverage": {
-      "statements": 94.3,
-      "functions": 89.5,
+      "statements": 96.3,
+      "functions": 90,
       "branches": 100,
-      "overall": 94
+      "overall": 95.2
     }
   },
   "useTimer": {

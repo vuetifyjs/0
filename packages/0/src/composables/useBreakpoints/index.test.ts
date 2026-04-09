@@ -385,7 +385,7 @@ describe('useBreakpoints', () => {
 
       plugin.install(mockApp as unknown as App)
 
-      expect(mockApp.runWithContext).toHaveBeenCalledOnce()
+      expect(mockApp.runWithContext).toHaveBeenCalledTimes(1)
       expect(typeof mockApp.runWithContext.mock.calls[0]![0]).toBe('function')
     })
 
@@ -707,5 +707,209 @@ describe('useBreakpoints', () => {
       expect(cleanupFn).toBeDefined()
       expect(() => cleanupFn!()).not.toThrow()
     })
+  })
+
+  describe('fallback context', () => {
+    it('should return fallback when called outside plugin context', () => {
+      mockHasInjectionContext.mockReturnValue(false)
+
+      const result = useBreakpoints()
+
+      expect(result).toBeDefined()
+      expect(result.name.value).toBe('xs')
+      expect(result.width.value).toBe(0)
+      expect(result.height.value).toBe(0)
+      expect(result.isMobile.value).toBe(true)
+      expect(result.xs.value).toBe(true)
+      expect(result.sm.value).toBe(false)
+      expect(result.md.value).toBe(false)
+      expect(result.lg.value).toBe(false)
+      expect(result.xl.value).toBe(false)
+      expect(result.xxl.value).toBe(false)
+      expect(result.ssr).toBe(false)
+    })
+
+    it('should have correct compound flags in fallback', () => {
+      mockHasInjectionContext.mockReturnValue(false)
+
+      const result = useBreakpoints()
+
+      expect(result.smAndUp.value).toBe(false)
+      expect(result.mdAndUp.value).toBe(false)
+      expect(result.lgAndUp.value).toBe(false)
+      expect(result.xlAndUp.value).toBe(false)
+      expect(result.smAndDown.value).toBe(true)
+      expect(result.mdAndDown.value).toBe(true)
+      expect(result.lgAndDown.value).toBe(true)
+      expect(result.xlAndDown.value).toBe(true)
+    })
+
+    it('should have noop update in fallback', () => {
+      mockHasInjectionContext.mockReturnValue(false)
+
+      const result = useBreakpoints()
+
+      expect(() => result.update()).not.toThrow()
+    })
+
+    it('should have default breakpoint values in fallback', () => {
+      mockHasInjectionContext.mockReturnValue(false)
+
+      const result = useBreakpoints()
+
+      expect(result.breakpoints).toEqual({
+        xs: 0,
+        sm: 600,
+        md: 840,
+        lg: 1145,
+        xl: 1545,
+        xxl: 2138,
+      })
+      expect(result.mobileBreakpoint).toBe('lg')
+    })
+  })
+
+  describe('update in non-browser environment', () => {
+    it('should be a noop when not in browser', () => {
+      inBrowser.value = false
+
+      const context = createBreakpoints()
+      const initialWidth = context.width.value
+
+      context.update()
+
+      // Width should not change since IN_BROWSER is false
+      expect(context.width.value).toBe(initialWidth)
+
+      inBrowser.value = true
+    })
+  })
+
+  describe('isMobile with named mobileBreakpoint', () => {
+    it('should correctly evaluate isMobile with named breakpoint at various widths', () => {
+      // Below lg threshold -> mobile
+      mockWindow.innerWidth = 500
+      const context = createBreakpoints({ mobileBreakpoint: 'lg' })
+      context.update()
+      expect(context.isMobile.value).toBe(true)
+
+      // At lg threshold -> not mobile
+      mockWindow.innerWidth = 1145
+      context.update()
+      expect(context.isMobile.value).toBe(false)
+    })
+  })
+
+  describe('isMobile with numeric mobileBreakpoint after update', () => {
+    it('should update isMobile when window resizes past numeric threshold', () => {
+      mockWindow.innerWidth = 700
+      const context = createBreakpoints({ mobileBreakpoint: 800 })
+      context.update()
+      expect(context.isMobile.value).toBe(true)
+
+      mockWindow.innerWidth = 900
+      context.update()
+      expect(context.isMobile.value).toBe(false)
+    })
+  })
+
+  describe('sSR with initial update skip', () => {
+    it('should skip initial update when ssr option is provided', () => {
+      const plugin = createBreakpointsPlugin({ ssr: { clientWidth: 1200 } })
+      const mockApp: Record<string, any> = {
+        _context: {},
+        runWithContext: vi.fn((callback: () => void) => callback()),
+        provide: vi.fn(),
+        mount: vi.fn(() => ({}) as any),
+      }
+
+      plugin.install(mockApp as unknown as App)
+
+      // Width should remain from SSR, not window
+      // The plugin should not call update() synchronously when ssr is set
+      expect(mockApp.runWithContext).toHaveBeenCalled()
+    })
+  })
+
+  describe('non-browser initial values', () => {
+    it('should initialize with zeros when not in browser and no SSR', () => {
+      inBrowser.value = false
+
+      const context = createBreakpoints()
+
+      expect(context.width.value).toBe(0)
+      expect(context.height.value).toBe(0)
+      expect(context.name.value).toBe('xs')
+      expect(context.ssr).toBe(false)
+
+      inBrowser.value = true
+    })
+  })
+})
+
+describe('useBreakpoints without matchMedia', () => {
+  let mockWindow: Record<string, unknown>
+
+  beforeEach(() => {
+    vi.resetModules()
+    vi.clearAllMocks()
+
+    mockWindow = {
+      innerWidth: 1024,
+      innerHeight: 768,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    }
+    globalThis.window = mockWindow as unknown as Window & typeof globalThis
+
+    mockUseHydration.mockReturnValue({
+      isHydrated: shallowRef(true),
+      isSettled: shallowRef(true),
+      hydrate: vi.fn(),
+      settle: vi.fn(),
+    })
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  it('should fall back to innerWidth comparison when matchMedia is unavailable', async () => {
+    vi.doMock('#v0/constants/globals', () => ({
+      IN_BROWSER: true,
+      SUPPORTS_MATCH_MEDIA: false,
+    }))
+
+    const { createBreakpoints: create } = await import('./index')
+
+    mockWindow.innerWidth = 1400
+
+    const context = create()
+    context.update()
+
+    expect(context.name.value).toBe('lg')
+    expect(context.lg.value).toBe(true)
+    expect(context.isMobile.value).toBe(false)
+  })
+
+  it('should detect mobile via innerWidth with numeric mobileBreakpoint when matchMedia unavailable', async () => {
+    vi.doMock('#v0/constants/globals', () => ({
+      IN_BROWSER: true,
+      SUPPORTS_MATCH_MEDIA: false,
+    }))
+
+    const { createBreakpoints: create } = await import('./index')
+
+    mockWindow.innerWidth = 700
+
+    const context = create({ mobileBreakpoint: 800 })
+    context.update()
+
+    expect(context.isMobile.value).toBe(true)
+
+    mockWindow.innerWidth = 900
+    context.update()
+
+    expect(context.isMobile.value).toBe(false)
   })
 })

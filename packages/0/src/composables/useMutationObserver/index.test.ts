@@ -445,6 +445,196 @@ describe('useMutationObserver', () => {
   })
 })
 
+describe('useMutationObserver record transformation', () => {
+  let element: HTMLDivElement
+
+  beforeEach(() => {
+    mockIsHydrated.value = true
+
+    element = document.createElement('div')
+    vi.clearAllMocks()
+  })
+
+  it('should transform native mutation records to MutationObserverRecord shape', async () => {
+    let observerCallback: Function | undefined
+
+    const mockObs = {
+      observe: vi.fn(),
+      disconnect: vi.fn(),
+    }
+
+    globalThis.MutationObserver = vi.fn(function (this: any, cb: Function) {
+      observerCallback = cb
+      return mockObs
+    }) as any
+    window.MutationObserver = globalThis.MutationObserver
+
+    const target = ref<Element | undefined>(element)
+    const callback = vi.fn()
+
+    useMutationObserver(target, callback, { attributes: true })
+    await nextTick()
+
+    const child = document.createElement('span')
+    const childNodes = document.createElement('div').childNodes
+
+    const nativeMutation = {
+      type: 'attributes',
+      target: element,
+      addedNodes: childNodes,
+      removedNodes: childNodes,
+      previousSibling: child,
+      nextSibling: null,
+      attributeName: 'class',
+      attributeNamespace: null,
+      oldValue: 'old-class',
+    }
+
+    observerCallback?.([nativeMutation])
+    await nextTick()
+
+    expect(callback).toHaveBeenCalledTimes(1)
+    const records = callback.mock.calls[0]![0]
+    expect(records).toHaveLength(1)
+    expect(records[0].type).toBe('attributes')
+    expect(records[0].target).toBe(element)
+    expect(records[0].attributeName).toBe('class')
+    expect(records[0].oldValue).toBe('old-class')
+    expect(records[0].previousSibling).toBe(child)
+    expect(records[0].nextSibling).toBeNull()
+    expect(records[0].attributeNamespace).toBeNull()
+  })
+
+  it('should transform multiple mutation records in a single batch', async () => {
+    let observerCallback: Function | undefined
+
+    const mockObs = {
+      observe: vi.fn(),
+      disconnect: vi.fn(),
+    }
+
+    globalThis.MutationObserver = vi.fn(function (this: any, cb: Function) {
+      observerCallback = cb
+      return mockObs
+    }) as any
+    window.MutationObserver = globalThis.MutationObserver
+
+    const target = ref<Element | undefined>(element)
+    const callback = vi.fn()
+
+    useMutationObserver(target, callback, { childList: true, attributes: true })
+    await nextTick()
+
+    const emptyNodes = document.createElement('div').childNodes
+
+    const mutations = [
+      {
+        type: 'childList',
+        target: element,
+        addedNodes: emptyNodes,
+        removedNodes: emptyNodes,
+        previousSibling: null,
+        nextSibling: null,
+        attributeName: null,
+        attributeNamespace: null,
+        oldValue: null,
+      },
+      {
+        type: 'attributes',
+        target: element,
+        addedNodes: emptyNodes,
+        removedNodes: emptyNodes,
+        previousSibling: null,
+        nextSibling: null,
+        attributeName: 'id',
+        attributeNamespace: null,
+        oldValue: 'old-id',
+      },
+    ]
+
+    observerCallback?.(mutations)
+    await nextTick()
+
+    expect(callback).toHaveBeenCalledTimes(1)
+    const records = callback.mock.calls[0]![0]
+    expect(records).toHaveLength(2)
+    expect(records[0].type).toBe('childList')
+    expect(records[1].type).toBe('attributes')
+    expect(records[1].attributeName).toBe('id')
+  })
+})
+
+describe('useMutationObserver immediate emptyNodeList', () => {
+  let element: HTMLDivElement
+
+  beforeEach(() => {
+    mockIsHydrated.value = true
+    element = document.createElement('div')
+
+    const mockObs = {
+      observe: vi.fn(),
+      disconnect: vi.fn(),
+    }
+
+    globalThis.MutationObserver = vi.fn(function (this: any) {
+      return mockObs
+    }) as any
+    window.MutationObserver = globalThis.MutationObserver
+
+    vi.clearAllMocks()
+  })
+
+  it('should produce an emptyNodeList with working item method', async () => {
+    const target = ref<Element | undefined>(element)
+    const callback = vi.fn()
+
+    useMutationObserver(target, callback, { immediate: true })
+
+    mockIsHydrated.value = true
+    await nextTick()
+
+    expect(callback).toHaveBeenCalledTimes(1)
+    const record = callback.mock.calls[0]![0][0]
+
+    expect(record.addedNodes.length).toBe(0)
+    expect(record.addedNodes.item(0)).toBeNull()
+    expect(record.removedNodes.item(99)).toBeNull()
+  })
+
+  it('should produce an emptyNodeList with working forEach method', async () => {
+    const target = ref<Element | undefined>(element)
+    const callback = vi.fn()
+
+    useMutationObserver(target, callback, { immediate: true })
+
+    mockIsHydrated.value = true
+    await nextTick()
+
+    const record = callback.mock.calls[0]![0][0]
+    const forEachCallback = vi.fn()
+
+    for (const node of record.addedNodes) {
+      forEachCallback(node)
+    }
+    expect(forEachCallback).not.toHaveBeenCalled()
+  })
+
+  it('should produce an emptyNodeList with working iterator', async () => {
+    const target = ref<Element | undefined>(element)
+    const callback = vi.fn()
+
+    useMutationObserver(target, callback, { immediate: true })
+
+    mockIsHydrated.value = true
+    await nextTick()
+
+    const record = callback.mock.calls[0]![0][0]
+    const nodes = [...record.addedNodes]
+
+    expect(nodes).toEqual([])
+  })
+})
+
 describe('useMutationObserver SSR', () => {
   beforeEach(() => {
     vi.resetModules()

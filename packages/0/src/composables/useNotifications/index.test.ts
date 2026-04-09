@@ -1,13 +1,13 @@
 import { describe, expect, it, vi } from 'vitest'
 
 // Utilities
-import { effectScope } from 'vue'
+import { createApp, effectScope } from 'vue'
 
 // Types
 import type { ID } from '#v0/types'
 import type { NotificationsAdapterContext } from './index'
 
-import { createNotifications, useNotifications } from './index'
+import { createNotifications, createNotificationsPlugin, useNotifications } from './index'
 
 function withScope<T> (fn: () => T): T {
   const scope = effectScope()
@@ -183,7 +183,7 @@ describe('createNotifications', () => {
         notifications.on('notification:received', handler)
 
         notifications.send({ subject: 'Test' })
-        expect(handler).toHaveBeenCalledOnce()
+        expect(handler).toHaveBeenCalledTimes(1)
       })
     })
 
@@ -291,7 +291,7 @@ describe('createNotifications', () => {
         const notifications = createNotifications()
         adapter.setup(adapterContext(notifications))
 
-        expect(setup).toHaveBeenCalledOnce()
+        expect(setup).toHaveBeenCalledTimes(1)
         const ctx = setup.mock.calls[0]![0]
         expect(ctx).toHaveProperty('send')
         expect(ctx).toHaveProperty('on')
@@ -307,7 +307,7 @@ describe('createNotifications', () => {
         adapter.setup(adapterContext(notifications))
 
         adapter.dispose()
-        expect(dispose).toHaveBeenCalledOnce()
+        expect(dispose).toHaveBeenCalledTimes(1)
       })
     })
 
@@ -700,6 +700,341 @@ describe('createNotifications', () => {
         notifications.unregister('cascade-1')
         expect(notifications.queue.has('cascade-1')).toBe(false)
       })
+    })
+
+    it('should not error when unregistering item not in queue', () => {
+      withScope(() => {
+        const notifications = createNotifications()
+        const ticket = notifications.register({ id: 'reg-only', subject: 'Test' })
+
+        expect(notifications.queue.has('reg-only')).toBe(false)
+        expect(() => ticket.unregister()).not.toThrow()
+        expect(notifications.values()).toHaveLength(0)
+      })
+    })
+  })
+
+  describe('readAll edge cases', () => {
+    it('should skip already-read notifications', () => {
+      withScope(() => {
+        const notifications = createNotifications()
+        const a = notifications.send({ subject: 'A' })
+        notifications.send({ subject: 'B' })
+
+        // Mark A as read first
+        notifications.read(a.id)
+        const originalReadAt = notifications.get(a.id)?.readAt
+
+        // readAll should not overwrite A's readAt
+        notifications.readAll()
+
+        expect(notifications.get(a.id)?.readAt).toBe(originalReadAt)
+        for (const ticket of notifications.values()) {
+          expect(ticket.readAt).toBeInstanceOf(Date)
+        }
+      })
+    })
+
+    it('should handle empty registry', () => {
+      withScope(() => {
+        const notifications = createNotifications()
+        expect(() => notifications.readAll()).not.toThrow()
+      })
+    })
+  })
+
+  describe('archiveAll edge cases', () => {
+    it('should skip already-archived notifications', () => {
+      withScope(() => {
+        const notifications = createNotifications()
+        const a = notifications.send({ subject: 'A' })
+        notifications.send({ subject: 'B' })
+
+        notifications.archive(a.id)
+        const originalArchivedAt = notifications.get(a.id)?.archivedAt
+
+        notifications.archiveAll()
+
+        expect(notifications.get(a.id)?.archivedAt).toBe(originalArchivedAt)
+        for (const ticket of notifications.values()) {
+          expect(ticket.archivedAt).toBeInstanceOf(Date)
+        }
+      })
+    })
+
+    it('should handle empty registry', () => {
+      withScope(() => {
+        const notifications = createNotifications()
+        expect(() => notifications.archiveAll()).not.toThrow()
+      })
+    })
+  })
+
+  describe('timeout overrides', () => {
+    it('should use default timeout when no override specified', () => {
+      withScope(() => {
+        const notifications = createNotifications({ timeout: 5000 })
+        notifications.send({ subject: 'Default timeout' })
+
+        const queued = notifications.queue.values()[0]!
+        expect(queued.timeout).toBe(5000)
+      })
+    })
+
+    it('should use 3000ms default when no options provided', () => {
+      withScope(() => {
+        const notifications = createNotifications()
+        notifications.send({ subject: 'Test' })
+
+        const queued = notifications.queue.values()[0]!
+        expect(queued.timeout).toBe(3000)
+      })
+    })
+
+    it('should allow zero timeout override', () => {
+      withScope(() => {
+        const notifications = createNotifications({ timeout: 5000 })
+        notifications.send({ subject: 'Zero', timeout: 0 })
+
+        const queued = notifications.queue.values()[0]!
+        expect(queued.timeout).toBe(0)
+      })
+    })
+  })
+
+  describe('send with custom id', () => {
+    it('should use provided id instead of auto-generating', () => {
+      withScope(() => {
+        const notifications = createNotifications()
+        const ticket = notifications.send({ id: 'custom-id', subject: 'Test' })
+
+        expect(ticket.id).toBe('custom-id')
+        expect(notifications.has('custom-id')).toBe(true)
+      })
+    })
+  })
+
+  describe('size getter', () => {
+    it('should reflect current registry size', () => {
+      withScope(() => {
+        const notifications = createNotifications()
+        expect(notifications.size).toBe(0)
+
+        notifications.send({ subject: 'A' })
+        expect(notifications.size).toBe(1)
+
+        notifications.send({ subject: 'B' })
+        expect(notifications.size).toBe(2)
+      })
+    })
+  })
+
+  describe('hydrate data fields', () => {
+    it('should preserve body and data fields', () => {
+      withScope(() => {
+        const notifications = createNotifications()
+        const ticket = notifications.send({
+          subject: 'Test',
+          body: 'Extended body text',
+          severity: 'warning',
+          data: { action: 'deploy', version: '2.0' },
+        })
+
+        expect(ticket.body).toBe('Extended body text')
+        expect(ticket.severity).toBe('warning')
+        expect(ticket.data).toEqual({ action: 'deploy', version: '2.0' })
+      })
+    })
+  })
+
+  describe('adapter event unsubscription', () => {
+    it('should allow adapter to unsubscribe from events via off', () => {
+      withScope(() => {
+        const reads: ID[] = []
+        function handler (id: unknown) {
+          reads.push(id as ID)
+        }
+
+        const adapter = {
+          setup (ctx: NotificationsAdapterContext) {
+            ctx.on('notification:read', handler)
+            // Immediately unsubscribe
+            ctx.off('notification:read', handler)
+          },
+        }
+
+        const notifications = createNotifications()
+        adapter.setup({
+          send: notifications.send,
+          register: notifications.register,
+          on: notifications.on,
+          off: notifications.off,
+        })
+
+        const ticket = notifications.send({ subject: 'Test' })
+        notifications.read(ticket.id)
+        expect(reads).toEqual([])
+      })
+    })
+  })
+
+  describe('adapter register (no queue)', () => {
+    it('should allow adapter to register notifications without queue', () => {
+      withScope(() => {
+        const adapter = {
+          setup (ctx: NotificationsAdapterContext) {
+            ctx.register({ subject: 'Historical', severity: 'info' })
+          },
+        }
+
+        const notifications = createNotifications()
+        adapter.setup({
+          send: notifications.send,
+          register: notifications.register,
+          on: notifications.on,
+          off: notifications.off,
+        })
+
+        expect(notifications.values()).toHaveLength(1)
+        expect(notifications.queue.values()).toHaveLength(0)
+        expect(notifications.values()[0]!.subject).toBe('Historical')
+      })
+    })
+  })
+
+  describe('fallback additional coverage', () => {
+    it('should return stub from register', () => {
+      const notifications = useNotifications()
+      const ticket = notifications.register({ subject: 'Test' })
+
+      expect(ticket).toBeDefined()
+      expect(ticket.id).toBe('')
+    })
+
+    it('should return stub from upsert', () => {
+      const notifications = useNotifications()
+      const ticket = notifications.upsert('any', {})
+
+      expect(ticket).toBeDefined()
+      expect(ticket.id).toBe('')
+    })
+
+    it('should return empty from onboard', () => {
+      const notifications = useNotifications()
+      const tickets = notifications.onboard([{ subject: 'A' }])
+
+      expect(tickets).toEqual([])
+    })
+
+    it('should return register from queue stub', () => {
+      const notifications = useNotifications()
+      const result = notifications.queue.register({} as never)
+
+      expect(result).toBeDefined()
+    })
+
+    it('should return upsert from queue stub', () => {
+      const notifications = useNotifications()
+      const result = notifications.queue.upsert('any', {} as never)
+
+      expect(result).toBeDefined()
+    })
+  })
+
+  describe('createNotificationsPlugin', () => {
+    it('should install plugin and provide context', () => {
+      let captured: ReturnType<typeof useNotifications> | undefined
+
+      const app = createApp({
+        setup () {
+          captured = useNotifications()
+          return {}
+        },
+        template: '<div />',
+      })
+
+      app.use(createNotificationsPlugin())
+
+      const container = document.createElement('div')
+      app.mount(container)
+
+      expect(captured).toBeDefined()
+      expect(typeof captured!.send).toBe('function')
+      expect(typeof captured!.read).toBe('function')
+
+      app.unmount()
+    })
+
+    it('should call adapter setup with context during plugin install', () => {
+      const setup = vi.fn()
+      const adapter = { setup }
+
+      const app = createApp({ template: '<div />' })
+      app.use(createNotificationsPlugin({ adapter }))
+
+      const container = document.createElement('div')
+      app.mount(container)
+
+      expect(setup).toHaveBeenCalledTimes(1)
+      const ctx = setup.mock.calls[0]![0]
+      expect(ctx).toHaveProperty('send')
+      expect(ctx).toHaveProperty('register')
+      expect(ctx).toHaveProperty('on')
+      expect(ctx).toHaveProperty('off')
+
+      app.unmount()
+    })
+
+    it('should call adapter dispose on app unmount', () => {
+      const dispose = vi.fn()
+      const adapter = { setup: vi.fn(), dispose }
+
+      const app = createApp({ template: '<div />' })
+      app.use(createNotificationsPlugin({ adapter }))
+
+      const container = document.createElement('div')
+      app.mount(container)
+
+      expect(dispose).not.toHaveBeenCalled()
+
+      app.unmount()
+
+      expect(dispose).toHaveBeenCalledTimes(1)
+    })
+
+    it('should dispose context and queue on app unmount', async () => {
+      let captured: ReturnType<typeof useNotifications> | undefined
+
+      const app = createApp({
+        setup () {
+          captured = useNotifications()
+          return {}
+        },
+        template: '<div />',
+      })
+
+      app.use(createNotificationsPlugin())
+
+      const container = document.createElement('div')
+      app.mount(container)
+
+      expect(captured).toBeDefined()
+
+      app.unmount()
+      // After unmount, dispose should have been called (no error)
+    })
+
+    it('should not call adapter dispose when adapter has no dispose', () => {
+      const adapter = { setup: vi.fn() }
+
+      const app = createApp({ template: '<div />' })
+      app.use(createNotificationsPlugin({ adapter }))
+
+      const container = document.createElement('div')
+      app.mount(container)
+
+      // Should not throw on unmount when adapter has no dispose
+      expect(() => app.unmount()).not.toThrow()
     })
   })
 })

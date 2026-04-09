@@ -58,6 +58,10 @@ describe('vuetify0RtlAdapter', () => {
       isRtl.value = true
       await nextTick()
       expect(el.dir).toBe('rtl')
+
+      isRtl.value = false
+      await nextTick()
+      expect(el.dir).toBe('ltr')
     })
     scope.stop()
   })
@@ -242,5 +246,280 @@ describe('useRtl', () => {
       const rtl = useRtl()
       expect(rtl.isRtl.value).toBe(false)
     })
+  })
+
+  describe('createRtlPlugin (integration)', () => {
+    it('should install and exercise setup callback with default adapter', async () => {
+      const { createApp, nextTick: nt } = await import('vue')
+
+      const plugin = createRtlPlugin({ default: true })
+      const app = createApp({ template: '<div />' })
+
+      app.use(plugin)
+
+      const container = document.createElement('div')
+      app.mount(container)
+
+      await nt()
+
+      expect(document.documentElement.dir).toBe('rtl')
+
+      app.unmount()
+      document.documentElement.dir = ''
+    })
+
+    it('should install with custom adapter', async () => {
+      const { createApp, nextTick: nt } = await import('vue')
+
+      const setupFn = vi.fn()
+      const customAdapter = { setup: setupFn }
+
+      const plugin = createRtlPlugin({ adapter: customAdapter as any })
+      const app = createApp({ template: '<div />' })
+
+      app.use(plugin)
+
+      const container = document.createElement('div')
+      app.mount(container)
+
+      await nt()
+
+      expect(setupFn).toHaveBeenCalledTimes(1)
+
+      app.unmount()
+    })
+
+    it('should install with a target element', async () => {
+      const { createApp, nextTick: nt } = await import('vue')
+
+      const el = document.createElement('div')
+      el.id = 'rtl-plugin-target'
+      document.body.append(el)
+
+      const plugin = createRtlPlugin({ default: true, target: el })
+      const app = createApp({ template: '<div />' })
+
+      app.use(plugin)
+
+      const container = document.createElement('div')
+      app.mount(container)
+
+      await nt()
+
+      expect(el.dir).toBe('rtl')
+
+      app.unmount()
+      el.remove()
+    })
+
+    it('should not install twice on the same app', async () => {
+      const { createApp, nextTick: nt } = await import('vue')
+
+      const setupFn = vi.fn()
+      const customAdapter = { setup: setupFn }
+
+      const plugin = createRtlPlugin({ adapter: customAdapter as any })
+      const app = createApp({ template: '<div />' })
+
+      app.use(plugin)
+      app.use(plugin)
+
+      const container = document.createElement('div')
+      app.mount(container)
+
+      await nt()
+
+      expect(setupFn).toHaveBeenCalledTimes(1)
+
+      app.unmount()
+    })
+  })
+
+  describe('persist / restore', () => {
+    it('should call restore when persisted value exists', async () => {
+      vi.resetModules()
+
+      vi.doMock('#v0/constants/globals', () => ({
+        IN_BROWSER: true,
+      }))
+
+      // Mock the storage context to return a persisted value
+      const storedRef = { value: true }
+      vi.doMock('#v0/composables/createContext', async () => {
+        const actual = await vi.importActual('#v0/composables/createContext')
+        return {
+          ...actual,
+          useContext: (ns: string) => {
+            if (ns === 'v0:storage') {
+              return { get: () => storedRef }
+            }
+            return (actual as any).useContext(ns)
+          },
+        }
+      })
+
+      const { createRtlPlugin: freshPlugin } = await import('./index')
+      const { createApp, nextTick: nt } = await import('vue')
+
+      const plugin = freshPlugin({ persist: true })
+      const app = createApp({ template: '<div />' })
+
+      app.use(plugin)
+
+      const container = document.createElement('div')
+      app.mount(container)
+
+      await nt()
+
+      // The restore callback should have set isRtl to true from storage
+      expect(document.documentElement.dir).toBe('rtl')
+
+      app.unmount()
+      document.documentElement.dir = ''
+    })
+
+    it('should not restore when persisted value is null', async () => {
+      vi.resetModules()
+
+      vi.doMock('#v0/constants/globals', () => ({
+        IN_BROWSER: true,
+      }))
+
+      const storedRef = { value: null }
+      vi.doMock('#v0/composables/createContext', async () => {
+        const actual = await vi.importActual('#v0/composables/createContext')
+        return {
+          ...actual,
+          useContext: (ns: string) => {
+            if (ns === 'v0:storage') {
+              return { get: () => storedRef }
+            }
+            return (actual as any).useContext(ns)
+          },
+        }
+      })
+
+      const { createRtlPlugin: freshPlugin } = await import('./index')
+      const { createApp, nextTick: nt } = await import('vue')
+
+      const plugin = freshPlugin({ persist: true, default: false })
+      const app = createApp({ template: '<div />' })
+
+      app.use(plugin)
+
+      const container = document.createElement('div')
+      app.mount(container)
+
+      await nt()
+
+      expect(document.documentElement.dir).toBe('ltr')
+
+      app.unmount()
+      document.documentElement.dir = ''
+    })
+  })
+})
+
+describe('vuetify0RtlAdapter SSR (additional branches)', () => {
+  it('should use ltr in SSR when isRtl is false', async () => {
+    vi.resetModules()
+
+    vi.doMock('#v0/constants/globals', () => ({
+      IN_BROWSER: false,
+    }))
+
+    const { Vuetify0RtlAdapter: SSRAdapter } = await import('./adapters/v0')
+    const { shallowRef: ssrShallowRef } = await import('vue')
+
+    const pushFn = vi.fn()
+    const mockApp = {
+      _context: {
+        provides: {
+          usehead: { push: pushFn },
+        },
+      },
+    } as any
+
+    const adapter = new SSRAdapter()
+    const isRtl = ssrShallowRef(false)
+    adapter.setup(mockApp, { isRtl, toggle: () => {} }, undefined)
+
+    expect(pushFn).toHaveBeenCalledWith({
+      htmlAttrs: { dir: 'ltr' },
+    })
+  })
+
+  it('should resolve head from provides.head fallback', async () => {
+    vi.resetModules()
+
+    vi.doMock('#v0/constants/globals', () => ({
+      IN_BROWSER: false,
+    }))
+
+    const { Vuetify0RtlAdapter: SSRAdapter } = await import('./adapters/v0')
+    const { shallowRef: ssrShallowRef } = await import('vue')
+
+    const pushFn = vi.fn()
+    const mockApp = {
+      _context: {
+        provides: {
+          head: { push: pushFn },
+        },
+      },
+    } as any
+
+    const adapter = new SSRAdapter()
+    const isRtl = ssrShallowRef(true)
+    adapter.setup(mockApp, { isRtl, toggle: () => {} }, undefined)
+
+    expect(pushFn).toHaveBeenCalledWith({
+      htmlAttrs: { dir: 'rtl' },
+    })
+  })
+
+  it('should prefer usehead over head when both are present', async () => {
+    vi.resetModules()
+
+    vi.doMock('#v0/constants/globals', () => ({
+      IN_BROWSER: false,
+    }))
+
+    const { Vuetify0RtlAdapter: SSRAdapter } = await import('./adapters/v0')
+    const { shallowRef: ssrShallowRef } = await import('vue')
+
+    const useheadPush = vi.fn()
+    const headPush = vi.fn()
+    const mockApp = {
+      _context: {
+        provides: {
+          usehead: { push: useheadPush },
+          head: { push: headPush },
+        },
+      },
+    } as any
+
+    const adapter = new SSRAdapter()
+    const isRtl = ssrShallowRef(false)
+    adapter.setup(mockApp, { isRtl, toggle: () => {} }, undefined)
+
+    expect(useheadPush).toHaveBeenCalledTimes(1)
+    expect(headPush).not.toHaveBeenCalled()
+  })
+
+  it('should handle missing _context gracefully', async () => {
+    vi.resetModules()
+
+    vi.doMock('#v0/constants/globals', () => ({
+      IN_BROWSER: false,
+    }))
+
+    const { Vuetify0RtlAdapter: SSRAdapter } = await import('./adapters/v0')
+    const { shallowRef: ssrShallowRef } = await import('vue')
+
+    const mockApp = {} as any
+
+    const adapter = new SSRAdapter()
+    const isRtl = ssrShallowRef(false)
+    expect(() => adapter.setup(mockApp, { isRtl, toggle: () => {} }, undefined)).not.toThrow()
   })
 })

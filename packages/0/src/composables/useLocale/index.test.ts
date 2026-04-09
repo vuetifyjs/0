@@ -548,4 +548,118 @@ describe('register with messages', () => {
 
     expect(locale.has('fr')).toBe(true)
   })
+
+  it('should register without id or messages', () => {
+    const locale = createLocale({
+      default: 'en',
+      messages: { en: { greeting: 'Hello' } },
+    })
+
+    const before = locale.size
+    const ticket = locale.register({})
+
+    expect(ticket).toBeDefined()
+    expect(locale.size).toBe(before + 1)
+  })
+})
+
+describe('createLocaleFallback', () => {
+  it('should return key from t()', () => {
+    mockHasInjectionContext.mockReturnValue(false)
+    const locale = useLocale()
+
+    expect(locale.t('hello')).toBe('hello')
+    expect(locale.t('nested.key')).toBe('nested.key')
+  })
+
+  it('should return string from n()', () => {
+    mockHasInjectionContext.mockReturnValue(false)
+    const locale = useLocale()
+
+    expect(locale.n(42)).toBe('42')
+    expect(locale.n(1234.56)).toBe('1234.56')
+  })
+
+  it('should report size as 0', () => {
+    mockHasInjectionContext.mockReturnValue(false)
+    const locale = useLocale()
+
+    expect(locale.size).toBe(0)
+  })
+})
+
+describe('locale size getter', () => {
+  it('should reflect registry size', () => {
+    const locale = createLocale({
+      messages: {
+        en: { hello: 'Hello' },
+        fr: { hello: 'Bonjour' },
+      },
+    })
+
+    expect(locale.size).toBe(2)
+
+    locale.register({ id: 'de' })
+    expect(locale.size).toBe(3)
+  })
+})
+
+describe('vuetify0LocaleAdapter edge cases', () => {
+  function createAdapter (messages: Record<string, Record<string, string>>, locale?: string, fallback?: string) {
+    const tokens = createTokens(messages)
+
+    return new Vuetify0LocaleAdapter({
+      tokens,
+      selectedId: shallowRef(locale) as any,
+      fallbackLocale: fallback,
+      has: id => String(id) in messages,
+    })
+  }
+
+  it('should fall back to fallbackLocale when key is missing in selected locale', () => {
+    const adapter = createAdapter(
+      {
+        en: { hello: 'Hello', goodbye: 'Goodbye' },
+        fr: { hello: 'Bonjour' },
+      },
+      'fr',
+      'en',
+    )
+
+    expect(adapter.t('hello')).toBe('Bonjour')
+    expect(adapter.t('goodbye')).toBe('Goodbye')
+  })
+
+  it('should return key when missing in both selected and fallback locale', () => {
+    const adapter = createAdapter(
+      {
+        en: { hello: 'Hello' },
+        fr: { hello: 'Bonjour' },
+      },
+      'fr',
+      'en',
+    )
+
+    expect(adapter.t('nonexistent')).toBe('nonexistent')
+  })
+
+  it('should interpolate positional params even when no locale selected', () => {
+    const adapter = createAdapter({})
+    expect(adapter.t('Value is {0}', 42)).toBe('Value is 42')
+  })
+
+  it('should interpolate named params even when no locale selected', () => {
+    const adapter = createAdapter({})
+    expect(adapter.t('Hello {name}', { name: 'World' })).toBe('Hello World')
+  })
+
+  it('should leave unmatched named placeholders intact', () => {
+    const adapter = createAdapter({ en: { greet: 'Hello {name}, age {age}' } }, 'en')
+    expect(adapter.t('greet', { name: 'John' })).toBe('Hello John, age {age}')
+  })
+
+  it('should leave unmatched positional placeholders intact', () => {
+    const adapter = createAdapter({ en: { msg: '{0} and {1}' } }, 'en')
+    expect(adapter.t('msg', 'first')).toBe('first and {1}')
+  })
 })

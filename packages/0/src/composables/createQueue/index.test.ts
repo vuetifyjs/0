@@ -453,6 +453,56 @@ describe('createQueue', () => {
     })
   })
 
+  describe('onboard', () => {
+    it('should batch-register multiple tickets', () => {
+      const queue = createQueue({ timeout: 5000 })
+      const tickets = queue.onboard([
+        { value: 'first' },
+        { value: 'second' },
+        { value: 'third' },
+      ])
+
+      expect(tickets.length).toBe(3)
+      expect(queue.size).toBe(3)
+    })
+
+    it('should pause subsequent tickets when onboarding', () => {
+      const queue = createQueue({ timeout: 5000 })
+      const tickets = queue.onboard([
+        { value: 'first' },
+        { value: 'second' },
+      ])
+
+      expect(tickets[0]!.isPaused).toBe(false)
+      expect(tickets[1]!.isPaused).toBe(true)
+    })
+
+    it('should apply default timeout to onboarded tickets', () => {
+      const queue = createQueue({ timeout: 7000 })
+      const tickets = queue.onboard([
+        { value: 'a' },
+        { value: 'b', timeout: 2000 },
+      ])
+
+      expect(tickets[0]!.timeout).toBe(7000)
+      expect(tickets[1]!.timeout).toBe(2000)
+    })
+
+    it('should auto-remove first onboarded ticket after timeout', () => {
+      const queue = createQueue({ timeout: 1000 })
+      queue.onboard([
+        { value: 'first' },
+        { value: 'second' },
+      ])
+
+      expect(queue.size).toBe(2)
+
+      vi.advanceTimersByTime(1000)
+
+      expect(queue.size).toBe(1)
+    })
+  })
+
   describe('offboard', () => {
     it('should offboard multiple tickets at once', () => {
       const queue = createQueue({ timeout: 5000 })
@@ -691,7 +741,7 @@ describe('createQueueContext', () => {
 
     context.register({ value: 'test' })
 
-    expect(callback).toHaveBeenCalledOnce()
+    expect(callback).toHaveBeenCalledTimes(1)
   })
 })
 
