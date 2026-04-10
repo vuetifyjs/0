@@ -5,7 +5,7 @@
   const { adapter } = useDate()
 
   const current = shallowRef(adapter.date()!)
-  const weekdays = computed(() => adapter.getWeekdays(0, 'narrow'))
+  const weekdays = computed(() => adapter.getWeekdays('narrow'))
   const weeks = computed(() => {
     const allWeeks = adapter.getWeekArray(current.value)
     // Always show exactly 5 weeks for consistent height

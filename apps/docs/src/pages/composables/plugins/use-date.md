@@ -167,7 +167,7 @@ interface DateAdapter<T> {
   setSeconds (date: T, seconds: number): T
 
   // Calendar Utilities
-  getWeekdays (firstDayOfWeek?: number, format?: 'long' | 'short' | 'narrow'): string[]
+  getWeekdays (format?: 'long' | 'short' | 'narrow'): string[]
   getWeekArray (date: T, firstDayOfWeek?: number): T[][]
   getMonthArray (date: T): T[]
   getYearRange (start: T, end: T): T[]
