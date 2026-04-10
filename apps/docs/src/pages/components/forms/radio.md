@@ -19,9 +19,9 @@ related:
 
 # Radio
 
-A radio button for single-selection groups with roving focus and shared v-model state.
-
 <DocsPageFeatures :frontmatter />
+
+A radio button for single-selection groups with roving focus and shared v-model state.
 
 ## Usage
 
@@ -84,7 +84,7 @@ Plan options (free, pro, enterprise) with `mandatory="force"` that auto-selects 
 
 ### Form Integration
 
-Pass the `name` prop on `Radio.Group` and every `Radio.Root` inside it renders a hidden native radio input automatically. No `Radio.HiddenInput` placement is required:
+Pass the `name` prop on `Radio.Group` and every `Radio.Root` inside it renders a hidden native radio input automatically — the group's `name` cascades to each `Radio.Root` unless the child sets its own. No `Radio.HiddenInput` placement is required:
 
 ```vue
 <template>
@@ -102,19 +102,7 @@ Pass the `name` prop on `Radio.Group` and every `Radio.Root` inside it renders a
 </template>
 ```
 
-Place `Radio.HiddenInput` explicitly only when you need to override the auto-rendered name, value, or form association:
-
-```vue
-<template>
-  <Radio.Group name="size">
-    <Radio.Root value="a">
-      <Radio.Indicator />
-
-      <Radio.HiddenInput name="size_override" value="custom" />
-    </Radio.Root>
-  </Radio.Group>
-</template>
-```
+`Radio.HiddenInput` is exported as an internal building block for custom layouts, but auto-rendering via `name` is the only supported form integration path — placing `Radio.HiddenInput` as a child of a `Radio.Root` that already resolves a `name` (from itself or the parent `Radio.Group`) will produce two hidden inputs.
 
 ### Styling with Data Attributes
 
@@ -143,7 +131,7 @@ The Radio components handle all ARIA attributes automatically:
 - `aria-disabled` when radio is disabled
 - `aria-required` for form validation (set on Group)
 - `aria-label` from the `label` prop
-- Roving `tabindex` — only the selected radio (or first if none) is tabbable
+- Roving `tabindex` — only the selected radio (or first non-disabled if none selected) is tabbable
 - Space key selects the focused radio
 - Arrow keys navigate between radios
 
@@ -173,7 +161,7 @@ Navigation automatically skips disabled items and wraps around.
 
 ??? How do I make a radio option mandatory?
 
-Set `mandatory="force"` on `Radio.Group` to auto-select the first non-disabled item on mount. Radio groups are inherently mandatory once a selection is made — a selected value can only be changed, not cleared — so `force` is the only meaningful mandatory mode. See the Mandatory Selection example above.
+Clicking an already-selected radio does not deselect it because `Radio.Root` exposes `select`, not `toggle` — the v-model can still be cleared programmatically. Set `mandatory="force"` on `Radio.Group` if you want the first non-disabled item auto-selected on mount. See the Mandatory Selection example above.
 
 ??? Why does my form submission miss the selected radio value?
 
