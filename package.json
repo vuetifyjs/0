@@ -68,6 +68,6 @@
     "vitest": "catalog:",
     "vue-tsc": "catalog:"
   },
-  "packageManager": "pnpm@10.26.1",
+  "packageManager": "pnpm@10.33.0",
   "web-types": "dist/json/web-types.json"
 }
