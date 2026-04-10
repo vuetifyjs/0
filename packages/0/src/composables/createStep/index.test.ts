@@ -813,12 +813,12 @@ describe('createStepContext', () => {
 
   it('should create context with custom namespace', () => {
     const [, provideStepContext, context] = createStepContext({
-      namespace: 'my-wizard',
+      namespace: 'test:my-wizard',
     })
 
     provideStepContext(context)
 
-    expect(mockProvide).toHaveBeenCalledWith('my-wizard', context)
+    expect(mockProvide).toHaveBeenCalledWith('test:my-wizard', context)
   })
 
   it('should create a functional step context with navigation', () => {
@@ -901,9 +901,9 @@ describe('useStep consumer', () => {
     const mockContext = createStep()
     mockInject.mockReturnValue(mockContext)
 
-    const result = useStep('my-wizard')
+    const result = useStep('test:my-wizard')
 
-    expect(mockInject).toHaveBeenCalledWith('my-wizard', undefined)
+    expect(mockInject).toHaveBeenCalledWith('test:my-wizard', undefined)
     expect(result).toBe(mockContext)
   })
 
@@ -918,8 +918,8 @@ describe('useStep consumer', () => {
   it('should throw with custom namespace in error message', () => {
     mockInject.mockReturnValue(undefined)
 
-    expect(() => useStep('custom-stepper')).toThrow(
-      'Context "custom-stepper" not found. Ensure it\'s provided by an ancestor.',
+    expect(() => useStep('test:custom-stepper')).toThrow(
+      'Context "test:custom-stepper" not found. Ensure it\'s provided by an ancestor.',
     )
   })
 })

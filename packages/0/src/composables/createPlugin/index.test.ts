@@ -31,7 +31,7 @@ describe('createPlugin', () => {
 
   it('should return a plugin object with install method', () => {
     const options: PluginOptions = {
-      namespace: 'test',
+      namespace: 'test:plugin',
       provide: mockProvide,
     }
 
@@ -43,7 +43,7 @@ describe('createPlugin', () => {
 
   it('should call app.runWithContext when installing', () => {
     const options: PluginOptions = {
-      namespace: 'test',
+      namespace: 'test:plugin',
       provide: mockProvide,
     }
 
@@ -56,7 +56,7 @@ describe('createPlugin', () => {
 
   it('should call provide function during installation', () => {
     const options: PluginOptions = {
-      namespace: 'test',
+      namespace: 'test:plugin',
       provide: mockProvide,
     }
 
@@ -69,7 +69,7 @@ describe('createPlugin', () => {
 
   it('should call setup function when provided', () => {
     const options: PluginOptions = {
-      namespace: 'test',
+      namespace: 'test:plugin',
       provide: mockProvide,
       setup: mockSetup,
     }
@@ -83,7 +83,7 @@ describe('createPlugin', () => {
 
   it('should not call setup function when not provided', () => {
     const options: PluginOptions = {
-      namespace: 'test',
+      namespace: 'test:plugin',
       provide: mockProvide,
     }
 
@@ -96,7 +96,7 @@ describe('createPlugin', () => {
   it('should handle async setup function', async () => {
     const asyncSetup = vi.fn().mockResolvedValue(undefined) as (app: App) => Promise<void>
     const options: PluginOptions = {
-      namespace: 'test',
+      namespace: 'test:plugin',
       provide: mockProvide,
       setup: asyncSetup,
     }
@@ -120,7 +120,7 @@ describe('createPlugin', () => {
     }) as (app: App) => void
 
     const options: PluginOptions = {
-      namespace: 'test',
+      namespace: 'test:plugin',
       provide: orderTrackingProvide,
       setup: orderTrackingSetup,
     }
@@ -133,7 +133,7 @@ describe('createPlugin', () => {
 
   it('should only call provide and setup once when installed twice on the same app', () => {
     const options: PluginOptions = {
-      namespace: 'duplicate-guard',
+      namespace: 'test:duplicate-guard',
       provide: mockProvide,
       setup: mockSetup,
     }
@@ -189,7 +189,7 @@ describe('createPluginContext', () => {
       () => ({ data: 'custom' }),
     )
 
-    const [, , context] = createXContext({ namespace: 'custom-ns' })
+    const [, , context] = createXContext({ namespace: 'test:custom-ns' })
 
     expect(context).toEqual({ data: 'custom' })
   })

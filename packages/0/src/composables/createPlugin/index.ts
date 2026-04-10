@@ -204,7 +204,7 @@ export function createPluginContext<
     if (config?.fallback) {
       if (!hasInjectionContext()) return config.fallback(namespace) as _E
 
-      const provided = inject<_E>(namespace as string)
+      const provided = inject<_E | undefined>(namespace as string, undefined)
       if (!isUndefined(provided)) return provided
 
       return config.fallback(namespace) as _E

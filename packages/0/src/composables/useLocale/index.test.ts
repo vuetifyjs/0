@@ -387,12 +387,12 @@ describe('createLocaleContext', () => {
 
   it('should create context with custom namespace', () => {
     const [, provideLocaleContext, context] = createLocaleContext({
-      namespace: 'my-locale',
+      namespace: 'test:my-locale',
     })
 
     provideLocaleContext(context)
 
-    expect(mockProvide).toHaveBeenCalledWith('my-locale', context)
+    expect(mockProvide).toHaveBeenCalledWith('test:my-locale', context)
   })
 
   it('should create a functional locale context', () => {
@@ -459,7 +459,7 @@ describe('useLocale consumer', () => {
     mockHasInjectionContext.mockReturnValue(true)
     mockInject.mockReturnValue(mockContext)
 
-    const result = useLocale('my-locale')
+    const result = useLocale('test:my-locale')
 
     expect(result).toBe(mockContext)
   })
@@ -527,6 +527,8 @@ describe('register with messages', () => {
   })
 
   it('should not duplicate locale if already registered', () => {
+    const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
     const locale = createLocale({
       default: 'en',
       messages: { en: { greeting: 'Hello' } },
@@ -536,6 +538,10 @@ describe('register with messages', () => {
     locale.register({ id: 'en', messages: { greeting: 'Hi' } })
 
     expect(locale.size).toBe(before)
+    expect(spy).toHaveBeenCalledTimes(1)
+    expect(spy).toHaveBeenCalledWith(expect.stringContaining('en'))
+
+    spy.mockRestore()
   })
 
   it('should register without messages (existing behavior)', () => {

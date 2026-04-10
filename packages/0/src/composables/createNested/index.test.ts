@@ -251,6 +251,8 @@ describe('createNested', () => {
 
   describe('circular reference protection', () => {
     it('should not infinite loop in getPath when circular parent exists', () => {
+      const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
       const nested = createNested()
 
       nested.register({ id: 'a', value: 'A' })
@@ -265,6 +267,10 @@ describe('createNested', () => {
 
       // Should terminate and return a finite path
       expect(path.length).toBeLessThanOrEqual(3)
+      expect(spy).toHaveBeenCalledTimes(1)
+      expect(spy).toHaveBeenCalledWith(expect.stringContaining('Circular'))
+
+      spy.mockRestore()
     })
   })
 
@@ -2086,6 +2092,8 @@ describe('clear', () => {
 
 describe('provideNestedContext', () => {
   it('should provide context via provideNestedContext', async () => {
+    const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
     const { createNestedContext } = await import('./index')
 
     const [, provideNestedTest, defaultNested] = createNestedContext({ namespace: 'test:provide' })
@@ -2096,5 +2104,8 @@ describe('provideNestedContext', () => {
     expect(result.register).toBeInstanceOf(Function)
     // Should be same as default nested
     expect(result).toBe(defaultNested)
+    expect(spy).toHaveBeenCalledTimes(1)
+
+    spy.mockRestore()
   })
 })

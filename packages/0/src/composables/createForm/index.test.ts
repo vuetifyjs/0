@@ -14,6 +14,7 @@ vi.mock('vue', async () => {
     ...actual,
     provide: vi.fn(),
     inject: vi.fn(),
+    hasInjectionContext: vi.fn(() => true),
   }
 })
 
@@ -235,10 +236,10 @@ describe('createFormContext', () => {
   })
 
   it('should create context with custom namespace', () => {
-    const [, provideFormContext, context] = createFormContext({ namespace: 'my-form' })
+    const [, provideFormContext, context] = createFormContext({ namespace: 'test:my-form' })
     provideFormContext(context)
 
-    expect(mockProvide).toHaveBeenCalledWith('my-form', context)
+    expect(mockProvide).toHaveBeenCalledWith('test:my-form', context)
   })
 
   it('should create a default form context', () => {

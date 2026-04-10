@@ -24,7 +24,7 @@ import { createTrinity } from '#v0/composables/createTrinity'
 
 // Utilities
 import { isNull } from '#v0/utilities'
-import { computed } from 'vue'
+import { computed, hasInjectionContext } from 'vue'
 
 // Transformers
 import { toArray } from '#v0/composables/toArray'
@@ -232,6 +232,8 @@ export function useForm<
   E extends FormTicket<Z> = FormTicket<Z>,
   R extends FormContext<Z, E> = FormContext<Z, E>,
 > (namespace = 'v0:form'): R | undefined {
+  if (!hasInjectionContext()) return undefined
+
   try {
     return useContext<R>(namespace)
   } catch {

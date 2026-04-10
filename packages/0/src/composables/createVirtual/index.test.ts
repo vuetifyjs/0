@@ -833,6 +833,8 @@ describe('useVirtual consumer', () => {
   })
 
   it('should throw when context is not provided', () => {
+    const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
     expect(() => {
       const TestComponent = defineComponent({
         setup () {
@@ -843,6 +845,9 @@ describe('useVirtual consumer', () => {
 
       mount(TestComponent)
     }).toThrow()
+
+    expect(spy).toHaveBeenCalledTimes(1)
+    spy.mockRestore()
   })
 })
 

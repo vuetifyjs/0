@@ -658,6 +658,8 @@ describe('button', () => {
     })
 
     it('should serialize object values to JSON', () => {
+      const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
       const wrapper = mount(Button.Root, {
         slots: {
           default: () => h(Button.HiddenInput as any, { name: 'data', value: { foo: 'bar' } }),
@@ -665,6 +667,9 @@ describe('button', () => {
       })
 
       expect(wrapper.find('input').attributes('value')).toBe('{"foo":"bar"}')
+      expect(spy).toHaveBeenCalledTimes(1)
+
+      spy.mockRestore()
     })
   })
 })

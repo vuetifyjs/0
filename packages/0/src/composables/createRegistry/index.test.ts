@@ -1014,8 +1014,8 @@ describe('createRegistry', () => {
     })
 
     it('should create independent contexts', () => {
-      const [, , context1] = createRegistryContext({ namespace: 'context-1' })
-      const [, , context2] = createRegistryContext({ namespace: 'context-2' })
+      const [, , context1] = createRegistryContext({ namespace: 'test:context-1' })
+      const [, , context2] = createRegistryContext({ namespace: 'test:context-2' })
 
       context1.register({ id: 'item-1' })
 

@@ -330,12 +330,12 @@ describe('createRatingContext', () => {
 
   it('should create context with custom namespace', () => {
     const [, provideContext, context] = createRatingContext({
-      namespace: 'my-rating',
+      namespace: 'test:my-rating',
     })
 
     provideContext(context)
 
-    expect(mockProvide).toHaveBeenCalledWith('my-rating', context)
+    expect(mockProvide).toHaveBeenCalledWith('test:my-rating', context)
   })
 
   it('should create a functional rating context', () => {
@@ -375,9 +375,9 @@ describe('useRating consumer', () => {
     const mockContext = createRating()
     mockInject.mockReturnValue(mockContext)
 
-    const result = useRating('my-rating')
+    const result = useRating('test:my-rating')
 
-    expect(mockInject).toHaveBeenCalledWith('my-rating', undefined)
+    expect(mockInject).toHaveBeenCalledWith('test:my-rating', undefined)
     expect(result).toBe(mockContext)
   })
 

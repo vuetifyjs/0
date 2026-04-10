@@ -357,12 +357,12 @@ describe('createStorageContext', () => {
 
   it('should create context with custom namespace', () => {
     const [, provideStorageContext, context] = createStorageContext({
-      namespace: 'my-storage',
+      namespace: 'test:my-storage',
     })
 
     provideStorageContext(context)
 
-    expect(mockProvide).toHaveBeenCalledWith('my-storage', context)
+    expect(mockProvide).toHaveBeenCalledWith('test:my-storage', context)
   })
 
   it('should create a functional storage context', () => {

@@ -1,7 +1,10 @@
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // Utilities
-import { inject, nextTick } from 'vue'
+import { effectScope, inject, nextTick } from 'vue'
+
+// Types
+import type { EffectScope } from 'vue'
 
 import { createCombobox, createComboboxContext, useCombobox } from './index'
 
@@ -16,10 +19,25 @@ vi.mock('vue', async () => {
 
 const mockInject = vi.mocked(inject)
 
+let scope: EffectScope
+
+function setup (options: Parameters<typeof createCombobox>[0] = {}) {
+  let ctx: ReturnType<typeof createCombobox>
+  scope = effectScope()
+  scope.run(() => {
+    ctx = createCombobox(options)
+  })
+  return ctx!
+}
+
+afterEach(() => {
+  scope?.stop()
+})
+
 describe('createCombobox', () => {
   describe('basic functionality', () => {
     it('should create a combobox context with defaults', () => {
-      const ctx = createCombobox()
+      const ctx = setup()
 
       expect(ctx.query.value).toBe('')
       expect(ctx.pristine.value).toBe(true)
@@ -28,7 +46,7 @@ describe('createCombobox', () => {
     })
 
     it('should generate unique ids', () => {
-      const ctx = createCombobox()
+      const ctx = setup()
 
       expect(ctx.id).toBeDefined()
       expect(ctx.inputId).toContain('-input')
@@ -38,7 +56,7 @@ describe('createCombobox', () => {
     })
 
     it('should accept custom id', () => {
-      const ctx = createCombobox({ id: 'my-combo' })
+      const ctx = setup({ id: 'my-combo' })
 
       expect(ctx.id).toBe('my-combo')
       expect(ctx.inputId).toBe('my-combo-input')
@@ -46,7 +64,7 @@ describe('createCombobox', () => {
     })
 
     it('should accept name and form options', () => {
-      const ctx = createCombobox({ name: 'search', form: 'my-form' })
+      const ctx = setup({ name: 'search', form: 'my-form' })
 
       expect(ctx.name).toBe('search')
       expect(ctx.form).toBe('my-form')
@@ -55,14 +73,14 @@ describe('createCombobox', () => {
 
   describe('open / close / toggle', () => {
     it('should open the popover', () => {
-      const ctx = createCombobox()
+      const ctx = setup()
       ctx.open()
 
       expect(ctx.isOpen.value).toBe(true)
     })
 
     it('should close the popover and reset query', () => {
-      const ctx = createCombobox()
+      const ctx = setup()
       ctx.open()
       ctx.query.value = 'search'
       ctx.pristine.value = false
@@ -75,7 +93,7 @@ describe('createCombobox', () => {
     })
 
     it('should toggle open/close', () => {
-      const ctx = createCombobox()
+      const ctx = setup()
 
       ctx.toggle()
       expect(ctx.isOpen.value).toBe(true)
@@ -85,7 +103,7 @@ describe('createCombobox', () => {
     })
 
     it('should not open when disabled', () => {
-      const ctx = createCombobox({ disabled: true })
+      const ctx = setup({ disabled: true })
       ctx.open()
 
       expect(ctx.isOpen.value).toBe(false)
@@ -94,7 +112,7 @@ describe('createCombobox', () => {
 
   describe('selection', () => {
     it('should select an item in single mode', () => {
-      const ctx = createCombobox()
+      const ctx = setup()
       ctx.selection.register({ id: 'a', value: 'Apple' })
       ctx.selection.register({ id: 'b', value: 'Banana' })
 
@@ -106,7 +124,7 @@ describe('createCombobox', () => {
     })
 
     it('should select an item in multiple mode', () => {
-      const ctx = createCombobox({ multiple: true })
+      const ctx = setup({ multiple: true })
       ctx.selection.register({ id: 'a', value: 'Apple' })
       ctx.selection.register({ id: 'b', value: 'Banana' })
 
@@ -119,7 +137,7 @@ describe('createCombobox', () => {
     })
 
     it('should clear all selections', () => {
-      const ctx = createCombobox()
+      const ctx = setup()
       ctx.selection.register({ id: 'a', value: 'Apple' })
       ctx.selection.select('a')
 
@@ -133,7 +151,7 @@ describe('createCombobox', () => {
 
   describe('display', () => {
     it('should show selected value display when pristine', () => {
-      const ctx = createCombobox()
+      const ctx = setup()
       ctx.selection.register({ id: 'a', value: 'Apple' })
       ctx.selection.select('a')
 
@@ -141,7 +159,7 @@ describe('createCombobox', () => {
     })
 
     it('should show query when not pristine', () => {
-      const ctx = createCombobox()
+      const ctx = setup()
       ctx.selection.register({ id: 'a', value: 'Apple' })
       ctx.selection.select('a')
 
@@ -152,13 +170,13 @@ describe('createCombobox', () => {
     })
 
     it('should return empty string when no selection', () => {
-      const ctx = createCombobox()
+      const ctx = setup()
 
       expect(ctx.display.value).toBe('')
     })
 
     it('should use custom displayValue function', () => {
-      const ctx = createCombobox({
+      const ctx = setup({
         displayValue: v => `Item: ${v}`,
       })
       ctx.selection.register({ id: 'a', value: 'Apple' })
@@ -168,7 +186,7 @@ describe('createCombobox', () => {
     })
 
     it('should show query in multiple mode even when pristine', () => {
-      const ctx = createCombobox({ multiple: true })
+      const ctx = setup({ multiple: true })
       ctx.selection.register({ id: 'a', value: 'Apple' })
       ctx.selection.select('a')
       ctx.query.value = 'search'
@@ -179,26 +197,26 @@ describe('createCombobox', () => {
 
   describe('error handling', () => {
     it('should compute isValid as false when error is true', () => {
-      const ctx = createCombobox({ error: true })
+      const ctx = setup({ error: true })
 
       expect(ctx.isValid.value).toBe(false)
     })
 
     it('should compute isValid as false when errorMessages are provided', () => {
-      const ctx = createCombobox({ errorMessages: 'Required field' })
+      const ctx = setup({ errorMessages: 'Required field' })
 
       expect(ctx.isValid.value).toBe(false)
       expect(ctx.errors.value).toEqual(['Required field'])
     })
 
     it('should compute isValid as null when no errors', () => {
-      const ctx = createCombobox()
+      const ctx = setup()
 
       expect(ctx.isValid.value).toBe(null)
     })
 
     it('should handle array errorMessages', () => {
-      const ctx = createCombobox({ errorMessages: ['Error 1', 'Error 2'] })
+      const ctx = setup({ errorMessages: ['Error 1', 'Error 2'] })
 
       expect(ctx.errors.value).toEqual(['Error 1', 'Error 2'])
       expect(ctx.isValid.value).toBe(false)
@@ -207,7 +225,7 @@ describe('createCombobox', () => {
 
   describe('filtering', () => {
     it('should filter items based on query', async () => {
-      const ctx = createCombobox()
+      const ctx = setup()
       ctx.selection.register({ id: 'a', value: 'Apple' })
       ctx.selection.register({ id: 'b', value: 'Banana' })
       ctx.selection.register({ id: 'c', value: 'Cherry' })
@@ -221,7 +239,7 @@ describe('createCombobox', () => {
     })
 
     it('should show all items when query is empty', async () => {
-      const ctx = createCombobox()
+      const ctx = setup()
       ctx.selection.register({ id: 'a', value: 'Apple' })
       ctx.selection.register({ id: 'b', value: 'Banana' })
 
@@ -234,27 +252,35 @@ describe('createCombobox', () => {
 
 describe('createComboboxContext', () => {
   it('should return a trinity tuple', () => {
-    const result = createComboboxContext()
+    let result: ReturnType<typeof createComboboxContext>
+    scope = effectScope()
+    scope.run(() => {
+      result = createComboboxContext()
+    })
 
-    expect(result).toHaveLength(3)
-    expect(typeof result[0]).toBe('function')
-    expect(typeof result[1]).toBe('function')
-    expect(result[2]).toBeDefined()
+    expect(result!).toHaveLength(3)
+    expect(typeof result![0]).toBe('function')
+    expect(typeof result![1]).toBe('function')
+    expect(result![2]).toBeDefined()
   })
 
   it('should use custom namespace', () => {
-    const [useCtx] = createComboboxContext({ namespace: 'custom:combo' })
+    let useCtx: ReturnType<typeof createComboboxContext>[0]
+    scope = effectScope()
+    scope.run(() => {
+      ;([useCtx] = createComboboxContext({ namespace: 'custom:combo' }))
+    })
 
     mockInject.mockReturnValue(undefined)
 
-    expect(() => useCtx()).toThrow()
+    expect(() => useCtx!()).toThrow()
     expect(mockInject).toHaveBeenCalledWith('custom:combo', undefined)
   })
 })
 
 describe('useCombobox', () => {
   it('should retrieve context from default namespace', () => {
-    const mockContext = createCombobox()
+    const mockContext = setup()
     mockInject.mockReturnValue(mockContext)
 
     const result = useCombobox()

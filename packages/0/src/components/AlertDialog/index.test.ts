@@ -802,6 +802,8 @@ describe('alert-dialog', () => {
     })
 
     it('should support async confirm flow', async () => {
+      const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
       const isOpen = ref(true)
       let closeFn: (() => void) | undefined
 
@@ -855,6 +857,9 @@ describe('alert-dialog', () => {
       await nextTick()
 
       expect(isOpen.value).toBe(false)
+      expect(spy).toHaveBeenCalledTimes(1)
+
+      spy.mockRestore()
     })
   })
 })

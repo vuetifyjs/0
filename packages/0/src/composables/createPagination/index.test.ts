@@ -527,12 +527,12 @@ describe('createPaginationContext', () => {
 
   it('should create context with custom namespace', () => {
     const [, providePaginationContext, context] = createPaginationContext({
-      namespace: 'my-pagination',
+      namespace: 'test:my-pagination',
     })
 
     providePaginationContext(context)
 
-    expect(mockProvide).toHaveBeenCalledWith('my-pagination', context)
+    expect(mockProvide).toHaveBeenCalledWith('test:my-pagination', context)
   })
 
   it('should create a functional pagination context', () => {
@@ -588,9 +588,9 @@ describe('usePagination consumer', () => {
     const mockContext = createPagination()
     mockInject.mockReturnValue(mockContext)
 
-    const result = usePagination('my-pagination')
+    const result = usePagination('test:my-pagination')
 
-    expect(mockInject).toHaveBeenCalledWith('my-pagination', undefined)
+    expect(mockInject).toHaveBeenCalledWith('test:my-pagination', undefined)
     expect(result).toBe(mockContext)
   })
 

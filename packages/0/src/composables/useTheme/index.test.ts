@@ -1031,6 +1031,8 @@ describe('cycle edge cases', () => {
 
 describe('register with colors and tokens', () => {
   it('should not duplicate theme if already registered', () => {
+    const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
     const theme = createTheme({
       themes: {
         light: { colors: { primary: '#fff' } },
@@ -1041,6 +1043,10 @@ describe('register with colors and tokens', () => {
     theme.register({ id: 'light', colors: { primary: '#eee' } })
 
     expect(theme.size).toBe(before)
+    expect(spy).toHaveBeenCalledTimes(1)
+    expect(spy).toHaveBeenCalledWith(expect.stringContaining('light'))
+
+    spy.mockRestore()
   })
 })
 
