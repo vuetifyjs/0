@@ -107,10 +107,10 @@ Selection state is **always reactive**. Collection methods follow the base `crea
 ## Examples
 
 ::: example
-/composables/create-selection/bookmark-manager 1
 /composables/create-selection/context.ts 2
 /composables/create-selection/BookmarkProvider.vue 3
 /composables/create-selection/BookmarkConsumer.vue 4
+/composables/create-selection/bookmark-manager.vue 1
 
 ### Bookmark Manager
 
