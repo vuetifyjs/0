@@ -1,0 +1,13 @@
+name: Setup
+description: Checkout, pnpm, node, and install dependencies
+runs:
+  using: composite
+  steps:
+    - uses: actions/checkout@v6
+    - uses: pnpm/action-setup@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: lts/*
+        cache: pnpm
+    - run: pnpm install
+      shell: bash
