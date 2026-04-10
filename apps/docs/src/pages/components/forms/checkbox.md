@@ -18,9 +18,9 @@ related:
 
 # Checkbox
 
-A checkbox for boolean state or multi-selection groups with tri-state support.
-
 <DocsPageFeatures :frontmatter />
+
+A checkbox for boolean state or multi-selection groups with tri-state support.
 
 ## Usage
 
@@ -117,17 +117,7 @@ Pass the `name` prop on `Checkbox.Root` and a hidden native checkbox is rendered
 </template>
 ```
 
-Place `Checkbox.HiddenInput` explicitly only when you need to override the auto-rendered name, value, or form association:
-
-```vue
-<template>
-  <Checkbox.Root name="agree">
-    <Checkbox.Indicator>✓</Checkbox.Indicator>
-
-    <Checkbox.HiddenInput name="agree_override" value="custom" />
-  </Checkbox.Root>
-</template>
-```
+`Checkbox.HiddenInput` is exported as an internal building block for custom layouts, but auto-rendering via `name` is the only supported form integration path — placing `Checkbox.HiddenInput` as a child of a `Checkbox.Root` that already has a `name` will produce two hidden inputs.
 
 ### Styling with Data Attributes
 
@@ -181,7 +171,7 @@ Pass the `disabled` prop on `Checkbox.Root`. The component sets `aria-disabled`,
 
 ??? How does Checkbox.Group differ from a RadioGroup?
 
-`Checkbox.Group` is a multi-selection container — its v-model is an array of selected values, and individual checkboxes can be in an indeterminate state via `Checkbox.SelectAll`. A radio group is single-selection — exactly one option is active and v-model holds a single value.
+`Checkbox.Group` is a multi-selection container — its v-model is an array of selected values, individual checkboxes support an `indeterminate` prop, and `Checkbox.SelectAll` reflects the group's aggregate mixed state. A radio group is single-selection — exactly one option is active and v-model holds a single value.
 
 ??? Can I use Checkbox.Root without the Indicator subcomponent?
 
