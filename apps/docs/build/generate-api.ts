@@ -8,8 +8,8 @@
  */
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
-import { readdir } from 'node:fs/promises'
-import { dirname, resolve } from 'node:path'
+import { glob, readdir } from 'node:fs/promises'
+import { basename, dirname, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { Node, Project } from 'ts-morph'
@@ -19,10 +19,14 @@ import { createChecker } from 'vue-component-meta'
 import type { InterfaceDeclaration, JSDocableNode, TypeAliasDeclaration } from 'ts-morph'
 import type { Plugin } from 'vite'
 
+import { toCamel, toPascal } from './api-names'
+import { parseFrontmatter } from './frontmatter'
+
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = resolve(__dirname, '../../..')
 const COMPONENTS_DIR = resolve(ROOT, 'packages/0/src/components')
 const COMPOSABLES_DIR = resolve(ROOT, 'packages/0/src/composables')
+const PAGES_DIR = resolve(__dirname, '../src/pages')
 const TSCONFIG = resolve(ROOT, 'tsconfig.json')
 const PACKAGE_TSCONFIG = resolve(ROOT, 'packages/0/tsconfig.json')
 
@@ -782,12 +786,62 @@ async function generateComposableApis (): Promise<Record<string, ComposableApi>>
 }
 
 // ============================================================================
+// Related Links (from docs page frontmatter)
+// ============================================================================
+
+/**
+ * Scan composable/component markdown pages and build a map of API name →
+ * related URLs. The list is the counterpart doc page prepended to its own
+ * `related` frontmatter entries, so API pages can surface both the counterpart
+ * itself and the counterpart's cross-links.
+ */
+async function generateRelatedMap (
+  components: Record<string, ComponentApi>,
+  composables: Record<string, ComposableApi>,
+): Promise<Record<string, string[]>> {
+  const related: Record<string, string[]> = {}
+  const componentNames = new Set(Object.keys(components).map(key => key.split('.')[0]))
+
+  const patterns = [
+    `${PAGES_DIR}/composables/**/*.md`,
+    `${PAGES_DIR}/components/**/*.md`,
+  ]
+
+  for (const pattern of patterns) {
+    for await (const file of glob(pattern)) {
+      const name = basename(file, '.md')
+      if (name === 'index') continue
+
+      const isComposable = file.includes(`${PAGES_DIR}/composables/`)
+      const apiName = isComposable ? toCamel(name) : toPascal(name)
+
+      if (isComposable && !(apiName in composables)) continue
+      if (!isComposable && !componentNames.has(apiName)) continue
+
+      let raw: string
+      try {
+        raw = readFileSync(file, 'utf8')
+      } catch {
+        continue
+      }
+
+      const { frontmatter } = parseFrontmatter(raw)
+      const urlPath = '/' + relative(PAGES_DIR, file).replace(/\.md$/, '').replaceAll('\\', '/')
+      related[apiName] = [urlPath, ...(frontmatter.related ?? [])]
+    }
+  }
+
+  return related
+}
+
+// ============================================================================
 // Plugin
 // ============================================================================
 
 export interface ApiData {
   components: Record<string, ComponentApi>
   composables: Record<string, ComposableApi>
+  related: Record<string, string[]>
 }
 
 export default function generateApiPlugin (): Plugin {
@@ -800,9 +854,13 @@ export default function generateApiPlugin (): Plugin {
     // Try to read from cache first (SSR build reuses client build cache)
     if (existsSync(API_CACHE_FILE)) {
       try {
-        apiData = JSON.parse(readFileSync(API_CACHE_FILE, 'utf8')) as ApiData
-        console.log(`[generate-api] Loaded API from cache`)
-        return apiData
+        const cached = JSON.parse(readFileSync(API_CACHE_FILE, 'utf8')) as Partial<ApiData>
+        // Invalidate caches written before the `related` field existed.
+        if (cached.components && cached.composables && cached.related) {
+          apiData = cached as ApiData
+          console.log(`[generate-api] Loaded API from cache`)
+          return apiData
+        }
       } catch {
         // Cache read failed, regenerate
       }
@@ -815,7 +873,8 @@ export default function generateApiPlugin (): Plugin {
             generateComponentApis(),
             generateComposableApis(),
           ])
-          const data = { components, composables }
+          const related = await generateRelatedMap(components, composables)
+          const data: ApiData = { components, composables, related }
           // Write to cache for subsequent builds (SSR reuses this)
           try {
             mkdirSync(API_CACHE_DIR, { recursive: true })

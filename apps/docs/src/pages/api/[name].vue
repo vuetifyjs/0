@@ -42,6 +42,10 @@
   })
   const isComposable = toRef(() => itemName.value && itemName.value in data.composables)
 
+  const relatedFrontmatter = toRef(() => ({
+    related: itemName.value ? data.related[itemName.value] ?? [] : [],
+  }))
+
   const componentApis = computed<ComponentApi[]>(() => {
     if (!isComponent.value || !itemName.value) return []
 
@@ -123,6 +127,8 @@
 
         <p class="lead">API reference for the {{ itemName }} component{{ componentApis.length > 1 ? 's' : '' }}.</p>
 
+        <DocsRelated :frontmatter="relatedFrontmatter" />
+
         <template
           v-for="api in componentApis"
           :key="api.name"
@@ -190,6 +196,8 @@
         <h1>{{ composableApi.name }} API</h1>
 
         <p class="lead">API reference for the {{ composableApi.name }} composable.</p>
+
+        <DocsRelated :frontmatter="relatedFrontmatter" />
 
         <template v-if="composableApi.functions?.length">
           <DocsHeaderAnchor
