@@ -59,6 +59,15 @@ jobs:
       - uses: ./.github/actions/setup
       - name: Build packages
         run: pnpm build
+      - name: Upload dist artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: packages-dist
+          path: |
+            packages/0/dist
+            packages/paper/dist
+          retention-days: 1
+          if-no-files-found: error
 
   changes:
     runs-on: ubuntu-latest
@@ -101,3 +110,16 @@ jobs:
       - uses: actions/checkout@v4
       - uses: vuetifyjs/setup-action@master
       - run: pnpm run build:play
+
+  pkg-pr-new:
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ./.github/actions/setup
+      - name: Download dist artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: packages-dist
+          path: packages
+      - name: Publish preview
+        run: pnpm dlx pkg-pr-new publish --compact --pnpm './packages/0' --only-templates
