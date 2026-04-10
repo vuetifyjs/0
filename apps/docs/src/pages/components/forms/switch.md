@@ -18,16 +18,11 @@ related:
 
 # Switch
 
-A headless switch component with dual-mode support: standalone boolean binding or group multi-selection with tri-state.
+A switch for on/off state or multi-selection groups with tri-state support.
 
 <DocsPageFeatures :frontmatter />
 
 ## Usage
-
-The Switch component supports two modes:
-
-- **Standalone mode**: Use `v-model` on `Switch.Root` for simple boolean state
-- **Group mode**: Wrap in `Switch.Group` for multi-selection with array v-model
 
 ::: example
 /components/switch/basic
@@ -94,6 +89,81 @@ A standalone boolean switch with label and slide animation.
 </template>
 ```
 
+## Examples
+
+::: example
+/components/switch/group
+
+### Switch Group
+
+Multi-select switch group managing an array of connectivity options (WiFi, Bluetooth, Location).
+
+:::
+
+::: example
+/components/switch/indeterminate
+
+### Select-All Switch
+
+A "select all" switch with indeterminate state over nested permission toggles.
+
+:::
+
+The `SelectAll` component:
+- Binds to the group's `isAllSelected` and `isMixed` state
+- Calls `toggleAll` on click
+- Does NOT register as a group item
+- Sets `aria-checked="mixed"` and `data-state="indeterminate"` when partially selected
+
+## Recipes
+
+### Form Integration
+
+Pass the `name` prop on `Switch.Root` and a hidden native `<input type="checkbox">` is rendered automatically — no `Switch.HiddenInput` placement is required. The input is visually hidden, `inert`, and `tabindex="-1"`, so it only participates in `FormData` submission:
+
+```vue
+<template>
+  <Switch.Root name="notifications" value="on">
+    <Switch.Track>
+      <Switch.Thumb />
+    </Switch.Track>
+  </Switch.Root>
+</template>
+```
+
+Place `Switch.HiddenInput` explicitly only when you need to override the auto-rendered name, value, or form association:
+
+```vue
+<template>
+  <Switch.Root name="notifications">
+    <Switch.Track>
+      <Switch.Thumb />
+    </Switch.Track>
+
+    <Switch.HiddenInput name="notifications_override" value="custom" />
+  </Switch.Root>
+</template>
+```
+
+### Styling with Data Attributes
+
+Switch subcomponents expose data attributes for CSS styling without conditional classes. `Switch.Root` and `Switch.SelectAll` emit both `data-state` and `data-disabled`, while `Switch.Track` and `Switch.Thumb` emit only `data-state` (they inherit disabled styling from the Root ancestor):
+
+| Attribute | Values | Components |
+|-----------|--------|------------|
+| `data-state` | `checked`, `unchecked`, `indeterminate` | `Root`, `SelectAll`, `Track`, `Thumb` |
+| `data-disabled` | `true` | `Root`, `SelectAll` |
+
+```vue
+<template>
+  <Switch.Root class="data-[disabled]:opacity-50">
+    <Switch.Track class="bg-gray-300 data-[state=checked]:bg-primary">
+      <Switch.Thumb class="translate-x-0.5 data-[state=checked]:translate-x-5.5" />
+    </Switch.Track>
+  </Switch.Root>
+</template>
+```
+
 ## Accessibility
 
 The Switch.Root component renders as a button and handles all ARIA attributes automatically:
@@ -117,86 +187,24 @@ For custom implementations, use `renderless` mode and bind the `attrs` slot prop
 </template>
 ```
 
-## Recipes
+::: faq
 
-### Group Mode
+??? When should I use Switch vs Checkbox?
 
-Wrap switches in `Switch.Group` for multi-selection with array-based v-model:
+Use `Switch` for settings that take immediate effect, like toggling a feature on or off (WiFi, notifications, dark mode). Use `Checkbox` for selections that are committed later — form submissions, multi-select lists, and "I agree" confirmations. The ARIA roles (`switch` vs `checkbox`) communicate this intent to assistive technology.
 
-::: example
-/components/switch/group
+??? Why does my form submission miss the switch value?
 
-### Switch Group
+`Switch.Root` only renders the hidden native input when a `name` prop is set. Without `name`, the switch is purely visual and won't appear in `FormData`. Add `name="myField"` (and optionally `value`) to participate in form submission.
 
-Multi-select switch group managing an array of connectivity options (WiFi, Bluetooth, Location).
+??? How do I animate the thumb sliding?
 
-:::
+Apply a CSS `transition` to `Switch.Thumb` (or `Switch.Track`) and use the `data-[state=checked]:` variant to change its transform. For example, `class="transition-transform data-[state=checked]:translate-x-5"` slides the thumb when toggled. No JavaScript event handling is needed — the data attribute flip drives the animation.
 
-### Form Integration
+??? Can I use Switch.Root without the Track and Thumb subcomponents?
 
-When the `name` prop is provided on `Switch.Root`, a hidden native checkbox is automatically rendered for form submission:
-
-```vue
-<template>
-  <!-- Auto-renders hidden input for form submission -->
-  <Switch.Root name="notifications" value="on">
-    <Switch.Track>
-      <Switch.Thumb />
-    </Switch.Track>
-  </Switch.Root>
-</template>
-```
-
-For custom form integration, use `Switch.HiddenInput` explicitly:
-
-```vue
-<template>
-  <Switch.Root>
-    <Switch.Track>
-      <Switch.Thumb />
-    </Switch.Track>
-
-    <Switch.HiddenInput name="custom" value="override" />
-  </Switch.Root>
-</template>
-```
-
-### Indeterminate State
-
-Use `Switch.SelectAll` within a group for "select all" patterns. It automatically reflects the group's aggregate state and toggles all items on click:
-
-::: example
-/components/switch/indeterminate
-
-### Select-All Switch
-
-A "select all" switch with indeterminate state over nested permission toggles.
+Yes. `Switch.Track` and `Switch.Thumb` are purely cosmetic — they read switch state from context to render the rail and knob. You can omit them entirely and render your own visual using the `attrs` slot prop on `Switch.Root`, or use `renderless` mode for full control over the rendered element.
 
 :::
-
-The `SelectAll` component:
-- Binds to the group's `isAllSelected` and `isMixed` state
-- Calls `toggleAll` on click
-- Does NOT register as a group item
-- Sets `aria-checked="mixed"` and `data-state="indeterminate"` when partially selected
-
-### Styling with Data Attributes
-
-Switch components expose `data-state` attributes for CSS styling:
-
-| Attribute | Values | Components |
-|-----------|--------|------------|
-| `data-state` | `checked`, `unchecked`, `indeterminate` | Root, Track, Thumb |
-| `data-disabled` | `true` | Root |
-
-```vue
-<template>
-  <Switch.Root class="...">
-    <Switch.Track class="bg-gray-300 data-[state=checked]:bg-primary">
-      <Switch.Thumb class="translate-x-0.5 data-[state=checked]:translate-x-5.5" />
-    </Switch.Track>
-  </Switch.Root>
-</template>
-```
 
 <DocsApi />
