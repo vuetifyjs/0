@@ -18,16 +18,11 @@ related:
 
 # Checkbox
 
-A headless checkbox component with dual-mode support: standalone boolean binding or group multi-selection with tri-state.
+A checkbox for boolean state or multi-selection groups with tri-state support.
 
 <DocsPageFeatures :frontmatter />
 
 ## Usage
-
-The Checkbox component supports two modes:
-
-- **Standalone mode**: Use `v-model` on `Checkbox.Root` for simple boolean state
-- **Group mode**: Wrap in `Checkbox.Group` for multi-selection with array v-model
 
 ::: example
 /components/checkbox/basic
@@ -82,11 +77,7 @@ A standalone checkbox with checkmark indicator and label.
 </template>
 ```
 
-## Recipes
-
-### Group Mode
-
-Wrap checkboxes in `Checkbox.Group` for multi-selection with array-based v-model:
+## Examples
 
 ::: example
 /components/checkbox/group
@@ -97,39 +88,10 @@ Multi-select checkbox group with three fruit options showing the selected state.
 
 :::
 
-### Form Integration
-
-When the `name` prop is provided on `Checkbox.Root`, a hidden native checkbox is automatically rendered for form submission:
-
-```vue
-<template>
-  <!-- Auto-renders hidden input for form submission -->
-  <Checkbox.Root name="agree" value="yes">
-    <Checkbox.Indicator>✓</Checkbox.Indicator>
-  </Checkbox.Root>
-</template>
-```
-
-For custom form integration, use `Checkbox.HiddenInput` explicitly:
-
-```vue
-<template>
-  <Checkbox.Root>
-    <Checkbox.Indicator>✓</Checkbox.Indicator>
-
-    <Checkbox.HiddenInput name="custom" value="override" />
-  </Checkbox.Root>
-</template>
-```
-
-### Indeterminate State
-
-Use `Checkbox.SelectAll` within a group for "select all" patterns. It automatically reflects the group's aggregate state and toggles all items on click:
-
 ::: example
 /components/checkbox/indeterminate
 
-### Indeterminate / Select All
+### Select All Pattern
 
 A "select all" checkbox with tri-state behavior (checked, unchecked, indeterminate) over nested items.
 
@@ -140,6 +102,49 @@ The `SelectAll` component:
 - Calls `toggleAll` on click
 - Does NOT register as a group item
 - Sets `aria-checked="mixed"` and `data-state="indeterminate"` when partially selected
+
+## Recipes
+
+### Form Integration
+
+Pass the `name` prop on `Checkbox.Root` and a hidden native checkbox is rendered automatically. No `Checkbox.HiddenInput` placement is required:
+
+```vue
+<template>
+  <Checkbox.Root name="agree" value="yes">
+    <Checkbox.Indicator>✓</Checkbox.Indicator>
+  </Checkbox.Root>
+</template>
+```
+
+Place `Checkbox.HiddenInput` explicitly only when you need to override the auto-rendered name, value, or form association:
+
+```vue
+<template>
+  <Checkbox.Root name="agree">
+    <Checkbox.Indicator>✓</Checkbox.Indicator>
+
+    <Checkbox.HiddenInput name="agree_override" value="custom" />
+  </Checkbox.Root>
+</template>
+```
+
+### Styling with Data Attributes
+
+`Checkbox.Root` exposes data attributes for CSS styling without conditional classes:
+
+| Attribute | Values | Notes |
+|-----------|--------|-------|
+| `data-state` | `checked`, `unchecked`, `indeterminate` | Reflects current visual state |
+| `data-disabled` | `true` | Present only when disabled |
+
+```vue
+<template>
+  <Checkbox.Root class="size-5 rounded border data-[state=checked]:bg-primary data-[disabled]:opacity-50">
+    <Checkbox.Indicator>✓</Checkbox.Indicator>
+  </Checkbox.Root>
+</template>
+```
 
 ## Accessibility
 
@@ -163,5 +168,25 @@ For custom implementations, use `renderless` mode and bind the `attrs` slot prop
   </Checkbox.Root>
 </template>
 ```
+
+::: faq
+
+??? How do I disable a checkbox?
+
+Pass the `disabled` prop on `Checkbox.Root`. The component sets `aria-disabled`, removes `tabindex`, ignores click and Space key events, and exposes `data-disabled="true"` for styling.
+
+??? Why does my form submission miss the checkbox value?
+
+`Checkbox.Root` only renders the hidden native input when a `name` prop is set. Without `name`, the checkbox is purely visual and won't appear in `FormData`. Add `name="myField"` (and optionally `value`) to participate in form submission.
+
+??? How does Checkbox.Group differ from a RadioGroup?
+
+`Checkbox.Group` is a multi-selection container — its v-model is an array of selected values, and individual checkboxes can be in an indeterminate state via `Checkbox.SelectAll`. A radio group is single-selection — exactly one option is active and v-model holds a single value.
+
+??? Can I use Checkbox.Root without the Indicator subcomponent?
+
+Yes. `Checkbox.Indicator` is purely cosmetic — it reads checkbox state from context to render a checkmark. You can omit it entirely and render your own visual using the `attrs` slot prop on `Checkbox.Root`, or use `renderless` mode for full control over the rendered element.
+
+:::
 
 <DocsApi />
