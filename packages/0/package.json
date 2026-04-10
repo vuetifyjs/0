@@ -15,7 +15,9 @@
     "directory": "packages/0"
   },
   "scripts": {
-    "build": "tsdown && pnpm generate:web-types",
+    "build": "concurrently --names tsdown,webtypes --kill-others-on-fail --prefix-colors cyan,magenta 'pnpm build:tsdown' 'pnpm build:web-types'",
+    "build:tsdown": "tsdown",
+    "build:web-types": "tsx scripts/generate-web-types.ts",
     "generate:web-types": "tsx scripts/generate-web-types.ts",
     "typecheck": "vue-tsc --noEmit --incremental"
   },
@@ -112,6 +114,7 @@
     "@material/material-color-utilities": "catalog:",
     "@vue/compiler-dom": "catalog:",
     "@vue/test-utils": "catalog:",
+    "concurrently": "catalog:",
     "launchdarkly-js-client-sdk": "catalog:",
     "posthog-js": "catalog:",
     "tsdown": "catalog:",
