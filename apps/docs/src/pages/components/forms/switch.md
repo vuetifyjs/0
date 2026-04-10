@@ -18,9 +18,9 @@ related:
 
 # Switch
 
-A switch for on/off state or multi-selection groups with tri-state support.
-
 <DocsPageFeatures :frontmatter />
+
+A switch for on/off state or multi-selection groups with tri-state support.
 
 ## Usage
 
@@ -131,19 +131,7 @@ Pass the `name` prop on `Switch.Root` and a hidden native `<input type="checkbox
 </template>
 ```
 
-Place `Switch.HiddenInput` explicitly only when you need to override the auto-rendered name, value, or form association:
-
-```vue
-<template>
-  <Switch.Root name="notifications">
-    <Switch.Track>
-      <Switch.Thumb />
-    </Switch.Track>
-
-    <Switch.HiddenInput name="notifications_override" value="custom" />
-  </Switch.Root>
-</template>
-```
+`Switch.HiddenInput` is exported as an internal building block for custom layouts, but auto-rendering via `name` is the only supported form integration path — placing `Switch.HiddenInput` as a child of a `Switch.Root` that already has a `name` will produce two hidden inputs.
 
 ### Styling with Data Attributes
 
@@ -157,12 +145,14 @@ Switch subcomponents expose data attributes for CSS styling without conditional 
 ```vue
 <template>
   <Switch.Root class="data-[disabled]:opacity-50">
-    <Switch.Track class="bg-gray-300 data-[state=checked]:bg-primary">
-      <Switch.Thumb class="translate-x-0.5 data-[state=checked]:translate-x-5.5" />
+    <Switch.Track class="bg-gray-300 transition-colors data-[state=checked]:bg-primary">
+      <Switch.Thumb />
     </Switch.Track>
   </Switch.Root>
 </template>
 ```
+
+`Switch.Thumb` applies an inline `visibility: hidden` when unchecked, so the thumb is not visible until the switch is on. This means a sliding transform on `Switch.Thumb` cannot animate *from* the "off" position. Animate the `Switch.Track` background color instead, as shown above.
 
 ## Accessibility
 
@@ -173,7 +163,7 @@ The Switch.Root component renders as a button and handles all ARIA attributes au
 - `aria-disabled` when switch is disabled
 - `aria-label` from the `label` prop
 - `tabindex="0"` for keyboard focus (removed when disabled)
-- Space key toggles the switch
+- Space key toggles the switch (Enter works when rendered as button)
 
 For custom implementations, use `renderless` mode and bind the `attrs` slot prop to your element:
 
@@ -197,9 +187,9 @@ Use `Switch` for settings that take immediate effect, like toggling a feature on
 
 `Switch.Root` only renders the hidden native input when a `name` prop is set. Without `name`, the switch is purely visual and won't appear in `FormData`. Add `name="myField"` (and optionally `value`) to participate in form submission.
 
-??? How do I animate the thumb sliding?
+??? How do I animate the switch state change?
 
-Apply a CSS `transition` to `Switch.Thumb` (or `Switch.Track`) and use the `data-[state=checked]:` variant to change its transform. For example, `class="transition-transform data-[state=checked]:translate-x-5"` slides the thumb when toggled. No JavaScript event handling is needed — the data attribute flip drives the animation.
+`Switch.Thumb` applies an inline `visibility: hidden` when unchecked, so transforms on the thumb cannot animate from the "off" position. Apply a CSS `transition` to `Switch.Track` and use the `data-[state=checked]:` variant to change its background — for example, `class="transition-colors bg-gray-300 data-[state=checked]:bg-primary"`. No JavaScript event handling is needed — the data attribute flip drives the animation.
 
 ??? Can I use Switch.Root without the Track and Thumb subcomponents?
 
