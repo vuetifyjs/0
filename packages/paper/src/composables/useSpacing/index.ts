@@ -1,5 +1,4 @@
 // Utilities
-import { getCurrentInstanceName } from '#paper/utilities/getCurrentInstanceName'
 import { toRef } from 'vue'
 
 export interface SpacingProps {
@@ -7,18 +6,15 @@ export interface SpacingProps {
   margin?: string
 }
 
-export function useSpacing (
-  props: SpacingProps,
-  name = getCurrentInstanceName(),
-) {
-  const spacingStyles = toRef(() => {
-    return {
-      [`--v0-${name}-padding`]: props.padding,
-      [`--v0-${name}-margin`]: props.margin,
-    }
+export function useSpacing (props: SpacingProps) {
+  const spacingClasses = toRef(() => {
+    const classes: string[] = []
+
+    if (props.padding) classes.push(`p-${props.padding}`)
+    if (props.margin) classes.push(`m-${props.margin}`)
+
+    return classes
   })
 
-  return {
-    spacingStyles,
-  }
+  return { spacingClasses }
 }
