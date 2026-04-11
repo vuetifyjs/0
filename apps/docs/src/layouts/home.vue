@@ -46,5 +46,8 @@
     <DocsSearch v-if="hydrated" />
 
     <Scrim class="fixed inset-0 bg-black/30 transition-opacity" :teleport="false" />
+
+    <DocsApiHover />
+    <DocsHighlight />
   </div>
 </template>
