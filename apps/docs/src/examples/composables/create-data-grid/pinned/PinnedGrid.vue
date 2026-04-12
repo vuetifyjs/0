@@ -1,6 +1,6 @@
 <script setup lang="ts">
   import { shallowRef } from 'vue'
-  import { mdiArrowUp, mdiArrowDown } from '@mdi/js'
+  import { mdiArrowUp, mdiArrowDown, mdiPinOutline, mdiPinOffOutline } from '@mdi/js'
   import { createDataGrid, useEventListener, useToggleScope } from '@vuetify/v0'
   import { columns } from './columns'
   import { stocks } from './data'
@@ -51,6 +51,25 @@
     return columns.find(c => c.key === key)?.title ?? key
   }
 
+  function canResize (key: string) {
+    const { left, scrollable, right } = grid.layout.pinned.value
+    const region = left.find(c => c.key === key)
+      ? left
+      : (right.find(c => c.key === key)
+        ? right
+        : scrollable)
+    const index = region.findIndex(c => c.key === key)
+    return index !== -1 && index < region.length - 1
+  }
+
+  function onPin (key: string) {
+    const col = grid.layout.columns.value.find(c => c.key === key)
+    if (!col) return
+    if (col.pinned === 'left') grid.layout.pin(key, false)
+    else if (col.pinned === 'right') grid.layout.pin(key, false)
+    else grid.layout.pin(key, 'left')
+  }
+
   function formatVolume (value: number) {
     if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}M`
     if (value >= 1000) return `${(value / 1000).toFixed(0)}K`
@@ -93,7 +112,7 @@
             <th
               v-for="col in grid.layout.columns.value"
               :key="col.key"
-              class="relative px-3 py-2 font-medium select-none overflow-hidden"
+              class="group relative px-3 py-2 font-medium select-none overflow-hidden"
               :class="[
                 col.pinned ? 'bg-surface-tint' : 'bg-surface',
                 col.pinned === 'left' ? 'border-r border-divider' : '',
@@ -113,6 +132,16 @@
                 class="flex items-center gap-1"
                 :class="['price', 'change', 'volume', 'cap', 'pe', 'eps', 'dividend'].includes(col.key) ? 'justify-end' : ''"
               >
+                <button
+                  class="shrink-0 opacity-0 group-hover:opacity-60 hover:!opacity-100 transition-opacity"
+                  :title="col.pinned ? 'Unpin' : 'Pin left'"
+                  @click.stop="onPin(col.key)"
+                >
+                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24">
+                    <path :d="col.pinned ? mdiPinOffOutline : mdiPinOutline" fill="currentColor" />
+                  </svg>
+                </button>
+
                 <span class="truncate">{{ label(col.key) }}</span>
 
                 <svg
@@ -128,7 +157,7 @@
               </div>
 
               <div
-                v-if="col.index < grid.layout.columns.value.length - 1"
+                v-if="canResize(col.key)"
                 class="absolute top-0 -right-1 w-2 h-full cursor-col-resize z-20 hover:bg-primary/50"
                 @pointerdown.stop="onResizeStart(col.key, $event)"
               />
