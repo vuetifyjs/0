@@ -19,7 +19,7 @@ import { createTrinity } from '#v0/composables/createTrinity'
 import { ClientGridAdapter } from './adapters'
 
 // Utilities
-import { isFunction } from '#v0/utilities'
+import { isFunction, isUndefined } from '#v0/utilities'
 import { watch } from 'vue'
 
 // Types
@@ -163,7 +163,7 @@ export function createDataGrid<T extends Record<string, unknown>> (
     onEdit: editingOptions?.onEdit
       ? (row, column, value) => {
           const item = itemLookup(row)
-          if (item) editingOptions.onEdit!(row, column, value, item)
+          if (!isUndefined(item)) editingOptions.onEdit!(row, column, value, item)
         }
       : undefined,
   })
