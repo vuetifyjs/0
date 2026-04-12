@@ -53,9 +53,9 @@
 
   function canResize (key: string) {
     const { left, scrollable, right } = grid.layout.pinned.value
-    const region = left.find(c => c.key === key)
+    const region = left.some(c => c.key === key)
       ? left
-      : (right.find(c => c.key === key)
+      : (right.some(c => c.key === key)
         ? right
         : scrollable)
     const index = region.findIndex(c => c.key === key)
