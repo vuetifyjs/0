@@ -106,6 +106,10 @@
     default: (props: CarouselRootSlotProps) => any
   }>()
 
+  defineEmits<{
+    'update:model-value': [value: T | T[]]
+  }>()
+
   const {
     namespace = 'v0:carousel',
     disabled = false,
