@@ -76,6 +76,7 @@ Components with meaningful HTML defaults. Render semantic elements by default bu
 | - | - |
 | [Avatar](/components/semantic/avatar) | Image/fallback avatar with priority loading |
 | [Breadcrumbs](/components/semantic/breadcrumbs) | Navigation breadcrumbs with overflow detection and truncation |
+| [Carousel](/components/semantic/carousel) | Scroll-snap slide navigation with multi-slide display and drag/swipe |
 | [Pagination](/components/semantic/pagination) | Page navigation with semantic `<nav>` wrapper |
 | [Progress](/components/semantic/progress/) | Headless progress bar with multi-segment and buffer support |
 | [Snackbar](/components/semantic/snackbar) | Toast notification with queue, positioning, and auto-dismiss |

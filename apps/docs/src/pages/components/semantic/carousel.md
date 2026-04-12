@@ -1,0 +1,198 @@
+---
+title: Carousel - Scrollable Slide Navigation with Drag Support
+meta:
+- name: description
+  content: Headless carousel component built on CSS scroll-snap with multi-slide display, partial-slide peeking, and drag/swipe navigation for Vue 3.
+- name: keywords
+  content: carousel, slider, scroll-snap, drag, swipe, slides, Vue 3, headless, accessible
+features:
+  category: Component
+  label: 'C: Carousel'
+  github: /components/Carousel/
+  renderless: false
+  level: 2
+related:
+  - /components/providers/step
+  - /composables/selection/create-step
+  - /components/primitives/atom
+---
+
+# Carousel
+
+Headless carousel built on CSS scroll-snap with multi-slide display and partial-slide peeking.
+
+<DocsPageFeatures :frontmatter />
+
+## Usage
+
+The Carousel provides slide navigation with native drag/swipe via CSS scroll-snap. Slides register with a step context for programmatic navigation.
+
+::: example
+/components/carousel/basic
+
+### Basic Carousel
+
+A circular carousel with previous/next navigation buttons and five slides.
+
+:::
+
+## Anatomy
+
+```vue Anatomy playground
+<script setup lang="ts">
+  import { Carousel } from '@vuetify/v0'
+</script>
+
+<template>
+  <Carousel.Root>
+    <Carousel.Viewport>
+      <Carousel.Slide :value="1">Slide 1</Carousel.Slide>
+      <Carousel.Slide :value="2">Slide 2</Carousel.Slide>
+      <Carousel.Slide :value="3">Slide 3</Carousel.Slide>
+    </Carousel.Viewport>
+
+    <Carousel.Previous>Previous</Carousel.Previous>
+    <Carousel.Next>Next</Carousel.Next>
+  </Carousel.Root>
+</template>
+```
+
+## Examples
+
+### Multi-Slide Display
+
+Show multiple slides at once with the `per-view` prop. This is useful for card grids, skill lists, or product carousels where users can browse items in groups.
+
+::: example
+/components/carousel/multi-slide
+
+### Three Slides Per View
+
+A circular carousel showing 3 slides at once with a 12px gap between them.
+
+:::
+
+### Peek
+
+Use the `peek` prop to reveal a portion of adjacent slides, signaling to the user that more content is available and encouraging drag/swipe interaction.
+
+::: example
+/components/carousel/peek
+
+### Partial Slide Visibility
+
+A carousel with 48px peek on each side showing portions of adjacent slides.
+
+:::
+
+## Recipes
+
+### Circular Navigation
+
+Enable wrapping from last slide to first with the `circular` prop.
+
+```vue
+<template>
+  <Carousel.Root circular>
+    <Carousel.Viewport>
+      <Carousel.Slide v-for="i in 5" :key="i" :value="i">
+        Slide {{ i }}
+      </Carousel.Slide>
+    </Carousel.Viewport>
+  </Carousel.Root>
+</template>
+```
+
+### Vertical Orientation
+
+Set `orientation="vertical"` for a vertically scrolling carousel.
+
+```vue
+<template>
+  <Carousel.Root orientation="vertical">
+    <Carousel.Viewport style="height: 300px">
+      <Carousel.Slide v-for="i in 5" :key="i" :value="i">
+        Slide {{ i }}
+      </Carousel.Slide>
+    </Carousel.Viewport>
+  </Carousel.Root>
+</template>
+```
+
+### Disabled State
+
+Disable all navigation via the `disabled` prop on the root.
+
+```vue
+<template>
+  <Carousel.Root disabled>
+    <Carousel.Viewport>
+      <Carousel.Slide v-for="i in 3" :key="i" :value="i">
+        Slide {{ i }}
+      </Carousel.Slide>
+    </Carousel.Viewport>
+
+    <Carousel.Previous>Previous</Carousel.Previous>
+    <Carousel.Next>Next</Carousel.Next>
+  </Carousel.Root>
+</template>
+```
+
+### Styling with Data Attributes
+
+All component state is exposed via `data-*` attributes for CSS-only styling:
+
+```css
+/* Style the selected slide */
+[data-selected] { opacity: 1; }
+
+/* Dim inactive slides */
+[aria-hidden="true"] { opacity: 0.4; }
+
+/* Hide nav buttons at boundaries */
+[data-edge] { visibility: hidden; }
+
+/* Cursor during drag */
+[data-dragging] { cursor: grabbing; }
+```
+
+## Accessibility
+
+The Carousel implements the [WAI-ARIA Carousel Pattern](https://www.w3.org/WAI/ARIA/apg/patterns/carousel/).
+
+| Element | Role / Attribute |
+| - | - |
+| Root | `role="region"`, `aria-roledescription="carousel"` |
+| Viewport | `aria-live="polite"` |
+| Slide | `role="group"`, `aria-roledescription="slide"`, `aria-label="N of M"` |
+| Previous | `aria-label="Previous slide"`, `aria-controls` links to viewport |
+| Next | `aria-label="Next slide"`, `aria-controls` links to viewport |
+
+Slides outside the visible window are marked with `aria-hidden="true"` so screen readers only announce visible content.
+
+::: faq
+
+??? How does multi-slide display work?
+
+The `per-view` prop controls how many slides are visible at once. Each slide's width is computed as `calc((100% - gaps - peeks) / perView)` using CSS `flex-basis`. The Viewport uses CSS scroll-snap so the browser handles all scroll physics and snap behavior natively.
+
+??? Can I use fade transitions instead of sliding?
+
+The Carousel is built on CSS scroll-snap for native drag/swipe support. For fade transitions, use the `Step` provider component with `Presence` for mount/unmount animations — it gives you the same navigation model (next/prev/circular) without scroll-based layout.
+
+??? How do I build an autoplay carousel?
+
+Combine the carousel's slot props with `useTimer` from v0:
+
+```ts
+import { useTimer } from '@vuetify/v0'
+
+const timer = useTimer(() => next(), { duration: 5000, repeat: true })
+timer.start()
+```
+
+The timer auto-pauses when the tab is hidden via `requestAnimationFrame`.
+
+:::
+
+<DocsApi />
