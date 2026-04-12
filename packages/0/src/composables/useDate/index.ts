@@ -118,8 +118,12 @@ const defaultLocales: Record<string, string> = {
  */
 function deriveFirstDayOfWeek (locale: string): number {
   try {
-    const loc = new Intl.Locale(locale) as Intl.Locale & { getWeekInfo?: () => { firstDay: number } }
-    const info = loc.getWeekInfo?.()
+    const loc = new Intl.Locale(locale) as Intl.Locale & {
+      getWeekInfo?: () => { firstDay: number }
+      weekInfo?: { firstDay: number }
+    }
+    // Newer Node/ICU exposes getWeekInfo(); older Node exposes the deprecated weekInfo property.
+    const info = loc.getWeekInfo?.() ?? loc.weekInfo
     return info ? info.firstDay % 7 : 0 // ISO 1-7 → v0 0-6
   } catch {
     return 0
