@@ -82,7 +82,7 @@
             <th
               v-for="col in grid.layout.columns.value"
               :key="col.key"
-              class="relative px-3 py-2 font-medium select-none"
+              class="relative px-3 py-2 font-medium select-none overflow-hidden"
               :class="[
                 col.pinned ? 'bg-surface-tint' : 'bg-surface',
                 col.pinned === 'left' ? 'border-r border-divider' : '',
@@ -134,7 +134,7 @@
             <td
               v-for="col in grid.layout.columns.value"
               :key="col.key"
-              class="px-3 py-1.5"
+              class="px-3 py-1.5 truncate"
               :class="[
                 col.pinned ? 'bg-surface-tint' : 'bg-surface',
                 col.pinned === 'left' ? 'border-r border-divider' : '',
