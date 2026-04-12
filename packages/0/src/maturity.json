@@ -101,6 +101,11 @@
       "since": "0.2.0",
       "category": "forms"
     },
+    "createDataGrid": {
+      "level": "preview",
+      "since": "0.2.2",
+      "category": "data"
+    },
     "createDataTable": {
       "level": "preview",
       "since": "0.1.0",

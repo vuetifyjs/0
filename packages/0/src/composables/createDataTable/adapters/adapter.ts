@@ -15,7 +15,7 @@
 import { createFilter } from '#v0/composables/createFilter'
 
 // Utilities
-import { isArray, isNaN, isNullOrUndefined, isNumber, isObject, isString } from '#v0/utilities'
+import { isNaN, isNullOrUndefined, isNumber, isObject, isString } from '#v0/utilities'
 import { computed, toRef, toValue } from 'vue'
 
 // Types
@@ -37,7 +37,7 @@ export interface DataTableAdapterContext<T extends Record<string, unknown>> {
   /** Search query ref */
   search: ShallowRef<string>
   /** Column keys eligible for filtering */
-  filterableKeys: ReadonlyArray<keyof T & string>
+  filterableKeys: readonly string[]
   /** Current sort state derived from sort controls */
   sortBy: Readonly<Ref<SortEntry[]>>
   /** Locale for sorting (reactive, from useLocale or options) */
@@ -120,7 +120,7 @@ export abstract class DataTableAdapter<T extends Record<string, unknown>> implem
           keys: [...context.filterableKeys],
           customFilter: (query, item) => {
             if (!isObject(item)) return false
-            const q = String(isArray(query) ? query[0] : query).toLowerCase()
+            const q = String(Array.isArray(query) ? query[0] : query).toLowerCase()
             if (!q) return true
             const obj = item as Record<string, unknown>
 

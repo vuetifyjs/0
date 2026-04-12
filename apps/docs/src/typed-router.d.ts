@@ -314,6 +314,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/composables/data/create-data-grid': RouteRecordInfo<
+      '/composables/data/create-data-grid',
+      '/composables/data/create-data-grid',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/composables/data/create-data-table': RouteRecordInfo<
       '/composables/data/create-data-table',
       '/composables/data/create-data-table',
@@ -1242,6 +1249,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/index.md': {
       routes:
         | '/composables/'
+      views:
+        | never
+    }
+    'src/pages/composables/data/create-data-grid.md': {
+      routes:
+        | '/composables/data/create-data-grid'
       views:
         | never
     }
