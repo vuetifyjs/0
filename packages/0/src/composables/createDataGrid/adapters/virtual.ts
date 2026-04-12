@@ -36,11 +36,11 @@ export class VirtualGridAdapter<T extends Record<string, unknown>> extends DataT
     const { allItems, filteredItems } = this.filter(context)
     const sortedItems = this.sort(filteredItems, sortBy, locale, customSorts)
 
-    const orderedItems = computed(() => {
+    const ordered = computed(() => {
       return applyOrder(sortedItems.value, this.rowOrder.value, this.itemKey)
     })
 
-    const size = toRef(() => orderedItems.value.length)
+    const size = toRef(() => ordered.value.length)
 
     const pagination = createPagination({
       size,
@@ -54,10 +54,10 @@ export class VirtualGridAdapter<T extends Record<string, unknown>> extends DataT
     return {
       allItems,
       filteredItems,
-      sortedItems: orderedItems,
-      items: orderedItems,
+      sortedItems: ordered,
+      items: ordered,
       pagination,
-      total: toRef(() => orderedItems.value.length),
+      total: toRef(() => ordered.value.length),
     }
   }
 }

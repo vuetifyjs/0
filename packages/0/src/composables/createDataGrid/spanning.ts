@@ -51,25 +51,25 @@ export function createRowSpanning<T extends Record<string, unknown>> (
     for (let row = 0; row < list.length; row++) {
       const item = list[row]
       const id = item[itemKey] as ID
-      const cellMap = new Map<string, SpanEntry>()
+      const cells = new Map<string, SpanEntry>()
 
       for (const [col, column] of columns.entries()) {
         if (covered[col] > 0) {
-          cellMap.set(column, { rowSpan: 1, hidden: true })
+          cells.set(column, { rowSpan: 1, hidden: true })
           covered[col]--
         } else {
           const span = Math.min(
             Math.max(1, rowSpanning(item, column)),
             list.length - row, // clamp to remaining rows
           )
-          cellMap.set(column, { rowSpan: span, hidden: false })
+          cells.set(column, { rowSpan: span, hidden: false })
           if (span > 1) {
             covered[col] = span - 1
           }
         }
       }
 
-      result.set(id, cellMap)
+      result.set(id, cells)
     }
 
     return result

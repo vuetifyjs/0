@@ -104,7 +104,7 @@ function computeOffsets (cols: ResolvedColumn[]): void {
   }
 }
 
-function splitRegions (keys: string[], resolved: Map<string, ResolvedColumn>): PinnedRegion {
+function split (keys: string[], resolved: Map<string, ResolvedColumn>): PinnedRegion {
   const left: ResolvedColumn[] = []
   const scrollable: ResolvedColumn[] = []
   const right: ResolvedColumn[] = []
@@ -168,7 +168,7 @@ export function createColumnLayout (defs: readonly GridColumnDef[]): ColumnLayou
   }
 
   const pinned = toRef((): PinnedRegion => {
-    return splitRegions(order.value, resolved())
+    return split(order.value, resolved())
   })
 
   const columns = toRef((): ResolvedColumn[] => {
@@ -193,11 +193,11 @@ export function createColumnLayout (defs: readonly GridColumnDef[]): ColumnLayou
     else if (col.pinned === 'right') group = region.right
     else group = region.scrollable
 
-    const regionIndex = group.findIndex(c => c.key === key)
-    if (regionIndex === -1 || regionIndex === group.length - 1) return
+    const index = group.findIndex(c => c.key === key)
+    if (index === -1 || index === group.length - 1) return
 
-    const target = group[regionIndex]!
-    const neighbor = group[regionIndex + 1]!
+    const target = group[index]!
+    const neighbor = group[index + 1]!
 
     const total = target.size + neighbor.size
     const lower = Math.max(target.minSize, total - neighbor.maxSize)

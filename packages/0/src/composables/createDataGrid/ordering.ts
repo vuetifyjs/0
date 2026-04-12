@@ -20,7 +20,7 @@ import type { ShallowRef } from 'vue'
 export interface RowOrdering {
   order: Readonly<ShallowRef<ID[]>>
   initialize: (ids: ID[]) => void
-  move: (fromIndex: number, toIndex: number) => void
+  move: (from: number, to: number) => void
   reset: () => void
   apply: <T extends Record<string, unknown>>(items: readonly T[], itemKey: string) => readonly T[]
 }
@@ -37,14 +37,14 @@ export function createRowOrdering (): RowOrdering {
     order.value = [...ids]
   }
 
-  function move (fromIndex: number, toIndex: number) {
-    if (fromIndex === toIndex) return
+  function move (from: number, to: number) {
+    if (from === to) return
     const arr = [...order.value]
-    if (fromIndex < 0 || fromIndex >= arr.length) return
-    if (toIndex < 0 || toIndex >= arr.length) return
+    if (from < 0 || from >= arr.length) return
+    if (to < 0 || to >= arr.length) return
 
-    const [moved] = arr.splice(fromIndex, 1)
-    arr.splice(toIndex, 0, moved)
+    const [moved] = arr.splice(from, 1)
+    arr.splice(to, 0, moved)
     order.value = arr
   }
 

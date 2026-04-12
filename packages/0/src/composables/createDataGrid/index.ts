@@ -143,7 +143,7 @@ export function createDataGrid<T extends Record<string, unknown>> (
 
   const layout = createColumnLayout(columns)
 
-  const editableColumns = leaves
+  const editable = leaves
     .filter(col => col.editable === true || isFunction(col.editable))
     .map(col => ({
       key: col.key,
@@ -151,18 +151,18 @@ export function createDataGrid<T extends Record<string, unknown>> (
       validate: col.validate as ((value: unknown, item?: unknown) => boolean | string) | undefined,
     }))
 
-  function itemLookup (row: ID): T | undefined {
+  function lookup (row: ID): T | undefined {
     return table.allItems.value.find(
       i => (i[itemValue] as ID) === row,
     )
   }
 
   const editing = createCellEditing({
-    columns: editableColumns,
-    itemLookup,
+    columns: editable,
+    lookup,
     onEdit: editingOptions?.onEdit
       ? (row, column, value) => {
-          const item = itemLookup(row)
+          const item = lookup(row)
           if (!isUndefined(item)) editingOptions.onEdit!(row, column, value, item)
         }
       : undefined,

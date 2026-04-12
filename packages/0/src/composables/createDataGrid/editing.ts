@@ -24,7 +24,7 @@ export interface EditableColumn {
 export interface CellEditingOptions {
   columns: readonly EditableColumn[]
   onEdit?: (row: ID, column: string, value: unknown) => void
-  itemLookup?: (row: ID) => unknown
+  lookup?: (row: ID) => unknown
 }
 
 export interface ActiveCell {
@@ -48,7 +48,7 @@ export interface CellEditing {
  * @returns Cell editing state and controls
  */
 export function createCellEditing (options: CellEditingOptions): CellEditing {
-  const { columns, onEdit, itemLookup } = options
+  const { columns, onEdit, lookup } = options
 
   const columnMap = new Map<string, EditableColumn>()
   for (const col of columns) {
@@ -64,7 +64,7 @@ export function createCellEditing (options: CellEditingOptions): CellEditing {
     if (!col) return
 
     if (isFunction(col.editable)) {
-      const item = itemLookup?.(row)
+      const item = lookup?.(row)
       if (!col.editable(item)) return
     } else if (col.editable !== true) {
       return
@@ -82,7 +82,7 @@ export function createCellEditing (options: CellEditingOptions): CellEditing {
 
     const col = columnMap.get(cell.column)
     if (col?.validate) {
-      const item = itemLookup?.(cell.row)
+      const item = lookup?.(cell.row)
       const result = col.validate(value, item)
       if (result !== true) {
         error.value = isString(result) ? result : 'Invalid value'
@@ -93,10 +93,10 @@ export function createCellEditing (options: CellEditingOptions): CellEditing {
     onEdit?.(cell.row, cell.column, value)
 
     // Clear dirty entry for this cell
-    const rowDirty = dirty.value.get(cell.row)
-    if (rowDirty) {
-      rowDirty.delete(cell.column)
-      if (rowDirty.size === 0) dirty.value.delete(cell.row)
+    const entry = dirty.value.get(cell.row)
+    if (entry) {
+      entry.delete(cell.column)
+      if (entry.size === 0) dirty.value.delete(cell.row)
     }
 
     error.value = null

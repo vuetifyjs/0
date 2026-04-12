@@ -37,17 +37,17 @@ export class ClientGridAdapter<T extends Record<string, unknown>> extends DataTa
     const sortedItems = this.sort(filteredItems, sortBy, locale, customSorts)
 
     // Row ordering: applied post-sort, pre-pagination
-    const orderedItems = computed(() => {
+    const ordered = computed(() => {
       return applyOrder(sortedItems.value, this.rowOrder.value, this.itemKey)
     })
 
     const pagination = createPagination({
       ...paginationOptions,
-      size: toRef(() => orderedItems.value.length),
+      size: toRef(() => ordered.value.length),
     })
 
     const items = computed(() => {
-      return orderedItems.value.slice(pagination.pageStart.value, pagination.pageStop.value)
+      return ordered.value.slice(pagination.pageStart.value, pagination.pageStop.value)
     })
 
     watch([search, sortBy], () => {
@@ -57,10 +57,10 @@ export class ClientGridAdapter<T extends Record<string, unknown>> extends DataTa
     return {
       allItems,
       filteredItems,
-      sortedItems: orderedItems,
+      sortedItems: ordered,
       items,
       pagination,
-      total: toRef(() => orderedItems.value.length),
+      total: toRef(() => ordered.value.length),
     }
   }
 }
