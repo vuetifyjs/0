@@ -5,8 +5,15 @@
  * - READ-ONLY operations use shared fixtures (safe - lookups, computed access)
  * - MUTATION operations create fresh fixtures per iteration
  * - Tests both 1,000 and 10,000 item datasets
- * - Categories: initialization, column layout, cell editing, row ordering,
- *   row spanning, full pipeline, adapter comparison
+ * - Categories: initialization, search pipeline, sort pipeline, column layout,
+ *   cell editing, row ordering, row spanning, computed access, full pipeline
+ *
+ * Comparable operations with createDataTable benchmarks:
+ * - initialization: Create grid vs Create table
+ * - search pipeline: Same operations, measures grid overhead
+ * - sort pipeline: Same operations, measures grid overhead
+ * - full pipeline: Search + sort + paginate at both sizes
+ * - computed access: Cached reads at both sizes
  */
 
 import { bench, describe } from 'vitest'
@@ -14,10 +21,10 @@ import { bench, describe } from 'vitest'
 // Types
 import type { DataGridColumn, DataGridOptions } from './index'
 
-import { createDataGrid, ClientGridAdapter, VirtualGridAdapter } from './index'
+import { createDataGrid } from './index'
 
 // =============================================================================
-// FIXTURES
+// FIXTURES - Created once, reused across read-only benchmarks
 // =============================================================================
 
 interface BenchmarkRow extends Record<string, unknown> {
@@ -34,10 +41,10 @@ const DEPARTMENTS = ['Engineering', 'Design', 'Marketing', 'Sales', 'Support', '
 function generateRows (count: number): BenchmarkRow[] {
   return Array.from({ length: count }, (_, i) => ({
     id: i,
-    name: `User ${i} ${Math.random().toString(36).slice(2, 8)}`,
+    name: `User ${i} ${String(i * 7919).slice(0, 6)}`,
     email: `user${i}@example.com`,
     department: DEPARTMENTS[i % DEPARTMENTS.length]!,
-    salary: 50_000 + Math.floor(Math.random() * 100_000),
+    salary: 50_000 + (i * 137) % 100_000,
     active: i % 5 !== 0,
   }))
 }
@@ -69,6 +76,9 @@ const COLUMNS_EDITABLE: DataGridColumn<BenchmarkRow>[] = [
   { key: 'active', title: 'Active', size: 15 },
 ]
 
+const SEARCH_QUERY_1K = 'User 500'
+const SEARCH_QUERY_10K = 'User 5000'
+
 function createGrid (overrides: Partial<DataGridOptions<BenchmarkRow>> = {}) {
   return createDataGrid<BenchmarkRow>({
     items: overrides.items ?? ROWS_1K,
@@ -85,6 +95,7 @@ describe('createDataGrid benchmarks', () => {
   // ===========================================================================
   // INITIALIZATION - Measures grid creation cost including layout, editing, etc.
   // Fresh fixture per iteration (required - we're measuring creation itself)
+  // Comparable: createDataTable initialization
   // ===========================================================================
   describe('initialization', () => {
     bench('Create grid (1,000 items)', () => {
@@ -103,16 +114,6 @@ describe('createDataGrid benchmarks', () => {
       createGrid({ items: ROWS_1K, columns: COLUMNS_EDITABLE })
     })
 
-    bench('Create grid with row spanning (1,000 items)', () => {
-      createGrid({
-        items: ROWS_1K,
-        rowSpanning: (_, column) => {
-          if (column === 'department') return 2
-          return 1
-        },
-      })
-    })
-
     bench('Create grid with all options (1,000 items)', () => {
       createGrid({
         items: ROWS_1K,
@@ -125,8 +126,59 @@ describe('createDataGrid benchmarks', () => {
   })
 
   // ===========================================================================
+  // SEARCH PIPELINE - Filter stage via inherited createDataTable pipeline
+  // Fresh fixture per iteration (required - search() mutates query ref)
+  // Comparable: createDataTable search pipeline
+  // ===========================================================================
+  describe('search pipeline', () => {
+    bench('Search then read filtered items (1,000 items)', () => {
+      const grid = createGrid({ items: ROWS_1K })
+      grid.search(SEARCH_QUERY_1K)
+      void grid.filteredItems.value
+    })
+
+    bench('Search then read filtered items (10,000 items)', () => {
+      const grid = createGrid({ items: ROWS_10K })
+      grid.search(SEARCH_QUERY_10K)
+      void grid.filteredItems.value
+    })
+  })
+
+  // ===========================================================================
+  // SORT PIPELINE - Sort stage via inherited createDataTable pipeline
+  // Fresh fixture per iteration (required - toggle() mutates sort state)
+  // Comparable: createDataTable sort pipeline
+  // ===========================================================================
+  describe('sort pipeline', () => {
+    bench('Sort by string column ascending (1,000 items)', () => {
+      const grid = createGrid({ items: ROWS_1K })
+      grid.sort.toggle('name')
+      void grid.sortedItems.value
+    })
+
+    bench('Sort by string column ascending (10,000 items)', () => {
+      const grid = createGrid({ items: ROWS_10K })
+      grid.sort.toggle('name')
+      void grid.sortedItems.value
+    })
+
+    bench('Sort by custom comparator (1,000 items)', () => {
+      const grid = createGrid({ items: ROWS_1K })
+      grid.sort.toggle('salary')
+      void grid.sortedItems.value
+    })
+
+    bench('Sort by custom comparator (10,000 items)', () => {
+      const grid = createGrid({ items: ROWS_10K })
+      grid.sort.toggle('salary')
+      void grid.sortedItems.value
+    })
+  })
+
+  // ===========================================================================
   // COLUMN LAYOUT - Pin, resize, reorder, distribute, reset
   // Fresh fixture per iteration (required - mutations modify layout state)
+  // Grid-specific: no createDataTable equivalent
   // ===========================================================================
   describe('column layout', () => {
     bench('Pin column (1,000 items)', () => {
@@ -155,21 +207,6 @@ describe('createDataGrid benchmarks', () => {
       void grid.layout.columns.value
     })
 
-    bench('Distribute sizes (1,000 items)', () => {
-      const grid = createGrid({ items: ROWS_1K })
-      grid.layout.distribute([30, 25, 15, 15, 15])
-      void grid.layout.columns.value
-    })
-
-    bench('Pin + resize + reorder then read (1,000 items)', () => {
-      const grid = createGrid({ items: ROWS_1K })
-      grid.layout.pin('name', 'left')
-      grid.layout.resize('email', 5)
-      grid.layout.reorder(2, 4)
-      void grid.layout.pinned.value
-      void grid.layout.columns.value
-    })
-
     bench('Reset layout (1,000 items)', () => {
       const grid = createGrid({ items: ROWS_1K })
       grid.layout.pin('name', 'left')
@@ -182,6 +219,7 @@ describe('createDataGrid benchmarks', () => {
   // ===========================================================================
   // CELL EDITING - Edit, commit, cancel, validation
   // Fresh fixture per iteration (required - editing mutates active cell state)
+  // Grid-specific: no createDataTable equivalent
   // ===========================================================================
   describe('cell editing', () => {
     bench('Edit cell (1,000 items)', () => {
@@ -224,6 +262,7 @@ describe('createDataGrid benchmarks', () => {
   // ===========================================================================
   // ROW ORDERING - Move rows post-sort
   // Fresh fixture per iteration (required - move mutates order state)
+  // Grid-specific: no createDataTable equivalent
   // ===========================================================================
   describe('row ordering', () => {
     bench('Move row (1,000 items)', () => {
@@ -247,7 +286,8 @@ describe('createDataGrid benchmarks', () => {
 
   // ===========================================================================
   // ROW SPANNING - Computed span map from visible items
-  // Fresh fixture per iteration (required - spans depend on items which may change)
+  // Fresh fixture per iteration
+  // Grid-specific: no createDataTable equivalent
   // ===========================================================================
   describe('row spanning', () => {
     bench('Compute spans (1,000 items, 1 column)', () => {
@@ -265,22 +305,34 @@ describe('createDataGrid benchmarks', () => {
       })
       void grid.spans.value
     })
-
-    bench('Compute spans (1,000 items, all columns)', () => {
-      const grid = createGrid({
-        items: ROWS_1K,
-        rowSpanning: () => 2,
-      })
-      void grid.spans.value
-    })
   })
 
   // ===========================================================================
-  // COMPUTED ACCESS - Cached reads of grid-specific derived state
+  // COMPUTED ACCESS - Cached reads of derived pipeline stages
   // Shared fixture (safe - reading .value doesn't mutate state)
+  // Comparable: createDataTable computed access
   // ===========================================================================
   describe('computed access', () => {
     const grid1k = createGrid({ items: ROWS_1K, columns: COLUMNS_PINNED })
+    const grid10k = createGrid({ items: ROWS_10K, columns: COLUMNS_PINNED })
+
+    bench('Access items 100 times (1,000 items, cached)', () => {
+      for (let i = 0; i < 100; i++) {
+        void grid1k.items.value
+      }
+    })
+
+    bench('Access items 100 times (10,000 items, cached)', () => {
+      for (let i = 0; i < 100; i++) {
+        void grid10k.items.value
+      }
+    })
+
+    bench('Access sortedItems 100 times (1,000 items, cached)', () => {
+      for (let i = 0; i < 100; i++) {
+        void grid1k.sortedItems.value
+      }
+    })
 
     bench('Access layout.columns 100 times (1,000 items, cached)', () => {
       for (let i = 0; i < 100; i++) {
@@ -293,20 +345,29 @@ describe('createDataGrid benchmarks', () => {
         void grid1k.layout.pinned.value
       }
     })
-
-    bench('Access items 100 times (1,000 items, cached)', () => {
-      for (let i = 0; i < 100; i++) {
-        void grid1k.items.value
-      }
-    })
   })
 
   // ===========================================================================
-  // FULL PIPELINE - End-to-end grid operations
-  // Fresh fixture per iteration (required - mutates multiple state sources)
+  // FULL PIPELINE - End-to-end search → sort → paginate
+  // Fresh fixture per iteration (required - mutates search and sort state)
+  // Comparable: createDataTable full pipeline
   // ===========================================================================
   describe('full pipeline', () => {
-    bench('Search + sort + layout + read (1,000 items)', () => {
+    bench('Search + sort + paginate (1,000 items)', () => {
+      const grid = createGrid({ items: ROWS_1K, pagination: { itemsPerPage: 25 } })
+      grid.search('User 5')
+      grid.sort.toggle('name')
+      void grid.items.value
+    })
+
+    bench('Search + sort + paginate (10,000 items)', () => {
+      const grid = createGrid({ items: ROWS_10K, pagination: { itemsPerPage: 25 } })
+      grid.search('User 5')
+      grid.sort.toggle('name')
+      void grid.items.value
+    })
+
+    bench('Search + sort + paginate + layout (1,000 items)', () => {
       const grid = createGrid({ items: ROWS_1K, pagination: { itemsPerPage: 25 } })
       grid.search('User 5')
       grid.sort.toggle('name')
@@ -316,7 +377,7 @@ describe('createDataGrid benchmarks', () => {
       void grid.layout.pinned.value
     })
 
-    bench('Search + sort + layout + read (10,000 items)', () => {
+    bench('Search + sort + paginate + layout (10,000 items)', () => {
       const grid = createGrid({ items: ROWS_10K, pagination: { itemsPerPage: 25 } })
       grid.search('User 5')
       grid.sort.toggle('name')
@@ -324,33 +385,6 @@ describe('createDataGrid benchmarks', () => {
       grid.layout.resize('email', 5)
       void grid.items.value
       void grid.layout.pinned.value
-    })
-  })
-
-  // ===========================================================================
-  // ADAPTER COMPARISON - ClientGridAdapter vs VirtualGridAdapter
-  // Fresh fixture per iteration (required - sort/search mutations)
-  // ===========================================================================
-  describe('adapter comparison', () => {
-    bench('ClientGridAdapter: sort + paginate (10,000 items)', () => {
-      const ordering = { value: [] as number[] }
-      const grid = createGrid({
-        items: ROWS_10K,
-        adapter: new ClientGridAdapter<BenchmarkRow>(ordering as any, 'id'),
-        pagination: { itemsPerPage: 25 },
-      })
-      grid.sort.toggle('name')
-      void grid.items.value
-    })
-
-    bench('VirtualGridAdapter: sort, no pagination (10,000 items)', () => {
-      const ordering = { value: [] as number[] }
-      const grid = createGrid({
-        items: ROWS_10K,
-        adapter: new VirtualGridAdapter<BenchmarkRow>(ordering as any, 'id'),
-      })
-      grid.sort.toggle('name')
-      void grid.items.value
     })
   })
 })
