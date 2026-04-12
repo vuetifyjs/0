@@ -1,6 +1,6 @@
 <script setup lang="ts">
   import { nextTick, ref, useTemplateRef } from 'vue'
-  import { createDataGrid } from '@vuetify/v0'
+  import { createDataGrid, useClickOutside, useHotkey, useToggleScope } from '@vuetify/v0'
   import type { ID } from '@vuetify/v0'
   import { columns } from './columns'
   import { products } from './data'
@@ -74,6 +74,16 @@
     grid.editing.cancel()
   }
 
+  const cell = useTemplateRef<HTMLTableCellElement>('active-cell')
+
+  useToggleScope(
+    () => !!grid.editing.active.value,
+    () => {
+      useClickOutside(cell, () => onCancel())
+      useHotkey('escape', () => onCancel(), { inputs: true })
+    },
+  )
+
   function formatPrice (value: unknown) {
     return `$${Number(value).toFixed(2)}`
   }
@@ -105,6 +115,7 @@
             <td
               v-for="col in grid.layout.columns.value"
               :key="col.key"
+              :ref="isEditing(item.id as ID, col.key) ? 'active-cell' : undefined"
               class="px-3 py-2"
               :class="[
                 col.key === 'price' || col.key === 'quantity' ? 'text-right' : 'text-left',
@@ -125,7 +136,6 @@
                     :value="input"
                     @input="input = ($event.target as HTMLInputElement).value"
                     @keydown.enter="onCommit"
-                    @keydown.escape="onCancel"
                   >
 
                   <span
