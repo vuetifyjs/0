@@ -56,7 +56,7 @@ export interface DataGridColumn<T extends Record<string, unknown> = Record<strin
   readonly filter?: (value: unknown, query: string) => boolean
   readonly editable?: boolean | ((item: T) => boolean)
   readonly editor?: 'text' | 'number' | 'boolean'
-  readonly validate?: (value: unknown, item?: T) => boolean | string
+  readonly validate?: (value: unknown, item?: T) => string | true
   readonly span?: (item: T) => number
   readonly children?: readonly DataGridColumn<T>[]
 }
@@ -148,7 +148,7 @@ export function createDataGrid<T extends Record<string, unknown>> (
     .map(col => ({
       key: col.key,
       editable: col.editable as boolean | ((item: unknown) => boolean),
-      validate: col.validate as ((value: unknown, item?: unknown) => boolean | string) | undefined,
+      validate: col.validate as ((value: unknown, item?: unknown) => string | true) | undefined,
     }))
 
   function lookup (row: ID): T | undefined {

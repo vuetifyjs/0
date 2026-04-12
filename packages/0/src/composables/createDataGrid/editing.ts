@@ -8,7 +8,7 @@
  */
 
 // Utilities
-import { isFunction, isString } from '#v0/utilities'
+import { isFunction } from '#v0/utilities'
 import { ref, shallowRef } from 'vue'
 
 // Types
@@ -18,7 +18,7 @@ import type { Ref, ShallowRef } from 'vue'
 export interface EditableColumn {
   readonly key: string
   readonly editable?: boolean | ((item: unknown) => boolean)
-  readonly validate?: (value: unknown, item?: unknown) => boolean | string
+  readonly validate?: (value: unknown, item?: unknown) => string | true
 }
 
 export interface CellEditingOptions {
@@ -85,7 +85,7 @@ export function createCellEditing (options: CellEditingOptions): CellEditing {
       const item = lookup?.(cell.row)
       const result = col.validate(value, item)
       if (result !== true) {
-        error.value = isString(result) ? result : 'Invalid value'
+        error.value = result
         return
       }
     }
