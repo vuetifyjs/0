@@ -12,24 +12,28 @@
 
   const resizing = shallowRef<string | null>(null)
   let startX = 0
+  let table: HTMLElement | null = null
 
   function onResizeStart (key: string, event: PointerEvent) {
     resizing.value = key
     startX = event.clientX
-    ;(event.target as HTMLElement).setPointerCapture(event.pointerId)
+    table = (event.target as HTMLElement).closest('table')
+    document.addEventListener('pointermove', onResizeMove)
+    document.addEventListener('pointerup', onResizeEnd)
   }
 
   function onResizeMove (event: PointerEvent) {
-    if (!resizing.value) return
-    const container = (event.target as HTMLElement).closest('table')
-    if (!container) return
-    const delta = ((event.clientX - startX) / container.clientWidth) * 100
+    if (!resizing.value || !table) return
+    const delta = ((event.clientX - startX) / table.clientWidth) * 100
     startX = event.clientX
     grid.layout.resize(resizing.value, delta)
   }
 
   function onResizeEnd () {
     resizing.value = null
+    table = null
+    document.removeEventListener('pointermove', onResizeMove)
+    document.removeEventListener('pointerup', onResizeEnd)
   }
 
   function label (key: string) {
@@ -114,10 +118,8 @@
 
               <div
                 v-if="col.index < grid.layout.columns.value.length - 1"
-                class="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-primary"
+                class="absolute top-0 -right-1 w-2 h-full cursor-col-resize z-20 hover:bg-primary/50"
                 @pointerdown.stop="onResizeStart(col.key, $event)"
-                @pointermove="onResizeMove"
-                @pointerup="onResizeEnd"
               />
             </th>
           </tr>
