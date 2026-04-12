@@ -13,6 +13,7 @@
   const resizing = shallowRef<string | null>(null)
   let startX = 0
   let table: HTMLElement | null = null
+  const resized = false
 
   function onResizeStart (key: string, event: PointerEvent) {
     resizing.value = key
@@ -32,6 +33,10 @@
   function onResizeEnd () {
     resizing.value = null
     table = null
+    resized = true
+    requestAnimationFrame(() => {
+      resized = false
+    })
     document.removeEventListener('pointermove', onResizeMove)
     document.removeEventListener('pointerup', onResizeEnd)
   }
@@ -96,7 +101,7 @@
                 right: col.pinned === 'right' ? col.offset + '%' : undefined,
                 zIndex: col.pinned ? 10 : undefined,
               }"
-              @click="grid.sort.toggle(col.key)"
+              @click="!resized && grid.sort.toggle(col.key)"
             >
               <div
                 class="flex items-center gap-1"
