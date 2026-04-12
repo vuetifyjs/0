@@ -301,6 +301,7 @@ Composables for filtering, sorting, paginating, and virtualizing collections.
 
 | Name | Description |
 | - | - |
+| [createDataGrid](/composables/data/create-data-grid) | Data grid with column layout, cell editing, row ordering, and row spanning |
 | [createDataTable](/composables/data/create-data-table) | Composable data table with sort, filter, paginate, select, and expand |
 | [createFilter](/composables/data/create-filter) | Filter arrays based on search queries |
 | [createPagination](/composables/data/create-pagination) | Pagination state with navigation methods |
