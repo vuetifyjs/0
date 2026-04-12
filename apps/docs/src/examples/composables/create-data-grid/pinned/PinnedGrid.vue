@@ -1,7 +1,7 @@
 <script setup lang="ts">
   import { shallowRef } from 'vue'
   import { mdiArrowUp, mdiArrowDown } from '@mdi/js'
-  import { createDataGrid } from '@vuetify/v0'
+  import { createDataGrid, useEventListener, useToggleScope } from '@vuetify/v0'
   import { columns } from './columns'
   import { stocks } from './data'
 
@@ -13,33 +13,39 @@
   const resizing = shallowRef<string | null>(null)
   let startX = 0
   let table: HTMLElement | null = null
-  const resized = false
+  let resized = false
 
   function onResizeStart (key: string, event: PointerEvent) {
     resizing.value = key
     startX = event.clientX
     table = (event.target as HTMLElement).closest('table')
-    document.addEventListener('pointermove', onResizeMove)
-    document.addEventListener('pointerup', onResizeEnd)
   }
 
-  function onResizeMove (event: PointerEvent) {
-    if (!resizing.value || !table) return
-    const delta = ((event.clientX - startX) / table.clientWidth) * 100
-    startX = event.clientX
-    grid.layout.resize(resizing.value, delta)
+  function onSort (key: string) {
+    if (resized) return
+    grid.sort.toggle(key)
   }
 
-  function onResizeEnd () {
-    resizing.value = null
-    table = null
-    resized = true
-    requestAnimationFrame(() => {
-      resized = false
-    })
-    document.removeEventListener('pointermove', onResizeMove)
-    document.removeEventListener('pointerup', onResizeEnd)
-  }
+  useToggleScope(
+    () => !!resizing.value,
+    () => {
+      useEventListener(document, 'pointermove', (event: PointerEvent) => {
+        if (!resizing.value || !table) return
+        const delta = ((event.clientX - startX) / table.clientWidth) * 100
+        startX = event.clientX
+        grid.layout.resize(resizing.value, delta)
+      })
+
+      useEventListener(document, 'pointerup', () => {
+        resizing.value = null
+        table = null
+        resized = true
+        requestAnimationFrame(() => {
+          resized = false
+        })
+      })
+    },
+  )
 
   function label (key: string) {
     return columns.find(c => c.key === key)?.title ?? key
@@ -101,7 +107,7 @@
                 right: col.pinned === 'right' ? col.offset + '%' : undefined,
                 zIndex: col.pinned ? 10 : undefined,
               }"
-              @click="!resized && grid.sort.toggle(col.key)"
+              @click="onSort(col.key)"
             >
               <div
                 class="flex items-center gap-1"
