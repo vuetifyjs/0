@@ -219,15 +219,16 @@ export function createColumnLayout (defs: readonly GridColumnDef[]): ColumnLayou
   }
 
   function resize (key: string, delta: number) {
-    const cols = resolve()
-    const col = cols.find(c => c.key === key)
+    // Read from cached pinned.value instead of resolve() + split()
+    const { left, scrollable, right } = pinned.value
+    const all = [...left, ...scrollable, ...right]
+    const col = all.find(c => c.key === key)
     if (!col || !col.resizable) return
 
-    const region = split(cols)
     let peers: ResolvedColumn[]
-    if (col.pinned === 'left') peers = region.left
-    else if (col.pinned === 'right') peers = region.right
-    else peers = region.scrollable
+    if (col.pinned === 'left') peers = left
+    else if (col.pinned === 'right') peers = right
+    else peers = scrollable
 
     const index = peers.findIndex(c => c.key === key)
     if (index === -1 || index === peers.length - 1) return
