@@ -1,10 +1,12 @@
 import type { DataGridColumn } from '@vuetify/v0'
-import type { Employee } from './data'
+import type { Project } from './data'
 
-export const columns: DataGridColumn<Employee>[] = [
-  { key: 'name', title: 'Name', sortable: true, filterable: true, size: 25 },
-  { key: 'email', title: 'Email', sortable: true, filterable: true, size: 30 },
-  { key: 'department', title: 'Department', sortable: true, size: 20 },
-  { key: 'role', title: 'Role', sortable: true, size: 15 },
-  { key: 'salary', title: 'Salary', sortable: true, size: 10, sort: (a, b) => Number(a) - Number(b) },
+export const columns: DataGridColumn<Project>[] = [
+  { key: 'name', title: 'Project', sortable: true, filterable: true, size: 22 },
+  { key: 'status', title: 'Status', sortable: true, size: 12 },
+  { key: 'priority', title: 'Priority', sortable: true, size: 12 },
+  { key: 'assignee', title: 'Assignee', sortable: true, filterable: true, size: 16 },
+  { key: 'progress', title: 'Progress', sortable: true, size: 14, sort: (a, b) => Number(a) - Number(b) },
+  { key: 'due', title: 'Due Date', sortable: true, size: 14 },
+  { key: 'budget', title: 'Budget', sortable: true, size: 10, sort: (a, b) => Number(a) - Number(b) },
 ]

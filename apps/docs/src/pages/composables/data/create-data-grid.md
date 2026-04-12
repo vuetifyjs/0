@@ -31,12 +31,13 @@ Pass `items` and `columns` with `size` percentages to get a grid with column lay
 import { createDataGrid } from '@vuetify/v0'
 
 const grid = createDataGrid({
-  items: employees,
+  items: projects,
   columns: [
-    { key: 'name', title: 'Name', sortable: true, filterable: true, size: 25 },
-    { key: 'email', title: 'Email', sortable: true, size: 35 },
-    { key: 'department', title: 'Dept', sortable: true, size: 20 },
-    { key: 'salary', title: 'Salary', sortable: true, size: 20 },
+    { key: 'name', title: 'Project', sortable: true, filterable: true, size: 22 },
+    { key: 'status', title: 'Status', sortable: true, size: 12 },
+    { key: 'assignee', title: 'Assignee', sortable: true, size: 16 },
+    { key: 'progress', title: 'Progress', sortable: true, size: 14 },
+    { key: 'budget', title: 'Budget', sortable: true, size: 10 },
   ],
 })
 
@@ -276,15 +277,15 @@ grid.headers.value
 
 ### Column Pinning & Resizing
 
-A grid with pinned columns and drag-to-resize. The name column is pinned left, ID pinned right, and the center columns scroll independently.
+A financial data grid with 10 columns that requires horizontal scrolling. Ticker is pinned left, sector pinned right — the center columns scroll independently with drag-to-resize handles.
 
 **File breakdown:**
 
 | File | Role |
 |------|------|
-| `PinnedGrid.vue` | Three-region grid with resize handles and pin/unpin controls |
-| `columns.ts` | Column definitions with initial pin positions and size constraints |
-| `data.ts` | Shared employee dataset |
+| `PinnedGrid.vue` | Financial spreadsheet with sticky pinned columns, resize handles, and formatted numbers |
+| `columns.ts` | 10 columns with ticker pinned left, sector pinned right |
+| `data.ts` | 12 stocks across Tech, Healthcare, Finance, Energy, and Consumer sectors |
 
 **Key patterns:**
 
@@ -302,15 +303,15 @@ A grid with pinned columns and drag-to-resize. The name column is pinned left, I
 
 ### Cell Editing
 
-Click-to-edit grid with inline validation. Name and email columns are editable — invalid values show an error and block commit.
+An inventory management grid where editing is the primary workflow. Product name, price, and quantity are editable — invalid values show inline errors and block commit.
 
 **File breakdown:**
 
 | File | Role |
 |------|------|
-| `EditableGrid.vue` | Click-to-edit cells with Enter/Escape keyboard handling and error display |
-| `columns.ts` | Columns with `editable: true` and `validate` functions |
-| `data.ts` | Shared employee dataset |
+| `EditableGrid.vue` | Click-to-edit cells with focus ring, Enter/Escape keyboard handling, and edit history log |
+| `columns.ts` | Columns with `editable: true` and `validate` functions for name, price, and quantity |
+| `data.ts` | 8 products across electronics, accessories, and peripherals |
 
 **Key patterns:**
 
@@ -328,15 +329,15 @@ Click-to-edit grid with inline validation. Name and email columns are editable �
 
 ### Row Spanning
 
-A grid with merged department cells. Consecutive rows with the same department are merged into a single cell using `rowSpanning`.
+A team schedule grid where department cells span all members in that department. Day columns show availability status with color-coded indicators.
 
 **File breakdown:**
 
 | File | Role |
 |------|------|
-| `SpanningGrid.vue` | Table with `rowspan` attributes driven by the span map |
-| `columns.ts` | Simple column definitions |
-| `data.ts` | Dataset sorted by department for natural grouping |
+| `SpanningGrid.vue` | Schedule grid with department spanning and color-coded day cells |
+| `columns.ts` | Department, member, and Mon–Fri day columns |
+| `data.ts` | 10 team members across 3 departments with weekly availability |
 
 **Key patterns:**
 

@@ -1,34 +1,69 @@
 <script setup lang="ts">
-  import { ref } from 'vue'
+  import { nextTick, ref, useTemplateRef } from 'vue'
   import { createDataGrid } from '@vuetify/v0'
   import type { ID } from '@vuetify/v0'
   import { columns } from './columns'
-  import { employees } from './data'
+  import { products } from './data'
 
-  interface EditLog {
+  type EditEntry = {
     row: ID
     column: string
-    value: unknown
-    timestamp: number
+    from: unknown
+    to: unknown
   }
 
-  const log = ref<EditLog[]>([])
+  const log = ref<EditEntry[]>([])
+  const edits = ref<Map<string, unknown>>(new Map())
+  const input = ref('')
+  const editRef = useTemplateRef<HTMLInputElement>('edit-input')
 
   const grid = createDataGrid({
-    items: employees,
+    items: products,
     columns,
     editing: {
       onEdit (row, column, value) {
-        log.value.unshift({ row, column, value, timestamp: Date.now() })
+        const item = products.find(p => p.id === row)
+        const from = item ? item[column as keyof typeof item] : undefined
+
+        edits.value.set(`${row}:${column}`, value)
+        log.value.unshift({ row, column, from, to: value })
+
+        if (item) {
+          (item as Record<string, unknown>)[column] = column === 'price' || column === 'quantity'
+            ? Number(value)
+            : value
+        }
       },
     },
   })
 
-  const input = ref('')
+  function cellKey (row: ID, column: string) {
+    return `${row}:${column}`
+  }
+
+  function isEditing (row: ID, column: string) {
+    const cell = grid.editing.active.value
+    return cell?.row === row && cell?.column === column
+  }
+
+  function isEdited (row: ID, column: string) {
+    return edits.value.has(cellKey(row, column))
+  }
+
+  function isEditable (column: string) {
+    return columns.find(c => c.key === column)?.editable === true
+  }
 
   function onEdit (row: ID, column: string, value: unknown) {
+    if (!isEditable(column)) return
+
     grid.editing.edit(row, column)
     input.value = String(value ?? '')
+
+    nextTick(() => {
+      editRef.value?.focus()
+      editRef.value?.select()
+    })
   }
 
   function onCommit () {
@@ -39,22 +74,22 @@
     grid.editing.cancel()
   }
 
-  function isEditing (row: ID, column: string) {
-    const cell = grid.editing.active.value
-    return cell?.row === row && cell?.column === column
+  function formatPrice (value: unknown) {
+    return `$${Number(value).toFixed(2)}`
   }
 </script>
 
 <template>
   <div class="flex flex-col gap-3">
     <div class="border border-divider rounded-lg overflow-hidden">
-      <table class="w-full text-sm">
+      <table class="w-full text-sm border-collapse">
         <thead>
           <tr class="border-b border-divider bg-surface-tint">
             <th
               v-for="col in grid.layout.columns.value"
               :key="col.key"
-              class="px-4 py-3 text-left font-medium"
+              class="px-3 py-2 font-medium"
+              :class="col.key === 'price' || col.key === 'quantity' ? 'text-right' : 'text-left'"
               :style="{ width: col.size + '%' }"
             >
               {{ columns.find(c => c.key === col.key)?.title }}
@@ -66,19 +101,27 @@
           <tr
             v-for="item in grid.items.value"
             :key="item.id"
-            class="hover:bg-surface-tint transition-colors"
           >
             <td
               v-for="col in grid.layout.columns.value"
               :key="col.key"
-              class="px-4 py-3"
-              :style="{ width: col.size + '%' }"
+              class="px-3 py-2"
+              :class="[
+                col.key === 'price' || col.key === 'quantity' ? 'text-right' : 'text-left',
+                isEditable(col.key) && !isEditing(item.id as ID, col.key) ? 'cursor-pointer border-b border-dashed border-on-surface/20 hover:bg-surface-tint transition-colors' : '',
+              ]"
+              :style="[
+                { width: col.size + '%' },
+                isEditing(item.id as ID, col.key) ? 'outline: 2px solid var(--v0-color-primary); outline-offset: -2px; border-radius: 2px;' : '',
+              ]"
               @click="onEdit(item.id as ID, col.key, item[col.key])"
             >
               <template v-if="isEditing(item.id as ID, col.key)">
                 <div class="flex flex-col gap-1">
                   <input
-                    class="w-full px-2 py-1 border border-primary bg-surface text-on-surface rounded focus:outline-none"
+                    ref="edit-input"
+                    class="w-full bg-transparent outline-none border-none p-0 m-0 text-sm"
+                    :class="col.key === 'price' || col.key === 'quantity' ? 'text-right' : 'text-left'"
                     :value="input"
                     @input="input = ($event.target as HTMLInputElement).value"
                     @keydown.enter="onCommit"
@@ -95,8 +138,10 @@
               </template>
 
               <template v-else>
-                <template v-if="col.key === 'salary'">${{ (item[col.key] as number).toLocaleString() }}</template>
-                <template v-else>{{ item[col.key] }}</template>
+                <span :class="isEdited(item.id as ID, col.key) ? 'text-primary' : ''">
+                  <template v-if="col.key === 'price'">{{ formatPrice(item[col.key]) }}</template>
+                  <template v-else>{{ item[col.key] }}</template>
+                </span>
               </template>
             </td>
           </tr>
@@ -108,19 +153,20 @@
       v-if="log.length > 0"
       class="border border-divider rounded-lg overflow-hidden"
     >
-      <div class="px-4 py-2 bg-surface-tint text-xs font-medium border-b border-divider">
-        Edit Log
+      <div class="px-3 py-2 bg-surface-tint text-xs font-medium border-b border-divider">
+        Edit History
       </div>
 
       <div class="divide-y divide-divider text-xs max-h-40 overflow-y-auto">
         <div
           v-for="(entry, index) in log"
           :key="index"
-          class="px-4 py-2 flex gap-3"
+          class="px-3 py-2 flex items-center gap-3"
         >
-          <span class="text-on-surface-variant">Row {{ entry.row }}</span>
-          <span class="font-medium">{{ entry.column }}</span>
-          <span class="text-primary">{{ entry.value }}</span>
+          <span class="text-on-surface-variant">{{ entry.column }}</span>
+          <span class="text-on-surface-variant line-through">{{ entry.from }}</span>
+          <span class="text-on-surface-variant">&rarr;</span>
+          <span class="text-primary font-medium">{{ entry.to }}</span>
         </div>
       </div>
     </div>

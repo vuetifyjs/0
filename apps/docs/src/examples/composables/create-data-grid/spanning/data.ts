@@ -1,17 +1,23 @@
-export type Employee = {
+export type Schedule = {
   id: number
-  name: string
   department: string
-  role: string
+  member: string
+  mon: 'available' | 'busy' | 'off'
+  tue: 'available' | 'busy' | 'off'
+  wed: 'available' | 'busy' | 'off'
+  thu: 'available' | 'busy' | 'off'
+  fri: 'available' | 'busy' | 'off'
 }
 
-export const employees: Employee[] = [
-  { id: 1, name: 'Alice Johnson', department: 'Engineering', role: 'Lead' },
-  { id: 2, name: 'Bob Smith', department: 'Engineering', role: 'Senior' },
-  { id: 3, name: 'Frank Lee', department: 'Engineering', role: 'Junior' },
-  { id: 4, name: 'Carol Davis', department: 'Design', role: 'Lead' },
-  { id: 5, name: 'Dan Wilson', department: 'Design', role: 'Senior' },
-  { id: 6, name: 'Henry Chen', department: 'Design', role: 'Junior' },
-  { id: 7, name: 'Eve Martinez', department: 'Marketing', role: 'Director' },
-  { id: 8, name: 'Grace Kim', department: 'Marketing', role: 'Senior' },
+export const schedule: Schedule[] = [
+  { id: 1, department: 'Engineering', member: 'Alice Chen', mon: 'available', tue: 'available', wed: 'busy', thu: 'available', fri: 'off' },
+  { id: 2, department: 'Engineering', member: 'Bob Park', mon: 'busy', tue: 'available', wed: 'available', thu: 'available', fri: 'available' },
+  { id: 3, department: 'Engineering', member: 'Carol Wu', mon: 'available', tue: 'busy', wed: 'busy', thu: 'off', fri: 'available' },
+  { id: 4, department: 'Engineering', member: 'Dan Reeves', mon: 'available', tue: 'available', wed: 'available', thu: 'busy', fri: 'busy' },
+  { id: 5, department: 'Design', member: 'Eva Santos', mon: 'off', tue: 'available', wed: 'available', thu: 'available', fri: 'busy' },
+  { id: 6, department: 'Design', member: 'Frank Liu', mon: 'available', tue: 'busy', wed: 'off', thu: 'available', fri: 'available' },
+  { id: 7, department: 'Design', member: 'Grace Kim', mon: 'busy', tue: 'available', wed: 'available', thu: 'busy', fri: 'off' },
+  { id: 8, department: 'Marketing', member: 'Hiro Tanaka', mon: 'available', tue: 'available', wed: 'busy', thu: 'available', fri: 'available' },
+  { id: 9, department: 'Marketing', member: 'Iris Novak', mon: 'busy', tue: 'off', wed: 'available', thu: 'available', fri: 'busy' },
+  { id: 10, department: 'Marketing', member: 'Jake Morris', mon: 'available', tue: 'available', wed: 'available', thu: 'off', fri: 'available' },
 ]
