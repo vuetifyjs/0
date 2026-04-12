@@ -46,7 +46,7 @@
     >
 
     <div class="border border-divider rounded overflow-hidden">
-      <table class="w-full text-xs">
+      <table class="w-full text-xs table-fixed">
         <thead>
           <tr class="border-b border-divider bg-surface-tint">
             <th

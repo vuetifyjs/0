@@ -53,10 +53,11 @@
   <div class="flex flex-col gap-3">
     <div class="flex items-center gap-2">
       <input
-        v-model="grid.search.value"
         class="flex-1 px-3 py-1.5 text-sm border border-divider rounded bg-surface text-on-surface placeholder:text-on-surface-variant outline-none focus:border-primary"
         placeholder="Search stocks..."
         type="text"
+        :value="grid.query.value"
+        @input="grid.search(($event.target as HTMLInputElement).value)"
       >
 
       <button
@@ -71,7 +72,7 @@
       class="border border-divider rounded-lg overflow-x-auto"
       data-grid
     >
-      <table class="w-full text-sm min-w-[900px]">
+      <table class="w-full text-sm min-w-[900px] table-fixed">
         <thead>
           <tr class="border-b border-divider">
             <th
@@ -91,7 +92,7 @@
                 right: col.pinned === 'right' ? col.offset + '%' : undefined,
                 zIndex: col.pinned ? 10 : undefined,
               }"
-              @click="col.sort?.()"
+              @click="grid.sort.toggle(col.key)"
             >
               <div
                 class="flex items-center gap-1"
@@ -100,12 +101,12 @@
                 <span class="truncate">{{ label(col.key) }}</span>
 
                 <svg
-                  v-if="col.sorted"
+                  v-if="grid.sort.direction(col.key) !== 'none'"
                   class="w-3.5 h-3.5 shrink-0"
                   viewBox="0 0 24 24"
                 >
                   <path
-                    :d="col.sorted === 'asc' ? mdiArrowUp : mdiArrowDown"
+                    :d="grid.sort.direction(col.key) === 'asc' ? mdiArrowUp : mdiArrowDown"
                     fill="currentColor"
                   />
                 </svg>
