@@ -7,17 +7,15 @@
  */
 
 // Composables
+import { DataTableAdapter } from '#v0/composables/createDataTable'
 import { createPagination } from '#v0/composables/createPagination'
-
-// Adapters
-import { DataTableAdapter } from '../../createDataTable/adapters/adapter'
 
 // Utilities
 import { computed, toRef, watch } from 'vue'
 
 // Types
+import type { DataTableAdapterContext, DataTableAdapterResult } from '#v0/composables/createDataTable'
 import type { ID } from '#v0/types'
-import type { DataTableAdapterContext, DataTableAdapterResult } from '../../createDataTable/adapters/adapter'
 import type { ShallowRef } from 'vue'
 
 import { applyOrder } from './order'

@@ -12,4 +12,4 @@ export type {
   DataTableAdapterResult,
   SortDirection,
   SortEntry,
-} from '../../createDataTable/adapters/adapter'
+} from '#v0/composables/createDataTable'

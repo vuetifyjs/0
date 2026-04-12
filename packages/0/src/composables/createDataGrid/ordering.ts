@@ -7,6 +7,9 @@
  * this module only manages ordering state.
  */
 
+// Adapters
+import { applyOrder } from './adapters/order'
+
 // Utilities
 import { shallowRef } from 'vue'
 
@@ -22,6 +25,11 @@ export interface RowOrdering {
   apply: <T extends Record<string, unknown>>(items: readonly T[], itemKey: string) => readonly T[]
 }
 
+/**
+ * Creates row ordering state for a data grid.
+ *
+ * @returns Row ordering state and mutation methods
+ */
 export function createRowOrdering (): RowOrdering {
   const order = shallowRef<ID[]>([])
 
@@ -30,6 +38,7 @@ export function createRowOrdering (): RowOrdering {
   }
 
   function move (fromIndex: number, toIndex: number) {
+    if (fromIndex === toIndex) return
     const arr = [...order.value]
     if (fromIndex < 0 || fromIndex >= arr.length) return
     if (toIndex < 0 || toIndex >= arr.length) return
@@ -47,28 +56,7 @@ export function createRowOrdering (): RowOrdering {
     items: readonly T[],
     itemKey: string,
   ): readonly T[] {
-    if (order.value.length === 0) return items
-
-    const map = new Map<ID, T>()
-    for (const item of items) {
-      map.set(item[itemKey] as ID, item)
-    }
-
-    const result: T[] = []
-    for (const id of order.value) {
-      const item = map.get(id)
-      if (item) result.push(item)
-    }
-
-    // Append items not in the order (new items added after reorder)
-    const ordered = new Set(order.value)
-    for (const item of items) {
-      if (!ordered.has(item[itemKey] as ID)) {
-        result.push(item)
-      }
-    }
-
-    return result
+    return applyOrder(items, order.value, itemKey)
   }
 
   return {

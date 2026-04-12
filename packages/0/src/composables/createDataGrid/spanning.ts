@@ -26,6 +26,12 @@ export interface RowSpanningOptions<T = Record<string, unknown>> {
   rowSpanning?: (item: T, column: string) => number
 }
 
+/**
+ * Computes a row span map from visible items.
+ *
+ * @param options Row spanning configuration
+ * @returns A computed map of item ID to column to SpanEntry
+ */
 export function createRowSpanning<T extends Record<string, unknown>> (
   options: RowSpanningOptions<T>,
 ): ComputedRef<Map<ID, Map<string, SpanEntry>>> {

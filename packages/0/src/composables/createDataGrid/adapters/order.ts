@@ -1,7 +1,23 @@
+/**
+ * @module createDataGrid/adapters/order
+ *
+ * @remarks
+ * Utility for applying an ID-based row ordering to a list of items.
+ * Used by both ClientGridAdapter and VirtualGridAdapter to insert
+ * row ordering between sort and pagination stages.
+ */
+
 // Types
 import type { ID } from '#v0/types'
 
-/** Reorder items by an ID-based order, appending unmatched items at the end. */
+/**
+ * Reorder items by an ID-based order, appending unmatched items at the end.
+ *
+ * @param items Source items to reorder
+ * @param order ID sequence defining the desired order
+ * @param itemKey Property name used to extract item IDs
+ * @returns Reordered items array
+ */
 export function applyOrder<T extends Record<string, unknown>> (
   items: readonly T[],
   order: readonly ID[],

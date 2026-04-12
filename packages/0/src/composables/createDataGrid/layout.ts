@@ -209,9 +209,11 @@ export function createColumnLayout (defs: readonly GridColumnDef[]): ColumnLayou
   }
 
   function reorder (from: number, to: number) {
+    if (from === to) return
     const arr = [...order.value]
+    if (from < 0 || from >= arr.length) return
+    if (to < 0 || to >= arr.length) return
     const [item] = arr.splice(from, 1)
-    if (item === undefined) return
     arr.splice(to, 0, item)
     order.value = arr
   }

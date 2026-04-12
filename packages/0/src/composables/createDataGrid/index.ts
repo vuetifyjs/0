@@ -12,18 +12,18 @@
 // Composables
 import { createContext, useContext } from '#v0/composables/createContext'
 import { createDataTable } from '#v0/composables/createDataTable'
-import { extractLeaves, resolveHeaders } from '#v0/composables/createDataTable/columns'
+import { extractLeaves } from '#v0/composables/createDataTable/columns'
 import { createTrinity } from '#v0/composables/createTrinity'
 
 // Adapters
 import { ClientGridAdapter } from './adapters'
 
 // Utilities
-import { toRef, watch } from 'vue'
+import { isFunction } from '#v0/utilities'
+import { watch } from 'vue'
 
 // Types
-import type { DataTableAdapterInterface, DataTableContext } from '#v0/composables/createDataTable'
-import type { InternalHeader } from '#v0/composables/createDataTable/columns'
+import type { DataTableAdapterInterface, DataTableContext, KeysOfType } from '#v0/composables/createDataTable'
 import type { FilterOptions } from '#v0/composables/createFilter'
 import type { PaginationOptions } from '#v0/composables/createPagination'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
@@ -64,7 +64,7 @@ export interface DataGridColumn<T extends Record<string, unknown> = Record<strin
 export interface DataGridOptions<T extends Record<string, unknown>> {
   items: MaybeRefOrGetter<T[]>
   columns: readonly DataGridColumn<T>[]
-  itemValue?: string
+  itemValue?: KeysOfType<T, ID>
   adapter?: DataTableAdapterInterface<T>
   filter?: Omit<FilterOptions, 'keys'>
   pagination?: Omit<PaginationOptions, 'size'>
@@ -90,7 +90,6 @@ export interface DataGridContext<T extends Record<string, unknown>> extends Data
     reset: () => void
   }
   editing: CellEditing
-  headers: Readonly<Ref<InternalHeader[][]>>
   spans: ComputedRef<Map<ID, Map<string, SpanEntry>>>
   virtual: null
 }
@@ -112,7 +111,7 @@ export function createDataGrid<T extends Record<string, unknown>> (
   const {
     items,
     columns,
-    itemValue = 'id',
+    itemValue = 'id' as KeysOfType<T, ID>,
     adapter: customAdapter,
     filter,
     pagination,
@@ -129,7 +128,7 @@ export function createDataGrid<T extends Record<string, unknown>> (
   const table = createDataTable<T>({
     items,
     columns,
-    itemValue: itemValue as never,
+    itemValue,
     filter,
     pagination,
     sortMultiple,
@@ -143,24 +142,28 @@ export function createDataGrid<T extends Record<string, unknown>> (
   }
 
   const layout = createColumnLayout(columns)
-  const headers = toRef(() => resolveHeaders(columns))
 
   const editableColumns = leaves
-    .filter(col => col.editable === true || typeof col.editable === 'function')
+    .filter(col => col.editable === true || isFunction(col.editable))
     .map(col => ({
       key: col.key,
       editable: col.editable as boolean | ((item: unknown) => boolean),
       validate: col.validate as ((value: unknown, item?: unknown) => boolean | string) | undefined,
     }))
 
+  function itemLookup (row: ID): T | undefined {
+    return table.allItems.value.find(
+      i => (i[itemValue] as ID) === row,
+    )
+  }
+
   const editing = createCellEditing({
     columns: editableColumns,
+    itemLookup,
     onEdit: editingOptions?.onEdit
       ? (row, column, value) => {
-          const item = table.allItems.value.find(
-            i => (i[itemValue] as ID) === row,
-          ) as T | undefined
-          editingOptions.onEdit!(row, column, value, item as T)
+          const item = itemLookup(row)
+          if (item) editingOptions.onEdit!(row, column, value, item)
         }
       : undefined,
   })
@@ -180,7 +183,6 @@ export function createDataGrid<T extends Record<string, unknown>> (
       reset: ordering.reset,
     },
     editing,
-    headers,
     spans,
     virtual: null,
   }

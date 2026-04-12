@@ -8,7 +8,7 @@
  */
 
 // Utilities
-import { isString } from '#v0/utilities'
+import { isFunction, isString } from '#v0/utilities'
 import { ref, shallowRef } from 'vue'
 
 // Types
@@ -24,6 +24,7 @@ export interface EditableColumn {
 export interface CellEditingOptions {
   columns: readonly EditableColumn[]
   onEdit?: (row: ID, column: string, value: unknown) => void
+  itemLookup?: (row: ID) => unknown
 }
 
 export interface ActiveCell {
@@ -40,8 +41,14 @@ export interface CellEditing {
   dirty: Readonly<Ref<Map<ID, Map<string, unknown>>>>
 }
 
+/**
+ * Creates cell editing state for a data grid.
+ *
+ * @param options Cell editing configuration including columns and commit callback
+ * @returns Cell editing state and controls
+ */
 export function createCellEditing (options: CellEditingOptions): CellEditing {
-  const { columns, onEdit } = options
+  const { columns, onEdit, itemLookup } = options
 
   const columnMap = new Map<string, EditableColumn>()
   for (const col of columns) {
@@ -54,7 +61,12 @@ export function createCellEditing (options: CellEditingOptions): CellEditing {
 
   function edit (row: ID, column: string) {
     const col = columnMap.get(column)
-    if (!col || col.editable === false || col.editable === undefined) {
+    if (!col) return
+
+    if (isFunction(col.editable)) {
+      const item = itemLookup?.(row)
+      if (!col.editable(item)) return
+    } else if (col.editable !== true) {
       return
     }
     error.value = null
@@ -70,9 +82,10 @@ export function createCellEditing (options: CellEditingOptions): CellEditing {
 
     const col = columnMap.get(cell.column)
     if (col?.validate) {
-      const result = col.validate(value)
-      if (isString(result)) {
-        error.value = result
+      const item = itemLookup?.(cell.row)
+      const result = col.validate(value, item)
+      if (result !== true) {
+        error.value = isString(result) ? result : 'Invalid value'
         return
       }
     }
