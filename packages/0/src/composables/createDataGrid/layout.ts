@@ -6,19 +6,26 @@
  * pinning (left/right/scrollable regions), delta-based resizing compatible
  * with the Splitter two-panel model, and column reordering.
  *
+ * Built on v0 primitives:
+ * - createRegistry for column collection and ordering
+ * - createGroup for pin state (tri-state: selected=left, mixed=right, unselected=none)
+ *
  * Sizing uses percentages so it is compatible with the Splitter component.
  * Offsets are computed per-region (left, scrollable, right) independently.
  */
 
 // Composables
 import { extractLeaves } from '#v0/composables/createDataTable/columns'
+import { createGroup } from '#v0/composables/createGroup'
+import { createRegistry } from '#v0/composables/createRegistry'
 
 // Utilities
 import { clamp } from '#v0/utilities'
-import { reactive, ref, shallowReactive, toRef } from 'vue'
+import { shallowReactive, toRef } from 'vue'
 
 // Types
 import type { ColumnNode } from '#v0/composables/createDataTable/columns'
+import type { RegistryTicketInput } from '#v0/composables/createRegistry'
 import type { Ref } from 'vue'
 
 export type PinPosition = 'left' | 'right' | false
@@ -80,13 +87,20 @@ export interface ColumnLayout {
   reset: () => void
 }
 
+interface ColumnTicketInput extends RegistryTicketInput {
+  minSize: number
+  maxSize: number
+  resizable: boolean
+  reorderable: boolean
+}
+
 function distributeEven (leaves: GridColumnDef[]): Map<string, number> {
   const map = new Map<string, number>()
   const explicit = leaves.filter(c => c.size !== undefined)
   const implicit = leaves.filter(c => c.size === undefined)
 
-  const usedTotal = explicit.reduce((sum, c) => sum + c.size!, 0)
-  const remainder = Math.max(0, 100 - usedTotal)
+  const used = explicit.reduce((sum, c) => sum + c.size!, 0)
+  const remainder = Math.max(0, 100 - used)
   const share = implicit.length > 0 ? remainder / implicit.length : 0
 
   for (const col of leaves) {
@@ -96,32 +110,12 @@ function distributeEven (leaves: GridColumnDef[]): Map<string, number> {
   return map
 }
 
-function computeOffsets (cols: ResolvedColumn[]): void {
+function offsets (cols: ResolvedColumn[]): void {
   let offset = 0
   for (const col of cols) {
     col.offset = offset
     offset += col.size
   }
-}
-
-function split (keys: string[], resolved: Map<string, ResolvedColumn>): PinnedRegion {
-  const left: ResolvedColumn[] = []
-  const scrollable: ResolvedColumn[] = []
-  const right: ResolvedColumn[] = []
-
-  for (const key of keys) {
-    const col = resolved.get(key)
-    if (!col) continue
-    if (col.pinned === 'left') left.push(col)
-    else if (col.pinned === 'right') right.push(col)
-    else scrollable.push(col)
-  }
-
-  computeOffsets(left)
-  computeOffsets(scrollable)
-  computeOffsets(right)
-
-  return { left, scrollable, right }
 }
 
 /**
@@ -135,111 +129,143 @@ export function createColumnLayout (defs: readonly GridColumnDef[]): ColumnLayou
   const initial = distributeEven(leaves)
 
   // Initial snapshots for reset
-  const initialSizes = new Map(initial)
-  const initialOrder = leaves.map(c => c.key)
-  const initialPins = new Map<string, PinPosition>(
-    leaves.map(c => [c.key, c.pinned ?? false]),
-  )
-
-  const sizes = shallowReactive(new Map(initial))
-  const order = ref([...initialOrder])
-  const pins = reactive(new Map(initialPins))
-
-  const defMap = new Map<string, GridColumnDef>(leaves.map(c => [c.key, c]))
-
-  function resolved (): Map<string, ResolvedColumn> {
-    const map = new Map<string, ResolvedColumn>()
-    let index = 0
-    for (const key of order.value) {
-      const def = defMap.get(key)!
-      map.set(key, {
-        key,
-        index: index++,
-        size: sizes.get(key) ?? 0,
-        offset: 0,
-        pinned: pins.get(key) ?? false,
-        resizable: def.resizable ?? true,
-        reorderable: def.reorderable ?? true,
-        minSize: def.minSize ?? 2,
-        maxSize: def.maxSize ?? 100,
-      })
-    }
-    return map
+  const snapshot = {
+    sizes: new Map(initial),
+    order: leaves.map(c => c.key),
+    pins: new Map<string, PinPosition>(
+      leaves.map(c => [c.key, c.pinned ?? false]),
+    ),
   }
 
-  const pinned = toRef((): PinnedRegion => {
-    return split(order.value, resolved())
-  })
+  // Registry manages column collection and ordering
+  const registry = createRegistry<ColumnTicketInput>()
+  registry.onboard(
+    leaves.map(col => ({
+      id: col.key,
+      value: col.key,
+      minSize: col.minSize ?? 2,
+      maxSize: col.maxSize ?? 100,
+      resizable: col.resizable ?? true,
+      reorderable: col.reorderable ?? true,
+    })),
+  )
+
+  // Group manages pin state (selected=left, mixed=right, unselected=none)
+  const group = createGroup({ multiple: true })
+  group.onboard(leaves.map(col => ({ id: col.key, value: col.key })))
+
+  for (const col of leaves) {
+    if (col.pinned === 'left') group.select(col.key)
+    else if (col.pinned === 'right') group.mix(col.key)
+  }
+
+  // Sizes stored separately — they change too frequently for registry tickets
+  const sizes = shallowReactive(new Map(initial))
+
+  function position (key: string): PinPosition {
+    if (group.selectedIds.has(key)) return 'left'
+    if (group.mixed(key)) return 'right'
+    return false
+  }
+
+  function resolve (): ResolvedColumn[] {
+    return registry.values().map((ticket, index) => {
+      const key = String(ticket.id)
+      return {
+        key,
+        index,
+        size: sizes.get(key) ?? 0,
+        offset: 0,
+        pinned: position(key),
+        resizable: ticket.resizable,
+        reorderable: ticket.reorderable,
+        minSize: ticket.minSize,
+        maxSize: ticket.maxSize,
+      }
+    })
+  }
+
+  function split (cols: ResolvedColumn[]): PinnedRegion {
+    const left: ResolvedColumn[] = []
+    const scrollable: ResolvedColumn[] = []
+    const right: ResolvedColumn[] = []
+
+    for (const col of cols) {
+      if (col.pinned === 'left') left.push(col)
+      else if (col.pinned === 'right') right.push(col)
+      else scrollable.push(col)
+    }
+
+    offsets(left)
+    offsets(scrollable)
+    offsets(right)
+
+    return { left, scrollable, right }
+  }
+
+  const pinned = toRef((): PinnedRegion => split(resolve()))
 
   const columns = toRef((): ResolvedColumn[] => {
     const { left, scrollable, right } = pinned.value
     return [...left, ...scrollable, ...right]
   })
 
-  function pin (key: string, position: PinPosition) {
-    if (!defMap.has(key)) return
-    pins.set(key, position)
+  function pin (key: string, pos: PinPosition) {
+    if (!registry.has(key)) return
+    group.unselect(key)
+    group.unmix(key)
+    if (pos === 'left') group.select(key)
+    else if (pos === 'right') group.mix(key)
   }
 
   function resize (key: string, delta: number) {
-    const r = resolved()
-    const col = r.get(key)
+    const cols = resolve()
+    const col = cols.find(c => c.key === key)
     if (!col || !col.resizable) return
 
-    // Find the region this column belongs to
-    const region = pinned.value
-    let group: ResolvedColumn[]
-    if (col.pinned === 'left') group = region.left
-    else if (col.pinned === 'right') group = region.right
-    else group = region.scrollable
+    const region = split(cols)
+    let peers: ResolvedColumn[]
+    if (col.pinned === 'left') peers = region.left
+    else if (col.pinned === 'right') peers = region.right
+    else peers = region.scrollable
 
-    const index = group.findIndex(c => c.key === key)
-    if (index === -1 || index === group.length - 1) return
+    const index = peers.findIndex(c => c.key === key)
+    if (index === -1 || index === peers.length - 1) return
 
-    const target = group[index]!
-    const neighbor = group[index + 1]!
+    const target = peers[index]!
+    const neighbor = peers[index + 1]!
 
     const total = target.size + neighbor.size
     const lower = Math.max(target.minSize, total - neighbor.maxSize)
     const upper = Math.min(target.maxSize, total - neighbor.minSize)
 
-    const newSize = clamp(target.size + delta, lower, upper)
-    sizes.set(key, newSize)
-    sizes.set(neighbor.key, total - newSize)
+    const clamped = clamp(target.size + delta, lower, upper)
+    sizes.set(key, clamped)
+    sizes.set(neighbor.key, total - clamped)
   }
 
   function reorder (from: number, to: number) {
     if (from === to) return
-    const arr = [...order.value]
-    if (from < 0 || from >= arr.length) return
-    if (to < 0 || to >= arr.length) return
-    const [item] = arr.splice(from, 1)
-    arr.splice(to, 0, item)
-    order.value = arr
+    const id = registry.lookup(from)
+    if (!id) return
+    registry.move(id, to)
   }
 
   function distribute (incoming: number[]) {
-    const keys = order.value
-    if (incoming.length !== keys.length) return
+    const tickets = registry.values()
+    if (incoming.length !== tickets.length) return
 
-    // Apply raw values first, clamped to min/max
-    for (const [i, key_] of keys.entries()) {
-      const key = key_!
-      const def = defMap.get(key)!
-      const min = def.minSize ?? 2
-      const max = def.maxSize ?? 100
-      sizes.set(key, clamp(incoming[i]!, min, max))
+    for (const [i, ticket] of tickets.entries()) {
+      const key = String(ticket.id)
+      sizes.set(key, clamp(incoming[i]!, ticket.minSize, ticket.maxSize))
     }
 
-    // Normalize so total sums to 100
-    let remainder = 100 - keys.reduce((sum, k) => sum + (sizes.get(k) ?? 0), 0)
-    for (const key of keys) {
+    let remainder = 100 - tickets.reduce((sum, t) => sum + (sizes.get(String(t.id)) ?? 0), 0)
+    for (const ticket of tickets) {
       if (remainder === 0) break
-      const def = defMap.get(key)!
-      const min = def.minSize ?? 2
-      const max = def.maxSize ?? 100
+      const key = String(ticket.id)
       const current = sizes.get(key) ?? 0
-      const room = remainder > 0 ? max - current : current - min
+      const room = remainder > 0 ? ticket.maxSize - current : current - ticket.minSize
       const adjust = remainder > 0 ? Math.min(remainder, room) : Math.max(remainder, -room)
       sizes.set(key, current + adjust)
       remainder -= adjust
@@ -247,12 +273,21 @@ export function createColumnLayout (defs: readonly GridColumnDef[]): ColumnLayou
   }
 
   function reset () {
-    for (const [key, size] of initialSizes) {
+    for (const [key, size] of snapshot.sizes) {
       sizes.set(key, size)
     }
-    order.value = [...initialOrder]
-    for (const [key, position] of initialPins) {
-      pins.set(key, position)
+
+    for (const [index, key] of snapshot.order.entries()) {
+      registry.move(key, index)
+    }
+
+    for (const ticket of registry.values()) {
+      group.unselect(ticket.id)
+      group.unmix(ticket.id)
+    }
+    for (const [key, pos] of snapshot.pins) {
+      if (pos === 'left') group.select(key)
+      else if (pos === 'right') group.mix(key)
     }
   }
 
