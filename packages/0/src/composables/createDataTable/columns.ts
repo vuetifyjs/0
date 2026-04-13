@@ -21,7 +21,12 @@ export interface InternalHeader {
   depth: number
 }
 
-/** Recursively extract leaf columns (those without children) */
+/**
+ * Recursively extract leaf columns (those without children).
+ *
+ * @param columns Column tree to extract leaves from
+ * @returns Flat array of leaf columns
+ */
 export function extractLeaves<T extends ColumnNode> (columns: readonly T[]): T[] {
   const leaves: T[] = []
   for (const col of columns) {
@@ -34,7 +39,12 @@ export function extractLeaves<T extends ColumnNode> (columns: readonly T[]): T[]
   return leaves
 }
 
-/** Compute the maximum nesting depth of a column tree (0 = flat) */
+/**
+ * Compute the maximum nesting depth of a column tree (0 = flat).
+ *
+ * @param columns Column tree to measure
+ * @returns Maximum nesting depth
+ */
 export function computeDepth (columns: readonly ColumnNode[]): number {
   let max = 0
   for (const col of columns) {
@@ -50,6 +60,9 @@ export function computeDepth (columns: readonly ColumnNode[]): number {
  *
  * Each cell has colspan (number of leaf descendants) and rowspan
  * (how many rows a leaf spans when it doesn't fill all depth levels).
+ *
+ * @param columns Column tree to resolve
+ * @returns 2D array of header cells with colspan/rowspan
  */
 export function resolveHeaders (columns: readonly ColumnNode[]): InternalHeader[][] {
   if (columns.length === 0) return []

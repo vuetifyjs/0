@@ -55,7 +55,7 @@ export { computeDepth, extractLeaves, resolveHeaders } from './columns'
 export type { ColumnNode, InternalHeader } from './columns'
 
 /** Extract keys of T whose value type extends V */
-type KeysOfType<T, V> = { [K in keyof T]: T[K] extends V ? K : never }[keyof T] & string
+export type KeysOfType<T, V> = { [K in keyof T]: T[K] extends V ? K : never }[keyof T] & string
 
 export type SelectStrategy = 'single' | 'page' | 'all'
 
@@ -410,16 +410,16 @@ export function createDataTable<T extends Record<string, unknown>> (
     .filter(col => col.filterable === true)
     .map(col => col.key)
 
-  // Build per-column custom sort comparators
-  const customSorts: Partial<Record<string, (a: unknown, b: unknown) => number>> = {}
+  // Build per-column sort comparators
+  const sorts: Partial<Record<string, (a: unknown, b: unknown) => number>> = {}
   for (const col of leaves) {
-    if (col.sort) customSorts[col.key] = col.sort
+    if (col.sort) sorts[col.key] = col.sort
   }
 
-  // Build per-column custom filter functions
-  const customColumnFilters: Partial<Record<string, (value: unknown, query: string) => boolean>> = {}
+  // Build per-column filter functions
+  const filters: Partial<Record<string, (value: unknown, query: string) => boolean>> = {}
   for (const col of leaves) {
-    if (col.filter) customColumnFilters[col.key] = col.filter
+    if (col.filter) filters[col.key] = col.filter
   }
 
   const {
@@ -439,8 +439,8 @@ export function createDataTable<T extends Record<string, unknown>> (
     locale,
     filterOptions,
     paginationOptions,
-    customSorts,
-    customColumnFilters,
+    customSorts: sorts,
+    customColumnFilters: filters,
   })
 
   const selectedIds = shallowReactive(new Set<ID>())
@@ -560,7 +560,7 @@ export function createDataTable<T extends Record<string, unknown>> (
     },
   }
 
-  const openGroupKeys = shallowReactive(new Set<string>())
+  const opened = shallowReactive(new Set<string>())
 
   const groups = computed<DataTableGroup<T>[]>(() => {
     if (!groupBy) return []
@@ -588,7 +588,7 @@ export function createDataTable<T extends Record<string, unknown>> (
 
   if (enroll) {
     for (const group of groups.value) {
-      openGroupKeys.add(group.key)
+      opened.add(group.key)
     }
 
     // Async items may not be available yet — watch for first non-empty groups
@@ -596,7 +596,7 @@ export function createDataTable<T extends Record<string, unknown>> (
       const stop = watch(groups, newGroups => {
         if (newGroups.length === 0) return
         for (const group of newGroups) {
-          openGroupKeys.add(group.key)
+          opened.add(group.key)
         }
         stop()
       })
@@ -606,28 +606,28 @@ export function createDataTable<T extends Record<string, unknown>> (
   const grouping: DataTableGrouping<T> = {
     groups,
     toggle (groupKey: string) {
-      if (openGroupKeys.has(groupKey)) {
-        openGroupKeys.delete(groupKey)
+      if (opened.has(groupKey)) {
+        opened.delete(groupKey)
       } else {
-        openGroupKeys.add(groupKey)
+        opened.add(groupKey)
       }
     },
     isOpen (groupKey: string) {
-      return openGroupKeys.has(groupKey)
+      return opened.has(groupKey)
     },
     open (groupKey: string) {
-      openGroupKeys.add(groupKey)
+      opened.add(groupKey)
     },
     close (groupKey: string) {
-      openGroupKeys.delete(groupKey)
+      opened.delete(groupKey)
     },
     openAll () {
       for (const group of groups.value) {
-        openGroupKeys.add(group.key)
+        opened.add(group.key)
       }
     },
     closeAll () {
-      openGroupKeys.clear()
+      opened.clear()
     },
   }
 

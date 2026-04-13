@@ -34,10 +34,10 @@ const DEPARTMENTS = ['Engineering', 'Design', 'Marketing', 'Sales', 'Support', '
 function generateRows (count: number): BenchmarkRow[] {
   return Array.from({ length: count }, (_, i) => ({
     id: i,
-    name: `User ${i} ${Math.random().toString(36).slice(2, 8)}`,
+    name: `User ${i} ${String(i * 7919).slice(0, 6)}`,
     email: `user${i}@example.com`,
     department: DEPARTMENTS[i % DEPARTMENTS.length]!,
-    salary: 50_000 + Math.floor(Math.random() * 100_000),
+    salary: 50_000 + (i * 137) % 100_000,
     active: i % 5 !== 0,
   }))
 }
