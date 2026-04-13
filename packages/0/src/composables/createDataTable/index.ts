@@ -39,7 +39,7 @@ import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { ID } from '#v0/types'
 import type { DataTableAdapterInterface, SortDirection, SortEntry } from './adapters/adapter'
 import type { InternalHeader } from './columns'
-import type { App, MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
+import type { MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
 
 // Column utilities
 import { extractLeaves, resolveHeaders } from './columns'
