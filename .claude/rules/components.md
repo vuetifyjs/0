@@ -234,3 +234,7 @@ export const Component = { Root: ComponentRoot, Item: ComponentItem }
 - Slot props via `<slot v-bind="slotProps" />`
 - Hidden inputs conditionally rendered: `<ComponentHiddenInput v-if="name" />`
 - `v-if` for structural conditionals, never `v-show` (except Combobox filtered items)
+
+## Slot Attrs Double-Fire Hazard
+
+Slot `attrs` objects include `onClick` and other event handlers. These are already bound to the outer `<Atom>` wrapper via `mergeProps`. Consumers must **only** spread slot `attrs` onto their own element when using `renderless` mode. In non-renderless mode (default), spreading `attrs` onto a child element causes handlers to fire twice — once on the child, then again on the Atom wrapper via event bubbling. When writing examples for new components, never `v-bind="attrs"` on children inside a non-renderless component.

@@ -14,16 +14,14 @@
 <template>
   <Carousel.Root circular :gap="12" :per-view="3">
     <Carousel.Viewport class="rounded-lg">
-      <Carousel.Slide
+      <Carousel.Item
         v-for="item in items"
         :key="item.id"
-        v-slot="{ isActive }"
-        class="flex items-center justify-center h-32 rounded-lg text-sm font-medium transition-colors"
-        :class="isActive ? 'bg-primary text-on-primary' : 'bg-surface-variant text-on-surface-variant'"
+        class="flex items-center justify-center h-32 rounded-lg text-sm font-medium bg-surface-variant text-on-surface-variant"
         :value="item.id"
       >
         {{ item.label }}
-      </Carousel.Slide>
+      </Carousel.Item>
     </Carousel.Viewport>
 
     <div class="flex items-center justify-center gap-2 mt-3">

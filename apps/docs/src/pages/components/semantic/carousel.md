@@ -46,13 +46,11 @@ A circular carousel with previous/next navigation buttons and five slides.
 <template>
   <Carousel.Root>
     <Carousel.Viewport>
-      <Carousel.Slide :value="1">Slide 1</Carousel.Slide>
-      <Carousel.Slide :value="2">Slide 2</Carousel.Slide>
-      <Carousel.Slide :value="3">Slide 3</Carousel.Slide>
+      <Carousel.Item />
     </Carousel.Viewport>
 
-    <Carousel.Previous>Previous</Carousel.Previous>
-    <Carousel.Next>Next</Carousel.Next>
+    <Carousel.Previous />
+    <Carousel.Next />
   </Carousel.Root>
 </template>
 ```
@@ -95,9 +93,9 @@ Enable wrapping from last slide to first with the `circular` prop.
 <template>
   <Carousel.Root circular>
     <Carousel.Viewport>
-      <Carousel.Slide v-for="i in 5" :key="i" :value="i">
+      <Carousel.Item v-for="i in 5" :key="i" :value="i">
         Slide {{ i }}
-      </Carousel.Slide>
+      </Carousel.Item>
     </Carousel.Viewport>
   </Carousel.Root>
 </template>
@@ -111,9 +109,9 @@ Set `orientation="vertical"` for a vertically scrolling carousel.
 <template>
   <Carousel.Root orientation="vertical">
     <Carousel.Viewport style="height: 300px">
-      <Carousel.Slide v-for="i in 5" :key="i" :value="i">
+      <Carousel.Item v-for="i in 5" :key="i" :value="i">
         Slide {{ i }}
-      </Carousel.Slide>
+      </Carousel.Item>
     </Carousel.Viewport>
   </Carousel.Root>
 </template>
@@ -127,9 +125,9 @@ Disable all navigation via the `disabled` prop on the root.
 <template>
   <Carousel.Root disabled>
     <Carousel.Viewport>
-      <Carousel.Slide v-for="i in 3" :key="i" :value="i">
+      <Carousel.Item v-for="i in 3" :key="i" :value="i">
         Slide {{ i }}
-      </Carousel.Slide>
+      </Carousel.Item>
     </Carousel.Viewport>
 
     <Carousel.Previous>Previous</Carousel.Previous>

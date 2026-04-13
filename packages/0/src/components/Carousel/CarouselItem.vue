@@ -1,5 +1,5 @@
 /**
- * @module CarouselSlide
+ * @module CarouselItem
  *
  * @see https://0.vuetifyjs.com/components/semantic/carousel
  *
@@ -19,7 +19,7 @@
   import type { ID } from '#v0/types'
   import type { MaybeRefOrGetter } from 'vue'
 
-  export interface CarouselSlideProps<V = unknown> extends AtomProps {
+  export interface CarouselItemProps<V = unknown> extends AtomProps {
     /** Unique identifier (auto-generated if not provided) */
     id?: ID
     /** Value associated with this slide */
@@ -30,7 +30,7 @@
     namespace?: string
   }
 
-  export interface CarouselSlideSlotProps {
+  export interface CarouselItemSlotProps {
     /** Unique identifier */
     id: string
     /** Whether this slide is the selected (anchor) slide */
@@ -66,12 +66,12 @@
   // Utilities
   import { mergeProps, onUnmounted, toRef, toValue, useAttrs } from 'vue'
 
-  defineOptions({ name: 'CarouselSlide', inheritAttrs: false })
+  defineOptions({ name: 'CarouselItem', inheritAttrs: false })
 
   const attrs = useAttrs()
 
   defineSlots<{
-    default: (props: CarouselSlideSlotProps) => any
+    default: (props: CarouselItemSlotProps) => any
   }>()
 
   const {
@@ -81,7 +81,7 @@
     value,
     disabled,
     namespace = 'v0:carousel',
-  } = defineProps<CarouselSlideProps<V>>()
+  } = defineProps<CarouselItemProps<V>>()
 
   const carousel = useCarouselRoot(namespace)
   const ticket = carousel.register({ id, value, disabled })
@@ -112,7 +112,7 @@
     }
   })
 
-  const slotProps = toRef((): CarouselSlideSlotProps => ({
+  const slotProps = toRef((): CarouselItemSlotProps => ({
     id: String(ticket.id),
     isSelected: toValue(ticket.isSelected),
     isActive: isActive.value,

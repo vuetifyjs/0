@@ -49,7 +49,7 @@
 
 <script setup lang="ts">
   // Utilities
-  import { mergeProps, shallowRef, toRef, useAttrs, useTemplateRef, watch, watchEffect } from 'vue'
+  import { mergeProps, onScopeDispose, shallowRef, toRef, useAttrs, useTemplateRef, watch, watchEffect } from 'vue'
 
   defineOptions({ name: 'CarouselViewport', inheritAttrs: false })
 
@@ -70,6 +70,7 @@
 
   const isDragging = shallowRef(false)
   const syncing = shallowRef(false)
+  const snapDisabled = shallowRef(false)
 
   const viewportId = `${carousel.rootId}-viewport`
 
@@ -97,7 +98,7 @@
   // Scroll → Selection sync: when user scrolls (drag/swipe), update step selection
   if (IN_BROWSER) {
     useEventListener(el, 'scrollend', () => {
-      if (syncing.value) {
+      if (syncing.value || snapDisabled.value) {
         syncing.value = false
         return
       }
@@ -123,6 +124,82 @@
         isDragging.value = true
       }
     })
+
+    // Mouse drag support
+    let dragStart = 0
+    let scrollStart = 0
+
+    function onMouseMove (e: MouseEvent) {
+      const viewport = el.value
+      if (!viewport) return
+      e.preventDefault()
+
+      const isVertical = carousel.orientation.value === 'vertical'
+      const pos = isVertical ? e.clientY : e.clientX
+      const delta = pos - dragStart
+
+      if (isVertical) {
+        viewport.scrollTop = scrollStart - delta
+      } else {
+        viewport.scrollLeft = scrollStart - delta
+      }
+    }
+
+    function onMouseUp () {
+      const viewport = el.value
+      document.removeEventListener('mousemove', onMouseMove)
+      document.removeEventListener('mouseup', onMouseUp)
+      carousel.resume()
+
+      if (!viewport || slideStep.value === 0) {
+        snapDisabled.value = false
+        isDragging.value = false
+        return
+      }
+
+      const isVertical = carousel.orientation.value === 'vertical'
+      const scrollPos = isVertical ? viewport.scrollTop : viewport.scrollLeft
+      const snapIndex = Math.round(scrollPos / slideStep.value)
+      const position = snapIndex * slideStep.value
+
+      syncing.value = true
+      viewport.scrollTo({
+        [isVertical ? 'top' : 'left']: position,
+        behavior: 'smooth',
+      })
+
+      const id = carousel.lookup(snapIndex)
+      if (!isUndefined(id) && id !== carousel.selectedItem.value?.id) {
+        carousel.select(id)
+      }
+
+      snapDisabled.value = false
+      isDragging.value = false
+    }
+
+    useEventListener(el, 'mousedown', (e: MouseEvent) => {
+      if (e.button !== 0) return
+      const viewport = el.value
+      if (!viewport) return
+
+      carousel.pause()
+      const isVertical = carousel.orientation.value === 'vertical'
+      dragStart = isVertical ? e.clientY : e.clientX
+      scrollStart = isVertical ? viewport.scrollTop : viewport.scrollLeft
+      snapDisabled.value = true
+
+      document.addEventListener('mousemove', onMouseMove)
+      document.addEventListener('mouseup', onMouseUp)
+    })
+
+    onScopeDispose(() => {
+      document.removeEventListener('mousemove', onMouseMove)
+      document.removeEventListener('mouseup', onMouseUp)
+    })
+
+    // Pause autoplay during touch interaction
+    useEventListener(el, 'touchstart', () => carousel.pause(), { passive: true })
+    useEventListener(el, 'touchend', () => carousel.resume(), { passive: true })
   }
 
   // Selection → Scroll sync: when step changes programmatically, scroll to slide
@@ -151,8 +228,10 @@
       'flex-direction': isVertical ? 'column' : 'row',
       [isVertical ? 'overflow-y' : 'overflow-x']: 'auto',
       [isVertical ? 'overflow-x' : 'overflow-y']: 'hidden',
-      'scroll-snap-type': `${isVertical ? 'y' : 'x'} mandatory`,
+      'scroll-snap-type': snapDisabled.value ? 'none' : `${isVertical ? 'y' : 'x'} mandatory`,
       'scrollbar-width': 'none',
+      'cursor': snapDisabled.value ? 'grabbing' : 'grab',
+      ...(snapDisabled.value ? { 'user-select': 'none' } : {}),
       ...(g > 0 ? { gap: `${g}px` } : {}),
       ...(p > 0 ? { [isVertical ? 'padding-block' : 'padding-inline']: `${p}px` } : {}),
     } as Record<string, string | number>

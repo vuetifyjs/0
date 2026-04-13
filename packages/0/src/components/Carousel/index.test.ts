@@ -84,13 +84,13 @@ describe('carousel', () => {
             default: (props: any) => {
               rootProps = props
               return [
-                h(Carousel.Slide as any, { value: 'slide-1' }, {
+                h(Carousel.Item as any, { value: 'slide-1' }, {
                   default: (p: any) => {
                     slide1Props = p
                     return h('div', 'Slide 1')
                   },
                 }),
-                h(Carousel.Slide as any, { value: 'slide-2' }, {
+                h(Carousel.Item as any, { value: 'slide-2' }, {
                   default: (p: any) => {
                     slide2Props = p
                     return h('div', 'Slide 2')
@@ -133,13 +133,13 @@ describe('carousel', () => {
             default: (props: any) => {
               rootProps = props
               return [
-                h(Carousel.Slide as any, { value: 'slide-1' }, {
+                h(Carousel.Item as any, { value: 'slide-1' }, {
                   default: (p: any) => {
                     slide1Props = p
                     return h('div', 'Slide 1')
                   },
                 }),
-                h(Carousel.Slide as any, { value: 'slide-2' }, {
+                h(Carousel.Item as any, { value: 'slide-2' }, {
                   default: (p: any) => {
                     slide2Props = p
                     return h('div', 'Slide 2')
@@ -181,10 +181,10 @@ describe('carousel', () => {
             default: (props: any) => {
               rootProps = props
               return [
-                h(Carousel.Slide as any, { value: 'slide-1' }, {
+                h(Carousel.Item as any, { value: 'slide-1' }, {
                   default: () => h('div', 'Slide 1'),
                 }),
-                h(Carousel.Slide as any, { value: 'slide-2' }, {
+                h(Carousel.Item as any, { value: 'slide-2' }, {
                   default: (p: any) => {
                     slide2Props = p
                     return h('div', 'Slide 2')
@@ -228,13 +228,13 @@ describe('carousel', () => {
             default: (props: any) => {
               rootProps = props
               return [
-                h(Carousel.Slide as any, { value: 'slide-1' }, {
+                h(Carousel.Item as any, { value: 'slide-1' }, {
                   default: (p: any) => {
                     slide1Props = p
                     return h('div', 'Slide 1')
                   },
                 }),
-                h(Carousel.Slide as any, { value: 'slide-2' }, {
+                h(Carousel.Item as any, { value: 'slide-2' }, {
                   default: (p: any) => {
                     slide2Props = p
                     return h('div', 'Slide 2')
@@ -276,16 +276,16 @@ describe('carousel', () => {
             default: (props: any) => {
               rootProps = props
               return [
-                h(Carousel.Slide as any, { value: 'slide-1' }, {
+                h(Carousel.Item as any, { value: 'slide-1' }, {
                   default: (p: any) => {
                     slide1Props = p
                     return h('div', 'Slide 1')
                   },
                 }),
-                h(Carousel.Slide as any, { value: 'slide-2' }, {
+                h(Carousel.Item as any, { value: 'slide-2' }, {
                   default: () => h('div', 'Slide 2'),
                 }),
-                h(Carousel.Slide as any, { value: 'slide-3' }, {
+                h(Carousel.Item as any, { value: 'slide-3' }, {
                   default: (p: any) => {
                     slide3Props = p
                     return h('div', 'Slide 3')
@@ -323,7 +323,7 @@ describe('carousel', () => {
           },
           slots: {
             default: () =>
-              h(Carousel.Slide as any, { value: 'slide-1' }, {
+              h(Carousel.Item as any, { value: 'slide-1' }, {
                 default: (props: any) => {
                   slideProps = props
                   return h('div', 'Slide 1')
@@ -348,7 +348,7 @@ describe('carousel', () => {
           },
           slots: {
             default: () =>
-              h(Carousel.Slide as any, { value: 'slide-1' }, {
+              h(Carousel.Item as any, { value: 'slide-1' }, {
                 default: (props: any) => {
                   slideProps = props
                   return h('div', 'Slide 1')
@@ -364,7 +364,7 @@ describe('carousel', () => {
     })
   })
 
-  describe('slide', () => {
+  describe('item', () => {
     describe('slot props', () => {
       it('should expose correct slot props', async () => {
         let slideProps: any
@@ -372,7 +372,7 @@ describe('carousel', () => {
         mount(Carousel.Root, {
           slots: {
             default: () =>
-              h(Carousel.Slide as any, { id: 'my-slide', value: 'slide-1' }, {
+              h(Carousel.Item as any, { id: 'my-slide', value: 'slide-1' }, {
                 default: (props: any) => {
                   slideProps = props
                   return h('div', 'Slide')
@@ -396,7 +396,7 @@ describe('carousel', () => {
         mount(Carousel.Root, {
           slots: {
             default: () =>
-              h(Carousel.Slide as any, { value: 'slide-1' }, {
+              h(Carousel.Item as any, { value: 'slide-1' }, {
                 default: (props: any) => {
                   slideProps = props
                   return h('div', 'Slide')
@@ -420,19 +420,19 @@ describe('carousel', () => {
         mount(Carousel.Root, {
           slots: {
             default: () => [
-              h(Carousel.Slide as any, { value: 'a' }, {
+              h(Carousel.Item as any, { value: 'a' }, {
                 default: (p: any) => {
                   slide1Props = p
                   return h('div', 'A')
                 },
               }),
-              h(Carousel.Slide as any, { value: 'b' }, {
+              h(Carousel.Item as any, { value: 'b' }, {
                 default: (p: any) => {
                   slide2Props = p
                   return h('div', 'B')
                 },
               }),
-              h(Carousel.Slide as any, { value: 'c' }, {
+              h(Carousel.Item as any, { value: 'c' }, {
                 default: (p: any) => {
                   slide3Props = p
                   return h('div', 'C')
@@ -460,7 +460,7 @@ describe('carousel', () => {
           },
           slots: {
             default: () =>
-              h(Carousel.Slide as any, { value: 'slide-1' }, {
+              h(Carousel.Item as any, { value: 'slide-1' }, {
                 default: (props: any) => {
                   slideProps = props
                   return h('div', 'Slide')
@@ -486,19 +486,19 @@ describe('carousel', () => {
           },
           slots: {
             default: () => [
-              h(Carousel.Slide as any, { value: 'a' }, {
+              h(Carousel.Item as any, { value: 'a' }, {
                 default: (p: any) => {
                   slide1Props = p
                   return h('div', 'A')
                 },
               }),
-              h(Carousel.Slide as any, { value: 'b' }, {
+              h(Carousel.Item as any, { value: 'b' }, {
                 default: (p: any) => {
                   slide2Props = p
                   return h('div', 'B')
                 },
               }),
-              h(Carousel.Slide as any, { value: 'c' }, {
+              h(Carousel.Item as any, { value: 'c' }, {
                 default: (p: any) => {
                   slide3Props = p
                   return h('div', 'C')
@@ -527,13 +527,13 @@ describe('carousel', () => {
           },
           slots: {
             default: () => [
-              h(Carousel.Slide as any, { value: 'a' }, {
+              h(Carousel.Item as any, { value: 'a' }, {
                 default: (p: any) => {
                   slide1Props = p
                   return h('div', 'A')
                 },
               }),
-              h(Carousel.Slide as any, { value: 'b' }, {
+              h(Carousel.Item as any, { value: 'b' }, {
                 default: (p: any) => {
                   slide2Props = p
                   return h('div', 'B')
@@ -555,7 +555,7 @@ describe('carousel', () => {
         mount(Carousel.Root, {
           slots: {
             default: () =>
-              h(Carousel.Slide as any, { value: 'slide-1', disabled: true }, {
+              h(Carousel.Item as any, { value: 'slide-1', disabled: true }, {
                 default: (props: any) => {
                   slideProps = props
                   return h('div', 'Slide')
@@ -576,13 +576,13 @@ describe('carousel', () => {
         mount(Carousel.Root, {
           slots: {
             default: () => [
-              h(Carousel.Slide as any, { value: 'a' }, {
+              h(Carousel.Item as any, { value: 'a' }, {
                 default: (p: any) => {
                   slide1Props = p
                   return h('div', 'A')
                 },
               }),
-              h(Carousel.Slide as any, { value: 'b' }, {
+              h(Carousel.Item as any, { value: 'b' }, {
                 default: (p: any) => {
                   slide2Props = p
                   return h('div', 'B')
@@ -606,7 +606,7 @@ describe('carousel', () => {
         mount(Carousel.Root, {
           slots: {
             default: () =>
-              h(Carousel.Slide as any, { value: 'a' }, {
+              h(Carousel.Item as any, { value: 'a' }, {
                 default: (p: any) => {
                   slideProps = p
                   return h('div', 'A')
@@ -631,7 +631,7 @@ describe('carousel', () => {
           },
           slots: {
             default: () =>
-              h(Carousel.Slide as any, { value: 'a' }, {
+              h(Carousel.Item as any, { value: 'a' }, {
                 default: (p: any) => {
                   slideProps = p
                   return h('div', 'A')
@@ -655,7 +655,7 @@ describe('carousel', () => {
       mount(Carousel.Root, {
         slots: {
           default: () => [
-            h(Carousel.Slide as any, { value: 'a' }, { default: () => h('div', 'A') }),
+            h(Carousel.Item as any, { value: 'a' }, { default: () => h('div', 'A') }),
             h(Carousel.Previous as any, {}, {
               default: (p: any) => {
                 prevProps = p
@@ -683,8 +683,8 @@ describe('carousel', () => {
         },
         slots: {
           default: () => [
-            h(Carousel.Slide as any, { value: 'a' }, { default: () => h('div', 'A') }),
-            h(Carousel.Slide as any, { value: 'b' }, { default: () => h('div', 'B') }),
+            h(Carousel.Item as any, { value: 'a' }, { default: () => h('div', 'A') }),
+            h(Carousel.Item as any, { value: 'b' }, { default: () => h('div', 'B') }),
             h(Carousel.Previous as any, {}, {
               default: (p: any) => {
                 prevProps = p
@@ -713,8 +713,8 @@ describe('carousel', () => {
         },
         slots: {
           default: () => [
-            h(Carousel.Slide as any, { value: 'a' }, { default: () => h('div', 'A') }),
-            h(Carousel.Slide as any, { value: 'b' }, { default: () => h('div', 'B') }),
+            h(Carousel.Item as any, { value: 'a' }, { default: () => h('div', 'A') }),
+            h(Carousel.Item as any, { value: 'b' }, { default: () => h('div', 'B') }),
             h(Carousel.Previous as any, {}, {
               default: (p: any) => {
                 prevProps = p
@@ -739,7 +739,7 @@ describe('carousel', () => {
       mount(Carousel.Root, {
         slots: {
           default: () => [
-            h(Carousel.Slide as any, { value: 'a' }, { default: () => h('div', 'A') }),
+            h(Carousel.Item as any, { value: 'a' }, { default: () => h('div', 'A') }),
             h(Carousel.Next as any, {}, {
               default: (p: any) => {
                 nextBtnProps = p
@@ -767,8 +767,8 @@ describe('carousel', () => {
         },
         slots: {
           default: () => [
-            h(Carousel.Slide as any, { value: 'a' }, { default: () => h('div', 'A') }),
-            h(Carousel.Slide as any, { value: 'b' }, { default: () => h('div', 'B') }),
+            h(Carousel.Item as any, { value: 'a' }, { default: () => h('div', 'A') }),
+            h(Carousel.Item as any, { value: 'b' }, { default: () => h('div', 'B') }),
             h(Carousel.Next as any, {}, {
               default: (p: any) => {
                 nextBtnProps = p
@@ -795,8 +795,8 @@ describe('carousel', () => {
         },
         slots: {
           default: () => [
-            h(Carousel.Slide as any, { value: 'a' }, { default: () => h('div', 'A') }),
-            h(Carousel.Slide as any, { value: 'b' }, { default: () => h('div', 'B') }),
+            h(Carousel.Item as any, { value: 'a' }, { default: () => h('div', 'A') }),
+            h(Carousel.Item as any, { value: 'b' }, { default: () => h('div', 'B') }),
             h(Carousel.Next as any, {}, {
               default: (p: any) => {
                 nextBtnProps = p
@@ -823,8 +823,8 @@ describe('carousel', () => {
         },
         slots: {
           default: () => [
-            h(Carousel.Slide as any, { value: 'a' }, { default: () => h('div', 'A') }),
-            h(Carousel.Slide as any, { value: 'b' }, { default: () => h('div', 'B') }),
+            h(Carousel.Item as any, { value: 'a' }, { default: () => h('div', 'A') }),
+            h(Carousel.Item as any, { value: 'b' }, { default: () => h('div', 'B') }),
             h(Carousel.Next as any, {}, {
               default: (p: any) => {
                 nextBtnProps = p
@@ -861,16 +861,16 @@ describe('carousel', () => {
           default: (props: any) => {
             rootProps = props
             return [
-              h(Carousel.Slide as any, { value: 'slide-1' }, {
+              h(Carousel.Item as any, { value: 'slide-1' }, {
                 default: (p: any) => {
                   slide1Props = p
                   return h('div', 'Slide 1')
                 },
               }),
-              h(Carousel.Slide as any, { value: 'slide-2', disabled: true }, {
+              h(Carousel.Item as any, { value: 'slide-2', disabled: true }, {
                 default: () => h('div', 'Slide 2'),
               }),
-              h(Carousel.Slide as any, { value: 'slide-3' }, {
+              h(Carousel.Item as any, { value: 'slide-3' }, {
                 default: (p: any) => {
                   slide3Props = p
                   return h('div', 'Slide 3')
@@ -902,13 +902,13 @@ describe('carousel', () => {
       mount(defineComponent({
         render: () => [
           h(Carousel.Root as any, { namespace: 'carousel-1', mandatory: false }, () => [
-            h(Carousel.Slide as any, { value: 'slide-a', namespace: 'carousel-1' }, {
+            h(Carousel.Item as any, { value: 'slide-a', namespace: 'carousel-1' }, {
               default: (props: any) => {
                 carousel1Slide1Props = props
                 return h('div', 'Carousel 1 Slide A')
               },
             }),
-            h(Carousel.Slide as any, { value: 'slide-b', namespace: 'carousel-1' }, {
+            h(Carousel.Item as any, { value: 'slide-b', namespace: 'carousel-1' }, {
               default: (props: any) => {
                 carousel1Slide2Props = props
                 return h('div', 'Carousel 1 Slide B')
@@ -916,13 +916,13 @@ describe('carousel', () => {
             }),
           ]),
           h(Carousel.Root as any, { namespace: 'carousel-2', mandatory: false }, () => [
-            h(Carousel.Slide as any, { value: 'slide-a', namespace: 'carousel-2' }, {
+            h(Carousel.Item as any, { value: 'slide-a', namespace: 'carousel-2' }, {
               default: (props: any) => {
                 carousel2Slide1Props = props
                 return h('div', 'Carousel 2 Slide A')
               },
             }),
-            h(Carousel.Slide as any, { value: 'slide-b', namespace: 'carousel-2' }, {
+            h(Carousel.Item as any, { value: 'slide-b', namespace: 'carousel-2' }, {
               default: (props: any) => {
                 carousel2Slide2Props = props
                 return h('div', 'Carousel 2 Slide B')
@@ -960,13 +960,13 @@ describe('carousel', () => {
         },
         slots: {
           default: () => [
-            h(Carousel.Slide as any, { value: 'slide-1' }, {
+            h(Carousel.Item as any, { value: 'slide-1' }, {
               default: (p: any) => {
                 slide1Props = p
                 return h('div', 'Slide 1')
               },
             }),
-            h(Carousel.Slide as any, { value: 'slide-2' }, {
+            h(Carousel.Item as any, { value: 'slide-2' }, {
               default: (p: any) => {
                 slide2Props = p
                 return h('div', 'Slide 2')
@@ -989,10 +989,10 @@ describe('carousel', () => {
         render: () =>
           h(Carousel.Root as any, {}, {
             default: () => [
-              h(Carousel.Slide as any, { value: 'slide-1' }, {
+              h(Carousel.Item as any, { value: 'slide-1' }, {
                 default: (props: any) => h('div', { ...props.attrs }, 'Slide 1'),
               }),
-              h(Carousel.Slide as any, { value: 'slide-2' }, {
+              h(Carousel.Item as any, { value: 'slide-2' }, {
                 default: (props: any) => h('div', { ...props.attrs }, 'Slide 2'),
               }),
             ],
@@ -1011,7 +1011,7 @@ describe('carousel', () => {
         render: () =>
           h(Carousel.Root as any, { modelValue: 'slide-1' }, {
             default: () =>
-              h(Carousel.Slide as any, { value: 'slide-1' }, {
+              h(Carousel.Item as any, { value: 'slide-1' }, {
                 default: (props: any) => h('div', { ...props.attrs }, 'Slide 1'),
               }),
           }),

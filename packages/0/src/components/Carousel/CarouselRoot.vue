@@ -5,13 +5,14 @@
  *
  * @remarks
  * Root component for carousel navigation. Creates and provides step context
- * to child CarouselViewport, CarouselSlide, CarouselPrevious, and CarouselNext
+ * to child CarouselViewport, CarouselItem, CarouselPrevious, and CarouselNext
  * components. Built on CSS scroll-snap with multi-slide display and peek support.
  */
 
 <script lang="ts">
   // Composables
   import { createContext } from '#v0/composables/createContext'
+  import { useTimer } from '#v0/composables/useTimer'
 
   // Types
   import type { StepContext, StepTicket } from '#v0/composables/createStep'
@@ -44,6 +45,8 @@
     gap?: number
     /** Amount of adjacent slide visible in pixels (peek) */
     peek?: number
+    /** Autoplay interval in milliseconds. 0 disables autoplay. */
+    autoplay?: number
   }
 
   export interface CarouselRootSlotProps {
@@ -65,6 +68,12 @@
     step: (count: number) => void
     /** Select a slide by ID */
     select: (id: ID) => void
+    /** Whether autoplay is enabled */
+    isAutoplay: boolean
+    /** Enable autoplay */
+    play: () => void
+    /** Disable autoplay */
+    stop: () => void
     /** Attributes to bind to the root element */
     attrs: {
       'role': 'region'
@@ -87,6 +96,12 @@
     rootId: string
     /** Viewport element ref, set by CarouselViewport */
     viewportEl: ShallowRef<HTMLElement | null>
+    /** Restart autoplay from full interval */
+    play: () => void
+    /** Pause autoplay timer */
+    pause: () => void
+    /** Resume autoplay timer from remaining time */
+    resume: () => void
   }
 
   export const [useCarouselRoot, provideCarouselRoot] = createContext<CarouselContext>()
@@ -120,6 +135,7 @@
     perView = 1,
     gap = 0,
     peek = 0,
+    autoplay = 0,
   } = defineProps<CarouselRootProps>()
 
   const model = defineModel<T | T[]>()
@@ -137,10 +153,45 @@
 
   useProxyModel(step, model, { multiple: false })
 
+  function next () {
+    if (circular && perView > 1) {
+      const maxStart = Math.max(0, step.size - perView)
+      if (step.selectedIndex.value >= maxStart) {
+        step.first()
+        return
+      }
+    }
+    step.next()
+  }
+
+  function prev () {
+    if (circular && perView > 1 && step.selectedIndex.value === 0) {
+      step.step(Math.max(0, step.size - perView))
+      return
+    }
+    step.prev()
+  }
+
+  const timer = autoplay > 0
+    ? useTimer(() => next(), { duration: autoplay, repeat: true })
+    : null
+
+  function noop () {}
+  const pause = timer ? () => timer.pause() : noop
+  const resume = timer ? () => timer.resume() : noop
+  const play = timer ? () => timer.start() : noop
+  const stop = timer ? () => timer.stop() : noop
+  const isPlaying = toRef(() => timer?.isActive.value ?? false)
+
   const viewportEl = shallowRef<HTMLElement | null>(null)
 
   const context: CarouselContext = {
     ...step,
+    next,
+    prev,
+    play,
+    pause,
+    resume,
     orientation: toRef(() => orientation),
     perView: toRef(() => perView),
     gap: toRef(() => gap),
@@ -162,10 +213,13 @@
     perView,
     first: step.first,
     last: step.last,
-    next: step.next,
-    prev: step.prev,
+    next,
+    prev,
     step: step.step,
     select: step.select,
+    isAutoplay: isPlaying.value,
+    play,
+    stop,
     attrs: {
       'role': 'region',
       'aria-roledescription': 'carousel',

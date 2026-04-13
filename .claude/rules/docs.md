@@ -164,6 +164,7 @@ Description paragraph.
 - Import from `@vuetify/v0`
 - Keep examples minimal and focused
 - One concept per example file
+- **Never `v-bind="attrs"` on children of non-renderless components** — slot `attrs` include `onClick` and other handlers already bound to the outer Atom wrapper. Spreading them onto an inner element causes double-firing (click on child fires handler, event bubbles to parent which fires it again). Only use slot `attrs` in `renderless` mode where there is no wrapper element.
 
 ## Markdown Directives
 
