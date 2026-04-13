@@ -29,16 +29,21 @@ function mountNumberField (options: {
 } = {}): MountResult {
   let capturedRootProps: any
 
-  const wrapper = mount(NumberField.Root, {
-    props: {
-      ...(options.model && {
-        'modelValue': options.model.value,
-        'onUpdate:modelValue': (v: unknown) => {
-          options.model!.value = v as number | null
-        },
-      }),
-      ...options.props,
-    },
+  let wrapper: VueWrapper
+
+  const props: Record<string, unknown> = {
+    ...(options.model && {
+      'modelValue': options.model.value,
+      'onUpdate:modelValue': (v: unknown) => {
+        options.model!.value = v as number | null
+        wrapper.setProps({ modelValue: v })
+      },
+    }),
+    ...options.props,
+  }
+
+  wrapper = mount(NumberField.Root, {
+    props,
     slots: {
       default: (rootProps: any) => {
         capturedRootProps = rootProps
@@ -212,6 +217,49 @@ describe('number-field', () => {
       await decrementEl().trigger('pointerup')
       await wait()
       expect(model.value).toBe(0)
+    })
+
+    it('should update display when incrementing while focused', async () => {
+      const model = ref<number | null>(5)
+      const { rootProps, controlEl, incrementEl, wait } = mountNumberField({
+        model,
+        props: { min: 0, max: 10, step: 1 },
+      })
+      await wait()
+
+      await controlEl().trigger('focus')
+      await wait()
+      expect(rootProps().isFocused).toBe(true)
+
+      await incrementEl().trigger('pointerdown', { button: 0 })
+      await incrementEl().trigger('pointerup')
+      await wait()
+
+      expect(model.value).toBe(6)
+      expect(rootProps().value).toBe(6)
+      expect(rootProps().display).toBe('6')
+    })
+
+    it('should preserve incremented value after blur', async () => {
+      const model = ref<number | null>(5)
+      const { controlEl, incrementEl, wait } = mountNumberField({
+        model,
+        props: { min: 0, max: 10, step: 1 },
+      })
+      await wait()
+
+      await controlEl().trigger('focus')
+      await wait()
+
+      await incrementEl().trigger('pointerdown', { button: 0 })
+      await incrementEl().trigger('pointerup')
+      await wait()
+      await wait()
+
+      await controlEl().trigger('blur')
+      await wait()
+
+      expect(model.value).toBe(6)
     })
 
     it('should respect step size', async () => {

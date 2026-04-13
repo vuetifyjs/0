@@ -66,11 +66,7 @@
 
   onMounted(syncText)
 
-  watch(() => root.value.value, () => {
-    if (!root.isFocused.value) {
-      syncText()
-    }
-  })
+  watch(() => root.value.value, syncText)
 
   const displayValue = toRef(() => {
     return root.isFocused.value ? text.value : root.display.value
