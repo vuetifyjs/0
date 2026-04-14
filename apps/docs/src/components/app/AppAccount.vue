@@ -5,6 +5,9 @@
   // Framework
   import { Avatar, Dialog } from '@vuetify/v0'
 
+  // Components
+  import { Discovery } from '@/components/discovery'
+
   // Composables
   import { useSettings } from '@/composables/useSettings'
 
@@ -40,26 +43,27 @@
     <AppIcon icon="account" />
   </button>
 
-  <button
-    v-else
-    aria-label="Account settings"
-    class="inline-flex items-center justify-center rounded-full cursor-pointer border-0 bg-transparent p-0 hover:ring-2 hover:ring-primary/50 transition-all"
-    title="Account settings"
-    type="button"
-    @click="settings.toggle"
-  >
-    <Avatar.Root class="size-6 rounded-full overflow-hidden">
-      <Avatar.Image
-        alt="User avatar"
-        class="size-6 rounded-full object-cover"
-        :src="auth.user?.picture"
-      />
+  <Discovery.Activator v-else class="inline-flex rounded-full" step="settings">
+    <button
+      aria-label="Account settings"
+      class="inline-flex items-center justify-center rounded-full cursor-pointer border-0 bg-transparent p-0 hover:ring-2 hover:ring-primary/50 transition-all"
+      title="Account settings"
+      type="button"
+      @click="settings.toggle"
+    >
+      <Avatar.Root class="size-6 rounded-full overflow-hidden">
+        <Avatar.Image
+          alt="User avatar"
+          class="size-6 rounded-full object-cover"
+          :src="auth.user?.picture"
+        />
 
-      <Avatar.Fallback class="size-6 rounded-full bg-primary text-on-primary flex items-center justify-center text-xs font-medium">
-        {{ initial }}
-      </Avatar.Fallback>
-    </Avatar.Root>
-  </button>
+        <Avatar.Fallback class="size-6 rounded-full bg-primary text-on-primary flex items-center justify-center text-xs font-medium">
+          {{ initial }}
+        </Avatar.Fallback>
+      </Avatar.Root>
+    </button>
+  </Discovery.Activator>
 
   <Dialog.Root v-model="auth.dialog">
     <Dialog.Content
