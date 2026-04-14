@@ -35,6 +35,8 @@ When we receive a security report, we will:
 - Prepare fixes for all maintained releases
 - Release fixes to npm as quickly as possible
 
+Internally, security incidents are handled according to a formal Incident Response Plan that defines severity classification, response timelines, and escalation procedures.
+
 ## Scope
 
 This policy applies to the `@vuetify/v0` package and related packages in this repository.

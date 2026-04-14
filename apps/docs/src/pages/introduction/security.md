@@ -46,6 +46,8 @@ When we receive a security report, we will:
 - Prepare fixes for all maintained releases
 - Release fixes to npm as quickly as possible
 
+Internally, security incidents are handled according to a formal Incident Response Plan that defines severity classification, response timelines, and escalation procedures.
+
 ## Threat Model
 
 `@vuetify/v0` is a **client-side UI composables library**. It processes no secrets, manages no authentication, and communicates with no external services. This threat model uses the [STRIDE framework](https://en.wikipedia.org/wiki/STRIDE_(security)) to identify and mitigate threats across the project lifecycle.
