@@ -93,7 +93,7 @@
   const isDisabled = toRef(() => toValue(ticket.disabled) || toValue(carousel.disabled))
 
   onBeforeUnmount(() => {
-    carousel.unregister(ticket.id)
+    ticket.unregister()
   })
 
   const isActive = toRef(() => {

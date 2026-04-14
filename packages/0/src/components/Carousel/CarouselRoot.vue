@@ -27,6 +27,8 @@
   export type CarouselOrientation = 'horizontal' | 'vertical'
 
   export interface CarouselRootProps {
+    /** Unique identifier for the carousel */
+    id?: string
     /** Namespace for dependency injection (must match child namespace) */
     namespace?: string
     /** Disables the entire carousel */
@@ -111,12 +113,8 @@
     default: (props: CarouselRootSlotProps) => any
   }>()
 
-  // Redundant with defineModel but required for vue-devtools event tracking
-  defineEmits<{
-    'update:model-value': [value: T | T[]]
-  }>()
-
   const {
+    id: rootId = useId(),
     namespace = 'v0:carousel',
     disabled = false,
     enroll = false,
@@ -128,8 +126,6 @@
   } = defineProps<CarouselRootProps>()
 
   const model = defineModel<T | T[]>()
-
-  const rootId = useId()
 
   const step = createStep({
     disabled: toRef(() => disabled),
