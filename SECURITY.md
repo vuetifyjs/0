@@ -1,31 +1,40 @@
-# Security Disclosure Procedures
+# Security Policy
 
-This document outlines security procedures and general policies for the Vuetify0 project.
+The Vuetify team takes security seriously. We appreciate your efforts to responsibly disclose vulnerabilities and will make every effort to acknowledge your contributions.
 
-  * [Reporting a Bug](#reporting-a-bug)
-  * [Disclosure Policy](#disclosure-policy)
-  * [Comments on this Policy](#comments-on-this-policy)
+For the full threat model, security properties, and CSP guidance, see the [Security documentation](https://0.vuetifyjs.com/introduction/security).
 
-## Reporting a Bug
-
-The Vuetify team and community take all security bugs in Vuetify0 seriously. We appreciate your efforts and responsible disclosure and will make every effort to acknowledge your contributions.
+## Reporting a Vulnerability
 
 To report a security issue, email [security@vuetifyjs.com](mailto:security@vuetifyjs.com?subject=SECURITY) and include the word **"SECURITY"** in the subject line.
 
-The Vuetify team will send a response indicating the next steps in handling your report. After the initial reply to your report, the security team will keep you informed of the progress towards a fix and full announcement, and may ask for additional information or guidance.
+**Please include:**
 
-Report security bugs in third-party modules to the person or team maintaining the module. You can also report a vulnerability through [GitHub Security Advisories](https://github.com/vuetifyjs/0/security/advisories/new).
+- Description of the vulnerability
+- Steps to reproduce
+- Potential impact
+- Any suggested fixes (optional)
+
+You can also report a vulnerability through [GitHub Security Advisories](https://github.com/vuetifyjs/0/security/advisories/new).
+
+Report security bugs in third-party modules to the maintainers of those modules.
+
+## What to Expect
+
+1. **Initial Response** — We will acknowledge receipt within 48 hours
+2. **Investigation** — We will investigate and keep you informed of progress
+3. **Resolution** — We will prepare and release fixes as quickly as possible
+4. **Credit** — We will credit you in the release notes (unless you prefer anonymity)
 
 ## Disclosure Policy
 
-When the security team receives a security bug report, they will assign it to a
-primary handler. This person will coordinate the fix and release process,
-involving the following steps:
+When we receive a security report, we will:
 
-  * Confirm the problem and determine the affected versions.
-  * Audit code to find any potential similar problems.
-  * Prepare fixes for all releases still under maintenance. These fixes will be released as fast as possible to npm.
+- Confirm the problem and determine affected versions
+- Audit code to find any similar issues
+- Prepare fixes for all maintained releases
+- Release fixes to npm as quickly as possible
 
-## Comments on this Policy
+## Scope
 
-If you have suggestions on how this process could be improved please submit a pull request or open an issue on [GitHub](https://github.com/vuetifyjs/0).
+This policy applies to the `@vuetify/v0` package and related packages in this repository.
