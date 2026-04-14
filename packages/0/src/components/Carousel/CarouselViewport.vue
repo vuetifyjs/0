@@ -25,7 +25,10 @@
 
   // Utilities
   import { isUndefined } from '#v0/utilities'
-  import { mergeProps, onScopeDispose, shallowRef, toRef, useAttrs, useTemplateRef, watch, watchEffect } from 'vue'
+  import { mergeProps, onBeforeUnmount, onScopeDispose, shallowRef, toRef, useAttrs, useTemplateRef, watch } from 'vue'
+
+  // Transformers
+  import { toElement } from '#v0/composables/toElement'
 
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
@@ -73,14 +76,10 @@
 
   const viewportId = `${carousel.rootId}-viewport`
 
-  // Vue auto-unwraps exposed refs when accessed via template ref,
-  // but TypeScript doesn't reflect this - cast corrects the type
-  const el = toRef(() => (viewportRef.value?.element as HTMLElement | null | undefined) ?? null)
+  const el = toRef(() => toElement(viewportRef.value?.element) as HTMLElement | null ?? null)
 
-  // Register viewport element with root context
-  watchEffect(() => {
-    carousel.viewportEl.value = el.value
-  })
+  const ticket = carousel.parts.register({ type: 'viewport', el })
+  onBeforeUnmount(() => ticket.unregister())
 
   const { width } = useElementSize(el)
 

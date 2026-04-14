@@ -12,17 +12,19 @@
 <script lang="ts">
   // Composables
   import { createContext } from '#v0/composables/createContext'
+  import { createRegistry } from '#v0/composables/createRegistry'
   import { createStep } from '#v0/composables/createStep'
   import { useProxyModel } from '#v0/composables/useProxyModel'
   import { useTimer } from '#v0/composables/useTimer'
 
   // Utilities
-  import { shallowRef, toRef, toValue, useId } from 'vue'
+  import { toRef, toValue, useId } from 'vue'
 
   // Types
+  import type { RegistryContext, RegistryTicketInput } from '#v0/composables/createRegistry'
   import type { StepContext, StepTicket } from '#v0/composables/createStep'
   import type { ID } from '#v0/types'
-  import type { Ref, ShallowRef } from 'vue'
+  import type { MaybeRefOrGetter, Ref } from 'vue'
 
   export type CarouselOrientation = 'horizontal' | 'vertical'
 
@@ -83,6 +85,11 @@
     }
   }
 
+  export interface CarouselPartTicket extends RegistryTicketInput {
+    type: 'viewport' | 'previous' | 'next' | 'indicator' | 'progress' | 'live-region'
+    el: MaybeRefOrGetter<HTMLElement | null>
+  }
+
   export interface CarouselContext extends StepContext<StepTicket> {
     /** Carousel orientation */
     orientation: Ref<CarouselOrientation>
@@ -92,8 +99,16 @@
     circular: Ref<boolean>
     /** Root ID for generating sub-component IDs */
     rootId: string
-    /** Viewport element ref, set by CarouselViewport */
-    viewportEl: ShallowRef<HTMLElement | null>
+    /** Registry for structural sub-components */
+    parts: RegistryContext<CarouselPartTicket>
+    /** Autoplay interval duration in ms (0 = disabled) */
+    autoplay: Ref<number>
+    /** Milliseconds remaining until next auto-advance */
+    remaining: Ref<number>
+    /** Whether autoplay is currently active */
+    isAutoplay: Ref<boolean>
+    /** Whether autoplay is currently paused */
+    isPaused: Ref<boolean>
     /** Restart autoplay from full interval */
     play: () => void
     /** Pause autoplay timer */
@@ -164,7 +179,7 @@
   const stop = timer ? () => timer.stop() : noop
   const isPlaying = toRef(() => timer?.isActive.value ?? false)
 
-  const viewportEl = shallowRef<HTMLElement | null>(null)
+  const parts = createRegistry<CarouselPartTicket>()
 
   const context: CarouselContext = {
     ...step,
@@ -177,8 +192,11 @@
     perView: toRef(() => perView),
     circular: toRef(() => circular),
     rootId,
-    viewportEl,
-    // Re-define size getter since object spread evaluates it as a static value
+    parts,
+    autoplay: toRef(() => autoplay),
+    remaining: toRef(() => timer?.remaining.value ?? 0),
+    isAutoplay: toRef(() => timer?.isActive.value ?? false),
+    isPaused: toRef(() => timer?.isPaused.value ?? false),
     get size () {
       return step.size
     },

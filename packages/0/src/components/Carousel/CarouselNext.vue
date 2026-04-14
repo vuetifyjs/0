@@ -18,10 +18,13 @@
   import { useLocale } from '#v0/composables/useLocale'
 
   // Utilities
-  import { mergeProps, toRef, toValue, useAttrs } from 'vue'
+  import { mergeProps, onBeforeUnmount, toRef, toValue, useAttrs, useTemplateRef } from 'vue'
+
+  // Transformers
+  import { toElement } from '#v0/composables/toElement'
 
   // Types
-  import type { AtomProps } from '#v0/components/Atom'
+  import type { AtomExpose, AtomProps } from '#v0/components/Atom'
 
   export interface CarouselNextProps extends AtomProps {
     /** Namespace for connecting to parent Carousel.Root */
@@ -51,6 +54,7 @@
   defineOptions({ name: 'CarouselNext', inheritAttrs: false })
 
   const attrs = useAttrs()
+  const rootRef = useTemplateRef<AtomExpose>('root')
 
   defineSlots<{
     default: (props: CarouselNextSlotProps) => any
@@ -64,6 +68,10 @@
 
   const locale = useLocale()
   const carousel = useCarouselRoot(namespace)
+
+  const el = toRef(() => toElement(rootRef.value?.element) as HTMLElement | null ?? null)
+  const ticket = carousel.parts.register({ type: 'next', el })
+  onBeforeUnmount(() => ticket.unregister())
 
   const viewportId = `${carousel.rootId}-viewport`
 
@@ -98,6 +106,7 @@
 
 <template>
   <Atom
+    ref="root"
     v-bind="mergeProps(attrs, slotProps.attrs)"
     :as
     :renderless
