@@ -1,6 +1,6 @@
 <script setup lang="ts">
-  import { mdiChevronLeft, mdiChevronRight } from '@mdi/js'
   import { Carousel } from '@vuetify/v0'
+  import { mdiChevronLeft, mdiChevronRight } from '@mdi/js'
 </script>
 
 <template>
