@@ -71,12 +71,20 @@
     step: (count: number) => void
     /** Select a slide by ID */
     select: (id: ID) => void
-    /** Whether autoplay is enabled */
+    /** Whether autoplay is active */
     isAutoplay: boolean
-    /** Enable autoplay */
+    /** Whether autoplay is paused */
+    isPaused: boolean
+    /** Milliseconds remaining until next slide */
+    remaining: number
+    /** Start or restart autoplay from full interval */
     play: () => void
-    /** Disable autoplay */
+    /** Stop autoplay and reset timer */
     stop: () => void
+    /** Pause autoplay, preserving remaining time */
+    pause: () => void
+    /** Resume autoplay from where it was paused */
+    resume: () => void
     /** Attributes to bind to the root element */
     attrs: {
       'role': 'region'
@@ -201,8 +209,12 @@
     step: step.step,
     select: step.select,
     isAutoplay: isPlaying.value,
+    isPaused: timer?.isPaused.value ?? false,
+    remaining: timer?.remaining.value ?? 0,
     play,
     stop,
+    pause,
+    resume,
     attrs: {
       'role': 'region',
       'aria-roledescription': 'carousel',
