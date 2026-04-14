@@ -10,12 +10,12 @@
 </script>
 
 <template>
-  <Carousel.Root :gap="16" :peek="48" :per-view="1">
-    <Carousel.Viewport class="rounded-lg">
+  <Carousel.Root :per-view="1">
+    <Carousel.Viewport class="rounded-lg gap-4 px-12">
       <Carousel.Item
         v-for="slide in slides"
         :key="slide.id"
-        class="flex items-center justify-center h-40 rounded-lg text-lg font-medium"
+        class="flex items-center justify-center h-40 rounded-lg text-lg font-medium flex-[0_0_100%]"
         :class="slide.color"
         :value="slide.id"
       >

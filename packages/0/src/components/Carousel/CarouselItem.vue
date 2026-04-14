@@ -103,18 +103,9 @@
     return index >= selected && index < selected + perView
   })
 
-  const slideStyle = toRef(() => {
-    const pv = carousel.perView.value
-    const g = carousel.gap.value
-    const p = carousel.peek.value
-    // Each slide width accounts for gaps between visible slides and peek on both sides
-    const gapTotal = (pv - 1) * g
-    const peekTotal = 2 * p
-    return {
-      'scroll-snap-align': 'start',
-      'flex': `0 0 calc((100% - ${gapTotal}px - ${peekTotal}px) / ${pv})`,
-    }
-  })
+  const slideStyle = {
+    'scroll-snap-align': 'start' as const,
+  }
 
   const slotProps = toRef((): CarouselItemSlotProps => ({
     id: String(ticket.id),
@@ -134,7 +125,7 @@
       'data-active': isActive.value || undefined,
       'data-disabled': isDisabled.value || undefined,
       'data-index': ticket.index,
-      'style': slideStyle.value,
+      'style': slideStyle,
     },
   }))
 </script>

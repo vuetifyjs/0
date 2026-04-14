@@ -12,12 +12,12 @@
 </script>
 
 <template>
-  <Carousel.Root circular :gap="12" :per-view="3">
-    <Carousel.Viewport class="rounded-lg">
+  <Carousel.Root circular :per-view="3">
+    <Carousel.Viewport class="rounded-lg gap-3">
       <Carousel.Item
         v-for="item in items"
         :key="item.id"
-        class="flex items-center justify-center h-32 rounded-lg text-sm font-medium bg-surface-variant text-on-surface-variant"
+        class="flex items-center justify-center h-32 rounded-lg text-sm font-medium bg-surface-variant text-on-surface-variant flex-[0_0_calc((100%-1.5rem)/3)]"
         :value="item.id"
       >
         {{ item.label }}

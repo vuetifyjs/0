@@ -84,14 +84,15 @@
 
   const { width } = useElementSize(el)
 
-  // Compute the width of a single slide step (slide width + gap)
+  // Measure actual slide step from DOM layout (slide width + gap)
   const slideStep = toRef(() => {
-    if (width.value === 0) return 0
-    const pv = carousel.perView.value
-    const g = carousel.gap.value
-    const p = carousel.peek.value
-    const slideWidth = (width.value - (pv - 1) * g - 2 * p) / pv
-    return slideWidth + g
+    const viewport = el.value
+    if (!viewport || width.value === 0) return 0
+    const first = viewport.children[0] as HTMLElement | undefined
+    const second = viewport.children[1] as HTMLElement | undefined
+    if (!first) return 0
+    if (!second) return first.offsetWidth
+    return second.offsetLeft - first.offsetLeft
   })
 
   // Scroll → Selection sync: when user scrolls (drag/swipe), update step selection
@@ -217,8 +218,6 @@
 
   const viewportStyle = toRef(() => {
     const isVertical = carousel.orientation.value === 'vertical'
-    const g = carousel.gap.value
-    const p = carousel.peek.value
 
     return {
       'display': 'flex',
@@ -229,8 +228,6 @@
       'scrollbar-width': 'none',
       'cursor': snapDisabled.value ? 'grabbing' : 'grab',
       ...(snapDisabled.value ? { 'user-select': 'none' } : {}),
-      ...(g > 0 ? { gap: `${g}px` } : {}),
-      ...(p > 0 ? { [isVertical ? 'padding-block' : 'padding-inline']: `${p}px` } : {}),
     } as Record<string, string | number>
   })
 
