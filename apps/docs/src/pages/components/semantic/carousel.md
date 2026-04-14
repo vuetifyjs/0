@@ -175,16 +175,13 @@ The Carousel is built on CSS scroll-snap for native drag/swipe support. For fade
 
 ??? How do I build an autoplay carousel?
 
-Combine the carousel's slot props with `useTimer` from v0:
+Use the `autoplay` prop with an interval in milliseconds. The root slot exposes `isAutoplay`, `play`, and `stop` for controlling playback. Autoplay pauses automatically during touch and mouse drag interactions.
 
-```ts
-import { useTimer } from '@vuetify/v0'
-
-const timer = useTimer(() => next(), { duration: 5000, repeat: true })
-timer.start()
+```vue
+<Carousel.Root v-slot="{ isAutoplay, play, stop }" :autoplay="5000">
+  <!-- slides -->
+</Carousel.Root>
 ```
-
-The timer auto-pauses when the tab is hidden via `requestAnimationFrame`.
 
 :::
 
