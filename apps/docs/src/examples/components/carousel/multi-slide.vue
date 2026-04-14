@@ -13,7 +13,7 @@
 
 <template>
   <Carousel.Root v-slot="{ isAutoplay, play, stop }" :autoplay="3000" circular :per-view="3">
-    <Carousel.Viewport class="rounded-lg gap-3 cursor-grab data-[dragging]:cursor-grabbing">
+    <Carousel.Viewport class="rounded-lg gap-3 scrollbar-hide cursor-grab data-[dragging]:cursor-grabbing data-[dragging]:select-none">
       <Carousel.Item
         v-for="item in items"
         :key="item.id"
