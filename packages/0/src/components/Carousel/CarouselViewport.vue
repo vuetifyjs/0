@@ -19,11 +19,13 @@
   import { useCarouselRoot } from './CarouselRoot.vue'
 
   // Composables
-  import { useEventListener } from '#v0/composables/useEventListener'
+  import { useDocumentEventListener, useEventListener } from '#v0/composables/useEventListener'
   import { useElementSize } from '#v0/composables/useResizeObserver'
+  import { useToggleScope } from '#v0/composables/useToggleScope'
 
   // Utilities
   import { isUndefined } from '#v0/utilities'
+  import { mergeProps, onScopeDispose, shallowRef, toRef, useAttrs, useTemplateRef, watch, watchEffect } from 'vue'
 
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
@@ -48,9 +50,6 @@
 </script>
 
 <script setup lang="ts">
-  // Utilities
-  import { mergeProps, onScopeDispose, shallowRef, toRef, useAttrs, useTemplateRef, watch, watchEffect } from 'vue'
-
   defineOptions({ name: 'CarouselViewport', inheritAttrs: false })
 
   const attrs = useAttrs()
@@ -129,54 +128,6 @@
     let dragStart = 0
     let scrollStart = 0
 
-    function onMouseMove (e: MouseEvent) {
-      const viewport = el.value
-      if (!viewport) return
-      e.preventDefault()
-
-      const isVertical = carousel.orientation.value === 'vertical'
-      const pos = isVertical ? e.clientY : e.clientX
-      const delta = pos - dragStart
-
-      if (isVertical) {
-        viewport.scrollTop = scrollStart - delta
-      } else {
-        viewport.scrollLeft = scrollStart - delta
-      }
-    }
-
-    function onMouseUp () {
-      const viewport = el.value
-      document.removeEventListener('mousemove', onMouseMove)
-      document.removeEventListener('mouseup', onMouseUp)
-      carousel.resume()
-
-      if (!viewport || slideStep.value === 0) {
-        snapDisabled.value = false
-        isDragging.value = false
-        return
-      }
-
-      const isVertical = carousel.orientation.value === 'vertical'
-      const scrollPos = isVertical ? viewport.scrollTop : viewport.scrollLeft
-      const snapIndex = Math.round(scrollPos / slideStep.value)
-      const position = snapIndex * slideStep.value
-
-      syncing.value = true
-      viewport.scrollTo({
-        [isVertical ? 'top' : 'left']: position,
-        behavior: 'smooth',
-      })
-
-      const id = carousel.lookup(snapIndex)
-      if (!isUndefined(id) && id !== carousel.selectedItem.value?.id) {
-        carousel.select(id)
-      }
-
-      snapDisabled.value = false
-      isDragging.value = false
-    }
-
     useEventListener(el, 'mousedown', (e: MouseEvent) => {
       if (e.button !== 0) return
       const viewport = el.value
@@ -187,14 +138,60 @@
       dragStart = isVertical ? e.clientY : e.clientX
       scrollStart = isVertical ? viewport.scrollTop : viewport.scrollLeft
       snapDisabled.value = true
-
-      document.addEventListener('mousemove', onMouseMove)
-      document.addEventListener('mouseup', onMouseUp)
     })
 
-    onScopeDispose(() => {
-      document.removeEventListener('mousemove', onMouseMove)
-      document.removeEventListener('mouseup', onMouseUp)
+    useToggleScope(() => snapDisabled.value, () => {
+      useDocumentEventListener('mousemove', (e: MouseEvent) => {
+        const viewport = el.value
+        if (!viewport) return
+        e.preventDefault()
+
+        const isVertical = carousel.orientation.value === 'vertical'
+        const pos = isVertical ? e.clientY : e.clientX
+        const delta = pos - dragStart
+
+        if (isVertical) {
+          viewport.scrollTop = scrollStart - delta
+        } else {
+          viewport.scrollLeft = scrollStart - delta
+        }
+      })
+
+      useDocumentEventListener('mouseup', () => {
+        const viewport = el.value
+        carousel.resume()
+
+        if (!viewport || slideStep.value === 0) {
+          snapDisabled.value = false
+          isDragging.value = false
+          return
+        }
+
+        const isVertical = carousel.orientation.value === 'vertical'
+        const scrollPos = isVertical ? viewport.scrollTop : viewport.scrollLeft
+        const snapIndex = Math.round(scrollPos / slideStep.value)
+        const position = snapIndex * slideStep.value
+
+        syncing.value = true
+        viewport.scrollTo({
+          [isVertical ? 'top' : 'left']: position,
+          behavior: 'smooth',
+        })
+
+        const id = carousel.lookup(snapIndex)
+        if (!isUndefined(id) && id !== carousel.selectedItem.value?.id) {
+          carousel.select(id)
+        }
+
+        snapDisabled.value = false
+        isDragging.value = false
+      })
+
+      onScopeDispose(() => {
+        carousel.resume()
+        snapDisabled.value = false
+        isDragging.value = false
+      })
     })
 
     // Pause autoplay during touch interaction

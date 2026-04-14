@@ -14,6 +14,12 @@
   import { Atom } from '#v0/components/Atom'
   import { useCarouselRoot } from './CarouselRoot.vue'
 
+  // Composables
+  import { useLocale } from '#v0/composables/useLocale'
+
+  // Utilities
+  import { mergeProps, onBeforeUnmount, toRef, toValue, useAttrs } from 'vue'
+
   // Types
   import type { AtomProps } from '#v0/components/Atom'
   import type { ID } from '#v0/types'
@@ -63,9 +69,6 @@
 </script>
 
 <script lang="ts" setup generic="V = unknown">
-  // Utilities
-  import { mergeProps, onUnmounted, toRef, toValue, useAttrs } from 'vue'
-
   defineOptions({ name: 'CarouselItem', inheritAttrs: false })
 
   const attrs = useAttrs()
@@ -83,20 +86,21 @@
     namespace = 'v0:carousel',
   } = defineProps<CarouselItemProps<V>>()
 
+  const locale = useLocale()
   const carousel = useCarouselRoot(namespace)
   const ticket = carousel.register({ id, value, disabled })
 
   const isDisabled = toRef(() => toValue(ticket.disabled) || toValue(carousel.disabled))
 
-  onUnmounted(() => {
+  onBeforeUnmount(() => {
     carousel.unregister(ticket.id)
   })
 
   const isActive = toRef(() => {
-    const selectedIdx = carousel.selectedIndex.value
-    const pv = carousel.perView.value
-    const idx = ticket.index
-    return idx >= selectedIdx && idx < selectedIdx + pv
+    const selected = carousel.selectedIndex.value
+    const perView = carousel.perView.value
+    const index = ticket.index
+    return index >= selected && index < selected + perView
   })
 
   const slideStyle = toRef(() => {
@@ -124,7 +128,7 @@
     attrs: {
       'role': 'group',
       'aria-roledescription': 'slide',
-      'aria-label': `${ticket.index + 1} of ${carousel.size}`,
+      'aria-label': locale.t('Carousel.slide', { current: ticket.index + 1, total: carousel.size }),
       'aria-hidden': isActive.value ? undefined : true,
       'data-selected': toValue(ticket.isSelected) || undefined,
       'data-active': isActive.value || undefined,

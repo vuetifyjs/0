@@ -14,6 +14,12 @@
   import { Atom } from '#v0/components/Atom'
   import { useCarouselRoot } from './CarouselRoot.vue'
 
+  // Composables
+  import { useLocale } from '#v0/composables/useLocale'
+
+  // Utilities
+  import { mergeProps, toRef, toValue, useAttrs } from 'vue'
+
   // Types
   import type { AtomProps } from '#v0/components/Atom'
 
@@ -30,8 +36,9 @@
     /** Attributes to bind to the button element */
     attrs: {
       'type': 'button' | undefined
-      'aria-label': 'Next slide'
+      'aria-label': string
       'aria-controls': string
+      'aria-disabled': boolean
       'disabled': boolean | undefined
       'data-disabled': true | undefined
       'data-edge': true | undefined
@@ -41,9 +48,6 @@
 </script>
 
 <script setup lang="ts">
-  // Utilities
-  import { mergeProps, toRef, toValue, useAttrs } from 'vue'
-
   defineOptions({ name: 'CarouselNext', inheritAttrs: false })
 
   const attrs = useAttrs()
@@ -58,6 +62,7 @@
     namespace = 'v0:carousel',
   } = defineProps<CarouselNextProps>()
 
+  const locale = useLocale()
   const carousel = useCarouselRoot(namespace)
 
   const viewportId = `${carousel.rootId}-viewport`
@@ -80,8 +85,9 @@
     isAtEdge: isAtEdge.value,
     attrs: {
       'type': as === 'button' ? 'button' : undefined,
-      'aria-label': 'Next slide',
+      'aria-label': locale.t('Carousel.next'),
       'aria-controls': viewportId,
+      'aria-disabled': isDisabled.value,
       'disabled': as === 'button' ? isDisabled.value : undefined,
       'data-disabled': isDisabled.value || undefined,
       'data-edge': isAtEdge.value || undefined,

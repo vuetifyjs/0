@@ -12,7 +12,12 @@
 <script lang="ts">
   // Composables
   import { createContext } from '#v0/composables/createContext'
+  import { createStep } from '#v0/composables/createStep'
+  import { useProxyModel } from '#v0/composables/useProxyModel'
   import { useTimer } from '#v0/composables/useTimer'
+
+  // Utilities
+  import { shallowRef, toRef, toValue, useId } from 'vue'
 
   // Types
   import type { StepContext, StepTicket } from '#v0/composables/createStep'
@@ -108,19 +113,13 @@
 </script>
 
 <script lang="ts" setup generic="T = unknown">
-  // Composables
-  import { createStep } from '#v0/composables/createStep'
-  import { useProxyModel } from '#v0/composables/useProxyModel'
-
-  // Utilities
-  import { shallowRef, toRef, toValue, useId } from 'vue'
-
   defineOptions({ name: 'CarouselRoot' })
 
   defineSlots<{
     default: (props: CarouselRootSlotProps) => any
   }>()
 
+  // Redundant with defineModel but required for vue-devtools event tracking
   defineEmits<{
     'update:model-value': [value: T | T[]]
   }>()
