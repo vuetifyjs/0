@@ -25,6 +25,9 @@ export interface ThemeAdapterInterface {
 }
 
 export abstract class ThemeAdapter implements ThemeAdapterInterface {
+  private static UNSAFE_CSS = /url\s*\(|@import|expression\s*\(|[{}]/i
+  private static SAFE_IDENT = /^[a-zA-Z0-9_-]+$/
+
   public stylesheetId = 'v0-theme-stylesheet'
   public prefix: string
   public rgb = false
@@ -43,8 +46,10 @@ export abstract class ThemeAdapter implements ThemeAdapterInterface {
       const themeColors = colors[theme]
 
       if (!themeColors) continue
+      if (!ThemeAdapter.SAFE_IDENT.test(theme)) continue
 
       const vars = Object.entries(themeColors)
+        .filter(([key, val]) => ThemeAdapter.SAFE_IDENT.test(key) && !ThemeAdapter.UNSAFE_CSS.test(val))
         .map(([key, val]) => `  --${this.prefix}-${key}: ${this.rgb ? this.decompose(val) : val};`)
         .join('\n')
 
