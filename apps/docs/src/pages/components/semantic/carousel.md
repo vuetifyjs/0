@@ -44,8 +44,11 @@ The Carousel provides slide navigation with native drag/swipe via CSS scroll-sna
       <Carousel.Item />
     </Carousel.Viewport>
 
+    <Carousel.Indicator />
     <Carousel.Previous />
     <Carousel.Next />
+    <Carousel.Progress />
+    <Carousel.LiveRegion />
   </Carousel.Root>
 </template>
 ```
@@ -131,6 +134,22 @@ Disable all navigation via the `disabled` prop on the root.
 </template>
 ```
 
+### Instant Scroll
+
+Set `behavior="instant"` to disable smooth scrolling on programmatic navigation.
+
+```vue
+<template>
+  <Carousel.Root behavior="instant">
+    <Carousel.Viewport>
+      <Carousel.Item v-for="i in 5" :key="i" :value="i">
+        Slide {{ i }}
+      </Carousel.Item>
+    </Carousel.Viewport>
+  </Carousel.Root>
+</template>
+```
+
 ### Styling with Data Attributes
 
 All component state is exposed via `data-*` attributes for CSS-only styling:
@@ -145,8 +164,8 @@ All component state is exposed via `data-*` attributes for CSS-only styling:
 /* Hide nav buttons at boundaries */
 [data-edge] { visibility: hidden; }
 
-/* Cursor during drag */
-[data-dragging] { cursor: grabbing; }
+/* Drag interaction */
+[data-dragging] { cursor: grabbing; user-select: none; }
 ```
 
 ## Accessibility
@@ -158,10 +177,13 @@ The Carousel implements the [WAI-ARIA Carousel Pattern](https://www.w3.org/WAI/A
 | Root | `role="region"`, `aria-roledescription="carousel"` |
 | Viewport | `aria-live="polite"` |
 | Slide | `role="group"`, `aria-roledescription="slide"`, `aria-label="N of M"` |
-| Previous | `aria-label="Previous slide"`, `aria-controls` links to viewport |
-| Next | `aria-label="Next slide"`, `aria-controls` links to viewport |
+| Previous | `aria-label` via locale, `aria-controls` links to viewport |
+| Next | `aria-label` via locale, `aria-controls` links to viewport |
+| Indicator | `role="tablist"` container, `role="tab"` per dot, `aria-selected` |
+| Progress | `role="progressbar"`, `aria-valuenow`, `aria-valuemin`, `aria-valuemax` |
+| LiveRegion | `role="status"`, `aria-live="polite"`, `aria-atomic` |
 
-Slides outside the visible window are marked with `aria-hidden="true"` so screen readers only announce visible content.
+Slides outside the visible window are marked with `aria-hidden="true"` so screen readers only announce visible content. The LiveRegion provides a dedicated announcement channel for slide changes, using a 100ms delay for reliable screen reader detection.
 
 ::: faq
 
@@ -175,11 +197,15 @@ The Carousel is built on CSS scroll-snap for native drag/swipe support. For fade
 
 ??? How do I build an autoplay carousel?
 
-Use the `autoplay` prop with an interval in milliseconds. The root slot exposes `isAutoplay`, `play`, and `stop` for controlling playback. Autoplay pauses automatically during touch and mouse drag interactions.
+Use the `autoplay` prop with an interval in milliseconds. The root slot exposes `isAutoplay`, `isPaused`, `remaining`, `play`, `stop`, `pause`, and `resume` for controlling playback. Autoplay pauses automatically during touch and mouse drag interactions. Use `Carousel.Progress` to visualize the timer.
 
 ```vue
 <Carousel.Root v-slot="{ isAutoplay, play, stop }" :autoplay="5000">
-  <!-- slides -->
+  <Carousel.Viewport>
+    <!-- slides -->
+  </Carousel.Viewport>
+
+  <Carousel.Progress class="h-1 bg-surface-variant" />
 </Carousel.Root>
 ```
 
