@@ -82,7 +82,6 @@
 
   const { width } = useElementSize(el)
 
-  // Measure actual slide step from DOM layout (slide width + gap)
   const slideStep = toRef(() => {
     if (!el.value || width.value === 0) return 0
     const first = toValue((carousel.seek('first') as CarouselTicket | undefined)?.el) as HTMLElement | undefined
@@ -92,7 +91,6 @@
     return second.offsetLeft - first.offsetLeft
   })
 
-  // Scroll → Selection sync: when user scrolls (drag/swipe), update step selection
   if (IN_BROWSER) {
     useEventListener(el, 'scrollend', () => {
       if (syncing.value || snapDisabled.value) {
@@ -115,14 +113,12 @@
       }
     })
 
-    // Track dragging state
     useEventListener(el, 'scroll', () => {
       if (!syncing.value) {
         isDragging.value = true
       }
     })
 
-    // Mouse drag support
     let dragStart = 0
     let scrollStart = 0
 
@@ -173,7 +169,7 @@
         syncing.value = true
         viewport.scrollTo({
           [isVertical ? 'top' : 'left']: position,
-          behavior: 'smooth',
+          behavior: carousel.behavior.value,
         })
 
         const id = carousel.lookup(snapIndex)
@@ -192,12 +188,10 @@
       })
     })
 
-    // Pause autoplay during touch interaction
     useEventListener(el, 'touchstart', () => carousel.pause(), { passive: true })
     useEventListener(el, 'touchend', () => carousel.resume(), { passive: true })
   }
 
-  // Selection → Scroll sync: when step changes programmatically, scroll to slide
   watch(() => carousel.selectedIndex.value, index => {
     const viewport = el.value
     if (!viewport || slideStep.value === 0) return
@@ -209,7 +203,7 @@
 
     viewport.scrollTo({
       [isVertical ? 'top' : 'left']: position,
-      behavior: 'smooth',
+      behavior: carousel.behavior.value,
     })
   })
 
@@ -222,8 +216,6 @@
       [isVertical ? 'overflow-y' : 'overflow-x']: 'auto',
       [isVertical ? 'overflow-x' : 'overflow-y']: 'hidden',
       'scroll-snap-type': snapDisabled.value ? 'none' : `${isVertical ? 'y' : 'x'} mandatory`,
-      'scrollbar-width': 'none',
-      ...(snapDisabled.value ? { 'user-select': 'none' } : {}),
     } as Record<string, string | number>
   })
 

@@ -45,7 +45,7 @@
     /** Current slide number (1-indexed) */
     current: number
     /** Total number of slides */
-    total: number
+    size: number
     /** Announcement text */
     text: string
     /** Attributes to bind to the live region element */
@@ -95,7 +95,7 @@
     pending = setTimeout(() => {
       text.value = locale.t(
         'Carousel.liveRegion',
-        { current: index + 1, total: carousel.size },
+        { current: index + 1, size: carousel.size },
       )
     }, 100)
   })
@@ -105,7 +105,7 @@
 
   const slotProps = toRef((): CarouselLiveRegionSlotProps => ({
     current: carousel.selectedIndex.value + 1,
-    total: carousel.size,
+    size: carousel.size,
     text: text.value,
     attrs: {
       'aria-atomic': true,

@@ -52,6 +52,8 @@
     perView?: number
     /** Autoplay interval in milliseconds. 0 disables autoplay. */
     autoplay?: number
+    /** Scroll behavior for programmatic navigation */
+    behavior?: ScrollBehavior
   }
 
   export interface CarouselRootSlotProps {
@@ -108,6 +110,8 @@
     circular: Ref<boolean>
     /** Root ID for generating sub-component IDs */
     rootId: string
+    /** Scroll behavior for programmatic navigation */
+    behavior: Ref<ScrollBehavior>
     /** Registry for structural sub-components */
     parts: RegistryContext<CarouselPartTicket>
     /** Autoplay interval duration in ms (0 = disabled) */
@@ -146,6 +150,7 @@
     orientation = 'horizontal',
     perView = 1,
     autoplay = 0,
+    behavior = 'smooth',
   } = defineProps<CarouselRootProps>()
 
   const model = defineModel<T | T[]>()
@@ -203,6 +208,7 @@
     perView: toRef(() => perView),
     circular: toRef(() => circular),
     rootId,
+    behavior: toRef(() => behavior),
     parts,
     autoplay: toRef(() => autoplay),
     remaining: toRef(() => timer?.remaining.value ?? 0),

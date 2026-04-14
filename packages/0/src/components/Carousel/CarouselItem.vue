@@ -124,7 +124,7 @@
     attrs: {
       'role': 'group',
       'aria-roledescription': 'slide',
-      'aria-label': locale.t('Carousel.slide', { current: ticket.index + 1, total: carousel.size }),
+      'aria-label': locale.t('Carousel.slide', { current: ticket.index + 1, size: carousel.size }),
       'aria-hidden': isActive.value ? undefined : true,
       'data-selected': toValue(ticket.isSelected) || undefined,
       'data-active': isActive.value || undefined,

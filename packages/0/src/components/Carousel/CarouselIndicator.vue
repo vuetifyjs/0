@@ -19,7 +19,6 @@
   import { useLocale } from '#v0/composables/useLocale'
 
   // Utilities
-  import { isUndefined } from '#v0/utilities'
   import { mergeProps, onBeforeUnmount, toRef, useAttrs, useTemplateRef } from 'vue'
 
   // Transformers
@@ -42,8 +41,6 @@
     isSelected: boolean
     /** Whether this indicator's slide is in the visible window */
     isActive: boolean
-    /** Navigate to this slide */
-    select: () => void
     /** Attributes to bind to each indicator element */
     attrs: {
       'role': 'tab'
@@ -59,7 +56,7 @@
 
   export interface CarouselIndicatorSlotProps {
     /** Total number of slides */
-    total: number
+    size: number
     /** Currently selected slide index */
     selectedIndex: number
     /** Array of indicator items with per-dot state and attrs */
@@ -99,16 +96,15 @@
 
   function onKeydown (index: number, e: KeyboardEvent) {
     const horizontal = carousel.orientation.value === 'horizontal'
-    const total = carousel.size
+    const size = carousel.size
 
     if (
       (horizontal && e.key === 'ArrowRight')
       || (!horizontal && e.key === 'ArrowDown')
     ) {
       e.preventDefault()
-      const next = index + 1 < total ? index + 1 : (carousel.circular.value ? 0 : index)
-      const id = carousel.lookup(next)
-      if (!isUndefined(id)) carousel.select(id)
+      const next = index + 1 < size ? index + 1 : (carousel.circular.value ? 0 : index)
+      carousel.step(next)
       return
     }
 
@@ -117,9 +113,8 @@
       || (!horizontal && e.key === 'ArrowUp')
     ) {
       e.preventDefault()
-      const prev = index - 1 >= 0 ? index - 1 : (carousel.circular.value ? total - 1 : index)
-      const id = carousel.lookup(prev)
-      if (!isUndefined(id)) carousel.select(id)
+      const prev = index - 1 >= 0 ? index - 1 : (carousel.circular.value ? size - 1 : index)
+      carousel.step(prev)
       return
     }
 
@@ -137,30 +132,26 @@
 
   const slotProps = toRef((): CarouselIndicatorSlotProps => {
     const selected = carousel.selectedIndex.value
-    const total = carousel.size
+    const size = carousel.size
     const perView = carousel.perView.value
 
-    const items: CarouselIndicatorItem[] = Array.from({ length: total }, (_, i) => {
+    const items: CarouselIndicatorItem[] = Array.from({ length: size }, (_, i) => {
       const isSelected = i === selected
       const isActive = i >= selected && i < selected + perView
-      const id = carousel.lookup(i)
 
       return {
         index: i,
         isSelected,
         isActive,
-        select () {
-          if (!isUndefined(id)) carousel.select(id)
-        },
         attrs: {
           'role': 'tab',
           'tabindex': isSelected ? 0 : -1,
           'aria-selected': isSelected,
-          'aria-label': locale.t('Carousel.indicator', { current: i + 1, total }),
+          'aria-label': locale.t('Carousel.indicator', { current: i + 1, size }),
           'data-selected': isSelected || undefined,
           'data-active': isActive || undefined,
           'onClick' () {
-            if (!isUndefined(id)) carousel.select(id)
+            carousel.step(i)
           },
           'onKeydown': (e: KeyboardEvent) => onKeydown(i, e),
         },
@@ -168,7 +159,7 @@
     })
 
     return {
-      total,
+      size,
       selectedIndex: selected,
       items,
       attrs: {
