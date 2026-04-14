@@ -33,15 +33,6 @@
     namespace?: string
     /** Disables the entire carousel */
     disabled?: boolean
-    /** Auto-select non-disabled items on registration */
-    enroll?: boolean
-    /**
-     * Controls mandatory slide behavior:
-     * - false: No mandatory enforcement
-     * - true: Prevents deselecting the last selected slide
-     * - `force` (default): Automatically selects the first non-disabled slide
-     */
-    mandatory?: boolean | 'force'
     /** Whether navigation wraps around from last to first */
     circular?: boolean
     /** Carousel orientation */
@@ -125,8 +116,6 @@
     id: rootId = useId(),
     namespace = 'v0:carousel',
     disabled = false,
-    enroll = false,
-    mandatory = 'force',
     circular = false,
     orientation = 'horizontal',
     perView = 1,
@@ -137,8 +126,7 @@
 
   const step = createStep({
     disabled: toRef(() => disabled),
-    enroll,
-    mandatory,
+    mandatory: 'force',
     circular,
     events: true,
     reactive: true,

@@ -909,7 +909,7 @@ describe('carousel', () => {
               },
             }),
           ]),
-          h(Carousel.Root as any, { namespace: 'carousel-2', mandatory: false }, () => [
+          h(Carousel.Root as any, { namespace: 'carousel-2' }, () => [
             h(Carousel.Item as any, { value: 'slide-a', namespace: 'carousel-2' }, {
               default: (props: any) => {
                 carousel2Slide1Props = props
@@ -932,10 +932,12 @@ describe('carousel', () => {
       carousel1Slide1Props.select()
       await nextTick()
 
-      // Only carousel 1 slide should be selected
+      // Carousel 1 should have slide-a selected (via select())
+      // Carousel 2 should have slide-a selected (via mandatory: force)
+      // but they must be independent — selecting in one doesn't affect the other
       expect(carousel1Slide1Props.isSelected).toBe(true)
       expect(carousel1Slide2Props.isSelected).toBe(false)
-      expect(carousel2Slide1Props.isSelected).toBe(false)
+      expect(carousel2Slide1Props.isSelected).toBe(true)
       expect(carousel2Slide2Props.isSelected).toBe(false)
     })
 
