@@ -58,6 +58,7 @@
     toggle: () => void
     /** Attributes to bind to the slide element */
     attrs: {
+      'id': string
       'role': 'group'
       'aria-roledescription': 'slide'
       'aria-label': string
@@ -122,6 +123,7 @@
     unselect: ticket.unselect,
     toggle: ticket.toggle,
     attrs: {
+      'id': `${carousel.rootId}-slide-${ticket.index}`,
       'role': 'group',
       'aria-roledescription': 'slide',
       'aria-label': locale.t('Carousel.slide', { current: ticket.index + 1, size: carousel.size }),

@@ -47,6 +47,7 @@
       'role': 'tab'
       'tabindex': 0 | -1
       'aria-selected': boolean
+      'aria-controls': string
       'aria-label': string
       'data-selected': true | undefined
       'data-active': true | undefined
@@ -170,6 +171,7 @@
           'role': 'tab',
           'tabindex': isSelected ? 0 : -1,
           'aria-selected': isSelected,
+          'aria-controls': `${carousel.rootId}-slide-${i}`,
           'aria-label': locale.t('Carousel.indicator', { current: i + 1, size }),
           'data-selected': isSelected || undefined,
           'data-active': isActive || undefined,
