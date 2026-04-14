@@ -1,5 +1,5 @@
 blank_issues_enabled: false
 contact_links:
   - name: Report an issue
-    url: https://issues.vuetifyjs.com
+    url: https://issues.vuetifyjs.com/?repo=v0&type=bug
     about: Please report issues at issues.vuetifyjs.com
