@@ -497,7 +497,6 @@
     },
     "Carousel": {
       "level": "preview",
-      "since": "0.3.0",
       "category": "semantic"
     },
     "Image": {

@@ -28,7 +28,7 @@
 
   // Utilities
   import { isUndefined } from '#v0/utilities'
-  import { onBeforeUnmount, shallowRef, toRef, useTemplateRef, watch } from 'vue'
+  import { mergeProps, onBeforeUnmount, shallowRef, toRef, useAttrs, useTemplateRef, watch } from 'vue'
 
   // Transformers
   import { toElement } from '#v0/composables/toElement'
@@ -58,8 +58,9 @@
 </script>
 
 <script setup lang="ts">
-  defineOptions({ name: 'CarouselLiveRegion' })
+  defineOptions({ name: 'CarouselLiveRegion', inheritAttrs: false })
 
+  const attrs = useAttrs()
   const rootEl = useTemplateRef<AtomExpose>('root')
 
   defineSlots<{
@@ -118,7 +119,7 @@
 <template>
   <Atom
     ref="root"
-    v-bind="slotProps.attrs"
+    v-bind="mergeProps(attrs, slotProps.attrs)"
     :as
     :renderless
   >

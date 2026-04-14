@@ -19,7 +19,8 @@
   import { useLocale } from '#v0/composables/useLocale'
 
   // Utilities
-  import { mergeProps, onBeforeUnmount, toRef, useAttrs, useTemplateRef } from 'vue'
+  import { isUndefined } from '#v0/utilities'
+  import { mergeProps, nextTick, onBeforeUnmount, toRef, useAttrs, useTemplateRef } from 'vue'
 
   // Transformers
   import { toElement } from '#v0/composables/toElement'
@@ -94,6 +95,18 @@
   const ticket = carousel.parts.register({ type: 'indicator', el })
   onBeforeUnmount(() => ticket.unregister())
 
+  function selectIndex (index: number) {
+    const id = carousel.lookup(index)
+    if (!isUndefined(id)) carousel.select(id)
+  }
+
+  function focusSelected () {
+    nextTick(() => {
+      const container = toElement(rootEl.value?.element) as HTMLElement | null
+      container?.querySelector<HTMLElement>('[tabindex="0"]')?.focus()
+    })
+  }
+
   function onKeydown (index: number, e: KeyboardEvent) {
     const horizontal = carousel.orientation.value === 'horizontal'
     const size = carousel.size
@@ -104,7 +117,8 @@
     ) {
       e.preventDefault()
       const next = index + 1 < size ? index + 1 : (carousel.circular.value ? 0 : index)
-      carousel.step(next)
+      selectIndex(next)
+      focusSelected()
       return
     }
 
@@ -114,19 +128,28 @@
     ) {
       e.preventDefault()
       const prev = index - 1 >= 0 ? index - 1 : (carousel.circular.value ? size - 1 : index)
-      carousel.step(prev)
+      selectIndex(prev)
+      focusSelected()
       return
     }
 
     if (e.key === 'Home') {
       e.preventDefault()
       carousel.first()
+      focusSelected()
       return
     }
 
     if (e.key === 'End') {
       e.preventDefault()
       carousel.last()
+      focusSelected()
+      return
+    }
+
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      selectIndex(index)
     }
   }
 
@@ -151,7 +174,7 @@
           'data-selected': isSelected || undefined,
           'data-active': isActive || undefined,
           'onClick' () {
-            carousel.step(i)
+            selectIndex(i)
           },
           'onKeydown': (e: KeyboardEvent) => onKeydown(i, e),
         },

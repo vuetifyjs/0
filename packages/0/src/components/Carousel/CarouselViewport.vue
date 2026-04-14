@@ -44,7 +44,6 @@
     /** Attributes to bind to the viewport element */
     attrs: {
       'id': string
-      'aria-live': 'polite'
       'data-orientation': 'horizontal' | 'vertical'
       'data-dragging': true | undefined
       'style': Record<string, string | number>
@@ -223,7 +222,6 @@
     isDragging: isDragging.value,
     attrs: {
       'id': viewportId,
-      'aria-live': 'polite',
       'data-orientation': carousel.orientation.value,
       'data-dragging': isDragging.value || undefined,
       'style': viewportStyle.value,

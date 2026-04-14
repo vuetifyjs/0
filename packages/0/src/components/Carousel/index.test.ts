@@ -338,7 +338,7 @@ describe('carousel', () => {
       })
     })
 
-    describe('mandatory prop', () => {
+    describe('mandatory behavior', () => {
       it('should auto-select first slide when mandatory=force', async () => {
         let slideProps: any
 

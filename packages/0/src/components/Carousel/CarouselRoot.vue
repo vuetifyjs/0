@@ -17,6 +17,7 @@
   import { createContext } from '#v0/composables/createContext'
   import { createRegistry } from '#v0/composables/createRegistry'
   import { createStep } from '#v0/composables/createStep'
+  import { useLocale } from '#v0/composables/useLocale'
   import { useProxyModel } from '#v0/composables/useProxyModel'
   import { useTimer } from '#v0/composables/useTimer'
 
@@ -40,6 +41,8 @@
   export interface CarouselRootProps extends AtomProps {
     /** Unique identifier for the carousel */
     id?: string
+    /** Accessible label for the carousel region */
+    label?: string
     /** Namespace for dependency injection (must match child namespace) */
     namespace?: string
     /** Disables the entire carousel */
@@ -93,6 +96,9 @@
     attrs: {
       'role': 'region'
       'aria-roledescription': 'carousel'
+      'aria-label': string
+      'aria-disabled': boolean
+      'data-disabled': true | undefined
     }
   }
 
@@ -144,6 +150,7 @@
     as = 'div',
     renderless,
     id: rootId = useId(),
+    label,
     namespace = 'v0:carousel',
     disabled = false,
     circular = false,
@@ -152,6 +159,8 @@
     autoplay = 0,
     behavior = 'smooth',
   } = defineProps<CarouselRootProps>()
+
+  const locale = useLocale()
 
   const model = defineModel<T | T[]>()
 
@@ -188,12 +197,18 @@
     ? useTimer(() => next(), { duration: autoplay, repeat: true })
     : null
 
-  function noop () {}
-  const pause = timer ? () => timer.pause() : noop
-  const resume = timer ? () => timer.resume() : noop
-  const play = timer ? () => timer.start() : noop
-  const stop = timer ? () => timer.stop() : noop
-  const isPlaying = toRef(() => timer?.isActive.value ?? false)
+  function pause () {
+    timer?.pause()
+  }
+  function resume () {
+    timer?.resume()
+  }
+  function play () {
+    timer?.start()
+  }
+  function stop () {
+    timer?.stop()
+  }
 
   const parts = createRegistry<CarouselPartTicket>()
 
@@ -231,7 +246,7 @@
     prev,
     step: step.step,
     select: step.select,
-    isAutoplay: isPlaying.value,
+    isAutoplay: timer?.isActive.value ?? false,
     isPaused: timer?.isPaused.value ?? false,
     remaining: timer?.remaining.value ?? 0,
     play,
@@ -241,6 +256,9 @@
     attrs: {
       'role': 'region',
       'aria-roledescription': 'carousel',
+      'aria-label': label ?? locale.t('Carousel.label'),
+      'aria-disabled': toValue(step.disabled),
+      'data-disabled': toValue(step.disabled) || undefined,
     },
   }))
 </script>

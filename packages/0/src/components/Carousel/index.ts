@@ -8,7 +8,7 @@ export { default as CarouselIndicator } from './CarouselIndicator.vue'
 export { default as CarouselProgress } from './CarouselProgress.vue'
 export { default as CarouselLiveRegion } from './CarouselLiveRegion.vue'
 
-export type { CarouselContext, CarouselOrientation, CarouselRootProps, CarouselRootSlotProps } from './CarouselRoot.vue'
+export type { CarouselContext, CarouselOrientation, CarouselPartTicket, CarouselRootProps, CarouselRootSlotProps, CarouselTicket } from './CarouselRoot.vue'
 export type { CarouselViewportProps, CarouselViewportSlotProps } from './CarouselViewport.vue'
 export type { CarouselItemProps, CarouselItemSlotProps } from './CarouselItem.vue'
 export type { CarouselPreviousProps, CarouselPreviousSlotProps } from './CarouselPrevious.vue'
