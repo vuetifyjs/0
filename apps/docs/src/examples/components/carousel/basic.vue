@@ -5,7 +5,7 @@
 <template>
   <div class="flex flex-col gap-4">
     <Carousel.Root v-slot="{ isAutoplay, play, stop }" :autoplay="3000" circular>
-      <Carousel.Viewport class="rounded-lg overflow-hidden">
+      <Carousel.Viewport class="rounded-lg overflow-hidden gap-4">
         <Carousel.Item
           v-for="i in 5"
           :key="i"
