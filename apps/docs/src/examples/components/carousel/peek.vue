@@ -11,7 +11,7 @@
 
 <template>
   <Carousel.Root :per-view="1">
-    <Carousel.Viewport class="rounded-lg gap-4 px-12">
+    <Carousel.Viewport class="rounded-lg gap-4 px-12 cursor-grab data-[dragging]:cursor-grabbing">
       <Carousel.Item
         v-for="slide in slides"
         :key="slide.id"
