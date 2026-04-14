@@ -60,7 +60,7 @@
 <script setup lang="ts">
   defineOptions({ name: 'CarouselLiveRegion' })
 
-  const rootRef = useTemplateRef<AtomExpose>('root')
+  const rootEl = useTemplateRef<AtomExpose>('root')
 
   defineSlots<{
     default: (props: CarouselLiveRegionSlotProps) => any
@@ -75,7 +75,7 @@
   const locale = useLocale()
   const carousel = useCarouselRoot(namespace)
 
-  const el = toRef(() => toElement(rootRef.value?.element) as HTMLElement | null ?? null)
+  const el = toRef(() => toElement(rootEl.value?.element) as HTMLElement | null ?? null)
   const ticket = carousel.parts.register({ type: 'live-region', el })
   onBeforeUnmount(() => ticket.unregister())
 
@@ -86,16 +86,21 @@
   // This ensures screen readers detect the content change
   // @see https://tetralogical.com/blog/2024/05/01/why-are-my-live-regions-not-working/
   /* v8 ignore start -- watch fires after mount, setTimeout callback requires timer */
+  let pending: ReturnType<typeof setTimeout> | undefined
+
   watch(() => carousel.selectedIndex.value, (index, prevIndex) => {
     if (isUndefined(prevIndex)) return
 
-    setTimeout(() => {
+    clearTimeout(pending)
+    pending = setTimeout(() => {
       text.value = locale.t(
         'Carousel.liveRegion',
         { current: index + 1, total: carousel.size },
       )
     }, 100)
   })
+
+  onBeforeUnmount(() => clearTimeout(pending))
   /* v8 ignore stop */
 
   const slotProps = toRef((): CarouselLiveRegionSlotProps => ({

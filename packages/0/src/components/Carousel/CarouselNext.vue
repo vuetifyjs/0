@@ -54,7 +54,7 @@
   defineOptions({ name: 'CarouselNext', inheritAttrs: false })
 
   const attrs = useAttrs()
-  const rootRef = useTemplateRef<AtomExpose>('root')
+  const rootEl = useTemplateRef<AtomExpose>('root')
 
   defineSlots<{
     default: (props: CarouselNextSlotProps) => any
@@ -69,7 +69,7 @@
   const locale = useLocale()
   const carousel = useCarouselRoot(namespace)
 
-  const el = toRef(() => toElement(rootRef.value?.element) as HTMLElement | null ?? null)
+  const el = toRef(() => toElement(rootEl.value?.element) as HTMLElement | null ?? null)
   const ticket = carousel.parts.register({ type: 'next', el })
   onBeforeUnmount(() => ticket.unregister())
 
