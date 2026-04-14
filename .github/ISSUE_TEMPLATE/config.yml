@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Report an issue
+    url: https://issues.vuetifyjs.com
+    about: Please report issues at issues.vuetifyjs.com
