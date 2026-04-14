@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { Carousel } from '@vuetify/v0'
+  import { Carousel, Switch } from '@vuetify/v0'
 
   const items = [
     { id: 1, label: 'Design' },
@@ -12,7 +12,7 @@
 </script>
 
 <template>
-  <Carousel.Root circular :per-view="3">
+  <Carousel.Root v-slot="{ isAutoplay, play, stop }" :autoplay="3000" circular :per-view="3">
     <Carousel.Viewport class="rounded-lg gap-3">
       <Carousel.Item
         v-for="item in items"
@@ -33,5 +33,23 @@
         Next
       </Carousel.Next>
     </div>
+
+    <label class="flex items-center justify-center gap-2 mt-3 cursor-pointer">
+      <Switch.Root
+        class="inline-flex items-center border-none bg-transparent p-0 outline-none"
+        :model-value="isAutoplay"
+        @update:model-value="$event ? play() : stop()"
+      >
+        <Switch.Track
+          class="relative inline-flex items-center w-11 h-6 rounded-full bg-surface-variant transition-colors data-[state=checked]:bg-primary"
+        >
+          <Switch.Thumb
+            class="![visibility:visible] block size-4 rounded-full bg-white shadow-sm transition-transform translate-x-1 data-[state=checked]:translate-x-6"
+          />
+        </Switch.Track>
+      </Switch.Root>
+
+      <span class="text-sm">Autoplay</span>
+    </label>
   </Carousel.Root>
 </template>

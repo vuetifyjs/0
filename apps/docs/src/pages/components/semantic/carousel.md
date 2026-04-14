@@ -29,16 +29,11 @@ The Carousel provides slide navigation with native drag/swipe via CSS scroll-sna
 
 ::: example
 /components/carousel/basic
-
-### Basic Carousel
-
-A circular carousel with previous/next navigation buttons and five slides.
-
 :::
 
 ## Anatomy
 
-```vue Anatomy playground
+```vue Anatomy playground no-filename
 <script setup lang="ts">
   import { Carousel } from '@vuetify/v0'
 </script>
@@ -72,7 +67,7 @@ A circular carousel showing 3 slides at once with a 12px gap between them.
 
 ### Peek
 
-Use the `peek` prop to reveal a portion of adjacent slides, signaling to the user that more content is available and encouraging drag/swipe interaction.
+Add padding to the viewport to reveal a portion of adjacent slides, signaling to the user that more content is available and encouraging drag/swipe interaction.
 
 ::: example
 /components/carousel/peek
@@ -172,7 +167,7 @@ Slides outside the visible window are marked with `aria-hidden="true"` so screen
 
 ??? How does multi-slide display work?
 
-The `per-view` prop controls how many slides are visible at once. Each slide's width is computed as `calc((100% - gaps - peeks) / perView)` using CSS `flex-basis`. The Viewport uses CSS scroll-snap so the browser handles all scroll physics and snap behavior natively.
+The `per-view` prop controls how many slides are visible at once. The Viewport measures its own layout (padding, gaps) from the DOM and computes each slide's width automatically. It uses CSS scroll-snap so the browser handles all scroll physics and snap behavior natively.
 
 ??? Can I use fade transitions instead of sliding?
 
