@@ -16,7 +16,7 @@
 
   // Components
   import { Atom } from '#v0/components/Atom'
-  import { useCarouselRoot } from './CarouselRoot.vue'
+  import { useCarouselRoot, type CarouselTicket } from './CarouselRoot.vue'
 
   // Composables
   import { useDocumentEventListener, useEventListener } from '#v0/composables/useEventListener'
@@ -25,7 +25,7 @@
 
   // Utilities
   import { isUndefined } from '#v0/utilities'
-  import { mergeProps, onBeforeUnmount, onScopeDispose, shallowRef, toRef, useAttrs, useTemplateRef, watch } from 'vue'
+  import { mergeProps, onBeforeUnmount, onScopeDispose, shallowRef, toRef, toValue, useAttrs, useTemplateRef, watch } from 'vue'
 
   // Transformers
   import { toElement } from '#v0/composables/toElement'
@@ -77,7 +77,6 @@
   const viewportId = `${carousel.rootId}-viewport`
 
   const el = toRef(() => toElement(viewportRef.value?.element) as HTMLElement | null ?? null)
-
   const ticket = carousel.parts.register({ type: 'viewport', el })
   onBeforeUnmount(() => ticket.unregister())
 
@@ -85,10 +84,9 @@
 
   // Measure actual slide step from DOM layout (slide width + gap)
   const slideStep = toRef(() => {
-    const viewport = el.value
-    if (!viewport || width.value === 0) return 0
-    const first = viewport.children[0] as HTMLElement | undefined
-    const second = viewport.children[1] as HTMLElement | undefined
+    if (!el.value || width.value === 0) return 0
+    const first = toValue((carousel.seek('first') as CarouselTicket | undefined)?.el) as HTMLElement | undefined
+    const second = toValue((carousel.seek('first', 1) as CarouselTicket | undefined)?.el) as HTMLElement | undefined
     if (!first) return 0
     if (!second) return first.offsetWidth
     return second.offsetLeft - first.offsetLeft
@@ -225,7 +223,6 @@
       [isVertical ? 'overflow-x' : 'overflow-y']: 'hidden',
       'scroll-snap-type': snapDisabled.value ? 'none' : `${isVertical ? 'y' : 'x'} mandatory`,
       'scrollbar-width': 'none',
-      'cursor': snapDisabled.value ? 'grabbing' : 'grab',
       ...(snapDisabled.value ? { 'user-select': 'none' } : {}),
     } as Record<string, string | number>
   })

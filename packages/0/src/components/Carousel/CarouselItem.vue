@@ -18,10 +18,13 @@
   import { useLocale } from '#v0/composables/useLocale'
 
   // Utilities
-  import { mergeProps, onBeforeUnmount, toRef, toValue, useAttrs } from 'vue'
+  import { mergeProps, onBeforeUnmount, toRef, toValue, useAttrs, useTemplateRef } from 'vue'
+
+  // Transformers
+  import { toElement } from '#v0/composables/toElement'
 
   // Types
-  import type { AtomProps } from '#v0/components/Atom'
+  import type { AtomExpose, AtomProps } from '#v0/components/Atom'
   import type { ID } from '#v0/types'
   import type { MaybeRefOrGetter } from 'vue'
 
@@ -72,6 +75,7 @@
   defineOptions({ name: 'CarouselItem', inheritAttrs: false })
 
   const attrs = useAttrs()
+  const rootEl = useTemplateRef<AtomExpose>('root')
 
   defineSlots<{
     default: (props: CarouselItemSlotProps) => any
@@ -88,7 +92,8 @@
 
   const locale = useLocale()
   const carousel = useCarouselRoot(namespace)
-  const ticket = carousel.register({ id, value, disabled })
+  const el = toRef(() => toElement(rootEl.value?.element) as HTMLElement | null ?? null)
+  const ticket = carousel.register({ id, value, disabled, el })
 
   const isDisabled = toRef(() => toValue(ticket.disabled) || toValue(carousel.disabled))
 
@@ -132,6 +137,7 @@
 
 <template>
   <Atom
+    ref="root"
     v-bind="mergeProps(attrs, slotProps.attrs)"
     :as
     :renderless

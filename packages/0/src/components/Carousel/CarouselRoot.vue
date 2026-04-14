@@ -10,6 +10,9 @@
  */
 
 <script lang="ts">
+  // Components
+  import { Atom } from '#v0/components/Atom'
+
   // Composables
   import { createContext } from '#v0/composables/createContext'
   import { createRegistry } from '#v0/composables/createRegistry'
@@ -21,6 +24,7 @@
   import { toRef, toValue, useId } from 'vue'
 
   // Types
+  import type { AtomProps } from '#v0/components/Atom'
   import type { RegistryContext, RegistryTicketInput } from '#v0/composables/createRegistry'
   import type { StepContext, StepTicket } from '#v0/composables/createStep'
   import type { ID } from '#v0/types'
@@ -28,7 +32,12 @@
 
   export type CarouselOrientation = 'horizontal' | 'vertical'
 
-  export interface CarouselRootProps {
+  export interface CarouselTicket extends StepTicket {
+    /** Element reference for DOM measurement */
+    el?: MaybeRefOrGetter<HTMLElement | null>
+  }
+
+  export interface CarouselRootProps extends AtomProps {
     /** Unique identifier for the carousel */
     id?: string
     /** Namespace for dependency injection (must match child namespace) */
@@ -90,7 +99,7 @@
     el: MaybeRefOrGetter<HTMLElement | null>
   }
 
-  export interface CarouselContext extends StepContext<StepTicket> {
+  export interface CarouselContext extends StepContext<CarouselTicket> {
     /** Carousel orientation */
     orientation: Ref<CarouselOrientation>
     /** Number of slides visible at once */
@@ -102,13 +111,13 @@
     /** Registry for structural sub-components */
     parts: RegistryContext<CarouselPartTicket>
     /** Autoplay interval duration in ms (0 = disabled) */
-    autoplay: Ref<number>
+    autoplay: Readonly<Ref<number>>
     /** Milliseconds remaining until next auto-advance */
-    remaining: Ref<number>
+    remaining: Readonly<Ref<number>>
     /** Whether autoplay is currently active */
-    isAutoplay: Ref<boolean>
+    isAutoplay: Readonly<Ref<boolean>>
     /** Whether autoplay is currently paused */
-    isPaused: Ref<boolean>
+    isPaused: Readonly<Ref<boolean>>
     /** Restart autoplay from full interval */
     play: () => void
     /** Pause autoplay timer */
@@ -128,6 +137,8 @@
   }>()
 
   const {
+    as = 'div',
+    renderless,
     id: rootId = useId(),
     namespace = 'v0:carousel',
     disabled = false,
@@ -139,7 +150,7 @@
 
   const model = defineModel<T | T[]>()
 
-  const step = createStep({
+  const step = createStep<CarouselTicket>({
     disabled: toRef(() => disabled),
     mandatory: 'force',
     circular,
@@ -229,5 +240,7 @@
 </script>
 
 <template>
-  <slot v-bind="slotProps" />
+  <Atom v-bind="slotProps.attrs" :as :renderless>
+    <slot v-bind="slotProps" />
+  </Atom>
 </template>
