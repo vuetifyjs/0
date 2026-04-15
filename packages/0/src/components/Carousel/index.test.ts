@@ -620,10 +620,15 @@ describe('carousel', () => {
         expect(slideProps.attrs.style['scroll-snap-align']).toBe('start')
       })
 
-      it('should not include flex basis (consumer controls sizing)', async () => {
+      it('should compute flex basis from perView and gap', async () => {
         let slideProps: any
 
         mount(Carousel.Root, {
+          props: {
+            perView: 3,
+            gap: 16,
+            peek: 20,
+          },
           slots: {
             default: () =>
               h(Carousel.Item as any, { value: 'a' }, {
@@ -637,7 +642,8 @@ describe('carousel', () => {
 
         await nextTick()
 
-        expect(slideProps.attrs.style.flex).toBeUndefined()
+        // (perView - 1) * gap = 2 * 16 = 32; peek applied via padding, not flex
+        expect(slideProps.attrs.style.flex).toBe('0 0 calc((100% - 32px) / 3)')
       })
     })
   })

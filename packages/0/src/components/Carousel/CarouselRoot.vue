@@ -53,6 +53,10 @@
     orientation?: CarouselOrientation
     /** Number of slides visible at once */
     perView?: number
+    /** Gap between slides in pixels */
+    gap?: number
+    /** Amount of adjacent slide visible in pixels (peek) */
+    peek?: number
     /** Autoplay interval in milliseconds. 0 disables autoplay. */
     autoplay?: number
     /** Scroll behavior for programmatic navigation */
@@ -112,6 +116,10 @@
     orientation: Ref<CarouselOrientation>
     /** Number of slides visible at once */
     perView: Ref<number>
+    /** Gap between slides in pixels */
+    gap: Ref<number>
+    /** Amount of adjacent slide visible in pixels */
+    peek: Ref<number>
     /** Whether navigation wraps around */
     circular: Ref<boolean>
     /** Root ID for generating sub-component IDs */
@@ -156,6 +164,8 @@
     circular = false,
     orientation = 'horizontal',
     perView = 1,
+    gap = 0,
+    peek = 0,
     autoplay = 0,
     behavior = 'smooth',
   } = defineProps<CarouselRootProps>()
@@ -221,6 +231,8 @@
     resume,
     orientation: toRef(() => orientation),
     perView: toRef(() => perView),
+    gap: toRef(() => gap),
+    peek: toRef(() => peek),
     circular: toRef(() => circular),
     rootId,
     behavior: toRef(() => behavior),

@@ -90,6 +90,15 @@
     return second.offsetLeft - first.offsetLeft
   })
 
+  const hasScrollbar = toRef(() => {
+    const viewport = el.value
+    if (!viewport || width.value === 0) return false
+    const isVertical = carousel.orientation.value === 'vertical'
+    return isVertical
+      ? viewport.scrollHeight > viewport.clientHeight
+      : viewport.scrollWidth > viewport.clientWidth
+  })
+
   if (IN_BROWSER) {
     useEventListener(el, 'scrollend', () => {
       if (syncing.value || snapDisabled.value) {
@@ -105,8 +114,17 @@
       const isVertical = carousel.orientation.value === 'vertical'
       const scrollPos = isVertical ? viewport.scrollTop : viewport.scrollLeft
       const snapIndex = Math.round(scrollPos / slideStep.value)
-      const id = carousel.lookup(snapIndex)
 
+      if (hasScrollbar.value) {
+        const position = snapIndex * slideStep.value
+        syncing.value = true
+        viewport.scrollTo({
+          [isVertical ? 'top' : 'left']: position,
+          behavior: carousel.behavior.value,
+        })
+      }
+
+      const id = carousel.lookup(snapIndex)
       if (!isUndefined(id) && id !== carousel.selectedItem.value?.id) {
         carousel.select(id)
       }
@@ -208,13 +226,17 @@
 
   const viewportStyle = toRef(() => {
     const isVertical = carousel.orientation.value === 'vertical'
+    const g = carousel.gap.value
+    const p = carousel.peek.value
 
     return {
       'display': 'flex',
       'flex-direction': isVertical ? 'column' : 'row',
       [isVertical ? 'overflow-y' : 'overflow-x']: 'auto',
       [isVertical ? 'overflow-x' : 'overflow-y']: 'hidden',
-      'scroll-snap-type': snapDisabled.value ? 'none' : `${isVertical ? 'y' : 'x'} mandatory`,
+      'scroll-snap-type': (snapDisabled.value || hasScrollbar.value) ? 'none' : `${isVertical ? 'y' : 'x'} mandatory`,
+      ...(g > 0 ? { gap: `${g}px` } : {}),
+      ...(p > 0 ? { [isVertical ? 'padding-block' : 'padding-inline']: `${p}px` } : {}),
     } as Record<string, string | number>
   })
 
