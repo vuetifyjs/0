@@ -79,9 +79,10 @@ ComponentName/
 
 ### Rules
 - `defineOptions({ name: '...' })` — **always required** (100%)
-- All imports go in `<script lang="ts">`, not `<script setup>`
+- **ALL imports go in `<script lang="ts">`, NEVER in `<script setup>`** — this includes Vue imports (`ref`, `toRef`, `watch`, etc.), composable imports, and utility imports. `<script setup>` must contain zero import statements.
 - Props interface and slot props interface exported from regular script
 - Context `[useX, provideX]` exported from regular script
+- Cleanup: use `onBeforeUnmount` for unregistration, not `onUnmounted`
 
 ## Context Provision Pattern
 
@@ -163,8 +164,9 @@ const slotProps = toRef((): ComponentRootSlotProps => ({
 Every interactive component must have:
 1. Correct `role` attribute
 2. Relevant `aria-*` state attributes
-3. `aria-disabled` when disabled
+3. `aria-disabled` when disabled — always include as `boolean`, not `true | undefined`
 4. Keyboard event handlers
+5. All user-facing strings (`aria-label`, etc.) must use `useLocale()` and `locale.t()` — never hardcode English. Tests assert `toBeDefined()` for locale strings, not exact values.
 
 ## Disabled Pattern (100% enforced)
 
@@ -210,7 +212,7 @@ const [, , context] = createFooContext(options)
 useProxyModel(context, model, { multiple })
 ```
 
-**Do not** declare `defineEmits('update:model-value')` alongside `defineModel` — it's redundant.
+`defineEmits('update:model-value')` is redundant alongside `defineModel`, but **include it anyway** — vue-devtools requires the explicit emit declaration for event tracking.
 
 ## Barrel Export Pattern (100% enforced)
 
@@ -234,3 +236,7 @@ export const Component = { Root: ComponentRoot, Item: ComponentItem }
 - Slot props via `<slot v-bind="slotProps" />`
 - Hidden inputs conditionally rendered: `<ComponentHiddenInput v-if="name" />`
 - `v-if` for structural conditionals, never `v-show` (except Combobox filtered items)
+
+## Slot Attrs Double-Fire Hazard
+
+Slot `attrs` objects include `onClick` and other event handlers. These are already bound to the outer `<Atom>` wrapper via `mergeProps`. Consumers must **only** spread slot `attrs` onto their own element when using `renderless` mode. In non-renderless mode (default), spreading `attrs` onto a child element causes handlers to fire twice — once on the child, then again on the Atom wrapper via event bubbling. When writing examples for new components, never `v-bind="attrs"` on children inside a non-renderless component.
