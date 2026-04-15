@@ -17,7 +17,7 @@
         </Carousel.Item>
       </Carousel.Viewport>
 
-      <div class="flex items-center justify-center gap-2">
+      <div class="flex items-center justify-center gap-2 mt-3">
         <Carousel.Previous class="p-2 rounded-full border border-divider hover:bg-surface-variant disabled:opacity-40">
           <svg class="size-5" viewBox="0 0 24 24"><path :d="mdiChevronLeft" fill="currentColor" /></svg>
         </Carousel.Previous>

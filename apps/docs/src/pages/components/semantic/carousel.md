@@ -55,6 +55,19 @@ The Carousel provides slide navigation with native drag/swipe via CSS scroll-sna
 
 ## Examples
 
+### Indicator
+
+Dot indicators show which slide is active and allow direct navigation. The `Carousel.Indicator` exposes an `items` array via slot props — render each dot with `v-bind="item.attrs"` for built-in keyboard navigation and ARIA.
+
+::: example
+/components/carousel/indicator
+
+### Dot Navigation
+
+Indicators between Previous/Next buttons with roving tabindex and `aria-controls` linking each dot to its slide.
+
+:::
+
 ### Multi-Slide Display
 
 Show multiple slides at once with the `per-view` prop. This is useful for card grids, skill lists, or product carousels where users can browse items in groups.
