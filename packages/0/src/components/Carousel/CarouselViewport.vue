@@ -215,6 +215,8 @@
       [isVertical ? 'overflow-y' : 'overflow-x']: 'auto',
       [isVertical ? 'overflow-x' : 'overflow-y']: 'hidden',
       'scroll-snap-type': snapDisabled.value ? 'none' : `${isVertical ? 'y' : 'x'} mandatory`,
+      'scrollbar-width': 'none',
+      ...(snapDisabled.value ? { 'user-select': 'none' } : {}),
     } as Record<string, string | number>
   })
 

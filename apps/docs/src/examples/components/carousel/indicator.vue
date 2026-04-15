@@ -6,7 +6,7 @@
 <template>
   <Carousel.Root>
     <div class="relative">
-      <Carousel.Viewport class="rounded-lg overflow-hidden gap-4 scrollbar-hide cursor-grab data-[dragging]:cursor-grabbing data-[dragging]:select-none">
+      <Carousel.Viewport class="rounded-lg overflow-hidden gap-4 cursor-grab data-[dragging]:cursor-grabbing">
         <Carousel.Item
           v-for="i in 5"
           :key="i"
