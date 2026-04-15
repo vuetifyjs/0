@@ -5,12 +5,12 @@
 
 <template>
   <div class="flex flex-col gap-4">
-    <Carousel.Root :gap="16">
-      <Carousel.Viewport class="rounded-lg overflow-hidden scrollbar-hide cursor-grab data-[dragging]:cursor-grabbing data-[dragging]:select-none">
+    <Carousel.Root>
+      <Carousel.Viewport class="rounded-lg overflow-hidden gap-4 scrollbar-hide cursor-grab data-[dragging]:cursor-grabbing data-[dragging]:select-none">
         <Carousel.Item
           v-for="i in 5"
           :key="i"
-          class="flex items-center justify-center h-48 rounded-lg text-lg font-medium bg-surface-variant text-on-surface-variant"
+          class="flex items-center justify-center h-48 rounded-lg text-lg font-medium bg-surface-variant text-on-surface-variant w-full shrink-0"
           :value="i"
         >
           Slide {{ i }}
