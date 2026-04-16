@@ -11,8 +11,16 @@
  */
 
 <script lang="ts">
+  // Components
+  import { Atom } from '#v0/components/Atom'
+
+  import { useAvatarRoot } from './AvatarRoot.vue'
+
   // Composables
   import { useImage } from '#v0/composables/useImage'
+
+  // Utilities
+  import { onUnmounted, toRef, watch } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -54,14 +62,6 @@
 </script>
 
 <script setup lang="ts">
-  // Components
-  import { Atom } from '#v0/components/Atom'
-  // Composables
-  import { useAvatarRoot } from './AvatarRoot.vue'
-
-  // Utilities
-  import { onUnmounted, toRef, watch } from 'vue'
-
   defineOptions({
     name: 'AvatarImage',
     inheritAttrs: false,

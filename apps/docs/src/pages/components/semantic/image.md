@@ -29,11 +29,6 @@ Headless image component with state-driven placeholder and error fallback. Track
 
 ::: example
 /components/image/basic
-
-### Image with placeholder and fallback
-
-The basic compound: a placeholder during loading, the image when loaded, and a fallback on error. Native `loading="lazy"` defers the request until the browser deems it necessary.
-
 :::
 
 ## Anatomy
@@ -83,20 +78,32 @@ You can combine both: use the observer for state control and `loading="lazy"` as
 ## Examples
 
 ::: example
-/components/image/observer
+/components/image/BlurUpImage.vue 1
+/components/image/observer.vue 2
 
-### Observer-driven lazy loading
+### Blur-up LQIP with observer loading
 
-`lazy` on `Image.Root` defers the request until the root element intersects the viewport. The placeholder is visible while idle.
+Wrap `Image.Root` in a reusable component that drives a fade-in transition from a low-quality placeholder (LQIP) to the full-resolution image. The `lazy` prop on `Image.Root` defers the real source until the container intersects the viewport; the `status` slot prop drives opacity classes for a smooth blur-to-sharp transition.
+
+| File | Role |
+|------|------|
+| `BlurUpImage.vue` | Reusable component with LQIP placeholder and fade-in transition |
+| `observer.vue` | Entry point rendering a scrollable list of blur-up images |
 
 :::
 
 ::: example
-/components/image/picture
+/components/image/PictureImage.vue 1
+/components/image/picture.vue 2
 
 ### Picture element with format negotiation
 
-Use `renderless` mode on both `Image.Root` and `Image.Img` to drop the wrappers and emit a native `<picture>` element with `<source>` children for format negotiation.
+Use `renderless` mode on both `Image.Root` and `Image.Img` to drop their wrapper elements and compose them directly inside a native `<picture>` element. The browser picks the first supported `<source>`; `Image.Img` remains the fallback. All loading state is tracked by the surrounding `Image.Root` so `Image.Placeholder` and `Image.Fallback` behave the same as in the compound form.
+
+| File | Role |
+|------|------|
+| `PictureImage.vue` | Reusable wrapper that emits a `<picture>` with typed `<source>` children |
+| `picture.vue` | Entry point passing WebP and fallback sources |
 
 :::
 
@@ -135,6 +142,26 @@ The `retry()` function is available from both `Image.Root` and `Image.Fallback` 
 </Image.Root>
 ```
 
+## Styling
+
+Every Image sub-component exposes `data-state` reflecting the current status (`idle`, `loading`, `loaded`, or `error`). Prefer styling against these data attributes with CSS over threading slot props — the transitions stay CSS-only and the template stays declarative.
+
+```vue
+<Image.Img
+  alt="Photo"
+  class="opacity-0 transition-opacity data-[state=loaded]:opacity-100"
+/>
+```
+
+```css
+/* Or with plain CSS */
+[data-state='loaded'] { opacity: 1; }
+[data-state='loading'] { animation: pulse 1s infinite; }
+[data-state='error'] { border-color: red; }
+```
+
+Slot props (`status`, `isLoaded`, etc.) remain available for the rare cases where logic has to branch in the template, but reach for CSS + data attributes first.
+
 ## Accessibility
 
 | Element | ARIA / behavior |
@@ -167,7 +194,16 @@ Yes — set `renderless` on both `Image.Root` and `Image.Img`, then compose them
 
 ??? How do I fade in once the image loads?
 
-Use the `status` slot prop from `Image.Root` to drive CSS classes, e.g. `:class="{ 'opacity-100': status === 'loaded' }"`.
+Style against the `data-state` attribute that every Image sub-component exposes. Using data attributes keeps the transition CSS-only — no slot-prop threading required.
+
+```vue
+<Image.Img
+  alt="Photo"
+  class="opacity-0 transition-opacity duration-500 data-[state=loaded]:opacity-100"
+/>
+```
+
+The `data-state` attribute holds the current status (`idle`, `loading`, `loaded`, or `error`). The blur-up example uses this pattern.
 
 ??? Why isn't `src` on `Image.Img`?
 

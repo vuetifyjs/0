@@ -42,6 +42,10 @@ const { source, isLoaded, isError, onLoad, onError, retry } = useImage({
 // <img :src="source" @load="onLoad" @error="onError" />
 ```
 
+::: example
+/composables/use-image/basic
+:::
+
 ## Architecture
 
 ```mermaid "useImage state machine"
@@ -68,29 +72,34 @@ stateDiagram-v2
 ## Examples
 
 ::: example
-/composables/use-image/basic
+/composables/use-image/useLazyImage.ts 1
+/composables/use-image/LazyImage.vue 2
+/composables/use-image/lazy.vue 3
 
-### Basic state tracking
+### Compose with useIntersectionObserver
 
-A plain image element wired up with `useImage`. Status updates as the image loads, errors, or is replaced with a new source.
+Wrap `useImage` and `useIntersectionObserver` in a small custom composable to build a reusable viewport-driven lazy loader. The `eager` gate receives the observer's `isIntersecting` signal so the source is withheld until the target element scrolls into view.
+
+| File | Role |
+|------|------|
+| `useLazyImage.ts` | Custom composable combining `useImage` with `useIntersectionObserver` |
+| `LazyImage.vue` | Presentational component that binds the returned `target`, `source`, and handlers |
+| `lazy.vue` | Entry point rendering several lazy images in a scrolling container |
 
 :::
 
 ::: example
-/composables/use-image/lazy
-
-### Composed with useIntersectionObserver
-
-Pair `useImage` with `useIntersectionObserver` for viewport-driven lazy loading. The `eager` gate withholds the source until the target intersects.
-
-:::
-
-::: example
-/composables/use-image/retry
+/composables/use-image/RetryableImage.vue 1
+/composables/use-image/retry.vue 2
 
 ### Retry on error
 
-When the image errors, `retry()` resets the status back to `loading` so the browser re-attempts the request.
+Build a reusable image component that exposes a retry button when loading fails. The `retry()` function resets the status back to `loading` so the browser re-attempts the request.
+
+| File | Role |
+|------|------|
+| `RetryableImage.vue` | Wraps `useImage` and renders a retry button on error |
+| `retry.vue` | Demonstrates both a successful source and a broken one side by side |
 
 :::
 

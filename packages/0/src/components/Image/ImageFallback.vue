@@ -9,8 +9,14 @@
  */
 
 <script lang="ts">
+  // Components
+  import { Atom } from '#v0/components/Atom'
+
   // Composables
   import { useImageRoot } from './ImageRoot.vue'
+
+  // Utilities
+  import { toRef } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -32,12 +38,6 @@
 </script>
 
 <script setup lang="ts">
-  // Components
-  import { Atom } from '#v0/components/Atom'
-
-  // Utilities
-  import { toRef } from 'vue'
-
   defineOptions({ name: 'ImageFallback' })
 
   defineSlots<{
