@@ -49,8 +49,8 @@ Headless image component with state-driven placeholder and error fallback. Track
 </template>
 ```
 
-> [!TIP]
-> **Why `src` is the exception.** `src` lives on `Image.Root` because it's the one image attribute that drives state — the load lifecycle (`idle → loading → loaded | error`) can't function without knowing the URL to track. Every other image attribute (`alt`, `width`, `height`, `srcset`, `sizes`, `crossorigin`, `referrerpolicy`, `decoding`, `loading`, `fetchpriority`) is a pure rendering concern and lives on `Image.Img`, where it describes the element that actually renders it.
+> [!INFO]
+> `src` is the only native image attribute that doesn't live on `Image.Img` because it drives the load state machine — the `idle → loading → loaded | error` lifecycle can't function without knowing the URL to track, so `Image.Root` owns it. Every other image attribute (`alt`, `width`, `height`, `srcset`, `sizes`, `crossorigin`, `referrerpolicy`, `decoding`, `loading`, `fetchpriority`) is a pure rendering concern and lives on `Image.Img`, where it describes the element that actually renders it.
 
 ## Architecture
 
