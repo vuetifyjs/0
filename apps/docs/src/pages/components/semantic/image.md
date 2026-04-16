@@ -83,12 +83,22 @@ You can combine both: use the observer for state control and `loading="lazy"` as
 
 ### Blur-up LQIP with observer loading
 
-Wrap `Image.Root` in a reusable component that drives a fade-in transition from a low-quality placeholder (LQIP) to the full-resolution image. The `lazy` prop on `Image.Root` defers the real source until the container intersects the viewport; the `status` slot prop drives opacity classes for a smooth blur-to-sharp transition.
+Wrap `Image.Root` in a reusable component that drives a fade-in transition from a low-quality placeholder (LQIP) to the full-resolution image. A tiny blurred thumbnail ships in the initial HTML (or as a small base64 string), visible immediately; the full image is withheld by the `lazy` prop until `Image.Root` intersects the viewport, at which point it loads and fades in over the blur.
+
+Reach for this pattern when you have many below-the-fold images and want both perceived performance (something visible instantly) and actual bandwidth savings (only load what's seen). It shines on photo galleries, article covers, and image-heavy marketing pages where the blur-up effect is part of the aesthetic, not just a loading trick.
+
+Three pieces make it work:
+
+- **`lazy` prop on `Image.Root`** — defers setting the real `src` until the container scrolls into view via `useIntersectionObserver`. Pair with `root-margin` (e.g. `"200px"`) to start loading a bit before the container actually intersects.
+- **LQIP inside `Image.Placeholder`** — the blurred preview sits in the reserved frame (typically `absolute inset-0`). It's decorative, so `Image.Placeholder` auto-sets `aria-hidden="true"`.
+- **`data-state`-driven opacity** — the real `Image.Img` uses `opacity-0 transition-opacity data-[state=loaded]:opacity-100`, so the fade-in is CSS-only and doesn't require threading slot props through the template.
+
+Gotcha: the `lazy` prop needs a wrapper element to observe — it warns and skips observation when combined with `renderless`. If you need a lazy `<picture>`, observe a parent yourself with `useIntersectionObserver` and gate the source manually via `useImage`'s `eager` option.
 
 | File | Role |
 |------|------|
-| `BlurUpImage.vue` | Reusable component with LQIP placeholder and fade-in transition |
-| `observer.vue` | Entry point rendering a scrollable list of blur-up images |
+| `BlurUpImage.vue` | Reusable component with LQIP placeholder, `lazy` intersection loading, and CSS-driven fade-in |
+| `observer.vue` | Entry point rendering a scrollable list of blur-up images to demonstrate the viewport trigger |
 
 :::
 
@@ -98,12 +108,21 @@ Wrap `Image.Root` in a reusable component that drives a fade-in transition from 
 
 ### Picture element with format negotiation
 
-Use `renderless` mode on both `Image.Root` and `Image.Img` to drop their wrapper elements and compose them directly inside a native `<picture>` element. The browser picks the first supported `<source>`; `Image.Img` remains the fallback. All loading state is tracked by the surrounding `Image.Root` so `Image.Placeholder` and `Image.Fallback` behave the same as in the compound form.
+Use `renderless` mode on both `Image.Root` and `Image.Img` to drop their wrapper elements and compose them directly inside a native `<picture>` element. The browser walks the `<source>` list and picks the first format it supports (WebP, AVIF, JPEG XL, etc.); `Image.Img` renders the fallback `<img>` that older browsers use. All loading state is still tracked by the surrounding `Image.Root`, so `Image.Placeholder` and `Image.Fallback` behave identically to the compound form — no extra wiring needed.
+
+Reach for this pattern when you're serving modern image formats for bandwidth or quality gains while keeping a universal fallback, or when you need full control over DOM structure (e.g., embedding inside a `<figure>` with a `<figcaption>`). It's the only way to use `Image.Root`'s state machine with a native `<picture>` without losing either the format negotiation or the state-driven placeholder/fallback pattern.
+
+Two details worth knowing:
+
+- **`renderless` on both** — `Image.Root` must go renderless to avoid wrapping `<picture>` in an extra `<div>`, and `Image.Img` must go renderless so you can place the inner `<img>` as `<picture>`'s last child (where the browser expects it).
+- **`lazy` doesn't work here** — observer-driven lazy loading relies on a wrapper element to measure against. Combine native `loading="lazy"` on the inner `<img>` with `fetchpriority` hints for equivalent deferred loading, or wrap the whole composition in an outer element you observe manually.
+
+The `<source>` children are fully browser-driven — `Image.Img` never sees their URLs. It just reports the final `<img>` element's `load`/`error` events back to the context.
 
 | File | Role |
 |------|------|
-| `PictureImage.vue` | Reusable wrapper that emits a `<picture>` with typed `<source>` children |
-| `picture.vue` | Entry point passing WebP and fallback sources |
+| `PictureImage.vue` | Reusable wrapper that emits a `<picture>` with typed `<source>` children; both `Image.Root` and `Image.Img` go renderless to drop wrapper elements |
+| `picture.vue` | Entry point passing WebP and fallback sources to demonstrate format negotiation |
 
 :::
 

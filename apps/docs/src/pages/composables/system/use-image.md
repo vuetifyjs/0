@@ -78,13 +78,23 @@ stateDiagram-v2
 
 ### Compose with useIntersectionObserver
 
-Wrap `useImage` and `useIntersectionObserver` in a small custom composable to build a reusable viewport-driven lazy loader. The `eager` gate receives the observer's `isIntersecting` signal so the source is withheld until the target element scrolls into view.
+Wrap `useImage` and `useIntersectionObserver` in a small custom composable to build a reusable viewport-driven lazy loader. The observer returns a reactive `isIntersecting` flag; pipe that into `useImage`'s `eager` option and the source is withheld — status stays `idle`, no network request is made — until the target element scrolls into view.
+
+Reach for this pattern when the built-in `<Image.Root lazy>` isn't a fit: when you're not using the `Image` compound at all, when you need the observer target to be a different element than the image container, or when you want to share one observer across several images. The composable becomes the single owner of both "has it entered the viewport" and "what's the load status" — callers just destructure `{ target, source, onLoad, onError, isLoaded }` and wire them up.
+
+Three things make this composition work:
+
+- **`once: true` on the observer** — once the element intersects, the observer disconnects. `isIntersecting` stays `true` thereafter, so the image loads once and doesn't regress if the user scrolls it back off-screen.
+- **`rootMargin`** — start loading slightly before intersection (e.g. `"200px"`) so the image is typically loaded by the time it's actually visible. The default `"0px"` fires exactly at viewport entry, which can produce a visible blank frame on fast scrolling.
+- **`eager: isIntersecting`** — the observer's reactive flag drives `useImage`'s gate directly. No manual `watch`, no imperative calls — Vue's reactivity handles the state transition.
+
+Under the hood `<Image.Root lazy>` does exactly this; the custom composable exists so you can apply the same pattern without the compound component.
 
 | File | Role |
 |------|------|
-| `useLazyImage.ts` | Custom composable combining `useImage` with `useIntersectionObserver` |
-| `LazyImage.vue` | Presentational component that binds the returned `target`, `source`, and handlers |
-| `lazy.vue` | Entry point rendering several lazy images in a scrolling container |
+| `useLazyImage.ts` | Custom composable combining `useImage` and `useIntersectionObserver` — returns `{ target, ...image }` for consumers |
+| `LazyImage.vue` | Presentational component binding the returned `target` to its root, `source` to the `<img>`, and handlers to `load`/`error` |
+| `lazy.vue` | Entry point rendering several lazy images in a scrolling container to demonstrate the viewport trigger |
 
 :::
 
@@ -94,12 +104,22 @@ Wrap `useImage` and `useIntersectionObserver` in a small custom composable to bu
 
 ### Retry on error
 
-Build a reusable image component that exposes a retry button when loading fails. The `retry()` function resets the status back to `loading` so the browser re-attempts the request.
+Build a reusable image component that surfaces a retry button when loading fails. Calling `retry()` resets the status back to `loading` (or `idle` if `eager` is currently `false`) without changing the `src` — the browser re-attempts the same request, which handles the common case of transient network failures, flaky CDNs, or images that aren't in cache yet on the second attempt.
+
+Reach for this pattern anywhere a failed image shouldn't be a dead end: user-uploaded content that might take a moment to propagate through a CDN, photos behind a request-signed URL that can expire, or any UX where a "try again" button is friendlier than leaving a broken-image icon on screen. Track an `attempts` counter alongside `retry` when you want to cap retries or show progress ("Attempt 3 of 3") — `useImage` doesn't manage retry bookkeeping itself, which keeps it headless.
+
+A few details worth knowing:
+
+- **`retry()` is idempotent relative to `src`** — it doesn't change the source, just rewinds the state machine. If the image fails deterministically (404, CORS error), retry loops without progress; a fallback source or a cap is the caller's responsibility.
+- **Works with reactive `src` changes** — swapping `src` also resets the state machine automatically, so you typically call `retry()` only when you want to re-attempt the *same* URL. Set a new URL via the reactive ref if you want to try a different source.
+- **Pairs with the `status` ref** — the example conditionally renders the button via `isError`, but you can style around `data-state="error"` for CSS-only treatments (e.g., a red border that appears on error).
+
+Not limited to user-facing retries — the same pattern works for programmatic retries with backoff: watch `isError`, schedule a timer, call `retry()`.
 
 | File | Role |
 |------|------|
-| `RetryableImage.vue` | Wraps `useImage` and renders a retry button on error |
-| `retry.vue` | Demonstrates both a successful source and a broken one side by side |
+| `RetryableImage.vue` | Wraps `useImage`, tracks an `attempts` counter, and renders a retry button inside an `isError` branch |
+| `retry.vue` | Demonstrates both a working source and a broken one side-by-side so the retry UX is visible without waiting for real failure |
 
 :::
 

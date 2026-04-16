@@ -53,14 +53,36 @@ reserved frame — pair with `w-full h-full` or absolute positioning.
 
 ### Compose with Image
 
-Wrap `Image.Root` in `AspectRatio` to pin the load frame to a fixed ratio.
-The placeholder, fallback, and loaded image all share the same reserved
-space — no Cumulative Layout Shift regardless of load order.
+Wrap `Image.Root` in `AspectRatio` to pin the load frame to a fixed
+width-to-height ratio. The placeholder, fallback, and loaded image all
+share the same reserved box — so the layout never reflows as the image
+transitions through `idle → loading → loaded` or drops into `error`.
+
+This composition is the recommended pattern for content images whose
+natural dimensions vary, or that come from a CMS where the source's
+intrinsic size isn't known at authoring time. Instead of hard-coding
+`width`/`height` attributes that may not match the final media, let the
+container enforce the frame and let the image cover it via
+`object-cover`.
+
+Two tradeoffs to know about:
+
+- The child must fill the frame. Use `w-full h-full` on `Image.Img` (or
+  absolute positioning) so it stretches to the reserved box — otherwise
+  the box is taller than the rendered image and looks broken.
+- A single ratio applies to every descendant. If you need different
+  ratios per breakpoint, swap the `:ratio` prop with a responsive
+  expression (`computed` driven by `useBreakpoints`) rather than
+  layering multiple `AspectRatio` wrappers.
+
+Pairs naturally with `useImage` when you're driving the state machine
+manually, and with `useIntersectionObserver` when combining native lazy
+loading (`loading="lazy"`) with a reserved frame.
 
 | File | Role |
 |------|------|
-| `ResponsiveImage.vue` | `AspectRatio` wrapping `Image.Root` and its children |
-| `responsive.vue` | Entry point rendering images at two different ratios |
+| `ResponsiveImage.vue` | Reusable wrapper — `AspectRatio` around `Image.Root` with placeholder, fallback, and `object-cover` image |
+| `responsive.vue` | Entry point rendering images at two different ratios side-by-side (`16 / 9` landscape and `1` square) |
 
 :::
 
