@@ -17,7 +17,7 @@
   import { useImageRoot } from './ImageRoot.vue'
 
   // Utilities
-  import { toRef } from 'vue'
+  import { toRef, watch } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -51,6 +51,12 @@
   export interface ImageImgEmits {
     load: [e: Event]
     error: [e: Event]
+    /**
+     * Synthesized event fired when the image transitions into the `loading`
+     * state (on initial mount if `eager`, on intersection if `lazy`, or when
+     * `src` changes). Emits the source URL that started loading.
+     */
+    loadstart: [src: string]
   }
 
   export interface ImageImgSlotProps {
@@ -115,6 +121,12 @@
     context.onError(e)
     emit('error', e)
   }
+
+  watch(context.status, (status, prev) => {
+    if (status === 'loading' && prev !== 'loading' && context.source.value) {
+      emit('loadstart', context.source.value)
+    }
+  }, { immediate: true })
 
   const slotProps = toRef((): ImageImgSlotProps => ({
     isLoaded: context.isLoaded.value,
