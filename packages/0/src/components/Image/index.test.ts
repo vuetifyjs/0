@@ -471,5 +471,119 @@ describe('image', () => {
       expect(html).toBeTruthy()
       expect(html).toContain('img')
     })
+
+    it('should render Image.Presence to string without errors', async () => {
+      const app = createSSRApp(defineComponent({
+        render: () => h(Image.Root, { src: '/photo.jpg' }, () => [
+          h(Image.Presence, { alt: 'Test' }),
+        ]),
+      }))
+
+      const html = await renderToString(app)
+      expect(html).toBeTruthy()
+      expect(html).toContain('img')
+    })
+  })
+
+  describe('presence', () => {
+    it('should render the current source', () => {
+      const wrapper = mount(Image.Root, {
+        props: { src: '/a.jpg' },
+        slots: {
+          default: () => h(Image.Presence, { alt: 'Test' }),
+        },
+      })
+
+      const img = wrapper.find('img')
+      expect(img.attributes('src')).toBe('/a.jpg')
+    })
+
+    it('should render exactly one img while no previous exists', () => {
+      const wrapper = mount(Image.Root, {
+        props: { src: '/a.jpg' },
+        slots: {
+          default: () => h(Image.Presence, { alt: 'Test' }),
+        },
+      })
+
+      expect(wrapper.findAll('img')).toHaveLength(1)
+    })
+
+    it('should keep the previous img mounted while a new source loads', async () => {
+      const wrapper = mount(Image.Root, {
+        props: { src: '/a.jpg' },
+        slots: {
+          default: () => h(Image.Presence, { alt: 'Test' }),
+        },
+      })
+
+      // Load the first source
+      await wrapper.find('img').trigger('load')
+      await nextTick()
+
+      // Swap to a new source — previous should now be present
+      await wrapper.setProps({ src: '/b.jpg' })
+      await nextTick()
+
+      const imgs = wrapper.findAll('img')
+      expect(imgs).toHaveLength(2)
+      const srcs = imgs.map(i => i.attributes('src'))
+      expect(srcs).toContain('/a.jpg')
+      expect(srcs).toContain('/b.jpg')
+    })
+
+    it('should not add a previous layer on first load', async () => {
+      const wrapper = mount(Image.Root, {
+        props: { src: '/a.jpg' },
+        slots: {
+          default: () => h(Image.Presence, { alt: 'Test' }),
+        },
+      })
+
+      await wrapper.find('img').trigger('load')
+      await nextTick()
+
+      expect(wrapper.findAll('img')).toHaveLength(1)
+    })
+
+    it('should emit load event on image load', async () => {
+      const onLoad = vi.fn()
+      const wrapper = mount(Image.Root, {
+        props: { src: '/a.jpg' },
+        slots: {
+          default: () => h(Image.Presence, { alt: 'Test', onLoad }),
+        },
+      })
+
+      await wrapper.find('img').trigger('load')
+
+      expect(onLoad).toHaveBeenCalledTimes(1)
+    })
+
+    it('should emit error event on image error', async () => {
+      const onError = vi.fn()
+      const wrapper = mount(Image.Root, {
+        props: { src: '/a.jpg' },
+        slots: {
+          default: () => h(Image.Presence, { alt: 'Test', onError }),
+        },
+      })
+
+      await wrapper.find('img').trigger('error')
+
+      expect(onError).toHaveBeenCalledTimes(1)
+    })
+
+    it('should emit loadstart on initial mount', () => {
+      const onLoadstart = vi.fn()
+      mount(Image.Root, {
+        props: { src: '/a.jpg' },
+        slots: {
+          default: () => h(Image.Presence, { alt: 'Test', onLoadstart }),
+        },
+      })
+
+      expect(onLoadstart).toHaveBeenCalledWith('/a.jpg')
+    })
   })
 })

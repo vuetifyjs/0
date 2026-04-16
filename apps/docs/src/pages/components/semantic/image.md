@@ -25,7 +25,7 @@ Headless image component with state-driven placeholder and error fallback. Track
 
 ## Usage
 
-`Image.Root` owns the loading state machine via `useImage`. `Image.Img` renders the image element and reports load and error events to the context. `Image.Placeholder` is shown while idle or loading; `Image.Fallback` is shown on error.
+`Image.Root` owns the loading state machine via `useImage`. `Image.Img` renders the image element and reports load and error events to the context. `Image.Placeholder` is shown while idle or loading; `Image.Fallback` is shown on error. `Image.Presence` is a drop-in alternative to `Image.Img` that crossfades between sources when `src` changes — see the [gallery example](#gallery-navigation-with-image-presence).
 
 ::: example
 /components/image/basic
@@ -141,6 +141,45 @@ The `<source>` children are fully browser-driven — `Image.Img` never sees thei
 
 :::
 
+::: example
+/components/image/GalleryImage.vue 1
+/components/image/gallery.vue 2
+
+### Gallery navigation with Image.Presence
+
+Swap `Image.Img` for `Image.Presence` when navigating between already-loaded sources should never flash the placeholder. The component renders two stacked `<img>` elements: the newly loaded one fades in while the previous one fades out at the same tempo. Until the new source loads, the old image stays on screen — the user never sees blank space between photos.
+
+```mermaid "Source transition"
+flowchart LR
+  Change["src changes<br/>(Root.src = newUrl)"]
+  Capture["previousSrc ← oldUrl<br/>showPrevious = true"]
+  Mount["Presence mounts<br/>the previous img<br/>at opacity 1"]
+  Load["New img loads"]
+  Leave["showPrevious = false<br/>Presence enters leaving"]
+  Fade["Crossfade:<br/>previous opacity 1 → 0<br/>current opacity 0 → 1"]
+  Unmount["transitionend<br/>done() fires<br/>previous unmounts"]
+
+  Change --> Capture --> Mount --> Load --> Leave --> Fade --> Unmount
+```
+
+Reach for this pattern whenever the user can navigate between preloaded sources — image galleries, photo viewers, product thumbnails reacting to a color picker, or anywhere a `v-model` drives `src`. Without `Image.Presence`, each navigation resets the state machine to `loading`; the old image disappears from the DOM and the placeholder shows until the next image loads, producing a visible pop. `Image.Presence` holds the previous image in DOM through the load window, so the transition stays continuous.
+
+A few details worth knowing:
+
+- **Initial mount behaves like `Image.Img`** — there's no previous source on first load, so the component renders a single `<img>` and the placeholder shows while it loads. Only *subsequent* src changes engage the crossfade.
+- **Built on `Presence` internally** — the previous layer's lifecycle (mounted → leaving → unmounted) is driven by the `Presence` primitive. CSS targets `data-state='leaving'` to fade opacity 1 → 0, and the `transitionend` event triggers `done()` to finalize the unmount. No `setTimeout`, no manual cleanup.
+- **`img-class` vs `class`** — `class` goes on the wrapper `<div>` (layout, size, border-radius), while `img-class` applies to both inner `<img>` elements (object-fit, filters). This split is necessary because the wrapper coordinates two imgs via `position: relative`.
+- **Error state** — if the new image errors, the old one stays visible underneath and `Image.Fallback` overlays as usual. Call `retry()` from the Root slot props or the Fallback slot props to re-attempt the same source.
+
+Not a replacement for `Image.Img` in every case — if you don't need cross-src transitions (single content image, hero banner, avatars), stick with `Image.Img` for the simpler DOM.
+
+| File | Role |
+|------|------|
+| `GalleryImage.vue` | Reusable wrapper — `Image.Root` with `Image.Presence`, `Image.Placeholder`, and `Image.Fallback` overlays |
+| `gallery.vue` | Entry point with Previous/Next navigation cycling through four sources to demonstrate the continuous transition |
+
+:::
+
 ## Recipes
 
 ### Hero image with high priority
@@ -207,6 +246,7 @@ Slot props (`status`, `isLoaded`, etc.) remain available for the rare cases wher
 | Element | ARIA / behavior |
 | - | - |
 | `Image.Img` | `role="img"`, accepts `alt` for accessible name |
+| `Image.Presence` | Current `<img>` is the accessible image; the transitioning previous `<img>` is marked `aria-hidden="true"` so screen readers only announce the active source |
 | `Image.Placeholder` | `aria-hidden="true"` — placeholder is decorative |
 | `Image.Fallback` | `role="img"` — provide alternate text inside the slot |
 
@@ -231,6 +271,10 @@ Always set `width` and `height` on `Image.Img`. The browser uses these to reserv
 ??? Can I use a `<picture>` element with multiple `<source>` formats?
 
 Yes — set `renderless` on both `Image.Root` and `Image.Img`, then compose them inside a native `<picture>` element. See the picture example.
+
+??? When should I use `Image.Presence` instead of `Image.Img`?
+
+Use `Image.Presence` when the `src` on `Image.Root` can change to a different URL *after* the first image has loaded, and you want to avoid flashing the placeholder between transitions — gallery navigation, product variant thumbnails, anywhere a `v-model` drives `src`. `Image.Img` is the right choice for single-source content images where `src` never changes (or only changes via a full component remount).
 
 ??? How do I fade in once the image loads?
 
