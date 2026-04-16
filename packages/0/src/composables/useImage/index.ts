@@ -160,11 +160,11 @@ export function useImage (options: UseImageOptions): UseImageReturn {
 
   return {
     status: shallowReadonly(status),
-    isIdle: shallowReadonly(isIdle),
-    isLoading: shallowReadonly(isLoading),
-    isLoaded: shallowReadonly(isLoaded),
-    isError: shallowReadonly(isError),
-    source: shallowReadonly(source),
+    isIdle,
+    isLoading,
+    isLoaded,
+    isError,
+    source,
     onLoad,
     onError,
     retry,

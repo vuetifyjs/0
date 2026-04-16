@@ -5,8 +5,8 @@
  *
  * @remarks
  * The image element. Reads the gated source and load/error handlers from the
- * Image context and binds them to the rendered element. Visible only when the
- * parent's status is loaded.
+ * Image context and binds them to the rendered element. Exposes `data-state`
+ * so consumers can drive visibility via CSS.
  */
 
 <script lang="ts">
@@ -80,10 +80,7 @@
 </script>
 
 <script setup lang="ts">
-  defineOptions({
-    name: 'ImageImg',
-    inheritAttrs: false,
-  })
+  defineOptions({ name: 'ImageImg' })
 
   defineSlots<{
     default: (props: ImageImgSlotProps) => any
@@ -144,7 +141,6 @@
 
 <template>
   <Atom
-    v-show="context.isLoaded.value"
     v-bind="slotProps.attrs"
     :as
     :renderless

@@ -17,6 +17,7 @@
   import { createContext } from '#v0/composables/createContext'
   import { useImage } from '#v0/composables/useImage'
   import { useIntersectionObserver } from '#v0/composables/useIntersectionObserver'
+  import { useLogger } from '#v0/composables/useLogger'
 
   // Utilities
   import { shallowRef, toRef, useTemplateRef } from 'vue'
@@ -27,7 +28,6 @@
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
   import type { ImageStatus, UseImageReturn } from '#v0/composables/useImage'
-  import type { Ref } from 'vue'
 
   export interface ImageRootProps extends AtomProps {
     /** Image source URL. Forwarded to Image.Img via context. */
@@ -55,10 +55,7 @@
     }
   }
 
-  export interface ImageContext extends UseImageReturn {
-    /** Resolved root element ref — used by IntersectionObserver. */
-    rootEl: Ref<HTMLElement | null>
-  }
+  export interface ImageContext extends UseImageReturn {}
 
   export const [useImageRoot, provideImageRoot] = createContext<ImageContext>()
 </script>
@@ -82,6 +79,10 @@
   const atomRef = useTemplateRef<AtomExpose>('atom')
   const rootEl = toRef(() => toElement(atomRef.value?.element) as HTMLElement | null ?? null)
 
+  if (lazy && renderless) {
+    useLogger().warn('[v0:image] `lazy` requires a wrapper element but `renderless` is set — the image will never load. Remove `renderless` or use useIntersectionObserver manually.')
+  }
+
   const { isIntersecting } = lazy
     ? useIntersectionObserver(rootEl, () => {}, { once: true, rootMargin })
     : { isIntersecting: shallowRef(true) }
@@ -91,7 +92,7 @@
     eager: isIntersecting,
   })
 
-  provideImageRoot(namespace, { ...image, rootEl })
+  provideImageRoot(namespace, image)
 
   const slotProps = toRef((): ImageRootSlotProps => ({
     status: image.status.value,

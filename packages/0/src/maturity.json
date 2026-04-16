@@ -203,6 +203,7 @@
     },
     "useImage": {
       "level": "preview",
+      "since": "0.2.0",
       "category": "system"
     },
     "useIntersectionObserver": {
@@ -505,6 +506,7 @@
     },
     "Image": {
       "level": "preview",
+      "since": "0.2.0",
       "category": "semantic"
     },
     "Overflow": {

@@ -200,6 +200,19 @@ describe('image', () => {
         const img = wrapper.find('img')
         expect(img.attributes('role')).toBe('img')
       })
+
+      it('should propagate class and style to the img element', () => {
+        const wrapper = mount(Image.Root, {
+          props: { src: '/photo.jpg' },
+          slots: {
+            default: () => h(Image.Img, { alt: 'Test', class: 'custom-class', style: 'opacity: 0.5' }),
+          },
+        })
+
+        const img = wrapper.find('img')
+        expect(img.classes()).toContain('custom-class')
+        expect(img.attributes('style')).toContain('opacity: 0.5')
+      })
     })
 
     describe('events', () => {
