@@ -195,6 +195,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/components/primitives/aspect-ratio': RouteRecordInfo<
+      '/components/primitives/aspect-ratio',
+      '/components/primitives/aspect-ratio',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/components/primitives/atom': RouteRecordInfo<
       '/components/primitives/atom',
       '/components/primitives/atom',
@@ -1161,6 +1168,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/components/forms/switch.md': {
       routes:
         | '/components/forms/switch'
+      views:
+        | never
+    }
+    'src/pages/components/primitives/aspect-ratio.md': {
+      routes:
+        | '/components/primitives/aspect-ratio'
       views:
         | never
     }

@@ -81,6 +81,7 @@ import { ... } from '@vuetify/v0/date'       // Date adapter and utilities
 
 | Component | Description |
 |-----------|-------------|
+| [AspectRatio](https://0.vuetifyjs.com/components/primitives/aspect-ratio) | Fixed width-to-height ratio container via CSS `aspect-ratio` |
 | [Atom](https://0.vuetifyjs.com/components/primitives/atom) | Polymorphic base element with dynamic `as` prop and renderless mode |
 | [Portal](https://0.vuetifyjs.com/components/primitives/portal) | Teleport wrapper with automatic z-index stacking via useStack |
 | [Presence](https://0.vuetifyjs.com/components/primitives/presence) | Animation-agnostic mount lifecycle with lazy mounting and exit timing |

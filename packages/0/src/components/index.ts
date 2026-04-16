@@ -1,4 +1,5 @@
 export * from './AlertDialog'
+export * from './AspectRatio'
 export * from './Atom'
 export * from './Avatar'
 export * from './Breadcrumbs'

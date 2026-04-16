@@ -24,6 +24,7 @@ Foundation components for building higher-level abstractions.
 
 | Name | Description |
 | - | - |
+| [AspectRatio](/components/primitives/aspect-ratio) | Fixed width-to-height ratio container via CSS `aspect-ratio` |
 | [Atom](/components/primitives/atom) | Polymorphic element with dynamic `as` prop and renderless mode |
 | [Portal](/components/primitives/portal) | Teleport wrapper with automatic z-index stacking via useStack |
 | [Presence](/components/primitives/presence) | Renderless mount lifecycle with lazy mounting and exit animation delay |

@@ -325,6 +325,11 @@
     }
   },
   "components": {
+    "AspectRatio": {
+      "level": "preview",
+      "since": "0.2.0",
+      "category": "primitives"
+    },
     "Atom": {
       "level": "preview",
       "since": "0.1.0",
