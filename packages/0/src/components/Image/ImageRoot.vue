@@ -36,6 +36,18 @@
     lazy?: boolean
     /** IntersectionObserver root margin. Only used when lazy is true. */
     rootMargin?: string
+    /**
+     * IntersectionObserver threshold(s). A number or array of numbers
+     * between 0.0 and 1.0 indicating the percentage of the target's
+     * visibility required to trigger the observer. Only used when lazy is true.
+     */
+    threshold?: number | number[]
+    /**
+     * IntersectionObserver root element. If omitted, the viewport is used.
+     * Pass a scroll container to observe intersections relative to it instead.
+     * Only used when lazy is true.
+     */
+    root?: Element | null
     /** Namespace for dependency injection. */
     namespace?: string
   }
@@ -73,6 +85,8 @@
     src,
     lazy = false,
     rootMargin = '0px',
+    threshold = 0,
+    root = null,
     namespace = 'v0:image',
   } = defineProps<ImageRootProps>()
 
@@ -84,7 +98,7 @@
   }
 
   const { isIntersecting } = lazy
-    ? useIntersectionObserver(rootEl, () => {}, { once: true, rootMargin })
+    ? useIntersectionObserver(rootEl, () => {}, { once: true, rootMargin, threshold, root })
     : { isIntersecting: shallowRef(true) }
 
   const image = useImage({

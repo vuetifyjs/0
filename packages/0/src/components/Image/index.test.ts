@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { renderToString } from 'vue/server-renderer'
 
 // Utilities
@@ -121,6 +121,21 @@ describe('image', () => {
         })
 
         expect(captured.status).toBe('loading')
+      })
+
+      it('should accept threshold and root props without throwing', () => {
+        expect(() => {
+          mount(Image.Root, {
+            props: {
+              src: '/photo.jpg',
+              lazy: true,
+              threshold: 0.5,
+              rootMargin: '100px',
+              root: null,
+            },
+            slots: { default: () => h('span') },
+          })
+        }).not.toThrow()
       })
     })
   })
@@ -250,6 +265,31 @@ describe('image', () => {
         await img.trigger('error')
 
         expect(captured.status).toBe('error')
+      })
+
+      it('should emit loadstart on initial mount when eager', () => {
+        const onLoadstart = vi.fn()
+        mount(Image.Root, {
+          props: { src: '/photo.jpg' },
+          slots: {
+            default: () => h(Image.Img, { alt: 'Test', onLoadstart }),
+          },
+        })
+
+        expect(onLoadstart).toHaveBeenCalledTimes(1)
+        expect(onLoadstart).toHaveBeenCalledWith('/photo.jpg')
+      })
+
+      it('should not emit loadstart when idle (lazy)', () => {
+        const onLoadstart = vi.fn()
+        mount(Image.Root, {
+          props: { src: '/photo.jpg', lazy: true },
+          slots: {
+            default: () => h(Image.Img, { alt: 'Test', onLoadstart }),
+          },
+        })
+
+        expect(onLoadstart).not.toHaveBeenCalled()
       })
     })
   })
