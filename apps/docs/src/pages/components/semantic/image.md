@@ -85,6 +85,18 @@ You can combine both: use the observer for state control and `loading="lazy"` as
 
 Wrap `Image.Root` in a reusable component that drives a fade-in transition from a low-quality placeholder (LQIP) to the full-resolution image. A tiny blurred thumbnail ships in the initial HTML (or as a small base64 string), visible immediately; the full image is withheld by the `lazy` prop until `Image.Root` intersects the viewport, at which point it loads and fades in over the blur.
 
+```mermaid "Blur-up transition"
+flowchart LR
+  Scroll["User scrolls<br/>container in"]
+  Observer["IntersectionObserver<br/>fires (once)"]
+  Status["status:<br/>idle → loading"]
+  Load["img.onload"]
+  DS["data-state<br/>= 'loaded'"]
+  Fade["CSS fade<br/>opacity 0 → 1"]
+
+  Scroll --> Observer --> Status --> Load --> DS --> Fade
+```
+
 Reach for this pattern when you have many below-the-fold images and want both perceived performance (something visible instantly) and actual bandwidth savings (only load what's seen). It shines on photo galleries, article covers, and image-heavy marketing pages where the blur-up effect is part of the aesthetic, not just a loading trick.
 
 Three pieces make it work:

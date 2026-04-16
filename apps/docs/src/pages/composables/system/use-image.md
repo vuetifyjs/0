@@ -80,6 +80,17 @@ stateDiagram-v2
 
 Wrap `useImage` and `useIntersectionObserver` in a small custom composable to build a reusable viewport-driven lazy loader. The observer returns a reactive `isIntersecting` flag; pipe that into `useImage`'s `eager` option and the source is withheld — status stays `idle`, no network request is made — until the target element scrolls into view.
 
+```mermaid "Reactive signal pipeline"
+flowchart LR
+  Target["target<br/>ref&lt;HTMLElement&gt;"]
+  Observer["useIntersectionObserver<br/>{ once: true }"]
+  Signal["isIntersecting<br/>Ref&lt;boolean&gt;"]
+  Image["useImage<br/>{ eager }"]
+  Source["source<br/>Ref&lt;string | undefined&gt;"]
+
+  Target --> Observer --> Signal --> Image --> Source
+```
+
 Reach for this pattern when the built-in `<Image.Root lazy>` isn't a fit: when you're not using the `Image` compound at all, when you need the observer target to be a different element than the image container, or when you want to share one observer across several images. The composable becomes the single owner of both "has it entered the viewport" and "what's the load status" — callers just destructure `{ target, source, onLoad, onError, isLoaded }` and wire them up.
 
 Three things make this composition work:

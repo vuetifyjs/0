@@ -58,6 +58,20 @@ width-to-height ratio. The placeholder, fallback, and loaded image all
 share the same reserved box — so the layout never reflows as the image
 transitions through `idle → loading → loaded` or drops into `error`.
 
+```mermaid "Composition"
+flowchart TD
+  AR["AspectRatio<br/>(reserves the frame)"]
+  IR["Image.Root<br/>(state machine)"]
+  II["Image.Img<br/>w-full h-full object-cover"]
+  IP["Image.Placeholder<br/>absolute inset-0"]
+  IF["Image.Fallback<br/>absolute inset-0"]
+
+  AR --> IR
+  IR --> II
+  IR --> IP
+  IR --> IF
+```
+
 This composition is the recommended pattern for content images whose
 natural dimensions vary, or that come from a CMS where the source's
 intrinsic size isn't known at authoring time. Instead of hard-coding
