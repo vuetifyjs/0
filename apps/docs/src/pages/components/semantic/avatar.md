@@ -13,6 +13,8 @@ features:
   level: 2
 related:
   - /components/primitives/atom
+  - /components/semantic/image
+  - /composables/system/use-image
 ---
 
 # Avatar
@@ -81,6 +83,20 @@ flowchart TD
 
   FallbackReg -->|"Selected by default<br/>until image loads"| FallbackVisible
 ```
+
+> [!TIP]
+> For single-source content images with placeholder and error fallback, use [Image](/components/semantic/image) instead. Avatar specializes in identity / profile UIs with priority-based multi-source fallback.
+
+### Loading state slot props
+
+`Avatar.Image` exposes the underlying loading state from `useImage` via slot props. Use these for custom transitions, retry UI, or status indicators.
+
+| Slot prop | Purpose |
+|-----------|---------|
+| `status` | Current state: `'idle' \| 'loading' \| 'loaded' \| 'error'` |
+| `isLoaded` | True when the image has loaded successfully |
+| `isError` | True when the image failed to load |
+| `retry` | Reset the image and re-attempt loading |
 
 ### Priority System
 

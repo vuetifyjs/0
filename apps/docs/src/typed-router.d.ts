@@ -279,6 +279,20 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/components/semantic/carousel': RouteRecordInfo<
+      '/components/semantic/carousel',
+      '/components/semantic/carousel',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/components/semantic/image': RouteRecordInfo<
+      '/components/semantic/image',
+      '/components/semantic/image',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/components/semantic/pagination': RouteRecordInfo<
       '/components/semantic/pagination',
       '/components/semantic/pagination',
@@ -632,6 +646,13 @@ declare module 'vue-router/auto-routes' {
     '/composables/system/use-hotkey': RouteRecordInfo<
       '/composables/system/use-hotkey',
       '/composables/system/use-hotkey',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/composables/system/use-image': RouteRecordInfo<
+      '/composables/system/use-image',
+      '/composables/system/use-image',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -1215,6 +1236,18 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/components/semantic/carousel.md': {
+      routes:
+        | '/components/semantic/carousel'
+      views:
+        | never
+    }
+    'src/pages/components/semantic/image.md': {
+      routes:
+        | '/components/semantic/image'
+      views:
+        | never
+    }
     'src/pages/components/semantic/pagination.md': {
       routes:
         | '/components/semantic/pagination'
@@ -1518,6 +1551,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/system/use-hotkey.md': {
       routes:
         | '/composables/system/use-hotkey'
+      views:
+        | never
+    }
+    'src/pages/composables/system/use-image.md': {
+      routes:
+        | '/composables/system/use-image'
       views:
         | never
     }
