@@ -44,22 +44,59 @@ Devkey pairs `@vuetify/v0` with a minimal but production-shaped toolchain so you
 
 The project lives on GitHub at [vuetifyjs/devkey](https://github.com/vuetifyjs/devkey).
 
+### Scaffold a fresh copy
+
 ::: code-group no-filename
 
 ```bash pnpm
 pnpm create vuetify0
 ```
 
-```bash git
+```bash npm
+npm create vuetify0
+```
+
+```bash yarn
+yarn create vuetify0
+```
+
+```bash bun
+bun create vuetify0
+```
+
+:::
+
+### Clone the repository
+
+```bash no-filename
 git clone https://github.com/vuetifyjs/devkey.git
 cd devkey
+```
+
+Then install dependencies with your preferred package manager:
+
+::: code-group no-filename
+
+```bash pnpm
 pnpm install
+```
+
+```bash npm
+npm install
+```
+
+```bash yarn
+yarn install
+```
+
+```bash bun
+bun install
 ```
 
 :::
 
 > [!INFO]
-> `pnpm create vuetify0` produces the same layout as the Devkey repository. Cloning directly is useful if you want to track upstream changes.
+> `create vuetify0` produces the same layout as the Devkey repository. Cloning directly is useful if you want to track upstream changes.
 
 ## Scripts
 
