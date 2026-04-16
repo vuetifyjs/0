@@ -19,6 +19,9 @@
  */
 
 <script lang="ts">
+  // Globals
+  import { IN_BROWSER } from '#v0/constants/globals'
+
   // Components
   import { Atom } from '#v0/components/Atom'
   import { Presence } from '#v0/components/Presence'
@@ -122,15 +125,13 @@
   const showPrevious = shallowRef(false)
 
   watch(currentSrc, (newSrc, oldSrc) => {
-    if (oldSrc && newSrc && newSrc !== oldSrc) {
+    // Only capture the previous source when no transition is in flight —
+    // navigating through several sources before any have loaded should
+    // keep the original previous visible rather than flashing through
+    // each intermediate URL.
+    if (oldSrc && newSrc && newSrc !== oldSrc && !showPrevious.value) {
       previousSrc.value = oldSrc
       showPrevious.value = true
-    }
-  })
-
-  watch(context.isLoaded, loaded => {
-    if (loaded && showPrevious.value) {
-      showPrevious.value = false
     }
   })
 
@@ -143,6 +144,20 @@
   function onLoad (e: Event) {
     context.onLoad(e)
     emit('load', e)
+
+    // Defer the leaving transition by one animation frame so the browser
+    // commits the previous img's "mounted" opacity before flipping to
+    // "leaving" — without this, cached images load fast enough that
+    // Vue batches the show/hide flip into a single render and CSS never
+    // sees an intermediate state to transition from.
+    if (!showPrevious.value) return
+    if (IN_BROWSER) {
+      requestAnimationFrame(() => {
+        showPrevious.value = false
+      })
+    } else {
+      showPrevious.value = false
+    }
   }
 
   function onError (e: Event) {
