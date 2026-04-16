@@ -14,7 +14,7 @@
     src: toRef(() => props.src),
   })
 
-  function handleRetry () {
+  function onRetry () {
     attempts.value++
     retry()
   }
@@ -38,7 +38,7 @@
       </span>
       <button
         class="px-3 py-1 bg-primary text-on-primary rounded text-sm"
-        @click="handleRetry"
+        @click="onRetry"
       >
         Retry
       </button>
