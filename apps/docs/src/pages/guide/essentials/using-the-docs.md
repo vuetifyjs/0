@@ -110,7 +110,7 @@ The [Guide overview](/guide) defines three learning tracks for structured progre
 3. [Utilities](/guide/features/utilities) — Helper functions and type guards
 
 **Track C: Integration** — See v0 in production
-1. [Nuxt 3](/guide/integration/nuxt) — SSR, auto-imports, theme persistence
+1. [Nuxt](/guide/integration/nuxt) — SSR, auto-imports, theme persistence
 2. [Building Docs](/guide/integration/building-docs) — How this documentation site uses v0
 
 New to v0? Start with Track A. Already building? Jump to Track B as needed.

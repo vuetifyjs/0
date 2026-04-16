@@ -391,7 +391,7 @@ Type-safe access via `useCssModule()`:
 
 ## Nuxt
 
-v0 works with Nuxt 3 and Nuxt 4 via a standard plugin.
+v0 works with Nuxt via a standard plugin.
 
 ### 1. Create Plugin
 

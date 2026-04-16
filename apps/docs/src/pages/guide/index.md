@@ -73,7 +73,7 @@ See v0 patterns in production.
 
 | Guide | What You'll Learn |
 | - | - |
-| [Nuxt 3](/guide/integration/nuxt) | SSR, auto-imports, theme persistence |
+| [Nuxt](/guide/integration/nuxt) | SSR, auto-imports, theme persistence |
 | [Building This Documentation](/guide/integration/building-docs) | How this site uses v0, UnoCSS, and vite-ssg |
 
 > [!TIP]
