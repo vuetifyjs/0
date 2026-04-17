@@ -36,3 +36,10 @@ declare module 'virtual:llms-stats' {
   const data: LlmsStats
   export default data
 }
+
+declare module 'virtual:tips' {
+  // Types
+  import type { CompiledTip } from '@build/generate-tips'
+  const tips: CompiledTip[]
+  export default tips
+}
