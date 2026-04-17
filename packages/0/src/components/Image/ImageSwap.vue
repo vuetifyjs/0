@@ -185,7 +185,11 @@
   >
     <img
       :alt
-      :class="[imgClass, 'transition-opacity opacity-0 data-[state=loaded]:opacity-100']"
+      :class="[
+        imgClass,
+        'transition-opacity',
+        showPrevious || context.isLoaded.value ? 'opacity-100' : 'opacity-0',
+      ]"
       :crossorigin
       :data-state="context.status.value"
       :decoding
