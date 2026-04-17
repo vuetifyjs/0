@@ -7,15 +7,25 @@
     alt: string
   }>()
 
+  const BROKEN = 'https://invalid.example/missing.jpg'
   const attempts = shallowRef(0)
+  const currentSrc = shallowRef(BROKEN)
 
   const { source, isLoaded, isError, onLoad, onError, retry } = useImage({
-    src: toRef(() => props.src),
+    src: toRef(() => currentSrc.value),
   })
 
   function onRetry () {
     attempts.value++
-    retry()
+    // Simulate a flaky network: each retry has a 25% chance of succeeding.
+    // On success, swap the broken URL for the real one — the src change
+    // triggers a fresh fetch. Otherwise call retry() to re-attempt the
+    // existing (broken) URL.
+    if (Math.random() < 0.25) {
+      currentSrc.value = props.src
+    } else {
+      retry()
+    }
   }
 </script>
 

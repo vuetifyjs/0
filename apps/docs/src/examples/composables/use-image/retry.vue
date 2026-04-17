@@ -3,15 +3,10 @@
 </script>
 
 <template>
-  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+  <div class="max-w-md mx-auto">
     <RetryableImage
-      alt="Working photo"
+      alt="Photo that sometimes loads"
       src="https://picsum.photos/seed/retry-ok/400/300"
-    />
-
-    <RetryableImage
-      alt="Broken photo — click Retry"
-      src="https://invalid.example/missing.jpg"
     />
   </div>
 </template>

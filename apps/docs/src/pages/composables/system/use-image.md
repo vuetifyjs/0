@@ -146,8 +146,8 @@ Not limited to user-facing retries — the same pattern works for programmatic r
 
 | File | Role |
 |------|------|
-| `RetryableImage.vue` | Wraps `useImage`, tracks an `attempts` counter, and renders a retry button inside an `isError` branch |
-| `retry.vue` | Demonstrates both a working source and a broken one side-by-side so the retry UX is visible without waiting for real failure |
+| `RetryableImage.vue` | Wraps `useImage`, tracks an `attempts` counter, and renders a retry button inside an `isError` branch. Simulates a flaky network: each click has a 25% chance of swapping in the real source (success) or re-requesting the broken one (another failure) |
+| `retry.vue` | Entry point rendering a single `RetryableImage` — click Retry repeatedly to watch the state cycle between `loading` and `error` until a retry happens to land on success |
 
 :::
 
