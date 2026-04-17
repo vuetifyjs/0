@@ -4,7 +4,7 @@
   defineProps<{
     src: string
     alt: string
-    mode: 'img' | 'presence'
+    mode: 'img' | 'swap'
   }>()
 </script>
 
@@ -19,7 +19,7 @@
       class="w-full h-full object-cover opacity-0 transition-opacity duration-500 data-[state=loaded]:opacity-100"
     />
 
-    <Image.Presence
+    <Image.Swap
       v-else
       :alt
       class="w-full h-full"

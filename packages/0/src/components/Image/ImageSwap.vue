@@ -1,21 +1,17 @@
 /**
- * @module ImagePresence
+ * @module ImageSwap
  *
  * @see https://0.vuetifyjs.com/components/semantic/image
  *
  * @remarks
- * Source-transitioning image element. Keeps the previously loaded source
- * visible while a new one loads, then crossfades between them via opacity.
- * Uses the Presence primitive to manage the mount lifecycle of the previous
- * layer — its data-state drives the exit transition.
+ * Source-swapping image element. Keeps the previously loaded source visible
+ * while a new one loads, then crossfades between them via opacity. Prevents
+ * the placeholder flash that occurs with Image.Img when navigating between
+ * already-loaded sources (carousels, galleries, next/previous UX).
  *
- * Replaces Image.Img when you want seamless transitions between already-
- * loaded sources (carousels, galleries, next/previous navigation). On the
+ * Uses the Presence primitive internally to manage the mount lifecycle of
+ * the previous layer — data-state drives the exit transition. On the
  * initial load, behaves identically to Image.Img.
- *
- * API note: despite sharing the name, Image.Presence is not driven by a
- * v-model boolean like the top-level Presence primitive — its lifecycle is
- * triggered implicitly by src changes on Image.Root.
  */
 
 <script lang="ts">
@@ -36,7 +32,7 @@
   import type { AtomProps } from '#v0/components/Atom'
   import type { ImageStatus } from '#v0/composables/useImage'
 
-  export interface ImagePresenceProps extends AtomProps {
+  export interface ImageSwapProps extends AtomProps {
     /** Accessible alt text applied to both the current and previous image layers. */
     alt?: string
     /** Responsive image candidates. */
@@ -71,13 +67,13 @@
     namespace?: string
   }
 
-  export interface ImagePresenceEmits {
+  export interface ImageSwapEmits {
     load: [e: Event]
     error: [e: Event]
     loadstart: [src: string]
   }
 
-  export interface ImagePresenceSlotProps {
+  export interface ImageSwapSlotProps {
     /** Current loading status. */
     status: ImageStatus
     /** Whether the current source has loaded. */
@@ -94,10 +90,10 @@
 </script>
 
 <script setup lang="ts">
-  defineOptions({ name: 'ImagePresence' })
+  defineOptions({ name: 'ImageSwap' })
 
   defineSlots<{
-    default: (props: ImagePresenceSlotProps) => any
+    default: (props: ImageSwapSlotProps) => any
   }>()
 
   const {
@@ -115,9 +111,9 @@
     fetchpriority,
     imgClass,
     namespace = 'v0:image',
-  } = defineProps<ImagePresenceProps>()
+  } = defineProps<ImageSwapProps>()
 
-  const emit = defineEmits<ImagePresenceEmits>()
+  const emit = defineEmits<ImageSwapEmits>()
 
   const context = useImageRoot(namespace)
   const currentSrc = toRef(() => context.source.value)
@@ -169,7 +165,7 @@
     if ((e as TransitionEvent).propertyName === 'opacity') done()
   }
 
-  const slotProps = toRef((): ImagePresenceSlotProps => ({
+  const slotProps = toRef((): ImageSwapSlotProps => ({
     status: context.status.value,
     isLoaded: context.isLoaded.value,
     currentSrc: currentSrc.value,

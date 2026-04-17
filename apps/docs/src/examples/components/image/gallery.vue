@@ -52,9 +52,9 @@
 
       <div class="flex flex-col gap-2">
         <span class="text-xs font-semibold text-on-surface-variant uppercase tracking-wide">
-          Image.Presence
+          Image.Swap
         </span>
-        <GalleryImage :alt="displayedAlt" mode="presence" :src="displayedSrc" />
+        <GalleryImage :alt="displayedAlt" mode="swap" :src="displayedSrc" />
         <p class="text-xs text-on-surface-variant">
           Keeps the previous photo visible, then crossfades.
         </p>

@@ -39,9 +39,7 @@ reserved frame — pair with `w-full h-full` or absolute positioning.
 </script>
 
 <template>
-  <AspectRatio :ratio="16 / 9">
-    <!-- content -->
-  </AspectRatio>
+  <AspectRatio />
 </template>
 ```
 

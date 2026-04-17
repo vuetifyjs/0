@@ -472,10 +472,10 @@ describe('image', () => {
       expect(html).toContain('img')
     })
 
-    it('should render Image.Presence to string without errors', async () => {
+    it('should render Image.Swap to string without errors', async () => {
       const app = createSSRApp(defineComponent({
         render: () => h(Image.Root, { src: '/photo.jpg' }, () => [
-          h(Image.Presence, { alt: 'Test' }),
+          h(Image.Swap, { alt: 'Test' }),
         ]),
       }))
 
@@ -485,12 +485,12 @@ describe('image', () => {
     })
   })
 
-  describe('presence', () => {
+  describe('swap', () => {
     it('should render the current source', () => {
       const wrapper = mount(Image.Root, {
         props: { src: '/a.jpg' },
         slots: {
-          default: () => h(Image.Presence, { alt: 'Test' }),
+          default: () => h(Image.Swap, { alt: 'Test' }),
         },
       })
 
@@ -502,7 +502,7 @@ describe('image', () => {
       const wrapper = mount(Image.Root, {
         props: { src: '/a.jpg' },
         slots: {
-          default: () => h(Image.Presence, { alt: 'Test' }),
+          default: () => h(Image.Swap, { alt: 'Test' }),
         },
       })
 
@@ -513,7 +513,7 @@ describe('image', () => {
       const wrapper = mount(Image.Root, {
         props: { src: '/a.jpg' },
         slots: {
-          default: () => h(Image.Presence, { alt: 'Test' }),
+          default: () => h(Image.Swap, { alt: 'Test' }),
         },
       })
 
@@ -536,7 +536,7 @@ describe('image', () => {
       const wrapper = mount(Image.Root, {
         props: { src: '/a.jpg' },
         slots: {
-          default: () => h(Image.Presence, { alt: 'Test' }),
+          default: () => h(Image.Swap, { alt: 'Test' }),
         },
       })
 
@@ -551,7 +551,7 @@ describe('image', () => {
       const wrapper = mount(Image.Root, {
         props: { src: '/a.jpg' },
         slots: {
-          default: () => h(Image.Presence, { alt: 'Test', onLoad }),
+          default: () => h(Image.Swap, { alt: 'Test', onLoad }),
         },
       })
 
@@ -565,7 +565,7 @@ describe('image', () => {
       const wrapper = mount(Image.Root, {
         props: { src: '/a.jpg' },
         slots: {
-          default: () => h(Image.Presence, { alt: 'Test', onError }),
+          default: () => h(Image.Swap, { alt: 'Test', onError }),
         },
       })
 
@@ -579,7 +579,7 @@ describe('image', () => {
       mount(Image.Root, {
         props: { src: '/a.jpg' },
         slots: {
-          default: () => h(Image.Presence, { alt: 'Test', onLoadstart }),
+          default: () => h(Image.Swap, { alt: 'Test', onLoadstart }),
         },
       })
 

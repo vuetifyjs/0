@@ -1,7 +1,7 @@
 export { default as ImageFallback } from './ImageFallback.vue'
 export { default as ImageImg } from './ImageImg.vue'
 export { default as ImagePlaceholder } from './ImagePlaceholder.vue'
-export { default as ImagePresence } from './ImagePresence.vue'
+export { default as ImageSwap } from './ImageSwap.vue'
 export { provideImageRoot, useImageRoot } from './ImageRoot.vue'
 
 export { default as ImageRoot } from './ImageRoot.vue'
@@ -9,15 +9,15 @@ export { default as ImageRoot } from './ImageRoot.vue'
 export type { ImageFallbackProps, ImageFallbackSlotProps } from './ImageFallback.vue'
 export type { ImageImgEmits, ImageImgProps, ImageImgSlotProps } from './ImageImg.vue'
 export type { ImagePlaceholderProps, ImagePlaceholderSlotProps } from './ImagePlaceholder.vue'
-export type { ImagePresenceEmits, ImagePresenceProps, ImagePresenceSlotProps } from './ImagePresence.vue'
+export type { ImageSwapEmits, ImageSwapProps, ImageSwapSlotProps } from './ImageSwap.vue'
 export type { ImageContext, ImageRootProps, ImageRootSlotProps } from './ImageRoot.vue'
 
 // Components
 import Fallback from './ImageFallback.vue'
 import Img from './ImageImg.vue'
 import Placeholder from './ImagePlaceholder.vue'
-import PresenceSub from './ImagePresence.vue'
 import Root from './ImageRoot.vue'
+import Swap from './ImageSwap.vue'
 
 /**
  * Image component with sub-components for managing image loading lifecycle.
@@ -87,7 +87,7 @@ export const Image = {
    */
   Fallback,
   /**
-   * Source-transitioning image element. Keeps the previously loaded source
+   * Source-swapping image element. Keeps the previously loaded source
    * visible while a new one loads, then crossfades via opacity. Drop-in
    * replacement for `Image.Img` when navigating between already-loaded
    * sources (carousels, galleries).
@@ -97,9 +97,9 @@ export const Image = {
    * @example
    * ```vue
    * <Image.Root src="/photo-1.jpg">
-   *   <Image.Presence alt="Gallery photo" img-class="w-full h-full object-cover" />
+   *   <Image.Swap alt="Gallery photo" img-class="w-full h-full object-cover" />
    * </Image.Root>
    * ```
    */
-  Presence: PresenceSub,
+  Swap,
 }
