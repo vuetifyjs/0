@@ -53,8 +53,9 @@
     error: [e: Event]
     /**
      * Synthesized event fired when the image transitions into the `loading`
-     * state (on initial mount if `eager`, on intersection if `lazy`, or when
-     * `src` changes). Emits the source URL that started loading.
+     * state: on initial mount if `eager`, on intersection if `lazy`, when
+     * `src` changes, or when `retry()` is called. Emits the source URL that
+     * started loading — analytics can treat every emit as one network request.
      */
     loadstart: [src: string]
   }

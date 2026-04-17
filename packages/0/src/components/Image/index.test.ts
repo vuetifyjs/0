@@ -325,6 +325,38 @@ describe('image', () => {
 
         expect(onLoadstart).not.toHaveBeenCalled()
       })
+
+      it('should emit loadstart again when retry is called from Fallback', async () => {
+        const onLoadstart = vi.fn()
+        let fallbackProps: any
+        const wrapper = mount(Image.Root, {
+          props: { src: '/photo.jpg' },
+          slots: {
+            default: () => [
+              h(Image.Img, { alt: 'Test', onLoadstart }),
+              h(Image.Fallback as any, {}, (props: any) => {
+                fallbackProps = props
+                return 'Failed'
+              }),
+            ],
+          },
+        })
+
+        // Initial mount: one loadstart for the first fetch
+        expect(onLoadstart).toHaveBeenCalledTimes(1)
+
+        await wrapper.find('img').trigger('error')
+        await nextTick()
+
+        fallbackProps.retry()
+        // retry cycles through 'idle' briefly to force the browser refetch
+        await nextTick()
+        await nextTick()
+
+        // retry counts as a new network request — loadstart fires again
+        expect(onLoadstart).toHaveBeenCalledTimes(2)
+        expect(onLoadstart).toHaveBeenLastCalledWith('/photo.jpg')
+      })
     })
   })
 
