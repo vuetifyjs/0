@@ -44,7 +44,7 @@
     <template v-if="isError">
       <svg
         aria-label="Image failed to load"
-        class="size-16 text-error"
+        class="size-24 text-on-surface-variant"
         role="img"
         viewBox="0 0 24 24"
       >

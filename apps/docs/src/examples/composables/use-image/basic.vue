@@ -1,5 +1,6 @@
 <script setup lang="ts">
   import { useImage } from '@vuetify/v0'
+  import { mdiImageBrokenVariant } from '@mdi/js'
   import { shallowRef } from 'vue'
 
   const src = shallowRef('https://picsum.photos/seed/v0/400/300')
@@ -31,9 +32,15 @@
       <span v-if="!isLoaded && !isError" class="text-on-surface-variant text-sm">
         Loading...
       </span>
-      <span v-if="isError" class="text-error text-sm">
-        Failed to load
-      </span>
+      <svg
+        v-if="isError"
+        aria-label="Image failed to load"
+        class="size-24 text-on-surface-variant"
+        role="img"
+        viewBox="0 0 24 24"
+      >
+        <path :d="mdiImageBrokenVariant" fill="currentColor" />
+      </svg>
     </div>
 
     <div class="flex gap-2">
