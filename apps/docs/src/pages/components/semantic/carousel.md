@@ -213,13 +213,15 @@ The Carousel is built on CSS scroll-snap for native drag/swipe support. For fade
 Use the `autoplay` prop with an interval in milliseconds. The root slot exposes `isAutoplay`, `isPaused`, `remaining`, `play`, `stop`, `pause`, and `resume` for controlling playback. Autoplay pauses automatically during touch and mouse drag interactions. Use `Carousel.Progress` to visualize the timer.
 
 ```vue
-<Carousel.Root v-slot="{ isAutoplay, play, stop }" :autoplay="5000">
-  <Carousel.Viewport>
-    <!-- slides -->
-  </Carousel.Viewport>
+<template>
+  <Carousel.Root v-slot="{ isAutoplay, play, stop }" :autoplay="5000">
+    <Carousel.Viewport>
+      <!-- slides -->
+    </Carousel.Viewport>
 
-  <Carousel.Progress class="h-1 bg-surface-variant" />
-</Carousel.Root>
+    <Carousel.Progress class="h-1 bg-surface-variant" />
+  </Carousel.Root>
+</template>
 ```
 
 :::

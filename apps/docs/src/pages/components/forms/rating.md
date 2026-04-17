@@ -110,11 +110,13 @@ Rating.Root provides `role="slider"` with `aria-valuenow`, `aria-valuemin`, `ari
 Slot into Rating.Item and use the `state` slot prop to choose your icon:
 
 ```vue
-<Rating.Item :index="i" v-slot="{ state }">
-  <StarFull v-if="state === 'full'" />
-  <StarHalf v-if="state === 'half'" />
-  <StarEmpty v-if="state === 'empty'" />
-</Rating.Item>
+<template>
+  <Rating.Item :index="i" v-slot="{ state }">
+    <StarFull v-if="state === 'full'" />
+    <StarHalf v-if="state === 'half'" />
+    <StarEmpty v-if="state === 'empty'" />
+  </Rating.Item>
+</template>
 ```
 
 ??? How do I make it readonly for display?
@@ -122,9 +124,11 @@ Slot into Rating.Item and use the `state` slot prop to choose your icon:
 Use the `readonly` prop. The value displays but cannot be changed:
 
 ```vue
-<Rating.Root :model-value="3.5" readonly half>
-  <Rating.Item v-for="i in 5" :key="i" :index="i" />
-</Rating.Root>
+<template>
+  <Rating.Root :model-value="3.5" readonly half>
+    <Rating.Item v-for="i in 5" :key="i" :index="i" />
+  </Rating.Root>
+</template>
 ```
 
 ??? How does form submission work?
@@ -132,9 +136,11 @@ Use the `readonly` prop. The value displays but cannot be changed:
 Set the `name` prop on Root. A hidden input is auto-rendered with the current value:
 
 ```vue
-<Rating.Root v-model="rating" name="review-rating">
-  <Rating.Item v-for="i in 5" :key="i" :index="i" />
-</Rating.Root>
+<template>
+  <Rating.Root v-model="rating" name="review-rating">
+    <Rating.Item v-for="i in 5" :key="i" :index="i" />
+  </Rating.Root>
+</template>
 ```
 
 :::

@@ -104,19 +104,23 @@ For trees with selection, add [Treeview.Checkbox](#treeviewcheckbox) and [Treevi
 Control how many nodes can be open at once with the `open` prop:
 
 ```vue
-<!-- Default: multiple nodes can be open simultaneously -->
-<Treeview.Root open="multiple">
+<template>
+  <!-- Default: multiple nodes can be open simultaneously -->
+  <Treeview.Root open="multiple" />
 
-<!-- Accordion: only one node open at a time -->
-<Treeview.Root open="single">
+  <!-- Accordion: only one node open at a time -->
+  <Treeview.Root open="single" />
+</template>
 ```
 
 Use `open-all` to expand all nodes on mount:
 
 ```vue
-<Treeview.Root open-all>
-  <!-- All nodes start expanded -->
-</Treeview.Root>
+<template>
+  <Treeview.Root open-all>
+    <!-- All nodes start expanded -->
+  </Treeview.Root>
+</template>
 ```
 
 ### Selection Mode
@@ -130,9 +134,11 @@ The `selection` prop controls how selection propagates through the hierarchy:
 | `leaf` | Only leaf nodes can be selected; selecting a parent selects all its leaf descendants |
 
 ```vue
-<Treeview.Root v-model="selected" selection="leaf">
-  <!-- Only leaf nodes appear in v-model -->
-</Treeview.Root>
+<template>
+  <Treeview.Root v-model="selected" selection="leaf">
+    <!-- Only leaf nodes appear in v-model -->
+  </Treeview.Root>
+</template>
 ```
 
 ### Active Item
@@ -140,11 +146,13 @@ The `selection` prop controls how selection propagates through the hierarchy:
 The `active` prop controls single vs. multi-highlight mode (independent of selection):
 
 ```vue
-<!-- Default: only one item highlighted at a time -->
-<Treeview.Root active="single">
+<template>
+  <!-- Default: only one item highlighted at a time -->
+  <Treeview.Root active="single" />
 
-<!-- Multiple items can be highlighted simultaneously -->
-<Treeview.Root active="multiple">
+  <!-- Multiple items can be highlighted simultaneously -->
+  <Treeview.Root active="multiple" />
+</template>
 ```
 
 ### Reveal
@@ -152,9 +160,11 @@ The `active` prop controls single vs. multi-highlight mode (independent of selec
 Set `reveal` to automatically open all ancestor nodes when a descendant is opened. Useful for "navigate to item" patterns where a deep node is programmatically opened:
 
 ```vue
-<Treeview.Root reveal>
-  <!-- Opening a deep node opens its entire ancestor chain -->
-</Treeview.Root>
+<template>
+  <Treeview.Root reveal>
+    <!-- Opening a deep node opens its entire ancestor chain -->
+  </Treeview.Root>
+</template>
 ```
 
 ## Examples

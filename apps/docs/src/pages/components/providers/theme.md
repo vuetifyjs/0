@@ -87,9 +87,11 @@ Nest `<Theme>` components to create layered theme contexts. Each section applies
 Theme extends `Atom`, so it accepts the `as` prop to render as any HTML element:
 
 ```vue
-<Theme theme="dark" as="section">
-  <!-- renders as <section data-theme="dark"> -->
-</Theme>
+<template>
+  <Theme theme="dark" as="section">
+    <!-- renders as <section data-theme="dark"> -->
+  </Theme>
+</template>
 ```
 
 ### Renderless Mode
@@ -97,11 +99,13 @@ Theme extends `Atom`, so it accepts the `as` prop to render as any HTML element:
 Set `renderless` to skip the wrapper element. The slot exposes `attrs` (including `data-theme`) for you to bind to your own element:
 
 ```vue
-<Theme theme="dark" renderless v-slot="{ attrs }">
-  <section v-bind="attrs">
-    No extra wrapper div
-  </section>
-</Theme>
+<template>
+  <Theme theme="dark" renderless v-slot="{ attrs }">
+    <section v-bind="attrs">
+      No extra wrapper div
+    </section>
+  </Theme>
+</template>
 ```
 
 ### Isolated Context
@@ -125,9 +129,11 @@ By default, `<Theme>` provides its context under the `'v0:theme'` key — the sa
 The default slot exposes `theme` (the active ID), `isDark` (boolean), and `attrs` for conditional rendering:
 
 ```vue
-<Theme v-slot="{ theme, isDark }" theme="dark">
-  <span>{{ theme }} — dark: {{ isDark }}</span>
-</Theme>
+<template>
+  <Theme v-slot="{ theme, isDark }" theme="dark">
+    <span>{{ theme }} — dark: {{ isDark }}</span>
+  </Theme>
+</template>
 ```
 
 <DocsApi />
