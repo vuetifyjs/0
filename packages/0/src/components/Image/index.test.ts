@@ -137,6 +137,20 @@ describe('image', () => {
           })
         }).not.toThrow()
       })
+
+      it('should warn when lazy is combined with renderless', () => {
+        const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+        mount(Image.Root, {
+          props: { src: '/photo.jpg', lazy: true, renderless: true },
+          slots: { default: () => h('span') },
+        })
+
+        expect(warnSpy).toHaveBeenCalledTimes(1)
+        expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('`lazy` requires a wrapper element'))
+
+        warnSpy.mockRestore()
+      })
     })
   })
 
@@ -214,6 +228,26 @@ describe('image', () => {
 
         const img = wrapper.find('img')
         expect(img.attributes('role')).toBe('img')
+      })
+
+      it('should render default slot when in renderless mode', () => {
+        let captured: any
+        const wrapper = mount(Image.Root, {
+          props: { src: '/photo.jpg' },
+          slots: {
+            default: () => h(Image.Img, { alt: 'Test', renderless: true }, {
+              default: (props: any) => {
+                captured = props
+                return h('img', { ...props.attrs, class: 'consumer-img' })
+              },
+            }),
+          },
+        })
+
+        expect(captured).toBeDefined()
+        expect(captured.attrs.src).toBe('/photo.jpg')
+        expect(captured.attrs.role).toBe('img')
+        expect(wrapper.find('img.consumer-img').exists()).toBe(true)
       })
 
       it('should propagate class and style to the img element', () => {
