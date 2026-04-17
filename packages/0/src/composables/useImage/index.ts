@@ -19,7 +19,7 @@
  */
 
 // Utilities
-import { onScopeDispose, shallowReadonly, shallowRef, toRef, toValue, watch } from 'vue'
+import { nextTick, onScopeDispose, shallowReadonly, shallowRef, toRef, toValue, watch } from 'vue'
 
 // Types
 import type { MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
@@ -135,7 +135,16 @@ export function useImage (options: UseImageOptions): UseImageReturn {
   }
 
   function retry () {
-    status.value = toValue(eager) ? 'loading' : 'idle'
+    // Cycle through 'idle' on the next tick so `source` briefly returns
+    // undefined, forcing the <img> to clear its src attribute. Without
+    // this, browsers skip the re-request when the new src equals the old
+    // src — the retry would appear to "hang" in the loading state because
+    // no load/error event ever fires for the same cached URL.
+    const resumeAs = toValue(eager) ? 'loading' : 'idle'
+    status.value = 'idle'
+    nextTick(() => {
+      status.value = resumeAs
+    })
   }
 
   const stopEager = watch(

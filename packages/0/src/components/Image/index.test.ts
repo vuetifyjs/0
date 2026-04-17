@@ -473,6 +473,8 @@ describe('image', () => {
       await nextTick()
 
       fallbackProps.retry()
+      // retry cycles through 'idle' briefly to force the browser refetch
+      await nextTick()
       await nextTick()
 
       expect(rootProps.status).toBe('loading')

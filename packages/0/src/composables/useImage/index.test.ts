@@ -67,21 +67,41 @@ describe('useImage', () => {
       expect(image.isLoading.value).toBe(false)
     })
 
-    it('should reset to loading on retry when eager is true', () => {
+    it('should reset to loading on retry when eager is true', async () => {
       const image = useImage({ src: '/photo.jpg' })
 
       image.onError()
       image.retry()
 
+      // Cycles through 'idle' for one tick to force the browser to refetch
+      expect(image.status.value).toBe('idle')
+      await nextTick()
+
       expect(image.status.value).toBe('loading')
       expect(image.isError.value).toBe(false)
     })
 
-    it('should reset to idle on retry when eager is false', () => {
+    it('should briefly clear source during retry so the browser refetches the same URL', async () => {
+      const image = useImage({ src: '/photo.jpg' })
+
+      image.onError()
+      expect(image.source.value).toBe('/photo.jpg')
+
+      image.retry()
+      expect(image.source.value).toBeUndefined()
+
+      await nextTick()
+      expect(image.source.value).toBe('/photo.jpg')
+    })
+
+    it('should reset to idle on retry when eager is false', async () => {
       const image = useImage({ src: '/photo.jpg', eager: false })
 
       image.onError()
       image.retry()
+
+      expect(image.status.value).toBe('idle')
+      await nextTick()
 
       expect(image.status.value).toBe('idle')
     })
