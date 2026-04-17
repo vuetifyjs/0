@@ -206,7 +206,7 @@
       @load="onLoad"
     >
 
-    <Presence v-slot="{ attrs: presenceAttrs, done }" v-model="showPrevious">
+    <Presence v-slot="{ attrs: presenceAttrs, done }" v-model="showPrevious" :immediate="false">
       <img
         v-bind="presenceAttrs"
         :alt

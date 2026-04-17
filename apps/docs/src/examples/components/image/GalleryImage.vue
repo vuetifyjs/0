@@ -4,6 +4,7 @@
   defineProps<{
     src: string
     alt: string
+    mode: 'img' | 'presence'
   }>()
 </script>
 
@@ -12,7 +13,14 @@
     class="w-full aspect-4/3 bg-surface-tint rounded overflow-hidden relative"
     :src
   >
+    <Image.Img
+      v-if="mode === 'img'"
+      :alt
+      class="w-full h-full object-cover opacity-0 transition-opacity duration-500 data-[state=loaded]:opacity-100"
+    />
+
     <Image.Presence
+      v-else
       :alt
       class="w-full h-full"
       img-class="w-full h-full object-cover duration-500"
