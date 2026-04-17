@@ -2,6 +2,17 @@
 
 Detailed API documentation for `@vuetify/v0` composables, components, utilities, and plugins.
 
+## Contents
+
+- Composables (selection, forms, foundation, registration, data)
+- Browser & Environment (breakpoints, media queries, storage)
+- DOM Observation (resize, intersection, mutation observers)
+- Event Handling (click outside, hotkeys, event listeners)
+- Headless Components (Tabs, Dialog, Popover, Form, Checkbox, Radio, Pagination)
+- Utility Functions (mergeDeep, clamp, range, useId)
+- Type Guards (isString, isObject, isNullOrUndefined, etc.)
+- Plugins (theme, locale, features, permissions, logger, stack, notifications)
+
 ---
 
 ## Composables
