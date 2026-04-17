@@ -132,7 +132,10 @@
     // Only capture the previous source when no transition is in flight —
     // navigating through several sources before any have loaded should
     // keep the original previous visible rather than flashing through
-    // each intermediate URL.
+    // each intermediate URL. Also skips when newSrc is falsy: clearing
+    // src to undefined/empty and restoring it degrades to a hard swap,
+    // which is the correct trade-off since a cleared src means the
+    // consumer has intentionally unmounted the logical image.
     if (oldSrc && newSrc && newSrc !== oldSrc && !showPrevious.value) {
       previousSrc.value = oldSrc
       showPrevious.value = true
@@ -169,8 +172,11 @@
     emit('error', e)
   }
 
-  function onPresenceLeave (e: Event, done: () => void) {
-    if ((e as TransitionEvent).propertyName === 'opacity') done()
+  function onPresenceLeave (_e: Event, done: () => void) {
+    // Accept any transitionend, not just opacity — consumers are free to
+    // build exits from transform, filter, etc. Requires that previous-class
+    // include at least one CSS transition so the event fires at all.
+    done()
   }
 
   const slotProps = toRef((): ImageSwapSlotProps => ({

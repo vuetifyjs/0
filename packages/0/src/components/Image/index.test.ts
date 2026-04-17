@@ -458,7 +458,7 @@ describe('image', () => {
     })
   })
 
-  describe('sSR', () => {
+  describe('ssr', () => {
     it('should render to string without errors', async () => {
       const app = createSSRApp(defineComponent({
         render: () => h(Image.Root, { src: '/photo.jpg' }, () => [
