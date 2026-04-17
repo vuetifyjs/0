@@ -82,6 +82,20 @@
         "sass"
       ]
     },
+    "packages/emerald": {
+      "project": [
+        "src/**/*.{ts,vue}",
+        "!src/**/*.test.ts",
+        "!src/**/*.spec.ts"
+      ]
+    },
+    "packages/codex": {
+      "project": [
+        "src/**/*.{ts,vue}",
+        "!src/**/*.test.ts",
+        "!src/**/*.spec.ts"
+      ]
+    },
     "apps/playground": {
       "entry": [
         "src/App.vue",
