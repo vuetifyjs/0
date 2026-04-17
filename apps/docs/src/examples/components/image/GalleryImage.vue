@@ -15,7 +15,7 @@
     <Image.Presence
       :alt
       class="w-full h-full"
-      img-class="w-full h-full object-cover"
+      img-class="w-full h-full object-cover duration-500"
     />
 
     <Image.Placeholder class="absolute inset-0 flex items-center justify-center">
