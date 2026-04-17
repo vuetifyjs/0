@@ -28,18 +28,26 @@ Tracks image loading state as a reactive state machine with idle, loading, loade
 The `useImage` composable owns the loading lifecycle for a single image source.
 Bind the returned `source`, `onLoad`, and `onError` to a plain image element.
 
-```ts collapse no-filename
-import { toRef } from 'vue'
-import { useImage } from '@vuetify/v0'
+```vue collapse
+<script setup lang="ts">
+  import { toRef } from 'vue'
+  import { useImage } from '@vuetify/v0'
 
-const props = defineProps<{ src: string }>()
+  const props = defineProps<{ src: string, alt: string }>()
 
-const { source, isLoaded, isError, onLoad, onError, retry } = useImage({
-  src: toRef(() => props.src),
-})
+  const { source, isLoaded, isError, onLoad, onError, retry } = useImage({
+    src: toRef(() => props.src),
+  })
+</script>
 
-// In template:
-// <img :src="source" @load="onLoad" @error="onError" />
+<template>
+  <img
+    :alt
+    :src="source"
+    @load="onLoad"
+    @error="onError"
+  >
+</template>
 ```
 
 ::: example
