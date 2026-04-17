@@ -87,6 +87,7 @@
   const showCode = ref(false)
   const peekExpanded = ref(false)
   const combinedView = ref(false)
+  const resetKey = shallowRef(0)
 
   // Multi-file support
   const hasMultipleFiles = toRef(() => displayFiles.value && displayFiles.value.length > 1)
@@ -153,6 +154,10 @@
     showCode.value = !showCode.value
   }
 
+  function onReset () {
+    resetKey.value++
+  }
+
   function setCodePaneRef (name: string, el: unknown) {
     if (el) {
       codePaneRefs.value.set(name, el as InstanceType<typeof DocsExampleCodePaneType>)
@@ -164,6 +169,8 @@
   const fileName = toRef(() =>
     file?.split('/').pop() || (filePath ? `${filePath.split('/').pop()}.vue` : ''),
   )
+
+  const language = toRef(() => file?.split('.').pop() || 'vue')
 
   async function openAllInPlayground () {
     if (!displayFiles.value?.length) return
@@ -195,8 +202,10 @@
 
       <!-- Preview -->
       <div class="p-6 bg-surface" :class="hasDescription && !descriptionExpanded && 'pt-8'">
-        <component :is="auto?.component" v-if="auto?.component" />
-        <slot v-else />
+        <div :key="resetKey">
+          <component :is="auto?.component" v-if="auto?.component" />
+          <slot v-else />
+        </div>
       </div>
 
       <!-- Code toggle button -->
@@ -215,8 +224,32 @@
           <span v-if="hasMultipleFiles" class="ml-auto opacity-60 font-mono text-[0.8125rem]">
             {{ displayFiles!.length }} file(s)
           </span>
-          <span v-else-if="fileName" class="ml-auto opacity-60 font-mono text-[0.8125rem]">{{ fileName }}</span>
+          <span v-else-if="language" class="ml-auto opacity-60 font-mono text-[0.8125rem]">{{ language }}</span>
         </button>
+      </div>
+
+      <!-- Single-file toolbar (visible when code expanded, not in peek mode) -->
+      <div
+        v-if="showCode && resolvedCode && !hasMultipleFiles"
+        class="flex items-center gap-2 px-3 py-3 bg-surface border-t border-divider min-h-12"
+      >
+        <span
+          v-if="fileName"
+          class="h-[30px] px-2 text-xs font-medium rounded whitespace-nowrap inline-flex items-center bg-primary text-on-primary border border-transparent"
+        >
+          {{ fileName }}
+        </span>
+
+        <div class="ml-auto flex items-center gap-1">
+          <button
+            class="size-[30px] rounded text-on-surface-variant hover:bg-surface-variant transition-colors inline-flex items-center justify-center"
+            title="Reset example"
+            type="button"
+            @click="onReset"
+          >
+            <AppIcon icon="restart" :size="16" />
+          </button>
+        </div>
       </div>
 
       <!-- Single file code display -->
@@ -227,7 +260,7 @@
         v-model:expanded="peekExpanded"
         :code="resolvedCode"
         :file-name
-        :language="file?.split('.').pop() || 'vue'"
+        :language
         :peek
         :peek-lines
         :title="title || fileName"
@@ -327,6 +360,15 @@
             </span>
 
             <div class="ml-auto flex items-center gap-1">
+              <button
+                class="size-[30px] rounded text-on-surface-variant hover:bg-surface-variant transition-colors inline-flex items-center justify-center"
+                title="Reset example"
+                type="button"
+                @click="onReset"
+              >
+                <AppIcon icon="restart" :size="16" />
+              </button>
+
               <button
                 class="size-[30px] rounded text-on-surface-variant hover:bg-surface-variant transition-colors inline-flex items-center justify-center"
                 title="Open in Playground"
