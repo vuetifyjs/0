@@ -1,5 +1,6 @@
 <script setup lang="ts">
   import { useImage } from '@vuetify/v0'
+  import { mdiImageBrokenVariant } from '@mdi/js'
   import { shallowRef, toRef } from 'vue'
 
   const props = defineProps<{
@@ -41,7 +42,14 @@
     >
 
     <template v-if="isError">
-      <span class="text-error text-sm">Failed to load</span>
+      <svg
+        aria-label="Image failed to load"
+        class="size-16 text-error"
+        role="img"
+        viewBox="0 0 24 24"
+      >
+        <path :d="mdiImageBrokenVariant" fill="currentColor" />
+      </svg>
       <span v-if="attempts > 0" class="text-xs text-on-surface-variant">
         Attempt {{ attempts + 1 }}
       </span>
