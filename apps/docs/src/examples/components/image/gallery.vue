@@ -1,6 +1,6 @@
 <script setup lang="ts">
   import GalleryImage from './GalleryImage.vue'
-  import { shallowRef, watch } from 'vue'
+  import { shallowRef } from 'vue'
 
   const photos = [
     { id: 1, src: 'https://picsum.photos/seed/gallery-1/600/450', alt: 'Photo 1' },
@@ -9,24 +9,10 @@
     { id: 4, src: 'https://picsum.photos/seed/gallery-4/600/450', alt: 'Photo 4' },
   ]
 
-  const DELAY_MS = 1200
-
   const index = shallowRef(0)
-  const displayedSrc = shallowRef(photos[0]!.src)
-  const displayedAlt = shallowRef(photos[0]!.alt)
-  const pending = shallowRef(false)
-  let timer: ReturnType<typeof setTimeout> | undefined
-
-  watch(index, next => {
-    const target = photos[next]!
-    pending.value = true
-    if (timer) clearTimeout(timer)
-    timer = setTimeout(() => {
-      displayedSrc.value = target.src
-      displayedAlt.value = target.alt
-      pending.value = false
-    }, DELAY_MS)
-  })
+  function current () {
+    return photos[index.value]!
+  }
 
   function onNext () {
     index.value = (index.value + 1) % photos.length
@@ -44,7 +30,7 @@
         <span class="text-xs font-semibold text-on-surface-variant uppercase tracking-wide">
           Image.Img
         </span>
-        <GalleryImage :alt="displayedAlt" mode="img" :src="displayedSrc" />
+        <GalleryImage :alt="current().alt" mode="img" :src="current().src" />
         <p class="text-xs text-on-surface-variant">
           Flashes the placeholder between photos.
         </p>
@@ -54,7 +40,7 @@
         <span class="text-xs font-semibold text-on-surface-variant uppercase tracking-wide">
           Image.Swap
         </span>
-        <GalleryImage :alt="displayedAlt" mode="swap" :src="displayedSrc" />
+        <GalleryImage :alt="current().alt" mode="swap" :src="current().src" />
         <p class="text-xs text-on-surface-variant">
           Keeps the previous photo visible, then crossfades.
         </p>
@@ -63,28 +49,22 @@
 
     <div class="flex items-center justify-center gap-4">
       <button
-        class="px-3 py-1 bg-primary text-on-primary rounded text-sm disabled:opacity-50"
-        :disabled="pending"
+        class="px-3 py-1 bg-primary text-on-primary rounded text-sm"
         @click="onPrev"
       >
         Previous
       </button>
 
       <span class="text-sm text-on-surface-variant">
-        {{ pending ? 'loading…' : `${index + 1} / ${photos.length}` }}
+        {{ index + 1 }} / {{ photos.length }}
       </span>
 
       <button
-        class="px-3 py-1 bg-primary text-on-primary rounded text-sm disabled:opacity-50"
-        :disabled="pending"
+        class="px-3 py-1 bg-primary text-on-primary rounded text-sm"
         @click="onNext"
       >
         Next
       </button>
     </div>
-
-    <p class="text-xs text-on-surface-variant text-center max-w-2xl mx-auto">
-      A {{ DELAY_MS }}&thinsp;ms simulated delay stands in for a slow network. Both panels receive the same src at the same moment — only the sub-component differs.
-    </p>
   </div>
 </template>
