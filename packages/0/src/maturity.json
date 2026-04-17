@@ -203,7 +203,6 @@
     },
     "useImage": {
       "level": "preview",
-      "since": "0.2.0",
       "category": "system"
     },
     "useIntersectionObserver": {
@@ -327,7 +326,6 @@
   "components": {
     "AspectRatio": {
       "level": "preview",
-      "since": "0.2.0",
       "category": "primitives"
     },
     "Atom": {
@@ -511,7 +509,6 @@
     },
     "Image": {
       "level": "preview",
-      "since": "0.2.0",
       "category": "semantic"
     },
     "Overflow": {

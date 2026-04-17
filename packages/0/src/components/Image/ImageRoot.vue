@@ -28,7 +28,6 @@
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
   import type { ImageStatus, UseImageReturn } from '#v0/composables/useImage'
-  import type { ShallowRef } from 'vue'
 
   export interface ImageRootProps extends AtomProps {
     /** Image source URL. Forwarded to Image.Img via context. */
@@ -68,14 +67,7 @@
     }
   }
 
-  export interface ImageContext extends UseImageReturn {
-    /**
-     * Mutable flag indicating whether an `Image.Swap` overlay is currently
-     * covering `Image.Img`. Set internally by `Image.Swap` during a source
-     * change; read by `Image.Img` to pin its opacity through the crossfade.
-     */
-    hasPrevious: ShallowRef<boolean>
-  }
+  export interface ImageContext extends UseImageReturn {}
 
   export const [useImageRoot, provideImageRoot] = createContext<ImageContext>()
 </script>
@@ -115,9 +107,7 @@
     eager: isIntersecting,
   })
 
-  const hasPrevious = shallowRef(false)
-
-  provideImageRoot(namespace, { ...image, hasPrevious })
+  provideImageRoot(namespace, image)
 
   const slotProps = toRef((): ImageRootSlotProps => ({
     status: image.status.value,

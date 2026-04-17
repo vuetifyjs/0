@@ -64,11 +64,6 @@
     isLoaded: boolean
     /** Current loading status. */
     status: ImageStatus
-    /**
-     * Whether an `Image.Swap` overlay is currently covering this img.
-     * Used to pin opacity through a crossfade.
-     */
-    hasPrevious: boolean
     /** Attributes to bind to the image element. */
     attrs: {
       'role': 'img'
@@ -84,7 +79,6 @@
       'loading': 'eager' | 'lazy' | undefined
       'fetchpriority': 'high' | 'low' | 'auto' | undefined
       'data-state': ImageStatus
-      'data-has-previous': true | undefined
       'onLoad': (e: Event) => void
       'onError': (e: Event) => void
     }
@@ -137,7 +131,6 @@
   const slotProps = toRef((): ImageImgSlotProps => ({
     isLoaded: context.isLoaded.value,
     status: context.status.value,
-    hasPrevious: context.hasPrevious.value,
     attrs: {
       'role': 'img',
       'src': context.source.value,
@@ -152,7 +145,6 @@
       loading,
       fetchpriority,
       'data-state': context.status.value,
-      'data-has-previous': context.hasPrevious.value || undefined,
       onLoad,
       onError,
     },
