@@ -114,18 +114,20 @@ Use `renderless` mode on both `Image.Root` and `Image.Img` to drop their wrapper
 Set `loading="eager"` and `fetchpriority="high"` on hero images to optimize LCP. Always include `width` and `height` to prevent layout shift.
 
 ```vue
-<Image.Root src="/hero.jpg">
-  <Image.Img
-    alt="Hero"
-    width="1600"
-    height="900"
-    loading="eager"
-    fetchpriority="high"
-  />
-  <Image.Placeholder>
-    <img src="/hero-tiny.jpg" class="w-full blur-sm" />
-  </Image.Placeholder>
-</Image.Root>
+<template>
+  <Image.Root src="/hero.jpg">
+    <Image.Img
+      alt="Hero"
+      width="1600"
+      height="900"
+      loading="eager"
+      fetchpriority="high"
+    />
+    <Image.Placeholder>
+      <img src="/hero-tiny.jpg" class="w-full blur-sm" />
+    </Image.Placeholder>
+  </Image.Root>
+</template>
 ```
 
 ### Retry on error
@@ -133,13 +135,15 @@ Set `loading="eager"` and `fetchpriority="high"` on hero images to optimize LCP.
 The `retry()` function is available from both `Image.Root` and `Image.Fallback` slot props.
 
 ```vue
-<Image.Root src="/photo.jpg">
-  <Image.Img alt="Photo" />
-  <Image.Placeholder>Loading...</Image.Placeholder>
-  <Image.Fallback v-slot="{ retry }">
-    <button @click="retry">Retry</button>
-  </Image.Fallback>
-</Image.Root>
+<template>
+  <Image.Root src="/photo.jpg">
+    <Image.Img alt="Photo" />
+    <Image.Placeholder>Loading...</Image.Placeholder>
+    <Image.Fallback v-slot="{ retry }">
+      <button @click="retry">Retry</button>
+    </Image.Fallback>
+  </Image.Root>
+</template>
 ```
 
 ## Styling
@@ -147,10 +151,12 @@ The `retry()` function is available from both `Image.Root` and `Image.Fallback` 
 Every Image sub-component exposes `data-state` reflecting the current status (`idle`, `loading`, `loaded`, or `error`). Prefer styling against these data attributes with CSS over threading slot props — the transitions stay CSS-only and the template stays declarative.
 
 ```vue
-<Image.Img
-  alt="Photo"
-  class="opacity-0 transition-opacity data-[state=loaded]:opacity-100"
-/>
+<template>
+  <Image.Img
+    alt="Photo"
+    class="opacity-0 transition-opacity data-[state=loaded]:opacity-100"
+  />
+</template>
 ```
 
 ```css
@@ -197,10 +203,12 @@ Yes — set `renderless` on both `Image.Root` and `Image.Img`, then compose them
 Style against the `data-state` attribute that every Image sub-component exposes. Using data attributes keeps the transition CSS-only — no slot-prop threading required.
 
 ```vue
-<Image.Img
-  alt="Photo"
-  class="opacity-0 transition-opacity duration-500 data-[state=loaded]:opacity-100"
-/>
+<template>
+  <Image.Img
+    alt="Photo"
+    class="opacity-0 transition-opacity duration-500 data-[state=loaded]:opacity-100"
+  />
+</template>
 ```
 
 The `data-state` attribute holds the current status (`idle`, `loading`, `loaded`, or `error`). The blur-up example uses this pattern.
