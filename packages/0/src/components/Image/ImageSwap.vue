@@ -4,14 +4,17 @@
  * @see https://0.vuetifyjs.com/components/semantic/image
  *
  * @remarks
- * Source-swapping image element. Keeps the previously loaded source visible
- * while a new one loads, then crossfades between them via opacity. Prevents
- * the placeholder flash that occurs with Image.Img when navigating between
- * already-loaded sources (carousels, galleries, next/previous UX).
+ * Overlay layer that keeps the previously loaded source visible while a new
+ * one loads, then fades out once the new image is ready. Pair with `Image.Img`
+ * inside `Image.Root` — `Image.Img` renders the current image, `Image.Swap`
+ * covers it with the prior image during a source change.
  *
- * Uses the Presence primitive internally to manage the mount lifecycle of
- * the previous layer — data-state drives the exit transition. On the
- * initial load, behaves identically to Image.Img.
+ * Uses the Presence primitive internally to manage mount lifecycle. Sets
+ * `context.hasPrevious` while active so `Image.Img` can pin its opacity
+ * through the crossfade via `data-[has-previous]`.
+ *
+ * On its own, `Image.Swap` renders nothing — it only mounts during the
+ * transient window between a src change and the next successful load.
  */
 
 <script lang="ts">
@@ -30,18 +33,17 @@
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
-  import type { ImageStatus } from '#v0/composables/useImage'
 
   export interface ImageSwapProps extends AtomProps {
-    /** Accessible alt text applied to both the current and previous image layers. */
+    /** Accessible alt text. Overlay is aria-hidden so this is typically cosmetic. */
     alt?: string
     /** Responsive image candidates. */
     srcset?: string
     /** Image sizes hint for responsive selection. */
     sizes?: string
-    /** Intrinsic image width — set to prevent layout shift. */
+    /** Intrinsic image width. */
     width?: number | string
-    /** Intrinsic image height — set to prevent layout shift. */
+    /** Intrinsic image height. */
     height?: number | string
     /** CORS request mode. */
     crossorigin?: '' | 'anonymous' | 'use-credentials'
@@ -57,41 +59,13 @@
       | 'unsafe-url'
     /** How the browser should decode the image. */
     decoding?: 'sync' | 'async' | 'auto'
-    /** Native browser-managed lazy loading hint. */
-    loading?: 'eager' | 'lazy'
-    /** Resource priority hint. */
-    fetchpriority?: 'high' | 'low' | 'auto'
-    /** Class applied to both inner image elements (shared layout, object-fit, etc.). */
-    imgClass?: string | string[] | Record<string, boolean>
-    /** Class applied to the current image layer only. */
-    currentClass?: string | string[] | Record<string, boolean>
-    /** Class applied to the previous image layer only (during a swap). */
-    previousClass?: string | string[] | Record<string, boolean>
     /** Namespace for retrieving the Image context. */
     namespace?: string
   }
 
-  export interface ImageSwapEmits {
-    load: [e: Event]
-    error: [e: Event]
-    loadstart: [src: string]
-  }
-
   export interface ImageSwapSlotProps {
-    /** Current loading status. */
-    status: ImageStatus
-    /** Whether the current source has loaded. */
-    isLoaded: boolean
-    /** Whether a previous source is currently mounted (a swap is in flight). */
-    hasPrevious: boolean
-    /** The active source URL (matches Image.Root's resolved source). */
+    /** The source URL currently rendered by the overlay. */
     source: string | undefined
-    /** The last successfully loaded source, or undefined on first load. */
-    previousSource: string | undefined
-    /** Attributes for the wrapper element. */
-    attrs: {
-      'data-state': ImageStatus
-    }
   }
 </script>
 
@@ -103,7 +77,7 @@
   }>()
 
   const {
-    as = 'div',
+    as = 'img',
     renderless,
     alt,
     srcset,
@@ -113,130 +87,76 @@
     crossorigin,
     referrerpolicy,
     decoding = 'async',
-    loading,
-    fetchpriority,
-    imgClass,
-    currentClass,
-    previousClass,
     namespace = 'v0:image',
   } = defineProps<ImageSwapProps>()
 
-  const emit = defineEmits<ImageSwapEmits>()
-
   const context = useImageRoot(namespace)
   const previousSource = shallowRef<string | undefined>()
-  const showPrevious = shallowRef(false)
 
   watch(context.source, (newSource, oldSource) => {
     // Only capture the previous source when no transition is in flight —
     // navigating through several sources before any have loaded should
     // keep the original previous visible rather than flashing through
-    // each intermediate URL. Also skips when newSource is falsy: clearing
-    // src to undefined/empty and restoring it degrades to a hard swap,
-    // which is the correct trade-off since a cleared src means the
-    // consumer has intentionally unmounted the logical image.
-    if (oldSource && newSource && newSource !== oldSource && !showPrevious.value) {
+    // each intermediate URL. Skipping when newSource is falsy is
+    // intentional: clearing src degrades to a hard swap since a cleared
+    // src means the consumer has unmounted the logical image.
+    if (oldSource && newSource && newSource !== oldSource && !context.hasPrevious.value) {
       previousSource.value = oldSource
-      showPrevious.value = true
+      context.hasPrevious.value = true
     }
   })
 
-  watch(context.status, (status, prev) => {
-    if (status === 'loading' && prev !== 'loading' && context.source.value) {
-      emit('loadstart', context.source.value)
-    }
-  }, { immediate: true })
-
-  function onLoad (e: Event) {
-    context.onLoad(e)
-    emit('load', e)
-
-    // Defer the leaving transition by one animation frame so the browser
-    // commits the previous img's "mounted" opacity before flipping to
-    // "leaving" — without this, cached images load fast enough that
-    // Vue batches the show/hide flip into a single render and CSS never
-    // sees an intermediate state to transition from.
-    if (!showPrevious.value) return
+  watch(context.isLoaded, loaded => {
+    if (!loaded || !context.hasPrevious.value) return
+    // Defer the leaving flip by one animation frame so the browser commits
+    // the 'mounted' state before transitioning — cached srcs load fast
+    // enough that Vue would otherwise batch mount + leave into one render.
     if (IN_BROWSER) {
       requestAnimationFrame(() => {
-        showPrevious.value = false
+        context.hasPrevious.value = false
       })
     } else {
-      showPrevious.value = false
+      context.hasPrevious.value = false
     }
-  }
+  })
 
-  function onError (e: Event) {
-    context.onError(e)
-    emit('error', e)
-  }
-
-  function onPresenceLeave (_e: Event, done: () => void) {
-    // Accept any transitionend, not just opacity — consumers are free to
-    // build exits from transform, filter, etc. Requires that previous-class
-    // include at least one CSS transition so the event fires at all.
+  function onTransitionEnd (_e: Event, done: () => void) {
+    // Accept any transitionend; consumers may animate transform/filter/etc.
+    // Requires at least one CSS transition on the element so the event fires.
     done()
+    previousSource.value = undefined
   }
 
   const slotProps = toRef((): ImageSwapSlotProps => ({
-    status: context.status.value,
-    isLoaded: context.isLoaded.value,
-    hasPrevious: showPrevious.value,
-    source: context.source.value,
-    previousSource: previousSource.value,
-    attrs: {
-      'data-state': context.status.value,
-    },
+    source: previousSource.value,
   }))
 </script>
 
 <template>
-  <Atom
-    :as
-    :renderless
-    :style="{ position: 'relative' }"
-    v-bind="slotProps.attrs"
+  <Presence
+    v-slot="{ attrs: presenceAttrs, done }"
+    v-model="context.hasPrevious.value"
+    :immediate="false"
   >
-    <img
+    <Atom
+      v-bind="presenceAttrs"
       :alt
-      :class="[imgClass, currentClass]"
+      aria-hidden="true"
+      :as
       :crossorigin
-      :data-has-previous="showPrevious || undefined"
-      :data-state="context.status.value"
       :decoding
-      :fetchpriority
       :height
-      :loading
       :referrerpolicy
+      :renderless
       role="img"
       :sizes
-      :src="context.source.value"
+      :src="previousSource"
       :srcset
+      :style="{ position: 'absolute', inset: 0, width: '100%', height: '100%' }"
       :width
-      @error="onError"
-      @load="onLoad"
+      @transitionend="onTransitionEnd($event, done)"
     >
-
-    <Presence v-slot="{ attrs: presenceAttrs, done }" v-model="showPrevious" :immediate="false">
-      <img
-        v-bind="presenceAttrs"
-        :alt
-        aria-hidden="true"
-        :class="[imgClass, previousClass]"
-        :crossorigin
-        :decoding
-        :height
-        :referrerpolicy
-        role="img"
-        :sizes
-        :src="previousSource"
-        :srcset
-        :style="{ position: 'absolute', inset: 0, width: '100%', height: '100%' }"
-        :width
-        @transitionend="onPresenceLeave($event, done)"
-      >
-    </Presence>
-
-    <slot v-bind="slotProps" />
-  </Atom>
+      <slot v-bind="slotProps" />
+    </Atom>
+  </Presence>
 </template>

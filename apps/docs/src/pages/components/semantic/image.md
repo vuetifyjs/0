@@ -147,38 +147,38 @@ The `<source>` children are fully browser-driven — `Image.Img` never sees thei
 
 ### Gallery navigation with Image.Swap
 
-Use `Image.Swap` instead of `Image.Img` when navigating between already-loaded sources should never flash the placeholder. The component renders two stacked `<img>` elements: the newly loaded one fades in while the previous one fades out at the same tempo. Until the new source loads, the old image stays on screen — the user never sees blank space between photos.
+Add `Image.Swap` alongside `Image.Img` inside `Image.Root` when navigating between already-loaded sources should never flash the placeholder. `Image.Img` remains the current image; `Image.Swap` is a transient overlay that mounts with the previous source during a src change and fades out once the new source loads. Until the new image is ready, the old image stays on screen via the overlay — the user never sees blank space between photos.
 
 ```mermaid "Source transition"
 flowchart LR
   Change["src changes<br/>(Root.src = newUrl)"]
-  Capture["previousSrc ← oldUrl<br/>showPrevious = true"]
-  Mount["previous img<br/>mounts at opacity 1"]
-  Load["new img loads"]
-  Leave["showPrevious = false<br/>previous enters leaving"]
-  Fade["crossfade:<br/>previous opacity 1 → 0<br/>current opacity 0 → 1"]
-  Unmount["transitionend<br/>done() fires<br/>previous unmounts"]
+  Capture["Image.Swap captures oldUrl<br/>context.hasPrevious = true"]
+  Mount["Image.Swap mounts<br/>overlay img at opacity 1"]
+  Load["Image.Img.onload"]
+  Leave["context.hasPrevious = false<br/>overlay enters leaving"]
+  Fade["crossfade:<br/>overlay opacity 1 → 0<br/>Image.Img stays opacity 1"]
+  Unmount["transitionend<br/>done() fires<br/>overlay unmounts"]
 
   Change --> Capture --> Mount --> Load --> Leave --> Fade --> Unmount
 ```
 
-Reach for this pattern whenever the user can navigate between preloaded sources — image galleries, photo viewers, product thumbnails reacting to a color picker, or anywhere a `v-model` drives `src`. Without `Image.Swap`, each navigation resets the state machine to `loading`; the old image disappears from the DOM and the placeholder shows until the next image loads, producing a visible pop. `Image.Swap` holds the previous image in DOM through the load window, so the transition stays continuous.
+Reach for this pattern whenever the user can navigate between preloaded sources — image galleries, photo viewers, product thumbnails reacting to a color picker, or anywhere a `v-model` drives `src`. Without `Image.Swap`, each navigation resets the state machine to `loading`; `Image.Img` fades out, the placeholder shows until the next image loads, producing a visible pop. `Image.Swap` holds the previous image in DOM through the load window so the transition stays continuous.
 
 A few details worth knowing:
 
-- **Initial mount behaves like `Image.Img`** — there's no previous source on first load, so the component renders a single `<img>` and the placeholder shows while it loads. Only *subsequent* src changes engage the crossfade.
-- **Built on the Presence primitive** — the previous layer's mount lifecycle (mounted → leaving → unmounted) is managed by v0's `Presence` composable. CSS targets `data-state='leaving'` on the previous layer during its exit, and `transitionend` on the previous element calls `done()` to finalize the unmount. No `setTimeout`, no manual cleanup.
-- **Class routing** — `class` goes on the wrapper `<div>` (layout, border-radius). `img-class` applies to both inner `<img>` elements (object-fit, sizing). `current-class` and `previous-class` target the individual layers — this is where transition/opacity rules live. The component ships no opinionated styling: you write the fade behavior against `data-state`, `data-has-previous` (on current while a swap is in flight), and Presence's `data-[state=leaving]` (on previous during exit).
-- **`data-has-previous` pin is required** — during the hold window the current layer is still `data-state='loading'`; once the load fires, both layers transition simultaneously (new fades 0→1, previous fades 1→0). Without `data-[has-previous]:opacity-100` on `current-class` to pin the current layer opaque through the swap, the two simultaneous fades show background bleed-through (a dim flash) in the middle of the crossfade. Treat it as a required rule, not informational state.
-- **`previous-class` must include at least one CSS transition** — `done()` is driven by `transitionend` on the previous element. If `previous-class` has no CSS transition at all, the event never fires and the previous layer leaks in the DOM. Opacity is the usual choice; transform, filter, or any other transitioned property works equivalently.
-- **Error state** — if the new image errors, the old one stays visible underneath and `Image.Fallback` overlays as usual. Call `retry()` from the Root slot props or the Fallback slot props to re-attempt the same source.
+- **`Image.Swap` adds behavior; it doesn't replace `Image.Img`** — the two are siblings inside `Image.Root`. `Image.Img` renders the current image; `Image.Swap` renders the overlay only during a swap. Without `Image.Swap`, `Image.Img` behaves exactly as usual.
+- **Initial load: no overlay** — there's no previous source on first mount, so `Image.Swap` stays unmounted. The placeholder shows while `Image.Img` loads the first source. Subsequent src changes engage the overlay.
+- **Built on the Presence primitive** — the overlay's mount lifecycle (mounted → leaving → unmounted) is managed by v0's `Presence` composable. CSS targets `data-state='leaving'` for the exit transition; `transitionend` on the overlay element calls `done()` to finalize the unmount. No `setTimeout`, no manual cleanup.
+- **Pin `Image.Img`'s opacity with `data-[has-previous]`** — during the hold window the current image's `data-state` is still `'loading'`, and once the load fires both layers transition simultaneously. Without `data-[has-previous]:opacity-100` on `Image.Img`, the two simultaneous fades show background bleed-through in the middle of the crossfade. `Image.Swap` sets `context.hasPrevious` to `true` while active, which propagates to `Image.Img` as `data-has-previous="true"`. Treat the pin rule as required.
+- **`Image.Swap`'s class must include at least one CSS transition** — `done()` is driven by `transitionend` on the overlay element. If the class has no CSS transition at all, the event never fires and the overlay leaks in the DOM. Opacity is the usual choice; transform, filter, or any other transitioned property works equivalently.
+- **Error state** — if the new image errors, the overlay stays visible underneath and `Image.Fallback` overlays it as usual. Call `retry()` from the Root slot props or the Fallback slot props to re-attempt the same source.
 
-Not a replacement for `Image.Img` in every case — if you don't need cross-src transitions (single content image, hero banner, avatars), stick with `Image.Img` for the simpler DOM.
+Not something to add when you don't need it — if a given `Image.Root` never changes `src` after the first load (single content image, hero banner, avatar), omit `Image.Swap` for simpler DOM.
 
 | File | Role |
 |------|------|
-| `GalleryImage.vue` | Reusable wrapper — `Image.Root` rendered twice, once with `Image.Img` and once with `Image.Swap`, plus shared `Image.Placeholder` and `Image.Fallback` overlays |
-| `gallery.vue` | Entry point with Previous/Next navigation and a simulated load delay to make the crossfade visible |
+| `GalleryImage.vue` | Reusable wrapper — `Image.Root` with `Image.Img`, optional `Image.Swap`, plus `Image.Placeholder` and `Image.Fallback` overlays |
+| `gallery.vue` | Entry point with Previous/Next navigation rendering `Image.Img` alone on the left and `Image.Img + Image.Swap` on the right for comparison |
 
 :::
 
@@ -248,7 +248,7 @@ Slot props (`status`, `isLoaded`, etc.) remain available for the rare cases wher
 | Element | ARIA / behavior |
 | - | - |
 | `Image.Img` | `role="img"`, accepts `alt` for accessible name |
-| `Image.Swap` | Current `<img>` is the accessible image; the transitioning previous `<img>` is marked `aria-hidden="true"` so screen readers only announce the active source |
+| `Image.Swap` | Overlay `<img>` is marked `aria-hidden="true"` — it's a transient visual layer. Accessible image semantics come from sibling `Image.Img` |
 | `Image.Placeholder` | `aria-hidden="true"` — placeholder is decorative |
 | `Image.Fallback` | `role="img"` — provide alternate text inside the slot |
 
@@ -274,9 +274,9 @@ Always set `width` and `height` on `Image.Img`. The browser uses these to reserv
 
 Yes — set `renderless` on both `Image.Root` and `Image.Img`, then compose them inside a native `<picture>` element. See the picture example.
 
-??? When should I use `Image.Swap` instead of `Image.Img`?
+??? When should I add `Image.Swap`?
 
-Use `Image.Swap` when the `src` on `Image.Root` can change to a different URL *after* the first image has loaded, and you want to avoid flashing the placeholder between transitions — gallery navigation, product variant thumbnails, anywhere a `v-model` drives `src`. `Image.Img` is the right choice for single-source content images where `src` never changes (or only changes via a full component remount). Pick one per `Image.Root` — the two sub-components aren't designed to coexist.
+Add `Image.Swap` as a sibling of `Image.Img` inside `Image.Root` when the `src` on `Image.Root` can change to a different URL *after* the first image has loaded, and you want to avoid flashing the placeholder between transitions — gallery navigation, product variant thumbnails, anywhere a `v-model` drives `src`. Omit it for single-source content images where `src` never changes. Unlike `Image.Img`, `Image.Swap` isn't an image element on its own — it's a transient overlay that only mounts during a source change.
 
 ??? How do I fade in once the image loads?
 

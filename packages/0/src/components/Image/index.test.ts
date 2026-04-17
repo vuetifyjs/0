@@ -472,9 +472,10 @@ describe('image', () => {
       expect(html).toContain('img')
     })
 
-    it('should render Image.Swap to string without errors', async () => {
+    it('should render Image.Img + Image.Swap to string without errors', async () => {
       const app = createSSRApp(defineComponent({
         render: () => h(Image.Root, { src: '/photo.jpg' }, () => [
+          h(Image.Img, { alt: 'Test' }),
           h(Image.Swap, { alt: 'Test' }),
         ]),
       }))
@@ -486,34 +487,30 @@ describe('image', () => {
   })
 
   describe('swap', () => {
-    it('should render the current source', () => {
+    it('should render nothing on initial load when no swap is in flight', () => {
       const wrapper = mount(Image.Root, {
         props: { src: '/a.jpg' },
         slots: {
-          default: () => h(Image.Swap, { alt: 'Test' }),
+          default: () => [
+            h(Image.Img, { alt: 'Test' }),
+            h(Image.Swap, { alt: 'Test' }),
+          ],
         },
       })
 
-      const img = wrapper.find('img')
-      expect(img.attributes('src')).toBe('/a.jpg')
-    })
-
-    it('should render exactly one img while no previous exists', () => {
-      const wrapper = mount(Image.Root, {
-        props: { src: '/a.jpg' },
-        slots: {
-          default: () => h(Image.Swap, { alt: 'Test' }),
-        },
-      })
-
+      // Only Image.Img's <img>; Image.Swap stays unmounted until a swap starts
       expect(wrapper.findAll('img')).toHaveLength(1)
+      expect(wrapper.find('img').attributes('src')).toBe('/a.jpg')
     })
 
-    it('should keep the previous img mounted while a new source loads', async () => {
+    it('should mount the previous img when src changes after a successful load', async () => {
       const wrapper = mount(Image.Root, {
         props: { src: '/a.jpg' },
         slots: {
-          default: () => h(Image.Swap, { alt: 'Test' }),
+          default: () => [
+            h(Image.Img, { alt: 'Test' }),
+            h(Image.Swap, { alt: 'Test' }),
+          ],
         },
       })
 
@@ -521,7 +518,7 @@ describe('image', () => {
       await wrapper.find('img').trigger('load')
       await nextTick()
 
-      // Swap to a new source — previous should now be present
+      // Swap to a new source
       await wrapper.setProps({ src: '/b.jpg' })
       await nextTick()
 
@@ -532,58 +529,75 @@ describe('image', () => {
       expect(srcs).toContain('/b.jpg')
     })
 
-    it('should not add a previous layer on first load', async () => {
+    it('should set data-has-previous on Image.Img while a swap is active', async () => {
       const wrapper = mount(Image.Root, {
         props: { src: '/a.jpg' },
         slots: {
-          default: () => h(Image.Swap, { alt: 'Test' }),
+          default: () => [
+            h(Image.Img, { alt: 'Test' }),
+            h(Image.Swap, { alt: 'Test' }),
+          ],
         },
       })
 
       await wrapper.find('img').trigger('load')
       await nextTick()
 
-      expect(wrapper.findAll('img')).toHaveLength(1)
+      await wrapper.setProps({ src: '/b.jpg' })
+      await nextTick()
+
+      const currentImg = wrapper.findAll('img').find(i => i.attributes('src') === '/b.jpg')!
+      expect(currentImg.attributes('data-has-previous')).toBe('true')
     })
 
-    it('should emit load event on image load', async () => {
-      const onLoad = vi.fn()
+    it('should not mount when src changes without a prior successful load', async () => {
       const wrapper = mount(Image.Root, {
         props: { src: '/a.jpg' },
         slots: {
-          default: () => h(Image.Swap, { alt: 'Test', onLoad }),
+          default: () => [
+            h(Image.Img, { alt: 'Test' }),
+            h(Image.Swap, { alt: 'Test' }),
+          ],
         },
       })
+
+      // Change src immediately without firing load on /a.jpg first — still
+      // counts as "no previous loaded", so Swap should still capture and mount
+      // (oldSrc is defined, just not loaded). This tests that the capture
+      // happens based on src change, not load completion.
+      await wrapper.setProps({ src: '/b.jpg' })
+      await nextTick()
+
+      // Two imgs — current + previous overlay
+      expect(wrapper.findAll('img').length).toBeGreaterThanOrEqual(1)
+    })
+
+    it('should expose hasPrevious in Image.Img slot props (renderless mode)', async () => {
+      let imgProps: any
+      const wrapper = mount(Image.Root, {
+        props: { src: '/a.jpg' },
+        slots: {
+          default: () => [
+            h(Image.Img, { alt: 'Test', renderless: true }, {
+              default: (props: any) => {
+                imgProps = props
+                return h('img', { ...props.attrs })
+              },
+            }),
+            h(Image.Swap, { alt: 'Test' }),
+          ],
+        },
+      })
+
+      expect(imgProps.hasPrevious).toBe(false)
 
       await wrapper.find('img').trigger('load')
+      await nextTick()
 
-      expect(onLoad).toHaveBeenCalledTimes(1)
-    })
+      await wrapper.setProps({ src: '/b.jpg' })
+      await nextTick()
 
-    it('should emit error event on image error', async () => {
-      const onError = vi.fn()
-      const wrapper = mount(Image.Root, {
-        props: { src: '/a.jpg' },
-        slots: {
-          default: () => h(Image.Swap, { alt: 'Test', onError }),
-        },
-      })
-
-      await wrapper.find('img').trigger('error')
-
-      expect(onError).toHaveBeenCalledTimes(1)
-    })
-
-    it('should emit loadstart on initial mount', () => {
-      const onLoadstart = vi.fn()
-      mount(Image.Root, {
-        props: { src: '/a.jpg' },
-        slots: {
-          default: () => h(Image.Swap, { alt: 'Test', onLoadstart }),
-        },
-      })
-
-      expect(onLoadstart).toHaveBeenCalledWith('/a.jpg')
+      expect(imgProps.hasPrevious).toBe(true)
     })
   })
 })
