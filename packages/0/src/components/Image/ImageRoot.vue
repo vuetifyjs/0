@@ -94,7 +94,8 @@
   const rootEl = toRef(() => toElement(atomRef.value?.element) as HTMLElement | null ?? null)
 
   if (lazy && renderless) {
-    useLogger().warn('[v0:image] `lazy` requires a wrapper element but `renderless` is set — the image will never load. Remove `renderless` or use useIntersectionObserver manually.')
+    const logger = useLogger()
+    logger.warn('[v0:image] `lazy` requires a wrapper element but `renderless` is set — the image will never load. Remove `renderless` or use useIntersectionObserver manually.')
   }
 
   const { isIntersecting } = lazy
