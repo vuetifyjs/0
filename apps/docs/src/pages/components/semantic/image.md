@@ -168,7 +168,7 @@ A few details worth knowing:
 
 - **Initial mount behaves like `Image.Img`** — there's no previous source on first load, so the component renders a single `<img>` and the placeholder shows while it loads. Only *subsequent* src changes engage the crossfade.
 - **Built on the Presence primitive** — the previous layer's mount lifecycle (mounted → leaving → unmounted) is managed by v0's `Presence` composable. CSS targets `data-state='leaving'` to fade opacity 1 → 0, and the `transitionend` event triggers `done()` to finalize the unmount. No `setTimeout`, no manual cleanup.
-- **`img-class` vs `class`** — `class` goes on the wrapper `<div>` (layout, size, border-radius), while `img-class` applies to both inner `<img>` elements (object-fit, filters). This split is necessary because the wrapper coordinates two imgs via `position: relative`.
+- **Class routing** — `class` goes on the wrapper `<div>` (layout, border-radius). `img-class` applies to both inner `<img>` elements (object-fit, sizing). `current-class` and `previous-class` target the individual layers — this is where transition/opacity rules live. The component ships no opinionated styling: you write the fade behavior against `data-state`, `data-has-previous` (on current while a swap is in flight), and Presence's `data-[state=leaving]` (on previous during exit).
 - **Error state** — if the new image errors, the old one stays visible underneath and `Image.Fallback` overlays as usual. Call `retry()` from the Root slot props or the Fallback slot props to re-attempt the same source.
 
 Not a replacement for `Image.Img` in every case — if you don't need cross-src transitions (single content image, hero banner, avatars), stick with `Image.Img` for the simpler DOM.

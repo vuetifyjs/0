@@ -61,8 +61,12 @@
     loading?: 'eager' | 'lazy'
     /** Resource priority hint. */
     fetchpriority?: 'high' | 'low' | 'auto'
-    /** Class applied to both inner image elements. */
+    /** Class applied to both inner image elements (shared layout, object-fit, etc.). */
     imgClass?: string | string[] | Record<string, boolean>
+    /** Class applied to the current image layer only. */
+    currentClass?: string | string[] | Record<string, boolean>
+    /** Class applied to the previous image layer only (during a swap). */
+    previousClass?: string | string[] | Record<string, boolean>
     /** Namespace for retrieving the Image context. */
     namespace?: string
   }
@@ -78,6 +82,8 @@
     status: ImageStatus
     /** Whether the current source has loaded. */
     isLoaded: boolean
+    /** Whether a previous source is currently mounted (a swap is in flight). */
+    hasPrevious: boolean
     /** The active source URL (from Image.Root context). */
     currentSrc: string | undefined
     /** The last successfully loaded source, or undefined on first load. */
@@ -110,6 +116,8 @@
     loading,
     fetchpriority,
     imgClass,
+    currentClass,
+    previousClass,
     namespace = 'v0:image',
   } = defineProps<ImageSwapProps>()
 
@@ -168,6 +176,7 @@
   const slotProps = toRef((): ImageSwapSlotProps => ({
     status: context.status.value,
     isLoaded: context.isLoaded.value,
+    hasPrevious: showPrevious.value,
     currentSrc: currentSrc.value,
     previousSrc: previousSrc.value,
     attrs: {
@@ -179,18 +188,15 @@
 <template>
   <Atom
     :as
-    class="relative"
     :renderless
+    :style="{ position: 'relative' }"
     v-bind="slotProps.attrs"
   >
     <img
       :alt
-      :class="[
-        imgClass,
-        'transition-opacity',
-        showPrevious || context.isLoaded.value ? 'opacity-100' : 'opacity-0',
-      ]"
+      :class="[imgClass, currentClass]"
       :crossorigin
+      :data-has-previous="showPrevious || undefined"
       :data-state="context.status.value"
       :decoding
       :fetchpriority
@@ -211,7 +217,7 @@
         v-bind="presenceAttrs"
         :alt
         aria-hidden="true"
-        :class="[imgClass, 'absolute inset-0 w-full h-full transition-opacity data-[state=leaving]:opacity-0']"
+        :class="[imgClass, previousClass]"
         :crossorigin
         :decoding
         :height
@@ -220,6 +226,7 @@
         :sizes
         :src="previousSrc"
         :srcset
+        :style="{ position: 'absolute', inset: 0, width: '100%', height: '100%' }"
         :width
         @transitionend="onPresenceLeave($event, done)"
       >

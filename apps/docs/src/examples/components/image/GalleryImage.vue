@@ -22,8 +22,9 @@
     <Image.Swap
       v-else
       :alt
-      class="w-full h-full"
-      img-class="w-full h-full object-cover duration-500"
+      current-class="opacity-0 transition-opacity duration-500 data-[state=loaded]:opacity-100 data-[has-previous]:opacity-100"
+      img-class="w-full h-full object-cover"
+      previous-class="transition-opacity duration-500 data-[state=leaving]:opacity-0"
     />
 
     <Image.Placeholder class="absolute inset-0 flex items-center justify-center">
