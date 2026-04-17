@@ -50,10 +50,6 @@ Bind the returned `source`, `onLoad`, and `onError` to a plain image element.
 </template>
 ```
 
-::: example
-/composables/use-image/basic
-:::
-
 ## Architecture
 
 ```mermaid "useImage state machine"
@@ -78,6 +74,19 @@ stateDiagram-v2
 | `retry` | <AppErrorIcon /> | Reset back to `loading` and re-attempt |
 
 ## Examples
+
+::: example
+/composables/use-image/basic
+
+### Basic usage
+
+Wire `useImage` directly to a plain `<img>` element. The composable returns `source`, `onLoad`, `onError`, and four state refs — bind them to the element and you have the full load lifecycle for ~10 lines of setup.
+
+Reach for raw `useImage` when the image lives in markup the `Image` compound can't produce — hand-rolled `<picture>`, a canvas-adjacent element, third-party wrappers, or anywhere you want the state machine without v0's DOM. For typical content images, prefer `Image.Root` + `Image.Img` which packages the same composable with built-in placeholder and fallback slots.
+
+The example surfaces the `status` ref as a live label and includes buttons that swap between a working URL and a known-broken URL, so the transitions `idle → loading → loaded | error` play out on click.
+
+:::
 
 ::: example
 /composables/use-image/useLazyImage.ts 1
