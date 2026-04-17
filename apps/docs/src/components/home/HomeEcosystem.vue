@@ -3,7 +3,7 @@
   import { useBreakpoints } from '@vuetify/v0'
 
   // Utilities
-  import { onMounted, ref } from 'vue'
+  import { onMounted, shallowRef, toRef } from 'vue'
 
   interface EcosystemItem {
     name: string
@@ -116,20 +116,20 @@
   ]
 
   const { isMobile } = useBreakpoints()
+  const count = toRef(() => isMobile.value ? 3 : 7)
 
-  function sample (items: EcosystemItem[], count: number): EcosystemItem[] {
+  function sample (items: EcosystemItem[], size: number): EcosystemItem[] {
     const shuffled = [...items].toSorted(() => Math.random() - 0.5)
-    return shuffled.slice(0, Math.min(count, items.length))
+    return shuffled.slice(0, Math.min(size, items.length))
   }
 
-  const sampled = ref<Map<string, EcosystemItem[]>>(new Map())
+  const sampled = shallowRef<Map<string, EcosystemItem[]>>(new Map())
 
   onMounted(() => {
-    const count = isMobile.value ? 3 : 7
     const map = new Map<string, EcosystemItem[]>()
 
     for (const domain of domains) {
-      map.set(domain.name, sample(domain.items, count))
+      map.set(domain.name, sample(domain.items, 7))
     }
 
     sampled.value = map
@@ -172,7 +172,7 @@
 
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
           <router-link
-            v-for="item in sampled.get(domain.name)"
+            v-for="item in sampled.get(domain.name)?.slice(0, count)"
             :key="item.name"
             class="ecosystem-card p-3 rounded-xl border bg-surface hover:bg-surface/50 transition-colors group"
             :class="item.type === 'component' ? 'hover:border-primary' : 'hover:border-teal-400'"
@@ -200,14 +200,14 @@
 
           <!-- "+N more" card -->
           <router-link
-            v-if="domain.items.length - (sampled.get(domain.name)?.length ?? 0) > 0"
+            v-if="sampled.get(domain.name)?.length && domain.items.length - count > 0"
             class="ecosystem-card relative overflow-hidden p-3 rounded-xl border bg-surface hover:bg-surface/50 hover:border-primary transition-colors flex items-center gap-2"
             :to="domain.items.some(i => i.type === 'component') ? '/components' : '/composables'"
           >
             <AppDotGrid :coverage="50" :density="16" />
 
             <span class="relative font-mono text-sm text-primary">...</span>
-            <span class="relative text-xs opacity-50">+{{ domain.items.length - (sampled.get(domain.name)?.length ?? 0) }} more</span>
+            <span class="relative text-xs opacity-50">+{{ domain.items.length - count }} more</span>
           </router-link>
         </div>
       </div>
