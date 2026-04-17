@@ -84,10 +84,10 @@
     isLoaded: boolean
     /** Whether a previous source is currently mounted (a swap is in flight). */
     hasPrevious: boolean
-    /** The active source URL (from Image.Root context). */
-    currentSrc: string | undefined
+    /** The active source URL (matches Image.Root's resolved source). */
+    source: string | undefined
     /** The last successfully loaded source, or undefined on first load. */
-    previousSrc: string | undefined
+    previousSource: string | undefined
     /** Attributes for the wrapper element. */
     attrs: {
       'data-state': ImageStatus
@@ -124,20 +124,19 @@
   const emit = defineEmits<ImageSwapEmits>()
 
   const context = useImageRoot(namespace)
-  const currentSrc = toRef(() => context.source.value)
-  const previousSrc = shallowRef<string | undefined>()
+  const previousSource = shallowRef<string | undefined>()
   const showPrevious = shallowRef(false)
 
-  watch(currentSrc, (newSrc, oldSrc) => {
+  watch(context.source, (newSource, oldSource) => {
     // Only capture the previous source when no transition is in flight —
     // navigating through several sources before any have loaded should
     // keep the original previous visible rather than flashing through
-    // each intermediate URL. Also skips when newSrc is falsy: clearing
+    // each intermediate URL. Also skips when newSource is falsy: clearing
     // src to undefined/empty and restoring it degrades to a hard swap,
     // which is the correct trade-off since a cleared src means the
     // consumer has intentionally unmounted the logical image.
-    if (oldSrc && newSrc && newSrc !== oldSrc && !showPrevious.value) {
-      previousSrc.value = oldSrc
+    if (oldSource && newSource && newSource !== oldSource && !showPrevious.value) {
+      previousSource.value = oldSource
       showPrevious.value = true
     }
   })
@@ -183,8 +182,8 @@
     status: context.status.value,
     isLoaded: context.isLoaded.value,
     hasPrevious: showPrevious.value,
-    currentSrc: currentSrc.value,
-    previousSrc: previousSrc.value,
+    source: context.source.value,
+    previousSource: previousSource.value,
     attrs: {
       'data-state': context.status.value,
     },
@@ -211,7 +210,7 @@
       :referrerpolicy
       role="img"
       :sizes
-      :src="currentSrc"
+      :src="context.source.value"
       :srcset
       :width
       @error="onError"
@@ -230,7 +229,7 @@
         :referrerpolicy
         role="img"
         :sizes
-        :src="previousSrc"
+        :src="previousSource"
         :srcset
         :style="{ position: 'absolute', inset: 0, width: '100%', height: '100%' }"
         :width
