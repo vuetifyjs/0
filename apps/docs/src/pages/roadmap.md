@@ -84,6 +84,9 @@ Whether you want to explore in the browser, scaffold a project, or integrate wit
   </DocsCard>
 </div>
 
+> [!TIP]
+> Want a complete working reference? [Devkey](/guide/integration/devkey) is the example project shipped with Alpha — a full Vue 3 + Vite + UnoCSS app built on `@vuetify/v0`. Clone it, or run `pnpm create vuetify0` to scaffold your own copy.
+
 ### Get involved
 
 **Report a bug or request a feature** — [Open an issue](https://github.com/vuetifyjs/0/issues) on GitHub.
