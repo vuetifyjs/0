@@ -1,4 +1,3 @@
-/* eslint-disable vuejs-accessibility/alt-text */
 <script setup lang="ts">
   import { useImage } from '@vuetify/v0'
   import { shallowRef, toRef } from 'vue'

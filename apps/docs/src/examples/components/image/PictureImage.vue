@@ -1,4 +1,3 @@
-/* eslint-disable vuejs-accessibility/alt-text */
 <script setup lang="ts">
   import { Image } from '@vuetify/v0'
 
@@ -25,14 +24,17 @@
       >
 
       <Image.Img
+        v-slot="{ attrs }"
         :alt
         :height
         renderless
         :width
       >
-        <template #default="{ attrs }">
-          <img v-bind="attrs" class="w-full h-full object-cover">
-        </template>
+        <img
+          v-bind="attrs"
+          :alt="attrs.alt"
+          class="w-full h-full object-cover"
+        >
       </Image.Img>
 
       <Image.Placeholder class="absolute inset-0 flex items-center justify-center bg-surface-tint">

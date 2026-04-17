@@ -1,4 +1,3 @@
-/* eslint-disable vuejs-accessibility/alt-text */
 <script setup lang="ts">
   import { toRef } from 'vue'
   import { useLazyImage } from './useLazyImage'
