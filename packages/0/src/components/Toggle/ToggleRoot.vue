@@ -70,7 +70,7 @@
   import { useToggleGroup } from './ToggleGroup.vue'
 
   // Utilities
-  import { onBeforeUnmount, shallowRef, toRef, toValue, useAttrs, useId, watch } from 'vue'
+  import { mergeProps, onBeforeUnmount, shallowRef, toRef, toValue, useAttrs, useId, watch } from 'vue'
 
   // Types
   import type { ToggleGroupContext } from './ToggleGroup.vue'
@@ -179,7 +179,7 @@
 
 <template>
   <Atom
-    v-bind="{ ...attrs, ...slotProps.attrs }"
+    v-bind="mergeProps(attrs, slotProps.attrs)"
     :as
     :renderless
     @click="onClick"

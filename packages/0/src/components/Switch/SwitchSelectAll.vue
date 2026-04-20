@@ -18,7 +18,7 @@
   import { provideSwitchRoot } from './SwitchRoot.vue'
 
   // Utilities
-  import { toRef, toValue, useAttrs, useId } from 'vue'
+  import { mergeProps, toRef, toValue, useAttrs, useId } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -157,7 +157,7 @@
 
 <template>
   <Atom
-    v-bind="{ ...attrs, ...slotProps.attrs }"
+    v-bind="mergeProps(attrs, slotProps.attrs)"
     :as
     :renderless
     @click="onClick"

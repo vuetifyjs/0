@@ -19,7 +19,7 @@
 
   // Utilities
   import { isString, isUndefined, useId } from '#v0/utilities'
-  import { onBeforeUnmount, shallowRef, toRef, toValue, useAttrs, watch, watchEffect } from 'vue'
+  import { mergeProps, onBeforeUnmount, shallowRef, toRef, toValue, useAttrs, watch, watchEffect } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -174,7 +174,7 @@
 
 <template>
   <Atom
-    v-bind="{ ...attrs, ...slotProps.attrs }"
+    v-bind="mergeProps(attrs, slotProps.attrs)"
     :as
     :renderless
     :style="[attrs.style, slotProps.attrs.style, {

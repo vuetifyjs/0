@@ -18,7 +18,7 @@
 
   // Utilities
   import { useId } from '#v0/utilities'
-  import { onBeforeUnmount, toRef, useAttrs } from 'vue'
+  import { mergeProps, onBeforeUnmount, toRef, useAttrs } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -77,7 +77,7 @@
 
 <template>
   <Atom
-    v-bind="{ ...attrs, ...slotProps.attrs }"
+    v-bind="mergeProps(attrs, slotProps.attrs)"
     :as
     :renderless
   >

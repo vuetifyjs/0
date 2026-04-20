@@ -17,7 +17,7 @@
   import { useComboboxContext } from './ComboboxRoot.vue'
 
   // Utilities
-  import { onBeforeUnmount, onMounted, toRef, useAttrs } from 'vue'
+  import { mergeProps, onBeforeUnmount, onMounted, toRef, useAttrs } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -80,7 +80,7 @@
 
 <template>
   <Atom
-    v-bind="{ ...attrs, ...slotProps.attrs }"
+    v-bind="mergeProps(attrs, slotProps.attrs)"
     :as
     :renderless
   >

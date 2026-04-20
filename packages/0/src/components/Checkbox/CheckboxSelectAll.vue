@@ -71,7 +71,7 @@
   import { provideCheckboxRoot } from './CheckboxRoot.vue'
 
   // Utilities
-  import { toRef, toValue, useAttrs, useId } from 'vue'
+  import { mergeProps, toRef, toValue, useAttrs, useId } from 'vue'
 
   defineOptions({ name: 'CheckboxSelectAll', inheritAttrs: false })
 
@@ -164,7 +164,7 @@
 
 <template>
   <Atom
-    v-bind="{ ...attrs, ...slotProps.attrs }"
+    v-bind="mergeProps(attrs, slotProps.attrs)"
     :as
     :renderless
     @click="onClick"

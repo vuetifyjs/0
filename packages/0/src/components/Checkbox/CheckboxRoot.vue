@@ -131,7 +131,7 @@
   import CheckboxHiddenInput from './CheckboxHiddenInput.vue'
 
   // Utilities
-  import { onBeforeUnmount, toRef, toValue, useAttrs, useId } from 'vue'
+  import { mergeProps, onBeforeUnmount, toRef, toValue, useAttrs, useId } from 'vue'
 
   // Types
   import type { GroupContext, GroupTicket } from '#v0/composables/createGroup'
@@ -303,7 +303,7 @@
 
 <template>
   <Atom
-    v-bind="{ ...attrs, ...slotProps.attrs }"
+    v-bind="mergeProps(attrs, slotProps.attrs)"
     :as
     :renderless
     @click="onClick"

@@ -20,7 +20,7 @@
 
   // Utilities
   import { isNull } from '#v0/utilities'
-  import { shallowRef, toRef, toValue, useAttrs } from 'vue'
+  import { mergeProps, shallowRef, toRef, toValue, useAttrs } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -190,7 +190,7 @@
 
 <template>
   <Atom
-    v-bind="{ ...attrs, ...slotProps.attrs }"
+    v-bind="mergeProps(attrs, slotProps.attrs)"
     :as
     :renderless
   >

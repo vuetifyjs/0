@@ -151,7 +151,7 @@
   import RadioHiddenInput from './RadioHiddenInput.vue'
 
   // Utilities
-  import { onBeforeUnmount, toRef, toValue, useAttrs, useId, useTemplateRef } from 'vue'
+  import { mergeProps, onBeforeUnmount, toRef, toValue, useAttrs, useId, useTemplateRef } from 'vue'
 
   defineOptions({ name: 'RadioRoot', inheritAttrs: false })
 
@@ -307,7 +307,7 @@
 <template>
   <Atom
     ref="root"
-    v-bind="{ ...attrs, ...slotProps.attrs }"
+    v-bind="mergeProps(attrs, slotProps.attrs)"
     :as
     :renderless
     @click="onClick"
