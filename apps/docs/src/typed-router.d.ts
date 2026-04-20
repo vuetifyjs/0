@@ -195,6 +195,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/components/primitives/aspect-ratio': RouteRecordInfo<
+      '/components/primitives/aspect-ratio',
+      '/components/primitives/aspect-ratio',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/components/primitives/atom': RouteRecordInfo<
       '/components/primitives/atom',
       '/components/primitives/atom',
@@ -275,6 +282,20 @@ declare module 'vue-router/auto-routes' {
     '/components/semantic/breadcrumbs': RouteRecordInfo<
       '/components/semantic/breadcrumbs',
       '/components/semantic/breadcrumbs',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/components/semantic/carousel': RouteRecordInfo<
+      '/components/semantic/carousel',
+      '/components/semantic/carousel',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/components/semantic/image': RouteRecordInfo<
+      '/components/semantic/image',
+      '/components/semantic/image',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -632,6 +653,13 @@ declare module 'vue-router/auto-routes' {
     '/composables/system/use-hotkey': RouteRecordInfo<
       '/composables/system/use-hotkey',
       '/composables/system/use-hotkey',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/composables/system/use-image': RouteRecordInfo<
+      '/composables/system/use-image',
+      '/composables/system/use-image',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -1143,6 +1171,12 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/components/primitives/aspect-ratio.md': {
+      routes:
+        | '/components/primitives/aspect-ratio'
+      views:
+        | never
+    }
     'src/pages/components/primitives/atom.md': {
       routes:
         | '/components/primitives/atom'
@@ -1212,6 +1246,18 @@ declare module 'vue-router/auto-routes' {
     'src/pages/components/semantic/breadcrumbs.md': {
       routes:
         | '/components/semantic/breadcrumbs'
+      views:
+        | never
+    }
+    'src/pages/components/semantic/carousel.md': {
+      routes:
+        | '/components/semantic/carousel'
+      views:
+        | never
+    }
+    'src/pages/components/semantic/image.md': {
+      routes:
+        | '/components/semantic/image'
       views:
         | never
     }
@@ -1518,6 +1564,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/system/use-hotkey.md': {
       routes:
         | '/composables/system/use-hotkey'
+      views:
+        | never
+    }
+    'src/pages/composables/system/use-image.md': {
+      routes:
+        | '/composables/system/use-image'
       views:
         | never
     }

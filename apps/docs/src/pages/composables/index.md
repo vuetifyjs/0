@@ -262,6 +262,7 @@ Browser API wrappers with automatic lifecycle cleanup.
 | [useClickOutside](/composables/system/use-click-outside) | Detect clicks outside an element |
 | [useEventListener](/composables/system/use-event-listener) | Handle DOM events with automatic cleanup |
 | [useHotkey](/composables/system/use-hotkey) | Handle hotkey combinations and sequences |
+| [useImage](/composables/system/use-image) | Image loading state machine with deferred loading and retry |
 | [useIntersectionObserver](/composables/system/use-intersection-observer) | Intersection Observer API for visibility detection |
 | [useLazy](/composables/system/use-lazy) | Defer rendering until first activation for dialogs, menus, and tooltips |
 | [useMediaQuery](/composables/system/use-media-query) | Reactive CSS media query matching |

@@ -81,6 +81,7 @@ import { ... } from '@vuetify/v0/date'       // Date adapter and utilities
 
 | Component | Description |
 |-----------|-------------|
+| [AspectRatio](https://0.vuetifyjs.com/components/primitives/aspect-ratio) | Fixed width-to-height ratio container via CSS `aspect-ratio` |
 | [Atom](https://0.vuetifyjs.com/components/primitives/atom) | Polymorphic base element with dynamic `as` prop and renderless mode |
 | [Portal](https://0.vuetifyjs.com/components/primitives/portal) | Teleport wrapper with automatic z-index stacking via useStack |
 | [Presence](https://0.vuetifyjs.com/components/primitives/presence) | Animation-agnostic mount lifecycle with lazy mounting and exit timing |
@@ -138,6 +139,7 @@ import { ... } from '@vuetify/v0/date'       // Date adapter and utilities
 | [Avatar](https://0.vuetifyjs.com/components/semantic/avatar) | Image/fallback avatar with priority loading |
 | [Breadcrumbs](https://0.vuetifyjs.com/components/semantic/breadcrumbs) | Navigation breadcrumbs with overflow detection and truncation |
 | [Carousel](https://0.vuetifyjs.com/components/semantic/carousel) | Scroll-snap slide navigation with multi-slide display and drag/swipe |
+| [Image](https://0.vuetifyjs.com/components/semantic/image) | Image with placeholder, error fallback, and lazy loading |
 | [Pagination](https://0.vuetifyjs.com/components/semantic/pagination) | Page navigation with semantic `<nav>` wrapper |
 | [Snackbar](https://0.vuetifyjs.com/components/semantic/snackbar) | Toast notification with queue, positioning, and auto-dismiss |
 | [Splitter](https://0.vuetifyjs.com/components/semantic/splitter) | Resizable panel layout with drag handles |
@@ -210,6 +212,7 @@ Selection management composables built on `createRegistry`:
 - [`useClickOutside`](https://0.vuetifyjs.com/composables/system/use-click-outside) - Click outside detection with cleanup
 - [`useEventListener`](https://0.vuetifyjs.com/composables/system/use-event-listener) - Lifecycle-managed event listeners
 - [`useHotkey`](https://0.vuetifyjs.com/composables/system/use-hotkey) - Hotkey combinations and sequences
+- [`useImage`](https://0.vuetifyjs.com/composables/system/use-image) - Image loading state machine with deferred loading and retry
 - [`useIntersectionObserver`](https://0.vuetifyjs.com/composables/system/use-intersection-observer) - Intersection observer with auto-cleanup
 - [`useLazy`](https://0.vuetifyjs.com/composables/system/use-lazy) - Deferred content rendering for dialogs, menus, and tooltips
 - [`useMediaQuery`](https://0.vuetifyjs.com/composables/system/use-media-query) - Reactive CSS media query matching
