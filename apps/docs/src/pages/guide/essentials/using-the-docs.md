@@ -8,7 +8,6 @@ meta:
 features:
   order: 0.5
   level: 1
-  emphasized: true
 related:
   - /guide
   - /guide/tooling/ai-tools

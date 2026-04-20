@@ -9,9 +9,11 @@ import type { Plugin, ViteDevServer } from 'vite'
 
 import { getApiNamesGrouped } from './api-names'
 import { parseFrontmatter } from './frontmatter'
+import { getGitDate, isRecent } from './git-dates'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const PAGES_DIR = resolve(__dirname, '../src/pages')
+const EMPHASIS_WINDOW_DAYS = 7
 
 // Types matching stores/app.ts
 export interface NavItemLink {
@@ -119,10 +121,11 @@ function toNavLink (p: PageInfo): NavItemLink {
   return link
 }
 
-function toStandaloneNavLink (name: string, to: string, frontmatter: Frontmatter): NavItemLink {
+function toStandaloneNavLink (name: string, to: string, file: string, frontmatter: Frontmatter): NavItemLink {
   const link: NavItemLink = { name, to }
+  const recent = isRecent(getGitDate(file)?.updated, EMPHASIS_WINDOW_DAYS)
   if (frontmatter.features?.level) link.level = frontmatter.features.level
-  if (frontmatter.features?.emphasized) link.emphasized = true
+  if (frontmatter.features?.emphasized || recent) link.emphasized = true
   if (frontmatter.features?.devmode) link.devmode = true
   return link
 }
@@ -178,6 +181,7 @@ async function buildApiSection (): Promise<NavItemLink> {
 }
 
 function createPageInfo (relPath: string, file: string, name: string, frontmatter: Frontmatter): PageInfo {
+  const recent = isRecent(getGitDate(file)?.updated, EMPHASIS_WINDOW_DAYS)
   return {
     path: relPath,
     urlPath: getUrlPath(file),
@@ -185,7 +189,7 @@ function createPageInfo (relPath: string, file: string, name: string, frontmatte
     order: frontmatter.features?.order ?? 999,
     hidden: false,
     level: frontmatter.features?.level,
-    emphasized: frontmatter.features?.emphasized,
+    emphasized: frontmatter.features?.emphasized || recent,
     devmode: frontmatter.features?.devmode,
   }
 }
@@ -206,7 +210,7 @@ async function generateNav (): Promise<NavItem[]> {
     // Handle standalone pages
     if (STANDALONE[relPath]) {
       const { order, name } = STANDALONE[relPath]
-      const item = toStandaloneNavLink(name, getUrlPath(file), frontmatter)
+      const item = toStandaloneNavLink(name, getUrlPath(file), file, frontmatter)
       standalonePages.push({ item, order })
       continue
     }
@@ -368,6 +372,13 @@ export default function generateNavPlugin (): Plugin {
     },
 
     configureServer (server: ViteDevServer) {
+      server.watcher.on('change', file => {
+        if (file.endsWith('.md') && file.includes('/pages/')) {
+          navData = null
+          navPromise = null
+        }
+      })
+
       server.middlewares.use(async (req, res, next) => {
         if (req.url !== '/nav.json') return next()
 

@@ -7,7 +7,6 @@ meta:
     content: vuetify0, roadmap, alpha, timeline, milestones, releases, features, maturity, stability, Vue 3, v0, headless ui
 features:
   level: 1
-  emphasized: true
 related:
   - /releases
   - /introduction/getting-started
