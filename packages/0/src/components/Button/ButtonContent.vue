@@ -13,7 +13,7 @@
   import { useButtonRoot } from './ButtonRoot.vue'
 
   // Utilities
-  import { onUnmounted, toRef, useId } from 'vue'
+  import { onBeforeUnmount, toRef, useId } from 'vue'
 
   // Types
   import type { ID } from '#v0/types'
@@ -46,7 +46,7 @@
 
   const ticket = root.single.register({ id })
 
-  onUnmounted(() => ticket.unregister())
+  onBeforeUnmount(() => ticket.unregister())
 
   const slotProps = toRef((): ButtonContentSlotProps => ({
     isSelected: ticket.isSelected.value,

@@ -20,7 +20,7 @@
 
   // Utilities
   import { isElement, isUndefined } from '#v0/utilities'
-  import { computed, onUnmounted, toRef, useTemplateRef } from 'vue'
+  import { computed, onBeforeUnmount, toRef, useTemplateRef } from 'vue'
 
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
@@ -106,7 +106,7 @@
     resume('focus')
   }
 
-  onUnmounted(() => {
+  onBeforeUnmount(() => {
     if (reasons.size > 0) {
       reasons.clear()
       notifications.queue.resume()

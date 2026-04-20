@@ -131,7 +131,7 @@
   import CheckboxHiddenInput from './CheckboxHiddenInput.vue'
 
   // Utilities
-  import { onUnmounted, toRef, toValue, useAttrs, useId } from 'vue'
+  import { onBeforeUnmount, toRef, toValue, useAttrs, useId } from 'vue'
 
   // Types
   import type { GroupContext, GroupTicket } from '#v0/composables/createGroup'
@@ -249,7 +249,7 @@
     toggle()
   }
 
-  onUnmounted(() => {
+  onBeforeUnmount(() => {
     if (!ticket || !group) return
 
     group.unregister(ticket.id)

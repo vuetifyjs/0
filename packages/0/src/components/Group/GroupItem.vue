@@ -70,7 +70,7 @@
   import { useGroupRoot } from './GroupRoot.vue'
 
   // Utilities
-  import { onUnmounted, toRef, toValue } from 'vue'
+  import { onBeforeUnmount, toRef, toValue } from 'vue'
 
   defineOptions({ name: 'GroupItem' })
 
@@ -91,7 +91,7 @@
   const ticket = group.register({ id, value, disabled, indeterminate })
   const isDisabled = toRef(() => toValue(ticket.disabled) || toValue(group.disabled))
 
-  onUnmounted(() => {
+  onBeforeUnmount(() => {
     group.unregister(ticket.id)
   })
 

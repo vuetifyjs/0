@@ -19,7 +19,7 @@
 
   // Utilities
   import { isString, isUndefined, useId } from '#v0/utilities'
-  import { onUnmounted, shallowRef, toRef, toValue, useAttrs, watch, watchEffect } from 'vue'
+  import { onBeforeUnmount, shallowRef, toRef, toValue, useAttrs, watch, watchEffect } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -126,7 +126,7 @@
     ticket.defaultSize = defaultSize
   })
 
-  onUnmounted(() => {
+  onBeforeUnmount(() => {
     splitter.panels.unregister(ticket.id)
   })
 

@@ -59,7 +59,7 @@
   import { useSingleRoot } from './SingleRoot.vue'
 
   // Utilities
-  import { onUnmounted, toRef, toValue } from 'vue'
+  import { onBeforeUnmount, toRef, toValue } from 'vue'
 
   defineOptions({ name: 'SingleItem' })
 
@@ -79,7 +79,7 @@
   const ticket = single.register({ id, value, disabled })
   const isDisabled = toRef(() => toValue(ticket.disabled) || toValue(single.disabled))
 
-  onUnmounted(() => {
+  onBeforeUnmount(() => {
     single.unregister(ticket.id)
   })
 

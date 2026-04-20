@@ -59,7 +59,7 @@
   import { useStepRoot } from './StepRoot.vue'
 
   // Utilities
-  import { onUnmounted, toRef, toValue } from 'vue'
+  import { onBeforeUnmount, toRef, toValue } from 'vue'
 
   defineOptions({ name: 'StepItem' })
 
@@ -79,7 +79,7 @@
   const ticket = step.register({ id, value, disabled })
   const isDisabled = toRef(() => toValue(ticket.disabled) || toValue(step.disabled))
 
-  onUnmounted(() => {
+  onBeforeUnmount(() => {
     step.unregister(ticket.id)
   })
 

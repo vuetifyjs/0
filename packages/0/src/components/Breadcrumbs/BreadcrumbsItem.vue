@@ -16,7 +16,7 @@
   import { useBreadcrumbsRoot } from './BreadcrumbsRoot.vue'
 
   // Utilities
-  import { onUnmounted, toRef, useTemplateRef, watch } from 'vue'
+  import { onBeforeUnmount, toRef, useTemplateRef, watch } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -86,7 +86,7 @@
     { immediate: true },
   )
 
-  onUnmounted(() => {
+  onBeforeUnmount(() => {
     context.measureElement(ticket.index, 'item', undefined)
     context.group.unregister(ticket.id)
     context.breadcrumbs.unregister(crumb.id)

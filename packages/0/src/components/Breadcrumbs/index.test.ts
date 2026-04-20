@@ -795,7 +795,7 @@ describe('breadcrumbs', () => {
       // Verify components registered
       expect(wrapper.findAll('li').length).toBe(5)
 
-      // Unmount triggers onUnmounted for all children
+      // Unmount triggers onBeforeUnmount for all children
       wrapper.unmount()
     })
 

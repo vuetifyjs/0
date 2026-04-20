@@ -23,7 +23,7 @@
 
   // Utilities
   import { isNullOrUndefined } from '#v0/utilities'
-  import { mergeProps, onScopeDispose, onUnmounted, shallowRef, toRef, toValue, useAttrs } from 'vue'
+  import { mergeProps, onBeforeUnmount, onScopeDispose, shallowRef, toRef, toValue, useAttrs } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -84,7 +84,7 @@
   const splitter = useSplitterRoot()
   const ticket = splitter.handles.register()
 
-  onUnmounted(() => {
+  onBeforeUnmount(() => {
     splitter.handles.unregister(ticket.id)
   })
 

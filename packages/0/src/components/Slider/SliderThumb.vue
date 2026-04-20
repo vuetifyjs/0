@@ -16,7 +16,7 @@
 
   // Utilities
   import { isUndefined } from '#v0/utilities'
-  import { mergeProps, onUnmounted, toRef, toValue, useAttrs, useTemplateRef } from 'vue'
+  import { mergeProps, onBeforeUnmount, toRef, toValue, useAttrs, useTemplateRef } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -89,7 +89,7 @@
 
   const ticket = root.register()
 
-  onUnmounted(() => {
+  onBeforeUnmount(() => {
     root.unregister(ticket.id)
   })
 

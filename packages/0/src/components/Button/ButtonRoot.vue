@@ -24,7 +24,7 @@
   import { useTimer } from '#v0/composables/useTimer'
 
   // Utilities
-  import { mergeProps, onUnmounted, shallowRef, toRef, toValue, useAttrs, watch } from 'vue'
+  import { mergeProps, onBeforeUnmount, shallowRef, toRef, toValue, useAttrs, watch } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -185,7 +185,7 @@
     ticket.toggle()
   }
 
-  onUnmounted(() => {
+  onBeforeUnmount(() => {
     timer.stop()
     ticket?.unregister()
   })

@@ -70,7 +70,7 @@
   import { useToggleGroup } from './ToggleGroup.vue'
 
   // Utilities
-  import { onUnmounted, shallowRef, toRef, toValue, useAttrs, useId, watch } from 'vue'
+  import { onBeforeUnmount, shallowRef, toRef, toValue, useAttrs, useId, watch } from 'vue'
 
   // Types
   import type { ToggleGroupContext } from './ToggleGroup.vue'
@@ -150,7 +150,7 @@
     toggle()
   }
 
-  onUnmounted(() => {
+  onBeforeUnmount(() => {
     ticket?.unregister()
   })
 

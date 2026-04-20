@@ -59,7 +59,7 @@
   import { useSelectionRoot } from './SelectionRoot.vue'
 
   // Utilities
-  import { onUnmounted, toRef, toValue } from 'vue'
+  import { onBeforeUnmount, toRef, toValue } from 'vue'
 
   defineOptions({ name: 'SelectionItem' })
 
@@ -79,7 +79,7 @@
   const ticket = selection.register({ id, value, disabled })
   const isDisabled = toRef(() => toValue(ticket.disabled) || toValue(selection.disabled))
 
-  onUnmounted(() => {
+  onBeforeUnmount(() => {
     selection.unregister(ticket.id)
   })
 

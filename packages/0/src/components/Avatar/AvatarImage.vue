@@ -20,7 +20,7 @@
   import { useImage } from '#v0/composables/useImage'
 
   // Utilities
-  import { onUnmounted, toRef, watch } from 'vue'
+  import { onBeforeUnmount, toRef, watch } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -116,7 +116,7 @@
     }
   })
 
-  onUnmounted(() => {
+  onBeforeUnmount(() => {
     context.unregister(ticket.id)
   })
 

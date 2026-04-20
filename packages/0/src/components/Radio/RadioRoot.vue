@@ -151,7 +151,7 @@
   import RadioHiddenInput from './RadioHiddenInput.vue'
 
   // Utilities
-  import { onUnmounted, toRef, toValue, useAttrs, useId, useTemplateRef } from 'vue'
+  import { onBeforeUnmount, toRef, toValue, useAttrs, useId, useTemplateRef } from 'vue'
 
   defineOptions({ name: 'RadioRoot', inheritAttrs: false })
 
@@ -263,7 +263,7 @@
     toValue(nextItem.el)?.focus()
   }
 
-  onUnmounted(() => {
+  onBeforeUnmount(() => {
     group.unregister(ticket.id)
   })
 

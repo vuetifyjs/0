@@ -14,7 +14,7 @@
   import { useButtonRoot } from './ButtonRoot.vue'
 
   // Utilities
-  import { onUnmounted, toRef, useId, watch } from 'vue'
+  import { onBeforeUnmount, toRef, useId, watch } from 'vue'
 
   // Types
   import type { ID } from '#v0/types'
@@ -62,7 +62,7 @@
     }
   }, { immediate: true })
 
-  onUnmounted(() => ticket.unregister())
+  onBeforeUnmount(() => ticket.unregister())
 
   const slotProps = toRef((): ButtonLoadingSlotProps => ({
     isSelected: ticket.isSelected.value,

@@ -30,7 +30,7 @@
   import { useAvatarRoot } from './AvatarRoot.vue'
 
   // Utilities
-  import { onUnmounted, toRef } from 'vue'
+  import { onBeforeUnmount, toRef } from 'vue'
 
   defineOptions({ name: 'AvatarFallback' })
 
@@ -52,7 +52,7 @@
     isSelected: ticket.isSelected.value,
   }))
 
-  onUnmounted(() => context.unregister(ticket.id))
+  onBeforeUnmount(() => context.unregister(ticket.id))
 </script>
 
 <template>

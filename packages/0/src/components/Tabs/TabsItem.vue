@@ -26,7 +26,7 @@
   import { useTabsRoot } from './TabsRoot.vue'
 
   // Utilities
-  import { mergeProps, nextTick, onUnmounted, toRef, toValue, useAttrs, useTemplateRef } from 'vue'
+  import { mergeProps, nextTick, onBeforeUnmount, toRef, toValue, useAttrs, useTemplateRef } from 'vue'
 
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
@@ -115,7 +115,7 @@
   const tabId = toRef(() => `${tabs.rootId}-tab-${ticket.id}`)
   const panelId = toRef(() => `${tabs.rootId}-panel-${ticket.id}`)
 
-  onUnmounted(() => {
+  onBeforeUnmount(() => {
     tabs.unregister(ticket.id)
   })
 

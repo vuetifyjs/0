@@ -22,7 +22,7 @@
   import { createContext } from '#v0/composables/createContext'
 
   // Utilities
-  import { onUnmounted, toRef, toValue, useAttrs, useId } from 'vue'
+  import { onBeforeUnmount, toRef, toValue, useAttrs, useId } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -239,7 +239,7 @@
     toggle()
   }
 
-  onUnmounted(() => {
+  onBeforeUnmount(() => {
     if (!ticket || !group) return
     group.unregister(ticket.id)
   })

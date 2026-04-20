@@ -15,7 +15,7 @@
   import { useSelectContext } from './SelectRoot.vue'
 
   // Utilities
-  import { onUnmounted, toRef, toValue } from 'vue'
+  import { onBeforeUnmount, toRef, toValue } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -85,7 +85,7 @@
     if (!toValue(isDisabled)) context.select(ticket.id)
   }
 
-  onUnmounted(() => {
+  onBeforeUnmount(() => {
     context.selection.unregister(ticket.id)
   })
 
