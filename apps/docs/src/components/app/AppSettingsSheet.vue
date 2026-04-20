@@ -176,6 +176,9 @@
         <!-- Header -->
         <AppSettingsHeaderButtons />
 
+        <!-- Build -->
+        <AppSettingsCommits />
+
         <!-- Reset -->
         <div class="pt-4 pb-2 border-t border-divider flex justify-between">
           <button

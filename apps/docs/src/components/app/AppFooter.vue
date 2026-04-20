@@ -32,6 +32,12 @@
 
   const latest = toRef(() => releases.releases[0])
 
+  const buildSha = import.meta.env.VITE_GITHUB_SHA as string | undefined
+
+  const outOfDate = toRef(() =>
+    !!buildSha && !!app.stats.commit && buildSha !== app.stats.commit.sha,
+  )
+
   async function fetch () {
     // Fetch latest commit
     try {
@@ -102,7 +108,7 @@
               target="_blank"
               :title="`Last Commit: ${new Date(app.stats.commit.commit.author.date).toLocaleString()}`"
             >
-              <AppIcon icon="history" :size="14" />
+              <AppIcon :class="outOfDate && 'text-warning'" icon="history" :size="14" />
               {{ app.stats.commit.sha.slice(0, 7) }}
             </a>
           </div>

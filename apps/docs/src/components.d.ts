@@ -38,6 +38,7 @@ declare module 'vue' {
     AppSearchInline: typeof import('./components/app/AppSearchInline.vue')['default']
     AppSettings: typeof import('./components/app/AppSettings.vue')['default']
     AppSettingsColorInput: typeof import('./components/app/settings/AppSettingsColorInput.vue')['default']
+    AppSettingsCommits: typeof import('./components/app/settings/AppSettingsCommits.vue')['default']
     AppSettingsHeader: typeof import('./components/app/settings/AppSettingsHeader.vue')['default']
     AppSettingsHeaderButtons: typeof import('./components/app/settings/AppSettingsHeaderButtons.vue')['default']
     AppSettingsMotion: typeof import('./components/app/settings/AppSettingsMotion.vue')['default']
