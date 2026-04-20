@@ -43,6 +43,7 @@ declare global {
   const __LOGGER_ENABLED__: typeof import('../../packages/0/src/constants/globals').__LOGGER_ENABLED__
   const apca: typeof import('../../packages/0/src/utilities/apca').apca
   const clamp: typeof import('../../packages/0/src/utilities/helpers').clamp
+  const computeDepth: typeof import('../../packages/0/src/composables/createDataTable/index').computeDepth
   const computed: typeof import('vue').computed
   const createApp: typeof import('vue').createApp
   const createBreadcrumbs: typeof import('../../packages/0/src/composables/createBreadcrumbs/index').createBreadcrumbs
@@ -144,6 +145,7 @@ declare global {
   const defineAsyncComponent: typeof import('vue').defineAsyncComponent
   const defineComponent: typeof import('vue').defineComponent
   const effectScope: typeof import('vue').effectScope
+  const extractLeaves: typeof import('../../packages/0/src/composables/createDataTable/index').extractLeaves
   const flatten: typeof import('../../packages/0/src/composables/createTokens/index').flatten
   const foreground: typeof import('../../packages/0/src/utilities/apca').foreground
   const genId: typeof import('../../packages/0/src/utilities/helpers').genId
@@ -204,6 +206,7 @@ declare global {
   const readonly: typeof import('vue').readonly
   const ref: typeof import('vue').ref
   const resolveComponent: typeof import('vue').resolveComponent
+  const resolveHeaders: typeof import('../../packages/0/src/composables/createDataTable/index').resolveHeaders
   const resolveIds: typeof import('../../packages/0/src/utilities/helpers').resolveIds
   const resolveIndexes: typeof import('../../packages/0/src/utilities/helpers').resolveIndexes
   const rgbToHex: typeof import('../../packages/0/src/utilities/color').rgbToHex
@@ -338,7 +341,7 @@ declare global {
   export type { ContextKey, CreateContextOptions } from '../../packages/0/src/composables/createContext/index'
   import('../../packages/0/src/composables/createContext/index')
   // @ts-ignore
-  export type { SelectStrategy, DataTableColumn, DataTableSort, DataTableSelection, DataTableGroup, DataTableGrouping, DataTableExpansion, DataTableOptions, DataTableContext, DataTableContextOptions, DataTableAdapterContext, DataTableAdapterInterface, DataTableAdapterResult, SortDirection, SortEntry, ServerAdapterOptions } from '../../packages/0/src/composables/createDataTable/index'
+  export type { KeysOfType, SelectStrategy, DataTableColumn, DataTableSort, DataTableSelection, DataTableGroup, DataTableGrouping, DataTableExpansion, DataTableOptions, DataTableContext, DataTableContextOptions, DataTableAdapterContext, DataTableAdapterInterface, DataTableAdapterResult, SortDirection, SortEntry, ServerAdapterOptions, ColumnNode, InternalHeader } from '../../packages/0/src/composables/createDataTable/index'
   import('../../packages/0/src/composables/createDataTable/index')
   // @ts-ignore
   export type { Primitive, FilterQuery, FilterItem, FilterMode, FilterFunction, FilterOptions, FilterResult, FilterContext, FilterContextOptions } from '../../packages/0/src/composables/createFilter/index'
@@ -546,6 +549,7 @@ declare module 'vue' {
     readonly __LOGGER_ENABLED__: UnwrapRef<typeof import('../../packages/0/src/constants/globals')['__LOGGER_ENABLED__']>
     readonly apca: UnwrapRef<typeof import('../../packages/0/src/utilities/apca')['apca']>
     readonly clamp: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['clamp']>
+    readonly computeDepth: UnwrapRef<typeof import('../../packages/0/src/composables/createDataTable/index')['computeDepth']>
     readonly computed: UnwrapRef<typeof import('vue')['computed']>
     readonly createApp: UnwrapRef<typeof import('vue')['createApp']>
     readonly createBreadcrumbs: UnwrapRef<typeof import('../../packages/0/src/composables/createBreadcrumbs/index')['createBreadcrumbs']>
@@ -645,6 +649,7 @@ declare module 'vue' {
     readonly defineAsyncComponent: UnwrapRef<typeof import('vue')['defineAsyncComponent']>
     readonly defineComponent: UnwrapRef<typeof import('vue')['defineComponent']>
     readonly effectScope: UnwrapRef<typeof import('vue')['effectScope']>
+    readonly extractLeaves: UnwrapRef<typeof import('../../packages/0/src/composables/createDataTable/index')['extractLeaves']>
     readonly flatten: UnwrapRef<typeof import('../../packages/0/src/composables/createTokens/index')['flatten']>
     readonly foreground: UnwrapRef<typeof import('../../packages/0/src/utilities/apca')['foreground']>
     readonly getCurrentInstance: UnwrapRef<typeof import('vue')['getCurrentInstance']>
@@ -704,6 +709,7 @@ declare module 'vue' {
     readonly readonly: UnwrapRef<typeof import('vue')['readonly']>
     readonly ref: UnwrapRef<typeof import('vue')['ref']>
     readonly resolveComponent: UnwrapRef<typeof import('vue')['resolveComponent']>
+    readonly resolveHeaders: UnwrapRef<typeof import('../../packages/0/src/composables/createDataTable/index')['resolveHeaders']>
     readonly resolveIds: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['resolveIds']>
     readonly resolveIndexes: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['resolveIndexes']>
     readonly rgbToHex: UnwrapRef<typeof import('../../packages/0/src/utilities/color')['rgbToHex']>
