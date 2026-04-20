@@ -4,13 +4,27 @@ paths: "**/*.test.ts"
 
 # Testing Standards
 
-Vitest + happy-dom. Colocated with source (`index.test.ts`).
+Scope-specific mechanics for `**/*.test.ts`. Covers coverage requirements, structure, naming, assertion patterns, composable/component test patterns, zero-warnings policy, namespace keys, expected warnings, mocking, v-model testing, plugin mocking, and benchmark placement. Philosophy for what to test lives in `PHILOSOPHY.md`.
+
+## Cited PHILOSOPHY sections
+
+- §2.9 Errors throw; data integrity warns; runtime returns
+- §4.5 Scope cleanup contract
+- §9.2 Logger, not console
+- §9.3 Namespace keys contain `:`
+
+## Runtime
+
+Vitest + happy-dom. [intent:84] Colocated with source: `foo.ts → foo.test.ts`, `createX/index.test.ts`. [intent:65, intent:85]
+
+> **Project override.** This project uses `.test.ts`. The personal-rule default `.spec.ts` in `~/.claude/rules/quality.md` does not apply here — do not rename files to `.spec.ts`. Tension T14/T22 in `../tensions.md` records the decision.
 
 ## Coverage Requirements
 
-- Every composable must have `index.test.ts`
-- Every component must have `index.test.ts`
-- Focus: edge cases, error conditions, async, SSR safety
+- Every composable must have `index.test.ts`. [intent:219]
+- Every component must have `index.test.ts`. [intent:220]
+- Focus: edge cases, error conditions, async, SSR safety. [intent:86, intent:221]
+- Only write tests when explicitly asked — never proactively add test files. [intent:19]
 
 ## Test File Structure
 
@@ -19,10 +33,15 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { effectScope, nextTick, shallowRef } from 'vue'
 import { mount } from '@vue/test-utils'
 
-// Mock Vue DI when needed
+// Mock Vue DI when needed (note hasInjectionContext for composables that use it)
 vi.mock('vue', async () => {
   const actual = await vi.importActual('vue')
-  return { ...actual, provide: vi.fn(), inject: vi.fn(), hasInjectionContext: vi.fn(() => true) }
+  return {
+    ...actual,
+    provide: vi.fn(),
+    inject: vi.fn(),
+    hasInjectionContext: vi.fn(() => true),
+  }
 })
 
 describe('composableName', () => {
@@ -40,7 +59,7 @@ describe('composableName', () => {
 
 ## Test Naming (100% enforced)
 
-Always `it('should ...')`. Never `test()` or `it('returns ...')`.
+Always `it('should ...')`. Never `test()`. Never `it('returns ...')`. [intent:222]
 
 ## Assertion Patterns
 
@@ -50,12 +69,13 @@ expect(value).toBe(expected)
 
 // Refs — always unwrap with .value
 expect(timer.isActive.value).toBe(true)
+// [intent:223]
 
-// Objects/arrays
+// Objects / arrays
 expect(result).toEqual({ key: 'value' })
 
-// Counts
-expect(handler).toHaveBeenCalledTimes(1)  // Not .toHaveBeenCalledOnce()
+// Call counts
+expect(handler).toHaveBeenCalledTimes(1)   // Not .toHaveBeenCalledOnce() [intent:224]
 
 // Errors
 expect(() => useContext()).toThrow('Context not found')
@@ -65,8 +85,7 @@ expect(() => useContext()).toThrow('Context not found')
 
 ```ts
 describe('createFoo', () => {
-  // Helper factory
-  function setup(options = {}) {
+  function setup (options = {}) {
     return createFoo({ ...defaults, ...options })
   }
 
@@ -82,31 +101,34 @@ For lifecycle-dependent composables, wrap in `effectScope()`.
 
 ## Zero Warnings Policy
 
-Tests must produce **zero** `stderr` output. Run `npx vitest run --reporter verbose 2>&1 | grep -E '\[Vue warn\]|\[v0.*warn\]|\[v0:context\]'` to verify.
+Tests must produce **zero** stderr output. [intent:225] Verify with:
 
-### Namespace keys
+```bash
+npx vitest run --reporter verbose 2>&1 | grep -E '\[Vue warn\]|\[v0.*warn\]|\[v0:context\]'
+```
 
-All string keys passed to `createContext()` or `createXContext({ namespace })` must contain `:`.
-Use `test:` prefix for test-only keys, `v0:` for production keys.
+### Namespace keys (PHILOSOPHY §9.3)
+
+All string keys passed to `createContext()` or `createXContext({ namespace })` must contain `:`. [intent:226] Use `test:` prefix for test-only keys, `v0:` for production keys. [intent:227]
 
 ```ts
-// wrong — triggers [v0:context] namespace warning
+// Wrong — triggers [v0:context] namespace warning
 createContext('my-key')
 createFooContext({ namespace: 'custom' })
 
-// right
+// Right
 createContext('test:my-key')
 createFooContext({ namespace: 'test:custom' })
 ```
 
 ### Composables that use `onScopeDispose`
 
-If a composable calls `onScopeDispose` internally (e.g. `createCombobox`, `useVirtualFocus`), wrap calls in `effectScope()`:
+Wrap in `effectScope()` so disposal runs correctly in tests: [intent:228]
 
 ```ts
 let scope: EffectScope
 
-function setup(options = {}) {
+function setup (options = {}) {
   let ctx: ReturnType<typeof createCombobox>
   scope = effectScope()
   scope.run(() => { ctx = createCombobox(options) })
@@ -118,7 +140,7 @@ afterEach(() => { scope?.stop() })
 
 ### Expected warnings
 
-When a test intentionally triggers a warning (error paths, duplicate registration, etc.), capture it with `vi.spyOn` and **assert** it was called — never silently swallow:
+When a test intentionally triggers a warning (error paths, duplicate registration), capture with `vi.spyOn` and **assert** it was called — never silently swallow. [intent:229]
 
 ```ts
 const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
@@ -132,7 +154,7 @@ spy.mockRestore()
 
 ### Vue DI mocks
 
-When mocking `provide`/`inject` from Vue and the composable under test uses `hasInjectionContext()`, include it in the mock:
+When mocking `provide`/`inject` from Vue and the composable uses `hasInjectionContext()`, include it: [intent:230]
 
 ```ts
 vi.mock('vue', async () => {
@@ -155,7 +177,7 @@ interface MountResult {
   wait: () => Promise<void>
 }
 
-function mountComponent(options: { props?, slots? } = {}): MountResult {
+function mountComponent (options: { props?, slots? } = {}): MountResult {
   let captured: any
   const wrapper = mount(Component.Root, {
     props: options.props,
@@ -174,12 +196,47 @@ function mountComponent(options: { props?, slots? } = {}): MountResult {
 }
 ```
 
-**V-model testing**: Explicit ref binding via `onUpdate:modelValue` callback.
-**Plugin mocking**: Use `global.plugins` array for Stack, Theme, etc.
+### V-model testing
+
+Explicit ref binding via `onUpdate:modelValue` callback. [intent:231]
+
+```ts
+const model = shallowRef<string>()
+const wrapper = mount(Component.Root, {
+  props: {
+    modelValue: model.value,
+    'onUpdate:modelValue': (value: string) => (model.value = value),
+  },
+})
+```
+
+### Plugin mocking
+
+Use `global.plugins` for Stack, Theme, etc. [intent:232]
+
+```ts
+const wrapper = mount(Component.Root, {
+  global: {
+    plugins: [createStackPlugin(), createThemePlugin()],
+  },
+})
+```
+
+## Locale string assertions (PHILOSOPHY §5.5)
+
+Assert `toBeDefined()` for locale strings, not exact text values. Tests must not pin to an English rendering. [intent:177]
+
+```ts
+// Right
+expect(slotProps.attrs['aria-label']).toBeDefined()
+
+// Wrong
+expect(slotProps.attrs['aria-label']).toBe('Close dialog')
+```
 
 ## Benchmark Pattern
 
-Located in `index.bench.ts`. Only for performance-critical composables.
+Benchmarks are colocated as `index.bench.ts`, only for performance-critical composables. See `.claude/rules/benchmarks.md` for full conventions. [intent:233]
 
 ```ts
 /**
@@ -202,4 +259,18 @@ describe('lookup operations', () => {
 })
 ```
 
-**Naming**: Sentence case with comma-formatted numbers: `'Get by id (1,000 items)'`
+Naming: sentence case with comma-formatted numbers: `'Get by id (1,000 items)'`.
+
+## Checklist
+
+- [ ] File named `index.test.ts` and colocated with source
+- [ ] Imports: `beforeEach, describe, expect, it, vi` from vitest
+- [ ] All test names use `it('should ...')`
+- [ ] Refs unwrapped with `.value` in assertions
+- [ ] `.toHaveBeenCalledTimes(1)`, not `.toHaveBeenCalledOnce()`
+- [ ] All namespace keys contain `:` and use `test:` prefix
+- [ ] `onScopeDispose` composables wrapped in `effectScope()`
+- [ ] Expected warnings captured with `vi.spyOn` and asserted
+- [ ] Vue DI mock includes `hasInjectionContext` when composable uses it
+- [ ] Locale strings asserted with `toBeDefined()`, not exact text
+- [ ] Zero stderr output when tests run
