@@ -185,7 +185,7 @@
 
   defineEmits<{
     'update:model-value': [value: string]
-    'update:isFocused': [value: boolean]
+    'update:focused': [value: boolean]
   }>()
 
   const {
@@ -207,6 +207,7 @@
   } = defineProps<InputRootProps>()
 
   const model = defineModel<string>({ default: '' })
+  const focused = defineModel<boolean>('focused', { default: false })
 
   const input = createInput({
     value: model,
@@ -233,6 +234,7 @@
   }
 
   watch(input.isFocused, val => {
+    focused.value = val
     if (val) return
     input.isTouched.value = true
     if (shouldValidate('blur')) input.validate()
