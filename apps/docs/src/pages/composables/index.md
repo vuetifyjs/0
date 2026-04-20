@@ -82,6 +82,9 @@ For direct Vue reactivity on the collection and tickets themselves, pass `reacti
 </template>
 ```
 
+> [!WARNING]
+> Don't pass a registry directly to `v-for`. Pair `events: true` with `useProxyRegistry()` at the component boundary — the proxy exposes reactive `keys`, `values`, `entries`, and `size` properties that templates can iterate safely. Reading `.values()` from a `reactive: true` registry in a `v-for` breaks Vue's dep tracking because the internal cache invalidates on every mutation.
+
 Unlike events (which fire callbacks) or `useProxyRegistry` (which wraps with computed refs), `reactive: true` makes the underlying Map and each ticket `shallowReactive`. Use it when you need Vue's dependency tracking at the ticket level.
 
 ### useProxyModel for v-model Binding
