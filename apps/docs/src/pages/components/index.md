@@ -24,6 +24,7 @@ Foundation components for building higher-level abstractions.
 
 | Name | Description |
 | - | - |
+| [AspectRatio](/components/primitives/aspect-ratio) | Fixed width-to-height ratio container via CSS `aspect-ratio` |
 | [Atom](/components/primitives/atom) | Polymorphic element with dynamic `as` prop and renderless mode |
 | [Portal](/components/primitives/portal) | Teleport wrapper with automatic z-index stacking via useStack |
 | [Presence](/components/primitives/presence) | Renderless mount lifecycle with lazy mounting and exit animation delay |
@@ -77,6 +78,7 @@ Components with meaningful HTML defaults. Render semantic elements by default bu
 | [Avatar](/components/semantic/avatar) | Image/fallback avatar with priority loading |
 | [Breadcrumbs](/components/semantic/breadcrumbs) | Navigation breadcrumbs with overflow detection and truncation |
 | [Carousel](/components/semantic/carousel) | Scroll-snap slide navigation with multi-slide display and drag/swipe |
+| [Image](/components/semantic/image) | Image with placeholder, error fallback, and lazy loading |
 | [Pagination](/components/semantic/pagination) | Page navigation with semantic `<nav>` wrapper |
 | [Progress](/components/semantic/progress/) | Headless progress bar with multi-segment and buffer support |
 | [Snackbar](/components/semantic/snackbar) | Toast notification with queue, positioning, and auto-dismiss |
