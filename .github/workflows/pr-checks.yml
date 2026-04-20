@@ -129,4 +129,4 @@ jobs:
           name: packages-dist
           path: packages
       - name: Publish preview
-        run: pnpm dlx pkg-pr-new publish --compact --pnpm './packages/0' --only-templates
+        run: pnpm exec pkg-pr-new publish --compact --pnpm './packages/0' --only-templates

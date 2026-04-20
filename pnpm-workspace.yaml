@@ -51,6 +51,7 @@ catalog:
   mermaid: ^11.14.0
   minisearch: ^7.2.0
   pinia: ^3.0.4
+  pkg-pr-new: ^0.0.66
   posthog-js: ^1.365.0
   rollup-plugin-sass: ^1.15.3
   sass: ^1.99.0
@@ -94,6 +95,7 @@ minimumReleaseAgeExclude:
   - typescript-eslint
   - '@typescript-eslint/*'
   - '@eslint/*'
+  - pkg-pr-new
 
 onlyBuiltDependencies:
   - '@parcel/watcher'

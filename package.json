@@ -61,6 +61,7 @@
     "eslint-plugin-vuejs-accessibility": "catalog:",
     "happy-dom": "catalog:",
     "knip": "catalog:",
+    "pkg-pr-new": "catalog:",
     "sherif": "catalog:",
     "simple-git-hooks": "catalog:",
     "tsx": "catalog:",
