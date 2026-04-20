@@ -131,7 +131,8 @@
   import CheckboxHiddenInput from './CheckboxHiddenInput.vue'
 
   // Utilities
-  import { mergeProps, onBeforeUnmount, toRef, toValue, useAttrs, useId } from 'vue'
+  import { useId } from '#v0/utilities'
+  import { mergeProps, onBeforeUnmount, toRef, toValue, useAttrs } from 'vue'
 
   // Types
   import type { GroupContext, GroupTicket } from '#v0/composables/createGroup'

@@ -18,7 +18,8 @@
   import { provideSwitchRoot } from './SwitchRoot.vue'
 
   // Utilities
-  import { mergeProps, toRef, toValue, useAttrs, useId } from 'vue'
+  import { useId } from '#v0/utilities'
+  import { mergeProps, toRef, toValue, useAttrs } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'

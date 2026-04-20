@@ -51,7 +51,8 @@
   import { Atom } from '#v0/components/Atom'
 
   // Utilities
-  import { toRef, useId } from 'vue'
+  import { useId } from '#v0/utilities'
+  import { toRef } from 'vue'
 
   defineOptions({ name: 'DialogRoot' })
 

@@ -151,7 +151,8 @@
   import RadioHiddenInput from './RadioHiddenInput.vue'
 
   // Utilities
-  import { mergeProps, onBeforeUnmount, toRef, toValue, useAttrs, useId, useTemplateRef } from 'vue'
+  import { useId } from '#v0/utilities'
+  import { mergeProps, onBeforeUnmount, toRef, toValue, useAttrs, useTemplateRef } from 'vue'
 
   defineOptions({ name: 'RadioRoot', inheritAttrs: false })
 

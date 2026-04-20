@@ -18,7 +18,8 @@
   import { useLocale } from '#v0/composables/useLocale'
 
   // Utilities
-  import { onBeforeUnmount, toRef, useId, useTemplateRef, watch } from 'vue'
+  import { useId } from '#v0/utilities'
+  import { onBeforeUnmount, toRef, useTemplateRef, watch } from 'vue'
 
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'

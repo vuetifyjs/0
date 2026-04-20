@@ -70,7 +70,8 @@
   import { useToggleGroup } from './ToggleGroup.vue'
 
   // Utilities
-  import { mergeProps, onBeforeUnmount, shallowRef, toRef, toValue, useAttrs, useId, watch } from 'vue'
+  import { useId } from '#v0/utilities'
+  import { mergeProps, onBeforeUnmount, shallowRef, toRef, toValue, useAttrs, watch } from 'vue'
 
   // Types
   import type { ToggleGroupContext } from './ToggleGroup.vue'

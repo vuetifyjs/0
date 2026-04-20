@@ -104,7 +104,8 @@
   import { useProxyModel } from '#v0/composables/useProxyModel'
 
   // Utilities
-  import { toRef, toValue, useId } from 'vue'
+  import { useId } from '#v0/utilities'
+  import { toRef, toValue } from 'vue'
 
   defineOptions({ name: 'TabsRoot' })
 

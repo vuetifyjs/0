@@ -22,7 +22,8 @@
   import { createContext } from '#v0/composables/createContext'
 
   // Utilities
-  import { mergeProps, onBeforeUnmount, toRef, toValue, useAttrs, useId } from 'vue'
+  import { useId } from '#v0/utilities'
+  import { mergeProps, onBeforeUnmount, toRef, toValue, useAttrs } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'

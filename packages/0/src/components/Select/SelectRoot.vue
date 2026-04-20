@@ -23,8 +23,8 @@
   import { useVirtualFocus } from '#v0/composables/useVirtualFocus'
 
   // Utilities
-  import { isUndefined } from '#v0/utilities'
-  import { nextTick, shallowRef, toRef, toValue, useId, watch } from 'vue'
+  import { isUndefined, useId } from '#v0/utilities'
+  import { nextTick, shallowRef, toRef, toValue, watch } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'

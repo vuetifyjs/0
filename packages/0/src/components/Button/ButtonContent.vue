@@ -13,7 +13,8 @@
   import { useButtonRoot } from './ButtonRoot.vue'
 
   // Utilities
-  import { onBeforeUnmount, toRef, useId } from 'vue'
+  import { useId } from '#v0/utilities'
+  import { onBeforeUnmount, toRef } from 'vue'
 
   // Types
   import type { ID } from '#v0/types'

@@ -71,7 +71,8 @@
   import { provideCheckboxRoot } from './CheckboxRoot.vue'
 
   // Utilities
-  import { mergeProps, toRef, toValue, useAttrs, useId } from 'vue'
+  import { useId } from '#v0/utilities'
+  import { mergeProps, toRef, toValue, useAttrs } from 'vue'
 
   defineOptions({ name: 'CheckboxSelectAll', inheritAttrs: false })
 

@@ -55,7 +55,8 @@
   import { Atom } from '#v0/components/Atom'
 
   // Utilities
-  import { shallowRef, toRef, useId } from 'vue'
+  import { useId } from '#v0/utilities'
+  import { shallowRef, toRef } from 'vue'
 
   defineOptions({ name: 'AlertDialogRoot' })
 

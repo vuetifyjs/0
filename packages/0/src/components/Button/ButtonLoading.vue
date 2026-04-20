@@ -14,7 +14,8 @@
   import { useButtonRoot } from './ButtonRoot.vue'
 
   // Utilities
-  import { onBeforeUnmount, toRef, useId, watch } from 'vue'
+  import { useId } from '#v0/utilities'
+  import { onBeforeUnmount, toRef, watch } from 'vue'
 
   // Types
   import type { ID } from '#v0/types'
