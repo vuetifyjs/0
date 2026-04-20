@@ -17,6 +17,7 @@
   // Composables
   import { createContext } from '#v0/composables/createContext'
   import { createRating } from '#v0/composables/createRating'
+  import { useLocale } from '#v0/composables/useLocale'
 
   // Utilities
   import { isNull } from '#v0/utilities'
@@ -162,6 +163,8 @@
     isReadonly,
   }
 
+  const locale = useLocale()
+
   provideRatingRoot(namespace, context)
 
   const slotProps = toRef((): RatingRootSlotProps => ({
@@ -176,7 +179,7 @@
       'aria-valuenow': rating.value.value,
       'aria-valuemin': 0,
       'aria-valuemax': rating.size,
-      'aria-valuetext': `${rating.value.value} out of ${rating.size}`,
+      'aria-valuetext': locale.t('Rating.valueText', { value: rating.value.value, size: rating.size }),
       'aria-disabled': isDisabled.value ? true : undefined,
       'aria-readonly': isReadonly.value ? true : undefined,
       'data-disabled': isDisabled.value ? true : undefined,

@@ -23,7 +23,7 @@
     /** Attributes to bind to the close button element */
     attrs: {
       'type': 'button' | undefined
-      'aria-label': 'Close'
+      'aria-label': string
     }
   }
 </script>
@@ -32,6 +32,9 @@
   // Components
   import { Atom } from '#v0/components/Atom'
   import { useAlertDialogContext } from './AlertDialogRoot.vue'
+
+  // Composables
+  import { useLocale } from '#v0/composables/useLocale'
 
   // Utilities
   import { toRef } from 'vue'
@@ -48,6 +51,7 @@
   } = defineProps<AlertDialogCloseProps>()
 
   const context = useAlertDialogContext(namespace)
+  const locale = useLocale()
 
   function onClick () {
     context.close()
@@ -57,7 +61,7 @@
     isOpen: context.isOpen.value,
     attrs: {
       'type': as === 'button' ? 'button' : undefined,
-      'aria-label': 'Close',
+      'aria-label': locale.t('AlertDialog.close'),
     },
   }))
 </script>

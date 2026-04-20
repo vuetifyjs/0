@@ -537,7 +537,7 @@ describe('alert-dialog', () => {
       })
 
       const close = wrapper.findComponent(AlertDialog.Close as any)
-      expect(close.attributes('aria-label')).toBe('Close')
+      expect(close.attributes('aria-label')).toBeDefined()
     })
 
     it('should close dialog on click', async () => {

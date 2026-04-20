@@ -14,6 +14,7 @@
   import { useNumberFieldRoot } from './NumberFieldRoot.vue'
 
   // Composables
+  import { useLocale } from '#v0/composables/useLocale'
   import { useTimer } from '#v0/composables/useTimer'
 
   // Utilities
@@ -51,6 +52,7 @@
   } = defineProps<NumberFieldDecrementProps>()
 
   const root = useNumberFieldRoot(namespace)
+  const locale = useLocale()
 
   const isDisabled = toRef(() => {
     return root.isDisabled.value || root.isReadonly.value || !root.canDecrement.value
@@ -91,7 +93,7 @@
     return {
       'type': 'button',
       'tabindex': -1,
-      'aria-label': 'Decrement',
+      'aria-label': locale.t('NumberField.decrement'),
       'disabled': disabled || undefined,
       'data-disabled': disabled ? true : undefined,
       onBlur,

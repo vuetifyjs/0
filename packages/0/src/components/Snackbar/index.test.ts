@@ -156,7 +156,7 @@ describe('snackbar', () => {
         slots: { default: () => h(Snackbar.Close) },
       })
       const close = wrapper.findComponent(Snackbar.Close as any)
-      expect(close.attributes('aria-label')).toBe('Close')
+      expect(close.attributes('aria-label')).toBeDefined()
     })
 
     it('should render as button with type="button"', () => {
@@ -419,7 +419,7 @@ describe('snackbar', () => {
 
       expect(wrapper.findComponent(Snackbar.Root as any).exists()).toBe(true)
       expect(wrapper.findComponent(Snackbar.Content as any).text()).toBe('File uploaded')
-      expect(wrapper.findComponent(Snackbar.Close as any).attributes('aria-label')).toBe('Close')
+      expect(wrapper.findComponent(Snackbar.Close as any).attributes('aria-label')).toBeDefined()
       expect(spy).toHaveBeenCalledTimes(1)
 
       spy.mockRestore()

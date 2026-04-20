@@ -12,8 +12,10 @@
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
-  // Composables
   import { useSnackbarRootContext } from './SnackbarRoot.vue'
+
+  // Composables
+  import { useLocale } from '#v0/composables/useLocale'
 
   // Utilities
   import { toRef } from 'vue'
@@ -30,7 +32,7 @@
     /** Attributes to bind to the close button element */
     attrs: {
       'type': 'button' | undefined
-      'aria-label': 'Close'
+      'aria-label': string
       'onClick': () => void
     }
   }
@@ -46,6 +48,7 @@
   const { as = 'button', namespace = 'v0:notifications' } = defineProps<SnackbarCloseProps>()
 
   const context = useSnackbarRootContext(namespace)
+  const locale = useLocale()
 
   function onClick () {
     context.onDismiss()
@@ -54,7 +57,7 @@
   const slotProps = toRef((): SnackbarCloseSlotProps => ({
     attrs: {
       'type': as === 'button' ? 'button' : undefined,
-      'aria-label': 'Close',
+      'aria-label': locale.t('Snackbar.close'),
       'onClick': onClick,
     },
   }))

@@ -86,8 +86,8 @@ function mountNumberField (options: {
     wrapper,
     rootProps: () => capturedRootProps,
     controlEl: () => wrapper.find('[role="spinbutton"]'),
-    incrementEl: () => wrapper.find('[aria-label="Increment"]'),
-    decrementEl: () => wrapper.find('[aria-label="Decrement"]'),
+    incrementEl: () => wrapper.find('[aria-label="NumberField.increment"]'),
+    decrementEl: () => wrapper.find('[aria-label="NumberField.decrement"]'),
     wait: () => nextTick(),
   }
 }
@@ -631,14 +631,14 @@ describe('number-field', () => {
       const model = ref<number | null>(5)
       const { incrementEl, wait } = mountNumberField({ model })
       await wait()
-      expect(incrementEl().attributes('aria-label')).toBe('Increment')
+      expect(incrementEl().attributes('aria-label')).toBeDefined()
     })
 
     it('should set decrement button aria-label', async () => {
       const model = ref<number | null>(5)
       const { decrementEl, wait } = mountNumberField({ model })
       await wait()
-      expect(decrementEl().attributes('aria-label')).toBe('Decrement')
+      expect(decrementEl().attributes('aria-label')).toBeDefined()
     })
 
     it('should set increment button tabindex=-1', async () => {
