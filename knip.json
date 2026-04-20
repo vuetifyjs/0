@@ -15,6 +15,7 @@
         "src/components/**/*.vue",
         "src/composables/*.ts",
         "src/constants/*.ts",
+        "src/data/**/*.ts",
         "src/plugins/*.ts",
         "src/stores/*.ts",
         "src/layouts/*.vue",
