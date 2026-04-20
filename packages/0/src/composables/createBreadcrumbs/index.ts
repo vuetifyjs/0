@@ -97,7 +97,7 @@ export function createBreadcrumbs<
   E extends BreadcrumbTicket<Z> = BreadcrumbTicket<Z>,
   R extends BreadcrumbsContext<Z, E> = BreadcrumbsContext<Z, E>,
 > (options: BreadcrumbsOptions = {}): R {
-  const single = createSingle<Z, E>({ ...options, reactive: true, enroll: true })
+  const single = createSingle<Z, E>({ ...options, reactive: true, events: true, enroll: true })
 
   // Derived state
   const depth = toRef(() => single.size)
