@@ -68,6 +68,7 @@
   } = defineProps<CarouselViewportProps>()
 
   const carousel = useCarouselRoot(namespace)
+  const isVertical = toRef(() => carousel.orientation.value === 'vertical')
 
   const isDragging = shallowRef(false)
   const syncing = shallowRef(false)
@@ -83,21 +84,14 @@
 
   const slideStep = toRef(() => {
     if (!el.value) return 0
+    if ((isVertical.value ? height.value : width.value) === 0) return 0
 
     const first = toValue((carousel.seek('first') as CarouselTicket | undefined)?.el) as HTMLElement | undefined
     const second = toValue((carousel.seek('first', 1) as CarouselTicket | undefined)?.el) as HTMLElement | undefined
 
     if (!first) return 0
-
-    if (carousel.orientation.value === 'vertical') {
-      if (height.value === 0) return 0
-      if (!second) return first.offsetHeight
-      return second.offsetTop - first.offsetTop
-    }
-
-    if (width.value === 0) return 0
-    if (!second) return first.offsetWidth
-    return second.offsetLeft - first.offsetLeft
+    if (!second) return isVertical.value ? first.offsetHeight : first.offsetWidth
+    return isVertical.value ? second.offsetTop - first.offsetTop : second.offsetLeft - first.offsetLeft
   })
 
   if (IN_BROWSER) {
@@ -112,8 +106,7 @@
 
       isDragging.value = false
 
-      const isVertical = carousel.orientation.value === 'vertical'
-      const scrollPos = isVertical ? viewport.scrollTop : viewport.scrollLeft
+      const scrollPos = isVertical.value ? viewport.scrollTop : viewport.scrollLeft
       const snapIndex = Math.round(scrollPos / slideStep.value)
       const id = carousel.lookup(snapIndex)
 
@@ -131,9 +124,7 @@
     let lastWheel = 0
 
     useEventListener(el, 'wheel', (e: WheelEvent) => {
-      const isVertical = carousel.orientation.value === 'vertical'
-      if (!isVertical && !e.shiftKey) return
-      if (isVertical && e.shiftKey) return
+      if (e.shiftKey === isVertical.value) return
       const delta = e.deltaY || e.deltaX
       if (delta === 0) return
 
@@ -156,9 +147,8 @@
       if (!viewport) return
 
       carousel.pause()
-      const isVertical = carousel.orientation.value === 'vertical'
-      dragStart = isVertical ? e.clientY : e.clientX
-      scrollStart = isVertical ? viewport.scrollTop : viewport.scrollLeft
+      dragStart = isVertical.value ? e.clientY : e.clientX
+      scrollStart = isVertical.value ? viewport.scrollTop : viewport.scrollLeft
       snapDisabled.value = true
     })
 
@@ -168,11 +158,10 @@
         if (!viewport) return
         e.preventDefault()
 
-        const isVertical = carousel.orientation.value === 'vertical'
-        const pos = isVertical ? e.clientY : e.clientX
+        const pos = isVertical.value ? e.clientY : e.clientX
         const delta = pos - dragStart
 
-        if (isVertical) {
+        if (isVertical.value) {
           viewport.scrollTop = scrollStart - delta
         } else {
           viewport.scrollLeft = scrollStart - delta
@@ -189,14 +178,13 @@
           return
         }
 
-        const isVertical = carousel.orientation.value === 'vertical'
-        const scrollPos = isVertical ? viewport.scrollTop : viewport.scrollLeft
+        const scrollPos = isVertical.value ? viewport.scrollTop : viewport.scrollLeft
         const snapIndex = Math.round(scrollPos / slideStep.value)
         const position = snapIndex * slideStep.value
 
         syncing.value = true
         viewport.scrollTo({
-          [isVertical ? 'top' : 'left']: position,
+          [isVertical.value ? 'top' : 'left']: position,
           behavior: carousel.behavior.value,
         })
 
@@ -226,24 +214,21 @@
 
     syncing.value = true
 
-    const isVertical = carousel.orientation.value === 'vertical'
     const position = index * slideStep.value
 
     viewport.scrollTo({
-      [isVertical ? 'top' : 'left']: position,
+      [isVertical.value ? 'top' : 'left']: position,
       behavior: carousel.behavior.value,
     })
   })
 
   const viewportStyle = toRef(() => {
-    const isVertical = carousel.orientation.value === 'vertical'
-
     return {
       'display': 'flex',
-      'flex-direction': isVertical ? 'column' : 'row',
-      [isVertical ? 'overflow-y' : 'overflow-x']: 'auto',
-      [isVertical ? 'overflow-x' : 'overflow-y']: 'hidden',
-      'scroll-snap-type': snapDisabled.value ? 'none' : `${isVertical ? 'y' : 'x'} mandatory`,
+      'flex-direction': isVertical.value ? 'column' : 'row',
+      [isVertical.value ? 'overflow-y' : 'overflow-x']: 'auto',
+      [isVertical.value ? 'overflow-x' : 'overflow-y']: 'hidden',
+      'scroll-snap-type': snapDisabled.value ? 'none' : `${isVertical.value ? 'y' : 'x'} mandatory`,
       'scrollbar-width': 'none',
       ...(snapDisabled.value ? { 'user-select': 'none' } : {}),
     } as Record<string, string | number>
