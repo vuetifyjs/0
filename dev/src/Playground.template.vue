@@ -1,6 +1,8 @@
 <script setup lang="ts">
   // Framework
-  import { createSingle } from '@vuetify/v0'
+  import { createSingle, useTheme } from '@vuetify/v0'
+
+  useTheme().select('dark')
 
   const single = createSingle({ mandatory: 'force' })
 
