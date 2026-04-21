@@ -26,8 +26,8 @@
   const footerRef = useTemplateRef<HTMLElement | null>('footer')
 
   const links = [
-    { icon: 'github', href: 'https://github.com/vuetifyjs/0', label: 'GitHub', bg: 'bg-[#24292f]' },
     { icon: 'discord', href: 'https://discord.gg/vK6T89eNP7', label: 'Discord', bg: 'bg-discord' },
+    { icon: 'github', href: 'https://github.com/vuetifyjs/0', label: 'GitHub', bg: 'bg-[#24292f]' },
   ]
 
   const latest = toRef(() => releases.releases[0])
