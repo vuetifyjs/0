@@ -459,6 +459,17 @@ export function applyMarkdownPlugins (md: MarkdownIt, highlighter: DocsHighlight
   md.renderer.rules.table_open = () => '<div class="overflow-x-auto mb-4"><table>'
   md.renderer.rules.table_close = () => '</table></div>'
 
+  // Emit <AppImage> for markdown images: ![alt](src "title") — title maps to caption
+  md.renderer.rules.image = (tokens, index) => {
+    const token = tokens[index]
+    const src = token.attrGet('src') ?? ''
+    const alt = token.content || token.attrGet('alt') || ''
+    const title = token.attrGet('title')
+    const escape = md.utils.escapeHtml
+    const captionAttr = title ? ` caption="${escape(title)}"` : ''
+    return `<AppImage src="${escape(src)}" alt="${escape(alt)}"${captionAttr} />`
+  }
+
   md.renderer.rules.link_open = (tokens, index, options, env, self) => {
     const t = tokens[index]
     const classes = t.attrGet('class') || ''
