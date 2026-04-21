@@ -145,11 +145,14 @@
     "@vue/repl",
     "@vuetify/paper",
     "conventional-changelog-vuetify",
-    "@vue/compiler-dom"
+    "@vue/compiler-dom",
+    "pkg-pr-new"
   ],
   "ignoreExportsUsedInFile": {
     "interface": true,
     "type": true
   },
-  "ignoreBinaries": []
+  "ignoreBinaries": [
+    "pkg-pr-new"
+  ]
 }
