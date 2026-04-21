@@ -313,7 +313,7 @@
           <span class="text-on-surface-variant font-normal">({{ group.items.length }})</span>
           <span class="flex-1" />
           <span
-            class="inline-block size-2.5 min-w-2.5 rounded-[2px] shrink-0"
+            class="inline-block size-2 min-w-2 rounded-[2px] shrink-0"
             :style="{ backgroundColor: blend(group.items) }"
           />
         </button>
@@ -409,7 +409,7 @@
                 Select a group to see individual items
                 <span class="flex-1" />
                 <span
-                  class="inline-block size-2.5 min-w-2.5 rounded-[2px] shrink-0"
+                  class="inline-block size-2 min-w-2 rounded-[2px] shrink-0"
                   :style="{ backgroundColor: blend(filtered) }"
                 />
               </div>
@@ -450,7 +450,7 @@
 
                   <!-- Blended readiness dot -->
                   <span
-                    class="inline-block size-2.5 min-w-2.5 rounded-[2px] shrink-0"
+                    class="inline-block size-2 min-w-2 rounded-[2px] shrink-0"
                     :style="{ backgroundColor: blend(group.items) }"
                   />
                 </div>
