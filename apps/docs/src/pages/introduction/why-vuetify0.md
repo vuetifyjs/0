@@ -305,9 +305,25 @@ Need a full styled framework today? [Vuetify 4](https://vuetifyjs.com) has 80+ M
 
 Ready to build? Pick your path:
 
-```sh
+::: code-group no-filename
+
+```bash pnpm
 pnpm add @vuetify/v0
 ```
+
+```bash npm
+npm install @vuetify/v0
+```
+
+```bash yarn
+yarn add @vuetify/v0
+```
+
+```bash bun
+bun add @vuetify/v0
+```
+
+:::
 
 - **[Install v0](/introduction/getting-started)** and start building
 - **[Explore the playground](/playground)** and experiment live
