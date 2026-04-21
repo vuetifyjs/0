@@ -17,7 +17,7 @@ related:
 
 # Devkey
 
-Devkey ([github.com/vuetifyjs/devkey](https://github.com/vuetifyjs/devkey)) is the reference starter project for Vuetify0. Scaffolded with the [Vuetify CLI](/guide/tooling/vuetify-cli), it shows how the pieces fit together in a real Vue 3 app — and is the canonical example shipped with the v0 Alpha.
+Devkey ([live](https://devkey.vuetifyjs.com), [source](https://github.com/vuetifyjs/devkey)) is the reference starter project for Vuetify0. Scaffolded with the [Vuetify CLI](/guide/tooling/vuetify-cli), it shows how the pieces fit together in a real Vue 3 app — and is the canonical example shipped with the v0 Alpha.
 
 <DocsPageFeatures :frontmatter />
 
