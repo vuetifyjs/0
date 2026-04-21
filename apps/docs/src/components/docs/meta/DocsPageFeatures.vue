@@ -16,6 +16,9 @@
   import { onBeforeUnmount, shallowRef, toRef } from 'vue'
   import { useRoute } from 'vue-router'
 
+  // Constants
+  import { SKILL_LEVELS_DOCS_HREF } from '@/constants/links'
+
   const scroll = useScrollToAnchor()
   const logger = useLogger()
 
@@ -344,9 +347,10 @@
         <DocsMetaItem
           v-if="level"
           :color="level.color"
+          :href="SKILL_LEVELS_DOCS_HREF"
           :icon="level.icon"
           :text="level.label"
-          :title="`${level.label} skill level`"
+          :title="`${level.label} skill level — filter by level`"
         />
 
         <!-- 3. Coverage - Quality signal (is it tested?) -->
