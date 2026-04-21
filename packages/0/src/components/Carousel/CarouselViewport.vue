@@ -79,13 +79,23 @@
   const ticket = carousel.parts.register({ type: 'viewport', el })
   onBeforeUnmount(() => ticket.unregister())
 
-  const { width } = useElementSize(el)
+  const { width, height } = useElementSize(el)
 
   const slideStep = toRef(() => {
-    if (!el.value || width.value === 0) return 0
+    if (!el.value) return 0
+
     const first = toValue((carousel.seek('first') as CarouselTicket | undefined)?.el) as HTMLElement | undefined
     const second = toValue((carousel.seek('first', 1) as CarouselTicket | undefined)?.el) as HTMLElement | undefined
+
     if (!first) return 0
+
+    if (carousel.orientation.value === 'vertical') {
+      if (height.value === 0) return 0
+      if (!second) return first.offsetHeight
+      return second.offsetTop - first.offsetTop
+    }
+
+    if (width.value === 0) return 0
     if (!second) return first.offsetWidth
     return second.offsetLeft - first.offsetLeft
   })
@@ -118,18 +128,20 @@
       }
     })
 
-    let lastShiftWheel = 0
+    let lastWheel = 0
 
     useEventListener(el, 'wheel', (e: WheelEvent) => {
-      if (!e.shiftKey) return
+      const isVertical = carousel.orientation.value === 'vertical'
+      if (!isVertical && !e.shiftKey) return
+      if (isVertical && e.shiftKey) return
       const delta = e.deltaY || e.deltaX
       if (delta === 0) return
 
       e.preventDefault()
 
       const now = performance.now()
-      if (now - lastShiftWheel < 300) return
-      lastShiftWheel = now
+      if (now - lastWheel < 300) return
+      lastWheel = now
 
       if (delta > 0) carousel.next()
       else carousel.prev()
