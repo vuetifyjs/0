@@ -442,6 +442,8 @@ The documentation uses callout boxes to highlight important information:
 
 > [!ASKAI] What's the difference between createSelection and createGroup?
 
+> [!TOUR] using-the-docs
+
 ## Keyboard Shortcuts
 
 Navigate the entire documentation without touching a mouse:
