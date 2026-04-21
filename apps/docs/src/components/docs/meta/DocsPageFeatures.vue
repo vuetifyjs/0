@@ -197,16 +197,22 @@
 
   // Last updated date from git history
   const date = useDate()
-  const lastUpdated = toRef(() => {
-    // Try exact path, then without trailing slash
+  const pageDate = toRef(() => {
     const path = route.path.replace(/\/$/, '') || '/'
-    const pageDate = pageDates[path]
-    if (!pageDate?.updated) return null
+    return pageDates[path] ?? null
+  })
+  const lastUpdated = toRef(() => {
+    const updated = pageDate.value?.updated
+    if (!updated) return null
 
-    const d = date.adapter.date(pageDate.updated)
+    const d = date.adapter.date(updated)
     if (!date.adapter.isValid(d)) return null
 
     return date.adapter.format(d, 'normalDate')
+  })
+  const lastCommit = toRef(() => {
+    const hash = pageDate.value?.hash
+    return hash ? { hash, url: `${base}/commit/${hash}` } : null
   })
 
   // Provide page metadata context for child components
@@ -220,6 +226,7 @@
     benchmark,
     renderless,
     lastUpdated,
+    lastCommit,
   })
 
   async function onClickCopy () {
@@ -367,9 +374,10 @@
         <DocsMetaItem
           v-if="lastUpdated"
           color="text-secondary"
+          :href="lastCommit?.url"
           icon="calendar-clock"
           :text="lastUpdated"
-          title="Last updated"
+          :title="lastCommit ? `Last updated in: ${lastCommit.hash}` : 'Last updated'"
         />
       </div>
     </Discovery.Activator>
