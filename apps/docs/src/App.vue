@@ -9,6 +9,7 @@
   import AppMeshBg from '@/components/app/AppMeshBg.vue'
 
   // Composables
+  import { useBreadcrumbItems } from './composables/useBreadcrumbItems'
   import { useScrollPersist } from './composables/useScrollPersist'
   import { useSettings } from './composables/useSettings'
 
@@ -32,6 +33,35 @@
 
   const url = toRef(() => `https://0.vuetifyjs.com${route.path}`)
 
+  const breadcrumbs = useBreadcrumbItems()
+
+  const breadcrumbScript = toRef(() => {
+    if (route.path === '/') return []
+
+    const items = breadcrumbs.value
+    if (items.length <= 1) return []
+
+    return [{
+      key: 'breadcrumb-schema',
+      type: 'application/ld+json',
+      innerHTML: JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        'itemListElement': items.map((item, index) => {
+          const isLast = index === items.length - 1
+          const name = index === 0 ? 'Vuetify0' : item.text
+          const entry: Record<string, unknown> = {
+            '@type': 'ListItem',
+            'position': index + 1,
+            name,
+          }
+          if (!isLast && item.to) entry.item = `https://0.vuetifyjs.com${item.to}`
+          return entry
+        }),
+      }),
+    }]
+  })
+
   useHead({
     title: 'Vuetify0',
     titleTemplate: '%s — Vuetify0',
@@ -44,27 +74,33 @@
     meta: [
       { key: 'description', name: 'description', content: 'Headless components and composables for building modern applications and design systems' },
       { key: 'og:type', property: 'og:type', content: 'website' },
+      { key: 'og:site_name', property: 'og:site_name', content: 'Vuetify0' },
+      { key: 'og:locale', property: 'og:locale', content: 'en_US' },
       { key: 'og:url', property: 'og:url', content: url },
       { key: 'og:image', property: 'og:image', content: 'https://cdn.vuetifyjs.com/docs/images/one/logos/vzero-logo-og.png' },
       { key: 'twitter:card', name: 'twitter:card', content: 'summary_large_image' },
+      { key: 'twitter:site', name: 'twitter:site', content: '@VuetifyJS' },
     ],
-    script: [{
-      key: 'website-schema',
-      type: 'application/ld+json',
-      innerHTML: JSON.stringify({
-        '@context': 'https://schema.org',
-        '@type': 'WebSite',
-        'name': 'Vuetify0',
-        'url': 'https://0.vuetifyjs.com',
-        'description': 'Headless components and composables for building modern applications and design systems',
-        'publisher': {
-          '@type': 'Organization',
-          'name': 'Vuetify',
-          'url': 'https://vuetifyjs.com',
-          'logo': 'https://cdn.vuetifyjs.com/docs/images/one/logos/vzero-logo-og.png',
-        },
-      }),
-    }],
+    script: toRef(() => [
+      {
+        key: 'website-schema',
+        type: 'application/ld+json',
+        innerHTML: JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'WebSite',
+          'name': 'Vuetify0',
+          'url': 'https://0.vuetifyjs.com',
+          'description': 'Headless components and composables for building modern applications and design systems',
+          'publisher': {
+            '@type': 'Organization',
+            'name': 'Vuetify',
+            'url': 'https://vuetifyjs.com',
+            'logo': 'https://cdn.vuetifyjs.com/docs/images/one/logos/vzero-logo-og.png',
+          },
+        }),
+      },
+      ...breadcrumbScript.value,
+    ]),
   })
 </script>
 
