@@ -1,3 +1,6 @@
+// Utilities
+import { isUndefined } from '#v0/utilities'
+
 export interface RGB {
   r: number
   g: number
@@ -14,7 +17,7 @@ export function hexToRgb (hex: string): RGB {
     const b = Number.parseInt(clean[2] + clean[2], 16)
     const a = clean.length === 4 ? Number.parseInt(clean[3] + clean[3], 16) : undefined
 
-    return a === undefined ? { r, g, b } : { r, g, b, a }
+    return isUndefined(a) ? { r, g, b } : { r, g, b, a }
   }
 
   const r = Number.parseInt(clean.slice(0, 2), 16)
@@ -22,11 +25,11 @@ export function hexToRgb (hex: string): RGB {
   const b = Number.parseInt(clean.slice(4, 6), 16)
   const a = clean.length === 8 ? Number.parseInt(clean.slice(6, 8), 16) : undefined
 
-  return a === undefined ? { r, g, b } : { r, g, b, a }
+  return isUndefined(a) ? { r, g, b } : { r, g, b, a }
 }
 
 export function rgbToHex ({ r, g, b, a }: RGB): string {
   const hex = '#' + [r, g, b].map(c => c.toString(16).padStart(2, '0')).join('')
-  if (a !== undefined) return hex + a.toString(16).padStart(2, '0')
+  if (!isUndefined(a)) return hex + a.toString(16).padStart(2, '0')
   return hex
 }
