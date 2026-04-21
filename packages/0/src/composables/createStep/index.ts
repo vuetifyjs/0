@@ -13,6 +13,16 @@
  * - Perfect for wizards, carousels, pagination, onboarding flows
  *
  * Inheritance chain: createRegistry → createSelection → createSingle → createStep
+ *
+ * @example
+ * ```ts
+ * import { createStep } from '@vuetify/v0'
+ *
+ * const wizard = createStep({ circular: false })
+ * wizard.register({ value: 'step-1' })
+ * wizard.register({ value: 'step-2' })
+ * wizard.next()
+ * ```
  */
 
 // Composables

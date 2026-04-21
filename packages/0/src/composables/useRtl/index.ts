@@ -13,6 +13,14 @@
  * - Subtree overrides via context provision
  *
  * Independent from useLocale — Vuetify connects them via adapter.
+ *
+ * @example
+ * ```ts
+ * import { useRtl } from '@vuetify/v0'
+ *
+ * const { isRtl, toggle } = useRtl()
+ * toggle() // flip direction
+ * ```
  */
 
 // Composables

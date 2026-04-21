@@ -14,6 +14,16 @@
  * - Type preservation
  *
  * Perfect for creating reactive versions of plain objects while automatically unwrapping refs.
+ *
+ * @example
+ * ```ts
+ * import { shallowRef } from 'vue'
+ * import { toReactive } from '@vuetify/v0'
+ *
+ * const source = { name: shallowRef('Alice'), age: 30 }
+ * const reactive = toReactive(source)
+ * console.log(reactive.name) // 'Alice' (auto-unwrapped)
+ * ```
  */
 
 // Utilities

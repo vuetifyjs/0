@@ -18,6 +18,16 @@
  * - Ticket self-methods: select(), unselect(), toggle()
  *
  * Extends createModel and serves as the base for createSingle, createGroup, createStep, and useFeatures.
+ *
+ * @example
+ * ```ts
+ * import { createSelection } from '@vuetify/v0'
+ *
+ * const selection = createSelection({ multiple: true })
+ * const a = selection.register({ value: 'a' })
+ * const b = selection.register({ value: 'b' })
+ * selection.select([a.id, b.id])
+ * ```
  */
 
 // Composables

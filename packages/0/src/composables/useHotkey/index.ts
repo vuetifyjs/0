@@ -18,6 +18,14 @@
  * - SSR-safe (no-op when not in browser)
  *
  * Builds on useEventListener for lifecycle-managed keyboard events.
+ *
+ * @example
+ * ```ts
+ * import { useHotkey } from '@vuetify/v0'
+ *
+ * useHotkey('ctrl+k', () => console.log('opened palette'))
+ * useHotkey('g-h', () => console.log('go home'))
+ * ```
  */
 
 // Constants

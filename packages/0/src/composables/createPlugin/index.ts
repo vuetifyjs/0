@@ -13,6 +13,17 @@
  * Also exports `createPluginContext` — a higher-level factory that generates the standard
  * context/plugin/consumer triple for plugin composables, eliminating boilerplate.
  * Supports `persist()` / `restore()` lifecycle hooks for saving and rehydrating plugin state.
+ *
+ * @example
+ * ```ts
+ * import { createPlugin } from '@vuetify/v0'
+ *
+ * const plugin = createPlugin({
+ *   namespace: 'v0:my-plugin',
+ *   provide: app => app.provide('my-key', { greet: () => 'hello' }),
+ * })
+ * // app.use(plugin)
+ * ```
  */
 
 import { useContext } from '#v0/composables/createContext'

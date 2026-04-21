@@ -19,6 +19,14 @@
  * - `false` — validation fails, error message resolved from locale (`$rules.<name>`)
  *
  * Integrates with createValidation for rule resolution, useLocale for i18n.
+ *
+ * @example
+ * ```ts
+ * import { useRules } from '@vuetify/v0'
+ *
+ * const rules = useRules()
+ * const validators = rules.resolve(['required', v => v.length > 3 || 'Too short'])
+ * ```
  */
 
 // Composables

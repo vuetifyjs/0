@@ -16,6 +16,14 @@
  * - Supports both static and dynamic queries
  *
  * Perfect for responsive conditionals beyond breakpoint detection.
+ *
+ * @example
+ * ```ts
+ * import { useMediaQuery } from '@vuetify/v0'
+ *
+ * const { matches } = useMediaQuery('(prefers-color-scheme: dark)')
+ * console.log(matches.value) // true/false
+ * ```
  */
 
 // Constants

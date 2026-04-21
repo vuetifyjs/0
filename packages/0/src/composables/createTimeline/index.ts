@@ -14,6 +14,16 @@
  * - Perfect for command pattern, history tracking
  *
  * Extends createRegistry with temporal navigation capabilities.
+ *
+ * @example
+ * ```ts
+ * import { createTimeline } from '@vuetify/v0'
+ *
+ * const timeline = createTimeline({ size: 5 })
+ * timeline.register({ value: 'action-1' })
+ * timeline.register({ value: 'action-2' })
+ * timeline.undo()
+ * ```
  */
 
 // Composables

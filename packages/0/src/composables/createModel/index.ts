@@ -16,6 +16,15 @@
  * Both Selection and Slider extend this layer:
  * - createRegistry → createModel → createSelection → createSingle/createGroup/createStep
  * - createRegistry → createModel → createSlider (values override)
+ *
+ * @example
+ * ```ts
+ * import { createModel } from '@vuetify/v0'
+ *
+ * const model = createModel({ multiple: false })
+ * model.register({ value: 'apple' })
+ * model.select(model.values()[0]!.id)
+ * ```
  */
 
 // Composables

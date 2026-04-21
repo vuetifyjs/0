@@ -14,6 +14,15 @@
  * - Adapter pattern for integration with i18n providers (VueI18nLocaleAdapter included)
  *
  * Integrates with createSingle for locale selection and createTokens for message resolution.
+ *
+ * @example
+ * ```ts
+ * import { useLocale } from '@vuetify/v0'
+ *
+ * const { t, n } = useLocale()
+ * console.log(t('$v0.greeting', { name: 'World' }))
+ * console.log(n(1234.56))
+ * ```
  */
 
 // Composables

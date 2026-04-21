@@ -12,6 +12,15 @@
  * - Auto-cleanup when registered within component setup
  *
  * Built on createSelection for consistent ticket-based management.
+ *
+ * @example
+ * ```ts
+ * import { useStack } from '@vuetify/v0'
+ *
+ * const stack = useStack()
+ * const ticket = stack.register({ onDismiss: () => console.log('dismissed') })
+ * ticket.select()
+ * ```
  */
 
 // Composables

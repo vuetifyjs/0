@@ -16,6 +16,16 @@
  * Designed for single-thumb, range, and multi-thumb sliders.
  * Also reusable for color picker tracks, media scrubbers,
  * gradient editors, and other 1D value-on-track controls.
+ *
+ * @example
+ * ```ts
+ * import { shallowRef } from 'vue'
+ * import { createSlider } from '@vuetify/v0'
+ *
+ * const slider = createSlider({ min: 0, max: 100, step: 5 })
+ * slider.register({ value: shallowRef(25) })
+ * slider.set(0, 60)
+ * ```
  */
 
 // Composables

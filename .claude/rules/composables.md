@@ -122,6 +122,12 @@ Every composable requires the following at the top of `index.ts`: [intent:122]
 - `@remarks` — purpose and key features
 - `@example` — at least one usage example
 
+### Per-symbol `@example` (100% enforced)
+
+Every exported symbol that surfaces in `<DocsApi />` — the factory function, every method on its returned context, and any options or ticket interface with non-obvious shape — carries its own `@example` block. `@example` is a docs-UI feature (it renders as a collapsible on the composable's docs page), so the rule tracks visibility in the generated API reference, not author inclination.
+
+Skip `@example` only for trivial types whose example would just restate the type signature (e.g., `type Primary = string`).
+
 ## Reactive Primitives (PHILOSOPHY §4.1)
 
 | Primitive | Use |

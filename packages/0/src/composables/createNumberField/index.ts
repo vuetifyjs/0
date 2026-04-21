@@ -6,6 +6,15 @@
  * @remarks
  * Orchestrator composable that composes createInput + createNumeric + Intl.NumberFormat.
  * Manages a numeric value with formatting, parsing, stepping, and field state.
+ *
+ * @example
+ * ```ts
+ * import { createNumberField } from '@vuetify/v0'
+ *
+ * const field = createNumberField({ min: 0, max: 100, step: 5 })
+ * field.increment()
+ * console.log(field.value.value) // 5
+ * ```
  */
 
 // Composables

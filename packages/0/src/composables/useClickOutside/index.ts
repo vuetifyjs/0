@@ -20,6 +20,15 @@
  * Accessibility: This composable handles pointer interactions only. For accessible
  * components (dialogs, popovers, menus), pair with `useHotkey` for Escape key
  * dismissal per WCAG/APG requirements.
+ *
+ * @example
+ * ```ts
+ * import { useTemplateRef } from 'vue'
+ * import { useClickOutside } from '@vuetify/v0'
+ *
+ * const target = useTemplateRef('popover')
+ * useClickOutside(target, () => console.log('clicked outside'))
+ * ```
  */
 
 // Composables

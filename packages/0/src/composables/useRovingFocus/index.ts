@@ -15,6 +15,15 @@
  * - Auto-attaches keydown listener when target is provided
  *
  * Perfect for toolbars, menus, tree items, grids, and other composite widgets.
+ *
+ * @example
+ * ```ts
+ * import { useRovingFocus } from '@vuetify/v0'
+ *
+ * const items = () => [{ id: 'a' }, { id: 'b' }, { id: 'c' }]
+ * const focus = useRovingFocus(items, { orientation: 'horizontal' })
+ * focus.next()
+ * ```
  */
 
 // Composables

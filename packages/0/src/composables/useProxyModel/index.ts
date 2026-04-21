@@ -14,6 +14,16 @@
  * - Works with any ModelContext (Selection, Slider, etc.)
  *
  * Bridges the gap between model composables and Vue's v-model.
+ *
+ * @example
+ * ```ts
+ * import { shallowRef } from 'vue'
+ * import { createSelection, useProxyModel } from '@vuetify/v0'
+ *
+ * const selection = createSelection({ events: true })
+ * const model = shallowRef<string[]>([])
+ * useProxyModel(selection, model, { multiple: true })
+ * ```
  */
 
 // Utilities

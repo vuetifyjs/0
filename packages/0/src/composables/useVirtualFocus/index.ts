@@ -19,6 +19,15 @@
  *
  * Perfect for comboboxes, autocompletes, listboxes, and other widgets
  * where DOM focus must remain on the control element.
+ *
+ * @example
+ * ```ts
+ * import { useVirtualFocus } from '@vuetify/v0'
+ *
+ * const items = () => [{ id: 'a' }, { id: 'b' }, { id: 'c' }]
+ * const cursor = useVirtualFocus(items)
+ * cursor.next()
+ * ```
  */
 
 // Composables

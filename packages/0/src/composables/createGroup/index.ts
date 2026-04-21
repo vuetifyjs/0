@@ -19,6 +19,16 @@
  *
  * Inheritance chain: createRegistry → createSelection → createGroup
  * Extended by: useFeatures
+ *
+ * @example
+ * ```ts
+ * import { createGroup } from '@vuetify/v0'
+ *
+ * const group = createGroup()
+ * group.register({ value: 'a' })
+ * group.register({ value: 'b' })
+ * group.select(['a', 'b'])
+ * ```
  */
 
 // Composables

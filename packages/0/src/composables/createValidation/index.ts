@@ -15,6 +15,16 @@
  * - Tri-state isValid (null/true/false)
  *
  * Uses useRules() to resolve alias strings via shared context.
+ *
+ * @example
+ * ```ts
+ * import { createValidation } from '@vuetify/v0'
+ *
+ * const validation = createValidation({
+ *   rules: [v => !!v || 'Required'],
+ * })
+ * await validation.validate('hello')
+ * ```
  */
 
 // Composables

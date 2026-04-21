@@ -13,6 +13,16 @@
  * - Pluggable open strategies
  *
  * Inheritance chain: createSelection → createGroup → createNested
+ *
+ * @example
+ * ```ts
+ * import { createNested } from '@vuetify/v0'
+ *
+ * const tree = createNested()
+ * const root = tree.register({ value: 'root' })
+ * tree.register({ value: 'child', parentId: root.id })
+ * tree.open(root.id)
+ * ```
  */
 
 // Factories

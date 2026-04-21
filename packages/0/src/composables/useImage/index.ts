@@ -16,6 +16,15 @@
  *
  * Perfect for image components, lightboxes, lazy-loaded galleries,
  * and any UI that needs to react to image load state.
+ *
+ * @example
+ * ```ts
+ * import { useImage } from '@vuetify/v0'
+ *
+ * const { status, source, onLoad, onError } = useImage({
+ *   src: 'https://example.com/img.png',
+ * })
+ * ```
  */
 
 // Utilities

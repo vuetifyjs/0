@@ -14,6 +14,15 @@
  * - Context logging support
  *
  * Uses adapter pattern to abstract logging implementation.
+ *
+ * @example
+ * ```ts
+ * import { useLogger } from '@vuetify/v0'
+ *
+ * const logger = useLogger()
+ * logger.info('hello')
+ * logger.warn('careful')
+ * ```
  */
 
 // Globals

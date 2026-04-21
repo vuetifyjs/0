@@ -15,6 +15,15 @@
  *
  * Per-field validation logic lives in createValidation.
  * createForm is the mothership — it coordinates, not creates.
+ *
+ * @example
+ * ```ts
+ * import { createForm } from '@vuetify/v0'
+ *
+ * const form = createForm()
+ * const isValid = await form.validate()
+ * if (isValid) form.submit()
+ * ```
  */
 
 // Composables

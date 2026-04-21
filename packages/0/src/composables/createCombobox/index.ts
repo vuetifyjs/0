@@ -15,6 +15,16 @@
  * - Strict mode: reverts query to selected value on close if no match
  * - Popover-based dropdown positioning
  * - Context DI via createComboboxContext / useCombobox
+ *
+ * @example
+ * ```ts
+ * import { createCombobox } from '@vuetify/v0'
+ *
+ * const combobox = createCombobox({ strict: true })
+ * combobox.selection.register({ value: 'Apple' })
+ * combobox.selection.register({ value: 'Banana' })
+ * combobox.open()
+ * ```
  */
 
 // Composables

@@ -17,6 +17,17 @@
  * - Immediate callback option
  *
  * Perfect for lazy loading, infinite scroll, and visibility detection.
+ *
+ * @example
+ * ```ts
+ * import { useTemplateRef } from 'vue'
+ * import { useIntersectionObserver } from '@vuetify/v0'
+ *
+ * const target = useTemplateRef('target')
+ * useIntersectionObserver(target, entries => {
+ *   console.log(entries[0].isIntersecting)
+ * })
+ * ```
  */
 
 // Globals

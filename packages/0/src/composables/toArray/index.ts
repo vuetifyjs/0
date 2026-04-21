@@ -9,6 +9,15 @@
  * Converts single values into single-element arrays, passes arrays through unchanged,
  * and handles null/undefined by returning empty arrays. Perfect for functions that
  * accept both single values and arrays as input (e.g., ID | ID[]).
+ *
+ * @example
+ * ```ts
+ * import { toArray } from '@vuetify/v0'
+ *
+ * toArray('hello') // ['hello']
+ * toArray(['a', 'b']) // ['a', 'b']
+ * toArray(null) // []
+ * ```
  */
 
 // Utilities

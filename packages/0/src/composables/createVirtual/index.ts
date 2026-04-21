@@ -18,6 +18,16 @@
  * - Configurable overscan (extra items rendered for smooth scrolling)
  *
  * Perfect for large data sets, chat apps, and infinite scroll implementations.
+ *
+ * @example
+ * ```ts
+ * import { shallowRef } from 'vue'
+ * import { createVirtual } from '@vuetify/v0'
+ *
+ * const items = shallowRef(Array.from({ length: 10000 }, (_, i) => ({ id: i })))
+ * const virtual = createVirtual(items, { itemHeight: 40 })
+ * console.log(virtual.items.value)
+ * ```
  */
 
 // Constants

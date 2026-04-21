@@ -17,6 +17,17 @@
  * - Sort options: mandate, firstSortOrder
  * - Row selection via lightweight Set (not registry-based)
  * - Trinity pattern for dependency injection
+ *
+ * @example
+ * ```ts
+ * import { createDataTable } from '@vuetify/v0'
+ *
+ * const table = createDataTable({
+ *   items: [{ id: 1, name: 'Alice' }, { id: 2, name: 'Bob' }],
+ *   columns: [{ key: 'name', title: 'Name', sortable: true }],
+ * })
+ * table.sort.toggle('name')
+ * ```
  */
 
 // Composables

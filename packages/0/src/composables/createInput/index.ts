@@ -9,6 +9,16 @@
  *
  * No event handling — composables never bind DOM events. Components call
  * validate() and write isFocused/isTouched when they choose.
+ *
+ * @example
+ * ```ts
+ * import { shallowRef } from 'vue'
+ * import { createInput } from '@vuetify/v0'
+ *
+ * const value = shallowRef('')
+ * const input = createInput({ value, label: 'Name', rules: ['required'] })
+ * await input.validate()
+ * ```
  */
 
 // Composables

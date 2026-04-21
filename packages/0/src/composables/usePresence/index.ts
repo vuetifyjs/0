@@ -16,6 +16,15 @@
  * - Re-entry during leave: cancels exit, stays mounted
  * - Immediate mode: auto-unmounts if done() not called (fast path)
  * - SSR-safe: starts unmounted
+ *
+ * @example
+ * ```ts
+ * import { shallowRef } from 'vue'
+ * import { usePresence } from '@vuetify/v0'
+ *
+ * const isOpen = shallowRef(false)
+ * const { isMounted, state, done } = usePresence({ present: isOpen })
+ * ```
  */
 
 // Utilities

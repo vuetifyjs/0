@@ -13,6 +13,16 @@
  * - Trinity pattern for dependency injection
  *
  * Inheritance chain: createRegistry → createSelection → createSingle → createBreadcrumbs
+ *
+ * @example
+ * ```ts
+ * import { createBreadcrumbs } from '@vuetify/v0'
+ *
+ * const crumbs = createBreadcrumbs()
+ * crumbs.register({ text: 'Home' })
+ * crumbs.register({ text: 'Docs' })
+ * console.log(crumbs.depth.value) // 2
+ * ```
  */
 
 // Composables

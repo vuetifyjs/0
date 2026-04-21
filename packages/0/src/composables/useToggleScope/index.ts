@@ -17,6 +17,17 @@
  *
  * Perfect for conditional side effects, feature flags, and performance optimization
  * by only running reactive effects when needed.
+ *
+ * @example
+ * ```ts
+ * import { shallowRef } from 'vue'
+ * import { useToggleScope } from '@vuetify/v0'
+ *
+ * const isEnabled = shallowRef(false)
+ * const { isActive } = useToggleScope(isEnabled, () => {
+ *   // effects run while isEnabled is true
+ * })
+ * ```
  */
 
 // Utilities

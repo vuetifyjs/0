@@ -17,6 +17,15 @@
  * Unlike registry-based composables, rating tracks a single number
  * within a range with computed item states, making it efficient
  * for any star/icon rating use case.
+ *
+ * @example
+ * ```ts
+ * import { createRating } from '@vuetify/v0'
+ *
+ * const rating = createRating({ size: 5, value: 3 })
+ * rating.select(4)
+ * console.log(rating.value.value) // 4
+ * ```
  */
 
 import { useContext } from '#v0/composables/createContext'

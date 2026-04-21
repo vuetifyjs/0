@@ -14,6 +14,16 @@
  * - Resolution caching for performance (~28,590 ops/sec)
  *
  * Used by useTheme, useLocale, and useFeatures for token-based configuration.
+ *
+ * @example
+ * ```ts
+ * import { createTokens } from '@vuetify/v0'
+ *
+ * const tokens = createTokens({
+ *   colors: { primary: '#1976d2' },
+ * })
+ * console.log(tokens.resolve('{colors.primary}'))
+ * ```
  */
 
 // Composables

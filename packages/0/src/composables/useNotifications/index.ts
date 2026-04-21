@@ -14,6 +14,14 @@
  * - Toast queue with pause/resume and auto-dismiss
  * - Adapter integration via event system
  * - Plugin installation via createNotificationsPlugin
+ *
+ * @example
+ * ```ts
+ * import { useNotifications } from '@vuetify/v0'
+ *
+ * const notifications = useNotifications()
+ * notifications.send({ subject: 'Saved', severity: 'success' })
+ * ```
  */
 
 // Foundational

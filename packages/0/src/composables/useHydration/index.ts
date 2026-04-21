@@ -14,6 +14,16 @@
  * - Perfect for hydration-safe rendering
  *
  * Essential for composables that need to behave differently during SSR vs client-side.
+ *
+ * @example
+ * ```ts
+ * import { useHydration } from '@vuetify/v0'
+ *
+ * const { isHydrated } = useHydration()
+ * if (isHydrated.value) {
+ *   // safe for client-only logic
+ * }
+ * ```
  */
 
 import { createPluginContext } from '#v0/composables/createPlugin'

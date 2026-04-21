@@ -16,6 +16,15 @@
  *
  * Inheritance chain: createRegistry → createSelection → createGroup → createFeatures
  * Integrates with createTokens for token-based features.
+ *
+ * @example
+ * ```ts
+ * import { useFeatures } from '@vuetify/v0'
+ *
+ * const features = useFeatures()
+ * features.register({ id: 'new-checkout', value: true })
+ * console.log(features.variation('new-checkout'))
+ * ```
  */
 
 // Composables

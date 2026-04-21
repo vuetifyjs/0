@@ -17,6 +17,17 @@
  * - Configurable observation options (childList, attributes, characterData, etc.)
  *
  * Perfect for detecting DOM changes and responding to mutations.
+ *
+ * @example
+ * ```ts
+ * import { useTemplateRef } from 'vue'
+ * import { useMutationObserver } from '@vuetify/v0'
+ *
+ * const target = useTemplateRef('target')
+ * useMutationObserver(target, records => {
+ *   console.log(records)
+ * }, { childList: true })
+ * ```
  */
 
 // Globals

@@ -14,6 +14,16 @@
  * - Transforms Map-based registry into reactive refs
  *
  * Perfect for exposing registry data as reactive computed properties.
+ *
+ * @example
+ * ```ts
+ * import { createRegistry, useProxyRegistry } from '@vuetify/v0'
+ *
+ * const registry = createRegistry({ events: true })
+ * const proxy = useProxyRegistry(registry)
+ * registry.register({ value: 'Item 1' })
+ * console.log(proxy.size) // 1
+ * ```
  */
 
 // Utilities

@@ -9,6 +9,14 @@
  * The trinity pattern returns a readonly tuple of [useContext, provideContext, defaultContext],
  * enabling flexible dependency injection with sensible defaults. This pattern is fundamental
  * to all registry-based composables.
+ *
+ * @example
+ * ```ts
+ * import { createTrinity } from '@vuetify/v0'
+ *
+ * const [useMyContext, provideMyContext, defaultContext] =
+ *   createTrinity('my-context', { foo: 'bar' })
+ * ```
  */
 
 // Composables

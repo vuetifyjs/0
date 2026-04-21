@@ -15,6 +15,14 @@
  * - Custom breakpoint configuration
  *
  * Perfect for responsive layouts and conditional rendering based on screen size.
+ *
+ * @example
+ * ```ts
+ * import { useBreakpoints } from '@vuetify/v0'
+ *
+ * const { current, isMobile, smAndUp } = useBreakpoints()
+ * console.log(current.value) // 'md'
+ * ```
  */
 
 // Constants

@@ -9,6 +9,15 @@
  * Accepts refs, getters, raw DOM elements, or Vue component instances
  * and normalizes them to a plain Element. Uses structural typing to
  * avoid cross-version Vue Ref incompatibilities.
+ *
+ * @example
+ * ```ts
+ * import { shallowRef } from 'vue'
+ * import { toElement } from '@vuetify/v0'
+ *
+ * const el = shallowRef<HTMLElement | null>(null)
+ * const resolved = toElement(el) // HTMLElement | undefined
+ * ```
  */
 
 // Utilities

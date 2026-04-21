@@ -12,6 +12,14 @@
  * - One-shot (default) or repeating mode
  * - Automatic cleanup on scope disposal
  * - SSR-safe
+ *
+ * @example
+ * ```ts
+ * import { useTimer } from '@vuetify/v0'
+ *
+ * const timer = useTimer(() => console.log('fired'), { duration: 5000 })
+ * timer.start()
+ * ```
  */
 
 // Constants

@@ -15,6 +15,15 @@
  *
  * Unlike registry-based composables, pagination tracks a single number
  * within a range, making it efficient for large page counts.
+ *
+ * @example
+ * ```ts
+ * import { createPagination } from '@vuetify/v0'
+ *
+ * const pagination = createPagination({ size: 100, itemsPerPage: 10 })
+ * pagination.next()
+ * console.log(pagination.page.value) // 2
+ * ```
  */
 
 import { useContext } from '#v0/composables/createContext'

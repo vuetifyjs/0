@@ -15,6 +15,15 @@
  * - Perfect for search, multi-criteria filtering
  *
  * Filters arrays based on query strings with configurable matching strategies.
+ *
+ * @example
+ * ```ts
+ * import { createFilter } from '@vuetify/v0'
+ *
+ * const filter = createFilter({ mode: 'some' })
+ * const { items } = filter.apply('an', ['apple', 'banana', 'cherry'])
+ * console.log(items.value) // ['banana']
+ * ```
  */
 
 // Composables

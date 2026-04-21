@@ -13,6 +13,16 @@
  * Supports two modes:
  * - **Static key**: `createContext('my-key')` - key is fixed at creation time
  * - **Dynamic key**: `createContext()` or `createContext({ suffix: 'item' })` - key provided at runtime
+ *
+ * @example
+ * ```ts
+ * import { createContext } from '@vuetify/v0'
+ *
+ * const [useTheme, provideTheme] = createContext<{ dark: boolean }>('theme')
+ *
+ * provideTheme({ dark: true })
+ * const theme = useTheme()
+ * ```
  */
 
 // Utilities

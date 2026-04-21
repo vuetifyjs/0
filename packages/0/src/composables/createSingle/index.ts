@@ -12,6 +12,16 @@
  * - Perfect for tabs, radio buttons, theme selectors
  *
  * Inheritance chain: createRegistry → createSelection → createSingle
+ *
+ * @example
+ * ```ts
+ * import { createSingle } from '@vuetify/v0'
+ *
+ * const single = createSingle()
+ * const ticket = single.register({ value: 'tab-1' })
+ * single.select(ticket.id)
+ * console.log(single.selectedValue.value) // 'tab-1'
+ * ```
  */
 
 // Composables

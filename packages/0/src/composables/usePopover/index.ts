@@ -17,6 +17,15 @@
  *
  * Perfect for building select, combobox, tooltip, and menu components
  * without wrapping the Popover compound component.
+ *
+ * @example
+ * ```ts
+ * import { usePopover } from '@vuetify/v0'
+ *
+ * const popover = usePopover()
+ * popover.open()
+ * popover.toggle()
+ * ```
  */
 
 // Composables

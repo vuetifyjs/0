@@ -16,6 +16,16 @@
  *
  * Use variable mode (default) for items with different widths like Breadcrumbs.
  * Use uniform mode (itemWidth option) for same-width items like Pagination buttons.
+ *
+ * @example
+ * ```ts
+ * import { useTemplateRef } from 'vue'
+ * import { createOverflow } from '@vuetify/v0'
+ *
+ * const el = useTemplateRef('container')
+ * const overflow = createOverflow({ container: el })
+ * console.log(overflow.capacity.value) // number of items that fit
+ * ```
  */
 
 // Globals

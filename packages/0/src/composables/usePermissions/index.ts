@@ -14,6 +14,14 @@
  * - Adapter pattern for custom permission systems
  *
  * Built on createTokens for flexible permission configuration.
+ *
+ * @example
+ * ```ts
+ * import { usePermissions } from '@vuetify/v0'
+ *
+ * const permissions = usePermissions()
+ * console.log(permissions.can('admin', 'edit', 'users'))
+ * ```
  */
 
 // Composables

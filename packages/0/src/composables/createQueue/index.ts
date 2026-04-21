@@ -14,6 +14,15 @@
  * Built on top of createRegistry, the queue automatically manages timeouts for tickets,
  * ensuring only the first ticket in the queue is active at any time. When a ticket
  * expires or is removed, the next ticket in the queue automatically becomes active.
+ *
+ * @example
+ * ```ts
+ * import { createQueue } from '@vuetify/v0'
+ *
+ * const queue = createQueue()
+ * queue.register({ value: 'Notification 1', timeout: 3000 })
+ * queue.register({ value: 'Notification 2', timeout: 3000 })
+ * ```
  */
 
 // Composables

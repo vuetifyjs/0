@@ -16,6 +16,15 @@
  * - Theme cycling
  *
  * Integrates with createSingle for selection and createTokens for color resolution.
+ *
+ * @example
+ * ```ts
+ * import { useTheme } from '@vuetify/v0'
+ *
+ * const theme = useTheme()
+ * theme.select('dark')
+ * console.log(theme.isDark.value) // true
+ * ```
  */
 
 // Composables

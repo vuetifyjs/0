@@ -15,6 +15,16 @@
  *
  * The registry serves as the base for many other composables in the system,
  * including createSelection, createForm, createTimeline, and more.
+ *
+ * @example
+ * ```ts
+ * import { createRegistry } from '@vuetify/v0'
+ *
+ * const registry = createRegistry()
+ * const ticket = registry.register({ value: 'item-1' })
+ * console.log(registry.size) // 1
+ * registry.unregister(ticket.id)
+ * ```
  */
 
 // Composables

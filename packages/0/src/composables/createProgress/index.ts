@@ -10,6 +10,15 @@
  * All segments stay selected (multiple: true, enroll: true) so
  * selectedValues always reflects the full set of segment values.
  * Compatible with useProxyModel for v-model bridging.
+ *
+ * @example
+ * ```ts
+ * import { createProgress } from '@vuetify/v0'
+ *
+ * const progress = createProgress({ min: 0, max: 100, value: 25 })
+ * progress.register({ value: 50 })
+ * console.log(progress.percent.value)
+ * ```
  */
 
 // Composables

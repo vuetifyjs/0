@@ -17,6 +17,17 @@
  * - Box model options (content-box/border-box)
  *
  * Perfect for responsive components and size-based rendering.
+ *
+ * @example
+ * ```ts
+ * import { useTemplateRef } from 'vue'
+ * import { useResizeObserver } from '@vuetify/v0'
+ *
+ * const target = useTemplateRef('target')
+ * useResizeObserver(target, entries => {
+ *   console.log(entries[0].contentRect.width)
+ * })
+ * ```
  */
 
 // Globals

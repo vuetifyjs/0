@@ -10,6 +10,19 @@
  * - `undefined` — not yet created
  * - `null` — permanently stopped (`stop()` was called; `setup()` is a no-op)
  * - instance — active observer
+ *
+ * @example
+ * ```ts
+ * import { createObserver } from '#v0/composables/createObserver'
+ *
+ * const observer = createObserver(target, entries => {
+ *   console.log(entries)
+ * }, {
+ *   supports: true,
+ *   create: cb => new ResizeObserver(cb),
+ *   observe: (o, el) => o.observe(el),
+ * })
+ * ```
  */
 
 // Composables

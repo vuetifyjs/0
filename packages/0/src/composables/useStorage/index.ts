@@ -15,6 +15,15 @@
  * - Automatic cleanup on remove/clear
  *
  * Uses adapter pattern to abstract storage implementation details.
+ *
+ * @example
+ * ```ts
+ * import { useStorage } from '@vuetify/v0'
+ *
+ * const storage = useStorage()
+ * const theme = storage.get('theme', 'light')
+ * theme.value = 'dark' // persists automatically
+ * ```
  */
 
 // Globals
