@@ -58,6 +58,8 @@
     autoplay?: number
     /** Scroll behavior for programmatic navigation */
     behavior?: ScrollBehavior
+    /** Peek padding on the scroll axis. Applied as both visual padding and scroll-padding so snap targets align with visible offset. Numbers become pixels; strings pass through. */
+    padding?: number | string
   }
 
   export interface CarouselRootSlotProps {
@@ -119,6 +121,8 @@
     rootId: string
     /** Scroll behavior for programmatic navigation */
     behavior: Ref<ScrollBehavior>
+    /** Peek padding on the scroll axis as a CSS length */
+    padding: Ref<string | undefined>
     /** Registry for structural sub-components */
     parts: RegistryContext<CarouselPartTicket>
     /** Autoplay interval duration in ms (0 = disabled) */
@@ -159,6 +163,7 @@
     perView = 1,
     autoplay = 0,
     behavior = 'smooth',
+    padding,
   } = defineProps<CarouselRootProps>()
 
   const locale = useLocale()
@@ -225,6 +230,11 @@
     circular: toRef(() => circular),
     rootId,
     behavior: toRef(() => behavior),
+    padding: toRef(() => {
+      if (padding == null) return undefined
+      if (typeof padding === 'number') return `${padding}px`
+      return /^-?\d+(\.\d+)?$/.test(padding) ? `${padding}px` : padding
+    }),
     parts,
     autoplay: toRef(() => autoplay),
     remaining: toRef(() => timer?.remaining.value ?? 0),
