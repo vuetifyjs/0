@@ -17,7 +17,7 @@ related:
 
 # Devkey
 
-Devkey is the reference starter project for Vuetify0. Scaffolded with the [Vuetify CLI](/guide/tooling/vuetify-cli), it shows how the pieces fit together in a real Vue 3 app — and is the canonical example shipped with the v0 Alpha.
+Devkey ([github.com/vuetifyjs/devkey](https://github.com/vuetifyjs/devkey)) is the reference starter project for Vuetify0. Scaffolded with the [Vuetify CLI](/guide/tooling/vuetify-cli), it shows how the pieces fit together in a real Vue 3 app — and is the canonical example shipped with the v0 Alpha.
 
 <DocsPageFeatures :frontmatter />
 
@@ -26,13 +26,9 @@ Devkey is the reference starter project for Vuetify0. Scaffolded with the [Vueti
 
 ## Preview
 
-Devkey ships with a handful of representative pages so you can see v0 components composed into real screens — not isolated demos.
+The Devkey home page. Navigation, hero layout, feature grid, and pricing cards are all built from v0 components.
 
-![Devkey home page](https://cdn.vuetifyjs.com/docs/images/devkey/home.png)
-
-![Devkey dashboard](https://cdn.vuetifyjs.com/docs/images/devkey/dashboard.png)
-
-![Devkey command palette](https://cdn.vuetifyjs.com/docs/images/devkey/palette.png)
+![Devkey home page](https://cdn.vuetifyjs.com/docs/images/devkey/home.png "The Devkey landing page, rendered with v0 components")
 
 ## Overview
 
