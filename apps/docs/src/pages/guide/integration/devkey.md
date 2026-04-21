@@ -24,6 +24,16 @@ Devkey is the reference starter project for Vuetify0. Scaffolded with the [Vueti
 > [!TIP]
 > Looking for the fastest way to start? Run `pnpm create vuetify0` to scaffold a fresh Devkey-shaped project locally.
 
+## Preview
+
+Devkey ships with a handful of representative pages so you can see v0 components composed into real screens — not isolated demos.
+
+![Devkey home page](https://cdn.vuetifyjs.com/docs/images/devkey/home.png)
+
+![Devkey dashboard](https://cdn.vuetifyjs.com/docs/images/devkey/dashboard.png)
+
+![Devkey command palette](https://cdn.vuetifyjs.com/docs/images/devkey/palette.png)
+
 ## Overview
 
 Devkey pairs `@vuetify/v0` with a minimal but production-shaped toolchain so you can see v0 in context — not as an isolated snippet, but as part of a real app layout.
