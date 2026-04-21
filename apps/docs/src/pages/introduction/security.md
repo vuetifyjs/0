@@ -64,10 +64,16 @@ Internally, security incidents are handled according to a formal Incident Respon
 
 ### Trust Boundaries
 
-```
-Contributor ──PR──→ GitHub ──tag──→ CI ──publish──→ npm ──install──→ Consumer app ──render──→ End user
-                                   │
-                                   └──push──→ CI ──webhook──→ Deploy ──serve──→ Docs site
+```mermaid "Trust Boundaries"
+flowchart LR
+  Contributor -->|PR| GitHub
+  GitHub -->|tag| CI
+  CI -->|publish| npm
+  npm -->|install| ConsumerApp[Consumer app]
+  ConsumerApp -->|render| EndUser[End user]
+  GitHub -->|push| CIDocs[CI]
+  CIDocs -->|webhook| Deploy
+  Deploy -->|serve| DocsSite[Docs site]
 ```
 
 ### In Scope
