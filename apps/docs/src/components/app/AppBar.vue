@@ -134,7 +134,9 @@
 
       <AppAccount v-if="!isHomePage" />
 
-      <AppSettings v-if="!isHomePage && !auth.isAuthenticated" />
+      <Discovery.Activator v-if="!isHomePage && !auth.isAuthenticated" class="rounded-lg" step="settings">
+        <AppSettings />
+      </Discovery.Activator>
     </div>
   </Atom>
 </template>
