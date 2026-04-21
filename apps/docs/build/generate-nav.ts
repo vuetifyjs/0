@@ -9,18 +9,22 @@ import type { Plugin, ViteDevServer } from 'vite'
 
 import { getApiNamesGrouped } from './api-names'
 import { parseFrontmatter } from './frontmatter'
-import { getGitDate, isRecent } from './git-dates'
+import { getGitDate } from './git-dates'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const PAGES_DIR = resolve(__dirname, '../src/pages')
-const EMPHASIS_WINDOW_DAYS = 7
+
+// Heatmap buckets (days since last commit). Level 1 = freshest, level 5 = stalest.
+const EMPHASIS_BUCKETS = [7, 30, 90, 180] as const
+
+export type EmphasisLevel = 1 | 2 | 3 | 4 | 5
 
 // Types matching stores/app.ts
 export interface NavItemLink {
   name: string
   to: string
   level?: 1 | 2 | 3
-  emphasized?: boolean
+  emphasized?: EmphasisLevel
   devmode?: boolean
   children?: NavItem[]
 }
@@ -43,8 +47,21 @@ interface PageInfo {
   order: number
   hidden: boolean
   level?: 1 | 2 | 3
-  emphasized?: boolean
+  emphasized?: EmphasisLevel
   devmode?: boolean
+}
+
+function getEmphasisLevel (iso: string | undefined | null): EmphasisLevel {
+  if (!iso) return 5
+  const then = Date.parse(iso)
+  if (Number.isNaN(then)) return 5
+  const ageMs = Date.now() - then
+  if (ageMs < 0) return 1
+  const ageDays = ageMs / (24 * 60 * 60 * 1000)
+  for (const [i, EMPHASIS_BUCKET] of EMPHASIS_BUCKETS.entries()) {
+    if (ageDays <= EMPHASIS_BUCKET) return (i + 1) as EmphasisLevel
+  }
+  return 5
 }
 
 // Section configuration - defines structure and ordering
@@ -123,9 +140,9 @@ function toNavLink (p: PageInfo): NavItemLink {
 
 function toStandaloneNavLink (name: string, to: string, file: string, frontmatter: Frontmatter): NavItemLink {
   const link: NavItemLink = { name, to }
-  const recent = isRecent(getGitDate(file)?.updated, EMPHASIS_WINDOW_DAYS)
+  const emphasis = frontmatter.features?.emphasized ? 1 : getEmphasisLevel(getGitDate(file)?.updated)
   if (frontmatter.features?.level) link.level = frontmatter.features.level
-  if (frontmatter.features?.emphasized || recent) link.emphasized = true
+  link.emphasized = emphasis
   if (frontmatter.features?.devmode) link.devmode = true
   return link
 }
@@ -181,7 +198,7 @@ async function buildApiSection (): Promise<NavItemLink> {
 }
 
 function createPageInfo (relPath: string, file: string, name: string, frontmatter: Frontmatter): PageInfo {
-  const recent = isRecent(getGitDate(file)?.updated, EMPHASIS_WINDOW_DAYS)
+  const emphasis = frontmatter.features?.emphasized ? 1 : getEmphasisLevel(getGitDate(file)?.updated)
   return {
     path: relPath,
     urlPath: getUrlPath(file),
@@ -189,7 +206,7 @@ function createPageInfo (relPath: string, file: string, name: string, frontmatte
     order: frontmatter.features?.order ?? 999,
     hidden: false,
     level: frontmatter.features?.level,
-    emphasized: frontmatter.features?.emphasized || recent,
+    emphasized: emphasis,
     devmode: frontmatter.features?.devmode,
   }
 }
