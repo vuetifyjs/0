@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from 'vitest'
 import type { NestedRegistration } from './types'
 
 // Composables
-import { createNested, multipleOpenStrategy, singleOpenStrategy } from './index'
+import { createNested } from './index'
 
 describe('createNested', () => {
   describe('parent-child relationship management', () => {
@@ -850,9 +850,9 @@ describe('createNested', () => {
     })
   })
 
-  describe('open strategies (deprecated)', () => {
-    it('should allow multiple nodes open with multipleOpenStrategy', () => {
-      const nested = createNested({ openStrategy: multipleOpenStrategy })
+  describe('open modes', () => {
+    it('should allow multiple nodes open with open: \'multiple\'', () => {
+      const nested = createNested({ open: 'multiple' })
 
       nested.register({ id: 'node-1', value: 'Node 1' })
       nested.register({ id: 'node-2', value: 'Node 2' })
@@ -864,8 +864,8 @@ describe('createNested', () => {
       expect(nested.opened('node-2')).toBe(true)
     })
 
-    it('should close others with singleOpenStrategy', () => {
-      const nested = createNested({ openStrategy: singleOpenStrategy })
+    it('should close others with open: \'single\'', () => {
+      const nested = createNested({ open: 'single' })
 
       nested.register({ id: 'node-1', value: 'Node 1' })
       nested.register({ id: 'node-2', value: 'Node 2' })
@@ -874,23 +874,6 @@ describe('createNested', () => {
       expect(nested.opened('node-1')).toBe(true)
 
       nested.open('node-2')
-      expect(nested.opened('node-1')).toBe(false)
-      expect(nested.opened('node-2')).toBe(true)
-    })
-
-    it('should prioritize openStrategy over open option', () => {
-      const nested = createNested({
-        open: 'multiple',
-        openStrategy: singleOpenStrategy,
-      })
-
-      nested.register({ id: 'node-1', value: 'Node 1' })
-      nested.register({ id: 'node-2', value: 'Node 2' })
-
-      nested.open('node-1')
-      nested.open('node-2')
-
-      // singleOpenStrategy should take precedence
       expect(nested.opened('node-1')).toBe(false)
       expect(nested.opened('node-2')).toBe(true)
     })
@@ -1093,26 +1076,17 @@ describe('edge cases', () => {
   })
 
   describe('validation in open/close/flip', () => {
-    it('should not call strategy for non-existent IDs on open', () => {
-      const onOpenSpy = vi.fn()
-      const nested = createNested({
-        openStrategy: { onOpen: onOpenSpy },
-      })
-
+    it('should not affect open state when calling open() with non-existent IDs', () => {
+      const nested = createNested({ open: 'single' })
+      nested.register({ id: 'real', value: 'Real' })
+      nested.open('real')
       nested.open('non-existent')
-
-      expect(onOpenSpy).not.toHaveBeenCalled()
+      expect(nested.opened('real')).toBe(true)
     })
 
-    it('should not call strategy for non-existent IDs on close', () => {
-      const onCloseSpy = vi.fn()
-      const nested = createNested({
-        openStrategy: { onClose: onCloseSpy },
-      })
-
-      nested.close('non-existent')
-
-      expect(onCloseSpy).not.toHaveBeenCalled()
+    it('should not throw when calling close() with non-existent IDs', () => {
+      const nested = createNested()
+      expect(() => nested.close('non-existent')).not.toThrow()
     })
 
     it('should skip non-existent IDs in flip', () => {
@@ -1247,11 +1221,11 @@ describe('createNestedContext', () => {
   })
 
   it('should pass options to nested instance', async () => {
-    const { createNestedContext, singleOpenStrategy } = await import('./index')
+    const { createNestedContext } = await import('./index')
 
     const [, , context] = createNestedContext({
       namespace: 'test:nested-options',
-      openStrategy: singleOpenStrategy,
+      open: 'single',
     })
 
     context.register({ id: 'node-1', value: 'Node 1' })
@@ -1260,7 +1234,7 @@ describe('createNestedContext', () => {
     context.open('node-1')
     context.open('node-2')
 
-    // Single open strategy should close node-1 when node-2 opens
+    // Single open mode should close node-1 when node-2 opens
     expect(context.opened('node-1')).toBe(false)
     expect(context.opened('node-2')).toBe(true)
   })

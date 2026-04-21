@@ -59,7 +59,6 @@ flowchart TD
   createNested --> children[children Map]
   createNested --> parents[parents Map]
   createNested --> openedIds[openedIds Set]
-  createNested --> OpenStrategy[OpenStrategy]
 ```
 
 ## Reactivity
@@ -221,30 +220,6 @@ tree.select('folder')
 // All files (leaves) under 'folder' are selected
 // 'folder' itself is not in selectedIds
 ```
-
-## Custom Open Strategies
-
-For advanced use cases, implement custom strategies:
-
-```ts
-import type { OpenStrategy, OpenStrategyContext } from '@vuetify/v0'
-
-const keepParentsOpenStrategy: OpenStrategy = {
-  onOpen: (id, context) => {
-    // context.openedIds - reactive Set of open node IDs
-    // context.children - Map of parent ID to child IDs
-    // context.parents - Map of child ID to parent ID
-  },
-  onClose: (id, context) => {
-    // Called after a node is closed
-  },
-}
-
-const tree = createNested({ openStrategy: keepParentsOpenStrategy })
-```
-
-> [!TIP]
-> The `openStrategy` option overrides `open` when provided. Use `open` for simple cases.
 
 ## Convenience Methods
 

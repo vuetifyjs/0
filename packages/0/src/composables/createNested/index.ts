@@ -10,7 +10,6 @@
  * - Tree traversal utilities (getPath, getDescendants, etc.)
  * - Cascade selection propagation through nested registers
  * - `rootIds` tracking for top-level item detection
- * - Pluggable open strategies
  *
  * Inheritance chain: createSelection → createGroup → createNested
  *
@@ -46,22 +45,11 @@ import type { ID } from '#v0/types'
 import type {
   NestedContext,
   NestedContextOptions,
-  NestedOpenMode,
   NestedOptions,
   NestedRegistration,
   NestedTicket,
   NestedTicketInput,
 } from './types'
-
-// Strategies
-import { multipleOpenStrategy, singleOpenStrategy } from './strategies'
-
-/**
- * Resolves open mode to an OpenStrategy.
- */
-function resolveOpenStrategy (open: NestedOpenMode = 'multiple') {
-  return open === 'single' ? singleOpenStrategy : multipleOpenStrategy
-}
 
 /**
  * Creates a new nested tree instance with hierarchical management.
@@ -108,15 +96,11 @@ export function createNested (_options: NestedOptions = {}): NestedContext {
     reveal: revealOnOpen = false,
     selection: selectionMode = 'cascade',
     active: activeMode = 'single',
-    openStrategy,
     ...options
   } = _options
 
   const mandatoryOption = _options.mandatory ?? false
   const multipleOption = _options.multiple ?? true
-
-  // Resolve open strategy: explicit openStrategy takes precedence over open mode
-  const resolvedOpenStrategy = openStrategy ?? resolveOpenStrategy(openMode)
 
   const group = createGroup(options)
   const logger = useLogger()
@@ -161,10 +145,16 @@ export function createNested (_options: NestedOptions = {}): NestedContext {
       if (!item || toValue(item.disabled)) continue
 
       openedIds.add(id)
-      resolvedOpenStrategy.onOpen?.(id, context)
+
+      // Single-open mode: close all other opened items (accordion behavior)
+      if (openMode === 'single') {
+        for (const openedId of openedIds) {
+          if (openedId !== id) openedIds.delete(openedId)
+        }
+      }
 
       // Auto-reveal ancestors when opening (if enabled)
-      // Runs AFTER strategy so single-open mode doesn't close ancestors
+      // Runs AFTER single-open so ancestors stay open alongside the target
       if (revealOnOpen) {
         let parentId = parents.get(id)
         while (!isUndefined(parentId)) {
@@ -182,7 +172,6 @@ export function createNested (_options: NestedOptions = {}): NestedContext {
       const item = group.get(id)
       if (!item || toValue(item.disabled)) continue
       openedIds.delete(id)
-      resolvedOpenStrategy.onClose?.(id, context)
     }
   }
 
@@ -841,7 +830,6 @@ export function createNested (_options: NestedOptions = {}): NestedContext {
     deactivateAll,
     toFlat,
     multiple: toValue(multipleOption),
-    openStrategy: resolvedOpenStrategy,
     select,
     unselect,
     toggle,
@@ -899,6 +887,4 @@ export function useNested (namespace = 'v0:nested'): NestedContext {
   return useContext<NestedContext>(namespace)
 }
 
-export { type NestedActiveMode, type NestedContext, type NestedContextOptions, type NestedOpenMode, type NestedOptions, type NestedRegistration, type NestedSelectionMode, type NestedTicket, type NestedTicketInput, type OpenStrategy, type OpenStrategyContext } from './types'
-
-export { multipleOpenStrategy, singleOpenStrategy } from './strategies'
+export { type NestedActiveMode, type NestedContext, type NestedContextOptions, type NestedOpenMode, type NestedOptions, type NestedRegistration, type NestedSelectionMode, type NestedTicket, type NestedTicketInput } from './types'
