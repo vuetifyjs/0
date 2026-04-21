@@ -118,6 +118,23 @@
       }
     })
 
+    let lastShiftWheel = 0
+
+    useEventListener(el, 'wheel', (e: WheelEvent) => {
+      if (!e.shiftKey) return
+      const delta = e.deltaY || e.deltaX
+      if (delta === 0) return
+
+      e.preventDefault()
+
+      const now = performance.now()
+      if (now - lastShiftWheel < 300) return
+      lastShiftWheel = now
+
+      if (delta > 0) carousel.next()
+      else carousel.prev()
+    }, { passive: false })
+
     let dragStart = 0
     let scrollStart = 0
 
