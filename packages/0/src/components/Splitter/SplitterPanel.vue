@@ -37,8 +37,8 @@
   export interface SplitterPanelExpose {
     collapse: () => void
     expand: () => void
-    size: Ref<number>
-    isCollapsed: Ref<boolean>
+    size: Readonly<Ref<number>>
+    isCollapsed: Readonly<Ref<boolean>>
   }
 
   export interface SplitterPanelSlotProps {
