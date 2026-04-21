@@ -11,6 +11,9 @@
  */
 
 <script lang="ts">
+  // Globals
+  import { IN_BROWSER } from '#v0/constants/globals'
+
   // Components
   import { Atom } from '#v0/components/Atom'
   import SelectHiddenInput from './SelectHiddenInput.vue'
@@ -158,7 +161,7 @@
   const virtualFocus = useVirtualFocus(
     () => selection.values().map(ticket => ({
       id: ticket.id,
-      el: () => document.querySelector<HTMLElement>(`#${CSS.escape(`${id}-option-${ticket.id}`)}`),
+      el: () => IN_BROWSER ? document.querySelector<HTMLElement>(`#${CSS.escape(`${id}-option-${ticket.id}`)}`) : null,
       disabled: ticket.disabled,
     })),
     {

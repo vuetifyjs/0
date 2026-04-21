@@ -162,6 +162,7 @@ export function useHotkey (
   let groupIndex = 0
 
   function isInputFocused (): boolean {
+    if (!IN_BROWSER) return false
     if (toValue(inputs)) return false
 
     const activeElement = document.activeElement as HTMLElement | null

@@ -27,6 +27,9 @@
  * ```
  */
 
+// Globals
+import { IN_BROWSER } from '#v0/constants/globals'
+
 // Composables
 import { useContext } from '#v0/composables/createContext'
 import { createSelection } from '#v0/composables/createSelection'
@@ -194,7 +197,7 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
       .filter(ticket => filtered.value.has(ticket.id) && !toValue(ticket.disabled))
       .map(ticket => ({
         id: ticket.id,
-        el: () => document.querySelector<HTMLElement>(`#${CSS.escape(`${id}-option-${ticket.id}`)}`),
+        el: () => IN_BROWSER ? document.querySelector<HTMLElement>(`#${CSS.escape(`${id}-option-${ticket.id}`)}`) : null,
         disabled: ticket.disabled,
       })),
     {

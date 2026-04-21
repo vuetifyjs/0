@@ -31,6 +31,9 @@
  * ```
  */
 
+// Globals
+import { IN_BROWSER } from '#v0/constants/globals'
+
 // Composables
 import {
   useDocumentEventListener,
@@ -349,6 +352,7 @@ export function useClickOutside (
    * Handle window blur - detect focus moving to iframe.
    */
   function onBlur (event: FocusEvent) {
+    if (!IN_BROWSER) return
     if (isPaused.value) return
     if (event.defaultPrevented) return
 
