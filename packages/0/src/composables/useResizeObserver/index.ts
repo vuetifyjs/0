@@ -198,8 +198,8 @@ export function useElementSize (target: MaybeElementRef): UseElementSizeReturn {
   }
 
   return {
-    width,
-    height,
+    width: shallowReadonly(width),
+    height: shallowReadonly(height),
     isActive,
     isPaused: shallowReadonly(isPaused),
     pause,
