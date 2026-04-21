@@ -52,9 +52,10 @@ export default defineConfig({
         getApiSlugs(),
         getSkillzSlugs(),
       ])
+      const filtered = paths.filter(p => !p.includes(':path'))
       const apiRoutes = apiSlugs.map(slug => `/api/${slug}`)
       const skillzRoutes = skillzSlugs.map(slug => `/skillz/${slug}`)
-      return [...paths, ...apiRoutes, ...skillzRoutes]
+      return [...filtered, ...apiRoutes, ...skillzRoutes, '/404']
     },
     async onFinished () {
       generateSitemap({
@@ -62,6 +63,7 @@ export default defineConfig({
         generateRobotsTxt: false,
         changefreq: 'daily',
         priority: 0.7,
+        exclude: ['/404'],
       })
       await generateOgImages()
     },
