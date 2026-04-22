@@ -839,6 +839,17 @@ See §2.9. Three-way split: throw for bugs, warn for data integrity, silent retu
 
 `useLogger()` via the plugin system. Never `console.warn` directly. [intent:138] The logger is an adapter; test mocks capture it with `vi.spyOn`. [intent:229]
 
+**Layer-0 bootstrap exception.** Raw `console.*` is permitted only when:
+
+1. The site IS the logger bootstrap (`createFallbackLogger` in `useLogger/index.ts`), OR
+2. The site is in a foundation utility that `useLogger` transitively depends on, where calling `useLogger()` would introduce a circular import.
+
+Each exempt site must carry an inline comment explicitly citing this clause. No other rationale qualifies. Code that can import `useLogger` without cycles must use it — convenience is not an exception.
+
+Current exempt sites:
+- `packages/0/src/composables/useLogger/index.ts` — `createFallbackLogger` (logger bootstrap)
+- `packages/0/src/utilities/helpers.ts` — `useId()` SSR-dev warn (foundation dependency of useLogger)
+
 ### 9.3 Namespace keys contain `:`
 
 Every key passed to `createContext(key)` or `createXContext({ namespace })` must contain a colon. `v0:` prefix for production keys, `test:` prefix for test-only keys. Missing colons trigger a `[v0:context]` warning. [intent:226, intent:227]

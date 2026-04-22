@@ -191,6 +191,8 @@ export function createLogger (options: LoggerOptions = {}): LoggerContext {
   } as LoggerContext
 }
 
+// PHILOSOPHY §9.2 Layer-0 exception: this IS the logger bootstrap —
+// useLogger() here would be infinite recursion.
 function createFallbackLogger (namespace = 'v0:logger'): LoggerContext {
   function format (message: string, type: string): string {
     return `[${namespace} ${type}] ${message}`

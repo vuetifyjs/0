@@ -377,6 +377,8 @@ export function useId (): string {
   }
 
   if (typeof __DEV__ !== 'undefined' && __DEV__ && !IN_BROWSER) {
+    // PHILOSOPHY §9.2 Layer-0 exception: useLogger is circular here —
+    // helpers.ts is a foundation dependency of useLogger itself.
     console.warn('[v0 warn] useId() called outside component context during SSR. Provide explicit ID to avoid hydration mismatch.')
   }
 
