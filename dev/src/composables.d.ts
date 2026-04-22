@@ -254,6 +254,7 @@ declare global {
   const useHotkey: typeof import('../../packages/0/src/composables/useHotkey/index').useHotkey
   const useHydration: typeof import('../../packages/0/src/composables/useHydration/index').useHydration
   const useId: typeof import('../../packages/0/src/utilities/helpers').useId
+  const useImage: typeof import('../../packages/0/src/composables/useImage/index').useImage
   const useIntersectionObserver: typeof import('../../packages/0/src/composables/useIntersectionObserver/index').useIntersectionObserver
   const useLazy: typeof import('../../packages/0/src/composables/useLazy/index').useLazy
   const useLocale: typeof import('../../packages/0/src/composables/useLocale/index').useLocale
@@ -436,6 +437,9 @@ declare global {
   // @ts-ignore
   export type { HydrationContext, HydrationOptions, HydrationContextOptions, HydrationPluginOptions } from '../../packages/0/src/composables/useHydration/index'
   import('../../packages/0/src/composables/useHydration/index')
+  // @ts-ignore
+  export type { ImageStatus, UseImageOptions, UseImageReturn } from '../../packages/0/src/composables/useImage/index'
+  import('../../packages/0/src/composables/useImage/index')
   // @ts-ignore
   export type { IntersectionObserverEntry, IntersectionObserverOptions, UseIntersectionObserverReturn, UseElementIntersectionReturn } from '../../packages/0/src/composables/useIntersectionObserver/index'
   import('../../packages/0/src/composables/useIntersectionObserver/index')
@@ -756,6 +760,7 @@ declare module 'vue' {
     readonly useHotkey: UnwrapRef<typeof import('../../packages/0/src/composables/useHotkey/index')['useHotkey']>
     readonly useHydration: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['useHydration']>
     readonly useId: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['useId']>
+    readonly useImage: UnwrapRef<typeof import('../../packages/0/src/composables/useImage/index')['useImage']>
     readonly useIntersectionObserver: UnwrapRef<typeof import('../../packages/0/src/composables/useIntersectionObserver/index')['useIntersectionObserver']>
     readonly useLazy: UnwrapRef<typeof import('../../packages/0/src/composables/useLazy/index')['useLazy']>
     readonly useLocale: UnwrapRef<typeof import('../../packages/0/src/composables/useLocale/index')['useLocale']>

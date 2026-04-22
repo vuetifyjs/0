@@ -211,7 +211,6 @@
           v-else-if="'to' in nav"
           :id="nav.to"
           class="px-4"
-          :devmode="nav.devmode"
           :emphasized="nav.emphasized"
           :name="nav.name"
           :to="nav.to"

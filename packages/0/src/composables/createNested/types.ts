@@ -66,35 +66,6 @@ export type NestedTicket<Z extends NestedTicketInput = NestedTicketInput> = Grou
 }
 
 /**
- * Minimal context interface for open strategy callbacks.
- * Only exposes the state needed for open/close operations.
- */
-export interface OpenStrategyContext {
-  /** Set of currently opened item IDs (mutable for strategy control) */
-  openedIds: Reactive<Set<ID>>
-  /** Map of parent IDs to child ID arrays (readonly - use for traversal only) */
-  readonly children: ReadonlyMap<ID, readonly ID[]>
-  /** Map of child IDs to parent IDs (readonly - use for traversal only) */
-  readonly parents: ReadonlyMap<ID, ID | undefined>
-}
-
-/**
- * Strategy interface for controlling how items are opened.
- *
- * @remarks
- * Strategies define the behavior when an item is opened:
- * - Single: Only one item open at a time
- * - Multiple: Multiple items can be open
- * - Custom: Implement your own logic
- */
-export interface OpenStrategy {
-  /** Called when an item is opened */
-  onOpen?: (id: ID, context: OpenStrategyContext) => void
-  /** Called when an item is closed */
-  onClose?: (id: ID, context: OpenStrategyContext) => void
-}
-
-/**
  * Registration input for nested items.
  * Allows inline children definition for easier tree construction.
  *
@@ -188,8 +159,6 @@ export interface NestedContext<
   visibleItems: () => E[]
   /** Whether multiple items can be selected */
   readonly multiple: boolean
-  /** Strategy controlling how items are opened */
-  openStrategy: OpenStrategy
   /** Select item(s) and all descendants, updating ancestor mixed states */
   select: (ids: ID | ID[]) => void
   /** Unselect item(s) and all descendants, updating ancestor mixed states */
@@ -263,12 +232,6 @@ export interface NestedOptions extends GroupOptions {
    * - `'multiple'`: Multiple items can be active simultaneously
    */
   active?: NestedActiveMode
-  /**
-   * Advanced: Custom strategy for open behavior.
-   * Overrides `open` option if provided.
-   * @deprecated Use `open` option for simple cases
-   */
-  openStrategy?: OpenStrategy
 }
 
 /**
@@ -304,10 +267,4 @@ export interface NestedContextOptions extends GroupContextOptions {
    * - `'multiple'`: Multiple items can be active simultaneously
    */
   active?: NestedActiveMode
-  /**
-   * Advanced: Custom strategy for open behavior.
-   * Overrides `open` option if provided.
-   * @deprecated Use `open` option for simple cases
-   */
-  openStrategy?: OpenStrategy
 }

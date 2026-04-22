@@ -1,7 +1,4 @@
 <script setup lang="ts">
-  // Components
-  import { Discovery } from '@/components/discovery'
-
   // Composables
   import { useSettings } from '@/composables/useSettings'
 
@@ -16,17 +13,15 @@
 </script>
 
 <template>
-  <Discovery.Activator class="rounded-lg" step="settings">
-    <button
-      aria-label="Open settings"
-      class="bg-surface-tint text-on-surface-tint pa-1 inline-flex rounded hover:bg-surface-variant transition-all cursor-pointer"
-      title="Settings"
-      type="button"
-      @click="settings.toggle"
-      @focus="preload"
-      @mouseenter="preload"
-    >
-      <AppIcon icon="cog" />
-    </button>
-  </Discovery.Activator>
+  <button
+    aria-label="Open settings"
+    class="bg-surface-tint text-on-surface-tint pa-1 inline-flex rounded hover:bg-surface-variant transition-all cursor-pointer"
+    title="Settings"
+    type="button"
+    @click="settings.toggle"
+    @focus="preload"
+    @mouseenter="preload"
+  >
+    <AppIcon icon="cog" />
+  </button>
 </template>

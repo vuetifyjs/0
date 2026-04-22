@@ -278,7 +278,7 @@ export function isNaN (item: unknown): item is number {
 }
 
 // Keys that could lead to prototype pollution
-const UNSAFE_KEYS = new Set(['__proto__', 'constructor', 'prototype'])
+const UNSAFE_KEYS = /* @__PURE__ */ new Set(['__proto__', 'constructor', 'prototype'])
 
 function isPlainObject (value: unknown): value is Record<string, unknown> {
   if (typeof value !== 'object' || value === null || Array.isArray(value)) return false

@@ -235,7 +235,7 @@
             :aria-label="`${option.label} theme`"
             :aria-pressed="toggle.preference.value === option.id"
             :class="[
-              'h-9 w-6 shrink-0 rounded border transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background',
+              'h-9 w-6 shrink-0 inline-flex items-center justify-center rounded border transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background',
               toggle.preference.value === option.id
                 ? 'border-primary ring-2 ring-primary/50 opacity-100'
                 : 'opacity-50 hover:opacity-100',
@@ -248,7 +248,7 @@
             type="button"
             @click="toggle.setPreference(option.id)"
           >
-            <AppIcon v-if="toggle.preference.value === option.id" icon="check-circle" size="12" />
+            <AppIcon :icon="option.icon" size="14" />
           </button>
         </div>
       </div>

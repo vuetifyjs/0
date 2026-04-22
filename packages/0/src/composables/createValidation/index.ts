@@ -87,7 +87,7 @@ export interface ValidationOptions extends GroupOptions {
   value?: MaybeRefOrGetter<unknown>
 }
 
-const UNSET = Symbol('unset')
+const UNSET = /* @__PURE__ */ Symbol('unset')
 
 /**
  * Creates a per-input validation instance.

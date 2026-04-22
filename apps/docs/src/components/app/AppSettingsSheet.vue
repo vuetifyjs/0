@@ -5,6 +5,9 @@
   // Framework
   import { Avatar, useFeatures, useRtl, useStack, useStorage } from '@vuetify/v0'
 
+  // Components
+  import { Discovery } from '@/components/discovery'
+
   // Composables
   import { useCustomThemes } from '@/composables/useCustomThemes'
   import { useLevelFilterContext } from '@/composables/useLevelFilter'
@@ -129,7 +132,9 @@
       <!-- Other settings (hidden when editing theme) -->
       <template v-if="!themes.editing.value">
         <!-- Skill Level -->
-        <AppSettingsSkillLevel />
+        <Discovery.Activator class="rounded-lg" :padding="8" step="skill-level">
+          <AppSettingsSkillLevel />
+        </Discovery.Activator>
 
         <!-- Code Examples -->
         <AppSettingsToggleSection

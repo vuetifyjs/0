@@ -38,17 +38,6 @@
     return `https://0.vuetifyjs.com/og${path}.png`
   })
 
-  // Build breadcrumb list from route path
-  const breadcrumbs = computed(() => {
-    const segments = route.path.split('/').filter(Boolean)
-    return segments.map((segment, index) => ({
-      '@type': 'ListItem' as const,
-      'position': index + 1,
-      'name': segment.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
-      'item': `https://0.vuetifyjs.com/${segments.slice(0, index + 1).join('/')}`,
-    }))
-  })
-
   // JSON-LD structured data
   const jsonLd = computed(() => {
     const schemas: Record<string, unknown>[] = []
@@ -63,14 +52,6 @@
         'author': { '@type': 'Organization', 'name': 'Vuetify' },
         'publisher': { '@type': 'Organization', 'name': 'Vuetify' },
         'image': ogImage.value,
-      })
-    }
-
-    if (breadcrumbs.value.length > 1) {
-      schemas.push({
-        '@context': 'https://schema.org',
-        '@type': 'BreadcrumbList',
-        'itemListElement': breadcrumbs.value,
       })
     }
 

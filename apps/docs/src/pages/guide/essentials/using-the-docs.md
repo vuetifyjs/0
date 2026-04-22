@@ -408,7 +408,7 @@ theme.toggle() // switch themes
 
 ### Vue Documentation Links
 
-Vue built-in functions like `ref`, `computed`, `onMounted`, and `watch` are clickable in both code blocks and inline code. Click to open the official Vue documentation in a new tab.
+Vue built-in functions like `ref`, `computed`, `onMounted`, and `watch` are recognized in both code blocks and inline code. Hover to see a summary, then click **"View Vue docs ↗"** in the popover footer to open the official Vue documentation in a new tab.
 
 ```ts
 import { ref, computed, onMounted } from 'vue'
@@ -421,12 +421,14 @@ onMounted(() => {
 })
 ```
 
-| Style | Type | Action |
-|-------|------|--------|
-| <span class="underline decoration-dotted">dotted underline</span> | v0 API | Hover for popover |
-| <span class="underline decoration-dashed">dashed underline</span> | Vue built-in | Click to open docs |
+| Type | Popover badge | Footer action |
+|------|---------------|---------------|
+| v0 API | Component / Composable | **View API →** (internal page) |
+| Vue built-in | Function / Reactivity / Lifecycle | **View Vue docs ↗** (external) |
 
-> [!TIP] Vue links also work in inline code. Try clicking `ref` or `computed` in this sentence.
+Both share the same dotted underline — the popover's colored badge and footer link tell you which kind you're looking at.
+
+> [!TIP] Vue links also work in inline code. Try hovering `ref` or `computed` in this sentence.
 
 ## Callouts
 
@@ -439,6 +441,8 @@ The documentation uses callout boxes to highlight important information:
 > [!WARNING] Cautions and common mistakes to avoid.
 
 > [!ASKAI] What's the difference between createSelection and createGroup?
+
+> [!TOUR] using-the-docs
 
 ## Keyboard Shortcuts
 

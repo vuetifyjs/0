@@ -19,7 +19,7 @@ const selfClosingTags = [
  * These elements cannot have children and don't need closing tags
  */
 
-export const SELF_CLOSING_TAGS = new Set(selfClosingTags)
+export const SELF_CLOSING_TAGS = /* @__PURE__ */ new Set(selfClosingTags)
 
 /**
  * Common HTML element types for polymorphic components

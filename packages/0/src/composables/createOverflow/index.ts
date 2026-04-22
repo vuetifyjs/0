@@ -202,7 +202,7 @@ export function createOverflow<
 
     // Uniform mode: calculate how many items of fixed width fit
     // If itemWidth option was provided but value is 0, not measured yet - show all
-    if (itemWidth !== undefined && uniformWidth <= 0) return Infinity
+    if (!isUndefined(itemWidth) && uniformWidth <= 0) return Infinity
     if (uniformWidth > 0) {
       // First item: uniformWidth, subsequent: uniformWidth + gap
       // available >= w + (n-1)(w+g) => n <= (available - w) / (w+g) + 1

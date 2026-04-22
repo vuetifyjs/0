@@ -26,6 +26,7 @@ export default defineConfig({
       'warning': 'var(--v0-warning)',
       'background': 'var(--v0-background)',
       'surface': 'var(--v0-surface)',
+      'surface-variant': 'var(--v0-surface-variant)',
       'surface-tint': 'var(--v0-surface-tint)',
       'divider': 'var(--v0-divider)',
       'on-primary': 'var(--v0-on-primary)',
