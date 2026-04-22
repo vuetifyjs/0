@@ -108,7 +108,7 @@ console.log(version)  // e.g. '0.4.2'
 
 ## HTML Elements
 
-`SELF_CLOSING_TAGS` and `COMMON_ELEMENTS` are exported for component and renderer authoring.
+`SELF_CLOSING_TAGS` is exported for component and renderer authoring.
 
 ### SELF_CLOSING_TAGS
 
@@ -122,20 +122,6 @@ SELF_CLOSING_TAGS.has('div')    // false
 
 isSelfClosingTag('br')   // true
 isSelfClosingTag('span') // false
-```
-
-### COMMON_ELEMENTS
-
-An object of uppercase constants mapping to lowercase HTML tag strings. Useful for polymorphic components:
-
-```ts
-import { COMMON_ELEMENTS } from '@vuetify/v0/constants'
-
-// COMMON_ELEMENTS.DIV === 'div'
-// COMMON_ELEMENTS.BUTTON === 'button'
-// COMMON_ELEMENTS.A === 'a'
-
-const { tag = COMMON_ELEMENTS.DIV } = defineProps<{ tag?: string }>()
 ```
 
 ## Reference
