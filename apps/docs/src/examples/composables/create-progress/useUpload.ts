@@ -1,5 +1,5 @@
 import { createProgress } from '@vuetify/v0'
-import { onUnmounted, shallowRef, toRef } from 'vue'
+import { onUnmounted, reactive, shallowRef, toRef } from 'vue'
 
 import type { ModelTicket, ModelTicketInput } from '@vuetify/v0'
 import type { ShallowRef } from 'vue'
@@ -22,21 +22,19 @@ export function useUpload () {
   function upload (name: string) {
     const ticket = progress.register()
 
-    const file: UploadFile = {
+    const file = reactive<UploadFile>({
       name,
       ticket,
       status: 'uploading',
-    }
+    })
 
-    const updated = [...files.value, file]
-    files.value = updated
+    files.value = [...files.value, file]
 
     const timer = setInterval(() => {
       const current = ticket.value.value
       if (current >= 100) {
         clearInterval(timer)
         file.status = 'complete'
-        files.value = [...files.value]
         return
       }
       ticket.value.value = Math.min(current + Math.random() * 15, 100)
