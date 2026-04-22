@@ -10,7 +10,7 @@
 </script>
 
 <template>
-  <Carousel.Root :per-view="1" padding="48">
+  <Carousel.Root padding="48" :per-view="1">
     <Carousel.Viewport class="rounded-lg gap-4 cursor-grab data-[dragging]:cursor-grabbing">
       <Carousel.Item
         v-for="slide in slides"

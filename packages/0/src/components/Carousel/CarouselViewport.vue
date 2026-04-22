@@ -234,10 +234,12 @@
       [isVertical ? 'overflow-x' : 'overflow-y']: 'hidden',
       'scroll-snap-type': snapDisabled.value ? 'none' : `${isVertical ? 'y' : 'x'} mandatory`,
       'scrollbar-width': 'none',
-      ...(padding ? {
-        [isVertical ? 'padding-block' : 'padding-inline']: padding,
-        [isVertical ? 'scroll-padding-block' : 'scroll-padding-inline']: padding,
-      } : {}),
+      ...(padding
+        ? {
+          [isVertical ? 'padding-block' : 'padding-inline']: padding,
+          [isVertical ? 'scroll-padding-block' : 'scroll-padding-inline']: padding,
+        }
+        : {}),
       ...(snapDisabled.value ? { 'user-select': 'none' } : {}),
     } as Record<string, string | number>
   })
