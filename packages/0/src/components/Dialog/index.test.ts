@@ -241,7 +241,7 @@ describe('dialog', () => {
         expect(trigger.attributes('aria-expanded')).toBe('true')
       })
 
-      it('should set data-dialog-open when open', async () => {
+      it('should set data-open when open', async () => {
         const wrapper = mountWithStack(Dialog.Root, {
           props: { modelValue: true },
           slots: {
@@ -251,7 +251,7 @@ describe('dialog', () => {
 
         await nextTick()
         const trigger = wrapper.findComponent(Dialog.Activator as any)
-        expect(trigger.attributes('data-dialog-open')).toBe('')
+        expect(trigger.attributes('data-open')).toBe('true')
       })
     })
 

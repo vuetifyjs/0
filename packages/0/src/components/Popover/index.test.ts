@@ -238,7 +238,7 @@ describe('popover', () => {
         await nextTick()
 
         expect(anchorProps.isOpen).toBe(false)
-        expect(anchorProps.attrs['data-popover-open']).toBeUndefined()
+        expect(anchorProps.attrs['data-open']).toBeUndefined()
       })
 
       it('should reflect open state', async () => {
@@ -260,7 +260,7 @@ describe('popover', () => {
         await nextTick()
 
         expect(anchorProps.isOpen).toBe(true)
-        expect(anchorProps.attrs['data-popover-open']).toBe('')
+        expect(anchorProps.attrs['data-open']).toBe(true)
       })
     })
   })
@@ -547,8 +547,8 @@ describe('popover', () => {
 
       const html = await renderToString(app)
 
-      // Boolean attributes may be rendered as just "data-popover-open" or "data-popover-open=''"
-      expect(html).toMatch(/data-popover-open/)
+      // Boolean attributes may be rendered as just "data-open" or "data-open=''"
+      expect(html).toMatch(/data-open/)
     })
 
     it('should hydrate without mismatches', async () => {

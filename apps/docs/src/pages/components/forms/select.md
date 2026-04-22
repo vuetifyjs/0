@@ -225,7 +225,7 @@ Style interactive states without slot props:
 | `data-selected` | `true` | Item |
 | `data-highlighted` | `""` | Item |
 | `data-disabled` | `true` | Item |
-| `data-select-open` | `""` | Activator |
+| `data-open` | `true` | Activator |
 | `data-state` | `"open"` / `"closed"` | Cue |
 
 ## Accessibility

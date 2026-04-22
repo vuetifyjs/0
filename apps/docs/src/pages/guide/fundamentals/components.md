@@ -117,7 +117,7 @@ Components emit data attributes for CSS styling:
 [data-selected] { background: var(--primary); }
 [data-disabled] { opacity: 0.5; }
 [data-mixed] { /* tri-state checkbox */ }
-[data-popover-open] { /* popover is visible */ }
+[data-open] { /* popover is visible */ }
 ```
 
 > [!ASKAI] How do I add styling or CSS classes to headless components?

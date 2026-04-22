@@ -37,7 +37,7 @@
       'aria-expanded': boolean
       'aria-haspopup': 'listbox'
       'aria-controls': string
-      'data-select-open': '' | undefined
+      'data-open': true | undefined
     }
   }
 </script>
@@ -118,7 +118,7 @@
       'aria-expanded': context.isOpen.value,
       'aria-haspopup': 'listbox',
       'aria-controls': context.listboxId,
-      'data-select-open': context.isOpen.value ? '' : undefined,
+      'data-open': context.isOpen.value || undefined,
     },
   }))
 </script>

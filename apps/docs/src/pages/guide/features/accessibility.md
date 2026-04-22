@@ -50,7 +50,7 @@ Every v0 component exposes an `attrs` object containing all accessibility attrib
 | Group.Item | `role="checkbox"`, `aria-checked`, `aria-disabled`, `data-selected`, `data-disabled`, `data-mixed` |
 | ExpansionPanel.Activator | `id`, `role`, `tabindex`, `aria-expanded`, `aria-controls`, `aria-disabled` |
 | Pagination.Root | `aria-label`, `role="navigation"` (when not using `<nav>`) |
-| Popover.Activator | `popovertarget`, `data-popover-open` (uses native popover API) |
+| Popover.Activator | `popovertarget`, `data-open` (uses native popover API) |
 
 > [!TIP]
 > Always spread the `attrs` object from slot props onto your interactive elements. Missing ARIA attributes break screen reader support.

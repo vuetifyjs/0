@@ -373,14 +373,14 @@ describe('select', () => {
       expect(activator.attributes('type')).toBe('button')
     })
 
-    it('should set data-select-open when open', async () => {
+    it('should set data-open when open', async () => {
       const { wrapper } = await createSelect({ id: 'a11y-test' })
 
       wrapper.findComponent(Select.Activator as any).trigger('click')
       await nextTick()
 
       const activator = wrapper.findComponent(Select.Activator as any)
-      expect(activator.attributes('data-select-open')).toBe('')
+      expect(activator.attributes('data-open')).toBe('true')
     })
 
     it('should have role=option on items', async () => {

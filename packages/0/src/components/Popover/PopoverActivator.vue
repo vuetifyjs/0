@@ -24,7 +24,7 @@
     attrs: {
       'popovertarget': string
       'type': 'button' | undefined
-      'data-popover-open': '' | undefined
+      'data-open': true | undefined
     }
   }
 </script>
@@ -62,7 +62,7 @@
     attrs: {
       'popovertarget': toValue(popovertarget),
       'type': as === 'button' ? 'button' : undefined,
-      'data-popover-open': context.isOpen.value ? '' : undefined,
+      'data-open': context.isOpen.value || undefined,
     },
   }))
 </script>

@@ -26,7 +26,7 @@
       'type': 'button' | undefined
       'aria-haspopup': 'dialog'
       'aria-expanded': boolean
-      'data-alert-dialog-open': '' | undefined
+      'data-open': true | undefined
     }
   }
 </script>
@@ -62,7 +62,7 @@
       'type': as === 'button' ? 'button' : undefined,
       'aria-haspopup': 'dialog',
       'aria-expanded': context.isOpen.value,
-      'data-alert-dialog-open': context.isOpen.value ? '' : undefined,
+      'data-open': context.isOpen.value || undefined,
     },
   }))
 </script>
