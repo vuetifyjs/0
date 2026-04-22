@@ -293,18 +293,6 @@
 
   // Whether the link is external (Vue docs) or internal (v0 API page)
   const isExternalLink = toRef(() => activeApiType.value === 'vue')
-
-  function navigateToApi () {
-    const link = apiLink.value
-    if (!link) return
-    hidePopover()
-
-    if (isExternalLink.value) {
-      window.open(link, '_blank', 'noopener,noreferrer')
-    } else {
-      router.push(link)
-    }
-  }
 </script>
 
 <template>
@@ -394,9 +382,14 @@
           View Vue docs ↗
         </a>
 
-        <button v-else class="popover-footer" type="button" @click.stop="navigateToApi">
+        <router-link
+          v-else-if="apiLink"
+          class="popover-footer"
+          :to="apiLink"
+          @click.stop="hidePopover"
+        >
           View API →
-        </button>
+        </router-link>
       </div>
     </Transition>
   </Teleport>
