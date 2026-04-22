@@ -13,13 +13,19 @@
  * - Token-based permission storage
  * - Adapter pattern for custom permission systems
  *
- * Built on useTokens for flexible permission configuration.
+ * Built on createTokens for flexible permission configuration.
+ *
+ * @example
+ * ```ts
+ * import { usePermissions } from '@vuetify/v0'
+ *
+ * const permissions = usePermissions()
+ * console.log(permissions.can('admin', 'edit', 'users'))
+ * ```
  */
 
-// Foundational
-import { createPluginContext } from '#v0/composables/createPlugin'
-
 // Composables
+import { createPluginContext } from '#v0/composables/createPlugin'
 import { createTokens } from '#v0/composables/createTokens'
 
 // Adapters
@@ -38,15 +44,15 @@ export { PermissionAdapter } from '#v0/composables/usePermissions/adapters'
 
 export type { PermissionAdapterInterface } from '#v0/composables/usePermissions/adapters'
 
-export interface PermissionTicket extends TokenTicket<boolean | ((context: Record<string, any>) => boolean)> {}
+export interface PermissionTicket extends TokenTicket<boolean | ((context: Record<string, unknown>) => boolean)> {}
 
 export interface PermissionContext<Z extends PermissionTicket = PermissionTicket> extends TokenContext<Z> {
-  can: (id: ID, action: string, subject: string, context?: Record<string, any>) => boolean
+  can: (id: ID, action: string, subject: string, context?: Record<string, unknown>) => boolean
 }
 
 export interface PermissionOptions extends TokenOptions {
   adapter?: PermissionAdapter
-  permissions?: Record<ID, any>
+  permissions?: Record<ID, [string | string[], string | string[], (boolean | ((context: Record<string, unknown>) => boolean))?][]>
 }
 
 export interface PermissionContextOptions extends PermissionOptions {
@@ -78,13 +84,10 @@ export interface PermissionPluginOptions extends PermissionContextOptions {}
  * })
  * ```
  */
-export function createPermissions<
-  Z extends PermissionTicket = PermissionTicket,
-  E extends PermissionContext<Z> = PermissionContext<Z>,
-> (_options: PermissionOptions = {}): E {
+export function createPermissions (_options: PermissionOptions = {}): PermissionContext {
   const { adapter = new Vuetify0PermissionAdapter(), permissions = {}, ...options } = _options
 
-  const record: Record<string, Record<string, Record<string, any>>> = {}
+  const record: Record<string, Record<string, Record<string, boolean | ((context: Record<string, unknown>) => boolean)>>> = {}
   for (const role in permissions) {
     if (!record[role]) record[role] = {}
     for (const [actions, subjects, condition = true] of permissions[role]!) {
@@ -98,16 +101,16 @@ export function createPermissions<
     }
   }
 
-  const tokens = createTokens<Z, E>(record, options)
+  const tokens = createTokens(record, options)
 
-  function can (id: ID, action: string, subject: string, context: Record<string, any> = {}) {
-    return adapter.can(id, action, subject, context, tokens)
+  function can (id: ID, action: string, subject: string, context: Record<string, unknown> = {}) {
+    return adapter.can(id, action, subject, context, tokens as PermissionContext)
   }
 
   return {
     ...tokens,
     can,
-  } as E
+  } as PermissionContext
 }
 
 /**
@@ -133,14 +136,11 @@ export function createPermissions<
  * })
  * ```
  */
-function createPermissionsFallback<
-  Z extends PermissionTicket = PermissionTicket,
-  E extends PermissionContext<Z> = PermissionContext<Z>,
-> (): E {
+function createPermissionsFallback (): PermissionContext {
   return {
     size: 0,
     can: () => false,
-  } as unknown as E
+  } as unknown as PermissionContext
 }
 
 export const [createPermissionsContext, createPermissionsPlugin, usePermissions] =

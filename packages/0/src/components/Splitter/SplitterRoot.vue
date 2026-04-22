@@ -1,6 +1,8 @@
 /**
  * @module SplitterRoot
  *
+ * @see https://0.vuetifyjs.com/components/semantic/splitter
+ *
  * @remarks
  * Root component for splitter layouts. Provides context to child
  * SplitterPanel and SplitterHandle components. Manages panel sizes
@@ -16,16 +18,14 @@
   // Components
   import { Atom } from '#v0/components/Atom'
 
-  // Foundational
-  import { createContext } from '#v0/composables/createContext'
-
   // Composables
+  import { createContext } from '#v0/composables/createContext'
   import { createRegistry } from '#v0/composables/createRegistry'
   import { createSelection } from '#v0/composables/createSelection'
 
   // Utilities
   import { clamp, isNull, isNullOrUndefined, isUndefined } from '#v0/utilities'
-  import { shallowRef, toRef, toValue, useAttrs, useTemplateRef, watch } from 'vue'
+  import { mergeProps, shallowRef, toRef, toValue, useAttrs, useTemplateRef, watch } from 'vue'
 
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
@@ -65,6 +65,7 @@
 
   export interface SplitterRootExpose {
     distribute: (sizes: number[]) => void
+    dragging: Readonly<Ref<boolean>>
   }
 
   export interface SplitterRootProps extends AtomProps {
@@ -79,6 +80,7 @@
     isDragging: boolean
     distribute: (sizes: number[]) => void
     attrs: {
+      'style'?: Record<string, string>
       'data-orientation': SplitterOrientation
       'data-dragging': true | undefined
     }
@@ -113,6 +115,8 @@
   const rootEl = toRef(() => (rootAtom.value?.element as HTMLElement | null | undefined) ?? null)
   const draggingHandle = shallowRef<number | null>(null)
   const dragging = toRef(() => !isNull(draggingHandle.value))
+  const expandAccum = new Map<string | number, number>()
+  const EXPAND_THRESHOLD = 10
 
   const panels = createSelection<SplitterPanelInput>({
     multiple: true,
@@ -145,9 +149,12 @@
   }
 
   function effectiveMin (ticket: SplitterPanelTicket) {
-    return ticket.collapsible && !toValue(ticket.isSelected)
-      ? ticket.collapsedSize
-      : ticket.minSize
+    if (!ticket.collapsible) return ticket.minSize
+    if (!toValue(ticket.isSelected)) return ticket.collapsedSize
+    // During drag, a freshly-expanded panel may still be below minSize.
+    // Allow it to track the cursor smoothly instead of snapping.
+    if (dragging.value && ticket.size < ticket.minSize) return ticket.collapsedSize
+    return ticket.minSize
   }
 
   function resize (index: number, delta: number, options?: { emit?: boolean }) {
@@ -161,16 +168,46 @@
     const lower = Math.max(min1, total - after.maxSize)
     const upper = Math.min(before.maxSize, total - min2)
 
-    const size = clamp(before.size + delta, lower, upper)
+    let size = clamp(before.size + delta, lower, upper)
+
+    // Collapse snap: dragging a collapsible panel below minSize snaps to collapsedSize
+    const beforeCollapsed = !toValue(before.isSelected)
+    if (before.collapsible && !beforeCollapsed && size <= before.minSize && delta < 0) {
+      size = before.collapsedSize
+      before.unselect()
+      expandAccum.set(before.id, 0)
+    } else if (before.collapsible && beforeCollapsed && delta > 0) {
+      const accum = (expandAccum.get(before.id) ?? 0) + delta
+      expandAccum.set(before.id, accum)
+      if (accum >= EXPAND_THRESHOLD) {
+        size = clamp(accum, before.collapsedSize, before.maxSize)
+        before.select()
+        expandAccum.delete(before.id)
+      } else {
+        size = before.collapsedSize
+      }
+    }
+
+    const afterSize = total - size
+    const afterCollapsed = !toValue(after.isSelected)
+    if (after.collapsible && !afterCollapsed && afterSize <= after.minSize && delta > 0) {
+      size = total - after.collapsedSize
+      after.unselect()
+      expandAccum.set(after.id, 0)
+    } else if (after.collapsible && afterCollapsed && delta < 0) {
+      const accum = (expandAccum.get(after.id) ?? 0) + Math.abs(delta)
+      expandAccum.set(after.id, accum)
+      if (accum >= EXPAND_THRESHOLD) {
+        size = total - clamp(accum, after.collapsedSize, after.maxSize)
+        after.select()
+        expandAccum.delete(after.id)
+      } else {
+        size = total - after.collapsedSize
+      }
+    }
+
     before.size = size
     after.size = total - size
-
-    for (const p of [before, after]) {
-      if (!p.collapsible) continue
-      const collapsed = !toValue(p.isSelected)
-      if (!collapsed && p.size <= p.collapsedSize) p.unselect()
-      else if (collapsed && p.size > p.collapsedSize) p.select()
-    }
 
     if (options?.emit) emitLayout()
   }
@@ -277,6 +314,7 @@
 
   function onEndDrag () {
     draggingHandle.value = null
+    expandAccum.clear()
     emitLayout()
   }
 
@@ -301,7 +339,7 @@
     distribute,
   })
 
-  defineExpose<SplitterRootExpose>({ distribute })
+  defineExpose<SplitterRootExpose>({ distribute, dragging })
 
   const slotProps = toRef((): SplitterRootSlotProps => ({
     orientation,
@@ -319,13 +357,13 @@
 <template>
   <Atom
     ref="root"
-    v-bind="{ ...attrs, ...slotProps.attrs }"
+    v-bind="mergeProps(attrs, slotProps.attrs)"
     :as
     :renderless
-    :style="{
+    :style="[attrs.style, slotProps.attrs.style, {
       display: 'flex',
       flexDirection: orientation === 'horizontal' ? 'row' : 'column',
-    }"
+    }]"
   >
     <slot v-bind="slotProps" />
   </Atom>

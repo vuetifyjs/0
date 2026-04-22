@@ -8,7 +8,7 @@
  * @example
  * ```ts
  * import { createThemePlugin, useTheme } from '@vuetify/v0/theme'
- * import { Vuetify0ThemeAdapter } from '@vuetify/v0/theme/adapters'
+ * import { V0StyleSheetThemeAdapter } from '@vuetify/v0/theme/adapters'
  * ```
  */
 

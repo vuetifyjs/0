@@ -23,6 +23,7 @@ export default defineConfig({
   test: {
     projects: ['packages/*'],
     environment: 'happy-dom',
+    pool: 'vmThreads',
     globals: true,
     include: ['**/*.{test,spec}.?(c|m)[jt]s?(x)'],
     testTimeout: 20_000,

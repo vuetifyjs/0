@@ -1,8 +1,8 @@
 <script setup lang="ts">
-  import { createPermissionsContext, usePermissions } from '@vuetify/v0'
+  import { createPermissionsContext } from '@vuetify/v0'
   import { shallowRef, toRef } from 'vue'
 
-  const [, providePermissions] = createPermissionsContext({
+  const [, providePermissions, permissions] = createPermissionsContext({
     permissions: {
       admin: [
         [['read', 'write', 'delete'], ['user', 'post'], true],
@@ -19,8 +19,6 @@
   })
 
   providePermissions()
-
-  const permissions = usePermissions()
 
   const role = shallowRef('editor')
   const roles = ['admin', 'editor', 'viewer']

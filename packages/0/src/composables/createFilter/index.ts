@@ -1,5 +1,7 @@
 /**
- * @module useFilter
+ * @module createFilter
+ *
+ * @see https://0.vuetifyjs.com/composables/data/create-filter
  *
  * @remarks
  * Reactive array filtering composable with multiple filter modes.
@@ -13,10 +15,19 @@
  * - Perfect for search, multi-criteria filtering
  *
  * Filters arrays based on query strings with configurable matching strategies.
+ *
+ * @example
+ * ```ts
+ * import { createFilter } from '@vuetify/v0'
+ *
+ * const filter = createFilter({ mode: 'some' })
+ * const { items } = filter.apply('an', ['apple', 'banana', 'cherry'])
+ * console.log(items.value) // ['banana']
+ * ```
  */
 
-// Foundational
-import { createContext, useContext } from '#v0/composables/createContext'
+// Composables
+import { useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
 
 // Utilities
@@ -28,11 +39,11 @@ import { toArray } from '#v0/composables/toArray'
 
 // Types
 import type { ContextTrinity } from '#v0/composables/createTrinity'
-import type { App, ComputedRef, MaybeRefOrGetter, ShallowRef } from 'vue'
+import type { ComputedRef, MaybeRefOrGetter, ShallowRef } from 'vue'
 
 export type Primitive = string | number | boolean
 export type FilterQuery = MaybeRefOrGetter<Primitive | Primitive[]>
-export type FilterItem = Primitive | Record<string, any>
+export type FilterItem = Primitive | Record<string, unknown>
 export type FilterMode = 'some' | 'every' | 'union' | 'intersection'
 export type FilterFunction = (query: Primitive | Primitive[], item: FilterItem) => boolean
 
@@ -86,11 +97,11 @@ function defaultFilter (
   const stringValues = values.map(v => String(v).toLowerCase())
 
   if (mode === 'some') {
-    return stringValues.some(val => val.includes(queries[0]!))
+    return queries.some(q => stringValues.some(val => val.includes(q)))
   }
 
   if (mode === 'every') {
-    return stringValues.every(val => val.includes(queries[0]!))
+    return queries.every(q => stringValues.every(val => val.includes(q)))
   }
 
   // For union/intersection, join values into single string for faster matching
@@ -115,7 +126,7 @@ function defaultFilter (
  * @template E The type of the filter context
  * @returns A filter context
  *
- * @see https://0.vuetifyjs.com/composables/utilities/use-filter
+ * @see https://0.vuetifyjs.com/composables/data/create-filter
  *
  * @example
  * ```ts
@@ -174,7 +185,7 @@ export function createFilter<
  * @template E The type of the filter context
  * @returns A trinity tuple: [useContext, provideContext, defaultContext]
  *
- * @see https://0.vuetifyjs.com/composables/utilities/use-filter
+ * @see https://0.vuetifyjs.com/composables/data/create-filter
  *
  * @example
  * ```ts
@@ -199,14 +210,9 @@ export function createFilterContext<
   E extends FilterContext<Z> = FilterContext<Z>,
 > (_options: FilterContextOptions = {}): ContextTrinity<E> {
   const { namespace = 'v0:filter', ...options } = _options
-  const [useFilterContext, _provideFilterContext] = createContext<E>(namespace)
   const context = createFilter<Z, E>(options)
 
-  function provideFilterContext (_context: E = context, app?: App): E {
-    return _provideFilterContext(_context, app)
-  }
-
-  return createTrinity<E>(useFilterContext, provideFilterContext, context)
+  return createTrinity<E>(namespace, context)
 }
 
 /**
@@ -217,7 +223,7 @@ export function createFilterContext<
  * @template E The type of the filter context.
  * @returns The current filter context.
  *
- * @see https://0.vuetifyjs.com/composables/utilities/use-filter
+ * @see https://0.vuetifyjs.com/composables/data/create-filter
  *
  * @example
  * ```vue

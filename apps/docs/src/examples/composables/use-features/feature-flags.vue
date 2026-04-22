@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { createFeaturesContext, useFeatures } from '@vuetify/v0'
+  import { createFeaturesContext, useFeatures, useProxyRegistry } from '@vuetify/v0'
   import { toRef } from 'vue'
 
   const [, provideFeatures] = createFeaturesContext({
@@ -16,8 +16,9 @@
   provideFeatures()
 
   const features = useFeatures()
+  const proxy = useProxyRegistry(features)
 
-  const tickets = toRef(() => [...features.values()])
+  const tickets = toRef(() => proxy.values)
   const enabled = toRef(() => features.selectedIds.size)
 </script>
 
@@ -25,7 +26,7 @@
   <div class="space-y-4">
     <div class="flex items-center justify-between">
       <p class="text-xs text-on-surface-variant">
-        {{ enabled }} / {{ features.size }} features enabled
+        {{ enabled }} / {{ proxy.size }} features enabled
       </p>
       <div class="flex gap-1.5">
         <button

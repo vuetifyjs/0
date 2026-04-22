@@ -14,13 +14,21 @@
  * - Perfect for hydration-safe rendering
  *
  * Essential for composables that need to behave differently during SSR vs client-side.
+ *
+ * @example
+ * ```ts
+ * import { useHydration } from '@vuetify/v0'
+ *
+ * const { isHydrated } = useHydration()
+ * if (isHydrated.value) {
+ *   // safe for client-only logic
+ * }
+ * ```
  */
 
-// Foundational
 import { createPluginContext } from '#v0/composables/createPlugin'
 
 // Utilities
-import { isNull } from '#v0/utilities'
 import { nextTick, shallowReadonly, shallowRef } from 'vue'
 
 // Types
@@ -119,17 +127,18 @@ export const [createHydrationContext, createHydrationPlugin, useHydration] =
     () => createHydration(),
     {
       fallback: () => createFallbackHydration(),
-      setup: (context, app, _options) => {
-        app.mixin({
-          async mounted () {
-            if (!isNull(this.$parent)) return
-
+      setup: (context, app) => {
+        const { mount } = app
+        app.mount = (...args) => {
+          const vm = mount(...args)
+          nextTick().then(() => {
             context.hydrate()
             // Wait for next tick to allow state restoration in other onMounted hooks
-            await nextTick()
-            context.settle()
-          },
-        })
+            nextTick().then(() => context.settle())
+          })
+          app.mount = mount
+          return vm
+        }
       },
     },
   )

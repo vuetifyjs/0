@@ -23,19 +23,19 @@ describe('createContext', () => {
 
   describe('static key mode', () => {
     it('should return inject and provide functions', () => {
-      const [injectContext, provideContext] = createContext('test')
+      const [injectContext, provideContext] = createContext('v0:test')
 
       expect(typeof injectContext).toBe('function')
       expect(typeof provideContext).toBe('function')
     })
 
     it('should provide context value with string key', () => {
-      const [, provideContext] = createContext('test-key')
+      const [, provideContext] = createContext('v0:test-key')
       const testValue = { data: 'test' }
 
       provideContext(testValue)
 
-      expect(mockProvide).toHaveBeenCalledWith('test-key', testValue)
+      expect(mockProvide).toHaveBeenCalledWith('v0:test-key', testValue)
     })
 
     it('should provide context value with InjectionKey', () => {
@@ -52,20 +52,20 @@ describe('createContext', () => {
       const testValue = { data: 'test' }
       mockInject.mockReturnValue(testValue)
 
-      const [injectContext] = createContext('test-key')
+      const [injectContext] = createContext('v0:test-key')
       const result = injectContext()
 
-      expect(mockInject).toHaveBeenCalledWith('test-key', undefined)
+      expect(mockInject).toHaveBeenCalledWith('v0:test-key', undefined)
       expect(result).toBe(testValue)
     })
 
     it('should throw error when context is not found', () => {
       mockInject.mockReturnValue(undefined)
 
-      const [injectContext] = createContext('missing-key')
+      const [injectContext] = createContext('v0:missing-key')
 
       expect(() => injectContext()).toThrow(
-        'Context "missing-key" not found. Ensure it\'s provided by an ancestor.',
+        'Context "v0:missing-key" not found. Ensure it\'s provided by an ancestor.',
       )
     })
 
@@ -86,7 +86,7 @@ describe('createContext', () => {
         value: number
       }
 
-      const [injectContext, provideContext] = createContext<TestContext>('typed-test')
+      const [injectContext, provideContext] = createContext<TestContext>('v0:typed-test')
       const testValue: TestContext = { name: 'test', value: 42 }
 
       mockInject.mockReturnValue(testValue)
@@ -94,7 +94,7 @@ describe('createContext', () => {
       provideContext(testValue)
       const result = injectContext()
 
-      expect(mockProvide).toHaveBeenCalledWith('typed-test', testValue)
+      expect(mockProvide).toHaveBeenCalledWith('v0:typed-test', testValue)
       expect(result).toEqual(testValue)
     })
 
@@ -103,7 +103,7 @@ describe('createContext', () => {
 
       for (const value of falsyValues) {
         mockInject.mockReturnValue(value)
-        const [injectContext] = createContext(`falsy-${value}`)
+        const [injectContext] = createContext(`v0:falsy-${value}`)
 
         expect(injectContext()).toBe(value)
       }
@@ -114,23 +114,46 @@ describe('createContext', () => {
         provide: vi.fn().mockReturnValue(true),
       } as unknown as App
 
-      const [, provideContext] = createContext('app-level-test')
+      const [, provideContext] = createContext('v0:app-level-test')
       const testValue = { data: 'app-level' }
 
       mockProvide.mockClear()
       provideContext(testValue, mockApp)
 
-      expect(mockApp.provide).toHaveBeenCalledWith('app-level-test', testValue)
+      expect(mockApp.provide).toHaveBeenCalledWith('v0:app-level-test', testValue)
       expect(mockProvide).not.toHaveBeenCalled()
     })
 
     it('should provide context at component level when app is not provided', () => {
-      const [, provideContext] = createContext('component-level-test')
+      const [, provideContext] = createContext('v0:component-level-test')
       const testValue = { data: 'component-level' }
 
       provideContext(testValue)
 
-      expect(mockProvide).toHaveBeenCalledWith('component-level-test', testValue)
+      expect(mockProvide).toHaveBeenCalledWith('v0:component-level-test', testValue)
+    })
+
+    it('should warn on non-namespaced string key in dev mode', () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+      createContext('no-namespace')
+
+      expect(warnSpy).toHaveBeenCalledTimes(1)
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('no-namespace'),
+      )
+
+      warnSpy.mockRestore()
+    })
+
+    it('should not warn on namespaced string key', () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+      createContext('v0:theme')
+
+      expect(warnSpy).not.toHaveBeenCalled()
+
+      warnSpy.mockRestore()
     })
   })
 

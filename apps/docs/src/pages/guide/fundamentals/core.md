@@ -118,6 +118,9 @@ registry.get('item-1')      // Get by ID
 registry.browse('First')    // Get IDs by value
 registry.lookup(0)          // Get ID by index
 
+// Reorder
+registry.move('item-1', 2)  // Move to index 2
+
 // Cleanup
 registry.unregister('item-1')
 ```
@@ -139,7 +142,9 @@ interface RegistryTicket {
 
 ```mermaid "Extension Chain"
 flowchart LR
-    R[createRegistry] --> S[createSelection]
+    R[createRegistry] --> M[createModel]
+    M --> S[createSelection]
+    M --> Sl[createSlider]
     R --> T[createTokens]
     R --> F[createForm]
     S --> Si[createSingle]
@@ -150,10 +155,12 @@ flowchart LR
 | Composable | Extends | Adds |
 | - | - | - |
 | `createRegistry` | — | Base collection management |
-| `createSelection` | Registry | `selectedIds` Set |
+| `createModel` | Registry | `selectedIds` Set, `multiple`, `enroll` |
+| `createSelection` | Model | Mandatory enforcement, disabled guards |
 | `createSingle` | Selection | Single selection constraint |
 | `createGroup` | Selection | Tri-state, batch ops |
 | `createStep` | Single | Navigation (next/prev/first/last) |
+| `createSlider` | Model | Per-thumb value math, step snapping |
 | `createTokens` | Registry | Alias resolution |
 | `createForm` | Registry | Validation |
 

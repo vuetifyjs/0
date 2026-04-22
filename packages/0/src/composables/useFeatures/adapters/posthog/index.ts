@@ -5,8 +5,11 @@
  * PostHog adapter for feature flags.
  */
 
-// Utilities
+// Constants
 import { IN_BROWSER } from '#v0/constants/globals'
+
+// Utilities
+import { isBoolean, isNullOrUndefined } from '#v0/utilities'
 
 // Types
 import type { FeaturesAdapterFlags, FeaturesAdapterInterface } from '../generic'
@@ -18,31 +21,31 @@ export class PostHogFeatureAdapter implements FeaturesAdapterInterface {
   setup (onUpdate: (flags: FeaturesAdapterFlags) => void): FeaturesAdapterFlags {
     if (!IN_BROWSER) return {}
 
-    const updateFlags = () => {
+    const collect = (): FeaturesAdapterFlags => {
       const flags: FeaturesAdapterFlags = {}
       const activeFlags = this.client.featureFlags.getFlags()
+      if (!activeFlags) return flags
 
-      if (activeFlags) {
-        for (const key of activeFlags) {
-          const isEnabled = this.client.isFeatureEnabled(key) ?? false
-          const payload = this.client.getFeatureFlagPayload(key)
+      for (const key of activeFlags) {
+        const isEnabled = this.client.isFeatureEnabled(key) ?? false
+        const payload = this.client.getFeatureFlagPayload(key)
 
-          if (payload !== undefined && payload !== null) {
-            flags[key] = { $value: isEnabled, $variation: payload }
-          } else {
-            const variant = this.client.getFeatureFlag(key)
-            flags[key] = variant !== true && variant !== false && variant !== undefined && variant !== null ? { $value: true, $variation: variant } : isEnabled
-          }
+        if (isNullOrUndefined(payload)) {
+          const variant = this.client.getFeatureFlag(key)
+          flags[key] = !isBoolean(variant) && !isNullOrUndefined(variant) ? { $value: true, $variation: variant } : isEnabled
+        } else {
+          flags[key] = { $value: isEnabled, $variation: payload }
         }
-        onUpdate(flags)
-        return flags
       }
-      return {}
+      return flags
     }
 
-    this.disposeFn = this.client.onFeatureFlags(updateFlags)
+    // onFeatureFlags may fire the callback synchronously when flags are cached.
+    // Use a separate wrapper so only subsequent changes call onUpdate —
+    // the initial flags are returned to the caller for a single sync.
+    this.disposeFn = this.client.onFeatureFlags(() => onUpdate(collect()))
 
-    return updateFlags()
+    return collect()
   }
 
   dispose () {

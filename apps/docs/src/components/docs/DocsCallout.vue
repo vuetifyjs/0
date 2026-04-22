@@ -11,10 +11,15 @@
   import { useNavigation } from '@/composables/useNavigation'
   import { useSearch } from '@/composables/useSearch'
   import { useSettings } from '@/composables/useSettings'
+  import { useTips } from '@/composables/useTips'
 
   // Utilities
-  import { computed, toRef } from 'vue'
+  import { Comment, computed, onMounted, shallowRef, toRef, useSlots } from 'vue'
   import { useRouter } from 'vue-router'
+
+  // Types
+  import type { CompiledTip } from '@build/generate-tips'
+  import type { VNode } from 'vue'
 
   // Stores
   import { useSkillzStore } from '@/stores/skillz'
@@ -46,6 +51,8 @@
   const search = useSearch()
   const settings = useSettings()
   const skillz = useSkillzStore()
+  const tips = useTips()
+  const slots = useSlots()
 
   const tour = computed(() => {
     if (!props.tourId) return undefined
@@ -57,6 +64,34 @@
   })
 
   const config = toRef(() => getCalloutConfig(props.type))
+
+  const randomTip = shallowRef<CompiledTip>()
+  const mounted = shallowRef(false)
+
+  function hasContent (nodes: VNode[]): boolean {
+    return nodes.some(node => {
+      if (node.type === Comment) return false
+      const children = node.children
+      if (typeof children === 'string') return children.trim().length > 0
+      if (Array.isArray(children)) return hasContent(children as VNode[])
+      return !!children
+    })
+  }
+
+  const hasSlotContent = toRef(() => hasContent(slots.default?.() ?? []))
+
+  // True only when the tip slot is empty AND no tip could be picked (empty pool).
+  // Used to hide the entire callout shell in that fallback case.
+  const suppress = toRef(() =>
+    props.type === 'tip' && !hasSlotContent.value && mounted.value && !randomTip.value,
+  )
+
+  onMounted(() => {
+    if (props.type === 'tip' && !hasSlotContent.value) {
+      randomTip.value = tips.take()
+    }
+    mounted.value = true
+  })
 
   function decodeQuestion (encoded: string): string {
     return decodeURIComponent(escape(atob(encoded)))
@@ -84,6 +119,7 @@
 
 <template>
   <div
+    v-if="!suppress"
     class="my-4 rounded-lg border-s-4 px-4 py-3"
     :class="config.classes"
     :role="props.type === 'askai' || props.type === 'discord' || props.type === 'tour' ? 'button' : undefined"
@@ -129,6 +165,24 @@
       <div class="text-on-surface">
         {{ tour?.description ?? 'Click to start this interactive tour' }}
       </div>
+    </template>
+
+    <template v-else-if="props.type === 'tip' && randomTip">
+      <div class="flex items-center gap-2 font-semibold mb-1">
+        <AppIcon :icon="config.icon" :size="18" />
+
+        <span>{{ config.title }}</span>
+      </div>
+
+      <div class="docs-alert-content text-on-surface" v-html="randomTip.bodyHtml" />
+
+      <RouterLink
+        v-if="randomTip.link"
+        class="v0-link mt-2 inline-block"
+        :to="randomTip.link.to"
+      >
+        {{ randomTip.link.text }} →
+      </RouterLink>
     </template>
 
     <template v-else>

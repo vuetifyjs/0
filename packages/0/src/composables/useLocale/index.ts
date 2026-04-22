@@ -1,25 +1,34 @@
 /**
  * @module useLocale
  *
+ * @see https://0.vuetifyjs.com/composables/plugins/use-locale
+ *
  * @remarks
  * Internationalization (i18n) composable with adapter pattern for message translation.
  *
  * Key features:
  * - Locale selection with createSingle
- * - Token-based message storage with useTokens
+ * - Token-based message storage with createTokens
  * - Numbered and named placeholder support ({0}, {name})
  * - Number formatting with Intl.NumberFormat
- * - Adapter pattern for integration with i18n providers
+ * - Adapter pattern for integration with i18n providers (VueI18nLocaleAdapter included)
  *
- * Integrates with createSingle for locale selection and useTokens for message resolution.
+ * Integrates with createSingle for locale selection and createTokens for message resolution.
+ *
+ * @example
+ * ```ts
+ * import { useLocale } from '@vuetify/v0'
+ *
+ * const { t, n } = useLocale()
+ * console.log(t('$v0.greeting', { name: 'World' }))
+ * console.log(n(1234.56))
+ * ```
  */
 
-// Foundational
-import { createPluginContext } from '#v0/composables/createPlugin'
-
 // Composables
+import { createPluginContext } from '#v0/composables/createPlugin'
 import { createSingle } from '#v0/composables/createSingle'
-import { createTokens } from '#v0/composables/createTokens'
+import { createTokens, flatten } from '#v0/composables/createTokens'
 
 // Adapters
 import { Vuetify0LocaleAdapter } from '#v0/composables/useLocale/adapters/v0'
@@ -40,7 +49,9 @@ export type LocaleRecord = TokenCollection
 /**
  * Input type for locale tickets - what users provide to register().
  */
-export interface LocaleTicketInput extends SingleTicketInput {}
+export interface LocaleTicketInput extends SingleTicketInput {
+  messages?: LocaleRecord
+}
 
 /**
  * Output type for locale tickets - what users receive from get().
@@ -72,7 +83,23 @@ export interface LocaleContext<
    */
   t: (key: string, ...params: unknown[]) => string
   n: (value: number) => string
-  /** Register a locale (accepts input type, returns output type) */
+  /**
+   * Register a locale with optional messages.
+   *
+   * When `messages` is provided, flattens them to dot-notation tokens
+   * and onboards them into the token registry before registering the
+   * locale for selection.
+   *
+   * @example
+   * ```ts
+   * const locale = createLocale({ messages: { en }, default: 'en' })
+   *
+   * // Lazy-load Dutch at runtime
+   * const nl = await import('./locales/nl')
+   * locale.register({ id: 'nl', messages: nl.default })
+   * locale.select('nl')
+   * ```
+   */
   register: (registration?: Partial<Z>) => E
 }
 
@@ -86,29 +113,25 @@ export interface LocaleContextOptions extends LocaleOptions {
   namespace?: string
 }
 
-export interface LocalePluginOptions extends LocaleContextOptions {}
+export interface LocalePluginOptions extends LocaleContextOptions {
+  persist?: boolean
+}
 
 /**
  * Creates a new locale instance.
  *
  * @param options The options for the locale instance.
- * @template Z The type of the locale ticket.
- * @template E The type of the locale context.
  * @returns A new locale instance.
  *
  * @see https://0.vuetifyjs.com/composables/plugins/use-locale
  */
-export function createLocale<
-  Z extends LocaleTicketInput = LocaleTicketInput,
-  E extends LocaleTicket<Z> = LocaleTicket<Z>,
-  R extends LocaleContext<Z, E> = LocaleContext<Z, E>,
-> (_options: LocaleOptions = {}): R {
+export function createLocale (_options: LocaleOptions = {}): LocaleContext {
   const { adapter: externalAdapter, messages = {}, fallback: fallbackLocale, ...options } = _options
   const tokens = createTokens(messages)
-  const registry = createSingle<Z, E>(options)
+  const registry = createSingle(options)
 
   for (const id in messages) {
-    registry.register({ id } as unknown as Partial<Z>)
+    registry.register({ id })
 
     if (id === options.default && !registry.selectedId.value) {
       registry.select(id as ID)
@@ -130,31 +153,42 @@ export function createLocale<
     return adapter.n(value)
   }
 
+  function register (registration: Partial<LocaleTicketInput> = {}): LocaleTicket {
+    const { messages: msgs, ...rest } = registration as Partial<LocaleTicketInput> & { messages?: LocaleRecord }
+
+    if (msgs && rest.id && !registry.has(rest.id)) {
+      tokens.onboard(flatten({ [rest.id]: msgs }))
+    }
+
+    return registry.register(rest)
+  }
+
   return {
     ...registry,
     t,
     n,
+    register,
     get size () {
       return registry.size
     },
-  } as unknown as R
+  } as LocaleContext
 }
 
-export function createLocaleFallback<
-  Z extends LocaleTicketInput = LocaleTicketInput,
-  E extends LocaleTicket<Z> = LocaleTicket<Z>,
-  R extends LocaleContext<Z, E> = LocaleContext<Z, E>,
-> (): R {
+export function createLocaleFallback (): LocaleContext {
   return {
     size: 0,
     t: (key: string) => key,
     n: String,
-  } as unknown as R
+  } as unknown as LocaleContext
 }
 
 export const [createLocaleContext, createLocalePlugin, useLocale] =
-  createPluginContext<LocaleContextOptions, LocaleContext>(
+  createPluginContext<LocalePluginOptions, LocaleContext>(
     'v0:locale',
     options => createLocale(options),
-    { fallback: () => createLocaleFallback() },
+    {
+      fallback: () => createLocaleFallback(),
+      persist: ctx => ctx.selectedId.value,
+      restore: (ctx, saved) => ctx.select(saved as ID),
+    },
   )

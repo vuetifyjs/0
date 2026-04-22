@@ -1,5 +1,7 @@
 /**
- * @module usePagination
+ * @module createPagination
+ *
+ * @see https://0.vuetifyjs.com/composables/data/create-pagination
  *
  * @remarks
  * Lightweight pagination composable for navigating through pages.
@@ -13,27 +15,35 @@
  *
  * Unlike registry-based composables, pagination tracks a single number
  * within a range, making it efficient for large page counts.
+ *
+ * @example
+ * ```ts
+ * import { createPagination } from '@vuetify/v0'
+ *
+ * const pagination = createPagination({ size: 100, itemsPerPage: 10 })
+ * pagination.next()
+ * console.log(pagination.page.value) // 2
+ * ```
  */
 
-// Foundational
-import { createContext, useContext } from '#v0/composables/createContext'
+import { useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
 
 // Utilities
-import { isNaN, range } from '#v0/utilities'
-import { computed, isRef, shallowRef, toValue } from 'vue'
+import { clamp, isNaN, range } from '#v0/utilities'
+import { computed, isRef, shallowRef, toRef, toValue } from 'vue'
 
 // Types
 import type { ContextTrinity } from '#v0/composables/createTrinity'
-import type { App, ComputedRef, MaybeRefOrGetter, ShallowRef } from 'vue'
+import type { ComputedRef, MaybeRefOrGetter, Ref, ShallowRef, WritableComputedRef } from 'vue'
 
 export type PaginationTicket =
   | { type: 'page', value: number }
   | { type: 'ellipsis', value: string }
 
 export interface PaginationContext {
-  /** Current page (1-indexed) */
-  page: ShallowRef<number>
+  /** Current page (1-indexed, auto-clamped to total pages) */
+  page: WritableComputedRef<number>
   /** Items per page */
   itemsPerPage: number
   /** Total number of items */
@@ -45,13 +55,13 @@ export interface PaginationContext {
   /** Visible page numbers and ellipsis for rendering */
   items: ComputedRef<PaginationTicket[]>
   /** Start index of items on current page (0-indexed) */
-  pageStart: ComputedRef<number>
+  pageStart: Readonly<Ref<number>>
   /** End index of items on current page (exclusive, 0-indexed) */
-  pageStop: ComputedRef<number>
+  pageStop: Readonly<Ref<number>>
   /** Whether current page is the first page */
-  isFirst: ComputedRef<boolean>
+  isFirst: Readonly<Ref<boolean>>
   /** Whether current page is the last page */
-  isLast: ComputedRef<boolean>
+  isLast: Readonly<Ref<boolean>>
   /** Go to first page */
   first: () => void
   /** Go to last page */
@@ -112,7 +122,7 @@ export function createPagination (_options: PaginationOptions = {}): PaginationC
     ellipsis = '...',
   } = _options
 
-  const page: ShallowRef<number> = isRef(_page) ? _page : shallowRef(_page)
+  const _raw = isRef(_page) ? _page : shallowRef(_page)
 
   // Compute total pages from size (total items) and itemsPerPage
   const pages = computed(() => {
@@ -120,6 +130,17 @@ export function createPagination (_options: PaginationOptions = {}): PaginationC
     const perPage = toValue(_itemsPerPage)
     if (size <= 0 || isNaN(size)) return 0
     return Math.ceil(size / perPage)
+  })
+
+  // Writable computed auto-clamps page to valid range
+  const page = computed({
+    get: () => {
+      const p = pages.value
+      return p > 0 ? clamp(_raw.value, 1, p) : _raw.value
+    },
+    set: (v: number) => {
+      _raw.value = v
+    },
   })
 
   function first () {
@@ -148,10 +169,10 @@ export function createPagination (_options: PaginationOptions = {}): PaginationC
     }
   }
 
-  const isFirst = computed(() => page.value <= 1)
-  const isLast = computed(() => page.value >= pages.value)
-  const pageStart = computed(() => (page.value - 1) * toValue(_itemsPerPage))
-  const pageStop = computed(() => Math.min(pageStart.value + toValue(_itemsPerPage), toValue(_size)))
+  const isFirst = toRef(() => page.value <= 1)
+  const isLast = toRef(() => page.value >= pages.value)
+  const pageStart = toRef(() => (page.value - 1) * toValue(_itemsPerPage))
+  const pageStop = toRef(() => Math.min(pageStart.value + toValue(_itemsPerPage), toValue(_size)))
 
   function toPage (value: number): PaginationTicket {
     return { type: 'page', value }
@@ -266,14 +287,9 @@ export function createPagination (_options: PaginationOptions = {}): PaginationC
  */
 export function createPaginationContext (_options: PaginationContextOptions = {}): ContextTrinity<PaginationContext> {
   const { namespace = 'v0:pagination', ...options } = _options
-  const [usePaginationContext, _providePaginationContext] = createContext<PaginationContext>(namespace)
   const context = createPagination(options)
 
-  function providePaginationContext (_context: PaginationContext = context, app?: App): PaginationContext {
-    return _providePaginationContext(_context, app)
-  }
-
-  return createTrinity<PaginationContext>(usePaginationContext, providePaginationContext, context)
+  return createTrinity<PaginationContext>(namespace, context)
 }
 
 /**

@@ -11,7 +11,7 @@ features:
   github: /composables/useProxyRegistry/
   level: 3
 related:
-- /composables/registration/create-registry
+  - /composables/registration/create-registry
 ---
 
 # useProxyRegistry
@@ -65,8 +65,6 @@ flowchart LR
 > [!TIP] Deep vs shallow
 > Pass `{ deep: true }` for `reactive()`, or omit for `shallowReactive()` (default). Shallow is more performant when ticket internals don't need tracking.
 
-<DocsApi />
-
 ## Frequently Asked Questions
 
 ::: faq
@@ -88,7 +86,7 @@ registry.register({ value: 'item' })
 console.log(proxy.size) // 1 - correct
 ```
 
-Events add minimal overhead but aren't enabled by default since many use cases don't need reactivity. See [createRegistry](/composables/registration/create-registry) for the full events API.
+Events add minimal overhead but aren't enabled by default since many use cases don't need reactivity. See `createRegistry` for the full events API.
 
 ??? What's the performance cost compared to raw createRegistry?
 
@@ -146,6 +144,29 @@ Vue's reactivity is granular. Components only re-render when they access propert
 
 If you only read `size`, adding items triggers a re-render. If you iterate `keys`, any registration change triggers a re-render. Structure templates to minimize reactive dependencies.
 
+??? Why not just use reactive: true on the registry?
+
+`reactive: true` makes the internal collection a `shallowReactive(new Map())`, which looks like it should drive a `v-for` reactively — but there's a subtle footgun.
+
+`values()` caches its result internally and only invalidates when the collection mutates. Vue's render effect clears **all** reactive dependencies on every run, then re-establishes them as reactive sources are read. If a re-render is triggered by something other than a collection mutation (e.g., a selection change), `values()` returns from cache without reading the underlying Map — so Vue never re-establishes the dep. The next time you add an item, Vue doesn't know to re-render.
+
+```ts
+// Footgun: v-for may stop updating after a selection change
+const single = createSingle({ reactive: true })
+// After any selection-triggered re-render, addTab() won't update the list
+```
+
+`useProxyRegistry` avoids this entirely — it updates via events, not dep tracking:
+
+```ts
+// Safe: event-driven, no dep-tracking fragility
+const single = createSingle({ events: true })
+const proxy = useProxyRegistry(single)
+// proxy.values always reflects current state
+```
+
+If you need `reactive: true` for ticket-level prop tracking, you can bypass the cache by reading `single.collection.values()` directly in the template — but `useProxyRegistry` is the recommended approach.
+
 ??? Can I use useProxyRegistry with selection composables?
 
 Yes. Selection composables extend `createRegistry`, so they work with `useProxyRegistry` if events are enabled:
@@ -165,3 +186,16 @@ selection.selectedIds // Set of selected IDs
 
 The proxy only exposes registry properties. For reactive selection state, use the selection instance directly or create a custom reactive wrapper.
 :::
+
+## Examples
+
+::: example
+/composables/use-proxy-registry/notification-center
+
+### Notification Center
+
+A registry-based notification queue using `useProxyRegistry` to make the item list reactively drive the template without manual event subscriptions.
+
+:::
+
+<DocsApi />

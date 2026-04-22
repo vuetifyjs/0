@@ -19,6 +19,9 @@ vi.mock('#v0/composables/createContext', () => ({
   useContext: mockUseContext,
 }))
 
+// Utilities
+import { nextTick } from 'vue'
+
 import { createHydration, createHydrationPlugin, useHydration } from './index'
 
 describe('useHydration', () => {
@@ -126,19 +129,20 @@ describe('useHydration', () => {
       expect(typeof plugin.install).toBe('function')
     })
 
-    it('should call app.runWithContext and app.mixin when installed', () => {
+    it('should call app.runWithContext and wrap app.mount when installed', () => {
+      const originalMount = vi.fn()
       const plugin = createHydrationPlugin()
       const mockApp = {
         _context: {},
         runWithContext: vi.fn(callback => callback()),
-        mixin: vi.fn(),
+        mount: originalMount,
         provide: vi.fn(),
       }
 
       plugin.install(mockApp as unknown as App)
 
-      expect(mockApp.runWithContext).toHaveBeenCalledOnce()
-      expect(mockApp.mixin).toHaveBeenCalledOnce()
+      expect(mockApp.runWithContext).toHaveBeenCalledTimes(1)
+      expect(mockApp.mount).not.toBe(originalMount)
     })
 
     it('should provide hydration context when installed', () => {
@@ -146,52 +150,34 @@ describe('useHydration', () => {
       const mockApp = {
         _context: {},
         runWithContext: vi.fn(callback => callback()),
-        mixin: vi.fn(),
+        mount: vi.fn(),
         provide: vi.fn(),
       }
 
       plugin.install(mockApp as unknown as App)
 
-      expect(mockProvideHydrationContext).toHaveBeenCalledOnce()
+      expect(mockProvideHydrationContext).toHaveBeenCalledTimes(1)
     })
 
-    it('should add mixin that calls hydrate on root component mount', () => {
+    it('should wrap app.mount and restore original after first call', () => {
       const plugin = createHydrationPlugin()
-      const mockApp = {
+      const originalMount = vi.fn(() => ({}) as any)
+      const mockApp: Record<string, any> = {
         _context: {},
         runWithContext: vi.fn(callback => callback()),
-        mixin: vi.fn(),
+        mount: originalMount,
         provide: vi.fn(),
       }
 
       plugin.install(mockApp as unknown as App)
 
-      expect(mockApp.mixin).toHaveBeenCalledOnce()
+      const wrappedMount = mockApp.mount
+      expect(wrappedMount).not.toBe(originalMount)
 
-      const mixinOptions = mockApp.mixin.mock.calls[0]![0] as Record<string, unknown>
-      expect(mixinOptions).toHaveProperty('mounted')
-      expect(typeof mixinOptions.mounted).toBe('function')
-    })
+      wrappedMount('#app')
 
-    it('should only hydrate on root component (no parent)', () => {
-      const plugin = createHydrationPlugin()
-      const mockApp = {
-        _context: {},
-        runWithContext: vi.fn(callback => callback()),
-        mixin: vi.fn(),
-        provide: vi.fn(),
-      }
-
-      plugin.install(mockApp as unknown as App)
-
-      const mixinOptions = mockApp.mixin.mock.calls[0]![0] as Record<string, (...args: unknown[]) => void>
-      const mountedCallback = mixinOptions.mounted!
-
-      const rootComponent = { $parent: null }
-      const childComponent = { $parent: {} }
-
-      expect(() => mountedCallback.call(rootComponent)).not.toThrow()
-      expect(() => mountedCallback.call(childComponent)).not.toThrow()
+      expect(originalMount).toHaveBeenCalledWith('#app')
+      expect(mockApp.mount).toBe(originalMount)
     })
   })
 
@@ -228,30 +214,24 @@ describe('useHydration', () => {
   })
 
   describe('edge cases', () => {
-    it('should only hydrate root component via mixin', () => {
+    it('should only run once via app.mount wrapper', () => {
       const plugin = createHydrationPlugin()
-      const mockApp = {
+      const originalMount = vi.fn(() => ({}) as any)
+      const mockApp: Record<string, any> = {
         _context: {},
         runWithContext: vi.fn(callback => callback()),
-        mixin: vi.fn(),
+        mount: originalMount,
         provide: vi.fn(),
       }
 
       plugin.install(mockApp as unknown as App)
 
-      const mixinOptions = mockApp.mixin.mock.calls[0]![0] as Record<string, (...args: unknown[]) => void>
-      const mountedCallback = mixinOptions.mounted!
+      expect(mockApp.mount).not.toBe(originalMount)
 
-      expect(mockApp.mixin).toHaveBeenCalledOnce()
-      expect(typeof mountedCallback).toBe('function')
+      mockApp.mount('#app')
 
-      const childWithParent = { $parent: { someData: true } }
-      const childWithNestedParent = { $parent: { $parent: {} } }
-      const rootComponent = { $parent: null }
-
-      expect(() => mountedCallback.call(childWithParent)).not.toThrow()
-      expect(() => mountedCallback.call(childWithNestedParent)).not.toThrow()
-      expect(() => mountedCallback.call(rootComponent)).not.toThrow()
+      // After first call, original mount is restored
+      expect(mockApp.mount).toBe(originalMount)
     })
 
     it('should not hydrate twice on root component', () => {
@@ -264,6 +244,73 @@ describe('useHydration', () => {
 
       context.hydrate()
       expect(context.isHydrated.value).toBe(true)
+    })
+
+    it('should return the vm from the wrapped mount call', () => {
+      const expectedVm = { $el: document.createElement('div') }
+      const originalMount = vi.fn(() => expectedVm as any)
+      const plugin = createHydrationPlugin()
+      const mockApp: Record<string, any> = {
+        _context: {},
+        runWithContext: vi.fn(callback => callback()),
+        mount: originalMount,
+        provide: vi.fn(),
+      }
+
+      plugin.install(mockApp as unknown as App)
+
+      const result = mockApp.mount('#app')
+
+      expect(result).toBe(expectedVm)
+    })
+
+    it('should pass all arguments through to original mount', () => {
+      const originalMount = vi.fn(() => ({}) as any)
+      const plugin = createHydrationPlugin()
+      const mockApp: Record<string, any> = {
+        _context: {},
+        runWithContext: vi.fn(callback => callback()),
+        mount: originalMount,
+        provide: vi.fn(),
+      }
+
+      plugin.install(mockApp as unknown as App)
+
+      mockApp.mount('#app', true)
+
+      expect(originalMount).toHaveBeenCalledWith('#app', true)
+    })
+
+    it('should handle settle() being called before hydrate()', () => {
+      const context = createHydration()
+
+      context.settle()
+      expect(context.isSettled.value).toBe(true)
+      expect(context.isHydrated.value).toBe(false)
+
+      context.hydrate()
+      expect(context.isHydrated.value).toBe(true)
+    })
+
+    it('should call hydrate and settle via nextTick after mount', async () => {
+      const plugin = createHydrationPlugin()
+      const originalMount = vi.fn(() => ({}) as any)
+      const mockApp: Record<string, any> = {
+        _context: {},
+        runWithContext: vi.fn(callback => callback()),
+        mount: originalMount,
+        provide: vi.fn(),
+      }
+
+      plugin.install(mockApp as unknown as App)
+
+      mockApp.mount('#app')
+
+      // Wait for the two nextTick cycles in the setup callback
+      await nextTick()
+      await nextTick()
+
+      expect(originalMount).toHaveBeenCalledTimes(1)
     })
   })
 })
@@ -286,6 +333,17 @@ describe('useHydration SSR', () => {
     const { createFallbackHydration } = await import('./index')
     const context = createFallbackHydration()
 
+    expect(context.isHydrated.value).toBe(true)
+    expect(context.isSettled.value).toBe(true)
+  })
+
+  it('createFallbackHydration hydrate and settle should be safe no-ops', async () => {
+    const { createFallbackHydration } = await import('./index')
+    const context = createFallbackHydration()
+
+    // Calling no-op functions should not throw or change state
+    expect(() => context.hydrate()).not.toThrow()
+    expect(() => context.settle()).not.toThrow()
     expect(context.isHydrated.value).toBe(true)
     expect(context.isSettled.value).toBe(true)
   })

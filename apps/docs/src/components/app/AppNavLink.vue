@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { Atom } from '@vuetify/v0'
+  import { Atom, useFeatures } from '@vuetify/v0'
 
   // Composables
   import { useNavConfigContext } from '@/composables/useNavConfig'
@@ -12,6 +12,7 @@
   import { RouterLink, useRoute } from 'vue-router'
 
   // Types
+  import type { EmphasisLevel } from '@build/generate-nav'
   import type { AtomProps } from '@vuetify/v0'
   import type { ID } from '@vuetify/v0/types'
   import type { RouterLinkProps } from 'vue-router'
@@ -23,8 +24,7 @@
     name: string
     /** Whether this is a top-level item (renders differently) */
     depth?: number
-    emphasized?: boolean
-    devmode?: boolean
+    emphasized?: EmphasisLevel
   }
 
   const {
@@ -34,7 +34,6 @@
     name,
     depth = 0,
     emphasized,
-    devmode,
     to,
     ...props
   } = defineProps<ComponentProps>()
@@ -43,6 +42,14 @@
   const navNested = useNavNestedContext()
   const navConfig = useNavConfigContext()
   const settings = useSettings()
+  const devmodeFeature = useFeatures().get('devmode')!
+
+  const showHeatmap = toRef(() => !!emphasized && (emphasized === 1 || devmodeFeature.isSelected.value))
+  const heatmapStyle = toRef(() => {
+    if (!emphasized) return undefined
+    const t = ((emphasized - 1) / 4) * 100
+    return { backgroundColor: `color-mix(in srgb, var(--v0-success), var(--v0-error) ${t}%)` }
+  })
 
   // Skip animation during state restoration (prevents all sections animating on page load/navigation)
   const expandTransition = toRef(() => {
@@ -76,7 +83,6 @@
       name: value.name,
       to: isNavItemLink(value) ? value.to : undefined,
       emphasized: isNavItemLink(value) ? value.emphasized : undefined,
-      devmode: isNavItemLink(value) ? value.devmode : undefined,
       depth: depth + 1,
     }
   }
@@ -126,7 +132,7 @@
 
 <template>
   <li ref="item" class="px-3">
-    <div class="flex items-center gap-1">
+    <div class="flex items-center gap-1" :class="isTopLevel && navConfig.flatMode.value && 'pl-1'">
       <!-- Expand/collapse toggle button (only for top-level) -->
       <button
         v-if="isCollapsible"
@@ -163,7 +169,6 @@
         target="_blank"
       >
         <span class="truncate">{{ name }}</span>
-        <span v-if="emphasized" class="w-2 h-2 rounded-[2px] shrink-0" :class="devmode ? 'bg-error' : 'bg-success'" />
       </Atom>
 
       <!-- Internal link (navigable) -->
@@ -182,7 +187,7 @@
         @click="onOpen"
       >
         <span class="truncate">{{ name }}</span>
-        <span v-if="emphasized" class="w-2 h-2 rounded-[2px] shrink-0" :class="devmode ? 'bg-error' : 'bg-success'" />
+        <span v-if="showHeatmap" class="w-2 h-2 rounded-[2px] shrink-0" :style="heatmapStyle" />
       </Atom>
 
       <!-- Category header (not navigable) -->

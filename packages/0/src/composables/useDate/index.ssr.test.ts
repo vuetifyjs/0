@@ -141,9 +141,9 @@ describe('useDate SSR', () => {
       expect(adapter.getWeek(date)).toBe(24)
 
       const jan5 = adapter.date('2024-01-05T00:00:00')!
-      expect(adapter.getWeek(jan5, 0)).toBe(1)
+      expect(adapter.getWeek(jan5)).toBe(1)
 
-      const startOfWeek = adapter.startOfWeek(date, 0)
+      const startOfWeek = adapter.startOfWeek(date)
       expect(startOfWeek.dayOfWeek).toBe(7)
     })
   })

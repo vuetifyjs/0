@@ -21,7 +21,7 @@
   const tickets = picker.onboard(
     themes.map(t => ({ id: t.name.toLowerCase(), value: t })),
   )
-  picker.first()
+  picker.seek('first')?.select()
 
   const selected = toRef(() => picker.selectedValue.value as Theme | undefined)
 </script>

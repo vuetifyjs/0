@@ -55,12 +55,18 @@ describe('createValidation', () => {
     })
 
     it('should use noop for unresolvable string aliases', async () => {
+      const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
       const validation = createValidation()
       validation.register('nonexistent')
 
       const result = await validation.validate('')
       // Noop rule returns true, so validation passes
       expect(result).toBe(true)
+      expect(spy).toHaveBeenCalledTimes(1)
+      expect(spy).toHaveBeenCalledWith(expect.stringContaining('nonexistent'))
+
+      spy.mockRestore()
     })
   })
 
@@ -225,6 +231,21 @@ describe('createValidation', () => {
       await promise
       expect(validation.isValidating.value).toBe(false)
     })
+
+    it('should catch throwing rules and surface error message', async () => {
+      const validation = createValidation({
+        rules: [() => {
+          throw new Error('Network failure')
+        }],
+      })
+
+      const result = await validation.validate('test')
+
+      expect(result).toBe(false)
+      expect(validation.errors.value).toEqual(['Network failure'])
+      expect(validation.isValid.value).toBe(false)
+      expect(validation.isValidating.value).toBe(false)
+    })
   })
 
   describe('reset', () => {
@@ -336,11 +357,17 @@ describe('createValidation', () => {
     })
 
     it('should use noop for string aliases without rules context', async () => {
+      const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
       const validation = createValidation({ rules: ['required'] })
 
       // String alias without context uses noop — no rules to fail
       const result = await validation.validate('')
       expect(result).toBe(true)
+      expect(spy).toHaveBeenCalledTimes(1)
+      expect(spy).toHaveBeenCalledWith(expect.stringContaining('required'))
+
+      spy.mockRestore()
     })
   })
 

@@ -1,11 +1,14 @@
 /**
  * @module useClickOutside
  *
+ * @see https://0.vuetifyjs.com/composables/system/use-click-outside
+ *
  * @remarks
  * Detects clicks outside of specified element(s) with automatic cleanup.
  *
  * Key features:
  * - Two-phase detection (pointerdown → pointerup) prevents drag-out false positives
+ * - `bounds` mode: coordinate-based detection for native `<dialog>` backdrop clicks
  * - Touch scroll threshold ignores swipes/scrolls on mobile
  * - Capture phase listeners work with stopPropagation
  * - Pause/resume/stop functionality
@@ -17,7 +20,19 @@
  * Accessibility: This composable handles pointer interactions only. For accessible
  * components (dialogs, popovers, menus), pair with `useHotkey` for Escape key
  * dismissal per WCAG/APG requirements.
+ *
+ * @example
+ * ```ts
+ * import { useTemplateRef } from 'vue'
+ * import { useClickOutside } from '@vuetify/v0'
+ *
+ * const target = useTemplateRef('popover')
+ * useClickOutside(target, () => console.log('clicked outside'))
+ * ```
  */
+
+// Globals
+import { IN_BROWSER } from '#v0/constants/globals'
 
 // Composables
 import {
@@ -26,7 +41,7 @@ import {
 } from '#v0/composables/useEventListener'
 
 // Utilities
-import { isFunction, isNull, isNullOrUndefined, isString } from '#v0/utilities'
+import { isElement, isFunction, isNull, isNullOrUndefined, isString } from '#v0/utilities'
 import { onScopeDispose, shallowReadonly, shallowRef, toRef, toValue } from 'vue'
 
 // Transformers
@@ -247,7 +262,7 @@ export function useClickOutside (
     const [selectors, elements] = resolveIgnoreTargets()
     if (selectors.length === 0 && elements.length === 0) return false
 
-    return path.some(node => node instanceof Element && isIgnored(node, selectors, elements))
+    return path.some(node => isElement(node) && isIgnored(node, selectors, elements))
   }
 
   /**
@@ -285,7 +300,7 @@ export function useClickOutside (
    * Validate that the target is still in the DOM.
    */
   function isValidTarget (eventTarget: EventTarget | null): eventTarget is Element {
-    if (!(eventTarget instanceof Element)) return false /* v8 ignore -- type guard */
+    if (!isElement(eventTarget)) return false /* v8 ignore -- type guard */
     if (!eventTarget.isConnected) return false
     return true
   }
@@ -337,6 +352,7 @@ export function useClickOutside (
    * Handle window blur - detect focus moving to iframe.
    */
   function onBlur (event: FocusEvent) {
+    if (!IN_BROWSER) return
     if (isPaused.value) return
     if (event.defaultPrevented) return
 

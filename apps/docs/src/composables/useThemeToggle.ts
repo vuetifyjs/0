@@ -143,6 +143,7 @@ export function useThemeToggle (): UseThemeToggleReturn {
         // If preference is an accessibility theme, use it directly
         if (isAccessibilityTheme(preference.value)) {
           storage.set('theme-accessibility', preference.value)
+          storage.set('theme', preference.value)
           theme.select(preference.value as ThemeId)
           return
         }
@@ -153,6 +154,7 @@ export function useThemeToggle (): UseThemeToggleReturn {
         const dark = m === 'system' ? isDark : m === 'dark'
         const mapping = PALETTE_THEMES[p]
         const actual = dark ? mapping.dark : mapping.light
+        storage.set('theme', actual)
         theme.select(actual)
       },
       { immediate: true },
@@ -162,13 +164,16 @@ export function useThemeToggle (): UseThemeToggleReturn {
     watch(preference, pref => {
       if (isAccessibilityTheme(pref)) {
         storage.set('theme-accessibility', pref)
+        storage.set('theme', pref)
         theme.select(pref as ThemeId)
       } else {
         storage.set('theme-accessibility', null)
         // Re-resolve from mode + palette
         const dark = mode.value === 'system' ? prefersDark.value : mode.value === 'dark'
         const mapping = PALETTE_THEMES[palette.value]
-        theme.select(dark ? mapping.dark : mapping.light)
+        const actual = dark ? mapping.dark : mapping.light
+        storage.set('theme', actual)
+        theme.select(actual)
       }
     })
   }

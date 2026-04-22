@@ -22,7 +22,7 @@ export type DOMElement = Parameters<typeof h>[0]
  * @remarks
  * Use sparingly - prefer `UnknownObject` for better type safety.
  */
-export type GenericObject = Record<string, any>
+export type GenericObject = Record<string, unknown>
 
 /**
  * Object with string keys and unknown values

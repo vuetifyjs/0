@@ -1,6 +1,8 @@
 /**
  * @module BreadcrumbsPage
  *
+ * @see https://0.vuetifyjs.com/components/semantic/breadcrumbs
+ *
  * @remarks
  * Current page indicator for breadcrumb navigation. Renders as a span
  * by default with aria-current="page" to indicate the current location

@@ -499,12 +499,12 @@ describe('createSingleContext', () => {
 
   it('should create context with custom namespace', () => {
     const [, provideSingleContext, context] = createSingleContext({
-      namespace: 'my-tabs',
+      namespace: 'test:my-tabs',
     })
 
     provideSingleContext(context)
 
-    expect(mockProvide).toHaveBeenCalledWith('my-tabs', context)
+    expect(mockProvide).toHaveBeenCalledWith('test:my-tabs', context)
   })
 
   it('should create a functional single selection context', () => {
@@ -580,9 +580,9 @@ describe('useSingle consumer', () => {
     const mockContext = createSingle()
     mockInject.mockReturnValue(mockContext)
 
-    const result = useSingle('my-tabs')
+    const result = useSingle('test:my-tabs')
 
-    expect(mockInject).toHaveBeenCalledWith('my-tabs', undefined)
+    expect(mockInject).toHaveBeenCalledWith('test:my-tabs', undefined)
     expect(result).toBe(mockContext)
   })
 
@@ -597,8 +597,8 @@ describe('useSingle consumer', () => {
   it('should throw with custom namespace in error message', () => {
     mockInject.mockReturnValue(undefined)
 
-    expect(() => useSingle('custom-single')).toThrow(
-      'Context "custom-single" not found. Ensure it\'s provided by an ancestor.',
+    expect(() => useSingle('test:custom-single')).toThrow(
+      'Context "test:custom-single" not found. Ensure it\'s provided by an ancestor.',
     )
   })
 })

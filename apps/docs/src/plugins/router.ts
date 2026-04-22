@@ -17,7 +17,7 @@ const routerOptions: Omit<RouterOptions, 'history'> = {
     if (!IN_BROWSER) return { top: 0 }
 
     // Avoid scrolling up (requires explicit params field)
-    if ((to.params as any).savePosition) return {}
+    if ('savePosition' in to.params) return {}
 
     // If the user navigated via browser back/forward, restore their position
     if (savedPosition) return savedPosition

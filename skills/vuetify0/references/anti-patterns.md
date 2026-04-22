@@ -2,7 +2,17 @@
 
 Common mistakes when using v0 and their proper solutions.
 
-## Selection Anti-Patterns
+## Contents
+
+- Selection — reach for `createSelection`/`createSingle`/`createGroup` before custom arrays
+- Context — use `createContext` instead of bare `provide`/`inject`
+- Form — use `createForm` + `createValidation` instead of manual refs
+- Browser — use `IN_BROWSER` and support constants instead of `typeof window`
+- Registry — use `createRegistry` instead of hand-rolled id maps
+- Performance — `shallowRef` primitives, `toRef` derivations, `computed` only for cached work
+- Component — build compound roots + sub-components, never monoliths
+- Migration Strategy — phased rewrites from manual to v0 composables
+- Quick Fixes — common one-liner corrections
 
 ### ❌ Manual Selection Logic
 ```ts
@@ -420,9 +430,4 @@ grep -r "inject(" --include="*.vue" --include="*.ts"
 
 # Find window checks
 grep -r "typeof window" --include="*.vue" --include="*.ts"
-```
-
-Use the pattern checker script to identify anti-patterns:
-```bash
-python scripts/check_patterns.py ./src
 ```

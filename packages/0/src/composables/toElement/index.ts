@@ -1,13 +1,27 @@
 /**
  * @module toElement
  *
+ * @see https://0.vuetifyjs.com/composables/transformers/to-element
+ *
  * @remarks
  * Resolves various element reference types to a DOM Element.
  *
  * Accepts refs, getters, raw DOM elements, or Vue component instances
  * and normalizes them to a plain Element. Uses structural typing to
  * avoid cross-version Vue Ref incompatibilities.
+ *
+ * @example
+ * ```ts
+ * import { shallowRef } from 'vue'
+ * import { toElement } from '@vuetify/v0'
+ *
+ * const el = shallowRef<HTMLElement | null>(null)
+ * const resolved = toElement(el) // HTMLElement | undefined
+ * ```
  */
+
+// Utilities
+import { isElement, isFunction, isObject } from '#v0/utilities'
 
 // Types
 import type { ComponentPublicInstance } from 'vue'
@@ -56,13 +70,13 @@ export type MaybeElementRef =
  */
 /* #__NO_SIDE_EFFECTS__ */
 export function toElement (target: MaybeElementRef): Element | undefined {
-  const raw = typeof target === 'function'
+  const raw = isFunction(target)
     ? target()
-    : (target && typeof target === 'object' && 'value' in target
+    : (target && isObject(target) && 'value' in target
         ? target.value
         : target)
   if (!raw) return undefined
-  if (raw instanceof Element) return raw
+  if (isElement(raw)) return raw
   // ComponentPublicInstance — extract $el
   if ('$el' in raw) return raw.$el as Element | undefined
   return undefined

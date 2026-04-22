@@ -11,13 +11,14 @@ features:
   github: /composables/createNested/
   level: 3
 related:
+  - /components/disclosure/treeview
   - /composables/selection/create-group
   - /composables/selection/create-selection
 ---
 
 # createNested
 
-The `createNested` composable extends `createGroup` to manage hierarchical tree structures. It provides parent-child relationship tracking, open/close state management, tree traversal utilities, and pluggable open strategies.
+Hierarchical tree management built on `createGroup`, with parent-child relationships, open/close state, and pluggable traversal strategies.
 
 <DocsPageFeatures :frontmatter />
 
@@ -51,13 +52,13 @@ tree.select('child-1')
 
 ```mermaid "Nested Hierarchy"
 flowchart TD
-  createRegistry --> createSelection
+  createRegistry --> createModel
+  createModel --> createSelection
   createSelection --> createGroup
   createGroup --> createNested
   createNested --> children[children Map]
   createNested --> parents[parents Map]
   createNested --> openedIds[openedIds Set]
-  createNested --> OpenStrategy[OpenStrategy]
 ```
 
 ## Reactivity
@@ -70,6 +71,7 @@ flowchart TD
 | `parents` | <AppSuccessIcon /> | ShallowReactive Map |
 | `openedIds` | <AppSuccessIcon /> | ShallowReactive Set |
 | `openedItems` | <AppSuccessIcon /> | Computed from openedIds |
+| `rootIds` | <AppSuccessIcon /> | ShallowReactive Set — IDs of all top-level (parentless) nodes |
 | `roots` | <AppSuccessIcon /> | Computed, root nodes |
 | `leaves` | <AppSuccessIcon /> | Computed, leaf nodes |
 | `ticket.isOpen` | <AppSuccessIcon /> | Ref via toRef() |
@@ -80,9 +82,12 @@ flowchart TD
 
 ::: example
 /composables/create-nested/basic
-:::
 
-<DocsApi />
+### Collapsible Navigation Tree
+
+A nested tree with expand/collapse all, multi-select checkboxes, and visual parent/child relationship indicators.
+
+:::
 
 ## Options
 
@@ -101,6 +106,48 @@ const tree = createNested({ open: 'multiple' })
 
 // Accordion - single node open
 const accordion = createNested({ open: 'single' })
+```
+
+### mandatory
+
+When `true`, deselecting is prevented if it would leave no items selected:
+
+```ts
+const tree = createNested({ selection: 'cascade', mandatory: true })
+
+tree.select('child-1')
+tree.unselect('child-1') // no-op — would deselect the only selected item
+```
+
+`unselectAll()` with `mandatory: true` keeps the first selected item rather than clearing.
+
+### multiple
+
+When `false`, selecting a node in cascade mode clears previous selections first (default: `true`):
+
+```ts
+const tree = createNested({ selection: 'cascade', multiple: false })
+
+tree.select('child-1')
+tree.select('child-2') // child-1 is deselected first
+```
+
+### disabled
+
+When `true`, all tree mutations (`open()`, `close()`, `select()`, `unselect()`, `toggle()`) become no-ops. Individual tickets can also carry a `disabled` flag to skip only that node:
+
+```ts
+const tree = createNested({ disabled: true })
+
+tree.open('branch-1')   // no-op — tree is disabled
+tree.select('leaf-1')   // no-op
+```
+
+Accepts `MaybeRefOrGetter<boolean>` for reactive toggling:
+
+```ts
+const isLocked = shallowRef(false)
+const tree = createNested({ disabled: isLocked })
 ```
 
 ### selection
@@ -173,30 +220,6 @@ tree.select('folder')
 // All files (leaves) under 'folder' are selected
 // 'folder' itself is not in selectedIds
 ```
-
-## Custom Open Strategies
-
-For advanced use cases, implement custom strategies:
-
-```ts
-import type { OpenStrategy, OpenStrategyContext } from '@vuetify/v0'
-
-const keepParentsOpenStrategy: OpenStrategy = {
-  onOpen: (id, context) => {
-    // context.openedIds - reactive Set of open node IDs
-    // context.children - Map of parent ID to child IDs
-    // context.parents - Map of child ID to parent ID
-  },
-  onClose: (id, context) => {
-    // Called after a node is closed
-  },
-}
-
-const tree = createNested({ openStrategy: keepParentsOpenStrategy })
-```
-
-> [!TIP]
-> The `openStrategy` option overrides `open` when provided. Use `open` for simple cases.
 
 ## Convenience Methods
 
@@ -301,3 +324,5 @@ provideTree()
 // In child components
 const tree = useTree()
 ```
+
+<DocsApi />

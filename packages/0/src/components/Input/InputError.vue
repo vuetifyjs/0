@@ -1,6 +1,8 @@
 /**
  * @module InputError
  *
+ * @see https://0.vuetifyjs.com/components/forms/input
+ *
  * @remarks
  * Error message component for the Input component.
  * Renders validation error messages from the parent Input.Root's validation context.
@@ -15,19 +17,20 @@
   import { useInputRoot } from './InputRoot.vue'
 
   // Utilities
-  import { onBeforeUnmount, onMounted, toRef, useAttrs } from 'vue'
+  import { useId } from '#v0/utilities'
+  import { mergeProps, onBeforeUnmount, toRef, useAttrs } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
 
   export interface InputErrorProps extends AtomProps {
+    /** Unique identifier (auto-generated if not provided) */
+    id?: string
     /** Namespace for connecting to parent Input.Root */
     namespace?: string
   }
 
   export interface InputErrorSlotProps {
-    /** ID for this error element */
-    id: string
     /** Current validation error messages */
     errors: string[]
     /** Pre-computed attributes for the error element */
@@ -51,22 +54,18 @@
   const {
     as = 'span',
     renderless,
+    id = useId(),
     namespace = 'v0:input:root',
   } = defineProps<InputErrorProps>()
 
   const root = useInputRoot(namespace)
   const errors = root.errors
 
-  onMounted(() => {
-    root.hasError.value = true
-  })
+  const ticket = root.fieldErrors.register({ id })
 
-  onBeforeUnmount(() => {
-    root.hasError.value = false
-  })
+  onBeforeUnmount(() => ticket.unregister())
 
   const slotProps = toRef((): InputErrorSlotProps => ({
-    id: root.errorId,
     errors: errors.value,
     attrs: {
       'id': root.errorId,
@@ -78,7 +77,7 @@
 
 <template>
   <Atom
-    v-bind="{ ...attrs, ...slotProps.attrs }"
+    v-bind="mergeProps(attrs, slotProps.attrs)"
     :as
     :renderless
   >

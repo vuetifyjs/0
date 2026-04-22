@@ -9,7 +9,7 @@
     {
       title: 'Open Playground',
       description: 'Try v0 in your browser. No setup required.',
-      to: '/playground',
+      to: 'https://v0play.vuetifyjs.com',
       icon: 'vuetify-play',
     },
     {
@@ -40,16 +40,13 @@
     <div
       class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12"
     >
-      <component
-        :is="action.to.startsWith('/') ? 'router-link' : 'a'"
+      <AppLink
         v-for="(action, i) in actions"
         :key="action.title"
         class="relative overflow-hidden p-6 rounded-xl border bg-surface hover:border-primary hover:bg-surface-tint hover:shadow-md transition-all duration-150 flex flex-col sm:flex-row items-start sm:items-center gap-4 group"
-        :href="action.to.startsWith('/') ? undefined : action.to"
-        :rel="action.to.startsWith('/') ? undefined : 'noopener'"
+        no-suffix
         :style="{ '--reveal-index': i }"
-        :target="action.to.startsWith('/') ? undefined : '_blank'"
-        :to="action.to.startsWith('/') ? action.to : undefined"
+        :to="action.to"
       >
         <AppDotGrid v-if="action.title === 'Open Playground'" :coverage="50" :density="14" origin="bottom right" />
 
@@ -61,7 +58,7 @@
           <h3 class="font-semibold group-hover:text-primary transition-colors">{{ action.title }}</h3>
           <p class="text-sm opacity-60">{{ action.description }}</p>
         </div>
-      </component>
+      </AppLink>
     </div>
 
     <!-- Star on GitHub -->

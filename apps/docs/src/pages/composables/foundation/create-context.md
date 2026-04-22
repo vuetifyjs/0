@@ -6,7 +6,7 @@ meta:
 - name: keywords
   content: createContext, context, dependency injection, provide inject, composable, Vue 3, state management
 features:
-  category: Factory
+  category: Composable
   label: 'E: createContext'
   github: /composables/createContext/
   level: 3
@@ -18,11 +18,17 @@ related:
 
 # createContext
 
-The `createContext` factory function is at the heart of all functionality in Vuetify0. It is a small wrapper around the Vue 3 [provide](https://vuejs.org/guide/components/provide-inject.html#provide) and [inject](https://vuejs.org/guide/components/provide-inject.html#inject) APIs, allowing you to create a context that can be shared across components.
+Type-safe dependency injection factory built on Vue's provide/inject. Shares state across component trees without prop drilling.
 
 <DocsPageFeatures :frontmatter />
 
 ## Usage
+
+`createContext` has two modes depending on whether you pass a key:
+
+### Static Key Mode
+
+For singletons — one instance for the entire app (theme, locale, breakpoints):
 
 ```ts collapse
 import { shallowRef } from 'vue'
@@ -38,12 +44,58 @@ interface MyContext {
 const [useContext, provideContext] = createContext<MyContext>('namespace')
 
 provideContext({
-  isDisabled: shallowRef(false) ,
+  isDisabled: shallowRef(false),
   isSelected: shallowRef(true),
   type: 'primary',
 })
 
 export { useContext }
+```
+
+### Dynamic Key Mode
+
+For multiple independent instances of the same context type (nested panels, tabs within tabs). Omit the key — both `provide` and `use` accept a runtime key at call time:
+
+```ts
+interface PanelContext {
+  isOpen: ShallowRef<boolean>
+  toggle: () => void
+}
+
+const [usePanel, providePanel] = createContext<PanelContext>()
+
+// Provider — runtime key identifies this instance
+providePanel('panel-main', mainContext)
+providePanel('panel-sidebar', sidebarContext)
+
+// Consumer — same runtime key to inject
+const panel = usePanel('panel-main')
+```
+
+### Default Values
+
+By default, `useContext` throws if the context isn't found. Pass a `defaultValue` to make injection optional — useful for components that work with or without a parent:
+
+```ts
+// Static key — default passed at creation time
+const [usePanel, providePanel] = createContext<PanelContext>('v0:panel', fallbackContext)
+const panel = usePanel() // returns fallbackContext if not provided
+
+// Dynamic key — default passed at call time
+const [usePanel, providePanel] = createContext<PanelContext>()
+const panel = usePanel('v0:panel', fallbackContext)
+```
+
+### Suffix Pattern
+
+For parent-child context hierarchies where a child needs to know which parent it belongs to:
+
+```ts
+// Item context appends ':item' to whatever parent key it's given
+const [useItem, provideItem] = createContext<ItemContext>({ suffix: 'item' })
+
+provideItem('v0:panel', itemContext)  // Provides to 'v0:panel:item'
+const item = useItem('v0:panel')      // Injects from 'v0:panel:item'
 ```
 
 ## Architecture
@@ -56,7 +108,9 @@ flowchart TD
   createContext --> createPlugin
   createTrinity --> createRegistry
   createTrinity --> createTokens
-  createRegistry --> createSelection
+  createRegistry --> createModel
+  createModel --> createSelection
+  createModel --> createSlider
   createSelection --> createSingle
   createSelection --> createGroup
 ```

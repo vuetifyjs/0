@@ -1,6 +1,8 @@
 /**
  * @module DialogContent
  *
+ * @see https://0.vuetifyjs.com/components/disclosure/dialog
+ *
  * @remarks
  * Content component for dialogs. Renders the dialog panel using the native
  * dialog element with `showModal()` for proper modal behavior including

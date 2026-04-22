@@ -8,6 +8,15 @@
  * useRovingFocus and useVirtualFocus.
  *
  * Not exported from the package barrel — consumed only by sibling composables.
+ *
+ * @example
+ * ```ts
+ * import { createFocusTraversal } from '#v0/composables/createFocusTraversal'
+ *
+ * const items = () => [{ id: 'a' }, { id: 'b' }, { id: 'c' }]
+ * const traversal = createFocusTraversal(items, id => console.log(id))
+ * traversal.next()
+ * ```
  */
 
 // Constants

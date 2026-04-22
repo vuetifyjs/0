@@ -31,9 +31,9 @@
 
   const breakpoints = useBreakpoints()
   const features = useFeatures()
-  const theme = useTheme()
   const search = useSearch()
   const settings = useSettings()
+  const theme = useTheme()
 
   const devmode = features.get('devmode')!
 
@@ -41,26 +41,36 @@
     storage.set('devmode', isSelected)
   })
 
-  const src = toRef(() => theme.isDark.value
-    ? 'https://cdn.vuetifyjs.com/docs/images/logos/vzero-logo-dark.svg'
-    : 'https://cdn.vuetifyjs.com/docs/images/logos/vzero-logo-light.svg',
-  )
+  const darkLogo = 'https://cdn.vuetifyjs.com/docs/images/logos/vzero-logo-dark.svg'
+  const lightLogo = 'https://cdn.vuetifyjs.com/docs/images/logos/vzero-logo-light.svg'
 </script>
 
 <template>
   <Atom
     :as
-    :class="['flex items-center justify-between h-[48px] fixed inset-x-0 top-[24px] px-3 text-on-surface border-b border-solid border-divider z-1', settings.showBgGlass.value ? 'bg-glass-surface' : 'bg-surface']"
+    :class="['flex items-center justify-between h-[48px] fixed inset-x-0 top-[var(--app-banner-h,24px)] px-3 text-on-surface border-b border-solid border-divider z-1', settings.showBgGlass.value ? 'bg-glass-surface' : 'bg-surface']"
     data-app-bar
   >
     <div class="flex items-center gap-2">
-      <router-link to="/">
+      <router-link class="inline-block w-[128px]" to="/">
         <img
+          v-if="!theme.isDark.value"
           alt="Vuetify0 Logo"
+          class="logo-light"
           decoding="async"
           fetchpriority="high"
           height="52"
-          :src
+          :src="lightLogo"
+          width="128"
+        >
+        <img
+          v-else
+          alt="Vuetify0 Logo"
+          class="logo-dark"
+          decoding="async"
+          fetchpriority="high"
+          height="52"
+          :src="darkLogo"
           width="128"
         >
       </router-link>
@@ -124,7 +134,9 @@
 
       <AppAccount v-if="!isHomePage" />
 
-      <AppSettings v-if="!isHomePage && !auth.isAuthenticated" />
+      <Discovery.Activator v-if="!isHomePage && !auth.isAuthenticated" class="rounded-lg" step="settings">
+        <AppSettings />
+      </Discovery.Activator>
     </div>
   </Atom>
 </template>

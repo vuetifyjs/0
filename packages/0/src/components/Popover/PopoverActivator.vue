@@ -1,6 +1,8 @@
 /**
  * @module PopoverActivator
  *
+ * @see https://0.vuetifyjs.com/components/disclosure/popover
+ *
  * @remarks
  * Activator/trigger component for popovers. Provides the element that triggers
  * the popover content to show/hide. Uses the native popover API via popovertarget.
@@ -42,15 +44,15 @@
     default: (props: PopoverActivatorSlotProps) => any
   }>()
 
-  const { as = 'button', ...props } = defineProps<PopoverActivatorProps>()
+  const { as = 'button', target } = defineProps<PopoverActivatorProps>()
 
   const context = usePopoverContext()
 
-  const popovertarget = toRef(() => props.target ?? context.id)
+  const popovertarget = toRef(() => target ?? context.id)
 
   const style = toRef(() => {
-    if (props.target) {
-      return { anchorName: `--${props.target}` }
+    if (target) {
+      return { anchorName: `--${target}` }
     }
     return context.anchorStyles.value
   })

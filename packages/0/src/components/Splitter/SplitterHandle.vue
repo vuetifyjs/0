@@ -1,6 +1,8 @@
 /**
  * @module SplitterHandle
  *
+ * @see https://0.vuetifyjs.com/components/semantic/splitter
+ *
  * @remarks
  * Draggable resize handle between two splitter panels. Implements the
  * WAI-ARIA window splitter pattern with pointer drag and keyboard support.
@@ -21,7 +23,7 @@
 
   // Utilities
   import { isNullOrUndefined } from '#v0/utilities'
-  import { onScopeDispose, onUnmounted, shallowRef, toRef, toValue, useAttrs } from 'vue'
+  import { mergeProps, onBeforeUnmount, onScopeDispose, shallowRef, toRef, toValue, useAttrs } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -82,7 +84,7 @@
   const splitter = useSplitterRoot()
   const ticket = splitter.handles.register()
 
-  onUnmounted(() => {
+  onBeforeUnmount(() => {
     splitter.handles.unregister(ticket.id)
   })
 
@@ -274,10 +276,10 @@
 
 <template>
   <Atom
-    v-bind="{ ...attrs, ...slotProps.attrs }"
+    v-bind="mergeProps(attrs, slotProps.attrs)"
     :as
     :renderless
-    :style="{ flexShrink: 0 }"
+    :style="[attrs.style, slotProps.attrs.style, { flexShrink: 0 }]"
   >
     <slot v-bind="slotProps" />
   </Atom>

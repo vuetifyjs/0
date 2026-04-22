@@ -1,6 +1,8 @@
 /**
  * @module PaginationEllipsis
  *
+ * @see https://0.vuetifyjs.com/components/semantic/pagination
+ *
  * @remarks
  * Visual indicator for omitted page numbers in pagination. Renders the ellipsis
  * character (default "...") and is hidden from screen readers via aria-hidden.
@@ -13,7 +15,8 @@
   import { usePaginationItems, usePaginationRoot } from './PaginationRoot.vue'
 
   // Utilities
-  import { onBeforeUnmount, toRef, useId, useTemplateRef, watch } from 'vue'
+  import { useId } from '#v0/utilities'
+  import { onBeforeUnmount, toRef, useTemplateRef, watch } from 'vue'
 
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'

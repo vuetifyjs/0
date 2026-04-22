@@ -88,4 +88,18 @@ flowchart LR
 > [!TIP] Reactive inputs
 > All parameters accept reactive values. When any input changes, listeners are automatically re-registered.
 
+> [!TIP] SSR safety
+> `useWindowEventListener` and `useDocumentEventListener` are SSR-safe — they check `IN_BROWSER` and return a no-op cleanup on the server. Raw access to `window` or `document` in the listener body (e.g. `window.innerWidth`) is not guarded for you.
+
+## Examples
+
+::: example
+/composables/use-event-listener/mouse-tracker
+
+### Mouse Tracker
+
+Tracks real-time mouse coordinates within a bounded element using `useEventListener`, with automatic cleanup on unmount.
+
+:::
+
 <DocsApi />

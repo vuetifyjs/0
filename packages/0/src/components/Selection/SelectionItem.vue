@@ -1,6 +1,8 @@
 /**
  * @module SelectionItem
  *
+ * @see https://0.vuetifyjs.com/components/providers/selection
+ *
  * @remarks
  * Item component for selection contexts. Registers with parent SelectionRoot
  * and provides selection state and methods via scoped slot. Supports both
@@ -47,6 +49,7 @@
       'aria-disabled': boolean
       'data-selected': true | undefined
       'data-disabled': true | undefined
+      'onClick': () => void
     }
   }
 </script>
@@ -56,7 +59,7 @@
   import { useSelectionRoot } from './SelectionRoot.vue'
 
   // Utilities
-  import { onUnmounted, toRef, toValue } from 'vue'
+  import { onBeforeUnmount, toRef, toValue } from 'vue'
 
   defineOptions({ name: 'SelectionItem' })
 
@@ -76,7 +79,7 @@
   const ticket = selection.register({ id, value, disabled })
   const isDisabled = toRef(() => toValue(ticket.disabled) || toValue(selection.disabled))
 
-  onUnmounted(() => {
+  onBeforeUnmount(() => {
     selection.unregister(ticket.id)
   })
 
@@ -94,6 +97,7 @@
       'aria-disabled': toValue(isDisabled),
       'data-selected': toValue(ticket.isSelected) || undefined,
       'data-disabled': toValue(isDisabled) || undefined,
+      'onClick': ticket.toggle,
     },
   }))
 </script>

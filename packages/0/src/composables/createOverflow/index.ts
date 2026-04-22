@@ -1,5 +1,7 @@
 /**
- * @module useOverflow
+ * @module createOverflow
+ *
+ * @see https://0.vuetifyjs.com/composables/utilities/create-overflow
  *
  * @remarks
  * Composable for computing how many items fit in a container based on available width.
@@ -14,16 +16,24 @@
  *
  * Use variable mode (default) for items with different widths like Breadcrumbs.
  * Use uniform mode (itemWidth option) for same-width items like Pagination buttons.
+ *
+ * @example
+ * ```ts
+ * import { useTemplateRef } from 'vue'
+ * import { createOverflow } from '@vuetify/v0'
+ *
+ * const el = useTemplateRef('container')
+ * const overflow = createOverflow({ container: el })
+ * console.log(overflow.capacity.value) // number of items that fit
+ * ```
  */
 
 // Globals
 import { IN_BROWSER } from '#v0/constants/globals'
 
-// Foundational
-import { createContext, useContext } from '#v0/composables/createContext'
-import { createTrinity } from '#v0/composables/createTrinity'
-
 // Composables
+import { useContext } from '#v0/composables/createContext'
+import { createTrinity } from '#v0/composables/createTrinity'
 import { useElementSize } from '#v0/composables/useResizeObserver'
 
 // Utilities
@@ -32,7 +42,7 @@ import { computed, shallowRef, toRef, toValue } from 'vue'
 
 // Types
 import type { ContextTrinity } from '#v0/composables/createTrinity'
-import type { App, ComputedRef, MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
+import type { ComputedRef, MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
 
 export interface OverflowOptions {
   /**
@@ -192,7 +202,7 @@ export function createOverflow<
 
     // Uniform mode: calculate how many items of fixed width fit
     // If itemWidth option was provided but value is 0, not measured yet - show all
-    if (itemWidth !== undefined && uniformWidth <= 0) return Infinity
+    if (!isUndefined(itemWidth) && uniformWidth <= 0) return Infinity
     if (uniformWidth > 0) {
       // First item: uniformWidth, subsequent: uniformWidth + gap
       // available >= w + (n-1)(w+g) => n <= (available - w) / (w+g) + 1
@@ -264,15 +274,9 @@ export function createOverflowContext<
     ...options
   } = _options
 
-  const [useOverflowContext, _provideOverflowContext] = createContext<E>(namespace)
-
   const context = createOverflow<E>(options)
 
-  function provideOverflowContext (_context: E = context, app?: App): E {
-    return _provideOverflowContext(_context, app)
-  }
-
-  return createTrinity<E>(useOverflowContext, provideOverflowContext, context)
+  return createTrinity<E>(namespace, context)
 }
 
 /**

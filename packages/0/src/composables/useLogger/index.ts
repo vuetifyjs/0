@@ -14,19 +14,25 @@
  * - Context logging support
  *
  * Uses adapter pattern to abstract logging implementation.
+ *
+ * @example
+ * ```ts
+ * import { useLogger } from '@vuetify/v0'
+ *
+ * const logger = useLogger()
+ * logger.info('hello')
+ * logger.warn('careful')
+ * ```
  */
 
 // Globals
 import { __LOGGER_ENABLED__, IN_BROWSER } from '#v0/constants/globals'
 
-// Foundational
+// Composables
 import { createPluginContext } from '#v0/composables/createPlugin'
 
 // Adapters
 import { Vuetify0LoggerAdapter } from '#v0/composables/useLogger/adapters'
-
-// Utilities
-import { isUndefined } from '#v0/utilities'
 
 // Types
 import type { LoggerAdapter } from '#v0/composables/useLogger/adapters'
@@ -94,9 +100,7 @@ export interface LoggerPluginOptions extends LoggerContextOptions {}
  * logger.debug('This debug message will now be logged')
  * ```
  */
-export function createLogger<
-  E extends LoggerContext = LoggerContext,
-> (options: LoggerOptions = {}): E {
+export function createLogger (options: LoggerOptions = {}): LoggerContext {
   const {
     adapter = new Vuetify0LoggerAdapter({ prefix: options.prefix }),
     level: initialLevel = 'info',
@@ -184,12 +188,10 @@ export function createLogger<
     enabled,
     enable,
     disable,
-  } as E
+  } as LoggerContext
 }
 
-function createFallbackLogger<
-  E extends LoggerContext = LoggerContext,
-> (namespace = 'v0:logger'): E {
+function createFallbackLogger (namespace = 'v0:logger'): LoggerContext {
   function format (message: string, type: string): string {
     return `[${namespace} ${type}] ${message}`
   }
@@ -206,7 +208,7 @@ function createFallbackLogger<
     enabled: () => true,
     enable: () => {},
     disable: () => {},
-  } as unknown as E
+  } as LoggerContext
 }
 
 /**
@@ -235,8 +237,8 @@ export const [createLoggerContext, createLoggerPlugin, useLogger] =
     {
       fallback: ns => createFallbackLogger(ns),
       setup: (context, _app, _options) => {
-        if (!isUndefined(__DEV__) && __DEV__ && IN_BROWSER) {
-          ;(window as any).__v0Logger__ = context
+        if (typeof __DEV__ !== 'undefined' && __DEV__ && IN_BROWSER) {
+          ;(window as unknown as Record<string, unknown>).__v0Logger__ = context
         }
       },
     },

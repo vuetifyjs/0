@@ -17,7 +17,7 @@ related:
 
 # createStep
 
-A composable for managing navigation through multi-step processes like forms, wizards, or onboarding flows, with support for step tracking, completion, and navigation controls.
+Extends `createSingle` with bounded or circular navigation. Built for wizards, multi-step forms, and onboarding flows.
 
 <DocsPageFeatures :frontmatter />
 
@@ -57,13 +57,32 @@ carousel.next()   // Wraps to slide1
 carousel.prev()   // Wraps to slide3
 ```
 
+## Context / DI
+
+Use `createStepContext` to share a step navigation instance across a component tree:
+
+```ts
+import { createStepContext } from '@vuetify/v0'
+
+export const [useWizard, provideWizard, wizard] =
+  createStepContext({ namespace: 'my:wizard', circular: false })
+
+// In parent component
+provideWizard()
+
+// In child component
+const step = useWizard()
+step.next()
+```
+
 ## Architecture
 
 `createStep` extends `createSingle` with directional navigation:
 
 ```mermaid "Step Navigation Hierarchy"
 flowchart TD
-  createRegistry --> createSelection
+  createRegistry --> createModel
+  createModel --> createSelection
   createSelection --> createSingle
   createSingle --> createStep
   createStep --> first/last
@@ -73,7 +92,7 @@ flowchart TD
 
 ## Reactivity
 
-Step navigation state is **always reactive**. Navigation guards (`canPrev`, `canNext`) update automatically.
+Step navigation state is **always reactive**. Use `selectedIndex` to derive disabled states for navigation buttons.
 
 | Property/Method | Reactive | Notes |
 | - | :-: | - |
@@ -81,16 +100,28 @@ Step navigation state is **always reactive**. Navigation guards (`canPrev`, `can
 | `selectedIndex` | <AppSuccessIcon /> | Computed — current step position |
 | `selectedItem` | <AppSuccessIcon /> | Computed — current step ticket |
 | `selectedValue` | <AppSuccessIcon /> | Computed — current step value |
-| `canPrev` | <AppSuccessIcon /> | Computed — `false` at first step (bounded mode) |
-| `canNext` | <AppSuccessIcon /> | Computed — `false` at last step (bounded mode) |
+| `step(count)` | <AppErrorIcon /> | Move by `count` positions — positive forward, negative backward |
 
-> [!TIP] Navigation guards
-> Use `canPrev` and `canNext` to disable navigation buttons. They respect the `circular` option automatically.
+> [!TIP] step(count)
+> `step(-2)` moves back two positions; `step(3)` skips ahead three. In circular mode it wraps at both ends; in bounded mode it clamps at the first and last steps. Disabled steps are skipped automatically.
+
+> [!TIP] Navigation button state
+> Derive boundary checks from `selectedIndex` and registry size:
+> ```ts
+> const atFirst = toRef(() => selection.selectedIndex.value === 0)
+> const atLast  = toRef(() => selection.selectedIndex.value === selection.size - 1)
+> ```
+> In circular mode, buttons are never disabled.
 
 ## Examples
 
 ::: example
 /composables/create-step/stepper
+
+### Multi-Step Stepper
+
+Numbered steps with a progress bar, clickable navigation, and a disabled step that auto-skips.
+
 :::
 
 <DocsApi />

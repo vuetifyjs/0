@@ -1,20 +1,33 @@
 /**
  * @module useProxyModel
  *
+ * @see https://0.vuetifyjs.com/composables/reactivity/use-proxy-model
+ *
  * @remarks
  * Proxy composable for bidirectional sync between a model context and v-model.
  *
  * Key features:
  * - Bidirectional synchronization
- * - Array and single-value modes
+ * - `multiple` option controls array vs single-value mode (must be explicit — not inferred)
+ * - `MaybeRefOrGetter` support for the `multiple` option
  * - Automatic cleanup on scope disposal
  * - Works with any ModelContext (Selection, Slider, etc.)
  *
  * Bridges the gap between model composables and Vue's v-model.
+ *
+ * @example
+ * ```ts
+ * import { shallowRef } from 'vue'
+ * import { createSelection, useProxyModel } from '@vuetify/v0'
+ *
+ * const selection = createSelection({ events: true })
+ * const model = shallowRef<string[]>([])
+ * useProxyModel(selection, model, { multiple: true })
+ * ```
  */
 
 // Utilities
-import { isFunction } from '#v0/utilities'
+import { isArray, isFunction } from '#v0/utilities'
 import { onScopeDispose, toValue, watch } from 'vue'
 
 // Transformers
@@ -50,7 +63,7 @@ export interface ProxyModelTarget {
  * @param options The options for the proxy model.
  * @returns A function to stop the sync.
  *
- * @see https://0.vuetifyjs.com/composables/forms/use-proxy-model
+ * @see https://0.vuetifyjs.com/composables/reactivity/use-proxy-model
  *
  * @example
  * ```ts
@@ -95,26 +108,40 @@ export function useProxyModel (
 
   context.apply(modelAsArray, applyOptions)
 
+  const selected = new Set(context.selectedValues.value)
   for (const value of modelAsArray) {
-    if (Array.from(context.selectedValues.value).includes(value)) {
+    if (selected.has(value)) {
       pending.delete(value)
     }
   }
 
+  let syncing = false
+
+  function shallowEqual (a: unknown, b: unknown): boolean {
+    if (a === b) return true
+    if (!isArray(a) || !isArray(b) || a.length !== b.length) return false
+    return a.every((v, index) => v === b[index])
+  }
+
   const contextWatch = watch(context.selectedValues as Ref, val => {
+    if (syncing) return
+
     modelWatch.pause()
-
     model.value = transformOut(Array.from(toValue(val)))
-
     modelWatch.resume()
   }, { flush: 'sync' })
 
   const modelWatch = watch(model, val => {
+    if (syncing) return
+
+    syncing = true
     contextWatch.pause()
-
     context.apply(transformIn(val), applyOptions)
-
+    // Sync model back to actual selection state (apply may have rejected due to disabled/mandatory)
+    const actual = transformOut(Array.from(context.selectedValues.value))
+    if (!shallowEqual(val, actual)) model.value = actual
     contextWatch.resume()
+    syncing = false
   }, { flush: 'sync', deep: toValue(multiple) })
 
   function onRegister (data: unknown) {

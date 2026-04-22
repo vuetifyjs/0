@@ -1,6 +1,8 @@
 /**
  * @module InputControl
  *
+ * @see https://0.vuetifyjs.com/components/forms/input
+ *
  * @remarks
  * Native input element for the Input component.
  * Must be used within an Input.Root component.
@@ -12,7 +14,7 @@
   import { useInputRoot } from './InputRoot.vue'
 
   // Utilities
-  import { toRef, useAttrs } from 'vue'
+  import { mergeProps, toRef, useAttrs } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -93,6 +95,9 @@
       'data-focused': isFocused ? true : undefined,
       'data-disabled': disabled ? true : undefined,
       'data-readonly': readonly ? true : undefined,
+      'onInput': onInput,
+      'onFocus': onFocus,
+      'onBlur': onBlur,
     }
   })
 
@@ -107,12 +112,9 @@
 
 <template>
   <Atom
-    v-bind="{ ...attrs, ...controlAttrs }"
+    v-bind="mergeProps(attrs, controlAttrs)"
     :as
     :renderless
-    @blur="onBlur"
-    @focus="onFocus"
-    @input="onInput"
   >
     <slot v-bind="slotProps" />
   </Atom>

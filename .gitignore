@@ -36,7 +36,7 @@ coverage
 
 *.tsbuildinfo
 
-/playground/src/Playground.vue
+/dev/src/Playground.vue
 
 .vite-ssg-temp
 

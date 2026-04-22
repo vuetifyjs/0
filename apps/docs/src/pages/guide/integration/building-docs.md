@@ -36,7 +36,7 @@ This documentation site is itself a proof of concept for v0. Every pattern docum
 
 ### Tabbed Code Groups
 
-The `DocsCodeGroup` component powers all tabbed code examples. It uses [createSingle](/composables/selection/create-single) for exclusive selection and [useProxyRegistry](/composables/reactivity/use-proxy-registry) for keyboard navigation.
+The `DocsCodeGroup` component powers all tabbed code examples. It uses `createSingle` for exclusive selection and `useProxyRegistry` for keyboard navigation.
 
 ```vue DocsCodeGroup.vue collapse
 <script setup lang="ts">
@@ -77,7 +77,7 @@ The `DocsCodeGroup` component powers all tabbed code examples. It uses [createSi
 ```
 
 > [!INFO]
-> **Why this works:** [createSingle](/composables/selection/create-single) handles the selection logic. [useProxyRegistry](/composables/reactivity/use-proxy-registry) exposes registered items for iteration. The component owns all styling and accessibility attributes.
+> **Why this works:** `createSingle` handles the selection logic. `useProxyRegistry` exposes registered items for iteration. The component owns all styling and accessibility attributes.
 
 ### Mobile Navigation
 
@@ -117,13 +117,13 @@ The `AppNav` component uses v0 primitives for polymorphism and interaction:
 
 | Primitive | Role |
 | - | - |
-| [Atom](/components/primitives/atom) | Polymorphic element—renders as `<nav>` with ref access |
-| [useClickOutside](/composables/system/use-click-outside) | Closes mobile drawer on outside click |
-| [useBreakpoints](/composables/plugins/use-breakpoints) | Tracks viewport for responsive behavior |
+| `Atom` | Polymorphic element—renders as `<nav>` with ref access |
+| `useClickOutside` | Closes mobile drawer on outside click |
+| `useBreakpoints` | Tracks viewport for responsive behavior |
 
 ### Interactive Demos
 
-The homepage demo uses [Selection](/components/providers/selection) to show v0's component pattern:
+The homepage demo uses `Selection` to show v0's component pattern:
 
 ```vue collapse
 <script setup lang="ts">
@@ -162,7 +162,7 @@ The demo renders live on the homepage—same code, same component, real interact
 
 ### Persistent Preferences
 
-User preferences (like API display mode) persist across sessions using [useStorage](/composables/plugins/use-storage):
+User preferences (like API display mode) persist across sessions using `useStorage`:
 
 ```vue
 <script setup lang="ts">
@@ -335,11 +335,11 @@ This documentation site demonstrates that v0's patterns scale from simple toggle
 
 | Pattern | Where Used |
 | - | - |
-| [createSingle](/composables/selection/create-single) + Registry | Tabbed code groups |
-| [Atom](/components/primitives/atom) polymorphism | Navigation, buttons, links |
-| [useClickOutside](/composables/system/use-click-outside) | Mobile drawer dismissal |
-| [useStorage](/composables/plugins/use-storage) | User preferences |
-| [Selection](/components/providers/selection) compound | Interactive demos |
+| `createSingle` + Registry | Tabbed code groups |
+| `Atom` polymorphism | Navigation, buttons, links |
+| `useClickOutside` | Mobile drawer dismissal |
+| `useStorage` | User preferences |
+| `Selection` compound | Interactive demos |
 | CSS variable theming | Entire design system |
 
 The same primitives you use for a checkbox work for an entire documentation platform.

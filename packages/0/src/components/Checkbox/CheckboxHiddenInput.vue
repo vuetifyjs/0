@@ -1,6 +1,8 @@
 /**
  * @module CheckboxHiddenInput
  *
+ * @see https://0.vuetifyjs.com/components/forms/checkbox
+ *
  * @remarks
  * Hidden native checkbox for form submission. Must be used within a
  * Checkbox.Root component. Auto-rendered by Root when `name` prop is provided,

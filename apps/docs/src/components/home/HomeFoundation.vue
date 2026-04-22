@@ -21,7 +21,7 @@
       </h2>
 
       <p class="opacity-60 max-w-[640px] mx-auto leading-relaxed">
-        40K+ stars. 2M+ weekly downloads. A decade of Vue expertise.
+        41K+ stars. 4M+ monthly downloads. A decade of Vue expertise.
       </p>
     </div>
 
@@ -51,7 +51,7 @@
         alt="John Leider"
         class="w-10 h-10 sm:w-12 sm:h-12 rounded-full shrink-0 ring-2 ring-primary/30"
         height="48"
-        src="https://avatars.githubusercontent.com/u/9064066?v=4"
+        src="https://cdn.vuetifyjs.com/docs/images/one/avatars/john.png"
         width="48"
       >
 

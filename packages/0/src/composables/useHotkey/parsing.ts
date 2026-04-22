@@ -4,7 +4,7 @@ import { useLogger } from '#v0/composables/useLogger'
 // Utilities
 import { normalizeKey } from './aliases'
 
-const logger = useLogger()
+const logger = /* @__PURE__ */ useLogger()
 
 // Constants
 export const MODIFIERS = ['ctrl', 'shift', 'alt', 'meta', 'cmd'] as const

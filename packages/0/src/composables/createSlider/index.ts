@@ -16,10 +16,21 @@
  * Designed for single-thumb, range, and multi-thumb sliders.
  * Also reusable for color picker tracks, media scrubbers,
  * gradient editors, and other 1D value-on-track controls.
+ *
+ * @example
+ * ```ts
+ * import { shallowRef } from 'vue'
+ * import { createSlider } from '@vuetify/v0'
+ *
+ * const slider = createSlider({ min: 0, max: 100, step: 5 })
+ * slider.register({ value: shallowRef(25) })
+ * slider.set(0, 60)
+ * ```
  */
 
 // Composables
 import { createModel } from '#v0/composables/createModel'
+import { createNumeric } from '#v0/composables/createNumeric'
 
 // Utilities
 import { clamp, isObject, isUndefined } from '#v0/utilities'
@@ -192,17 +203,17 @@ export interface SliderContext extends Omit<
   /** Whether inverted. Reactive ref derived from the `inverted` option. */
   inverted: Readonly<Ref<boolean>>
   /** Minimum value. */
-  readonly min: number
+  min: number
   /** Maximum value. */
-  readonly max: number
+  max: number
   /** Step increment. */
-  readonly step: number
+  step: number
   /** Minimum steps required between adjacent thumbs. */
-  readonly minStepsBetweenThumbs: number
+  minStepsBetweenThumbs: number
   /** Whether thumbs can cross each other. */
-  readonly crossover: boolean
+  crossover: boolean
   /** Whether this is a range slider. */
-  readonly range: boolean
+  range: boolean
   /**
    * Register a new thumb and return its ticket.
    *
@@ -449,12 +460,12 @@ export function createSlider (options: SliderOptions = {}): SliderContext {
     events: true,
   })
 
+  const numeric = createNumeric({ min, max, step })
+
   const disabled = toRef(() => toValue(disabledProp))
   const readonly = toRef(() => toValue(readonlyProp))
   const orientation = toRef(() => toValue(orientationProp))
   const inverted = toRef(() => toValue(invertedProp))
-
-  const extent = max - min
 
   let pending: number[] | null = null
 
@@ -466,21 +477,17 @@ export function createSlider (options: SliderOptions = {}): SliderContext {
   const selectedValues = computed(() => values.value)
 
   function snap (value: number): number {
-    if (step <= 0) return clamp(value, min, max)
-    const clamped = clamp(value, min, max)
-    const steps = Math.round((clamped - min) / step)
-    return clamp(min + steps * step, min, max)
+    return numeric.snap(value)
   }
 
   function fromValue (value: number): number {
-    if (extent === 0) return 0
-    const p = ((value - min) / extent) * 100
+    const p = numeric.fromValue(value)
     return inverted.value ? 100 - p : p
   }
 
   function fromPercent (p: number): number {
     const adjusted = inverted.value ? 100 - p : p
-    return snap(min + (adjusted / 100) * extent)
+    return numeric.fromPercent(adjusted)
   }
 
   function register (input?: number | { value: number }): ModelTicket<SliderTicketInput> {
@@ -577,6 +584,10 @@ export function createSlider (options: SliderOptions = {}): SliderContext {
     set(index, max)
   }
 
+  function onboard (registrations: (number | { value: number } | Partial<SliderTicketInput>)[]): ModelTicket<SliderTicketInput>[] {
+    return model.batch(() => registrations.map(r => register(r as number | { value: number })))
+  }
+
   return {
     ...model,
     values,
@@ -593,6 +604,7 @@ export function createSlider (options: SliderOptions = {}): SliderContext {
     orientation,
     inverted,
     register,
+    onboard,
     snap,
     fromValue,
     fromPercent,

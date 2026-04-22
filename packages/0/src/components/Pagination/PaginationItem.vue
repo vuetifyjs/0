@@ -1,6 +1,8 @@
 /**
  * @module PaginationItem
  *
+ * @see https://0.vuetifyjs.com/components/semantic/pagination
+ *
  * @remarks
  * Individual page button that navigates to a specific page number when clicked.
  * Registers with the parent PaginationRoot for width calculations and provides
@@ -16,7 +18,8 @@
   import { useLocale } from '#v0/composables/useLocale'
 
   // Utilities
-  import { onBeforeUnmount, toRef, useId, useTemplateRef, watch } from 'vue'
+  import { useId } from '#v0/utilities'
+  import { onBeforeUnmount, toRef, useTemplateRef, watch } from 'vue'
 
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'

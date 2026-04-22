@@ -8,7 +8,7 @@
 </script>
 
 <template>
-  <ExpansionPanel.Root class="flex flex-col gap-3 my-6" :multiple="props.multiple ?? true">
+  <ExpansionPanel.Group class="flex flex-col gap-3 my-6" :multiple="props.multiple ?? true">
     <slot />
-  </ExpansionPanel.Root>
+  </ExpansionPanel.Group>
 </template>

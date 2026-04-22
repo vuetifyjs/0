@@ -1,4 +1,4 @@
-import { debounce } from '@vuetify/v0/utilities'
+import { useTimer } from '@vuetify/v0'
 import { ref, shallowRef, watch } from 'vue'
 import type { Ref } from 'vue'
 
@@ -14,25 +14,26 @@ export function useSearch (query: Ref<string>) {
   const results = ref<string[]>([])
   const loading = shallowRef(false)
 
-  const search = debounce(async (term: string) => {
+  const { start: search } = useTimer(async () => {
     loading.value = true
 
     // Simulate network delay
     await new Promise(resolve => setTimeout(resolve, 300))
 
+    const term = query.value
     results.value = term
       ? ITEMS.filter(item => item.toLowerCase().includes(term.toLowerCase()))
       : []
 
     loading.value = false
-  }, 200)
+  }, { duration: 200 })
 
   watch(query, val => {
     if (val.length < 2) {
       results.value = []
       return
     }
-    search(val)
+    search()
   })
 
   return { results, loading }

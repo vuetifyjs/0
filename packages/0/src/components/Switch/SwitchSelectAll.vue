@@ -1,6 +1,8 @@
 /**
  * @module SwitchSelectAll
  *
+ * @see https://0.vuetifyjs.com/components/forms/switch
+ *
  * @remarks
  * A "select all" switch that binds to its parent Switch.Group's
  * aggregate state. Automatically reflects isAllSelected/isMixed state
@@ -16,7 +18,8 @@
   import { provideSwitchRoot } from './SwitchRoot.vue'
 
   // Utilities
-  import { toRef, toValue, useAttrs, useId } from 'vue'
+  import { useId } from '#v0/utilities'
+  import { mergeProps, toRef, toValue, useAttrs } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -77,15 +80,16 @@
     default: (props: SwitchSelectAllSlotProps) => any
   }>()
 
-  const props = defineProps<SwitchSelectAllProps>()
-
   const {
     as = 'button',
     renderless,
     label,
+    disabled,
     namespace = 'v0:switch:root',
     groupNamespace = 'v0:switch:group',
-  } = props
+    ariaLabelledby,
+    ariaDescribedby,
+  } = defineProps<SwitchSelectAllProps>()
 
   const group = useSwitchGroup(groupNamespace)
 
@@ -93,7 +97,7 @@
 
   const isAllSelected = toRef(() => group.isAllSelected.value)
   const isMixed = toRef(() => group.isMixed.value)
-  const isDisabled = toRef(() => toValue(props.disabled) || toValue(group.disabled))
+  const isDisabled = toRef(() => toValue(disabled) || toValue(group.disabled))
   const dataState = toRef((): SwitchState => isMixed.value
     ? 'indeterminate'
     : (isAllSelected.value ? 'checked' : 'unchecked'),
@@ -143,8 +147,8 @@
       'aria-checked': isMixed.value ? 'mixed' : isAllSelected.value,
       'aria-disabled': isDisabled.value || undefined,
       'aria-label': label || undefined,
-      'aria-labelledby': props.ariaLabelledby || undefined,
-      'aria-describedby': props.ariaDescribedby || undefined,
+      'aria-labelledby': ariaLabelledby || undefined,
+      'aria-describedby': ariaDescribedby || undefined,
       'tabindex': isDisabled.value ? undefined : 0,
       'data-state': dataState.value,
       'data-disabled': isDisabled.value ? true : undefined,
@@ -154,7 +158,7 @@
 
 <template>
   <Atom
-    v-bind="{ ...attrs, ...slotProps.attrs }"
+    v-bind="mergeProps(attrs, slotProps.attrs)"
     :as
     :renderless
     @click="onClick"

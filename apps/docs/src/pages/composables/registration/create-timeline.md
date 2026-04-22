@@ -11,13 +11,13 @@ features:
   github: /composables/createTimeline/
   level: 3
 related:
-- /composables/registration/create-registry
-- /composables/registration/create-queue
+  - /composables/registration/create-registry
+  - /composables/registration/create-queue
 ---
 
 # createTimeline
 
-A bounded undo/redo system that manages a fixed-size timeline of registered items with automatic overflow handling and history management.
+Bounded undo/redo history built on `createRegistry` with a configurable size limit.
 
 <DocsPageFeatures :frontmatter />
 
@@ -45,6 +45,31 @@ console.log(timeline.size) // 2
 timeline.redo()
 console.log(timeline.size) // 3
 ```
+
+## Context / DI
+
+Use `createTimelineContext` to share a timeline instance across a component tree:
+
+```ts
+import { createTimelineContext } from '@vuetify/v0'
+
+export const [useHistory, provideHistory, history] =
+  createTimelineContext({ namespace: 'my:history', size: 50 })
+
+// In parent component
+provideHistory()
+
+// In child component
+const timeline = useHistory()
+timeline.register({ id: 'action-1', value: 'Created item' })
+timeline.undo()
+```
+
+## Options
+
+| Option | Type | Default | Notes |
+| - | - | - | - |
+| `size` | `number` | `10` | Maximum number of entries in the active timeline. When exceeded, the oldest entry moves to an internal overflow buffer — it remains accessible via `undo()` but no longer counts against the limit |
 
 ## Architecture
 

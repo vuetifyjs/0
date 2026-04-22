@@ -1,6 +1,8 @@
 /**
  * @module useRules
  *
+ * @see https://0.vuetifyjs.com/composables/plugins/use-rules
+ *
  * @remarks
  * Validation rule composable with Standard Schema support.
  *
@@ -17,12 +19,18 @@
  * - `false` — validation fails, error message resolved from locale (`$rules.<name>`)
  *
  * Integrates with createValidation for rule resolution, useLocale for i18n.
+ *
+ * @example
+ * ```ts
+ * import { useRules } from '@vuetify/v0'
+ *
+ * const rules = useRules()
+ * const validators = rules.resolve(['required', v => v.length > 3 || 'Too short'])
+ * ```
  */
 
-// Foundational
-import { createPluginContext } from '#v0/composables/createPlugin'
-
 // Composables
+import { createPluginContext } from '#v0/composables/createPlugin'
 import { useLocale } from '#v0/composables/useLocale'
 
 // Adapters
@@ -119,6 +127,8 @@ function createResolve (aliases: RuleAliases, locale?: { t: (key: string) => str
 
       if (predicate) {
         result.push(resolveAlias(rule as string, predicate, locale))
+      } else if (typeof __DEV__ !== 'undefined' && __DEV__) {
+        console.warn(`[v0 warn] Unknown validation rule alias "${rule}". Register it via rules.aliases or install a rules plugin.`)
       }
     }
 

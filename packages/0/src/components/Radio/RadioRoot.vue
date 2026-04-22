@@ -1,6 +1,8 @@
 /**
  * @module RadioRoot
  *
+ * @see https://0.vuetifyjs.com/components/forms/radio
+ *
  * @remarks
  * Root component for individual radio buttons. Must be used within a
  * Radio.Group component which provides the single-selection context.
@@ -11,7 +13,7 @@
   // Components
   import { Atom } from '#v0/components/Atom'
 
-  // Foundational
+  // Composables
   import { createContext } from '#v0/composables/createContext'
 
   // Types
@@ -149,7 +151,8 @@
   import RadioHiddenInput from './RadioHiddenInput.vue'
 
   // Utilities
-  import { onUnmounted, toRef, toValue, useAttrs, useId, useTemplateRef } from 'vue'
+  import { useId } from '#v0/utilities'
+  import { mergeProps, onBeforeUnmount, toRef, toValue, useAttrs, useTemplateRef } from 'vue'
 
   defineOptions({ name: 'RadioRoot', inheritAttrs: false })
 
@@ -261,7 +264,7 @@
     toValue(nextItem.el)?.focus()
   }
 
-  onUnmounted(() => {
+  onBeforeUnmount(() => {
     group.unregister(ticket.id)
   })
 
@@ -305,7 +308,7 @@
 <template>
   <Atom
     ref="root"
-    v-bind="{ ...attrs, ...slotProps.attrs }"
+    v-bind="mergeProps(attrs, slotProps.attrs)"
     :as
     :renderless
     @click="onClick"

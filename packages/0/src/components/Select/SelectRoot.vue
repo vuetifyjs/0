@@ -1,6 +1,8 @@
 /**
  * @module SelectRoot
  *
+ * @see https://0.vuetifyjs.com/components/forms/select
+ *
  * @remarks
  * Root component for select contexts. Creates and provides select context
  * to child Select components. Manages selection state, open/close state,
@@ -9,22 +11,23 @@
  */
 
 <script lang="ts">
+  // Globals
+  import { IN_BROWSER } from '#v0/constants/globals'
+
   // Components
   import { Atom } from '#v0/components/Atom'
   import SelectHiddenInput from './SelectHiddenInput.vue'
 
-  // Foundational
-  import { createContext } from '#v0/composables/createContext'
-
   // Composables
+  import { createContext } from '#v0/composables/createContext'
   import { createSelection } from '#v0/composables/createSelection'
   import { usePopover } from '#v0/composables/usePopover'
   import { useProxyModel } from '#v0/composables/useProxyModel'
   import { useVirtualFocus } from '#v0/composables/useVirtualFocus'
 
   // Utilities
-  import { isUndefined } from '#v0/utilities'
-  import { nextTick, shallowRef, toRef, toValue, useId, watch } from 'vue'
+  import { isUndefined, useId } from '#v0/utilities'
+  import { nextTick, shallowRef, toRef, toValue, watch } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -67,6 +70,8 @@
     toggle: () => void
     /** Select an item by ID, closing dropdown in single-select mode */
     select: (id: ID) => void
+    /** Raw model value for fallback display before items register */
+    modelValue: Ref<ID | ID[] | undefined>
   }
 
   export interface SelectRootProps extends AtomProps {
@@ -146,10 +151,7 @@
 
   useProxyModel(selection, model, { multiple })
 
-  const selectedId = toRef(() => {
-    const ids = Array.from(selection.selectedIds)
-    return ids.length > 0 ? ids[0] : undefined
-  })
+  const selectedId = toRef(() => selection.selectedIds.values().next().value)
 
   const popover = usePopover({ id })
   const isOpen = popover.isOpen
@@ -159,7 +161,7 @@
   const virtualFocus = useVirtualFocus(
     () => selection.values().map(ticket => ({
       id: ticket.id,
-      el: () => document.querySelector<HTMLElement>(`#${CSS.escape(`${id}-option-${ticket.id}`)}`),
+      el: () => IN_BROWSER ? document.querySelector<HTMLElement>(`#${CSS.escape(`${id}-option-${ticket.id}`)}`) : null,
       disabled: ticket.disabled,
     })),
     {
@@ -222,6 +224,7 @@
     close,
     toggle,
     select,
+    modelValue: model,
   })
 
   const slotProps = toRef((): SelectRootSlotProps => ({

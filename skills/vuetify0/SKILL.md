@@ -1,121 +1,164 @@
 ---
 name: vuetify0
-description: Build with @vuetify/v0 headless composables and components for Vue 3. Use when creating selection state (single, multi, grouped, stepped), form validation, tab/dialog/popover UI, provide/inject context, registries, virtual scrolling, pagination, keyboard shortcuts, resize observers, theming, breakpoints, or SSR-safe browser detection. Triggers on v0, vuetify0, headless components, or WAI-ARIA patterns.
+description: Use when building Vue 3 UI that needs headless logic — selection state (single, multi, grouped, nested, stepped), form validation, registries, context providers, virtual scrolling, pagination, data tables, focus traversal, keyboard shortcuts, resize/intersection/mutation observers, popovers, snackbars, SSR-safe browser checks, theming, RTL, breakpoints, or WAI-ARIA compound components. Triggers on @vuetify/v0, vuetify0, v0, createX composables, or import paths starting with #v0.
 ---
 
-# Vuetify0 - Headless Composables & Components
+# Vuetify0
 
-Transform Vue 3 apps with unstyled, logic-focused building blocks for design systems.
+Headless Vue 3 primitives. Logic only, zero styling. Feeds Vuetify 4 through minor releases.
 
-## Quick Start
+**36 components, 63 composables** across selection, forms, data, disclosure, observers, and plugins. Compound-component APIs with WAI-ARIA semantics.
+
+## Install
 
 ```bash
 pnpm install @vuetify/v0
 ```
 
-No global plugin required. Import only what you need:
+No global plugin required. Tree-shakeable imports:
 
 ```ts
-import { createSelection } from '@vuetify/v0/composables'
-import { Tabs } from '@vuetify/v0/components'
+import { createSelection, useBreakpoints } from '@vuetify/v0'
+import { Tabs, Dialog } from '@vuetify/v0/components'
 ```
 
-## Core Decision Tree
+## Decision table — reach for these first
 
-**Before writing custom logic**, check if v0 already provides it:
+Check this table **before writing custom logic**. Match by problem, not by keyword.
 
-| Need | Use | Guide |
-|------|-----|-------|
-| Single item selection | `createSingle` | [Single selection patterns](references/selection-patterns.md#single) |
-| Multi-item selection | `createSelection` | [Multi selection patterns](references/selection-patterns.md#multi) |
-| Selection with "select all" | `createGroup` | [Group patterns](references/selection-patterns.md#group) |
-| Step wizard / carousel | `createStep` | [Stepper patterns](references/selection-patterns.md#step) |
-| Form validation | `createForm` | [Form patterns](references/form-patterns.md) |
-| Shared state (provide/inject) | `createContext` | [Context patterns](references/context-patterns.md) |
-| Browser utilities | See utilities | [Browser & DOM patterns](references/browser-patterns.md) |
+| Problem | Use | Category |
+|---|---|---|
+| Single-choice state (tabs, theme picker) | `createSingle` | selection |
+| Multi-choice state (filters, tag pickers) | `createSelection` | selection |
+| Select-all with tri-state | `createGroup` | selection |
+| Tree / nested selection (treeview, menus) | `createNested` | selection |
+| Wizard / carousel step tracking | `createStep` | selection |
+| Id-based value store (shared across sub-components) | `createModel` | selection |
+| Form with async validation + dirty tracking | `createForm` + `createValidation` | forms |
+| Slider / range / knob state | `createSlider` | forms |
+| Autocomplete / combobox | `createCombobox` | forms |
+| Spin-button numeric input | `createNumberField` / `createNumeric` | forms |
+| Paginated or virtualized list | `createPagination`, `createVirtual` | data |
+| Sortable / filterable table | `createDataTable`, `createFilter` | data |
+| Breadcrumb trail derived from route | `createBreadcrumbs` | utilities |
+| Overflow / responsive menu (hides overflowing items) | `createOverflow` | utilities |
+| Type-safe provide/inject | `createContext` | foundation |
+| Reactive registry of ids → values | `createRegistry` | registration |
+| Auto-dismissing queue (snackbars, toasts) | `createQueue` | registration |
+| Scheduled events over time (timeline, animation) | `createTimeline` | registration |
+| Design-token graph (theme, spacing scales) | `createTokens` | registration |
+| Floating UI positioning (popover, tooltip, menu) | `usePopover` | system |
+| Enter/leave animation orchestration | `usePresence` | system |
+| Roving tabindex (list, menubar) | `useRovingFocus` | system |
+| Virtual focus (combobox listbox) | `useVirtualFocus` | system |
+| Click outside / keyboard shortcut / event listener | `useClickOutside`, `useHotkey`, `useEventListener` | system |
+| ResizeObserver / IntersectionObserver / MutationObserver | `useResizeObserver`, etc. | system |
+| rAF loop or setTimeout with pause/resume | `useRaf`, `useTimer` | system |
+| Responsive breakpoints | `useBreakpoints`, `useMediaQuery` | plugins |
+| Localized strings + date/number format | `useLocale`, `useDate` | plugins |
+| Theme (light/dark/custom palette) | `useTheme` | plugins |
+| RTL direction awareness | `useRtl` | plugins |
+| z-index stacking for overlays | `useStack` | plugins |
+| Notifications / snackbar queue plugin | `useNotifications` | plugins |
+| Feature flags / permission checks | `useFeatures`, `usePermissions` | plugins |
+| Persisted state (localStorage / sessionStorage) | `useStorage` | plugins |
+| Structured logging with adapters | `useLogger` | plugins |
+| SSR-safe mount detection | `useHydration` | plugins |
 
-**Full API reference**: See [REFERENCE.md](references/REFERENCE.md)
+**Full API and type signatures:** see [references/REFERENCE.md](references/REFERENCE.md).
 
-## Component Architecture
+## Compound-component pattern
 
-All components are **headless** (unstyled) and follow WAI-ARIA patterns:
+All components are headless and compound. Root owns state, children are named sub-components.
 
 ```vue
-<script setup>
-import { Tabs } from '@vuetify/v0/components'
+<script setup lang="ts">
+  import { Tabs } from '@vuetify/v0/components'
+  import { shallowRef } from 'vue'
+
+  const active = shallowRef('overview')
 </script>
 
 <template>
   <Tabs.Root v-model="active">
     <Tabs.List>
       <Tabs.Item value="overview">Overview</Tabs.Item>
+      <Tabs.Item value="details">Details</Tabs.Item>
     </Tabs.List>
-    <Tabs.Panel value="overview">Content</Tabs.Panel>
+    <Tabs.Panel value="overview">Overview content</Tabs.Panel>
+    <Tabs.Panel value="details">Details content</Tabs.Panel>
   </Tabs.Root>
 </template>
 ```
 
-**Available components**: Dialog, Tabs, ExpansionPanel, Checkbox, Radio, Popover, Pagination
+**Available components:**
 
-**Component examples**: See [component-examples.md](references/component-examples.md)
+- *Primitives:* `Atom`, `Portal`, `Presence`
+- *Providers:* `Group`, `Locale`, `Scrim`, `Selection`, `Single`, `Step`, `Theme`
+- *Actions:* `Button`, `Toggle`
+- *Forms:* `Checkbox`, `Combobox`, `Form`, `Input`, `NumberField`, `Radio`, `Rating`, `Select`, `Slider`, `Switch`
+- *Disclosure:* `AlertDialog`, `Collapsible`, `Dialog`, `ExpansionPanel`, `Popover`, `Tabs`, `Treeview`
+- *Semantic:* `Avatar`, `Breadcrumbs`, `Carousel`, `Pagination`, `Snackbar`, `Splitter`
 
-## Essential Patterns
+**More compound examples:** see [references/component-examples.md](references/component-examples.md).
 
-### Selection State
-```ts
-// Single selection (tabs, theme picker)
-const single = createSingle({ mandatory: 'force' })
+## Must-read rules
 
-// Multi-selection (tags, filters)
-const selection = createSelection({ multiple: true })
+### 1. Check utilities before writing helpers
 
-// Group with "select all" (data tables)  
-const group = createGroup()
-```
+Import from `#v0/utilities` (internal) or `@vuetify/v0` (external):
 
-### Context Sharing
-```ts
-// Type-safe provide/inject
-const [useTheme, provideTheme] = createContext<Theme>('Theme')
-```
+- Type guards: `isFunction`, `isString`, `isNumber`, `isBoolean`, `isObject`, `isArray`, `isNull`, `isUndefined`, `isNullOrUndefined`, `isPrimitive`, `isSymbol`, `isNaN`, `isElement`
+- Data: `mergeDeep`, `clamp`, `range`, `useId`
 
-### Form Validation
-```ts
-const form = createForm()
-form.register({ id: 'email', rules: [required, email] })
-```
+### 2. Check globals before SSR branches
 
-## Anti-Patterns
+Import from `#v0/constants/globals`:
 
-**Don't reinvent these wheels:**
+- `IN_BROWSER` — replaces `typeof window !== 'undefined'`
+- `SUPPORTS_TOUCH`, `SUPPORTS_MATCH_MEDIA`, `SUPPORTS_OBSERVER`, `SUPPORTS_INTERSECTION_OBSERVER`, `SUPPORTS_MUTATION_OBSERVER`
 
-❌ **Custom selection logic** → Use `createSelection`
-❌ **Manual provide/inject** → Use `createContext` 
-❌ **SSR checks** → Use `IN_BROWSER` constant
+### 3. Reactivity defaults
 
-**Detailed anti-patterns**: See [anti-patterns.md](references/anti-patterns.md)
+- `shallowRef` for primitives
+- `ref` for objects/arrays
+- `toRef` for derived values (default)
+- `computed` only when caching expensive work
 
-## Development Tools
+### 4. Compound components only
 
-**Generate common patterns:**
-```bash
-python scripts/scaffold_pattern.py --type selection --output ./composables
-```
+Sub-components talk to the root via `createContext`. Never prop-drill state between siblings. Never build a monolithic component when the root + sub-component pattern fits.
 
-**Check for anti-patterns:**
-```bash
-python scripts/check_patterns.py ./src
-```
+**Detailed anti-patterns:** see [references/anti-patterns.md](references/anti-patterns.md).
 
-**Vuetify MCP** for structured API access:
+## Paper and Vuetify relationship
+
+- `@vuetify/v0` — headless (this skill)
+- `@vuetify/paper` — styling primitives that depend on v0
+- `vuetify` v4 — Material Design framework, integrates v0 via minor releases
+
+When the user asks to "style" a v0 component or build a design system, point them at `@vuetify/paper` or a Paper-based design system (e.g., Emerald, Codex). Keep v0 itself headless.
+
+## Vuetify MCP
+
+For live API schemas, guides, and release notes, prefer the Vuetify MCP server over guessing:
+
 ```bash
 claude mcp add vuetify-mcp https://mcp.vuetifyjs.com/mcp
 ```
 
+Useful tools (fully qualified names required):
+
+- `vuetify-mcp:get_vuetify0_component_list` — all components with categories
+- `vuetify-mcp:get_vuetify0_composable_list` — all composables with categories
+- `vuetify-mcp:get_vuetify0_component_guide` — guide for a named component
+- `vuetify-mcp:get_vuetify0_composable_guide` — guide for a named composable
+- `vuetify-mcp:get_vuetify0_installation_guide` — installation + bootstrap
+
 ## Resources
 
-- **Detailed examples**: [references/component-examples.md](references/component-examples.md)
-- **Advanced patterns**: [references/advanced-patterns.md](references/advanced-patterns.md)  
-- **Migration guide**: [references/migration-guide.md](references/migration-guide.md)
-- **Full API**: [references/REFERENCE.md](references/REFERENCE.md)
-- **Live docs**: https://0.vuetifyjs.com
+- Live docs: https://0.vuetifyjs.com
+- API reference: [references/REFERENCE.md](references/REFERENCE.md)
+- Selection patterns (single, multi, group, nested, step): [references/selection-patterns.md](references/selection-patterns.md)
+- Component compound patterns: [references/component-examples.md](references/component-examples.md)
+- Anti-patterns and migrations: [references/anti-patterns.md](references/anti-patterns.md)

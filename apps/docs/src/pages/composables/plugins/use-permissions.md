@@ -11,14 +11,15 @@ features:
   github: /composables/usePermissions/
   level: 2
 related:
+  - /composables/plugins/use-features
   - /composables/registration/create-tokens
 ---
 
 # usePermissions
 
-Manage role-based permissions across your app. Register permissions for roles, actions, and subjects with optional context-aware conditions.
-
 <DocsPageFeatures :frontmatter />
+
+Role-based access control with actions, subjects, and context-aware conditions.
 
 ## Installation
 
@@ -104,6 +105,44 @@ Optionally register permissions at runtime:
 </script>
 ```
 
+## Adapters
+
+Adapters let you swap the underlying permission resolution strategy without changing your application code.
+
+| Adapter | Import | Description |
+|---------|--------|-------------|
+| `Vuetify0PermissionAdapter` | `@vuetify/v0/permissions/adapters/v0` | Token-based permission lookup (default) |
+
+### Custom Adapters
+
+Implement the `PermissionAdapter` abstract class to integrate any backend authorization system:
+
+```ts src/adapters/my-permission-adapter.ts collapse
+import { PermissionAdapter } from '@vuetify/v0/permissions/adapters/v0'
+import type { PermissionContext, PermissionTicket } from '@vuetify/v0'
+import type { ID } from '@vuetify/v0'
+
+class MyPermissionAdapter extends PermissionAdapter {
+  can<Z extends PermissionTicket>(
+    role: ID,
+    action: string,
+    subject: string,
+    context: Record<string, any>,
+    permissions: PermissionContext<Z>,
+  ): boolean {
+    // Delegate to your auth system
+    return myAuthClient.check(String(role), `${action}:${subject}`, context)
+  }
+}
+
+// Use with plugin
+app.use(
+  createPermissionsPlugin({
+    adapter: new MyPermissionAdapter(),
+  })
+)
+```
+
 ## Architecture
 
 `usePermissions` uses `createTokens` for permission flattening and lookup:
@@ -128,5 +167,16 @@ Permissions are stored in a token registry. There are no reactive properties —
 ```ts
 const canEdit = computed(() => permissions.can(user.role, 'edit', 'post'))
 ```
+
+## Examples
+
+::: example
+/composables/use-permissions/role-checker
+
+### Role Checker
+
+Displays a matrix of resource/action permissions per role, using `can()` inside a `computed` to reactively reflect the active role's access level.
+
+:::
 
 <DocsApi />

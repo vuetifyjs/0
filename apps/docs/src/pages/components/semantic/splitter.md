@@ -27,6 +27,11 @@ The Splitter provides resizable panels separated by draggable handles. Panel siz
 
 ::: example
 /components/splitter/basic
+
+### Two-Panel Splitter
+
+Horizontal split with a drag handle and min-size constraints on each panel.
+
 :::
 
 ## Anatomy

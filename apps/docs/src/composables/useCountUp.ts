@@ -2,10 +2,10 @@
 import { IN_BROWSER, useIntersectionObserver } from '@vuetify/v0'
 
 // Utilities
-import { shallowRef } from 'vue'
+import { shallowRef, toValue, watchEffect } from 'vue'
 
 // Types
-import type { Ref } from 'vue'
+import type { MaybeRefOrGetter, Ref } from 'vue'
 
 export interface UseCountUpOptions {
   /** Animation duration in ms. Default: 1200 */
@@ -16,18 +16,19 @@ export interface UseCountUpOptions {
 
 /**
  * Animates a number from 0 to target using requestAnimationFrame.
- * Triggers when the target element enters the viewport.
+ * Triggers when the target element enters the viewport and `to` is > 0.
  */
 export function useCountUp (
   target: Ref<HTMLElement | undefined>,
-  to: number,
+  to: MaybeRefOrGetter<number>,
   options: UseCountUpOptions = {},
 ) {
   const { duration = 1200, from = 0 } = options
   const current = shallowRef(from)
   let started = false
+  const visible = shallowRef(false)
 
-  function animate () {
+  function animate (end: number) {
     if (!IN_BROWSER) return
 
     const start = performance.now()
@@ -37,7 +38,7 @@ export function useCountUp (
       const progress = Math.min(elapsed / duration, 1)
       // Ease-out cubic
       const eased = 1 - Math.pow(1 - progress, 3)
-      current.value = Math.round(from + (to - from) * eased)
+      current.value = Math.round(from + (end - from) * eased)
 
       if (progress < 1) {
         requestAnimationFrame(step)
@@ -49,13 +50,20 @@ export function useCountUp (
 
   const { stop } = useIntersectionObserver(target, entries => {
     for (const entry of entries) {
-      if (entry.isIntersecting && !started) {
-        started = true
-        animate()
+      if (entry.isIntersecting) {
+        visible.value = true
         stop()
       }
     }
   }, { threshold: 0.2 })
+
+  watchEffect(() => {
+    const end = toValue(to)
+    if (!started && visible.value && end > 0) {
+      started = true
+      animate(end)
+    }
+  })
 
   return { current }
 }

@@ -6,31 +6,11 @@
     <title>Vuetify0</title>
     <link rel="preconnect" href="https://cdn.vuetifyjs.com" crossorigin>
     <link rel="icon" type="image/png" href="/0.png">
-    <script>
-      // Set data-theme before first paint to prevent FOUC on dark themes
-      ;(function () {
-        try {
-          var raw = localStorage.getItem('v0:theme')
-          var theme = raw ? JSON.parse(raw) : null
-          var light = { light: 1, odyssey: 1, 'tailwind-light': 1, 'material-3-light': 1, 'ant-design-light': 1, 'radix-light': 1 }
-          var valid = { light: 1, dark: 1, 'high-contrast': 1, protanopia: 1, deuteranopia: 1, tritanopia: 1, blackguard: 1, polaris: 1, nebula: 1, odyssey: 1, tailwind: 1, 'tailwind-light': 1, 'material-3': 1, 'material-3-light': 1, 'ant-design': 1, 'ant-design-light': 1, radix: 1, 'radix-light': 1 }
-          if (!theme || theme === 'system') {
-            theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-          }
-          if (!(theme in valid)) theme = 'light'
-          document.documentElement.dataset.theme = theme
-          document.documentElement.style.colorScheme = theme in light ? 'light' : 'dark'
-          // Force dark page background before CSS loads to prevent white flash
-          if (!(theme in light)) {
-            document.documentElement.style.backgroundColor = '#121212'
-          }
-        } catch (e) {}
-      })()
-    </script>
     <style>
-      /* Critical: use Shiki's inline CSS variables for code block backgrounds
-         before Vue mounts and App.vue styles load. Without this, code blocks
-         render with no background-color (defaultColor: false) causing a white flash. */
+      /* Critical inline CSS — styles Shiki and logos before external CSS loads.
+         The inline script above always sets data-theme, so these selectors are
+         guaranteed to match. External CSS (App.vue) overrides Shiki vars to use
+         --v0-surface once loaded. */
       .shiki {
         background-color: var(--shiki-light-bg, #fff);
         border-radius: 0.5rem;
@@ -42,10 +22,10 @@
       [data-theme]:not([data-theme="light"]):not([data-theme="odyssey"]):not([data-theme="tailwind-light"]):not([data-theme="material-3-light"]):not([data-theme="ant-design-light"]):not([data-theme="radix-light"]) .shiki span {
         color: var(--shiki-dark);
       }
-      @media (prefers-color-scheme: dark) {
-        html:not([data-theme]) .shiki { background-color: var(--shiki-dark-bg, #0d1117) }
-        html:not([data-theme]) .shiki span { color: var(--shiki-dark) }
-      }
+      /* Logo light/dark visibility before Vue hydrates */
+      .logo-dark { display: none }
+      [data-theme]:not([data-theme="light"]):not([data-theme="odyssey"]):not([data-theme="tailwind-light"]):not([data-theme="material-3-light"]):not([data-theme="ant-design-light"]):not([data-theme="radix-light"]) .logo-light { display: none }
+      [data-theme]:not([data-theme="light"]):not([data-theme="odyssey"]):not([data-theme="tailwind-light"]):not([data-theme="material-3-light"]):not([data-theme="ant-design-light"]):not([data-theme="radix-light"]) .logo-dark { display: inline }
     </style>
   </head>
   <body>

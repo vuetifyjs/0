@@ -1,6 +1,8 @@
 /**
  * @module TabsItem
  *
+ * @see https://0.vuetifyjs.com/components/disclosure/tabs
+ *
  * @remarks
  * Individual tab trigger that registers with the parent TabsRoot.
  * Provides complete ARIA attributes, roving tabindex, and keyboard
@@ -24,7 +26,7 @@
   import { useTabsRoot } from './TabsRoot.vue'
 
   // Utilities
-  import { nextTick, onUnmounted, toRef, toValue, useAttrs, useTemplateRef } from 'vue'
+  import { mergeProps, nextTick, onBeforeUnmount, toRef, toValue, useAttrs, useTemplateRef } from 'vue'
 
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
@@ -113,7 +115,7 @@
   const tabId = toRef(() => `${tabs.rootId}-tab-${ticket.id}`)
   const panelId = toRef(() => `${tabs.rootId}-panel-${ticket.id}`)
 
-  onUnmounted(() => {
+  onBeforeUnmount(() => {
     tabs.unregister(ticket.id)
   })
 
@@ -126,9 +128,40 @@
     })
   }
 
+  // Manual mode: move focus without changing selection
+  function focusAdjacent (direction: 1 | -1) {
+    const all = tabs.values()
+    const current = all.findIndex(t => t.id === ticket.id)
+    const length = all.length
+    const circular = tabs.circular.value
+    let index = current + direction
+    let hops = 0
+
+    while (hops < length) {
+      if (circular) {
+        index = ((index % length) + length) % length
+      } else if (index < 0 || index >= length) {
+        return
+      }
+      const item = all[index]
+      if (item && !toValue(item.disabled)) {
+        nextTick(() => toValue(item.el)?.focus())
+        return
+      }
+      index += direction
+      hops++
+    }
+  }
+
+  function focusEdge (edge: 'first' | 'last') {
+    const item = tabs.seek(edge)
+    if (item) nextTick(() => toValue(item.el)?.focus())
+  }
+
   function onKeydown (e: KeyboardEvent) {
     const orientation = tabs.orientation.value
     const isHorizontal = orientation === 'horizontal'
+    const manual = tabs.activation.value === 'manual'
 
     // Arrow key navigation
     if (
@@ -136,8 +169,12 @@
       (!isHorizontal && e.key === 'ArrowDown')
     ) {
       e.preventDefault()
-      tabs.next()
-      focusSelectedTab()
+      if (manual) {
+        focusAdjacent(1)
+      } else {
+        tabs.next()
+        focusSelectedTab()
+      }
       return
     }
 
@@ -146,28 +183,40 @@
       (!isHorizontal && e.key === 'ArrowUp')
     ) {
       e.preventDefault()
-      tabs.prev()
-      focusSelectedTab()
+      if (manual) {
+        focusAdjacent(-1)
+      } else {
+        tabs.prev()
+        focusSelectedTab()
+      }
       return
     }
 
     // Home/End navigation
     if (e.key === 'Home') {
       e.preventDefault()
-      tabs.first()
-      focusSelectedTab()
+      if (manual) {
+        focusEdge('first')
+      } else {
+        tabs.first()
+        focusSelectedTab()
+      }
       return
     }
 
     if (e.key === 'End') {
       e.preventDefault()
-      tabs.last()
-      focusSelectedTab()
+      if (manual) {
+        focusEdge('last')
+      } else {
+        tabs.last()
+        focusSelectedTab()
+      }
       return
     }
 
-    // Manual activation
-    if (tabs.activation.value === 'manual' && (e.key === 'Enter' || e.key === ' ')) {
+    // Manual activation: Enter/Space selects the focused tab
+    if (manual && (e.key === 'Enter' || e.key === ' ')) {
       e.preventDefault()
       ticket.select()
     }
@@ -215,7 +264,7 @@
 <template>
   <Atom
     ref="root"
-    v-bind="{ ...attrs, ...slotProps.attrs }"
+    v-bind="mergeProps(attrs, slotProps.attrs)"
     :as
     :renderless
   >

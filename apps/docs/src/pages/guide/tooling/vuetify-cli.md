@@ -286,7 +286,7 @@ bunx @vuetify/cli analyze --reporter json
 The analyzer scans your project and detects all imports from `@vuetify/v0`:
 
 - **Components** — `VBtn`, `VCard`, `VDataTable`, etc.
-- **Composables** — `useDisplay`, `useTheme`, `useFilter`, etc.
+- **Composables** — `useDisplay`, `useTheme`, `createFilter`, etc.
 - **Plugins** — `createVuetify`, `createIconsPlugin`, etc.
 - **Utilities and constants**
 
@@ -352,7 +352,7 @@ The interactive wizard guides you through project configuration:
 | Platform | Description |
 | - | - |
 | Vue + Vite | Standard Vue 3 SPA with [Vite](https://vite.dev) |
-| Nuxt | [Nuxt 3/4](https://nuxt.com) with SSR/SSG support |
+| Nuxt | [Nuxt](https://nuxt.com) with SSR/SSG support |
 
 ### CSS Frameworks
 

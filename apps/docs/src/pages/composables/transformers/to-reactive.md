@@ -16,7 +16,7 @@ related:
 
 # toReactive
 
-The `toReactive` utility function converts a `MaybeRef` object to a reactive proxy, automatically unwrapping ref values. It provides special handling for `Map`, `Set`, and regular objects.
+Converts a `MaybeRef` object to a reactive proxy with automatic ref unwrapping and `Map`/`Set` support.
 
 <DocsPageFeatures :frontmatter />
 
@@ -60,5 +60,16 @@ flowchart LR
 - Eliminate `.value` in templates
 - Pass reactive state to non-Vue code expecting plain objects
 - Create reactive proxies over ref-wrapped collections
+
+## Examples
+
+::: example
+/composables/to-reactive/settings
+
+### Reactive Settings Object
+
+Wraps a ref-based config object with `toReactive`, letting templates access properties directly without `.value`.
+
+:::
 
 <DocsApi />

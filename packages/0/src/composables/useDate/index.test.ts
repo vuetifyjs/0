@@ -140,7 +140,7 @@ describe('useDate', () => {
         const date = Temporal.PlainDateTime.from('2024-06-15T10:30:00')
         const iso = adapter.toISO(date)
 
-        expect(iso).toBe('2024-06-15T10:30:00')
+        expect(iso).toBe('2024-06-15')
       })
 
       it('should validate dates', () => {
@@ -209,7 +209,7 @@ describe('useDate', () => {
 
       it('should get start of week (Sunday first)', () => {
         // June 15, 2024 is a Saturday
-        const start = adapter.startOfWeek(testDate, 0)
+        const start = adapter.startOfWeek(testDate)
 
         expect(start.day).toBe(9) // Sunday, June 9
         expect(start.hour).toBe(0)
@@ -217,9 +217,11 @@ describe('useDate', () => {
 
       it('should get start of week (Monday first)', () => {
         // June 15, 2024 is a Saturday
-        const start = adapter.startOfWeek(testDate, 1)
+        adapter.firstDayOfWeek = 1
+        const start = adapter.startOfWeek(testDate)
 
         expect(start.day).toBe(10) // Monday, June 10
+        adapter.firstDayOfWeek = 0
       })
 
       it('should get end of week', () => {
@@ -438,7 +440,7 @@ describe('useDate', () => {
       const testDate = Temporal.PlainDateTime.from('2024-06-15T10:30:00')
 
       it('should get weekdays', () => {
-        const weekdays = adapter.getWeekdays(0, 'short')
+        const weekdays = adapter.getWeekdays('short')
 
         expect(weekdays).toHaveLength(7)
         expect(weekdays[0]).toBe('Sun')
@@ -446,14 +448,16 @@ describe('useDate', () => {
       })
 
       it('should get weekdays with Monday first', () => {
-        const weekdays = adapter.getWeekdays(1, 'short')
+        adapter.firstDayOfWeek = 1
+        const weekdays = adapter.getWeekdays('short')
 
         expect(weekdays[0]).toBe('Mon')
         expect(weekdays[6]).toBe('Sun')
+        adapter.firstDayOfWeek = 0
       })
 
       it('should get week array', () => {
-        const weeks = adapter.getWeekArray(testDate, 0)
+        const weeks = adapter.getWeekArray(testDate)
 
         expect(weeks.length).toBeGreaterThanOrEqual(4)
         expect(weeks.length).toBeLessThanOrEqual(6)
@@ -619,11 +623,13 @@ describe('useDate', () => {
         expect(diff).toBe(0)
       })
 
-      it('should respect firstDayOfWeek parameter in getWeek', () => {
+      it('should respect firstDayOfWeek property in getWeek', () => {
         const jan5 = Temporal.PlainDateTime.from('2025-01-05T10:00:00')
 
-        expect(adapter.getWeek(jan5, 0)).toBe(2)
-        expect(adapter.getWeek(jan5, 1)).toBe(1)
+        expect(adapter.getWeek(jan5)).toBe(2)
+        adapter.firstDayOfWeek = 1
+        expect(adapter.getWeek(jan5)).toBe(1)
+        adapter.firstDayOfWeek = 0
       })
 
       it('should return correct week for mid-year date', () => {
@@ -640,36 +646,39 @@ describe('useDate', () => {
       })
 
       it('should handle year boundary weeks with non-US settings', () => {
-        expect(adapter.getWeek(adapter.parseISO('2026-12-27'), 1, 4)).toBe(52)
-        expect(adapter.getWeek(adapter.parseISO('2026-12-28'), 1, 4)).toBe(53)
-        expect(adapter.getWeek(adapter.parseISO('2026-12-31'), 1, 4)).toBe(53)
-        expect(adapter.getWeek(adapter.parseISO('2027-01-01'), 1, 4)).toBe(53)
-        expect(adapter.getWeek(adapter.parseISO('2027-01-03'), 1, 4)).toBe(53)
-        expect(adapter.getWeek(adapter.parseISO('2027-01-04'), 1, 4)).toBe(1)
+        adapter.firstDayOfWeek = 1
+        expect(adapter.getWeek(adapter.parseISO('2026-12-27'), 4)).toBe(52)
+        expect(adapter.getWeek(adapter.parseISO('2026-12-28'), 4)).toBe(53)
+        expect(adapter.getWeek(adapter.parseISO('2026-12-31'), 4)).toBe(53)
+        expect(adapter.getWeek(adapter.parseISO('2027-01-01'), 4)).toBe(53)
+        expect(adapter.getWeek(adapter.parseISO('2027-01-03'), 4)).toBe(53)
+        expect(adapter.getWeek(adapter.parseISO('2027-01-04'), 4)).toBe(1)
+        adapter.firstDayOfWeek = 0
       })
 
       it('should correctly calculate when year starts with a full week', () => {
-        const adapter1 = new Vuetify0DateAdapter('en-US') // first day = 7 | minimal days = 1
+        const adapter1 = new Vuetify0DateAdapter('en-US')
         expect(adapter1.getWeek(adapter1.parseISO('2022-12-25'))).toBe(53)
         expect(adapter1.getWeek(adapter1.parseISO('2022-12-31'))).toBe(53)
         expect(adapter1.getWeek(adapter1.parseISO('2023-01-01'))).toBe(1)
         expect(adapter1.getWeek(adapter1.parseISO('2023-01-07'))).toBe(1)
 
-        const adapter2 = new Vuetify0DateAdapter('pt-PT') // first day = 7 | minimal days = 4
-        expect(adapter2.getWeek(adapter2.parseISO('2022-12-25'), 0, 4)).toBe(52)
-        expect(adapter2.getWeek(adapter2.parseISO('2022-12-31'), 0, 4)).toBe(52)
-        expect(adapter2.getWeek(adapter2.parseISO('2023-01-01'), 0, 4)).toBe(1)
-        expect(adapter2.getWeek(adapter2.parseISO('2023-01-07'), 0, 4)).toBe(1)
+        const adapter2 = new Vuetify0DateAdapter('pt-PT')
+        expect(adapter2.getWeek(adapter2.parseISO('2022-12-25'), 4)).toBe(52)
+        expect(adapter2.getWeek(adapter2.parseISO('2022-12-31'), 4)).toBe(52)
+        expect(adapter2.getWeek(adapter2.parseISO('2023-01-01'), 4)).toBe(1)
+        expect(adapter2.getWeek(adapter2.parseISO('2023-01-07'), 4)).toBe(1)
       })
 
       it('should adjust fallback to week start from locale', () => {
         const adapter1 = new Vuetify0DateAdapter('en-US')
-        expect(adapter1.getWeek(adapter1.parseISO('2025-01-04'))).toBe(1) // saturday
-        expect(adapter1.getWeek(adapter1.parseISO('2025-01-05'))).toBe(2) // sunday
+        expect(adapter1.getWeek(adapter1.parseISO('2025-01-04'))).toBe(1)
+        expect(adapter1.getWeek(adapter1.parseISO('2025-01-05'))).toBe(2)
 
         const adapter2 = new Vuetify0DateAdapter('fr-FR')
-        expect(adapter2.getWeek(adapter2.parseISO('2025-01-05'), 1, 4)).toBe(1) // sunday
-        expect(adapter2.getWeek(adapter2.parseISO('2025-01-06'), 1, 4)).toBe(2) // monday
+        adapter2.firstDayOfWeek = 1
+        expect(adapter2.getWeek(adapter2.parseISO('2025-01-05'), 4)).toBe(1)
+        expect(adapter2.getWeek(adapter2.parseISO('2025-01-06'), 4)).toBe(2)
       })
     })
 
@@ -677,10 +686,64 @@ describe('useDate', () => {
       it('should calculate weeks correctly when adapting for UK', () => {
         const adapter1 = new Vuetify0DateAdapter('en-US')
         expect(adapter1.getWeek(adapter1.parseISO('2025-03-16'))).toBe(12)
-        expect(adapter1.getWeek(adapter1.parseISO('2025-03-16'), 1, 4)).toBe(11)
+        adapter1.firstDayOfWeek = 1
+        expect(adapter1.getWeek(adapter1.parseISO('2025-03-16'), 4)).toBe(11)
 
         const adapter2 = new Vuetify0DateAdapter('en-GB')
-        expect(adapter2.getWeek(adapter2.parseISO('2025-03-16'), 1, 4)).toBe(11)
+        adapter2.firstDayOfWeek = 1
+        expect(adapter2.getWeek(adapter2.parseISO('2025-03-16'), 4)).toBe(11)
+      })
+    })
+
+    describe('firstDayOfWeek property', () => {
+      it('should default firstDayOfWeek to 0', () => {
+        const fresh = new Vuetify0DateAdapter()
+        expect(fresh.firstDayOfWeek).toBe(0)
+      })
+
+      it('should use firstDayOfWeek property in all week methods', () => {
+        const a = new Vuetify0DateAdapter()
+        const date = a.date('2024-06-15T10:00:00')! // Saturday
+
+        // Default (Sunday start)
+        expect(a.startOfWeek(date).day).toBe(9) // Sunday Jun 9
+        expect(a.endOfWeek(date).day).toBe(15) // Saturday Jun 15
+        expect(a.getWeekdays('short')[0]).toBe('Sun')
+
+        // Switch to Monday start
+        a.firstDayOfWeek = 1
+        expect(a.startOfWeek(date).day).toBe(10) // Monday Jun 10
+        expect(a.endOfWeek(date).day).toBe(16) // Sunday Jun 16
+        expect(a.getWeekdays('short')[0]).toBe('Mon')
+
+        a.firstDayOfWeek = 0
+      })
+
+      it('should accept format as first param after signature change', () => {
+        const days = adapter.getWeekdays('narrow')
+        expect(days).toHaveLength(7)
+        expect(typeof days[0]).toBe('string')
+      })
+
+      it('should not generate extra weeks with Monday start', () => {
+        // March 2024 ends on Sunday — with Mon-Sun weeks, the grid
+        // should be 5 weeks (Feb 26 – Mar 31), not 6.
+        adapter.firstDayOfWeek = 1
+        const march2024 = adapter.date('2024-03-15T12:00:00')!
+        const weeks = adapter.getWeekArray(march2024)
+
+        // First day should be Monday Feb 26
+        expect(weeks[0]![0]!.month).toBe(2)
+        expect(weeks[0]![0]!.day).toBe(26)
+
+        // Last day should be Sunday Mar 31
+        const lastWeek = weeks.at(-1)!
+        const lastDay = lastWeek.at(-1)!
+        expect(lastDay.month).toBe(3)
+        expect(lastDay.day).toBe(31)
+
+        expect(weeks).toHaveLength(5)
+        adapter.firstDayOfWeek = 0
       })
     })
 
@@ -1774,6 +1837,36 @@ describe('useDate', () => {
       expect(wrapper.text()).toContain('de-DE')
 
       wrapper.unmount()
+    })
+  })
+
+  describe('plugin firstDayOfWeek derivation', () => {
+    it('should derive firstDayOfWeek from en-US locale', () => {
+      const a = new Vuetify0DateAdapter()
+      const { firstDayOfWeek } = createDate({ adapter: a, locale: 'en-US' })
+      expect(firstDayOfWeek.value).toBe(0) // Sunday
+      expect(a.firstDayOfWeek).toBe(0)
+    })
+
+    it('should derive firstDayOfWeek from de-DE locale', () => {
+      const a = new Vuetify0DateAdapter()
+      const { firstDayOfWeek } = createDate({ adapter: a, locale: 'de-DE' })
+      expect(firstDayOfWeek.value).toBe(1) // Monday
+      expect(a.firstDayOfWeek).toBe(1)
+    })
+
+    it('should use explicit override over locale derivation', () => {
+      const a = new Vuetify0DateAdapter()
+      const { firstDayOfWeek } = createDate({ adapter: a, locale: 'de-DE', firstDayOfWeek: 6 })
+      expect(firstDayOfWeek.value).toBe(6) // Saturday override
+      expect(a.firstDayOfWeek).toBe(6)
+    })
+
+    it('should fall back to 0 for unparseable locale', () => {
+      const a = new Vuetify0DateAdapter()
+      // Empty string throws in Intl.Locale, triggering the catch fallback
+      const { firstDayOfWeek } = createDate({ adapter: a, locale: '' })
+      expect(firstDayOfWeek.value).toBe(0)
     })
   })
 })

@@ -29,8 +29,8 @@
       Wrapping v0's ExpansionPanel with custom styling:
     </p>
 
-    <ExpansionPanel.Root v-model="expanded" class="space-y-3" multiple>
-      <ExpansionPanel.Item
+    <ExpansionPanel.Group v-model="expanded" class="space-y-3" multiple>
+      <ExpansionPanel.Root
         v-for="card in cards"
         :key="card.value"
         v-slot="{ isSelected }"
@@ -57,8 +57,8 @@
         <ExpansionPanel.Content class="my-card__content">
           {{ card.content }}
         </ExpansionPanel.Content>
-      </ExpansionPanel.Item>
-    </ExpansionPanel.Root>
+      </ExpansionPanel.Root>
+    </ExpansionPanel.Group>
   </div>
 </template>
 

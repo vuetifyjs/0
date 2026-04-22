@@ -16,11 +16,25 @@
   import { onBeforeUnmount, shallowRef, toRef } from 'vue'
   import { useRoute } from 'vue-router'
 
-  // Data
-  import metrics from '@/data/metrics.json'
+  // Constants
+  import { SKILL_LEVELS_DOCS_HREF } from '@/constants/links'
 
   const scroll = useScrollToAnchor()
   const logger = useLogger()
+
+  const metricsData = shallowRef<Record<string, MetricEntry> | null>(null)
+
+  let metricsPromise: Promise<Record<string, MetricEntry>> | null = null
+  function loadMetrics () {
+    if (!metricsPromise) {
+      metricsPromise = import('@/data/metrics.json').then(m => m.default as Record<string, MetricEntry>)
+    }
+    return metricsPromise
+  }
+
+  loadMetrics().then(m => {
+    metricsData.value = m
+  }).catch(() => {})
 
   interface MetricCoverage {
     overall: number
@@ -99,12 +113,12 @@
     return `${baseUrl}&label=${encodeURIComponent(label)}`
   })
 
-  // Extract name from github path (e.g., /composables/useRegistry/ -> useRegistry)
+  // Extract name from github path (e.g., /composables/createRegistry/ -> createRegistry)
   const itemName = toRef(() => {
     const github = props.frontmatter?.features?.github
     if (!github) return null
 
-    // Match composables: /composables/useRegistry/
+    // Match composables: /composables/createRegistry/
     const composableMatch = github.match(/\/composables\/([^/]+)\/?$/)
     if (composableMatch) return composableMatch[1]
 
@@ -118,8 +132,8 @@
   // Get metrics for this item
   const itemMetrics = toRef(() => {
     const name = itemName.value
-    if (!name) return null
-    return (metrics as Record<string, MetricEntry>)[name] ?? null
+    if (!name || !metricsData.value) return null
+    return metricsData.value[name] ?? null
   })
 
   // Coverage data
@@ -186,16 +200,22 @@
 
   // Last updated date from git history
   const date = useDate()
-  const lastUpdated = toRef(() => {
-    // Try exact path, then without trailing slash
+  const pageDate = toRef(() => {
     const path = route.path.replace(/\/$/, '') || '/'
-    const pageDate = pageDates[path]
-    if (!pageDate?.updated) return null
+    return pageDates[path] ?? null
+  })
+  const lastUpdated = toRef(() => {
+    const updated = pageDate.value?.updated
+    if (!updated) return null
 
-    const d = date.adapter.date(pageDate.updated)
+    const d = date.adapter.date(updated)
     if (!date.adapter.isValid(d)) return null
 
     return date.adapter.format(d, 'normalDate')
+  })
+  const lastCommit = toRef(() => {
+    const hash = pageDate.value?.hash
+    return hash ? { hash, url: `${base}/commit/${hash}` } : null
   })
 
   // Provide page metadata context for child components
@@ -209,6 +229,7 @@
     benchmark,
     renderless,
     lastUpdated,
+    lastCommit,
   })
 
   async function onClickCopy () {
@@ -326,9 +347,10 @@
         <DocsMetaItem
           v-if="level"
           :color="level.color"
+          :href="SKILL_LEVELS_DOCS_HREF"
           :icon="level.icon"
           :text="level.label"
-          :title="`${level.label} skill level`"
+          :title="`${level.label} skill level — filter by level`"
         />
 
         <!-- 3. Coverage - Quality signal (is it tested?) -->
@@ -356,9 +378,10 @@
         <DocsMetaItem
           v-if="lastUpdated"
           color="text-secondary"
+          :href="lastCommit?.url"
           icon="calendar-clock"
           :text="lastUpdated"
-          title="Last updated"
+          :title="lastCommit ? `Last updated in: ${lastCommit.hash}` : 'Last updated'"
         />
       </div>
     </Discovery.Activator>

@@ -25,8 +25,8 @@
 </script>
 
 <template>
-  <ExpansionPanel.Root class="flex flex-col gap-4 mt-8" multiple>
-    <ExpansionPanel.Item
+  <ExpansionPanel.Group class="flex flex-col gap-4 mt-8" multiple>
+    <ExpansionPanel.Root
       v-for="item in processedItems"
       :key="item.id"
       :value="item.id"
@@ -42,6 +42,6 @@
       <ExpansionPanel.Content class="px-4 pb-4 pt-2 text-on-surface [&_a]:text-primary [&_a]:underline [&_a]:underline-offset-2 hover:[&_a]:opacity-80">
         <span v-html="item.answer" />
       </ExpansionPanel.Content>
-    </ExpansionPanel.Item>
-  </ExpansionPanel.Root>
+    </ExpansionPanel.Root>
+  </ExpansionPanel.Group>
 </template>

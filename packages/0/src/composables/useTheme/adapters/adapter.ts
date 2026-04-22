@@ -1,5 +1,5 @@
 // Utilities
-import { isUndefined } from '#v0/utilities'
+import { hexToRgb, isUndefined } from '#v0/utilities'
 
 // Types
 import type { ID } from '#v0/types'
@@ -25,8 +25,12 @@ export interface ThemeAdapterInterface {
 }
 
 export abstract class ThemeAdapter implements ThemeAdapterInterface {
+  private static UNSAFE_CSS = /url\s*\(|@import|expression\s*\(|[{}]/i
+  private static SAFE_IDENT = /^[a-zA-Z0-9_-]+$/
+
   public stylesheetId = 'v0-theme-stylesheet'
   public prefix: string
+  public rgb = false
 
   constructor (prefix: string) {
     this.prefix = prefix
@@ -42,12 +46,14 @@ export abstract class ThemeAdapter implements ThemeAdapterInterface {
       const themeColors = colors[theme]
 
       if (!themeColors) continue
+      if (!ThemeAdapter.SAFE_IDENT.test(theme)) continue
 
       const vars = Object.entries(themeColors)
-        .map(([key, val]) => `  --${this.prefix}-${key}: ${val};`)
+        .filter(([key, val]) => ThemeAdapter.SAFE_IDENT.test(key) && !ThemeAdapter.UNSAFE_CSS.test(val))
+        .map(([key, val]) => `  --${this.prefix}-${key}: ${this.rgb ? this.decompose(val) : val};`)
         .join('\n')
 
-      css += `[data-theme="${theme}"] {\n${vars}\n}\n`
+      css += `[data-theme="${theme}"] {\n${vars}\n  color: var(--${this.prefix}-on-background);\n}\n`
     }
 
     if (!isUndefined(isDark)) {
@@ -55,6 +61,11 @@ export abstract class ThemeAdapter implements ThemeAdapterInterface {
     }
 
     return css
+  }
+
+  private decompose (hex: string): string {
+    const { r, g, b, a } = hexToRgb(hex)
+    return isUndefined(a) ? `${r}, ${g}, ${b}` : `${r}, ${g}, ${b}, ${a}`
   }
 
   abstract setup<T extends ThemeAdapterSetupContext>(

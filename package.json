@@ -1,20 +1,20 @@
 {
   "name": "@vuetify/zero",
-  "version": "0.1.8",
+  "version": "1.0.0-alpha.1",
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "pnpm --filter=playground dev",
+    "dev": "pnpm --filter=dev dev",
     "dev:docs": "pnpm --filter=docs dev",
     "build": "pnpm --filter=\"./packages/*\" build",
     "build:0": "pnpm --filter=\"./packages/0\" build",
     "build:paper": "pnpm --filter=\"./packages/paper\" build",
     "build:packages": "pnpm --filter=\"./packages/*\" build",
-    "build:playground": "pnpm --filter=playground build",
+    "build:dev": "pnpm --filter=dev build",
     "build:play": "pnpm --filter=@vuetify-private/playground build",
     "build:docs": "pnpm --filter=docs build",
-    "build:apps": "pnpm --filter=docs --filter=playground --filter=@vuetify-private/playground build",
-    "build:all": "pnpm --filter=\"./packages/*\" --filter=docs --filter=playground --filter=@vuetify-private/playground build",
+    "build:apps": "pnpm --filter=docs --filter=dev --filter=@vuetify-private/playground build",
+    "build:all": "pnpm --filter=\"./packages/*\" --filter=docs --filter=dev --filter=@vuetify-private/playground build",
     "test": "vitest",
     "test:run": "vitest run",
     "test:ui": "vitest --ui",
@@ -29,7 +29,7 @@
     "lint": "eslint --concurrency auto",
     "lint:fix": "eslint --fix --concurrency auto",
     "dev:play": "pnpm --filter=@vuetify-private/playground dev",
-    "preview:playground": "pnpm --filter=playground preview",
+    "preview:dev": "pnpm --filter=dev preview",
     "preview:play": "pnpm --filter=@vuetify-private/playground preview",
     "preview:docs": "pnpm --filter=docs preview",
     "repo:knip": "knip",
@@ -41,7 +41,7 @@
     "release:patch": "bumpp patch -r",
     "release:minor": "bumpp minor -r",
     "release:major": "bumpp major -r",
-    "postinstall": "tsx apps/docs/build/generate-api-whitelist.ts && node scripts/init-playground.js",
+    "postinstall": "tsx apps/docs/build/generate-api-whitelist.ts && node scripts/init-dev.js",
     "prepare": "simple-git-hooks"
   },
   "simple-git-hooks": {
@@ -61,6 +61,7 @@
     "eslint-plugin-vuejs-accessibility": "catalog:",
     "happy-dom": "catalog:",
     "knip": "catalog:",
+    "pkg-pr-new": "catalog:",
     "sherif": "catalog:",
     "simple-git-hooks": "catalog:",
     "tsx": "catalog:",
@@ -68,6 +69,6 @@
     "vitest": "catalog:",
     "vue-tsc": "catalog:"
   },
-  "packageManager": "pnpm@10.26.1",
+  "packageManager": "pnpm@10.33.0",
   "web-types": "dist/json/web-types.json"
 }

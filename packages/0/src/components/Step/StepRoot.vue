@@ -1,6 +1,8 @@
 /**
  * @module StepRoot
  *
+ * @see https://0.vuetifyjs.com/components/providers/step
+ *
  * @remarks
  * Root component for step/stepper navigation. Creates and provides step
  * context to child StepItem components. Extends single selection with
@@ -8,7 +10,7 @@
  */
 
 <script lang="ts">
-  // Foundational
+  // Composables
   import { createContext } from '#v0/composables/createContext'
 
   // Types

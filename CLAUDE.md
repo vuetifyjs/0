@@ -17,7 +17,6 @@ Vue 3 headless UI primitives and composables. Unstyled, logic-focused building b
 | `useId()` | SSR-safe ID (Vue's useId in components, counter fallback) |
 | `clamp(value, min, max)` | Clamp number to range |
 | `range(length, start)` | Create sequential number array |
-| `debounce(fn, delay)` | Debounce with `.clear()` and `.immediate()` |
 
 ### Use Built-in Types (`#v0/types`)
 
@@ -44,14 +43,15 @@ Vue 3 headless UI primitives and composables. Unstyled, logic-focused building b
 
 **Foundation**: `createContext`, `createTrinity`, `createPlugin`
 **Registry**: `createRegistry`, `useProxyRegistry`
-**Selection**: `createSelection`, `createSingle`, `createGroup`, `createStep`
+**Selection**: `createSelection`, `createSingle`, `createGroup`, `createStep`, `createModel`, `createNested`
 **Observers**: `useResizeObserver`, `useIntersectionObserver`, `useMutationObserver`
 **Events**: `useEventListener`, `useHotkey`, `useClickOutside`
-**Reactivity**: `useProxyModel`, `useToggleScope`, `toReactive`, `toArray`
-**Features**: `useFeatures`, `usePermissions`, `useTheme`, `useLocale`, `useLogger`
-**Data**: `useFilter`, `usePagination`, `useVirtual`, `useDate`, `createForm`, `createQueue`, `createTimeline`
-**Browser**: `useBreakpoints`, `useMediaQuery`, `useStorage`, `useHydration`, `useOverflow`, `useLazy`
-**Tokens**: `createTokens`
+**Reactivity**: `useProxyModel`, `useToggleScope`, `toReactive`, `toArray`, `toElement`
+**Plugins**: `useFeatures`, `usePermissions`, `useTheme`, `useLocale`, `useLogger`, `useNotifications`, `useRtl`, `useStack`, `useRules`
+**Data**: `createFilter`, `createPagination`, `createVirtual`, `useDate`, `createForm`, `createQueue`, `createTimeline`, `createTokens`, `createDataTable`
+**Browser**: `useBreakpoints`, `useMediaQuery`, `useStorage`, `useHydration`, `createOverflow`, `useLazy`, `usePopover`, `usePresence`, `useRaf`, `useTimer`
+**Forms**: `createValidation`, `createCombobox`, `createSlider`, `createInput`, `createNumeric`, `createRating`
+**Focus**: `useVirtualFocus`, `useRovingFocus`, `createFocusTraversal`, `createBreadcrumbs`
 
 ## Path Alias
 
@@ -71,15 +71,15 @@ import { createRegistry } from '#v0/composables'
 
 ## Apps
 
-- **Playground** (`playground/`): Dev environment
-- **Playground (REPL)** (`apps/playground/`): Browser-based editor with live preview
+- **Dev** (`dev/`): Dev environment
+- **Playground** (`apps/playground/`): Browser-based editor with live preview
 - **Docs** (`apps/docs/`): VitePress-style documentation
 
 ## Commands
 
 ```bash collapse
 # Development
-pnpm dev              # Playground
+pnpm dev              # Dev environment
 pnpm dev:docs         # Documentation
 
 # Build
@@ -119,7 +119,7 @@ pnpm repo:check       # knip + sherif
 - Readonly tuples for trinity pattern: `as const`
 
 ### Styling
-- **UnoCSS utility classes** in examples/docs/playground
+- **UnoCSS utility classes** in examples/docs/dev
 - Component library stays headless
 - **Never use `ltr:` variant** — it requires an explicit `dir="ltr"` attribute on an ancestor. Use the bare class for default (LTR) behavior, `rtl:` for the override (e.g. `-translate-x-full rtl:translate-x-full`, not `ltr:-translate-x-full rtl:translate-x-full`)
 
@@ -152,3 +152,5 @@ See `.claude/rules/` for path-scoped documentation:
 - `composables.md` - Architecture for `packages/0/src/composables/**`
 - `components.md` - Architecture for `packages/0/src/components/**`
 - `benchmarks.md` - Standards for `*.bench.ts` files
+- `docs.md` - Architecture for `apps/docs/**`
+- `testing.md` - Standards for `*.test.ts` files

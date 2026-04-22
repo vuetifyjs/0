@@ -1,6 +1,8 @@
 /**
  * @module SelectPlaceholder
  *
+ * @see https://0.vuetifyjs.com/components/forms/select
+ *
  * @remarks
  * Placeholder text shown when no value is selected. Automatically hides
  * when a selection is made. Typically rendered alongside Select.Value
@@ -13,6 +15,7 @@
   import { useSelectContext } from './SelectRoot.vue'
 
   // Utilities
+  import { isNullOrUndefined } from '#v0/utilities'
   import { toRef } from 'vue'
 
   // Types
@@ -41,7 +44,10 @@
 
   const context = useSelectContext(namespace)
 
-  const hasValue = toRef(() => context.selection.selectedIds.size > 0)
+  const hasValue = toRef(() =>
+    context.selection.selectedIds.size > 0
+    || !isNullOrUndefined(context.modelValue.value),
+  )
 </script>
 
 <template>

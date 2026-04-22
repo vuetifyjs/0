@@ -1,6 +1,8 @@
 /**
  * @module createForm
  *
+ * @see https://0.vuetifyjs.com/composables/forms/create-form
+ *
  * @remarks
  * Form composable that coordinates validation across multiple fields.
  *
@@ -13,18 +15,25 @@
  *
  * Per-field validation logic lives in createValidation.
  * createForm is the mothership — it coordinates, not creates.
+ *
+ * @example
+ * ```ts
+ * import { createForm } from '@vuetify/v0'
+ *
+ * const form = createForm()
+ * const isValid = await form.validate()
+ * if (isValid) form.submit()
+ * ```
  */
 
-// Foundational
-import { createContext, useContext } from '#v0/composables/createContext'
-import { createTrinity } from '#v0/composables/createTrinity'
-
 // Composables
+import { useContext } from '#v0/composables/createContext'
 import { createRegistry } from '#v0/composables/createRegistry'
+import { createTrinity } from '#v0/composables/createTrinity'
 
 // Utilities
 import { isNull } from '#v0/utilities'
-import { computed } from 'vue'
+import { computed, hasInjectionContext } from 'vue'
 
 // Transformers
 import { toArray } from '#v0/composables/toArray'
@@ -34,7 +43,7 @@ import type { RegistryContext, RegistryOptions, RegistryTicket, RegistryTicketIn
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { ValidationContext } from '#v0/composables/createValidation'
 import type { ID } from '#v0/types'
-import type { App, ComputedRef, MaybeRefOrGetter } from 'vue'
+import type { ComputedRef, MaybeRefOrGetter } from 'vue'
 
 export type FormValidationResult = string | boolean | Promise<string | boolean>
 
@@ -123,18 +132,14 @@ export interface FormContextOptions extends FormOptions {
  * form.reset()
  * ```
  */
-export function createForm<
-  Z extends FormTicketInput = FormTicketInput,
-  E extends FormTicket<Z> = FormTicket<Z>,
-  R extends FormContext<Z, E> = FormContext<Z, E>,
-> (options: FormOptions = {}): R {
+export function createForm (options: FormOptions = {}): FormContext {
   const {
     disabled = false,
     readonly = false,
     ..._options
   } = options
 
-  const registry = createRegistry<E>({ ..._options, reactive: true })
+  const registry = createRegistry<FormTicket>({ ..._options, reactive: true })
 
   const isValidating = computed(() => {
     for (const ticket of registry.values()) {
@@ -155,8 +160,8 @@ export function createForm<
     return hasNull ? null : true
   })
 
-  function register (registration: Partial<Z> & { value: FormValue }): E {
-    return registry.register(registration as Partial<E>)
+  function register (registration: Partial<FormTicketInput> & { value: FormValue }): FormTicket {
+    return registry.register(registration as Partial<FormTicket>)
   }
 
   function reset () {
@@ -189,7 +194,7 @@ export function createForm<
     get size () {
       return registry.size
     },
-  } as unknown as R
+  } as FormContext
 }
 
 /**
@@ -207,21 +212,11 @@ export function createForm<
  * export const [useMyForm, provideMyForm, myForm] = createFormContext()
  * ```
  */
-export function createFormContext<
-  Z extends FormTicketInput = FormTicketInput,
-  E extends FormTicket<Z> = FormTicket<Z>,
-  R extends FormContext<Z, E> = FormContext<Z, E>,
-> (_options: FormContextOptions = {}): ContextTrinity<R> {
+export function createFormContext (_options: FormContextOptions = {}): ContextTrinity<FormContext> {
   const { namespace = 'v0:form', ...options } = _options
-  const [useFormContext, _provideFormContext] = createContext<R>(namespace)
+  const context = createForm(options)
 
-  const context = createForm<Z, E, R>(options)
-
-  function provideFormContext (_context: R = context, app?: App): R {
-    return _provideFormContext(_context, app)
-  }
-
-  return createTrinity<R>(useFormContext, provideFormContext, context)
+  return createTrinity<FormContext>(namespace, context)
 }
 
 /**
@@ -246,6 +241,8 @@ export function useForm<
   E extends FormTicket<Z> = FormTicket<Z>,
   R extends FormContext<Z, E> = FormContext<Z, E>,
 > (namespace = 'v0:form'): R | undefined {
+  if (!hasInjectionContext()) return undefined
+
   try {
     return useContext<R>(namespace)
   } catch {

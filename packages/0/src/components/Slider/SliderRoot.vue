@@ -1,6 +1,8 @@
 /**
  * @module SliderRoot
  *
+ * @see https://0.vuetifyjs.com/components/forms/slider
+ *
  * @remarks
  * Root component for sliders. Creates slider context, provides it to
  * child components (Track, Range, Thumb, HiddenInput), and bridges v-model.
@@ -16,18 +18,16 @@
   import { Atom } from '#v0/components/Atom'
   import SliderHiddenInput from './SliderHiddenInput.vue'
 
-  // Foundational
-  import { createContext } from '#v0/composables/createContext'
-
   // Composables
+  import { createContext } from '#v0/composables/createContext'
   import { createSlider } from '#v0/composables/createSlider'
   import { useDocumentEventListener } from '#v0/composables/useEventListener'
   import { useProxyModel } from '#v0/composables/useProxyModel'
   import { useToggleScope } from '#v0/composables/useToggleScope'
 
   // Utilities
-  import { isArray, isNull, isUndefined } from '#v0/utilities'
-  import { computed, shallowRef, toRef, toValue, useAttrs, useId } from 'vue'
+  import { isArray, isNull, isUndefined, useId } from '#v0/utilities'
+  import { computed, mergeProps, shallowRef, toRef, toValue, useAttrs } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -93,6 +93,22 @@
     isReadonly: boolean
     /** Slider orientation */
     orientation: 'horizontal' | 'vertical'
+    /** Round a value to the nearest step, clamped to min/max */
+    snap: (value: number) => number
+    /** Convert a value to a 0–100 percentage */
+    fromValue: (value: number) => number
+    /** Convert a 0–100 percentage to a snapped value */
+    fromPercent: (percent: number) => number
+    /** Set the value at a thumb index */
+    set: (index: number, value: number) => void
+    /** Increment a thumb's value by step × multiplier */
+    up: (index: number, multiplier?: number) => void
+    /** Decrement a thumb's value by step × multiplier */
+    down: (index: number, multiplier?: number) => void
+    /** Set a thumb to the minimum value */
+    floor: (index: number) => void
+    /** Set a thumb to the maximum value */
+    ceil: (index: number) => void
     /** Pre-computed attributes for binding */
     attrs: {
       'data-disabled': true | undefined
@@ -246,6 +262,14 @@
     isDisabled: isDisabled.value,
     isReadonly: isReadonly.value,
     orientation: toValue(slider.orientation),
+    snap: slider.snap,
+    fromValue: slider.fromValue,
+    fromPercent: slider.fromPercent,
+    set: slider.set,
+    up: slider.up,
+    down: slider.down,
+    floor: slider.floor,
+    ceil: slider.ceil,
     attrs: {
       'data-disabled': isDisabled.value ? true : undefined,
       'data-readonly': isReadonly.value ? true : undefined,
@@ -256,7 +280,7 @@
 
 <template>
   <Atom
-    v-bind="{ ...attrs, ...slotProps.attrs }"
+    v-bind="mergeProps(attrs, slotProps.attrs)"
     :as
     :renderless
   >

@@ -14,14 +14,22 @@
  * - Resolution caching for performance (~28,590 ops/sec)
  *
  * Used by useTheme, useLocale, and useFeatures for token-based configuration.
+ *
+ * @example
+ * ```ts
+ * import { createTokens } from '@vuetify/v0'
+ *
+ * const tokens = createTokens({
+ *   colors: { primary: '#1976d2' },
+ * })
+ * console.log(tokens.resolve('{colors.primary}'))
+ * ```
  */
 
-// Foundational
-import { createContext, useContext } from '#v0/composables/createContext'
-import { createTrinity } from '#v0/composables/createTrinity'
-
 // Composables
+import { useContext } from '#v0/composables/createContext'
 import { createRegistry } from '#v0/composables/createRegistry'
+import { createTrinity } from '#v0/composables/createTrinity'
 import { useLogger } from '#v0/composables/useLogger'
 
 // Utilities
@@ -30,7 +38,7 @@ import { isObject, isString, isUndefined } from '#v0/utilities'
 // Types
 import type { RegistryContext, RegistryContextOptions, RegistryOptions, RegistryTicket } from '#v0/composables/createRegistry'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
-import type { App } from 'vue'
+import type { ID } from '#v0/types'
 
 export interface TokenAlias<T = unknown> {
   [key: string]: unknown
@@ -64,7 +72,7 @@ export interface TokenContext<Z extends TokenTicket> extends RegistryContext<Z> 
    * @returns True if the token is an alias, false otherwise.
    * @remarks An alias is a string that starts with "{" and ends with "}".
    *
-   * @see https://0.vuetifyjs.com/composables/registration/create-tokens#is-alias
+   * @see https://0.vuetifyjs.com/composables/registration/create-tokens
    *
    * @example
    * ```ts
@@ -87,7 +95,7 @@ export interface TokenContext<Z extends TokenTicket> extends RegistryContext<Z> 
    * @returns The resolved value of the token or alias, or undefined if not found.
    * @remarks This function can resolve nested aliases and supports token paths using dot notation.
    *
-   * @see https://0.vuetifyjs.com/composables/registration/create-tokens#resolve
+   * @see https://0.vuetifyjs.com/composables/registration/create-tokens
    *
    * @example
    * ```ts
@@ -175,9 +183,8 @@ export function createTokens<
 
   function resolve (token: string | TokenAlias, visited = new Set<string>()): unknown | undefined {
     const cacheKey = isString(token) ? token : JSON.stringify(token)
-    const cached = cache.get(cacheKey)
 
-    if (!isUndefined(cached)) return cached
+    if (cache.has(cacheKey)) return cache.get(cacheKey)
 
     const reference: unknown = isTokenAlias(token) ? token.$value : token
     const isAliasReference = isString(reference) && isAlias(reference)
@@ -259,7 +266,15 @@ export function createTokens<
     return result
   }
 
-  const { register: _register, upsert: _upsert, unregister: _unregister } = registry
+  const {
+    register: _register,
+    upsert: _upsert,
+    unregister: _unregister,
+    onboard: _onboard,
+    offboard: _offboard,
+    move: _move,
+    clear: _clear,
+  } = registry
 
   function register (registration: Partial<Z>) {
     cache.clear()
@@ -276,11 +291,35 @@ export function createTokens<
     return _unregister(id)
   }
 
+  function onboard (registrations: Partial<Z>[]) {
+    cache.clear()
+    return _onboard(registrations)
+  }
+
+  function offboard (ids: ID[]) {
+    cache.clear()
+    return _offboard(ids)
+  }
+
+  function move (id: string, index: number) {
+    cache.clear()
+    return _move(id, index)
+  }
+
+  function clear () {
+    cache.clear()
+    return _clear()
+  }
+
   return {
     ...registry,
     register,
     upsert,
     unregister,
+    onboard,
+    offboard,
+    move,
+    clear,
     resolve,
     isAlias,
     get size () {
@@ -320,15 +359,9 @@ export function createTokensContext<
   E extends TokenContext<Z> = TokenContext<Z>,
 > (_options: TokenContextOptions): ContextTrinity<E> {
   const { namespace = 'v0:tokens', tokens = {}, ...options } = _options
-  const [useTokensContext, _provideTokensContext] = createContext<E>(namespace)
-
   const context = createTokens<Z, E>(tokens, options)
 
-  function provideTokensContext (_context: E = context, app?: App): E {
-    return _provideTokensContext(_context, app)
-  }
-
-  return createTrinity<E>(useTokensContext, provideTokensContext, context)
+  return createTrinity<E>(namespace, context)
 }
 
 /**
@@ -362,7 +395,8 @@ export function useTokens<
  * @param prefix An optional prefix to prepend to each token ID.
  * @returns An array of flattened tokens, each with an ID and value.
  */
-function flatten (tokens: TokenCollection, prefix = '', flat = false): FlatTokenCollection[] {
+/* #__NO_SIDE_EFFECTS__ */
+export function flatten (tokens: TokenCollection, prefix = '', flat = false): FlatTokenCollection[] {
   const flattened: FlatTokenCollection[] = []
   const stack: { tokens: TokenCollection, prefix: string, flat: boolean }[] = [{ tokens, prefix, flat }]
 

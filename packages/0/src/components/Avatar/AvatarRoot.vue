@@ -1,6 +1,8 @@
 /**
  * @module AvatarRoot
  *
+ * @see https://0.vuetifyjs.com/components/semantic/avatar
+ *
  * @remarks
  * Root component for avatar display that manages image loading state and fallback logic.
  * Uses selection internally with `mandatory: 'force'` to ensure one item is always visible.
@@ -8,7 +10,7 @@
  */
 
 <script lang="ts">
-  // Foundational
+  // Composables
   import { createContext } from '#v0/composables/createContext'
 
   // Types

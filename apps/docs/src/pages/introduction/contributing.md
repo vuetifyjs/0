@@ -64,7 +64,7 @@ cd 0
 # Install dependencies
 pnpm install
 
-# Start the playground
+# Start the dev environment
 pnpm dev
 
 # Start the docs site
@@ -83,14 +83,14 @@ pnpm dev:docs
 │       │   └── types/         # TypeScript types
 ├── apps/
 │   └── docs/           # Documentation site
-└── playground/         # Development playground
+└── dev/               # Development environment
 ```
 
 ### Useful Commands
 
 ```bash
 # Development
-pnpm dev              # Start playground
+pnpm dev              # Start dev environment
 pnpm dev:docs         # Start docs site
 
 # Testing
@@ -155,10 +155,10 @@ type(scope): subject
 ### Examples
 
 ```bash
-feat(useSelection): add toggle method
+feat(createSelection): add toggle method
 fix(ExpansionPanel): correct aria-expanded state
 docs(getting-started): update installation instructions
-refactor(useRegistry): simplify reindex logic
+refactor(createRegistry): simplify reindex logic
 test(useForm): add validation edge cases
 ```
 
@@ -202,7 +202,7 @@ test(useForm): add validation edge cases
 - Use `describe` blocks to organize related tests
 
 ```ts
-describe('useSelection', () => {
+describe('createSelection', () => {
   it('should select an item', () => {
     // ...
   })

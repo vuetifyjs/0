@@ -25,11 +25,13 @@ function getInstanceCompat () {
 }
 
 // @internal
+/* #__NO_SIDE_EFFECTS__ */
 export function instanceExists () {
   return !isNull(getInstanceCompat())
 }
 
 // @internal
+/* #__NO_SIDE_EFFECTS__ */
 export function instanceName () {
   return getInstanceCompat()?.type?.name
 }

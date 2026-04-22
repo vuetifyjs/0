@@ -8,26 +8,35 @@
  *
  * Key features:
  * - Single-selection theme switching (extends createSingle)
- * - Token alias resolution via useTokens
+ * - Token alias resolution via createTokens
  * - Lazy theme loading (compute colors only when selected)
  * - CSS variable generation via adapter pattern
+ * - `isDark` reactive flag on the theme context
  * - SSR support with head integration
  * - Theme cycling
  *
- * Integrates with createSingle for selection and useTokens for color resolution.
+ * Integrates with createSingle for selection and createTokens for color resolution.
+ *
+ * @example
+ * ```ts
+ * import { useTheme } from '@vuetify/v0'
+ *
+ * const theme = useTheme()
+ * theme.select('dark')
+ * console.log(theme.isDark.value) // true
+ * ```
  */
 
-// Foundational
-import { createPluginContext } from '#v0/composables/createPlugin'
-
 // Composables
+import { createPluginContext } from '#v0/composables/createPlugin'
 import { createSingle } from '#v0/composables/createSingle'
-import { createTokens } from '#v0/composables/createTokens'
+import { createTokens, flatten } from '#v0/composables/createTokens'
 
 // Adapters
-import { Vuetify0ThemeAdapter } from '#v0/composables/useTheme/adapters'
+import { V0StyleSheetThemeAdapter } from '#v0/composables/useTheme/adapters'
 
 // Utilities
+import { foreground as foregroundFn } from '#v0/utilities'
 import { computed, shallowRef, toRef } from 'vue'
 
 // Types
@@ -39,7 +48,7 @@ import type { ID } from '#v0/types'
 import type { ComputedRef, Ref } from 'vue'
 
 // Exports
-export { Vuetify0ThemeAdapter } from '#v0/composables/useTheme/adapters'
+export { V0StyleSheetThemeAdapter, V0UnheadThemeAdapter } from '#v0/composables/useTheme/adapters'
 
 export type { ThemeAdapter } from '#v0/composables/useTheme/adapters'
 
@@ -62,6 +71,12 @@ export type ThemeRecord = {
  * Extend this interface to add custom properties.
  */
 export interface ThemeTicketInput extends SingleTicketInput<ThemeColors> {
+  /**
+   * Theme color definitions. When provided to `register()`, these are
+   * onboarded as flat tokens for alias resolution and stored as the
+   * ticket value.
+   */
+  colors?: ThemeColors
   /**
    * Indicates whether the theme is dark or light.
    *
@@ -108,11 +123,13 @@ export interface ThemeContext<
   E extends ThemeTicket<Z> = ThemeTicket<Z>,
 > extends Omit<SingleContext<Z, E>, 'register'> {
   /**
-   * A computed reference to the resolved colors of the current theme.
+   * A computed reference to the resolved colors of all registered themes.
    *
-   * @remarks The colors are resolved by replacing any token aliases with their actual values.
+   * @remarks Returns a record keyed by theme ID. Each value contains the theme's colors
+   * with any token aliases resolved to their actual values. Lazy themes are excluded
+   * unless they are currently selected.
    *
-   * @see https://0.vuetifyjs.com/composables/plugins/use-theme#colors
+   * @see https://0.vuetifyjs.com/composables/plugins/use-theme
    *
    * @example
    * ```ts
@@ -129,7 +146,7 @@ export interface ThemeContext<
    *
    * @remarks Returns `true` if the current theme has `dark: true`, otherwise `false`.
    *
-   * @see https://0.vuetifyjs.com/composables/plugins/use-theme#isDark
+   * @see https://0.vuetifyjs.com/composables/plugins/use-theme
    *
    * @example
    * ```ts
@@ -146,7 +163,7 @@ export interface ThemeContext<
    *
    * @param themes An array of theme IDs to cycle through. Defaults to all registered themes.
    *
-   * @see https://0.vuetifyjs.com/composables/plugins/use-theme#cycle
+   * @see https://0.vuetifyjs.com/composables/plugins/use-theme
    *
    * @example
    * ```ts
@@ -158,15 +175,31 @@ export interface ThemeContext<
    * ```
    */
   cycle: (themes?: ID[]) => void
-  /** Register a theme (accepts input type, returns output type) */
+  /**
+   * Register a theme with optional colors.
+   *
+   * When `colors` is provided, onboards them as flat tokens for
+   * alias resolution and stores them as the ticket value.
+   *
+   * @example
+   * ```ts
+   * const theme = createTheme({ themes: { light, dark }, default: 'light' })
+   *
+   * // Register a custom theme at runtime
+   * theme.register({ id: 'custom', dark: true, colors: { primary: '#ff5722' } })
+   * theme.select('custom')
+   * ```
+   */
   register: (registration?: Partial<Z>) => E
+  /** Bulk-register multiple themes in a single batch. */
+  onboard: (registrations: Partial<Z>[]) => E[]
 }
 
 export interface ThemeOptions<Z extends ThemeRecord = ThemeRecord> extends RegistryOptions {
   /**
    * The theme adapter to use.
    *
-   * @remarks Defaults to `Vuetify0ThemeAdapter`.
+   * @remarks Defaults to `V0StyleSheetThemeAdapter`.
    */
   adapter?: ThemeAdapter
   /**
@@ -174,9 +207,23 @@ export interface ThemeOptions<Z extends ThemeRecord = ThemeRecord> extends Regis
    */
   default?: ID
   /**
+   * Automatically generate `on-*` foreground colors for each theme color
+   * using APCA contrast analysis.
+   *
+   * @remarks Defaults to `false`.
+   */
+  foreground?: boolean
+  /**
    * A collection of tokens to use for resolving theme colors.
    */
   palette?: TokenCollection
+  /**
+   * Output CSS variable values as decomposed RGB channels (`R, G, B`)
+   * instead of hex strings.
+   *
+   * @remarks Defaults to `false`.
+   */
+  rgb?: boolean
   /**
    * A record of themes to register.
    */
@@ -193,14 +240,14 @@ export interface ThemeContextOptions extends ThemeOptions {
   namespace?: string
 }
 
-export interface ThemePluginOptions extends ThemeContextOptions {}
+export interface ThemePluginOptions extends ThemeContextOptions {
+  persist?: boolean
+}
 
 /**
  * Creates a new theme instance.
  *
  * @param options The options for the theme instance.
- * @template Z The type of the theme ticket.
- * @template E The type of the theme context.
  * @returns A new theme instance.
  *
  * @see https://0.vuetifyjs.com/composables/plugins/use-theme
@@ -230,19 +277,15 @@ export interface ThemePluginOptions extends ThemeContextOptions {}
  * ```
  */
 
-export function createTheme<
-  Z extends ThemeTicketInput = ThemeTicketInput,
-  E extends ThemeTicket<Z> = ThemeTicket<Z>,
-  R extends ThemeContext<Z, E> = ThemeContext<Z, E>,
-> (_options: ThemeOptions = {}): R {
-  const { themes = {}, palette = {}, ...options } = _options
+export function createTheme (_options: ThemeOptions = {}): ThemeContext {
+  const { themes = {}, palette = {}, foreground: genForeground, ...options } = _options
   const tokens = createTokens({ palette, ...themes }, { flat: true })
   const registry = createSingle<SingleTicketInput<ThemeColors>, SingleTicket<SingleTicketInput<ThemeColors>>>(options)
 
   for (const id in themes) {
     const { colors: value, ...theme } = themes[id]!
 
-    register({ id, value, ...theme } as Partial<Z>)
+    register({ id, value, ...theme } as Partial<ThemeTicketInput>)
 
     if (id === options.default && !registry.selectedId.value) {
       registry.select(id as ID)
@@ -251,13 +294,25 @@ export function createTheme<
 
   type InternalTicket = SingleTicket<SingleTicketInput<ThemeColors>> & { dark: boolean, lazy: boolean }
 
-  const names = computed(() => registry.keys())
+  const names = toRef(() => registry.keys())
   const colors = computed(() => {
     const resolved = {} as Record<ID, Colors>
+    const currentId = registry.selectedId.value
     for (const theme of registry.values() as InternalTicket[]) {
-      if (theme.lazy && theme.id !== registry.selectedId.value) continue
+      if (theme.lazy && theme.id !== currentId) continue
 
-      resolved[theme.id] = resolve(theme.value as Colors)
+      const themeColors = resolve(theme.value as Colors)
+
+      if (genForeground) {
+        for (const [key, value] of Object.entries(themeColors)) {
+          const onKey = `on-${key}`
+          if (!key.startsWith('on-') && !(onKey in themeColors)) {
+            themeColors[onKey] = foregroundFn(value)
+          }
+        }
+      }
+
+      resolved[theme.id] = themeColors
     }
 
     return resolved
@@ -281,17 +336,24 @@ export function createTheme<
     return resolved
   }
 
-  function register (registration: Partial<Z> = {} as Partial<Z>): E {
+  function register (registration: Partial<ThemeTicketInput> = {} as Partial<ThemeTicketInput>): ThemeTicket {
+    const { colors, ...rest } = registration as Partial<ThemeTicketInput> & { colors?: ThemeColors }
+
+    if (colors && rest.id && !registry.has(rest.id)) {
+      tokens.onboard(flatten({ [rest.id]: { colors } }, '', true))
+    }
+
     const item = {
       lazy: false,
       dark: false,
-      ...registration,
+      ...rest,
+      ...(colors ? { value: colors } : {}),
     }
 
-    return registry.register(item as unknown as Partial<SingleTicketInput<ThemeColors>>) as unknown as E
+    return registry.register(item as Partial<SingleTicketInput<ThemeColors>>) as ThemeTicket
   }
 
-  function onboard (registrations: Partial<Z>[]): E[] {
+  function onboard (registrations: Partial<ThemeTicketInput>[]): ThemeTicket[] {
     return registry.batch(() => registrations.map(registration => register(registration)))
   }
 
@@ -305,20 +367,17 @@ export function createTheme<
     get size () {
       return registry.size
     },
-  } as unknown as R
+  } as ThemeContext
 }
 
-function createThemeFallback<
-  Z extends ThemeTicketInput = ThemeTicketInput,
-  E extends ThemeTicket<Z> = ThemeTicket<Z>,
-  R extends ThemeContext<Z, E> = ThemeContext<Z, E>,
-> (): R {
+function createThemeFallback (): ThemeContext {
   return {
     size: 0,
     colors: computed(() => ({})),
     isDark: shallowRef(false),
     cycle: () => {},
-  } as unknown as R
+    onboard: () => [],
+  } as unknown as ThemeContext
 }
 
 export const [createThemeContext, createThemePlugin, useTheme] =
@@ -327,8 +386,11 @@ export const [createThemeContext, createThemePlugin, useTheme] =
     options => createTheme(options),
     {
       fallback: () => createThemeFallback(),
-      setup: (context, app, { adapter = new Vuetify0ThemeAdapter(), target }) => {
+      setup: (context, app, { adapter = new V0StyleSheetThemeAdapter(), target, rgb }) => {
+        if (rgb) adapter.rgb = true
         adapter.setup(app, context, target)
       },
+      persist: ctx => ctx.selectedId.value,
+      restore: (ctx, saved) => ctx.select(saved as ID),
     },
   )

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import { useHead } from '@unhead/vue'
   import apiData from 'virtual:api'
 
   // Composables
@@ -41,6 +42,10 @@
   })
   const isComposable = toRef(() => itemName.value && itemName.value in data.composables)
 
+  const relatedFrontmatter = toRef(() => ({
+    related: itemName.value ? data.related[itemName.value] ?? [] : [],
+  }))
+
   const componentApis = computed<ComponentApi[]>(() => {
     if (!isComponent.value || !itemName.value) return []
 
@@ -58,6 +63,39 @@
   const composableApi = computed<ComposableApi | null>(() => {
     if (!isComposable.value || !itemName.value) return null
     return data.composables[itemName.value] || null
+  })
+
+  const title = toRef(() => itemName.value ? `${itemName.value} API` : 'API Reference')
+  const description = toRef(() => {
+    if (!itemName.value) return undefined
+    return isComponent.value
+      ? `API reference for the ${itemName.value} component.`
+      : `API reference for the ${itemName.value} composable.`
+  })
+
+  useHead({
+    title,
+    meta: toRef(() => description.value
+      ? [{ key: 'description', name: 'description', content: description.value }]
+      : [],
+    ),
+    script: toRef(() => itemName.value
+      ? [{
+        key: 'jsonld-api',
+        type: 'application/ld+json',
+        innerHTML: JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'SoftwareSourceCode',
+          'name': itemName.value,
+          'description': description.value,
+          'programmingLanguage': 'TypeScript',
+          'runtimePlatform': 'Vue 3',
+          'codeRepository': 'https://github.com/vuetifyjs/0',
+          'license': 'https://opensource.org/licenses/MIT',
+        }),
+      }]
+      : [],
+    ),
   })
 
 </script>
@@ -88,6 +126,8 @@
         <h1>{{ itemName }} API</h1>
 
         <p class="lead">API reference for the {{ itemName }} component{{ componentApis.length > 1 ? 's' : '' }}.</p>
+
+        <DocsRelated :frontmatter="relatedFrontmatter" />
 
         <template
           v-for="api in componentApis"
@@ -156,6 +196,8 @@
         <h1>{{ composableApi.name }} API</h1>
 
         <p class="lead">API reference for the {{ composableApi.name }} composable.</p>
+
+        <DocsRelated :frontmatter="relatedFrontmatter" />
 
         <template v-if="composableApi.functions?.length">
           <DocsHeaderAnchor

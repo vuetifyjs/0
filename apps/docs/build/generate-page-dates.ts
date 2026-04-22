@@ -1,43 +1,18 @@
-import { execSync } from 'node:child_process'
 import { glob } from 'node:fs/promises'
 import { dirname, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 // Types
+import type { GitDate } from './git-dates'
 import type { Plugin, ViteDevServer } from 'vite'
+
+import { getGitDate } from './git-dates'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const PAGES_DIR = resolve(__dirname, '../src/pages')
-const ROOT_DIR = resolve(__dirname, '../../..')
 
-export interface PageDate {
-  /** ISO 8601 timestamp of last commit */
-  updated: string
-  /** Short commit hash */
-  hash: string
-}
-
+export type PageDate = GitDate
 export type PageDates = Record<string, PageDate>
-
-/**
- * Get git last modified date for a file.
- * Returns ISO timestamp and short hash.
- */
-function getGitDate (filePath: string): PageDate | null {
-  try {
-    const result = execSync(
-      `git log -1 --format="%aI|%h" -- "${filePath}"`,
-      { cwd: ROOT_DIR, encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] },
-    ).trim()
-
-    if (!result) return null
-
-    const [updated, hash] = result.split('|')
-    return { updated, hash }
-  } catch {
-    return null
-  }
-}
 
 /**
  * Convert file path to URL path (matching generate-nav logic).

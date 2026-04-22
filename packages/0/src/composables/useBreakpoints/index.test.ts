@@ -35,6 +35,7 @@ vi.mock('#v0/constants/globals', () => ({
   get IN_BROWSER () {
     return inBrowser.value
   },
+  SUPPORTS_MATCH_MEDIA: true,
 }))
 
 const mockGetCurrentInstance = vi.mocked(getCurrentInstance)
@@ -101,19 +102,19 @@ describe('useBreakpoints', () => {
       expect(context).toHaveProperty('xlAndDown')
     })
 
-    it('should initialize with default breakpoint values', () => {
+    it('should initialize with window dimensions in browser', () => {
       mockWindow.innerWidth = 1024
       mockWindow.innerHeight = 768
 
       const context = createBreakpoints()
 
-      expect(context.name.value).toBe('xs')
-      expect(context.width.value).toBe(0)
-      expect(context.height.value).toBe(0)
+      expect(context.name.value).toBe('md')
+      expect(context.width.value).toBe(1024)
+      expect(context.height.value).toBe(768)
       expect(context.isMobile.value).toBe(true)
-      expect(context.xs.value).toBe(true)
+      expect(context.xs.value).toBe(false)
       expect(context.sm.value).toBe(false)
-      expect(context.md.value).toBe(false)
+      expect(context.md.value).toBe(true)
       expect(context.lg.value).toBe(false)
       expect(context.xl.value).toBe(false)
       expect(context.xxl.value).toBe(false)
@@ -170,14 +171,16 @@ describe('useBreakpoints', () => {
     })
 
     it('should update dimensions when update is called', () => {
-      mockWindow.innerWidth = 1200
-      mockWindow.innerHeight = 800
+      mockWindow.innerWidth = 1024
+      mockWindow.innerHeight = 768
 
       const context = createBreakpoints()
 
-      expect(context.width.value).toBe(0)
-      expect(context.height.value).toBe(0)
+      expect(context.width.value).toBe(1024)
+      expect(context.height.value).toBe(768)
 
+      mockWindow.innerWidth = 1200
+      mockWindow.innerHeight = 800
       context.update()
 
       expect(context.width.value).toBe(1200)
@@ -185,13 +188,14 @@ describe('useBreakpoints', () => {
     })
 
     it('should detect correct breakpoint when update is called', () => {
-      mockWindow.innerWidth = 1200
-      mockWindow.innerHeight = 800
+      mockWindow.innerWidth = 1024
+      mockWindow.innerHeight = 768
 
       const context = createBreakpoints()
 
-      expect(context.name.value).toBe('xs')
+      expect(context.name.value).toBe('md')
 
+      mockWindow.innerWidth = 1200
       context.update()
 
       expect(context.name.value).toBe('lg')
@@ -376,12 +380,12 @@ describe('useBreakpoints', () => {
         _context: {},
         runWithContext: vi.fn((callback: () => void) => callback()),
         provide: vi.fn(),
-        mixin: vi.fn(),
+        mount: vi.fn(() => ({}) as any),
       }
 
       plugin.install(mockApp as unknown as App)
 
-      expect(mockApp.runWithContext).toHaveBeenCalledOnce()
+      expect(mockApp.runWithContext).toHaveBeenCalledTimes(1)
       expect(typeof mockApp.runWithContext.mock.calls[0]![0]).toBe('function')
     })
 
@@ -391,7 +395,7 @@ describe('useBreakpoints', () => {
         _context: {},
         runWithContext: vi.fn((callback: () => void) => callback()),
         provide: vi.fn(),
-        mixin: vi.fn(),
+        mount: vi.fn(() => ({}) as any),
       }
 
       expect(() => plugin.install(mockApp as unknown as App)).not.toThrow()
@@ -545,27 +549,26 @@ describe('useBreakpoints', () => {
       expect(context.sm.value).toBe(true)
     })
 
-    it('should ignore SSR options when in browser', () => {
+    it('should use SSR dimensions in browser for hydration match', () => {
       inBrowser.value = true
 
       const context = createBreakpoints({
         ssr: { clientWidth: 1400, clientHeight: 900 },
       })
 
-      expect(context.ssr).toBe(false)
-      expect(context.width.value).toBe(0)
-      expect(context.height.value).toBe(0)
+      expect(context.ssr).toBe(true)
+      expect(context.width.value).toBe(1400)
+      expect(context.height.value).toBe(900)
     })
   })
 
   describe('sSR safety', () => {
-    it('should initialize with default values in SSR mode', () => {
+    it('should initialize with window dimensions when no SSR config', () => {
       const context = createBreakpoints()
 
-      expect(context.name.value).toBe('xs')
-      expect(context.width.value).toBe(0)
-      expect(context.height.value).toBe(0)
-      expect(context.isMobile.value).toBe(true)
+      expect(context.width.value).toBe(1024)
+      expect(context.height.value).toBe(768)
+      expect(context.ssr).toBe(false)
     })
 
     it('should handle context creation without errors', () => {
@@ -612,123 +615,301 @@ describe('useBreakpoints', () => {
     })
   })
 
-  describe('plugin mixin behavior', () => {
-    it('should register mixin on app.mixin during install', () => {
+  describe('plugin app.mount wrapping', () => {
+    it('should wrap app.mount during install', () => {
       const plugin = createBreakpointsPlugin()
-      const mockApp = {
+      const originalMount = vi.fn(() => ({}) as any)
+      const mockApp: Record<string, any> = {
         _context: {},
         runWithContext: vi.fn((callback: () => void) => callback()),
         provide: vi.fn(),
-        mixin: vi.fn(),
+        mount: originalMount,
       }
 
       plugin.install(mockApp as unknown as App)
 
-      expect(mockApp.mixin).toHaveBeenCalled()
-      const mixinArg = mockApp.mixin.mock.calls[0]![0]
-      expect(mixinArg).toHaveProperty('mounted')
+      expect(mockApp.mount).not.toBe(originalMount)
     })
 
-    it('should skip mixin mounted logic when component has parent', () => {
+    it('should setup hydration watcher and resize listener on mount', () => {
       const plugin = createBreakpointsPlugin()
-      let registeredMixin: Record<string, (...args: unknown[]) => void>
-
-      const mockApp = {
+      const originalMount = vi.fn(() => ({}) as any)
+      const mockApp: Record<string, any> = {
         _context: {},
         runWithContext: vi.fn((callback: () => void) => callback()),
         provide: vi.fn(),
-        mixin: vi.fn((mixin: Record<string, (...args: unknown[]) => void>) => {
-          registeredMixin = mixin
-        }),
+        mount: originalMount,
       }
 
       plugin.install(mockApp as unknown as App)
 
-      const mockComponentWithParent = {
-        $parent: {},
-      }
+      mockApp.mount('#app')
 
-      expect(() => registeredMixin!.mounted!.call(mockComponentWithParent)).not.toThrow()
-    })
-
-    it('should setup resize listener for root component', () => {
-      const plugin = createBreakpointsPlugin()
-      let registeredMixin: Record<string, (...args: unknown[]) => void>
-
-      const mockApp = {
-        _context: {},
-        runWithContext: vi.fn((callback: () => void) => callback()),
-        provide: vi.fn(),
-        mixin: vi.fn((mixin: Record<string, (...args: unknown[]) => void>) => {
-          registeredMixin = mixin
-        }),
-      }
-
-      plugin.install(mockApp as unknown as App)
-
-      const mockRootComponent = {
-        $parent: null,
-      }
-
-      expect(() => registeredMixin!.mounted!.call(mockRootComponent)).not.toThrow()
-
+      expect(originalMount).toHaveBeenCalledWith('#app')
       expect(mockUseHydration).toHaveBeenCalled()
+    })
+
+    it('should restore original mount after first call', () => {
+      const plugin = createBreakpointsPlugin()
+      const originalMount = vi.fn(() => ({}) as any)
+      const mockApp: Record<string, any> = {
+        _context: {},
+        runWithContext: vi.fn((callback: () => void) => callback()),
+        provide: vi.fn(),
+        mount: originalMount,
+      }
+
+      plugin.install(mockApp as unknown as App)
+
+      mockApp.mount('#app')
+
+      expect(mockApp.mount).toBe(originalMount)
     })
 
     it('should register cleanup on scope dispose', () => {
       const plugin = createBreakpointsPlugin()
-      let registeredMixin: Record<string, (...args: unknown[]) => void>
-
-      const mockApp = {
+      const originalMount = vi.fn(() => ({}) as any)
+      const mockApp: Record<string, any> = {
         _context: {},
         runWithContext: vi.fn((callback: () => void) => callback()),
         provide: vi.fn(),
-        mixin: vi.fn((mixin: Record<string, (...args: unknown[]) => void>) => {
-          registeredMixin = mixin
-        }),
+        mount: originalMount,
       }
 
       plugin.install(mockApp as unknown as App)
 
-      const mockRootComponent = {
-        $parent: null,
-      }
-
-      registeredMixin!.mounted!.call(mockRootComponent)
+      mockApp.mount('#app')
 
       expect(mockOnScopeDispose).toHaveBeenCalled()
       expect(mockOnScopeDispose.mock.calls[0]![1]).toBe(true)
     })
 
     it('should call cleanup function when scope is disposed', () => {
-      const plugin = createBreakpointsPlugin()
-      let registeredMixin: Record<string, (...args: unknown[]) => void>
       let cleanupFn: (() => void) | undefined
 
       mockOnScopeDispose.mockImplementation((fn: () => void) => {
         cleanupFn = fn
       })
 
-      const mockApp = {
+      const plugin = createBreakpointsPlugin()
+      const originalMount = vi.fn(() => ({}) as any)
+      const mockApp: Record<string, any> = {
         _context: {},
         runWithContext: vi.fn((callback: () => void) => callback()),
         provide: vi.fn(),
-        mixin: vi.fn((mixin: Record<string, (...args: unknown[]) => void>) => {
-          registeredMixin = mixin
-        }),
+        mount: originalMount,
       }
 
       plugin.install(mockApp as unknown as App)
 
-      const mockRootComponent = {
-        $parent: null,
-      }
-
-      registeredMixin!.mounted!.call(mockRootComponent)
+      mockApp.mount('#app')
 
       expect(cleanupFn).toBeDefined()
-
       expect(() => cleanupFn!()).not.toThrow()
     })
+  })
+
+  describe('fallback context', () => {
+    it('should return fallback when called outside plugin context', () => {
+      mockHasInjectionContext.mockReturnValue(false)
+
+      const result = useBreakpoints()
+
+      expect(result).toBeDefined()
+      expect(result.name.value).toBe('xs')
+      expect(result.width.value).toBe(0)
+      expect(result.height.value).toBe(0)
+      expect(result.isMobile.value).toBe(true)
+      expect(result.xs.value).toBe(true)
+      expect(result.sm.value).toBe(false)
+      expect(result.md.value).toBe(false)
+      expect(result.lg.value).toBe(false)
+      expect(result.xl.value).toBe(false)
+      expect(result.xxl.value).toBe(false)
+      expect(result.ssr).toBe(false)
+    })
+
+    it('should have correct compound flags in fallback', () => {
+      mockHasInjectionContext.mockReturnValue(false)
+
+      const result = useBreakpoints()
+
+      expect(result.smAndUp.value).toBe(false)
+      expect(result.mdAndUp.value).toBe(false)
+      expect(result.lgAndUp.value).toBe(false)
+      expect(result.xlAndUp.value).toBe(false)
+      expect(result.smAndDown.value).toBe(true)
+      expect(result.mdAndDown.value).toBe(true)
+      expect(result.lgAndDown.value).toBe(true)
+      expect(result.xlAndDown.value).toBe(true)
+    })
+
+    it('should have noop update in fallback', () => {
+      mockHasInjectionContext.mockReturnValue(false)
+
+      const result = useBreakpoints()
+
+      expect(() => result.update()).not.toThrow()
+    })
+
+    it('should have default breakpoint values in fallback', () => {
+      mockHasInjectionContext.mockReturnValue(false)
+
+      const result = useBreakpoints()
+
+      expect(result.breakpoints).toEqual({
+        xs: 0,
+        sm: 600,
+        md: 840,
+        lg: 1145,
+        xl: 1545,
+        xxl: 2138,
+      })
+      expect(result.mobileBreakpoint).toBe('lg')
+    })
+  })
+
+  describe('update in non-browser environment', () => {
+    it('should be a noop when not in browser', () => {
+      inBrowser.value = false
+
+      const context = createBreakpoints()
+      const initialWidth = context.width.value
+
+      context.update()
+
+      // Width should not change since IN_BROWSER is false
+      expect(context.width.value).toBe(initialWidth)
+
+      inBrowser.value = true
+    })
+  })
+
+  describe('isMobile with named mobileBreakpoint', () => {
+    it('should correctly evaluate isMobile with named breakpoint at various widths', () => {
+      // Below lg threshold -> mobile
+      mockWindow.innerWidth = 500
+      const context = createBreakpoints({ mobileBreakpoint: 'lg' })
+      context.update()
+      expect(context.isMobile.value).toBe(true)
+
+      // At lg threshold -> not mobile
+      mockWindow.innerWidth = 1145
+      context.update()
+      expect(context.isMobile.value).toBe(false)
+    })
+  })
+
+  describe('isMobile with numeric mobileBreakpoint after update', () => {
+    it('should update isMobile when window resizes past numeric threshold', () => {
+      mockWindow.innerWidth = 700
+      const context = createBreakpoints({ mobileBreakpoint: 800 })
+      context.update()
+      expect(context.isMobile.value).toBe(true)
+
+      mockWindow.innerWidth = 900
+      context.update()
+      expect(context.isMobile.value).toBe(false)
+    })
+  })
+
+  describe('sSR with initial update skip', () => {
+    it('should skip initial update when ssr option is provided', () => {
+      const plugin = createBreakpointsPlugin({ ssr: { clientWidth: 1200 } })
+      const mockApp: Record<string, any> = {
+        _context: {},
+        runWithContext: vi.fn((callback: () => void) => callback()),
+        provide: vi.fn(),
+        mount: vi.fn(() => ({}) as any),
+      }
+
+      plugin.install(mockApp as unknown as App)
+
+      // Width should remain from SSR, not window
+      // The plugin should not call update() synchronously when ssr is set
+      expect(mockApp.runWithContext).toHaveBeenCalled()
+    })
+  })
+
+  describe('non-browser initial values', () => {
+    it('should initialize with zeros when not in browser and no SSR', () => {
+      inBrowser.value = false
+
+      const context = createBreakpoints()
+
+      expect(context.width.value).toBe(0)
+      expect(context.height.value).toBe(0)
+      expect(context.name.value).toBe('xs')
+      expect(context.ssr).toBe(false)
+
+      inBrowser.value = true
+    })
+  })
+})
+
+describe('useBreakpoints without matchMedia', () => {
+  let mockWindow: Record<string, unknown>
+
+  beforeEach(() => {
+    vi.resetModules()
+    vi.clearAllMocks()
+
+    mockWindow = {
+      innerWidth: 1024,
+      innerHeight: 768,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    }
+    globalThis.window = mockWindow as unknown as Window & typeof globalThis
+
+    mockUseHydration.mockReturnValue({
+      isHydrated: shallowRef(true),
+      isSettled: shallowRef(true),
+      hydrate: vi.fn(),
+      settle: vi.fn(),
+    })
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  it('should fall back to innerWidth comparison when matchMedia is unavailable', async () => {
+    vi.doMock('#v0/constants/globals', () => ({
+      IN_BROWSER: true,
+      SUPPORTS_MATCH_MEDIA: false,
+    }))
+
+    const { createBreakpoints: create } = await import('./index')
+
+    mockWindow.innerWidth = 1400
+
+    const context = create()
+    context.update()
+
+    expect(context.name.value).toBe('lg')
+    expect(context.lg.value).toBe(true)
+    expect(context.isMobile.value).toBe(false)
+  })
+
+  it('should detect mobile via innerWidth with numeric mobileBreakpoint when matchMedia unavailable', async () => {
+    vi.doMock('#v0/constants/globals', () => ({
+      IN_BROWSER: true,
+      SUPPORTS_MATCH_MEDIA: false,
+    }))
+
+    const { createBreakpoints: create } = await import('./index')
+
+    mockWindow.innerWidth = 700
+
+    const context = create({ mobileBreakpoint: 800 })
+    context.update()
+
+    expect(context.isMobile.value).toBe(true)
+
+    mockWindow.innerWidth = 900
+    context.update()
+
+    expect(context.isMobile.value).toBe(false)
   })
 })

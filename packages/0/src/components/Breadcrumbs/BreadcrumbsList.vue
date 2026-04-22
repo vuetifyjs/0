@@ -1,6 +1,8 @@
 /**
  * @module BreadcrumbsList
  *
+ * @see https://0.vuetifyjs.com/components/semantic/breadcrumbs
+ *
  * @remarks
  * Semantic list wrapper for breadcrumb items. Typically renders as an
  * ordered list and contains BreadcrumbsItem, BreadcrumbsDivider, and

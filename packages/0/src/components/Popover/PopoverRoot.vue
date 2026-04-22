@@ -1,6 +1,8 @@
 /**
  * @module PopoverRoot
  *
+ * @see https://0.vuetifyjs.com/components/disclosure/popover
+ *
  * @remarks
  * Root component for popover contexts. Creates and provides popover context
  * to child PopoverActivator and PopoverContent components. Manages open/closed
@@ -8,7 +10,7 @@
  */
 
 <script lang="ts">
-  // Foundational
+  // Composables
   import { createContext } from '#v0/composables/createContext'
 
   // Types
@@ -35,7 +37,7 @@
     toggle: () => void
   }
 
-  export const [usePopoverContext, providePopoverContext] = createContext<PopoverContext>('Popover')
+  export const [usePopoverContext, providePopoverContext] = createContext<PopoverContext>('v0:popover')
 </script>
 
 <script setup lang="ts">

@@ -18,7 +18,7 @@ import Root from './TabsRoot.vue'
 /**
  * Tabs component with sub-components for building accessible tab interfaces.
  *
- * @see https://0.vuetifyjs.com/components/tabs
+ * @see https://0.vuetifyjs.com/components/disclosure/tabs
  *
  * @example
  * ```vue
@@ -47,25 +47,25 @@ export const Tabs = {
   /**
    * Root component that provides tabs context.
    *
-   * @see https://0.vuetifyjs.com/components/tabs
+   * @see https://0.vuetifyjs.com/components/disclosure/tabs
    */
   Root,
   /**
    * Container for tab triggers with tablist role.
    *
-   * @see https://0.vuetifyjs.com/components/tabs#tabslist
+   * @see https://0.vuetifyjs.com/components/disclosure/tabs
    */
   List,
   /**
    * Individual tab trigger.
    *
-   * @see https://0.vuetifyjs.com/components/tabs#tabsitem
+   * @see https://0.vuetifyjs.com/components/disclosure/tabs
    */
   Item,
   /**
    * Content panel associated with a tab.
    *
-   * @see https://0.vuetifyjs.com/components/tabs#tabspanel
+   * @see https://0.vuetifyjs.com/components/disclosure/tabs
    */
   Panel,
 }

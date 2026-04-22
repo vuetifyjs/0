@@ -1,9 +1,11 @@
 /**
  * @module ExpansionPanelActivator
  *
+ * @see https://0.vuetifyjs.com/components/disclosure/expansion-panel
+ *
  * @remarks
  * Header/button element for an expansion panel item that controls expansion/collapse.
- * Consumes the ExpansionPanelItemContext via dependency injection and provides complete
+ * Consumes the ExpansionPanelRootContext via dependency injection and provides complete
  * ARIA attributes and keyboard handling for accessibility.
  *
  * Automatically handles Enter and Space key presses, prevents default behavior, and
@@ -14,7 +16,7 @@
   // Components
   import { Atom } from '#v0/components/Atom'
   // Composables
-  import { useExpansionPanelItem } from './ExpansionPanelItem.vue'
+  import { useExpansionPanelRoot } from './ExpansionPanelRoot.vue'
 
   // Utilities
   import { toRef } from 'vue'
@@ -76,7 +78,7 @@
     namespace = 'v0:expansion-panel',
   } = defineProps<ExpansionPanelActivatorProps>()
 
-  const item = useExpansionPanelItem(namespace)
+  const item = useExpansionPanelRoot(namespace)
 
   function onKeydown (e: KeyboardEvent) {
     if (e.key === 'Enter' || e.key === ' ') {

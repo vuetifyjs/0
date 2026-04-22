@@ -282,17 +282,19 @@ describe('useMediaQuery hydration', () => {
     const { useMediaQuery: useMediaQueryHydration } = await import('./index')
     const { matches } = useMediaQueryHydration('(min-width: 768px)')
 
-    // Before hydration, matches should be false (initial value)
-    expect(matches.value).toBe(false)
-    expect(window.matchMedia).not.toHaveBeenCalled()
+    // Initial value is read synchronously from matchMedia
+    expect(window.matchMedia).toHaveBeenCalledWith('(min-width: 768px)')
+    expect(matches.value).toBe(true)
+
+    // But the change listener is deferred until hydration
+    expect(mockMediaQueryList.addEventListener).not.toHaveBeenCalled()
 
     // Simulate hydration completing
     hydrationState.value = true
     await nextTick()
 
-    // After hydration, matches should update to actual value
-    expect(window.matchMedia).toHaveBeenCalledWith('(min-width: 768px)')
-    expect(matches.value).toBe(true)
+    // After hydration, listener should be attached
+    expect(mockMediaQueryList.addEventListener).toHaveBeenCalledWith('change', expect.any(Function))
   })
 
   it('should apply queued query changes after hydration', async () => {
@@ -324,11 +326,15 @@ describe('useMediaQuery hydration', () => {
     const queryRef = ref('(min-width: 768px)')
     const { query } = useMediaQueryHydration(queryRef)
 
+    // Initial matchMedia call happens synchronously with the original query
+    expect(mockMatchMedia).toHaveBeenCalledWith('(min-width: 768px)')
+    mockMatchMedia.mockClear()
+
     // Change query before hydration
     queryRef.value = '(min-width: 1024px)'
     await nextTick()
 
-    // Should not have called matchMedia yet
+    // Listener not attached yet, so query change doesn't call matchMedia
     expect(mockMatchMedia).not.toHaveBeenCalled()
     expect(query.value).toBe('(min-width: 1024px)')
 
@@ -336,7 +342,7 @@ describe('useMediaQuery hydration', () => {
     hydrationState.value = true
     await nextTick()
 
-    // Should use the latest query value
+    // Should use the latest query value for the listener
     expect(mockMatchMedia).toHaveBeenCalledWith('(min-width: 1024px)')
   })
 })

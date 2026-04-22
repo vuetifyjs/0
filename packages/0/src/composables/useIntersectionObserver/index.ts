@@ -1,11 +1,15 @@
 /**
  * @module useIntersectionObserver
  *
+ * @see https://0.vuetifyjs.com/composables/system/use-intersection-observer
+ *
  * @remarks
  * IntersectionObserver composable with lifecycle management.
  *
  * Key features:
  * - IntersectionObserver API wrapper
+ * - `isActive` reactive flag
+ * - `once` option for single-fire observation
  * - Pause/resume/stop functionality
  * - Automatic cleanup on unmount
  * - SSR-safe (checks SUPPORTS_INTERSECTION_OBSERVER)
@@ -13,6 +17,17 @@
  * - Immediate callback option
  *
  * Perfect for lazy loading, infinite scroll, and visibility detection.
+ *
+ * @example
+ * ```ts
+ * import { useTemplateRef } from 'vue'
+ * import { useIntersectionObserver } from '@vuetify/v0'
+ *
+ * const target = useTemplateRef('target')
+ * useIntersectionObserver(target, entries => {
+ *   console.log(entries[0].isIntersecting)
+ * })
+ * ```
  */
 
 // Globals

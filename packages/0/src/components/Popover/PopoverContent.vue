@@ -1,6 +1,8 @@
 /**
  * @module PopoverContent
  *
+ * @see https://0.vuetifyjs.com/components/disclosure/popover
+ *
  * @remarks
  * Content component for popovers. Renders the popover panel using the native
  * popover API. Supports CSS anchor positioning for automatic placement relative
@@ -51,9 +53,10 @@
   }>()
 
   const {
+    as,
+    id: _id,
     positionArea,
     positionTry,
-    ...props
   } = defineProps<PopoverContentProps>()
 
   const emit = defineEmits<PopoverContentEmits>()
@@ -62,15 +65,15 @@
 
   const ref = useTemplateRef('ref')
 
-  const id = toRef(() => props.id ?? context.id)
+  const id = toRef(() => _id ?? context.id)
   const style = toRef(() => {
-    if (props.id) {
+    if (_id) {
       return {
         'position': 'fixed',
         'margin': 'unset',
         'inset-area': positionArea ?? 'bottom',
         'position-area': positionArea ?? 'bottom',
-        'position-anchor': `--${props.id}`,
+        'position-anchor': `--${_id}`,
         'position-try-fallbacks': positionTry ?? 'most-width bottom',
       }
     }
@@ -95,7 +98,7 @@
 <template>
   <Atom
     ref="ref"
-    :as="props.as"
+    :as
     :style
     v-bind="slotProps.attrs"
     @beforetoggle="onBeforeToggle"

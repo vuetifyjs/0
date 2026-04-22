@@ -1,12 +1,15 @@
 /**
  * @module useDate
  *
+ * @see https://0.vuetifyjs.com/composables/plugins/use-date
+ *
  * @remarks
  * Date manipulation composable with adapter pattern for date operations.
  *
  * Key features:
  * - Adapter pattern for date library abstraction
  * - Locale-aware formatting via Intl.DateTimeFormat
+ * - `firstDayOfWeek` derived from locale and propagated to adapter
  * - Integration with useLocale for automatic locale sync
  *
  * @example Using the built-in Temporal adapter
@@ -35,16 +38,14 @@
  * ```
  */
 
-// Foundational
-import { createContext, useContext } from '#v0/composables/createContext'
+// Composables
+import { useContext } from '#v0/composables/createContext'
 import { createPlugin } from '#v0/composables/createPlugin'
 import { createTrinity } from '#v0/composables/createTrinity'
-
-// Composables
 import { useLocale } from '#v0/composables/useLocale'
 
 // Utilities
-import { instanceExists, isNullOrUndefined } from '#v0/utilities'
+import { instanceExists, isNullOrUndefined, isUndefined } from '#v0/utilities'
 import { computed, watchEffect, onScopeDispose } from 'vue'
 
 // Types
@@ -61,6 +62,8 @@ export interface DateContext<Z> {
   adapter: DateAdapter<Z>
   /** Current locale (reactive, synced with useLocale if available) */
   locale: ComputedRef<string | undefined>
+  /** First day of week, derived from locale or explicit override */
+  firstDayOfWeek: ComputedRef<number>
 }
 
 /** Options for date composables */
@@ -79,6 +82,8 @@ export interface DateOptions<Z> {
   locale?: string
   /** Short locale codes mapped to full Intl locale strings (e.g., { en: 'en-US' }) */
   locales?: Record<string, string>
+  /** First day of week override. 0=Sun, 1=Mon, ... 6=Sat. Derived from locale if not set. */
+  firstDayOfWeek?: number
 }
 
 /** Context options with namespace */
@@ -105,6 +110,20 @@ const defaultLocales: Record<string, string> = {
   zh: 'zh-CN',
   ru: 'ru-RU',
   ar: 'ar-SA',
+}
+
+/**
+ * Derive firstDayOfWeek from an Intl locale string.
+ * Returns 0-6 (0=Sun) or 0 as fallback.
+ */
+function deriveFirstDayOfWeek (locale: string): number {
+  try {
+    const loc = new Intl.Locale(locale) as Intl.Locale & { getWeekInfo?: () => { firstDay: number } }
+    const info = loc.getWeekInfo?.()
+    return info ? info.firstDay % 7 : 0 // ISO 1-7 → v0 0-6
+  } catch {
+    return 0
+  }
 }
 
 /**
@@ -139,6 +158,7 @@ export function createDate<
     locales = defaultLocales,
     adapter,
     locale: initialLocale,
+    firstDayOfWeek: explicitFirstDay,
   } = options
 
   // Try to get selected locale from useLocale if available
@@ -166,6 +186,12 @@ export function createDate<
     return fallback.includes('-') ? fallback : (locales[fallback] ?? fallback)
   })
 
+  const firstDayOfWeek = computed(() => {
+    if (!isUndefined(explicitFirstDay)) return explicitFirstDay
+    const loc = locale.value
+    return loc ? deriveFirstDayOfWeek(loc) : 0
+  })
+
   // Keep adapter locale in sync (only when in component scope)
   if (instanceExists()) {
     const stop = watchEffect(() => {
@@ -173,6 +199,11 @@ export function createDate<
 
       if (loc && adapter.locale !== loc) {
         adapter.locale = loc
+      }
+
+      const fdow = firstDayOfWeek.value
+      if (adapter.firstDayOfWeek !== fdow) {
+        adapter.firstDayOfWeek = fdow
       }
     })
     onScopeDispose(stop)
@@ -182,9 +213,13 @@ export function createDate<
     if (loc && adapter.locale !== loc) {
       adapter.locale = loc
     }
+    const fdow = firstDayOfWeek.value
+    if (adapter.firstDayOfWeek !== fdow) {
+      adapter.firstDayOfWeek = fdow
+    }
   }
 
-  return { adapter, locale } as E
+  return { adapter, locale, firstDayOfWeek } as E
 }
 
 /**
@@ -212,14 +247,9 @@ export function createDateContext<
   E extends DateContext<Z> = DateContext<Z>,
 > (options: DateContextOptions<Z>): ContextTrinity<E> {
   const { namespace = 'v0:date', ...dateOptions } = options
-  const [useDateContext, _provideDateContext] = createContext<E>(namespace)
   const context = createDate<Z, E>(dateOptions)
 
-  function provideDateContext (_context: E = context, app?: App): E {
-    return _provideDateContext(_context, app)
-  }
-
-  return createTrinity<E>(useDateContext, provideDateContext, context)
+  return createTrinity<E>(namespace, context)
 }
 
 /**

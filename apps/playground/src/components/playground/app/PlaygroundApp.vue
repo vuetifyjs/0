@@ -47,15 +47,16 @@
 
   // Persisted user preference for side preview position
   const sidePref = storage.get('playground-preview-right', false)
-  // Track the desktop left-panel state so it survives mobile transitions.
-  // Updated whenever isMobile flips to true, restored when it flips back.
-  const desktop$ = { left: left.value }
 
   // Initialize panels based on current viewport.
   // Breakpoints plugin flushes initial values synchronously during install,
   // so isMobile is already correct at setup time.
   const desktop = !isMobile.value
-  const tree = shallowRef(desktop)
+  const tree = storage.get('playground-tree-open', desktop)
+
+  // Track the desktop panel state so it survives mobile transitions.
+  // Updated whenever isMobile flips to true, restored when it flips back.
+  const desktop$ = { left: left.value, tree: tree.value }
   const editor = shallowRef(desktop)
   const bottom = shallowRef(desktop && !(sidePref.value && !left.value))
   const side = shallowRef(desktop && (sidePref.value && !left.value))
@@ -91,6 +92,7 @@
   watch(isMobile, mobile => {
     if (mobile) {
       desktop$.left = left.value
+      desktop$.tree = tree.value
       tree.value = false
       editor.value = false
       left.value = false
@@ -98,7 +100,7 @@
       side.value = false
     } else {
       const currentSide = sidePref.value && !desktop$.left
-      tree.value = true
+      tree.value = desktop$.tree
       editor.value = true
       left.value = desktop$.left
       bottom.value = !currentSide

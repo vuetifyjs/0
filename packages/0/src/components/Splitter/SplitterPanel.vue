@@ -1,6 +1,8 @@
 /**
  * @module SplitterPanel
  *
+ * @see https://0.vuetifyjs.com/components/semantic/splitter
+ *
  * @remarks
  * Resizable panel within a splitter layout. Registers with the parent
  * SplitterRoot's selection context and receives its size from the ticket.
@@ -12,9 +14,12 @@
   import { Atom } from '#v0/components/Atom'
   import { useSplitterRoot } from './SplitterRoot.vue'
 
+  // Composables
+  import { useResizeObserver } from '#v0/composables/useResizeObserver'
+
   // Utilities
-  import { useId } from '#v0/utilities'
-  import { onUnmounted, toRef, toValue, useAttrs, watch, watchEffect } from 'vue'
+  import { isString, isUndefined, useId } from '#v0/utilities'
+  import { mergeProps, onBeforeUnmount, shallowRef, toRef, toValue, useAttrs, watch, watchEffect } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -24,7 +29,7 @@
   export interface SplitterPanelProps extends AtomProps {
     defaultSize: number
     minSize?: number
-    maxSize?: number
+    maxSize?: number | `${number}px`
     collapsible?: boolean
     collapsedSize?: number
   }
@@ -32,8 +37,8 @@
   export interface SplitterPanelExpose {
     collapse: () => void
     expand: () => void
-    size: Ref<number>
-    isCollapsed: Ref<boolean>
+    size: Readonly<Ref<number>>
+    isCollapsed: Readonly<Ref<boolean>>
   }
 
   export interface SplitterPanelSlotProps {
@@ -43,6 +48,7 @@
     expand: () => void
     attrs: {
       'id': string
+      'style'?: Record<string, string>
       'data-orientation': SplitterOrientation
       'data-panel-index': number
       'data-collapsed': true | undefined
@@ -71,19 +77,42 @@
     renderless,
     defaultSize,
     minSize = 0,
-    maxSize = 100,
+    maxSize: maxSizeProp = 100,
     collapsible = false,
     collapsedSize = 0,
   } = defineProps<SplitterPanelProps>()
 
   const splitter = useSplitterRoot()
   const panelId = useId()
+  const rootSize = shallowRef(0)
+
+  if (isString(maxSizeProp)) {
+    useResizeObserver(splitter.rootEl, entries => {
+      const rect = entries[0]?.contentRect
+      rootSize.value = splitter.orientation.value === 'horizontal'
+        ? rect?.width ?? 0
+        : rect?.height ?? 0
+    })
+  }
+
+  function resolveMaxSize (): number {
+    if (!isString(maxSizeProp)) return maxSizeProp
+
+    const px = Number.parseFloat(maxSizeProp)
+    const dimension = rootSize.value
+      || (splitter.orientation.value === 'horizontal'
+        ? splitter.rootEl.value?.offsetWidth
+        : splitter.rootEl.value?.offsetHeight)
+      || 0
+
+    return dimension > 0 ? (px / dimension) * 100 : 100
+  }
 
   const ticket = splitter.panels.register({
     id: panelId,
     size: defaultSize,
     minSize,
-    maxSize,
+    maxSize: resolveMaxSize(),
     collapsible,
     collapsedSize,
     defaultSize,
@@ -91,13 +120,13 @@
 
   watchEffect(() => {
     ticket.minSize = minSize
-    ticket.maxSize = maxSize
+    ticket.maxSize = resolveMaxSize()
     ticket.collapsible = collapsible
     ticket.collapsedSize = collapsedSize
     ticket.defaultSize = defaultSize
   })
 
-  onUnmounted(() => {
+  onBeforeUnmount(() => {
     splitter.panels.unregister(ticket.id)
   })
 
@@ -116,14 +145,14 @@
 
   // Sync v-model:collapsed → internal state (post flush ensures siblings are registered)
   watch(collapsed, val => {
-    if (val === undefined) return
+    if (isUndefined(val)) return
     if (val && !isCollapsed.value) collapse()
     else if (!val && isCollapsed.value) expand()
   }, { immediate: true, flush: 'post' })
 
   // Sync internal state → v-model:collapsed
   watch(isCollapsed, val => {
-    if (collapsed.value === undefined) return
+    if (isUndefined(collapsed.value)) return
     collapsed.value = val
   })
 
@@ -145,15 +174,15 @@
 
 <template>
   <Atom
-    v-bind="{ ...attrs, ...slotProps.attrs }"
+    v-bind="mergeProps(attrs, slotProps.attrs)"
     :as
     :renderless
-    :style="{
+    :style="[attrs.style, slotProps.attrs.style, {
       flexGrow: 0,
       flexShrink: 0,
       flexBasis: `${size}%`,
       overflow: 'hidden',
-    }"
+    }]"
   >
     <slot v-bind="slotProps" />
   </Atom>

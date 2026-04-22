@@ -1,28 +1,28 @@
 ---
-title: Nuxt 3 - SSR Integration Guide
+title: Nuxt - SSR Integration Guide
 features:
   order: 1
   level: 2
 meta:
   - name: description
-    content: Integrate Vuetify0 with Nuxt 3. Configure SSR, auto-imports, theme persistence, and hydration handling for server-rendered Vue applications.
+    content: Integrate Vuetify0 with Nuxt. Configure SSR, auto-imports, theme persistence, and hydration handling for server-rendered Vue applications.
   - name: keywords
-    content: vuetify0, nuxt 3, ssr, server side rendering, hydration, auto-imports, vue 3
+    content: vuetify0, nuxt, ssr, server side rendering, hydration, auto-imports, vue 3
 related:
   - /introduction/getting-started
   - /guide/features/theming
   - /composables/plugins/use-hydration
 ---
 
-# Nuxt 3
+# Nuxt
 
-v0 integrates with Nuxt 3 through standard Vue plugin registration. This guide covers SSR considerations, auto-imports, and theme persistence.
+v0 integrates with Nuxt through standard Vue plugin registration. This guide covers SSR considerations, auto-imports, and theme persistence.
 
 <DocsPageFeatures :frontmatter />
 
 ## Basic Setup
 
-See [Getting Started](/introduction/getting-started#nuxt-3) for the minimal plugin setup.
+See [Getting Started](/introduction/getting-started#nuxt) for the minimal plugin setup.
 
 ## Auto-Imports
 

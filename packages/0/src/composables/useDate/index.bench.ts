@@ -51,7 +51,7 @@ describe('useDate benchmarks', () => {
       })
 
       bench('startOfWeek', () => {
-        adapter.startOfWeek(testDate, 0)
+        adapter.startOfWeek(testDate)
       })
 
       bench('startOfMonth', () => {
@@ -59,7 +59,7 @@ describe('useDate benchmarks', () => {
       })
 
       bench('getWeekArray', () => {
-        adapter.getWeekArray(testDate, 0)
+        adapter.getWeekArray(testDate)
       })
     })
 

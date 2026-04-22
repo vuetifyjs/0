@@ -1,10 +1,11 @@
 <script setup lang="ts">
   import type { ValidationContext } from '@vuetify/v0'
 
-  const { validation, label, placeholder } = defineProps<{
+  const { validation, label, placeholder, value = '' } = defineProps<{
     validation: ValidationContext
     label: string
     placeholder: string
+    value?: string
   }>()
 
   const emit = defineEmits<{
@@ -26,6 +27,7 @@
       class="w-full px-3 py-1.5 text-sm border rounded bg-surface text-on-surface"
       :class="validation.errors.value.length > 0 ? 'border-error' : 'border-divider'"
       :placeholder
+      :value
       @input="onInput"
     >
 

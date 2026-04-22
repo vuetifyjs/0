@@ -7,14 +7,14 @@
 
   // Components
   import AppMeshBg from '@/components/app/AppMeshBg.vue'
-  import DocsHighlight from '@/components/docs/DocsHighlight.vue'
 
   // Composables
+  import { useBreadcrumbItems } from './composables/useBreadcrumbItems'
   import { useScrollPersist } from './composables/useScrollPersist'
   import { useSettings } from './composables/useSettings'
 
   // Utilities
-  import { watch } from 'vue'
+  import { toRef, watch } from 'vue'
   import { useRoute } from 'vue-router'
 
   useScrollPersist()
@@ -31,6 +31,37 @@
   const head = injectHead()
   head.use(InferSeoMetaPlugin())
 
+  const url = toRef(() => `https://0.vuetifyjs.com${route.path}`)
+
+  const breadcrumbs = useBreadcrumbItems()
+
+  const breadcrumbScript = toRef(() => {
+    if (route.path === '/') return []
+
+    const items = breadcrumbs.value
+    if (items.length <= 1) return []
+
+    return [{
+      key: 'breadcrumb-schema',
+      type: 'application/ld+json',
+      innerHTML: JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        'itemListElement': items.map((item, index) => {
+          const isLast = index === items.length - 1
+          const name = index === 0 ? 'Vuetify0' : item.text
+          const entry: Record<string, unknown> = {
+            '@type': 'ListItem',
+            'position': index + 1,
+            name,
+          }
+          if (!isLast && item.to) entry.item = `https://0.vuetifyjs.com${item.to}`
+          return entry
+        }),
+      }),
+    }]
+  })
+
   useHead({
     title: 'Vuetify0',
     titleTemplate: '%s — Vuetify0',
@@ -38,14 +69,38 @@
       { rel: 'preconnect', href: 'https://api.github.com' },
       { rel: 'preconnect', href: 'https://cdn.vuetifyjs.com' },
       { rel: 'dns-prefetch', href: 'https://api.npmjs.org' },
+      { key: 'canonical', rel: 'canonical', href: url },
     ],
     meta: [
       { key: 'description', name: 'description', content: 'Headless components and composables for building modern applications and design systems' },
       { key: 'og:type', property: 'og:type', content: 'website' },
-      { key: 'og:url', property: 'og:url', content: 'https://0.vuetifyjs.com' },
+      { key: 'og:site_name', property: 'og:site_name', content: 'Vuetify0' },
+      { key: 'og:locale', property: 'og:locale', content: 'en_US' },
+      { key: 'og:url', property: 'og:url', content: url },
       { key: 'og:image', property: 'og:image', content: 'https://cdn.vuetifyjs.com/docs/images/one/logos/vzero-logo-og.png' },
-      { key: 'twitter:card', name: 'twitter:card', content: 'summary' },
+      { key: 'twitter:card', name: 'twitter:card', content: 'summary_large_image' },
+      { key: 'twitter:site', name: 'twitter:site', content: '@VuetifyJS' },
     ],
+    script: toRef(() => [
+      {
+        key: 'website-schema',
+        type: 'application/ld+json',
+        innerHTML: JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'WebSite',
+          'name': 'Vuetify0',
+          'url': 'https://0.vuetifyjs.com',
+          'description': 'Headless components and composables for building modern applications and design systems',
+          'publisher': {
+            '@type': 'Organization',
+            'name': 'Vuetify',
+            'url': 'https://vuetifyjs.com',
+            'logo': 'https://cdn.vuetifyjs.com/docs/images/one/logos/vzero-logo-og.png',
+          },
+        }),
+      },
+      ...breadcrumbScript.value,
+    ]),
   })
 </script>
 
@@ -56,9 +111,6 @@
     <router-view />
   </main>
 
-  <DocsApiHover />
-
-  <DocsHighlight />
 </template>
 
 <style>
@@ -372,11 +424,14 @@
     padding: 0;
   }
 
-  /* Shiki theme switching */
+  /* Shiki theme switching — override inline vars to use theme surface color */
   .shiki {
     --shiki-light-bg: var(--v0-surface, #fff) !important;
     --shiki-dark-bg: var(--v0-surface, #1a1a1a) !important;
-    background-color: var(--shiki-light-bg);
+    --shiki-light: var(--v0-on-surface) !important;
+    --shiki-dark: var(--v0-on-surface) !important;
+    background-color: var(--v0-surface);
+    color: var(--v0-on-surface);
     border: thin solid var(--v0-divider);
     border-radius: 0.5rem;
   }
@@ -385,37 +440,5 @@
   .shiki:focus-visible {
     outline: none;
     box-shadow: inset 0 0 0 2px var(--v0-primary);
-  }
-
-  .shiki span {
-    color: var(--shiki-light);
-  }
-
-  [data-theme="light"] .shiki {
-    background-color: var(--shiki-light-bg);
-  }
-
-  [data-theme="light"] .shiki span {
-    color: var(--shiki-light);
-  }
-
-  /* Dark mode: match any data-theme that isn't a known light theme */
-  [data-theme]:not([data-theme="light"]):not([data-theme="odyssey"]):not([data-theme="tailwind-light"]):not([data-theme="material-3-light"]):not([data-theme="ant-design-light"]):not([data-theme="radix-light"]) .shiki {
-    background-color: var(--shiki-dark-bg);
-  }
-
-  [data-theme]:not([data-theme="light"]):not([data-theme="odyssey"]):not([data-theme="tailwind-light"]):not([data-theme="material-3-light"]):not([data-theme="ant-design-light"]):not([data-theme="radix-light"]) .shiki span {
-    color: var(--shiki-dark);
-  }
-
-  /* Fallback before JS sets data-theme */
-  @media (prefers-color-scheme: dark) {
-    html:not([data-theme]) .shiki {
-      background-color: var(--shiki-dark-bg);
-    }
-
-    html:not([data-theme]) .shiki span {
-      color: var(--shiki-dark);
-    }
   }
 </style>

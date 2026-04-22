@@ -3,9 +3,9 @@
   import { isNull, useBreakpoints } from '@vuetify/v0'
 
   // Components
-  import DocsAskMessage from './DocsAskMessage.vue'
   import AppIcon from '@/components/app/AppIcon.vue'
   import { Discovery } from '@/components/discovery'
+  import DocsAskMessage from './DocsAskMessage.vue'
 
   // Composables
   import { getBinUrl } from '@/composables/bin'
@@ -120,8 +120,8 @@
       .join('\n\n---\n\n')
   }
 
-  function openInBin () {
-    const url = getBinUrl(getConversationMarkdown(), 'markdown', 'Ask AI Conversation')
+  async function openInBin () {
+    const url = await getBinUrl(getConversationMarkdown(), 'markdown', 'Ask AI Conversation')
     window.open(url, '_blank')
   }
 

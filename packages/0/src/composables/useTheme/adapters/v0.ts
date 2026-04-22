@@ -20,11 +20,10 @@ export interface Vuetify0ThemeOptions {
 }
 
 /**
- * Theme adapter implementation for Vuetify v0 design system.
- * This adapter generates CSS custom properties and injects them into the DOM
- * as a stylesheet, allowing themes to be applied globally.
+ * Theme adapter that injects CSS custom properties via adoptedStyleSheets.
+ * Best for SPAs where SSR hydration is not a concern.
  */
-export class Vuetify0ThemeAdapter extends ThemeAdapter {
+export class V0StyleSheetThemeAdapter extends ThemeAdapter {
   cspNonce?: string
   sheet?: CSSStyleSheet
 

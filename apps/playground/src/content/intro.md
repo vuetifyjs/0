@@ -1,4 +1,8 @@
-# Welcome to Vuetify0!
+# Welcome to <span style="color: var(--v0-primary)">Vuetify0</span>!
+
+*Want to skip this for now? Close the panel and reopen it anytime from the ☰ menu in the top left.*
+
+---
 
 [@vuetify/v0](https://www.npmjs.com/package/@vuetify/v0) gives you headless composables — selection, registration, forms, theming — without any markup opinions. You bring the HTML and CSS; v0 handles the logic. This editor is where you build with them: a Monaco-powered workspace with live preview, type checking, and every v0 export ready to import.
 
@@ -29,8 +33,8 @@ Open the **examples** menu in the toolbar and load any demo — you'll get a com
 
 ## Tips
 
-- `Ctrl+B` toggles the file tree sidebar on and off
+- `Ctrl+B` toggles the file tree sidebar — or drag the panel edge to close it
 - **Double-click** any resize handle to snap it back to its default width
-- Switch between **horizontal** and **vertical** layout using the toggle in the toolbar
+- Switch between **Preview Right** and **Preview Bottom** via ☰ → View
 - Add new files in the file tree and import them normally — multi-file projects work out of the box
 - The URL updates as you edit — copy it to share exactly what you built

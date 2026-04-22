@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 // Utilities
 import { effectScope, nextTick, ref } from 'vue'
@@ -213,6 +213,44 @@ describe('useLazy', () => {
 
     expect(isBooted.value).toBe(true)
     expect(hasContent.value).toBe(true)
+  })
+
+  it('should delay boot when delay option is set', async () => {
+    vi.useFakeTimers()
+    const active = ref(false)
+    const { isBooted } = useLazy(active, { delay: 100 })
+
+    active.value = true
+    await nextTick()
+
+    // Should not be booted yet — timer hasn't elapsed
+    expect(isBooted.value).toBe(false)
+
+    vi.advanceTimersByTime(100)
+    await nextTick()
+
+    expect(isBooted.value).toBe(true)
+    vi.useRealTimers()
+  })
+
+  it('should cancel delay timer when deactivated before timeout', async () => {
+    vi.useFakeTimers()
+    const active = ref(false)
+    const { isBooted } = useLazy(active, { delay: 100 })
+
+    active.value = true
+    await nextTick()
+
+    // Deactivate before timer fires
+    vi.advanceTimersByTime(50)
+    active.value = false
+    await nextTick()
+
+    vi.advanceTimersByTime(100)
+    await nextTick()
+
+    expect(isBooted.value).toBe(false)
+    vi.useRealTimers()
   })
 
   it('should accept getter function for eager option', async () => {

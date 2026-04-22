@@ -1,9 +1,10 @@
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { glob } from 'node:fs/promises'
 import { basename, dirname, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 // Types
+import type { ApiData } from './generate-api'
 import type { Plugin, ViteDevServer } from 'vite'
 
 import { getApiNamesGrouped, toKebab } from './api-names'
@@ -96,33 +97,88 @@ function getTitleFromPath (filePath: string): string {
     .join(' ')
 }
 
+const API_CACHE_FILE = resolve(__dirname, '../node_modules/.cache/api-cache.json')
+
+function loadApiData (): ApiData | null {
+  if (!existsSync(API_CACHE_FILE)) return null
+  try {
+    return JSON.parse(readFileSync(API_CACHE_FILE, 'utf8')) as ApiData
+  } catch {
+    return null
+  }
+}
+
 async function generateApiSearchDocuments (startId: number): Promise<SearchDocument[]> {
   const documents: SearchDocument[] = []
   const apiNames = await getApiNamesGrouped()
+  const apiData = loadApiData()
   let id = startId
 
   // Add component API documents
   for (const comp of apiNames.components) {
+    const apiPath = `/api/${toKebab(comp.name)}`
+
     documents.push({
       id: String(id++),
       title: `${comp.name} API`,
       category: 'API',
-      path: `/api/${toKebab(comp.name)}`,
+      path: apiPath,
       headings: ['Props', 'Events', 'Slots'],
       content: `API reference for ${comp.name} component. Props, events, and slots documentation.`,
     })
+
+    // Add individual entries for each sub-component (e.g. Dialog.Root, Dialog.Content)
+    if (apiData) {
+      for (const [name, api] of Object.entries(apiData.components)) {
+        if (!name.startsWith(`${comp.name}.`)) continue
+
+        documents.push({
+          id: String(id++),
+          title: `${name} API`,
+          category: 'API',
+          path: apiPath,
+          headings: ['Props', 'Events', 'Slots'],
+          content: [
+            ...api.props.map(p => p.name),
+            ...api.events.map(e => e.name),
+            ...api.slots.map(s => s.name),
+          ].join(' '),
+        })
+      }
+    }
   }
 
   // Add composable API documents
   for (const comp of apiNames.composables) {
+    const apiPath = `/api/${toKebab(comp.name)}`
+
     documents.push({
       id: String(id++),
       title: `${comp.name} API`,
       category: 'API',
-      path: `/api/${toKebab(comp.name)}`,
+      path: apiPath,
       headings: ['Options', 'Properties', 'Methods'],
       content: `API reference for ${comp.name} composable. Options, properties, and methods documentation.`,
     })
+
+    // Add individual entries for each exported function (e.g. createTimelineContext → createTimeline API)
+    if (apiData) {
+      const api = apiData.composables[comp.name]
+      if (api) {
+        for (const fn of api.functions) {
+          if (fn.name === comp.name) continue
+
+          documents.push({
+            id: String(id++),
+            title: `${fn.name} API`,
+            category: 'API',
+            path: apiPath,
+            headings: ['Options', 'Properties', 'Methods'],
+            content: fn.description ?? '',
+          })
+        }
+      }
+    }
   }
 
   return documents

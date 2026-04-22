@@ -1,6 +1,8 @@
 /**
  * @module CheckboxRoot
  *
+ * @see https://0.vuetifyjs.com/components/forms/checkbox
+ *
  * @remarks
  * Root component for individual checkboxes with dual-mode support:
  * - **Standalone mode**: Uses v-model for boolean state
@@ -14,7 +16,7 @@
   // Components
   import { Atom } from '#v0/components/Atom'
 
-  // Foundational
+  // Composables
   import { createContext } from '#v0/composables/createContext'
 
   // Types
@@ -129,7 +131,8 @@
   import CheckboxHiddenInput from './CheckboxHiddenInput.vue'
 
   // Utilities
-  import { onUnmounted, toRef, toValue, useAttrs, useId } from 'vue'
+  import { useId } from '#v0/utilities'
+  import { mergeProps, onBeforeUnmount, toRef, toValue, useAttrs } from 'vue'
 
   // Types
   import type { GroupContext, GroupTicket } from '#v0/composables/createGroup'
@@ -247,7 +250,7 @@
     toggle()
   }
 
-  onUnmounted(() => {
+  onBeforeUnmount(() => {
     if (!ticket || !group) return
 
     group.unregister(ticket.id)
@@ -301,7 +304,7 @@
 
 <template>
   <Atom
-    v-bind="{ ...attrs, ...slotProps.attrs }"
+    v-bind="mergeProps(attrs, slotProps.attrs)"
     :as
     :renderless
     @click="onClick"

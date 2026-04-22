@@ -261,12 +261,12 @@ describe('createFilterContext', () => {
 
   it('should create context with custom namespace', () => {
     const [, provideFilterContext, context] = createFilterContext({
-      namespace: 'my-search',
+      namespace: 'test:my-search',
     })
 
     provideFilterContext(context)
 
-    expect(mockProvide).toHaveBeenCalledWith('my-search', context)
+    expect(mockProvide).toHaveBeenCalledWith('test:my-search', context)
   })
 
   it('should create a functional filter context', () => {
@@ -322,9 +322,9 @@ describe('useFilter', () => {
     const mockContext = createFilter()
     mockInject.mockReturnValue(mockContext)
 
-    const result = useFilter('my-search')
+    const result = useFilter('test:my-search')
 
-    expect(mockInject).toHaveBeenCalledWith('my-search', undefined)
+    expect(mockInject).toHaveBeenCalledWith('test:my-search', undefined)
     expect(result).toBe(mockContext)
   })
 

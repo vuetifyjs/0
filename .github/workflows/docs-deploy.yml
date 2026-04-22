@@ -15,17 +15,18 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
-      - uses: vuetifyjs/setup-action@master
+      - uses: vuetifyjs/setup-action@fb6949e3ee1041636b7fa9eef3c7694ff31840b8 # master
       - run: pnpm run build:docs
         env:
           VITE_API_SERVER_URL: ${{ vars.API_SERVER_URL }}
+          VITE_GITHUB_SHA: ${{ github.sha }}
       - name: Link Checker
         uses: lycheeverse/lychee-action@v2
         with:
           lycheeVersion: v0.22.0
           args: --config lychee.toml './apps/docs/dist'
           fail: false
-      - uses: vuetifyjs/coolify-action@master
+      - uses: vuetifyjs/coolify-action@f24a3716773c4c238e67c4bf0319c410bafc52de # master
         with:
           imageName: v0-docs
           dockerfilePath: ./apps/docs/Dockerfile

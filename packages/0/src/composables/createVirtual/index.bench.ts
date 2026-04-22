@@ -1,5 +1,5 @@
 /**
- * useVirtual Performance Benchmarks
+ * createVirtual Performance Benchmarks
  *
  * Structure:
  * - READ-ONLY operations use shared fixtures (safe, isolates operation cost)
@@ -101,7 +101,7 @@ const SCROLL_MIDDLE_10K = 250_000 // Middle of 10K items * 50px
 // BENCHMARKS
 // =============================================================================
 
-describe('useVirtual benchmarks', () => {
+describe('createVirtual benchmarks', () => {
   // ===========================================================================
   // INITIALIZATION - Measures setup/creation cost
   // Fresh fixture per iteration (required - we're measuring creation itself)

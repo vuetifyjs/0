@@ -418,6 +418,51 @@ describe('toReactive', () => {
 
       expect(tracked).toBe(42)
     })
+
+    it('should keep deep get tracking reactive', async () => {
+      const objRef = ref({
+        nested: {
+          count: 0,
+        },
+      })
+      const result = toReactive(objRef)
+
+      let tracked = 0
+      watchEffect(() => {
+        tracked = result.nested.count
+      })
+
+      expect(tracked).toBe(0)
+
+      objRef.value.nested.count = 7
+      await Promise.resolve()
+      expect(tracked).toBe(7)
+
+      objRef.value = { nested: { count: 11 } }
+      await Promise.resolve()
+      expect(tracked).toBe(11)
+    })
+
+    it('should keep deep set reactive through proxy', async () => {
+      const objRef = ref({
+        nested: {
+          value: 1,
+        },
+      })
+      const result = toReactive(objRef)
+
+      let tracked = 0
+      watchEffect(() => {
+        tracked = result.nested.value
+      })
+
+      expect(tracked).toBe(1)
+
+      result.nested.value = 5
+      await Promise.resolve()
+      expect(objRef.value.nested.value).toBe(5)
+      expect(tracked).toBe(5)
+    })
   })
 
   describe('getOwnPropertyDescriptor', () => {

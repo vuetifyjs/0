@@ -146,9 +146,8 @@
     active-class="rounded-lg"
     aria-label="Main navigation"
     as="nav"
-    class="flex flex-col fixed w-[230px] py-4 top-0 md:top-[72px] bottom-0"
     :class="[
-      'flex flex-col fixed w-[230px] overflow-y-auto py-4 top-0 md:top-[72px] bottom-0 start-0 ltr:-translate-x-full rtl:translate-x-full md:ltr:translate-x-0 md:rtl:translate-x-0 border-e border-solid border-divider',
+      'flex flex-col fixed w-[230px] overflow-y-auto py-4 top-0 md:top-[calc(48px+var(--app-banner-h,24px))] bottom-0 start-0 ltr:-translate-x-full rtl:translate-x-full md:ltr:translate-x-0 md:rtl:translate-x-0 border-e border-solid border-divider',
       settings.showBgGlass.value ? 'bg-glass-surface' : 'bg-surface',
       navigation.isOpen.value && '!translate-x-0',
       !settings.prefersReducedMotion.value && 'transition-transform duration-200 ease-in-out',
@@ -212,7 +211,6 @@
           v-else-if="'to' in nav"
           :id="nav.to"
           class="px-4"
-          :devmode="nav.devmode"
           :emphasized="nav.emphasized"
           :name="nav.name"
           :to="nav.to"

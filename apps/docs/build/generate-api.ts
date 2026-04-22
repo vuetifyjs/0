@@ -8,8 +8,8 @@
  */
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
-import { readdir } from 'node:fs/promises'
-import { dirname, resolve } from 'node:path'
+import { glob, readdir } from 'node:fs/promises'
+import { basename, dirname, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { Node, Project } from 'ts-morph'
@@ -19,10 +19,14 @@ import { createChecker } from 'vue-component-meta'
 import type { InterfaceDeclaration, JSDocableNode, TypeAliasDeclaration } from 'ts-morph'
 import type { Plugin } from 'vite'
 
+import { toCamel, toPascal } from './api-names'
+import { parseFrontmatter } from './frontmatter'
+
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = resolve(__dirname, '../../..')
 const COMPONENTS_DIR = resolve(ROOT, 'packages/0/src/components')
 const COMPOSABLES_DIR = resolve(ROOT, 'packages/0/src/composables')
+const PAGES_DIR = resolve(__dirname, '../src/pages')
 const TSCONFIG = resolve(ROOT, 'tsconfig.json')
 const PACKAGE_TSCONFIG = resolve(ROOT, 'packages/0/tsconfig.json')
 
@@ -159,11 +163,66 @@ function extractExampleTag (tags: { name: string, text?: string }[]): string | u
   return example || undefined
 }
 
+/**
+ * Fallback: extract props from a separate types file using ts-morph.
+ * Handles components that define props interfaces in `types.ts` instead of inline.
+ */
+function extractPropsFromTypesFile (filePath: string): ApiProp[] {
+  try {
+    const proj = getProject()
+    const dir = dirname(filePath)
+    const typesPath = resolve(dir, 'types.ts')
+    if (!existsSync(typesPath)) return []
+
+    // Determine the props interface name from the component filename
+    // e.g., TreeviewRoot.vue → TreeviewRootProps
+    const componentName = filePath.split('/').pop()?.replace('.vue', '') || ''
+    const propsInterfaceName = `${componentName}Props`
+
+    let typesFile = proj.getSourceFile(typesPath)
+    if (!typesFile) {
+      typesFile = proj.addSourceFileAtPath(typesPath)
+    }
+
+    const iface = typesFile.getInterface(propsInterfaceName)
+    if (!iface) return []
+
+    const props: ApiProp[] = []
+    const seen = new Set<string>()
+
+    // Walk inheritance chain
+    function extract (current: InterfaceDeclaration, omitted = new Set<string>()) {
+      for (const ext of current.getExtends()) {
+        const resolved = resolveBaseInterface(current.getSourceFile(), ext.getText())
+        if (resolved) {
+          extract(resolved.iface, new Set([...omitted, ...resolved.omittedKeys]))
+        }
+      }
+      for (const prop of current.getProperties()) {
+        const name = prop.getName()
+        if (seen.has(name) || omitted.has(name)) continue
+        // Skip AtomProps members — they're universal and noisy
+        if (name === 'as' || name === 'renderless') continue
+        seen.add(name)
+        const type = prop.getType().getText(prop)
+        const { description, example } = getJsDocInfo(prop)
+        const required = !prop.hasQuestionToken()
+        props.push({ name, type, required, description, example })
+      }
+    }
+
+    extract(iface)
+    return props
+  } catch {
+    return []
+  }
+}
+
 function extractComponentApi (filePath: string): ComponentApi | null {
   try {
     const meta = getChecker().getComponentMeta(filePath)
 
-    const props: ApiProp[] = meta.props
+    let props: ApiProp[] = meta.props
       .filter(p => !VUE_INTERNALS.has(p.name))
       .map(p => ({
         name: p.name,
@@ -173,6 +232,11 @@ function extractComponentApi (filePath: string): ComponentApi | null {
         description: p.description,
         example: extractExampleTag(p.tags),
       }))
+
+    // Fallback: if vue-component-meta found no props, try ts-morph on types.ts
+    if (props.length === 0) {
+      props = extractPropsFromTypesFile(filePath)
+    }
 
     const events: ApiEvent[] = meta.events
       .filter(e => e.name !== 'update:modelValue')
@@ -230,7 +294,7 @@ async function generateComponentApis (): Promise<Record<string, ComponentApi>> {
   )
 
   for (const [index, api] of results.entries()) {
-    if (api && api.props.length > 0) {
+    if (api && (api.props.length > 0 || api.slots.length > 0 || api.events.length > 0)) {
       const file = files[index]
       // Extract namespace from directory and sub-component from file
       // e.g., /components/Step/StepRoot.vue → Step.Root
@@ -572,7 +636,7 @@ function extractExportedFunctions (
 function extractComposableApi (filePath: string, composableName: string): ComposableApi | null {
   try {
     const proj = getProject()
-    const sourceFile = proj.addSourceFileAtPath(filePath)
+    const sourceFile = proj.getSourceFile(filePath) ?? proj.addSourceFileAtPath(filePath)
 
     // Get module description from first JSDoc comment
     const firstStatement = sourceFile.getStatements()[0]
@@ -590,9 +654,9 @@ function extractComposableApi (filePath: string, composableName: string): Compos
     }
 
     // Build list of possible interface name patterns
-    // For useRegistry -> Registry, RegistryOptions, RegistryContext
+    // For useTheme -> Theme, ThemeOptions, ThemeContext
     // For createContext -> CreateContext, Context, Plugin, etc.
-    // Also try UseRegistryOptions pattern (some composables use this)
+    // Also try UseThemeOptions pattern (some composables use this)
     const baseName = composableName.replace(/^use/, '')
     const baseNameSingular = baseName.replace(/s$/, '')
 
@@ -602,28 +666,75 @@ function extractComposableApi (filePath: string, composableName: string): Compos
     const pascalName = composableName.charAt(0).toUpperCase() + composableName.slice(1)
     const secondWord = isCreate ? composableName.replace(/^create/, '') : null
 
+    // Helper: find interface in source file or in re-exported type modules
+    function findInterface (name: string): InterfaceDeclaration | undefined {
+      // Direct lookup
+      const direct = sourceFile.getInterface(name)
+      if (direct) return direct
+
+      // Follow re-exports: export { type X } from './types'
+      for (const exportDecl of sourceFile.getExportDeclarations()) {
+        const moduleSpecifier = exportDecl.getModuleSpecifierValue()
+        if (!moduleSpecifier) continue
+
+        const namedExports = exportDecl.getNamedExports()
+        if (!namedExports.some(ne => ne.getName() === name)) continue
+
+        // Resolve the module path relative to source file
+        const sourceDir = dirname(sourceFile.getFilePath())
+        let resolvedPath = resolve(sourceDir, moduleSpecifier)
+        if (!resolvedPath.endsWith('.ts')) resolvedPath += '.ts'
+
+        let reExportedFile = proj.getSourceFile(resolvedPath)
+        if (!reExportedFile) {
+          try {
+            reExportedFile = proj.addSourceFileAtPath(resolvedPath)
+          } catch {
+            continue
+          }
+        }
+        const found = reExportedFile.getInterface(name)
+        if (found) return found
+      }
+
+      return undefined
+    }
+
+    function findFirst (...names: (string | null | undefined)[]): InterfaceDeclaration | undefined {
+      for (const name of names) {
+        if (!name) continue
+        const found = findInterface(name)
+        if (found) return found
+      }
+      return undefined
+    }
+
     // Find Options interface with multiple naming patterns
     // Try: RegistryOptions, UseRegistryOptions, etc.
-    const optionsInterface = sourceFile.getInterface(`${baseName}Options`)
-      ?? sourceFile.getInterface(`${baseNameSingular}Options`)
-      ?? (isUse ? sourceFile.getInterface(`${pascalName}Options`) : undefined)
-      ?? (isCreate ? sourceFile.getInterface(`${pascalName}Options`) : undefined)
-      ?? (secondWord ? sourceFile.getInterface(`${secondWord}Options`) : undefined)
+    const optionsInterface = findFirst(
+      `${baseName}Options`,
+      `${baseNameSingular}Options`,
+      isUse ? `${pascalName}Options` : null,
+      isCreate ? `${pascalName}Options` : null,
+      secondWord ? `${secondWord}Options` : null,
+    )
 
     // Find Context/Return interface with multiple naming patterns
-    // Try: RegistryContext, UseRegistryReturn, etc.
-    const contextInterface = sourceFile.getInterface(`${baseName}Context`)
-      ?? sourceFile.getInterface(`${baseNameSingular}Context`)
-      ?? (isUse ? sourceFile.getInterface(`${pascalName}Return`) : undefined)
-      ?? (isCreate ? sourceFile.getInterface(`${pascalName}Context`) : undefined)
-      ?? (secondWord ? sourceFile.getInterface(`${secondWord}Context`) : undefined)
+    // Try: RegistryContext, RegistryReturn, UseRegistryReturn, etc.
+    const contextInterface = findFirst(
+      `${baseName}Context`,
+      `${baseNameSingular}Context`,
+      `${baseName}Return`,
+      `${baseNameSingular}Return`,
+      isUse ? `${pascalName}Return` : null,
+      isCreate ? `${pascalName}Context` : null,
+      secondWord ? `${secondWord}Context` : null,
+      secondWord ? `${secondWord}Return` : null,
+    )
 
     const functions = extractExportedFunctions(sourceFile)
     const options = extractOptionsMembers(optionsInterface)
     const { methods, properties } = extractInterfaceMembers(contextInterface)
-
-    // Remove source file to avoid memory leak
-    proj.removeSourceFile(sourceFile)
 
     // Only return if we found meaningful content
     if (functions.length === 0 && options.length === 0 && methods.length === 0 && properties.length === 0) {
@@ -639,7 +750,8 @@ function extractComposableApi (filePath: string, composableName: string): Compos
       methods,
       properties,
     }
-  } catch {
+  } catch (error) {
+    console.warn(`[generate-api] Failed to extract API for composable "${composableName}":`, error instanceof Error ? error.message : error)
     return null
   }
 }
@@ -674,12 +786,62 @@ async function generateComposableApis (): Promise<Record<string, ComposableApi>>
 }
 
 // ============================================================================
+// Related Links (from docs page frontmatter)
+// ============================================================================
+
+/**
+ * Scan composable/component markdown pages and build a map of API name →
+ * related URLs. The list is the counterpart doc page prepended to its own
+ * `related` frontmatter entries, so API pages can surface both the counterpart
+ * itself and the counterpart's cross-links.
+ */
+async function generateRelatedMap (
+  components: Record<string, ComponentApi>,
+  composables: Record<string, ComposableApi>,
+): Promise<Record<string, string[]>> {
+  const related: Record<string, string[]> = {}
+  const componentNames = new Set(Object.keys(components).map(key => key.split('.')[0]))
+
+  const patterns = [
+    `${PAGES_DIR}/composables/**/*.md`,
+    `${PAGES_DIR}/components/**/*.md`,
+  ]
+
+  for (const pattern of patterns) {
+    for await (const file of glob(pattern)) {
+      const name = basename(file, '.md')
+      if (name === 'index') continue
+
+      const isComposable = file.includes(`${PAGES_DIR}/composables/`)
+      const apiName = isComposable ? toCamel(name) : toPascal(name)
+
+      if (isComposable && !(apiName in composables)) continue
+      if (!isComposable && !componentNames.has(apiName)) continue
+
+      let raw: string
+      try {
+        raw = readFileSync(file, 'utf8')
+      } catch {
+        continue
+      }
+
+      const { frontmatter } = parseFrontmatter(raw)
+      const urlPath = '/' + relative(PAGES_DIR, file).replace(/\.md$/, '').replaceAll('\\', '/')
+      related[apiName] = [urlPath, ...(frontmatter.related ?? [])]
+    }
+  }
+
+  return related
+}
+
+// ============================================================================
 // Plugin
 // ============================================================================
 
 export interface ApiData {
   components: Record<string, ComponentApi>
   composables: Record<string, ComposableApi>
+  related: Record<string, string[]>
 }
 
 export default function generateApiPlugin (): Plugin {
@@ -692,9 +854,13 @@ export default function generateApiPlugin (): Plugin {
     // Try to read from cache first (SSR build reuses client build cache)
     if (existsSync(API_CACHE_FILE)) {
       try {
-        apiData = JSON.parse(readFileSync(API_CACHE_FILE, 'utf8')) as ApiData
-        console.log(`[generate-api] Loaded API from cache`)
-        return apiData
+        const cached = JSON.parse(readFileSync(API_CACHE_FILE, 'utf8')) as Partial<ApiData>
+        // Invalidate caches written before the `related` field existed.
+        if (cached.components && cached.composables && cached.related) {
+          apiData = cached as ApiData
+          console.log(`[generate-api] Loaded API from cache`)
+          return apiData
+        }
       } catch {
         // Cache read failed, regenerate
       }
@@ -707,7 +873,8 @@ export default function generateApiPlugin (): Plugin {
             generateComponentApis(),
             generateComposableApis(),
           ])
-          const data = { components, composables }
+          const related = await generateRelatedMap(components, composables)
+          const data: ApiData = { components, composables, related }
           // Write to cache for subsequent builds (SSR reuses this)
           try {
             mkdirSync(API_CACHE_DIR, { recursive: true })

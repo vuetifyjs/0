@@ -1,6 +1,6 @@
 {
   "name": "@vuetify/v0",
-  "version": "0.1.8",
+  "version": "1.0.0-alpha.1",
   "description": "A meta UI framework for building applications, component libraries, and design systems with Vue 3",
   "license": "MIT",
   "types": "./dist/index.d.mts",
@@ -15,7 +15,9 @@
     "directory": "packages/0"
   },
   "scripts": {
-    "build": "tsdown && pnpm generate:web-types",
+    "build": "concurrently --names tsdown,webtypes --kill-others-on-fail --prefix-colors cyan,magenta 'pnpm build:tsdown' 'pnpm build:web-types'",
+    "build:tsdown": "tsdown",
+    "build:web-types": "tsx scripts/generate-web-types.ts",
     "generate:web-types": "tsx scripts/generate-web-types.ts",
     "typecheck": "vue-tsc --noEmit --incremental"
   },
@@ -44,6 +46,7 @@
       "./logger/adapters/consola": "./dist/logger/adapters/consola/index.mjs",
       "./logger/adapters/pino": "./dist/logger/adapters/pino/index.mjs",
       "./logger/adapters/v0": "./dist/logger/adapters/v0/index.mjs",
+      "./notifications": "./dist/notifications/index.mjs",
       "./palettes": "./dist/palettes/index.mjs",
       "./palettes/ant": "./dist/palettes/ant/index.mjs",
       "./palettes/ant/generate": "./dist/palettes/ant/generate/index.mjs",
@@ -63,6 +66,7 @@
       "./storage/adapters/memory": "./dist/storage/adapters/memory/index.mjs",
       "./theme": "./dist/theme/index.mjs",
       "./theme/adapters": "./dist/theme/adapters/index.mjs",
+      "./theme/adapters/unhead": "./dist/theme/adapters/unhead/index.mjs",
       "./theme/adapters/v0": "./dist/theme/adapters/v0/index.mjs",
       "./types": "./dist/types/index.mjs",
       "./utilities": "./dist/utilities/index.mjs",
@@ -110,6 +114,7 @@
     "@material/material-color-utilities": "catalog:",
     "@vue/compiler-dom": "catalog:",
     "@vue/test-utils": "catalog:",
+    "concurrently": "catalog:",
     "launchdarkly-js-client-sdk": "catalog:",
     "posthog-js": "catalog:",
     "tsdown": "catalog:",
@@ -219,6 +224,10 @@
       "development": "./src/logger/adapters/v0/index.ts",
       "default": "./dist/logger/adapters/v0/index.mjs"
     },
+    "./notifications": {
+      "development": "./src/notifications/index.ts",
+      "default": "./dist/notifications/index.mjs"
+    },
     "./palettes": {
       "development": "./src/palettes/index.ts",
       "default": "./dist/palettes/index.mjs"
@@ -295,6 +304,10 @@
       "development": "./src/theme/adapters/index.ts",
       "default": "./dist/theme/adapters/index.mjs"
     },
+    "./theme/adapters/unhead": {
+      "development": "./src/theme/adapters/unhead/index.ts",
+      "default": "./dist/theme/adapters/unhead/index.mjs"
+    },
     "./theme/adapters/v0": {
       "development": "./src/theme/adapters/v0/index.ts",
       "default": "./dist/theme/adapters/v0/index.mjs"
@@ -315,9 +328,5 @@
   },
   "optionalDependencies": {
     "@js-temporal/polyfill": "catalog:"
-  },
-  "inlinedDependencies": {
-    "jsbi": "4.3.2",
-    "@js-temporal/polyfill": "0.5.1"
   }
 }

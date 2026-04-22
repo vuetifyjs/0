@@ -1,6 +1,8 @@
 /**
  * @module useProxyRegistry
  *
+ * @see https://0.vuetifyjs.com/composables/reactivity/use-proxy-registry
+ *
  * @remarks
  * Proxy composable for reactive registry keys, values, entries, and size.
  *
@@ -12,6 +14,16 @@
  * - Transforms Map-based registry into reactive refs
  *
  * Perfect for exposing registry data as reactive computed properties.
+ *
+ * @example
+ * ```ts
+ * import { createRegistry, useProxyRegistry } from '@vuetify/v0'
+ *
+ * const registry = createRegistry({ events: true })
+ * const proxy = useProxyRegistry(registry)
+ * registry.register({ value: 'Item 1' })
+ * console.log(proxy.size) // 1
+ * ```
  */
 
 // Utilities
@@ -26,9 +38,9 @@ export interface ProxyRegistryOptions {
 }
 
 export interface ProxyRegistryContext<Z extends RegistryTicket = RegistryTicket> {
-  keys: ID[]
-  values: Z[]
-  entries: [ID, Z][]
+  keys: readonly ID[]
+  values: readonly Z[]
+  entries: readonly [ID, Z][]
   size: number
 }
 
@@ -41,7 +53,7 @@ export interface ProxyRegistryContext<Z extends RegistryTicket = RegistryTicket>
  * @template E The output ticket type (what users receive from get/values).
  * @returns A proxy registry with reactive objects.
  *
- * @see https://0.vuetifyjs.com/composables/registration/use-proxy-registry
+ * @see https://0.vuetifyjs.com/composables/reactivity/use-proxy-registry
  *
  * @example
  * ```ts
@@ -81,12 +93,14 @@ export function useProxyRegistry<
   registry.on('unregister:ticket', update)
   registry.on('update:ticket', update)
   registry.on('clear:registry', update)
+  registry.on('reindex:registry', update)
 
   onScopeDispose(() => {
     registry.off('register:ticket', update)
     registry.off('unregister:ticket', update)
     registry.off('update:ticket', update)
     registry.off('clear:registry', update)
+    registry.off('reindex:registry', update)
   }, true)
 
   return state as ProxyRegistryContext<E>

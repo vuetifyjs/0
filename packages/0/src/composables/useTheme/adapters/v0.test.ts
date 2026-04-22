@@ -7,7 +7,7 @@ import { computed, effectScope, nextTick, ref } from 'vue'
 import type { ThemeAdapterSetupContext } from './adapter'
 import type { App } from 'vue'
 
-import { Vuetify0ThemeAdapter } from './v0'
+import { V0StyleSheetThemeAdapter } from './v0'
 
 const mockInBrowser = vi.hoisted(() => ({ value: false }))
 
@@ -36,16 +36,16 @@ function createMockApp (headMock?: { push: ReturnType<typeof vi.fn> }): App {
   } as unknown as App
 }
 
-describe('vuetify0ThemeAdapter', () => {
+describe('v0StyleSheetThemeAdapter', () => {
   describe('constructor', () => {
     it('should use default options', () => {
-      const adapter = new Vuetify0ThemeAdapter()
+      const adapter = new V0StyleSheetThemeAdapter()
 
       expect(adapter.cspNonce).toBeUndefined()
     })
 
     it('should accept custom options', () => {
-      const adapter = new Vuetify0ThemeAdapter({
+      const adapter = new V0StyleSheetThemeAdapter({
         cspNonce: 'test-nonce',
         stylesheetId: 'custom-styles',
         prefix: 'custom',
@@ -61,7 +61,7 @@ describe('vuetify0ThemeAdapter', () => {
       const headMock = { push: vi.fn() }
       const app = createMockApp(headMock)
       const context = createMockContext()
-      const adapter = new Vuetify0ThemeAdapter()
+      const adapter = new V0StyleSheetThemeAdapter()
 
       const scope = effectScope()
       scope.run(() => {
@@ -90,7 +90,7 @@ describe('vuetify0ThemeAdapter', () => {
         },
       } as unknown as App
       const context = createMockContext()
-      const adapter = new Vuetify0ThemeAdapter()
+      const adapter = new V0StyleSheetThemeAdapter()
 
       const scope = effectScope()
       scope.run(() => {
@@ -108,7 +108,7 @@ describe('vuetify0ThemeAdapter', () => {
       const app = createMockApp(headMock)
       const context = createMockContext()
       context.selectedId.value = ''
-      const adapter = new Vuetify0ThemeAdapter()
+      const adapter = new V0StyleSheetThemeAdapter()
 
       const scope = effectScope()
       scope.run(() => {
@@ -128,7 +128,7 @@ describe('vuetify0ThemeAdapter', () => {
       mockInBrowser.value = false
       const app = createMockApp()
       const context = createMockContext()
-      const adapter = new Vuetify0ThemeAdapter()
+      const adapter = new V0StyleSheetThemeAdapter()
 
       const scope = effectScope()
       expect(() => {
@@ -142,7 +142,7 @@ describe('vuetify0ThemeAdapter', () => {
 
     it('should not call update in SSR', () => {
       mockInBrowser.value = false
-      const adapter = new Vuetify0ThemeAdapter()
+      const adapter = new V0StyleSheetThemeAdapter()
 
       expect(() => {
         adapter.update({ light: { primary: '#000' } }, false)
@@ -151,7 +151,7 @@ describe('vuetify0ThemeAdapter', () => {
 
     it('should not call upsert in SSR', () => {
       mockInBrowser.value = false
-      const adapter = new Vuetify0ThemeAdapter()
+      const adapter = new V0StyleSheetThemeAdapter()
 
       expect(() => {
         adapter.upsert(':root { --color: red; }')
@@ -178,7 +178,7 @@ describe('vuetify0ThemeAdapter', () => {
     })
 
     it('should create and inject stylesheet', () => {
-      const adapter = new Vuetify0ThemeAdapter()
+      const adapter = new V0StyleSheetThemeAdapter()
 
       adapter.upsert(':root { --primary: #1976d2; }')
 
@@ -188,7 +188,7 @@ describe('vuetify0ThemeAdapter', () => {
     })
 
     it('should update existing stylesheet', () => {
-      const adapter = new Vuetify0ThemeAdapter()
+      const adapter = new V0StyleSheetThemeAdapter()
 
       adapter.upsert(':root { --primary: #1976d2; }')
       adapter.upsert(':root { --primary: #2196f3; }')
@@ -201,7 +201,7 @@ describe('vuetify0ThemeAdapter', () => {
     it('should set data-theme attribute on target element', async () => {
       const app = createMockApp()
       const context = createMockContext()
-      const adapter = new Vuetify0ThemeAdapter()
+      const adapter = new V0StyleSheetThemeAdapter()
       const targetEl = document.createElement('div')
       document.body.append(targetEl)
 
@@ -219,7 +219,7 @@ describe('vuetify0ThemeAdapter', () => {
     it('should handle null target gracefully', () => {
       const app = createMockApp()
       const context = createMockContext()
-      const adapter = new Vuetify0ThemeAdapter()
+      const adapter = new V0StyleSheetThemeAdapter()
 
       const scope = effectScope()
       expect(() => {
@@ -234,7 +234,7 @@ describe('vuetify0ThemeAdapter', () => {
     it('should handle string selector for target', () => {
       const app = createMockApp()
       const context = createMockContext()
-      const adapter = new Vuetify0ThemeAdapter()
+      const adapter = new V0StyleSheetThemeAdapter()
       const targetEl = document.createElement('div')
       targetEl.id = 'test-target'
       document.body.append(targetEl)
@@ -253,7 +253,7 @@ describe('vuetify0ThemeAdapter', () => {
     it('should handle missing target selector gracefully', () => {
       const app = createMockApp()
       const context = createMockContext()
-      const adapter = new Vuetify0ThemeAdapter()
+      const adapter = new V0StyleSheetThemeAdapter()
 
       const scope = effectScope()
       expect(() => {
@@ -269,7 +269,7 @@ describe('vuetify0ThemeAdapter', () => {
       const app = createMockApp()
       const context = createMockContext()
       context.selectedId.value = ''
-      const adapter = new Vuetify0ThemeAdapter()
+      const adapter = new V0StyleSheetThemeAdapter()
       const targetEl = document.createElement('div')
       document.body.append(targetEl)
 
@@ -297,7 +297,7 @@ describe('vuetify0ThemeAdapter', () => {
         configurable: true,
       })
 
-      const adapter = new Vuetify0ThemeAdapter()
+      const adapter = new V0StyleSheetThemeAdapter()
       const styles = ':root { --primary: #1976d2; }'
 
       adapter.upsert(styles)
@@ -310,7 +310,7 @@ describe('vuetify0ThemeAdapter', () => {
     })
 
     it('should generate CSS with data-theme selectors and variables', () => {
-      const adapter = new Vuetify0ThemeAdapter()
+      const adapter = new V0StyleSheetThemeAdapter()
 
       const css = adapter.generate(
         { light: { primary: '#1976d2', secondary: '#424242' } },
@@ -324,7 +324,7 @@ describe('vuetify0ThemeAdapter', () => {
     })
 
     it('should generate dark color-scheme when isDark is true', () => {
-      const adapter = new Vuetify0ThemeAdapter()
+      const adapter = new V0StyleSheetThemeAdapter()
 
       const css = adapter.generate(
         { dark: { primary: '#90caf9' } },
@@ -335,7 +335,7 @@ describe('vuetify0ThemeAdapter', () => {
     })
 
     it('should use custom prefix in CSS variables', () => {
-      const adapter = new Vuetify0ThemeAdapter({ prefix: 'custom' })
+      const adapter = new V0StyleSheetThemeAdapter({ prefix: 'custom' })
 
       const css = adapter.generate(
         { light: { primary: '#1976d2' } },
@@ -357,7 +357,7 @@ describe('vuetify0ThemeAdapter', () => {
         })),
         isDark,
       }
-      const adapter = new Vuetify0ThemeAdapter()
+      const adapter = new V0StyleSheetThemeAdapter()
       const updateSpy = vi.spyOn(adapter, 'update')
 
       const scope = effectScope()
@@ -381,6 +381,30 @@ describe('vuetify0ThemeAdapter', () => {
       scope.stop()
     })
 
+    it('should decompose hex to RGB when rgb is true', () => {
+      const adapter = new V0StyleSheetThemeAdapter()
+      adapter.rgb = true
+
+      const css = adapter.generate(
+        { light: { primary: '#1976d2', secondary: '#424242' } },
+        false,
+      )
+
+      expect(css).toContain('--v0-primary: 25, 118, 210')
+      expect(css).toContain('--v0-secondary: 66, 66, 66')
+    })
+
+    it('should output raw hex when rgb is false', () => {
+      const adapter = new V0StyleSheetThemeAdapter()
+
+      const css = adapter.generate(
+        { light: { primary: '#1976d2' } },
+        false,
+      )
+
+      expect(css).toContain('--v0-primary: #1976d2')
+    })
+
     it('should stop watcher on scope dispose', async () => {
       const app = createMockApp()
       const isDark = ref(false)
@@ -391,7 +415,7 @@ describe('vuetify0ThemeAdapter', () => {
         })),
         isDark,
       }
-      const adapter = new Vuetify0ThemeAdapter()
+      const adapter = new V0StyleSheetThemeAdapter()
       const updateSpy = vi.spyOn(adapter, 'update')
 
       const scope = effectScope()

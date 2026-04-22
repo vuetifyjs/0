@@ -26,8 +26,21 @@ describe('createSlider', () => {
 
     it('handles decimal steps', () => {
       const { slider } = setup({ min: 0, max: 1, step: 0.1 })
-      expect(slider.snap(0.34)).toBeCloseTo(0.3)
-      expect(slider.snap(0.36)).toBeCloseTo(0.4)
+      expect(slider.snap(0.34)).toBe(0.3)
+      expect(slider.snap(0.36)).toBe(0.4)
+    })
+
+    it('produces exact values for common decimal steps', () => {
+      const { slider } = setup({ min: 0, max: 1, step: 0.1 })
+      for (let i = 0; i <= 10; i++) {
+        expect(slider.snap(i * 0.1)).toBe(+(i * 0.1).toFixed(1))
+      }
+    })
+
+    it('handles decimal steps with non-zero min', () => {
+      const { slider } = setup({ min: 0.05, max: 1, step: 0.1 })
+      expect(slider.snap(0.16)).toBe(0.15)
+      expect(slider.snap(0.34)).toBe(0.35)
     })
 
     it('clamps to min/max', () => {
@@ -328,6 +341,43 @@ describe('createSlider', () => {
       expect(slider.size).toBe(2)
       slider.unregister(ticket.id)
       expect(slider.size).toBe(1)
+    })
+  })
+
+  describe('up / down on non-existent index', () => {
+    it('should fall back to min when up on out-of-bounds index', () => {
+      const { slider } = setup({ min: 10, max: 100, step: 5 })
+      // No thumb registered at index 0
+      slider.up(0)
+      // No crash, no value change (no thumb exists)
+      expect(slider.values.value).toEqual([])
+    })
+
+    it('should fall back to min when down on out-of-bounds index', () => {
+      const { slider } = setup({ min: 10, max: 100, step: 5 })
+      slider.down(0)
+      expect(slider.values.value).toEqual([])
+    })
+
+    it('should no-op set on non-existent thumb index', () => {
+      const { slider } = setup({ min: 0, max: 100 })
+      slider.set(5, 50)
+      expect(slider.values.value).toEqual([])
+    })
+  })
+
+  describe('onboard', () => {
+    it('should batch-register multiple thumbs', () => {
+      const { slider } = setup()
+      slider.onboard([{ value: 25 }, { value: 50 }, { value: 75 }] as any)
+      expect(slider.values.value).toEqual([25, 50, 75])
+      expect(slider.size).toBe(3)
+    })
+
+    it('should snap values during onboard', () => {
+      const { slider } = setup({ step: 10 })
+      slider.onboard([{ value: 13 }, { value: 47 }] as any)
+      expect(slider.values.value).toEqual([10, 50])
     })
   })
 

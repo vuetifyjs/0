@@ -13,6 +13,16 @@
  * - Callable function with cancel method
  *
  * Perfect for throttling updates to the next animation frame.
+ *
+ * @example
+ * ```ts
+ * import { useRaf } from '@vuetify/v0'
+ *
+ * const update = useRaf(timestamp => {
+ *   // runs on next animation frame
+ * })
+ * update()
+ * ```
  */
 
 // Constants

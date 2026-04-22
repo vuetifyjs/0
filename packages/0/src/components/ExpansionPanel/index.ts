@@ -1,35 +1,68 @@
 export { default as ExpansionPanelActivator } from './ExpansionPanelActivator.vue'
 export { default as ExpansionPanelContent } from './ExpansionPanelContent.vue'
+export { default as ExpansionPanelCue } from './ExpansionPanelCue.vue'
 export { default as ExpansionPanelHeader } from './ExpansionPanelHeader.vue'
-export { provideExpansionPanelItem, useExpansionPanelItem } from './ExpansionPanelItem.vue'
-export { default as ExpansionPanelItem } from './ExpansionPanelItem.vue'
+
+export { provideExpansionPanelGroup, useExpansionPanelGroup } from './ExpansionPanelGroup.vue'
+export { default as ExpansionPanelGroup } from './ExpansionPanelGroup.vue'
 
 export { provideExpansionPanelRoot, useExpansionPanelRoot } from './ExpansionPanelRoot.vue'
 export { default as ExpansionPanelRoot } from './ExpansionPanelRoot.vue'
 
 export type { ExpansionPanelActivatorProps, ExpansionPanelActivatorSlotProps } from './ExpansionPanelActivator.vue'
 export type { ExpansionPanelContentProps, ExpansionPanelContentSlotProps } from './ExpansionPanelContent.vue'
+export type { ExpansionPanelCueProps, ExpansionPanelCueSlotProps } from './ExpansionPanelCue.vue'
 export type { ExpansionPanelHeaderProps, ExpansionPanelHeaderSlotProps } from './ExpansionPanelHeader.vue'
-export type { ExpansionPanelItemContext, ExpansionPanelItemProps, ExpansionPanelItemSlotProps } from './ExpansionPanelItem.vue'
-export type { ExpansionPanelOptionsContext, ExpansionPanelRootProps, ExpansionPanelRootSlotProps } from './ExpansionPanelRoot.vue'
+export type { ExpansionPanelRootContext, ExpansionPanelRootProps, ExpansionPanelRootSlotProps } from './ExpansionPanelRoot.vue'
+export type { ExpansionPanelGroupProps, ExpansionPanelGroupSlotProps, ExpansionPanelOptionsContext } from './ExpansionPanelGroup.vue'
 
 // Components
 import Activator from './ExpansionPanelActivator.vue'
 import Content from './ExpansionPanelContent.vue'
+import Cue from './ExpansionPanelCue.vue'
+import Group from './ExpansionPanelGroup.vue'
 import Header from './ExpansionPanelHeader.vue'
-import Item from './ExpansionPanelItem.vue'
 import Root from './ExpansionPanelRoot.vue'
 
 /**
  * ExpansionPanel component with sub-components for building expansion panels.
  *
- * @see https://0.vuetifyjs.com/components/expansion-panels
+ * @see https://0.vuetifyjs.com/components/disclosure/expansion-panel
+ *
+ * @example
+ * ```vue
+ * <script lang="ts" setup>
+ *   import { ExpansionPanel } from '@vuetify/v0'
+ * </script>
+ *
+ * <template>
+ *   <ExpansionPanel.Group>
+ *     <ExpansionPanel.Root>
+ *       <ExpansionPanel.Header>
+ *         <ExpansionPanel.Activator>
+ *          Click to expand
+ *         </ExpansionPanel.Activator>
+ *       </ExpansionPanel.Header>
+ *
+ *       <ExpansionPanel.Content>
+ *         Content goes here.
+ *       </ExpansionPanel.Content>
+ *     </ExpansionPanel.Root>
+ *   </ExpansionPanel.Group>
+ * </template>
+ * ```
  */
 export const ExpansionPanel = {
   /**
-   * Root component for expansion panels.
+   * Group component for coordinating expansion panels.
    *
-   * @see https://0.vuetifyjs.com/components/expansion-panels
+   * @see https://0.vuetifyjs.com/components/disclosure/expansion-panel
+   */
+  Group,
+  /**
+   * Root component representing a single expansion panel.
+   *
+   * @see https://0.vuetifyjs.com/components/disclosure/expansion-panel
    *
    * @example
    * ```vue
@@ -39,35 +72,6 @@ export const ExpansionPanel = {
    *
    * <template>
    *   <ExpansionPanel.Root>
-   *     <ExpansionPanel.Item>
-   *       <ExpansionPanel.Header>
-   *         <ExpansionPanel.Activator>
-   *          Click to expand
-   *         </ExpansionPanel.Activator>
-   *       </ExpansionPanel.Header>
-   *
-   *       <ExpansionPanel.Content>
-   *         Content goes here.
-   *       </ExpansionPanel.Content>
-   *     </ExpansionPanel.Item>
-   *   </ExpansionPanel.Root>
-   * </template>
-   * ```
- */
-  Root,
-  /**
-   * Component representing a single expansion panel item.
-   *
-   * @see https://0.vuetifyjs.com/components/expansion-panels#expansionpanelitem
-   *
-   * @example
-   * ```vue
-   * <script lang="ts" setup>
-   *   import { ExpansionPanel } from '@vuetify/v0'
-   * </script>
-   *
-   * <template>
-   *   <ExpansionPanel.Item>
    *     <ExpansionPanel.Header>
    *       <ExpansionPanel.Activator>
    *        Click to expand
@@ -77,15 +81,15 @@ export const ExpansionPanel = {
    *     <ExpansionPanel.Content>
    *       Content goes here.
    *     </ExpansionPanel.Content>
-   *   </ExpansionPanel.Item>
+   *   </ExpansionPanel.Root>
    * </template>
    * ```
    */
-  Item,
+  Root,
   /**
    * (optional) Component for the header section of an expansion panel item.
    *
-   * @see https://0.vuetifyjs.com/components/expansion-panels#expansionpanelheader
+   * @see https://0.vuetifyjs.com/components/disclosure/expansion-panel
    *
    * @example
    * ```vue
@@ -106,7 +110,7 @@ export const ExpansionPanel = {
   /**
    * Component for the activator section of an expansion panel header.
    *
-   * @see https://0.vuetifyjs.com/components/expansion-panels#expansionpanelactivator
+   * @see https://0.vuetifyjs.com/components/disclosure/expansion-panel
    *
    * @example
    * ```vue
@@ -123,9 +127,29 @@ export const ExpansionPanel = {
    */
   Activator,
   /**
+   * Visual cue for expansion state (e.g., chevron icon).
+   *
+   * @see https://0.vuetifyjs.com/components/disclosure/expansion-panel
+   *
+   * @example
+   * ```vue
+   * <script lang="ts" setup>
+   *   import { ExpansionPanel } from '@vuetify/v0'
+   * </script>
+   *
+   * <template>
+   *   <ExpansionPanel.Activator>
+   *     Click to expand
+   *     <ExpansionPanel.Cue />
+   *   </ExpansionPanel.Activator>
+   * </template>
+   * ```
+   */
+  Cue,
+  /**
    * Component for the content section of an expansion panel item.
    *
-   * @see https://0.vuetifyjs.com/components/expansion-panels#expansionpanelcontent
+   * @see https://0.vuetifyjs.com/components/disclosure/expansion-panel
    *
    * @example
    * ```vue

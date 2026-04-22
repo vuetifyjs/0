@@ -80,10 +80,16 @@ describe('createRules', () => {
     })
 
     it('should skip unknown aliases', () => {
+      const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
       const rules = createRules()
       const resolved = rules.resolve(['nonexistent'])
 
       expect(resolved).toHaveLength(0)
+      expect(spy).toHaveBeenCalledTimes(1)
+      expect(spy).toHaveBeenCalledWith(expect.stringContaining('nonexistent'))
+
+      spy.mockRestore()
     })
   })
 
@@ -236,10 +242,10 @@ describe('createRulesContext', () => {
   })
 
   it('should call provide with custom namespace', () => {
-    const [, provideRulesContext, context] = createRulesContext({ namespace: 'my-rules' })
+    const [, provideRulesContext, context] = createRulesContext({ namespace: 'test:my-rules' })
     provideRulesContext(context)
 
-    expect(mockProvide).toHaveBeenCalledWith('my-rules', context)
+    expect(mockProvide).toHaveBeenCalledWith('test:my-rules', context)
   })
 
   it('should call app.provide when app is passed', () => {

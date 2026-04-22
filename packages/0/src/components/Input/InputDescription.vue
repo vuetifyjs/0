@@ -1,6 +1,8 @@
 /**
  * @module InputDescription
  *
+ * @see https://0.vuetifyjs.com/components/forms/input
+ *
  * @remarks
  * Help text component for the Input component.
  * Auto-connected to Input.Control via aria-describedby.
@@ -13,12 +15,15 @@
   import { useInputRoot } from './InputRoot.vue'
 
   // Utilities
-  import { onBeforeUnmount, onMounted, useAttrs } from 'vue'
+  import { useId } from '#v0/utilities'
+  import { mergeProps, onBeforeUnmount, toRef, useAttrs } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
 
   export interface InputDescriptionProps extends AtomProps {
+    /** Unique identifier (auto-generated if not provided) */
+    id?: string
     /** Namespace for connecting to parent Input.Root */
     namespace?: string
   }
@@ -41,27 +46,31 @@
   const {
     as = 'span',
     renderless,
+    id = useId(),
     namespace = 'v0:input:root',
   } = defineProps<InputDescriptionProps>()
 
   const root = useInputRoot(namespace)
 
-  onMounted(() => {
-    root.hasDescription.value = true
-  })
+  const ticket = root.descriptions.register({ id })
 
-  onBeforeUnmount(() => {
-    root.hasDescription.value = false
-  })
+  onBeforeUnmount(() => ticket.unregister())
+
+  const descriptionAttrs = toRef(() => ({
+    id: root.descriptionId,
+  }))
+
+  const slotProps = toRef((): InputDescriptionSlotProps => ({
+    id: root.descriptionId,
+  }))
 </script>
 
 <template>
   <Atom
-    v-bind="attrs"
-    :id="root.descriptionId"
+    v-bind="mergeProps(attrs, descriptionAttrs)"
     :as
     :renderless
   >
-    <slot :id="root.descriptionId" />
+    <slot v-bind="slotProps" />
   </Atom>
 </template>

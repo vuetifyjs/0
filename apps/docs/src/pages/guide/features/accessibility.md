@@ -142,6 +142,6 @@ Use this checklist during manual QA:
 
 ## Internationalization
 
-v0's `useLocale` handles translated labels. See [useLocale](/composables/plugins/use-locale) for accessibility label translations.
+v0's `useLocale` handles translated labels. See `useLocale` for accessibility label translations.
 
-For RTL (right-to-left) support, see [useRtl](/composables/plugins/use-rtl). Direction is managed independently from locale — `useRtl` provides a reactive `isRtl` boolean and sets the `dir` attribute on the target element.
+For RTL (right-to-left) support, see `useRtl`. Direction is managed independently from locale — `useRtl` provides a reactive `isRtl` boolean and sets the `dir` attribute on the target element.

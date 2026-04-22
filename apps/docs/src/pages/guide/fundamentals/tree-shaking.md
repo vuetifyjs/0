@@ -74,7 +74,7 @@ All sizes measured with Vue externalized (v0 code only), minified with esbuild.
 | Import | Raw | Gzip |
 | - | - | - |
 | Constants (`IN_BROWSER`, `SUPPORTS_TOUCH`) | <span class="whitespace-nowrap">0.2 KB</span> | <span class="whitespace-nowrap">0.1 KB</span> |
-| Utilities (`isObject`, `mergeDeep`, `clamp`, `debounce`) | <span class="whitespace-nowrap">1.0 KB</span> | <span class="whitespace-nowrap">0.5 KB</span> |
+| Utilities (`isObject`, `mergeDeep`, `clamp`) | <span class="whitespace-nowrap">1.0 KB</span> | <span class="whitespace-nowrap">0.5 KB</span> |
 | Single composable (`createSelection`) | <span class="whitespace-nowrap">10.7 KB</span> | <span class="whitespace-nowrap">4.2 KB</span> |
 | Single composable + component (`SelectionRoot`, `SelectionItem`) | <span class="whitespace-nowrap">13.6 KB</span> | <span class="whitespace-nowrap">5.2 KB</span> |
 | Deep chain (`createStep` → `createSingle` → `createSelection` → `createRegistry`) | <span class="whitespace-nowrap">11.9 KB</span> | <span class="whitespace-nowrap">4.6 KB</span> |

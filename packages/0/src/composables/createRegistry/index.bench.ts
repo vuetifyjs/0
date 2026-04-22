@@ -1,5 +1,5 @@
 /**
- * useRegistry Performance Benchmarks
+ * createRegistry Performance Benchmarks
  *
  * Structure:
  * - READ-ONLY operations use shared fixtures (safe, isolates operation cost)

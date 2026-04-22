@@ -50,10 +50,10 @@ For understanding the system architecture.
 
 | Guide | What You'll Learn |
 | - | - |
-| [Core](/guide/fundamentals/core) | Trinity, Context, Registry patterns |
 | [Components](/guide/fundamentals/components) | Component categories, Atom primitive, slot props |
 | [Composables](/guide/fundamentals/composables) | Composables vs components, when to use each |
 | [Reactivity](/guide/fundamentals/reactivity) | Minimal reactivity philosophy, opt-in patterns, performance |
+| [Core](/guide/fundamentals/core) | Trinity, Context, Registry patterns |
 | [Plugins](/guide/fundamentals/plugins) | Using and creating Vue plugins |
 | [Benchmarks](/guide/fundamentals/benchmarks) | Performance tiers, metrics methodology |
 
@@ -73,7 +73,7 @@ See v0 patterns in production.
 
 | Guide | What You'll Learn |
 | - | - |
-| [Nuxt 3](/guide/integration/nuxt) | SSR, auto-imports, theme persistence |
+| [Nuxt](/guide/integration/nuxt) | SSR, auto-imports, theme persistence |
 | [Building This Documentation](/guide/integration/building-docs) | How this site uses v0, UnoCSS, and vite-ssg |
 
 > [!TIP]
@@ -139,7 +139,7 @@ If you have an existing styled component library and want to adopt v0's headless
   const tabs = createSingle({ mandatory: true })
 
   // Bulk register tabs - first is auto-selected due to mandatory
-  tabs.onboard([
+  const items = tabs.onboard([
     { id: 'home', value: 'Home' },
     { id: 'profile', value: 'Profile' },
     { id: 'settings', value: 'Settings' },
@@ -149,10 +149,10 @@ If you have an existing styled component library and want to adopt v0's headless
 <template>
   <div class="my-tabs">
     <button
-      v-for="tab in tabs.items"
+      v-for="tab in items"
       :key="tab.id"
-      :class="{ active: tab.isSelected }"
-      @click="tab.select"
+      :class="{ active: tab.isSelected.value }"
+      @click="tab.select()"
     >
       {{ tab.value }}
     </button>

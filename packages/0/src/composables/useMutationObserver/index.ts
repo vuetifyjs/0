@@ -1,11 +1,15 @@
 /**
  * @module useMutationObserver
  *
+ * @see https://0.vuetifyjs.com/composables/system/use-mutation-observer
+ *
  * @remarks
  * MutationObserver composable with lifecycle management.
  *
  * Key features:
  * - MutationObserver API wrapper
+ * - `isActive` reactive flag
+ * - `once` option for single-fire observation
  * - Pause/resume/stop functionality
  * - Automatic cleanup on unmount
  * - SSR-safe (checks SUPPORTS_MUTATION_OBSERVER)
@@ -13,6 +17,17 @@
  * - Configurable observation options (childList, attributes, characterData, etc.)
  *
  * Perfect for detecting DOM changes and responding to mutations.
+ *
+ * @example
+ * ```ts
+ * import { useTemplateRef } from 'vue'
+ * import { useMutationObserver } from '@vuetify/v0'
+ *
+ * const target = useTemplateRef('target')
+ * useMutationObserver(target, records => {
+ *   console.log(records)
+ * }, { childList: true })
+ * ```
  */
 
 // Globals

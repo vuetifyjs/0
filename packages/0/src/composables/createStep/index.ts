@@ -1,8 +1,10 @@
 /**
- * @module useStep
+ * @module createStep
+ *
+ * @see https://0.vuetifyjs.com/composables/selection/create-step
  *
  * @remarks
- * Navigation composable that extends useSingle with first/last/next/prev/step methods.
+ * Navigation composable that extends createSingle with first/last/next/prev/step methods.
  *
  * Key features:
  * - Configurable circular or bounded navigation
@@ -10,15 +12,23 @@
  * - Arbitrary step counts (positive/negative)
  * - Perfect for wizards, carousels, pagination, onboarding flows
  *
- * Inheritance chain: useRegistry → useSelection → useSingle → useStep
+ * Inheritance chain: createRegistry → createSelection → createSingle → createStep
+ *
+ * @example
+ * ```ts
+ * import { createStep } from '@vuetify/v0'
+ *
+ * const wizard = createStep({ circular: false })
+ * wizard.register({ value: 'step-1' })
+ * wizard.register({ value: 'step-2' })
+ * wizard.next()
+ * ```
  */
 
-// Foundational
-import { createContext, useContext } from '#v0/composables/createContext'
-import { createTrinity } from '#v0/composables/createTrinity'
-
 // Composables
+import { useContext } from '#v0/composables/createContext'
 import { createSingle } from '#v0/composables/createSingle'
+import { createTrinity } from '#v0/composables/createTrinity'
 
 // Utilities
 import { isUndefined } from '#v0/utilities'
@@ -27,7 +37,6 @@ import { toValue } from 'vue'
 // Types
 import type { SingleContext, SingleContextOptions, SingleOptions, SingleTicket, SingleTicketInput } from '#v0/composables/createSingle'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
-import type { App } from 'vue'
 
 /**
  * Input type for step tickets.
@@ -124,9 +133,9 @@ export interface StepContextOptions extends SingleContextOptions {
  * - Perfect for pagination, wizards with explicit completion, forms
  *
  * **Inheritance Chain:**
- * `useRegistry` → `createSelection` → `createSingle` → `createStep`
+ * `createRegistry` → `createSelection` → `createSingle` → `createStep`
  *
- * @see https://0.vuetifyjs.com/composables/selection/use-step
+ * @see https://0.vuetifyjs.com/composables/selection/create-step
  *
  * @example
  * ```ts
@@ -239,7 +248,7 @@ export function createStep<
  * @template R The context type.
  * @returns A new step context.
  *
- * @see https://0.vuetifyjs.com/composables/selection/use-step
+ * @see https://0.vuetifyjs.com/composables/selection/create-step
  *
  * @example
  * ```ts
@@ -262,14 +271,9 @@ export function createStepContext<
   R extends StepContext<Z, E> = StepContext<Z, E>,
 > (_options: StepContextOptions = {}): ContextTrinity<R> {
   const { namespace = 'v0:step', ...options } = _options
-  const [useStepContext, _provideStepContext] = createContext<R>(namespace)
   const context = createStep<Z, E, R>(options)
 
-  function provideStepContext (_context: R = context, app?: App): R {
-    return _provideStepContext(_context, app)
-  }
-
-  return createTrinity<R>(useStepContext, provideStepContext, context)
+  return createTrinity<R>(namespace, context)
 }
 
 /**
@@ -281,7 +285,7 @@ export function createStepContext<
  * @template R The context type.
  * @returns The current step instance.
  *
- * @see https://0.vuetifyjs.com/composables/selection/use-step
+ * @see https://0.vuetifyjs.com/composables/selection/create-step
  *
  * @example
  * ```vue

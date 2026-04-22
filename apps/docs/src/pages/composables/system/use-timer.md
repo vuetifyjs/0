@@ -44,6 +44,9 @@ timer.isActive.value   // true when started (even if paused)
 timer.isPaused.value   // true when paused
 ```
 
+> [!TIP] Replaces debounce
+> `useTimer` replaces the deprecated `debounce` utility. It provides the same delay behavior with pause/resume, repeat support, and automatic cleanup on scope disposal.
+
 ## Architecture
 
 ```mermaid "useTimer Lifecycle"

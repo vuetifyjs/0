@@ -32,8 +32,39 @@ const FORMAT_TOKEN_REGEX = /YYYY|YY|MMMM|MMM|MM|M|dddd|ddd|DD|D|HH|H|hh|h|mm|m|s
 /** Maximum cache size to prevent memory leaks */
 const MAX_CACHE_SIZE = 50
 
+/**
+ * Derive week info from locale.
+ *
+ * Uses Intl.Locale.getWeekInfo() when available, with a hardcoded
+ * fallback table for minimalDays (not available in all runtimes).
+ * Data sourced from CLDR via Intl.Locale.getWeekInfo() spec.
+ */
+function deriveWeekInfo (locale: string): { firstDay: number, minimalDays: number } {
+  try {
+    const loc = new Intl.Locale(locale) as unknown as Record<string, unknown>
+    const info = (typeof loc.getWeekInfo === 'function' ? loc.getWeekInfo() : loc.weekInfo) as { firstDay?: number, minimalDays?: number } | undefined
+    // Intl weekInfo.firstDay: 1=Mon...7=Sun, convert to 0=Sun...6=Sat
+    const firstDay = info?.firstDay === 7 ? 0 : info?.firstDay ?? 0
+    const minimalDays = info?.minimalDays ?? deriveMinimalDays(locale)
+    return { firstDay, minimalDays }
+  } catch {
+    return { firstDay: 0, minimalDays: 1 }
+  }
+}
+
+/** Fallback minimalDays lookup when Intl.Locale doesn't provide it */
+function deriveMinimalDays (locale: string): number {
+  const code = locale.slice(-2).toUpperCase()
+  // ISO 8601 regions using minimalDays=4 (first week must contain Thursday)
+  const md4 = 'AD AN AT AX BE BG CH CZ DE DK EE ES FI FJ FO FR GB GF GP GR HU IE IS IT LI LT LU MC MQ NL NO PL PT RE RU SE SK SM VA'
+  if (md4.includes(code)) return 4
+  return 1
+}
+
 export class Vuetify0DateAdapter implements DateAdapter<PlainDateTime> {
   private _locale: string
+  private _firstDayOfWeek = 0
+  private _minimalDays = 1
 
   /** Cache for Intl.DateTimeFormat instances, keyed by locale + options */
   private formatCache = new Map<string, Intl.DateTimeFormat>()
@@ -43,6 +74,9 @@ export class Vuetify0DateAdapter implements DateAdapter<PlainDateTime> {
 
   constructor (locale = 'en-US') {
     this._locale = locale
+    const info = deriveWeekInfo(locale)
+    this._firstDayOfWeek = info.firstDay
+    this._minimalDays = info.minimalDays
   }
 
   /** Current locale. Setting a new locale clears format caches. */
@@ -50,12 +84,23 @@ export class Vuetify0DateAdapter implements DateAdapter<PlainDateTime> {
     return this._locale
   }
 
+  get firstDayOfWeek (): number {
+    return this._firstDayOfWeek
+  }
+
   set locale (value: string) {
     if (this._locale !== value) {
       this._locale = value
+      const info = deriveWeekInfo(value)
+      this._firstDayOfWeek = info.firstDay
+      this._minimalDays = info.minimalDays
       this.formatCache.clear()
       this.numberFormatCache.clear()
     }
+  }
+
+  set firstDayOfWeek (value: number) {
+    this._firstDayOfWeek = value
   }
 
   // ============================================
@@ -168,7 +213,7 @@ export class Vuetify0DateAdapter implements DateAdapter<PlainDateTime> {
   }
 
   toISO (date: PlainDateTime): string {
-    return date.toString()
+    return date.toPlainDate().toString()
   }
 
   /**
@@ -263,12 +308,12 @@ export class Vuetify0DateAdapter implements DateAdapter<PlainDateTime> {
       hours24h: { hour: 'numeric', hour12: false },
       minutes: { minute: 'numeric' },
       seconds: { second: 'numeric' },
-      fullTime: { timeStyle: 'medium' },
-      fullTime12h: { hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: true },
-      fullTime24h: { hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false },
+      fullTime: { timeStyle: 'short' },
+      fullTime12h: { hour: 'numeric', minute: 'numeric', hour12: true },
+      fullTime24h: { hour: 'numeric', minute: 'numeric', hour12: false },
       fullDateTime: { dateStyle: 'full', timeStyle: 'short' },
-      fullDateTime12h: { dateStyle: 'full', hour: 'numeric', minute: 'numeric', hour12: true },
-      fullDateTime24h: { dateStyle: 'full', hour: 'numeric', minute: 'numeric', hour12: false },
+      fullDateTime12h: { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long', hour: 'numeric', minute: 'numeric', hour12: true },
+      fullDateTime24h: { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long', hour: 'numeric', minute: 'numeric', hour12: false },
       keyboardDate: { year: 'numeric', month: '2-digit', day: '2-digit' },
       keyboardDateTime: { year: 'numeric', month: '2-digit', day: '2-digit', hour: 'numeric', minute: 'numeric' },
       keyboardDateTime12h: { year: 'numeric', month: '2-digit', day: '2-digit', hour: 'numeric', minute: 'numeric', hour12: true },
@@ -366,15 +411,15 @@ export class Vuetify0DateAdapter implements DateAdapter<PlainDateTime> {
     return date.with({ hour: 23, minute: 59, second: 59, millisecond: 999, microsecond: 999, nanosecond: 999 })
   }
 
-  startOfWeek (date: PlainDateTime, firstDayOfWeek = 0): PlainDateTime {
+  startOfWeek (date: PlainDateTime): PlainDateTime {
     const dayOfWeek = date.dayOfWeek % 7 // Temporal: 1=Mon...7=Sun, we want 0=Sun
-    const diff = (dayOfWeek - firstDayOfWeek + 7) % 7
+    const diff = (dayOfWeek - this.firstDayOfWeek + 7) % 7
 
     return this.startOfDay(date.subtract({ days: diff }))
   }
 
-  endOfWeek (date: PlainDateTime, firstDayOfWeek = 0): PlainDateTime {
-    const start = this.startOfWeek(date, firstDayOfWeek)
+  endOfWeek (date: PlainDateTime): PlainDateTime {
+    const start = this.startOfWeek(date)
 
     return this.endOfDay(start.add({ days: 6 }))
   }
@@ -549,25 +594,26 @@ export class Vuetify0DateAdapter implements DateAdapter<PlainDateTime> {
     }
   }
 
-  getWeek (date: PlainDateTime, firstDayOfWeek = 0, minimalDays = 1): number {
-    const currentWeekStart = this.startOfWeek(date, firstDayOfWeek)
+  getWeek (date: PlainDateTime, minimalDays?: number): number {
+    const md = minimalDays ?? this._minimalDays
+    const currentWeekStart = this.startOfWeek(date)
     const currentWeekEnd = this.addDays(currentWeekStart, 6)
 
     let year = this.getYear(currentWeekStart)
     if (year < this.getYear(currentWeekEnd)) {
       const nextYearStart = new Temporal.PlainDateTime(year + 1, 1, 1)
-      const nextYearFirstWeekSize = 7 - this.getDiff(nextYearStart, this.startOfWeek(nextYearStart, firstDayOfWeek), 'days')
-      if (nextYearFirstWeekSize >= minimalDays) {
+      const nextYearFirstWeekSize = 7 - this.getDiff(nextYearStart, this.startOfWeek(nextYearStart), 'days')
+      if (nextYearFirstWeekSize >= md) {
         year++
       }
     }
 
     const yearStart = new Temporal.PlainDateTime(year, 1, 1)
-    const firstWeekSize = 7 - this.getDiff(yearStart, this.startOfWeek(yearStart, firstDayOfWeek), 'days')
-    const firstDayOfWeek1 = firstWeekSize >= minimalDays
+    const firstWeekSize = 7 - this.getDiff(yearStart, this.startOfWeek(yearStart), 'days')
+    const weekOneStart = firstWeekSize >= md
       ? yearStart.add({ days: firstWeekSize }).add({ weeks: -1 })
       : yearStart.add({ days: firstWeekSize })
-    return 1 + this.getDiff(currentWeekStart, firstDayOfWeek1, 'weeks')
+    return 1 + this.getDiff(currentWeekStart, weekOneStart, 'weeks')
   }
 
   getDaysInMonth (date: PlainDateTime): number {
@@ -606,14 +652,14 @@ export class Vuetify0DateAdapter implements DateAdapter<PlainDateTime> {
   // Calendar Utilities
   // ============================================
 
-  getWeekdays (firstDayOfWeek = 0, format: 'long' | 'short' | 'narrow' = 'short'): string[] {
+  getWeekdays (format: 'long' | 'short' | 'narrow' = 'narrow'): string[] {
     const weekdays: string[] = []
     // Use a known Sunday as reference (Jan 4, 2015 is a Sunday)
     const refDate = Temporal.PlainDate.from('2015-01-04')
     const formatter = this.getFormatter({ weekday: format })
 
     for (let i = 0; i < 7; i++) {
-      const day = refDate.add({ days: (i + firstDayOfWeek) % 7 })
+      const day = refDate.add({ days: (i + this.firstDayOfWeek) % 7 })
       const jsDate = new Date(day.year, day.month - 1, day.day)
 
       weekdays.push(formatter.format(jsDate))
@@ -622,12 +668,12 @@ export class Vuetify0DateAdapter implements DateAdapter<PlainDateTime> {
     return weekdays
   }
 
-  getWeekArray (date: PlainDateTime, firstDayOfWeek = 0): PlainDateTime[][] {
+  getWeekArray (date: PlainDateTime): PlainDateTime[][] {
     const weeks: PlainDateTime[][] = []
     const monthStart = this.startOfMonth(date)
     const monthEnd = this.endOfMonth(date)
 
-    let current = this.startOfWeek(monthStart, firstDayOfWeek)
+    let current = this.startOfWeek(monthStart)
     const end = this.endOfWeek(monthEnd)
 
     while (Temporal.PlainDateTime.compare(current, end) <= 0) {

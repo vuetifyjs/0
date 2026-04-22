@@ -1,6 +1,8 @@
 /**
  * @module useEventListener
  *
+ * @see https://0.vuetifyjs.com/composables/system/use-event-listener
+ *
  * @remarks
  * Event listener composable with automatic cleanup on scope disposal.
  *
@@ -12,6 +14,15 @@
  * - Multiple overloads for type safety
  *
  * Perfect for safely managing event listeners in Vue components.
+ *
+ * @example
+ * ```ts
+ * import { useEventListener } from '@vuetify/v0'
+ *
+ * useEventListener(window, 'resize', () => {
+ *   console.log('window resized')
+ * })
+ * ```
  */
 
 // Transformers

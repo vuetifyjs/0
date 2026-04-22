@@ -1,8 +1,10 @@
 /**
- * @module useGroup
+ * @module createGroup
+ *
+ * @see https://0.vuetifyjs.com/composables/selection/create-group
  *
  * @remarks
- * Multi-selection composable that extends useSelection with batch operations and tri-state support.
+ * Multi-selection composable that extends createSelection with batch operations and tri-state support.
  *
  * Key features:
  * - Batch operations (select/unselect/toggle accept ID | ID[])
@@ -15,20 +17,28 @@
  * - select() clears mixed state, mix() clears selected state (mutually exclusive)
  * - toggle() on a mixed item selects it (resolves positively)
  *
- * Inheritance chain: useRegistry → useSelection → useGroup
+ * Inheritance chain: createRegistry → createSelection → createGroup
  * Extended by: useFeatures
+ *
+ * @example
+ * ```ts
+ * import { createGroup } from '@vuetify/v0'
+ *
+ * const group = createGroup()
+ * group.register({ value: 'a' })
+ * group.register({ value: 'b' })
+ * group.select(['a', 'b'])
+ * ```
  */
 
-// Foundational
-import { createContext, useContext } from '#v0/composables/createContext'
-import { createTrinity } from '#v0/composables/createTrinity'
-
 // Composables
+import { useContext } from '#v0/composables/createContext'
 import { createSelection } from '#v0/composables/createSelection'
+import { createTrinity } from '#v0/composables/createTrinity'
 import { useProxyRegistry } from '#v0/composables/useProxyRegistry'
 
 // Utilities
-import { isUndefined, useId } from '#v0/utilities'
+import { resolveIds, resolveIndexes, useId } from '#v0/utilities'
 import { computed, shallowReactive, toRef, toValue } from 'vue'
 
 // Transformers
@@ -38,7 +48,7 @@ import { toArray } from '#v0/composables/toArray'
 import type { SelectionContext, SelectionContextOptions, SelectionOptions, SelectionTicket, SelectionTicketInput } from '#v0/composables/createSelection'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { ID } from '#v0/types'
-import type { App, ComputedRef, MaybeRefOrGetter, Reactive, Ref } from 'vue'
+import type { ComputedRef, MaybeRefOrGetter, Reactive, Ref } from 'vue'
 
 /**
  * Input type for group tickets.
@@ -148,12 +158,12 @@ export interface GroupContextOptions extends SelectionContextOptions {}
  * - Non-existent IDs are silently ignored
  *
  * **Inheritance Chain:**
- * `useRegistry` → `createSelection` → `createGroup`
+ * `createRegistry` → `createSelection` → `createGroup`
  *
  * **Used By:**
  * - `createFeatures` for feature flag management with multiple selections
  *
- * @see https://0.vuetifyjs.com/composables/selection/use-group
+ * @see https://0.vuetifyjs.com/composables/selection/create-group
  *
  * @example
  * ```ts
@@ -194,21 +204,9 @@ export function createGroup<
   const proxy = useProxyRegistry<E>(selection)
   const mixedIds = shallowReactive(new Set<ID>())
 
-  const selectedIndexes = computed(() => {
-    return new Set(
-      Array.from(selection.selectedItems.value)
-        .map(item => item?.index)
-        .filter((index): index is number => !isUndefined(index)),
-    )
-  })
+  const selectedIndexes = computed(() => new Set(resolveIndexes(selection.selectedItems.value)))
 
-  const mixedItems = computed(() => {
-    return new Set(
-      Array.from(mixedIds)
-        .map(id => selection.get(id))
-        .filter((item): item is E => !isUndefined(item)),
-    )
-  })
+  const mixedItems = computed(() => new Set(resolveIds(mixedIds, selection.get)))
 
   function mixed (id: ID) {
     return mixedIds.has(id)
@@ -309,7 +307,7 @@ export function createGroup<
     return items.every(item => selection.selectedIds.has(item.id))
   })
 
-  const isNoneSelected = computed(() => selection.selectedIds.size === 0)
+  const isNoneSelected = toRef(() => selection.selectedIds.size === 0)
 
   const isMixed = computed(() => {
     return mixedIds.size > 0 || (!isNoneSelected.value && !isAllSelected.value)
@@ -323,12 +321,13 @@ export function createGroup<
   }
 
   function unselectAll () {
-    const first = selection.selectedIds.values().next().value
     selection.selectedIds.clear()
 
-    if (!toValue(mandatory) || !first) return
+    if (!toValue(mandatory)) return
 
-    selection.select(first)
+    const ticket = selection.seek('first')
+
+    if (ticket) selection.select(ticket.id)
   }
 
   function toggleAll () {
@@ -361,7 +360,7 @@ export function createGroup<
     get size () {
       return selection.size
     },
-  } as R
+  } as unknown as R
 }
 
 /**
@@ -373,7 +372,7 @@ export function createGroup<
  * @template R The context type.
  * @returns A new group context.
  *
- * @see https://0.vuetifyjs.com/composables/selection/use-group
+ * @see https://0.vuetifyjs.com/composables/selection/create-group
  *
  * @example
  * ```ts
@@ -398,14 +397,9 @@ export function createGroupContext<
   R extends GroupContext<Z, E> = GroupContext<Z, E>,
 > (_options: GroupContextOptions = {}): ContextTrinity<R> {
   const { namespace = 'v0:group', ...options } = _options
-  const [useGroupContext, _provideGroupContext] = createContext<R>(namespace)
   const context = createGroup<Z, E, R>(options)
 
-  function provideGroupContext (_context: R = context, app?: App): R {
-    return _provideGroupContext(_context, app)
-  }
-
-  return createTrinity<R>(useGroupContext, provideGroupContext, context)
+  return createTrinity<R>(namespace, context)
 }
 
 /**
@@ -417,7 +411,7 @@ export function createGroupContext<
  * @template R The context type.
  * @returns The current group instance.
  *
- * @see https://0.vuetifyjs.com/composables/selection/use-group
+ * @see https://0.vuetifyjs.com/composables/selection/create-group
  *
  * @example
  * ```vue

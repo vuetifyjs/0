@@ -2,11 +2,10 @@
 import { createFilter, createGroup } from '@vuetify/v0'
 
 // Utilities
-import { computed, onBeforeMount, shallowRef } from 'vue'
+import { type ComputedRef, type MaybeRefOrGetter, type ShallowRef, computed, onBeforeMount, shallowRef, toValue, watch } from 'vue'
 
 // Types
 import type { GroupContext } from '@vuetify/v0'
-import type { ComputedRef, ShallowRef } from 'vue'
 
 export interface RawBenchmarkEntry {
   id: string
@@ -90,6 +89,8 @@ export interface BenchmarkSummary {
 export interface UseBenchmarkDataOptions {
   /** Restrict to a single composable (embed mode). Accepts a reactive getter. */
   composable?: string | (() => string | undefined)
+  /** Defer data loading until this value becomes truthy. */
+  trigger?: MaybeRefOrGetter<boolean>
 }
 
 export interface UseBenchmarkDataReturn {
@@ -177,7 +178,7 @@ function formatMean (mean: number): string {
 }
 
 function extractComposableName (filepath: string): string {
-  const match = filepath.match(/composables\/(\w+)\//)
+  const match = filepath.match(/(?:composables|utilities)\/(\w+)(?:\/|\.bench\.ts)/)
   return match?.[1] ?? filepath
 }
 
@@ -277,7 +278,7 @@ export function useBenchmarkData (options?: UseBenchmarkDataOptions): UseBenchma
   const sortDesc = shallowRef(true)
 
   // Fetch full benchmark data
-  onBeforeMount(async () => {
+  async function load () {
     const m = await import('@/data/metrics.json')
     metricsData.value = m.default as Record<string, { benchmarks?: Record<string, { tier?: Tier }> }>
 
@@ -293,7 +294,18 @@ export function useBenchmarkData (options?: UseBenchmarkDataOptions): UseBenchma
         isLoading.value = false
       }
     }
-  })
+  }
+
+  if (options?.trigger) {
+    const unwatch = watch(() => toValue(options.trigger), value => {
+      if (value) {
+        load()
+        unwatch()
+      }
+    }, { immediate: true })
+  } else {
+    onBeforeMount(load)
+  }
 
   // Normalized composables
   const composables = computed<NormalizedComposable[]>(() => {
@@ -305,7 +317,12 @@ export function useBenchmarkData (options?: UseBenchmarkDataOptions): UseBenchma
     if (name) {
       return all.filter(c => c.name === name)
     }
-    return all
+    return all.toSorted((a, b) => {
+      const aIsComposable = /^(?:create|use)/.test(a.name)
+      const bIsComposable = /^(?:create|use)/.test(b.name)
+      if (aIsComposable !== bIsComposable) return aIsComposable ? -1 : 1
+      return a.name.localeCompare(b.name)
+    })
   })
 
   // Build a searchable flat list for createFilter

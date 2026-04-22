@@ -13,6 +13,16 @@
  * Supports two modes:
  * - **Static key**: `createContext('my-key')` - key is fixed at creation time
  * - **Dynamic key**: `createContext()` or `createContext({ suffix: 'item' })` - key provided at runtime
+ *
+ * @example
+ * ```ts
+ * import { createContext } from '@vuetify/v0'
+ *
+ * const [useTheme, provideTheme] = createContext<{ dark: boolean }>('theme')
+ *
+ * provideTheme({ dark: true })
+ * const theme = useTheme()
+ * ```
  */
 
 // Utilities
@@ -39,7 +49,7 @@ export interface CreateContextOptions {
  * @throws An error if the context is not found and no default is provided.
  *
  * @see https://vuejs.org/api/composition-api-dependency-injection.html#inject
- * @see https://0.vuetifyjs.com/composables/foundation/create-context#use-context
+ * @see https://0.vuetifyjs.com/composables/foundation/create-context
  *
  * @example
  * ```ts
@@ -74,7 +84,7 @@ export function useContext<Z> (key: ContextKey<Z>, defaultValue?: Z) {
  * When omitted, the context is provided at the current component level and available to descendants only.
  *
  * @see https://vuejs.org/api/composition-api-dependency-injection.html#provide
- * @see https://0.vuetifyjs.com/composables/foundation/create-context#provide-context
+ * @see https://0.vuetifyjs.com/composables/foundation/create-context
  *
  * @example
  * ```ts
@@ -107,7 +117,7 @@ export function provideContext<Z> (key: ContextKey<Z>, context: Z, app?: App) {
  * @returns A tuple containing the `useContext` and `provideContext` functions.
  *
  * @see https://vuejs.org/api/composition-api-dependency-injection.html
- * @see https://0.vuetifyjs.com/composables/foundation/create-context#create-context
+ * @see https://0.vuetifyjs.com/composables/foundation/create-context
  *
  * @example
  * ```ts
@@ -141,6 +151,13 @@ export function createContext<Z> (
 ) {
   // Static key mode: createContext('my-key') or createContext(Symbol())
   if (isString(keyOrOptions) || isSymbol(keyOrOptions)) {
+    // console.warn (not useLogger) — createContext is Layer 0, cannot import useLogger without circular dep
+    if (__DEV__ && isString(keyOrOptions) && !keyOrOptions.includes(':')) {
+      console.warn(
+        `[v0:context] String key "${keyOrOptions}" has no namespace separator. `
+        + `Use "namespace:key" format (e.g. "v0:theme") to prevent collisions.`,
+      )
+    }
     const _key = keyOrOptions as ContextKey<Z>
 
     function _provideContext (context: Z, app?: App) {

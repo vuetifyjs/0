@@ -1,6 +1,8 @@
 /**
  * @module AvatarFallback
  *
+ * @see https://0.vuetifyjs.com/components/semantic/avatar
+ *
  * @remarks
  * Fallback content component shown when no images are loaded. Registers with
  * the lowest implicit priority so it only displays when all images fail.
@@ -28,7 +30,7 @@
   import { useAvatarRoot } from './AvatarRoot.vue'
 
   // Utilities
-  import { onUnmounted, toRef } from 'vue'
+  import { onBeforeUnmount, toRef } from 'vue'
 
   defineOptions({ name: 'AvatarFallback' })
 
@@ -50,7 +52,7 @@
     isSelected: ticket.isSelected.value,
   }))
 
-  onUnmounted(() => context.unregister(ticket.id))
+  onBeforeUnmount(() => context.unregister(ticket.id))
 </script>
 
 <template>
