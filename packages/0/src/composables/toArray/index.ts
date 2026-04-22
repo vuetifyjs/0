@@ -42,6 +42,7 @@ import { isArray, isNullOrUndefined } from '#v0/utilities'
  * console.log(valueAsArray) // ['Example Value']
  * ```
  */
+/* #__NO_SIDE_EFFECTS__ */
 export function toArray<Z> (value: Z | Z[]): Z[] {
   return isNullOrUndefined(value) ? [] : (isArray(value) ? value : [value])
 }
