@@ -689,7 +689,6 @@ declare module 'vue' {
     readonly isUndefined: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isUndefined']>
     readonly markRaw: UnwrapRef<typeof import('vue')['markRaw']>
     readonly mergeDeep: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['mergeDeep']>
-    readonly multipleOpenStrategy: UnwrapRef<typeof import('../../packages/0/src/composables/createNested/index')['multipleOpenStrategy']>
     readonly nextTick: UnwrapRef<typeof import('vue')['nextTick']>
     readonly onActivated: UnwrapRef<typeof import('vue')['onActivated']>
     readonly onBeforeMount: UnwrapRef<typeof import('vue')['onBeforeMount']>
@@ -722,7 +721,6 @@ declare module 'vue' {
     readonly shallowReactive: UnwrapRef<typeof import('vue')['shallowReactive']>
     readonly shallowReadonly: UnwrapRef<typeof import('vue')['shallowReadonly']>
     readonly shallowRef: UnwrapRef<typeof import('vue')['shallowRef']>
-    readonly singleOpenStrategy: UnwrapRef<typeof import('../../packages/0/src/composables/createNested/index')['singleOpenStrategy']>
     readonly toArray: UnwrapRef<typeof import('../../packages/0/src/composables/toArray/index')['toArray']>
     readonly toCamelCase: UnwrapRef<typeof import('../../packages/paper/src/utilities/helpers')['toCamelCase']>
     readonly toElement: UnwrapRef<typeof import('../../packages/0/src/composables/toElement/index')['toElement']>

@@ -895,6 +895,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/guide/integration/devkey': RouteRecordInfo<
+      '/guide/integration/devkey',
+      '/guide/integration/devkey',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/guide/integration/nuxt': RouteRecordInfo<
       '/guide/integration/nuxt',
       '/guide/integration/nuxt',
@@ -1768,6 +1775,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/guide/integration/building-docs.md': {
       routes:
         | '/guide/integration/building-docs'
+      views:
+        | never
+    }
+    'src/pages/guide/integration/devkey.md': {
+      routes:
+        | '/guide/integration/devkey'
       views:
         | never
     }
