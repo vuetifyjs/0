@@ -11,16 +11,16 @@ features:
   github: /composables/useStack/
   level: 2
 related:
-- /composables/registration/create-registry
-- /composables/registration/create-queue
-- /components/providers/scrim
+  - /components/providers/scrim
+  - /composables/registration/create-registry
+  - /composables/registration/create-queue
 ---
 
 # useStack
 
-A composable for managing overlay z-index stacking with automatic calculation, scrim integration, and parent/child tracking for nested overlays.
-
 <DocsPageFeatures :frontmatter />
+
+Overlay z-index coordinator with automatic stacking order and parent-child nesting support.
 
 ## Installation
 
@@ -40,22 +40,6 @@ app.mount('#app')
 
 > [!TIP]
 > For client-side only apps, you can skip plugin installation and use the default `stack` singleton directly. The plugin is required for SSR to ensure each request gets its own stack instance.
-
-## Scrim Integration
-
-Use the [Scrim](/components/providers/scrim) component alongside `useStack` to provide a backdrop for your overlays. The Scrim automatically positions itself below the topmost overlay:
-
-```vue
-<script setup lang="ts">
-import { Scrim } from '@vuetify/v0'
-</script>
-
-<template>
-  <Scrim class="fixed inset-0 bg-black/50" />
-</template>
-```
-
-The Scrim reads from the same stack context, so its z-index is always coordinated with your registered overlays.
 
 ## Usage
 
@@ -81,6 +65,25 @@ watch(isOpen, open => {
 // ticket.zIndex.value = 2000 when first overlay
 // ticket.zIndex.value = 2010 when second overlay
 // ticket.globalTop.value = true when this is the topmost overlay
+```
+
+## Context / DI
+
+Use `createStackContext` when you need a separate z-index namespace (e.g., overlays inside a modal):
+
+```ts
+import { createStackContext } from '@vuetify/v0'
+
+const [useModalStack, provideModalStack, modalStack] =
+  createStackContext({ namespace: 'my:modal-stack', baseZIndex: 3000 })
+
+// In parent component
+provideModalStack()
+
+// In child overlay component
+const stack = useModalStack()
+const ticket = stack.register({ id: 'tooltip-1' })
+ticket.zIndex.value  // z-index for this overlay
 ```
 
 ## Architecture
@@ -149,5 +152,21 @@ graph LR
 Click a button to open an overlay. Open multiple overlays to observe z-index layering.
 
 :::
+
+## Scrim Integration
+
+Use the `Scrim` component alongside `useStack` to provide a backdrop for your overlays. The Scrim automatically positions itself below the topmost overlay:
+
+```vue
+<script setup lang="ts">
+import { Scrim } from '@vuetify/v0'
+</script>
+
+<template>
+  <Scrim class="fixed inset-0 bg-black/50" />
+</template>
+```
+
+The Scrim reads from the same stack context, so its z-index is always coordinated with your registered overlays.
 
 <DocsApi />

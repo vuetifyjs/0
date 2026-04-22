@@ -1,6 +1,8 @@
 /**
  * @module SelectActivator
  *
+ * @see https://0.vuetifyjs.com/components/forms/select
+ *
  * @remarks
  * Trigger component for the select dropdown. Provides the button element
  * with combobox ARIA role, keyboard navigation, and CSS anchor positioning

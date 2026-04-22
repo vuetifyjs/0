@@ -1,6 +1,8 @@
 /**
  * @module SliderHiddenInput
  *
+ * @see https://0.vuetifyjs.com/components/forms/slider
+ *
  * @remarks
  * Hidden native input for form submission. Renders one input per
  * thumb value. Auto-rendered by Root when `name` prop is provided.

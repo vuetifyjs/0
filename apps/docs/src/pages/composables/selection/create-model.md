@@ -19,7 +19,7 @@ related:
 
 # createModel
 
-Manage a reactive value with two-way sync — wrap a ref in a model and `useProxyModel` keeps it in sync automatically.
+Reactive value store that wraps a ref with two-way selection binding.
 
 <DocsPageFeatures :frontmatter />
 
@@ -62,6 +62,16 @@ flowchart TD
   createModel -. "useProxyModel" .-> defineModel["defineModel / v-model"]
 ```
 
+## Options
+
+| Option | Type | Default | Notes |
+| - | - | - | - |
+| `disabled` | `MaybeRefOrGetter<boolean>` | `false` | When truthy, all selection operations are silently skipped |
+| `enroll` | `MaybeRefOrGetter<boolean>` | `true` | Auto-select tickets on registration; `createSelection` overrides this to `false` |
+| `multiple` | `MaybeRefOrGetter<boolean>` | `false` | When `true`, `select()` accumulates IDs without clearing first |
+
+All three options accept a static value, a ref, or a getter — they are resolved with `toValue()` at call time.
+
 ## Reactivity
 
 Value state is **always reactive**. Collection methods follow the base `createRegistry` pattern.
@@ -72,6 +82,9 @@ Value state is **always reactive**. Collection methods follow the base `createRe
 | `selectedItems` | <AppSuccessIcon /> | Computed from `selectedIds` |
 | `selectedValues` | <AppSuccessIcon /> | Computed from `selectedItems`, unwraps refs via `toValue` |
 | ticket `isSelected` | <AppSuccessIcon /> | Computed from `selectedIds` |
+| `apply(values, options?)` | <AppErrorIcon /> | Sets selection from an array of values — used by `useProxyModel` to sync a ref with the model |
+| `selected(id)` | — | Returns `true` if the given ID is currently selected |
+| `reset()` | — | Clears all selected IDs |
 
 > [!TIP] Value vs Collection
 > Most UI patterns only need **value reactivity** (which is always on). You rarely need the collection itself to be reactive.

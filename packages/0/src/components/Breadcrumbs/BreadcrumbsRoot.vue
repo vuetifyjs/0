@@ -1,6 +1,8 @@
 /**
  * @module BreadcrumbsRoot
  *
+ * @see https://0.vuetifyjs.com/components/semantic/breadcrumbs
+ *
  * @remarks
  * Root component for responsive breadcrumb navigation using declarative children.
  *
@@ -16,16 +18,15 @@
   // Components
   import { Atom } from '#v0/components/Atom'
 
-  // Foundational
-  import { createContext } from '#v0/composables/createContext'
-
   // Composables
   import { createBreadcrumbs } from '#v0/composables/createBreadcrumbs'
+  import { createContext } from '#v0/composables/createContext'
   import { createGroup } from '#v0/composables/createGroup'
   import { createOverflow } from '#v0/composables/createOverflow'
   import { useLocale } from '#v0/composables/useLocale'
 
   // Utilities
+  import { isNull } from '#v0/utilities'
   import { shallowRef, toRef, useTemplateRef, watch } from 'vue'
 
   // Types
@@ -141,12 +142,12 @@
   }
 
   function measureElement (index: number, type: 'item' | 'divider', el: Element | undefined) {
-    if (type === 'item' && (_firstItemIndex === null || index <= _firstItemIndex)) {
+    if (type === 'item' && (isNull(_firstItemIndex) || index <= _firstItemIndex)) {
       _firstItemIndex = el ? index : null
       measureToRef(el, firstItemWidth)
       return
     }
-    if (type === 'divider' && (_firstDividerIndex === null || index <= _firstDividerIndex)) {
+    if (type === 'divider' && (isNull(_firstDividerIndex) || index <= _firstDividerIndex)) {
       _firstDividerIndex = el ? index : null
       measureToRef(el, firstDividerWidth)
       return

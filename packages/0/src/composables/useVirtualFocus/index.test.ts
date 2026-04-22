@@ -829,4 +829,23 @@ describe('useVirtualFocus', () => {
       expect(control.getAttribute('aria-activedescendant')).toBe('item-3')
     })
   })
+
+  describe('scope disposal', () => {
+    it('should clean up highlighted state and aria on scope dispose', () => {
+      let result: ReturnType<typeof useVirtualFocus>
+
+      scope.run(() => {
+        result = useVirtualFocus(() => items, { control })
+      })
+
+      result!.highlight('item-1')
+      expect(elements[1]!.dataset.highlighted).toBe('')
+      expect(control.getAttribute('aria-activedescendant')).toBe('item-1')
+
+      scope.stop()
+
+      expect(elements[1]!.dataset.highlighted).toBeUndefined()
+      expect(control.hasAttribute('aria-activedescendant')).toBe(false)
+    })
+  })
 })

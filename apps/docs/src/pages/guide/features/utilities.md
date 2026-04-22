@@ -12,7 +12,7 @@ related:
   - /composables/data/create-filter
   - /composables/data/create-pagination
   - /composables/data/create-virtual
-  - /composables/utilities/create-overflow
+  - /composables/semantic/create-overflow
 ---
 
 # Utilities
@@ -28,7 +28,7 @@ Standalone helpers for common UI patterns. These composables don't depend on con
 | [createFilter](/composables/data/create-filter) | Filter arrays with search queries |
 | [createPagination](/composables/data/create-pagination) | Page navigation state |
 | [createVirtual](/composables/data/create-virtual) | Virtual scrolling for large lists |
-| [createOverflow](/composables/utilities/create-overflow) | Compute visible item capacity |
+| [createOverflow](/composables/semantic/create-overflow) | Compute visible item capacity |
 
 > [!TIP]
 > These utilities are standalone—they don't require plugins or context. Use them anywhere, including outside Vue components.
@@ -228,6 +228,51 @@ const config = toReactive(configRef)
 config.debug  // Reactive access
 ```
 
+## Color
+
+Color manipulation utilities for hex and RGB formats.
+
+### hexToRgb / rgbToHex
+
+Convert between hex strings and `RGB` objects:
+
+```ts
+import { hexToRgb, rgbToHex } from '@vuetify/v0'
+
+hexToRgb('#1976d2')  // { r: 25, g: 118, b: 210 }
+hexToRgb('#fff')     // { r: 255, g: 255, b: 255 }
+
+rgbToHex({ r: 25, g: 118, b: 210 })  // '#1976d2'
+```
+
+The `RGB` interface is available for typing:
+
+```ts
+import type { RGB } from '@vuetify/v0'
+
+const color: RGB = { r: 255, g: 0, b: 0 }
+```
+
+### APCA Contrast
+
+[APCA](https://github.com/Myndex/SAPC-APCA) (Advanced Perceptual Contrast Algorithm) for accessible color pairings. Returns a signed contrast value — higher magnitude means more contrast:
+
+```ts
+import { apca, foreground, hexToRgb } from '@vuetify/v0'
+
+// Raw APCA contrast between two colors
+const text = hexToRgb('#1a1a1a')
+const bg   = hexToRgb('#ffffff')
+apca(text, bg)  // ~-106 (high contrast, dark on light)
+
+// Pick black or white text for a background
+foreground('#1976d2')  // '#ffffff' (white reads better on this blue)
+foreground('#ffd600')  // '#000000' (black reads better on yellow)
+```
+
+> [!TIP]
+> `foreground` is ideal for computing on-color text in design tokens. It uses APCA to select the higher-contrast option.
+
 ## Best Practices
 
 ### Combine Utilities
@@ -322,4 +367,100 @@ flowchart LR
 ```
 
 Each layer is reactive—changing the search query refilters, which updates pagination, which updates the virtual list.
+
+## Type Guards
+
+Type-narrowing functions that replace raw `typeof` / `===` checks. All are tree-shakeable.
+
+```ts
+import { isString, isNullOrUndefined, isObject } from '@vuetify/v0'
+
+if (isString(value)) {
+  // value is string
+}
+
+if (!isNullOrUndefined(x)) {
+  // x is defined
+}
+```
+
+| Guard | Narrows to |
+| - | - |
+| `isFunction(x)` | `Function` |
+| `isString(x)` | `string` |
+| `isNumber(x)` | `number` (includes NaN) |
+| `isBoolean(x)` | `boolean` |
+| `isObject(x)` | `Record<string, unknown>` (excludes null and arrays) |
+| `isArray(x)` | `unknown[]` |
+| `isElement(x)` | `Element` |
+| `isNull(x)` | `null` |
+| `isUndefined(x)` | `undefined` |
+| `isNullOrUndefined(x)` | `null \| undefined` |
+| `isPrimitive(x)` | `string \| number \| boolean` |
+| `isSymbol(x)` | `symbol` |
+| `isNaN(x)` | `number` (only the NaN value) |
+
+> [!TIP]
+> Prefer these over raw comparisons. `isNaN` uses `Number.isNaN()` internally—it won't coerce strings like the global `isNaN()`.
+
+## Helpers
+
+General-purpose utilities for numbers, arrays, and objects.
+
+### clamp
+
+Clamp a number between a minimum and maximum:
+
+```ts
+import { clamp } from '@vuetify/v0'
+
+clamp(15, 0, 10)  // 10
+clamp(-5, 0, 10)  // 0
+clamp(5, 0, 10)   // 5
+clamp(0.5)         // 0.5 (defaults: min=0, max=1)
+```
+
+### range
+
+Create an array of sequential numbers:
+
+```ts
+import { range } from '@vuetify/v0'
+
+range(5)      // [0, 1, 2, 3, 4]
+range(3, 1)   // [1, 2, 3]
+range(5, 10)  // [10, 11, 12, 13, 14]
+range(0)      // []
+```
+
+### mergeDeep
+
+Deep-merge objects without mutating inputs. Arrays are replaced, not concatenated:
+
+```ts
+import { mergeDeep } from '@vuetify/v0'
+
+mergeDeep({ a: { b: 1 } }, { a: { c: 2 } })
+// { a: { b: 1, c: 2 } }
+
+mergeDeep({}, { a: 1 }, { b: 2 })
+// { a: 1, b: 2 }
+
+mergeDeep({ arr: [1, 2] }, { arr: [3] })
+// { arr: [3] }
+```
+
+### useId
+
+SSR-safe unique ID generation. Uses Vue's `useId()` inside components, falls back to a counter outside:
+
+```ts
+import { useId } from '@vuetify/v0'
+
+// In component setup
+const id = useId()  // 'v:0' (Vue's format)
+
+// Outside component
+const id = useId()  // 'v0-0', 'v0-1', ...
+```
 

@@ -3,7 +3,7 @@
 </script>
 
 <template>
-  <main id="main-content" class="pa-4 pb-6 relative z-0">
+  <main id="main-content" class="pa-6 relative z-0">
     <div class="max-w-900 mx-auto pb-4">
       <router-view />
     </div>

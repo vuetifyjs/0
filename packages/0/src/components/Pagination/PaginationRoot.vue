@@ -1,12 +1,14 @@
 /**
  * @module PaginationRoot
  *
+ * @see https://0.vuetifyjs.com/components/semantic/pagination
+ *
  * @remarks
  * Root component for pagination controls that manages page state and provides context
  * to child components. Supports automatic calculation of visible page buttons based on
  * container width, or explicit totalVisible configuration.
  *
- * Built on createPaginationContext from usePagination composable. Provides navigation
+ * Built on createPaginationContext from createPagination. Provides navigation
  * methods (first, last, next, prev, select) and computed page ranges via slot props.
  *
  * Provides three contexts via dependency injection:
@@ -26,10 +28,8 @@
   // Components
   import { Atom } from '#v0/components/Atom'
 
-  // Foundational
-  import { createContext } from '#v0/composables/createContext'
-
   // Composables
+  import { createContext } from '#v0/composables/createContext'
   import { createOverflow } from '#v0/composables/createOverflow'
   import { createPagination } from '#v0/composables/createPagination'
   import { createRegistry } from '#v0/composables/createRegistry'
@@ -110,7 +110,7 @@
 
   defineEmits<{
     /** Emitted when the pagination changes */
-    'update:model-value': T | T[]
+    'update:model-value': [value: T | T[]]
   }>()
 
   const {

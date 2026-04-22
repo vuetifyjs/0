@@ -10,7 +10,7 @@
 import { IN_BROWSER } from '#v0/constants/globals'
 
 // Types
-import type { DeepPartial } from '#v0/types'
+import type { DeepPartial, ID } from '#v0/types'
 
 /**
  * Checks if a value is a function
@@ -277,15 +277,24 @@ export function isNaN (item: unknown): item is number {
   return isNumber(item) && Number.isNaN(item)
 }
 
+// Keys that could lead to prototype pollution
+const UNSAFE_KEYS = /* @__PURE__ */ new Set(['__proto__', 'constructor', 'prototype'])
+
+function isPlainObject (value: unknown): value is Record<string, unknown> {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) return false
+  const proto = Object.getPrototypeOf(value)
+  return proto === Object.prototype || proto === null
+}
+
 /**
- * Deeply merges source objects into a target object
+ * Deeply merges source objects into a target object, returning a new object
  *
- * @param target The target object to merge into (will be mutated)
+ * @param target The base object to merge into
  * @param sources One or more source objects to merge from
- * @returns The mutated target object
+ * @returns A new merged object (inputs are not mutated)
  *
  * @remarks
- * - Mutates the target object in place
+ * - Creates and returns a new object — inputs are never mutated
  * - Nested objects are recursively merged
  * - Arrays are replaced, not merged
  * - Primitives from sources overwrite target values
@@ -293,8 +302,9 @@ export function isNaN (item: unknown): item is number {
  * @example
  * ```ts
  * const target = { a: 1, b: { c: 2 } }
- * mergeDeep(target, { b: { d: 3 } })
- * // target is now { a: 1, b: { c: 2, d: 3 } }
+ * const result = mergeDeep(target, { b: { d: 3 } })
+ * // result is { a: 1, b: { c: 2, d: 3 } }
+ * // target is unchanged
  *
  * // Multiple sources
  * mergeDeep({}, { a: 1 }, { b: 2 }) // { a: 1, b: 2 }
@@ -303,42 +313,35 @@ export function isNaN (item: unknown): item is number {
  * mergeDeep({ arr: [1, 2] }, { arr: [3] }) // { arr: [3] }
  * ```
  */
-// Keys that could lead to prototype pollution
-const UNSAFE_KEYS = new Set(['__proto__', 'constructor', 'prototype'])
-
 /* #__NO_SIDE_EFFECTS__ */
 export function mergeDeep<T extends object> (target: T, ...sources: DeepPartial<T>[]): T {
-  if (sources.length === 0) return target
+  const out: Record<string, unknown> = {}
 
-  const source = sources.shift()
+  // Copy all properties from target
+  for (const key in target) {
+    if (Object.prototype.hasOwnProperty.call(target, key)) {
+      out[key] = target[key]
+    }
+  }
 
-  // Ensure both target and source are objects before attempting to merge
-  if (isObject(target) && isObject(source)) {
+  for (const source of sources) {
+    if (!isObject(source)) continue
+
     for (const key in source) {
       // Skip prototype pollution vectors and non-own properties
       if (UNSAFE_KEYS.has(key)) continue
       if (!Object.prototype.hasOwnProperty.call(source, key)) continue
 
-      const sourceValue = source[key]
+      const sourceValue = (source as Record<string, unknown>)[key]
       if (isUndefined(sourceValue)) continue
 
-      const targetValue = (target as Record<string, unknown>)[key]
+      const targetValue = out[key]
 
-      if (isObject(sourceValue)) {
-        if (!isObject(targetValue)) {
-          // If targetValue is not an object, initialize it as an empty object
-          Object.assign(target, { [key]: {} })
-        }
-        // Recursively merge using fresh reference from target
-        mergeDeep((target as Record<string, unknown>)[key] as object, sourceValue as object)
-      } else {
-        // Directly assign primitive values or arrays
-        Object.assign(target, { [key]: sourceValue })
-      }
+      out[key] = isPlainObject(sourceValue) && isPlainObject(targetValue) ? mergeDeep(targetValue as object, sourceValue as object) : sourceValue
     }
   }
 
-  return mergeDeep(target, ...sources)
+  return out as T
 }
 
 // Utilities
@@ -373,7 +376,7 @@ export function useId (): string {
     return vueUseId()
   }
 
-  if (!isUndefined(__DEV__) && __DEV__ && !IN_BROWSER) {
+  if (typeof __DEV__ !== 'undefined' && __DEV__ && !IN_BROWSER) {
     console.warn('[v0 warn] useId() called outside component context during SSR. Provide explicit ID to avoid hydration mismatch.')
   }
 
@@ -421,39 +424,22 @@ export function range (length: number, start = 0): number[] {
 }
 
 /**
- * Debounces a function call by the specified delay
- *
- * @param fn The function to debounce
- * @param delay The delay in milliseconds
- * @returns A debounced function with clear and immediate methods
- *
- * @example
- * ```ts
- * const debouncedFn = debounce(() => console.log('called'), 500)
- * debouncedFn()        // Will call after 500ms
- * debouncedFn.clear()  // Cancel pending call
- * debouncedFn.immediate() // Call immediately
- * ```
+ * Resolves an iterable of IDs to their items via a getter,
+ * filtering out any that return undefined.
  */
-export function debounce<T extends (...args: any[]) => any> (
-  fn: T,
-  delay: number,
-) {
-  let timeoutId: ReturnType<typeof setTimeout> | undefined
+/* #__NO_SIDE_EFFECTS__ */
+export function resolveIds<E> (ids: Iterable<ID>, getter: (id: ID) => E | undefined): E[] {
+  return Array.from(ids)
+    .map(id => getter(id))
+    .filter((item): item is E => !isUndefined(item))
+}
 
-  function debounced (...args: Parameters<T>) {
-    if (!isUndefined(timeoutId)) clearTimeout(timeoutId)
-    timeoutId = setTimeout(() => fn(...args), delay)
-  }
-
-  debounced.clear = () => {
-    if (!isUndefined(timeoutId)) clearTimeout(timeoutId)
-  }
-
-  debounced.immediate = (...args: Parameters<T>) => {
-    debounced.clear()
-    fn(...args)
-  }
-
-  return debounced
+/**
+ * Extracts defined index values from an iterable of items.
+ */
+/* #__NO_SIDE_EFFECTS__ */
+export function resolveIndexes (items: Iterable<{ index?: number }>): number[] {
+  return Array.from(items)
+    .map(item => item?.index)
+    .filter((index): index is number => !isUndefined(index))
 }

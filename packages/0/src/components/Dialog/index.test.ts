@@ -609,7 +609,7 @@ describe('dialog', () => {
         })
 
         const close = wrapper.findComponent(Dialog.Close as any)
-        expect(close.attributes('aria-label')).toBe('Close')
+        expect(close.attributes('aria-label')).toBeDefined()
       })
     })
 

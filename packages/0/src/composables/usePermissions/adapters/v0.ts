@@ -16,7 +16,7 @@ export class Vuetify0PermissionAdapter extends PermissionAdapter {
     role: ID,
     action: string,
     subject: string,
-    context: Record<string, any>,
+    context: Record<string, unknown>,
     permissions: PermissionContext<Z>,
   ): boolean {
     const access = `${role}.${action}.${subject}`

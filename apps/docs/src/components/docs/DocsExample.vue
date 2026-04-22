@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { createOverflow, isUndefined, Tabs } from '@vuetify/v0'
+  import { createOverflow, isUndefined, Select, Tabs } from '@vuetify/v0'
 
   // Components
   import DocsSkeleton from './DocsSkeleton.vue'
@@ -87,6 +87,7 @@
   const showCode = ref(false)
   const peekExpanded = ref(false)
   const combinedView = ref(false)
+  const resetKey = shallowRef(0)
 
   // Multi-file support
   const hasMultipleFiles = toRef(() => displayFiles.value && displayFiles.value.length > 1)
@@ -153,6 +154,10 @@
     showCode.value = !showCode.value
   }
 
+  function onReset () {
+    resetKey.value++
+  }
+
   function setCodePaneRef (name: string, el: unknown) {
     if (el) {
       codePaneRefs.value.set(name, el as InstanceType<typeof DocsExampleCodePaneType>)
@@ -165,6 +170,8 @@
     file?.split('/').pop() || (filePath ? `${filePath.split('/').pop()}.vue` : ''),
   )
 
+  const language = toRef(() => file?.split('.').pop() || 'vue')
+
   async function openAllInPlayground () {
     if (!displayFiles.value?.length) return
     const files = displayFiles.value.map(f => ({ name: f.name, code: f.code }))
@@ -172,10 +179,10 @@
     window.open(url, '_blank')
   }
 
-  function openAllInBin () {
+  async function openAllInBin () {
     if (!displayFiles.value?.length) return
     const files = displayFiles.value.map(f => ({ name: f.name, code: f.code, language: f.language }))
-    const url = getMultiFileBinUrl(files, title)
+    const url = await getMultiFileBinUrl(files, title)
     window.open(url, '_blank')
   }
 </script>
@@ -195,8 +202,10 @@
 
       <!-- Preview -->
       <div class="p-6 bg-surface" :class="hasDescription && !descriptionExpanded && 'pt-8'">
-        <component :is="auto?.component" v-if="auto?.component" />
-        <slot v-else />
+        <div :key="resetKey">
+          <component :is="auto?.component" v-if="auto?.component" />
+          <slot v-else />
+        </div>
       </div>
 
       <!-- Code toggle button -->
@@ -215,8 +224,32 @@
           <span v-if="hasMultipleFiles" class="ml-auto opacity-60 font-mono text-[0.8125rem]">
             {{ displayFiles!.length }} file(s)
           </span>
-          <span v-else-if="fileName" class="ml-auto opacity-60 font-mono text-[0.8125rem]">{{ fileName }}</span>
+          <span v-else-if="language" class="ml-auto opacity-60 font-mono text-[0.8125rem]">{{ language }}</span>
         </button>
+      </div>
+
+      <!-- Single-file toolbar (visible when code expanded, not in peek mode) -->
+      <div
+        v-if="showCode && resolvedCode && !hasMultipleFiles"
+        class="flex items-center gap-2 px-3 py-3 bg-surface border-t border-divider min-h-12"
+      >
+        <span
+          v-if="fileName"
+          class="h-[30px] px-2 text-xs font-medium rounded whitespace-nowrap inline-flex items-center bg-primary text-on-primary border border-transparent"
+        >
+          {{ fileName }}
+        </span>
+
+        <div class="ml-auto flex items-center gap-1">
+          <button
+            class="size-[30px] rounded text-on-surface-variant hover:bg-surface-variant transition-colors inline-flex items-center justify-center"
+            title="Reset example"
+            type="button"
+            @click="onReset"
+          >
+            <AppIcon icon="restart" :size="16" />
+          </button>
+        </div>
       </div>
 
       <!-- Single file code display -->
@@ -227,7 +260,7 @@
         v-model:expanded="peekExpanded"
         :code="resolvedCode"
         :file-name
-        :language="file?.split('.').pop() || 'vue'"
+        :language
         :peek
         :peek-lines
         :title="title || fileName"
@@ -282,18 +315,41 @@
               </Tabs.List>
 
               <!-- Dropdown for hidden files -->
-              <select
+              <Select.Root
                 v-if="hiddenFiles.length > 0"
-                aria-label="Additional files"
-                class="ml-1 h-[30px] px-2 text-xs font-medium bg-surface-tint border border-divider rounded text-on-surface cursor-pointer"
-                :value="hiddenFiles.some(f => f.name === selectedTab) ? selectedTab : ''"
-                @change="selectedTab = ($event.target as HTMLSelectElement).value"
+                :model-value="hiddenFiles.some(f => f.name === selectedTab) ? selectedTab : undefined"
+                @update:model-value="selectedTab = String($event)"
               >
-                <option disabled value="">+{{ hiddenFiles.length }} more</option>
-                <option v-for="f in hiddenFiles" :key="f.name" :value="f.name">
-                  {{ f.name }}
-                </option>
-              </select>
+                <Select.Activator
+                  aria-label="Additional files"
+                  class="ml-1 h-[30px] px-2 text-xs font-medium bg-surface-tint border border-divider rounded text-on-surface cursor-pointer inline-flex items-center gap-1"
+                >
+                  <Select.Value v-slot="{ selectedValue }">{{ selectedValue }}</Select.Value>
+                  <Select.Placeholder>+{{ hiddenFiles.length }} more</Select.Placeholder>
+                  <Select.Cue v-slot="{ isOpen }" class="text-[10px] opacity-50">{{ isOpen ? '&#x25B4;' : '&#x25BE;' }}</Select.Cue>
+                </Select.Activator>
+
+                <Select.Content class="p-1 rounded-lg border border-divider bg-surface shadow-lg" :style="{ minWidth: 'anchor-size(width)' }">
+                  <Select.Item
+                    v-for="f in hiddenFiles"
+                    :id="f.name"
+                    :key="f.name"
+                    v-slot="{ isSelected, isHighlighted }"
+                    :value="f.name"
+                  >
+                    <div
+                      class="px-3 py-1.5 rounded-md cursor-default select-none text-xs font-mono"
+                      :class="[
+                        isHighlighted ? 'bg-primary text-on-primary'
+                        : isSelected ? 'text-primary font-medium'
+                          : 'text-on-surface hover:bg-surface-variant',
+                      ]"
+                    >
+                      {{ f.name }}
+                    </div>
+                  </Select.Item>
+                </Select.Content>
+              </Select.Root>
             </template>
 
             <span
@@ -304,6 +360,15 @@
             </span>
 
             <div class="ml-auto flex items-center gap-1">
+              <button
+                class="size-[30px] rounded text-on-surface-variant hover:bg-surface-variant transition-colors inline-flex items-center justify-center"
+                title="Reset example"
+                type="button"
+                @click="onReset"
+              >
+                <AppIcon icon="restart" :size="16" />
+              </button>
+
               <button
                 class="size-[30px] rounded text-on-surface-variant hover:bg-surface-variant transition-colors inline-flex items-center justify-center"
                 title="Open in Playground"

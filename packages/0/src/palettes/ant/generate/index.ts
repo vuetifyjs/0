@@ -27,6 +27,7 @@ function contrast (hex: string): string {
   return luminance > 0.5 ? '#000000' : '#ffffff'
 }
 
+/* #__NO_SIDE_EFFECTS__ */
 export function ant (seed: string, options: AntGenerateOptions = {}): PaletteDefinition {
   if (!HEX_RE.test(seed)) {
     throw new Error(`[@vuetify/v0] Invalid seed color: "${seed}". Expected a hex string (e.g., "#1677ff").`)

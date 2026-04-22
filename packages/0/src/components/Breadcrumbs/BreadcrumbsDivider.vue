@@ -1,6 +1,8 @@
 /**
  * @module BreadcrumbsDivider
  *
+ * @see https://0.vuetifyjs.com/components/semantic/breadcrumbs
+ *
  * @remarks
  * Visual separator between breadcrumb items. Registers with the parent
  * BreadcrumbsRoot and self-measures width. Supports inline override of
@@ -14,7 +16,7 @@
   import { useBreadcrumbsRoot } from './BreadcrumbsRoot.vue'
 
   // Utilities
-  import { onUnmounted, toRef, useTemplateRef, watch } from 'vue'
+  import { onBeforeUnmount, toRef, useTemplateRef, watch } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -75,7 +77,7 @@
     { immediate: true },
   )
 
-  onUnmounted(() => {
+  onBeforeUnmount(() => {
     context.measureElement(ticket.index, 'divider', undefined)
     context.group.unregister(ticket.id)
   })

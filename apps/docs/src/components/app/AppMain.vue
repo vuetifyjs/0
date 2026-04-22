@@ -1,10 +1,6 @@
 <script setup lang="ts">
   import { useHead } from '@unhead/vue'
 
-  // Components
-  import DocsToc from '../docs/DocsToc.vue'
-  import DocsPageLogo from '../docs/meta/DocsPageLogo.vue'
-
   // Composables
   import { useAsk } from '@/composables/useAsk'
   import { useRouterLinks } from '@/composables/useRouterLinks'
@@ -12,8 +8,14 @@
 
   // Utilities
   import { computed, shallowRef, toRef, useTemplateRef } from 'vue'
+  import { useRoute } from 'vue-router'
+
+  // Components
+  import DocsToc from '../docs/DocsToc.vue'
+  import DocsPageLogo from '../docs/meta/DocsPageLogo.vue'
 
   const ask = useAsk()
+  const route = useRoute()
   const settings = useSettings()
   const page = shallowRef<{ frontmatter?: Record<string, unknown> }>()
   const mainRef = useTemplateRef<HTMLElement>('main')
@@ -30,14 +32,49 @@
   const pageMeta = toRef(() => page.value?.frontmatter?.meta as Array<{ name?: string, content?: string }> | undefined)
   const pageDescription = computed(() => pageMeta.value?.find(m => m.name === 'description')?.content)
 
+  // Per-page OG image based on route path
+  const ogImage = toRef(() => {
+    const path = route.path === '/' ? '/index' : route.path
+    return `https://0.vuetifyjs.com/og${path}.png`
+  })
+
+  // JSON-LD structured data
+  const jsonLd = computed(() => {
+    const schemas: Record<string, unknown>[] = []
+
+    if (pageTitle.value) {
+      schemas.push({
+        '@context': 'https://schema.org',
+        '@type': 'TechArticle',
+        'headline': pageTitle.value,
+        'description': pageDescription.value ?? '',
+        'url': `https://0.vuetifyjs.com${route.path}`,
+        'author': { '@type': 'Organization', 'name': 'Vuetify' },
+        'publisher': { '@type': 'Organization', 'name': 'Vuetify' },
+        'image': ogImage.value,
+      })
+    }
+
+    return schemas
+  })
+
   // Set page-level meta from frontmatter (reactive)
   // InferSeoMetaPlugin auto-generates og:title and og:description
   useHead({
     title: pageTitle,
-    meta: computed(() => pageDescription.value
-      ? [{ key: 'description', name: 'description', content: pageDescription.value }]
-      : [],
-    ),
+    meta: toRef(() => {
+      const meta: Array<Record<string, string>> = []
+      if (pageDescription.value) {
+        meta.push({ key: 'description', name: 'description', content: pageDescription.value })
+      }
+      meta.push({ key: 'og:image', property: 'og:image', content: ogImage.value })
+      return meta
+    }),
+    script: toRef(() => jsonLd.value.map(schema => ({
+      key: `jsonld-${schema['@type']}`,
+      type: 'application/ld+json',
+      innerHTML: JSON.stringify(schema),
+    }))),
   })
 </script>
 
@@ -46,7 +83,7 @@
     id="main-content"
     ref="main"
     :class="[
-      'pa-4 pb-6 ms-0 md:ms-[230px] relative z-0',
+      'pa-6 ms-0 md:ms-[230px] relative z-0',
       !settings.prefersReducedMotion.value && 'transition-[padding] duration-200',
       ask.isOpen.value ? 'xl:pe-[calc(clamp(280px,calc(100vw-230px-730px-64px),500px)+32px)]' : 'xl:pe-[232px]',
     ]"

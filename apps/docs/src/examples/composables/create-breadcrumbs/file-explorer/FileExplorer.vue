@@ -1,6 +1,6 @@
 <script setup lang="ts">
-  import { computed } from 'vue'
-  import { createBreadcrumbs } from '@vuetify/v0'
+  import { computed, toRef } from 'vue'
+  import { createBreadcrumbs, useProxyRegistry } from '@vuetify/v0'
   import { tree } from './tree'
 
   import type { BreadcrumbTicketInput } from '@vuetify/v0'
@@ -12,10 +12,11 @@
   }
 
   const breadcrumbs = createBreadcrumbs<FileBreadcrumbTicketInput>()
+  const proxy = useProxyRegistry(breadcrumbs)
 
   const current = computed(() => breadcrumbs.selectedValue.value ?? tree)
   const children = computed(() => current.value.children ?? [])
-  const items = computed(() => breadcrumbs.values())
+  const items = toRef(() => proxy.values)
 
   function isFolder (node: FolderNode) {
     return !!node.children

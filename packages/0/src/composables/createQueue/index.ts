@@ -1,6 +1,8 @@
 /**
  * @module createQueue
  *
+ * @see https://0.vuetifyjs.com/composables/registration/create-queue
+ *
  * @remarks
  * A queue composable for managing time-based collections with:
  * - Automatic timeout-based removal
@@ -12,14 +14,21 @@
  * Built on top of createRegistry, the queue automatically manages timeouts for tickets,
  * ensuring only the first ticket in the queue is active at any time. When a ticket
  * expires or is removed, the next ticket in the queue automatically becomes active.
+ *
+ * @example
+ * ```ts
+ * import { createQueue } from '@vuetify/v0'
+ *
+ * const queue = createQueue()
+ * queue.register({ value: 'Notification 1', timeout: 3000 })
+ * queue.register({ value: 'Notification 2', timeout: 3000 })
+ * ```
  */
 
-// Foundational
-import { createContext, useContext } from '#v0/composables/createContext'
-import { createTrinity } from '#v0/composables/createTrinity'
-
 // Composables
+import { useContext } from '#v0/composables/createContext'
 import { createRegistry } from '#v0/composables/createRegistry'
+import { createTrinity } from '#v0/composables/createTrinity'
 import { useTimer } from '#v0/composables/useTimer'
 
 // Utilities
@@ -31,7 +40,6 @@ import type { RegistryContext, RegistryOptions, RegistryTicket, RegistryTicketIn
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { TimerContext } from '#v0/composables/useTimer'
 import type { ID } from '#v0/types'
-import type { App } from 'vue'
 
 /**
  * Input type for queue tickets - what users provide to register().
@@ -101,7 +109,7 @@ export interface QueueContext<
    * - Subsequent tickets are paused until they become first in queue
    * - Each ticket receives a `dismiss()` method for convenience
    *
-   * @see https://0.vuetifyjs.com/composables/registration/create-queue#register
+   * @see https://0.vuetifyjs.com/composables/registration/create-queue
    *
    * @example
    * ```ts
@@ -129,7 +137,7 @@ export interface QueueContext<
    * - If the removed ticket was first in queue, automatically resumes the next ticket
    * - Returns the unregistered ticket or `undefined` if not found
    *
-   * @see https://0.vuetifyjs.com/composables/registration/create-queue#unregister
+   * @see https://0.vuetifyjs.com/composables/registration/create-queue
    *
    * @example
    * ```ts
@@ -157,7 +165,7 @@ export interface QueueContext<
    * - Returns the paused ticket or `undefined` if no pausable ticket exists
    * - The timeout will not progress while paused
    *
-   * @see https://0.vuetifyjs.com/composables/registration/create-queue#pause
+   * @see https://0.vuetifyjs.com/composables/registration/create-queue
    *
    * @example
    * ```ts
@@ -182,7 +190,7 @@ export interface QueueContext<
    * - Returns the resumed ticket or `undefined` if no resumable ticket exists
    * - The timeout will continue from its full duration (not from where it was paused)
    *
-   * @see https://0.vuetifyjs.com/composables/registration/create-queue#resume
+   * @see https://0.vuetifyjs.com/composables/registration/create-queue
    *
    * @example
    * ```ts
@@ -208,7 +216,7 @@ export interface QueueContext<
    * - Clears all active timeouts
    * - Resets the queue to an empty state
    *
-   * @see https://0.vuetifyjs.com/composables/registration/create-queue#clear
+   * @see https://0.vuetifyjs.com/composables/registration/create-queue
    *
    * @example
    * ```ts
@@ -236,7 +244,7 @@ export interface QueueContext<
    * - Should be called when the queue is no longer needed
    * - Automatically called on scope disposal
    *
-   * @see https://0.vuetifyjs.com/composables/registration/create-queue#dispose
+   * @see https://0.vuetifyjs.com/composables/registration/create-queue
    *
    * @example
    * ```ts
@@ -279,8 +287,6 @@ export interface QueueContextOptions extends QueueOptions {
  * Creates a new queue instance
  *
  * @param options The options for the queue instance
- * @template Z The type of queue ticket that extends QueueTicket. Use this to add custom properties to tickets.
- * @template E The type of queue context that extends QueueContext<Z>. Use this when extending the queue with additional methods.
  * @returns A new queue instance
  *
  * @see https://0.vuetifyjs.com/composables/registration/create-queue
@@ -306,16 +312,12 @@ export interface QueueContextOptions extends QueueOptions {
  * console.log(queue.size) // 2
  * ```
  */
-export function createQueue<
-  Z extends QueueTicketInput = QueueTicketInput,
-  E extends QueueTicket<Z> = QueueTicket<Z>,
-  R extends QueueContext<Z, E> = QueueContext<Z, E>,
-> (_options: QueueOptions = {}): R {
+export function createQueue (_options: QueueOptions = {}): QueueContext {
   const { timeout: _timeout = 3000, ...options } = _options
-  const registry = createRegistry<E>({ ...options, events: true })
+  const registry = createRegistry<QueueTicket>({ ...options, events: true })
   const timers = new Map<ID, TimerContext>()
 
-  function createTicketTimer (ticket: E) {
+  function createTicketTimer (ticket: QueueTicket) {
     if (isUndefined(ticket.timeout) || ticket.timeout < 0 || ticket.isPaused) return
 
     const timer = useTimer(() => {
@@ -337,7 +339,7 @@ export function createQueue<
     }
   }
 
-  function register (registration: Partial<Z> = {} as Partial<Z>): E {
+  function register (registration: Partial<QueueTicketInput> = {} as Partial<QueueTicketInput>): QueueTicket {
     const id = registration.id ?? useId()
     const hasExplicitTimeout = Object.prototype.hasOwnProperty.call(registration, 'timeout')
     const timeout = hasExplicitTimeout ? registration.timeout : _timeout
@@ -350,14 +352,14 @@ export function createQueue<
       dismiss: () => unregister(id),
     }
 
-    const registered = registry.register(ticket as unknown as Partial<E>) as E
+    const registered = registry.register(ticket as Partial<QueueTicket>)
 
     createTicketTimer(registered)
 
     return registered
   }
 
-  function unregister (id?: ID): E | undefined {
+  function unregister (id?: ID): QueueTicket | undefined {
     const ticket = isUndefined(id) ? registry.seek('first') : registry.get(id)
     if (!ticket) return undefined
 
@@ -387,20 +389,20 @@ export function createQueue<
     if (hadFirst) resume()
   }
 
-  function pause (): E | undefined {
+  function pause (): QueueTicket | undefined {
     const ticket = registry.seek('first')
     if (!ticket || ticket.isPaused) return undefined
 
     timers.get(ticket.id)?.pause()
 
-    return registry.upsert(ticket.id, { isPaused: true } as Partial<E>)
+    return registry.upsert(ticket.id, { isPaused: true } as Partial<QueueTicket>)
   }
 
-  function resume (): E | undefined {
+  function resume (): QueueTicket | undefined {
     const ticket = registry.seek('first')
     if (!ticket || ticket.index !== 0 || !ticket.isPaused) return undefined
 
-    const updated = registry.upsert(ticket.id, { isPaused: false } as Partial<E>)
+    const updated = registry.upsert(ticket.id, { isPaused: false } as Partial<QueueTicket>)
 
     const timer = timers.get(updated.id)
     if (timer) {
@@ -425,7 +427,7 @@ export function createQueue<
 
   onScopeDispose(dispose, true)
 
-  function onboard (registrations: Partial<Z>[]): E[] {
+  function onboard (registrations: Partial<QueueTicketInput>[]): QueueTicket[] {
     return registry.batch(() => registrations.map(registration => register(registration)))
   }
 
@@ -442,15 +444,13 @@ export function createQueue<
     get size () {
       return registry.size
     },
-  } as R
+  } as QueueContext
 }
 
 /**
  * Creates a new queue context.
  *
  * @param options The options for the queue context.
- * @template Z The type of the queue ticket.
- * @template E The type of the queue context.
  * @returns A new queue context.
  *
  * @see https://0.vuetifyjs.com/composables/registration/create-queue
@@ -464,20 +464,11 @@ export function createQueue<
  * })
  * ```
  */
-export function createQueueContext<
-  Z extends QueueTicketInput = QueueTicketInput,
-  E extends QueueTicket<Z> = QueueTicket<Z>,
-  R extends QueueContext<Z, E> = QueueContext<Z, E>,
-> (_options: QueueContextOptions = {}): ContextTrinity<R> {
+export function createQueueContext (_options: QueueContextOptions = {}): ContextTrinity<QueueContext> {
   const { namespace = 'v0:queue', ...options } = _options
-  const [useQueueContext, _provideQueueContext] = createContext<R>(namespace)
-  const context = createQueue<Z, E, R>(options)
+  const context = createQueue(options)
 
-  function provideQueueContext (_context: R = context, app?: App): R {
-    return _provideQueueContext(_context, app)
-  }
-
-  return createTrinity<R>(useQueueContext, provideQueueContext, context)
+  return createTrinity<QueueContext>(namespace, context)
 }
 
 /**
@@ -497,10 +488,6 @@ export function createQueueContext<
  * </script>
  * ```
  */
-export function useQueue<
-  Z extends QueueTicketInput = QueueTicketInput,
-  E extends QueueTicket<Z> = QueueTicket<Z>,
-  R extends QueueContext<Z, E> = QueueContext<Z, E>,
-> (namespace = 'v0:queue'): R {
-  return useContext<R>(namespace)
+export function useQueue (namespace = 'v0:queue'): QueueContext {
+  return useContext<QueueContext>(namespace)
 }

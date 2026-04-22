@@ -26,11 +26,17 @@
   const footerRef = useTemplateRef<HTMLElement | null>('footer')
 
   const links = [
-    { icon: 'github', href: 'https://github.com/vuetifyjs/0', label: 'GitHub', bg: 'bg-[#24292f]' },
     { icon: 'discord', href: 'https://discord.gg/vK6T89eNP7', label: 'Discord', bg: 'bg-discord' },
+    { icon: 'github', href: 'https://github.com/vuetifyjs/0', label: 'GitHub', bg: 'bg-[#24292f]' },
   ]
 
   const latest = toRef(() => releases.releases[0])
+
+  const buildSha = import.meta.env.VITE_GITHUB_SHA as string | undefined
+
+  const outOfDate = toRef(() =>
+    !!buildSha && !!app.stats.commit && buildSha !== app.stats.commit.sha,
+  )
 
   async function fetch () {
     // Fetch latest commit
@@ -102,7 +108,7 @@
               target="_blank"
               :title="`Last Commit: ${new Date(app.stats.commit.commit.author.date).toLocaleString()}`"
             >
-              <AppIcon icon="history" :size="14" />
+              <AppIcon :class="outOfDate && 'text-warning'" icon="history" :size="14" />
               {{ app.stats.commit.sha.slice(0, 7) }}
             </a>
           </div>

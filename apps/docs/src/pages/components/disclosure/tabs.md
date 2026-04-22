@@ -12,6 +12,7 @@ features:
   renderless: false
   level: 2
 related:
+  - /composables/selection/create-step
   - /components/disclosure/expansion-panel
   - /components/disclosure/dialog
 ---
@@ -28,6 +29,11 @@ The Tabs component provides a compound pattern for building accessible tab inter
 
 ::: example
 /components/tabs/basic
+
+### Tab Navigation
+
+Profile, password, and billing tabs with content switching via v-model binding.
+
 :::
 
 ## Anatomy
@@ -48,25 +54,26 @@ The Tabs component provides a compound pattern for building accessible tab inter
 </template>
 ```
 
-<DocsApi />
-
 ## Features
 
 ### Keyboard Navigation
 
-The component implements full WAI-ARIA keyboard support:
+The component implements full WAI-ARIA keyboard support. Keyboard behavior depends on the activation mode:
 
-- **Arrow Left/Right** (horizontal) or **Arrow Up/Down** (vertical): Navigate between tabs
-- **Home**: Jump to first tab
-- **End**: Jump to last tab
-- **Enter/Space**: Activate tab (in manual mode)
+| Key | Automatic | Manual |
+| - | - | - |
+| Arrow Left/Right (horizontal) | Moves focus **and** activates tab | Moves focus only |
+| Arrow Up/Down (vertical) | Moves focus **and** activates tab | Moves focus only |
+| Home | Focuses **and** activates first tab | Focuses first tab only |
+| End | Focuses **and** activates last tab | Focuses last tab only |
+| Enter/Space | — | Activates the focused tab |
 
 ### Activation Modes
 
 Control when tabs activate with the `activation` prop:
 
-- **automatic** (default): Tab activates when focused via arrow keys
-- **manual**: Tab only activates on Enter/Space key press
+- **automatic** (default): Arrow keys move focus and activate the tab simultaneously
+- **manual**: Arrow keys move focus without activating — the user must press Enter or Space to confirm their selection
 
 ```vue
 <template>
@@ -99,3 +106,20 @@ Control whether navigation wraps around at boundaries:
   </Tabs.Root>
 </template>
 ```
+
+### Auto-Enrollment
+
+Set `enroll` to auto-select the first registered tab. Useful when tabs are rendered dynamically and the initial selection should track whichever tab mounts first:
+
+```vue
+<template>
+  <Tabs.Root enroll>
+    <!-- First tab to register is automatically selected -->
+    <Tabs.Tab v-for="tab in dynamicTabs" :key="tab.id" :value="tab.id">
+      {{ tab.label }}
+    </Tabs.Tab>
+  </Tabs.Root>
+</template>
+```
+
+<DocsApi />

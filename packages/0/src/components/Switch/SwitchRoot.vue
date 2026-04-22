@@ -1,6 +1,8 @@
 /**
  * @module SwitchRoot
  *
+ * @see https://0.vuetifyjs.com/components/forms/switch
+ *
  * @remarks
  * Root component for individual switches with dual-mode support:
  * - **Standalone mode**: Uses v-model for boolean state
@@ -16,11 +18,12 @@
   import { useSwitchGroup } from './SwitchGroup.vue'
   import SwitchHiddenInput from './SwitchHiddenInput.vue'
 
-  // Foundational
+  // Composables
   import { createContext } from '#v0/composables/createContext'
 
   // Utilities
-  import { onUnmounted, toRef, toValue, useAttrs, useId } from 'vue'
+  import { useId } from '#v0/utilities'
+  import { mergeProps, onBeforeUnmount, toRef, toValue, useAttrs } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -237,7 +240,7 @@
     toggle()
   }
 
-  onUnmounted(() => {
+  onBeforeUnmount(() => {
     if (!ticket || !group) return
     group.unregister(ticket.id)
   })
@@ -290,7 +293,7 @@
 
 <template>
   <Atom
-    v-bind="{ ...attrs, ...slotProps.attrs }"
+    v-bind="mergeProps(attrs, slotProps.attrs)"
     :as
     :renderless
     @click="onClick"

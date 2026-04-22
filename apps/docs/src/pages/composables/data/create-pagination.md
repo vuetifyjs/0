@@ -4,13 +4,14 @@ meta:
 - name: description
   content: Lightweight composable for pagination state. Includes navigation methods (first, last, next, prev), computed visible pages, and v-model binding for Vue 3.
 - name: keywords
-  content: createPagination, pagination, navigation, composable, Vue 3, pages, page state, goto
+  content: createPagination, pagination, navigation, composable, Vue 3, pages, page state, select
 features:
   category: Composable
   label: 'E: createPagination'
   github: /composables/createPagination/
   level: 2
 related:
+  - /composables/data/create-data-table
   - /composables/data/create-filter
   - /components/semantic/pagination
 ---
@@ -46,6 +47,24 @@ console.log(pagination.items.value)
 // ]
 ```
 
+## Context / DI
+
+Use `createPaginationContext` to share a pagination instance across a component tree:
+
+```ts
+import { createPaginationContext } from '@vuetify/v0'
+
+export const [usePagination, providePagination, pagination] =
+  createPaginationContext({ size: 100, itemsPerPage: 10 })
+
+// In parent component
+providePagination()
+
+// In child component
+const pagination = usePagination()
+pagination.next()
+```
+
 ## Architecture
 
 `createPagination` computes page state and navigation:
@@ -63,14 +82,34 @@ flowchart LR
 
 | Property/Method | Reactive | Notes |
 | - | :-: | - |
-| `page` | <AppSuccessIcon /> | ShallowRef, supports v-model binding |
-| `items` | <AppSuccessIcon /> | Computed, visible page buttons with ellipsis |
+| `page` | <AppSuccessIcon /> | WritableComputedRef, auto-clamps when total pages shrinks |
+| `pages` | <AppSuccessIcon /> | Total page count, computed from `size / itemsPerPage` |
+| `items` | <AppSuccessIcon /> | Computed array of `PaginationTicket` — each is `{ type: 'page', value: number }` or `{ type: 'ellipsis', value: string }` |
 | `pageStart` | <AppSuccessIcon /> | Computed, start index for current page |
 | `pageStop` | <AppSuccessIcon /> | Computed, end index for current page |
 | `isFirst` | <AppSuccessIcon /> | Computed, true when on first page |
 | `isLast` | <AppSuccessIcon /> | Computed, true when on last page |
+| `itemsPerPage` | <AppErrorIcon /> | Getter — current items per page (reflects option) |
+| `size` | <AppErrorIcon /> | Getter — total item count (reflects option) |
+| `ellipsis` | <AppErrorIcon /> | Getter — the ellipsis string or `false` when disabled |
+| `select(page)` | - | Navigate to a specific page number |
+| `next()` | - | Go to next page (no-op if already last) |
+| `prev()` | - | Go to previous page (no-op if already first) |
+| `first()` | - | Jump to page 1 |
+| `last()` | - | Jump to final page |
 
 > [!TIP] v-model support
 > Pass a ref as the `page` option to enable two-way binding with your component's page state.
+
+## Examples
+
+::: example
+/composables/create-pagination/paginated-list
+
+### Paginated List
+
+Category-filtered list with page navigation controls, demonstrating `select()`, `next()`, `prev()`, and reactive `pageStart`/`pageStop` slicing.
+
+:::
 
 <DocsApi />

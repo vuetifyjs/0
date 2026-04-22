@@ -1,3 +1,6 @@
+// Framework
+import { createNotificationsPlugin } from '@vuetify/v0'
+
 // Components
 import DocsMarkup from '@/components/docs/DocsMarkup.vue'
 
@@ -14,6 +17,7 @@ import './analytics'
 
 export function registerPlugins (app: App) {
   app.use(zero)
+  app.use(createNotificationsPlugin())
   app.use(_app)
   app.use(SettingsPlugin)
 

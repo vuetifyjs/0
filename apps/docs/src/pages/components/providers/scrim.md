@@ -9,7 +9,7 @@ features:
   category: Component
   label: 'C: Scrim'
   github: /components/Scrim/
-  renderless: true
+  renderless: false
   level: 2
 related:
   - /composables/plugins/use-stack
@@ -18,7 +18,7 @@ related:
 
 # Scrim
 
-A headless backdrop component that integrates with the stack system to provide a shared overlay for all active modals and dialogs.
+Headless backdrop component for overlay systems with automatic z-index management and dismiss handling.
 
 <DocsPageFeatures :frontmatter />
 
@@ -67,6 +67,21 @@ The Scrim component renders a backdrop that appears when any overlay is active. 
   <Scrim class="fixed inset-0 bg-black/50 transition-opacity" />
 </template>
 ```
+
+## Examples
+
+### Basic
+
+Demonstrates a dismissible overlay and a blocking overlay. Click the scrim to dismiss the first; the blocking overlay requires explicit action.
+
+::: example
+/components/scrim/basic
+
+### Dismissible and Blocking Overlays
+
+Dismissible and blocking scrims with backdrop, stack management, and z-index control.
+
+:::
 
 ## Custom Styling via Slot Props
 

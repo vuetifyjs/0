@@ -1,6 +1,8 @@
 /**
  * @module createDataTable
  *
+ * @see https://0.vuetifyjs.com/composables/data/create-data-table
+ *
  * @remarks
  * Composable data table that composes existing v0 primitives rather than
  * reimplementing their logic. Uses createGroup's tri-state for sort direction
@@ -15,14 +17,23 @@
  * - Sort options: mandate, firstSortOrder
  * - Row selection via lightweight Set (not registry-based)
  * - Trinity pattern for dependency injection
+ *
+ * @example
+ * ```ts
+ * import { createDataTable } from '@vuetify/v0'
+ *
+ * const table = createDataTable({
+ *   items: [{ id: 1, name: 'Alice' }, { id: 2, name: 'Bob' }],
+ *   columns: [{ key: 'name', title: 'Name', sortable: true }],
+ * })
+ * table.sort.toggle('name')
+ * ```
  */
 
-// Foundational
-import { createContext, useContext } from '#v0/composables/createContext'
-import { createTrinity } from '#v0/composables/createTrinity'
-
 // Composables
+import { useContext } from '#v0/composables/createContext'
 import { createGroup } from '#v0/composables/createGroup'
+import { createTrinity } from '#v0/composables/createTrinity'
 import { useLocale } from '#v0/composables/useLocale'
 
 // Adapters
@@ -38,7 +49,11 @@ import type { PaginationContext, PaginationOptions } from '#v0/composables/creat
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { ID } from '#v0/types'
 import type { DataTableAdapterInterface, SortDirection, SortEntry } from './adapters/adapter'
-import type { App, MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
+import type { InternalHeader } from './columns'
+import type { MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
+
+// Column utilities
+import { extractLeaves, resolveHeaders } from './columns'
 
 // Re-export adapter types
 export { DataTableAdapter } from './adapters'
@@ -46,13 +61,17 @@ export type { DataTableAdapterContext, DataTableAdapterInterface, DataTableAdapt
 export { ClientAdapter, ServerAdapter, VirtualAdapter } from './adapters'
 export type { ServerAdapterOptions } from './adapters'
 
+// Re-export column utilities
+export { computeDepth, extractLeaves, resolveHeaders } from './columns'
+export type { ColumnNode, InternalHeader } from './columns'
+
 /** Extract keys of T whose value type extends V */
-type KeysOfType<T, V> = { [K in keyof T]: T[K] extends V ? K : never }[keyof T] & string
+export type KeysOfType<T, V> = { [K in keyof T]: T[K] extends V ? K : never }[keyof T] & string
 
 export type SelectStrategy = 'single' | 'page' | 'all'
 
 export interface DataTableColumn<T extends Record<string, unknown> = Record<string, unknown>> {
-  readonly key: keyof T & string
+  readonly key: string
   readonly title?: string
   readonly sortable?: boolean
   readonly filterable?: boolean
@@ -60,6 +79,7 @@ export interface DataTableColumn<T extends Record<string, unknown> = Record<stri
   readonly sort?: (a: unknown, b: unknown) => number
   /** Custom filter function for this column */
   readonly filter?: (value: unknown, query: string) => boolean
+  readonly children?: readonly DataTableColumn<T>[]
 }
 
 export interface DataTableSort {
@@ -189,6 +209,10 @@ export interface DataTableContext<T extends Record<string, unknown>> {
   sortedItems: Readonly<Ref<readonly T[]>>
   /** Column definitions */
   columns: readonly DataTableColumn<T>[]
+  /** Leaf columns (no children) used by the data pipeline */
+  leaves: readonly DataTableColumn<T>[]
+  /** 2D header grid with colspan/rowspan for rendering thead */
+  headers: Readonly<Ref<InternalHeader[][]>>
   /** Set the search query */
   search: (value: string) => void
   /** Current search query (readonly) */
@@ -291,7 +315,10 @@ export function createDataTable<T extends Record<string, unknown>> (
     return initialLocale
   })
 
-  const sortable = columns.filter(col => col.sortable === true)
+  const leaves = extractLeaves(columns)
+  const headers = toRef(() => resolveHeaders(columns))
+
+  const sortable = leaves.filter(col => col.sortable === true)
 
   const group = createGroup({ multiple: sortMultiple })
 
@@ -390,20 +417,20 @@ export function createDataTable<T extends Record<string, unknown>> (
     reset,
   }
 
-  const filterable = columns
+  const filterable = leaves
     .filter(col => col.filterable === true)
     .map(col => col.key)
 
-  // Build per-column custom sort comparators
-  const customSorts: Partial<Record<keyof T & string, (a: unknown, b: unknown) => number>> = {}
-  for (const col of columns) {
-    if (col.sort) customSorts[col.key] = col.sort
+  // Build per-column sort comparators
+  const sorts: Partial<Record<string, (a: unknown, b: unknown) => number>> = {}
+  for (const col of leaves) {
+    if (col.sort) sorts[col.key] = col.sort
   }
 
-  // Build per-column custom filter functions
-  const customColumnFilters: Partial<Record<keyof T & string, (value: unknown, query: string) => boolean>> = {}
-  for (const col of columns) {
-    if (col.filter) customColumnFilters[col.key] = col.filter
+  // Build per-column filter functions
+  const filters: Partial<Record<string, (value: unknown, query: string) => boolean>> = {}
+  for (const col of leaves) {
+    if (col.filter) filters[col.key] = col.filter
   }
 
   const {
@@ -423,8 +450,8 @@ export function createDataTable<T extends Record<string, unknown>> (
     locale,
     filterOptions,
     paginationOptions,
-    customSorts,
-    customColumnFilters,
+    customSorts: sorts,
+    customColumnFilters: filters,
   })
 
   const selectedIds = shallowReactive(new Set<ID>())
@@ -544,7 +571,7 @@ export function createDataTable<T extends Record<string, unknown>> (
     },
   }
 
-  const openGroupKeys = shallowReactive(new Set<string>())
+  const opened = shallowReactive(new Set<string>())
 
   const groups = computed<DataTableGroup<T>[]>(() => {
     if (!groupBy) return []
@@ -572,7 +599,7 @@ export function createDataTable<T extends Record<string, unknown>> (
 
   if (enroll) {
     for (const group of groups.value) {
-      openGroupKeys.add(group.key)
+      opened.add(group.key)
     }
 
     // Async items may not be available yet — watch for first non-empty groups
@@ -580,7 +607,7 @@ export function createDataTable<T extends Record<string, unknown>> (
       const stop = watch(groups, newGroups => {
         if (newGroups.length === 0) return
         for (const group of newGroups) {
-          openGroupKeys.add(group.key)
+          opened.add(group.key)
         }
         stop()
       })
@@ -590,28 +617,28 @@ export function createDataTable<T extends Record<string, unknown>> (
   const grouping: DataTableGrouping<T> = {
     groups,
     toggle (groupKey: string) {
-      if (openGroupKeys.has(groupKey)) {
-        openGroupKeys.delete(groupKey)
+      if (opened.has(groupKey)) {
+        opened.delete(groupKey)
       } else {
-        openGroupKeys.add(groupKey)
+        opened.add(groupKey)
       }
     },
     isOpen (groupKey: string) {
-      return openGroupKeys.has(groupKey)
+      return opened.has(groupKey)
     },
     open (groupKey: string) {
-      openGroupKeys.add(groupKey)
+      opened.add(groupKey)
     },
     close (groupKey: string) {
-      openGroupKeys.delete(groupKey)
+      opened.delete(groupKey)
     },
     openAll () {
       for (const group of groups.value) {
-        openGroupKeys.add(group.key)
+        opened.add(group.key)
       }
     },
     closeAll () {
-      openGroupKeys.clear()
+      opened.clear()
     },
   }
 
@@ -621,6 +648,8 @@ export function createDataTable<T extends Record<string, unknown>> (
     filteredItems,
     sortedItems,
     columns,
+    leaves,
+    headers,
     search,
     query: _query as Readonly<ShallowRef<string>>,
     sort,
@@ -663,14 +692,9 @@ export function createDataTableContext<T extends Record<string, unknown>> (
   _options: DataTableContextOptions<T>,
 ): ContextTrinity<DataTableContext<T>> {
   const { namespace = 'v0:data-table', ...options } = _options
-  const [useDataTableContext, _provideDataTableContext] = createContext<DataTableContext<T>>(namespace)
   const context = createDataTable(options)
 
-  function provideDataTableContext (_context: DataTableContext<T> = context, app?: App): DataTableContext<T> {
-    return _provideDataTableContext(_context, app)
-  }
-
-  return createTrinity<DataTableContext<T>>(useDataTableContext, provideDataTableContext, context)
+  return createTrinity<DataTableContext<T>>(namespace, context)
 }
 
 /**

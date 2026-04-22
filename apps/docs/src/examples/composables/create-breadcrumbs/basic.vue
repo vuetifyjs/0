@@ -1,8 +1,9 @@
 <script setup lang="ts">
-  import { computed } from 'vue'
-  import { createBreadcrumbs } from '@vuetify/v0'
+  import { toRef } from 'vue'
+  import { createBreadcrumbs, useProxyRegistry } from '@vuetify/v0'
 
   const breadcrumbs = createBreadcrumbs()
+  const proxy = useProxyRegistry(breadcrumbs)
 
   const path = [
     { text: 'Home' },
@@ -15,7 +16,7 @@
 
   breadcrumbs.onboard(path)
 
-  const items = computed(() => breadcrumbs.values())
+  const items = toRef(() => proxy.values)
 
   function reset () {
     breadcrumbs.clear()

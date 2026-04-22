@@ -1,6 +1,8 @@
 /**
  * @module TabsList
  *
+ * @see https://0.vuetifyjs.com/components/disclosure/tabs
+ *
  * @remarks
  * Container component for tab triggers. Provides the `tablist` ARIA role
  * and orientation attribute for accessibility. Does not manage state -
@@ -22,7 +24,7 @@
   import { useTabsRoot } from './TabsRoot.vue'
 
   // Utilities
-  import { toRef, toValue, useAttrs } from 'vue'
+  import { mergeProps, toRef, toValue, useAttrs } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -86,7 +88,7 @@
 
 <template>
   <Atom
-    v-bind="{ ...attrs, ...slotProps.attrs }"
+    v-bind="mergeProps(attrs, slotProps.attrs)"
     :as
     :renderless
   >

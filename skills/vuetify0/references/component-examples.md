@@ -2,6 +2,14 @@
 
 Real-world examples of v0 headless components with styling.
 
+## Contents
+
+- Tabs Component — compound root/list/item/panel pattern
+- Dialog Component — modal with scrim, focus trap, and portal
+- Popover Component — floating UI with anchor positioning
+- Checkbox Component — controlled + uncontrolled variants
+- Radio Component — grouped single-selection
+
 ## Tabs Component
 
 ### Basic Tabs

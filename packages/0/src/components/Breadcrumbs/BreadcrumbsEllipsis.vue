@@ -1,6 +1,8 @@
 /**
  * @module BreadcrumbsEllipsis
  *
+ * @see https://0.vuetifyjs.com/components/semantic/breadcrumbs
+ *
  * @remarks
  * Ellipsis indicator for truncated breadcrumb items. Registers with
  * BreadcrumbsRoot as type='ellipsis'. Root's watcher controls visibility
@@ -17,7 +19,7 @@
   import { useBreadcrumbsRoot } from './BreadcrumbsRoot.vue'
 
   // Utilities
-  import { onUnmounted, toRef, useTemplateRef, watch } from 'vue'
+  import { onBeforeUnmount, toRef, useTemplateRef, watch } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -86,7 +88,7 @@
     { immediate: true },
   )
 
-  onUnmounted(() => {
+  onBeforeUnmount(() => {
     context.ellipsisWidth.value = 0
     context.group.unregister(ticket.id)
   })

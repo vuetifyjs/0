@@ -1,32 +1,42 @@
 /**
- * @module useSingle
+ * @module createSingle
+ *
+ * @see https://0.vuetifyjs.com/composables/selection/create-single
  *
  * @remarks
- * Single-selection composable that extends useSelection to enforce only one selected item.
+ * Single-selection composable that extends createSelection to enforce only one selected item.
  *
  * Key features:
  * - Auto-clears previous selection when selecting new item
  * - Singular computed properties (selectedId, selectedItem, selectedIndex, selectedValue)
  * - Perfect for tabs, radio buttons, theme selectors
  *
- * Inheritance chain: useRegistry → useSelection → useSingle
+ * Inheritance chain: createRegistry → createSelection → createSingle
+ *
+ * @example
+ * ```ts
+ * import { createSingle } from '@vuetify/v0'
+ *
+ * const single = createSingle()
+ * const ticket = single.register({ value: 'tab-1' })
+ * single.select(ticket.id)
+ * console.log(single.selectedValue.value) // 'tab-1'
+ * ```
  */
 
-// Foundational
-import { createContext, useContext } from '#v0/composables/createContext'
+// Composables
+import { useContext } from '#v0/composables/createContext'
+import { createSelection } from '#v0/composables/createSelection'
 import { createTrinity } from '#v0/composables/createTrinity'
 
-// Composables
-import { createSelection } from '#v0/composables/createSelection'
-
 // Utilities
-import { computed } from 'vue'
+import { toRef } from 'vue'
 
 // Types
 import type { SelectionContext, SelectionContextOptions, SelectionOptions, SelectionTicket, SelectionTicketInput } from '#v0/composables/createSelection'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { ID } from '#v0/types'
-import type { App, ComputedRef } from 'vue'
+import type { ComputedRef } from 'vue'
 
 /**
  * Input type for single selection tickets.
@@ -89,9 +99,9 @@ export interface SingleContextOptions extends SelectionContextOptions {}
  * - `selectedValue`: The value of the selected item (undefined if none selected)
  *
  * **Inheritance Chain:**
- * `useRegistry` → `createSelection` → `createSingle` → `createStep`
+ * `createRegistry` → `createSelection` → `createSingle` → `createStep`
  *
- * @see https://0.vuetifyjs.com/composables/selection/use-single
+ * @see https://0.vuetifyjs.com/composables/selection/create-single
  *
  * @example
  * ```ts
@@ -135,19 +145,10 @@ export function createSingle<
   const { mandatory = false, multiple = false, ...options } = _options
   const registry = createSelection<Z, E>({ ...options, mandatory, multiple })
 
-  const selectedId = computed(() => registry.selectedIds.values().next().value)
-  const selectedItem = computed(() => registry.selectedItems.value.values().next().value)
-  const selectedIndex = computed(() => selectedItem.value?.index ?? -1)
-  const selectedValue = computed(() => selectedItem.value?.value)
-
-  function unselect (id: ID) {
-    registry.unselect(id)
-  }
-
-  function toggle (id: ID) {
-    if (registry.selectedIds.has(id)) unselect(id)
-    else registry.select(id)
-  }
+  const selectedId = toRef(() => registry.selectedIds.values().next().value)
+  const selectedItem = toRef(() => registry.selectedItems.value.values().next().value)
+  const selectedIndex = toRef(() => selectedItem.value?.index ?? -1)
+  const selectedValue = toRef(() => selectedItem.value?.value)
 
   return {
     ...registry,
@@ -155,8 +156,6 @@ export function createSingle<
     selectedItem,
     selectedIndex,
     selectedValue,
-    unselect,
-    toggle,
     get size () {
       return registry.size
     },
@@ -172,7 +171,7 @@ export function createSingle<
  * @template R The context type.
  * @returns A new single selection context.
  *
- * @see https://0.vuetifyjs.com/composables/selection/use-single
+ * @see https://0.vuetifyjs.com/composables/selection/create-single
  *
  * @example
  * ```ts
@@ -195,14 +194,9 @@ export function createSingleContext<
   R extends SingleContext<Z, E> = SingleContext<Z, E>,
 > (_options: SingleContextOptions = {}): ContextTrinity<R> {
   const { namespace = 'v0:single', ...options } = _options
-  const [useSingleContext, _provideSingleContext] = createContext<R>(namespace)
   const context = createSingle<Z, E, R>(options)
 
-  function provideSingleContext (_context: R = context, app?: App): R {
-    return _provideSingleContext(_context, app)
-  }
-
-  return createTrinity<R>(useSingleContext, provideSingleContext, context)
+  return createTrinity<R>(namespace, context)
 }
 
 /**
@@ -214,7 +208,7 @@ export function createSingleContext<
  * @template R The context type.
  * @returns The current single selection instance.
  *
- * @see https://0.vuetifyjs.com/composables/selection/use-single
+ * @see https://0.vuetifyjs.com/composables/selection/create-single
  *
  * @example
  * ```vue

@@ -1,5 +1,7 @@
 /**
- * @module useSelection
+ * @module createSelection
+ *
+ * @see https://0.vuetifyjs.com/composables/selection/create-selection
  *
  * @remarks
  * Selection composable that extends createModel with multi-select,
@@ -10,19 +12,28 @@
  * - Single or multi-select mode
  * - Mandatory selection mode (prevents deselecting last item)
  * - Auto-enrollment option (selects non-disabled items on register)
+ * - `MaybeRefOrGetter` support for `mandatory`, `multiple`, and `enroll` options
  * - Disabled item filtering
  * - Computed selectedItems and selectedValues Sets
  * - Ticket self-methods: select(), unselect(), toggle()
  *
- * Extends createModel and serves as the base for useSingle, useGroup, useStep, and useFeatures.
+ * Extends createModel and serves as the base for createSingle, createGroup, createStep, and useFeatures.
+ *
+ * @example
+ * ```ts
+ * import { createSelection } from '@vuetify/v0'
+ *
+ * const selection = createSelection({ multiple: true })
+ * const a = selection.register({ value: 'a' })
+ * const b = selection.register({ value: 'b' })
+ * selection.select([a.id, b.id])
+ * ```
  */
 
-// Foundational
-import { createContext, useContext } from '#v0/composables/createContext'
-import { createTrinity } from '#v0/composables/createTrinity'
-
 // Composables
+import { useContext } from '#v0/composables/createContext'
 import { createModel } from '#v0/composables/createModel'
+import { createTrinity } from '#v0/composables/createTrinity'
 
 // Utilities
 import { isUndefined, useId } from '#v0/utilities'
@@ -32,7 +43,7 @@ import { toRaw, toValue } from 'vue'
 import type { ModelContext, ModelOptions, ModelTicket, ModelTicketInput } from '#v0/composables/createModel'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { ID } from '#v0/types'
-import type { App, MaybeRefOrGetter } from 'vue'
+import type { MaybeRefOrGetter } from 'vue'
 
 /**
  * Input type for selection tickets - what users provide to register().
@@ -138,7 +149,7 @@ export interface SelectionContextOptions extends SelectionOptions {
  *
  * @remarks
  * **Key Features:**
- * - Multi-selection support (unlike `useSingle` which enforces single selection)
+ * - Multi-selection support (unlike `createSingle` which enforces single selection)
  * - Set-based `selectedIds` tracking for efficient lookups
  * - Computed `selectedItems` and `selectedValues` for reactive access
  * - Each ticket gets `isSelected`, `select()`, `unselect()`, and `toggle()` methods
@@ -150,7 +161,7 @@ export interface SelectionContextOptions extends SelectionOptions {
  * **Inheritance Chain:**
  * `createRegistry` → `createModel` → `createSelection` → `createSingle`/`createGroup` → `createStep`
  *
- * @see https://0.vuetifyjs.com/composables/selection/use-selection
+ * @see https://0.vuetifyjs.com/composables/selection/create-selection
  *
  * @example
  * ```ts
@@ -201,7 +212,7 @@ export function createSelection<
     ...options
   } = _options
 
-  const model = createModel<Z, E>({ ...options, enroll: false })
+  const model = createModel<Z, E>({ ...options, multiple, enroll: false })
 
   function seek (direction: 'first' | 'last' = 'first', from?: number): E | undefined {
     return model.seek(direction, from, (ticket: E) => !toValue(ticket.disabled))
@@ -212,17 +223,7 @@ export function createSelection<
 
     const ticket = seek('first')
 
-    if (ticket) select(ticket.id)
-  }
-
-  function select (id: ID) {
-    if (toValue(model.disabled)) return
-
-    const item = model.get(id)
-    if (!item || toValue(item.disabled)) return
-
-    if (!toValue(multiple)) model.selectedIds.clear()
-    model.selectedIds.add(id)
+    if (ticket) model.select(ticket.id)
   }
 
   function unselect (id: ID) {
@@ -236,7 +237,7 @@ export function createSelection<
     if (toValue(model.disabled)) return
 
     if (model.selectedIds.has(id)) unselect(id)
-    else select(id)
+    else model.select(id)
   }
 
   function apply (values: unknown[], options?: { multiple?: boolean }): void {
@@ -262,14 +263,14 @@ export function createSelection<
       const next = targetIds.values().next().value
       const last = currentIds.values().next().value
       if (!isUndefined(last)) unselect(last)
-      if (!isUndefined(next)) select(next)
+      if (!isUndefined(next)) model.select(next)
     }
   }
 
   function register (registration: Partial<Z> = {}): E {
     const id = registration.id ?? useId()
     const decorated: Partial<Z> = {
-      select: () => select(id),
+      select: () => model.select(id),
       unselect: () => unselect(id),
       toggle: () => toggle(id),
       ...registration,
@@ -279,7 +280,7 @@ export function createSelection<
     const ticket = model.register(decorated)
 
     if (toValue(enroll) && !toValue(model.disabled) && !toValue(ticket.disabled)) {
-      select(ticket.id)
+      model.select(ticket.id)
     }
     if (toValue(mandatory) === 'force') mandate()
 
@@ -297,7 +298,6 @@ export function createSelection<
     multiple,
     register,
     onboard,
-    select,
     unselect,
     toggle,
     apply,
@@ -318,7 +318,7 @@ export function createSelection<
  * @template R The context type. Defaults to SelectionContext<Z, E>.
  * @returns A new selection context.
  *
- * @see https://0.vuetifyjs.com/composables/selection/use-selection
+ * @see https://0.vuetifyjs.com/composables/selection/create-selection
  *
  * @example
  * ```ts
@@ -355,14 +355,9 @@ export function createSelectionContext<
   R extends SelectionContext<Z, E> = SelectionContext<Z, E>,
 > (_options: SelectionContextOptions = {}): ContextTrinity<R> {
   const { namespace = 'v0:selection', ...options } = _options
-  const [useSelectionContext, _provideSelectionContext] = createContext<R>(namespace)
   const context = createSelection<Z, E, R>(options)
 
-  function provideSelectionContext (_context: R = context, app?: App): R {
-    return _provideSelectionContext(_context, app)
-  }
-
-  return createTrinity<R>(useSelectionContext, provideSelectionContext, context)
+  return createTrinity<R>(namespace, context)
 }
 
 /**
@@ -374,7 +369,7 @@ export function createSelectionContext<
  * @template R The context type.
  * @returns The current selection instance.
  *
- * @see https://0.vuetifyjs.com/composables/selection/use-selection
+ * @see https://0.vuetifyjs.com/composables/selection/create-selection
  *
  * @example
  * ```vue

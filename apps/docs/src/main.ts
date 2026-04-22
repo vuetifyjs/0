@@ -1,4 +1,5 @@
 import { ViteSSG } from 'vite-ssg'
+import { handleHotUpdate } from 'vue-router/auto-routes'
 
 // Framework
 import { useLogger } from '@vuetify/v0'
@@ -20,6 +21,14 @@ export const createApp = ViteSSG(
   App,
   routerOptions,
   async ({ app, router, initialState }) => {
+    // Register router for HMR so vue-router/auto-routes doesn't hit the
+    // broken invalidate() path (Vite 8 virtual module regression). Force
+    // full reload in callback because setupLayouts wraps routes at build
+    // time — in-place HMR replacement bypasses layouts, losing contexts.
+    if (import.meta.hot) {
+      handleHotUpdate(router, () => window.location.reload())
+    }
+
     app.use(pinia)
 
     registerPlugins(app)

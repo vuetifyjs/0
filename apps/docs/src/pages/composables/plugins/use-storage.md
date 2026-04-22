@@ -11,14 +11,15 @@ features:
   github: /composables/useStorage/
   level: 2
 related:
+  - /composables/plugins/use-hydration
   - /guide/fundamentals/plugins
 ---
 
 # useStorage
 
-The `useStorage` composable provides reactive storage management with support for multiple storage backends (localStorage, sessionStorage, memory). Built with an adapter pattern for flexibility, it automatically serializes values, manages reactive refs, and provides SSR-safe operations.
-
 <DocsPageFeatures :frontmatter />
+
+Reactive storage with automatic serialization, caching, and SSR-safe operations.
 
 ## Installation
 
@@ -102,6 +103,16 @@ const users = cache.get('users', [])
 > [!TIP] How TTL works
 > When `ttl` is set, values are internally wrapped as `{ __ttl, __v, __t }` with a timestamp. On `get()`, if the entry is older than the TTL, it is treated as absent and removed from storage. Non-TTL entries stored previously are read normally.
 
+## Adapters
+
+Adapters let you swap the underlying storage backend without changing your application code.
+
+| Adapter | Import | Description |
+|---------|--------|-------------|
+| `localStorage` | — | Browser localStorage (default in browser) |
+| `sessionStorage` | — | Browser sessionStorage |
+| `MemoryAdapter` | `@vuetify/v0/storage/adapters/memory` | In-memory storage (default in SSR) |
+
 ## Architecture
 
 `useStorage` uses the plugin pattern with storage adapters:
@@ -121,8 +132,23 @@ The `get()` method returns reactive refs that sync with storage automatically.
 | Property | Reactive | Notes |
 | - | :-: | - |
 | `get()` return value | <AppSuccessIcon /> | Returns `Ref<T>` synced with storage |
+| `has()` | <AppErrorIcon /> | Returns `boolean` — checks if key exists (TTL-aware) |
 
 > [!TIP] Auto-persistence
 > Refs returned by `get()` are watched with `{ deep: true }`. Any changes to the ref value automatically persist to storage.
+
+> [!TIP] Empty strings are preserved
+> `get()` uses nullish coalescing (`??`) internally, so an empty string `''` is a valid stored value — it is never treated as absent or replaced by the default. Only `null` and `undefined` trigger the default.
+
+## Examples
+
+::: example
+/composables/use-storage/persistent-settings
+
+### Persistent Settings
+
+A settings panel that survives page refreshes using `useStorage` with a memory adapter, showing reactive `get()` refs with deep-watch auto-persistence.
+
+:::
 
 <DocsApi />

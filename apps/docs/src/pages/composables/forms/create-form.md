@@ -11,6 +11,8 @@ features:
   github: /composables/createForm/
   level: 3
 related:
+  - /components/forms/form
+  - /composables/forms/create-input
   - /composables/forms/create-validation
   - /composables/plugins/use-rules
   - /composables/registration/create-registry
@@ -18,7 +20,7 @@ related:
 
 # createForm
 
-Coordinates validation across multiple inputs. A pure registry of `createValidation` instances — it provides `submit()`, `reset()`, and aggregate `isValid`/`isValidating` state. Per-input validation logic lives in `createValidation`. The form is the mothership — it coordinates, not creates.
+Coordinates validation across multiple inputs. Provides `submit()`, `reset()`, and aggregate validity state.
 
 <DocsPageFeatures :frontmatter />
 
@@ -86,6 +88,33 @@ import { useForm } from '@vuetify/v0'
 const form = useForm() // Returns undefined if no parent form
 ```
 
+## Context / DI
+
+Use `createFormContext` to share a form instance across a component tree:
+
+```ts
+import { createFormContext } from '@vuetify/v0'
+
+export const [useContactForm, provideContactForm, contactForm] =
+  createFormContext({ namespace: 'app:contact-form' })
+
+// In parent component (e.g., ContactForm.vue)
+provideContactForm()
+
+// In any child component (e.g., submit button, field)
+const form = useContactForm()
+await form.submit()
+```
+
+Validations inside the component tree auto-register with the provided form — no manual `form.register()` needed.
+
+## Options
+
+| Option | Type | Default | Notes |
+| - | - | - | - |
+| `disabled` | `MaybeRefOrGetter<boolean>` | `false` | When truthy, child components should disable interaction. Read via `form.disabled` |
+| `readonly` | `MaybeRefOrGetter<boolean>` | `false` | When truthy, child components should prevent editing. Read via `form.readonly` |
+
 ## Architecture
 
 `createForm` is a pure registry. Validations register with it for coordination:
@@ -109,5 +138,16 @@ Form-level state is fully reactive.
 | `isValidating` | <AppSuccessIcon /> | Computed from all registered validations |
 | `disabled` | <AppSuccessIcon /> | ShallowRef, read by components |
 | `readonly` | <AppSuccessIcon /> | ShallowRef, read by components |
+
+## Examples
+
+::: example
+/composables/create-form/contact-form
+
+### Contact Form
+
+A contact form with field validation using `createValidation`, demonstrating `submit()`, `reset()`, and aggregate `isValid`/`isValidating` state.
+
+:::
 
 <DocsApi />

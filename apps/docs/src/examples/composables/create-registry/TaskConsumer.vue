@@ -1,6 +1,6 @@
 <script setup lang="ts">
   import { computed, shallowRef } from 'vue'
-  import { Checkbox } from '@vuetify/v0'
+  import { Checkbox, Select } from '@vuetify/v0'
   import { useTaskRegistry } from './context'
 
   import type { TaskTicket } from './context'
@@ -10,6 +10,12 @@
   const newTask = shallowRef('')
   const newPriority = shallowRef<TaskTicket['priority']>('medium')
   const filterPriority = shallowRef<TaskTicket['priority'] | 'all'>('all')
+
+  const priorities = [
+    { id: 'high', label: 'High' },
+    { id: 'medium', label: 'Medium' },
+    { id: 'low', label: 'Low' },
+  ] as const
 
   const filteredTasks = computed(() => {
     if (filterPriority.value === 'all') return tasks.value
@@ -50,14 +56,37 @@
 
     <!-- Add task -->
     <div class="flex gap-2">
-      <select
-        v-model="newPriority"
-        class="px-2 py-1.5 text-xs rounded-lg border border-divider bg-surface text-on-surface"
+      <Select.Root
+        mandatory
+        :model-value="newPriority"
+        @update:model-value="newPriority = $event as TaskTicket['priority']"
       >
-        <option value="high">High</option>
-        <option value="medium">Medium</option>
-        <option value="low">Low</option>
-      </select>
+        <Select.Activator class="inline-flex items-center gap-1 px-2 py-1.5 text-xs rounded-lg border border-divider bg-surface text-on-surface cursor-pointer">
+          <Select.Value v-slot="{ selectedValue }">{{ priorities.find(p => p.id === selectedValue)?.label }}</Select.Value>
+          <Select.Cue v-slot="{ isOpen }" class="text-[10px] opacity-50">{{ isOpen ? '&#x25B4;' : '&#x25BE;' }}</Select.Cue>
+        </Select.Activator>
+
+        <Select.Content class="p-1 rounded-lg border border-divider bg-surface shadow-lg" :style="{ minWidth: 'anchor-size(width)' }">
+          <Select.Item
+            v-for="p in priorities"
+            :id="p.id"
+            :key="p.id"
+            v-slot="{ isSelected, isHighlighted }"
+            :value="p.id"
+          >
+            <div
+              class="px-3 py-1.5 rounded-md cursor-default select-none text-xs"
+              :class="[
+                isHighlighted ? 'bg-primary text-on-primary'
+                : isSelected ? 'text-primary font-medium'
+                  : 'text-on-surface hover:bg-surface-variant',
+              ]"
+            >
+              {{ p.label }}
+            </div>
+          </Select.Item>
+        </Select.Content>
+      </Select.Root>
       <input
         v-model="newTask"
         class="flex-1 px-3 py-1.5 text-sm rounded-lg border border-divider bg-surface text-on-surface placeholder:text-on-surface-variant outline-none focus:border-primary"

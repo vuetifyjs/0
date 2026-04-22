@@ -1,7 +1,4 @@
 <script setup lang="ts">
-  // Components
-  import { Discovery } from '@/components/discovery'
-
   // Composables
   import { useLevelFilterContext } from '@/composables/useLevelFilter'
 
@@ -15,7 +12,7 @@
 </script>
 
 <template>
-  <Discovery.Activator as="section" class="rounded-lg" :padding="8" step="skill-level">
+  <section>
     <h3 class="flex items-center gap-2 text-sm font-medium text-on-surface-variant mb-3">
       <AppIcon icon="tune" size="16" />
       <span>Skill Level</span>
@@ -43,5 +40,5 @@
     <p class="text-xs text-on-surface-variant/60 mt-2">
       Filter documentation by complexity level
     </p>
-  </Discovery.Activator>
+  </section>
 </template>

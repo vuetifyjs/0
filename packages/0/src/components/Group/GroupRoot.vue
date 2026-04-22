@@ -1,6 +1,8 @@
 /**
  * @module GroupRoot
  *
+ * @see https://0.vuetifyjs.com/components/providers/group
+ *
  * @remarks
  * Root component for multi-selection groups with tri-state support. Creates
  * and provides group context to child GroupItem components. Supports batch
@@ -8,7 +10,7 @@
  */
 
 <script lang="ts">
-  // Foundational
+  // Composables
   import { createContext } from '#v0/composables/createContext'
 
   // Types

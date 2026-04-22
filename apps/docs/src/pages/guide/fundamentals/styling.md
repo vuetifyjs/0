@@ -64,6 +64,11 @@ Use the `data-[attr]:` [variant](https://unocss.dev/transformers/variant-group) 
 
 ::: example
 /guide/styling/data-attributes
+
+### Tailwind / UnoCSS Data Attributes
+
+Tabs styled with utility classes using `data-[selected]:bg-primary` attribute selectors.
+
 :::
 
 ### CSS Modules
@@ -72,6 +77,11 @@ Target data attributes in your [module styles](https://vuejs.org/api/sfc-css-fea
 
 ::: example
 /guide/styling/css-modules
+
+### CSS Modules
+
+Tabs styled with CSS modules targeting `[data-selected]` in scoped styles.
+
 :::
 
 ### Plain CSS
@@ -106,6 +116,11 @@ Standard [attribute selectors](https://developer.mozilla.org/en-US/docs/Web/CSS/
 
 ::: example
 /guide/styling/slot-props
+
+### Slot Props
+
+Selection items styled using reactive slot props (`isSelected`, `attrs`) for conditional classes and checkmarks.
+
 :::
 
 > [!WARNING]
@@ -119,6 +134,11 @@ Add CSS transitions for smooth state changes:
 
 ::: example
 /guide/styling/transitions
+
+### CSS Transitions
+
+Tabs with fade, scale, and shadow transitions on state change.
+
 :::
 
 ### Focus States
@@ -143,6 +163,11 @@ Style combinations using CSS attribute selectors:
 
 ::: example
 /guide/styling/compound-states
+
+### Compound State Selectors
+
+Selection items demonstrating combined state styling (normal, disabled, disabled-selected) via compound attribute selectors.
+
 :::
 
 ### Parent-Child Styling

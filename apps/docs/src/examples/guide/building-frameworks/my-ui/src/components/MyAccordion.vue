@@ -18,8 +18,8 @@
 </script>
 
 <template>
-  <ExpansionPanel.Root v-model="model" class="my-accordion" :multiple>
-    <ExpansionPanel.Item
+  <ExpansionPanel.Group v-model="model" class="my-accordion" :multiple>
+    <ExpansionPanel.Root
       v-for="item in items"
       :key="item.value"
       v-slot="{ isSelected }"
@@ -49,8 +49,8 @@
       <ExpansionPanel.Content class="my-accordion__content">
         <slot :name="item.value" />
       </ExpansionPanel.Content>
-    </ExpansionPanel.Item>
-  </ExpansionPanel.Root>
+    </ExpansionPanel.Root>
+  </ExpansionPanel.Group>
 </template>
 
 <style>

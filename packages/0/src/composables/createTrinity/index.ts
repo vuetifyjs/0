@@ -9,7 +9,21 @@
  * The trinity pattern returns a readonly tuple of [useContext, provideContext, defaultContext],
  * enabling flexible dependency injection with sensible defaults. This pattern is fundamental
  * to all registry-based composables.
+ *
+ * @example
+ * ```ts
+ * import { createTrinity } from '@vuetify/v0'
+ *
+ * const [useMyContext, provideMyContext, defaultContext] =
+ *   createTrinity('my-context', { foo: 'bar' })
+ * ```
  */
+
+// Composables
+import { createContext } from '#v0/composables/createContext'
+
+// Utilities
+import { isString } from '#v0/utilities'
 
 // Types
 import type { App } from 'vue'
@@ -37,35 +51,54 @@ export type ContextTrinity<Z = unknown> = readonly [
  *
  * The returned tuple is readonly (using `as const`) to ensure proper type inference.
  *
- * @see https://0.vuetifyjs.com/composables/foundation/create-trinity#create-trinity
+ * @see https://0.vuetifyjs.com/composables/foundation/create-trinity
  *
  * @example
  * ```ts
- * interface MyContext {
- *   foo: string
- *   bar: number
+ * // Simplified — key + context
+ * export function createMyFeature() {
+ *   const context = { foo: 'hello', bar: 42 }
+ *   return createTrinity('my-context', context)
  * }
  *
+ * // Explicit — useContext + provideContext + context
  * export function createMyFeature<E extends MyContext = MyContext>() {
- *   const [useContext, _provideContext] = createContext<E>('my-context')
- *
+ *   const [useContext, provideContext] = createContext<E>('my-context')
  *   const context = { foo: 'hello', bar: 42 }
- *
- *   function provideContext (_context: E = context, app?: App): E {
- *     return _provideContext(_context, app)
- *   }
- *
  *   return createTrinity<E>(useContext, provideContext, context)
  * }
  * ```
  */
 export function createTrinity<Z = unknown> (
-  useContext: () => Z,
-  provideContext: (_context?: Z, app?: App) => Z,
+  key: string,
   context: Z,
+): ContextTrinity<Z>
+export function createTrinity<Z = unknown> (
+  useContext: () => Z,
+  provideContext: (context: Z, app?: App) => Z,
+  context: Z,
+): ContextTrinity<Z>
+export function createTrinity<Z = unknown> (
+  keyOrUseContext: string | (() => Z),
+  provideContextOrContext: ((context: Z, app?: App) => Z) | Z,
+  maybeContext?: Z,
 ): ContextTrinity<Z> {
+  if (isString(keyOrUseContext)) {
+    const [useContext, provideContext] = createContext<Z>(keyOrUseContext)
+    const context = provideContextOrContext as Z
+
+    return [
+      useContext,
+      (_context: Z = context, app?: App): Z => provideContext(_context, app),
+      context,
+    ] as const
+  }
+
+  const provideContext = provideContextOrContext as (context: Z, app?: App) => Z
+  const context = maybeContext as Z
+
   return [
-    useContext,
+    keyOrUseContext,
     (_context: Z = context, app?: App): Z => provideContext(_context, app),
     context,
   ] as const

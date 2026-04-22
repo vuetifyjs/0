@@ -1061,12 +1061,12 @@ describe('createGroupContext', () => {
 
   it('should create context with custom namespace', () => {
     const [, provideGroupContext, context] = createGroupContext({
-      namespace: 'my-selection',
+      namespace: 'test:my-selection',
     })
 
     provideGroupContext(context)
 
-    expect(mockProvide).toHaveBeenCalledWith('my-selection', context)
+    expect(mockProvide).toHaveBeenCalledWith('test:my-selection', context)
   })
 
   it('should create a functional group context', () => {
@@ -1125,9 +1125,9 @@ describe('useGroup consumer', () => {
     const mockContext = createGroup()
     mockInject.mockReturnValue(mockContext)
 
-    const result = useGroup('my-selection')
+    const result = useGroup('test:my-selection')
 
-    expect(mockInject).toHaveBeenCalledWith('my-selection', undefined)
+    expect(mockInject).toHaveBeenCalledWith('test:my-selection', undefined)
     expect(result).toBe(mockContext)
   })
 

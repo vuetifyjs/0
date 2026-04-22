@@ -1,6 +1,8 @@
 /**
  * @module TabsRoot
  *
+ * @see https://0.vuetifyjs.com/components/disclosure/tabs
+ *
  * @remarks
  * Root component for tabs navigation. Creates and provides step context
  * to child TabsItem and TabsPanel components. Supports horizontal/vertical
@@ -8,7 +10,7 @@
  */
 
 <script lang="ts">
-  // Foundational
+  // Composables
   import { createContext } from '#v0/composables/createContext'
 
   // Types
@@ -102,7 +104,8 @@
   import { useProxyModel } from '#v0/composables/useProxyModel'
 
   // Utilities
-  import { toRef, toValue, useId } from 'vue'
+  import { useId } from '#v0/utilities'
+  import { toRef, toValue } from 'vue'
 
   defineOptions({ name: 'TabsRoot' })
 

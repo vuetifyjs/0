@@ -2,6 +2,17 @@
 
 Detailed API documentation for `@vuetify/v0` composables, components, utilities, and plugins.
 
+## Contents
+
+- Composables (selection, forms, foundation, registration, data)
+- Browser & Environment (breakpoints, media queries, storage)
+- DOM Observation (resize, intersection, mutation observers)
+- Event Handling (click outside, hotkeys, event listeners)
+- Headless Components (Tabs, Dialog, Popover, Form, Checkbox, Radio, Pagination)
+- Utility Functions (mergeDeep, clamp, range, useId)
+- Type Guards (isString, isObject, isNullOrUndefined, etc.)
+- Plugins (theme, locale, features, permissions, logger, stack, notifications)
+
 ---
 
 ## Composables
@@ -400,7 +411,6 @@ import {
   mergeDeep,
   clamp,
   range,
-  debounce,
   useId
 } from '@vuetify/v0/utilities'
 
@@ -413,11 +423,6 @@ const clamped = clamp(value, 0, 100)
 // Create number array
 const nums = range(5) // [0, 1, 2, 3, 4]
 const nums2 = range(5, 1) // [1, 2, 3, 4, 5]
-
-// Debounce with controls
-const search = debounce(query, 300)
-search.clear()
-search.immediate()
 
 // SSR-safe unique ID
 const id = useId()

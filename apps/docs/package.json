@@ -1,6 +1,6 @@
 {
   "name": "@vuetify-private/docs",
-  "version": "0.1.8",
+  "version": "1.0.0-alpha.1",
   "private": true,
   "type": "module",
   "scripts": {
@@ -10,13 +10,17 @@
   },
   "devDependencies": {
     "@octokit/openapi-types": "catalog:",
+    "@resvg/resvg-js": "catalog:",
     "@shikijs/langs": "catalog:",
     "@shikijs/markdown-it": "catalog:",
     "@shikijs/themes": "catalog:",
+    "@types/markdown-it": "catalog:",
     "@types/markdown-it-attrs": "catalog:",
     "@unhead/vue": "catalog:",
+    "markdown-it": "catalog:",
     "markdown-it-anchor": "catalog:",
     "markdown-it-attrs": "catalog:",
+    "satori": "catalog:",
     "shiki": "catalog:",
     "ts-morph": "catalog:",
     "tsx": "catalog:",

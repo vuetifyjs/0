@@ -134,8 +134,8 @@ async function getBenchmarksData (): Promise<Record<string, BenchmarkSummary[]>>
 
     for (const file of data.files || []) {
       // Extract composable name from filepath
-      // e.g., ".../useFilter/index.bench.ts" -> "use-filter"
-      const match = file.filepath.match(/\/(use[A-Z][a-zA-Z]+)\//)
+      // e.g., ".../createFilter/index.bench.ts" -> "create-filter"
+      const match = file.filepath.match(/\/((?:use|create)[A-Z][a-zA-Z]+)\//)
       if (!match) continue
 
       const composableName = match[1]
@@ -169,7 +169,7 @@ async function getBenchmarksData (): Promise<Record<string, BenchmarkSummary[]>>
 /** Extract the page slug from path for matching examples/api */
 function getPageSlug (path: string): string | null {
   // /components/*/step -> step
-  // /composables/*/use-selection -> use-selection
+  // /composables/*/create-selection -> create-selection
   const match = path.match(/\/(components|composables)\/[^/]+\/([^/]+)/)
   return match?.[2] ?? null
 }

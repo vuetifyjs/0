@@ -1,0 +1,22 @@
+<script setup lang="ts">
+  import { Progress } from '@vuetify/v0'
+
+  const { buffer = 0 } = defineProps<{
+    buffer?: number
+  }>()
+
+  const model = defineModel<number>({ default: 0 })
+</script>
+
+<template>
+  <Progress.Root v-model="model">
+    <Progress.Track class="relative h-1 w-full overflow-hidden rounded-full bg-surface-variant">
+      <Progress.Buffer
+        class="absolute inset-y-0 left-0 rounded-full bg-on-surface/20"
+        :value="buffer"
+      />
+
+      <Progress.Fill class="absolute inset-y-0 left-0 rounded-full bg-red-500" />
+    </Progress.Track>
+  </Progress.Root>
+</template>

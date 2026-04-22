@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { renderToString } from 'vue/server-renderer'
 
 // Utilities
-import { mount } from '@vue/test-utils'
+import { flushPromises, mount } from '@vue/test-utils'
 import { createSSRApp, defineComponent, h, nextTick, ref } from 'vue'
 
 // Types
@@ -349,6 +349,34 @@ describe('input', () => {
 
       expect(props().isPristine).toBe(true)
     })
+
+    it('should not re-trigger validation after reset with validateOn input', async () => {
+      const model = ref('')
+      function rule (v: unknown) {
+        return !!v || 'Required'
+      }
+      const { wrapper, props, wait } = mountInput({
+        model,
+        props: { rules: [rule], validateOn: 'input' },
+      })
+
+      // Type something then clear to trigger validation errors
+      await wrapper.setProps({ modelValue: 'hello' })
+      await wait()
+      await wait()
+      await wrapper.setProps({ modelValue: '' })
+      await wait()
+      await wait()
+      expect(props().errors.length).toBeGreaterThan(0)
+
+      // Reset should clear errors and NOT re-validate
+      props().reset()
+      await wait()
+      await wait()
+
+      expect(props().errors.length).toBe(0)
+      expect(props().isValid).toBeNull()
+    })
   })
 
   describe('error prop', () => {
@@ -507,6 +535,249 @@ describe('input', () => {
       const control = wrapper.find('input')
 
       expect(control.exists()).toBe(true)
+    })
+  })
+
+  describe('focus and blur', () => {
+    it('should set isFocused on focus and unset on blur', async () => {
+      const { wrapper, props, wait } = mountInput()
+      const control = wrapper.find('input')
+
+      await control.trigger('focus')
+      await wait()
+
+      expect(props().isFocused).toBe(true)
+
+      await control.trigger('blur')
+      await wait()
+
+      expect(props().isFocused).toBe(false)
+    })
+
+    it('should set data-focused when focused', async () => {
+      const { wrapper, props, wait } = mountInput()
+      const control = wrapper.find('input')
+
+      await control.trigger('focus')
+      await wait()
+
+      expect(props().attrs['data-focused']).toBe(true)
+
+      await control.trigger('blur')
+      await wait()
+
+      expect(props().attrs['data-focused']).toBeUndefined()
+    })
+
+    it('should validate on blur with default validateOn', async () => {
+      const model = ref('')
+      const { wrapper, props, wait } = mountInput({
+        model,
+        props: {
+          rules: [(v: string) => !!v || 'Required'],
+        },
+      })
+
+      const control = wrapper.find('input')
+
+      // Focus then blur to trigger validation
+      await control.trigger('focus')
+      await wait()
+      await control.trigger('blur')
+      await wait()
+      await flushPromises()
+
+      expect(props().isValid).toBe(false)
+      expect(props().errors).toContain('Required')
+    })
+  })
+
+  describe('validateOn', () => {
+    it('should validate on input when validateOn is input', async () => {
+      const model = ref('')
+      const { wrapper, props, wait } = mountInput({
+        model,
+        props: {
+          rules: [(v: string) => !!v || 'Required'],
+          validateOn: 'input',
+        },
+      })
+
+      // Change value to trigger input validation
+      await wrapper.setProps({ modelValue: 'hello' })
+      await wait()
+      await flushPromises()
+      await wrapper.setProps({ modelValue: '' })
+      await wait()
+      await flushPromises()
+
+      expect(props().isValid).toBe(false)
+      expect(props().errors).toContain('Required')
+    })
+
+    it('should not validate on blur when validateOn is submit', async () => {
+      const model = ref('')
+      const { wrapper, props, wait } = mountInput({
+        model,
+        props: {
+          rules: [(v: string) => !!v || 'Required'],
+          validateOn: 'submit',
+        },
+      })
+
+      const control = wrapper.find('input')
+
+      await control.trigger('focus')
+      await wait()
+      await control.trigger('blur')
+      await wait()
+
+      // Should not validate since validateOn is submit
+      expect(props().isValid).toBeNull()
+    })
+
+    it('should defer validation with lazy modifier until touched', async () => {
+      const model = ref('')
+      const { wrapper, props, wait } = mountInput({
+        model,
+        props: {
+          rules: [(v: string) => !!v || 'Required'],
+          validateOn: 'blur lazy',
+        },
+      })
+
+      const control = wrapper.find('input')
+
+      // First blur without prior focus — not yet touched
+      await control.trigger('focus')
+      await wait()
+      await control.trigger('blur')
+      await wait()
+
+      // After first blur, isTouched becomes true, so validation should fire
+      expect(props().isValid).toBe(false)
+    })
+
+    it('should validate eagerly when invalid with eager modifier', async () => {
+      const model = ref('')
+      const { wrapper, props, wait } = mountInput({
+        model,
+        props: {
+          rules: [(v: string) => !!v || 'Required'],
+          validateOn: 'blur eager',
+        },
+      })
+
+      const control = wrapper.find('input')
+
+      // First blur triggers validation (default event is blur)
+      await control.trigger('focus')
+      await wait()
+      await control.trigger('blur')
+      await wait()
+      await flushPromises()
+
+      expect(props().isValid).toBe(false)
+
+      // Now that it's invalid, eager modifier should trigger on input changes
+      await wrapper.setProps({ modelValue: 'hello' })
+      await wait()
+      await flushPromises()
+
+      // Eager re-validates because isValid was false
+      expect(props().isValid).toBe(true)
+    })
+
+    it('should parse lazy input modifier', async () => {
+      const model = ref('initial')
+      const { wrapper, props, wait } = mountInput({
+        model,
+        props: {
+          rules: [(v: string) => v.length >= 3 || 'Too short'],
+          validateOn: 'lazy input',
+        },
+      })
+
+      // Before being touched, input changes should not validate
+      await wrapper.setProps({ modelValue: 'ab' })
+      await wait()
+      await flushPromises()
+
+      expect(props().isValid).toBeNull()
+
+      // Touch by focusing and blurring
+      const control = wrapper.find('input')
+      await control.trigger('focus')
+      await wait()
+      await control.trigger('blur')
+      await wait()
+
+      // Now input changes should validate since touched
+      await wrapper.setProps({ modelValue: 'a' })
+      await wait()
+      await flushPromises()
+
+      expect(props().isValid).toBe(false)
+    })
+
+    it('should parse eager input modifier', async () => {
+      const model = ref('')
+      const { wrapper, props, wait } = mountInput({
+        model,
+        props: {
+          rules: [(v: string) => !!v || 'Required'],
+          validateOn: 'eager input',
+        },
+      })
+
+      // Initial input change — eager only triggers when already invalid
+      await wrapper.setProps({ modelValue: 'a' })
+      await wait()
+
+      // Not invalid yet, so eager doesn't trigger
+      expect(props().isValid).toBeNull()
+    })
+
+    it('should parse submit lazy modifier', async () => {
+      const model = ref('')
+      const { wrapper, props, wait } = mountInput({
+        model,
+        props: {
+          rules: [(v: string) => !!v || 'Required'],
+          validateOn: 'submit lazy',
+        },
+      })
+
+      const control = wrapper.find('input')
+
+      // Blur should not validate with submit event
+      await control.trigger('focus')
+      await wait()
+      await control.trigger('blur')
+      await wait()
+
+      expect(props().isValid).toBeNull()
+
+      // Input changes should not validate with submit event
+      await wrapper.setProps({ modelValue: 'test' })
+      await wait()
+
+      expect(props().isValid).toBeNull()
+    })
+  })
+
+  describe('input control events', () => {
+    it('should update model via native input event', async () => {
+      const model = ref('')
+      const { wrapper, wait } = mountInput({ model })
+
+      const control = wrapper.find('input')
+      const input = control.element as HTMLInputElement
+      input.value = 'typed'
+      await control.trigger('input')
+      await wait()
+
+      expect(model.value).toBe('typed')
     })
   })
 

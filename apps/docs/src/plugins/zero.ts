@@ -1,18 +1,16 @@
-import posthog from 'posthog-js'
-
 // Framework
-import { createBreakpointsPlugin, createDatePlugin, createFeaturesPlugin, createHydrationPlugin, createLocalePlugin, createLoggerPlugin, createPermissionsPlugin, createRtlPlugin, createStackPlugin, createStoragePlugin, createThemePlugin, IN_BROWSER, useStorage } from '@vuetify/v0'
+import { createBreakpointsPlugin, createDatePlugin, createFeaturesPlugin, createHydrationPlugin, createLocalePlugin, createLoggerPlugin, createPermissionsPlugin, createRtlPlugin, createStackPlugin, createStoragePlugin, createThemePlugin, IN_BROWSER, useFeatures, V0UnheadThemeAdapter } from '@vuetify/v0'
 import { Vuetify0DateAdapter } from '@vuetify/v0/date'
-import { PostHogFeatureAdapter } from '@vuetify/v0/features/adapters/posthog'
 
 // Composables
 import { createDiscoveryPlugin } from '@/composables/useDiscovery'
+import { useIdleCallback } from '@/composables/useIdleCallback'
 
 // Types
 import type { App } from 'vue'
 
 // Themes
-import { getAllThemeConfigs, themes, type ThemeId } from '@/themes'
+import { getAllThemeConfigs } from '@/themes'
 
 // Plugins
 import { createIconPlugin } from './icons'
@@ -26,12 +24,8 @@ export default function zero (app: App) {
   app.use(createStackPlugin())
   app.use(createDiscoveryPlugin())
 
-  if (IN_BROWSER) {
-    posthog.init('phc_NNCtIDpiEgt5TsyxTItPnU9dA14asv6OR6IziSLQa97', { api_host: 'https://app.posthog.com' })
-  }
   app.use(
     createFeaturesPlugin({
-      adapter: new PostHogFeatureAdapter(posthog),
       features: {
         devmode: {
           $value: IN_BROWSER ? localStorage.getItem('v0:devmode') === 'true' : false,
@@ -40,6 +34,20 @@ export default function zero (app: App) {
       },
     }),
   )
+
+  if (IN_BROWSER) {
+    useIdleCallback(async () => {
+      const [{ default: posthog }, { PostHogFeatureAdapter }] = await Promise.all([
+        import('posthog-js'),
+        import('@vuetify/v0/features/adapters/posthog'),
+      ])
+      posthog.init('phc_NNCtIDpiEgt5TsyxTItPnU9dA14asv6OR6IziSLQa97', { api_host: 'https://app.posthog.com' })
+      const adapter = new PostHogFeatureAdapter(posthog)
+      const features = app.runWithContext(() => useFeatures())
+      features.sync(adapter.setup(flags => features.sync(flags)))
+    }, 2000)
+  }
+
   app.use(
     createPermissionsPlugin({
       permissions: {
@@ -47,7 +55,7 @@ export default function zero (app: App) {
       },
     }),
   )
-  app.use(createRtlPlugin())
+  app.use(createRtlPlugin({ persist: true }))
   app.use(
     createLocalePlugin({
       default: 'en',
@@ -61,25 +69,11 @@ export default function zero (app: App) {
     }),
   )
 
-  function getSystemTheme (): 'light' | 'dark' {
-    if (!IN_BROWSER) return 'light'
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-  }
-
-  function resolveTheme (preference: string | null | undefined): ThemeId {
-    // Direct theme selection
-    if (preference && preference in themes) return preference as ThemeId
-    // 'system' or unknown/null preference resolves to system theme
-    return getSystemTheme()
-  }
-
-  // Read initial preference via app context (storage plugin already installed)
-  const themePreference = app.runWithContext(() => useStorage().get<string>('theme'))
-  const savedTheme = resolveTheme(themePreference.value)
-
   app.use(
     createThemePlugin({
-      default: savedTheme,
+      adapter: new V0UnheadThemeAdapter(),
+      persist: true,
+      default: 'dark',
       target: 'html',
       palette: {
         brand: {
@@ -91,6 +85,4 @@ export default function zero (app: App) {
       themes: getAllThemeConfigs(),
     }),
   )
-
-  // System theme change listener is handled by useThemeToggle composable
 }

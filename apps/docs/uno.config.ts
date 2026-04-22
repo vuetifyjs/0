@@ -10,6 +10,7 @@ export default defineConfig({
     // Glass effects
     'bg-glass-surface': '[background:var(--v0-glass-surface)] backdrop-blur-12',
     'bg-glass-warning': '[background:color-mix(in_srgb,var(--v0-warning)_70%,transparent)] backdrop-blur-12',
+    'bg-glass-primary': '[background:color-mix(in_srgb,var(--v0-primary)_70%,transparent)] backdrop-blur-12',
 
     // Layout
     'max-w-900': '[max-width:900px]',

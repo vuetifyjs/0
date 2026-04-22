@@ -1,6 +1,8 @@
 /**
  * @module StepItem
  *
+ * @see https://0.vuetifyjs.com/components/providers/step
+ *
  * @remarks
  * Item component for step/stepper contexts. Registers with parent StepRoot
  * and provides selection state and methods via scoped slot. Supports
@@ -47,6 +49,7 @@
       'aria-disabled': boolean
       'data-selected': true | undefined
       'data-disabled': true | undefined
+      'onClick': () => void
     }
   }
 </script>
@@ -56,7 +59,7 @@
   import { useStepRoot } from './StepRoot.vue'
 
   // Utilities
-  import { onUnmounted, toRef, toValue } from 'vue'
+  import { onBeforeUnmount, toRef, toValue } from 'vue'
 
   defineOptions({ name: 'StepItem' })
 
@@ -76,7 +79,7 @@
   const ticket = step.register({ id, value, disabled })
   const isDisabled = toRef(() => toValue(ticket.disabled) || toValue(step.disabled))
 
-  onUnmounted(() => {
+  onBeforeUnmount(() => {
     step.unregister(ticket.id)
   })
 
@@ -94,6 +97,7 @@
       'aria-disabled': toValue(isDisabled),
       'data-selected': toValue(ticket.isSelected) || undefined,
       'data-disabled': toValue(isDisabled) || undefined,
+      'onClick': ticket.toggle,
     },
   }))
 </script>

@@ -1,6 +1,8 @@
 /**
  * @module usePopover
  *
+ * @see https://0.vuetifyjs.com/composables/system/use-popover
+ *
  * @remarks
  * Composable for native popover API behavior with CSS anchor positioning.
  * Manages open/close state, anchor styles, content attributes, and
@@ -15,6 +17,15 @@
  *
  * Perfect for building select, combobox, tooltip, and menu components
  * without wrapping the Popover compound component.
+ *
+ * @example
+ * ```ts
+ * import { usePopover } from '@vuetify/v0'
+ *
+ * const popover = usePopover()
+ * popover.open()
+ * popover.toggle()
+ * ```
  */
 
 // Composables

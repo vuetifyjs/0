@@ -1,6 +1,6 @@
 {
   "name": "@vuetify-private/playground",
-  "version": "0.1.8",
+  "version": "1.0.0-alpha.1",
   "private": true,
   "type": "module",
   "scripts": {

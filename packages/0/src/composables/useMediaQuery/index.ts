@@ -7,6 +7,7 @@
  * Reactive media query composable with automatic cleanup.
  *
  * Key features:
+ * - Synchronous matchMedia read on client mount (prevents FOUC)
  * - Window matchMedia integration
  * - Reactive query string support
  * - SSR-safe (returns false on server)
@@ -15,6 +16,14 @@
  * - Supports both static and dynamic queries
  *
  * Perfect for responsive conditionals beyond breakpoint detection.
+ *
+ * @example
+ * ```ts
+ * import { useMediaQuery } from '@vuetify/v0'
+ *
+ * const { matches } = useMediaQuery('(prefers-color-scheme: dark)')
+ * console.log(matches.value) // true/false
+ * ```
  */
 
 // Constants
@@ -24,16 +33,16 @@ import { IN_BROWSER, SUPPORTS_MATCH_MEDIA } from '#v0/constants/globals'
 import { useHydration } from '#v0/composables/useHydration'
 
 // Utilities
-import { computed, onScopeDispose, shallowReadonly, shallowRef, toValue, watch } from 'vue'
+import { onScopeDispose, shallowReadonly, shallowRef, toRef, toValue, watch } from 'vue'
 
 // Types
-import type { ComputedRef, MaybeRefOrGetter, ShallowRef } from 'vue'
+import type { MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
 
 export interface MediaQueryContext {
   /** Whether the media query currently matches */
   readonly matches: Readonly<ShallowRef<boolean>>
   /** The current media query string */
-  readonly query: ComputedRef<string>
+  readonly query: Readonly<Ref<string>>
   /** The underlying MediaQueryList (null on server) */
   readonly mediaQueryList: Readonly<ShallowRef<MediaQueryList | null>>
   /** Stop listening and clean up */
@@ -63,17 +72,24 @@ export interface MediaQueryContext {
  * ```
  */
 export function useMediaQuery (query: MaybeRefOrGetter<string>): MediaQueryContext {
-  const matches = shallowRef(false)
-  const mediaQueryList = shallowRef<MediaQueryList | null>(null)
-  const resolvedQuery = computed(() => toValue(query))
-  const hydration = useHydration()
+  const resolvedQuery = toRef(() => toValue(query))
 
+  // Read matchMedia synchronously on the client so consumers get the real
+  // value immediately (e.g. usePrefersDark during theme resolution).
+  // Only the change *listener* is deferred until after hydration.
+  const initialQuery = toValue(query)
+  const initialMql = IN_BROWSER && SUPPORTS_MATCH_MEDIA
+    ? window.matchMedia(initialQuery)
+    : null
+  const matches = shallowRef(initialMql?.matches ?? false)
+  const mediaQueryList = shallowRef<MediaQueryList | null>(initialMql)
+
+  const hydration = useHydration()
   let cleanup: (() => void) | null = null
 
-  function update (): void {
+  function listen (): void {
     if (!IN_BROWSER || !SUPPORTS_MATCH_MEDIA) return
 
-    // Clean up previous listener
     cleanup?.()
     cleanup = null
 
@@ -89,14 +105,13 @@ export function useMediaQuery (query: MaybeRefOrGetter<string>): MediaQueryConte
     cleanup = () => mql.removeEventListener('change', handler)
   }
 
-  // Watch for query changes, defer until hydrated to prevent SSR mismatch.
-  // During SSR and hydration, matches stays false. Once hydration completes,
-  // the effect runs and updates to the actual media query value.
-  // Query changes during hydration are queued and applied after hydration.
+  // Defer the change listener until after hydration to avoid SSR mismatches
+  // from event-driven updates. The initial value is already correct from the
+  // synchronous matchMedia read above.
   const stopWatch = watch(
     [resolvedQuery, () => hydration.isHydrated.value],
     ([_, hydrated]) => {
-      if (hydrated) update()
+      if (hydrated) listen()
     },
     { immediate: true },
   )

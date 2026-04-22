@@ -1,9 +1,9 @@
 <script setup lang="ts">
   // Components
-  import PlaygroundSettingsPresets from './PlaygroundSettingsPresets.vue'
-  import PlaygroundSettingsVersions from './PlaygroundSettingsVersions.vue'
   import AppCloseButton from '@/components/app/AppCloseButton.vue'
   import AppIcon from '@/components/app/AppIcon.vue'
+  import PlaygroundSettingsPresets from './PlaygroundSettingsPresets.vue'
+  import PlaygroundSettingsVersions from './PlaygroundSettingsVersions.vue'
 
   // Utilities
   import { type Component, shallowRef, toRef } from 'vue'

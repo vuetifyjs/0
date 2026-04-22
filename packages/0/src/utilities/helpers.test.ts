@@ -1,4 +1,4 @@
-import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 // Utilities
 import {
@@ -17,7 +17,6 @@ import {
   mergeDeep,
   clamp,
   range,
-  debounce,
   useId,
 } from './helpers'
 
@@ -279,59 +278,61 @@ describe('helpers', () => {
   })
 
   describe('mergeDeep', () => {
-    it('should return target if no sources', () => {
+    it('should return a new object even with no sources', () => {
       const target = { a: 1 }
-      expect(mergeDeep(target)).toBe(target)
-      expect(target).toEqual({ a: 1 })
+      const result = mergeDeep(target)
+      expect(result).toEqual({ a: 1 })
+      expect(result).not.toBe(target)
+    })
+
+    it('should not mutate the original target', () => {
+      const target = { a: 1, b: { c: 2 } }
+      const result = mergeDeep(target, { a: 99, b: { d: 3 } } as any)
+      expect(result).toEqual({ a: 99, b: { c: 2, d: 3 } })
+      expect(target).toEqual({ a: 1, b: { c: 2 } })
     })
 
     it('should merge simple properties', () => {
-      const target: Record<string, number> = { a: 1 }
-      const result = mergeDeep(target, { b: 2 })
+      const result = mergeDeep<Record<string, number>>({ a: 1 }, { b: 2 })
       expect(result).toEqual({ a: 1, b: 2 })
-      expect(result).toBe(target)
     })
 
     it('should overwrite primitives', () => {
-      const target = { a: 1, b: 'old' }
-      mergeDeep(target, { a: 2, b: 'new' })
-      expect(target).toEqual({ a: 2, b: 'new' })
+      const result = mergeDeep({ a: 1, b: 'old' }, { a: 2, b: 'new' })
+      expect(result).toEqual({ a: 2, b: 'new' })
     })
 
     it('should deeply merge nested objects', () => {
-      const target: Record<string, unknown> = { a: 1, b: { c: 2 } }
-      mergeDeep(target, { b: { d: 3 } })
-      expect(target).toEqual({ a: 1, b: { c: 2, d: 3 } })
+      const result = mergeDeep<Record<string, unknown>>({ a: 1, b: { c: 2 } }, { b: { d: 3 } })
+      expect(result).toEqual({ a: 1, b: { c: 2, d: 3 } })
     })
 
     it('should replace arrays, not merge them', () => {
-      const target = { arr: [1, 2, 3] }
-      mergeDeep(target, { arr: [4, 5] })
-      expect(target).toEqual({ arr: [4, 5] })
+      const result = mergeDeep({ arr: [1, 2, 3] }, { arr: [4, 5] })
+      expect(result).toEqual({ arr: [4, 5] })
     })
 
     it('should merge multiple sources left to right', () => {
-      const target: Record<string, number> = { a: 1 }
-      mergeDeep(target, { b: 2 }, { c: 3 }, { a: 4 })
-      expect(target).toEqual({ a: 4, b: 2, c: 3 })
+      const result = mergeDeep<Record<string, number>>({ a: 1 }, { b: 2 }, { c: 3 }, { a: 4 })
+      expect(result).toEqual({ a: 4, b: 2, c: 3 })
     })
 
     it('should replace non-object target with object from source', () => {
-      const target = { a: 'string' } as Record<string, unknown>
-      mergeDeep(target, { a: { nested: true } })
-      expect(target).toEqual({ a: { nested: true } })
+      const result = mergeDeep({ a: 'string' } as Record<string, unknown>, { a: { nested: true } })
+      expect(result).toEqual({ a: { nested: true } })
     })
 
     it('should merge into existing nested objects', () => {
-      const target: Record<string, Record<string, unknown>> = { a: { existing: 1 } }
-      mergeDeep(target, { a: { nested: true } })
-      expect(target).toEqual({ a: { existing: 1, nested: true } })
+      const result = mergeDeep<Record<string, Record<string, unknown>>>({ a: { existing: 1 } }, { a: { nested: true } })
+      expect(result).toEqual({ a: { existing: 1, nested: true } })
     })
 
     it('should handle deeply nested merges', () => {
-      const target: Record<string, unknown> = { level1: { level2: { level3: { a: 1 } } } }
-      mergeDeep(target, { level1: { level2: { level3: { b: 2 } } } })
-      expect(target).toEqual({ level1: { level2: { level3: { a: 1, b: 2 } } } })
+      const result = mergeDeep<Record<string, unknown>>(
+        { level1: { level2: { level3: { a: 1 } } } },
+        { level1: { level2: { level3: { b: 2 } } } },
+      )
+      expect(result).toEqual({ level1: { level2: { level3: { a: 1, b: 2 } } } })
     })
 
     it('should not merge inherited properties', () => {
@@ -339,59 +340,76 @@ describe('helpers', () => {
       const source = Object.create(proto)
       source.own = 'value'
 
-      const target = {} as Record<string, unknown>
-      mergeDeep(target, source)
+      const result = mergeDeep({} as Record<string, unknown>, source)
 
-      expect(target).toEqual({ own: 'value' })
-      expect(target.inherited).toBeUndefined()
+      expect(result).toEqual({ own: 'value' })
+      expect(result.inherited).toBeUndefined()
     })
 
     it('should handle null and undefined source values', () => {
-      const target = { a: 1, b: 2 }
-      mergeDeep(target, { a: null, b: undefined } as any)
-      expect(target).toEqual({ a: null, b: 2 })
+      const result = mergeDeep({ a: 1, b: 2 }, { a: null, b: undefined } as any)
+      expect(result).toEqual({ a: null, b: 2 })
     })
 
     it('should handle empty objects', () => {
-      const target = { a: 1 }
-      mergeDeep(target, {})
-      expect(target).toEqual({ a: 1 })
+      const result = mergeDeep({ a: 1 }, {})
+      expect(result).toEqual({ a: 1 })
     })
 
     describe('prototype pollution protection', () => {
       it('should ignore __proto__ key', () => {
-        const target = {}
         const malicious = JSON.parse('{"__proto__": {"polluted": true}}')
-        mergeDeep(target, malicious)
+        const result = mergeDeep({}, malicious)
 
-        expect((target as any).__proto__.polluted).toBeUndefined()
+        expect((result as any).__proto__.polluted).toBeUndefined()
         expect(({} as any).polluted).toBeUndefined()
       })
 
       it('should ignore constructor key', () => {
-        const target = {}
         const malicious = JSON.parse('{"constructor": {"prototype": {"polluted": true}}}')
-        mergeDeep(target, malicious)
+        const result = mergeDeep({}, malicious)
 
-        expect((target as any).constructor).toBe(Object)
+        expect((result as any).constructor).toBe(Object)
         expect(({} as any).polluted).toBeUndefined()
       })
 
       it('should ignore prototype key', () => {
-        const target = {}
         const malicious = { prototype: { polluted: true } }
-        mergeDeep(target, malicious as any)
+        const result = mergeDeep({}, malicious as any)
 
-        expect((target as any).prototype).toBeUndefined()
+        expect((result as any).prototype).toBeUndefined()
       })
 
       it('should ignore nested pollution attempts', () => {
-        const target: Record<string, unknown> = { nested: {} }
         const malicious = JSON.parse('{"nested": {"__proto__": {"polluted": true}}}')
-        mergeDeep(target, malicious)
+        mergeDeep({ nested: {} } as Record<string, unknown>, malicious)
 
         expect(({} as any).polluted).toBeUndefined()
       })
+    })
+
+    it('should replace Date instead of recursing into it', () => {
+      const date = new Date('2025-06-01')
+      const result = mergeDeep({ d: { x: 1 } } as any, { d: date } as any)
+      expect(result.d).toBe(date)
+    })
+
+    it('should replace RegExp instead of recursing into it', () => {
+      const re = /abc/gi
+      const result = mergeDeep({ p: { x: 1 } } as any, { p: re } as any)
+      expect(result.p).toBe(re)
+    })
+
+    it('should replace Set instead of recursing into it', () => {
+      const set = new Set([1, 2, 3])
+      const result = mergeDeep({ s: new Set([4, 5]) } as any, { s: set } as any)
+      expect(result.s).toBe(set)
+    })
+
+    it('should replace Map instead of recursing into it', () => {
+      const map = new Map([['a', 1]])
+      const result = mergeDeep({ m: new Map() } as any, { m: map } as any)
+      expect(result.m).toBe(map)
     })
   })
 
@@ -457,122 +475,6 @@ describe('helpers', () => {
     it('should create single element array', () => {
       expect(range(1)).toEqual([0])
       expect(range(1, 5)).toEqual([5])
-    })
-  })
-
-  describe('debounce', () => {
-    beforeEach(() => {
-      vi.useFakeTimers()
-    })
-
-    afterEach(() => {
-      vi.useRealTimers()
-    })
-
-    it('should delay function execution', () => {
-      const fn = vi.fn()
-      const debounced = debounce(fn, 100)
-
-      debounced()
-      expect(fn).not.toHaveBeenCalled()
-
-      vi.advanceTimersByTime(99)
-      expect(fn).not.toHaveBeenCalled()
-
-      vi.advanceTimersByTime(1)
-      expect(fn).toHaveBeenCalledTimes(1)
-    })
-
-    it('should reset timer on subsequent calls', () => {
-      const fn = vi.fn()
-      const debounced = debounce(fn, 100)
-
-      debounced()
-      vi.advanceTimersByTime(50)
-      debounced()
-      vi.advanceTimersByTime(50)
-      debounced()
-      vi.advanceTimersByTime(50)
-
-      expect(fn).not.toHaveBeenCalled()
-
-      vi.advanceTimersByTime(50)
-      expect(fn).toHaveBeenCalledTimes(1)
-    })
-
-    it('should pass arguments to the function', () => {
-      const fn = vi.fn()
-      const debounced = debounce(fn, 100)
-
-      debounced('arg1', 'arg2')
-      vi.advanceTimersByTime(100)
-
-      expect(fn).toHaveBeenCalledWith('arg1', 'arg2')
-    })
-
-    it('should use latest arguments when called multiple times', () => {
-      const fn = vi.fn()
-      const debounced = debounce(fn, 100)
-
-      debounced('first')
-      debounced('second')
-      debounced('third')
-      vi.advanceTimersByTime(100)
-
-      expect(fn).toHaveBeenCalledTimes(1)
-      expect(fn).toHaveBeenCalledWith('third')
-    })
-
-    describe('clear', () => {
-      it('should cancel pending execution', () => {
-        const fn = vi.fn()
-        const debounced = debounce(fn, 100)
-
-        debounced()
-        vi.advanceTimersByTime(50)
-        debounced.clear()
-        vi.advanceTimersByTime(100)
-
-        expect(fn).not.toHaveBeenCalled()
-      })
-
-      it('should be safe to call when no pending execution', () => {
-        const fn = vi.fn()
-        const debounced = debounce(fn, 100)
-
-        expect(() => debounced.clear()).not.toThrow()
-      })
-    })
-
-    describe('immediate', () => {
-      it('should execute function immediately', () => {
-        const fn = vi.fn()
-        const debounced = debounce(fn, 100)
-
-        debounced.immediate()
-        expect(fn).toHaveBeenCalledTimes(1)
-      })
-
-      it('should pass arguments when called immediately', () => {
-        const fn = vi.fn()
-        const debounced = debounce(fn, 100)
-
-        debounced.immediate('immediate-arg')
-        expect(fn).toHaveBeenCalledWith('immediate-arg')
-      })
-
-      it('should cancel any pending execution', () => {
-        const fn = vi.fn()
-        const debounced = debounce(fn, 100)
-
-        debounced('pending')
-        vi.advanceTimersByTime(50)
-        debounced.immediate('immediate')
-        vi.advanceTimersByTime(100)
-
-        expect(fn).toHaveBeenCalledTimes(1)
-        expect(fn).toHaveBeenCalledWith('immediate')
-      })
     })
   })
 

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://0.vuetifyjs.com/sitemap.xml

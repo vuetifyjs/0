@@ -1,13 +1,13 @@
 ---
-title: Benchmarks - Performance Metrics and Size Ratings
+title: Benchmarks - Performance Metrics and Tiers
 features:
   order: 5
-  level: 3
+  level: 2
 meta:
   - name: description
-    content: Understand Vuetify0 benchmark methodology, performance tiers, and size ratings. Learn what gets benchmarked and how to interpret metrics.
+    content: Understand Vuetify0 benchmark methodology, performance tiers, and how to interpret results. Learn what gets benchmarked and how metrics are calculated.
   - name: keywords
-    content: vuetify0, benchmarks, performance, metrics, size ratings, ops/s, vitest bench
+    content: vuetify0, benchmarks, performance, metrics, tiers, ops/s, vitest bench
 related:
   - /composables
   - /guide/fundamentals/core
@@ -34,12 +34,16 @@ Headless UI libraries must be fast—they're foundational infrastructure. v0 ben
 
 | Composable | Why It's Benchmarked |
 | - | - |
-| [createRegistry](/composables/registration/create-registry) | Foundation for all collections—performance here affects everything |
-| [createSelection](/composables/selection/create-selection) | Base for all selection patterns—select, toggle, mandatory, batch |
-| [createTokens](/composables/registration/create-tokens) | Design tokens can grow large—alias resolution must scale |
-| [createFilter](/composables/data/create-filter) | Search/filter on large datasets must remain responsive |
-| [createVirtual](/composables/data/create-virtual) | Virtual scrolling is performance-critical by definition |
-| [useDate](/composables/plugins/use-date) | Date operations are frequent in UIs |
+| `createRegistry` | Foundation for all collections—performance here affects everything |
+| `createModel` | Value store underlying all selection—selection benchmarks depend on it |
+| `createSelection` | Base for all selection patterns—select, toggle, mandatory, batch |
+| `createNested` | Hierarchical trees with cascade—tree traversal scales with depth |
+| `createTokens` | Design tokens can grow large—alias resolution must scale |
+| `createFilter` | Search/filter on large datasets must remain responsive |
+| `createVirtual` | Virtual scrolling is performance-critical by definition |
+| `createDataTable` | Composed orchestrator—measures sorting, filtering, and pagination together |
+| `useDate` | Date operations are frequent in UIs |
+| `useProxyRegistry` | Reactive proxy for templates—shows reactivity overhead vs raw registry |
 
 ### Operation Categories
 
@@ -115,17 +119,18 @@ Tiers adjust based on detected algorithmic complexity:
 
 | Pattern in Benchmark Name | Complexity |
 | - | - |
-| "single item", "single query" | O(1) |
-| "1,000 items", "all keys" | O(n) |
-| "nested", "recursive" | O(n²) |
+| "single" or "one item/query/key" | O(1) |
+| Number + items/objects/entries/elements | O(n) — default for most benchmarks |
+| "nested" or "recursive" | O(n²) |
+| No pattern matched | O(n) — conservative fallback |
 
 ### Reading Results
 
 ```bash
 ✓ createRegistry/index.bench.ts
   lookup operations
-    ✓ Get item by id (1,000 items)     1,234,567 ops/s
-    ✓ Get item by id (10,000 items)    1,198,432 ops/s
+    ✓ Get by id (1,000 items)          1,234,567 ops/s
+    ✓ Get by id (10,000 items)         1,198,432 ops/s
 ```
 
 - **ops/s** — Operations per second (higher is better)
@@ -168,13 +173,13 @@ Most v0 composables handle 10,000+ items at interactive speeds (>60fps). For typ
 - **<100 items** — Instant, no optimization needed
 - **100-1,000 items** — Smooth, standard usage
 - **1,000-10,000 items** — Consider virtual scrolling
-- **10,000+ items** — Use [createVirtual](/composables/data/create-virtual), paginate, or filter
+- **10,000+ items** — Use `createVirtual`, paginate, or filter
 
 ??? Should I use events or polling?
 
 - **Events** — Real-time updates, notifications, debugging
 - **Polling (`values()`)** — Periodic snapshots, non-critical freshness
-- **[useProxyRegistry](/composables/reactivity/use-proxy-registry)** — Template-bound lists that must stay current
+- **`useProxyRegistry`** — Template-bound lists that must stay current
 
 Events add minimal overhead when enabled. Benchmarks show raw operation cost; event emission adds ~1-5% overhead.
 
@@ -186,16 +191,16 @@ Vue's reactivity system is powerful but not free. Each reactive wrapper adds:
 - CPU cycles for change detection
 - Potential for unnecessary re-renders
 
-By keeping reactivity minimal, v0 composables stay predictable—you know exactly what triggers updates. When you need reactivity, opt in explicitly with [useProxyRegistry](/composables/reactivity/use-proxy-registry).
+By keeping reactivity minimal, v0 composables stay predictable—you know exactly what triggers updates. When you need reactivity, opt in explicitly with `useProxyRegistry`.
 
 ??? How do I compare raw vs reactive performance?
 
-Compare [createRegistry](/composables/registration/create-registry) benchmarks with [useProxyRegistry](/composables/reactivity/use-proxy-registry) to see the reactivity overhead. It's worth it when needed, but shouldn't be the default.
+Compare `createRegistry` benchmarks with `useProxyRegistry` to see the reactivity overhead. It's worth it when needed, but shouldn't be the default.
 :::
 
 ## Explorer
 
-Browse all benchmark results. Filter by composable, performance tier, or search for specific operations.
+Browse all benchmark results. Select a composable to filter, or expand groups to compare individual operations.
 
 <BenchmarkExplorer />
 
@@ -208,4 +213,4 @@ New composables should include benchmarks if they:
 - Have user-perceived latency (loading, transitions)
 - Are called frequently (every render, every keystroke)
 
-See [createRegistry benchmarks](https://github.com/vuetifyjs/v0/blob/master/packages/0/src/composables/createRegistry/index.bench.ts) for the canonical example.
+See [createRegistry benchmarks](https://github.com/vuetifyjs/0/blob/master/packages/0/src/composables/createRegistry/index.bench.ts) for the canonical example.

@@ -1,6 +1,8 @@
 /**
  * @module SliderRange
  *
+ * @see https://0.vuetifyjs.com/components/forms/slider
+ *
  * @remarks
  * Filled region of the slider track. For single thumb, spans from
  * track start to thumb position. For range (two thumbs), spans
@@ -15,7 +17,7 @@
   import { useSliderRoot } from './SliderRoot.vue'
 
   // Utilities
-  import { toRef, toValue, useAttrs } from 'vue'
+  import { mergeProps, toRef, toValue, useAttrs } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -94,7 +96,7 @@
 
 <template>
   <Atom
-    v-bind="{ ...attrs, ...slotProps.attrs }"
+    v-bind="mergeProps(attrs, slotProps.attrs)"
     :as
     :renderless
     :style="[attrs.style, slotProps.attrs.style]"

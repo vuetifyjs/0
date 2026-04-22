@@ -70,6 +70,7 @@ function mapSemanticColors (colors: Record<number, string>, ratios: number[]): R
   }
 }
 
+/* #__NO_SIDE_EFFECTS__ */
 export function leonardo (seed: string, options: LeonardoGenerateOptions = {}): PaletteDefinition {
   if (!HEX_RE.test(seed)) {
     throw new Error(`[@vuetify/v0] Invalid seed color: "${seed}". Expected a hex string (e.g., "#0ea5e9").`)
@@ -77,15 +78,16 @@ export function leonardo (seed: string, options: LeonardoGenerateOptions = {}): 
 
   const { ratios = DEFAULT_RATIOS, colorSpace = 'OKLCH' } = options
 
+  // @adobe/leonardo-contrast-colors has loose typings — string args are correct at runtime
   const color = new Color({
     name: 'primary',
-    colorKeys: [seed as any],
+    colorKeys: [seed as never],
     ratios,
-    colorSpace: colorSpace as any,
+    colorSpace: colorSpace as never,
   })
 
-  const light = new Theme({ colors: [color], backgroundColor: '#ffffff' as any, lightness: 100 })
-  const dark = new Theme({ colors: [color], backgroundColor: '#121212' as any, lightness: 8 })
+  const light = new Theme({ colors: [color], backgroundColor: '#ffffff' as never, lightness: 100 })
+  const dark = new Theme({ colors: [color], backgroundColor: '#121212' as never, lightness: 8 })
 
   const lightColors = extractColors(light.contrastColors as unknown[])
   const darkColors = extractColors(dark.contrastColors as unknown[])

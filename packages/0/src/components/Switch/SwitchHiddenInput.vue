@@ -1,6 +1,8 @@
 /**
  * @module SwitchHiddenInput
  *
+ * @see https://0.vuetifyjs.com/components/forms/switch
+ *
  * @remarks
  * Hidden native checkbox for form submission. Must be used within a
  * Switch.Root component. Auto-rendered by Root when `name` prop is provided,

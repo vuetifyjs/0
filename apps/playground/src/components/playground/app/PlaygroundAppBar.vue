@@ -1,34 +1,37 @@
 <script setup lang="ts">
   // Framework
-  import { useHotkey, useStorage, useTheme } from '@vuetify/v0'
+  import { useHotkey, useTheme, useTimer } from '@vuetify/v0'
 
   // Components
+  import PlaygroundSettings from '@/components/playground/settings/PlaygroundSettings.vue'
   import { usePlayground } from './PlaygroundApp.vue'
   import PlaygroundMenuBar from './PlaygroundMenuBar.vue'
-  import PlaygroundSettings from '@/components/playground/settings/PlaygroundSettings.vue'
 
   // Utilities
   import { shallowRef } from 'vue'
 
   const open = shallowRef(false)
+  const copied = shallowRef(false)
 
   const theme = useTheme()
   const playground = usePlayground()
-  const storage = useStorage()
-  const sidePref = storage.get('playground-preview-right', false)
+  const { start } = useTimer(() => {
+    copied.value = false
+  }, { duration: 2000 })
 
   useHotkey('ctrl+b', () => {
     playground.tree.value = !playground.tree.value
   }, { inputs: true })
 
-  function onSide () {
-    playground.side.value = !playground.side.value
-    playground.bottom.value = !playground.bottom.value
-    sidePref.value = playground.side.value
-  }
-
   function onView () {
     playground.editor.value = !playground.editor.value
+  }
+
+  function onShare () {
+    navigator.clipboard.writeText(window.location.href).then(() => {
+      copied.value = true
+      start()
+    }).catch(() => {})
   }
 
 </script>
@@ -39,7 +42,7 @@
       <PlaygroundMenuBar />
 
       <img
-        alt="Vuetify Play"
+        alt="Vuetify0 Play"
         class="h-7"
         :src="theme.isDark.value
           ? 'https://vuetifyjs.b-cdn.net/docs/images/one/logos/vplay-logo-dark.svg'
@@ -49,29 +52,6 @@
 
     <div class="flex items-center gap-2">
       <button
-        :aria-pressed="playground.tree.value"
-        class="pa-1 inline-flex rounded hover:opacity-80 hover:bg-surface-tint focus-visible:opacity-80 focus-visible:bg-surface-tint focus-visible:outline-none cursor-pointer transition-opacity"
-        :class="playground.tree.value ? 'opacity-80' : 'opacity-50'"
-        title="Toggle file tree (Ctrl+B)"
-        type="button"
-        @click="playground.tree.value = !playground.tree.value"
-      >
-        <AppIcon :icon="playground.tree.value ? 'folder-open' : 'folder'" />
-      </button>
-
-      <button
-        :aria-disabled="playground.left.value"
-        :aria-pressed="sidePref.value"
-        class="hidden md:inline-flex pa-1 rounded transition-opacity"
-        :class="playground.left.value ? 'opacity-25 cursor-not-allowed' : 'opacity-50 hover:opacity-80 hover:bg-surface-tint focus-visible:opacity-80 focus-visible:bg-surface-tint focus-visible:outline-none cursor-pointer'"
-        :title="playground.left.value ? 'Close the documentation panel to change preview position' : sidePref.value ? 'Move preview to bottom' : 'Move preview to right'"
-        type="button"
-        @click="!playground.left.value && onSide()"
-      >
-        <AppIcon :icon="playground.side.value ? 'layout-vertical' : 'layout-horizontal'" />
-      </button>
-
-      <button
         :aria-pressed="!playground.editor.value"
         class="md:hidden pa-1 inline-flex rounded hover:opacity-80 hover:bg-surface-tint focus-visible:opacity-80 focus-visible:bg-surface-tint focus-visible:outline-none cursor-pointer transition-opacity"
         :class="!playground.editor.value ? 'opacity-80' : 'opacity-50'"
@@ -80,6 +60,16 @@
         @click="onView"
       >
         <AppIcon :icon="playground.editor.value ? 'editor' : 'eye'" />
+      </button>
+
+      <button
+        class="pa-1 inline-flex rounded hover:opacity-80 hover:bg-surface-tint focus-visible:opacity-80 focus-visible:bg-surface-tint focus-visible:outline-none cursor-pointer transition-opacity"
+        :class="copied ? 'opacity-80' : 'opacity-50'"
+        :title="copied ? 'Link copied!' : 'Copy share link'"
+        type="button"
+        @click="onShare"
+      >
+        <AppIcon :icon="copied ? 'check' : 'link'" />
       </button>
 
       <button

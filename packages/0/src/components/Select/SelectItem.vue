@@ -1,6 +1,8 @@
 /**
  * @module SelectItem
  *
+ * @see https://0.vuetifyjs.com/components/forms/select
+ *
  * @remarks
  * Option component for the select dropdown. Registers with the parent selection
  * context and provides selection state via scoped slots. Element ID follows the
@@ -13,7 +15,7 @@
   import { useSelectContext } from './SelectRoot.vue'
 
   // Utilities
-  import { onUnmounted, toRef, toValue } from 'vue'
+  import { onBeforeUnmount, toRef, toValue } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -83,7 +85,7 @@
     if (!toValue(isDisabled)) context.select(ticket.id)
   }
 
-  onUnmounted(() => {
+  onBeforeUnmount(() => {
     context.selection.unregister(ticket.id)
   })
 

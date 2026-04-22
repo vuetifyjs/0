@@ -15,6 +15,15 @@
  *
  * Perfect for dialogs, menus, tooltips, and any component with
  * conditionally rendered content.
+ *
+ * @example
+ * ```ts
+ * import { shallowRef } from 'vue'
+ * import { useLazy } from '@vuetify/v0'
+ *
+ * const isOpen = shallowRef(false)
+ * const { hasContent, onAfterLeave } = useLazy(isOpen)
+ * ```
  */
 
 // Composables

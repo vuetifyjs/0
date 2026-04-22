@@ -1,6 +1,8 @@
 /**
  * @module CheckboxSelectAll
  *
+ * @see https://0.vuetifyjs.com/components/forms/checkbox
+ *
  * @remarks
  * A "select all" checkbox that binds to its parent Checkbox.Group's
  * aggregate state. Automatically reflects isAllSelected/isMixed state
@@ -69,7 +71,8 @@
   import { provideCheckboxRoot } from './CheckboxRoot.vue'
 
   // Utilities
-  import { toRef, toValue, useAttrs, useId } from 'vue'
+  import { useId } from '#v0/utilities'
+  import { mergeProps, toRef, toValue, useAttrs } from 'vue'
 
   defineOptions({ name: 'CheckboxSelectAll', inheritAttrs: false })
 
@@ -79,15 +82,16 @@
     default: (props: CheckboxSelectAllSlotProps) => any
   }>()
 
-  const props = defineProps<CheckboxSelectAllProps>()
-
   const {
     as = 'button',
     renderless,
     label,
+    disabled,
     namespace = 'v0:checkbox:root',
     groupNamespace = 'v0:checkbox:group',
-  } = props
+    ariaLabelledby,
+    ariaDescribedby,
+  } = defineProps<CheckboxSelectAllProps>()
 
   const group = useCheckboxGroup(groupNamespace)
 
@@ -95,7 +99,7 @@
 
   const isAllSelected = toRef(() => group.isAllSelected.value)
   const isMixed = toRef(() => group.isMixed.value)
-  const isDisabled = toRef(() => toValue(props.disabled) || toValue(group.disabled))
+  const isDisabled = toRef(() => toValue(disabled) || toValue(group.disabled))
   const dataState = toRef((): CheckboxState => isMixed.value
     ? 'indeterminate'
     : (isAllSelected.value ? 'checked' : 'unchecked'),
@@ -150,8 +154,8 @@
       'aria-checked': isMixed.value ? 'mixed' : isAllSelected.value,
       'aria-disabled': isDisabled.value || undefined,
       'aria-label': label || undefined,
-      'aria-labelledby': props.ariaLabelledby || undefined,
-      'aria-describedby': props.ariaDescribedby || undefined,
+      'aria-labelledby': ariaLabelledby || undefined,
+      'aria-describedby': ariaDescribedby || undefined,
       'tabindex': isDisabled.value ? undefined : 0,
       'data-state': dataState.value,
       'data-disabled': isDisabled.value ? true : undefined,
@@ -161,7 +165,7 @@
 
 <template>
   <Atom
-    v-bind="{ ...attrs, ...slotProps.attrs }"
+    v-bind="mergeProps(attrs, slotProps.attrs)"
     :as
     :renderless
     @click="onClick"

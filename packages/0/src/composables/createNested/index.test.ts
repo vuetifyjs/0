@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from 'vitest'
 import type { NestedRegistration } from './types'
 
 // Composables
-import { createNested, multipleOpenStrategy, singleOpenStrategy } from './index'
+import { createNested } from './index'
 
 describe('createNested', () => {
   describe('parent-child relationship management', () => {
@@ -246,6 +246,31 @@ describe('createNested', () => {
       nested.register({ id: 'leaf', value: 'Leaf' })
 
       expect(nested.getDescendants('leaf')).toEqual([])
+    })
+  })
+
+  describe('circular reference protection', () => {
+    it('should not infinite loop in getPath when circular parent exists', () => {
+      const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+      const nested = createNested()
+
+      nested.register({ id: 'a', value: 'A' })
+      nested.register({ id: 'b', value: 'B', parentId: 'a' })
+
+      // Manually inject a circular reference (a→b→a)
+      // Cast past ReadonlyMap to simulate corrupted state
+      ;(nested.parents as Map<any, any>).set('a', 'b')
+
+      // Without protection this would hang forever
+      const path = nested.getPath('a')
+
+      // Should terminate and return a finite path
+      expect(path.length).toBeLessThanOrEqual(3)
+      expect(spy).toHaveBeenCalledTimes(1)
+      expect(spy).toHaveBeenCalledWith(expect.stringContaining('Circular'))
+
+      spy.mockRestore()
     })
   })
 
@@ -825,9 +850,9 @@ describe('createNested', () => {
     })
   })
 
-  describe('open strategies (deprecated)', () => {
-    it('should allow multiple nodes open with multipleOpenStrategy', () => {
-      const nested = createNested({ openStrategy: multipleOpenStrategy })
+  describe('open modes', () => {
+    it('should allow multiple nodes open with open: \'multiple\'', () => {
+      const nested = createNested({ open: 'multiple' })
 
       nested.register({ id: 'node-1', value: 'Node 1' })
       nested.register({ id: 'node-2', value: 'Node 2' })
@@ -839,8 +864,8 @@ describe('createNested', () => {
       expect(nested.opened('node-2')).toBe(true)
     })
 
-    it('should close others with singleOpenStrategy', () => {
-      const nested = createNested({ openStrategy: singleOpenStrategy })
+    it('should close others with open: \'single\'', () => {
+      const nested = createNested({ open: 'single' })
 
       nested.register({ id: 'node-1', value: 'Node 1' })
       nested.register({ id: 'node-2', value: 'Node 2' })
@@ -849,23 +874,6 @@ describe('createNested', () => {
       expect(nested.opened('node-1')).toBe(true)
 
       nested.open('node-2')
-      expect(nested.opened('node-1')).toBe(false)
-      expect(nested.opened('node-2')).toBe(true)
-    })
-
-    it('should prioritize openStrategy over open option', () => {
-      const nested = createNested({
-        open: 'multiple',
-        openStrategy: singleOpenStrategy,
-      })
-
-      nested.register({ id: 'node-1', value: 'Node 1' })
-      nested.register({ id: 'node-2', value: 'Node 2' })
-
-      nested.open('node-1')
-      nested.open('node-2')
-
-      // singleOpenStrategy should take precedence
       expect(nested.opened('node-1')).toBe(false)
       expect(nested.opened('node-2')).toBe(true)
     })
@@ -1068,26 +1076,17 @@ describe('edge cases', () => {
   })
 
   describe('validation in open/close/flip', () => {
-    it('should not call strategy for non-existent IDs on open', () => {
-      const onOpenSpy = vi.fn()
-      const nested = createNested({
-        openStrategy: { onOpen: onOpenSpy },
-      })
-
+    it('should not affect open state when calling open() with non-existent IDs', () => {
+      const nested = createNested({ open: 'single' })
+      nested.register({ id: 'real', value: 'Real' })
+      nested.open('real')
       nested.open('non-existent')
-
-      expect(onOpenSpy).not.toHaveBeenCalled()
+      expect(nested.opened('real')).toBe(true)
     })
 
-    it('should not call strategy for non-existent IDs on close', () => {
-      const onCloseSpy = vi.fn()
-      const nested = createNested({
-        openStrategy: { onClose: onCloseSpy },
-      })
-
-      nested.close('non-existent')
-
-      expect(onCloseSpy).not.toHaveBeenCalled()
+    it('should not throw when calling close() with non-existent IDs', () => {
+      const nested = createNested()
+      expect(() => nested.close('non-existent')).not.toThrow()
     })
 
     it('should skip non-existent IDs in flip', () => {
@@ -1222,11 +1221,11 @@ describe('createNestedContext', () => {
   })
 
   it('should pass options to nested instance', async () => {
-    const { createNestedContext, singleOpenStrategy } = await import('./index')
+    const { createNestedContext } = await import('./index')
 
     const [, , context] = createNestedContext({
       namespace: 'test:nested-options',
-      openStrategy: singleOpenStrategy,
+      open: 'single',
     })
 
     context.register({ id: 'node-1', value: 'Node 1' })
@@ -1235,9 +1234,326 @@ describe('createNestedContext', () => {
     context.open('node-1')
     context.open('node-2')
 
-    // Single open strategy should close node-1 when node-2 opens
+    // Single open mode should close node-1 when node-2 opens
     expect(context.opened('node-1')).toBe(false)
     expect(context.opened('node-2')).toBe(true)
+  })
+})
+
+describe('unfold', () => {
+  it('should open node and immediate non-leaf children', () => {
+    const nested = createNested()
+
+    nested.register({ id: 'root', value: 'Root' })
+    nested.register({ id: 'branch-1', value: 'Branch 1', parentId: 'root' })
+    nested.register({ id: 'branch-2', value: 'Branch 2', parentId: 'root' })
+    nested.register({ id: 'grandchild', value: 'Grandchild', parentId: 'branch-1' })
+
+    nested.unfold('root')
+
+    expect(nested.opened('root')).toBe(true)
+    expect(nested.opened('branch-1')).toBe(true)
+    expect(nested.opened('branch-2')).toBe(false)
+  })
+
+  it('should not open leaf children', () => {
+    const nested = createNested()
+
+    nested.register({ id: 'root', value: 'Root' })
+    nested.register({ id: 'leaf-1', value: 'Leaf 1', parentId: 'root' })
+    nested.register({ id: 'leaf-2', value: 'Leaf 2', parentId: 'root' })
+
+    nested.unfold('root')
+
+    expect(nested.opened('root')).toBe(true)
+    expect(nested.opened('leaf-1')).toBe(false)
+    expect(nested.opened('leaf-2')).toBe(false)
+  })
+})
+
+describe('reveal', () => {
+  it('should open all ancestors without opening the node itself', () => {
+    const nested = createNested()
+
+    nested.register({ id: 'root', value: 'Root' })
+    nested.register({ id: 'child', value: 'Child', parentId: 'root' })
+    nested.register({ id: 'grandchild', value: 'Grandchild', parentId: 'child' })
+
+    nested.reveal('grandchild')
+
+    expect(nested.opened('root')).toBe(true)
+    expect(nested.opened('child')).toBe(true)
+    expect(nested.opened('grandchild')).toBe(false)
+  })
+
+  it('should be a no-op for root nodes', () => {
+    const nested = createNested()
+
+    nested.register({ id: 'root', value: 'Root' })
+
+    nested.reveal('root')
+
+    expect(nested.opened('root')).toBe(false)
+    expect(nested.openedIds.size).toBe(0)
+  })
+})
+
+describe('expand', () => {
+  it('should open node and all non-leaf descendants', () => {
+    const nested = createNested()
+
+    nested.register({ id: 'root', value: 'Root' })
+    nested.register({ id: 'branch', value: 'Branch', parentId: 'root' })
+    nested.register({ id: 'subbranch', value: 'Subbranch', parentId: 'branch' })
+    nested.register({ id: 'leaf', value: 'Leaf', parentId: 'subbranch' })
+
+    nested.expand('root')
+
+    expect(nested.opened('root')).toBe(true)
+    expect(nested.opened('branch')).toBe(true)
+    expect(nested.opened('subbranch')).toBe(true)
+  })
+
+  it('should not open leaf nodes', () => {
+    const nested = createNested()
+
+    nested.register({ id: 'root', value: 'Root' })
+    nested.register({ id: 'branch', value: 'Branch', parentId: 'root' })
+    nested.register({ id: 'leaf-1', value: 'Leaf 1', parentId: 'branch' })
+    nested.register({ id: 'leaf-2', value: 'Leaf 2', parentId: 'root' })
+
+    nested.expand('root')
+
+    expect(nested.opened('leaf-1')).toBe(false)
+    expect(nested.opened('leaf-2')).toBe(false)
+  })
+})
+
+describe('isAncestorOf', () => {
+  it('should return true when id is ancestor of descendant', () => {
+    const nested = createNested()
+
+    nested.register({ id: 'root', value: 'Root' })
+    nested.register({ id: 'child', value: 'Child', parentId: 'root' })
+    nested.register({ id: 'grandchild', value: 'Grandchild', parentId: 'child' })
+
+    expect(nested.isAncestorOf('root', 'grandchild')).toBe(true)
+    expect(nested.isAncestorOf('root', 'child')).toBe(true)
+    expect(nested.isAncestorOf('child', 'grandchild')).toBe(true)
+  })
+
+  it('should return false when comparing same id', () => {
+    const nested = createNested()
+
+    nested.register({ id: 'root', value: 'Root' })
+
+    expect(nested.isAncestorOf('root', 'root')).toBe(false)
+  })
+
+  it('should return false for non-existent ids', () => {
+    const nested = createNested()
+
+    nested.register({ id: 'root', value: 'Root' })
+
+    expect(nested.isAncestorOf('non-existent', 'root')).toBe(false)
+    expect(nested.isAncestorOf('root', 'non-existent')).toBe(false)
+    expect(nested.isAncestorOf('foo', 'bar')).toBe(false)
+  })
+})
+
+describe('hasAncestor', () => {
+  it('should check ancestor relationship in reverse argument order', () => {
+    const nested = createNested()
+
+    nested.register({ id: 'root', value: 'Root' })
+    nested.register({ id: 'child', value: 'Child', parentId: 'root' })
+    nested.register({ id: 'grandchild', value: 'Grandchild', parentId: 'child' })
+
+    expect(nested.hasAncestor('grandchild', 'root')).toBe(true)
+    expect(nested.hasAncestor('child', 'root')).toBe(true)
+    expect(nested.hasAncestor('root', 'grandchild')).toBe(false)
+  })
+})
+
+describe('siblings', () => {
+  it('should return siblings including self for child nodes', () => {
+    const nested = createNested()
+
+    nested.register({ id: 'root', value: 'Root' })
+    nested.register({ id: 'child-1', value: 'Child 1', parentId: 'root' })
+    nested.register({ id: 'child-2', value: 'Child 2', parentId: 'root' })
+    nested.register({ id: 'child-3', value: 'Child 3', parentId: 'root' })
+
+    const sibs = nested.siblings('child-2')
+
+    expect(sibs).toHaveLength(3)
+    expect(sibs).toContain('child-1')
+    expect(sibs).toContain('child-2')
+    expect(sibs).toContain('child-3')
+  })
+
+  it('should return all root ids as siblings for root nodes', () => {
+    const nested = createNested()
+
+    nested.register({ id: 'root-1', value: 'Root 1' })
+    nested.register({ id: 'root-2', value: 'Root 2' })
+    nested.register({ id: 'root-3', value: 'Root 3' })
+    nested.register({ id: 'child', value: 'Child', parentId: 'root-1' })
+
+    const sibs = nested.siblings('root-2')
+
+    expect(sibs).toHaveLength(3)
+    expect(sibs).toContain('root-1')
+    expect(sibs).toContain('root-2')
+    expect(sibs).toContain('root-3')
+  })
+
+  it('should return empty array for non-existent node', () => {
+    const nested = createNested()
+
+    expect(nested.siblings('non-existent')).toEqual([])
+  })
+})
+
+describe('position', () => {
+  it('should return 1-indexed position among siblings', () => {
+    const nested = createNested()
+
+    nested.register({ id: 'root', value: 'Root' })
+    nested.register({ id: 'child-1', value: 'Child 1', parentId: 'root' })
+    nested.register({ id: 'child-2', value: 'Child 2', parentId: 'root' })
+    nested.register({ id: 'child-3', value: 'Child 3', parentId: 'root' })
+
+    expect(nested.position('child-1')).toBe(1)
+    expect(nested.position('child-2')).toBe(2)
+    expect(nested.position('child-3')).toBe(3)
+  })
+
+  it('should return 0 for non-existent node', () => {
+    const nested = createNested()
+
+    expect(nested.position('non-existent')).toBe(0)
+  })
+})
+
+describe('disabled state blocking', () => {
+  it('should not cascade select to disabled descendants', () => {
+    const nested = createNested()
+
+    nested.register({ id: 'root', value: 'Root' })
+    nested.register({ id: 'child-1', value: 'Child 1', parentId: 'root' })
+    nested.register({ id: 'child-2', value: 'Child 2', parentId: 'root', disabled: true })
+
+    nested.select('root')
+
+    expect(nested.selected('root')).toBe(true)
+    expect(nested.selected('child-1')).toBe(true)
+    expect(nested.selected('child-2')).toBe(false)
+  })
+
+  it('should not cascade unselect to disabled descendants', () => {
+    const nested = createNested()
+
+    nested.register({ id: 'root', value: 'Root' })
+    nested.register({ id: 'child-1', value: 'Child 1', parentId: 'root' })
+    nested.register({ id: 'child-2', value: 'Child 2', parentId: 'root', disabled: true })
+
+    // Manually select child-2 by working around disabled check
+    nested.select('child-1')
+    // Force child-2 into selected state via selectAll (which also skips disabled)
+    // Instead, select root which cascades to child-1 only
+    nested.select('root')
+    expect(nested.selected('child-1')).toBe(true)
+    expect(nested.selected('child-2')).toBe(false)
+
+    nested.unselect('root')
+
+    expect(nested.selected('child-1')).toBe(false)
+    expect(nested.selected('child-2')).toBe(false)
+  })
+
+  it('should skip disabled items in expandAll', () => {
+    const nested = createNested()
+
+    nested.register({ id: 'root', value: 'Root' })
+    nested.register({ id: 'branch', value: 'Branch', parentId: 'root', disabled: true })
+    nested.register({ id: 'child', value: 'Child', parentId: 'branch' })
+
+    nested.expandAll()
+
+    expect(nested.opened('root')).toBe(true)
+    expect(nested.opened('branch')).toBe(false)
+  })
+
+  it('should skip disabled items in collapseAll', () => {
+    const nested = createNested()
+
+    nested.register({ id: 'root', value: 'Root' })
+    nested.register({ id: 'branch', value: 'Branch', parentId: 'root', disabled: true })
+    nested.register({ id: 'child', value: 'Child', parentId: 'branch' })
+
+    nested.open('root')
+    // Directly add branch to openedIds to simulate it being open despite disabled
+    nested.openedIds.add('branch')
+
+    nested.collapseAll()
+
+    expect(nested.opened('root')).toBe(false)
+    expect(nested.opened('branch')).toBe(true)
+  })
+
+  it('should be a no-op when globally disabled for expandAll', () => {
+    const nested = createNested({ disabled: true })
+
+    nested.register({ id: 'root', value: 'Root' })
+    nested.register({ id: 'child', value: 'Child', parentId: 'root' })
+
+    nested.expandAll()
+
+    expect(nested.openedIds.size).toBe(0)
+  })
+
+  it('should be a no-op when globally disabled for collapseAll', () => {
+    const nested = createNested({ disabled: true })
+
+    nested.register({ id: 'root', value: 'Root' })
+    nested.register({ id: 'child', value: 'Child', parentId: 'root' })
+
+    nested.openedIds.add('root')
+
+    nested.collapseAll()
+
+    expect(nested.opened('root')).toBe(true)
+  })
+
+  it('should skip disabled items in selectAll', () => {
+    const nested = createNested()
+
+    nested.register({ id: 'root', value: 'Root' })
+    nested.register({ id: 'child-1', value: 'Child 1', parentId: 'root' })
+    nested.register({ id: 'child-2', value: 'Child 2', parentId: 'root', disabled: true })
+
+    nested.selectAll()
+
+    expect(nested.selected('root')).toBe(true)
+    expect(nested.selected('child-1')).toBe(true)
+    expect(nested.selected('child-2')).toBe(false)
+  })
+
+  it('should clear mixedIds in unselectAll', () => {
+    const nested = createNested()
+
+    nested.register({ id: 'root', value: 'Root' })
+    nested.register({ id: 'child-1', value: 'Child 1', parentId: 'root' })
+    nested.register({ id: 'child-2', value: 'Child 2', parentId: 'root' })
+
+    nested.select('child-1')
+    expect(nested.mixed('root')).toBe(true)
+
+    nested.unselectAll()
+
+    expect(nested.selectedIds.size).toBe(0)
+    expect(nested.mixed('root')).toBe(false)
   })
 })
 
@@ -1311,7 +1627,7 @@ describe('revealOnOpen option', () => {
   })
 })
 
-describe('unfold', () => {
+describe('unfold (leaf handling)', () => {
   it('should open node and its immediate non-leaf children', () => {
     const nested = createNested()
 
@@ -1339,7 +1655,7 @@ describe('unfold', () => {
   })
 })
 
-describe('reveal', () => {
+describe('reveal (edge cases)', () => {
   it('should open all ancestors of a node', () => {
     const nested = createNested()
 
@@ -1373,7 +1689,7 @@ describe('reveal', () => {
   })
 })
 
-describe('expand', () => {
+describe('expand (subtree)', () => {
   it('should fully expand a subtree', () => {
     const nested = createNested()
 
@@ -1417,7 +1733,7 @@ describe('activate edge cases', () => {
   })
 })
 
-describe('isAncestorOf', () => {
+describe('isAncestorOf (additional)', () => {
   it('should return true when node is an ancestor', () => {
     const nested = createNested()
 
@@ -1457,7 +1773,7 @@ describe('isAncestorOf', () => {
   })
 })
 
-describe('hasAncestor', () => {
+describe('hasAncestor (additional)', () => {
   it('should return true when node has the given ancestor', () => {
     const nested = createNested()
 
@@ -1477,7 +1793,7 @@ describe('hasAncestor', () => {
   })
 })
 
-describe('siblings', () => {
+describe('siblings (additional)', () => {
   it('should return sibling IDs for a child node', () => {
     const nested = createNested()
 
@@ -1511,7 +1827,7 @@ describe('siblings', () => {
   })
 })
 
-describe('position', () => {
+describe('position (additional)', () => {
   it('should return 1-indexed position among siblings', () => {
     const nested = createNested()
 
@@ -1750,6 +2066,8 @@ describe('clear', () => {
 
 describe('provideNestedContext', () => {
   it('should provide context via provideNestedContext', async () => {
+    const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
     const { createNestedContext } = await import('./index')
 
     const [, provideNestedTest, defaultNested] = createNestedContext({ namespace: 'test:provide' })
@@ -1760,5 +2078,8 @@ describe('provideNestedContext', () => {
     expect(result.register).toBeInstanceOf(Function)
     // Should be same as default nested
     expect(result).toBe(defaultNested)
+    expect(spy).toHaveBeenCalledTimes(1)
+
+    spy.mockRestore()
   })
 })

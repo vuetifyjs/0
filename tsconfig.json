@@ -11,7 +11,7 @@
       "path": "./apps/docs"
     },
     {
-      "path": "./playground"
+      "path": "./dev"
     }
   ],
   "compilerOptions": {

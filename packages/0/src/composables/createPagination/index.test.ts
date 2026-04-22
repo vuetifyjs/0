@@ -343,7 +343,10 @@ describe('createPagination', () => {
       const pagination = createPagination({ page, size: 100 })
 
       expect(pagination.page.value).toBe(5)
-      expect(pagination.page).toBe(page)
+
+      // Writes to pagination.page propagate to the provided ref
+      pagination.select(3)
+      expect(page.value).toBe(3)
     })
 
     it('should sync when external ref changes', () => {
@@ -469,6 +472,33 @@ describe('createPagination', () => {
       expect(pagination.items.value.length).toBeLessThan(20)
       expect(pagination.page.value).toBe(500_000)
     })
+
+    it('should auto-clamp page when size shrinks', () => {
+      const size = shallowRef(100)
+      const pagination = createPagination({ size, itemsPerPage: 10 })
+
+      pagination.select(8)
+      expect(pagination.page.value).toBe(8)
+      expect(pagination.pages).toBe(10)
+
+      // Shrink to 20 items (2 pages) — page should clamp from 8 to 2
+      size.value = 20
+      expect(pagination.pages).toBe(2)
+      expect(pagination.page.value).toBe(2)
+    })
+
+    it('should not clamp when size shrinks but page is still valid', () => {
+      const size = shallowRef(100)
+      const pagination = createPagination({ size, itemsPerPage: 10 })
+
+      pagination.select(3)
+      expect(pagination.page.value).toBe(3)
+
+      // Shrink to 50 items (5 pages) — page 3 is still valid
+      size.value = 50
+      expect(pagination.pages).toBe(5)
+      expect(pagination.page.value).toBe(3)
+    })
   })
 })
 
@@ -497,12 +527,12 @@ describe('createPaginationContext', () => {
 
   it('should create context with custom namespace', () => {
     const [, providePaginationContext, context] = createPaginationContext({
-      namespace: 'my-pagination',
+      namespace: 'test:my-pagination',
     })
 
     providePaginationContext(context)
 
-    expect(mockProvide).toHaveBeenCalledWith('my-pagination', context)
+    expect(mockProvide).toHaveBeenCalledWith('test:my-pagination', context)
   })
 
   it('should create a functional pagination context', () => {
@@ -558,9 +588,9 @@ describe('usePagination consumer', () => {
     const mockContext = createPagination()
     mockInject.mockReturnValue(mockContext)
 
-    const result = usePagination('my-pagination')
+    const result = usePagination('test:my-pagination')
 
-    expect(mockInject).toHaveBeenCalledWith('my-pagination', undefined)
+    expect(mockInject).toHaveBeenCalledWith('test:my-pagination', undefined)
     expect(result).toBe(mockContext)
   })
 

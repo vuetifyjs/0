@@ -1,6 +1,8 @@
 /**
  * @module useVirtualFocus
  *
+ * @see https://0.vuetifyjs.com/composables/system/use-virtual-focus
+ *
  * @remarks
  * Virtual focus composable for aria-activedescendant keyboard navigation.
  * DOM focus stays on a control element while a virtual cursor highlights
@@ -17,6 +19,15 @@
  *
  * Perfect for comboboxes, autocompletes, listboxes, and other widgets
  * where DOM focus must remain on the control element.
+ *
+ * @example
+ * ```ts
+ * import { useVirtualFocus } from '@vuetify/v0'
+ *
+ * const items = () => [{ id: 'a' }, { id: 'b' }, { id: 'c' }]
+ * const cursor = useVirtualFocus(items)
+ * cursor.next()
+ * ```
  */
 
 // Composables
@@ -24,7 +35,7 @@ import { createFocusTraversal } from '#v0/composables/createFocusTraversal'
 import { useEventListener } from '#v0/composables/useEventListener'
 
 // Utilities
-import { toValue } from 'vue'
+import { onScopeDispose, toValue } from 'vue'
 
 // Types
 import type { TraversalItem } from '#v0/composables/createFocusTraversal'
@@ -139,6 +150,10 @@ export function useVirtualFocus (
   if (listener) {
     useEventListener(listener, 'keydown', traversal.onKeydown)
   }
+
+  onScopeDispose(() => {
+    clear()
+  })
 
   return {
     highlightedId: traversal.activeId,

@@ -20,6 +20,11 @@
       "since": "0.1.0",
       "category": "registration"
     },
+    "createRating": {
+      "level": "preview",
+      "since": "0.2.0",
+      "category": "forms"
+    },
     "createRegistry": {
       "level": "preview",
       "since": "0.1.0",
@@ -76,6 +81,26 @@
       "since": "0.1.5",
       "category": "forms"
     },
+    "createCombobox": {
+      "level": "preview",
+      "since": "0.2.0",
+      "category": "forms"
+    },
+    "createInput": {
+      "level": "preview",
+      "since": "0.2.0",
+      "category": "forms"
+    },
+    "createNumberField": {
+      "level": "preview",
+      "since": null,
+      "category": "forms"
+    },
+    "createNumeric": {
+      "level": "preview",
+      "since": "0.2.0",
+      "category": "forms"
+    },
     "createDataTable": {
       "level": "preview",
       "since": "0.1.0",
@@ -91,6 +116,11 @@
       "since": "0.1.0",
       "category": "data"
     },
+    "createProgress": {
+      "level": "draft",
+      "since": null,
+      "category": "semantic"
+    },
     "createVirtual": {
       "level": "preview",
       "since": "0.1.0",
@@ -99,12 +129,12 @@
     "createBreadcrumbs": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "semantic"
+      "category": "utilities"
     },
     "createOverflow": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "semantic"
+      "category": "utilities"
     },
     "useBreakpoints": {
       "level": "preview",
@@ -169,6 +199,10 @@
     "useHotkey": {
       "level": "preview",
       "since": "0.1.0",
+      "category": "system"
+    },
+    "useImage": {
+      "level": "preview",
       "category": "system"
     },
     "useIntersectionObserver": {
@@ -248,9 +282,24 @@
       "since": "0.1.8",
       "category": "system"
     },
+    "usePresence": {
+      "level": "preview",
+      "since": "0.2.0",
+      "category": "system"
+    },
     "useRovingFocus": {
       "level": "preview",
       "since": "0.1.8",
+      "category": "system"
+    },
+    "useNotifications": {
+      "level": "preview",
+      "since": "0.1.9",
+      "category": "plugins"
+    },
+    "useRaf": {
+      "level": "preview",
+      "since": "0.1.9",
       "category": "system"
     },
     "useRtl": {
@@ -261,7 +310,12 @@
     "useRules": {
       "level": "preview",
       "since": "0.1.7",
-      "category": "forms"
+      "category": "plugins"
+    },
+    "useTimer": {
+      "level": "preview",
+      "since": "0.1.9",
+      "category": "system"
     },
     "useVirtualFocus": {
       "level": "preview",
@@ -270,17 +324,23 @@
     }
   },
   "components": {
+    "AspectRatio": {
+      "level": "preview",
+      "category": "primitives"
+    },
     "Atom": {
       "level": "preview",
       "since": "0.1.0",
       "category": "primitives"
     },
     "Portal": {
-      "level": "draft",
+      "level": "preview",
+      "since": "0.2.0",
       "category": "primitives"
     },
     "Presence": {
-      "level": "draft",
+      "level": "preview",
+      "since": "0.2.0",
       "category": "primitives"
     },
     "Group": {
@@ -289,7 +349,8 @@
       "category": "providers"
     },
     "Locale": {
-      "level": "draft",
+      "level": "preview",
+      "since": "0.1.11",
       "category": "providers"
     },
     "Scrim": {
@@ -313,20 +374,19 @@
       "category": "providers"
     },
     "Theme": {
-      "level": "draft",
+      "level": "preview",
+      "since": "0.1.11",
       "category": "providers"
     },
     "Toggle": {
-      "level": "draft",
-      "category": "providers"
-    },
-    "ToggleGroup": {
-      "level": "draft",
-      "category": "providers"
+      "level": "preview",
+      "since": "0.2.0",
+      "category": "actions"
     },
     "Button": {
-      "level": "draft",
-      "category": "forms"
+      "level": "preview",
+      "since": "0.1.10",
+      "category": "actions"
     },
     "Checkbox": {
       "level": "preview",
@@ -334,7 +394,8 @@
       "category": "forms"
     },
     "Combobox": {
-      "level": "draft",
+      "level": "preview",
+      "since": "0.2.0",
       "category": "forms"
     },
     "Form": {
@@ -356,7 +417,8 @@
       "category": "forms"
     },
     "NumberField": {
-      "level": "draft",
+      "level": "preview",
+      "since": null,
       "category": "forms"
     },
     "Radio": {
@@ -365,7 +427,8 @@
       "category": "forms"
     },
     "Rating": {
-      "level": "draft",
+      "level": "preview",
+      "since": "0.2.0",
       "category": "forms"
     },
     "Select": {
@@ -388,11 +451,13 @@
       "category": "forms"
     },
     "AlertDialog": {
-      "level": "draft",
+      "level": "preview",
+      "since": "0.2.0",
       "category": "disclosure"
     },
     "Collapsible": {
-      "level": "draft",
+      "level": "preview",
+      "since": "0.2.0",
       "category": "disclosure"
     },
     "Dialog": {
@@ -415,9 +480,10 @@
       "since": "0.1.0",
       "category": "disclosure"
     },
-    "Toast": {
-      "level": "draft",
-      "category": "disclosure"
+    "Snackbar": {
+      "level": "preview",
+      "since": "0.1.9",
+      "category": "semantic"
     },
     "Tooltip": {
       "level": "draft",
@@ -438,11 +504,11 @@
       "category": "semantic"
     },
     "Carousel": {
-      "level": "draft",
+      "level": "preview",
       "category": "semantic"
     },
     "Image": {
-      "level": "draft",
+      "level": "preview",
       "category": "semantic"
     },
     "Overflow": {
@@ -464,8 +530,9 @@
       "category": "semantic"
     },
     "Treeview": {
-      "level": "draft",
-      "category": "semantic"
+      "level": "preview",
+      "since": "0.1.11",
+      "category": "disclosure"
     },
     "DataGrid": {
       "level": "draft",

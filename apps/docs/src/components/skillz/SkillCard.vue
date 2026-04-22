@@ -1,7 +1,7 @@
 <script setup lang="ts">
   // Components
-  import SkillMasteredBadge from './SkillMasteredBadge.vue'
   import DocsCard from '@/components/docs/DocsCard.vue'
+  import SkillMasteredBadge from './SkillMasteredBadge.vue'
 
   // Utilities
   import { toRef } from 'vue'

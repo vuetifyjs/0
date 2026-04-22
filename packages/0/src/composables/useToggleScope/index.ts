@@ -1,6 +1,8 @@
 /**
  * @module useToggleScope
  *
+ * @see https://0.vuetifyjs.com/composables/system/use-toggle-scope
+ *
  * @remarks
  * Conditionally manages an effect scope based on a reactive boolean condition.
  * When the source becomes true, creates and runs an effect scope. When false, stops the scope.
@@ -15,6 +17,17 @@
  *
  * Perfect for conditional side effects, feature flags, and performance optimization
  * by only running reactive effects when needed.
+ *
+ * @example
+ * ```ts
+ * import { shallowRef } from 'vue'
+ * import { useToggleScope } from '@vuetify/v0'
+ *
+ * const isEnabled = shallowRef(false)
+ * const { isActive } = useToggleScope(isEnabled, () => {
+ *   // effects run while isEnabled is true
+ * })
+ * ```
  */
 
 // Utilities

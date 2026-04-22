@@ -5,10 +5,10 @@
   import IntroPanel from '@/content/intro.md'
 
   useHead({
-    title: 'Vuetify Play',
+    title: 'Vuetify0 Play',
     meta: [
       { key: 'description', name: 'description', content: 'Experiment with @vuetify/v0 headless composables and components in an interactive browser-based editor.' },
-      { key: 'og:title', property: 'og:title', content: 'Vuetify Play' },
+      { key: 'og:title', property: 'og:title', content: 'Vuetify0 Play' },
       { key: 'og:description', property: 'og:description', content: 'Experiment with @vuetify/v0 headless composables and components in an interactive browser-based editor.' },
       { key: 'og:image', property: 'og:image', content: 'https://cdn.vuetifyjs.com/docs/images/one/logos/vplay-logo-og.png' },
     ],

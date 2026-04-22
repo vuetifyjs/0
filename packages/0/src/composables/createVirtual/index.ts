@@ -1,10 +1,13 @@
 /**
  * @module createVirtual
  *
+ * @see https://0.vuetifyjs.com/composables/data/create-virtual
+ *
  * @remarks
  * Virtual scrolling composable for efficiently rendering large lists.
  *
  * Key features:
+ * - Trinity pattern for dependency injection (`createVirtualContext`, `useVirtual`)
  * - Renders only visible items (viewport + overscan)
  * - Dynamic or fixed item heights
  * - SSR-safe (checks IN_BROWSER)
@@ -15,16 +18,24 @@
  * - Configurable overscan (extra items rendered for smooth scrolling)
  *
  * Perfect for large data sets, chat apps, and infinite scroll implementations.
+ *
+ * @example
+ * ```ts
+ * import { shallowRef } from 'vue'
+ * import { createVirtual } from '@vuetify/v0'
+ *
+ * const items = shallowRef(Array.from({ length: 10000 }, (_, i) => ({ id: i })))
+ * const virtual = createVirtual(items, { itemHeight: 40 })
+ * console.log(virtual.items.value)
+ * ```
  */
 
 // Constants
 import { IN_BROWSER } from '#v0/constants/globals'
 
-// Foundational
-import { createContext, useContext } from '#v0/composables/createContext'
-import { createTrinity } from '#v0/composables/createTrinity'
-
 // Composables
+import { useContext } from '#v0/composables/createContext'
+import { createTrinity } from '#v0/composables/createTrinity'
 import { useResizeObserver } from '#v0/composables/useResizeObserver'
 
 // Utilities
@@ -33,7 +44,7 @@ import { computed, onScopeDispose, readonly, ref, shallowRef, watch } from 'vue'
 
 // Types
 import type { ContextTrinity } from '#v0/composables/createTrinity'
-import type { App, ComputedRef, Ref, ShallowRef } from 'vue'
+import type { ComputedRef, Ref, ShallowRef } from 'vue'
 
 export type VirtualDirection = 'forward' | 'reverse'
 export type VirtualState = 'loading' | 'empty' | 'error' | 'ok'
@@ -325,7 +336,7 @@ export interface VirtualContextOptions extends VirtualOptions {
  * @param options Configuration options
  * @returns Virtual scrolling context
  *
- * @see https://0.vuetifyjs.com/composables/utilities/create-virtual
+ * @see https://0.vuetifyjs.com/composables/data/create-virtual
  *
  * @example
  * ```vue
@@ -407,7 +418,7 @@ export function createVirtual<T = unknown> (
     if (!IN_BROWSER || !el?.style) return
 
     /* v8 ignore start -- browser-only style assignments */
-    if (momentum) (el.style as any).webkitOverflowScrolling = 'touch'
+    if (momentum) (el.style as unknown as Record<string, string>).webkitOverflowScrolling = 'touch'
     if (!elastic) el.style.overscrollBehavior = 'none'
     /* v8 ignore stop */
   })
@@ -656,6 +667,8 @@ export function createVirtual<T = unknown> (
   }
 
   onScopeDispose(() => {
+    if (!IN_BROWSER) return
+
     cancelAnimationFrame(raf)
     cancelAnimationFrame(rebuildRaf)
     cancelAnimationFrame(edgeRaf)
@@ -683,7 +696,7 @@ export function createVirtual<T = unknown> (
  * @template T The type of the items
  * @returns Trinity tuple: [useVirtual, provideVirtual, defaultVirtual]
  *
- * @see https://0.vuetifyjs.com/composables/utilities/create-virtual
+ * @see https://0.vuetifyjs.com/composables/data/create-virtual
  *
  * @example
  * ```ts
@@ -709,15 +722,9 @@ export function createVirtualContext<T = unknown> (
     ...options
   } = _options
 
-  const [useVirtualContext, _provideVirtualContext] = createContext<VirtualContext<T>>(namespace)
-
   const context = createVirtual<T>(items, options)
 
-  function provideVirtualContext (_context: VirtualContext<T> = context, app?: App): VirtualContext<T> {
-    return _provideVirtualContext(_context, app)
-  }
-
-  return createTrinity<VirtualContext<T>>(useVirtualContext, provideVirtualContext, context)
+  return createTrinity<VirtualContext<T>>(namespace, context)
 }
 
 /**
@@ -729,7 +736,7 @@ export function createVirtualContext<T = unknown> (
  *
  * @throws An error if the virtual context is not found and no default is provided.
  *
- * @see https://0.vuetifyjs.com/composables/utilities/create-virtual
+ * @see https://0.vuetifyjs.com/composables/data/create-virtual
  *
  * @example
  * ```vue

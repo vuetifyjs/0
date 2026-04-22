@@ -10,6 +10,19 @@
  * - `undefined` — not yet created
  * - `null` — permanently stopped (`stop()` was called; `setup()` is a no-op)
  * - instance — active observer
+ *
+ * @example
+ * ```ts
+ * import { createObserver } from '#v0/composables/createObserver'
+ *
+ * const observer = createObserver(target, entries => {
+ *   console.log(entries)
+ * }, {
+ *   supports: true,
+ *   create: cb => new ResizeObserver(cb),
+ *   observe: (o, el) => o.observe(el),
+ * })
+ * ```
  */
 
 // Composables
@@ -70,7 +83,7 @@ export function createObserver<O extends { disconnect: () => void }, E> (
   const resolved = toRef(() => toElement(target))
   const observer = shallowRef<O | null | undefined>(undefined)
   const isPaused = shallowRef(false)
-  const isActive = toRef(() => !!observer.value)
+  const isActive = toRef(() => !!observer.value && !isPaused.value)
 
   function invoke (entries: E[]) {
     config.onEntry?.(entries)

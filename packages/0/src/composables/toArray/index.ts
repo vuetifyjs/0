@@ -1,12 +1,23 @@
 /**
  * @module toArray
  *
+ * @see https://0.vuetifyjs.com/composables/transformers/to-array
+ *
  * @remarks
  * Utility function to normalize single values and arrays into arrays.
  *
  * Converts single values into single-element arrays, passes arrays through unchanged,
  * and handles null/undefined by returning empty arrays. Perfect for functions that
  * accept both single values and arrays as input (e.g., ID | ID[]).
+ *
+ * @example
+ * ```ts
+ * import { toArray } from '@vuetify/v0'
+ *
+ * toArray('hello') // ['hello']
+ * toArray(['a', 'b']) // ['a', 'b']
+ * toArray(null) // []
+ * ```
  */
 
 // Utilities
@@ -31,6 +42,7 @@ import { isArray, isNullOrUndefined } from '#v0/utilities'
  * console.log(valueAsArray) // ['Example Value']
  * ```
  */
+/* #__NO_SIDE_EFFECTS__ */
 export function toArray<Z> (value: Z | Z[]): Z[] {
   return isNullOrUndefined(value) ? [] : (isArray(value) ? value : [value])
 }

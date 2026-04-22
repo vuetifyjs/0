@@ -373,5 +373,153 @@ describe('form', () => {
 
       expect(slot.isReadonly).toBe(true)
     })
+
+    it('should expose isDisabled as false by default', () => {
+      let slot: any
+
+      mount(Form, {
+        slots: {
+          default: (props: any) => {
+            slot = props
+            return h('div')
+          },
+        },
+      })
+
+      expect(slot.isDisabled).toBe(false)
+    })
+
+    it('should expose isReadonly as false by default', () => {
+      let slot: any
+
+      mount(Form, {
+        slots: {
+          default: (props: any) => {
+            slot = props
+            return h('div')
+          },
+        },
+      })
+
+      expect(slot.isReadonly).toBe(false)
+    })
+
+    it('should expose isValidating as false when idle', () => {
+      let slot: any
+
+      mount(Form, {
+        slots: {
+          default: (props: any) => {
+            slot = props
+            return h('div')
+          },
+        },
+      })
+
+      expect(slot.isValidating).toBe(false)
+    })
+
+    it('should expose isValid as false after failed submission', async () => {
+      let slot: any
+
+      const wrapper = mount(Form, {
+        slots: {
+          default: (props: any) => {
+            slot = props
+            return h(FailingField)
+          },
+        },
+      })
+
+      await wrapper.trigger('submit')
+      await flushPromises()
+      await nextTick()
+
+      expect(slot.isValid).toBe(false)
+    })
+
+    it('should expose isValid as true after successful submission', async () => {
+      const PassingField = defineComponent({
+        setup () {
+          const value = shallowRef('valid')
+          createValidation({
+            value,
+            rules: [(v: unknown) => v === 'valid' ? true : 'Error'],
+          })
+          return () => h('input')
+        },
+      })
+
+      let slot: any
+
+      const wrapper = mount(Form, {
+        slots: {
+          default: (props: any) => {
+            slot = props
+            return h(PassingField)
+          },
+        },
+      })
+
+      await wrapper.trigger('submit')
+      await flushPromises()
+      await nextTick()
+
+      expect(slot.isValid).toBe(true)
+    })
+
+    it('should allow submit via slot prop function', async () => {
+      let slot: any
+
+      mount(Form, {
+        slots: {
+          default: (props: any) => {
+            slot = props
+            return h('div')
+          },
+        },
+      })
+
+      const result = await slot.submit()
+      await flushPromises()
+
+      expect(result).toBe(true)
+    })
+
+    it('should allow reset via slot prop function', async () => {
+      let injected: ReturnType<typeof useForm>
+
+      const Field = defineComponent({
+        setup () {
+          injected = useForm()
+          const value = shallowRef('')
+          createValidation({
+            value,
+            rules: [(v: unknown) => v === 'valid' ? true : 'Error'],
+          })
+          return () => h('input')
+        },
+      })
+
+      let slot: any
+
+      const wrapper = mount(Form, {
+        slots: {
+          default: (props: any) => {
+            slot = props
+            return h(Field)
+          },
+        },
+      })
+
+      await wrapper.trigger('submit')
+      await flushPromises()
+      expect(injected!.isValid.value).toBe(false)
+
+      slot.reset()
+      await nextTick()
+
+      expect(injected!.isValid.value).toBeNull()
+    })
   })
 })

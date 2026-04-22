@@ -343,6 +343,92 @@ describe('createFeatures', () => {
       expect(context.variation('null-val', 'fallback')).toBe('fallback')
     })
   })
+
+  describe('sync', () => {
+    it('should register new features via sync', () => {
+      const context = createFeatures({})
+
+      context.sync({
+        'new-feature': true,
+        'another-feature': false,
+      })
+
+      expect(context.has('new-feature')).toBe(true)
+      expect(context.has('another-feature')).toBe(true)
+      expect(context.selectedIds.has('new-feature')).toBe(true)
+      expect(context.selectedIds.has('another-feature')).toBe(false)
+    })
+
+    it('should update existing features via sync', () => {
+      const context = createFeatures({
+        features: {
+          'toggle-me': true,
+        },
+      })
+
+      expect(context.selectedIds.has('toggle-me')).toBe(true)
+
+      context.sync({ 'toggle-me': false })
+
+      expect(context.selectedIds.has('toggle-me')).toBe(false)
+    })
+
+    it('should sync object features with $value', () => {
+      const context = createFeatures({})
+
+      context.sync({
+        'obj-feature': { $value: true, $variation: 'blue' },
+      })
+
+      expect(context.selectedIds.has('obj-feature')).toBe(true)
+      expect(context.variation('obj-feature')).toBe('blue')
+    })
+
+    it('should unselect object features with $value: false', () => {
+      const context = createFeatures({
+        features: {
+          'obj-feature': { $value: true, $variation: 'red' },
+        },
+      })
+
+      expect(context.selectedIds.has('obj-feature')).toBe(true)
+
+      context.sync({
+        'obj-feature': { $value: false, $variation: 'red' },
+      })
+
+      expect(context.selectedIds.has('obj-feature')).toBe(false)
+    })
+
+    it('should not select non-boolean sync values', () => {
+      const context = createFeatures({})
+
+      context.sync({
+        'string-feature': 'active' as unknown as boolean,
+      })
+
+      expect(context.has('string-feature')).toBe(true)
+      expect(context.selectedIds.has('string-feature')).toBe(false)
+    })
+  })
+
+  describe('register defaults', () => {
+    it('should default to false value when no value provided', () => {
+      const context = createFeatures({})
+      const ticket = context.register({ id: 'no-value' })
+
+      expect(ticket.value).toBe(false)
+      expect(context.selectedIds.has('no-value')).toBe(false)
+    })
+
+    it('should register with empty options', () => {
+      const context = createFeatures({})
+      const ticket = context.register()
+
+      expect(ticket).toBeDefined()
+      expect(ticket.value).toBe(false)
+    })
+  })
 })
 
 describe('createFeaturesPlugin', () => {
@@ -659,6 +745,45 @@ describe('useFeatures', () => {
 
     expect(features).toBeDefined()
     expect(features!.size).toBe(0)
+
+    app.unmount()
+  })
+
+  it('should return empty array from fallback onboard', () => {
+    let features: ReturnType<typeof useFeatures> | undefined
+
+    const app = createApp({
+      setup () {
+        features = useFeatures()
+        return {}
+      },
+      template: '<div>Test</div>',
+    })
+
+    const container = document.createElement('div')
+    app.mount(container)
+
+    expect(features!.onboard([{ id: 'test', value: true }])).toEqual([])
+
+    app.unmount()
+  })
+
+  it('should no-op fallback sync', () => {
+    let features: ReturnType<typeof useFeatures> | undefined
+
+    const app = createApp({
+      setup () {
+        features = useFeatures()
+        return {}
+      },
+      template: '<div>Test</div>',
+    })
+
+    const container = document.createElement('div')
+    app.mount(container)
+
+    // Should not throw
+    expect(() => features!.sync({ test: true })).not.toThrow()
 
     app.unmount()
   })

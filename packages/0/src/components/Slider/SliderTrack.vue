@@ -1,6 +1,8 @@
 /**
  * @module SliderTrack
  *
+ * @see https://0.vuetifyjs.com/components/forms/slider
+ *
  * @remarks
  * Track element for sliders. Handles click-to-position interaction:
  * on pointerdown, calculates value from pointer position, snaps nearest
@@ -13,7 +15,7 @@
   import { useSliderRoot } from './SliderRoot.vue'
 
   // Utilities
-  import { toRef, toValue, useAttrs, useTemplateRef, watchEffect } from 'vue'
+  import { mergeProps, toRef, toValue, useAttrs, useTemplateRef, watchEffect } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -105,7 +107,7 @@
 <template>
   <Atom
     ref="track"
-    v-bind="{ ...attrs, ...slotProps.attrs }"
+    v-bind="mergeProps(attrs, slotProps.attrs)"
     :as
     :renderless
     :style="[attrs.style, slotProps.attrs.style]"

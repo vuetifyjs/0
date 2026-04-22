@@ -23,9 +23,11 @@ The meta-framework for building UI libraries.
 
 <DocsPageFeatures :frontmatter />
 
-v0 provides headless composables, unstyled components, and reactive primitives — the foundation layer that UI frameworks are built on. Use it to build a full design system shared across projects, or import a single composable to solve one problem in your app. v0 scales to your ambition.
+v0 provides headless composables, unstyled components, and reactive primitives — the foundation layer that UI frameworks are built on. **46 components, 63+ composables** — all unstyled, all accessible, built on standard Vue SFCs using the latest macros (`defineModel`, `defineSlots`, generics).
 
-From the creators of [Vuetify](https://vuetifyjs.com) — **40K+ GitHub stars**, **2M+ weekly downloads**, a decade of production use. Vuetify itself is being rebuilt on v0.
+No custom compiler, no proprietary patterns. Use it to build a full design system shared across projects, or import a single composable to solve one problem in your app. v0 scales to your ambition.
+
+From the creators of [Vuetify](https://vuetifyjs.com) — **41K+ GitHub stars**, **4M+ monthly downloads**, a decade of production use. Vuetify itself is being rebuilt on v0.
 
 ## Composable-First Architecture
 
@@ -101,15 +103,59 @@ v0's [Trinity pattern](/guide/fundamentals/core#the-trinity-pattern) provides th
 
 Use as many layers as you need. The same selection logic works whether you're building a chip group, a listbox, tabs, or your own custom component — without wrappers or adapters.
 
+### Composing Primitives
+
+The real power isn't any single composable — it's what you build when you combine them.
+
+A `Cmd+K` command palette is just four v0 primitives working together:
+
+```ts
+// ~100 lines. No third-party command palette library needed.
+// Dialog.Root wraps the palette (omitted for brevity)
+import { createFilter, useHotkey, useVirtualFocus } from '@vuetify/v0'
+
+// Open on Cmd+K
+useHotkey('meta+k', () => open.value = true)
+
+// Filter items as the user types
+const filter = createFilter({ keys: ['label', 'description'] })
+const { items: results } = filter.apply(query, commands)
+
+// Keyboard navigation through results
+const { highlightedId, next, prev } = useVirtualFocus(
+  () => results.value.map(item => ({ id: item.id })),
+  { control: inputRef },
+)
+```
+
+That's what a meta-framework does — composable primitives that combine cleanly, without fighting each other.
+
 ### Adapter-Based Plugins
 
-v0 defines contracts, not implementations. Plugins use adapters — swap the underlying library without changing a line of consumer code. Different date library? Swap the adapter. Different i18n provider? Swap the adapter. Your components never know the difference.
+v0 defines contracts, not implementations. Plugins use adapters — swap the underlying library without changing a line of consumer code. Your components never know the difference.
+
+Built-in adapters ship for the most common integrations:
+
+| Plugin | Adapter | Integration |
+|--------|---------|-------------|
+| `useLogger` | `PinoLoggerAdapter` | [Pino](https://getpino.io) structured logging |
+| `useLogger` | `ConsolaLoggerAdapter` | [Consola](https://github.com/unjs/consola) universal logging |
+| `useLocale` | `VueI18nLocaleAdapter` | [Vue I18n](https://vue-i18n.intlify.dev) internationalization |
+| `useFeatures` | `LaunchDarklyFeatureAdapter` | [LaunchDarkly](https://launchdarkly.com) feature flags |
+| `useFeatures` | `FlagsmithFeatureAdapter` | [Flagsmith](https://flagsmith.com) feature flags |
+| `useFeatures` | `PostHogFeatureAdapter` | [PostHog](https://posthog.com) feature flags and analytics |
+| `useNotifications` | `createKnockAdapter` | [Knock](https://knock.app) notification feeds |
+| `useNotifications` | `createNovuAdapter` | [Novu](https://novu.co) notification infrastructure |
+
+Don't have a built-in? Implement the adapter interface in ~10 lines and swap it in. No changes to your application code.
 
 ### Performance by Design
 
 **Fast by default, not fixed after the fact.**
 
-Performance at the foundation layer compounds for everything built on top. Many v0 composables and features are not reactive by default — lean primitives that you opt into reactivity for when needed. Published [benchmarks](/guide/fundamentals/benchmarks) prove the claims.
+Performance at the foundation layer compounds for everything built on top. Every composable is independently importable and tree-shakeable — only what you use ships. Zero runtime CSS. Published [benchmarks](/guide/fundamentals/benchmarks) back the claims.
+
+Lazy rendering is built in: [`usePresence`](/composables/system/use-presence) delays mounting until needed, [`useLazy`](/composables/system/use-lazy) defers content until it enters the viewport. Performance is a feature, not an afterthought.
 
 ### Progressive Enhancement
 
@@ -119,7 +165,7 @@ v0 features automatically upgrade when plugins are present. No wiring. No config
 
 - **Pagination + Locale:** Uses a default label string out of the box. Add `useLocale`, define your pagination label, and the component picks it up automatically.
 - **Logger:** `console.log` by default. Add the logger plugin and you get colored output and visual formatting — no code changes.
-- **Breakpoints:** Add `useBreakpoints` and other composables consume it internally. Responsive behavior with zero configuration.
+- **Breakpoints:** Add `useBreakpoints` and composables can consume it for responsive behavior — available throughout the system with zero configuration.
 
 > [!TIP]
 > This is the difference between a library and a meta-framework. Libraries make you wire everything. v0 features are aware of each other.
@@ -132,7 +178,7 @@ v0 was built in the AI era. Not retrofitted — designed from day one to be cons
 
 ### MCP Server
 
-First-class [Model Context Protocol server](/guide/tooling/vuetify-mcp) for Claude, Cursor, and other AI assistants. Structured access to v0's full API — accurate, versioned, complete. No hallucinations, no outdated docs.
+First-class [Model Context Protocol server](/guide/tooling/vuetify-mcp) for Claude, Cursor, and other AI assistants. Structured access to v0's full API — accurate, versioned, complete. No hallucinations, no outdated docs. See the full [AI Tools guide](/guide/tooling/ai-tools) for setup and usage.
 
 ### Ask AI — Built Into Every Page
 
@@ -174,7 +220,7 @@ While v0 is new, its patterns are not. Registration, selection, theming, forms �
 
 ### The Platform Behind v0
 
-- **40K+ GitHub stars**, **2M+ weekly downloads**, **371K+ dependent projects**
+- **41K+ GitHub stars**, **4M+ monthly downloads**, **324K+ dependent projects**
 - **10+ years** of continuous development
 - Weekly release cadence maintained consistently
 - Thousands of issues dispositioned, thousands of PRs merged, tens of thousands of commits
@@ -186,17 +232,24 @@ Active Discord. Weekly releases. Responsive maintainers. The kind of support tha
 
 ### Vuetify Convergence
 
-This isn't theoretical — v0 is already being merged into Vuetify 5. The first PR has landed. Investing in v0 now means your foundation aligns with where the entire Vuetify ecosystem is actively heading. See the [roadmap](/roadmap) for details.
+Vuetify0 is already being merged into Vuetify's next major release. The first PR has landed. Investing in v0 now means your foundation aligns with where the entire Vuetify ecosystem is actively heading.
+
+### Road to v1
+
+**Alpha (April 7, 2026) → Beta (June 2026) → v1.0 (July 2026)** — [see the full roadmap](/roadmap).
+
+What comes after v1: **Vuetify Paper** — a styled layer built on v0 that provides opinionated design system primitives. Emerald and Onyx are the first design systems. Build on v0 today; Paper gives you a head start on the styled layer when you're ready.
 
 ### For Your Leadership
 
 Need to justify the choice to management? Here's what matters to them:
 
-- **Proven track record:** 10+ years, 40K+ stars, 371K+ dependents — not a gamble
+- **Proven track record:** 10+ years, 41K+ stars, 324K+ dependents — not a gamble
 - **Active development:** Weekly releases, thousands of PRs merged, public roadmap
-- **Ecosystem convergence:** v0 is already being merged into Vuetify 5 — long-term investment, not a dead end
+- **Ecosystem convergence:** v0 is already being merged into Vuetify's next major release
 - **Enterprise adoption:** Production use across industries
 - **Community health:** Active Discord, dedicated maintainer team, massive documentation investment
+- **Enterprise support:** [Dedicated support options available](https://vuetifyjs.com/introduction/enterprise-support/) for teams that need SLA guarantees
 
 ## Professional Tooling
 
@@ -204,11 +257,11 @@ Need to justify the choice to management? Here's what matters to them:
 
 | | Tool | Description |
 |:-:|------|-------------|
-| <AppIcon icon="vuetify-create" :size="20" /> | **[Vuetify Create](https://github.com/vuetifyjs/create)** <AppIcon icon="open-in-new" :size="14" /> | One command, project scaffolded with v0 pre-configured |
+| <AppIcon icon="vuetify-create" :size="20" /> | **[create-vuetify0](https://www.npmjs.com/package/create-vuetify0)** | One command, project scaffolded with v0 pre-configured |
 | <AppIcon icon="vuetify-cli" :size="20" /> | **[Vuetify CLI](/guide/tooling/vuetify-cli)** | Analyze usage, generate components, debug issues |
 | <AppIcon icon="vuetify-mcp" :size="20" /> | **[Vuetify MCP](/guide/tooling/vuetify-mcp)** | AI-native API access for Claude, Cursor, and other assistants |
 | <AppIcon icon="vuetify-play" :size="20" /> | **[Vuetify Play](/playground)** | Browser IDE for experimenting with v0 in real-time |
-| <AppIcon icon="vuetify-bin" :size="20" /> | **[Vuetify Bin](https://bin.vuetifyjs.com)** <AppIcon icon="open-in-new" :size="14" /> | Share runnable code snippets with a link |
+| <AppIcon icon="vuetify-bin" :size="20" /> | **[Vuetify Bin](https://bin.vuetifyjs.com)** | Share runnable code snippets with a link |
 
 ## Learn by Doing
 
@@ -246,11 +299,31 @@ Headless component libraries solve one problem well: unstyled UI primitives. v0 
 | CLI tooling | <AppIcon icon="close" class="text-error" /> | <AppIcon icon="success" class="text-success" /> |
 | 10+ years ecosystem | <AppIcon icon="close" class="text-error" /> | <AppIcon icon="success" class="text-success" /> |
 
-Need a full styled framework today? [Vuetify 3](https://vuetifyjs.com) has 80+ Material Design components ready to go. Need headless components that v0 doesn't have yet? Other options exist. v0 complements all of them — it's the foundation layer, not a replacement.
+Need a full styled framework today? [Vuetify 4](https://vuetifyjs.com) has 80+ Material Design components ready to go. Need headless components that v0 doesn't have yet? Other options exist. v0 complements all of them — it's the foundation layer, not a replacement.
 
 ## Get Started
 
 Ready to build? Pick your path:
+
+::: code-group no-filename
+
+```bash pnpm
+pnpm add @vuetify/v0
+```
+
+```bash npm
+npm install @vuetify/v0
+```
+
+```bash yarn
+yarn add @vuetify/v0
+```
+
+```bash bun
+bun add @vuetify/v0
+```
+
+:::
 
 - **[Install v0](/introduction/getting-started)** and start building
 - **[Explore the playground](/playground)** and experiment live

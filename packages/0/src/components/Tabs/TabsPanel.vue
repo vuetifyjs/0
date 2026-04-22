@@ -1,6 +1,8 @@
 /**
  * @module TabsPanel
  *
+ * @see https://0.vuetifyjs.com/components/disclosure/tabs
+ *
  * @remarks
  * Content panel associated with a tab. Matches with TabsItem via the `value`
  * prop. Provides ARIA tabpanel role and labelledby relationship with the
@@ -22,7 +24,7 @@
   import { useTabsRoot } from './TabsRoot.vue'
 
   // Utilities
-  import { toRef, toValue, useAttrs } from 'vue'
+  import { mergeProps, toRef, toValue, useAttrs } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -101,7 +103,7 @@
 
 <template>
   <Atom
-    v-bind="{ ...attrs, ...slotProps.attrs }"
+    v-bind="mergeProps(attrs, slotProps.attrs)"
     :as
     :renderless
   >

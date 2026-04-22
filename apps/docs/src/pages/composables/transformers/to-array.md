@@ -16,7 +16,7 @@ related:
 
 # toArray
 
-The `toArray` utility function provides a consistent way to convert any value into an array format. It handles edge cases like `null` and `undefined` values, and ensures that the output is always an array.
+Coerces any value — including `null` and `undefined` — to an array.
 
 <DocsPageFeatures :frontmatter />
 
@@ -52,5 +52,16 @@ flowchart LR
 ```ts
 const items = computed(() => toArray(props.items))
 ```
+
+## Examples
+
+::: example
+/composables/to-array/normalize
+
+### Normalize Inputs
+
+Shows `toArray` converting various input types — single values, arrays, `null`, `undefined` — to a consistent array output.
+
+:::
 
 <DocsApi />

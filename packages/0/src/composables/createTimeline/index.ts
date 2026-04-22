@@ -1,6 +1,8 @@
 /**
  * @module createTimeline
  *
+ * @see https://0.vuetifyjs.com/composables/registration/create-timeline
+ *
  * @remarks
  * Bounded undo/redo system with overflow management.
  *
@@ -12,19 +14,26 @@
  * - Perfect for command pattern, history tracking
  *
  * Extends createRegistry with temporal navigation capabilities.
+ *
+ * @example
+ * ```ts
+ * import { createTimeline } from '@vuetify/v0'
+ *
+ * const timeline = createTimeline({ size: 5 })
+ * timeline.register({ value: 'action-1' })
+ * timeline.register({ value: 'action-2' })
+ * timeline.undo()
+ * ```
  */
 
-// Foundational
-import { createContext, useContext } from '#v0/composables/createContext'
-import { createTrinity } from '#v0/composables/createTrinity'
-
 // Composables
+import { useContext } from '#v0/composables/createContext'
 import { createRegistry } from '#v0/composables/createRegistry'
+import { createTrinity } from '#v0/composables/createTrinity'
 
 // Types
 import type { RegistryContext, RegistryOptions, RegistryTicket } from '#v0/composables/createRegistry'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
-import type { App } from 'vue'
 
 export interface TimelineContext<Z extends TimelineTicket> extends RegistryContext<Z> {
   /**
@@ -32,7 +41,7 @@ export interface TimelineContext<Z extends TimelineTicket> extends RegistryConte
    *
    * @return The removed ticket, or undefined if there are no tickets to undo.
    *
-   * @see https://0.vuetifyjs.com/composables/registration/create-timeline#undo
+   * @see https://0.vuetifyjs.com/composables/registration/create-timeline
    *
    * @example
    * ```ts
@@ -55,7 +64,7 @@ export interface TimelineContext<Z extends TimelineTicket> extends RegistryConte
    *
    * @returns The restored ticket, or undefined if there are no tickets to redo.
    *
-   * @see https://0.vuetifyjs.com/composables/registration/create-timeline#redo
+   * @see https://0.vuetifyjs.com/composables/registration/create-timeline
    *
    * @example
    * ```ts
@@ -229,14 +238,9 @@ export function createTimelineContext<
   E extends TimelineContext<Z> = TimelineContext<Z>,
 > (_options: TimelineContextOptions = {}): ContextTrinity<E> {
   const { namespace = 'v0:timeline', ...options } = _options
-  const [useTimelineContext, _provideTimelineContext] = createContext<E>(namespace)
   const context = createTimeline<Z, E>(options)
 
-  function provideTimelineContext (_context: E = context, app?: App): E {
-    return _provideTimelineContext(_context, app)
-  }
-
-  return createTrinity<E>(useTimelineContext, provideTimelineContext, context)
+  return createTrinity<E>(namespace, context)
 }
 
 /**

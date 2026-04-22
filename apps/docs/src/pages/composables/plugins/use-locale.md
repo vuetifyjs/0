@@ -11,14 +11,15 @@ features:
   github: /composables/useLocale/
   level: 2
 related:
+  - /components/providers/locale
   - /guide/features/accessibility
 ---
 
 # useLocale
 
-The `useLocale` composable provides comprehensive internationalization (i18n) capabilities, allowing you to manage multiple locales, switch between them dynamically, and translate messages with variable replacement and message linking. Built on `createSingle` for single-locale selection and supports custom adapters for integration with different i18n libraries.
-
 <DocsPageFeatures :frontmatter />
+
+i18n plugin with message translation, number formatting, and locale switching.
 
 ## Installation
 
@@ -83,11 +84,10 @@ Once the plugin is installed, use the `useLocale` composable in any component:
 
 ```mermaid "Locale Hierarchy"
 flowchart TD
-  createRegistry --> createSelection
-  createRegistry --> createTokens
+  createRegistry --> createModel
+  createModel --> createSelection
   createSelection --> createSingle
   createSingle --> useLocale
-  createTokens --> useLocale
   Adapter --> useLocale
 ```
 
@@ -106,11 +106,21 @@ Locale selection is reactive via `createSingle`. Translation methods return stat
 
 ::: example
 /composables/use-locale/locale-switcher
+
+### Locale Switcher
+
+Switch between English, Spanish, and Japanese — translated strings, navigation items, and formatted numbers all update reactively.
+
 :::
 
 ## Adapters
 
-`useLocale` supports an adapter pattern to integrate with external i18n libraries. Pass a custom `adapter` to delegate `t()` and `n()` to an external provider instead.
+Adapters let you swap the underlying i18n implementation without changing your application code.
+
+| Adapter | Import | Description |
+|---------|--------|-------------|
+| `Vuetify0LocaleAdapter` | `@vuetify/v0` | Token-based translation with fallback chain (default) |
+| `VueI18nLocaleAdapter` | `@vuetify/v0/locale/adapters/vue-i18n` | [vue-i18n](https://vue-i18n.intlify.dev/) v10+ integration |
 
 ### v0 (default)
 

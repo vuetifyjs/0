@@ -5,6 +5,9 @@
  * Flagsmith adapter for feature flags.
  */
 
+// Utilities
+import { isNullOrUndefined } from '#v0/utilities'
+
 // Types
 import type { FeaturesAdapterFlags, FeaturesAdapterInterface } from '../generic'
 import type { IFlagsmith, IInitConfig, IFlags, LoadingState, IRetrieveInfo } from '@flagsmith/flagsmith'
@@ -28,9 +31,9 @@ export class FlagsmithFeatureAdapter implements FeaturesAdapterInterface {
           const isEnabled = flag.enabled
           const variation = flag.value
 
-          adapterFlags[key] = (variation !== null && variation !== undefined)
-            ? { $value: isEnabled, $variation: variation }
-            : isEnabled
+          adapterFlags[key] = isNullOrUndefined(variation)
+            ? isEnabled
+            : { $value: isEnabled, $variation: variation }
         }
       }
 

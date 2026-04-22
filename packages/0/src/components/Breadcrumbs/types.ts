@@ -1,6 +1,8 @@
 /**
  * @module BreadcrumbsTypes
  *
+ * @see https://0.vuetifyjs.com/components/semantic/breadcrumbs
+ *
  * Shared types for Breadcrumbs components.
  */
 

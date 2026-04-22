@@ -8,7 +8,7 @@ export default defineConfig({
     testTimeout: 20_000,
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'json', 'html'],
+      reporter: ['text', 'json'],
       include: ['packages/0/src/**/*.ts', 'packages/0/src/**/*.vue'],
       exclude: [
         '**/*.test.ts',

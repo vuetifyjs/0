@@ -9,12 +9,12 @@ import type { TokenAlias, TokenCollection } from './index'
 
 import fixtureTokens from './fixtures/tokens'
 
-import { createTokens, createTokensContext, useTokens } from './index'
+import { createTokens, createTokensContext, flatten, useTokens } from './index'
 
 describe('createTokensContext', () => {
   describe('basic functionality', () => {
     it('should initialize with empty tokens', () => {
-      const context = createTokensContext({ namespace: 'test' })[2]
+      const context = createTokensContext({ namespace: 'test:tokens' })[2]
 
       expect(context.collection.size).toBe(0)
     })
@@ -27,7 +27,7 @@ describe('createTokensContext', () => {
         secondary: '#6C757D',
       }
 
-      const context = createTokensContext({ namespace: 'test', tokens })[2]
+      const context = createTokensContext({ namespace: 'test:tokens', tokens })[2]
 
       expect(context.collection.size).toBe(2)
       expect(context.resolve('primary')).toBe('#007BFF')
@@ -46,7 +46,7 @@ describe('createTokensContext', () => {
         },
       }
 
-      const context = createTokensContext({ namespace: 'test', tokens })[2]
+      const context = createTokensContext({ namespace: 'test:tokens', tokens })[2]
 
       expect(context.collection.size).toBe(4)
       expect(context.resolve('colors.primary')).toBe('#007BFF')
@@ -67,7 +67,7 @@ describe('createTokensContext', () => {
         },
       }
 
-      const context = createTokensContext({ namespace: 'test', tokens })[2]
+      const context = createTokensContext({ namespace: 'test:tokens', tokens })[2]
 
       expect(context.collection.size).toBe(4)
       expect(context.resolve('primary')).toBe('#007BFF')
@@ -102,7 +102,7 @@ describe('createTokensContext', () => {
         accent: { $value: '{primary}' },
       }
 
-      const context = createTokensContext({ namespace: 'test', tokens })[2]
+      const context = createTokensContext({ namespace: 'test:tokens', tokens })[2]
 
       expect(context.resolve('primary')).toBe('#007BFF')
       expect(context.resolve('accent')).toBe('#007BFF')
@@ -116,7 +116,7 @@ describe('createTokensContext', () => {
         accent: { $value: '{colors.primary}' },
       }
 
-      const context = createTokensContext({ namespace: 'test', tokens })[2]
+      const context = createTokensContext({ namespace: 'test:tokens', tokens })[2]
 
       expect(context.resolve('colors.primary')).toBe('#007BFF')
       expect(context.resolve('accent')).toBe('#007BFF')
@@ -129,7 +129,7 @@ describe('createTokensContext', () => {
         accent: { $value: '{primary}' },
       }
 
-      const context = createTokensContext({ namespace: 'test', tokens })[2]
+      const context = createTokensContext({ namespace: 'test:tokens', tokens })[2]
 
       expect(context.resolve('base')).toBe('#007BFF')
       expect(context.resolve('primary')).toBe('#007BFF')
@@ -144,7 +144,7 @@ describe('createTokensContext', () => {
         accent: { $value: '{primary}' },
       }
 
-      const context = createTokensContext({ namespace: 'test', tokens })[2]
+      const context = createTokensContext({ namespace: 'test:tokens', tokens })[2]
 
       expect(context.resolve('{primary}')).toBe('#007BFF')
       expect(context.resolve('{accent}')).toBe('#007BFF')
@@ -156,7 +156,7 @@ describe('createTokensContext', () => {
         accent: { $value: '{primary}' },
       }
 
-      const context = createTokensContext({ namespace: 'test', tokens })[2]
+      const context = createTokensContext({ namespace: 'test:tokens', tokens })[2]
 
       expect(context.resolve('primary')).toBe('#007BFF')
       expect(context.resolve('accent')).toBe('#007BFF')
@@ -164,7 +164,7 @@ describe('createTokensContext', () => {
 
     it('should return undefined for non-existent tokens', () => {
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
-      const context = createTokensContext({ namespace: 'test', tokens: {} })[2]
+      const context = createTokensContext({ namespace: 'test:tokens', tokens: {} })[2]
 
       expect(context.resolve('nonexistent')).toBeUndefined()
       expect(context.resolve('{nonexistent}')).toBeUndefined()
@@ -176,7 +176,7 @@ describe('createTokensContext', () => {
 
   describe('token item resolution', () => {
     it('should return undefined for non-existent token items', () => {
-      const context = createTokensContext({ namespace: 'test', tokens: {} })[2]
+      const context = createTokensContext({ namespace: 'test:tokens', tokens: {} })[2]
 
       expect(context.collection.get('nonexistent')).toBeUndefined()
       expect(context.collection.get('{nonexistent}')).toBeUndefined()
@@ -194,7 +194,7 @@ describe('createTokensContext', () => {
         },
       }
 
-      const context = createTokensContext({ namespace: 'test', tokens })[2]
+      const context = createTokensContext({ namespace: 'test:tokens', tokens })[2]
 
       expect(context.collection.size).toBe(2)
       expect(context.collection.has('primary')).toBe(true)
@@ -208,7 +208,7 @@ describe('createTokensContext', () => {
         },
       }
 
-      const context = createTokensContext({ namespace: 'test', tokens })[2]
+      const context = createTokensContext({ namespace: 'test:tokens', tokens })[2]
 
       const item = context.collection.get('colors.primary')
       expect(item).toBeDefined()
@@ -242,7 +242,7 @@ describe('createTokensContext', () => {
         },
       }
 
-      const context = createTokensContext({ namespace: 'test', tokens })[2]
+      const context = createTokensContext({ namespace: 'test:tokens', tokens })[2]
 
       expect(context.collection.size).toBe(10)
 
@@ -269,7 +269,7 @@ describe('createTokensContext', () => {
         },
       }
 
-      const context = createTokensContext({ namespace: 'test', tokens })[2]
+      const context = createTokensContext({ namespace: 'test:tokens', tokens })[2]
 
       expect(context.resolve('spacing.xs')).toBe('4px')
       expect(context.resolve('spacing.sm')).toBe('4px')
@@ -288,7 +288,7 @@ describe('createTokensContext reactivity in components', () => {
       accent: { $value: '{primary}' },
     }
 
-    const [_createTokensContext, provideTokens] = createTokensContext({ namespace: 'test-reactivity', tokens })
+    const [_createTokensContext, provideTokens] = createTokensContext({ namespace: 'test:reactivity', tokens })
 
     const TestComponent = defineComponent({
       setup () {
@@ -327,7 +327,7 @@ describe('createTokensContext reactivity in components', () => {
       accent: { $value: '{primary}' },
     }
 
-    const [_createTokensContext, provideTokens] = createTokensContext({ namespace: 'test-reactive', tokens })
+    const [_createTokensContext, provideTokens] = createTokensContext({ namespace: 'test:reactive', tokens })
 
     const TestComponent = defineComponent({
       setup () {
@@ -394,7 +394,7 @@ describe('createTokensContext reactivity in components', () => {
       },
     }
 
-    const [_createTokensContext, provideTokens] = createTokensContext({ namespace: 'test-items', tokens })
+    const [_createTokensContext, provideTokens] = createTokensContext({ namespace: 'test:items', tokens })
 
     const TestComponent = defineComponent({
       setup () {
@@ -430,7 +430,7 @@ describe('createTokensContext reactivity in components', () => {
   })
 
   it('should handle context injection errors gracefully', () => {
-    const [_createTokensContext] = createTokensContext({ namespace: 'test-error' })
+    const [_createTokensContext] = createTokensContext({ namespace: 'test:error' })
 
     const TestComponent = defineComponent({
       setup () {
@@ -455,8 +455,8 @@ describe('createTokensContext reactivity in components', () => {
       large: '24px',
     }
 
-    const [useThemeTokens, provideThemeTokens] = createTokensContext({ namespace: 'theme', tokens: themeTokens })
-    const [useSpacingTokens, provideSpacingTokens] = createTokensContext({ namespace: 'spacing', tokens: spacingTokens })
+    const [useThemeTokens, provideThemeTokens] = createTokensContext({ namespace: 'test:theme', tokens: themeTokens })
+    const [useSpacingTokens, provideSpacingTokens] = createTokensContext({ namespace: 'test:spacing', tokens: spacingTokens })
 
     const TestComponent = defineComponent({
       setup () {
@@ -493,7 +493,7 @@ describe('createTokensContext reactivity in components', () => {
 
   it('should return the original value for direct values without warning', () => {
     const tokens: TokenCollection = { primary: '#007BFF' }
-    const context = createTokensContext({ namespace: 'test', tokens })[2]
+    const context = createTokensContext({ namespace: 'test:tokens', tokens })[2]
 
     expect(context.resolve('primary')).toBe('#007BFF')
     expect(context.resolve('#ff0000')).toBe(undefined)
@@ -2359,7 +2359,7 @@ describe('flatten function edge cases', () => {
         },
       }
 
-      const context = createTokensContext({ namespace: 'test', tokens })[2]
+      const context = createTokensContext({ namespace: 'test:tokens', tokens })[2]
 
       // resolve() returns just the $value
       expect(context.resolve('color')).toBe('#FF0000')
@@ -2383,7 +2383,7 @@ describe('flatten function edge cases', () => {
         },
       }
 
-      const context = createTokensContext({ namespace: 'test', tokens })[2]
+      const context = createTokensContext({ namespace: 'test:tokens', tokens })[2]
 
       // resolve() returns just the $value
       expect(context.resolve('icon')).toBe('star')
@@ -2409,7 +2409,7 @@ describe('flatten function edge cases', () => {
         },
       }
 
-      const context = createTokensContext({ namespace: 'test', tokens })[2]
+      const context = createTokensContext({ namespace: 'test:tokens', tokens })[2]
 
       expect(context.resolve('theme.colors.red')).toBe('#FF5555')
       expect(context.collection.has('theme.colors.red')).toBe(true)
@@ -2423,7 +2423,7 @@ describe('flatten function edge cases', () => {
         filled: { value: '#FF0000' },
       }
 
-      const context = createTokensContext({ namespace: 'test', tokens })[2]
+      const context = createTokensContext({ namespace: 'test:tokens', tokens })[2]
 
       // The 'value' key is treated as a normal key, not $value
       expect(context.collection.has('filled.value')).toBe(true)
@@ -2442,7 +2442,7 @@ describe('flatten function edge cases', () => {
         },
       }
 
-      const context = createTokensContext({ namespace: 'test', tokens })[2]
+      const context = createTokensContext({ namespace: 'test:tokens', tokens })[2]
 
       expect(context.resolve('colors.primary.base')).toBe('#FF0000')
       expect(context.resolve('colors.empty1')).toBeUndefined()
@@ -2457,7 +2457,7 @@ describe('flatten function edge cases', () => {
         },
       }
 
-      const context = createTokensContext({ namespace: 'test', tokens })[2]
+      const context = createTokensContext({ namespace: 'test:tokens', tokens })[2]
 
       // Should register the metadata object itself as a token
       expect(context.collection.has('metadata')).toBe(true)
@@ -2474,7 +2474,7 @@ describe('flatten function edge cases', () => {
         },
       }
 
-      const context = createTokensContext({ namespace: 'test', tokens })[2]
+      const context = createTokensContext({ namespace: 'test:tokens', tokens })[2]
 
       expect(context.resolve('level1.level2.value')).toBe('actual')
       expect(context.resolve('level1.empty')).toBeUndefined()
@@ -2493,7 +2493,7 @@ describe('flatten function edge cases', () => {
         },
       }
 
-      const context = createTokensContext({ namespace: 'test', tokens })[2]
+      const context = createTokensContext({ namespace: 'test:tokens', tokens })[2]
 
       // The inner object is stored as-is in $value
       const resolved = context.resolve('nested') as Record<string, unknown>
@@ -2510,7 +2510,7 @@ describe('flatten function edge cases', () => {
         },
       }
 
-      const context = createTokensContext({ namespace: 'test', tokens })[2]
+      const context = createTokensContext({ namespace: 'test:tokens', tokens })[2]
 
       expect(context.collection.has('wrapper.inner')).toBe(true)
       expect(context.resolve('wrapper.inner')).toBe('#FF0000')
@@ -2530,7 +2530,7 @@ describe('flatten function edge cases', () => {
         },
       }
 
-      const context = createTokensContext({ namespace: 'test', tokens })[2]
+      const context = createTokensContext({ namespace: 'test:tokens', tokens })[2]
 
       expect(context.collection.has('level1.level2')).toBe(true)
       expect(context.resolve('level1.level2')).toEqual({ $value: '{color}' })
@@ -2547,7 +2547,7 @@ describe('flatten function edge cases', () => {
         },
       }
 
-      const context = createTokensContext({ namespace: 'test', tokens })[2]
+      const context = createTokensContext({ namespace: 'test:tokens', tokens })[2]
 
       expect(context.resolve('container.background')).toBe('#FFFFFF')
       expect(context.resolve('container.foreground')).toBe('#000000')
@@ -2564,7 +2564,7 @@ describe('flatten function edge cases', () => {
         },
       }
 
-      const context = createTokensContext({ namespace: 'test', tokens })[2]
+      const context = createTokensContext({ namespace: 'test:tokens', tokens })[2]
 
       // resolve() returns just the $value
       expect(context.resolve('primary')).toBe('#FF0000')
@@ -2589,7 +2589,7 @@ describe('flatten function edge cases', () => {
         },
       }
 
-      const context = createTokensContext({ namespace: 'test', tokens })[2]
+      const context = createTokensContext({ namespace: 'test:tokens', tokens })[2]
 
       // The $value itself is an object with nested keys
       expect(context.resolve('spacing.unit')).toBe('px')
@@ -2608,7 +2608,7 @@ describe('flatten function edge cases', () => {
         },
       }
 
-      const context = createTokensContext({ namespace: 'test', tokens })[2]
+      const context = createTokensContext({ namespace: 'test:tokens', tokens })[2]
 
       expect(context.resolve('button.background')).toBe('#0000FF')
       expect(context.resolve('button.states.hover')).toBe('#0000DD')
@@ -2624,7 +2624,7 @@ describe('flatten function edge cases', () => {
       }
 
       const context = createTokensContext(
-        { namespace: 'test', tokens, flat: true },
+        { namespace: 'test:tokens', tokens, flat: true },
       )[2]
 
       // With flat: true, sibling keys are registered as-is
@@ -2645,7 +2645,7 @@ describe('flatten function edge cases', () => {
         },
       }
 
-      const context = createTokensContext({ namespace: 'test', tokens })[2]
+      const context = createTokensContext({ namespace: 'test:tokens', tokens })[2]
 
       expect(context.resolve('level1.level2.level3.level4')).toBe('#FF0000')
       expect(context.collection.has('level1.level2.level3.level4')).toBe(true)
@@ -2666,7 +2666,7 @@ describe('flatten function edge cases', () => {
         },
       }
 
-      const context = createTokensContext({ namespace: 'test', tokens })[2]
+      const context = createTokensContext({ namespace: 'test:tokens', tokens })[2]
 
       // resolve() returns the $value, not the TokenAlias object
       expect(context.resolve('a.b.c.d.e.f')).toBe('#FF0000')
@@ -2688,7 +2688,7 @@ describe('flatten function edge cases', () => {
         },
       }
 
-      const context = createTokensContext({ namespace: 'test', tokens })[2]
+      const context = createTokensContext({ namespace: 'test:tokens', tokens })[2]
 
       expect(context.resolve('theme.colors.primary.shades.light.base')).toBe('#FF0000')
     })
@@ -2708,7 +2708,7 @@ describe('flatten function edge cases', () => {
         },
       }
 
-      const context = createTokensContext({ namespace: 'test', tokens })[2]
+      const context = createTokensContext({ namespace: 'test:tokens', tokens })[2]
 
       expect(context.resolve('foundation.spacing.scale.base')).toBe(4)
       expect(context.resolve('foundation.spacing.scale.ratios.golden')).toBe(1.618)
@@ -2733,7 +2733,7 @@ describe('flatten function edge cases', () => {
         },
       }
 
-      const context = createTokensContext({ namespace: 'test', tokens })[2]
+      const context = createTokensContext({ namespace: 'test:tokens', tokens })[2]
 
       // resolve() returns just the $value, not the whole TokenAlias
       expect(context.resolve('design.system.tokens.color.palette')).toBe('#FF0000')
@@ -2757,7 +2757,7 @@ describe('flatten function edge cases', () => {
         },
       }
 
-      const context = createTokensContext({ namespace: 'test', tokens })[2]
+      const context = createTokensContext({ namespace: 'test:tokens', tokens })[2]
 
       const ticket1 = context.collection.get('a.b.c.d')
       const ticket2 = context.collection.get('x.y.z.w')
@@ -2783,7 +2783,7 @@ describe('flatten function edge cases', () => {
       }
 
       const context = createTokensContext(
-        { namespace: 'test', tokens, flat: true },
+        { namespace: 'test:tokens', tokens, flat: true },
       )[2]
 
       expect(context.resolve('config.app.server.database.connection.host')).toBe('localhost')
@@ -2806,7 +2806,7 @@ describe('flatten function edge cases', () => {
         },
       }
 
-      const context = createTokensContext({ namespace: 'test', tokens })[2]
+      const context = createTokensContext({ namespace: 'test:tokens', tokens })[2]
 
       expect(context.resolve('design.palette.primary')).toBe('#FF0000')
     })
@@ -2824,7 +2824,7 @@ describe('flatten function edge cases', () => {
         },
       }
 
-      const context = createTokensContext({ namespace: 'test', tokens })[2]
+      const context = createTokensContext({ namespace: 'test:tokens', tokens })[2]
 
       expect(context.resolve('component.state.active')).toBe('#FF0000')
       // Empty objects resolve to their empty object, not undefined
@@ -2847,7 +2847,7 @@ describe('flatten function edge cases', () => {
         },
       }
 
-      const context = createTokensContext({ namespace: 'test', tokens })[2]
+      const context = createTokensContext({ namespace: 'test:tokens', tokens })[2]
 
       expect(typeof context.resolve('metrics.theme.spacing.scale.xs')).toBe('number')
       expect(typeof context.resolve('metrics.theme.spacing.scale.sm')).toBe('number')
@@ -2868,12 +2868,70 @@ describe('flatten function edge cases', () => {
       }
 
       const context = createTokensContext(
-        { namespace: 'test', tokens, prefix: 'v0' },
+        { namespace: 'test:tokens', tokens, prefix: 'v0' },
       )[2]
 
       expect(context.resolve('v0.colors.primary.base')).toBe('#FF0000')
       expect(context.resolve('v0.colors.primary.variants.light')).toBe('#FF5555')
     })
+  })
+})
+
+describe('createTokens cache-clearing wrappers', () => {
+  it('should clear cache on offboard', () => {
+    const tokens: TokenCollection = {
+      primary: '#007BFF',
+      accent: { $value: '{primary}' },
+      secondary: '#6C757D',
+    }
+    const context = createTokens(tokens)
+
+    // Prime cache
+    expect(context.resolve('accent')).toBe('#007BFF')
+
+    // Offboard primary
+    context.offboard(['primary'])
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+    // accent should now be undefined because primary was removed and cache was cleared
+    expect(context.resolve('accent')).toBeUndefined()
+    expect(context.size).toBe(2)
+
+    warnSpy.mockRestore()
+  })
+
+  it('should clear cache on move', () => {
+    const tokens: TokenCollection = {
+      a: 'first',
+      b: 'second',
+      c: 'third',
+    }
+    const context = createTokens(tokens)
+
+    // Prime cache
+    expect(context.resolve('a')).toBe('first')
+
+    context.move('c', 0)
+
+    // Verify move happened by checking index
+    const ticket = context.collection.get('c')
+    expect(ticket?.index).toBe(0)
+  })
+
+  it('should clear cache on clear', () => {
+    const tokens: TokenCollection = {
+      primary: '#007BFF',
+      accent: { $value: '{primary}' },
+    }
+    const context = createTokens(tokens)
+
+    // Prime cache
+    expect(context.resolve('accent')).toBe('#007BFF')
+
+    context.clear()
+
+    expect(context.size).toBe(0)
+    expect(context.resolve('accent')).toBeUndefined()
   })
 })
 
@@ -3158,7 +3216,7 @@ describe('useTokens with fixture data', () => {
 describe('useTokens context retrieval', () => {
   describe('useTokens function (lines 331-336)', () => {
     it('should retrieve context with custom namespace', () => {
-      const customNamespace = 'my-custom-tokens'
+      const customNamespace = 'test:my-custom-tokens'
       const tokens: TokenCollection = {
         primary: '#007BFF',
       }
@@ -3194,7 +3252,7 @@ describe('useTokens context retrieval', () => {
     it('should throw error when context not provided', () => {
       const TestComponent = defineComponent({
         setup () {
-          useTokens('nonexistent-namespace')
+          useTokens('test:nonexistent-namespace')
         },
         template: '<div></div>',
       })
@@ -3205,8 +3263,8 @@ describe('useTokens context retrieval', () => {
     })
 
     it('should support multiple custom namespaces simultaneously', () => {
-      const ns1 = 'tokens-namespace-1'
-      const ns2 = 'tokens-namespace-2'
+      const ns1 = 'test:tokens-namespace-1'
+      const ns2 = 'test:tokens-namespace-2'
 
       const [useTokens1, provideTokens1] = createTokensContext({
         namespace: ns1,
@@ -3252,7 +3310,7 @@ describe('useTokens context retrieval', () => {
 describe('createTokensContext with option combinations', () => {
   describe('basic options', () => {
     it('should create context with only namespace', () => {
-      const context = createTokensContext({ namespace: 'test' })[2]
+      const context = createTokensContext({ namespace: 'test:tokens' })[2]
 
       expect(context).toBeDefined()
       expect(context.collection.size).toBe(0)
@@ -3264,7 +3322,7 @@ describe('createTokensContext with option combinations', () => {
         secondary: '#6C757D',
       }
 
-      const context = createTokensContext({ namespace: 'test', tokens })[2]
+      const context = createTokensContext({ namespace: 'test:tokens', tokens })[2]
 
       expect(context.collection.size).toBe(2)
       expect(context.resolve('primary')).toBe('#007BFF')
@@ -3278,7 +3336,7 @@ describe('createTokensContext with option combinations', () => {
       }
 
       const context = createTokensContext({
-        namespace: 'test',
+        namespace: 'test:tokens',
         tokens,
         flat: true,
       })[2]
@@ -3295,7 +3353,7 @@ describe('createTokensContext with option combinations', () => {
       }
 
       const context = createTokensContext({
-        namespace: 'test',
+        namespace: 'test:tokens',
         tokens,
         prefix: 'app',
       })[2]
@@ -3312,7 +3370,7 @@ describe('createTokensContext with option combinations', () => {
       }
 
       const context = createTokensContext({
-        namespace: 'test',
+        namespace: 'test:tokens',
         tokens,
         flat: true,
         prefix: 'theme',
@@ -3330,7 +3388,7 @@ describe('createTokensContext with option combinations', () => {
       }
 
       const context = createTokensContext({
-        namespace: 'test',
+        namespace: 'test:tokens',
         tokens,
         prefix: 'app',
       })[2]
@@ -3347,7 +3405,7 @@ describe('createTokensContext with option combinations', () => {
       }
 
       const context = createTokensContext({
-        namespace: 'test',
+        namespace: 'test:tokens',
         tokens,
         flat: true,
       })[2]
@@ -3367,7 +3425,7 @@ describe('token registration order and index assignment', () => {
       third: '3',
     }
 
-    const context = createTokensContext({ namespace: 'test', tokens })[2]
+    const context = createTokensContext({ namespace: 'test:tokens', tokens })[2]
     const entries = context.entries()
 
     for (const [index, entry] of entries.entries()) {
@@ -3377,7 +3435,7 @@ describe('token registration order and index assignment', () => {
 
   it('should maintain index order after onboarding', () => {
     const context = createTokensContext({
-      namespace: 'test',
+      namespace: 'test:tokens',
       tokens: { first: '1' },
     })[2]
 
@@ -3397,7 +3455,7 @@ describe('token registration order and index assignment', () => {
       second: '2',
     }
 
-    const context = createTokensContext({ namespace: 'test', tokens })[2]
+    const context = createTokensContext({ namespace: 'test:tokens', tokens })[2]
 
     const indexBefore = context.collection.get('first')?.index
     context.upsert('first', { value: 'updated' })
@@ -3408,7 +3466,7 @@ describe('token registration order and index assignment', () => {
 
   it('should assign new index when creating new token via upsert', () => {
     const context = createTokensContext({
-      namespace: 'test',
+      namespace: 'test:tokens',
       tokens: { first: '1' },
     })[2]
 
@@ -3431,7 +3489,7 @@ describe('token registration order and index assignment', () => {
       },
     }
 
-    const context = createTokensContext({ namespace: 'test', tokens })[2]
+    const context = createTokensContext({ namespace: 'test:tokens', tokens })[2]
     const keys = context.keys()
 
     expect(keys).toContain('colors.primary')
@@ -3448,7 +3506,7 @@ describe('token registration order and index assignment', () => {
       c: '3',
     }
 
-    const context = createTokensContext({ namespace: 'test', tokens })[2]
+    const context = createTokensContext({ namespace: 'test:tokens', tokens })[2]
 
     context.unregister('b')
 
@@ -3461,7 +3519,7 @@ describe('token registration order and index assignment', () => {
 
 describe('size getter behavior after mutations', () => {
   it('should reflect new size after register', () => {
-    const context = createTokensContext({ namespace: 'test', tokens: {} })[2]
+    const context = createTokensContext({ namespace: 'test:tokens', tokens: {} })[2]
 
     expect(context.size).toBe(0)
 
@@ -3473,7 +3531,7 @@ describe('size getter behavior after mutations', () => {
   })
 
   it('should reflect new size after onboard', () => {
-    const context = createTokensContext({ namespace: 'test', tokens: {} })[2]
+    const context = createTokensContext({ namespace: 'test:tokens', tokens: {} })[2]
 
     context.onboard([
       { id: 'a', value: '1' },
@@ -3491,7 +3549,7 @@ describe('size getter behavior after mutations', () => {
       c: '3',
     }
 
-    const context = createTokensContext({ namespace: 'test', tokens })[2]
+    const context = createTokensContext({ namespace: 'test:tokens', tokens })[2]
 
     expect(context.size).toBe(3)
 
@@ -3507,7 +3565,7 @@ describe('size getter behavior after mutations', () => {
       primary: '#007BFF',
     }
 
-    const context = createTokensContext({ namespace: 'test', tokens })[2]
+    const context = createTokensContext({ namespace: 'test:tokens', tokens })[2]
 
     expect(context.size).toBe(1)
 
@@ -3520,7 +3578,7 @@ describe('size getter behavior after mutations', () => {
       primary: '#007BFF',
     }
 
-    const context = createTokensContext({ namespace: 'test', tokens })[2]
+    const context = createTokensContext({ namespace: 'test:tokens', tokens })[2]
 
     expect(context.size).toBe(1)
 
@@ -3530,7 +3588,7 @@ describe('size getter behavior after mutations', () => {
 
   it('should reflect correct size after series of mutations', () => {
     const context = createTokensContext({
-      namespace: 'test',
+      namespace: 'test:tokens',
       tokens: { initial: '1' },
     })[2]
 
@@ -3550,7 +3608,7 @@ describe('size getter behavior after mutations', () => {
   })
 
   it('should return zero size for empty context', () => {
-    const context = createTokensContext({ namespace: 'test', tokens: {} })[2]
+    const context = createTokensContext({ namespace: 'test:tokens', tokens: {} })[2]
 
     expect(context.size).toBe(0)
   })
@@ -3562,7 +3620,7 @@ describe('cache invalidation scenarios', () => {
       primary: '#007BFF',
     }
 
-    const context = createTokensContext({ namespace: 'test', tokens })[2]
+    const context = createTokensContext({ namespace: 'test:tokens', tokens })[2]
 
     const first = context.resolve('primary')
     const second = context.resolve('primary')
@@ -3577,7 +3635,7 @@ describe('cache invalidation scenarios', () => {
       accent: { $value: '{primary}' },
     }
 
-    const context = createTokensContext({ namespace: 'test', tokens })[2]
+    const context = createTokensContext({ namespace: 'test:tokens', tokens })[2]
 
     const resolvedBefore = context.resolve('accent')
     expect(resolvedBefore).toBe('#007BFF')
@@ -3594,7 +3652,7 @@ describe('cache invalidation scenarios', () => {
       accent: { $value: '{primary}' },
     }
 
-    const context = createTokensContext({ namespace: 'test', tokens })[2]
+    const context = createTokensContext({ namespace: 'test:tokens', tokens })[2]
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
     const resolvedBefore = context.resolve('accent')
@@ -3613,7 +3671,7 @@ describe('cache invalidation scenarios', () => {
       primary: '#007BFF',
     }
 
-    const context = createTokensContext({ namespace: 'test', tokens })[2]
+    const context = createTokensContext({ namespace: 'test:tokens', tokens })[2]
 
     const withBraces = context.resolve('{primary}')
     const withoutBraces = context.resolve('primary')
@@ -3627,7 +3685,7 @@ describe('cache invalidation scenarios', () => {
       primary: '#007BFF',
     }
 
-    const context = createTokensContext({ namespace: 'test', tokens })[2]
+    const context = createTokensContext({ namespace: 'test:tokens', tokens })[2]
 
     const alias1 = { $value: '{primary}' }
     const alias2 = { $value: '{primary}' }
@@ -3645,7 +3703,7 @@ describe('cache invalidation scenarios', () => {
       b: { $value: '{a}' },
     }
 
-    const context = createTokensContext({ namespace: 'test', tokens })[2]
+    const context = createTokensContext({ namespace: 'test:tokens', tokens })[2]
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
     const first = context.resolve('a')
@@ -3653,9 +3711,8 @@ describe('cache invalidation scenarios', () => {
 
     expect(first).toBeUndefined()
     expect(second).toBeUndefined()
-    // Each resolve call triggers circular detection warning (cache stores undefined
-    // which doesn't early-return since cache check uses !isUndefined)
-    expect(warnSpy).toHaveBeenCalledTimes(2)
+    // Cache stores undefined for circular aliases, second resolve returns from cache
+    expect(warnSpy).toHaveBeenCalledTimes(1)
 
     warnSpy.mockRestore()
   })
@@ -3664,12 +3721,12 @@ describe('cache invalidation scenarios', () => {
 describe('multiple contexts with same namespace', () => {
   it('should support separate contexts with different namespaces', () => {
     const [_useCtx1, _provideCtx1, ctx1] = createTokensContext({
-      namespace: 'ns1',
+      namespace: 'test:ns1',
       tokens: { color: '#FF0000' },
     })
 
     const [_useCtx2, _provideCtx2, ctx2] = createTokensContext({
-      namespace: 'ns2',
+      namespace: 'test:ns2',
       tokens: { color: '#00FF00' },
     })
 
@@ -3679,7 +3736,7 @@ describe('multiple contexts with same namespace', () => {
 
   it('should override context when provided again with same namespace', () => {
     const [useTokensCtx, provideTokensCtx] = createTokensContext({
-      namespace: 'shared',
+      namespace: 'test:shared',
       tokens: { color: '#FF0000' },
     })
 
@@ -3726,12 +3783,12 @@ describe('multiple contexts with same namespace', () => {
 
   it('should maintain separate registries for different contexts', () => {
     const ctx1 = createTokensContext({
-      namespace: 'ctx1',
+      namespace: 'test:ctx1',
       tokens: { a: '1', b: '2' },
     })[2]
 
     const ctx2 = createTokensContext({
-      namespace: 'ctx2',
+      namespace: 'test:ctx2',
       tokens: { c: '3', d: '4' },
     })[2]
 
@@ -3745,12 +3802,12 @@ describe('multiple contexts with same namespace', () => {
 
   it('should allow mutation of one context without affecting another', () => {
     const ctx1 = createTokensContext({
-      namespace: 'ctx1',
+      namespace: 'test:ctx1',
       tokens: { primary: '#FF0000' },
     })[2]
 
     const ctx2 = createTokensContext({
-      namespace: 'ctx2',
+      namespace: 'test:ctx2',
       tokens: { primary: '#00FF00' },
     })[2]
 
@@ -3764,7 +3821,7 @@ describe('multiple contexts with same namespace', () => {
 
   it('should handle nested aliases within the same context correctly', () => {
     const ctx = createTokensContext({
-      namespace: 'test',
+      namespace: 'test:tokens',
       tokens: {
         base: '#007BFF',
         primary: { $value: '{base}' },
@@ -3775,5 +3832,44 @@ describe('multiple contexts with same namespace', () => {
     expect(ctx.resolve('base')).toBe('#007BFF')
     expect(ctx.resolve('primary')).toBe('#007BFF')
     expect(ctx.resolve('accent')).toBe('#007BFF')
+  })
+})
+
+describe('flatten', () => {
+  it('should flatten nested objects to dot-notation entries', () => {
+    const result = flatten({
+      en: {
+        greeting: 'Hello',
+        nested: { deep: 'value' },
+      },
+    })
+
+    expect(result).toHaveLength(2)
+    expect(result).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: 'en.greeting', value: 'Hello' }),
+        expect.objectContaining({ id: 'en.nested.deep', value: 'value' }),
+      ]),
+    )
+  })
+
+  it('should apply prefix to all token IDs', () => {
+    const result = flatten({ greeting: 'Hello' }, 'app')
+
+    expect(result).toHaveLength(1)
+    expect(result[0]).toEqual(
+      expect.objectContaining({ id: 'app.greeting', value: 'Hello' }),
+    )
+  })
+
+  it('should work with onboard for runtime token registration', () => {
+    const tokens = createTokens({ en: { greeting: 'Hello' } })
+
+    expect(tokens.get('en.greeting')?.value).toBe('Hello')
+    expect(tokens.has('nl.greeting')).toBe(false)
+
+    tokens.onboard(flatten({ nl: { greeting: 'Hallo' } }))
+
+    expect(tokens.get('nl.greeting')?.value).toBe('Hallo')
   })
 })

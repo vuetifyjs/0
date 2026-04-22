@@ -78,7 +78,7 @@
             class="self-start mt-1 text-xs text-primary/70 hover:text-primary transition-colors inline-flex items-center gap-1"
             :to="feature.to"
           >
-            Learn more
+            Learn more<span class="sr-only">&nbsp;about {{ feature.title }}</span>
             <AppIcon icon="right" :size="12" />
           </router-link>
         </div>

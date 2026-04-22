@@ -1,6 +1,8 @@
 /**
  * @module SingleItem
  *
+ * @see https://0.vuetifyjs.com/components/providers/single
+ *
  * @remarks
  * Item component for single-selection contexts. Registers with parent SingleRoot
  * and provides selection state and methods via scoped slot. Automatically
@@ -47,6 +49,7 @@
       'aria-disabled': boolean
       'data-selected': true | undefined
       'data-disabled': true | undefined
+      'onClick': () => void
     }
   }
 </script>
@@ -56,7 +59,7 @@
   import { useSingleRoot } from './SingleRoot.vue'
 
   // Utilities
-  import { onUnmounted, toRef, toValue } from 'vue'
+  import { onBeforeUnmount, toRef, toValue } from 'vue'
 
   defineOptions({ name: 'SingleItem' })
 
@@ -76,7 +79,7 @@
   const ticket = single.register({ id, value, disabled })
   const isDisabled = toRef(() => toValue(ticket.disabled) || toValue(single.disabled))
 
-  onUnmounted(() => {
+  onBeforeUnmount(() => {
     single.unregister(ticket.id)
   })
 
@@ -94,6 +97,7 @@
       'aria-disabled': toValue(isDisabled),
       'data-selected': toValue(ticket.isSelected) || undefined,
       'data-disabled': toValue(isDisabled) || undefined,
+      'onClick': ticket.toggle,
     },
   }))
 </script>

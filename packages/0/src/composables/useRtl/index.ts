@@ -1,6 +1,8 @@
 /**
  * @module useRtl
  *
+ * @see https://0.vuetifyjs.com/composables/plugins/use-rtl
+ *
  * @remarks
  * RTL (right-to-left) direction composable with adapter pattern.
  *
@@ -11,9 +13,17 @@
  * - Subtree overrides via context provision
  *
  * Independent from useLocale — Vuetify connects them via adapter.
+ *
+ * @example
+ * ```ts
+ * import { useRtl } from '@vuetify/v0'
+ *
+ * const { isRtl, toggle } = useRtl()
+ * toggle() // flip direction
+ * ```
  */
 
-// Foundational
+// Composables
 import { createPluginContext } from '#v0/composables/createPlugin'
 
 // Adapters
@@ -51,7 +61,9 @@ export interface RtlContextOptions extends RtlOptions {
   namespace?: string
 }
 
-export interface RtlPluginOptions extends RtlContextOptions {}
+export interface RtlPluginOptions extends RtlContextOptions {
+  persist?: boolean
+}
 
 /**
  * Creates a new RTL direction instance.
@@ -79,13 +91,17 @@ export function createRtlFallback (): RtlContext {
 }
 
 export const [createRtlContext, createRtlPlugin, useRtl] =
-  createPluginContext<RtlContextOptions, RtlContext>(
+  createPluginContext<RtlPluginOptions, RtlContext>(
     'v0:rtl',
     options => createRtl(options),
     {
       fallback: () => createRtlFallback(),
       setup: (context, app, { adapter = new Vuetify0RtlAdapter(), target }) => {
         adapter.setup(app, context, target)
+      },
+      persist: ctx => ctx.isRtl.value,
+      restore: (ctx, saved) => {
+        ctx.isRtl.value = saved as boolean
       },
     },
   )

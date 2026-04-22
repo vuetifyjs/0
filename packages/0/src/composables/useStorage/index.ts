@@ -1,33 +1,43 @@
 /**
  * @module useStorage
  *
+ * @see https://0.vuetifyjs.com/composables/plugins/use-storage
+ *
  * @remarks
  * Reactive storage composable with adapter pattern for localStorage, sessionStorage, or memory.
  *
  * Key features:
  * - Reactive refs that sync with storage
  * - localStorage, sessionStorage, and memory adapters
+ * - TTL (time-to-live) for time-based cache expiration
  * - Custom serialization support
  * - SSR fallback to memory adapter
  * - Automatic cleanup on remove/clear
  *
  * Uses adapter pattern to abstract storage implementation details.
+ *
+ * @example
+ * ```ts
+ * import { useStorage } from '@vuetify/v0'
+ *
+ * const storage = useStorage()
+ * const theme = storage.get('theme', 'light')
+ * theme.value = 'dark' // persists automatically
+ * ```
  */
 
 // Globals
 import { IN_BROWSER } from '#v0/constants/globals'
 
-// Foundational
-import { createPluginContext } from '#v0/composables/createPlugin'
-
 // Composables
+import { createPluginContext } from '#v0/composables/createPlugin'
 import { useWindowEventListener } from '#v0/composables/useEventListener'
 
 // Adapters
 import { MemoryAdapter } from '#v0/composables/useStorage/adapters'
 
 // Utilities
-import { isNullOrUndefined, isObject } from '#v0/utilities'
+import { isArray, isNullOrUndefined, isObject } from '#v0/utilities'
 import { ref, watch } from 'vue'
 
 // Types
@@ -110,28 +120,29 @@ export function createStorage<
     ttl,
   } = options
 
-  const cache = new Map<string, Ref<any>>()
+  const cache = new Map<string, Ref<unknown>>()
   const watchers = new Map<string, () => void>()
 
   function has (key: string) {
     const prefixedKey = `${prefix}${key}`
-    return cache.has(prefixedKey)
+    return cache.has(prefixedKey) || !isNullOrUndefined(readStored(prefixedKey))
   }
 
   function readStored (prefixedKey: string) {
     const raw = adapter?.getItem(prefixedKey)
-    if (!raw) return undefined
+    if (isNullOrUndefined(raw)) return undefined
 
     try {
       const parsed = serializer.read(raw)
 
       // TTL check: expired entries are treated as absent
-      if (ttl && isObject(parsed) && '__ttl' in parsed && '__v' in parsed) {
-        if (Date.now() - (parsed as any).__t > ttl) {
+      if (ttl && isObject(parsed) && '__v0' in parsed && '__v' in parsed) {
+        const envelope = parsed as { __v0: number, __v: unknown, __t: number }
+        if (Date.now() - envelope.__t > ttl) {
           adapter?.removeItem(prefixedKey)
           return undefined
         }
-        return (parsed as any).__v
+        return envelope.__v
       }
 
       return parsed
@@ -142,7 +153,7 @@ export function createStorage<
   }
 
   function writeStored (prefixedKey: string, value: unknown) {
-    const wrapped = ttl ? { __ttl: 1, __v: value, __t: Date.now() } : value
+    const wrapped = ttl ? { __v0: 1, __v: value, __t: Date.now() } : value
 
     try {
       adapter?.setItem(prefixedKey, serializer.write(wrapped))
@@ -155,10 +166,13 @@ export function createStorage<
     const prefixedKey = `${prefix}${key}`
 
     if (cache.has(prefixedKey)) {
-      return cache.get(prefixedKey)!
+      return cache.get(prefixedKey)! as Ref<T>
     }
 
-    const initialValue = readStored(prefixedKey) ?? defaultValue
+    const stored = readStored(prefixedKey)
+    const initialValue = stored ?? (isObject(defaultValue) || isArray(defaultValue)
+      ? structuredClone(defaultValue)
+      : defaultValue)
     const valueRef = ref<T>(initialValue as T)
 
     const stop = watch(valueRef, newValue => {

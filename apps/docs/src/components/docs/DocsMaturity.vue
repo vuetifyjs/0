@@ -202,23 +202,23 @@
   // Graduation criteria
   const criteria = [
     {
-      from: 'Draft',
-      to: 'Preview',
+      from: 'draft' as Level,
+      to: 'preview' as Level,
       requirements: 'Has unit tests, has documentation page, at least one working example.',
     },
     {
-      from: 'Preview',
-      to: 'Stable',
+      from: 'preview' as Level,
+      to: 'stable' as Level,
       requirements: 'Edge-case test coverage, SSR safe or explicitly browser-only, accessibility reviewed, API unchanged for 2+ releases, benchmarked if performance-critical.',
     },
     {
-      from: 'Stable',
-      to: 'Mature',
+      from: 'stable' as Level,
+      to: 'mature' as Level,
       requirements: 'Used in production downstream (e.g. Vuetify 5), adapter ecosystem (if applicable), API frozen — breaking changes require major version.',
     },
     {
-      from: 'Any',
-      to: 'Deprecated',
+      from: null,
+      to: 'deprecated' as Level,
       requirements: 'Superseded by a better pattern, migration guide provided, removal timeline set.',
     },
   ]
@@ -313,18 +313,19 @@
           <span class="text-on-surface-variant font-normal">({{ group.items.length }})</span>
           <span class="flex-1" />
           <span
-            class="inline-block size-2.5 min-w-2.5 rounded-full shrink-0"
+            class="inline-block size-2 min-w-2 rounded-[2px] shrink-0"
             :style="{ backgroundColor: blend(group.items) }"
           />
         </button>
 
         <!-- Cards -->
         <div v-if="table.grouping.isOpen(group.key)" class="grid gap-2 pl-2 mb-3">
-          <RouterLink
+          <component
+            :is="(item as MaturityItem).level === 'draft' ? 'div' : RouterLink"
             v-for="item in group.items"
             :key="item.id"
             class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-glass-surface no-underline transition-colors hover:bg-surface-variant/80"
-            :to="String(item.path)"
+            :to="(item as MaturityItem).level !== 'draft' ? String(item.path) : undefined"
           >
             <div class="flex-1 min-w-0">
               <div class="text-sm font-medium text-on-surface truncate">
@@ -350,7 +351,7 @@
             >
               <AppIcon :icon="levels[item.level]?.icon" :size="14" />
             </span>
-          </RouterLink>
+          </component>
         </div>
       </template>
 
@@ -408,7 +409,7 @@
                 Select a group to see individual items
                 <span class="flex-1" />
                 <span
-                  class="inline-block size-2.5 min-w-2.5 rounded-full shrink-0"
+                  class="inline-block size-2 min-w-2 rounded-[2px] shrink-0"
                   :style="{ backgroundColor: blend(filtered) }"
                 />
               </div>
@@ -449,7 +450,7 @@
 
                   <!-- Blended readiness dot -->
                   <span
-                    class="inline-block size-2.5 min-w-2.5 rounded-full shrink-0"
+                    class="inline-block size-2 min-w-2 rounded-[2px] shrink-0"
                     :style="{ backgroundColor: blend(group.items) }"
                   />
                 </div>
@@ -466,10 +467,11 @@
             >
               <!-- Name -->
               <td class="!pl-[34px] pr-4 py-2.5 text-sm font-medium truncate">
-                <RouterLink
-                  class="text-primary no-underline hover:underline transition-colors"
-                  :to="item.path"
-                >{{ item.name }}</RouterLink>
+                <component
+                  :is="(item as MaturityItem).level === 'draft' ? 'span' : RouterLink"
+                  :class="(item as MaturityItem).level === 'draft' ? 'text-on-surface-variant' : 'text-primary no-underline hover:underline transition-colors'"
+                  :to="(item as MaturityItem).level !== 'draft' ? item.path : undefined"
+                >{{ item.name }}</component>
               </td>
 
               <!-- Type badge -->
@@ -564,9 +566,40 @@
         class="border border-divider rounded-xl p-4"
       >
         <div class="flex items-center gap-2 mb-2">
-          <span class="text-sm font-semibold text-on-surface-variant">{{ item.from }}</span>
-          <AppIcon class="text-on-surface-variant" icon="chevron-right" :size="14" />
-          <span class="text-sm font-semibold text-on-surface">{{ item.to }}</span>
+          <template v-if="item.from">
+            <AppIcon
+              :icon="levels[item.from].icon"
+              :size="14"
+              :style="{ color: levels[item.from].color }"
+            />
+            <span
+              class="text-sm font-semibold"
+              :style="{ color: levels[item.from].color }"
+            >
+              {{ levels[item.from].label }}
+            </span>
+          </template>
+
+          <span v-else class="text-sm font-semibold text-on-surface-variant">Any</span>
+
+          <AppIcon
+            class="text-on-surface-variant"
+            icon="chevron-right"
+            :size="14"
+          />
+
+          <AppIcon
+            :icon="levels[item.to].icon"
+            :size="14"
+            :style="{ color: levels[item.to].color }"
+          />
+
+          <span
+            class="text-sm font-semibold"
+            :style="{ color: levels[item.to].color }"
+          >
+            {{ levels[item.to].label }}
+          </span>
         </div>
 
         <p class="text-sm text-on-surface-variant m-0 leading-relaxed">

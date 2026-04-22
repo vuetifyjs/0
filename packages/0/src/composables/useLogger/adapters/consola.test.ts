@@ -1,9 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+// Types
+import type { LoggerAdapter } from './adapter'
+
 import { ConsolaLoggerAdapter } from './consola'
 
 describe('consolaLoggerAdapter', () => {
-  let mockConsola: Record<string, ReturnType<typeof vi.fn>>
+  let mockConsola: LoggerAdapter
 
   beforeEach(() => {
     mockConsola = {
@@ -83,7 +86,7 @@ describe('consolaLoggerAdapter', () => {
     })
 
     it('should fallback to debug if trace is not available', () => {
-      const limited = { debug: vi.fn() }
+      const limited: LoggerAdapter = { debug: vi.fn(), info: vi.fn(), warn: vi.fn(), error: vi.fn() }
       const adapter = new ConsolaLoggerAdapter(limited)
 
       adapter.trace('trace message')
@@ -100,7 +103,7 @@ describe('consolaLoggerAdapter', () => {
     })
 
     it('should fallback to error with FATAL prefix if fatal is not available', () => {
-      const limited = { error: vi.fn() }
+      const limited: LoggerAdapter = { debug: vi.fn(), info: vi.fn(), warn: vi.fn(), error: vi.fn() }
       const adapter = new ConsolaLoggerAdapter(limited)
 
       adapter.fatal('fatal message')

@@ -12,14 +12,15 @@ features:
   github: /composables/createTokens/
   level: 3
 related:
-- /composables/registration/create-registry
-- /composables/plugins/use-theme
-- /guide/features/theming
+  - /components/providers/theme
+  - /composables/registration/create-registry
+  - /composables/plugins/use-theme
+  - /guide/features/theming
 ---
 
 # createTokens
 
-A utility for managing design tokens with support for hierarchical collections, aliases, and token resolution across your application's design system. Inspired by [Design Tokens](https://www.designtokens.org/tr/drafts/format/#design-token).
+Design token registry with hierarchical collections, alias resolution, and namespace support.
 
 <DocsPageFeatures :frontmatter />
 
@@ -56,6 +57,50 @@ const features = createTokens({
 features.resolve('rtl') // { value: true, variation: 'toggle' }
 ```
 
+## Context / DI
+
+Use `createTokensContext` to share a token registry across a component tree:
+
+```ts
+import { createTokensContext } from '@vuetify/v0'
+
+export const [useTokens, provideTokens, tokens] =
+  createTokensContext({
+    namespace: 'my:tokens',
+    tokens: {
+      colors: {
+        primary: '#3b82f6',
+        secondary: '{colors.primary}',  // alias
+      },
+    },
+  })
+
+// In parent component
+provideTokens()
+
+// In child component
+const tokens = useTokens()
+tokens.resolve('colors.primary')  // '#3b82f6'
+```
+
+## Options
+
+### createTokens
+
+| Option | Type | Default | Notes |
+| - | - | - | - |
+| `flat` | `boolean` | `false` | Keep nested objects as-is at their base key instead of flattening |
+| `prefix` | `string` | — | Prepend a string to every token ID on registration (e.g. `'color.'`) |
+
+### createTokensContext
+
+Accepts all `createTokens` options plus:
+
+| Option | Type | Default | Notes |
+| - | - | - | - |
+| `namespace` | `string` | — | DI namespace string (e.g. `'my:tokens'`) |
+| `tokens` | `TokenCollection` | — | Initial token collection registered when the context is created |
+
 ## Architecture
 
 `createTokens` extends `createRegistry` and powers token-based systems:
@@ -73,7 +118,7 @@ flowchart TD
 `createTokens` uses **minimal reactivity** like its parent `createRegistry`. Token resolution is cached but not reactive.
 
 > [!TIP] For reactive theming
-> Use [useTheme](/composables/plugins/use-theme) which builds on `createTokens` with proper reactivity for theme switching.
+> Use `useTheme` which builds on `createTokens` with proper reactivity for theme switching.
 
 ## Examples
 
@@ -98,8 +143,6 @@ A design system with four token categories — color palettes, semantic aliases,
 - Click any token to resolve it in the Alias Resolver panel
 
 :::
-
-<DocsApi />
 
 ## Frequently Asked Questions
 
@@ -169,7 +212,7 @@ const primaryColor = computed(() =>
 )
 ```
 
-For fully reactive theming, see [useTheme](/composables/plugins/use-theme) which builds on `createTokens`.
+For fully reactive theming, see `useTheme` which builds on `createTokens`.
 
 ??? Can tokens reference tokens in different collections?
 
@@ -200,7 +243,7 @@ tokens.register({ id: 'color.primary', value: '#ef4444' })
 tokens.resolve('color.primary') // '#ef4444'
 ```
 
-For theme switching, consider [useTheme](/composables/plugins/use-theme) which handles this pattern with proper reactivity.
+For theme switching, consider `useTheme` which handles this pattern with proper reactivity.
 
 ??? What's the performance of alias resolution at scale?
 
@@ -224,5 +267,7 @@ Keep alias chains shallow (2-3 levels max) for predictable performance. If you n
 | Alias syntax `{path.to.token}` | Supported via `resolve()` |
 | Nested groups | Flattened with dot notation |
 
-The spec is still in draft, so `createTokens` focuses on the stable patterns. For CSS custom property output, pair with [useTheme](/composables/plugins/use-theme) which handles CSS variable generation.
+The spec is still in draft, so `createTokens` focuses on the stable patterns. For CSS custom property output, pair with `useTheme` which handles CSS variable generation.
 :::
+
+<DocsApi />

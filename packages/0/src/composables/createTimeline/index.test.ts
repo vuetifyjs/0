@@ -345,12 +345,12 @@ describe('createTimelineContext', () => {
 
   it('should create context with custom namespace', () => {
     const [, provideTimelineContext, context] = createTimelineContext({
-      namespace: 'my-history',
+      namespace: 'test:my-history',
     })
 
     provideTimelineContext(context)
 
-    expect(mockProvide).toHaveBeenCalledWith('my-history', context)
+    expect(mockProvide).toHaveBeenCalledWith('test:my-history', context)
   })
 
   it('should create a functional timeline context', () => {
@@ -409,9 +409,9 @@ describe('useTimeline consumer', () => {
     const mockContext = createTimeline()
     mockInject.mockReturnValue(mockContext)
 
-    const result = useTimeline('my-history')
+    const result = useTimeline('test:my-history')
 
-    expect(mockInject).toHaveBeenCalledWith('my-history', undefined)
+    expect(mockInject).toHaveBeenCalledWith('test:my-history', undefined)
     expect(result).toBe(mockContext)
   })
 

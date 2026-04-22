@@ -1,7 +1,9 @@
 <script setup lang="ts">
   // Framework
-  import { IN_BROWSER, Scrim, useBreakpoints, useRtl, useStack, useStorage } from '@vuetify/v0'
-  import { isUndefined } from '@vuetify/v0/utilities'
+  import { IN_BROWSER, Scrim, useBreakpoints, useStack } from '@vuetify/v0'
+
+  // Components
+  import DocsHighlight from '@/components/docs/DocsHighlight.vue'
 
   // Composables
   import { useAsk } from '@/composables/useAsk'
@@ -32,16 +34,6 @@
   const breakpoints = useBreakpoints()
   const discovery = useDiscovery()
 
-  // Restore persisted RTL preference
-  const rtl = useRtl()
-  const storage = useStorage()
-  const savedRtl = storage.get<boolean>('rtl')
-  if (!isUndefined(savedRtl.value)) rtl.isRtl.value = savedRtl.value
-
-  // Persist RTL changes
-  watch(rtl.isRtl, value => {
-    storage.set('rtl', value)
-  })
   const ask = useAsk()
   const search = useSearch()
   const settings = useSettings()
@@ -74,7 +66,7 @@
 </script>
 
 <template>
-  <div class="pt-[72px]">
+  <div class="pt-[calc(48px+var(--app-banner-h,24px))]">
     <a
       class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:start-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-on-primary focus:rounded"
       href="#main-content"
@@ -82,7 +74,7 @@
       Skip to main content
     </a>
 
-    <div class="min-h-[calc(100vh-72px)] flex flex-col" :inert="isModalOpen || undefined">
+    <div class="min-h-[calc(100vh-48px-var(--app-banner-h,24px))] flex flex-col" :inert="isModalOpen || undefined">
       <AppBanner />
       <AppNav />
       <AppBar />
@@ -101,5 +93,8 @@
     <Transition :name="slideTransition">
       <AppSettingsSheet v-if="settings.isOpen.value" />
     </Transition>
+
+    <DocsApiHover />
+    <DocsHighlight />
   </div>
 </template>

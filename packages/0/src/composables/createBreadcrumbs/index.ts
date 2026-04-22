@@ -1,6 +1,8 @@
 /**
  * @module createBreadcrumbs
  *
+ * @see https://0.vuetifyjs.com/composables/utilities/create-breadcrumbs
+ *
  * @remarks
  * Breadcrumb navigation composable built on createSingle.
  *
@@ -11,14 +13,22 @@
  * - Trinity pattern for dependency injection
  *
  * Inheritance chain: createRegistry → createSelection → createSingle → createBreadcrumbs
+ *
+ * @example
+ * ```ts
+ * import { createBreadcrumbs } from '@vuetify/v0'
+ *
+ * const crumbs = createBreadcrumbs()
+ * crumbs.register({ text: 'Home' })
+ * crumbs.register({ text: 'Docs' })
+ * console.log(crumbs.depth.value) // 2
+ * ```
  */
 
-// Foundational
-import { createContext, useContext } from '#v0/composables/createContext'
-import { createTrinity } from '#v0/composables/createTrinity'
-
 // Composables
+import { useContext } from '#v0/composables/createContext'
 import { createSingle } from '#v0/composables/createSingle'
+import { createTrinity } from '#v0/composables/createTrinity'
 
 // Utilities
 import { toRef } from 'vue'
@@ -27,7 +37,7 @@ import { toRef } from 'vue'
 import type { SingleContext, SingleContextOptions, SingleOptions, SingleTicket, SingleTicketInput } from '#v0/composables/createSingle'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { ID } from '#v0/types'
-import type { App, Ref } from 'vue'
+import type { Ref } from 'vue'
 
 /**
  * Input type for breadcrumb tickets.
@@ -97,7 +107,7 @@ export function createBreadcrumbs<
   E extends BreadcrumbTicket<Z> = BreadcrumbTicket<Z>,
   R extends BreadcrumbsContext<Z, E> = BreadcrumbsContext<Z, E>,
 > (options: BreadcrumbsOptions = {}): R {
-  const single = createSingle<Z, E>({ ...options, reactive: true, enroll: true })
+  const single = createSingle<Z, E>({ ...options, reactive: true, events: true, enroll: true })
 
   // Derived state
   const depth = toRef(() => single.size)
@@ -185,14 +195,9 @@ export function createBreadcrumbsContext<
   R extends BreadcrumbsContext<Z, E> = BreadcrumbsContext<Z, E>,
 > (_options: BreadcrumbsContextOptions = {}): ContextTrinity<R> {
   const { namespace = 'v0:breadcrumbs', ...options } = _options
-  const [useBreadcrumbsContext, _provideBreadcrumbsContext] = createContext<R>(namespace)
   const context = createBreadcrumbs<Z, E, R>(options)
 
-  function provideBreadcrumbsContext (_context: R = context, app?: App): R {
-    return _provideBreadcrumbsContext(_context, app)
-  }
-
-  return createTrinity<R>(useBreadcrumbsContext, provideBreadcrumbsContext, context)
+  return createTrinity<R>(namespace, context)
 }
 
 /**

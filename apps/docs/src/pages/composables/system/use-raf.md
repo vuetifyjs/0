@@ -17,7 +17,7 @@ related:
 
 # useRaf
 
-A composable for scope-disposed safe requestAnimationFrame with automatic cleanup.
+Throttles callbacks to the next animation frame with cancel-then-request deduplication. Cleans up automatically on scope disposal.
 
 <DocsPageFeatures :frontmatter />
 
@@ -47,10 +47,28 @@ The `useRaf` composable wraps `requestAnimationFrame` with a cancel-then-request
 </script>
 ```
 
+## Architecture
+
+`useRaf` provides a lightweight wrapper around `requestAnimationFrame`:
+
+```mermaid "useRaf Hierarchy"
+flowchart TD
+  RAF["requestAnimationFrame API"] --> useRaf
+  IN_BROWSER --> useRaf
+  useRaf --> ScrollThrottle["Scroll Throttling"]
+  useRaf --> Animations["Animation Updates"]
+  useRaf --> LayoutMeasure["Layout Measurement"]
+```
+
 ## Examples
 
 ::: example
 /composables/use-raf/scroll-throttle
+
+### Scroll Throttle
+
+A scrollable container that tracks position, percentage, and update count — demonstrating RAF throttling of rapid scroll events.
+
 :::
 
 ## Key Features
@@ -82,18 +100,5 @@ const update = useRaf(callback)
 ### SSR Safe
 
 The composable is a no-op in non-browser environments. `isActive` always returns `false` during SSR.
-
-## Architecture
-
-`useRaf` provides a lightweight wrapper around `requestAnimationFrame`:
-
-```mermaid "useRaf Hierarchy"
-flowchart TD
-  RAF["requestAnimationFrame API"] --> useRaf
-  IN_BROWSER --> useRaf
-  useRaf --> ScrollThrottle["Scroll Throttling"]
-  useRaf --> Animations["Animation Updates"]
-  useRaf --> LayoutMeasure["Layout Measurement"]
-```
 
 <DocsApi />

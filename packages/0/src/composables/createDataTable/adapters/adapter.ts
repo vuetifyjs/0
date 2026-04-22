@@ -15,7 +15,7 @@
 import { createFilter } from '#v0/composables/createFilter'
 
 // Utilities
-import { isNaN, isNullOrUndefined, isNumber, isObject, isString } from '#v0/utilities'
+import { isArray, isNaN, isNullOrUndefined, isNumber, isObject, isString } from '#v0/utilities'
 import { computed, toRef, toValue } from 'vue'
 
 // Types
@@ -37,7 +37,7 @@ export interface DataTableAdapterContext<T extends Record<string, unknown>> {
   /** Search query ref */
   search: ShallowRef<string>
   /** Column keys eligible for filtering */
-  filterableKeys: ReadonlyArray<keyof T & string>
+  filterableKeys: readonly string[]
   /** Current sort state derived from sort controls */
   sortBy: Readonly<Ref<SortEntry[]>>
   /** Locale for sorting (reactive, from useLocale or options) */
@@ -77,23 +77,25 @@ export interface DataTableAdapterInterface<T extends Record<string, unknown>> {
   setup: (context: DataTableAdapterContext<T>) => DataTableAdapterResult<T>
 }
 
-function getNestedValue (obj: Record<string, unknown>, key: string): unknown {
-  const keys = key.split('.')
+function getNestedValue (obj: Record<string, unknown>, parts: readonly string[]): unknown {
   let result: unknown = obj
-  for (const k of keys) {
+  for (const k of parts) {
     if (isNullOrUndefined(result)) return undefined
     result = (result as Record<string, unknown>)[k]
   }
   return result
 }
 
-function compareValues (a: unknown, b: unknown, locale?: string): number {
+function compareValues (a: unknown, b: unknown, collator?: Intl.Collator): number {
   if (a === b) return 0
-  if (isNullOrUndefined(a)) return 1
-  if (isNullOrUndefined(b)) return -1
+  const aNil = isNullOrUndefined(a)
+  const bNil = isNullOrUndefined(b)
+  if (aNil && bNil) return 0
+  if (aNil) return 1
+  if (bNil) return -1
 
   if (isString(a) && isString(b)) {
-    return a.localeCompare(b, locale)
+    return collator ? collator.compare(a, b) : a.localeCompare(b)
   }
 
   if (isNumber(a) && isNumber(b)) {
@@ -102,7 +104,9 @@ function compareValues (a: unknown, b: unknown, locale?: string): number {
     return a - b
   }
 
-  return String(a).localeCompare(String(b), locale)
+  const sa = String(a)
+  const sb = String(b)
+  return collator ? collator.compare(sa, sb) : sa.localeCompare(sb)
 }
 
 export abstract class DataTableAdapter<T extends Record<string, unknown>> implements DataTableAdapterInterface<T> {
@@ -117,7 +121,7 @@ export abstract class DataTableAdapter<T extends Record<string, unknown>> implem
           keys: [...context.filterableKeys],
           customFilter: (query, item) => {
             if (!isObject(item)) return false
-            const q = String(Array.isArray(query) ? query[0] : query).toLowerCase()
+            const q = String(isArray(query) ? query[0] : query).toLowerCase()
             if (!q) return true
             const obj = item as Record<string, unknown>
 
@@ -158,14 +162,19 @@ export abstract class DataTableAdapter<T extends Record<string, unknown>> implem
       const entries = sortBy.value
       if (entries.length === 0) return filteredItems.value
 
-      const loc = locale?.value
+      // Pre-resolve: split nested keys once, create collator once
+      const collator = new Intl.Collator(locale?.value)
+      const resolved = entries.map(({ key, direction }) => ({
+        parts: key.split('.'),
+        direction,
+        custom: customSorts?.[key],
+      }))
 
       return filteredItems.value.toSorted((a, b) => {
-        for (const { key, direction } of entries) {
-          const aVal = getNestedValue(a, key)
-          const bVal = getNestedValue(b, key)
-          const customSort = customSorts?.[key]
-          const cmp = customSort ? customSort(aVal, bVal) : compareValues(aVal, bVal, loc)
+        for (const { parts, direction, custom } of resolved) {
+          const aVal = parts.length === 1 ? (a as Record<string, unknown>)[parts[0]!] : getNestedValue(a, parts)
+          const bVal = parts.length === 1 ? (b as Record<string, unknown>)[parts[0]!] : getNestedValue(b, parts)
+          const cmp = custom ? custom(aVal, bVal) : compareValues(aVal, bVal, collator)
           if (cmp !== 0) return direction === 'desc' ? -cmp : cmp
         }
         return 0

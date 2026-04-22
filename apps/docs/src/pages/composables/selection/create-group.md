@@ -13,11 +13,12 @@ features:
 related:
   - /composables/selection/create-selection
   - /components/providers/group
+  - /components/forms/checkbox
 ---
 
 # createGroup
 
-The `createGroup` composable is designed to manage a group of related components, allowing for shared state and behavior across them. It supports tri-state (mixed/indeterminate) for checkbox trees and similar use cases where items can be selected, unselected, or in a mixed state.
+Multi-selection with tri-state (mixed/indeterminate) support for checkbox trees, grouped toggles, and any pattern where items can be partially selected.
 
 <DocsPageFeatures :frontmatter />
 
@@ -51,13 +52,32 @@ group.unselect('apple')
 console.log(group.selectedIndexes.value) // Set {}
 ```
 
+## Context / DI
+
+Use `createGroupContext` to share a group-selection instance across a component tree:
+
+```ts
+import { createGroupContext } from '@vuetify/v0'
+
+export const [useCheckboxGroup, provideCheckboxGroup, checkboxGroup] =
+  createGroupContext({ namespace: 'my:checkboxes' })
+
+// In parent component
+provideCheckboxGroup()
+
+// In child component
+const group = useCheckboxGroup()
+group.selectAll()
+```
+
 ## Architecture
 
 `createGroup` extends `createSelection` with multi-select and tri-state capabilities:
 
 ```mermaid "Group Selection Hierarchy"
 flowchart TD
-  createRegistry --> createSelection
+  createRegistry --> createModel
+  createModel --> createSelection
   createSelection --> createGroup
   createGroup --> mixedIds[mixedIds Set]
   createGroup --> selectedIds[selectedIds Set]
@@ -71,14 +91,23 @@ Group selection state is **always reactive**, including the tri-state `mixedIds`
 | - | :-: | - |
 | `selectedIds` | <AppSuccessIcon /> | `shallowReactive(Set)` — always reactive |
 | `mixedIds` | <AppSuccessIcon /> | `shallowReactive(Set)` — tracks indeterminate state |
+| `mixedItems` | <AppSuccessIcon /> | `ComputedRef<Set>` — ticket instances in mixed state |
 | `selectedIndexes` | <AppSuccessIcon /> | Computed from `selectedIds` |
-| `isAllSelected` | <AppSuccessIcon /> | Computed from `selectedIds` and collection size |
 | `selectedItems` | <AppSuccessIcon /> | Computed from `selectedIds` |
 | `selectedValues` | <AppSuccessIcon /> | Computed from `selectedItems` |
+| `isAllSelected` | <AppSuccessIcon /> | `true` when all non-disabled items are selected |
+| `isNoneSelected` | <AppSuccessIcon /> | `true` when no items are selected |
+| `isMixed` | <AppSuccessIcon /> | `true` when some but not all items are selected — use for header checkbox |
+| `selectAll()` | - | Select all non-disabled items |
+| `unselectAll()` | - | Unselect all items |
+| `toggleAll()` | - | Toggle all non-disabled items |
+| `mix(ids)` | - | Set one or more tickets to indeterminate state |
+| `unmix(ids)` | - | Clear indeterminate state from one or more tickets |
+| `mixed(id)` | - | Returns `true` if the ticket is in mixed state |
 | ticket `isSelected` | <AppSuccessIcon /> | Computed from `selectedIds` |
-
-> [!TIP] Tri-state support
-> `mixedIds` is reactive and updates automatically for indeterminate checkbox states in tree structures.
+| ticket `isMixed` | <AppSuccessIcon /> | `Readonly<Ref<boolean>>` — whether this ticket is indeterminate |
+| ticket `mix()` | - | Set this ticket to indeterminate state |
+| ticket `unmix()` | - | Clear indeterminate state from this ticket |
 
 ## Examples
 
@@ -91,6 +120,10 @@ Chip filters are a common pattern for narrowing content by tags. This example sh
 /composables/create-group/TagFilter.vue 2
 /composables/create-group/chip-filter.vue 3
 @import @mdi/js
+
+### Chip Tag Filter
+
+Toggleable tag chips with a tri-state select-all header, showing `isAllSelected`, `isMixed`, and `isNoneSelected` update live.
 
 | File | Role |
 |------|------|

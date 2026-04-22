@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { renderToString } from 'vue/server-renderer'
 
 // Utilities
@@ -795,7 +795,7 @@ describe('breadcrumbs', () => {
       // Verify components registered
       expect(wrapper.findAll('li').length).toBe(5)
 
-      // Unmount triggers onUnmounted for all children
+      // Unmount triggers onBeforeUnmount for all children
       wrapper.unmount()
     })
 
@@ -967,6 +967,57 @@ describe('breadcrumbs', () => {
 
 // Additional coverage: overflow behavior
 describe('overflow behavior', () => {
+  let resizeObserverCallback: ResizeObserverCallback | null = null
+  let resizeObserverTarget: Element | null = null
+
+  class TestResizeObserver {
+    constructor (cb: ResizeObserverCallback) {
+      resizeObserverCallback = cb
+    }
+
+    observe (el: Element) {
+      resizeObserverTarget = el
+    }
+
+    unobserve () {}
+    disconnect () {}
+  }
+
+  beforeEach(() => {
+    vi.stubGlobal('ResizeObserver', TestResizeObserver)
+    resizeObserverCallback = null
+    resizeObserverTarget = null
+  })
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  function triggerResize (width: number, height = 0): void {
+    if (!resizeObserverCallback || !resizeObserverTarget) return
+    const rect = {
+      width,
+      height,
+      top: 0,
+      left: 0,
+      right: width,
+      bottom: height,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    } as DOMRectReadOnly
+    resizeObserverCallback(
+      [{
+        contentRect: rect,
+        target: resizeObserverTarget,
+        borderBoxSize: [],
+        contentBoxSize: [],
+        devicePixelContentBoxSize: [],
+      }],
+      {} as ResizeObserver,
+    )
+  }
+
   function mountOverflowTree (options: {
     itemCount?: number
     withEllipsis?: boolean
@@ -1009,9 +1060,9 @@ describe('overflow behavior', () => {
     await nextTick()
     const ctx = context()
     // Trigger overflow then restore
-    ctx.overflow.width.value = 5
+    triggerResize(5)
     await nextTick()
-    ctx.overflow.width.value = 0
+    triggerResize(0)
     await nextTick()
     for (const t of ctx.group.values()) {
       if (t.type === 'ellipsis') {
@@ -1027,7 +1078,7 @@ describe('overflow behavior', () => {
     await nextTick()
     const ctx = context()
     // With 7 content + gap=8 + zero-width, capacity=1 at width=5
-    ctx.overflow.width.value = 5
+    triggerResize(5)
     await nextTick()
     const content = ctx.group.values().filter((t: { type: string }) => t.type !== 'ellipsis')
     expect(content[0]!.isSelected.value).toBe(true)
@@ -1040,7 +1091,7 @@ describe('overflow behavior', () => {
     const ctx = context()
     // Force capacity=0: set reserved > width via ellipsisWidth
     ctx.ellipsisWidth.value = 50
-    ctx.overflow.width.value = 50
+    triggerResize(50)
     await nextTick()
     expect(ctx.overflow.capacity.value).toBe(0)
     const content = ctx.group.values().filter((t: { type: string }) => t.type !== 'ellipsis')
@@ -1053,7 +1104,7 @@ describe('overflow behavior', () => {
     const ctx = context()
     // Force capacity=0 by making reserved > width
     ctx.ellipsisWidth.value = 100
-    ctx.overflow.width.value = 50
+    triggerResize(50)
     await nextTick()
     expect(ctx.overflow.capacity.value).toBe(0)
     // In capacity=0 branch, specific visibility logic runs
@@ -1072,7 +1123,7 @@ describe('overflow behavior', () => {
     ctx.measureElement(0, 'item', el)
     ctx.ellipsisWidth.value = 10
     await nextTick()
-    ctx.overflow.width.value = 20
+    triggerResize(20)
     await nextTick()
     for (const t of ctx.group.values()) {
       if (t.type === 'ellipsis') {
@@ -1119,11 +1170,11 @@ describe('overflow behavior', () => {
     const ctx = context()
     expect(ctx.overflow.capacity.value).toBe(Infinity)
     // Force non-Infinity capacity
-    ctx.overflow.width.value = 5
+    triggerResize(5)
     await nextTick()
     expect(ctx.overflow.capacity.value).toBeLessThan(Infinity)
     // Restore to Infinity
-    ctx.overflow.width.value = 0
+    triggerResize(0)
     await nextTick()
     expect(ctx.overflow.capacity.value).toBe(Infinity)
   })
@@ -1172,7 +1223,7 @@ describe('overflow behavior', () => {
 
     // reserved = fI(30)+gap(8) + fD(30)+gap(8) + eW(25)+gap(8) = 109
     // Set width so available < 0 => capacity = 0
-    ctx.overflow.width.value = 50
+    triggerResize(50)
     await nextTick()
 
     expect(ctx.overflow.capacity.value).toBe(0)
@@ -1193,7 +1244,7 @@ describe('overflow behavior', () => {
     await nextTick()
 
     // reserved = 20+8+20+8+20+8 = 84; width=80 => available=-4 => capacity=0
-    ctx.overflow.width.value = 80
+    triggerResize(80)
     await nextTick()
 
     expect(ctx.overflow.capacity.value).toBe(0)
@@ -1228,7 +1279,7 @@ describe('overflow behavior', () => {
     await nextTick()
 
     // reserved = 15+8+15+8+15+8 = 69; width=60 => capacity=0
-    ctx.overflow.width.value = 60
+    triggerResize(60)
     await nextTick()
 
     expect(ctx.overflow.capacity.value).toBe(0)
@@ -1259,7 +1310,7 @@ describe('overflow behavior', () => {
     // reserved = 20+8+20+8+20+8 = 84; fD=20
     // w < reserved + fD = 84+20 = 104 => need w < 104 AND w > 0 for non-Infinity
     // And available = w - 84 < 0 => w < 84 for capacity=0
-    ctx.overflow.width.value = 60
+    triggerResize(60)
     await nextTick()
 
     expect(ctx.overflow.capacity.value).toBe(0)
@@ -1284,7 +1335,7 @@ describe('overflow behavior', () => {
 
     // fI=20, eW=20, gap=8
     // w < fI+gap+eW+gap = 20+8+20+8 = 56
-    ctx.overflow.width.value = 40
+    triggerResize(40)
     await nextTick()
 
     expect(ctx.overflow.capacity.value).toBe(0)
@@ -1311,7 +1362,7 @@ describe('overflow behavior', () => {
     await nextTick()
 
     // fI=20, gap=8 => w < 28
-    ctx.overflow.width.value = 10
+    triggerResize(10)
     await nextTick()
 
     expect(ctx.overflow.capacity.value).toBe(0)
@@ -1335,12 +1386,12 @@ describe('overflow behavior', () => {
     await nextTick()
 
     // First trigger overflow (capacity=0)
-    ctx.overflow.width.value = 30
+    triggerResize(30)
     await nextTick()
     expect(ctx.overflow.capacity.value).toBe(0)
 
     // Then restore: width=0 => capacity=Infinity
-    ctx.overflow.width.value = 0
+    triggerResize(0)
     await nextTick()
     expect(ctx.overflow.capacity.value).toBe(Infinity)
 
@@ -1378,7 +1429,7 @@ describe('overflow behavior', () => {
     // For capacity=2: item8(10) + item7(10+8=18) = 28 <= available
     // item6(10+8=18) would be 46
     // Need available ~ 28..45 for capacity=2; width = 54+28..54+45 = 82..99
-    ctx.overflow.width.value = 82
+    triggerResize(82)
     await nextTick()
 
     const capacity = ctx.overflow.capacity.value
@@ -1416,7 +1467,7 @@ describe('overflow behavior', () => {
 
     // For capacity=1: available=10, width=54+10=64 to 54+27=81
     // showStart = 8-1+1 = 8 (item4), sep = 7 (div3)
-    ctx.overflow.width.value = 64
+    triggerResize(64)
     await nextTick()
 
     const capacity = ctx.overflow.capacity.value

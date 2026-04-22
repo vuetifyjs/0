@@ -1,7 +1,7 @@
 <script setup lang="ts">
   // Components
-  import { usePlayground } from './PlaygroundApp.vue'
   import AppCloseButton from '@/components/app/AppCloseButton.vue'
+  import { usePlayground } from './PlaygroundApp.vue'
 
   // Utilities
   import { computed, nextTick, onMounted, ref, shallowRef, useTemplateRef } from 'vue'

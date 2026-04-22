@@ -17,7 +17,7 @@ import { V0_COMPONENTS, V0_COMPOSABLES, V0_COMPOSABLE_TO_DIR } from './generated
 // Vue API content - import only keys for build-time detection
 import { VUE_API_CONTENT } from './vue-api-content'
 
-// Component pattern: Namespace.Part (e.g., Popover.Root, ExpansionPanel.Item)
+// Component pattern: Namespace.Part (e.g., Popover.Root, ExpansionPanel.Group)
 // Tokens come through as combined strings like "Popover.Root"
 const COMPONENT_PATTERN = /^([A-Z][a-zA-Z]*)(?:\.([A-Z][a-zA-Z]*))?$/
 
@@ -171,6 +171,30 @@ export function renderVueApiInlineCode (
   if (!VUE_API_NAMES.has(text)) return null
   const escaped = escapeHtml(text)
   return `<code data-api-candidate="${escaped}" data-api-name="${escaped}" data-api-type="vue">${escaped}</code>`
+}
+
+/**
+ * Renders inline code for v0 API references (components and composables).
+ * Returns HTML string if text is a v0 API, null otherwise.
+ */
+export function renderV0ApiInlineCode (
+  text: string,
+  escapeHtml: (s: string) => string,
+): string | null {
+  const composable = resolveComposable(text)
+  if (composable) {
+    const escaped = escapeHtml(text)
+    const apiName = escapeHtml(composable.apiName)
+    return `<code data-api-candidate="${escaped}" data-api-name="${apiName}" data-api-type="composable">${escaped}</code>`
+  }
+
+  const match = COMPONENT_PATTERN.exec(text)
+  if (match && V0_COMPONENTS.has(match[1])) {
+    const escaped = escapeHtml(text)
+    return `<code data-api-candidate="${escaped}" data-api-name="${escaped}" data-api-type="component">${escaped}</code>`
+  }
+
+  return null
 }
 
 // Export for use in markdown.ts inline code processing

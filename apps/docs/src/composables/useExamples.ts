@@ -81,24 +81,26 @@ export function useExamples () {
     for (const path of paths) {
       const normalized = path.startsWith('/') ? path.slice(1) : path
       const suffix = `/${normalized}`
+      const isExtensionless = !normalized.includes('.')
 
-      const rawKey = findKey(rawKeys, suffix)
+      // Try exact match first, then with .vue extension for extensionless paths
+      const rawKey = findKey(rawKeys, suffix) ?? (isExtensionless ? findKey(rawKeys, `${suffix}.vue`) : undefined)
       const code = rawKey ? raw[rawKey] : undefined
 
       if (code) {
+        const fileName = normalized.split('/').pop() || normalized
         files.push({
-          name: normalized.split('/').pop() || normalized,
+          name: rawKey?.split('/').pop() || fileName,
           code,
-          language: getLanguage(normalized),
+          language: getLanguage(rawKey || normalized),
         })
       }
 
       // Track last .vue file as the component (entry point)
-      if (normalized.endsWith('.vue')) {
-        const moduleKey = findKey(moduleKeys, suffix)
-        if (moduleKey) {
-          lastVueKey = moduleKey
-        }
+      const vueSuffix = normalized.endsWith('.vue') ? suffix : (isExtensionless ? `${suffix}.vue` : undefined)
+      if (vueSuffix) {
+        const moduleKey = findKey(moduleKeys, vueSuffix)
+        if (moduleKey) lastVueKey = moduleKey
       }
     }
 

@@ -1,6 +1,8 @@
 /**
  * @module GroupItem
  *
+ * @see https://0.vuetifyjs.com/components/providers/group
+ *
  * @remarks
  * Item component for multi-selection groups. Registers with parent GroupRoot
  * and provides selection state and methods via scoped slot. Supports tri-state
@@ -58,6 +60,7 @@
       'data-selected': true | undefined
       'data-disabled': true | undefined
       'data-mixed': true | undefined
+      'onClick': () => void
     }
   }
 </script>
@@ -67,7 +70,7 @@
   import { useGroupRoot } from './GroupRoot.vue'
 
   // Utilities
-  import { onUnmounted, toRef, toValue } from 'vue'
+  import { onBeforeUnmount, toRef, toValue } from 'vue'
 
   defineOptions({ name: 'GroupItem' })
 
@@ -88,7 +91,7 @@
   const ticket = group.register({ id, value, disabled, indeterminate })
   const isDisabled = toRef(() => toValue(ticket.disabled) || toValue(group.disabled))
 
-  onUnmounted(() => {
+  onBeforeUnmount(() => {
     group.unregister(ticket.id)
   })
 
@@ -111,6 +114,7 @@
       'data-selected': toValue(ticket.isSelected) || undefined,
       'data-disabled': toValue(isDisabled) || undefined,
       'data-mixed': toValue(ticket.isMixed) || undefined,
+      'onClick': ticket.toggle,
     },
   }))
 </script>

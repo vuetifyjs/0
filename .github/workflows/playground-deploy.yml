@@ -15,9 +15,9 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
-      - uses: vuetifyjs/setup-action@master
+      - uses: vuetifyjs/setup-action@fb6949e3ee1041636b7fa9eef3c7694ff31840b8 # master
       - run: pnpm run build:play
-      - uses: vuetifyjs/coolify-action@master
+      - uses: vuetifyjs/coolify-action@f24a3716773c4c238e67c4bf0319c410bafc52de # master
         with:
           imageName: v0-playground
           dockerfilePath: ./apps/playground/Dockerfile

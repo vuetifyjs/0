@@ -17,9 +17,9 @@ related:
 
 # useDate
 
-The `useDate` composable provides comprehensive date manipulation capabilities using the adapter pattern. The default adapter uses the [Temporal API](https://tc39.es/proposal-temporal/docs/) for modern, immutable date operations with locale-aware formatting via `Intl.DateTimeFormat`. Integrates with `useLocale` for automatic locale synchronization.
-
 <DocsPageFeatures :frontmatter />
+
+Date manipulation using the Temporal API with locale-aware formatting and adapter support.
 
 ## Installation
 
@@ -71,7 +71,20 @@ Once the plugin is installed, use the `useDate` composable in any component:
 
 ::: example
 /composables/use-date/basic
+
+### Date Format Presets
+
+Today's date rendered in multiple formats — fullDate, shortDate, weekday, and time — using the current locale.
+
 :::
+
+## Adapters
+
+Adapters let you swap the underlying date library without changing your application code.
+
+| Adapter | Import | Description |
+|---------|--------|-------------|
+| `Vuetify0DateAdapter` | `@vuetify/v0/date` | [Temporal API](https://tc39.es/proposal-temporal/docs/) adapter (requires `@js-temporal/polyfill`) |
 
 ### DateAdapter Interface
 
@@ -80,6 +93,8 @@ The adapter provides a comprehensive API compatible with [date-io](https://githu
 ```ts collapse
 interface DateAdapter<T> {
   locale?: string
+  /** First day of week: 0 = Sunday, 1 = Monday, … 6 = Saturday. Set by the plugin from locale. */
+  firstDayOfWeek?: number
 
   // Construction & Conversion
   date (value?: unknown): T | null
@@ -152,7 +167,7 @@ interface DateAdapter<T> {
   setSeconds (date: T, seconds: number): T
 
   // Calendar Utilities
-  getWeekdays (firstDayOfWeek?: number, format?: 'long' | 'short' | 'narrow'): string[]
+  getWeekdays (format?: 'long' | 'short' | 'narrow'): string[]
   getWeekArray (date: T, firstDayOfWeek?: number): T[][]
   getMonthArray (date: T): T[]
   getYearRange (start: T, end: T): T[]
@@ -237,6 +252,11 @@ The following examples demonstrate common date operations using the default Temp
 
 ::: example
 /composables/use-date/calendar
+
+### Interactive Calendar
+
+A navigable month/year calendar with prev/next controls, today highlighted, and a consistent 5-week grid.
+
 :::
 
 ## Locale Integration

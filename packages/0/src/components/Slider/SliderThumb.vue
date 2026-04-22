@@ -1,6 +1,8 @@
 /**
  * @module SliderThumb
  *
+ * @see https://0.vuetifyjs.com/components/forms/slider
+ *
  * @remarks
  * Draggable thumb control for sliders. Auto-registers with parent
  * Slider.Root to get its index. Handles pointer drag and keyboard
@@ -14,7 +16,7 @@
 
   // Utilities
   import { isUndefined } from '#v0/utilities'
-  import { onUnmounted, toRef, toValue, useAttrs, useTemplateRef } from 'vue'
+  import { mergeProps, onBeforeUnmount, toRef, toValue, useAttrs, useTemplateRef } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -87,7 +89,7 @@
 
   const ticket = root.register()
 
-  onUnmounted(() => {
+  onBeforeUnmount(() => {
     root.unregister(ticket.id)
   })
 
@@ -186,7 +188,7 @@
 <template>
   <Atom
     ref="thumb"
-    v-bind="{ ...attrs, ...slotProps.attrs }"
+    v-bind="mergeProps(attrs, slotProps.attrs)"
     :as
     :renderless
     :style="[attrs.style, slotProps.attrs.style]"

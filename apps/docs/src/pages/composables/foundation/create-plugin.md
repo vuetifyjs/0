@@ -6,7 +6,7 @@ meta:
 - name: keywords
   content: createPlugin, Vue plugin, plugin factory, composable, context provision, app-level state, Vue 3
 features:
-  category: Factory
+  category: Composable
   label: 'E: createPlugin'
   github: /composables/createPlugin/
   level: 3
@@ -18,13 +18,52 @@ related:
 
 # createPlugin
 
-This composable allows you to create a Vue plugin with specific functionality that can be registered and used within your application.
+Factory for creating Vue plugins with typed dependency injection and lifecycle hooks.
 
 <DocsPageFeatures :frontmatter />
 
 ## Usage
 
-Use in conjunction with the [createContext](/composables/foundation/create-context "createContext Documentation") composable to make [Vue plugins](https://vuejs.org/guide/reusability/plugins "Vue Plugins Documentation") that work seemlessly with [Vue Provide / Inject](https://vuejs.org/guide/components/provide-inject "Vue Provide / Inject Documentation").
+For most cases, use `createPluginContext` — it generates the full plugin tuple from a factory function:
+
+```ts collapse no-filename
+import { createPluginContext } from '@vuetify/v0'
+
+interface AnalyticsOptions {
+  trackPageviews?: boolean
+}
+
+interface AnalyticsContext {
+  track: (event: string) => void
+}
+
+export const [createAnalyticsContext, createAnalyticsPlugin, useAnalytics] =
+  createPluginContext<AnalyticsOptions, AnalyticsContext>(
+    'my:analytics',
+    (options) => ({
+      track: (event) => {
+        if (options.trackPageviews) console.log(event)
+      },
+    }),
+  )
+```
+
+```ts src/main.ts
+app.use(createAnalyticsPlugin({ trackPageviews: true }))
+```
+
+```vue src/components/MyComponent.vue
+<script setup lang="ts">
+  import { useAnalytics } from './plugins/analytics'
+
+  const analytics = useAnalytics()
+  analytics.track('page_view')
+</script>
+```
+
+## Low-level API
+
+Use `createPlugin` directly when you need fine-grained control over plugin setup, or when composing with existing `createContext` instances:
 
 ```ts collapse
 import { createContext, createPlugin } from '@vuetify/v0'
@@ -33,7 +72,6 @@ interface MyPluginContext {
   app: string
 }
 
-// use is the inject function and provide is the provide function
 export const [useMyContext, provideMyContext] = createContext<MyPluginContext>('provide-namespace')
 
 export function createMyPlugin () {
@@ -54,32 +92,7 @@ export function createMyPlugin () {
 ```
 
 > [!TIP]
-> The **setup** and **provide** functions do the same thing, they are separated for semantic purposes.
-
-Then, in your main application file, register the plugin like so:
-
-```ts { resource="src/main.ts" }
-import { createApp } from 'vue'
-import { createMyPlugin } from './path/to/plugin'
-
-const app = createApp(App)
-
-app.use(createMyPlugin())
-```
-
-Now, whenever your application starts, the plugin is registered and the context is provided. Use the `useMyContext` function to access this context in any component:
-
-```vue { resource="src/components/MyComponent.vue" }
-<template>
-  <div>{{ context.app }}</div>
-</template>
-
-<script setup lang="ts">
-  import { useMyContext } from './path/to/plugin'
-
-  const context = useMyContext()
-</script>
-```
+> The **setup** and **provide** hooks are separated for semantic purposes — `provide` is for DI context, `setup` is for side effects (watchers, adapters, globals).
 
 ## Architecture
 
@@ -99,6 +112,76 @@ flowchart LR
   C --> install
   install --> app.runWithContext
 ```
+
+## Persistence
+
+Plugins can automatically save and restore state across page reloads using `useStorage`. Add `persist` and `restore` hooks to the plugin config, then consumers opt in with `persist: true`.
+
+### Plugin author
+
+Define what to save and how to restore in the `createPluginContext` config:
+
+```ts collapse no-filename
+import { createPluginContext } from '@vuetify/v0'
+
+export const [createThemeContext, createThemePlugin, useTheme] =
+  createPluginContext('v0:theme', createTheme, {
+    setup: (context, app, options) => {
+      // adapter setup...
+    },
+    // Return the value to save — called reactively
+    persist: ctx => ctx.selectedId.value,
+    // Apply saved value on load — called before setup
+    restore: (ctx, saved) => ctx.select(saved),
+  })
+```
+
+### Consumer
+
+```ts no-filename
+app.use(createThemePlugin({ persist: true }))
+```
+
+When `persist: true` is passed, the plugin automatically:
+
+1. Reads from `useStorage` using the plugin namespace as key
+2. Calls `restore` with the saved value before `setup` runs
+3. Watches the `persist` return value and writes changes to storage
+
+> [!TIP]
+> The `default` option becomes the true default — it's only used when no persisted value exists.
+
+### Lifecycle
+
+```mermaid "Persist Lifecycle"
+flowchart LR
+  A[provide] --> B[restore]
+  B --> C[setup]
+  C --> D["watch(persist)"]
+```
+
+The critical ordering is **restore before setup**. This means adapters (like the theme CSS variable injector) see the correct restored state on their first run — no flash of wrong values.
+
+### Hook signatures
+
+```ts
+interface PluginContextConfig<O, E> {
+  /** Return the value to persist — called reactively inside a watch source */
+  persist?: (context: E) => unknown
+  /** Restore previously persisted state — called before setup */
+  restore?: (context: E, saved: unknown) => void
+}
+```
+
+The `persist` return value is stored under the plugin namespace key (e.g. `v0:theme`). `restore` receives whatever was stored — cast to the expected type inside the hook.
+
+### Built-in support
+
+| Plugin | Persists | Storage key |
+|--------|----------|-------------|
+| `createThemePlugin` | Selected theme ID | `v0:theme` |
+| `createRtlPlugin` | RTL direction | `v0:rtl` |
+| `createLocalePlugin` | Selected locale | `v0:locale` |
 
 ## Examples
 

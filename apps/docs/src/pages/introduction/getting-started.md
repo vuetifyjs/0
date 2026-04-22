@@ -72,7 +72,7 @@ bunx @vuetify/cli init --type vuetify0
 
 :::
 
-Both options scaffold a complete project with UnoCSS, theming, and example components pre-configured.
+Both options scaffold a complete project with UnoCSS, theming, and example components pre-configured — the same shape as [Devkey](/guide/integration/devkey), the reference v0 starter project.
 
 > [!TIP]
 > Use the Skill Filter to narrow down navigation to match your experience level: <AppSkillFilter />
@@ -188,17 +188,18 @@ Import and use components directly - no plugin installation required:
 </script>
 
 <template>
-  <ExpansionPanel.Root v-model="expanded" multiple>
-    <ExpansionPanel.Item value="item-1">
+  <ExpansionPanel.Group v-model="expanded" multiple>
+    <ExpansionPanel.Root value="item-1">
       <ExpansionPanel.Activator>
         Section 1
+        <ExpansionPanel.Cue />
       </ExpansionPanel.Activator>
 
       <ExpansionPanel.Content>
         Content for section 1
       </ExpansionPanel.Content>
-    </ExpansionPanel.Item>
-  </ExpansionPanel.Root>
+    </ExpansionPanel.Root>
+  </ExpansionPanel.Group>
 </template>
 ```
 
@@ -388,9 +389,9 @@ Type-safe access via `useCssModule()`:
 > [!TIP]
 > For dark mode, custom themes, and design tokens, see the [Theming Guide](/guide/features/theming).
 
-## Nuxt 3
+## Nuxt
 
-v0 works with Nuxt 3 via a standard plugin.
+v0 works with Nuxt via a standard plugin.
 
 ### 1. Create Plugin
 
@@ -467,5 +468,19 @@ import { isObject, isString } from '@vuetify/v0/utilities'
 // Constants only
 import { IN_BROWSER } from '@vuetify/v0/constants'
 ```
+
+## Next Steps
+
+Now that v0 is installed, choose your path:
+
+| Goal | Start Here |
+| - | - |
+| Understand the architecture | [Components](/guide/fundamentals/components) → [Composables](/guide/fundamentals/composables) → [Core](/guide/fundamentals/core) |
+| Build production UIs now | [Theming](/guide/features/theming) → [Accessibility](/guide/features/accessibility) |
+| Build a component library | [Building Frameworks](/guide/fundamentals/building-frameworks) |
+| Explore interactively | [Playground](/playground) |
+
+> [!TIP]
+> Use `Cmd+/` on any documentation page to ask AI questions about v0.
 
 > [!DISCORD]

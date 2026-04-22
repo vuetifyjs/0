@@ -15,6 +15,7 @@ export interface Frontmatter {
     emphasized?: boolean
     devmode?: boolean
   }
+  related?: string[]
 }
 
 export interface ParseResult {
@@ -45,22 +46,30 @@ export function parseFrontmatter (content: string): ParseResult {
   const lines = frontmatterStr.split('\n')
   let inFeatures = false
   let inMeta = false
+  let inRelated = false
   let currentMetaName = ''
   const features: NonNullable<Frontmatter['features']> = {}
+  const related: string[] = []
 
   for (const line of lines) {
     const trimmed = line.trim()
     if (!trimmed) continue
 
     // Check if we're entering/exiting a nested block
-    // Allow '-' prefix for YAML array items within meta block
+    // Allow '-' prefix for YAML array items within meta/related blocks
     if (!line.startsWith(' ') && !line.startsWith('\t') && !line.startsWith('-')) {
       inFeatures = false
       inMeta = false
+      inRelated = false
     }
 
     if (trimmed.startsWith('title:')) {
       frontmatter.title = trimmed.slice(6).trim().replace(/^['"]|['"]$/g, '')
+    } else if (trimmed === 'related:') {
+      inRelated = true
+    } else if (inRelated && trimmed.startsWith('- ')) {
+      const value = trimmed.slice(2).trim().replace(/^['"]|['"]$/g, '')
+      if (value) related.push(value)
     } else if (trimmed === 'meta:') {
       inMeta = true
     } else if (inMeta) {
@@ -93,6 +102,10 @@ export function parseFrontmatter (content: string): ParseResult {
 
   if (Object.keys(features).length > 0) {
     frontmatter.features = features
+  }
+
+  if (related.length > 0) {
+    frontmatter.related = related
   }
 
   return { frontmatter, body }

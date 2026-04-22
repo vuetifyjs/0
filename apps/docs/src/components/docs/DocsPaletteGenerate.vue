@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { debounce, IN_BROWSER } from '@vuetify/v0'
+  import { IN_BROWSER, useTimer } from '@vuetify/v0'
   import { ant as generateAnt } from '@vuetify/v0/palettes/ant/generate'
   import { leonardo as generateLeonardo } from '@vuetify/v0/palettes/leonardo/generate'
   import { material as generateMaterial } from '@vuetify/v0/palettes/material/generate'
@@ -55,7 +55,7 @@
     }
   }
 
-  const generate = debounce(run, 300)
+  const { start: generate } = useTimer(run, { duration: 300 })
 
   watch([seed, adapter, variant], () => generate())
   onMounted(() => run())

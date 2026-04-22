@@ -10,6 +10,7 @@ features:
   label: 'C: Form'
   level: 2
   github: /components/Form/
+  renderless: false
 related:
   - /composables/forms/create-form
   - /composables/forms/create-validation
@@ -18,7 +19,7 @@ related:
 
 # Form
 
-A headless form component that coordinates validation across child fields. Renders a native `<form>` element and intercepts submit/reset — child inputs using `createValidation` (including `Input.Root`) auto-register via `useForm()` injection.
+A form wrapper that coordinates validation across child input fields and handles submit/reset events.
 
 <DocsPageFeatures :frontmatter />
 
@@ -28,6 +29,11 @@ Wrap your inputs in `<Form>`. Native `<button type="submit">` and `<button type=
 
 ::: example
 /components/form/basic
+
+### Form with Validation
+
+Email and password fields with validation rules, submit/reset buttons, and success feedback on completion.
+
 :::
 
 ## Anatomy
@@ -74,19 +80,6 @@ function onSubmit ({ valid }: { valid: boolean }) {
   // handle submission
 }
 ```
-
-## Accessibility
-
-`Form` renders a native `<form>` element, so all standard form semantics apply. No custom ARIA is needed — the browser handles submit on Enter, associates labels with inputs via `id`/`for`, and reports validation errors to assistive technology through child inputs.
-
-### Keyboard Interaction
-
-| Key | Behavior |
-|-----|----------|
-| `Enter` (in input) | Submits the form |
-| `Escape` | No default behavior — handle in your submit handler |
-
-<DocsApi />
 
 ## Recipes
 
@@ -152,3 +145,16 @@ Call `submit()` from slot props when you need to trigger validation without a su
 
 > [!TIP]
 > Calling `submit()` or `reset()` via slot props invokes the form methods directly and does **not** emit `@submit` or `@reset`. Those events only fire from native form submission/reset.
+
+## Accessibility
+
+`Form` renders a native `<form>` element, so all standard form semantics apply. No custom ARIA is needed — the browser handles submit on Enter, associates labels with inputs via `id`/`for`, and reports validation errors to assistive technology through child inputs.
+
+### Keyboard Interaction
+
+| Key | Behavior |
+|-----|----------|
+| `Enter` (in input) | Submits the form |
+| `Escape` | No default behavior — handle in your submit handler |
+
+<DocsApi />

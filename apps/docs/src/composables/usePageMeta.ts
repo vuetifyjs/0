@@ -38,6 +38,7 @@ export interface PageMeta {
   benchmark: Readonly<Ref<BenchmarkConfig | null>>
   renderless: Readonly<Ref<boolean | undefined>>
   lastUpdated: Readonly<Ref<string | null>>
+  lastCommit: Readonly<Ref<{ hash: string, url: string } | null>>
 }
 
 export const PAGE_META_KEY = 'v0:docs:page-meta'

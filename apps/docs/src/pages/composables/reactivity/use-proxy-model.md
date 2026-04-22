@@ -11,6 +11,7 @@ features:
   github: /composables/useProxyModel/
   level: 2
 related:
+  - /composables/selection/create-model
   - /composables/selection/create-selection
   - /composables/selection/create-single
 ---
@@ -47,6 +48,48 @@ selection.select('banana')
 console.log(model.value) // 'Banana'
 ```
 
+### Multiple mode
+
+Pass `multiple: true` to sync an array model with a multi-select context. This **must be explicit** — `multiple` is never inferred from the context:
+
+```ts no-filename
+const model = ref<string[]>([])
+const selection = createGroup({ events: true })
+
+selection.onboard([
+  { id: 'red', value: 'Red' },
+  { id: 'green', value: 'Green' },
+  { id: 'blue', value: 'Blue' },
+])
+
+const stop = useProxyModel(selection, model, { multiple: true })
+
+selection.toggle('red')
+selection.toggle('blue')
+console.log(model.value) // ['Red', 'Blue']
+```
+
+The `multiple` option accepts `MaybeRefOrGetter<boolean>`, so you can drive it from a prop or computed:
+
+```ts no-filename
+const props = defineProps<{ multiple?: boolean }>()
+const stop = useProxyModel(selection, model, { multiple: () => props.multiple ?? false })
+```
+
+### Disabled items
+
+When a new item registers with the selection, `useProxyModel` checks whether the model already holds that item's value and selects it if so — this is how items that were selected before they mounted get their initial state. The check is skipped if the item is disabled. The `disabled` property is automatically unwrapped if it is a `Ref<boolean>`:
+
+```ts no-filename
+selection.onboard([
+  { id: 'a', value: 'A' },
+  { id: 'b', value: 'B', disabled: ref(true) }, // reactive disabled
+])
+
+model.value = 'B'
+// 'b' is NOT auto-selected because disabled is true at registration time
+```
+
 ## Architecture
 
 `useProxyModel` creates bidirectional sync between v-model refs and selection state:
@@ -79,5 +122,16 @@ flowchart LR
 
 > [!TIP] Automatic cleanup
 > The watchers are disposed automatically via `onScopeDispose`. The returned `stop()` function allows early manual cleanup.
+
+## Examples
+
+::: example
+/composables/use-proxy-model/color-picker
+
+### Color Picker
+
+A color swatch selector wired to a `v-model`-style ref via `useProxyModel`, keeping selection state and external model in sync bidirectionally.
+
+:::
 
 <DocsApi />

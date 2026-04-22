@@ -1,6 +1,8 @@
 /**
  * @module createModel
  *
+ * @see https://0.vuetifyjs.com/composables/selection/create-model
+ *
  * @remarks
  * Value store layer that extends createRegistry with a reactive Set of
  * selected IDs, disabled guards, and an `apply` bridge for useProxyModel sync.
@@ -8,18 +10,28 @@
  * Think of it as a creative way to store a single value — more like
  * `defineModel` than `createSelection`. Selection-specific concepts
  * (mandatory) belong in createSelection. The `multiple` option here
- * controls whether `select()` accumulates or replaces.
+ * controls whether `select()` accumulates or replaces. The `enroll` option
+ * auto-selects items on register.
  *
  * Both Selection and Slider extend this layer:
  * - createRegistry → createModel → createSelection → createSingle/createGroup/createStep
  * - createRegistry → createModel → createSlider (values override)
+ *
+ * @example
+ * ```ts
+ * import { createModel } from '@vuetify/v0'
+ *
+ * const model = createModel({ multiple: false })
+ * model.register({ value: 'apple' })
+ * model.select(model.values()[0]!.id)
+ * ```
  */
 
 // Composables
 import { createRegistry } from '#v0/composables/createRegistry'
 
 // Utilities
-import { isUndefined, useId } from '#v0/utilities'
+import { isUndefined, resolveIds, useId } from '#v0/utilities'
 import { computed, isRef, shallowReactive, toRef, toRaw, toValue } from 'vue'
 
 // Types
@@ -201,7 +213,7 @@ export interface ModelContext<
    * Apply external values to the model
    *
    * @param values Array of values to apply. Only `values[0]` is used (single-value store).
-   * @param options Options for API compatibility with createSelection. The `multiple` field is accepted but ignored.
+   * @param options Optional. Accepted for interface compatibility with `createSelection`; ignored at this layer.
    * @remarks Used internally by `useProxyModel` to sync a ref with the model. Executes two steps sequentially:
    * 1. **Ref write**: Writes `values[0]` to any selected ticket whose value is a ref.
    * 2. **Browse resolution**: Clears `selectedIds`, resolves `values[0]` via `registry.browse()`, and selects the match.
@@ -361,13 +373,7 @@ export function createModel<
   const registry = createRegistry<Z, E>(options)
   const selectedIds = shallowReactive(new Set<ID>())
 
-  const selectedItems = computed(() => {
-    return new Set(
-      Array.from(selectedIds)
-        .map(id => registry.get(id))
-        .filter((item): item is E => !isUndefined(item)),
-    )
-  })
+  const selectedItems = computed(() => new Set(resolveIds(selectedIds, registry.get)))
 
   const selectedValues = computed(() => {
     return new Set(
@@ -491,5 +497,5 @@ export function createModel<
     get size () {
       return registry.size
     },
-  } as R
+  } as unknown as R
 }

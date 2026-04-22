@@ -10,15 +10,17 @@ features:
   label: 'C: Select'
   github: /components/Select/
   level: 2
+  renderless: false
 related:
   - /composables/selection/create-selection
-  - /composables/utilities/use-virtual-focus
+  - /composables/selection/create-group
+  - /composables/system/use-virtual-focus
   - /components/disclosure/popover
 ---
 
 # Select
 
-A headless dropdown select component with single and multi-selection support. Uses [createSelection](/composables/selection/create-selection) for state management, [useVirtualFocus](/composables/utilities/use-virtual-focus) for keyboard navigation, and [usePopover](/composables/utilities/use-popover) for native popover positioning.
+Headless dropdown select with single and multi-selection, keyboard navigation, and native popover positioning.
 
 <DocsPageFeatures :frontmatter />
 
@@ -28,6 +30,11 @@ The Select component provides a compound pattern for building accessible dropdow
 
 ::: example
 /components/select/basic
+
+### Basic Select
+
+A single-select color dropdown with placeholder text and selected value display.
+
 :::
 
 ## Anatomy
@@ -101,6 +108,126 @@ Set `multiple` on Root to enable multi-selection. The dropdown stays open after 
 
 :::
 
+## Recipes
+
+### Form Submission
+
+Set `name` on Root to auto-render hidden inputs for form submission — one per selected value in multi-select mode:
+
+```vue
+<template>
+  <Select.Root v-model="value" name="color">
+    <!-- ... -->
+  </Select.Root>
+</template>
+```
+
+### Mandatory Selection
+
+Use `mandatory` to prevent deselecting the last item, or `mandatory="force"` to auto-select the first item on mount:
+
+```vue
+<template>
+  <Select.Root v-model="value" mandatory="force">
+    <!-- First non-disabled item is selected automatically -->
+  </Select.Root>
+</template>
+```
+
+### Understanding `id` vs `value`
+
+Each `Select.Item` has two key props:
+
+- **`id`** — Internal key for the selection registry. Used for virtual focus, ARIA attributes, and ticket lookup.
+- **`value`** — The value synced to `v-model`. This is what `Select.Value`'s `selectedValue` slot prop exposes.
+
+The model always receives the `value` prop, not the `id`. When `id` and `value` differ, use the `selectedValue` slot prop to look up a display label:
+
+```vue
+<script setup lang="ts">
+  import { Select } from '@vuetify/v0'
+  import { shallowRef } from 'vue'
+
+  const language = shallowRef('en')
+
+  const languages = [
+    { id: 'en', label: 'English' },
+    { id: 'es', label: 'Spanish' },
+    { id: 'fr', label: 'French' },
+  ]
+</script>
+
+<template>
+  <Select.Root v-model="language" mandatory>
+    <Select.Activator>
+      <Select.Value v-slot="{ selectedValue }">
+        {{ languages.find(l => l.id === selectedValue)?.label }}
+      </Select.Value>
+      <Select.Cue />
+    </Select.Activator>
+
+    <Select.Content>
+      <Select.Item
+        v-for="lang in languages"
+        :id="lang.id"
+        :key="lang.id"
+        :value="lang.id"
+      >
+        {{ lang.label }}
+      </Select.Item>
+    </Select.Content>
+  </Select.Root>
+</template>
+```
+
+> [!TIP]
+> When `id` and `value` are the same (the common case), `Select.Value` displays the model value directly — no lookup needed.
+
+### Pre-Selected Values
+
+Select supports pre-selected values via `v-model` or `:model-value`. The `Select.Value` component shows the model value immediately, even before the dropdown has been opened. `Select.Placeholder` automatically hides when a model value is present:
+
+```vue
+<template>
+  <!-- "Banana" shows immediately, no dropdown open needed -->
+  <Select.Root v-model="fruit" mandatory>
+    <Select.Activator>
+      <Select.Value v-slot="{ selectedValue }">{{ selectedValue }}</Select.Value>
+      <Select.Placeholder>Pick a fruit…</Select.Placeholder>
+    </Select.Activator>
+
+    <Select.Content>
+      <Select.Item value="Apple">Apple</Select.Item>
+      <Select.Item value="Banana">Banana</Select.Item>
+    </Select.Content>
+  </Select.Root>
+</template>
+```
+
+### Custom Positioning
+
+Control dropdown placement with CSS anchor positioning props on Content:
+
+```vue
+<template>
+  <Select.Content position-area="top" position-try="flip-block">
+    <!-- Dropdown appears above the activator -->
+  </Select.Content>
+</template>
+```
+
+### Data Attributes
+
+Style interactive states without slot props:
+
+| Attribute | Values | Component |
+|-----------|--------|-----------|
+| `data-selected` | `true` | Item |
+| `data-highlighted` | `""` | Item |
+| `data-disabled` | `true` | Item |
+| `data-select-open` | `""` | Activator |
+| `data-state` | `"open"` / `"closed"` | Cue |
+
 ## Accessibility
 
 The Select implements the [WAI-ARIA Combobox](https://www.w3.org/WAI/ARIA/apd/patterns/combobox/) pattern with a listbox popup.
@@ -132,53 +259,3 @@ The Select implements the [WAI-ARIA Combobox](https://www.w3.org/WAI/ARIA/apd/pa
 | `Tab` | Close dropdown and move focus |
 
 <DocsApi />
-
-## Recipes
-
-### Form Submission
-
-Set `name` on Root to auto-render hidden inputs for form submission — one per selected value in multi-select mode:
-
-```vue
-<template>
-  <Select.Root v-model="value" name="color">
-    <!-- ... -->
-  </Select.Root>
-</template>
-```
-
-### Mandatory Selection
-
-Use `mandatory` to prevent deselecting the last item, or `mandatory="force"` to auto-select the first item on mount:
-
-```vue
-<template>
-  <Select.Root v-model="value" mandatory="force">
-    <!-- First non-disabled item is selected automatically -->
-  </Select.Root>
-</template>
-```
-
-### Custom Positioning
-
-Control dropdown placement with CSS anchor positioning props on Content:
-
-```vue
-<template>
-  <Select.Content position-area="top" position-try="flip-block">
-    <!-- Dropdown appears above the activator -->
-  </Select.Content>
-</template>
-```
-
-### Data Attributes
-
-Style interactive states without slot props:
-
-| Attribute | Values | Component |
-|-----------|--------|-----------|
-| `data-selected` | `true` | Item |
-| `data-highlighted` | `""` | Item |
-| `data-disabled` | `true` | Item |
-| `data-select-open` | `""` | Activator |
-| `data-state` | `"open"` / `"closed"` | Cue |

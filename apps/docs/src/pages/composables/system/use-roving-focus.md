@@ -11,6 +11,7 @@ features:
   github: /composables/useRovingFocus/
   level: 2
 related:
+  - /components/disclosure/treeview
   - /composables/system/use-hotkey
   - /composables/system/use-event-listener
   - /composables/selection/create-step
@@ -18,7 +19,7 @@ related:
 
 # useRovingFocus
 
-A composable for keyboard navigation within composite widgets using the roving tabindex pattern.
+Keyboard navigation for composite widgets where arrow keys move focus between items, skipping disabled ones.
 
 <DocsPageFeatures :frontmatter />
 
@@ -64,6 +65,20 @@ A composable for keyboard navigation within composite widgets using the roving t
   </div>
 </template>
 ```
+
+## useRovingFocus vs useVirtualFocus
+
+Both manage keyboard navigation, but they use different focus strategies:
+
+| | `useRovingFocus` | `useVirtualFocus` |
+|-|------------------|-------------------|
+| **DOM focus** | Moves to each item | Stays on the control (e.g., `<input>`) |
+| **tabindex** | Managed per item | Not used |
+| **ARIA** | Items receive focus directly | `aria-activedescendant` on control |
+| **Use for** | Toolbars, menus, grids, tabs | Comboboxes, autocompletes, searchable selects |
+| **Keyboard pattern** | Items are real focusable elements | Items are virtual — only one DOM node has focus |
+
+Choose `useRovingFocus` when items are real interactive elements (buttons, links). Choose `useVirtualFocus` when a single input drives a list of options that aren't individually focusable.
 
 ## Architecture
 

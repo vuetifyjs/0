@@ -25,6 +25,7 @@
   import { useLocale } from '#v0/composables/useLocale'
 
   // Utilities
+  import { isUndefined } from '#v0/utilities'
   import { shallowRef, toRef, watch } from 'vue'
 
   // Types
@@ -76,7 +77,7 @@
   /* v8 ignore start -- watch fires after mount, setTimeout callback requires timer */
   watch(() => pagination.page.value, (page, prevPage) => {
     // Skip initial render (no previous value means first mount)
-    if (prevPage === undefined) return
+    if (isUndefined(prevPage)) return
 
     setTimeout(() => {
       text.value = locale.t(

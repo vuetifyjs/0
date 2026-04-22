@@ -10,7 +10,10 @@ features:
   label: 'C: Input'
   level: 2
   github: /components/Input/
+  renderless: false
 related:
+  - /composables/forms/create-input
+  - /composables/forms/create-numeric
   - /composables/forms/create-validation
   - /composables/forms/create-form
   - /components/forms/checkbox
@@ -19,7 +22,7 @@ related:
 
 # Input
 
-A headless text input component with integrated validation. Creates a [createValidation](/composables/forms/create-validation) context internally and auto-registers with parent [createForm](/composables/forms/create-form) instances.
+Headless text input with integrated validation and automatic form registration.
 
 <DocsPageFeatures :frontmatter />
 
@@ -29,6 +32,11 @@ The Input supports text, email, password, and other native input types. Validati
 
 ::: example
 /components/input/basic
+
+### Basic Input with Validation
+
+Email input with validation rules, inline error display, and helper text.
+
 :::
 
 ## Anatomy
@@ -114,33 +122,10 @@ Debounced search with `validateOn="input"` for real-time validation. The composa
 **Key patterns:**
 
 - `validateOn="input"` validates on every keystroke (minimum 2 characters)
-- The composable watches the query ref with `debounce` from `@vuetify/v0/utilities`, demonstrating that `value` is a standard writable Ref
+- The composable watches the query ref with `useTimer` from `@vuetify/v0`, demonstrating that `value` is a standard writable Ref
 - `data-[focused]:border-primary` and `data-[state=invalid]:border-error` style the input purely through data attributes — no slot props needed for visual states
 
 :::
-
-## Accessibility
-
-Input.Control renders as a native `<input>` and manages all ARIA attributes automatically.
-
-### ARIA Attributes
-
-| Attribute | Value | Notes |
-|-----------|-------|-------|
-| `aria-invalid` | `true` | When validation fails or `error` prop is set |
-| `aria-label` | Label text | From Root's `label` prop |
-| `aria-describedby` | Description ID | Only present when `Input.Description` is mounted |
-| `aria-errormessage` | Error ID | Only present when `Input.Error` is mounted and errors exist |
-| `aria-required` | `true` | From Root's `required` prop |
-| `required` | `true` | Native attribute, from Root's `required` prop |
-| `disabled` | `true` | Native attribute, from Root's `disabled` prop |
-| `readonly` | `true` | Native attribute, from Root's `readonly` prop |
-
-### Keyboard Navigation
-
-Standard native `<input>` keyboard behavior. No custom key handlers — the browser handles focus, selection, and editing.
-
-<DocsApi />
 
 ## Recipes
 
@@ -203,3 +188,26 @@ Style interactive states without slot props:
 | `data-focused` | `true` | Root, Control |
 | `data-disabled` | `true` | Root, Control |
 | `data-readonly` | `true` | Root, Control |
+
+## Accessibility
+
+Input.Control renders as a native `<input>` and manages all ARIA attributes automatically.
+
+### ARIA Attributes
+
+| Attribute | Value | Notes |
+|-----------|-------|-------|
+| `aria-invalid` | `true` | When validation fails or `error` prop is set |
+| `aria-label` | Label text | From Root's `label` prop |
+| `aria-describedby` | Description ID | Only present when `Input.Description` is mounted |
+| `aria-errormessage` | Error ID | Only present when `Input.Error` is mounted and errors exist |
+| `aria-required` | `true` | From Root's `required` prop |
+| `required` | `true` | Native attribute, from Root's `required` prop |
+| `disabled` | `true` | Native attribute, from Root's `disabled` prop |
+| `readonly` | `true` | Native attribute, from Root's `readonly` prop |
+
+### Keyboard Navigation
+
+Standard native `<input>` keyboard behavior. No custom key handlers — the browser handles focus, selection, and editing.
+
+<DocsApi />

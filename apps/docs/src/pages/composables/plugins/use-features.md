@@ -11,14 +11,15 @@ features:
   github: /composables/useFeatures/
   level: 2
 related:
+  - /composables/plugins/use-permissions
   - /composables/registration/create-tokens
 ---
 
 # useFeatures
 
-Manage feature flags and simple variations across your app. Register features, toggle them, and query a variation value for A/B-style behavior.
-
 <DocsPageFeatures :frontmatter />
+
+Manage feature flags and variations across your application.
 
 ## Installation
 
@@ -85,15 +86,37 @@ Optionally register features at runtime:
 
 ## Adapters
 
-`useFeatures` supports an adapter pattern to integrate with external feature flag providers.
+Adapters let you swap the underlying feature flag provider without changing your application code.
 
-### Built-in Adapters
+| Adapter | Import | Description |
+|---------|--------|-------------|
+| `PostHogFeatureAdapter` | `@vuetify/v0/features/adapters/posthog` | [PostHog](https://posthog.com/) integration |
+| `FlagsmithFeatureAdapter` | `@vuetify/v0/features/adapters/flagsmith` | [Flagsmith](https://flagsmith.com/) integration |
+| `LaunchDarklyFeatureAdapter` | `@vuetify/v0/features/adapters/launchdarkly` | [LaunchDarkly](https://launchdarkly.com/) integration |
 
-Vuetify0 includes adapters for popular feature flag services. Each adapter is imported from its own nested subpath under `@vuetify/v0/features/adapters/`.
+### Flagsmith
 
-#### Flagsmith
+[Flagsmith](https://flagsmith.com/) is an open-source feature flag platform. Requires the `@flagsmith/flagsmith` package.
 
-Requires `@flagsmith/flagsmith` package.
+::: code-group no-filename
+
+```bash pnpm
+pnpm add @flagsmith/flagsmith
+```
+
+```bash npm
+npm install @flagsmith/flagsmith
+```
+
+```bash yarn
+yarn add @flagsmith/flagsmith
+```
+
+```bash bun
+bun add @flagsmith/flagsmith
+```
+
+:::
 
 ```ts
 import flagsmith from '@flagsmith/flagsmith'
@@ -107,9 +130,29 @@ app.use(createFeaturesPlugin({
 }))
 ```
 
-#### LaunchDarkly
+### LaunchDarkly
 
-Requires `launchdarkly-js-client-sdk` package.
+[LaunchDarkly](https://launchdarkly.com/) is a feature management platform. Requires the `launchdarkly-js-client-sdk` package.
+
+::: code-group no-filename
+
+```bash pnpm
+pnpm add launchdarkly-js-client-sdk
+```
+
+```bash npm
+npm install launchdarkly-js-client-sdk
+```
+
+```bash yarn
+yarn add launchdarkly-js-client-sdk
+```
+
+```bash bun
+bun add launchdarkly-js-client-sdk
+```
+
+:::
 
 ```ts
 import * as LDClient from 'launchdarkly-js-client-sdk'
@@ -124,9 +167,29 @@ app.use(createFeaturesPlugin({
 }))
 ```
 
-#### PostHog
+### PostHog
 
-Requires `posthog-js` package.
+[PostHog](https://posthog.com/) is an open-source product analytics and feature flag platform. Requires the `posthog-js` package.
+
+::: code-group no-filename
+
+```bash pnpm
+pnpm add posthog-js
+```
+
+```bash npm
+npm install posthog-js
+```
+
+```bash yarn
+yarn add posthog-js
+```
+
+```bash bun
+bun add posthog-js
+```
+
+:::
 
 ```ts
 import posthog from 'posthog-js'
@@ -248,6 +311,18 @@ Feature flags inherit reactivity from `createGroup`. Selection state is reactive
 | - | :-: | - |
 | `selectedIds` | <AppSuccessIcon /> | Set of enabled feature IDs |
 | `selectedItems` | <AppSuccessIcon /> | Computed array of enabled features |
-| ticket `isSelected` | <AppSuccessIcon /> | Computed from `selectedIds` |
+| ticket `isSelected` | <AppSuccessIcon /> | `true` when this feature is enabled |
+| `variation(id, fallback?)` | <AppErrorIcon /> | Returns the `$variation` value for a feature, or `fallback` if unset |
+
+## Examples
+
+::: example
+/composables/use-features/feature-flags
+
+### Feature Flag Panel
+
+Toggle boolean and variation feature flags at runtime, using ticket `isSelected`, `select()`, `unselect()`, and `variation()` to read and control which features are active.
+
+:::
 
 <DocsApi />

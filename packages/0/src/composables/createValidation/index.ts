@@ -1,6 +1,8 @@
 /**
  * @module createValidation
  *
+ * @see https://0.vuetifyjs.com/composables/forms/create-validation
+ *
  * @remarks
  * Per-input validation composable built on createGroup.
  *
@@ -8,10 +10,21 @@
  * - Each ticket is a rule — enable/disable via select/unselect
  * - Auto-register with parent form via useForm() injection
  * - Async rule support with generation-based race safety
+ * - Standard Schema support (Zod, Valibot, ArkType, etc.)
  * - Silent validation mode
  * - Tri-state isValid (null/true/false)
  *
  * Uses useRules() to resolve alias strings via shared context.
+ *
+ * @example
+ * ```ts
+ * import { createValidation } from '@vuetify/v0'
+ *
+ * const validation = createValidation({
+ *   rules: [v => !!v || 'Required'],
+ * })
+ * await validation.validate('hello')
+ * ```
  */
 
 // Composables
@@ -74,7 +87,7 @@ export interface ValidationOptions extends GroupOptions {
   value?: MaybeRefOrGetter<unknown>
 }
 
-const UNSET = Symbol('unset')
+const UNSET = /* @__PURE__ */ Symbol('unset')
 
 /**
  * Creates a per-input validation instance.
@@ -106,13 +119,9 @@ const UNSET = Symbol('unset')
  * validation.reset()
  * ```
  */
-export function createValidation<
-  Z extends ValidationTicketInput = ValidationTicketInput,
-  E extends ValidationTicket<Z> = ValidationTicket<Z>,
-  R extends ValidationContext<Z, E> = ValidationContext<Z, E>,
-> (_options: ValidationOptions = {}): R {
+export function createValidation (_options: ValidationOptions = {}): ValidationContext {
   const { rules: initialRules = [], value: valueSource, enroll = true, ...options } = _options
-  const group = createGroup<Z, E>({ ...options, enroll, multiple: true })
+  const group = createGroup({ ...options, enroll, multiple: true })
   const rulesContext = useRules()
 
   const errors = shallowRef<string[]>([])
@@ -120,15 +129,15 @@ export function createValidation<
   const isValidating = shallowRef(false)
   let generation = 0
 
-  function register (input: RuleInput | Partial<Z>): E {
+  function register (input: RuleInput | Partial<ValidationTicketInput>): ValidationTicket {
     if (isFunction(input) || isString(input) || isStandardSchema(input)) {
       const resolved = rulesContext.resolve([input as RuleInput])
-      return group.register({ value: resolved[0] ?? (() => true) } as unknown as Partial<Z>)
+      return group.register({ value: resolved[0] ?? (() => true) }) as ValidationTicket
     }
-    return group.register(input as Partial<Z>)
+    return group.register(input) as ValidationTicket
   }
 
-  function onboard (rules: (RuleInput | Partial<Z>)[]): E[] {
+  function onboard (rules: (RuleInput | Partial<ValidationTicketInput>)[]): ValidationTicket[] {
     return group.batch(() => rules.map(r => register(r)))
   }
 
@@ -162,6 +171,15 @@ export function createValidation<
       }
 
       return errorMessages.length === 0
+    } catch (error) {
+      if (gen !== generation) return isValid.value ?? false
+
+      if (!silent) {
+        errors.value = [error instanceof Error ? error.message : 'Validation error']
+        isValid.value = false
+      }
+
+      return false
     } finally {
       if (gen === generation && !silent) {
         isValidating.value = false
@@ -191,11 +209,11 @@ export function createValidation<
     get size () {
       return group.size
     },
-  } as R
+  } as ValidationContext
 
   // Auto-register with parent form
   const form = useForm()
-  const ticket = form?.register({ value: context as unknown as ValidationContext })
+  const ticket = form?.register({ value: context as ValidationContext })
 
   onScopeDispose(() => {
     if (!ticket || !form) return

@@ -15,7 +15,7 @@ import Root from './SplitterRoot.vue'
 /**
  * Splitter component with sub-components for building resizable panel layouts.
  *
- * @see https://0.vuetifyjs.com/components/splitter
+ * @see https://0.vuetifyjs.com/components/semantic/splitter
  *
  * @example
  * ```vue
@@ -42,7 +42,7 @@ export const Splitter = {
   /**
    * Root container that provides splitter context and manages panel sizes.
    *
-   * @see https://0.vuetifyjs.com/components/splitter
+   * @see https://0.vuetifyjs.com/components/semantic/splitter
    *
    * @example
    * ```vue
@@ -69,7 +69,7 @@ export const Splitter = {
   /**
    * Resizable panel within a splitter layout, sized via flex-basis percentage.
    *
-   * @see https://0.vuetifyjs.com/components/splitter#splitterpanel
+   * @see https://0.vuetifyjs.com/components/semantic/splitter
    *
    * @example
    * ```vue
@@ -82,7 +82,7 @@ export const Splitter = {
   /**
    * Draggable resize handle between two adjacent panels.
    *
-   * @see https://0.vuetifyjs.com/components/splitter#splitterhandle
+   * @see https://0.vuetifyjs.com/components/semantic/splitter
    *
    * @example
    * ```vue

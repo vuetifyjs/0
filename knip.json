@@ -15,6 +15,7 @@
         "src/components/**/*.vue",
         "src/composables/*.ts",
         "src/constants/*.ts",
+        "src/data/**/*.ts",
         "src/plugins/*.ts",
         "src/stores/*.ts",
         "src/layouts/*.vue",
@@ -114,7 +115,7 @@
         ]
       }
     },
-    "playground": {
+    "dev": {
       "entry": [],
       "project": [
         "**/*.{js,ts,vue}",
@@ -147,22 +148,18 @@
     "**/*.d.ts"
   ],
   "ignoreDependencies": [
-    "@adobe/leonardo-contrast-colors",
-    "@ant-design/colors",
     "@js-temporal/polyfill",
-    "@material/material-color-utilities",
     "@vue/repl",
     "@vuetify/paper",
     "conventional-changelog-vuetify",
     "@vue/compiler-dom",
-    "@flagsmith/flagsmith",
-    "launchdarkly-js-client-sdk",
-    "posthog-js",
-    "vue-i18n"
+    "pkg-pr-new"
   ],
   "ignoreExportsUsedInFile": {
     "interface": true,
     "type": true
   },
-  "ignoreBinaries": []
+  "ignoreBinaries": [
+    "pkg-pr-new"
+  ]
 }

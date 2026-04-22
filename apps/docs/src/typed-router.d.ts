@@ -17,7 +17,8 @@ import type {
 
 declare module 'vue-router' {
   interface TypesConfig {
-    ParamParsers: never
+    ParamParsers:
+      | never
   }
 }
 
@@ -61,6 +62,34 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/components/actions/button': RouteRecordInfo<
+      '/components/actions/button',
+      '/components/actions/button',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/components/actions/toggle': RouteRecordInfo<
+      '/components/actions/toggle',
+      '/components/actions/toggle',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/components/disclosure/alert-dialog': RouteRecordInfo<
+      '/components/disclosure/alert-dialog',
+      '/components/disclosure/alert-dialog',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/components/disclosure/collapsible': RouteRecordInfo<
+      '/components/disclosure/collapsible',
+      '/components/disclosure/collapsible',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/components/disclosure/dialog': RouteRecordInfo<
       '/components/disclosure/dialog',
       '/components/disclosure/dialog',
@@ -89,9 +118,23 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/components/disclosure/treeview': RouteRecordInfo<
+      '/components/disclosure/treeview',
+      '/components/disclosure/treeview',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/components/forms/checkbox': RouteRecordInfo<
       '/components/forms/checkbox',
       '/components/forms/checkbox',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/components/forms/combobox': RouteRecordInfo<
+      '/components/forms/combobox',
+      '/components/forms/combobox',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -110,9 +153,23 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/components/forms/number-field': RouteRecordInfo<
+      '/components/forms/number-field',
+      '/components/forms/number-field',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/components/forms/radio': RouteRecordInfo<
       '/components/forms/radio',
       '/components/forms/radio',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/components/forms/rating': RouteRecordInfo<
+      '/components/forms/rating',
+      '/components/forms/rating',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -138,6 +195,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/components/primitives/aspect-ratio': RouteRecordInfo<
+      '/components/primitives/aspect-ratio',
+      '/components/primitives/aspect-ratio',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/components/primitives/atom': RouteRecordInfo<
       '/components/primitives/atom',
       '/components/primitives/atom',
@@ -145,9 +209,30 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/components/primitives/portal': RouteRecordInfo<
+      '/components/primitives/portal',
+      '/components/primitives/portal',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/components/primitives/presence': RouteRecordInfo<
+      '/components/primitives/presence',
+      '/components/primitives/presence',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/components/providers/group': RouteRecordInfo<
       '/components/providers/group',
       '/components/providers/group',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/components/providers/locale': RouteRecordInfo<
+      '/components/providers/locale',
+      '/components/providers/locale',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -180,6 +265,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/components/providers/theme': RouteRecordInfo<
+      '/components/providers/theme',
+      '/components/providers/theme',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/components/semantic/avatar': RouteRecordInfo<
       '/components/semantic/avatar',
       '/components/semantic/avatar',
@@ -194,9 +286,37 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/components/semantic/carousel': RouteRecordInfo<
+      '/components/semantic/carousel',
+      '/components/semantic/carousel',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/components/semantic/image': RouteRecordInfo<
+      '/components/semantic/image',
+      '/components/semantic/image',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/components/semantic/pagination': RouteRecordInfo<
       '/components/semantic/pagination',
       '/components/semantic/pagination',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/components/semantic/progress': RouteRecordInfo<
+      '/components/semantic/progress',
+      '/components/semantic/progress',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/components/semantic/snackbar': RouteRecordInfo<
+      '/components/semantic/snackbar',
+      '/components/semantic/snackbar',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -243,9 +363,44 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/composables/forms/create-combobox': RouteRecordInfo<
+      '/composables/forms/create-combobox',
+      '/composables/forms/create-combobox',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/composables/forms/create-form': RouteRecordInfo<
       '/composables/forms/create-form',
       '/composables/forms/create-form',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/composables/forms/create-input': RouteRecordInfo<
+      '/composables/forms/create-input',
+      '/composables/forms/create-input',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/composables/forms/create-number-field': RouteRecordInfo<
+      '/composables/forms/create-number-field',
+      '/composables/forms/create-number-field',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/composables/forms/create-numeric': RouteRecordInfo<
+      '/composables/forms/create-numeric',
+      '/composables/forms/create-numeric',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/composables/forms/create-rating': RouteRecordInfo<
+      '/composables/forms/create-rating',
+      '/composables/forms/create-rating',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -323,6 +478,13 @@ declare module 'vue-router/auto-routes' {
     '/composables/plugins/use-logger': RouteRecordInfo<
       '/composables/plugins/use-logger',
       '/composables/plugins/use-logger',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/composables/plugins/use-notifications': RouteRecordInfo<
+      '/composables/plugins/use-notifications',
+      '/composables/plugins/use-notifications',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -453,6 +615,27 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/composables/semantic/create-breadcrumbs': RouteRecordInfo<
+      '/composables/semantic/create-breadcrumbs',
+      '/composables/semantic/create-breadcrumbs',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/composables/semantic/create-overflow': RouteRecordInfo<
+      '/composables/semantic/create-overflow',
+      '/composables/semantic/create-overflow',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/composables/semantic/create-progress': RouteRecordInfo<
+      '/composables/semantic/create-progress',
+      '/composables/semantic/create-progress',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/composables/system/use-click-outside': RouteRecordInfo<
       '/composables/system/use-click-outside',
       '/composables/system/use-click-outside',
@@ -470,6 +653,13 @@ declare module 'vue-router/auto-routes' {
     '/composables/system/use-hotkey': RouteRecordInfo<
       '/composables/system/use-hotkey',
       '/composables/system/use-hotkey',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/composables/system/use-image': RouteRecordInfo<
+      '/composables/system/use-image',
+      '/composables/system/use-image',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -509,6 +699,20 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/composables/system/use-presence': RouteRecordInfo<
+      '/composables/system/use-presence',
+      '/composables/system/use-presence',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/composables/system/use-raf': RouteRecordInfo<
+      '/composables/system/use-raf',
+      '/composables/system/use-raf',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/composables/system/use-resize-observer': RouteRecordInfo<
       '/composables/system/use-resize-observer',
       '/composables/system/use-resize-observer',
@@ -519,6 +723,13 @@ declare module 'vue-router/auto-routes' {
     '/composables/system/use-roving-focus': RouteRecordInfo<
       '/composables/system/use-roving-focus',
       '/composables/system/use-roving-focus',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/composables/system/use-timer': RouteRecordInfo<
+      '/composables/system/use-timer',
+      '/composables/system/use-timer',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -544,23 +755,16 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/composables/transformers/to-element': RouteRecordInfo<
+      '/composables/transformers/to-element',
+      '/composables/transformers/to-element',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/composables/transformers/to-reactive': RouteRecordInfo<
       '/composables/transformers/to-reactive',
       '/composables/transformers/to-reactive',
-      Record<never, never>,
-      Record<never, never>,
-      | never
-    >,
-    '/composables/utilities/create-breadcrumbs': RouteRecordInfo<
-      '/composables/utilities/create-breadcrumbs',
-      '/composables/utilities/create-breadcrumbs',
-      Record<never, never>,
-      Record<never, never>,
-      | never
-    >,
-    '/composables/utilities/create-overflow': RouteRecordInfo<
-      '/composables/utilities/create-overflow',
-      '/composables/utilities/create-overflow',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -586,6 +790,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/guide/features/constants': RouteRecordInfo<
+      '/guide/features/constants',
+      '/guide/features/constants',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/guide/features/palettes': RouteRecordInfo<
       '/guide/features/palettes',
       '/guide/features/palettes',
@@ -596,6 +807,13 @@ declare module 'vue-router/auto-routes' {
     '/guide/features/theming': RouteRecordInfo<
       '/guide/features/theming',
       '/guide/features/theming',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/guide/features/types': RouteRecordInfo<
+      '/guide/features/types',
+      '/guide/features/types',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -673,6 +891,13 @@ declare module 'vue-router/auto-routes' {
     '/guide/integration/building-docs': RouteRecordInfo<
       '/guide/integration/building-docs',
       '/guide/integration/building-docs',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/guide/integration/devkey': RouteRecordInfo<
+      '/guide/integration/devkey',
+      '/guide/integration/devkey',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -839,6 +1064,30 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/components/actions/button.md': {
+      routes:
+        | '/components/actions/button'
+      views:
+        | never
+    }
+    'src/pages/components/actions/toggle.md': {
+      routes:
+        | '/components/actions/toggle'
+      views:
+        | never
+    }
+    'src/pages/components/disclosure/alert-dialog.md': {
+      routes:
+        | '/components/disclosure/alert-dialog'
+      views:
+        | never
+    }
+    'src/pages/components/disclosure/collapsible.md': {
+      routes:
+        | '/components/disclosure/collapsible'
+      views:
+        | never
+    }
     'src/pages/components/disclosure/dialog.md': {
       routes:
         | '/components/disclosure/dialog'
@@ -863,9 +1112,21 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/components/disclosure/treeview.md': {
+      routes:
+        | '/components/disclosure/treeview'
+      views:
+        | never
+    }
     'src/pages/components/forms/checkbox.md': {
       routes:
         | '/components/forms/checkbox'
+      views:
+        | never
+    }
+    'src/pages/components/forms/combobox.md': {
+      routes:
+        | '/components/forms/combobox'
       views:
         | never
     }
@@ -881,9 +1142,21 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/components/forms/number-field.md': {
+      routes:
+        | '/components/forms/number-field'
+      views:
+        | never
+    }
     'src/pages/components/forms/radio.md': {
       routes:
         | '/components/forms/radio'
+      views:
+        | never
+    }
+    'src/pages/components/forms/rating.md': {
+      routes:
+        | '/components/forms/rating'
       views:
         | never
     }
@@ -905,15 +1178,39 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/components/primitives/aspect-ratio.md': {
+      routes:
+        | '/components/primitives/aspect-ratio'
+      views:
+        | never
+    }
     'src/pages/components/primitives/atom.md': {
       routes:
         | '/components/primitives/atom'
       views:
         | never
     }
+    'src/pages/components/primitives/portal.md': {
+      routes:
+        | '/components/primitives/portal'
+      views:
+        | never
+    }
+    'src/pages/components/primitives/presence.md': {
+      routes:
+        | '/components/primitives/presence'
+      views:
+        | never
+    }
     'src/pages/components/providers/group.md': {
       routes:
         | '/components/providers/group'
+      views:
+        | never
+    }
+    'src/pages/components/providers/locale.md': {
+      routes:
+        | '/components/providers/locale'
       views:
         | never
     }
@@ -941,6 +1238,12 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/components/providers/theme.md': {
+      routes:
+        | '/components/providers/theme'
+      views:
+        | never
+    }
     'src/pages/components/semantic/avatar.md': {
       routes:
         | '/components/semantic/avatar'
@@ -953,9 +1256,33 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/components/semantic/carousel.md': {
+      routes:
+        | '/components/semantic/carousel'
+      views:
+        | never
+    }
+    'src/pages/components/semantic/image.md': {
+      routes:
+        | '/components/semantic/image'
+      views:
+        | never
+    }
     'src/pages/components/semantic/pagination.md': {
       routes:
         | '/components/semantic/pagination'
+      views:
+        | never
+    }
+    'src/pages/components/semantic/progress.md': {
+      routes:
+        | '/components/semantic/progress'
+      views:
+        | never
+    }
+    'src/pages/components/semantic/snackbar.md': {
+      routes:
+        | '/components/semantic/snackbar'
       views:
         | never
     }
@@ -995,9 +1322,39 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/composables/forms/create-combobox.md': {
+      routes:
+        | '/composables/forms/create-combobox'
+      views:
+        | never
+    }
     'src/pages/composables/forms/create-form.md': {
       routes:
         | '/composables/forms/create-form'
+      views:
+        | never
+    }
+    'src/pages/composables/forms/create-input.md': {
+      routes:
+        | '/composables/forms/create-input'
+      views:
+        | never
+    }
+    'src/pages/composables/forms/create-number-field.md': {
+      routes:
+        | '/composables/forms/create-number-field'
+      views:
+        | never
+    }
+    'src/pages/composables/forms/create-numeric.md': {
+      routes:
+        | '/composables/forms/create-numeric'
+      views:
+        | never
+    }
+    'src/pages/composables/forms/create-rating.md': {
+      routes:
+        | '/composables/forms/create-rating'
       views:
         | never
     }
@@ -1064,6 +1421,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/plugins/use-logger.md': {
       routes:
         | '/composables/plugins/use-logger'
+      views:
+        | never
+    }
+    'src/pages/composables/plugins/use-notifications.md': {
+      routes:
+        | '/composables/plugins/use-notifications'
       views:
         | never
     }
@@ -1175,6 +1538,24 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/composables/semantic/create-breadcrumbs.md': {
+      routes:
+        | '/composables/semantic/create-breadcrumbs'
+      views:
+        | never
+    }
+    'src/pages/composables/semantic/create-overflow.md': {
+      routes:
+        | '/composables/semantic/create-overflow'
+      views:
+        | never
+    }
+    'src/pages/composables/semantic/create-progress.md': {
+      routes:
+        | '/composables/semantic/create-progress'
+      views:
+        | never
+    }
     'src/pages/composables/system/use-click-outside.md': {
       routes:
         | '/composables/system/use-click-outside'
@@ -1190,6 +1571,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/system/use-hotkey.md': {
       routes:
         | '/composables/system/use-hotkey'
+      views:
+        | never
+    }
+    'src/pages/composables/system/use-image.md': {
+      routes:
+        | '/composables/system/use-image'
       views:
         | never
     }
@@ -1223,6 +1610,18 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/composables/system/use-presence.md': {
+      routes:
+        | '/composables/system/use-presence'
+      views:
+        | never
+    }
+    'src/pages/composables/system/use-raf.md': {
+      routes:
+        | '/composables/system/use-raf'
+      views:
+        | never
+    }
     'src/pages/composables/system/use-resize-observer.md': {
       routes:
         | '/composables/system/use-resize-observer'
@@ -1232,6 +1631,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/system/use-roving-focus.md': {
       routes:
         | '/composables/system/use-roving-focus'
+      views:
+        | never
+    }
+    'src/pages/composables/system/use-timer.md': {
+      routes:
+        | '/composables/system/use-timer'
       views:
         | never
     }
@@ -1253,21 +1658,15 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/composables/transformers/to-element.md': {
+      routes:
+        | '/composables/transformers/to-element'
+      views:
+        | never
+    }
     'src/pages/composables/transformers/to-reactive.md': {
       routes:
         | '/composables/transformers/to-reactive'
-      views:
-        | never
-    }
-    'src/pages/composables/utilities/create-breadcrumbs.md': {
-      routes:
-        | '/composables/utilities/create-breadcrumbs'
-      views:
-        | never
-    }
-    'src/pages/composables/utilities/create-overflow.md': {
-      routes:
-        | '/composables/utilities/create-overflow'
       views:
         | never
     }
@@ -1289,6 +1688,12 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/guide/features/constants.md': {
+      routes:
+        | '/guide/features/constants'
+      views:
+        | never
+    }
     'src/pages/guide/features/palettes.md': {
       routes:
         | '/guide/features/palettes'
@@ -1298,6 +1703,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/guide/features/theming.md': {
       routes:
         | '/guide/features/theming'
+      views:
+        | never
+    }
+    'src/pages/guide/features/types.md': {
+      routes:
+        | '/guide/features/types'
       views:
         | never
     }
@@ -1364,6 +1775,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/guide/integration/building-docs.md': {
       routes:
         | '/guide/integration/building-docs'
+      views:
+        | never
+    }
+    'src/pages/guide/integration/devkey.md': {
+      routes:
+        | '/guide/integration/devkey'
       views:
         | never
     }

@@ -347,12 +347,12 @@ describe('createPermissionsContext', () => {
 
   it('should create context with custom namespace', () => {
     const [, providePermissionsContext, context] = createPermissionsContext({
-      namespace: 'my-permissions',
+      namespace: 'test:my-permissions',
     })
 
     providePermissionsContext(context)
 
-    expect(mockProvide).toHaveBeenCalledWith('my-permissions', context)
+    expect(mockProvide).toHaveBeenCalledWith('test:my-permissions', context)
   })
 
   it('should create a functional permissions context', () => {

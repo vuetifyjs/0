@@ -2,6 +2,14 @@
 
 Complete guide to v0 selection composables with real-world examples.
 
+## Contents
+
+- Single Selection — exclusive pick (tabs, theme picker, accordion)
+- Multi Selection — non-exclusive pick (filters, tag pickers)
+- Group Selection — multi + tri-state select-all (data tables)
+- Step Navigation — ordered progression (wizards, carousels)
+- Advanced Patterns — mandatory modes, disabled items, value mapping
+
 ## Single Selection {#single}
 
 For exclusive selection - tabs, theme pickers, accordion panels.

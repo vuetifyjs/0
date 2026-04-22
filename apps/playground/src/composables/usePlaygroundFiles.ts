@@ -1,5 +1,5 @@
 // Framework
-import { debounce, isArray, useTheme } from '@vuetify/v0'
+import { isArray, useTheme, useTimer } from '@vuetify/v0'
 
 // Composables
 import { decodePlaygroundHash, encodePlaygroundHash, parseVuetifyPlayTuple } from '@/composables/usePlayground'
@@ -167,8 +167,16 @@ export function usePlaygroundFiles () {
     store.setActive(userFile)
   }
 
-  const updateHash = debounce(async (files: Record<string, string>, active: string | undefined) => {
+  const { start: scheduleHash } = useTimer(async () => {
+    const aliases = new Set(aliasMap.value.values())
+    const files: Record<string, string> = {}
+    for (const [path, file] of Object.entries(store.files)) {
+      if (!aliases.has(path)) {
+        files[path] = file.code
+      }
+    }
     if (Object.keys(files).length === 0) return
+    const active = store.activeFile?.filename
     const settings: PlaygroundHashData['settings'] = {}
     if (vueVersion.value) settings.vue = vueVersion.value
     if (v0Version.value !== 'latest') settings.v0 = v0Version.value
@@ -178,7 +186,7 @@ export function usePlaygroundFiles () {
     if (Object.keys(settings).length > 0) data.settings = settings
     const hash = await encodePlaygroundHash(data)
     history.replaceState(null, '', `#${hash}`)
-  }, 500)
+  }, { duration: 500 })
 
   watch(isReady, ready => {
     if (!ready) return
@@ -188,14 +196,11 @@ export function usePlaygroundFiles () {
       v0Version.value // eslint-disable-line @typescript-eslint/no-unused-expressions
       activePreset.value // eslint-disable-line @typescript-eslint/no-unused-expressions
       activeAddons.value // eslint-disable-line @typescript-eslint/no-unused-expressions
-      const aliases = new Set(aliasMap.value.values())
-      const files: Record<string, string> = {}
-      for (const [path, file] of Object.entries(store.files)) {
-        if (!aliases.has(path)) {
-          files[path] = file.code
-        }
+      for (const file of Object.values(store.files)) {
+        file.code // eslint-disable-line @typescript-eslint/no-unused-expressions
       }
-      updateHash(files, store.activeFile?.filename)
+      store.activeFile?.filename // eslint-disable-line @typescript-eslint/no-unused-expressions
+      scheduleHash()
     })
   }, { once: true })
 

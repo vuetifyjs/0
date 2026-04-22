@@ -6,6 +6,7 @@
 
   const props = defineProps<{
     code: string
+    playgroundCode?: string
     language?: string
     title?: string
     binTitle?: string
@@ -23,13 +24,13 @@
     clipboard.copy(props.code)
   }
 
-  function openInBin () {
-    const url = getBinUrl(props.code, props.language || 'markdown', props.binTitle || props.title)
+  async function openInBin () {
+    const url = await getBinUrl(props.code, props.language || 'markdown', props.binTitle || props.title)
     window.open(url, '_blank')
   }
 
   async function openInPlayground () {
-    const url = await usePlayground([{ name: props.title ?? 'Example.vue', code: props.code }])
+    const url = await usePlayground([{ name: props.title ?? 'Example.vue', code: props.playgroundCode ?? props.code }])
     window.open(url, '_blank')
   }
 </script>

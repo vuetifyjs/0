@@ -18,7 +18,7 @@ related:
 
 # createDataTable
 
-A composable data table that composes v0 primitives into a complete data pipeline with sorting, filtering, pagination, selection, expansion, and grouping.
+Composable data table built on v0 primitives. Composes sorting, filtering, pagination, selection, and expansion into a single pipeline.
 
 <DocsPageFeatures :frontmatter />
 
@@ -56,7 +56,37 @@ table.selection.toggle('user-1')
 /composables/create-data-table/basic/BasicTable.vue
 /composables/create-data-table/basic/columns.ts
 /composables/create-data-table/basic/data.ts
+
+### Basic Data Table
+
+A sortable, filterable, paginated table with row selection — wired entirely from `createDataTable`.
+
 :::
+
+## Context / DI
+
+Use `createDataTableContext` to share a data table instance across a component tree:
+
+```ts
+import { createDataTableContext } from '@vuetify/v0'
+
+const [useUsersTable, provideUsersTable, usersTable] =
+  createDataTableContext({
+    namespace: 'app:users',
+    items: users,
+    columns: [
+      { key: 'name', title: 'Name', sortable: true },
+      { key: 'email', title: 'Email' },
+    ],
+  })
+
+// In parent component
+provideUsersTable()
+
+// In child component (e.g., a toolbar or pagination control)
+const table = useUsersTable()
+table.sort('name', 'asc')
+```
 
 ## Adapters
 
@@ -283,8 +313,10 @@ table.grouping.closeAll()
 | `sort.columns` | <AppSuccessIcon /> | Computed — current sort entries |
 | `pagination.page` | <AppSuccessIcon /> | ShallowRef — current page |
 | `pagination.items` | <AppSuccessIcon /> | Computed — visible page buttons |
+| `selection.selectedIds` | <AppSuccessIcon /> | `shallowReactive(Set)` — currently selected row IDs |
 | `selection.isAllSelected` | <AppSuccessIcon /> | Computed — all in scope selected |
 | `selection.isMixed` | <AppSuccessIcon /> | Computed — some but not all selected |
+| `expansion.expandedIds` | <AppSuccessIcon /> | `shallowReactive(Set)` — currently expanded row IDs |
 | `grouping.groups` | <AppSuccessIcon /> | Computed — grouped items |
 | `total` | <AppSuccessIcon /> | Computed — total row count |
 | `loading` | <AppSuccessIcon /> | Computed — adapter loading state |

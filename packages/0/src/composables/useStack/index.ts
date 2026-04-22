@@ -12,19 +12,26 @@
  * - Auto-cleanup when registered within component setup
  *
  * Built on createSelection for consistent ticket-based management.
+ *
+ * @example
+ * ```ts
+ * import { useStack } from '@vuetify/v0'
+ *
+ * const stack = useStack()
+ * const ticket = stack.register({ onDismiss: () => console.log('dismissed') })
+ * ticket.select()
+ * ```
  */
 
-// Foundational
-import { createContext, useContext } from '#v0/composables/createContext'
-import { createPlugin } from '#v0/composables/createPlugin'
-import { createTrinity } from '#v0/composables/createTrinity'
-
 // Composables
+import { useContext } from '#v0/composables/createContext'
+import { createPlugin } from '#v0/composables/createPlugin'
 import { createSelection } from '#v0/composables/createSelection'
+import { createTrinity } from '#v0/composables/createTrinity'
 
 // Utilities
 import { instanceExists, useId } from '#v0/utilities'
-import { computed, onScopeDispose, toRef } from 'vue'
+import { onScopeDispose, toRef } from 'vue'
 
 // Types
 import type { SelectionContext, SelectionOptions, SelectionTicket, SelectionTicketInput } from '#v0/composables/createSelection'
@@ -180,11 +187,7 @@ export interface StackPluginOptions extends StackContextOptions {}
  * ticket.unselect()  // Deactivate overlay
  * ```
  */
-export function createStack<
-  Z extends StackTicketInput = StackTicketInput,
-  E extends StackTicket<Z> = StackTicket<Z>,
-  R extends StackContext<Z, E> = StackContext<Z, E>,
-> (_options: StackOptions = {}): R {
+export function createStack (_options: StackOptions = {}): StackContext {
   const {
     baseZIndex = 2000,
     increment = 10,
@@ -201,7 +204,7 @@ export function createStack<
   const top = toRef(() => {
     const ids = Array.from(selection.selectedIds)
     if (ids.length === 0) return undefined
-    return selection.get(ids.at(-1)!) as E | undefined
+    return selection.get(ids.at(-1)!) as StackTicket | undefined
   })
 
   const scrimZIndex = toRef(() => {
@@ -215,18 +218,18 @@ export function createStack<
     return Array.from(selection.selectedIds)
   }
 
-  function register (input: Partial<Z> = {} as Partial<Z>): E {
+  function register (input: Partial<StackTicketInput> = {} as Partial<StackTicketInput>): StackTicket {
     const id = input.id ?? useId()
     const blocking = input.blocking ?? false
     const onDismiss = input.onDismiss
 
-    const zIndex = computed(() => {
+    const zIndex = toRef(() => {
       const position = ids().indexOf(id)
       if (position === -1) return baseZIndex
       return baseZIndex + position * increment
     })
 
-    const globalTop = computed(() => {
+    const globalTop = toRef(() => {
       const list = ids()
       if (list.length === 0) return false
       return list.at(-1) === id
@@ -246,7 +249,7 @@ export function createStack<
       dismiss,
       ...input,
       id,
-    } as unknown as Partial<Z>)
+    } as Partial<StackTicketInput>)
 
     // Auto-cleanup when called within component setup
     if (instanceExists()) {
@@ -255,7 +258,7 @@ export function createStack<
       }, true)
     }
 
-    return ticket as unknown as E
+    return ticket as StackTicket
   }
 
   return {
@@ -268,7 +271,7 @@ export function createStack<
     get size () {
       return selection.size
     },
-  } as unknown as R
+  } as StackContext
 }
 
 /**
@@ -295,20 +298,11 @@ export function createStack<
  * const stack = useMyStack()
  * ```
  */
-export function createStackContext<
-  Z extends StackTicketInput = StackTicketInput,
-  E extends StackTicket<Z> = StackTicket<Z>,
-  R extends StackContext<Z, E> = StackContext<Z, E>,
-> (_options: StackContextOptions = {}): ContextTrinity<R> {
+export function createStackContext (_options: StackContextOptions = {}): ContextTrinity<StackContext> {
   const { namespace = 'v0:stack', ...options } = _options
-  const [useStackContext, _provideStackContext] = createContext<R>(namespace)
-  const context = createStack<Z, E, R>(options)
+  const context = createStack(options)
 
-  function provideStackContext (_context: R = context, app?: App): R {
-    return _provideStackContext(_context, app)
-  }
-
-  return createTrinity<R>(useStackContext, provideStackContext, context)
+  return createTrinity<StackContext>(namespace, context)
 }
 
 /**
@@ -329,13 +323,9 @@ export function createStackContext<
  * app.mount('#app')
  * ```
  */
-export function createStackPlugin<
-  Z extends StackTicketInput = StackTicketInput,
-  E extends StackTicket<Z> = StackTicket<Z>,
-  R extends StackContext<Z, E> = StackContext<Z, E>,
-> (_options: StackPluginOptions = {}) {
+export function createStackPlugin (_options: StackPluginOptions = {}) {
   const { namespace = 'v0:stack', ...options } = _options
-  const [, provideStackContext, context] = createStackContext<Z, E, R>({ ...options, namespace })
+  const [, provideStackContext, context] = createStackContext({ ...options, namespace })
 
   return createPlugin({
     namespace,
@@ -396,17 +386,13 @@ function getStackFallback (): StackContext {
  * </template>
  * ```
  */
-export function useStack<
-  Z extends StackTicketInput = StackTicketInput,
-  E extends StackTicket<Z> = StackTicket<Z>,
-  R extends StackContext<Z, E> = StackContext<Z, E>,
-> (namespace = 'v0:stack'): R {
-  const fallback = getStackFallback() as unknown as R
+export function useStack (namespace = 'v0:stack'): StackContext {
+  const fallback = getStackFallback()
 
   if (!instanceExists()) return fallback
 
   try {
-    return useContext<R>(namespace)
+    return useContext<StackContext>(namespace)
   } catch {
     return fallback
   }

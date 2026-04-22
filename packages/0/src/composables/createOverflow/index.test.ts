@@ -712,7 +712,10 @@ describe('useOverflow', () => {
   })
 
   it('should throw when context is not provided', () => {
+    const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
     expect(() => useOverflow()).toThrow()
+    expect(spy).toHaveBeenCalledTimes(1)
+    spy.mockRestore()
   })
 })
 

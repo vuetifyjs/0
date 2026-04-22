@@ -105,6 +105,7 @@
           :key="option.value"
           :aria-label="option.label"
           class="inline-flex items-center justify-center w-10 h-10 rounded-lg border border-transparent hover:border-divider hover:bg-surface-variant transition-colors text-xl"
+          :title="option.label"
           type="button"
           @click="selectRating(option.value)"
         >

@@ -177,6 +177,21 @@ describe('createDataTable', () => {
       expect(table.sort.columns.value.length).toBe(0)
     })
 
+    it('sorts null and undefined values consistently', () => {
+      const items = [
+        { id: 1, name: null, email: '', department: '', salary: 0, active: true },
+        { id: 2, name: 'Bob', email: '', department: '', salary: 0, active: true },
+        { id: 3, name: undefined, email: '', department: '', salary: 0, active: true },
+        { id: 4, name: 'Alice', email: '', department: '', salary: 0, active: true },
+      ] as unknown as User[]
+
+      const table = createTable({ items })
+      table.sort.toggle('name')
+      const names = table.sortedItems.value.map(i => (i as any).name)
+      // Non-null values sorted first, null/undefined grouped at end
+      expect(names).toEqual(['Alice', 'Bob', null, undefined])
+    })
+
     it('sorts items by column ascending', () => {
       const table = createTable()
       table.sort.toggle('name')
@@ -638,6 +653,71 @@ describe('createDataTable', () => {
       })
       expect(table.selection.isAllSelected.value).toBe(false)
       expect(table.selection.isMixed.value).toBe(false)
+    })
+  })
+
+  describe('recursive columns', () => {
+    it('uses leaf columns for the data pipeline', () => {
+      const table = createDataTable({
+        items: [
+          { id: 1, name: 'Alice', email: 'a@b.com', phone: '555' },
+          { id: 2, name: 'Bob', email: 'b@b.com', phone: '666' },
+        ],
+        columns: [
+          { key: 'name', title: 'Name', sortable: true, filterable: true },
+          {
+            key: 'contact',
+            title: 'Contact',
+            children: [
+              { key: 'email', title: 'Email', filterable: true },
+              { key: 'phone', title: 'Phone' },
+            ],
+          },
+        ],
+      })
+
+      expect(table.leaves).toHaveLength(3)
+      expect(table.leaves.map(c => c.key)).toEqual(['name', 'email', 'phone'])
+
+      table.search('a@b')
+      expect(table.items.value).toHaveLength(1)
+      expect(table.items.value[0]!.name).toBe('Alice')
+    })
+
+    it('exposes resolved 2D headers', () => {
+      const table = createDataTable({
+        items: [],
+        columns: [
+          { key: 'name', title: 'Name' },
+          {
+            key: 'contact',
+            title: 'Contact',
+            children: [
+              { key: 'email', title: 'Email' },
+              { key: 'phone', title: 'Phone' },
+            ],
+          },
+        ],
+      })
+
+      expect(table.headers.value).toHaveLength(2)
+      expect(table.headers.value[0]).toHaveLength(2)
+      expect(table.headers.value[1]).toHaveLength(2)
+      expect(table.headers.value[0]![0]!.rowspan).toBe(2)
+      expect(table.headers.value[0]![1]!.colspan).toBe(2)
+    })
+
+    it('flat columns produce single header row', () => {
+      const table = createDataTable({
+        items: [],
+        columns: [
+          { key: 'name', title: 'Name' },
+          { key: 'email', title: 'Email' },
+        ],
+      })
+
+      expect(table.headers.value).toHaveLength(1)
+      expect(table.headers.value[0]).toHaveLength(2)
     })
   })
 

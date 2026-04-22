@@ -11,6 +11,7 @@ features:
   github: /composables/createFilter/
   level: 2
 related:
+  - /composables/data/create-data-table
   - /composables/data/create-pagination
   - /composables/data/create-virtual
 ---
@@ -46,6 +47,52 @@ console.log(filtered.value)
 // ]
 ```
 
+## Context / DI
+
+Use `createFilterContext` when you need to share a filter instance across a component tree:
+
+```ts
+import { createFilterContext } from '@vuetify/v0'
+
+export const [useSearchFilter, provideSearchFilter, searchFilter] =
+  createFilterContext({
+    namespace: 'app:search',
+    mode: 'union',
+    keys: ['title', 'description'],
+  })
+
+// In parent component
+provideSearchFilter()
+
+// In child component
+const filter = useSearchFilter()
+const { items: filtered } = filter.apply(query, products)
+```
+
+Returns the standard trinity `[useSearchFilter, provideSearchFilter, searchFilter]`. The third element gives standalone access without injection — useful for testing and server-side use.
+
+## Options
+
+| Option | Type | Default | Notes |
+| - | - | - | - |
+| `mode` | `'some' \| 'every' \| 'union' \| 'intersection'` | `'some'` | Multi-query matching strategy. See Filter Modes below |
+| `keys` | `string[]` | — | Object keys to filter on. When omitted, all values are checked |
+| `customFilter` | `(query, item) => boolean` | — | Bypass built-in logic entirely with a custom predicate |
+
+```ts
+// Filter only by name + email, using intersection mode
+const filter = createFilter({
+  keys: ['name', 'email'],
+  mode: 'intersection',
+})
+
+// Custom filter (overrides keys and mode)
+const filter = createFilter({
+  customFilter: (query, item) =>
+    String(item.name).toLowerCase().startsWith(String(query).toLowerCase()),
+})
+```
+
 ## Architecture
 
 `createFilter` provides pure filtering logic with context support:
@@ -68,10 +115,29 @@ flowchart LR
 > [!TIP] Reactive filtering
 > Both the query and items passed to `apply()` can be reactive. The filtered result automatically updates when either changes.
 
+## Filter Modes
+
+When the query is an array, each mode controls how multiple queries are matched against item values:
+
+| Mode | Behavior | Passes when |
+| - | - | - |
+| `some` (default) | Iterates all queries and all values | **Any** query matches **any** value |
+| `every` | Iterates all queries and all values | **All** queries match **all** values |
+| `union` | Joins values, checks each query | **Any** query matches the joined string |
+| `intersection` | Joins values, checks each query | **All** queries match the joined string |
+
+> [!TIP] some vs union
+> `some` and `union` both pass when any query matches, but `some` checks each value independently while `union` joins all values into a single string. The difference matters when a match spans multiple fields.
+
 ## Examples
 
 ::: example
 /composables/create-filter/live-search
+
+### Live Search with Highlighting
+
+Filter a list of cities by typing a name or country. Matching text is highlighted in the results.
+
 :::
 
 <DocsApi />

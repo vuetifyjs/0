@@ -1,60 +1,55 @@
 /**
  * @module createNested
  *
+ * @see https://0.vuetifyjs.com/composables/selection/create-nested
+ *
  * @remarks
  * Hierarchical tree management composable extending createGroup with:
  * - Parent-child relationship tracking (children/parents Maps)
  * - Open/close state management
  * - Tree traversal utilities (getPath, getDescendants, etc.)
- * - Pluggable open strategies
+ * - Cascade selection propagation through nested registers
+ * - `rootIds` tracking for top-level item detection
  *
  * Inheritance chain: createSelection → createGroup → createNested
+ *
+ * @example
+ * ```ts
+ * import { createNested } from '@vuetify/v0'
+ *
+ * const tree = createNested()
+ * const root = tree.register({ value: 'root' })
+ * tree.register({ value: 'child', parentId: root.id })
+ * tree.open(root.id)
+ * ```
  */
 
 // Factories
-// Foundational
-import { createContext, useContext } from '#v0/composables/createContext'
-import { createTrinity } from '#v0/composables/createTrinity'
-
 // Composables
+import { useContext } from '#v0/composables/createContext'
 import { createGroup } from '#v0/composables/createGroup'
+import { createTrinity } from '#v0/composables/createTrinity'
 import { useLogger } from '#v0/composables/useLogger'
 
 // Utilities
-import { isUndefined, useId } from '#v0/utilities'
+import { isUndefined, resolveIds, resolveIndexes, useId } from '#v0/utilities'
 import { computed, shallowReactive, toRef, toValue } from 'vue'
 
 // Transformers
 import { toArray } from '#v0/composables/toArray'
 
 // Types
-import type { GroupTicket, GroupTicketInput } from '#v0/composables/createGroup'
+import type { GroupTicketInput } from '#v0/composables/createGroup'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { ID } from '#v0/types'
 import type {
   NestedContext,
   NestedContextOptions,
-  NestedOpenMode,
   NestedOptions,
   NestedRegistration,
   NestedTicket,
   NestedTicketInput,
 } from './types'
-import type { App } from 'vue'
-
-// Strategies
-import { multipleOpenStrategy, singleOpenStrategy } from './strategies'
-
-// Re-export types
-
-// Re-export strategies
-
-/**
- * Resolves open mode to an OpenStrategy.
- */
-function resolveOpenStrategy (open: NestedOpenMode = 'multiple') {
-  return open === 'single' ? singleOpenStrategy : multipleOpenStrategy
-}
 
 /**
  * Creates a new nested tree instance with hierarchical management.
@@ -64,8 +59,6 @@ function resolveOpenStrategy (open: NestedOpenMode = 'multiple') {
  * and hierarchical data structures.
  *
  * @param options The options for the nested instance.
- * @template Z The type of the nested ticket.
- * @template E The type of the nested context.
  * @returns A new nested instance with tree management capabilities.
  *
  * @remarks
@@ -76,7 +69,7 @@ function resolveOpenStrategy (open: NestedOpenMode = 'multiple') {
  * - Adds computed properties: `roots`, `leaves`, `isLeaf()`, `getDepth()`
  * - Adds open state management: `open()`, `close()`, `flip()`, `opened()`
  *
- * @see https://0.vuetifyjs.com/composables/selection/use-nested
+ * @see https://0.vuetifyjs.com/composables/selection/create-nested
  *
  * @example
  * ```ts
@@ -96,28 +89,20 @@ function resolveOpenStrategy (open: NestedOpenMode = 'multiple') {
  * console.log(tree.opened('root')) // true
  * ```
  */
-export function createNested<
-  Z extends NestedTicketInput = NestedTicketInput,
-  E extends NestedTicket<Z> = NestedTicket<Z>,
-  R extends NestedContext<Z, E> = NestedContext<Z, E>,
-> (_options: NestedOptions = {}): R {
+export function createNested (_options: NestedOptions = {}): NestedContext {
   const {
     open: openMode = 'multiple',
     openAll = false,
     reveal: revealOnOpen = false,
     selection: selectionMode = 'cascade',
     active: activeMode = 'single',
-    openStrategy,
     ...options
   } = _options
 
   const mandatoryOption = _options.mandatory ?? false
   const multipleOption = _options.multiple ?? true
 
-  // Resolve open strategy: explicit openStrategy takes precedence over open mode
-  const resolvedOpenStrategy = openStrategy ?? resolveOpenStrategy(openMode)
-
-  const group = createGroup<GroupTicketInput, GroupTicket>(options)
+  const group = createGroup(options)
   const logger = useLogger()
 
   const children = shallowReactive(new Map<ID, ID[]>())
@@ -132,35 +117,13 @@ export function createNested<
   let pendingRoots: Set<ID> | undefined
 
   // Computed collections
-  const activeItems = computed(() => {
-    return new Set(
-      Array.from(activeIds)
-        .map(id => group.get(id))
-        .filter((item): item is E => !isUndefined(item)),
-    )
-  })
+  const activeItems = computed(() => new Set(resolveIds(activeIds, group.get)))
 
-  const activeIndexes = computed(() => {
-    return new Set(
-      Array.from(activeItems.value)
-        .map(item => item?.index)
-        .filter((index): index is number => !isUndefined(index)),
-    )
-  })
+  const activeIndexes = computed(() => new Set(resolveIndexes(activeItems.value)))
 
-  const openedItems = computed(() => {
-    return new Set(
-      Array.from(openedIds)
-        .map(id => group.get(id))
-        .filter((item): item is E => !isUndefined(item)),
-    )
-  })
+  const openedItems = computed(() => new Set(resolveIds(openedIds, group.get)))
 
-  const roots = computed(() => {
-    return Array.from(rootIds)
-      .map(id => group.get(id))
-      .filter((item): item is E => !isUndefined(item))
-  })
+  const roots = computed(() => resolveIds(rootIds, group.get))
 
   const leaves = computed(() => {
     return group.values().filter(item => {
@@ -175,10 +138,23 @@ export function createNested<
   }
 
   function open (ids: ID | ID[]): void {
+    if (toValue(group.disabled)) return
     for (const id of toArray(ids)) {
       if (!group.has(id)) continue
+      const item = group.get(id)
+      if (!item || toValue(item.disabled)) continue
+
+      openedIds.add(id)
+
+      // Single-open mode: close all other opened items (accordion behavior)
+      if (openMode === 'single') {
+        for (const openedId of openedIds) {
+          if (openedId !== id) openedIds.delete(openedId)
+        }
+      }
 
       // Auto-reveal ancestors when opening (if enabled)
+      // Runs AFTER single-open so ancestors stay open alongside the target
       if (revealOnOpen) {
         let parentId = parents.get(id)
         while (!isUndefined(parentId)) {
@@ -186,23 +162,25 @@ export function createNested<
           parentId = parents.get(parentId)
         }
       }
-
-      openedIds.add(id)
-      resolvedOpenStrategy.onOpen?.(id, context)
     }
   }
 
   function close (ids: ID | ID[]): void {
+    if (toValue(group.disabled)) return
     for (const id of toArray(ids)) {
       if (!group.has(id)) continue
+      const item = group.get(id)
+      if (!item || toValue(item.disabled)) continue
       openedIds.delete(id)
-      resolvedOpenStrategy.onClose?.(id, context)
     }
   }
 
   function flip (ids: ID | ID[]): void {
+    if (toValue(group.disabled)) return
     for (const id of toArray(ids)) {
       if (!group.has(id)) continue
+      const item = group.get(id)
+      if (!item || toValue(item.disabled)) continue
       if (opened(id)) {
         close(id)
       } else {
@@ -261,15 +239,25 @@ export function createNested<
   }
 
   function expandAll (): void {
+    if (toValue(group.disabled)) return
     for (const [id, childList] of children) {
       if (childList.length > 0) {
+        const item = group.get(id)
+        if (item && toValue(item.disabled)) continue
         openedIds.add(id)
       }
     }
   }
 
   function collapseAll (): void {
-    openedIds.clear()
+    if (toValue(group.disabled)) return
+    const toClose = [...openedIds].filter(id => {
+      const item = group.get(id)
+      return !item || !toValue(item.disabled)
+    })
+    for (const id of toClose) {
+      openedIds.delete(id)
+    }
   }
 
   function activated (id: ID): boolean {
@@ -307,8 +295,14 @@ export function createNested<
   function getPath (id: ID): ID[] {
     const path: ID[] = []
     let currentId: ID | undefined = id
+    const visited = new Set<ID>()
 
     while (!isUndefined(currentId)) {
+      if (visited.has(currentId)) {
+        logger.warn(`Circular parent reference detected at "${currentId}".`)
+        break
+      }
+      visited.add(currentId)
       path.unshift(currentId)
       currentId = parents.get(currentId)
     }
@@ -385,9 +379,7 @@ export function createNested<
     const parentId = parents.get(id)
     if (isUndefined(parentId)) {
       // Root node - siblings are other roots
-      return group.values()
-        .filter(item => isUndefined(parents.get(item.id)))
-        .map(item => item.id)
+      return Array.from(rootIds)
     }
     return children.get(parentId) ?? []
   }
@@ -400,6 +392,34 @@ export function createNested<
     const sibs = siblings(id)
     const index = sibs.indexOf(id)
     return index === -1 ? 0 : index + 1
+  }
+
+  /**
+   * Returns depth-first traversal of visible (open) nodes.
+   * A node is visible if all its ancestors are open.
+   * Used by useRovingFocus to determine keyboard navigation order.
+   */
+  function visibleItems (): NestedTicket[] {
+    const result: NestedTicket[] = []
+    const rootItems = Array.from(rootIds)
+
+    function walk (ids: ID[]) {
+      for (const id of ids) {
+        const item = group.get(id) as NestedTicket | undefined
+        if (!item) continue
+        result.push(item)
+
+        if (opened(id)) {
+          const childIds = children.get(id)
+          if (childIds?.length) {
+            walk(childIds)
+          }
+        }
+      }
+    }
+
+    walk(rootItems)
+    return result
   }
 
   // Cascading selection helpers (used when selectionMode === 'cascade')
@@ -433,8 +453,11 @@ export function createNested<
   }
 
   function select (ids: ID | ID[]): void {
+    if (toValue(group.disabled)) return
     for (const id of toArray(ids)) {
       if (!group.has(id)) continue
+      const item = group.get(id)
+      if (!item || toValue(item.disabled)) continue
 
       if (selectionMode === 'independent') {
         group.select(id)
@@ -455,6 +478,8 @@ export function createNested<
         mixedIds.delete(id)
         selectedIds.add(id)
         for (const did of getDescendants(id)) {
+          const desc = group.get(did)
+          if (desc && toValue(desc.disabled)) continue
           mixedIds.delete(did)
           selectedIds.add(did)
         }
@@ -464,8 +489,11 @@ export function createNested<
   }
 
   function unselect (ids: ID | ID[]): void {
+    if (toValue(group.disabled)) return
     for (const id of toArray(ids)) {
       if (!group.has(id)) continue
+      const item = group.get(id)
+      if (!item || toValue(item.disabled)) continue
 
       if (selectionMode === 'independent') {
         group.unselect(id)
@@ -486,6 +514,8 @@ export function createNested<
         mixedIds.delete(id)
         selectedIds.delete(id)
         for (const did of getDescendants(id)) {
+          const desc = group.get(did)
+          if (desc && toValue(desc.disabled)) continue
           mixedIds.delete(did)
           selectedIds.delete(did)
         }
@@ -495,7 +525,10 @@ export function createNested<
   }
 
   function toggle (ids: ID | ID[]): void {
+    if (toValue(group.disabled)) return
     for (const id of toArray(ids)) {
+      const item = group.get(id)
+      if (!item || toValue(item.disabled)) continue
       if (selectionMode === 'independent') {
         // Independent: just toggle this node
         group.toggle(id)
@@ -527,6 +560,32 @@ export function createNested<
     }
   }
 
+  function selectAll (): void {
+    if (toValue(group.disabled)) return
+    const { selectedIds, mixedIds } = group
+    for (const item of group.values()) {
+      if (toValue(item.disabled)) continue
+      selectedIds.add(item.id)
+    }
+    mixedIds.clear()
+  }
+
+  function unselectAll (): void {
+    if (toValue(group.disabled)) return
+    const first = group.selectedIds.values().next().value
+    group.selectedIds.clear()
+    group.mixedIds.clear()
+    if (toValue(mandatoryOption) && first) {
+      group.selectedIds.add(first)
+      updateAncestors(first)
+    }
+  }
+
+  function toggleAll (): void {
+    if (group.isAllSelected.value) unselectAll()
+    else selectAll()
+  }
+
   /**
    * Converts the tree to a flat array with parentId references.
    * Useful for serialization or sending to APIs/AI systems.
@@ -540,7 +599,7 @@ export function createNested<
   }
 
   // Registration
-  function register (registration: NestedRegistration<Z> = {} as NestedRegistration<Z>): E {
+  function register (registration: NestedRegistration<NestedTicketInput> = {} as NestedRegistration<NestedTicketInput>): NestedTicket {
     const id = registration.id ?? useId()
     const parentId = registration.parentId
     const nested = registration.children
@@ -586,6 +645,7 @@ export function createNested<
     const item = {
       ...rest,
       id,
+      el: registration.el,
       parentId: batching ? pendingParents!.get(id) : parents.get(id),
       isOpen: toRef(() => opened(id)),
       isActive: toRef(() => activated(id)),
@@ -606,7 +666,12 @@ export function createNested<
       position: () => position(id),
     }
 
-    const ticket = group.register(item as Partial<GroupTicketInput>) as unknown as E
+    const ticket = group.register(item as Partial<GroupTicketInput>) as NestedTicket
+
+    // Override group-level selection methods with cascade-aware versions
+    ticket.select = () => select(id)
+    ticket.unselect = () => unselect(id)
+    ticket.toggle = () => toggle(id)
 
     if (registration.active) {
       activate(id)
@@ -615,7 +680,7 @@ export function createNested<
     // Recursively register nested children
     if (nested?.length) {
       for (const child of nested) {
-        register({ ...child, parentId: id } as NestedRegistration<Z>)
+        register({ ...child, parentId: id } as NestedRegistration<NestedTicketInput>)
       }
     }
 
@@ -683,7 +748,7 @@ export function createNested<
     }
   }
 
-  function onboard (registrations: NestedRegistration<Z>[]): E[] {
+  function onboard (registrations: NestedRegistration<NestedTicketInput>[]): NestedTicket[] {
     batching = true
     pendingChildren = new Map()
     pendingParents = new Map()
@@ -740,6 +805,7 @@ export function createNested<
     activeIndexes,
     roots,
     leaves,
+    visibleItems,
     getPath,
     getAncestors,
     getDescendants,
@@ -763,10 +829,13 @@ export function createNested<
     activated,
     deactivateAll,
     toFlat,
-    openStrategy: resolvedOpenStrategy,
+    multiple: toValue(multipleOption),
     select,
     unselect,
     toggle,
+    selectAll,
+    unselectAll,
+    toggleAll,
     register,
     unregister,
     offboard,
@@ -776,7 +845,7 @@ export function createNested<
     get size () {
       return group.size
     },
-  } as R
+  } as unknown as NestedContext
 
   return context
 }
@@ -787,7 +856,7 @@ export function createNested<
  * @param options The options for the nested context.
  * @returns A trinity tuple [useNested, provideNested, defaultNested]
  *
- * @see https://0.vuetifyjs.com/composables/selection/use-nested
+ * @see https://0.vuetifyjs.com/composables/selection/create-nested
  *
  * @example
  * ```ts
@@ -799,20 +868,11 @@ export function createNested<
  * // In child: const tree = useTree()
  * ```
  */
-export function createNestedContext<
-  Z extends NestedTicketInput = NestedTicketInput,
-  E extends NestedTicket<Z> = NestedTicket<Z>,
-  R extends NestedContext<Z, E> = NestedContext<Z, E>,
-> (_options: NestedContextOptions = {}): ContextTrinity<R> {
+export function createNestedContext (_options: NestedContextOptions = {}): ContextTrinity<NestedContext> {
   const { namespace = 'v0:nested', ...options } = _options
-  const [useNestedContext, _provideNestedContext] = createContext<R>(namespace)
-  const context = createNested<Z, E, R>(options)
+  const context = createNested(options)
 
-  function provideNestedContext (_context: R = context, app?: App): R {
-    return _provideNestedContext(_context, app)
-  }
-
-  return createTrinity<R>(useNestedContext, provideNestedContext, context)
+  return createTrinity<NestedContext>(namespace, context)
 }
 
 /**
@@ -821,16 +881,10 @@ export function createNestedContext<
  * @param namespace The namespace for the nested context. Defaults to `'v0:nested'`.
  * @returns The current nested instance.
  *
- * @see https://0.vuetifyjs.com/composables/selection/use-nested
+ * @see https://0.vuetifyjs.com/composables/selection/create-nested
  */
-export function useNested<
-  Z extends NestedTicketInput = NestedTicketInput,
-  E extends NestedTicket<Z> = NestedTicket<Z>,
-  R extends NestedContext<Z, E> = NestedContext<Z, E>,
-> (namespace = 'v0:nested'): R {
-  return useContext<R>(namespace)
+export function useNested (namespace = 'v0:nested'): NestedContext {
+  return useContext<NestedContext>(namespace)
 }
 
-export { type NestedActiveMode, type NestedContext, type NestedContextOptions, type NestedOpenMode, type NestedOptions, type NestedRegistration, type NestedSelectionMode, type NestedTicket, type NestedTicketInput, type OpenStrategy, type OpenStrategyContext } from './types'
-
-export { multipleOpenStrategy, singleOpenStrategy } from './strategies'
+export { type NestedActiveMode, type NestedContext, type NestedContextOptions, type NestedOpenMode, type NestedOptions, type NestedRegistration, type NestedSelectionMode, type NestedTicket, type NestedTicketInput } from './types'

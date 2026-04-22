@@ -39,7 +39,7 @@ This is a **pnpm monorepo** containing:
 | [`@vuetify/v0`](./packages/0) | Core headless components and composables |
 | [`@vuetify/paper`](./packages/paper) | Styling and layout primitives |
 | [`apps/docs`](./apps/docs) | Documentation site ([0.vuetifyjs.com](https://0.vuetifyjs.com)) |
-| [`playground`](./playground) | Interactive development environment |
+| [`apps/playground`](./apps/playground) | Interactive development environment |
 
 ## Requirements
 
@@ -77,23 +77,72 @@ import { ... } from '@vuetify/v0/date'       // Date adapter and utilities
 
 ### Components
 
+#### Primitives
+
 | Component | Description |
 |-----------|-------------|
-| **Atom** | Polymorphic base element. Renders as any HTML element via `as` prop with renderless mode support |
-| **Avatar** | Image with fallback display. Compound component with Root, Image, and Fallback sub-components |
-| **Breadcrumbs** | Responsive navigation trail with overflow support. Root, List, Item, Link, Page, Divider, Ellipsis sub-components |
-| **Checkbox** | Standalone or group checkbox with tri-state. Root, Group, SelectAll, Indicator, HiddenInput sub-components |
-| **Dialog** | Modal dialog using native `<dialog>`. Root, Activator, Content, Title, Description, Close sub-components |
-| **ExpansionPanel** | Accordion/collapsible panels. Supports single (accordion) or multi-expand modes |
-| **Group** | Multi-selection with tri-state support. Provides `selectAll`, `unselectAll`, `toggleAll` |
-| **Pagination** | Page navigation with ellipsis. Root, Item, First, Prev, Next, Last, Ellipsis, Status sub-components |
-| **Popover** | CSS anchor-positioned popup. Root, Anchor, and Content sub-components |
-| **Radio** | Radio button group with single-selection. Group, Root, Indicator, HiddenInput sub-components |
-| **Scrim** | Backdrop/scrim overlay for overlay systems |
-| **Selection** | Generic single/multi-selection. Configurable via `multiple` prop |
-| **Single** | Single-selection specialization of Selection |
-| **Step** | Navigation/stepper with first, last, next, prev controls |
-| **Tabs** | Accessible tab interface. Root, List, Item, Panel sub-components |
+| [AspectRatio](https://0.vuetifyjs.com/components/primitives/aspect-ratio) | Fixed width-to-height ratio container via CSS `aspect-ratio` |
+| [Atom](https://0.vuetifyjs.com/components/primitives/atom) | Polymorphic base element with dynamic `as` prop and renderless mode |
+| [Portal](https://0.vuetifyjs.com/components/primitives/portal) | Teleport wrapper with automatic z-index stacking via useStack |
+| [Presence](https://0.vuetifyjs.com/components/primitives/presence) | Animation-agnostic mount lifecycle with lazy mounting and exit timing |
+
+#### Providers
+
+| Component | Description |
+|-----------|-------------|
+| [Group](https://0.vuetifyjs.com/components/providers/group) | Multi-selection with tri-state support |
+| [Locale](https://0.vuetifyjs.com/components/providers/locale) | Locale context provider for internationalization |
+| [Scrim](https://0.vuetifyjs.com/components/providers/scrim) | Overlay backdrop with click-to-dismiss and z-index management |
+| [Selection](https://0.vuetifyjs.com/components/providers/selection) | Multi-selection state with v-model binding |
+| [Single](https://0.vuetifyjs.com/components/providers/single) | Single-selection with automatic deselection |
+| [Step](https://0.vuetifyjs.com/components/providers/step) | Sequential navigation (first, last, next, prev) |
+| [Theme](https://0.vuetifyjs.com/components/providers/theme) | Theme context provider with CSS variable injection |
+
+#### Actions
+
+| Component | Description |
+|-----------|-------------|
+| [Button](https://0.vuetifyjs.com/components/actions/button) | Button with loading grace period, toggle groups, and icon accessibility |
+| [Toggle](https://0.vuetifyjs.com/components/actions/toggle) | Pressable on/off button with standalone and group modes |
+
+#### Forms
+
+| Component | Description |
+|-----------|-------------|
+| [Checkbox](https://0.vuetifyjs.com/components/forms/checkbox) | Dual-mode checkbox (standalone/group) with tri-state support |
+| [Combobox](https://0.vuetifyjs.com/components/forms/combobox) | Filterable selection with autocomplete, virtual focus, and custom input |
+| [Form](https://0.vuetifyjs.com/components/forms/form) | Form validation coordinator with submit handling and error aggregation |
+| [Input](https://0.vuetifyjs.com/components/forms/input) | Text input with label, description, error messages, and character counting |
+| [NumberField](https://0.vuetifyjs.com/components/forms/number-field) | Numeric input with increment/decrement, scrub, and Intl formatting |
+| [Radio](https://0.vuetifyjs.com/components/forms/radio) | Radio group with single-selection and keyboard navigation |
+| [Select](https://0.vuetifyjs.com/components/forms/select) | Dropdown selection with virtual focus and multi-select support |
+| [Rating](https://0.vuetifyjs.com/components/forms/rating) | Star/icon rating with hover preview, half-stars, and keyboard navigation |
+| [Slider](https://0.vuetifyjs.com/components/forms/slider) | Range input with snapping, range mode, and custom tracks |
+| [Switch](https://0.vuetifyjs.com/components/forms/switch) | Toggle switch with on/off states and label association |
+
+#### Disclosure
+
+| Component | Description |
+|-----------|-------------|
+| [AlertDialog](https://0.vuetifyjs.com/components/disclosure/alert-dialog) | Confirmation dialog with deferred close and `wait()`/`close()` pattern |
+| [Collapsible](https://0.vuetifyjs.com/components/disclosure/collapsible) | Single-item disclosure toggle for showing and hiding content |
+| [Dialog](https://0.vuetifyjs.com/components/disclosure/dialog) | Modal dialog using native `<dialog>` with focus management |
+| [ExpansionPanel](https://0.vuetifyjs.com/components/disclosure/expansion-panel) | Accordion-style collapsible panels |
+| [Popover](https://0.vuetifyjs.com/components/disclosure/popover) | CSS anchor-positioned popup content |
+| [Tabs](https://0.vuetifyjs.com/components/disclosure/tabs) | Tab panel navigation with keyboard support and lazy content rendering |
+| [Treeview](https://0.vuetifyjs.com/components/disclosure/treeview) | Hierarchical tree with nested selection and expand/collapse |
+
+#### Semantic
+
+| Component | Description |
+|-----------|-------------|
+| [Avatar](https://0.vuetifyjs.com/components/semantic/avatar) | Image/fallback avatar with priority loading |
+| [Breadcrumbs](https://0.vuetifyjs.com/components/semantic/breadcrumbs) | Navigation breadcrumbs with overflow detection and truncation |
+| [Carousel](https://0.vuetifyjs.com/components/semantic/carousel) | Scroll-snap slide navigation with multi-slide display and drag/swipe |
+| [Image](https://0.vuetifyjs.com/components/semantic/image) | Image with placeholder, error fallback, and lazy loading |
+| [Pagination](https://0.vuetifyjs.com/components/semantic/pagination) | Page navigation with semantic `<nav>` wrapper |
+| [Snackbar](https://0.vuetifyjs.com/components/semantic/snackbar) | Toast notification with queue, positioning, and auto-dismiss |
+| [Splitter](https://0.vuetifyjs.com/components/semantic/splitter) | Resizable panel layout with drag handles |
 
 ### Composables
 
@@ -101,78 +150,99 @@ import { ... } from '@vuetify/v0/date'       // Date adapter and utilities
 
 Core factories that provide the foundation for all other composables:
 
-- **`createContext`** - Type-safe Vue dependency injection wrapper
-- **`createPlugin`** - Vue plugin factory with context provision
-- **`createTrinity`** - Context triple pattern: `[use, provide, default]`
+- [`createContext`](https://0.vuetifyjs.com/composables/foundation/create-context) - Type-safe Vue dependency injection wrapper
+- [`createPlugin`](https://0.vuetifyjs.com/composables/foundation/create-plugin) - Vue plugin factory with context provision
+- [`createTrinity`](https://0.vuetifyjs.com/composables/foundation/create-trinity) - Context triple pattern: `[use, provide, default]`
 
 #### Registration
 
 Base data structures that most other composables build upon:
 
-- **`createRegistry`** - Enhanced Map with indexing, caching, and event support
-- **`createQueue`** - FIFO queue with timeout management (notifications/toasts)
-- **`createTimeline`** - Bounded undo/redo history
-- **`createTokens`** - Design token registry with alias resolution
-- **`createDataTable`** - Data table with sort, filter, pagination, row selection, grouping, and adapter pattern
+- [`createRegistry`](https://0.vuetifyjs.com/composables/registration/create-registry) - Enhanced Map with indexing, caching, and event support
+- [`createQueue`](https://0.vuetifyjs.com/composables/registration/create-queue) - FIFO queue with timeout management (notifications/toasts)
+- [`createTimeline`](https://0.vuetifyjs.com/composables/registration/create-timeline) - Bounded undo/redo history
+- [`createTokens`](https://0.vuetifyjs.com/composables/registration/create-tokens) - Design token registry with alias resolution
+
+#### Data
+
+- [`createDataTable`](https://0.vuetifyjs.com/composables/data/create-data-table) - Data table with sort, filter, pagination, row selection, grouping, and adapter pattern
+- [`createFilter`](https://0.vuetifyjs.com/composables/data/create-filter) - Reactive array filtering with multiple modes
+- [`createPagination`](https://0.vuetifyjs.com/composables/data/create-pagination) - Lightweight page navigation
+- [`createVirtual`](https://0.vuetifyjs.com/composables/data/create-virtual) - Virtual scrolling for large lists
 
 #### Selection
 
 Selection management composables built on `createRegistry`:
 
-- **`createSelection`** - Base selection with Set-based tracking
-- **`createGroup`** - Multi-selection with tri-state/mixed support
-- **`createSingle`** - Single-selection specialization
-- **`createStep`** - Navigation through items (first, last, next, prev)
-- **`createBreadcrumbs`** - Breadcrumb navigation model with depth tracking, truncation, and path traversal
-- **`createNested`** - Hierarchical tree management with parent-child relationships and open state
+- [`createSelection`](https://0.vuetifyjs.com/composables/selection/create-selection) - Base selection with Set-based tracking
+- [`createModel`](https://0.vuetifyjs.com/composables/selection/create-model) - Value store for single-value state
+- [`createGroup`](https://0.vuetifyjs.com/composables/selection/create-group) - Multi-selection with tri-state/mixed support
+- [`createSingle`](https://0.vuetifyjs.com/composables/selection/create-single) - Single-selection specialization
+- [`createStep`](https://0.vuetifyjs.com/composables/selection/create-step) - Navigation through items (first, last, next, prev)
+- [`createNested`](https://0.vuetifyjs.com/composables/selection/create-nested) - Hierarchical tree management with parent-child relationships and open state
 
 #### Forms
 
-- **`createForm`** - Form validation and state management with async rules
+- [`createForm`](https://0.vuetifyjs.com/composables/forms/create-form) - Form validation and state management with async rules
+- [`createInput`](https://0.vuetifyjs.com/composables/forms/create-input) - Shared form field state: validation, dirty/pristine, ARIA IDs
+- [`createNumberField`](https://0.vuetifyjs.com/composables/forms/create-number-field) - Numeric input state with formatting, stepping, and validation
+- [`createValidation`](https://0.vuetifyjs.com/composables/forms/create-validation) - Field-level validation with sync/async rules
+- [`createCombobox`](https://0.vuetifyjs.com/composables/forms/create-combobox) - Combobox state management with filtering and virtual focus
+- [`createRating`](https://0.vuetifyjs.com/composables/forms/create-rating) - Bounded rating value with discrete items and half-step support
+- [`createSlider`](https://0.vuetifyjs.com/composables/forms/create-slider) - Slider state with snapping, range mode, and step control
 
 #### Reactivity
 
-- **`useProxyModel`** - Bridge selection context to component v-model
-- **`useProxyRegistry`** - Convert registry Map to reactive object
+- [`useProxyModel`](https://0.vuetifyjs.com/composables/reactivity/use-proxy-model) - Bridge selection context to component v-model
+- [`useProxyRegistry`](https://0.vuetifyjs.com/composables/reactivity/use-proxy-registry) - Convert registry Map to reactive object
 
 #### Utilities
 
-- **`useFilter`** - Reactive array filtering with multiple modes
-- **`usePagination`** - Lightweight page navigation (non-registry based)
-- **`useVirtual`** - Virtual scrolling for large lists
-- **`useOverflow`** - Container overflow measurement for item capacity
+- [`createBreadcrumbs`](https://0.vuetifyjs.com/composables/utilities/create-breadcrumbs) - Breadcrumb navigation model with depth tracking and path traversal
+- [`createOverflow`](https://0.vuetifyjs.com/composables/utilities/create-overflow) - Container overflow measurement for item capacity
 
 #### Transformers
 
-- **`toArray`** - Array transformation utilities
-- **`toReactive`** - Reactive object conversion
+- [`toArray`](https://0.vuetifyjs.com/composables/transformers/to-array) - Array transformation utilities
+- [`toElement`](https://0.vuetifyjs.com/composables/transformers/to-element) - Normalize refs, selectors, and elements to DOM elements
+- [`toReactive`](https://0.vuetifyjs.com/composables/transformers/to-reactive) - Reactive object conversion
 
 #### System
 
-- **`useClickOutside`** - Click outside detection with cleanup
-- **`useEventListener`** - Lifecycle-managed event listeners
-- **`useHotkey`** - Hotkey combinations and sequences
-- **`useIntersectionObserver`** - Intersection observer with auto-cleanup
-- **`useLazy`** - Deferred content rendering for dialogs, menus, and tooltips
-- **`useMediaQuery`** - Reactive CSS media query matching
-- **`useMutationObserver`** - DOM mutation observation
-- **`useResizeObserver`** - Resize observer utilities
-- **`useToggleScope`** - Conditional effect scope management
+- [`useClickOutside`](https://0.vuetifyjs.com/composables/system/use-click-outside) - Click outside detection with cleanup
+- [`useEventListener`](https://0.vuetifyjs.com/composables/system/use-event-listener) - Lifecycle-managed event listeners
+- [`useHotkey`](https://0.vuetifyjs.com/composables/system/use-hotkey) - Hotkey combinations and sequences
+- [`useImage`](https://0.vuetifyjs.com/composables/system/use-image) - Image loading state machine with deferred loading and retry
+- [`useIntersectionObserver`](https://0.vuetifyjs.com/composables/system/use-intersection-observer) - Intersection observer with auto-cleanup
+- [`useLazy`](https://0.vuetifyjs.com/composables/system/use-lazy) - Deferred content rendering for dialogs, menus, and tooltips
+- [`useMediaQuery`](https://0.vuetifyjs.com/composables/system/use-media-query) - Reactive CSS media query matching
+- [`useMutationObserver`](https://0.vuetifyjs.com/composables/system/use-mutation-observer) - DOM mutation observation
+- [`usePopover`](https://0.vuetifyjs.com/composables/system/use-popover) - Popover positioning and anchor management
+- [`useRaf`](https://0.vuetifyjs.com/composables/system/use-raf) - requestAnimationFrame loop with start/stop control
+- [`useResizeObserver`](https://0.vuetifyjs.com/composables/system/use-resize-observer) - Resize observer utilities
+- [`useRovingFocus`](https://0.vuetifyjs.com/composables/system/use-roving-focus) - Roving tabindex keyboard navigation
+- [`usePresence`](https://0.vuetifyjs.com/composables/system/use-presence) - Animation-agnostic mount lifecycle with lazy mounting and exit timing
+- [`useTimer`](https://0.vuetifyjs.com/composables/system/use-timer) - Countdown and interval timer with pause/resume
+- [`useToggleScope`](https://0.vuetifyjs.com/composables/system/use-toggle-scope) - Conditional effect scope management
+- [`useVirtualFocus`](https://0.vuetifyjs.com/composables/system/use-virtual-focus) - Virtual focus management via aria-activedescendant
 
 #### Plugins
 
 Plugin-capable composables following the trinity pattern:
 
-- **`useBreakpoints`** - Responsive breakpoint detection
-- **`useDate`** - Date manipulation with adapter pattern and locale sync
-- **`useFeatures`** - Feature flags with variations
-- **`useHydration`** - SSR hydration helpers
-- **`useLocale`** - Internationalization with message interpolation
-- **`useLogger`** - Logging adapter (consola/pino/custom)
-- **`usePermissions`** - RBAC/ABAC permission system
-- **`useStack`** - Overlay z-index stacking with automatic scrim coordination
-- **`useStorage`** - Storage adapter (localStorage/sessionStorage/memory)
-- **`useTheme`** - Theme management with CSS variable injection
+- [`useBreakpoints`](https://0.vuetifyjs.com/composables/plugins/use-breakpoints) - Responsive breakpoint detection
+- [`useDate`](https://0.vuetifyjs.com/composables/plugins/use-date) - Date manipulation with adapter pattern and locale sync
+- [`useFeatures`](https://0.vuetifyjs.com/composables/plugins/use-features) - Feature flags with variations
+- [`useHydration`](https://0.vuetifyjs.com/composables/plugins/use-hydration) - SSR hydration helpers
+- [`useLocale`](https://0.vuetifyjs.com/composables/plugins/use-locale) - Internationalization with message interpolation
+- [`useLogger`](https://0.vuetifyjs.com/composables/plugins/use-logger) - Logging adapter (consola/pino/custom)
+- [`useNotifications`](https://0.vuetifyjs.com/composables/plugins/use-notifications) - Toast/snackbar queue management with positioning
+- [`usePermissions`](https://0.vuetifyjs.com/composables/plugins/use-permissions) - RBAC/ABAC permission system
+- [`useRtl`](https://0.vuetifyjs.com/composables/plugins/use-rtl) - Right-to-left text direction detection and management
+- [`useRules`](https://0.vuetifyjs.com/composables/plugins/use-rules) - Validation rule adapter with built-in rule library
+- [`useStack`](https://0.vuetifyjs.com/composables/plugins/use-stack) - Overlay z-index stacking with automatic scrim coordination
+- [`useStorage`](https://0.vuetifyjs.com/composables/plugins/use-storage) - Storage adapter (localStorage/sessionStorage/memory)
+- [`useTheme`](https://0.vuetifyjs.com/composables/plugins/use-theme) - Theme management with CSS variable injection
 
 ## Design Principles
 
@@ -217,7 +287,7 @@ pnpm validate
 
 ## Contributing
 
-We are not currently accepting external contributions. Check back later or join our [Discord community](https://community.vuetifyjs.com) for updates.
+v0 is in alpha — open for feedback, bug reports, and contributions. See the [Alpha Roadmap](https://0.vuetifyjs.com/roadmap#alpha) for what's planned and how to get involved.
 
 ## License
 

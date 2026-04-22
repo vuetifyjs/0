@@ -3,7 +3,7 @@
   import { useHead } from '@unhead/vue'
 
   const target = import.meta.env.VITE_PLAYGROUND_URL ?? 'https://v0play.vuetifyjs.com'
-  const redirect = `${target}/${window?.location?.hash ?? ''}`
+  const redirect = `${target}/${IN_BROWSER ? window.location.hash : ''}`
 
   definePage({
     meta: {

@@ -2,6 +2,8 @@
   /**
    * @module Atom
    *
+   * @see https://0.vuetifyjs.com/components/primitives/atom
+   *
    * @remarks
    * Foundation component providing polymorphic rendering with three modes:
    * 1. **Element Mode** (default): Renders as any HTML element via the `as` prop

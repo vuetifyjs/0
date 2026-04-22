@@ -1,13 +1,15 @@
 /**
  * @module DialogRoot
  *
+ * @see https://0.vuetifyjs.com/components/disclosure/dialog
+ *
  * @remarks
  * Root component for dialog contexts. Creates and provides dialog context
  * to child Dialog components. Manages open/closed state via v-model binding.
  */
 
 <script lang="ts">
-  // Foundational
+  // Composables
   import { createContext } from '#v0/composables/createContext'
 
   // Types
@@ -49,7 +51,8 @@
   import { Atom } from '#v0/components/Atom'
 
   // Utilities
-  import { toRef, useId } from 'vue'
+  import { useId } from '#v0/utilities'
+  import { toRef } from 'vue'
 
   defineOptions({ name: 'DialogRoot' })
 
