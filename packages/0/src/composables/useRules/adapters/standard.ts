@@ -35,6 +35,7 @@ export interface StandardSchemaV1 {
  * @param value The value to check.
  * @returns `true` if the value conforms to the Standard Schema interface.
  */
+/* #__NO_SIDE_EFFECTS__ */
 export function isStandardSchema (value: unknown): value is StandardSchemaV1 {
   return isObject(value) && '~standard' in value
 }
@@ -51,6 +52,7 @@ export function isStandardSchema (value: unknown): value is StandardSchemaV1 {
  *
  * @see https://standardschema.dev/
  */
+/* #__NO_SIDE_EFFECTS__ */
 export function toRule (schema: StandardSchemaV1): FormValidationRule {
   return async (value: unknown) => {
     let result = schema['~standard'].validate(value)

@@ -24,7 +24,7 @@
 
   // Utilities
   import { toKebab } from '@/utilities/strings'
-  import { computed, onScopeDispose, ref, shallowRef, toRef, useTemplateRef } from 'vue'
+  import { computed, onScopeDispose, ref, shallowRef, toRef } from 'vue'
   import { useRouter } from 'vue-router'
 
   // Types
@@ -79,7 +79,6 @@
   const activeApi = shallowRef<ExtendedApi | null>(null)
   const activeApiType = shallowRef<'component' | 'composable' | 'vue' | null>(null)
   const displayName = shallowRef<string>('')
-  const _popoverRef = useTemplateRef<HTMLDivElement>('popover')
   const isVisible = ref(false)
 
   // Hover timing
@@ -293,18 +292,6 @@
 
   // Whether the link is external (Vue docs) or internal (v0 API page)
   const isExternalLink = toRef(() => activeApiType.value === 'vue')
-
-  function navigateToApi () {
-    const link = apiLink.value
-    if (!link) return
-    hidePopover()
-
-    if (isExternalLink.value) {
-      window.open(link, '_blank', 'noopener,noreferrer')
-    } else {
-      router.push(link)
-    }
-  }
 </script>
 
 <template>
@@ -383,20 +370,27 @@
         </template>
 
         <!-- Footer link -->
-        <a
-          v-if="isExternalLink"
-          class="popover-footer"
-          :href="apiLink"
-          rel="noopener noreferrer"
-          target="_blank"
-          @click.stop="hidePopover"
-        >
-          View Vue docs ↗
-        </a>
+        <template v-if="apiLink">
+          <a
+            v-if="isExternalLink"
+            class="popover-footer"
+            :href="apiLink"
+            rel="noopener noreferrer"
+            target="_blank"
+            @click.stop="hidePopover"
+          >
+            View Vue docs↗
+          </a>
 
-        <button v-else class="popover-footer" type="button" @click.stop="navigateToApi">
-          View API →
-        </button>
+          <router-link
+            v-else
+            class="popover-footer"
+            :to="apiLink"
+            @click.stop="hidePopover"
+          >
+            View API
+          </router-link>
+        </template>
       </div>
     </Transition>
   </Teleport>

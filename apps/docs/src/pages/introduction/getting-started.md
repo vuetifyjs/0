@@ -72,7 +72,7 @@ bunx @vuetify/cli init --type vuetify0
 
 :::
 
-Both options scaffold a complete project with UnoCSS, theming, and example components pre-configured.
+Both options scaffold a complete project with UnoCSS, theming, and example components pre-configured — the same shape as [Devkey](/guide/integration/devkey), the reference v0 starter project.
 
 > [!TIP]
 > Use the Skill Filter to narrow down navigation to match your experience level: <AppSkillFilter />

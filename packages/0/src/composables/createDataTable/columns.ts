@@ -27,6 +27,7 @@ export interface InternalHeader {
  * @param columns Column tree to extract leaves from
  * @returns Flat array of leaf columns
  */
+/* #__NO_SIDE_EFFECTS__ */
 export function extractLeaves<T extends ColumnNode> (columns: readonly T[]): T[] {
   const leaves: T[] = []
   for (const col of columns) {
@@ -45,6 +46,7 @@ export function extractLeaves<T extends ColumnNode> (columns: readonly T[]): T[]
  * @param columns Column tree to measure
  * @returns Maximum nesting depth
  */
+/* #__NO_SIDE_EFFECTS__ */
 export function computeDepth (columns: readonly ColumnNode[]): number {
   let max = 0
   for (const col of columns) {
@@ -64,6 +66,7 @@ export function computeDepth (columns: readonly ColumnNode[]): number {
  * @param columns Column tree to resolve
  * @returns 2D array of header cells with colspan/rowspan
  */
+/* #__NO_SIDE_EFFECTS__ */
 export function resolveHeaders (columns: readonly ColumnNode[]): InternalHeader[][] {
   if (columns.length === 0) return []
 
