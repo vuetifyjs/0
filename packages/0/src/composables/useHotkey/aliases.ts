@@ -39,6 +39,7 @@ const keyAliasMap = {
  */
 type KeyAlias = keyof typeof keyAliasMap
 
+/* #__NO_SIDE_EFFECTS__ */
 export function normalizeKey (key: string): string {
   const lowerKey = key.toLowerCase()
   return keyAliasMap[lowerKey as KeyAlias] ?? lowerKey

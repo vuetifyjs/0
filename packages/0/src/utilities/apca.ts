@@ -34,6 +34,7 @@ function clamp (y: number): number {
   return y > blkThrs ? y : y + Math.pow(blkThrs - y, blkClmp)
 }
 
+/* #__NO_SIDE_EFFECTS__ */
 export function apca (text: RGB, background: RGB): number {
   const txtY = clamp(luminance(text))
   const bgY = clamp(luminance(background))
@@ -53,6 +54,7 @@ export function apca (text: RGB, background: RGB): number {
 const BLACK: RGB = { r: 0, g: 0, b: 0 }
 const WHITE: RGB = { r: 255, g: 255, b: 255 }
 
+/* #__NO_SIDE_EFFECTS__ */
 export function foreground (hex: string): string {
   const rgb = hexToRgb(hex)
   const onWhite = Math.abs(apca(WHITE, rgb))

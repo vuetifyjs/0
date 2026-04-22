@@ -70,6 +70,7 @@ function mapSemanticColors (colors: Record<number, string>, ratios: number[]): R
   }
 }
 
+/* #__NO_SIDE_EFFECTS__ */
 export function leonardo (seed: string, options: LeonardoGenerateOptions = {}): PaletteDefinition {
   if (!HEX_RE.test(seed)) {
     throw new Error(`[@vuetify/v0] Invalid seed color: "${seed}". Expected a hex string (e.g., "#0ea5e9").`)

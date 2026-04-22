@@ -71,6 +71,7 @@ function extractSchemeColors (scheme: InstanceType<typeof SchemeTonalSpot>): Rec
   }
 }
 
+/* #__NO_SIDE_EFFECTS__ */
 export function material (seed: string, options: MaterialGenerateOptions = {}): PaletteDefinition {
   if (!HEX_RE.test(seed)) {
     throw new Error(`[@vuetify/v0] Invalid seed color: "${seed}". Expected a hex string (e.g., "#6750A4").`)

@@ -8,6 +8,7 @@ export interface RGB {
   a?: number
 }
 
+/* #__NO_SIDE_EFFECTS__ */
 export function hexToRgb (hex: string): RGB {
   const clean = hex.startsWith('#') ? hex.slice(1) : hex
 
@@ -28,6 +29,7 @@ export function hexToRgb (hex: string): RGB {
   return isUndefined(a) ? { r, g, b } : { r, g, b, a }
 }
 
+/* #__NO_SIDE_EFFECTS__ */
 export function rgbToHex ({ r, g, b, a }: RGB): string {
   const hex = '#' + [r, g, b].map(c => c.toString(16).padStart(2, '0')).join('')
   if (!isUndefined(a)) return hex + a.toString(16).padStart(2, '0')
