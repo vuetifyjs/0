@@ -20,7 +20,7 @@
 
   // Composables
   import { useDocumentEventListener, useEventListener } from '#v0/composables/useEventListener'
-  import { useElementSize } from '#v0/composables/useResizeObserver'
+  import { useElementSize, useResizeObserver } from '#v0/composables/useResizeObserver'
   import { useToggleScope } from '#v0/composables/useToggleScope'
 
   // Utilities
@@ -81,6 +81,33 @@
   onBeforeUnmount(() => ticket.unregister())
 
   const { width, height } = useElementSize(el)
+
+  // Mirror the viewport's consumer-set padding onto scroll-padding so CSS
+  // scroll-snap targets align with the visible offset. Without this, a
+  // consumer adding padding (e.g. for a peek layout) would desync programmatic
+  // scroll math from snap positions.
+  // See https://github.com/vuetifyjs/0/issues/200.
+  const scrollPaddingStart = shallowRef<string | undefined>()
+  const scrollPaddingEnd = shallowRef<string | undefined>()
+
+  function syncScrollPadding () {
+    const element = el.value
+    if (!element) {
+      scrollPaddingStart.value = undefined
+      scrollPaddingEnd.value = undefined
+      return
+    }
+    const cs = getComputedStyle(element)
+    const start = isVertical.value ? cs.paddingBlockStart : cs.paddingInlineStart
+    const end = isVertical.value ? cs.paddingBlockEnd : cs.paddingInlineEnd
+    scrollPaddingStart.value = start && start !== '0px' ? start : undefined
+    scrollPaddingEnd.value = end && end !== '0px' ? end : undefined
+  }
+
+  if (IN_BROWSER) {
+    useResizeObserver(el, syncScrollPadding, { immediate: true })
+    watch(isVertical, syncScrollPadding)
+  }
 
   const slideStep = toRef(() => {
     if (!el.value) return 0
@@ -223,7 +250,7 @@
   })
 
   const viewportStyle = toRef(() => {
-    const padding = carousel.padding.value
+    const axis = isVertical.value ? 'block' : 'inline'
 
     return {
       'display': 'flex',
@@ -232,12 +259,8 @@
       [isVertical.value ? 'overflow-x' : 'overflow-y']: 'hidden',
       'scroll-snap-type': snapDisabled.value ? 'none' : `${isVertical.value ? 'y' : 'x'} mandatory`,
       'scrollbar-width': 'none',
-      ...(padding
-        ? {
-          [isVertical.value ? 'padding-block' : 'padding-inline']: padding,
-          [isVertical.value ? 'scroll-padding-block' : 'scroll-padding-inline']: padding,
-        }
-        : {}),
+      ...(scrollPaddingStart.value ? { [`scroll-padding-${axis}-start`]: scrollPaddingStart.value } : {}),
+      ...(scrollPaddingEnd.value ? { [`scroll-padding-${axis}-end`]: scrollPaddingEnd.value } : {}),
       ...(snapDisabled.value ? { 'user-select': 'none' } : {}),
     } as Record<string, string | number>
   })
