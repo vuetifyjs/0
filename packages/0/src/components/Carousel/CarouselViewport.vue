@@ -104,10 +104,8 @@
     scrollPaddingEnd.value = end && end !== '0px' ? end : undefined
   }
 
-  if (IN_BROWSER) {
-    useResizeObserver(el, syncScrollPadding, { immediate: true })
-    watch(isVertical, syncScrollPadding)
-  }
+  useResizeObserver(el, syncScrollPadding, { immediate: true })
+  watch(isVertical, syncScrollPadding)
 
   const slideStep = toRef(() => {
     if (!el.value) return 0
