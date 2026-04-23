@@ -865,6 +865,8 @@ export function createRegistry<
   }
 
   function keys (): readonly ID[] {
+    if (reactive) return Array.from(collection.keys())
+
     const cached = cache.get('keys')
     if (!isUndefined(cached)) return cached as readonly ID[]
 
@@ -876,6 +878,8 @@ export function createRegistry<
   }
 
   function values (): readonly E[] {
+    if (reactive) return Array.from(collection.values())
+
     const cached = cache.get('values')
     if (!isUndefined(cached)) return cached as readonly E[]
 
@@ -887,6 +891,8 @@ export function createRegistry<
   }
 
   function entries (): readonly [ID, E][] {
+    if (reactive) return Array.from(collection.entries())
+
     const cached = cache.get('entries')
     if (!isUndefined(cached)) return cached as readonly [ID, E][]
 

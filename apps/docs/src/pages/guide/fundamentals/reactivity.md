@@ -157,6 +157,9 @@ Registry collections and computed properties are **not** reactive by default:
 
 This is intentional. Most UI patterns only need to react to *selection changes*, not *collection changes*. When the collection itself changes (items added/removed), you typically know about it—you're the one calling `register()`.
 
+> [!TIP]
+> Pass `{ reactive: true }` to `createRegistry` and the whole table above becomes reactive — `values()`, `keys()`, `entries()`, `size`, plus per-ticket field mutations via `upsert()`. See [Pattern 1](#pattern-1-reactive-option) below.
+
 ## Opting Into Reactivity
 
 When you need reactive collections, v0 provides three patterns.
@@ -170,21 +173,21 @@ import { createRegistry } from '@vuetify/v0'
 
 const registry = createRegistry({ reactive: true })
 
-// The collection Map is now shallowReactive
-registry.collection.size  // Reactive
-registry.collection.values()  // Reactive iteration
+// Public accessors are reactive
+registry.size          // Reactive
+registry.values()      // Reactive iteration
+registry.keys()        // Reactive iteration
+registry.entries()     // Reactive iteration
+
+// Tickets are shallowReactive — upsert mutations propagate
+registry.upsert('id', { value: 'updated' })
 ```
 
 ```vue playground
 <script setup>
-  import { computed } from 'vue'
   import { createRegistry } from '@vuetify/v0'
 
   const registry = createRegistry({ reactive: true })
-
-  // Use computed to access reactive collection
-  const items = computed(() => Array.from(registry.collection.values()))
-  const size = computed(() => registry.collection.size)
 
   let count = 0
   function onAdd() {
@@ -197,9 +200,9 @@ registry.collection.values()  // Reactive iteration
 
 <template>
   <button @click="onAdd">Add Item</button>
-  <p>Count: {{ size }}</p>
+  <p>Count: {{ registry.size }}</p>
   <ul>
-    <li v-for="item in items" :key="item.id">
+    <li v-for="item in registry.values()" :key="item.id">
       {{ item.value }}
     </li>
   </ul>
@@ -207,7 +210,7 @@ registry.collection.values()  // Reactive iteration
 ```
 
 > [!TIP]
-> The `reactive` option wraps the internal `collection` Map with `shallowReactive`. Access `registry.collection` directly for reactive tracking.
+> `reactive: true` wraps both the internal collection and each ticket with `shallowReactive`. Prefer this pattern when you want both reactive iteration *and* reactive per-ticket field mutations via `upsert()`. Use [useProxyRegistry](#pattern-3-useproxyregistry) instead when you want event-driven snapshot reactivity without wrapping the tickets themselves.
 
 ### Pattern 2: Events
 

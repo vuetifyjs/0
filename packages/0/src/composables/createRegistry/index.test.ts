@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 
 // Utilities
-import { isReactive, nextTick, watchEffect } from 'vue'
+import { computed, isReactive, nextTick, shallowRef, watchEffect } from 'vue'
 
 import { createRegistry, createRegistryContext } from './index'
 
@@ -1151,6 +1151,74 @@ describe('createRegistry', () => {
       registry.upsert('test', { value: 'updated' })
       await nextTick()
       expect(values).toEqual(['initial', 'updated'])
+    })
+
+    it('should propagate upserts to computeds iterating values() after a non-iteration re-run', async () => {
+      const registry = createRegistry<{ value: string }>({ reactive: true })
+      const trigger = shallowRef(0)
+
+      registry.register({ id: 'a', value: 'initial-a' })
+      registry.register({ id: 'b', value: 'initial-b' })
+
+      const snapshot = computed(() => {
+        void trigger.value
+        return registry.values().map(t => t.value).join(',')
+      })
+
+      expect(snapshot.value).toBe('initial-a,initial-b')
+
+      trigger.value++
+      await nextTick()
+      expect(snapshot.value).toBe('initial-a,initial-b')
+
+      registry.upsert('b', { value: 'updated-b' })
+      await nextTick()
+      expect(snapshot.value).toBe('initial-a,updated-b')
+    })
+
+    it('should propagate registers to computeds iterating keys() after a non-iteration re-run', async () => {
+      const registry = createRegistry({ reactive: true })
+      const trigger = shallowRef(0)
+
+      registry.register({ id: 'a' })
+
+      const snapshot = computed(() => {
+        void trigger.value
+        return [...registry.keys()].join(',')
+      })
+
+      expect(snapshot.value).toBe('a')
+
+      trigger.value++
+      await nextTick()
+      expect(snapshot.value).toBe('a')
+
+      registry.register({ id: 'b' })
+      await nextTick()
+      expect(snapshot.value).toBe('a,b')
+    })
+
+    it('should propagate upserts to computeds iterating entries() after a non-iteration re-run', async () => {
+      const registry = createRegistry<{ value: string }>({ reactive: true })
+      const trigger = shallowRef(0)
+
+      registry.register({ id: 'a', value: 'initial-a' })
+      registry.register({ id: 'b', value: 'initial-b' })
+
+      const snapshot = computed(() => {
+        void trigger.value
+        return registry.entries().map(([id, t]) => `${id}=${t.value}`).join(',')
+      })
+
+      expect(snapshot.value).toBe('a=initial-a,b=initial-b')
+
+      trigger.value++
+      await nextTick()
+      expect(snapshot.value).toBe('a=initial-a,b=initial-b')
+
+      registry.upsert('a', { value: 'updated-a' })
+      await nextTick()
+      expect(snapshot.value).toBe('a=updated-a,b=initial-b')
     })
   })
 })
