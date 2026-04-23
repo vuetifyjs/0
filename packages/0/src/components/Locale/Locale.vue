@@ -60,15 +60,21 @@
     as = 'div',
   } = defineProps<LocaleProps>()
 
+  interface ScopedLocale {
+    _rootT?: (key: string, ...params: unknown[]) => string
+    _rootN?: (value: number) => string
+  }
+
   const parent = useLocale()
+  const scopedParent = parent as typeof parent & ScopedLocale
 
   const selectedId = toRef(() => locale)
   const selectedItem = toRef(() => parent.get(locale))
 
   // Resolve the root t/n (the actual adapter, not a nested Locale wrapper).
   // Each Locale propagates _rootT/_rootN so nested scopes bypass intermediate wrappers.
-  const rootT = (parent as any)._rootT ?? parent.t
-  const rootN = (parent as any)._rootN ?? parent.n
+  const rootT = scopedParent._rootT ?? parent.t
+  const rootN = scopedParent._rootN ?? parent.n
 
   // The adapter's t() reads selectedId from selectedIds. Temporarily swap
   // selectedIds so the adapter resolves messages for the scoped locale.
