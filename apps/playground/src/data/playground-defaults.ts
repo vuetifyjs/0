@@ -62,6 +62,7 @@ import './uno.config.ts'${importBlock}
 ${setupBlock}
 const theme = createThemePlugin({
   default: '${defaultTheme}',
+  reactive: true,
   themes: {
     light: {
       dark: false,

@@ -815,16 +815,32 @@ export function createRegistry<
       }
     }
 
-    const updated: E = {
-      ...existing,
-      ...patch,
-      id,
-      index: existing.index,
-      value,
-      valueIsIndex,
+    let updated: E
+
+    if (reactive) {
+      // keep computed downstream refs stay reactive
+      Object.assign(existing, patch, {
+        id,
+        index: existing.index,
+        value,
+        valueIsIndex,
+      })
+
+      collection.set(id, existing)
+      updated = existing
+    } else {
+      updated = {
+        ...existing,
+        ...patch,
+        id,
+        index: existing.index,
+        value,
+        valueIsIndex,
+      }
+
+      collection.set(id, updated)
     }
 
-    collection.set(id, updated)
     invalidate()
     emit('update:ticket', updated)
     if (event) emit(event, id)

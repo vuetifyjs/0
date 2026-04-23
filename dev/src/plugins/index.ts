@@ -56,6 +56,7 @@ export function registerPlugins (app: App) {
         md: materialPalette,
         tw: tailwindPalette,
       },
+      reactive: true,
       themes: {
         corporateIndigo: {
           colors: {
@@ -126,6 +127,7 @@ export function registerPlugins (app: App) {
           },
         },
         dark: {
+          dark: true,
           colors: {
             'primary': '{palette.tw.violet.400}',
             'secondary': '{palette.tw.slate.400}',
