@@ -19,7 +19,7 @@ import { IN_BROWSER } from '#v0/constants/globals'
 import { Temporal } from '@js-temporal/polyfill'
 
 // Utilities
-import { isNull, isNullOrUndefined, isNumber, isString } from '#v0/utilities'
+import { isFunction, isNull, isNullOrUndefined, isNumber, isString } from '#v0/utilities'
 
 // Types
 import type { DateAdapter } from './adapter'
@@ -52,7 +52,7 @@ interface IntlLocaleWithWeekInfo {
 function deriveWeekInfo (locale: string): { firstDay: number, minimalDays: number } {
   try {
     const loc: IntlLocaleWithWeekInfo = new Intl.Locale(locale)
-    const info = typeof loc.getWeekInfo === 'function' ? loc.getWeekInfo() : loc.weekInfo
+    const info = isFunction(loc.getWeekInfo) ? loc.getWeekInfo() : loc.weekInfo
     // Intl weekInfo.firstDay: 1=Mon...7=Sun, convert to 0=Sun...6=Sat
     const firstDay = info?.firstDay === 7 ? 0 : info?.firstDay ?? 0
     const minimalDays = info?.minimalDays ?? deriveMinimalDays(locale)
