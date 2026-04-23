@@ -128,7 +128,7 @@ export interface LocalePluginOptions extends LocaleContextOptions {
 export function createLocale (_options: LocaleOptions = {}): LocaleContext {
   const { adapter: externalAdapter, messages = {}, fallback: fallbackLocale, ...options } = _options
   const tokens = createTokens(messages)
-  const registry = createSingle(options)
+  const registry = createSingle({ ...options, reactive: true })
 
   for (const id in messages) {
     registry.register({ id })
