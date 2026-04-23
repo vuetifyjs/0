@@ -16,12 +16,8 @@
   // Types
   import type { AtomProps } from '#v0/components/Atom'
   import type { PopoverReturn } from '#v0/composables/usePopover'
-  import type { Ref } from 'vue'
 
-  export interface PopoverContext extends PopoverReturn {
-    /** @deprecated Use `isOpen` instead */
-    isSelected: Ref<boolean>
-  }
+  export type PopoverContext = PopoverReturn
 
   export interface PopoverRootProps extends AtomProps {
     /** Unique identifier for the popover (auto-generated if not provided) */
@@ -62,10 +58,7 @@
 
   const popover = usePopover({ id: _id, isOpen: isSelected })
 
-  providePopoverContext({
-    ...popover,
-    isSelected,
-  })
+  providePopoverContext(popover)
 
   const slotProps = toRef((): PopoverRootSlotProps => ({
     id: popover.id,
