@@ -280,7 +280,7 @@ export interface ThemePluginOptions extends ThemeContextOptions {
 export function createTheme (_options: ThemeOptions = {}): ThemeContext {
   const { themes = {}, palette = {}, foreground: genForeground, ...options } = _options
   const tokens = createTokens({ palette, ...themes }, { flat: true })
-  const registry = createSingle<SingleTicketInput<ThemeColors>, SingleTicket<SingleTicketInput<ThemeColors>>>(options)
+  const registry = createSingle<SingleTicketInput<ThemeColors>, SingleTicket<SingleTicketInput<ThemeColors>>>({ ...options, reactive: true })
 
   for (const id in themes) {
     const { colors: value, ...theme } = themes[id]!
