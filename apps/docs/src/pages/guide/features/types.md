@@ -117,13 +117,10 @@ Valid element types for Vue's `h()` render function. Includes HTML tag names, co
 type DOMElement = Parameters<typeof h>[0]
 ```
 
-## GenericObject / UnknownObject
+## UnknownObject
 
-Two record types for different safety levels:
+Object with string keys and unknown values for generic record handling. Requires type narrowing at the use site, which catches more bugs at compile time than `Record<string, any>`.
 
 ```ts
-type GenericObject = Record<string, any>
 type UnknownObject = Record<string, unknown>
 ```
-
-Prefer `UnknownObject` — it requires type narrowing and catches more bugs at compile time.

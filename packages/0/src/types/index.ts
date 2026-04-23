@@ -17,18 +17,10 @@ import type { h } from 'vue'
 export type DOMElement = Parameters<typeof h>[0]
 
 /**
- * Generic object with string keys and any values
- *
- * @remarks
- * Use sparingly - prefer `UnknownObject` for better type safety.
- */
-export type GenericObject = Record<string, unknown>
-
-/**
  * Object with string keys and unknown values
  *
  * @remarks
- * Safer alternative to `GenericObject` that requires type narrowing.
+ * Object with string keys and unknown values for generic record handling.
  */
 export type UnknownObject = Record<string, unknown>
 
