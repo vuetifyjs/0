@@ -427,8 +427,8 @@ describe('createDataTable', () => {
       expect(table.grouping.isOpen('Marketing')).toBe(false)
     })
 
-    it('enroll auto-opens groups', () => {
-      const table = createTable({ groupBy: 'department', enroll: true })
+    it('openAll auto-opens groups', () => {
+      const table = createTable({ groupBy: 'department', openAll: true })
 
       expect(table.grouping.isOpen('Engineering')).toBe(true)
       expect(table.grouping.isOpen('Design')).toBe(true)
@@ -592,10 +592,10 @@ describe('createDataTable', () => {
     })
   })
 
-  describe('enroll with async items', () => {
+  describe('openAll with async items', () => {
     it('should auto-open groups when items arrive', async () => {
       const items = ref<User[]>([])
-      const table = createTable({ items, groupBy: 'department', enroll: true })
+      const table = createTable({ items, groupBy: 'department', openAll: true })
       expect(table.grouping.groups.value.length).toBe(0)
       items.value = [...users]
       await nextTick()
@@ -606,7 +606,7 @@ describe('createDataTable', () => {
 
     it('should ignore empty watcher updates before items arrive', async () => {
       const items = ref<User[]>([])
-      const table = createTable({ items, groupBy: 'department', enroll: true })
+      const table = createTable({ items, groupBy: 'department', openAll: true })
 
       // Trigger watch with still-empty items (should be no-op via line 581)
       items.value = []

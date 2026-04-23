@@ -7,7 +7,7 @@
     items: employees,
     columns,
     groupBy: 'department',
-    enroll: true,
+    openAll: true,
     mandate: true,
     firstSortOrder: 'asc',
     selectStrategy: 'page',

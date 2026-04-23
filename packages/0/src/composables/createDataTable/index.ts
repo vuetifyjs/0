@@ -189,7 +189,7 @@ export interface DataTableOptions<T extends Record<string, unknown>> {
   /** Column key to group rows by */
   groupBy?: keyof T & string
   /** Auto-open all groups on creation. @default false */
-  enroll?: boolean
+  openAll?: boolean
   /** Allow multiple rows expanded simultaneously. @default true */
   expandMultiple?: boolean
   /** Locale for sorting (defaults to useLocale's selected locale or browser default) */
@@ -293,7 +293,7 @@ export function createDataTable<T extends Record<string, unknown>> (
     selectStrategy = 'page',
     itemSelectable,
     groupBy,
-    enroll = false,
+    openAll = false,
     expandMultiple = true,
     locale: initialLocale,
     adapter = new ClientAdapter<T>(),
@@ -597,7 +597,7 @@ export function createDataTable<T extends Record<string, unknown>> (
     return result
   })
 
-  if (enroll) {
+  if (openAll) {
     for (const group of groups.value) {
       opened.add(group.key)
     }

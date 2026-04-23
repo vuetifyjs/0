@@ -103,7 +103,7 @@ describe('createDataTable benchmarks', () => {
         selectStrategy: 'all',
         itemSelectable: 'active',
         groupBy: 'department',
-        enroll: true,
+        openAll: true,
       })
     })
   })
@@ -266,8 +266,8 @@ describe('createDataTable benchmarks', () => {
       table.grouping.closeAll()
     })
 
-    bench('Create with enroll (1,000 items)', () => {
-      const table = createTable({ items: ROWS_1K, groupBy: 'department', enroll: true })
+    bench('Create with openAll (1,000 items)', () => {
+      const table = createTable({ items: ROWS_1K, groupBy: 'department', openAll: true })
       void table.grouping.groups.value
     })
   })

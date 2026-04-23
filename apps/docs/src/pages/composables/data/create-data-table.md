@@ -291,7 +291,7 @@ const table = createDataTable({
   items,
   columns,
   groupBy: 'department',
-  enroll: true,  // Auto-open all groups
+  openAll: true,  // Auto-open all groups
 })
 
 table.grouping.groups.value  // [{ key: 'Engineering', value: 'Engineering', items: [...] }]
@@ -368,7 +368,7 @@ A grouped table with row selection, custom numeric sort, and salary range filter
 
 **Key patterns:**
 
-- `groupBy: 'department'` groups rows automatically — `enroll: true` opens all groups on creation
+- `groupBy: 'department'` groups rows automatically — `openAll: true` opens all groups on creation
 - `table.grouping.isOpen(key)` checks visibility, `toggle(key)` flips it
 - `itemSelectable: 'active'` disables checkboxes for inactive employees
 - `mandate: true` ensures a sort column is always active (never clears to unsorted)
