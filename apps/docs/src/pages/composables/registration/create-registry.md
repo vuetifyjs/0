@@ -131,7 +131,7 @@ Each branch extends the base ticket pattern with domain-specific capabilities. S
 | `dispose()` | Remove all tickets and clear event listeners |
 
 > [!TIP] Need reactive collections?
-> Use `useProxyRegistry(registry)` with `events: true` for reliable template reactivity. While `reactive: true` makes the internal collection a `shallowReactive` Map, `values()` caches its result — after any re-render not triggered by a collection mutation, Vue loses the reactive dependency on the collection, and future mutations won't trigger re-renders. See [useProxyRegistry](/composables/reactivity/use-proxy-registry) for details.
+> Pass `{ reactive: true }` to make `keys()`, `values()`, `entries()`, `size`, and per-ticket field reads reactive in templates and computeds. Upserts on existing tickets propagate through the `shallowReactive` wrapping. For event-driven snapshots — or when you want `deep: true` tracking or need reactivity without wrapping the tickets themselves — use [useProxyRegistry](/composables/reactivity/use-proxy-registry) with `{ events: true }`.
 
 ## Examples
 
