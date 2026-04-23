@@ -12,4 +12,5 @@
  * ```
  */
 
+export * from '#v0/composables/useNotifications'
 export * from '#v0/composables/useNotifications/adapters'
