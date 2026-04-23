@@ -326,6 +326,60 @@ Layer 2: Complex orchestrators
 
 Extension is always via `...spread`. 100% consistent across all 27 registry-based composables. [intent:147]
 
+## Plugins and Reactive Defaults
+
+Scope: how a plugin (or a high-level factory composable) that wraps a registry should configure it — specifically, when to pass `reactive: true` internally vs. leave it off.
+
+### Two tiers
+
+- **Primitives** — `createRegistry`, `createModel`, `createSelection`, `createSingle`, `createGroup`, `createStep`. Expose the `reactive` switch. Callers opt in based on their use case.
+- **Plugins** — `useTheme`, `useLocale`, `useFeatures`, `useNotifications`, `useLogger`, `usePermissions`. App-level services created via `createPluginContext`. Ship a named user-facing contract (e.g. "the theme updates reactively"). Bake reactivity in; consumers never see the registry underneath.
+
+High-level factory composables that aren't plugins but expose a similar contract — `createForm`, `createInput`, `createBreadcrumbs` — follow the same convention as plugins. The distinction that matters for this section isn't plugin-vs-factory, it's whether the composable ships a Vue-reactive contract or leaves the reactivity choice to its caller.
+
+### The rule
+
+**Any plugin (or plugin-shaped factory) whose public surface is reachable from a template or a computed passes `reactive: true` to its internal registry.** "Public surface reachable from a template or a computed" means any of:
+
+- `registry.values()` / `keys()` / `entries()` iteration (directly or via `for (const x of …)` inside a computed)
+- `registry.size` exposed as a getter
+- `registry.get(id)` called from consumer code or from a wrapper helper (`features.variation(id)`, `theme.colors` resolving through ticket value)
+- Per-ticket field reads when consumers hold ticket references
+
+### Why
+
+Users of `useTheme()` expect `theme.colors` to track, `v-for="name in theme.keys()"` to update, and `theme.upsert()` to propagate. Making any of that contingent on a plugin-configuration flag they've never heard of is a footgun. The cost of `reactive: true` on a bounded UI-adjacent registry is negligible; the cost of leaking the opt-in up to consumers is a class of latent bugs (#208 was one of them).
+
+### Two-registry architecture
+
+Many plugins keep two internal collections — a small reactive ID registry and a large non-reactive lookup table:
+
+| Role | Reactive? | Example |
+|---|---|---|
+| Small ID registry (who's registered, who's selected) | `reactive: true` | `useTheme`'s theme registry, `useLocale`'s locale registry, `useFeatures`'s flag registry |
+| Large lookup table (palette tokens, translation strings) | default (non-reactive) | `createTokens({ palette, ...themes })`, `createTokens(messages)` |
+
+The big table stays cheap (plain `Map`, O(1) lookups). Runtime mutations that need reactivity flow through the small registry (e.g. replace a theme's `value` object via `upsert`), not through the tokens. Tokens provide alias dereferencing at read time.
+
+This split is why `useTheme` and `useLocale` work fine even though their reactive registries are bounded to 2–20 entries — the bulk data never needed reactivity in the first place.
+
+### Escape hatch for unbounded collections
+
+For plugins whose registries can grow without bound (notifications, data tables, logs, queues), `reactive: true` is still the right default but consider exposing an explicit opt-out on the plugin options. The shape is "bake in reactive behavior, let the consumer turn it off if they hit a scale wall." `useNotifications` is the canonical example.
+
+### `useProxyRegistry` vs `reactive: true`
+
+Both deliver reactive iteration; they're complementary, not competing. Pick based on what else you need:
+
+| Want | Use |
+|---|---|
+| Reactive iteration **plus** per-ticket field mutations via `upsert` | `reactive: true` on the registry |
+| Reactive iteration without wrapping each ticket in a proxy | `useProxyRegistry(registry, { events: true })` |
+| `{ deep: true }` tracking on registered tickets | `useProxyRegistry(registry, { deep: true })` |
+| Reactive snapshot driven by explicit registry events | `useProxyRegistry` |
+
+`createGroup` bakes in `useProxyRegistry` internally for its derived reactive selection state; plugins like `useTheme` bake in `reactive: true` for the ticket-level mutation path. The choice is per-composable, based on which capability the contract needs.
+
 ## Scope Guards (PHILOSOPHY §4.6)
 
 | Composable type | Guard |

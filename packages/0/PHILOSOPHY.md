@@ -506,21 +506,22 @@ function useFoo (options: UseFooOptions = {}) {
 
 **Do not apply to.** Configuration that is fixed at construction time — `namespace`, `events`, `adapter`. Those stay plain `T`. [intent:133]
 
-### 4.4 The `reactive: true` footgun
+### 4.4 Registry reactivity
 
-Do not recommend `reactive: true` on a registry as a way to make `v-for` render reactively over registry values. The option wraps internal state in a `reactive()` proxy, but the `values()` / `keys()` / `entries()` methods cache their results; Vue's dep-tracking breaks across that cache boundary and templates iterating the cached array will not re-render on mutation. [intent:253]
+`reactive: true` on a registry wraps the internal collection as `shallowReactive` and each registered ticket as a `shallowReactive` proxy. When this option is set, `values()` / `keys()` / `entries()` skip their result cache and re-iterate on every call, so Vue's dep tracking holds across computed re-runs. Template iteration, `registry.size` reads, `get(id)` reads, and per-ticket field mutations via `upsert` all propagate to consumers. [intent:253]
 
-The correct pattern is `useProxyRegistry(registry, { events: true })`, which exposes `proxy.values` / `proxy.keys` / `proxy.entries` as *properties* on a shallow-reactive object and drives updates from `register:ticket` / `unregister:ticket` / `update:ticket` events. [intent:254]
+`useProxyRegistry(registry, { events: true })` exposes `proxy.values` / `proxy.keys` / `proxy.entries` / `proxy.size` as properties on a shallow-reactive object, updated from `register:ticket` / `unregister:ticket` / `update:ticket` / `clear:registry` / `reindex:registry` events. It does not wrap the tickets themselves, and supports `{ deep: true }` for nested tracking. [intent:254]
 
-```ts
-// Wrong — reactive: true breaks v-for dep tracking through values() cache
-const registry = createRegistry({ reactive: true })
+Both are valid and complementary. Pick based on the consumer's actual need:
 
-// Right — useProxyRegistry exposes reactive properties
-const registry = createRegistry({ events: true })
-const proxy = useProxyRegistry(registry)
-// template: <div v-for="v in proxy.values" :key="v.id">
-```
+| Want | Use |
+|---|---|
+| Reactive iteration **plus** per-ticket field mutations via `upsert` | `reactive: true` on the registry |
+| Reactive iteration without wrapping each ticket in a proxy | `useProxyRegistry(registry, { events: true })` |
+| `{ deep: true }` tracking on registered tickets | `useProxyRegistry(registry, { deep: true, events: true })` |
+| Explicit event-driven snapshot semantics, no registry-level reactivity | `useProxyRegistry` |
+
+Plugins bake one or the other in internally — see `.claude/rules/composables.md` "Plugins and Reactive Defaults" for the convention. Primitives expose the choice to callers.
 
 ### 4.5 Scope cleanup contract
 
@@ -664,7 +665,7 @@ useProxyModel(context, model, { multiple })
 - You only need one derived value. `toRef(() => registry.size)` is cheaper.
 - You need deep reactivity through nested ticket properties. Pass `{ deep: true }` (opts into full `reactive()`), but prefer `toRef` over each nested property instead.
 
-**Do not substitute `reactive: true` on the registry itself.** That option breaks template dep tracking through the `values()` cache. See §4.4. [intent:253]
+**`reactive: true` vs `useProxyRegistry`.** Both deliver reactive iteration. Choose `reactive: true` on the registry when you also need `upsert`-driven per-ticket field mutations to propagate. Choose `useProxyRegistry` when you want event-driven snapshot semantics, `{ deep: true }` tracking, or reactive iteration without wrapping tickets. See §4.4. [intent:253]
 
 Canonical: `packages/0/src/composables/useProxyRegistry/index.ts`.
 
