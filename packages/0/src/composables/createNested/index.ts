@@ -24,7 +24,6 @@
  * ```
  */
 
-// Factories
 // Composables
 import { useContext } from '#v0/composables/createContext'
 import { createGroup } from '#v0/composables/createGroup'
