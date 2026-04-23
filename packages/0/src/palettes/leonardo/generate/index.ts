@@ -78,16 +78,18 @@ export function leonardo (seed: string, options: LeonardoGenerateOptions = {}): 
 
   const { ratios = DEFAULT_RATIOS, colorSpace = 'OKLCH' } = options
 
-  // @adobe/leonardo-contrast-colors has loose typings — string args are correct at runtime
   const color = new Color({
     name: 'primary',
-    colorKeys: [seed as never],
+    // @ts-expect-error leonardo's Color accepts hex strings at runtime but types require a tuple
+    colorKeys: [seed],
     ratios,
-    colorSpace: colorSpace as never,
+    colorSpace,
   })
 
-  const light = new Theme({ colors: [color], backgroundColor: '#ffffff' as never, lightness: 100 })
-  const dark = new Theme({ colors: [color], backgroundColor: '#121212' as never, lightness: 8 })
+  // @ts-expect-error leonardo's Theme.backgroundColor accepts hex strings at runtime
+  const light = new Theme({ colors: [color], backgroundColor: '#ffffff', lightness: 100 })
+  // @ts-expect-error leonardo's Theme.backgroundColor accepts hex strings at runtime
+  const dark = new Theme({ colors: [color], backgroundColor: '#121212', lightness: 8 })
 
   const lightColors = extractColors(light.contrastColors as unknown[])
   const darkColors = extractColors(dark.contrastColors as unknown[])
