@@ -73,7 +73,7 @@ pnpm dev:docs
 
 ### Project Structure
 
-```txt
+```text
 ├── packages/
 │   └── 0/              # @vuetify/v0 - main package
 │       ├── src/
@@ -139,7 +139,7 @@ Use descriptive branch names:
 
 Follow the [Conventional Commits](https://www.conventionalcommits.org/) format:
 
-```txt
+```text
 type(scope): subject
 ```
 

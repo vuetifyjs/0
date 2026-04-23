@@ -294,7 +294,7 @@ The analyzer scans your project and detects all imports from `@vuetify/v0`:
 
 After analyzing your project, the CLI generates a **personalized documentation URL**:
 
-```txt
+```text
 https://0.vuetifyjs.com/?features=Dialog,Avatar,useDisplay,...
 ```
 

@@ -32,7 +32,7 @@ The MIT License allows you to:
 
 ## Full License Text
 
-```txt LICENSE.md collapse
+```text LICENSE.md collapse
 The MIT License (MIT)
 
 Copyright (c) 2016-now Vuetify, LLC

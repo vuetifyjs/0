@@ -118,7 +118,7 @@ Devkey exposes a small, focused set of scripts:
 
 ## Project Structure
 
-```
+```text
 devkey/
 ├── public/                # Static assets served as-is
 ├── src/

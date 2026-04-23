@@ -284,7 +284,7 @@ Don't embed logic in components. Extract to composables, expose via slot props:
 
 Map utilities to semantic tokens, not raw colors:
 
-```txt
+```text
 // Bad: Raw colors
 'bg-blue-500'
 
@@ -309,7 +309,7 @@ const pref = storage.get('key', 'default')
 
 ## File Structure
 
-```txt
+```text
 apps/docs/
 ├── build/                 # Build-time plugins
 │   ├── generate-api.ts    # API extraction

@@ -53,13 +53,13 @@ claude mcp add --transport http vuetify-mcp https://mcp.vuetifyjs.com/mcp
 
 Or fetch docs directly in your session:
 
-```txt
+```text
 WebFetch https://0.vuetifyjs.com/llms-full.txt
 ```
 
 **Cursor / Windsurf** — Add to .cursorrules or configure MCP:
 
-```txt
+```text
 @https://0.vuetifyjs.com/llms.txt
 ```
 
@@ -67,7 +67,7 @@ See [Vuetify MCP](/guide/tooling/vuetify-mcp) for IDE configuration.
 
 **ChatGPT / Claude.ai** — Paste the URL in chat:
 
-```txt
+```text
 Read https://0.vuetifyjs.com/llms-full.txt and help me build a multi-select dropdown.
 ```
 
@@ -83,7 +83,7 @@ Read https://0.vuetifyjs.com/llms-full.txt and help me build a multi-select drop
 
 **Without MCP** — Fetch SKILL.md at session start:
 
-```txt
+```text
 WebFetch https://0.vuetifyjs.com/SKILL.md
 ```
 
