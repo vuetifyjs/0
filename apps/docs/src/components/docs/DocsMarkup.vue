@@ -49,7 +49,7 @@
       ]"
     >
       <span
-        v-if="title || (language && language !== 'text')"
+        v-if="title || language"
         class="absolute top-3 start-3 z-10 px-1.5 py-0.5 text-xs font-mono opacity-50"
         :class="{ 'uppercase': !title || hideFilename }"
       >
