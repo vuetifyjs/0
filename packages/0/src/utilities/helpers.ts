@@ -9,8 +9,13 @@
 // Constants
 import { IN_BROWSER } from '#v0/constants/globals'
 
+// Utilities
+import { useId as vueUseId } from 'vue'
+
 // Types
 import type { DeepPartial, ID } from '#v0/types'
+
+import { instanceExists } from './instance'
 
 /**
  * Checks if a value is a function
@@ -343,11 +348,6 @@ export function mergeDeep<T extends object> (target: T, ...sources: DeepPartial<
 
   return out as T
 }
-
-// Utilities
-import { useId as vueUseId } from 'vue'
-
-import { instanceExists } from './instance'
 
 let idCounter = 0
 
