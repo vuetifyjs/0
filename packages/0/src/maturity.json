@@ -272,6 +272,11 @@
       "category": "internal",
       "notes": "Internal factory for useRovingFocus and useVirtualFocus"
     },
+    "createEnrollable": {
+      "level": "draft",
+      "category": "internal",
+      "notes": "Internal factory for dual-mode toggleable roots (Checkbox, Switch, Toggle)"
+    },
     "createValidation": {
       "level": "preview",
       "since": "0.1.8",
