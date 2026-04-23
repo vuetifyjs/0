@@ -126,7 +126,7 @@ export function createFeatures (_options: FeatureOptions = {}): FeatureContext {
   const { features, ...options } = _options
 
   const tokens = createTokens(features, { flat: true })
-  const registry = createGroup({ ...options, events: true })
+  const registry = createGroup({ ...options, events: true, reactive: true })
 
   for (const [id, { value }] of tokens.entries()) {
     register({ id, value } as Partial<FeatureTicketInput>)
