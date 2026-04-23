@@ -187,7 +187,7 @@ describe('createDataTable', () => {
 
       const table = createTable({ items })
       table.sort.toggle('name')
-      const names = table.sortedItems.value.map(i => (i as any).name)
+      const names = table.sortedItems.value.map(i => (i as User).name)
       // Non-null values sorted first, null/undefined grouped at end
       expect(names).toEqual(['Alice', 'Bob', null, undefined])
     })
