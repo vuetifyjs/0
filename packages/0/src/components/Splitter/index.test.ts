@@ -284,14 +284,6 @@ describe('splitter', () => {
         expect(panel.element.style.flexShrink).toBe('0')
       })
 
-      it('should set overflow hidden', async () => {
-        const wrapper = twoPanel()
-        await nextTick()
-
-        const panel = wrapper.findComponent(SplitterPanel as any)
-        expect(panel.element.style.overflow).toBe('hidden')
-      })
-
       it('should set data-orientation attribute', async () => {
         const wrapper = twoPanel({ orientation: 'vertical' })
         await nextTick()
