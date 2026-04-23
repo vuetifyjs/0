@@ -786,14 +786,14 @@ describe('useDate', () => {
     // date-io parity tests (new methods)
     // ============================================
 
-    describe('isNull', () => {
+    describe('isNullish', () => {
       it('should return true for null', () => {
-        expect(adapter.isNull(null)).toBe(true)
+        expect(adapter.isNullish(null)).toBe(true)
       })
 
       it('should return false for valid date', () => {
         const date = adapter.date('2024-06-15T10:30:00')!
-        expect(adapter.isNull(date)).toBe(false)
+        expect(adapter.isNullish(date)).toBe(false)
       })
     })
 

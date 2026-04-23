@@ -382,10 +382,10 @@ app.use(
 ```
 
 > [!TIP]
-> The `isValid` and `isNull` methods are type predicates. This enables TypeScript to narrow types after validation:
+> The `isValid` and `isNullish` methods are type predicates. This enables TypeScript to narrow types after validation:
 > ```ts
 > const date = adapter.date(input)
-> if (!adapter.isNull(date) && adapter.isValid(date)) {
+> if (!adapter.isNullish(date) && adapter.isValid(date)) {
 >   // TypeScript knows `date` is Date here
 >   adapter.format(date, 'fullDate')
 > }

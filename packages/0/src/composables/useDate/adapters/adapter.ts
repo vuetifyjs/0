@@ -37,7 +37,7 @@ export interface DateAdapter<T = Temporal.PlainDateTime> {
   /** Check if value is a valid date (type predicate for narrowing) */
   isValid: (date: unknown) => date is T
   /** Check if value is null (type predicate for narrowing) */
-  isNull: (value: T | null) => value is null
+  isNullish: (value: T | null) => value is null
 
   // ============================================
   // Locale & Formatting

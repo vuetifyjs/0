@@ -270,7 +270,7 @@ export class Vuetify0DateAdapter implements DateAdapter<PlainDateTime> {
     return false
   }
 
-  isNull (value: PlainDateTime | null): value is null {
+  isNullish (value: PlainDateTime | null): value is null {
     return isNullOrUndefined(value)
   }
 
