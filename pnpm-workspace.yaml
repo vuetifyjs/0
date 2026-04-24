@@ -36,7 +36,7 @@ catalog:
   concurrently: ^9.2.1
   conventional-changelog-vuetify: ^2.0.2
   eslint: ^10.2.0
-  eslint-config-vuetify: 4.6.1
+  eslint-config-vuetify: 4.6.2
   eslint-plugin-vuejs-accessibility: ^2.5.0
   fflate: ^0.8.2
   happy-dom: ^20.8.9
