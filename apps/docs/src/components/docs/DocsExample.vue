@@ -201,8 +201,9 @@
       </DocsExampleDescription>
 
       <!-- Preview -->
-      <div class="p-2 bg-surface-tint">
-        <Splitter.Root :key="resetKey" class="w-full">
+      <div class="relative p-2 bg-surface-tint">
+        <AppDotGrid :coverage="60" :density="20" />
+        <Splitter.Root :key="resetKey" class="relative w-full">
           <Splitter.Panel
             class="bg-surface rounded-md overflow-hidden"
             :default-size="100"
