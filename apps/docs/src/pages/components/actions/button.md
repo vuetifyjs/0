@@ -29,11 +29,6 @@ The Button component renders as a native `<button>` by default (or an anchor, ro
 
 ::: example
 /components/button/basic
-
-### Basic Button
-
-A basic button with a click handler and an `<a>`-tag variant with hover effects.
-
 :::
 
 ## Anatomy
@@ -41,29 +36,20 @@ A basic button with a click handler and an `<a>`-tag variant with hover effects.
 ```vue Anatomy playground collapse no-filename
 <script setup lang="ts">
   import { Button } from '@vuetify/v0'
-  import { mdiSend } from '@mdi/js'
 </script>
 
 <template>
   <Button.Root>
-    <Button.Icon>
-      <svg viewBox="0 0 24 24"><path :d="mdiSend" /></svg>
-    </Button.Icon>
+    <Button.Icon />
 
-    <Button.Content>Submit</Button.Content>
+    <Button.Content />
 
-    <Button.Loading>...</Button.Loading>
+    <Button.Loading />
   </Button.Root>
 
   <Button.Group>
     <Button.Root>
-      A
-      <Button.HiddenInput name="choice" />
-    </Button.Root>
-
-    <Button.Root>
-      B
-      <Button.HiddenInput name="choice" />
+      <Button.HiddenInput />
     </Button.Root>
   </Button.Group>
 </template>
