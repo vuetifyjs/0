@@ -3,7 +3,7 @@
   import { useClipboard } from '@/composables/useClipboard'
   import { useCustomThemes, type CustomTheme } from '@/composables/useCustomThemes'
   import { useSettings } from '@/composables/useSettings'
-  import { PALETTE_ICONS, PALETTE_LABELS, PALETTES, useThemeToggle, type ThemePreference } from '@/composables/useThemeToggle'
+  import { useThemeToggle, type ThemePreference } from '@/composables/useThemeToggle'
 
   // Utilities
   import { computed, shallowRef } from 'vue'
@@ -41,12 +41,6 @@
     { id: 'deuteranopia', label: 'Deuteranopia', icon: 'theme-deuteranopia', theme: 'deuteranopia' },
     { id: 'tritanopia', label: 'Tritanopia', icon: 'theme-tritanopia', theme: 'tritanopia' },
   ]
-
-  const paletteOptions = PALETTES.map(id => ({
-    id,
-    label: PALETTE_LABELS[id],
-    icon: PALETTE_ICONS[id],
-  }))
 
   // Custom themes as options
   const customOptions = computed<ThemeOption[]>(() =>
@@ -173,22 +167,11 @@
         <div class="text-xs font-medium text-on-surface-variant mb-2">Palettes</div>
 
         <div class="grid grid-cols-2 gap-2">
-          <button
-            v-for="option in paletteOptions"
-            :key="option.id"
-            :aria-pressed="!toggle.isAccessibilityActive.value && toggle.palette.value === option.id"
-            :class="[
-              'flex items-center gap-2 px-3 py-2 rounded-lg border text-sm transition-colors',
-              !toggle.isAccessibilityActive.value && toggle.palette.value === option.id
-                ? 'border-primary bg-primary/10 text-primary'
-                : 'border-divider hover:border-primary/50 text-on-surface',
-            ]"
-            type="button"
-            @click="toggle.setPalette(option.id)"
-          >
-            <AppIcon :icon="option.icon" size="16" />
-            <span class="font-medium">{{ option.label }}</span>
-          </button>
+          <AppPaletteVuetify0Button />
+          <AppPaletteTailwindButton />
+          <AppPaletteMaterial3Button />
+          <AppPaletteRadixButton />
+          <AppPaletteAntDesignButton />
         </div>
       </div>
 
