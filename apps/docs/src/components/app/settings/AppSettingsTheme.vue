@@ -36,12 +36,6 @@
     custom?: boolean
   }
 
-  const modeOptions: ThemeOption[] = [
-    { id: 'system', label: 'System', icon: 'theme-system' },
-    { id: 'light', label: 'Light', icon: 'theme-light', theme: 'light' },
-    { id: 'dark', label: 'Dark', icon: 'theme-dark', theme: 'dark' },
-  ]
-
   const colorblindOptions: ThemeOption[] = [
     { id: 'protanopia', label: 'Protanopia', icon: 'theme-protanopia', theme: 'protanopia' },
     { id: 'deuteranopia', label: 'Deuteranopia', icon: 'theme-deuteranopia', theme: 'deuteranopia' },
@@ -168,22 +162,9 @@
         <div class="text-xs font-medium text-on-surface-variant mb-2">Mode</div>
 
         <div class="grid grid-cols-3 gap-2">
-          <button
-            v-for="option in modeOptions"
-            :key="option.id"
-            :aria-pressed="!toggle.isAccessibilityActive.value && toggle.mode.value === option.id"
-            :class="[
-              'flex items-center justify-center gap-2 px-3 py-2 rounded-lg border text-sm transition-colors',
-              !toggle.isAccessibilityActive.value && toggle.mode.value === option.id
-                ? 'border-primary bg-primary/10 text-primary'
-                : 'border-divider hover:border-primary/50 text-on-surface',
-            ]"
-            type="button"
-            @click="toggle.setMode(option.id)"
-          >
-            <AppIcon :icon="option.icon" size="16" />
-            <span>{{ option.label }}</span>
-          </button>
+          <AppThemeSystemButton />
+          <AppThemeLightButton />
+          <AppThemeDarkButton />
         </div>
       </div>
 
