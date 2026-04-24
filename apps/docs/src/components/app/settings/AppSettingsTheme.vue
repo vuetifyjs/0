@@ -36,12 +36,6 @@
     custom?: boolean
   }
 
-  const colorblindOptions: ThemeOption[] = [
-    { id: 'protanopia', label: 'Protanopia', icon: 'theme-protanopia', theme: 'protanopia' },
-    { id: 'deuteranopia', label: 'Deuteranopia', icon: 'theme-deuteranopia', theme: 'deuteranopia' },
-    { id: 'tritanopia', label: 'Tritanopia', icon: 'theme-tritanopia', theme: 'tritanopia' },
-  ]
-
   // Custom themes as options
   const customOptions = computed<ThemeOption[]>(() =>
     themes_.customThemes.value.map(t => ({
@@ -180,44 +174,10 @@
         <div class="text-xs font-medium text-on-surface-variant mb-2">Accessibility</div>
 
         <div class="flex gap-2">
-          <!-- High Contrast - larger button -->
-          <button
-            :aria-pressed="toggle.preference.value === 'high-contrast'"
-            :class="[
-              'flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg border text-sm transition-colors',
-              toggle.preference.value === 'high-contrast'
-                ? 'border-primary bg-primary/10 text-primary'
-                : 'border-divider hover:border-primary/50 text-on-surface',
-            ]"
-            type="button"
-            @click="toggle.setPreference('high-contrast')"
-          >
-            <AppIcon icon="theme-high-contrast" size="16" />
-            <span class="font-medium">High Contrast</span>
-          </button>
-
-          <!-- Colorblind themes - small color squares -->
-          <button
-            v-for="option in colorblindOptions"
-            :key="option.id"
-            :aria-label="`${option.label} theme`"
-            :aria-pressed="toggle.preference.value === option.id"
-            :class="[
-              'h-9 w-6 shrink-0 inline-flex items-center justify-center rounded border transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background',
-              toggle.preference.value === option.id
-                ? 'border-primary ring-2 ring-primary/50 opacity-100'
-                : 'opacity-50 hover:opacity-100',
-            ]"
-            :style="{
-              backgroundColor: themes[option.theme!].colors.primary,
-              color: themes[option.theme!].colors['on-primary'],
-            }"
-            :title="option.label"
-            type="button"
-            @click="toggle.setPreference(option.id)"
-          >
-            <AppIcon :icon="option.icon" size="14" />
-          </button>
+          <AppThemeHighContrastButton class="flex-1" />
+          <AppThemeProtanopiaButton />
+          <AppThemeDeuteranopiaButton />
+          <AppThemeTritanopiaButton />
         </div>
       </div>
 
