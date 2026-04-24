@@ -16,3 +16,12 @@
     </template>
   </InputError>
 </template>
+
+<style>
+.emerald-text-field__error {
+  font-family: Manrope, system-ui, -apple-system, sans-serif;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--emerald-error-500, #e5484d);
+}
+</style>
