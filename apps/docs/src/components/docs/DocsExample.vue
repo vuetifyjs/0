@@ -1,13 +1,15 @@
 <script setup lang="ts">
   // Framework
-  import { createOverflow, isUndefined, Select, Tabs } from '@vuetify/v0'
+  import { createOverflow, isUndefined, Popover, Select, Splitter, Tabs, Theme } from '@vuetify/v0'
 
   // Components
+  import { AppMenu } from '@/components/app/menu'
   import DocsSkeleton from './DocsSkeleton.vue'
 
   // Composables
   import { getMultiFileBinUrl } from '@/composables/bin'
   import { useExamples } from '@/composables/useExamples'
+  import { useLocalThemeToggle } from '@/composables/useLocalThemeToggle'
   import { usePlayground } from '@/composables/usePlayground'
 
   // Utilities
@@ -17,6 +19,8 @@
   // Types
   import type DocsExampleCodePaneType from './DocsExampleCodePane.vue'
   import type { ComponentPublicInstance } from 'vue'
+
+  import { themes } from '@/themes'
 
   export interface ExampleFile {
     name: string
@@ -88,6 +92,11 @@
   const peekExpanded = ref(false)
   const combinedView = ref(false)
   const resetKey = shallowRef(0)
+
+  // Per-example theme controller
+  const localToggle = useLocalThemeToggle()
+  const themeMenuOpen = shallowRef(false)
+  const swatchColor = toRef(() => themes[localToggle.currentThemeId.value]?.colors.primary ?? '#888')
 
   // Multi-file support
   const hasMultipleFiles = toRef(() => displayFiles.value && displayFiles.value.length > 1)
@@ -189,7 +198,7 @@
 
 <template>
   <div class="relative my-6" :class="peek && !hasMultipleFiles && 'mb-10'">
-    <div class="border border-divider rounded-lg overflow-hidden">
+    <div class="border border-divider rounded-lg [&>*:first-child]:rounded-t-lg [&>*:last-child]:rounded-b-lg [&>*:last-child]:overflow-hidden">
       <!-- Description -->
       <DocsExampleDescription
         v-if="hasDescription || title"
@@ -201,12 +210,50 @@
       </DocsExampleDescription>
 
       <!-- Preview -->
-      <div class="p-6 bg-surface" :class="hasDescription && !descriptionExpanded && 'pt-8'">
-        <div :key="resetKey">
-          <component :is="auto?.component" v-if="auto?.component" />
-          <slot v-else />
-        </div>
-      </div>
+      <Theme
+        as="div"
+        class="p-2 bg-surface-tint"
+        :theme="localToggle.currentThemeId.value"
+      >
+        <Splitter.Root :key="resetKey" class="w-full">
+          <Splitter.Panel
+            class="bg-surface rounded-md overflow-hidden"
+            :default-size="100"
+            :min-size="20"
+          >
+            <template #default="{ attrs }">
+              <div
+                v-bind="attrs"
+                class="min-w-0 p-6"
+                :class="hasDescription && !descriptionExpanded && 'pt-8'"
+              >
+                <component :is="auto?.component" v-if="auto?.component" />
+                <slot v-else />
+              </div>
+            </template>
+          </Splitter.Panel>
+
+          <Splitter.Handle v-slot="{ state, attrs }" label="Resize example" renderless>
+            <div
+              v-bind="attrs"
+              class="relative shrink-0 w-1 mx-1 rounded-full transition-colors hover:bg-primary data-[state=drag]:bg-primary"
+              :class="[
+                state !== 'drag' && 'cursor-col-resize',
+                attrs['aria-valuenow'] < attrs['aria-valuemax'] ? 'bg-divider' : 'bg-transparent',
+              ]"
+            >
+              <span
+                class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-1 w-4 h-6 rounded inline-flex items-center justify-center bg-surface text-on-surface border border-divider"
+                :class="state === 'drag' ? 'cursor-grabbing' : 'cursor-grab'"
+              >
+                <AppIcon icon="drag-vertical" :size="16" />
+              </span>
+            </div>
+          </Splitter.Handle>
+
+          <Splitter.Panel :default-size="0" :min-size="0" />
+        </Splitter.Root>
+      </Theme>
 
       <!-- Code toggle button -->
       <div v-if="!peek && (resolvedCode || displayFiles?.length)" class="border-t border-divider bg-surface-tint">
@@ -241,6 +288,26 @@
         </span>
 
         <div class="ml-auto flex items-center gap-1">
+          <Popover.Root v-model="themeMenuOpen">
+            <Popover.Activator
+              aria-label="Example theme"
+              class="size-[30px] rounded inline-flex items-center justify-center hover:bg-surface-tint transition-colors"
+              title="Example theme"
+            >
+              <span
+                class="size-4 rounded-sm"
+                :style="{ backgroundColor: swatchColor }"
+              />
+            </Popover.Activator>
+            <Popover.Content
+              position-area="bottom span-right"
+              position-try="bottom span-right, bottom span-left, top span-right, top span-left"
+            >
+              <AppMenu.Shell title="Theme" @close="themeMenuOpen = false">
+                <AppThemeMenu :controller="localToggle" density="compact" />
+              </AppMenu.Shell>
+            </Popover.Content>
+          </Popover.Root>
           <button
             class="size-[30px] rounded text-on-surface-variant hover:bg-surface-variant transition-colors inline-flex items-center justify-center"
             title="Reset example"
@@ -360,6 +427,26 @@
             </span>
 
             <div class="ml-auto flex items-center gap-1">
+              <Popover.Root v-model="themeMenuOpen">
+                <Popover.Activator
+                  aria-label="Example theme"
+                  class="size-[30px] rounded inline-flex items-center justify-center hover:bg-surface-tint transition-colors"
+                  title="Example theme"
+                >
+                  <span
+                    class="size-4 rounded-sm"
+                    :style="{ backgroundColor: swatchColor }"
+                  />
+                </Popover.Activator>
+                <Popover.Content
+                  position-area="bottom span-right"
+                  position-try="bottom span-right, bottom span-left, top span-right, top span-left"
+                >
+                  <AppMenu.Shell title="Theme" @close="themeMenuOpen = false">
+                    <AppThemeMenu :controller="localToggle" density="compact" />
+                  </AppMenu.Shell>
+                </Popover.Content>
+              </Popover.Root>
               <button
                 class="size-[30px] rounded text-on-surface-variant hover:bg-surface-variant transition-colors inline-flex items-center justify-center"
                 title="Reset example"
