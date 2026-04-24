@@ -14,6 +14,7 @@
 <template>
   <AppThemeButton
     icon="vuetify-0"
+    justify="start"
     label="Vuetify0"
     :pressed
     @click="toggle.setPalette('vuetify0')"

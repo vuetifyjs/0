@@ -14,6 +14,7 @@
 <template>
   <AppThemeButton
     icon="theme-ant-design"
+    justify="start"
     label="Ant Design"
     :pressed
     @click="toggle.setPalette('ant-design')"

@@ -14,6 +14,7 @@
 <template>
   <AppThemeButton
     icon="theme-radix"
+    justify="start"
     label="Radix"
     :pressed
     @click="toggle.setPalette('radix')"

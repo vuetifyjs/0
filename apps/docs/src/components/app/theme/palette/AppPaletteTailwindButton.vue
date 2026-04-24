@@ -14,6 +14,7 @@
 <template>
   <AppThemeButton
     icon="theme-tailwind"
+    justify="start"
     label="Tailwind"
     :pressed
     @click="toggle.setPalette('tailwind')"

@@ -14,6 +14,7 @@
 <template>
   <AppThemeButton
     icon="theme-material-3"
+    justify="start"
     label="Material"
     :pressed
     @click="toggle.setPalette('material-3')"
