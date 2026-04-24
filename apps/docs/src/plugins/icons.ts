@@ -242,19 +242,20 @@ export const [useIconContext, provideIconContext, context] = createTokensContext
     'folder': mdiFolderOutline,
     'folder-open': mdiFolderOpenOutline,
     'folder-zip': mdiFolderZipOutline,
-    // Tri-tone avocado cross-section. Paths stack in array order (skin first, pit last).
-    // Tuple shape: [d, opacity, fill?]. Skin/flesh omit fill → inherit currentColor (score-driven hue).
-    // Pit has an explicit brown so it reads as a seed regardless of the outer score color.
-    // Wrapped as a TokenAlias so the multi-path array passes TokenCollection type.
+    // Avocado icon adapted from Twemoji (CC-BY 4.0, github.com/twitter/twemoji).
+    // Original 36x36 viewBox scaled to 24x24 for AppIcon. Six layered paths — two greens
+    // for skin depth, two paler greens for flesh highlights, two browns for pit.
+    // All colors hardcoded so the avocado reads as an avocado regardless of theme.
+    // Tuple shape: [d, opacity, fill?]. Fill overrides currentColor when provided.
     'freshness-avocado': {
       $type: 'icon',
       $value: [
-        // Skin: pear silhouette — narrow top, bulbous bottom
-        ['M 12 2 C 8 2 5 6 5 12 C 5 18 8 22 12 22 C 16 22 19 18 19 12 C 19 6 16 2 12 2 Z', 0.3],
-        // Flesh: inset ~2 units, slightly smaller pear
-        ['M 12 4 C 9 4 7 7 7 12 C 7 17 9.5 20 12 20 C 14.5 20 17 17 17 12 C 17 7 15 4 12 4 Z', 0.5],
-        // Pit: brown seed in upper-middle
-        ['M 12 7 C 9.5 7 8 9 8 11.5 C 8 14 9.5 16 12 16 C 14.5 16 16 14 16 11.5 C 16 9 14.5 7 12 7 Z', 1, '#6b3e1f'],
+        ['M23.333 3.936c1.596 4.028-.959 13.695-7 17.667c-6.04 3.971-13.597 2.382-15.398-4.295c-1.113-4.124 1.86-7.147 7.901-11.118C14.877 2.218 21.76-.035 23.333 3.936', 1, '#3e721d'],
+        ['M13.737 17.353c-4.349 3.031-10.191 3.433-12.313.388c-2.122-3.044.279-8.385 4.629-11.416c4.348-3.03 14.634-6.531 16.756-3.487c2.122 3.047-4.723 11.484-9.072 14.515', 1, '#3e721d'],
+        ['M13.21 17.719c-3.838 2.675-8.988 2.065-10.86-.623S2.667 9.649 6.505 6.975c3.837-2.674 13.505-6.176 15.379-3.489c1.871 2.687-3.217 10.783-8.673 14.233', 1, '#a6d388'],
+        ['M12.113 15.951c-3.004 2.093-6.626 2.085-8.091-.018c-1.467-2.103-.22-5.503 2.784-7.597c3.005-2.094 10.557-4.825 12.023-2.723s-3.711 8.244-6.717 10.337', 1, '#c6e5b3'],
+        ['M7.441 8.325c2.32-1.555 4.921-.997 6.532.663c.955 .985-.587 3.588-2.906 5.143c-2.319 1.553-5.179 1.175-5.493.487c-.96-2.105-.451-4.739 1.867-6.293', 1, '#662113'],
+        ['M8.714 8.737c1.007-.675 2.276-.546 2.836.287c.558 .834.196 2.058-.811 2.733c-1.007 .673-2.276.545-2.835-.289c-.559-.835-.196-2.057 .811-2.732', 1, '#7c3225'],
       ],
     },
     'create': mdiCreation,
