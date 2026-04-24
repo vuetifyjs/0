@@ -31,9 +31,6 @@
  * ```
  */
 
-// Globals
-import { IN_BROWSER } from '#v0/constants/globals'
-
 // Composables
 import {
   useDocumentEventListener,
@@ -50,6 +47,9 @@ import { toArray } from '#v0/composables/toArray'
 // Types
 import type { MaybeArray } from '#v0/types'
 import type { MaybeRefOrGetter, Ref } from 'vue'
+
+// Globals
+import { IN_BROWSER } from '#v0/constants/globals'
 
 export type ClickOutsideElement = HTMLElement | null | undefined
 export type ClickOutsideTarget = MaybeRefOrGetter<ClickOutsideElement>

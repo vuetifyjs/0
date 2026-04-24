@@ -11,11 +11,9 @@
  */
 
 <script lang="ts">
-  // Constants
-  import { IN_BROWSER } from '#v0/constants/globals'
-
   // Components
   import { Atom } from '#v0/components/Atom'
+
   import SliderHiddenInput from './SliderHiddenInput.vue'
 
   // Composables
@@ -33,6 +31,9 @@
   import type { AtomProps } from '#v0/components/Atom'
   import type { SliderContext } from '#v0/composables/createSlider'
   import type { MaybeRefOrGetter, Ref } from 'vue'
+
+  // Constants
+  import { IN_BROWSER } from '#v0/constants/globals'
 
   export interface SliderRootContext extends SliderContext {
     /** Unique identifier */

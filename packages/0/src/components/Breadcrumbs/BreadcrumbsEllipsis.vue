@@ -11,11 +11,9 @@
  */
 
 <script lang="ts">
-  // Constants
-  import { IN_BROWSER } from '#v0/constants/globals'
-
   // Components
   import { Atom } from '#v0/components/Atom'
+
   import { useBreadcrumbsRoot } from './BreadcrumbsRoot.vue'
 
   // Utilities
@@ -24,6 +22,9 @@
   // Types
   import type { AtomProps } from '#v0/components/Atom'
   import type { ID } from '#v0/types'
+
+  // Constants
+  import { IN_BROWSER } from '#v0/constants/globals'
 
   export interface BreadcrumbsEllipsisProps extends AtomProps {
     /** Namespace for dependency injection */

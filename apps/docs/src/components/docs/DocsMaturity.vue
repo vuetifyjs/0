@@ -1,12 +1,12 @@
 <script setup lang="ts">
-  import maturityData from '#v0/maturity.json'
-
   // Framework
   import { createDataTable, createGroup, createSingle } from '@vuetify/v0'
 
   // Utilities
   import { toRef } from 'vue'
   import { RouterLink } from 'vue-router'
+
+  import maturityData from '#v0/maturity.json'
 
   // Types
   type Level = 'draft' | 'preview' | 'stable' | 'mature' | 'deprecated'

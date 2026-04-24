@@ -30,9 +30,6 @@
  * ```
  */
 
-// Constants
-import { IN_BROWSER } from '#v0/constants/globals'
-
 // Composables
 import { useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
@@ -45,6 +42,9 @@ import { computed, onScopeDispose, readonly, ref, shallowRef, watch } from 'vue'
 // Types
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { ComputedRef, Ref, ShallowRef } from 'vue'
+
+// Constants
+import { IN_BROWSER } from '#v0/constants/globals'
 
 export type VirtualDirection = 'forward' | 'reverse'
 export type VirtualState = 'loading' | 'empty' | 'error' | 'ok'

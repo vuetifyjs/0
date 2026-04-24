@@ -6,14 +6,14 @@
  * and common transformations. All exports are tree-shakeable.
  */
 
-// Constants
-import { IN_BROWSER } from '#v0/constants/globals'
-
 // Utilities
 import { useId as vueUseId } from 'vue'
 
 // Types
 import type { DeepPartial, ID } from '#v0/types'
+
+// Constants
+import { IN_BROWSER } from '#v0/constants/globals'
 
 import { instanceExists } from './instance'
 

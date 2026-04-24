@@ -28,9 +28,6 @@
  * ```
  */
 
-// Constants
-import { IN_BROWSER } from '#v0/constants/globals'
-
 // Composables
 import { useWindowEventListener } from '#v0/composables/useEventListener'
 
@@ -41,6 +38,9 @@ import { onScopeDispose, shallowReadonly, shallowRef, toRef, toValue, watch } fr
 // Types
 import type { Modifier } from './parsing'
 import type { MaybeRefOrGetter, Ref } from 'vue'
+
+// Constants
+import { IN_BROWSER } from '#v0/constants/globals'
 
 import { splitKeyCombination, splitKeySequence, MODIFIERS } from './parsing'
 

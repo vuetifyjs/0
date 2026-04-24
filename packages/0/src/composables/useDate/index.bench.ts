@@ -109,11 +109,11 @@ describe('useDate benchmarks', () => {
       })
 
       bench('set components', () => {
-        let _date = testDate
+        const _date = testDate
 
-        _date = adapter.setYear(_date, 2025)
-        _date = adapter.setMonth(_date, 0)
-        _date = adapter.setDate(_date, 1)
+        adapter.setYear(_date, 2025)
+        adapter.setMonth(_date, 0)
+        adapter.setDate(_date, 1)
       })
     })
 

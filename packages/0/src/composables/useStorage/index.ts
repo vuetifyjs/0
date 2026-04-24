@@ -26,9 +26,6 @@
  * ```
  */
 
-// Globals
-import { IN_BROWSER } from '#v0/constants/globals'
-
 // Composables
 import { createPluginContext } from '#v0/composables/createPlugin'
 import { useWindowEventListener } from '#v0/composables/useEventListener'
@@ -43,6 +40,9 @@ import { ref, watch } from 'vue'
 // Types
 import type { StorageAdapter } from '#v0/composables/useStorage/adapters'
 import type { Ref } from 'vue'
+
+// Globals
+import { IN_BROWSER } from '#v0/constants/globals'
 
 export interface StorageContext {
   /** Check if a key exists in storage */

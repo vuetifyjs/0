@@ -30,9 +30,6 @@
  * ```
  */
 
-// Globals
-import { SUPPORTS_INTERSECTION_OBSERVER } from '#v0/constants/globals'
-
 // Composables
 import { createObserver } from '#v0/composables/createObserver'
 
@@ -43,6 +40,9 @@ import { shallowReadonly, shallowRef } from 'vue'
 import type { ObserverReturn } from '#v0/composables/createObserver'
 import type { MaybeElementRef } from '#v0/composables/toElement'
 import type { Ref } from 'vue'
+
+// Globals
+import { SUPPORTS_INTERSECTION_OBSERVER } from '#v0/constants/globals'
 
 export interface IntersectionObserverEntry {
   boundingClientRect: DOMRectReadOnly

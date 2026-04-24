@@ -9,11 +9,9 @@
  */
 
 <script lang="ts">
-  // Constants
-  import { IN_BROWSER } from '#v0/constants/globals'
-
   // Components
   import { Atom } from '#v0/components/Atom'
+
   import { useSplitterRoot } from './SplitterRoot.vue'
 
   // Composables
@@ -28,6 +26,9 @@
   // Types
   import type { AtomProps } from '#v0/components/Atom'
   import type { SplitterOrientation } from './SplitterRoot.vue'
+
+  // Constants
+  import { IN_BROWSER } from '#v0/constants/globals'
 
   export interface SplitterHandleProps extends AtomProps {
     disabled?: boolean

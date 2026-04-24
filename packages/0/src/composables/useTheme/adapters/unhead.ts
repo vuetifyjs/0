@@ -2,9 +2,6 @@
  * @module useTheme/adapters/unhead
  */
 
-// Globals
-import { IN_BROWSER } from '#v0/constants/globals'
-
 // Utilities
 import { isNull, isString } from '#v0/utilities'
 import { onScopeDispose, watch } from 'vue'
@@ -14,6 +11,9 @@ import type { ID } from '#v0/types'
 import type { Colors } from '../index'
 import type { ThemeAdapterSetupContext } from './adapter'
 import type { App } from 'vue'
+
+// Globals
+import { IN_BROWSER } from '#v0/constants/globals'
 
 import { ThemeAdapter } from './adapter'
 

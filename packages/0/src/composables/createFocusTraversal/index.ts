@@ -19,9 +19,6 @@
  * ```
  */
 
-// Constants
-import { IN_BROWSER } from '#v0/constants/globals'
-
 // Utilities
 import { isUndefined } from '#v0/utilities'
 import { shallowRef, toValue } from 'vue'
@@ -29,6 +26,9 @@ import { shallowRef, toValue } from 'vue'
 // Types
 import type { ID } from '#v0/types'
 import type { MaybeRefOrGetter, ShallowRef } from 'vue'
+
+// Constants
+import { IN_BROWSER } from '#v0/constants/globals'
 
 export interface TraversalItem {
   id: ID

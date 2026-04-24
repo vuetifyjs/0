@@ -13,8 +13,6 @@
  * @see https://github.com/dmtrKovalenko/date-io
  */
 
-// Constants
-import { IN_BROWSER } from '#v0/constants/globals'
 // Polyfill
 import { Temporal } from '@js-temporal/polyfill'
 
@@ -23,6 +21,9 @@ import { isFunction, isNull, isNullOrUndefined, isNumber, isString } from '#v0/u
 
 // Types
 import type { DateAdapter } from './adapter'
+
+// Constants
+import { IN_BROWSER } from '#v0/constants/globals'
 
 type PlainDateTime = Temporal.PlainDateTime
 

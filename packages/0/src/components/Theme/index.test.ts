@@ -1,10 +1,11 @@
-// Composables
-import { createThemePlugin, useTheme } from '#v0/composables'
 import { describe, expect, it } from 'vitest'
 
 // Utilities
 import { mount } from '@vue/test-utils'
 import { defineComponent, h, inject } from 'vue'
+
+// Composables
+import { createThemePlugin, useTheme } from '#v0/composables'
 
 import { Theme } from './index'
 

@@ -1,6 +1,3 @@
-// Globals
-import { IN_BROWSER } from '#v0/constants/globals'
-
 // Utilities
 import { isNull, isString } from '#v0/utilities'
 import { onScopeDispose, watch } from 'vue'
@@ -8,6 +5,9 @@ import { onScopeDispose, watch } from 'vue'
 // Types
 import type { RtlAdapter, RtlAdapterSetupContext } from './adapter'
 import type { App } from 'vue'
+
+// Globals
+import { IN_BROWSER } from '#v0/constants/globals'
 
 export class Vuetify0RtlAdapter implements RtlAdapter {
   setup <T extends RtlAdapterSetupContext>(

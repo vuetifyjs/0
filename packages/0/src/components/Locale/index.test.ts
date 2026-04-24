@@ -1,10 +1,11 @@
-// Composables
-import { createLocalePlugin, useLocale } from '#v0/composables'
 import { describe, expect, it } from 'vitest'
 
 // Utilities
 import { mount } from '@vue/test-utils'
 import { defineComponent, h } from 'vue'
+
+// Composables
+import { createLocalePlugin, useLocale } from '#v0/composables'
 
 import { Locale } from './index'
 

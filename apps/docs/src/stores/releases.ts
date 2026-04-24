@@ -64,7 +64,6 @@ export const useReleasesStore = defineStore('releases', {
       this.isLoading = true
       this.error = null
 
-      let data: GitHubRelease[] = []
       try {
         const res = await fetch(`${url}/github/releases?page=${this.page}&repo=v0`, {
           method: 'GET',
@@ -73,28 +72,28 @@ export const useReleasesStore = defineStore('releases', {
         if (!res.ok) {
           throw new Error(`HTTP ${res.status}`)
         }
-        data = await res.json()
+
+        const data: GitHubRelease[] = await res.json()
+        const formatted: Release[] = []
+        for (const release of data) {
+          const r = this.format(release)
+          formatted.push(r)
+          this.releases.push(r)
+        }
+
+        // Cache first page only
+        if (this.page === 1) {
+          storage.set('page-1', formatted)
+        }
+
+        this.page++
       } catch (error: unknown) {
         logger.error('Failed to fetch releases', error)
         this.error = 'Failed to load releases. Please try again.'
-        this.isLoading = false
         return
+      } finally {
+        this.isLoading = false
       }
-
-      const formatted: Release[] = []
-      for (const release of data) {
-        const r = this.format(release)
-        formatted.push(r)
-        this.releases.push(r)
-      }
-
-      // Cache first page only
-      if (this.page === 1) {
-        storage.set('page-1', formatted)
-      }
-
-      this.isLoading = false
-      this.page++
     },
     async find (tag: string): Promise<Release | undefined> {
       if (!tag.startsWith('v')) tag = `v${tag}`

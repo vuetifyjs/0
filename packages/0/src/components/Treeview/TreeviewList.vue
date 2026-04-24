@@ -10,11 +10,9 @@
  */
 
 <script lang="ts">
-  // Constants
-  import { IN_BROWSER } from '#v0/constants/globals'
-
   // Components
   import { Atom } from '#v0/components/Atom'
+
   import { useTreeviewRoot } from './TreeviewRoot.vue'
 
   // Composables
@@ -28,6 +26,9 @@
   // Types
   import type { RovingFocusReturn } from '#v0/composables/useRovingFocus'
   import type { TreeviewListProps, TreeviewListSlotProps } from './types'
+
+  // Constants
+  import { IN_BROWSER } from '#v0/constants/globals'
 
   export type TreeviewListContext = RovingFocusReturn
 

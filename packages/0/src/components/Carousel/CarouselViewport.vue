@@ -11,11 +11,9 @@
  */
 
 <script lang="ts">
-  // Constants
-  import { IN_BROWSER } from '#v0/constants/globals'
-
   // Components
   import { Atom } from '#v0/components/Atom'
+
   import { useCarouselRoot, type CarouselTicket } from './CarouselRoot.vue'
 
   // Composables
@@ -32,6 +30,9 @@
 
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
+
+  // Constants
+  import { IN_BROWSER } from '#v0/constants/globals'
 
   export interface CarouselViewportProps extends AtomProps {
     /** Namespace for connecting to parent Carousel.Root */

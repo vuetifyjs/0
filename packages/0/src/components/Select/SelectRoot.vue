@@ -11,11 +11,9 @@
  */
 
 <script lang="ts">
-  // Globals
-  import { IN_BROWSER } from '#v0/constants/globals'
-
   // Components
   import { Atom } from '#v0/components/Atom'
+
   import SelectHiddenInput from './SelectHiddenInput.vue'
 
   // Composables
@@ -36,6 +34,9 @@
   import type { VirtualFocusReturn } from '#v0/composables/useVirtualFocus'
   import type { ID } from '#v0/types'
   import type { MaybeRefOrGetter, Ref } from 'vue'
+
+  // Globals
+  import { IN_BROWSER } from '#v0/constants/globals'
 
   export interface SelectContext {
     /** Whether the dropdown is open */

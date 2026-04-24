@@ -27,9 +27,6 @@
  * ```
  */
 
-// Globals
-import { IN_BROWSER } from '#v0/constants/globals'
-
 // Composables
 import { useContext } from '#v0/composables/createContext'
 import { createSelection } from '#v0/composables/createSelection'
@@ -55,6 +52,9 @@ import type { VirtualFocusReturn } from '#v0/composables/useVirtualFocus'
 import type { MaybeArray, ID } from '#v0/types'
 import type { ComboboxAdapterInterface } from './adapters'
 import type { MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
+
+// Globals
+import { IN_BROWSER } from '#v0/constants/globals'
 
 export type { ComboboxAdapterContext, ComboboxAdapterInterface, ComboboxAdapterResult } from './adapters'
 

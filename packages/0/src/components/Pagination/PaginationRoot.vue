@@ -22,9 +22,6 @@
  */
 
 <script lang="ts">
-  // Constants
-  import { IN_BROWSER } from '#v0/constants/globals'
-
   // Components
   import { Atom } from '#v0/components/Atom'
 
@@ -43,6 +40,9 @@
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
   import type { PaginationContext, PaginationTicket } from '#v0/composables/createPagination'
   import type { RegistryContext } from '#v0/composables/createRegistry'
+
+  // Constants
+  import { IN_BROWSER } from '#v0/constants/globals'
 
   export const [usePaginationRoot, providePaginationRoot] = createContext<PaginationContext>()
   export const [usePaginationControls, providePaginationControls] = createContext<RegistryContext>({ suffix: 'controls' })

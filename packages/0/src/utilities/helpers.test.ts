@@ -171,6 +171,7 @@ describe('helpers', () => {
       it('should return true for undefined', () => {
         expect(isUndefined(undefined)).toBe(true)
         expect(isUndefined(void 0)).toBe(true)
+        // eslint-disable-next-line no-unassigned-vars
         let undef
         expect(isUndefined(undef)).toBe(true)
       })

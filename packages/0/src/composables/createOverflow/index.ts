@@ -28,9 +28,6 @@
  * ```
  */
 
-// Globals
-import { IN_BROWSER } from '#v0/constants/globals'
-
 // Composables
 import { useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
@@ -43,6 +40,9 @@ import { computed, shallowRef, toRef, toValue } from 'vue'
 // Types
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { ComputedRef, MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
+
+// Globals
+import { IN_BROWSER } from '#v0/constants/globals'
 
 export interface OverflowOptions {
   /**

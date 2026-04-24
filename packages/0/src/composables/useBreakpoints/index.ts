@@ -25,9 +25,6 @@
  * ```
  */
 
-// Constants
-import { IN_BROWSER, SUPPORTS_MATCH_MEDIA } from '#v0/constants/globals'
-
 // Composables
 import { createPluginContext } from '#v0/composables/createPlugin'
 import { useWindowEventListener } from '#v0/composables/useEventListener'
@@ -39,6 +36,9 @@ import { onScopeDispose, readonly, shallowRef, watch } from 'vue'
 
 // Types
 import type { ShallowRef } from 'vue'
+
+// Constants
+import { IN_BROWSER, SUPPORTS_MATCH_MEDIA } from '#v0/constants/globals'
 
 export type BreakpointName = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl'
 

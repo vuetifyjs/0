@@ -12,9 +12,6 @@
  */
 
 <script lang="ts">
-  // Constants
-  import { IN_BROWSER } from '#v0/constants/globals'
-
   // Components
   import { Atom } from '#v0/components/Atom'
 
@@ -34,6 +31,9 @@
   import type { ID } from '#v0/types'
   import type { BreadcrumbsRootContext, BreadcrumbsTicket } from './types'
   import type { ShallowRef } from 'vue'
+
+  // Constants
+  import { IN_BROWSER } from '#v0/constants/globals'
 
   export type { BreadcrumbsRootContext, BreadcrumbsTicket, BreadcrumbsTicketType } from './types'
 

@@ -1,6 +1,7 @@
 <script setup lang="ts">
-  import { IN_BROWSER } from '#v0/constants/globals'
   import { useHead } from '@unhead/vue'
+
+  import { IN_BROWSER } from '#v0/constants/globals'
 
   const target = import.meta.env.VITE_PLAYGROUND_URL ?? 'https://v0play.vuetifyjs.com'
   const redirect = `${target}/${IN_BROWSER ? window.location.hash : ''}`

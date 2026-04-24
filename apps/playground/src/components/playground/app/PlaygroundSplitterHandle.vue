@@ -1,12 +1,12 @@
 <script setup lang="ts">
-  // Constants
-  import { IN_BROWSER } from '#v0/constants/globals'
-
   // Framework
   import { SplitterHandle, useSplitterRoot } from '@vuetify/v0'
 
   // Utilities
   import { watch } from 'vue'
+
+  // Constants
+  import { IN_BROWSER } from '#v0/constants/globals'
 
   const {
     direction,
