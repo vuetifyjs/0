@@ -36,12 +36,14 @@
       >
         {{ isActive ? 'Stop Tracking' : 'Start Tracking' }}
       </button>
+
       <button
         class="px-4 py-2 rounded-lg bg-surface-variant text-on-surface-variant text-sm"
         @click="onReset"
       >
         Reset
       </button>
+
       <span
         class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs"
         :class="isActive ? 'bg-success/15 text-success' : 'bg-surface-variant text-on-surface-variant'"
@@ -56,10 +58,12 @@
         <div class="text-2xl font-mono font-medium text-on-surface">{{ x }}</div>
         <div class="text-xs text-on-surface-variant mt-1">X position</div>
       </div>
+
       <div class="p-3 rounded-lg border border-divider text-center">
         <div class="text-2xl font-mono font-medium text-on-surface">{{ y }}</div>
         <div class="text-xs text-on-surface-variant mt-1">Y position</div>
       </div>
+
       <div class="p-3 rounded-lg border border-divider text-center">
         <div class="text-2xl font-mono font-medium text-on-surface">{{ moves }}</div>
         <div class="text-xs text-on-surface-variant mt-1">Move events</div>

@@ -42,6 +42,7 @@
   <div class="space-y-4">
     <div>
       <label class="block text-xs text-on-surface-variant mb-1.5">Active role</label>
+
       <div class="flex gap-1.5">
         <button
           v-for="r in roles"
@@ -64,6 +65,7 @@
             <th class="text-left px-3 py-2 text-xs text-on-surface-variant font-medium">
               Subject
             </th>
+
             <th
               v-for="action in actions"
               :key="action"
@@ -73,6 +75,7 @@
             </th>
           </tr>
         </thead>
+
         <tbody>
           <tr
             v-for="row in grid"
@@ -82,6 +85,7 @@
             <td class="px-3 py-2 font-medium text-on-surface">
               {{ row.subject }}
             </td>
+
             <td
               v-for="check in row.checks"
               :key="check.action"
@@ -105,6 +109,7 @@
       <p class="text-[10px] uppercase tracking-wider text-on-surface-variant/60 mb-2">
         Context-aware check
       </p>
+
       <div class="text-xs space-y-1">
         <p class="text-on-surface-variant">
           editor + delete + post (owner):
@@ -112,6 +117,7 @@
             {{ permissions.can('editor', 'delete', 'post', { isOwner: true }) }}
           </span>
         </p>
+
         <p class="text-on-surface-variant">
           editor + delete + post (not owner):
           <span class="font-medium" :class="permissions.can('editor', 'delete', 'post', { isOwner: false }) ? 'text-success' : 'text-error'">

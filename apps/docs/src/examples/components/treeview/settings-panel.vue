@@ -71,6 +71,7 @@
         <p class="font-medium text-on-surface">{{ active.label }}</p>
         <p class="mt-1 text-on-surface-variant text-xs leading-relaxed">{{ active.description }}</p>
       </template>
+
       <p v-else class="text-on-surface-variant text-xs italic">Click a setting to see its description.</p>
     </div>
   </div>

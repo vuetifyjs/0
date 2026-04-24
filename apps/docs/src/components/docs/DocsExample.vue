@@ -203,6 +203,7 @@
       <!-- Preview -->
       <div class="relative p-2 bg-surface-tint">
         <AppDotGrid :coverage="60" :density="20" />
+
         <Splitter.Root :key="resetKey" class="relative w-full">
           <Splitter.Panel
             class="bg-surface rounded-md overflow-hidden"
@@ -256,9 +257,11 @@
           <AppLoaderIcon v-if="isLoading" variant="orbit" />
           <AppIcon v-else-if="showCode && hasHighlightedCode" icon="chevron-up" :size="16" />
           <AppIcon v-else class="transition-colors group-hover:text-primary" icon="code" :size="16" />
+
           <span v-if="hasMultipleFiles" class="ml-auto opacity-60 font-mono text-[0.8125rem]">
             {{ displayFiles!.length }} file(s)
           </span>
+
           <span v-else-if="language" class="ml-auto opacity-60 font-mono text-[0.8125rem]">{{ language }}</span>
         </button>
       </div>

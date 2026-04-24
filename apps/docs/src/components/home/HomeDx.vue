@@ -126,6 +126,7 @@
             :style="{ background: swatch.color }"
             :title="swatch.label"
           />
+
           <span class="text-xs opacity-40 ml-1">+{{ Object.keys(themes).length - 6 }} more</span>
         </div>
 

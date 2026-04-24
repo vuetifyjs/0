@@ -104,6 +104,7 @@
             class="size-8 rounded-md border border-black/10"
             :style="{ backgroundColor: color }"
           />
+
           <span class="text-[10px]">{{ name }}</span>
         </div>
       </div>

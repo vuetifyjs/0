@@ -20,9 +20,12 @@
             class="w-3 h-3 rounded-full"
             :class="isHydrated ? 'bg-success' : 'bg-error'"
           />
+
           <span class="text-sm font-medium">isHydrated</span>
         </div>
+
         <span class="font-mono text-xs text-on-surface-variant">{{ isHydrated }}</span>
+
         <p class="text-xs text-on-surface-variant">
           True after root component mounts
         </p>
@@ -34,9 +37,12 @@
             class="w-3 h-3 rounded-full"
             :class="isSettled ? 'bg-success' : 'bg-error'"
           />
+
           <span class="text-sm font-medium">isSettled</span>
         </div>
+
         <span class="font-mono text-xs text-on-surface-variant">{{ isSettled }}</span>
+
         <p class="text-xs text-on-surface-variant">
           True one tick after hydration, safe for animations
         </p>
@@ -59,15 +65,19 @@
           'i-lucide-clock text-error': status === 'pending',
         }"
       />
+
       <div>
         <div class="font-medium capitalize">{{ status }}</div>
+
         <div class="text-xs text-on-surface-variant">
           <template v-if="status === 'settled'">
             App is fully hydrated and settled. Safe to run animations and transitions.
           </template>
+
           <template v-else-if="status === 'hydrated'">
             Root mounted but waiting for nextTick to settle.
           </template>
+
           <template v-else>
             Waiting for root component to mount.
           </template>
@@ -77,6 +87,7 @@
 
     <div class="flex flex-col gap-2">
       <div class="text-xs font-medium text-on-surface-variant uppercase tracking-wide">Lifecycle</div>
+
       <div class="flex items-center gap-2">
         <template v-for="(step, index) in ['SSR', 'hydrate()', 'nextTick', 'settle()']" :key="step">
           <div
@@ -92,6 +103,7 @@
           >
             {{ step }}
           </div>
+
           <span v-if="index < 3" class="i-lucide-chevron-right text-on-surface-variant text-xs" />
         </template>
       </div>

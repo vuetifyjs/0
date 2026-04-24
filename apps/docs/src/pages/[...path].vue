@@ -64,6 +64,7 @@
 
       <div class="relative px-4 py-4 overflow-hidden">
         <AppDotGrid :coverage="60" :density="18" origin="bottom left" />
+
         <p class="text-sm text-on-surface-variant mb-3">
           Maybe you searched for...
         </p>
@@ -102,6 +103,7 @@
         class="text-on-surface-variant shrink-0"
         icon="search"
       />
+
       <input
         v-model="query"
         class="flex-1 bg-transparent border-none outline-none text-on-surface placeholder:text-on-surface-tint"

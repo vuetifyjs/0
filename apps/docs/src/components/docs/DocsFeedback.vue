@@ -99,6 +99,7 @@
       class="flex items-center gap-4"
     >
       <span class="text-sm text-on-surface-variant">Was this page helpful?</span>
+
       <div class="flex gap-1">
         <button
           v-for="option in RATING_OPTIONS"
@@ -122,12 +123,14 @@
       <p class="text-sm text-on-surface-variant mb-3">
         {{ isPositive(rating) ? 'Great! What did you find most useful?' : 'Sorry to hear that. How can we improve?' }}
       </p>
+
       <textarea
         v-model="comment"
         class="w-full px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm resize-none focus:outline-none focus:border-primary"
         :placeholder="isPositive(rating) ? 'Optional: Tell us what helped...' : 'Optional: Tell us what was missing or confusing...'"
         rows="3"
       />
+
       <div class="flex justify-end gap-2 mt-3">
         <button
           class="px-3 py-1.5 rounded-lg text-sm text-on-surface-variant hover:text-on-surface transition-colors"
@@ -137,6 +140,7 @@
         >
           Skip
         </button>
+
         <button
           class="px-4 py-1.5 rounded-lg bg-primary text-on-primary text-sm hover:opacity-90 transition-opacity disabled:opacity-50"
           :disabled="isSubmitting"

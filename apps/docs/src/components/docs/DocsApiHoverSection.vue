@@ -12,6 +12,7 @@
 <template>
   <div class="popover-section">
     <span class="popover-section-label">{{ title }}</span>
+
     <div class="popover-section-content">
       <slot />
     </div>

@@ -33,6 +33,7 @@
     <!-- Component definition preview -->
     <div class="p-4 bg-surface-variant rounded-lg">
       <p class="text-xs text-on-surface-variant mb-3 font-mono">MyButton.vue</p>
+
       <div class="flex flex-wrap gap-3">
         <Atom
           :as
@@ -63,6 +64,7 @@
     <!-- Variant showcase -->
     <div>
       <p class="text-sm font-medium mb-2">Variants</p>
+
       <div class="flex flex-wrap gap-2">
         <Atom as="button" class="my-button my-button--filled my-button--md my-button--primary">Filled</Atom>
         <Atom as="button" class="my-button my-button--outlined my-button--md my-button--primary">Outlined</Atom>
@@ -73,6 +75,7 @@
     <!-- Size showcase -->
     <div>
       <p class="text-sm font-medium mb-2">Sizes</p>
+
       <div class="flex flex-wrap items-center gap-2">
         <Atom as="button" class="my-button my-button--filled my-button--sm my-button--primary">Small</Atom>
         <Atom as="button" class="my-button my-button--filled my-button--md my-button--primary">Medium</Atom>
@@ -83,6 +86,7 @@
     <!-- Color showcase -->
     <div>
       <p class="text-sm font-medium mb-2">Colors</p>
+
       <div class="flex flex-wrap gap-2">
         <Atom as="button" class="my-button my-button--filled my-button--md my-button--primary">Primary</Atom>
         <Atom as="button" class="my-button my-button--filled my-button--md my-button--secondary">Secondary</Atom>

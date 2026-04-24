@@ -27,6 +27,7 @@
         <svg class="size-5" viewBox="0 0 24 24">
           <path :d="icon" fill="currentColor" />
         </svg>
+
         <span>{{ group.isAllSelected.value ? 'Clear all' : 'Select all' }}</span>
       </button>
 

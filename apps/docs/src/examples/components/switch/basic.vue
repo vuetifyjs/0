@@ -19,6 +19,7 @@
         />
       </Switch.Track>
     </Switch.Root>
+
     <span>Enable notifications</span>
   </label>
 </template>

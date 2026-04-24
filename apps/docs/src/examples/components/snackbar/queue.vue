@@ -139,6 +139,7 @@
             <Snackbar.Content class="flex-1">
               {{ item.subject }}
             </Snackbar.Content>
+
             <Snackbar.Close
               v-show="hovered || i === 0"
               class="p-1 -mr-1 opacity-70 hover:opacity-100 shrink-0"

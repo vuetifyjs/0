@@ -103,6 +103,7 @@
           >
             <div class="text-[10px] op-80">{{ stat.label }}</div>
             <div class="text-sm font-bold">{{ stat.value }}</div>
+
             <span
               v-if="isCopied(definition.themes[mode]?.colors?.[stat.bg] as string)"
               class="text-[10px] op-70"
@@ -123,6 +124,7 @@
             @click="onCopy(definition.themes[mode]?.colors?.[task.bg] as string)"
           >
             <span class="text-xs truncate mr-2">{{ task.label }}</span>
+
             <span
               class="text-[10px] font-medium rounded-full px-2 py-0.5 shrink-0"
               :style="{

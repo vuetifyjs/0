@@ -309,9 +309,11 @@
             icon="chevron-right"
             :size="14"
           />
+
           <span class="capitalize">{{ group.key }}</span>
           <span class="text-on-surface-variant font-normal">({{ group.items.length }})</span>
           <span class="flex-1" />
+
           <span
             class="inline-block size-2 min-w-2 rounded-[2px] shrink-0"
             :style="{ backgroundColor: blend(group.items) }"
@@ -331,6 +333,7 @@
               <div class="text-sm font-medium text-on-surface truncate">
                 {{ item.name }}
               </div>
+
               <div class="flex items-center gap-2 mt-1">
                 <span
                   class="inline-block px-1.5 py-0 rounded-full text-[10px] font-medium"
@@ -340,11 +343,13 @@
                     item.type === 'utility' && 'bg-success/15 text-success',
                   ]"
                 >{{ item.type }}</span>
+
                 <span v-if="item.since" class="text-[10px] text-on-surface-variant font-mono">
                   v{{ item.since }}
                 </span>
               </div>
             </div>
+
             <span
               class="inline-flex items-center gap-1 shrink-0"
               :style="{ color: levels[item.level]?.color }"
@@ -374,6 +379,7 @@
           <AppIcon :icon="config.icon" :size="12" />
           {{ summary[key] }} {{ config.label.toLowerCase() }}
         </span>
+
         <span class="flex-1" />
         <span class="font-semibold text-on-surface">{{ filtered.length }} total</span>
       </div>
@@ -403,11 +409,13 @@
               <span v-if="col.sortable" class="ml-0.5 text-primary">{{ sortIcon(col.key) }}</span>
             </th>
           </tr>
+
           <tr v-else class="relative z-1 bg-background">
             <th class="py-2 px-4 text-left text-xs font-normal text-on-surface-variant/50 italic" :colspan="table.columns.length">
               <div class="flex items-center gap-2">
                 Select a group to see individual items
                 <span class="flex-1" />
+
                 <span
                   class="inline-block size-2 min-w-2 rounded-[2px] shrink-0"
                   :style="{ backgroundColor: blend(filtered) }"
@@ -512,6 +520,7 @@
                   :href="`/releases/?version=v${item.since}`"
                   target="_blank"
                 >v{{ item.since }} ↗</a>
+
                 <span v-else class="text-on-surface-variant/50">—</span>
               </td>
             </tr>
@@ -572,6 +581,7 @@
               :size="14"
               :style="{ color: levels[item.from].color }"
             />
+
             <span
               class="text-sm font-semibold"
               :style="{ color: levels[item.from].color }"

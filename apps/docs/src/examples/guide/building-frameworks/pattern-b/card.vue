@@ -40,6 +40,7 @@
         <ExpansionPanel.Header class="my-card__header">
           <ExpansionPanel.Activator class="my-card__activator">
             <span class="my-card__title">{{ card.title }}</span>
+
             <svg
               class="my-card__icon"
               :class="{ 'rotate-180': isSelected }"

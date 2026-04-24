@@ -238,6 +238,7 @@
           :data-theme="theme.isDark.value ? 'dark' : 'light'"
           v-html="highlighter.highlightedCode.value"
         />
+
         <pre v-else class="flex-1 p-4 text-xs md:text-sm overflow-x-auto leading-relaxed m-0"><code>{{ currentCode }}</code></pre>
       </div>
 

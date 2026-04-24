@@ -62,12 +62,14 @@
     <!-- Name -->
     <div>
       <label class="block text-xs font-medium text-on-surface-variant mb-1">Name</label>
+
       <input
         v-model="name"
         class="w-full px-3 py-2 text-sm border rounded-lg bg-surface text-on-surface outline-none transition-colors"
         :class="nameValidation.errors.value.length > 0 ? 'border-error' : 'border-divider focus:border-primary'"
         placeholder="Jane Doe"
       >
+
       <p v-if="nameValidation.errors.value.length > 0" class="mt-1 text-xs text-error">
         {{ nameValidation.errors.value[0] }}
       </p>
@@ -76,6 +78,7 @@
     <!-- Email -->
     <div>
       <label class="block text-xs font-medium text-on-surface-variant mb-1">Email</label>
+
       <input
         v-model="email"
         class="w-full px-3 py-2 text-sm border rounded-lg bg-surface text-on-surface outline-none transition-colors"
@@ -83,6 +86,7 @@
         placeholder="jane@example.com"
         type="email"
       >
+
       <p v-if="emailValidation.errors.value.length > 0" class="mt-1 text-xs text-error">
         {{ emailValidation.errors.value[0] }}
       </p>
@@ -91,6 +95,7 @@
     <!-- Message -->
     <div>
       <label class="block text-xs font-medium text-on-surface-variant mb-1">Message</label>
+
       <textarea
         v-model="message"
         class="w-full px-3 py-2 text-sm border rounded-lg bg-surface text-on-surface outline-none resize-none transition-colors"
@@ -98,6 +103,7 @@
         placeholder="Tell us what you think..."
         rows="3"
       />
+
       <p v-if="messageValidation.errors.value.length > 0" class="mt-1 text-xs text-error">
         {{ messageValidation.errors.value[0] }}
       </p>
@@ -131,6 +137,7 @@
     >
       <template v-if="submitted">Form submitted successfully.</template>
       <template v-else-if="status === 'invalid'">Please fix the errors above.</template>
+
       <template v-else>
         {{ form.size }} fields registered &middot; validation: {{ form.isValid.value ?? 'not run' }}
       </template>

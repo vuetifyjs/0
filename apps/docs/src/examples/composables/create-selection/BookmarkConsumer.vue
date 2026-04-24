@@ -80,17 +80,20 @@
         class="flex-1 min-w-30 px-3 py-1.5 text-sm rounded-lg border border-divider bg-surface text-on-surface placeholder:text-on-surface-variant outline-none focus:border-primary"
         placeholder="Title"
       >
+
       <input
         v-model="url"
         class="flex-1 min-w-30 px-3 py-1.5 text-sm rounded-lg border border-divider bg-surface text-on-surface placeholder:text-on-surface-variant outline-none focus:border-primary"
         placeholder="https://..."
       >
+
       <input
         v-model="tags"
         class="flex-1 min-w-30 px-3 py-1.5 text-sm rounded-lg border border-divider bg-surface text-on-surface placeholder:text-on-surface-variant outline-none focus:border-primary"
         placeholder="Tags (comma-separated)"
         @keydown.enter="onAdd"
       >
+
       <button
         class="px-3 py-1.5 text-sm rounded-lg bg-primary text-on-primary hover:bg-primary/90 disabled:opacity-40 transition-colors"
         :disabled="!title.trim() || !url.trim()"
@@ -111,6 +114,7 @@
       >
         All
       </button>
+
       <button
         v-for="tag in allTags"
         :key="tag"
@@ -122,14 +126,18 @@
       >
         {{ tag }}
       </button>
+
       <span class="flex-1" />
+
       <button
         class="text-xs text-on-surface-variant hover:text-primary transition-colors"
         @click="onSelectAll"
       >
         Select all
       </button>
+
       <span class="text-on-surface-variant/30">|</span>
+
       <button
         class="text-xs text-on-surface-variant hover:text-primary transition-colors"
         @click="onUnselectAll"
@@ -171,6 +179,7 @@
           >
             {{ ticket.value }}
           </span>
+
           <span class="text-[11px] text-on-surface-variant/60 truncate block">{{ ticket.url }}</span>
         </div>
 
@@ -212,6 +221,7 @@
       <span class="text-xs text-primary font-medium">
         {{ bookmarks.selectedIds.size }} bookmark{{ bookmarks.selectedIds.size === 1 ? '' : 's' }} selected
       </span>
+
       <button
         class="text-xs text-primary hover:underline"
         @click="bookmarks.selectedIds.clear()"

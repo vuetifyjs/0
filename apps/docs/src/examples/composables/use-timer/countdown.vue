@@ -20,6 +20,7 @@
       <div class="text-5xl font-mono font-light tabular-nums tracking-tight">
         {{ seconds }}s
       </div>
+
       <div class="text-sm text-on-surface-variant mt-1">
         <template v-if="!isActive">Ready</template>
         <template v-else-if="isPaused">Paused</template>
@@ -63,9 +64,11 @@
       <div class="px-2 py-1 rounded" :class="isActive ? 'bg-primary text-on-primary' : 'bg-surface-variant text-on-surface-variant'">
         isActive: {{ isActive }}
       </div>
+
       <div class="px-2 py-1 rounded" :class="isPaused ? 'bg-warning text-on-warning' : 'bg-surface-variant text-on-surface-variant'">
         isPaused: {{ isPaused }}
       </div>
+
       <div class="px-2 py-1 rounded bg-surface-variant text-on-surface-variant font-mono">
         {{ remaining }}ms
       </div>

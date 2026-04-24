@@ -44,6 +44,7 @@
     <!-- Quick-fire presets -->
     <div>
       <p class="text-xs font-medium text-on-surface-variant mb-2">Quick notifications</p>
+
       <div class="flex flex-wrap gap-2">
         <button
           v-for="preset in presets"
@@ -89,12 +90,14 @@
           </Select.Item>
         </Select.Content>
       </Select.Root>
+
       <input
         v-model="message"
         class="flex-1 px-3 py-1.5 text-sm rounded-lg border border-divider bg-surface text-on-surface placeholder:text-on-surface-variant outline-none focus:border-primary"
         placeholder="Type a custom notification..."
         @keydown.enter="send"
       >
+
       <button
         class="px-3 py-1.5 text-sm rounded-lg bg-primary text-on-primary hover:bg-primary/90 disabled:opacity-40 transition-colors"
         :disabled="!message.trim()"
@@ -110,6 +113,7 @@
         <span class="text-xs text-on-surface-variant">
           {{ count }} active notification{{ count === 1 ? '' : 's' }}
         </span>
+
         <button
           v-if="count > 0"
           class="text-xs text-on-surface-variant hover:text-on-surface transition-colors"
@@ -128,6 +132,7 @@
         >
           <span class="w-5 text-center text-base leading-none shrink-0" :class="typeStyles[toast.type].symbolClass">{{ typeStyles[toast.type].symbol }}</span>
           <span class="flex-1 text-sm text-on-surface">{{ toast.message }}</span>
+
           <button
             class="flex items-center text-on-surface-variant hover:text-on-surface transition-colors"
             @click="dismiss(toast.id)"
@@ -151,10 +156,12 @@
         <p class="text-xs font-mono text-on-surface-variant">useToasts</p>
         <p class="text-[10px] text-on-surface-variant/60 mt-1">Consumer</p>
       </div>
+
       <div class="p-3 rounded-lg bg-surface-variant/50">
         <p class="text-xs font-mono text-on-surface-variant">provideToasts</p>
         <p class="text-[10px] text-on-surface-variant/60 mt-1">Provider</p>
       </div>
+
       <div class="p-3 rounded-lg bg-surface-variant/50">
         <p class="text-xs font-mono text-on-surface-variant">toastsContext</p>
         <p class="text-[10px] text-on-surface-variant/60 mt-1">Default context</p>

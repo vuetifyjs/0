@@ -29,6 +29,7 @@
         <template v-if="element">
           I'm a &lt;{{ element }}&gt;
         </template>
+
         <template v-else>
           <span class="text-secondary">No wrapper—just this span</span>
         </template>
@@ -39,9 +40,11 @@
       <template v-if="element === null">
         Renderless mode: slot content renders without a wrapper element.
       </template>
+
       <template v-else-if="element === 'a'">
         Links get href. Inspect the DOM to verify the element type.
       </template>
+
       <template v-else>
         Inspect the DOM to verify the element type.
       </template>

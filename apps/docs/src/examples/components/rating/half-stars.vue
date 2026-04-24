@@ -21,6 +21,7 @@
               <span class="text-on-surface-variant/40">☆</span>
               <span class="absolute inset-0 overflow-hidden w-1/2 text-amber-500">★</span>
             </span>
+
             <span v-else :class="state === 'full' ? 'text-amber-500' : 'text-on-surface-variant/40'">
               {{ state === 'full' ? '★' : '☆' }}
             </span>

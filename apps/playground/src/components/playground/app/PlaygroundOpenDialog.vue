@@ -98,6 +98,7 @@
           <h2 id="open-title" class="text-sm font-medium">
             Open Playground
           </h2>
+
           <AppCloseButton @click="$emit('close')" />
         </div>
 

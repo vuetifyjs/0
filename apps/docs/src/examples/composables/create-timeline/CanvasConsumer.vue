@@ -95,6 +95,7 @@
       >
         Undo
       </button>
+
       <button
         class="px-3 py-1 border border-divider rounded transition-opacity"
         :class="canRedo ? 'hover:bg-surface-tint' : 'opacity-40 cursor-not-allowed'"
@@ -103,12 +104,14 @@
       >
         Redo
       </button>
+
       <button
         class="px-3 py-1 border border-divider rounded hover:bg-surface-tint"
         @click="clear"
       >
         Clear
       </button>
+
       <span class="ml-auto text-sm text-on-surface opacity-60">
         {{ size }} strokes
       </span>

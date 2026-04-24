@@ -123,6 +123,7 @@
     <div v-if="store.isLoading" class="space-y-8">
       <div v-for="i in 3" :key="i" class="space-y-4">
         <DocsSkeleton height="h-6" :lines="1" :widths="['w-24']" />
+
         <div class="border border-divider rounded-lg p-4">
           <DocsSkeleton gap="gap-3" :lines="3" :widths="['w-1/3', 'w-full', 'w-full']" />
         </div>
@@ -139,6 +140,7 @@
         <AppIcon icon="alert-circle" :size="20" />
         <span>{{ store.error }}</span>
       </div>
+
       <button
         class="mt-3 px-4 py-2 bg-error text-on-error rounded-lg hover:bg-error/90 transition-colors"
         type="button"
@@ -164,6 +166,7 @@
           >
             <AppIcon :icon="group.icon" :size="20" />
           </div>
+
           <h2 class="text-xl font-semibold">{{ group.label }}</h2>
         </div>
 
@@ -196,6 +199,7 @@
                   <div class="flex-1 min-w-0">
                     <div class="flex items-center gap-2 flex-wrap">
                       <h3 class="font-semibold">{{ milestone.title }}</h3>
+
                       <span
                         v-if="milestone.due_on"
                         class="text-xs px-2 py-0.5 rounded-full bg-surface-tint"
@@ -265,6 +269,7 @@
                       :icon="issue.state === 'closed' ? 'check-circle' : 'circle-outline'"
                       :size="16"
                     />
+
                     <span class="flex-1 truncate text-sm">{{ issue.title }}</span>
                     <span class="text-xs opacity-50">#{{ issue.number }}</span>
                   </a>

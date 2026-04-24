@@ -23,6 +23,7 @@
             <span v-else>✓</span>
           </Checkbox.Indicator>
         </Checkbox.SelectAll>
+
         <span>Select All</span>
       </label>
 
@@ -38,6 +39,7 @@
           >
             <Checkbox.Indicator class="text-on-primary text-sm">✓</Checkbox.Indicator>
           </Checkbox.Root>
+
           <span>{{ option.label }}</span>
         </label>
       </div>

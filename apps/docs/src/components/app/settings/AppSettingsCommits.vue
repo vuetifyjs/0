@@ -45,6 +45,7 @@
 <template>
   <section v-if="app.stats.commit || buildSha">
     <AppSettingsHeader icon="history" title="Build" />
+
     <div class="space-y-1">
       <a
         v-if="app.stats.commit"
@@ -57,6 +58,7 @@
           <AppIcon icon="history" size="16" />
           <span class="text-sm">Latest commit</span>
         </span>
+
         <span class="font-mono text-xs text-on-surface-variant">{{ app.stats.commit.sha.slice(0, 7) }}</span>
       </a>
 
@@ -71,6 +73,7 @@
           <AppIcon icon="package" size="16" />
           <span class="text-sm">Documentation build</span>
         </span>
+
         <span class="font-mono text-xs text-on-surface-variant">{{ buildSha.slice(0, 7) }}</span>
       </a>
     </div>

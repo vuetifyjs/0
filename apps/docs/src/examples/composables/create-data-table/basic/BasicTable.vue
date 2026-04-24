@@ -51,6 +51,7 @@
           >
             <td class="px-4 py-3">{{ item.name }}</td>
             <td class="px-4 py-3 opacity-70">{{ item.email }}</td>
+
             <td class="px-4 py-3">
               <span class="px-2 py-0.5 rounded text-xs font-medium bg-surface-tint">
                 {{ item.role }}

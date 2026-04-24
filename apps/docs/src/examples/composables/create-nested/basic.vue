@@ -111,6 +111,7 @@
         >
           {{ nav.opened(id) ? '-' : '+' }}
         </span>
+
         <span v-else class="w-4" />
 
         <button

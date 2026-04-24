@@ -66,6 +66,7 @@
                 @change="table.selection.toggleAll()"
               >
             </th>
+
             <th
               v-for="col in columns"
               :key="col.key"
@@ -107,9 +108,11 @@
                     @change="table.selection.toggle(item.id)"
                   >
                 </td>
+
                 <td class="px-4 py-3">{{ item.name }}</td>
                 <td class="px-4 py-3">{{ item.department }}</td>
                 <td class="px-4 py-3 font-mono">{{ formatSalary(item.salary) }}</td>
+
                 <td class="px-4 py-3">
                   <span
                     class="px-2 py-0.5 rounded text-xs font-medium"

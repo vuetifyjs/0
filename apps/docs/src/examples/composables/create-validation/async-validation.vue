@@ -97,6 +97,7 @@
 
       <p>
         <span class="text-on-surface-variant">isValid: </span>
+
         <span
           :class="{
             'text-success': validation.isValid.value === true,
@@ -110,6 +111,7 @@
 
       <p>
         <span class="text-on-surface-variant">isValidating: </span>
+
         <span :class="validation.isValidating.value ? 'text-warning' : 'text-on-surface-variant'">
           {{ validation.isValidating.value }}
         </span>

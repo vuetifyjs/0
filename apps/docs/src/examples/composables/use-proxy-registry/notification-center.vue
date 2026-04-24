@@ -66,6 +66,7 @@
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-2">
         <span class="text-sm font-medium text-on-surface">Notifications</span>
+
         <span
           v-if="unread > 0"
           class="px-1.5 py-0.5 text-xs font-medium rounded-full bg-error text-on-error"
@@ -73,6 +74,7 @@
           {{ unread }}
         </span>
       </div>
+
       <button
         class="text-xs px-2 py-1 rounded border border-divider text-on-surface-variant hover:bg-surface-tint transition-colors"
         @click="add"
@@ -86,6 +88,7 @@
       <div class="text-xs font-medium text-on-surface-variant/60 uppercase tracking-wider">
         Proxy state
       </div>
+
       <div class="grid grid-cols-3 gap-1 text-xs">
         <span class="text-on-surface-variant/60">size</span>
         <span class="font-mono text-on-surface col-span-2">{{ proxy.size }}</span>
@@ -120,6 +123,7 @@
           >
             {{ notification.value }}
           </p>
+
           <p class="text-xs text-on-surface-variant/60 mt-0.5">
             {{ notification.type }} &middot; #{{ notification.index }}
           </p>
@@ -134,6 +138,7 @@
           >
             <span class="i-mdi-email-open-outline text-sm" />
           </button>
+
           <button
             class="p-1 text-on-surface-variant hover:text-error rounded transition-colors"
             title="Dismiss"

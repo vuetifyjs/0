@@ -16,6 +16,7 @@
         <h3 class="text-sm font-semibold text-on-surface">{{ app }}</h3>
         <p class="text-xs text-on-surface-variant">{{ group.selectedIds.size }} / {{ group.size }} features enabled</p>
       </div>
+
       <div class="flex gap-1.5">
         <button
           class="px-2 py-1 text-xs rounded-md border border-divider text-on-surface-variant hover:text-on-surface hover:bg-surface-tint transition-colors"
@@ -23,6 +24,7 @@
         >
           Enable all
         </button>
+
         <button
           class="px-2 py-1 text-xs rounded-md border border-divider text-on-surface-variant hover:text-on-surface hover:bg-surface-tint transition-colors"
           @click="group.unselectAll()"
@@ -35,6 +37,7 @@
     <!-- Locale selector -->
     <div>
       <label class="block text-xs font-medium text-on-surface-variant mb-1.5">Locale</label>
+
       <div class="flex flex-wrap gap-1.5">
         <button
           v-for="loc in locales"
@@ -67,6 +70,7 @@
         >
           {{ ticket.value }}
         </span>
+
         <Switch.Root as="span" class="inline-flex items-center" :model-value="ticket.isSelected.value">
           <Switch.Track
             class="relative inline-flex items-center w-8 h-4.5 rounded-full transition-colors bg-on-surface/20 data-[state=checked]:bg-primary"
@@ -82,6 +86,7 @@
     <!-- Live preview -->
     <div class="rounded-lg border border-divider bg-surface-variant/30 p-3">
       <p class="text-[10px] uppercase tracking-wider text-on-surface-variant/60 mb-2">Active features</p>
+
       <div class="flex flex-wrap gap-1.5">
         <template v-for="ticket in tickets" :key="ticket.id">
           <span
@@ -91,6 +96,7 @@
             {{ ticket.value }}
           </span>
         </template>
+
         <span
           v-if="group.isNoneSelected.value"
           class="text-xs text-on-surface-variant italic h-6 flex items-center"

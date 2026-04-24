@@ -58,6 +58,7 @@
       <!-- Mode -->
       <div class="mb-3">
         <div class="text-xs font-medium text-on-surface-variant mb-2 px-1">Mode</div>
+
         <div class="flex gap-1">
           <button
             v-for="option in modeOptions"
@@ -81,6 +82,7 @@
       <!-- Palettes -->
       <div class="mb-3">
         <div class="text-xs font-medium text-on-surface-variant mb-2 px-1">Palettes</div>
+
         <div class="grid grid-cols-2 gap-1">
           <button
             v-for="p in PALETTES"
@@ -112,6 +114,7 @@
       <!-- Accessibility -->
       <div>
         <div class="text-xs font-medium text-on-surface-variant mb-2 px-1">Accessibility</div>
+
         <div class="grid grid-cols-2 gap-1">
           <button
             v-for="option in accessibilityOptions"

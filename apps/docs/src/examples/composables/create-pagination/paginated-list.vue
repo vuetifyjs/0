@@ -31,8 +31,10 @@
           <span class="text-xs text-on-surface-variant font-mono w-6 text-right">
             {{ item.id }}
           </span>
+
           <span class="text-sm text-on-surface">{{ item.name }}</span>
         </div>
+
         <span class="text-xs px-2 py-0.5 rounded-full bg-surface-variant text-on-surface-variant">
           {{ item.category }}
         </span>

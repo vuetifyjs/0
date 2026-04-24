@@ -36,6 +36,7 @@
         class="absolute w-px h-full bg-primary/30 pointer-events-none"
         :style="{ left: `${x}px` }"
       />
+
       <div
         v-if="inside"
         class="absolute w-full h-px bg-primary/30 pointer-events-none"
@@ -59,6 +60,7 @@
         <span class="w-2 h-2 rounded-full" :class="inside ? 'bg-success' : 'bg-surface-variant'" />
         <span class="text-on-surface-variant">Pointer: <strong class="text-on-surface">{{ inside ? 'inside' : 'outside' }}</strong></span>
       </div>
+
       <div class="text-on-surface-variant">
         Clicks: <strong class="text-on-surface">{{ clicks }}</strong>
       </div>

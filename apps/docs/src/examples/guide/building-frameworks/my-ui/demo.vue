@@ -30,6 +30,7 @@
     <!-- Buttons -->
     <section>
       <h3 class="text-sm font-semibold mb-3">MyButton</h3>
+
       <div class="flex flex-wrap gap-2">
         <MyButton>Default</MyButton>
         <MyButton variant="outlined">Outlined</MyButton>
@@ -45,13 +46,16 @@
     <!-- Tabs -->
     <section>
       <h3 class="text-sm font-semibold mb-3">MyTabs</h3>
+
       <MyTabs v-model="activeTab" :items="tabs">
         <template #overview>
           <p>Overview panel content. The tabs handle keyboard navigation automatically.</p>
         </template>
+
         <template #features>
           <p>Features panel content. Arrow keys, Home, and End all work.</p>
         </template>
+
         <template #api>
           <p>API panel content. ARIA attributes are managed by v0.</p>
         </template>
@@ -61,13 +65,16 @@
     <!-- Accordion -->
     <section>
       <h3 class="text-sm font-semibold mb-3">MyAccordion</h3>
+
       <MyAccordion v-model="expandedItems" :items="accordionItems" multiple>
         <template #getting-started>
           Install the package and register the plugin in your Vue app.
         </template>
+
         <template #installation>
           <code>pnpm add @example/my-ui @vuetify/v0</code>
         </template>
+
         <template #configuration>
           Pass theme options to MyUIPlugin() for custom colors.
         </template>

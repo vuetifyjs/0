@@ -21,11 +21,13 @@
           >
             A
           </div>
+
           <div>
             <div class="text-sm font-medium">Alex Chen</div>
             <div class="text-xs" :style="{ color: colors.muted }">alex@example.com</div>
           </div>
         </div>
+
         <div
           class="text-xs font-medium px-2 py-0.5 rounded-full"
           :style="{ backgroundColor: colors.primary + '20', color: colors.primary }"
@@ -40,6 +42,7 @@
           <div class="text-xs font-medium">Sprint progress</div>
           <div class="text-xs" :style="{ color: colors.muted }">68%</div>
         </div>
+
         <div class="h-1.5 rounded-full overflow-hidden" :style="{ backgroundColor: colors.muted + '30' }">
           <div
             class="h-full rounded-full transition-all duration-500"
@@ -56,12 +59,14 @@
         >
           Design
         </span>
+
         <span
           class="text-xs px-2 py-0.5 rounded-md font-medium"
           :style="{ backgroundColor: colors.accent + '15', color: colors.accent }"
         >
           Frontend
         </span>
+
         <span
           class="text-xs px-2 py-0.5 rounded-md font-medium"
           :style="{ backgroundColor: colors.muted + '20', color: colors.muted }"

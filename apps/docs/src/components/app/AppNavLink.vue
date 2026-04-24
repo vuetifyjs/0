@@ -147,6 +147,7 @@
           :icon="isOpen ? 'chevron-down' : 'chevron-right'"
           size="14"
         />
+
         <span class="sr-only">
           {{ isOpen ? 'Collapse' : 'Expand' }} {{ name }}
         </span>

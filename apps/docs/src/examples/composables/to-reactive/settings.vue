@@ -50,6 +50,7 @@
       <!-- Theme -->
       <div class="flex items-center justify-between">
         <span class="text-sm text-on-surface">Theme</span>
+
         <div class="flex gap-1">
           <button
             v-for="t in ['light', 'dark', 'system']"
@@ -68,6 +69,7 @@
       <!-- Language -->
       <div class="flex items-center justify-between">
         <span class="text-sm text-on-surface">Language</span>
+
         <Select.Root
           mandatory
           :model-value="settings.language"
@@ -104,6 +106,7 @@
       <!-- Font size -->
       <div class="flex items-center justify-between">
         <span class="text-sm text-on-surface">Font size</span>
+
         <div class="flex items-center gap-2">
           <button
             class="size-6 rounded border border-divider text-xs text-on-surface-variant hover:bg-surface-tint transition-colors"
@@ -111,7 +114,9 @@
           >
             &minus;
           </button>
+
           <span class="text-sm font-mono text-on-surface w-6 text-center">{{ settings.fontSize }}</span>
+
           <button
             class="size-6 rounded border border-divider text-xs text-on-surface-variant hover:bg-surface-tint transition-colors"
             @click="settings.fontSize++"
@@ -124,6 +129,7 @@
       <!-- Toggles -->
       <div class="flex items-center justify-between">
         <span class="text-sm text-on-surface">Notifications</span>
+
         <button
           class="w-10 h-5 rounded-full transition-colors relative"
           :class="settings.notifications ? 'bg-primary' : 'bg-divider'"
@@ -138,6 +144,7 @@
 
       <div class="flex items-center justify-between">
         <span class="text-sm text-on-surface">Sidebar</span>
+
         <button
           class="w-10 h-5 rounded-full transition-colors relative"
           :class="settings.sidebar ? 'bg-primary' : 'bg-divider'"
@@ -157,6 +164,7 @@
         <div class="text-xs font-medium text-on-surface-variant/60 uppercase tracking-wider">
           Source ref
         </div>
+
         <button
           class="text-xs text-on-surface-variant hover:text-primary transition-colors"
           @click="reset"
@@ -173,6 +181,7 @@
       <div class="text-xs font-medium text-on-surface-variant/60 uppercase tracking-wider">
         Change history
       </div>
+
       <div class="space-y-1">
         <p
           v-for="(entry, index) in history"

@@ -280,6 +280,7 @@
     <Dialog.Activator class="docs-mermaid flex justify-center w-full my-4 overflow-x-auto cursor-pointer hover:opacity-80 transition-opacity">
       <figure class="flex flex-col items-center w-full">
         <div class="flex justify-center w-full" v-html="svg" />
+
         <figcaption v-if="decodedCaption" class="mt-2 text-sm text-on-surface-variant italic">
           {{ decodedCaption }}
         </figcaption>
@@ -356,6 +357,7 @@
             >
               <path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
             </svg>
+
             <svg
               v-else
               class="w-4 h-4 text-success"
@@ -396,6 +398,7 @@
           class="docs-mermaid docs-mermaid-panzoom"
           v-html="svg"
         />
+
         <figcaption v-if="decodedCaption" class="pb-4 text-center text-sm text-on-surface-variant italic">
           {{ decodedCaption }}
         </figcaption>

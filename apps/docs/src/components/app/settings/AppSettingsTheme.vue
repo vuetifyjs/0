@@ -152,6 +152,7 @@
       <h3 class="flex items-center gap-2 text-sm font-medium text-on-surface-variant mb-3">
         <AppIcon icon="paint" size="16" />
         <span>Theme</span>
+
         <button
           class="ml-auto p-1 rounded hover:bg-surface-tint transition-colors inline-flex items-center justify-center shrink-0"
           title="Copy theme as Vuetify0 config"
@@ -165,6 +166,7 @@
       <!-- Mode -->
       <div>
         <div class="text-xs font-medium text-on-surface-variant mb-2">Mode</div>
+
         <div class="grid grid-cols-3 gap-2">
           <button
             v-for="option in modeOptions"
@@ -188,6 +190,7 @@
       <!-- Palettes -->
       <div>
         <div class="text-xs font-medium text-on-surface-variant mb-2">Palettes</div>
+
         <div class="grid grid-cols-2 gap-2">
           <button
             v-for="option in paletteOptions"
@@ -211,6 +214,7 @@
       <!-- Accessibility -->
       <div>
         <div class="text-xs font-medium text-on-surface-variant mb-2">Accessibility</div>
+
         <div class="flex gap-2">
           <!-- High Contrast - larger button -->
           <button
@@ -266,6 +270,7 @@
       <!-- Custom Themes -->
       <div v-if="customOptions.length > 0">
         <div class="text-xs font-medium text-on-surface-variant mb-2">Custom Themes</div>
+
         <div class="grid grid-cols-2 gap-2">
           <button
             v-for="option in customOptions"
@@ -283,6 +288,7 @@
             <div class="flex items-center gap-2 w-full">
               <AppIcon :icon="option.icon" size="16" />
               <span class="font-medium truncate">{{ option.label }}</span>
+
               <button
                 class="ml-auto opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-surface-tint transition-all"
                 title="Edit theme"
@@ -292,6 +298,7 @@
                 <AppIcon icon="edit" size="12" />
               </button>
             </div>
+
             <AppThemePreview v-if="option.theme" :theme="option.theme" />
           </button>
         </div>
@@ -300,17 +307,20 @@
       <!-- Background Effects -->
       <div>
         <div class="text-xs font-medium text-on-surface-variant mb-2">Background Effects</div>
+
         <div class="space-y-1">
           <AppSettingsToggle
             v-model="settings.showDotGrid.value"
             description="Decorative dots in the corner"
             label="Dot grid pattern"
           />
+
           <AppSettingsToggle
             v-model="settings.showMeshGrid.value"
             description="Colorful gradient background"
             label="Mesh gradient"
           />
+
           <AppSettingsToggle
             v-if="settings.showMeshGrid.value"
             v-model="settings.showMeshTransition.value"
@@ -318,6 +328,7 @@
             description="Animate background on scroll"
             label="Mesh transition"
           />
+
           <AppSettingsToggle
             v-model="settings.showBgGlass.value"
             description="Frosted glass effect on UI surfaces"

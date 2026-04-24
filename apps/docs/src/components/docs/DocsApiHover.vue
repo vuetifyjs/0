@@ -319,10 +319,12 @@
         <!-- Vue API content -->
         <template v-if="vueApi">
           <p class="popover-description">{{ vueApi.summary }}</p>
+
           <div class="popover-content">
             <DocsApiHoverSection title="When to use">
               <p>{{ vueApi.usage }}</p>
             </DocsApiHoverSection>
+
             <DocsApiHoverSection title="Signature">
               <code>{{ vueApi.signature }}</code>
             </DocsApiHoverSection>
@@ -343,9 +345,11 @@
               <DocsApiHoverSection v-if="displayProps.length > 0" title="Props">
                 <DocsApiHoverList :items="displayProps" />
               </DocsApiHoverSection>
+
               <DocsApiHoverSection v-if="displayEvents.length > 0" title="Events">
                 <DocsApiHoverList :items="displayEvents" />
               </DocsApiHoverSection>
+
               <DocsApiHoverSection v-if="displaySlots.length > 0" title="Slots">
                 <DocsApiHoverList :items="displaySlots" />
               </DocsApiHoverSection>
@@ -356,12 +360,15 @@
               <DocsApiHoverSection v-if="displayFunctions.length > 0" title="Functions">
                 <DocsApiHoverList :items="displayFunctions" show-signature />
               </DocsApiHoverSection>
+
               <DocsApiHoverSection v-if="displayOptions.length > 0" title="Options">
                 <DocsApiHoverList :items="displayOptions" />
               </DocsApiHoverSection>
+
               <DocsApiHoverSection v-if="displayProperties.length > 0" title="Properties">
                 <DocsApiHoverList :items="displayProperties" />
               </DocsApiHoverSection>
+
               <DocsApiHoverSection v-if="displayMethods.length > 0" title="Methods">
                 <DocsApiHoverList :items="displayMethods" />
               </DocsApiHoverSection>

@@ -16,6 +16,7 @@
     <div class="flex flex-col gap-3">
       <label class="inline-flex items-center justify-between gap-4 cursor-pointer font-medium">
         <span>All permissions</span>
+
         <Switch.SelectAll
           class="inline-flex items-center border-none bg-transparent p-0 outline-none"
           label="Toggle all"
@@ -37,6 +38,7 @@
           class="inline-flex items-center justify-between gap-4 cursor-pointer"
         >
           <span>{{ option.label }}</span>
+
           <Switch.Root
             class="inline-flex items-center border-none bg-transparent p-0 outline-none"
             :value="option.value"

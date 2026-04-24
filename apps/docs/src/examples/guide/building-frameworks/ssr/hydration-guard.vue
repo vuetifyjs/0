@@ -33,12 +33,15 @@
       <!-- Static check -->
       <div class="p-4 bg-surface border border-divider rounded-lg">
         <h3 class="text-sm font-semibold mb-3">IN_BROWSER constant</h3>
+
         <p class="text-xs text-on-surface-variant mb-3">
           Static check, evaluated once at import time.
         </p>
+
         <div class="p-2 bg-surface-variant rounded font-mono text-sm">
           {{ staticBrowserCheck }}
         </div>
+
         <pre class="mt-3 text-xs text-on-surface-variant">if (IN_BROWSER) {
   // Safe to use window, document
 }</pre>
@@ -47,15 +50,18 @@
       <!-- Reactive check -->
       <div class="p-4 bg-surface border border-divider rounded-lg">
         <h3 class="text-sm font-semibold mb-3">useHydration()</h3>
+
         <p class="text-xs text-on-surface-variant mb-3">
           Reactive ref, changes after mount.
         </p>
+
         <div
           class="p-2 rounded font-mono text-sm"
           :class="isHydrated ? 'bg-success/20 text-success' : 'bg-warning/20 text-warning'"
         >
           {{ hydrationStatus }}
         </div>
+
         <pre class="mt-3 text-xs text-on-surface-variant">const { isHydrated } = useHydration()
 // v-if="isHydrated"</pre>
       </div>
@@ -64,16 +70,19 @@
     <!-- Browser-only content -->
     <div class="p-4 bg-surface border border-divider rounded-lg">
       <h3 class="text-sm font-semibold mb-3">Browser-only content</h3>
+
       <div v-if="isHydrated" class="space-y-2 text-sm">
         <div class="flex justify-between">
           <span class="text-on-surface-variant">Window width:</span>
           <span class="font-mono">{{ windowWidth }}px</span>
         </div>
+
         <div class="flex justify-between">
           <span class="text-on-surface-variant">User agent:</span>
           <span class="font-mono text-xs">{{ userAgent }}</span>
         </div>
       </div>
+
       <div v-else class="text-sm text-on-surface-variant italic">
         Loading browser data...
       </div>

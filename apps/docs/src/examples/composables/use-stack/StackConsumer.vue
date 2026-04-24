@@ -72,6 +72,7 @@
       <!-- Stack visualization -->
       <div class="flex items-center justify-center gap-2 text-sm h-6">
         <span class="text-on-surface-variant">Stack:</span>
+
         <div class="flex items-center gap-1">
           <template v-if="activeCount > 0">
             <template v-for="({ overlay, ticket }, index) in tickets" :key="overlay.id">
@@ -84,6 +85,7 @@
               </span>
             </template>
           </template>
+
           <span v-else class="text-on-surface-variant/50 italic">empty</span>
         </div>
       </div>
@@ -115,10 +117,12 @@
                   <h3 :id="`${ticket.id}-title`" class="text-lg font-semibold text-on-surface">
                     {{ overlay.title }}
                   </h3>
+
                   <div class="flex items-center gap-2">
                     <span class="px-2 py-0.5 rounded text-xs font-mono" :class="color.badge">
                       z:{{ ticket.zIndex.value }}
                     </span>
+
                     <span
                       class="px-2 py-0.5 rounded text-xs"
                       :class="ticket.globalTop.value ? 'bg-success/10 text-success' : 'bg-surface-variant text-on-surface-variant'"
@@ -127,6 +131,7 @@
                     </span>
                   </div>
                 </div>
+
                 <p class="text-sm text-on-surface-variant mt-1">
                   Overlay {{ index + 1 }} of 3 in the stack
                 </p>
@@ -166,6 +171,7 @@
                 >
                   Close All
                 </button>
+
                 <button
                   class="px-4 py-2 text-sm font-medium rounded-md border border-divider hover:bg-surface-tint transition-colors"
                   @click="close(overlay.id)"

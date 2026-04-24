@@ -41,6 +41,7 @@
     <!-- Editable inputs -->
     <div v-if="inputType === 'string'" class="flex items-center gap-2">
       <label class="text-xs text-on-surface-variant">Value:</label>
+
       <input
         v-model="text"
         class="flex-1 px-3 py-1.5 text-sm rounded-lg border border-divider bg-surface text-on-surface font-mono outline-none focus:border-primary"
@@ -49,6 +50,7 @@
 
     <div v-else-if="inputType === 'number'" class="flex items-center gap-2">
       <label class="text-xs text-on-surface-variant">Value:</label>
+
       <input
         v-model.number="number"
         class="flex-1 px-3 py-1.5 text-sm rounded-lg border border-divider bg-surface text-on-surface font-mono outline-none focus:border-primary"
@@ -59,6 +61,7 @@
     <div v-else-if="inputType === 'array'" class="space-y-2">
       <div class="flex items-center gap-2">
         <label class="text-xs text-on-surface-variant">Items:</label>
+
         <div class="flex flex-wrap gap-1">
           <span
             v-for="(item, index) in items"
@@ -74,6 +77,7 @@
             </button>
           </span>
         </div>
+
         <button
           class="text-xs px-2 py-0.5 rounded border border-divider text-on-surface-variant hover:bg-surface-tint transition-colors"
           @click="items.push(String.fromCharCode(97 + items.length))"

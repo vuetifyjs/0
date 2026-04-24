@@ -19,6 +19,7 @@
       >
         {{ isSelected ? '−' : '?' }}
       </span>
+
       <span class="font-medium">{{ question }}</span>
     </ExpansionPanel.Activator>
 

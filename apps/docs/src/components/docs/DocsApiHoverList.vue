@@ -26,6 +26,7 @@
         <span class="api-item-name">{{ item.name }}</span>
         <code v-if="item.default" class="api-item-default">{{ item.default }}</code>
       </div>
+
       <code v-if="item.type && !showSignature" class="api-item-type">{{ item.type }}</code>
       <code v-if="item.signature && showSignature" class="api-item-signature">{{ item.signature }}</code>
       <p v-if="item.description" class="api-item-description">{{ item.description }}</p>

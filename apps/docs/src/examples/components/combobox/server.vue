@@ -52,6 +52,7 @@
           class="flex-1 bg-transparent outline-none text-on-surface placeholder:text-on-surface-variant"
           placeholder="Search colors…"
         />
+
         <span v-if="loading" class="text-xs opacity-50 select-none">…</span>
         <Combobox.Cue v-else class="opacity-50 cursor-pointer transition-transform data-[state=open]:rotate-180"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 9l7 7 7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" /></svg></Combobox.Cue>
       </Combobox.Activator>

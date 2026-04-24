@@ -34,6 +34,7 @@
       >
         Disabled
       </Button.Root>
+
       <span class="text-xs text-on-surface-variant">native disabled</span>
     </div>
 
@@ -44,6 +45,7 @@
       >
         Readonly
       </Button.Root>
+
       <span class="text-xs text-on-surface-variant">focusable, no click</span>
     </div>
 
@@ -55,6 +57,7 @@
       >
         Passive
       </Button.Root>
+
       <span class="text-xs text-on-surface-variant">aria-disabled</span>
     </div>
 
@@ -76,6 +79,7 @@
           {{ loaded ? 'Loaded' : 'Load' }}
         </Button.Content>
       </Button.Root>
+
       <span class="text-xs text-on-surface-variant">1s grace period</span>
     </div>
   </div>

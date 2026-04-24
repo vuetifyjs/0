@@ -29,6 +29,7 @@
         <Select.Value v-slot="{ selectedValue }">
           {{ selectedValue }}
         </Select.Value>
+
         <Select.Placeholder class="text-on-surface-variant">Choose a size…</Select.Placeholder>
 
         <Select.Cue v-slot="{ isOpen }" class="text-xs opacity-50">

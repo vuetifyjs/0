@@ -24,6 +24,7 @@
       >
         <Checkbox.Indicator class="text-on-primary text-sm">✓</Checkbox.Indicator>
       </Checkbox.Root>
+
       <span>{{ option.label }}</span>
     </label>
   </Checkbox.Group>

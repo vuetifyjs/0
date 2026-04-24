@@ -9,6 +9,7 @@
       :ratio="16 / 9"
       src="https://picsum.photos/seed/ar-1/800/450"
     />
+
     <ResponsiveImage
       alt="Square photo"
       :ratio="1"

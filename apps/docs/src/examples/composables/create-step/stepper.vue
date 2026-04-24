@@ -54,6 +54,7 @@
               <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" />
             </svg>
           </template>
+
           <template v-else>{{ step.icon }}</template>
         </div>
 
@@ -79,6 +80,7 @@
       >
         First
       </button>
+
       <button
         class="px-4 py-1.5 text-sm rounded bg-primary/10 text-primary hover:bg-primary/20 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         :disabled="isFirst"
@@ -86,6 +88,7 @@
       >
         Prev
       </button>
+
       <button
         class="px-4 py-1.5 text-sm rounded bg-primary text-on-primary hover:bg-primary/90 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         :disabled="isLast"
@@ -93,6 +96,7 @@
       >
         Next
       </button>
+
       <button
         class="px-3 py-1.5 text-sm rounded border border-divider hover:bg-surface-tint disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         :disabled="isLast"

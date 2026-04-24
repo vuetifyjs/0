@@ -20,6 +20,7 @@
     <!-- Header -->
     <div class="flex items-baseline justify-between">
       <span class="text-on-surface text-lg font-serif italic">Palette</span>
+
       <span class="text-on-surface-variant/45 text-xs font-medium tracking-widest uppercase">
         {{ model.selectedIds.size }} / {{ model.size }}
       </span>
@@ -98,6 +99,7 @@
             :style="{ backgroundColor: oklch(toValue(item.value) as number) }"
           />
         </div>
+
         <div
           v-else
           class="w-full h-full grid place-items-center bg-surface-variant/30 text-on-surface-variant/25 text-xs italic"

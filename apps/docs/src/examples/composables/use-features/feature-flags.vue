@@ -28,6 +28,7 @@
       <p class="text-xs text-on-surface-variant">
         {{ enabled }} / {{ proxy.size }} features enabled
       </p>
+
       <div class="flex gap-1.5">
         <button
           class="px-2 py-1 text-xs rounded-md border border-divider text-on-surface-variant hover:bg-surface-tint transition-colors"
@@ -35,6 +36,7 @@
         >
           Enable all
         </button>
+
         <button
           class="px-2 py-1 text-xs rounded-md border border-divider text-on-surface-variant hover:bg-surface-tint transition-colors"
           @click="features.unselectAll()"
@@ -58,6 +60,7 @@
           class="size-2 rounded-full shrink-0"
           :class="ticket.isSelected.value ? 'bg-success' : 'bg-on-surface-variant/30'"
         />
+
         <span
           class="flex-1 text-sm"
           :class="ticket.isSelected.value ? 'text-on-surface font-medium' : 'text-on-surface-variant'"
@@ -78,6 +81,7 @@
       <p class="text-[10px] uppercase tracking-wider text-on-surface-variant/60 mb-2">
         Variation lookup
       </p>
+
       <div class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-xs">
         <span class="text-on-surface-variant">search:</span>
         <span class="font-mono text-on-surface">{{ features.variation('search', 'v1') }}</span>

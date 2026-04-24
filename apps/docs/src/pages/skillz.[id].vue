@@ -140,6 +140,7 @@
               >
                 Restart
               </button>
+
               <button
                 class="px-4 py-1.5 text-sm font-semibold bg-primary text-on-primary border border-primary rounded-lg cursor-pointer transition-[filter] hover:brightness-110 whitespace-nowrap"
                 @click="onClickNext()"
@@ -197,6 +198,7 @@
               >
                 <AppIcon icon="check" :size="18" />
               </span>
+
               <span
                 v-else
                 class="flex items-center justify-center w-6 h-6 text-xs font-semibold rounded-full shrink-0 bg-surface-variant text-on-surface-variant"

@@ -25,22 +25,27 @@
 
         <div class="rounded-md bg-surface border border-divider pa-3 flex items-center gap-3">
           <div class="size-8 rounded-full bg-primary op-20 flex items-center justify-center text-xs font-semibold text-primary">JD</div>
+
           <div class="flex-1">
             <div class="text-sm font-medium">Jane Doe</div>
             <div class="text-xs text-on-surface-variant">jane@example.com</div>
           </div>
+
           <div class="rounded-full bg-success/15 text-success text-xs px-2 py-0.5 font-medium">Active</div>
         </div>
 
         <div class="flex gap-2">
           <div class="flex-1 rounded-md bg-surface-variant pa-3">
             <div class="text-xs text-on-surface-variant mb-1">Progress</div>
+
             <div class="h-2 rounded-full bg-surface overflow-hidden">
               <div class="h-full w-2/3 rounded-full bg-primary" />
             </div>
           </div>
+
           <div class="flex-1 rounded-md bg-surface-variant pa-3">
             <div class="text-xs text-on-surface-variant mb-1">Storage</div>
+
             <div class="h-2 rounded-full bg-surface overflow-hidden">
               <div class="h-full w-1/3 rounded-full bg-warning" />
             </div>
@@ -73,22 +78,27 @@
 
           <div class="rounded-md bg-surface border border-divider pa-3 flex items-center gap-3">
             <div class="size-8 rounded-full bg-primary op-20 flex items-center justify-center text-xs font-semibold text-primary">JD</div>
+
             <div class="flex-1">
               <div class="text-sm font-medium">Jane Doe</div>
               <div class="text-xs text-on-surface-variant">jane@example.com</div>
             </div>
+
             <div class="rounded-full bg-success/15 text-success text-xs px-2 py-0.5 font-medium">Active</div>
           </div>
 
           <div class="flex gap-2">
             <div class="flex-1 rounded-md bg-surface-variant pa-3">
               <div class="text-xs text-on-surface-variant mb-1">Progress</div>
+
               <div class="h-2 rounded-full bg-surface overflow-hidden">
                 <div class="h-full w-2/3 rounded-full bg-primary" />
               </div>
             </div>
+
             <div class="flex-1 rounded-md bg-surface-variant pa-3">
               <div class="text-xs text-on-surface-variant mb-1">Storage</div>
+
               <div class="h-2 rounded-full bg-surface overflow-hidden">
                 <div class="h-full w-1/3 rounded-full bg-warning" />
               </div>
@@ -105,6 +115,7 @@
       @pointerdown="onPointerdown"
     >
       <div class="absolute inset-y-0 left-1/2 w-0.5 bg-white/80 -translate-x-1/2" />
+
       <div class="relative size-8 rounded-full bg-white shadow-md flex items-center justify-center">
         <span class="text-xs text-neutral-500 select-none">⇔</span>
       </div>

@@ -30,6 +30,7 @@
       <label class="block text-xs font-medium text-on-surface-variant mb-1">
         Container width: {{ width }}%
       </label>
+
       <input
         v-model.number="width"
         class="w-full accent-primary"
@@ -72,6 +73,7 @@
 
       <p>
         <span class="text-on-surface-variant">overflowing: </span>
+
         <span
           class="font-medium"
           :class="overflow.isOverflowing.value ? 'text-warning' : 'text-success'"

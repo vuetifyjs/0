@@ -47,6 +47,7 @@
         role="tabpanel"
       >
         <h3 class="text-lg font-medium mb-2">{{ tab.value }}</h3>
+
         <p class="text-on-surface-variant">
           Content for the {{ String(tab.value).toLowerCase() }} tab.
         </p>

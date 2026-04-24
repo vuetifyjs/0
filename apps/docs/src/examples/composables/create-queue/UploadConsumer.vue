@@ -41,6 +41,7 @@
       <template v-if="first">
         <div class="flex items-center justify-between mb-1">
           <span class="text-xs text-primary font-medium uppercase tracking-wide">Uploading</span>
+
           <button
             class="text-xs text-on-surface-variant hover:text-error transition-colors"
             @click="cancel(first.id)"
@@ -48,10 +49,12 @@
             Cancel
           </button>
         </div>
+
         <div class="flex items-center justify-between mb-2">
           <span class="font-medium text-on-surface truncate">{{ first.name }}</span>
           <span class="text-xs text-on-surface-variant ml-2 shrink-0">{{ first.size }}</span>
         </div>
+
         <div
           :aria-label="`${first.name} upload progress`"
           aria-valuemax="100"
@@ -65,6 +68,7 @@
             :style="{ width: `${100 - first.progress.value}%` }"
           />
         </div>
+
         <div class="text-right text-xs text-primary font-mono mt-1">
           {{ Math.round(first.progress.value) }}%
         </div>
@@ -76,11 +80,14 @@
           <span class="text-xs invisible">Uploading</span>
           <span class="text-xs invisible">Cancel</span>
         </div>
+
         <div class="mb-2">
           <span class="font-medium invisible">placeholder</span>
         </div>
+
         <div class="h-2" />
         <div class="text-right text-xs font-mono mt-1 invisible">0%</div>
+
         <span class="absolute inset-0 flex items-center justify-center text-on-surface-variant text-sm opacity-50">
           No files in queue
         </span>
@@ -92,6 +99,7 @@
       <span class="text-xs text-on-surface-variant uppercase tracking-wide">
         Waiting ({{ pending.length }})
       </span>
+
       <TransitionGroup
         class="flex flex-col gap-1"
         name="queue"
@@ -106,8 +114,10 @@
             <span class="text-xs text-on-surface-variant/50 font-mono w-4">#{{ i + 2 }}</span>
             <span class="text-sm text-on-surface">{{ upload.name }}</span>
           </div>
+
           <div class="flex items-center gap-3">
             <span class="text-xs text-on-surface-variant">{{ upload.size }}</span>
+
             <button
               :aria-label="`Remove ${upload.name} from queue`"
               class="text-xs text-on-surface-variant/50 hover:text-error transition-colors"

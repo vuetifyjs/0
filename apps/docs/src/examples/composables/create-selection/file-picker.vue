@@ -35,6 +35,7 @@
       <span class="text-sm font-medium text-on-surface">
         {{ selection.selectedIds.size }} selected
       </span>
+
       <button
         class="text-xs px-2 py-1 rounded border border-divider text-on-surface-variant hover:bg-surface-tint transition-colors disabled:opacity-40"
         :disabled="selection.selectedIds.size === 0"

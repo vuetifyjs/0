@@ -38,10 +38,12 @@
   <Select.Root v-model="model" :mandatory>
     <Select.Activator class="trigger">
       <span>{{ selectedLabel }}</span>
+
       <Select.Cue class="cue">
         <AppIcon icon="chevron-down" :size="14" />
       </Select.Cue>
     </Select.Activator>
+
     <Select.Content class="content">
       <Select.Item
         v-for="item in items"
@@ -52,6 +54,7 @@
         :value="item.label"
       >
         <span>{{ item.label }}</span>
+
         <svg
           v-if="isSelected"
           aria-hidden="true"

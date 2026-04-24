@@ -440,6 +440,7 @@
               :size="14"
             />
           </template>
+
           <template v-else>
             <AppIcon
               v-if="ext"
@@ -447,6 +448,7 @@
               :size="14"
               :style="{ color: ext.color }"
             />
+
             <span v-else class="w-[14px]" />
           </template>
 
@@ -471,6 +473,7 @@
           :style="{ paddingInlineStart: `${inputAfter!.inputDepth * 8 + 8}px` }"
         >
           <span class="w-[14px]" />
+
           <input
             v-model="pending"
             v-focus
@@ -489,6 +492,7 @@
     <div class="flex items-center px-3 py-2">
       <span class="text-xs font-semibold text-on-surface-variant uppercase tracking-wide">Files</span>
     </div>
+
     <AppSkeleton class="px-3" height="h-3" :lines="4" :widths="['w-12', 'w-20', 'w-16', 'w-24']" />
   </div>
 </template>

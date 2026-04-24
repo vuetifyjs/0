@@ -35,6 +35,7 @@
         :style="{ width: `${Math.min(100, Math.max(0, value))}%` }"
       />
     </div>
+
     <span
       v-if="showLabel"
       class="text-xs font-medium tabular-nums w-12 text-right"

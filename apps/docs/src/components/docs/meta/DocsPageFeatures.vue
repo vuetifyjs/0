@@ -335,6 +335,7 @@
           text="Renderless"
           title="Component renders no DOM element by default"
         />
+
         <DocsMetaItem
           v-if="renderless === false"
           color="text-secondary"

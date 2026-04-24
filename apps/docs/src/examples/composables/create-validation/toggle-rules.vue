@@ -22,6 +22,7 @@
     <!-- Input -->
     <div>
       <label class="block text-xs font-medium text-on-surface-variant mb-1">Password</label>
+
       <input
         v-model="password"
         class="w-full px-3 py-2 text-sm border rounded-lg bg-surface text-on-surface outline-none transition-colors"
@@ -46,6 +47,7 @@
           type="checkbox"
           @change="rule.toggle()"
         >
+
         <span class="text-sm text-on-surface">{{ rule.id }}</span>
       </label>
     </div>

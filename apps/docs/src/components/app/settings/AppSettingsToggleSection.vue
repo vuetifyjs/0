@@ -16,6 +16,7 @@
   <section>
     <AppSettingsHeader :icon :title />
     <AppSettingsToggle v-model="model" :description :label />
+
     <p v-if="hint" class="text-xs text-on-surface-variant/60 mt-2">
       {{ hint }}
     </p>

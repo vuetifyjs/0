@@ -12,6 +12,7 @@
     <span class="skill-prerequisites__label">
       {{ variant === 'box' ? 'Prerequisites:' : 'Requires:' }}
     </span>
+
     <template v-if="variant === 'box'">
       <RouterLink
         v-for="prereq in prerequisites"
@@ -22,6 +23,7 @@
         {{ prereq }}
       </RouterLink>
     </template>
+
     <span v-else class="skill-prerequisites__list">
       {{ prerequisites.join(', ') }}
     </span>

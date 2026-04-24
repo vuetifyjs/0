@@ -47,6 +47,7 @@
           class="size-6 rounded-full mx-auto mb-2"
           :style="{ backgroundColor: ticket.value.accent }"
         />
+
         <span class="text-xs font-medium">{{ ticket.value.name }}</span>
       </button>
     </div>
@@ -60,9 +61,11 @@
       <p class="text-sm font-semibold mb-1">
         {{ selected.name }} Theme
       </p>
+
       <p class="text-xs opacity-70 mb-3">
         Preview of the selected color palette.
       </p>
+
       <div class="flex gap-2">
         <span
           class="px-3 py-1 rounded text-xs font-medium"
@@ -70,6 +73,7 @@
         >
           Primary
         </span>
+
         <span
           class="px-3 py-1 rounded text-xs font-medium border"
           :style="{ borderColor: selected.accent, color: selected.accent }"
@@ -84,9 +88,11 @@
       <p>
         selectedId: <span class="text-on-surface font-medium">{{ picker.selectedId.value }}</span>
       </p>
+
       <p>
         selectedIndex: <span class="text-on-surface font-medium">{{ picker.selectedIndex.value }}</span>
       </p>
+
       <p>
         registered: <span class="text-on-surface font-medium">{{ picker.size }}</span>
       </p>

@@ -34,6 +34,7 @@
   >
     <div class="flex items-center gap-3 px-4 py-3">
       <span class="text-sm text-on-surface flex-1">{{ toast.message }}</span>
+
       <button
         class="text-on-surface-variant hover:text-on-surface text-xs shrink-0"
         @click="onDismiss(toast.id)"

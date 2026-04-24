@@ -32,9 +32,11 @@
       <div class="px-3 py-1.5 rounded bg-surface-variant text-on-surface-variant">
         Scroll: <span class="font-mono">{{ scrollTop }}px</span>
       </div>
+
       <div class="px-3 py-1.5 rounded bg-surface-variant text-on-surface-variant">
         Progress: <span class="font-mono">{{ scrollPercent }}%</span>
       </div>
+
       <div class="px-3 py-1.5 rounded bg-primary text-on-primary">
         RAF updates: <span class="font-mono">{{ updateCount }}</span>
       </div>
@@ -60,6 +62,7 @@
           class="p-4 rounded bg-surface-variant"
         >
           <p class="font-medium text-on-surface">Item {{ i }}</p>
+
           <p class="text-sm text-on-surface-variant">
             Scroll to see RAF throttling in action
           </p>

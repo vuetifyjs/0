@@ -49,9 +49,11 @@
         v-for="([tier, config], i) in tiers"
         :key="tier"
       ><span class="inline-flex items-center gap-0.5 align-baseline" :class="config.color"><AppIcon
-        :icon="config.icon"
-        :size="14"
-      />{{ config.label.toLowerCase() }}</span><template v-if="i < tiers.length - 2">, </template><template v-else-if="i === tiers.length - 2">, or </template></template>&mdash;and
+         :icon="config.icon"
+         :size="14"
+       />{{ config.label.toLowerCase() }}</span>
+
+        <template v-if="i < tiers.length - 2">, </template><template v-else-if="i === tiers.length - 2">, or </template></template>&mdash;and
       groups are scored by averaging their individual results so you can spot bottlenecks at a glance.
       This transparency helps you make informed decisions about which patterns scale for your use case.
       Learn more in the <router-link class="v0-link" to="/guide/fundamentals/benchmarks">benchmarks guide</router-link>.

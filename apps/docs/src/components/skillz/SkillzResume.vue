@@ -93,6 +93,7 @@
             <p class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
               Skill in Progress
             </p>
+
             <AppCloseButton label="Dismiss" size="sm" @click="onDismiss" />
           </div>
 
@@ -128,6 +129,7 @@
             >
               Remind me later
             </button>
+
             <button
               class="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold bg-primary text-on-primary rounded-lg hover:brightness-110 transition-[filter]"
               type="button"

@@ -18,6 +18,7 @@
       <span>Skill Level</span>
       <span v-if="levelFilter.selectedLevels.size > 0" class="text-primary">({{ levelFilter.selectedLevels.size }})</span>
     </h3>
+
     <div class="space-y-1">
       <button
         v-for="level in levelFilter.levels"
@@ -33,6 +34,7 @@
         >
           <AppIcon v-if="levelFilter.isSelected(level)" :class="levelConfig[level]!.text" icon="check" size="12" />
         </span>
+
         <span>{{ levelConfig[level]!.label }}</span>
       </button>
     </div>

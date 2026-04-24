@@ -86,6 +86,7 @@
         role="tabpanel"
       >
         <h3 class="text-lg font-semibold mb-2">{{ tab.value }}</h3>
+
         <p class="text-on-surface-variant">
           This panel demonstrates keyboard navigation. Use arrow keys to move between tabs,
           Home/End to jump to first/last.

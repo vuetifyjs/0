@@ -130,6 +130,7 @@
         }"
       >
         <span class="flex-1">{{ ticket.subject }}</span>
+
         <button class="p-1 -mr-1 opacity-50 hover:opacity-100" @click.stop="notifications.unregister(ticket.id)">
           <svg class="w-3.5 h-3.5 pointer-events-none" viewBox="0 0 24 24"><path :d="mdiClose" fill="currentColor" /></svg>
         </button>
@@ -162,6 +163,7 @@
             v-if="!ticket.readAt"
             class="mt-2 w-2 h-2 rounded-full bg-primary shrink-0"
           />
+
           <span v-else class="mt-2 w-2 h-2 shrink-0" />
 
           <div class="flex-1 min-w-0">
@@ -169,18 +171,22 @@
               <span class="text-sm truncate" :class="{ 'font-bold': !ticket.readAt }">
                 {{ ticket.subject }}
               </span>
+
               <span class="text-xs opacity-40 shrink-0">{{ elapsed(ticket.createdAt) }}</span>
             </div>
+
             <p v-if="ticket.body" class="text-xs opacity-60 mt-0.5 truncate">{{ ticket.body }}</p>
 
             <div class="flex gap-2 mt-1.5">
               <button class="text-xs text-primary" @click="ticket.readAt ? ticket.unread() : ticket.read()">
                 {{ ticket.readAt ? 'Mark unread' : 'Mark read' }}
               </button>
+
               <button class="text-xs opacity-40 flex items-center gap-0.5" @click="ticket.archivedAt ? ticket.unarchive() : ticket.archive()">
                 <svg class="w-3 h-3" viewBox="0 0 24 24"><path :d="mdiArchiveOutline" fill="currentColor" /></svg>
                 {{ ticket.archivedAt ? 'Unarchive' : 'Archive' }}
               </button>
+
               <button
                 v-if="!ticket.snoozedUntil"
                 class="text-xs opacity-40 flex items-center gap-0.5"
@@ -189,6 +195,7 @@
                 <svg class="w-3 h-3" viewBox="0 0 24 24"><path :d="mdiClockOutline" fill="currentColor" /></svg>
                 Snooze
               </button>
+
               <span v-else class="text-xs opacity-40">Snoozed</span>
             </div>
           </div>
@@ -225,6 +232,7 @@
           <Snackbar.Content class="flex-1">
             {{ ticket!.subject }}
           </Snackbar.Content>
+
           <Snackbar.Close
             class="p-1 -mr-1 opacity-70 hover:opacity-100"
             @click="ticket!.dismiss()"

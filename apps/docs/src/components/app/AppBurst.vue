@@ -109,6 +109,7 @@
     <span class="burst-icon" :class="{ active }">
       {{ emoji ?? '🎉' }}
     </span>
+
     <span ref="particlesEl" class="burst-particles absolute pointer-events-none overflow-visible" />
   </span>
 </template>

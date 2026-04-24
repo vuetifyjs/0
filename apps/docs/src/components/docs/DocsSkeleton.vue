@@ -29,6 +29,7 @@
 <template>
   <div class="flex" :class="[direction === 'row' ? 'flex-row' : 'flex-col', gap]" role="status">
     <span class="sr-only">Loading...</span>
+
     <div
       v-for="i in lines"
       :key="i"

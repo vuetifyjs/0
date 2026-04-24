@@ -54,18 +54,21 @@
       >
         + Info
       </button>
+
       <button
         class="w-24 py-1.5 bg-success text-on-success rounded font-medium text-sm hover:opacity-90"
         @click="random('success')"
       >
         + Success
       </button>
+
       <button
         class="w-24 py-1.5 bg-warning text-on-warning rounded font-medium text-sm hover:opacity-90"
         @click="random('warning')"
       >
         + Warning
       </button>
+
       <button
         class="w-24 py-1.5 bg-error text-on-error rounded font-medium text-sm hover:opacity-90"
         @click="random('error')"
@@ -82,6 +85,7 @@
       <!-- Header -->
       <div v-if="count > 0" class="flex items-center justify-between px-3 py-2 text-xs text-on-surface-variant/60">
         <span>{{ count }} notification{{ count > 1 ? 's' : '' }}</span>
+
         <button
           class="hover:text-on-surface-variant transition-colors"
           @click="clear"
@@ -103,6 +107,7 @@
             <span class="text-sm font-medium">{{ n.title }}</span>
             <span v-if="n.description" class="text-xs opacity-70">{{ n.description }}</span>
           </div>
+
           <span class="text-xs opacity-60 shrink-0">dismiss</span>
         </div>
       </div>

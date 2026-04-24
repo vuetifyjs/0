@@ -150,6 +150,7 @@
       >
         <!-- Column headers (group names) -->
         <div class="sticky top-0 z-1 bg-surface px-2 py-1" />
+
         <div
           v-for="([hue]) in rows"
           :key="hue"
@@ -186,6 +187,7 @@
       >
         <!-- Column headers -->
         <div class="sticky top-0 z-1 bg-surface px-2 py-1" />
+
         <div
           v-for="col in columns"
           :key="col"

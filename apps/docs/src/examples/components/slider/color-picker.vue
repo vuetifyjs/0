@@ -32,6 +32,7 @@
     <!-- Presets -->
     <div class="flex flex-col gap-2">
       <span class="text-sm text-on-surface-variant">Presets</span>
+
       <div class="flex gap-2 flex-wrap">
         <button
           v-for="preset in presets"

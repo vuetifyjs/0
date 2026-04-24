@@ -35,6 +35,7 @@
         :value="tab.value"
       >
         <h3 class="text-lg font-medium mb-2">{{ tab.label }}</h3>
+
         <p class="text-on-surface-variant">
           Content for the {{ tab.label.toLowerCase() }} tab.
         </p>

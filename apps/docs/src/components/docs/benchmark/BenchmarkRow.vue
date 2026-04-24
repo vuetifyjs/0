@@ -25,6 +25,7 @@
           icon="fire"
           :size="14"
         />
+
         <span
           class="text-sm"
           :class="isFastest ? 'font-medium text-on-surface' : 'text-on-surface-variant'"
@@ -47,6 +48,7 @@
             :style="{ width: `${benchmark.relativeHz}%` }"
           />
         </div>
+
         <code class="text-xs whitespace-nowrap shrink-0 w-24 text-right">{{ benchmark.hzLabel }}</code>
       </div>
     </td>

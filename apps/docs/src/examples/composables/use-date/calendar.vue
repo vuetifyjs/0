@@ -45,7 +45,9 @@
       >
         &larr;
       </button>
+
       <span class="font-semibold text-sm">{{ monthYear }}</span>
+
       <button
         class="p-1 rounded hover:bg-surface-tint"
         type="button"

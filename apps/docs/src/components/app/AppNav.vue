@@ -172,6 +172,7 @@
       <p class="text-xs text-on-surface-variant mb-2">
         Showing docs for your project
       </p>
+
       <button
         class="text-xs text-primary hover:underline"
         type="button"

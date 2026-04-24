@@ -83,6 +83,7 @@
             <h3 class="text-base font-semibold text-on-surface mb-1">{{ card.title }}</h3>
             <p class="text-sm text-on-surface-variant">{{ card.desc }}</p>
           </div>
+
           <div
             class="min-w-10 h-10 px-2 rounded-full flex items-center justify-center text-xs font-mono border transition-all duration-300"
             :class="isRevealed(card.id)

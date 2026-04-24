@@ -26,9 +26,11 @@
       <button class="w-full text-left px-4 py-2 text-sm hover:bg-surface-tint">
         Profile
       </button>
+
       <button class="w-full text-left px-4 py-2 text-sm hover:bg-surface-tint">
         Settings
       </button>
+
       <button class="w-full text-left px-4 py-2 text-sm hover:bg-surface-tint">
         Sign out
       </button>

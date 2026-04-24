@@ -57,6 +57,7 @@
   <div class="space-y-4">
     <div class="flex items-center gap-3 flex-wrap">
       <label class="text-xs text-on-surface-variant">Min level:</label>
+
       <div class="flex gap-1">
         <button
           v-for="lvl in levels"
@@ -97,6 +98,7 @@
     <div class="rounded-lg border border-divider bg-surface-variant/30 overflow-hidden">
       <div class="flex items-center justify-between px-3 py-1.5 border-b border-divider">
         <span class="text-[10px] uppercase tracking-wider text-on-surface-variant/60">Console output</span>
+
         <button
           v-if="logs.length > 0"
           class="text-[10px] text-on-surface-variant hover:text-on-surface"
@@ -110,6 +112,7 @@
         <div v-if="logs.length === 0" class="text-on-surface-variant/50 py-4 text-center">
           Click a log level button above
         </div>
+
         <div
           v-for="(log, index) in logs"
           :key="index"

@@ -24,6 +24,7 @@
       >
         <Radio.Indicator class="size-2.5 rounded-full bg-primary" />
       </Radio.Root>
+
       <div>
         <div class="font-medium">{{ item.label }}</div>
         <div class="text-sm text-on-surface-variant">{{ item.description }}</div>

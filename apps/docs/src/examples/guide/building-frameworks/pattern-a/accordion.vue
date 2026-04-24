@@ -25,6 +25,7 @@
       <span class="text-sm text-on-surface-variant">
         {{ accordion.selectedIds.size }} of {{ accordion.size }} expanded
       </span>
+
       <div class="flex gap-2">
         <button
           class="px-2 py-1 text-xs font-medium text-primary hover:bg-primary/10 rounded transition-colors"
@@ -32,6 +33,7 @@
         >
           Expand all
         </button>
+
         <button
           class="px-2 py-1 text-xs font-medium text-primary hover:bg-primary/10 rounded transition-colors"
           @click="accordion.unselectAll"
@@ -54,6 +56,7 @@
         @click="item.toggle"
       >
         <span>{{ item.value }}</span>
+
         <svg
           class="transition-transform duration-200"
           :class="{ 'rotate-180': item.isSelected.value }"

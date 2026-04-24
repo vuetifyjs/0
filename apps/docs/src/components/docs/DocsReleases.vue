@@ -171,6 +171,7 @@
 
           <template v-if="model.reactions?.total_count">
             <span class="opacity-50">&mdash;</span>
+
             <template v-for="(emoji, key) in reactions" :key>
               <span
                 v-if="getReactionCount(model, key)"
@@ -222,9 +223,11 @@
           @click="selectRelease(release)"
         >
           <span>{{ release.tag_name }}</span>
+
           <span v-if="release.name && release.name !== release.tag_name" class="opacity-50 text-sm truncate">
             {{ release.name }}
           </span>
+
           <span v-if="release.reactions?.total_count" class="ml-auto">
             {{ genEmoji(release.reactions.total_count) }}
           </span>

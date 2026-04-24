@@ -29,6 +29,7 @@
       <ExpansionPanel.Header class="my-accordion__header">
         <ExpansionPanel.Activator class="my-accordion__trigger">
           <span class="my-accordion__title">{{ item.title }}</span>
+
           <svg
             class="my-accordion__icon"
             :class="{ 'my-accordion__icon--open': isSelected }"

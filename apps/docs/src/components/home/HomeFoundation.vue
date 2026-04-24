@@ -38,6 +38,7 @@
 
         <div>
           <h3 class="text-lg font-semibold mb-2">Built by the Vuetify team</h3>
+
           <p class="opacity-60 leading-relaxed">
             v0 extracts Vuetify's battle-tested patterns into a headless layer. The same team that built and maintains Vue's most popular component framework.
           </p>
@@ -59,6 +60,7 @@
         <p class="text-sm leading-relaxed italic opacity-80">
           "Vuetify 5 will be built on v0. Every pattern we've refined over a decade is becoming the foundation for the next generation."
         </p>
+
         <p class="text-xs opacity-50 mt-2">John Leider, Creator of Vuetify</p>
       </div>
     </div>

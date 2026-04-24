@@ -115,6 +115,7 @@
 
           <p>
             <span class="text-on-surface-variant">valid: </span>
+
             <span :class="field.validation.isValid.value === true ? 'text-success' : field.validation.isValid.value === false ? 'text-error' : 'text-on-surface-variant'">
               {{ field.validation.isValid.value ?? 'null' }}
             </span>
@@ -135,6 +136,7 @@
       <div class="mt-2 pt-2 border-t border-divider flex gap-4 text-xs">
         <p>
           <span class="text-on-surface-variant">aggregate isValid: </span>
+
           <span
             class="font-medium"
             :class="aggregate === true ? 'text-success' : aggregate === false ? 'text-error' : 'text-on-surface-variant'"

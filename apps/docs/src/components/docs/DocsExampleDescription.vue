@@ -34,6 +34,7 @@
         :href="`#${anchorId}`"
         @click.prevent="scroll.scrollToAnchor(anchorId)"
       >{{ title }}</a>
+
       <template v-else>{{ title }}</template>
     </h3>
 

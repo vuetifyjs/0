@@ -24,6 +24,7 @@
       >
         <Radio.Indicator class="size-2.5 rounded-full bg-primary" />
       </Radio.Root>
+
       <span>{{ option.label }}</span>
     </label>
   </Radio.Group>

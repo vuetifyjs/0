@@ -152,6 +152,7 @@
     <!-- Theme Name -->
     <div>
       <label class="text-xs font-medium text-on-surface-variant mb-1 block">Theme Name</label>
+
       <input
         v-model="draft.label"
         class="w-full px-3 py-2 text-sm rounded-lg border border-divider bg-surface text-on-surface"
@@ -163,6 +164,7 @@
     <!-- Dark Mode Toggle -->
     <div class="flex items-center justify-between">
       <span class="text-xs font-medium text-on-surface-variant">Dark Mode</span>
+
       <button
         :class="[
           'relative w-10 h-5 rounded-full transition-colors',
@@ -187,6 +189,7 @@
       class="space-y-2"
     >
       <div class="text-xs font-medium text-on-surface-variant">{{ group.label }}</div>
+
       <div class="space-y-1.5">
         <AppSettingsColorInput
           v-for="colorKey in group.colors"
@@ -206,6 +209,7 @@
       >
         Cancel
       </button>
+
       <button
         class="flex-1 px-4 py-2 text-sm rounded-lg bg-primary text-on-primary hover:bg-primary/90 transition-colors"
         type="button"

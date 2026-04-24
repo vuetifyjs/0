@@ -71,10 +71,12 @@
         @click="onCopy(hex)"
       >
         <div class="h-8" :style="{ backgroundColor: hex }" />
+
         <div class="px-2 py-1">
           <div class="text-[11px] font-medium text-on-surface capitalize">{{ name }}</div>
           <div class="text-[10px] text-on-surface-variant font-mono">{{ hex }}</div>
         </div>
+
         <div
           v-if="copied === hex"
           class="absolute inset-0 flex items-center justify-center bg-black/60 text-white text-xs font-medium rounded-lg"
@@ -89,6 +91,7 @@
       <summary class="text-xs font-medium text-on-surface-variant cursor-pointer select-none">
         Palette tokens
       </summary>
+
       <div class="mt-2 flex flex-wrap gap-1.5">
         <div
           v-for="(shades, name) in palette"
@@ -102,6 +105,7 @@
             :style="{ backgroundColor: hex }"
             :title="`{palette.${name}.${shade}} → ${hex}`"
           />
+
           <span class="text-[10px] text-on-surface-variant ml-0.5">{{ name }}</span>
         </div>
       </div>

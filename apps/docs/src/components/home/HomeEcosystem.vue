@@ -159,6 +159,7 @@
         <span class="w-1.75 h-1.75 rounded-full bg-primary" />
         Component
       </span>
+
       <span class="flex items-center gap-1.5 text-xs opacity-50">
         <span class="w-1.75 h-1.75 rounded-sm bg-teal-400" />
         Composable
@@ -183,6 +184,7 @@
                 class="w-1.75 h-1.75 flex-shrink-0"
                 :class="item.type === 'component' ? 'rounded-full bg-primary' : 'rounded-sm bg-teal-400'"
               />
+
               <span
                 class="font-semibold text-sm transition-colors"
                 :class="[
@@ -193,6 +195,7 @@
                 {{ item.name }}
               </span>
             </div>
+
             <div class="text-xs opacity-50">
               {{ item.description }}
             </div>

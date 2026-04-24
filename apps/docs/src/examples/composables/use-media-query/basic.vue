@@ -16,6 +16,7 @@
         class="w-3 h-3 rounded-full"
         :class="isLandscape ? 'bg-success' : 'bg-error'"
       />
+
       <span>Landscape orientation: <strong>{{ isLandscape }}</strong></span>
     </div>
 
@@ -24,6 +25,7 @@
         class="w-3 h-3 rounded-full"
         :class="isWide ? 'bg-success' : 'bg-error'"
       />
+
       <span>Width >= {{ minWidth }}px: <strong>{{ isWide }}</strong></span>
     </div>
 

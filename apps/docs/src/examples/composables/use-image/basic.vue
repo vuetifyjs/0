@@ -29,9 +29,11 @@
         @error="onError"
         @load="onLoad"
       >
+
       <span v-if="!isLoaded && !isError" class="text-on-surface-variant text-sm">
         Loading...
       </span>
+
       <svg
         v-if="isError"
         aria-label="Image failed to load"
@@ -50,6 +52,7 @@
       >
         Load valid
       </button>
+
       <button
         class="px-3 py-1 bg-error text-on-error rounded text-sm"
         @click="loadBroken"

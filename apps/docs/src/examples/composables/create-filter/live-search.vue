@@ -39,6 +39,7 @@
         placeholder="Search cities or countries..."
         type="text"
       >
+
       <svg
         class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 opacity-40"
         fill="none"
@@ -65,6 +66,7 @@
           <span class="mx-2 opacity-30">/</span>
           <span class="text-sm opacity-70" v-html="highlight(city.country)" />
         </div>
+
         <span class="text-sm font-mono opacity-50">{{ city.population }}</span>
       </div>
 

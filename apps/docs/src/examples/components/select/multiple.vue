@@ -26,6 +26,7 @@
             {{ value }}
           </span>
         </Select.Value>
+
         <Select.Placeholder class="text-on-surface-variant">Choose fruits…</Select.Placeholder>
 
         <Select.Cue v-slot="{ isOpen }" class="text-xs opacity-50 ms-auto">

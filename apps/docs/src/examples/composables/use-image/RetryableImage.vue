@@ -50,9 +50,11 @@
       >
         <path :d="mdiImageBrokenVariant" fill="currentColor" />
       </svg>
+
       <span v-if="attempts > 0" class="text-xs text-on-surface-variant">
         Attempt {{ attempts + 1 }}
       </span>
+
       <button
         class="px-3 py-1 bg-primary text-on-primary rounded text-sm"
         @click="onRetry"

@@ -70,6 +70,7 @@
       <Dialog.Activator class="inline-flex items-center gap-3 px-4 py-2 bg-surface border border-divider rounded-lg hover:border-primary transition-colors">
         <span class="i-mdi-magnify text-on-surface-variant" />
         <span class="text-on-surface-variant">Search commands...</span>
+
         <kbd class="ml-4 px-1.5 py-0.5 text-xs font-mono bg-surface-variant text-on-surface-variant rounded">
           {{ modKey }}+J
         </kbd>
@@ -82,12 +83,14 @@
       <Dialog.Content class="w-full max-w-lg mx-auto mt-[15vh] rounded-xl bg-surface border border-divider shadow-2xl overflow-hidden text-left">
         <div class="flex items-center gap-3 px-4 py-3 border-b border-divider">
           <span class="i-mdi-magnify text-xl text-on-surface-variant" />
+
           <input
             ref="input"
             v-model="query"
             class="flex-1 bg-transparent text-on-surface outline-none placeholder:text-on-surface-variant"
             placeholder="Type a command..."
           >
+
           <kbd class="px-1.5 py-0.5 text-xs font-mono bg-surface-variant text-on-surface-variant rounded">ESC</kbd>
         </div>
 
@@ -103,10 +106,12 @@
           >
             <span class="text-lg" :class="cmd.icon" />
             <span class="flex-1">{{ cmd.label }}</span>
+
             <kbd class="px-1.5 py-0.5 text-xs font-mono bg-surface-variant/50 rounded">
               {{ modKey }}+{{ cmd.hotkey }}
             </kbd>
           </Dialog.Close>
+
           <div v-if="filtered.length === 0" class="px-4 py-8 text-center text-on-surface-variant">
             No commands found
           </div>

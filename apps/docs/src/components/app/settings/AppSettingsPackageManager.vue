@@ -18,6 +18,7 @@
 <template>
   <section>
     <AppSettingsHeader icon="download" title="Package Manager" />
+
     <AppSettingsSingleSelect
       v-model="settings.packageManager.value"
       aria-label="Package manager"
@@ -25,6 +26,7 @@
       mono
       :options="packageManagerOptions"
     />
+
     <p class="text-xs text-on-surface-variant/60 mt-2">
       Default for code examples
     </p>

@@ -56,6 +56,7 @@
         >
           <AppIcon v-if="levelFilter.isSelected(level)" :class="levelConfig[level].text" icon="check" size="12" />
         </span>
+
         <span>{{ levelConfig[level].label }}</span>
       </button>
     </Popover.Content>

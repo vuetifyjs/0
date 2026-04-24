@@ -53,11 +53,13 @@
             :icon="preset.icon"
             :size="18"
           />
+
           <div class="flex-1 min-w-0">
             <div
               class="text-sm font-medium"
               :class="playground.activePreset.value === preset.id ? 'text-primary' : 'text-on-surface'"
             >{{ preset.label }}</div>
+
             <div class="text-xs text-on-surface-variant mt-0.5">{{ preset.description }}</div>
           </div>
           <!-- Active checkmark -->
@@ -84,12 +86,14 @@
           <p class="text-xs text-on-surface-variant">
             Applying <strong class="text-on-surface">{{ preset.label }}</strong> will reset your playground. Any unsaved work will be lost.
           </p>
+
           <div class="flex gap-2">
             <button
               class="px-3 py-1.5 rounded text-xs font-medium bg-primary text-on-primary"
               type="button"
               @click="onApply(preset.id)"
             >Apply</button>
+
             <button
               class="px-3 py-1.5 rounded text-xs font-medium border border-divider text-on-surface"
               type="button"
@@ -103,6 +107,7 @@
     <!-- Add-ons -->
     <div class="flex flex-col gap-1.5">
       <div class="text-xs font-semibold text-on-surface-variant uppercase tracking-wide opacity-70 px-0.5">Add-ons</div>
+
       <div class="flex flex-col gap-1">
         <div
           v-for="addon in ADDONS"
@@ -110,10 +115,12 @@
           class="flex items-center gap-3 px-3 py-2.5 rounded-lg border border-divider"
         >
           <AppIcon class="shrink-0 text-on-surface-variant" :icon="addon.icon" :size="16" />
+
           <div class="flex-1 min-w-0">
             <div class="text-sm font-medium text-on-surface">{{ addon.label }}</div>
             <div class="text-xs text-on-surface-variant mt-0.5">{{ addon.description }}</div>
           </div>
+
           <Switch.Root
             :aria-label="addon.label"
             class="shrink-0 inline-flex items-center border-none bg-transparent p-0 outline-none"

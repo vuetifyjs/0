@@ -14,18 +14,21 @@
       >
         Success
       </button>
+
       <button
         class="px-3 py-1.5 rounded text-sm border border-divider hover:bg-surface-tint"
         @click="add('Your session will expire soon', 'warning', 8000)"
       >
         Warning (8s)
       </button>
+
       <button
         class="px-3 py-1.5 rounded text-sm border border-divider hover:bg-surface-tint"
         @click="add('New message from team', 'info', 4000)"
       >
         Info (4s)
       </button>
+
       <button
         class="px-3 py-1.5 rounded text-sm border border-divider hover:bg-surface-tint"
         @click="add('Failed to save changes', 'error', 6000)"

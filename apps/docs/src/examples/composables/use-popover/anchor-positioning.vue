@@ -34,10 +34,12 @@
     >
       <div class="p-4">
         <div class="font-medium text-on-surface mb-1">Anchor Positioned</div>
+
         <p class="text-sm text-on-surface-variant">
           This popover uses the native Popover API with CSS anchor positioning. It flips automatically when near viewport edges.
         </p>
       </div>
+
       <div class="border-t border-divider p-3 flex justify-end">
         <button
           class="px-3 py-1.5 text-xs rounded bg-primary text-on-primary"

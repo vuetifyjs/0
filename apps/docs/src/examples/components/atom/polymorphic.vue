@@ -15,6 +15,7 @@
     <div class="flex flex-wrap gap-6 text-sm">
       <fieldset class="flex items-center gap-2">
         <legend class="text-secondary mr-1">Variant</legend>
+
         <button
           v-for="v in variants"
           :key="v"
@@ -28,6 +29,7 @@
 
       <fieldset class="flex items-center gap-2">
         <legend class="text-secondary mr-1">Size</legend>
+
         <button
           v-for="s in sizes"
           :key="s"
@@ -41,6 +43,7 @@
 
       <fieldset class="flex items-center gap-2">
         <legend class="text-secondary mr-1">Mode</legend>
+
         <button
           class="px-2 py-0.5 rounded border text-xs"
           :class="!renderless ? 'bg-primary text-on-primary border-primary' : 'border-divider'"
@@ -48,6 +51,7 @@
         >
           rendered
         </button>
+
         <button
           class="px-2 py-0.5 rounded border text-xs"
           :class="renderless ? 'bg-primary text-on-primary border-primary' : 'border-divider'"

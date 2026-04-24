@@ -75,12 +75,15 @@
           >
             <path :d="icons[file.icon]" />
           </svg>
+
           <span class="flex-1 text-sm" :class="file.isSelected.value ? 'text-primary font-medium' : ''">
             {{ file.value }}
           </span>
+
           <span class="text-xs text-on-surface-variant font-mono">
             {{ formatSize(file.size) }}
           </span>
+
           <span
             class="size-4 rounded border flex items-center justify-center text-xs"
             :class="file.isSelected.value
@@ -106,6 +109,7 @@
       <span class="text-on-surface-variant">
         {{ files.selectedIds.size }} selected
       </span>
+
       <span class="font-mono text-xs">
         {{ formatSize(Array.from(files.selectedItems.value).reduce((sum, f) => sum + f.size, 0)) }}
       </span>

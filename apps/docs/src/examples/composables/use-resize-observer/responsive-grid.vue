@@ -59,6 +59,7 @@
             >
               <div class="w-5 h-5" :class="card.icon" />
             </div>
+
             <span class="font-medium text-on-surface">{{ card.title }}</span>
           </div>
         </div>

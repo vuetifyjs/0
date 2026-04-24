@@ -12,6 +12,7 @@
 <template>
   <section>
     <AppSettingsHeader icon="menu" title="Header" />
+
     <div class="space-y-1">
       <AppSettingsToggle
         v-model="showSkillFilter"
@@ -22,6 +23,7 @@
           <AppIcon icon="tune" size="16" />
         </template>
       </AppSettingsToggle>
+
       <AppSettingsToggle
         v-model="showThemeToggle"
         description="Theme switcher in header"
@@ -31,6 +33,7 @@
           <AppIcon icon="theme-settings" size="16" />
         </template>
       </AppSettingsToggle>
+
       <AppSettingsToggle
         v-model="showSocialLinks"
         description="GitHub and Discord links"

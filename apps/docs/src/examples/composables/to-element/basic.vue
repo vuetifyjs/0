@@ -66,6 +66,7 @@
         <span class="font-mono text-on-surface">{{ sources[source].code }}</span>
 
         <span class="text-on-surface-variant/60">Resolved</span>
+
         <span
           class="font-mono font-medium"
           :class="resolved ? 'text-primary' : 'text-warning'"

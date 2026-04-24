@@ -17,12 +17,14 @@
 <template>
   <section>
     <AppSettingsHeader icon="vapor" title="Motion" />
+
     <AppSettingsSingleSelect
       v-model="settings.reduceMotion.value"
       aria-label="Motion preference"
       layout="radio"
       :options="motionOptions"
     />
+
     <p class="text-xs text-on-surface-variant/60 mt-2">
       Reduce or disable animations
     </p>

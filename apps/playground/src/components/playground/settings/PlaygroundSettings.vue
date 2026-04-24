@@ -56,6 +56,7 @@
           >
             <AppIcon :icon="section.icon" :size="16" />
             <span>{{ section.label }}</span>
+
             <span
               v-if="!section.available"
               class="ml-auto text-[10px] opacity-60 border border-current rounded px-1"
@@ -69,6 +70,7 @@
             <h2 id="settings-title" class="text-sm font-medium">
               {{ current?.label }}
             </h2>
+
             <AppCloseButton @click="$emit('close')" />
           </div>
 

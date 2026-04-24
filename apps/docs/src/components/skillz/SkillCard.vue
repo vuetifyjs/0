@@ -34,7 +34,9 @@
         <SkillLevelBadge :level="skill.level" />
         <SkillModeBadge :mode="skill.mode" />
       </div>
+
       <SkillMasteredBadge v-if="done" :show-label="false" />
+
       <span v-else-if="isLocked" class="text-on-surface-variant flex items-center">
         <AppIcon icon="lock" :size="16" />
       </span>

@@ -165,6 +165,7 @@
             class="text-on-surface-variant shrink-0"
             icon="search"
           />
+
           <input
             :ref="el => search.inputRef.value = el as HTMLInputElement"
             v-model="search.text.value"
@@ -178,6 +179,7 @@
             role="combobox"
             type="search"
           >
+
           <kbd class="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-variant text-on-surface-variant text-xs font-mono">
             esc
           </kbd>
@@ -197,6 +199,7 @@
             <!-- Loading skeleton -->
             <div v-if="search.isLoading.value" role="status">
               <span class="sr-only">Loading search results...</span>
+
               <div
                 v-for="group in 2"
                 :key="group"
@@ -205,6 +208,7 @@
                 <div class="px-4 py-2 bg-surface-variant-50">
                   <div class="h-3 bg-surface-tint rounded animate-pulse w-20" />
                 </div>
+
                 <div
                   v-for="item in 3"
                   :key="item"
@@ -239,6 +243,7 @@
                 <div class="px-4 py-2 section-label bg-surface-variant-50 flex items-center justify-between">
                   <span>Favorites</span>
                 </div>
+
                 <div
                   v-for="(result, itemIndex) in search.favorites.value"
                   :id="`search-result-${getEmptyStateIndex('favorites', itemIndex)}`"
@@ -261,10 +266,12 @@
                     class="text-warning shrink-0 size-4"
                     icon="star"
                   />
+
                   <div class="flex-1 min-w-0">
                     <span class="font-medium">{{ result.title }}</span>
                     <span class="text-xs text-on-surface-variant ml-2">{{ result.category }}</span>
                   </div>
+
                   <span
                     aria-label="Remove from favorites"
                     class="btn-action text-on-surface/60 hover:text-on-surface-variant focus-visible:text-on-surface-variant opacity-0 group-hover:opacity-100 focus-visible:opacity-100 cursor-pointer"
@@ -292,6 +299,7 @@
                 <div class="px-4 py-2 section-label bg-surface-variant-50">
                   Recent
                 </div>
+
                 <div
                   v-for="(result, itemIndex) in search.recents.value"
                   :id="`search-result-${getEmptyStateIndex('recents', itemIndex)}`"
@@ -314,10 +322,12 @@
                     class="text-on-surface-variant shrink-0 size-4"
                     icon="history"
                   />
+
                   <div class="flex-1 min-w-0">
                     <span class="font-medium">{{ result.title }}</span>
                     <span class="text-xs text-on-surface-variant ml-2">{{ result.category }}</span>
                   </div>
+
                   <div class="flex items-center gap-1 shrink-0">
                     <!-- Favorite toggle -->
                     <span
@@ -384,6 +394,7 @@
                 >
                   {{ group.category }}
                 </Discovery.Activator>
+
                 <div
                   v-else
                   class="px-4 py-2 section-label bg-surface-variant-50"
@@ -409,6 +420,7 @@
                 >
                   <div class="flex-1 min-w-0 flex flex-col gap-0.5">
                     <span class="font-medium">{{ group.items[0].title }}</span>
+
                     <span
                       v-if="group.items[0].headings.length > 0"
                       class="text-xs text-on-surface-variant truncate"
@@ -416,6 +428,7 @@
                       {{ group.items[0].headings.slice(0, 3).join(' → ') }}
                     </span>
                   </div>
+
                   <div class="flex items-center gap-1 shrink-0">
                     <!-- Favorite toggle -->
                     <Discovery.Activator
@@ -511,6 +524,7 @@
                 >
                   <div class="flex-1 min-w-0 flex flex-col gap-0.5">
                     <span class="font-medium">{{ result.title }}</span>
+
                     <span
                       v-if="result.headings.length > 0"
                       class="text-xs text-on-surface-variant truncate"
@@ -518,6 +532,7 @@
                       {{ result.headings.slice(0, 3).join(' → ') }}
                     </span>
                   </div>
+
                   <div class="flex items-center gap-1 shrink-0">
                     <!-- Favorite toggle -->
                     <span
@@ -579,11 +594,13 @@
               <kbd class="px-1.5 py-0.5 rounded bg-surface-variant font-mono">↓</kbd>
               navigate
             </span>
+
             <span class="flex items-center gap-1">
               <kbd class="px-1.5 py-0.5 rounded bg-surface-variant font-mono">↵</kbd>
               select
             </span>
           </div>
+
           <span>Powered by MiniSearch</span>
         </div>
       </div>

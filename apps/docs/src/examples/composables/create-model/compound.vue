@@ -60,6 +60,7 @@
         <div class="flex-1 flex flex-col gap-1.5 min-w-0">
           <div class="flex items-center gap-2">
             <span class="text-xs font-medium text-on-surface-variant/50 uppercase tracking-wider">{{ ticket.id }}</span>
+
             <button
               class="cursor-pointer p-0.5 rounded"
               :class="toValue(ticket.disabled) ? 'text-success/60 hover:text-success' : 'text-on-surface-variant/30 hover:text-warning'"

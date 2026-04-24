@@ -134,6 +134,7 @@
       <div v-if="$slots.footer" class="flex justify-end gap-2">
         <slot name="footer" />
       </div>
+
       <div v-else class="flex gap-2">
         <Discovery.Skip
           v-if="!isLast"

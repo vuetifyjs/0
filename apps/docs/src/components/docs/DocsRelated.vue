@@ -62,6 +62,7 @@
             <th class="text-left" scope="col">Category</th>
           </tr>
         </thead>
+
         <tbody>
           <tr v-for="link in links" :key="link.to">
             <td>
@@ -69,6 +70,7 @@
                 {{ link.name }}
               </AppLink>
             </td>
+
             <td>{{ link.category }}</td>
           </tr>
         </tbody>

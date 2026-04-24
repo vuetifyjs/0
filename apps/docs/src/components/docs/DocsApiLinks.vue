@@ -44,6 +44,7 @@
         :to="getComponentLink(api)"
       >
         <div class="font-semibold text-on-surface">{{ api.name }}</div>
+
         <div class="text-sm text-on-surface-variant mt-1">
           {{ api.props.length }} prop{{ api.props.length === 1 ? '' : 's' }}<template v-if="api.events.length > 0">, {{ api.events.length }} event{{ api.events.length === 1 ? '' : 's' }}</template><template v-if="api.slots.length > 0">, {{ api.slots.length }} slot{{ api.slots.length === 1 ? '' : 's' }}</template>
         </div>
@@ -57,6 +58,7 @@
         :to="`/api/${toKebab(composableApi.name)}`"
       >
         <div class="font-semibold text-on-surface">{{ composableApi.name }}</div>
+
         <div class="text-sm text-on-surface-variant mt-1">
           <template v-if="composableApi.functions.length > 0">{{ composableApi.functions.length }} function{{ composableApi.functions.length === 1 ? '' : 's' }}</template>
           <template v-if="composableApi.options.length > 0"><template v-if="composableApi.functions.length > 0">, </template>{{ composableApi.options.length }} option{{ composableApi.options.length === 1 ? '' : 's' }}</template>

@@ -49,6 +49,7 @@
       <span>{{ stats.total }} tasks</span>
       <span class="text-success">{{ stats.done }} done</span>
       <span v-if="stats.high > 0" class="text-error">{{ stats.high }} high priority</span>
+
       <span class="ml-auto font-mono text-on-surface-variant/60">
         registry.size = {{ tasks.length }}
       </span>
@@ -87,12 +88,14 @@
           </Select.Item>
         </Select.Content>
       </Select.Root>
+
       <input
         v-model="newTask"
         class="flex-1 px-3 py-1.5 text-sm rounded-lg border border-divider bg-surface text-on-surface placeholder:text-on-surface-variant outline-none focus:border-primary"
         placeholder="Add a task..."
         @keydown.enter="onAdd"
       >
+
       <button
         class="px-3 py-1.5 text-sm rounded-lg bg-primary text-on-primary hover:bg-primary/90 disabled:opacity-40 transition-colors"
         :disabled="!newTask.trim()"
@@ -115,6 +118,7 @@
       >
         {{ f === 'all' ? 'All' : f.charAt(0).toUpperCase() + f.slice(1) }}
       </button>
+
       <button
         v-if="stats.done > 0"
         class="ml-auto text-xs text-on-surface-variant hover:text-error transition-colors"
@@ -192,6 +196,7 @@
     <!-- Event log -->
     <div class="rounded-lg bg-surface-variant/30 p-3">
       <p class="text-[10px] uppercase tracking-wider text-on-surface-variant/60 mb-1.5">Event log</p>
+
       <div class="space-y-0.5">
         <p
           v-for="(entry, i) in events"
@@ -201,6 +206,7 @@
         >
           {{ entry }}
         </p>
+
         <p v-if="events.length === 0" class="text-xs text-on-surface-variant/60">
           Events will appear here as you add and remove tasks...
         </p>

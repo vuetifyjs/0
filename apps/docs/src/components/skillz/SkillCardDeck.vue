@@ -37,6 +37,7 @@
     <div v-for="{ track, meta, skills } in skillsByTrack" :key="track">
       <h2 class="m-0 mb-1 text-xl">{{ meta.label }}</h2>
       <p class="m-0 mb-4 text-sm text-on-surface-variant">{{ meta.description }}</p>
+
       <div class="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-4">
         <SkillCard v-for="skill in skills" :key="skill.id" :skill />
       </div>

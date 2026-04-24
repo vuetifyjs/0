@@ -63,6 +63,7 @@
           :src="lightLogo"
           width="128"
         >
+
         <img
           v-else
           alt="Vuetify0 Logo"
@@ -97,6 +98,7 @@
           <span class="shrink-0 size-6 rounded-full bg-primary text-on-primary flex items-center justify-center">
             <AppIcon icon="search" size="12" />
           </span>
+
           <span class="hidden md:inline text-sm text-on-surface-variant">Search the docs...</span>
           <kbd class="hidden md:inline-flex shrink-0 px-1.5 py-0.5 rounded bg-surface-tint text-on-surface-tint text-[10px] font-mono items-center rounded-r-lg">Ctrl+K</kbd>
         </button>

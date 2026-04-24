@@ -72,20 +72,25 @@
               <th class="text-left text-xs font-medium text-on-surface-variant px-4 py-2" scope="col">
                 Operation
               </th>
+
               <th class="text-left text-xs font-medium text-on-surface-variant px-4 py-2 min-w-48" scope="col">
                 Throughput
               </th>
+
               <th class="text-right text-xs font-medium text-on-surface-variant px-4 py-2 hidden md:table-cell" scope="col">
                 Latency
               </th>
+
               <th class="text-right text-xs font-medium text-on-surface-variant px-4 py-2 hidden lg:table-cell" scope="col">
                 vs Fastest
               </th>
+
               <th class="text-right text-xs font-medium text-on-surface-variant px-4 py-2 hidden md:table-cell" scope="col">
                 Margin
               </th>
             </tr>
           </thead>
+
           <tbody>
             <BenchmarkRow
               v-for="b in group.benchmarks"
