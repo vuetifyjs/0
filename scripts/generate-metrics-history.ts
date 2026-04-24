@@ -45,9 +45,20 @@ function parseArgs (argv: string[]): { force: boolean, only: string | null, list
   let only: string | null = null
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i]
-    if (arg === '--force') force = true
-    else if (arg === '--list') list = true
-    else if (arg === '--only') only = argv[++i] ?? null
+    switch (arg) {
+      case '--force': {
+        force = true
+        break
+      }
+      case '--list': {
+        list = true
+        break
+      }
+      case '--only': {
+        only = argv[++i] ?? null
+        break
+      }
+    }
   }
   return { force, only, list }
 }
@@ -64,8 +75,8 @@ function exec (file: string, args: string[], cwd: string, description: string): 
   console.log(`  $ ${file} ${args.join(' ')}`)
   try {
     execFileSync(file, args, { cwd, stdio: 'inherit' })
-  } catch (err) {
-    throw new Error(`${description} failed: ${(err as Error).message}`)
+  } catch (error) {
+    throw new Error(`${description} failed: ${(error as Error).message}`, { cause: error })
   }
 }
 
@@ -133,8 +144,8 @@ function processVersion (version: string, force: boolean): void {
 
     writeOutputFile(version, { items })
     console.log(`[${version}] done — wrote ${Object.keys(items).length} items`)
-  } catch (err) {
-    const message = (err as Error).message
+  } catch (error) {
+    const message = (error as Error).message
     console.error(`[${version}] FAILED: ${message}`)
     writeOutputFile(version, { error: message })
   } finally {

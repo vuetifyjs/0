@@ -37,10 +37,10 @@ export interface GroupEntry {
 }
 
 export interface ItemBenchmarks {
+  [benchName: string]: BenchEntry | BenchSummary | Record<string, GroupEntry> | undefined
   _groups: Record<string, GroupEntry>
   _fastest?: BenchSummary
   _slowest?: BenchSummary
-  [benchName: string]: BenchEntry | BenchSummary | Record<string, GroupEntry> | undefined
 }
 
 interface RawBench {
