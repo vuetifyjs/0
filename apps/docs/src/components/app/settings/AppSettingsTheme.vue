@@ -28,24 +28,7 @@
     clipboard.copy(config)
   }
 
-  interface ThemeOption {
-    id: ThemePreference
-    label: string
-    icon: string
-    theme?: ThemeId
-    custom?: boolean
-  }
-
-  // Custom themes as options
-  const customOptions = computed<ThemeOption[]>(() =>
-    themes_.customThemes.value.map(t => ({
-      id: t.id as ThemePreference,
-      label: t.label,
-      icon: t.icon,
-      theme: t.id as ThemeId,
-      custom: true,
-    })),
-  )
+  const customOptions = computed(() => themes_.customThemes.value)
 
   // Editor actions
   function startCreate () {
@@ -196,35 +179,13 @@
         <div class="text-xs font-medium text-on-surface-variant mb-2">Custom Themes</div>
 
         <div class="grid grid-cols-2 gap-2">
-          <button
+          <AppThemeCustomButton
             v-for="option in customOptions"
             :key="option.id"
-            :aria-pressed="toggle.preference.value === option.id"
-            :class="[
-              'flex flex-col items-start gap-1.5 px-3 py-2 rounded-lg border text-sm transition-colors group relative',
-              toggle.preference.value === option.id
-                ? 'border-primary bg-primary/10 text-primary'
-                : 'border-divider hover:border-primary/50 text-on-surface',
-            ]"
-            type="button"
-            @click="toggle.setPreference(option.id)"
-          >
-            <div class="flex items-center gap-2 w-full">
-              <AppIcon :icon="option.icon" size="16" />
-              <span class="font-medium truncate">{{ option.label }}</span>
-
-              <button
-                class="ml-auto opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-surface-tint transition-all"
-                title="Edit theme"
-                type="button"
-                @click.stop="startEdit(option.id)"
-              >
-                <AppIcon icon="edit" size="12" />
-              </button>
-            </div>
-
-            <AppThemePreview v-if="option.theme" :theme="option.theme" />
-          </button>
+            editable
+            :theme-id="option.id"
+            @edit="startEdit"
+          />
         </div>
       </div>
 
