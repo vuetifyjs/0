@@ -8,6 +8,9 @@
   // Composables
   import { useDiscovery } from '@/composables/useDiscovery'
 
+  // Utilities
+  import { watch } from 'vue'
+
   const discovery = useDiscovery()
 
   // Allowed keys during guided tours
@@ -26,30 +29,20 @@
     },
   )
 
-  // Hotkey navigation for guided tours
-  function isGuidedTourActive () {
-    return discovery.isActive.value && discovery.tours.selectedItem.value?.mode === 'guided'
-  }
+  const hotkeys = [
+    useHotkey('enter', () => discovery.next()),
+    useHotkey('right', () => discovery.next()),
+    useHotkey('left', () => discovery.prev()),
+    useHotkey('escape', () => discovery.stop()),
+  ]
 
-  useHotkey('enter', () => {
-    if (!isGuidedTourActive()) return
-    discovery.next()
-  })
-
-  useHotkey('right', () => {
-    if (!isGuidedTourActive()) return
-    discovery.next()
-  })
-
-  useHotkey('left', () => {
-    if (!isGuidedTourActive()) return
-    discovery.prev()
-  })
-
-  useHotkey('escape', () => {
-    if (!isGuidedTourActive()) return
-    discovery.stop()
-  })
+  watch(
+    () => discovery.isActive.value && discovery.tours.selectedItem.value?.mode === 'guided',
+    active => {
+      for (const h of hotkeys) active ? h.resume() : h.pause()
+    },
+    { immediate: true },
+  )
 </script>
 
 <template>
