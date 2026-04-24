@@ -6,12 +6,12 @@ import { fileURLToPath } from 'node:url'
 import type { GitDate } from './git-dates'
 import type { Plugin, ViteDevServer } from 'vite'
 
-import { getGitDate } from './git-dates'
+import { getGitDate, getGitHistory } from './git-dates'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const PAGES_DIR = resolve(__dirname, '../src/pages')
 
-export type PageDate = GitDate
+export type PageDate = GitDate & { history: string[] }
 export type PageDates = Record<string, PageDate>
 
 /**
@@ -32,7 +32,7 @@ async function generatePageDates (): Promise<PageDates> {
     const gitDate = getGitDate(file)
 
     if (gitDate) {
-      dates[urlPath] = gitDate
+      dates[urlPath] = { ...gitDate, history: getGitHistory(file) }
     }
   }
 
