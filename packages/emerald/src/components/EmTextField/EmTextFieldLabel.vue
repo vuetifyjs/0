@@ -21,3 +21,13 @@
     <slot />
   </label>
 </template>
+
+<style>
+.emerald-text-field__label {
+  font-family: Manrope, system-ui, -apple-system, sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 20px;
+  color: var(--emerald-primary-950, #221065);
+}
+</style>

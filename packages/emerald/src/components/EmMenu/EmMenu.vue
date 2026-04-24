@@ -1,20 +1,27 @@
 <script lang="ts">
-  import { V0Paper } from '@vuetify/paper'
+  // Framework
+  import { PopoverRoot } from '@vuetify/v0'
 
-  // Types
-  import type { V0PaperProps } from '@vuetify/paper'
-
-  export interface EmMenuProps extends V0PaperProps {}
+  export interface EmMenuProps {
+    id?: string
+  }
 </script>
 
 <script setup lang="ts">
   defineOptions({ name: 'EmMenu' })
 
-  const {} = defineProps<EmMenuProps>()
+  const { id } = defineProps<EmMenuProps>()
+
+  const model = defineModel<boolean>({ default: false })
 </script>
 
 <template>
-  <V0Paper as="div" class="emerald-menu">
-    <slot />
-  </V0Paper>
+  <PopoverRoot
+    :id
+    v-model="model"
+  >
+    <template #default="slotProps">
+      <slot v-bind="slotProps" />
+    </template>
+  </PopoverRoot>
 </template>

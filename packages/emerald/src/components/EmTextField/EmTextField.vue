@@ -48,6 +48,8 @@
     v-bind="paperProps"
     as="div"
     class="emerald-text-field"
+    :data-disabled="disabled || undefined"
+    :data-error="error || undefined"
   >
     <InputRoot
       v-model="model"
@@ -69,10 +71,19 @@
   </V0Paper>
 </template>
 
-<style scoped>
+<style>
 .emerald-text-field {
-  display: flex;
+  display: inline-flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 4px;
+  font-family: Manrope, system-ui, -apple-system, sans-serif;
+  font-size: 12px;
+  line-height: 20px;
+  color: #000000;
+}
+
+.emerald-text-field[data-disabled] {
+  opacity: 0.5;
+  pointer-events: none;
 }
 </style>

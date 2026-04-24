@@ -1,20 +1,27 @@
 <script lang="ts">
-  import { V0Paper } from '@vuetify/paper'
+  // Framework
+  import { PopoverRoot } from '@vuetify/v0'
 
-  // Types
-  import type { V0PaperProps } from '@vuetify/paper'
-
-  export interface EmTooltipProps extends V0PaperProps {}
+  export interface EmTooltipProps {
+    id?: string
+  }
 </script>
 
 <script setup lang="ts">
   defineOptions({ name: 'EmTooltip' })
 
-  const {} = defineProps<EmTooltipProps>()
+  const { id } = defineProps<EmTooltipProps>()
+
+  const model = defineModel<boolean>({ default: false })
 </script>
 
 <template>
-  <V0Paper as="div" class="emerald-tooltip">
-    <slot />
-  </V0Paper>
+  <PopoverRoot
+    :id
+    v-model="model"
+  >
+    <template #default="slotProps">
+      <slot v-bind="slotProps" />
+    </template>
+  </PopoverRoot>
 </template>
