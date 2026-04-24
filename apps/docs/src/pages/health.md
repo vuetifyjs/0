@@ -13,6 +13,7 @@ features:
 <script setup>
   import AppIcon from '@/components/app/AppIcon.vue'
   import DocsFreshnessSparkline from '@/components/docs/DocsFreshnessSparkline.vue'
+  import DocsFreshnessTable from '@/components/docs/DocsFreshnessTable.vue'
   import { useDate } from '@vuetify/v0'
   import { useFreshness, scoreToColor } from '@/composables/useFreshness'
   import { toRef } from 'vue'
@@ -71,3 +72,5 @@ features:
 </div>
 
 <DocsFreshnessSparkline class="my-12" />
+
+<DocsFreshnessTable />
