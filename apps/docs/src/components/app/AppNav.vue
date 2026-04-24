@@ -4,6 +4,7 @@
 
   // Components
   import { Discovery } from '@/components/discovery'
+  import DocsFreshnessPanel from '@/components/docs/DocsFreshnessPanel.vue'
 
   // Composables
   import { useLevelFilterContext } from '@/composables/useLevelFilter'
@@ -147,7 +148,7 @@
     aria-label="Main navigation"
     as="nav"
     :class="[
-      'flex flex-col fixed w-[230px] overflow-y-auto py-4 top-0 md:top-[calc(48px+var(--app-banner-h,24px))] bottom-0 start-0 ltr:-translate-x-full rtl:translate-x-full md:ltr:translate-x-0 md:rtl:translate-x-0 border-e border-solid border-divider',
+      'flex flex-col fixed w-[230px] py-4 top-0 md:top-[calc(48px+var(--app-banner-h,24px))] bottom-0 start-0 ltr:-translate-x-full rtl:translate-x-full md:ltr:translate-x-0 md:rtl:translate-x-0 border-e border-solid border-divider',
       settings.showBgGlass.value ? 'bg-glass-surface' : 'bg-surface',
       navigation.isOpen.value && '!translate-x-0',
       !settings.prefersReducedMotion.value && 'transition-transform duration-200 ease-in-out',
@@ -182,65 +183,69 @@
       </button>
     </div>
 
-    <ul class="flex gap-2 flex-col">
-      <template v-if="filteredOutPage">
-        <li class="px-4 section-label">
-          Active page
-        </li>
+    <div class="flex-1 overflow-y-auto">
+      <ul class="flex gap-2 flex-col">
+        <template v-if="filteredOutPage">
+          <li class="px-4 section-label">
+            Active page
+          </li>
 
-        <li class="px-4">
-          <router-link
-            aria-current="page"
-            class="font-semibold text-primary underline"
-            :to="filteredOutPage.to"
-          >
-            {{ filteredOutPage.name }}
-          </router-link>
-        </li>
+          <li class="px-4">
+            <router-link
+              aria-current="page"
+              class="font-semibold text-primary underline"
+              :to="filteredOutPage.to"
+            >
+              {{ filteredOutPage.name }}
+            </router-link>
+          </li>
 
-        <li class="px-4">
-          <AppDivider />
-        </li>
-      </template>
+          <li class="px-4">
+            <AppDivider />
+          </li>
+        </template>
 
-      <template v-for="(nav, i) in visibleNav" :key="i">
-        <li v-if="'divider' in nav" class="px-4">
-          <AppDivider />
-        </li>
+        <template v-for="(nav, i) in visibleNav" :key="i">
+          <li v-if="'divider' in nav" class="px-4">
+            <AppDivider />
+          </li>
 
-        <AppNavLink
-          v-else-if="'to' in nav"
-          :id="nav.to"
-          class="px-4"
-          :emphasized="nav.emphasized"
-          :name="nav.name"
-          :to="nav.to"
-        />
+          <AppNavLink
+            v-else-if="'to' in nav"
+            :id="nav.to"
+            class="px-4"
+            :emphasized="nav.emphasized"
+            :name="nav.name"
+            :to="nav.to"
+          />
 
-        <AppNavLink
-          v-else
-          :id="`category-root-${i}`"
-          class="px-4"
-          :name="nav.name"
-        />
-      </template>
+          <AppNavLink
+            v-else
+            :id="`category-root-${i}`"
+            class="px-4"
+            :name="nav.name"
+          />
+        </template>
 
-      <template v-if="levelFilter.selectedLevels.size > 0">
-        <!-- Skip divider if Active page section already added one and nav has no real content -->
-        <li v-if="!filteredOutPage || hasNavContent" class="px-4">
-          <AppDivider />
-        </li>
+        <template v-if="levelFilter.selectedLevels.size > 0">
+          <!-- Skip divider if Active page section already added one and nav has no real content -->
+          <li v-if="!filteredOutPage || hasNavContent" class="px-4">
+            <AppDivider />
+          </li>
 
-        <li class="px-4">
-          <router-link
-            class="flex items-center gap-2 text-sm text-on-surface-variant hover:text-primary hover:underline transition-colors"
-            to="/guide/essentials/using-the-docs#skill-levels"
-          >
-            <AppIcon icon="info" size="16" />
-            <span>Missing pages?</span>
-          </router-link>
-        </li>
-      </template>
-    </ul>
+          <li class="px-4">
+            <router-link
+              class="flex items-center gap-2 text-sm text-on-surface-variant hover:text-primary hover:underline transition-colors"
+              to="/guide/essentials/using-the-docs#skill-levels"
+            >
+              <AppIcon icon="info" size="16" />
+              <span>Missing pages?</span>
+            </router-link>
+          </li>
+        </template>
+      </ul>
+    </div>
+
+    <DocsFreshnessPanel class="shrink-0 mt-auto" />
   </Discovery.Activator>
 </template>
