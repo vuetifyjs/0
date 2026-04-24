@@ -3,6 +3,8 @@
   import { Popover } from '@vuetify/v0'
 
   // Composables
+  import { useCustomThemes } from '@/composables/useCustomThemes'
+  import { useSettings } from '@/composables/useSettings'
   import { useThemeToggle } from '@/composables/useThemeToggle'
 
   // Utilities
@@ -12,12 +14,26 @@
   const router = useRouter()
 
   const toggle = useThemeToggle()
+  const customThemes_ = useCustomThemes()
+  const settings = useSettings()
 
   const isOpen = shallowRef(false)
 
   function onBrowse () {
     isOpen.value = false
     router.push('/guide/features/palettes')
+  }
+
+  function onCreate () {
+    isOpen.value = false
+    settings.open()
+    customThemes_.startCreate()
+  }
+
+  function onEdit (id: string) {
+    isOpen.value = false
+    settings.open()
+    customThemes_.startEdit(id)
   }
 </script>
 
@@ -83,6 +99,31 @@
           <AppThemeProtanopiaButton />
           <AppThemeDeuteranopiaButton />
           <AppThemeTritanopiaButton />
+        </div>
+      </div>
+
+      <!-- Create Theme -->
+      <button
+        class="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-dashed border-divider text-sm text-on-surface-variant hover:border-primary/50 hover:text-on-surface transition-colors mt-3"
+        type="button"
+        @click="onCreate"
+      >
+        <AppIcon icon="plus" size="16" />
+        <span>Create Theme</span>
+      </button>
+
+      <!-- Custom Themes -->
+      <div v-if="customThemes_.customThemes.value.length > 0" class="mt-3">
+        <div class="text-xs font-medium text-on-surface-variant mb-2 px-1">Custom Themes</div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <AppThemeCustomButton
+            v-for="theme in customThemes_.customThemes.value"
+            :key="theme.id"
+            editable
+            :theme-id="theme.id"
+            @edit="onEdit"
+          />
         </div>
       </div>
     </Popover.Content>
