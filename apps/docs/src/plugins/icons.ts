@@ -243,10 +243,8 @@ export const [useIconContext, provideIconContext, context] = createTokensContext
     'folder-open': mdiFolderOpenOutline,
     'folder-zip': mdiFolderZipOutline,
     // Tri-tone avocado cross-section. Paths stack in array order (skin first, pit last).
-    // Each layer uses currentColor; opacities chosen so stacked-alpha reads as three distinct tones:
-    //   skin @ 0.3 → faint rim
-    //   flesh @ 0.5 → medium interior (stacked alpha ≈ 0.65)
-    //   pit @ 1.0 → solid seed
+    // Tuple shape: [d, opacity, fill?]. Skin/flesh omit fill → inherit currentColor (score-driven hue).
+    // Pit has an explicit brown so it reads as a seed regardless of the outer score color.
     // Wrapped as a TokenAlias so the multi-path array passes TokenCollection type.
     'freshness-avocado': {
       $type: 'icon',
@@ -255,8 +253,8 @@ export const [useIconContext, provideIconContext, context] = createTokensContext
         ['M 12 2 C 8 2 5 6 5 12 C 5 18 8 22 12 22 C 16 22 19 18 19 12 C 19 6 16 2 12 2 Z', 0.3],
         // Flesh: inset ~2 units, slightly smaller pear
         ['M 12 4 C 9 4 7 7 7 12 C 7 17 9.5 20 12 20 C 14.5 20 17 17 17 12 C 17 7 15 4 12 4 Z', 0.5],
-        // Pit: large seed in upper-middle
-        ['M 12 7 C 9.5 7 8 9 8 11.5 C 8 14 9.5 16 12 16 C 14.5 16 16 14 16 11.5 C 16 9 14.5 7 12 7 Z', 1],
+        // Pit: brown seed in upper-middle
+        ['M 12 7 C 9.5 7 8 9 8 11.5 C 8 14 9.5 16 12 16 C 14.5 16 16 14 16 11.5 C 16 9 14.5 7 12 7 Z', 1, '#6b3e1f'],
       ],
     },
     'create': mdiCreation,
