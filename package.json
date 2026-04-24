@@ -22,7 +22,7 @@
     "test:bench": "vitest --reporter=verbose bench --run",
     "test:bench:json": "vitest bench --run --outputJson apps/docs/public/benchmarks.json",
     "bench": "vitest --reporter=default bench",
-    "metrics": "pnpm test:coverage && pnpm test:bench:json && node scripts/generate-metrics.js",
+    "metrics": "pnpm test:coverage && pnpm test:bench:json && tsx scripts/generate-metrics.js",
     "typecheck": "pnpm --filter=\"./packages/*\" typecheck",
     "typecheck:0": "pnpm --filter=\"./packages/0\" typecheck",
     "typecheck:paper": "pnpm --filter=\"./packages/paper\" typecheck",
