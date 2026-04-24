@@ -1,24 +1,21 @@
 <script setup lang="ts">
   // Composables
   import { useClipboard } from '@/composables/useClipboard'
-  import { useCustomThemes, type CustomTheme } from '@/composables/useCustomThemes'
+  import { useCustomThemes } from '@/composables/useCustomThemes'
   import { useSettings } from '@/composables/useSettings'
-  import { useThemeToggle, type ThemePreference } from '@/composables/useThemeToggle'
+  import { useThemeToggle } from '@/composables/useThemeToggle'
 
   // Utilities
-  import { computed, shallowRef } from 'vue'
+  import { computed } from 'vue'
 
   // Themes
-  import { exportThemeAsVuetifyConfig, themes, type ThemeDefinition, type ThemeId } from '@/themes'
+  import { exportThemeAsVuetifyConfig, type ThemeId } from '@/themes'
 
   const toggle = useThemeToggle()
   const themes_ = useCustomThemes()
+  const { editingTheme, startCreate, startEdit, save, cancel, deleteTheme } = themes_
   const clipboard = useClipboard()
   const settings = useSettings()
-
-  // Editor state
-  const editingTheme = shallowRef<ThemeDefinition | null>(null)
-  const previousPreference = shallowRef<ThemePreference>('system')
 
   // Current active theme (resolves 'system' to actual theme)
   const currentThemeId = computed<ThemeId>(() => toggle.theme.selectedId.value as ThemeId)
@@ -29,76 +26,6 @@
   }
 
   const customOptions = computed(() => themes_.customThemes.value)
-
-  // Editor actions
-  function startCreate () {
-    const current = themes_.current()
-    previousPreference.value = toggle.preference.value
-    themes_.editing.value = true
-    editingTheme.value = {
-      id: '',
-      label: 'My Theme',
-      icon: 'theme-custom',
-      dark: current?.dark ?? false,
-      colors: { ...(current?.colors ?? themes.light.colors) },
-    }
-  }
-
-  function startEdit (themeId: string) {
-    const custom = themes_.customThemes.value.find(t => t.id === themeId)
-    if (custom) {
-      previousPreference.value = toggle.preference.value
-      themes_.editing.value = true
-      editingTheme.value = { ...custom }
-    }
-  }
-
-  function onSave (themeData: CustomTheme) {
-    // Clear inline preview styles before applying saved theme
-    themes_.clearPreview()
-
-    if (themeData.id && themes_.customThemes.value.some(t => t.id === themeData.id)) {
-      // Update existing
-      themes_.update(themeData.id, {
-        label: themeData.label,
-        dark: themeData.dark,
-        colors: themeData.colors,
-      })
-      // Select the updated theme
-      toggle.setPreference(themeData.id as ThemePreference)
-    } else {
-      // Create new
-      const newTheme = themes_.create({
-        id: '',
-        label: themeData.label,
-        icon: 'theme-custom',
-        dark: themeData.dark,
-        colors: themeData.colors,
-      })
-      // Select the new theme
-      toggle.setPreference(newTheme.id as ThemePreference)
-    }
-    themes_.editing.value = false
-    editingTheme.value = null
-  }
-
-  function onCancel () {
-    // Clear inline preview styles and restore previous theme
-    themes_.clearPreview()
-    toggle.setPreference(previousPreference.value)
-    themes_.editing.value = false
-    editingTheme.value = null
-  }
-
-  function onDelete (id: string) {
-    // Clear inline preview styles
-    themes_.clearPreview()
-    themes_.remove(id)
-    // Switch to previous theme or system
-    toggle.setPreference(previousPreference.value === id ? 'system' : previousPreference.value)
-    themes_.editing.value = false
-    editingTheme.value = null
-  }
 </script>
 
 <template>
@@ -107,9 +34,9 @@
     <AppSettingsThemeEditor
       v-if="editingTheme"
       :theme="editingTheme"
-      @cancel="onCancel"
-      @delete="onDelete"
-      @save="onSave"
+      @cancel="cancel"
+      @delete="deleteTheme"
+      @save="save"
     />
 
     <!-- Selector Mode -->
