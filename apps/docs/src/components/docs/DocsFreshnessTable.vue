@@ -57,7 +57,9 @@
 
   function formatDate (iso: string): string {
     if (!iso) return '—'
-    return date.adapter.format(new Date(iso), 'normalDate')
+    const d = date.adapter.date(iso)
+    if (!date.adapter.isValid(d)) return '—'
+    return date.adapter.format(d, 'normalDate')
   }
 </script>
 

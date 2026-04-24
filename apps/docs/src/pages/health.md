@@ -23,9 +23,11 @@ features:
   const componentsTint = toRef(() => scoreToColor(components.value))
   const composablesTint = toRef(() => scoreToColor(composables.value))
   const guidesTint = toRef(() => scoreToColor(guides.value))
+  const date = useDate()
   const subtitle = toRef(() => {
-    const date = useDate().adapter.format(new Date(), 'normalDate')
-    return `${overall.value} out of 100 · ${pages.value.length} pages averaged · recomputed on ${date}`
+    const now = date.adapter.date(new Date())
+    const formatted = date.adapter.isValid(now) ? date.adapter.format(now, 'normalDate') : ''
+    return `${overall.value} out of 100 · ${pages.value.length} pages averaged${formatted ? ` · recomputed on ${formatted}` : ''}`
   })
 </script>
 
