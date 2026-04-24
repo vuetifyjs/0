@@ -242,6 +242,17 @@ export const [useIconContext, provideIconContext, context] = createTokensContext
     'folder': mdiFolderOutline,
     'folder-open': mdiFolderOpenOutline,
     'folder-zip': mdiFolderZipOutline,
+    // Tri-tone avocado: skin (outer pear silhouette, opacity 1), flesh (inner body, 0.4), pit (seed, 0.8).
+    // All paths fill with currentColor; a parent element sets `color` to the score-driven hue.
+    // Wrapped in $value/TokenAlias form so the array-of-tuples shape passes the TokenCollection check.
+    'freshness-avocado': {
+      $type: 'icon',
+      $value: [
+        ['M 12 2 C 7 2 5 8 5 13 C 5 19 8 22 12 22 C 16 22 19 19 19 13 C 19 8 17 2 12 2 Z', 1],
+        ['M 12 4 C 9 4 7 9 7 13 C 7 18 9.5 20 12 20 C 14.5 20 17 18 17 13 C 17 9 15 4 12 4 Z', 0.4],
+        ['M 12 10 C 10 10 9 12 9 14 C 9 16 10.5 17 12 17 C 13.5 17 15 16 15 14 C 15 12 14 10 12 10 Z', 0.8],
+      ],
+    },
     'create': mdiCreation,
     'toc': mdiFormatListBulleted,
     'paint': mdiFormatPaint,
