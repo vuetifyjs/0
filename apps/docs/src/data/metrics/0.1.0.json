@@ -1,0 +1,3974 @@
+{
+  "version": "0.1.0",
+  "generatedAt": "2026-04-24T16:17:56.844Z",
+  "items": {
+    "createNested": {
+      "benchmarks": {
+        "_groups": {
+          "initialization": {
+            "Create empty nested": {
+              "name": "Create empty nested",
+              "hz": 43807,
+              "hzLabel": "43.8k ops/s",
+              "mean": 0.022827175858292408,
+              "meanLabel": "22.8μs",
+              "rme": 17.4,
+              "tier": "blazing"
+            },
+            "Onboard 1,000 flat items": {
+              "name": "Onboard 1,000 flat items",
+              "hz": 81,
+              "hzLabel": "81 ops/s",
+              "mean": 12.377072756097622,
+              "meanLabel": "12.38ms",
+              "rme": 3.3,
+              "tier": "slow"
+            },
+            "Onboard 10,000 flat items": {
+              "name": "Onboard 10,000 flat items",
+              "hz": 1,
+              "hzLabel": "1 ops/s",
+              "mean": 959.8565906,
+              "meanLabel": "959.86ms",
+              "rme": 35.4,
+              "tier": "slow"
+            },
+            "Onboard ~1,000 tree items (depth 3)": {
+              "name": "Onboard ~1,000 tree items (depth 3)",
+              "hz": 69,
+              "hzLabel": "69 ops/s",
+              "mean": 14.579583914285779,
+              "meanLabel": "14.58ms",
+              "rme": 1.2,
+              "tier": "slow"
+            },
+            "Onboard ~10,000 tree items (depth 4)": {
+              "name": "Onboard ~10,000 tree items (depth 4)",
+              "hz": 1,
+              "hzLabel": "1 ops/s",
+              "mean": 1175.8362405999997,
+              "meanLabel": "1175.84ms",
+              "rme": 35.3,
+              "tier": "slow"
+            },
+            "_fastest": {
+              "name": "Create empty nested",
+              "hz": 43807,
+              "hzLabel": "43.8k ops/s",
+              "mean": 0.022827175858292408,
+              "meanLabel": "22.8μs",
+              "tier": "blazing"
+            },
+            "_slowest": {
+              "name": "Onboard ~10,000 tree items (depth 4)",
+              "hz": 1,
+              "hzLabel": "1 ops/s",
+              "mean": 1175.8362405999997,
+              "meanLabel": "1175.84ms",
+              "tier": "slow"
+            },
+            "_tier": "good"
+          },
+          "lookup operations": {
+            "Get item by id (1,000 flat items)": {
+              "name": "Get item by id (1,000 flat items)",
+              "hz": 31838515,
+              "hzLabel": "31.8M ops/s",
+              "mean": 0.00003140850038396208,
+              "meanLabel": "31ns",
+              "rme": 0.5,
+              "tier": "blazing"
+            },
+            "Get item by id (10,000 flat items)": {
+              "name": "Get item by id (10,000 flat items)",
+              "hz": 31466079,
+              "hzLabel": "31.5M ops/s",
+              "mean": 0.00003178025441884088,
+              "meanLabel": "32ns",
+              "rme": 0.7,
+              "tier": "blazing"
+            },
+            "Check isLeaf (1,000 tree items)": {
+              "name": "Check isLeaf (1,000 tree items)",
+              "hz": 9527850,
+              "hzLabel": "9.5M ops/s",
+              "mean": 0.0001049554732708501,
+              "meanLabel": "105ns",
+              "rme": 0.6,
+              "tier": "blazing"
+            },
+            "Check isLeaf (10,000 tree items)": {
+              "name": "Check isLeaf (10,000 tree items)",
+              "hz": 9456436,
+              "hzLabel": "9.5M ops/s",
+              "mean": 0.00010574808357972232,
+              "meanLabel": "106ns",
+              "rme": 0.6,
+              "tier": "blazing"
+            },
+            "Get depth (1,000 tree items)": {
+              "name": "Get depth (1,000 tree items)",
+              "hz": 2529576,
+              "hzLabel": "2.5M ops/s",
+              "mean": 0.0003953232072681243,
+              "meanLabel": "395ns",
+              "rme": 0.5,
+              "tier": "blazing"
+            },
+            "Get depth (10,000 tree items)": {
+              "name": "Get depth (10,000 tree items)",
+              "hz": 2029245,
+              "hzLabel": "2.0M ops/s",
+              "mean": 0.0004927940752350687,
+              "meanLabel": "493ns",
+              "rme": 0.7,
+              "tier": "blazing"
+            },
+            "Check opened state (1,000 items)": {
+              "name": "Check opened state (1,000 items)",
+              "hz": 14694532,
+              "hzLabel": "14.7M ops/s",
+              "mean": 0.00006805252634044165,
+              "meanLabel": "68ns",
+              "rme": 0.7,
+              "tier": "blazing"
+            },
+            "Check selected state (1,000 items)": {
+              "name": "Check selected state (1,000 items)",
+              "hz": 14586510,
+              "hzLabel": "14.6M ops/s",
+              "mean": 0.00006855649273793505,
+              "meanLabel": "69ns",
+              "rme": 0.6,
+              "tier": "blazing"
+            },
+            "_fastest": {
+              "name": "Get item by id (1,000 flat items)",
+              "hz": 31838515,
+              "hzLabel": "31.8M ops/s",
+              "mean": 0.00003140850038396208,
+              "meanLabel": "31ns",
+              "tier": "blazing"
+            },
+            "_slowest": {
+              "name": "Get depth (10,000 tree items)",
+              "hz": 2029245,
+              "hzLabel": "2.0M ops/s",
+              "mean": 0.0004927940752350687,
+              "meanLabel": "493ns",
+              "tier": "blazing"
+            },
+            "_tier": "blazing"
+          },
+          "traversal operations": {
+            "Get path to deep node (1,000 tree items)": {
+              "name": "Get path to deep node (1,000 tree items)",
+              "hz": 2679612,
+              "hzLabel": "2.7M ops/s",
+              "mean": 0.0003731883353355714,
+              "meanLabel": "373ns",
+              "rme": 0.6,
+              "tier": "blazing"
+            },
+            "Get path to deep node (10,000 tree items)": {
+              "name": "Get path to deep node (10,000 tree items)",
+              "hz": 2064181,
+              "hzLabel": "2.1M ops/s",
+              "mean": 0.0004844535404366097,
+              "meanLabel": "484ns",
+              "rme": 0.7,
+              "tier": "blazing"
+            },
+            "Get ancestors of deep node (1,000 tree items)": {
+              "name": "Get ancestors of deep node (1,000 tree items)",
+              "hz": 2548276,
+              "hzLabel": "2.5M ops/s",
+              "mean": 0.0003924221501710786,
+              "meanLabel": "392ns",
+              "rme": 0.7,
+              "tier": "blazing"
+            },
+            "Get ancestors of deep node (10,000 tree items)": {
+              "name": "Get ancestors of deep node (10,000 tree items)",
+              "hz": 2000083,
+              "hzLabel": "2.0M ops/s",
+              "mean": 0.0004999792598727519,
+              "meanLabel": "500ns",
+              "rme": 0.6,
+              "tier": "blazing"
+            },
+            "Get descendants of root node (1,000 tree items)": {
+              "name": "Get descendants of root node (1,000 tree items)",
+              "hz": 111046,
+              "hzLabel": "111.0k ops/s",
+              "mean": 0.009005262131554729,
+              "meanLabel": "9.0μs",
+              "rme": 0.6,
+              "tier": "blazing"
+            },
+            "Get descendants of root node (10,000 tree items)": {
+              "name": "Get descendants of root node (10,000 tree items)",
+              "hz": 11056,
+              "hzLabel": "11.1k ops/s",
+              "mean": 0.09044770103087738,
+              "meanLabel": "90.4μs",
+              "rme": 1,
+              "tier": "blazing"
+            },
+            "Access roots computed (1,000 tree items)": {
+              "name": "Access roots computed (1,000 tree items)",
+              "hz": 30909300,
+              "hzLabel": "30.9M ops/s",
+              "mean": 0.00003235272203866361,
+              "meanLabel": "32ns",
+              "rme": 0.5,
+              "tier": "blazing"
+            },
+            "Access leaves computed (1,000 tree items)": {
+              "name": "Access leaves computed (1,000 tree items)",
+              "hz": 30614515,
+              "hzLabel": "30.6M ops/s",
+              "mean": 0.00003266424398112848,
+              "meanLabel": "33ns",
+              "rme": 0.7,
+              "tier": "blazing"
+            },
+            "_fastest": {
+              "name": "Access roots computed (1,000 tree items)",
+              "hz": 30909300,
+              "hzLabel": "30.9M ops/s",
+              "mean": 0.00003235272203866361,
+              "meanLabel": "32ns",
+              "tier": "blazing"
+            },
+            "_slowest": {
+              "name": "Get descendants of root node (10,000 tree items)",
+              "hz": 11056,
+              "hzLabel": "11.1k ops/s",
+              "mean": 0.09044770103087738,
+              "meanLabel": "90.4μs",
+              "tier": "blazing"
+            },
+            "_tier": "blazing"
+          },
+          "open/close operations": {
+            "Open single node (1,000 tree items)": {
+              "name": "Open single node (1,000 tree items)",
+              "hz": 60,
+              "hzLabel": "60 ops/s",
+              "mean": 16.719112900000376,
+              "meanLabel": "16.72ms",
+              "rme": 15.6,
+              "tier": "slow"
+            },
+            "Open single node (10,000 tree items)": {
+              "name": "Open single node (10,000 tree items)",
+              "hz": 1,
+              "hzLabel": "1 ops/s",
+              "mean": 988.8194775999975,
+              "meanLabel": "988.82ms",
+              "rme": 0.7,
+              "tier": "slow"
+            },
+            "Close single node (1,000 tree items)": {
+              "name": "Close single node (1,000 tree items)",
+              "hz": 65,
+              "hzLabel": "65 ops/s",
+              "mean": 15.293379969695568,
+              "meanLabel": "15.29ms",
+              "rme": 4.2,
+              "tier": "slow"
+            },
+            "Toggle open (1,000 tree items)": {
+              "name": "Toggle open (1,000 tree items)",
+              "hz": 66,
+              "hzLabel": "66 ops/s",
+              "mean": 15.038618882352774,
+              "meanLabel": "15.04ms",
+              "rme": 1.5,
+              "tier": "slow"
+            },
+            "Expand all (1,000 tree items)": {
+              "name": "Expand all (1,000 tree items)",
+              "hz": 67,
+              "hzLabel": "67 ops/s",
+              "mean": 15.002212823531249,
+              "meanLabel": "15.00ms",
+              "rme": 1.2,
+              "tier": "slow"
+            },
+            "Expand all (10,000 tree items)": {
+              "name": "Expand all (10,000 tree items)",
+              "hz": 1,
+              "hzLabel": "1 ops/s",
+              "mean": 1193.8549212999992,
+              "meanLabel": "1193.85ms",
+              "rme": 37.2,
+              "tier": "slow"
+            },
+            "Collapse all (1,000 tree items)": {
+              "name": "Collapse all (1,000 tree items)",
+              "hz": 66,
+              "hzLabel": "66 ops/s",
+              "mean": 15.045110735291981,
+              "meanLabel": "15.05ms",
+              "rme": 1.5,
+              "tier": "slow"
+            },
+            "Collapse all (10,000 tree items)": {
+              "name": "Collapse all (10,000 tree items)",
+              "hz": 1,
+              "hzLabel": "1 ops/s",
+              "mean": 1200.7444632999964,
+              "meanLabel": "1200.74ms",
+              "rme": 36.1,
+              "tier": "slow"
+            },
+            "_fastest": {
+              "name": "Expand all (1,000 tree items)",
+              "hz": 67,
+              "hzLabel": "67 ops/s",
+              "mean": 15.002212823531249,
+              "meanLabel": "15.00ms",
+              "tier": "slow"
+            },
+            "_slowest": {
+              "name": "Collapse all (10,000 tree items)",
+              "hz": 1,
+              "hzLabel": "1 ops/s",
+              "mean": 1200.7444632999964,
+              "meanLabel": "1200.74ms",
+              "tier": "slow"
+            },
+            "_tier": "slow"
+          },
+          "selection operations": {
+            "Select leaf node (1,000 tree items)": {
+              "name": "Select leaf node (1,000 tree items)",
+              "hz": 64,
+              "hzLabel": "64 ops/s",
+              "mean": 15.648647656250432,
+              "meanLabel": "15.65ms",
+              "rme": 4.8,
+              "tier": "slow"
+            },
+            "Select root node with cascade (1,000 tree items)": {
+              "name": "Select root node with cascade (1,000 tree items)",
+              "hz": 67,
+              "hzLabel": "67 ops/s",
+              "mean": 14.946529882353977,
+              "meanLabel": "14.95ms",
+              "rme": 1.2,
+              "tier": "slow"
+            },
+            "Select root node with cascade (10,000 tree items)": {
+              "name": "Select root node with cascade (10,000 tree items)",
+              "hz": 1,
+              "hzLabel": "1 ops/s",
+              "mean": 1099.6768638000037,
+              "meanLabel": "1099.68ms",
+              "rme": 16.2,
+              "tier": "slow"
+            },
+            "Unselect root node with cascade (1,000 tree items)": {
+              "name": "Unselect root node with cascade (1,000 tree items)",
+              "hz": 67,
+              "hzLabel": "67 ops/s",
+              "mean": 14.996900323531008,
+              "meanLabel": "15.00ms",
+              "rme": 1.2,
+              "tier": "slow"
+            },
+            "Toggle selection (1,000 tree items)": {
+              "name": "Toggle selection (1,000 tree items)",
+              "hz": 64,
+              "hzLabel": "64 ops/s",
+              "mean": 15.527163454544885,
+              "meanLabel": "15.53ms",
+              "rme": 4.5,
+              "tier": "slow"
+            },
+            "Select all via selectAll (1,000 tree items)": {
+              "name": "Select all via selectAll (1,000 tree items)",
+              "hz": 65,
+              "hzLabel": "65 ops/s",
+              "mean": 15.39699054545296,
+              "meanLabel": "15.40ms",
+              "rme": 1.8,
+              "tier": "good"
+            },
+            "Select all via selectAll (10,000 tree items)": {
+              "name": "Select all via selectAll (10,000 tree items)",
+              "hz": 1,
+              "hzLabel": "1 ops/s",
+              "mean": 1365.4442974000062,
+              "meanLabel": "1365.44ms",
+              "rme": 40.4,
+              "tier": "slow"
+            },
+            "_fastest": {
+              "name": "Select root node with cascade (1,000 tree items)",
+              "hz": 67,
+              "hzLabel": "67 ops/s",
+              "mean": 14.946529882353977,
+              "meanLabel": "14.95ms",
+              "tier": "slow"
+            },
+            "_slowest": {
+              "name": "Select all via selectAll (10,000 tree items)",
+              "hz": 1,
+              "hzLabel": "1 ops/s",
+              "mean": 1365.4442974000062,
+              "meanLabel": "1365.44ms",
+              "tier": "slow"
+            },
+            "_tier": "slow"
+          },
+          "mutation operations": {
+            "Register single root item": {
+              "name": "Register single root item",
+              "hz": 38832,
+              "hzLabel": "38.8k ops/s",
+              "mean": 0.02575164357508382,
+              "meanLabel": "25.8μs",
+              "rme": 10.8,
+              "tier": "fast"
+            },
+            "Register item with parent (1,000 items)": {
+              "name": "Register item with parent (1,000 items)",
+              "hz": 67,
+              "hzLabel": "67 ops/s",
+              "mean": 15.016728117643439,
+              "meanLabel": "15.02ms",
+              "rme": 1.4,
+              "tier": "slow"
+            },
+            "Unregister leaf node (1,000 tree items)": {
+              "name": "Unregister leaf node (1,000 tree items)",
+              "hz": 67,
+              "hzLabel": "67 ops/s",
+              "mean": 14.94657744117242,
+              "meanLabel": "14.95ms",
+              "rme": 1.4,
+              "tier": "slow"
+            },
+            "Unregister root with cascade (1,000 tree items)": {
+              "name": "Unregister root with cascade (1,000 tree items)",
+              "hz": 57,
+              "hzLabel": "57 ops/s",
+              "mean": 17.62522965517489,
+              "meanLabel": "17.63ms",
+              "rme": 2,
+              "tier": "slow"
+            },
+            "Unregister root with cascade (10,000 tree items)": {
+              "name": "Unregister root with cascade (10,000 tree items)",
+              "hz": 1,
+              "hzLabel": "1 ops/s",
+              "mean": 1169.3140698000002,
+              "meanLabel": "1169.31ms",
+              "rme": 0.6,
+              "tier": "slow"
+            },
+            "_fastest": {
+              "name": "Register single root item",
+              "hz": 38832,
+              "hzLabel": "38.8k ops/s",
+              "mean": 0.02575164357508382,
+              "meanLabel": "25.8μs",
+              "tier": "fast"
+            },
+            "_slowest": {
+              "name": "Unregister root with cascade (10,000 tree items)",
+              "hz": 1,
+              "hzLabel": "1 ops/s",
+              "mean": 1169.3140698000002,
+              "meanLabel": "1169.31ms",
+              "tier": "slow"
+            },
+            "_tier": "slow"
+          },
+          "batch operations": {
+            "Onboard then clear 1,000 tree items": {
+              "name": "Onboard then clear 1,000 tree items",
+              "hz": 68,
+              "hzLabel": "68 ops/s",
+              "mean": 14.76976535294157,
+              "meanLabel": "14.77ms",
+              "rme": 1.4,
+              "tier": "slow"
+            },
+            "Onboard then clear 10,000 tree items": {
+              "name": "Onboard then clear 10,000 tree items",
+              "hz": 1,
+              "hzLabel": "1 ops/s",
+              "mean": 998.7182639000006,
+              "meanLabel": "998.72ms",
+              "rme": 0.9,
+              "tier": "slow"
+            },
+            "toFlat conversion (1,000 tree items)": {
+              "name": "toFlat conversion (1,000 tree items)",
+              "hz": 65,
+              "hzLabel": "65 ops/s",
+              "mean": 15.423560606061734,
+              "meanLabel": "15.42ms",
+              "rme": 1.8,
+              "tier": "slow"
+            },
+            "toFlat conversion (10,000 tree items)": {
+              "name": "toFlat conversion (10,000 tree items)",
+              "hz": 1,
+              "hzLabel": "1 ops/s",
+              "mean": 998.806465799993,
+              "meanLabel": "998.81ms",
+              "rme": 0.5,
+              "tier": "slow"
+            },
+            "_fastest": {
+              "name": "Onboard then clear 1,000 tree items",
+              "hz": 68,
+              "hzLabel": "68 ops/s",
+              "mean": 14.76976535294157,
+              "meanLabel": "14.77ms",
+              "tier": "slow"
+            },
+            "_slowest": {
+              "name": "toFlat conversion (10,000 tree items)",
+              "hz": 1,
+              "hzLabel": "1 ops/s",
+              "mean": 998.806465799993,
+              "meanLabel": "998.81ms",
+              "tier": "slow"
+            },
+            "_tier": "slow"
+          },
+          "selection mode comparison": {
+            "Select root - cascade mode (1,000 tree items)": {
+              "name": "Select root - cascade mode (1,000 tree items)",
+              "hz": 64,
+              "hzLabel": "64 ops/s",
+              "mean": 15.559396060603445,
+              "meanLabel": "15.56ms",
+              "rme": 2.9,
+              "tier": "slow"
+            },
+            "Select root - independent mode (1,000 tree items)": {
+              "name": "Select root - independent mode (1,000 tree items)",
+              "hz": 67,
+              "hzLabel": "67 ops/s",
+              "mean": 14.894703882350928,
+              "meanLabel": "14.89ms",
+              "rme": 1.4,
+              "tier": "slow"
+            },
+            "Select root - leaf mode (1,000 tree items)": {
+              "name": "Select root - leaf mode (1,000 tree items)",
+              "hz": 65,
+              "hzLabel": "65 ops/s",
+              "mean": 15.296367060604759,
+              "meanLabel": "15.30ms",
+              "rme": 2.4,
+              "tier": "slow"
+            },
+            "_fastest": {
+              "name": "Select root - independent mode (1,000 tree items)",
+              "hz": 67,
+              "hzLabel": "67 ops/s",
+              "mean": 14.894703882350928,
+              "meanLabel": "14.89ms",
+              "tier": "slow"
+            },
+            "_slowest": {
+              "name": "Select root - cascade mode (1,000 tree items)",
+              "hz": 64,
+              "hzLabel": "64 ops/s",
+              "mean": 15.559396060603445,
+              "meanLabel": "15.56ms",
+              "tier": "slow"
+            },
+            "_tier": "slow"
+          },
+          "open mode comparison": {
+            "Open 3 nodes - multiple mode (1,000 tree items)": {
+              "name": "Open 3 nodes - multiple mode (1,000 tree items)",
+              "hz": 67,
+              "hzLabel": "67 ops/s",
+              "mean": 14.91438344117812,
+              "meanLabel": "14.91ms",
+              "rme": 1.5,
+              "tier": "slow"
+            },
+            "Open 3 nodes - single mode (1,000 tree items)": {
+              "name": "Open 3 nodes - single mode (1,000 tree items)",
+              "hz": 68,
+              "hzLabel": "68 ops/s",
+              "mean": 14.677703885714957,
+              "meanLabel": "14.68ms",
+              "rme": 1.1,
+              "tier": "slow"
+            },
+            "_fastest": {
+              "name": "Open 3 nodes - single mode (1,000 tree items)",
+              "hz": 68,
+              "hzLabel": "68 ops/s",
+              "mean": 14.677703885714957,
+              "meanLabel": "14.68ms",
+              "tier": "slow"
+            },
+            "_slowest": {
+              "name": "Open 3 nodes - multiple mode (1,000 tree items)",
+              "hz": 67,
+              "hzLabel": "67 ops/s",
+              "mean": 14.91438344117812,
+              "meanLabel": "14.91ms",
+              "tier": "slow"
+            },
+            "_tier": "slow"
+          }
+        },
+        "Create empty nested": {
+          "name": "Create empty nested",
+          "hz": 43807,
+          "hzLabel": "43.8k ops/s",
+          "mean": 0.022827175858292408,
+          "meanLabel": "22.8μs",
+          "rme": 17.4,
+          "tier": "blazing"
+        },
+        "Onboard 1,000 flat items": {
+          "name": "Onboard 1,000 flat items",
+          "hz": 81,
+          "hzLabel": "81 ops/s",
+          "mean": 12.377072756097622,
+          "meanLabel": "12.38ms",
+          "rme": 3.3,
+          "tier": "slow"
+        },
+        "Onboard 10,000 flat items": {
+          "name": "Onboard 10,000 flat items",
+          "hz": 1,
+          "hzLabel": "1 ops/s",
+          "mean": 959.8565906,
+          "meanLabel": "959.86ms",
+          "rme": 35.4,
+          "tier": "slow"
+        },
+        "Onboard ~1,000 tree items (depth 3)": {
+          "name": "Onboard ~1,000 tree items (depth 3)",
+          "hz": 69,
+          "hzLabel": "69 ops/s",
+          "mean": 14.579583914285779,
+          "meanLabel": "14.58ms",
+          "rme": 1.2,
+          "tier": "slow"
+        },
+        "Onboard ~10,000 tree items (depth 4)": {
+          "name": "Onboard ~10,000 tree items (depth 4)",
+          "hz": 1,
+          "hzLabel": "1 ops/s",
+          "mean": 1175.8362405999997,
+          "meanLabel": "1175.84ms",
+          "rme": 35.3,
+          "tier": "slow"
+        },
+        "Get item by id (1,000 flat items)": {
+          "name": "Get item by id (1,000 flat items)",
+          "hz": 31838515,
+          "hzLabel": "31.8M ops/s",
+          "mean": 0.00003140850038396208,
+          "meanLabel": "31ns",
+          "rme": 0.5,
+          "tier": "blazing"
+        },
+        "Get item by id (10,000 flat items)": {
+          "name": "Get item by id (10,000 flat items)",
+          "hz": 31466079,
+          "hzLabel": "31.5M ops/s",
+          "mean": 0.00003178025441884088,
+          "meanLabel": "32ns",
+          "rme": 0.7,
+          "tier": "blazing"
+        },
+        "Check isLeaf (1,000 tree items)": {
+          "name": "Check isLeaf (1,000 tree items)",
+          "hz": 9527850,
+          "hzLabel": "9.5M ops/s",
+          "mean": 0.0001049554732708501,
+          "meanLabel": "105ns",
+          "rme": 0.6,
+          "tier": "blazing"
+        },
+        "Check isLeaf (10,000 tree items)": {
+          "name": "Check isLeaf (10,000 tree items)",
+          "hz": 9456436,
+          "hzLabel": "9.5M ops/s",
+          "mean": 0.00010574808357972232,
+          "meanLabel": "106ns",
+          "rme": 0.6,
+          "tier": "blazing"
+        },
+        "Get depth (1,000 tree items)": {
+          "name": "Get depth (1,000 tree items)",
+          "hz": 2529576,
+          "hzLabel": "2.5M ops/s",
+          "mean": 0.0003953232072681243,
+          "meanLabel": "395ns",
+          "rme": 0.5,
+          "tier": "blazing"
+        },
+        "Get depth (10,000 tree items)": {
+          "name": "Get depth (10,000 tree items)",
+          "hz": 2029245,
+          "hzLabel": "2.0M ops/s",
+          "mean": 0.0004927940752350687,
+          "meanLabel": "493ns",
+          "rme": 0.7,
+          "tier": "blazing"
+        },
+        "Check opened state (1,000 items)": {
+          "name": "Check opened state (1,000 items)",
+          "hz": 14694532,
+          "hzLabel": "14.7M ops/s",
+          "mean": 0.00006805252634044165,
+          "meanLabel": "68ns",
+          "rme": 0.7,
+          "tier": "blazing"
+        },
+        "Check selected state (1,000 items)": {
+          "name": "Check selected state (1,000 items)",
+          "hz": 14586510,
+          "hzLabel": "14.6M ops/s",
+          "mean": 0.00006855649273793505,
+          "meanLabel": "69ns",
+          "rme": 0.6,
+          "tier": "blazing"
+        },
+        "Get path to deep node (1,000 tree items)": {
+          "name": "Get path to deep node (1,000 tree items)",
+          "hz": 2679612,
+          "hzLabel": "2.7M ops/s",
+          "mean": 0.0003731883353355714,
+          "meanLabel": "373ns",
+          "rme": 0.6,
+          "tier": "blazing"
+        },
+        "Get path to deep node (10,000 tree items)": {
+          "name": "Get path to deep node (10,000 tree items)",
+          "hz": 2064181,
+          "hzLabel": "2.1M ops/s",
+          "mean": 0.0004844535404366097,
+          "meanLabel": "484ns",
+          "rme": 0.7,
+          "tier": "blazing"
+        },
+        "Get ancestors of deep node (1,000 tree items)": {
+          "name": "Get ancestors of deep node (1,000 tree items)",
+          "hz": 2548276,
+          "hzLabel": "2.5M ops/s",
+          "mean": 0.0003924221501710786,
+          "meanLabel": "392ns",
+          "rme": 0.7,
+          "tier": "blazing"
+        },
+        "Get ancestors of deep node (10,000 tree items)": {
+          "name": "Get ancestors of deep node (10,000 tree items)",
+          "hz": 2000083,
+          "hzLabel": "2.0M ops/s",
+          "mean": 0.0004999792598727519,
+          "meanLabel": "500ns",
+          "rme": 0.6,
+          "tier": "blazing"
+        },
+        "Get descendants of root node (1,000 tree items)": {
+          "name": "Get descendants of root node (1,000 tree items)",
+          "hz": 111046,
+          "hzLabel": "111.0k ops/s",
+          "mean": 0.009005262131554729,
+          "meanLabel": "9.0μs",
+          "rme": 0.6,
+          "tier": "blazing"
+        },
+        "Get descendants of root node (10,000 tree items)": {
+          "name": "Get descendants of root node (10,000 tree items)",
+          "hz": 11056,
+          "hzLabel": "11.1k ops/s",
+          "mean": 0.09044770103087738,
+          "meanLabel": "90.4μs",
+          "rme": 1,
+          "tier": "blazing"
+        },
+        "Access roots computed (1,000 tree items)": {
+          "name": "Access roots computed (1,000 tree items)",
+          "hz": 30909300,
+          "hzLabel": "30.9M ops/s",
+          "mean": 0.00003235272203866361,
+          "meanLabel": "32ns",
+          "rme": 0.5,
+          "tier": "blazing"
+        },
+        "Access leaves computed (1,000 tree items)": {
+          "name": "Access leaves computed (1,000 tree items)",
+          "hz": 30614515,
+          "hzLabel": "30.6M ops/s",
+          "mean": 0.00003266424398112848,
+          "meanLabel": "33ns",
+          "rme": 0.7,
+          "tier": "blazing"
+        },
+        "Open single node (1,000 tree items)": {
+          "name": "Open single node (1,000 tree items)",
+          "hz": 60,
+          "hzLabel": "60 ops/s",
+          "mean": 16.719112900000376,
+          "meanLabel": "16.72ms",
+          "rme": 15.6,
+          "tier": "slow"
+        },
+        "Open single node (10,000 tree items)": {
+          "name": "Open single node (10,000 tree items)",
+          "hz": 1,
+          "hzLabel": "1 ops/s",
+          "mean": 988.8194775999975,
+          "meanLabel": "988.82ms",
+          "rme": 0.7,
+          "tier": "slow"
+        },
+        "Close single node (1,000 tree items)": {
+          "name": "Close single node (1,000 tree items)",
+          "hz": 65,
+          "hzLabel": "65 ops/s",
+          "mean": 15.293379969695568,
+          "meanLabel": "15.29ms",
+          "rme": 4.2,
+          "tier": "slow"
+        },
+        "Toggle open (1,000 tree items)": {
+          "name": "Toggle open (1,000 tree items)",
+          "hz": 66,
+          "hzLabel": "66 ops/s",
+          "mean": 15.038618882352774,
+          "meanLabel": "15.04ms",
+          "rme": 1.5,
+          "tier": "slow"
+        },
+        "Expand all (1,000 tree items)": {
+          "name": "Expand all (1,000 tree items)",
+          "hz": 67,
+          "hzLabel": "67 ops/s",
+          "mean": 15.002212823531249,
+          "meanLabel": "15.00ms",
+          "rme": 1.2,
+          "tier": "slow"
+        },
+        "Expand all (10,000 tree items)": {
+          "name": "Expand all (10,000 tree items)",
+          "hz": 1,
+          "hzLabel": "1 ops/s",
+          "mean": 1193.8549212999992,
+          "meanLabel": "1193.85ms",
+          "rme": 37.2,
+          "tier": "slow"
+        },
+        "Collapse all (1,000 tree items)": {
+          "name": "Collapse all (1,000 tree items)",
+          "hz": 66,
+          "hzLabel": "66 ops/s",
+          "mean": 15.045110735291981,
+          "meanLabel": "15.05ms",
+          "rme": 1.5,
+          "tier": "slow"
+        },
+        "Collapse all (10,000 tree items)": {
+          "name": "Collapse all (10,000 tree items)",
+          "hz": 1,
+          "hzLabel": "1 ops/s",
+          "mean": 1200.7444632999964,
+          "meanLabel": "1200.74ms",
+          "rme": 36.1,
+          "tier": "slow"
+        },
+        "Select leaf node (1,000 tree items)": {
+          "name": "Select leaf node (1,000 tree items)",
+          "hz": 64,
+          "hzLabel": "64 ops/s",
+          "mean": 15.648647656250432,
+          "meanLabel": "15.65ms",
+          "rme": 4.8,
+          "tier": "slow"
+        },
+        "Select root node with cascade (1,000 tree items)": {
+          "name": "Select root node with cascade (1,000 tree items)",
+          "hz": 67,
+          "hzLabel": "67 ops/s",
+          "mean": 14.946529882353977,
+          "meanLabel": "14.95ms",
+          "rme": 1.2,
+          "tier": "slow"
+        },
+        "Select root node with cascade (10,000 tree items)": {
+          "name": "Select root node with cascade (10,000 tree items)",
+          "hz": 1,
+          "hzLabel": "1 ops/s",
+          "mean": 1099.6768638000037,
+          "meanLabel": "1099.68ms",
+          "rme": 16.2,
+          "tier": "slow"
+        },
+        "Unselect root node with cascade (1,000 tree items)": {
+          "name": "Unselect root node with cascade (1,000 tree items)",
+          "hz": 67,
+          "hzLabel": "67 ops/s",
+          "mean": 14.996900323531008,
+          "meanLabel": "15.00ms",
+          "rme": 1.2,
+          "tier": "slow"
+        },
+        "Toggle selection (1,000 tree items)": {
+          "name": "Toggle selection (1,000 tree items)",
+          "hz": 64,
+          "hzLabel": "64 ops/s",
+          "mean": 15.527163454544885,
+          "meanLabel": "15.53ms",
+          "rme": 4.5,
+          "tier": "slow"
+        },
+        "Select all via selectAll (1,000 tree items)": {
+          "name": "Select all via selectAll (1,000 tree items)",
+          "hz": 65,
+          "hzLabel": "65 ops/s",
+          "mean": 15.39699054545296,
+          "meanLabel": "15.40ms",
+          "rme": 1.8,
+          "tier": "good"
+        },
+        "Select all via selectAll (10,000 tree items)": {
+          "name": "Select all via selectAll (10,000 tree items)",
+          "hz": 1,
+          "hzLabel": "1 ops/s",
+          "mean": 1365.4442974000062,
+          "meanLabel": "1365.44ms",
+          "rme": 40.4,
+          "tier": "slow"
+        },
+        "Register single root item": {
+          "name": "Register single root item",
+          "hz": 38832,
+          "hzLabel": "38.8k ops/s",
+          "mean": 0.02575164357508382,
+          "meanLabel": "25.8μs",
+          "rme": 10.8,
+          "tier": "fast"
+        },
+        "Register item with parent (1,000 items)": {
+          "name": "Register item with parent (1,000 items)",
+          "hz": 67,
+          "hzLabel": "67 ops/s",
+          "mean": 15.016728117643439,
+          "meanLabel": "15.02ms",
+          "rme": 1.4,
+          "tier": "slow"
+        },
+        "Unregister leaf node (1,000 tree items)": {
+          "name": "Unregister leaf node (1,000 tree items)",
+          "hz": 67,
+          "hzLabel": "67 ops/s",
+          "mean": 14.94657744117242,
+          "meanLabel": "14.95ms",
+          "rme": 1.4,
+          "tier": "slow"
+        },
+        "Unregister root with cascade (1,000 tree items)": {
+          "name": "Unregister root with cascade (1,000 tree items)",
+          "hz": 57,
+          "hzLabel": "57 ops/s",
+          "mean": 17.62522965517489,
+          "meanLabel": "17.63ms",
+          "rme": 2,
+          "tier": "slow"
+        },
+        "Unregister root with cascade (10,000 tree items)": {
+          "name": "Unregister root with cascade (10,000 tree items)",
+          "hz": 1,
+          "hzLabel": "1 ops/s",
+          "mean": 1169.3140698000002,
+          "meanLabel": "1169.31ms",
+          "rme": 0.6,
+          "tier": "slow"
+        },
+        "Onboard then clear 1,000 tree items": {
+          "name": "Onboard then clear 1,000 tree items",
+          "hz": 68,
+          "hzLabel": "68 ops/s",
+          "mean": 14.76976535294157,
+          "meanLabel": "14.77ms",
+          "rme": 1.4,
+          "tier": "slow"
+        },
+        "Onboard then clear 10,000 tree items": {
+          "name": "Onboard then clear 10,000 tree items",
+          "hz": 1,
+          "hzLabel": "1 ops/s",
+          "mean": 998.7182639000006,
+          "meanLabel": "998.72ms",
+          "rme": 0.9,
+          "tier": "slow"
+        },
+        "toFlat conversion (1,000 tree items)": {
+          "name": "toFlat conversion (1,000 tree items)",
+          "hz": 65,
+          "hzLabel": "65 ops/s",
+          "mean": 15.423560606061734,
+          "meanLabel": "15.42ms",
+          "rme": 1.8,
+          "tier": "slow"
+        },
+        "toFlat conversion (10,000 tree items)": {
+          "name": "toFlat conversion (10,000 tree items)",
+          "hz": 1,
+          "hzLabel": "1 ops/s",
+          "mean": 998.806465799993,
+          "meanLabel": "998.81ms",
+          "rme": 0.5,
+          "tier": "slow"
+        },
+        "Select root - cascade mode (1,000 tree items)": {
+          "name": "Select root - cascade mode (1,000 tree items)",
+          "hz": 64,
+          "hzLabel": "64 ops/s",
+          "mean": 15.559396060603445,
+          "meanLabel": "15.56ms",
+          "rme": 2.9,
+          "tier": "slow"
+        },
+        "Select root - independent mode (1,000 tree items)": {
+          "name": "Select root - independent mode (1,000 tree items)",
+          "hz": 67,
+          "hzLabel": "67 ops/s",
+          "mean": 14.894703882350928,
+          "meanLabel": "14.89ms",
+          "rme": 1.4,
+          "tier": "slow"
+        },
+        "Select root - leaf mode (1,000 tree items)": {
+          "name": "Select root - leaf mode (1,000 tree items)",
+          "hz": 65,
+          "hzLabel": "65 ops/s",
+          "mean": 15.296367060604759,
+          "meanLabel": "15.30ms",
+          "rme": 2.4,
+          "tier": "slow"
+        },
+        "Open 3 nodes - multiple mode (1,000 tree items)": {
+          "name": "Open 3 nodes - multiple mode (1,000 tree items)",
+          "hz": 67,
+          "hzLabel": "67 ops/s",
+          "mean": 14.91438344117812,
+          "meanLabel": "14.91ms",
+          "rme": 1.5,
+          "tier": "slow"
+        },
+        "Open 3 nodes - single mode (1,000 tree items)": {
+          "name": "Open 3 nodes - single mode (1,000 tree items)",
+          "hz": 68,
+          "hzLabel": "68 ops/s",
+          "mean": 14.677703885714957,
+          "meanLabel": "14.68ms",
+          "rme": 1.1,
+          "tier": "slow"
+        },
+        "_fastest": {
+          "name": "Get item by id (1,000 flat items)",
+          "hz": 31838515,
+          "hzLabel": "31.8M ops/s",
+          "mean": 0.00003140850038396208,
+          "meanLabel": "31ns",
+          "tier": "blazing"
+        },
+        "_slowest": {
+          "name": "Select all via selectAll (10,000 tree items)",
+          "hz": 1,
+          "hzLabel": "1 ops/s",
+          "mean": 1365.4442974000062,
+          "meanLabel": "1365.44ms",
+          "tier": "slow"
+        }
+      }
+    },
+    "createRegistry": {
+      "benchmarks": {
+        "_groups": {
+          "initialization": {
+            "Create empty registry": {
+              "name": "Create empty registry",
+              "hz": 705304,
+              "hzLabel": "705.3k ops/s",
+              "mean": 0.0014178289673672845,
+              "meanLabel": "1.4μs",
+              "rme": 9.9,
+              "tier": "blazing"
+            },
+            "Onboard 1,000 items": {
+              "name": "Onboard 1,000 items",
+              "hz": 6803,
+              "hzLabel": "6.8k ops/s",
+              "mean": 0.14699459578824212,
+              "meanLabel": "147.0μs",
+              "rme": 8.4,
+              "tier": "fast"
+            },
+            "Onboard 10,000 items": {
+              "name": "Onboard 10,000 items",
+              "hz": 427,
+              "hzLabel": "427 ops/s",
+              "mean": 2.3425126401869103,
+              "meanLabel": "2.34ms",
+              "rme": 9.9,
+              "tier": "good"
+            },
+            "_fastest": {
+              "name": "Create empty registry",
+              "hz": 705304,
+              "hzLabel": "705.3k ops/s",
+              "mean": 0.0014178289673672845,
+              "meanLabel": "1.4μs",
+              "tier": "blazing"
+            },
+            "_slowest": {
+              "name": "Onboard 10,000 items",
+              "hz": 427,
+              "hzLabel": "427 ops/s",
+              "mean": 2.3425126401869103,
+              "meanLabel": "2.34ms",
+              "tier": "good"
+            },
+            "_tier": "fast"
+          },
+          "lookup operations": {
+            "Get item by id (1,000 items)": {
+              "name": "Get item by id (1,000 items)",
+              "hz": 31832305,
+              "hzLabel": "31.8M ops/s",
+              "mean": 0.00003141462745430659,
+              "meanLabel": "31ns",
+              "rme": 0.5,
+              "tier": "blazing"
+            },
+            "Get item by id (10,000 items)": {
+              "name": "Get item by id (10,000 items)",
+              "hz": 31920017,
+              "hzLabel": "31.9M ops/s",
+              "mean": 0.000031328304326136315,
+              "meanLabel": "31ns",
+              "rme": 0.4,
+              "tier": "blazing"
+            },
+            "Lookup item by index (1,000 items)": {
+              "name": "Lookup item by index (1,000 items)",
+              "hz": 31627255,
+              "hzLabel": "31.6M ops/s",
+              "mean": 0.00003161829872326788,
+              "meanLabel": "32ns",
+              "rme": 0.5,
+              "tier": "blazing"
+            },
+            "Lookup item by index (10,000 items)": {
+              "name": "Lookup item by index (10,000 items)",
+              "hz": 31798368,
+              "hzLabel": "31.8M ops/s",
+              "mean": 0.00003144815488633651,
+              "meanLabel": "31ns",
+              "rme": 0.4,
+              "tier": "blazing"
+            },
+            "Browse item by value (1,000 items)": {
+              "name": "Browse item by value (1,000 items)",
+              "hz": 31577767,
+              "hzLabel": "31.6M ops/s",
+              "mean": 0.000031667850115113375,
+              "meanLabel": "32ns",
+              "rme": 0.4,
+              "tier": "blazing"
+            },
+            "Browse item by value (10,000 items)": {
+              "name": "Browse item by value (10,000 items)",
+              "hz": 31327249,
+              "hzLabel": "31.3M ops/s",
+              "mean": 0.00003192109240355001,
+              "meanLabel": "32ns",
+              "rme": 0.5,
+              "tier": "blazing"
+            },
+            "Check existence with has() (1,000 items)": {
+              "name": "Check existence with has() (1,000 items)",
+              "hz": 31922072,
+              "hzLabel": "31.9M ops/s",
+              "mean": 0.00003132628746666875,
+              "meanLabel": "31ns",
+              "rme": 0.4,
+              "tier": "blazing"
+            },
+            "Check existence with has() (10,000 items)": {
+              "name": "Check existence with has() (10,000 items)",
+              "hz": 31851292,
+              "hzLabel": "31.9M ops/s",
+              "mean": 0.000031395900398746576,
+              "meanLabel": "31ns",
+              "rme": 0.5,
+              "tier": "blazing"
+            },
+            "_fastest": {
+              "name": "Check existence with has() (1,000 items)",
+              "hz": 31922072,
+              "hzLabel": "31.9M ops/s",
+              "mean": 0.00003132628746666875,
+              "meanLabel": "31ns",
+              "tier": "blazing"
+            },
+            "_slowest": {
+              "name": "Browse item by value (10,000 items)",
+              "hz": 31327249,
+              "hzLabel": "31.3M ops/s",
+              "mean": 0.00003192109240355001,
+              "meanLabel": "32ns",
+              "tier": "blazing"
+            },
+            "_tier": "blazing"
+          },
+          "mutation operations": {
+            "Upsert item (1,000 items)": {
+              "name": "Upsert item (1,000 items)",
+              "hz": 6278,
+              "hzLabel": "6.3k ops/s",
+              "mean": 0.15929895093976779,
+              "meanLabel": "159.3μs",
+              "rme": 10.5,
+              "tier": "fast"
+            },
+            "Upsert item (10,000 items)": {
+              "name": "Upsert item (10,000 items)",
+              "hz": 408,
+              "hzLabel": "408 ops/s",
+              "mean": 2.451647196078364,
+              "meanLabel": "2.45ms",
+              "rme": 10.7,
+              "tier": "good"
+            },
+            "Register single item": {
+              "name": "Register single item",
+              "hz": 686902,
+              "hzLabel": "686.9k ops/s",
+              "mean": 0.0014558124594140657,
+              "meanLabel": "1.5μs",
+              "rme": 11.4,
+              "tier": "blazing"
+            },
+            "Register then unregister single item": {
+              "name": "Register then unregister single item",
+              "hz": 551417,
+              "hzLabel": "551.4k ops/s",
+              "mean": 0.0018135090398968328,
+              "meanLabel": "1.8μs",
+              "rme": 11.3,
+              "tier": "blazing"
+            },
+            "_fastest": {
+              "name": "Register single item",
+              "hz": 686902,
+              "hzLabel": "686.9k ops/s",
+              "mean": 0.0014558124594140657,
+              "meanLabel": "1.5μs",
+              "tier": "blazing"
+            },
+            "_slowest": {
+              "name": "Upsert item (10,000 items)",
+              "hz": 408,
+              "hzLabel": "408 ops/s",
+              "mean": 2.451647196078364,
+              "meanLabel": "2.45ms",
+              "tier": "good"
+            },
+            "_tier": "fast"
+          },
+          "batch operations": {
+            "Onboard then clear 1,000 items": {
+              "name": "Onboard then clear 1,000 items",
+              "hz": 8754,
+              "hzLabel": "8.8k ops/s",
+              "mean": 0.11423230561894783,
+              "meanLabel": "114.2μs",
+              "rme": 1.9,
+              "tier": "fast"
+            },
+            "Onboard then clear 10,000 items": {
+              "name": "Onboard then clear 10,000 items",
+              "hz": 489,
+              "hzLabel": "489 ops/s",
+              "mean": 2.0448423591833227,
+              "meanLabel": "2.04ms",
+              "rme": 4.2,
+              "tier": "good"
+            },
+            "Onboard then reindex 1,000 items": {
+              "name": "Onboard then reindex 1,000 items",
+              "hz": 4747,
+              "hzLabel": "4.7k ops/s",
+              "mean": 0.21064433235054747,
+              "meanLabel": "210.6μs",
+              "rme": 9.3,
+              "tier": "fast"
+            },
+            "Onboard then reindex 10,000 items": {
+              "name": "Onboard then reindex 10,000 items",
+              "hz": 289,
+              "hzLabel": "289 ops/s",
+              "mean": 3.458668641379737,
+              "meanLabel": "3.46ms",
+              "rme": 8.8,
+              "tier": "good"
+            },
+            "Onboard 1,000 then offboard 500 items": {
+              "name": "Onboard 1,000 then offboard 500 items",
+              "hz": 5663,
+              "hzLabel": "5.7k ops/s",
+              "mean": 0.17659905437857443,
+              "meanLabel": "176.6μs",
+              "rme": 6.2,
+              "tier": "fast"
+            },
+            "Onboard 10,000 then offboard 5,000 items": {
+              "name": "Onboard 10,000 then offboard 5,000 items",
+              "hz": 363,
+              "hzLabel": "363 ops/s",
+              "mean": 2.75295687567563,
+              "meanLabel": "2.75ms",
+              "rme": 7.1,
+              "tier": "good"
+            },
+            "_fastest": {
+              "name": "Onboard then clear 1,000 items",
+              "hz": 8754,
+              "hzLabel": "8.8k ops/s",
+              "mean": 0.11423230561894783,
+              "meanLabel": "114.2μs",
+              "tier": "fast"
+            },
+            "_slowest": {
+              "name": "Onboard then reindex 10,000 items",
+              "hz": 289,
+              "hzLabel": "289 ops/s",
+              "mean": 3.458668641379737,
+              "meanLabel": "3.46ms",
+              "tier": "good"
+            },
+            "_tier": "fast"
+          },
+          "computed access": {
+            "Access keys() 100 times (1,000 items, cached)": {
+              "name": "Access keys() 100 times (1,000 items, cached)",
+              "hz": 655770,
+              "hzLabel": "655.8k ops/s",
+              "mean": 0.001524925537918695,
+              "meanLabel": "1.5μs",
+              "rme": 0.7,
+              "tier": "blazing"
+            },
+            "Access keys() 100 times (10,000 items, cached)": {
+              "name": "Access keys() 100 times (10,000 items, cached)",
+              "hz": 667291,
+              "hzLabel": "667.3k ops/s",
+              "mean": 0.001498596983021181,
+              "meanLabel": "1.5μs",
+              "rme": 0.3,
+              "tier": "blazing"
+            },
+            "Access values() 100 times (1,000 items, cached)": {
+              "name": "Access values() 100 times (1,000 items, cached)",
+              "hz": 669729,
+              "hzLabel": "669.7k ops/s",
+              "mean": 0.001493141555556353,
+              "meanLabel": "1.5μs",
+              "rme": 0.3,
+              "tier": "blazing"
+            },
+            "Access values() 100 times (10,000 items, cached)": {
+              "name": "Access values() 100 times (10,000 items, cached)",
+              "hz": 656497,
+              "hzLabel": "656.5k ops/s",
+              "mean": 0.0015232361195370192,
+              "meanLabel": "1.5μs",
+              "rme": 0.7,
+              "tier": "blazing"
+            },
+            "Access entries() 100 times (1,000 items, cached)": {
+              "name": "Access entries() 100 times (1,000 items, cached)",
+              "hz": 674261,
+              "hzLabel": "674.3k ops/s",
+              "mean": 0.0014831043748532468,
+              "meanLabel": "1.5μs",
+              "rme": 0.3,
+              "tier": "blazing"
+            },
+            "Access entries() 100 times (10,000 items, cached)": {
+              "name": "Access entries() 100 times (10,000 items, cached)",
+              "hz": 659176,
+              "hzLabel": "659.2k ops/s",
+              "mean": 0.001517044810349828,
+              "meanLabel": "1.5μs",
+              "rme": 0.6,
+              "tier": "blazing"
+            },
+            "_fastest": {
+              "name": "Access entries() 100 times (1,000 items, cached)",
+              "hz": 674261,
+              "hzLabel": "674.3k ops/s",
+              "mean": 0.0014831043748532468,
+              "meanLabel": "1.5μs",
+              "tier": "blazing"
+            },
+            "_slowest": {
+              "name": "Access keys() 100 times (1,000 items, cached)",
+              "hz": 655770,
+              "hzLabel": "655.8k ops/s",
+              "mean": 0.001524925537918695,
+              "meanLabel": "1.5μs",
+              "tier": "blazing"
+            },
+            "_tier": "blazing"
+          },
+          "seek operations": {
+            "Seek first item (1,000 items)": {
+              "name": "Seek first item (1,000 items)",
+              "hz": 18187376,
+              "hzLabel": "18.2M ops/s",
+              "mean": 0.00005498319405606567,
+              "meanLabel": "55ns",
+              "rme": 4.4,
+              "tier": "blazing"
+            },
+            "Seek first item (10,000 items)": {
+              "name": "Seek first item (10,000 items)",
+              "hz": 18507833,
+              "hzLabel": "18.5M ops/s",
+              "mean": 0.000054031175553910796,
+              "meanLabel": "54ns",
+              "rme": 0.6,
+              "tier": "blazing"
+            },
+            "Seek last item (1,000 items)": {
+              "name": "Seek last item (1,000 items)",
+              "hz": 18829183,
+              "hzLabel": "18.8M ops/s",
+              "mean": 0.00005310904922824089,
+              "meanLabel": "53ns",
+              "rme": 0.4,
+              "tier": "blazing"
+            },
+            "Seek last item (10,000 items)": {
+              "name": "Seek last item (10,000 items)",
+              "hz": 18476789,
+              "hzLabel": "18.5M ops/s",
+              "mean": 0.000054121958197095486,
+              "meanLabel": "54ns",
+              "rme": 0.5,
+              "tier": "blazing"
+            },
+            "Seek with predicate (1,000 items)": {
+              "name": "Seek with predicate (1,000 items)",
+              "hz": 836411,
+              "hzLabel": "836.4k ops/s",
+              "mean": 0.0011955839514507345,
+              "meanLabel": "1.2μs",
+              "rme": 0.3,
+              "tier": "blazing"
+            },
+            "Seek with predicate (10,000 items)": {
+              "name": "Seek with predicate (10,000 items)",
+              "hz": 68136,
+              "hzLabel": "68.1k ops/s",
+              "mean": 0.014676584566156586,
+              "meanLabel": "14.7μs",
+              "rme": 0.5,
+              "tier": "blazing"
+            },
+            "_fastest": {
+              "name": "Seek last item (1,000 items)",
+              "hz": 18829183,
+              "hzLabel": "18.8M ops/s",
+              "mean": 0.00005310904922824089,
+              "meanLabel": "53ns",
+              "tier": "blazing"
+            },
+            "_slowest": {
+              "name": "Seek with predicate (10,000 items)",
+              "hz": 68136,
+              "hzLabel": "68.1k ops/s",
+              "mean": 0.014676584566156586,
+              "meanLabel": "14.7μs",
+              "tier": "blazing"
+            },
+            "_tier": "blazing"
+          }
+        },
+        "Create empty registry": {
+          "name": "Create empty registry",
+          "hz": 705304,
+          "hzLabel": "705.3k ops/s",
+          "mean": 0.0014178289673672845,
+          "meanLabel": "1.4μs",
+          "rme": 9.9,
+          "tier": "blazing"
+        },
+        "Onboard 1,000 items": {
+          "name": "Onboard 1,000 items",
+          "hz": 6803,
+          "hzLabel": "6.8k ops/s",
+          "mean": 0.14699459578824212,
+          "meanLabel": "147.0μs",
+          "rme": 8.4,
+          "tier": "fast"
+        },
+        "Onboard 10,000 items": {
+          "name": "Onboard 10,000 items",
+          "hz": 427,
+          "hzLabel": "427 ops/s",
+          "mean": 2.3425126401869103,
+          "meanLabel": "2.34ms",
+          "rme": 9.9,
+          "tier": "good"
+        },
+        "Get item by id (1,000 items)": {
+          "name": "Get item by id (1,000 items)",
+          "hz": 31832305,
+          "hzLabel": "31.8M ops/s",
+          "mean": 0.00003141462745430659,
+          "meanLabel": "31ns",
+          "rme": 0.5,
+          "tier": "blazing"
+        },
+        "Get item by id (10,000 items)": {
+          "name": "Get item by id (10,000 items)",
+          "hz": 31920017,
+          "hzLabel": "31.9M ops/s",
+          "mean": 0.000031328304326136315,
+          "meanLabel": "31ns",
+          "rme": 0.4,
+          "tier": "blazing"
+        },
+        "Lookup item by index (1,000 items)": {
+          "name": "Lookup item by index (1,000 items)",
+          "hz": 31627255,
+          "hzLabel": "31.6M ops/s",
+          "mean": 0.00003161829872326788,
+          "meanLabel": "32ns",
+          "rme": 0.5,
+          "tier": "blazing"
+        },
+        "Lookup item by index (10,000 items)": {
+          "name": "Lookup item by index (10,000 items)",
+          "hz": 31798368,
+          "hzLabel": "31.8M ops/s",
+          "mean": 0.00003144815488633651,
+          "meanLabel": "31ns",
+          "rme": 0.4,
+          "tier": "blazing"
+        },
+        "Browse item by value (1,000 items)": {
+          "name": "Browse item by value (1,000 items)",
+          "hz": 31577767,
+          "hzLabel": "31.6M ops/s",
+          "mean": 0.000031667850115113375,
+          "meanLabel": "32ns",
+          "rme": 0.4,
+          "tier": "blazing"
+        },
+        "Browse item by value (10,000 items)": {
+          "name": "Browse item by value (10,000 items)",
+          "hz": 31327249,
+          "hzLabel": "31.3M ops/s",
+          "mean": 0.00003192109240355001,
+          "meanLabel": "32ns",
+          "rme": 0.5,
+          "tier": "blazing"
+        },
+        "Check existence with has() (1,000 items)": {
+          "name": "Check existence with has() (1,000 items)",
+          "hz": 31922072,
+          "hzLabel": "31.9M ops/s",
+          "mean": 0.00003132628746666875,
+          "meanLabel": "31ns",
+          "rme": 0.4,
+          "tier": "blazing"
+        },
+        "Check existence with has() (10,000 items)": {
+          "name": "Check existence with has() (10,000 items)",
+          "hz": 31851292,
+          "hzLabel": "31.9M ops/s",
+          "mean": 0.000031395900398746576,
+          "meanLabel": "31ns",
+          "rme": 0.5,
+          "tier": "blazing"
+        },
+        "Upsert item (1,000 items)": {
+          "name": "Upsert item (1,000 items)",
+          "hz": 6278,
+          "hzLabel": "6.3k ops/s",
+          "mean": 0.15929895093976779,
+          "meanLabel": "159.3μs",
+          "rme": 10.5,
+          "tier": "fast"
+        },
+        "Upsert item (10,000 items)": {
+          "name": "Upsert item (10,000 items)",
+          "hz": 408,
+          "hzLabel": "408 ops/s",
+          "mean": 2.451647196078364,
+          "meanLabel": "2.45ms",
+          "rme": 10.7,
+          "tier": "good"
+        },
+        "Register single item": {
+          "name": "Register single item",
+          "hz": 686902,
+          "hzLabel": "686.9k ops/s",
+          "mean": 0.0014558124594140657,
+          "meanLabel": "1.5μs",
+          "rme": 11.4,
+          "tier": "blazing"
+        },
+        "Register then unregister single item": {
+          "name": "Register then unregister single item",
+          "hz": 551417,
+          "hzLabel": "551.4k ops/s",
+          "mean": 0.0018135090398968328,
+          "meanLabel": "1.8μs",
+          "rme": 11.3,
+          "tier": "blazing"
+        },
+        "Onboard then clear 1,000 items": {
+          "name": "Onboard then clear 1,000 items",
+          "hz": 8754,
+          "hzLabel": "8.8k ops/s",
+          "mean": 0.11423230561894783,
+          "meanLabel": "114.2μs",
+          "rme": 1.9,
+          "tier": "fast"
+        },
+        "Onboard then clear 10,000 items": {
+          "name": "Onboard then clear 10,000 items",
+          "hz": 489,
+          "hzLabel": "489 ops/s",
+          "mean": 2.0448423591833227,
+          "meanLabel": "2.04ms",
+          "rme": 4.2,
+          "tier": "good"
+        },
+        "Onboard then reindex 1,000 items": {
+          "name": "Onboard then reindex 1,000 items",
+          "hz": 4747,
+          "hzLabel": "4.7k ops/s",
+          "mean": 0.21064433235054747,
+          "meanLabel": "210.6μs",
+          "rme": 9.3,
+          "tier": "fast"
+        },
+        "Onboard then reindex 10,000 items": {
+          "name": "Onboard then reindex 10,000 items",
+          "hz": 289,
+          "hzLabel": "289 ops/s",
+          "mean": 3.458668641379737,
+          "meanLabel": "3.46ms",
+          "rme": 8.8,
+          "tier": "good"
+        },
+        "Onboard 1,000 then offboard 500 items": {
+          "name": "Onboard 1,000 then offboard 500 items",
+          "hz": 5663,
+          "hzLabel": "5.7k ops/s",
+          "mean": 0.17659905437857443,
+          "meanLabel": "176.6μs",
+          "rme": 6.2,
+          "tier": "fast"
+        },
+        "Onboard 10,000 then offboard 5,000 items": {
+          "name": "Onboard 10,000 then offboard 5,000 items",
+          "hz": 363,
+          "hzLabel": "363 ops/s",
+          "mean": 2.75295687567563,
+          "meanLabel": "2.75ms",
+          "rme": 7.1,
+          "tier": "good"
+        },
+        "Access keys() 100 times (1,000 items, cached)": {
+          "name": "Access keys() 100 times (1,000 items, cached)",
+          "hz": 655770,
+          "hzLabel": "655.8k ops/s",
+          "mean": 0.001524925537918695,
+          "meanLabel": "1.5μs",
+          "rme": 0.7,
+          "tier": "blazing"
+        },
+        "Access keys() 100 times (10,000 items, cached)": {
+          "name": "Access keys() 100 times (10,000 items, cached)",
+          "hz": 667291,
+          "hzLabel": "667.3k ops/s",
+          "mean": 0.001498596983021181,
+          "meanLabel": "1.5μs",
+          "rme": 0.3,
+          "tier": "blazing"
+        },
+        "Access values() 100 times (1,000 items, cached)": {
+          "name": "Access values() 100 times (1,000 items, cached)",
+          "hz": 669729,
+          "hzLabel": "669.7k ops/s",
+          "mean": 0.001493141555556353,
+          "meanLabel": "1.5μs",
+          "rme": 0.3,
+          "tier": "blazing"
+        },
+        "Access values() 100 times (10,000 items, cached)": {
+          "name": "Access values() 100 times (10,000 items, cached)",
+          "hz": 656497,
+          "hzLabel": "656.5k ops/s",
+          "mean": 0.0015232361195370192,
+          "meanLabel": "1.5μs",
+          "rme": 0.7,
+          "tier": "blazing"
+        },
+        "Access entries() 100 times (1,000 items, cached)": {
+          "name": "Access entries() 100 times (1,000 items, cached)",
+          "hz": 674261,
+          "hzLabel": "674.3k ops/s",
+          "mean": 0.0014831043748532468,
+          "meanLabel": "1.5μs",
+          "rme": 0.3,
+          "tier": "blazing"
+        },
+        "Access entries() 100 times (10,000 items, cached)": {
+          "name": "Access entries() 100 times (10,000 items, cached)",
+          "hz": 659176,
+          "hzLabel": "659.2k ops/s",
+          "mean": 0.001517044810349828,
+          "meanLabel": "1.5μs",
+          "rme": 0.6,
+          "tier": "blazing"
+        },
+        "Seek first item (1,000 items)": {
+          "name": "Seek first item (1,000 items)",
+          "hz": 18187376,
+          "hzLabel": "18.2M ops/s",
+          "mean": 0.00005498319405606567,
+          "meanLabel": "55ns",
+          "rme": 4.4,
+          "tier": "blazing"
+        },
+        "Seek first item (10,000 items)": {
+          "name": "Seek first item (10,000 items)",
+          "hz": 18507833,
+          "hzLabel": "18.5M ops/s",
+          "mean": 0.000054031175553910796,
+          "meanLabel": "54ns",
+          "rme": 0.6,
+          "tier": "blazing"
+        },
+        "Seek last item (1,000 items)": {
+          "name": "Seek last item (1,000 items)",
+          "hz": 18829183,
+          "hzLabel": "18.8M ops/s",
+          "mean": 0.00005310904922824089,
+          "meanLabel": "53ns",
+          "rme": 0.4,
+          "tier": "blazing"
+        },
+        "Seek last item (10,000 items)": {
+          "name": "Seek last item (10,000 items)",
+          "hz": 18476789,
+          "hzLabel": "18.5M ops/s",
+          "mean": 0.000054121958197095486,
+          "meanLabel": "54ns",
+          "rme": 0.5,
+          "tier": "blazing"
+        },
+        "Seek with predicate (1,000 items)": {
+          "name": "Seek with predicate (1,000 items)",
+          "hz": 836411,
+          "hzLabel": "836.4k ops/s",
+          "mean": 0.0011955839514507345,
+          "meanLabel": "1.2μs",
+          "rme": 0.3,
+          "tier": "blazing"
+        },
+        "Seek with predicate (10,000 items)": {
+          "name": "Seek with predicate (10,000 items)",
+          "hz": 68136,
+          "hzLabel": "68.1k ops/s",
+          "mean": 0.014676584566156586,
+          "meanLabel": "14.7μs",
+          "rme": 0.5,
+          "tier": "blazing"
+        },
+        "_fastest": {
+          "name": "Check existence with has() (1,000 items)",
+          "hz": 31922072,
+          "hzLabel": "31.9M ops/s",
+          "mean": 0.00003132628746666875,
+          "meanLabel": "31ns",
+          "tier": "blazing"
+        },
+        "_slowest": {
+          "name": "Onboard then reindex 10,000 items",
+          "hz": 289,
+          "hzLabel": "289 ops/s",
+          "mean": 3.458668641379737,
+          "meanLabel": "3.46ms",
+          "tier": "good"
+        }
+      }
+    },
+    "createTokens": {
+      "benchmarks": {
+        "_groups": {
+          "initialization": {
+            "Initialize with fixture tokens (~100 tokens)": {
+              "name": "Initialize with fixture tokens (~100 tokens)",
+              "hz": 25490,
+              "hzLabel": "25.5k ops/s",
+              "mean": 0.03923114209493909,
+              "meanLabel": "39.2μs",
+              "rme": 10.7,
+              "tier": "blazing"
+            },
+            "Initialize with 1,000 tokens": {
+              "name": "Initialize with 1,000 tokens",
+              "hz": 3200,
+              "hzLabel": "3.2k ops/s",
+              "mean": 0.31251996312499936,
+              "meanLabel": "312.5μs",
+              "rme": 9.5,
+              "tier": "fast"
+            },
+            "Initialize with 10,000 tokens": {
+              "name": "Initialize with 10,000 tokens",
+              "hz": 251,
+              "hzLabel": "251 ops/s",
+              "mean": 3.9777310714285714,
+              "meanLabel": "3.98ms",
+              "rme": 9.6,
+              "tier": "good"
+            },
+            "_fastest": {
+              "name": "Initialize with fixture tokens (~100 tokens)",
+              "hz": 25490,
+              "hzLabel": "25.5k ops/s",
+              "mean": 0.03923114209493909,
+              "meanLabel": "39.2μs",
+              "tier": "blazing"
+            },
+            "_slowest": {
+              "name": "Initialize with 10,000 tokens",
+              "hz": 251,
+              "hzLabel": "251 ops/s",
+              "mean": 3.9777310714285714,
+              "meanLabel": "3.98ms",
+              "tier": "good"
+            },
+            "_tier": "fast"
+          },
+          "lookup operations": {
+            "Resolve primitive token": {
+              "name": "Resolve primitive token",
+              "hz": 14733154,
+              "hzLabel": "14.7M ops/s",
+              "mean": 0.00006787413041362056,
+              "meanLabel": "68ns",
+              "rme": 0.7,
+              "tier": "blazing"
+            },
+            "Resolve nested path (3 levels)": {
+              "name": "Resolve nested path (3 levels)",
+              "hz": 14852158,
+              "hzLabel": "14.9M ops/s",
+              "mean": 0.00006733028398970169,
+              "meanLabel": "67ns",
+              "rme": 0.6,
+              "tier": "blazing"
+            },
+            "Resolve deep nested path (5 levels)": {
+              "name": "Resolve deep nested path (5 levels)",
+              "hz": 4594433,
+              "hzLabel": "4.6M ops/s",
+              "mean": 0.00021765469653089369,
+              "meanLabel": "218ns",
+              "rme": 0.7,
+              "tier": "blazing"
+            },
+            "Resolve by id (1,000 tokens)": {
+              "name": "Resolve by id (1,000 tokens)",
+              "hz": 14664073,
+              "hzLabel": "14.7M ops/s",
+              "mean": 0.00006819387995482616,
+              "meanLabel": "68ns",
+              "rme": 0.9,
+              "tier": "blazing"
+            },
+            "Resolve by id (10,000 tokens)": {
+              "name": "Resolve by id (10,000 tokens)",
+              "hz": 14788459,
+              "hzLabel": "14.8M ops/s",
+              "mean": 0.00006762029907118129,
+              "meanLabel": "68ns",
+              "rme": 1.1,
+              "tier": "blazing"
+            },
+            "_fastest": {
+              "name": "Resolve nested path (3 levels)",
+              "hz": 14852158,
+              "hzLabel": "14.9M ops/s",
+              "mean": 0.00006733028398970169,
+              "meanLabel": "67ns",
+              "tier": "blazing"
+            },
+            "_slowest": {
+              "name": "Resolve deep nested path (5 levels)",
+              "hz": 4594433,
+              "hzLabel": "4.6M ops/s",
+              "mean": 0.00021765469653089369,
+              "meanLabel": "218ns",
+              "tier": "blazing"
+            },
+            "_tier": "blazing"
+          },
+          "alias resolution": {
+            "Resolve single alias": {
+              "name": "Resolve single alias",
+              "hz": 14852538,
+              "hzLabel": "14.9M ops/s",
+              "mean": 0.00006732855821306154,
+              "meanLabel": "67ns",
+              "rme": 0.6,
+              "tier": "blazing"
+            },
+            "Resolve chained alias (2 levels)": {
+              "name": "Resolve chained alias (2 levels)",
+              "hz": 3668763,
+              "hzLabel": "3.7M ops/s",
+              "mean": 0.0002725714524013365,
+              "meanLabel": "273ns",
+              "rme": 0.4,
+              "tier": "blazing"
+            },
+            "Resolve component alias reference": {
+              "name": "Resolve component alias reference",
+              "hz": 3572622,
+              "hzLabel": "3.6M ops/s",
+              "mean": 0.00027990648772771055,
+              "meanLabel": "280ns",
+              "rme": 0.6,
+              "tier": "blazing"
+            },
+            "Resolve alias (1,000 tokens)": {
+              "name": "Resolve alias (1,000 tokens)",
+              "hz": 3587224,
+              "hzLabel": "3.6M ops/s",
+              "mean": 0.00027876707015391417,
+              "meanLabel": "279ns",
+              "rme": 0.5,
+              "tier": "blazing"
+            },
+            "Resolve alias (10,000 tokens)": {
+              "name": "Resolve alias (10,000 tokens)",
+              "hz": 3524092,
+              "hzLabel": "3.5M ops/s",
+              "mean": 0.0002837610561807292,
+              "meanLabel": "284ns",
+              "rme": 0.6,
+              "tier": "blazing"
+            },
+            "_fastest": {
+              "name": "Resolve single alias",
+              "hz": 14852538,
+              "hzLabel": "14.9M ops/s",
+              "mean": 0.00006732855821306154,
+              "meanLabel": "67ns",
+              "tier": "blazing"
+            },
+            "_slowest": {
+              "name": "Resolve alias (10,000 tokens)",
+              "hz": 3524092,
+              "hzLabel": "3.5M ops/s",
+              "mean": 0.0002837610561807292,
+              "meanLabel": "284ns",
+              "tier": "blazing"
+            },
+            "_tier": "blazing"
+          },
+          "batch resolution": {
+            "Resolve 5 different paths sequentially": {
+              "name": "Resolve 5 different paths sequentially",
+              "hz": 4385241,
+              "hzLabel": "4.4M ops/s",
+              "mean": 0.00022803765812780383,
+              "meanLabel": "228ns",
+              "rme": 0.7,
+              "tier": "blazing"
+            },
+            "Resolve 100 paths (20 unique, repeated)": {
+              "name": "Resolve 100 paths (20 unique, repeated)",
+              "hz": 248279,
+              "hzLabel": "248.3k ops/s",
+              "mean": 0.0040277263009445554,
+              "meanLabel": "4.0μs",
+              "rme": 0.5,
+              "tier": "blazing"
+            },
+            "_fastest": {
+              "name": "Resolve 5 different paths sequentially",
+              "hz": 4385241,
+              "hzLabel": "4.4M ops/s",
+              "mean": 0.00022803765812780383,
+              "meanLabel": "228ns",
+              "tier": "blazing"
+            },
+            "_slowest": {
+              "name": "Resolve 100 paths (20 unique, repeated)",
+              "hz": 248279,
+              "hzLabel": "248.3k ops/s",
+              "mean": 0.0040277263009445554,
+              "meanLabel": "4.0μs",
+              "tier": "blazing"
+            },
+            "_tier": "blazing"
+          },
+          "computed access": {
+            "Resolve cached token 100 times (fixture)": {
+              "name": "Resolve cached token 100 times (fixture)",
+              "hz": 266005,
+              "hzLabel": "266.0k ops/s",
+              "mean": 0.003759328879800111,
+              "meanLabel": "3.8μs",
+              "rme": 0.6,
+              "tier": "blazing"
+            },
+            "Resolve cached token 100 times (1,000 tokens)": {
+              "name": "Resolve cached token 100 times (1,000 tokens)",
+              "hz": 266980,
+              "hzLabel": "267.0k ops/s",
+              "mean": 0.0037455941674015085,
+              "meanLabel": "3.7μs",
+              "rme": 0.5,
+              "tier": "blazing"
+            },
+            "Resolve cached token 100 times (10,000 tokens)": {
+              "name": "Resolve cached token 100 times (10,000 tokens)",
+              "hz": 269536,
+              "hzLabel": "269.5k ops/s",
+              "mean": 0.003710083825534269,
+              "meanLabel": "3.7μs",
+              "rme": 0.4,
+              "tier": "blazing"
+            },
+            "_fastest": {
+              "name": "Resolve cached token 100 times (10,000 tokens)",
+              "hz": 269536,
+              "hzLabel": "269.5k ops/s",
+              "mean": 0.003710083825534269,
+              "meanLabel": "3.7μs",
+              "tier": "blazing"
+            },
+            "_slowest": {
+              "name": "Resolve cached token 100 times (fixture)",
+              "hz": 266005,
+              "hzLabel": "266.0k ops/s",
+              "mean": 0.003759328879800111,
+              "meanLabel": "3.8μs",
+              "tier": "blazing"
+            },
+            "_tier": "blazing"
+          }
+        },
+        "Initialize with fixture tokens (~100 tokens)": {
+          "name": "Initialize with fixture tokens (~100 tokens)",
+          "hz": 25490,
+          "hzLabel": "25.5k ops/s",
+          "mean": 0.03923114209493909,
+          "meanLabel": "39.2μs",
+          "rme": 10.7,
+          "tier": "blazing"
+        },
+        "Initialize with 1,000 tokens": {
+          "name": "Initialize with 1,000 tokens",
+          "hz": 3200,
+          "hzLabel": "3.2k ops/s",
+          "mean": 0.31251996312499936,
+          "meanLabel": "312.5μs",
+          "rme": 9.5,
+          "tier": "fast"
+        },
+        "Initialize with 10,000 tokens": {
+          "name": "Initialize with 10,000 tokens",
+          "hz": 251,
+          "hzLabel": "251 ops/s",
+          "mean": 3.9777310714285714,
+          "meanLabel": "3.98ms",
+          "rme": 9.6,
+          "tier": "good"
+        },
+        "Resolve primitive token": {
+          "name": "Resolve primitive token",
+          "hz": 14733154,
+          "hzLabel": "14.7M ops/s",
+          "mean": 0.00006787413041362056,
+          "meanLabel": "68ns",
+          "rme": 0.7,
+          "tier": "blazing"
+        },
+        "Resolve nested path (3 levels)": {
+          "name": "Resolve nested path (3 levels)",
+          "hz": 14852158,
+          "hzLabel": "14.9M ops/s",
+          "mean": 0.00006733028398970169,
+          "meanLabel": "67ns",
+          "rme": 0.6,
+          "tier": "blazing"
+        },
+        "Resolve deep nested path (5 levels)": {
+          "name": "Resolve deep nested path (5 levels)",
+          "hz": 4594433,
+          "hzLabel": "4.6M ops/s",
+          "mean": 0.00021765469653089369,
+          "meanLabel": "218ns",
+          "rme": 0.7,
+          "tier": "blazing"
+        },
+        "Resolve by id (1,000 tokens)": {
+          "name": "Resolve by id (1,000 tokens)",
+          "hz": 14664073,
+          "hzLabel": "14.7M ops/s",
+          "mean": 0.00006819387995482616,
+          "meanLabel": "68ns",
+          "rme": 0.9,
+          "tier": "blazing"
+        },
+        "Resolve by id (10,000 tokens)": {
+          "name": "Resolve by id (10,000 tokens)",
+          "hz": 14788459,
+          "hzLabel": "14.8M ops/s",
+          "mean": 0.00006762029907118129,
+          "meanLabel": "68ns",
+          "rme": 1.1,
+          "tier": "blazing"
+        },
+        "Resolve single alias": {
+          "name": "Resolve single alias",
+          "hz": 14852538,
+          "hzLabel": "14.9M ops/s",
+          "mean": 0.00006732855821306154,
+          "meanLabel": "67ns",
+          "rme": 0.6,
+          "tier": "blazing"
+        },
+        "Resolve chained alias (2 levels)": {
+          "name": "Resolve chained alias (2 levels)",
+          "hz": 3668763,
+          "hzLabel": "3.7M ops/s",
+          "mean": 0.0002725714524013365,
+          "meanLabel": "273ns",
+          "rme": 0.4,
+          "tier": "blazing"
+        },
+        "Resolve component alias reference": {
+          "name": "Resolve component alias reference",
+          "hz": 3572622,
+          "hzLabel": "3.6M ops/s",
+          "mean": 0.00027990648772771055,
+          "meanLabel": "280ns",
+          "rme": 0.6,
+          "tier": "blazing"
+        },
+        "Resolve alias (1,000 tokens)": {
+          "name": "Resolve alias (1,000 tokens)",
+          "hz": 3587224,
+          "hzLabel": "3.6M ops/s",
+          "mean": 0.00027876707015391417,
+          "meanLabel": "279ns",
+          "rme": 0.5,
+          "tier": "blazing"
+        },
+        "Resolve alias (10,000 tokens)": {
+          "name": "Resolve alias (10,000 tokens)",
+          "hz": 3524092,
+          "hzLabel": "3.5M ops/s",
+          "mean": 0.0002837610561807292,
+          "meanLabel": "284ns",
+          "rme": 0.6,
+          "tier": "blazing"
+        },
+        "Resolve 5 different paths sequentially": {
+          "name": "Resolve 5 different paths sequentially",
+          "hz": 4385241,
+          "hzLabel": "4.4M ops/s",
+          "mean": 0.00022803765812780383,
+          "meanLabel": "228ns",
+          "rme": 0.7,
+          "tier": "blazing"
+        },
+        "Resolve 100 paths (20 unique, repeated)": {
+          "name": "Resolve 100 paths (20 unique, repeated)",
+          "hz": 248279,
+          "hzLabel": "248.3k ops/s",
+          "mean": 0.0040277263009445554,
+          "meanLabel": "4.0μs",
+          "rme": 0.5,
+          "tier": "blazing"
+        },
+        "Resolve cached token 100 times (fixture)": {
+          "name": "Resolve cached token 100 times (fixture)",
+          "hz": 266005,
+          "hzLabel": "266.0k ops/s",
+          "mean": 0.003759328879800111,
+          "meanLabel": "3.8μs",
+          "rme": 0.6,
+          "tier": "blazing"
+        },
+        "Resolve cached token 100 times (1,000 tokens)": {
+          "name": "Resolve cached token 100 times (1,000 tokens)",
+          "hz": 266980,
+          "hzLabel": "267.0k ops/s",
+          "mean": 0.0037455941674015085,
+          "meanLabel": "3.7μs",
+          "rme": 0.5,
+          "tier": "blazing"
+        },
+        "Resolve cached token 100 times (10,000 tokens)": {
+          "name": "Resolve cached token 100 times (10,000 tokens)",
+          "hz": 269536,
+          "hzLabel": "269.5k ops/s",
+          "mean": 0.003710083825534269,
+          "meanLabel": "3.7μs",
+          "rme": 0.4,
+          "tier": "blazing"
+        },
+        "_fastest": {
+          "name": "Resolve single alias",
+          "hz": 14852538,
+          "hzLabel": "14.9M ops/s",
+          "mean": 0.00006732855821306154,
+          "meanLabel": "67ns",
+          "tier": "blazing"
+        },
+        "_slowest": {
+          "name": "Initialize with 10,000 tokens",
+          "hz": 251,
+          "hzLabel": "251 ops/s",
+          "mean": 3.9777310714285714,
+          "meanLabel": "3.98ms",
+          "tier": "good"
+        }
+      }
+    },
+    "useFilter": {
+      "benchmarks": {
+        "_groups": {
+          "initialization": {
+            "Create filter with default options": {
+              "name": "Create filter with default options",
+              "hz": 30013988,
+              "hzLabel": "30.0M ops/s",
+              "mean": 0.000033317797867035264,
+              "meanLabel": "33ns",
+              "rme": 2,
+              "tier": "blazing"
+            },
+            "Create filter with keys constraint": {
+              "name": "Create filter with keys constraint",
+              "hz": 29111199,
+              "hzLabel": "29.1M ops/s",
+              "mean": 0.000034351041317367507,
+              "meanLabel": "34ns",
+              "rme": 0.5,
+              "tier": "blazing"
+            },
+            "Create filter with custom matcher": {
+              "name": "Create filter with custom matcher",
+              "hz": 24202619,
+              "hzLabel": "24.2M ops/s",
+              "mean": 0.00004131784244867364,
+              "meanLabel": "41ns",
+              "rme": 2.9,
+              "tier": "blazing"
+            },
+            "_fastest": {
+              "name": "Create filter with default options",
+              "hz": 30013988,
+              "hzLabel": "30.0M ops/s",
+              "mean": 0.000033317797867035264,
+              "meanLabel": "33ns",
+              "tier": "blazing"
+            },
+            "_slowest": {
+              "name": "Create filter with custom matcher",
+              "hz": 24202619,
+              "hzLabel": "24.2M ops/s",
+              "mean": 0.00004131784244867364,
+              "meanLabel": "41ns",
+              "tier": "blazing"
+            },
+            "_tier": "blazing"
+          },
+          "primitive filtering": {
+            "Filter 1,000 string primitives with single query": {
+              "name": "Filter 1,000 string primitives with single query",
+              "hz": 21624952,
+              "hzLabel": "21.6M ops/s",
+              "mean": 0.00004624287776468414,
+              "meanLabel": "46ns",
+              "rme": 1.3,
+              "tier": "blazing"
+            },
+            "Filter 10,000 string primitives with single query": {
+              "name": "Filter 10,000 string primitives with single query",
+              "hz": 19832809,
+              "hzLabel": "19.8M ops/s",
+              "mean": 0.00005042150043274411,
+              "meanLabel": "50ns",
+              "rme": 2.6,
+              "tier": "blazing"
+            },
+            "_fastest": {
+              "name": "Filter 1,000 string primitives with single query",
+              "hz": 21624952,
+              "hzLabel": "21.6M ops/s",
+              "mean": 0.00004624287776468414,
+              "meanLabel": "46ns",
+              "tier": "blazing"
+            },
+            "_slowest": {
+              "name": "Filter 10,000 string primitives with single query",
+              "hz": 19832809,
+              "hzLabel": "19.8M ops/s",
+              "mean": 0.00005042150043274411,
+              "meanLabel": "50ns",
+              "tier": "blazing"
+            },
+            "_tier": "blazing"
+          },
+          "object filtering": {
+            "Filter 1,000 objects across all keys": {
+              "name": "Filter 1,000 objects across all keys",
+              "hz": 20388313,
+              "hzLabel": "20.4M ops/s",
+              "mean": 0.00004904770654408581,
+              "meanLabel": "49ns",
+              "rme": 0.8,
+              "tier": "blazing"
+            },
+            "Filter 1,000 objects with single key constraint": {
+              "name": "Filter 1,000 objects with single key constraint",
+              "hz": 20141528,
+              "hzLabel": "20.1M ops/s",
+              "mean": 0.00004964866667509686,
+              "meanLabel": "50ns",
+              "rme": 1.2,
+              "tier": "blazing"
+            },
+            "Filter 10,000 objects across all keys": {
+              "name": "Filter 10,000 objects across all keys",
+              "hz": 20568495,
+              "hzLabel": "20.6M ops/s",
+              "mean": 0.00004861804382785293,
+              "meanLabel": "49ns",
+              "rme": 0.8,
+              "tier": "blazing"
+            },
+            "Filter 10,000 objects with single key constraint": {
+              "name": "Filter 10,000 objects with single key constraint",
+              "hz": 20173565,
+              "hzLabel": "20.2M ops/s",
+              "mean": 0.00004956982131963017,
+              "meanLabel": "50ns",
+              "rme": 2.6,
+              "tier": "blazing"
+            },
+            "_fastest": {
+              "name": "Filter 10,000 objects across all keys",
+              "hz": 20568495,
+              "hzLabel": "20.6M ops/s",
+              "mean": 0.00004861804382785293,
+              "meanLabel": "49ns",
+              "tier": "blazing"
+            },
+            "_slowest": {
+              "name": "Filter 1,000 objects with single key constraint",
+              "hz": 20141528,
+              "hzLabel": "20.1M ops/s",
+              "mean": 0.00004964866667509686,
+              "meanLabel": "50ns",
+              "tier": "blazing"
+            },
+            "_tier": "blazing"
+          },
+          "filter modes": {
+            "Filter 1,000 objects with some mode": {
+              "name": "Filter 1,000 objects with some mode",
+              "hz": 19042974,
+              "hzLabel": "19.0M ops/s",
+              "mean": 0.000052512807262055245,
+              "meanLabel": "53ns",
+              "rme": 10.7,
+              "tier": "blazing"
+            },
+            "Filter 1,000 objects with every mode": {
+              "name": "Filter 1,000 objects with every mode",
+              "hz": 19859090,
+              "hzLabel": "19.9M ops/s",
+              "mean": 0.00005035477465816748,
+              "meanLabel": "50ns",
+              "rme": 5.3,
+              "tier": "blazing"
+            },
+            "Filter 1,000 objects with union mode (2 queries)": {
+              "name": "Filter 1,000 objects with union mode (2 queries)",
+              "hz": 2505350,
+              "hzLabel": "2.5M ops/s",
+              "mean": 0.0003991459005772771,
+              "meanLabel": "399ns",
+              "rme": 53.1,
+              "tier": "blazing"
+            },
+            "Filter 1,000 objects with intersection mode (2 queries)": {
+              "name": "Filter 1,000 objects with intersection mode (2 queries)",
+              "hz": 1660120,
+              "hzLabel": "1.7M ops/s",
+              "mean": 0.0006023661319357812,
+              "meanLabel": "602ns",
+              "rme": 91,
+              "tier": "blazing"
+            },
+            "Filter 10,000 objects with some mode": {
+              "name": "Filter 10,000 objects with some mode",
+              "hz": 20364464,
+              "hzLabel": "20.4M ops/s",
+              "mean": 0.000049105146976017957,
+              "meanLabel": "49ns",
+              "rme": 1,
+              "tier": "blazing"
+            },
+            "Filter 10,000 objects with every mode": {
+              "name": "Filter 10,000 objects with every mode",
+              "hz": 20122892,
+              "hzLabel": "20.1M ops/s",
+              "mean": 0.00004969464663503601,
+              "meanLabel": "50ns",
+              "rme": 1.6,
+              "tier": "blazing"
+            },
+            "_fastest": {
+              "name": "Filter 10,000 objects with some mode",
+              "hz": 20364464,
+              "hzLabel": "20.4M ops/s",
+              "mean": 0.000049105146976017957,
+              "meanLabel": "49ns",
+              "tier": "blazing"
+            },
+            "_slowest": {
+              "name": "Filter 1,000 objects with intersection mode (2 queries)",
+              "hz": 1660120,
+              "hzLabel": "1.7M ops/s",
+              "mean": 0.0006023661319357812,
+              "meanLabel": "602ns",
+              "tier": "blazing"
+            },
+            "_tier": "blazing"
+          },
+          "mutation operations": {
+            "Reactive filter: access computed 100 times (1,000 items)": {
+              "name": "Reactive filter: access computed 100 times (1,000 items)",
+              "hz": 623,
+              "hzLabel": "623 ops/s",
+              "mean": 1.6055816474359652,
+              "meanLabel": "1.61ms",
+              "rme": 2.5,
+              "tier": "good"
+            },
+            "Reactive filter: access computed 100 times (10,000 items)": {
+              "name": "Reactive filter: access computed 100 times (10,000 items)",
+              "hz": 55,
+              "hzLabel": "55 ops/s",
+              "mean": 18.15953482142816,
+              "meanLabel": "18.16ms",
+              "rme": 3.3,
+              "tier": "slow"
+            },
+            "Reactive filter: update query 10 times (1,000 items)": {
+              "name": "Reactive filter: update query 10 times (1,000 items)",
+              "hz": 66,
+              "hzLabel": "66 ops/s",
+              "mean": 15.180324030302996,
+              "meanLabel": "15.18ms",
+              "rme": 0.9,
+              "tier": "slow"
+            },
+            "Reactive filter: update query 10 times (10,000 items)": {
+              "name": "Reactive filter: update query 10 times (10,000 items)",
+              "hz": 6,
+              "hzLabel": "6 ops/s",
+              "mean": 165.87074460000076,
+              "meanLabel": "165.87ms",
+              "rme": 2.7,
+              "tier": "slow"
+            },
+            "_fastest": {
+              "name": "Reactive filter: access computed 100 times (1,000 items)",
+              "hz": 623,
+              "hzLabel": "623 ops/s",
+              "mean": 1.6055816474359652,
+              "meanLabel": "1.61ms",
+              "tier": "good"
+            },
+            "_slowest": {
+              "name": "Reactive filter: update query 10 times (10,000 items)",
+              "hz": 6,
+              "hzLabel": "6 ops/s",
+              "mean": 165.87074460000076,
+              "meanLabel": "165.87ms",
+              "tier": "slow"
+            },
+            "_tier": "slow"
+          },
+          "native comparison": {
+            "Native Array.filter 1,000 objects": {
+              "name": "Native Array.filter 1,000 objects",
+              "hz": 9373,
+              "hzLabel": "9.4k ops/s",
+              "mean": 0.1066927328782217,
+              "meanLabel": "106.7μs",
+              "rme": 0.7,
+              "tier": "fast"
+            },
+            "Native Array.filter 10,000 objects": {
+              "name": "Native Array.filter 10,000 objects",
+              "hz": 942,
+              "hzLabel": "942 ops/s",
+              "mean": 1.0616312717621013,
+              "meanLabel": "1.06ms",
+              "rme": 1,
+              "tier": "good"
+            },
+            "_fastest": {
+              "name": "Native Array.filter 1,000 objects",
+              "hz": 9373,
+              "hzLabel": "9.4k ops/s",
+              "mean": 0.1066927328782217,
+              "meanLabel": "106.7μs",
+              "tier": "fast"
+            },
+            "_slowest": {
+              "name": "Native Array.filter 10,000 objects",
+              "hz": 942,
+              "hzLabel": "942 ops/s",
+              "mean": 1.0616312717621013,
+              "meanLabel": "1.06ms",
+              "tier": "good"
+            },
+            "_tier": "fast"
+          }
+        },
+        "Create filter with default options": {
+          "name": "Create filter with default options",
+          "hz": 30013988,
+          "hzLabel": "30.0M ops/s",
+          "mean": 0.000033317797867035264,
+          "meanLabel": "33ns",
+          "rme": 2,
+          "tier": "blazing"
+        },
+        "Create filter with keys constraint": {
+          "name": "Create filter with keys constraint",
+          "hz": 29111199,
+          "hzLabel": "29.1M ops/s",
+          "mean": 0.000034351041317367507,
+          "meanLabel": "34ns",
+          "rme": 0.5,
+          "tier": "blazing"
+        },
+        "Create filter with custom matcher": {
+          "name": "Create filter with custom matcher",
+          "hz": 24202619,
+          "hzLabel": "24.2M ops/s",
+          "mean": 0.00004131784244867364,
+          "meanLabel": "41ns",
+          "rme": 2.9,
+          "tier": "blazing"
+        },
+        "Filter 1,000 string primitives with single query": {
+          "name": "Filter 1,000 string primitives with single query",
+          "hz": 21624952,
+          "hzLabel": "21.6M ops/s",
+          "mean": 0.00004624287776468414,
+          "meanLabel": "46ns",
+          "rme": 1.3,
+          "tier": "blazing"
+        },
+        "Filter 10,000 string primitives with single query": {
+          "name": "Filter 10,000 string primitives with single query",
+          "hz": 19832809,
+          "hzLabel": "19.8M ops/s",
+          "mean": 0.00005042150043274411,
+          "meanLabel": "50ns",
+          "rme": 2.6,
+          "tier": "blazing"
+        },
+        "Filter 1,000 objects across all keys": {
+          "name": "Filter 1,000 objects across all keys",
+          "hz": 20388313,
+          "hzLabel": "20.4M ops/s",
+          "mean": 0.00004904770654408581,
+          "meanLabel": "49ns",
+          "rme": 0.8,
+          "tier": "blazing"
+        },
+        "Filter 1,000 objects with single key constraint": {
+          "name": "Filter 1,000 objects with single key constraint",
+          "hz": 20141528,
+          "hzLabel": "20.1M ops/s",
+          "mean": 0.00004964866667509686,
+          "meanLabel": "50ns",
+          "rme": 1.2,
+          "tier": "blazing"
+        },
+        "Filter 10,000 objects across all keys": {
+          "name": "Filter 10,000 objects across all keys",
+          "hz": 20568495,
+          "hzLabel": "20.6M ops/s",
+          "mean": 0.00004861804382785293,
+          "meanLabel": "49ns",
+          "rme": 0.8,
+          "tier": "blazing"
+        },
+        "Filter 10,000 objects with single key constraint": {
+          "name": "Filter 10,000 objects with single key constraint",
+          "hz": 20173565,
+          "hzLabel": "20.2M ops/s",
+          "mean": 0.00004956982131963017,
+          "meanLabel": "50ns",
+          "rme": 2.6,
+          "tier": "blazing"
+        },
+        "Filter 1,000 objects with some mode": {
+          "name": "Filter 1,000 objects with some mode",
+          "hz": 19042974,
+          "hzLabel": "19.0M ops/s",
+          "mean": 0.000052512807262055245,
+          "meanLabel": "53ns",
+          "rme": 10.7,
+          "tier": "blazing"
+        },
+        "Filter 1,000 objects with every mode": {
+          "name": "Filter 1,000 objects with every mode",
+          "hz": 19859090,
+          "hzLabel": "19.9M ops/s",
+          "mean": 0.00005035477465816748,
+          "meanLabel": "50ns",
+          "rme": 5.3,
+          "tier": "blazing"
+        },
+        "Filter 1,000 objects with union mode (2 queries)": {
+          "name": "Filter 1,000 objects with union mode (2 queries)",
+          "hz": 2505350,
+          "hzLabel": "2.5M ops/s",
+          "mean": 0.0003991459005772771,
+          "meanLabel": "399ns",
+          "rme": 53.1,
+          "tier": "blazing"
+        },
+        "Filter 1,000 objects with intersection mode (2 queries)": {
+          "name": "Filter 1,000 objects with intersection mode (2 queries)",
+          "hz": 1660120,
+          "hzLabel": "1.7M ops/s",
+          "mean": 0.0006023661319357812,
+          "meanLabel": "602ns",
+          "rme": 91,
+          "tier": "blazing"
+        },
+        "Filter 10,000 objects with some mode": {
+          "name": "Filter 10,000 objects with some mode",
+          "hz": 20364464,
+          "hzLabel": "20.4M ops/s",
+          "mean": 0.000049105146976017957,
+          "meanLabel": "49ns",
+          "rme": 1,
+          "tier": "blazing"
+        },
+        "Filter 10,000 objects with every mode": {
+          "name": "Filter 10,000 objects with every mode",
+          "hz": 20122892,
+          "hzLabel": "20.1M ops/s",
+          "mean": 0.00004969464663503601,
+          "meanLabel": "50ns",
+          "rme": 1.6,
+          "tier": "blazing"
+        },
+        "Reactive filter: access computed 100 times (1,000 items)": {
+          "name": "Reactive filter: access computed 100 times (1,000 items)",
+          "hz": 623,
+          "hzLabel": "623 ops/s",
+          "mean": 1.6055816474359652,
+          "meanLabel": "1.61ms",
+          "rme": 2.5,
+          "tier": "good"
+        },
+        "Reactive filter: access computed 100 times (10,000 items)": {
+          "name": "Reactive filter: access computed 100 times (10,000 items)",
+          "hz": 55,
+          "hzLabel": "55 ops/s",
+          "mean": 18.15953482142816,
+          "meanLabel": "18.16ms",
+          "rme": 3.3,
+          "tier": "slow"
+        },
+        "Reactive filter: update query 10 times (1,000 items)": {
+          "name": "Reactive filter: update query 10 times (1,000 items)",
+          "hz": 66,
+          "hzLabel": "66 ops/s",
+          "mean": 15.180324030302996,
+          "meanLabel": "15.18ms",
+          "rme": 0.9,
+          "tier": "slow"
+        },
+        "Reactive filter: update query 10 times (10,000 items)": {
+          "name": "Reactive filter: update query 10 times (10,000 items)",
+          "hz": 6,
+          "hzLabel": "6 ops/s",
+          "mean": 165.87074460000076,
+          "meanLabel": "165.87ms",
+          "rme": 2.7,
+          "tier": "slow"
+        },
+        "Native Array.filter 1,000 objects": {
+          "name": "Native Array.filter 1,000 objects",
+          "hz": 9373,
+          "hzLabel": "9.4k ops/s",
+          "mean": 0.1066927328782217,
+          "meanLabel": "106.7μs",
+          "rme": 0.7,
+          "tier": "fast"
+        },
+        "Native Array.filter 10,000 objects": {
+          "name": "Native Array.filter 10,000 objects",
+          "hz": 942,
+          "hzLabel": "942 ops/s",
+          "mean": 1.0616312717621013,
+          "meanLabel": "1.06ms",
+          "rme": 1,
+          "tier": "good"
+        },
+        "_fastest": {
+          "name": "Create filter with default options",
+          "hz": 30013988,
+          "hzLabel": "30.0M ops/s",
+          "mean": 0.000033317797867035264,
+          "meanLabel": "33ns",
+          "tier": "blazing"
+        },
+        "_slowest": {
+          "name": "Reactive filter: update query 10 times (10,000 items)",
+          "hz": 6,
+          "hzLabel": "6 ops/s",
+          "mean": 165.87074460000076,
+          "meanLabel": "165.87ms",
+          "tier": "slow"
+        }
+      }
+    },
+    "useDate": {
+      "benchmarks": {
+        "_groups": {
+          "construction": {
+            "create date from null (now)": {
+              "name": "create date from null (now)",
+              "hz": 30943,
+              "hzLabel": "30.9k ops/s",
+              "mean": 0.03231782788262664,
+              "meanLabel": "32.3μs",
+              "rme": 14.8,
+              "tier": "blazing"
+            },
+            "create date from ISO string": {
+              "name": "create date from ISO string",
+              "hz": 754145,
+              "hzLabel": "754.1k ops/s",
+              "mean": 0.001326004850519665,
+              "meanLabel": "1.3μs",
+              "rme": 6.7,
+              "tier": "blazing"
+            },
+            "create date from timestamp": {
+              "name": "create date from timestamp",
+              "hz": 330910,
+              "hzLabel": "330.9k ops/s",
+              "mean": 0.0030219702396424735,
+              "meanLabel": "3.0μs",
+              "rme": 3.6,
+              "tier": "blazing"
+            },
+            "create 1000 dates": {
+              "name": "create 1000 dates",
+              "hz": 800,
+              "hzLabel": "800 ops/s",
+              "mean": 1.2493451197007535,
+              "meanLabel": "1.25ms",
+              "rme": 8.5,
+              "tier": "good"
+            },
+            "_fastest": {
+              "name": "create date from ISO string",
+              "hz": 754145,
+              "hzLabel": "754.1k ops/s",
+              "mean": 0.001326004850519665,
+              "meanLabel": "1.3μs",
+              "tier": "blazing"
+            },
+            "_slowest": {
+              "name": "create 1000 dates",
+              "hz": 800,
+              "hzLabel": "800 ops/s",
+              "mean": 1.2493451197007535,
+              "meanLabel": "1.25ms",
+              "tier": "good"
+            },
+            "_tier": "blazing"
+          },
+          "formatting": {
+            "format fullDate": {
+              "name": "format fullDate",
+              "hz": 616863,
+              "hzLabel": "616.9k ops/s",
+              "mean": 0.001621105345749567,
+              "meanLabel": "1.6μs",
+              "rme": 1.1,
+              "tier": "blazing"
+            },
+            "format shortDate": {
+              "name": "format shortDate",
+              "hz": 604689,
+              "hzLabel": "604.7k ops/s",
+              "mean": 0.0016537427805978868,
+              "meanLabel": "1.7μs",
+              "rme": 0.8,
+              "tier": "blazing"
+            },
+            "format 1000 dates": {
+              "name": "format 1000 dates",
+              "hz": 637,
+              "hzLabel": "637 ops/s",
+              "mean": 1.5710883949843697,
+              "meanLabel": "1.57ms",
+              "rme": 1.3,
+              "tier": "good"
+            },
+            "_fastest": {
+              "name": "format fullDate",
+              "hz": 616863,
+              "hzLabel": "616.9k ops/s",
+              "mean": 0.001621105345749567,
+              "meanLabel": "1.6μs",
+              "tier": "blazing"
+            },
+            "_slowest": {
+              "name": "format 1000 dates",
+              "hz": 637,
+              "hzLabel": "637 ops/s",
+              "mean": 1.5710883949843697,
+              "meanLabel": "1.57ms",
+              "tier": "good"
+            },
+            "_tier": "fast"
+          },
+          "navigation": {
+            "startOfDay": {
+              "name": "startOfDay",
+              "hz": 249024,
+              "hzLabel": "249.0k ops/s",
+              "mean": 0.004015682351900873,
+              "meanLabel": "4.0μs",
+              "rme": 2.6,
+              "tier": "blazing"
+            },
+            "startOfWeek": {
+              "name": "startOfWeek",
+              "hz": 118104,
+              "hzLabel": "118.1k ops/s",
+              "mean": 0.008467120453162788,
+              "meanLabel": "8.5μs",
+              "rme": 5.5,
+              "tier": "blazing"
+            },
+            "startOfMonth": {
+              "name": "startOfMonth",
+              "hz": 121457,
+              "hzLabel": "121.5k ops/s",
+              "mean": 0.008233391542754464,
+              "meanLabel": "8.2μs",
+              "rme": 3.3,
+              "tier": "blazing"
+            },
+            "getWeekArray": {
+              "name": "getWeekArray",
+              "hz": 5442,
+              "hzLabel": "5.4k ops/s",
+              "mean": 0.18376743550165828,
+              "meanLabel": "183.8μs",
+              "rme": 7.9,
+              "tier": "fast"
+            },
+            "_fastest": {
+              "name": "startOfDay",
+              "hz": 249024,
+              "hzLabel": "249.0k ops/s",
+              "mean": 0.004015682351900873,
+              "meanLabel": "4.0μs",
+              "tier": "blazing"
+            },
+            "_slowest": {
+              "name": "getWeekArray",
+              "hz": 5442,
+              "hzLabel": "5.4k ops/s",
+              "mean": 0.18376743550165828,
+              "meanLabel": "183.8μs",
+              "tier": "fast"
+            },
+            "_tier": "blazing"
+          },
+          "arithmetic": {
+            "addDays": {
+              "name": "addDays",
+              "hz": 351458,
+              "hzLabel": "351.5k ops/s",
+              "mean": 0.0028452921771579213,
+              "meanLabel": "2.8μs",
+              "rme": 7.1,
+              "tier": "blazing"
+            },
+            "addMonths": {
+              "name": "addMonths",
+              "hz": 425157,
+              "hzLabel": "425.2k ops/s",
+              "mean": 0.0023520704585091585,
+              "meanLabel": "2.4μs",
+              "rme": 6.8,
+              "tier": "blazing"
+            },
+            "chain 10 additions": {
+              "name": "chain 10 additions",
+              "hz": 35293,
+              "hzLabel": "35.3k ops/s",
+              "mean": 0.02833409474698605,
+              "meanLabel": "28.3μs",
+              "rme": 6.9,
+              "tier": "blazing"
+            },
+            "_fastest": {
+              "name": "addMonths",
+              "hz": 425157,
+              "hzLabel": "425.2k ops/s",
+              "mean": 0.0023520704585091585,
+              "meanLabel": "2.4μs",
+              "tier": "blazing"
+            },
+            "_slowest": {
+              "name": "chain 10 additions",
+              "hz": 35293,
+              "hzLabel": "35.3k ops/s",
+              "mean": 0.02833409474698605,
+              "meanLabel": "28.3μs",
+              "tier": "blazing"
+            },
+            "_tier": "blazing"
+          },
+          "comparison": {
+            "isAfter": {
+              "name": "isAfter",
+              "hz": 729183,
+              "hzLabel": "729.2k ops/s",
+              "mean": 0.0013713978858563543,
+              "meanLabel": "1.4μs",
+              "rme": 12.1,
+              "tier": "blazing"
+            },
+            "isSameDay": {
+              "name": "isSameDay",
+              "hz": 348209,
+              "hzLabel": "348.2k ops/s",
+              "mean": 0.0028718414117931946,
+              "meanLabel": "2.9μs",
+              "rme": 14.4,
+              "tier": "blazing"
+            },
+            "compare 1000 pairs": {
+              "name": "compare 1000 pairs",
+              "hz": 777,
+              "hzLabel": "777 ops/s",
+              "mean": 1.2872893863636268,
+              "meanLabel": "1.29ms",
+              "rme": 12.9,
+              "tier": "good"
+            },
+            "_fastest": {
+              "name": "isAfter",
+              "hz": 729183,
+              "hzLabel": "729.2k ops/s",
+              "mean": 0.0013713978858563543,
+              "meanLabel": "1.4μs",
+              "tier": "blazing"
+            },
+            "_slowest": {
+              "name": "compare 1000 pairs",
+              "hz": 777,
+              "hzLabel": "777 ops/s",
+              "mean": 1.2872893863636268,
+              "meanLabel": "1.29ms",
+              "tier": "good"
+            },
+            "_tier": "fast"
+          },
+          "getters/setters": {
+            "get components": {
+              "name": "get components",
+              "hz": 2544705,
+              "hzLabel": "2.5M ops/s",
+              "mean": 0.0003929728793819488,
+              "meanLabel": "393ns",
+              "rme": 0.4,
+              "tier": "blazing"
+            },
+            "set components": {
+              "name": "set components",
+              "hz": 76695,
+              "hzLabel": "76.7k ops/s",
+              "mean": 0.013038653889274675,
+              "meanLabel": "13.0μs",
+              "rme": 5.3,
+              "tier": "blazing"
+            },
+            "_fastest": {
+              "name": "get components",
+              "hz": 2544705,
+              "hzLabel": "2.5M ops/s",
+              "mean": 0.0003929728793819488,
+              "meanLabel": "393ns",
+              "tier": "blazing"
+            },
+            "_slowest": {
+              "name": "set components",
+              "hz": 76695,
+              "hzLabel": "76.7k ops/s",
+              "mean": 0.013038653889274675,
+              "meanLabel": "13.0μs",
+              "tier": "blazing"
+            },
+            "_tier": "blazing"
+          },
+          "locale switching": {
+            "locale change + reformat": {
+              "name": "locale change + reformat",
+              "hz": 19159,
+              "hzLabel": "19.2k ops/s",
+              "mean": 0.052194389457193235,
+              "meanLabel": "52.2μs",
+              "rme": 1.1,
+              "tier": "blazing"
+            },
+            "toggle locale 10 times": {
+              "name": "toggle locale 10 times",
+              "hz": 1563,
+              "hzLabel": "1.6k ops/s",
+              "mean": 0.6397832442455201,
+              "meanLabel": "639.8μs",
+              "rme": 1,
+              "tier": "fast"
+            },
+            "cache eviction (60 unique formats)": {
+              "name": "cache eviction (60 unique formats)",
+              "hz": 13111,
+              "hzLabel": "13.1k ops/s",
+              "mean": 0.0762724649176443,
+              "meanLabel": "76.3μs",
+              "rme": 0.8,
+              "tier": "blazing"
+            },
+            "_fastest": {
+              "name": "locale change + reformat",
+              "hz": 19159,
+              "hzLabel": "19.2k ops/s",
+              "mean": 0.052194389457193235,
+              "meanLabel": "52.2μs",
+              "tier": "blazing"
+            },
+            "_slowest": {
+              "name": "toggle locale 10 times",
+              "hz": 1563,
+              "hzLabel": "1.6k ops/s",
+              "mean": 0.6397832442455201,
+              "meanLabel": "639.8μs",
+              "tier": "fast"
+            },
+            "_tier": "blazing"
+          }
+        },
+        "create date from null (now)": {
+          "name": "create date from null (now)",
+          "hz": 30943,
+          "hzLabel": "30.9k ops/s",
+          "mean": 0.03231782788262664,
+          "meanLabel": "32.3μs",
+          "rme": 14.8,
+          "tier": "blazing"
+        },
+        "create date from ISO string": {
+          "name": "create date from ISO string",
+          "hz": 754145,
+          "hzLabel": "754.1k ops/s",
+          "mean": 0.001326004850519665,
+          "meanLabel": "1.3μs",
+          "rme": 6.7,
+          "tier": "blazing"
+        },
+        "create date from timestamp": {
+          "name": "create date from timestamp",
+          "hz": 330910,
+          "hzLabel": "330.9k ops/s",
+          "mean": 0.0030219702396424735,
+          "meanLabel": "3.0μs",
+          "rme": 3.6,
+          "tier": "blazing"
+        },
+        "create 1000 dates": {
+          "name": "create 1000 dates",
+          "hz": 800,
+          "hzLabel": "800 ops/s",
+          "mean": 1.2493451197007535,
+          "meanLabel": "1.25ms",
+          "rme": 8.5,
+          "tier": "good"
+        },
+        "format fullDate": {
+          "name": "format fullDate",
+          "hz": 616863,
+          "hzLabel": "616.9k ops/s",
+          "mean": 0.001621105345749567,
+          "meanLabel": "1.6μs",
+          "rme": 1.1,
+          "tier": "blazing"
+        },
+        "format shortDate": {
+          "name": "format shortDate",
+          "hz": 604689,
+          "hzLabel": "604.7k ops/s",
+          "mean": 0.0016537427805978868,
+          "meanLabel": "1.7μs",
+          "rme": 0.8,
+          "tier": "blazing"
+        },
+        "format 1000 dates": {
+          "name": "format 1000 dates",
+          "hz": 637,
+          "hzLabel": "637 ops/s",
+          "mean": 1.5710883949843697,
+          "meanLabel": "1.57ms",
+          "rme": 1.3,
+          "tier": "good"
+        },
+        "startOfDay": {
+          "name": "startOfDay",
+          "hz": 249024,
+          "hzLabel": "249.0k ops/s",
+          "mean": 0.004015682351900873,
+          "meanLabel": "4.0μs",
+          "rme": 2.6,
+          "tier": "blazing"
+        },
+        "startOfWeek": {
+          "name": "startOfWeek",
+          "hz": 118104,
+          "hzLabel": "118.1k ops/s",
+          "mean": 0.008467120453162788,
+          "meanLabel": "8.5μs",
+          "rme": 5.5,
+          "tier": "blazing"
+        },
+        "startOfMonth": {
+          "name": "startOfMonth",
+          "hz": 121457,
+          "hzLabel": "121.5k ops/s",
+          "mean": 0.008233391542754464,
+          "meanLabel": "8.2μs",
+          "rme": 3.3,
+          "tier": "blazing"
+        },
+        "getWeekArray": {
+          "name": "getWeekArray",
+          "hz": 5442,
+          "hzLabel": "5.4k ops/s",
+          "mean": 0.18376743550165828,
+          "meanLabel": "183.8μs",
+          "rme": 7.9,
+          "tier": "fast"
+        },
+        "addDays": {
+          "name": "addDays",
+          "hz": 351458,
+          "hzLabel": "351.5k ops/s",
+          "mean": 0.0028452921771579213,
+          "meanLabel": "2.8μs",
+          "rme": 7.1,
+          "tier": "blazing"
+        },
+        "addMonths": {
+          "name": "addMonths",
+          "hz": 425157,
+          "hzLabel": "425.2k ops/s",
+          "mean": 0.0023520704585091585,
+          "meanLabel": "2.4μs",
+          "rme": 6.8,
+          "tier": "blazing"
+        },
+        "chain 10 additions": {
+          "name": "chain 10 additions",
+          "hz": 35293,
+          "hzLabel": "35.3k ops/s",
+          "mean": 0.02833409474698605,
+          "meanLabel": "28.3μs",
+          "rme": 6.9,
+          "tier": "blazing"
+        },
+        "isAfter": {
+          "name": "isAfter",
+          "hz": 729183,
+          "hzLabel": "729.2k ops/s",
+          "mean": 0.0013713978858563543,
+          "meanLabel": "1.4μs",
+          "rme": 12.1,
+          "tier": "blazing"
+        },
+        "isSameDay": {
+          "name": "isSameDay",
+          "hz": 348209,
+          "hzLabel": "348.2k ops/s",
+          "mean": 0.0028718414117931946,
+          "meanLabel": "2.9μs",
+          "rme": 14.4,
+          "tier": "blazing"
+        },
+        "compare 1000 pairs": {
+          "name": "compare 1000 pairs",
+          "hz": 777,
+          "hzLabel": "777 ops/s",
+          "mean": 1.2872893863636268,
+          "meanLabel": "1.29ms",
+          "rme": 12.9,
+          "tier": "good"
+        },
+        "get components": {
+          "name": "get components",
+          "hz": 2544705,
+          "hzLabel": "2.5M ops/s",
+          "mean": 0.0003929728793819488,
+          "meanLabel": "393ns",
+          "rme": 0.4,
+          "tier": "blazing"
+        },
+        "set components": {
+          "name": "set components",
+          "hz": 76695,
+          "hzLabel": "76.7k ops/s",
+          "mean": 0.013038653889274675,
+          "meanLabel": "13.0μs",
+          "rme": 5.3,
+          "tier": "blazing"
+        },
+        "locale change + reformat": {
+          "name": "locale change + reformat",
+          "hz": 19159,
+          "hzLabel": "19.2k ops/s",
+          "mean": 0.052194389457193235,
+          "meanLabel": "52.2μs",
+          "rme": 1.1,
+          "tier": "blazing"
+        },
+        "toggle locale 10 times": {
+          "name": "toggle locale 10 times",
+          "hz": 1563,
+          "hzLabel": "1.6k ops/s",
+          "mean": 0.6397832442455201,
+          "meanLabel": "639.8μs",
+          "rme": 1,
+          "tier": "fast"
+        },
+        "cache eviction (60 unique formats)": {
+          "name": "cache eviction (60 unique formats)",
+          "hz": 13111,
+          "hzLabel": "13.1k ops/s",
+          "mean": 0.0762724649176443,
+          "meanLabel": "76.3μs",
+          "rme": 0.8,
+          "tier": "blazing"
+        },
+        "_fastest": {
+          "name": "get components",
+          "hz": 2544705,
+          "hzLabel": "2.5M ops/s",
+          "mean": 0.0003929728793819488,
+          "meanLabel": "393ns",
+          "tier": "blazing"
+        },
+        "_slowest": {
+          "name": "format 1000 dates",
+          "hz": 637,
+          "hzLabel": "637 ops/s",
+          "mean": 1.5710883949843697,
+          "meanLabel": "1.57ms",
+          "tier": "good"
+        }
+      }
+    },
+    "useVirtual": {
+      "benchmarks": {
+        "_groups": {
+          "initialization": {
+            "Initialize with 1,000 items": {
+              "name": "Initialize with 1,000 items",
+              "hz": 16022,
+              "hzLabel": "16.0k ops/s",
+              "mean": 0.06241420596679513,
+              "meanLabel": "62.4μs",
+              "rme": 8.4,
+              "tier": "blazing"
+            },
+            "Initialize with 10,000 items": {
+              "name": "Initialize with 10,000 items",
+              "hz": 2018,
+              "hzLabel": "2.0k ops/s",
+              "mean": 0.4956302140733388,
+              "meanLabel": "495.6μs",
+              "rme": 1.1,
+              "tier": "fast"
+            },
+            "Initialize with 100,000 items": {
+              "name": "Initialize with 100,000 items",
+              "hz": 191,
+              "hzLabel": "191 ops/s",
+              "mean": 5.2330630520833195,
+              "meanLabel": "5.23ms",
+              "rme": 2.3,
+              "tier": "good"
+            },
+            "_fastest": {
+              "name": "Initialize with 1,000 items",
+              "hz": 16022,
+              "hzLabel": "16.0k ops/s",
+              "mean": 0.06241420596679513,
+              "meanLabel": "62.4μs",
+              "tier": "blazing"
+            },
+            "_slowest": {
+              "name": "Initialize with 100,000 items",
+              "hz": 191,
+              "hzLabel": "191 ops/s",
+              "mean": 5.2330630520833195,
+              "meanLabel": "5.23ms",
+              "tier": "good"
+            },
+            "_tier": "fast"
+          },
+          "scroll operations": {
+            "Scroll to start position (1,000 items)": {
+              "name": "Scroll to start position (1,000 items)",
+              "hz": 1303658,
+              "hzLabel": "1.3M ops/s",
+              "mean": 0.0007670724377101872,
+              "meanLabel": "767ns",
+              "rme": 0.6,
+              "tier": "blazing"
+            },
+            "Scroll to start position (10,000 items)": {
+              "name": "Scroll to start position (10,000 items)",
+              "hz": 1301345,
+              "hzLabel": "1.3M ops/s",
+              "mean": 0.0007684360024159504,
+              "meanLabel": "768ns",
+              "rme": 0.4,
+              "tier": "blazing"
+            },
+            "Scroll to middle position (1,000 items)": {
+              "name": "Scroll to middle position (1,000 items)",
+              "hz": 1226136,
+              "hzLabel": "1.2M ops/s",
+              "mean": 0.0008155700924368396,
+              "meanLabel": "816ns",
+              "rme": 0.5,
+              "tier": "blazing"
+            },
+            "Scroll to middle position (10,000 items)": {
+              "name": "Scroll to middle position (10,000 items)",
+              "hz": 1225803,
+              "hzLabel": "1.2M ops/s",
+              "mean": 0.0008157916257405641,
+              "meanLabel": "816ns",
+              "rme": 0.5,
+              "tier": "blazing"
+            },
+            "Scroll to end position (1,000 items)": {
+              "name": "Scroll to end position (1,000 items)",
+              "hz": 1232249,
+              "hzLabel": "1.2M ops/s",
+              "mean": 0.0008115244812329372,
+              "meanLabel": "812ns",
+              "rme": 0.4,
+              "tier": "blazing"
+            },
+            "Scroll to end position (10,000 items)": {
+              "name": "Scroll to end position (10,000 items)",
+              "hz": 1231186,
+              "hzLabel": "1.2M ops/s",
+              "mean": 0.0008122246724305342,
+              "meanLabel": "812ns",
+              "rme": 0.4,
+              "tier": "blazing"
+            },
+            "Process 100 scroll events (1,000 items)": {
+              "name": "Process 100 scroll events (1,000 items)",
+              "hz": 12386,
+              "hzLabel": "12.4k ops/s",
+              "mean": 0.08073328915079274,
+              "meanLabel": "80.7μs",
+              "rme": 4.2,
+              "tier": "blazing"
+            },
+            "Process 100 scroll events (10,000 items)": {
+              "name": "Process 100 scroll events (10,000 items)",
+              "hz": 13011,
+              "hzLabel": "13.0k ops/s",
+              "mean": 0.07685841592376937,
+              "meanLabel": "76.9μs",
+              "rme": 0.6,
+              "tier": "blazing"
+            },
+            "_fastest": {
+              "name": "Scroll to start position (1,000 items)",
+              "hz": 1303658,
+              "hzLabel": "1.3M ops/s",
+              "mean": 0.0007670724377101872,
+              "meanLabel": "767ns",
+              "tier": "blazing"
+            },
+            "_slowest": {
+              "name": "Process 100 scroll events (1,000 items)",
+              "hz": 12386,
+              "hzLabel": "12.4k ops/s",
+              "mean": 0.08073328915079274,
+              "meanLabel": "80.7μs",
+              "tier": "blazing"
+            },
+            "_tier": "blazing"
+          },
+          "resize operations": {
+            "Resize single item (1,000 items)": {
+              "name": "Resize single item (1,000 items)",
+              "hz": 16364,
+              "hzLabel": "16.4k ops/s",
+              "mean": 0.06110803653917034,
+              "meanLabel": "61.1μs",
+              "rme": 6.9,
+              "tier": "blazing"
+            },
+            "Resize single item (10,000 items)": {
+              "name": "Resize single item (10,000 items)",
+              "hz": 1863,
+              "hzLabel": "1.9k ops/s",
+              "mean": 0.5367508841201765,
+              "meanLabel": "536.8μs",
+              "rme": 5.8,
+              "tier": "fast"
+            },
+            "Resize 100 items sequentially (1,000 items)": {
+              "name": "Resize 100 items sequentially (1,000 items)",
+              "hz": 8602,
+              "hzLabel": "8.6k ops/s",
+              "mean": 0.11625401278772617,
+              "meanLabel": "116.3μs",
+              "rme": 4.7,
+              "tier": "fast"
+            },
+            "Resize 100 items sequentially (10,000 items)": {
+              "name": "Resize 100 items sequentially (10,000 items)",
+              "hz": 1743,
+              "hzLabel": "1.7k ops/s",
+              "mean": 0.5736693967889901,
+              "meanLabel": "573.7μs",
+              "rme": 8,
+              "tier": "fast"
+            },
+            "Resize with variable heights (1,000 items)": {
+              "name": "Resize with variable heights (1,000 items)",
+              "hz": 8515,
+              "hzLabel": "8.5k ops/s",
+              "mean": 0.11743623831885064,
+              "meanLabel": "117.4μs",
+              "rme": 5.5,
+              "tier": "fast"
+            },
+            "_fastest": {
+              "name": "Resize single item (1,000 items)",
+              "hz": 16364,
+              "hzLabel": "16.4k ops/s",
+              "mean": 0.06110803653917034,
+              "meanLabel": "61.1μs",
+              "tier": "blazing"
+            },
+            "_slowest": {
+              "name": "Resize 100 items sequentially (10,000 items)",
+              "hz": 1743,
+              "hzLabel": "1.7k ops/s",
+              "mean": 0.5736693967889901,
+              "meanLabel": "573.7μs",
+              "tier": "fast"
+            },
+            "_tier": "fast"
+          },
+          "scrollTo operations": {
+            "ScrollTo start (1,000 items)": {
+              "name": "ScrollTo start (1,000 items)",
+              "hz": 17032,
+              "hzLabel": "17.0k ops/s",
+              "mean": 0.05871441427901414,
+              "meanLabel": "58.7μs",
+              "rme": 3.6,
+              "tier": "blazing"
+            },
+            "ScrollTo start (10,000 items)": {
+              "name": "ScrollTo start (10,000 items)",
+              "hz": 1933,
+              "hzLabel": "1.9k ops/s",
+              "mean": 0.5174392078593053,
+              "meanLabel": "517.4μs",
+              "rme": 3.5,
+              "tier": "fast"
+            },
+            "ScrollTo middle (1,000 items)": {
+              "name": "ScrollTo middle (1,000 items)",
+              "hz": 16903,
+              "hzLabel": "16.9k ops/s",
+              "mean": 0.05916052035020873,
+              "meanLabel": "59.2μs",
+              "rme": 5.3,
+              "tier": "blazing"
+            },
+            "ScrollTo middle (10,000 items)": {
+              "name": "ScrollTo middle (10,000 items)",
+              "hz": 1973,
+              "hzLabel": "2.0k ops/s",
+              "mean": 0.5067377841945394,
+              "meanLabel": "506.7μs",
+              "rme": 2,
+              "tier": "fast"
+            },
+            "ScrollTo end (1,000 items)": {
+              "name": "ScrollTo end (1,000 items)",
+              "hz": 16793,
+              "hzLabel": "16.8k ops/s",
+              "mean": 0.05954708181493266,
+              "meanLabel": "59.5μs",
+              "rme": 4.3,
+              "tier": "blazing"
+            },
+            "ScrollTo end (10,000 items)": {
+              "name": "ScrollTo end (10,000 items)",
+              "hz": 2005,
+              "hzLabel": "2.0k ops/s",
+              "mean": 0.4987182173479855,
+              "meanLabel": "498.7μs",
+              "rme": 1.7,
+              "tier": "fast"
+            },
+            "ScrollTo 5 positions (10,000 items)": {
+              "name": "ScrollTo 5 positions (10,000 items)",
+              "hz": 2026,
+              "hzLabel": "2.0k ops/s",
+              "mean": 0.4934678915187258,
+              "meanLabel": "493.5μs",
+              "rme": 1.3,
+              "tier": "fast"
+            },
+            "_fastest": {
+              "name": "ScrollTo start (1,000 items)",
+              "hz": 17032,
+              "hzLabel": "17.0k ops/s",
+              "mean": 0.05871441427901414,
+              "meanLabel": "58.7μs",
+              "tier": "blazing"
+            },
+            "_slowest": {
+              "name": "ScrollTo start (10,000 items)",
+              "hz": 1933,
+              "hzLabel": "1.9k ops/s",
+              "mean": 0.5174392078593053,
+              "meanLabel": "517.4μs",
+              "tier": "fast"
+            },
+            "_tier": "fast"
+          },
+          "computed access": {
+            "Access computed items 100 times (1,000 items, cached)": {
+              "name": "Access computed items 100 times (1,000 items, cached)",
+              "hz": 5096126,
+              "hzLabel": "5.1M ops/s",
+              "mean": 0.00019622749633723926,
+              "meanLabel": "196ns",
+              "rme": 0.4,
+              "tier": "blazing"
+            },
+            "Access computed items 100 times (10,000 items, cached)": {
+              "name": "Access computed items 100 times (10,000 items, cached)",
+              "hz": 4870106,
+              "hzLabel": "4.9M ops/s",
+              "mean": 0.0002053343487799448,
+              "meanLabel": "205ns",
+              "rme": 0.3,
+              "tier": "blazing"
+            },
+            "Access offset 100 times (1,000 items)": {
+              "name": "Access offset 100 times (1,000 items)",
+              "hz": 302480,
+              "hzLabel": "302.5k ops/s",
+              "mean": 0.0033060047474176295,
+              "meanLabel": "3.3μs",
+              "rme": 0.4,
+              "tier": "blazing"
+            },
+            "Access offset 100 times (10,000 items)": {
+              "name": "Access offset 100 times (10,000 items)",
+              "hz": 298677,
+              "hzLabel": "298.7k ops/s",
+              "mean": 0.0033480983935901556,
+              "meanLabel": "3.3μs",
+              "rme": 0.4,
+              "tier": "blazing"
+            },
+            "Access size 100 times (1,000 items)": {
+              "name": "Access size 100 times (1,000 items)",
+              "hz": 295783,
+              "hzLabel": "295.8k ops/s",
+              "mean": 0.0033808601479515506,
+              "meanLabel": "3.4μs",
+              "rme": 1.5,
+              "tier": "blazing"
+            },
+            "Access size 100 times (10,000 items)": {
+              "name": "Access size 100 times (10,000 items)",
+              "hz": 301329,
+              "hzLabel": "301.3k ops/s",
+              "mean": 0.003318634122051533,
+              "meanLabel": "3.3μs",
+              "rme": 0.4,
+              "tier": "blazing"
+            },
+            "_fastest": {
+              "name": "Access computed items 100 times (1,000 items, cached)",
+              "hz": 5096126,
+              "hzLabel": "5.1M ops/s",
+              "mean": 0.00019622749633723926,
+              "meanLabel": "196ns",
+              "tier": "blazing"
+            },
+            "_slowest": {
+              "name": "Access size 100 times (1,000 items)",
+              "hz": 295783,
+              "hzLabel": "295.8k ops/s",
+              "mean": 0.0033808601479515506,
+              "meanLabel": "3.4μs",
+              "tier": "blazing"
+            },
+            "_tier": "blazing"
+          }
+        },
+        "Initialize with 1,000 items": {
+          "name": "Initialize with 1,000 items",
+          "hz": 16022,
+          "hzLabel": "16.0k ops/s",
+          "mean": 0.06241420596679513,
+          "meanLabel": "62.4μs",
+          "rme": 8.4,
+          "tier": "blazing"
+        },
+        "Initialize with 10,000 items": {
+          "name": "Initialize with 10,000 items",
+          "hz": 2018,
+          "hzLabel": "2.0k ops/s",
+          "mean": 0.4956302140733388,
+          "meanLabel": "495.6μs",
+          "rme": 1.1,
+          "tier": "fast"
+        },
+        "Initialize with 100,000 items": {
+          "name": "Initialize with 100,000 items",
+          "hz": 191,
+          "hzLabel": "191 ops/s",
+          "mean": 5.2330630520833195,
+          "meanLabel": "5.23ms",
+          "rme": 2.3,
+          "tier": "good"
+        },
+        "Scroll to start position (1,000 items)": {
+          "name": "Scroll to start position (1,000 items)",
+          "hz": 1303658,
+          "hzLabel": "1.3M ops/s",
+          "mean": 0.0007670724377101872,
+          "meanLabel": "767ns",
+          "rme": 0.6,
+          "tier": "blazing"
+        },
+        "Scroll to start position (10,000 items)": {
+          "name": "Scroll to start position (10,000 items)",
+          "hz": 1301345,
+          "hzLabel": "1.3M ops/s",
+          "mean": 0.0007684360024159504,
+          "meanLabel": "768ns",
+          "rme": 0.4,
+          "tier": "blazing"
+        },
+        "Scroll to middle position (1,000 items)": {
+          "name": "Scroll to middle position (1,000 items)",
+          "hz": 1226136,
+          "hzLabel": "1.2M ops/s",
+          "mean": 0.0008155700924368396,
+          "meanLabel": "816ns",
+          "rme": 0.5,
+          "tier": "blazing"
+        },
+        "Scroll to middle position (10,000 items)": {
+          "name": "Scroll to middle position (10,000 items)",
+          "hz": 1225803,
+          "hzLabel": "1.2M ops/s",
+          "mean": 0.0008157916257405641,
+          "meanLabel": "816ns",
+          "rme": 0.5,
+          "tier": "blazing"
+        },
+        "Scroll to end position (1,000 items)": {
+          "name": "Scroll to end position (1,000 items)",
+          "hz": 1232249,
+          "hzLabel": "1.2M ops/s",
+          "mean": 0.0008115244812329372,
+          "meanLabel": "812ns",
+          "rme": 0.4,
+          "tier": "blazing"
+        },
+        "Scroll to end position (10,000 items)": {
+          "name": "Scroll to end position (10,000 items)",
+          "hz": 1231186,
+          "hzLabel": "1.2M ops/s",
+          "mean": 0.0008122246724305342,
+          "meanLabel": "812ns",
+          "rme": 0.4,
+          "tier": "blazing"
+        },
+        "Process 100 scroll events (1,000 items)": {
+          "name": "Process 100 scroll events (1,000 items)",
+          "hz": 12386,
+          "hzLabel": "12.4k ops/s",
+          "mean": 0.08073328915079274,
+          "meanLabel": "80.7μs",
+          "rme": 4.2,
+          "tier": "blazing"
+        },
+        "Process 100 scroll events (10,000 items)": {
+          "name": "Process 100 scroll events (10,000 items)",
+          "hz": 13011,
+          "hzLabel": "13.0k ops/s",
+          "mean": 0.07685841592376937,
+          "meanLabel": "76.9μs",
+          "rme": 0.6,
+          "tier": "blazing"
+        },
+        "Resize single item (1,000 items)": {
+          "name": "Resize single item (1,000 items)",
+          "hz": 16364,
+          "hzLabel": "16.4k ops/s",
+          "mean": 0.06110803653917034,
+          "meanLabel": "61.1μs",
+          "rme": 6.9,
+          "tier": "blazing"
+        },
+        "Resize single item (10,000 items)": {
+          "name": "Resize single item (10,000 items)",
+          "hz": 1863,
+          "hzLabel": "1.9k ops/s",
+          "mean": 0.5367508841201765,
+          "meanLabel": "536.8μs",
+          "rme": 5.8,
+          "tier": "fast"
+        },
+        "Resize 100 items sequentially (1,000 items)": {
+          "name": "Resize 100 items sequentially (1,000 items)",
+          "hz": 8602,
+          "hzLabel": "8.6k ops/s",
+          "mean": 0.11625401278772617,
+          "meanLabel": "116.3μs",
+          "rme": 4.7,
+          "tier": "fast"
+        },
+        "Resize 100 items sequentially (10,000 items)": {
+          "name": "Resize 100 items sequentially (10,000 items)",
+          "hz": 1743,
+          "hzLabel": "1.7k ops/s",
+          "mean": 0.5736693967889901,
+          "meanLabel": "573.7μs",
+          "rme": 8,
+          "tier": "fast"
+        },
+        "Resize with variable heights (1,000 items)": {
+          "name": "Resize with variable heights (1,000 items)",
+          "hz": 8515,
+          "hzLabel": "8.5k ops/s",
+          "mean": 0.11743623831885064,
+          "meanLabel": "117.4μs",
+          "rme": 5.5,
+          "tier": "fast"
+        },
+        "ScrollTo start (1,000 items)": {
+          "name": "ScrollTo start (1,000 items)",
+          "hz": 17032,
+          "hzLabel": "17.0k ops/s",
+          "mean": 0.05871441427901414,
+          "meanLabel": "58.7μs",
+          "rme": 3.6,
+          "tier": "blazing"
+        },
+        "ScrollTo start (10,000 items)": {
+          "name": "ScrollTo start (10,000 items)",
+          "hz": 1933,
+          "hzLabel": "1.9k ops/s",
+          "mean": 0.5174392078593053,
+          "meanLabel": "517.4μs",
+          "rme": 3.5,
+          "tier": "fast"
+        },
+        "ScrollTo middle (1,000 items)": {
+          "name": "ScrollTo middle (1,000 items)",
+          "hz": 16903,
+          "hzLabel": "16.9k ops/s",
+          "mean": 0.05916052035020873,
+          "meanLabel": "59.2μs",
+          "rme": 5.3,
+          "tier": "blazing"
+        },
+        "ScrollTo middle (10,000 items)": {
+          "name": "ScrollTo middle (10,000 items)",
+          "hz": 1973,
+          "hzLabel": "2.0k ops/s",
+          "mean": 0.5067377841945394,
+          "meanLabel": "506.7μs",
+          "rme": 2,
+          "tier": "fast"
+        },
+        "ScrollTo end (1,000 items)": {
+          "name": "ScrollTo end (1,000 items)",
+          "hz": 16793,
+          "hzLabel": "16.8k ops/s",
+          "mean": 0.05954708181493266,
+          "meanLabel": "59.5μs",
+          "rme": 4.3,
+          "tier": "blazing"
+        },
+        "ScrollTo end (10,000 items)": {
+          "name": "ScrollTo end (10,000 items)",
+          "hz": 2005,
+          "hzLabel": "2.0k ops/s",
+          "mean": 0.4987182173479855,
+          "meanLabel": "498.7μs",
+          "rme": 1.7,
+          "tier": "fast"
+        },
+        "ScrollTo 5 positions (10,000 items)": {
+          "name": "ScrollTo 5 positions (10,000 items)",
+          "hz": 2026,
+          "hzLabel": "2.0k ops/s",
+          "mean": 0.4934678915187258,
+          "meanLabel": "493.5μs",
+          "rme": 1.3,
+          "tier": "fast"
+        },
+        "Access computed items 100 times (1,000 items, cached)": {
+          "name": "Access computed items 100 times (1,000 items, cached)",
+          "hz": 5096126,
+          "hzLabel": "5.1M ops/s",
+          "mean": 0.00019622749633723926,
+          "meanLabel": "196ns",
+          "rme": 0.4,
+          "tier": "blazing"
+        },
+        "Access computed items 100 times (10,000 items, cached)": {
+          "name": "Access computed items 100 times (10,000 items, cached)",
+          "hz": 4870106,
+          "hzLabel": "4.9M ops/s",
+          "mean": 0.0002053343487799448,
+          "meanLabel": "205ns",
+          "rme": 0.3,
+          "tier": "blazing"
+        },
+        "Access offset 100 times (1,000 items)": {
+          "name": "Access offset 100 times (1,000 items)",
+          "hz": 302480,
+          "hzLabel": "302.5k ops/s",
+          "mean": 0.0033060047474176295,
+          "meanLabel": "3.3μs",
+          "rme": 0.4,
+          "tier": "blazing"
+        },
+        "Access offset 100 times (10,000 items)": {
+          "name": "Access offset 100 times (10,000 items)",
+          "hz": 298677,
+          "hzLabel": "298.7k ops/s",
+          "mean": 0.0033480983935901556,
+          "meanLabel": "3.3μs",
+          "rme": 0.4,
+          "tier": "blazing"
+        },
+        "Access size 100 times (1,000 items)": {
+          "name": "Access size 100 times (1,000 items)",
+          "hz": 295783,
+          "hzLabel": "295.8k ops/s",
+          "mean": 0.0033808601479515506,
+          "meanLabel": "3.4μs",
+          "rme": 1.5,
+          "tier": "blazing"
+        },
+        "Access size 100 times (10,000 items)": {
+          "name": "Access size 100 times (10,000 items)",
+          "hz": 301329,
+          "hzLabel": "301.3k ops/s",
+          "mean": 0.003318634122051533,
+          "meanLabel": "3.3μs",
+          "rme": 0.4,
+          "tier": "blazing"
+        },
+        "_fastest": {
+          "name": "Access computed items 100 times (1,000 items, cached)",
+          "hz": 5096126,
+          "hzLabel": "5.1M ops/s",
+          "mean": 0.00019622749633723926,
+          "meanLabel": "196ns",
+          "tier": "blazing"
+        },
+        "_slowest": {
+          "name": "Initialize with 100,000 items",
+          "hz": 191,
+          "hzLabel": "191 ops/s",
+          "mean": 5.2330630520833195,
+          "meanLabel": "5.23ms",
+          "tier": "good"
+        }
+      }
+    }
+  }
+}
