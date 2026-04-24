@@ -30,6 +30,9 @@ catalogs:
     '@octokit/openapi-types':
       specifier: ^27.0.0
       version: 27.0.0
+    '@phosphor-icons/vue':
+      specifier: ^2.2.1
+      version: 2.2.1
     '@resvg/resvg-js':
       specifier: ^2.6.2
       version: 2.6.2
@@ -513,6 +516,12 @@ importers:
 
   dev:
     dependencies:
+      '@paper/emerald':
+        specifier: workspace:*
+        version: link:../packages/emerald
+      '@phosphor-icons/vue':
+        specifier: 'catalog:'
+        version: 2.2.1(vue@3.5.32(typescript@6.0.2))
       '@vuetify/paper':
         specifier: workspace:*
         version: link:../packages/paper
@@ -616,17 +625,17 @@ importers:
         version: link:../0
       vue:
         specifier: '>=3.3.0'
-        version: 3.5.30(typescript@5.9.3)
+        version: 3.5.32(typescript@6.0.2)
     devDependencies:
       tsdown:
         specifier: 'catalog:'
-        version: 0.21.2(@tsdown/css@0.21.2)(oxc-resolver@11.19.1)(synckit@0.11.12)(typescript@5.9.3)(vue-tsc@3.2.5(typescript@5.9.3))
+        version: 0.21.7(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)(@tsdown/css@0.21.7)(oxc-resolver@11.19.1(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1))(synckit@0.11.12)(typescript@6.0.2)(vue-tsc@3.2.6(typescript@6.0.2))
       typescript:
         specifier: 'catalog:'
-        version: 5.9.3
+        version: 6.0.2
       unplugin-vue:
         specifier: 'catalog:'
-        version: 7.1.1(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(sass-embedded@1.98.0)(sass@1.98.0)(terser@5.46.0)(tsx@4.21.0)(vue@3.5.30(typescript@5.9.3))(yaml@2.8.2)
+        version: 7.1.1(@types/node@25.5.2)(esbuild@0.27.4)(jiti@2.6.1)(sass-embedded@1.99.0)(sass@1.99.0)(terser@5.46.1)(tsx@4.21.0)(vue@3.5.32(typescript@6.0.2))(yaml@2.8.3)
 
   packages/emerald:
     dependencies:
@@ -638,17 +647,17 @@ importers:
         version: link:../0
       vue:
         specifier: '>=3.3.0'
-        version: 3.5.30(typescript@5.9.3)
+        version: 3.5.32(typescript@6.0.2)
     devDependencies:
       tsdown:
         specifier: 'catalog:'
-        version: 0.21.2(@tsdown/css@0.21.2)(oxc-resolver@11.19.1)(synckit@0.11.12)(typescript@5.9.3)(vue-tsc@3.2.5(typescript@5.9.3))
+        version: 0.21.7(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)(@tsdown/css@0.21.7)(oxc-resolver@11.19.1(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1))(synckit@0.11.12)(typescript@6.0.2)(vue-tsc@3.2.6(typescript@6.0.2))
       typescript:
         specifier: 'catalog:'
-        version: 5.9.3
+        version: 6.0.2
       unplugin-vue:
         specifier: 'catalog:'
-        version: 7.1.1(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(sass-embedded@1.98.0)(sass@1.98.0)(terser@5.46.0)(tsx@4.21.0)(vue@3.5.30(typescript@5.9.3))(yaml@2.8.2)
+        version: 7.1.1(@types/node@25.5.2)(esbuild@0.27.4)(jiti@2.6.1)(sass-embedded@1.99.0)(sass@1.99.0)(terser@5.46.1)(tsx@4.21.0)(vue@3.5.32(typescript@6.0.2))(yaml@2.8.3)
 
   packages/paper:
     dependencies:
@@ -2348,6 +2357,12 @@ packages:
   '@parcel/watcher@2.5.6':
     resolution: {integrity: sha512-tmmZ3lQxAe/k/+rNnXQRawJ4NjxO2hqiOLTHvWchtGZULp4RyFeh6aU4XdOYBFe2KE1oShQTv4AblOs2iOrNnQ==}
     engines: {node: '>= 10.0.0'}
+
+  '@phosphor-icons/vue@2.2.1':
+    resolution: {integrity: sha512-3RNg1utc2Z5RwPKWFkW3eXI/0BfQAwXgtFxPUPeSzi55jGYUq16b+UqcgbKLazWFlwg5R92OCLKjDiJjeiJcnA==}
+    engines: {node: '>=14'}
+    peerDependencies:
+      vue: '>=3.2.39'
 
   '@pkgjs/parseargs@0.11.0':
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
@@ -8881,6 +8896,10 @@ snapshots:
       '@parcel/watcher-win32-ia32': 2.5.6
       '@parcel/watcher-win32-x64': 2.5.6
     optional: true
+
+  '@phosphor-icons/vue@2.2.1(vue@3.5.32(typescript@6.0.2))':
+    dependencies:
+      vue: 3.5.32(typescript@6.0.2)
 
   '@pkgjs/parseargs@0.11.0':
     optional: true
