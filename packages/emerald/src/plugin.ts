@@ -16,7 +16,17 @@ import type {
 } from '@vuetify/v0'
 import type { App, Plugin } from 'vue'
 
-import { primary, error, info, success, warning } from './theme'
+// Adapters
+import { EmeraldStyleSheetAdapter } from './adapter'
+import {
+  error,
+  info,
+  neutral,
+  primary,
+  secondary,
+  success,
+  warning,
+} from './theme'
 
 export interface EmeraldPluginOptions {
   theme?: ThemePluginOptions | false
@@ -26,25 +36,40 @@ export interface EmeraldPluginOptions {
   hydration?: boolean
 }
 
+type Scale = Record<string, string>
+
+function scale (name: string, values: Scale): Scale {
+  const out: Scale = {}
+  for (const [key, val] of Object.entries(values)) {
+    out[key === 'DEFAULT' ? name : `${name}-${key}`] = val
+  }
+  return out
+}
+
+export const emeraldColors: Record<string, string> = {
+  ...scale('primary', primary),
+  ...scale('secondary', secondary),
+  ...scale('success', success),
+  ...scale('warning', warning),
+  ...scale('error', error),
+  ...scale('info', info),
+  ...scale('neutral', neutral),
+  'background': '#FAF9FF',
+  'surface': '#F5F4FF',
+  'surface-tint': '#EBE9FE',
+  'divider': '#DEE2E6',
+  'on-primary': '#FFFFFF',
+  'on-background': '#1A1C1E',
+  'on-surface': '#1A1C1E',
+}
+
 function emeraldThemeDefaults (): ThemePluginOptions {
   return {
+    target: 'html',
     default: 'emerald',
+    adapter: new EmeraldStyleSheetAdapter(),
     themes: {
-      emerald: {
-        colors: {
-          'primary': primary.DEFAULT,
-          'secondary': primary[200],
-          'accent': primary[400],
-          'error': error.DEFAULT,
-          'info': info.DEFAULT,
-          'success': success.DEFAULT,
-          'warning': warning.DEFAULT,
-          'background': '#FAF9FF',
-          'surface': '#F5F4FF',
-          'surface-tint': '#EBE9FE',
-          'divider': '#DEE2E6',
-        },
-      },
+      emerald: { colors: emeraldColors },
     },
   }
 }
@@ -52,27 +77,22 @@ function emeraldThemeDefaults (): ThemePluginOptions {
 export function createEmeraldPlugin (options: EmeraldPluginOptions = {}): Plugin {
   return {
     install (app: App) {
-      // Hydration — lightweight, no config
       if (options.hydration !== false) {
         app.use(createHydrationPlugin())
       }
 
-      // Logger
       if (options.logger !== false) {
         app.use(createLoggerPlugin(options.logger || {}))
       }
 
-      // Storage
       if (options.storage !== false) {
         app.use(createStoragePlugin(options.storage || {}))
       }
 
-      // Locale
       if (options.locale !== false) {
         app.use(createLocalePlugin(options.locale || { default: 'en' }))
       }
 
-      // Theme — merge user options with Emerald defaults
       if (options.theme !== false) {
         const defaults = emeraldThemeDefaults()
         const theme = options.theme
