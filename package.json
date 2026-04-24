@@ -23,6 +23,7 @@
     "test:bench:json": "vitest bench --run --outputJson apps/docs/public/benchmarks.json",
     "bench": "vitest --reporter=default bench",
     "metrics": "pnpm test:coverage && pnpm test:bench:json && tsx scripts/generate-metrics.js",
+    "metrics:history": "tsx scripts/generate-metrics-history.ts",
     "typecheck": "pnpm --filter=\"./packages/*\" typecheck",
     "typecheck:0": "pnpm --filter=\"./packages/0\" typecheck",
     "typecheck:paper": "pnpm --filter=\"./packages/paper\" typecheck",
