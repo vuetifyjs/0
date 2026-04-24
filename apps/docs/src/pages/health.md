@@ -12,6 +12,7 @@ features:
 
 <script setup>
   import AppIcon from '@/components/app/AppIcon.vue'
+  import DocsFreshnessSparkline from '@/components/docs/DocsFreshnessSparkline.vue'
   import { useDate } from '@vuetify/v0'
   import { useFreshness, scoreToColor } from '@/composables/useFreshness'
   import { toRef } from 'vue'
@@ -68,3 +69,5 @@ features:
     <span class="text-xs uppercase tracking-wide text-on-surface-variant">guides</span>
   </router-link>
 </div>
+
+<DocsFreshnessSparkline class="my-12" />
