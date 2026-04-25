@@ -27,12 +27,6 @@ jobs:
         env:
           VITE_API_SERVER_URL: ${{ vars.API_SERVER_URL }}
           VITE_GITHUB_SHA: ${{ github.sha }}
-      - name: Link Checker
-        uses: lycheeverse/lychee-action@v2
-        with:
-          lycheeVersion: v0.22.0
-          args: --config lychee.toml './apps/docs/dist'
-          fail: false
       - uses: vuetifyjs/coolify-action@f24a3716773c4c238e67c4bf0319c410bafc52de # master
         with:
           imageName: v0-docs
