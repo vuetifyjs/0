@@ -48,9 +48,8 @@
   const themes = useCustomThemes()
 
   onUnmounted(() => {
-    if (themes.editing.value) {
-      themes.clearPreview()
-      themes.editing.value = false
+    if (themes.editor.active.value) {
+      themes.editor.cancel()
     }
   })
 
@@ -130,7 +129,7 @@
       <AppSettingsTheme />
 
       <!-- Other settings (hidden when editing theme) -->
-      <template v-if="!themes.editing.value">
+      <template v-if="!themes.editor.active.value">
         <!-- Skill Level -->
         <Discovery.Activator class="rounded-lg" :padding="8" step="skill-level">
           <AppSettingsSkillLevel />
