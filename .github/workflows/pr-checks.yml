@@ -101,6 +101,7 @@ jobs:
       - run: pnpm run build:docs
         env:
           VITE_API_SERVER_URL: ${{ vars.API_SERVER_URL }}
+          SKIP_OG_IMAGES: '1'
       - name: Link Checker
         uses: lycheeverse/lychee-action@v2
         with:
