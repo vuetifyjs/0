@@ -26,12 +26,14 @@
   import type { SplitterOrientation } from './SplitterRoot.vue'
   import type { Ref } from 'vue'
 
+  export type SplitterPanelSize = number | `${number}px`
+
   export interface SplitterPanelProps extends AtomProps {
-    defaultSize: number
-    minSize?: number
-    maxSize?: number | `${number}px`
+    defaultSize: SplitterPanelSize
+    minSize?: SplitterPanelSize
+    maxSize?: SplitterPanelSize
     collapsible?: boolean
-    collapsedSize?: number
+    collapsedSize?: SplitterPanelSize
   }
 
   export interface SplitterPanelExpose {
@@ -86,7 +88,13 @@
   const panelId = useId()
   const rootSize = shallowRef(0)
 
-  if (isString(maxSizeProp)) {
+  // Any px-valued prop needs to track the root's measured size to convert px → %.
+  const needsObserver = isString(defaultSize)
+    || isString(minSize)
+    || isString(maxSizeProp)
+    || isString(collapsedSize)
+
+  if (needsObserver) {
     useResizeObserver(splitter.rootEl, entries => {
       const rect = entries[0]?.contentRect
       rootSize.value = splitter.orientation.value === 'horizontal'
@@ -95,35 +103,35 @@
     })
   }
 
-  function resolveMaxSize (): number {
-    if (!isString(maxSizeProp)) return maxSizeProp
+  function resolveSize (value: SplitterPanelSize, fallback: number): number {
+    if (!isString(value)) return value
 
-    const px = Number.parseFloat(maxSizeProp)
+    const px = Number.parseFloat(value)
     const dimension = rootSize.value
       || (splitter.orientation.value === 'horizontal'
         ? splitter.rootEl.value?.offsetWidth
         : splitter.rootEl.value?.offsetHeight)
       || 0
 
-    return dimension > 0 ? (px / dimension) * 100 : 100
+    return dimension > 0 ? (px / dimension) * 100 : fallback
   }
 
   const ticket = splitter.panels.register({
     id: panelId,
-    size: defaultSize,
-    minSize,
-    maxSize: resolveMaxSize(),
+    size: resolveSize(defaultSize, 0),
+    minSize: resolveSize(minSize, 0),
+    maxSize: resolveSize(maxSizeProp, 100),
     collapsible,
-    collapsedSize,
-    defaultSize,
+    collapsedSize: resolveSize(collapsedSize, 0),
+    defaultSize: resolveSize(defaultSize, 0),
   })
 
   watchEffect(() => {
-    ticket.minSize = minSize
-    ticket.maxSize = resolveMaxSize()
+    ticket.minSize = resolveSize(minSize, 0)
+    ticket.maxSize = resolveSize(maxSizeProp, 100)
     ticket.collapsible = collapsible
-    ticket.collapsedSize = collapsedSize
-    ticket.defaultSize = defaultSize
+    ticket.collapsedSize = resolveSize(collapsedSize, 0)
+    ticket.defaultSize = resolveSize(defaultSize, 0)
   })
 
   onBeforeUnmount(() => {
