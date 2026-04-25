@@ -6,14 +6,14 @@
   import { toRef } from 'vue'
 
   const toggle = useThemeToggle()
-  const pressed = toRef(() => toggle.preference.value === 'high-contrast')
+  const active = toRef(() => toggle.preference.value === 'high-contrast')
 </script>
 
 <template>
   <AppThemeButton
+    :active
     icon="theme-high-contrast"
     label="High Contrast"
-    :pressed
     @click="toggle.setPreference('high-contrast')"
   />
 </template>

@@ -6,16 +6,16 @@
   import { toRef } from 'vue'
 
   const toggle = useThemeToggle()
-  const pressed = toRef(() =>
+  const active = toRef(() =>
     !toggle.isAccessibilityActive.value && toggle.mode.value === 'light',
   )
 </script>
 
 <template>
   <AppThemeButton
+    :active
     icon="theme-light"
     label="Light"
-    :pressed
     @click="toggle.setMode('light')"
   />
 </template>

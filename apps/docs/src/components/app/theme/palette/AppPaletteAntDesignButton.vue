@@ -6,17 +6,17 @@
   import { toRef } from 'vue'
 
   const toggle = useThemeToggle()
-  const pressed = toRef(() =>
+  const active = toRef(() =>
     !toggle.isAccessibilityActive.value && toggle.palette.value === 'ant-design',
   )
 </script>
 
 <template>
   <AppThemeButton
+    :active
     icon="theme-ant-design"
     justify="start"
     label="Ant Design"
-    :pressed
     @click="toggle.setPalette('ant-design')"
   />
 </template>

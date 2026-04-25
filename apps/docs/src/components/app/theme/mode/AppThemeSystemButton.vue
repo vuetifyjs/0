@@ -6,16 +6,16 @@
   import { toRef } from 'vue'
 
   const toggle = useThemeToggle()
-  const pressed = toRef(() =>
+  const active = toRef(() =>
     !toggle.isAccessibilityActive.value && toggle.mode.value === 'system',
   )
 </script>
 
 <template>
   <AppThemeButton
+    :active
     icon="theme-system"
     label="System"
-    :pressed
     @click="toggle.setMode('system')"
   />
 </template>

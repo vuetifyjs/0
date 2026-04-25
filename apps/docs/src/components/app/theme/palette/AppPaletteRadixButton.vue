@@ -6,17 +6,17 @@
   import { toRef } from 'vue'
 
   const toggle = useThemeToggle()
-  const pressed = toRef(() =>
+  const active = toRef(() =>
     !toggle.isAccessibilityActive.value && toggle.palette.value === 'radix',
   )
 </script>
 
 <template>
   <AppThemeButton
+    :active
     icon="theme-radix"
     justify="start"
     label="Radix"
-    :pressed
     @click="toggle.setPalette('radix')"
   />
 </template>

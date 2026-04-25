@@ -9,16 +9,16 @@
   import { themes } from '@/themes'
 
   const toggle = useThemeToggle()
-  const pressed = toRef(() => toggle.preference.value === 'deuteranopia')
+  const active = toRef(() => toggle.preference.value === 'deuteranopia')
 </script>
 
 <template>
   <AppThemeSwatchButton
+    :active
     :color="themes.deuteranopia.colors.primary"
     icon="theme-deuteranopia"
     label="Deuteranopia"
     :on-color="themes.deuteranopia.colors['on-primary']"
-    :pressed
     @click="toggle.setPreference('deuteranopia')"
   />
 </template>

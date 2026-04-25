@@ -18,7 +18,7 @@
   const toggle = useThemeToggle()
   const themes = useCustomThemes()
   const theme = toRef(() => themes.customThemes.value.find(t => t.id === themeId))
-  const pressed = toRef(() => toggle.preference.value === themeId)
+  const active = toRef(() => toggle.preference.value === themeId)
 
   function onClick () {
     toggle.setPreference(themeId as ThemePreference)
@@ -33,13 +33,9 @@
 <template>
   <button
     v-if="theme"
-    :aria-pressed="pressed"
-    :class="[
-      'flex flex-col items-start gap-1.5 px-3 py-2 rounded-lg border text-sm transition-colors group relative',
-      pressed
-        ? 'border-primary bg-primary/10 text-primary'
-        : 'border-divider hover:border-primary/50 text-on-surface',
-    ]"
+    :aria-pressed="active"
+    class="flex flex-col items-start gap-1.5 px-3 py-2 rounded-lg border text-sm transition-colors group relative border-divider text-on-surface hover:border-primary/50 data-[active]:border-primary data-[active]:bg-primary/10 data-[active]:text-primary"
+    :data-active="active || undefined"
     type="button"
     @click="onClick"
   >

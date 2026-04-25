@@ -6,17 +6,17 @@
   import { toRef } from 'vue'
 
   const toggle = useThemeToggle()
-  const pressed = toRef(() =>
+  const active = toRef(() =>
     !toggle.isAccessibilityActive.value && toggle.palette.value === 'tailwind',
   )
 </script>
 
 <template>
   <AppThemeButton
+    :active
     icon="theme-tailwind"
     justify="start"
     label="Tailwind"
-    :pressed
     @click="toggle.setPalette('tailwind')"
   />
 </template>
