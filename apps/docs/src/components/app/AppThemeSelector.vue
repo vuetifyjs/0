@@ -114,12 +114,12 @@
       </button>
 
       <!-- Custom Themes -->
-      <div v-if="themes.value.length > 0" class="mt-3">
+      <div v-if="themes.length > 0" class="mt-3">
         <div class="text-xs font-medium text-on-surface-variant mb-2 px-1">Custom Themes</div>
 
         <div class="grid grid-cols-2 gap-2">
           <AppThemeCustomButton
-            v-for="theme in themes.value"
+            v-for="theme in themes"
             :key="theme.id"
             editable
             :theme-id="theme.id"
