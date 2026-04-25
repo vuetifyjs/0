@@ -1,24 +1,20 @@
 <script setup lang="ts">
   // Composables
   import { useClipboard } from '@/composables/useClipboard'
-  import { useCustomThemes, type CustomTheme } from '@/composables/useCustomThemes'
+  import { useCustomThemes } from '@/composables/useCustomThemes'
   import { useSettings } from '@/composables/useSettings'
-  import { PALETTE_ICONS, PALETTE_LABELS, PALETTES, useThemeToggle, type ThemePreference } from '@/composables/useThemeToggle'
+  import { useThemeToggle } from '@/composables/useThemeToggle'
 
   // Utilities
-  import { computed, shallowRef } from 'vue'
+  import { computed } from 'vue'
 
   // Themes
-  import { exportThemeAsVuetifyConfig, themes, type ThemeDefinition, type ThemeId } from '@/themes'
+  import { exportThemeAsVuetifyConfig, type ThemeId } from '@/themes'
 
   const toggle = useThemeToggle()
-  const themes_ = useCustomThemes()
+  const customThemes = useCustomThemes()
   const clipboard = useClipboard()
   const settings = useSettings()
-
-  // Editor state
-  const editingTheme = shallowRef<ThemeDefinition | null>(null)
-  const previousPreference = shallowRef<ThemePreference>('system')
 
   // Current active theme (resolves 'system' to actual theme)
   const currentThemeId = computed<ThemeId>(() => toggle.theme.selectedId.value as ThemeId)
@@ -28,123 +24,18 @@
     clipboard.copy(config)
   }
 
-  interface ThemeOption {
-    id: ThemePreference
-    label: string
-    icon: string
-    theme?: ThemeId
-    custom?: boolean
-  }
-
-  const modeOptions: ThemeOption[] = [
-    { id: 'system', label: 'System', icon: 'theme-system' },
-    { id: 'light', label: 'Light', icon: 'theme-light', theme: 'light' },
-    { id: 'dark', label: 'Dark', icon: 'theme-dark', theme: 'dark' },
-  ]
-
-  const colorblindOptions: ThemeOption[] = [
-    { id: 'protanopia', label: 'Protanopia', icon: 'theme-protanopia', theme: 'protanopia' },
-    { id: 'deuteranopia', label: 'Deuteranopia', icon: 'theme-deuteranopia', theme: 'deuteranopia' },
-    { id: 'tritanopia', label: 'Tritanopia', icon: 'theme-tritanopia', theme: 'tritanopia' },
-  ]
-
-  const paletteOptions = PALETTES.map(id => ({
-    id,
-    label: PALETTE_LABELS[id],
-    icon: PALETTE_ICONS[id],
-  }))
-
-  // Custom themes as options
-  const customOptions = computed<ThemeOption[]>(() =>
-    themes_.customThemes.value.map(t => ({
-      id: t.id as ThemePreference,
-      label: t.label,
-      icon: t.icon,
-      theme: t.id as ThemeId,
-      custom: true,
-    })),
-  )
-
-  // Editor actions
-  function startCreate () {
-    const current = themes_.current()
-    previousPreference.value = toggle.preference.value
-    themes_.editing.value = true
-    editingTheme.value = {
-      id: '',
-      label: 'My Theme',
-      icon: 'theme-custom',
-      dark: current?.dark ?? false,
-      colors: { ...(current?.colors ?? themes.light.colors) },
-    }
-  }
-
-  function startEdit (themeId: string) {
-    const custom = themes_.customThemes.value.find(t => t.id === themeId)
-    if (custom) {
-      previousPreference.value = toggle.preference.value
-      themes_.editing.value = true
-      editingTheme.value = { ...custom }
-    }
-  }
-
-  function onSave (themeData: CustomTheme) {
-    // Clear inline preview styles before applying saved theme
-    themes_.clearPreview()
-
-    if (themeData.id && themes_.customThemes.value.some(t => t.id === themeData.id)) {
-      // Update existing
-      themes_.update(themeData.id, {
-        label: themeData.label,
-        dark: themeData.dark,
-        colors: themeData.colors,
-      })
-      // Select the updated theme
-      toggle.setPreference(themeData.id as ThemePreference)
-    } else {
-      // Create new
-      const newTheme = themes_.create({
-        id: '',
-        label: themeData.label,
-        icon: 'theme-custom',
-        dark: themeData.dark,
-        colors: themeData.colors,
-      })
-      // Select the new theme
-      toggle.setPreference(newTheme.id as ThemePreference)
-    }
-    themes_.editing.value = false
-    editingTheme.value = null
-  }
-
-  function onCancel () {
-    // Clear inline preview styles and restore previous theme
-    themes_.clearPreview()
-    toggle.setPreference(previousPreference.value)
-    themes_.editing.value = false
-    editingTheme.value = null
-  }
-
-  function onDelete (id: string) {
-    // Clear inline preview styles
-    themes_.clearPreview()
-    themes_.remove(id)
-    // Switch to previous theme or system
-    toggle.setPreference(previousPreference.value === id ? 'system' : previousPreference.value)
-    themes_.editing.value = false
-    editingTheme.value = null
-  }
+  const customOptions = computed(() => customThemes.customThemes.value)
 </script>
 
 <template>
   <section class="space-y-4">
     <!-- Editor Mode -->
     <AppSettingsThemeEditor
-      v-if="editingTheme"
-      :theme="editingTheme"
-      @cancel="onCancel"
-      @delete="onDelete"
-      @save="onSave"
+      v-if="customThemes.editor.theme"
+      :theme="customThemes.editor.theme"
+      @cancel="customThemes.editor.cancel"
+      @delete="customThemes.editor.destroy"
+      @save="customThemes.editor.save"
     />
 
     <!-- Selector Mode -->
@@ -168,22 +59,9 @@
         <div class="text-xs font-medium text-on-surface-variant mb-2">Mode</div>
 
         <div class="grid grid-cols-3 gap-2">
-          <button
-            v-for="option in modeOptions"
-            :key="option.id"
-            :aria-pressed="!toggle.isAccessibilityActive.value && toggle.mode.value === option.id"
-            :class="[
-              'flex items-center justify-center gap-2 px-3 py-2 rounded-lg border text-sm transition-colors',
-              !toggle.isAccessibilityActive.value && toggle.mode.value === option.id
-                ? 'border-primary bg-primary/10 text-primary'
-                : 'border-divider hover:border-primary/50 text-on-surface',
-            ]"
-            type="button"
-            @click="toggle.setMode(option.id)"
-          >
-            <AppIcon :icon="option.icon" size="16" />
-            <span>{{ option.label }}</span>
-          </button>
+          <AppThemeSystemButton />
+          <AppThemeLightButton />
+          <AppThemeDarkButton />
         </div>
       </div>
 
@@ -192,22 +70,11 @@
         <div class="text-xs font-medium text-on-surface-variant mb-2">Palettes</div>
 
         <div class="grid grid-cols-2 gap-2">
-          <button
-            v-for="option in paletteOptions"
-            :key="option.id"
-            :aria-pressed="!toggle.isAccessibilityActive.value && toggle.palette.value === option.id"
-            :class="[
-              'flex items-center gap-2 px-3 py-2 rounded-lg border text-sm transition-colors',
-              !toggle.isAccessibilityActive.value && toggle.palette.value === option.id
-                ? 'border-primary bg-primary/10 text-primary'
-                : 'border-divider hover:border-primary/50 text-on-surface',
-            ]"
-            type="button"
-            @click="toggle.setPalette(option.id)"
-          >
-            <AppIcon :icon="option.icon" size="16" />
-            <span class="font-medium">{{ option.label }}</span>
-          </button>
+          <AppPaletteVuetify0Button />
+          <AppPaletteTailwindButton />
+          <AppPaletteMaterial3Button />
+          <AppPaletteRadixButton />
+          <AppPaletteAntDesignButton />
         </div>
       </div>
 
@@ -216,44 +83,10 @@
         <div class="text-xs font-medium text-on-surface-variant mb-2">Accessibility</div>
 
         <div class="flex gap-2">
-          <!-- High Contrast - larger button -->
-          <button
-            :aria-pressed="toggle.preference.value === 'high-contrast'"
-            :class="[
-              'flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg border text-sm transition-colors',
-              toggle.preference.value === 'high-contrast'
-                ? 'border-primary bg-primary/10 text-primary'
-                : 'border-divider hover:border-primary/50 text-on-surface',
-            ]"
-            type="button"
-            @click="toggle.setPreference('high-contrast')"
-          >
-            <AppIcon icon="theme-high-contrast" size="16" />
-            <span class="font-medium">High Contrast</span>
-          </button>
-
-          <!-- Colorblind themes - small color squares -->
-          <button
-            v-for="option in colorblindOptions"
-            :key="option.id"
-            :aria-label="`${option.label} theme`"
-            :aria-pressed="toggle.preference.value === option.id"
-            :class="[
-              'h-9 w-6 shrink-0 inline-flex items-center justify-center rounded border transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background',
-              toggle.preference.value === option.id
-                ? 'border-primary ring-2 ring-primary/50 opacity-100'
-                : 'opacity-50 hover:opacity-100',
-            ]"
-            :style="{
-              backgroundColor: themes[option.theme!].colors.primary,
-              color: themes[option.theme!].colors['on-primary'],
-            }"
-            :title="option.label"
-            type="button"
-            @click="toggle.setPreference(option.id)"
-          >
-            <AppIcon :icon="option.icon" size="14" />
-          </button>
+          <AppThemeHighContrastButton class="flex-1" />
+          <AppThemeProtanopiaButton />
+          <AppThemeDeuteranopiaButton />
+          <AppThemeTritanopiaButton />
         </div>
       </div>
 
@@ -261,7 +94,7 @@
       <button
         class="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-dashed border-divider text-sm text-on-surface-variant hover:border-primary/50 hover:text-on-surface transition-colors"
         type="button"
-        @click="startCreate"
+        @click="customThemes.editor.open"
       >
         <AppIcon icon="plus" size="16" />
         <span>Create Theme</span>
@@ -272,35 +105,13 @@
         <div class="text-xs font-medium text-on-surface-variant mb-2">Custom Themes</div>
 
         <div class="grid grid-cols-2 gap-2">
-          <button
+          <AppThemeCustomButton
             v-for="option in customOptions"
             :key="option.id"
-            :aria-pressed="toggle.preference.value === option.id"
-            :class="[
-              'flex flex-col items-start gap-1.5 px-3 py-2 rounded-lg border text-sm transition-colors group relative',
-              toggle.preference.value === option.id
-                ? 'border-primary bg-primary/10 text-primary'
-                : 'border-divider hover:border-primary/50 text-on-surface',
-            ]"
-            type="button"
-            @click="toggle.setPreference(option.id)"
-          >
-            <div class="flex items-center gap-2 w-full">
-              <AppIcon :icon="option.icon" size="16" />
-              <span class="font-medium truncate">{{ option.label }}</span>
-
-              <button
-                class="ml-auto opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-surface-tint transition-all"
-                title="Edit theme"
-                type="button"
-                @click.stop="startEdit(option.id)"
-              >
-                <AppIcon icon="edit" size="12" />
-              </button>
-            </div>
-
-            <AppThemePreview v-if="option.theme" :theme="option.theme" />
-          </button>
+            editable
+            :theme-id="option.id"
+            @edit="customThemes.editor.edit"
+          />
         </div>
       </div>
 
