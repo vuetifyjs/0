@@ -31,8 +31,8 @@
   <section class="space-y-4">
     <!-- Editor Mode -->
     <AppSettingsThemeEditor
-      v-if="customThemes.editor.theme"
-      :theme="customThemes.editor.theme"
+      v-if="customThemes.editor.active.value"
+      :theme="customThemes.editor.theme.value"
       @cancel="customThemes.editor.cancel"
       @delete="customThemes.editor.destroy"
       @save="customThemes.editor.save"
