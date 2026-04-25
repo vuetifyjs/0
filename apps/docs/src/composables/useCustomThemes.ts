@@ -21,19 +21,21 @@ export interface CustomTheme extends ThemeDefinition {
 export interface UseCustomThemesReturn {
   customThemes: typeof customThemes
   allThemes: ComputedRef<Record<string, ThemeDefinition>>
-  editing: typeof isEditing
   create: (theme: Omit<CustomTheme, 'custom'>) => CustomTheme
   update: (id: string, theme: Partial<Omit<CustomTheme, 'id' | 'custom'>>) => void
   remove: (id: string) => void
   current: () => ThemeDefinition | undefined
   preview: (colors: Record<string, string>, dark: boolean) => void
   clearPreview: () => void
-  editingTheme: typeof editingTheme
-  startCreate: () => void
-  startEdit: (id: string) => void
-  save: (data: CustomTheme) => void
-  cancel: () => void
-  deleteTheme: (id: string) => void
+  editor: {
+    active: typeof isEditing
+    theme: typeof editingTheme
+    open: () => void
+    edit: (id: string) => void
+    save: (data: CustomTheme) => void
+    cancel: () => void
+    destroy: (id: string) => void
+  }
 }
 
 const STORAGE_KEY = 'v0:custom-themes'
@@ -209,7 +211,7 @@ export function useCustomThemes (): UseCustomThemesReturn {
     }
   }
 
-  function startCreate () {
+  function open () {
     const currentTheme = current()
     previousPreference.value = toggle.preference.value
     isEditing.value = true
@@ -222,7 +224,7 @@ export function useCustomThemes (): UseCustomThemesReturn {
     }
   }
 
-  function startEdit (id: string) {
+  function edit (id: string) {
     const custom = customThemes.value.find(t => t.id === id)
     if (!custom) return
     previousPreference.value = toggle.preference.value
@@ -256,7 +258,7 @@ export function useCustomThemes (): UseCustomThemesReturn {
     editingTheme.value = null
   }
 
-  function deleteTheme (id: string) {
+  function destroy (id: string) {
     clearPreview()
     remove(id)
     toggle.setPreference(previousPreference.value === id ? 'system' : previousPreference.value)
@@ -267,18 +269,20 @@ export function useCustomThemes (): UseCustomThemesReturn {
   return {
     customThemes,
     allThemes,
-    editing: isEditing,
     create,
     update,
     remove,
     current,
     preview,
     clearPreview,
-    editingTheme,
-    startCreate,
-    startEdit,
-    save,
-    cancel,
-    deleteTheme,
+    editor: {
+      active: isEditing,
+      theme: editingTheme,
+      open,
+      edit,
+      save,
+      cancel,
+      destroy,
+    },
   }
 }

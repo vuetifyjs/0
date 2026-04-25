@@ -14,7 +14,7 @@
   const router = useRouter()
 
   const toggle = useThemeToggle()
-  const customThemes_ = useCustomThemes()
+  const { customThemes: themes, editor } = useCustomThemes()
   const settings = useSettings()
 
   const isOpen = shallowRef(false)
@@ -27,13 +27,13 @@
   function onCreate () {
     isOpen.value = false
     settings.open()
-    customThemes_.startCreate()
+    editor.open()
   }
 
   function onEdit (id: string) {
     isOpen.value = false
     settings.open()
-    customThemes_.startEdit(id)
+    editor.edit(id)
   }
 </script>
 
@@ -114,12 +114,12 @@
       </button>
 
       <!-- Custom Themes -->
-      <div v-if="customThemes_.customThemes.value.length > 0" class="mt-3">
+      <div v-if="themes.value.length > 0" class="mt-3">
         <div class="text-xs font-medium text-on-surface-variant mb-2 px-1">Custom Themes</div>
 
         <div class="grid grid-cols-2 gap-2">
           <AppThemeCustomButton
-            v-for="theme in customThemes_.customThemes.value"
+            v-for="theme in themes.value"
             :key="theme.id"
             editable
             :theme-id="theme.id"

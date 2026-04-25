@@ -12,8 +12,7 @@
   import { exportThemeAsVuetifyConfig, type ThemeId } from '@/themes'
 
   const toggle = useThemeToggle()
-  const themes_ = useCustomThemes()
-  const { editingTheme, startCreate, startEdit, save, cancel, deleteTheme } = themes_
+  const customThemes = useCustomThemes()
   const clipboard = useClipboard()
   const settings = useSettings()
 
@@ -25,18 +24,18 @@
     clipboard.copy(config)
   }
 
-  const customOptions = computed(() => themes_.customThemes.value)
+  const customOptions = computed(() => customThemes.customThemes.value)
 </script>
 
 <template>
   <section class="space-y-4">
     <!-- Editor Mode -->
     <AppSettingsThemeEditor
-      v-if="editingTheme"
-      :theme="editingTheme"
-      @cancel="cancel"
-      @delete="deleteTheme"
-      @save="save"
+      v-if="customThemes.editor.theme"
+      :theme="customThemes.editor.theme"
+      @cancel="customThemes.editor.cancel"
+      @delete="customThemes.editor.destroy"
+      @save="customThemes.editor.save"
     />
 
     <!-- Selector Mode -->
@@ -95,7 +94,7 @@
       <button
         class="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-dashed border-divider text-sm text-on-surface-variant hover:border-primary/50 hover:text-on-surface transition-colors"
         type="button"
-        @click="startCreate"
+        @click="customThemes.editor.open"
       >
         <AppIcon icon="plus" size="16" />
         <span>Create Theme</span>
@@ -111,7 +110,7 @@
             :key="option.id"
             editable
             :theme-id="option.id"
-            @edit="startEdit"
+            @edit="customThemes.editor.edit"
           />
         </div>
       </div>
