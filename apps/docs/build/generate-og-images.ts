@@ -234,18 +234,18 @@ export async function generateOgImages (): Promise<void> {
   await mkdir(CACHE_DIR, { recursive: true })
 
   const misses: FileEntry[] = []
-  let cached = 0
-
-  for (const file of files) {
+  const cacheResults = await Promise.all(files.map(async file => {
     const cachePath = resolve(CACHE_DIR, `${file.hash}.png`)
+    if (!existsSync(cachePath)) return { hit: false, file }
     const outFile = outFileFor(file.path)
-    if (existsSync(cachePath)) {
-      await mkdir(dirname(outFile), { recursive: true })
-      await copyFile(cachePath, outFile)
-      cached++
-    } else {
-      misses.push(file)
-    }
+    await mkdir(dirname(outFile), { recursive: true })
+    await copyFile(cachePath, outFile)
+    return { hit: true }
+  }))
+  let cached = 0
+  for (const result of cacheResults) {
+    if (result.hit) cached++
+    else misses.push(result.file!)
   }
 
   let rendered = 0
