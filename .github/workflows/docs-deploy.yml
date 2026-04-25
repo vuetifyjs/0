@@ -23,6 +23,18 @@ jobs:
           key: og-images-${{ hashFiles('apps/docs/build/og-images-worker.ts', 'apps/docs/build/generate-og-images.ts', 'apps/docs/build/fonts/**') }}
           restore-keys: |
             og-images-
+      - name: Restore API metadata cache
+        uses: actions/cache@v4
+        with:
+          path: apps/docs/node_modules/.cache/api-cache.json
+          key: api-cache-${{ hashFiles('packages/0/src/components/**', 'packages/0/src/composables/**', 'apps/docs/build/generate-api.ts') }}
+      - name: Restore vite deps cache
+        uses: actions/cache@v4
+        with:
+          path: apps/docs/node_modules/.vite
+          key: vite-deps-${{ hashFiles('pnpm-lock.yaml', 'apps/docs/vite.config.ts') }}
+          restore-keys: |
+            vite-deps-
       - run: pnpm run build:docs
         env:
           VITE_API_SERVER_URL: ${{ vars.API_SERVER_URL }}
