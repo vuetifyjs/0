@@ -1,10 +1,10 @@
-import { readFileSync } from 'node:fs'
-import { glob, mkdir, writeFile } from 'node:fs/promises'
+import { createHash } from 'node:crypto'
+import { existsSync, readFileSync } from 'node:fs'
+import { copyFile, glob, mkdir, writeFile } from 'node:fs/promises'
+import { availableParallelism } from 'node:os'
 import { dirname, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-
-import { Resvg } from '@resvg/resvg-js'
-import satori from 'satori'
+import { Worker } from 'node:worker_threads'
 
 // Types
 import type { Frontmatter } from './frontmatter'
@@ -15,29 +15,22 @@ import { parseFrontmatter } from './frontmatter'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const PAGES_DIR = resolve(__dirname, '../src/pages')
 const DIST_DIR = resolve(__dirname, '../dist')
+const CACHE_DIR = resolve(__dirname, '../node_modules/.cache/og-images')
+const WORKER_URL = new URL('og-images-worker.ts', import.meta.url)
 
-function load (path: string): ArrayBuffer {
-  const buffer = readFileSync(path)
-  return buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength)
+function hash (input: string | Buffer): string {
+  return createHash('sha256').update(input).digest('hex').slice(0, 16)
 }
 
-const logo = `data:image/png;base64,${readFileSync(resolve(__dirname, 'fonts/vuetify0-logo.png')).toString('base64')}`
-const icon = `data:image/png;base64,${readFileSync(resolve(__dirname, 'fonts/vzero-icon-white.png')).toString('base64')}`
-
-const fonts = [
-  {
-    name: 'Inter',
-    data: load(resolve(__dirname, 'fonts/Inter-Regular.ttf')),
-    weight: 400 as const,
-    style: 'normal' as const,
-  },
-  {
-    name: 'Inter',
-    data: load(resolve(__dirname, 'fonts/Inter-Bold.ttf')),
-    weight: 700 as const,
-    style: 'normal' as const,
-  },
-]
+// Cache key includes the worker source and every visual asset so any change
+// to template, fonts, or images automatically invalidates every cached PNG.
+const TEMPLATE_VERSION = hash(Buffer.concat([
+  readFileSync(fileURLToPath(WORKER_URL)),
+  readFileSync(resolve(__dirname, 'fonts/Inter-Regular.ttf')),
+  readFileSync(resolve(__dirname, 'fonts/Inter-Bold.ttf')),
+  readFileSync(resolve(__dirname, 'fonts/vuetify0-logo.png')),
+  readFileSync(resolve(__dirname, 'fonts/vzero-icon-white.png')),
+]))
 
 function getPath (file: string): string {
   return '/' + relative(PAGES_DIR, file)
@@ -47,7 +40,6 @@ function getPath (file: string): string {
 }
 
 function cleanTitle (raw: string): string {
-  // Strip " - description suffix" from titles like "Dialog - Accessible modal dialogs"
   return raw.includes(' - ') ? raw.split(' - ')[0] : raw
 }
 
@@ -65,179 +57,135 @@ function inferCategory (path: string, frontmatter: Frontmatter): string | undefi
   return CATEGORY_MAP[path.split('/')[1]]
 }
 
-function template (title: string, description: string, category?: string) {
-  return {
-    type: 'div',
-    props: {
-      style: {
-        display: 'flex',
-        width: '100%',
-        height: '100%',
-        backgroundImage: [
-          'radial-gradient(at 40% 20%, rgba(124, 92, 246, 0.4) 0px, transparent 70%)',
-          'radial-gradient(at 90% -10%, rgba(24, 103, 192, 0.35) 0px, transparent 70%)',
-          'radial-gradient(at -10% 60%, rgba(239, 68, 68, 0.25) 0px, transparent 70%)',
-          'radial-gradient(at 90% 60%, rgba(34, 197, 94, 0.3) 0px, transparent 70%)',
-          'radial-gradient(at 20% 110%, rgba(245, 158, 11, 0.2) 0px, transparent 70%)',
-        ].join(', '),
-        backgroundColor: '#121212',
-        color: 'white',
-        fontFamily: 'Inter',
-      },
-      children: [
-        // Watermark icon — top right
-        {
-          type: 'div',
-          props: {
-            style: {
-              display: 'flex',
-              position: 'absolute',
-              top: '80px',
-              right: '40px',
-              opacity: 0.08,
-            },
-            children: [{
-              type: 'img',
-              props: {
-                src: icon,
-                width: 345,
-                height: 300,
-                style: {},
-              },
-            }],
-          },
-        },
-        // Content area with radial glow
-        {
-          type: 'div',
-          props: {
-            style: {
-              display: 'flex',
-              flexDirection: 'column',
-              flex: '1',
-              padding: '60px',
-              backgroundImage: 'radial-gradient(ellipse at 0% 0%, rgba(24, 103, 192, 0.15) 0%, transparent 60%)',
-            },
-            children: [
-              {
-                type: 'div',
-                props: {
-                  style: {
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '12px',
-                    marginBottom: '40px',
-                  },
-                  children: [
-                    {
-                      type: 'img',
-                      props: {
-                        src: logo,
-                        width: 260,
-                        height: 84,
-                        style: {},
-                      },
-                    },
-                    ...(category
-                      ? [{
-                          type: 'div',
-                          props: {
-                            style: {
-                              fontSize: '22px',
-                              color: 'rgba(255, 255, 255, 0.4)',
-                              marginLeft: '4px',
-                            },
-                            children: `/ ${category}`,
-                          },
-                        }]
-                      : []),
-                  ],
-                },
-              },
-              {
-                type: 'div',
-                props: {
-                  style: {
-                    display: 'flex',
-                    flexDirection: 'column',
-                    flex: '1',
-                    justifyContent: 'center',
-                  },
-                  children: [
-                    {
-                      type: 'div',
-                      props: {
-                        style: {
-                          fontSize: '76px',
-                          fontWeight: 700,
-                          lineHeight: '1.2',
-                          marginBottom: '24px',
-                          color: 'white',
-                        },
-                        children: title,
-                      },
-                    },
-                    ...(description
-                      ? [{
-                          type: 'div',
-                          props: {
-                            style: {
-                              fontSize: '34px',
-                              color: 'rgba(255, 255, 255, 0.7)',
-                              lineHeight: '1.5',
-                            },
-                            children: description,
-                          },
-                        }]
-                      : []),
-                  ],
-                },
-              },
-              {
-                type: 'div',
-                props: {
-                  style: {
-                    display: 'flex',
-                    alignItems: 'center',
-                    fontSize: '22px',
-                    color: 'rgba(255, 255, 255, 0.5)',
-                  },
-                  children: '0.vuetifyjs.com',
-                },
-              },
-            ],
-          },
-        },
-      ],
-    },
+interface FileEntry {
+  path: string
+  title: string
+  description: string
+  category?: string
+  hash: string
+}
+
+function outFileFor (path: string): string {
+  const out = path === '' || path === '/' ? '/index' : path
+  return resolve(DIST_DIR, `og${out}.png`)
+}
+
+interface WorkerJob {
+  id: number
+  title: string
+  description: string
+  category?: string
+}
+
+interface WorkerResponse {
+  id: number
+  png?: Uint8Array
+  error?: string
+}
+
+interface QueueItem {
+  job: WorkerJob
+  resolve: (buf: Buffer) => void
+  reject: (error: Error) => void
+}
+
+class WorkerPool {
+  private workers: Worker[] = []
+  private idle: Worker[] = []
+  private queue: QueueItem[] = []
+  private nextId = 0
+  private failed = false
+
+  constructor (size: number) {
+    for (let i = 0; i < size; i++) {
+      const worker = new Worker(WORKER_URL, { execArgv: ['--import', 'tsx'] })
+      this.workers.push(worker)
+      this.idle.push(worker)
+    }
+  }
+
+  run (job: Omit<WorkerJob, 'id'>): Promise<Buffer> {
+    const id = this.nextId++
+    return new Promise<Buffer>((resolve, reject) => {
+      if (this.failed) {
+        reject(new Error('Worker pool has failed'))
+        return
+      }
+      this.queue.push({ job: { ...job, id }, resolve, reject })
+      this.dispatch()
+    })
+  }
+
+  async terminate () {
+    await Promise.all(this.workers.map(worker => worker.terminate()))
+  }
+
+  private dispatch () {
+    while (this.idle.length > 0 && this.queue.length > 0) {
+      const worker = this.idle.shift()!
+      const item = this.queue.shift()!
+      this.assign(worker, item)
+    }
+  }
+
+  private fail (error: Error) {
+    if (this.failed) return
+    this.failed = true
+    const queued = this.queue
+    this.queue = []
+    for (const item of queued) item.reject(error)
+  }
+
+  private assign (worker: Worker, item: QueueItem) {
+    const onMessage = (msg: WorkerResponse) => {
+      if (msg.id !== item.job.id) return
+      worker.off('message', onMessage)
+      worker.off('error', onError)
+      if (msg.error) {
+        item.reject(new Error(msg.error))
+      } else {
+        item.resolve(Buffer.from(msg.png!))
+      }
+      if (!this.failed) {
+        this.idle.push(worker)
+        this.dispatch()
+      }
+    }
+
+    const onError = (error: Error) => {
+      worker.off('message', onMessage)
+      worker.off('error', onError)
+      item.reject(error)
+      this.fail(error)
+    }
+    worker.on('message', onMessage)
+    worker.once('error', onError)
+    worker.postMessage(item.job)
   }
 }
 
-async function render (title: string, description: string, category?: string): Promise<Buffer> {
-  const svg = await satori(template(title, description, category) as Parameters<typeof satori>[0], {
-    width: 1200,
-    height: 630,
-    fonts,
-  })
-
-  const resvg = new Resvg(svg, {
-    fitTo: { mode: 'width', value: 1200 },
-  })
-
-  return resvg.render().asPng()
+function isTruthy (value: string | undefined): boolean {
+  if (!value) return false
+  const lower = value.toLowerCase()
+  return lower !== '0' && lower !== 'false' && lower !== 'no'
 }
 
 export async function generateOgImages (): Promise<void> {
-  const start = performance.now()
-  let count = 0
+  if (isTruthy(process.env.SKIP_OG_IMAGES)) {
+    console.log('[og-images] Skipped (SKIP_OG_IMAGES set)')
+    return
+  }
 
-  const files: Array<{ path: string, title: string, description: string, category?: string }> = [{
+  const start = performance.now()
+
+  const files: FileEntry[] = []
+  const root: Omit<FileEntry, 'hash'> = {
     path: '/',
     title: 'The AI-native headless framework for Vue',
     description: 'Headless components and composables for building modern applications and design systems',
-  }]
+  }
+  files.push({ ...root, hash: hash(`${TEMPLATE_VERSION}|${root.title}|${root.description}|`) })
 
-  // Generate for markdown pages
   for await (const file of glob(`${PAGES_DIR}/**/*.md`)) {
     const raw = readFileSync(file, 'utf8')
     const { frontmatter } = parseFrontmatter(raw)
@@ -245,47 +193,83 @@ export async function generateOgImages (): Promise<void> {
     if (!frontmatter.title) continue
 
     const path = getPath(file)
+    const title = cleanTitle(frontmatter.title)
+    const description = frontmatter.description ?? ''
+    const category = inferCategory(path, frontmatter)
     files.push({
       path,
-      title: cleanTitle(frontmatter.title),
-      description: frontmatter.description ?? '',
-      category: inferCategory(path, frontmatter),
+      title,
+      description,
+      category,
+      hash: hash(`${TEMPLATE_VERSION}|${title}|${description}|${category ?? ''}`),
     })
   }
 
-  // Generate for API pages
   const grouped = await getApiNamesGrouped()
   for (const info of grouped.components) {
+    const title = `${info.name} API`
+    const description = `API reference for the ${info.name} component.`
+    const category = 'API Reference'
     files.push({
       path: `/api/${info.slug}`,
-      title: `${info.name} API`,
-      description: `API reference for the ${info.name} component.`,
-      category: 'API Reference',
+      title,
+      description,
+      category,
+      hash: hash(`${TEMPLATE_VERSION}|${title}|${description}|${category}`),
     })
   }
   for (const info of grouped.composables) {
+    const title = `${info.name} API`
+    const description = `API reference for the ${info.name} composable.`
+    const category = 'API Reference'
     files.push({
       path: `/api/${info.slug}`,
-      title: `${info.name} API`,
-      description: `API reference for the ${info.name} composable.`,
-      category: 'API Reference',
+      title,
+      description,
+      category,
+      hash: hash(`${TEMPLATE_VERSION}|${title}|${description}|${category}`),
     })
   }
 
-  // Render in batches of 20 for concurrency
-  const batch = 20
-  for (let i = 0; i < files.length; i += batch) {
-    const chunk = files.slice(i, i + batch)
-    await Promise.all(chunk.map(async ({ path, title, description, category }) => {
-      const png = await render(title, description, category)
-      const outPath = path === '' || path === '/' ? '/index' : path
-      const outFile = resolve(DIST_DIR, `og${outPath}.png`)
+  await mkdir(CACHE_DIR, { recursive: true })
+
+  const misses: FileEntry[] = []
+  let cached = 0
+
+  for (const file of files) {
+    const cachePath = resolve(CACHE_DIR, `${file.hash}.png`)
+    const outFile = outFileFor(file.path)
+    if (existsSync(cachePath)) {
       await mkdir(dirname(outFile), { recursive: true })
-      await writeFile(outFile, png)
-      count++
-    }))
+      await copyFile(cachePath, outFile)
+      cached++
+    } else {
+      misses.push(file)
+    }
+  }
+
+  let rendered = 0
+  if (misses.length > 0) {
+    const poolSize = Math.max(1, Math.min(availableParallelism(), misses.length))
+    const pool = new WorkerPool(poolSize)
+    try {
+      await Promise.all(misses.map(async file => {
+        const png = await pool.run({
+          title: file.title,
+          description: file.description,
+          category: file.category,
+        })
+        const cachePath = resolve(CACHE_DIR, `${file.hash}.png`)
+        const outFile = outFileFor(file.path)
+        await mkdir(dirname(outFile), { recursive: true })
+        await Promise.all([writeFile(cachePath, png), writeFile(outFile, png)])
+        rendered++
+      }))
+    } finally {
+      await pool.terminate()
+    }
   }
 
   const elapsed = ((performance.now() - start) / 1000).toFixed(1)
-  console.log(`[og-images] Generated ${count} images in ${elapsed}s`)
+  console.log(`[og-images] Generated ${rendered + cached} images in ${elapsed}s (${rendered} rendered, ${cached} cached)`)
 }
