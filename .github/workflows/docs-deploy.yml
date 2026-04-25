@@ -16,6 +16,13 @@ jobs:
         with:
           fetch-depth: 0
       - uses: vuetifyjs/setup-action@fb6949e3ee1041636b7fa9eef3c7694ff31840b8 # master
+      - name: Restore OG images cache
+        uses: actions/cache@v4
+        with:
+          path: apps/docs/node_modules/.cache/og-images
+          key: og-images-${{ hashFiles('apps/docs/build/og-images-worker.ts', 'apps/docs/build/generate-og-images.ts', 'apps/docs/build/fonts/**') }}
+          restore-keys: |
+            og-images-
       - run: pnpm run build:docs
         env:
           VITE_API_SERVER_URL: ${{ vars.API_SERVER_URL }}

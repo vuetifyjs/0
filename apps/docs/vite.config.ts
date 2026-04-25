@@ -27,35 +27,6 @@ import Markdown from './build/markdown'
 import { getSkillzSlugs } from './build/skillz-tours'
 import pkg from './package.json' with { type: 'json' }
 
-// Kick off OG image generation in parallel with the vite client + server
-// builds. vite-ssg evaluates this config twice (once per build phase), so the
-// promise is stored on globalThis to survive both phases and only fire once.
-const OG_KEY = '__v0_og_images_promise__'
-
-interface OgGlobal {
-  [OG_KEY]?: Promise<void>
-}
-
-function getOgPromise (): Promise<void> | undefined {
-  return (globalThis as OgGlobal)[OG_KEY]
-}
-
-function setOgPromise (promise: Promise<void>) {
-  (globalThis as OgGlobal)[OG_KEY] = promise
-}
-
-function ogImagesPlugin () {
-  return {
-    name: 'og-images-parallel',
-    buildStart: {
-      order: 'pre' as const,
-      handler () {
-        if (!getOgPromise()) setOgPromise(generateOgImages())
-      },
-    },
-  }
-}
-
 export default defineConfig({
   optimizeDeps: {
     exclude: ['@vue/repl', 'monaco-editor'],
@@ -94,11 +65,10 @@ export default defineConfig({
         priority: 0.7,
         exclude: ['/404'],
       })
-      await getOgPromise()
+      await generateOgImages()
     },
   } as ViteSSGOptions,
   plugins: [
-    ogImagesPlugin(),
     generateApiWhitelistPlugin(),
     VueRouter({
       dts: './src/typed-router.d.ts',
