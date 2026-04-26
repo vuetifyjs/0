@@ -155,7 +155,7 @@
       Skip to main content
     </a>
 
-    <div class="pt-[calc(48px+var(--app-banner-h,24px))]">
+    <div class="app-shell-content pt-[calc(48px+var(--app-banner-h,24px))]">
       <AppBanner />
       <AppBar />
 
@@ -232,7 +232,7 @@
       --dot-opacity: 10%;
     }
 
-    &.dot-grid > * {
+    &.dot-grid > .app-shell-content {
       position: relative;
       z-index: 1;
     }
