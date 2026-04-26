@@ -3,24 +3,35 @@
   import { injectHead, useHead } from '@unhead/vue'
 
   // Framework
-  import { IN_BROWSER } from '@vuetify/v0'
+  import { IN_BROWSER, Scrim, useBreakpoints, useStack } from '@vuetify/v0'
 
   // Components
   import AppMeshBg from '@/components/app/AppMeshBg.vue'
 
   // Composables
-  import { useBreadcrumbItems } from './composables/useBreadcrumbItems'
-  import { useScrollPersist } from './composables/useScrollPersist'
-  import { useSettings } from './composables/useSettings'
+  import { useAsk } from '@/composables/useAsk'
+  import { useBreadcrumbItems } from '@/composables/useBreadcrumbItems'
+  import { createLevelFilter } from '@/composables/useLevelFilter'
+  import { createNavConfig } from '@/composables/useNavConfig'
+  import { useScrollLock } from '@/composables/useScrollLock'
+  import { useScrollPersist } from '@/composables/useScrollPersist'
+  import { useSearch } from '@/composables/useSearch'
+  import { useSettings } from '@/composables/useSettings'
 
   // Utilities
-  import { toRef, watch } from 'vue'
+  import { defineAsyncComponent, toRef, watch } from 'vue'
   import { useRoute } from 'vue-router'
+
+  // Stores
+  import { useAppStore } from '@/stores/app'
+
+  const AppSettingsSheet = defineAsyncComponent(() => import('@/components/app/AppSettingsSheet.vue'))
+  const DocsSearch = defineAsyncComponent(() => import('@/components/docs/DocsSearch.vue'))
 
   useScrollPersist()
   const settings = useSettings()
-
   const route = useRoute()
+
   watch(() => route.fullPath, (to, from) => {
     if (!IN_BROWSER) return
     if (to.includes('#') || history.state?.scroll) return
@@ -28,11 +39,37 @@
     window.scrollTo({ top: 0, behavior: settings.prefersReducedMotion.value ? 'auto' : 'smooth' })
   })
 
+  // Provider plumbing — lifted from layouts
+  const app = useAppStore()
+  const levelFilter = createLevelFilter(() => app.nav)
+  levelFilter.provide()
+
+  const navConfig = createNavConfig(levelFilter.filteredNav)
+  navConfig.provide()
+
+  // Modals & global state
+  const ask = useAsk()
+  const search = useSearch()
+  const stack = useStack()
+  const breakpoints = useBreakpoints()
+
+  // Unified body scroll lock — replaces the three per-layout impls
+  useScrollLock(() => stack.isActive.value)
+
+  const slideTransition = toRef(() => settings.prefersReducedMotion.value ? undefined : 'slide')
+
+  const isModalOpen = toRef(() => {
+    if (search.isOpen.value) return true
+    if (settings.isOpen.value) return true
+    if (ask.isOpen.value && !breakpoints.lgAndUp.value) return true
+    return false
+  })
+
+  // Head / SEO scaffolding (unchanged)
   const head = injectHead()
   head.use(InferSeoMetaPlugin())
 
   const url = toRef(() => `https://0.vuetifyjs.com${route.path}`)
-
   const breadcrumbs = useBreadcrumbItems()
 
   const breadcrumbScript = toRef(() => {
@@ -107,10 +144,37 @@
 <template>
   <AppMeshBg />
 
-  <main class="min-h-screen text-on-background" :class="{ 'dot-grid': settings.showDotGrid.value }">
-    <router-view />
-  </main>
+  <div
+    class="app-shell min-h-screen text-on-background"
+    :class="{ 'dot-grid': settings.showDotGrid.value }"
+  >
+    <a
+      class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:start-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-on-primary focus:rounded"
+      href="#main-content"
+    >
+      Skip to main content
+    </a>
 
+    <div class="pt-[calc(48px+var(--app-banner-h,24px))]">
+      <AppBanner />
+      <AppBar />
+
+      <div :inert="isModalOpen || undefined">
+        <router-view />
+      </div>
+    </div>
+
+    <DocsSearch />
+
+    <Scrim class="fixed inset-0 bg-black/30 transition-opacity" :teleport="false" />
+
+    <Transition :name="slideTransition">
+      <AppSettingsSheet v-if="settings.isOpen.value" />
+    </Transition>
+
+    <DocsApiHover />
+    <DocsHighlight />
+  </div>
 </template>
 
 <style>
@@ -132,7 +196,7 @@
     scrollbar-color: var(--v0-scrollbar-thumb) var(--v0-background);
   }
 
-  #app > main {
+  #app > .app-shell {
     position: relative;
     background: color-mix(in srgb, var(--v0-background) 85%, transparent);
 
