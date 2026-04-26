@@ -24,10 +24,8 @@
 
   interface V0PaperPropsBase {
     fontSize?: string
-    fontWeight?: string | number
-    margin?: string
-    opacity?: string | number
-    padding?: string
+    fontWeight?: string
+    opacity?: string
   }
 
   export interface V0PaperProps extends
@@ -46,31 +44,30 @@
 
   const props = defineProps<V0PaperProps>()
 
-  const { borderStyles } = useBorder(props)
-  const { colorStyles } = useColor(props)
-  const { dimensionStyles } = useDimensions(props)
-  const { elevationStyles } = useElevation(props)
-  const { roundedStyles } = useRounded(props)
-  const { spacingStyles } = useSpacing(props)
+  const { borderClasses } = useBorder(props)
+  const { colorClasses } = useColor(props)
+  const { dimensionClasses } = useDimensions(props)
+  const { elevationClasses } = useElevation(props)
+  const { roundedClasses } = useRounded(props)
+  const { spacingClasses } = useSpacing(props)
 
-  const styles = toRef(() => ({
-    ['--v0-paper-font-size']: props.fontSize,
-    ['--v0-paper-font-weight']: props.fontWeight,
-    ['--v0-paper-opacity']: props.opacity,
-
-    ...borderStyles.value,
-    ...colorStyles.value,
-    ...dimensionStyles.value,
-    ...elevationStyles.value,
-    ...roundedStyles.value,
-    ...spacingStyles.value,
-  }))
+  const classes = toRef(() => [
+    ...borderClasses.value,
+    ...colorClasses.value,
+    ...dimensionClasses.value,
+    ...elevationClasses.value,
+    ...roundedClasses.value,
+    ...spacingClasses.value,
+    props.fontSize && `text-${props.fontSize}`,
+    props.fontWeight && `font-${props.fontWeight}`,
+    props.opacity && `opacity-${props.opacity}`,
+  ].filter(Boolean))
 </script>
 
 <template>
   <Atom
     class="v0-paper"
-    :style="styles"
+    :class="classes"
   >
     <slot />
   </Atom>

@@ -1,5 +1,4 @@
 // Utilities
-import { getCurrentInstanceName } from '#paper/utilities/getCurrentInstanceName'
 import { toRef } from 'vue'
 
 export interface BorderProps {
@@ -8,19 +7,16 @@ export interface BorderProps {
   borderWidth?: string
 }
 
-export function useBorder (
-  props: BorderProps,
-  name = getCurrentInstanceName(),
-) {
-  const borderStyles = toRef(() => {
-    return {
-      [`--v0-${name}-border-color`]: props.borderColor,
-      [`--v0-${name}-border-style`]: props.borderStyle,
-      [`--v0-${name}-border-width`]: props.borderWidth,
-    }
+export function useBorder (props: BorderProps) {
+  const borderClasses = toRef(() => {
+    const classes: string[] = []
+
+    if (props.borderWidth) classes.push(`border-${props.borderWidth}`)
+    if (props.borderColor) classes.push(`border-${props.borderColor}`)
+    if (props.borderStyle) classes.push(`border-${props.borderStyle}`)
+
+    return classes
   })
 
-  return {
-    borderStyles,
-  }
+  return { borderClasses }
 }
