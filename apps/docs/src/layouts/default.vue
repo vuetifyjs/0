@@ -78,7 +78,7 @@
       <AppBanner />
       <AppNav />
       <AppBar />
-      <AppMain class="flex-1" />
+      <AppMainDocs class="flex-1" />
       <AppFooter inset />
     </div>
 
