@@ -26,12 +26,14 @@
   import type { SplitterOrientation } from './SplitterRoot.vue'
   import type { Ref } from 'vue'
 
+  export type SplitterPanelSize = number | string
+
   export interface SplitterPanelProps extends AtomProps {
-    defaultSize: number
-    minSize?: number
-    maxSize?: number | `${number}px`
+    defaultSize: SplitterPanelSize
+    minSize?: SplitterPanelSize
+    maxSize?: SplitterPanelSize
     collapsible?: boolean
-    collapsedSize?: number
+    collapsedSize?: SplitterPanelSize
   }
 
   export interface SplitterPanelExpose {
@@ -86,7 +88,11 @@
   const panelId = useId()
   const rootSize = shallowRef(0)
 
-  if (isString(maxSizeProp)) {
+  function isPx (value: SplitterPanelSize): boolean {
+    return isString(value) && value.endsWith('px')
+  }
+
+  if (isPx(defaultSize) || isPx(minSize) || isPx(maxSizeProp) || isPx(collapsedSize)) {
     useResizeObserver(splitter.rootEl, entries => {
       const rect = entries[0]?.contentRect
       rootSize.value = splitter.orientation.value === 'horizontal'
@@ -95,35 +101,41 @@
     })
   }
 
-  function resolveMaxSize (): number {
-    if (!isString(maxSizeProp)) return maxSizeProp
+  function percent (value: SplitterPanelSize, fallback: number): number {
+    if (!isString(value)) return value
 
-    const px = Number.parseFloat(maxSizeProp)
-    const dimension = rootSize.value
-      || (splitter.orientation.value === 'horizontal'
-        ? splitter.rootEl.value?.offsetWidth
-        : splitter.rootEl.value?.offsetHeight)
-      || 0
+    const num = Number.parseFloat(value)
+    if (Number.isNaN(num)) return fallback
 
-    return dimension > 0 ? (px / dimension) * 100 : 100
+    if (value.endsWith('px')) {
+      const dimension = rootSize.value
+        || (splitter.orientation.value === 'horizontal'
+          ? splitter.rootEl.value?.offsetWidth
+          : splitter.rootEl.value?.offsetHeight)
+        || 0
+
+      return dimension > 0 ? (num / dimension) * 100 : fallback
+    }
+
+    return num
   }
 
   const ticket = splitter.panels.register({
     id: panelId,
-    size: defaultSize,
-    minSize,
-    maxSize: resolveMaxSize(),
+    size: percent(defaultSize, 0),
+    minSize: percent(minSize, 0),
+    maxSize: percent(maxSizeProp, 100),
     collapsible,
-    collapsedSize,
-    defaultSize,
+    collapsedSize: percent(collapsedSize, 0),
+    defaultSize: percent(defaultSize, 0),
   })
 
   watchEffect(() => {
-    ticket.minSize = minSize
-    ticket.maxSize = resolveMaxSize()
+    ticket.minSize = percent(minSize, 0)
+    ticket.maxSize = percent(maxSizeProp, 100)
     ticket.collapsible = collapsible
-    ticket.collapsedSize = collapsedSize
-    ticket.defaultSize = defaultSize
+    ticket.collapsedSize = percent(collapsedSize, 0)
+    ticket.defaultSize = percent(defaultSize, 0)
   })
 
   onBeforeUnmount(() => {
