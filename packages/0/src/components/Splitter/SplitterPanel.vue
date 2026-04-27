@@ -181,7 +181,8 @@
       flexGrow: 0,
       flexShrink: 0,
       flexBasis: `${size}%`,
-      overflow: 'hidden',
+      minWidth: 0,
+      minHeight: 0,
     }]"
   >
     <slot v-bind="slotProps" />
