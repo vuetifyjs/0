@@ -18,6 +18,7 @@
 
   // Composables
   import { createContext } from '#v0/composables/createContext'
+  import { createEnrollable } from '#v0/composables/createEnrollable'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -176,68 +177,29 @@
 
   const model = defineModel<boolean>()
 
-  // Dual mode: register with parent
-  const ticket = group?.register({ id, value, disabled, indeterminate })
-
-  const isChecked = toRef(() => ticket
-    ? toValue(ticket.isSelected)
-    : model.value ?? false,
-  )
-
-  const isMixed = toRef(() => ticket
-    ? toValue(ticket.isMixed)
-    : toValue(indeterminate) ?? false,
-  )
-
-  const isDisabled = toRef(() => group && ticket
-    ? toValue(ticket.disabled) || toValue(group.disabled)
-    : toValue(disabled) ?? false,
-  )
+  const {
+    ticket,
+    isChecked,
+    isMixed,
+    isDisabled,
+    select,
+    unselect,
+    toggle,
+    mix,
+    unmix,
+  } = createEnrollable<V>({
+    id,
+    value,
+    disabled: () => toValue(disabled),
+    indeterminate: () => toValue(indeterminate),
+    model,
+    group,
+  })
 
   const dataState = toRef(() => isMixed.value
     ? 'indeterminate'
     : (isChecked.value ? 'checked' : 'unchecked'),
   )
-
-  function toggle () {
-    if (isDisabled.value) return
-
-    if (ticket) {
-      ticket.toggle()
-    } else {
-      model.value = !model.value
-    }
-  }
-
-  function select () {
-    if (isDisabled.value) return
-
-    if (ticket) {
-      ticket.select()
-    } else {
-      model.value = true
-    }
-  }
-
-  function unselect () {
-    if (isDisabled.value) return
-
-    if (ticket) {
-      ticket.unselect()
-    } else {
-      model.value = false
-    }
-  }
-
-  function mix () {
-    if (isDisabled.value || !ticket) return
-    ticket.mix()
-  }
-
-  function unmix () {
-    if (isDisabled.value || !ticket) return
-    ticket.unmix()
-  }
 
   function onClick () {
     toggle()
