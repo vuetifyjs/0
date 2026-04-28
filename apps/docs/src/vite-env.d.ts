@@ -43,3 +43,10 @@ declare module 'virtual:tips' {
   const tips: CompiledTip[]
   export default tips
 }
+
+declare module 'virtual:test-count' {
+  // Types
+  import type { TestCount } from '@build/generate-test-count'
+  const data: TestCount
+  export default data
+}

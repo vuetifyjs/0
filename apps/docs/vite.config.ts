@@ -22,6 +22,7 @@ import generateNavPlugin from './build/generate-nav'
 import { generateOgImages } from './build/generate-og-images'
 import generatePageDatesPlugin from './build/generate-page-dates'
 import generateSearchIndexPlugin from './build/generate-search-index'
+import generateTestCountPlugin from './build/generate-test-count'
 import generateTipsPlugin from './build/generate-tips'
 import Markdown from './build/markdown'
 import { getSkillzSlugs } from './build/skillz-tours'
@@ -91,6 +92,7 @@ export default defineConfig({
     generateExamplesPlugin(),
     generateLlmsFullPlugin(),
     generateSearchIndexPlugin(),
+    generateTestCountPlugin(),
     generateTipsPlugin(),
     generateNavPlugin(),
     generatePageDatesPlugin(),

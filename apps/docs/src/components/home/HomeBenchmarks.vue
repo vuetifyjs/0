@@ -1,4 +1,6 @@
 <script setup lang="ts">
+  import testCountData from 'virtual:test-count'
+
   // Framework
   import { useIntersectionObserver } from '@vuetify/v0'
 
@@ -30,7 +32,8 @@
 
   const { current: opsCount } = useCountUp(sectionRef, peakOps, { duration: 1500 })
   const { current: benchmarkCount } = useCountUp(sectionRef, () => summary.value.totalBenchmarks, { duration: 1800 })
-  const { current: testCount } = useCountUp(sectionRef, 4300, { duration: 2000 })
+  const flooredTestCount = Math.floor(testCountData.tests / 100) * 100
+  const { current: testCount } = useCountUp(sectionRef, flooredTestCount, { duration: 2000 })
 
   const composablePaths: Record<string, string> = {
     createFilter: '/composables/data/create-filter',
