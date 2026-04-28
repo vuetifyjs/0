@@ -5,7 +5,12 @@ import { mount } from '@vue/test-utils'
 import { defineComponent, h, nextTick } from 'vue'
 
 // Types
-import type { OverflowItemSlotProps, OverflowRootContext, OverflowRootSlotProps } from './index'
+import type {
+  OverflowIndicatorSlotProps,
+  OverflowItemSlotProps,
+  OverflowRootContext,
+  OverflowRootSlotProps,
+} from './index'
 
 import { Overflow, useOverflowRoot } from './index'
 
@@ -251,7 +256,109 @@ describe('overflow', () => {
       expect(captured!.isHidden).toBe(false)
     })
   })
-})
 
-// Suppress unused warning for triggerResize until later tasks need it
-void triggerResize
+  describe('indicator', () => {
+    it('should not render when not overflowing', async () => {
+      const wrapper = mount(Overflow.Root, {
+        props: { namespace: 'test:overflow' },
+        slots: {
+          default: () => [
+            h(
+              Overflow.Item,
+              { value: 0, namespace: 'test:overflow' },
+              { default: () => h('span', 'a') },
+            ),
+            h(
+              Overflow.Indicator,
+              { namespace: 'test:overflow' },
+              { default: () => h('span', { class: 'badge' }, '+more') },
+            ),
+          ],
+        },
+        attachTo: document.body,
+      })
+
+      await nextTick()
+      expect(wrapper.find('.badge').exists()).toBe(false)
+      wrapper.unmount()
+    })
+
+    it('should render when overflowing and expose count + hidden', async () => {
+      let captured: OverflowIndicatorSlotProps | undefined
+      let rootCtx: OverflowRootContext | undefined
+      const Probe = defineComponent({
+        setup () {
+          rootCtx = useOverflowRoot('test:overflow')
+          return () => null
+        },
+      })
+
+      const wrapper = mount(Overflow.Root, {
+        props: { namespace: 'test:overflow' },
+        slots: {
+          default: () => [
+            h(Probe),
+            h(
+              Overflow.Item,
+              { value: 0, namespace: 'test:overflow' },
+              { default: () => h('span', 'a') },
+            ),
+            h(
+              Overflow.Item,
+              { value: 1, namespace: 'test:overflow' },
+              { default: () => h('span', 'b') },
+            ),
+            h(
+              Overflow.Item,
+              { value: 2, namespace: 'test:overflow' },
+              { default: () => h('span', 'c') },
+            ),
+            h(
+              Overflow.Indicator,
+              { namespace: 'test:overflow' },
+              {
+                default: (props: OverflowIndicatorSlotProps) => {
+                  captured = props
+                  return h('span', { class: 'badge' }, `+${props.count}`)
+                },
+              },
+            ),
+          ],
+        },
+        attachTo: document.body,
+      })
+
+      await nextTick()
+
+      // happy-dom returns empty strings for getComputedStyle margins, which
+      // would coerce to NaN inside createOverflow.measure(). Stub it so the
+      // synthetic elements measure to a clean numeric width.
+      const realGetComputedStyle = globalThis.getComputedStyle
+      const fakes: HTMLElement[] = []
+      vi.stubGlobal('getComputedStyle', () => ({ marginLeft: '0px', marginRight: '0px' } as CSSStyleDeclaration))
+
+      try {
+        for (let i = 0; i < 3; i++) {
+          const el = document.createElement('div')
+          Object.defineProperty(el, 'offsetWidth', { value: 100 })
+          document.body.append(el)
+          fakes.push(el)
+          rootCtx!.overflow.measure(i, el)
+        }
+        triggerResize(120)
+        await nextTick()
+        await nextTick()
+      } finally {
+        vi.stubGlobal('getComputedStyle', realGetComputedStyle)
+        for (const el of fakes) el.remove()
+      }
+
+      expect(captured).toBeDefined()
+      expect(typeof captured!.count).toBe('number')
+      expect(Array.isArray(captured!.hidden)).toBe(true)
+      expect(captured!.attrs['aria-live']).toBe('polite')
+      expect(captured!.attrs['data-overflow-indicator']).toBe('true')
+      wrapper.unmount()
+    })
+  })
+})

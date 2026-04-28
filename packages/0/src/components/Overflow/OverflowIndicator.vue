@@ -1,12 +1,34 @@
 <script lang="ts">
+  /**
+   * @module OverflowIndicator
+   *
+   * @see https://0.vuetifyjs.com/components/semantic/overflow
+   *
+   * Indicator that renders only when items overflow. Self-measures its own
+   * width and writes it back to OverflowRoot so capacity computation can
+   * reserve space for the indicator's footprint.
+   */
+
   // Components
   import { Atom } from '#v0/components/Atom'
 
+  // Composables
+  import { useOverflowRoot } from './OverflowRoot.vue'
+
+  // Utilities
+  import { computed, onBeforeUnmount, toRef, useTemplateRef, watch } from 'vue'
+
   // Types
-  import type { AtomProps } from '#v0/components/Atom'
+  import type { AtomExpose, AtomProps } from '#v0/components/Atom'
   import type { OverflowTicket } from './types'
 
-  export interface OverflowIndicatorProps extends AtomProps {}
+  // Constants
+  import { IN_BROWSER } from '#v0/constants/globals'
+
+  export interface OverflowIndicatorProps extends AtomProps {
+    /** Namespace for dependency injection */
+    namespace?: string
+  }
 
   export interface OverflowIndicatorSlotProps {
     count: number
@@ -21,11 +43,63 @@
 <script setup lang="ts">
   defineOptions({ name: 'OverflowIndicator' })
 
-  const { as = 'div', renderless } = defineProps<OverflowIndicatorProps>()
+  defineSlots<{
+    default: (props: OverflowIndicatorSlotProps) => unknown
+  }>()
+
+  const {
+    namespace = 'v0:overflow',
+    as = 'div',
+    renderless,
+  } = defineProps<OverflowIndicatorProps>()
+
+  const root = useOverflowRoot(namespace)
+  const atomRef = useTemplateRef<AtomExpose>('atom')
+
+  function measureSelf () {
+    if (!IN_BROWSER) return
+    const element = atomRef.value?.element as HTMLElement | null | undefined
+    if (!element) {
+      root.indicatorWidth.value = 0
+      return
+    }
+    const style = getComputedStyle(element)
+    const marginX = Number.parseFloat(style.marginLeft) + Number.parseFloat(style.marginRight)
+    root.indicatorWidth.value = element.offsetWidth + marginX
+  }
+
+  watch(
+    () => atomRef.value?.element,
+    () => measureSelf(),
+    { immediate: true },
+  )
+
+  onBeforeUnmount(() => {
+    root.indicatorWidth.value = 0
+  })
+
+  const hidden = computed<OverflowTicket[]>(() => {
+    return root.registry.values().filter(t => !t.isVisible.value)
+  })
+
+  const slotProps = toRef((): OverflowIndicatorSlotProps => ({
+    count: hidden.value.length,
+    hidden: hidden.value,
+    attrs: {
+      'data-overflow-indicator': 'true',
+      'aria-live': 'polite',
+    },
+  }))
 </script>
 
 <template>
-  <Atom :as :renderless>
-    <slot />
+  <Atom
+    v-if="root.isOverflowing.value"
+    ref="atom"
+    :as
+    :renderless
+    v-bind="slotProps.attrs"
+  >
+    <slot v-bind="slotProps" />
   </Atom>
 </template>
