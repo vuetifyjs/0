@@ -79,6 +79,13 @@
     return index < cap
   }
 
+  const baseRegister = registry.register
+  registry.register = function (input) {
+    const ticket = baseRegister.call(registry, input)
+    ticket.isVisible = toRef(() => isVisible(ticket.index))
+    return ticket
+  }
+
   provideOverflowRoot(namespace, {
     overflow,
     registry,

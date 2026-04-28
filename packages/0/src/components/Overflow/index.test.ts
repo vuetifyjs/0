@@ -204,6 +204,30 @@ describe('overflow', () => {
       expect(captured!.attrs).toBeDefined()
     })
 
+    it('should expose isVisible on registered tickets', async () => {
+      let captured: OverflowRootContext | undefined
+      const Probe = defineComponent({
+        setup () {
+          captured = useOverflowRoot('test:overflow')
+          return () => null
+        },
+      })
+
+      mount(Overflow.Root, {
+        props: { namespace: 'test:overflow' },
+        slots: {
+          default: () => [
+            h(Probe),
+            h(Overflow.Item, { value: 'a', namespace: 'test:overflow' }, { default: () => h('span', 'a') }),
+          ],
+        },
+      })
+
+      await nextTick()
+      const ticket = captured!.registry.values()[0]
+      expect(ticket.isVisible.value).toBe(true)
+    })
+
     it('should always be visible when Item is disabled', () => {
       let captured: OverflowItemSlotProps | undefined
 

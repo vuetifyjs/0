@@ -1,4 +1,19 @@
 <script lang="ts">
+  /**
+   * @module OverflowItem
+   *
+   * @see https://0.vuetifyjs.com/components/semantic/overflow
+   *
+   * Individual overflow item. Registers with OverflowRoot, self-measures,
+   * and renders/hides based on capacity.
+   *
+   * @remarks
+   * In non-renderless mode, the wrapper applies a structural `display: none`
+   * inline style when the item is hidden. **Renderless mode** drops the wrapper,
+   * so the slot consumer is responsible for honoring `isHidden` themselves —
+   * read it from `slotProps.isHidden` and conditionally render or apply CSS.
+   */
+
   // Components
   import { Atom } from '#v0/components/Atom'
 
@@ -68,7 +83,7 @@
     root.registry.unregister(ticket.id)
   })
 
-  const isVisible = toRef(() => disabled || root.isVisible(ticket.index))
+  const isVisible = toRef(() => disabled || ticket.isVisible.value)
   const isHidden = toRef(() => !isVisible.value)
 
   const slotProps = toRef((): OverflowItemSlotProps => ({
