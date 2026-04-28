@@ -13,6 +13,7 @@
     "@vue/repl": "catalog:",
     "@vuetify/auth": "catalog:",
     "@vuetify/v0": "workspace:*",
+    "client-zip": "catalog:",
     "fflate": "catalog:",
     "pinia": "catalog:",
     "vue": "catalog:"
