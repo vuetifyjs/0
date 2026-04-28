@@ -4,6 +4,9 @@ import { describe, expect, it } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { defineComponent, h } from 'vue'
 
+// Types
+import type { OverflowRootContext, OverflowRootSlotProps } from './index'
+
 import { Overflow, useOverflowRoot } from './index'
 
 describe('overflow', () => {
@@ -27,12 +30,12 @@ describe('overflow', () => {
     })
 
     it('should expose slot props', () => {
-      let captured: any
+      let captured: OverflowRootSlotProps | undefined
 
       mount(Overflow.Root, {
         props: { namespace: 'test:overflow' },
         slots: {
-          default: (props: any) => {
+          default: (props: OverflowRootSlotProps) => {
             captured = props
             return h('span')
           },
@@ -40,14 +43,14 @@ describe('overflow', () => {
       })
 
       expect(captured).toBeDefined()
-      expect(typeof captured.capacity).toBe('number')
-      expect(typeof captured.size).toBe('number')
-      expect(typeof captured.isOverflowing).toBe('boolean')
-      expect(captured.attrs['data-priority']).toBe('start')
+      expect(typeof captured!.capacity).toBe('number')
+      expect(typeof captured!.size).toBe('number')
+      expect(typeof captured!.isOverflowing).toBe('boolean')
+      expect(captured!.attrs['data-priority']).toBe('start')
     })
 
     it('should provide context to descendants', () => {
-      let captured: any
+      let captured: OverflowRootContext | undefined
 
       const Probe = defineComponent({
         setup () {
@@ -62,9 +65,9 @@ describe('overflow', () => {
       })
 
       expect(captured).toBeDefined()
-      expect(captured.overflow).toBeDefined()
-      expect(captured.registry).toBeDefined()
-      expect(typeof captured.isVisible).toBe('function')
+      expect(captured!.overflow).toBeDefined()
+      expect(captured!.registry).toBeDefined()
+      expect(typeof captured!.isVisible).toBe('function')
     })
   })
 })
