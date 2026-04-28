@@ -1,7 +1,11 @@
-import { indexHtmlTemplate, packageJsonTemplate, unoConfigTemplate, viteConfigTemplate } from '@/util/export-templates'
+import { indexHtmlTemplate, packageJsonTemplate, tsconfigTemplate, unoConfigTemplate, viteConfigTemplate } from '@/util/export-templates'
 
-// Excluded so the template version below wins over the playground's runtime sandbox config.
-const EXCLUDED_FILES = new Set(['src/uno.config.ts'])
+// REPL infrastructure files; the template versions (or no version at all) win.
+const EXCLUDED_FILES = new Set([
+  'import-map.json',
+  'src/uno.config.ts',
+  'tsconfig.json',
+])
 
 interface GenerateProjectFilesOptions {
   files: Record<string, string>
@@ -15,6 +19,7 @@ function generateProjectFiles ({ files, importMap }: GenerateProjectFilesOptions
     'index.html': indexHtmlTemplate,
     'package.json': JSON.stringify(packageJson, null, 2),
     'src/uno.config.ts': unoConfigTemplate,
+    'tsconfig.json': tsconfigTemplate,
     'vite.config.ts': viteConfigTemplate,
   }
 
