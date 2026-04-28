@@ -1,6 +1,6 @@
 {
   "name": "@vuetify/paper",
-  "version": "1.0.0-alpha.1",
+  "version": "1.0.0-alpha.2",
   "description": "Vuetify Paper",
   "license": "MIT",
   "types": "./dist/index.d.mts",
