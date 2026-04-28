@@ -15,7 +15,7 @@
 
     <div>
       <button
-        class="px-3 py-1.5 text-xs font-medium rounded bg-primary text-on-primary hover:opacity-90 transition-opacity cursor-pointer"
+        class="px-3 py-1.5 rounded text-xs font-medium bg-primary text-on-primary"
         type="button"
         @click="downloadProject"
       >
