@@ -49,8 +49,18 @@ Headless responsive truncation primitive. Children render until the container ru
 ## Anatomy
 
 ```vue playground collapse
+<script setup lang="ts">
+  import { Overflow } from '@vuetify/v0'
+
+  const items = [
+    { id: 1, label: 'One' },
+    { id: 2, label: 'Two' },
+    { id: 3, label: 'Three' },
+  ]
+</script>
+
 <template>
-  <Overflow.Root>
+  <Overflow.Root class="flex gap-2 overflow-hidden">
     <Overflow.Item v-for="item in items" :key="item.id" :value="item">
       {{ item.label }}
     </Overflow.Item>
@@ -113,7 +123,9 @@ This is the same pattern used by GitHub's repo language list and Linear's projec
 
 ### priority="end" for trailing-priority lists
 
-When the latest items matter most — chat reactions, recent activity, message lists — `priority="end"` flips the behavior: leading items hide first and the indicator naturally renders at the start. Visual order is preserved (DOM order = display order), only visibility flips.
+When the latest items matter most — chat reactions, recent activity, message lists — `priority="end"` flips the behavior: leading items hide first and the indicator naturally renders at the start. Visual order is preserved (DOM order = display order); only visibility flips.
+
+Place the `Overflow.Indicator` first in source order so it renders to the left of the visible items. One tradeoff to keep in mind: the indicator's `aria-live="polite"` region announces before the items it summarizes, so screen-reader users hear "+3 earlier" *before* the most recent entries. That's usually correct for the "show me what's new, but tell me how much I missed" reading model — but if your use case needs the items announced first, prefer `priority="start"` and place the indicator at the end. For breadcrumb-style "first + last, hide middle" bisecting, reach for [Breadcrumbs](/components/semantic/breadcrumbs) instead — `Overflow` is deliberately one-sided.
 
 | File | Role |
 |------|------|
