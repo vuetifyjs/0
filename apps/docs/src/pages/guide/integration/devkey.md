@@ -1,5 +1,6 @@
 ---
 title: Devkey - Example Vuetify0 Starter Project
+logo: devkey
 meta:
   - name: description
     content: Devkey is the reference Vuetify0 starter project. Vue 3, Vite, TypeScript, UnoCSS, and @vuetify/v0 scaffolded with the Vuetify CLI as the canonical Alpha example.
