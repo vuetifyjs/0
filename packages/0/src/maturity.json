@@ -260,18 +260,6 @@
       "since": "0.1.0",
       "category": "transformers"
     },
-    "createObserver": {
-      "level": "draft",
-      "since": "0.1.0",
-      "category": "internal",
-      "notes": "Internal factory for observer composables"
-    },
-    "createFocusTraversal": {
-      "level": "draft",
-      "since": "0.1.8",
-      "category": "internal",
-      "notes": "Internal factory for useRovingFocus and useVirtualFocus"
-    },
     "createValidation": {
       "level": "preview",
       "since": "0.1.8",
@@ -521,7 +509,7 @@
       "category": "semantic"
     },
     "Progress": {
-      "level": "draft",
+      "level": "preview",
       "category": "semantic"
     },
     "Splitter": {
@@ -544,7 +532,7 @@
     },
     "Tour": {
       "level": "draft",
-      "category": "specialty"
+      "category": "disclosure"
     }
   },
   "utilities": {

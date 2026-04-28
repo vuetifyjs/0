@@ -73,7 +73,7 @@ pnpm build:docs      # Docs build (validates pages, examples, nav)
 
 ## Categories
 
-**Components** [intent:249]: `primitives`, `providers`, `actions`, `forms`, `disclosure`, `semantic`
+**Components** [intent:249]: `primitives`, `providers`, `actions`, `forms`, `disclosure`, `data`, `semantic`
 
 **Composables** [intent:250]: `foundation`, `registration`, `selection`, `forms`, `data`, `plugins`, `system`, `reactivity`, `transformers`, `utilities`, `semantic`
 
