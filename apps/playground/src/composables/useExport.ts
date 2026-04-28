@@ -11,8 +11,8 @@ export function useExport () {
   async function downloadProject () {
     const store = playground.store
     const files: Record<string, string> = {}
-    for (const [path, file] of Object.entries(store.files)) {
-      files[path] = file.code
+    for (const path of Object.keys(store.files)) {
+      files[path] = store.files[path]!.code
     }
 
     const exportFiles = generateProjectFiles({
