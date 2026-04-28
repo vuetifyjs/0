@@ -6,7 +6,6 @@
 // biome-ignore lint: disable
 export {}
 declare global {
-  const COMMON_ELEMENTS: typeof import('../../packages/0/src/constants/htmlElements').COMMON_ELEMENTS
   const ClientAdapter: typeof import('../../packages/0/src/composables/createDataTable/index').ClientAdapter
   const ComboboxClientAdapter: typeof import('../../packages/0/src/composables/createCombobox/index').ComboboxClientAdapter
   const ComboboxServerAdapter: typeof import('../../packages/0/src/composables/createCombobox/index').ComboboxServerAdapter
@@ -16,13 +15,10 @@ declare global {
   const DataTableAdapter: typeof import('../../packages/0/src/composables/createDataTable/index').DataTableAdapter
   const EffectScope: typeof import('vue').EffectScope
   const FeaturesAdapter: typeof import('../../packages/0/src/composables/useFeatures/index').FeaturesAdapter
-  const FlagsmithFeatureAdapter: typeof import('../../packages/0/src/composables/useFeatures/index').FlagsmithFeatureAdapter
   const IN_BROWSER: typeof import('../../packages/0/src/constants/globals').IN_BROWSER
-  const LaunchDarklyFeatureAdapter: typeof import('../../packages/0/src/composables/useFeatures/index').LaunchDarklyFeatureAdapter
   const MemoryAdapter: typeof import('../../packages/0/src/composables/useStorage/index').MemoryAdapter
   const PermissionAdapter: typeof import('../../packages/0/src/composables/usePermissions/index').PermissionAdapter
   const PinoLoggerAdapter: typeof import('../../packages/0/src/composables/useLogger/index').PinoLoggerAdapter
-  const PostHogFeatureAdapter: typeof import('../../packages/0/src/composables/useFeatures/index').PostHogFeatureAdapter
   const SELF_CLOSING_TAGS: typeof import('../../packages/0/src/constants/htmlElements').SELF_CLOSING_TAGS
   const SUPPORTS_INTERSECTION_OBSERVER: typeof import('../../packages/0/src/constants/globals').SUPPORTS_INTERSECTION_OBSERVER
   const SUPPORTS_MATCH_MEDIA: typeof import('../../packages/0/src/constants/globals').SUPPORTS_MATCH_MEDIA
@@ -30,16 +26,13 @@ declare global {
   const SUPPORTS_OBSERVER: typeof import('../../packages/0/src/constants/globals').SUPPORTS_OBSERVER
   const SUPPORTS_TOUCH: typeof import('../../packages/0/src/constants/globals').SUPPORTS_TOUCH
   const ServerAdapter: typeof import('../../packages/0/src/composables/createDataTable/index').ServerAdapter
-  const TemporalDateAdapter: typeof import('../../packages/0/src/composables/useDate/index').TemporalDateAdapter
   const V0StyleSheetThemeAdapter: typeof import('../../packages/0/src/composables/useTheme/index').V0StyleSheetThemeAdapter
   const V0UnheadThemeAdapter: typeof import('../../packages/0/src/composables/useTheme/index').V0UnheadThemeAdapter
   const V0_ELEVATION_KEY: typeof import('../../packages/paper/src/composables/useElevation/index').V0_ELEVATION_KEY
   const VirtualAdapter: typeof import('../../packages/0/src/composables/createDataTable/index').VirtualAdapter
-  const Vuetify0DateAdapter: typeof import('../../packages/0/src/composables/useDate/index').Vuetify0DateAdapter
   const Vuetify0LocaleAdapter: typeof import('../../packages/0/src/composables/useLocale/index').Vuetify0LocaleAdapter
   const Vuetify0LoggerAdapter: typeof import('../../packages/0/src/composables/useLogger/index').Vuetify0LoggerAdapter
   const Vuetify0RtlAdapter: typeof import('../../packages/0/src/composables/useRtl/index').Vuetify0RtlAdapter
-  const Vuetify0ThemeAdapter: typeof import('../../packages/0/src/composables/useTheme/index').Vuetify0ThemeAdapter
   const __LOGGER_ENABLED__: typeof import('../../packages/0/src/constants/globals').__LOGGER_ENABLED__
   const apca: typeof import('../../packages/0/src/utilities/apca').apca
   const clamp: typeof import('../../packages/0/src/utilities/helpers').clamp
@@ -58,7 +51,6 @@ declare global {
   const createDataTableContext: typeof import('../../packages/0/src/composables/createDataTable/index').createDataTableContext
   const createDate: typeof import('../../packages/0/src/composables/useDate/index').createDate
   const createDateContext: typeof import('../../packages/0/src/composables/useDate/index').createDateContext
-  const createDateFallback: typeof import('../../packages/0/src/composables/useDate/index').createDateFallback
   const createDatePlugin: typeof import('../../packages/0/src/composables/useDate/index').createDatePlugin
   const createElevation: typeof import('../../packages/paper/src/composables/useElevation/index').createElevation
   const createFallbackHydration: typeof import('../../packages/0/src/composables/useHydration/index').createFallbackHydration
@@ -140,17 +132,13 @@ declare global {
   const createVirtual: typeof import('../../packages/0/src/composables/createVirtual/index').createVirtual
   const createVirtualContext: typeof import('../../packages/0/src/composables/createVirtual/index').createVirtualContext
   const customRef: typeof import('vue').customRef
-  const debounce: typeof import('../../packages/0/src/utilities/helpers').debounce
-  const defaultElevationGenerator: typeof import('../../packages/paper/src/composables/useElevation/index').defaultElevationGenerator
   const defineAsyncComponent: typeof import('vue').defineAsyncComponent
   const defineComponent: typeof import('vue').defineComponent
   const effectScope: typeof import('vue').effectScope
   const extractLeaves: typeof import('../../packages/0/src/composables/createDataTable/index').extractLeaves
   const flatten: typeof import('../../packages/0/src/composables/createTokens/index').flatten
   const foreground: typeof import('../../packages/0/src/utilities/apca').foreground
-  const genId: typeof import('../../packages/0/src/utilities/helpers').genId
   const getCurrentInstance: typeof import('vue').getCurrentInstance
-  const getCurrentInstanceName: typeof import('../../packages/paper/src/utilities/getCurrentInstanceName').getCurrentInstanceName
   const getCurrentScope: typeof import('vue').getCurrentScope
   const getCurrentWatcher: typeof import('vue').getCurrentWatcher
   const h: typeof import('vue').h
@@ -182,7 +170,6 @@ declare global {
   const isUndefined: typeof import('../../packages/0/src/utilities/helpers').isUndefined
   const markRaw: typeof import('vue').markRaw
   const mergeDeep: typeof import('../../packages/0/src/utilities/helpers').mergeDeep
-  const multipleOpenStrategy: typeof import('../../packages/0/src/composables/createNested/index').multipleOpenStrategy
   const nextTick: typeof import('vue').nextTick
   const onActivated: typeof import('vue').onActivated
   const onBeforeMount: typeof import('vue').onBeforeMount
@@ -215,7 +202,6 @@ declare global {
   const shallowReactive: typeof import('vue').shallowReactive
   const shallowReadonly: typeof import('vue').shallowReadonly
   const shallowRef: typeof import('vue').shallowRef
-  const singleOpenStrategy: typeof import('../../packages/0/src/composables/createNested/index').singleOpenStrategy
   const toArray: typeof import('../../packages/0/src/composables/toArray/index').toArray
   const toCamelCase: typeof import('../../packages/paper/src/utilities/helpers').toCamelCase
   const toElement: typeof import('../../packages/0/src/composables/toElement/index').toElement
@@ -248,7 +234,6 @@ declare global {
   const useEventListener: typeof import('../../packages/0/src/composables/useEventListener/index').useEventListener
   const useFeatures: typeof import('../../packages/0/src/composables/useFeatures/index').useFeatures
   const useFilter: typeof import('../../packages/0/src/composables/createFilter/index').useFilter
-  const useFilterContext: typeof import('../../packages/0/src/composables/useFilter/index').useFilterContext
   const useForm: typeof import('../../packages/0/src/composables/createForm/index').useForm
   const useGroup: typeof import('../../packages/0/src/composables/createGroup/index').useGroup
   const useHotkey: typeof import('../../packages/0/src/composables/useHotkey/index').useHotkey
@@ -522,7 +507,6 @@ import { UnwrapRef } from 'vue'
 declare module 'vue' {
   interface GlobalComponents {}
   interface ComponentCustomProperties {
-    readonly COMMON_ELEMENTS: UnwrapRef<typeof import('../../packages/0/src/constants/htmlElements')['COMMON_ELEMENTS']>
     readonly ClientAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/createDataTable/index')['ClientAdapter']>
     readonly ComboboxClientAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/createCombobox/index')['ComboboxClientAdapter']>
     readonly ComboboxServerAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/createCombobox/index')['ComboboxServerAdapter']>
@@ -649,7 +633,6 @@ declare module 'vue' {
     readonly createVirtual: UnwrapRef<typeof import('../../packages/0/src/composables/createVirtual/index')['createVirtual']>
     readonly createVirtualContext: UnwrapRef<typeof import('../../packages/0/src/composables/createVirtual/index')['createVirtualContext']>
     readonly customRef: UnwrapRef<typeof import('vue')['customRef']>
-    readonly defaultElevationGenerator: UnwrapRef<typeof import('../../packages/paper/src/composables/useElevation/index')['defaultElevationGenerator']>
     readonly defineAsyncComponent: UnwrapRef<typeof import('vue')['defineAsyncComponent']>
     readonly defineComponent: UnwrapRef<typeof import('vue')['defineComponent']>
     readonly effectScope: UnwrapRef<typeof import('vue')['effectScope']>
@@ -657,7 +640,6 @@ declare module 'vue' {
     readonly flatten: UnwrapRef<typeof import('../../packages/0/src/composables/createTokens/index')['flatten']>
     readonly foreground: UnwrapRef<typeof import('../../packages/0/src/utilities/apca')['foreground']>
     readonly getCurrentInstance: UnwrapRef<typeof import('vue')['getCurrentInstance']>
-    readonly getCurrentInstanceName: UnwrapRef<typeof import('../../packages/paper/src/utilities/getCurrentInstanceName')['getCurrentInstanceName']>
     readonly getCurrentScope: UnwrapRef<typeof import('vue')['getCurrentScope']>
     readonly getCurrentWatcher: UnwrapRef<typeof import('vue')['getCurrentWatcher']>
     readonly h: UnwrapRef<typeof import('vue')['h']>

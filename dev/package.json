@@ -20,6 +20,8 @@
     "vue-router": "catalog:"
   },
   "dependencies": {
+    "@paper/emerald": "workspace:*",
+    "@phosphor-icons/vue": "catalog:",
     "@vuetify/paper": "workspace:*",
     "@vuetify/v0": "workspace:*",
     "vue": "catalog:"

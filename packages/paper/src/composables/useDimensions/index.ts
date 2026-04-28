@@ -1,5 +1,4 @@
 // Utilities
-import { getCurrentInstanceName } from '#paper/utilities/getCurrentInstanceName'
 import { toRef } from 'vue'
 
 export interface DimensionProps {
@@ -11,18 +10,19 @@ export interface DimensionProps {
   minHeight?: string
 }
 
-export function useDimensions (
-  props: DimensionProps,
-  name = getCurrentInstanceName(),
-) {
-  const dimensionStyles = toRef(() => ({
-    [`--v0-${name}-width`]: props.width,
-    [`--v0-${name}-height`]: props.height,
-    [`--v0-${name}-max-width`]: props.maxWidth,
-    [`--v0-${name}-max-height`]: props.maxHeight,
-    [`--v0-${name}-min-width`]: props.minWidth,
-    [`--v0-${name}-min-height`]: props.minHeight,
-  }))
+export function useDimensions (props: DimensionProps) {
+  const dimensionClasses = toRef(() => {
+    const classes: string[] = []
 
-  return { dimensionStyles }
+    if (props.width) classes.push(`w-${props.width}`)
+    if (props.height) classes.push(`h-${props.height}`)
+    if (props.maxWidth) classes.push(`max-w-${props.maxWidth}`)
+    if (props.maxHeight) classes.push(`max-h-${props.maxHeight}`)
+    if (props.minWidth) classes.push(`min-w-${props.minWidth}`)
+    if (props.minHeight) classes.push(`min-h-${props.minHeight}`)
+
+    return classes
+  })
+
+  return { dimensionClasses }
 }
