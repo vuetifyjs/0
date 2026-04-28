@@ -1,5 +1,6 @@
 import { indexHtmlTemplate, packageJsonTemplate, unoConfigTemplate, viteConfigTemplate } from '@/util/export-templates'
 
+// Excluded so the template version below wins over the playground's runtime sandbox config.
 const EXCLUDED_FILES = new Set(['src/uno.config.ts'])
 
 interface GenerateProjectFilesOptions {
@@ -26,7 +27,7 @@ function generateProjectFiles ({ files, importMap }: GenerateProjectFilesOptions
   }
 
   for (const [path, content] of Object.entries(templates)) {
-    if (!projectFiles[path]) {
+    if (!(path in projectFiles)) {
       projectFiles[replaceExtension(path)] = content
     }
   }
