@@ -29,7 +29,8 @@
   ],
   "exclude": [
     "src/**/__tests__/*",
-    "src/util/export-templates/**"
+    "src/util/export-templates/uno.config.ts",
+    "src/util/export-templates/vite.config.ts"
   ],
   "references": [
     { "path": "../../packages/0" }
