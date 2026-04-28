@@ -7,6 +7,12 @@
    * Indicator that renders only when items overflow. Self-measures its own
    * width and writes it back to OverflowRoot so capacity computation can
    * reserve space for the indicator's footprint.
+   *
+   * @remarks
+   * In non-renderless mode, the wrapper carries `data-overflow-indicator`
+   * and `aria-live="polite"`. **Renderless mode** drops the wrapper, so the
+   * slot consumer must spread `slotProps.attrs` onto their own element to
+   * preserve the data hook and live-region semantics.
    */
 
   // Components
