@@ -6,7 +6,7 @@
   import { useOverflowRoot } from './OverflowRoot.vue'
 
   // Utilities
-  import { onBeforeUnmount, onMounted, toRef, useTemplateRef, watch } from 'vue'
+  import { onBeforeUnmount, toRef, useTemplateRef, watch } from 'vue'
 
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
@@ -55,15 +55,12 @@
     disabled: _disabled,
   })
 
-  onMounted(() => {
-    root.overflow.measure(ticket.index, atomRef.value?.element.value ?? undefined)
-  })
-
   watch(
-    () => atomRef.value?.element.value,
-    el => {
-      root.overflow.measure(ticket.index, el ?? undefined)
+    () => atomRef.value?.element,
+    element => {
+      root.overflow.measure(ticket.index, (element as Element | undefined) ?? undefined)
     },
+    { immediate: true },
   )
 
   onBeforeUnmount(() => {
