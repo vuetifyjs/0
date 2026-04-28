@@ -361,4 +361,162 @@ describe('overflow', () => {
       wrapper.unmount()
     })
   })
+
+  describe('priority', () => {
+    it('should hide trailing items when priority="start"', async () => {
+      let rootCtx: OverflowRootContext | undefined
+      const Probe = defineComponent({
+        setup () {
+          rootCtx = useOverflowRoot('test:overflow')
+          return () => null
+        },
+      })
+
+      const wrapper = mount(Overflow.Root, {
+        props: { namespace: 'test:overflow', priority: 'start' },
+        slots: {
+          default: () => [
+            h(Probe),
+            ...Array.from({ length: 3 }, (_, i) => h(
+              Overflow.Item,
+              { key: i, value: i, namespace: 'test:overflow' },
+              { default: () => h('span') },
+            )),
+          ],
+        },
+        attachTo: document.body,
+      })
+
+      await nextTick()
+
+      const realGetComputedStyle = globalThis.getComputedStyle
+      const fakes: HTMLElement[] = []
+      vi.stubGlobal('getComputedStyle', () => ({ marginLeft: '0px', marginRight: '0px' } as CSSStyleDeclaration))
+
+      try {
+        for (let i = 0; i < 3; i++) {
+          const el = document.createElement('div')
+          Object.defineProperty(el, 'offsetWidth', { value: 100 })
+          document.body.append(el)
+          fakes.push(el)
+          rootCtx!.overflow.measure(i, el)
+        }
+        triggerResize(120)
+        await nextTick()
+
+        expect(rootCtx!.isVisible(0)).toBe(true)
+        expect(rootCtx!.isVisible(2)).toBe(false)
+      } finally {
+        vi.stubGlobal('getComputedStyle', realGetComputedStyle)
+        for (const el of fakes) el.remove()
+      }
+
+      wrapper.unmount()
+    })
+
+    it('should hide leading items when priority="end"', async () => {
+      let rootCtx: OverflowRootContext | undefined
+      const Probe = defineComponent({
+        setup () {
+          rootCtx = useOverflowRoot('test:overflow')
+          return () => null
+        },
+      })
+
+      const wrapper = mount(Overflow.Root, {
+        props: { namespace: 'test:overflow', priority: 'end' },
+        slots: {
+          default: () => [
+            h(Probe),
+            ...Array.from({ length: 3 }, (_, i) => h(
+              Overflow.Item,
+              { key: i, value: i, namespace: 'test:overflow' },
+              { default: () => h('span') },
+            )),
+          ],
+        },
+        attachTo: document.body,
+      })
+
+      await nextTick()
+
+      const realGetComputedStyle = globalThis.getComputedStyle
+      const fakes: HTMLElement[] = []
+      vi.stubGlobal('getComputedStyle', () => ({ marginLeft: '0px', marginRight: '0px' } as CSSStyleDeclaration))
+
+      try {
+        for (let i = 0; i < 3; i++) {
+          const el = document.createElement('div')
+          Object.defineProperty(el, 'offsetWidth', { value: 100 })
+          document.body.append(el)
+          fakes.push(el)
+          rootCtx!.overflow.measure(i, el)
+        }
+        triggerResize(120)
+        await nextTick()
+
+        expect(rootCtx!.isVisible(0)).toBe(false)
+        expect(rootCtx!.isVisible(2)).toBe(true)
+      } finally {
+        vi.stubGlobal('getComputedStyle', realGetComputedStyle)
+        for (const el of fakes) el.remove()
+      }
+
+      wrapper.unmount()
+    })
+  })
+
+  describe('disabled root', () => {
+    it('should treat all items as visible when Root.disabled=true', async () => {
+      let rootCtx: OverflowRootContext | undefined
+      const Probe = defineComponent({
+        setup () {
+          rootCtx = useOverflowRoot('test:overflow')
+          return () => null
+        },
+      })
+
+      const wrapper = mount(Overflow.Root, {
+        props: { namespace: 'test:overflow', disabled: true },
+        slots: {
+          default: () => [
+            h(Probe),
+            ...Array.from({ length: 3 }, (_, i) => h(
+              Overflow.Item,
+              { key: i, value: i, namespace: 'test:overflow' },
+              { default: () => h('span') },
+            )),
+          ],
+        },
+        attachTo: document.body,
+      })
+
+      await nextTick()
+
+      const realGetComputedStyle = globalThis.getComputedStyle
+      const fakes: HTMLElement[] = []
+      vi.stubGlobal('getComputedStyle', () => ({ marginLeft: '0px', marginRight: '0px' } as CSSStyleDeclaration))
+
+      try {
+        for (let i = 0; i < 3; i++) {
+          const el = document.createElement('div')
+          Object.defineProperty(el, 'offsetWidth', { value: 100 })
+          document.body.append(el)
+          fakes.push(el)
+          rootCtx!.overflow.measure(i, el)
+        }
+        triggerResize(50)
+        await nextTick()
+
+        for (let i = 0; i < 3; i++) {
+          expect(rootCtx!.isVisible(i)).toBe(true)
+        }
+      } finally {
+        vi.stubGlobal('getComputedStyle', realGetComputedStyle)
+        for (const el of fakes) el.remove()
+      }
+
+      wrapper.unmount()
+    })
+  })
 })
