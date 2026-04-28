@@ -2,6 +2,7 @@
   // Components
   import AppCloseButton from '@/components/app/AppCloseButton.vue'
   import AppIcon from '@/components/app/AppIcon.vue'
+  import PlaygroundSettingsExport from './PlaygroundSettingsExport.vue'
   import PlaygroundSettingsPresets from './PlaygroundSettingsPresets.vue'
   import PlaygroundSettingsVersions from './PlaygroundSettingsVersions.vue'
 
@@ -23,7 +24,7 @@
   const sections: Section[] = [
     { id: 'versions', label: 'Versions', icon: 'tags', component: PlaygroundSettingsVersions, available: true },
     { id: 'presets', label: 'Presets', icon: 'layers', component: PlaygroundSettingsPresets, available: true },
-    { id: 'export', label: 'Export', icon: 'download', component: null, available: false },
+    { id: 'export', label: 'Export', icon: 'download', component: PlaygroundSettingsExport, available: true },
   ]
 
   const current = toRef(() => sections.find(s => s.id === active.value))
