@@ -8,7 +8,7 @@
   import { createRegistry } from '#v0/composables/createRegistry'
 
   // Utilities
-  import { shallowRef, toRef, useTemplateRef } from 'vue'
+  import { shallowRef, toRef, toValue, useTemplateRef } from 'vue'
 
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
@@ -71,6 +71,8 @@
 
   function isVisible (index: number): boolean {
     if (disabled) return true
+    const ticket = registry.values()[index]
+    if (ticket && toValue(ticket.disabled)) return true
     const cap = overflow.capacity.value
     if (cap === Infinity) return true
     if (priority === 'end') {

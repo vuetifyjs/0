@@ -71,9 +71,13 @@
   })
 
   watch(
-    () => atomRef.value?.element,
-    element => {
-      root.overflow.measure(ticket.index, (element as Element | undefined) ?? undefined)
+    () => [_disabled.value, atomRef.value?.element] as const,
+    ([isDisabled, element]) => {
+      if (isDisabled) {
+        root.overflow.measure(ticket.index, undefined)
+      } else {
+        root.overflow.measure(ticket.index, (element as Element | undefined) ?? undefined)
+      }
     },
     { immediate: true },
   )

@@ -255,6 +255,68 @@ describe('overflow', () => {
       expect(captured!.isVisible).toBe(true)
       expect(captured!.isHidden).toBe(false)
     })
+
+    it('should exempt disabled items from capacity math', async () => {
+      let rootCtx: OverflowRootContext | undefined
+      const Probe = defineComponent({
+        setup () {
+          rootCtx = useOverflowRoot('test:overflow')
+          return () => null
+        },
+      })
+
+      const wrapper = mount(Overflow.Root, {
+        props: { namespace: 'test:overflow', priority: 'start' },
+        slots: {
+          default: () => [
+            h(Probe),
+            h(
+              Overflow.Item,
+              { key: 0, value: 0, namespace: 'test:overflow' },
+              { default: () => h('span') },
+            ),
+            h(
+              Overflow.Item,
+              { key: 1, value: 1, disabled: true, namespace: 'test:overflow' },
+              { default: () => h('span') },
+            ),
+            h(
+              Overflow.Item,
+              { key: 2, value: 2, namespace: 'test:overflow' },
+              { default: () => h('span') },
+            ),
+          ],
+        },
+        attachTo: document.body,
+      })
+
+      await nextTick()
+
+      const realGetComputedStyle = globalThis.getComputedStyle
+      const fakes: HTMLElement[] = []
+      vi.stubGlobal('getComputedStyle', () => ({ marginLeft: '0px', marginRight: '0px' } as CSSStyleDeclaration))
+
+      try {
+        for (const i of [0, 2]) {
+          const el = document.createElement('div')
+          Object.defineProperty(el, 'offsetWidth', { value: 100 })
+          document.body.append(el)
+          fakes.push(el)
+          rootCtx!.overflow.measure(i, el)
+        }
+        triggerResize(120)
+        await nextTick()
+
+        expect(rootCtx!.isVisible(0)).toBe(true)
+        expect(rootCtx!.isVisible(1)).toBe(true)
+        expect(rootCtx!.isVisible(2)).toBe(false)
+      } finally {
+        vi.stubGlobal('getComputedStyle', realGetComputedStyle)
+        for (const el of fakes) el.remove()
+      }
+
+      wrapper.unmount()
+    })
   })
 
   describe('indicator', () => {
@@ -358,6 +420,79 @@ describe('overflow', () => {
       expect(Array.isArray(captured!.hidden)).toBe(true)
       expect(captured!.attrs['aria-live']).toBe('polite')
       expect(captured!.attrs['data-overflow-indicator']).toBe('true')
+      wrapper.unmount()
+    })
+
+    it('should not count disabled items as hidden', async () => {
+      let captured: OverflowIndicatorSlotProps | undefined
+      let rootCtx: OverflowRootContext | undefined
+      const Probe = defineComponent({
+        setup () {
+          rootCtx = useOverflowRoot('test:overflow')
+          return () => null
+        },
+      })
+
+      const wrapper = mount(Overflow.Root, {
+        props: { namespace: 'test:overflow', priority: 'start' },
+        slots: {
+          default: () => [
+            h(Probe),
+            h(
+              Overflow.Item,
+              { key: 0, value: 0, namespace: 'test:overflow' },
+              { default: () => h('span') },
+            ),
+            h(
+              Overflow.Item,
+              { key: 1, value: 1, disabled: true, namespace: 'test:overflow' },
+              { default: () => h('span') },
+            ),
+            h(
+              Overflow.Item,
+              { key: 2, value: 2, namespace: 'test:overflow' },
+              { default: () => h('span') },
+            ),
+            h(
+              Overflow.Indicator,
+              { namespace: 'test:overflow' },
+              {
+                default: (props: OverflowIndicatorSlotProps) => {
+                  captured = props
+                  return h('span', { class: 'badge' }, `+${props.count}`)
+                },
+              },
+            ),
+          ],
+        },
+        attachTo: document.body,
+      })
+
+      await nextTick()
+
+      const realGetComputedStyle = globalThis.getComputedStyle
+      const fakes: HTMLElement[] = []
+      vi.stubGlobal('getComputedStyle', () => ({ marginLeft: '0px', marginRight: '0px' } as CSSStyleDeclaration))
+
+      try {
+        for (const i of [0, 2]) {
+          const el = document.createElement('div')
+          Object.defineProperty(el, 'offsetWidth', { value: 100 })
+          document.body.append(el)
+          fakes.push(el)
+          rootCtx!.overflow.measure(i, el)
+        }
+        triggerResize(120)
+        await nextTick()
+        await nextTick()
+
+        expect(captured!.count).toBe(1)
+        expect(captured!.hidden.length).toBe(1)
+      } finally {
+        vi.stubGlobal('getComputedStyle', realGetComputedStyle)
+        for (const el of fakes) el.remove()
+      }
+
       wrapper.unmount()
     })
   })
