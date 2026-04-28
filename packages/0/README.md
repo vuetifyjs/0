@@ -140,6 +140,7 @@ import { ... } from '@vuetify/v0/date'       // Date adapter and utilities
 | [Breadcrumbs](https://0.vuetifyjs.com/components/semantic/breadcrumbs) | Navigation breadcrumbs with overflow detection and truncation |
 | [Carousel](https://0.vuetifyjs.com/components/semantic/carousel) | Scroll-snap slide navigation with multi-slide display and drag/swipe |
 | [Image](https://0.vuetifyjs.com/components/semantic/image) | Image with placeholder, error fallback, and lazy loading |
+| [Overflow](https://0.vuetifyjs.com/components/semantic/overflow) | Responsive truncation primitive with overflow detection and indicator |
 | [Pagination](https://0.vuetifyjs.com/components/semantic/pagination) | Page navigation with semantic `<nav>` wrapper |
 | [Snackbar](https://0.vuetifyjs.com/components/semantic/snackbar) | Toast notification with queue, positioning, and auto-dismiss |
 | [Splitter](https://0.vuetifyjs.com/components/semantic/splitter) | Resizable panel layout with drag handles |
