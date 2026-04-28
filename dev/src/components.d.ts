@@ -186,6 +186,7 @@ declare module 'vue' {
     EmStepper: typeof import('./../../packages/emerald/src/components/EmStepper/EmStepper.vue')['default']
     EmStepperItem: typeof import('./../../packages/emerald/src/components/EmStepper/EmStepperItem.vue')['default']
     EmStepperLabel: typeof import('./../../packages/emerald/src/components/EmStepper/EmStepperLabel.vue')['default']
+    EmStepperLabelDescription: typeof import('./../../packages/emerald/src/components/EmStepper/EmStepperLabelDescription.vue')['default']
     EmStepperSeparator: typeof import('./../../packages/emerald/src/components/EmStepper/EmStepperSeparator.vue')['default']
     EmSwitch: typeof import('./../../packages/emerald/src/components/EmSwitch/EmSwitch.vue')['default']
     EmSwitchGroup: typeof import('./../../packages/emerald/src/components/EmSwitch/EmSwitchGroup.vue')['default']

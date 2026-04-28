@@ -161,6 +161,8 @@
 
     <section>
       <h2>Avatar</h2>
+
+      <p class="muted">Image</p>
       <div class="row">
         <EmAvatar size="sm">
           <EmAvatarImage alt="Small avatar" src="https://i.pravatar.cc/80?img=32" />
@@ -174,6 +176,10 @@
           <EmAvatarImage alt="Large avatar" src="https://i.pravatar.cc/96?img=47" />
           <EmAvatarFallback>LG</EmAvatarFallback>
         </EmAvatar>
+      </div>
+
+      <p class="muted">Text (initials)</p>
+      <div class="row">
         <EmAvatar size="sm">
           <EmAvatarFallback>AB</EmAvatarFallback>
         </EmAvatar>
@@ -183,11 +189,46 @@
         <EmAvatar size="lg">
           <EmAvatarFallback>EF</EmAvatarFallback>
         </EmAvatar>
-        <EmAvatar size="lg">
+      </div>
+
+      <p class="muted">Icon</p>
+      <div class="row">
+        <EmAvatar size="sm">
           <EmAvatarFallback>
-            <PhUser :size="24" weight="duotone" />
+            <PhUser :size="16" weight="regular" />
           </EmAvatarFallback>
         </EmAvatar>
+        <EmAvatar size="md">
+          <EmAvatarFallback>
+            <PhUser :size="20" weight="regular" />
+          </EmAvatarFallback>
+        </EmAvatar>
+        <EmAvatar size="lg">
+          <EmAvatarFallback>
+            <PhUser :size="24" weight="regular" />
+          </EmAvatarFallback>
+        </EmAvatar>
+      </div>
+
+      <p class="muted">Group</p>
+      <div class="row">
+        <div class="emerald-avatar-group">
+          <EmAvatar size="md">
+            <EmAvatarImage alt="Member 1" src="https://i.pravatar.cc/80?img=12" />
+            <EmAvatarFallback>JD</EmAvatarFallback>
+          </EmAvatar>
+          <EmAvatar size="md">
+            <EmAvatarImage alt="Member 2" src="https://i.pravatar.cc/80?img=32" />
+            <EmAvatarFallback>SM</EmAvatarFallback>
+          </EmAvatar>
+          <EmAvatar size="md">
+            <EmAvatarImage alt="Member 3" src="https://i.pravatar.cc/80?img=47" />
+            <EmAvatarFallback>LG</EmAvatarFallback>
+          </EmAvatar>
+          <EmAvatar size="md">
+            <EmAvatarFallback>+3</EmAvatarFallback>
+          </EmAvatar>
+        </div>
       </div>
     </section>
 
@@ -328,26 +369,6 @@
         </EmTag>
         <EmTag variant="info">
           <PhCheckCircle :size="16" weight="fill" />
-          chip text
-        </EmTag>
-      </div>
-
-      <p class="muted">Bold icon weight — alternate icon style</p>
-      <div class="row">
-        <EmTag variant="neutral">
-          <PhCheckCircle :size="16" weight="bold" />
-          chip text
-        </EmTag>
-        <EmTag variant="primary">
-          <PhCheckCircle :size="16" weight="bold" />
-          chip text
-        </EmTag>
-        <EmTag variant="success">
-          <PhCheckCircle :size="16" weight="bold" />
-          chip text
-        </EmTag>
-        <EmTag variant="error">
-          <PhX :size="16" weight="bold" />
           chip text
         </EmTag>
       </div>
@@ -929,7 +950,7 @@
           <EmAutoCompleteInput placeholder="Search your framework" />
           <PhCaretDown :size="14" weight="duotone" />
         </EmAutoCompleteControl>
-        <EmAutoCompleteContent>
+        <EmAutoCompleteContent eager>
           <EmAutoCompleteItem :value="'vuetify'">Vuetify</EmAutoCompleteItem>
           <EmAutoCompleteItem :value="'vue'">Vue</EmAutoCompleteItem>
           <EmAutoCompleteItem :value="'primevue'">Prime Vue</EmAutoCompleteItem>
@@ -940,6 +961,7 @@
 
     <section>
       <h2>DatePicker</h2>
+      <p class="muted">Visual scaffold only — replaces with the new DatePicker once v0 ships a calendar primitive (createCalendar / useDate-backed root).</p>
       <EmDatePicker v-model="datePickerValue">
         <EmDatePickerCalendar>
           <EmDatePickerHeader>
@@ -970,8 +992,9 @@
       <h2>Upload</h2>
       <EmUpload v-model="uploadFiles" multiple style="width: 420px;">
         <EmUploadDropzone>
-          <PhFileArrowUp :size="16" weight="duotone" />
-          <span>Drag and Drop your files</span>
+          <PhFileArrowUp :size="28" weight="regular" />
+          <strong>Drag and drop your files</strong>
+          <span class="muted" style="margin: 0;">or click to browse</span>
         </EmUploadDropzone>
       </EmUpload>
     </section>
@@ -1016,7 +1039,7 @@
       <div class="stack" style="max-width: 520px;">
         <EmAlert>
           <EmAlertIcon>
-            <PhInfo :size="24" weight="duotone" />
+            <PhInfo :size="24" weight="regular" />
           </EmAlertIcon>
           <EmAlertBody>
             <EmAlertTitle>Alert Title</EmAlertTitle>
@@ -1025,7 +1048,7 @@
         </EmAlert>
         <EmAlert variant="error">
           <EmAlertIcon>
-            <PhXCircle :size="24" weight="duotone" />
+            <PhXCircle :size="24" weight="regular" />
           </EmAlertIcon>
           <EmAlertBody>
             <EmAlertTitle>Error Alert</EmAlertTitle>
@@ -1034,7 +1057,7 @@
         </EmAlert>
         <EmAlert variant="success">
           <EmAlertIcon>
-            <PhCheckCircle :size="24" weight="duotone" />
+            <PhCheckCircle :size="24" weight="regular" />
           </EmAlertIcon>
           <EmAlertBody>
             <EmAlertTitle>Success Alert</EmAlertTitle>
@@ -1043,7 +1066,7 @@
         </EmAlert>
         <EmAlert variant="info">
           <EmAlertIcon>
-            <PhInfo :size="24" weight="duotone" />
+            <PhInfo :size="24" weight="regular" />
           </EmAlertIcon>
           <EmAlertBody>
             <EmAlertTitle>Info Alert</EmAlertTitle>
@@ -1052,7 +1075,7 @@
         </EmAlert>
         <EmAlert variant="warning">
           <EmAlertIcon>
-            <PhWarning :size="24" weight="duotone" />
+            <PhWarning :size="24" weight="regular" />
           </EmAlertIcon>
           <EmAlertBody>
             <EmAlertTitle>Warning Alert</EmAlertTitle>
@@ -1061,7 +1084,7 @@
         </EmAlert>
         <EmAlert variant="neutral">
           <EmAlertIcon>
-            <PhAirplaneTilt :size="24" weight="duotone" />
+            <PhAirplaneTilt :size="24" weight="regular" />
           </EmAlertIcon>
           <EmAlertBody>
             <EmAlertTitle>Alert</EmAlertTitle>
@@ -1184,12 +1207,12 @@
 
     <section>
       <h2>Tooltip</h2>
-      <EmTooltip :model-value="true">
+      <EmTooltip>
         <EmTooltipContent position-area="top">
           Hello, I'm Tooltip
         </EmTooltipContent>
         <EmTooltipActivator>
-          <EmButton>Open Tooltip</EmButton>
+          <EmButton>Hover for tooltip</EmButton>
         </EmTooltipActivator>
       </EmTooltip>
     </section>
@@ -1229,7 +1252,8 @@
 
     <section>
       <h2>Table</h2>
-      <EmTable style="max-width: 760px;">
+      <p class="muted">Default — sortable headers, selected row, status cells</p>
+      <EmTable>
         <EmTableHead>
           <EmTableRow>
             <EmTableHeader sort="none" sortable>
@@ -1292,6 +1316,53 @@
             <EmTableCell>COO</EmTableCell>
             <EmTableCell>coo10@gmail.com</EmTableCell>
             <EmTableCell align="end">555-098-7654</EmTableCell>
+          </EmTableRow>
+        </EmTableBody>
+      </EmTable>
+
+      <p class="muted" style="margin-top: 1.5rem;">Compact — fewer columns, no border</p>
+      <EmTable :bordered="false">
+        <EmTableHead>
+          <EmTableRow>
+            <EmTableHeader>Plan</EmTableHeader>
+            <EmTableHeader>Status</EmTableHeader>
+            <EmTableHeader align="end">Seats</EmTableHeader>
+            <EmTableHeader align="end">MRR</EmTableHeader>
+          </EmTableRow>
+        </EmTableHead>
+        <EmTableBody>
+          <EmTableRow>
+            <EmTableCell>Starter</EmTableCell>
+            <EmTableCell>
+              <EmTag tone="tinted" variant="success">
+                <PhCheckCircle :size="14" weight="fill" />
+                active
+              </EmTag>
+            </EmTableCell>
+            <EmTableCell align="end">12</EmTableCell>
+            <EmTableCell align="end">$120</EmTableCell>
+          </EmTableRow>
+          <EmTableRow>
+            <EmTableCell>Pro</EmTableCell>
+            <EmTableCell>
+              <EmTag tone="tinted" variant="warning">
+                <PhWarning :size="14" weight="fill" />
+                trial
+              </EmTag>
+            </EmTableCell>
+            <EmTableCell align="end">48</EmTableCell>
+            <EmTableCell align="end">$960</EmTableCell>
+          </EmTableRow>
+          <EmTableRow>
+            <EmTableCell>Enterprise</EmTableCell>
+            <EmTableCell>
+              <EmTag tone="tinted" variant="error">
+                <PhXCircle :size="14" weight="fill" />
+                churned
+              </EmTag>
+            </EmTableCell>
+            <EmTableCell align="end">120</EmTableCell>
+            <EmTableCell align="end">—</EmTableCell>
           </EmTableRow>
         </EmTableBody>
       </EmTable>
@@ -1446,6 +1517,25 @@
     color: #fff;
     font-weight: 600;
     font-size: 1.25rem;
+  }
+
+  .emerald-avatar-group {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .emerald-avatar-group > :deep(.emerald-avatar) {
+    box-shadow: 0 0 0 2px var(--emerald-background, #faf9ff);
+  }
+
+  .emerald-avatar-group > :deep(.emerald-avatar) + :deep(.emerald-avatar) {
+    margin-left: -10px;
+  }
+
+  .muted {
+    margin: 0.5rem 0 0.25rem;
+    font-size: 0.75rem;
+    color: var(--emerald-neutral-500);
   }
 
   :deep(.sink-carousel-slide) {
