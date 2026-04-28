@@ -34,10 +34,9 @@
   box-sizing: border-box;
   width: 20px;
   height: 20px;
-  border: 1px solid rgb(var(--emerald-neutral-channels, 26 28 30) / 0.2);
+  border: 1px solid rgb(var(--emerald-neutral-channels, 26 28 30) / 0.25);
   border-radius: 50%;
-  background: var(--emerald-background, #ffffff);
-  box-shadow: 0 1px 2px 0 rgba(5, 0, 18, 0.05);
+  background: transparent;
   transition:
     background-color 120ms ease,
     border-color 120ms ease,
@@ -56,24 +55,25 @@
 }
 
 .emerald-radio:hover .emerald-radio__box[data-state="unchecked"]:not([data-disabled]) {
-  background: var(--emerald-primary-50, #f5f3ff);
-  box-shadow: 0 1px 2px 0 rgba(5, 0, 18, 0.1);
+  border-color: rgb(var(--emerald-primary-500-channels, 124 92 246) / 0.5);
 }
 
 .emerald-radio__box[data-state="checked"] {
-  border-color: var(--emerald-primary-500, #7c5cf6);
+  border: 2px solid var(--emerald-primary-500, #7c5cf6);
 }
 
 .emerald-radio:hover .emerald-radio__box[data-state="checked"]:not([data-disabled]) {
-  background: var(--emerald-primary-50, #f5f3ff);
-  border-color: var(--emerald-primary-600, #5f3aed);
-  box-shadow: 0 1px 2px 0 rgba(5, 0, 18, 0.1);
+  border-color: var(--emerald-primary-700, #5f3aed);
 }
 
 .emerald-radio__box[data-disabled] {
-  background: rgb(var(--emerald-neutral-channels, 26 28 30) / 0.1);
-  border-color: rgb(var(--emerald-neutral-channels, 26 28 30) / 0.2);
+  background: transparent;
+  border-color: rgb(var(--emerald-neutral-channels, 26 28 30) / 0.15);
   box-shadow: none;
+}
+
+.emerald-radio__box[data-disabled][data-state="checked"] {
+  border-color: rgb(var(--emerald-neutral-channels, 26 28 30) / 0.25);
 }
 
 .emerald-radio__indicator {
@@ -106,6 +106,6 @@
 }
 
 .emerald-radio__box[data-disabled] .emerald-radio__dot {
-  background: rgb(var(--emerald-neutral-channels, 26 28 30) / 0.45);
+  background: rgb(var(--emerald-neutral-channels, 26 28 30) / 0.3);
 }
 </style>

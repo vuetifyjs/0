@@ -8,9 +8,7 @@
 
 <template>
   <span class="emerald-stepper__label">
-    <span class="emerald-stepper__label-title">
-      <slot />
-    </span>
+    <slot />
   </span>
 </template>
 
@@ -19,13 +17,11 @@
   display: inline-flex;
   flex-direction: column;
   align-items: flex-start;
-  line-height: normal;
-}
-
-.emerald-stepper__label-title {
+  gap: 2px;
+  line-height: 1.3;
   font-family: Manrope, system-ui, -apple-system, sans-serif;
   font-weight: 700;
   font-size: 12px;
-  color: var(--emerald-neutral-600);
+  color: var(--emerald-neutral-700, #4b5563);
 }
 </style>

@@ -107,7 +107,6 @@
   padding: 0 4px;
   font-size: 10px;
   font-weight: 700;
-  color: #000;
 }
 
 /* Variants — background color only; border/shadow handled above */
@@ -141,8 +140,8 @@
   color: var(--emerald-neutral-800);
 }
 
-/* Count content keeps black text regardless of variant (per Figma) */
-.emerald-badge[data-shape="count"] {
-  color: #000;
+/* Neutral count keeps darker text since the surface is light. */
+.emerald-badge[data-shape="count"][data-variant="neutral"] {
+  color: var(--emerald-neutral-800);
 }
 </style>

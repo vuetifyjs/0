@@ -1,6 +1,8 @@
 <script lang="ts">
   import { V0Paper } from '@vuetify/paper'
 
+  import EmButtonLoader from './EmButtonLoader.vue'
+
   // Types
   import type { V0PaperProps } from '@vuetify/paper'
 
@@ -53,7 +55,12 @@
     :type="href ? undefined : type"
     @click="onClick"
   >
-    <slot />
+    <span v-if="loading" class="emerald-button__loading">
+      <EmButtonLoader />
+    </span>
+    <span :class="['emerald-button__content', loading && 'emerald-button__content--hidden']">
+      <slot />
+    </span>
   </V0Paper>
 </template>
 
@@ -63,12 +70,15 @@
   align-items: center;
   justify-content: center;
   font-family: Manrope, system-ui, -apple-system, sans-serif;
-  font-weight: 600;
+  font-weight: 500;
   border: none;
   cursor: pointer;
   user-select: none;
   background: var(--emerald-primary-500);
   color: var(--emerald-primary-100);
+  box-shadow:
+    0 1px 2px 0 rgb(var(--emerald-primary-500-channels) / 0.25),
+    0 1px 3px 0 rgb(var(--emerald-primary-500-channels) / 0.18);
   transition: background-color 120ms ease, box-shadow 120ms ease, transform 80ms ease;
 }
 
@@ -100,8 +110,8 @@
   background: var(--emerald-primary-700);
   color: var(--emerald-primary-200);
   box-shadow:
-    0 1px 3px 0 var(--emerald-primary-700),
-    0 1px 5px 0 rgb(var(--emerald-primary-700-channels) / 0.2);
+    0 2px 4px 0 rgb(var(--emerald-primary-700-channels) / 0.32),
+    0 3px 8px 0 rgb(var(--emerald-primary-700-channels) / 0.22);
 }
 
 .emerald-button:active:not([data-disabled]) {
@@ -120,5 +130,29 @@
   opacity: 0.6;
   cursor: not-allowed;
   pointer-events: none;
+}
+
+.emerald-button[data-loading] {
+  position: relative;
+  cursor: progress;
+  box-shadow: none;
+}
+
+.emerald-button__content {
+  display: inline-flex;
+  align-items: center;
+  gap: inherit;
+}
+
+.emerald-button__content--hidden {
+  visibility: hidden;
+}
+
+.emerald-button__loading {
+  position: absolute;
+  inset: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 </style>

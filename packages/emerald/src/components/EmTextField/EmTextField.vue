@@ -82,6 +82,10 @@
   color: #000000;
 }
 
+.emerald-text-field[data-error] .emerald-text-field__label {
+  color: var(--emerald-error-700, #b8302a);
+}
+
 .emerald-text-field[data-disabled] {
   opacity: 0.5;
   pointer-events: none;

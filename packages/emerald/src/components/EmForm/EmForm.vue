@@ -91,6 +91,13 @@
   color: var(--emerald-error-700);
 }
 
+.emerald-form .emerald-form-field[data-invalid] .emerald-form-field__control:hover {
+  border-color: var(--emerald-error-700);
+  box-shadow:
+    0 1px 3px 0 rgb(var(--emerald-error-500-channels) / 0.18),
+    0 1px 5px 0 rgb(var(--emerald-error-500-channels) / 0.22);
+}
+
 .emerald-form .emerald-form-field__control {
   display: flex;
   align-items: center;
@@ -143,14 +150,14 @@
 .emerald-form .emerald-form-field__error {
   font-family: Manrope, system-ui, -apple-system, sans-serif;
   font-weight: 400;
-  font-size: 12px;
-  line-height: 1.2;
+  font-size: 11px;
+  line-height: 1.4;
   color: var(--emerald-error-700);
-  opacity: 0.6;
+  opacity: 0.85;
 }
 
 .emerald-form .emerald-form-field[data-disabled] {
-  opacity: 0.6;
+  opacity: 0.5;
   pointer-events: none;
 }
 

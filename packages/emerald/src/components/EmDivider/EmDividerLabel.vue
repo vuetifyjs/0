@@ -15,16 +15,18 @@
 <style>
 .emerald-divider__label {
   flex-shrink: 0;
-  padding: 0 4px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 8px;
   font-family: Manrope, system-ui, -apple-system, sans-serif;
-  font-size: 14px;
-  line-height: normal;
+  font-size: 12px;
+  line-height: 1;
   color: var(--emerald-on-background);
   opacity: 0.6;
 }
 
 .emerald-divider[data-orientation="vertical"] .emerald-divider__label {
-  padding: 4px 0;
+  padding: 8px 0;
   font-size: 12px;
 }
 </style>

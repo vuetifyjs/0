@@ -94,8 +94,15 @@
   border-color: var(--emerald-error-500, #e5484d);
 }
 
+.emerald-text-field__control[data-state="invalid"]:hover:not([data-disabled]):not([data-focused]) {
+  border-color: var(--emerald-error-700, #b8302a);
+  box-shadow:
+    0 1px 3px 0 rgb(var(--emerald-error-500-channels, 229 72 77) / 0.18),
+    0 1px 5px 0 rgb(var(--emerald-error-500-channels, 229 72 77) / 0.22);
+}
+
 .emerald-text-field__control[data-state="invalid"]:focus,
 .emerald-text-field__control[data-state="invalid"][data-focused] {
-  box-shadow: 0 0 0 2px rgb(var(--emerald-error-500-channels, 229 72 77) / 0.12);
+  box-shadow: 0 0 0 2px rgb(var(--emerald-error-500-channels, 229 72 77) / 0.18);
 }
 </style>

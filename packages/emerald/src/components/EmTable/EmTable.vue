@@ -35,7 +35,7 @@
   box-sizing: border-box;
   width: 100%;
   background: #fff;
-  overflow: clip;
+  overflow-x: auto;
 }
 
 .emerald-table-wrapper[data-bordered] {

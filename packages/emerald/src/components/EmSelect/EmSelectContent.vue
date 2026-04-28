@@ -37,9 +37,24 @@
   font-family: Manrope, system-ui, -apple-system, sans-serif;
   font-size: 14px;
   line-height: 20px;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition-property: opacity, transform, overlay, display;
+  transition-duration: 180ms;
+  transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);
+  transition-behavior: allow-discrete;
 }
 
 .emerald-select__content:popover-open {
   display: flex;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@starting-style {
+  .emerald-select__content:popover-open {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
 }
 </style>

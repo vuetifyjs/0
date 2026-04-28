@@ -56,7 +56,8 @@
   position: relative;
   display: inline-flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 0;
+  border-radius: 4px;
   font-family: Manrope, system-ui, -apple-system, sans-serif;
   font-size: 12px;
   line-height: 20px;

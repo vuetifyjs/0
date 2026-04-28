@@ -25,6 +25,7 @@
 
 <template>
   <PopoverContent
+    class="emerald-menu__popover"
     :position-area
     :position-try
   >
@@ -40,6 +41,18 @@
 </template>
 
 <style>
+.emerald-menu__popover {
+  padding: 0;
+  margin: 4px 0 0;
+  background: transparent;
+  border: 0;
+  overflow: visible;
+}
+
+.emerald-menu__popover::backdrop {
+  background: transparent;
+}
+
 .emerald-menu__content {
   display: flex;
   flex-direction: column;
@@ -52,7 +65,6 @@
   box-shadow:
     0 3px 6px 0 rgba(5, 0, 18, 0.09),
     0 8px 20px 0 rgba(5, 0, 18, 0.13);
-  margin-top: 4px;
   font-family: Manrope, system-ui, -apple-system, sans-serif;
   font-size: 14px;
   line-height: 20px;
