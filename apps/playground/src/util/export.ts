@@ -37,6 +37,11 @@ function generateProjectFiles ({ files, importMap }: GenerateProjectFilesOptions
     }
   }
 
+  const mainTs = projectFiles['src/main.ts']
+  if (mainTs) {
+    projectFiles['src/main.ts'] = adaptMainTs(mainTs)
+  }
+
   return projectFiles
 }
 
@@ -89,6 +94,16 @@ function replaceExtension (path: string): string {
     return path.replace(/\.js$/, '.ts')
   }
   return path
+}
+
+function adaptMainTs (source: string): string {
+  // Strip the playground's sandbox-only `./uno.config.ts` side-effect import; in a
+  // real Vite project the UnoCSS plugin emits CSS via the virtual module instead.
+  let updated = source.replace(/^import\s+['"]\.\/uno\.config\.ts['"]\n?/m, '')
+  if (!updated.includes('\'virtual:uno.css\'') && !updated.includes('"virtual:uno.css"')) {
+    updated = `import 'virtual:uno.css'\n${updated}`
+  }
+  return updated
 }
 
 export { generateProjectFiles }
