@@ -37,7 +37,7 @@
 .emerald-divider {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 0;
   color: var(--emerald-on-background);
 }
 

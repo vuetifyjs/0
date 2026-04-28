@@ -55,24 +55,37 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  padding: 16px;
-  border: 1px dashed rgb(var(--emerald-neutral-channels, 26 28 30) / 0.1);
+  gap: 8px;
+  padding: 24px 16px;
+  border: 1.5px dashed rgb(var(--emerald-neutral-channels, 26 28 30) / 0.2);
   border-radius: 12px;
-  background: #ffffff;
+  background: var(--emerald-surface, #f5f4ff);
   color: var(--emerald-on-background, #000);
   font-family: Manrope, system-ui, -apple-system, sans-serif;
   font-size: 14px;
-  font-weight: 400;
-  line-height: normal;
+  font-weight: 500;
+  line-height: 1.4;
   cursor: pointer;
   overflow: clip;
-  transition: border-color 120ms ease, background-color 120ms ease;
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease,
+    transform 160ms ease;
+}
+
+.emerald-upload__dropzone:hover:not([data-disabled]) {
+  border-color: rgb(var(--emerald-primary-500-channels) / 0.5);
+  background: rgb(var(--emerald-primary-500-channels) / 0.06);
 }
 
 .emerald-upload__dropzone[data-dragging] {
   border-color: var(--emerald-primary-500);
-  background: rgb(var(--emerald-primary-500-channels, 24 180 140) / 0.05);
+  background: rgb(var(--emerald-primary-500-channels) / 0.10);
+  transform: scale(0.99);
+}
+
+.emerald-upload__dropzone :deep(svg) {
+  color: var(--emerald-primary-500);
 }
 
 .emerald-upload__dropzone[data-disabled] {

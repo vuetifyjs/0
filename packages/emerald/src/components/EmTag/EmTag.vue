@@ -65,23 +65,28 @@
 /* ─── Tone: outlined (white chip) — default ─────────── */
 .emerald-tag[data-tone="outlined"] {
   height: 24px;
-  padding: 2px 8px 2px 4px;
+  padding: 2px 10px 2px 6px;
   background: #ffffff;
   font-size: 12px;
   line-height: 15px;
   letter-spacing: -0.01em;
 }
 
+.emerald-tag[data-tone="outlined"]:not(:has(svg)) {
+  padding: 2px 10px;
+}
+
 /* ─── Tone: tinted (filled chip) ─────────────────────── */
 .emerald-tag[data-tone="tinted"] {
-  padding: 3px;
+  height: 24px;
+  padding: 2px 10px 2px 6px;
   font-size: 11px;
   line-height: 18px;
   letter-spacing: -0.02em;
 }
 
-.emerald-tag[data-tone="tinted"] > :deep(*:not(svg)) {
-  padding-right: 4px;
+.emerald-tag[data-tone="tinted"]:not(:has(svg)) {
+  padding: 2px 10px;
 }
 
 /* ─── Icon sizing (slot content) ─────────────────────── */

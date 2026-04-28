@@ -14,9 +14,10 @@
 
 <style>
 .emerald-stepper__label-description {
+  display: block;
   font-family: Manrope, system-ui, -apple-system, sans-serif;
   font-weight: 400;
-  font-size: 12px;
+  font-size: 11px;
   letter-spacing: -0.12px;
   color: var(--emerald-neutral-600);
   opacity: 0.6;

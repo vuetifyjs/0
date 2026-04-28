@@ -142,8 +142,12 @@
 }
 
 .emerald-stepper__item[data-completed] .emerald-stepper__item-badge {
-  background: var(--emerald-success-100);
-  color: var(--emerald-success-700);
+  background: transparent;
+  color: var(--emerald-success-600);
+}
+
+.emerald-stepper__item[data-completed] .emerald-stepper__item-card {
+  background: var(--emerald-success-50);
 }
 
 .emerald-stepper__item[data-disabled] {

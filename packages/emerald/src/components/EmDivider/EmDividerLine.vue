@@ -13,7 +13,7 @@
 <style>
 .emerald-divider__line {
   flex: 1 0 0;
-  align-self: stretch;
+  align-self: center;
 }
 
 .emerald-divider[data-orientation="horizontal"] .emerald-divider__line {
@@ -22,8 +22,18 @@
   min-width: 1px;
 }
 
+/* Dashed pill: dotted line with rounded caps via SVG-style stroke */
 .emerald-divider[data-orientation="horizontal"][data-variant="dashed"] .emerald-divider__line {
-  border-top-style: dashed;
+  border-top: none;
+  height: 2px;
+  border-radius: 9999px;
+  background-image: linear-gradient(
+    to right,
+    rgb(var(--emerald-neutral-channels, 26 28 30) / 0.35) 50%,
+    transparent 50%
+  );
+  background-size: 8px 2px;
+  background-repeat: repeat-x;
 }
 
 .emerald-divider[data-orientation="vertical"] .emerald-divider__line {
@@ -33,6 +43,15 @@
 }
 
 .emerald-divider[data-orientation="vertical"][data-variant="dashed"] .emerald-divider__line {
-  border-left-style: dashed;
+  border-left: none;
+  width: 2px;
+  border-radius: 9999px;
+  background-image: linear-gradient(
+    to bottom,
+    rgb(var(--emerald-neutral-channels, 26 28 30) / 0.35) 50%,
+    transparent 50%
+  );
+  background-size: 2px 8px;
+  background-repeat: repeat-y;
 }
 </style>

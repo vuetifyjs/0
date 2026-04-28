@@ -32,6 +32,7 @@
 <template>
   <PopoverContent
     :id="context.id"
+    class="emerald-tooltip__popover"
     :position-area
     :position-try
   >
@@ -51,6 +52,18 @@
 </template>
 
 <style>
+.emerald-tooltip__popover {
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  border: 0;
+  overflow: visible;
+}
+
+.emerald-tooltip__popover::backdrop {
+  background: transparent;
+}
+
 .emerald-tooltip__content {
   position: relative;
   display: inline-flex;

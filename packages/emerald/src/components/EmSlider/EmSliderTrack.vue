@@ -21,17 +21,16 @@
 .emerald-slider__track {
   position: relative;
   flex: 1 1 auto;
-  height: 12px;
+  height: 6px;
   width: 100%;
-  overflow: hidden;
+  overflow: visible;
   border-radius: 999px;
-  border: 0.5px solid rgb(var(--emerald-neutral-channels, 26 28 30) / 0.1);
-  background: var(--emerald-secondary-50, #f4f7f9);
+  background: var(--emerald-secondary-100, #ecf0f3);
   cursor: pointer;
 }
 
 .emerald-slider[data-orientation="vertical"] .emerald-slider__track {
-  width: 12px;
+  width: 6px;
   height: 100%;
 }
 
