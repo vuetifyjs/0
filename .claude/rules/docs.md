@@ -27,10 +27,10 @@ Scope-specific mechanics for `apps/docs/**`. Covers page types, frontmatter, int
 ---
 title: Name - Brief SEO description
 meta:
-  - name: description
-    content: 150-160 char description
-  - name: keywords
-    content: comma, separated, keywords
+- name: description
+  content: 150-160 char description
+- name: keywords
+  content: comma, separated, keywords
 features:
   category: Component | Composable
   label: 'C: Dialog'              # or 'E: createSelection'
@@ -44,7 +44,7 @@ related:
 ```
 
 - Required fields: title, meta (description + keywords), features, related. [intent:194, intent:245]
-- `meta` entries use **2-space indent** (`  - name:`, not `- name:`). [intent:193]
+- `meta` list items sit at column 0 under `meta:` (`- name:`, not `  - name:`). YAML accepts both forms; column 0 is the docs-site convention. [intent:193]
 
 ## Page Intro
 
@@ -104,6 +104,10 @@ Adapters let you swap the underlying implementation without changing your applic
 3. `<DocsBrowserSupport>` — optional, for native API features
 4. **Usage** — brief intro + code fence (not a live example)
 5. **Anatomy** — Vue template tree in `` ```vue playground collapse `` ``. Component-tree shells only — bare `<Component.Sub />` elements showing the available compound surface. **No** `data` arrays, `v-for`, props beyond `:as`, slot variables, or runtime values. The runnable preview comes from Examples; Anatomy is a structural map. Reference: `pages/components/disclosure/expansion-panel.md`. [intent:345]
+
+> **Usage** accepts either form below — pick based on what the section needs to do:
+> - `::: example` with the `basic` file (no extension) when a runnable demo is enough on its own. Dominant practice. Example: `pages/components/semantic/breadcrumbs.md`.
+> - Code fence + prose when the page has key props or behaviors that warrant explanation before the demo. Example: `pages/components/semantic/pagination.md`.
 6. **Architecture** — optional Mermaid diagram
 7. **Examples** — `::: example` blocks, each with 2+ files
 8. **Recipes** — code fences or single-file `::: example` blocks
@@ -115,7 +119,7 @@ Adapters let you swap the underlying implementation without changing your applic
 
 | Section | Component pages | Composable pages |
 |---------|----------------|-----------------|
-| **Usage** | `::: example` with basic.vue [intent:302] | `` ```ts collapse `` `` code fence [intent:302] |
+| **Usage** | `::: example` with `basic` (no extension) **or** code fence + prose when the page needs explanatory text before the demo [intent:302] | `` ```ts collapse `` `` code fence [intent:302] |
 | **Anatomy** | `` ```vue playground collapse `` `` — component-tree shells only [intent:345] | — |
 | **Examples** | `::: example` with 2+ files [intent:304] | `::: example` with 2+ files [intent:304] |
 | **Recipes** | Code fence or single-file `::: example` [intent:303] | Code fence or single-file `::: example` [intent:303] |
