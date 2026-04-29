@@ -65,7 +65,7 @@ Headless responsive truncation primitive. Children render until the container ru
 ## Examples
 
 ::: example
-/components/overflow/basic.vue 1
+/components/overflow/basic
 
 ### Basic tag row
 
@@ -95,7 +95,7 @@ Because each avatar has the same width, the trailing avatars drop in predictable
 :::
 
 ::: example
-/components/overflow/popover.vue 1
+/components/overflow/popover
 
 ### Indicator opens a popover of hidden items
 
@@ -109,7 +109,7 @@ This is the same pattern used by GitHub's repo language list and Linear's projec
 :::
 
 ::: example
-/components/overflow/priority-end.vue 1
+/components/overflow/priority-end
 
 ### priority="end" for trailing-priority lists
 
