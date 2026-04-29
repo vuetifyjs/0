@@ -177,7 +177,7 @@ A `disabled` Item is exempt from capacity math and always renders.
 ::: faq
 ??? Why does the indicator briefly appear when the container is exactly at the threshold?
 
-The indicator's reserved width isn't known until the indicator has rendered at least once. On the first overflow event, capacity is computed without the reservation, the indicator renders, its width is measured, and capacity recomputes one tick later. This is the same two-tick settle that `Breadcrumbs` already accepts. For pixel-perfect threshold behavior, supply your own reserved width via the `gap` prop and a `ResizeObserver` on the indicator.
+The indicator's reserved width isn't known until the indicator has rendered at least once. On the first overflow event, capacity is computed without the reservation, the indicator renders, its width is measured, and capacity recomputes one tick later. The indicator measures itself with a `ResizeObserver` so changes to its content (e.g., `+1` → `+99`) keep the reservation accurate without manual intervention. This is the same two-tick settle that `Breadcrumbs` already accepts.
 
 ??? Can I bisect (keep first + last, hide middle, ellipsis in the center)?
 

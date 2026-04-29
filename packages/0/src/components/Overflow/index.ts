@@ -26,6 +26,8 @@ export const Overflow = {
    * Root component. Owns the createOverflow context, child registry,
    * and capacity computation.
    *
+   * @see https://0.vuetifyjs.com/components/semantic/overflow
+   *
    * @example
    * ```vue
    * <script setup lang="ts">
@@ -50,6 +52,8 @@ export const Overflow = {
    * Individual overflow item. Registers with Root and self-measures.
    * Hidden when its index falls outside capacity.
    *
+   * @see https://0.vuetifyjs.com/components/semantic/overflow
+   *
    * @example
    * ```vue
    * <template>
@@ -63,6 +67,8 @@ export const Overflow = {
   /**
    * Indicator that renders only when items are hidden. Exposes the
    * hidden count and the array of hidden tickets via slot props.
+   *
+   * @see https://0.vuetifyjs.com/components/semantic/overflow
    *
    * @example
    * ```vue

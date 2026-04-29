@@ -39,7 +39,7 @@
     isVisible: boolean
     isHidden: boolean
     attrs: {
-      'data-hidden': 'true' | undefined
+      'data-hidden': true | undefined
       'aria-hidden': 'true' | undefined
     }
   }
@@ -55,7 +55,7 @@
   const {
     namespace = 'v0:overflow',
     as = 'div',
-    renderless,
+    renderless = false,
     value,
     disabled = false,
   } = defineProps<OverflowItemProps>()
@@ -70,20 +70,31 @@
     disabled: _disabled,
   })
 
+  // Track the index we last wrote to the overflow widths map so that registry
+  // reindexing (after a sibling unmounts) doesn't leave orphan entries when a
+  // later watch firing writes the new index without clearing the old.
+  let lastMeasuredIndex: number | null = null
+
   watch(
-    () => [_disabled.value, atomRef.value?.element] as const,
-    ([isDisabled, element]) => {
+    () => [_disabled.value, atomRef.value?.element, ticket.index] as const,
+    ([isDisabled, element, index]) => {
+      if (lastMeasuredIndex !== null && lastMeasuredIndex !== index) {
+        root.overflow.measure(lastMeasuredIndex, undefined)
+      }
+      lastMeasuredIndex = index
       if (isDisabled) {
-        root.overflow.measure(ticket.index, undefined)
+        root.overflow.measure(index, undefined)
       } else {
-        root.overflow.measure(ticket.index, (element as Element | undefined) ?? undefined)
+        root.overflow.measure(index, (element as Element | undefined) ?? undefined)
       }
     },
     { immediate: true },
   )
 
   onBeforeUnmount(() => {
-    root.overflow.measure(ticket.index, undefined)
+    if (lastMeasuredIndex !== null) {
+      root.overflow.measure(lastMeasuredIndex, undefined)
+    }
     root.registry.unregister(ticket.id)
   })
 
@@ -94,7 +105,7 @@
     isVisible: isVisible.value,
     isHidden: isHidden.value,
     attrs: {
-      'data-hidden': isHidden.value ? 'true' : undefined,
+      'data-hidden': isHidden.value || undefined,
       'aria-hidden': isHidden.value ? 'true' : undefined,
     },
   }))

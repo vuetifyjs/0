@@ -17,9 +17,10 @@
 
   // Components
   import { Atom } from '#v0/components/Atom'
+  import { useOverflowRoot } from './OverflowRoot.vue'
 
   // Composables
-  import { useOverflowRoot } from './OverflowRoot.vue'
+  import { useResizeObserver } from '#v0/composables/useResizeObserver'
 
   // Utilities
   import { computed, onBeforeUnmount, toRef, useTemplateRef, watch } from 'vue'
@@ -56,7 +57,7 @@
   const {
     namespace = 'v0:overflow',
     as = 'div',
-    renderless,
+    renderless = false,
   } = defineProps<OverflowIndicatorProps>()
 
   const root = useOverflowRoot(namespace)
@@ -74,11 +75,17 @@
     root.indicatorWidth.value = element.offsetWidth + marginX
   }
 
+  const elementRef = toRef(() => (atomRef.value?.element as HTMLElement | null | undefined) ?? null)
+
   watch(
-    () => atomRef.value?.element,
+    elementRef,
     () => measureSelf(),
     { immediate: true },
   )
+
+  // Re-measure when the indicator's own size changes — content grows from
+  // "+1 more" to "+99 more", or the consumer toggles padding/font-size.
+  useResizeObserver(elementRef, () => measureSelf())
 
   onBeforeUnmount(() => {
     root.indicatorWidth.value = 0

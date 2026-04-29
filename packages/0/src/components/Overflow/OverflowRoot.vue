@@ -1,4 +1,21 @@
 <script lang="ts">
+  /**
+   * @module OverflowRoot
+   *
+   * @see https://0.vuetifyjs.com/components/semantic/overflow
+   *
+   * Root component for the Overflow primitive. Owns the createOverflow context,
+   * the child Item registry, and the capacity computation that drives item
+   * visibility and the indicator's appearance.
+   *
+   * @remarks
+   * Visibility is computed against the *non-disabled* sibling order: a disabled
+   * Item is exempt from capacity math and never counts against the cap, so the
+   * Items around it occupy the same number of visible slots regardless of where
+   * the disabled Item sits. The reactive `gap` prop is forwarded to
+   * `createOverflow` as a getter so capacity recomputes when the prop changes.
+   */
+
   // Components
   import { Atom } from '#v0/components/Atom'
 
@@ -30,7 +47,7 @@
     size: number
     isOverflowing: boolean
     attrs: {
-      'data-overflow': 'true' | undefined
+      'data-overflow': true | undefined
       'data-priority': OverflowPriority
     }
   }
@@ -48,7 +65,7 @@
   const {
     namespace = 'v0:overflow',
     as = 'div',
-    renderless,
+    renderless = false,
     gap = 0,
     priority = 'start',
     disabled = false,
@@ -57,11 +74,14 @@
   const containerRef = useTemplateRef<AtomExpose>('container')
   const indicatorWidth = shallowRef(0)
 
-  const registry = createRegistry<OverflowTicketInput, OverflowTicket>()
+  // `reactive: true` wraps each ticket so that `ticket.index` tracks
+  // reindex updates — without it, the watch on `ticket.index` in
+  // OverflowItem can't fire and stale widths leak after a sibling unmounts.
+  const registry = createRegistry<OverflowTicketInput, OverflowTicket>({ reactive: true })
 
   const overflow = createOverflow({
     container: () => containerRef.value?.element as Element | undefined,
-    gap,
+    gap: () => gap,
     reserved: () => indicatorWidth.value,
     reverse: () => priority === 'end',
   })
@@ -71,14 +91,23 @@
 
   function isVisible (index: number): boolean {
     if (disabled) return true
-    const ticket = registry.values()[index]
-    if (ticket && toValue(ticket.disabled)) return true
+    const tickets = registry.values()
+    const ticket = tickets[index]
+    if (!ticket) return true
+    if (toValue(ticket.disabled)) return true
     const cap = overflow.capacity.value
     if (cap === Infinity) return true
-    if (priority === 'end') {
-      return index >= registry.size - cap
+
+    let rank = 0
+    let total = 0
+    for (const [i, ticket_] of tickets.entries()) {
+      if (toValue(ticket_.disabled)) continue
+      if (i === index) rank = total
+      total++
     }
-    return index < cap
+
+    if (priority === 'end') return rank >= total - cap
+    return rank < cap
   }
 
   const baseRegister = registry.register
@@ -103,7 +132,7 @@
     size: registry.size,
     isOverflowing: overflow.isOverflowing.value,
     attrs: {
-      'data-overflow': overflow.isOverflowing.value ? 'true' : undefined,
+      'data-overflow': overflow.isOverflowing.value || undefined,
       'data-priority': priority,
     },
   }))
@@ -114,6 +143,7 @@
     ref="container"
     :as
     :renderless
+    v-bind="slotProps.attrs"
   >
     <slot v-bind="slotProps" />
   </Atom>
