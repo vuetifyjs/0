@@ -98,7 +98,7 @@
     root.registry.unregister(ticket.id)
   })
 
-  const isVisible = toRef(() => disabled || ticket.isVisible.value)
+  const isVisible = toRef(() => disabled || root.isVisible(ticket.index))
   const isHidden = toRef(() => !isVisible.value)
 
   const slotProps = toRef((): OverflowItemSlotProps => ({

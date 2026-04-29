@@ -88,7 +88,7 @@
   })
 
   const hidden = computed<OverflowTicket[]>(() => {
-    return root.registry.values().filter(t => !t.isVisible.value)
+    return root.registry.values().filter((_, index) => !root.isVisible(index))
   })
 
   const slotProps = toRef((): OverflowIndicatorSlotProps => ({

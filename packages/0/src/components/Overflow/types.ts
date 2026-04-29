@@ -21,8 +21,6 @@ export interface OverflowTicketInput extends RegistryTicketInput {
 export interface OverflowTicket extends RegistryTicket {
   /** Whether this item is excluded from capacity math */
   disabled: Readonly<Ref<boolean>>
-  /** Whether this item is currently visible (within capacity) */
-  isVisible: Readonly<Ref<boolean>>
 }
 
 export interface OverflowRootContext {

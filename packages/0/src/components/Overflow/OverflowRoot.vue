@@ -74,9 +74,6 @@
   const containerRef = useTemplateRef<AtomExpose>('container')
   const indicatorWidth = shallowRef(0)
 
-  // `reactive: true` wraps each ticket so that `ticket.index` tracks
-  // reindex updates — without it, the watch on `ticket.index` in
-  // OverflowItem can't fire and stale widths leak after a sibling unmounts.
   const registry = createRegistry<OverflowTicketInput, OverflowTicket>({ reactive: true })
 
   const overflow = createOverflow({
@@ -105,13 +102,6 @@
 
     if (priority === 'end') return rank >= total - cap
     return rank < cap
-  }
-
-  const baseRegister = registry.register
-  registry.register = function (input) {
-    const ticket = baseRegister.call(registry, input)
-    ticket.isVisible = toRef(() => isVisible(ticket.index))
-    return ticket
   }
 
   provideOverflowRoot(namespace, {

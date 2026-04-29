@@ -209,7 +209,7 @@ describe('overflow', () => {
       expect(captured!.attrs).toBeDefined()
     })
 
-    it('should expose isVisible on registered tickets', async () => {
+    it('should expose isVisible on the root context', async () => {
       let captured: OverflowRootContext | undefined
       const Probe = defineComponent({
         setup () {
@@ -229,8 +229,7 @@ describe('overflow', () => {
       })
 
       await nextTick()
-      const ticket = captured!.registry.values()[0]
-      expect(ticket.isVisible.value).toBe(true)
+      expect(captured!.isVisible(0)).toBe(true)
     })
 
     it('should always be visible when Item is disabled', () => {
