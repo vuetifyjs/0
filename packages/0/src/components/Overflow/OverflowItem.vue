@@ -21,6 +21,7 @@
   import { useOverflowRoot } from './OverflowRoot.vue'
 
   // Utilities
+  import { isNull } from '#v0/utilities'
   import { onBeforeUnmount, toRef, useTemplateRef, watch } from 'vue'
 
   // Types
@@ -78,7 +79,7 @@
   watch(
     () => [_disabled.value, atomRef.value?.element, ticket.index] as const,
     ([isDisabled, element, index]) => {
-      if (lastMeasuredIndex !== null && lastMeasuredIndex !== index) {
+      if (!isNull(lastMeasuredIndex) && lastMeasuredIndex !== index) {
         root.overflow.measure(lastMeasuredIndex, undefined)
       }
       lastMeasuredIndex = index
@@ -92,7 +93,7 @@
   )
 
   onBeforeUnmount(() => {
-    if (lastMeasuredIndex !== null) {
+    if (!isNull(lastMeasuredIndex)) {
       root.overflow.measure(lastMeasuredIndex, undefined)
     }
     root.registry.unregister(ticket.id)
