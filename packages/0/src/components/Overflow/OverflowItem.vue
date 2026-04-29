@@ -24,6 +24,9 @@
   import { isNull } from '#v0/utilities'
   import { onBeforeUnmount, toRef, useTemplateRef, watch } from 'vue'
 
+  // Transformers
+  import { toElement } from '#v0/composables/toElement'
+
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
 
@@ -63,6 +66,7 @@
 
   const root = useOverflowRoot(namespace)
   const atomRef = useTemplateRef<AtomExpose>('atom')
+  const el = toRef(() => toElement(atomRef.value?.element) ?? null)
 
   const _disabled = toRef(() => disabled)
 
@@ -77,17 +81,13 @@
   let lastMeasuredIndex: number | null = null
 
   watch(
-    () => [_disabled.value, atomRef.value?.element, ticket.index] as const,
+    () => [_disabled.value, el.value, ticket.index] as const,
     ([isDisabled, element, index]) => {
       if (!isNull(lastMeasuredIndex) && lastMeasuredIndex !== index) {
         root.overflow.measure(lastMeasuredIndex, undefined)
       }
       lastMeasuredIndex = index
-      if (isDisabled) {
-        root.overflow.measure(index, undefined)
-      } else {
-        root.overflow.measure(index, (element as Element | undefined) ?? undefined)
-      }
+      root.overflow.measure(index, isDisabled ? undefined : element ?? undefined)
     },
     { immediate: true },
   )

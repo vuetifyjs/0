@@ -27,6 +27,9 @@
   // Utilities
   import { shallowRef, toRef, toValue, useTemplateRef } from 'vue'
 
+  // Transformers
+  import { toElement } from '#v0/composables/toElement'
+
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
   import type { OverflowPriority, OverflowRootContext, OverflowTicket, OverflowTicketInput } from './types'
@@ -77,9 +80,9 @@
   const registry = createRegistry<OverflowTicketInput, OverflowTicket>({ reactive: true })
 
   const overflow = createOverflow({
-    container: () => containerRef.value?.element as Element | undefined,
+    container: () => toElement(containerRef.value?.element),
     gap: () => gap,
-    reserved: () => indicatorWidth.value,
+    reserved: indicatorWidth,
     reverse: () => priority === 'end',
   })
 
