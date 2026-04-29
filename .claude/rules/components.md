@@ -396,13 +396,33 @@ export interface AtomExpose {
 }
 ```
 
-`Atom` calls `defineExpose<AtomExpose>({ element })` at the component level. Parent components access the element via:
+`Atom` calls `defineExpose<AtomExpose>({ element })` at the component level. Vue auto-unwraps refs surfaced via `defineExpose`, so consumers access the element directly — *not* through a `.value` chain:
 
 ```ts
 // packages/0/src/components/Splitter/SplitterRoot.vue:112
 const rootAtom = useTemplateRef<AtomExpose>('root')
-// rootAtom.value?.element.value gives the HTMLElement | null
+// rootAtom.value?.element gives the HTMLElement | null directly
 ```
+
+### Consuming AtomExpose in the same SFC
+
+When the SFC that wraps an `Atom` needs that Atom's element for measurement, observers, focus management, or popover anchoring, follow the canonical form:
+
+```ts
+// packages/0/src/components/Image/ImageRoot.vue:94
+const atomRef = useTemplateRef<AtomExpose>('atom')
+const el = toRef(() => toElement(atomRef.value?.element) as HTMLElement | null ?? null)
+```
+
+- **Always** route the access through `toElement` (`#v0/composables/toElement`). The raw `as HTMLElement | null | undefined` cast bypasses the normalization layer that handles ref-vs-direct-element variants and is the bug-family flagged in the saved-memory `toElement-template-refs.md`. Tabs, Treeview, and similar components carry the legacy raw-cast form pending a sweep.
+- **Wrap in `toRef(() => ...)`** so downstream consumers (`watch`, `useResizeObserver`, `useIntersectionObserver`, popover attach) get a reactive ref instead of a snapshot.
+- **Name the ref `el`** when the SFC has only one Atom, or `{position}El` (`rootEl`, `triggerEl`) when there are multiple. Never `elementRef` or `atomElement` — single-word `el` is the precedent across Carousel × 4, Image, Tabs, Treeview.
+
+Worked precedents:
+
+- `packages/0/src/components/Image/ImageRoot.vue:94` — `rootEl`, used for IntersectionObserver
+- `packages/0/src/components/Carousel/CarouselNext.vue:72`, `CarouselPrevious.vue:72`, `CarouselProgress.vue:75`, `CarouselLiveRegion.vue:79` — `el`
+- `packages/0/src/components/Overflow/OverflowIndicator.vue` — `el`, used for ResizeObserver and own-width measurement
 
 ### Naming conventions for exposed methods
 
@@ -546,6 +566,7 @@ When uncertain, don't hook up. Adding a plugin later is a non-breaking change; r
 - [ ] Zero utility classes; all `:style` bindings structural
 - [ ] `register()` called in setup; `unregister()` called in `onBeforeUnmount`
 - [ ] Compound sub-components propagate `AtomExpose` and add their own `{Component}Expose` interface when exposing imperative methods
+- [ ] Same-SFC Atom element access uses `toRef(() => toElement(atomRef.value?.element) as HTMLElement | null ?? null)` named `el` / `rootEl`, never a raw cast or `elementRef` name
 - [ ] ARIA roles, keyboard handlers, and WCAG success criteria mapped for every interactive component
 - [ ] No raw `inject` / `provide` — context always via `createContext`
 - [ ] Global plugins hooked up only when the component genuinely depends on app-level state
