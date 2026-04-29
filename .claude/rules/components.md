@@ -287,7 +287,11 @@ export const Component = { Root: ComponentRoot, Item: ComponentItem }
 - Root element is always `<Atom :as :renderless>`. [intent:186, intent:336]
 - Slot props via `<slot v-bind="slotProps" />`.
 - Hidden inputs conditionally rendered: `<ComponentHiddenInput v-if="name" />`. [intent:187]
-- `v-if` for structural conditionals, never `v-show` (exception: Combobox filtered items). [intent:188]
+- `v-if` for structural conditionals; `v-show` only when the element must stay mounted to preserve state. [intent:188]
+  - **Registry-driven visibility** — child registered with a Root for measurement or selection (Breadcrumbs item/divider/ellipsis, Overflow item).
+  - **Load-state preservation** — image load, scroll position, etc. (Avatar image).
+  - **Virtualization** — load-bearing for filtered lists (Combobox item).
+  - Never hand-roll `:style="{ display: isHidden ? 'none' : null }"` — `v-show` does the same and is the canonical form. See PHILOSOPHY §10.11.
 
 ## Slot `attrs` Double-Fire Hazard
 
@@ -537,7 +541,7 @@ When uncertain, don't hook up. Adding a plugin later is a non-breaking change; r
 - [ ] Hidden input conditionally rendered with `v-if="name"`
 - [ ] Barrel: no `export *` from `.vue`, named exports plus compound object
 - [ ] Template root is `<Atom :as :renderless>` and uses `<slot v-bind="slotProps" />`
-- [ ] `v-if` for structural conditionals (not `v-show`, except Combobox)
+- [ ] `v-if` for structural conditionals; `v-show` only when the element must stay mounted (registry-driven visibility, load-state preservation, virtualization)
 - [ ] `onBeforeUnmount` for deregistration, not `onUnmounted`
 - [ ] Zero utility classes; all `:style` bindings structural
 - [ ] `register()` called in setup; `unregister()` called in `onBeforeUnmount`

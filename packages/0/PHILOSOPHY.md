@@ -1133,7 +1133,15 @@ Reason: §3.6, [intent:172]. `false` writes `data-disabled="false"` to the DOM, 
 <Content v-if="isOpen" />
 ```
 
-Exception: Combobox filtered items, where `v-show` is load-bearing for virtualization. Everywhere else, `v-if` for structural conditionals. Reason: [intent:188].
+**Exceptions — where `v-show` is correct.** A child component that registers a ticket with its Root must stay mounted even while invisible; `v-if` would unmount it, fire `onBeforeUnmount`, unregister the ticket, drop its measurement, and on re-include cause a measurement / capacity / visibility cascade that thrashes neighbours. Use `v-show` when state must survive the visibility flip:
+
+- **Registry-driven visibility.** `Breadcrumbs/BreadcrumbsItem.vue`, `BreadcrumbsDivider.vue`, `BreadcrumbsEllipsis.vue`, `Overflow/OverflowItem.vue` — items registered with the Root for measurement or selection must stay mounted so their ticket and width entry survive the flip.
+- **Load-state preservation.** `Avatar/AvatarImage.vue` — image load state would reset on remount.
+- **Virtualization.** `Combobox/ComboboxItem.vue` — load-bearing for the filtered list.
+
+Everywhere else, `v-if` for structural conditionals. Reason: [intent:188].
+
+Never hand-roll `:style="{ display: isHidden ? 'none' : null }"` — `v-show` already does this, captures the original `style.display` on mount, and is the canonical form readers expect.
 
 ---
 

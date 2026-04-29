@@ -113,10 +113,10 @@
 
 <template>
   <Atom
+    v-show="isVisible"
     ref="atom"
     :as
     :renderless
-    :style="{ display: isHidden ? 'none' : null }"
     v-bind="slotProps.attrs"
   >
     <slot v-bind="slotProps" />
