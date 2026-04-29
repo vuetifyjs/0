@@ -86,9 +86,6 @@
     reverse: () => priority === 'end',
   })
 
-  const _priority = toRef(() => priority)
-  const _disabled = toRef(() => disabled)
-
   function isVisible (index: number): boolean {
     if (disabled) return true
     const tickets = registry.values()
@@ -120,8 +117,8 @@
   provideOverflowRoot(namespace, {
     overflow,
     registry,
-    priority: _priority,
-    disabled: _disabled,
+    priority: toRef(() => priority),
+    disabled: toRef(() => disabled),
     indicatorWidth,
     isOverflowing: overflow.isOverflowing,
     isVisible,
