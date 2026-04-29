@@ -25,6 +25,9 @@
   // Utilities
   import { computed, onBeforeUnmount, toRef, useTemplateRef, watch } from 'vue'
 
+  // Transformers
+  import { toElement } from '#v0/composables/toElement'
+
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
   import type { OverflowTicket } from './types'
@@ -62,30 +65,23 @@
 
   const root = useOverflowRoot(namespace)
   const atomRef = useTemplateRef<AtomExpose>('atom')
+  const el = toRef(() => toElement(atomRef.value?.element) as HTMLElement | null ?? null)
 
-  function measureSelf () {
-    if (!IN_BROWSER) return
-    const element = atomRef.value?.element as HTMLElement | null | undefined
-    if (!element) {
+  function measure () {
+    if (!IN_BROWSER || !el.value) {
       root.indicatorWidth.value = 0
       return
     }
-    const style = getComputedStyle(element)
+    const style = getComputedStyle(el.value)
     const marginX = Number.parseFloat(style.marginLeft) + Number.parseFloat(style.marginRight)
-    root.indicatorWidth.value = element.offsetWidth + marginX
+    root.indicatorWidth.value = el.value.offsetWidth + marginX
   }
 
-  const elementRef = toRef(() => (atomRef.value?.element as HTMLElement | null | undefined) ?? null)
-
-  watch(
-    elementRef,
-    () => measureSelf(),
-    { immediate: true },
-  )
+  watch(el, () => measure(), { immediate: true })
 
   // Re-measure when the indicator's own size changes — content grows from
   // "+1 more" to "+99 more", or the consumer toggles padding/font-size.
-  useResizeObserver(elementRef, () => measureSelf())
+  useResizeObserver(el, () => measure())
 
   onBeforeUnmount(() => {
     root.indicatorWidth.value = 0
