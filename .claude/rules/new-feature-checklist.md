@@ -98,16 +98,21 @@ Shoehorning a feature into a category that doesn't fit creates compound confusio
 
 ### Maturity matrix — where each level lives
 
-`maturity.json` is the single source of truth. Every entry has `level`, `since`, `category`, and an optional `notes` field. **`since` starts as `null`** for every new entry and is **manually updated to the release version** in the PR that ships the entry as `stable`:
+`maturity.json` is the single source of truth. Every entry has `level`, `since`, `category`, and an optional `notes` field. **`since` starts as `null`** on every new entry and is **manually updated by a maintainer at release time** — when the v0 release that first ships the feature is cut. `since` and `level` are independent: `level` tracks API stability; `since` tracks first-release version. A `preview` feature carries a real `since` once it ships in any release.
 
 ```json
 {
   "composables": {
     "createModel": {
       "level": "preview",
-      "since": null,
+      "since": "0.2.0",
       "category": "selection",
       "notes": "Recently redesigned from selection system"
+    },
+    "createOverflow": {
+      "level": "preview",
+      "since": null,
+      "category": "system"
     },
     "createRegistry": {
       "level": "stable",
@@ -120,17 +125,19 @@ Shoehorning a feature into a category that doesn't fit creates compound confusio
 
 The `level` is rendered in the docs at `<DocsMaturity />` on every feature page (and in aggregate on the index pages).
 
-### Why `since: null` until stable
+### Why `since: null` until first release
 
-`draft` and `preview` are pre-release statuses. Pinning `since: "1.0.0-alpha.1"` on a `preview` entry ossifies a fictional ship version — subsequent alpha/beta cuts can land before the feature actually ships, the field rots, and authors don't routinely re-check it. The version a feature shipped in is only known the moment it goes `stable`.
+The author of a new feature does not know which release version will first ship it — interim alpha/beta cuts can land before or after the merge. Pinning a guess (e.g., `since: "1.0.0-alpha.1"`) ossifies a fictional version, the field rots when the actual cut number differs, and nobody re-checks it.
 
-`null` (rather than omitting the key) keeps the entry shape uniform across all maturity levels, surfaces the field as an obvious "needs to be filled in" placeholder during the stable-promotion PR, and lets tooling iterate entries without branching on key presence.
+The version a feature first shipped in is only known the moment a maintainer cuts a release that includes it. That maintainer flips `since: null` → the actual version manually as part of the release PR. After that, `since` is permanent and never changes — even when the entry later promotes from `preview` to `stable`.
+
+`null` (rather than omitting the key) keeps the entry shape uniform across all maturity levels, surfaces the field as an obvious "needs to be filled in at release" placeholder, and lets tooling iterate entries without branching on key presence.
 
 ### How to set the initial level
 
 - Brand-new feature, no implementation yet → `level: "draft"`, `since: null`.
-- Implementation landed, passing tests, docs page exists → `level: "preview"`, `since: null`.
-- API has shipped for multiple minor versions with no breaking changes, test coverage is comprehensive, real consumers depend on it → `level: "stable"`. **Now set `since`** manually to the version this PR will release into.
+- Implementation landed, passing tests, docs page exists → `level: "preview"`, `since: null`. The maintainer who cuts the next release flips `since` to the release version (level stays `preview` if the API isn't stable yet).
+- API has shipped for multiple minor versions with no breaking changes, test coverage is comprehensive, real consumers depend on it → `level: "stable"`. `since` was already set when the feature first shipped — leave it alone.
 
 ### When to promote
 
