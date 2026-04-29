@@ -103,7 +103,7 @@ Adapters let you swap the underlying implementation without changing your applic
 2. `<DocsPageFeatures :frontmatter />` — badges from frontmatter
 3. `<DocsBrowserSupport>` — optional, for native API features
 4. **Usage** — brief intro + code fence (not a live example)
-5. **Anatomy** — Vue template tree in `` ```vue playground collapse `` ``
+5. **Anatomy** — Vue template tree in `` ```vue playground collapse `` ``. Component-tree shells only — bare `<Component.Sub />` elements showing the available compound surface. **No** `data` arrays, `v-for`, props beyond `:as`, slot variables, or runtime values. The runnable preview comes from Examples; Anatomy is a structural map. Reference: `pages/components/disclosure/expansion-panel.md`. [intent:345]
 6. **Architecture** — optional Mermaid diagram
 7. **Examples** — `::: example` blocks, each with 2+ files
 8. **Recipes** — code fences or single-file `::: example` blocks
@@ -116,7 +116,7 @@ Adapters let you swap the underlying implementation without changing your applic
 | Section | Component pages | Composable pages |
 |---------|----------------|-----------------|
 | **Usage** | `::: example` with basic.vue [intent:302] | `` ```ts collapse `` `` code fence [intent:302] |
-| **Anatomy** | `` ```vue playground collapse `` `` | — |
+| **Anatomy** | `` ```vue playground collapse `` `` — component-tree shells only [intent:345] | — |
 | **Examples** | `::: example` with 2+ files [intent:304] | `::: example` with 2+ files [intent:304] |
 | **Recipes** | Code fence or single-file `::: example` [intent:303] | Code fence or single-file `::: example` [intent:303] |
 

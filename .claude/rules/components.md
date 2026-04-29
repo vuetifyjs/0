@@ -124,6 +124,23 @@ Naming convention: `useComponentRoot` / `provideComponentRoot` for Root-level co
 
 **Dual context.** `Button`, `Radio`, `Toggle` provide both Root and Group contexts, so they support standalone *and* grouped usage with the same component tree. [intent:163] Toggle.Root detects Toggle.Group via optional injection. [intent:315]
 
+**Reactive context fields — inline `toRef(() => prop)` at the provide call.** When the context surface exposes a reactive field derived from a destructured prop, write it inline in the `provideX(...)` call instead of binding to a named `_prop` const first. Don't pre-bind unless the local is reused.
+
+```ts
+// Right — TabsRoot, BreadcrumbsRoot, ImageRoot, OverflowRoot, …
+provideTabsRoot(namespace, {
+  disabled: toRef(() => disabled),
+  orientation: toRef(() => orientation),
+  activation: toRef(() => activation),
+})
+
+// Wrong — `_disabled` is used exactly once
+const _disabled = toRef(() => disabled)
+provideTabsRoot(namespace, { disabled: _disabled })
+```
+
+The named local is justified only when the resulting Ref is referenced from multiple places in the SFC (e.g., a `_disabled` read by both the provide call and a local watch). Otherwise, inline.
+
 ## Props Pattern (100% enforced)
 
 ```ts
