@@ -86,15 +86,7 @@
           <div class="hidden md:block w-px h-4 bg-divider" />
 
           <div class="flex items-center gap-4">
-            <AppLink
-              v-if="latest"
-              class="flex items-center gap-1 hover:text-primary hover:underline"
-              :title="`Last Released: ${new Date(latest.published_at ?? '').toLocaleString()}`"
-              :to="`/releases?version=${latest.tag_name}`"
-            >
-              <AppIcon icon="tag" :size="14" />
-              {{ latest.tag_name }}
-            </AppLink>
+            <AppVersionChip v-if="latest" />
 
             <template v-if="latest && app.stats.commit">
               <div class="w-px h-4 bg-divider" />

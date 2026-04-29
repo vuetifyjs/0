@@ -108,16 +108,17 @@
   // Scroll active link into view after nav sections are ready
   watch(scrollEnabled, enabled => {
     if (!enabled || !IN_BROWSER) return
-    const nav = document.querySelector('#main-navigation')
+    const root = document.querySelector('#main-navigation')
+    const scroller = root?.querySelector<HTMLElement>('.nav-scroll')
     // Find the exact route match, not just any active ancestor
-    const activeLink = nav?.querySelector<HTMLElement>(`a[href="${route.path}"]`)
-    if (activeLink && nav) {
-      const navRect = nav.getBoundingClientRect()
+    const activeLink = scroller?.querySelector<HTMLElement>(`a[href="${route.path}"]`)
+    if (activeLink && scroller) {
+      const navRect = scroller.getBoundingClientRect()
       const linkRect = activeLink.getBoundingClientRect()
       // Only scroll if link is outside visible area
       if (linkRect.top < navRect.top || linkRect.bottom > navRect.bottom) {
-        const linkRelativeTop = linkRect.top - navRect.top + nav.scrollTop
-        nav.scrollTop = Math.max(0, linkRelativeTop - 100) // 100px from top, not centered
+        const linkRelativeTop = linkRect.top - navRect.top + scroller.scrollTop
+        scroller.scrollTop = Math.max(0, linkRelativeTop - 100) // 100px from top, not centered
       }
     }
   }, { immediate: true })
@@ -147,7 +148,7 @@
     aria-label="Main navigation"
     as="nav"
     :class="[
-      'flex flex-col fixed w-[230px] overflow-y-auto py-4 top-0 md:top-[calc(48px+var(--app-banner-h,24px))] bottom-0 start-0 ltr:-translate-x-full rtl:translate-x-full md:ltr:translate-x-0 md:rtl:translate-x-0 border-e border-solid border-divider',
+      'flex flex-col fixed w-[230px] top-0 md:top-[calc(48px+var(--app-banner-h,24px))] bottom-0 start-0 ltr:-translate-x-full rtl:translate-x-full md:ltr:translate-x-0 md:rtl:translate-x-0 border-e border-solid border-divider',
       settings.showBgGlass.value ? 'bg-glass-surface' : 'bg-surface',
       navigation.isOpen.value && '!translate-x-0',
       !settings.prefersReducedMotion.value && 'transition-transform duration-200 ease-in-out',
@@ -157,90 +158,94 @@
     step="navigation"
     :style="{ zIndex: isMobile ? ticket.zIndex.value : undefined }"
   >
-    <!-- Mobile header -->
-    <header class="md:hidden shrink-0 px-4 py-3 -mt-4 mb-4 border-b border-divider flex items-center justify-between bg-surface">
-      <div class="flex items-center gap-2">
-        <AppIcon class="text-primary" icon="menu" />
-        <span class="font-medium">Navigation</span>
+    <div class="nav-scroll flex-1 min-h-0 overflow-y-auto py-4">
+      <!-- Mobile header -->
+      <header class="md:hidden shrink-0 px-4 py-3 -mt-4 mb-4 border-b border-divider flex items-center justify-between bg-surface">
+        <div class="flex items-center gap-2">
+          <AppIcon class="text-primary" icon="menu" />
+          <span class="font-medium">Navigation</span>
+        </div>
+
+        <AppCloseButton label="Close navigation" @click="navigation.close" />
+      </header>
+
+      <!-- URL filter banner -->
+      <div v-if="navConfig.activeFeatures.value" class="-mt-4 px-4 py-3 mb-4 bg-surface-variant-50 border-b border-divider">
+        <p class="text-xs text-on-surface-variant mb-2">
+          Showing docs for your project
+        </p>
+
+        <button
+          class="text-xs text-primary hover:underline"
+          type="button"
+          @click="navConfig.clearFilter"
+        >
+          Show all docs
+        </button>
       </div>
 
-      <AppCloseButton label="Close navigation" @click="navigation.close" />
-    </header>
+      <ul class="flex gap-2 flex-col">
+        <template v-if="filteredOutPage">
+          <li class="px-4 section-label">
+            Active page
+          </li>
 
-    <!-- URL filter banner -->
-    <div v-if="navConfig.activeFeatures.value" class="-mt-4 px-4 py-3 mb-4 bg-surface-variant-50 border-b border-divider">
-      <p class="text-xs text-on-surface-variant mb-2">
-        Showing docs for your project
-      </p>
+          <li class="px-4">
+            <router-link
+              aria-current="page"
+              class="font-semibold text-primary underline"
+              :to="filteredOutPage.to"
+            >
+              {{ filteredOutPage.name }}
+            </router-link>
+          </li>
 
-      <button
-        class="text-xs text-primary hover:underline"
-        type="button"
-        @click="navConfig.clearFilter"
-      >
-        Show all docs
-      </button>
+          <li class="px-4">
+            <AppDivider />
+          </li>
+        </template>
+
+        <template v-for="(nav, i) in visibleNav" :key="i">
+          <li v-if="'divider' in nav" class="px-4">
+            <AppDivider />
+          </li>
+
+          <AppNavLink
+            v-else-if="'to' in nav"
+            :id="nav.to"
+            class="px-4"
+            :emphasized="nav.emphasized"
+            :name="nav.name"
+            :to="nav.to"
+          />
+
+          <AppNavLink
+            v-else
+            :id="`category-root-${i}`"
+            class="px-4"
+            :name="nav.name"
+          />
+        </template>
+
+        <template v-if="levelFilter.selectedLevels.size > 0">
+          <!-- Skip divider if Active page section already added one and nav has no real content -->
+          <li v-if="!filteredOutPage || hasNavContent" class="px-4">
+            <AppDivider />
+          </li>
+
+          <li class="px-4">
+            <router-link
+              class="flex items-center gap-2 text-sm text-on-surface-variant hover:text-primary hover:underline transition-colors"
+              to="/guide/essentials/using-the-docs#skill-levels"
+            >
+              <AppIcon icon="info" size="16" />
+              <span>Missing pages?</span>
+            </router-link>
+          </li>
+        </template>
+      </ul>
     </div>
 
-    <ul class="flex gap-2 flex-col">
-      <template v-if="filteredOutPage">
-        <li class="px-4 section-label">
-          Active page
-        </li>
-
-        <li class="px-4">
-          <router-link
-            aria-current="page"
-            class="font-semibold text-primary underline"
-            :to="filteredOutPage.to"
-          >
-            {{ filteredOutPage.name }}
-          </router-link>
-        </li>
-
-        <li class="px-4">
-          <AppDivider />
-        </li>
-      </template>
-
-      <template v-for="(nav, i) in visibleNav" :key="i">
-        <li v-if="'divider' in nav" class="px-4">
-          <AppDivider />
-        </li>
-
-        <AppNavLink
-          v-else-if="'to' in nav"
-          :id="nav.to"
-          class="px-4"
-          :emphasized="nav.emphasized"
-          :name="nav.name"
-          :to="nav.to"
-        />
-
-        <AppNavLink
-          v-else
-          :id="`category-root-${i}`"
-          class="px-4"
-          :name="nav.name"
-        />
-      </template>
-
-      <template v-if="levelFilter.selectedLevels.size > 0">
-        <!-- Skip divider if Active page section already added one and nav has no real content -->
-        <li v-if="!filteredOutPage || hasNavContent" class="px-4">
-          <AppDivider />
-        </li>
-
-        <li class="px-4">
-          <router-link
-            class="flex items-center gap-2 text-sm text-on-surface-variant hover:text-primary hover:underline transition-colors"
-            to="/guide/essentials/using-the-docs#skill-levels"
-          >
-            <AppIcon icon="info" size="16" />
-            <span>Missing pages?</span>
-          </router-link>
-        </li>
-      </template>
-    </ul>
+    <AppNavFooter />
   </Discovery.Activator>
 </template>
