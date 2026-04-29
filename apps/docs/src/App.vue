@@ -162,11 +162,11 @@
       <div :inert="isModalOpen || undefined">
         <router-view />
       </div>
+
+      <Scrim class="fixed inset-0 bg-black/30 transition-opacity" :teleport="false" />
     </div>
 
     <DocsSearch />
-
-    <Scrim class="fixed inset-0 bg-black/30 transition-opacity" :teleport="false" />
 
     <Transition :name="slideTransition">
       <AppSettingsSheet v-if="settings.isOpen.value" />
