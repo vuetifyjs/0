@@ -98,13 +98,14 @@ Shoehorning a feature into a category that doesn't fit creates compound confusio
 
 ### Maturity matrix — where each level lives
 
-`maturity.json` is the single source of truth. Every entry has `level`, `category`, and an optional `notes` field. `since` is **only set when the entry is promoted to `stable`** — never on `draft` or `preview`:
+`maturity.json` is the single source of truth. Every entry has `level`, `since`, `category`, and an optional `notes` field. **`since` starts as `null`** for every new entry and is **manually updated to the release version** in the PR that ships the entry as `stable`:
 
 ```json
 {
   "composables": {
     "createModel": {
       "level": "preview",
+      "since": null,
       "category": "selection",
       "notes": "Recently redesigned from selection system"
     },
@@ -119,15 +120,17 @@ Shoehorning a feature into a category that doesn't fit creates compound confusio
 
 The `level` is rendered in the docs at `<DocsMaturity />` on every feature page (and in aggregate on the index pages).
 
-### Why no `since` until stable
+### Why `since: null` until stable
 
-`draft` and `preview` are pre-release statuses. Pinning `since: "1.0.0-alpha.1"` on a `preview` entry ossifies a fictional ship version — subsequent alpha/beta cuts can land before the feature actually ships, the field rots, and authors don't routinely re-check it. The version a feature shipped in is only known the moment it goes `stable`. The promotion PR is the right place to add `since`.
+`draft` and `preview` are pre-release statuses. Pinning `since: "1.0.0-alpha.1"` on a `preview` entry ossifies a fictional ship version — subsequent alpha/beta cuts can land before the feature actually ships, the field rots, and authors don't routinely re-check it. The version a feature shipped in is only known the moment it goes `stable`.
+
+`null` (rather than omitting the key) keeps the entry shape uniform across all maturity levels, surfaces the field as an obvious "needs to be filled in" placeholder during the stable-promotion PR, and lets tooling iterate entries without branching on key presence.
 
 ### How to set the initial level
 
-- Brand-new feature, no implementation yet → `draft`. No `since`.
-- Implementation landed, passing tests, docs page exists → `preview`. No `since`.
-- API has shipped for multiple minor versions with no breaking changes, test coverage is comprehensive, real consumers depend on it → `stable`. **Now set `since`** to the version this PR will release into.
+- Brand-new feature, no implementation yet → `level: "draft"`, `since: null`.
+- Implementation landed, passing tests, docs page exists → `level: "preview"`, `since: null`.
+- API has shipped for multiple minor versions with no breaking changes, test coverage is comprehensive, real consumers depend on it → `level: "stable"`. **Now set `since`** manually to the version this PR will release into.
 
 ### When to promote
 
