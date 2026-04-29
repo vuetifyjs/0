@@ -202,6 +202,32 @@ The same depth rule does **not** apply to `## Usage` or `## Recipes` blocks — 
 
 Any ``` ```vue ``` code fence containing component usage must wrap markup in `<template>...</template>`. Never show bare fragments. [intent:271]
 
+## Inline code in headers and links
+
+Two related restrictions on inline-code (`` ` ``) styling:
+
+- **Never use `` ` `` in markdown headers.** Write `### Understanding id vs value`, not `` ### Understanding `id` vs `value` ``. Headers feed the TOC and the URL anchor; the inline-code styling renders inconsistently across both and the anchor slug includes the surrounding characters.
+- **Never wrap link text in `` ` ``.** Write `[createOverflow](/composables/semantic/create-overflow)`, not `` [`createOverflow`](/composables/semantic/create-overflow) ``. The link styling (underline + color) already signals that the text is a code identifier; backticks layer redundant — and in many themes broken — formatting on top.
+
+Inline code in regular prose is fine and encouraged: `` `Overflow.Root` ``, `` `+N more` ``, etc.
+
+```markdown
+<!-- Wrong -->
+### Understanding `id` vs `value`
+Built on [`createOverflow`](/composables/semantic/create-overflow).
+
+<!-- Right -->
+### Understanding id vs value
+Built on [createOverflow](/composables/semantic/create-overflow).
+```
+
+Existing violations (sweep candidate, not blocking):
+
+- `apps/docs/src/pages/components/forms/select.md:137` — header
+- `apps/docs/src/pages/composables/index.md:182, 192` — headers
+- `apps/docs/src/pages/introduction/why-vuetify0.md:158` — link text
+- `apps/docs/src/pages/composables/foundation/create-trinity.md:87` — link text
+
 ## Markdown Directives
 
 | Syntax | Purpose |

@@ -24,7 +24,7 @@ Headless responsive truncation primitive. Children render until the container ru
 
 ## Usage
 
-`Overflow` is built on the [`createOverflow`](/composables/semantic/create-overflow) composable. Wrap any horizontal list of items with `Overflow.Root`, register each item via `Overflow.Item`, and add an `Overflow.Indicator` to render the `+N more` affordance when truncation kicks in.
+`Overflow` is built on the [createOverflow](/composables/semantic/create-overflow) composable. Wrap any horizontal list of items with `Overflow.Root`, register each item via `Overflow.Item`, and add an `Overflow.Indicator` to render the `+N more` affordance when truncation kicks in.
 
 ```vue collapse no-filename
 <script setup lang="ts">
