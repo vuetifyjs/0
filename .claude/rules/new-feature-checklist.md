@@ -98,16 +98,20 @@ Shoehorning a feature into a category that doesn't fit creates compound confusio
 
 ### Maturity matrix — where each level lives
 
-`maturity.json` is the single source of truth. Every entry has `level`, `since`, `category`, and an optional `notes` field:
+`maturity.json` is the single source of truth. Every entry has `level`, `category`, and an optional `notes` field. `since` is **only set when the entry is promoted to `stable`** — never on `draft` or `preview`:
 
 ```json
 {
   "composables": {
     "createModel": {
       "level": "preview",
-      "since": "0.1.5",
       "category": "selection",
       "notes": "Recently redesigned from selection system"
+    },
+    "createRegistry": {
+      "level": "stable",
+      "since": "0.1.0",
+      "category": "registration"
     }
   }
 }
@@ -115,11 +119,15 @@ Shoehorning a feature into a category that doesn't fit creates compound confusio
 
 The `level` is rendered in the docs at `<DocsMaturity />` on every feature page (and in aggregate on the index pages).
 
+### Why no `since` until stable
+
+`draft` and `preview` are pre-release statuses. Pinning `since: "1.0.0-alpha.1"` on a `preview` entry ossifies a fictional ship version — subsequent alpha/beta cuts can land before the feature actually ships, the field rots, and authors don't routinely re-check it. The version a feature shipped in is only known the moment it goes `stable`. The promotion PR is the right place to add `since`.
+
 ### How to set the initial level
 
-- Brand-new feature, no implementation yet → `draft`.
-- Implementation landed, passing tests, docs page exists → `preview`.
-- API has shipped for multiple minor versions with no breaking changes, test coverage is comprehensive, real consumers depend on it → `stable`.
+- Brand-new feature, no implementation yet → `draft`. No `since`.
+- Implementation landed, passing tests, docs page exists → `preview`. No `since`.
+- API has shipped for multiple minor versions with no breaking changes, test coverage is comprehensive, real consumers depend on it → `stable`. **Now set `since`** to the version this PR will release into.
 
 ### When to promote
 

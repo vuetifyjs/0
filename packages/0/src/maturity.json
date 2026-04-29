@@ -501,7 +501,6 @@
     },
     "Overflow": {
       "level": "preview",
-      "since": "1.0.0-alpha.1",
       "category": "semantic"
     },
     "Pagination": {
