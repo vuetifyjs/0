@@ -1,8 +1,8 @@
 <script setup lang="ts">
-  import { computed, ref } from 'vue'
+  import { computed, shallowRef } from 'vue'
   import { toHighlight } from '@vuetify/v0'
 
-  const input = ref('Vue, reactive')
+  const input = shallowRef('Vue, reactive')
   const query = computed(() =>
     input.value.split(',').map(s => s.trim()).filter(Boolean),
   )

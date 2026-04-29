@@ -193,6 +193,7 @@ The same depth rule does **not** apply to `## Usage` or `## Recipes` blocks — 
 - No `index.vue` pattern. [intent:308]
 - Never `v-bind="attrs"` on children of non-renderless components — causes double-fire. Only use slot `attrs` in `renderless` mode where there is no wrapper element. [intent:206, intent:207]
 - Prefer `v-slot="{ attrs }"` shorthand over `<template #default="{ attrs }">`. [intent:272, intent:273]
+- Reactivity primitive: `shallowRef` for primitive state (booleans, numbers, strings), `ref` only for objects/arrays. Same rule as source code — see PHILOSOPHY §4.1. Examples are read by every consumer and become the de facto template; if they reach for `ref('foo')`, downstream apps will too.
 
 ### Vue code fences
 
