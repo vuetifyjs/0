@@ -7,6 +7,18 @@
  * Pure transformer — no DOM, no state, no registry. Splits text into matched and
  * unmatched chunks given a query string, an array of query strings, or pre-computed
  * `[start, end]` match ranges (e.g., from createFilter).
+ *
+ * @example
+ * ```ts
+ * import { toHighlight } from '@vuetify/v0'
+ *
+ * const chunks = toHighlight({
+ *   text: 'Hello World',
+ *   query: 'world',
+ * })
+ * console.log(chunks.value)
+ * // [{ text: 'Hello ', match: false }, { text: 'World', match: true }]
+ * ```
  */
 
 // Utilities
@@ -15,13 +27,49 @@ import { computed, toValue } from 'vue'
 // Types
 import type { ComputedRef, MaybeRefOrGetter } from 'vue'
 
+/**
+ * A `[start, end]` index pair where `end` is exclusive (matches
+ * `String.prototype.slice` convention).
+ *
+ * @example
+ * ```ts
+ * import type { MatchRange } from '@vuetify/v0'
+ *
+ * const ranges: MatchRange[] = [[0, 5], [12, 17]]
+ * ```
+ */
 export type MatchRange = [number, number]
 
+/**
+ * A contiguous chunk of source text, flagged as matched or unmatched.
+ *
+ * @example
+ * ```ts
+ * import type { HighlightChunk } from '@vuetify/v0'
+ *
+ * const chunk: HighlightChunk = { text: 'Hello', match: true }
+ * ```
+ */
 export interface HighlightChunk {
   text: string
   match: boolean
 }
 
+/**
+ * Options accepted by {@link toHighlight}.
+ *
+ * @example
+ * ```ts
+ * import { toHighlight } from '@vuetify/v0'
+ *
+ * const chunks = toHighlight({
+ *   text: () => props.text,
+ *   query: () => props.query,
+ *   ignoreCase: false,
+ *   matchAll: false,
+ * })
+ * ```
+ */
 export interface ToHighlightOptions {
   /** The source string to split into chunks. */
   text: MaybeRefOrGetter<string>
@@ -30,6 +78,8 @@ export interface ToHighlightOptions {
   /**
    * Pre-computed `[start, end]` index pairs.
    * When non-empty, takes priority over `query`. `matchAll` is ignored.
+   * Caller-supplied ranges are sorted and merged before chunking, so
+   * unsorted or overlapping input is handled gracefully.
    */
   matches?: MaybeRefOrGetter<MatchRange[] | undefined>
   /**
@@ -39,6 +89,21 @@ export interface ToHighlightOptions {
   matchAll?: MaybeRefOrGetter<boolean>
   /** Case-insensitive matching. Default `true`. */
   ignoreCase?: MaybeRefOrGetter<boolean>
+}
+
+function mergeRanges (ranges: MatchRange[]): MatchRange[] {
+  const sorted = ranges
+    .filter(span => span[0] < span[1])
+    .toSorted((a, b) => a[0] - b[0])
+  const merged: MatchRange[] = []
+
+  for (const span of sorted) {
+    const last = merged.at(-1)
+    if (last && span[0] <= last[1]) last[1] = Math.max(last[1], span[1])
+    else merged.push([span[0], span[1]])
+  }
+
+  return merged
 }
 
 function chunkText (text: string, ranges: MatchRange[]): HighlightChunk[] {
@@ -63,32 +128,46 @@ function findRanges (text: string, query: string | string[], matchAll: boolean, 
 
   for (const term of terms) {
     const needle = ignoreCase ? term.toLocaleLowerCase() : term
-    let i = haystack.indexOf(needle)
+    let index = haystack.indexOf(needle)
 
-    if (i !== -1) {
-      spans.push([i, i + term.length])
+    if (index !== -1) {
+      spans.push([index, index + term.length])
       if (matchAll) {
-        i = haystack.indexOf(needle, i + term.length)
-        while (i !== -1) {
-          spans.push([i, i + term.length])
-          i = haystack.indexOf(needle, i + term.length)
+        index = haystack.indexOf(needle, index + term.length)
+        while (index !== -1) {
+          spans.push([index, index + term.length])
+          index = haystack.indexOf(needle, index + term.length)
         }
       }
     }
   }
 
-  spans.sort((a, b) => a[0] - b[0])
-
-  const merged: MatchRange[] = []
-  for (const span of spans) {
-    const last = merged.at(-1)
-    if (last && span[0] <= last[1]) last[1] = Math.max(last[1], span[1])
-    else merged.push([...span])
-  }
-
-  return merged
+  return mergeRanges(spans)
 }
 
+/**
+ * Splits text into matched and unmatched chunks.
+ *
+ * Priority: `matches` (when non-empty) → `query` → no-match fallback.
+ *
+ * @param options Source text plus optional `query`, `matches`, `matchAll`, `ignoreCase`.
+ * @returns A `ComputedRef<HighlightChunk[]>` that recomputes when any reactive input changes.
+ *
+ * @see https://0.vuetifyjs.com/composables/transformers/to-highlight
+ *
+ * @example
+ * ```ts
+ * import { shallowRef } from 'vue'
+ * import { toHighlight } from '@vuetify/v0'
+ *
+ * const query = shallowRef('world')
+ * const chunks = toHighlight({ text: 'Hello World', query })
+ *
+ * console.log(chunks.value)
+ * // [{ text: 'Hello ', match: false }, { text: 'World', match: true }]
+ * ```
+ */
+/* #__NO_SIDE_EFFECTS__ */
 export function toHighlight (options: ToHighlightOptions): ComputedRef<HighlightChunk[]> {
   return computed<HighlightChunk[]>(() => {
     const text = toValue(options.text)
@@ -97,7 +176,7 @@ export function toHighlight (options: ToHighlightOptions): ComputedRef<Highlight
     const matchAll = toValue(options.matchAll) ?? true
     const ignoreCase = toValue(options.ignoreCase) ?? true
 
-    if (matches?.length) return chunkText(text, matches)
+    if (matches?.length) return chunkText(text, mergeRanges(matches))
 
     if (query) {
       const ranges = findRanges(text, query, matchAll, ignoreCase)

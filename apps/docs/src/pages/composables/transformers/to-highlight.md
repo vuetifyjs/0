@@ -35,6 +35,42 @@ const chunks = toHighlight({
 // chunks.value → [{ text: 'Hello ', match: false }, { text: 'World', match: true }]
 ```
 
+## Architecture
+
+`toHighlight` resolves its input through a fixed priority order:
+
+```mermaid "Highlight Resolution"
+flowchart LR
+  options[Options] --> matches{matches?}
+  matches -- non-empty --> normalize[sort + merge ranges]
+  matches -- empty / none --> query{query?}
+  query -- truthy --> find[findRanges]
+  query -- empty / none --> noop[full text, match: false]
+  find --> ranges{matches found?}
+  ranges -- yes --> chunk[chunkText]
+  ranges -- no --> noop
+  normalize --> chunk
+  chunk --> chunks[HighlightChunk array]
+  noop --> chunks
+```
+
+## Reactivity
+
+`toHighlight` returns a **`ComputedRef<HighlightChunk[]>`**. The chunks array recomputes
+whenever any of its `MaybeRefOrGetter` inputs change — `text`, `query`, `matches`, `matchAll`,
+`ignoreCase` are all read through `toValue`, so refs and getters track automatically.
+
+| Behavior | Reactive | Notes |
+| - | :-: | - |
+| Reading `chunks.value` | <AppSuccessIcon /> | Standard `ComputedRef` access |
+| Mutating `text`, `query`, `matches` | <AppSuccessIcon /> | Refs and getters tracked through `toValue` |
+| Toggling `ignoreCase` or `matchAll` | <AppSuccessIcon /> | Same `MaybeRefOrGetter` contract |
+| Mutating returned chunks | <AppErrorIcon /> | Treat the array as derived; do not mutate |
+
+> [!TIP] Reach for plain values, refs, or getters
+> Every option accepts `MaybeRefOrGetter<T>`. Pass a literal for static input, a `Ref` for
+> v-model integration, or a getter (`() => props.text`) for prop-driven reactivity.
+
 ## Examples
 
 ::: example
@@ -50,13 +86,6 @@ a `<strong>` for bold-only, or whatever your design calls for.
 
 Matching is case-insensitive by default (`ignoreCase: true`). Set `ignoreCase: false` to
 respect the exact casing in the source text.
-
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `text` | `MaybeRefOrGetter<string>` | — | Source string to split |
-| `query` | `MaybeRefOrGetter<string \| string[] \| undefined>` | `undefined` | Search term(s) |
-| `ignoreCase` | `MaybeRefOrGetter<boolean>` | `true` | Case-insensitive matching |
-| `matchAll` | `MaybeRefOrGetter<boolean>` | `true` | Highlight every occurrence vs first only |
 
 :::
 
@@ -137,6 +166,12 @@ Yes. The `matches` option accepts `MatchRange[]` — `[start, end]` pairs. Once
 Overlapping or adjacent spans are merged before the chunks array is produced.
 `['foo', 'oba']` against `'foobar'` yields `[{ text: 'fooba', match: true }, { text: 'r', match: false }]`
 rather than two separate matches.
+
+??? Are caller-supplied match ranges normalized?
+
+Yes. Ranges passed via the `matches` option are sorted by start index and merged on
+overlap or adjacency before chunking. Pass `[[4, 6], [0, 2]]` or `[[0, 4], [2, 6]]` and
+the output is the same as if you had supplied the canonical sorted, non-overlapping form.
 
 ??? What happens when neither query nor matches is provided?
 

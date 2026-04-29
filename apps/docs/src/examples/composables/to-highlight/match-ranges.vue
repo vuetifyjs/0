@@ -6,7 +6,7 @@
 
   // Pre-computed ranges: highlight every word that starts with a consonant cluster
   const matches: MatchRange[] = [
-    [4, 9],   // quick
+    [4, 9], // quick
     [10, 15], // brown
     [20, 25], // jumps
     [31, 35], // lazy
@@ -33,6 +33,7 @@
           v-if="chunk.match"
           class="bg-success/30 text-on-surface rounded px-0.5 not-italic"
         >{{ chunk.text }}</mark>
+
         <template v-else>{{ chunk.text }}</template>
       </template>
     </p>

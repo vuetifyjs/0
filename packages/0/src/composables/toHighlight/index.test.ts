@@ -40,6 +40,52 @@ describe('toHighlight', () => {
         { text: 'ar', match: true },
       ])
     })
+
+    it('should sort caller-supplied matches that arrive out of order', () => {
+      expect(run({ text: 'foobar', matches: [[4, 6], [0, 2]] })).toStrictEqual([
+        { text: 'fo', match: true },
+        { text: 'ob', match: false },
+        { text: 'ar', match: true },
+      ])
+    })
+
+    it('should merge caller-supplied matches that overlap', () => {
+      expect(run({ text: 'foobar', matches: [[0, 4], [2, 6]] })).toStrictEqual([
+        { text: 'foobar', match: true },
+      ])
+    })
+
+    it('should merge caller-supplied matches that are adjacent', () => {
+      expect(run({ text: 'foobar', matches: [[0, 3], [3, 6]] })).toStrictEqual([
+        { text: 'foobar', match: true },
+      ])
+    })
+
+    it('should not mutate the caller-supplied matches array or its tuples', () => {
+      const ranges: [number, number][] = [[0, 4], [2, 6]]
+      const snapshot = ranges.map(r => [...r])
+      run({ text: 'foobar', matches: ranges })
+      expect(ranges.map(r => [...r])).toStrictEqual(snapshot)
+    })
+
+    it('should drop inverted ranges where start >= end', () => {
+      expect(run({ text: 'foobar', matches: [[5, 3]] })).toStrictEqual([
+        { text: 'foobar', match: false },
+      ])
+    })
+
+    it('should drop zero-width ranges', () => {
+      expect(run({ text: 'foobar', matches: [[3, 3], [0, 2]] })).toStrictEqual([
+        { text: 'fo', match: true },
+        { text: 'obar', match: false },
+      ])
+    })
+
+    it('should clamp out-of-bounds end indices via String.slice semantics', () => {
+      expect(run({ text: 'hi', matches: [[0, 999]] })).toStrictEqual([
+        { text: 'hi', match: true },
+      ])
+    })
   })
 
   describe('query string', () => {
@@ -111,7 +157,6 @@ describe('toHighlight', () => {
     })
 
     it('should ignore matchAll when matches is provided', () => {
-      // matchAll: false should NOT truncate pre-computed matches
       expect(run({ text: 'aabbaa', matches: [[0, 2], [4, 6]], matchAll: false })).toStrictEqual([
         { text: 'aa', match: true },
         { text: 'bb', match: false },
@@ -129,6 +174,43 @@ describe('toHighlight', () => {
 
       text.value = 'goodbye world'
       expect(chunks.value[0]).toStrictEqual({ text: 'goodbye ', match: false })
+    })
+
+    it('should recompute when reactive query changes', () => {
+      const query = shallowRef('hello')
+      const chunks = toHighlight({ text: 'hello world', query })
+
+      expect(chunks.value[0]).toStrictEqual({ text: 'hello', match: true })
+
+      query.value = 'world'
+      expect(chunks.value[1]).toStrictEqual({ text: 'world', match: true })
+    })
+
+    it('should recompute when reactive matches change', () => {
+      const matches = shallowRef<[number, number][]>([[0, 5]])
+      const chunks = toHighlight({ text: 'hello world', matches })
+
+      expect(chunks.value[0]).toStrictEqual({ text: 'hello', match: true })
+
+      matches.value = [[6, 11]]
+      expect(chunks.value[1]).toStrictEqual({ text: 'world', match: true })
+    })
+
+    it('should accept getter functions for any input', () => {
+      const source = shallowRef('hello world')
+      const term = shallowRef('world')
+      const chunks = toHighlight({
+        text: () => source.value,
+        query: () => term.value,
+        ignoreCase: () => true,
+        matchAll: () => true,
+      })
+
+      expect(chunks.value[1]).toStrictEqual({ text: 'world', match: true })
+
+      source.value = 'goodbye world'
+      term.value = 'goodbye'
+      expect(chunks.value[0]).toStrictEqual({ text: 'goodbye', match: true })
     })
   })
 })

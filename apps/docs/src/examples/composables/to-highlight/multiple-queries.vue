@@ -4,7 +4,7 @@
 
   const input = ref('Vue, reactive')
   const query = computed(() =>
-    input.value.split(',').map(s => s.trim()).filter(Boolean)
+    input.value.split(',').map(s => s.trim()).filter(Boolean),
   )
 
   const text = 'Vue 3 uses a reactive system built on ES Proxy. Reactive state is declared with ref and reactive, and tracked automatically inside computed and watch callbacks.'
@@ -18,10 +18,10 @@
       Queries (comma-separated)
       <input
         v-model="input"
-        type="text"
-        placeholder="e.g. Vue, reactive"
         class="px-3 py-2 rounded border border-divider bg-surface text-on-surface outline-none focus:ring-2 focus:ring-primary/40"
-      />
+        placeholder="e.g. Vue, reactive"
+        type="text"
+      >
     </label>
 
     <div class="flex flex-wrap gap-1">
@@ -38,6 +38,7 @@
           v-if="chunk.match"
           class="bg-primary/25 text-on-surface rounded px-0.5 not-italic font-medium"
         >{{ chunk.text }}</mark>
+
         <template v-else>{{ chunk.text }}</template>
       </template>
     </p>
