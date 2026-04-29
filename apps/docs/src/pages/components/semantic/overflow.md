@@ -48,26 +48,16 @@ Headless responsive truncation primitive. Children render until the container ru
 
 ## Anatomy
 
-```vue playground collapse
+```vue Anatomy playground
 <script setup lang="ts">
   import { Overflow } from '@vuetify/v0'
-
-  const items = [
-    { id: 1, label: 'One' },
-    { id: 2, label: 'Two' },
-    { id: 3, label: 'Three' },
-  ]
 </script>
 
 <template>
-  <Overflow.Root class="flex gap-2 overflow-hidden">
-    <Overflow.Item v-for="item in items" :key="item.id" :value="item">
-      {{ item.label }}
-    </Overflow.Item>
+  <Overflow.Root>
+    <Overflow.Item />
 
-    <Overflow.Indicator v-slot="{ count, hidden }">
-      +{{ count }} more
-    </Overflow.Indicator>
+    <Overflow.Indicator />
   </Overflow.Root>
 </template>
 ```
