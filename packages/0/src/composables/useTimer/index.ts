@@ -9,6 +9,7 @@
  * Key features:
  * - Start/stop/pause/resume controls
  * - Reactive remaining time tracking
+ * - Reactive `duration` via `MaybeRefOrGetter` — read fresh on each `start()`
  * - One-shot (default) or repeating mode
  * - Automatic cleanup on scope disposal
  * - SSR-safe
@@ -24,20 +25,29 @@
 
 // Utilities
 import { isUndefined } from '#v0/utilities'
-import { onScopeDispose, shallowRef } from 'vue'
+import { onScopeDispose, shallowRef, toValue } from 'vue'
 
 // Types
-import type { ShallowRef } from 'vue'
+import type { MaybeRefOrGetter, ShallowRef } from 'vue'
 
 // Constants
 import { IN_BROWSER } from '#v0/constants/globals'
 
 export interface TimerOptions {
   /**
-   * Duration in milliseconds.
+   * Duration in milliseconds. Accepts a plain number, ref, or getter — the
+   * value is read fresh each time `start()` is invoked, so reactive sources
+   * can change between runs without recreating the timer.
+   *
    * @default 1000
+   *
+   * @example
+   * ```ts
+   * useTimer(handler, { duration: 5000 })
+   * useTimer(handler, { duration: () => isFast.value ? 100 : 1000 })
+   * ```
    */
-  duration?: number
+  duration?: MaybeRefOrGetter<number>
   /**
    * Whether the timer repeats after firing.
    * @default false
@@ -79,6 +89,12 @@ export interface TimerContext {
  * timer.pause()
  * timer.resume()
  * timer.stop()
+ *
+ * // Reactive duration — re-read on each start()
+ * const duration = shallowRef(1000)
+ * const reactive = useTimer(handler, { duration })
+ * duration.value = 2000
+ * reactive.start() // fires after 2000ms
  * ```
  */
 export function useTimer (
@@ -87,14 +103,18 @@ export function useTimer (
 ): TimerContext {
   const { duration = 1000, repeat = false } = options
 
-  const remaining = shallowRef(duration)
+  function resolveDuration () {
+    return toValue(duration)
+  }
+
+  const remaining = shallowRef(resolveDuration())
   const isActive = shallowRef(false)
   const isPaused = shallowRef(false)
 
   let timeoutId: ReturnType<typeof setTimeout> | undefined
   let trackingId: ReturnType<typeof setInterval> | undefined
   let startedAt = 0
-  let budget = duration
+  let budget = remaining.value
 
   function clearTimer () {
     if (!isUndefined(timeoutId)) {
@@ -130,7 +150,7 @@ export function useTimer (
     handler()
 
     if (repeat) {
-      begin(duration)
+      begin(resolveDuration())
     } else {
       isActive.value = false
       remaining.value = 0
@@ -152,9 +172,10 @@ export function useTimer (
   }
 
   function start () {
-    if (duration < 0) return
+    const ms = resolveDuration()
+    if (ms < 0) return
 
-    begin(duration)
+    begin(ms)
   }
 
   function stop () {
@@ -162,7 +183,7 @@ export function useTimer (
     stopTracking()
     isActive.value = false
     isPaused.value = false
-    remaining.value = duration
+    remaining.value = resolveDuration()
   }
 
   function pause () {
