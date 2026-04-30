@@ -426,21 +426,25 @@ const rootAtom = useTemplateRef<AtomExpose>('root')
 When the SFC that wraps an `Atom` needs that Atom's element for measurement, observers, focus management, or popover anchoring, follow the canonical form:
 
 ```ts
-// packages/0/src/components/Image/ImageRoot.vue:94
+// packages/0/src/components/Overflow/OverflowIndicator.vue
 const atomRef = useTemplateRef<AtomExpose>('atom')
-const el = toRef(() => toElement(atomRef.value?.element) as HTMLElement | null ?? null)
+const el = toRef(() => toElement(atomRef.value?.element) ?? null)
 ```
 
 - **Name the `useTemplateRef` holder** `atomRef` (single Atom) or `{role}Ref` / `{role}Atom` (multiple). It holds an `AtomExpose` wrapper, not an `HTMLElement` — never suffix it with `El`. Precedents: `Image/ImageRoot.vue:93` (`atomRef`), `Splitter/SplitterRoot.vue:112` (`rootAtom`), `Tabs/TabsItem.vue:88` (`rootRef`), `Snackbar/SnackbarQueue.vue:80` (`container`). **Anti-precedent**: `Carousel/CarouselNext.vue:57`, `CarouselItem.vue:79`, `CarouselLiveRegion.vue:64` use `rootEl` for the AtomExpose holder — that name belongs to the toRef-derived element, not the ref-of-wrapper.
 - **Always** route the access through `toElement` (`#v0/composables/toElement`). The raw `as HTMLElement | null | undefined` cast bypasses the normalization layer that handles ref-vs-direct-element variants and is the bug-family flagged in the saved-memory `toElement-template-refs.md`. Tabs, Treeview, and similar components carry the legacy raw-cast form pending a sweep.
 - **Wrap in `toRef(() => ...)`** so downstream consumers (`watch`, `useResizeObserver`, `useIntersectionObserver`, popover attach) get a reactive ref instead of a snapshot.
+- **`?? null` only — no `as HTMLElement | null` cast on the ref.** `toElement` returns `Element | undefined`. The historical pattern `as HTMLElement | null ?? null` (Image / Carousel × 4) papers over both transitions with a single misleading cast — TS thinks it's `HTMLElement | null` but the runtime value is `Element | null` after the coalesce. Drop the cast: write `toElement(...) ?? null` and let the ref be `Ref<Element | null>`. If a consumer needs HTMLElement-specific properties (`offsetWidth`, `offsetHeight`), cast at the use site (`(el.value as HTMLElement).offsetWidth`) — the boundary cast is honest about what's happening.
 - **Name the resulting element ref `el`** when the SFC has only one Atom, or `{position}El` (`rootEl`, `triggerEl`) when there are multiple. Never `elementRef` or `atomElement` — single-word `el` is the precedent across Image, Carousel × 4, Overflow.
 
-Worked precedents:
+Worked precedents (current form):
 
-- `packages/0/src/components/Image/ImageRoot.vue:94` — `rootEl`, used for IntersectionObserver
-- `packages/0/src/components/Carousel/CarouselNext.vue:72`, `CarouselPrevious.vue:72`, `CarouselProgress.vue:75`, `CarouselLiveRegion.vue:79` — `el`
-- `packages/0/src/components/Overflow/OverflowIndicator.vue` — `el`, used for ResizeObserver and own-width measurement
+- `packages/0/src/components/Overflow/OverflowIndicator.vue` — `el`, used for ResizeObserver and own-width measurement; HTMLElement cast at the `offsetWidth` use site only.
+
+Legacy precedents (still carrying the `as HTMLElement | null ?? null` chain pending sweep):
+
+- `packages/0/src/components/Image/ImageRoot.vue:94`
+- `packages/0/src/components/Carousel/CarouselNext.vue:72`, `CarouselPrevious.vue:72`, `CarouselProgress.vue:75`, `CarouselLiveRegion.vue:79`
 
 ### Naming conventions for exposed methods
 
