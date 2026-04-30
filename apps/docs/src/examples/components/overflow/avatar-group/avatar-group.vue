@@ -5,10 +5,7 @@
 </script>
 
 <template>
-  <Overflow.Root
-    class="flex items-center overflow-hidden p-3"
-    :gap="-8"
-  >
+  <Overflow.Root class="flex items-center overflow-hidden p-3">
     <Overflow.Item
       v-for="user in users"
       :key="user.id"

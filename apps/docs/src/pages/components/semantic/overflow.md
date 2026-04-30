@@ -84,7 +84,7 @@ The container needs `overflow: hidden` so the natural layout doesn't push items 
 
 ### Avatar group
 
-The classic "user roster" use case — a stack of overlapping avatars that collapse into a `+N` chip when the row gets tight. The data lives in a separate `users.ts` module to keep the markup focused on the visual composition. The negative `gap` and per-avatar `marginInlineStart: -8px` produce the overlap; everything else is the standard `Overflow.Root` + `Overflow.Item` + `Overflow.Indicator` skeleton.
+The classic "user roster" use case — a stack of overlapping avatars that collapse into a `+N` chip when the row gets tight. The data lives in a separate `users.ts` module to keep the markup focused on the visual composition. The overlap comes from per-avatar `marginInlineStart: -8px`, which `createOverflow` picks up automatically through `getComputedStyle().marginLeft` — the `Overflow.Root` doesn't need to set the `gap` prop because the container has no CSS gap and the visual overlap is already in each item's measured width.
 
 Because each avatar has the same width, the trailing avatars drop in predictable order — no special configuration needed beyond the default `priority="start"`. The indicator inherits the same circular shape and ring so it visually slots into the stack rather than calling attention to itself.
 
