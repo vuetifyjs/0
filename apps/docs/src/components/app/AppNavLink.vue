@@ -47,9 +47,7 @@
 
   const showHeatmap = toRef(() => !!emphasized && (emphasized === 1 || devmodeFeature.isSelected.value))
   const heatmapStyle = toRef(() => {
-    if (!emphasized) return undefined
-    // Map emphasized (1=fresh ≤7d, 5=stale >180d) → score (100, 75, 50, 25, 0)
-    // so the badge gradient matches the avocado palette on /health.
+    if (!emphasized || emphasized === 1) return undefined
     const score = (5 - emphasized) * 25
     return { backgroundColor: scoreToColor(score) }
   })
@@ -191,7 +189,13 @@
         @click="onOpen"
       >
         <span class="truncate">{{ name }}</span>
-        <span v-if="showHeatmap" class="w-2 h-2 rounded-[2px] shrink-0" :style="heatmapStyle" />
+
+        <span
+          v-if="showHeatmap"
+          class="w-2 h-2 rounded-[2px] shrink-0"
+          :class="{ 'bg-success': emphasized === 1 }"
+          :style="heatmapStyle"
+        />
       </Atom>
 
       <!-- Category header (not navigable) -->
