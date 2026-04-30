@@ -24,9 +24,7 @@ Headless responsive truncation primitive. Children render until the container ru
 
 ## Usage
 
-`Overflow` is built on the [createOverflow](/composables/semantic/create-overflow) composable. It solves a layout problem CSS alone cannot: when a horizontal list outgrows its container you want to *hide* the overflow rather than scroll, *tell the user how much was hidden*, and ideally let them get to it. `text-overflow: ellipsis` only works for single-line text and surfaces no count. `overflow: scroll` introduces a scrollbar nobody enjoys. Container queries can hide-or-show but cannot decide which children fit.
-
-Wrap any horizontal list with `Overflow.Root`, register each item with `Overflow.Item`, and add `Overflow.Indicator` to render the `+N more` affordance. The Root tracks the container's width via `ResizeObserver`, each Item self-measures, and the Indicator only mounts when overflow occurs — so the trigger appears and disappears with the available space.
+`Overflow` is built on the [createOverflow](/composables/semantic/create-overflow) composable. Wrap any horizontal list of items with `Overflow.Root`, register each item via `Overflow.Item`, and add an `Overflow.Indicator` to render the `+N more` affordance when truncation kicks in.
 
 ```vue collapse no-filename
 <script setup lang="ts">
@@ -67,21 +65,33 @@ Wrap any horizontal list with `Overflow.Root`, register each item with `Overflow
 ## Examples
 
 ::: example
+/components/overflow/basic
+
+### Tags
+
+The canonical use case. As the container shrinks, trailing tags hide and an indicator counts how many are missing. The default `priority="start"` keeps leading items visible — natural for tag chips, filters, and breadcrumb-style lists where the first items are the most relevant.
+
+The container needs `overflow: hidden` so the natural layout doesn't push items out of frame before the component can react. The indicator's slot exposes `count`; you control its rendering completely.
+
+| File | Role |
+|------|------|
+| `basic.vue` | Tag row that overflows when the container narrows |
+:::
+
+::: example
 /components/overflow/avatar-group/users.ts 1
 /components/overflow/avatar-group/avatar-group.vue 2
 
 ### Avatar group
 
-The classic "user roster" use case — a stack of overlapping avatars that collapse into a `+N` chip when the row gets tight. The container carries `role="list"` + `aria-label="Project contributors"` and each avatar carries `role="listitem"`, so screen readers announce the group as a list without forcing the layout into native `<ul>`/`<li>` (which interacts poorly with the per-item measurement chain). Each avatar's full name is mirrored into a `sr-only` span so SR users get the same context sighted users get from the `title` tooltip.
+The classic "user roster" use case — a stack of overlapping avatars that collapse into a `+N` chip when the row gets tight. The data lives in a separate `users.ts` module to keep the markup focused on the visual composition. The overlap comes from per-avatar `marginInlineStart: -8px`, which `createOverflow` picks up automatically through `getComputedStyle().marginLeft` — the `Overflow.Root` doesn't need to set the `gap` prop because the container has no CSS gap and the visual overlap is already in each item's measured width.
 
-The visual overlap is just `marginInlineStart: -8px` on each item — `createOverflow` picks that up automatically through `getComputedStyle().marginLeft`, so each avatar's measured width is `32 - 8 = 24px`. There's no CSS `gap` on the container and no `gap` prop on `Overflow.Root`; setting `gap` would *subtract the overlap a second time* and inflate the apparent capacity. When you have no CSS gap, leave the prop alone.
-
-Because every avatar has the same width, items drop in predictable order from the trailing edge. The indicator inherits the same circular shape and ring so it visually slots into the stack rather than calling attention to itself.
+Because each avatar has the same width, the trailing avatars drop in predictable order — no special configuration needed beyond the default `priority="start"`. The indicator inherits the same circular shape and ring so it visually slots into the stack rather than calling attention to itself.
 
 | File | Role |
 |------|------|
 | `users.ts` | Sample user data (id, name, initials, hue) |
-| `avatar-group.vue` | Overlapping avatar stack with `+N` indicator and full a11y |
+| `avatar-group.vue` | Overlapping avatar stack with `+N` indicator |
 :::
 
 ::: example
@@ -89,28 +99,30 @@ Because every avatar has the same width, items drop in predictable order from th
 
 ### Popover of hidden items
 
-`Overflow.Indicator` exposes the array of currently-hidden tickets via the `hidden` slot prop. Wrap the indicator content in a `Popover.Activator` and render the hidden values inside `Popover.Content` to give users access to truncated content without losing the compact display. This is the pattern GitHub uses for the repo language list, Linear for project tags, and most modern dashboards for filter chips.
+`Overflow.Indicator` exposes the array of currently-hidden tickets via the `hidden` slot prop. Wrap the indicator content in a `Popover.Activator` and render the hidden values inside `Popover.Content` to give users access to truncated content without losing the compact display.
 
-The indicator only mounts when overflow occurs, so the popover trigger naturally appears and disappears with the available space — no manual `v-if` gymnastics. The activator carries `:aria-label="`Show ${count} more topics`"` so screen-reader users hear *why* the button exists, not just `+5 more`. The popover content is `max-h-64 overflow-y-auto` for the edge case where many items are hidden — common for filter chip rows that compress hard at narrow widths.
-
-The container carries `role="list"` + `aria-label="Topic filters"` and each chip carries `role="listitem"` so the row announces as a list to assistive tech.
+This is the same pattern used by GitHub's repo language list and Linear's project tag list. The indicator only renders when overflow occurs, so the popover trigger naturally appears and disappears with the available space.
 
 | File | Role |
 |------|------|
-| `popover.vue` | Tag row with overflow chips collapsed into a Popover, role-based list semantics, full a11y |
+| `popover.vue` | Indicator wrapping a Popover with hidden items |
 :::
 
-## Recipes
+::: example
+/components/overflow/priority-end
 
-### Trailing-priority lists with priority="end"
+### End priority
 
 When the latest items matter most — chat reactions, recent activity, message lists — `priority="end"` flips the behavior: leading items hide first and the indicator naturally renders at the start. Visual order is preserved (DOM order = display order); only visibility flips.
 
-::: example collapse
-/components/overflow/priority-end
+Place the `Overflow.Indicator` first in source order so it renders to the left of the visible items. One tradeoff to keep in mind: the indicator's `aria-live="polite"` region announces before the items it summarizes, so screen-reader users hear "+3 earlier" *before* the most recent entries. That's usually correct for the "show me what's new, but tell me how much I missed" reading model — but if your use case needs the items announced first, prefer `priority="start"` and place the indicator at the end. For breadcrumb-style "first + last, hide middle" bisecting, reach for [Breadcrumbs](/components/semantic/breadcrumbs) instead — `Overflow` is deliberately one-sided.
+
+| File | Role |
+|------|------|
+| `priority-end.vue` | Recent-messages style with end priority |
 :::
 
-Place `Overflow.Indicator` first in source order so it renders to the left of the visible items. One tradeoff to keep in mind: the indicator's `aria-live="polite"` region announces before the items it summarizes, so screen-reader users hear "+3 earlier" *before* the most recent entries. That's usually correct for the "show me what's new, but tell me how much I missed" reading model — but if your use case needs the items announced first, prefer `priority="start"` and place the indicator at the end. For breadcrumb-style "first + last, hide middle" bisecting, reach for [Breadcrumbs](/components/semantic/breadcrumbs) instead — `Overflow` is deliberately one-sided.
+## Recipes
 
 ### Disable truncation conditionally
 
@@ -148,7 +160,7 @@ A `disabled` Item is exempt from capacity math and always renders.
 |---------|-----------|
 | Hidden items announced to AT | Items receive `aria-hidden="true"` when off-capacity |
 | Indicator announcements | `aria-live="polite"` on the indicator's element |
-| Container semantics | `Overflow.Root` defaults to `<div>`; add `role="list"` on the Root and `role="listitem"` on each Item to announce as a list to assistive tech |
+| Container semantics | `Overflow.Root` defaults to `<div>`; pass `as="ul"` and `as="li"` on Items for list semantics |
 
 ## FAQ
 
