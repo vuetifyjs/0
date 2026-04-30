@@ -210,6 +210,7 @@ Selection management composables built on `createRegistry`:
 
 #### System
 
+- [`createDragDrop`](https://0.vuetifyjs.com/composables/system/create-drag-drop) - Headless drag-and-drop primitive with two registries, pluggable transports, and accessibility-first defaults
 - [`useClickOutside`](https://0.vuetifyjs.com/composables/system/use-click-outside) - Click outside detection with cleanup
 - [`useDelay`](https://0.vuetifyjs.com/composables/system/use-delay) - Schedule open and close transitions with configurable delays
 - [`useEventListener`](https://0.vuetifyjs.com/composables/system/use-event-listener) - Lifecycle-managed event listeners
