@@ -11,6 +11,7 @@ features:
   github: /composables/createOverflow/
   level: 2
 related:
+  - /components/semantic/overflow
   - /components/semantic/breadcrumbs
   - /components/semantic/pagination
   - /composables/data/create-virtual

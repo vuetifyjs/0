@@ -27,10 +27,10 @@ Scope-specific mechanics for `apps/docs/**`. Covers page types, frontmatter, int
 ---
 title: Name - Brief SEO description
 meta:
-  - name: description
-    content: 150-160 char description
-  - name: keywords
-    content: comma, separated, keywords
+- name: description
+  content: 150-160 char description
+- name: keywords
+  content: comma, separated, keywords
 features:
   category: Component | Composable
   label: 'C: Dialog'              # or 'E: createSelection'
@@ -44,7 +44,7 @@ related:
 ```
 
 - Required fields: title, meta (description + keywords), features, related. [intent:194, intent:245]
-- `meta` entries use **2-space indent** (`  - name:`, not `- name:`). [intent:193]
+- `meta` list items sit at column 0 under `meta:` (`- name:`, not `  - name:`). YAML accepts both forms; column 0 is the docs-site convention. [intent:193]
 
 ## Page Intro
 
@@ -103,7 +103,11 @@ Adapters let you swap the underlying implementation without changing your applic
 2. `<DocsPageFeatures :frontmatter />` — badges from frontmatter
 3. `<DocsBrowserSupport>` — optional, for native API features
 4. **Usage** — brief intro + code fence (not a live example)
-5. **Anatomy** — Vue template tree in `` ```vue playground collapse `` ``
+5. **Anatomy** — Vue template tree in `` ```vue playground collapse `` ``. Component-tree shells only — bare `<Component.Sub />` elements showing the available compound surface. **No** `data` arrays, `v-for`, props beyond `:as`, slot variables, or runtime values. The runnable preview comes from Examples; Anatomy is a structural map. Reference: `pages/components/disclosure/expansion-panel.md`. [intent:345]
+
+> **Usage** accepts either form below — pick based on what the section needs to do:
+> - `::: example` with the `basic` file (no extension) when a runnable demo is enough on its own. Dominant practice. Example: `pages/components/semantic/breadcrumbs.md`.
+> - Code fence + prose when the page has key props or behaviors that warrant explanation before the demo. Example: `pages/components/semantic/pagination.md`.
 6. **Architecture** — optional Mermaid diagram
 7. **Examples** — `::: example` blocks, each with 2+ files
 8. **Recipes** — code fences or single-file `::: example` blocks
@@ -115,8 +119,8 @@ Adapters let you swap the underlying implementation without changing your applic
 
 | Section | Component pages | Composable pages |
 |---------|----------------|-----------------|
-| **Usage** | `::: example` with basic.vue [intent:302] | `` ```ts collapse `` `` code fence [intent:302] |
-| **Anatomy** | `` ```vue playground collapse `` `` | — |
+| **Usage** | `::: example` with `basic` (no extension) **or** code fence + prose when the page needs explanatory text before the demo [intent:302] | `` ```ts collapse `` `` code fence [intent:302] |
+| **Anatomy** | `` ```vue playground collapse `` `` — component-tree shells only [intent:345] | — |
 | **Examples** | `::: example` with 2+ files [intent:304] | `::: example` with 2+ files [intent:304] |
 | **Recipes** | Code fence or single-file `::: example` [intent:303] | Code fence or single-file `::: example` [intent:303] |
 
@@ -198,6 +202,32 @@ The same depth rule does **not** apply to `## Usage` or `## Recipes` blocks — 
 ### Vue code fences
 
 Any ``` ```vue ``` code fence containing component usage must wrap markup in `<template>...</template>`. Never show bare fragments. [intent:271]
+
+## Inline code in headers and links
+
+Two related restrictions on inline-code (`` ` ``) styling:
+
+- **Never use `` ` `` in markdown headers.** Write `### Understanding id vs value`, not `` ### Understanding `id` vs `value` ``. Headers feed the TOC and the URL anchor; the inline-code styling renders inconsistently across both and the anchor slug includes the surrounding characters.
+- **Never wrap link text in `` ` ``.** Write `[createOverflow](/composables/semantic/create-overflow)`, not `` [`createOverflow`](/composables/semantic/create-overflow) ``. The link styling (underline + color) already signals that the text is a code identifier; backticks layer redundant — and in many themes broken — formatting on top.
+
+Inline code in regular prose is fine and encouraged: `` `Overflow.Root` ``, `` `+N more` ``, etc.
+
+```markdown
+<!-- Wrong -->
+### Understanding `id` vs `value`
+Built on [`createOverflow`](/composables/semantic/create-overflow).
+
+<!-- Right -->
+### Understanding id vs value
+Built on [createOverflow](/composables/semantic/create-overflow).
+```
+
+Existing violations (sweep candidate, not blocking):
+
+- `apps/docs/src/pages/components/forms/select.md:137` — header
+- `apps/docs/src/pages/composables/index.md:182, 192` — headers
+- `apps/docs/src/pages/introduction/why-vuetify0.md:158` — link text
+- `apps/docs/src/pages/composables/foundation/create-trinity.md:87` — link text
 
 ## Markdown Directives
 

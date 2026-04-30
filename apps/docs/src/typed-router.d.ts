@@ -300,6 +300,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/components/semantic/overflow': RouteRecordInfo<
+      '/components/semantic/overflow',
+      '/components/semantic/overflow',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/components/semantic/pagination': RouteRecordInfo<
       '/components/semantic/pagination',
       '/components/semantic/pagination',
@@ -1272,6 +1279,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/components/semantic/image.md': {
       routes:
         | '/components/semantic/image'
+      views:
+        | never
+    }
+    'src/pages/components/semantic/overflow.md': {
+      routes:
+        | '/components/semantic/overflow'
       views:
         | never
     }

@@ -108,7 +108,7 @@ function register (input: unknown): unknown {
 
 **Exceptions.** `packages/0/src/utilities/helpers.ts` defines the guards themselves and must use primitive comparisons at its root. This is the only file that gets to.
 
-**Anti-example.** `packages/0/src/composables/createOverflow/index.ts:195` — `if (itemWidth !== undefined && uniformWidth <= 0)` should be `if (!isUndefined(itemWidth) && uniformWidth <= 0)`. Three more raw comparisons live in `packages/0/src/utilities/color.ts:17,25,30`; these are minor and should be migrated.
+**Anti-example.** `packages/0/src/composables/useNotifications/index.ts:503, 537` — `every(t => t.readAt !== null)` and `every(t => t.archivedAt !== null)` inside JSDoc `@example` blocks. These render on the docs API page and teach the wrong form to readers. Should be `!isNull(t.readAt)` / `!isNull(t.archivedAt)`. Source-code comparisons across `packages/0/src/` are clean as of this writing — the holdouts that survived are inside doc strings.
 
 **Canonical example.** `packages/0/src/composables/createDataTable/index.ts` — 10 guard calls in one file, zero raw comparisons.
 
@@ -505,6 +505,18 @@ function useFoo (options: UseFooOptions = {}) {
 **Apply to.** Any reactive option the caller will want to drive from reactive state upstream — `disabled`, `readonly`, filter keys, search queries, ticket config inputs.
 
 **Do not apply to.** Configuration that is fixed at construction time — `namespace`, `events`, `adapter`. Those stay plain `T`. [intent:133]
+
+**Caller side — forwarding a destructured prop.** When a component forwards a destructured prop into a `MaybeRefOrGetter<T>` parameter, wrap it as a getter — `gap: () => gap` — never pass the value directly. With Vue 3.5+ reactive props destructure, `gap` *is* reactive when read inside a getter, but reading it inline at object-literal construction captures the value once and `toValue()` will return that snapshot forever after.
+
+```ts
+// Wrong — gap captured at setup time, prop changes never propagate
+createOverflow({ gap })
+
+// Right — toValue() inside the composable re-reads the getter on every recompute
+createOverflow({ gap: () => gap })
+```
+
+`packages/0/src/components/Overflow/OverflowRoot.vue` is the canonical worked example — `container`, `gap`, `reserved`, `reverse` all forwarded as getters.
 
 ### 4.4 Registry reactivity
 
@@ -1133,7 +1145,15 @@ Reason: §3.6, [intent:172]. `false` writes `data-disabled="false"` to the DOM, 
 <Content v-if="isOpen" />
 ```
 
-Exception: Combobox filtered items, where `v-show` is load-bearing for virtualization. Everywhere else, `v-if` for structural conditionals. Reason: [intent:188].
+**Exceptions — where `v-show` is correct.** A child component that registers a ticket with its Root must stay mounted even while invisible; `v-if` would unmount it, fire `onBeforeUnmount`, unregister the ticket, drop its measurement, and on re-include cause a measurement / capacity / visibility cascade that thrashes neighbours. Use `v-show` when state must survive the visibility flip:
+
+- **Registry-driven visibility.** `Breadcrumbs/BreadcrumbsItem.vue`, `BreadcrumbsDivider.vue`, `BreadcrumbsEllipsis.vue`, `Overflow/OverflowItem.vue` — items registered with the Root for measurement or selection must stay mounted so their ticket and width entry survive the flip.
+- **Load-state preservation.** `Avatar/AvatarImage.vue` — image load state would reset on remount.
+- **Virtualization.** `Combobox/ComboboxItem.vue` — load-bearing for the filtered list.
+
+Everywhere else, `v-if` for structural conditionals. Reason: [intent:188].
+
+Never hand-roll `:style="{ display: isHidden ? 'none' : null }"` — `v-show` already does this, captures the original `style.display` on mount, and is the canonical form readers expect.
 
 ---
 

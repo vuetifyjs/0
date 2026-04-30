@@ -124,6 +124,23 @@ Naming convention: `useComponentRoot` / `provideComponentRoot` for Root-level co
 
 **Dual context.** `Button`, `Radio`, `Toggle` provide both Root and Group contexts, so they support standalone *and* grouped usage with the same component tree. [intent:163] Toggle.Root detects Toggle.Group via optional injection. [intent:315]
 
+**Reactive context fields — inline `toRef(() => prop)` at the provide call.** When the context surface exposes a reactive field derived from a destructured prop, write it inline in the `provideX(...)` call instead of binding to a named `_prop` const first. Don't pre-bind unless the local is reused.
+
+```ts
+// Right — TabsRoot, BreadcrumbsRoot, ImageRoot, OverflowRoot, …
+provideTabsRoot(namespace, {
+  disabled: toRef(() => disabled),
+  orientation: toRef(() => orientation),
+  activation: toRef(() => activation),
+})
+
+// Wrong — `_disabled` is used exactly once
+const _disabled = toRef(() => disabled)
+provideTabsRoot(namespace, { disabled: _disabled })
+```
+
+The named local is justified only when the resulting Ref is referenced from multiple places in the SFC (e.g., a `_disabled` read by both the provide call and a local watch). Otherwise, inline.
+
 ## Props Pattern (100% enforced)
 
 ```ts
@@ -287,7 +304,11 @@ export const Component = { Root: ComponentRoot, Item: ComponentItem }
 - Root element is always `<Atom :as :renderless>`. [intent:186, intent:336]
 - Slot props via `<slot v-bind="slotProps" />`.
 - Hidden inputs conditionally rendered: `<ComponentHiddenInput v-if="name" />`. [intent:187]
-- `v-if` for structural conditionals, never `v-show` (exception: Combobox filtered items). [intent:188]
+- `v-if` for structural conditionals; `v-show` only when the element must stay mounted to preserve state. [intent:188]
+  - **Registry-driven visibility** — child registered with a Root for measurement or selection (Breadcrumbs item/divider/ellipsis, Overflow item).
+  - **Load-state preservation** — image load, scroll position, etc. (Avatar image).
+  - **Virtualization** — load-bearing for filtered lists (Combobox item).
+  - Never hand-roll `:style="{ display: isHidden ? 'none' : null }"` — `v-show` does the same and is the canonical form. See PHILOSOPHY §10.11.
 
 ## Slot `attrs` Double-Fire Hazard
 
@@ -392,13 +413,38 @@ export interface AtomExpose {
 }
 ```
 
-`Atom` calls `defineExpose<AtomExpose>({ element })` at the component level. Parent components access the element via:
+`Atom` calls `defineExpose<AtomExpose>({ element })` at the component level. Vue auto-unwraps refs surfaced via `defineExpose`, so consumers access the element directly — *not* through a `.value` chain:
 
 ```ts
 // packages/0/src/components/Splitter/SplitterRoot.vue:112
 const rootAtom = useTemplateRef<AtomExpose>('root')
-// rootAtom.value?.element.value gives the HTMLElement | null
+// rootAtom.value?.element gives the HTMLElement | null directly
 ```
+
+### Consuming AtomExpose in the same SFC
+
+When the SFC that wraps an `Atom` needs that Atom's element for measurement, observers, focus management, or popover anchoring, follow the canonical form:
+
+```ts
+// packages/0/src/components/Overflow/OverflowIndicator.vue
+const atomRef = useTemplateRef<AtomExpose>('atom')
+const el = toRef(() => toElement(atomRef.value?.element) ?? null)
+```
+
+- **Name the `useTemplateRef` holder** `atomRef` (single Atom) or `{role}Ref` / `{role}Atom` (multiple). It holds an `AtomExpose` wrapper, not an `HTMLElement` — never suffix it with `El`. Precedents: `Image/ImageRoot.vue:93` (`atomRef`), `Splitter/SplitterRoot.vue:112` (`rootAtom`), `Tabs/TabsItem.vue:88` (`rootRef`), `Snackbar/SnackbarQueue.vue:80` (`container`). **Anti-precedent**: `Carousel/CarouselNext.vue:57`, `CarouselItem.vue:79`, `CarouselLiveRegion.vue:64` use `rootEl` for the AtomExpose holder — that name belongs to the toRef-derived element, not the ref-of-wrapper.
+- **Always** route the access through `toElement` (`#v0/composables/toElement`). The raw `as HTMLElement | null | undefined` cast bypasses the normalization layer that handles ref-vs-direct-element variants and is the bug-family flagged in the saved-memory `toElement-template-refs.md`. Tabs, Treeview, and similar components carry the legacy raw-cast form pending a sweep.
+- **Wrap in `toRef(() => ...)`** so downstream consumers (`watch`, `useResizeObserver`, `useIntersectionObserver`, popover attach) get a reactive ref instead of a snapshot.
+- **`?? null` only — no `as HTMLElement | null` cast on the ref.** `toElement` returns `Element | undefined`. The historical pattern `as HTMLElement | null ?? null` (Image / Carousel × 4) papers over both transitions with a single misleading cast — TS thinks it's `HTMLElement | null` but the runtime value is `Element | null` after the coalesce. Drop the cast: write `toElement(...) ?? null` and let the ref be `Ref<Element | null>`. If a consumer needs HTMLElement-specific properties (`offsetWidth`, `offsetHeight`), cast at the use site (`(el.value as HTMLElement).offsetWidth`) — the boundary cast is honest about what's happening.
+- **Name the resulting element ref `el`** when the SFC has only one Atom, or `{position}El` (`rootEl`, `triggerEl`) when there are multiple. Never `elementRef` or `atomElement` — single-word `el` is the precedent across Image, Carousel × 4, Overflow.
+
+Worked precedents (current form):
+
+- `packages/0/src/components/Overflow/OverflowIndicator.vue` — `el`, used for ResizeObserver and own-width measurement; HTMLElement cast at the `offsetWidth` use site only.
+
+Legacy precedents (still carrying the `as HTMLElement | null ?? null` chain pending sweep):
+
+- `packages/0/src/components/Image/ImageRoot.vue:94`
+- `packages/0/src/components/Carousel/CarouselNext.vue:72`, `CarouselPrevious.vue:72`, `CarouselProgress.vue:75`, `CarouselLiveRegion.vue:79`
 
 ### Naming conventions for exposed methods
 
@@ -537,11 +583,12 @@ When uncertain, don't hook up. Adding a plugin later is a non-breaking change; r
 - [ ] Hidden input conditionally rendered with `v-if="name"`
 - [ ] Barrel: no `export *` from `.vue`, named exports plus compound object
 - [ ] Template root is `<Atom :as :renderless>` and uses `<slot v-bind="slotProps" />`
-- [ ] `v-if` for structural conditionals (not `v-show`, except Combobox)
+- [ ] `v-if` for structural conditionals; `v-show` only when the element must stay mounted (registry-driven visibility, load-state preservation, virtualization)
 - [ ] `onBeforeUnmount` for deregistration, not `onUnmounted`
 - [ ] Zero utility classes; all `:style` bindings structural
 - [ ] `register()` called in setup; `unregister()` called in `onBeforeUnmount`
 - [ ] Compound sub-components propagate `AtomExpose` and add their own `{Component}Expose` interface when exposing imperative methods
+- [ ] Same-SFC Atom element access uses `toRef(() => toElement(atomRef.value?.element) as HTMLElement | null ?? null)` named `el` / `rootEl`, never a raw cast or `elementRef` name
 - [ ] ARIA roles, keyboard handlers, and WCAG success criteria mapped for every interactive component
 - [ ] No raw `inject` / `provide` — context always via `createContext`
 - [ ] Global plugins hooked up only when the component genuinely depends on app-level state
