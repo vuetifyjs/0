@@ -23,7 +23,6 @@
 
 <style>
 .emerald-auto-complete__content {
-  display: flex;
   flex-direction: column;
   align-items: stretch;
   width: anchor-size(width);
@@ -38,5 +37,9 @@
   font-family: Manrope, system-ui, -apple-system, sans-serif;
   font-size: 12px;
   line-height: 20px;
+}
+
+.emerald-auto-complete__content:popover-open {
+  display: flex;
 }
 </style>
