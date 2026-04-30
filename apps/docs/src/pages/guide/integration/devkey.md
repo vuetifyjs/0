@@ -25,6 +25,9 @@ Devkey ([live](https://devkey.vuetifyjs.com), [source](https://github.com/vuetif
 > [!TIP]
 > Looking for the fastest way to start? Run `pnpm create vuetify0` to scaffold a fresh Devkey-shaped project locally.
 
+> [!INFO]
+> Want a guided walkthrough? The [Vuetify0 alpha announcement](https://vuetifyjs.com/blog/announcing-vuetify0-alpha) builds Devkey step-by-step as a reusable UI library — landing page, auth flow, dashboard, and command palette.
+
 ## Preview
 
 The Devkey home page. Navigation, hero layout, feature grid, and pricing cards are all built from v0 components.
