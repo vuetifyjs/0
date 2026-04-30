@@ -75,7 +75,7 @@ The container needs `overflow: hidden` so the natural layout doesn't push items 
 
 | File | Role |
 |------|------|
-| `basic.vue` | Tag row with width slider |
+| `basic.vue` | Tag row that overflows when the container narrows |
 :::
 
 ::: example
