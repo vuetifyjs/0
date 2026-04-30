@@ -2,11 +2,16 @@
   import { Overflow } from '@vuetify/v0'
 
   const messages = [
-    { id: 1, text: 'Older message' },
-    { id: 2, text: 'Slightly newer' },
-    { id: 3, text: 'Recent' },
-    { id: 4, text: 'Very recent' },
-    { id: 5, text: 'Latest' },
+    { id: 1, text: '2 weeks ago' },
+    { id: 2, text: '1 week ago' },
+    { id: 3, text: '4 days ago' },
+    { id: 4, text: '2 days ago' },
+    { id: 5, text: '1 day ago' },
+    { id: 6, text: '20 hours ago' },
+    { id: 7, text: '10 hours ago' },
+    { id: 8, text: '5 hours ago' },
+    { id: 9, text: '2 hours ago' },
+    { id: 10, text: '1 hour ago' },
   ]
 </script>
 
