@@ -182,32 +182,35 @@
 
         <!-- Build -->
         <AppSettingsCommits />
-
-        <!-- Reset -->
-        <div class="pt-4 pb-2 border-t border-divider flex justify-between">
-          <button
-            aria-label="Enter Developer Mode"
-            class="icon-text text-xs focus-visible:text-error focus-visible:underline focus-visible:outline-none transition-colors"
-            :class="[devmode.isSelected.value ? 'text-error hover:text-error' : 'text-on-surface/40 hover:text-primary' ]"
-            type="button"
-            @click="devmode.toggle()"
-          >
-            Devmode
-
-            <AppIcon v-if="devmode.isSelected.value" icon="vuetify-0" size="12" />
-          </button>
-
-          <button
-            v-if="hasChanges"
-            aria-label="Reset all settings to defaults"
-            class="text-xs text-on-surface/40 hover:text-error hover:underline focus-visible:text-error focus-visible:underline focus-visible:outline-none transition-colors"
-            type="button"
-            @click="reset"
-          >
-            Reset to defaults
-          </button>
-        </div>
       </template>
     </div>
+
+    <!-- Footer -->
+    <footer
+      v-if="!themes.editor.active.value"
+      class="shrink-0 px-4 py-3 border-t border-divider flex items-center justify-between gap-2 bg-surface"
+    >
+      <button
+        aria-label="Enter Developer Mode"
+        class="icon-text text-xs focus-visible:text-error focus-visible:underline focus-visible:outline-none transition-colors"
+        :class="[devmode.isSelected.value ? 'text-error hover:text-error' : 'text-on-surface/40 hover:text-primary' ]"
+        type="button"
+        @click="devmode.toggle()"
+      >
+        Devmode
+
+        <AppIcon v-if="devmode.isSelected.value" icon="vuetify-0" size="12" />
+      </button>
+
+      <button
+        v-if="hasChanges"
+        aria-label="Reset all settings to defaults"
+        class="text-xs text-on-surface/40 hover:text-error hover:underline focus-visible:text-error focus-visible:underline focus-visible:outline-none transition-colors"
+        type="button"
+        @click="reset"
+      >
+        Reset to defaults
+      </button>
+    </footer>
   </aside>
 </template>
