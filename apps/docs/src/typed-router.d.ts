@@ -643,6 +643,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/composables/system/create-drag-drop': RouteRecordInfo<
+      '/composables/system/create-drag-drop',
+      '/composables/system/create-drag-drop',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/composables/system/use-click-outside': RouteRecordInfo<
       '/composables/system/use-click-outside',
       '/composables/system/use-click-outside',
@@ -1573,6 +1580,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/semantic/create-progress.md': {
       routes:
         | '/composables/semantic/create-progress'
+      views:
+        | never
+    }
+    'src/pages/composables/system/create-drag-drop.md': {
+      routes:
+        | '/composables/system/create-drag-drop'
       views:
         | never
     }
