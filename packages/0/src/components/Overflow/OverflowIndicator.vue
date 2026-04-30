@@ -65,7 +65,7 @@
 
   const root = useOverflowRoot(namespace)
   const atomRef = useTemplateRef<AtomExpose>('atom')
-  const el = toRef(() => toElement(atomRef.value?.element) as HTMLElement | null ?? null)
+  const el = toRef(() => toElement(atomRef.value?.element) ?? null)
 
   function measure () {
     if (!IN_BROWSER || !el.value) {
@@ -74,7 +74,7 @@
     }
     const style = getComputedStyle(el.value)
     const marginX = Number.parseFloat(style.marginLeft) + Number.parseFloat(style.marginRight)
-    root.indicatorWidth.value = el.value.offsetWidth + marginX
+    root.indicatorWidth.value = (el.value as HTMLElement).offsetWidth + marginX
   }
 
   watch(el, () => measure(), { immediate: true })
