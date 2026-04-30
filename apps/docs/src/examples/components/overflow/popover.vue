@@ -12,21 +12,22 @@
 <template>
   <Overflow.Root
     aria-label="Topic filters"
-    as="ul"
-    class="flex items-center gap-1.5 overflow-hidden border border-divider rounded-lg p-2 list-none"
+    class="flex items-center gap-1.5 overflow-hidden border border-divider rounded-lg p-2"
     :gap="6"
+    role="list"
   >
     <Overflow.Item
       v-for="tag in tags"
       :key="tag"
-      as="li"
+      as="span"
       class="px-2 py-0.5 text-xs rounded bg-surface-variant text-on-surface-variant whitespace-nowrap shrink-0"
+      role="listitem"
       :value="tag"
     >
       {{ tag }}
     </Overflow.Item>
 
-    <Overflow.Indicator v-slot="{ count, hidden }" as="li">
+    <Overflow.Indicator v-slot="{ count, hidden }">
       <Popover.Root>
         <Popover.Activator
           :aria-label="`Show ${count} more topics`"

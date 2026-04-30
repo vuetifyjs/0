@@ -72,7 +72,7 @@ Wrap any horizontal list with `Overflow.Root`, register each item with `Overflow
 
 ### Avatar group
 
-The classic "user roster" use case — a stack of overlapping avatars that collapse into a `+N` chip when the row gets tight. Renders as a semantic `<ul>`/`<li>` with `aria-label` on the list and a hidden full name per avatar (`sr-only`) so screen-reader users get the same context sighted users get from `title` tooltips. The `+N` indicator carries its own `aria-label` so it announces *what* the count refers to.
+The classic "user roster" use case — a stack of overlapping avatars that collapse into a `+N` chip when the row gets tight. The container carries `role="list"` + `aria-label="Project contributors"` and each avatar carries `role="listitem"`, so screen readers announce the group as a list without forcing the layout into native `<ul>`/`<li>` (which interacts poorly with the per-item measurement chain). Each avatar's full name is mirrored into a `sr-only` span so SR users get the same context sighted users get from the `title` tooltip.
 
 The visual overlap is just `marginInlineStart: -8px` on each item — `createOverflow` picks that up automatically through `getComputedStyle().marginLeft`, so each avatar's measured width is `32 - 8 = 24px`. There's no CSS `gap` on the container and no `gap` prop on `Overflow.Root`; setting `gap` would *subtract the overlap a second time* and inflate the apparent capacity. When you have no CSS gap, leave the prop alone.
 
@@ -93,11 +93,11 @@ Because every avatar has the same width, items drop in predictable order from th
 
 The indicator only mounts when overflow occurs, so the popover trigger naturally appears and disappears with the available space — no manual `v-if` gymnastics. The activator carries `:aria-label="`Show ${count} more topics`"` so screen-reader users hear *why* the button exists, not just `+5 more`. The popover content is `max-h-64 overflow-y-auto` for the edge case where many items are hidden — common for filter chip rows that compress hard at narrow widths.
 
-The list is rendered as a semantic `<ul>` with `<li>` items so the popover trigger sits inside the list naturally and the topic chips announce as a list to assistive tech.
+The container carries `role="list"` + `aria-label="Topic filters"` and each chip carries `role="listitem"` so the row announces as a list to assistive tech.
 
 | File | Role |
 |------|------|
-| `popover.vue` | Tag row with overflow chips collapsed into a Popover, semantic list, full a11y |
+| `popover.vue` | Tag row with overflow chips collapsed into a Popover, role-based list semantics, full a11y |
 :::
 
 ## Recipes
@@ -148,7 +148,7 @@ A `disabled` Item is exempt from capacity math and always renders.
 |---------|-----------|
 | Hidden items announced to AT | Items receive `aria-hidden="true"` when off-capacity |
 | Indicator announcements | `aria-live="polite"` on the indicator's element |
-| Container semantics | `Overflow.Root` defaults to `<div>`; pass `as="ul"` and `as="li"` on Items for list semantics |
+| Container semantics | `Overflow.Root` defaults to `<div>`; add `role="list"` on the Root and `role="listitem"` on each Item to announce as a list to assistive tech |
 
 ## FAQ
 

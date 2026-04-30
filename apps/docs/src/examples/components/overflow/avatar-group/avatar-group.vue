@@ -12,14 +12,15 @@
 
     <Overflow.Root
       aria-label="Project contributors"
-      as="ul"
-      class="flex items-center overflow-hidden p-1 pl-0 list-none"
+      class="flex items-center overflow-hidden p-1"
+      role="list"
     >
       <Overflow.Item
         v-for="user in users"
         :key="user.id"
-        as="li"
+        as="span"
         class="size-8 inline-flex items-center justify-center rounded-full ring-2 ring-surface text-xs font-medium text-on-primary shrink-0"
+        role="listitem"
         :style="{
           backgroundColor: `oklch(0.62 0.14 ${user.hue})`,
           marginInlineStart: '-8px',
@@ -33,8 +34,7 @@
 
       <Overflow.Indicator
         v-slot="{ count }"
-        :aria-label="`${count} more contributors`"
-        as="li"
+        as="span"
         class="size-8 inline-flex items-center justify-center rounded-full ring-2 ring-surface text-xs font-medium bg-surface-variant text-on-surface-variant shrink-0"
         :style="{ marginInlineStart: '-8px' }"
       >
