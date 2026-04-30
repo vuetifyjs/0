@@ -1,0 +1,96 @@
+<script setup lang="ts">
+  import { useDelay } from '@vuetify/v0'
+  import { shallowRef, toRef } from 'vue'
+
+  const isOpen = shallowRef(false)
+  const openMs = 800
+  const closeMs = 600
+
+  const delay = useDelay({
+    openDelay: openMs,
+    closeDelay: closeMs,
+    onChange: isOpening => {
+      isOpen.value = isOpening
+    },
+  })
+
+  const target = toRef(() => delay.isOpening.value ? openMs : closeMs)
+  const progress = toRef(() => target.value === 0
+    ? 0
+    : ((target.value - delay.remaining.value) / target.value) * 100)
+</script>
+
+<template>
+  <div class="flex flex-col gap-4 items-center">
+    <div
+      class="px-4 py-3 rounded border border-divider cursor-pointer select-none transition-colors min-w-64 text-center"
+      :class="isOpen ? 'bg-primary text-on-primary' : 'bg-surface text-on-surface'"
+      @pointerenter="delay.start(true)"
+      @pointerleave="delay.start(false)"
+    >
+      Hover to open · leave to close
+    </div>
+
+    <div class="h-2 w-64 bg-surface-variant rounded-full overflow-hidden">
+      <div
+        class="h-full rounded-full transition-[width] duration-150 ease-linear"
+        :class="delay.isPaused.value ? 'bg-warning' : 'bg-primary'"
+        :style="{ width: `${progress}%` }"
+      />
+    </div>
+
+    <div class="flex gap-2">
+      <button
+        class="px-3 py-1 text-sm rounded border border-divider hover:bg-surface-tint disabled:opacity-40"
+        :disabled="!delay.isActive.value || delay.isPaused.value"
+        @click="delay.pause()"
+      >
+        Pause
+      </button>
+
+      <button
+        class="px-3 py-1 text-sm rounded border border-divider hover:bg-surface-tint disabled:opacity-40"
+        :disabled="!delay.isPaused.value"
+        @click="delay.resume()"
+      >
+        Resume
+      </button>
+
+      <button
+        class="px-3 py-1 text-sm rounded border border-divider hover:bg-surface-tint disabled:opacity-40"
+        :disabled="!delay.isActive.value"
+        @click="delay.stop()"
+      >
+        Stop
+      </button>
+    </div>
+
+    <div class="grid grid-cols-2 gap-2 text-xs text-center w-72">
+      <div
+        class="px-2 py-1 rounded"
+        :class="delay.isActive.value
+          ? 'bg-primary text-on-primary'
+          : 'bg-surface-variant text-on-surface-variant'"
+      >
+        isActive: {{ delay.isActive.value }}
+      </div>
+
+      <div
+        class="px-2 py-1 rounded"
+        :class="delay.isPaused.value
+          ? 'bg-warning text-on-warning'
+          : 'bg-surface-variant text-on-surface-variant'"
+      >
+        isPaused: {{ delay.isPaused.value }}
+      </div>
+
+      <div class="px-2 py-1 rounded bg-surface-variant text-on-surface-variant">
+        isOpening: {{ delay.isOpening.value }}
+      </div>
+
+      <div class="px-2 py-1 rounded bg-surface-variant text-on-surface-variant font-mono">
+        {{ delay.remaining.value }}ms
+      </div>
+    </div>
+  </div>
+</template>

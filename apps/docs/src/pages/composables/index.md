@@ -263,6 +263,7 @@ Browser API wrappers with automatic lifecycle cleanup.
 | Name | Description |
 | - | - |
 | [useClickOutside](/composables/system/use-click-outside) | Detect clicks outside an element |
+| [useDelay](/composables/system/use-delay) | Schedule open and close transitions with configurable delays |
 | [useEventListener](/composables/system/use-event-listener) | Handle DOM events with automatic cleanup |
 | [useHotkey](/composables/system/use-hotkey) | Handle hotkey combinations and sequences |
 | [useImage](/composables/system/use-image) | Image loading state machine with deferred loading and retry |

@@ -191,6 +191,11 @@
       "since": "0.1.0",
       "category": "system"
     },
+    "useDelay": {
+      "level": "preview",
+      "since": null,
+      "category": "system"
+    },
     "useEventListener": {
       "level": "preview",
       "since": "0.1.0",
