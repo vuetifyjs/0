@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { createOverflow, isUndefined, Select, Splitter, Tabs } from '@vuetify/v0'
+  import { createOverflow, isUndefined, Select, Splitter, Tabs, useElementSize } from '@vuetify/v0'
 
   // Components
   import DocsSkeleton from './DocsSkeleton.vue'
@@ -121,6 +121,10 @@
     return displayFiles.value.slice(visibleCount.value)
   })
 
+  // Preview width tracking for the resize indicator
+  const previewContent = useTemplateRef<HTMLElement>('preview-content')
+  const { width: previewWidth } = useElementSize(previewContent)
+
   // Code pane refs for triggering highlight
   const codePaneRefs = ref<Map<string, InstanceType<typeof DocsExampleCodePaneType>>>(new Map())
   const singleCodePane = useTemplateRef<InstanceType<typeof DocsExampleCodePaneType>>('single-code-pane')
@@ -204,7 +208,7 @@
       <div class="relative p-2 bg-surface-tint">
         <AppDotGrid :coverage="60" :density="20" />
 
-        <Splitter.Root :key="resetKey" class="relative w-full">
+        <Splitter.Root :key="resetKey" v-slot="{ isDragging }" class="relative w-full">
           <Splitter.Panel
             class="bg-surface rounded-md overflow-hidden"
             :default-size="100"
@@ -212,12 +216,28 @@
           >
             <template #default="{ attrs }">
               <div
+                ref="preview-content"
                 v-bind="attrs"
-                class="min-w-0 p-6"
+                class="relative min-w-0 p-6"
                 :class="hasDescription && !descriptionExpanded && 'pt-8'"
               >
                 <component :is="auto?.component" v-if="auto?.component" />
                 <slot v-else />
+
+                <Transition
+                  enter-active-class="transition-opacity duration-150"
+                  enter-from-class="opacity-0"
+                  leave-active-class="transition-opacity duration-200"
+                  leave-to-class="opacity-0"
+                >
+                  <div
+                    v-show="isDragging"
+                    aria-hidden="true"
+                    class="absolute top-2 right-2 z-2 px-1.5 py-0.5 text-xs font-mono leading-none bg-on-surface text-surface rounded shadow pointer-events-none tabular-nums"
+                  >
+                    {{ Math.round(previewWidth) }}px
+                  </div>
+                </Transition>
               </div>
             </template>
           </Splitter.Panel>
