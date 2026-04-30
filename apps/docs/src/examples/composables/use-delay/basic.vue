@@ -15,9 +15,9 @@
   })
 
   const target = toRef(() => delay.isOpening.value ? openMs : closeMs)
-  const progress = toRef(() => target.value === 0
-    ? 0
-    : ((target.value - delay.remaining.value) / target.value) * 100)
+  const progress = toRef(() =>
+    ((target.value - delay.remaining.value) / target.value) * 100,
+  )
 </script>
 
 <template>

@@ -57,25 +57,22 @@ delay.stop()
 
 ```mermaid "useDelay Lifecycle"
 flowchart LR
-  Idle -- "start(true)" --> OpenPending
-  Idle -- "start(false)" --> ClosePending
-  OpenPending -- "pause()" --> Paused
-  ClosePending -- "pause()" --> Paused
+  Idle -- "start(true / false)" --> Pending
+  Pending -- "pause()" --> Paused
   Paused -- "resume()" --> Pending
-  OpenPending -- "elapsed" --> Resolved
-  ClosePending -- "elapsed" --> Resolved
+  Pending -- "elapsed" --> Resolved
   Resolved -- "onChange(isOpening)" --> Idle
-  OpenPending -- "stop() / start(...)" --> Idle
-  ClosePending -- "stop() / start(...)" --> Idle
+  Pending -- "stop() / start(...)" --> Idle
+  Paused -- "stop()" --> Idle
 ```
 
-`start()` cancels any in-flight delay before scheduling the next one — and the previous promise resolves with the *new* direction so awaiting code observes the latest intent. `stop()` cancels without scheduling a replacement; the previous promise stays unresolved. The pending timer is cleared on scope disposal.
+`start()` cancels any in-flight delay before scheduling the next one — and the previous promise resolves with the *new* direction so awaiting code observes the latest intent. `stop()` cancels without scheduling a replacement; the pending promise resolves with the current `isOpening` direction. The pending timer is cleared on scope disposal.
 
 ## Reactivity
 
 | Property | Type | Description |
 |----------|------|-------------|
-| `start` | `(isOpening: boolean, options?: { minDelay?: number }) => Promise<boolean>` | Start a delay; resolves with `isOpening` |
+| `start` | `(isOpening: boolean, options?: UseDelayStartOptions) => Promise<boolean>` | Start a delay; resolves with `isOpening` |
 | `stop` | `() => void` | Cancel any pending delay and reset state |
 | `pause` | `() => void` | Pause the in-flight delay, preserving remaining time |
 | `resume` | `() => void` | Resume from where pause left off |
@@ -91,7 +88,20 @@ flowchart LR
 
 ### Hover with Pause/Resume
 
-Hover the target to schedule an 800ms open; leave it to schedule a 600ms close. The progress bar reflects `remaining` against the active direction, the badges surface every reactive flag, and the controls demonstrate `pause`, `resume`, and `stop` against the in-flight delay. Pausing mid-flight freezes the progress bar; resuming continues from the same point.
+Hover the target to schedule an 800 ms open; leave it to schedule a 600 ms
+close. The progress bar reflects `remaining` against the active direction,
+the badges surface every reactive flag, and the controls demonstrate
+`pause`, `resume`, and `stop` against the in-flight delay.
+
+Reach for this pattern when you want a tooltip or popover that respects
+hover intent without flickering. Pause/Resume is the differentiator —
+without it, briefly leaving the target to interact with adjacent UI would
+restart the close countdown. The promise returned by `start()` lets you
+sequence side effects after the delay elapses without a second `watch`.
+
+| File | Role |
+|------|------|
+| `basic.vue` | Demonstrates hover-driven open/close with pause/resume |
 
 :::
 
@@ -103,7 +113,7 @@ Hover the target to schedule an 800ms open; leave it to schedule a 600ms close. 
 
 ### Reactive Delays
 
-`openDelay` and `closeDelay` accept any `MaybeRefOrGetter<number | string>`. Resolution happens when `start()` is called, so updates after start do not affect the in-flight delay.
+`openDelay` and `closeDelay` accept any `MaybeRefOrGetter<number>`. Resolution happens when `start()` is called, so updates after start do not affect the in-flight delay.
 
 ```ts
 import { shallowRef } from 'vue'
@@ -162,5 +172,34 @@ The pending timer clears on scope disposal — no manual cleanup needed.
 // Timer automatically clears when component unmounts
 const delay = useDelay({ openDelay: 300 })
 ```
+
+## FAQ
+
+::: faq
+
+??? Why does start() return a promise?
+The promise resolves once the delay elapses, letting consumers `await` the
+transition or chain follow-up work. If `start()` is called again before the
+delay completes, the previous promise resolves with the new direction.
+
+??? What does minDelay enforce?
+A floor on the resolved delay. `start(false, { minDelay: 500 })` schedules
+the close after `max(closeDelay, 500)` ms. Useful when transient UI must
+remain visible for a minimum time before dismissal.
+
+??? Does pause survive component unmount?
+No — the underlying timer is cleared on scope disposal, and any pending
+promise resolves with the current `isOpening` value. Consumers that need to
+distinguish a natural delay completion from a scope teardown should track
+that distinction externally (e.g., a boolean flag set inside `onChange`).
+Reset the in-flight delay manually if you need it to survive a remount.
+
+??? Should I use useDelay or useTimer directly?
+Reach for `useDelay` when you need separate open and close durations with
+direction tracking. Reach for `useTimer` directly when you need a single
+duration with no open/close split — for example, debouncing or one-shot
+fire-after-N-ms.
+
+:::
 
 <DocsApi />

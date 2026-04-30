@@ -14,7 +14,7 @@
  * - Reactive `openDelay` and `closeDelay` via `MaybeRefOrGetter`
  * - `start(isOpening)` returns a `Promise<boolean>` that resolves once the delay elapses
  * - Per-call `minDelay` floor enforces a minimum delay
- * - Automatic cleanup on scope disposal (inherited from `useTimer`)
+ * - Automatic cleanup on scope disposal (timer cleared, pending promise settled with current direction)
  * - SSR-safe
  *
  * @example
@@ -36,7 +36,7 @@
 import { useTimer } from '#v0/composables/useTimer'
 
 // Utilities
-import { shallowReadonly, shallowRef, toValue } from 'vue'
+import { onScopeDispose, shallowReadonly, shallowRef, toValue } from 'vue'
 
 // Types
 import type { MaybeRefOrGetter, Ref } from 'vue'
@@ -51,7 +51,7 @@ export interface UseDelayOptions {
    * useDelay({ openDelay: () => isFocus.value ? 0 : 500 })
    * ```
    */
-  openDelay?: MaybeRefOrGetter<number | string>
+  openDelay?: MaybeRefOrGetter<number>
   /**
    * Delay in milliseconds before the closing transition fires.
    *
@@ -60,7 +60,7 @@ export interface UseDelayOptions {
    * useDelay({ closeDelay: 200 })
    * ```
    */
-  closeDelay?: MaybeRefOrGetter<number | string>
+  closeDelay?: MaybeRefOrGetter<number>
   /**
    * Callback invoked once a started delay elapses; receives the resolved direction.
    *
@@ -75,6 +75,32 @@ export interface UseDelayOptions {
   onChange?: (isOpening: boolean) => void
 }
 
+/**
+ * Per-call options for `start()`.
+ *
+ * @example
+ * ```ts
+ * delay.start(false, { minDelay: 500 })
+ * ```
+ */
+export interface UseDelayStartOptions {
+  /** Minimum delay floor in ms; max(configuredDelay, minDelay) wins. */
+  minDelay?: number
+}
+
+/**
+ * The reactive controls and state surface returned by `useDelay`.
+ *
+ * @example
+ * ```ts
+ * const { start, stop, pause, resume, isActive, isOpening } = useDelay({
+ *   openDelay: 300,
+ *   closeDelay: 200,
+ * })
+ *
+ * start(true)
+ * ```
+ */
 export interface UseDelayReturn {
   /**
    * Start a delay in the given direction. Restarts if already running. Resolves
@@ -88,9 +114,9 @@ export interface UseDelayReturn {
    * await delay.start(false, { minDelay: 500 }) // resolves false after max(200, 500)
    * ```
    */
-  start: (isOpening: boolean, options?: { minDelay?: number }) => Promise<boolean>
+  start: (isOpening: boolean, options?: UseDelayStartOptions) => Promise<boolean>
   /**
-   * Stop the pending delay. Cancels any in-flight transition and resets state.
+   * Cancel any pending delay and reset state. Resolves the pending promise with the current direction.
    *
    * @example
    * ```ts
@@ -165,7 +191,7 @@ export function useDelay (options: UseDelayOptions = {}): UseDelayReturn {
   const { openDelay, closeDelay, onChange } = options
 
   const isOpening = shallowRef(false)
-  const minDelay = shallowRef(0)
+  let minDelay = 0
 
   let pendingResolve: ((value: boolean) => void) | undefined
 
@@ -173,54 +199,57 @@ export function useDelay (options: UseDelayOptions = {}): UseDelayReturn {
     const direction = isOpening.value
     const resolve = pendingResolve
     pendingResolve = undefined
-
-    onChange?.(direction)
     resolve?.(direction)
+    onChange?.(direction)
   }
 
   function resolveDuration () {
     const raw = isOpening.value ? toValue(openDelay) : toValue(closeDelay)
-    const base = Number(raw ?? 0) || 0
-    return Math.max(minDelay.value, base)
+    return Math.max(minDelay, raw ?? 0)
   }
 
   const timer = useTimer(fire, { duration: resolveDuration })
 
-  function start (direction: boolean, runOptions: { minDelay?: number } = {}) {
+  function start (direction: boolean, options: UseDelayStartOptions = {}) {
     const previousResolve = pendingResolve
-
+    pendingResolve = undefined
     isOpening.value = direction
-    minDelay.value = runOptions.minDelay ?? 0
-
+    minDelay = options.minDelay ?? 0
+    previousResolve?.(direction)
     const ms = resolveDuration()
 
     return new Promise<boolean>(resolve => {
       pendingResolve = resolve
-      previousResolve?.(direction)
-
       if (ms <= 0) {
         timer.stop()
         fire()
         return
       }
-
       timer.start()
     })
   }
 
   function stop () {
+    const resolve = pendingResolve
     pendingResolve = undefined
     timer.stop()
+    resolve?.(isOpening.value)
   }
+
+  onScopeDispose(() => {
+    const resolve = pendingResolve
+    pendingResolve = undefined
+    resolve?.(isOpening.value)
+  }, true)
 
   return {
     start,
     stop,
     pause: timer.pause,
     resume: timer.resume,
-    isActive: timer.isActive,
-    isPaused: timer.isPaused,
-    remaining: timer.remaining,
+    isActive: shallowReadonly(timer.isActive),
+    isPaused: shallowReadonly(timer.isPaused),
+    remaining: shallowReadonly(timer.remaining),
     isOpening: shallowReadonly(isOpening),
   }
 }
