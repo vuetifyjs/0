@@ -53,13 +53,13 @@
     <span
       v-if="fresh"
       aria-hidden="true"
-      class="absolute -top-1 -end-1 w-2 h-2 rounded-full bg-success"
+      class="absolute top-0 end-0 w-2 h-2 rounded-[2px] bg-success"
     />
   </AppLink>
 
   <span
     v-else
     aria-hidden="true"
-    class="inline-block h-[28px] w-[110px] rounded bg-surface-tint/40"
+    class="inline-block h-[28px] w-[110px] rounded-[2px] bg-surface-tint/40"
   />
 </template>
