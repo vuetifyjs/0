@@ -212,7 +212,7 @@
           <Splitter.Panel
             class="bg-surface rounded-md overflow-hidden"
             :default-size="100"
-            :min-size="20"
+            min-size="348px"
           >
             <template #default="{ attrs }">
               <div
