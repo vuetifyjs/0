@@ -30,35 +30,33 @@
 
 <style>
 .emerald-carousel__item {
-  position: absolute;
-  top: 0;
-  left: 50%;
+  flex: 0 0 60%;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 60%;
-  height: 100%;
+  padding: 0 8px;
+  min-width: 0;
+  scroll-snap-align: center;
   background: #ffffff;
   border: 1px solid rgb(var(--emerald-neutral-channels) / 0.1);
   border-radius: 8px;
   overflow: hidden;
-  opacity: 0;
-  transform: translateX(-50%) scale(0.92) translateY(8px);
+  filter: blur(1px);
   transition:
-    opacity 280ms cubic-bezier(0.4, 0.0, 0.2, 1),
-    transform 280ms cubic-bezier(0.4, 0.0, 0.2, 1),
-    box-shadow 280ms ease;
-  pointer-events: none;
+    filter 220ms cubic-bezier(0.4, 0.0, 0.2, 1),
+    box-shadow 220ms cubic-bezier(0.4, 0.0, 0.2, 1),
+    transform 220ms cubic-bezier(0.4, 0.0, 0.2, 1);
+  transform: scale(0.94);
+  box-shadow: none;
 }
 
 .emerald-carousel__item[data-selected] {
-  opacity: 1;
-  transform: translateX(-50%) scale(1) translateY(0);
+  filter: none;
+  transform: scale(1);
   box-shadow:
-    0 4px 10px 0 rgb(5 0 18 / 0.12),
-    0 8px 24px 0 rgb(5 0 18 / 0.16);
+    0 1px 3px 0 rgb(5 0 18 / 0.12),
+    0 1px 5px 0 rgb(5 0 18 / 0.20);
   z-index: 1;
-  pointer-events: auto;
 }
 
 .emerald-carousel__item[data-disabled] {

@@ -19,21 +19,20 @@
 
 <style>
 .emerald-carousel__viewport {
-  position: relative;
   grid-column: 2;
   grid-row: 1;
-  justify-self: stretch;
   align-self: stretch;
-  width: 100%;
-  height: 100%;
-  display: block;
-  padding: 0;
-  gap: 0;
-  overflow: visible;
+  padding: 8px 20%;
+  gap: 12px;
 }
 
 .emerald-carousel__viewport[data-orientation="vertical"] {
   grid-column: 1;
   grid-row: 2;
+  padding: 20% 8px;
+}
+
+.emerald-carousel__viewport[data-dragging] {
+  cursor: grabbing;
 }
 </style>

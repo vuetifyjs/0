@@ -51,6 +51,7 @@
 
 <style>
 .emerald-pagination {
+  width: fit-content;
   font-family: Manrope, system-ui, -apple-system, sans-serif;
   font-size: 12px;
   line-height: 20px;
@@ -59,8 +60,13 @@
 
 .emerald-pagination > nav,
 .emerald-pagination {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 0;
+}
+
+.emerald-pagination__prev,
+.emerald-pagination__next {
+  margin: 0 8px;
 }
 </style>

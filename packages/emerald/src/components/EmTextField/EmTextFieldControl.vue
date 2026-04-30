@@ -84,10 +84,16 @@
 
 .emerald-text-field__control[data-disabled],
 .emerald-text-field[data-disabled] .emerald-text-field__control {
-  background: rgb(var(--emerald-neutral-channels, 26 28 30) / 0.1);
-  border-color: rgb(var(--emerald-neutral-channels, 26 28 30) / 0.1);
-  opacity: 0.3;
+  background: rgb(var(--emerald-neutral-channels, 26 28 30) / 0.05);
+  border-color: rgb(var(--emerald-neutral-channels, 26 28 30) / 0.08);
+  color: rgb(var(--emerald-neutral-channels, 26 28 30) / 0.4);
   cursor: not-allowed;
+}
+
+.emerald-text-field__control[data-disabled]::placeholder,
+.emerald-text-field[data-disabled] .emerald-text-field__control::placeholder {
+  color: rgb(var(--emerald-neutral-channels, 26 28 30) / 0.4);
+  opacity: 1;
 }
 
 .emerald-text-field__control[data-state="invalid"] {

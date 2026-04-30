@@ -68,17 +68,30 @@
   border-color: var(--emerald-error-500, #e5484d);
 }
 
+.emerald-textarea__control[data-state="invalid"]:hover:not(:focus):not([disabled]):not([readonly]) {
+  border-color: var(--emerald-error-700, #b8302a);
+  box-shadow:
+    0 1px 3px 0 rgb(var(--emerald-error-500-channels, 229 72 77) / 0.18),
+    0 1px 5px 0 rgb(var(--emerald-error-500-channels, 229 72 77) / 0.22);
+}
+
 .emerald-textarea__control[data-state="invalid"]:focus {
-  box-shadow: 0 0 0 2px rgb(var(--emerald-error-500-channels, 229 72 77) / 0.12);
+  box-shadow: 0 0 0 2px rgb(var(--emerald-error-500-channels, 229 72 77) / 0.18);
 }
 
 .emerald-textarea__control[disabled],
 .emerald-textarea__control[data-disabled] {
-  background: rgb(var(--emerald-neutral-channels, 26 28 30) / 0.1);
-  border-color: rgb(var(--emerald-neutral-channels, 26 28 30) / 0.1);
-  opacity: 0.3;
+  background: rgb(var(--emerald-neutral-channels, 26 28 30) / 0.05);
+  border-color: rgb(var(--emerald-neutral-channels, 26 28 30) / 0.08);
+  color: rgb(var(--emerald-neutral-channels, 26 28 30) / 0.4);
   cursor: not-allowed;
   box-shadow: none;
+}
+
+.emerald-textarea__control[disabled]::placeholder,
+.emerald-textarea__control[data-disabled]::placeholder {
+  color: rgb(var(--emerald-neutral-channels, 26 28 30) / 0.4);
+  opacity: 1;
 }
 
 .emerald-textarea__control[readonly],

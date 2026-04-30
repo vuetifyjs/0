@@ -21,8 +21,8 @@
 .emerald-textarea__error {
   font-family: Manrope, system-ui, -apple-system, sans-serif;
   font-size: 11px;
-  font-weight: 500;
+  font-weight: 400;
   line-height: 16px;
-  color: var(--emerald-error-500, #e5484d);
+  color: rgb(var(--emerald-error-500-channels, 229 72 77) / 0.85);
 }
 </style>

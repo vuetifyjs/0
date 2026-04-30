@@ -25,11 +25,10 @@
 .emerald-slider__thumb {
   position: absolute;
   display: block;
-  width: 14px;
-  height: 14px;
+  width: 8px;
+  height: 8px;
   border-radius: 999px;
   background: #ffffff;
-  border: 2px solid var(--emerald-primary-500, #7c5cf6);
   box-shadow:
     0 1px 3px 0 rgba(5, 0, 18, 0.12),
     0 1px 5px 0 rgba(5, 0, 18, 0.2);

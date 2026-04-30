@@ -27,7 +27,7 @@
   font-family: Manrope, system-ui, -apple-system, sans-serif;
   font-size: 14px;
   color: var(--emerald-primary-950, #221065);
-  animation: emerald-tabs-fade 220ms cubic-bezier(0.4, 0.0, 0.2, 1);
+  animation: emerald-tabs-fade 280ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .emerald-tabs__panel[hidden] {
@@ -37,11 +37,9 @@
 @keyframes emerald-tabs-fade {
   from {
     opacity: 0;
-    transform: translateY(4px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
   }
 }
 </style>

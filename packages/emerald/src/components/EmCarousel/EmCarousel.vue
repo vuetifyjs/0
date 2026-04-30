@@ -7,10 +7,14 @@
   // Types
   import type { V0PaperProps } from '@vuetify/paper'
 
+  export type EmCarouselOrientation = 'horizontal' | 'vertical'
+
   export interface EmCarouselProps extends V0PaperProps {
     label?: string
     disabled?: boolean
     circular?: boolean
+    orientation?: EmCarouselOrientation
+    perView?: number
     autoplay?: number
   }
 </script>
@@ -22,6 +26,8 @@
     label,
     disabled = false,
     circular = false,
+    orientation = 'horizontal',
+    perView = 1,
     autoplay = 0,
     ...paperProps
   } = defineProps<EmCarouselProps>()
@@ -35,6 +41,7 @@
     as="div"
     class="emerald-carousel"
     :data-disabled="disabled || undefined"
+    :data-orientation="orientation"
   >
     <CarouselRoot
       v-model="model"
@@ -42,6 +49,8 @@
       :circular
       :disabled
       :label
+      :orientation
+      :per-view
       renderless
     >
       <template #default="slotProps">
@@ -56,12 +65,16 @@
   position: relative;
   display: grid;
   grid-template-columns: auto 1fr auto;
-  grid-template-rows: minmax(280px, auto) auto;
-  justify-items: center;
+  grid-template-rows: 1fr auto;
   align-items: center;
   gap: 14px 12px;
   font-family: Manrope, system-ui, -apple-system, sans-serif;
   color: #000000;
+}
+
+.emerald-carousel[data-orientation="vertical"] {
+  grid-template-columns: 1fr;
+  grid-template-rows: auto 1fr auto auto;
 }
 
 .emerald-carousel[data-disabled] {

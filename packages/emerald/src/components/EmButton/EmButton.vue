@@ -76,9 +76,7 @@
   user-select: none;
   background: var(--emerald-primary-500);
   color: var(--emerald-primary-100);
-  box-shadow:
-    0 1px 2px 0 rgb(var(--emerald-primary-500-channels) / 0.25),
-    0 1px 3px 0 rgb(var(--emerald-primary-500-channels) / 0.18);
+  box-shadow: none;
   transition: background-color 120ms ease, box-shadow 120ms ease, transform 80ms ease;
 }
 
@@ -130,6 +128,7 @@
   opacity: 0.6;
   cursor: not-allowed;
   pointer-events: none;
+  box-shadow: none;
 }
 
 .emerald-button[data-loading] {

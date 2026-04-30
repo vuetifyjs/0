@@ -46,6 +46,8 @@
     v-bind="paperProps"
     as="div"
     class="emerald-textarea"
+    :data-disabled="disabled || undefined"
+    :data-error="error || undefined"
   >
     <InputRoot
       v-model="model"
@@ -72,5 +74,13 @@
   flex-direction: column;
   gap: 4px;
   font-family: Manrope, system-ui, -apple-system, sans-serif;
+}
+
+.emerald-textarea[data-error] .emerald-textarea__label {
+  color: var(--emerald-error-700, #b8302a);
+}
+
+.emerald-textarea[data-disabled] {
+  pointer-events: none;
 }
 </style>

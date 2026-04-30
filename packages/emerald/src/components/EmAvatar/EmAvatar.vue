@@ -47,7 +47,7 @@
   background: var(--emerald-neutral-100, #f3f3f4);
   color: var(--emerald-neutral-700);
   font-family: Manrope, system-ui, -apple-system, sans-serif;
-  font-weight: 600;
+  font-weight: 400;
   letter-spacing: 0.01em;
   user-select: none;
   flex-shrink: 0;

@@ -15,10 +15,6 @@
   const paginationPage = ref(2)
   const carouselModel = ref('slide-1')
 
-  const checkboxSingle = ref(true)
-  const checkboxGroup = ref<string[]>(['email'])
-  const radioGroup = ref('comfortable')
-  const switchSingle = ref(true)
   const sliderSingle = ref(40)
   const sliderRange = ref([20, 70])
 
@@ -734,132 +730,82 @@
 
     <section>
       <h2>Checkbox</h2>
-      <div class="row">
-        <EmCheckbox v-model="checkboxSingle" label="Subscribe">
-          <EmCheckboxIndicator />
-          <span>Subscribe</span>
-        </EmCheckbox>
-      </div>
-      <div class="row" style="align-items: center; gap: 1rem;">
+      <p class="muted">Unchecked</p>
+      <div class="row" style="align-items: center; gap: 16px;">
         <EmCheckbox :model-value="false" size="sm">
           <EmCheckboxIndicator />
-          <span>Small</span>
+        </EmCheckbox>
+        <EmCheckbox :model-value="false" size="md">
+          <EmCheckboxIndicator />
+        </EmCheckbox>
+        <EmCheckbox :model-value="false" size="lg">
+          <EmCheckboxIndicator />
+        </EmCheckbox>
+      </div>
+      <p class="muted">Checked</p>
+      <div class="row" style="align-items: center; gap: 16px;">
+        <EmCheckbox :model-value="true" size="sm">
+          <EmCheckboxIndicator />
         </EmCheckbox>
         <EmCheckbox :model-value="true" size="md">
           <EmCheckboxIndicator />
-          <span>Medium</span>
         </EmCheckbox>
         <EmCheckbox :model-value="true" size="lg">
           <EmCheckboxIndicator />
-          <span>Large</span>
-        </EmCheckbox>
-        <EmCheckbox :indeterminate="true">
-          <EmCheckboxIndicator />
-          <span>Indeterminate</span>
-        </EmCheckbox>
-        <EmCheckbox disabled :model-value="false">
-          <EmCheckboxIndicator />
-          <span>Disabled</span>
-        </EmCheckbox>
-        <EmCheckbox disabled :model-value="true">
-          <EmCheckboxIndicator />
-          <span>Disabled checked</span>
         </EmCheckbox>
       </div>
-      <EmCheckboxGroup v-model="checkboxGroup" label="Notifications" style="margin-top: 0.75rem;">
-        <EmCheckbox :value="'email'">
-          <EmCheckboxIndicator />
-          <span>Email</span>
-        </EmCheckbox>
-        <EmCheckbox :value="'sms'">
-          <EmCheckboxIndicator />
-          <span>SMS</span>
-        </EmCheckbox>
-        <EmCheckbox :value="'push'">
-          <EmCheckboxIndicator />
-          <span>Push</span>
-        </EmCheckbox>
-      </EmCheckboxGroup>
     </section>
 
     <section>
       <h2>Radio</h2>
-      <div class="row">
+      <p class="muted">Unchecked</p>
+      <div class="row" style="align-items: center; gap: 16px;">
+        <EmRadioGroup>
+          <EmRadio size="sm" :value="'a'">
+            <EmRadioIndicator />
+          </EmRadio>
+        </EmRadioGroup>
+        <EmRadioGroup>
+          <EmRadio size="md" :value="'b'">
+            <EmRadioIndicator />
+          </EmRadio>
+        </EmRadioGroup>
+        <EmRadioGroup>
+          <EmRadio size="lg" :value="'c'">
+            <EmRadioIndicator />
+          </EmRadio>
+        </EmRadioGroup>
+      </div>
+      <p class="muted">Checked</p>
+      <div class="row" style="align-items: center; gap: 16px;">
         <EmRadioGroup :model-value="'a'">
           <EmRadio size="sm" :value="'a'">
             <EmRadioIndicator />
-            <span>Small</span>
           </EmRadio>
         </EmRadioGroup>
         <EmRadioGroup :model-value="'b'">
           <EmRadio size="md" :value="'b'">
             <EmRadioIndicator />
-            <span>Medium</span>
           </EmRadio>
         </EmRadioGroup>
         <EmRadioGroup :model-value="'c'">
           <EmRadio size="lg" :value="'c'">
             <EmRadioIndicator />
-            <span>Large</span>
-          </EmRadio>
-        </EmRadioGroup>
-        <EmRadioGroup disabled>
-          <EmRadio :value="'d'">
-            <EmRadioIndicator />
-            <span>Disabled</span>
-          </EmRadio>
-        </EmRadioGroup>
-        <EmRadioGroup disabled :model-value="'e'">
-          <EmRadio :value="'e'">
-            <EmRadioIndicator />
-            <span>Disabled checked</span>
           </EmRadio>
         </EmRadioGroup>
       </div>
-
-      <EmRadioGroup v-model="radioGroup" label="Density" style="margin-top: 0.75rem;">
-        <EmRadio :value="'compact'">
-          <EmRadioIndicator />
-          <span>Compact</span>
-        </EmRadio>
-        <EmRadio :value="'comfortable'">
-          <EmRadioIndicator />
-          <span>Comfortable</span>
-        </EmRadio>
-        <EmRadio :value="'spacious'">
-          <EmRadioIndicator />
-          <span>Spacious</span>
-        </EmRadio>
-      </EmRadioGroup>
     </section>
 
     <section>
       <h2>Switch</h2>
-      <div class="row">
-        <EmSwitch v-model="switchSingle">
-          <EmSwitchTrack>
-            <EmSwitchThumb />
-          </EmSwitchTrack>
-        </EmSwitch>
-        <span>{{ switchSingle ? 'On' : 'Off' }}</span>
-      </div>
-      <div class="row" style="gap: 16px; margin-top: 12px;">
+      <p class="muted">Off</p>
+      <div class="row" style="align-items: center; gap: 16px;">
         <EmSwitch :model-value="false" size="sm">
           <EmSwitchTrack>
             <EmSwitchThumb />
           </EmSwitchTrack>
         </EmSwitch>
-        <EmSwitch :model-value="true" size="sm">
-          <EmSwitchTrack>
-            <EmSwitchThumb />
-          </EmSwitchTrack>
-        </EmSwitch>
-        <EmSwitch :model-value="false">
-          <EmSwitchTrack>
-            <EmSwitchThumb />
-          </EmSwitchTrack>
-        </EmSwitch>
-        <EmSwitch :model-value="true">
+        <EmSwitch :model-value="false" size="md">
           <EmSwitchTrack>
             <EmSwitchThumb />
           </EmSwitchTrack>
@@ -869,19 +815,20 @@
             <EmSwitchThumb />
           </EmSwitchTrack>
         </EmSwitch>
-        <EmSwitch :model-value="true" size="lg">
-          <EmSwitchTrack>
-            <EmSwitchThumb />
-          </EmSwitchTrack>
-        </EmSwitch>
       </div>
-      <div class="row" style="gap: 16px; margin-top: 12px;">
-        <EmSwitch disabled :model-value="false">
+      <p class="muted">On</p>
+      <div class="row" style="align-items: center; gap: 16px;">
+        <EmSwitch :model-value="true" size="sm">
           <EmSwitchTrack>
             <EmSwitchThumb />
           </EmSwitchTrack>
         </EmSwitch>
-        <EmSwitch disabled :model-value="true">
+        <EmSwitch :model-value="true" size="md">
+          <EmSwitchTrack>
+            <EmSwitchThumb />
+          </EmSwitchTrack>
+        </EmSwitch>
+        <EmSwitch :model-value="true" size="lg">
           <EmSwitchTrack>
             <EmSwitchThumb />
           </EmSwitchTrack>
@@ -1525,11 +1472,14 @@
   }
 
   .emerald-avatar-group > :deep(.emerald-avatar) {
-    box-shadow: 0 0 0 2px var(--emerald-background, #faf9ff);
+    border: none;
+    box-shadow:
+      0 0 0 2px var(--emerald-background, #faf9ff),
+      0 1px 2px 0 rgba(5, 0, 18, 0.1);
   }
 
   .emerald-avatar-group > :deep(.emerald-avatar) + :deep(.emerald-avatar) {
-    margin-left: -10px;
+    margin-left: -16px;
   }
 
   .muted {

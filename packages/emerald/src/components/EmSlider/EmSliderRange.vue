@@ -20,17 +20,19 @@
 <style>
 .emerald-slider__range {
   position: absolute;
-  top: 0;
-  bottom: 0;
+  top: -0.5px;
+  bottom: -0.5px;
   border-radius: 999px;
-  background: var(--emerald-primary-500, #7c5cf6);
+  border: 0.5px solid rgb(var(--emerald-neutral-channels, 26 28 30) / 0.1);
+  background: var(--emerald-secondary-200, #dce4e9);
+  box-shadow: 0 1px 2px 0 rgba(5, 0, 18, 0.05);
 }
 
 .emerald-slider[data-orientation="vertical"] .emerald-slider__range {
   top: auto;
   bottom: 0;
-  left: 0;
-  right: 0;
+  left: -0.5px;
+  right: -0.5px;
   height: auto;
 }
 
