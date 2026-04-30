@@ -36,7 +36,7 @@
           <span
             v-for="ticket in hidden"
             :key="String(ticket.id)"
-            class="block px-2 py-1 text-xs text-on-surface"
+            class="block px-2 py-1 text-xs text-on-surface whitespace-nowrap"
           >
             {{ ticket.value }}
           </span>

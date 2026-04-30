@@ -67,7 +67,7 @@ Headless responsive truncation primitive. Children render until the container ru
 ::: example
 /components/overflow/basic
 
-### Basic tag row
+### Tags
 
 The canonical use case. As the container shrinks, trailing tags hide and an indicator counts how many are missing. The default `priority="start"` keeps leading items visible — natural for tag chips, filters, and breadcrumb-style lists where the first items are the most relevant.
 
@@ -82,7 +82,7 @@ The container needs `overflow: hidden` so the natural layout doesn't push items 
 /components/overflow/avatar-group/users.ts 1
 /components/overflow/avatar-group/avatar-group.vue 2
 
-### Avatar group with overflow indicator
+### Avatar group
 
 The classic "user roster" use case — a stack of overlapping avatars that collapse into a `+N` chip when the row gets tight. The data lives in a separate `users.ts` module to keep the markup focused on the visual composition. The negative `gap` and per-avatar `marginInlineStart: -8px` produce the overlap; everything else is the standard `Overflow.Root` + `Overflow.Item` + `Overflow.Indicator` skeleton.
 
@@ -97,7 +97,7 @@ Because each avatar has the same width, the trailing avatars drop in predictable
 ::: example
 /components/overflow/popover
 
-### Indicator opens a popover of hidden items
+### Popover of hidden items
 
 `Overflow.Indicator` exposes the array of currently-hidden tickets via the `hidden` slot prop. Wrap the indicator content in a `Popover.Activator` and render the hidden values inside `Popover.Content` to give users access to truncated content without losing the compact display.
 
@@ -111,7 +111,7 @@ This is the same pattern used by GitHub's repo language list and Linear's projec
 ::: example
 /components/overflow/priority-end
 
-### priority="end" for trailing-priority lists
+### End priority
 
 When the latest items matter most — chat reactions, recent activity, message lists — `priority="end"` flips the behavior: leading items hide first and the indicator naturally renders at the start. Visual order is preserved (DOM order = display order); only visibility flips.
 
