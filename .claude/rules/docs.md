@@ -286,7 +286,7 @@ When auditing docs or specs, read the rules file **line-by-line** and build a pe
 
 ## Nav emphasis
 
-Internal nav links render a 5-level heatmap dot that reflects how recent the page's last git commit is. Levels bucket by age: 1 = ≤7d (green), 2 = ≤30d, 3 = ≤90d, 4 = ≤180d, 5 = >180d (red). Color is a linear `color-mix` between `--v0-success` and `--v0-error`. Only level 1 is shown by default; enabling the global `devmode` feature shows all levels on every internal link. Manual `features.emphasized: true` still forces level 1. [intent:343]
+Internal nav links render a 5-level heatmap dot that reflects how recent the page's last git commit is. Levels bucket by age: 1 = ≤7d (fresh green), 2 = ≤30d, 3 = ≤90d, 4 = ≤180d, 5 = >180d (overripe brown). The badge calls `scoreToColor` from `@/composables/useFreshness` after mapping `emphasized` (1–5) → score (100, 75, 50, 25, 0), so it shares the avocado palette used on `/health`. Only level 1 is shown by default; enabling the global `devmode` feature shows all levels on every internal link. Manual `features.emphasized: true` still forces level 1. [intent:343]
 
 ## Random tips
 

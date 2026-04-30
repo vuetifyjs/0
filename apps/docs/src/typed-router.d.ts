@@ -930,6 +930,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/health': RouteRecordInfo<
+      '/health',
+      '/health',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/introduction/browser-support': RouteRecordInfo<
       '/introduction/browser-support',
       '/introduction/browser-support',
@@ -1805,6 +1812,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/guide/tooling/vuetify-mcp.md': {
       routes:
         | '/guide/tooling/vuetify-mcp'
+      views:
+        | never
+    }
+    'src/pages/health.md': {
+      routes:
+        | '/health'
       views:
         | never
     }

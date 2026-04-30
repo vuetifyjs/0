@@ -19,17 +19,18 @@
 
   const icons = useIconContext()
 
-  // Cache resolved icons by name to avoid re-resolving on every render
-  const iconCache = new Map<string, [string, number][]>()
+  // Cache resolved icons by name to avoid re-resolving on every render.
+  // Tuple: [path, opacity, fill?] — fill overrides currentColor when provided.
+  const iconCache = new Map<string, [string, number, string | undefined][]>()
 
   const icon = computed(() => {
     const name = props.icon
     if (iconCache.has(name)) return iconCache.get(name)!
 
-    const array: [string, number][] = []
+    const array: [string, number, string | undefined][] = []
     for (const i of toArray(icons.resolve(name))) {
-      const [path, opacity = 1] = toArray(i)
-      array.push([path as string, opacity as number])
+      const [path, opacity = 1, fill] = toArray(i)
+      array.push([path as string, opacity as number, fill as string | undefined])
     }
 
     iconCache.set(name, array)
@@ -49,10 +50,10 @@
       xmlns="http://www.w3.org/2000/svg"
     >
       <path
-        v-for="([d, opacity], i) in icon"
+        v-for="([d, opacity, fill], i) in icon"
         :key="i"
         :d
-        fill="currentColor"
+        :fill="fill ?? 'currentColor'"
         :opacity
         stroke="none"
         stroke-width="0"

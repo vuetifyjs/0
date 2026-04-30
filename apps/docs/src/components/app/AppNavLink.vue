@@ -3,6 +3,7 @@
   import { Atom, useFeatures } from '@vuetify/v0'
 
   // Composables
+  import { scoreToColor } from '@/composables/useFreshness'
   import { useNavConfigContext } from '@/composables/useNavConfig'
   import { isNavItemLink, useNavNestedContext } from '@/composables/useNavNested'
   import { useSettings } from '@/composables/useSettings'
@@ -47,8 +48,10 @@
   const showHeatmap = toRef(() => !!emphasized && (emphasized === 1 || devmodeFeature.isSelected.value))
   const heatmapStyle = toRef(() => {
     if (!emphasized) return undefined
-    const t = ((emphasized - 1) / 4) * 100
-    return { backgroundColor: `color-mix(in srgb, var(--v0-success), var(--v0-error) ${t}%)` }
+    // Map emphasized (1=fresh ≤7d, 5=stale >180d) → score (100, 75, 50, 25, 0)
+    // so the badge gradient matches the avocado palette on /health.
+    const score = (5 - emphasized) * 25
+    return { backgroundColor: scoreToColor(score) }
   })
 
   // Skip animation during state restoration (prevents all sections animating on page load/navigation)

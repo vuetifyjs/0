@@ -1,13 +1,16 @@
 <script setup lang="ts">
   import { useHead } from '@unhead/vue'
 
+  // Framework
+  import { IN_BROWSER } from '@vuetify/v0'
+
   // Composables
   import { useAsk } from '@/composables/useAsk'
   import { useRouterLinks } from '@/composables/useRouterLinks'
   import { useSettings } from '@/composables/useSettings'
 
   // Utilities
-  import { computed, shallowRef, toRef, useTemplateRef } from 'vue'
+  import { computed, onBeforeUnmount, onMounted, shallowRef, toRef, useTemplateRef, watch } from 'vue'
   import { useRoute } from 'vue-router'
 
   // Components
@@ -20,6 +23,40 @@
   const page = shallowRef<{ frontmatter?: Record<string, unknown> }>()
   const mainRef = useTemplateRef<HTMLElement>('main')
   const pageTransition = toRef(() => settings.prefersReducedMotion.value ? undefined : 'page')
+
+  const TOC_SELECTOR = 'h2[id]:not([data-discovery-title]), h3[id]:not([data-discovery-title]), h4[id]:not([data-discovery-title])'
+  const hasToc = shallowRef(false)
+  let mutationObserver: MutationObserver | null = null
+
+  function rescanToc () {
+    if (!IN_BROWSER) return
+    hasToc.value = document.querySelector(TOC_SELECTOR) !== null
+  }
+
+  watch(() => route.path, () => {
+    hasToc.value = false
+    if (!IN_BROWSER) return
+    // The page mounts async via <router-view> + Transition. Poll across a few
+    // frames to catch headings that arrive after the transition finishes.
+    let tries = 0
+    function tick () {
+      rescanToc()
+      tries++
+      if (!hasToc.value && tries < 20) requestAnimationFrame(tick)
+    }
+    requestAnimationFrame(tick)
+  })
+
+  onMounted(() => {
+    rescanToc()
+    mutationObserver = new MutationObserver(rescanToc)
+    mutationObserver.observe(document.body, { childList: true, subtree: true })
+  })
+
+  onBeforeUnmount(() => {
+    mutationObserver?.disconnect()
+    mutationObserver = null
+  })
 
   function onLeave (_el: Element, done: () => void) {
     done()
@@ -85,8 +122,11 @@
     :class="[
       'pa-6 ms-0 md:ms-[230px] relative z-0',
       !settings.prefersReducedMotion.value && 'transition-[padding] duration-200',
-      ask.isOpen.value ? 'xl:pe-[calc(clamp(280px,calc(100vw-230px-730px-64px),500px)+32px)]' : 'xl:pe-[232px]',
+      'data-[has-toc]:xl:pe-[232px]',
+      'data-[ask-open]:xl:pe-[calc(clamp(280px,calc(100vw-230px-730px-64px),500px)+32px)]',
     ]"
+    :data-ask-open="ask.isOpen.value || undefined"
+    :data-has-toc="!ask.isOpen.value && hasToc || undefined"
   >
     <div class="max-w-[730px] mx-auto pb-4">
       <DocsPageLogo :frontmatter="page?.frontmatter" />
