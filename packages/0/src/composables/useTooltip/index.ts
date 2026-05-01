@@ -70,24 +70,10 @@ export interface TooltipContext {
   unregister: (id: ID) => void
 }
 
-/**
- * Creates a new tooltip region context.
- *
- * @param options Region defaults for delays and disabled state.
- * @returns A tooltip region context exposing reactive defaults plus a
- * register/unregister pair backed by an internal registry.
- *
- * @example
- * ```ts
- * import { createTooltip } from '@vuetify/v0'
- *
- * const region = createTooltip({ openDelay: 500 })
- * const ticket = region.register({ id: 't:1' })
- * region.shouldSkipOpenDelay() // true while ticket is registered
- * region.unregister(ticket.id)
- * ```
- */
-export function createTooltip (options: TooltipOptions = {}): TooltipContext {
+// Internal factory passed to createPluginContext below. The trinity exports
+// (`createTooltipContext`, `createTooltipPlugin`, `useTooltip`) are the
+// public surface; this factory stays unexported to keep one entry point.
+function createTooltip (options: TooltipOptions = {}): TooltipContext {
   const openDelay = toRef(() => Number(toValue(options.openDelay) ?? 700))
   const closeDelay = toRef(() => Number(toValue(options.closeDelay) ?? 150))
   const skipDelay = toRef(() => Number(toValue(options.skipDelay) ?? 300))
