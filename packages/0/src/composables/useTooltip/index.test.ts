@@ -1,10 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Utilities
-import { effectScope } from 'vue'
+import { createApp, defineComponent, effectScope, h } from 'vue'
 
 // Composables
-import { createTooltipContext, createTooltipPlugin } from './index'
+import { createTooltipContext, createTooltipPlugin, useTooltip } from './index'
 
 describe('useTooltip', () => {
   beforeEach(() => {
@@ -19,7 +19,7 @@ describe('useTooltip', () => {
     it('should expose default delays', () => {
       const scope = effectScope()
       scope.run(() => {
-        const [,, ctx] = createTooltipContext()
+        const [,, ctx] = createTooltipContext({ namespace: 'test:tooltip' })
         expect(ctx.openDelay.value).toBe(700)
         expect(ctx.closeDelay.value).toBe(150)
         expect(ctx.skipDelay.value).toBe(300)
@@ -32,6 +32,7 @@ describe('useTooltip', () => {
       const scope = effectScope()
       scope.run(() => {
         const [,, ctx] = createTooltipContext({
+          namespace: 'test:tooltip',
           openDelay: 500,
           closeDelay: 200,
           skipDelay: 400,
@@ -50,7 +51,7 @@ describe('useTooltip', () => {
     it('should track open tooltips via register / unregister', () => {
       const scope = effectScope()
       scope.run(() => {
-        const [,, ctx] = createTooltipContext()
+        const [,, ctx] = createTooltipContext({ namespace: 'test:tooltip' })
         expect(ctx.isAnyOpen.value).toBe(false)
 
         const ticket = ctx.register({ id: 't:1' })
@@ -67,7 +68,7 @@ describe('useTooltip', () => {
     it('should skip open delay when another tooltip is open', () => {
       const scope = effectScope()
       scope.run(() => {
-        const [,, ctx] = createTooltipContext()
+        const [,, ctx] = createTooltipContext({ namespace: 'test:tooltip' })
         const ticket = ctx.register({ id: 't:1' })
 
         expect(ctx.shouldSkipOpenDelay()).toBe(true)
@@ -79,7 +80,7 @@ describe('useTooltip', () => {
     it('should skip open delay within skipDelay window after last close', () => {
       const scope = effectScope()
       scope.run(() => {
-        const [,, ctx] = createTooltipContext({ skipDelay: 300 })
+        const [,, ctx] = createTooltipContext({ namespace: 'test:tooltip', skipDelay: 300 })
         const ticket = ctx.register({ id: 't:1' })
         ctx.unregister(ticket.id)
 
@@ -95,7 +96,7 @@ describe('useTooltip', () => {
     it('should not skip when no tooltips have ever opened', () => {
       const scope = effectScope()
       scope.run(() => {
-        const [,, ctx] = createTooltipContext({ skipDelay: 300 })
+        const [,, ctx] = createTooltipContext({ namespace: 'test:tooltip', skipDelay: 300 })
         expect(ctx.shouldSkipOpenDelay()).toBe(false)
       })
       scope.stop()
@@ -103,10 +104,7 @@ describe('useTooltip', () => {
   })
 
   describe('plugin install', () => {
-    it('should expose useTooltip after app.use(createTooltipPlugin())', async () => {
-      const { createApp, defineComponent, h } = await import('vue')
-      const { useTooltip } = await import('./index')
-
+    it('should expose useTooltip after app.use(createTooltipPlugin())', () => {
       let captured: ReturnType<typeof useTooltip> | undefined
 
       const Probe = defineComponent({
@@ -128,12 +126,17 @@ describe('useTooltip', () => {
   })
 
   describe('namespace', () => {
-    it('should support component-level provideTooltipContext for region scoping', () => {
-      // Verify the trinity exports a provider symbol for region overrides
+    it('should isolate contexts across namespaces', () => {
       const scope = effectScope()
       scope.run(() => {
-        const [,, ctx] = createTooltipContext({ openDelay: 100, namespace: 'test:tooltip' })
-        expect(ctx.openDelay.value).toBe(100)
+        const [,, ctxA] = createTooltipContext({ namespace: 'test:tooltip-a', openDelay: 100 })
+        const [,, ctxB] = createTooltipContext({ namespace: 'test:tooltip-b', openDelay: 200 })
+        expect(ctxA.openDelay.value).toBe(100)
+        expect(ctxB.openDelay.value).toBe(200)
+        // Confirm registries are independent
+        ctxA.register({ id: 'tooltip-a:1' })
+        expect(ctxA.isAnyOpen.value).toBe(true)
+        expect(ctxB.isAnyOpen.value).toBe(false)
       })
       scope.stop()
     })
