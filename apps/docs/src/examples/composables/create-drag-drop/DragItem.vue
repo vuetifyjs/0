@@ -21,8 +21,7 @@
   <div
     ref="el"
     v-bind="ticket.attrs.value"
-    class="p-2 bg-primary text-on-primary rounded select-none"
-    :class="ticket.isDragging.value ? 'cursor-grabbing' : 'cursor-grab'"
+    class="p-2 bg-primary text-on-primary rounded select-none cursor-grab data-[dragging]:cursor-grabbing data-[dragging]:opacity-50"
   >
     {{ item.label }}
   </div>
