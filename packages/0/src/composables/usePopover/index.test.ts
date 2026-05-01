@@ -69,8 +69,8 @@ describe('usePopover', () => {
   })
 
   describe('delay', () => {
-    it('should delay opening with showDelay', () => {
-      const popover = usePopover({ showDelay: 200 })
+    it('should delay opening with openDelay', () => {
+      const popover = usePopover({ openDelay: 200 })
 
       popover.open()
       expect(popover.isOpen.value).toBe(false)
@@ -82,9 +82,9 @@ describe('usePopover', () => {
       expect(popover.isOpen.value).toBe(true)
     })
 
-    it('should delay closing with hideDelay', () => {
+    it('should delay closing with closeDelay', () => {
       const isOpen = shallowRef(true)
-      const popover = usePopover({ isOpen, hideDelay: 300 })
+      const popover = usePopover({ isOpen, closeDelay: 300 })
 
       popover.close()
       expect(popover.isOpen.value).toBe(true)
@@ -96,8 +96,8 @@ describe('usePopover', () => {
       expect(popover.isOpen.value).toBe(false)
     })
 
-    it('should cancel pending show when closing', () => {
-      const popover = usePopover({ showDelay: 200 })
+    it('should cancel pending open when closing', () => {
+      const popover = usePopover({ openDelay: 200 })
 
       popover.open()
       vi.advanceTimersByTime(100)
@@ -108,9 +108,9 @@ describe('usePopover', () => {
       expect(popover.isOpen.value).toBe(false)
     })
 
-    it('should cancel pending hide when opening', () => {
+    it('should cancel pending close when opening', () => {
       const isOpen = shallowRef(true)
-      const popover = usePopover({ isOpen, hideDelay: 300 })
+      const popover = usePopover({ isOpen, closeDelay: 300 })
 
       popover.close()
       vi.advanceTimersByTime(100)
@@ -119,6 +119,18 @@ describe('usePopover', () => {
 
       vi.advanceTimersByTime(300)
       expect(popover.isOpen.value).toBe(true)
+    })
+  })
+
+  describe('cancel', () => {
+    it('should cancel a pending open transition', () => {
+      vi.useFakeTimers()
+      const popover = usePopover({ openDelay: 500 })
+      popover.open()
+      popover.cancel()
+      vi.advanceTimersByTime(500)
+      expect(popover.isOpen.value).toBe(false)
+      vi.useRealTimers()
     })
   })
 
@@ -176,7 +188,7 @@ describe('usePopover', () => {
       let popover: ReturnType<typeof usePopover>
 
       scope.run(() => {
-        popover = usePopover({ showDelay: 200 })
+        popover = usePopover({ openDelay: 200 })
         popover.open()
       })
 
