@@ -177,27 +177,20 @@ const delay = useDelay({ openDelay: 300 })
 ::: faq
 
 ??? Why does start() return a promise?
-The promise resolves once the delay elapses, letting consumers `await` the
-transition or chain follow-up work. If `start()` is called again before the
-delay completes, the previous promise resolves with the new direction.
+
+The promise resolves once the delay elapses, letting consumers `await` the transition or chain follow-up work. If `start()` is called again before the delay completes, the previous promise resolves with the new direction.
 
 ??? What does minDelay enforce?
-A floor on the resolved delay. `start(false, { minDelay: 500 })` schedules
-the close after `max(closeDelay, 500)` ms. Useful when transient UI must
-remain visible for a minimum time before dismissal.
+
+A floor on the resolved delay. `start(false, { minDelay: 500 })` schedules the close after `max(closeDelay, 500)` ms. Useful when transient UI must remain visible for a minimum time before dismissal.
 
 ??? Does pause survive component unmount?
-No — the underlying timer is cleared on scope disposal, and any pending
-promise resolves with the current `isOpening` value. Consumers that need to
-distinguish a natural delay completion from a scope teardown should track
-that distinction externally (e.g., a boolean flag set inside `onChange`).
-Reset the in-flight delay manually if you need it to survive a remount.
+
+No — the underlying timer is cleared on scope disposal, and any pending promise resolves with the current `isOpening` value. Consumers that need to distinguish a natural delay completion from a scope teardown should track that distinction externally (e.g., a boolean flag set inside the callback). Reset the in-flight delay manually if you need it to survive a remount.
 
 ??? Should I use useDelay or useTimer directly?
-Reach for `useDelay` when you need separate open and close durations with
-direction tracking. Reach for `useTimer` directly when you need a single
-duration with no open/close split — for example, debouncing or one-shot
-fire-after-N-ms.
+
+Reach for `useDelay` when you need separate open and close durations with direction tracking. Reach for `useTimer` directly when you need a single duration with no open/close split — for example, debouncing or one-shot fire-after-N-ms.
 
 :::
 
