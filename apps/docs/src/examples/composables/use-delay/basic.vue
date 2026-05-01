@@ -1,10 +1,10 @@
 <script setup lang="ts">
-  import { useDelay } from '@vuetify/v0'
+  import { Button, Progress, useDelay } from '@vuetify/v0'
   import { shallowRef, toRef } from 'vue'
 
   const isOpen = shallowRef(false)
-  const openMs = 800
-  const closeMs = 600
+  const openMs = 2000
+  const closeMs = 1500
 
   const delay = useDelay(isOpening => {
     isOpen.value = isOpening
@@ -23,52 +23,54 @@
   <div class="flex flex-col gap-4 items-center">
     <div
       class="px-4 py-3 rounded border border-divider cursor-pointer select-none transition-colors min-w-64 text-center"
-      :class="isOpen ? 'bg-primary text-on-primary' : 'bg-surface text-on-surface'"
+      :class="isOpen ? 'bg-success text-on-success' : 'bg-surface text-on-surface'"
       @pointerenter="delay.start(true)"
       @pointerleave="delay.start(false)"
     >
       Hover to open · leave to close
     </div>
 
-    <div class="h-2 w-64 bg-surface-variant rounded-full overflow-hidden">
-      <div
-        class="h-full rounded-full transition-[width] duration-150 ease-linear"
-        :class="delay.isPaused.value ? 'bg-warning' : 'bg-primary'"
-        :style="{ width: `${progress}%` }"
-      />
-    </div>
+    <Progress.Root class="w-64">
+      <Progress.Track class="relative h-2 w-full overflow-hidden rounded-full bg-surface-variant">
+        <Progress.Fill
+          class="h-full rounded-full transition-[width] duration-150 ease-linear"
+          :class="delay.isPaused.value ? 'bg-warning' : 'bg-success'"
+          :value="progress"
+        />
+      </Progress.Track>
+    </Progress.Root>
 
     <div class="flex gap-2">
-      <button
+      <Button.Root
         class="px-3 py-1 text-sm rounded border border-divider hover:bg-surface-tint disabled:opacity-40"
         :disabled="!delay.isActive.value || delay.isPaused.value"
         @click="delay.pause()"
       >
         Pause
-      </button>
+      </Button.Root>
 
-      <button
+      <Button.Root
         class="px-3 py-1 text-sm rounded border border-divider hover:bg-surface-tint disabled:opacity-40"
         :disabled="!delay.isPaused.value"
         @click="delay.resume()"
       >
         Resume
-      </button>
+      </Button.Root>
 
-      <button
+      <Button.Root
         class="px-3 py-1 text-sm rounded border border-divider hover:bg-surface-tint disabled:opacity-40"
         :disabled="!delay.isActive.value"
         @click="delay.stop()"
       >
         Stop
-      </button>
+      </Button.Root>
     </div>
 
     <div class="grid grid-cols-2 gap-2 text-xs text-center w-72">
       <div
         class="px-2 py-1 rounded"
         :class="delay.isActive.value
-          ? 'bg-primary text-on-primary'
+          ? 'bg-success text-on-success'
           : 'bg-surface-variant text-on-surface-variant'"
       >
         isActive: {{ delay.isActive.value }}
