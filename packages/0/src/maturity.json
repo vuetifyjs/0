@@ -109,7 +109,7 @@
     "createDragDrop": {
       "level": "draft",
       "since": null,
-      "category": "system"
+      "category": "utilities"
     },
     "createFilter": {
       "level": "preview",
