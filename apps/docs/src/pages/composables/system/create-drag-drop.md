@@ -24,7 +24,28 @@ Headless drag-and-drop primitive. Owns two registries — draggables and zones �
 
 ## Usage
 
-`createDragDrop` is a per-scope factory: each parent that wants its own DnD context (a kanban board, a sortable tree, a splitter) calls it once. The factory auto-provides into the surrounding `setup()` scope, so sub-components reach it via `useDragDrop()` and register draggables and zones via `dnd.draggables.register({...})` and `dnd.zones.register({...})` — the returned tickets carry the consumer-facing derived state (`attrs`, `isDragging`, `isOver`, `willAccept`, `indicator`).
+Call `createDragDrop` once per scope (board, tree, splitter); it auto-provides so sub-components inject via `useDragDrop` and register against the same registries.
+
+```ts collapse
+import { createDragDrop, useDragDrop } from '@vuetify/v0'
+
+// In the parent scope (e.g. <Kanban.Root>)
+const dnd = createDragDrop<{ type: 'card', value: Card }>()
+
+// In a draggable child
+const ctx = useDragDrop<{ type: 'card', value: Card }>()
+const ticket = ctx.draggables.register({ el, type: 'card', value: card })
+// → ticket.attrs, ticket.isDragging, ticket.el
+
+// In a drop-zone child
+const zone = ctx.zones.register({
+  el,
+  accept: ['card'],
+  orientation: 'vertical',
+  onDrop: (drag, position) => moveCard(drag.value.id, position.index ?? 0),
+})
+// → zone.attrs, zone.isOver, zone.willAccept, zone.indicator
+```
 
 ## Examples
 
