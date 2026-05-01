@@ -27,7 +27,7 @@
 
 <template>
   <div
-    class="flex gap-4 data-[dragging]:cursor-grabbing"
+    class="flex flex-wrap gap-4 data-[dragging]:cursor-grabbing"
     :data-dragging="dnd.isDragging.value || undefined"
   >
     <DropList :items="left" side="left" @move="onMove" />

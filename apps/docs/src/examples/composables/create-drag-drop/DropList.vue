@@ -34,7 +34,7 @@
   <div
     ref="el"
     v-bind="zone.attrs.value"
-    class="flex-1 min-h-32 p-2 border rounded flex flex-col gap-2 transition-colors border-divider bg-surface data-[accepts]:border-primary data-[accepts]:bg-primary/10 data-[accepts]:ring-2 data-[accepts]:ring-primary/40"
+    class="basis-48 grow min-h-32 p-2 border rounded flex flex-col gap-2 transition-colors border-divider bg-surface data-[accepts]:border-primary data-[accepts]:bg-primary/10 data-[accepts]:ring-2 data-[accepts]:ring-primary/40"
   >
     <DragItem v-for="item in items" :key="item.id" :item />
   </div>
