@@ -290,6 +290,88 @@ describe('lifecycle hooks', () => {
     cardEl.remove()
     zoneEl.remove()
   })
+
+  it('should fire onCancel when drop happens with no over-zone', async () => {
+    const cardEl = makeFocusableEl('lc-3')
+
+    const onCancelDraggable = vi.fn()
+    const onCancelGlobal = vi.fn()
+
+    const dnd = createDragDrop({ onCancel: onCancelGlobal })
+    dnd.draggables.register({
+      el: shallowRef(cardEl),
+      type: 'a',
+      value: null,
+      onCancel: onCancelDraggable,
+    })
+
+    cardEl.focus()
+    cardEl.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true }))
+    cardEl.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true }))
+    await nextTick()
+
+    expect(onCancelDraggable).toHaveBeenCalledTimes(1)
+    expect(onCancelGlobal).toHaveBeenCalledTimes(1)
+    expect(dnd.active.value).toBeNull()
+
+    cardEl.remove()
+  })
+
+  it('should fire onLeave / onEnter on zone change', async () => {
+    const cardEl = makeFocusableEl('lc-4')
+    const zoneA = document.createElement('div')
+    const zoneB = document.createElement('div')
+    document.body.append(zoneA, zoneB)
+
+    const aEnter = vi.fn()
+    const aLeave = vi.fn()
+    const bEnter = vi.fn()
+    const bLeave = vi.fn()
+
+    const dnd = createDragDrop()
+    dnd.draggables.register({ el: shallowRef(cardEl), type: 'a', value: null })
+    dnd.zones.register({ el: shallowRef(zoneA), onEnter: aEnter, onLeave: aLeave })
+    dnd.zones.register({ el: shallowRef(zoneB), onEnter: bEnter, onLeave: bLeave })
+
+    cardEl.focus()
+    cardEl.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true }))
+
+    const realFromPoint = document.elementFromPoint.bind(document)
+
+    // First move resolves over → zoneA
+    document.elementFromPoint = () => zoneA
+    cardEl.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
+    await nextTick()
+
+    // Second move resolves over → zoneB (zone change)
+    document.elementFromPoint = () => zoneB
+    cardEl.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
+    await nextTick()
+
+    document.elementFromPoint = realFromPoint
+
+    expect(aEnter).toHaveBeenCalledTimes(1)
+    expect(aLeave).toHaveBeenCalledTimes(1)
+    expect(bEnter).toHaveBeenCalledTimes(1)
+    expect(bLeave).not.toHaveBeenCalled()
+
+    cardEl.remove()
+    zoneA.remove()
+    zoneB.remove()
+  })
+
+  it('should not install default transports when transports: []', () => {
+    const cardEl = makeFocusableEl('lc-5')
+    const dnd = createDragDrop({ transports: [] })
+    dnd.draggables.register({ el: shallowRef(cardEl), type: 'a', value: null })
+
+    cardEl.focus()
+    cardEl.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true }))
+
+    expect(dnd.active.value).toBeNull()
+
+    cardEl.remove()
+  })
 })
 
 describe('pointerTransport', () => {

@@ -26,8 +26,8 @@ import { keyboardTransport } from './adapters/keyboard'
 import { pointerTransport } from './adapters/pointer'
 
 // Utilities
-import { useId } from '#v0/utilities'
-import { hasInjectionContext, onScopeDispose, shallowRef, toRef, toValue } from 'vue'
+import { isArray, isFunction, useId } from '#v0/utilities'
+import { computed, hasInjectionContext, onScopeDispose, shallowRef, toRef, toValue } from 'vue'
 
 // Types
 import type {
@@ -71,36 +71,51 @@ export interface DropPosition {
   indicator?: DropIndicator
 }
 
-export interface ActiveDrag<K extends DragType = DragType> {
-  id: ID
-  type: K['type']
-  value: K['value']
-  origin: { x: number, y: number }
-  current: { x: number, y: number }
-  delta: { x: number, y: number }
-  over: ID | null
-  willAccept: boolean
-  via: Extensible<'pointer' | 'keyboard'>
-}
+/**
+ * Active drag state. Distributive over `K` so that narrowing `drag.type` also
+ * narrows `drag.value` when `K` is a discriminated union.
+ */
+export type ActiveDrag<K extends DragType = DragType> = K extends DragType
+  ? {
+      id: ID
+      type: K['type']
+      value: K['value']
+      origin: { x: number, y: number }
+      current: { x: number, y: number }
+      delta: { x: number, y: number }
+      over: ID | null
+      willAccept: boolean
+      via: Extensible<'pointer' | 'keyboard'>
+    }
+  : never
 
-export interface DraggableTicketInput<K extends DragType = DragType>
-  extends RegistryTicketInput {
-  type: K['type']
-  value: K['value']
-  el: MaybeRefOrGetter<HTMLElement | null>
-  disabled?: MaybeRefOrGetter<boolean>
-  onBeforeStart?: (drag: ActiveDrag<K>) => boolean | void
-  onMove?: (drag: ActiveDrag<K>) => void
-  onCancel?: (drag: ActiveDrag<K>) => void
-}
+/**
+ * Input shape for a draggable. Distributive over `K` so unions narrow.
+ */
+export type DraggableTicketInput<K extends DragType = DragType> = K extends DragType
+  ? RegistryTicketInput & {
+    type: K['type']
+    value: K['value']
+    el: MaybeRefOrGetter<HTMLElement | null>
+    disabled?: MaybeRefOrGetter<boolean>
+    onBeforeStart?: (drag: ActiveDrag<K>) => boolean | void
+    onMove?: (drag: ActiveDrag<K>) => void
+    onCancel?: (drag: ActiveDrag<K>) => void
+  }
+  : never
 
-export interface DraggableTicket<K extends DragType = DragType> extends RegistryTicket {
-  type: K['type']
-  value: K['value']
-  el: Readonly<Ref<HTMLElement | null>>
-  attrs: Readonly<Ref<Record<string, unknown>>>
-  isDragging: Readonly<Ref<boolean>>
-}
+/**
+ * Output shape for a draggable. Distributive over `K`.
+ */
+export type DraggableTicket<K extends DragType = DragType> = K extends DragType
+  ? RegistryTicket & {
+    type: K['type']
+    value: K['value']
+    el: Readonly<Ref<HTMLElement | null>>
+    attrs: Readonly<Ref<Record<string, unknown>>>
+    isDragging: Readonly<Ref<boolean>>
+  }
+  : never
 
 export interface DropZoneTicketInput<K extends DragType = DragType>
   extends RegistryTicketInput {
@@ -157,7 +172,16 @@ export interface DragDropContext<K extends DragType = DragType> {
 const [useDragDropContext, provideDragDropContext] =
   createContext<DragDropContext>('v0:dragdrop')
 
-export { useDragDropContext as useDragDrop }
+/**
+ * Inject the nearest `createDragDrop` context.
+ *
+ * Generic in `K` so consumers can recover the factory's narrowed kinds at the
+ * inject boundary; the cast is safe because the underlying registry was
+ * created with the same `K`.
+ */
+export function useDragDrop<K extends DragType = DragType> (): DragDropContext<K> {
+  return useDragDropContext() as unknown as DragDropContext<K>
+}
 
 function buildDraggableAttrs (isDraggingNow: boolean, disabled: boolean): Record<string, unknown> {
   const out: Record<string, unknown> = {
@@ -182,7 +206,7 @@ function willZoneAccept<K extends DragType> (
 ): boolean {
   if (!drag) return false
   if (!accept) return true
-  if (Array.isArray(accept)) return (accept as string[]).includes(drag.type)
+  if (isArray(accept)) return (accept as string[]).includes(drag.type)
   return accept(drag) === true
 }
 
@@ -211,13 +235,15 @@ export function createDragDrop<K extends DragType = DragType> (
       toValue(input.disabled) === true,
     ))
 
+    // Distributive types collapse to opaque conditionals when K is generic,
+    // so cast through unknown — runtime shape is correct.
     const decorated = {
       ...input,
       id,
       el: elRef,
       isDragging: isDraggingRef,
       attrs: attrsRef,
-    } as Partial<DraggableTicketInput<K> & DraggableTicket<K>>
+    } as unknown as Partial<DraggableTicketInput<K> & DraggableTicket<K>>
 
     return baseDraggables.register(decorated) as DraggableTicket<K>
   }
@@ -232,7 +258,11 @@ export function createDragDrop<K extends DragType = DragType> (
     const elRef = toRef(() => toValue(input.el))
     const isOverRef = toRef(() => active.value?.over === id)
     const willAcceptRef = toRef(() => willZoneAccept(input.accept, active.value))
-    const indicatorRef = toRef((): DropIndicator | null => {
+    // computed (not toRef) — caches across reactive reads to avoid layout
+    // reflow per access. Each indicator read calls getBoundingClientRect on
+    // every child, which is expensive; without caching this is O(N children)
+    // per `active.value` reactive read.
+    const indicatorRef = computed<DropIndicator | null>(() => {
       if (!input.orientation || !isOverRef.value || !active.value) return null
       const zoneEl = elRef.value
       if (!zoneEl) return null
@@ -338,7 +368,7 @@ export function createDragDrop<K extends DragType = DragType> (
       over: null,
       willAccept: false,
       via,
-    }
+    } as ActiveDrag<K>
 
     if (getDraggableInput(source.id)?.onBeforeStart?.(draft) === false) return
     if (options.onBeforeStart?.(draft) === false) return
@@ -356,7 +386,7 @@ export function createDragDrop<K extends DragType = DragType> (
       delta: { x: point.x - active.value.origin.x, y: point.y - active.value.origin.y },
       over: overZoneId,
       willAccept: overZoneId !== null && willZoneAcceptById(overZoneId, active.value),
-    }
+    } as ActiveDrag<K>
 
     const previousOver = active.value.over
     active.value = next
@@ -375,8 +405,11 @@ export function createDragDrop<K extends DragType = DragType> (
     const drag = active.value
     const zoneId = drag.over
 
+    // Drop with no over-zone is a cancel — fire the chain instead of clearing
+    // active silently. Consumers using `onCancel` for state rollback expect
+    // this notification.
     if (zoneId === null) {
-      active.value = null
+      runCancelChain(drag)
       return
     }
 
@@ -402,10 +435,12 @@ export function createDragDrop<K extends DragType = DragType> (
     runCancelChain(active.value)
   }
 
+  // active is structurally identical to ShallowRef<ActiveDrag<K> | null> but
+  // distributive conditional types are invariant in unresolved positions.
   const ctx: DragDropContext<K> = {
     draggables,
     zones,
-    active,
+    active: active as Readonly<ShallowRef<ActiveDrag<K> | null>>,
     isDragging,
     cancel,
   }
@@ -432,7 +467,7 @@ export function createDragDrop<K extends DragType = DragType> (
 
   for (const plugin of plugins) {
     const dispose = plugin(ctx)
-    if (typeof dispose === 'function') disposers.push(dispose)
+    if (isFunction(dispose)) disposers.push(dispose)
   }
 
   onScopeDispose(() => {
