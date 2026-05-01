@@ -56,6 +56,49 @@ bunx @vuetify/mcp config --remote
 claude mcp add --transport http vuetify-mcp https://mcp.vuetifyjs.com/mcp
 ```
 
+### Claude Desktop
+
+[Claude Desktop](https://claude.ai/download) is Anthropic's GUI app. **Direct HTTP transport (`url:`) is not supported in `claude_desktop_config.json`** — Claude Desktop only accepts stdio servers. Use one of the two stdio configurations below.
+
+::: code-group no-filename
+
+```json Local
+{
+  "mcpServers": {
+    "vuetify-mcp": {
+      "command": "npx",
+      "args": ["-y", "@vuetify/mcp"]
+    }
+  }
+}
+```
+
+```json Hosted via mcp-remote
+{
+  "mcpServers": {
+    "vuetify-mcp": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "https://mcp.vuetifyjs.com/mcp"]
+    }
+  }
+}
+```
+
+```json Hosted via mcp-remote (Windows + WSL2)
+{
+  "mcpServers": {
+    "vuetify-mcp": {
+      "command": "wsl",
+      "args": ["npx", "-y", "mcp-remote", "https://mcp.vuetifyjs.com/mcp"]
+    }
+  }
+}
+```
+
+:::
+
+The first config runs the package locally over stdio. The second and third use the [`mcp-remote`](https://www.npmjs.com/package/mcp-remote) bridge to consume the hosted server through stdio, which is the only transport Claude Desktop accepts. After editing `claude_desktop_config.json`, fully quit and relaunch Claude Desktop to pick up changes.
+
 ### Vuetify CLI
 
 Add Vuetify AI rules and context to your project with the [Vuetify CLI](/guide/tooling/vuetify-cli):
@@ -114,11 +157,13 @@ Manual configuration for each IDE. Use the interactive setup above for automatic
 | IDE | Config File (Linux) | Config File (macOS) |
 | - | - | - |
 | Claude Code | `~/.claude.json` or `.mcp.json` | `~/.claude.json` or `.mcp.json` |
-| Claude Desktop | N/A | `~/Library/Application Support/Claude/claude_desktop_config.json` |
+| Claude Desktop[^cd] | N/A | `~/Library/Application Support/Claude/claude_desktop_config.json` |
 | VS Code | `~/.config/Code/User/mcp.json` | `~/Library/Application Support/Code/User/mcp.json` |
 | Cursor | `~/.config/Cursor/User/mcp.json` | `~/Library/Application Support/Cursor/User/mcp.json` |
 | Windsurf | `~/.config/Windsurf/User/mcp.json` | `~/Library/Application Support/Windsurf/User/mcp.json` |
 | Trae | `~/.config/Trae/User/mcp.json` | `~/Library/Application Support/Trae/User/mcp.json` |
+
+[^cd]: Claude Desktop does not support direct HTTP transport. Use the stdio configs in the [Claude Desktop](#claude-desktop) section above instead of the hosted JSON below.
 
 ::: code-group no-filename
 
