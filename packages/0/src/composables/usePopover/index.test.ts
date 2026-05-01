@@ -124,13 +124,28 @@ describe('usePopover', () => {
 
   describe('cancel', () => {
     it('should cancel a pending open transition', () => {
-      vi.useFakeTimers()
-      const popover = usePopover({ openDelay: 500 })
-      popover.open()
-      popover.cancel()
-      vi.advanceTimersByTime(500)
-      expect(popover.isOpen.value).toBe(false)
-      vi.useRealTimers()
+      const scope = effectScope()
+      scope.run(() => {
+        const popover = usePopover({ openDelay: 500 })
+        popover.open()
+        popover.cancel()
+        vi.advanceTimersByTime(500)
+        expect(popover.isOpen.value).toBe(false)
+      })
+      scope.stop()
+    })
+
+    it('should cancel a pending close transition', () => {
+      const scope = effectScope()
+      scope.run(() => {
+        const popover = usePopover({ closeDelay: 500 })
+        popover.isOpen.value = true
+        popover.close()
+        popover.cancel()
+        vi.advanceTimersByTime(500)
+        expect(popover.isOpen.value).toBe(true)
+      })
+      scope.stop()
     })
   })
 
