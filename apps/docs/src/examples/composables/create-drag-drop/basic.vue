@@ -26,7 +26,10 @@
 </script>
 
 <template>
-  <div class="flex gap-4" :class="dnd.isDragging.value && 'cursor-grabbing'">
+  <div
+    class="flex gap-4 data-[dragging]:cursor-grabbing"
+    :data-dragging="dnd.isDragging.value || undefined"
+  >
     <DropList :items="left" side="left" @move="onMove" />
     <DropList :items="right" side="right" @move="onMove" />
   </div>

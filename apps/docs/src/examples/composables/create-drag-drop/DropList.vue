@@ -35,10 +35,7 @@
   <div
     ref="el"
     v-bind="zone.attrs.value"
-    class="flex-1 min-h-32 p-2 border rounded flex flex-col gap-2 transition-colors"
-    :class="zone.isOver.value && zone.willAccept.value
-      ? 'border-primary bg-primary/10 ring-2 ring-primary/40'
-      : 'border-divider bg-surface'"
+    class="flex-1 min-h-32 p-2 border rounded flex flex-col gap-2 transition-colors border-divider bg-surface data-[accepts]:border-primary data-[accepts]:bg-primary/10 data-[accepts]:ring-2 data-[accepts]:ring-primary/40"
   >
     <DragItem v-for="item in items" :key="item.id" :item />
   </div>
