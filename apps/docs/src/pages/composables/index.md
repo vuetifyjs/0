@@ -195,9 +195,11 @@ Composables consume existing context or wrap browser APIs. They're called inside
 
 | Pattern | Example | When to Use |
 | - | - | - |
-| Plugin consumers | `useTheme`, `useLocale`, `useStorage` | Reading app-level plugin state (requires plugin installation) |
+| Plugin consumers | `useTheme`, `useLocale`, `useStorage` | Reading app-level plugin state[^plugin-install] |
 | Browser wrappers | `useEventListener`, `useResizeObserver` | Safe, lifecycle-managed browser API access |
 | Behavior composables | `useHotkey`, `useClickOutside` | Adding interactive behavior to elements |
+
+[^plugin-install]: Requires the corresponding plugin installed at app level — e.g. `app.use(createThemePlugin())` for `useTheme`. See each plugin composable's page for the exact factory.
 
 ## Foundation
 
