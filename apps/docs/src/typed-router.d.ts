@@ -643,13 +643,6 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
-    '/composables/system/create-drag-drop': RouteRecordInfo<
-      '/composables/system/create-drag-drop',
-      '/composables/system/create-drag-drop',
-      Record<never, never>,
-      Record<never, never>,
-      | never
-    >,
     '/composables/system/use-click-outside': RouteRecordInfo<
       '/composables/system/use-click-outside',
       '/composables/system/use-click-outside',
@@ -779,6 +772,13 @@ declare module 'vue-router/auto-routes' {
     '/composables/transformers/to-reactive': RouteRecordInfo<
       '/composables/transformers/to-reactive',
       '/composables/transformers/to-reactive',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/composables/utilities/create-drag-drop': RouteRecordInfo<
+      '/composables/utilities/create-drag-drop',
+      '/composables/utilities/create-drag-drop',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -1583,12 +1583,6 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
-    'src/pages/composables/system/create-drag-drop.md': {
-      routes:
-        | '/composables/system/create-drag-drop'
-      views:
-        | never
-    }
     'src/pages/composables/system/use-click-outside.md': {
       routes:
         | '/composables/system/use-click-outside'
@@ -1700,6 +1694,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/transformers/to-reactive.md': {
       routes:
         | '/composables/transformers/to-reactive'
+      views:
+        | never
+    }
+    'src/pages/composables/utilities/create-drag-drop.md': {
+      routes:
+        | '/composables/utilities/create-drag-drop'
       views:
         | never
     }

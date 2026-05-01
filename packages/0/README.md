@@ -200,6 +200,7 @@ Selection management composables built on `createRegistry`:
 #### Utilities
 
 - [`createBreadcrumbs`](https://0.vuetifyjs.com/composables/utilities/create-breadcrumbs) - Breadcrumb navigation model with depth tracking and path traversal
+- [`createDragDrop`](https://0.vuetifyjs.com/composables/utilities/create-drag-drop) - Headless drag-and-drop primitive with two registries, pluggable transports, and accessibility-first defaults
 - [`createOverflow`](https://0.vuetifyjs.com/composables/utilities/create-overflow) - Container overflow measurement for item capacity
 
 #### Transformers
@@ -210,7 +211,6 @@ Selection management composables built on `createRegistry`:
 
 #### System
 
-- [`createDragDrop`](https://0.vuetifyjs.com/composables/system/create-drag-drop) - Headless drag-and-drop primitive with two registries, pluggable transports, and accessibility-first defaults
 - [`useClickOutside`](https://0.vuetifyjs.com/composables/system/use-click-outside) - Click outside detection with cleanup
 - [`useEventListener`](https://0.vuetifyjs.com/composables/system/use-event-listener) - Lifecycle-managed event listeners
 - [`useHotkey`](https://0.vuetifyjs.com/composables/system/use-hotkey) - Hotkey combinations and sequences
