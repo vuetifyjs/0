@@ -193,33 +193,33 @@ export function useDelay (options: UseDelayOptions = {}): UseDelayReturn {
   const isOpening = shallowRef(false)
   let minDelay = 0
 
-  let pendingResolve: ((value: boolean) => void) | undefined
+  let resolver: ((value: boolean) => void) | undefined
 
   function fire () {
     const direction = isOpening.value
-    const resolve = pendingResolve
-    pendingResolve = undefined
+    const resolve = resolver
+    resolver = undefined
     resolve?.(direction)
     onChange?.(direction)
   }
 
-  function resolveDuration () {
+  function duration () {
     const raw = isOpening.value ? toValue(openDelay) : toValue(closeDelay)
     return Math.max(minDelay, raw ?? 0)
   }
 
-  const timer = useTimer(fire, { duration: resolveDuration })
+  const timer = useTimer(fire, { duration })
 
   function start (direction: boolean, options: UseDelayStartOptions = {}) {
-    const previousResolve = pendingResolve
-    pendingResolve = undefined
+    const previous = resolver
+    resolver = undefined
     isOpening.value = direction
     minDelay = options.minDelay ?? 0
-    previousResolve?.(direction)
-    const ms = resolveDuration()
+    previous?.(direction)
+    const ms = duration()
 
     return new Promise<boolean>(resolve => {
-      pendingResolve = resolve
+      resolver = resolve
       if (ms <= 0) {
         timer.stop()
         fire()
@@ -230,15 +230,15 @@ export function useDelay (options: UseDelayOptions = {}): UseDelayReturn {
   }
 
   function stop () {
-    const resolve = pendingResolve
-    pendingResolve = undefined
+    const resolve = resolver
+    resolver = undefined
     timer.stop()
     resolve?.(isOpening.value)
   }
 
   onScopeDispose(() => {
-    const resolve = pendingResolve
-    pendingResolve = undefined
+    const resolve = resolver
+    resolver = undefined
     resolve?.(isOpening.value)
   }, true)
 
