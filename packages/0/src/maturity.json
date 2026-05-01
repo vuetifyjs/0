@@ -484,7 +484,8 @@
       "category": "semantic"
     },
     "Tooltip": {
-      "level": "draft",
+      "level": "preview",
+      "since": null,
       "category": "disclosure"
     },
     "Alert": {
