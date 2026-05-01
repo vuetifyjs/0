@@ -61,9 +61,6 @@ Scope-specific mechanics for `packages/0/src/composables/**`. Covers naming, fac
  * ```
  */
 
-// Globals
-import { IN_BROWSER } from '#v0/constants/globals'
-
 // Composables
 import { createRegistry } from '#v0/composables/createRegistry'
 
@@ -72,6 +69,9 @@ import { isNull } from '#v0/utilities'
 
 // Types
 import type { ID } from '#v0/types'
+
+// Globals
+import { IN_BROWSER } from '#v0/constants/globals'
 
 export interface FooOptions extends RegistryOptions {
   disabled?: MaybeRefOrGetter<boolean>  // Reactive UI state → MaybeRefOrGetter
@@ -103,15 +103,16 @@ export function createFoo <
 
 ### Import Section Order (100% enforced)
 
-Always grouped with comments, always `#v0/` alias: [intent:123, intent:124]
+Always grouped with comments, always `#v0/` alias. Order is enforced by `perfectionist/sort-imports` in `eslint.config.js`. Run `pnpm lint:fix` and let it sort; do not hand-author. [intent:123, intent:124]
 
-1. `// Globals` — imports from `#v0/constants/globals`
-2. `// Composables` — imports from `#v0/composables/`
+1. `// Components` — imports from `#v0/components/` (rare in composables, common in components)
+2. `// Composables` — imports from `#v0/composables/` and `useX` patterns
 3. `// Adapters` — imports from local `./adapters/`
-4. `// Utilities` — imports from `#v0/utilities`
+4. `// Utilities` — imports from `#v0/utilities`, plus `vue`, `vue-router`, `pinia`, `@vue/*` (Vue lives here, not its own group)
 5. `// Transformers` — imports from `#v0/composables/toX`
-6. `// Types` — `import type` blocks (always last)
-7. `// Exports` — re-exports of adapter types (if applicable)
+6. `// Types` — `import type` blocks
+7. `// Globals` — imports from `#v0/constants/globals` (lint sorts this last as `internal`; section comment is author-added for consistency, not auto-inserted)
+8. `// Exports` — re-exports of adapter types (if applicable)
 
 ### JSDoc Block (100% enforced)
 
@@ -157,6 +158,33 @@ function createFoo (options: FooOptions = {}) {
   const { disabled, namespace = 'v0:foo', ...rest } = options
 }
 ```
+
+## Callback Argument Position (100% enforced)
+
+When a `use*` composable accepts a primary callback (the function fired when the lifecycle event happens), the callback is a **positional argument**, never inside an options bag. Canonical signature shape:
+
+```
+use*(target?, callback, options?)
+```
+
+- Target/source as first positional (when applicable)
+- Callback as the next positional
+- Options as the final optional argument
+
+Optional callbacks (where Promise/reactive state is an alternative interface) may go first positional with `options` second.
+
+```ts
+// Right — positional callback
+useTimer(handler, { duration: 5000 })
+useEventListener(target, 'click', listener)
+useMutationObserver(target, callback, { childList: true })
+useDelay(isOpening => { ... }, { openDelay: 300 })
+
+// Wrong — callback buried in options
+useDelay({ openDelay: 300, onChange: isOpening => { ... } })
+```
+
+Options bags carry **configuration**, never primary behavior. Burying a callback under a name like `onChange` forces consumers to pattern-match against unrelated composables and disrupts the muscle memory established by `useTimer`, `useRaf`, `useEventListener`, the observer family, `useClickOutside`, `useHotkey`.
 
 ## Error Handling
 
@@ -421,7 +449,7 @@ Pure transformers (`toRef`, `toElement`, `toValue`) are fine to call inline — 
 
 - [ ] Composable prefixed `create` / `use` / `to` based on §3.3
 - [ ] JSDoc block present (`@module`, `@see`, `@remarks`, `@example`)
-- [ ] Imports grouped in order: Globals, Composables, Adapters, Utilities, Transformers, Types, Exports
+- [ ] Imports grouped in order: Components, Composables, Adapters, Utilities, Transformers, Types, Globals, Exports (run `pnpm lint:fix` to enforce)
 - [ ] Options destructured as `options` rest var with literal defaults
 - [ ] Extension via `{ ...parent, newProperty }`, never override
 - [ ] Reactive primitive matches §4.1 table (`toRef` default, `computed` for expensive)
