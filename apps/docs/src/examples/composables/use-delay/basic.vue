@@ -6,12 +6,11 @@
   const openMs = 800
   const closeMs = 600
 
-  const delay = useDelay({
+  const delay = useDelay(isOpening => {
+    isOpen.value = isOpening
+  }, {
     openDelay: openMs,
     closeDelay: closeMs,
-    onChange: isOpening => {
-      isOpen.value = isOpening
-    },
   })
 
   const target = toRef(() => delay.isOpening.value ? openMs : closeMs)

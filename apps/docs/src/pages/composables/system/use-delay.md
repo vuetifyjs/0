@@ -28,12 +28,11 @@ The `useDelay` composable is the scheduling primitive behind hover-driven UI lik
 ```ts collapse
 import { useDelay } from '@vuetify/v0'
 
-const delay = useDelay({
+const delay = useDelay(isOpening => {
+  isVisible.value = isOpening
+}, {
   openDelay: 300,
   closeDelay: 200,
-  onChange: isOpening => {
-    isVisible.value = isOpening
-  },
 })
 
 // Schedule an open

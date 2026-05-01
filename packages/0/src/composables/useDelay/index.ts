@@ -21,10 +21,9 @@
  * ```ts
  * import { useDelay } from '@vuetify/v0'
  *
- * const delay = useDelay({
+ * const delay = useDelay(isOpening => isVisible.value = isOpening, {
  *   openDelay: 300,
  *   closeDelay: 200,
- *   onChange: isOpening => isVisible.value = isOpening,
  * })
  *
  * delay.start(true)
@@ -61,18 +60,6 @@ export interface UseDelayOptions {
    * ```
    */
   closeDelay?: MaybeRefOrGetter<number>
-  /**
-   * Callback invoked once a started delay elapses; receives the resolved direction.
-   *
-   * @example
-   * ```ts
-   * useDelay({
-   *   openDelay: 300,
-   *   onChange: isOpening => isVisible.value = isOpening,
-   * })
-   * ```
-   */
-  onChange?: (isOpening: boolean) => void
 }
 
 /**
@@ -93,10 +80,10 @@ export interface UseDelayStartOptions {
  *
  * @example
  * ```ts
- * const { start, stop, pause, resume, isActive, isOpening } = useDelay({
- *   openDelay: 300,
- *   closeDelay: 200,
- * })
+ * const { start, stop, pause, resume, isActive, isOpening } = useDelay(
+ *   undefined,
+ *   { openDelay: 300, closeDelay: 200 },
+ * )
  *
  * start(true)
  * ```
@@ -167,17 +154,17 @@ export interface UseDelayReturn {
  * reactive `isActive`, `isPaused`, `remaining`) and adds direction tracking
  * (`isOpening`) and promise-based resolution.
  *
- * @param options Reactive delay settings and an optional `onChange` callback.
+ * @param callback Optional callback invoked once a started delay elapses; receives the resolved direction.
+ * @param options Reactive delay settings.
  * @returns Lifecycle controls and reactive state.
  *
  * @see https://0.vuetifyjs.com/composables/system/use-delay
  *
  * @example
  * ```ts
- * const delay = useDelay({
+ * const delay = useDelay(isOpening => isVisible.value = isOpening, {
  *   openDelay: 300,
  *   closeDelay: 200,
- *   onChange: isOpening => isVisible.value = isOpening,
  * })
  *
  * delay.start(true)
@@ -187,8 +174,11 @@ export interface UseDelayReturn {
  * delay.stop()
  * ```
  */
-export function useDelay (options: UseDelayOptions = {}): UseDelayReturn {
-  const { openDelay, closeDelay, onChange } = options
+export function useDelay (
+  callback?: (isOpening: boolean) => void,
+  options: UseDelayOptions = {},
+): UseDelayReturn {
+  const { openDelay, closeDelay } = options
 
   const isOpening = shallowRef(false)
   let minDelay = 0
@@ -200,7 +190,7 @@ export function useDelay (options: UseDelayOptions = {}): UseDelayReturn {
     const resolve = resolver
     resolver = undefined
     resolve?.(direction)
-    onChange?.(direction)
+    callback?.(direction)
   }
 
   function duration () {

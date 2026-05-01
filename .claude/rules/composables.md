@@ -159,6 +159,33 @@ function createFoo (options: FooOptions = {}) {
 }
 ```
 
+## Callback Argument Position (100% enforced)
+
+When a `use*` composable accepts a primary callback (the function fired when the lifecycle event happens), the callback is a **positional argument**, never inside an options bag. Canonical signature shape:
+
+```
+use*(target?, callback, options?)
+```
+
+- Target/source as first positional (when applicable)
+- Callback as the next positional
+- Options as the final optional argument
+
+Optional callbacks (where Promise/reactive state is an alternative interface) may go first positional with `options` second.
+
+```ts
+// Right — positional callback
+useTimer(handler, { duration: 5000 })
+useEventListener(target, 'click', listener)
+useMutationObserver(target, callback, { childList: true })
+useDelay(isOpening => { ... }, { openDelay: 300 })
+
+// Wrong — callback buried in options
+useDelay({ openDelay: 300, onChange: isOpening => { ... } })
+```
+
+Options bags carry **configuration**, never primary behavior. Burying a callback under a name like `onChange` forces consumers to pattern-match against unrelated composables and disrupts the muscle memory established by `useTimer`, `useRaf`, `useEventListener`, the observer family, `useClickOutside`, `useHotkey`.
+
 ## Error Handling
 
 See PHILOSOPHY §2.9 for the three-way split (throw / warn / return) and the full rationale. The rules there are scope-independent. Composable-specific reminder: the `warn` path uses `useLogger()`, never `console.warn` — see PHILOSOPHY §9.2. [intent:138]
