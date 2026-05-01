@@ -338,6 +338,11 @@ export function createDragDrop<K extends DragType = DragType> (
         if (resolved) {
           out.index = resolved.index
           out.indicator = resolved
+        } else {
+          // Oriented zone with no children — only sensible drop position is 0.
+          // No indicator (nothing to point at), but the index lets consumers
+          // splice the item in without their own fallback.
+          out.index = 0
         }
       }
     }

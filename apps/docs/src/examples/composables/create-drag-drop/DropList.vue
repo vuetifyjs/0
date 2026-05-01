@@ -25,9 +25,7 @@
     accept: ['item'],
     orientation: 'vertical',
     onDrop: (drag, position) => {
-      // position.index is undefined when the zone has no children to resolve
-      // against — fall back to the end of the list so empty-zone drops land.
-      emit('move', drag.value, side, position.index ?? items.length)
+      emit('move', drag.value, side, position.index ?? 0)
     },
   })
 </script>
