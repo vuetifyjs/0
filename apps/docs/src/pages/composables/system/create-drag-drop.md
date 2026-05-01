@@ -24,13 +24,15 @@ Headless drag-and-drop primitive. Owns two registries — draggables and zones �
 
 ## Usage
 
-`createDragDrop` is a per-scope factory: each parent that wants its own DnD context (a kanban board, a sortable tree, a splitter) calls it once and provides the result via `provideDragDrop`. Sub-components register draggables and zones via `dnd.draggables.register({...})` and `dnd.zones.register({...})` — the returned tickets carry the consumer-facing derived state (`attrs`, `isDragging`, `isOver`, `willAccept`, `indicator`).
+`createDragDrop` is a per-scope factory: each parent that wants its own DnD context (a kanban board, a sortable tree, a splitter) calls it once. The factory auto-provides into the surrounding `setup()` scope, so sub-components reach it via `useDragDrop()` and register draggables and zones via `dnd.draggables.register({...})` and `dnd.zones.register({...})` — the returned tickets carry the consumer-facing derived state (`attrs`, `isDragging`, `isOver`, `willAccept`, `indicator`).
 
 ## Examples
 
 The basic example demonstrates a single-type drag scope with two zones. Pick up an item with the pointer or keyboard (Space / Enter) and drop it in the other list. Zones declare `orientation: 'vertical'` to opt into list-style index resolution — the `onDrop` callback receives `position.index` indicating where in the destination list the drop landed.
 
-<DocsExample file="basic" />
+::: example
+/composables/create-drag-drop/basic
+:::
 
 ## API
 

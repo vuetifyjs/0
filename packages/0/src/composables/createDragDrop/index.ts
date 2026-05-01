@@ -10,10 +10,10 @@
  *
  * @example
  * ```ts
- * import { createDragDrop, provideDragDrop } from '@vuetify/v0'
+ * import { createDragDrop } from '@vuetify/v0'
  *
+ * // Auto-provides into the current setup() scope.
  * const dnd = createDragDrop()
- * provideDragDrop(dnd)
  * ```
  */
 
@@ -27,7 +27,7 @@ import { pointerTransport } from './adapters/pointer'
 
 // Utilities
 import { useId } from '#v0/utilities'
-import { onScopeDispose, shallowRef, toRef, toValue } from 'vue'
+import { hasInjectionContext, onScopeDispose, shallowRef, toRef, toValue } from 'vue'
 
 // Types
 import type {
@@ -154,8 +154,10 @@ export interface DragDropContext<K extends DragType = DragType> {
   cancel: () => void
 }
 
-export const [useDragDrop, provideDragDrop] =
+const [useDragDropContext, provideDragDropContext] =
   createContext<DragDropContext>('v0:dragdrop')
+
+export { useDragDropContext as useDragDrop }
 
 function buildDraggableAttrs (isDraggingNow: boolean, disabled: boolean): Record<string, unknown> {
   const out: Record<string, unknown> = {
@@ -406,6 +408,10 @@ export function createDragDrop<K extends DragType = DragType> (
     active,
     isDragging,
     cancel,
+  }
+
+  if (hasInjectionContext()) {
+    provideDragDropContext(ctx as unknown as DragDropContext)
   }
 
   const disposers: (() => void)[] = []
