@@ -135,7 +135,7 @@ export function usePopover (options: PopoverOptions = {}): PopoverReturn {
     onMounted(() => {
       const element = toValue(el)
       if (isOpen.value) {
-        element?.showPopover()
+        element?.showPopover?.()
       }
     })
 
