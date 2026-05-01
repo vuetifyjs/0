@@ -87,7 +87,7 @@ flowchart LR
 
 ### Hover with Pause/Resume
 
-Hover the target to schedule an 800 ms open; leave it to schedule a 600 ms
+Hover the target to schedule a 2000 ms open; leave it to schedule a 1500 ms
 close. The progress bar reflects `remaining` against the active direction,
 the badges surface every reactive flag, and the controls demonstrate
 `pause`, `resume`, and `stop` against the in-flight delay.

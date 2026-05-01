@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { Button, Progress, useDelay } from '@vuetify/v0'
+  import { Button, useDelay } from '@vuetify/v0'
   import { shallowRef, toRef } from 'vue'
 
   const isOpen = shallowRef(false)
@@ -30,15 +30,13 @@
       Hover to open · leave to close
     </div>
 
-    <Progress.Root class="w-64">
-      <Progress.Track class="relative h-2 w-full overflow-hidden rounded-full bg-surface-variant">
-        <Progress.Fill
-          class="h-full rounded-full transition-[width] duration-150 ease-linear"
-          :class="delay.isPaused.value ? 'bg-warning' : 'bg-success'"
-          :value="progress"
-        />
-      </Progress.Track>
-    </Progress.Root>
+    <div class="h-2 w-64 bg-surface-variant rounded-full overflow-hidden">
+      <div
+        class="h-full rounded-full transition-[width] duration-150 ease-linear"
+        :class="delay.isPaused.value ? 'bg-warning' : 'bg-success'"
+        :style="{ width: `${progress}%` }"
+      />
+    </div>
 
     <div class="flex gap-2">
       <Button.Root
