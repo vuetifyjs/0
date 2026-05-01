@@ -97,7 +97,7 @@ claude mcp add --transport http vuetify-mcp https://mcp.vuetifyjs.com/mcp
 
 :::
 
-The first config runs the package locally over stdio. The second and third use the [`mcp-remote`](https://www.npmjs.com/package/mcp-remote) bridge to consume the hosted server through stdio, which is the only transport Claude Desktop accepts. After editing `claude_desktop_config.json`, fully quit and relaunch Claude Desktop to pick up changes.
+The first config runs the package locally over stdio. The second and third use the [mcp-remote](https://www.npmjs.com/package/mcp-remote) bridge to consume the hosted server through stdio, which is the only transport Claude Desktop accepts. After editing `claude_desktop_config.json`, fully quit and relaunch Claude Desktop to pick up changes.
 
 ### Vuetify CLI
 
