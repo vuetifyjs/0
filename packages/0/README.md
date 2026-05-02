@@ -200,6 +200,7 @@ Selection management composables built on `createRegistry`:
 #### Utilities
 
 - [`createBreadcrumbs`](https://0.vuetifyjs.com/composables/utilities/create-breadcrumbs) - Breadcrumb navigation model with depth tracking and path traversal
+- [`createDragDrop`](https://0.vuetifyjs.com/composables/utilities/create-drag-drop) - Headless drag-and-drop primitive with two registries, pluggable transports, and accessibility-first defaults
 - [`createOverflow`](https://0.vuetifyjs.com/composables/utilities/create-overflow) - Container overflow measurement for item capacity
 
 #### Transformers

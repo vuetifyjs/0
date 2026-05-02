@@ -776,6 +776,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/composables/utilities/create-drag-drop': RouteRecordInfo<
+      '/composables/utilities/create-drag-drop',
+      '/composables/utilities/create-drag-drop',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/guide/': RouteRecordInfo<
       '/guide/',
       '/guide',
@@ -1687,6 +1694,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/transformers/to-reactive.md': {
       routes:
         | '/composables/transformers/to-reactive'
+      views:
+        | never
+    }
+    'src/pages/composables/utilities/create-drag-drop.md': {
+      routes:
+        | '/composables/utilities/create-drag-drop'
       views:
         | never
     }
