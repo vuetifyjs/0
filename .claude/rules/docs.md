@@ -229,6 +229,47 @@ Existing violations (sweep candidate, not blocking):
 - `apps/docs/src/pages/introduction/why-vuetify0.md:158` — link text
 - `apps/docs/src/pages/composables/foundation/create-trinity.md:87` — link text
 
+## Footnotes
+
+When a table row needs a caveat that won't fit cleanly in a cell, use a Markdown footnote (`[^name]`) anchored on the cell content. Keep cells terse and let the footnote carry the qualifier — install commands, version numbers, links, exception conditions.
+
+Use a footnote when:
+
+- A parenthetical inside a cell starts breaking row alignment, or
+- A `> [!TIP]` / `> [!NOTE]` block immediately under a table is restating something that belongs to one specific row, not the whole table.
+
+Don't use a footnote for:
+
+- Information that applies to the whole table or page — that's still a TIP/NOTE block.
+- Short qualifiers (1–4 words) that read fine inline — e.g. `(zero-padded)`, `(0-indexed)`, `(includes NaN)`.
+
+**Naming:** short kebab identifiers tied to the row content, not numbered. `[^safari-anchor]`, not `[^1]` — survives reorder, scans better in source, makes the link descriptive when the footnote text is far from the anchor.
+
+```markdown
+<!-- Right -->
+| Feature | Safari | Fallback |
+|---------|--------|----------|
+| [CSS Anchor Positioning](https://...) | —[^safari-anchor] | Properties ignored |
+
+[^safari-anchor]: Not yet implemented in Safari; track at [WebKit Bug 286106](https://bugs.webkit.org/show_bug.cgi?id=286106).
+
+<!-- Wrong — caveat wedged into cell, breaks row alignment -->
+| [CSS Anchor Positioning](https://...) | — (Not yet supported in Safari; tracking at WebKit) | Properties ignored |
+
+<!-- Wrong — TIP block restating one row's caveat -->
+| [CSS Anchor Positioning](https://...) | — | Properties ignored |
+
+> [!TIP]
+> CSS Anchor Positioning is not yet supported in Safari; track at WebKit Bug 286106.
+```
+
+Real worked examples on master:
+
+- `apps/docs/src/pages/introduction/browser-support.md` — `[^safari-anchor]` on the Cutting-Edge Features table.
+- `apps/docs/src/pages/composables/index.md` — `[^plugin-install]` on the Plugin consumers row.
+- `apps/docs/src/pages/composables/plugins/use-date.md` — `[^temporal]` on the adapter's polyfill requirement.
+- `apps/docs/src/pages/guide/features/accessibility.md` — `[^pagination-nav]` and `[^popover-native]` on the ARIA attributes table.
+
 ## Markdown Directives
 
 | Syntax | Purpose |
@@ -239,6 +280,7 @@ Existing violations (sweep candidate, not blocking):
 | `> [!TIP]` | Informational callout (empty tip surfaces a random tip from curated pool) [intent:340, intent:341] |
 | `> [!WARNING]` | Cautionary callout |
 | `> [!ERROR]` | Error/danger callout |
+| `[^name]` | Footnote anchor — see [Footnotes](#footnotes) |
 | `` ```vue Anatomy playground `` `` | Live anatomy preview |
 | `` ```ts collapse `` `` | Collapsible code block |
 | `` ```ts no-filename `` `` | Hide filename in code block |
