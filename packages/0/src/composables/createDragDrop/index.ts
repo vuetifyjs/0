@@ -1,11 +1,11 @@
 /**
  * @module createDragDrop
  *
- * @see https://0.vuetifyjs.com/composables/system/create-drag-drop
+ * @see https://0.vuetifyjs.com/composables/utilities/create-drag-drop
  *
  * @remarks
  * Headless drag-and-drop primitive. Owns two registries (draggables and zones)
- * plus the active-drag state. Pointer and keyboard transports ship by default;
+ * plus the active-drag state. Pointer and keyboard adapters ship by default;
  * lifecycle hooks and a plugin array provide extension points.
  *
  * @example
@@ -22,8 +22,8 @@ import { createContext } from '#v0/composables/createContext'
 import { createRegistry } from '#v0/composables/createRegistry'
 
 // Adapters
-import { keyboardTransport } from './adapters/keyboard'
-import { pointerTransport } from './adapters/pointer'
+import { keyboardAdapter } from './adapters/keyboard'
+import { pointerAdapter } from './adapters/pointer'
 
 // Utilities
 import { isArray, isFunction, useId } from '#v0/utilities'
@@ -36,7 +36,7 @@ import type {
   RegistryTicketInput,
 } from '#v0/composables/createRegistry'
 import type { Extensible, ID } from '#v0/types'
-import type { DragDropTransport, TransportEmit } from './adapters/adapter'
+import type { DragDropAdapter, DragDropAdapterEmit } from './adapters/adapter'
 import type { MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
 
 // Globals
@@ -46,11 +46,11 @@ import { resolveDropPosition } from './indicator'
 
 // Re-exports
 export type { ResolvedPosition } from './indicator'
-export type { DragDropTransport, TransportEmit } from './adapters/adapter'
-export { pointerTransport } from './adapters/pointer'
-export { keyboardTransport } from './adapters/keyboard'
-export type { PointerTransportOptions } from './adapters/pointer'
-export type { KeyboardTransportOptions } from './adapters/keyboard'
+export type { DragDropAdapter, DragDropAdapterEmit } from './adapters/adapter'
+export { pointerAdapter } from './adapters/pointer'
+export { keyboardAdapter } from './adapters/keyboard'
+export type { PointerAdapterOptions } from './adapters/pointer'
+export type { KeyboardAdapterOptions } from './adapters/keyboard'
 
 export type Orientation = 'vertical' | 'horizontal'
 
@@ -142,7 +142,7 @@ export type DragDropPlugin<K extends DragType = DragType> = (
 ) => (() => void) | void
 
 export interface DragDropOptions<K extends DragType = DragType> {
-  transports?: DragDropTransport<K>[]
+  adapters?: DragDropAdapter<K>[]
   plugins?: DragDropPlugin<K>[]
   onBeforeStart?: (drag: ActiveDrag<K>) => boolean | void
   onMove?: (drag: ActiveDrag<K>) => void
@@ -456,18 +456,18 @@ export function createDragDrop<K extends DragType = DragType> (
 
   const disposers: (() => void)[] = []
 
-  const transports = options.transports ?? [pointerTransport<K>(), keyboardTransport<K>()]
+  const adapters = options.adapters ?? [pointerAdapter<K>(), keyboardAdapter<K>()]
 
-  const emit: TransportEmit<K> = {
+  const emit: DragDropAdapterEmit<K> = {
     start: (source, origin, via) => handleStart(source, origin, via),
     move: point => handleMove(point),
     drop: () => handleDrop(),
     cancel: () => handleCancel(),
   }
 
-  for (const t of transports) {
-    t.install(ctx, emit)
-    disposers.push(() => t.uninstall())
+  for (const adapter of adapters) {
+    adapter.install(ctx, emit)
+    disposers.push(() => adapter.uninstall())
   }
 
   for (const plugin of plugins) {

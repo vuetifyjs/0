@@ -6,7 +6,7 @@ import type {
   DraggableTicket,
 } from '../'
 
-export type TransportEmit<K extends DragType = DragType> = {
+export type DragDropAdapterEmit<K extends DragType = DragType> = {
   start: (
     source: DraggableTicket<K>,
     origin: { x: number, y: number },
@@ -17,7 +17,7 @@ export type TransportEmit<K extends DragType = DragType> = {
   cancel: () => void
 }
 
-export interface DragDropTransport<K extends DragType = DragType> {
-  install: (ctx: DragDropContext<K>, emit: TransportEmit<K>) => void
+export interface DragDropAdapter<K extends DragType = DragType> {
+  install: (ctx: DragDropContext<K>, emit: DragDropAdapterEmit<K>) => void
   uninstall: () => void
 }
