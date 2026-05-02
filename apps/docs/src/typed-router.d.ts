@@ -769,6 +769,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/composables/transformers/to-highlight': RouteRecordInfo<
+      '/composables/transformers/to-highlight',
+      '/composables/transformers/to-highlight',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/composables/transformers/to-reactive': RouteRecordInfo<
       '/composables/transformers/to-reactive',
       '/composables/transformers/to-reactive',
@@ -1681,6 +1688,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/transformers/to-element.md': {
       routes:
         | '/composables/transformers/to-element'
+      views:
+        | never
+    }
+    'src/pages/composables/transformers/to-highlight.md': {
+      routes:
+        | '/composables/transformers/to-highlight'
       views:
         | never
     }

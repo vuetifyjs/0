@@ -522,7 +522,6 @@ import { UnwrapRef } from 'vue'
 declare module 'vue' {
   interface GlobalComponents {}
   interface ComponentCustomProperties {
-    readonly COMMON_ELEMENTS: UnwrapRef<typeof import('../../packages/0/src/constants/htmlElements')['COMMON_ELEMENTS']>
     readonly ClientAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/createDataTable/index')['ClientAdapter']>
     readonly ComboboxClientAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/createCombobox/index')['ComboboxClientAdapter']>
     readonly ComboboxServerAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/createCombobox/index')['ComboboxServerAdapter']>

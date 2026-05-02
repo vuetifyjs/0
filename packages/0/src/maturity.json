@@ -260,6 +260,11 @@
       "since": "0.1.0",
       "category": "transformers"
     },
+    "toHighlight": {
+      "level": "preview",
+      "since": null,
+      "category": "transformers"
+    },
     "toReactive": {
       "level": "preview",
       "since": "0.1.0",

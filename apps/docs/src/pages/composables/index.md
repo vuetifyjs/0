@@ -331,5 +331,6 @@ Value transformation utilities.
 | - | - |
 | [toArray](/composables/transformers/to-array) | Convert any value to an array |
 | [toElement](/composables/transformers/to-element) | Resolve refs, getters, or component instances to a plain DOM element |
+| [toHighlight](/composables/transformers/to-highlight) | Split text into matched and unmatched chunks for query highlighting |
 | [toReactive](/composables/transformers/to-reactive) | Convert MaybeRef objects to reactive proxies |
 

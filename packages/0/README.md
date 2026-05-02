@@ -206,6 +206,7 @@ Selection management composables built on `createRegistry`:
 
 - [`toArray`](https://0.vuetifyjs.com/composables/transformers/to-array) - Array transformation utilities
 - [`toElement`](https://0.vuetifyjs.com/composables/transformers/to-element) - Normalize refs, selectors, and elements to DOM elements
+- [`toHighlight`](https://0.vuetifyjs.com/composables/transformers/to-highlight) - Split text into matched and unmatched chunks for query highlighting
 - [`toReactive`](https://0.vuetifyjs.com/composables/transformers/to-reactive) - Reactive object conversion
 
 #### System
