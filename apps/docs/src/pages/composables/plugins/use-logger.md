@@ -17,9 +17,9 @@ related:
 
 # useLogger
 
-<DocsPageFeatures :frontmatter />
-
 Application logging with configurable levels, filtering, and swappable adapters for popular logging libraries.
+
+<DocsPageFeatures :frontmatter />
 
 ## Installation
 

@@ -17,9 +17,9 @@ related:
 
 # useDate
 
-<DocsPageFeatures :frontmatter />
-
 Date manipulation using the Temporal API with locale-aware formatting and adapter support.
+
+<DocsPageFeatures :frontmatter />
 
 ## Installation
 

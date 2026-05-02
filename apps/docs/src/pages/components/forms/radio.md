@@ -19,9 +19,9 @@ related:
 
 # Radio
 
-<DocsPageFeatures :frontmatter />
-
 A radio button for single-selection groups with roving focus and shared v-model state.
+
+<DocsPageFeatures :frontmatter />
 
 ## Usage
 

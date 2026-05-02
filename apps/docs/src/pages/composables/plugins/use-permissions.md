@@ -17,9 +17,9 @@ related:
 
 # usePermissions
 
-<DocsPageFeatures :frontmatter />
-
 Role-based access control with actions, subjects, and context-aware conditions.
+
+<DocsPageFeatures :frontmatter />
 
 ## Installation
 

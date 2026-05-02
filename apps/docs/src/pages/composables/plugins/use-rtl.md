@@ -17,9 +17,9 @@ related:
 
 # useRtl
 
-<DocsPageFeatures :frontmatter />
-
 Right-to-left text direction management with reactive state and subtree overrides.
+
+<DocsPageFeatures :frontmatter />
 
 ## Installation
 

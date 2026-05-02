@@ -21,9 +21,9 @@ related:
 
 # useNotifications
 
-<DocsPageFeatures :frontmatter />
-
 Notification lifecycle management with severity levels, state mutations, toast queuing, and auto-dismiss.
+
+<DocsPageFeatures :frontmatter />
 
 ## Installation
 

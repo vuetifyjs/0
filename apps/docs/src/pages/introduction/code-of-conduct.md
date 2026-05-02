@@ -15,9 +15,9 @@ related:
 
 # Code of Conduct
 
-<DocsPageFeatures :frontmatter />
-
 We are committed to providing a welcoming and inspiring community for all. This Code of Conduct outlines our expectations for participant behavior and the consequences for unacceptable behavior.
+
+<DocsPageFeatures :frontmatter />
 
 ## Our Pledge
 

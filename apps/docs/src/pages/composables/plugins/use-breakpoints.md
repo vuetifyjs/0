@@ -18,9 +18,9 @@ related:
 
 # useBreakpoints
 
-<DocsPageFeatures :frontmatter />
-
 Reactive viewport detection for building responsive layouts with named breakpoints.
+
+<DocsPageFeatures :frontmatter />
 
 ## Installation
 

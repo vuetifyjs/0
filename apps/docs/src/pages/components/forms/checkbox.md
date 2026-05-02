@@ -18,9 +18,9 @@ related:
 
 # Checkbox
 
-<DocsPageFeatures :frontmatter />
-
 A checkbox for boolean state or multi-selection groups with tri-state support.
+
+<DocsPageFeatures :frontmatter />
 
 ## Usage
 

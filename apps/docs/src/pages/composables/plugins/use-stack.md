@@ -18,9 +18,9 @@ related:
 
 # useStack
 
-<DocsPageFeatures :frontmatter />
-
 Overlay z-index coordinator with automatic stacking order and parent-child nesting support.
+
+<DocsPageFeatures :frontmatter />
 
 ## Installation
 

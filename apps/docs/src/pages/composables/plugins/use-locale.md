@@ -17,9 +17,9 @@ related:
 
 # useLocale
 
-<DocsPageFeatures :frontmatter />
-
 i18n plugin with message translation, number formatting, and locale switching.
+
+<DocsPageFeatures :frontmatter />
 
 ## Installation
 

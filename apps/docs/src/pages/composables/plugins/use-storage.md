@@ -17,9 +17,9 @@ related:
 
 # useStorage
 
-<DocsPageFeatures :frontmatter />
-
 Reactive storage with automatic serialization, caching, and SSR-safe operations.
+
+<DocsPageFeatures :frontmatter />
 
 ## Installation
 

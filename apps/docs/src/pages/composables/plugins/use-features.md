@@ -17,9 +17,9 @@ related:
 
 # useFeatures
 
-<DocsPageFeatures :frontmatter />
-
 Manage feature flags and variations across your application.
+
+<DocsPageFeatures :frontmatter />
 
 ## Installation
 

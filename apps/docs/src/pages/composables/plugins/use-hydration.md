@@ -19,9 +19,9 @@ related:
 
 # useHydration
 
-<DocsPageFeatures :frontmatter />
-
 Control SSR hydration timing to prevent mismatches and optimize client-side rendering.
+
+<DocsPageFeatures :frontmatter />
 
 ## Installation
 
