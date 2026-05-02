@@ -84,7 +84,9 @@ Adapters let you swap the underlying date library without changing your applicat
 
 | Adapter | Import | Description |
 |---------|--------|-------------|
-| `Vuetify0DateAdapter` | `@vuetify/v0/date` | [Temporal API](https://tc39.es/proposal-temporal/docs/) adapter (requires `@js-temporal/polyfill`) |
+| `Vuetify0DateAdapter` | `@vuetify/v0/date` | [Temporal API](https://tc39.es/proposal-temporal/docs/) adapter[^temporal] |
+
+[^temporal]: Requires the [@js-temporal/polyfill](https://www.npmjs.com/package/@js-temporal/polyfill) package until native Temporal ships in all evergreen browsers. Install with `pnpm add @js-temporal/polyfill`.
 
 ### DateAdapter Interface
 

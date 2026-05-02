@@ -80,7 +80,9 @@ flowchart TD
 | - | - | - | - |
 | `mandatory` | `MaybeRefOrGetter<boolean>` | `false` | Prevent deselecting the last selected item |
 | `multiple` | `MaybeRefOrGetter<boolean>` | `false` | Allow multiple IDs to be selected simultaneously |
-| `enroll` | `MaybeRefOrGetter<boolean>` | `false` | Auto-select tickets on registration (note: `createModel` defaults to `true`) |
+| `enroll` | `MaybeRefOrGetter<boolean>` | `false` | Auto-select tickets on registration[^enroll-createmodel] |
+
+[^enroll-createmodel]: [createModel](/composables/selection/create-model) flips this default to `true` since two-way-bound items are typically expected to start enrolled.
 
 ## Reactivity
 
