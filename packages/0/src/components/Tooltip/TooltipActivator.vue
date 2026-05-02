@@ -132,6 +132,7 @@
   <Atom
     :as
     :renderless
+    :style="root.anchorStyles.value"
     v-bind="mergeProps(attrs, slotProps.attrs)"
   >
     <slot v-bind="slotProps" />
