@@ -83,6 +83,37 @@
         "sass"
       ]
     },
+    "apps/builder": {
+      "entry": [
+        "src/App.vue",
+        "src/components/**/*.vue",
+        "src/layouts/*.vue",
+        "src/data/*.ts",
+        "src/engine/*.ts",
+        "src/plugins/*.ts",
+        "src/stores/*.ts",
+        "src/pages/**/*.vue",
+        "build/**/*.ts",
+        "vite.config.*"
+      ],
+      "ignore": [
+        "src/typed-router.d.ts"
+      ],
+      "ignoreDependencies": [
+        "@vuetify/auth"
+      ],
+      "paths": {
+        "@/*": [
+          "src/*"
+        ],
+        "@vuetify/v0": [
+          "../../packages/0/src"
+        ],
+        "#v0": [
+          "../../packages/0/src"
+        ]
+      }
+    },
     "apps/playground": {
       "entry": [
         "src/App.vue",
