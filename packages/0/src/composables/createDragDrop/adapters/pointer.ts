@@ -1,23 +1,23 @@
 // Types
 import type { DragType, DraggableTicket } from '../'
-import type { DragDropTransport, TransportEmit } from './adapter'
+import type { DragDropAdapter, DragDropAdapterEmit } from './adapter'
 
 // Globals
 import { IN_BROWSER } from '#v0/constants/globals'
 
-export interface PointerTransportOptions {
+export interface PointerAdapterOptions {
   /** Drag-activation distance in px (default 0 — start on pointerdown). */
   threshold?: number
 }
 
-export function pointerTransport<K extends DragType = DragType> (
-  options: PointerTransportOptions = {},
-): DragDropTransport<K> {
+export function pointerAdapter<K extends DragType = DragType> (
+  options: PointerAdapterOptions = {},
+): DragDropAdapter<K> {
   const { threshold = 0 } = options
   let cleanup: (() => void) | null = null
 
   return {
-    install (ctx, emit: TransportEmit<K>) {
+    install (ctx, emit: DragDropAdapterEmit<K>) {
       if (!IN_BROWSER) return
 
       let downSource: DraggableTicket<K> | null = null

@@ -1,26 +1,26 @@
 // Types
 import type { DragType, DraggableTicket } from '../'
-import type { DragDropTransport, TransportEmit } from './adapter'
+import type { DragDropAdapter, DragDropAdapterEmit } from './adapter'
 
 // Globals
 import { IN_BROWSER } from '#v0/constants/globals'
 
-export interface KeyboardTransportOptions {
+export interface KeyboardAdapterOptions {
   /** Activation keys (default [' ', 'Enter']). */
   activate?: string[]
   /** Step size in px for arrow-key moves (default 16). */
   step?: number
 }
 
-export function keyboardTransport<K extends DragType = DragType> (
-  options: KeyboardTransportOptions = {},
-): DragDropTransport<K> {
+export function keyboardAdapter<K extends DragType = DragType> (
+  options: KeyboardAdapterOptions = {},
+): DragDropAdapter<K> {
   const activate = options.activate ?? [' ', 'Enter']
   const step = options.step ?? 16
   let cleanup: (() => void) | null = null
 
   return {
-    install (ctx, emit: TransportEmit<K>) {
+    install (ctx, emit: DragDropAdapterEmit<K>) {
       if (!IN_BROWSER) return
 
       function findTicket (target: Element | null): DraggableTicket<K> | null {

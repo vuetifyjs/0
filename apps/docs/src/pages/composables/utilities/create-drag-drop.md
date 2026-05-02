@@ -2,7 +2,7 @@
 title: createDragDrop - Headless Drag-and-Drop Primitive
 meta:
 - name: description
-  content: Headless drag-and-drop with two registries (draggables and zones), pluggable pointer / keyboard transports, and accessibility-first defaults.
+  content: Headless drag-and-drop with two registries (draggables and zones), pluggable pointer / keyboard adapters, and accessibility-first defaults.
 - name: keywords
   content: drag, drop, dnd, kanban, sortable, headless, Vue 3, composable
 features:
@@ -49,7 +49,7 @@ const zone = ctx.zones.register({
 
 ## Architecture
 
-The factory owns three pieces of state and three extension points. Pointer and keyboard transports observe the DOM and emit a four-call lifecycle (`start`, `move`, `drop`, `cancel`); the factory pipes those through per-ticket and global hooks before mutating `active`.
+The factory owns three pieces of state and three extension points. Pointer and keyboard adapters observe the DOM and emit a four-call lifecycle (`start`, `move`, `drop`, `cancel`); the factory pipes those through per-ticket and global hooks before mutating `active`.
 
 ```mermaid "createDragDrop architecture"
 flowchart TD
@@ -60,9 +60,9 @@ flowchart TD
     active["active<br/>(ShallowRef)"]
   end
 
-  subgraph transports["Transports (pluggable)"]
-    pointer["pointerTransport"]
-    keyboard["keyboardTransport"]
+  subgraph adapters["Adapters (pluggable)"]
+    pointer["pointerAdapter"]
+    keyboard["keyboardAdapter"]
   end
 
   subgraph hooks["Lifecycle hooks"]
@@ -86,44 +86,44 @@ flowchart TD
   active -->|reactive| child2
 ```
 
-## Transports
+## Adapters
 
-Transports are pluggable input adapters: a transport observes the DOM (or any other input source) and emits the four lifecycle events the factory consumes. Default transports are installed automatically.
+Adapters are pluggable input layers: an adapter observes the DOM (or any other input source) and emits the four lifecycle events the factory consumes. Default adapters are installed automatically.
 
-| Transport | Import | Default | Description |
+| Adapter | Import | Default | Description |
 |---|---|---|---|
-| `pointerTransport` | `@vuetify/v0` | yes | Pointer Events for mouse, touch, and pen. Optional `threshold` activation distance. |
-| `keyboardTransport` | `@vuetify/v0` | yes | `Space` / `Enter` to pick up and drop, arrow keys to nudge, `Escape` to cancel. Configurable activation keys + step. |
+| `pointerAdapter` | `@vuetify/v0` | yes | Pointer Events for mouse, touch, and pen. Optional `threshold` activation distance. |
+| `keyboardAdapter` | `@vuetify/v0` | yes | `Space` / `Enter` to pick up and drop, arrow keys to nudge, `Escape` to cancel. Configurable activation keys + step. |
 
-Replace the defaults entirely by passing the `transports` option:
+Replace the defaults entirely by passing the `adapters` option:
 
 ```ts
-import { createDragDrop, pointerTransport } from '@vuetify/v0'
+import { createDragDrop, pointerAdapter } from '@vuetify/v0'
 
 // Pointer only — disables keyboard.
-const dnd = createDragDrop({ transports: [pointerTransport()] })
+const dnd = createDragDrop({ adapters: [pointerAdapter()] })
 ```
 
-To extend rather than replace, list the defaults explicitly alongside your custom transport:
+To extend rather than replace, list the defaults explicitly alongside your custom adapter:
 
 ```ts
 createDragDrop({
-  transports: [pointerTransport(), keyboardTransport(), myWebXrTransport()],
+  adapters: [pointerAdapter(), keyboardAdapter(), myWebXrAdapter()],
 })
 ```
 
-`transports: []` disables both defaults entirely (useful for server-driven or test scenarios).
+`adapters: []` disables both defaults entirely (useful for server-driven or test scenarios).
 
-A custom transport implements:
+A custom adapter implements:
 
 ```ts
-interface DragDropTransport<K> {
-  install (ctx: DragDropContext<K>, emit: TransportEmit<K>): void
+interface DragDropAdapter<K> {
+  install (ctx: DragDropContext<K>, emit: DragDropAdapterEmit<K>): void
   uninstall (): void
 }
 ```
 
-`emit` receives `start(source, origin, via)`, `move(point)`, `drop()`, and `cancel()`. Transports declare their own `via` value via `Extensible<'pointer' | 'keyboard'>` so consumers reading `active.value.via` can distinguish the input source.
+`emit` receives `start(source, origin, via)`, `move(point)`, `drop()`, and `cancel()`. Adapters declare their own `via` value via `Extensible<'pointer' | 'keyboard'>` so consumers reading `active.value.via` can distinguish the input source.
 
 ## Reactivity
 
@@ -199,12 +199,12 @@ ctx.zones.register({
 })
 ```
 
-### Custom transports
+### Custom adapters?
 
 Drop the defaults entirely and forward your own input source. Useful for cross-window drags, file-drop integrations, or programmatic test fixtures.
 
 ```ts
-const dnd = createDragDrop({ transports: [myCustomTransport()] })
+const dnd = createDragDrop({ adapters: [myCustomAdapter()] })
 ```
 
 ## Accessibility
@@ -216,7 +216,7 @@ WAI-ARIA does not standardize a kanban or "drag list" pattern. The primitive fol
 - Each zone should wire a roving tabindex via [useRovingFocus](/composables/system/use-roving-focus) — one focus stop per zone, arrow keys move between items in the same zone, Tab moves to the next zone.
 - Provide a single live region per scope (`<div role="status" aria-live="polite">`) and watch `active` to announce moves ("Card moved to Done, position 2 of 5"). The live region is the consumer's responsibility — the headless contract excludes user-facing strings (PHILOSOPHY §5.5).
 
-The default `keyboardTransport` honours the standard contract: `Space` / `Enter` to pick up and drop, arrow keys to navigate, `Escape` to cancel.
+The default `keyboardAdapter` honours the standard contract: `Space` / `Enter` to pick up and drop, arrow keys to navigate, `Escape` to cancel.
 
 ## FAQ
 
@@ -224,7 +224,7 @@ The default `keyboardTransport` honours the standard contract: `Space` / `Enter`
 
 ??? Why not use HTML5 drag-and-drop?
 
-Native HTML5 DnD has terrible mobile support, an ugly default ghost element you can't customize cross-browser, no programmatic activation distance, and inconsistent event semantics across input devices. `pointerTransport` uses Pointer Events instead — uniform mouse, touch, and pen handling, no default ghost (you render whatever you want), and full control over activation thresholds. Plug HTML5 in as a custom transport if you need cross-window drops or OS file-drag integration; the headless contract doesn't lock it out.
+Native HTML5 DnD has terrible mobile support, an ugly default ghost element you can't customize cross-browser, no programmatic activation distance, and inconsistent event semantics across input devices. `pointerAdapter` uses Pointer Events instead — uniform mouse, touch, and pen handling, no default ghost (you render whatever you want), and full control over activation thresholds. Plug HTML5 in as a custom adapter if you need cross-window drops or OS file-drag integration; the headless contract doesn't lock it out.
 
 ??? When does `position.index` get set?
 
