@@ -94,7 +94,8 @@
         "vite.config.*"
       ],
       "ignore": [
-        "src/typed-router.d.ts"
+        "src/typed-router.d.ts",
+        "src/util/export-templates/**"
       ],
       "paths": {
         "@/*": [

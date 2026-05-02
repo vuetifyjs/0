@@ -1,0 +1,21 @@
+{
+  "name": "v0play-export",
+  "private": true,
+  "type": "module",
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc --noEmit && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "vue": "^3.5.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.0",
+    "typescript": "^6.0.0",
+    "unocss": "^66.0.0",
+    "vite": "^8.0.0",
+    "vue-tsc": "^3.0.0"
+  }
+}

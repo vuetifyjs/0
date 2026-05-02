@@ -121,6 +121,9 @@ export default vuetify({
   },
 },
 {
+  ignores: ['**/export-templates/package.json'],
+},
+{
   name: 'vuetify/no-v0-imports',
   files: ['packages/paper/**/*.{ts,js,vue}', 'app/**/*.{ts,js,vue}'],
   rules: {
