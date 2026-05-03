@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
 
+import { createModel } from './index'
+
 // Utilities
 import { ref } from 'vue'
-
-import { createModel } from './index'
 
 describe('createModel', () => {
   describe('register', () => {

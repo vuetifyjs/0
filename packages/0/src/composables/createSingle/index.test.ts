@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { createSingle, createSingleContext, useSingle } from './index'
+
 // Utilities
 import { type App, inject, provide, ref } from 'vue'
 
 // Types
 import type { SingleTicketInput } from './index'
-
-import { createSingle, createSingleContext, useSingle } from './index'
 
 vi.mock('vue', async () => {
   const actual = await vi.importActual('vue')

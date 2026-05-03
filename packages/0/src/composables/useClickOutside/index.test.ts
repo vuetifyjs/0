@@ -1,9 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { useClickOutside } from './index'
+
 // Utilities
 import { effectScope, nextTick, ref } from 'vue'
-
-import { useClickOutside } from './index'
 
 /**
  * Helper to simulate a complete pointer interaction (down + up).

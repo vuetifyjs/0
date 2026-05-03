@@ -14,6 +14,7 @@
   // Components
   import { Atom } from '#v0/components/Atom'
 
+  // Context
   import { useAvatarRoot } from './AvatarRoot.vue'
 
   // Composables

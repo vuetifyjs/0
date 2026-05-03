@@ -39,6 +39,9 @@ import { useLocale } from '#v0/composables/useLocale'
 // Adapters
 import { ClientAdapter } from './adapters/v0'
 
+// Column utilities
+import { extractLeaves, resolveHeaders } from './columns'
+
 // Utilities
 import { isNumber, isNullOrUndefined, isString } from '#v0/utilities'
 import { computed, shallowReactive, shallowRef, toRef, watch } from 'vue'
@@ -51,9 +54,6 @@ import type { ID } from '#v0/types'
 import type { DataTableAdapterInterface, SortDirection, SortEntry } from './adapters/adapter'
 import type { InternalHeader } from './columns'
 import type { MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
-
-// Column utilities
-import { extractLeaves, resolveHeaders } from './columns'
 
 // Re-export adapter types
 export { DataTableAdapter } from './adapters'

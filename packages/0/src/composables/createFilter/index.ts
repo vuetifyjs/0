@@ -30,12 +30,12 @@
 import { useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
 
+// Transformers
+import { toArray } from '#v0/composables/toArray'
+
 // Utilities
 import { isObject } from '#v0/utilities'
 import { computed, shallowRef, toValue } from 'vue'
-
-// Transformers
-import { toArray } from '#v0/composables/toArray'
 
 // Types
 import type { ContextTrinity } from '#v0/composables/createTrinity'

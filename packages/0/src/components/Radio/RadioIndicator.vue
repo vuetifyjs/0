@@ -34,7 +34,7 @@
 </script>
 
 <script setup lang="ts">
-  // Components
+  // Context
   import { useRadioRoot } from './RadioRoot.vue'
 
   // Utilities

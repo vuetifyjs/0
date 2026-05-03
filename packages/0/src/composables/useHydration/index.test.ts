@@ -19,10 +19,10 @@ vi.mock('#v0/composables/createContext', () => ({
   useContext: mockUseContext,
 }))
 
+import { createHydration, createHydrationPlugin, useHydration } from './index'
+
 // Utilities
 import { nextTick } from 'vue'
-
-import { createHydration, createHydrationPlugin, useHydration } from './index'
 
 describe('useHydration', () => {
   beforeEach(() => {

@@ -10,14 +10,14 @@
 // Composables
 import { createPagination } from '#v0/composables/createPagination'
 
+// Base
+import { DataTableAdapter } from './adapter'
+
 // Utilities
 import { computed, toRef, watch } from 'vue'
 
 // Types
 import type { DataTableAdapterContext, DataTableAdapterResult } from './adapter'
-
-// Base
-import { DataTableAdapter } from './adapter'
 
 export class ClientAdapter<T extends Record<string, unknown>> extends DataTableAdapter<T> {
   setup (context: DataTableAdapterContext<T>): DataTableAdapterResult<T> {

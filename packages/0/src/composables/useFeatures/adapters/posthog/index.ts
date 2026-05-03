@@ -5,15 +5,15 @@
  * PostHog adapter for feature flags.
  */
 
+// Constants
+import { IN_BROWSER } from '#v0/constants/globals'
+
 // Utilities
 import { isBoolean, isNullOrUndefined } from '#v0/utilities'
 
 // Types
 import type { FeaturesAdapterFlags, FeaturesAdapterInterface } from '../generic'
 import type { PostHog } from 'posthog-js'
-
-// Constants
-import { IN_BROWSER } from '#v0/constants/globals'
 
 export class PostHogFeatureAdapter implements FeaturesAdapterInterface {
   constructor (private client: PostHog) {}

@@ -14,6 +14,7 @@
   // Components
   import { Atom } from '#v0/components/Atom'
 
+  // Context
   import { useCarouselRoot, type CarouselTicket } from './CarouselRoot.vue'
 
   // Composables
@@ -21,18 +22,18 @@
   import { useElementSize, useResizeObserver } from '#v0/composables/useResizeObserver'
   import { useToggleScope } from '#v0/composables/useToggleScope'
 
+  // Transformers
+  import { toElement } from '#v0/composables/toElement'
+
+  // Constants
+  import { IN_BROWSER } from '#v0/constants/globals'
+
   // Utilities
   import { isUndefined } from '#v0/utilities'
   import { mergeProps, onBeforeUnmount, onScopeDispose, shallowRef, toRef, toValue, useAttrs, useTemplateRef, watch } from 'vue'
 
-  // Transformers
-  import { toElement } from '#v0/composables/toElement'
-
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
-
-  // Constants
-  import { IN_BROWSER } from '#v0/constants/globals'
 
   export interface CarouselViewportProps extends AtomProps {
     /** Namespace for connecting to parent Carousel.Root */

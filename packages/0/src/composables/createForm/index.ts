@@ -31,12 +31,12 @@ import { useContext } from '#v0/composables/createContext'
 import { createRegistry } from '#v0/composables/createRegistry'
 import { createTrinity } from '#v0/composables/createTrinity'
 
+// Transformers
+import { toArray } from '#v0/composables/toArray'
+
 // Utilities
 import { isNull } from '#v0/utilities'
 import { computed, hasInjectionContext } from 'vue'
-
-// Transformers
-import { toArray } from '#v0/composables/toArray'
 
 // Types
 import type { RegistryContext, RegistryOptions, RegistryTicket, RegistryTicketInput } from '#v0/composables/createRegistry'

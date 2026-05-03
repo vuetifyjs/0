@@ -2,11 +2,11 @@
   // Framework
   import { Tabs } from '@vuetify/v0'
 
-  // Utilities
-  import { computed, shallowRef, watch } from 'vue'
-
   // Data
   import { INFRASTRUCTURE_FILES } from '@/data/playground-defaults'
+
+  // Utilities
+  import { computed, shallowRef, watch } from 'vue'
 
   // Components
   import { usePlayground } from '../app/PlaygroundApp.vue'

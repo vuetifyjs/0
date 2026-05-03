@@ -1,13 +1,13 @@
 import { describe, expect, it, vi } from 'vitest'
 
+import { createNovuAdapter } from './novu'
+
 // Utilities
 import { effectScope } from 'vue'
 
 // Types
 import type { NotificationsAdapterContext } from '../index'
 import type { NovuClient, NovuNotification } from './novu'
-
-import { createNovuAdapter } from './novu'
 
 import { createNotifications } from '../index'
 

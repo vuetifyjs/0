@@ -1,11 +1,11 @@
 import { describe, expect, it, vi } from 'vitest'
 import { renderToString } from 'vue/server-renderer'
 
+import { Popover } from './index'
+
 // Utilities
 import { mount } from '@vue/test-utils'
 import { createSSRApp, defineComponent, h, nextTick } from 'vue'
-
-import { Popover } from './index'
 
 describe('popover', () => {
   describe('root', () => {

@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
 
+import { toElement } from './index'
+
 // Types
 import type { MaybeElementRef } from './index'
-
-import { toElement } from './index'
 
 describe('toElement', () => {
   describe('raw elements', () => {

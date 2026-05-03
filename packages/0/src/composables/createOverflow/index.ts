@@ -33,6 +33,9 @@ import { useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
 import { useElementSize } from '#v0/composables/useResizeObserver'
 
+// Globals
+import { IN_BROWSER } from '#v0/constants/globals'
+
 // Utilities
 import { isUndefined } from '#v0/utilities'
 import { computed, shallowRef, toRef, toValue } from 'vue'
@@ -40,9 +43,6 @@ import { computed, shallowRef, toRef, toValue } from 'vue'
 // Types
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { ComputedRef, MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
-
-// Globals
-import { IN_BROWSER } from '#v0/constants/globals'
 
 export interface OverflowOptions {
   /**

@@ -2,7 +2,7 @@
   // Framework
   import { createOverflow, isUndefined, Select, Splitter, Tabs, useElementSize } from '@vuetify/v0'
 
-  // Components
+  // Context
   import DocsSkeleton from './DocsSkeleton.vue'
 
   // Composables

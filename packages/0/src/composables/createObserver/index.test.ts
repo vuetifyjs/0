@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest'
 
+import { createObserver } from './index'
+
 // Utilities
 import { effectScope, nextTick, ref } from 'vue'
-
-import { createObserver } from './index'
 
 const mockIsHydrated = ref(false)
 vi.mock('#v0/composables/useHydration', () => ({

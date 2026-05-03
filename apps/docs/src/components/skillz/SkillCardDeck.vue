@@ -1,14 +1,14 @@
 <script setup lang="ts">
-  // Components
+  // Context
   import SkillCard from './SkillCard.vue'
+
+  import { SKILL_TRACK_META } from '@/types/skill'
 
   // Utilities
   import { computed } from 'vue'
 
   // Types
   import type { SkillMeta, SkillTrack } from '@/types/skill'
-
-  import { SKILL_TRACK_META } from '@/types/skill'
 
   const props = defineProps<{
     items: SkillMeta[]

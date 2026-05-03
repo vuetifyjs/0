@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
 
+import { createRegistry, createRegistryContext } from './index'
+
 // Utilities
 import { computed, isReactive, nextTick, shallowRef, watchEffect } from 'vue'
-
-import { createRegistry, createRegistryContext } from './index'
 
 describe('createRegistry', () => {
   describe('registration', () => {

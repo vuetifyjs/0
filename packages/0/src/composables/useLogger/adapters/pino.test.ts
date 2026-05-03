@@ -1,9 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { PinoLoggerAdapter } from './pino'
+
 // Types
 import type { PinoInstance } from './pino'
-
-import { PinoLoggerAdapter } from './pino'
 
 describe('pinoLoggerAdapter', () => {
   let mockPino: PinoInstance

@@ -3,11 +3,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 // Composables
 import { createTooltipPlugin } from '#v0/composables/useTooltip'
 
+import { Tooltip } from './index'
+
 // Utilities
 import { mount } from '@vue/test-utils'
 import { defineComponent, h, nextTick } from 'vue'
-
-import { Tooltip } from './index'
 
 const global = { plugins: [createTooltipPlugin()] }
 

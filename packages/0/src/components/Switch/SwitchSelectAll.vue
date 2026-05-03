@@ -14,6 +14,8 @@
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
+
+  // Context
   import { useSwitchGroup } from './SwitchGroup.vue'
   import { provideSwitchRoot } from './SwitchRoot.vue'
 

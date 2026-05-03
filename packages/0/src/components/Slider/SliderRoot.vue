@@ -14,6 +14,7 @@
   // Components
   import { Atom } from '#v0/components/Atom'
 
+  // Context
   import SliderHiddenInput from './SliderHiddenInput.vue'
 
   // Composables
@@ -23,6 +24,9 @@
   import { useProxyModel } from '#v0/composables/useProxyModel'
   import { useToggleScope } from '#v0/composables/useToggleScope'
 
+  // Constants
+  import { IN_BROWSER } from '#v0/constants/globals'
+
   // Utilities
   import { isArray, isNull, isUndefined, useId } from '#v0/utilities'
   import { computed, mergeProps, shallowRef, toRef, toValue, useAttrs } from 'vue'
@@ -31,9 +35,6 @@
   import type { AtomProps } from '#v0/components/Atom'
   import type { SliderContext } from '#v0/composables/createSlider'
   import type { MaybeRefOrGetter, Ref } from 'vue'
-
-  // Constants
-  import { IN_BROWSER } from '#v0/constants/globals'
 
   export interface SliderRootContext extends SliderContext {
     /** Unique identifier */

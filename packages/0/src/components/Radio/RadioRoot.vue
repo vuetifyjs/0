@@ -146,7 +146,7 @@
 </script>
 
 <script setup lang="ts" generic="V = unknown">
-  // Components
+  // Context
   import { useRadioGroup } from './RadioGroup.vue'
   import RadioHiddenInput from './RadioHiddenInput.vue'
 

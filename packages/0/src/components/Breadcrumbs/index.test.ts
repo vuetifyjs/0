@@ -1,14 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { renderToString } from 'vue/server-renderer'
 
+import { Breadcrumbs, useBreadcrumbsRoot } from './index'
+
 // Utilities
 import { mount } from '@vue/test-utils'
 import { createSSRApp, defineComponent, h, nextTick, ref } from 'vue'
 
 // Types
 import type { BreadcrumbsPageSlotProps, BreadcrumbsRootSlotProps } from './index'
-
-import { Breadcrumbs, useBreadcrumbsRoot } from './index'
 
 describe('breadcrumbs', () => {
   describe('root', () => {

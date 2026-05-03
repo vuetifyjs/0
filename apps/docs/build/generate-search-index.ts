@@ -3,12 +3,12 @@ import { glob } from 'node:fs/promises'
 import { basename, dirname, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import { getApiNamesGrouped, toKebab } from './api-names'
+import { parseFrontmatter } from './frontmatter'
+
 // Types
 import type { ApiData } from './generate-api'
 import type { Plugin, ViteDevServer } from 'vite'
-
-import { getApiNamesGrouped, toKebab } from './api-names'
-import { parseFrontmatter } from './frontmatter'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const PAGES_DIR = resolve(__dirname, '../src/pages')

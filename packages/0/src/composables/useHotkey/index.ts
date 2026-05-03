@@ -31,6 +31,11 @@
 // Composables
 import { useWindowEventListener } from '#v0/composables/useEventListener'
 
+// Constants
+import { IN_BROWSER } from '#v0/constants/globals'
+
+import { splitKeyCombination, splitKeySequence, MODIFIERS } from './parsing'
+
 // Utilities
 import { isNull, isUndefined } from '#v0/utilities'
 import { onScopeDispose, shallowReadonly, shallowRef, toRef, toValue, watch } from 'vue'
@@ -38,11 +43,6 @@ import { onScopeDispose, shallowReadonly, shallowRef, toRef, toValue, watch } fr
 // Types
 import type { Modifier } from './parsing'
 import type { MaybeRefOrGetter, Ref } from 'vue'
-
-// Constants
-import { IN_BROWSER } from '#v0/constants/globals'
-
-import { splitKeyCombination, splitKeySequence, MODIFIERS } from './parsing'
 
 export interface UseHotkeyOptions {
   /**

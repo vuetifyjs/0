@@ -2,11 +2,11 @@
   // Composables
   import { useThemeToggle } from '@/composables/useThemeToggle'
 
-  // Utilities
-  import { toRef } from 'vue'
-
   // Themes
   import { themes } from '@/themes'
+
+  // Utilities
+  import { toRef } from 'vue'
 
   const toggle = useThemeToggle()
   const active = toRef(() => toggle.preference.value === 'protanopia')

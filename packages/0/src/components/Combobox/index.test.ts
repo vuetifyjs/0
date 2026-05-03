@@ -3,11 +3,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 // Adapters
 import { ClientAdapter } from '#v0/composables/createCombobox/adapters/client'
 
+import { Combobox } from './index'
+
 // Utilities
 import { mount } from '@vue/test-utils'
 import { defineComponent, h, nextTick, ref } from 'vue'
-
-import { Combobox } from './index'
 
 // Mock showPopover/hidePopover — not supported in happy-dom
 beforeEach(() => {

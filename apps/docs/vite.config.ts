@@ -9,9 +9,6 @@ import Layouts from 'vite-plugin-vue-layouts-next'
 import generateSitemap from 'vite-ssg-sitemap'
 import VueRouter from 'vue-router/vite'
 
-// Types
-import type { ViteSSGOptions } from 'vite-ssg'
-
 import { getApiSlugs } from './build/api-names'
 import copyMarkdownPlugin from './build/copy-markdown'
 import generateApiPlugin from './build/generate-api'
@@ -27,6 +24,9 @@ import generateTipsPlugin from './build/generate-tips'
 import Markdown from './build/markdown'
 import { getSkillzSlugs } from './build/skillz-tours'
 import pkg from './package.json' with { type: 'json' }
+
+// Types
+import type { ViteSSGOptions } from 'vite-ssg'
 
 export default defineConfig({
   optimizeDeps: {

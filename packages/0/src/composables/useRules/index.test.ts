@@ -4,18 +4,18 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 // Internal — imported directly for unit testing
 import { toRule } from './adapters/standard'
 
-// Utilities
-import { inject, provide } from 'vue'
-
-// Types
-import type { StandardSchemaV1 } from './index'
-
 import {
   createRules,
   createRulesContext,
   isStandardSchema,
   useRules,
 } from './index'
+
+// Utilities
+import { inject, provide } from 'vue'
+
+// Types
+import type { StandardSchemaV1 } from './index'
 
 vi.mock('vue', async () => {
   const actual = await vi.importActual('vue')

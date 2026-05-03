@@ -2,7 +2,7 @@
   // Framework
   import { useBreakpoints, useStack, useToggleScope } from '@vuetify/v0'
 
-  // Components
+  // Context
   import DocsAskInput from './DocsAskInput.vue'
   import DocsAskPanel from './DocsAskPanel.vue'
 

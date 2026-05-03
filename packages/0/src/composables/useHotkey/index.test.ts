@@ -1,12 +1,12 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
-// Utilities
-import { effectScope, ref, nextTick } from 'vue'
-
 import { normalizeKey } from './aliases'
 import { splitKeyCombination, splitKeySequence } from './parsing'
 
 import { useHotkey } from './index'
+
+// Utilities
+import { effectScope, ref, nextTick } from 'vue'
 
 describe('useHotkey', () => {
   let scope: ReturnType<typeof effectScope>

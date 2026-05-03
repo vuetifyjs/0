@@ -4,6 +4,8 @@
 
   // Components
   import AppIcon from '@/components/app/AppIcon.vue'
+
+  // Context
   import { usePlayground } from './PlaygroundApp.vue'
   import PlaygroundOpenDialog from './PlaygroundOpenDialog.vue'
 

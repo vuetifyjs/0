@@ -9,13 +9,13 @@
  * directories by generate-api-whitelist.ts at build time.
  */
 
-// Types
-import type { ShikiTransformer } from 'shiki'
-
 // Auto-generated whitelists from packages/0/src/
 import { V0_COMPONENTS, V0_COMPOSABLES, V0_COMPOSABLE_TO_DIR } from './generated/api-whitelist'
 // Vue API content - import only keys for build-time detection
 import { VUE_API_CONTENT } from './vue-api-content'
+
+// Types
+import type { ShikiTransformer } from 'shiki'
 
 // Component pattern: Namespace.Part (e.g., Popover.Root, ExpansionPanel.Group)
 // Tokens come through as combined strings like "Popover.Root"

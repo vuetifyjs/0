@@ -28,12 +28,12 @@
 // Composables
 import { useHydration } from '#v0/composables/useHydration'
 
+// Transformers
+import { toElement } from '#v0/composables/toElement'
+
 // Utilities
 import { isElement, isNull } from '#v0/utilities'
 import { onScopeDispose, shallowReadonly, shallowRef, toRef, watch } from 'vue'
-
-// Transformers
-import { toElement } from '#v0/composables/toElement'
 
 // Types
 import type { MaybeElementRef } from '#v0/composables/toElement'

@@ -25,6 +25,9 @@
 import { createPluginContext } from '#v0/composables/createPlugin'
 import { createRegistry } from '#v0/composables/createRegistry'
 
+// Globals
+import { IN_BROWSER } from '#v0/constants/globals'
+
 // Utilities
 import { isNull } from '#v0/utilities'
 import { getCurrentScope, onScopeDispose, shallowRef, toRef, toValue } from 'vue'
@@ -33,9 +36,6 @@ import { getCurrentScope, onScopeDispose, shallowRef, toRef, toValue } from 'vue
 import type { RegistryTicket } from '#v0/composables/createRegistry'
 import type { ID } from '#v0/types'
 import type { MaybeRefOrGetter, Ref } from 'vue'
-
-// Globals
-import { IN_BROWSER } from '#v0/constants/globals'
 
 function now (): number {
   return IN_BROWSER ? performance.now() : Date.now()

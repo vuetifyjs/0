@@ -6,14 +6,14 @@ import { Vuetify0DateAdapter } from '@vuetify/v0/date'
 import { createDiscoveryPlugin } from '@/composables/useDiscovery'
 import { useIdleCallback } from '@/composables/useIdleCallback'
 
-// Types
-import type { App } from 'vue'
-
 // Themes
 import { getAllThemeConfigs } from '@/themes'
 
 // Plugins
 import { createIconPlugin } from './icons'
+
+// Types
+import type { App } from 'vue'
 
 export default function zero (app: App) {
   app.use(createIconPlugin())

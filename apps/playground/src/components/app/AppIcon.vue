@@ -2,10 +2,10 @@
   // Framework
   import { toArray } from '@vuetify/v0'
 
+  import { useIconContext } from '@/plugins/icons'
+
   // Utilities
   import { computed } from 'vue'
-
-  import { useIconContext } from '@/plugins/icons'
 
   export interface AppIconProps {
     icon: string

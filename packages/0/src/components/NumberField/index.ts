@@ -21,7 +21,7 @@ export type { NumberFieldIncrementProps, NumberFieldIncrementSlotProps } from '.
 export type { NumberFieldRootContext, NumberFieldRootProps, NumberFieldRootSlotProps } from './NumberFieldRoot.vue'
 export type { NumberFieldScrubProps, NumberFieldScrubSlotProps } from './NumberFieldScrub.vue'
 
-// Components
+// Context
 import Control from './NumberFieldControl.vue'
 import Decrement from './NumberFieldDecrement.vue'
 import Description from './NumberFieldDescription.vue'

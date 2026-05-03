@@ -40,6 +40,7 @@
 <script setup lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
+
   // Context
   import { usePopoverContext } from './PopoverRoot.vue'
 

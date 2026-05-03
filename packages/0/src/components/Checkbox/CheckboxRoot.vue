@@ -126,7 +126,7 @@
 </script>
 
 <script setup lang="ts" generic="V = unknown">
-  // Components
+  // Context
   import { useCheckboxGroup } from './CheckboxGroup.vue'
   import CheckboxHiddenInput from './CheckboxHiddenInput.vue'
 

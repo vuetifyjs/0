@@ -1,10 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { createVirtual, createVirtualContext, useVirtual } from './index'
+
 // Utilities
 import { mount } from '@vue/test-utils'
 import { effectScope, nextTick, shallowRef, defineComponent } from 'vue'
-
-import { createVirtual, createVirtualContext, useVirtual } from './index'
 
 const realDocument = globalThis.document
 

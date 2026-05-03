@@ -9,7 +9,7 @@
  */
 
 <script lang="ts">
-  // Components
+  // Context
   import { useButtonRoot } from './ButtonRoot.vue'
 
   // Utilities

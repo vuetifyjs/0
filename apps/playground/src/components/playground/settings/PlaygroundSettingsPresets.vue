@@ -6,11 +6,11 @@
   import AppIcon from '@/components/app/AppIcon.vue'
   import { usePlayground } from '@/components/playground/app/PlaygroundApp.vue'
 
-  // Utilities
-  import { shallowRef } from 'vue'
-
   // Data
   import { ADDONS, PRESETS } from '@/data/presets'
+
+  // Utilities
+  import { shallowRef } from 'vue'
 
   const playground = usePlayground()
 

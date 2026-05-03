@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
+import { NumberField } from './index'
+
 // Utilities
 import { mount } from '@vue/test-utils'
 import { h, nextTick, ref } from 'vue'
@@ -7,8 +9,6 @@ import { h, nextTick, ref } from 'vue'
 // Types
 import type { NumberFieldRootSlotProps } from './index'
 import type { VueWrapper } from '@vue/test-utils'
-
-import { NumberField } from './index'
 
 interface MountResult {
   wrapper: VueWrapper

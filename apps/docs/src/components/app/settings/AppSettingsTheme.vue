@@ -5,11 +5,11 @@
   import { useSettings } from '@/composables/useSettings'
   import { useThemeToggle } from '@/composables/useThemeToggle'
 
-  // Utilities
-  import { computed } from 'vue'
-
   // Themes
   import { exportThemeAsVuetifyConfig, type ThemeId } from '@/themes'
+
+  // Utilities
+  import { computed } from 'vue'
 
   const toggle = useThemeToggle()
   const customThemes = useCustomThemes()

@@ -5,7 +5,7 @@ import { routes } from 'vue-router/auto-routes'
 // Framework
 import { createBreakpointsPlugin, createHydrationPlugin, createLoggerPlugin, createStackPlugin, createStoragePlugin, createThemePlugin, IN_BROWSER } from '@vuetify/v0'
 
-// Components
+// Context
 import App from './App.vue'
 
 import { createIconPlugin } from './plugins/icons'

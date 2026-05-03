@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
 
+import { useImage } from './index'
+
 // Utilities
 import { effectScope, nextTick, shallowRef } from 'vue'
-
-import { useImage } from './index'
 
 describe('useImage', () => {
   describe('initial state', () => {

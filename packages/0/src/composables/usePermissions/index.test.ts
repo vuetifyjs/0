@@ -3,10 +3,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 // Adapters
 import { Vuetify0PermissionAdapter } from './adapters/v0'
 
+import { createPermissions, createPermissionsContext, createPermissionsPlugin, usePermissions } from './index'
+
 // Utilities
 import { provide } from 'vue'
-
-import { createPermissions, createPermissionsContext, createPermissionsPlugin, usePermissions } from './index'
 
 vi.mock('vue', async () => {
   const actual = await vi.importActual('vue')

@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest'
 
+import { createProgress } from './index'
+
 // Utilities
 import { shallowRef, toValue } from 'vue'
 
 // Types
 import type { ProgressOptions } from './index'
-
-import { createProgress } from './index'
 
 function setup (options?: ProgressOptions) {
   return createProgress(options)

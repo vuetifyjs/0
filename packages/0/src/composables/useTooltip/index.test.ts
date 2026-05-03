@@ -1,10 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-// Utilities
-import { createApp, defineComponent, effectScope, h } from 'vue'
-
 // Composables
 import { createTooltipContext, createTooltipPlugin, useTooltip } from './index'
+
+// Utilities
+import { createApp, defineComponent, effectScope, h } from 'vue'
 
 describe('useTooltip', () => {
   beforeEach(() => {

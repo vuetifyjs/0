@@ -18,7 +18,7 @@ export type { PaginationPrevProps, PaginationPrevSlotProps } from './PaginationP
 export type { PaginationRootProps, PaginationRootSlotProps } from './PaginationRoot.vue'
 export type { PaginationStatusProps, PaginationStatusSlotProps } from './PaginationStatus.vue'
 
-// Components
+// Context
 import Ellipsis from './PaginationEllipsis.vue'
 import First from './PaginationFirst.vue'
 import Item from './PaginationItem.vue'

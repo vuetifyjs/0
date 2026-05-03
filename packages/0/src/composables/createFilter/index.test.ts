@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { createFilter, createFilterContext, useFilter } from './index'
+
 // Utilities
 import { inject, provide, ref, shallowRef } from 'vue'
 
 // Types
 import type { Primitive } from './index'
-
-import { createFilter, createFilterContext, useFilter } from './index'
 
 vi.mock('vue', async () => {
   const actual = await vi.importActual('vue')

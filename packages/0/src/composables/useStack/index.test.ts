@@ -1,18 +1,18 @@
 import { describe, expect, it, vi } from 'vitest'
 
-// Utilities
-import { mount } from '@vue/test-utils'
-import { defineComponent, nextTick, ref, watch } from 'vue'
-
-// Types
-import type { StackContext } from '.'
-
 import {
   createStack,
   createStackContext,
   createStackPlugin,
   useStack,
 } from '.'
+
+// Utilities
+import { mount } from '@vue/test-utils'
+import { defineComponent, nextTick, ref, watch } from 'vue'
+
+// Types
+import type { StackContext } from '.'
 
 describe('useStack', () => {
   describe('createStack', () => {

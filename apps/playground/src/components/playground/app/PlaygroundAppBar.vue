@@ -4,6 +4,8 @@
 
   // Components
   import PlaygroundSettings from '@/components/playground/settings/PlaygroundSettings.vue'
+
+  // Context
   import { usePlayground } from './PlaygroundApp.vue'
   import PlaygroundMenuBar from './PlaygroundMenuBar.vue'
 

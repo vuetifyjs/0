@@ -1,7 +1,4 @@
 <script setup lang="ts">
-  // Stores
-  import { useAuthStore } from '@vuetify/auth'
-
   // Framework
   import { Avatar, Dialog } from '@vuetify/v0'
 
@@ -10,6 +7,9 @@
 
   // Composables
   import { useSettings } from '@/composables/useSettings'
+
+  // Stores
+  import { useAuthStore } from '@vuetify/auth'
 
   // Utilities
   import { toRef } from 'vue'

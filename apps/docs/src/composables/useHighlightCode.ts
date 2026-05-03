@@ -4,11 +4,11 @@ import { createApiTransformer } from '@build/shiki-api-transformer'
 // Composables
 import { useIdleCallback } from './useIdleCallback'
 
-// Utilities
-import { type MaybeRefOrGetter, onMounted, onScopeDispose, shallowRef, toValue, watch } from 'vue'
-
 // Constants
 import { SHIKI_THEMES } from '@/constants/shiki'
+
+// Utilities
+import { type MaybeRefOrGetter, onMounted, onScopeDispose, shallowRef, toValue, watch } from 'vue'
 
 export interface UseHighlightCodeOptions {
   /** Language for syntax highlighting. Defaults to 'vue' */

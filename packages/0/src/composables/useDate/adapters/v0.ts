@@ -16,14 +16,14 @@
 // Polyfill
 import { Temporal } from '@js-temporal/polyfill'
 
+// Constants
+import { IN_BROWSER } from '#v0/constants/globals'
+
 // Utilities
 import { isFunction, isNull, isNullOrUndefined, isNumber, isString } from '#v0/utilities'
 
 // Types
 import type { DateAdapter } from './adapter'
-
-// Constants
-import { IN_BROWSER } from '#v0/constants/globals'
 
 type PlainDateTime = Temporal.PlainDateTime
 

@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest'
 
+import { Collapsible } from './index'
+
 // Utilities
 import { mount } from '@vue/test-utils'
 import { h, nextTick, ref } from 'vue'
-
-import { Collapsible } from './index'
 
 interface MountResult {
   wrapper: ReturnType<typeof mount>

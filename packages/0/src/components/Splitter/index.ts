@@ -7,7 +7,7 @@ export type { SplitterContext, SplitterOrientation, SplitterPanelInput, Splitter
 export type { SplitterPanelExpose, SplitterPanelProps, SplitterPanelSlotProps } from './SplitterPanel.vue'
 export type { SplitterHandleProps, SplitterHandleSlotProps, SplitterHandleState } from './SplitterHandle.vue'
 
-// Components
+// Context
 import Handle from './SplitterHandle.vue'
 import Panel from './SplitterPanel.vue'
 import Root from './SplitterRoot.vue'

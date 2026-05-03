@@ -1,15 +1,15 @@
 <script setup lang="ts">
-  // Components
+  // Context
   import { useDiscoveryRootContext } from './DiscoveryRoot.vue'
 
   // Composables
   import { useDiscovery } from '@/composables/useDiscovery'
 
-  // Utilities
-  import { useRouter } from 'vue-router'
-
   // Stores
   import { useSkillzStore } from '@/stores/skillz'
+
+  // Utilities
+  import { useRouter } from 'vue-router'
 
   defineOptions({ name: 'DiscoverySkip' })
 

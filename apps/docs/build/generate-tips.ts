@@ -3,12 +3,12 @@ import { fileURLToPath, pathToFileURL } from 'node:url'
 
 import { tsImport } from 'tsx/esm/api'
 
+// Local
+import { createMarkdownIt } from './markdown'
+
 // Types
 import type { Tip } from '../src/data/tips'
 import type { Plugin, ViteDevServer } from 'vite'
-
-// Local
-import { createMarkdownIt } from './markdown'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const TIPS_SOURCE = resolve(__dirname, '../src/data/tips.ts')

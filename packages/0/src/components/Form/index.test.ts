@@ -4,11 +4,11 @@ import { describe, expect, it } from 'vitest'
 import { useForm } from '#v0/composables/createForm'
 import { createValidation } from '#v0/composables/createValidation'
 
+import { Form } from './index'
+
 // Utilities
 import { flushPromises, mount } from '@vue/test-utils'
 import { defineComponent, h, nextTick, shallowRef, toValue } from 'vue'
-
-import { Form } from './index'
 
 const FailingField = defineComponent({
   setup () {

@@ -9,7 +9,7 @@
  */
 
 <script setup lang="ts">
-  // Components
+  // Context
   import { useTreeviewItem } from './TreeviewItem.vue'
 
   // Utilities

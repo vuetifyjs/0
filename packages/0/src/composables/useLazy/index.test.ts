@@ -1,12 +1,12 @@
 import { describe, expect, it, vi } from 'vitest'
 
+import { useLazy } from './index'
+
 // Utilities
 import { effectScope, nextTick, ref } from 'vue'
 
 // Types
 import type { LazyContext } from './index'
-
-import { useLazy } from './index'
 
 describe('useLazy SSR', () => {
   it('should return proper defaults without browser APIs', () => {

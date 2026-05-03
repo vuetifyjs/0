@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
 
+import { createTrinity } from './index'
+
 // Types
 import type { App } from 'vue'
-
-import { createTrinity } from './index'
 
 describe('createTrinity', () => {
   it('should create a singleton with use, provide, and context', () => {

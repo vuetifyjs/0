@@ -1,12 +1,12 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { createCombobox, createComboboxContext, useCombobox } from './index'
+
 // Utilities
 import { effectScope, inject, nextTick } from 'vue'
 
 // Types
 import type { EffectScope } from 'vue'
-
-import { createCombobox, createComboboxContext, useCombobox } from './index'
 
 vi.mock('vue', async () => {
   const actual = await vi.importActual('vue')

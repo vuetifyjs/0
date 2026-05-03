@@ -10,13 +10,13 @@
 
 import { bench, describe } from 'vitest'
 
+import { createModel } from './index'
+
 // Utilities
 import { shallowRef } from 'vue'
 
 // Types
 import type { ModelContext, ModelTicket, ModelTicketInput } from './index'
-
-import { createModel } from './index'
 
 interface BenchmarkItem {
   id: string
