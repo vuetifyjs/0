@@ -298,6 +298,34 @@ describe('createValidation', () => {
 
       expect(validation.errors.value).toEqual(['Error from call 2'])
     })
+
+    // Regression: the stale-check used to return `isValid.value ?? false`,
+    // leaking the newer call's result. createForm.submit() uses
+    // `results.every(Boolean)` so a stale failing call could resolve to true
+    // and flip the form to "valid".
+    it('should return false from a stale call even when newer call passed', async () => {
+      let callCount = 0
+      async function slowRule (v: unknown) {
+        const call = ++callCount
+        await new Promise(resolve => setTimeout(resolve, call === 1 ? 100 : 10))
+        // Call 1 fails; call 2 passes
+        return call === 1 ? `Error from call ${call}` : (v as string).length > 0
+      }
+
+      const validation = createValidation({ rules: [slowRule] })
+
+      const first = validation.validate('ab')
+      const second = validation.validate('ab')
+
+      const [firstResult, secondResult] = await Promise.all([first, second])
+
+      // Newer call resolved truthy and updated isValid.value to true.
+      expect(secondResult).toBe(true)
+      expect(validation.isValid.value).toBe(true)
+      // Older call must still report its own outcome (false), not leak the
+      // newer call's state.
+      expect(firstResult).toBe(false)
+    })
   })
 
   describe('reset during async validation', () => {

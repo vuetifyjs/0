@@ -1455,6 +1455,66 @@ describe('useClickOutside', () => {
       simulatePointerClick(document.body, { clientX: 150, clientY: 50 })
       expect(handler).toHaveBeenCalledTimes(1)
     })
+
+    // Regression: bounds resolution used to re-evaluate frozen pointerdown
+    // clientX/Y against a getBoundingClientRect read at pointerup time.
+    // If the page scrolled mid-gesture (iOS momentum, programmatic) the
+    // rect shifted but startPosition didn't, so the original outside click
+    // could be misread as INSIDE the shifted rect, suppressing the handler.
+    // Resolve at pointerdown time instead.
+    it('survives mid-gesture scroll between pointerdown and pointerup', async () => {
+      const handler = vi.fn()
+      const rect = {
+        left: 100,
+        right: 200,
+        top: 100,
+        bottom: 200,
+        width: 100,
+        height: 100,
+        x: 100,
+        y: 100,
+        toJSON: () => ({}),
+      }
+      const rectSpy = vi.spyOn(target, 'getBoundingClientRect').mockReturnValue(rect)
+
+      useClickOutside(target, handler, { bounds: true })
+      await nextTick()
+
+      // pointerdown at (150, 50) — outside the rect at (100..200, 100..200)
+      // because clientY=50 sits above the top edge.
+      document.body.dispatchEvent(new PointerEvent('pointerdown', {
+        bubbles: true,
+        clientX: 150,
+        clientY: 50,
+        pointerType: 'mouse',
+      }))
+
+      // Page scrolls 60px down — element moves up, rect now spans
+      // (100..200, 40..140). The frozen pointerdown position (150, 50)
+      // would NOW read as INSIDE the shifted rect (50 is in 40..140).
+      rectSpy.mockReturnValue({
+        ...rect,
+        top: 40,
+        bottom: 140,
+        y: 40,
+      })
+
+      // pointerup at (250, 250) — clearly outside the shifted rect.
+      document.body.dispatchEvent(new PointerEvent('pointerup', {
+        bubbles: true,
+        clientX: 250,
+        clientY: 250,
+        pointerType: 'mouse',
+      }))
+
+      // Handler must fire: pointerdown was outside at pointerdown time and
+      // pointerup is outside at pointerup time — both ends honestly outside.
+      // The buggy version re-evaluated pointerdown coords against the
+      // shifted rect, saw "inside", and suppressed the click.
+      expect(handler).toHaveBeenCalledTimes(1)
+
+      rectSpy.mockRestore()
+    })
   })
 
   describe('cleanup verification', () => {

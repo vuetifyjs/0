@@ -787,6 +787,40 @@ describe('pagination', () => {
 
       vi.useRealTimers()
     })
+
+    // Regression: the page-change watcher used to schedule setTimeout without
+    // tracking the handle, so unmounting between page change and the 100ms
+    // tick left a pending callback that mutated text on a destroyed component.
+    it('should clear pending live-region timer on unmount', async () => {
+      vi.useFakeTimers()
+      const clearSpy = vi.spyOn(globalThis, 'clearTimeout')
+
+      let rootProps: any
+      const wrapper = mount(Pagination.Root, {
+        props: { size: 100, itemsPerPage: 10, renderless: true },
+        slots: {
+          default: (props: any) => {
+            rootProps = props
+            return [h(Pagination.Status, {}, { default: () => h('div') })]
+          },
+        },
+      })
+
+      await nextTick()
+
+      // Schedule a pending timer by changing the page.
+      rootProps.next()
+      await nextTick()
+
+      const callsBeforeUnmount = clearSpy.mock.calls.length
+      wrapper.unmount()
+
+      // onBeforeUnmount must have invoked clearTimeout for the pending handle.
+      expect(clearSpy.mock.calls.length).toBeGreaterThan(callsBeforeUnmount)
+
+      clearSpy.mockRestore()
+      vi.useRealTimers()
+    })
   })
 
   describe('prev', () => {

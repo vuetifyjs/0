@@ -227,6 +227,21 @@ describe('createSlider', () => {
       const { slider } = setup({ min: 0, max: 100, step: 1, inverted: true })
       expect(slider.fromPercent(75)).toBe(25)
     })
+
+    // Regression: fromPercent used to invert before snapping, so step rounding
+    // landed on different boundaries on the inverted axis. Snap then invert
+    // keeps midpoints symmetric — 45 → 5 either way on a 0..10 step-1 slider.
+    it('snaps symmetrically under inverted', () => {
+      const opts = { min: 0, max: 10, step: 1 }
+      const { slider } = setup(opts)
+      const { slider: invSlider } = setup({ ...opts, inverted: true })
+
+      expect(slider.fromPercent(45)).toBe(5)
+      expect(invSlider.fromPercent(45)).toBe(5)
+
+      expect(slider.fromPercent(55)).toBe(6)
+      expect(invSlider.fromPercent(55)).toBe(4)
+    })
   })
 
   describe('register', () => {

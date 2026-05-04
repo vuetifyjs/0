@@ -102,6 +102,25 @@ describe('createNumberField', () => {
       field.increment()
       expect(field.value.value).toBe(-10)
     })
+
+    // Regression: a NaN/Infinity-valued ref used to flow into numeric.up/down,
+    // which silently snapped to min via snap()'s !Number.isFinite early-return —
+    // user expected a step forward but got a teleport to min. Use a range where
+    // initialize() (clamp(0, min, max)) and snap-to-min disagree: with min=-5
+    // initialize returns 0, the old behaviour returned -5.
+    it('re-initializes when value is NaN', () => {
+      const value = ref<number | null>(Number.NaN)
+      const field = setup({ value, min: -5, max: 100, step: 1 })
+      field.increment()
+      expect(field.value.value).toBe(0)
+    })
+
+    it('re-initializes when value is Infinity', () => {
+      const value = ref<number | null>(Number.POSITIVE_INFINITY)
+      const field = setup({ value, min: -5, max: 100, step: 1 })
+      field.decrement()
+      expect(field.value.value).toBe(0)
+    })
   })
 
   describe('canIncrement / canDecrement', () => {
