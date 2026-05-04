@@ -100,7 +100,7 @@
 <template>
   <Atom
     ref="root"
-    :aria-disabled="slotProps.isDisabled || undefined"
+    :aria-disabled="slotProps.isDisabled"
     :aria-expanded="hasContent ? slotProps.isOpen : undefined"
     :aria-level="slotProps.depth + 1"
     :aria-posinset="ticket.position()"

@@ -23,7 +23,7 @@ export interface TreeviewActivatorSlotProps {
   attrs: {
     'role': 'button' | undefined
     'tabindex': -1
-    'aria-disabled': true | undefined
+    'aria-disabled': boolean
     'data-disabled': true | undefined
     'data-open': true | undefined
     'disabled': boolean | undefined
@@ -55,7 +55,7 @@ export interface TreeviewCheckboxSlotProps {
   attrs: {
     'role': 'checkbox'
     'aria-checked': boolean | 'mixed'
-    'aria-disabled': true | undefined
+    'aria-disabled': boolean
     'tabindex': -1
     'data-selected': true | undefined
     'data-disabled': true | undefined
@@ -253,7 +253,7 @@ export interface TreeviewSelectAllSlotProps {
   attrs: {
     'role': 'checkbox'
     'aria-checked': boolean | 'mixed'
-    'aria-disabled': true | undefined
+    'aria-disabled': boolean
     'aria-label': string | undefined
     'tabindex': 0 | undefined
     'data-state': 'checked' | 'unchecked' | 'indeterminate'

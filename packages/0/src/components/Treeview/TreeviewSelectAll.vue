@@ -123,7 +123,7 @@
     attrs: {
       'role': 'checkbox',
       'aria-checked': isMixed.value ? 'mixed' : isAllSelected.value,
-      'aria-disabled': isDisabled.value || undefined,
+      'aria-disabled': isDisabled.value,
       'aria-label': label || undefined,
       'tabindex': isDisabled.value ? undefined : 0,
       'data-state': state.value,
