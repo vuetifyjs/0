@@ -451,6 +451,13 @@ describe('helpers', () => {
       expect(clamp(0, 0, 10)).toBe(0)
       expect(clamp(10, 0, 10)).toBe(10)
     })
+
+    it('should return min for non-finite values', () => {
+      expect(clamp(Number.NaN, 0, 10)).toBe(0)
+      expect(clamp(Number.NaN, -5, 5)).toBe(-5)
+      expect(clamp(Number.POSITIVE_INFINITY, 0, 10)).toBe(0)
+      expect(clamp(Number.NEGATIVE_INFINITY, 0, 10)).toBe(0)
+    })
   })
 
   describe('range', () => {

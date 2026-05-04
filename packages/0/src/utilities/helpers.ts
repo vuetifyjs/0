@@ -402,6 +402,7 @@ export function useId (): string {
  */
 /* #__NO_SIDE_EFFECTS__ */
 export function clamp (value: number, min = 0, max = 1): number {
+  if (!Number.isFinite(value)) return min
   return Math.max(min, Math.min(max, value))
 }
 
