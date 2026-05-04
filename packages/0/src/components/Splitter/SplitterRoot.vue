@@ -27,6 +27,9 @@
   import { clamp, isNull, isNullOrUndefined, isUndefined } from '#v0/utilities'
   import { mergeProps, shallowRef, toRef, toValue, useAttrs, useTemplateRef, watch } from 'vue'
 
+  // Transformers
+  import { toElement } from '#v0/composables/toElement'
+
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
   import type { RegistryContext } from '#v0/composables/createRegistry'
@@ -53,7 +56,7 @@
     handles: RegistryContext
     dragging: Readonly<Ref<boolean>>
     draggingHandle: Readonly<Ref<number | null>>
-    rootEl: Readonly<Ref<HTMLElement | null>>
+    rootEl: Readonly<Ref<Element | null>>
     panel: (index: number) => SplitterPanelTicket | undefined
     resize: (index: number, delta: number, options?: { emit?: boolean }) => void
     onStartDrag: (index: number) => void
@@ -110,9 +113,7 @@
   } = defineProps<SplitterRootProps>()
 
   const rootAtom = useTemplateRef<AtomExpose>('root')
-  // Vue auto-unwraps exposed refs when accessed via template ref,
-  // but TypeScript doesn't reflect this - cast corrects the type
-  const rootEl = toRef(() => (rootAtom.value?.element as HTMLElement | null | undefined) ?? null)
+  const rootEl = toRef(() => toElement(rootAtom.value?.element) ?? null)
   const draggingHandle = shallowRef<number | null>(null)
   const dragging = toRef(() => !isNull(draggingHandle.value))
   const expandAccum = new Map<string | number, number>()

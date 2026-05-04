@@ -108,10 +108,11 @@
     if (Number.isNaN(num)) return fallback
 
     if (value.endsWith('px')) {
+      const root = splitter.rootEl.value as HTMLElement | null
       const dimension = rootSize.value
         || (splitter.orientation.value === 'horizontal'
-          ? splitter.rootEl.value?.offsetWidth
-          : splitter.rootEl.value?.offsetHeight)
+          ? root?.offsetWidth
+          : root?.offsetHeight)
         || 0
 
       return dimension > 0 ? (num / dimension) * 100 : fallback

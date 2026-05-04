@@ -132,7 +132,7 @@
 
   useToggleScope(() => splitter.draggingHandle.value === ticket.index, () => {
     const update = useRaf(() => {
-      const root = splitter.rootEl.value
+      const root = splitter.rootEl.value as HTMLElement | null
       if (!root) return
 
       const rootSize = isHorizontal.value ? root.offsetWidth : root.offsetHeight
