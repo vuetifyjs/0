@@ -91,7 +91,7 @@
   } = defineProps<ImageRootProps>()
 
   const atomRef = useTemplateRef<AtomExpose>('atom')
-  const rootEl = toRef(() => toElement(atomRef.value?.element) as HTMLElement | null ?? null)
+  const rootEl = toRef(() => toElement(atomRef.value?.element) ?? null)
 
   if (lazy && renderless) {
     const logger = useLogger()
