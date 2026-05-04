@@ -20,11 +20,11 @@
 import { createRegistry } from '#v0/composables/createRegistry'
 
 // Adapters
-import { keyboardAdapter } from './adapters/keyboard'
-import { pointerAdapter } from './adapters/pointer'
+import { KeyboardAdapter } from './adapters/keyboard'
+import { PointerAdapter } from './adapters/pointer'
 
 // Utilities
-import { isArray, isFunction, useId } from '#v0/utilities'
+import { isArray, isFunction, isNull, useId } from '#v0/utilities'
 import { computed, onScopeDispose, shallowRef, toRef, toValue } from 'vue'
 
 // Types
@@ -34,19 +34,21 @@ import type {
   RegistryTicketInput,
 } from '#v0/composables/createRegistry'
 import type { Extensible, ID } from '#v0/types'
-import type { DragDropAdapter, DragDropAdapterEmit } from './adapters/adapter'
+import type { DragDropAdapterContext, DragDropAdapterEmit, DragDropAdapterInterface } from './adapters/adapter'
 import type { MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
 
 // Globals
 import { IN_BROWSER } from '#v0/constants/globals'
 
+// Internals
 import { resolveDropPosition } from './indicator'
 
 // Re-exports
 export type { ResolvedPosition } from './indicator'
-export type { DragDropAdapter, DragDropAdapterEmit } from './adapters/adapter'
-export { pointerAdapter } from './adapters/pointer'
-export { keyboardAdapter } from './adapters/keyboard'
+export { DragDropAdapter } from './adapters/adapter'
+export type { DragDropAdapterContext, DragDropAdapterEmit, DragDropAdapterInterface } from './adapters/adapter'
+export { PointerAdapter } from './adapters/pointer'
+export { KeyboardAdapter } from './adapters/keyboard'
 export type { PointerAdapterOptions } from './adapters/pointer'
 export type { KeyboardAdapterOptions } from './adapters/keyboard'
 
@@ -98,7 +100,7 @@ export type DraggableTicketInput<K extends DragType = DragType> = K extends Drag
     disabled?: MaybeRefOrGetter<boolean>
     onBeforeStart?: (drag: ActiveDrag<K>) => boolean | void
     onMove?: (drag: ActiveDrag<K>) => void
-    onCancel?: (drag: ActiveDrag<K>) => void
+    onCancel?: (drag: ActiveDrag<K>, reason: 'cancel' | 'reject') => void
   }
   : never
 
@@ -136,17 +138,17 @@ export interface DropZoneTicket extends RegistryTicket {
 }
 
 export type DragDropPlugin<K extends DragType = DragType> = (
-  ctx: DragDropContext<K>,
+  context: DragDropContext<K>,
 ) => (() => void) | void
 
 export interface DragDropOptions<K extends DragType = DragType> {
-  adapters?: DragDropAdapter<K>[]
+  adapters?: DragDropAdapterInterface<K>[]
   plugins?: DragDropPlugin<K>[]
   onBeforeStart?: (drag: ActiveDrag<K>) => boolean | void
   onMove?: (drag: ActiveDrag<K>) => void
   onBeforeDrop?: (drag: ActiveDrag<K>, position: DropPosition) => boolean | void
   onDrop?: (drag: ActiveDrag<K>, position: DropPosition) => void
-  onCancel?: (drag: ActiveDrag<K>) => void
+  onCancel?: (drag: ActiveDrag<K>, reason: 'cancel' | 'reject') => void
 }
 
 export type DraggablesContext<K extends DragType = DragType> =
@@ -167,23 +169,6 @@ export interface DragDropContext<K extends DragType = DragType> {
   cancel: () => void
 }
 
-function buildDraggableAttrs (isDraggingNow: boolean, disabled: boolean): Record<string, unknown> {
-  const out: Record<string, unknown> = {
-    'data-draggable': '',
-    'aria-roledescription': 'draggable',
-  }
-  if (isDraggingNow) out['data-dragging'] = ''
-  if (!disabled) out.style = { touchAction: 'none' }
-  return out
-}
-
-function buildZoneAttrs (isOverNow: boolean, willAcceptNow: boolean): Record<string, unknown> {
-  const out: Record<string, unknown> = { 'data-dropzone': '' }
-  if (isOverNow) out['data-over'] = ''
-  if (isOverNow && willAcceptNow) out['data-accepts'] = ''
-  return out
-}
-
 function willZoneAccept<K extends DragType> (
   accept: DropZoneTicketInput<K>['accept'],
   drag: ActiveDrag<K> | null,
@@ -191,7 +176,7 @@ function willZoneAccept<K extends DragType> (
   if (!drag) return false
   if (!accept) return true
   if (isArray(accept)) return (accept as string[]).includes(drag.type)
-  return accept(drag) === true
+  return Boolean(accept(drag))
 }
 
 export function useDragDrop<K extends DragType = DragType> (
@@ -208,25 +193,30 @@ export function useDragDrop<K extends DragType = DragType> (
   })
 
   const active = shallowRef<ActiveDrag<K> | null>(null)
-  const isDragging = toRef(() => active.value !== null)
+  const isDragging = toRef(() => !isNull(active.value))
 
   function registerDraggable (input: DraggableTicketInput<K>): DraggableTicket<K> {
     const id = input.id ?? useId()
-    const elRef = toRef(() => toValue(input.el))
-    const isDraggingRef = toRef(() => active.value?.id === id)
-    const attrsRef = toRef(() => buildDraggableAttrs(
-      isDraggingRef.value,
-      toValue(input.disabled) === true,
-    ))
+    const el = toRef(() => toValue(input.el))
+    const dragging = toRef(() => active.value?.id === id)
+    const attrs = toRef(() => {
+      const out: Record<string, unknown> = {
+        'data-draggable': '',
+        'aria-roledescription': 'draggable',
+      }
+      if (dragging.value) out['data-dragging'] = ''
+      if (toValue(input.disabled) !== true) out.style = { touchAction: 'none' }
+      return out
+    })
 
     // Distributive types collapse to opaque conditionals when K is generic,
     // so cast through unknown — runtime shape is correct.
     const decorated = {
       ...input,
       id,
-      el: elRef,
-      isDragging: isDraggingRef,
-      attrs: attrsRef,
+      el,
+      isDragging: dragging,
+      attrs,
     } as unknown as Partial<DraggableTicketInput<K> & DraggableTicket<K>>
 
     return baseDraggables.register(decorated) as DraggableTicket<K>
@@ -239,30 +229,33 @@ export function useDragDrop<K extends DragType = DragType> (
 
   function registerZone (input: DropZoneTicketInput<K>): DropZoneTicket {
     const id = input.id ?? useId()
-    const elRef = toRef(() => toValue(input.el))
-    const isOverRef = toRef(() => active.value?.over === id)
-    const willAcceptRef = toRef(() => willZoneAccept(input.accept, active.value))
-    // computed (not toRef) — caches across reactive reads to avoid layout
-    // reflow per access. Each indicator read calls getBoundingClientRect on
-    // every child, which is expensive; without caching this is O(N children)
-    // per `active.value` reactive read.
-    const indicatorRef = computed<DropIndicator | null>(() => {
-      if (!input.orientation || !isOverRef.value || !active.value) return null
-      const zoneEl = elRef.value
+    const el = toRef(() => toValue(input.el))
+    const isOver = toRef(() => active.value?.over === id)
+    const willAccept = toRef(() => willZoneAccept(input.accept, active.value))
+    // computed (not toRef) — caches getBoundingClientRect calls so each
+    // active.value read isn't O(N children).
+    const indicator = computed<DropIndicator | null>(() => {
+      if (!input.orientation || !isOver.value || !active.value) return null
+      const zoneEl = el.value
       if (!zoneEl) return null
-      const childRects = Array.from(zoneEl.children).map(c => c.getBoundingClientRect())
+      const childRects = Array.from(zoneEl.children).map(child => child.getBoundingClientRect())
       return resolveDropPosition(active.value.current, childRects, input.orientation)
     })
-    const attrsRef = toRef(() => buildZoneAttrs(isOverRef.value, willAcceptRef.value))
+    const attrs = toRef(() => {
+      const out: Record<string, unknown> = { 'data-dropzone': '' }
+      if (isOver.value) out['data-over'] = ''
+      if (isOver.value && willAccept.value) out['data-accepts'] = ''
+      return out
+    })
 
     const decorated = {
       ...input,
       id,
-      el: elRef,
-      isOver: isOverRef,
-      willAccept: willAcceptRef,
-      indicator: indicatorRef,
-      attrs: attrsRef,
+      el,
+      isOver,
+      willAccept,
+      indicator,
+      attrs,
     } as Partial<DropZoneTicketInput<K> & DropZoneTicket>
 
     return baseZones.register(decorated) as DropZoneTicket
@@ -273,59 +266,40 @@ export function useDragDrop<K extends DragType = DragType> (
     register: registerZone,
   }
 
-  function cancel (): void {
-    handleCancel()
-  }
-
-  function hitTest (point: { x: number, y: number }): ID | null {
+  function findZone (point: { x: number, y: number }): ID | null {
     if (!IN_BROWSER) return null
-    let el: Element | null = document.elementFromPoint(point.x, point.y)
-    while (el) {
+    let element: Element | null = document.elementFromPoint(point.x, point.y)
+    while (element) {
       for (const zone of baseZones.values()) {
-        if (zone.el.value === el) return zone.id
+        if (zone.el.value === element) return zone.id
       }
-      el = el.parentElement
+      element = element.parentElement
     }
     return null
   }
 
-  // Registry `.get()` returns the output ticket type, but the registered object
-  // includes the spread input fields at runtime. Cast to the intersection to access hooks.
-  function getDraggableInput (id: ID): (DraggableTicketInput<K> & DraggableTicket<K>) | undefined {
+  // .get() returns the output type; spread keeps input hooks at runtime, cast to read them.
+  function getDraggable (id: ID): (DraggableTicketInput<K> & DraggableTicket<K>) | undefined {
     return baseDraggables.get(id) as (DraggableTicketInput<K> & DraggableTicket<K>) | undefined
   }
 
-  function getZoneInput (id: ID): (DropZoneTicketInput<K> & DropZoneTicket) | undefined {
+  function getZone (id: ID): (DropZoneTicketInput<K> & DropZoneTicket) | undefined {
     return baseZones.get(id) as (DropZoneTicketInput<K> & DropZoneTicket) | undefined
   }
 
-  function willZoneAcceptById (zoneId: ID, drag: ActiveDrag<K>): boolean {
-    return willZoneAccept(getZoneInput(zoneId)?.accept, drag)
-  }
-
-  function fireZoneHook (
-    zoneId: ID,
-    hook: 'onEnter' | 'onLeave',
-    drag: ActiveDrag<K>,
-  ): void {
-    getZoneInput(zoneId)?.[hook]?.(drag)
-  }
-
-  function computeDropPosition (zoneId: ID, drag: ActiveDrag<K>): DropPosition {
-    const zone = getZoneInput(zoneId)
+  function dropPositionFor (zoneId: ID, drag: ActiveDrag<K>): DropPosition {
+    const zone = getZone(zoneId)
     const out: DropPosition = { pointer: drag.current }
     if (zone?.orientation && zone.el) {
       const zoneEl = toValue(zone.el)
       if (zoneEl) {
-        const rects = Array.from(zoneEl.children).map(c => c.getBoundingClientRect())
+        const rects = Array.from(zoneEl.children).map(child => child.getBoundingClientRect())
         const resolved = resolveDropPosition(drag.current, rects, zone.orientation)
         if (resolved) {
           out.index = resolved.index
           out.indicator = resolved
         } else {
-          // Oriented zone with no children — only sensible drop position is 0.
-          // No indicator (nothing to point at), but the index lets consumers
-          // splice the item in without their own fallback.
+          // Empty oriented zone — index 0 with no indicator so consumers can splice without a fallback.
           out.index = 0
         }
       }
@@ -333,16 +307,16 @@ export function useDragDrop<K extends DragType = DragType> (
     return out
   }
 
-  function runCancelChain (drag: ActiveDrag<K>): void {
-    if (drag.over !== null) fireZoneHook(drag.over, 'onLeave', drag)
+  function cancelDrag (drag: ActiveDrag<K>, reason: 'cancel' | 'reject' = 'cancel'): void {
+    if (!isNull(drag.over)) getZone(drag.over)?.onLeave?.(drag)
 
-    getDraggableInput(drag.id)?.onCancel?.(drag)
-    options.onCancel?.(drag)
+    getDraggable(drag.id)?.onCancel?.(drag, reason)
+    options.onCancel?.(drag, reason)
 
     active.value = null
   }
 
-  function handleStart (
+  function onStart (
     source: DraggableTicket<K>,
     origin: { x: number, y: number },
     via: Extensible<'pointer' | 'keyboard'>,
@@ -359,57 +333,55 @@ export function useDragDrop<K extends DragType = DragType> (
       via,
     } as ActiveDrag<K>
 
-    if (getDraggableInput(source.id)?.onBeforeStart?.(draft) === false) return
+    if (getDraggable(source.id)?.onBeforeStart?.(draft) === false) return
     if (options.onBeforeStart?.(draft) === false) return
 
     active.value = draft
   }
 
-  function handleMove (point: { x: number, y: number }): void {
+  function onMove (point: { x: number, y: number }): void {
     if (!active.value) return
 
-    const overZoneId = hitTest(point)
+    const overZoneId = findZone(point)
     const next: ActiveDrag<K> = {
       ...active.value,
       current: point,
       delta: { x: point.x - active.value.origin.x, y: point.y - active.value.origin.y },
       over: overZoneId,
-      willAccept: overZoneId !== null && willZoneAcceptById(overZoneId, active.value),
+      willAccept: !isNull(overZoneId) && willZoneAccept(getZone(overZoneId)?.accept, active.value),
     } as ActiveDrag<K>
 
     const previousOver = active.value.over
     active.value = next
 
-    getDraggableInput(next.id)?.onMove?.(next)
-    options.onMove?.(next)
-
     if (previousOver !== overZoneId) {
-      if (previousOver !== null) fireZoneHook(previousOver, 'onLeave', next)
-      if (overZoneId !== null) fireZoneHook(overZoneId, 'onEnter', next)
+      if (!isNull(previousOver)) getZone(previousOver)?.onLeave?.(next)
+      if (!isNull(overZoneId)) getZone(overZoneId)?.onEnter?.(next)
     }
+
+    getDraggable(next.id)?.onMove?.(next)
+    options.onMove?.(next)
   }
 
-  function handleDrop (): void {
+  function onDrop (): void {
     if (!active.value) return
     const drag = active.value
     const zoneId = drag.over
 
-    // Drop with no over-zone is a cancel — fire the chain instead of clearing
-    // active silently. Consumers using `onCancel` for state rollback expect
-    // this notification.
-    if (zoneId === null) {
-      runCancelChain(drag)
+    // Drop with no over-zone fires the cancel chain so onCancel rollback fires.
+    if (isNull(zoneId)) {
+      cancelDrag(drag)
       return
     }
 
-    const position = computeDropPosition(zoneId, drag)
-    const zone = getZoneInput(zoneId)
+    const position = dropPositionFor(zoneId, drag)
+    const zone = getZone(zoneId)
 
     const zoneVeto = zone?.onBeforeDrop?.(drag, position) === false
     const globalVeto = options.onBeforeDrop?.(drag, position) === false
 
     if (zoneVeto || globalVeto) {
-      runCancelChain(drag)
+      cancelDrag(drag, 'reject')
       return
     }
 
@@ -419,14 +391,14 @@ export function useDragDrop<K extends DragType = DragType> (
     active.value = null
   }
 
-  function handleCancel (): void {
+  function cancel (): void {
     if (!active.value) return
-    runCancelChain(active.value)
+    cancelDrag(active.value)
   }
 
   // active is structurally identical to ShallowRef<ActiveDrag<K> | null> but
   // distributive conditional types are invariant in unresolved positions.
-  const ctx: DragDropContext<K> = {
+  const context: DragDropContext<K> = {
     draggables,
     zones,
     active: active as Readonly<ShallowRef<ActiveDrag<K> | null>>,
@@ -436,28 +408,33 @@ export function useDragDrop<K extends DragType = DragType> (
 
   const disposers: (() => void)[] = []
 
-  const adapters = options.adapters ?? [pointerAdapter<K>(), keyboardAdapter<K>()]
+  const adapters = options.adapters ?? [new PointerAdapter<K>(), new KeyboardAdapter<K>()]
 
   const emit: DragDropAdapterEmit<K> = {
-    start: (source, origin, via) => handleStart(source, origin, via),
-    move: point => handleMove(point),
-    drop: () => handleDrop(),
-    cancel: () => handleCancel(),
+    start: (source, origin, via) => onStart(source, origin, via),
+    move: point => onMove(point),
+    drop: () => onDrop(),
+    cancel: () => cancel(),
   }
 
+  const adapterContext: DragDropAdapterContext<K> = { ...context, emit }
+
   for (const adapter of adapters) {
-    adapter.install(ctx, emit)
-    disposers.push(() => adapter.uninstall())
+    adapter.setup(adapterContext)
+    disposers.push(() => adapter.dispose())
   }
 
   for (const plugin of plugins) {
-    const dispose = plugin(ctx)
+    const dispose = plugin(context)
     if (isFunction(dispose)) disposers.push(dispose)
   }
 
   onScopeDispose(() => {
     for (const dispose of disposers) dispose()
+    baseDraggables.dispose()
+    baseZones.dispose()
+    active.value = null
   })
 
-  return ctx
+  return context
 }
