@@ -25,7 +25,7 @@
   /** Ticket for radio items with element reference for focus management */
   export interface RadioTicket extends SingleTicket {
     /** Element reference for roving tabindex focus management */
-    el?: MaybeRefOrGetter<HTMLElement | null | undefined>
+    el?: MaybeRefOrGetter<Element | null | undefined>
   }
 
   /** Activation mode alias for Radio component API */

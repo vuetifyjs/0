@@ -16,6 +16,9 @@
   // Composables
   import { createContext } from '#v0/composables/createContext'
 
+  // Transformers
+  import { toElement } from '#v0/composables/toElement'
+
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
   import type { ID } from '#v0/types'
@@ -198,9 +201,7 @@
   const name = _name ?? group.name
 
   // Register with parent group (el ref for focus management)
-  // Vue auto-unwraps exposed refs when accessed via template ref,
-  // but TypeScript doesn't reflect this - cast corrects the type
-  const el = toRef(() => (rootRef.value?.element as HTMLElement | null | undefined) ?? undefined)
+  const el = toRef(() => toElement(rootRef.value?.element) ?? undefined)
   const ticket = group.register({ id, value, disabled, el })
 
   const isChecked = toRef(() => toValue(ticket.isSelected))
@@ -261,7 +262,7 @@
     if (group.activation.value === 'automatic') {
       nextItem.select()
     }
-    toValue(nextItem.el)?.focus()
+    (toValue(nextItem.el) as HTMLElement | undefined)?.focus()
   }
 
   onBeforeUnmount(() => {
