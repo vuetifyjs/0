@@ -96,7 +96,7 @@
       'type': 'button' | undefined
       'role': 'button'
       'disabled': true | undefined
-      'aria-disabled': true | undefined
+      'aria-disabled': boolean
       'aria-busy': true | undefined
       'aria-pressed': boolean | undefined
       'aria-label': string | undefined
@@ -209,7 +209,7 @@
     'type': as === 'button' ? 'button' : undefined,
     'role': 'button',
     'disabled': isDisabled.value ? true : undefined,
-    'aria-disabled': isPassive.value ? true : undefined,
+    'aria-disabled': isDisabled.value || isPassive.value,
     'aria-busy': isLoading.value ? true : undefined,
     'aria-pressed': group ? isSelected.value : undefined,
     'aria-label': ariaLabel || (isSolo.value ? locale.t('Button.label') : undefined),
