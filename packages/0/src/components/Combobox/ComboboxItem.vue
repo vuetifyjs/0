@@ -53,7 +53,7 @@
       'id': string
       'role': 'option'
       'aria-selected': boolean
-      'aria-disabled': boolean | undefined
+      'aria-disabled': boolean
       'data-selected': true | undefined
       'data-highlighted': '' | undefined
       'data-disabled': true | undefined
@@ -106,7 +106,7 @@
       'id': elementId,
       'role': 'option',
       'aria-selected': isSelected.value,
-      'aria-disabled': isDisabled.value || undefined,
+      'aria-disabled': isDisabled.value,
       'data-selected': isSelected.value || undefined,
       'data-highlighted': isHighlighted.value ? '' : undefined,
       'data-disabled': isDisabled.value || undefined,

@@ -929,7 +929,7 @@ describe('combobox', () => {
 
       expect(apple.attrs.role).toBe('option')
       expect(apple.attrs['aria-selected']).toBe(false)
-      expect(apple.attrs['aria-disabled']).toBeUndefined()
+      expect(apple.attrs['aria-disabled']).toBe(false)
 
       expect(banana.attrs.role).toBe('option')
       expect(banana.attrs['aria-disabled']).toBe(true)
