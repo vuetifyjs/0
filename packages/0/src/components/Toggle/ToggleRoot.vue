@@ -55,7 +55,7 @@
     attrs: {
       'type': 'button' | undefined
       'aria-pressed': boolean
-      'aria-disabled': boolean | undefined
+      'aria-disabled': boolean
       'tabindex': 0 | undefined
       'data-state': 'on' | 'off'
       'data-disabled': true | undefined
@@ -170,7 +170,7 @@
     attrs: {
       'type': as === 'button' ? 'button' : undefined,
       'aria-pressed': isPressed.value,
-      'aria-disabled': isDisabled.value || undefined,
+      'aria-disabled': isDisabled.value,
       'tabindex': isDisabled.value ? undefined : 0,
       'data-state': isPressed.value ? 'on' : 'off',
       'data-disabled': isDisabled.value ? true : undefined,
