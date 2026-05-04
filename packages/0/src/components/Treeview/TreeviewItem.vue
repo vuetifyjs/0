@@ -21,6 +21,9 @@
   // Utilities
   import { onBeforeUnmount, shallowRef, toRef, toValue, useTemplateRef } from 'vue'
 
+  // Transformers
+  import { toElement } from '#v0/composables/toElement'
+
   // Types
   import type { AtomExpose } from '#v0/components/Atom'
   import type { NestedTicket } from '#v0/composables/createNested'
@@ -55,9 +58,7 @@
   const nested = useTreeviewRoot(namespace)
   const rootRef = useTemplateRef<AtomExpose>('root')
 
-  // Vue auto-unwraps exposed refs when accessed via template ref,
-  // but TypeScript doesn't reflect this - cast corrects the type
-  const el = toRef(() => (rootRef.value?.element as HTMLElement | null | undefined) ?? undefined)
+  const el = toRef(() => toElement(rootRef.value?.element) ?? undefined)
 
   // Get parent item context for implicit nesting (null if root-level)
   const parent = useTreeviewItem(namespace, null)
