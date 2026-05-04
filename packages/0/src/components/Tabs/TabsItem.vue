@@ -28,6 +28,9 @@
   // Utilities
   import { mergeProps, nextTick, onBeforeUnmount, toRef, toValue, useAttrs, useTemplateRef } from 'vue'
 
+  // Transformers
+  import { toElement } from '#v0/composables/toElement'
+
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
   import type { ID } from '#v0/types'
@@ -105,9 +108,7 @@
 
   const tabs = useTabsRoot(namespace)
 
-  // Vue auto-unwraps exposed refs when accessed via template ref,
-  // but TypeScript doesn't reflect this - cast corrects the type
-  const el = toRef(() => (rootRef.value?.element as HTMLElement | null | undefined) ?? undefined)
+  const el = toRef(() => toElement(rootRef.value?.element) ?? undefined)
   const ticket = tabs.register({ id, value, disabled, el })
 
   const isDisabled = toRef(() => toValue(ticket.disabled) || toValue(tabs.disabled))
@@ -123,7 +124,7 @@
     nextTick(() => {
       const selected = tabs.selectedItem.value
       if (selected) {
-        toValue(selected.el)?.focus()
+        (toValue(selected.el) as HTMLElement | undefined)?.focus()
       }
     })
   }
@@ -145,7 +146,7 @@
       }
       const item = all[index]
       if (item && !toValue(item.disabled)) {
-        nextTick(() => toValue(item.el)?.focus())
+        nextTick(() => (toValue(item.el) as HTMLElement | undefined)?.focus())
         return
       }
       index += direction
@@ -155,7 +156,7 @@
 
   function focusEdge (edge: 'first' | 'last') {
     const item = tabs.seek(edge)
-    if (item) nextTick(() => toValue(item.el)?.focus())
+    if (item) nextTick(() => (toValue(item.el) as HTMLElement | undefined)?.focus())
   }
 
   function onKeydown (e: KeyboardEvent) {
