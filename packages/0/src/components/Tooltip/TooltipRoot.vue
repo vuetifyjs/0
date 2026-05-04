@@ -21,6 +21,7 @@
   import { useTooltip } from '#v0/composables/useTooltip'
 
   // Utilities
+  import { isUndefined } from '#v0/utilities'
   import { onBeforeUnmount, shallowRef, toRef, watch } from 'vue'
 
   // Types
@@ -91,7 +92,7 @@
   const isDisabled = toRef(() => disabled || region.disabled.value)
   const isInteractive = toRef(() => interactive)
 
-  const isOpen: Ref<boolean> = model.value === undefined
+  const isOpen: Ref<boolean> = isUndefined(model.value)
     ? shallowRef(defaultOpen)
     : (model as Ref<boolean>)
 
@@ -130,17 +131,17 @@
   let ticketId: ID | undefined
 
   watch(isOpen, value => {
-    if (value && ticketId === undefined) {
+    if (value && isUndefined(ticketId)) {
       const ticket = region.register({ id: popover.id })
       ticketId = ticket.id
-    } else if (!value && ticketId !== undefined) {
+    } else if (!value && !isUndefined(ticketId)) {
       region.unregister(ticketId)
       ticketId = undefined
     }
   }, { immediate: true })
 
   onBeforeUnmount(() => {
-    if (ticketId !== undefined) region.unregister(ticketId)
+    if (!isUndefined(ticketId)) region.unregister(ticketId)
   })
 
   const dataState = toRef((): 'open' | 'closed' | 'delayed-open' | 'instant-open' => {
