@@ -197,6 +197,7 @@ export function useClickOutside (
 
   let initialTarget: EventTarget | null = null
   let startPosition = { x: 0, y: 0 }
+  let startedOutsideBounds = false
   let cleanupPointerDown: (() => void) | undefined
   let cleanupPointerUp: (() => void) | undefined
   let cleanupBlur: (() => void) | undefined
@@ -315,6 +316,10 @@ export function useClickOutside (
 
     initialTarget = event.composedPath()[0] ?? event.target
     startPosition = { x: event.clientX, y: event.clientY }
+    // Resolve bounds at pointerdown time — comparing later against a possibly
+    // scrolled getBoundingClientRect would compare frozen viewport coords
+    // against a shifted rect. https://github.com/vuetifyjs/0/issues/...
+    startedOutsideBounds = bounds ? isOutsideBounds(event.clientX, event.clientY) : false
   }
 
   /**
@@ -340,7 +345,7 @@ export function useClickOutside (
     }
 
     const clickIsOutside = bounds
-      ? isOutsideBounds(startPosition.x, startPosition.y) && isOutsideBounds(event.clientX, event.clientY)
+      ? startedOutsideBounds && isOutsideBounds(event.clientX, event.clientY)
       : isOutside(pointerdownTarget) && isOutside(pointerupTarget)
 
     if (clickIsOutside && !shouldIgnore(path)) {
