@@ -650,6 +650,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/composables/system/use-delay': RouteRecordInfo<
+      '/composables/system/use-delay',
+      '/composables/system/use-delay',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/composables/system/use-event-listener': RouteRecordInfo<
       '/composables/system/use-event-listener',
       '/composables/system/use-event-listener',
@@ -1579,6 +1586,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/system/use-click-outside.md': {
       routes:
         | '/composables/system/use-click-outside'
+      views:
+        | never
+    }
+    'src/pages/composables/system/use-delay.md': {
+      routes:
+        | '/composables/system/use-delay'
       views:
         | never
     }
