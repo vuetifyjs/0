@@ -411,7 +411,7 @@ describe('select', () => {
         ],
       })
 
-      expect(itemSlotProps.value.Apple.attrs['aria-disabled']).toBeUndefined()
+      expect(itemSlotProps.value.Apple.attrs['aria-disabled']).toBe(false)
       expect(itemSlotProps.value.Banana.attrs['aria-disabled']).toBe(true)
     })
 
