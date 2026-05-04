@@ -133,7 +133,7 @@
       'type': 'button' | undefined
       'role': 'radio'
       'aria-checked': boolean
-      'aria-disabled': boolean | undefined
+      'aria-disabled': boolean
       'aria-label': string | undefined
       'aria-labelledby': string | undefined
       'aria-describedby': string | undefined
@@ -293,7 +293,7 @@
       'type': as === 'button' ? 'button' : undefined,
       'role': 'radio',
       'aria-checked': isChecked.value,
-      'aria-disabled': isDisabled.value || undefined,
+      'aria-disabled': isDisabled.value,
       'aria-label': label || undefined,
       'aria-labelledby': ariaLabelledby || undefined,
       'aria-describedby': ariaDescribedby || undefined,
