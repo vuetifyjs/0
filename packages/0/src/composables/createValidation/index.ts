@@ -159,7 +159,7 @@ export function createValidation (_options: ValidationOptions = {}): ValidationC
 
     try {
       const results = await Promise.all(activeRules.map(rule => rule(val)))
-      if (gen !== generation) return isValid.value ?? false
+      if (gen !== generation) return false
 
       const errorMessages = results
         .filter(result => isString(result) || result === false)
@@ -172,7 +172,7 @@ export function createValidation (_options: ValidationOptions = {}): ValidationC
 
       return errorMessages.length === 0
     } catch (error) {
-      if (gen !== generation) return isValid.value ?? false
+      if (gen !== generation) return false
 
       if (!silent) {
         errors.value = [error instanceof Error ? error.message : 'Validation error']
