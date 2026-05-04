@@ -1,5 +1,5 @@
 ---
-paths: apps/docs/**
+paths: ['apps/docs/**']
 ---
 
 # Documentation Pages
@@ -12,6 +12,8 @@ Scope-specific mechanics for `apps/docs/**`. Covers page types, frontmatter, int
 - §3.5 Slot conventions (`v-bind="attrs"` double-fire hazard)
 - §3.6 Boolean data attributes (data-driven examples)
 - §5.5 Locale-first strings
+
+Cross-cutting authoring patterns (data-attribute styling in examples, composable-instance naming, renderless toggle) are defined in `components.md` and `composables.md` — this file scopes to docs-page mechanics only.
 
 ## Page Types
 
@@ -103,7 +105,7 @@ Adapters let you swap the underlying implementation without changing your applic
 2. `<DocsPageFeatures :frontmatter />` — badges from frontmatter
 3. `<DocsBrowserSupport>` — optional, for native API features
 4. **Usage** — brief intro + code fence (not a live example)
-5. **Anatomy** — Vue template tree in `` ```vue playground collapse `` ``. Component-tree shells only — bare `<Component.Sub />` elements showing the available compound surface. **No** `data` arrays, `v-for`, props beyond `:as`, slot variables, or runtime values. The runnable preview comes from Examples; Anatomy is a structural map. Reference: `pages/components/disclosure/expansion-panel.md`. [intent:345]
+5. **Anatomy** — Vue template tree in `` ```vue Anatomy playground `` `` (preferred) or `` ```vue playground `` `` (acceptable). Wrap a `<script setup lang="ts">` block that imports the component(s) so the playground link compiles cleanly, then render the component-tree shell — bare `<Component.Sub />` elements showing the available compound surface. Prefer structural shells with no runtime values, but real props are acceptable when they clarify the surface (e.g., `<ExpansionPanel.Group multiple>`). The runnable preview comes from Examples; Anatomy is the structural map. Reference: `pages/components/disclosure/expansion-panel.md`. [intent:345]
 
 > **Usage** accepts either form below — pick based on what the section needs to do:
 > - `::: example` with the `basic` file (no extension) when a runnable demo is enough on its own. Dominant practice. Example: `pages/components/semantic/breadcrumbs.md`.
@@ -120,7 +122,7 @@ Adapters let you swap the underlying implementation without changing your applic
 | Section | Component pages | Composable pages |
 |---------|----------------|-----------------|
 | **Usage** | `::: example` with `basic` (no extension) **or** code fence + prose when the page needs explanatory text before the demo [intent:302] | `` ```ts collapse `` `` code fence [intent:302] |
-| **Anatomy** | `` ```vue playground collapse `` `` — component-tree shells only [intent:345] | — |
+| **Anatomy** | `` ```vue Anatomy playground `` `` (preferred) or `` ```vue playground `` `` — `<script setup>` import + component-tree shell [intent:345] | — |
 | **Examples** | `::: example` with 2+ files [intent:304] | `::: example` with 2+ files [intent:304] |
 | **Recipes** | Code fence or single-file `::: example` [intent:303] | Code fence or single-file `::: example` [intent:303] |
 
@@ -222,13 +224,6 @@ Built on [`createOverflow`](/composables/semantic/create-overflow).
 Built on [createOverflow](/composables/semantic/create-overflow).
 ```
 
-Existing violations (sweep candidate, not blocking):
-
-- `apps/docs/src/pages/components/forms/select.md:137` — header
-- `apps/docs/src/pages/composables/index.md:182, 192` — headers
-- `apps/docs/src/pages/introduction/why-vuetify0.md:158` — link text
-- `apps/docs/src/pages/composables/foundation/create-trinity.md:87` — link text
-
 ## Markdown Directives
 
 | Syntax | Purpose |
@@ -290,41 +285,31 @@ Ask: **"What must the reader already know to use this page?"**
 
 | Category | Components |
 |----------|-----------|
-| `disclosure` | Dialog, ExpansionPanel, Popover, Tabs |
-| `forms` | Checkbox, Switch, Radio, Slider, Select |
-| `primitives` | Atom |
-| `semantic` | Avatar, Pagination, Breadcrumbs |
-| `providers` | (context providers) |
+| `actions` | Button, Toggle |
+| `disclosure` | AlertDialog, Collapsible, Dialog, ExpansionPanel, Popover, Tabs, Treeview |
+| `forms` | Checkbox, Combobox, Form, Input, NumberField, Radio, Rating, Select, Slider, Switch |
+| `primitives` | AspectRatio, Atom, Portal, Presence |
+| `providers` | Group, Locale, Scrim, Selection, Single, Step, Theme |
+| `semantic` | Avatar, Breadcrumbs, Carousel, Image, Overflow, Pagination, Progress, Snackbar, Splitter |
 
 ## Composable Categories [intent:218]
 
 | Category | Composables |
 |----------|------------|
-| `foundation` | createContext, createTrinity, createPlugin |
-| `registration` | createRegistry, createTokens |
-| `selection` | createSelection, createSingle, createGroup, createStep |
-| `forms` | createForm |
-| `plugins` | useTheme, useLocale, useLogger, useFeatures, usePermissions |
-| `system` | useBreakpoints, useMediaQuery, useStorage, useHydration |
-| `utilities` | useEventListener, useHotkey, useClickOutside, useLazy |
-| `reactivity` | useToggleScope, useProxyModel |
-| `transformers` | toReactive, toArray |
+| `data` | createDataTable, createFilter, createPagination, createVirtual |
+| `forms` | createCombobox, createForm, createInput, createNumberField, createNumeric, createRating, createSlider, createValidation |
+| `foundation` | createContext, createPlugin, createTrinity |
+| `plugins` | useBreakpoints, useDate, useFeatures, useHydration, useLocale, useLogger, useNotifications, usePermissions, useRtl, useRules, useStack, useStorage, useTheme |
+| `reactivity` | useProxyModel, useProxyRegistry |
+| `registration` | createQueue, createRegistry, createTimeline, createTokens |
+| `selection` | createGroup, createModel, createNested, createSelection, createSingle, createStep |
+| `semantic` | createBreadcrumbs, createOverflow, createProgress |
+| `system` | useClickOutside, useDelay, useEventListener, useHotkey, useImage, useIntersectionObserver, useLazy, useMediaQuery, useMutationObserver, usePopover, usePresence, useRaf, useResizeObserver, useRovingFocus, useTimer, useToggleScope, useVirtualFocus |
+| `transformers` | toArray, toElement, toReactive |
 
 ## Auditing
 
 When auditing docs or specs, read the rules file **line-by-line** and build a per-rule checklist first. Don't work from memory. [intent:267] Don't document "advanced" or "override" patterns without verifying they work in source. [intent:268]
-
-## Nav emphasis
-
-Internal nav links render a 5-level heatmap dot that reflects how recent the page's last git commit is. Levels bucket by age: 1 = ≤7d (fresh green), 2 = ≤30d, 3 = ≤90d, 4 = ≤180d, 5 = >180d (overripe brown). The badge calls `scoreToColor` from `@/composables/useFreshness` after mapping `emphasized` (1–5) → score (100, 75, 50, 25, 0), so it shares the avocado palette used on `/health`. Only level 1 is shown by default; enabling the global `devmode` feature shows all levels on every internal link. Manual `features.emphasized: true` still forces level 1. [intent:343]
-
-## Random tips
-
-Empty `> [!TIP]` callouts are filled from a curated random pool at render time. Tip bodies render through the same markdown pipeline as doc pages (`md.renderInline`). [intent:340, intent:341]
-
-## Docs example reset
-
-The multi-file toolbar exposes a reset button that remounts the preview. Single-file examples do not have it. [intent:342]
 
 ## Playground — the interactive browser editor
 
@@ -422,7 +407,7 @@ Real worked examples:
 ## Checklist
 
 - [ ] Page path matches `{type}/{category}/{name}.md` with correct label prefix
-- [ ] Frontmatter has title, meta (2-space indent), features (with level), related
+- [ ] Frontmatter has title, meta (`- name:` at column 0), features (with level), related
 - [ ] Intro is 1-2 sentences, user-facing, no internal composable names
 - [ ] Component pages follow 11-section structure; composable pages follow 10-section structure
 - [ ] Adapter composables have Adapters section with table and custom-adapter example

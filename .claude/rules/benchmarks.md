@@ -1,5 +1,5 @@
 ---
-paths: packages/0/src/**/*.bench.ts
+paths: ['packages/0/src/**/*.bench.ts']
 ---
 
 # Benchmark Standards
@@ -22,6 +22,31 @@ packages/0/src/composables/createRegistry/
 └── index.bench.ts
 ```
 
+## File Header & Wrapper
+
+Every bench file starts with a `@fileoverview`-style JSDoc block describing structure, dataset coverage, and category list, then wraps every `describe` block in an outer `describe('{name} benchmarks', …)`. Used in every composable bench file.
+
+```ts
+/**
+ * createRegistry Performance Benchmarks
+ *
+ * Structure:
+ * - READ-ONLY operations use shared fixtures (safe, isolates operation cost)
+ * - MUTATION operations create fresh fixtures per iteration (includes setup cost)
+ * - Tests both 1,000 and 10,000 item datasets
+ * - Categories: initialization, lookup, mutation, batch, computed access, seek
+ */
+
+import { bench, describe } from 'vitest'
+
+// ... fixtures ...
+
+describe('createRegistry benchmarks', () => {
+  describe('initialization', () => { /* ... */ })
+  describe('lookup operations', () => { /* ... */ })
+})
+```
+
 ## Fixture Isolation (critical)
 
 Separate read-only operations from mutations so measurements are accurate. [intent:234]
@@ -41,6 +66,8 @@ describe('lookup operations', () => {
   })
 })
 ```
+
+Both placements are in active use: in-describe (above, as in `createRegistry/index.bench.ts`) and module-level above the outer `describe` (as in `createSelection/index.bench.ts` and `createFilter/index.bench.ts`). Pick whichever scopes the fixture closest to the consumers; module-level is preferred when several `describe` blocks share the same data.
 
 Safe for shared fixtures:
 - Map/Set lookups (get, has, browse)
@@ -71,7 +98,7 @@ Fresh fixtures include setup cost; document it in the category comment.
 
 ## TypeScript Requirements
 
-Fixtures must have explicit types. [intent:237]
+Fixtures must have explicit types. The `BenchmarkItem` shape (`{ id: string; value: string }`) and the `ITEMS_1K` / `ITEMS_10K` / `LOOKUP_ID_1K` / `LOOKUP_ID_10K` constant names are the conventions across every composable bench file — reuse them so cross-file diff and review stays uniform. [intent:237]
 
 ```ts collapse
 interface BenchmarkItem {
@@ -143,7 +170,7 @@ Standard operation names that all bench files must use. Enables cross-composable
 | initialization | Onboard | `Onboard {N} items` | O(n) |
 | lookup | Get by id | `Get by id ({N} items)` | O(1) |
 | lookup | Lookup by index | `Lookup by index ({N} items)` | O(1) |
-| lookup | Browse by value | `Browse by value ({N} items)` | O(1) |
+| lookup | Browse by value | `Browse by value ({N} items)` | O(n) |
 | lookup | Check has | `Check has ({N} items)` | O(1) |
 | mutation | Register | `Register single item ({N} items)` | O(1) |
 | mutation | Unregister | `Unregister single item ({N} items)` | O(1) |
@@ -172,7 +199,7 @@ Domain-specific operations are allowed but must follow the same `{Verb} {target}
 
 ## Required Categories
 
-Each file must cover at least 3:
+Each file must cover at least 3. The names below are the **standard** categories — they drive cross-composable comparison in the metrics pipeline, so reuse them when a benchmark fits.
 
 | Category | Description | Fixture Type |
 |----------|-------------|--------------|
@@ -182,6 +209,8 @@ Each file must cover at least 3:
 | `batch operations` | Bulk actions | Fresh |
 | `computed access` | Derived value reads | Shared |
 | `seek operations` | Directional search | Shared |
+
+Domain-specific categories are allowed when the standard set doesn't fit, as long as the name follows the lowercase `{verb} {target}` shape. Examples in source: `traversal operations` and `selection mode comparison` (createNested), `primitive filtering`, `object filtering`, `filter modes`, `native comparison` (createFilter), `search pipeline`, `sort pipeline`, `grouping`, `full pipeline`, `adapter comparison` (createDataTable).
 
 ## Dataset Guidelines
 
@@ -216,10 +245,12 @@ Each benchmark gets its own tier. The `_fastest` and `_slowest` summaries surfac
 
 ### Complexity Detection
 
-Auto-detected from benchmark names:
-- `single item` / `single query` / `one item` → O(1)
-- `1,000 items` / `all items` / `all keys` → O(n)
-- `nested` / `recursive` → O(n²)
+Auto-detected from benchmark names by `scripts/generate-metrics.js`:
+- `nested` / `recursive` / `all.*all` → O(n²)
+- `{N} items` / `{N} objects` / `{N} entries` / `{N} elements` (any digit-and-noun pair) → O(n)
+- `all items` / `all keys` → O(n)
+- `single` / `one item` / `one query` / `one key` → O(1)
+- Default fallback → O(n)
 
 ## Mocking
 
@@ -246,15 +277,20 @@ Don't mock pure logic — let it run. Mocking too aggressively defeats the purpo
 ## Running Benchmarks
 
 ```bash
-# Single file
-pnpm vitest bench packages/0/src/composables/createRegistry/index.bench.ts
+# All benchmarks (canonical, used by CI)
+pnpm test:bench
 
-# All benchmarks
-pnpm vitest bench
+# All benchmarks, JSON output to apps/docs/public/benchmarks.json
+pnpm test:bench:json
 
-# Generate metrics
+# Watch mode while iterating on a bench file
+pnpm bench
+
+# Generate metrics.json (runs coverage + bench:json + scripts/generate-metrics.js)
 pnpm metrics
 ```
+
+To narrow to a single file, append the path: `pnpm test:bench packages/0/src/composables/createRegistry/index.bench.ts`.
 
 ## Reference Implementation
 

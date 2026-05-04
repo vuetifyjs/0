@@ -1,5 +1,5 @@
 ---
-paths: packages/0/src/**
+paths: ['packages/0/src/**']
 ---
 
 # Implementation Patterns
@@ -56,7 +56,7 @@ Before writing a new helper, check `#v0/utilities`. Available today:
 | `clamp(value, min, max)` | Clamp number to range |
 | `range(length, start)` | Create sequential number array |
 
-All helpers carry `#__NO_SIDE_EFFECTS__` and are tree-shakeable. Never add a new utility that introduces a top-level side effect — the barrel cannot absorb it. [PHILOSOPHY §2.7]
+All helpers carry `/* #__NO_SIDE_EFFECTS__ */` and are tree-shakeable. Module-level allocating constants (e.g., a top-level `new Set([...])`) carry `/* @__PURE__ */` instead — see `utilities/helpers.ts` (the `UNSAFE_KEYS` set) and `utilities/instance.ts` (the `INSTANCE_KEY` literal) for the placement convention. Never add a new utility that introduces a top-level side effect — the barrel cannot absorb it. [PHILOSOPHY §2.7]
 
 ## Ticket Pattern (PHILOSOPHY §6.2)
 
@@ -78,10 +78,11 @@ Base interface (see `packages/0/src/composables/createRegistry/index.ts`):
 
 ```ts
 interface RegistryTicket {
-  id: ID               // Unique (auto-generated via useId())
-  index: number        // Position in registry
-  value: unknown       // Associated value (unknown, narrowed at use site)
-  valueIsIndex: boolean // True if value wasn't explicitly set
+  id: ID                  // Unique (auto-generated via useId())
+  index: number           // Position in registry
+  value: unknown          // Associated value (unknown, narrowed at use site)
+  valueIsIndex: boolean   // True if value wasn't explicitly set
+  unregister: () => void  // Sugar for registry.unregister(ticket.id)
 }
 ```
 
@@ -92,9 +93,9 @@ interface RegistryTicket {
 | `ModelTicket` | `disabled`, `isSelected: Readonly<Ref<boolean>>` |
 | `SelectionTicket` | `select()`, `unselect()`, `toggle()` |
 | `GroupTicket` | `isMixed: Readonly<Ref<boolean>>`, `mix()`, `unmix()`, `indeterminate` |
-| `NestedTicket` | `isOpen`, `isActive`, `isLeaf`, `depth`, tree traversal methods |
+| `NestedTicket` | `parentId`, `el`, `isOpen`, `isActive`, `isLeaf`, `depth`, plus `open()` / `close()` / `flip()` / `reveal()` / `activate()` / `deactivate()` and traversal methods (`getPath`, `getAncestors`, …) |
 | `QueueTicket` | `timeout`, `isPaused`, `dismiss()` |
-| `FormTicket` | `validate()`, `reset()`, `errors`, `isValid`, `isPristine`, `rules` |
+| `FormTicket` | `RegistryTicket<FormValue> & Z` — no extra ticket fields; `submit()`, `reset()`, `isValid`, `isValidating` live on `FormContext` |
 
 **Naming pair (enforced).** Input/output types always pair: `FooTicketInput` → `FooTicket`. Defined together, exported together. [intent:97]
 
@@ -108,7 +109,7 @@ interface RegistryTicket {
 100% enforced across all 27 registry-based composables. Parent is spread first, new properties added after. Never redefine.
 
 ```ts
-// packages/0/src/composables/createSelection/index.ts:286
+// packages/0/src/composables/createSelection/index.ts — see the spread `return { ...model, … }` near the end of createSelection()
 return {
   ...model,          // Parent first
   multiple,          // Additions after
@@ -148,13 +149,13 @@ export interface FooAdapter {
 }
 
 // adapters/v0.ts — default
-export class V0FooAdapter implements FooAdapter { ... }
+export class Vuetify0FooAdapter implements FooAdapter { ... }
 
 // adapters/pino.ts — third-party integration
 export class PinoLoggerAdapter implements LoggerAdapter { ... }
 ```
 
-**Naming.** Default adapters are V0-prefixed (`V0FooAdapter`). Third-party adapters use their original branding (`PinoLoggerAdapter`, `ConsolaLoggerAdapter`, `PostHogFeaturesAdapter`). [intent:106, intent:107]
+**Naming.** Default adapters are `Vuetify0`-prefixed (`Vuetify0FooAdapter`, `Vuetify0LoggerAdapter`, `Vuetify0LocaleAdapter`). The exception is `useStorage`, which ships an unprefixed `MemoryAdapter` as its SSR fallback. Third-party adapters use their original branding (`PinoLoggerAdapter`, `ConsolaLoggerAdapter`, `PostHogFeaturesAdapter`). [intent:106, intent:107]
 
 **Lifecycle.** When an adapter has `setup`, call it inside the plugin's setup phase and register `dispose` on app unmount:
 
@@ -183,14 +184,9 @@ Three gating mechanisms, in order of preference:
 3. Adapter-level: any adapter that touches the DOM must gate in its own setters. [intent:112]
 
 ```ts
-// packages/0/src/composables/useStorage/index.ts:105
+// packages/0/src/composables/useStorage/index.ts — adapter default in createStorage()'s options destructure
 const storage = IN_BROWSER ? window.localStorage : new MemoryAdapter()
 ```
-
-**Known soft-violations** to be tightened:
-- `packages/0/src/composables/useClickOutside/index.ts:346-350` reads `document.activeElement` inside a handler without gate.
-- `packages/0/src/composables/useHotkey/index.ts:159` reads `document.activeElement`.
-- `packages/0/src/composables/createCombobox/index.ts:187` `document.querySelector` inside a factory.
 
 The rule is per-composable. Even a handler that only runs client-side should gate, so the composable's type-level promise ("safe to call under SSR") holds everywhere.
 
@@ -222,12 +218,25 @@ packages/0/src/
 │       ├── index.bench.ts   # Benchmarks (performance-critical only — see benchmarks.md)
 │       └── adapters/        # Adapter implementations (if applicable)
 │           ├── index.ts     # Barrel: interface + exports
-│           ├── v0.ts        # Default V0 adapter
+│           ├── v0.ts        # Default Vuetify0 adapter
 │           └── pino.ts      # Third-party adapter (optional)
 ├── constants/        # IN_BROWSER, SUPPORTS_*, htmlElements
+├── data-table/       # Subpackage entry point (re-exports from composables/createDataTable)
+├── date/             # Subpackage entry point
+├── features/         # Subpackage entry point
+├── locale/           # Subpackage entry point
+├── logger/           # Subpackage entry point
+├── notifications/    # Subpackage entry point
+├── palettes/         # Subpackage entry point
+├── permissions/      # Subpackage entry point
+├── rules/            # Subpackage entry point
+├── storage/          # Subpackage entry point
+├── theme/            # Subpackage entry point
 ├── types/            # Shared types (ID, Extensible, MaybeArray, DeepPartial, Activation)
 └── utilities/        # Helpers — always check here first (§2.3, §2.7)
 ```
+
+The top-level `data-table/`, `date/`, `features/`, `locale/`, `logger/`, `notifications/`, `palettes/`, `permissions/`, `rules/`, `storage/`, and `theme/` directories are subpackage entry points — narrow re-exports that let consumers import only the slice they need (`@vuetify/v0/locale`, etc.) without pulling the full barrel.
 
 Colocated tests use `createX/index.test.ts`. [intent:114] Benchmarks colocate as `createX/index.bench.ts` only when the composable is performance-critical. [intent:115]
 
@@ -236,10 +245,10 @@ Colocated tests use `createX/index.test.ts`. [intent:114] Benchmarks colocate as
 - [ ] Before writing a helper, grep `packages/0/src/utilities/` and `#v0/utilities` exports
 - [ ] All type guards go through `#v0/utilities` — no raw `=== undefined`
 - [ ] All cross-feature imports use `#v0/`
-- [ ] New utility files carry `#__NO_SIDE_EFFECTS__`
+- [ ] New utility files carry `/* #__NO_SIDE_EFFECTS__ */` (helpers) or `/* @__PURE__ */` (module-level allocating constants)
 - [ ] New ticket types defined as `FooTicketInput` + `FooTicket` pair
 - [ ] New composable that extends another spreads the parent before adding
 - [ ] Registry collections use `shallowReactive(new Set())`
-- [ ] New adapter interface has `setup?` / `dispose?` contract and a V0-prefixed default
+- [ ] New adapter interface has `setup?` / `dispose?` contract and a `Vuetify0`-prefixed default
 - [ ] Any branch touching `window`/`document` gates on `IN_BROWSER`
 - [ ] File placed in the correct dir; barrel updated alphabetically

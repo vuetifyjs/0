@@ -1,5 +1,5 @@
 ---
-paths: "**/*.test.ts"
+paths: ['**/*.test.ts']
 ---
 
 # Testing Standards
@@ -17,7 +17,7 @@ Scope-specific mechanics for `**/*.test.ts`. Covers coverage requirements, struc
 
 Vitest + happy-dom. [intent:84] Colocated with source: `foo.ts → foo.test.ts`, `createX/index.test.ts`. [intent:65, intent:85]
 
-> **Project override.** This project uses `.test.ts`. The personal-rule default `.spec.ts` in `~/.claude/rules/quality.md` does not apply here — do not rename files to `.spec.ts`. Tension T14/T22 in `../tensions.md` records the decision.
+> **Project override.** This project uses `.test.ts`. The personal-rule default `.spec.ts` in `~/.claude/rules/quality.md` does not apply here — do not rename files to `.spec.ts`.
 
 ## Coverage Requirements
 
@@ -33,16 +33,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { effectScope, nextTick, shallowRef } from 'vue'
 import { mount } from '@vue/test-utils'
 
-// Mock Vue DI when needed (note hasInjectionContext for composables that use it)
-vi.mock('vue', async () => {
-  const actual = await vi.importActual('vue')
-  return {
-    ...actual,
-    provide: vi.fn(),
-    inject: vi.fn(),
-    hasInjectionContext: vi.fn(() => true),
-  }
-})
+// Mock Vue DI when the composable uses provide/inject directly.
+// Default form — see packages/0/src/composables/createContext/index.test.ts
+vi.mock('vue', () => ({
+  provide: vi.fn(),
+  inject: vi.fn(),
+}))
 
 describe('composableName', () => {
   beforeEach(() => {
@@ -57,9 +53,9 @@ describe('composableName', () => {
 })
 ```
 
-## Test Naming (100% enforced)
+## Test Naming (preferred — sweep in progress)
 
-Always `it('should ...')`. Never `test()`. Never `it('returns ...')`. [intent:222]
+Always `it('should ...')`. Never `test()`. Prefer `it('should return ...')` over `it('returns ...')`. [intent:222] About two dozen `it('returns …')` callsites still exist in source (e.g., `composables/createNumberField/index.test.ts`); they will be swept in a follow-up. Don't add new ones.
 
 ## Assertion Patterns
 
@@ -74,8 +70,8 @@ expect(timer.isActive.value).toBe(true)
 // Objects / arrays
 expect(result).toEqual({ key: 'value' })
 
-// Call counts
-expect(handler).toHaveBeenCalledTimes(1)   // Not .toHaveBeenCalledOnce() [intent:224]
+// Call counts — prefer .toHaveBeenCalledTimes(N), sweep in progress
+expect(handler).toHaveBeenCalledTimes(1)   // Preferred over .toHaveBeenCalledOnce() [intent:224]
 
 // Errors
 expect(() => useContext()).toThrow('Context not found')
@@ -109,16 +105,17 @@ npx vitest run --reporter verbose 2>&1 | grep -E '\[Vue warn\]|\[v0.*warn\]|\[v0
 
 ### Namespace keys (PHILOSOPHY §9.3)
 
-All string keys passed to `createContext()` or `createXContext({ namespace })` must contain `:`. [intent:226] Use `test:` prefix for test-only keys, `v0:` for production keys. [intent:227]
+All string keys passed to `createContext()` or `createXContext({ namespace })` must contain `:`. [intent:226] Use `v0:` for both production and test-only keys (e.g., `v0:test`, `v0:test-key`, `v0:missing-key`). The dominant convention in source is to keep the `v0:` prefix in tests rather than introduce a separate `test:` namespace. [intent:227]
 
 ```ts
 // Wrong — triggers [v0:context] namespace warning
 createContext('my-key')
 createFooContext({ namespace: 'custom' })
 
-// Right
-createContext('test:my-key')
-createFooContext({ namespace: 'test:custom' })
+// Right — see packages/0/src/composables/createContext/index.test.ts
+createContext('v0:test')
+createContext('v0:test-key')
+createFooContext({ namespace: 'v0:custom' })
 ```
 
 ### Composables that use `onScopeDispose`
@@ -152,9 +149,9 @@ expect(spy).toHaveBeenCalledWith(expect.stringContaining('expected message'))
 spy.mockRestore()
 ```
 
-### Vue DI mocks
+### Vue DI mocks — `hasInjectionContext` extension
 
-When mocking `provide`/`inject` from Vue and the composable uses `hasInjectionContext()`, include it: [intent:230]
+The default mock at the top of the file covers most composables. When the composable also gates on `hasInjectionContext()`, extend the mock to keep the gate truthy under test: [intent:230]
 
 ```ts
 vi.mock('vue', async () => {
@@ -165,6 +162,62 @@ vi.mock('vue', async () => {
     inject: vi.fn(),
     hasInjectionContext: vi.fn(() => true),
   }
+})
+```
+
+### Fake timers (delay / timer / popover)
+
+Use `vi.useFakeTimers()` in `beforeEach` and `vi.advanceTimersByTime(ms)` to step through scheduled work. Standard for any composable that schedules via `setTimeout` / `setInterval`. Restore in `afterEach`.
+
+```ts
+// packages/0/src/composables/useTimer/index.test.ts
+beforeEach(() => {
+  vi.useFakeTimers()
+})
+
+afterEach(() => {
+  vi.restoreAllMocks()
+})
+
+it('should fire handler after duration', () => {
+  const handler = vi.fn()
+  const timer = useTimer(handler, { duration: 1000 })
+  timer.start()
+  vi.advanceTimersByTime(1000)
+  expect(handler).toHaveBeenCalledTimes(1)
+})
+```
+
+### SSR rendering with `createSSRApp` + `renderToString`
+
+Component tests that exercise SSR safety wrap the component in a `defineComponent` and render it through `vue/server-renderer`. Assert against the returned HTML string, not a mounted wrapper.
+
+```ts
+// packages/0/src/components/Atom/index.test.ts
+it('should render to string on server without errors', async () => {
+  const app = createSSRApp(defineComponent({
+    render: () => h(Atom as unknown as Component, { as: 'div' }, () => 'Hello'),
+  }))
+
+  const html = await renderToString(app)
+  expect(html).toContain('Hello')
+})
+```
+
+### Separate `*.ssr.test.ts` for `IN_BROWSER` mocking
+
+`vi.mock` is hoisted and applies file-wide. To exercise SSR branches that gate on `IN_BROWSER`, split SSR-only tests into a sibling `index.ssr.test.ts` so the mock doesn't bleed into client-mode tests.
+
+```ts
+// packages/0/src/composables/useDate/index.ssr.test.ts
+vi.mock('#v0/constants/globals', () => ({
+  IN_BROWSER: false,
+}))
+
+import { useDate } from './index'
+
+it('should throw when called outside component in SSR', () => {
+  expect(() => useDate()).toThrow('[v0] useDate() must be called inside a Vue component')
 })
 ```
 
@@ -265,12 +318,14 @@ Naming: sentence case with comma-formatted numbers: `'Get by id (1,000 items)'`.
 
 - [ ] File named `index.test.ts` and colocated with source
 - [ ] Imports: `beforeEach, describe, expect, it, vi` from vitest
-- [ ] All test names use `it('should ...')`
+- [ ] All test names use `it('should ...')` (no new `it('returns ...')` callsites)
 - [ ] Refs unwrapped with `.value` in assertions
-- [ ] `.toHaveBeenCalledTimes(1)`, not `.toHaveBeenCalledOnce()`
-- [ ] All namespace keys contain `:` and use `test:` prefix
+- [ ] Prefer `.toHaveBeenCalledTimes(1)` over `.toHaveBeenCalledOnce()`
+- [ ] All namespace keys contain `:` and use the `v0:` prefix (including in tests)
 - [ ] `onScopeDispose` composables wrapped in `effectScope()`
 - [ ] Expected warnings captured with `vi.spyOn` and asserted
 - [ ] Vue DI mock includes `hasInjectionContext` when composable uses it
+- [ ] Fake timers (`vi.useFakeTimers` / `vi.advanceTimersByTime`) used for delay/timer composables
+- [ ] SSR-only tests split into a sibling `index.ssr.test.ts` when mocking `IN_BROWSER`
 - [ ] Locale strings asserted with `toBeDefined()`, not exact text
 - [ ] Zero stderr output when tests run
