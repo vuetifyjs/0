@@ -69,7 +69,7 @@
       'tabindex': 0 | -1
       'aria-selected': boolean
       'aria-controls': string
-      'aria-disabled': boolean | undefined
+      'aria-disabled': boolean
       'aria-label': string | undefined
       'aria-labelledby': string | undefined
       'aria-describedby': string | undefined
@@ -247,7 +247,7 @@
       'tabindex': toValue(ticket.isSelected) ? 0 : -1,
       'aria-selected': toValue(ticket.isSelected),
       'aria-controls': panelId.value,
-      'aria-disabled': toValue(isDisabled) || undefined,
+      'aria-disabled': toValue(isDisabled),
       'aria-label': ariaLabel,
       'aria-labelledby': ariaLabelledby,
       'aria-describedby': ariaDescribedby,
