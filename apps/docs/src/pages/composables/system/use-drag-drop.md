@@ -157,6 +157,8 @@ The zones declare `orientation: 'vertical'` to opt into list-style index resolut
 
 Reach for this shape when you want a sortable list with cross-container moves and headless control over visual affordances. For a single-list reorder, drop the second `DropList`. For more drag types in the same scope (e.g. items *and* their containers), widen the discriminated union — the type narrowing on `drag.type` carries the corresponding `drag.value` through.
 
+Need to share the context across deeply nested components without prop-threading? Wrap the parent's `useDragDrop()` call with your own `provide`/`inject` pair (Vue's standard DI pattern) and call `inject` from descendants. A first-class `createDragDropContext()` trinity factory may ship later — see the [createSelectionContext](/composables/selection/create-selection) precedent for the shape it would take.
+
 | File | Role |
 |------|------|
 | `DragItem.vue` | Receives the shared `dnd` context as a prop and registers itself as a draggable via `dnd.draggables.register({ el, type, value })` |
