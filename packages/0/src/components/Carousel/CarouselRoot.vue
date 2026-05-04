@@ -36,7 +36,7 @@
 
   export interface CarouselTicket extends StepTicket {
     /** Element reference for DOM measurement */
-    el?: MaybeRefOrGetter<HTMLElement | null>
+    el?: MaybeRefOrGetter<Element | null>
   }
 
   export interface CarouselRootProps extends AtomProps {
@@ -105,7 +105,7 @@
 
   export interface CarouselPartTicket extends RegistryTicketInput {
     type: 'viewport' | 'previous' | 'next' | 'indicator' | 'progress' | 'live-region'
-    el: MaybeRefOrGetter<HTMLElement | null>
+    el: MaybeRefOrGetter<Element | null>
   }
 
   export interface CarouselContext extends StepContext<CarouselTicket> {
