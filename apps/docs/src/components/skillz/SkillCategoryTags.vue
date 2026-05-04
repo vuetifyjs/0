@@ -1,8 +1,8 @@
 <script setup lang="ts">
+  import { SKILL_CATEGORY_META } from '@/types/skill'
+
   // Types
   import type { SkillCategory } from '@/types/skill'
-
-  import { SKILL_CATEGORY_META } from '@/types/skill'
 
   const { categories, variant = 'default' } = defineProps<{
     /** Array of category identifiers */

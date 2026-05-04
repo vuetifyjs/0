@@ -25,18 +25,18 @@
  * ```
  */
 
+// Transformers
+// Framework
+import { toArray } from '#v0/composables'
+// Constants
+import { IN_BROWSER } from '#v0/constants/globals'
+
 // Utilities
 import { onScopeDispose, toValue, unref, watch } from 'vue'
 
 // Types
 import type { MaybeArray } from '#v0/types'
 import type { MaybeRef, MaybeRefOrGetter } from 'vue'
-
-// Transformers
-// Framework
-import { toArray } from '#v0/composables'
-// Constants
-import { IN_BROWSER } from '#v0/constants/globals'
 export type CleanupFunction = () => void
 export type EventHandler<E = Event> = (event: E) => void
 

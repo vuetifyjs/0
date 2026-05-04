@@ -1,9 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { createLogger, createLoggerContext, createLoggerPlugin, useLogger } from './index'
+
 // Utilities
 import { createApp, defineComponent } from 'vue'
-
-import { createLogger, createLoggerContext, createLoggerPlugin, useLogger } from './index'
 
 describe('useLogger', () => {
   beforeEach(() => {

@@ -3,10 +3,10 @@ import { describe, expect, it } from 'vitest'
 // Composables
 import { createSelection } from '#v0/composables/createSelection'
 
+import { useProxyModel } from './index'
+
 // Utilities
 import { ref } from 'vue'
-
-import { useProxyModel } from './index'
 
 describe('useProxyModel', () => {
   it('should sync model when selection changes', () => {

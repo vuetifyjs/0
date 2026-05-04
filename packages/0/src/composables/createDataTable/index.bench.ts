@@ -11,10 +11,10 @@
 
 import { bench, describe } from 'vitest'
 
+import { createDataTable, ClientAdapter, VirtualAdapter } from './index'
+
 // Types
 import type { DataTableColumn, DataTableOptions } from './index'
-
-import { createDataTable, ClientAdapter, VirtualAdapter } from './index'
 
 // =============================================================================
 // FIXTURES - Created once, reused across read-only benchmarks

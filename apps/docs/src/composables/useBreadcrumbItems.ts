@@ -1,11 +1,12 @@
+// Stores
+import { useAppStore } from '@/stores/app'
+
 // Utilities
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 // Types
 import type { NavItem } from '@/stores/app'
-
-import { useAppStore } from '@/stores/app'
 
 export interface BreadcrumbItem {
   text: string

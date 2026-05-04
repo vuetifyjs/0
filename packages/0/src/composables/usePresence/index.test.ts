@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
 
+import { usePresence } from './index'
+
 // Utilities
 import { effectScope, nextTick, ref } from 'vue'
-
-import { usePresence } from './index'
 
 describe('usePresence', () => {
   describe('initial state', () => {

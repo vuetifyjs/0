@@ -1,19 +1,19 @@
 // Framework
-import { createBreakpointsPlugin, createDatePlugin, createFeaturesPlugin, createHydrationPlugin, createLocalePlugin, createLoggerPlugin, createPermissionsPlugin, createRtlPlugin, createStackPlugin, createStoragePlugin, createThemePlugin, IN_BROWSER, useFeatures, V0UnheadThemeAdapter } from '@vuetify/v0'
+import { createBreakpointsPlugin, createDatePlugin, createFeaturesPlugin, createHydrationPlugin, createLocalePlugin, createLoggerPlugin, createPermissionsPlugin, createRtlPlugin, createStackPlugin, createStoragePlugin, createThemePlugin, createTooltipPlugin, IN_BROWSER, useFeatures, V0UnheadThemeAdapter } from '@vuetify/v0'
 import { Vuetify0DateAdapter } from '@vuetify/v0/date'
 
 // Composables
 import { createDiscoveryPlugin } from '@/composables/useDiscovery'
 import { useIdleCallback } from '@/composables/useIdleCallback'
 
-// Types
-import type { App } from 'vue'
-
 // Themes
 import { getAllThemeConfigs } from '@/themes'
 
 // Plugins
 import { createIconPlugin } from './icons'
+
+// Types
+import type { App } from 'vue'
 
 export default function zero (app: App) {
   app.use(createIconPlugin())
@@ -22,6 +22,7 @@ export default function zero (app: App) {
   app.use(createBreakpointsPlugin({ mobileBreakpoint: 768 }))
   app.use(createStoragePlugin())
   app.use(createStackPlugin())
+  app.use(createTooltipPlugin())
   app.use(createDiscoveryPlugin())
 
   app.use(

@@ -186,6 +186,11 @@
       "since": "0.1.0",
       "category": "plugins"
     },
+    "useTooltip": {
+      "level": "preview",
+      "since": null,
+      "category": "plugins"
+    },
     "useClickOutside": {
       "level": "preview",
       "since": "0.1.0",
@@ -479,7 +484,8 @@
       "category": "semantic"
     },
     "Tooltip": {
-      "level": "draft",
+      "level": "preview",
+      "since": null,
       "category": "disclosure"
     },
     "Alert": {

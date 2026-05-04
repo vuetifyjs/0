@@ -1,13 +1,13 @@
 import { describe, expect, it, vi } from 'vitest'
 
+import { V0UnheadThemeAdapter } from './unhead'
+
 // Utilities
 import { computed, effectScope, nextTick, ref } from 'vue'
 
 // Types
 import type { ThemeAdapterSetupContext } from './adapter'
 import type { App } from 'vue'
-
-import { V0UnheadThemeAdapter } from './unhead'
 
 const mockInBrowser = vi.hoisted(() => ({ value: true }))
 

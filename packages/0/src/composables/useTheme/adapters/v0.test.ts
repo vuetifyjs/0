@@ -1,13 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { V0StyleSheetThemeAdapter } from './v0'
+
 // Utilities
 import { computed, effectScope, nextTick, ref } from 'vue'
 
 // Types
 import type { ThemeAdapterSetupContext } from './adapter'
 import type { App } from 'vue'
-
-import { V0StyleSheetThemeAdapter } from './v0'
 
 const mockInBrowser = vi.hoisted(() => ({ value: false }))
 

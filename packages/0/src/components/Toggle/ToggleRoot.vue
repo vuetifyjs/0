@@ -66,7 +66,7 @@
 </script>
 
 <script setup lang="ts" generic="V = unknown">
-  // Components
+  // Context
   import { useToggleGroup } from './ToggleGroup.vue'
 
   // Utilities

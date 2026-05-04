@@ -11,13 +11,13 @@
   import { useClipboard } from '@/composables/useClipboard'
   import { providePageMeta } from '@/composables/usePageMeta'
 
+  // Constants
+  import { SKILL_LEVELS_DOCS_HREF } from '@/constants/links'
+
   // Utilities
   import { useScrollToAnchor } from '@/utilities/scroll'
   import { onBeforeUnmount, shallowRef, toRef } from 'vue'
   import { useRoute } from 'vue-router'
-
-  // Constants
-  import { SKILL_LEVELS_DOCS_HREF } from '@/constants/links'
 
   const scroll = useScrollToAnchor()
   const logger = useLogger()

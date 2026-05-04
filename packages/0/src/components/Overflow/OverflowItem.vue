@@ -17,15 +17,15 @@
   // Components
   import { Atom } from '#v0/components/Atom'
 
-  // Composables
+  // Context
   import { useOverflowRoot } from './OverflowRoot.vue'
+
+  // Transformers
+  import { toElement } from '#v0/composables/toElement'
 
   // Utilities
   import { isNull } from '#v0/utilities'
   import { onBeforeUnmount, toRef, useTemplateRef, watch } from 'vue'
-
-  // Transformers
-  import { toElement } from '#v0/composables/toElement'
 
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'

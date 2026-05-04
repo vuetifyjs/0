@@ -19,11 +19,11 @@
   import { useIntersectionObserver } from '#v0/composables/useIntersectionObserver'
   import { useLogger } from '#v0/composables/useLogger'
 
-  // Utilities
-  import { shallowRef, toRef, useTemplateRef } from 'vue'
-
   // Transformers
   import { toElement } from '#v0/composables/toElement'
+
+  // Utilities
+  import { shallowRef, toRef, useTemplateRef } from 'vue'
 
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'

@@ -10,7 +10,7 @@ export type { ToggleGroupContext, ToggleGroupProps, ToggleGroupSlotProps, Toggle
 export type { ToggleIndicatorProps, ToggleIndicatorSlotProps } from './ToggleIndicator.vue'
 export type { ToggleRootContext, ToggleRootProps, ToggleRootSlotProps } from './ToggleRoot.vue'
 
-// Components
+// Context
 import Group from './ToggleGroup.vue'
 import Indicator from './ToggleIndicator.vue'
 import Root from './ToggleRoot.vue'

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  // Components
+  // Context
   import DocsCallout from './DocsCallout.vue'
   import DocsMarkup from './DocsMarkup.vue'
   import DocsMermaid from './DocsMermaid.vue'

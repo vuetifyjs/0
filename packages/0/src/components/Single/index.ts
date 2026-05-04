@@ -6,7 +6,7 @@ export { default as SingleRoot } from './SingleRoot.vue'
 export type { SingleItemProps, SingleItemSlotProps } from './SingleItem.vue'
 export type { SingleRootProps, SingleRootSlotProps } from './SingleRoot.vue'
 
-// Components
+// Context
 import Item from './SingleItem.vue'
 import Root from './SingleRoot.vue'
 

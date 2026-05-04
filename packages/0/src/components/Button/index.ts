@@ -19,7 +19,7 @@ export type { ButtonIconProps, ButtonIconSlotProps } from './ButtonIcon.vue'
 export type { ButtonLoadingProps, ButtonLoadingSlotProps } from './ButtonLoading.vue'
 export type { ButtonRootContext, ButtonRootProps, ButtonRootSlotProps } from './ButtonRoot.vue'
 
-// Components
+// Context
 import Content from './ButtonContent.vue'
 import Group from './ButtonGroup.vue'
 import HiddenInput from './ButtonHiddenInput.vue'

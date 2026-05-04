@@ -31,12 +31,12 @@ import { createPluginContext } from '#v0/composables/createPlugin'
 // Adapters
 import { Vuetify0LoggerAdapter } from '#v0/composables/useLogger/adapters'
 
+// Globals
+import { __LOGGER_ENABLED__, IN_BROWSER } from '#v0/constants/globals'
+
 // Types
 import type { LoggerAdapter } from '#v0/composables/useLogger/adapters'
 import type { LogLevel } from '#v0/composables/useLogger/types'
-
-// Globals
-import { __LOGGER_ENABLED__, IN_BROWSER } from '#v0/constants/globals'
 
 // Exports
 export {

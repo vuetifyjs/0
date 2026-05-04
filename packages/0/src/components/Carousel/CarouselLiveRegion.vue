@@ -21,17 +21,19 @@
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
+
+  // Context
   import { useCarouselRoot } from './CarouselRoot.vue'
 
   // Composables
   import { useLocale } from '#v0/composables/useLocale'
 
+  // Transformers
+  import { toElement } from '#v0/composables/toElement'
+
   // Utilities
   import { isUndefined } from '#v0/utilities'
   import { mergeProps, onBeforeUnmount, shallowRef, toRef, useAttrs, useTemplateRef, watch } from 'vue'
-
-  // Transformers
-  import { toElement } from '#v0/composables/toElement'
 
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'

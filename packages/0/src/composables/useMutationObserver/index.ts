@@ -33,12 +33,12 @@
 // Composables
 import { createObserver } from '#v0/composables/createObserver'
 
+// Globals
+import { SUPPORTS_MUTATION_OBSERVER } from '#v0/constants/globals'
+
 // Types
 import type { ObserverReturn } from '#v0/composables/createObserver'
 import type { MaybeElementRef } from '#v0/composables/toElement'
-
-// Globals
-import { SUPPORTS_MUTATION_OBSERVER } from '#v0/constants/globals'
 
 export interface ObservableNodeList {
   readonly length: number

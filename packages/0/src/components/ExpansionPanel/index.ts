@@ -16,7 +16,7 @@ export type { ExpansionPanelHeaderProps, ExpansionPanelHeaderSlotProps } from '.
 export type { ExpansionPanelRootContext, ExpansionPanelRootProps, ExpansionPanelRootSlotProps } from './ExpansionPanelRoot.vue'
 export type { ExpansionPanelGroupProps, ExpansionPanelGroupSlotProps, ExpansionPanelOptionsContext } from './ExpansionPanelGroup.vue'
 
-// Components
+// Context
 import Activator from './ExpansionPanelActivator.vue'
 import Content from './ExpansionPanelContent.vue'
 import Cue from './ExpansionPanelCue.vue'

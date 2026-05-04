@@ -10,7 +10,7 @@
  */
 
 <script lang="ts">
-  // Components
+  // Context
   import { useSelectContext } from './SelectRoot.vue'
 
   // Utilities

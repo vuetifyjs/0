@@ -15,12 +15,12 @@ import { fileURLToPath } from 'node:url'
 import { Node, Project } from 'ts-morph'
 import { createChecker } from 'vue-component-meta'
 
+import { toCamel, toPascal } from './api-names'
+import { parseFrontmatter } from './frontmatter'
+
 // Types
 import type { InterfaceDeclaration, JSDocableNode, TypeAliasDeclaration } from 'ts-morph'
 import type { Plugin } from 'vite'
-
-import { toCamel, toPascal } from './api-names'
-import { parseFrontmatter } from './frontmatter'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = resolve(__dirname, '../../..')

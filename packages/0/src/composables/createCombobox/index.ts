@@ -37,12 +37,15 @@ import { useVirtualFocus } from '#v0/composables/useVirtualFocus'
 // Adapters
 import { ClientAdapter } from './adapters'
 
+// Transformers
+import { toArray } from '#v0/composables/toArray'
+
+// Globals
+import { IN_BROWSER } from '#v0/constants/globals'
+
 // Utilities
 import { isUndefined, useId } from '#v0/utilities'
 import { computed, shallowRef, toRef, toValue, watch } from 'vue'
-
-// Transformers
-import { toArray } from '#v0/composables/toArray'
 
 // Types
 import type { SelectionContext } from '#v0/composables/createSelection'
@@ -52,9 +55,6 @@ import type { VirtualFocusReturn } from '#v0/composables/useVirtualFocus'
 import type { MaybeArray, ID } from '#v0/types'
 import type { ComboboxAdapterInterface } from './adapters'
 import type { MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
-
-// Globals
-import { IN_BROWSER } from '#v0/constants/globals'
 
 export type { ComboboxAdapterContext, ComboboxAdapterInterface, ComboboxAdapterResult } from './adapters'
 

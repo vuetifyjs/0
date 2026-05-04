@@ -1,11 +1,11 @@
 import { describe, expect, it, vi } from 'vitest'
 import { renderToString } from 'vue/server-renderer'
 
+import { Image } from './index'
+
 // Utilities
 import { mount } from '@vue/test-utils'
 import { createSSRApp, defineComponent, h, nextTick } from 'vue'
-
-import { Image } from './index'
 
 describe('image', () => {
   describe('root', () => {

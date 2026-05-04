@@ -10,10 +10,10 @@
 
 import { bench, describe } from 'vitest'
 
+import { createNested } from './index'
+
 // Types
 import type { NestedContext, NestedRegistration, NestedTicket } from './types'
-
-import { createNested } from './index'
 
 // =============================================================================
 // FIXTURES - Created once, reused across read-only benchmarks

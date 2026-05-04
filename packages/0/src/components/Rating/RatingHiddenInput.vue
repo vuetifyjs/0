@@ -9,7 +9,7 @@
  */
 
 <script lang="ts">
-  // Components
+  // Context
   import { useRatingRoot } from './RatingRoot.vue'
 
   // Utilities

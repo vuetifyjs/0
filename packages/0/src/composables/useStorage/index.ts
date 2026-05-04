@@ -33,6 +33,9 @@ import { useWindowEventListener } from '#v0/composables/useEventListener'
 // Adapters
 import { MemoryAdapter } from '#v0/composables/useStorage/adapters'
 
+// Globals
+import { IN_BROWSER } from '#v0/constants/globals'
+
 // Utilities
 import { isArray, isNullOrUndefined, isObject } from '#v0/utilities'
 import { ref, watch } from 'vue'
@@ -40,9 +43,6 @@ import { ref, watch } from 'vue'
 // Types
 import type { StorageAdapter } from '#v0/composables/useStorage/adapters'
 import type { Ref } from 'vue'
-
-// Globals
-import { IN_BROWSER } from '#v0/constants/globals'
 
 export interface StorageContext {
   /** Check if a key exists in storage */

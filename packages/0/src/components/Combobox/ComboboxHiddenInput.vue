@@ -10,7 +10,7 @@
  */
 
 <script lang="ts">
-  // Components
+  // Context
   import { useComboboxContext } from './ComboboxRoot.vue'
 
   // Utilities

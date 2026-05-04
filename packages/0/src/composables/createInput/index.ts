@@ -25,12 +25,12 @@
 import { createRegistry } from '#v0/composables/createRegistry'
 import { createValidation } from '#v0/composables/createValidation'
 
+// Transformers
+import { toArray } from '#v0/composables/toArray'
+
 // Utilities
 import { isNullOrUndefined, isString, useId } from '#v0/utilities'
 import { computed, shallowRef, toRef, toValue, watch } from 'vue'
-
-// Transformers
-import { toArray } from '#v0/composables/toArray'
 
 // Types
 import type { FormValidationRule } from '#v0/composables/createForm'

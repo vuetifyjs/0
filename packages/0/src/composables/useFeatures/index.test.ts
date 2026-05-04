@@ -1,13 +1,13 @@
 import { describe, expect, it, vi } from 'vitest'
 
+import { createFeatures, createFeaturesPlugin, useFeatures } from './index'
+
 // Utilities
 import { createApp, watchEffect } from 'vue'
 
 // Types
 import type { FeaturesAdapterFlags, FeaturesAdapterInterface } from './adapters'
 import type { FeatureContext } from './index'
-
-import { createFeatures, createFeaturesPlugin, useFeatures } from './index'
 
 describe('createFeatures', () => {
   describe('basic functionality', () => {

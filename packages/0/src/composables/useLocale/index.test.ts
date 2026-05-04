@@ -6,10 +6,10 @@ import { createTokens } from '#v0/composables/createTokens'
 // Adapters
 import { Vuetify0LocaleAdapter } from './adapters/v0'
 
+import { createLocale, createLocaleContext, createLocalePlugin, useLocale } from './index'
+
 // Utilities
 import { hasInjectionContext, inject, provide, shallowRef } from 'vue'
-
-import { createLocale, createLocaleContext, createLocalePlugin, useLocale } from './index'
 
 vi.mock('vue', async () => {
   const actual = await vi.importActual('vue')

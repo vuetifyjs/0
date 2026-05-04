@@ -4,11 +4,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createNotificationsContext } from '#v0/composables/useNotifications'
 import { createStackPlugin } from '#v0/composables/useStack'
 
+import { Snackbar } from './index'
+
 // Utilities
 import { mount } from '@vue/test-utils'
 import { defineComponent, h, provide } from 'vue'
-
-import { Snackbar } from './index'
 
 let stackPlugin: ReturnType<typeof createStackPlugin>
 

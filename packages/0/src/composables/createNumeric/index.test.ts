@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
 
+import { createNumeric } from './index'
+
 // Types
 import type { NumericOptions } from './index'
-
-import { createNumeric } from './index'
 
 function setup (options?: NumericOptions) {
   return createNumeric(options)

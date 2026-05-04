@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
 
+import { FeaturesAdapter } from './index'
+
 // Types
 import type { FeaturesAdapterFlags } from './index'
-
-import { FeaturesAdapter } from './index'
 
 class GenericTestAdapter extends FeaturesAdapter {
   setup (onUpdate: (flags: FeaturesAdapterFlags) => void): FeaturesAdapterFlags {

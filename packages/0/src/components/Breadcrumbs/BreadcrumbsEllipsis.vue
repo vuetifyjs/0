@@ -14,7 +14,11 @@
   // Components
   import { Atom } from '#v0/components/Atom'
 
+  // Context
   import { useBreadcrumbsRoot } from './BreadcrumbsRoot.vue'
+
+  // Constants
+  import { IN_BROWSER } from '#v0/constants/globals'
 
   // Utilities
   import { onBeforeUnmount, toRef, useTemplateRef, watch } from 'vue'
@@ -22,9 +26,6 @@
   // Types
   import type { AtomProps } from '#v0/components/Atom'
   import type { ID } from '#v0/types'
-
-  // Constants
-  import { IN_BROWSER } from '#v0/constants/globals'
 
   export interface BreadcrumbsEllipsisProps extends AtomProps {
     /** Namespace for dependency injection */

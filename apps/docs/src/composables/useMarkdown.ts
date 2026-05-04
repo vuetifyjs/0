@@ -17,15 +17,15 @@
 import { createApiTransformer, renderVueApiInlineCode } from '@build/shiki-api-transformer'
 import { Marked } from 'marked'
 
+// Constants
+import { SHIKI_THEMES } from '@/constants/shiki'
+
 // Utilities
 import { processLinks } from '@/utilities/processLinks'
 import { type MaybeRefOrGetter, onMounted, shallowRef, type ShallowRef, toValue, watch } from 'vue'
 
 // Types
 import type { Highlighter } from 'shiki'
-
-// Constants
-import { SHIKI_THEMES } from '@/constants/shiki'
 
 export interface UseMarkdownReturn {
   html: ShallowRef<string>

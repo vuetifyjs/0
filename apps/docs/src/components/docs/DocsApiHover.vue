@@ -15,7 +15,7 @@
   // Framework
   import { IN_BROWSER, useDocumentEventListener } from '@vuetify/v0'
 
-  // Components
+  // Context
   import DocsApiHoverList from './DocsApiHoverList.vue'
   import DocsApiHoverSection from './DocsApiHoverSection.vue'
 

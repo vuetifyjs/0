@@ -8,14 +8,15 @@
   import { useSearch } from '@/composables/useSearch'
   import { useSettings } from '@/composables/useSettings'
 
-  // Utilities
-  import { toRef } from 'vue'
-  import { useRoute, useRouter } from 'vue-router'
+  // Types
+  import { SKILL_LEVEL_META } from '@/types/skill'
 
   // Stores
   import { useSkillzStore } from '@/stores/skillz'
-  // Types
-  import { SKILL_LEVEL_META } from '@/types/skill'
+
+  // Utilities
+  import { toRef } from 'vue'
+  import { useRoute, useRouter } from 'vue-router'
 
   const store = useSkillzStore()
   const route = useRoute()

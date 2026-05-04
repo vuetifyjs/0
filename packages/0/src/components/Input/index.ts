@@ -11,7 +11,7 @@ export type { InputErrorProps, InputErrorSlotProps } from './InputError.vue'
 export type { InputState } from '#v0/composables/createInput'
 export type { InputRootContext, InputRootProps, InputRootSlotProps, ValidateEvent, ValidateOn } from './InputRoot.vue'
 
-// Components
+// Context
 import Control from './InputControl.vue'
 import Description from './InputDescription.vue'
 import Error from './InputError.vue'

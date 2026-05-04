@@ -9,7 +9,7 @@
  */
 
 <script lang="ts">
-  // Components
+  // Context
   import { useSliderRoot } from './SliderRoot.vue'
 
   // Utilities

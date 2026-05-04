@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
 
+import { createInput } from './index'
+
 // Utilities
 import { nextTick, ref, shallowRef } from 'vue'
-
-import { createInput } from './index'
 
 vi.mock('vue', async () => {
   const actual = await vi.importActual('vue')

@@ -2,6 +2,8 @@
   // Components
   import AppCloseButton from '@/components/app/AppCloseButton.vue'
   import AppIcon from '@/components/app/AppIcon.vue'
+
+  // Context
   import PlaygroundSettingsPresets from './PlaygroundSettingsPresets.vue'
   import PlaygroundSettingsVersions from './PlaygroundSettingsVersions.vue'
 

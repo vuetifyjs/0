@@ -32,6 +32,9 @@
   import { createRegistry } from '#v0/composables/createRegistry'
   import { useLocale } from '#v0/composables/useLocale'
 
+  // Constants
+  import { IN_BROWSER } from '#v0/constants/globals'
+
   // Utilities
   import { isNullOrUndefined } from '#v0/utilities'
   import { computed, shallowRef, toRef, useTemplateRef, watch } from 'vue'
@@ -40,9 +43,6 @@
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
   import type { PaginationContext, PaginationTicket } from '#v0/composables/createPagination'
   import type { RegistryContext } from '#v0/composables/createRegistry'
-
-  // Constants
-  import { IN_BROWSER } from '#v0/constants/globals'
 
   export const [usePaginationRoot, providePaginationRoot] = createContext<PaginationContext>()
   export const [usePaginationControls, providePaginationControls] = createContext<RegistryContext>({ suffix: 'controls' })

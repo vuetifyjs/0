@@ -13,6 +13,8 @@
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
+
+  // Context
   import { useSelectContext } from './SelectRoot.vue'
 
   // Utilities

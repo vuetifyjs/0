@@ -17,7 +17,7 @@ export type { CarouselIndicatorItem, CarouselIndicatorProps, CarouselIndicatorSl
 export type { CarouselProgressProps, CarouselProgressSlotProps } from './CarouselProgress.vue'
 export type { CarouselLiveRegionProps, CarouselLiveRegionSlotProps } from './CarouselLiveRegion.vue'
 
-// Components
+// Context
 import Indicator from './CarouselIndicator.vue'
 import Item from './CarouselItem.vue'
 import LiveRegion from './CarouselLiveRegion.vue'

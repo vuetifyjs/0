@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { createContext, provideContext, useContext } from './index'
+
 // Utilities
 import { inject, provide } from 'vue'
 
 // Types
 import type { App, InjectionKey } from 'vue'
-
-import { createContext, provideContext, useContext } from './index'
 
 vi.mock('vue', () => ({
   provide: vi.fn(),

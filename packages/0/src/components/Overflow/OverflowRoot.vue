@@ -24,11 +24,11 @@
   import { createOverflow } from '#v0/composables/createOverflow'
   import { createRegistry } from '#v0/composables/createRegistry'
 
-  // Utilities
-  import { shallowRef, toRef, toValue, useTemplateRef } from 'vue'
-
   // Transformers
   import { toElement } from '#v0/composables/toElement'
+
+  // Utilities
+  import { shallowRef, toRef, toValue, useTemplateRef } from 'vue'
 
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'

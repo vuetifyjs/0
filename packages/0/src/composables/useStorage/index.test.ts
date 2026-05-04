@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { createStorage, createStorageContext, createStoragePlugin, useStorage } from './index'
+
 // Utilities
 import { nextTick, provide } from 'vue'
 
 // Types
 import type { createApp } from 'vue'
-
-import { createStorage, createStorageContext, createStoragePlugin, useStorage } from './index'
 
 vi.mock('vue', async () => {
   const actual = await vi.importActual('vue')

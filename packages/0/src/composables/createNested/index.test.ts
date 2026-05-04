@@ -1,11 +1,11 @@
 // Utilities
 import { describe, expect, it, vi } from 'vitest'
 
-// Types
-import type { NestedRegistration } from './types'
-
 // Composables
 import { createNested } from './index'
+
+// Types
+import type { NestedRegistration } from './types'
 
 describe('createNested', () => {
   describe('parent-child relationship management', () => {

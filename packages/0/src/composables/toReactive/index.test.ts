@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
 
+import { toReactive } from './index'
+
 // Utilities
 import { isReactive, ref, watchEffect } from 'vue'
-
-import { toReactive } from './index'
 
 describe('toReactive', () => {
   it('should convert a plain object to reactive', () => {

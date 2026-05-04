@@ -2,15 +2,16 @@
   // Framework
   import { ExpansionPanel } from '@vuetify/v0'
 
-  // Components
+  // Context
   import DocsProgressBar from './DocsProgressBar.vue'
   import DocsSkeleton from './DocsSkeleton.vue'
+
+  // Stores
+  import { type Milestone, type TimeHorizon, useRoadmapStore } from '@/stores/roadmap'
 
   // Utilities
   import { computed, onBeforeMount, watch } from 'vue'
   import { useRoute, useRouter } from 'vue-router'
-
-  import { type Milestone, type TimeHorizon, useRoadmapStore } from '@/stores/roadmap'
 
   const route = useRoute()
   const router = useRouter()

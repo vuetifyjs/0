@@ -18,12 +18,12 @@
   import { useSearch } from '@/composables/useSearch'
   import { useSettings } from '@/composables/useSettings'
 
+  // Stores
+  import { useAppStore } from '@/stores/app'
+
   // Utilities
   import { defineAsyncComponent, toRef, watch } from 'vue'
   import { useRoute } from 'vue-router'
-
-  // Stores
-  import { useAppStore } from '@/stores/app'
 
   const AppSettingsSheet = defineAsyncComponent(() => import('@/components/app/AppSettingsSheet.vue'))
   const DocsSearch = defineAsyncComponent(() => import('@/components/docs/DocsSearch.vue'))

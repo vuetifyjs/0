@@ -7,11 +7,11 @@ import { createHighlighterCore } from 'shiki/core'
 import { createJavaScriptRegexEngine } from 'shiki/engine/javascript'
 import Markdown from 'unplugin-vue-markdown/vite'
 
-// Types
-import type { BundledLanguage, BundledTheme, HighlighterGeneric } from 'shiki'
-
 // Local
 import { createApiTransformer, renderV0ApiInlineCode, renderVueApiInlineCode } from './shiki-api-transformer'
+
+// Types
+import type { BundledLanguage, BundledTheme, HighlighterGeneric } from 'shiki'
 
 // Constants
 import { EXTERNAL_LINK_SUFFIX } from '../src/constants/links'

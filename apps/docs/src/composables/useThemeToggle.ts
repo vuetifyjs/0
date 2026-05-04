@@ -1,14 +1,14 @@
 // Framework
 import { usePrefersDark, useStorage, useTheme } from '@vuetify/v0'
 
+// Themes
+import { themes, type ThemeId } from '@/themes'
+
 // Utilities
 import { type Ref, shallowRef, type ShallowRef, toRef, watch } from 'vue'
 
 // Types
 import type { UseThemeReturn } from '@vuetify/v0'
-
-// Themes
-import { themes, type ThemeId } from '@/themes'
 
 export type ModePreference = 'system' | 'light' | 'dark'
 

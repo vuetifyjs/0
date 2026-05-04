@@ -2,11 +2,11 @@
   // Composables
   import { usePageMetaOptional, type LevelConfig } from '@/composables/usePageMeta'
 
-  // Utilities
-  import { toRef } from 'vue'
-
   // Constants
   import { SKILL_LEVELS_DOCS_HREF } from '@/constants/links'
+
+  // Utilities
+  import { toRef } from 'vue'
 
   const props = defineProps<{
     level?: LevelConfig | null

@@ -10,10 +10,10 @@
 
 import { bench, describe } from 'vitest'
 
+import { createSelection } from './index'
+
 // Types
 import type { SelectionContext, SelectionTicket, SelectionTicketInput } from './index'
-
-import { createSelection } from './index'
 
 // =============================================================================
 // FIXTURES - Created once, reused across read-only benchmarks

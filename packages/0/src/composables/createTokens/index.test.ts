@@ -1,15 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import fixtureTokens from './fixtures/tokens'
+
+import { createTokens, createTokensContext, flatten, useTokens } from './index'
+
 // Utilities
 import { mount } from '@vue/test-utils'
 import { computed, defineComponent, nextTick, ref } from 'vue'
 
 // Types
 import type { TokenAlias, TokenCollection } from './index'
-
-import fixtureTokens from './fixtures/tokens'
-
-import { createTokens, createTokensContext, flatten, useTokens } from './index'
 
 describe('createTokensContext', () => {
   describe('basic functionality', () => {

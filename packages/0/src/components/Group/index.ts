@@ -6,7 +6,7 @@ export { default as GroupRoot } from './GroupRoot.vue'
 export type { GroupItemProps, GroupItemSlotProps } from './GroupItem.vue'
 export type { GroupRootProps, GroupRootSlotProps } from './GroupRoot.vue'
 
-// Components
+// Context
 import Item from './GroupItem.vue'
 import Root from './GroupRoot.vue'
 

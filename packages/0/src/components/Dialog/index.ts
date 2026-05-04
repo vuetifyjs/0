@@ -12,7 +12,7 @@ export type { DialogContext, DialogRootProps, DialogRootSlotProps } from './Dial
 export type { DialogTitleProps, DialogTitleSlotProps } from './DialogTitle.vue'
 export type { DialogActivatorProps, DialogActivatorSlotProps } from './DialogActivator.vue'
 
-// Components
+// Context
 import Activator from './DialogActivator.vue'
 import Close from './DialogClose.vue'
 import Content from './DialogContent.vue'

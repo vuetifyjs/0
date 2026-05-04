@@ -2,11 +2,11 @@
   // Framework
   import { createDataTable, createGroup, createSingle } from '@vuetify/v0'
 
+  import maturityData from '#v0/maturity.json'
+
   // Utilities
   import { toRef } from 'vue'
   import { RouterLink } from 'vue-router'
-
-  import maturityData from '#v0/maturity.json'
 
   // Types
   type Level = 'draft' | 'preview' | 'stable' | 'mature' | 'deprecated'

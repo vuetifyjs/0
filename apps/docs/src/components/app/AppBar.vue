@@ -1,7 +1,4 @@
 <script setup lang="ts">
-  // Stores
-  import { useAuthStore } from '@vuetify/auth'
-
   // Framework
   import { Atom, useBreakpoints, useFeatures, useStorage, useTheme } from '@vuetify/v0'
 
@@ -12,6 +9,9 @@
   import { useNavigation } from '@/composables/useNavigation'
   import { useSearch } from '@/composables/useSearch'
   import { useSettings } from '@/composables/useSettings'
+
+  // Stores
+  import { useAuthStore } from '@vuetify/auth'
 
   // Utilities
   import { toRef, watch } from 'vue'

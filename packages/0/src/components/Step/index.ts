@@ -6,7 +6,7 @@ export { default as StepRoot } from './StepRoot.vue'
 export type { StepItemProps, StepItemSlotProps } from './StepItem.vue'
 export type { StepRootProps, StepRootSlotProps } from './StepRoot.vue'
 
-// Components
+// Context
 import Item from './StepItem.vue'
 import Root from './StepRoot.vue'
 

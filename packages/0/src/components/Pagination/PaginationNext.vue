@@ -11,6 +11,8 @@
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
+
+  // Context
   import { usePaginationControls, usePaginationRoot } from './PaginationRoot.vue'
 
   // Composables

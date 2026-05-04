@@ -1,12 +1,12 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { createFocusTraversal } from './index'
+
 // Utilities
 import { ref } from 'vue'
 
 // Types
 import type { TraversalItem } from './index'
-
-import { createFocusTraversal } from './index'
 
 function items (...ids: string[]): () => TraversalItem[] {
   return () => ids.map(id => ({ id }))

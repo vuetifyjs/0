@@ -1,6 +1,6 @@
 import { ViteSSG } from 'vite-ssg'
 
-// Components
+// Context
 import App from './App.vue'
 import Playground from './Playground.vue'
 

@@ -37,12 +37,12 @@ import { createSelection } from '#v0/composables/createSelection'
 import { createTrinity } from '#v0/composables/createTrinity'
 import { useProxyRegistry } from '#v0/composables/useProxyRegistry'
 
+// Transformers
+import { toArray } from '#v0/composables/toArray'
+
 // Utilities
 import { resolveIds, resolveIndexes, useId } from '#v0/utilities'
 import { computed, shallowReactive, toRef, toValue } from 'vue'
-
-// Transformers
-import { toArray } from '#v0/composables/toArray'
 
 // Types
 import type { SelectionContext, SelectionContextOptions, SelectionOptions, SelectionTicket, SelectionTicketInput } from '#v0/composables/createSelection'

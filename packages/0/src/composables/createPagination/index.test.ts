@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { createPagination, createPaginationContext, usePagination } from './index'
+
 // Utilities
 import { inject, provide, shallowRef } from 'vue'
-
-import { createPagination, createPaginationContext, usePagination } from './index'
 
 vi.mock('vue', async () => {
   const actual = await vi.importActual('vue')
