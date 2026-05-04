@@ -52,7 +52,7 @@
     attrs: {
       'role': 'group'
       'aria-orientation': ToggleOrientation
-      'aria-disabled': boolean | undefined
+      'aria-disabled': boolean
       'data-orientation': ToggleOrientation
       'data-disabled': true | undefined
     }
@@ -117,7 +117,7 @@
     attrs: {
       'role': 'group',
       'aria-orientation': orientation,
-      'aria-disabled': disabled || undefined,
+      'aria-disabled': disabled,
       'data-orientation': orientation,
       'data-disabled': disabled ? true : undefined,
     },
