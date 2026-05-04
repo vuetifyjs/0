@@ -1,7 +1,7 @@
 import { Color, Theme } from '@adobe/leonardo-contrast-colors'
 
 // Utilities
-import { isObject } from '#v0/utilities'
+import { isArray, isObject } from '#v0/utilities'
 
 // Types
 import type { PaletteDefinition } from '#v0/palettes'
@@ -18,7 +18,7 @@ const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i
 function extractColors (entries: unknown[]): Record<number, string> {
   const colors: Record<number, string> = {}
   for (const entry of entries) {
-    if (isObject(entry) && 'values' in entry) {
+    if (isObject(entry) && 'values' in entry && isArray(entry.values)) {
       const e = entry as { values: Array<{ contrast: number, value: string }> }
       for (const v of e.values) {
         colors[v.contrast] = v.value
