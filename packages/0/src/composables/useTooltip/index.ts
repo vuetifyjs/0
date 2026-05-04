@@ -25,21 +25,14 @@
 import { createPluginContext } from '#v0/composables/createPlugin'
 import { createRegistry } from '#v0/composables/createRegistry'
 
-// Globals
-import { IN_BROWSER } from '#v0/constants/globals'
-
 // Utilities
 import { isNull } from '#v0/utilities'
 import { getCurrentScope, onScopeDispose, shallowRef, toRef, toValue } from 'vue'
 
 // Types
-import type { RegistryTicket } from '#v0/composables/createRegistry'
+import type { RegistryTicket, RegistryTicketInput } from '#v0/composables/createRegistry'
 import type { ID } from '#v0/types'
 import type { MaybeRefOrGetter, Ref } from 'vue'
-
-function now (): number {
-  return IN_BROWSER ? performance.now() : Date.now()
-}
 
 /**
  * Options accepted by the tooltip factory.
@@ -137,7 +130,7 @@ export interface TooltipContext {
    * const ticket = tooltip.register({ id: 'tooltip:1' })
    * ```
    */
-  register: (input?: Partial<RegistryTicket>) => RegistryTicket
+  register: (input?: Partial<RegistryTicketInput>) => RegistryTicket
   /**
    * Unregister a tooltip and stamp the close timestamp.
    *
@@ -154,9 +147,7 @@ export interface TooltipContextOptions extends TooltipOptions {
   namespace?: string
 }
 
-export interface TooltipPluginOptions extends TooltipContextOptions {
-  // No persist field today; declared for parity with sibling plugins.
-}
+export type TooltipPluginOptions = TooltipContextOptions
 
 // Internal factory passed to createPluginContext below. The trinity exports
 // (`createTooltipContext`, `createTooltipPlugin`, `useTooltip`) are the
@@ -175,18 +166,18 @@ function createTooltip (options: TooltipOptions = {}): TooltipContext {
   function shouldSkipOpenDelay (): boolean {
     if (isAnyOpen.value) return true
     if (isNull(lastClosedAt.value)) return false
-    const elapsed = now() - lastClosedAt.value
+    const elapsed = performance.now() - lastClosedAt.value
     return elapsed >= 0 && elapsed < skipDelay.value
   }
 
-  function register (input?: Partial<RegistryTicket>): RegistryTicket {
+  function register (input?: Partial<RegistryTicketInput>): RegistryTicket {
     return registry.register(input)
   }
 
   function unregister (id: ID): void {
     if (!registry.has(id)) return
     registry.unregister(id)
-    lastClosedAt.value = now()
+    lastClosedAt.value = performance.now()
   }
 
   if (getCurrentScope()) {
@@ -205,8 +196,29 @@ function createTooltip (options: TooltipOptions = {}): TooltipContext {
   }
 }
 
+/**
+ * Synthesized fallback used when `useTooltip()` is called without
+ * `app.use(createTooltipPlugin())`. Returns a fresh context with the
+ * documented defaults — `<Tooltip.Root>` keeps working but warmup
+ * coordination is per-instance instead of region-wide.
+ *
+ * @example
+ * ```ts
+ * import { createTooltipFallback } from '@vuetify/v0'
+ *
+ * const tooltip = createTooltipFallback()
+ * console.log(tooltip.openDelay.value) // 700
+ * ```
+ */
+export function createTooltipFallback (): TooltipContext {
+  return createTooltip()
+}
+
 export const [createTooltipContext, createTooltipPlugin, useTooltip] =
   createPluginContext<TooltipPluginOptions, TooltipContext>(
     'v0:tooltip',
     createTooltip,
+    {
+      fallback: () => createTooltipFallback(),
+    },
   )
