@@ -77,7 +77,7 @@
 
   const viewportId = `${carousel.rootId}-viewport`
 
-  const el = toRef(() => toElement(viewportRef.value?.element) as HTMLElement | null ?? null)
+  const el = toRef(() => toElement(viewportRef.value?.element) ?? null)
   const ticket = carousel.parts.register({ type: 'viewport', el })
   onBeforeUnmount(() => ticket.unregister())
 
