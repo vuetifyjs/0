@@ -486,8 +486,8 @@ export function createSlider (options: SliderOptions = {}): SliderContext {
   }
 
   function fromPercent (p: number): number {
-    const adjusted = inverted.value ? 100 - p : p
-    return numeric.fromPercent(adjusted)
+    const value = numeric.fromPercent(p)
+    return inverted.value ? numeric.max - (value - numeric.min) : value
   }
 
   function register (input?: number | { value: number }): ModelTicket<SliderTicketInput> {
