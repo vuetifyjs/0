@@ -1,14 +1,16 @@
 <script setup lang="ts">
-  import { useDragDrop } from '@vuetify/v0'
+  import type { DragDropContext } from '@vuetify/v0'
   import { useTemplateRef } from 'vue'
 
   type Item = { id: number, label: string }
   type Kinds = { type: 'item', value: Item }
 
-  const { item } = defineProps<{ item: Item }>()
+  const { dnd, item } = defineProps<{
+    dnd: DragDropContext<Kinds>
+    item: Item
+  }>()
 
-  const dnd = useDragDrop<Kinds>()
-  const el = useTemplateRef<HTMLElement | null>('el')
+  const el = useTemplateRef<HTMLElement>('el')
 
   const ticket = dnd.draggables.register({
     el,

@@ -3,7 +3,7 @@
  *
  * @remarks
  * Pure math for resolving where in an oriented zone a pointer would drop.
- * Not exported from the createDragDrop barrel — consumed only by the factory.
+ * Not exported from the useDragDrop barrel — consumed only by the factory.
  */
 
 type Orientation = 'vertical' | 'horizontal'

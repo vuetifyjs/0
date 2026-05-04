@@ -1,5 +1,5 @@
 ---
-title: createDragDrop - Headless Drag-and-Drop Primitive
+title: useDragDrop - Headless Drag-and-Drop Primitive
 meta:
 - name: description
   content: Headless drag-and-drop with two registries (draggables and zones), pluggable pointer / keyboard adapters, and accessibility-first defaults.
@@ -7,8 +7,8 @@ meta:
   content: drag, drop, dnd, kanban, sortable, headless, Vue 3, composable
 features:
   category: Composable
-  label: 'C: createDragDrop'
-  github: /composables/createDragDrop/
+  label: 'E: useDragDrop'
+  github: /composables/useDragDrop/
   level: 2
 related:
   - /composables/registration/create-registry
@@ -16,7 +16,7 @@ related:
   - /composables/system/use-roving-focus
 ---
 
-# createDragDrop
+# useDragDrop
 
 Headless drag-and-drop primitive. Owns two registries — draggables and zones — plus the active-drag state.
 
@@ -24,21 +24,20 @@ Headless drag-and-drop primitive. Owns two registries — draggables and zones �
 
 ## Usage
 
-Call `createDragDrop` once per scope (board, tree, splitter); it auto-provides so sub-components inject via `useDragDrop` and register against the same registries.
+Call `useDragDrop` once per scope (board, tree, splitter). The returned context owns the registries and active-drag state — pass it to children explicitly so they can register draggables and zones against the same instance.
 
 ```ts collapse
-import { createDragDrop, useDragDrop } from '@vuetify/v0'
+import { useDragDrop } from '@vuetify/v0'
 
 // In the parent scope (e.g. <Kanban.Root>)
-const dnd = createDragDrop<{ type: 'card', value: Card }>()
+const dnd = useDragDrop<{ type: 'card', value: Card }>()
 
-// In a draggable child
-const ctx = useDragDrop<{ type: 'card', value: Card }>()
-const ticket = ctx.draggables.register({ el, type: 'card', value: card })
+// In a draggable child (receives `dnd` as a prop)
+const ticket = dnd.draggables.register({ el, type: 'card', value: card })
 // → ticket.attrs, ticket.isDragging, ticket.el
 
-// In a drop-zone child
-const zone = ctx.zones.register({
+// In a drop-zone child (receives `dnd` as a prop)
+const zone = dnd.zones.register({
   el,
   accept: ['card'],
   orientation: 'vertical',
@@ -51,9 +50,9 @@ const zone = ctx.zones.register({
 
 The factory owns three pieces of state and three extension points. Pointer and keyboard adapters observe the DOM and emit a four-call lifecycle (`start`, `move`, `drop`, `cancel`); the factory pipes those through per-ticket and global hooks before mutating `active`.
 
-```mermaid "createDragDrop architecture"
+```mermaid "useDragDrop architecture"
 flowchart TD
-  subgraph factory["createDragDrop()"]
+  subgraph factory["useDragDrop()"]
     direction TB
     draggables[("draggables<br/>(createRegistry)")]
     zones[("zones<br/>(createRegistry)")]
@@ -74,8 +73,8 @@ flowchart TD
     onCancel
   end
 
-  child1["&lt;Card /&gt;<br/>useDragDrop().draggables.register"] --> draggables
-  child2["&lt;Column /&gt;<br/>useDragDrop().zones.register"] --> zones
+  child1["&lt;Card /&gt;<br/>dnd.draggables.register"] --> draggables
+  child2["&lt;Column /&gt;<br/>dnd.zones.register"] --> zones
 
   pointer -->|emit| factory
   keyboard -->|emit| factory
@@ -98,16 +97,16 @@ Adapters are pluggable input layers: an adapter observes the DOM (or any other i
 Replace the defaults entirely by passing the `adapters` option:
 
 ```ts
-import { createDragDrop, pointerAdapter } from '@vuetify/v0'
+import { useDragDrop, pointerAdapter } from '@vuetify/v0'
 
 // Pointer only — disables keyboard.
-const dnd = createDragDrop({ adapters: [pointerAdapter()] })
+const dnd = useDragDrop({ adapters: [pointerAdapter()] })
 ```
 
 To extend rather than replace, list the defaults explicitly alongside your custom adapter:
 
 ```ts
-createDragDrop({
+useDragDrop({
   adapters: [pointerAdapter(), keyboardAdapter(), myWebXrAdapter()],
 })
 ```
@@ -146,9 +145,9 @@ Indicator computation is `computed`-cached — `getBoundingClientRect` runs once
 ## Examples
 
 ::: example
-/composables/create-drag-drop/DragItem.vue 1
-/composables/create-drag-drop/DropList.vue 2
-/composables/create-drag-drop/basic.vue 3
+/composables/use-drag-drop/DragItem.vue 1
+/composables/use-drag-drop/DropList.vue 2
+/composables/use-drag-drop/basic.vue 3
 
 ### Basic two-list drag
 
@@ -160,9 +159,9 @@ Reach for this shape when you want a sortable list with cross-container moves an
 
 | File | Role |
 |------|------|
-| `DragItem.vue` | Registers itself as a draggable via `dnd.draggables.register({ el, type, value })` and binds the returned ticket's `attrs` |
-| `DropList.vue` | Registers itself as a zone via `dnd.zones.register({ el, accept, orientation, onDrop })` and emits `move` events upward |
-| `basic.vue` | Owns the lists, calls `createDragDrop()` to provide the context, and handles cross-list moves |
+| `DragItem.vue` | Receives the shared `dnd` context as a prop and registers itself as a draggable via `dnd.draggables.register({ el, type, value })` |
+| `DropList.vue` | Receives the shared `dnd` context as a prop, registers itself as a zone via `dnd.zones.register({ el, accept, orientation, onDrop })`, and emits `move` events upward |
+| `basic.vue` | Owns the lists, calls `useDragDrop()` to create the context, threads it to children, and handles cross-list moves |
 :::
 
 ## Recipes
@@ -176,15 +175,15 @@ type KanbanTypes =
   | { type: 'card', value: Card }
   | { type: 'column', value: Column }
 
-const dnd = createDragDrop<KanbanTypes>()
+const dnd = useDragDrop<KanbanTypes>()
 
 // Card zone accepts only cards
-ctx.zones.register({ el, accept: ['card'], onDrop: (drag) => {
+dnd.zones.register({ el, accept: ['card'], onDrop: (drag) => {
   // drag.type narrows to 'card', drag.value to Card
 }})
 
 // Column-row zone accepts only columns
-ctx.zones.register({ el, accept: ['column'], orientation: 'horizontal' })
+dnd.zones.register({ el, accept: ['column'], orientation: 'horizontal' })
 ```
 
 ### Vetoing drops
@@ -192,7 +191,7 @@ ctx.zones.register({ el, accept: ['column'], orientation: 'horizontal' })
 Either layer can veto. Per-zone vetoes route the drag through the cancel chain (`onLeave` on the active zone → `onCancel` on the source draggable → global `onCancel`) so consumers can roll back optimistic UI without subscribing to a separate "drop failed" event.
 
 ```ts
-ctx.zones.register({
+dnd.zones.register({
   el,
   accept: ['card'],
   onBeforeDrop: (drag) => column.cards.length < column.wipLimit,
@@ -204,7 +203,7 @@ ctx.zones.register({
 Drop the defaults entirely and forward your own input source. Useful for cross-window drags, file-drop integrations, or programmatic test fixtures.
 
 ```ts
-const dnd = createDragDrop({ adapters: [myCustomAdapter()] })
+const dnd = useDragDrop({ adapters: [myCustomAdapter()] })
 ```
 
 ## Accessibility
@@ -232,7 +231,7 @@ Only when the over-zone declares `orientation`. Without orientation, the zone is
 
 ??? How do I pick the right `K` parameter?
 
-`K` is a discriminated union of every drag type the scope handles. For a single type, write `createDragDrop<{ type: 'card', value: Card }>()`. For multiple, union them: `{ type: 'card', value: Card } | { type: 'column', value: Column }`. The types are distributive — narrowing on `drag.type` narrows `drag.value` to the matching variant.
+`K` is a discriminated union of every drag type the scope handles. For a single type, write `useDragDrop<{ type: 'card', value: Card }>()`. For multiple, union them: `{ type: 'card', value: Card } | { type: 'column', value: Column }`. The types are distributive — narrowing on `drag.type` narrows `drag.value` to the matching variant.
 
 ??? Can the same DOM element be both a draggable and a zone?
 
@@ -240,7 +239,7 @@ Yes. Two registrations on the same element work because they live in different r
 
 ??? What if I need autoscroll, FLIP animations, or multi-select drag?
 
-These don't ship in v1 to keep the surface small. The plugin slot is the extension point — `createDragDrop({ plugins: [autoScroll(), flipAnimations()] })` — and lifecycle hooks let you observe everything from outside the composable. Multi-select drag is best composed with [createSelection](/composables/selection/create-selection) so the selected set is its own first-class concept.
+These don't ship in v1 to keep the surface small. The plugin slot is the extension point — `useDragDrop({ plugins: [autoScroll(), flipAnimations()] })` — and lifecycle hooks let you observe everything from outside the composable. Multi-select drag is best composed with [createSelection](/composables/selection/create-selection) so the selected set is its own first-class concept.
 
 :::
 

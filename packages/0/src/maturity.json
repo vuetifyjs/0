@@ -106,11 +106,6 @@
       "since": "0.1.0",
       "category": "data"
     },
-    "createDragDrop": {
-      "level": "draft",
-      "since": null,
-      "category": "utilities"
-    },
     "createFilter": {
       "level": "preview",
       "since": "0.1.0",
@@ -198,6 +193,11 @@
     },
     "useDelay": {
       "level": "preview",
+      "since": null,
+      "category": "system"
+    },
+    "useDragDrop": {
+      "level": "draft",
       "since": null,
       "category": "system"
     },

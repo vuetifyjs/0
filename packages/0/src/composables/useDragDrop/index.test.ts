@@ -4,12 +4,12 @@ import { describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { effectScope, isRef, nextTick, shallowRef } from 'vue'
 
-import { createDragDrop } from './'
+import { useDragDrop } from './'
 
-describe('createDragDrop', () => {
+describe('useDragDrop', () => {
   describe('factory', () => {
     it('should return a context with draggables, zones, active, isDragging, cancel', () => {
-      const dnd = createDragDrop({ adapters: [] })
+      const dnd = useDragDrop({ adapters: [] })
 
       expect(dnd.draggables).toBeDefined()
       expect(dnd.zones).toBeDefined()
@@ -19,7 +19,7 @@ describe('createDragDrop', () => {
     })
 
     it('should construct both registries with events enabled', () => {
-      const dnd = createDragDrop({ adapters: [] })
+      const dnd = useDragDrop({ adapters: [] })
 
       expect(typeof dnd.draggables.on).toBe('function')
       expect(typeof dnd.zones.on).toBe('function')
@@ -31,7 +31,7 @@ describe('createDragDrop', () => {
       const scope = effectScope()
 
       scope.run(() => {
-        createDragDrop({
+        useDragDrop({
           adapters: [],
           plugins: [
             () => {
@@ -56,7 +56,7 @@ describe('createDragDrop', () => {
 
   describe('cancel', () => {
     it('should not throw when no active drag', () => {
-      const dnd = createDragDrop({ adapters: [] })
+      const dnd = useDragDrop({ adapters: [] })
       expect(() => dnd.cancel()).not.toThrow()
       expect(dnd.active.value).toBeNull()
     })
@@ -65,7 +65,7 @@ describe('createDragDrop', () => {
 
 describe('draggables.register', () => {
   it('should return a ticket with type, value, attrs, el, isDragging', () => {
-    const dnd = createDragDrop<{ type: 'card', value: { id: number } }>({ adapters: [] })
+    const dnd = useDragDrop<{ type: 'card', value: { id: number } }>({ adapters: [] })
     const el = shallowRef<HTMLElement | null>(null)
 
     const ticket = dnd.draggables.register({ el, type: 'card', value: { id: 1 } })
@@ -78,7 +78,7 @@ describe('draggables.register', () => {
   })
 
   it('should populate attrs with data-draggable, aria-roledescription, touch-action', () => {
-    const dnd = createDragDrop({ adapters: [] })
+    const dnd = useDragDrop({ adapters: [] })
     const el = shallowRef<HTMLElement | null>(null)
 
     const ticket = dnd.draggables.register({ el, type: 'a', value: null })
@@ -89,7 +89,7 @@ describe('draggables.register', () => {
   })
 
   it('should mark data-dragging while ticket is the active drag', async () => {
-    const dnd = createDragDrop({ adapters: [] })
+    const dnd = useDragDrop({ adapters: [] })
     const el = shallowRef<HTMLElement | null>(null)
 
     const ticket = dnd.draggables.register({ el, type: 'a', value: null })
@@ -108,7 +108,7 @@ describe('draggables.register', () => {
   })
 
   it('should drop touchAction style when disabled', () => {
-    const dnd = createDragDrop({ adapters: [] })
+    const dnd = useDragDrop({ adapters: [] })
     const el = shallowRef<HTMLElement | null>(null)
     const disabled = shallowRef(false)
 
@@ -123,7 +123,7 @@ describe('draggables.register', () => {
 
 describe('zones.register', () => {
   it('should return a ticket with attrs, isOver, willAccept, indicator', () => {
-    const dnd = createDragDrop({ adapters: [] })
+    const dnd = useDragDrop({ adapters: [] })
     const el = shallowRef<HTMLElement | null>(null)
 
     const zone = dnd.zones.register({ el, accept: ['card'] })
@@ -136,7 +136,7 @@ describe('zones.register', () => {
 
   it('should set willAccept when active drag matches accept array', () => {
     type K = { type: 'card', value: null } | { type: 'column', value: null }
-    const dnd = createDragDrop<K>({ adapters: [] })
+    const dnd = useDragDrop<K>({ adapters: [] })
     const el = shallowRef<HTMLElement | null>(null)
 
     const zone = dnd.zones.register({ el, accept: ['card'] })
@@ -162,7 +162,7 @@ describe('zones.register', () => {
   })
 
   it('should call accept predicate when accept is a function', () => {
-    const dnd = createDragDrop({ adapters: [] })
+    const dnd = useDragDrop({ adapters: [] })
     const el = shallowRef<HTMLElement | null>(null)
     const accept = vi.fn(() => true)
 
@@ -197,7 +197,7 @@ describe('keyboardAdapter', () => {
   it('should pick up focused draggable on Space', async () => {
     const cardEl = makeFocusableEl('card-key-1')
 
-    const dnd = createDragDrop()
+    const dnd = useDragDrop()
     const card = dnd.draggables.register({ el: shallowRef(cardEl), type: 'a', value: null })
 
     cardEl.focus()
@@ -213,7 +213,7 @@ describe('keyboardAdapter', () => {
   it('should cancel drag on Escape', async () => {
     const cardEl = makeFocusableEl('card-key-2')
 
-    const dnd = createDragDrop()
+    const dnd = useDragDrop()
     dnd.draggables.register({ el: shallowRef(cardEl), type: 'a', value: null })
 
     cardEl.focus()
@@ -232,7 +232,7 @@ describe('keyboardAdapter', () => {
 describe('lifecycle hooks', () => {
   it('should not start when draggable.onBeforeStart returns false', async () => {
     const cardEl = makeFocusableEl('lc-1')
-    const dnd = createDragDrop()
+    const dnd = useDragDrop()
 
     dnd.draggables.register({
       el: shallowRef(cardEl),
@@ -258,7 +258,7 @@ describe('lifecycle hooks', () => {
     const onCancelGlobal = vi.fn()
     const onDrop = vi.fn()
 
-    const dnd = createDragDrop({ onCancel: onCancelGlobal })
+    const dnd = useDragDrop({ onCancel: onCancelGlobal })
     dnd.draggables.register({
       el: shallowRef(cardEl),
       type: 'a',
@@ -297,7 +297,7 @@ describe('lifecycle hooks', () => {
     const onCancelDraggable = vi.fn()
     const onCancelGlobal = vi.fn()
 
-    const dnd = createDragDrop({ onCancel: onCancelGlobal })
+    const dnd = useDragDrop({ onCancel: onCancelGlobal })
     dnd.draggables.register({
       el: shallowRef(cardEl),
       type: 'a',
@@ -328,7 +328,7 @@ describe('lifecycle hooks', () => {
     const bEnter = vi.fn()
     const bLeave = vi.fn()
 
-    const dnd = createDragDrop()
+    const dnd = useDragDrop()
     dnd.draggables.register({ el: shallowRef(cardEl), type: 'a', value: null })
     dnd.zones.register({ el: shallowRef(zoneA), onEnter: aEnter, onLeave: aLeave })
     dnd.zones.register({ el: shallowRef(zoneB), onEnter: bEnter, onLeave: bLeave })
@@ -362,7 +362,7 @@ describe('lifecycle hooks', () => {
 
   it('should not install default adapters when adapters: []', () => {
     const cardEl = makeFocusableEl('lc-5')
-    const dnd = createDragDrop({ adapters: [] })
+    const dnd = useDragDrop({ adapters: [] })
     dnd.draggables.register({ el: shallowRef(cardEl), type: 'a', value: null })
 
     cardEl.focus()
@@ -380,7 +380,7 @@ describe('pointerAdapter', () => {
       template: `<div ref="root"><div ref="card" /></div>`,
       setup () {
         const card = shallowRef<HTMLElement | null>(null)
-        const dnd = createDragDrop()
+        const dnd = useDragDrop()
         const ticket = dnd.draggables.register({ el: card, type: 'a', value: null })
         return { card, dnd, ticket }
       },
@@ -389,8 +389,8 @@ describe('pointerAdapter', () => {
     await nextTick()
 
     const vm = wrapper.vm as unknown as {
-      ticket: ReturnType<ReturnType<typeof createDragDrop>['draggables']['register']>
-      dnd: ReturnType<typeof createDragDrop>
+      ticket: ReturnType<ReturnType<typeof useDragDrop>['draggables']['register']>
+      dnd: ReturnType<typeof useDragDrop>
     }
 
     const el = vm.ticket.el.value!

@@ -1,7 +1,7 @@
 /**
- * @module createDragDrop
+ * @module useDragDrop
  *
- * @see https://0.vuetifyjs.com/composables/utilities/create-drag-drop
+ * @see https://0.vuetifyjs.com/composables/system/use-drag-drop
  *
  * @remarks
  * Headless drag-and-drop primitive. Owns two registries (draggables and zones)
@@ -10,15 +10,13 @@
  *
  * @example
  * ```ts
- * import { createDragDrop } from '@vuetify/v0'
+ * import { useDragDrop } from '@vuetify/v0'
  *
- * // Auto-provides into the current setup() scope.
- * const dnd = createDragDrop()
+ * const dnd = useDragDrop()
  * ```
  */
 
 // Composables
-import { createContext } from '#v0/composables/createContext'
 import { createRegistry } from '#v0/composables/createRegistry'
 
 // Adapters
@@ -27,7 +25,7 @@ import { pointerAdapter } from './adapters/pointer'
 
 // Utilities
 import { isArray, isFunction, useId } from '#v0/utilities'
-import { computed, hasInjectionContext, onScopeDispose, shallowRef, toRef, toValue } from 'vue'
+import { computed, onScopeDispose, shallowRef, toRef, toValue } from 'vue'
 
 // Types
 import type {
@@ -169,20 +167,6 @@ export interface DragDropContext<K extends DragType = DragType> {
   cancel: () => void
 }
 
-const [useDragDropContext, provideDragDropContext] =
-  createContext<DragDropContext>('v0:dragdrop')
-
-/**
- * Inject the nearest `createDragDrop` context.
- *
- * Generic in `K` so consumers can recover the factory's narrowed kinds at the
- * inject boundary; the cast is safe because the underlying registry was
- * created with the same `K`.
- */
-export function useDragDrop<K extends DragType = DragType> (): DragDropContext<K> {
-  return useDragDropContext() as unknown as DragDropContext<K>
-}
-
 function buildDraggableAttrs (isDraggingNow: boolean, disabled: boolean): Record<string, unknown> {
   const out: Record<string, unknown> = {
     'data-draggable': '',
@@ -210,7 +194,7 @@ function willZoneAccept<K extends DragType> (
   return accept(drag) === true
 }
 
-export function createDragDrop<K extends DragType = DragType> (
+export function useDragDrop<K extends DragType = DragType> (
   options: DragDropOptions<K> = {},
 ): DragDropContext<K> {
   const { plugins = [] } = options
@@ -448,10 +432,6 @@ export function createDragDrop<K extends DragType = DragType> (
     active: active as Readonly<ShallowRef<ActiveDrag<K> | null>>,
     isDragging,
     cancel,
-  }
-
-  if (hasInjectionContext()) {
-    provideDragDropContext(ctx as unknown as DragDropContext)
   }
 
   const disposers: (() => void)[] = []

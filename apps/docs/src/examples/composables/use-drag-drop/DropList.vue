@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { useDragDrop } from '@vuetify/v0'
+  import type { DragDropContext } from '@vuetify/v0'
   import { useTemplateRef } from 'vue'
 
   import DragItem from './DragItem.vue'
@@ -8,7 +8,8 @@
   type Kinds = { type: 'item', value: Item }
   type Side = 'left' | 'right'
 
-  const { items, side } = defineProps<{
+  const { dnd, items, side } = defineProps<{
+    dnd: DragDropContext<Kinds>
     items: Item[]
     side: Side
   }>()
@@ -17,8 +18,7 @@
     (e: 'move', item: Item, toSide: Side, toIndex: number): void
   }>()
 
-  const dnd = useDragDrop<Kinds>()
-  const el = useTemplateRef<HTMLElement | null>('el')
+  const el = useTemplateRef<HTMLElement>('el')
 
   const zone = dnd.zones.register({
     el,
@@ -36,6 +36,6 @@
     v-bind="zone.attrs.value"
     class="basis-48 grow min-h-32 p-2 border rounded flex flex-col gap-2 transition-colors border-divider bg-surface data-[accepts]:border-primary data-[accepts]:bg-primary/10 data-[accepts]:ring-2 data-[accepts]:ring-primary/40"
   >
-    <DragItem v-for="item in items" :key="item.id" :item />
+    <DragItem v-for="item in items" :key="item.id" :dnd :item />
   </div>
 </template>

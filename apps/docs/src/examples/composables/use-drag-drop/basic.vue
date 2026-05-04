@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { createDragDrop } from '@vuetify/v0'
+  import { useDragDrop } from '@vuetify/v0'
   import { ref } from 'vue'
 
   import DropList from './DropList.vue'
@@ -15,7 +15,7 @@
   ])
   const right = ref<Item[]>([])
 
-  const dnd = createDragDrop<Kinds>()
+  const dnd = useDragDrop<Kinds>()
 
   function onMove (item: Item, toSide: Side, toIndex: number) {
     const fromList = left.value.some(i => i.id === item.id) ? left : right
@@ -30,7 +30,7 @@
     class="flex flex-wrap gap-4 data-[dragging]:cursor-grabbing"
     :data-dragging="dnd.isDragging.value || undefined"
   >
-    <DropList :items="left" side="left" @move="onMove" />
-    <DropList :items="right" side="right" @move="onMove" />
+    <DropList :dnd :items="left" side="left" @move="onMove" />
+    <DropList :dnd :items="right" side="right" @move="onMove" />
   </div>
 </template>
