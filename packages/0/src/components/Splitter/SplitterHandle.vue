@@ -50,7 +50,7 @@
       'aria-orientation': SplitterOrientation
       'aria-controls': string | undefined
       'aria-label': string | undefined
-      'aria-disabled': true | undefined
+      'aria-disabled': boolean
       'data-state': SplitterHandleState
       'data-orientation': SplitterOrientation
       'data-disabled': true | undefined
@@ -262,7 +262,7 @@
       'aria-orientation': ariaOrientation.value,
       'aria-controls': ariaControls.value,
       'aria-label': label || undefined,
-      'aria-disabled': isDisabled.value || undefined,
+      'aria-disabled': isDisabled.value,
       'data-state': state.value,
       'data-orientation': splitter.orientation.value,
       'data-disabled': isDisabled.value || undefined,
