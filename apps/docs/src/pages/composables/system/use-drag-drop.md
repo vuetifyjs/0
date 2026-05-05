@@ -110,6 +110,12 @@ flowchart TD
 
 Adapters are pluggable input layers: an adapter observes the DOM (or any other input source) and emits the four lifecycle events the factory consumes. Default adapters are installed automatically.
 
+| Adapter | Import | Description |
+|---|---|---|
+| `PointerAdapter` | `@vuetify/v0` | Pointer Events for mouse, touch, and pen (default) |
+| `KeyboardAdapter` | `@vuetify/v0` | Keyboard activation (default) |
+| `DragDropAdapter` | `@vuetify/v0` | Abstract base class for custom adapters — see [Custom adapters](#custom-adapters) |
+
 ### PointerAdapter
 
 Pointer Events for mouse, touch, and pen. Installed by default.
@@ -186,6 +192,8 @@ class TouchAdapter<K extends DragType = DragType> extends DragDropAdapter<K> {
 `context.emit` exposes `start(source, origin, via)`, `move(point)`, `drop()`, and `cancel()` — call these as input arrives. Adapters declare their own `via` value via `Extensible<'pointer' | 'keyboard'>` so consumers reading `active.value.via` can distinguish the input source.
 
 ## Reactivity
+
+### Reactive fields
 
 Every consumer-facing state field is a reactive ref <AppSuccessIcon />. Reads in templates need `.value`.
 
