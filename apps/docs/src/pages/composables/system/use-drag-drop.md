@@ -110,23 +110,47 @@ flowchart TD
 
 Adapters are pluggable input layers: an adapter observes the DOM (or any other input source) and emits the four lifecycle events the factory consumes. Default adapters are installed automatically.
 
-| Adapter | Import | Default | Description |
+### PointerAdapter
+
+Pointer Events for mouse, touch, and pen. Installed by default.
+
+| Option | Type | Default | Description |
 |---|---|---|---|
-| `PointerAdapter` | `@vuetify/v0` | yes | Pointer Events for mouse, touch, and pen. Optional `threshold` activation distance. |
-| `KeyboardAdapter` | `@vuetify/v0` | yes | `Space` / `Enter` to pick up and drop, arrow keys to nudge, `Escape` to cancel. Configurable activation keys + step. |
-
-Both adapters accept a constructor options bag — `PointerAdapter({ threshold })` and `KeyboardAdapter({ activate, step })`.
-
-Replace the defaults entirely by passing the `adapters` option:
+| `threshold` | `number` | `0` | Drag-activation distance in px. Set non-zero to require a minimum movement before the drag starts — useful for distinguishing drags from clicks. |
 
 ```ts
 import { useDragDrop, PointerAdapter } from '@vuetify/v0'
 
-// Pointer only — disables keyboard.
+const dnd = useDragDrop({ adapters: [new PointerAdapter({ threshold: 8 })] })
+```
+
+### KeyboardAdapter
+
+Keyboard activation: `Space` / `Enter` to pick up and drop, arrow keys to nudge, `Escape` to cancel. Installed by default.
+
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `activate` | `string[]` | `[' ', 'Enter']` | Keys that pick up an idle draggable and drop the active one. |
+| `step` | `number` | `16` | Pixel step per arrow-key press. |
+
+```ts
+import { useDragDrop, KeyboardAdapter } from '@vuetify/v0'
+
+const dnd = useDragDrop({ adapters: [new KeyboardAdapter({ step: 32 })] })
+```
+
+### Replacing the defaults
+
+To use only one adapter, pass it explicitly. The default array is replaced entirely:
+
+```ts
+import { useDragDrop, PointerAdapter } from '@vuetify/v0'
+
+// Pointer only — keyboard disabled.
 const dnd = useDragDrop({ adapters: [new PointerAdapter()] })
 ```
 
-To extend rather than replace, list the defaults explicitly alongside your custom adapter:
+To extend instead of replace, list the defaults alongside your custom adapter:
 
 ```ts
 import { useDragDrop, PointerAdapter, KeyboardAdapter } from '@vuetify/v0'
@@ -137,9 +161,11 @@ useDragDrop({
 })
 ```
 
-`adapters: []` disables both defaults entirely (useful for server-driven or test scenarios).
+`adapters: []` disables both defaults entirely — useful for server-driven or test scenarios.
 
-A custom adapter extends the abstract base:
+### Custom adapters
+
+Extend the abstract `DragDropAdapter` base for shared `cleanup` + `dispose()` lifecycle and the `locate()` DOM-walk helper:
 
 ```ts
 import { DragDropAdapter } from '@vuetify/v0'
@@ -161,7 +187,7 @@ class TouchAdapter<K extends DragType = DragType> extends DragDropAdapter<K> {
 
 ## Reactivity
 
-Every consumer-facing state field is a reactive ref. Reads in templates need `.value`.
+Every consumer-facing state field is a reactive ref <AppSuccessIcon />. Reads in templates need `.value`.
 
 | Field | Shape | Updates when |
 |---|---|---|
@@ -174,7 +200,7 @@ Every consumer-facing state field is a reactive ref. Reads in templates need `.v
 | `zone.indicator` | `Readonly<Ref<DropIndicator \| null>>` | While over an oriented zone, computes the index/edge/rect of the resolved drop position |
 | `zone.el` | `Readonly<Ref<HTMLElement \| null>>` | Mounts / unmounts (registry element-ref pattern) |
 
-Indicator computation is `computed`-cached — `getBoundingClientRect` runs once per `active.value` change, not per template read.
+Indicator rects are cached per zone; `getBoundingClientRect` runs only when the zone resizes or its children mount/unmount, not on each pointer move.
 
 ### Methods
 
@@ -265,17 +291,6 @@ dnd.draggables.register({
     if (reason === 'reject') notify()
   },
 })
-```
-
-### Custom adapters?
-
-Drop the defaults entirely and forward your own input source. Useful for cross-window drags, file-drop integrations, or programmatic test fixtures.
-
-```ts
-import { useDragDrop } from '@vuetify/v0'
-import { TouchAdapter } from './touch-adapter'
-
-const dnd = useDragDrop({ adapters: [new TouchAdapter()] })
 ```
 
 ## Accessibility
