@@ -36,7 +36,7 @@ implements DragDropAdapterInterface<K> {
     this.cleanup = null
   }
 
-  protected findTicket (
+  protected locate (
     target: EventTarget | Element | null,
     context: DragDropAdapterContext<K>,
   ): DraggableTicket<K> | null {

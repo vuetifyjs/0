@@ -40,11 +40,7 @@ import type { MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
 // Globals
 import { IN_BROWSER } from '#v0/constants/globals'
 
-// Internals
-import { resolveDropPosition } from './indicator'
-
 // Re-exports
-export type { ResolvedPosition } from './indicator'
 export { DragDropAdapter } from './adapters/adapter'
 export type { DragDropAdapterContext, DragDropAdapterEmit, DragDropAdapterInterface } from './adapters/adapter'
 export { PointerAdapter } from './adapters/pointer'
@@ -69,6 +65,12 @@ export interface DropPosition {
   pointer: { x: number, y: number }
   index?: number
   indicator?: DropIndicator
+}
+
+interface ResolvedPosition {
+  index: number
+  edge: 'before' | 'after'
+  rect: DOMRect
 }
 
 /**
@@ -167,7 +169,7 @@ export interface DragDropContext<K extends DragType = DragType> {
   cancel: () => void
 }
 
-function willZoneAccept<K extends DragType> (
+function accepts<K extends DragType> (
   accept: DropZoneTicketInput<K>['accept'],
   drag: ActiveDrag<K> | null,
 ): boolean {
@@ -177,81 +179,117 @@ function willZoneAccept<K extends DragType> (
   return Boolean(accept(drag))
 }
 
+/**
+ * Pure math for resolving where in an oriented zone a pointer would drop.
+ * Internal — consumers rely on the `position.index` / `position.indicator`
+ * fields delivered to `onDrop`.
+ */
+function resolveDropPosition (
+  point: { x: number, y: number },
+  rects: readonly DOMRect[],
+  orientation: Orientation,
+): ResolvedPosition | null {
+  if (rects.length === 0) return null
+
+  const axis = orientation === 'vertical' ? 'y' : 'x'
+  const start = orientation === 'vertical' ? 'top' : 'left'
+  const end = orientation === 'vertical' ? 'bottom' : 'right'
+
+  const coord = point[axis]
+
+  if (coord < rects[0][start]) {
+    return { index: 0, edge: 'before', rect: rects[0] }
+  }
+
+  const last = rects.at(-1)!
+  if (coord > last[end]) {
+    return { index: rects.length, edge: 'after', rect: last }
+  }
+
+  for (const [i, r] of rects.entries()) {
+    if (coord >= r[start] && coord <= r[end]) {
+      const mid = r[start] + (r[end] - r[start]) / 2
+      if (coord < mid) {
+        return { index: i, edge: 'before', rect: r }
+      }
+      return { index: i + 1, edge: 'after', rect: r }
+    }
+  }
+
+  return { index: rects.length, edge: 'after', rect: last }
+}
+
 export function useDragDrop<K extends DragType = DragType> (
   options: DragDropOptions<K> = {},
 ): DragDropContext<K> {
   const { plugins = [] } = options
 
-  const baseDraggables = createRegistry<DraggableTicketInput<K>, DraggableTicket<K>>({
+  const dragRegistry = createRegistry<DraggableTicketInput<K>, DraggableTicket<K>>({
     events: true,
   })
 
-  const baseZones = createRegistry<DropZoneTicketInput<K>, DropZoneTicket>({
+  const zoneRegistry = createRegistry<DropZoneTicketInput<K>, DropZoneTicket>({
     events: true,
   })
 
   const active = shallowRef<ActiveDrag<K> | null>(null)
   const isDragging = toRef(() => !isNull(active.value))
 
-  function registerDraggable (input: DraggableTicketInput<K>): DraggableTicket<K> {
-    const id = input.id ?? useId()
-    const el = toRef(() => toValue(input.el))
-    const dragging = toRef(() => active.value?.id === id)
-
-    // Distributive types collapse to opaque conditionals when K is generic,
-    // so cast through unknown — runtime shape is correct.
-    const decorated = {
-      ...input,
-      id,
-      el,
-      isDragging: dragging,
-    } as unknown as Partial<DraggableTicketInput<K> & DraggableTicket<K>>
-
-    return baseDraggables.register(decorated) as DraggableTicket<K>
-  }
-
   const draggables: DraggablesContext<K> = {
-    ...baseDraggables,
-    register: registerDraggable,
-  }
+    ...dragRegistry,
+    register (input: DraggableTicketInput<K>): DraggableTicket<K> {
+      const id = input.id ?? useId()
+      const el = toRef(() => toValue(input.el))
+      const dragging = toRef(() => active.value?.id === id)
 
-  function registerZone (input: DropZoneTicketInput<K>): DropZoneTicket {
-    const id = input.id ?? useId()
-    const el = toRef(() => toValue(input.el))
-    const isOver = toRef(() => active.value?.over === id)
-    const willAccept = toRef(() => willZoneAccept(input.accept, active.value))
-    // computed (not toRef) — caches getBoundingClientRect calls so each
-    // active.value read isn't O(N children).
-    const indicator = computed<DropIndicator | null>(() => {
-      if (!input.orientation || !isOver.value || !active.value) return null
-      const zoneEl = el.value
-      if (!zoneEl) return null
-      const childRects = Array.from(zoneEl.children).map(child => child.getBoundingClientRect())
-      return resolveDropPosition(active.value.current, childRects, input.orientation)
-    })
+      // Distributive types collapse to opaque conditionals when K is generic,
+      // so cast through unknown — runtime shape is correct.
+      const decorated = {
+        ...input,
+        id,
+        el,
+        isDragging: dragging,
+      } as unknown as Partial<DraggableTicketInput<K> & DraggableTicket<K>>
 
-    const decorated = {
-      ...input,
-      id,
-      el,
-      isOver,
-      willAccept,
-      indicator,
-    } as Partial<DropZoneTicketInput<K> & DropZoneTicket>
-
-    return baseZones.register(decorated) as DropZoneTicket
+      return dragRegistry.register(decorated) as DraggableTicket<K>
+    },
   }
 
   const zones: ZonesContext<K> = {
-    ...baseZones,
-    register: registerZone,
+    ...zoneRegistry,
+    register (input: DropZoneTicketInput<K>): DropZoneTicket {
+      const id = input.id ?? useId()
+      const el = toRef(() => toValue(input.el))
+      const isOver = toRef(() => active.value?.over === id)
+      const willAccept = toRef(() => accepts(input.accept, active.value))
+      // computed (not toRef) — caches getBoundingClientRect calls so each
+      // active.value read isn't O(N children).
+      const indicator = computed<DropIndicator | null>(() => {
+        if (!input.orientation || !isOver.value || !active.value) return null
+        const zoneEl = el.value
+        if (!zoneEl) return null
+        const childRects = Array.from(zoneEl.children).map(child => child.getBoundingClientRect())
+        return resolveDropPosition(active.value.current, childRects, input.orientation)
+      })
+
+      const decorated = {
+        ...input,
+        id,
+        el,
+        isOver,
+        willAccept,
+        indicator,
+      } as Partial<DropZoneTicketInput<K> & DropZoneTicket>
+
+      return zoneRegistry.register(decorated) as DropZoneTicket
+    },
   }
 
-  function findZone (point: { x: number, y: number }): ID | null {
+  function at (point: { x: number, y: number }): ID | null {
     if (!IN_BROWSER) return null
     let element: Element | null = document.elementFromPoint(point.x, point.y)
     while (element) {
-      for (const zone of baseZones.values()) {
+      for (const zone of zoneRegistry.values()) {
         if (zone.el.value === element) return zone.id
       }
       element = element.parentElement
@@ -259,17 +297,9 @@ export function useDragDrop<K extends DragType = DragType> (
     return null
   }
 
-  // .get() returns the output type; spread keeps input hooks at runtime, cast to read them.
-  function getDraggable (id: ID): (DraggableTicketInput<K> & DraggableTicket<K>) | undefined {
-    return baseDraggables.get(id) as (DraggableTicketInput<K> & DraggableTicket<K>) | undefined
-  }
-
-  function getZone (id: ID): (DropZoneTicketInput<K> & DropZoneTicket) | undefined {
-    return baseZones.get(id) as (DropZoneTicketInput<K> & DropZoneTicket) | undefined
-  }
-
-  function dropPositionFor (zoneId: ID, drag: ActiveDrag<K>): DropPosition {
-    const zone = getZone(zoneId)
+  function position (zoneId: ID, drag: ActiveDrag<K>): DropPosition {
+    // .get() returns the output type; spread keeps input hooks at runtime, cast to read them.
+    const zone = zoneRegistry.get(zoneId) as (DropZoneTicketInput<K> & DropZoneTicket) | undefined
     const out: DropPosition = { pointer: drag.current }
     if (zone?.orientation && zone.el) {
       const zoneEl = toValue(zone.el)
@@ -288,10 +318,12 @@ export function useDragDrop<K extends DragType = DragType> (
     return out
   }
 
-  function cancelDrag (drag: ActiveDrag<K>, reason: 'cancel' | 'reject' = 'cancel'): void {
-    if (!isNull(drag.over)) getZone(drag.over)?.onLeave?.(drag)
+  function bail (drag: ActiveDrag<K>, reason: 'cancel' | 'reject' = 'cancel'): void {
+    if (!isNull(drag.over)) {
+      (zoneRegistry.get(drag.over) as (DropZoneTicketInput<K> & DropZoneTicket) | undefined)?.onLeave?.(drag)
+    }
 
-    getDraggable(drag.id)?.onCancel?.(drag, reason)
+    ;(dragRegistry.get(drag.id) as (DraggableTicketInput<K> & DraggableTicket<K>) | undefined)?.onCancel?.(drag, reason)
     options.onCancel?.(drag, reason)
 
     active.value = null
@@ -314,7 +346,7 @@ export function useDragDrop<K extends DragType = DragType> (
       via,
     } as ActiveDrag<K>
 
-    if (getDraggable(source.id)?.onBeforeStart?.(draft) === false) return
+    if ((dragRegistry.get(source.id) as (DraggableTicketInput<K> & DraggableTicket<K>) | undefined)?.onBeforeStart?.(draft) === false) return
     if (options.onBeforeStart?.(draft) === false) return
 
     active.value = draft
@@ -323,24 +355,28 @@ export function useDragDrop<K extends DragType = DragType> (
   function onMove (point: { x: number, y: number }): void {
     if (!active.value) return
 
-    const overZoneId = findZone(point)
+    const over = at(point)
     const next: ActiveDrag<K> = {
       ...active.value,
       current: point,
       delta: { x: point.x - active.value.origin.x, y: point.y - active.value.origin.y },
-      over: overZoneId,
-      willAccept: !isNull(overZoneId) && willZoneAccept(getZone(overZoneId)?.accept, active.value),
+      over,
+      willAccept: !isNull(over) && accepts((zoneRegistry.get(over) as (DropZoneTicketInput<K> & DropZoneTicket) | undefined)?.accept, active.value),
     } as ActiveDrag<K>
 
-    const previousOver = active.value.over
+    const previous = active.value.over
     active.value = next
 
-    if (previousOver !== overZoneId) {
-      if (!isNull(previousOver)) getZone(previousOver)?.onLeave?.(next)
-      if (!isNull(overZoneId)) getZone(overZoneId)?.onEnter?.(next)
+    if (previous !== over) {
+      if (!isNull(previous)) {
+        (zoneRegistry.get(previous) as (DropZoneTicketInput<K> & DropZoneTicket) | undefined)?.onLeave?.(next)
+      }
+      if (!isNull(over)) {
+        (zoneRegistry.get(over) as (DropZoneTicketInput<K> & DropZoneTicket) | undefined)?.onEnter?.(next)
+      }
     }
 
-    getDraggable(next.id)?.onMove?.(next)
+    ;(dragRegistry.get(next.id) as (DraggableTicketInput<K> & DraggableTicket<K>) | undefined)?.onMove?.(next)
     options.onMove?.(next)
   }
 
@@ -351,30 +387,30 @@ export function useDragDrop<K extends DragType = DragType> (
 
     // Drop with no over-zone fires the cancel chain so onCancel rollback fires.
     if (isNull(zoneId)) {
-      cancelDrag(drag)
+      bail(drag)
       return
     }
 
-    const position = dropPositionFor(zoneId, drag)
-    const zone = getZone(zoneId)
+    const dropAt = position(zoneId, drag)
+    const zone = zoneRegistry.get(zoneId) as (DropZoneTicketInput<K> & DropZoneTicket) | undefined
 
-    const zoneVeto = zone?.onBeforeDrop?.(drag, position) === false
-    const globalVeto = options.onBeforeDrop?.(drag, position) === false
+    const zoneVeto = zone?.onBeforeDrop?.(drag, dropAt) === false
+    const globalVeto = options.onBeforeDrop?.(drag, dropAt) === false
 
     if (zoneVeto || globalVeto) {
-      cancelDrag(drag, 'reject')
+      bail(drag, 'reject')
       return
     }
 
-    zone?.onDrop?.(drag, position)
-    options.onDrop?.(drag, position)
+    zone?.onDrop?.(drag, dropAt)
+    options.onDrop?.(drag, dropAt)
 
     active.value = null
   }
 
   function cancel (): void {
     if (!active.value) return
-    cancelDrag(active.value)
+    bail(active.value)
   }
 
   // active is structurally identical to ShallowRef<ActiveDrag<K> | null> but
@@ -412,8 +448,8 @@ export function useDragDrop<K extends DragType = DragType> (
 
   onScopeDispose(() => {
     for (const dispose of disposers) dispose()
-    baseDraggables.dispose()
-    baseZones.dispose()
+    dragRegistry.dispose()
+    zoneRegistry.dispose()
     active.value = null
   })
 

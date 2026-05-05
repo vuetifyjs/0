@@ -36,7 +36,7 @@ export class KeyboardAdapter<K extends DragType = DragType> extends DragDropAdap
 
     const onKeyDown = (event: KeyboardEvent) => {
       const focused = document.activeElement
-      const ticket = this.findTicket(focused, context)
+      const ticket = this.locate(focused, context)
       const isActive = !isNull(context.active.value)
 
       if (this.activate.includes(event.key)) {

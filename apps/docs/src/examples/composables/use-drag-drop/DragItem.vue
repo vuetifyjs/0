@@ -1,6 +1,6 @@
 <script setup lang="ts">
-  import type { DragDropContext } from '@vuetify/v0'
   import { useTemplateRef } from 'vue'
+  import type { DragDropContext } from '@vuetify/v0'
 
   type Item = { id: number, label: string }
   type Kinds = { type: 'item', value: Item }

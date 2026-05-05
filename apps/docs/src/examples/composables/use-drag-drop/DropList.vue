@@ -1,6 +1,6 @@
 <script setup lang="ts">
-  import type { DragDropContext } from '@vuetify/v0'
   import { useTemplateRef } from 'vue'
+  import type { DragDropContext } from '@vuetify/v0'
 
   import DragItem from './DragItem.vue'
 

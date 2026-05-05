@@ -32,7 +32,7 @@ export class PointerAdapter<K extends DragType = DragType> extends DragDropAdapt
     let started = false
 
     const onDown = (event: PointerEvent) => {
-      const ticket = this.findTicket(event.target, context)
+      const ticket = this.locate(event.target, context)
       if (!ticket) return
       downSource = ticket
       downOrigin = { x: event.clientX, y: event.clientY }
