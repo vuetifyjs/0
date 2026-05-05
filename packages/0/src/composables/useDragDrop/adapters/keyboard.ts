@@ -67,8 +67,8 @@ export class KeyboardAdapter<K extends DragType = DragType> extends DragDropAdap
       const isActive = !isNull(context.active.value)
 
       if (this.activate.includes(event.key)) {
-        event.preventDefault()
         if (isActive) {
+          event.preventDefault()
           context.emit.drop()
         } else if (ticket) {
           const el = ticket.el.value
@@ -76,6 +76,7 @@ export class KeyboardAdapter<K extends DragType = DragType> extends DragDropAdap
             logger.warn('KeyboardAdapter: cannot start drag — element is not mounted')
             return
           }
+          event.preventDefault()
           const rect = el.getBoundingClientRect()
           context.emit.start(
             ticket,
