@@ -1,11 +1,8 @@
 <script setup lang="ts">
   import { useHead } from '@unhead/vue'
 
-  // Utilities
-  import { withSuffix } from '@/utilities/withSuffix'
-
   useHead({
-    title: withSuffix('The AI-Native Headless Framework for Vue'),
+    title: 'The AI-Native Headless Framework for Vue',
     meta: [
       { key: 'description', name: 'description', content: 'Build custom design systems with Vuetify0. Headless, composable-first components for Vue with published benchmarks, MCP integration, and zero styling opinions.' },
       { key: 'og:title', property: 'og:title', content: 'Vuetify0 - The AI-Native Headless Framework for Vue' },

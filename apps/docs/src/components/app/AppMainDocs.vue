@@ -10,7 +10,6 @@
   import { useSettings } from '@/composables/useSettings'
 
   // Utilities
-  import { withSuffix } from '@/utilities/withSuffix'
   import { computed, onBeforeUnmount, onMounted, shallowRef, toRef, useTemplateRef, watch } from 'vue'
   import { useRoute } from 'vue-router'
 
@@ -66,10 +65,7 @@
   useRouterLinks(mainRef)
 
   // Extract page metadata from frontmatter
-  const pageTitle = toRef(() => {
-    const title = page.value?.frontmatter?.title as string | undefined
-    return title ? withSuffix(title) : undefined
-  })
+  const pageTitle = toRef(() => page.value?.frontmatter?.title as string | undefined)
   const pageMeta = toRef(() => page.value?.frontmatter?.meta as Array<{ name?: string, content?: string }> | undefined)
   const pageDescription = computed(() => pageMeta.value?.find(m => m.name === 'description')?.content)
 
@@ -100,7 +96,6 @@
   })
 
   // Set page-level meta from frontmatter (reactive)
-  // InferSeoMetaPlugin auto-generates og:title and og:description
   useHead({
     title: pageTitle,
     meta: toRef(() => {

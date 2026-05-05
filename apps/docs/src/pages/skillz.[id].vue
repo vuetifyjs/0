@@ -17,7 +17,6 @@
   import { useSettings } from '@/composables/useSettings'
 
   // Utilities
-  import { withSuffix } from '@/utilities/withSuffix'
   import { computed, toRef } from 'vue'
   import { useRouter } from 'vue-router'
 
@@ -60,7 +59,7 @@
   })
 
   useHead({
-    title: () => withSuffix(tour.value ? `${tour.value.name} - Skillz` : 'Skill Not Found - Skillz'),
+    title: () => tour.value ? `${tour.value.name} - Skillz` : 'Skill Not Found - Skillz',
     meta: [
       { key: 'description', name: 'description', content: () => tour.value?.description ?? 'The requested skill could not be found.' },
       { key: 'og:title', property: 'og:title', content: () => tour.value ? `${tour.value.name} - Vuetify0 Skillz` : 'Skill Not Found' },
