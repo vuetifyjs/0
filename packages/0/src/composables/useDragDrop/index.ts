@@ -19,6 +19,8 @@
 // Composables
 import { createRegistry } from '#v0/composables/createRegistry'
 import { useLogger } from '#v0/composables/useLogger'
+import { useMutationObserver } from '#v0/composables/useMutationObserver'
+import { useResizeObserver } from '#v0/composables/useResizeObserver'
 
 // Adapters
 import { KeyboardAdapter, PointerAdapter } from './adapters'
@@ -466,14 +468,25 @@ export function useDragDrop<K extends DragType = DragType> (
       const el = toRef(() => toValue(registration.el))
       const isOver = toRef(() => active.value?.over === id)
       const willAccept = toRef(() => accepts(registration.accept, active.value))
-      // computed (not toRef) — caches getBoundingClientRect calls so each
-      // active.value read isn't O(N children).
+
+      // Cached child rects — refreshed only when the zone resizes or its
+      // children change. Pointer moves do an O(N) lookup against the cache
+      // instead of triggering layout on every reactive read.
+      const rects = shallowRef<DOMRect[]>([])
+
+      function refresh (): void {
+        const zoneEl = el.value
+        rects.value = zoneEl
+          ? Array.from(zoneEl.children).map(child => child.getBoundingClientRect())
+          : []
+      }
+
+      useResizeObserver(el, refresh)
+      useMutationObserver(el, refresh, { childList: true })
+
       const indicator = computed<DropIndicator | null>(() => {
         if (!registration.orientation || !isOver.value || !active.value) return null
-        const zoneEl = el.value
-        if (!zoneEl) return null
-        const rects = Array.from(zoneEl.children).map(child => child.getBoundingClientRect())
-        return resolveDropPosition(active.value.current, rects, registration.orientation)
+        return resolveDropPosition(active.value.current, rects.value, registration.orientation)
       })
 
       const decorated = {
@@ -504,18 +517,14 @@ export function useDragDrop<K extends DragType = DragType> (
   function position (zoneId: ID, drag: ActiveDrag<K>): DropPosition {
     const zone = _zones.get(zoneId)
     const out: DropPosition = { pointer: drag.current }
-    if (zone?.orientation && zone.el) {
-      const zoneEl = toValue(zone.el)
-      if (zoneEl) {
-        const rects = Array.from(zoneEl.children).map(child => child.getBoundingClientRect())
-        const resolved = resolveDropPosition(drag.current, rects, zone.orientation)
-        if (resolved) {
-          out.index = resolved.index
-          out.indicator = resolved
-        } else {
-          // Empty oriented zone — index 0 with no indicator so consumers can splice without a fallback.
-          out.index = 0
-        }
+    if (zone?.orientation) {
+      const resolved = zone.indicator?.value ?? null
+      if (resolved) {
+        out.index = resolved.index
+        out.indicator = resolved
+      } else {
+        // Empty oriented zone — index 0 with no indicator so consumers can splice without a fallback.
+        out.index = 0
       }
     }
     return out
