@@ -130,7 +130,7 @@ pnpm repo:check       # knip + sherif
 
 ## Requirements
 
-- **Node**: >=22
+- **Node**: >=26
 - **pnpm**: >=10.6
 
 ## Build Tooling

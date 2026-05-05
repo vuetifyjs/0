@@ -49,7 +49,7 @@
   },
   "devDependencies": {
     "@js-temporal/polyfill": "catalog:",
-    "@tsconfig/node22": "catalog:",
+    "@tsconfig/node24": "catalog:",
     "@types/node": "catalog:",
     "@vitest/coverage-v8": "catalog:",
     "@vue/tsconfig": "catalog:",

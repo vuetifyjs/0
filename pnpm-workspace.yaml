@@ -18,7 +18,7 @@ catalog:
   '@shikijs/langs': ^4.0.2
   '@shikijs/markdown-it': ^4.0.2
   '@shikijs/themes': ^4.0.2
-  '@tsconfig/node22': ^22.0.5
+  '@tsconfig/node24': ^24.0.4
   '@tsdown/css': ^0.21.7
   '@types/markdown-it': ^14.1.2
   '@types/markdown-it-attrs': ^4.1.3

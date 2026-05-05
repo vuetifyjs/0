@@ -43,7 +43,7 @@ This is a **pnpm monorepo** containing:
 
 ## Requirements
 
-- **Node.js** >= 22
+- **Node.js** >= 26
 - **pnpm** >= 10.6
 - **Vue** >= 3.5.0
 
