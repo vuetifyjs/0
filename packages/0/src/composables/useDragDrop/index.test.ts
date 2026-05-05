@@ -4,7 +4,24 @@ import { describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { effectScope, isRef, nextTick, shallowRef } from 'vue'
 
-import { useDragDrop } from './'
+// Types
+import type {
+  DragDropAdapterContext,
+  DragDropAdapterEmit,
+  DragDropAdapterInterface,
+  DragType,
+} from './'
+
+import { KeyboardAdapter, PointerAdapter, useDragDrop } from './'
+
+class CaptureAdapter<K extends DragType = DragType> implements DragDropAdapterInterface<K> {
+  emit!: DragDropAdapterEmit<K>
+  setup (context: DragDropAdapterContext<K>): void {
+    this.emit = context.emit
+  }
+
+  dispose (): void {}
+}
 
 describe('useDragDrop', () => {
   describe('factory', () => {
@@ -87,18 +104,15 @@ describe('draggables.register', () => {
   })
 
   it('should mark isDragging true while ticket is the active drag', async () => {
-    const dnd = useDragDrop({ adapters: [] })
+    const adapter = new CaptureAdapter()
+    const dnd = useDragDrop({ adapters: [adapter] })
     const el = shallowRef<HTMLElement | null>(null)
 
     const ticket = dnd.draggables.register({ el, type: 'a', value: null })
 
     expect(ticket.isDragging.value).toBe(false)
 
-    ;(dnd.active as any).value = {
-      id: ticket.id, type: 'a', value: null,
-      origin: { x: 0, y: 0 }, current: { x: 0, y: 0 }, delta: { x: 0, y: 0 },
-      over: null, willAccept: false, via: 'pointer',
-    }
+    adapter.emit.start(ticket, { x: 0, y: 0 }, 'pointer')
     await nextTick()
 
     expect(ticket.isDragging.value).toBe(true)
@@ -142,49 +156,34 @@ describe('zones.register', () => {
 
   it('should set willAccept when active drag matches accept array', () => {
     type K = { type: 'card', value: null } | { type: 'column', value: null }
-    const dnd = useDragDrop<K>({ adapters: [] })
+    const adapter = new CaptureAdapter<K>()
+    const dnd = useDragDrop<K>({ adapters: [adapter] })
     const el = shallowRef<HTMLElement | null>(null)
 
     const zone = dnd.zones.register({ el, accept: ['card'] })
+    const card = dnd.draggables.register({ el, type: 'card', value: null })
+    const column = dnd.draggables.register({ el, type: 'column', value: null })
 
     expect(zone.willAccept.value).toBe(false)
 
-    ;(dnd.active as any).value = {
-      id: 'd1',
-      type: 'card',
-      value: null,
-      origin: { x: 0, y: 0 },
-      current: { x: 0, y: 0 },
-      delta: { x: 0, y: 0 },
-      over: null,
-      willAccept: false,
-      via: 'pointer',
-    }
-
+    adapter.emit.start(card, { x: 0, y: 0 }, 'pointer')
     expect(zone.willAccept.value).toBe(true)
 
-    ;(dnd.active as any).value = { ...dnd.active.value, type: 'column' }
+    adapter.emit.cancel()
+    adapter.emit.start(column, { x: 0, y: 0 }, 'pointer')
     expect(zone.willAccept.value).toBe(false)
   })
 
   it('should call accept predicate when accept is a function', () => {
-    const dnd = useDragDrop({ adapters: [] })
+    const adapter = new CaptureAdapter()
+    const dnd = useDragDrop({ adapters: [adapter] })
     const el = shallowRef<HTMLElement | null>(null)
     const accept = vi.fn(() => true)
 
     const zone = dnd.zones.register({ el, accept })
+    const ticket = dnd.draggables.register({ el, type: 'a', value: null })
 
-    ;(dnd.active as any).value = {
-      id: 'd1',
-      type: 'a',
-      value: null,
-      origin: { x: 0, y: 0 },
-      current: { x: 0, y: 0 },
-      delta: { x: 0, y: 0 },
-      over: null,
-      willAccept: false,
-      via: 'pointer',
-    }
+    adapter.emit.start(ticket, { x: 0, y: 0 }, 'pointer')
 
     expect(zone.willAccept.value).toBe(true)
     expect(accept).toHaveBeenCalledTimes(1)
@@ -611,5 +610,174 @@ describe('scope teardown', () => {
     expect(dnd!.active.value).toBeNull()
 
     cardEl.remove()
+  })
+})
+
+describe('cancel chain', () => {
+  it('should fire cancel chain when cancel() called during active drag', () => {
+    const adapter = new CaptureAdapter()
+    const onCancel = vi.fn()
+    const onLeave = vi.fn()
+
+    const dnd = useDragDrop({ adapters: [adapter], onCancel })
+    const ticket = dnd.draggables.register({ el: shallowRef(null), type: 'a', value: null, onCancel })
+    dnd.zones.register({ el: shallowRef(null), onLeave })
+
+    adapter.emit.start(ticket, { x: 0, y: 0 }, 'pointer')
+    expect(dnd.active.value).not.toBeNull()
+
+    dnd.cancel()
+
+    expect(onCancel).toHaveBeenCalledTimes(2) // per-draggable + global
+    expect(onCancel).toHaveBeenCalledWith(expect.any(Object), 'cancel')
+    expect(dnd.active.value).toBeNull()
+  })
+
+  it('should swallow throwing hook and continue via logger.error', () => {
+    const adapter = new CaptureAdapter()
+    const onMove = vi.fn(() => {
+      throw new Error('boom')
+    })
+    const globalMove = vi.fn()
+
+    const dnd = useDragDrop({ adapters: [adapter], onMove: globalMove })
+    const ticket = dnd.draggables.register({ el: shallowRef(null), type: 'a', value: null, onMove })
+
+    adapter.emit.start(ticket, { x: 0, y: 0 }, 'pointer')
+    expect(() => adapter.emit.move({ x: 5, y: 5 })).not.toThrow()
+    expect(onMove).toHaveBeenCalledTimes(1)
+    expect(globalMove).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('accepts predicate', () => {
+  it('should reject when predicate returns false', () => {
+    const adapter = new CaptureAdapter()
+    const dnd = useDragDrop({ adapters: [adapter] })
+    const accept = vi.fn(() => false)
+
+    const zone = dnd.zones.register({ el: shallowRef(null), accept })
+    const ticket = dnd.draggables.register({ el: shallowRef(null), type: 'a', value: null })
+
+    adapter.emit.start(ticket, { x: 0, y: 0 }, 'pointer')
+
+    expect(zone.willAccept.value).toBe(false)
+    expect(accept).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('indicator', () => {
+  it('should resolve index against child rects on oriented zone', async () => {
+    const adapter = new CaptureAdapter()
+    const cardEl = makeFocusableEl('indicator-1')
+    const zoneEl = document.createElement('div')
+    const child = document.createElement('div')
+    zoneEl.append(child)
+    document.body.append(zoneEl)
+
+    child.getBoundingClientRect = () => ({
+      top: 0, bottom: 100, left: 0, right: 100, width: 100, height: 100, x: 0, y: 0, toJSON: () => ({}),
+    } as DOMRect)
+
+    const dnd = useDragDrop({ adapters: [adapter] })
+    const ticket = dnd.draggables.register({ el: shallowRef(cardEl), type: 'a', value: null })
+    const zone = dnd.zones.register({ el: shallowRef(zoneEl), orientation: 'vertical' })
+
+    await nextTick()
+
+    adapter.emit.start(ticket, { x: 0, y: 0 }, 'pointer')
+
+    const realFromPoint = document.elementFromPoint.bind(document)
+    document.elementFromPoint = () => zoneEl
+
+    adapter.emit.move({ x: 50, y: 25 }) // upper half → before
+    expect(zone.indicator.value?.edge).toBe('before')
+    expect(zone.indicator.value?.index).toBe(0)
+
+    adapter.emit.move({ x: 50, y: 75 }) // lower half → after
+    expect(zone.indicator.value?.edge).toBe('after')
+    expect(zone.indicator.value?.index).toBe(1)
+
+    document.elementFromPoint = realFromPoint
+    cardEl.remove()
+    zoneEl.remove()
+  })
+})
+
+describe('pointerAdapter threshold', () => {
+  it('should defer start until threshold distance is exceeded', async () => {
+    const wrapper = mount({
+      template: `<div ref="root"><div ref="card" /></div>`,
+      setup () {
+        const card = shallowRef<HTMLElement | null>(null)
+        const dnd = useDragDrop({ adapters: [new PointerAdapter({ threshold: 10 })] })
+        const ticket = dnd.draggables.register({ el: card, type: 'a', value: null })
+        return { card, dnd, ticket }
+      },
+    }, { attachTo: document.body })
+
+    await nextTick()
+
+    const vm = wrapper.vm as unknown as { dnd: ReturnType<typeof useDragDrop>, card: HTMLElement }
+    const el = vm.card
+
+    el.dispatchEvent(new PointerEvent('pointerdown', { clientX: 0, clientY: 0, pointerId: 1, bubbles: true }))
+    el.dispatchEvent(new PointerEvent('pointermove', { clientX: 5, clientY: 0, pointerId: 1, bubbles: true }))
+
+    expect(vm.dnd.active.value).toBeNull() // under threshold
+
+    el.dispatchEvent(new PointerEvent('pointermove', { clientX: 12, clientY: 0, pointerId: 1, bubbles: true }))
+
+    expect(vm.dnd.active.value).not.toBeNull() // crossed threshold
+
+    wrapper.unmount()
+  })
+})
+
+describe('keyboardAdapter options', () => {
+  it('should honour custom activate keys', async () => {
+    const cardEl = makeFocusableEl('kb-custom-1')
+    const dnd = useDragDrop({ adapters: [new KeyboardAdapter({ activate: ['x'] })] })
+    const ticket = dnd.draggables.register({ el: shallowRef(cardEl), type: 'a', value: null })
+
+    cardEl.focus()
+    cardEl.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true }))
+    expect(dnd.active.value).toBeNull() // Space is no longer the activate key
+
+    cardEl.dispatchEvent(new KeyboardEvent('keydown', { key: 'x', bubbles: true }))
+    await nextTick()
+    expect(dnd.active.value?.id).toBe(ticket.id)
+
+    cardEl.remove()
+  })
+
+  it('should nudge by custom step on arrow keys', async () => {
+    const cardEl = makeFocusableEl('kb-step-1')
+    const dnd = useDragDrop({ adapters: [new KeyboardAdapter({ step: 50 })] })
+    dnd.draggables.register({ el: shallowRef(cardEl), type: 'a', value: null })
+
+    cardEl.getBoundingClientRect = () => ({
+      top: 0, bottom: 0, left: 0, right: 0, width: 0, height: 0, x: 0, y: 0, toJSON: () => ({}),
+    } as DOMRect)
+
+    cardEl.focus()
+    cardEl.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true }))
+    cardEl.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
+    await nextTick()
+
+    expect(dnd.active.value?.current.y).toBe(50)
+
+    cardEl.remove()
+  })
+
+  it('should warn and short-circuit when adapter setup is called twice', () => {
+    const adapter = new KeyboardAdapter()
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+    useDragDrop({ adapters: [adapter] })
+    adapter.setup({} as unknown as DragDropAdapterContext<DragType>)
+
+    expect(warn).toHaveBeenCalled()
+    warn.mockRestore()
   })
 })

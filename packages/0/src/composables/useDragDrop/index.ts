@@ -26,8 +26,8 @@ import { useResizeObserver } from '#v0/composables/useResizeObserver'
 import { KeyboardAdapter, PointerAdapter } from './adapters'
 
 // Utilities
-import { isArray, isFunction, isNull, useId } from '#v0/utilities'
-import { computed, effectScope, onScopeDispose, shallowRef, toRef, toValue, watch } from 'vue'
+import { isArray, isFunction, isNull, isUndefined, useId } from '#v0/utilities'
+import { computed, effectScope, onScopeDispose, onWatcherCleanup, shallowReadonly, shallowRef, toRef, toValue, watch } from 'vue'
 
 // Types
 import type {
@@ -37,7 +37,7 @@ import type {
 } from '#v0/composables/createRegistry'
 import type { Extensible, ID } from '#v0/types'
 import type { DragDropAdapterContext, DragDropAdapterEmit, DragDropAdapterInterface } from './adapters'
-import type { MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
+import type { EffectScope, MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
 
 // Globals
 import { IN_BROWSER } from '#v0/constants/globals'
@@ -68,16 +68,25 @@ export interface DragType {
 
 /**
  * Resolved drop slot inside an oriented zone. Surfaced via {@link DropPosition}
- * so consumers can render a between-children indicator.
+ * so consumers can render a between-children indicator against the resolved
+ * child rect.
  *
  * @example
  * ```ts
  * import { useDragDrop } from '@vuetify/v0'
  *
- * const dnd = useDragDrop<{ type: 'card', value: string }>()
+ * const dnd = useDragDrop<{ type: 'card', value: Card }>()
  * const zone = dnd.zones.register({ el, accept: ['card'], orientation: 'vertical' })
  *
- * zone.indicator.value // DropIndicator | null
+ * const indicator = zone.indicator.value
+ * if (indicator) {
+ *   const y = indicator.edge === 'before'
+ *     ? indicator.rect.top
+ *     : indicator.rect.bottom
+ *   const x = indicator.rect.left
+ *   const width = indicator.rect.width
+ *   // Render a 2px bar at (x, y) with `width` to mark drop slot `indicator.index`.
+ * }
  * ```
  */
 export interface DropIndicator {
@@ -365,7 +374,7 @@ function accepts<K extends DragType> (
 ): boolean {
   if (!drag) return false
   if (!accept) return true
-  if (isArray(accept)) return (accept as string[]).includes(drag.type)
+  if (isArray(accept)) return accept.includes(drag.type as K['type'])
   return Boolean(accept(drag))
 }
 
@@ -455,6 +464,16 @@ export function useDragDrop<K extends DragType = DragType> (
   const active = shallowRef<ActiveDrag<K> | null>(null)
   const isDragging = toRef(() => !isNull(active.value))
 
+  // Per-zone observer scopes, tracked so factory dispose can stop any that
+  // outlive their unregister-event listener (e.g., on `_zones.dispose()`,
+  // which clears listeners before firing `clear:registry`).
+  const book = new Map<ID, EffectScope>()
+
+  // Element → zone id, kept in sync via per-zone watchers. Lets `at()` walk
+  // up from a hit-tested element with O(1) lookups instead of iterating
+  // every zone for each ancestor on every pointer move.
+  const nodes = new Map<HTMLElement, ID>()
+
   function safeCall<F extends (...args: never[]) => unknown> (
     fn: F | undefined,
     ...args: Parameters<F>
@@ -510,17 +529,28 @@ export function useDragDrop<K extends DragType = DragType> (
       // Per-registration scope so observers tear down on zone.unregister()
       // even when the calling component remains mounted.
       const scope = effectScope()
+      book.set(id, scope)
       scope.run(() => {
         // Prime rects synchronously when `el.value` resolves so the first
         // pointer move sees a populated cache; observers fire on later changes.
         watch(el, refresh, { immediate: true, flush: 'post' })
         useResizeObserver(el, refresh)
         useMutationObserver(el, refresh, { childList: true })
+
+        // Keep `nodes` in sync with the zone's element. onWatcherCleanup
+        // fires before the next callback and on scope teardown, so the entry
+        // is dropped when the element changes or the zone unregisters.
+        watch(el, current => {
+          if (!current) return
+          nodes.set(current, id)
+          onWatcherCleanup(() => nodes.delete(current))
+        }, { immediate: true })
       })
 
       function onUnregister (ticket: { id: ID }): void {
         if (ticket.id === id) {
           scope.stop()
+          book.delete(id)
           _zones.off('unregister:ticket', onUnregister)
         }
       }
@@ -548,8 +578,10 @@ export function useDragDrop<K extends DragType = DragType> (
     if (!IN_BROWSER) return null
     let element: Element | null = document.elementFromPoint(point.x, point.y)
     while (element) {
-      for (const zone of _zones.values()) {
-        if (zone.el.value === element && !toValue(zone.disabled)) return zone.id
+      const id = nodes.get(element as HTMLElement)
+      if (!isUndefined(id)) {
+        const zone = _zones.get(id)
+        if (zone && !toValue(zone.disabled)) return id
       }
       element = element.parentElement
     }
@@ -688,7 +720,7 @@ export function useDragDrop<K extends DragType = DragType> (
   const context: DragDropContext<K> = {
     draggables,
     zones,
-    active: active as Readonly<ShallowRef<ActiveDrag<K> | null>>,
+    active: shallowReadonly(active) as Readonly<ShallowRef<ActiveDrag<K> | null>>,
     isDragging,
     cancel,
   }
@@ -740,6 +772,12 @@ export function useDragDrop<K extends DragType = DragType> (
         logger.error('useDragDrop disposer threw', error)
       }
     }
+    // Stop any per-zone scopes still alive. Necessary because
+    // `_zones.dispose()` clears its listeners before firing `clear:registry`,
+    // so `unregister:ticket` listeners never run during teardown.
+    for (const scope of book.values()) scope.stop()
+    book.clear()
+    nodes.clear()
     try {
       _draggables.dispose()
     } catch (error) {
