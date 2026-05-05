@@ -24,27 +24,27 @@ Headless drag-and-drop primitive. Owns two registries — draggables and zones �
 
 ## Usage
 
-Call `useDragDrop` once per scope (board, tree, splitter). The returned context owns the registries and active-drag state — pass it to children explicitly so they can register draggables and zones against the same instance. The composable returns logical state only; consumers wire DOM attributes themselves (see [DOM attributes](#dom-attributes) below).
+Call `useDragDrop` once per scope and pass the returned context to children that register draggables or zones.
 
 ```ts collapse
 import { useDragDrop } from '@vuetify/v0'
 
-// In the parent scope (e.g. <Kanban.Root>)
 const dnd = useDragDrop<{ type: 'card', value: Card }>()
-// → dnd.active, dnd.isDragging, dnd.cancel
 
-// In a draggable child (receives `dnd` as a prop)
-const ticket = dnd.draggables.register({ el, type: 'card', value: card })
-// → ticket.isDragging, ticket.el
+const ticket = dnd.draggables.register({
+  el,
+  type: 'card',
+  value: card,
+})
 
-// In a drop-zone child (receives `dnd` as a prop)
 const zone = dnd.zones.register({
   el,
   accept: ['card'],
   orientation: 'vertical',
-  onDrop: (drag, position) => moveCard(drag.value.id, position.index ?? 0),
+  onDrop: (drag, position) => {
+    // drag.value: Card, position.index: number
+  },
 })
-// → zone.isOver, zone.willAccept, zone.indicator, zone.el
 ```
 
 ## Architecture
@@ -110,9 +110,10 @@ To extend rather than replace, list the defaults explicitly alongside your custo
 
 ```ts
 import { useDragDrop, PointerAdapter, KeyboardAdapter } from '@vuetify/v0'
+import { TouchAdapter } from './touch-adapter'
 
 useDragDrop({
-  adapters: [new PointerAdapter(), new KeyboardAdapter(), new MyWebXrAdapter()],
+  adapters: [new PointerAdapter(), new KeyboardAdapter(), new TouchAdapter()],
 })
 ```
 
@@ -124,10 +125,10 @@ A custom adapter extends the abstract base:
 import { DragDropAdapter } from '@vuetify/v0'
 import type { DragDropAdapterContext, DragType } from '@vuetify/v0'
 
-class MyAdapter<K extends DragType = DragType> extends DragDropAdapter<K> {
+class TouchAdapter<K extends DragType = DragType> extends DragDropAdapter<K> {
   setup (context: DragDropAdapterContext<K>): void {
     // observe input, then call:
-    //   context.emit.start(source, origin, 'mySource')
+    //   context.emit.start(source, origin, 'touch')
     //   context.emit.move(point)
     //   context.emit.drop()
     //   context.emit.cancel()
@@ -178,7 +179,7 @@ The composable does not produce attribute objects — consumers wire data attrib
 
 ## Examples
 
-::: example
+::: example collapse
 /composables/use-drag-drop/DragItem.vue 1
 /composables/use-drag-drop/DropList.vue 2
 /composables/use-drag-drop/basic.vue 3
@@ -239,7 +240,7 @@ dnd.draggables.register({
   type: 'card',
   value: card,
   onCancel: (drag, reason) => {
-    if (reason === 'reject') showRejectionToast()
+    if (reason === 'reject') notify()
   },
 })
 ```
@@ -250,9 +251,9 @@ Drop the defaults entirely and forward your own input source. Useful for cross-w
 
 ```ts
 import { useDragDrop } from '@vuetify/v0'
-import { MyCustomAdapter } from './my-custom-adapter'
+import { TouchAdapter } from './touch-adapter'
 
-const dnd = useDragDrop({ adapters: [new MyCustomAdapter()] })
+const dnd = useDragDrop({ adapters: [new TouchAdapter()] })
 ```
 
 ## Accessibility
@@ -288,7 +289,7 @@ Yes. Two registrations on the same element work because they live in different r
 
 ??? What if I need autoscroll, FLIP animations, or multi-select drag?
 
-These don't ship in v1 to keep the surface small. The plugin slot is the extension point — `useDragDrop({ plugins: [autoScroll(), flipAnimations()] })` — and lifecycle hooks let you observe everything from outside the composable. Multi-select drag is best composed with [createSelection](/composables/selection/create-selection) so the selected set is its own first-class concept.
+These don't ship in v1 to keep the surface small. The plugin slot is the extension point — `useDragDrop({ plugins: [scroll(), flip()] })` — and lifecycle hooks let you observe everything from outside the composable. Multi-select drag is best composed with [createSelection](/composables/selection/create-selection) so the selected set is its own first-class concept.
 
 :::
 
