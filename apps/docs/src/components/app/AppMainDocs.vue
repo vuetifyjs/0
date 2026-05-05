@@ -10,10 +10,10 @@
   import { useSettings } from '@/composables/useSettings'
 
   // Utilities
+  import { withSuffix } from '@/utilities/withSuffix'
   import { computed, onBeforeUnmount, onMounted, shallowRef, toRef, useTemplateRef, watch } from 'vue'
   import { useRoute } from 'vue-router'
 
-  // Components
   import DocsToc from '../docs/DocsToc.vue'
   import DocsPageLogo from '../docs/meta/DocsPageLogo.vue'
 
@@ -66,7 +66,10 @@
   useRouterLinks(mainRef)
 
   // Extract page metadata from frontmatter
-  const pageTitle = toRef(() => page.value?.frontmatter?.title as string | undefined)
+  const pageTitle = toRef(() => {
+    const title = page.value?.frontmatter?.title as string | undefined
+    return title ? withSuffix(title) : undefined
+  })
   const pageMeta = toRef(() => page.value?.frontmatter?.meta as Array<{ name?: string, content?: string }> | undefined)
   const pageDescription = computed(() => pageMeta.value?.find(m => m.name === 'description')?.content)
 
@@ -84,7 +87,7 @@
       schemas.push({
         '@context': 'https://schema.org',
         '@type': 'TechArticle',
-        'headline': pageTitle.value,
+        'headline': page.value?.frontmatter?.title,
         'description': pageDescription.value ?? '',
         'url': `https://0.vuetifyjs.com${route.path}`,
         'author': { '@type': 'Organization', 'name': 'Vuetify' },
