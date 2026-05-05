@@ -70,11 +70,12 @@ export interface DragType {
  *
  * @example
  * ```ts
- * const indicator: DropIndicator = {
- *   index: 2,
- *   edge: 'before',
- *   rect: someChild.getBoundingClientRect(),
- * }
+ * import { useDragDrop } from '@vuetify/v0'
+ *
+ * const dnd = useDragDrop<{ type: 'card', value: string }>()
+ * const zone = dnd.zones.register({ el, accept: ['card'], orientation: 'vertical' })
+ *
+ * zone.indicator.value // DropIndicator | null
  * ```
  */
 export interface DropIndicator {
@@ -89,10 +90,19 @@ export interface DropIndicator {
  *
  * @example
  * ```ts
- * function onDrop (drag, position: DropPosition) {
- *   const target = position.index ?? items.length
- *   items.splice(target, 0, drag.value)
- * }
+ * import { useDragDrop } from '@vuetify/v0'
+ *
+ * const dnd = useDragDrop<{ type: 'card', value: Card }>()
+ *
+ * dnd.zones.register({
+ *   el,
+ *   accept: ['card'],
+ *   orientation: 'vertical',
+ *   onDrop: (drag, position) => {
+ *     const target = position.index ?? items.length
+ *     items.splice(target, 0, drag.value)
+ *   },
+ * })
  * ```
  */
 export interface DropPosition {
@@ -113,11 +123,18 @@ interface ResolvedPosition {
  *
  * @example
  * ```ts
+ * import { useDragDrop } from '@vuetify/v0'
+ *
  * type Cards = { type: 'card', value: Card } | { type: 'column', value: Column }
  *
- * function onMove (drag: ActiveDrag<Cards>) {
- *   if (drag.type === 'card') drag.value.title // narrowed to Card
- * }
+ * const dnd = useDragDrop<Cards>()
+ *
+ * dnd.zones.register({
+ *   el,
+ *   onEnter: drag => {
+ *     if (drag.type === 'card') drag.value.title // narrowed to Card
+ *   },
+ * })
  * ```
  */
 export type ActiveDrag<K extends DragType = DragType> = K extends DragType
@@ -139,6 +156,10 @@ export type ActiveDrag<K extends DragType = DragType> = K extends DragType
  *
  * @example
  * ```ts
+ * import { useDragDrop } from '@vuetify/v0'
+ *
+ * const dnd = useDragDrop<{ type: 'card', value: Card }>()
+ *
  * dnd.draggables.register({
  *   el: cardRef,
  *   type: 'card',
@@ -165,7 +186,12 @@ export type DraggableTicketInput<K extends DragType = DragType> = K extends Drag
  *
  * @example
  * ```ts
+ * import { useDragDrop } from '@vuetify/v0'
+ *
+ * const dnd = useDragDrop<{ type: 'card', value: Card }>()
+ *
  * const ticket = dnd.draggables.register({ el, type: 'card', value: card })
+ *
  * ticket.isDragging.value // boolean
  * ticket.value           // Card
  * ```
@@ -182,6 +208,10 @@ export interface DraggableTicket<K extends DragType = DragType> extends Registry
  *
  * @example
  * ```ts
+ * import { useDragDrop } from '@vuetify/v0'
+ *
+ * const dnd = useDragDrop<{ type: 'card', value: Card }>()
+ *
  * dnd.zones.register({
  *   el: listRef,
  *   accept: ['card'],
@@ -207,7 +237,12 @@ export interface DropZoneTicketInput<K extends DragType = DragType>
  *
  * @example
  * ```ts
+ * import { useDragDrop } from '@vuetify/v0'
+ *
+ * const dnd = useDragDrop<{ type: 'card', value: Card }>()
+ *
  * const zone = dnd.zones.register({ el, accept: ['card'] })
+ *
  * zone.isOver.value      // boolean
  * zone.willAccept.value  // boolean
  * zone.indicator.value   // DropIndicator | null
@@ -226,10 +261,15 @@ export interface DropZoneTicket extends RegistryTicket {
  *
  * @example
  * ```ts
- * const logDrops: DragDropPlugin = ctx => {
- *   const off = ctx.zones.on('register:ticket', t => console.log('zone', t.id))
+ * import { useDragDrop } from '@vuetify/v0'
+ * import type { DragDropPlugin } from '@vuetify/v0'
+ *
+ * const logDrops: DragDropPlugin = context => {
+ *   const off = context.zones.on('register:ticket', ticket => console.log('zone', ticket.id))
  *   return () => off()
  * }
+ *
+ * const dnd = useDragDrop({ plugins: [logDrops] })
  * ```
  */
 export type DragDropPlugin<K extends DragType = DragType> = (
@@ -241,7 +281,9 @@ export type DragDropPlugin<K extends DragType = DragType> = (
  *
  * @example
  * ```ts
- * useDragDrop({
+ * import { useDragDrop, PointerAdapter } from '@vuetify/v0'
+ *
+ * const dnd = useDragDrop({
  *   adapters: [new PointerAdapter()],
  *   onDrop: (drag, position) => console.log('drop', drag, position),
  * })
@@ -272,11 +314,13 @@ export type ZonesContext<K extends DragType = DragType> =
  *
  * @example
  * ```ts
- * const dnd = useDragDrop()
- * dnd.draggables.register({ ... })
- * dnd.zones.register({ ... })
- * dnd.isDragging.value
- * dnd.cancel()
+ * import { useDragDrop } from '@vuetify/v0'
+ *
+ * const dnd = useDragDrop<{ type: 'card', value: Card }>()
+ *
+ * dnd.active.value     // ActiveDrag<{ type: 'card', value: Card }> | null
+ * dnd.isDragging.value // boolean
+ * dnd.cancel()         // programmatic cancel
  * ```
  */
 export interface DragDropContext<K extends DragType = DragType> {
