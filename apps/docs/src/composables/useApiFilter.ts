@@ -2,9 +2,9 @@
 import { createFilterContext } from '@vuetify/v0'
 
 export interface ApiItem {
+  [key: string]: unknown
   name: string
   description?: string
-  [key: string]: unknown
 }
 
 export const [useApiFilter, provideApiFilter, apiFilter] = createFilterContext<ApiItem>({

@@ -2,7 +2,7 @@
   import apiData from 'virtual:api'
 
   // Composables
-  import { provideApiFilter, useApiFilter } from '@/composables/useApiFilter'
+  import { apiFilter, provideApiFilter } from '@/composables/useApiFilter'
 
   // Utilities
   import { toKebab } from '@/utilities/strings'
@@ -15,12 +15,12 @@
   import maturity from '../../../../../packages/0/src/maturity.json'
 
   type IndexEntry = {
+    [key: string]: unknown
     name: string
     description: string
     href: string
     kind: 'component' | 'composable'
     category: string
-    [key: string]: unknown
   }
 
   const data = apiData as ApiData
@@ -69,7 +69,7 @@
   })
 
   provideApiFilter()
-  const filter = useApiFilter()
+  const filter = apiFilter
 
   const filteredComponents = filter.apply(filter.query, components)
   const filteredComposables = filter.apply(filter.query, composables)
