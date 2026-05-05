@@ -406,6 +406,7 @@
   .footnote-ref a.v0-link {
     color: var(--v0-primary);
     text-decoration: none;
+    scroll-margin-top: 5rem;
   }
 
   .footnote-ref a:hover {
@@ -431,6 +432,7 @@
 
   .footnotes-list li {
     margin-bottom: 0.25rem;
+    scroll-margin-top: 5rem;
   }
 
   .footnotes-list li :is(p, ul, ol) {
