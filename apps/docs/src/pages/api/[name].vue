@@ -8,6 +8,7 @@
 
   // Utilities
   import { toCamel, toPascal } from '@/utilities/strings'
+  import { withSuffix } from '@/utilities/withSuffix'
   import { computed, toRef } from 'vue'
 
   // Types
@@ -65,7 +66,7 @@
     return data.composables[itemName.value] || null
   })
 
-  const title = toRef(() => itemName.value ? `${itemName.value} API` : 'API Reference')
+  const title = toRef(() => withSuffix(itemName.value ? `${itemName.value} API` : 'API Reference'))
   const description = toRef(() => {
     if (!itemName.value) return undefined
     return isComponent.value
