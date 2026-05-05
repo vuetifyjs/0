@@ -26,15 +26,18 @@ Headless drag-and-drop primitive. Owns two registries â€” draggables and zones â
 
 Call `useDragDrop` once per scope and pass the returned context to children that register draggables or zones.
 
-```ts collapse
+```ts collapse no-filename
 import { useDragDrop } from '@vuetify/v0'
+import { useTemplateRef } from 'vue'
 
-const dnd = useDragDrop<{ type: 'card', value: Card }>()
+const dnd = useDragDrop<{ type: 'card', value: string }>()
+
+const el = useTemplateRef<HTMLElement>('el')
 
 const ticket = dnd.draggables.register({
   el,
   type: 'card',
-  value: card,
+  value: 'card-1',
 })
 
 const zone = dnd.zones.register({
@@ -42,7 +45,7 @@ const zone = dnd.zones.register({
   accept: ['card'],
   orientation: 'vertical',
   onDrop: (drag, position) => {
-    // drag.value: Card, position.index: number
+    console.log(drag.value, position.index) // 'card-1', 0
   },
 })
 ```
