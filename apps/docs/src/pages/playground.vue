@@ -1,6 +1,9 @@
 <script setup lang="ts">
   import { useHead } from '@unhead/vue'
 
+  // Utilities
+  import { withSuffix } from '@/utilities/withSuffix'
+
   import { IN_BROWSER } from '#v0/constants/globals'
 
   const target = import.meta.env.VITE_PLAYGROUND_URL ?? 'https://v0play.vuetifyjs.com'
@@ -14,7 +17,7 @@
   })
 
   useHead({
-    title: 'Redirecting to Vuetify Play...',
+    title: withSuffix('Redirecting to Vuetify Play...'),
     meta: [
       { key: 'robots', name: 'robots', content: 'noindex' },
       { 'http-equiv': 'refresh', 'content': `0; url=${redirect}` },
