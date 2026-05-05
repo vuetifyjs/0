@@ -75,6 +75,7 @@ Components with meaningful HTML defaults. Render semantic elements by default bu
 
 | Name | Description |
 | - | - |
+| [Alert](/components/semantic/alert) | Inline status banner with icon, title, description, and dismiss action |
 | [Avatar](/components/semantic/avatar) | Image/fallback avatar with priority loading |
 | [Breadcrumbs](/components/semantic/breadcrumbs) | Navigation breadcrumbs with overflow detection and truncation |
 | [Carousel](/components/semantic/carousel) | Scroll-snap slide navigation with multi-slide display and drag/swipe |

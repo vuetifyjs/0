@@ -272,6 +272,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/components/semantic/alert': RouteRecordInfo<
+      '/components/semantic/alert',
+      '/components/semantic/alert',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/components/semantic/avatar': RouteRecordInfo<
       '/components/semantic/avatar',
       '/components/semantic/avatar',
@@ -1262,6 +1269,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/components/providers/theme.md': {
       routes:
         | '/components/providers/theme'
+      views:
+        | never
+    }
+    'src/pages/components/semantic/alert.md': {
+      routes:
+        | '/components/semantic/alert'
       views:
         | never
     }

@@ -483,7 +483,8 @@
       "category": "disclosure"
     },
     "Alert": {
-      "level": "draft",
+      "level": "preview",
+      "since": null,
       "category": "semantic"
     },
     "Avatar": {

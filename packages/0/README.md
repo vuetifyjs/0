@@ -136,6 +136,7 @@ import { ... } from '@vuetify/v0/date'       // Date adapter and utilities
 
 | Component | Description |
 |-----------|-------------|
+| [Alert](https://0.vuetifyjs.com/components/semantic/alert) | Inline status banner with icon, title, description, and dismiss action |
 | [Avatar](https://0.vuetifyjs.com/components/semantic/avatar) | Image/fallback avatar with priority loading |
 | [Breadcrumbs](https://0.vuetifyjs.com/components/semantic/breadcrumbs) | Navigation breadcrumbs with overflow detection and truncation |
 | [Carousel](https://0.vuetifyjs.com/components/semantic/carousel) | Scroll-snap slide navigation with multi-slide display and drag/swipe |
