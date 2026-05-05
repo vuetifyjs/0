@@ -18,8 +18,6 @@ export interface UseHighlighterReturn {
 let highlighterPromise: Promise<HighlighterCore> | null = null
 const highlighter = shallowRef<HighlighterCore | null>(null)
 
-const logger = useLogger()
-
 /**
  * Safari/WebKit has issues with complex lookbehind patterns in Shiki grammars
  * despite passing basic feature tests. Force WASM on all Safari browsers.
@@ -41,6 +39,8 @@ function supportsAdvancedRegExp (): boolean {
 
 async function createSharedHighlighter (): Promise<HighlighterCore> {
   if (highlighterPromise) return highlighterPromise
+
+  const logger = useLogger()
 
   highlighterPromise = (async () => {
     const { createHighlighterCore } = await import('shiki/core')

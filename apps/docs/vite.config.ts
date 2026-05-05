@@ -119,6 +119,7 @@ export default defineConfig({
         // - Mermaid/Cytoscape: diagram tools, loaded only when docs use them
         // - vue.worker/playground/jsx: Monaco editor assets, only needed in the playground
         globIgnores: ['**/*Diagram-*.js', '**/mermaid*.js', '**/cytoscape*.js', '**/vue.worker*.js', '**/playground-*.js', '**/jsx-*.js', '**/monaco-editor-*.js'],
+        maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
         navigateFallback: null,
       },
     }),
