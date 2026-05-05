@@ -112,7 +112,6 @@ export type DraggableTicket<K extends DragType = DragType> = K extends DragType
     type: K['type']
     value: K['value']
     el: Readonly<Ref<HTMLElement | null>>
-    attrs: Readonly<Ref<Record<string, unknown>>>
     isDragging: Readonly<Ref<boolean>>
   }
   : never
@@ -131,7 +130,6 @@ export interface DropZoneTicketInput<K extends DragType = DragType>
 
 export interface DropZoneTicket extends RegistryTicket {
   el: Readonly<Ref<HTMLElement | null>>
-  attrs: Readonly<Ref<Record<string, unknown>>>
   isOver: Readonly<Ref<boolean>>
   willAccept: Readonly<Ref<boolean>>
   indicator: Readonly<Ref<DropIndicator | null>>
@@ -199,15 +197,6 @@ export function useDragDrop<K extends DragType = DragType> (
     const id = input.id ?? useId()
     const el = toRef(() => toValue(input.el))
     const dragging = toRef(() => active.value?.id === id)
-    const attrs = toRef(() => {
-      const out: Record<string, unknown> = {
-        'data-draggable': '',
-        'aria-roledescription': 'draggable',
-      }
-      if (dragging.value) out['data-dragging'] = ''
-      if (toValue(input.disabled) !== true) out.style = { touchAction: 'none' }
-      return out
-    })
 
     // Distributive types collapse to opaque conditionals when K is generic,
     // so cast through unknown — runtime shape is correct.
@@ -216,7 +205,6 @@ export function useDragDrop<K extends DragType = DragType> (
       id,
       el,
       isDragging: dragging,
-      attrs,
     } as unknown as Partial<DraggableTicketInput<K> & DraggableTicket<K>>
 
     return baseDraggables.register(decorated) as DraggableTicket<K>
@@ -241,12 +229,6 @@ export function useDragDrop<K extends DragType = DragType> (
       const childRects = Array.from(zoneEl.children).map(child => child.getBoundingClientRect())
       return resolveDropPosition(active.value.current, childRects, input.orientation)
     })
-    const attrs = toRef(() => {
-      const out: Record<string, unknown> = { 'data-dropzone': '' }
-      if (isOver.value) out['data-over'] = ''
-      if (isOver.value && willAccept.value) out['data-accepts'] = ''
-      return out
-    })
 
     const decorated = {
       ...input,
@@ -255,7 +237,6 @@ export function useDragDrop<K extends DragType = DragType> (
       isOver,
       willAccept,
       indicator,
-      attrs,
     } as Partial<DropZoneTicketInput<K> & DropZoneTicket>
 
     return baseZones.register(decorated) as DropZoneTicket

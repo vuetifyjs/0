@@ -24,17 +24,18 @@ Headless drag-and-drop primitive. Owns two registries — draggables and zones �
 
 ## Usage
 
-Call `useDragDrop` once per scope (board, tree, splitter). The returned context owns the registries and active-drag state — pass it to children explicitly so they can register draggables and zones against the same instance.
+Call `useDragDrop` once per scope (board, tree, splitter). The returned context owns the registries and active-drag state — pass it to children explicitly so they can register draggables and zones against the same instance. The composable returns logical state only; consumers wire DOM attributes themselves (see [DOM attributes](#dom-attributes) below).
 
 ```ts collapse
 import { useDragDrop } from '@vuetify/v0'
 
 // In the parent scope (e.g. <Kanban.Root>)
 const dnd = useDragDrop<{ type: 'card', value: Card }>()
+// → dnd.active, dnd.isDragging, dnd.cancel
 
 // In a draggable child (receives `dnd` as a prop)
 const ticket = dnd.draggables.register({ el, type: 'card', value: card })
-// → ticket.attrs, ticket.isDragging, ticket.el
+// → ticket.isDragging, ticket.el
 
 // In a drop-zone child (receives `dnd` as a prop)
 const zone = dnd.zones.register({
@@ -43,12 +44,12 @@ const zone = dnd.zones.register({
   orientation: 'vertical',
   onDrop: (drag, position) => moveCard(drag.value.id, position.index ?? 0),
 })
-// → zone.attrs, zone.isOver, zone.willAccept, zone.indicator
+// → zone.isOver, zone.willAccept, zone.indicator, zone.el
 ```
 
 ## Architecture
 
-The factory owns three pieces of state and three extension points. Pointer and keyboard adapters observe the DOM and emit a four-call lifecycle (`start`, `move`, `drop`, `cancel`); the factory pipes those through per-ticket and global hooks before mutating `active`.
+The factory owns four pieces of state (`draggables`, `zones`, `active`, `isDragging`) plus a public `cancel()` action, and three extension points (adapters, plugins, lifecycle hooks). Pointer and keyboard adapters observe the DOM and emit a four-call lifecycle (`start`, `move`, `drop`, `cancel`); the factory pipes those through per-ticket and global hooks before mutating `active`.
 
 ```mermaid "useDragDrop architecture"
 flowchart TD
@@ -60,8 +61,8 @@ flowchart TD
   end
 
   subgraph adapters["Adapters (pluggable)"]
-    pointer["pointerAdapter"]
-    keyboard["keyboardAdapter"]
+    pointer["PointerAdapter"]
+    keyboard["KeyboardAdapter"]
   end
 
   subgraph hooks["Lifecycle hooks"]
@@ -91,38 +92,51 @@ Adapters are pluggable input layers: an adapter observes the DOM (or any other i
 
 | Adapter | Import | Default | Description |
 |---|---|---|---|
-| `pointerAdapter` | `@vuetify/v0` | yes | Pointer Events for mouse, touch, and pen. Optional `threshold` activation distance. |
-| `keyboardAdapter` | `@vuetify/v0` | yes | `Space` / `Enter` to pick up and drop, arrow keys to nudge, `Escape` to cancel. Configurable activation keys + step. |
+| `PointerAdapter` | `@vuetify/v0` | yes | Pointer Events for mouse, touch, and pen. Optional `threshold` activation distance. |
+| `KeyboardAdapter` | `@vuetify/v0` | yes | `Space` / `Enter` to pick up and drop, arrow keys to nudge, `Escape` to cancel. Configurable activation keys + step. |
+
+Both adapters accept a constructor options bag — `PointerAdapter({ threshold })` and `KeyboardAdapter({ activate, step })`.
 
 Replace the defaults entirely by passing the `adapters` option:
 
 ```ts
-import { useDragDrop, pointerAdapter } from '@vuetify/v0'
+import { useDragDrop, PointerAdapter } from '@vuetify/v0'
 
 // Pointer only — disables keyboard.
-const dnd = useDragDrop({ adapters: [pointerAdapter()] })
+const dnd = useDragDrop({ adapters: [new PointerAdapter()] })
 ```
 
 To extend rather than replace, list the defaults explicitly alongside your custom adapter:
 
 ```ts
+import { useDragDrop, PointerAdapter, KeyboardAdapter } from '@vuetify/v0'
+
 useDragDrop({
-  adapters: [pointerAdapter(), keyboardAdapter(), myWebXrAdapter()],
+  adapters: [new PointerAdapter(), new KeyboardAdapter(), new MyWebXrAdapter()],
 })
 ```
 
 `adapters: []` disables both defaults entirely (useful for server-driven or test scenarios).
 
-A custom adapter implements:
+A custom adapter extends the abstract base:
 
 ```ts
-interface DragDropAdapter<K> {
-  install (ctx: DragDropContext<K>, emit: DragDropAdapterEmit<K>): void
-  uninstall (): void
+import { DragDropAdapter } from '@vuetify/v0'
+import type { DragDropAdapterContext, DragType } from '@vuetify/v0'
+
+class MyAdapter<K extends DragType = DragType> extends DragDropAdapter<K> {
+  setup (context: DragDropAdapterContext<K>): void {
+    // observe input, then call:
+    //   context.emit.start(source, origin, 'mySource')
+    //   context.emit.move(point)
+    //   context.emit.drop()
+    //   context.emit.cancel()
+    this.cleanup = () => { /* tear down listeners */ }
+  }
 }
 ```
 
-`emit` receives `start(source, origin, via)`, `move(point)`, `drop()`, and `cancel()`. Adapters declare their own `via` value via `Extensible<'pointer' | 'keyboard'>` so consumers reading `active.value.via` can distinguish the input source.
+`context.emit` exposes `start(source, origin, via)`, `move(point)`, `drop()`, and `cancel()` — call these as input arrives. Adapters declare their own `via` value via `Extensible<'pointer' | 'keyboard'>` so consumers reading `active.value.via` can distinguish the input source.
 
 ## Reactivity
 
@@ -130,17 +144,37 @@ Every consumer-facing state field is a reactive ref. Reads in templates need `.v
 
 | Field | Shape | Updates when |
 |---|---|---|
-| `dnd.active` | `ShallowRef<ActiveDrag<K> \| null>` | A drag starts, moves, drops, or cancels |
-| `dnd.isDragging` | `Ref<boolean>` | `active` becomes non-null / null |
-| `ticket.attrs` | `Ref<Record<string, unknown>>` | `data-dragging` toggles when the ticket is the active drag |
-| `ticket.isDragging` | `Ref<boolean>` | This specific ticket is the active drag |
-| `ticket.el` | `Ref<HTMLElement \| null>` | Mounts / unmounts (registry element-ref pattern) |
-| `zone.attrs` | `Ref<Record<string, unknown>>` | `data-over` and `data-accepts` toggle on hover / acceptance |
-| `zone.isOver` | `Ref<boolean>` | The active drag's `over` field equals this zone's id |
-| `zone.willAccept` | `Ref<boolean>` | An active drag matches this zone's `accept` policy |
-| `zone.indicator` | `Ref<DropIndicator \| null>` | While over an oriented zone, computes the index/edge/rect of the resolved drop position |
+| `dnd.active` | `Readonly<ShallowRef<ActiveDrag<K> \| null>>` | A drag starts, moves, drops, or cancels |
+| `dnd.isDragging` | `Readonly<Ref<boolean>>` | `active` becomes non-null / null |
+| `ticket.isDragging` | `Readonly<Ref<boolean>>` | This specific ticket is the active drag |
+| `ticket.el` | `Readonly<Ref<HTMLElement \| null>>` | Mounts / unmounts (registry element-ref pattern) |
+| `zone.isOver` | `Readonly<Ref<boolean>>` | The active drag's `over` field equals this zone's id |
+| `zone.willAccept` | `Readonly<Ref<boolean>>` | An active drag matches this zone's `accept` policy |
+| `zone.indicator` | `Readonly<Ref<DropIndicator \| null>>` | While over an oriented zone, computes the index/edge/rect of the resolved drop position |
+| `zone.el` | `Readonly<Ref<HTMLElement \| null>>` | Mounts / unmounts (registry element-ref pattern) |
 
 Indicator computation is `computed`-cached — `getBoundingClientRect` runs once per `active.value` change, not per template read.
+
+### Methods
+
+| Method | Purpose |
+|---|---|
+| `dnd.cancel()` | Programmatically cancel the active drag. Fires the cancel chain (`onLeave` on the over-zone → per-draggable `onCancel` → global `onCancel`) with `reason: 'cancel'`. No-op when no drag is active. |
+
+### DOM attributes
+
+The composable does not produce attribute objects — consumers wire data attributes themselves so the design-system layer can choose its own keys. The canonical wiring is:
+
+**Draggable element:**
+- `data-draggable` (always)
+- `aria-roledescription="draggable"` (always)
+- `data-dragging` toggled while `ticket.isDragging.value` is true
+- `touch-action: none` (CSS or `style="touch-action: none"`) so the browser doesn't pan/zoom on pointer drag
+
+**Drop zone element:**
+- `data-dropzone` (always)
+- `data-over` toggled while `zone.isOver.value` is true
+- `data-accepts` toggled while both `zone.isOver.value && zone.willAccept.value` are true
 
 ## Examples
 
@@ -180,7 +214,7 @@ type KanbanTypes =
 const dnd = useDragDrop<KanbanTypes>()
 
 // Card zone accepts only cards
-dnd.zones.register({ el, accept: ['card'], onDrop: (drag) => {
+dnd.zones.register({ el, accept: ['card'], onDrop: (drag, position) => {
   // drag.type narrows to 'card', drag.value to Card
 }})
 
@@ -190,13 +224,23 @@ dnd.zones.register({ el, accept: ['column'], orientation: 'horizontal' })
 
 ### Vetoing drops
 
-Either layer can veto. Per-zone vetoes route the drag through the cancel chain (`onLeave` on the active zone → `onCancel` on the source draggable → global `onCancel`) so consumers can roll back optimistic UI without subscribing to a separate "drop failed" event.
+Either layer can veto. Per-zone vetoes route the drag through the cancel chain (`onLeave` on the active zone → `onCancel` on the source draggable → global `onCancel`) so consumers can roll back optimistic UI without subscribing to a separate "drop failed" event. Both `onCancel` callbacks (per-draggable and global) receive a second argument `reason: 'cancel' | 'reject'` — `'reject'` when the cancel was triggered by a drop veto, `'cancel'` for user-initiated aborts (Escape, programmatic `dnd.cancel()`).
 
 ```ts
 dnd.zones.register({
   el,
   accept: ['card'],
   onBeforeDrop: (drag) => column.cards.length < column.wipLimit,
+})
+
+// Per-draggable cancel can react to the reason:
+dnd.draggables.register({
+  el,
+  type: 'card',
+  value: card,
+  onCancel: (drag, reason) => {
+    if (reason === 'reject') showRejectionToast()
+  },
 })
 ```
 
@@ -205,7 +249,10 @@ dnd.zones.register({
 Drop the defaults entirely and forward your own input source. Useful for cross-window drags, file-drop integrations, or programmatic test fixtures.
 
 ```ts
-const dnd = useDragDrop({ adapters: [myCustomAdapter()] })
+import { useDragDrop } from '@vuetify/v0'
+import { MyCustomAdapter } from './my-custom-adapter'
+
+const dnd = useDragDrop({ adapters: [new MyCustomAdapter()] })
 ```
 
 ## Accessibility
@@ -217,7 +264,7 @@ WAI-ARIA does not standardize a kanban or "drag list" pattern. The primitive fol
 - Each zone should wire a roving tabindex via [useRovingFocus](/composables/system/use-roving-focus) — one focus stop per zone, arrow keys move between items in the same zone, Tab moves to the next zone.
 - Provide a single live region per scope (`<div role="status" aria-live="polite">`) and watch `active` to announce moves ("Card moved to Done, position 2 of 5"). The live region is the consumer's responsibility — the headless contract excludes user-facing strings (PHILOSOPHY §5.5).
 
-The default `keyboardAdapter` honours the standard contract: `Space` / `Enter` to pick up and drop, arrow keys to navigate, `Escape` to cancel.
+The default `KeyboardAdapter` honours the standard contract: `Space` / `Enter` to pick up and drop, arrow keys to nudge the drag point by `step` px (default 16), `Escape` to cancel.
 
 ## FAQ
 
@@ -225,7 +272,7 @@ The default `keyboardAdapter` honours the standard contract: `Space` / `Enter` t
 
 ??? Why not use HTML5 drag-and-drop?
 
-Native HTML5 DnD has terrible mobile support, an ugly default ghost element you can't customize cross-browser, no programmatic activation distance, and inconsistent event semantics across input devices. `pointerAdapter` uses Pointer Events instead — uniform mouse, touch, and pen handling, no default ghost (you render whatever you want), and full control over activation thresholds. Plug HTML5 in as a custom adapter if you need cross-window drops or OS file-drag integration; the headless contract doesn't lock it out.
+Native HTML5 DnD has terrible mobile support, an ugly default ghost element you can't customize cross-browser, no programmatic activation distance, and inconsistent event semantics across input devices. `PointerAdapter` uses Pointer Events instead — uniform mouse, touch, and pen handling, no default ghost (you render whatever you want), and full control over activation thresholds. Plug HTML5 in as a custom adapter if you need cross-window drops or OS file-drag integration; the headless contract doesn't lock it out.
 
 ??? When does `position.index` get set?
 

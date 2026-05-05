@@ -64,7 +64,7 @@ describe('useDragDrop', () => {
 })
 
 describe('draggables.register', () => {
-  it('should return a ticket with type, value, attrs, el, isDragging', () => {
+  it('should return a ticket with type, value, el, isDragging', () => {
     const dnd = useDragDrop<{ type: 'card', value: { id: number } }>({ adapters: [] })
     const el = shallowRef<HTMLElement | null>(null)
 
@@ -72,29 +72,27 @@ describe('draggables.register', () => {
 
     expect(ticket.type).toBe('card')
     expect(ticket.value).toEqual({ id: 1 })
-    expect(isRef(ticket.attrs)).toBe(true)
     expect(isRef(ticket.el)).toBe(true)
+    expect(isRef(ticket.isDragging)).toBe(true)
     expect(ticket.isDragging.value).toBe(false)
   })
 
-  it('should populate attrs with data-draggable, aria-roledescription, touch-action', () => {
+  it('should expose isDragging false when no drag is active', () => {
     const dnd = useDragDrop({ adapters: [] })
     const el = shallowRef<HTMLElement | null>(null)
 
     const ticket = dnd.draggables.register({ el, type: 'a', value: null })
 
-    expect(ticket.attrs.value['data-draggable']).toBe('')
-    expect(ticket.attrs.value['aria-roledescription']).toBe('draggable')
-    expect(ticket.attrs.value.style).toEqual({ touchAction: 'none' })
+    expect(ticket.isDragging.value).toBe(false)
   })
 
-  it('should mark data-dragging while ticket is the active drag', async () => {
+  it('should mark isDragging true while ticket is the active drag', async () => {
     const dnd = useDragDrop({ adapters: [] })
     const el = shallowRef<HTMLElement | null>(null)
 
     const ticket = dnd.draggables.register({ el, type: 'a', value: null })
 
-    expect(ticket.attrs.value['data-dragging']).toBeUndefined()
+    expect(ticket.isDragging.value).toBe(false)
 
     ;(dnd.active as any).value = {
       id: ticket.id, type: 'a', value: null,
@@ -104,31 +102,30 @@ describe('draggables.register', () => {
     await nextTick()
 
     expect(ticket.isDragging.value).toBe(true)
-    expect(ticket.attrs.value['data-dragging']).toBe('')
   })
 
-  it('should drop touchAction style when disabled', () => {
+  it('should retain disabled flag on ticket input', () => {
     const dnd = useDragDrop({ adapters: [] })
     const el = shallowRef<HTMLElement | null>(null)
     const disabled = shallowRef(false)
 
     const ticket = dnd.draggables.register({ el, type: 'a', value: null, disabled })
 
-    expect(ticket.attrs.value.style).toEqual({ touchAction: 'none' })
+    expect(ticket.isDragging.value).toBe(false)
 
     disabled.value = true
-    expect(ticket.attrs.value.style).toBeUndefined()
+    expect(ticket.isDragging.value).toBe(false)
   })
 })
 
 describe('zones.register', () => {
-  it('should return a ticket with attrs, isOver, willAccept, indicator', () => {
+  it('should return a ticket with el, isOver, willAccept, indicator', () => {
     const dnd = useDragDrop({ adapters: [] })
     const el = shallowRef<HTMLElement | null>(null)
 
     const zone = dnd.zones.register({ el, accept: ['card'] })
 
-    expect(zone.attrs.value['data-dropzone']).toBe('')
+    expect(isRef(zone.el)).toBe(true)
     expect(zone.isOver.value).toBe(false)
     expect(zone.willAccept.value).toBe(false)
     expect(zone.indicator.value).toBeNull()

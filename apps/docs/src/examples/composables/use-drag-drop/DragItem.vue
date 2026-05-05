@@ -22,8 +22,10 @@
 <template>
   <div
     ref="el"
-    v-bind="ticket.attrs.value"
-    class="p-2 bg-primary text-on-primary rounded select-none cursor-grab data-[dragging]:cursor-grabbing data-[dragging]:opacity-50"
+    aria-roledescription="draggable"
+    class="touch-none p-2 bg-primary text-on-primary rounded select-none cursor-grab data-[dragging]:cursor-grabbing data-[dragging]:opacity-50"
+    data-draggable
+    :data-dragging="ticket.isDragging.value || undefined"
   >
     {{ item.label }}
   </div>
