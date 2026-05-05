@@ -3,6 +3,7 @@
   import apiData from 'virtual:api'
 
   // Composables
+  import { provideApiFilter } from '@/composables/useApiFilter'
   import { useApiHelpers } from '@/composables/useApiHelpers'
   import { useParams } from '@/composables/useRoute'
 
@@ -16,6 +17,7 @@
   const params = useParams<{ name: string }>()
   const data = apiData as ApiData
   const helpers = useApiHelpers()
+  provideApiFilter()
 
   const itemName = computed(() => {
     const slug = params.value.name
@@ -129,6 +131,8 @@
 
         <DocsRelated :frontmatter="relatedFrontmatter" />
 
+        <DocsApiSearch />
+
         <template
           v-for="api in componentApis"
           :key="api.name"
@@ -198,6 +202,8 @@
         <p class="lead">API reference for the {{ composableApi.name }} composable.</p>
 
         <DocsRelated :frontmatter="relatedFrontmatter" />
+
+        <DocsApiSearch />
 
         <template v-if="composableApi.functions?.length">
           <DocsHeaderAnchor
