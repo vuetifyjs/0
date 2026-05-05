@@ -16,7 +16,11 @@ export interface UseHighlighterReturn {
 }
 
 let highlighterPromise: Promise<HighlighterCore> | null = null
-const highlighter = shallowRef<HighlighterCore | null>(null)
+let highlighterRef: ShallowRef<HighlighterCore | null> | null = null
+
+function getRef (): ShallowRef<HighlighterCore | null> {
+  return highlighterRef ??= shallowRef<HighlighterCore | null>(null)
+}
 
 /**
  * Safari/WebKit has issues with complex lookbehind patterns in Shiki grammars
@@ -65,13 +69,14 @@ async function createSharedHighlighter (): Promise<HighlighterCore> {
     })
   })()
 
-  highlighter.value = await highlighterPromise
-  return highlighter.value
+  const ref = getRef()
+  ref.value = await highlighterPromise
+  return ref.value
 }
 
 export function useHighlighter (): UseHighlighterReturn {
   return {
-    highlighter,
+    highlighter: getRef(),
     getHighlighter: createSharedHighlighter,
   }
 }
