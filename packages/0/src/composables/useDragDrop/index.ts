@@ -27,7 +27,7 @@ import { KeyboardAdapter, PointerAdapter } from './adapters'
 
 // Utilities
 import { isArray, isFunction, isNull, useId } from '#v0/utilities'
-import { computed, onScopeDispose, shallowRef, toRef, toValue } from 'vue'
+import { computed, effectScope, onScopeDispose, shallowRef, toRef, toValue, watch } from 'vue'
 
 // Types
 import type {
@@ -301,11 +301,37 @@ export interface DragDropOptions<K extends DragType = DragType> {
   onCancel?: (drag: ActiveDrag<K>, reason: 'cancel' | 'reject') => void
 }
 
+/**
+ * Registry context for draggable tickets, returned as `dnd.draggables`
+ * from {@link useDragDrop}.
+ *
+ * @example
+ * ```ts
+ * import { useDragDrop } from '@vuetify/v0'
+ *
+ * const dnd = useDragDrop<{ type: 'card', value: Card }>()
+ *
+ * const ticket = dnd.draggables.register({ el, type: 'card', value: card })
+ * ```
+ */
 export type DraggablesContext<K extends DragType = DragType> =
   Omit<RegistryContext<DraggableTicketInput<K>, DraggableTicketInput<K> & DraggableTicket<K>>, 'register'> & {
     register: (registration: DraggableTicketInput<K>) => DraggableTicket<K>
   }
 
+/**
+ * Registry context for drop zones, returned as `dnd.zones`
+ * from {@link useDragDrop}.
+ *
+ * @example
+ * ```ts
+ * import { useDragDrop } from '@vuetify/v0'
+ *
+ * const dnd = useDragDrop<{ type: 'card', value: Card }>()
+ *
+ * const zone = dnd.zones.register({ el, accept: ['card'] })
+ * ```
+ */
 export type ZonesContext<K extends DragType = DragType> =
   Omit<RegistryContext<DropZoneTicketInput<K>, DropZoneTicketInput<K> & DropZoneTicket>, 'register'> & {
     register: (registration: DropZoneTicketInput<K>) => DropZoneTicket
@@ -481,8 +507,24 @@ export function useDragDrop<K extends DragType = DragType> (
           : []
       }
 
-      useResizeObserver(el, refresh)
-      useMutationObserver(el, refresh, { childList: true })
+      // Per-registration scope so observers tear down on zone.unregister()
+      // even when the calling component remains mounted.
+      const scope = effectScope()
+      scope.run(() => {
+        // Prime rects synchronously when `el.value` resolves so the first
+        // pointer move sees a populated cache; observers fire on later changes.
+        watch(el, refresh, { immediate: true, flush: 'post' })
+        useResizeObserver(el, refresh)
+        useMutationObserver(el, refresh, { childList: true })
+      })
+
+      function onUnregister (ticket: { id: ID }): void {
+        if (ticket.id === id) {
+          scope.stop()
+          _zones.off('unregister:ticket', onUnregister)
+        }
+      }
+      _zones.on('unregister:ticket', onUnregister)
 
       const indicator = computed<DropIndicator | null>(() => {
         if (!registration.orientation || !isOver.value || !active.value) return null
@@ -545,7 +587,7 @@ export function useDragDrop<K extends DragType = DragType> (
     origin: { x: number, y: number },
     via: Extensible<'pointer' | 'keyboard'>,
   ): void {
-    if (toValue(_draggables.get(source.id)?.disabled) === true) return
+    if (toValue(_draggables.get(source.id)?.disabled)) return
 
     const draft: ActiveDrag<K> = {
       id: source.id,
@@ -674,6 +716,9 @@ export function useDragDrop<K extends DragType = DragType> (
     if (isFunction(dispose)) disposers.push(dispose)
   }
 
+  // Note: `_draggables.dispose()` / `_zones.dispose()` clears listeners
+  // before `clear:registry` fires, so these handlers are silent during
+  // factory teardown. The hot-drag teardown path runs `cancel()` first.
   _draggables.on('unregister:ticket', ticket => {
     if (active.value?.id === ticket.id) cancel()
   })
