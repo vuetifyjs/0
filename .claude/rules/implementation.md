@@ -159,6 +159,8 @@ export class PinoLoggerAdapter extends LoggerAdapter { ... }
 
 **Type contract.** Every adapter is an `abstract class`, not an `interface`. Implementations `extend` the abstract base — there is no parallel `XxxAdapterInterface`. The composition noun matches the composable name verbatim (plural where the composable is plural: `PermissionsAdapter`, `FeaturesAdapter`). Single named class export — no factory functions.
 
+**Input-source adapters (carve-out).** Some composables expose a list of adapters that are *all* installed simultaneously, each wrapping a distinct input modality (e.g., `PointerAdapter` + `KeyboardAdapter` for `useDragDrop`). Each adapter implements the same `setup` / `dispose` contract; the factory iterates the array and installs every one. Naming: `<Source>Adapter` — no `Vuetify0` prefix because the source name *is* the distinguishing identity, not a brand. Reserved for input/output modalities; do not use this carve-out to pick between competing libraries (use the default-vs-third-party split above for that).
+
 **Lifecycle.** When an adapter has `setup`, call it inside the plugin's setup phase and register `dispose` on app unmount:
 
 ```ts
