@@ -1,5 +1,15 @@
+/**
+ * @module useDragDrop/adapters/keyboard
+ *
+ * @remarks
+ * Default keyboard adapter for useDragDrop. Listens for `keydown` on the
+ * document. Activation keys (default Space and Enter) start and drop drags;
+ * arrow keys nudge the drag point by `step` px; Escape cancels.
+ */
+
 // Composables
 import { useEventListener } from '#v0/composables/useEventListener'
+import { useLogger } from '#v0/composables/useLogger'
 
 // Utilities
 import { isNull } from '#v0/utilities'
@@ -21,6 +31,17 @@ export interface KeyboardAdapterOptions {
   step?: number
 }
 
+/**
+ * Default keyboard adapter. Listens for `keydown` on the document; activation
+ * keys start/drop drags, arrow keys nudge the drag point, Escape cancels.
+ *
+ * @example
+ * ```ts
+ * import { KeyboardAdapter, useDragDrop } from '@vuetify/v0'
+ *
+ * useDragDrop({ adapters: [new KeyboardAdapter({ activate: ['x'], step: 32 })] })
+ * ```
+ */
 export class KeyboardAdapter<K extends DragType = DragType> extends DragDropAdapter<K> {
   private activate: string[]
   private step: number
@@ -32,6 +53,10 @@ export class KeyboardAdapter<K extends DragType = DragType> extends DragDropAdap
   }
 
   setup (context: DragDropAdapterContext<K>): void {
+    if (this.cleanup) {
+      useLogger().warn('KeyboardAdapter setup called twice; previous registration will be replaced')
+      this.dispose()
+    }
     if (!IN_BROWSER) return
 
     const onKeyDown = (event: KeyboardEvent) => {
@@ -44,7 +69,12 @@ export class KeyboardAdapter<K extends DragType = DragType> extends DragDropAdap
         if (isActive) {
           context.emit.drop()
         } else if (ticket) {
-          const rect = ticket.el.value!.getBoundingClientRect()
+          const el = ticket.el.value
+          if (!el) {
+            useLogger().warn('KeyboardAdapter: cannot start drag — element is not mounted')
+            return
+          }
+          const rect = el.getBoundingClientRect()
           context.emit.start(ticket, { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 }, 'keyboard')
         }
         return

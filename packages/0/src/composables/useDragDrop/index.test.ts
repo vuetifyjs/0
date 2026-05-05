@@ -104,17 +104,26 @@ describe('draggables.register', () => {
     expect(ticket.isDragging.value).toBe(true)
   })
 
-  it('should retain disabled flag on ticket input', () => {
-    const dnd = useDragDrop({ adapters: [] })
-    const el = shallowRef<HTMLElement | null>(null)
-    const disabled = shallowRef(false)
+  it('should not start a drag when draggable is disabled', async () => {
+    const cardEl = makeFocusableEl('disabled-drag-1')
+    const disabled = shallowRef(true)
 
-    const ticket = dnd.draggables.register({ el, type: 'a', value: null, disabled })
+    const dnd = useDragDrop()
+    dnd.draggables.register({ el: shallowRef(cardEl), type: 'a', value: null, disabled })
 
-    expect(ticket.isDragging.value).toBe(false)
+    cardEl.focus()
+    cardEl.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true }))
+    await nextTick()
 
-    disabled.value = true
-    expect(ticket.isDragging.value).toBe(false)
+    expect(dnd.active.value).toBeNull()
+
+    disabled.value = false
+    cardEl.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true }))
+    await nextTick()
+
+    expect(dnd.active.value).not.toBeNull()
+
+    cardEl.remove()
   })
 })
 
@@ -271,7 +280,6 @@ describe('lifecycle hooks', () => {
     cardEl.focus()
     cardEl.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true }))
 
-    // Force the next move to consider zoneEl as `over` by stubbing elementFromPoint.
     const realFromPoint = document.elementFromPoint.bind(document)
     document.elementFromPoint = () => zoneEl
     cardEl.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
@@ -281,7 +289,9 @@ describe('lifecycle hooks', () => {
 
     expect(onDrop).not.toHaveBeenCalled()
     expect(onCancelDraggable).toHaveBeenCalledTimes(1)
+    expect(onCancelDraggable).toHaveBeenCalledWith(expect.any(Object), 'reject')
     expect(onCancelGlobal).toHaveBeenCalledTimes(1)
+    expect(onCancelGlobal).toHaveBeenCalledWith(expect.any(Object), 'reject')
     expect(dnd.active.value).toBeNull()
 
     cardEl.remove()
@@ -308,7 +318,9 @@ describe('lifecycle hooks', () => {
     await nextTick()
 
     expect(onCancelDraggable).toHaveBeenCalledTimes(1)
+    expect(onCancelDraggable).toHaveBeenCalledWith(expect.any(Object), 'cancel')
     expect(onCancelGlobal).toHaveBeenCalledTimes(1)
+    expect(onCancelGlobal).toHaveBeenCalledWith(expect.any(Object), 'cancel')
     expect(dnd.active.value).toBeNull()
 
     cardEl.remove()
@@ -335,12 +347,10 @@ describe('lifecycle hooks', () => {
 
     const realFromPoint = document.elementFromPoint.bind(document)
 
-    // First move resolves over → zoneA
     document.elementFromPoint = () => zoneA
     cardEl.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
     await nextTick()
 
-    // Second move resolves over → zoneB (zone change)
     document.elementFromPoint = () => zoneB
     cardEl.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
     await nextTick()
@@ -399,5 +409,207 @@ describe('pointerAdapter', () => {
     expect(vm.dnd.active.value?.via).toBe('pointer')
 
     wrapper.unmount()
+  })
+})
+
+describe('drop', () => {
+  it('should fire onDrop happy-path with drag and position; clears active afterward', async () => {
+    const cardEl = makeFocusableEl('drop-happy-1')
+    const zoneEl = document.createElement('div')
+    document.body.append(zoneEl)
+
+    const zoneOnDrop = vi.fn()
+    const globalOnDrop = vi.fn()
+    const onCancel = vi.fn()
+    const onLeave = vi.fn()
+
+    const dnd = useDragDrop({ onDrop: globalOnDrop, onCancel })
+    dnd.draggables.register({
+      el: shallowRef(cardEl),
+      type: 'a',
+      value: { name: 'card-1' },
+    })
+    dnd.zones.register({
+      el: shallowRef(zoneEl),
+      onDrop: zoneOnDrop,
+      onLeave,
+    })
+
+    cardEl.focus()
+    cardEl.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true }))
+
+    const realFromPoint = document.elementFromPoint.bind(document)
+    document.elementFromPoint = () => zoneEl
+    cardEl.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
+    cardEl.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true })) // drop
+    document.elementFromPoint = realFromPoint
+    await nextTick()
+
+    expect(zoneOnDrop).toHaveBeenCalledTimes(1)
+    expect(zoneOnDrop).toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'a', value: { name: 'card-1' } }),
+      expect.objectContaining({ pointer: expect.any(Object) }),
+    )
+    expect(globalOnDrop).toHaveBeenCalledTimes(1)
+    expect(globalOnDrop).toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'a', value: { name: 'card-1' } }),
+      expect.objectContaining({ pointer: expect.any(Object) }),
+    )
+    expect(dnd.active.value).toBeNull()
+    expect(onCancel).not.toHaveBeenCalled()
+    expect(onLeave).not.toHaveBeenCalled()
+
+    cardEl.remove()
+    zoneEl.remove()
+  })
+
+  it('should resolve position.index to 0 with no indicator on empty oriented zone', async () => {
+    const cardEl = makeFocusableEl('drop-empty-1')
+    const zoneEl = document.createElement('div')
+    document.body.append(zoneEl)
+
+    const zoneOnDrop = vi.fn()
+
+    const dnd = useDragDrop()
+    dnd.draggables.register({ el: shallowRef(cardEl), type: 'a', value: null })
+    dnd.zones.register({
+      el: shallowRef(zoneEl),
+      orientation: 'vertical',
+      onDrop: zoneOnDrop,
+    })
+
+    cardEl.focus()
+    cardEl.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true }))
+
+    const realFromPoint = document.elementFromPoint.bind(document)
+    document.elementFromPoint = () => zoneEl
+    cardEl.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
+    cardEl.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true })) // drop
+    document.elementFromPoint = realFromPoint
+    await nextTick()
+
+    expect(zoneOnDrop).toHaveBeenCalledTimes(1)
+    const position = zoneOnDrop.mock.calls[0][1]
+    expect(position.index).toBe(0)
+    expect(position.indicator).toBeUndefined()
+
+    cardEl.remove()
+    zoneEl.remove()
+  })
+
+  it('should not list disabled zones as drop targets', async () => {
+    const cardEl = makeFocusableEl('drop-disabled-zone-1')
+    const zoneEl = document.createElement('div')
+    document.body.append(zoneEl)
+
+    const zoneOnDrop = vi.fn()
+    const onCancel = vi.fn()
+
+    const dnd = useDragDrop({ onCancel })
+    dnd.draggables.register({ el: shallowRef(cardEl), type: 'a', value: null })
+    dnd.zones.register({
+      el: shallowRef(zoneEl),
+      disabled: true,
+      onDrop: zoneOnDrop,
+    })
+
+    cardEl.focus()
+    cardEl.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true }))
+
+    const realFromPoint = document.elementFromPoint.bind(document)
+    document.elementFromPoint = () => zoneEl
+    cardEl.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
+    await nextTick()
+
+    expect(dnd.active.value?.over).toBeNull()
+
+    cardEl.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true })) // drop
+    document.elementFromPoint = realFromPoint
+    await nextTick()
+
+    expect(zoneOnDrop).not.toHaveBeenCalled()
+    expect(onCancel).toHaveBeenCalledTimes(1)
+
+    cardEl.remove()
+    zoneEl.remove()
+  })
+})
+
+describe('hook ordering', () => {
+  it('should fire leave, enter, draggableMove, globalMove in order on zone change', async () => {
+    const cardEl = makeFocusableEl('order-1')
+    const zoneA = document.createElement('div')
+    const zoneB = document.createElement('div')
+    document.body.append(zoneA, zoneB)
+
+    const sequence: string[] = []
+
+    const dnd = useDragDrop({
+      onMove: () => sequence.push('globalMove'),
+    })
+    dnd.draggables.register({
+      el: shallowRef(cardEl),
+      type: 'a',
+      value: null,
+      onMove: () => sequence.push('draggableMove'),
+    })
+    dnd.zones.register({
+      el: shallowRef(zoneA),
+      onEnter: () => sequence.push('enterA'),
+      onLeave: () => sequence.push('leaveA'),
+    })
+    dnd.zones.register({
+      el: shallowRef(zoneB),
+      onEnter: () => sequence.push('enterB'),
+      onLeave: () => sequence.push('leaveB'),
+    })
+
+    cardEl.focus()
+    cardEl.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true }))
+
+    const realFromPoint = document.elementFromPoint.bind(document)
+
+    document.elementFromPoint = () => zoneA
+    cardEl.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
+    await nextTick()
+
+    sequence.length = 0
+    document.elementFromPoint = () => zoneB
+    cardEl.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
+    await nextTick()
+
+    document.elementFromPoint = realFromPoint
+
+    expect(sequence).toEqual(['leaveA', 'enterB', 'draggableMove', 'globalMove'])
+
+    cardEl.remove()
+    zoneA.remove()
+    zoneB.remove()
+  })
+})
+
+describe('scope teardown', () => {
+  it('should remove document listeners after scope.stop()', () => {
+    const scope = effectScope()
+    let dnd: ReturnType<typeof useDragDrop> | undefined
+
+    scope.run(() => {
+      dnd = useDragDrop()
+    })
+
+    const cardEl = makeFocusableEl('teardown-1')
+    dnd!.draggables.register({ el: shallowRef(cardEl), type: 'a', value: null })
+
+    scope.stop()
+
+    cardEl.focus()
+    cardEl.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true }))
+    cardEl.dispatchEvent(
+      new PointerEvent('pointerdown', { clientX: 0, clientY: 0, pointerId: 1, bubbles: true }),
+    )
+
+    expect(dnd!.active.value).toBeNull()
+
+    cardEl.remove()
   })
 })
