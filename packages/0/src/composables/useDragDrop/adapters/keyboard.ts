@@ -53,8 +53,10 @@ export class KeyboardAdapter<K extends DragType = DragType> extends DragDropAdap
   }
 
   setup (context: DragDropAdapterContext<K>): void {
+    const logger = useLogger()
+
     if (this.cleanup) {
-      useLogger().warn('KeyboardAdapter setup called twice; previous registration will be replaced')
+      logger.warn('KeyboardAdapter setup called twice; previous registration will be replaced')
       this.dispose()
     }
     if (!IN_BROWSER) return
@@ -71,11 +73,15 @@ export class KeyboardAdapter<K extends DragType = DragType> extends DragDropAdap
         } else if (ticket) {
           const el = ticket.el.value
           if (!el) {
-            useLogger().warn('KeyboardAdapter: cannot start drag — element is not mounted')
+            logger.warn('KeyboardAdapter: cannot start drag — element is not mounted')
             return
           }
           const rect = el.getBoundingClientRect()
-          context.emit.start(ticket, { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 }, 'keyboard')
+          context.emit.start(
+            ticket,
+            { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 },
+            'keyboard',
+          )
         }
         return
       }

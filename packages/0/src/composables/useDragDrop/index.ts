@@ -368,6 +368,7 @@ export function useDragDrop<K extends DragType = DragType> (
   options: DragDropOptions<K> = {},
 ): DragDropContext<K> {
   const { plugins = [] } = options
+  const logger = useLogger()
 
   const _draggables = createRegistry<
     DraggableTicketInput<K>,
@@ -390,7 +391,7 @@ export function useDragDrop<K extends DragType = DragType> (
     try {
       fn(...args)
     } catch (error) {
-      useLogger().error('useDragDrop hook threw', error)
+      logger.error('useDragDrop hook threw', error)
     }
   }
 
@@ -508,14 +509,14 @@ export function useDragDrop<K extends DragType = DragType> (
     try {
       if (_draggables.get(source.id)?.onBeforeStart?.(draft) === false) return
     } catch (error) {
-      useLogger().error('useDragDrop onBeforeStart threw; treating as veto', error)
+      logger.error('useDragDrop onBeforeStart threw; treating as veto', error)
       return
     }
 
     try {
       if (options.onBeforeStart?.(draft) === false) return
     } catch (error) {
-      useLogger().error('useDragDrop onBeforeStart threw; treating as veto', error)
+      logger.error('useDragDrop onBeforeStart threw; treating as veto', error)
       return
     }
 
@@ -565,7 +566,7 @@ export function useDragDrop<K extends DragType = DragType> (
       try {
         return fn(drag, dropAt) === false
       } catch (error) {
-        useLogger().error('useDragDrop onBeforeDrop threw; treating as veto', error)
+        logger.error('useDragDrop onBeforeDrop threw; treating as veto', error)
         return true
       }
     }
@@ -638,18 +639,18 @@ export function useDragDrop<K extends DragType = DragType> (
       try {
         dispose()
       } catch (error) {
-        useLogger().error('useDragDrop disposer threw', error)
+        logger.error('useDragDrop disposer threw', error)
       }
     }
     try {
       _draggables.dispose()
     } catch (error) {
-      useLogger().error('useDragDrop draggables dispose threw', error)
+      logger.error('useDragDrop draggables dispose threw', error)
     }
     try {
       _zones.dispose()
     } catch (error) {
-      useLogger().error('useDragDrop zones dispose threw', error)
+      logger.error('useDragDrop zones dispose threw', error)
     }
   })
 

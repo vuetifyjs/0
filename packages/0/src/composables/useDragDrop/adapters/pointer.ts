@@ -46,8 +46,10 @@ export class PointerAdapter<K extends DragType = DragType> extends DragDropAdapt
   }
 
   setup (context: DragDropAdapterContext<K>): void {
+    const logger = useLogger()
+
     if (this.cleanup) {
-      useLogger().warn('PointerAdapter setup called twice; previous registration will be replaced')
+      logger.warn('PointerAdapter setup called twice; previous registration will be replaced')
       this.dispose()
     }
     if (!IN_BROWSER) return
