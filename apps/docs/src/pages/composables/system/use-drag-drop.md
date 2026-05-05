@@ -26,28 +26,45 @@ Headless drag-and-drop primitive. Owns two registries — draggables and zones �
 
 Call `useDragDrop` once per scope and pass the returned context to children that register draggables or zones.
 
-```ts collapse no-filename
-import { useDragDrop } from '@vuetify/v0'
-import { useTemplateRef } from 'vue'
+```vue playground collapse no-filename useDragDrop
+<script setup lang="ts">
+  import { useDragDrop } from '@vuetify/v0'
+  import { useTemplateRef } from 'vue'
 
-const dnd = useDragDrop<{ type: 'card', value: string }>()
+  const dnd = useDragDrop<{ type: 'card', value: string }>()
 
-const el = useTemplateRef<HTMLElement>('el')
+  const draggable = useTemplateRef<HTMLElement>('draggable')
+  const dropzone = useTemplateRef<HTMLElement>('dropzone')
 
-const ticket = dnd.draggables.register({
-  el,
-  type: 'card',
-  value: 'card-1',
-})
+  dnd.draggables.register({
+    el: draggable,
+    type: 'card',
+    value: 'card-1',
+  })
 
-const zone = dnd.zones.register({
-  el,
-  accept: ['card'],
-  orientation: 'vertical',
-  onDrop: (drag, position) => {
-    console.log(drag.value, position.index) // 'card-1', 0
-  },
-})
+  dnd.zones.register({
+    el: dropzone,
+    accept: ['card'],
+    orientation: 'vertical',
+    onDrop: (drag, position) => {
+      console.log(drag.value, position.index) // 'card-1', 0
+    },
+  })
+</script>
+
+<template>
+  <div
+    ref="draggable"
+    data-draggable
+    aria-roledescription="draggable"
+  >
+    Card
+  </div>
+
+  <div ref="dropzone" data-dropzone>
+    Drop zone
+  </div>
+</template>
 ```
 
 ## Architecture
@@ -208,7 +225,9 @@ Need to share the context across deeply nested components without prop-threading
 
 ### Multiple drag types in one scope
 
-Widen the discriminated union — type narrowing on `drag.type` carries the corresponding `drag.value` through, so cards and columns can both be draggable in the same kanban scope without losing payload types.
+Default to a single type per scope (`useDragDrop<{ type: 'card', value: Card }>()`) — every draggable and zone shares one shape, every callback narrows trivially. Widen `K` to a discriminated union only when you need cross-type interactions in the same scope (e.g. a kanban where cards drop on columns *and* columns drop on a column-row); a separate `useDragDrop()` per scope is cleaner whenever the types don't meet.
+
+When you do widen, type narrowing on `drag.type` carries the corresponding `drag.value` through, so each variant keeps its payload shape across `onDrop` and `accept`.
 
 ```ts
 type KanbanTypes =
