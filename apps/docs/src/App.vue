@@ -101,7 +101,6 @@
 
   useHead({
     title: 'Vuetify0',
-    titleTemplate: '%s — Vuetify0',
     link: [
       { rel: 'preconnect', href: 'https://api.github.com' },
       { rel: 'preconnect', href: 'https://cdn.vuetifyjs.com' },
@@ -114,9 +113,11 @@
       { key: 'og:site_name', property: 'og:site_name', content: 'Vuetify0' },
       { key: 'og:locale', property: 'og:locale', content: 'en_US' },
       { key: 'og:url', property: 'og:url', content: url },
+      { key: 'og:title', property: 'og:title', content: () => globalThis?.document?.title ?? 'Vuetify0' },
       { key: 'og:image', property: 'og:image', content: 'https://cdn.vuetifyjs.com/docs/images/one/logos/vzero-logo-og.png' },
       { key: 'twitter:card', name: 'twitter:card', content: 'summary_large_image' },
       { key: 'twitter:site', name: 'twitter:site', content: '@VuetifyJS' },
+      { key: 'twitter:title', name: 'twitter:title', content: () => globalThis?.document?.title ?? 'Vuetify0' },
     ],
     script: toRef(() => [
       {
