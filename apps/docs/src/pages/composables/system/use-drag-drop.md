@@ -177,8 +177,8 @@ Extend the abstract `DragDropAdapter` base for shared `cleanup` + `dispose()` li
 import { DragDropAdapter } from '@vuetify/v0'
 import type { DragDropAdapterContext, DragType } from '@vuetify/v0'
 
-class TouchAdapter<K extends DragType = DragType> extends DragDropAdapter<K> {
-  setup (context: DragDropAdapterContext<K>): void {
+class TouchAdapter<Z extends DragType = DragType> extends DragDropAdapter<Z> {
+  setup (context: DragDropAdapterContext<Z>): void {
     // observe input, then call:
     //   context.emit.start(source, origin, 'touch')
     //   context.emit.move(point)
@@ -199,7 +199,7 @@ Every consumer-facing state field is a reactive ref <AppSuccessIcon />. Reads in
 
 | Field | Shape | Updates when |
 |---|---|---|
-| `dnd.active` | `Readonly<ShallowRef<ActiveDrag<K> \| null>>` | A drag starts, moves, drops, or cancels |
+| `dnd.active` | `Readonly<ShallowRef<ActiveDrag<Z> \| null>>` | A drag starts, moves, drops, or cancels |
 | `dnd.isDragging` | `Readonly<Ref<boolean>>` | `active` becomes non-null / null |
 | `ticket.isDragging` | `Readonly<Ref<boolean>>` | This specific ticket is the active drag |
 | `ticket.el` | `Readonly<Ref<HTMLElement \| null>>` | Mounts / unmounts (registry element-ref pattern) |
@@ -259,7 +259,7 @@ Need to share the context across deeply nested components without prop-threading
 
 ### Multiple drag types in one scope
 
-Default to a single type per scope (`useDragDrop<{ type: 'card', value: Card }>()`) — every draggable and zone shares one shape, every callback narrows trivially. Widen `K` to a discriminated union only when you need cross-type interactions in the same scope (e.g. a kanban where cards drop on columns *and* columns drop on a column-row); a separate `useDragDrop()` per scope is cleaner whenever the types don't meet.
+Default to a single type per scope (`useDragDrop<{ type: 'card', value: Card }>()`) — every draggable and zone shares one shape, every callback narrows trivially. Widen `Z` to a discriminated union only when you need cross-type interactions in the same scope (e.g. a kanban where cards drop on columns *and* columns drop on a column-row); a separate `useDragDrop()` per scope is cleaner whenever the types don't meet.
 
 When you do widen, type narrowing on `drag.type` carries the corresponding `drag.value` through, so each variant keeps its payload shape across `onDrop` and `accept`.
 
@@ -324,9 +324,9 @@ Native HTML5 DnD has terrible mobile support, an ugly default ghost element you 
 
 Only when the over-zone declares `orientation`. Without orientation, the zone is opaque — drops fire with `position.pointer` only. With orientation, the composable measures child rects and resolves an index. Empty oriented zones default `index` to `0` (the only sensible drop position when there's nothing to splice between).
 
-??? How do I pick the right `K` parameter?
+??? How do I pick the right `Z` parameter?
 
-`K` is a discriminated union of every drag type the scope handles. For a single type, write `useDragDrop<{ type: 'card', value: Card }>()`. For multiple, union them: `{ type: 'card', value: Card } | { type: 'column', value: Column }`. The types are distributive — narrowing on `drag.type` narrows `drag.value` to the matching variant.
+`Z` is a discriminated union of every drag type the scope handles. For a single type, write `useDragDrop<{ type: 'card', value: Card }>()`. For multiple, union them: `{ type: 'card', value: Card } | { type: 'column', value: Column }`. The types are distributive — narrowing on `drag.type` narrows `drag.value` to the matching variant.
 
 ??? Can the same DOM element be both a draggable and a zone?
 
