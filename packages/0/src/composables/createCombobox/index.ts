@@ -343,8 +343,3 @@ export function createComboboxContext (
 export function useCombobox (namespace = 'v0:combobox'): ComboboxContext {
   return useContext<ComboboxContext>(namespace)
 }
-
-// Re-export adapters with namespaced names to avoid conflicts with DataTable adapters
-export { ClientComboboxAdapter as ComboboxClientAdapter } from './adapters'
-export type { ClientComboboxAdapterOptions as ComboboxClientAdapterOptions } from './adapters'
-export { ServerComboboxAdapter as ComboboxServerAdapter } from './adapters'
