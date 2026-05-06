@@ -37,6 +37,8 @@ import { isFunction, isNull, isUndefined, useId } from '#v0/utilities'
 import type { QueueContext } from '#v0/composables/createQueue'
 import type { RegistryContext, RegistryOptions, RegistryTicket, RegistryTicketInput } from '#v0/composables/createRegistry'
 import type { Extensible, ID } from '#v0/types'
+// Adapters
+import type { NotificationsAdapter } from './adapters/adapter'
 
 /** Notification urgency level. Maps to ARIA roles: `'error'`/`'warning'` → `role="alert"`, `'info'`/`'success'` → `role="status"`. Extensible — custom values like `'critical'` are allowed with autocomplete for defaults. */
 export type NotificationSeverity = Extensible<'info' | 'warning' | 'error' | 'success'>
@@ -104,21 +106,6 @@ export interface NotificationsAdapterContext<
   on: (event: string, handler: (data: unknown) => void) => void
   /** Unsubscribe from a lifecycle event. */
   off: (event: string, handler: (data: unknown) => void) => void
-}
-
-/**
- * Adapter interface for bridging external notification services.
- * Adapters receive an {@link NotificationsAdapterContext} on setup
- * and optionally clean up on dispose.
- */
-export interface NotificationsAdapterInterface<
-  Z extends NotificationInput = NotificationInput,
-  E extends NotificationTicket<Z> = NotificationTicket<Z>,
-> {
-  /** Called once when the plugin installs. Wire inbound/outbound sync here. */
-  setup: (context: NotificationsAdapterContext<Z, E>) => void
-  /** Called on app unmount. Tear down listeners and connections. */
-  dispose?: () => void
 }
 
 /** Options for {@link createNotifications}. */
@@ -571,7 +558,7 @@ export function createNotifications (
 
 export interface NotificationsPluginOptions extends NotificationsOptions {
   namespace?: string
-  adapter?: NotificationsAdapterInterface
+  adapter?: NotificationsAdapter
 }
 
 // Fallback

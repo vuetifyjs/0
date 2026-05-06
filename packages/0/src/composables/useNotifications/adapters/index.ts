@@ -6,9 +6,10 @@
  *
  * Import adapters from the notifications subpath:
  * ```ts
- * import { createKnockAdapter } from '@vuetify/v0/notifications'
+ * import { KnockNotificationsAdapter } from '@vuetify/v0/notifications'
  * ```
  */
 
+export * from './adapter'
 export * from './knock'
 export * from './novu'

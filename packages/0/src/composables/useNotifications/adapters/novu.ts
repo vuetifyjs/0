@@ -13,7 +13,7 @@
  * @example
  * ```ts
  * import { Novu } from '@novu/js'
- * import { createNovuAdapter } from '@vuetify/v0/notifications'
+ * import { NovuNotificationsAdapter } from '@vuetify/v0/notifications'
  *
  * const novu = new Novu({
  *   subscriberId: userId,
@@ -21,16 +21,19 @@
  * })
  *
  * app.use(createNotificationsPlugin({
- *   adapter: createNovuAdapter(novu),
+ *   adapter: new NovuNotificationsAdapter(novu),
  * }))
  * ```
  */
 
 // Types
-import type { NotificationInput, NotificationSeverity, NotificationTicket, NotificationsAdapterContext, NotificationsAdapterInterface } from '../index'
+import type { NotificationInput, NotificationSeverity, NotificationTicket, NotificationsAdapterContext } from '../index'
 
 // Globals
 import { IN_BROWSER } from '#v0/constants/globals'
+
+// Adapters
+import { NotificationsAdapter } from './adapter'
 
 /** Minimal Novu notification shape. Uses type-only imports to avoid bundling the SDK. */
 export interface NovuNotification {
@@ -87,93 +90,96 @@ function mapItem (item: NovuNotification, resolveSeverity: (s: string) => Notifi
   }
 }
 
-export function createNovuAdapter (novu: NovuClient, options: NovuAdapterOptions = {}): NotificationsAdapterInterface {
-  const resolveSeverity = options.severity ?? defaultSeverity
-  const ids = new Set<string>()
-  let ctx: NotificationsAdapterContext | undefined
-  let disposed = false
-  const unsubscribers: Array<() => void> = []
+export class NovuNotificationsAdapter extends NotificationsAdapter {
+  private resolveSeverity: (s: string) => NotificationSeverity | undefined
+  private ids = new Set<string>()
+  private ctx: NotificationsAdapterContext | undefined
+  private disposed = false
+  private unsubscribers: Array<() => void> = []
 
-  let onRead: ((data: unknown) => void) | undefined
-  let onUnread: ((data: unknown) => void) | undefined
-  let onSeen: ((data: unknown) => void) | undefined
-  let onArchived: ((data: unknown) => void) | undefined
-  let onUnarchived: ((data: unknown) => void) | undefined
+  private onRead: ((data: unknown) => void) | undefined
+  private onUnread: ((data: unknown) => void) | undefined
+  private onSeen: ((data: unknown) => void) | undefined
+  private onArchived: ((data: unknown) => void) | undefined
+  private onUnarchived: ((data: unknown) => void) | undefined
 
-  return {
-    setup (_ctx: NotificationsAdapterContext) {
-      ctx = _ctx
-      disposed = false
+  constructor (private novu: NovuClient, options: NovuAdapterOptions = {}) {
+    super()
+    this.resolveSeverity = options.severity ?? defaultSeverity
+  }
 
-      // Inbound: real-time new notifications -> ctx.send()
-      const unsub = novu.on('notifications.notification_received', (data: unknown) => {
-        const item = data as NovuNotification
-        if (disposed || !item?.id || ids.has(item.id)) return
-        ids.add(item.id)
-        ctx!.send(mapItem(item, resolveSeverity))
-      })
+  setup (_ctx: NotificationsAdapterContext) {
+    this.ctx = _ctx
+    this.disposed = false
 
-      unsubscribers.push(unsub)
+    // Inbound: real-time new notifications -> ctx.send()
+    const unsub = this.novu.on('notifications.notification_received', (data: unknown) => {
+      const item = data as NovuNotification
+      if (this.disposed || !item?.id || this.ids.has(item.id)) return
+      this.ids.add(item.id)
+      this.ctx!.send(mapItem(item, this.resolveSeverity))
+    })
 
-      // Inbound: register into registry from initial fetch (no toast queue)
-      if (IN_BROWSER) {
-        novu.notifications.list({ limit: 30 }).then(({ data }) => {
-          if (disposed) return
-          for (const item of data?.notifications ?? []) {
-            if (!item.id || ids.has(item.id)) continue
-            ids.add(item.id)
-            ctx!.register(mapItem(item, resolveSeverity))
-          }
-        }).catch(noop)
-      }
+    this.unsubscribers.push(unsub)
 
-      // Outbound: notification mutations -> Novu API
-      onRead = (data: unknown) => {
-        const id = String((data as NotificationTicket).id)
-        if (ids.has(id)) novu.notifications.read({ notificationId: id }).catch(noop)
-      }
+    // Inbound: register into registry from initial fetch (no toast queue)
+    if (IN_BROWSER) {
+      this.novu.notifications.list({ limit: 30 }).then(({ data }) => {
+        if (this.disposed) return
+        for (const item of data?.notifications ?? []) {
+          if (!item.id || this.ids.has(item.id)) continue
+          this.ids.add(item.id)
+          this.ctx!.register(mapItem(item, this.resolveSeverity))
+        }
+      }).catch(noop)
+    }
 
-      onUnread = (data: unknown) => {
-        const id = String((data as NotificationTicket).id)
-        if (ids.has(id)) novu.notifications.unread({ notificationId: id }).catch(noop)
-      }
+    // Outbound: notification mutations -> Novu API
+    this.onRead = (data: unknown) => {
+      const id = String((data as NotificationTicket).id)
+      if (this.ids.has(id)) this.novu.notifications.read({ notificationId: id }).catch(noop)
+    }
 
-      onSeen = (data: unknown) => {
-        const id = String((data as NotificationTicket).id)
-        if (ids.has(id)) novu.notifications.seenAll({ notificationIds: [id] }).catch(noop)
-      }
+    this.onUnread = (data: unknown) => {
+      const id = String((data as NotificationTicket).id)
+      if (this.ids.has(id)) this.novu.notifications.unread({ notificationId: id }).catch(noop)
+    }
 
-      onArchived = (data: unknown) => {
-        const id = String((data as NotificationTicket).id)
-        if (ids.has(id)) novu.notifications.archive({ notificationId: id }).catch(noop)
-      }
+    this.onSeen = (data: unknown) => {
+      const id = String((data as NotificationTicket).id)
+      if (this.ids.has(id)) this.novu.notifications.seenAll({ notificationIds: [id] }).catch(noop)
+    }
 
-      onUnarchived = (data: unknown) => {
-        const id = String((data as NotificationTicket).id)
-        if (ids.has(id)) novu.notifications.unarchive({ notificationId: id }).catch(noop)
-      }
+    this.onArchived = (data: unknown) => {
+      const id = String((data as NotificationTicket).id)
+      if (this.ids.has(id)) this.novu.notifications.archive({ notificationId: id }).catch(noop)
+    }
 
-      ctx.on('notification:read', onRead)
-      ctx.on('notification:unread', onUnread)
-      ctx.on('notification:seen', onSeen)
-      ctx.on('notification:archived', onArchived)
-      ctx.on('notification:unarchived', onUnarchived)
-    },
+    this.onUnarchived = (data: unknown) => {
+      const id = String((data as NotificationTicket).id)
+      if (this.ids.has(id)) this.novu.notifications.unarchive({ notificationId: id }).catch(noop)
+    }
 
-    dispose () {
-      disposed = true
-      for (const unsub of unsubscribers) unsub()
-      unsubscribers.length = 0
+    this.ctx.on('notification:read', this.onRead)
+    this.ctx.on('notification:unread', this.onUnread)
+    this.ctx.on('notification:seen', this.onSeen)
+    this.ctx.on('notification:archived', this.onArchived)
+    this.ctx.on('notification:unarchived', this.onUnarchived)
+  }
 
-      if (ctx) {
-        if (onRead) ctx.off('notification:read', onRead)
-        if (onUnread) ctx.off('notification:unread', onUnread)
-        if (onSeen) ctx.off('notification:seen', onSeen)
-        if (onArchived) ctx.off('notification:archived', onArchived)
-        if (onUnarchived) ctx.off('notification:unarchived', onUnarchived)
-      }
+  dispose () {
+    this.disposed = true
+    for (const unsub of this.unsubscribers) unsub()
+    this.unsubscribers.length = 0
 
-      ids.clear()
-    },
+    if (this.ctx) {
+      if (this.onRead) this.ctx.off('notification:read', this.onRead)
+      if (this.onUnread) this.ctx.off('notification:unread', this.onUnread)
+      if (this.onSeen) this.ctx.off('notification:seen', this.onSeen)
+      if (this.onArchived) this.ctx.off('notification:archived', this.onArchived)
+      if (this.onUnarchived) this.ctx.off('notification:unarchived', this.onUnarchived)
+    }
+
+    this.ids.clear()
   }
 }

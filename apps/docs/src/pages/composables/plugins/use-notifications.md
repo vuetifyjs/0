@@ -189,8 +189,8 @@ Adapters let you swap the underlying notification service without changing your 
 
 | Adapter | Import | Description |
 |---------|--------|-------------|
-| `createKnockAdapter` | `@vuetify/v0/notifications` | [Knock](https://knock.app) integration |
-| `createNovuAdapter` | `@vuetify/v0/notifications` | [Novu](https://novu.co) integration |
+| `KnockNotificationsAdapter` | `@vuetify/v0/notifications` | [Knock](https://knock.app) integration |
+| `NovuNotificationsAdapter` | `@vuetify/v0/notifications` | [Novu](https://novu.co) integration |
 
 ### Knock
 
@@ -221,7 +221,7 @@ bun add @knocklabs/client
 ```ts src/main.ts
 import { createApp } from 'vue'
 import { createNotificationsPlugin } from '@vuetify/v0'
-import { createKnockAdapter } from '@vuetify/v0/notifications'
+import { KnockNotificationsAdapter } from '@vuetify/v0/notifications'
 import { feed } from './plugins/knock'
 import App from './App.vue'
 
@@ -229,7 +229,7 @@ const app = createApp(App)
 
 app.use(
   createNotificationsPlugin({
-    adapter: createKnockAdapter(feed),
+    adapter: new KnockNotificationsAdapter(feed),
   })
 )
 
@@ -280,7 +280,7 @@ bun add @novu/js
 ```ts src/main.ts
 import { createApp } from 'vue'
 import { createNotificationsPlugin } from '@vuetify/v0'
-import { createNovuAdapter } from '@vuetify/v0/notifications'
+import { NovuNotificationsAdapter } from '@vuetify/v0/notifications'
 import { novu } from './plugins/novu'
 import App from './App.vue'
 
@@ -288,7 +288,7 @@ const app = createApp(App)
 
 app.use(
   createNotificationsPlugin({
-    adapter: createNovuAdapter(novu),
+    adapter: new NovuNotificationsAdapter(novu),
   })
 )
 
@@ -308,12 +308,13 @@ export const novu = new Novu({
 
 ### Custom Adapters
 
-Implement `NotificationsAdapterInterface` to connect any backend:
+Extend `NotificationsAdapter` to connect any backend:
 
 ```ts
-import type { NotificationsAdapterInterface, NotificationsAdapterContext } from '@vuetify/v0'
+import { NotificationsAdapter } from '@vuetify/v0/notifications'
+import type { NotificationsAdapterContext } from '@vuetify/v0'
 
-class MyBackendAdapter implements NotificationsAdapterInterface {
+class MyBackendAdapter extends NotificationsAdapter {
   setup (context: NotificationsAdapterContext) {
     // Wire inbound: push notifications into the registry
     myBackend.onMessage(msg => {
@@ -348,14 +349,15 @@ app.use(createNotificationsPlugin({ adapter: new MyBackendAdapter() }))
 Extend `NotificationInput` to add domain-specific fields. Pass the type parameter through the adapter and plugin:
 
 ```ts
-import type { NotificationInput, NotificationsAdapterInterface, NotificationsAdapterContext } from '@vuetify/v0'
+import { NotificationsAdapter } from '@vuetify/v0/notifications'
+import type { NotificationInput, NotificationsAdapterContext } from '@vuetify/v0'
 
 interface AppNotification extends NotificationInput {
   priority: 'low' | 'medium' | 'high'
   imageUrl?: string
 }
 
-class MyBackendAdapter implements NotificationsAdapterInterface<AppNotification> {
+class MyBackendAdapter extends NotificationsAdapter<AppNotification> {
   setup (context: NotificationsAdapterContext<AppNotification>) {
     myBackend.onMessage(msg => {
       context.send({

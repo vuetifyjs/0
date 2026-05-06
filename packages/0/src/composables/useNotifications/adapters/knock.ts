@@ -12,23 +12,26 @@
  * @example
  * ```ts
  * import Knock from '@knocklabs/client'
- * import { createKnockAdapter } from '#v0/composables/useNotifications/adapters/knock'
+ * import { KnockNotificationsAdapter } from '#v0/composables/useNotifications/adapters/knock'
  *
  * const knock = new Knock(KNOCK_PUBLIC_API_KEY)
  * knock.authenticate(userId)
  * const feed = knock.feeds.initialize(KNOCK_FEED_CHANNEL_ID)
  *
  * app.use(createNotificationsPlugin({
- *   adapter: createKnockAdapter(feed),
+ *   adapter: new KnockNotificationsAdapter(feed),
  * }))
  * ```
  */
 
 // Types
-import type { NotificationInput, NotificationsAdapterContext, NotificationsAdapterInterface, NotificationTicket } from '../index'
+import type { NotificationInput, NotificationsAdapterContext, NotificationTicket } from '../index'
 
 // Globals
 import { IN_BROWSER } from '#v0/constants/globals'
+
+// Adapters
+import { NotificationsAdapter } from './adapter'
 
 /** Minimal Knock feed item shape. Uses type-only imports to avoid bundling the SDK. */
 export interface KnockFeedItem {
@@ -72,70 +75,73 @@ function mapItem (item: KnockFeedItem): NotificationInput {
   }
 }
 
-export function createKnockAdapter (feed: KnockFeed): NotificationsAdapterInterface {
-  const items = new Map<string, KnockFeedItem>()
-  let ctx: NotificationsAdapterContext | undefined
-  let onReceived: ((data: unknown) => void) | undefined
-  let onPage: ((data: unknown) => void) | undefined
-  let onRead: ((data: unknown) => void) | undefined
-  let onArchived: ((data: unknown) => void) | undefined
+export class KnockNotificationsAdapter extends NotificationsAdapter {
+  private items = new Map<string, KnockFeedItem>()
+  private ctx: NotificationsAdapterContext | undefined
+  private onReceived: ((data: unknown) => void) | undefined
+  private onPage: ((data: unknown) => void) | undefined
+  private onRead: ((data: unknown) => void) | undefined
+  private onArchived: ((data: unknown) => void) | undefined
 
-  return {
-    setup (_ctx: NotificationsAdapterContext) {
-      ctx = _ctx
+  constructor (private feed: KnockFeed) {
+    super()
+  }
 
-      // Inbound: real-time → send (toast + registry)
-      onReceived = (data: unknown) => {
-        const payload = data as { items?: KnockFeedItem[] }
-        if (!payload?.items) return
-        for (const item of payload.items) {
-          if (items.has(item.id)) continue
-          items.set(item.id, item)
-          ctx!.send(mapItem(item))
-        }
+  setup (_ctx: NotificationsAdapterContext) {
+    this.ctx = _ctx
+
+    // Inbound: real-time → send (toast + registry)
+    this.onReceived = (data: unknown) => {
+      const payload = data as { items?: KnockFeedItem[] }
+      if (!payload?.items) return
+      for (const item of payload.items) {
+        if (this.items.has(item.id)) continue
+        this.items.set(item.id, item)
+        this.ctx!.send(mapItem(item))
       }
+    }
 
-      // Inbound: page fetch → register (registry only, no toast)
-      onPage = (data: unknown) => {
-        const payload = data as { items?: KnockFeedItem[] }
-        if (!payload?.items) return
-        for (const item of payload.items) {
-          if (items.has(item.id)) continue
-          items.set(item.id, item)
-          ctx!.register(mapItem(item))
-        }
+    // Inbound: page fetch → register (registry only, no toast)
+    this.onPage = (data: unknown) => {
+      const payload = data as { items?: KnockFeedItem[] }
+      if (!payload?.items) return
+      for (const item of payload.items) {
+        if (this.items.has(item.id)) continue
+        this.items.set(item.id, item)
+        this.ctx!.register(mapItem(item))
       }
+    }
 
-      feed.on('items.received.realtime', onReceived)
-      feed.on('items.received.page', onPage)
+    this.feed.on('items.received.realtime', this.onReceived)
+    this.feed.on('items.received.page', this.onPage)
 
-      if (IN_BROWSER) {
-        feed.listenForUpdates()
-        feed.fetch().catch(noop)
-      }
+    if (IN_BROWSER) {
+      this.feed.listenForUpdates()
+      this.feed.fetch().catch(noop)
+    }
 
-      // Outbound: notification mutations -> Knock API
-      onRead = (data: unknown) => {
-        const item = items.get(String((data as NotificationTicket).id))
-        if (item) feed.markAsRead(item).catch(noop)
-      }
+    // Outbound: notification mutations -> Knock API
+    this.onRead = (data: unknown) => {
+      const item = this.items.get(String((data as NotificationTicket).id))
+      if (item) this.feed.markAsRead(item).catch(noop)
+    }
 
-      onArchived = (data: unknown) => {
-        const item = items.get(String((data as NotificationTicket).id))
-        if (item) feed.markAsArchived(item).catch(noop)
-      }
+    this.onArchived = (data: unknown) => {
+      const item = this.items.get(String((data as NotificationTicket).id))
+      if (item) this.feed.markAsArchived(item).catch(noop)
+    }
 
-      ctx.on('notification:read', onRead)
-      ctx.on('notification:archived', onArchived)
-    },
-    dispose () {
-      if (!ctx) return
-      feed.off('items.received.realtime', onReceived!)
-      feed.off('items.received.page', onPage!)
-      ctx.off('notification:read', onRead!)
-      ctx.off('notification:archived', onArchived!)
-      items.clear()
-      feed.teardown()
-    },
+    this.ctx.on('notification:read', this.onRead)
+    this.ctx.on('notification:archived', this.onArchived)
+  }
+
+  dispose () {
+    if (!this.ctx) return
+    this.feed.off('items.received.realtime', this.onReceived!)
+    this.feed.off('items.received.page', this.onPage!)
+    this.ctx.off('notification:read', this.onRead!)
+    this.ctx.off('notification:archived', this.onArchived!)
+    this.items.clear()
+    this.feed.teardown()
   }
 }

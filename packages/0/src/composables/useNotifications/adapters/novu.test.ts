@@ -7,7 +7,7 @@ import { effectScope } from 'vue'
 import type { NotificationsAdapterContext } from '../index'
 import type { NovuClient, NovuNotification } from './novu'
 
-import { createNovuAdapter } from './novu'
+import { NovuNotificationsAdapter } from './novu'
 
 import { createNotifications } from '../index'
 
@@ -50,11 +50,11 @@ function adapterContext (notifications: ReturnType<typeof createNotifications>):
   }
 }
 
-describe('createNovuAdapter', () => {
+describe('novuNotificationsAdapter', () => {
   it('should call setup with context', () => {
     withScope(() => {
       const novu = mockNovu()
-      const adapter = createNovuAdapter(novu)
+      const adapter = new NovuNotificationsAdapter(novu)
       const notifications = createNotifications()
 
       adapter.setup(adapterContext(notifications))
@@ -65,7 +65,7 @@ describe('createNovuAdapter', () => {
   it('should map inbound notifications via real-time event', () => {
     withScope(() => {
       const novu = mockNovu() as NovuClient & { _emit: (e: string, d: unknown) => void }
-      const adapter = createNovuAdapter(novu)
+      const adapter = new NovuNotificationsAdapter(novu)
       const notifications = createNotifications()
       adapter.setup(adapterContext(notifications))
 
@@ -80,7 +80,7 @@ describe('createNovuAdapter', () => {
   it('should deduplicate by id', () => {
     withScope(() => {
       const novu = mockNovu() as NovuClient & { _emit: (e: string, d: unknown) => void }
-      const adapter = createNovuAdapter(novu)
+      const adapter = new NovuNotificationsAdapter(novu)
       const notifications = createNotifications()
       adapter.setup(adapterContext(notifications))
 
@@ -95,7 +95,7 @@ describe('createNovuAdapter', () => {
   it('should map severity using default mapping', () => {
     withScope(() => {
       const novu = mockNovu() as NovuClient & { _emit: (e: string, d: unknown) => void }
-      const adapter = createNovuAdapter(novu)
+      const adapter = new NovuNotificationsAdapter(novu)
       const notifications = createNotifications()
       adapter.setup(adapterContext(notifications))
 
@@ -110,7 +110,7 @@ describe('createNovuAdapter', () => {
   it('should use custom severity mapping', () => {
     withScope(() => {
       const novu = mockNovu() as NovuClient & { _emit: (e: string, d: unknown) => void }
-      const adapter = createNovuAdapter(novu, {
+      const adapter = new NovuNotificationsAdapter(novu, {
         severity: () => 'success',
       })
       const notifications = createNotifications()
@@ -124,7 +124,7 @@ describe('createNovuAdapter', () => {
   it('should sync read event outbound', () => {
     withScope(() => {
       const novu = mockNovu() as NovuClient & { _emit: (e: string, d: unknown) => void }
-      const adapter = createNovuAdapter(novu)
+      const adapter = new NovuNotificationsAdapter(novu)
       const notifications = createNotifications()
       adapter.setup(adapterContext(notifications))
 
@@ -138,7 +138,7 @@ describe('createNovuAdapter', () => {
   it('should sync archive event outbound', () => {
     withScope(() => {
       const novu = mockNovu() as NovuClient & { _emit: (e: string, d: unknown) => void }
-      const adapter = createNovuAdapter(novu)
+      const adapter = new NovuNotificationsAdapter(novu)
       const notifications = createNotifications()
       adapter.setup(adapterContext(notifications))
 
@@ -152,7 +152,7 @@ describe('createNovuAdapter', () => {
   it('should sync unread event outbound', () => {
     withScope(() => {
       const novu = mockNovu() as NovuClient & { _emit: (e: string, d: unknown) => void }
-      const adapter = createNovuAdapter(novu)
+      const adapter = new NovuNotificationsAdapter(novu)
       const notifications = createNotifications()
       adapter.setup(adapterContext(notifications))
 
@@ -166,7 +166,7 @@ describe('createNovuAdapter', () => {
   it('should sync seen event outbound', () => {
     withScope(() => {
       const novu = mockNovu() as NovuClient & { _emit: (e: string, d: unknown) => void }
-      const adapter = createNovuAdapter(novu)
+      const adapter = new NovuNotificationsAdapter(novu)
       const notifications = createNotifications()
       adapter.setup(adapterContext(notifications))
 
@@ -180,7 +180,7 @@ describe('createNovuAdapter', () => {
   it('should sync unarchive event outbound', () => {
     withScope(() => {
       const novu = mockNovu() as NovuClient & { _emit: (e: string, d: unknown) => void }
-      const adapter = createNovuAdapter(novu)
+      const adapter = new NovuNotificationsAdapter(novu)
       const notifications = createNotifications()
       adapter.setup(adapterContext(notifications))
 
@@ -200,7 +200,7 @@ describe('createNovuAdapter', () => {
       const novu = mockNovu()
       vi.mocked(novu.notifications.list).mockResolvedValue({ data: { notifications: items } })
 
-      const adapter = createNovuAdapter(novu)
+      const adapter = new NovuNotificationsAdapter(novu)
       const notifications = createNotifications()
       adapter.setup(adapterContext(notifications))
 
@@ -224,7 +224,7 @@ describe('createNovuAdapter', () => {
       const novu = mockNovu()
       vi.mocked(novu.notifications.list).mockReturnValue(deferred)
 
-      const adapter = createNovuAdapter(novu)
+      const adapter = new NovuNotificationsAdapter(novu)
       const notifications = createNotifications()
       adapter.setup(adapterContext(notifications))
 
@@ -247,7 +247,7 @@ describe('createNovuAdapter', () => {
       const novu = mockNovu()
       vi.mocked(novu.notifications.list).mockResolvedValue({ data: null })
 
-      const adapter = createNovuAdapter(novu)
+      const adapter = new NovuNotificationsAdapter(novu)
       const notifications = createNotifications()
       adapter.setup(adapterContext(notifications))
 
@@ -267,7 +267,7 @@ describe('createNovuAdapter', () => {
       const novu = mockNovu()
       vi.mocked(novu.notifications.list).mockResolvedValue({ data: { notifications: undefined } })
 
-      const adapter = createNovuAdapter(novu)
+      const adapter = new NovuNotificationsAdapter(novu)
       const notifications = createNotifications()
       adapter.setup(adapterContext(notifications))
 
@@ -307,7 +307,7 @@ describe('createNovuAdapter', () => {
         },
       }
 
-      const adapter = createNovuAdapter(novu)
+      const adapter = new NovuNotificationsAdapter(novu)
       const notifications = createNotifications()
       adapter.setup(adapterContext(notifications))
 
@@ -322,7 +322,7 @@ describe('createNovuAdapter', () => {
   it('should clean up on dispose', () => {
     withScope(() => {
       const novu = mockNovu()
-      const adapter = createNovuAdapter(novu)
+      const adapter = new NovuNotificationsAdapter(novu)
       const notifications = createNotifications()
       adapter.setup(adapterContext(notifications))
 

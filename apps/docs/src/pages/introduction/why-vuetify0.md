@@ -144,8 +144,8 @@ Built-in adapters ship for the most common integrations:
 | `useFeatures` | `LaunchDarklyFeaturesAdapter` | [LaunchDarkly](https://launchdarkly.com) feature flags |
 | `useFeatures` | `FlagsmithFeaturesAdapter` | [Flagsmith](https://flagsmith.com) feature flags |
 | `useFeatures` | `PostHogFeaturesAdapter` | [PostHog](https://posthog.com) feature flags and analytics |
-| `useNotifications` | `createKnockAdapter` | [Knock](https://knock.app) notification feeds |
-| `useNotifications` | `createNovuAdapter` | [Novu](https://novu.co) notification infrastructure |
+| `useNotifications` | `KnockNotificationsAdapter` | [Knock](https://knock.app) notification feeds |
+| `useNotifications` | `NovuNotificationsAdapter` | [Novu](https://novu.co) notification infrastructure |
 
 Don't have a built-in? Implement the adapter interface in ~10 lines and swap it in. No changes to your application code.
 

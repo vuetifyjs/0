@@ -7,7 +7,7 @@ import { effectScope } from 'vue'
 import type { NotificationsAdapterContext } from '../index'
 import type { KnockFeed, KnockFeedItem } from './knock'
 
-import { createKnockAdapter } from './knock'
+import { KnockNotificationsAdapter } from './knock'
 
 import { createNotifications } from '../index'
 
@@ -59,11 +59,11 @@ function makeItem (id: string, overrides?: Partial<KnockFeedItem>): KnockFeedIte
   }
 }
 
-describe('createKnockAdapter', () => {
+describe('knockNotificationsAdapter', () => {
   it('should call setup and subscribe to feed events', () => {
     withScope(() => {
       const feed = mockFeed()
-      const adapter = createKnockAdapter(feed)
+      const adapter = new KnockNotificationsAdapter(feed)
       const notifications = createNotifications()
 
       adapter.setup(adapterContext(notifications))
@@ -76,7 +76,7 @@ describe('createKnockAdapter', () => {
   it('should map inbound items via realtime event', () => {
     withScope(() => {
       const feed = mockFeed()
-      const adapter = createKnockAdapter(feed)
+      const adapter = new KnockNotificationsAdapter(feed)
       const notifications = createNotifications()
       adapter.setup(adapterContext(notifications))
 
@@ -91,7 +91,7 @@ describe('createKnockAdapter', () => {
   it('should map inbound items via page event', () => {
     withScope(() => {
       const feed = mockFeed()
-      const adapter = createKnockAdapter(feed)
+      const adapter = new KnockNotificationsAdapter(feed)
       const notifications = createNotifications()
       adapter.setup(adapterContext(notifications))
 
@@ -104,7 +104,7 @@ describe('createKnockAdapter', () => {
   it('should extract subject and body from blocks', () => {
     withScope(() => {
       const feed = mockFeed()
-      const adapter = createKnockAdapter(feed)
+      const adapter = new KnockNotificationsAdapter(feed)
       const notifications = createNotifications()
       adapter.setup(adapterContext(notifications))
 
@@ -125,7 +125,7 @@ describe('createKnockAdapter', () => {
   it('should handle missing blocks gracefully', () => {
     withScope(() => {
       const feed = mockFeed()
-      const adapter = createKnockAdapter(feed)
+      const adapter = new KnockNotificationsAdapter(feed)
       const notifications = createNotifications()
       adapter.setup(adapterContext(notifications))
 
@@ -140,7 +140,7 @@ describe('createKnockAdapter', () => {
   it('should forward data from feed items', () => {
     withScope(() => {
       const feed = mockFeed()
-      const adapter = createKnockAdapter(feed)
+      const adapter = new KnockNotificationsAdapter(feed)
       const notifications = createNotifications()
       adapter.setup(adapterContext(notifications))
 
@@ -155,7 +155,7 @@ describe('createKnockAdapter', () => {
   it('should deduplicate by id', () => {
     withScope(() => {
       const feed = mockFeed()
-      const adapter = createKnockAdapter(feed)
+      const adapter = new KnockNotificationsAdapter(feed)
       const notifications = createNotifications()
       adapter.setup(adapterContext(notifications))
 
@@ -170,7 +170,7 @@ describe('createKnockAdapter', () => {
   it('should deduplicate across event types', () => {
     withScope(() => {
       const feed = mockFeed()
-      const adapter = createKnockAdapter(feed)
+      const adapter = new KnockNotificationsAdapter(feed)
       const notifications = createNotifications()
       adapter.setup(adapterContext(notifications))
 
@@ -185,7 +185,7 @@ describe('createKnockAdapter', () => {
   it('should handle multiple items in a single event', () => {
     withScope(() => {
       const feed = mockFeed()
-      const adapter = createKnockAdapter(feed)
+      const adapter = new KnockNotificationsAdapter(feed)
       const notifications = createNotifications()
       adapter.setup(adapterContext(notifications))
 
@@ -200,7 +200,7 @@ describe('createKnockAdapter', () => {
   it('should ignore payloads without items', () => {
     withScope(() => {
       const feed = mockFeed()
-      const adapter = createKnockAdapter(feed)
+      const adapter = new KnockNotificationsAdapter(feed)
       const notifications = createNotifications()
       adapter.setup(adapterContext(notifications))
 
@@ -214,7 +214,7 @@ describe('createKnockAdapter', () => {
   it('should ignore page event with missing items', () => {
     withScope(() => {
       const feed = mockFeed()
-      const adapter = createKnockAdapter(feed)
+      const adapter = new KnockNotificationsAdapter(feed)
       const notifications = createNotifications()
       adapter.setup(adapterContext(notifications))
 
@@ -229,7 +229,7 @@ describe('createKnockAdapter', () => {
   it('should sync read event outbound', () => {
     withScope(() => {
       const feed = mockFeed()
-      const adapter = createKnockAdapter(feed)
+      const adapter = new KnockNotificationsAdapter(feed)
       const notifications = createNotifications()
       adapter.setup(adapterContext(notifications))
 
@@ -244,7 +244,7 @@ describe('createKnockAdapter', () => {
   it('should sync archive event outbound', () => {
     withScope(() => {
       const feed = mockFeed()
-      const adapter = createKnockAdapter(feed)
+      const adapter = new KnockNotificationsAdapter(feed)
       const notifications = createNotifications()
       adapter.setup(adapterContext(notifications))
 
@@ -259,7 +259,7 @@ describe('createKnockAdapter', () => {
   it('should not call Knock API for unknown ids', () => {
     withScope(() => {
       const feed = mockFeed()
-      const adapter = createKnockAdapter(feed)
+      const adapter = new KnockNotificationsAdapter(feed)
       const notifications = createNotifications()
       adapter.setup(adapterContext(notifications))
 
@@ -274,7 +274,7 @@ describe('createKnockAdapter', () => {
   it('should clean up on dispose', () => {
     withScope(() => {
       const feed = mockFeed()
-      const adapter = createKnockAdapter(feed)
+      const adapter = new KnockNotificationsAdapter(feed)
       const notifications = createNotifications()
       adapter.setup(adapterContext(notifications))
 
