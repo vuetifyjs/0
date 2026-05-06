@@ -25,7 +25,7 @@
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
-  import type { ComboboxAdapterInterface, ComboboxContext } from '#v0/composables/createCombobox'
+  import type { ComboboxAdapter, ComboboxContext } from '#v0/composables/createCombobox'
   import type { MaybeArray, ID } from '#v0/types'
 
   export interface ComboboxRootProps extends AtomProps {
@@ -54,7 +54,7 @@
     /** Manual error messages */
     errorMessages?: MaybeArray<string>
     /** Filtering/loading adapter (client-side or server-side) */
-    adapter?: ComboboxAdapterInterface
+    adapter?: ComboboxAdapter
     /** Maps selected value to input display text. Defaults to String(value). */
     displayValue?: (value: unknown) => string
   }

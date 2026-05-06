@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Adapters
-import { ClientAdapter } from '#v0/composables/createCombobox/adapters/client'
+import { ClientComboboxAdapter } from '#v0/composables/createCombobox/adapters/client'
 
 // Utilities
 import { mount } from '@vue/test-utils'
@@ -41,7 +41,7 @@ async function createCombobox (options: {
   'name'?: string
   'form'?: string
   'id'?: string
-  'adapter'?: InstanceType<typeof ClientAdapter>
+  'adapter'?: InstanceType<typeof ClientComboboxAdapter>
   'items'?: Array<{ id?: string, value: string, disabled?: boolean }>
   'openOn'?: 'focus' | 'input'
 } = {}) {
@@ -316,7 +316,7 @@ describe('combobox', () => {
     it('after selection all items remain visible (pristine=true)', async () => {
       const selected = ref<string>()
       const { itemSlotProps, open } = await createCombobox({
-        'adapter': new ClientAdapter(),
+        'adapter': new ClientComboboxAdapter(),
         'modelValue': selected.value,
         'onUpdate:modelValue': v => {
           selected.value = v as string
@@ -342,7 +342,7 @@ describe('combobox', () => {
 
     it('after typing only matching items are visible (pristine=false)', async () => {
       const { wrapper, itemSlotProps, open } = await createCombobox({
-        adapter: new ClientAdapter(),
+        adapter: new ClientComboboxAdapter(),
       })
 
       open()
@@ -362,7 +362,7 @@ describe('combobox', () => {
     it('after selecting then typing, filter activates', async () => {
       const selected = ref<string>()
       const { wrapper, itemSlotProps, open } = await createCombobox({
-        'adapter': new ClientAdapter(),
+        'adapter': new ClientComboboxAdapter(),
         'modelValue': selected.value,
         'onUpdate:modelValue': v => {
           selected.value = v as string
@@ -451,7 +451,7 @@ describe('combobox', () => {
   describe('filtering', () => {
     it('client adapter filters items by query', async () => {
       const { wrapper, itemSlotProps, open } = await createCombobox({
-        adapter: new ClientAdapter(),
+        adapter: new ClientComboboxAdapter(),
       })
 
       open()
@@ -469,7 +469,7 @@ describe('combobox', () => {
 
     it('empty query shows all items', async () => {
       const { wrapper, itemSlotProps, open } = await createCombobox({
-        adapter: new ClientAdapter(),
+        adapter: new ClientComboboxAdapter(),
       })
 
       open()
@@ -492,7 +492,7 @@ describe('combobox', () => {
 
     it('shows empty state when no items match query', async () => {
       const { wrapper, open } = await createCombobox({
-        adapter: new ClientAdapter(),
+        adapter: new ClientComboboxAdapter(),
       })
 
       open()
@@ -509,7 +509,7 @@ describe('combobox', () => {
 
     it('hides filtered-out items via v-show', async () => {
       const { wrapper, open } = await createCombobox({
-        adapter: new ClientAdapter(),
+        adapter: new ClientComboboxAdapter(),
       })
 
       open()
@@ -530,7 +530,7 @@ describe('combobox', () => {
     it('filtered items skipped by virtual focus', async () => {
       const selected = ref<string>()
       const { wrapper, open } = await createCombobox({
-        'adapter': new ClientAdapter(),
+        'adapter': new ClientComboboxAdapter(),
         'modelValue': selected.value,
         'onUpdate:modelValue': v => {
           selected.value = v as string

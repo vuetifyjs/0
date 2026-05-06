@@ -15,9 +15,11 @@ import { shallowRef, toRef } from 'vue'
 
 // Types
 import type { ID } from '#v0/types'
-import type { ComboboxAdapterContext, ComboboxAdapterInterface, ComboboxAdapterResult } from './adapter'
+import type { ComboboxAdapterContext, ComboboxAdapterResult } from './adapter'
 
-export class ServerAdapter implements ComboboxAdapterInterface {
+import { ComboboxAdapter } from './adapter'
+
+export class ServerComboboxAdapter extends ComboboxAdapter {
   setup (context: ComboboxAdapterContext): ComboboxAdapterResult {
     const isLoading = shallowRef(false)
 

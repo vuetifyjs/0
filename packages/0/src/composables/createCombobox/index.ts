@@ -9,7 +9,7 @@
  * chain — it composes existing primitives instead.
  *
  * Key features:
- * - Adapter-based filtering (client-side or server-side via ClientAdapter/ServerAdapter)
+ * - Adapter-based filtering (client-side or server-side via ClientComboboxAdapter/ServerComboboxAdapter)
  * - Single or multi-select mode
  * - Virtual focus keyboard navigation (aria-activedescendant pattern)
  * - Strict mode: reverts query to selected value on close if no match
@@ -35,7 +35,7 @@ import { usePopover } from '#v0/composables/usePopover'
 import { useVirtualFocus } from '#v0/composables/useVirtualFocus'
 
 // Adapters
-import { ClientAdapter } from './adapters'
+import { ClientComboboxAdapter } from './adapters'
 
 // Utilities
 import { isUndefined, useId } from '#v0/utilities'
@@ -50,13 +50,14 @@ import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { PopoverReturn } from '#v0/composables/usePopover'
 import type { VirtualFocusReturn } from '#v0/composables/useVirtualFocus'
 import type { MaybeArray, ID } from '#v0/types'
-import type { ComboboxAdapterInterface } from './adapters'
+import type { ComboboxAdapter } from './adapters'
 import type { MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
 
 // Globals
 import { IN_BROWSER } from '#v0/constants/globals'
 
-export type { ComboboxAdapterContext, ComboboxAdapterInterface, ComboboxAdapterResult } from './adapters'
+export { ComboboxAdapter } from './adapters'
+export type { ComboboxAdapterContext, ComboboxAdapterResult } from './adapters'
 
 export interface ComboboxOptions {
   multiple?: MaybeRefOrGetter<boolean>
@@ -65,7 +66,7 @@ export interface ComboboxOptions {
   strict?: MaybeRefOrGetter<boolean>
   error?: MaybeRefOrGetter<boolean>
   errorMessages?: MaybeRefOrGetter<MaybeArray<string> | undefined>
-  adapter?: ComboboxAdapterInterface
+  adapter?: ComboboxAdapter
   displayValue?: (value: unknown) => string
   id?: string
   name?: string
@@ -186,8 +187,8 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
     return [...selection.values()]
   })
 
-  // Setup adapter (defaults to ClientAdapter for local filtering)
-  const { filtered, isLoading, isEmpty } = (adapter ?? new ClientAdapter()).setup({ query, items })
+  // Setup adapter (defaults to ClientComboboxAdapter for local filtering)
+  const { filtered, isLoading, isEmpty } = (adapter ?? new ClientComboboxAdapter()).setup({ query, items })
 
   const popover = usePopover({ id })
   const isOpen = popover.isOpen
@@ -344,6 +345,6 @@ export function useCombobox (namespace = 'v0:combobox'): ComboboxContext {
 }
 
 // Re-export adapters with namespaced names to avoid conflicts with DataTable adapters
-export { ClientAdapter as ComboboxClientAdapter } from './adapters'
-export type { ClientAdapterOptions as ComboboxClientAdapterOptions } from './adapters'
-export { ServerAdapter as ComboboxServerAdapter } from './adapters'
+export { ClientComboboxAdapter as ComboboxClientAdapter } from './adapters'
+export type { ClientComboboxAdapterOptions as ComboboxClientAdapterOptions } from './adapters'
+export { ServerComboboxAdapter as ComboboxServerAdapter } from './adapters'
