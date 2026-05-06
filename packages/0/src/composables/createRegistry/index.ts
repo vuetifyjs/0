@@ -731,7 +731,7 @@ export function createRegistry<
   let indexDependentCount = 0
   let needsReindex = false
   let minDirtyIndex = Infinity
-  let batching = false
+  let isBatching = false
   let batched: Array<{ event: string, data: unknown }> = []
 
   function dispatch (event: string, data: unknown) {
@@ -743,7 +743,7 @@ export function createRegistry<
   function emit (event: string, data: unknown = undefined) {
     if (!events) return
 
-    if (batching) {
+    if (isBatching) {
       batched.push({ event, data })
       return
     }
@@ -815,7 +815,7 @@ export function createRegistry<
       }
     }
 
-    const updated: E = {
+    const patched: E = {
       ...existing,
       ...patch,
       id,
@@ -824,12 +824,12 @@ export function createRegistry<
       valueIsIndex,
     }
 
-    collection.set(id, updated)
+    collection.set(id, patched)
     invalidate()
-    emit('update:ticket', updated)
+    emit('update:ticket', patched)
     if (event) emit(event, id)
 
-    return updated
+    return patched
   }
 
   function browse (value: unknown) {
@@ -915,14 +915,14 @@ export function createRegistry<
   }
 
   function invalidate () {
-    if (batching) return
+    if (isBatching) return
     cache.clear()
   }
 
   function batch<R> (fn: () => R): R {
-    if (batching) return fn()
+    if (isBatching) return fn()
 
-    batching = true
+    isBatching = true
     batched = []
 
     try {
@@ -936,7 +936,7 @@ export function createRegistry<
 
       return result
     } finally {
-      batching = false
+      isBatching = false
       batched = []
     }
   }
@@ -1003,7 +1003,7 @@ export function createRegistry<
       indexDependentCount++
     }
 
-    const rawTicket = {
+    const input = {
       ...registration,
       id,
       index,
@@ -1012,7 +1012,7 @@ export function createRegistry<
       unregister: () => unregister(id),
     } as E
 
-    const ticket = reactive ? shallowReactive(rawTicket) : rawTicket
+    const ticket = reactive ? shallowReactive(input) : input
 
     collection.set(ticket.id, ticket)
     directory.set(ticket.index, ticket.id)
@@ -1048,6 +1048,10 @@ export function createRegistry<
     }
 
     emit('unregister:ticket', ticket)
+  }
+
+  function onboard (registrations: Partial<Z & RegistryTicket>[]) {
+    return batch(() => registrations.map(registration => register(registration)))
   }
 
   function offboard (ids: ID[]) {
@@ -1163,9 +1167,7 @@ export function createRegistry<
     move,
     seek,
     batch,
-    onboard (registrations: Partial<Z & RegistryTicket>[]) {
-      return batch(() => registrations.map(registration => register(registration)))
-    },
+    onboard,
     offboard,
     get size () {
       return collection.size
