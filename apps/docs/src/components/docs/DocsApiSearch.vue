@@ -3,19 +3,19 @@
   import { useApiFilter } from '@/composables/useApiFilter'
 
   // Utilities
-  import { computed, useTemplateRef } from 'vue'
+  import { toRef, useTemplateRef } from 'vue'
 
   const filter = useApiFilter()
   const inputRef = useTemplateRef<HTMLInputElement>('input')
 
-  const query = computed({
-    get: () => String(filter.query.value ?? ''),
-    set: (value: string) => {
+  const query = toRef(
+    () => String(filter.query.value ?? ''),
+    (value: string) => {
       filter.query.value = value
     },
-  })
+  )
 
-  const hasQuery = computed(() => query.value.trim().length > 0)
+  const hasQuery = toRef(() => query.value.trim().length > 0)
 
   function onClear () {
     query.value = ''

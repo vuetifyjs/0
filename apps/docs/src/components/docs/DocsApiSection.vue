@@ -3,7 +3,7 @@
   import { useApiFilter } from '@/composables/useApiFilter'
 
   // Utilities
-  import { computed, toRef } from 'vue'
+  import { toRef } from 'vue'
 
   // Types
   import type { ApiItem } from '@/composables/useApiFilter'
@@ -20,14 +20,9 @@
   const items = toRef(() => (props.items ?? []) as ApiItem[])
   const filtered = filter.apply(filter.query, items)
 
-  const hasQuery = computed(() => {
-    const value = filter.query.value
-    if (typeof value === 'string') return value.trim().length > 0
-    if (Array.isArray(value)) return value.length > 0
-    return false
-  })
+  const hasQuery = toRef(() => String(filter.query.value ?? '').trim().length > 0)
 
-  const visible = computed(() => {
+  const visible = toRef(() => {
     if (!props.items?.length) return false
     if (filtered.items.value.length > 0) return true
     return !hasQuery.value
