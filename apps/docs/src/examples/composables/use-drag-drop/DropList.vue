@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { useTemplateRef } from 'vue'
+  import { onBeforeUnmount, useTemplateRef } from 'vue'
   import type { DragDropContext } from '@vuetify/v0'
 
   import DragItem from './DragItem.vue'
@@ -28,6 +28,8 @@
       emit('move', drag.value, side, position.index ?? 0)
     },
   })
+
+  onBeforeUnmount(() => zone.unregister())
 </script>
 
 <template>
@@ -37,6 +39,7 @@
     :data-accepts="(zone.isOver.value && zone.willAccept.value) || undefined"
     data-dropzone
     :data-over="zone.isOver.value || undefined"
+    role="list"
   >
     <DragItem v-for="item in items" :key="item.id" :dnd :item />
   </div>

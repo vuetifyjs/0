@@ -1,6 +1,6 @@
 <script setup lang="ts">
   import { useDragDrop } from '@vuetify/v0'
-  import { ref } from 'vue'
+  import { ref, shallowRef } from 'vue'
 
   import DropList from './DropList.vue'
 
@@ -14,6 +14,7 @@
     { id: 3, label: 'Cherry' },
   ])
   const right = ref<Item[]>([])
+  const announcement = shallowRef('')
 
   const dnd = useDragDrop<Kinds>()
 
@@ -22,6 +23,7 @@
     const toList = toSide === 'left' ? left : right
     fromList.value = fromList.value.filter(i => i.id !== item.id)
     toList.value.splice(toIndex, 0, item)
+    announcement.value = `${item.label} moved to ${toSide}, position ${toIndex + 1}`
   }
 </script>
 
@@ -32,5 +34,6 @@
   >
     <DropList :dnd :items="left" side="left" @move="onMove" />
     <DropList :dnd :items="right" side="right" @move="onMove" />
+    <div aria-live="polite" class="sr-only" role="status">{{ announcement }}</div>
   </div>
 </template>

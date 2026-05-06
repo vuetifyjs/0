@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { useTemplateRef } from 'vue'
+  import { onBeforeUnmount, useTemplateRef } from 'vue'
   import type { DragDropContext } from '@vuetify/v0'
 
   type Item = { id: number, label: string }
@@ -17,6 +17,8 @@
     type: 'item',
     value: item,
   })
+
+  onBeforeUnmount(() => ticket.unregister())
 </script>
 
 <template>
@@ -26,6 +28,8 @@
     class="touch-none p-2 bg-primary text-on-primary rounded select-none cursor-grab data-[dragging]:cursor-grabbing data-[dragging]:opacity-50"
     data-draggable
     :data-dragging="ticket.isDragging.value || undefined"
+    role="listitem"
+    tabindex="0"
   >
     {{ item.label }}
   </div>
