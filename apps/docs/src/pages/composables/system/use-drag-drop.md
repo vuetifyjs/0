@@ -189,7 +189,7 @@ class TouchAdapter<Z extends DragType = DragType> extends DragDropAdapter<Z> {
 }
 ```
 
-`context.emit` exposes `start(source, origin, via)`, `move(point)`, `drop()`, and `cancel()` — call these as input arrives. Adapters declare their own `via` value via `Extensible<'pointer' | 'keyboard'>` so consumers reading `active.value.via` can distinguish the input source.
+`context.emit` exposes `start(source, origin, via)`, `move(point)`, `drop()`, and `cancel()` — call these as input arrives. Adapters declare their own `via` value (typed as `DragVia`) so consumers reading `active.value.via` can distinguish the input source. `DragVia` is `Extensible<'pointer' | 'keyboard'>` — additional modalities (e.g. `'touch'`, `'gamepad'`) flow through without type-level coordination.
 
 ## Reactivity
 
@@ -200,6 +200,7 @@ Every consumer-facing state field is a reactive ref <AppSuccessIcon />. Reads in
 | Field | Shape | Updates when |
 |---|---|---|
 | `dnd.active` | `Readonly<ShallowRef<ActiveDrag<Z> \| null>>` | A drag starts, moves, drops, or cancels |
+| `dnd.active.value.via` | `DragVia` | Source modality (`'pointer'`, `'keyboard'`, or any extension) — read to branch keyboard-only behaviors like focus restoration |
 | `dnd.isDragging` | `Readonly<Ref<boolean>>` | `active` becomes non-null / null |
 | `ticket.isDragging` | `Readonly<Ref<boolean>>` | This specific ticket is the active drag |
 | `ticket.el` | `Readonly<Ref<HTMLElement \| null>>` | Mounts / unmounts (registry element-ref pattern) |
@@ -311,6 +312,10 @@ WAI-ARIA does not standardize a kanban or "drag list" pattern. The primitive fol
 - Provide a single live region per scope (`<div role="status" aria-live="polite">`) and watch `active` to announce moves ("Card moved to Done, position 2 of 5"). The live region is the consumer's responsibility — the headless contract excludes user-facing strings (PHILOSOPHY §5.5).
 
 The default `KeyboardAdapter` honours the standard contract: `Space` / `Enter` to pick up and drop, arrow keys to nudge the drag point by `step` px (default 16), `Escape` to cancel.
+
+### Post-drop focus
+
+After a successful keyboard drop, the moved element is typically replaced by the consumer's `onDrop` handler — focus then lands on `<body>`, breaking keyboard flow. Restore it explicitly: in `onDrop`, after mutating the source list, call `nextTick` and refocus the new element by id (or rely on `useRovingFocus` to refocus the active item). Branch on `active.value.via === 'keyboard'` so the restoration only runs for keyboard drags, not pointer drags.
 
 ## FAQ
 
