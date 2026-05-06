@@ -3,9 +3,9 @@
  *
  * @remarks
  * Adapter contract and abstract base for useDragDrop. Concrete adapters extend
- * `DragDropAdapter<K>` to share the `cleanup` field, `dispose()` lifecycle, and
+ * `DragDropAdapter<Z>` to share the `cleanup` field, `dispose()` lifecycle, and
  * the `locate()` DOM-walk helper. Adapters that don't need shared logic can
- * implement `DragDropAdapterInterface<K>` directly.
+ * implement `DragDropAdapterInterface<Z>` directly.
  */
 
 // Types
@@ -16,9 +16,9 @@ import type {
   DraggableTicket,
 } from '../'
 
-export interface DragDropAdapterEmit<K extends DragType = DragType> {
+export interface DragDropAdapterEmit<Z extends DragType = DragType> {
   start: (
-    source: DraggableTicket<K>,
+    source: DraggableTicket<Z>,
     origin: { x: number, y: number },
     via: Extensible<'pointer' | 'keyboard'>,
   ) => void
@@ -27,13 +27,13 @@ export interface DragDropAdapterEmit<K extends DragType = DragType> {
   cancel: () => void
 }
 
-export interface DragDropAdapterContext<K extends DragType = DragType>
-  extends DragDropContext<K> {
-  emit: DragDropAdapterEmit<K>
+export interface DragDropAdapterContext<Z extends DragType = DragType>
+  extends DragDropContext<Z> {
+  emit: DragDropAdapterEmit<Z>
 }
 
-export interface DragDropAdapterInterface<K extends DragType = DragType> {
-  setup: (context: DragDropAdapterContext<K>) => void
+export interface DragDropAdapterInterface<Z extends DragType = DragType> {
+  setup: (context: DragDropAdapterContext<Z>) => void
   dispose: () => void
 }
 
@@ -57,8 +57,8 @@ export interface DragDropAdapterInterface<K extends DragType = DragType> {
  * }
  * ```
  */
-export abstract class DragDropAdapter<K extends DragType = DragType>
-implements DragDropAdapterInterface<K> {
+export abstract class DragDropAdapter<Z extends DragType = DragType>
+implements DragDropAdapterInterface<Z> {
   protected cleanup: (() => void) | null = null
 
   dispose (): void {
@@ -68,8 +68,8 @@ implements DragDropAdapterInterface<K> {
 
   protected locate (
     target: EventTarget | Element | null,
-    context: DragDropAdapterContext<K>,
-  ): DraggableTicket<K> | null {
+    context: DragDropAdapterContext<Z>,
+  ): DraggableTicket<Z> | null {
     let element = target as Element | null
     while (element) {
       for (const ticket of context.draggables.values()) {
@@ -80,5 +80,5 @@ implements DragDropAdapterInterface<K> {
     return null
   }
 
-  abstract setup (context: DragDropAdapterContext<K>): void
+  abstract setup (context: DragDropAdapterContext<Z>): void
 }

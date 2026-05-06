@@ -42,7 +42,7 @@ export interface KeyboardAdapterOptions {
  * useDragDrop({ adapters: [new KeyboardAdapter({ activate: ['x'], step: 32 })] })
  * ```
  */
-export class KeyboardAdapter<K extends DragType = DragType> extends DragDropAdapter<K> {
+export class KeyboardAdapter<Z extends DragType = DragType> extends DragDropAdapter<Z> {
   private activate: string[]
   private step: number
 
@@ -52,7 +52,7 @@ export class KeyboardAdapter<K extends DragType = DragType> extends DragDropAdap
     this.step = options.step ?? 16
   }
 
-  setup (context: DragDropAdapterContext<K>): void {
+  setup (context: DragDropAdapterContext<Z>): void {
     const logger = useLogger()
 
     if (this.cleanup) {

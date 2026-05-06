@@ -14,9 +14,9 @@ import type {
 
 import { KeyboardAdapter, PointerAdapter, useDragDrop } from './'
 
-class CaptureAdapter<K extends DragType = DragType> implements DragDropAdapterInterface<K> {
-  emit!: DragDropAdapterEmit<K>
-  setup (context: DragDropAdapterContext<K>): void {
+class CaptureAdapter<Z extends DragType = DragType> implements DragDropAdapterInterface<Z> {
+  emit!: DragDropAdapterEmit<Z>
+  setup (context: DragDropAdapterContext<Z>): void {
     this.emit = context.emit
   }
 
@@ -155,9 +155,9 @@ describe('zones.register', () => {
   })
 
   it('should set willAccept when active drag matches accept array', () => {
-    type K = { type: 'card', value: null } | { type: 'column', value: null }
-    const adapter = new CaptureAdapter<K>()
-    const dnd = useDragDrop<K>({ adapters: [adapter] })
+    type Z = { type: 'card', value: null } | { type: 'column', value: null }
+    const adapter = new CaptureAdapter<Z>()
+    const dnd = useDragDrop<Z>({ adapters: [adapter] })
     const el = shallowRef<HTMLElement | null>(null)
 
     const zone = dnd.zones.register({ el, accept: ['card'] })

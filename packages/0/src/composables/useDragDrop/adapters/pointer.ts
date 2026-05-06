@@ -37,7 +37,7 @@ export interface PointerAdapterOptions {
  * useDragDrop({ adapters: [new PointerAdapter({ threshold: 10 })] })
  * ```
  */
-export class PointerAdapter<K extends DragType = DragType> extends DragDropAdapter<K> {
+export class PointerAdapter<Z extends DragType = DragType> extends DragDropAdapter<Z> {
   private threshold: number
 
   constructor (options: PointerAdapterOptions = {}) {
@@ -45,7 +45,7 @@ export class PointerAdapter<K extends DragType = DragType> extends DragDropAdapt
     this.threshold = options.threshold ?? 0
   }
 
-  setup (context: DragDropAdapterContext<K>): void {
+  setup (context: DragDropAdapterContext<Z>): void {
     const logger = useLogger()
 
     if (this.cleanup) {
@@ -54,7 +54,7 @@ export class PointerAdapter<K extends DragType = DragType> extends DragDropAdapt
     }
     if (!IN_BROWSER) return
 
-    let downSource: DraggableTicket<K> | null = null
+    let downSource: DraggableTicket<Z> | null = null
     let downOrigin: { x: number, y: number } | null = null
     let started = false
 
