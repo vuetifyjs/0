@@ -60,9 +60,6 @@ catalogs:
     '@types/node':
       specifier: ^25.6.0
       version: 25.6.0
-    '@unhead/addons':
-      specifier: ^2.1.13
-      version: 2.1.13
     '@unhead/vue':
       specifier: ^2.1.13
       version: 2.1.13
@@ -325,9 +322,6 @@ importers:
       '@octokit/core':
         specifier: 'catalog:'
         version: 7.0.6
-      '@unhead/addons':
-        specifier: 'catalog:'
-        version: 2.1.13(rollup@2.80.0)
       '@vue/repl':
         specifier: 'catalog:'
         version: 4.7.1(patch_hash=22a1e92d68b942412d71072ca179a113ff51e2ff6598767c7c954ceb4e277cbe)
@@ -3044,11 +3038,6 @@ packages:
 
   '@ungap/structured-clone@1.3.0':
     resolution: {integrity: sha512-WmoN8qaIAo7WTYWbAZuG8PYEhn5fkz7dZrqTBZ7dtt//lL2Gwms1IcnQ5yHqjDfX8Ft5j4YzDM23f87zBfDe9g==}
-
-  '@unhead/addons@2.1.13':
-    resolution: {integrity: sha512-xiM5ERU68FEuiBCCiPZ1EDkja+kH4hKKot/7dNJufneACtGoAFWnKUcmj/iB9BKjVwgBBF3sFYO3qXjkNFXWxA==}
-    peerDependencies:
-      unhead: ^2.1.13
 
   '@unhead/dom@2.1.12':
     resolution: {integrity: sha512-PpBWWgS3t32qSl60v3UDIhZreuFOAl/Wj2T+bDnlhW/mMGFeVJrHoeJB5pa9UHWJwC1nLyBDn+6XqfCxOftQ2g==}
@@ -6604,10 +6593,6 @@ packages:
       '@unocss/webpack':
         optional: true
 
-  unplugin-ast@0.16.0:
-    resolution: {integrity: sha512-1ow2FlRznoSKE7Fjk2bSxqDsvHyj/O876RqsNlipsM6A+I91t7Mi+jG7tCNNcl3vZx14z4pGXBLSl8KOPrMuFQ==}
-    engines: {node: '>=20.19.0'}
-
   unplugin-auto-import@21.0.0:
     resolution: {integrity: sha512-vWuC8SwqJmxZFYwPojhOhOXDb5xFhNNcEVb9K/RFkyk/3VnfaOjzitWN7v+8DEKpMjSsY2AEGXNgt6I0yQrhRQ==}
     engines: {node: '>=20.19.0'}
@@ -9350,18 +9335,6 @@ snapshots:
       eslint-visitor-keys: 5.0.1
 
   '@ungap/structured-clone@1.3.0': {}
-
-  '@unhead/addons@2.1.13(rollup@2.80.0)':
-    dependencies:
-      '@rollup/pluginutils': 5.3.0(rollup@2.80.0)
-      estree-walker: 3.0.3
-      magic-string: 0.30.21
-      mlly: 1.8.2
-      ufo: 1.6.3
-      unplugin: 3.0.0
-      unplugin-ast: 0.16.0
-    transitivePeerDependencies:
-      - rollup
 
   '@unhead/dom@2.1.12(unhead@2.1.12)':
     dependencies:
@@ -13446,15 +13419,6 @@ snapshots:
       - '@emnapi/core'
       - '@emnapi/runtime'
       - vite
-
-  unplugin-ast@0.16.0:
-    dependencies:
-      '@babel/generator': 8.0.0-rc.3
-      '@babel/parser': 8.0.0-rc.3
-      '@babel/types': 8.0.0-rc.3
-      ast-kit: 3.0.0-beta.1
-      magic-string-ast: 1.0.3
-      unplugin: 3.0.0
 
   unplugin-auto-import@21.0.0:
     dependencies:
