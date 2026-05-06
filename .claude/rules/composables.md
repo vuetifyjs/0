@@ -195,7 +195,7 @@ See PHILOSOPHY §2.9 for the three-way split (throw / warn / return) and the ful
 | Composable type | Cleanup |
 |-----------------|---------|
 | DOM observers, event listeners | `onScopeDispose(cleanup)` [intent:139] |
-| Performance-critical DOM observers | `onScopeDispose(cleanup, true)` — deferred [intent:140] |
+| Composables that may run outside a Vue setup (tests, manual scopes) | `onScopeDispose(cleanup, true)` — `failSilently: true` suppresses the no-active-scope warning [intent:140] |
 | Pure data structures, computed state | No cleanup needed (Vue handles it) [intent:141] |
 
 ## Composition Patterns (4 canonical styles)
