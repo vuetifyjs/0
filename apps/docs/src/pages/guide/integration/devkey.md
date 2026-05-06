@@ -1,14 +1,14 @@
 ---
-title: Devkey - Example Vuetify0 Starter Project
+title: DevKey - Example Vuetify0 Starter Project
 logo: devkey
 meta:
   - name: description
-    content: Devkey is the reference Vuetify0 starter project. Vue 3, Vite, TypeScript, UnoCSS, and @vuetify/v0 scaffolded with the Vuetify CLI as the canonical Alpha example.
+    content: DevKey is the reference Vuetify0 starter project. Vue 3, Vite, TypeScript, UnoCSS, and @vuetify/v0 scaffolded with the Vuetify CLI as the canonical Alpha example.
   - name: keywords
     content: vuetify0, devkey, starter, example project, vue 3, vite, typescript, unocss, scaffold, alpha
 features:
   order: 0
-  label: 'Devkey'
+  label: 'DevKey'
   level: 1
 related:
   - /introduction/getting-started
@@ -16,27 +16,27 @@ related:
   - /guide/fundamentals/building-frameworks
 ---
 
-# Devkey
+# DevKey
 
-Devkey ([live](https://devkey.vuetifyjs.com), [source](https://github.com/vuetifyjs/devkey)) is the reference starter project for Vuetify0. Scaffolded with the [Vuetify CLI](/guide/tooling/vuetify-cli), it shows how the pieces fit together in a real Vue 3 app — and is the canonical example shipped with the v0 Alpha.
+DevKey ([live](https://devkey.vuetifyjs.com), [source](https://github.com/vuetifyjs/devkey)) is the reference starter project for Vuetify0. Scaffolded with the [Vuetify CLI](/guide/tooling/vuetify-cli), it shows how the pieces fit together in a real Vue 3 app — and is the canonical example shipped with the v0 Alpha.
 
 <DocsPageFeatures :frontmatter />
 
 > [!TIP]
-> Looking for the fastest way to start? Run `pnpm create vuetify0` to scaffold a fresh Devkey-shaped project locally.
+> Looking for the fastest way to start? Run `pnpm create vuetify0` to scaffold a fresh DevKey-shaped project locally.
 
 > [!INFO]
-> Want a guided walkthrough? The [Vuetify0 alpha announcement](https://vuetifyjs.com/blog/announcing-vuetify0-alpha) builds Devkey step-by-step as a reusable UI library — landing page, auth flow, dashboard, and command palette.
+> Want a guided walkthrough? The [Vuetify0 alpha announcement](https://vuetifyjs.com/blog/announcing-vuetify0-alpha) builds DevKey step-by-step as a reusable UI library — landing page, auth flow, dashboard, and command palette.
 
 ## Preview
 
-The Devkey home page. Navigation, hero layout, feature grid, and pricing cards are all built from v0 components.
+The DevKey home page. Navigation, hero layout, feature grid, and pricing cards are all built from v0 components.
 
-![Devkey home page](https://cdn.vuetifyjs.com/docs/images/devkey/home.png "The Devkey landing page, rendered with v0 components")
+![DevKey home page](https://cdn.vuetifyjs.com/docs/images/devkey/home.png "The DevKey landing page, rendered with v0 components")
 
 ## Overview
 
-Devkey pairs `@vuetify/v0` with a minimal but production-shaped toolchain so you can see v0 in context — not as an isolated snippet, but as part of a real app layout.
+DevKey pairs `@vuetify/v0` with a minimal but production-shaped toolchain so you can see v0 in context — not as an isolated snippet, but as part of a real app layout.
 
 | Layer | Choice |
 | - | - |
@@ -106,11 +106,11 @@ bun install
 :::
 
 > [!INFO]
-> `create vuetify0` produces the same layout as the Devkey repository. Cloning directly is useful if you want to track upstream changes.
+> `create vuetify0` produces the same layout as the DevKey repository. Cloning directly is useful if you want to track upstream changes.
 
 ## Scripts
 
-Devkey exposes a small, focused set of scripts:
+DevKey exposes a small, focused set of scripts:
 
 | Script | Purpose |
 | - | - |
@@ -141,7 +141,7 @@ devkey/
 
 ## What It Demonstrates
 
-Devkey is intentionally small — the goal is to show the wiring, not fill it with features. Use it as a starting point for your own app or as a reference when integrating v0 into an existing project.
+DevKey is intentionally small — the goal is to show the wiring, not fill it with features. Use it as a starting point for your own app or as a reference when integrating v0 into an existing project.
 
 - **Plugin registration** — where and how `createThemePlugin` and friends get installed on the Vue `app`
 - **UnoCSS + theme tokens** — mapping v0's CSS variables to UnoCSS theme colors for utility-class styling
@@ -151,7 +151,7 @@ Devkey is intentionally small — the goal is to show the wiring, not fill it wi
 
 ## Next Steps
 
-Once Devkey is running locally, explore the pieces it relies on:
+Once DevKey is running locally, explore the pieces it relies on:
 
 | Goal | Start Here |
 | - | - |
@@ -160,4 +160,4 @@ Once Devkey is running locally, explore the pieces it relies on:
 | Customize the theme | [Theming](/guide/features/theming) |
 | Add SSR | [Nuxt](/guide/integration/nuxt) |
 
-> [!ASKAI] How do I add a new page to Devkey with vue-router?
+> [!ASKAI] How do I add a new page to DevKey with vue-router?

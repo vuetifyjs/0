@@ -84,7 +84,7 @@ Whether you want to explore in the browser, scaffold a project, or integrate wit
 </div>
 
 > [!TIP]
-> Want a complete working reference? [Devkey](/guide/integration/devkey) is the example project shipped with Alpha — a full Vue 3 + Vite + UnoCSS app built on `@vuetify/v0`. Clone it, or run `pnpm create vuetify0` to scaffold your own copy.
+> Want a complete working reference? [DevKey](/guide/integration/devkey) is the example project shipped with Alpha — a full Vue 3 + Vite + UnoCSS app built on `@vuetify/v0`. Clone it, or run `pnpm create vuetify0` to scaffold your own copy.
 
 ### Get involved
 
