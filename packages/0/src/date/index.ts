@@ -7,11 +7,11 @@
  *
  * @example
  * ```ts
- * import { Vuetify0DateAdapter } from '@vuetify/v0/date'
+ * import { V0DateAdapter } from '@vuetify/v0/date'
  * import { createDatePlugin } from '@vuetify/v0'
  *
- * app.use(createDatePlugin({ adapter: new Vuetify0DateAdapter() }))
+ * app.use(createDatePlugin({ adapter: new V0DateAdapter() }))
  * ```
  */
 
-export { Vuetify0DateAdapter } from '#v0/composables/useDate/adapters/v0'
+export { V0DateAdapter } from '#v0/composables/useDate/adapters/v0'

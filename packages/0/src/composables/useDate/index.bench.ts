@@ -2,11 +2,11 @@ import { Temporal } from '@js-temporal/polyfill'
 import { bench, describe } from 'vitest'
 
 // Adapters
-import { Vuetify0DateAdapter } from './adapters/v0'
+import { V0DateAdapter } from './adapters/v0'
 
 describe('useDate benchmarks', () => {
-  describe('Vuetify0DateAdapter', () => {
-    const adapter = new Vuetify0DateAdapter()
+  describe('V0DateAdapter', () => {
+    const adapter = new V0DateAdapter()
     const testDate = Temporal.PlainDateTime.from('2024-06-15T10:30:00')
 
     describe('construction', () => {
@@ -119,13 +119,13 @@ describe('useDate benchmarks', () => {
 
     describe('locale switching', () => {
       bench('locale change + reformat', () => {
-        const localAdapter = new Vuetify0DateAdapter('en-US')
+        const localAdapter = new V0DateAdapter('en-US')
         localAdapter.locale = 'de-DE'
         localAdapter.format(testDate, 'fullDate')
       })
 
       bench('toggle locale 10 times', () => {
-        const localAdapter = new Vuetify0DateAdapter('en-US')
+        const localAdapter = new V0DateAdapter('en-US')
 
         for (let i = 0; i < 10; i++) {
           localAdapter.locale = i % 2 === 0 ? 'de-DE' : 'en-US'
@@ -134,7 +134,7 @@ describe('useDate benchmarks', () => {
       })
 
       bench('cache eviction (60 unique formats)', () => {
-        const localAdapter = new Vuetify0DateAdapter('en-US')
+        const localAdapter = new V0DateAdapter('en-US')
 
         for (let i = 0; i < 60; i++) {
           localAdapter.formatByString(testDate, `YYYY-MM-DD-${i}`)

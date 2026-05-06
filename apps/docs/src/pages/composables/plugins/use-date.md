@@ -23,7 +23,7 @@ Date manipulation using the Temporal API with locale-aware formatting and adapte
 
 ## Installation
 
-The built-in `Vuetify0DateAdapter` requires the `@js-temporal/polyfill` package:
+The built-in `V0DateAdapter` requires the `@js-temporal/polyfill` package:
 
 ::: code-group no-filename
 
@@ -51,19 +51,19 @@ bun add @js-temporal/polyfill
 Then install the date plugin with an adapter:
 
 ```ts src/plugins/zero.ts
-import { Vuetify0DateAdapter } from '@vuetify/v0/date'
+import { V0DateAdapter } from '@vuetify/v0/date'
 import { createDatePlugin } from '@vuetify/v0'
 
 app.use(
   createDatePlugin({
-    adapter: new Vuetify0DateAdapter(),
+    adapter: new V0DateAdapter(),
     locale: 'en-US',
   })
 )
 ```
 
 > [!INFO]
-> The `adapter` option is **required**. The `Vuetify0DateAdapter` is exported from a separate subpath (`@vuetify/v0/date`) to avoid bundling the Temporal polyfill unless explicitly used. If you don't need date functionality, simply don't install the plugin—no polyfill will be loaded.
+> The `adapter` option is **required**. The `V0DateAdapter` is exported from a separate subpath (`@vuetify/v0/date`) to avoid bundling the Temporal polyfill unless explicitly used. If you don't need date functionality, simply don't install the plugin—no polyfill will be loaded.
 
 ## Usage
 
@@ -84,7 +84,7 @@ Adapters let you swap the underlying date library without changing your applicat
 
 | Adapter | Import | Description |
 |---------|--------|-------------|
-| `Vuetify0DateAdapter` | `@vuetify/v0/date` | [Temporal API](https://tc39.es/proposal-temporal/docs/) adapter[^temporal] |
+| `V0DateAdapter` | `@vuetify/v0/date` | [Temporal API](https://tc39.es/proposal-temporal/docs/) adapter[^temporal] |
 
 [^temporal]: Requires the [@js-temporal/polyfill](https://www.npmjs.com/package/@js-temporal/polyfill) package until native Temporal ships in all evergreen browsers. Install with `pnpm add @js-temporal/polyfill`.
 
@@ -93,93 +93,96 @@ Adapters let you swap the underlying date library without changing your applicat
 The adapter provides a comprehensive API compatible with [date-io](https://github.com/dmtrKovalenko/date-io):
 
 ```ts collapse
-interface DateAdapter<T> {
-  locale?: string
-  /** First day of week: 0 = Sunday, 1 = Monday, … 6 = Saturday. Set by the plugin from locale. */
-  firstDayOfWeek?: number
+abstract class DateAdapter<T> {
+  /** Current locale for formatting */
+  abstract get locale (): string
+  abstract set locale (value: string)
+  /** First day of week. 0=Sunday, 1=Monday, ... 6=Saturday. Managed by the plugin. */
+  abstract get firstDayOfWeek (): number
+  abstract set firstDayOfWeek (value: number)
 
   // Construction & Conversion
-  date (value?: unknown): T | null
-  toJsDate (value: T): Date
-  parseISO (dateString: string): T
-  toISO (date: T): string
-  parse (value: string, format: string): T | null
-  isValid (date: unknown): date is T  // Type predicate
-  isNull (value: T | null): value is null  // Type predicate
+  abstract date (value?: unknown): T | null
+  abstract toJsDate (value: T): Date
+  abstract parseISO (date: string): T
+  abstract toISO (date: T): string
+  abstract parse (value: string, format: string): T | null
+  abstract isValid (date: unknown): date is T  // Type predicate
+  abstract isNullish (value: T | null): value is null  // Type predicate
 
-  // Formatting
-  format (date: T, formatString: string): string
-  formatByString (date: T, formatString: string): string
-  formatNumber (numberToFormat: string): string
-  getFormatHelperText (format: string): string
-  getMeridiemText (ampm: 'am' | 'pm'): string
+  // Locale & Formatting
+  abstract getCurrentLocaleCode (): string
+  abstract is12HourCycleInCurrentLocale (): boolean
+  abstract format (date: T, formatString: string): string
+  abstract formatByString (date: T, formatString: string): string
+  abstract getFormatHelperText (format: string): string
+  abstract formatNumber (numberToFormat: string): string
+  abstract getMeridiemText (ampm: 'am' | 'pm'): string
 
   // Navigation
-  startOfDay (date: T): T
-  endOfDay (date: T): T
-  startOfWeek (date: T, firstDayOfWeek?: number): T
-  endOfWeek (date: T, firstDayOfWeek?: number): T
-  startOfMonth (date: T): T
-  endOfMonth (date: T): T
-  startOfYear (date: T): T
-  endOfYear (date: T): T
+  abstract startOfDay (date: T): T
+  abstract endOfDay (date: T): T
+  abstract startOfWeek (date: T): T
+  abstract endOfWeek (date: T): T
+  abstract startOfMonth (date: T): T
+  abstract endOfMonth (date: T): T
+  abstract startOfYear (date: T): T
+  abstract endOfYear (date: T): T
 
   // Arithmetic
-  addSeconds (date: T, amount: number): T
-  addMinutes (date: T, amount: number): T
-  addHours (date: T, amount: number): T
-  addDays (date: T, amount: number): T
-  addWeeks (date: T, amount: number): T
-  addMonths (date: T, amount: number): T
-  addYears (date: T, amount: number): T
+  abstract addSeconds (date: T, amount: number): T
+  abstract addMinutes (date: T, amount: number): T
+  abstract addHours (date: T, amount: number): T
+  abstract addDays (date: T, amount: number): T
+  abstract addWeeks (date: T, amount: number): T
+  abstract addMonths (date: T, amount: number): T
+  abstract addYears (date: T, amount: number): T
 
   // Comparison
-  isAfter (date: T, comparing: T): boolean
-  isAfterDay (date: T, comparing: T): boolean
-  isAfterMonth (date: T, comparing: T): boolean
-  isAfterYear (date: T, comparing: T): boolean
-  isBefore (date: T, comparing: T): boolean
-  isBeforeDay (date: T, comparing: T): boolean
-  isBeforeMonth (date: T, comparing: T): boolean
-  isBeforeYear (date: T, comparing: T): boolean
-  isEqual (date: T, comparing: T): boolean
-  isSameDay (date: T, comparing: T): boolean
-  isSameHour (date: T, comparing: T): boolean
-  isSameMonth (date: T, comparing: T): boolean
-  isSameYear (date: T, comparing: T): boolean
-  isWithinRange (date: T, range: [T, T]): boolean
+  abstract isAfter (date: T, comparing: T): boolean
+  abstract isAfterDay (date: T, comparing: T): boolean
+  abstract isAfterMonth (date: T, comparing: T): boolean
+  abstract isAfterYear (date: T, comparing: T): boolean
+  abstract isBefore (date: T, comparing: T): boolean
+  abstract isBeforeDay (date: T, comparing: T): boolean
+  abstract isBeforeMonth (date: T, comparing: T): boolean
+  abstract isBeforeYear (date: T, comparing: T): boolean
+  abstract isEqual (date: T, comparing: T): boolean
+  abstract isSameDay (date: T, comparing: T): boolean
+  abstract isSameMonth (date: T, comparing: T): boolean
+  abstract isSameYear (date: T, comparing: T): boolean
+  abstract isSameHour (date: T, comparing: T): boolean
+  abstract isWithinRange (date: T, range: [T, T]): boolean
 
   // Getters
-  getYear (date: T): number
-  getMonth (date: T): number  // 0-indexed
-  getDate (date: T): number
-  getHours (date: T): number
-  getMinutes (date: T): number
-  getSeconds (date: T): number
-  getDiff (date: T, comparing: T | string, unit?: string): number
-  getWeek (date: T, firstDayOfWeek?: number, minimalDays?: number): number
-  getDaysInMonth (date: T): number
+  abstract getYear (date: T): number
+  abstract getMonth (date: T): number
+  abstract getDate (date: T): number
+  abstract getHours (date: T): number
+  abstract getMinutes (date: T): number
+  abstract getSeconds (date: T): number
+  abstract getDiff (date: T, comparing: T | string, unit?: string): number
+  abstract getWeek (date: T, minimalDays?: number): number
+  abstract getDaysInMonth (date: T): number
 
   // Setters (immutable - returns new instance)
-  setYear (date: T, year: number): T
-  setMonth (date: T, month: number): T  // 0-indexed
-  setDate (date: T, day: number): T
-  setHours (date: T, hours: number): T
-  setMinutes (date: T, minutes: number): T
-  setSeconds (date: T, seconds: number): T
+  abstract setYear (date: T, year: number): T
+  abstract setMonth (date: T, month: number): T
+  abstract setDate (date: T, day: number): T
+  abstract setHours (date: T, hours: number): T
+  abstract setMinutes (date: T, minutes: number): T
+  abstract setSeconds (date: T, seconds: number): T
 
   // Calendar Utilities
-  getWeekdays (format?: 'long' | 'short' | 'narrow'): string[]
-  getWeekArray (date: T, firstDayOfWeek?: number): T[][]
-  getMonthArray (date: T): T[]
-  getYearRange (start: T, end: T): T[]
-  getNextMonth (date: T): T
-  getPreviousMonth (date: T): T
+  abstract getWeekdays (weekdayFormat?: 'long' | 'short' | 'narrow'): string[]
+  abstract getWeekArray (date: T): T[][]
+  abstract getMonthArray (date: T): T[]
+  abstract getYearRange (start: T, end: T): T[]
+  abstract getNextMonth (date: T): T
+  abstract getPreviousMonth (date: T): T
 
   // Utility
-  mergeDateAndTime (date: T, time: T): T
-  getCurrentLocaleCode (): string
-  is12HourCycleInCurrentLocale (): boolean
+  abstract mergeDateAndTime (date: T, time: T): T
 }
 ```
 
@@ -267,7 +270,7 @@ When `useLocale` is available, `useDate` automatically syncs with the selected l
 
 ```ts src/main.ts
 import { createApp } from 'vue'
-import { Vuetify0DateAdapter } from '@vuetify/v0/date'
+import { V0DateAdapter } from '@vuetify/v0/date'
 import { createLocalePlugin, createDatePlugin } from '@vuetify/v0'
 
 const app = createApp(App)
@@ -286,7 +289,7 @@ app.use(
 // Date plugin will auto-sync with locale
 app.use(
   createDatePlugin({
-    adapter: new Vuetify0DateAdapter(),
+    adapter: new V0DateAdapter(),
     locales: {
       en: 'en-US',  // Map short codes to Intl locales
       de: 'de-DE',
@@ -310,7 +313,7 @@ flowchart LR
 
   subgraph Adapters["Adapter Implementations"]
     direction TB
-    v0["Vuetify0DateAdapter<br/>(from @vuetify/v0/date)"]
+    v0["V0DateAdapter<br/>(from @vuetify/v0/date)"]
     custom["DateFnsAdapter<br/>LuxonAdapter<br/>DayjsAdapter"]
   end
 
@@ -344,10 +347,10 @@ flowchart LR
 Create custom adapters for different date libraries (date-fns, luxon, dayjs):
 
 ```ts src/adapters/date-fns-adapter.ts collapse
-import type { DateAdapter } from '@vuetify/v0'
+import { DateAdapter } from '@vuetify/v0'
 import { isValid as dateFnsIsValid, parseISO, format as dateFnsFormat } from 'date-fns'
 
-class DateFnsAdapter implements DateAdapter<Date> {
+class DateFnsAdapter extends DateAdapter<Date> {
   locale = 'en-US'
 
   date (value?: unknown): Date | null {

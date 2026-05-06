@@ -1,5 +1,5 @@
 /**
- * @module Vuetify0DateAdapter
+ * @module V0DateAdapter
  *
  * @remarks
  * Default DateAdapter for v0, built on the Temporal API.
@@ -19,11 +19,11 @@ import { Temporal } from '@js-temporal/polyfill'
 // Utilities
 import { isFunction, isNull, isNullOrUndefined, isNumber, isString } from '#v0/utilities'
 
-// Types
-import type { DateAdapter } from './adapter'
-
 // Constants
 import { IN_BROWSER } from '#v0/constants/globals'
+
+// Adapters
+import { DateAdapter } from './adapter'
 
 type PlainDateTime = Temporal.PlainDateTime
 
@@ -72,7 +72,7 @@ function deriveMinimalDays (locale: string): number {
   return 1
 }
 
-export class Vuetify0DateAdapter implements DateAdapter<PlainDateTime> {
+export class V0DateAdapter extends DateAdapter<PlainDateTime> {
   private _locale: string
   private _firstDayOfWeek = 0
   private _minimalDays = 1
@@ -84,6 +84,7 @@ export class Vuetify0DateAdapter implements DateAdapter<PlainDateTime> {
   private numberFormatCache = new Map<string, Intl.NumberFormat>()
 
   constructor (locale = 'en-US') {
+    super()
     this._locale = locale
     const info = deriveWeekInfo(locale)
     this._firstDayOfWeek = info.firstDay

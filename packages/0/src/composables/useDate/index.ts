@@ -14,11 +14,11 @@
  *
  * @example Using the built-in Temporal adapter
  * ```ts
- * import { Vuetify0DateAdapter } from '@vuetify/v0/date'
+ * import { V0DateAdapter } from '@vuetify/v0/date'
  * import { createDatePlugin } from '@vuetify/v0'
  *
  * const app = createApp(App)
- * app.use(createDatePlugin({ adapter: new Vuetify0DateAdapter() }))
+ * app.use(createDatePlugin({ adapter: new V0DateAdapter() }))
  *
  * // In a component:
  * const { adapter } = useDate()
@@ -28,9 +28,9 @@
  *
  * @example Custom adapter
  * ```ts
- * import type { DateAdapter } from '@vuetify/v0'
+ * import { DateAdapter } from '@vuetify/v0'
  *
- * class DateFnsAdapter implements DateAdapter<Date> {
+ * class DateFnsAdapter extends DateAdapter<Date> {
  *   // ... implementation
  * }
  *
@@ -73,8 +73,8 @@ export interface DateOptions<Z> {
    *
    * @example
    * ```ts
-   * import { Vuetify0DateAdapter } from '@vuetify/v0/date'
-   * createDate({ adapter: new Vuetify0DateAdapter() })
+   * import { V0DateAdapter } from '@vuetify/v0/date'
+   * createDate({ adapter: new V0DateAdapter() })
    * ```
    */
   adapter: DateAdapter<Z>
@@ -138,14 +138,14 @@ function deriveFirstDayOfWeek (locale: string): number {
  *
  * @example
  * ```ts
- * import { Vuetify0DateAdapter } from '@vuetify/v0/date'
+ * import { V0DateAdapter } from '@vuetify/v0/date'
  *
- * const { adapter } = createDate({ adapter: new Vuetify0DateAdapter() })
+ * const { adapter } = createDate({ adapter: new V0DateAdapter() })
  * const today = adapter.date()
  *
  * // With locale options
  * const { adapter } = createDate({
- *   adapter: new Vuetify0DateAdapter(),
+ *   adapter: new V0DateAdapter(),
  *   locale: 'de-DE',
  * })
  * ```
@@ -234,10 +234,10 @@ export function createDate<
  *
  * @example
  * ```ts
- * import { Vuetify0DateAdapter } from '@vuetify/v0/date'
+ * import { V0DateAdapter } from '@vuetify/v0/date'
  *
  * const [useAppDate, provideAppDate] = createDateContext({
- *   adapter: new Vuetify0DateAdapter(),
+ *   adapter: new V0DateAdapter(),
  *   namespace: 'app:date',
  * })
  * ```
@@ -264,14 +264,14 @@ export function createDateContext<
  *
  * @example
  * ```ts
- * import { Vuetify0DateAdapter } from '@vuetify/v0/date'
+ * import { V0DateAdapter } from '@vuetify/v0/date'
  *
  * const app = createApp(App)
- * app.use(createDatePlugin({ adapter: new Vuetify0DateAdapter() }))
+ * app.use(createDatePlugin({ adapter: new V0DateAdapter() }))
  *
  * // With locale options
  * app.use(createDatePlugin({
- *   adapter: new Vuetify0DateAdapter(),
+ *   adapter: new V0DateAdapter(),
  *   locale: 'de-DE',
  * }))
  * ```
@@ -307,10 +307,10 @@ export function createDatePlugin<
  * @example
  * ```ts
  * // main.ts
- * import { Vuetify0DateAdapter } from '@vuetify/v0/date'
+ * import { V0DateAdapter } from '@vuetify/v0/date'
  * import { createDatePlugin } from '@vuetify/v0'
  *
- * app.use(createDatePlugin({ adapter: new Vuetify0DateAdapter() }))
+ * app.use(createDatePlugin({ adapter: new V0DateAdapter() }))
  * ```
  *
  * @example
@@ -331,9 +331,9 @@ export function useDate<
     throw new Error(
       '[v0] useDate() must be called inside a Vue component with createDatePlugin installed.\n\n' +
       'Example:\n' +
-      '  import { Vuetify0DateAdapter } from \'@vuetify/v0/date\'\n' +
+      '  import { V0DateAdapter } from \'@vuetify/v0/date\'\n' +
       '  import { createDatePlugin } from \'@vuetify/v0\'\n\n' +
-      '  app.use(createDatePlugin({ adapter: new Vuetify0DateAdapter() }))',
+      '  app.use(createDatePlugin({ adapter: new V0DateAdapter() }))',
     )
   }
 
