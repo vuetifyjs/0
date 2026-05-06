@@ -367,16 +367,6 @@ export interface DragDropContext<Z extends DragType = DragType> {
   cancel: () => void
 }
 
-function accepts<Z extends DragType> (
-  accept: DropZoneTicketInput<Z>['accept'],
-  drag: ActiveDrag<Z> | null,
-): boolean {
-  if (isNull(drag)) return false
-  if (isUndefined(accept)) return true
-  if (isArray(accept)) return accept.includes(drag.type as Z['type'])
-  return Boolean(accept(drag))
-}
-
 /**
  * Pure math for resolving where in an oriented zone a pointer would drop.
  * Internal — consumers rely on the `position.index` / `position.indicator`
@@ -493,7 +483,15 @@ export function useDragDrop<Z extends DragType = DragType> (
     drag: ActiveDrag<Z> | null,
   ): boolean {
     try {
-      return accepts(accept, drag)
+      if (isNull(drag)) return false
+      if (isUndefined(accept)) return true
+      if (isArray(accept)) return accept.includes(drag.type)
+      const result: unknown = accept(drag)
+      if (result instanceof Promise) {
+        logger.warn('useDragDrop accept predicate returned a Promise; async predicates are not supported — treating as reject')
+        return false
+      }
+      return Boolean(result)
     } catch (error) {
       logger.error('useDragDrop accept predicate threw; treating as reject', error)
       return false
@@ -600,13 +598,10 @@ export function useDragDrop<Z extends DragType = DragType> (
   }
 
   function bail (drag: ActiveDrag<Z>, reason: 'cancel' | 'reject' = 'cancel'): void {
-    try {
-      if (!isNull(drag.over)) next(_zones.get(drag.over)?.onLeave, drag)
-      next(_draggables.get(drag.id)?.onCancel, drag, reason)
-      next(options.onCancel, drag, reason)
-    } finally {
-      active.value = null
-    }
+    active.value = null
+    if (!isNull(drag.over)) next(_zones.get(drag.over)?.onLeave, drag)
+    next(_draggables.get(drag.id)?.onCancel, drag, reason)
+    next(options.onCancel, drag, reason)
   }
 
   function onStart (
@@ -701,12 +696,9 @@ export function useDragDrop<Z extends DragType = DragType> (
       return
     }
 
-    try {
-      next(zone?.onDrop, drag, dropAt)
-      next(options.onDrop, drag, dropAt)
-    } finally {
-      active.value = null
-    }
+    active.value = null
+    next(zone?.onDrop, drag, dropAt)
+    next(options.onDrop, drag, dropAt)
   }
 
   function cancel (): void {
