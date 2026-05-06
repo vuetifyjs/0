@@ -8,7 +8,7 @@
  * @example
  * ```ts
  * import { createDataTable, useDataTable } from '@vuetify/v0/data-table'
- * import { ClientAdapter, ServerAdapter, VirtualAdapter } from '@vuetify/v0/data-table/adapters'
+ * import { ClientDataTableAdapter, ServerDataTableAdapter, VirtualDataTableAdapter } from '@vuetify/v0/data-table/adapters'
  * ```
  */
 

@@ -6,7 +6,7 @@ import { inject, nextTick, provide, ref } from 'vue'
 // Types
 import type { DataTableColumn, DataTableOptions } from './index'
 
-import { createDataTable, createDataTableContext, useDataTable, ServerAdapter, VirtualAdapter } from './index'
+import { createDataTable, createDataTableContext, useDataTable, ServerDataTableAdapter, VirtualDataTableAdapter } from './index'
 
 vi.mock('vue', async () => {
   const actual = await vi.importActual('vue')
@@ -508,7 +508,7 @@ describe('createDataTable', () => {
     describe('serverAdapter', () => {
       it('items pass through unchanged', () => {
         const table = createTable({
-          adapter: new ServerAdapter<User>({ total: 100 }),
+          adapter: new ServerDataTableAdapter<User>({ total: 100 }),
         })
 
         expect(table.items.value.length).toBe(5)
@@ -517,7 +517,7 @@ describe('createDataTable', () => {
 
       it('total/loading/error from options', () => {
         const table = createTable({
-          adapter: new ServerAdapter<User>({
+          adapter: new ServerDataTableAdapter<User>({
             total: 100,
             loading: true,
             error: new Error('fail'),
@@ -534,7 +534,7 @@ describe('createDataTable', () => {
         const loading = ref(false)
 
         const table = createTable({
-          adapter: new ServerAdapter<User>({ total, loading }),
+          adapter: new ServerDataTableAdapter<User>({ total, loading }),
         })
 
         expect(table.total.value).toBe(100)
@@ -548,7 +548,7 @@ describe('createDataTable', () => {
 
       it('resets page on search change', async () => {
         const table = createTable({
-          adapter: new ServerAdapter<User>({ total: 100 }),
+          adapter: new ServerDataTableAdapter<User>({ total: 100 }),
           pagination: { itemsPerPage: 10 },
         })
 
@@ -564,7 +564,7 @@ describe('createDataTable', () => {
     describe('virtualAdapter', () => {
       it('filter → sort, no pagination slice', () => {
         const table = createTable({
-          adapter: new VirtualAdapter<User>(),
+          adapter: new VirtualDataTableAdapter<User>(),
         })
 
         expect(table.items.value.length).toBe(5)
@@ -573,7 +573,7 @@ describe('createDataTable', () => {
 
       it('all sorted items returned as items', () => {
         const table = createTable({
-          adapter: new VirtualAdapter<User>(),
+          adapter: new VirtualDataTableAdapter<User>(),
         })
 
         table.sort.toggle('name')
@@ -583,7 +583,7 @@ describe('createDataTable', () => {
 
       it('filters items client-side', () => {
         const table = createTable({
-          adapter: new VirtualAdapter<User>(),
+          adapter: new VirtualDataTableAdapter<User>(),
         })
 
         table.search('alice')

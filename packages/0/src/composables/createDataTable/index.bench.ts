@@ -14,7 +14,7 @@ import { bench, describe } from 'vitest'
 // Types
 import type { DataTableColumn, DataTableOptions } from './index'
 
-import { createDataTable, ClientAdapter, VirtualAdapter } from './index'
+import { createDataTable, ClientDataTableAdapter, VirtualDataTableAdapter } from './index'
 
 // =============================================================================
 // FIXTURES - Created once, reused across read-only benchmarks
@@ -336,34 +336,34 @@ describe('createDataTable benchmarks', () => {
   })
 
   // ===========================================================================
-  // ADAPTER COMPARISON - ClientAdapter vs VirtualAdapter pipeline cost
+  // ADAPTER COMPARISON - ClientDataTableAdapter vs VirtualDataTableAdapter pipeline cost
   // Fresh fixture per iteration (required - sort/search mutations)
   // Measures: adapter-specific overhead for same dataset
   // ===========================================================================
   describe('adapter comparison', () => {
-    bench('ClientAdapter: sort + paginate (10,000 items)', () => {
+    bench('ClientDataTableAdapter: sort + paginate (10,000 items)', () => {
       const table = createTable({
         items: ROWS_10K,
-        adapter: new ClientAdapter<BenchmarkRow>(),
+        adapter: new ClientDataTableAdapter<BenchmarkRow>(),
         pagination: { itemsPerPage: 25 },
       })
       table.sort.toggle('name')
       void table.items.value
     })
 
-    bench('VirtualAdapter: sort, no pagination (10,000 items)', () => {
+    bench('VirtualDataTableAdapter: sort, no pagination (10,000 items)', () => {
       const table = createTable({
         items: ROWS_10K,
-        adapter: new VirtualAdapter<BenchmarkRow>(),
+        adapter: new VirtualDataTableAdapter<BenchmarkRow>(),
       })
       table.sort.toggle('name')
       void table.items.value
     })
 
-    bench('ClientAdapter: full pipeline (10,000 items)', () => {
+    bench('ClientDataTableAdapter: full pipeline (10,000 items)', () => {
       const table = createTable({
         items: ROWS_10K,
-        adapter: new ClientAdapter<BenchmarkRow>(),
+        adapter: new ClientDataTableAdapter<BenchmarkRow>(),
         pagination: { itemsPerPage: 25 },
       })
       table.search('User 5')
@@ -371,10 +371,10 @@ describe('createDataTable benchmarks', () => {
       void table.items.value
     })
 
-    bench('VirtualAdapter: full pipeline (10,000 items)', () => {
+    bench('VirtualDataTableAdapter: full pipeline (10,000 items)', () => {
       const table = createTable({
         items: ROWS_10K,
-        adapter: new VirtualAdapter<BenchmarkRow>(),
+        adapter: new VirtualDataTableAdapter<BenchmarkRow>(),
       })
       table.search('User 5')
       table.sort.toggle('name')

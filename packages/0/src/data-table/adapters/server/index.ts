@@ -3,7 +3,7 @@
  *
  * @example
  * ```ts
- * import { ServerAdapter } from '@vuetify/v0/data-table/adapters/server'
+ * import { ServerDataTableAdapter } from '@vuetify/v0/data-table/adapters/server'
  * ```
  */
 

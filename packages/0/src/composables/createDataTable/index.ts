@@ -37,7 +37,7 @@ import { createTrinity } from '#v0/composables/createTrinity'
 import { useLocale } from '#v0/composables/useLocale'
 
 // Adapters
-import { ClientAdapter } from './adapters/v0'
+import { ClientDataTableAdapter } from './adapters/v0'
 
 // Utilities
 import { isNumber, isNullOrUndefined, isString } from '#v0/utilities'
@@ -48,7 +48,7 @@ import type { FilterOptions } from '#v0/composables/createFilter'
 import type { PaginationContext, PaginationOptions } from '#v0/composables/createPagination'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { ID } from '#v0/types'
-import type { DataTableAdapterInterface, SortDirection, SortEntry } from './adapters/adapter'
+import type { DataTableAdapter, SortDirection, SortEntry } from './adapters/adapter'
 import type { InternalHeader } from './columns'
 import type { MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
 
@@ -57,9 +57,9 @@ import { extractLeaves, resolveHeaders } from './columns'
 
 // Re-export adapter types
 export { DataTableAdapter } from './adapters'
-export type { DataTableAdapterContext, DataTableAdapterInterface, DataTableAdapterResult, SortDirection, SortEntry } from './adapters'
-export { ClientAdapter, ServerAdapter, VirtualAdapter } from './adapters'
-export type { ServerAdapterOptions } from './adapters'
+export type { DataTableAdapterContext, DataTableAdapterResult, SortDirection, SortEntry } from './adapters'
+export { ClientDataTableAdapter, ServerDataTableAdapter, VirtualDataTableAdapter } from './adapters'
+export type { ServerDataTableAdapterOptions } from './adapters'
 
 // Re-export column utilities
 export { computeDepth, extractLeaves, resolveHeaders } from './columns'
@@ -194,8 +194,8 @@ export interface DataTableOptions<T extends Record<string, unknown>> {
   expandMultiple?: boolean
   /** Locale for sorting (defaults to useLocale's selected locale or browser default) */
   locale?: string
-  /** Pipeline adapter. @default ClientAdapter */
-  adapter?: DataTableAdapterInterface<T>
+  /** Pipeline adapter. @default ClientDataTableAdapter */
+  adapter?: DataTableAdapter<T>
 }
 
 export interface DataTableContext<T extends Record<string, unknown>> {
@@ -296,7 +296,7 @@ export function createDataTable<T extends Record<string, unknown>> (
     openAll = false,
     expandMultiple = true,
     locale: initialLocale,
-    adapter = new ClientAdapter<T>(),
+    adapter = new ClientDataTableAdapter<T>(),
   } = options
 
   const _query = shallowRef('')

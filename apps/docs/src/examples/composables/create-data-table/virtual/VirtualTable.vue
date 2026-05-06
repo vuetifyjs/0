@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { createDataTable, VirtualAdapter, createVirtual } from '@vuetify/v0'
+  import { createDataTable, VirtualDataTableAdapter, createVirtual } from '@vuetify/v0'
   import { computed } from 'vue'
   import { columns } from './columns'
   import { generateUsers } from './data'
@@ -9,7 +9,7 @@
   const table = createDataTable({
     items,
     columns,
-    adapter: new VirtualAdapter(),
+    adapter: new VirtualDataTableAdapter(),
   })
 
   const virtual = createVirtual(table.items, { itemHeight: 40 })
