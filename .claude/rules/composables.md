@@ -375,6 +375,21 @@ Layer 2: Complex orchestrators
 
 Extension is always via `...spread`. 100% consistent across every registry-based composable in the package. [intent:147]
 
+### Lazy reindex contract
+
+Methods that compute or read canonical index/catalog state must drain pending reindex at entry:
+
+```ts
+function move (id: ID, toIndex: number) {
+  if (needsReindex) reindex()
+  // ...
+}
+```
+
+This applies to `register`, `upsert`, `browse`, `lookup`, `move`, `seek`. Operations whose self-removal logic uses the ticket's own (potentially stale) `index` field — `unregister`, `offboard` — do not need the drain because they reference fields set at registration. The lazy pattern's invariant: any method that observes `index`, `directory`, `catalog`, or computes a new position from `collection.size` must reindex first; writers that delete by ticket-local data may defer.
+
+When extending `createRegistry` with new accessors, add the `if (needsReindex) reindex()` guard at entry whenever the method observes `index`, `value` (under `valueIsIndex`), or position-derived state.
+
 ## Plugins and Reactive Defaults
 
 Scope: how a plugin (or a high-level factory composable) that wraps a registry should configure it — specifically, when to pass `reactive: true` internally vs. leave it off.

@@ -100,7 +100,7 @@ export interface NotificationsAdapterContext<
   send: (input: Z) => E
   /** Create a notification in registry only (no toast). Use for initial/historical items. */
   register: (input: Z) => E
-  /** Subscribe to notification lifecycle events (e.g., `'notification:read'`). */
+  /** Subscribe to notification lifecycle events (e.g., `'notification:read'`). The handler receives the affected {@link NotificationTicket}. */
   on: (event: string, handler: (data: unknown) => void) => void
   /** Unsubscribe from a lifecycle event. */
   off: (event: string, handler: (data: unknown) => void) => void

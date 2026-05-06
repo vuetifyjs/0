@@ -3,6 +3,9 @@ import { describe, expect, it, vi } from 'vitest'
 // Utilities
 import { computed, isReactive, nextTick, shallowRef, watchEffect } from 'vue'
 
+// Types
+import type { ID } from '#v0/types'
+
 import { createRegistry, createRegistryContext } from './index'
 
 describe('createRegistry', () => {
@@ -138,6 +141,23 @@ describe('createRegistry', () => {
       expect(listener).toHaveBeenCalledTimes(2)
     })
 
+    it('should honor explicit valueIsIndex on register', () => {
+      const registry = createRegistry()
+      const ticket = registry.register({ id: 'a', value: 5, valueIsIndex: true })
+
+      expect(ticket.value).toBe(5)
+      expect(ticket.valueIsIndex).toBe(true)
+    })
+
+    it('should default valueIsIndex from value presence when not supplied', () => {
+      const registry = createRegistry()
+      const auto = registry.register({ id: 'a' })
+      expect(auto.valueIsIndex).toBe(true)
+
+      const explicit = registry.register({ id: 'b', value: 'x' })
+      expect(explicit.valueIsIndex).toBe(false)
+    })
+
     it('should not remove an item if unregistering a non-existent id', () => {
       const registry = createRegistry()
       const tickets = registry.onboard([
@@ -231,6 +251,20 @@ describe('createRegistry', () => {
       expect(registry.browse(1)).toEqual(['item-3'])
     })
 
+    it('should drain pending reindex before register to avoid directory collisions', () => {
+      const registry = createRegistry()
+      registry.register({ id: 'a' })
+      registry.register({ id: 'b', value: 'X' })
+
+      registry.unregister('a')
+      registry.register({ id: 'c' })
+
+      expect(registry.get('b')?.index).toBe(0)
+      expect(registry.get('c')?.index).toBe(1)
+      expect(registry.lookup(0)).toBe('b')
+      expect(registry.lookup(1)).toBe('c')
+    })
+
     it('should trigger lazy reindex via browse when needed', () => {
       const registry = createRegistry()
       registry.register({ id: 'item-1' }) // valueIsIndex: true
@@ -284,6 +318,17 @@ describe('createRegistry', () => {
       registry.unregister('dupe-item-1')
       const idsAfterUnregister = registry.browse('value-1')
       expect(idsAfterUnregister).toEqual(['item-1'])
+    })
+
+    it('should not allow internal catalog mutation via browse return', () => {
+      const registry = createRegistry()
+      registry.register({ id: 'a', value: 'shared' })
+      registry.register({ id: 'b', value: 'shared' })
+
+      const ids = registry.browse('shared')!
+      ;(ids as ID[]).push('rogue')
+
+      expect(registry.browse('shared')).toEqual(['a', 'b'])
     })
 
     it('should return undefined when browsing non-existent value', () => {
@@ -582,6 +627,20 @@ describe('createRegistry', () => {
       const registry = createRegistry()
       const found = registry.seek('first')
       expect(found).toBeUndefined()
+    })
+
+    it('should drain pending reindex before seeking', () => {
+      const registry = createRegistry()
+      registry.register({ id: 'a', value: 'A' })
+      registry.register({ id: 'b' })
+      registry.register({ id: 'c', value: 'C' })
+
+      registry.unregister('b')
+
+      const found = registry.seek('first', 1)
+
+      expect(found?.id).toBe('c')
+      expect(found?.index).toBe(1)
     })
 
     it('should clamp from index to valid range', () => {
@@ -952,6 +1011,74 @@ describe('createRegistry', () => {
     })
   })
 
+  describe('indexDependentCount integrity', () => {
+    it('should keep reindex behavior consistent after mixed upsert/unregister/offboard sequences', () => {
+      const registry = createRegistry()
+
+      registry.onboard([
+        { id: 'a' },
+        { id: 'b' },
+        { id: 'c' },
+        { id: 'd' },
+      ])
+
+      registry.upsert('a', { value: 'A' })
+      registry.upsert('c', { value: 'C' })
+      registry.upsert('a', { value: undefined })
+
+      registry.unregister('b')
+      registry.offboard(['d'])
+
+      expect(registry.lookup(0)).toBe('a')
+      expect(registry.lookup(1)).toBe('c')
+      expect(registry.get('a')?.index).toBe(0)
+      expect(registry.get('c')?.index).toBe(1)
+
+      registry.register({ id: 'e' })
+
+      expect(registry.get('e')?.index).toBe(2)
+      expect(registry.lookup(2)).toBe('e')
+      expect(registry.size).toBe(3)
+    })
+
+    it('should drain pending reindex before upsert valueIsIndex transition', () => {
+      const registry = createRegistry()
+      registry.register({ id: 'a', value: 'A' })
+      registry.register({ id: 'b' })
+      registry.register({ id: 'c', value: 'C' })
+
+      registry.unregister('b')
+
+      const updated = registry.upsert('c', { value: undefined })
+
+      expect(updated.valueIsIndex).toBe(true)
+      expect(updated.value).toBe(1)
+      expect(updated.index).toBe(1)
+      expect(registry.browse(1)).toEqual(['c'])
+      expect(registry.browse(2)).toBeUndefined()
+    })
+
+    it('should reindex correctly after offboard with mixed valueIsIndex tickets', () => {
+      const registry = createRegistry()
+
+      registry.onboard([
+        { id: 'a' },
+        { id: 'b', value: 'B' },
+        { id: 'c' },
+        { id: 'd', value: 'D' },
+        { id: 'e' },
+      ])
+
+      registry.offboard(['a', 'c'])
+
+      expect(registry.size).toBe(3)
+      expect(registry.lookup(0)).toBe('b')
+      expect(registry.lookup(1)).toBe('d')
+      expect(registry.lookup(2)).toBe('e')
+      expect(registry.get('e')?.value).toBe(2)
+    })
+  })
+
   describe('unassign edge cases', () => {
     it('should handle unassign when catalog has no entry for value', () => {
       const registry = createRegistry()
@@ -1073,6 +1200,48 @@ describe('createRegistry', () => {
       registry.offboard(['b'])
       const result = registry.move('a', 1)
       expect(result).toBeDefined()
+    })
+
+    it('should emit update:ticket for the moved ticket', () => {
+      const registry = createRegistry({ events: true })
+      registry.onboard([
+        { id: 'a', value: 'alpha' },
+        { id: 'b', value: 'beta' },
+        { id: 'c', value: 'gamma' },
+      ])
+
+      const handler = vi.fn()
+      registry.on('update:ticket', handler)
+
+      const moved = registry.move('a', 2)
+
+      expect(handler).toHaveBeenCalledTimes(1)
+      expect(handler).toHaveBeenCalledWith(moved)
+    })
+
+    it('should not emit update:ticket when move is a no-op', () => {
+      const registry = createRegistry({ events: true })
+      registry.onboard([{ id: 'a' }, { id: 'b' }])
+
+      const handler = vi.fn()
+      registry.on('update:ticket', handler)
+
+      registry.move('a', 0)
+
+      expect(handler).not.toHaveBeenCalled()
+    })
+
+    it('should dispatch reindex:registry before update:ticket during move', () => {
+      const registry = createRegistry({ events: true })
+      registry.onboard([{ id: 'a' }, { id: 'b' }, { id: 'c' }])
+
+      const order: string[] = []
+      registry.on('reindex:registry', () => order.push('reindex'))
+      registry.on('update:ticket', () => order.push('update'))
+
+      registry.move('a', 2)
+
+      expect(order).toEqual(['reindex', 'update'])
     })
 
     it('should update catalog and directory after move', () => {
@@ -1219,6 +1388,37 @@ describe('createRegistry', () => {
       registry.upsert('a', { value: 'updated-a' })
       await nextTick()
       expect(snapshot.value).toBe('a=updated-a,b=initial-b')
+    })
+
+    it('should emit a custom upsert event with the patched ticket as payload', () => {
+      const registry = createRegistry({ events: true })
+      const listener = vi.fn()
+
+      const created = registry.register({ id: 'foo', value: 'a' })
+      registry.on('foo:custom', listener)
+
+      const updated = registry.upsert('foo', { value: 'b' }, 'foo:custom')
+
+      expect(updated).toBe(created)
+      expect(listener).toHaveBeenCalledWith(updated)
+    })
+
+    it('should preserve ticket identity and reactivity across upsert', async () => {
+      const registry = createRegistry({ reactive: true })
+      const ticket = registry.register({ id: 'test', value: 'initial' })
+      const values: unknown[] = []
+
+      watchEffect(() => {
+        values.push(ticket.value)
+      })
+
+      expect(values).toEqual(['initial'])
+
+      const patched = registry.upsert('test', { value: 'updated' })
+      await nextTick()
+
+      expect(patched).toBe(ticket)
+      expect(values).toEqual(['initial', 'updated'])
     })
   })
 })

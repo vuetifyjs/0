@@ -27,7 +27,7 @@
  */
 
 // Types
-import type { NotificationInput, NotificationSeverity, NotificationsAdapterContext, NotificationsAdapterInterface } from '../index'
+import type { NotificationInput, NotificationSeverity, NotificationTicket, NotificationsAdapterContext, NotificationsAdapterInterface } from '../index'
 
 // Globals
 import { IN_BROWSER } from '#v0/constants/globals'
@@ -129,27 +129,27 @@ export function createNovuAdapter (novu: NovuClient, options: NovuAdapterOptions
 
       // Outbound: notification mutations -> Novu API
       onRead = (data: unknown) => {
-        const id = String(data)
+        const id = String((data as NotificationTicket).id)
         if (ids.has(id)) novu.notifications.read({ notificationId: id }).catch(noop)
       }
 
       onUnread = (data: unknown) => {
-        const id = String(data)
+        const id = String((data as NotificationTicket).id)
         if (ids.has(id)) novu.notifications.unread({ notificationId: id }).catch(noop)
       }
 
       onSeen = (data: unknown) => {
-        const id = String(data)
+        const id = String((data as NotificationTicket).id)
         if (ids.has(id)) novu.notifications.seenAll({ notificationIds: [id] }).catch(noop)
       }
 
       onArchived = (data: unknown) => {
-        const id = String(data)
+        const id = String((data as NotificationTicket).id)
         if (ids.has(id)) novu.notifications.archive({ notificationId: id }).catch(noop)
       }
 
       onUnarchived = (data: unknown) => {
-        const id = String(data)
+        const id = String((data as NotificationTicket).id)
         if (ids.has(id)) novu.notifications.unarchive({ notificationId: id }).catch(noop)
       }
 

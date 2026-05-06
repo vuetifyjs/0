@@ -793,7 +793,7 @@ Use `Extensible<T>` for enums that must retain autocomplete while accepting arbi
 export type NotificationSeverity = Extensible<'info' | 'warning' | 'error' | 'success'>
 ```
 
-Also used by `createRegistry` for event-name keys at `packages/0/src/composables/createRegistry/index.ts:464,494,517`.
+Also used by `createRegistry` for event-name keys on its `on` / `off` / `emit` signatures (see `packages/0/src/composables/createRegistry/index.ts`).
 
 **Anti-example (do not do this).**
 ```ts

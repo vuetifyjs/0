@@ -25,7 +25,7 @@
  */
 
 // Types
-import type { NotificationInput, NotificationsAdapterContext, NotificationsAdapterInterface } from '../index'
+import type { NotificationInput, NotificationsAdapterContext, NotificationsAdapterInterface, NotificationTicket } from '../index'
 
 // Globals
 import { IN_BROWSER } from '#v0/constants/globals'
@@ -116,12 +116,12 @@ export function createKnockAdapter (feed: KnockFeed): NotificationsAdapterInterf
 
       // Outbound: notification mutations -> Knock API
       onRead = (data: unknown) => {
-        const item = items.get(String(data))
+        const item = items.get(String((data as NotificationTicket).id))
         if (item) feed.markAsRead(item).catch(noop)
       }
 
       onArchived = (data: unknown) => {
-        const item = items.get(String(data))
+        const item = items.get(String((data as NotificationTicket).id))
         if (item) feed.markAsArchived(item).catch(noop)
       }
 

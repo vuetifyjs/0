@@ -94,17 +94,18 @@ export type RegistryEventMap<Z extends RegistryTicket> = {
   'reindex:registry': undefined
 }
 
-/** Callback signature for registry event listeners */
+/**
+ * Callback signature for registry event listeners.
+ *
+ * Resolves to a typed payload for known {@link RegistryEventName} keys, and
+ * `(data: unknown) => void` for custom events.
+ */
 export type RegistryEventCallback<
   Z extends RegistryTicket = RegistryTicket,
-  K extends RegistryEventName = RegistryEventName,
-> = (data: RegistryEventMap<Z>[K]) => void
-
-/** Resolves callback type: typed for known events, unknown for custom events */
-type EventHandler<Z extends RegistryTicket, K extends string> =
-  K extends RegistryEventName
-    ? (data: RegistryEventMap<Z>[K]) => void
-    : (data: unknown) => void
+  K extends Extensible<RegistryEventName> = Extensible<RegistryEventName>,
+> = K extends RegistryEventName
+  ? (data: RegistryEventMap<Z>[K]) => void
+  : (data: unknown) => void
 
 /** Resolves payload type: typed for known events, unknown for custom events */
 type EventPayload<Z extends RegistryTicket, K extends string> =
@@ -214,9 +215,9 @@ export interface RegistryContext<
    * const unique = registry.browse('unique-value') // ['ticket-3']
    * ```
    */
-  browse: (value: E['value']) => ID[] | undefined
+  browse: (value: E['value']) => readonly ID[] | undefined
   /**
-   * lookup a ticket by index number
+   * Lookup a ticket by index number
    *
    * @param index The index number to lookup.
    * @remarks Maps do not support indexing by default, this method provides a way to retrieve an ID based on its index in the registry.
@@ -260,7 +261,8 @@ export interface RegistryContext<
    *
    * @param id The ID of the ticket to upsert.
    * @param ticket The partial ticket data to update or insert.
-   * @remarks If the ticket exists, it will be updated with the provided data. If it doesn't exist, a new ticket will be created with the given ID and data. This operation invalidates cached results from `keys()`, `values()`, and `entries()`.
+   * @param event Optional custom event name to emit alongside `update:ticket`. The patched ticket is dispatched as the event payload.
+   * @remarks If the ticket exists, it will be updated in place — the ticket reference returned by `register()` remains valid and reactive (when `reactive: true`). If it doesn't exist, a new ticket will be created with the given ID and data. This operation invalidates cached results from `keys()`, `values()`, and `entries()`.
    *
    * @see https://0.vuetifyjs.com/composables/registration/create-registry
    *
@@ -268,13 +270,16 @@ export interface RegistryContext<
    * ```ts
    * import { createRegistry } from '@vuetify/v0'
    *
-   * const registry = createRegistry()
+   * const registry = createRegistry({ events: true })
    *
    * // Insert a new ticket
    * const ticket = registry.upsert('ticket-id', { value: 'initial-value' })
    *
    * // Update the existing ticket
    * const patched = registry.upsert('ticket-id', { value: 'updated-value' })
+   *
+   * // Emit a custom event with the patched ticket as payload
+   * registry.upsert('ticket-id', { value: 'final' }, 'ticket:final')
    * ```
   */
   upsert: (id: ID, ticket?: Partial<Z>, event?: string) => E
@@ -412,9 +417,9 @@ export interface RegistryContext<
   /**
    * Seek for a ticket based on direction and optional predicate
    *
-   * @param direction The direction to seek ('first' or 'last'). Defaults to 'first'.
-   * @param from The index to start seeking from. Defaults to the beginning or end based on direction.
-   * @param predicate An optional function to test each ticket. The first ticket that satisfies the predicate will be returned.
+   * @param direction The scan direction (`'first'` = forward, `'last'` = backward). Defaults to `'first'`.
+   * @param from The index to start scanning from. With `'first'` the scan moves forward from `from`; with `'last'` the scan moves backward from `from`. Defaults to `0` for `'first'` and `size - 1` for `'last'`.
+   * @param predicate An optional function to test each ticket. The first ticket reached in scan order that satisfies the predicate is returned.
    * @remarks This method allows for flexible searching within the registry, either from the start or end, and can filter tickets based on custom criteria.
    *
    * @see https://0.vuetifyjs.com/composables/registration/create-registry
@@ -471,7 +476,7 @@ export interface RegistryContext<
    * registry.register({ id: 'ticket-id' }) // Console: Ticket registered: { id: 'ticket-id', ... }
    * ```
   */
-  on: <K extends Extensible<RegistryEventName>>(event: K, cb: EventHandler<E, K>) => void
+  on: <K extends Extensible<RegistryEventName>>(event: K, cb: RegistryEventCallback<E, K>) => void
   /**
    * Stop listening for registry events
    *
@@ -501,7 +506,7 @@ export interface RegistryContext<
    * })
    * ```
   */
-  off: <K extends Extensible<RegistryEventName>>(event: K, cb: EventHandler<E, K>) => void
+  off: <K extends Extensible<RegistryEventName>>(event: K, cb: RegistryEventCallback<E, K>) => void
   /**
    * Emit an event with data
    *
@@ -784,6 +789,8 @@ export function createRegistry<
   }
 
   function upsert (id: ID, patch: Partial<Z> = {}, event?: string) {
+    if (needsReindex) reindex()
+
     const existing = get(id)
 
     if (!existing) return register({ ...patch, id } as Partial<Z & RegistryTicket>)
@@ -815,26 +822,19 @@ export function createRegistry<
       }
     }
 
-    const patched: E = {
-      ...existing,
-      ...patch,
-      id,
-      index: existing.index,
-      value,
-      valueIsIndex,
-    }
-
-    collection.set(id, patched)
+    Object.assign(existing, patch, { id, index: existing.index, value, valueIsIndex })
+    collection.set(id, existing)
     invalidate()
-    emit('update:ticket', patched)
-    if (event) emit(event, id)
+    emit('update:ticket', existing)
+    if (event) emit(event, existing)
 
-    return patched
+    return existing
   }
 
   function browse (value: unknown) {
     if (needsReindex) reindex()
-    return catalog.get(value)
+    const bucket = catalog.get(value)
+    return bucket ? bucket.slice() : undefined
   }
 
   function lookup (index: number) {
@@ -870,11 +870,11 @@ export function createRegistry<
     const cached = cache.get('keys')
     if (!isUndefined(cached)) return cached as readonly ID[]
 
-    const keys = Array.from(collection.keys())
+    const out = Array.from(collection.keys())
 
-    cache.set('keys', keys)
+    cache.set('keys', out)
 
-    return keys
+    return out
   }
 
   function values (): readonly E[] {
@@ -883,11 +883,11 @@ export function createRegistry<
     const cached = cache.get('values')
     if (!isUndefined(cached)) return cached as readonly E[]
 
-    const values = Array.from(collection.values())
+    const out = Array.from(collection.values())
 
-    cache.set('values', values)
+    cache.set('values', out)
 
-    return values
+    return out
   }
 
   function entries (): readonly [ID, E][] {
@@ -896,11 +896,11 @@ export function createRegistry<
     const cached = cache.get('entries')
     if (!isUndefined(cached)) return cached as readonly [ID, E][]
 
-    const entries = Array.from(collection.entries())
+    const out = Array.from(collection.entries())
 
-    cache.set('entries', entries)
+    cache.set('entries', out)
 
-    return entries
+    return out
   }
 
   function clear () {
@@ -985,6 +985,8 @@ export function createRegistry<
   }
 
   function register (registration: Partial<Z & RegistryTicket> = {}): E {
+    if (needsReindex) reindex()
+
     const size = collection.size
     const id = registration.id ?? useId()
 
@@ -997,7 +999,7 @@ export function createRegistry<
     const valueIsUndefined = isUndefined(registration.value)
     const index = registration.index ?? size
     const value = valueIsUndefined ? index : registration.value
-    const valueIsIndex = valueIsUndefined
+    const valueIsIndex = registration.valueIsIndex ?? valueIsUndefined
 
     if (valueIsIndex) {
       indexDependentCount++
@@ -1094,21 +1096,24 @@ export function createRegistry<
 
     if (ticket.index === target) return ticket
 
-    const items = Array.from(collection.entries())
-    const fromIndex = items.findIndex(([key]) => key === id)
-    const [entry] = items.splice(fromIndex, 1)
+    return batch(() => {
+      const items = Array.from(collection.entries())
+      const fromIndex = items.findIndex(([key]) => key === id)
+      const [entry] = items.splice(fromIndex, 1)
 
-    items.splice(target, 0, entry!)
+      items.splice(target, 0, entry!)
 
-    collection.clear()
-    for (const [key, value] of items) {
-      collection.set(key, value)
-    }
+      collection.clear()
+      for (const [key, value] of items) {
+        collection.set(key, value)
+      }
 
-    minDirtyIndex = Math.min(ticket.index, target)
-    reindex()
+      minDirtyIndex = Math.min(ticket.index, target)
+      reindex()
+      emit('update:ticket', ticket)
 
-    return ticket
+      return ticket
+    })
   }
 
   function seek (
