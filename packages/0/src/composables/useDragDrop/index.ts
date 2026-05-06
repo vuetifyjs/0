@@ -640,8 +640,9 @@ export function useDragDrop<Z extends DragType = DragType> (
       current: point,
       delta: { x: point.x - active.value.origin.x, y: point.y - active.value.origin.y },
       over,
-      willAccept: !isNull(over) && accepts(_zones.get(over)?.accept, active.value),
+      willAccept: false,
     } as ActiveDrag<Z>
+    draft.willAccept = !isNull(over) && accepts(_zones.get(over)?.accept, draft)
 
     const previous = active.value.over
     active.value = draft
@@ -733,6 +734,7 @@ export function useDragDrop<Z extends DragType = DragType> (
 
   _zones.on('unregister:ticket', ticket => {
     if (active.value?.over === ticket.id) {
+      next(ticket.onLeave, active.value)
       // Keep the drag alive; the next move resolves a new over.
       active.value = { ...active.value, over: null, willAccept: false } as ActiveDrag<Z>
     }

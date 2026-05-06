@@ -56,18 +56,28 @@ export class PointerAdapter<Z extends DragType = DragType> extends DragDropAdapt
 
     let downSource: DraggableTicket<Z> | null = null
     let downOrigin: { x: number, y: number } | null = null
+    let downId: number | null = null
     let started = false
 
+    function reset (): void {
+      downSource = null
+      downOrigin = null
+      downId = null
+      started = false
+    }
+
     const onDown = (event: PointerEvent) => {
+      if (downSource) return
       const ticket = this.locate(event.target, context)
       if (!ticket) return
       downSource = ticket
       downOrigin = { x: event.clientX, y: event.clientY }
+      downId = event.pointerId
       started = false
     }
 
     const onMove = (event: PointerEvent) => {
-      if (!downSource || !downOrigin) return
+      if (!downSource || !downOrigin || event.pointerId !== downId) return
       const point = { x: event.clientX, y: event.clientY }
       if (!started) {
         const dx = point.x - downOrigin.x
@@ -79,18 +89,16 @@ export class PointerAdapter<Z extends DragType = DragType> extends DragDropAdapt
       context.emit.move(point)
     }
 
-    function onUp () {
+    function onUp (event: PointerEvent) {
+      if (event.pointerId !== downId) return
       if (downSource && started) context.emit.drop()
-      downSource = null
-      downOrigin = null
-      started = false
+      reset()
     }
 
-    function onCancel () {
+    function onCancel (event: PointerEvent) {
+      if (event.pointerId !== downId) return
       if (downSource && started) context.emit.cancel()
-      downSource = null
-      downOrigin = null
-      started = false
+      reset()
     }
 
     const stopDown = useEventListener(document, 'pointerdown', onDown)

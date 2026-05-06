@@ -95,7 +95,7 @@ export class KeyboardAdapter<Z extends DragType = DragType> extends DragDropAdap
 
       if (isActive && event.key.startsWith('Arrow')) {
         const current = context.active.value!.current
-        let point = current
+        let point: { x: number, y: number } | null = null
         switch (event.key) {
           case 'ArrowUp': {
             point = { x: current.x, y: current.y - this.step }
@@ -114,8 +114,10 @@ export class KeyboardAdapter<Z extends DragType = DragType> extends DragDropAdap
             break
           }
         }
-        event.preventDefault()
-        context.emit.move(point)
+        if (point) {
+          event.preventDefault()
+          context.emit.move(point)
+        }
       }
     }
 

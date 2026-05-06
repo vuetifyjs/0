@@ -70,7 +70,7 @@ implements DragDropAdapterInterface<Z> {
     target: EventTarget | Element | null,
     context: DragDropAdapterContext<Z>,
   ): DraggableTicket<Z> | null {
-    let element = target as Element | null
+    let element: Element | null = target instanceof Element ? target : null
     while (element) {
       for (const ticket of context.draggables.values()) {
         if (ticket.el.value === element) return ticket
