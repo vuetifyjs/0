@@ -245,6 +245,7 @@ export type DraggableTicket<Z extends DragType = DragType> = Z extends DragType
 export interface DropZoneTicketInput<Z extends DragType = DragType>
   extends RegistryTicketInput {
   el: MaybeRefOrGetter<HTMLElement | null>
+  /** Allowed drag types or a synchronous predicate. Async predicates (Promise / thenable returns) are rejected with a warning — `accept` must return synchronously. */
   accept?: Z['type'][] | ((drag: ActiveDrag<Z>) => boolean)
   orientation?: Orientation
   disabled?: MaybeRefOrGetter<boolean>
@@ -499,8 +500,8 @@ export function useDragDrop<Z extends DragType = DragType> (
       if (isUndefined(accept)) return true
       if (isArray(accept)) return accept.includes(drag.type)
       const result: unknown = accept(drag)
-      if (result instanceof Promise) {
-        logger.warn('useDragDrop accept predicate returned a Promise; async predicates are not supported — treating as reject')
+      if (result !== null && typeof result === 'object' && isFunction((result as { then?: unknown }).then)) {
+        logger.warn('useDragDrop accept predicate returned a thenable; async predicates are not supported — treating as reject')
         return false
       }
       return Boolean(result)
