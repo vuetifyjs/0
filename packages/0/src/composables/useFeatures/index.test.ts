@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { createApp, watchEffect } from 'vue'
 
 // Types
-import type { FeaturesAdapterFlags, FeaturesAdapterInterface } from './adapters'
+import type { FeaturesAdapterFlags, FeaturesAdapter } from './adapters'
 import type { FeatureContext } from './index'
 
 import { createFeatures, createFeaturesPlugin, useFeatures } from './index'
@@ -504,7 +504,7 @@ describe('createFeaturesPlugin', () => {
 
   describe('with adapter', () => {
     it('should sync initial flags from adapter', () => {
-      const mockAdapter: FeaturesAdapterInterface = {
+      const mockAdapter: FeaturesAdapter = {
         setup: () => {
           return {
             'feature-a': true,
@@ -528,7 +528,7 @@ describe('createFeaturesPlugin', () => {
     it('should sync updated flags from adapter', () => {
       let updateCallback: ((flags: FeaturesAdapterFlags) => void) | undefined
 
-      const mockAdapter: FeaturesAdapterInterface = {
+      const mockAdapter: FeaturesAdapter = {
         setup: onUpdate => {
           updateCallback = onUpdate
           return {}
@@ -553,7 +553,7 @@ describe('createFeaturesPlugin', () => {
     it('should update existing flags from adapter', () => {
       let updateCallback: ((flags: FeaturesAdapterFlags) => void) | undefined
 
-      const mockAdapter: FeaturesAdapterInterface = {
+      const mockAdapter: FeaturesAdapter = {
         setup: onUpdate => {
           updateCallback = onUpdate
           return {
@@ -591,7 +591,7 @@ describe('createFeaturesPlugin', () => {
     it('should be reactive when flags are updated from adapter', async () => {
       let updateCallback: ((flags: FeaturesAdapterFlags) => void) | undefined
 
-      const mockAdapter: FeaturesAdapterInterface = {
+      const mockAdapter: FeaturesAdapter = {
         setup: onUpdate => {
           updateCallback = onUpdate
           return {
@@ -626,7 +626,7 @@ describe('createFeaturesPlugin', () => {
 
     it('should call adapter dispose when scope is disposed', () => {
       const disposeMock = vi.fn()
-      const mockAdapter: FeaturesAdapterInterface = {
+      const mockAdapter: FeaturesAdapter = {
         setup: () => ({}),
         dispose: disposeMock,
       }
@@ -644,10 +644,10 @@ describe('createFeaturesPlugin', () => {
 
   describe('with multiple adapters', () => {
     it('should sync flags from multiple adapters', () => {
-      const adapter1: FeaturesAdapterInterface = {
+      const adapter1: FeaturesAdapter = {
         setup: () => ({ 'feature-1': true }),
       }
-      const adapter2: FeaturesAdapterInterface = {
+      const adapter2: FeaturesAdapter = {
         setup: () => ({ 'feature-2': true }),
       }
 
@@ -661,10 +661,10 @@ describe('createFeaturesPlugin', () => {
     })
 
     it('should resolve conflicting flags (last one wins)', () => {
-      const adapter1: FeaturesAdapterInterface = {
+      const adapter1: FeaturesAdapter = {
         setup: () => ({ 'feature-a': true }),
       }
-      const adapter2: FeaturesAdapterInterface = {
+      const adapter2: FeaturesAdapter = {
         setup: () => ({ 'feature-a': false }),
       }
 
@@ -677,10 +677,10 @@ describe('createFeaturesPlugin', () => {
     })
 
     it('should handle partial overlap', () => {
-      const adapter1: FeaturesAdapterInterface = {
+      const adapter1: FeaturesAdapter = {
         setup: () => ({ f1: true, f2: true }),
       }
-      const adapter2: FeaturesAdapterInterface = {
+      const adapter2: FeaturesAdapter = {
         setup: () => ({ f2: false, f3: true }),
       }
 
@@ -706,11 +706,11 @@ describe('createFeaturesPlugin', () => {
     it('should dispose all adapters', () => {
       const dispose1 = vi.fn()
       const dispose2 = vi.fn()
-      const adapter1: FeaturesAdapterInterface = {
+      const adapter1: FeaturesAdapter = {
         setup: () => ({}),
         dispose: dispose1,
       }
-      const adapter2: FeaturesAdapterInterface = {
+      const adapter2: FeaturesAdapter = {
         setup: () => ({}),
         dispose: dispose2,
       }

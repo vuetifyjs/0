@@ -2,7 +2,7 @@
  * @module FeaturesAdapter
  *
  * @remarks
- * Abstract class and interface for feature adapters.
+ * Abstract base class for feature flag adapters.
  */
 
 // Types
@@ -12,7 +12,7 @@ export type FeaturesAdapterValue = boolean | { $value?: boolean, $variation?: un
 
 export type FeaturesAdapterFlags = Record<ID, FeaturesAdapterValue>
 
-export interface FeaturesAdapterInterface {
+export abstract class FeaturesAdapter {
   /**
    * Initialize the adapter and return initial flags.
    *
@@ -22,15 +22,12 @@ export interface FeaturesAdapterInterface {
    * @remarks Called during plugin setup. Sets up change listeners
    * and returns the initial flag values.
    */
-  setup: (onUpdate: (flags: FeaturesAdapterFlags) => void) => FeaturesAdapterFlags
+  abstract setup (onUpdate: (flags: FeaturesAdapterFlags) => void): FeaturesAdapterFlags
+
   /**
    * Cleanup adapter resources.
    *
    * @remarks Called when the plugin is disposed.
    */
-  dispose?: () => void
-}
-
-export abstract class FeaturesAdapter implements FeaturesAdapterInterface {
-  abstract setup (onUpdate: (flags: FeaturesAdapterFlags) => void): FeaturesAdapterFlags
+  dispose? (): void
 }

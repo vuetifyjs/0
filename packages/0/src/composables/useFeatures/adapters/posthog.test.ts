@@ -8,7 +8,7 @@ vi.mock('#v0/constants/globals', () => ({
   },
 }))
 
-import { PostHogFeatureAdapter } from '.'
+import { PostHogFeaturesAdapter } from './posthog'
 
 function createMockClient () {
   return {
@@ -22,13 +22,13 @@ function createMockClient () {
   }
 }
 
-describe('postHogFeatureAdapter', () => {
+describe('postHogFeaturesAdapter', () => {
   describe('constructor', () => {
     it('should accept options', () => {
       const mockClient = createMockClient()
-      const adapter = new PostHogFeatureAdapter(mockClient as never)
+      const adapter = new PostHogFeaturesAdapter(mockClient as never)
 
-      expect(adapter).toBeInstanceOf(PostHogFeatureAdapter)
+      expect(adapter).toBeInstanceOf(PostHogFeaturesAdapter)
     })
   })
 
@@ -42,7 +42,7 @@ describe('postHogFeatureAdapter', () => {
       mockClient.getFeatureFlag.mockReturnValue(true)
       mockClient.onFeatureFlags.mockImplementation((cb: Function) => cb())
 
-      const adapter = new PostHogFeatureAdapter(mockClient as never)
+      const adapter = new PostHogFeaturesAdapter(mockClient as never)
       const onUpdate = vi.fn()
 
       const flags = adapter.setup(onUpdate)
@@ -66,7 +66,7 @@ describe('postHogFeatureAdapter', () => {
       mockClient.getFeatureFlag.mockImplementation((key: string) => key === 'flag-3' ? 'variant-3' : undefined)
       mockClient.onFeatureFlags.mockImplementation((cb: Function) => cb())
 
-      const adapter = new PostHogFeatureAdapter(mockClient as never)
+      const adapter = new PostHogFeaturesAdapter(mockClient as never)
       const onUpdate = vi.fn()
 
       adapter.setup(onUpdate)
@@ -96,7 +96,7 @@ describe('postHogFeatureAdapter', () => {
         return vi.fn()
       })
 
-      const adapter = new PostHogFeatureAdapter(mockClient as never)
+      const adapter = new PostHogFeaturesAdapter(mockClient as never)
       const onUpdate = vi.fn()
 
       adapter.setup(onUpdate)
@@ -115,7 +115,7 @@ describe('postHogFeatureAdapter', () => {
       const unsubscribeMock = vi.fn()
       mockClient.onFeatureFlags.mockReturnValue(unsubscribeMock)
 
-      const adapter = new PostHogFeatureAdapter(mockClient as never)
+      const adapter = new PostHogFeaturesAdapter(mockClient as never)
       adapter.setup(vi.fn())
       adapter.dispose()
 
@@ -124,7 +124,7 @@ describe('postHogFeatureAdapter', () => {
 
     it('should handle dispose before setup', () => {
       const mockClient = createMockClient()
-      const adapter = new PostHogFeatureAdapter(mockClient as never)
+      const adapter = new PostHogFeaturesAdapter(mockClient as never)
       expect(() => adapter.dispose()).not.toThrow()
     })
   })
@@ -135,7 +135,7 @@ describe('postHogFeatureAdapter', () => {
       const mockClient = createMockClient()
       mockClient.featureFlags.getFlags.mockReturnValue(null)
 
-      const adapter = new PostHogFeatureAdapter(mockClient as never)
+      const adapter = new PostHogFeaturesAdapter(mockClient as never)
       const onUpdate = vi.fn()
 
       const flags = adapter.setup(onUpdate)
@@ -148,7 +148,7 @@ describe('postHogFeatureAdapter', () => {
       mockInBrowser.value = false
       const mockClient = createMockClient()
 
-      const adapter = new PostHogFeatureAdapter(mockClient as never)
+      const adapter = new PostHogFeaturesAdapter(mockClient as never)
       const onUpdate = vi.fn()
       const flags = adapter.setup(onUpdate)
 

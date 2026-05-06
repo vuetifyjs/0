@@ -90,9 +90,9 @@ Adapters let you swap the underlying feature flag provider without changing your
 
 | Adapter | Import | Description |
 |---------|--------|-------------|
-| `PostHogFeatureAdapter` | `@vuetify/v0/features/adapters/posthog` | [PostHog](https://posthog.com/) integration |
-| `FlagsmithFeatureAdapter` | `@vuetify/v0/features/adapters/flagsmith` | [Flagsmith](https://flagsmith.com/) integration |
-| `LaunchDarklyFeatureAdapter` | `@vuetify/v0/features/adapters/launchdarkly` | [LaunchDarkly](https://launchdarkly.com/) integration |
+| `PostHogFeaturesAdapter` | `@vuetify/v0/features/adapters/posthog` | [PostHog](https://posthog.com/) integration |
+| `FlagsmithFeaturesAdapter` | `@vuetify/v0/features/adapters/flagsmith` | [Flagsmith](https://flagsmith.com/) integration |
+| `LaunchDarklyFeaturesAdapter` | `@vuetify/v0/features/adapters/launchdarkly` | [LaunchDarkly](https://launchdarkly.com/) integration |
 
 ### Flagsmith
 
@@ -120,10 +120,10 @@ bun add @flagsmith/flagsmith
 
 ```ts
 import flagsmith from '@flagsmith/flagsmith'
-import { FlagsmithFeatureAdapter } from '@vuetify/v0/features/adapters/flagsmith'
+import { FlagsmithFeaturesAdapter } from '@vuetify/v0/features/adapters/flagsmith'
 
 app.use(createFeaturesPlugin({
-  adapter: new FlagsmithFeatureAdapter(flagsmith, {
+  adapter: new FlagsmithFeaturesAdapter(flagsmith, {
     environmentID: '<YOUR_ENV_ID>',
     // ...other flagsmith options
   })
@@ -156,14 +156,14 @@ bun add launchdarkly-js-client-sdk
 
 ```ts
 import * as LDClient from 'launchdarkly-js-client-sdk'
-import { LaunchDarklyFeatureAdapter } from '@vuetify/v0/features/adapters/launchdarkly'
+import { LaunchDarklyFeaturesAdapter } from '@vuetify/v0/features/adapters/launchdarkly'
 
 const client = LDClient.initialize('<YOUR_CLIENT_SIDE_ID>', { key: 'user-key' })
 
 await client.waitForInitialization()
 
 app.use(createFeaturesPlugin({
-  adapter: new LaunchDarklyFeatureAdapter(client)
+  adapter: new LaunchDarklyFeaturesAdapter(client)
 }))
 ```
 
@@ -193,12 +193,12 @@ bun add posthog-js
 
 ```ts
 import posthog from 'posthog-js'
-import { PostHogFeatureAdapter } from '@vuetify/v0/features/adapters/posthog'
+import { PostHogFeaturesAdapter } from '@vuetify/v0/features/adapters/posthog'
 
 posthog.init('<YOUR_PROJECT_API_KEY>', { api_host: 'https://app.posthog.com' })
 
 app.use(createFeaturesPlugin({
-  adapter: new PostHogFeatureAdapter(posthog)
+  adapter: new PostHogFeaturesAdapter(posthog)
 }))
 ```
 
@@ -207,25 +207,26 @@ app.use(createFeaturesPlugin({
 You can combine flags from multiple sources by passing an array of adapters. They are initialized in order, and flags are merged (last one wins for conflicting keys).
 
 ```ts
-import { FlagsmithFeatureAdapter } from '@vuetify/v0/features/adapters/flagsmith'
-import { PostHogFeatureAdapter } from '@vuetify/v0/features/adapters/posthog'
+import { FlagsmithFeaturesAdapter } from '@vuetify/v0/features/adapters/flagsmith'
+import { PostHogFeaturesAdapter } from '@vuetify/v0/features/adapters/posthog'
 
 app.use(createFeaturesPlugin({
   adapter: [
-    new FlagsmithFeatureAdapter(flagsmith, options),
-    new PostHogFeatureAdapter(posthog),
+    new FlagsmithFeaturesAdapter(flagsmith, options),
+    new PostHogFeaturesAdapter(posthog),
   ]
 }))
 ```
 
 ### Custom Adapters
 
-Create custom adapters by implementing the `FeaturesAdapterInterface`.
+Create custom adapters by extending `FeaturesAdapter`.
 
 ```ts
-import type { FeaturesAdapterInterface, FeaturesAdapterFlags } from '@vuetify/v0'
+import { FeaturesAdapter } from '@vuetify/v0'
+import type { FeaturesAdapterFlags } from '@vuetify/v0'
 
-class WindowFeaturesAdapter implements FeaturesAdapterInterface {
+class WindowFeaturesAdapter extends FeaturesAdapter {
   setup (onUpdate: (flags: FeaturesAdapterFlags) => void): FeaturesAdapterFlags {
     const update = (event: CustomEvent) => {
       onUpdate(event.detail)
@@ -249,7 +250,7 @@ class WindowFeaturesAdapter implements FeaturesAdapterInterface {
 }
 ```
 
-### Adapter Interface
+### Adapter Base Class
 
 The adapter pattern decouples feature flags from the underlying provider.
 
@@ -275,19 +276,19 @@ flowchart LR
 ```
 
 ```ts
-interface FeaturesAdapterInterface {
+abstract class FeaturesAdapter {
   /**
    * Initialize the adapter and return initial flags.
    *
    * @param onUpdate Callback invoked when flags change.
    * @returns Initial feature flags.
    */
-  setup: (onUpdate: (flags: FeaturesAdapterFlags) => void) => FeaturesAdapterFlags
+  abstract setup (onUpdate: (flags: FeaturesAdapterFlags) => void): FeaturesAdapterFlags
 
   /**
    * Cleanup adapter resources.
    */
-  dispose?: () => void
+  dispose? (): void
 }
 ```
 

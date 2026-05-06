@@ -141,9 +141,9 @@ Built-in adapters ship for the most common integrations:
 | `useLogger` | `PinoLoggerAdapter` | [Pino](https://getpino.io) structured logging |
 | `useLogger` | `ConsolaLoggerAdapter` | [Consola](https://github.com/unjs/consola) universal logging |
 | `useLocale` | `VueI18nLocaleAdapter` | [Vue I18n](https://vue-i18n.intlify.dev) internationalization |
-| `useFeatures` | `LaunchDarklyFeatureAdapter` | [LaunchDarkly](https://launchdarkly.com) feature flags |
-| `useFeatures` | `FlagsmithFeatureAdapter` | [Flagsmith](https://flagsmith.com) feature flags |
-| `useFeatures` | `PostHogFeatureAdapter` | [PostHog](https://posthog.com) feature flags and analytics |
+| `useFeatures` | `LaunchDarklyFeaturesAdapter` | [LaunchDarkly](https://launchdarkly.com) feature flags |
+| `useFeatures` | `FlagsmithFeaturesAdapter` | [Flagsmith](https://flagsmith.com) feature flags |
+| `useFeatures` | `PostHogFeaturesAdapter` | [PostHog](https://posthog.com) feature flags and analytics |
 | `useNotifications` | `createKnockAdapter` | [Knock](https://knock.app) notification feeds |
 | `useNotifications` | `createNovuAdapter` | [Novu](https://novu.co) notification infrastructure |
 

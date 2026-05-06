@@ -37,12 +37,12 @@ export default function zero (app: App) {
 
   if (IN_BROWSER) {
     useIdleCallback(async () => {
-      const [{ default: posthog }, { PostHogFeatureAdapter }] = await Promise.all([
+      const [{ default: posthog }, { PostHogFeaturesAdapter }] = await Promise.all([
         import('posthog-js'),
         import('@vuetify/v0/features/adapters/posthog'),
       ])
       posthog.init('phc_NNCtIDpiEgt5TsyxTItPnU9dA14asv6OR6IziSLQa97', { api_host: 'https://app.posthog.com' })
-      const adapter = new PostHogFeatureAdapter(posthog)
+      const adapter = new PostHogFeaturesAdapter(posthog)
       const features = app.runWithContext(() => useFeatures())
       features.sync(adapter.setup(flags => features.sync(flags)))
     }, 2000)

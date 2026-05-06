@@ -7,7 +7,7 @@
  *
  * @example
  * ```ts
- * import { LaunchDarklyFeatureAdapter } from '@vuetify/v0/features/adapters/launchdarkly'
+ * import { LaunchDarklyFeaturesAdapter } from '@vuetify/v0/features/adapters/launchdarkly'
  * ```
  */
 
