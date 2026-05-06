@@ -71,11 +71,11 @@ Adapters let you swap the underlying logging implementation without changing you
 
 | Adapter | Import | Description |
 |---------|--------|-------------|
-| `Vuetify0LoggerAdapter` | `@vuetify/v0` | Console-based logging (default) |
+| `V0LoggerAdapter` | `@vuetify/v0` | Console-based logging (default) |
 | `PinoLoggerAdapter` | `@vuetify/v0/logger/adapters/pino` | [Pino](https://getpino.io/) integration |
 | `ConsolaLoggerAdapter` | `@vuetify/v0/logger/adapters/consola` | [Consola](https://github.com/unjs/consola) integration |
 
-The default `Vuetify0LoggerAdapter` maps each level to the correct native console method — `debug` → `console.debug`, `info` → `console.info`, `warn` → `console.warn`, `error`/`fatal` → `console.error`. This ensures browser DevTools can correctly filter by level.
+The default `V0LoggerAdapter` maps each level to the correct native console method — `debug` → `console.debug`, `info` → `console.info`, `warn` → `console.warn`, `error`/`fatal` → `console.error`. This ensures browser DevTools can correctly filter by level.
 
 ### Pino
 
@@ -155,12 +155,12 @@ app.use(
 
 ### Custom Adapters
 
-Implement `LoggerAdapter` to route logs to any destination:
+Extend `LoggerAdapter` to route logs to any destination:
 
 ```ts
-import type { LoggerAdapter } from '@vuetify/v0'
+import { LoggerAdapter } from '@vuetify/v0'
 
-class DatadogLoggerAdapter implements LoggerAdapter {
+class DatadogLoggerAdapter extends LoggerAdapter {
   debug (message: string, ...args: unknown[]) {
     datadogLogs.logger.debug(message, ...args)
   }
@@ -179,13 +179,13 @@ app.use(createLoggerPlugin({ adapter: new DatadogLoggerAdapter() }))
 ```
 
 ```ts
-interface LoggerAdapter {
-  debug: (message: string, ...args: unknown[]) => void
-  info:  (message: string, ...args: unknown[]) => void
-  warn:  (message: string, ...args: unknown[]) => void
-  error: (message: string, ...args: unknown[]) => void
-  trace?: (message: string, ...args: unknown[]) => void  // optional
-  fatal?: (message: string, ...args: unknown[]) => void  // optional
+abstract class LoggerAdapter {
+  abstract debug (message: string, ...args: unknown[]): void
+  abstract info (message: string, ...args: unknown[]): void
+  abstract warn (message: string, ...args: unknown[]): void
+  abstract error (message: string, ...args: unknown[]): void
+  trace? (message: string, ...args: unknown[]): void
+  fatal? (message: string, ...args: unknown[]): void
 }
 ```
 

@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { Vuetify0LoggerAdapter } from './v0'
+import { V0LoggerAdapter } from './v0'
 
 const mockInBrowser = vi.hoisted(() => ({ value: false }))
 
@@ -10,7 +10,7 @@ vi.mock('#v0/constants/globals', () => ({
   },
 }))
 
-describe('vuetify0LoggerAdapter', () => {
+describe('v0LoggerAdapter', () => {
   beforeEach(() => {
     vi.spyOn(console, 'debug').mockImplementation(() => {})
     vi.spyOn(console, 'info').mockImplementation(() => {})
@@ -26,7 +26,7 @@ describe('vuetify0LoggerAdapter', () => {
 
   describe('constructor', () => {
     it('should use default options', () => {
-      const adapter = new Vuetify0LoggerAdapter()
+      const adapter = new V0LoggerAdapter()
 
       adapter.info('test')
 
@@ -34,7 +34,7 @@ describe('vuetify0LoggerAdapter', () => {
     })
 
     it('should accept custom prefix', () => {
-      const adapter = new Vuetify0LoggerAdapter({ prefix: 'custom' })
+      const adapter = new V0LoggerAdapter({ prefix: 'custom' })
 
       adapter.info('test')
 
@@ -46,7 +46,7 @@ describe('vuetify0LoggerAdapter', () => {
 
   describe('log methods', () => {
     it('should call console.debug for debug level', () => {
-      const adapter = new Vuetify0LoggerAdapter()
+      const adapter = new V0LoggerAdapter()
 
       adapter.debug('debug message', { extra: 'data' })
 
@@ -57,7 +57,7 @@ describe('vuetify0LoggerAdapter', () => {
     })
 
     it('should call console.info for info level', () => {
-      const adapter = new Vuetify0LoggerAdapter()
+      const adapter = new V0LoggerAdapter()
 
       adapter.info('info message')
 
@@ -67,7 +67,7 @@ describe('vuetify0LoggerAdapter', () => {
     })
 
     it('should call console.warn for warn level', () => {
-      const adapter = new Vuetify0LoggerAdapter()
+      const adapter = new V0LoggerAdapter()
 
       adapter.warn('warn message')
 
@@ -77,7 +77,7 @@ describe('vuetify0LoggerAdapter', () => {
     })
 
     it('should call console.error for error level', () => {
-      const adapter = new Vuetify0LoggerAdapter()
+      const adapter = new V0LoggerAdapter()
 
       adapter.error('error message')
 
@@ -87,7 +87,7 @@ describe('vuetify0LoggerAdapter', () => {
     })
 
     it('should call console.trace for trace level', () => {
-      const adapter = new Vuetify0LoggerAdapter()
+      const adapter = new V0LoggerAdapter()
 
       adapter.trace('trace message')
 
@@ -97,7 +97,7 @@ describe('vuetify0LoggerAdapter', () => {
     })
 
     it('should call console.error for fatal level', () => {
-      const adapter = new Vuetify0LoggerAdapter()
+      const adapter = new V0LoggerAdapter()
 
       adapter.fatal('fatal message')
 
@@ -110,7 +110,7 @@ describe('vuetify0LoggerAdapter', () => {
   describe('sSR (non-browser) environment', () => {
     it('should log without styles in non-browser environment', () => {
       mockInBrowser.value = false
-      const adapter = new Vuetify0LoggerAdapter({ colors: true })
+      const adapter = new V0LoggerAdapter({ colors: true })
 
       adapter.info('ssr message')
 
@@ -123,7 +123,7 @@ describe('vuetify0LoggerAdapter', () => {
 
     it('should use ISO timestamp in non-browser environment', () => {
       mockInBrowser.value = false
-      const adapter = new Vuetify0LoggerAdapter({ timestamps: true })
+      const adapter = new V0LoggerAdapter({ timestamps: true })
 
       adapter.info('test')
 
@@ -138,7 +138,7 @@ describe('vuetify0LoggerAdapter', () => {
     })
 
     it('should apply styles in browser environment with colors enabled', () => {
-      const adapter = new Vuetify0LoggerAdapter({ colors: true })
+      const adapter = new V0LoggerAdapter({ colors: true })
 
       adapter.info('browser message')
 
@@ -149,7 +149,7 @@ describe('vuetify0LoggerAdapter', () => {
     })
 
     it('should not apply styles when colors disabled', () => {
-      const adapter = new Vuetify0LoggerAdapter({ colors: false })
+      const adapter = new V0LoggerAdapter({ colors: false })
 
       adapter.info('no color message')
 
@@ -158,7 +158,7 @@ describe('vuetify0LoggerAdapter', () => {
     })
 
     it('should use short timestamp in browser environment', () => {
-      const adapter = new Vuetify0LoggerAdapter({ timestamps: true, colors: false })
+      const adapter = new V0LoggerAdapter({ timestamps: true, colors: false })
 
       adapter.info('test')
 
@@ -170,7 +170,7 @@ describe('vuetify0LoggerAdapter', () => {
 
   describe('formatting options', () => {
     it('should omit timestamp when disabled', () => {
-      const adapter = new Vuetify0LoggerAdapter({ timestamps: false })
+      const adapter = new V0LoggerAdapter({ timestamps: false })
 
       adapter.info('no timestamp')
 
@@ -182,7 +182,7 @@ describe('vuetify0LoggerAdapter', () => {
   describe('edge cases', () => {
     it('should handle silent log level style gracefully', () => {
       mockInBrowser.value = true
-      const adapter = new Vuetify0LoggerAdapter({ colors: true })
+      const adapter = new V0LoggerAdapter({ colors: true })
 
       adapter.info('test')
 

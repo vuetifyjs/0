@@ -3,7 +3,7 @@
  *
  * @example
  * ```ts
- * import { Vuetify0LoggerAdapter } from '@vuetify/v0/logger/adapters/v0'
+ * import { V0LoggerAdapter } from '@vuetify/v0/logger/adapters/v0'
  * ```
  */
 
