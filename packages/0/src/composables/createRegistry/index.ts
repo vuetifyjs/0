@@ -380,6 +380,36 @@ export interface RegistryContext<
   */
   reindex: () => void
   /**
+   * Move a ticket to a new index position
+   *
+   * @param id The ID of the ticket to move.
+   * @param toIndex The target index position. Clamped to valid range.
+   * @returns The moved ticket, or undefined if the ticket was not found.
+   *
+   * @remarks Rebuilds the internal collection order by removing and reinserting the entry at the target position. Triggers a full reindex after the move. This operation invalidates cached results from `keys()`, `values()`, and `entries()`.
+   *
+   * @see https://0.vuetifyjs.com/composables/registration/create-registry
+   *
+   * @example
+   * ```ts
+   * import { createRegistry } from '@vuetify/v0'
+   *
+   * const registry = createRegistry()
+   *
+   * registry.onboard([
+   *   { id: 'a', value: 'alpha' },
+   *   { id: 'b', value: 'beta' },
+   *   { id: 'c', value: 'gamma' },
+   * ])
+   *
+   * // Move 'a' from index 0 to index 2
+   * registry.move('a', 2)
+   *
+   * console.log(registry.keys()) // ['b', 'c', 'a']
+   * ```
+  */
+  move: (id: ID, toIndex: number) => E | undefined
+  /**
    * Seek for a ticket based on direction and optional predicate
    *
    * @param direction The direction to seek ('first' or 'last'). Defaults to 'first'.
@@ -412,36 +442,6 @@ export interface RegistryContext<
    * const cherry = registry.seek('first', 1, ticket => (ticket.value as string).startsWith('c'))
    * ```
   */
-  /**
-   * Move a ticket to a new index position
-   *
-   * @param id The ID of the ticket to move.
-   * @param toIndex The target index position. Clamped to valid range.
-   * @returns The moved ticket, or undefined if the ticket was not found.
-   *
-   * @remarks Rebuilds the internal collection order by removing and reinserting the entry at the target position. Triggers a full reindex after the move. This operation invalidates cached results from `keys()`, `values()`, and `entries()`.
-   *
-   * @see https://0.vuetifyjs.com/composables/registration/create-registry
-   *
-   * @example
-   * ```ts
-   * import { createRegistry } from '@vuetify/v0'
-   *
-   * const registry = createRegistry()
-   *
-   * registry.onboard([
-   *   { id: 'a', value: 'alpha' },
-   *   { id: 'b', value: 'beta' },
-   *   { id: 'c', value: 'gamma' },
-   * ])
-   *
-   * // Move 'a' from index 0 to index 2
-   * registry.move('a', 2)
-   *
-   * console.log(registry.keys()) // ['b', 'c', 'a']
-   * ```
-  */
-  move: (id: ID, toIndex: number) => E | undefined
   seek: (direction?: 'first' | 'last', from?: number, predicate?: (ticket: E) => boolean) => E | undefined
   /**
    * Listen for registry events
