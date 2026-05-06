@@ -6,7 +6,7 @@
  *
  * @example
  * ```ts
- * import { Vuetify0PermissionAdapter } from '@vuetify/v0/permissions/adapters'
+ * import { V0PermissionsAdapter } from '@vuetify/v0/permissions/adapters'
  * ```
  */
 

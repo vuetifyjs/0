@@ -1,5 +1,4 @@
-export { PermissionAdapter } from './adapter'
-export type { PermissionAdapterInterface } from './adapter'
+export { PermissionsAdapter } from './adapter'
 
 // Adapters
-export { Vuetify0PermissionAdapter } from './v0'
+export { V0PermissionsAdapter } from './v0'

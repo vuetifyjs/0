@@ -8,7 +8,7 @@
  * @example
  * ```ts
  * import { createPermissionsPlugin, usePermissions } from '@vuetify/v0/permissions'
- * import { Vuetify0PermissionAdapter } from '@vuetify/v0/permissions/adapters'
+ * import { V0PermissionsAdapter } from '@vuetify/v0/permissions/adapters'
  * ```
  */
 

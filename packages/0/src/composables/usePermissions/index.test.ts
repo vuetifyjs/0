@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Adapters
-import { Vuetify0PermissionAdapter } from './adapters/v0'
+import { V0PermissionsAdapter } from './adapters/v0'
 
 // Utilities
 import { provide } from 'vue'
@@ -198,11 +198,11 @@ describe('usePermissions', () => {
     })
   })
 
-  describe('vuetify0PermissionAdapter', () => {
-    let adapter: Vuetify0PermissionAdapter
+  describe('v0PermissionsAdapter', () => {
+    let adapter: V0PermissionsAdapter
 
     beforeEach(() => {
-      adapter = new Vuetify0PermissionAdapter()
+      adapter = new V0PermissionsAdapter()
     })
 
     it('should check boolean permissions', () => {
@@ -261,7 +261,7 @@ describe('usePermissions', () => {
     })
 
     it('should accept custom adapter', () => {
-      const customAdapter = new Vuetify0PermissionAdapter()
+      const customAdapter = new V0PermissionsAdapter()
       const plugin = createPermissionsPlugin({
         adapter: customAdapter,
         permissions: {

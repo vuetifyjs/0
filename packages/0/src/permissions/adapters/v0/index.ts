@@ -3,7 +3,7 @@
  *
  * @example
  * ```ts
- * import { Vuetify0PermissionAdapter } from '@vuetify/v0/permissions/adapters/v0'
+ * import { V0PermissionsAdapter } from '@vuetify/v0/permissions/adapters/v0'
  * ```
  */
 

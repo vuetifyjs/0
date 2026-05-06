@@ -111,18 +111,18 @@ Adapters let you swap the underlying permission resolution strategy without chan
 
 | Adapter | Import | Description |
 |---------|--------|-------------|
-| `Vuetify0PermissionAdapter` | `@vuetify/v0/permissions/adapters/v0` | Token-based permission lookup (default) |
+| `V0PermissionsAdapter` | `@vuetify/v0/permissions/adapters/v0` | Token-based permission lookup (default) |
 
 ### Custom Adapters
 
-Implement the `PermissionAdapter` abstract class to integrate any backend authorization system:
+Extend the `PermissionsAdapter` abstract class to integrate any backend authorization system:
 
 ```ts src/adapters/my-permission-adapter.ts collapse
-import { PermissionAdapter } from '@vuetify/v0/permissions/adapters/v0'
+import { PermissionsAdapter } from '@vuetify/v0/permissions/adapters/v0'
 import type { PermissionContext, PermissionTicket } from '@vuetify/v0'
 import type { ID } from '@vuetify/v0'
 
-class MyPermissionAdapter extends PermissionAdapter {
+class MyPermissionsAdapter extends PermissionsAdapter {
   can<Z extends PermissionTicket>(
     role: ID,
     action: string,
