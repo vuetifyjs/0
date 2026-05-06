@@ -159,5 +159,3 @@ Once DevKey is running locally, explore the pieces it relies on:
 | Build your own components on top of v0 | [Building Frameworks](/guide/fundamentals/building-frameworks) |
 | Customize the theme | [Theming](/guide/features/theming) |
 | Add SSR | [Nuxt](/guide/integration/nuxt) |
-
-> [!ASKAI] How do I add a new page to DevKey with vue-router?

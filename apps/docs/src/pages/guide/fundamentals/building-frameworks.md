@@ -198,7 +198,7 @@ Accordion with expand/collapse-all using `createGroup` and tri-state support.
 
 :::
 
-> [!ASKAI] How does this compare to v0's built-in Tabs component?
+> [!ASKAI] How does building a Tabs UI manually with createSingle and useProxyRegistry compare to v0's built-in Tabs component?
 
 ## Pattern B: Component Wrappers
 
