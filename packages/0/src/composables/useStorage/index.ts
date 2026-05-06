@@ -31,7 +31,7 @@ import { createPluginContext } from '#v0/composables/createPlugin'
 import { useWindowEventListener } from '#v0/composables/useEventListener'
 
 // Adapters
-import { MemoryAdapter } from '#v0/composables/useStorage/adapters'
+import { MemoryStorageAdapter } from '#v0/composables/useStorage/adapters'
 
 // Utilities
 import { isArray, isNullOrUndefined, isObject } from '#v0/utilities'
@@ -58,7 +58,7 @@ export interface StorageContext {
 }
 
 export interface StorageOptions {
-  /** The storage adapter to use. Defaults to localStorage in browser, MemoryAdapter otherwise */
+  /** The storage adapter to use. Defaults to localStorage in browser, MemoryStorageAdapter otherwise */
   adapter?: StorageAdapter
   /** The prefix to use for all storage keys. Defaults to 'v0:' */
   prefix?: string
@@ -79,9 +79,9 @@ export interface StorageContextOptions extends StorageOptions {
 export interface StoragePluginOptions extends StorageContextOptions {}
 
 // Exports
-export { MemoryAdapter } from '#v0/composables/useStorage/adapters'
+export { MemoryStorageAdapter, StorageAdapter } from '#v0/composables/useStorage/adapters'
 
-export type { StorageAdapter, StorageType } from '#v0/composables/useStorage/adapters'
+export type { StorageType } from '#v0/composables/useStorage/adapters'
 
 /**
  * Creates a new storage instance.
@@ -111,7 +111,7 @@ export function createStorage<
   E extends StorageContext,
 > (options: StorageOptions = {}) {
   const {
-    adapter = IN_BROWSER ? window.localStorage : new MemoryAdapter(),
+    adapter = IN_BROWSER ? window.localStorage : new MemoryStorageAdapter(),
     prefix = 'v0:',
     serializer = {
       read: JSON.parse,
@@ -257,7 +257,7 @@ export function createStorage<
 function createStorageFallback<
   E extends StorageContext = StorageContext,
 > (): E {
-  return createStorage<E>({ adapter: new MemoryAdapter() })
+  return createStorage<E>({ adapter: new MemoryStorageAdapter() })
 }
 
 export const [createStorageContext, createStoragePlugin, useStorage] =

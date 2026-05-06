@@ -3,7 +3,7 @@
  *
  * @example
  * ```ts
- * import { MemoryAdapter } from '@vuetify/v0/storage/adapters/memory'
+ * import { MemoryStorageAdapter } from '@vuetify/v0/storage/adapters/memory'
  * ```
  */
 

@@ -111,7 +111,7 @@ Adapters let you swap the underlying storage backend without changing your appli
 |---------|--------|-------------|
 | `localStorage` | — | Browser localStorage (default in browser) |
 | `sessionStorage` | — | Browser sessionStorage |
-| `MemoryAdapter` | `@vuetify/v0/storage/adapters/memory` | In-memory storage (default in SSR) |
+| `MemoryStorageAdapter` | `@vuetify/v0/storage/adapters/memory` | In-memory storage (default in SSR) |
 
 ## Architecture
 
@@ -121,7 +121,7 @@ Adapters let you swap the underlying storage backend without changing your appli
 flowchart LR
   createStoragePlugin --> createContext
   createContext --> StorageContext
-  StorageContext --> Adapter[LocalStorageAdapter/SessionStorageAdapter/MemoryAdapter]
+  StorageContext --> Adapter[LocalStorageAdapter/SessionStorageAdapter/MemoryStorageAdapter]
   Adapter --> storage[browser storage/memory]
 ```
 

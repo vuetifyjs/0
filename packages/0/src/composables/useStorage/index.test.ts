@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick, provide } from 'vue'
 
 // Types
+import type { StorageAdapter } from './index'
 import type { createApp } from 'vue'
 
 import { createStorage, createStorageContext, createStoragePlugin, useStorage } from './index'
@@ -372,7 +373,7 @@ describe('createStorageContext', () => {
       removeItem: vi.fn(),
     }
     const [,, context] = createStorageContext({
-      adapter: mockAdapter,
+      adapter: mockAdapter as unknown as StorageAdapter,
       prefix: 'test:',
     })
 
@@ -456,7 +457,7 @@ describe('useStorage edge cases', () => {
       removeItem: vi.fn(),
     }
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-    const storage = createStorage({ adapter: failAdapter, prefix: 'test:' })
+    const storage = createStorage({ adapter: failAdapter as unknown as StorageAdapter, prefix: 'test:' })
     const val = storage.get('key', 'default')
     val.value = 'new-value'
     await nextTick()
@@ -473,7 +474,7 @@ describe('useStorage edge cases', () => {
       setItem: vi.fn(),
       removeItem: vi.fn(),
     }
-    const storage = createStorage({ adapter: noopAdapter, prefix: 'test:' })
+    const storage = createStorage({ adapter: noopAdapter as unknown as StorageAdapter, prefix: 'test:' })
     storage.remove('nonexistent')
     expect(noopAdapter.removeItem).not.toHaveBeenCalled()
   })
@@ -484,7 +485,7 @@ describe('useStorage edge cases', () => {
       setItem: vi.fn(),
       removeItem: vi.fn(),
     }
-    const storage = createStorage({ adapter: noopAdapter, prefix: 'test:' })
+    const storage = createStorage({ adapter: noopAdapter as unknown as StorageAdapter, prefix: 'test:' })
 
     // Clear on empty storage should not throw or call removeItem
     storage.clear()
@@ -497,7 +498,7 @@ describe('useStorage edge cases', () => {
       setItem: vi.fn(),
       removeItem: vi.fn(),
     }
-    const storage = createStorage({ adapter, prefix: 'test:' })
+    const storage = createStorage({ adapter: adapter as unknown as StorageAdapter, prefix: 'test:' })
 
     // Access the key to put it in cache
     storage.get('cached', 'value')
@@ -740,7 +741,7 @@ describe('useStorage SSR safety', () => {
     vi.clearAllMocks()
   })
 
-  it('should use MemoryAdapter during SSR', async () => {
+  it('should use MemoryStorageAdapter during SSR', async () => {
     vi.doMock('#v0/constants/globals', () => ({
       IN_BROWSER: false,
     }))

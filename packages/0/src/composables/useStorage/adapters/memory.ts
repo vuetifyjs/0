@@ -1,12 +1,12 @@
-// Types
-import type { StorageAdapter } from './adapter'
+// Adapters
+import { StorageAdapter } from './adapter'
 
 /**
- * In-memory storage adapter that implements the StorageAdapter interface.
+ * In-memory storage adapter that extends the StorageAdapter abstract class.
  * This adapter provides temporary storage that persists only for the current
  * session and is useful for testing or when persistent storage is not available.
  */
-export class MemoryAdapter implements StorageAdapter {
+export class MemoryStorageAdapter extends StorageAdapter {
   private store = new Map<string, string>()
 
   get length () {
