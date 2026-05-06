@@ -24,6 +24,15 @@ import { IN_BROWSER } from '#v0/constants/globals'
 // Adapters
 import { DragDropAdapter } from './adapter'
 
+function isEditable (element: Element | null): boolean {
+  if (isNull(element)) return false
+  const tag = element.tagName
+  if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return true
+  if ((element as HTMLElement).isContentEditable) return true
+  const role = element.getAttribute('role')
+  return role === 'textbox' || role === 'searchbox' || role === 'combobox' || role === 'spinbutton'
+}
+
 export interface KeyboardAdapterOptions {
   /** Activation keys (default [' ', 'Enter']). */
   activate?: string[]
@@ -63,6 +72,8 @@ export class KeyboardAdapter<Z extends DragType = DragType> extends DragDropAdap
 
     const onKeyDown = (event: KeyboardEvent) => {
       const focused = document.activeElement
+      if (event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) return
+      if (isEditable(focused)) return
       const ticket = this.locate(focused, context)
       const isActive = !isNull(context.active.value)
 

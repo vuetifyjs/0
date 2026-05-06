@@ -415,6 +415,16 @@ function resolveDropPosition (
     }
   }
 
+  for (let index = 0; index < rects.length - 1; index++) {
+    const a = rects[index]
+    const b = rects[index + 1]
+    if (coord > a[end] && coord < b[start]) {
+      const mid = (a[end] + b[start]) / 2
+      if (coord <= mid) return { index: index + 1, edge: 'after', rect: a }
+      return { index: index + 1, edge: 'before', rect: b }
+    }
+  }
+
   return { index: rects.length, edge: 'after', rect: last }
 }
 
