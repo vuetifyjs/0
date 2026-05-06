@@ -210,7 +210,7 @@ describe('useLocale', () => {
     })
   })
 
-  describe('V0LocaleAdapter', () => {
+  describe('v0LocaleAdapter', () => {
     function createAdapter (messages: Record<string, Record<string, string>>, locale?: string) {
       const tokens = createTokens(messages)
 
@@ -610,7 +610,7 @@ describe('locale size getter', () => {
   })
 })
 
-describe('V0LocaleAdapter edge cases', () => {
+describe('v0LocaleAdapter edge cases', () => {
   function createAdapter (messages: Record<string, Record<string, string>>, locale?: string, fallback?: string) {
     const tokens = createTokens(messages)
 
