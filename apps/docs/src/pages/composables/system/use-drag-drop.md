@@ -284,6 +284,11 @@ dnd.zones.register({ el, accept: ['column'], orientation: 'horizontal' })
 
 Either layer can veto. Per-zone vetoes route the drag through the cancel chain (`onLeave` on the active zone → `onCancel` on the source draggable → global `onCancel`) so consumers can roll back optimistic UI without subscribing to a separate "drop failed" event. Both `onCancel` callbacks (per-draggable and global) receive a second argument `reason: 'cancel' | 'reject'` — `'reject'` when the cancel was triggered by a drop veto, `'cancel'` for user-initiated aborts (Escape, programmatic `dnd.cancel()`).
 
+> [!TIP]
+> All hooks fire AFTER `dnd.active.value` is cleared to `null` — read the `drag` argument inside `onDrop`, `onCancel`, and `onLeave`-during-cancel rather than re-reading the reactive ref. The cleared-before-notify ordering prevents re-entrance loops when a hook calls `dnd.cancel()` or unregisters a ticket.
+
+`accept` (function form) must return synchronously — predicates that return a Promise / thenable are rejected with a console warning. Wrap async work in `onBeforeDrop` instead, returning `false` to veto.
+
 ```ts
 dnd.zones.register({
   el,
@@ -315,7 +320,7 @@ The default `KeyboardAdapter` honours the standard contract: `Space` / `Enter` t
 
 ### Post-drop focus
 
-After a successful keyboard drop, the moved element is typically replaced by the consumer's `onDrop` handler — focus then lands on `<body>`, breaking keyboard flow. Restore it explicitly: in `onDrop`, after mutating the source list, call `nextTick` and refocus the new element by id (or rely on `useRovingFocus` to refocus the active item). Branch on `active.value.via === 'keyboard'` so the restoration only runs for keyboard drags, not pointer drags.
+After a successful keyboard drop, the moved element is typically replaced by the consumer's `onDrop` handler — focus then lands on `<body>`, breaking keyboard flow. Restore it explicitly: in `onDrop`, after mutating the source list, call `nextTick` and refocus the new element by id (or rely on `useRovingFocus` to refocus the active item). Branch on `drag.via === 'keyboard'` (the first argument to `onDrop`) so the restoration only runs for keyboard drags, not pointer drags. `dnd.active.value` is already `null` inside `onDrop` / `onCancel` — read the `drag` argument instead.
 
 ## FAQ
 
