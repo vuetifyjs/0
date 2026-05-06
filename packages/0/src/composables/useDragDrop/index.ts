@@ -59,6 +59,16 @@ export type Orientation = 'vertical' | 'horizontal'
 /**
  * Discriminated payload describing what is being dragged. Consumers extend
  * this with concrete `type` literals plus a matching `value`.
+ *
+ * @example
+ * ```ts
+ * import type { DragType } from '@vuetify/v0'
+ *
+ * type Cards =
+ *   | { type: 'card', value: Card }
+ *   | { type: 'column', value: Column }
+ * // Cards extends DragType — distributive over the union.
+ * ```
  */
 export interface DragType {
   type: string
@@ -191,8 +201,8 @@ export type DraggableTicketInput<Z extends DragType = DragType> = Z extends Drag
   : never
 
 /**
- * Output shape for a draggable. Non-distributive — `Z` resolves once at the
- * registration site.
+ * Output shape for a draggable. Distributive over `Z` so `ticket.type`
+ * narrowing carries `ticket.value` to the matching union member.
  *
  * @example
  * ```ts
@@ -206,12 +216,14 @@ export type DraggableTicketInput<Z extends DragType = DragType> = Z extends Drag
  * ticket.value           // Card
  * ```
  */
-export interface DraggableTicket<Z extends DragType = DragType> extends RegistryTicket {
-  type: Z['type']
-  value: Z['value']
-  el: Readonly<Ref<HTMLElement | null>>
-  isDragging: Readonly<Ref<boolean>>
-}
+export type DraggableTicket<Z extends DragType = DragType> = Z extends DragType
+  ? RegistryTicket & {
+    type: Z['type']
+    value: Z['value']
+    el: Readonly<Ref<HTMLElement | null>>
+    isDragging: Readonly<Ref<boolean>>
+  }
+  : never
 
 /**
  * Input shape for a drop zone.
@@ -769,7 +781,7 @@ export function useDragDrop<Z extends DragType = DragType> (
 
   onScopeDispose(() => {
     if (!isNull(active.value)) cancel()
-    for (const dispose of disposers) {
+    for (const dispose of disposers.toReversed()) {
       try {
         dispose()
       } catch (error) {
