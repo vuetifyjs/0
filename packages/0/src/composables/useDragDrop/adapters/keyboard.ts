@@ -70,6 +70,7 @@ export class KeyboardAdapter<Z extends DragType = DragType> extends DragDropAdap
     }
     if (!IN_BROWSER) return
 
+    // Arrow form so `this.locate` / `this.activate` / `this.step` resolve on the adapter instance.
     const onKeyDown = (event: KeyboardEvent) => {
       const focused = document.activeElement
       if (event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) return
@@ -105,7 +106,9 @@ export class KeyboardAdapter<Z extends DragType = DragType> extends DragDropAdap
       }
 
       if (isActive && event.key.startsWith('Arrow')) {
-        const current = context.active.value!.current
+        const active = context.active.value
+        if (isNull(active)) return
+        const current = active.current
         let point: { x: number, y: number } | null = null
         switch (event.key) {
           case 'ArrowUp': {

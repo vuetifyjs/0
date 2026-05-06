@@ -66,7 +66,10 @@ export class PointerAdapter<Z extends DragType = DragType> extends DragDropAdapt
       started = false
     }
 
+    // Arrow form so `this.locate` / `this.threshold` resolve on the adapter instance.
+    // `onUp` / `onCancel` below don't reach for `this`, so they stay as function declarations.
     const onDown = (event: PointerEvent) => {
+      if (event.button !== 0) return
       if (downSource) return
       const ticket = this.locate(event.target, context)
       if (!ticket) return

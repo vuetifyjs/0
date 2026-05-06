@@ -36,7 +36,7 @@ import type {
   RegistryTicketInput,
 } from '#v0/composables/createRegistry'
 import type { Extensible, ID } from '#v0/types'
-import type { DragDropAdapterContext, DragDropAdapterEmit, DragDropAdapterInterface } from './adapters'
+import type { DragDropAdapter, DragDropAdapterContext, DragDropAdapterEmit } from './adapters'
 import type { EffectScope, MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
 
 // Globals
@@ -47,7 +47,6 @@ export { DragDropAdapter, KeyboardAdapter, PointerAdapter } from './adapters'
 export type {
   DragDropAdapterContext,
   DragDropAdapterEmit,
-  DragDropAdapterInterface,
   KeyboardAdapterOptions,
   PointerAdapterOptions,
 } from './adapters'
@@ -122,11 +121,11 @@ export interface DropPosition {
   indicator?: DropIndicator
 }
 
-interface ResolvedPosition {
-  index: number
-  edge: 'before' | 'after'
-  rect: DOMRect
-}
+/**
+ * Source modality for an active drag. Adapters declare their own value via
+ * the `Extensible<...>` escape hatch (e.g., 'touch', 'gamepad').
+ */
+export type DragVia = Extensible<'pointer' | 'keyboard'>
 
 /**
  * Active drag state. Distributive over `Z` so that narrowing `drag.type` also
@@ -158,7 +157,7 @@ export type ActiveDrag<Z extends DragType = DragType> = Z extends DragType
       delta: { x: number, y: number }
       over: ID | null
       willAccept: boolean
-      via: Extensible<'pointer' | 'keyboard'>
+      via: DragVia
     }
   : never
 
@@ -301,7 +300,7 @@ export type DragDropPlugin<Z extends DragType = DragType> = (
  * ```
  */
 export interface DragDropOptions<Z extends DragType = DragType> {
-  adapters?: DragDropAdapterInterface<Z>[]
+  adapters?: DragDropAdapter<Z>[]
   plugins?: DragDropPlugin<Z>[]
   onBeforeStart?: (drag: ActiveDrag<Z>) => boolean | void
   onMove?: (drag: ActiveDrag<Z>) => void
@@ -372,8 +371,8 @@ function accepts<Z extends DragType> (
   accept: DropZoneTicketInput<Z>['accept'],
   drag: ActiveDrag<Z> | null,
 ): boolean {
-  if (!drag) return false
-  if (!accept) return true
+  if (isNull(drag)) return false
+  if (isUndefined(accept)) return true
   if (isArray(accept)) return accept.includes(drag.type as Z['type'])
   return Boolean(accept(drag))
 }
@@ -387,7 +386,7 @@ function resolveDropPosition (
   point: { x: number, y: number },
   rects: readonly DOMRect[],
   orientation: Orientation,
-): ResolvedPosition | null {
+): DropIndicator | null {
   if (rects.length === 0) return null
 
   const axis = orientation === 'vertical' ? 'y' : 'x'
@@ -474,18 +473,30 @@ export function useDragDrop<Z extends DragType = DragType> (
   const active = shallowRef<ActiveDrag<Z> | null>(null)
   const isDragging = toRef(() => !isNull(active.value))
 
-  const book = new Map<ID, EffectScope>()
+  const scopes = new Map<ID, EffectScope>()
   const nodes = new Map<HTMLElement, ID>()
 
   function next<F extends (...args: never[]) => unknown> (
     fn: F | undefined,
     ...args: Parameters<F>
   ): void {
-    if (!fn) return
+    if (isUndefined(fn)) return
     try {
       fn(...args)
     } catch (error) {
       logger.error('useDragDrop hook threw', error)
+    }
+  }
+
+  function safeAccept (
+    accept: DropZoneTicketInput<Z>['accept'],
+    drag: ActiveDrag<Z> | null,
+  ): boolean {
+    try {
+      return accepts(accept, drag)
+    } catch (error) {
+      logger.error('useDragDrop accept predicate threw; treating as reject', error)
+      return false
     }
   }
 
@@ -513,7 +524,7 @@ export function useDragDrop<Z extends DragType = DragType> (
       const id = registration.id ?? useId()
       const el = toRef(() => toValue(registration.el))
       const isOver = toRef(() => active.value?.over === id)
-      const willAccept = toRef(() => accepts(registration.accept, active.value))
+      const willAccept = toRef(() => safeAccept(registration.accept, active.value))
 
       const rects = shallowRef<DOMRect[]>([])
 
@@ -525,27 +536,20 @@ export function useDragDrop<Z extends DragType = DragType> (
       }
 
       const scope = effectScope()
-      book.set(id, scope)
+      scopes.set(id, scope)
       scope.run(() => {
-        watch(el, refresh, { immediate: true, flush: 'post' })
-        useResizeObserver(el, refresh)
-        useMutationObserver(el, refresh, { childList: true })
+        if (registration.orientation) {
+          watch(el, refresh, { immediate: true, flush: 'post' })
+          useResizeObserver(el, refresh)
+          useMutationObserver(el, refresh, { childList: true })
+        }
 
         watch(el, current => {
-          if (!current) return
+          if (isNull(current)) return
           nodes.set(current, id)
           onWatcherCleanup(() => nodes.delete(current))
         }, { immediate: true })
       })
-
-      function onUnregister (ticket: { id: ID }): void {
-        if (ticket.id === id) {
-          scope.stop()
-          book.delete(id)
-          _zones.off('unregister:ticket', onUnregister)
-        }
-      }
-      _zones.on('unregister:ticket', onUnregister)
 
       const indicator = computed<DropIndicator | null>(() => {
         if (!registration.orientation || !isOver.value || !active.value) return null
@@ -608,7 +612,7 @@ export function useDragDrop<Z extends DragType = DragType> (
   function onStart (
     source: DraggableTicket<Z>,
     origin: { x: number, y: number },
-    via: Extensible<'pointer' | 'keyboard'>,
+    via: DragVia,
   ): void {
     if (toValue(_draggables.get(source.id)?.disabled)) return
 
@@ -652,7 +656,7 @@ export function useDragDrop<Z extends DragType = DragType> (
       over,
       willAccept: false,
     } as ActiveDrag<Z>
-    draft.willAccept = !isNull(over) && accepts(_zones.get(over)?.accept, draft)
+    draft.willAccept = !isNull(over) && safeAccept(_zones.get(over)?.accept, draft)
 
     const previous = active.value.over
     active.value = draft
@@ -679,17 +683,20 @@ export function useDragDrop<Z extends DragType = DragType> (
     const dropAt = position(zoneId, drag)
     const zone = _zones.get(zoneId)
 
-    function vetoed (fn: ((drag: ActiveDrag<Z>, position: DropPosition) => boolean | void) | undefined): boolean {
+    function vetoed (
+      fn: ((drag: ActiveDrag<Z>, position: DropPosition) => boolean | void) | undefined,
+      label: string,
+    ): boolean {
       if (!fn) return false
       try {
         return fn(drag, dropAt) === false
       } catch (error) {
-        logger.error('useDragDrop onBeforeDrop threw; treating as veto', error)
+        logger.error(`useDragDrop ${label} threw; treating as veto`, error)
         return true
       }
     }
 
-    if (vetoed(zone?.onBeforeDrop) || vetoed(options.onBeforeDrop)) {
+    if (vetoed(zone?.onBeforeDrop, 'zone onBeforeDrop') || vetoed(options.onBeforeDrop, 'options onBeforeDrop')) {
       bail(drag, 'reject')
       return
     }
@@ -729,13 +736,26 @@ export function useDragDrop<Z extends DragType = DragType> (
   const adapterContext: DragDropAdapterContext<Z> = { ...context, emit }
 
   for (const adapter of adapters) {
-    adapter.setup(adapterContext)
-    disposers.push(() => adapter.dispose())
+    try {
+      adapter.setup(adapterContext)
+      disposers.push(() => adapter.dispose())
+    } catch (error) {
+      logger.error('useDragDrop adapter setup threw; skipping adapter', error)
+      try {
+        adapter.dispose()
+      } catch (disposeError) {
+        logger.error('useDragDrop adapter dispose threw after setup failure', disposeError)
+      }
+    }
   }
 
   for (const plugin of plugins) {
-    const dispose = plugin(context)
-    if (isFunction(dispose)) disposers.push(dispose)
+    try {
+      const dispose = plugin(context)
+      if (isFunction(dispose)) disposers.push(dispose)
+    } catch (error) {
+      logger.error('useDragDrop plugin install threw; skipping plugin', error)
+    }
   }
 
   _draggables.on('unregister:ticket', ticket => {
@@ -743,6 +763,11 @@ export function useDragDrop<Z extends DragType = DragType> (
   })
 
   _zones.on('unregister:ticket', ticket => {
+    const scope = scopes.get(ticket.id)
+    if (scope) {
+      scope.stop()
+      scopes.delete(ticket.id)
+    }
     if (active.value?.over === ticket.id) {
       next(ticket.onLeave, active.value)
       // Keep the drag alive; the next move resolves a new over.
@@ -759,8 +784,14 @@ export function useDragDrop<Z extends DragType = DragType> (
         logger.error('useDragDrop disposer threw', error)
       }
     }
-    for (const scope of book.values()) scope.stop()
-    book.clear()
+    for (const scope of scopes.values()) {
+      try {
+        scope.stop()
+      } catch (error) {
+        logger.error('useDragDrop zone scope dispose threw', error)
+      }
+    }
+    scopes.clear()
     nodes.clear()
     try {
       _draggables.dispose()

@@ -7,7 +7,7 @@
  */
 
 export { DragDropAdapter } from './adapter'
-export type { DragDropAdapterContext, DragDropAdapterEmit, DragDropAdapterInterface } from './adapter'
+export type { DragDropAdapterContext, DragDropAdapterEmit } from './adapter'
 export { PointerAdapter } from './pointer'
 export type { PointerAdapterOptions } from './pointer'
 export { KeyboardAdapter } from './keyboard'

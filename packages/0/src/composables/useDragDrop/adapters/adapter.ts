@@ -4,23 +4,25 @@
  * @remarks
  * Adapter contract and abstract base for useDragDrop. Concrete adapters extend
  * `DragDropAdapter<Z>` to share the `cleanup` field, `dispose()` lifecycle, and
- * the `locate()` DOM-walk helper. Adapters that don't need shared logic can
- * implement `DragDropAdapterInterface<Z>` directly.
+ * the `locate()` DOM-walk helper.
  */
 
+// Utilities
+import { isElement } from '#v0/utilities'
+
 // Types
-import type { Extensible } from '#v0/types'
 import type {
   DragDropContext,
   DragType,
   DraggableTicket,
+  DragVia,
 } from '../'
 
 export interface DragDropAdapterEmit<Z extends DragType = DragType> {
   start: (
     source: DraggableTicket<Z>,
     origin: { x: number, y: number },
-    via: Extensible<'pointer' | 'keyboard'>,
+    via: DragVia,
   ) => void
   move: (point: { x: number, y: number }) => void
   drop: () => void
@@ -30,11 +32,6 @@ export interface DragDropAdapterEmit<Z extends DragType = DragType> {
 export interface DragDropAdapterContext<Z extends DragType = DragType>
   extends DragDropContext<Z> {
   emit: DragDropAdapterEmit<Z>
-}
-
-export interface DragDropAdapterInterface<Z extends DragType = DragType> {
-  setup: (context: DragDropAdapterContext<Z>) => void
-  dispose: () => void
 }
 
 /**
@@ -57,8 +54,7 @@ export interface DragDropAdapterInterface<Z extends DragType = DragType> {
  * }
  * ```
  */
-export abstract class DragDropAdapter<Z extends DragType = DragType>
-implements DragDropAdapterInterface<Z> {
+export abstract class DragDropAdapter<Z extends DragType = DragType> {
   protected cleanup: (() => void) | null = null
 
   dispose (): void {
@@ -70,7 +66,7 @@ implements DragDropAdapterInterface<Z> {
     target: EventTarget | Element | null,
     context: DragDropAdapterContext<Z>,
   ): DraggableTicket<Z> | null {
-    let element: Element | null = target instanceof Element ? target : null
+    let element: Element | null = isElement(target) ? target : null
     while (element) {
       for (const ticket of context.draggables.values()) {
         if (ticket.el.value === element) return ticket

@@ -8,19 +8,16 @@ import { effectScope, isRef, nextTick, shallowRef } from 'vue'
 import type {
   DragDropAdapterContext,
   DragDropAdapterEmit,
-  DragDropAdapterInterface,
   DragType,
 } from './'
 
-import { KeyboardAdapter, PointerAdapter, useDragDrop } from './'
+import { DragDropAdapter, KeyboardAdapter, PointerAdapter, useDragDrop } from './'
 
-class CaptureAdapter<Z extends DragType = DragType> implements DragDropAdapterInterface<Z> {
+class CaptureAdapter<Z extends DragType = DragType> extends DragDropAdapter<Z> {
   emit!: DragDropAdapterEmit<Z>
   setup (context: DragDropAdapterContext<Z>): void {
     this.emit = context.emit
   }
-
-  dispose (): void {}
 }
 
 describe('useDragDrop', () => {
@@ -634,6 +631,7 @@ describe('cancel chain', () => {
   })
 
   it('should swallow throwing hook and continue via logger.error', () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {})
     const adapter = new CaptureAdapter()
     const onMove = vi.fn(() => {
       throw new Error('boom')
@@ -647,6 +645,8 @@ describe('cancel chain', () => {
     expect(() => adapter.emit.move({ x: 5, y: 5 })).not.toThrow()
     expect(onMove).toHaveBeenCalledTimes(1)
     expect(globalMove).toHaveBeenCalledTimes(1)
+    expect(error).toHaveBeenCalledTimes(1)
+    error.mockRestore()
   })
 })
 
