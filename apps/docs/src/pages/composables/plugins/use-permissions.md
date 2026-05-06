@@ -118,7 +118,7 @@ Adapters let you swap the underlying permission resolution strategy without chan
 Extend the `PermissionsAdapter` abstract class to integrate any backend authorization system:
 
 ```ts src/adapters/my-permission-adapter.ts collapse
-import { PermissionsAdapter } from '@vuetify/v0/permissions/adapters/v0'
+import { PermissionsAdapter } from '@vuetify/v0/permissions/adapters'
 import type { PermissionContext, PermissionTicket } from '@vuetify/v0'
 import type { ID } from '@vuetify/v0'
 
@@ -138,7 +138,7 @@ class MyPermissionsAdapter extends PermissionsAdapter {
 // Use with plugin
 app.use(
   createPermissionsPlugin({
-    adapter: new MyPermissionAdapter(),
+    adapter: new MyPermissionsAdapter(),
   })
 )
 ```

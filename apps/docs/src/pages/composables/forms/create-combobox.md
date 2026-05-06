@@ -149,10 +149,10 @@ The `context` exposes `query` (the current search string), `selection` (the unde
 The default. Filters registered items locally using substring matching (case-insensitive). Pass custom `filter` options to override the matching logic:
 
 ```ts
-import { ComboboxClientAdapter, createCombobox } from '@vuetify/v0'
+import { ClientComboboxAdapter, createCombobox } from '@vuetify/v0'
 
 const combobox = createCombobox({
-  adapter: new ComboboxClientAdapter({
+  adapter: new ClientComboboxAdapter({
     filter: (query, value) => String(value).toLowerCase().startsWith(query.toLowerCase()),
   }),
 })
@@ -163,10 +163,10 @@ const combobox = createCombobox({
 A pass-through adapter that shows all registered items and sets `isLoading` to `false`. Use this when filtering is performed server-side — watch `combobox.query` to drive your own fetch:
 
 ```ts
-import { ComboboxServerAdapter, createCombobox, useCombobox } from '@vuetify/v0'
+import { ServerComboboxAdapter, createCombobox, useCombobox } from '@vuetify/v0'
 import { watch } from 'vue'
 
-const combobox = createCombobox({ adapter: new ComboboxServerAdapter() })
+const combobox = createCombobox({ adapter: new ServerComboboxAdapter() })
 
 // In a component that injects the context:
 const { query } = useCombobox()
