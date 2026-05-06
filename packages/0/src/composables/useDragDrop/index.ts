@@ -474,7 +474,7 @@ export function useDragDrop<K extends DragType = DragType> (
   // every zone for each ancestor on every pointer move.
   const nodes = new Map<HTMLElement, ID>()
 
-  function safeCall<F extends (...args: never[]) => unknown> (
+  function next<F extends (...args: never[]) => unknown> (
     fn: F | undefined,
     ...args: Parameters<F>
   ): void {
@@ -493,14 +493,14 @@ export function useDragDrop<K extends DragType = DragType> (
       const el = toRef(() => toValue(registration.el))
       const dragging = toRef(() => active.value?.id === id)
 
-      // DraggableTicketInput<K> is distributive over K — spread output stays opaque
-      // to the type system; cast through unknown.
+      // Decorated carries output fields; cast through unknown to match
+      // register()'s Partial<Input> shape without losing them at runtime.
       const decorated = {
         ...registration,
         id,
         el,
         isDragging: dragging,
-      } as unknown as Partial<DraggableTicketInput<K> & DraggableTicket<K>>
+      } as unknown as Partial<DraggableTicketInput<K> & RegistryTicket>
 
       return _draggables.register(decorated) as DraggableTicket<K>
     },
@@ -568,7 +568,7 @@ export function useDragDrop<K extends DragType = DragType> (
         isOver,
         willAccept,
         indicator,
-      } as Partial<DropZoneTicketInput<K> & DropZoneTicket>
+      } as unknown as Partial<DropZoneTicketInput<K> & RegistryTicket>
 
       return _zones.register(decorated) as DropZoneTicket
     },
@@ -606,9 +606,9 @@ export function useDragDrop<K extends DragType = DragType> (
 
   function bail (drag: ActiveDrag<K>, reason: 'cancel' | 'reject' = 'cancel'): void {
     try {
-      if (!isNull(drag.over)) safeCall(_zones.get(drag.over)?.onLeave, drag)
-      safeCall(_draggables.get(drag.id)?.onCancel, drag, reason)
-      safeCall(options.onCancel, drag, reason)
+      if (!isNull(drag.over)) next(_zones.get(drag.over)?.onLeave, drag)
+      next(_draggables.get(drag.id)?.onCancel, drag, reason)
+      next(options.onCancel, drag, reason)
     } finally {
       active.value = null
     }
@@ -654,7 +654,7 @@ export function useDragDrop<K extends DragType = DragType> (
     if (!active.value) return
 
     const over = at(point)
-    const next: ActiveDrag<K> = {
+    const draft: ActiveDrag<K> = {
       ...active.value,
       current: point,
       delta: { x: point.x - active.value.origin.x, y: point.y - active.value.origin.y },
@@ -663,15 +663,15 @@ export function useDragDrop<K extends DragType = DragType> (
     } as ActiveDrag<K>
 
     const previous = active.value.over
-    active.value = next
+    active.value = draft
 
     if (previous !== over) {
-      if (!isNull(previous)) safeCall(_zones.get(previous)?.onLeave, next)
-      if (!isNull(over)) safeCall(_zones.get(over)?.onEnter, next)
+      if (!isNull(previous)) next(_zones.get(previous)?.onLeave, draft)
+      if (!isNull(over)) next(_zones.get(over)?.onEnter, draft)
     }
 
-    safeCall(_draggables.get(next.id)?.onMove, next)
-    safeCall(options.onMove, next)
+    next(_draggables.get(draft.id)?.onMove, draft)
+    next(options.onMove, draft)
   }
 
   function onDrop (): void {
@@ -704,8 +704,8 @@ export function useDragDrop<K extends DragType = DragType> (
     }
 
     try {
-      safeCall(zone?.onDrop, drag, dropAt)
-      safeCall(options.onDrop, drag, dropAt)
+      next(zone?.onDrop, drag, dropAt)
+      next(options.onDrop, drag, dropAt)
     } finally {
       active.value = null
     }
