@@ -94,7 +94,7 @@ Adapters let you swap the underlying implementation without changing your applic
 
 | Adapter | Import | Description |
 |---------|--------|-------------|
-| `Vuetify0LoggerAdapter` | `@vuetify/v0` | Console-based (default) |
+| `V0LoggerAdapter` | `@vuetify/v0` | Console-based (default) |
 | `PinoLoggerAdapter` | `@vuetify/v0/logger/adapters/pino` | Pino integration |
 | `ConsolaLoggerAdapter` | `@vuetify/v0/logger/adapters/consola` | Consola integration |
 ```

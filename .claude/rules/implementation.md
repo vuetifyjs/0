@@ -142,20 +142,22 @@ Adapters enable framework-agnostic logic. Located in `composables/useX/adapters/
 
 ```ts
 // adapters/index.ts
-export interface FooAdapter {
+export abstract class FooAdapter {
   setup?: (context: FooAdapterContext) => void
   dispose?: () => void
   // domain-specific methods
 }
 
 // adapters/v0.ts — default
-export class Vuetify0FooAdapter implements FooAdapter { ... }
+export class V0FooAdapter extends FooAdapter { ... }
 
 // adapters/pino.ts — third-party integration
-export class PinoLoggerAdapter implements LoggerAdapter { ... }
+export class PinoLoggerAdapter extends LoggerAdapter { ... }
 ```
 
-**Naming.** Default adapters are `Vuetify0`-prefixed (`Vuetify0FooAdapter`, `Vuetify0LoggerAdapter`, `Vuetify0LocaleAdapter`). The exception is `useStorage`, which ships an unprefixed `MemoryAdapter` as its SSR fallback. Third-party adapters use their original branding (`PinoLoggerAdapter`, `ConsolaLoggerAdapter`, `PostHogFeaturesAdapter`). [intent:106, intent:107]
+**Naming.** Default adapters are `V0`-prefixed (`V0FooAdapter`, `V0LoggerAdapter`, `V0LocaleAdapter`). Mode adapters (SSR fallback, strategy variants) use a descriptive prefix (`MemoryStorageAdapter`, `ClientComboboxAdapter`, `ServerDataTableAdapter`). Third-party adapters use their original branding (`PinoLoggerAdapter`, `ConsolaLoggerAdapter`, `PostHogFeaturesAdapter`). [intent:106, intent:107]
+
+**Type contract.** Every adapter is an `abstract class`, not an `interface`. Implementations `extend` the abstract base — there is no parallel `XxxAdapterInterface`. The composition noun matches the composable name verbatim (plural where the composable is plural: `PermissionsAdapter`, `FeaturesAdapter`). Single named class export — no factory functions.
 
 **Lifecycle.** When an adapter has `setup`, call it inside the plugin's setup phase and register `dispose` on app unmount:
 
@@ -185,7 +187,7 @@ Three gating mechanisms, in order of preference:
 
 ```ts
 // packages/0/src/composables/useStorage/index.ts — adapter default in createStorage()'s options destructure
-const storage = IN_BROWSER ? window.localStorage : new MemoryAdapter()
+const storage = IN_BROWSER ? window.localStorage : new MemoryStorageAdapter()
 ```
 
 The rule is per-composable. Even a handler that only runs client-side should gate, so the composable's type-level promise ("safe to call under SSR") holds everywhere.
@@ -218,7 +220,7 @@ packages/0/src/
 │       ├── index.bench.ts   # Benchmarks (performance-critical only — see benchmarks.md)
 │       └── adapters/        # Adapter implementations (if applicable)
 │           ├── index.ts     # Barrel: interface + exports
-│           ├── v0.ts        # Default Vuetify0 adapter
+│           ├── v0.ts        # Default V0 adapter
 │           └── pino.ts      # Third-party adapter (optional)
 ├── constants/        # IN_BROWSER, SUPPORTS_*, htmlElements
 ├── data-table/       # Subpackage entry point (re-exports from composables/createDataTable)
@@ -249,6 +251,6 @@ Colocated tests use `createX/index.test.ts`. [intent:114] Benchmarks colocate as
 - [ ] New ticket types defined as `FooTicketInput` + `FooTicket` pair
 - [ ] New composable that extends another spreads the parent before adding
 - [ ] Registry collections use `shallowReactive(new Set())`
-- [ ] New adapter interface has `setup?` / `dispose?` contract and a `Vuetify0`-prefixed default
+- [ ] New adapter abstract class has `setup?` / `dispose?` contract and a `V0`-prefixed default (or descriptive prefix for mode adapters)
 - [ ] Any branch touching `window`/`document` gates on `IN_BROWSER`
 - [ ] File placed in the correct dir; barrel updated alphabetically

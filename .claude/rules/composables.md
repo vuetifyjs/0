@@ -264,7 +264,7 @@ When the fallback is in place, `useLogger()` returns synthesized defaults instea
 Swappable behavior via adapter interface: [intent:145]
 
 ```ts
-function createFoo ({ adapter = new Vuetify0FooAdapter() }: FooOptions) {
+function createFoo ({ adapter = new V0FooAdapter() }: FooOptions) {
   adapter.setup(context)
   // ...
 }
@@ -282,11 +282,11 @@ The adapter pattern shows up in two distinct situations. They look similar in so
 
 **Examples in source:**
 
-- **`useLocale`** — ships `Vuetify0LocaleAdapter` by default, plus adapters that proxy to `vue-i18n`, `@intlify/unplugin-vue-i18n`, or any other translation library the consumer already uses. [intent:107]
-- **`useDate`** — bundles an opt-in `Vuetify0DateAdapter` (Intl-backed) under `useDate/adapters/v0.ts`, but the plugin requires an explicit adapter selection (no default install). Implementation.md classifies this as the "Required (throw)" fallback strategy — pick one of the bundled v0 / `date-fns` / `dayjs` adapters at install time.
-- **`useLogger`** — ships `Vuetify0LoggerAdapter` (console-based) by default, plus `PinoLoggerAdapter`, `ConsolaLoggerAdapter` for structured logging integrations.
-- **`useStorage`** — ships `MemoryAdapter` (SSR-safe fallback) under `useStorage/adapters/memory.ts`; `useStorage` itself reaches for `window.localStorage` when running in the browser, swapping in the memory adapter under SSR.
-- **`useNotifications`** — ships no `Vuetify0`-prefixed default; consumers pick a third-party-branded adapter (`Knock`, `Novu`) at install time.
+- **`useLocale`** — ships `V0LocaleAdapter` by default, plus adapters that proxy to `vue-i18n`, `@intlify/unplugin-vue-i18n`, or any other translation library the consumer already uses. [intent:107]
+- **`useDate`** — bundles an opt-in `V0DateAdapter` (Intl-backed) under `useDate/adapters/v0.ts`, but the plugin requires an explicit adapter selection (no default install). Implementation.md classifies this as the "Required (throw)" fallback strategy — pick one of the bundled v0 / `date-fns` / `dayjs` adapters at install time.
+- **`useLogger`** — ships `V0LoggerAdapter` (console-based) by default, plus `PinoLoggerAdapter`, `ConsolaLoggerAdapter` for structured logging integrations.
+- **`useStorage`** — ships `MemoryStorageAdapter` (SSR-safe fallback) under `useStorage/adapters/memory.ts`; `useStorage` itself reaches for `window.localStorage` when running in the browser, swapping in the memory adapter under SSR.
+- **`useNotifications`** — ships no `V0`-prefixed default; consumers pick a third-party-branded adapter (`KnockNotificationsAdapter`, `NovuNotificationsAdapter`) at install time.
 
 **Interface contract.** Every adapter interface is defined in the composable's `adapters/index.ts` and includes optional lifecycle hooks:
 
