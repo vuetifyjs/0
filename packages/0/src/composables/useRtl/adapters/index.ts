@@ -1,3 +1,4 @@
-export { Vuetify0RtlAdapter } from './v0'
+export { V0RtlAdapter } from './v0'
 
-export type { RtlAdapter, RtlAdapterSetupContext } from './adapter'
+export { RtlAdapter } from './adapter'
+export type { RtlAdapterSetupContext } from './adapter'

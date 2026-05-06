@@ -3,13 +3,16 @@ import { isNull, isString } from '#v0/utilities'
 import { onScopeDispose, watch } from 'vue'
 
 // Types
-import type { RtlAdapter, RtlAdapterSetupContext } from './adapter'
+import type { RtlAdapterSetupContext } from './adapter'
 import type { App } from 'vue'
 
 // Globals
 import { IN_BROWSER } from '#v0/constants/globals'
 
-export class Vuetify0RtlAdapter implements RtlAdapter {
+// Adapters
+import { RtlAdapter } from './adapter'
+
+export class V0RtlAdapter extends RtlAdapter {
   setup <T extends RtlAdapterSetupContext>(
     app: App,
     context: T,

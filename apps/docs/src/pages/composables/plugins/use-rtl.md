@@ -77,7 +77,7 @@ Adapters let you swap the underlying `dir` attribute management without changing
 
 | Adapter | Import | Description |
 |---------|--------|-------------|
-| `Vuetify0RtlAdapter` | `@vuetify/v0` | Sets `dir` on target element (default) |
+| `V0RtlAdapter` | `@vuetify/v0` | Sets `dir` on target element (default) |
 
 The default adapter sets the `dir` attribute on the target element (defaults to `document.documentElement`), enabling native browser RTL support including CSS logical properties and the `:dir()` pseudo-class.
 
@@ -96,7 +96,7 @@ Implement `RtlAdapter` to control how RTL direction is applied to the DOM:
 ```ts
 import type { RtlAdapter } from '@vuetify/v0'
 
-class CustomRtlAdapter implements RtlAdapter {
+class CustomRtlAdapter extends RtlAdapter {
   setup (app, context, target) {
     // context.isRtl — reactive ref, write to it to change direction
     // context.toggle — flips isRtl
@@ -111,8 +111,8 @@ app.use(createRtlPlugin({ adapter: new CustomRtlAdapter() }))
 ```
 
 ```ts
-interface RtlAdapter {
-  setup: (app: App, context: { isRtl: Ref<boolean>; toggle: () => void }, target?: string | HTMLElement | null) => void
+abstract class RtlAdapter {
+  abstract setup<T extends RtlAdapterSetupContext> (app: App, context: T, target?: string | HTMLElement | null): void
 }
 ```
 

@@ -20,15 +20,15 @@ vi.mock('vue', async () => {
 const mockHasInjectionContext = vi.mocked(hasInjectionContext)
 
 // Adapters
-import { Vuetify0RtlAdapter } from './adapters/v0'
+import { V0RtlAdapter } from './adapters/v0'
 
 import { createRtl, createRtlContext, createRtlFallback, createRtlPlugin, useRtl } from './index'
 
-describe('vuetify0RtlAdapter', () => {
+describe('v0RtlAdapter', () => {
   it('should set dir attribute on target element', () => {
     const scope = effectScope()
     scope.run(() => {
-      const adapter = new Vuetify0RtlAdapter()
+      const adapter = new V0RtlAdapter()
       const el = document.createElement('div')
       const isRtl = shallowRef(false)
       const context = { isRtl, toggle: () => {
@@ -45,7 +45,7 @@ describe('vuetify0RtlAdapter', () => {
   it('should update dir on isRtl change', async () => {
     const scope = effectScope()
     await scope.run(async () => {
-      const adapter = new Vuetify0RtlAdapter()
+      const adapter = new V0RtlAdapter()
       const el = document.createElement('div')
       const isRtl = shallowRef(false)
       const context = { isRtl, toggle: () => {
@@ -69,7 +69,7 @@ describe('vuetify0RtlAdapter', () => {
   it('should resolve string selector as target', () => {
     const scope = effectScope()
     scope.run(() => {
-      const adapter = new Vuetify0RtlAdapter()
+      const adapter = new V0RtlAdapter()
       const el = document.createElement('div')
       el.id = 'rtl-target'
       document.body.append(el)
@@ -84,7 +84,7 @@ describe('vuetify0RtlAdapter', () => {
   it('should use documentElement when target is undefined', () => {
     const scope = effectScope()
     scope.run(() => {
-      const adapter = new Vuetify0RtlAdapter()
+      const adapter = new V0RtlAdapter()
       const isRtl = shallowRef(false)
       adapter.setup({} as any, { isRtl, toggle: () => {} }, undefined)
       expect(document.documentElement.dir).toBe('ltr')
@@ -95,7 +95,7 @@ describe('vuetify0RtlAdapter', () => {
   it('should bail out when string selector does not match', () => {
     const scope = effectScope()
     scope.run(() => {
-      const adapter = new Vuetify0RtlAdapter()
+      const adapter = new V0RtlAdapter()
       const isRtl = shallowRef(false)
       expect(() => adapter.setup({} as any, { isRtl, toggle: () => {} }, '#nonexistent')).not.toThrow()
     })
@@ -105,7 +105,7 @@ describe('vuetify0RtlAdapter', () => {
   it('should not set dir when target is null', () => {
     const scope = effectScope()
     scope.run(() => {
-      const adapter = new Vuetify0RtlAdapter()
+      const adapter = new V0RtlAdapter()
       const el = document.createElement('div')
       const isRtl = shallowRef(false)
       const context = { isRtl, toggle: () => {} }
@@ -118,7 +118,7 @@ describe('vuetify0RtlAdapter', () => {
   })
 })
 
-describe('vuetify0RtlAdapter SSR', () => {
+describe('v0RtlAdapter SSR', () => {
   it('should use unhead push in SSR mode', async () => {
     vi.resetModules()
 
@@ -126,7 +126,7 @@ describe('vuetify0RtlAdapter SSR', () => {
       IN_BROWSER: false,
     }))
 
-    const { Vuetify0RtlAdapter: SSRAdapter } = await import('./adapters/v0')
+    const { V0RtlAdapter: SSRAdapter } = await import('./adapters/v0')
     const { shallowRef: ssrShallowRef } = await import('vue')
 
     const pushFn = vi.fn()
@@ -154,7 +154,7 @@ describe('vuetify0RtlAdapter SSR', () => {
       IN_BROWSER: false,
     }))
 
-    const { Vuetify0RtlAdapter: SSRAdapter } = await import('./adapters/v0')
+    const { V0RtlAdapter: SSRAdapter } = await import('./adapters/v0')
     const { shallowRef: ssrShallowRef } = await import('vue')
 
     const mockApp = {
@@ -425,7 +425,7 @@ describe('useRtl', () => {
   })
 })
 
-describe('vuetify0RtlAdapter SSR (additional branches)', () => {
+describe('v0RtlAdapter SSR (additional branches)', () => {
   it('should use ltr in SSR when isRtl is false', async () => {
     vi.resetModules()
 
@@ -433,7 +433,7 @@ describe('vuetify0RtlAdapter SSR (additional branches)', () => {
       IN_BROWSER: false,
     }))
 
-    const { Vuetify0RtlAdapter: SSRAdapter } = await import('./adapters/v0')
+    const { V0RtlAdapter: SSRAdapter } = await import('./adapters/v0')
     const { shallowRef: ssrShallowRef } = await import('vue')
 
     const pushFn = vi.fn()
@@ -461,7 +461,7 @@ describe('vuetify0RtlAdapter SSR (additional branches)', () => {
       IN_BROWSER: false,
     }))
 
-    const { Vuetify0RtlAdapter: SSRAdapter } = await import('./adapters/v0')
+    const { V0RtlAdapter: SSRAdapter } = await import('./adapters/v0')
     const { shallowRef: ssrShallowRef } = await import('vue')
 
     const pushFn = vi.fn()
@@ -489,7 +489,7 @@ describe('vuetify0RtlAdapter SSR (additional branches)', () => {
       IN_BROWSER: false,
     }))
 
-    const { Vuetify0RtlAdapter: SSRAdapter } = await import('./adapters/v0')
+    const { V0RtlAdapter: SSRAdapter } = await import('./adapters/v0')
     const { shallowRef: ssrShallowRef } = await import('vue')
 
     const useheadPush = vi.fn()
@@ -518,7 +518,7 @@ describe('vuetify0RtlAdapter SSR (additional branches)', () => {
       IN_BROWSER: false,
     }))
 
-    const { Vuetify0RtlAdapter: SSRAdapter } = await import('./adapters/v0')
+    const { V0RtlAdapter: SSRAdapter } = await import('./adapters/v0')
     const { shallowRef: ssrShallowRef } = await import('vue')
 
     const mockApp = {} as any
