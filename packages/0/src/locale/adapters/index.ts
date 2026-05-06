@@ -6,7 +6,7 @@
  *
  * @example
  * ```ts
- * import { Vuetify0LocaleAdapter } from '@vuetify/v0/locale/adapters'
+ * import { V0LocaleAdapter } from '@vuetify/v0/locale/adapters'
  * ```
  */
 

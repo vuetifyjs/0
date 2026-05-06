@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createTokens } from '#v0/composables/createTokens'
 
 // Adapters
-import { Vuetify0LocaleAdapter } from './adapters/v0'
+import { V0LocaleAdapter } from './adapters/v0'
 
 // Utilities
 import { hasInjectionContext, inject, provide, shallowRef } from 'vue'
@@ -210,11 +210,11 @@ describe('useLocale', () => {
     })
   })
 
-  describe('vuetify0LocaleAdapter', () => {
+  describe('V0LocaleAdapter', () => {
     function createAdapter (messages: Record<string, Record<string, string>>, locale?: string) {
       const tokens = createTokens(messages)
 
-      return new Vuetify0LocaleAdapter({
+      return new V0LocaleAdapter({
         tokens,
         selectedId: shallowRef(locale) as any,
         fallbackLocale: undefined,
@@ -610,11 +610,11 @@ describe('locale size getter', () => {
   })
 })
 
-describe('vuetify0LocaleAdapter edge cases', () => {
+describe('V0LocaleAdapter edge cases', () => {
   function createAdapter (messages: Record<string, Record<string, string>>, locale?: string, fallback?: string) {
     const tokens = createTokens(messages)
 
-    return new Vuetify0LocaleAdapter({
+    return new V0LocaleAdapter({
       tokens,
       selectedId: shallowRef(locale) as any,
       fallbackLocale: fallback,

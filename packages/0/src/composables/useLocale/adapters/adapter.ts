@@ -10,7 +10,7 @@ export interface LocaleAdapterContext {
   has: (id: ID) => boolean
 }
 
-export interface LocaleAdapter {
-  t: (key: string, ...params: unknown[]) => string
-  n: (value: number) => string
+export abstract class LocaleAdapter {
+  abstract t (key: string, ...params: unknown[]): string
+  abstract n (value: number): string
 }

@@ -1,3 +1,4 @@
-export { Vuetify0LocaleAdapter } from './v0'
+export { V0LocaleAdapter } from './v0'
 
-export type { LocaleAdapter, LocaleAdapterContext } from './adapter'
+export { LocaleAdapter } from './adapter'
+export type { LocaleAdapterContext } from './adapter'

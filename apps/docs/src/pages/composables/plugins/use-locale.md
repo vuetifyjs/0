@@ -119,12 +119,12 @@ Adapters let you swap the underlying i18n implementation without changing your a
 
 | Adapter | Import | Description |
 |---------|--------|-------------|
-| `Vuetify0LocaleAdapter` | `@vuetify/v0` | Token-based translation with fallback chain (default) |
+| `V0LocaleAdapter` | `@vuetify/v0` | Token-based translation with fallback chain (default) |
 | `VueI18nLocaleAdapter` | `@vuetify/v0/locale/adapters/vue-i18n` | [vue-i18n](https://vue-i18n.intlify.dev/) v10+ integration |
 
 ### v0 (default)
 
-The built-in `Vuetify0LocaleAdapter` is used when no `adapter` option is provided. It handles the full translation pipeline using the token registry:
+The built-in `V0LocaleAdapter` is used when no `adapter` option is provided. It handles the full translation pipeline using the token registry:
 
 - **Key lookup** — resolves `locale.t('key')` against `createTokens` using the selected locale
 - **Fallback chain** — falls back to the `fallback` locale when a key is missing
@@ -187,9 +187,9 @@ app.use(
 Create custom adapters by implementing the `LocaleAdapter` interface:
 
 ```ts src/adapters/custom-locale-adapter.ts collapse
-import type { LocaleAdapter } from '@vuetify/v0'
+import { LocaleAdapter } from '@vuetify/v0'
 
-class MyLocaleAdapter implements LocaleAdapter {
+class MyLocaleAdapter extends LocaleAdapter {
   t (key: string, ...params: unknown[]): string {
     // Delegate to your i18n provider
     return myProvider.translate(key, params)
@@ -232,9 +232,9 @@ flowchart LR
 ```
 
 ```ts
-interface LocaleAdapter {
-  t: (key: string, ...params: unknown[]) => string
-  n: (value: number) => string
+abstract class LocaleAdapter {
+  abstract t (key: string, ...params: unknown[]): string
+  abstract n (value: number): string
 }
 ```
 
