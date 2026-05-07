@@ -196,7 +196,7 @@
 
   const single = createSingle<RadioTicket>({
     disabled: toRef(() => disabled),
-    mandatory,
+    mandatory: toRef(() => mandatory),
     events: true,
   })
 

@@ -95,16 +95,16 @@
   const selection = multiple
     ? createGroup({
       disabled: toRef(() => disabled),
-      mandatory,
+      mandatory: toRef(() => mandatory),
       events: true,
     })
     : createSingle({
       disabled: toRef(() => disabled),
-      mandatory,
+      mandatory: toRef(() => mandatory),
       events: true,
     })
 
-  useProxyModel(selection, model, { multiple })
+  useProxyModel(selection, model, { multiple: toRef(() => multiple) })
 
   provideToggleGroup(namespace, {
     disabled: toRef(() => disabled),
