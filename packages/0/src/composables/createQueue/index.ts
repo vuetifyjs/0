@@ -406,7 +406,7 @@ export function createQueue (_options: QueueOptions = {}): QueueContext {
 
     const timer = timers.get(updated.id)
     if (timer) {
-      timer.start()
+      timer.resume()
     } else {
       createTicketTimer(updated)
     }
