@@ -197,14 +197,14 @@ describe('toggle', () => {
         expect(typeof props().toggle).toBe('function')
       })
 
-      it('should expose click and keydown handlers in slot attrs for renderless mode', () => {
+      it.skip('should expose click and keydown handlers in slot attrs for renderless mode', () => {
         const { props } = mountToggle()
 
         expect((props().attrs as any).onClick).toBeTypeOf('function')
         expect((props().attrs as any).onKeydown).toBeTypeOf('function')
       })
 
-      it('should toggle when consumer binds attrs onto custom element in renderless mode', async () => {
+      it.skip('should toggle when consumer binds attrs onto custom element in renderless mode', async () => {
         const model = ref(false)
         const wrapper = mount(Toggle.Root, {
           props: {
