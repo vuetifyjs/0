@@ -10,7 +10,7 @@ features:
   label: 'C: AspectRatio'
   github: /components/AspectRatio/
   renderless: false
-  level: 1
+  level: 2
 related:
   - /components/semantic/image
   - /components/primitives/atom
