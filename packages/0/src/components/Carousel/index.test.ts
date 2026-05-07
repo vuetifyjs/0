@@ -2,10 +2,32 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { renderToString } from 'vue/server-renderer'
 
 // Utilities
-import { mount } from '@vue/test-utils'
+import { mount as baseMount } from '@vue/test-utils'
 import { createSSRApp, defineComponent, h, nextTick, ref } from 'vue'
 
+// Types
+import type { mount as mountType } from '@vue/test-utils'
+
 import { useCarouselRoot, Carousel } from './index'
+
+// CarouselViewport binds document mousemove/mouseup via
+// useDocumentEventListener gated by useToggleScope on snapDisabled. Even
+// when those listeners aren't attached, the surrounding effect scope and
+// the registered useEventListener('mousedown') leak across tests when the
+// wrapper is never unmounted.
+const wrappers: ReturnType<typeof baseMount>[] = []
+
+function mount (...args: Parameters<typeof mountType>): ReturnType<typeof mountType> {
+  const wrapper = (baseMount as any)(...args)
+  wrappers.push(wrapper)
+  return wrapper
+}
+
+afterEach(() => {
+  while (wrappers.length > 0) {
+    wrappers.pop()!.unmount()
+  }
+})
 
 describe('carousel', () => {
   describe('root', () => {

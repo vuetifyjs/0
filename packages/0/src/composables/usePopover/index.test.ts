@@ -11,6 +11,7 @@ describe('usePopover', () => {
   })
 
   afterEach(() => {
+    vi.useRealTimers()
     vi.restoreAllMocks()
   })
 

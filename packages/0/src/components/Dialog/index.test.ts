@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { renderToString } from 'vue/server-renderer'
 
 // Composables
@@ -20,18 +20,31 @@ beforeEach(() => {
   stackPlugin = createStackPlugin()
 })
 
+// Track wrappers so afterEach can unmount each one — Dialog tests that mount
+// to document.body need teardown to drop the registered Stack tickets and
+// any Scrim/click-outside listeners attached during open state.
+const wrappers: { unmount: () => void }[] = []
+
+afterEach(() => {
+  while (wrappers.length > 0) {
+    wrappers.pop()!.unmount()
+  }
+})
+
 // Helper to mount with stack plugin
 function mountWithStack<T extends Parameters<typeof mount>[0]> (
   component: T,
   options: Parameters<typeof mount<T>>[1] = {},
 ) {
-  return mount(component, {
+  const wrapper = mount(component, {
     ...options,
     global: {
       ...options?.global,
       plugins: [...(options?.global?.plugins ?? []), stackPlugin],
     },
   })
+  wrappers.push(wrapper)
+  return wrapper
 }
 
 describe('dialog', () => {

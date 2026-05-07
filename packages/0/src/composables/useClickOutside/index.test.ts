@@ -1,9 +1,32 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Utilities
-import { effectScope, nextTick, ref } from 'vue'
+import { effectScope, getCurrentScope, nextTick, ref } from 'vue'
 
-import { useClickOutside } from './index'
+import { useClickOutside as createClickOutside } from './index'
+
+// useClickOutside installs document pointerdown/pointerup listeners through
+// useEventListener inside an onScopeDispose(stop, true) — failSilently
+// means calls outside any scope register listeners with no teardown.
+// Wrap the import so each test runs inside a tracked scope, stopped in
+// afterEach. Skip when caller already provides a scope (the lifecycle
+// tests deliberately exercise scope.stop() teardown semantics).
+const scopes: ReturnType<typeof effectScope>[] = []
+
+function useClickOutside (
+  ...args: Parameters<typeof createClickOutside>
+): ReturnType<typeof createClickOutside> {
+  if (getCurrentScope()) return createClickOutside(...args)
+  const scope = effectScope()
+  scopes.push(scope)
+  return scope.run(() => createClickOutside(...args))!
+}
+
+afterEach(() => {
+  while (scopes.length > 0) {
+    scopes.pop()!.stop()
+  }
+})
 
 /**
  * Helper to simulate a complete pointer interaction (down + up).

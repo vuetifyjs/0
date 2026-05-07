@@ -11,6 +11,7 @@ describe('useTimer', () => {
   })
 
   afterEach(() => {
+    vi.useRealTimers()
     vi.restoreAllMocks()
   })
 

@@ -1,13 +1,35 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Utilities
 import { mount } from '@vue/test-utils'
-import { nextTick, shallowRef } from 'vue'
+import { effectScope, getCurrentScope, nextTick, shallowRef } from 'vue'
 
 // Types
 import type { DragDropAdapterContext, DragType } from '../'
 
-import { PointerAdapter, useDragDrop } from '../'
+import { PointerAdapter, useDragDrop as createDragDrop } from '../'
+
+// useDragDrop installs document pointerdown/pointermove/pointerup/pointercancel
+// listeners through PointerAdapter. Without an enclosing effectScope each
+// call leaks four document listeners. Wrap so each test's standalone calls
+// (the mount() callsites already auto-cleanup via wrapper.unmount()) run
+// inside a tracked scope, stopped in afterEach.
+const scopes: ReturnType<typeof effectScope>[] = []
+
+function useDragDrop<Z extends DragType = DragType> (
+  ...args: Parameters<typeof createDragDrop<Z>>
+): ReturnType<typeof createDragDrop<Z>> {
+  if (getCurrentScope()) return createDragDrop<Z>(...args)
+  const scope = effectScope()
+  scopes.push(scope)
+  return scope.run(() => createDragDrop<Z>(...args))!
+}
+
+afterEach(() => {
+  while (scopes.length > 0) {
+    scopes.pop()!.stop()
+  }
+})
 
 describe('pointerAdapter', () => {
   beforeEach(() => {

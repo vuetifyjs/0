@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Utilities
 import { flushPromises, mount } from '@vue/test-utils'
@@ -9,6 +9,18 @@ import type { NumberFieldRootSlotProps } from './index'
 import type { VueWrapper } from '@vue/test-utils'
 
 import { NumberField } from './index'
+
+// NumberFieldIncrement/Decrement install document pointerup/pointercancel
+// listeners via useDocumentEventListener whenever a press is held. Without
+// unmount the underlying effect scope (and any in-flight spin timers) leak
+// between tests.
+const wrappers: VueWrapper[] = []
+
+afterEach(() => {
+  while (wrappers.length > 0) {
+    wrappers.pop()!.unmount()
+  }
+})
 
 interface MountResult {
   wrapper: VueWrapper
@@ -92,6 +104,8 @@ function mountNumberField (options: {
       },
     },
   })
+
+  wrappers.push(wrapper)
 
   return {
     wrapper,
@@ -188,6 +202,35 @@ describe('numberField', () => {
       await incrementEl().trigger('pointerup')
       await wait()
       expect(model.value).toBe(6)
+    })
+
+    it('should stop spinning when pointer is released outside button', async () => {
+      vi.useFakeTimers()
+      try {
+        const model = ref<number | null>(5)
+        const { incrementEl, wait } = mountNumberField({
+          model,
+          props: { min: 0, max: 100, step: 1 },
+        })
+        await wait()
+
+        await incrementEl().trigger('pointerdown', { button: 0, pointerId: 1 })
+        await wait()
+        expect(model.value).toBe(6)
+
+        // Release pointer outside button (drag-off scenario)
+        document.dispatchEvent(new PointerEvent('pointerup', { pointerId: 1, bubbles: true }))
+        await wait()
+
+        // Advance past spinDelay (400ms) + several spinRate intervals (60ms × 5)
+        vi.advanceTimersByTime(400 + 60 * 5)
+        await wait()
+
+        // Spin must not run after release-outside
+        expect(model.value).toBe(6)
+      } finally {
+        vi.useRealTimers()
+      }
     })
 
     it('should decrement on decrement button click', async () => {

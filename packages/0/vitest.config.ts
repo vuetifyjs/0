@@ -26,6 +26,7 @@ export default defineConfig({
     pool: 'vmThreads',
     globals: true,
     include: ['**/*.{test,spec}.?(c|m)[jt]s?(x)'],
+    setupFiles: ['./vitest.setup.ts'],
     testTimeout: 20_000,
     coverage: {
       provider: 'v8',

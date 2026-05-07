@@ -1,12 +1,33 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Utilities
-import { nextTick, shallowRef } from 'vue'
+import { effectScope, getCurrentScope, nextTick, shallowRef } from 'vue'
 
 // Types
 import type { DragDropAdapterContext, DragType, DraggableTicket } from '../'
 
-import { KeyboardAdapter, useDragDrop } from '../'
+import { KeyboardAdapter, useDragDrop as createDragDrop } from '../'
+
+// useDragDrop installs document keydown listeners through KeyboardAdapter.
+// Without an enclosing effectScope, every test leaks a document listener;
+// across 18 callsites this stalls CI workers. Wrap so each call runs inside
+// a tracked scope, stopped in afterEach.
+const scopes: ReturnType<typeof effectScope>[] = []
+
+function useDragDrop<Z extends DragType = DragType> (
+  ...args: Parameters<typeof createDragDrop<Z>>
+): ReturnType<typeof createDragDrop<Z>> {
+  if (getCurrentScope()) return createDragDrop<Z>(...args)
+  const scope = effectScope()
+  scopes.push(scope)
+  return scope.run(() => createDragDrop<Z>(...args))!
+}
+
+afterEach(() => {
+  while (scopes.length > 0) {
+    scopes.pop()!.stop()
+  }
+})
 
 function makeFocusableEl (id: string): HTMLElement {
   const el = document.createElement('div')

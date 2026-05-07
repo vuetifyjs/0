@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it } from 'vitest'
 
 // Utilities
 import { mount } from '@vue/test-utils'
@@ -13,6 +13,18 @@ interface MountResult {
   rangeProps: () => any
   wait: () => Promise<void>
 }
+
+// Track wrappers so afterEach can unmount each one — SliderRoot installs
+// document pointermove/pointerup listeners via useDocumentEventListener
+// (gated by useToggleScope on dragging), so the listeners only attach
+// during a drag, but the effect scope itself stays alive until unmount.
+const wrappers: ReturnType<typeof mount>[] = []
+
+afterEach(() => {
+  while (wrappers.length > 0) {
+    wrappers.pop()!.unmount()
+  }
+})
 
 function mountSlider (options: {
   props?: Record<string, unknown>
@@ -59,6 +71,8 @@ function mountSlider (options: {
       },
     },
   })
+
+  wrappers.push(wrapper)
 
   return {
     wrapper,

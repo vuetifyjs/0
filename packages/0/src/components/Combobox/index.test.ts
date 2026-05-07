@@ -15,9 +15,18 @@ beforeEach(() => {
   HTMLElement.prototype.hidePopover = vi.fn()
 })
 
-// Clean up DOM between tests — cursor uses document.querySelector (global),
-// so stale elements from prior tests cause false matches if not cleared
+// Track every mounted wrapper so afterEach can unmount each one. Without
+// unmount, attachTo: document.body leaks both DOM nodes and Vue effect scopes
+// (including useDocumentEventListener subscriptions) across tests, which
+// piles up in CI workers and stalls the suite.
+const wrappers: ReturnType<typeof mount>[] = []
+
 afterEach(() => {
+  while (wrappers.length > 0) {
+    wrappers.pop()!.unmount()
+  }
+  // Cursor uses document.querySelector (global), so stale elements from
+  // prior tests cause false matches if not cleared.
   while (document.body.firstChild) {
     document.body.firstChild.remove()
   }
@@ -106,6 +115,8 @@ async function createCombobox (options: {
     }),
     { attachTo: document.body },
   )
+
+  wrappers.push(wrapper)
 
   // Open dropdown to boot lazy content and register items
   await nextTick()

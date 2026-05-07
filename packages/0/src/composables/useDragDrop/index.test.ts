@@ -1,8 +1,8 @@
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // Utilities
 import { mount } from '@vue/test-utils'
-import { effectScope, isRef, nextTick, shallowRef } from 'vue'
+import { effectScope, getCurrentScope, isRef, nextTick, shallowRef } from 'vue'
 
 // Types
 import type {
@@ -11,7 +11,31 @@ import type {
   DragType,
 } from './'
 
-import { DragDropAdapter, KeyboardAdapter, PointerAdapter, useDragDrop } from './'
+import { DragDropAdapter, KeyboardAdapter, PointerAdapter, useDragDrop as createDragDrop } from './'
+
+// useDragDrop installs document keydown/pointerdown/pointermove/pointerup
+// listeners through its adapters. Without an enclosing effectScope, every
+// test leaks four document listeners per call — across 50+ callsites this
+// piles up and stalls CI workers. Wrap the factory so each test's calls
+// run inside a tracked scope, stopped in afterEach. Skip the wrap when the
+// caller already has an active scope (a few tests deliberately exercise
+// scope.stop() teardown semantics).
+const scopes: ReturnType<typeof effectScope>[] = []
+
+function useDragDrop<Z extends DragType = DragType> (
+  ...args: Parameters<typeof createDragDrop<Z>>
+): ReturnType<typeof createDragDrop<Z>> {
+  if (getCurrentScope()) return createDragDrop<Z>(...args)
+  const scope = effectScope()
+  scopes.push(scope)
+  return scope.run(() => createDragDrop<Z>(...args))!
+}
+
+afterEach(() => {
+  while (scopes.length > 0) {
+    scopes.pop()!.stop()
+  }
+})
 
 class CaptureAdapter<Z extends DragType = DragType> extends DragDropAdapter<Z> {
   emit!: DragDropAdapterEmit<Z>
