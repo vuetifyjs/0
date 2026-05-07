@@ -173,6 +173,10 @@
 </template>
 
 <style>
+  html {
+    scroll-padding-top: calc(48px + var(--app-banner-h, 0px) + 0.5rem);
+  }
+
   /* Scrollbar styling */
   ::-webkit-scrollbar-track {
     background: var(--v0-background);
@@ -254,7 +258,6 @@
 
     h1, h2, h3, h4, h5, h6 {
       position: relative;
-      scroll-margin-top: 5rem;
 
       > .header-anchor {
         color: inherit;
@@ -406,7 +409,6 @@
   .footnote-ref a.v0-link {
     color: var(--v0-primary);
     text-decoration: none;
-    scroll-margin-top: 5rem;
   }
 
   .footnote-ref a:hover {
@@ -432,7 +434,6 @@
 
   .footnotes-list li {
     margin-bottom: 0.25rem;
-    scroll-margin-top: 5rem;
   }
 
   .footnotes-list li :is(p, ul, ol) {
