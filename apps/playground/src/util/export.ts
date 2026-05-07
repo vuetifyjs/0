@@ -74,15 +74,15 @@ function extractDependenciesFromImportMap (importMap: { imports: Record<string, 
 
 function extractPackageInfoFromUrl (url: string): { name: string, version: string } | null {
   const cdnPatterns = [
-    { regex: /\/npm\/((?:@[^/]+\/)?[^@/]+)@([^/]+)\//, nameIdx: 1, versionIdx: 2 },
-    { regex: /unpkg\.com\/((?:@[^/]+\/)?[^@/]+)@([^/]+)\//, nameIdx: 1, versionIdx: 2 },
-    { regex: /esm\.sh\/((?:@[^/]+\/)?[^@/]+)@([^/]+)\//, nameIdx: 1, versionIdx: 2 },
+    { regex: /\/npm\/((?:@[^/]+\/)?[^@/]+)@([^/]+)\//, name: 1, version: 2 },
+    { regex: /unpkg\.com\/((?:@[^/]+\/)?[^@/]+)@([^/]+)\//, name: 1, version: 2 },
+    { regex: /esm\.sh\/((?:@[^/]+\/)?[^@/]+)@([^/]+)\//, name: 1, version: 2 },
   ]
 
-  for (const { regex, nameIdx, versionIdx } of cdnPatterns) {
+  for (const { regex, name, version } of cdnPatterns) {
     const match = url.match(regex)
     if (match) {
-      return { name: match[nameIdx], version: match[versionIdx] }
+      return { name: match[name], version: match[version] }
     }
   }
 
