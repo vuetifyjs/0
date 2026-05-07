@@ -26,6 +26,16 @@ export interface BenchmarkConfig {
   color: string
 }
 
+export interface PhaseConfig {
+  level: 'draft' | 'preview' | 'stable' | 'mature' | 'deprecated'
+  since: string | null
+  notes?: string
+  icon: string
+  color: string
+  label: string
+  title: string
+}
+
 export interface PageMeta {
   // Links
   edit: Readonly<Ref<string>>
@@ -33,6 +43,7 @@ export interface PageMeta {
   label: Readonly<Ref<string | false>>
   testFileLink: Readonly<Ref<string | null>>
   // Metadata
+  phase: Readonly<Ref<PhaseConfig | null>>
   level: Readonly<Ref<LevelConfig | null>>
   coverage: Readonly<Ref<CoverageConfig | null>>
   benchmark: Readonly<Ref<BenchmarkConfig | null>>
