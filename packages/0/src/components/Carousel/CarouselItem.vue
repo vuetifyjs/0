@@ -94,7 +94,7 @@
   const locale = useLocale()
   const carousel = useCarouselRoot(namespace)
   const el = toRef(() => toElement(rootEl.value?.element) ?? null)
-  const ticket = carousel.register({ id, value, disabled, el })
+  const ticket = carousel.register({ id, value, disabled: () => toValue(disabled) ?? false, el })
 
   const isDisabled = toRef(() => toValue(ticket.disabled) || toValue(carousel.disabled))
 

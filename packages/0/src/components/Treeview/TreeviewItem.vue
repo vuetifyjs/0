@@ -64,7 +64,7 @@
   const parent = useTreeviewItem(namespace, null)
   const parentId = parent?.ticket.id
 
-  const ticket = nested.register({ id, value, disabled, parentId, el })
+  const ticket = nested.register({ id, value, disabled: () => toValue(disabled) ?? false, parentId, el })
   const isDisabled = toRef(() => toValue(ticket.disabled) || toValue(nested.disabled))
   const hasContent = shallowRef(false)
 

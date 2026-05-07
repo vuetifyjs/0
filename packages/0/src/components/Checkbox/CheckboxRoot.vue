@@ -119,6 +119,8 @@
       'tabindex': 0 | undefined
       'data-state': CheckboxState
       'data-disabled': true | undefined
+      'onClick': () => void
+      'onKeydown': (e: KeyboardEvent) => void
     }
   }
 
@@ -177,7 +179,7 @@
   const model = defineModel<boolean>()
 
   // Dual mode: register with parent
-  const ticket = group?.register({ id, value, disabled, indeterminate })
+  const ticket = group?.register({ id, value, disabled: () => toValue(disabled) ?? false, indeterminate: () => toValue(indeterminate) ?? false })
 
   const isChecked = toRef(() => ticket
     ? toValue(ticket.isSelected)
@@ -298,6 +300,8 @@
       'tabindex': isDisabled.value ? undefined : 0,
       'data-state': dataState.value,
       'data-disabled': isDisabled.value ? true : undefined,
+      'onClick': onClick,
+      'onKeydown': onKeydown,
     },
   }))
 </script>
@@ -307,8 +311,6 @@
     v-bind="mergeProps(attrs, slotProps.attrs)"
     :as
     :renderless
-    @click="onClick"
-    @keydown="onKeydown"
   >
     <slot v-bind="slotProps" />
   </Atom>

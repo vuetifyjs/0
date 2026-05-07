@@ -58,6 +58,7 @@
       'data-highlighted': '' | undefined
       'data-disabled': true | undefined
       'data-id': string
+      'onClick': () => void
     }
   }
 </script>
@@ -79,7 +80,7 @@
 
   const context = useComboboxContext(namespace)
 
-  const ticket = context.selection.register({ id, value, disabled })
+  const ticket = context.selection.register({ id, value, disabled: () => toValue(disabled) ?? false })
 
   const elementId = `${context.id}-option-${ticket.id}`
   const isSelected = toRef(() => toValue(ticket.isSelected))
@@ -111,6 +112,7 @@
       'data-highlighted': isHighlighted.value ? '' : undefined,
       'data-disabled': isDisabled.value || undefined,
       'data-id': String(ticket.id),
+      'onClick': onClick,
     },
   }))
 </script>
@@ -120,7 +122,6 @@
     v-show="isFiltered"
     v-bind="slotProps.attrs"
     :as
-    @click="onClick"
   >
     <slot v-bind="slotProps" />
   </Atom>

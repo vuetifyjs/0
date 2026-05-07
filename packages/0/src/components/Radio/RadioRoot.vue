@@ -142,6 +142,8 @@
       'data-state': RadioState
       'data-disabled': true | undefined
       'data-radio-id': ID
+      'onClick': () => void
+      'onKeydown': (e: KeyboardEvent) => void
     }
   }
 
@@ -202,7 +204,7 @@
 
   // Register with parent group (el ref for focus management)
   const el = toRef(() => toElement(rootRef.value?.element) ?? undefined)
-  const ticket = group.register({ id, value, disabled, el })
+  const ticket = group.register({ id, value, disabled: () => toValue(disabled) ?? false, el })
 
   const isChecked = toRef(() => toValue(ticket.isSelected))
   const isDisabled = toRef(() => toValue(ticket.disabled) || toValue(group.disabled))
@@ -302,6 +304,8 @@
       'data-state': dataState.value,
       'data-disabled': isDisabled.value ? true : undefined,
       'data-radio-id': id,
+      'onClick': onClick,
+      'onKeydown': onKeydown,
     },
   }))
 </script>
@@ -312,8 +316,6 @@
     v-bind="mergeProps(attrs, slotProps.attrs)"
     :as
     :renderless
-    @click="onClick"
-    @keydown="onKeydown"
   >
     <slot v-bind="slotProps" />
   </Atom>

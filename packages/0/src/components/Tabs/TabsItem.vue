@@ -109,7 +109,7 @@
   const tabs = useTabsRoot(namespace)
 
   const el = toRef(() => toElement(rootRef.value?.element) ?? undefined)
-  const ticket = tabs.register({ id, value, disabled, el })
+  const ticket = tabs.register({ id, value, disabled: () => toValue(disabled) ?? false, el })
 
   const isDisabled = toRef(() => toValue(ticket.disabled) || toValue(tabs.disabled))
 

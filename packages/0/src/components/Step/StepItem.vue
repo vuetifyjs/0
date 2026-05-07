@@ -76,7 +76,7 @@
   } = defineProps<StepItemProps<V>>()
 
   const step = useStepRoot(namespace)
-  const ticket = step.register({ id, value, disabled })
+  const ticket = step.register({ id, value, disabled: () => toValue(disabled) ?? false })
   const isDisabled = toRef(() => toValue(ticket.disabled) || toValue(step.disabled))
 
   onBeforeUnmount(() => {

@@ -59,6 +59,8 @@
       'tabindex': 0 | undefined
       'data-state': 'on' | 'off'
       'data-disabled': true | undefined
+      'onClick': () => void
+      'onKeydown': (e: KeyboardEvent) => void
     }
   }
 
@@ -117,7 +119,7 @@
   })
 
   // Dual mode: register with group's selection composable
-  const ticket = group?.selection.register({ id, value, disabled })
+  const ticket = group?.selection.register({ id, value, disabled: () => toValue(disabled) ?? false })
 
   const isPressed = toRef(() => ticket
     ? toValue(ticket.isSelected)
@@ -174,6 +176,8 @@
       'tabindex': isDisabled.value ? undefined : 0,
       'data-state': isPressed.value ? 'on' : 'off',
       'data-disabled': isDisabled.value ? true : undefined,
+      'onClick': onClick,
+      'onKeydown': onKeydown,
     },
   }))
 </script>
@@ -183,8 +187,6 @@
     v-bind="mergeProps(attrs, slotProps.attrs)"
     :as
     :renderless
-    @click="onClick"
-    @keydown="onKeydown"
   >
     <slot v-bind="slotProps" />
   </Atom>
