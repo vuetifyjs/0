@@ -196,6 +196,11 @@
       "since": null,
       "category": "system"
     },
+    "useDragDrop": {
+      "level": "preview",
+      "since": null,
+      "category": "system"
+    },
     "useEventListener": {
       "level": "preview",
       "since": "0.1.0",

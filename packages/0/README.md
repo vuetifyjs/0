@@ -212,6 +212,7 @@ Selection management composables built on `createRegistry`:
 
 - [`useClickOutside`](https://0.vuetifyjs.com/composables/system/use-click-outside) - Click outside detection with cleanup
 - [`useDelay`](https://0.vuetifyjs.com/composables/system/use-delay) - Schedule open and close transitions with configurable delays
+- [`useDragDrop`](https://0.vuetifyjs.com/composables/system/use-drag-drop) - Headless drag-and-drop primitive with two registries, pluggable adapters, and accessibility-first defaults
 - [`useEventListener`](https://0.vuetifyjs.com/composables/system/use-event-listener) - Lifecycle-managed event listeners
 - [`useHotkey`](https://0.vuetifyjs.com/composables/system/use-hotkey) - Hotkey combinations and sequences
 - [`useImage`](https://0.vuetifyjs.com/composables/system/use-image) - Image loading state machine with deferred loading and retry

@@ -14,9 +14,6 @@ import type {
   ParamValueZeroOrMore,
   ParamValueZeroOrOne,
 } from 'vue-router'
-import type {
-  _ExtractParamParserType,
-} from 'vue-router/experimental'
 
 declare module 'vue-router' {
   interface TypesConfig {
@@ -656,6 +653,13 @@ declare module 'vue-router/auto-routes' {
     '/composables/system/use-delay': RouteRecordInfo<
       '/composables/system/use-delay',
       '/composables/system/use-delay',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/composables/system/use-drag-drop': RouteRecordInfo<
+      '/composables/system/use-drag-drop',
+      '/composables/system/use-drag-drop',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -1595,6 +1599,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/system/use-delay.md': {
       routes:
         | '/composables/system/use-delay'
+      views:
+        | never
+    }
+    'src/pages/composables/system/use-drag-drop.md': {
+      routes:
+        | '/composables/system/use-drag-drop'
       views:
         | never
     }

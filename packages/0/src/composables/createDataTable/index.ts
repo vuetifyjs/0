@@ -41,7 +41,7 @@ import { ClientDataTableAdapter } from './adapters/v0'
 
 // Utilities
 import { isNumber, isNullOrUndefined, isString } from '#v0/utilities'
-import { computed, shallowReactive, shallowRef, toRef, watch } from 'vue'
+import { computed, shallowReactive, shallowReadonly, shallowRef, toRef, watch } from 'vue'
 
 // Types
 import type { FilterOptions } from '#v0/composables/createFilter'
@@ -651,7 +651,7 @@ export function createDataTable<T extends Record<string, unknown>> (
     leaves,
     headers,
     search,
-    query: _query as Readonly<ShallowRef<string>>,
+    query: shallowReadonly(_query),
     sort,
     pagination,
     selection,
