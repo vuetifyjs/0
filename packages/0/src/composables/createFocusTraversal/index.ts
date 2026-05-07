@@ -143,6 +143,7 @@ export function createFocusTraversal (
 
   /** Focus first non-disabled item in the current row (grid mode) */
   function rowFirst () {
+    /* v8 ignore next 2 -- defensive: rowFirst is only invoked in grid mode (cols > 0) */
     const cols = toValue(_columns) ?? 0
     if (!cols) return first()
 
@@ -162,6 +163,7 @@ export function createFocusTraversal (
 
   /** Focus last non-disabled item in the current row (grid mode) */
   function rowLast () {
+    /* v8 ignore next 2 -- defensive: rowLast is only invoked in grid mode (cols > 0) */
     const cols = toValue(_columns) ?? 0
     if (!cols) return last()
 

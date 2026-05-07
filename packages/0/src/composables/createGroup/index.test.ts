@@ -20,7 +20,7 @@ vi.mock('vue', async () => {
 const mockProvide = vi.mocked(provide)
 const mockInject = vi.mocked(inject)
 
-describe('useGroup', () => {
+describe('createGroup', () => {
   describe('single ID selection', () => {
     it('should select a single item by ID', () => {
       const group = createGroup()
@@ -1034,221 +1034,221 @@ describe('useGroup', () => {
       })
     })
   })
-})
 
-describe('createGroupContext', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-  })
-
-  it('should return a trinity tuple', () => {
-    const result = createGroupContext()
-
-    expect(Array.isArray(result)).toBe(true)
-    expect(result).toHaveLength(3)
-    expect(typeof result[0]).toBe('function') // useGroupContext
-    expect(typeof result[1]).toBe('function') // provideGroupContext
-    expect(result[2]).toBeDefined() // default context
-  })
-
-  it('should create context with default namespace', () => {
-    const [, provideGroupContext, context] = createGroupContext()
-
-    provideGroupContext(context)
-
-    expect(mockProvide).toHaveBeenCalledWith('v0:group', context)
-  })
-
-  it('should create context with custom namespace', () => {
-    const [, provideGroupContext, context] = createGroupContext({
-      namespace: 'test:my-selection',
+  describe('createGroupContext', () => {
+    beforeEach(() => {
+      vi.clearAllMocks()
     })
 
-    provideGroupContext(context)
+    it('should return a trinity tuple', () => {
+      const result = createGroupContext()
 
-    expect(mockProvide).toHaveBeenCalledWith('test:my-selection', context)
+      expect(Array.isArray(result)).toBe(true)
+      expect(result).toHaveLength(3)
+      expect(typeof result[0]).toBe('function') // useGroupContext
+      expect(typeof result[1]).toBe('function') // provideGroupContext
+      expect(result[2]).toBeDefined() // default context
+    })
+
+    it('should create context with default namespace', () => {
+      const [, provideGroupContext, context] = createGroupContext()
+
+      provideGroupContext(context)
+
+      expect(mockProvide).toHaveBeenCalledWith('v0:group', context)
+    })
+
+    it('should create context with custom namespace', () => {
+      const [, provideGroupContext, context] = createGroupContext({
+        namespace: 'test:my-selection',
+      })
+
+      provideGroupContext(context)
+
+      expect(mockProvide).toHaveBeenCalledWith('test:my-selection', context)
+    })
+
+    it('should create a functional group context', () => {
+      const [,, context] = createGroupContext()
+
+      context.onboard([
+        { id: 'item-1', value: 'Item 1' },
+        { id: 'item-2', value: 'Item 2' },
+        { id: 'item-3', value: 'Item 3' },
+      ])
+
+      context.selectAll()
+      expect(context.selectedIds.size).toBe(3)
+
+      context.unselectAll()
+      expect(context.selectedIds.size).toBe(0)
+    })
+
+    it('should allow providing custom context', () => {
+      const [, provideGroupContext] = createGroupContext()
+      const customContext = createGroup({ mandatory: true })
+
+      provideGroupContext(customContext)
+
+      expect(mockProvide).toHaveBeenCalledWith('v0:group', customContext)
+    })
+
+    it('should provide context at app level when app is passed', () => {
+      const mockApp = {
+        provide: vi.fn(),
+      } as unknown as App
+      const [, provideGroupContext, context] = createGroupContext()
+
+      provideGroupContext(context, mockApp)
+
+      expect(mockApp.provide).toHaveBeenCalledWith('v0:group', context)
+    })
   })
 
-  it('should create a functional group context', () => {
-    const [,, context] = createGroupContext()
+  describe('useGroup consumer', () => {
+    beforeEach(() => {
+      vi.clearAllMocks()
+    })
 
-    context.onboard([
-      { id: 'item-1', value: 'Item 1' },
-      { id: 'item-2', value: 'Item 2' },
-      { id: 'item-3', value: 'Item 3' },
-    ])
+    it('should inject context with default namespace', () => {
+      const mockContext = createGroup()
+      mockInject.mockReturnValue(mockContext)
 
-    context.selectAll()
-    expect(context.selectedIds.size).toBe(3)
+      const result = useGroup()
 
-    context.unselectAll()
-    expect(context.selectedIds.size).toBe(0)
+      expect(mockInject).toHaveBeenCalledWith('v0:group', undefined)
+      expect(result).toBe(mockContext)
+    })
+
+    it('should inject context with custom namespace', () => {
+      const mockContext = createGroup()
+      mockInject.mockReturnValue(mockContext)
+
+      const result = useGroup('test:my-selection')
+
+      expect(mockInject).toHaveBeenCalledWith('test:my-selection', undefined)
+      expect(result).toBe(mockContext)
+    })
+
+    it('should throw when context is not provided', () => {
+      mockInject.mockReturnValue(undefined)
+
+      expect(() => useGroup()).toThrow(
+        'Context "v0:group" not found. Ensure it\'s provided by an ancestor.',
+      )
+    })
   })
 
-  it('should allow providing custom context', () => {
-    const [, provideGroupContext] = createGroupContext()
-    const customContext = createGroup({ mandatory: true })
+  describe('custom ticket types', () => {
+    it('should allow extending GroupTicketInput with custom properties', () => {
+      interface CheckboxTicket extends GroupTicketInput {
+        label: string
+        description?: string
+      }
 
-    provideGroupContext(customContext)
+      const group = createGroup<CheckboxTicket>()
 
-    expect(mockProvide).toHaveBeenCalledWith('v0:group', customContext)
-  })
+      // Register accepts input type with custom properties
+      const ticket = group.register({ label: 'Option A', description: 'First option' })
 
-  it('should provide context at app level when app is passed', () => {
-    const mockApp = {
-      provide: vi.fn(),
-    } as unknown as App
-    const [, provideGroupContext, context] = createGroupContext()
+      // Output has input properties
+      expect(ticket.label).toBe('Option A')
+      expect(ticket.description).toBe('First option')
 
-    provideGroupContext(context, mockApp)
+      // Output has selection methods
+      expect(ticket.isSelected.value).toBe(false)
+      ticket.select()
+      expect(ticket.isSelected.value).toBe(true)
 
-    expect(mockApp.provide).toHaveBeenCalledWith('v0:group', context)
-  })
-})
+      // Output has group-specific tri-state methods
+      expect(ticket.isMixed.value).toBe(false)
+      ticket.mix()
+      expect(ticket.isMixed.value).toBe(true)
+      expect(ticket.isSelected.value).toBe(false) // mixing clears selection
+    })
 
-describe('useGroup consumer', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-  })
+    it('should preserve custom properties through onboard', () => {
+      interface PermissionTicket extends GroupTicketInput {
+        permission: string
+        scope: 'read' | 'write' | 'admin'
+      }
 
-  it('should inject context with default namespace', () => {
-    const mockContext = createGroup()
-    mockInject.mockReturnValue(mockContext)
+      const permissions = createGroup<PermissionTicket>()
 
-    const result = useGroup()
+      const tickets = permissions.onboard([
+        { permission: 'users', scope: 'read' },
+        { permission: 'posts', scope: 'write' },
+        { permission: 'settings', scope: 'admin', indeterminate: true },
+      ])
 
-    expect(mockInject).toHaveBeenCalledWith('v0:group', undefined)
-    expect(result).toBe(mockContext)
-  })
+      expect(tickets[0]?.permission).toBe('users')
+      expect(tickets[0]?.scope).toBe('read')
+      expect(tickets[1]?.permission).toBe('posts')
+      expect(tickets[1]?.scope).toBe('write')
+      expect(tickets[2]?.permission).toBe('settings')
+      expect(tickets[2]?.scope).toBe('admin')
+      expect(tickets[2]?.isMixed.value).toBe(true) // indeterminate was set
 
-  it('should inject context with custom namespace', () => {
-    const mockContext = createGroup()
-    mockInject.mockReturnValue(mockContext)
+      // All have group methods
+      for (const ticket of tickets) {
+        expect(typeof ticket.select).toBe('function')
+        expect(typeof ticket.mix).toBe('function')
+        expect(typeof ticket.unmix).toBe('function')
+      }
+    })
 
-    const result = useGroup('test:my-selection')
+    it('should preserve custom properties in selectedItems and mixedItems', () => {
+      interface TagTicket extends GroupTicketInput {
+        tag: string
+        color: string
+      }
 
-    expect(mockInject).toHaveBeenCalledWith('test:my-selection', undefined)
-    expect(result).toBe(mockContext)
-  })
+      const tags = createGroup<TagTicket>()
 
-  it('should throw when context is not provided', () => {
-    mockInject.mockReturnValue(undefined)
+      tags.onboard([
+        { id: 'tag-1', tag: 'important', color: 'red' },
+        { id: 'tag-2', tag: 'urgent', color: 'orange' },
+        { id: 'tag-3', tag: 'later', color: 'blue' },
+      ])
 
-    expect(() => useGroup()).toThrow(
-      'Context "v0:group" not found. Ensure it\'s provided by an ancestor.',
-    )
-  })
-})
+      tags.select(['tag-1', 'tag-2'])
+      tags.mix('tag-3')
 
-describe('custom ticket types', () => {
-  it('should allow extending GroupTicketInput with custom properties', () => {
-    interface CheckboxTicket extends GroupTicketInput {
-      label: string
-      description?: string
-    }
+      // selectedItems has custom properties
+      const selected = Array.from(tags.selectedItems.value)
+      expect(selected.length).toBe(2)
+      expect(selected.some(t => t.tag === 'important' && t.color === 'red')).toBe(true)
+      expect(selected.some(t => t.tag === 'urgent' && t.color === 'orange')).toBe(true)
 
-    const group = createGroup<CheckboxTicket>()
+      // mixedItems has custom properties
+      const mixed = Array.from(tags.mixedItems.value)
+      expect(mixed.length).toBe(1)
+      expect(mixed[0]?.tag).toBe('later')
+      expect(mixed[0]?.color).toBe('blue')
+    })
 
-    // Register accepts input type with custom properties
-    const ticket = group.register({ label: 'Option A', description: 'First option' })
+    it('should work with createGroupContext and custom types', () => {
+      interface CategoryTicket extends GroupTicketInput {
+        name: string
+        subcategories?: string[]
+      }
 
-    // Output has input properties
-    expect(ticket.label).toBe('Option A')
-    expect(ticket.description).toBe('First option')
+      const [, , context] = createGroupContext<CategoryTicket>()
 
-    // Output has selection methods
-    expect(ticket.isSelected.value).toBe(false)
-    ticket.select()
-    expect(ticket.isSelected.value).toBe(true)
+      context.onboard([
+        { name: 'Electronics', subcategories: ['Phones', 'Laptops'] },
+        { name: 'Clothing' },
+      ])
 
-    // Output has group-specific tri-state methods
-    expect(ticket.isMixed.value).toBe(false)
-    ticket.mix()
-    expect(ticket.isMixed.value).toBe(true)
-    expect(ticket.isSelected.value).toBe(false) // mixing clears selection
-  })
+      const tickets = context.values()
+      expect(tickets[0]?.name).toBe('Electronics')
+      expect(tickets[0]?.subcategories).toEqual(['Phones', 'Laptops'])
+      expect(tickets[1]?.name).toBe('Clothing')
+      expect(tickets[1]?.subcategories).toBeUndefined()
 
-  it('should preserve custom properties through onboard', () => {
-    interface PermissionTicket extends GroupTicketInput {
-      permission: string
-      scope: 'read' | 'write' | 'admin'
-    }
-
-    const permissions = createGroup<PermissionTicket>()
-
-    const tickets = permissions.onboard([
-      { permission: 'users', scope: 'read' },
-      { permission: 'posts', scope: 'write' },
-      { permission: 'settings', scope: 'admin', indeterminate: true },
-    ])
-
-    expect(tickets[0]?.permission).toBe('users')
-    expect(tickets[0]?.scope).toBe('read')
-    expect(tickets[1]?.permission).toBe('posts')
-    expect(tickets[1]?.scope).toBe('write')
-    expect(tickets[2]?.permission).toBe('settings')
-    expect(tickets[2]?.scope).toBe('admin')
-    expect(tickets[2]?.isMixed.value).toBe(true) // indeterminate was set
-
-    // All have group methods
-    for (const ticket of tickets) {
-      expect(typeof ticket.select).toBe('function')
-      expect(typeof ticket.mix).toBe('function')
-      expect(typeof ticket.unmix).toBe('function')
-    }
-  })
-
-  it('should preserve custom properties in selectedItems and mixedItems', () => {
-    interface TagTicket extends GroupTicketInput {
-      tag: string
-      color: string
-    }
-
-    const tags = createGroup<TagTicket>()
-
-    tags.onboard([
-      { id: 'tag-1', tag: 'important', color: 'red' },
-      { id: 'tag-2', tag: 'urgent', color: 'orange' },
-      { id: 'tag-3', tag: 'later', color: 'blue' },
-    ])
-
-    tags.select(['tag-1', 'tag-2'])
-    tags.mix('tag-3')
-
-    // selectedItems has custom properties
-    const selected = Array.from(tags.selectedItems.value)
-    expect(selected.length).toBe(2)
-    expect(selected.some(t => t.tag === 'important' && t.color === 'red')).toBe(true)
-    expect(selected.some(t => t.tag === 'urgent' && t.color === 'orange')).toBe(true)
-
-    // mixedItems has custom properties
-    const mixed = Array.from(tags.mixedItems.value)
-    expect(mixed.length).toBe(1)
-    expect(mixed[0]?.tag).toBe('later')
-    expect(mixed[0]?.color).toBe('blue')
-  })
-
-  it('should work with createGroupContext and custom types', () => {
-    interface CategoryTicket extends GroupTicketInput {
-      name: string
-      subcategories?: string[]
-    }
-
-    const [, , context] = createGroupContext<CategoryTicket>()
-
-    context.onboard([
-      { name: 'Electronics', subcategories: ['Phones', 'Laptops'] },
-      { name: 'Clothing' },
-    ])
-
-    const tickets = context.values()
-    expect(tickets[0]?.name).toBe('Electronics')
-    expect(tickets[0]?.subcategories).toEqual(['Phones', 'Laptops'])
-    expect(tickets[1]?.name).toBe('Clothing')
-    expect(tickets[1]?.subcategories).toBeUndefined()
-
-    // Can use group methods
-    context.selectAll()
-    expect(context.isAllSelected.value).toBe(true)
+      // Can use group methods
+      context.selectAll()
+      expect(context.isAllSelected.value).toBe(true)
+    })
   })
 })

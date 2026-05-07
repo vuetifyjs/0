@@ -196,7 +196,7 @@ describe('createVirtual', () => {
     expect(virtual.items.value.length).toBeGreaterThan(0)
   })
 
-  it('scrolls to exact index position', async () => {
+  it('should scroll to exact index position', async () => {
     const items = shallowRef(Array.from({ length: 100 }, (_, i) => i))
     const virtual = createVirtual(items, { itemHeight: 50, height: 500 })
 
@@ -313,7 +313,7 @@ describe('createVirtual', () => {
   })
 
   describe('reverse direction', () => {
-    it('scrolls to bottom initially with reverse direction', async () => {
+    it('should scroll to bottom initially with reverse direction', async () => {
       const items = shallowRef(Array.from({ length: 100 }, (_, i) => i))
       const virtual = createVirtual(items, { itemHeight: 50, height: 500, direction: 'reverse' })
 
@@ -393,7 +393,7 @@ describe('createVirtual', () => {
       expect(virtual.items.value.length).toBeGreaterThan(0)
     })
 
-    it('supports custom anchor function', async () => {
+    it('should support custom anchor function', async () => {
       const items = shallowRef(Array.from({ length: 50 }, (_, i) => ({ id: i, text: `Item ${i}` })))
 
       const anchorFn = vi.fn((_items: readonly unknown[]) => 10)
@@ -415,7 +415,7 @@ describe('createVirtual', () => {
   })
 
   describe('edge detection', () => {
-    it('calls onStartReached when scrolled near top', async () => {
+    it('should call onStartReached when scrolled near top', async () => {
       const onStartReached = vi.fn()
       const items = shallowRef(Array.from({ length: 100 }, (_, i) => i))
 
@@ -442,7 +442,7 @@ describe('createVirtual', () => {
       expect(lastCall[0]).toBe(50)
     })
 
-    it('calls onEndReached when scrolled near bottom', async () => {
+    it('should call onEndReached when scrolled near bottom', async () => {
       const onEndReached = vi.fn()
       const items = shallowRef(Array.from({ length: 100 }, (_, i) => i))
 
@@ -547,7 +547,7 @@ describe('createVirtual', () => {
   })
 
   describe('enhanced scrollTo', () => {
-    it('scrolls to index with smooth behavior', async () => {
+    it('should scroll to index with smooth behavior', async () => {
       const items = shallowRef(Array.from({ length: 100 }, (_, i) => i))
       const virtual = createVirtual(items, { itemHeight: 50, height: 500 })
 
@@ -563,7 +563,7 @@ describe('createVirtual', () => {
       })
     })
 
-    it('scrolls with block="center" positioning', async () => {
+    it('should scroll with block="center" positioning', async () => {
       const items = shallowRef(Array.from({ length: 100 }, (_, i) => i))
       const virtual = createVirtual(items, { itemHeight: 50, height: 500 })
 
@@ -579,7 +579,7 @@ describe('createVirtual', () => {
       })
     })
 
-    it('scrolls with block="end" positioning', async () => {
+    it('should scroll with block="end" positioning', async () => {
       const items = shallowRef(Array.from({ length: 100 }, (_, i) => i))
       const virtual = createVirtual(items, { itemHeight: 50, height: 500 })
 
@@ -592,7 +592,7 @@ describe('createVirtual', () => {
       expect(mockContainer.scrollTop).toBe(2050)
     })
 
-    it('scrolls with custom offset', async () => {
+    it('should scroll with custom offset', async () => {
       const items = shallowRef(Array.from({ length: 100 }, (_, i) => i))
       const virtual = createVirtual(items, { itemHeight: 50, height: 500 })
 
@@ -605,7 +605,7 @@ describe('createVirtual', () => {
       expect(mockContainer.scrollTop).toBe(2600)
     })
 
-    it('skips scrolling with block="nearest" when already visible', async () => {
+    it('should skip scrolling with block="nearest" when already visible', async () => {
       const items = shallowRef(Array.from({ length: 100 }, (_, i) => i))
       const virtual = createVirtual(items, { itemHeight: 50, height: 500 })
 
@@ -619,7 +619,7 @@ describe('createVirtual', () => {
       expect(mockContainer.scrollTop).toBe(initialScrollTop)
     })
 
-    it('scrolls to exact index without off-by-one error', async () => {
+    it('should scroll to exact index without off-by-one error', async () => {
       const items = shallowRef(Array.from({ length: 10_000 }, (_, i) => i))
       const { element, items: virtualItems, offset, scrollTo } = createVirtual(items, { itemHeight: 80, height: 600, overscan: 1 })
 

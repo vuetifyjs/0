@@ -271,6 +271,31 @@ describe('knockNotificationsAdapter', () => {
     })
   })
 
+  it('should not call Knock archive API for unknown ids', () => {
+    withScope(() => {
+      const feed = mockFeed()
+      const adapter = new KnockNotificationsAdapter(feed)
+      const notifications = createNotifications()
+      adapter.setup(adapterContext(notifications))
+
+      // Local notification not tracked by Knock items map
+      notifications.send({ id: 'local-archive', subject: 'Local' })
+      notifications.archive('local-archive')
+
+      expect(feed.markAsArchived).not.toHaveBeenCalled()
+    })
+  })
+
+  it('should be safe to dispose without setup', () => {
+    withScope(() => {
+      const feed = mockFeed()
+      const adapter = new KnockNotificationsAdapter(feed)
+
+      // Should not throw — early-returns when ctx is undefined
+      expect(() => adapter.dispose!()).not.toThrow()
+    })
+  })
+
   it('should clean up on dispose', () => {
     withScope(() => {
       const feed = mockFeed()

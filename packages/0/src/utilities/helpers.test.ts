@@ -357,6 +357,11 @@ describe('helpers', () => {
       expect(result).toEqual({ a: 1 })
     })
 
+    it('should skip non-object sources', () => {
+      const result = mergeDeep<Record<string, unknown>>({ a: 1 }, 'string' as any, 42 as any, null as any)
+      expect(result).toEqual({ a: 1 })
+    })
+
     describe('prototype pollution protection', () => {
       it('should ignore __proto__ key', () => {
         const malicious = JSON.parse('{"__proto__": {"polluted": true}}')

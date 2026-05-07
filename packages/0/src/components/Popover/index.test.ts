@@ -515,7 +515,8 @@ describe('popover', () => {
     })
   })
 
-  describe('sSR / Hydration', () => {
+  // eslint-disable-next-line vitest/prefer-lowercase-title
+  describe('SSR / Hydration', () => {
     it('should render to string on server without errors', async () => {
       const app = createSSRApp(defineComponent({
         render: () =>

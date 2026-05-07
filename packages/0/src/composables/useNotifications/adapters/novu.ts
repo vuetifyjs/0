@@ -173,6 +173,7 @@ export class NovuNotificationsAdapter extends NotificationsAdapter {
     this.unsubscribers.length = 0
 
     if (this.ctx) {
+      /* v8 ignore next 5 -- handlers always assigned during setup; guards are defensive */
       if (this.onRead) this.ctx.off('notification:read', this.onRead)
       if (this.onUnread) this.ctx.off('notification:unread', this.onUnread)
       if (this.onSeen) this.ctx.off('notification:seen', this.onSeen)

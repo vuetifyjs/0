@@ -553,16 +553,16 @@ describe('selection', () => {
 
       mount(defineComponent({
         render: () => [
-          h(Selection.Root as any, { namespace: 'selection-1' }, () =>
-            h(Selection.Item as any, { value: 'item-1', namespace: 'selection-1' }, {
+          h(Selection.Root as any, { namespace: 'v0:selection-1' }, () =>
+            h(Selection.Item as any, { value: 'item-1', namespace: 'v0:selection-1' }, {
               default: (props: any) => {
                 sel1ItemProps = props
                 return h('div', 'Selection 1 Item')
               },
             }),
           ),
-          h(Selection.Root as any, { namespace: 'selection-2' }, () =>
-            h(Selection.Item as any, { value: 'item-1', namespace: 'selection-2' }, {
+          h(Selection.Root as any, { namespace: 'v0:selection-2' }, () =>
+            h(Selection.Item as any, { value: 'item-1', namespace: 'v0:selection-2' }, {
               default: (props: any) => {
                 sel2ItemProps = props
                 return h('div', 'Selection 2 Item')
@@ -584,7 +584,8 @@ describe('selection', () => {
     })
   })
 
-  describe('sSR / Hydration', () => {
+  // eslint-disable-next-line vitest/prefer-lowercase-title
+  describe('SSR / Hydration', () => {
     it('should render to string on server without errors', async () => {
       const app = createSSRApp(defineComponent({
         render: () =>

@@ -184,7 +184,7 @@ describe('snackbar', () => {
 
       await wrapper.findComponent(Snackbar.Close as any).trigger('click')
 
-      expect(onDismiss).toHaveBeenCalledOnce()
+      expect(onDismiss).toHaveBeenCalledTimes(1)
     })
 
     it('should not add type="button" when as is not button', () => {
@@ -383,6 +383,89 @@ describe('snackbar', () => {
 
       const first = context.queue.values()[0]
       expect(first?.isPaused).toBe(false)
+    })
+
+    it('should re-pause queue after dismiss when reasons remain (hover during dismiss)', async () => {
+      const { context, install } = makeNotificationsPlugin()
+      context.send({ subject: 'A', id: 'a', timeout: 5000 })
+      context.send({ subject: 'B', id: 'b', timeout: 5000 })
+
+      const wrapper = mount(Snackbar.Queue, {
+        global: { plugins: [stackPlugin, { install }] },
+        slots: {
+          default: ({ items }: any) =>
+            items.map((item: any) =>
+              h(Snackbar.Root, { id: item.id }, () => h(Snackbar.Close)),
+            ),
+        },
+      })
+
+      // Hover the queue → reasons has 'hover'
+      await wrapper.trigger('mouseenter')
+      expect(context.queue.values()[0]?.isPaused).toBe(true)
+
+      // Dismiss the first toast — the dismiss() function calls unregister,
+      // and because reasons.size > 0, it re-applies pause() on the still-running queue
+      const closes = wrapper.findAllComponents(Snackbar.Close as any)
+      await closes[0]!.trigger('click')
+
+      // Remaining notification should still be paused
+      const remaining = context.queue.values()
+      expect(remaining.length).toBe(1)
+      expect(remaining[0]?.isPaused).toBe(true)
+    })
+
+    it('should keep queue paused when one reason removed but other remains', async () => {
+      const { context, install } = makeNotificationsPlugin()
+      context.send({ subject: 'Test', timeout: 5000 })
+
+      const wrapper = mount(Snackbar.Queue, {
+        global: { plugins: [stackPlugin, { install }] },
+        slots: { default: () => h('div') },
+      })
+
+      // Combine reasons: hover + focus
+      await wrapper.trigger('mouseenter')
+      await wrapper.trigger('focusin')
+      expect(context.queue.values()[0]?.isPaused).toBe(true)
+
+      // Remove only hover reason — queue should stay paused via focus reason
+      await wrapper.trigger('mouseleave')
+      expect(context.queue.values()[0]?.isPaused).toBe(true)
+
+      // Now remove focus reason — queue should resume
+      await wrapper.trigger('focusout', { relatedTarget: null })
+      expect(context.queue.values()[0]?.isPaused).toBe(false)
+    })
+
+    it('should keep queue paused on focusout when relatedTarget remains inside container', async () => {
+      const { context, install } = makeNotificationsPlugin()
+      context.send({ subject: 'Test', timeout: 5000 })
+
+      const wrapper = mount(Snackbar.Queue, {
+        global: { plugins: [stackPlugin, { install }] },
+        attachTo: document.body,
+        slots: {
+          default: () => h('div', [
+            h('button', { class: 'inner-a' }, 'A'),
+            h('button', { class: 'inner-b' }, 'B'),
+          ]),
+        },
+      })
+
+      // Focus moves into the container
+      await wrapper.trigger('focusin')
+      expect(context.queue.values()[0]?.isPaused).toBe(true)
+
+      // Focus moves to a sibling that's still INSIDE the container
+      const innerB = wrapper.find('.inner-b').element
+      await wrapper.trigger('focusout', { relatedTarget: innerB })
+
+      // Queue should remain paused — early return inside onFocusout when
+      // relatedTarget is contained by container
+      expect(context.queue.values()[0]?.isPaused).toBe(true)
+
+      wrapper.unmount()
     })
   })
 

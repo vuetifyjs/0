@@ -6,7 +6,7 @@ import { V0DateAdapter } from './adapters/v0'
 
 import { createDate, createDateContext, createDatePlugin, useDate } from './index'
 
-describe('useDate', () => {
+describe('createDate', () => {
   describe('v0DateAdapter', () => {
     let adapter: V0DateAdapter
 
@@ -999,7 +999,8 @@ describe('useDate', () => {
       })
     })
 
-    describe('sSR behavior', () => {
+    // eslint-disable-next-line vitest/prefer-lowercase-title
+    describe('SSR behavior', () => {
       it('should return deterministic date for explicit null/undefined input', () => {
         // When calling date() without arguments in SSR, the implementation
         // returns epoch (1970-01-01) for deterministic rendering.

@@ -122,6 +122,41 @@ describe('theme', () => {
       // get() returns undefined for unregistered id, falls back to parent.isDark (false)
       expect(wrapper.text()).toBe('false')
     })
+
+    it('should short-circuit when selectedId is falsy', () => {
+      // Plugin without default — parent.selectedId.value is undefined,
+      // so selectedId in this Theme is also falsy, hitting the early-return guards.
+      const noDefaultPlugin = createThemePlugin({
+        themes: {
+          light: { dark: false, colors: {} },
+        },
+      })
+      let captured: any
+
+      const Child = defineComponent({
+        setup () {
+          const ctx = useTheme()
+          captured = ctx
+          return () => h('span')
+        },
+      })
+
+      mount(Theme, {
+        global: { plugins: [noDefaultPlugin] },
+        slots: {
+          default: (props: any) => h('div', [
+            h('span', { id: 'isdark' }, String(props.isDark)),
+            h(Child),
+          ]),
+        },
+      })
+
+      // All four computed fall-through branches should have hit the parent fallback
+      expect(captured.selectedItem.value).toBeUndefined()
+      expect(captured.selectedIndex.value).toBe(-1)
+      expect(captured.selectedValue.value).toBeUndefined()
+      expect(captured.isDark.value).toBe(false)
+    })
   })
 
   describe('selectedItem derivation', () => {

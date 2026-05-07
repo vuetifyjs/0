@@ -369,16 +369,16 @@ describe('radio', () => {
 
         mount(defineComponent({
           render: () => [
-            h(Radio.Group as any, { namespace: 'ns-1' }, () =>
-              h(Radio.Root as any, { value: 'a', groupNamespace: 'ns-1' }, {
+            h(Radio.Group as any, { namespace: 'v0:ns-1' }, () =>
+              h(Radio.Root as any, { value: 'a', groupNamespace: 'v0:ns-1' }, {
                 default: (p: any) => {
                   group1Props = p
                   return 'A'
                 },
               }),
             ),
-            h(Radio.Group as any, { namespace: 'ns-2' }, () =>
-              h(Radio.Root as any, { value: 'b', groupNamespace: 'ns-2' }, {
+            h(Radio.Group as any, { namespace: 'v0:ns-2' }, () =>
+              h(Radio.Root as any, { value: 'b', groupNamespace: 'v0:ns-2' }, {
                 default: (p: any) => {
                   group2Props = p
                   return 'B'
@@ -591,7 +591,7 @@ describe('radio', () => {
         expect(groupProps().activation).toBe('manual')
       })
 
-      it('automatic mode should select on arrow key navigation', async () => {
+      it('should select on arrow key navigation in automatic mode', async () => {
         const model = ref<string | undefined>(undefined)
         const { wrapper, wait } = mountGroup({ model })
         await wait()
@@ -602,7 +602,7 @@ describe('radio', () => {
         expect(model.value).toBe('item-2')
       })
 
-      it('automatic mode should select on Enter key', async () => {
+      it('should select on Enter key in automatic mode', async () => {
         const model = ref<string | undefined>(undefined)
         const { wrapper, wait } = mountGroup({ model })
         await wait()
@@ -613,7 +613,7 @@ describe('radio', () => {
         expect(model.value).toBe('item-1')
       })
 
-      it('manual mode should NOT select on arrow key navigation', async () => {
+      it('should NOT select on arrow key navigation in manual mode', async () => {
         const model = ref<string | undefined>('item-1')
         const { wrapper, wait } = mountGroup({
           model,
@@ -628,7 +628,7 @@ describe('radio', () => {
         expect(model.value).toBe('item-1')
       })
 
-      it('manual mode should select on Enter key', async () => {
+      it('should select on Enter key in manual mode', async () => {
         const model = ref<string | undefined>(undefined)
         const { wrapper, wait } = mountGroup({
           model,
@@ -642,7 +642,7 @@ describe('radio', () => {
         expect(model.value).toBe('item-1')
       })
 
-      it('manual mode should select on Space key', async () => {
+      it('should select on Space key in manual mode', async () => {
         const model = ref<string | undefined>(undefined)
         const { wrapper, wait } = mountGroup({
           model,
@@ -656,7 +656,7 @@ describe('radio', () => {
         expect(model.value).toBe('item-1')
       })
 
-      it('manual mode should still select on click', async () => {
+      it('should still select on click in manual mode', async () => {
         const model = ref<string | undefined>(undefined)
         const { wrapper, wait } = mountGroup({
           model,
@@ -670,7 +670,7 @@ describe('radio', () => {
         expect(model.value).toBe('item-1')
       })
 
-      it('manual mode should allow arrow navigation then Enter to select', async () => {
+      it('should allow arrow navigation then Enter to select in manual mode', async () => {
         const model = ref<string | undefined>(undefined)
         const { wrapper, wait } = mountGroup({
           model,
@@ -814,7 +814,8 @@ describe('radio', () => {
     })
   })
 
-  describe('sSR / Hydration', () => {
+  // eslint-disable-next-line vitest/prefer-lowercase-title
+  describe('SSR / Hydration', () => {
     it.each([
       ['group', {}, ['role="radiogroup"', 'role="radio"']],
       ['disabled', { disabled: true }, ['aria-disabled="true"', 'data-disabled']],

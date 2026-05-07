@@ -183,25 +183,25 @@ describe('useMediaQuery', () => {
   })
 
   describe('convenience functions', () => {
-    it('usePrefersDark should query prefers-color-scheme: dark', () => {
+    it('should query prefers-color-scheme: dark from usePrefersDark', () => {
       usePrefersDark()
 
       expect(mockMatchMedia).toHaveBeenCalledWith('(prefers-color-scheme: dark)')
     })
 
-    it('usePrefersReducedMotion should query prefers-reduced-motion: reduce', () => {
+    it('should query prefers-reduced-motion: reduce from usePrefersReducedMotion', () => {
       usePrefersReducedMotion()
 
       expect(mockMatchMedia).toHaveBeenCalledWith('(prefers-reduced-motion: reduce)')
     })
 
-    it('usePrefersContrast should query prefers-contrast: more', () => {
+    it('should query prefers-contrast: more from usePrefersContrast', () => {
       usePrefersContrast()
 
       expect(mockMatchMedia).toHaveBeenCalledWith('(prefers-contrast: more)')
     })
 
-    it('usePrefersDark should return matches when user prefers dark', () => {
+    it('should return matches from usePrefersDark when user prefers dark', () => {
       mockMediaQueryList.matches = true
       const { matches } = usePrefersDark()
 
@@ -409,7 +409,7 @@ describe('useMediaQuery SSR', () => {
     globalThis.window = originalWindow
   })
 
-  it('usePrefersDark should return false during SSR', async () => {
+  it('should return false from usePrefersDark during SSR', async () => {
     vi.doMock('#v0/constants/globals', () => ({
       IN_BROWSER: false,
       SUPPORTS_MATCH_MEDIA: false,

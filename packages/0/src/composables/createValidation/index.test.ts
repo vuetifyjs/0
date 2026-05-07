@@ -1,10 +1,11 @@
 import { describe, expect, it, vi } from 'vitest'
 
 // Composables
+import { createForm, useForm } from '#v0/composables/createForm'
 import { createRules, useRules } from '#v0/composables/useRules'
 
 // Utilities
-import { nextTick, shallowRef } from 'vue'
+import { effectScope, nextTick, shallowRef } from 'vue'
 
 import { createValidation } from './index'
 
@@ -16,7 +17,16 @@ vi.mock('#v0/composables/useRules', async () => {
   }
 })
 
+vi.mock('#v0/composables/createForm', async () => {
+  const actual = await vi.importActual('#v0/composables/createForm')
+  return {
+    ...actual,
+    useForm: vi.fn(() => undefined),
+  }
+})
+
 const mockUseRules = vi.mocked(useRules)
+const mockUseForm = vi.mocked(useForm)
 
 describe('createValidation', () => {
   describe('register', () => {
@@ -246,6 +256,49 @@ describe('createValidation', () => {
       expect(validation.isValid.value).toBe(false)
       expect(validation.isValidating.value).toBe(false)
     })
+
+    it('should not mutate state in silent mode when no rules', async () => {
+      const validation = createValidation({})
+      validation.errors.value = ['existing']
+      validation.isValid.value = false
+
+      const result = await validation.validate('test', true)
+
+      expect(result).toBe(true)
+      // Silent mode preserves prior state
+      expect(validation.errors.value).toEqual(['existing'])
+      expect(validation.isValid.value).toBe(false)
+    })
+
+    it('should not mutate state in silent mode when rules throw', async () => {
+      const validation = createValidation({
+        rules: [() => {
+          throw new Error('boom')
+        }],
+      })
+      validation.isValid.value = true
+
+      const result = await validation.validate('test', true)
+
+      expect(result).toBe(false)
+      // Silent mode preserves prior state on throw
+      expect(validation.isValid.value).toBe(true)
+    })
+
+    it('should surface non-Error throws as generic message', async () => {
+      const validation = createValidation({
+        rules: [() => {
+          // Throw a non-Error to hit the ternary's right-hand path
+
+          throw 'plain string'
+        }],
+      })
+
+      const result = await validation.validate('test')
+
+      expect(result).toBe(false)
+      expect(validation.errors.value).toEqual(['Validation error'])
+    })
   })
 
   describe('reset', () => {
@@ -325,6 +378,39 @@ describe('createValidation', () => {
       // Older call must still report its own outcome (false), not leak the
       // newer call's state.
       expect(firstResult).toBe(false)
+    })
+
+    it('should not let an in-flight validate overwrite state set by a later no-rules call', async () => {
+      let resolveSlow: ((val: string | boolean) => void) | undefined
+      function slowRule (_v: unknown) {
+        return new Promise<string | boolean>(r => {
+          resolveSlow = r
+        })
+      }
+
+      const validation = createValidation()
+      const ticket = validation.register(slowRule)
+
+      // Step 1: kick off a validate that will be slow to resolve.
+      const slow = validation.validate('test')
+
+      // Step 2: unselect the rule so a subsequent validate sees no active rules.
+      ticket.unselect()
+
+      // Step 3: a fresh validate with no active rules should land at isValid=true
+      // and that state should NOT be overwritten when (1) finally resolves.
+      const fast = await validation.validate('test')
+      expect(fast).toBe(true)
+      expect(validation.isValid.value).toBe(true)
+
+      // Step 4: resolve the original slow rule with a failure. Without
+      // generation invalidation in the empty-rules path, this would reach the
+      // `gen === generation` branch and overwrite isValid back to false.
+      resolveSlow!('failed')
+      await slow
+
+      expect(validation.isValid.value).toBe(true)
+      expect(validation.errors.value).toEqual([])
     })
   })
 
@@ -406,6 +492,47 @@ describe('createValidation', () => {
       await validation.validate('')
       expect(validation.isValid.value).toBe(false)
       expect(validation.errors.value).toEqual(['Validation failed'])
+    })
+  })
+
+  describe('form auto-registration', () => {
+    it('should register with parent form on creation', () => {
+      const form = createForm()
+      const spy = vi.spyOn(form, 'register')
+      mockUseForm.mockReturnValueOnce(form as any)
+
+      const validation = createValidation()
+
+      expect(spy).toHaveBeenCalledTimes(1)
+      expect(spy).toHaveBeenCalledWith({ value: validation })
+    })
+
+    it('should unregister from parent form on scope dispose', () => {
+      const form = createForm()
+      const unregisterSpy = vi.spyOn(form, 'unregister')
+      mockUseForm.mockReturnValueOnce(form as any)
+
+      const scope = effectScope()
+      scope.run(() => {
+        createValidation()
+      })
+
+      expect(form.size).toBe(1)
+      scope.stop()
+
+      expect(unregisterSpy).toHaveBeenCalledTimes(1)
+      expect(form.size).toBe(0)
+    })
+
+    it('should not throw on dispose when no form was provided', () => {
+      mockUseForm.mockReturnValueOnce(undefined as any)
+
+      const scope = effectScope()
+      scope.run(() => {
+        createValidation()
+      })
+
+      expect(() => scope.stop()).not.toThrow()
     })
   })
 

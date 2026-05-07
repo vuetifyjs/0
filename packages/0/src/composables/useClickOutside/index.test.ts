@@ -66,7 +66,7 @@ describe('useClickOutside', () => {
   })
 
   describe('basic functionality', () => {
-    it('calls handler when clicking outside target', async () => {
+    it('should call handler when clicking outside target', async () => {
       const handler = vi.fn()
       useClickOutside(target, handler)
 
@@ -76,7 +76,7 @@ describe('useClickOutside', () => {
       expect(handler).toHaveBeenCalledTimes(1)
     })
 
-    it('does not call handler when clicking inside target', async () => {
+    it('should not call handler when clicking inside target', async () => {
       const handler = vi.fn()
       useClickOutside(target, handler)
 
@@ -86,7 +86,7 @@ describe('useClickOutside', () => {
       expect(handler).not.toHaveBeenCalled()
     })
 
-    it('does not call handler when clicking on target children', async () => {
+    it('should not call handler when clicking on target children', async () => {
       const handler = vi.fn()
       const child = document.createElement('span')
       target.append(child)
@@ -98,7 +98,7 @@ describe('useClickOutside', () => {
       expect(handler).not.toHaveBeenCalled()
     })
 
-    it('returns object with stop method that stops listening', async () => {
+    it('should return object with stop method that stops listening', async () => {
       const handler = vi.fn()
       const { stop } = useClickOutside(target, handler)
 
@@ -111,7 +111,7 @@ describe('useClickOutside', () => {
       expect(handler).toHaveBeenCalledTimes(1) // Still 1, not called again
     })
 
-    it('returns isActive and isPaused state refs', () => {
+    it('should return isActive and isPaused state refs', () => {
       const handler = vi.fn()
       const { isActive, isPaused } = useClickOutside(target, handler)
 
@@ -121,7 +121,7 @@ describe('useClickOutside', () => {
   })
 
   describe('pause and resume', () => {
-    it('pause stops detection', async () => {
+    it('should stop detection on pause', async () => {
       const handler = vi.fn()
       const { pause, isPaused } = useClickOutside(target, handler)
 
@@ -136,7 +136,7 @@ describe('useClickOutside', () => {
       expect(handler).toHaveBeenCalledTimes(1) // Still 1
     })
 
-    it('resume restarts detection after pause', async () => {
+    it('should restart detection on resume after pause', async () => {
       const handler = vi.fn()
       const { pause, resume, isPaused } = useClickOutside(target, handler)
 
@@ -153,7 +153,7 @@ describe('useClickOutside', () => {
       expect(handler).toHaveBeenCalledTimes(1)
     })
 
-    it('isActive reflects paused state', async () => {
+    it('should reflect paused state in isActive', async () => {
       const handler = vi.fn()
       const { pause, resume, isActive } = useClickOutside(target, handler)
 
@@ -166,7 +166,7 @@ describe('useClickOutside', () => {
       expect(isActive.value).toBe(true)
     })
 
-    it('pause clears pending pointerdown state', async () => {
+    it('should clear pending pointerdown state on pause', async () => {
       const handler = vi.fn()
       const { pause, resume } = useClickOutside(target, handler)
 
@@ -186,7 +186,7 @@ describe('useClickOutside', () => {
   })
 
   describe('reactive targets', () => {
-    it('supports reactive target ref', async () => {
+    it('should support reactive target ref', async () => {
       const handler = vi.fn()
       const targetRef = ref<HTMLElement | null>(null)
       useClickOutside(targetRef, handler)
@@ -201,7 +201,7 @@ describe('useClickOutside', () => {
       expect(handler).toHaveBeenCalledTimes(1)
     })
 
-    it('supports multiple targets', async () => {
+    it('should support multiple targets', async () => {
       const handler = vi.fn()
       const target2 = document.createElement('div')
       container.append(target2)
@@ -223,7 +223,7 @@ describe('useClickOutside', () => {
       expect(handler).toHaveBeenCalledTimes(1)
     })
 
-    it('handles null/undefined targets gracefully', async () => {
+    it('should handle null/undefined targets gracefully', async () => {
       const handler = vi.fn()
       useClickOutside(null, handler)
 
@@ -234,7 +234,7 @@ describe('useClickOutside', () => {
       expect(handler).not.toHaveBeenCalled()
     })
 
-    it('filters out null values from target array', async () => {
+    it('should filter out null values from target array', async () => {
       const handler = vi.fn()
       useClickOutside([() => target, () => null, () => undefined], handler)
 
@@ -249,7 +249,7 @@ describe('useClickOutside', () => {
       expect(handler).toHaveBeenCalledTimes(1)
     })
 
-    it('handles target becoming null between pointerdown and pointerup', async () => {
+    it('should handle target becoming null between pointerdown and pointerup', async () => {
       const handler = vi.fn()
       const targetRef = ref<HTMLElement | null>(target)
       useClickOutside(targetRef, handler)
@@ -270,7 +270,7 @@ describe('useClickOutside', () => {
   })
 
   describe('two-phase detection', () => {
-    it('requires both pointerdown and pointerup to trigger', async () => {
+    it('should require both pointerdown and pointerup to trigger', async () => {
       const handler = vi.fn()
       useClickOutside(target, handler)
 
@@ -286,7 +286,7 @@ describe('useClickOutside', () => {
       expect(handler).not.toHaveBeenCalled()
     })
 
-    it('does not trigger when dragging from inside to outside', async () => {
+    it('should not trigger when dragging from inside to outside', async () => {
       const handler = vi.fn()
       useClickOutside(target, handler)
 
@@ -301,7 +301,7 @@ describe('useClickOutside', () => {
       expect(handler).not.toHaveBeenCalled()
     })
 
-    it('does not trigger when dragging from outside to inside', async () => {
+    it('should not trigger when dragging from outside to inside', async () => {
       const handler = vi.fn()
       useClickOutside(target, handler)
 
@@ -318,7 +318,7 @@ describe('useClickOutside', () => {
   })
 
   describe('touch scroll threshold', () => {
-    it('triggers for small touch movements (tap)', async () => {
+    it('should trigger for small touch movements (tap)', async () => {
       const handler = vi.fn()
       useClickOutside(target, handler, { touchScrollThreshold: 30 })
 
@@ -329,7 +329,7 @@ describe('useClickOutside', () => {
       expect(handler).toHaveBeenCalledTimes(1)
     })
 
-    it('does not trigger for large touch movements (scroll)', async () => {
+    it('should not trigger for large touch movements (scroll)', async () => {
       const handler = vi.fn()
       useClickOutside(target, handler, { touchScrollThreshold: 30 })
 
@@ -340,7 +340,7 @@ describe('useClickOutside', () => {
       expect(handler).not.toHaveBeenCalled()
     })
 
-    it('respects custom threshold', async () => {
+    it('should respect custom threshold', async () => {
       const handler = vi.fn()
       useClickOutside(target, handler, { touchScrollThreshold: 10 })
 
@@ -355,7 +355,7 @@ describe('useClickOutside', () => {
       expect(handler).toHaveBeenCalledTimes(1)
     })
 
-    it('does not trigger when movement equals exactly the threshold', async () => {
+    it('should not trigger when movement equals exactly the threshold', async () => {
       const handler = vi.fn()
       useClickOutside(target, handler, { touchScrollThreshold: 30 })
 
@@ -366,7 +366,7 @@ describe('useClickOutside', () => {
       expect(handler).not.toHaveBeenCalled()
     })
 
-    it('triggers when movement is just below threshold', async () => {
+    it('should trigger when movement is just below threshold', async () => {
       const handler = vi.fn()
       useClickOutside(target, handler, { touchScrollThreshold: 30 })
 
@@ -377,7 +377,7 @@ describe('useClickOutside', () => {
       expect(handler).toHaveBeenCalledTimes(1)
     })
 
-    it('does not apply threshold to mouse clicks', async () => {
+    it('should not apply threshold to mouse clicks', async () => {
       const handler = vi.fn()
       useClickOutside(target, handler, { touchScrollThreshold: 30 })
 
@@ -400,7 +400,7 @@ describe('useClickOutside', () => {
       expect(handler).toHaveBeenCalledTimes(1)
     })
 
-    it('does not apply threshold to pen/stylus clicks', async () => {
+    it('should not apply threshold to pen/stylus clicks', async () => {
       const handler = vi.fn()
       useClickOutside(target, handler, { touchScrollThreshold: 30 })
 
@@ -425,7 +425,7 @@ describe('useClickOutside', () => {
   })
 
   describe('defaultPrevented', () => {
-    it('does not trigger when pointerdown is prevented', async () => {
+    it('should not trigger when pointerdown is prevented', async () => {
       const handler = vi.fn()
       useClickOutside(target, handler)
 
@@ -439,7 +439,7 @@ describe('useClickOutside', () => {
       expect(handler).not.toHaveBeenCalled()
     })
 
-    it('does not trigger when pointerup is prevented', async () => {
+    it('should not trigger when pointerup is prevented', async () => {
       const handler = vi.fn()
       useClickOutside(target, handler)
 
@@ -453,7 +453,7 @@ describe('useClickOutside', () => {
       expect(handler).not.toHaveBeenCalled()
     })
 
-    it('does not trigger when blur event is prevented', async () => {
+    it('should not trigger when blur event is prevented', async () => {
       const handler = vi.fn()
       useClickOutside(target, handler, { detectIframe: true })
 
@@ -481,7 +481,7 @@ describe('useClickOutside', () => {
   })
 
   describe('target validation', () => {
-    it('does not trigger when target is removed from DOM before pointerup', async () => {
+    it('should not trigger when target is removed from DOM before pointerup', async () => {
       const handler = vi.fn()
       const removableElement = document.createElement('div')
       container.append(removableElement)
@@ -503,7 +503,7 @@ describe('useClickOutside', () => {
   })
 
   describe('capture phase', () => {
-    it('uses capture phase by default', async () => {
+    it('should use capture phase by default', async () => {
       const handler = vi.fn()
       useClickOutside(target, handler, { capture: true })
 
@@ -520,7 +520,7 @@ describe('useClickOutside', () => {
       expect(handler).toHaveBeenCalledTimes(1)
     })
 
-    it('respects capture: false option', async () => {
+    it('should respect capture: false option', async () => {
       const handler = vi.fn()
       useClickOutside(target, handler, { capture: false })
 
@@ -539,7 +539,7 @@ describe('useClickOutside', () => {
   })
 
   describe('iframe detection', () => {
-    it('does not detect iframe focus by default', async () => {
+    it('should not detect iframe focus by default', async () => {
       const handler = vi.fn()
       useClickOutside(target, handler)
 
@@ -565,7 +565,7 @@ describe('useClickOutside', () => {
       })
     })
 
-    it('detects iframe focus when detectIframe is true', async () => {
+    it('should detect iframe focus when detectIframe is true', async () => {
       const handler = vi.fn()
       useClickOutside(target, handler, { detectIframe: true })
 
@@ -591,7 +591,7 @@ describe('useClickOutside', () => {
       })
     })
 
-    it('does not trigger when iframe is inside target', async () => {
+    it('should not trigger when iframe is inside target', async () => {
       const handler = vi.fn()
       useClickOutside(target, handler, { detectIframe: true })
 
@@ -619,7 +619,7 @@ describe('useClickOutside', () => {
   })
 
   describe('ignore option', () => {
-    it('ignores clicks on elements matching CSS selector', async () => {
+    it('should ignore clicks on elements matching CSS selector', async () => {
       const handler = vi.fn()
       const ignoreElement = document.createElement('div')
       ignoreElement.className = 'ignore-me'
@@ -635,7 +635,7 @@ describe('useClickOutside', () => {
       expect(handler).not.toHaveBeenCalled()
     })
 
-    it('ignores clicks on descendants of elements matching CSS selector', async () => {
+    it('should ignore clicks on descendants of elements matching CSS selector', async () => {
       const handler = vi.fn()
       const ignoreParent = document.createElement('div')
       ignoreParent.className = 'menu'
@@ -653,7 +653,7 @@ describe('useClickOutside', () => {
       expect(handler).not.toHaveBeenCalled()
     })
 
-    it('ignores clicks on elements passed as refs', async () => {
+    it('should ignore clicks on elements passed as refs', async () => {
       const handler = vi.fn()
       const ignoreEl = document.createElement('div')
       container.append(ignoreEl)
@@ -667,7 +667,7 @@ describe('useClickOutside', () => {
       expect(handler).not.toHaveBeenCalled()
     })
 
-    it('ignores clicks on descendants of elements passed as refs', async () => {
+    it('should ignore clicks on descendants of elements passed as refs', async () => {
       const handler = vi.fn()
       const ignoreEl = document.createElement('div')
       const child = document.createElement('span')
@@ -682,7 +682,7 @@ describe('useClickOutside', () => {
       expect(handler).not.toHaveBeenCalled()
     })
 
-    it('supports multiple CSS selectors in ignore list', async () => {
+    it('should support multiple CSS selectors in ignore list', async () => {
       const handler = vi.fn()
       const ignoreA = document.createElement('div')
       ignoreA.dataset.menu = 'true'
@@ -706,7 +706,7 @@ describe('useClickOutside', () => {
       expect(handler).toHaveBeenCalledTimes(1)
     })
 
-    it('supports mixing CSS selectors and element refs', async () => {
+    it('should support mixing CSS selectors and element refs', async () => {
       const handler = vi.fn()
       const selectorEl = document.createElement('div')
       selectorEl.className = 'dialog'
@@ -729,7 +729,7 @@ describe('useClickOutside', () => {
       expect(handler).toHaveBeenCalledTimes(1)
     })
 
-    it('supports getter functions in ignore list', async () => {
+    it('should support getter functions in ignore list', async () => {
       const handler = vi.fn()
       const ignoreEl = document.createElement('div')
       container.append(ignoreEl)
@@ -744,7 +744,7 @@ describe('useClickOutside', () => {
       expect(handler).not.toHaveBeenCalled()
     })
 
-    it('handles reactive refs in ignore list', async () => {
+    it('should handle reactive refs in ignore list', async () => {
       const handler = vi.fn()
       const ignoreRef = ref<HTMLElement | null>(null)
       const ignoreElement = document.createElement('div')
@@ -763,7 +763,7 @@ describe('useClickOutside', () => {
       expect(handler).toHaveBeenCalledTimes(1) // Now ignored
     })
 
-    it('respects reactive ignore list changes', async () => {
+    it('should respect reactive ignore list changes', async () => {
       const handler = vi.fn()
       const ignoreEl = document.createElement('div')
       ignoreEl.className = 'dynamic'
@@ -785,7 +785,7 @@ describe('useClickOutside', () => {
       expect(handler).toHaveBeenCalledTimes(1) // Still 1 - now ignored
     })
 
-    it('still triggers for non-ignored outside clicks', async () => {
+    it('should still trigger for non-ignored outside clicks', async () => {
       const handler = vi.fn()
       const ignoreEl = document.createElement('div')
       ignoreEl.className = 'ignore'
@@ -801,7 +801,7 @@ describe('useClickOutside', () => {
       expect(handler).toHaveBeenCalledTimes(1)
     })
 
-    it('ignores iframe focus via CSS selector when detectIframe is true', async () => {
+    it('should ignore iframe focus via CSS selector when detectIframe is true', async () => {
       const handler = vi.fn()
       useClickOutside(target, handler, {
         detectIframe: true,
@@ -827,7 +827,7 @@ describe('useClickOutside', () => {
       })
     })
 
-    it('ignores iframe focus via ref when detectIframe is true', async () => {
+    it('should ignore iframe focus via ref when detectIframe is true', async () => {
       const handler = vi.fn()
       const iframe = document.createElement('iframe')
       container.append(iframe)
@@ -856,7 +856,7 @@ describe('useClickOutside', () => {
   })
 
   describe('lifecycle cleanup', () => {
-    it('cleans up listeners on scope disposal', async () => {
+    it('should clean up listeners on scope disposal', async () => {
       const handler = vi.fn()
       const scope = effectScope()
 
@@ -874,7 +874,7 @@ describe('useClickOutside', () => {
       expect(handler).toHaveBeenCalledTimes(1) // Not called again after disposal
     })
 
-    it('cleans up iframe listeners on scope disposal', async () => {
+    it('should clean up iframe listeners on scope disposal', async () => {
       const handler = vi.fn()
       const scope = effectScope()
       const iframe = document.createElement('iframe')
@@ -908,7 +908,7 @@ describe('useClickOutside', () => {
   })
 
   describe('edge cases', () => {
-    it('continues detection when handler throws', async () => {
+    it('should continue detection when handler throws', async () => {
       const scope = effectScope()
       const handler = vi.fn(() => {
         throw new Error('handler error')
@@ -931,7 +931,7 @@ describe('useClickOutside', () => {
       scope.stop()
     })
 
-    it('handles stop() called from within handler', async () => {
+    it('should handle stop() called from within handler', async () => {
       const scope = effectScope()
       let instance: ReturnType<typeof useClickOutside>
       const handler = vi.fn(() => instance.stop())
@@ -953,7 +953,7 @@ describe('useClickOutside', () => {
       scope.stop()
     })
 
-    it('guards against multiple pause calls', async () => {
+    it('should guard against multiple pause calls', async () => {
       const scope = effectScope()
       let pause: () => void
       let isPaused: ReturnType<typeof useClickOutside>['isPaused']
@@ -976,7 +976,7 @@ describe('useClickOutside', () => {
       scope.stop()
     })
 
-    it('guards against multiple resume calls', async () => {
+    it('should guard against multiple resume calls', async () => {
       const scope = effectScope()
       const handler = vi.fn()
       let pause: () => void
@@ -1009,7 +1009,7 @@ describe('useClickOutside', () => {
       scope.stop()
     })
 
-    it('handles rapid successive clicks correctly', async () => {
+    it('should handle rapid successive clicks correctly', async () => {
       const handler = vi.fn()
       useClickOutside(target, handler)
 
@@ -1023,7 +1023,7 @@ describe('useClickOutside', () => {
       expect(handler).toHaveBeenCalledTimes(10)
     })
 
-    it('clears initialTarget between rapid clicks', async () => {
+    it('should clear initialTarget between rapid clicks', async () => {
       const handler = vi.fn()
       useClickOutside(target, handler)
 
@@ -1046,7 +1046,7 @@ describe('useClickOutside', () => {
   })
 
   describe('empty targets', () => {
-    it('does not trigger handler when target array is empty', async () => {
+    it('should not trigger handler when target array is empty', async () => {
       const handler = vi.fn()
       useClickOutside([], handler)
 
@@ -1058,7 +1058,7 @@ describe('useClickOutside', () => {
   })
 
   describe('shadow DOM', () => {
-    it('detects clicks inside shadow DOM as inside target', async () => {
+    it('should detect clicks inside shadow DOM as inside target', async () => {
       const handler = vi.fn()
       const host = document.createElement('div')
       const shadow = host.attachShadow({ mode: 'open' })
@@ -1079,7 +1079,7 @@ describe('useClickOutside', () => {
       expect(handler).toHaveBeenCalledTimes(1)
     })
 
-    it('uses composedPath for shadow DOM event targeting', async () => {
+    it('should use composedPath for shadow DOM event targeting', async () => {
       const handler = vi.fn()
       const host = document.createElement('div')
       const shadow = host.attachShadow({ mode: 'open' })
@@ -1099,7 +1099,7 @@ describe('useClickOutside', () => {
   })
 
   describe('dynamic target replacement', () => {
-    it('handles reactive target replacement', async () => {
+    it('should handle reactive target replacement', async () => {
       const handler = vi.fn()
       const targetRef = ref<HTMLElement | null>(null)
       const element1 = document.createElement('div')
@@ -1126,7 +1126,7 @@ describe('useClickOutside', () => {
   })
 
   describe('invalid CSS selectors', () => {
-    it('handles invalid CSS selector in ignore option gracefully', async () => {
+    it('should handle invalid CSS selector in ignore option gracefully', async () => {
       const handler = vi.fn()
 
       useClickOutside(target, handler, {
@@ -1142,7 +1142,7 @@ describe('useClickOutside', () => {
   })
 
   describe('return value stability', () => {
-    it('returns valid object structure', () => {
+    it('should return valid object structure', () => {
       const handler = vi.fn()
       const result = useClickOutside(target, handler)
 
@@ -1157,7 +1157,7 @@ describe('useClickOutside', () => {
       expect(result.isPaused.value).toBe(false)
     })
 
-    it('pause/resume/stop work without errors after stop', async () => {
+    it('should run pause/resume/stop without errors after stop', async () => {
       const handler = vi.fn()
       const { pause, resume, stop, isPaused } = useClickOutside(target, handler)
 
@@ -1179,7 +1179,7 @@ describe('useClickOutside', () => {
       expect(handler).toHaveBeenCalledTimes(1)
     })
 
-    it('stop clears pending pointerdown state', async () => {
+    it('should clear pending pointerdown state on stop', async () => {
       const handler = vi.fn()
       const { stop, resume } = useClickOutside(target, handler)
 
@@ -1197,7 +1197,7 @@ describe('useClickOutside', () => {
       expect(handler).not.toHaveBeenCalled()
     })
 
-    it('handles rapid pause/resume cycles without listener duplication', async () => {
+    it('should handle rapid pause/resume cycles without listener duplication', async () => {
       const handler = vi.fn()
       const scope = effectScope()
       let pause: () => void
@@ -1230,7 +1230,7 @@ describe('useClickOutside', () => {
   })
 
   describe('closed shadow DOM', () => {
-    it('handles closed shadow DOM correctly', async () => {
+    it('should handle closed shadow DOM correctly', async () => {
       const handler = vi.fn()
       const host = document.createElement('div')
       const shadow = host.attachShadow({ mode: 'closed' })
@@ -1253,8 +1253,9 @@ describe('useClickOutside', () => {
     })
   })
 
-  describe('sSR safety', () => {
-    it('returns valid API when event listeners are no-ops', async () => {
+  // eslint-disable-next-line vitest/prefer-lowercase-title
+  describe('SSR safety', () => {
+    it('should return valid API when event listeners are no-ops', async () => {
       // The composable uses useDocumentEventListener and useWindowEventListener
       // which return no-op cleanup functions during SSR (when IN_BROWSER is false).
       // This test verifies the composable's API is still valid in that scenario.
@@ -1280,7 +1281,7 @@ describe('useClickOutside', () => {
   })
 
   describe('bounds option', () => {
-    it('triggers when click coordinates are outside element bounds', async () => {
+    it('should trigger when click coordinates are outside element bounds', async () => {
       const handler = vi.fn()
 
       // Mock getBoundingClientRect to return a fixed box
@@ -1305,7 +1306,7 @@ describe('useClickOutside', () => {
       expect(handler).toHaveBeenCalledTimes(1)
     })
 
-    it('does not trigger when click coordinates are inside element bounds', async () => {
+    it('should not trigger when click coordinates are inside element bounds', async () => {
       const handler = vi.fn()
 
       vi.spyOn(target, 'getBoundingClientRect').mockReturnValue({
@@ -1329,7 +1330,7 @@ describe('useClickOutside', () => {
       expect(handler).not.toHaveBeenCalled()
     })
 
-    it('requires both pointerdown and pointerup to be outside bounds', async () => {
+    it('should require both pointerdown and pointerup to be outside bounds', async () => {
       const handler = vi.fn()
 
       vi.spyOn(target, 'getBoundingClientRect').mockReturnValue({
@@ -1379,7 +1380,7 @@ describe('useClickOutside', () => {
       expect(handler).not.toHaveBeenCalled()
     })
 
-    it('works with native dialog backdrop click pattern', async () => {
+    it('should work with native dialog backdrop click pattern', async () => {
       const handler = vi.fn()
       const dialog = document.createElement('dialog')
       container.append(dialog)
@@ -1410,7 +1411,7 @@ describe('useClickOutside', () => {
       expect(handler).toHaveBeenCalledTimes(1) // Still 1, not triggered
     })
 
-    it('checks bounds for all targets when multiple provided', async () => {
+    it('should check bounds for all targets when multiple provided', async () => {
       const handler = vi.fn()
       const target2 = document.createElement('div')
       container.append(target2)
@@ -1462,7 +1463,7 @@ describe('useClickOutside', () => {
     // rect shifted but startPosition didn't, so the original outside click
     // could be misread as INSIDE the shifted rect, suppressing the handler.
     // Resolve at pointerdown time instead.
-    it('survives mid-gesture scroll between pointerdown and pointerup', async () => {
+    it('should survive mid-gesture scroll between pointerdown and pointerup', async () => {
       const handler = vi.fn()
       const rect = {
         left: 100,
@@ -1518,7 +1519,7 @@ describe('useClickOutside', () => {
   })
 
   describe('cleanup verification', () => {
-    it('cleanup functions are called on pause', async () => {
+    it('should call cleanup functions on pause', async () => {
       const handler = vi.fn()
       const scope = effectScope()
       let pause: () => void
@@ -1544,7 +1545,7 @@ describe('useClickOutside', () => {
       scope.stop()
     })
 
-    it('cleanup functions are called on stop', async () => {
+    it('should call cleanup functions on stop', async () => {
       const handler = vi.fn()
       const scope = effectScope()
       let stop: () => void
@@ -1570,7 +1571,7 @@ describe('useClickOutside', () => {
       scope.stop()
     })
 
-    it('iframe blur listener is cleaned up when detectIframe is true', async () => {
+    it('should clean up iframe blur listener when detectIframe is true', async () => {
       const handler = vi.fn()
       const scope = effectScope()
       let stop: () => void

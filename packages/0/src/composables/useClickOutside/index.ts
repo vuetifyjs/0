@@ -239,7 +239,8 @@ export function useClickOutside (
    * Check if an element matches resolved ignore targets.
    */
   function isIgnored (el: Element | null, selectors: string[], elements: Element[]): boolean {
-    if (!el) return false /* v8 ignore -- defensive guard */
+    /* v8 ignore next -- defensive guard, callers always pass an Element */
+    if (!el) return false
 
     for (const selector of selectors) {
       try {
@@ -279,6 +280,7 @@ export function useClickOutside (
     if (targets.length === 0) return false
 
     return targets.every(el => {
+      /* v8 ignore next -- defensive: getTargets filters to Element-typed values */
       if (isNullOrUndefined(el) || !isFunction(el.contains)) return false
       return el !== eventTarget && !el.contains(eventTarget)
     })
@@ -289,7 +291,8 @@ export function useClickOutside (
    */
   function isOutsideBounds (x: number, y: number): boolean {
     const targets = getTargets()
-    if (targets.length === 0) return false /* v8 ignore -- edge case: no targets */
+    /* v8 ignore next -- edge case: bounds check only invoked when targets exist */
+    if (targets.length === 0) return false
 
     return targets.every(el => {
       const { left, right, top, bottom } = el.getBoundingClientRect()
@@ -301,7 +304,8 @@ export function useClickOutside (
    * Validate that the target is still in the DOM.
    */
   function isValidTarget (eventTarget: EventTarget | null): eventTarget is Element {
-    if (!isElement(eventTarget)) return false /* v8 ignore -- type guard */
+    /* v8 ignore next -- type guard for non-Element targets (e.g., document, window) */
+    if (!isElement(eventTarget)) return false
     if (!eventTarget.isConnected) return false
     return true
   }

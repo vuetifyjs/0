@@ -262,6 +262,26 @@ describe('createBreadcrumbs', () => {
         breadcrumbs.prev()
         expect(breadcrumbs.size).toBe(1)
       })
+
+      it('should be a no-op when currently at the first item with siblings', () => {
+        const breadcrumbs = createBreadcrumbs()
+
+        const tickets = breadcrumbs.onboard([
+          { text: 'Home' },
+          { text: 'Products' },
+          { text: 'Electronics' },
+        ])
+
+        // Use the underlying single.select to reset selection to root without
+        // truncating siblings — covers the `currentIndex <= 0` early-return.
+        tickets[0]!.select()
+
+        expect(breadcrumbs.size).toBe(3)
+        breadcrumbs.prev()
+
+        // Already at root; size unchanged
+        expect(breadcrumbs.size).toBe(3)
+      })
     })
 
     describe('select', () => {

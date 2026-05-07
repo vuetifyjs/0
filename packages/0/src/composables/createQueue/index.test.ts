@@ -154,6 +154,31 @@ describe('createQueue', () => {
       const resumedTicket = queue.get(ticket.id)
       expect(resumedTicket?.isPaused).toBe(false)
     })
+
+    it('should preserve remaining time across pause and resume', () => {
+      const queue = createQueue({ timeout: 1000 })
+      queue.register({ value: 'a' })
+
+      expect(queue.size).toBe(1)
+
+      // 400ms remaining
+      vi.advanceTimersByTime(600)
+      expect(queue.size).toBe(1)
+
+      queue.pause()
+      // pause holds the remaining duration; further time should not expire it
+      vi.advanceTimersByTime(5000)
+      expect(queue.size).toBe(1)
+
+      queue.resume()
+      // 399ms after resume should leave 1ms; ticket still alive
+      vi.advanceTimersByTime(399)
+      expect(queue.size).toBe(1)
+
+      // 2ms more crosses the remaining 1ms boundary; ticket expires
+      vi.advanceTimersByTime(2)
+      expect(queue.size).toBe(0)
+    })
   })
 
   describe('queue progression', () => {

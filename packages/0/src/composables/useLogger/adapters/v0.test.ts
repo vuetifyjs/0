@@ -107,7 +107,8 @@ describe('v0LoggerAdapter', () => {
     })
   })
 
-  describe('sSR (non-browser) environment', () => {
+  // eslint-disable-next-line vitest/prefer-lowercase-title
+  describe('SSR (non-browser) environment', () => {
     it('should log without styles in non-browser environment', () => {
       mockInBrowser.value = false
       const adapter = new V0LoggerAdapter({ colors: true })

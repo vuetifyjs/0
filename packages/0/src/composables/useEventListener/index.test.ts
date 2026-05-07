@@ -190,21 +190,21 @@ describe('useEventListener', () => {
   })
 
   describe('convenience functions', () => {
-    it('useWindowEventListener should work with window events', () => {
+    it('should work with window events on useWindowEventListener', () => {
       const handler = vi.fn()
       useWindowEventListener('resize', handler)
 
       expect(mockWindow.addEventListener).toHaveBeenCalledWith('resize', handler, undefined)
     })
 
-    it('useDocumentEventListener should work with document events', () => {
+    it('should work with document events on useDocumentEventListener', () => {
       const handler = vi.fn()
       useDocumentEventListener('click', handler)
 
       expect(mockDocument.addEventListener).toHaveBeenCalledWith('click', handler, undefined)
     })
 
-    it('useWindowEventListener should handle multiple events', () => {
+    it('should handle multiple events on useWindowEventListener', () => {
       const handler = vi.fn()
       useWindowEventListener(['online', 'offline'], handler)
 
@@ -212,7 +212,7 @@ describe('useEventListener', () => {
       expect(mockWindow.addEventListener).toHaveBeenCalledWith('offline', handler, undefined)
     })
 
-    it('useDocumentEventListener should handle options', () => {
+    it('should handle options on useDocumentEventListener', () => {
       const handler = vi.fn()
       const options = { passive: true }
       useDocumentEventListener('keydown', handler, options)
@@ -370,7 +370,7 @@ describe('useEventListener SSR', () => {
     vi.resetModules()
   })
 
-  it('useWindowEventListener should return noop function during SSR', async () => {
+  it('should return noop from useWindowEventListener during SSR', async () => {
     vi.doMock('#v0/constants/globals', () => ({
       IN_BROWSER: false,
     }))
@@ -383,7 +383,7 @@ describe('useEventListener SSR', () => {
     expect(() => stop()).not.toThrow()
   })
 
-  it('useDocumentEventListener should return noop function during SSR', async () => {
+  it('should return noop from useDocumentEventListener during SSR', async () => {
     vi.doMock('#v0/constants/globals', () => ({
       IN_BROWSER: false,
     }))
@@ -396,7 +396,7 @@ describe('useEventListener SSR', () => {
     expect(() => stop()).not.toThrow()
   })
 
-  it('useWindowEventListener should not access window during SSR', async () => {
+  it('should not access window on useWindowEventListener during SSR', async () => {
     vi.doMock('#v0/constants/globals', () => ({
       IN_BROWSER: false,
     }))
@@ -413,7 +413,7 @@ describe('useEventListener SSR', () => {
     globalThis.window = originalWindow
   })
 
-  it('useDocumentEventListener should not access document during SSR', async () => {
+  it('should not access document on useDocumentEventListener during SSR', async () => {
     vi.doMock('#v0/constants/globals', () => ({
       IN_BROWSER: false,
     }))

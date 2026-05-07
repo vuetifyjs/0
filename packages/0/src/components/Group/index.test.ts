@@ -994,16 +994,16 @@ describe('group', () => {
 
       mount(defineComponent({
         render: () => [
-          h(Group.Root as any, { namespace: 'group-1' }, () =>
-            h(Group.Item as any, { value: 'item-1', namespace: 'group-1' }, {
+          h(Group.Root as any, { namespace: 'v0:group-1' }, () =>
+            h(Group.Item as any, { value: 'item-1', namespace: 'v0:group-1' }, {
               default: (props: any) => {
                 group1ItemProps = props
                 return h('div', 'Group 1 Item')
               },
             }),
           ),
-          h(Group.Root as any, { namespace: 'group-2' }, () =>
-            h(Group.Item as any, { value: 'item-1', namespace: 'group-2' }, {
+          h(Group.Root as any, { namespace: 'v0:group-2' }, () =>
+            h(Group.Item as any, { value: 'item-1', namespace: 'v0:group-2' }, {
               default: (props: any) => {
                 group2ItemProps = props
                 return h('div', 'Group 2 Item')
@@ -1069,7 +1069,8 @@ describe('group', () => {
     })
   })
 
-  describe('sSR / Hydration', () => {
+  // eslint-disable-next-line vitest/prefer-lowercase-title
+  describe('SSR / Hydration', () => {
     it('should render to string on server without errors', async () => {
       const app = createSSRApp(defineComponent({
         render: () =>

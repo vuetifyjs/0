@@ -60,6 +60,7 @@
     ticket.unregister()
   })
 
+  /* v8 ignore next -- defensive: registered ticket.value always coalesces to number via toRef getter above */
   const current = toRef(() => toValue(ticket.value) ?? 0)
   const percent = toRef(() => root.fromValue(current.value))
 

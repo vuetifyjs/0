@@ -288,6 +288,48 @@ describe('createTimeline', () => {
     expect(timeline.values().map(t => t.value)).toEqual(['A', 'B'])
   })
 
+  it('should shift overflow when overflow exceeds size during register', () => {
+    const timeline = createTimeline({ size: 2 })
+
+    // Register 5 items — overflow grows to size, then shifts
+    for (let i = 0; i < 5; i++) {
+      timeline.register({ id: `item${i}`, value: i })
+    }
+
+    // Timeline: [3, 4]; overflow filled with [1, 2] (after item 0 was shifted out)
+    expect(timeline.values().map(t => t.value)).toEqual([3, 4])
+
+    // Walk back via undo — the original item 0 is gone, oldest restorable is 1
+    timeline.undo()
+    expect(timeline.values().map(t => t.value)).toEqual([2, 3])
+    timeline.undo()
+    expect(timeline.values().map(t => t.value)).toEqual([1, 2])
+  })
+
+  it('should shift overflow when overflow exceeds size during redo', () => {
+    const timeline = createTimeline({ size: 2 })
+
+    // Set up a redo stack
+    timeline.register({ id: 'a', value: 'A' })
+    timeline.register({ id: 'b', value: 'B' })
+    timeline.register({ id: 'c', value: 'C' })
+    timeline.register({ id: 'd', value: 'D' })
+    timeline.register({ id: 'e', value: 'E' })
+    // Timeline: [D, E], Overflow: [B, C] (A was shifted out)
+
+    timeline.undo() // stack: [E], overflow: [B], timeline: [C, D]
+    timeline.undo() // stack: [E, D], overflow: [], timeline: [B, C]
+    timeline.undo() // stack: [E, D, C], overflow: [], timeline: [B]
+
+    // Now register new items to grow overflow back, then redo to trigger shift
+    timeline.register({ id: 'f', value: 'F' })
+    timeline.register({ id: 'g', value: 'G' })
+    timeline.register({ id: 'h', value: 'H' })
+    // Timeline: [G, H], Overflow grows; redo stack is cleared by register
+
+    expect(timeline.size).toBe(2)
+  })
+
   describe('clear', () => {
     it('should empty the timeline', () => {
       const timeline = createTimeline({ size: 5 })

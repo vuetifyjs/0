@@ -6,7 +6,7 @@ import { computed, isReactive, nextTick, shallowRef, watchEffect } from 'vue'
 // Types
 import type { ID } from '#v0/types'
 
-import { createRegistry, createRegistryContext } from './index'
+import { createRegistry, createRegistryContext, useRegistry } from './index'
 
 describe('createRegistry', () => {
   describe('registration', () => {
@@ -363,7 +363,7 @@ describe('createRegistry', () => {
       registry.on('register:ticket', listener)
       const ticket = registry.register({ id: 'test-id', value: 'test-value' })
 
-      expect(listener).toHaveBeenCalledOnce()
+      expect(listener).toHaveBeenCalledTimes(1)
       expect(listener).toHaveBeenCalledWith(ticket)
     })
 
@@ -375,7 +375,7 @@ describe('createRegistry', () => {
       registry.on('unregister:ticket', listener)
       registry.unregister('test-id')
 
-      expect(listener).toHaveBeenCalledOnce()
+      expect(listener).toHaveBeenCalledTimes(1)
       expect(listener).toHaveBeenCalledWith(ticket)
     })
 
@@ -387,7 +387,7 @@ describe('createRegistry', () => {
       registry.on('update:ticket', listener)
       const updated = registry.upsert('test-id', { value: 'updated' })
 
-      expect(listener).toHaveBeenCalledOnce()
+      expect(listener).toHaveBeenCalledTimes(1)
       expect(listener).toHaveBeenCalledWith(updated)
     })
 
@@ -399,7 +399,7 @@ describe('createRegistry', () => {
       registry.on('clear:registry', listener)
       registry.clear()
 
-      expect(listener).toHaveBeenCalledOnce()
+      expect(listener).toHaveBeenCalledTimes(1)
     })
 
     it('should emit reindex:registry event when reindexing', () => {
@@ -414,7 +414,7 @@ describe('createRegistry', () => {
       registry.on('reindex:registry', listener)
       registry.reindex()
 
-      expect(listener).toHaveBeenCalledOnce()
+      expect(listener).toHaveBeenCalledTimes(1)
     })
 
     it('should remove event listener with off', () => {
@@ -423,11 +423,11 @@ describe('createRegistry', () => {
 
       registry.on('register:ticket', listener)
       registry.register({ id: 'test-1' })
-      expect(listener).toHaveBeenCalledOnce()
+      expect(listener).toHaveBeenCalledTimes(1)
 
       registry.off('register:ticket', listener)
       registry.register({ id: 'test-2' })
-      expect(listener).toHaveBeenCalledOnce()
+      expect(listener).toHaveBeenCalledTimes(1)
     })
 
     it('should support custom events with emit', () => {
@@ -437,7 +437,7 @@ describe('createRegistry', () => {
       registry.on('custom-event', listener)
       registry.emit('custom-event', { data: 'test' })
 
-      expect(listener).toHaveBeenCalledOnce()
+      expect(listener).toHaveBeenCalledTimes(1)
       expect(listener).toHaveBeenCalledWith({ data: 'test' })
     })
 
@@ -472,8 +472,8 @@ describe('createRegistry', () => {
       registry.on('register:ticket', listener2)
       registry.register({ id: 'test' })
 
-      expect(listener1).toHaveBeenCalledOnce()
-      expect(listener2).toHaveBeenCalledOnce()
+      expect(listener1).toHaveBeenCalledTimes(1)
+      expect(listener2).toHaveBeenCalledTimes(1)
     })
 
     it('should warn when listener count exceeds 100', () => {
@@ -882,7 +882,7 @@ describe('createRegistry', () => {
       // Batching state should be reset
       // Next register should emit immediately
       registry.register({ id: 'item-2' })
-      expect(listener).toHaveBeenCalledOnce()
+      expect(listener).toHaveBeenCalledTimes(1)
     })
 
     it('should batch multiple different operations', () => {
@@ -904,9 +904,9 @@ describe('createRegistry', () => {
         registry.unregister('new-item')
       })
 
-      expect(registerListener).toHaveBeenCalledOnce()
-      expect(updateListener).toHaveBeenCalledOnce()
-      expect(unregisterListener).toHaveBeenCalledOnce()
+      expect(registerListener).toHaveBeenCalledTimes(1)
+      expect(updateListener).toHaveBeenCalledTimes(1)
+      expect(unregisterListener).toHaveBeenCalledTimes(1)
     })
 
     it('should work with onboard and offboard in batch', () => {
@@ -961,7 +961,7 @@ describe('createRegistry', () => {
       })
       callOrder.push('after-batch')
 
-      expect(listener).toHaveBeenCalledOnce()
+      expect(listener).toHaveBeenCalledTimes(1)
       expect(callOrder).toEqual([
         'after-emit',
         'custom',
@@ -988,7 +988,7 @@ describe('createRegistry', () => {
       })
 
       // Events emitted after batch completes
-      expect(clearListener).toHaveBeenCalledOnce()
+      expect(clearListener).toHaveBeenCalledTimes(1)
     })
 
     it('should update valueIsIndex and catalog on upsert', () => {
@@ -1137,7 +1137,7 @@ describe('createRegistry', () => {
       context.on('register:ticket', listener)
       context.register({ id: 'test' })
 
-      expect(listener).toHaveBeenCalledOnce()
+      expect(listener).toHaveBeenCalledTimes(1)
     })
 
     it('should create independent contexts', () => {
@@ -1148,6 +1148,14 @@ describe('createRegistry', () => {
 
       expect(context1.size).toBe(1)
       expect(context2.size).toBe(0)
+    })
+  })
+
+  describe('useRegistry', () => {
+    it('should throw when no registry context is provided', () => {
+      expect(() => useRegistry('v0:missing-registry')).toThrow(
+        'Context "v0:missing-registry" not found. Ensure it\'s provided by an ancestor.',
+      )
     })
   })
 

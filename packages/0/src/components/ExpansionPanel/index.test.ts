@@ -852,14 +852,14 @@ describe('expansionPanel', () => {
     it('should use custom namespace for context', () => {
       const wrapper = mount(ExpansionPanel.Group, {
         props: {
-          namespace: 'custom-panel',
+          namespace: 'v0:custom-panel',
         },
         slots: {
           default: () =>
             h(
               ExpansionPanel.Root as any,
-              { id: 'item-1', value: 'value-1', namespace: 'custom-panel' },
-              () => h(ExpansionPanel.Header, { namespace: 'custom-panel' }, () => h(ExpansionPanel.Activator, { namespace: 'custom-panel' }, () => 'Title')),
+              { id: 'item-1', value: 'value-1', namespace: 'v0:custom-panel' },
+              () => h(ExpansionPanel.Header, { namespace: 'v0:custom-panel' }, () => h(ExpansionPanel.Activator, { namespace: 'v0:custom-panel' }, () => 'Title')),
             ),
         },
       })
@@ -938,7 +938,8 @@ describe('expansionPanel', () => {
     })
   })
 
-  describe('sSR / Hydration', () => {
+  // eslint-disable-next-line vitest/prefer-lowercase-title
+  describe('SSR / Hydration', () => {
     it('should render to string on server without errors', async () => {
       const app = createSSRApp(defineComponent({
         render: () =>
@@ -1105,6 +1106,193 @@ describe('expansionPanel', () => {
       expect(activator.attributes('aria-expanded')).toBe('true')
 
       wrapper.unmount()
+    })
+  })
+
+  describe('cue', () => {
+    it('should render as span by default', () => {
+      const wrapper = mount(ExpansionPanel.Group, {
+        slots: {
+          default: () =>
+            h(
+              ExpansionPanel.Root as any,
+              { id: 'item-1', value: 'value-1' },
+              () => h(ExpansionPanel.Cue),
+            ),
+        },
+      })
+
+      const cue = wrapper.findComponent(ExpansionPanel.Cue as any)
+      expect(cue.element.tagName).toBe('SPAN')
+    })
+
+    it('should render as custom element when as prop is provided', () => {
+      const wrapper = mount(ExpansionPanel.Group, {
+        slots: {
+          default: () =>
+            h(
+              ExpansionPanel.Root as any,
+              { id: 'item-1', value: 'value-1' },
+              () => h(ExpansionPanel.Cue, { as: 'i' }),
+            ),
+        },
+      })
+
+      const cue = wrapper.findComponent(ExpansionPanel.Cue as any)
+      expect(cue.element.tagName).toBe('I')
+    })
+
+    it('should set aria-hidden=true', () => {
+      const wrapper = mount(ExpansionPanel.Group, {
+        slots: {
+          default: () =>
+            h(
+              ExpansionPanel.Root as any,
+              { id: 'item-1', value: 'value-1' },
+              () => h(ExpansionPanel.Cue),
+            ),
+        },
+      })
+
+      const cue = wrapper.findComponent(ExpansionPanel.Cue as any)
+      expect(cue.attributes('aria-hidden')).toBe('true')
+    })
+
+    it('should set data-state=closed when panel is collapsed', () => {
+      const wrapper = mount(ExpansionPanel.Group, {
+        slots: {
+          default: () =>
+            h(
+              ExpansionPanel.Root as any,
+              { id: 'item-1', value: 'value-1' },
+              () => h(ExpansionPanel.Cue),
+            ),
+        },
+      })
+
+      const cue = wrapper.findComponent(ExpansionPanel.Cue as any)
+      expect(cue.attributes('data-state')).toBe('closed')
+    })
+
+    it('should set data-state=open when panel is expanded', async () => {
+      const wrapper = mount(ExpansionPanel.Group, {
+        props: { modelValue: 'value-1' },
+        slots: {
+          default: () =>
+            h(
+              ExpansionPanel.Root as any,
+              { id: 'item-1', value: 'value-1' },
+              () => h(ExpansionPanel.Cue),
+            ),
+        },
+      })
+
+      await nextTick()
+
+      const cue = wrapper.findComponent(ExpansionPanel.Cue as any)
+      expect(cue.attributes('data-state')).toBe('open')
+    })
+
+    it('should flip data-state when toggled', async () => {
+      const selected = ref<string>()
+
+      const wrapper = mount(ExpansionPanel.Group, {
+        props: {
+          'modelValue': selected.value,
+          'onUpdate:modelValue': (v: unknown) => {
+            selected.value = v as string
+          },
+        },
+        slots: {
+          default: () =>
+            h(
+              ExpansionPanel.Root as any,
+              { id: 'item-1', value: 'value-1' },
+              () => [
+                h(ExpansionPanel.Activator, {}, () => 'Header'),
+                h(ExpansionPanel.Cue),
+              ],
+            ),
+        },
+      })
+
+      const cue = wrapper.findComponent(ExpansionPanel.Cue as any)
+      expect(cue.attributes('data-state')).toBe('closed')
+
+      const activator = wrapper.findComponent(ExpansionPanel.Activator as any)
+      await activator.trigger('click')
+      await nextTick()
+
+      expect(cue.attributes('data-state')).toBe('open')
+    })
+
+    it('should expose isSelected and attrs in slot props', () => {
+      let slotProps: any
+
+      mount(ExpansionPanel.Group, {
+        slots: {
+          default: () =>
+            h(
+              ExpansionPanel.Root as any,
+              { id: 'item-1', value: 'value-1' },
+              () => h(ExpansionPanel.Cue, {}, {
+                default: (props: any) => {
+                  slotProps = props
+                  return h('span', 'cue')
+                },
+              }),
+            ),
+        },
+      })
+
+      expect(slotProps).toBeDefined()
+      expect(slotProps.isSelected).toBe(false)
+      expect(slotProps.attrs['aria-hidden']).toBe(true)
+      expect(slotProps.attrs['data-state']).toBe('closed')
+    })
+
+    it('should expose isSelected=true when expanded', async () => {
+      let slotProps: any
+
+      mount(ExpansionPanel.Group, {
+        props: { modelValue: 'value-1' },
+        slots: {
+          default: () =>
+            h(
+              ExpansionPanel.Root as any,
+              { id: 'item-1', value: 'value-1' },
+              () => h(ExpansionPanel.Cue, {}, {
+                default: (props: any) => {
+                  slotProps = props
+                  return h('span', 'cue')
+                },
+              }),
+            ),
+        },
+      })
+
+      await nextTick()
+
+      expect(slotProps.isSelected).toBe(true)
+      expect(slotProps.attrs['data-state']).toBe('open')
+    })
+
+    it('should support custom namespace for context', () => {
+      const wrapper = mount(ExpansionPanel.Group, {
+        props: { namespace: 'v0:custom-cue' },
+        slots: {
+          default: () =>
+            h(
+              ExpansionPanel.Root as any,
+              { id: 'item-1', value: 'value-1', namespace: 'v0:custom-cue' },
+              () => h(ExpansionPanel.Cue, { namespace: 'v0:custom-cue' }),
+            ),
+        },
+      })
+
+      const cue = wrapper.findComponent(ExpansionPanel.Cue as any)
+      expect(cue.exists()).toBe(true)
+      expect(cue.attributes('aria-hidden')).toBe('true')
     })
   })
 })

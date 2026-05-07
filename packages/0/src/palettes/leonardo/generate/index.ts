@@ -40,6 +40,7 @@ function mapSemanticColors (colors: Record<number, string>, ratios: number[]): R
         delta = d
       }
     }
+    /* v8 ignore next -- defensive fallbacks for when ratio table or colors map is empty */
     return colors[closest] ?? Object.values(colors)[0] ?? '#000000'
   }
 
@@ -115,6 +116,7 @@ export function leonardo (seed: string, options: LeonardoGenerateOptions = {}): 
           'error-container': '#ffdad6',
           'on-error-container': '#410002',
           'background': '#ffffff',
+          /* v8 ignore next -- defensive fallback when lightSemantic lacks on-surface */
           'on-background': lightSemantic['on-surface'] ?? '#000000',
         },
       },
@@ -127,6 +129,7 @@ export function leonardo (seed: string, options: LeonardoGenerateOptions = {}): 
           'error-container': '#93000a',
           'on-error-container': '#ffdad6',
           'background': '#121212',
+          /* v8 ignore next -- defensive fallback when darkSemantic lacks on-surface */
           'on-background': darkSemantic['on-surface'] ?? '#ffffff',
         },
       },

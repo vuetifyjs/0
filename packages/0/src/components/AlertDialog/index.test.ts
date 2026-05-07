@@ -31,7 +31,7 @@ function mountWithStack<T extends Parameters<typeof mount>[0]> (
   })
 }
 
-describe('alert-dialog', () => {
+describe('alertDialog', () => {
   describe('root', () => {
     it('should render as renderless by default', () => {
       const wrapper = mountWithStack(AlertDialog.Root, {
@@ -160,6 +160,17 @@ describe('alert-dialog', () => {
       await nextTick()
 
       expect(HTMLDialogElement.prototype.showModal).toHaveBeenCalled()
+    })
+
+    it('should omit type attribute when as is non-button element', () => {
+      const wrapper = mountWithStack(AlertDialog.Root, {
+        slots: {
+          default: () => h(AlertDialog.Activator, { as: 'div' }, () => 'Open'),
+        },
+      })
+
+      const trigger = wrapper.findComponent(AlertDialog.Activator as any)
+      expect(trigger.attributes('type')).toBeUndefined()
     })
   })
 
@@ -498,6 +509,43 @@ describe('alert-dialog', () => {
       const cancel = wrapper.findComponent(AlertDialog.Cancel as any)
       expect(cancel.attributes('data-disabled')).toBe('')
     })
+
+    it('should bail out of onClick when disabled', async () => {
+      const isOpen = ref(true)
+
+      const wrapper = mountWithStack(AlertDialog.Root, {
+        props: {
+          'modelValue': isOpen.value,
+          'onUpdate:modelValue': (v: unknown) => {
+            isOpen.value = v as boolean
+          },
+        },
+        slots: {
+          default: () => h(AlertDialog.Content, {}, () => [
+            h(AlertDialog.Cancel, { as: 'div', disabled: true }, () => 'Cancel'),
+          ]),
+        },
+      })
+
+      await nextTick()
+      await wrapper.findComponent(AlertDialog.Cancel as any).trigger('click')
+      await nextTick()
+
+      expect(isOpen.value).toBe(true)
+    })
+
+    it('should omit type attribute when as is non-button element', () => {
+      const wrapper = mountWithStack(AlertDialog.Root, {
+        slots: {
+          default: () => h(AlertDialog.Content, {}, () => [
+            h(AlertDialog.Cancel, { as: 'div' }, () => 'Cancel'),
+          ]),
+        },
+      })
+
+      const cancel = wrapper.findComponent(AlertDialog.Cancel as any)
+      expect(cancel.attributes('type')).toBeUndefined()
+    })
   })
 
   describe('close', () => {
@@ -561,6 +609,49 @@ describe('alert-dialog', () => {
       expect(isOpen.value).toBe(true)
 
       await wrapper.findComponent(AlertDialog.Close as any).trigger('click')
+      expect(isOpen.value).toBe(false)
+    })
+
+    it('should omit type attribute when as is non-button element', () => {
+      const wrapper = mountWithStack(AlertDialog.Root, {
+        slots: {
+          default: () => h(AlertDialog.Content, {}, () => [
+            h(AlertDialog.Close, { as: 'div' }, () => 'X'),
+          ]),
+        },
+      })
+
+      const close = wrapper.findComponent(AlertDialog.Close as any)
+      expect(close.attributes('type')).toBeUndefined()
+    })
+
+    it('should expose onClick in slot attrs so renderless mode works', async () => {
+      const isOpen = ref(true)
+      let captured: any
+
+      const wrapper = mountWithStack(AlertDialog.Root, {
+        props: {
+          'modelValue': isOpen.value,
+          'onUpdate:modelValue': (v: unknown) => {
+            isOpen.value = v as boolean
+          },
+        },
+        slots: {
+          default: () => h(AlertDialog.Content, {}, () => [
+            h(AlertDialog.Close, { renderless: true }, {
+              default: (props: any) => {
+                captured = props
+                return h('span', { 'data-testid': 'custom-close', ...props.attrs }, 'X')
+              },
+            }),
+          ]),
+        },
+      })
+
+      await nextTick()
+      expect(captured.attrs.onClick).toBeTypeOf('function')
+
+      await wrapper.find('[data-testid="custom-close"]').trigger('click')
       expect(isOpen.value).toBe(false)
     })
   })
@@ -758,6 +849,73 @@ describe('alert-dialog', () => {
       expect(onAction).not.toHaveBeenCalled()
       expect(isOpen.value).toBe(true)
     })
+
+    it('should bail out of onClick when disabled (as=div bypasses native button block)', async () => {
+      const isOpen = ref(true)
+      const onAction = vi.fn()
+
+      const wrapper = mountWithStack(AlertDialog.Root, {
+        props: {
+          'modelValue': isOpen.value,
+          'onUpdate:modelValue': (v: unknown) => {
+            isOpen.value = v as boolean
+          },
+        },
+        slots: {
+          default: () => h(AlertDialog.Content, {}, () => [
+            h(AlertDialog.Action, { as: 'div', disabled: true, onAction }, () => 'Confirm'),
+          ]),
+        },
+      })
+
+      await nextTick()
+      await wrapper.findComponent(AlertDialog.Action as any).trigger('click')
+      await nextTick()
+
+      expect(onAction).not.toHaveBeenCalled()
+      expect(isOpen.value).toBe(true)
+    })
+
+    it('should render data-pending when wait() called', async () => {
+      const isOpen = ref(true)
+      const onAction = vi.fn((e: { wait: () => void }) => {
+        e.wait()
+      })
+
+      const wrapper = mountWithStack(AlertDialog.Root, {
+        props: {
+          'modelValue': isOpen.value,
+          'onUpdate:modelValue': (v: unknown) => {
+            isOpen.value = v as boolean
+          },
+        },
+        slots: {
+          default: () => h(AlertDialog.Content, {}, () => [
+            h(AlertDialog.Action, { onAction }, () => 'Confirm'),
+          ]),
+        },
+      })
+
+      await nextTick()
+      await wrapper.findComponent(AlertDialog.Action as any).trigger('click')
+      await nextTick()
+
+      const action = wrapper.findComponent(AlertDialog.Action as any)
+      expect(action.attributes('data-pending')).toBe('')
+    })
+
+    it('should omit type attribute when as is non-button element', () => {
+      const wrapper = mountWithStack(AlertDialog.Root, {
+        slots: {
+          default: () => h(AlertDialog.Content, {}, () => [
+            h(AlertDialog.Action, { as: 'div' }, () => 'Confirm'),
+          ]),
+        },
+      })
+
+      const action = wrapper.findComponent(AlertDialog.Action as any)
+      expect(action.attributes('type')).toBeUndefined()
+    })
   })
 
   describe('integration', () => {
@@ -864,7 +1022,7 @@ describe('alert-dialog', () => {
   })
 })
 
-describe('alert-dialog SSR', () => {
+describe('alertDialog SSR', () => {
   it('should render to string on server without errors', async () => {
     const app = createSSRApp(defineComponent({
       render: () =>

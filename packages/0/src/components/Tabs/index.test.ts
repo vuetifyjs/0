@@ -977,16 +977,16 @@ describe('tabs', () => {
 
       mount(defineComponent({
         render: () => [
-          h(Tabs.Root as any, { namespace: 'tabs-1', mandatory: false }, () =>
-            h(Tabs.Item as any, { value: 'item', namespace: 'tabs-1' }, {
+          h(Tabs.Root as any, { namespace: 'v0:tabs-1', mandatory: false }, () =>
+            h(Tabs.Item as any, { value: 'item', namespace: 'v0:tabs-1' }, {
               default: (props: any) => {
                 tabs1Props = props
                 return h('button', 'Tab 1')
               },
             }),
           ),
-          h(Tabs.Root as any, { namespace: 'tabs-2', mandatory: false }, () =>
-            h(Tabs.Item as any, { value: 'item', namespace: 'tabs-2' }, {
+          h(Tabs.Root as any, { namespace: 'v0:tabs-2', mandatory: false }, () =>
+            h(Tabs.Item as any, { value: 'item', namespace: 'v0:tabs-2' }, {
               default: (props: any) => {
                 tabs2Props = props
                 return h('button', 'Tab 2')
@@ -1410,7 +1410,8 @@ describe('tabs', () => {
     })
   })
 
-  describe('sSR / Hydration', () => {
+  // eslint-disable-next-line vitest/prefer-lowercase-title
+  describe('SSR / Hydration', () => {
     it('should render to string on server without errors', async () => {
       const app = createSSRApp(defineComponent({
         render: () =>
@@ -1495,56 +1496,275 @@ describe('tabs', () => {
       wrapper.unmount()
     })
   })
-})
 
-// Additional coverage tests
-describe('context circular prop', () => {
-  it('should expose circular through context to children', async () => {
-    let circularValue: boolean | undefined
-    const { useTabsRoot } = await import('./TabsRoot.vue')
+  // Additional coverage tests
+  describe('context circular prop', () => {
+    it('should expose circular through context to children', async () => {
+      let circularValue: boolean | undefined
+      const { useTabsRoot } = await import('./index')
 
-    const Spy = defineComponent({
-      setup () {
-        const tabs = useTabsRoot('v0:tabs')
-        circularValue = tabs.circular.value
-        return () => null
-      },
+      const Spy = defineComponent({
+        setup () {
+          const tabs = useTabsRoot('v0:tabs')
+          circularValue = tabs.circular.value
+          return () => null
+        },
+      })
+
+      mount(Tabs.Root, {
+        props: { circular: false },
+        slots: {
+          default: () => h(Spy),
+        },
+      })
+
+      expect(circularValue).toBe(false)
     })
 
-    mount(Tabs.Root, {
-      props: { circular: false },
-      slots: {
-        default: () => h(Spy),
-      },
-    })
+    it('should reactively update circular through context', async () => {
+      const { useTabsRoot } = await import('./index')
+      let circularRef: { value: boolean } | undefined
 
-    expect(circularValue).toBe(false)
+      const Spy = defineComponent({
+        setup () {
+          const tabs = useTabsRoot('v0:tabs')
+          circularRef = tabs.circular
+          return () => null
+        },
+      })
+
+      const wrapper = mount(Tabs.Root, {
+        props: { circular: true },
+        slots: {
+          default: () => h(Spy),
+        },
+      })
+
+      await nextTick()
+      expect(circularRef!.value).toBe(true)
+
+      await wrapper.setProps({ circular: false })
+      await nextTick()
+      expect(circularRef!.value).toBe(false)
+    })
   })
 
-  it('should reactively update circular through context', async () => {
-    const { useTabsRoot } = await import('./TabsRoot.vue')
-    let circularRef: { value: boolean } | undefined
+  describe('manual activation focus', () => {
+    // In manual activation mode, arrow/Home/End move focus only — never selection.
+    // We can't observe focus in happy-dom directly, but we can verify selection
+    // does NOT change while keystrokes are processed (i.e., focusAdjacent /
+    // focusEdge ran rather than tabs.next/.prev/.first/.last).
 
-    const Spy = defineComponent({
-      setup () {
-        const tabs = useTabsRoot('v0:tabs')
-        circularRef = tabs.circular
-        return () => null
-      },
+    function setupManual (start = 'tab-1', circular = true) {
+      const selected = ref(start)
+      const captured: Record<string, any> = {}
+
+      mount(Tabs.Root, {
+        props: {
+          'activation': 'manual',
+          circular,
+          'modelValue': selected.value,
+          'onUpdate:modelValue': (v: unknown) => {
+            selected.value = v as string
+          },
+        },
+        slots: {
+          default: () => [
+            h(Tabs.Item as any, { value: 'tab-1' }, {
+              default: (props: any) => {
+                captured.tab1 = props
+                return h('button', 'Tab 1')
+              },
+            }),
+            h(Tabs.Item as any, { value: 'tab-2' }, {
+              default: (props: any) => {
+                captured.tab2 = props
+                return h('button', 'Tab 2')
+              },
+            }),
+            h(Tabs.Item as any, { value: 'tab-3' }, {
+              default: (props: any) => {
+                captured.tab3 = props
+                return h('button', 'Tab 3')
+              },
+            }),
+          ],
+        },
+      })
+
+      return { selected, captured }
+    }
+
+    it('should focus adjacent on ArrowRight without changing selection (manual mode)', async () => {
+      const { selected, captured } = setupManual('tab-1')
+      await nextTick()
+
+      const event = new KeyboardEvent('keydown', { key: 'ArrowRight' })
+      captured.tab1.attrs.onKeydown(event)
+      await nextTick()
+
+      // Selection unchanged — focusAdjacent moved focus, not selection
+      expect(selected.value).toBe('tab-1')
     })
 
-    const wrapper = mount(Tabs.Root, {
-      props: { circular: true },
-      slots: {
-        default: () => h(Spy),
-      },
+    it('should focus adjacent on ArrowLeft without changing selection (manual mode)', async () => {
+      const { selected, captured } = setupManual('tab-2')
+      await nextTick()
+
+      const event = new KeyboardEvent('keydown', { key: 'ArrowLeft' })
+      captured.tab2.attrs.onKeydown(event)
+      await nextTick()
+
+      expect(selected.value).toBe('tab-2')
     })
 
-    await nextTick()
-    expect(circularRef!.value).toBe(true)
+    it('should focus first on Home without changing selection (manual mode)', async () => {
+      const { selected, captured } = setupManual('tab-3')
+      await nextTick()
 
-    await wrapper.setProps({ circular: false })
-    await nextTick()
-    expect(circularRef!.value).toBe(false)
+      const event = new KeyboardEvent('keydown', { key: 'Home' })
+      captured.tab3.attrs.onKeydown(event)
+      await nextTick()
+
+      expect(selected.value).toBe('tab-3')
+    })
+
+    it('should focus last on End without changing selection (manual mode)', async () => {
+      const { selected, captured } = setupManual('tab-1')
+      await nextTick()
+
+      const event = new KeyboardEvent('keydown', { key: 'End' })
+      captured.tab1.attrs.onKeydown(event)
+      await nextTick()
+
+      expect(selected.value).toBe('tab-1')
+    })
+
+    it('should support vertical orientation in manual mode (ArrowDown)', async () => {
+      const selected = ref('tab-1')
+      let tab1Props: any
+
+      mount(Tabs.Root, {
+        props: {
+          'activation': 'manual',
+          'orientation': 'vertical',
+          'modelValue': selected.value,
+          'onUpdate:modelValue': (v: unknown) => {
+            selected.value = v as string
+          },
+        },
+        slots: {
+          default: () => [
+            h(Tabs.Item as any, { value: 'tab-1' }, {
+              default: (props: any) => {
+                tab1Props = props
+                return h('button', 'Tab 1')
+              },
+            }),
+            h(Tabs.Item as any, { value: 'tab-2' }, () => h('button', 'Tab 2')),
+          ],
+        },
+      })
+
+      await nextTick()
+
+      const event = new KeyboardEvent('keydown', { key: 'ArrowDown' })
+      tab1Props.attrs.onKeydown(event)
+      await nextTick()
+
+      // Selection unchanged in manual mode
+      expect(selected.value).toBe('tab-1')
+    })
+
+    it('should wrap focus when circular and at last tab (manual mode)', async () => {
+      // Specifically targets the focusAdjacent circular branch
+      const { selected, captured } = setupManual('tab-3', true)
+      await nextTick()
+
+      const event = new KeyboardEvent('keydown', { key: 'ArrowRight' })
+      captured.tab3.attrs.onKeydown(event)
+      await nextTick()
+
+      // Selection still unchanged (manual mode)
+      expect(selected.value).toBe('tab-3')
+    })
+
+    it('should not wrap focus when circular=false at last tab (manual mode)', async () => {
+      const { selected, captured } = setupManual('tab-3', false)
+      await nextTick()
+
+      const event = new KeyboardEvent('keydown', { key: 'ArrowRight' })
+      captured.tab3.attrs.onKeydown(event)
+      await nextTick()
+
+      expect(selected.value).toBe('tab-3')
+    })
+
+    it('should skip disabled tabs while focusing adjacent (manual mode)', async () => {
+      const selected = ref('tab-1')
+      let tab1Props: any
+
+      mount(Tabs.Root, {
+        props: {
+          'activation': 'manual',
+          'modelValue': selected.value,
+          'onUpdate:modelValue': (v: unknown) => {
+            selected.value = v as string
+          },
+        },
+        slots: {
+          default: () => [
+            h(Tabs.Item as any, { value: 'tab-1' }, {
+              default: (props: any) => {
+                tab1Props = props
+                return h('button', 'Tab 1')
+              },
+            }),
+            h(Tabs.Item as any, { value: 'tab-2', disabled: true }, () => h('button', 'Tab 2')),
+            h(Tabs.Item as any, { value: 'tab-3' }, () => h('button', 'Tab 3')),
+          ],
+        },
+      })
+
+      await nextTick()
+
+      const event = new KeyboardEvent('keydown', { key: 'ArrowRight' })
+      tab1Props.attrs.onKeydown(event)
+      await nextTick()
+
+      // Selection unchanged
+      expect(selected.value).toBe('tab-1')
+    })
+  })
+
+  describe('tabs panel value miss fallback', () => {
+    it('should return null ticket when value matches nothing', async () => {
+      // Panel with a value that doesn't match any registered Item
+      let panelProps: any
+
+      mount(Tabs.Root, {
+        props: { mandatory: false },
+        slots: {
+          default: () => [
+            // No matching Item.value="orphan"
+            h(Tabs.Panel as any, { value: 'orphan' }, {
+              default: (props: any) => {
+                panelProps = props
+                return h('div', 'Orphan panel')
+              },
+            }),
+          ],
+        },
+      })
+
+      await nextTick()
+
+      // Panel renders even without matching Item
+      expect(panelProps).toBeDefined()
+      // isSelected is false because ticket is null → falls through
+      expect(panelProps.isSelected).toBe(false)
+      // ID falls back to value when ticket is null
+      expect(panelProps.attrs.id).toContain('orphan')
+    })
   })
 })

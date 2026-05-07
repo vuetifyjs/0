@@ -120,6 +120,7 @@ function deriveFirstDayOfWeek (locale: string): number {
   try {
     const loc = new Intl.Locale(locale) as Intl.Locale & { getWeekInfo?: () => { firstDay: number } }
     const info = loc.getWeekInfo?.()
+    /* v8 ignore next -- defensive: getWeekInfo always returns info in Node 22+ */
     return info ? info.firstDay % 7 : 0 // ISO 1-7 → v0 0-6
   } catch {
     return 0

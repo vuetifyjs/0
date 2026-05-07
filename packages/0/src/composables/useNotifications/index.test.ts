@@ -145,6 +145,18 @@ describe('createNotifications', () => {
       })
     })
 
+    it('should no-op when state mutations are called with a non-existent id', () => {
+      withScope(() => {
+        const notifications = createNotifications()
+
+        notifications.read('non-existent')
+
+        // read() on a non-existent id should not auto-register a malformed ticket
+        // (lacking createdAt, lifecycle methods, subject, etc.)
+        expect(notifications.values().length).toBe(0)
+      })
+    })
+
     it('should use ticket convenience methods', () => {
       withScope(() => {
         const notifications = createNotifications()

@@ -4,7 +4,7 @@ import { computeDepth, extractLeaves, resolveHeaders } from './columns'
 
 describe('columns', () => {
   describe('extractLeaves', () => {
-    it('returns all columns when flat', () => {
+    it('should return all columns when flat', () => {
       const columns = [
         { key: 'name', title: 'Name' },
         { key: 'email', title: 'Email' },
@@ -12,7 +12,7 @@ describe('columns', () => {
       expect(extractLeaves(columns)).toEqual(columns)
     })
 
-    it('extracts leaf columns from nested tree', () => {
+    it('should extract leaf columns from nested tree', () => {
       const columns = [
         { key: 'name', title: 'Name' },
         {
@@ -31,7 +31,7 @@ describe('columns', () => {
       ])
     })
 
-    it('handles deeply nested columns', () => {
+    it('should handle deeply nested columns', () => {
       const columns = [
         {
           key: 'group',
@@ -50,13 +50,13 @@ describe('columns', () => {
       ])
     })
 
-    it('returns empty array for empty input', () => {
+    it('should return empty array for empty input', () => {
       expect(extractLeaves([])).toEqual([])
     })
   })
 
   describe('computeDepth', () => {
-    it('returns 0 for flat columns', () => {
+    it('should return 0 for flat columns', () => {
       const columns = [
         { key: 'name' },
         { key: 'email' },
@@ -64,7 +64,7 @@ describe('columns', () => {
       expect(computeDepth(columns)).toBe(0)
     })
 
-    it('returns 1 for one level of nesting', () => {
+    it('should return 1 for one level of nesting', () => {
       const columns = [
         { key: 'name' },
         { key: 'contact', children: [
@@ -75,7 +75,7 @@ describe('columns', () => {
       expect(computeDepth(columns)).toBe(1)
     })
 
-    it('returns 2 for two levels of nesting', () => {
+    it('should return 2 for two levels of nesting', () => {
       const columns = [
         { key: 'group', children: [
           { key: 'sub', children: [
@@ -86,7 +86,7 @@ describe('columns', () => {
       expect(computeDepth(columns)).toBe(2)
     })
 
-    it('returns max depth across branches', () => {
+    it('should return max depth across branches', () => {
       const columns = [
         { key: 'shallow', children: [{ key: 'a' }] },
         { key: 'deep', children: [
@@ -98,7 +98,7 @@ describe('columns', () => {
   })
 
   describe('resolveHeaders', () => {
-    it('returns single row for flat columns', () => {
+    it('should return single row for flat columns', () => {
       const columns = [
         { key: 'name', title: 'Name' },
         { key: 'email', title: 'Email' },
@@ -110,7 +110,7 @@ describe('columns', () => {
       ]])
     })
 
-    it('resolves nested columns into 2D grid', () => {
+    it('should resolve nested columns into 2D grid', () => {
       const columns = [
         { key: 'name', title: 'Name' },
         {
@@ -135,7 +135,7 @@ describe('columns', () => {
       ])
     })
 
-    it('handles deeply nested columns', () => {
+    it('should handle deeply nested columns', () => {
       const columns = [
         { key: 'a', title: 'A' },
         {
@@ -168,8 +168,23 @@ describe('columns', () => {
       ])
     })
 
-    it('returns empty array for empty input', () => {
+    it('should return empty array for empty input', () => {
       expect(resolveHeaders([])).toEqual([])
+    })
+
+    it('should default missing title to empty string', () => {
+      const columns = [
+        { key: 'noTitle' },
+        {
+          key: 'group',
+          children: [{ key: 'leaf' }],
+        },
+      ]
+      const headers = resolveHeaders(columns)
+      expect(headers[0]).toEqual([
+        { key: 'noTitle', title: '', colspan: 1, rowspan: 2, depth: 0 },
+        { key: 'group', title: '', colspan: 1, rowspan: 1, depth: 0 },
+      ])
     })
   })
 })

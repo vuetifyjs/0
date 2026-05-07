@@ -50,7 +50,7 @@ describe('createPlugin', () => {
     const plugin = createPlugin(options)
     plugin.install(mockApp)
 
-    expect(mockRunWithContext).toHaveBeenCalledOnce()
+    expect(mockRunWithContext).toHaveBeenCalledTimes(1)
     expect(mockRunWithContext).toHaveBeenCalledWith(expect.any(Function))
   })
 
@@ -63,7 +63,7 @@ describe('createPlugin', () => {
     const plugin = createPlugin(options)
     plugin.install(mockApp)
 
-    expect(mockProvide).toHaveBeenCalledOnce()
+    expect(mockProvide).toHaveBeenCalledTimes(1)
     expect(mockProvide).toHaveBeenCalledWith(mockApp)
   })
 
@@ -77,7 +77,7 @@ describe('createPlugin', () => {
     const plugin = createPlugin(options)
     plugin.install(mockApp)
 
-    expect(mockSetup).toHaveBeenCalledOnce()
+    expect(mockSetup).toHaveBeenCalledTimes(1)
     expect(mockSetup).toHaveBeenCalledWith(mockApp)
   })
 
@@ -104,7 +104,7 @@ describe('createPlugin', () => {
     const plugin = createPlugin(options)
     await plugin.install(mockApp)
 
-    expect(asyncSetup).toHaveBeenCalledOnce()
+    expect(asyncSetup).toHaveBeenCalledTimes(1)
     expect(asyncSetup).toHaveBeenCalledWith(mockApp)
   })
 
@@ -142,8 +142,8 @@ describe('createPlugin', () => {
     plugin.install(mockApp)
     plugin.install(mockApp)
 
-    expect(mockProvide).toHaveBeenCalledOnce()
-    expect(mockSetup).toHaveBeenCalledOnce()
+    expect(mockProvide).toHaveBeenCalledTimes(1)
+    expect(mockSetup).toHaveBeenCalledTimes(1)
   })
 })
 
@@ -219,7 +219,7 @@ describe('createPluginContext', () => {
     const plugin = createXPlugin()
     plugin.install(mockApp)
 
-    expect(setup).toHaveBeenCalledOnce()
+    expect(setup).toHaveBeenCalledTimes(1)
   })
 
   it('should return fallback when fallback is configured and no instance exists', () => {
@@ -235,6 +235,17 @@ describe('createPluginContext', () => {
 
     expect(result).toEqual({ fallback: true })
     expect(fallback).toHaveBeenCalledWith('v0:fallback-test')
+  })
+
+  it('should throw via useContext when no fallback is configured and no provider exists', () => {
+    const [, , useX] = createPluginContext(
+      'v0:no-fallback',
+      () => ({ value: 1 }),
+    )
+
+    expect(() => useX()).toThrow(
+      'Context "v0:no-fallback" not found. Ensure it\'s provided by an ancestor.',
+    )
   })
 
   describe('persist/restore', () => {

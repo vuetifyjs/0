@@ -143,7 +143,8 @@ describe('postHogFeaturesAdapter', () => {
     })
   })
 
-  describe('sSR (non-browser) environment', () => {
+  // eslint-disable-next-line vitest/prefer-lowercase-title
+  describe('SSR (non-browser) environment', () => {
     it('should return empty flags when not in browser', () => {
       mockInBrowser.value = false
       const mockClient = createMockClient()

@@ -28,7 +28,7 @@ describe('createTrinity', () => {
 
     const result = createContext()
 
-    expect(mockUseContext).toHaveBeenCalledOnce()
+    expect(mockUseContext).toHaveBeenCalledTimes(1)
     expect(result).toBe(mockContext)
   })
 

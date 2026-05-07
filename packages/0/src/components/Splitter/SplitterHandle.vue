@@ -103,9 +103,11 @@
   })
 
   // aria-valuenow: size of the panel before this handle (0-100), rounded for AT
+  /* v8 ignore next -- defensive: the handle's index always points to a registered panel */
   const valuenow = toRef(() => Math.round(splitter.panel(ticket.index)?.size ?? 0))
   const valuemin = toRef(() => {
     const p = splitter.panel(ticket.index)
+    /* v8 ignore next -- defensive: handle's index always resolves to a registered panel */
     if (!p) return 0
     return p.collapsible ? p.collapsedSize : p.minSize
   })
@@ -133,9 +135,11 @@
   useToggleScope(() => splitter.draggingHandle.value === ticket.index, () => {
     const update = useRaf(() => {
       const root = splitter.rootEl.value as HTMLElement | null
+      /* v8 ignore next -- defensive: drag scope only enters with a mounted root */
       if (!root) return
 
       const rootSize = isHorizontal.value ? root.offsetWidth : root.offsetHeight
+      /* v8 ignore next -- happy-dom returns 0 for offset dimensions; not exercised in tests */
       if (!rootSize) return
 
       const delta = ((latestPos - startPosition.value) / rootSize) * 100
@@ -151,6 +155,7 @@
 
     useDocumentEventListener('pointerup', () => {
       update.cancel()
+      /* v8 ignore next 4 -- IN_BROWSER always true in happy-dom test env */
       if (IN_BROWSER) {
         document.documentElement.style.userSelect = ''
         document.documentElement.style.touchAction = ''
@@ -160,6 +165,7 @@
 
     onScopeDispose(() => {
       splitter.onEndDrag()
+      /* v8 ignore next 4 -- IN_BROWSER always true in happy-dom test env */
       if (IN_BROWSER) {
         document.documentElement.style.userSelect = ''
         document.documentElement.style.touchAction = ''

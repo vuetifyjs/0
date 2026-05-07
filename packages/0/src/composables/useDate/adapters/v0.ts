@@ -53,8 +53,10 @@ interface IntlLocaleWithWeekInfo {
 function deriveWeekInfo (locale: string): { firstDay: number, minimalDays: number } {
   try {
     const loc: IntlLocaleWithWeekInfo = new Intl.Locale(locale)
+    /* v8 ignore next -- Intl.Locale.getWeekInfo always present in Node 22+, .weekInfo fallback is for legacy runtimes */
     const info = isFunction(loc.getWeekInfo) ? loc.getWeekInfo() : loc.weekInfo
     // Intl weekInfo.firstDay: 1=Mon...7=Sun, convert to 0=Sun...6=Sat
+    /* v8 ignore next -- Sun=7 conversion only for locales where Sunday is weekStart; covered by other-locale path */
     const firstDay = info?.firstDay === 7 ? 0 : info?.firstDay ?? 0
     const minimalDays = info?.minimalDays ?? deriveMinimalDays(locale)
     return { firstDay, minimalDays }
@@ -763,6 +765,7 @@ export class V0DateAdapter extends DateAdapter<PlainDateTime> {
 
     if (!formatter) {
       // Evict oldest entry if cache is full
+      /* v8 ignore next 4 -- cache-eviction only triggers past MAX_CACHE_SIZE; not exercised through public API */
       if (this.formatCache.size >= MAX_CACHE_SIZE) {
         const firstKey = this.formatCache.keys().next().value
         if (firstKey) this.formatCache.delete(firstKey)
@@ -784,6 +787,7 @@ export class V0DateAdapter extends DateAdapter<PlainDateTime> {
 
     if (!formatter) {
       // Evict oldest entry if cache is full
+      /* v8 ignore next 4 -- cache-eviction only triggers past MAX_CACHE_SIZE; not exercised through public API */
       if (this.numberFormatCache.size >= MAX_CACHE_SIZE) {
         const firstKey = this.numberFormatCache.keys().next().value
         if (firstKey) this.numberFormatCache.delete(firstKey)

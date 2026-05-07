@@ -142,7 +142,8 @@ describe('progress', () => {
     })
   })
 
-  describe('aRIA attributes', () => {
+  // eslint-disable-next-line vitest/prefer-lowercase-title
+  describe('ARIA attributes', () => {
     it('should set role=progressbar', async () => {
       const model = ref(50)
       const { rootProps, wait } = mountProgress({ model })
@@ -491,6 +492,19 @@ describe('progress', () => {
       await wait()
       expect(bufferProps().value).toBe(100)
       expect(bufferProps().percent).toBe(100)
+    })
+
+    it('should return 0 percent when min equals max', async () => {
+      const model = ref(0)
+      const { bufferProps, wait } = mountProgress({
+        model,
+        fillValue: 0,
+        withBuffer: true,
+        bufferValue: 5,
+        props: { min: 10, max: 10 },
+      })
+      await wait()
+      expect(bufferProps().percent).toBe(0)
     })
   })
 

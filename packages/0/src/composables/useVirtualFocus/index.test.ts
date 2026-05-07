@@ -232,7 +232,7 @@ describe('useVirtualFocus', () => {
   })
 
   describe('navigation', () => {
-    it('next should highlight first item when nothing is active', () => {
+    it('should highlight first item via next when nothing is active', () => {
       let result: ReturnType<typeof useVirtualFocus>
 
       scope.run(() => {
@@ -244,7 +244,7 @@ describe('useVirtualFocus', () => {
       expect(result!.highlightedId.value).toBe('item-0')
     })
 
-    it('next should advance to the next item', () => {
+    it('should advance to the next item via next', () => {
       let result: ReturnType<typeof useVirtualFocus>
 
       scope.run(() => {
@@ -257,7 +257,7 @@ describe('useVirtualFocus', () => {
       expect(result!.highlightedId.value).toBe('item-1')
     })
 
-    it('prev should move to the previous item', () => {
+    it('should move to the previous item via prev', () => {
       let result: ReturnType<typeof useVirtualFocus>
 
       scope.run(() => {
@@ -270,7 +270,7 @@ describe('useVirtualFocus', () => {
       expect(result!.highlightedId.value).toBe('item-1')
     })
 
-    it('first should highlight the first item', () => {
+    it('should highlight the first item via first', () => {
       let result: ReturnType<typeof useVirtualFocus>
 
       scope.run(() => {
@@ -283,7 +283,7 @@ describe('useVirtualFocus', () => {
       expect(result!.highlightedId.value).toBe('item-0')
     })
 
-    it('last should highlight the last item', () => {
+    it('should highlight the last item via last', () => {
       let result: ReturnType<typeof useVirtualFocus>
 
       scope.run(() => {
@@ -723,7 +723,7 @@ describe('useVirtualFocus', () => {
   })
 
   describe('disabled items', () => {
-    it('first should skip disabled items', () => {
+    it('should skip disabled items via first', () => {
       const disabledItems: VirtualFocusItem[] = [
         { id: 'a', el: elements[0], disabled: true },
         { id: 'b', el: elements[1] },
@@ -741,7 +741,7 @@ describe('useVirtualFocus', () => {
       expect(result!.highlightedId.value).toBe('b')
     })
 
-    it('last should skip disabled items', () => {
+    it('should skip disabled items via last', () => {
       const disabledItems: VirtualFocusItem[] = [
         { id: 'a', el: elements[0] },
         { id: 'b', el: elements[1] },

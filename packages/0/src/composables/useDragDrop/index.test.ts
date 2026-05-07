@@ -781,3 +781,697 @@ describe('keyboardAdapter options', () => {
     warn.mockRestore()
   })
 })
+
+function makeRect (x: number, y: number, width: number, height: number): DOMRect {
+  return {
+    top: y,
+    bottom: y + height,
+    left: x,
+    right: x + width,
+    width,
+    height,
+    x,
+    y,
+    toJSON: () => ({}),
+  } as DOMRect
+}
+
+describe('resolveDropPosition', () => {
+  it('should return before-first when point is above all rects (vertical)', async () => {
+    const adapter = new CaptureAdapter()
+    const cardEl = makeFocusableEl('rdp-vert-before')
+    const zoneEl = document.createElement('div')
+    const child = document.createElement('div')
+    zoneEl.append(child)
+    document.body.append(zoneEl)
+
+    child.getBoundingClientRect = () => makeRect(0, 100, 100, 100)
+
+    const dnd = useDragDrop({ adapters: [adapter] })
+    const ticket = dnd.draggables.register({ el: shallowRef(cardEl), type: 'a', value: null })
+    const zone = dnd.zones.register({ el: shallowRef(zoneEl), orientation: 'vertical' })
+
+    await nextTick()
+
+    adapter.emit.start(ticket, { x: 0, y: 0 }, 'pointer')
+    const realFromPoint = document.elementFromPoint.bind(document)
+    document.elementFromPoint = () => zoneEl
+    adapter.emit.move({ x: 50, y: 0 }) // y=0 is above child top=100
+
+    expect(zone.indicator.value?.edge).toBe('before')
+    expect(zone.indicator.value?.index).toBe(0)
+
+    document.elementFromPoint = realFromPoint
+    cardEl.remove()
+    zoneEl.remove()
+  })
+
+  it('should return after-last when point is past all rects (vertical)', async () => {
+    const adapter = new CaptureAdapter()
+    const cardEl = makeFocusableEl('rdp-vert-after')
+    const zoneEl = document.createElement('div')
+    const child = document.createElement('div')
+    zoneEl.append(child)
+    document.body.append(zoneEl)
+
+    child.getBoundingClientRect = () => makeRect(0, 0, 100, 100)
+
+    const dnd = useDragDrop({ adapters: [adapter] })
+    const ticket = dnd.draggables.register({ el: shallowRef(cardEl), type: 'a', value: null })
+    const zone = dnd.zones.register({ el: shallowRef(zoneEl), orientation: 'vertical' })
+
+    await nextTick()
+
+    adapter.emit.start(ticket, { x: 0, y: 0 }, 'pointer')
+    const realFromPoint = document.elementFromPoint.bind(document)
+    document.elementFromPoint = () => zoneEl
+    adapter.emit.move({ x: 50, y: 200 }) // past bottom
+
+    expect(zone.indicator.value?.edge).toBe('after')
+    expect(zone.indicator.value?.index).toBe(1)
+
+    document.elementFromPoint = realFromPoint
+    cardEl.remove()
+    zoneEl.remove()
+  })
+
+  it('should resolve before/after on horizontal orientation', async () => {
+    const adapter = new CaptureAdapter()
+    const cardEl = makeFocusableEl('rdp-horiz')
+    const zoneEl = document.createElement('div')
+    const child = document.createElement('div')
+    zoneEl.append(child)
+    document.body.append(zoneEl)
+
+    child.getBoundingClientRect = () => makeRect(0, 0, 100, 100)
+
+    const dnd = useDragDrop({ adapters: [adapter] })
+    const ticket = dnd.draggables.register({ el: shallowRef(cardEl), type: 'a', value: null })
+    const zone = dnd.zones.register({ el: shallowRef(zoneEl), orientation: 'horizontal' })
+
+    await nextTick()
+
+    adapter.emit.start(ticket, { x: 0, y: 0 }, 'pointer')
+    const realFromPoint = document.elementFromPoint.bind(document)
+    document.elementFromPoint = () => zoneEl
+
+    adapter.emit.move({ x: 25, y: 50 }) // left half → before
+    expect(zone.indicator.value?.edge).toBe('before')
+    expect(zone.indicator.value?.index).toBe(0)
+
+    adapter.emit.move({ x: 75, y: 50 }) // right half → after
+    expect(zone.indicator.value?.edge).toBe('after')
+    expect(zone.indicator.value?.index).toBe(1)
+
+    document.elementFromPoint = realFromPoint
+    cardEl.remove()
+    zoneEl.remove()
+  })
+
+  it('should resolve gap-after when coord lies in gap closer to a.end', async () => {
+    const adapter = new CaptureAdapter()
+    const cardEl = makeFocusableEl('rdp-gap-1')
+    const zoneEl = document.createElement('div')
+    const a = document.createElement('div')
+    const b = document.createElement('div')
+    zoneEl.append(a, b)
+    document.body.append(zoneEl)
+
+    a.getBoundingClientRect = () => makeRect(0, 0, 100, 50) // bottom = 50
+    b.getBoundingClientRect = () => makeRect(0, 100, 100, 50) // top = 100, bottom = 150
+
+    const dnd = useDragDrop({ adapters: [adapter] })
+    const ticket = dnd.draggables.register({ el: shallowRef(cardEl), type: 'a', value: null })
+    const zone = dnd.zones.register({ el: shallowRef(zoneEl), orientation: 'vertical' })
+
+    await nextTick()
+
+    adapter.emit.start(ticket, { x: 0, y: 0 }, 'pointer')
+    const realFromPoint = document.elementFromPoint.bind(document)
+    document.elementFromPoint = () => zoneEl
+
+    // y=60 lies in gap (50,100), closer to a.end=50; mid=75, 60 < 75 → 'after a'
+    adapter.emit.move({ x: 50, y: 60 })
+    expect(zone.indicator.value?.edge).toBe('after')
+    expect(zone.indicator.value?.index).toBe(1)
+
+    document.elementFromPoint = realFromPoint
+    cardEl.remove()
+    zoneEl.remove()
+  })
+
+  it('should resolve gap-before when coord lies in gap closer to b.start', async () => {
+    const adapter = new CaptureAdapter()
+    const cardEl = makeFocusableEl('rdp-gap-2')
+    const zoneEl = document.createElement('div')
+    const a = document.createElement('div')
+    const b = document.createElement('div')
+    zoneEl.append(a, b)
+    document.body.append(zoneEl)
+
+    a.getBoundingClientRect = () => makeRect(0, 0, 100, 50)
+    b.getBoundingClientRect = () => makeRect(0, 100, 100, 50)
+
+    const dnd = useDragDrop({ adapters: [adapter] })
+    const ticket = dnd.draggables.register({ el: shallowRef(cardEl), type: 'a', value: null })
+    const zone = dnd.zones.register({ el: shallowRef(zoneEl), orientation: 'vertical' })
+
+    await nextTick()
+
+    adapter.emit.start(ticket, { x: 0, y: 0 }, 'pointer')
+    const realFromPoint = document.elementFromPoint.bind(document)
+    document.elementFromPoint = () => zoneEl
+
+    // y=90 lies in gap (50,100), mid=75, 90 > 75 → 'before b'
+    adapter.emit.move({ x: 50, y: 90 })
+    expect(zone.indicator.value?.edge).toBe('before')
+    expect(zone.indicator.value?.index).toBe(1)
+
+    document.elementFromPoint = realFromPoint
+    cardEl.remove()
+    zoneEl.remove()
+  })
+})
+
+describe('safeAccept edge cases', () => {
+  it('should reject when accept predicate returns a thenable', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const adapter = new CaptureAdapter()
+    const dnd = useDragDrop({ adapters: [adapter] })
+    const accept = vi.fn(() => Promise.resolve(true)) as unknown as () => boolean
+
+    const zone = dnd.zones.register({ el: shallowRef(null), accept })
+    const ticket = dnd.draggables.register({ el: shallowRef(null), type: 'a', value: null })
+
+    adapter.emit.start(ticket, { x: 0, y: 0 }, 'pointer')
+
+    expect(zone.willAccept.value).toBe(false)
+    expect(warn).toHaveBeenCalled()
+    expect(warn.mock.calls[0]?.join(' ')).toContain('thenable')
+
+    warn.mockRestore()
+  })
+
+  it('should reject and log when accept predicate throws', () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const adapter = new CaptureAdapter()
+    const dnd = useDragDrop({ adapters: [adapter] })
+    const accept = vi.fn(() => {
+      throw new Error('boom')
+    })
+
+    const zone = dnd.zones.register({ el: shallowRef(null), accept })
+    const ticket = dnd.draggables.register({ el: shallowRef(null), type: 'a', value: null })
+
+    adapter.emit.start(ticket, { x: 0, y: 0 }, 'pointer')
+
+    expect(zone.willAccept.value).toBe(false)
+    expect(error).toHaveBeenCalled()
+    expect(error.mock.calls[0]?.join(' ')).toContain('accept predicate threw')
+
+    error.mockRestore()
+  })
+
+  it('should accept when accept option is undefined', () => {
+    const adapter = new CaptureAdapter()
+    const dnd = useDragDrop({ adapters: [adapter] })
+
+    const zone = dnd.zones.register({ el: shallowRef(null) })
+    const ticket = dnd.draggables.register({ el: shallowRef(null), type: 'a', value: null })
+
+    adapter.emit.start(ticket, { x: 0, y: 0 }, 'pointer')
+
+    expect(zone.willAccept.value).toBe(true)
+  })
+})
+
+describe('zone unmount cleanup', () => {
+  it('should remove zone element from nodes map when el ref flips to null', async () => {
+    const adapter = new CaptureAdapter()
+    const cardEl = makeFocusableEl('z-cleanup-1')
+    const oldZoneEl = document.createElement('div')
+    document.body.append(oldZoneEl)
+    const elRef = shallowRef<HTMLElement | null>(oldZoneEl)
+
+    const dnd = useDragDrop({ adapters: [adapter] })
+    const ticket = dnd.draggables.register({ el: shallowRef(cardEl), type: 'a', value: null })
+    const zone = dnd.zones.register({ el: elRef })
+
+    await nextTick()
+
+    adapter.emit.start(ticket, { x: 0, y: 0 }, 'pointer')
+
+    // Drop the zone element ref — onWatcherCleanup should run and remove from nodes map
+    elRef.value = null
+    await nextTick()
+
+    // Now move with elementFromPoint returning oldZoneEl. Since nodes no longer has the entry,
+    // at() walks up and returns null, so over remains null.
+    const realFromPoint = document.elementFromPoint.bind(document)
+    document.elementFromPoint = () => oldZoneEl
+    adapter.emit.move({ x: 5, y: 5 })
+    document.elementFromPoint = realFromPoint
+
+    expect(dnd.active.value?.over).toBeNull()
+    expect(zone).toBeDefined()
+
+    oldZoneEl.remove()
+    cardEl.remove()
+  })
+})
+
+describe('position()', () => {
+  it('should populate index and indicator on drop into oriented zone', async () => {
+    const adapter = new CaptureAdapter()
+    const cardEl = makeFocusableEl('pos-orient-1')
+    const zoneEl = document.createElement('div')
+    const child = document.createElement('div')
+    zoneEl.append(child)
+    document.body.append(zoneEl)
+
+    child.getBoundingClientRect = () => makeRect(0, 0, 100, 100)
+
+    const onDrop = vi.fn()
+    const dnd = useDragDrop({ adapters: [adapter] })
+    const ticket = dnd.draggables.register({ el: shallowRef(cardEl), type: 'a', value: null })
+    dnd.zones.register({ el: shallowRef(zoneEl), orientation: 'vertical', onDrop })
+
+    await nextTick()
+
+    adapter.emit.start(ticket, { x: 0, y: 0 }, 'pointer')
+    const realFromPoint = document.elementFromPoint.bind(document)
+    document.elementFromPoint = () => zoneEl
+    adapter.emit.move({ x: 50, y: 25 }) // upper half
+    adapter.emit.drop()
+    document.elementFromPoint = realFromPoint
+
+    expect(onDrop).toHaveBeenCalledTimes(1)
+    const position = onDrop.mock.calls[0][1]
+    expect(position.index).toBe(0)
+    expect(position.indicator).toBeDefined()
+    expect(position.indicator.edge).toBe('before')
+
+    cardEl.remove()
+    zoneEl.remove()
+  })
+})
+
+describe('onBeforeStart error paths', () => {
+  it('should treat draggable.onBeforeStart throwing as veto', () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const adapter = new CaptureAdapter()
+    const onBeforeStart = vi.fn(() => {
+      throw new Error('drag boom')
+    })
+
+    const dnd = useDragDrop({ adapters: [adapter] })
+    const ticket = dnd.draggables.register({
+      el: shallowRef(null),
+      type: 'a',
+      value: null,
+      onBeforeStart,
+    })
+
+    adapter.emit.start(ticket, { x: 0, y: 0 }, 'pointer')
+
+    expect(dnd.active.value).toBeNull()
+    expect(onBeforeStart).toHaveBeenCalledTimes(1)
+    expect(error).toHaveBeenCalled()
+
+    error.mockRestore()
+  })
+
+  it('should veto when global onBeforeStart returns false', () => {
+    const adapter = new CaptureAdapter()
+    const onBeforeStart = vi.fn(() => false)
+
+    const dnd = useDragDrop({ adapters: [adapter], onBeforeStart })
+    const ticket = dnd.draggables.register({ el: shallowRef(null), type: 'a', value: null })
+
+    adapter.emit.start(ticket, { x: 0, y: 0 }, 'pointer')
+
+    expect(dnd.active.value).toBeNull()
+    expect(onBeforeStart).toHaveBeenCalledTimes(1)
+  })
+
+  it('should treat global onBeforeStart throwing as veto', () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const adapter = new CaptureAdapter()
+    const onBeforeStart = vi.fn(() => {
+      throw new Error('global boom')
+    })
+
+    const dnd = useDragDrop({ adapters: [adapter], onBeforeStart })
+    const ticket = dnd.draggables.register({ el: shallowRef(null), type: 'a', value: null })
+
+    adapter.emit.start(ticket, { x: 0, y: 0 }, 'pointer')
+
+    expect(dnd.active.value).toBeNull()
+    expect(error).toHaveBeenCalled()
+
+    error.mockRestore()
+  })
+})
+
+describe('onMove / onDrop early returns', () => {
+  it('should noop when emit.move is called with no active drag', () => {
+    const adapter = new CaptureAdapter()
+    const onMove = vi.fn()
+    const dnd = useDragDrop({ adapters: [adapter], onMove })
+
+    expect(() => adapter.emit.move({ x: 5, y: 5 })).not.toThrow()
+    expect(onMove).not.toHaveBeenCalled()
+    expect(dnd.active.value).toBeNull()
+  })
+
+  it('should noop when emit.drop is called with no active drag', () => {
+    const adapter = new CaptureAdapter()
+    const onDrop = vi.fn()
+    const onCancel = vi.fn()
+    const dnd = useDragDrop({ adapters: [adapter], onDrop, onCancel })
+
+    expect(() => adapter.emit.drop()).not.toThrow()
+    expect(onDrop).not.toHaveBeenCalled()
+    expect(onCancel).not.toHaveBeenCalled()
+    expect(dnd.active.value).toBeNull()
+  })
+})
+
+describe('onBeforeDrop error paths', () => {
+  it('should treat zone onBeforeDrop throwing as veto', async () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const adapter = new CaptureAdapter()
+    const cardEl = makeFocusableEl('bd-throw-1')
+    const zoneEl = document.createElement('div')
+    document.body.append(zoneEl)
+
+    const onBeforeDrop = vi.fn(() => {
+      throw new Error('drop boom')
+    })
+    const onDrop = vi.fn()
+    const onCancel = vi.fn()
+
+    const dnd = useDragDrop({ adapters: [adapter], onCancel })
+    const ticket = dnd.draggables.register({ el: shallowRef(cardEl), type: 'a', value: null })
+    dnd.zones.register({ el: shallowRef(zoneEl), onBeforeDrop, onDrop })
+
+    adapter.emit.start(ticket, { x: 0, y: 0 }, 'pointer')
+
+    const realFromPoint = document.elementFromPoint.bind(document)
+    document.elementFromPoint = () => zoneEl
+    adapter.emit.move({ x: 0, y: 0 })
+    adapter.emit.drop()
+    document.elementFromPoint = realFromPoint
+    await nextTick()
+
+    expect(onBeforeDrop).toHaveBeenCalledTimes(1)
+    expect(onDrop).not.toHaveBeenCalled()
+    expect(onCancel).toHaveBeenCalledWith(expect.any(Object), 'reject')
+    expect(error).toHaveBeenCalled()
+
+    cardEl.remove()
+    zoneEl.remove()
+    error.mockRestore()
+  })
+
+  it('should treat options onBeforeDrop throwing as veto', async () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const adapter = new CaptureAdapter()
+    const cardEl = makeFocusableEl('bd-throw-2')
+    const zoneEl = document.createElement('div')
+    document.body.append(zoneEl)
+
+    const optionsBefore = vi.fn(() => {
+      throw new Error('options drop boom')
+    })
+    const onDrop = vi.fn()
+    const onCancel = vi.fn()
+
+    const dnd = useDragDrop({ adapters: [adapter], onBeforeDrop: optionsBefore, onCancel })
+    const ticket = dnd.draggables.register({ el: shallowRef(cardEl), type: 'a', value: null })
+    dnd.zones.register({ el: shallowRef(zoneEl), onDrop })
+
+    adapter.emit.start(ticket, { x: 0, y: 0 }, 'pointer')
+    const realFromPoint = document.elementFromPoint.bind(document)
+    document.elementFromPoint = () => zoneEl
+    adapter.emit.move({ x: 0, y: 0 })
+    adapter.emit.drop()
+    document.elementFromPoint = realFromPoint
+    await nextTick()
+
+    expect(optionsBefore).toHaveBeenCalledTimes(1)
+    expect(onDrop).not.toHaveBeenCalled()
+    expect(onCancel).toHaveBeenCalledWith(expect.any(Object), 'reject')
+    expect(error).toHaveBeenCalled()
+
+    cardEl.remove()
+    zoneEl.remove()
+    error.mockRestore()
+  })
+})
+
+describe('adapter setup error paths', () => {
+  it('should log error and continue when adapter setup throws', () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+    class BadAdapter extends DragDropAdapter {
+      setup (): void {
+        throw new Error('setup boom')
+      }
+    }
+
+    expect(() => useDragDrop({ adapters: [new BadAdapter()] })).not.toThrow()
+    expect(error).toHaveBeenCalled()
+    expect(error.mock.calls.some(call => String(call.join(' ')).includes('adapter setup threw'))).toBe(true)
+
+    error.mockRestore()
+  })
+
+  it('should log error when both setup and dispose throw', () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+    class TerribleAdapter extends DragDropAdapter {
+      setup (): void {
+        throw new Error('setup boom')
+      }
+
+      dispose (): void {
+        throw new Error('dispose boom')
+      }
+    }
+
+    expect(() => useDragDrop({ adapters: [new TerribleAdapter()] })).not.toThrow()
+    expect(error).toHaveBeenCalled()
+    const calls = error.mock.calls.map(c => String(c.join(' ')))
+    expect(calls.some(s => s.includes('adapter setup threw'))).toBe(true)
+    expect(calls.some(s => s.includes('adapter dispose threw'))).toBe(true)
+
+    error.mockRestore()
+  })
+
+  it('should continue installing remaining adapters when one fails', () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+    class BadAdapter extends DragDropAdapter {
+      setup (): void {
+        throw new Error('boom')
+      }
+    }
+
+    const capture = new CaptureAdapter()
+    const dnd = useDragDrop({ adapters: [new BadAdapter(), capture] })
+
+    expect(capture.emit).toBeDefined()
+    expect(typeof capture.emit.start).toBe('function')
+    expect(dnd).toBeDefined()
+    expect(error).toHaveBeenCalled()
+
+    error.mockRestore()
+  })
+})
+
+describe('plugin error paths', () => {
+  it('should log error and continue when plugin install throws', () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+    expect(() => useDragDrop({
+      adapters: [],
+      plugins: [
+        () => {
+          throw new Error('plugin boom')
+        },
+      ],
+    })).not.toThrow()
+
+    expect(error).toHaveBeenCalled()
+    expect(error.mock.calls.some(c => String(c.join(' ')).includes('plugin install threw'))).toBe(true)
+
+    error.mockRestore()
+  })
+
+  it('should run later plugins after an earlier plugin throws', () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const ran = vi.fn()
+
+    useDragDrop({
+      adapters: [],
+      plugins: [
+        () => {
+          throw new Error('first')
+        },
+        () => ran(),
+      ],
+    })
+
+    expect(ran).toHaveBeenCalledTimes(1)
+    expect(error).toHaveBeenCalled()
+
+    error.mockRestore()
+  })
+})
+
+describe('unregister handlers', () => {
+  it('should cancel active drag when the active draggable unregisters', () => {
+    const adapter = new CaptureAdapter()
+    const onCancel = vi.fn()
+    const dnd = useDragDrop({ adapters: [adapter], onCancel })
+    const ticket = dnd.draggables.register({ el: shallowRef(null), type: 'a', value: null })
+
+    adapter.emit.start(ticket, { x: 0, y: 0 }, 'pointer')
+    expect(dnd.active.value).not.toBeNull()
+
+    ticket.unregister()
+
+    expect(dnd.active.value).toBeNull()
+    expect(onCancel).toHaveBeenCalledTimes(1)
+    expect(onCancel).toHaveBeenCalledWith(expect.any(Object), 'cancel')
+  })
+
+  it('should not cancel drag when an unrelated draggable unregisters', () => {
+    const adapter = new CaptureAdapter()
+    const onCancel = vi.fn()
+    const dnd = useDragDrop({ adapters: [adapter], onCancel })
+    const active = dnd.draggables.register({ el: shallowRef(null), type: 'a', value: null })
+    const other = dnd.draggables.register({ el: shallowRef(null), type: 'a', value: null })
+
+    adapter.emit.start(active, { x: 0, y: 0 }, 'pointer')
+    expect(dnd.active.value?.id).toBe(active.id)
+
+    other.unregister()
+
+    expect(dnd.active.value?.id).toBe(active.id)
+    expect(onCancel).not.toHaveBeenCalled()
+  })
+
+  it('should call zone onLeave and clear over when active over-zone unregisters', async () => {
+    const adapter = new CaptureAdapter()
+    const cardEl = makeFocusableEl('unreg-zone-1')
+    const zoneEl = document.createElement('div')
+    document.body.append(zoneEl)
+
+    const onLeave = vi.fn()
+    const dnd = useDragDrop({ adapters: [adapter] })
+    const ticket = dnd.draggables.register({ el: shallowRef(cardEl), type: 'a', value: null })
+    const zone = dnd.zones.register({ el: shallowRef(zoneEl), onLeave })
+
+    adapter.emit.start(ticket, { x: 0, y: 0 }, 'pointer')
+    const realFromPoint = document.elementFromPoint.bind(document)
+    document.elementFromPoint = () => zoneEl
+    adapter.emit.move({ x: 0, y: 0 })
+    document.elementFromPoint = realFromPoint
+    await nextTick()
+    expect(dnd.active.value?.over).toBe(zone.id)
+
+    zone.unregister()
+    await nextTick()
+
+    expect(onLeave).toHaveBeenCalledTimes(1)
+    expect(dnd.active.value?.over).toBeNull()
+    expect(dnd.active.value?.willAccept).toBe(false)
+    // Drag is preserved
+    expect(dnd.active.value?.id).toBe(ticket.id)
+
+    cardEl.remove()
+    zoneEl.remove()
+  })
+
+  it('should not invoke onLeave when an unrelated zone unregisters', async () => {
+    const adapter = new CaptureAdapter()
+    const cardEl = makeFocusableEl('unreg-zone-2')
+    const zoneEl = document.createElement('div')
+    const otherEl = document.createElement('div')
+    document.body.append(zoneEl, otherEl)
+
+    const onLeave = vi.fn()
+    const otherLeave = vi.fn()
+    const dnd = useDragDrop({ adapters: [adapter] })
+    const ticket = dnd.draggables.register({ el: shallowRef(cardEl), type: 'a', value: null })
+    dnd.zones.register({ el: shallowRef(zoneEl), onLeave })
+    const other = dnd.zones.register({ el: shallowRef(otherEl), onLeave: otherLeave })
+
+    adapter.emit.start(ticket, { x: 0, y: 0 }, 'pointer')
+    const realFromPoint = document.elementFromPoint.bind(document)
+    document.elementFromPoint = () => zoneEl
+    adapter.emit.move({ x: 0, y: 0 })
+    document.elementFromPoint = realFromPoint
+    await nextTick()
+
+    other.unregister()
+    await nextTick()
+
+    expect(otherLeave).not.toHaveBeenCalled()
+    expect(onLeave).not.toHaveBeenCalled()
+
+    cardEl.remove()
+    zoneEl.remove()
+    otherEl.remove()
+  })
+})
+
+describe('disposer error paths', () => {
+  it('should log error when adapter dispose throws on scope teardown', () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+    class BadDispose extends DragDropAdapter {
+      setup (): void {}
+      dispose (): void {
+        throw new Error('dispose boom')
+      }
+    }
+
+    const scope = effectScope()
+    scope.run(() => {
+      useDragDrop({ adapters: [new BadDispose()] })
+    })
+
+    scope.stop()
+
+    expect(error).toHaveBeenCalled()
+    expect(error.mock.calls.some(c => String(c.join(' ')).includes('disposer threw'))).toBe(true)
+
+    error.mockRestore()
+  })
+
+  it('should log error when plugin disposer throws on scope teardown', () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+    const scope = effectScope()
+    scope.run(() => {
+      useDragDrop({
+        adapters: [],
+        plugins: [
+          () => () => {
+            throw new Error('plugin dispose boom')
+          },
+        ],
+      })
+    })
+
+    scope.stop()
+
+    expect(error).toHaveBeenCalled()
+    expect(error.mock.calls.some(c => String(c.join(' ')).includes('disposer threw'))).toBe(true)
+
+    error.mockRestore()
+  })
+})
