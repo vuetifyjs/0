@@ -28,7 +28,7 @@ import { createTrinity } from '#v0/composables/createTrinity'
 
 // Utilities
 import { clamp, isNullOrUndefined, isUndefined } from '#v0/utilities'
-import { computed, isRef, shallowRef, toRef, toValue } from 'vue'
+import { computed, isReadonly, isRef, shallowRef, toRef, toValue } from 'vue'
 
 // Types
 import type { ModelContext, ModelTicket, ModelTicketInput } from '#v0/composables/createModel'
@@ -159,7 +159,7 @@ export function createProgress (options: ProgressOptions = {}): ProgressContext 
 
     for (const [index, element] of clamped.entries()) {
       const ticket = segments.value[index]
-      if (!ticket || !isRef(ticket.value)) continue
+      if (!ticket || !isRef(ticket.value) || isReadonly(ticket.value)) continue
       ticket.value.value = element!
     }
   }

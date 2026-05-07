@@ -14,6 +14,7 @@
   import { useProgressRoot } from './ProgressRoot.vue'
 
   // Utilities
+  import { isUndefined } from '#v0/utilities'
   import { mergeProps, onBeforeUnmount, toRef, toValue, useAttrs } from 'vue'
 
   // Types
@@ -54,7 +55,9 @@
 
   const root = useProgressRoot(namespace)
 
-  const ticket = root.register({ value: toRef(() => _value ?? 0) })
+  const ticket = isUndefined(_value)
+    ? root.register()
+    : root.register({ value: toRef(() => _value) })
 
   onBeforeUnmount(() => {
     ticket.unregister()
