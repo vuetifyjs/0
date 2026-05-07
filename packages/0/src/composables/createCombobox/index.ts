@@ -56,8 +56,8 @@ import type { MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
 // Globals
 import { IN_BROWSER } from '#v0/constants/globals'
 
-export { ComboboxAdapter } from './adapters'
-export type { ComboboxAdapterContext, ComboboxAdapterResult } from './adapters'
+export { ClientComboboxAdapter, ComboboxAdapter, ServerComboboxAdapter } from './adapters'
+export type { ClientComboboxAdapterOptions, ComboboxAdapterContext, ComboboxAdapterResult } from './adapters'
 
 export interface ComboboxOptions {
   multiple?: MaybeRefOrGetter<boolean>
