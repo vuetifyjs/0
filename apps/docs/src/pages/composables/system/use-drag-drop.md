@@ -200,7 +200,7 @@ Every consumer-facing state field is a reactive ref <AppSuccessIcon />. Reads in
 | Field | Shape | Updates when |
 |---|---|---|
 | `dnd.active` | `Readonly<ShallowRef<ActiveDrag<Z> \| null>>` | A drag starts, moves, drops, or cancels |
-| `dnd.active.value.via` | `DragVia` | Source modality (`'pointer'`, `'keyboard'`, or any extension) — read to branch keyboard-only behaviors like focus restoration |
+| `dnd.active.value.via` | `DragVia` | Source modality (`'pointer'`, `'keyboard'`, or any extension)[^drag-via-usage] |
 | `dnd.isDragging` | `Readonly<Ref<boolean>>` | `active` becomes non-null / null |
 | `ticket.isDragging` | `Readonly<Ref<boolean>>` | This specific ticket is the active drag |
 | `ticket.el` | `Readonly<Ref<HTMLElement \| null>>` | Mounts / unmounts (registry element-ref pattern) |
@@ -209,13 +209,17 @@ Every consumer-facing state field is a reactive ref <AppSuccessIcon />. Reads in
 | `zone.indicator` | `Readonly<Ref<DropIndicator \| null>>` | While over an oriented zone, computes the index/edge/rect of the resolved drop position |
 | `zone.el` | `Readonly<Ref<HTMLElement \| null>>` | Mounts / unmounts (registry element-ref pattern) |
 
+[^drag-via-usage]: Read this to branch keyboard-only behaviors like focus restoration.
+
 Indicator rects are cached per zone; `getBoundingClientRect` runs only when the zone resizes or its children mount/unmount, not on each pointer move.
 
 ### Methods
 
 | Method | Purpose |
 |---|---|
-| `dnd.cancel()` | Programmatically cancel the active drag. Fires the cancel chain (`onLeave` on the over-zone → per-draggable `onCancel` → global `onCancel`) with `reason: 'cancel'`. No-op when no drag is active. |
+| `dnd.cancel()` | Programmatically cancel the active drag. Fires the cancel chain[^drag-cancel-chain] with `reason: 'cancel'`. No-op when no drag is active. |
+
+[^drag-cancel-chain]: `onLeave` on the over-zone → per-draggable `onCancel` → global `onCancel`.
 
 ### DOM attributes
 
@@ -347,7 +351,5 @@ Yes. Two registrations on the same element work because they live in different r
 These don't ship in v1 to keep the surface small. The plugin slot is the extension point — `useDragDrop({ plugins: [scroll(), flip()] })` — and lifecycle hooks let you observe everything from outside the composable. Multi-select drag is best composed with [createSelection](/composables/selection/create-selection) so the selected set is its own first-class concept.
 
 :::
-
-## API
 
 <DocsApi />
