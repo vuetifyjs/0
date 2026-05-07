@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 
-import { LaunchDarklyFeatureAdapter } from '.'
+import { LaunchDarklyFeaturesAdapter } from './launchdarkly'
 
 function createMockClient () {
   return {
@@ -10,13 +10,13 @@ function createMockClient () {
   }
 }
 
-describe('launchDarklyFeatureAdapter', () => {
+describe('launchDarklyFeaturesAdapter', () => {
   describe('constructor', () => {
     it('should accept options', () => {
       const mockClient = createMockClient()
-      const adapter = new LaunchDarklyFeatureAdapter(mockClient as never)
+      const adapter = new LaunchDarklyFeaturesAdapter(mockClient as never)
 
-      expect(adapter).toBeInstanceOf(LaunchDarklyFeatureAdapter)
+      expect(adapter).toBeInstanceOf(LaunchDarklyFeaturesAdapter)
     })
   })
 
@@ -29,7 +29,7 @@ describe('launchDarklyFeatureAdapter', () => {
         'flag-string': 'variation-a',
       })
 
-      const adapter = new LaunchDarklyFeatureAdapter(mockClient as never)
+      const adapter = new LaunchDarklyFeaturesAdapter(mockClient as never)
       const onUpdate = vi.fn()
 
       const flags = adapter.setup(onUpdate)
@@ -45,7 +45,7 @@ describe('launchDarklyFeatureAdapter', () => {
       const mockClient = createMockClient()
       mockClient.allFlags.mockReturnValue({})
 
-      const adapter = new LaunchDarklyFeatureAdapter(mockClient as never)
+      const adapter = new LaunchDarklyFeaturesAdapter(mockClient as never)
       adapter.setup(vi.fn())
 
       expect(mockClient.on).toHaveBeenCalledWith('change', expect.any(Function))
@@ -62,7 +62,7 @@ describe('launchDarklyFeatureAdapter', () => {
         cb()
       })
 
-      const adapter = new LaunchDarklyFeatureAdapter(mockClient as never)
+      const adapter = new LaunchDarklyFeaturesAdapter(mockClient as never)
       const onUpdate = vi.fn()
 
       adapter.setup(onUpdate)
@@ -78,7 +78,7 @@ describe('launchDarklyFeatureAdapter', () => {
       const mockClient = createMockClient()
       mockClient.allFlags.mockReturnValue({})
 
-      const adapter = new LaunchDarklyFeatureAdapter(mockClient as never)
+      const adapter = new LaunchDarklyFeaturesAdapter(mockClient as never)
       adapter.setup(vi.fn())
       adapter.dispose()
 
@@ -87,7 +87,7 @@ describe('launchDarklyFeatureAdapter', () => {
 
     it('should handle dispose before setup', () => {
       const mockClient = createMockClient()
-      const adapter = new LaunchDarklyFeatureAdapter(mockClient as never)
+      const adapter = new LaunchDarklyFeaturesAdapter(mockClient as never)
       expect(() => adapter.dispose()).not.toThrow()
     })
   })
@@ -99,7 +99,7 @@ describe('launchDarklyFeatureAdapter', () => {
         throw new Error('allFlags failed')
       })
 
-      const adapter = new LaunchDarklyFeatureAdapter(mockClient as never)
+      const adapter = new LaunchDarklyFeaturesAdapter(mockClient as never)
 
       expect(() => adapter.setup(vi.fn())).toThrow('allFlags failed')
     })
@@ -108,7 +108,7 @@ describe('launchDarklyFeatureAdapter', () => {
       const mockClient = createMockClient()
       mockClient.allFlags.mockReturnValue({})
 
-      const adapter = new LaunchDarklyFeatureAdapter(mockClient as never)
+      const adapter = new LaunchDarklyFeaturesAdapter(mockClient as never)
       const onUpdate = vi.fn()
       const flags = adapter.setup(onUpdate)
 

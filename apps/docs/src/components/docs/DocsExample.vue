@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { createOverflow, isUndefined, Select, Splitter, Tabs, useElementSize } from '@vuetify/v0'
+  import { createOverflow, isUndefined, Select, Splitter, Tabs, useBreakpoints, useElementSize } from '@vuetify/v0'
 
   // Components
   import DocsSkeleton from './DocsSkeleton.vue'
@@ -125,6 +125,9 @@
   const previewContent = useTemplateRef<HTMLElement>('preview-content')
   const { width: previewWidth } = useElementSize(previewContent)
 
+  const breakpoints = useBreakpoints()
+  const minSize = toRef(() => breakpoints.xs.value ? '200px' : '348px')
+
   // Code pane refs for triggering highlight
   const codePaneRefs = ref<Map<string, InstanceType<typeof DocsExampleCodePaneType>>>(new Map())
   const singleCodePane = useTemplateRef<InstanceType<typeof DocsExampleCodePaneType>>('single-code-pane')
@@ -212,7 +215,7 @@
           <Splitter.Panel
             class="bg-surface rounded-md overflow-hidden"
             :default-size="100"
-            min-size="348px"
+            :min-size
           >
             <template #default="{ attrs }">
               <div

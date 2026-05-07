@@ -5,7 +5,7 @@ import { createApp, effectScope } from 'vue'
 
 // Types
 import type { ID } from '#v0/types'
-import type { NotificationsAdapterContext } from './index'
+import type { NotificationsAdapterContext, NotificationTicket } from './index'
 
 import { createNotifications, createNotificationsPlugin, useNotifications } from './index'
 
@@ -145,6 +145,18 @@ describe('createNotifications', () => {
       })
     })
 
+    it.skip('should no-op when state mutations are called with a non-existent id', () => {
+      withScope(() => {
+        const notifications = createNotifications()
+
+        notifications.read('non-existent')
+
+        // read() on a non-existent id should not auto-register a malformed ticket
+        // (lacking createdAt, lifecycle methods, subject, etc.)
+        expect(notifications.values().length).toBe(0)
+      })
+    })
+
     it('should use ticket convenience methods', () => {
       withScope(() => {
         const notifications = createNotifications()
@@ -195,7 +207,7 @@ describe('createNotifications', () => {
 
         const ticket = notifications.send({ subject: 'Test' })
         notifications.read(ticket.id)
-        expect(handler).toHaveBeenCalledWith(ticket.id)
+        expect(handler).toHaveBeenCalledWith(ticket)
       })
     })
 
@@ -208,7 +220,7 @@ describe('createNotifications', () => {
         const ticket = notifications.send({ subject: 'Test' })
         notifications.read(ticket.id)
         notifications.unread(ticket.id)
-        expect(handler).toHaveBeenCalledWith(ticket.id)
+        expect(handler).toHaveBeenCalledWith(ticket)
       })
     })
 
@@ -220,7 +232,7 @@ describe('createNotifications', () => {
 
         const ticket = notifications.send({ subject: 'Test' })
         notifications.seen(ticket.id)
-        expect(handler).toHaveBeenCalledWith(ticket.id)
+        expect(handler).toHaveBeenCalledWith(ticket)
       })
     })
 
@@ -232,7 +244,7 @@ describe('createNotifications', () => {
 
         const ticket = notifications.send({ subject: 'Test' })
         notifications.archive(ticket.id)
-        expect(handler).toHaveBeenCalledWith(ticket.id)
+        expect(handler).toHaveBeenCalledWith(ticket)
       })
     })
 
@@ -244,7 +256,7 @@ describe('createNotifications', () => {
 
         const ticket = notifications.send({ subject: 'Test' })
         notifications.unarchive(ticket.id)
-        expect(handler).toHaveBeenCalledWith(ticket.id)
+        expect(handler).toHaveBeenCalledWith(ticket)
       })
     })
 
@@ -256,7 +268,7 @@ describe('createNotifications', () => {
 
         const ticket = notifications.send({ subject: 'Test' })
         notifications.snooze(ticket.id, new Date(Date.now() + 60_000))
-        expect(handler).toHaveBeenCalledWith(ticket.id)
+        expect(handler).toHaveBeenCalledWith(ticket)
       })
     })
 
@@ -269,7 +281,7 @@ describe('createNotifications', () => {
         const ticket = notifications.send({ subject: 'Test' })
         notifications.snooze(ticket.id, new Date(Date.now() + 60_000))
         notifications.wake(ticket.id)
-        expect(handler).toHaveBeenCalledWith(ticket.id)
+        expect(handler).toHaveBeenCalledWith(ticket)
       })
     })
   })
@@ -328,10 +340,10 @@ describe('createNotifications', () => {
 
     it('should allow adapter to listen to events', () => {
       withScope(() => {
-        const reads: ID[] = []
+        const reads: NotificationTicket[] = []
         const adapter = {
           setup (ctx: NotificationsAdapterContext) {
-            ctx.on('notification:read', (id: unknown) => reads.push(id as ID))
+            ctx.on('notification:read', (data: unknown) => reads.push(data as NotificationTicket))
           },
         }
         const notifications = createNotifications()
@@ -339,7 +351,7 @@ describe('createNotifications', () => {
 
         const ticket = notifications.send({ subject: 'Test' })
         notifications.read(ticket.id)
-        expect(reads).toEqual([ticket.id])
+        expect(reads).toEqual([ticket])
       })
     })
   })

@@ -633,4 +633,20 @@ describe('createModel', () => {
       expect(model.disabled).toBe(disabled)
     })
   })
+
+  describe('dispose', () => {
+    it('should clear selection and dispose underlying registry', () => {
+      const model = createModel()
+      model.register({ id: 'a', value: 'A' })
+      model.register({ id: 'b', value: 'B' })
+
+      expect(model.selectedIds.size).toBeGreaterThan(0)
+      expect(model.size).toBe(2)
+
+      model.dispose()
+
+      expect(model.selectedIds.size).toBe(0)
+      expect(model.size).toBe(0)
+    })
+  })
 })

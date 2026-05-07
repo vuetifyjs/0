@@ -24,7 +24,7 @@ import type { DataTableAdapterContext, DataTableAdapterResult } from './adapter'
 // Base
 import { DataTableAdapter } from './adapter'
 
-export class VirtualAdapter<T extends Record<string, unknown>> extends DataTableAdapter<T> {
+export class VirtualDataTableAdapter<T extends Record<string, unknown>> extends DataTableAdapter<T> {
   setup (context: DataTableAdapterContext<T>): DataTableAdapterResult<T> {
     const { search, sortBy, locale, customSorts } = context
 

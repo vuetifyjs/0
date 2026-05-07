@@ -11,6 +11,7 @@ describe('useTimer', () => {
   })
 
   afterEach(() => {
+    vi.useRealTimers()
     vi.restoreAllMocks()
   })
 
@@ -26,7 +27,7 @@ describe('useTimer', () => {
 
       vi.advanceTimersByTime(1000)
 
-      expect(handler).toHaveBeenCalledOnce()
+      expect(handler).toHaveBeenCalledTimes(1)
       expect(timer.isActive.value).toBe(false)
     })
 
@@ -40,7 +41,7 @@ describe('useTimer', () => {
       expect(handler).not.toHaveBeenCalled()
 
       vi.advanceTimersByTime(1)
-      expect(handler).toHaveBeenCalledOnce()
+      expect(handler).toHaveBeenCalledTimes(1)
     })
 
     it('should not be active before start', () => {
@@ -122,7 +123,7 @@ describe('useTimer', () => {
       expect(handler).not.toHaveBeenCalled()
 
       vi.advanceTimersByTime(1)
-      expect(handler).toHaveBeenCalledOnce()
+      expect(handler).toHaveBeenCalledTimes(1)
     })
 
     it('should support multiple pause/resume cycles', () => {
@@ -146,7 +147,7 @@ describe('useTimer', () => {
       timer.resume()
       vi.advanceTimersByTime(500)
 
-      expect(handler).toHaveBeenCalledOnce()
+      expect(handler).toHaveBeenCalledTimes(1)
     })
   })
 
@@ -185,7 +186,7 @@ describe('useTimer', () => {
 
       // New timer should fire after full duration from restart
       vi.advanceTimersByTime(700)
-      expect(handler).toHaveBeenCalledOnce()
+      expect(handler).toHaveBeenCalledTimes(1)
     })
   })
 
@@ -256,7 +257,7 @@ describe('useTimer', () => {
       timer.resume() // not paused, should be no-op
 
       vi.advanceTimersByTime(1000)
-      expect(handler).toHaveBeenCalledOnce()
+      expect(handler).toHaveBeenCalledTimes(1)
     })
 
     it('should no-op stop when not running', () => {
@@ -298,7 +299,7 @@ describe('useTimer', () => {
 
       vi.advanceTimersByTime(0)
 
-      expect(handler).toHaveBeenCalledOnce()
+      expect(handler).toHaveBeenCalledTimes(1)
       expect(timer.isActive.value).toBe(false)
     })
 

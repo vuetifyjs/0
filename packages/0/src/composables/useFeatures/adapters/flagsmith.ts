@@ -1,5 +1,5 @@
 /**
- * @module FlagsmithFeatureAdapter
+ * @module FlagsmithFeaturesAdapter
  *
  * @remarks
  * Flagsmith adapter for feature flags.
@@ -9,14 +9,18 @@
 import { isNullOrUndefined } from '#v0/utilities'
 
 // Types
-import type { FeaturesAdapterFlags, FeaturesAdapterInterface } from '../generic'
+import type { FeaturesAdapterFlags } from './adapter'
 import type { IFlagsmith, IInitConfig, IFlags, LoadingState, IRetrieveInfo } from '@flagsmith/flagsmith'
 
-export class FlagsmithFeatureAdapter implements FeaturesAdapterInterface {
+// Adapters
+import { FeaturesAdapter } from './adapter'
+
+export class FlagsmithFeaturesAdapter extends FeaturesAdapter {
   private client: IFlagsmith
   private options: IInitConfig
 
   constructor (client: IFlagsmith, options: IInitConfig) {
+    super()
     this.client = client
     this.options = options
   }

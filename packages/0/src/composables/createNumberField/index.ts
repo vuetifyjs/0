@@ -156,7 +156,7 @@ export function createNumberField (options: NumberFieldOptions = {}): NumberFiel
 
   function increment (multiplier?: number): void {
     if (isLocked()) return
-    if (isNull(value.value)) {
+    if (isNull(value.value) || !Number.isFinite(value.value)) {
       value.value = initialize()
       return
     }
@@ -165,7 +165,7 @@ export function createNumberField (options: NumberFieldOptions = {}): NumberFiel
 
   function decrement (multiplier?: number): void {
     if (isLocked()) return
-    if (isNull(value.value)) {
+    if (isNull(value.value) || !Number.isFinite(value.value)) {
       value.value = initialize()
       return
     }

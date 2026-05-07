@@ -1,12 +1,24 @@
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Utilities
-import { shallowRef, toValue } from 'vue'
+import { inject, provide, shallowRef, toValue } from 'vue'
 
 // Types
 import type { ProgressOptions } from './index'
 
-import { createProgress } from './index'
+import { createProgress, createProgressContext, useProgress } from './index'
+
+vi.mock('vue', async () => {
+  const actual = await vi.importActual('vue')
+  return {
+    ...actual,
+    provide: vi.fn(),
+    inject: vi.fn(),
+  }
+})
+
+const mockProvide = vi.mocked(provide)
+const mockInject = vi.mocked(inject)
 
 function setup (options?: ProgressOptions) {
   return createProgress(options)
@@ -236,5 +248,91 @@ describe('createProgress', () => {
         expect(segments[index].index).toBeGreaterThanOrEqual(segments[index - 1].index)
       }
     })
+  })
+
+  describe('disabled registration', () => {
+    it('should still add disabled ticket to selectedIds', () => {
+      const progress = setup()
+      const ticket = progress.register({ disabled: true })
+      // createModel skips auto-select when ticket is disabled, so createProgress
+      // ensures selection regardless to keep segments in selectedItems
+      expect(progress.selectedIds.has(ticket.id)).toBe(true)
+    })
+  })
+})
+
+describe('createProgressContext', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('should return a trinity tuple', () => {
+    const result = createProgressContext()
+
+    expect(Array.isArray(result)).toBe(true)
+    expect(result).toHaveLength(3)
+    expect(typeof result[0]).toBe('function')
+    expect(typeof result[1]).toBe('function')
+    expect(result[2]).toBeDefined()
+  })
+
+  it('should provide context with default namespace', () => {
+    const [, provideProgress, context] = createProgressContext()
+
+    provideProgress(context)
+
+    expect(mockProvide).toHaveBeenCalledWith('v0:progress', context)
+  })
+
+  it('should provide context with custom namespace', () => {
+    const [, provideProgress, context] = createProgressContext({
+      namespace: 'v0:custom-progress',
+    })
+
+    provideProgress(context)
+
+    expect(mockProvide).toHaveBeenCalledWith('v0:custom-progress', context)
+  })
+
+  it('should forward progress options to underlying instance', () => {
+    const [,, context] = createProgressContext({ min: 0, max: 200, value: 50 })
+
+    expect(context.min).toBe(0)
+    expect(context.max).toBe(200)
+    expect(context.total.value).toBe(50)
+  })
+})
+
+describe('useProgress consumer', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('should inject context with default namespace', () => {
+    const mock = createProgress()
+    mockInject.mockReturnValue(mock)
+
+    const result = useProgress()
+
+    expect(mockInject).toHaveBeenCalledWith('v0:progress', undefined)
+    expect(result).toBe(mock)
+  })
+
+  it('should inject context with custom namespace', () => {
+    const mock = createProgress()
+    mockInject.mockReturnValue(mock)
+
+    const result = useProgress('v0:custom-progress')
+
+    expect(mockInject).toHaveBeenCalledWith('v0:custom-progress', undefined)
+    expect(result).toBe(mock)
+  })
+
+  it('should throw when context is not provided', () => {
+    mockInject.mockReturnValue(undefined)
+
+    expect(() => useProgress()).toThrow(
+      'Context "v0:progress" not found. Ensure it\'s provided by an ancestor.',
+    )
   })
 })

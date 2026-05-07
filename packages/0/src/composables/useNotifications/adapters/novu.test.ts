@@ -7,7 +7,7 @@ import { effectScope } from 'vue'
 import type { NotificationsAdapterContext } from '../index'
 import type { NovuClient, NovuNotification } from './novu'
 
-import { createNovuAdapter } from './novu'
+import { NovuNotificationsAdapter } from './novu'
 
 import { createNotifications } from '../index'
 
@@ -50,11 +50,11 @@ function adapterContext (notifications: ReturnType<typeof createNotifications>):
   }
 }
 
-describe('createNovuAdapter', () => {
+describe('novuNotificationsAdapter', () => {
   it('should call setup with context', () => {
     withScope(() => {
       const novu = mockNovu()
-      const adapter = createNovuAdapter(novu)
+      const adapter = new NovuNotificationsAdapter(novu)
       const notifications = createNotifications()
 
       adapter.setup(adapterContext(notifications))
@@ -65,7 +65,7 @@ describe('createNovuAdapter', () => {
   it('should map inbound notifications via real-time event', () => {
     withScope(() => {
       const novu = mockNovu() as NovuClient & { _emit: (e: string, d: unknown) => void }
-      const adapter = createNovuAdapter(novu)
+      const adapter = new NovuNotificationsAdapter(novu)
       const notifications = createNotifications()
       adapter.setup(adapterContext(notifications))
 
@@ -80,7 +80,7 @@ describe('createNovuAdapter', () => {
   it('should deduplicate by id', () => {
     withScope(() => {
       const novu = mockNovu() as NovuClient & { _emit: (e: string, d: unknown) => void }
-      const adapter = createNovuAdapter(novu)
+      const adapter = new NovuNotificationsAdapter(novu)
       const notifications = createNotifications()
       adapter.setup(adapterContext(notifications))
 
@@ -95,7 +95,7 @@ describe('createNovuAdapter', () => {
   it('should map severity using default mapping', () => {
     withScope(() => {
       const novu = mockNovu() as NovuClient & { _emit: (e: string, d: unknown) => void }
-      const adapter = createNovuAdapter(novu)
+      const adapter = new NovuNotificationsAdapter(novu)
       const notifications = createNotifications()
       adapter.setup(adapterContext(notifications))
 
@@ -110,7 +110,7 @@ describe('createNovuAdapter', () => {
   it('should use custom severity mapping', () => {
     withScope(() => {
       const novu = mockNovu() as NovuClient & { _emit: (e: string, d: unknown) => void }
-      const adapter = createNovuAdapter(novu, {
+      const adapter = new NovuNotificationsAdapter(novu, {
         severity: () => 'success',
       })
       const notifications = createNotifications()
@@ -124,7 +124,7 @@ describe('createNovuAdapter', () => {
   it('should sync read event outbound', () => {
     withScope(() => {
       const novu = mockNovu() as NovuClient & { _emit: (e: string, d: unknown) => void }
-      const adapter = createNovuAdapter(novu)
+      const adapter = new NovuNotificationsAdapter(novu)
       const notifications = createNotifications()
       adapter.setup(adapterContext(notifications))
 
@@ -138,7 +138,7 @@ describe('createNovuAdapter', () => {
   it('should sync archive event outbound', () => {
     withScope(() => {
       const novu = mockNovu() as NovuClient & { _emit: (e: string, d: unknown) => void }
-      const adapter = createNovuAdapter(novu)
+      const adapter = new NovuNotificationsAdapter(novu)
       const notifications = createNotifications()
       adapter.setup(adapterContext(notifications))
 
@@ -152,7 +152,7 @@ describe('createNovuAdapter', () => {
   it('should sync unread event outbound', () => {
     withScope(() => {
       const novu = mockNovu() as NovuClient & { _emit: (e: string, d: unknown) => void }
-      const adapter = createNovuAdapter(novu)
+      const adapter = new NovuNotificationsAdapter(novu)
       const notifications = createNotifications()
       adapter.setup(adapterContext(notifications))
 
@@ -166,7 +166,7 @@ describe('createNovuAdapter', () => {
   it('should sync seen event outbound', () => {
     withScope(() => {
       const novu = mockNovu() as NovuClient & { _emit: (e: string, d: unknown) => void }
-      const adapter = createNovuAdapter(novu)
+      const adapter = new NovuNotificationsAdapter(novu)
       const notifications = createNotifications()
       adapter.setup(adapterContext(notifications))
 
@@ -180,7 +180,7 @@ describe('createNovuAdapter', () => {
   it('should sync unarchive event outbound', () => {
     withScope(() => {
       const novu = mockNovu() as NovuClient & { _emit: (e: string, d: unknown) => void }
-      const adapter = createNovuAdapter(novu)
+      const adapter = new NovuNotificationsAdapter(novu)
       const notifications = createNotifications()
       adapter.setup(adapterContext(notifications))
 
@@ -200,7 +200,7 @@ describe('createNovuAdapter', () => {
       const novu = mockNovu()
       vi.mocked(novu.notifications.list).mockResolvedValue({ data: { notifications: items } })
 
-      const adapter = createNovuAdapter(novu)
+      const adapter = new NovuNotificationsAdapter(novu)
       const notifications = createNotifications()
       adapter.setup(adapterContext(notifications))
 
@@ -224,7 +224,7 @@ describe('createNovuAdapter', () => {
       const novu = mockNovu()
       vi.mocked(novu.notifications.list).mockReturnValue(deferred)
 
-      const adapter = createNovuAdapter(novu)
+      const adapter = new NovuNotificationsAdapter(novu)
       const notifications = createNotifications()
       adapter.setup(adapterContext(notifications))
 
@@ -247,7 +247,7 @@ describe('createNovuAdapter', () => {
       const novu = mockNovu()
       vi.mocked(novu.notifications.list).mockResolvedValue({ data: null })
 
-      const adapter = createNovuAdapter(novu)
+      const adapter = new NovuNotificationsAdapter(novu)
       const notifications = createNotifications()
       adapter.setup(adapterContext(notifications))
 
@@ -267,7 +267,7 @@ describe('createNovuAdapter', () => {
       const novu = mockNovu()
       vi.mocked(novu.notifications.list).mockResolvedValue({ data: { notifications: undefined } })
 
-      const adapter = createNovuAdapter(novu)
+      const adapter = new NovuNotificationsAdapter(novu)
       const notifications = createNotifications()
       adapter.setup(adapterContext(notifications))
 
@@ -307,7 +307,7 @@ describe('createNovuAdapter', () => {
         },
       }
 
-      const adapter = createNovuAdapter(novu)
+      const adapter = new NovuNotificationsAdapter(novu)
       const notifications = createNotifications()
       adapter.setup(adapterContext(notifications))
 
@@ -322,7 +322,7 @@ describe('createNovuAdapter', () => {
   it('should clean up on dispose', () => {
     withScope(() => {
       const novu = mockNovu()
-      const adapter = createNovuAdapter(novu)
+      const adapter = new NovuNotificationsAdapter(novu)
       const notifications = createNotifications()
       adapter.setup(adapterContext(notifications))
 
@@ -334,6 +334,86 @@ describe('createNovuAdapter', () => {
       const novu2 = novu as NovuClient & { _emit: (e: string, d: unknown) => void }
       novu2._emit('notifications.notification_received', { id: 'after-dispose', subject: 'Test' })
       expect(notifications.values()).toHaveLength(0)
+    })
+  })
+
+  it('should skip seeded items lacking an id', async () => {
+    await withScope(async () => {
+      const novu = mockNovu()
+      ;(novu.notifications.list as any).mockResolvedValue({
+        data: {
+          notifications: [
+            { id: 'has-id', subject: 'Real' },
+            { subject: 'No ID' },
+            { id: 'has-id', subject: 'Duplicate' },
+          ],
+        },
+      })
+
+      const adapter = new NovuNotificationsAdapter(novu)
+      const notifications = createNotifications()
+      adapter.setup(adapterContext(notifications))
+
+      await Promise.resolve()
+      await Promise.resolve()
+      // Only the one item with id should register; duplicates and missing-id skipped
+      expect(notifications.values()).toHaveLength(1)
+    })
+  })
+
+  it('should skip outbound events for unknown ids', () => {
+    withScope(() => {
+      const novu = mockNovu() as NovuClient & { _emit: (e: string, d: unknown) => void }
+      const adapter = new NovuNotificationsAdapter(novu)
+      const notifications = createNotifications()
+      adapter.setup(adapterContext(notifications))
+
+      // Register an item NOT through novu so its id isn't in the ids set
+      const ticket = notifications.register({ id: 'local-only', subject: 'Local' })
+      ticket.read?.()
+
+      // No novu API call because id is not tracked
+      expect(novu.notifications.read).not.toHaveBeenCalled()
+
+      ticket.archive?.()
+      expect(novu.notifications.archive).not.toHaveBeenCalled()
+    })
+  })
+
+  it('should skip unread/seen/unarchive outbound events for unknown ids', () => {
+    withScope(() => {
+      const novu = mockNovu() as NovuClient & { _emit: (e: string, d: unknown) => void }
+      const adapter = new NovuNotificationsAdapter(novu)
+      const notifications = createNotifications()
+      adapter.setup(adapterContext(notifications))
+
+      const ticket = notifications.register({ id: 'local-only', subject: 'Local' })
+      ticket.unread?.()
+      ticket.seen?.()
+      ticket.unarchive?.()
+
+      expect(novu.notifications.unread).not.toHaveBeenCalled()
+      expect(novu.notifications.seenAll).not.toHaveBeenCalled()
+      expect(novu.notifications.unarchive).not.toHaveBeenCalled()
+    })
+  })
+
+  it('should clean up handlers on dispose with no calls during teardown', () => {
+    withScope(() => {
+      const novu = mockNovu()
+      const adapter = new NovuNotificationsAdapter(novu)
+      const notifications = createNotifications()
+      adapter.setup(adapterContext(notifications))
+
+      // Set up notifications via realtime so ids set is populated
+      const novu2 = novu as NovuClient & { _emit: (e: string, d: unknown) => void }
+      novu2._emit('notifications.notification_received', { id: 'n1' })
+
+      adapter.dispose!()
+
+      // After dispose, the off() calls have been made; verify by emitting and seeing no effect
+      novu2._emit('notifications.notification_received', { id: 'after-dispose' })
+      expect(notifications.values()).toHaveLength(1)
     })
   })
 })

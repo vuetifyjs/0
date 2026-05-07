@@ -42,7 +42,7 @@
     attrs: {
       'role': as === 'button' ? undefined : 'button',
       'tabindex': -1,
-      'aria-disabled': item.isDisabled.value || undefined,
+      'aria-disabled': item.isDisabled.value,
       'data-disabled': item.isDisabled.value || undefined,
       'data-open': toValue(item.ticket.isOpen) || undefined,
       'disabled': as === 'button' ? item.isDisabled.value : undefined,

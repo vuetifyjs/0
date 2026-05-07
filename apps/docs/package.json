@@ -1,6 +1,6 @@
 {
   "name": "@vuetify-private/docs",
-  "version": "1.0.0-alpha.2",
+  "version": "1.0.0-alpha.3",
   "private": true,
   "type": "module",
   "scripts": {
@@ -16,10 +16,12 @@
     "@shikijs/themes": "catalog:",
     "@types/markdown-it": "catalog:",
     "@types/markdown-it-attrs": "catalog:",
+    "@types/markdown-it-footnote": "catalog:",
     "@unhead/vue": "catalog:",
     "markdown-it": "catalog:",
     "markdown-it-anchor": "catalog:",
     "markdown-it-attrs": "catalog:",
+    "markdown-it-footnote": "catalog:",
     "satori": "catalog:",
     "shiki": "catalog:",
     "ts-morph": "catalog:",
@@ -40,7 +42,6 @@
     "@js-temporal/polyfill": "catalog:",
     "@mdi/js": "catalog:",
     "@octokit/core": "catalog:",
-    "@unhead/addons": "catalog:",
     "@vue/repl": "catalog:",
     "@vuetify/auth": "catalog:",
     "@vuetify/paper": "workspace:*",

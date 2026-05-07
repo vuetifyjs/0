@@ -27,7 +27,7 @@
 import { createPluginContext } from '#v0/composables/createPlugin'
 
 // Adapters
-import { Vuetify0RtlAdapter } from '#v0/composables/useRtl/adapters/v0'
+import { V0RtlAdapter } from '#v0/composables/useRtl/adapters/v0'
 
 // Utilities
 import { shallowRef } from 'vue'
@@ -37,7 +37,7 @@ import type { RtlAdapter } from './adapters'
 import type { Ref } from 'vue'
 
 // Exports
-export { Vuetify0RtlAdapter } from '#v0/composables/useRtl/adapters'
+export { V0RtlAdapter } from '#v0/composables/useRtl/adapters'
 
 export type { RtlAdapter, RtlAdapterSetupContext } from '#v0/composables/useRtl/adapters'
 
@@ -96,7 +96,7 @@ export const [createRtlContext, createRtlPlugin, useRtl] =
     options => createRtl(options),
     {
       fallback: () => createRtlFallback(),
-      setup: (context, app, { adapter = new Vuetify0RtlAdapter(), target }) => {
+      setup: (context, app, { adapter = new V0RtlAdapter(), target }) => {
         adapter.setup(app, context, target)
       },
       persist: ctx => ctx.isRtl.value,

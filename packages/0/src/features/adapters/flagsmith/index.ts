@@ -7,7 +7,7 @@
  *
  * @example
  * ```ts
- * import { FlagsmithFeatureAdapter } from '@vuetify/v0/features/adapters/flagsmith'
+ * import { FlagsmithFeaturesAdapter } from '@vuetify/v0/features/adapters/flagsmith'
  * ```
  */
 

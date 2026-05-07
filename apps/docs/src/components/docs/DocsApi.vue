@@ -2,6 +2,7 @@
   import apiData from 'virtual:api'
 
   // Composables
+  import { provideApiFilter } from '@/composables/useApiFilter'
   import { useApiHelpers } from '@/composables/useApiHelpers'
   import { useSettings } from '@/composables/useSettings'
   import { useSyncedRef } from '@/composables/useSyncedRef'
@@ -23,6 +24,7 @@
   const settings = useSettings()
   const helpers = useApiHelpers()
   const showInlineApi = useSyncedRef(settings.showInlineApi)
+  provideApiFilter()
 
   const pageType = toRef(() => {
     const path = route.path
@@ -90,37 +92,40 @@
       :component-apis
     />
 
-    <template
-      v-for="api in componentApis"
-      v-else
-      :key="api.name"
-    >
-      <DocsHeaderAnchor :id="helpers.toKebab(api.name)" class="mt-8">
-        {{ api.name }}
-      </DocsHeaderAnchor>
+    <template v-if="showInlineApi">
+      <DocsApiSearch />
 
-      <DocsApiSection
-        :anchor-id="`${helpers.toKebab(api.name)}-props`"
-        :items="api.props"
-        kind="prop"
-        title="Props"
-      />
+      <template
+        v-for="api in componentApis"
+        :key="api.name"
+      >
+        <DocsHeaderAnchor :id="helpers.toKebab(api.name)" class="mt-8">
+          {{ api.name }}
+        </DocsHeaderAnchor>
 
-      <DocsApiSection
-        :anchor-id="`${helpers.toKebab(api.name)}-events`"
-        class="mt-8"
-        :items="api.events"
-        kind="event"
-        title="Events"
-      />
+        <DocsApiSection
+          :anchor-id="`${helpers.toKebab(api.name)}-props`"
+          :items="api.props"
+          kind="prop"
+          title="Props"
+        />
 
-      <DocsApiSection
-        :anchor-id="`${helpers.toKebab(api.name)}-slots`"
-        class="mt-8"
-        :items="api.slots"
-        kind="slot"
-        title="Slots"
-      />
+        <DocsApiSection
+          :anchor-id="`${helpers.toKebab(api.name)}-events`"
+          class="mt-8"
+          :items="api.events"
+          kind="event"
+          title="Events"
+        />
+
+        <DocsApiSection
+          :anchor-id="`${helpers.toKebab(api.name)}-slots`"
+          class="mt-8"
+          :items="api.slots"
+          kind="slot"
+          title="Slots"
+        />
+      </template>
     </template>
   </div>
 
@@ -153,7 +158,9 @@
       :composable-api
     />
 
-    <template v-else>
+    <template v-if="showInlineApi">
+      <DocsApiSearch />
+
       <DocsApiSection
         anchor-id="functions"
         class="mt-8"

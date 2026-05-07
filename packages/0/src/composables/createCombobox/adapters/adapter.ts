@@ -2,7 +2,7 @@
  * @module createCombobox/adapters
  *
  * @remarks
- * Defines the adapter interface for combobox filtering strategies.
+ * Defines the adapter contract for combobox filtering strategies.
  * Adapters control how items are filtered when the query changes.
  * Client adapters filter locally via createFilter. Server adapters
  * delegate filtering externally and expose query + loading state.
@@ -29,6 +29,6 @@ export interface ComboboxAdapterResult {
   isEmpty: Ref<boolean>
 }
 
-export interface ComboboxAdapterInterface {
-  setup: (context: ComboboxAdapterContext) => ComboboxAdapterResult
+export abstract class ComboboxAdapter {
+  abstract setup (context: ComboboxAdapterContext): ComboboxAdapterResult
 }

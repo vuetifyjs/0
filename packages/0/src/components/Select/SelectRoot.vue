@@ -144,13 +144,13 @@
   const activatorId = `${id}-activator`
 
   const selection = createSelection({
-    multiple,
-    mandatory,
+    multiple: toRef(() => multiple),
+    mandatory: toRef(() => mandatory),
     disabled: toRef(() => disabled),
     events: true,
   })
 
-  useProxyModel(selection, model, { multiple })
+  useProxyModel(selection, model, { multiple: toRef(() => multiple) })
 
   const selectedId = toRef(() => selection.selectedIds.values().next().value)
 

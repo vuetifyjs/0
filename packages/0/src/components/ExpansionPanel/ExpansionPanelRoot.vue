@@ -89,7 +89,7 @@
   } = defineProps<ExpansionPanelRootProps<V>>()
 
   const selection = useExpansionPanelGroup(namespace)
-  const ticket = selection.register({ id, value, disabled })
+  const ticket = selection.register({ id, value, disabled: () => toValue(disabled) ?? false })
 
   const headerId = toRef(() => `${ticket.id}-header`)
   const contentId = toRef(() => `${ticket.id}-content`)

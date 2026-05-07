@@ -39,10 +39,10 @@ import { isArray, isBoolean, isFunction, isObject } from '#v0/utilities'
 import type { GroupContext, GroupTicket, GroupTicketInput } from '#v0/composables/createGroup'
 import type { RegistryOptions } from '#v0/composables/createRegistry'
 import type { TokenCollection } from '#v0/composables/createTokens'
-import type { FeaturesAdapterInterface, FeaturesAdapterFlags } from '#v0/composables/useFeatures/adapters'
+import type { FeaturesAdapterFlags, FeaturesAdapter } from '#v0/composables/useFeatures/adapters'
 import type { ID, MaybeArray } from '#v0/types'
 
-export type { FeaturesAdapterFlags, FeaturesAdapterInterface, FeaturesAdapterValue } from '#v0/composables/useFeatures/adapters'
+export type { FeaturesAdapterFlags, FeaturesAdapterValue } from '#v0/composables/useFeatures/adapters'
 export { FeaturesAdapter } from '#v0/composables/useFeatures/adapters'
 
 /**
@@ -98,7 +98,7 @@ export interface FeaturePluginOptions extends FeatureContextOptions {
    *
    * @remarks Adapters provide dynamic flag values from external services.
    */
-  adapter?: MaybeArray<FeaturesAdapterInterface>
+  adapter?: MaybeArray<FeaturesAdapter>
 }
 
 /**

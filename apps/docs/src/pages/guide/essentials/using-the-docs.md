@@ -24,9 +24,9 @@ const rtl = useRtl()
 
 # Using the Docs
 
-<DocsPageFeatures :frontmatter />
-
 This guide helps you get the most out of v0 documentation. Whether you're exploring headless components for the first time or diving deep into composable architecture, these features will accelerate your learning.
+
+<DocsPageFeatures :frontmatter />
 
 **Key features:**
 
@@ -440,7 +440,7 @@ The documentation uses callout boxes to highlight important information:
 
 > [!WARNING] Cautions and common mistakes to avoid.
 
-> [!ASKAI] What's the difference between createSelection and createGroup?
+> [!ASKAI] How do I find the right composable for what I'm building?
 
 > [!TOUR] using-the-docs
 

@@ -85,13 +85,13 @@
 
   const selection = createSelection({
     disabled: toRef(() => disabled),
-    enroll,
-    mandatory,
-    multiple,
+    enroll: toRef(() => enroll),
+    mandatory: toRef(() => mandatory),
+    multiple: toRef(() => multiple),
     events: true,
   })
 
-  useProxyModel(selection, model, { multiple })
+  useProxyModel(selection, model, { multiple: toRef(() => multiple) })
 
   provideSelectionRoot(namespace, selection)
 

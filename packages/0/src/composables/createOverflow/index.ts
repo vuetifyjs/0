@@ -229,6 +229,7 @@ export function createOverflow<
   })
 
   const isOverflowing = toRef(() => {
+    if (width.value === 0) return false
     return total.value > (width.value - toValue(reserved))
   })
 

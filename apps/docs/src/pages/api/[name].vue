@@ -3,6 +3,7 @@
   import apiData from 'virtual:api'
 
   // Composables
+  import { provideApiFilter } from '@/composables/useApiFilter'
   import { useApiHelpers } from '@/composables/useApiHelpers'
   import { useParams } from '@/composables/useRoute'
 
@@ -16,6 +17,7 @@
   const params = useParams<{ name: string }>()
   const data = apiData as ApiData
   const helpers = useApiHelpers()
+  provideApiFilter()
 
   const itemName = computed(() => {
     const slug = params.value.name
@@ -129,6 +131,8 @@
 
         <DocsRelated :frontmatter="relatedFrontmatter" />
 
+        <DocsApiSearch />
+
         <template
           v-for="api in componentApis"
           :key="api.name"
@@ -140,53 +144,28 @@
             {{ api.name }}
           </DocsHeaderAnchor>
 
-          <template v-if="api.props.length > 0">
-            <DocsHeaderAnchor :id="`${helpers.toKebab(api.name)}-props`">
-              Props
-            </DocsHeaderAnchor>
+          <DocsApiSection
+            :anchor-id="`${helpers.toKebab(api.name)}-props`"
+            :items="api.props"
+            kind="prop"
+            title="Props"
+          />
 
-            <div class="space-y-4">
-              <DocsApiCard
-                v-for="prop in api.props"
-                :key="prop.name"
-                heading-tag="h4"
-                :item="prop"
-                kind="prop"
-              />
-            </div>
-          </template>
+          <DocsApiSection
+            :anchor-id="`${helpers.toKebab(api.name)}-events`"
+            class="mt-8"
+            :items="api.events"
+            kind="event"
+            title="Events"
+          />
 
-          <template v-if="api.events.length > 0">
-            <DocsHeaderAnchor :id="`${helpers.toKebab(api.name)}-events`">
-              Events
-            </DocsHeaderAnchor>
-
-            <div class="space-y-4">
-              <DocsApiCard
-                v-for="event in api.events"
-                :key="event.name"
-                heading-tag="h4"
-                :item="event"
-                kind="event"
-              />
-            </div>
-          </template>
-
-          <template v-if="api.slots.length > 0">
-            <DocsHeaderAnchor :id="`${helpers.toKebab(api.name)}-slots`">
-              Slots
-            </DocsHeaderAnchor>
-
-            <div class="space-y-4">
-              <DocsApiCard
-                v-for="slot in api.slots"
-                :key="slot.name"
-                heading-tag="h4"
-                :item="slot"
-                kind="slot"
-              />
-            </div>
-          </template>
+          <DocsApiSection
+            :anchor-id="`${helpers.toKebab(api.name)}-slots`"
+            class="mt-8"
+            :items="api.slots"
+            kind="slot"
+            title="Slots"
+          />
         </template>
       </div>
     </template>
@@ -199,83 +178,38 @@
 
         <DocsRelated :frontmatter="relatedFrontmatter" />
 
-        <template v-if="composableApi.functions?.length">
-          <DocsHeaderAnchor
-            id="functions"
-            tag="h2"
-          >
-            Functions
-          </DocsHeaderAnchor>
+        <DocsApiSearch />
 
-          <div class="space-y-4">
-            <DocsApiCard
-              v-for="fn in composableApi.functions"
-              :key="fn.name"
-              heading-tag="h3"
-              :item="fn"
-              kind="function"
-            />
-          </div>
-        </template>
+        <DocsApiSection
+          anchor-id="functions"
+          :items="composableApi.functions"
+          kind="function"
+          title="Functions"
+        />
 
-        <template v-if="composableApi.options?.length">
-          <DocsHeaderAnchor
-            id="options"
-            tag="h2"
-          >
-            Options
-          </DocsHeaderAnchor>
+        <DocsApiSection
+          anchor-id="options"
+          class="mt-8"
+          :items="composableApi.options"
+          kind="option"
+          title="Options"
+        />
 
-          <div class="space-y-4">
-            <DocsApiCard
-              v-for="opt in composableApi.options"
-              :key="opt.name"
-              heading-tag="h3"
-              :item="opt"
-              kind="option"
-            />
-          </div>
-        </template>
+        <DocsApiSection
+          anchor-id="properties"
+          class="mt-8"
+          :items="composableApi.properties"
+          kind="property"
+          title="Properties"
+        />
 
-        <template v-if="composableApi.properties?.length">
-          <DocsHeaderAnchor
-            id="properties"
-            class="mt-8"
-            tag="h2"
-          >
-            Properties
-          </DocsHeaderAnchor>
-
-          <div class="space-y-4">
-            <DocsApiCard
-              v-for="prop in composableApi.properties"
-              :key="prop.name"
-              heading-tag="h3"
-              :item="prop"
-              kind="property"
-            />
-          </div>
-        </template>
-
-        <template v-if="composableApi.methods?.length">
-          <DocsHeaderAnchor
-            id="methods"
-            class="mt-8"
-            tag="h2"
-          >
-            Methods
-          </DocsHeaderAnchor>
-
-          <div class="space-y-4">
-            <DocsApiCard
-              v-for="method in composableApi.methods"
-              :key="method.name"
-              heading-tag="h3"
-              :item="method"
-              kind="method"
-            />
-          </div>
-        </template>
+        <DocsApiSection
+          anchor-id="methods"
+          class="mt-8"
+          :items="composableApi.methods"
+          kind="method"
+          title="Methods"
+        />
       </div>
     </template>
   </article>

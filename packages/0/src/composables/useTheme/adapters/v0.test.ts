@@ -55,7 +55,8 @@ describe('v0StyleSheetThemeAdapter', () => {
     })
   })
 
-  describe('sSR (non-browser) environment', () => {
+  // eslint-disable-next-line vitest/prefer-lowercase-title
+  describe('SSR (non-browser) environment', () => {
     it('should push styles to head when usehead is available', () => {
       mockInBrowser.value = false
       const headMock = { push: vi.fn() }
@@ -403,6 +404,38 @@ describe('v0StyleSheetThemeAdapter', () => {
       )
 
       expect(css).toContain('--v0-primary: #1976d2')
+    })
+
+    it('should ignore null selectedId in watcher', async () => {
+      const app = createMockApp()
+      const el = document.createElement('div')
+      el.id = 'app'
+      document.body.append(el)
+
+      const selectedId = ref<string | null>('light')
+      const context: ThemeAdapterSetupContext = {
+        selectedId,
+        colors: computed(() => ({
+          light: { primary: '#1976d2' },
+        })),
+        isDark: ref(false),
+      }
+      const adapter = new V0StyleSheetThemeAdapter()
+
+      const scope = effectScope()
+      scope.run(() => {
+        adapter.setup(app, context, el)
+      })
+
+      expect(el.dataset.theme).toBe('light')
+
+      // Watcher should ignore null transitions (no clobber)
+      selectedId.value = null
+      await nextTick()
+      expect(el.dataset.theme).toBe('light')
+
+      scope.stop()
+      el.remove()
     })
 
     it('should stop watcher on scope dispose', async () => {

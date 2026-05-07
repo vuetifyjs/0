@@ -7,7 +7,7 @@
  *
  * @example
  * ```ts
- * import { PostHogFeatureAdapter } from '@vuetify/v0/features/adapters/posthog'
+ * import { PostHogFeaturesAdapter } from '@vuetify/v0/features/adapters/posthog'
  * ```
  */
 

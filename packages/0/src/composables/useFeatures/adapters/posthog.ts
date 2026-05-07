@@ -1,5 +1,5 @@
 /**
- * @module PostHogFeatureAdapter
+ * @module PostHogFeaturesAdapter
  *
  * @remarks
  * PostHog adapter for feature flags.
@@ -9,14 +9,19 @@
 import { isBoolean, isNullOrUndefined } from '#v0/utilities'
 
 // Types
-import type { FeaturesAdapterFlags, FeaturesAdapterInterface } from '../generic'
+import type { FeaturesAdapterFlags } from './adapter'
 import type { PostHog } from 'posthog-js'
 
 // Constants
 import { IN_BROWSER } from '#v0/constants/globals'
 
-export class PostHogFeatureAdapter implements FeaturesAdapterInterface {
-  constructor (private client: PostHog) {}
+// Adapters
+import { FeaturesAdapter } from './adapter'
+
+export class PostHogFeaturesAdapter extends FeaturesAdapter {
+  constructor (private client: PostHog) {
+    super()
+  }
 
   setup (onUpdate: (flags: FeaturesAdapterFlags) => void): FeaturesAdapterFlags {
     if (!IN_BROWSER) return {}

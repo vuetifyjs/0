@@ -234,6 +234,18 @@ describe('createFilter', () => {
     const filter = createFilter()
     expect(filter.mode).toBe('some')
   })
+
+  it('should return no matches for an unknown mode', () => {
+    // Cast bypasses the type system to exercise the fallthrough branch
+    const filter = createFilter({ mode: 'unknown' as never })
+    const items = shallowRef([
+      { name: 'apple' },
+      { name: 'banana' },
+    ])
+
+    const result = filter.apply('apple', items)
+    expect(result.items.value).toHaveLength(0)
+  })
 })
 
 describe('createFilterContext', () => {

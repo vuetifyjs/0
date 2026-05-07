@@ -12,19 +12,19 @@ vi.mock('vue', async () => {
 
 describe('createInput', () => {
   describe('field state', () => {
-    it('exposes value ref', () => {
+    it('should expose value ref', () => {
       const value = ref('hello')
       const input = createInput({ value })
       expect(input.value.value).toBe('hello')
     })
 
-    it('generates ARIA IDs', () => {
+    it('should generate ARIA IDs', () => {
       const input = createInput({ value: ref(''), id: 'email' })
       expect(input.descriptionId).toBe('email-description')
       expect(input.errorId).toBe('email-error')
     })
 
-    it('tracks disabled state', () => {
+    it('should track disabled state', () => {
       const disabled = shallowRef(false)
       const input = createInput({ value: ref(''), disabled })
       expect(input.isDisabled.value).toBe(false)
@@ -32,7 +32,7 @@ describe('createInput', () => {
       expect(input.isDisabled.value).toBe(true)
     })
 
-    it('tracks readonly state', () => {
+    it('should track readonly state', () => {
       const readonly = shallowRef(false)
       const input = createInput({ value: ref(''), readonly })
       expect(input.isReadonly.value).toBe(false)
@@ -40,14 +40,14 @@ describe('createInput', () => {
       expect(input.isReadonly.value).toBe(true)
     })
 
-    it('tracks focused state', () => {
+    it('should track focused state', () => {
       const input = createInput({ value: ref('') })
       expect(input.isFocused.value).toBe(false)
       input.isFocused.value = true
       expect(input.isFocused.value).toBe(true)
     })
 
-    it('tracks touched state', () => {
+    it('should track touched state', () => {
       const input = createInput({ value: ref('') })
       expect(input.isTouched.value).toBe(false)
       input.isTouched.value = true
@@ -56,7 +56,7 @@ describe('createInput', () => {
   })
 
   describe('dirty', () => {
-    it('uses default dirty check for strings', () => {
+    it('should use default dirty check for strings', () => {
       const value = ref('')
       const input = createInput({ value })
       expect(input.isDirty.value).toBe(false)
@@ -64,7 +64,7 @@ describe('createInput', () => {
       expect(input.isDirty.value).toBe(true)
     })
 
-    it('uses custom dirty predicate', () => {
+    it('should use custom dirty predicate', () => {
       const value = ref<number | null>(null)
       const input = createInput({
         value,
@@ -77,19 +77,19 @@ describe('createInput', () => {
   })
 
   describe('pristine', () => {
-    it('starts pristine', () => {
+    it('should start pristine', () => {
       const input = createInput({ value: ref('initial') })
       expect(input.isPristine.value).toBe(true)
     })
 
-    it('becomes not pristine when value changes', () => {
+    it('should become not pristine when value changes', () => {
       const value = ref('initial')
       const input = createInput({ value })
       value.value = 'changed'
       expect(input.isPristine.value).toBe(false)
     })
 
-    it('becomes pristine again if value returns to initial', () => {
+    it('should become pristine again if value returns to initial', () => {
       const value = ref('initial')
       const input = createInput({ value })
       value.value = 'changed'
@@ -98,7 +98,7 @@ describe('createInput', () => {
       expect(input.isPristine.value).toBe(true)
     })
 
-    it('uses custom equals for pristine check', () => {
+    it('should use custom equals for pristine check', () => {
       const value = ref<number | null>(null)
       const input = createInput({
         value,
@@ -111,7 +111,7 @@ describe('createInput', () => {
   })
 
   describe('validation', () => {
-    it('starts unvalidated (null)', () => {
+    it('should start unvalidated (null)', () => {
       const input = createInput({
         value: ref(''),
         rules: [v => !!v || 'Required'],
@@ -119,7 +119,7 @@ describe('createInput', () => {
       expect(input.isValid.value).toBeNull()
     })
 
-    it('validates to false with errors', async () => {
+    it('should validate to false with errors', async () => {
       const input = createInput({
         value: ref(''),
         rules: [v => !!v || 'Required'],
@@ -130,7 +130,7 @@ describe('createInput', () => {
       expect(input.isValid.value).toBe(false)
     })
 
-    it('validates to true when passing', async () => {
+    it('should validate to true when passing', async () => {
       const input = createInput({
         value: ref('hello'),
         rules: [v => !!v || 'Required'],
@@ -141,7 +141,7 @@ describe('createInput', () => {
       expect(input.isValid.value).toBe(true)
     })
 
-    it('merges manual error messages', async () => {
+    it('should merge manual error messages', async () => {
       const input = createInput({
         value: ref('hello'),
         errorMessages: 'Server error',
@@ -149,7 +149,7 @@ describe('createInput', () => {
       expect(input.errors.value).toContain('Server error')
     })
 
-    it('error prop forces invalid', () => {
+    it('should force invalid via error prop', () => {
       const input = createInput({
         value: ref('hello'),
         error: true,
@@ -159,7 +159,7 @@ describe('createInput', () => {
   })
 
   describe('reset', () => {
-    it('resets value to initial', async () => {
+    it('should reset value to initial', async () => {
       const value = ref('initial')
       const input = createInput({ value, rules: [v => !!v || 'Required'] })
       value.value = 'changed'
@@ -174,12 +174,12 @@ describe('createInput', () => {
   })
 
   describe('state', () => {
-    it('returns pristine when unvalidated', () => {
+    it('should return pristine when unvalidated', () => {
       const input = createInput({ value: ref('') })
       expect(input.state.value).toBe('pristine')
     })
 
-    it('returns valid after passing validation', async () => {
+    it('should return valid after passing validation', async () => {
       const input = createInput({
         value: ref('hello'),
         rules: [v => !!v || 'Required'],
@@ -188,7 +188,7 @@ describe('createInput', () => {
       expect(input.state.value).toBe('valid')
     })
 
-    it('returns invalid after failing validation', async () => {
+    it('should return invalid after failing validation', async () => {
       const input = createInput({
         value: ref(''),
         rules: [v => !!v || 'Required'],
@@ -199,7 +199,7 @@ describe('createInput', () => {
   })
 
   describe('generic types', () => {
-    it('works with number | null', () => {
+    it('should work with number | null', () => {
       const value = ref<number | null>(null)
       const input = createInput({
         value,
@@ -212,7 +212,7 @@ describe('createInput', () => {
   })
 
   describe('async validation', () => {
-    it('tracks isValidating during async rules', async () => {
+    it('should track isValidating during async rules', async () => {
       const input = createInput({
         value: ref(''),
         rules: [async v => {
@@ -228,7 +228,7 @@ describe('createInput', () => {
   })
 
   describe('multiple rules', () => {
-    it('accumulates errors from multiple rules', async () => {
+    it('should accumulate errors from multiple rules', async () => {
       const input = createInput({
         value: ref(''),
         rules: [
@@ -241,7 +241,7 @@ describe('createInput', () => {
       expect(input.errors.value).toContain('Too short')
     })
 
-    it('merges manual and rule-based errors', async () => {
+    it('should merge manual and rule-based errors', async () => {
       const input = createInput({
         value: ref(''),
         rules: [v => !!v || 'Required'],
@@ -254,7 +254,7 @@ describe('createInput', () => {
   })
 
   describe('reactive errorMessages', () => {
-    it('updates errors when errorMessages ref changes', () => {
+    it('should update errors when errorMessages ref changes', () => {
       const messages = ref<string | undefined>(undefined)
       const input = createInput({
         value: ref('hello'),

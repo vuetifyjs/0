@@ -104,13 +104,13 @@
 
   const selection = createSelection({
     disabled: isDisabled,
-    enroll,
-    mandatory,
-    multiple,
+    enroll: toRef(() => enroll),
+    mandatory: toRef(() => mandatory),
+    multiple: toRef(() => multiple),
     events: true,
   })
 
-  useProxyModel(selection, model, { multiple })
+  useProxyModel(selection, model, { multiple: toRef(() => multiple) })
 
   const slotProps = toRef((): ExpansionPanelGroupSlotProps => ({
     isDisabled,

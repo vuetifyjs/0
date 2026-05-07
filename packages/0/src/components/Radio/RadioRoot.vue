@@ -16,6 +16,9 @@
   // Composables
   import { createContext } from '#v0/composables/createContext'
 
+  // Transformers
+  import { toElement } from '#v0/composables/toElement'
+
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
   import type { ID } from '#v0/types'
@@ -130,7 +133,7 @@
       'type': 'button' | undefined
       'role': 'radio'
       'aria-checked': boolean
-      'aria-disabled': boolean | undefined
+      'aria-disabled': boolean
       'aria-label': string | undefined
       'aria-labelledby': string | undefined
       'aria-describedby': string | undefined
@@ -139,6 +142,8 @@
       'data-state': RadioState
       'data-disabled': true | undefined
       'data-radio-id': ID
+      'onClick': () => void
+      'onKeydown': (e: KeyboardEvent) => void
     }
   }
 
@@ -198,10 +203,8 @@
   const name = _name ?? group.name
 
   // Register with parent group (el ref for focus management)
-  // Vue auto-unwraps exposed refs when accessed via template ref,
-  // but TypeScript doesn't reflect this - cast corrects the type
-  const el = toRef(() => (rootRef.value?.element as HTMLElement | null | undefined) ?? undefined)
-  const ticket = group.register({ id, value, disabled, el })
+  const el = toRef(() => toElement(rootRef.value?.element) ?? undefined)
+  const ticket = group.register({ id, value, disabled: () => toValue(disabled) ?? false, el })
 
   const isChecked = toRef(() => toValue(ticket.isSelected))
   const isDisabled = toRef(() => toValue(ticket.disabled) || toValue(group.disabled))
@@ -261,7 +264,7 @@
     if (group.activation.value === 'automatic') {
       nextItem.select()
     }
-    toValue(nextItem.el)?.focus()
+    (toValue(nextItem.el) as HTMLElement | undefined)?.focus()
   }
 
   onBeforeUnmount(() => {
@@ -292,7 +295,7 @@
       'type': as === 'button' ? 'button' : undefined,
       'role': 'radio',
       'aria-checked': isChecked.value,
-      'aria-disabled': isDisabled.value || undefined,
+      'aria-disabled': isDisabled.value,
       'aria-label': label || undefined,
       'aria-labelledby': ariaLabelledby || undefined,
       'aria-describedby': ariaDescribedby || undefined,
@@ -301,6 +304,8 @@
       'data-state': dataState.value,
       'data-disabled': isDisabled.value ? true : undefined,
       'data-radio-id': id,
+      'onClick': onClick,
+      'onKeydown': onKeydown,
     },
   }))
 </script>
@@ -311,8 +316,6 @@
     v-bind="mergeProps(attrs, slotProps.attrs)"
     :as
     :renderless
-    @click="onClick"
-    @keydown="onKeydown"
   >
     <slot v-bind="slotProps" />
   </Atom>

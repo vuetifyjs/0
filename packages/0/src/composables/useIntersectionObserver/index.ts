@@ -136,11 +136,13 @@ export function useIntersectionObserver (
     observe: (obs, el) => obs.observe(el),
     onEntry: entries => {
       const latest = entries.at(-1)
+      /* v8 ignore next -- defensive: IntersectionObserver always emits at least one entry */
       if (latest) isIntersecting.value = latest.isIntersecting
     },
     onPause: () => {
       isIntersecting.value = false
     },
+    /* v8 ignore next -- defensive nullish coalesce: entries always populated when shouldStop fires */
     shouldStop: entries => entries.at(-1)?.isIntersecting ?? false,
     immediate: options.immediate
       ? el => {
@@ -210,6 +212,7 @@ export function useElementIntersection (
     target,
     entries => {
       const entry = entries.at(-1)
+      /* v8 ignore next 4 -- defensive: IntersectionObserver always emits at least one entry */
       if (entry) {
         isIntersecting.value = entry.isIntersecting
         intersectionRatio.value = entry.intersectionRatio

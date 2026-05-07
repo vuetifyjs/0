@@ -1,11 +1,30 @@
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { renderToString } from 'vue/server-renderer'
 
 // Utilities
-import { mount } from '@vue/test-utils'
+import { mount as baseMount } from '@vue/test-utils'
 import { createSSRApp, defineComponent, h, nextTick } from 'vue'
 
+// Types
+import type { mount as mountType } from '@vue/test-utils'
+
 import { Popover } from './index'
+
+// Popover/Scrim register click-outside and focus-trap listeners on document
+// when open. Without unmount the underlying effect scope persists across tests.
+const wrappers: ReturnType<typeof baseMount>[] = []
+
+function mount (...args: Parameters<typeof mountType>): ReturnType<typeof mountType> {
+  const wrapper = (baseMount as any)(...args)
+  wrappers.push(wrapper)
+  return wrapper
+}
+
+afterEach(() => {
+  while (wrappers.length > 0) {
+    wrappers.pop()!.unmount()
+  }
+})
 
 describe('popover', () => {
   describe('root', () => {
@@ -515,7 +534,8 @@ describe('popover', () => {
     })
   })
 
-  describe('sSR / Hydration', () => {
+  // eslint-disable-next-line vitest/prefer-lowercase-title
+  describe('SSR / Hydration', () => {
     it('should render to string on server without errors', async () => {
       const app = createSSRApp(defineComponent({
         render: () =>

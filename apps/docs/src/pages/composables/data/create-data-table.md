@@ -94,11 +94,11 @@ Adapters control the data pipeline strategy. Pass one via the `adapter` option.
 
 | Adapter | Pipeline | Use Case |
 | - | - | - |
-| [ClientAdapter](#clientadapter-default) | filter → sort → paginate | Default. All processing client-side |
-| [ServerAdapter](#serveradapter) | pass-through | API-driven. Server handles filter/sort/paginate |
-| [VirtualAdapter](#virtualadapter) | filter → sort → (no paginate) | Large lists rendered with createVirtual |
+| [ClientDataTableAdapter](#clientdatatableadapter-default) | filter → sort → paginate | Default. All processing client-side |
+| [ServerDataTableAdapter](#serverdatatableadapter) | pass-through | API-driven. Server handles filter/sort/paginate |
+| [VirtualDataTableAdapter](#virtualdatatableadapter) | filter → sort → (no paginate) | Large lists rendered with createVirtual |
 
-### ClientAdapter (default)
+### ClientDataTableAdapter (default)
 
 All processing happens client-side. No constructor options — just use `createDataTable` without an `adapter` option.
 
@@ -114,16 +114,16 @@ graph LR
 
 ```ts
 import { createDataTable } from '@vuetify/v0'
-import { ClientAdapter } from '@vuetify/v0/data-table/adapters/client'
+import { ClientDataTableAdapter } from '@vuetify/v0/data-table/adapters/client'
 
 const table = createDataTable({
   items: users,
   columns,
-  adapter: new ClientAdapter(), // default — not required
+  adapter: new ClientDataTableAdapter(), // default — not required
 })
 ```
 
-### ServerAdapter
+### ServerDataTableAdapter
 
 Pass-through adapter for API-driven tables. The server handles all filtering, sorting, and pagination — the client only renders what it receives.
 
@@ -148,12 +148,12 @@ graph LR
 
 ```ts
 import { createDataTable } from '@vuetify/v0'
-import { ServerAdapter } from '@vuetify/v0/data-table/adapters/server'
+import { ServerDataTableAdapter } from '@vuetify/v0/data-table/adapters/server'
 
 const table = createDataTable({
   items: serverItems,
   columns,
-  adapter: new ServerAdapter({
+  adapter: new ServerDataTableAdapter({
     total: totalCount,
     loading: isLoading,
     error: fetchError,
@@ -167,7 +167,7 @@ watch(
 )
 ```
 
-### VirtualAdapter
+### VirtualDataTableAdapter
 
 Client-side filtering and sorting without pagination slicing. All sorted items are returned for use with `createVirtual` at the rendering layer.
 
@@ -177,18 +177,18 @@ graph LR
 ```
 
 **Behavior:**
-- No constructor options — instantiate with `new VirtualAdapter()`
+- No constructor options — instantiate with `new VirtualDataTableAdapter()`
 - Resets on filter or sort changes
 - No `loading` or `error` state
 
 ```ts
 import { createDataTable, createVirtual } from '@vuetify/v0'
-import { VirtualAdapter } from '@vuetify/v0/data-table/adapters/virtual'
+import { VirtualDataTableAdapter } from '@vuetify/v0/data-table/adapters/virtual'
 
 const table = createDataTable({
   items: largeDataset,
   columns,
-  adapter: new VirtualAdapter(),
+  adapter: new VirtualDataTableAdapter(),
 })
 
 // Wrap table.items with createVirtual for rendering
@@ -331,7 +331,7 @@ table.grouping.closeAll()
 
 ### Server Adapter
 
-A data table backed by a simulated API. The `ServerAdapter` delegates all filtering, sorting, and pagination to the server — the client only renders what it receives.
+A data table backed by a simulated API. The `ServerDataTableAdapter` delegates all filtering, sorting, and pagination to the server — the client only renders what it receives.
 
 **File breakdown:**
 
@@ -343,7 +343,7 @@ A data table backed by a simulated API. The `ServerAdapter` delegates all filter
 
 **Key patterns:**
 
-- `ServerAdapter` receives `total` and `loading` refs so the table knows the full dataset size without holding it client-side
+- `ServerDataTableAdapter` receives `total` and `loading` refs so the table knows the full dataset size without holding it client-side
 - A `watch` on `[table.query, table.sort.columns, table.pagination.page]` triggers `fetchUsers()` whenever the user interacts
 - The simulated API applies search, sort, and pagination server-side, returning only the current page of results
 
@@ -382,7 +382,7 @@ A grouped table with row selection, custom numeric sort, and salary range filter
 
 ### Virtual Scrolling
 
-A table with 1,000 rows rendered through `createVirtual`. The `VirtualAdapter` skips pagination — all filtered/sorted items are passed directly to the virtual scroller.
+A table with 1,000 rows rendered through `createVirtual`. The `VirtualDataTableAdapter` skips pagination — all filtered/sorted items are passed directly to the virtual scroller.
 
 **File breakdown:**
 
@@ -394,7 +394,7 @@ A table with 1,000 rows rendered through `createVirtual`. The `VirtualAdapter` s
 
 **Key patterns:**
 
-- `VirtualAdapter` performs client-side filter and sort but returns all items (no pagination slicing)
+- `VirtualDataTableAdapter` performs client-side filter and sort but returns all items (no pagination slicing)
 - `createVirtual(table.items, { itemHeight: 40 })` handles virtualization at the rendering layer
 - The sticky `<thead>` stays visible while scrolling through virtual rows
 - Stats show rendered vs. filtered vs. total counts to demonstrate the virtual window

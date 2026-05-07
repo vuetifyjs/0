@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { createDataTable, ServerAdapter } from '@vuetify/v0'
+  import { createDataTable, ServerDataTableAdapter } from '@vuetify/v0'
   import { shallowRef, watch } from 'vue'
   import { fetchUsers } from './api'
   import { columns } from './columns'
@@ -14,7 +14,7 @@
     items: serverItems,
     columns,
     pagination: { itemsPerPage: 5 },
-    adapter: new ServerAdapter({
+    adapter: new ServerDataTableAdapter({
       total: totalCount,
       loading: isLoading,
     }),

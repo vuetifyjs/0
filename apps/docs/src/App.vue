@@ -1,6 +1,5 @@
 <script setup lang="ts">
-  import { InferSeoMetaPlugin } from '@unhead/addons'
-  import { injectHead, useHead } from '@unhead/vue'
+  import { useHead } from '@unhead/vue'
 
   // Framework
   import { IN_BROWSER, Scrim, useBreakpoints, useStack } from '@vuetify/v0'
@@ -64,10 +63,6 @@
     if (ask.isOpen.value && !breakpoints.lgAndUp.value) return true
     return false
   })
-
-  // Head / SEO scaffolding (unchanged)
-  const head = injectHead()
-  head.use(InferSeoMetaPlugin())
 
   const url = toRef(() => `https://0.vuetifyjs.com${route.path}`)
   const breadcrumbs = useBreadcrumbItems()
@@ -398,6 +393,62 @@
     tr:last-child td {
       border-bottom: none;
     }
+  }
+
+  /* Markdown footnotes (markdown-it-footnote) */
+  .footnote-ref {
+    font-size: 0.75em;
+    line-height: 0;
+    margin-left: 0.125rem;
+  }
+
+  .footnote-ref a,
+  .footnote-ref a.v0-link {
+    color: var(--v0-primary);
+    text-decoration: none;
+    scroll-margin-top: 5rem;
+  }
+
+  .footnote-ref a:hover {
+    text-decoration: underline;
+  }
+
+  .footnotes-sep {
+    margin-top: 3rem;
+    border: none;
+    border-top: 1px solid var(--v0-divider);
+  }
+
+  .footnotes {
+    margin-top: 1rem;
+    font-size: 0.875rem;
+    color: var(--v0-on-surface-variant);
+  }
+
+  .footnotes-list {
+    list-style: decimal;
+    padding-left: 1.5rem;
+  }
+
+  .footnotes-list li {
+    margin-bottom: 0.25rem;
+    scroll-margin-top: 5rem;
+  }
+
+  .footnotes-list li :is(p, ul, ol) {
+    margin: 0;
+  }
+
+  .footnote-backref,
+  .footnote-backref.v0-link {
+    margin-left: 0.25rem;
+    color: var(--v0-primary);
+    text-decoration: none;
+    font-size: 0.875em;
+  }
+
+  .footnote-backref:hover {
+    text-decoration: underline;
   }
 
   /* DocsMarkup code block styling */

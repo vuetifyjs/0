@@ -6,11 +6,11 @@
  *
  * Import all adapters from the features subpath:
  * ```ts
- * import { FlagsmithFeatureAdapter, LaunchDarklyFeatureAdapter, PostHogFeatureAdapter } from '@vuetify/v0/features'
+ * import { FlagsmithFeaturesAdapter, LaunchDarklyFeaturesAdapter, PostHogFeaturesAdapter } from '@vuetify/v0/features'
  * ```
  */
 
-export * from './generic'
+export * from './adapter'
 export * from './flagsmith'
 export * from './launchdarkly'
 export * from './posthog'

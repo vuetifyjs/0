@@ -33,7 +33,7 @@ v0 provides machine-readable documentation files following the [llms.txt](https:
 | <a href="/llms-full.txt" target="_blank" class="v0-link whitespace-nowrap">llms-full.txt↗</a> | {{ llmsStats.llmsFull.sizeFormatted }} | Complete documentation | Deep understanding, code generation |
 | <a href="/SKILL.md" target="_blank" class="v0-link">SKILL.md↗</a> | ~5KB | Patterns & anti-patterns | Claude Code, Cursor, Windsurf |
 
-> [!ASKAI] When should I use llms.txt vs llms-full.txt?
+> [!ASKAI] How do I configure my AI agent to consume llms-full.txt?
 
 ## Usage
 

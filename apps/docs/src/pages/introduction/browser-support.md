@@ -45,12 +45,11 @@ These features require the latest browser versions and may not work in all brows
 
 | Feature | <AppBrowserIcon browser="chrome" /> | <AppBrowserIcon browser="firefox" /> | <AppBrowserIcon browser="safari" /> | <AppBrowserIcon browser="edge" /> | Fallback |
 |---------|---:|---:|---:|---:|----------|
-| [CSS Anchor Positioning](https://caniuse.com/css-anchor-positioning) | 125+ | 147+ | — | 125+ | Properties ignored |
+| [CSS Anchor Positioning](https://caniuse.com/css-anchor-positioning) | 125+ | 147+ | —[^safari-anchor] | 125+ | Properties ignored |
 | [Popover API](https://developer.mozilla.org/en-US/docs/Web/API/Popover_API) | 114+ | 125+ | 17+ | 114+ | Optional chaining |
 | [Scrollend Event](https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollend_event) | 112+ | 109+ | 18+ | 112+ | Falls back to scroll |
 
-> [!TIP]
-> CSS Anchor Positioning is currently only available in <AppBrowserIcon browser="chrome" /> Chrome 125+, <AppBrowserIcon browser="edge" /> Edge 125+, and <AppBrowserIcon browser="firefox" /> Firefox 147 beta. Safari support is not yet available.
+[^safari-anchor]: Safari support for CSS Anchor Positioning is not yet available; track at [WebKit Bug 286106](https://bugs.webkit.org/show_bug.cgi?id=286106). Firefox 147+ requires the beta channel.
 
 ### Well-Supported Features
 

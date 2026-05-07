@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 
-import { MemoryAdapter } from './memory'
+import { MemoryStorageAdapter } from './memory'
 
-describe('memoryAdapter', () => {
-  let adapter: MemoryAdapter
+describe('memoryStorageAdapter', () => {
+  let adapter: MemoryStorageAdapter
 
   beforeEach(() => {
-    adapter = new MemoryAdapter()
+    adapter = new MemoryStorageAdapter()
   })
 
   describe('constructor', () => {

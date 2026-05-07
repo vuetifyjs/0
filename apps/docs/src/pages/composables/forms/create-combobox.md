@@ -60,7 +60,7 @@ flowchart TD
   createSelection["createSelection"]
   useVirtualFocus["useVirtualFocus"]
   usePopover["usePopover"]
-  Adapter["ClientAdapter / ServerAdapter"]
+  Adapter["ClientComboboxAdapter / ServerComboboxAdapter"]
   createCombobox["createCombobox"]:::primary
   query["query (ShallowRef)"]
   pristine["pristine (ShallowRef)"]
@@ -98,7 +98,7 @@ interface ComboboxOptions {
   mandatory?: MaybeRefOrGetter<boolean>  // Prevent deselecting last item
   disabled?: MaybeRefOrGetter<boolean>   // Disable all interaction
   strict?: MaybeRefOrGetter<boolean>     // Revert query on close if no match
-  adapter?: ComboboxAdapterInterface     // Filtering strategy (default: ClientAdapter)
+  adapter?: ComboboxAdapter              // Filtering strategy (default: ClientComboboxAdapter)
   displayValue?: (value: unknown) => string  // Format selected value for display in input
   id?: string                            // Base ID for ARIA attributes
   name?: string                          // Hidden input name for form submission
@@ -128,11 +128,11 @@ interface ComboboxOptions {
 
 ## Adapters
 
-Adapters implement `ComboboxAdapterInterface` and translate a reactive query into a filtered ID set.
+Adapters extend `ComboboxAdapter` and translate a reactive query into a filtered ID set.
 
 ```ts
-interface ComboboxAdapterInterface {
-  setup: (context: ComboboxAdapterContext) => ComboboxAdapterResult
+abstract class ComboboxAdapter {
+  abstract setup (context: ComboboxAdapterContext): ComboboxAdapterResult
 }
 
 interface ComboboxAdapterResult {
@@ -144,29 +144,29 @@ interface ComboboxAdapterResult {
 
 The `context` exposes `query` (the current search string), `selection` (the underlying selection context), and `items` (all registered IDs). Return the three refs above and the combobox wires them to the dropdown state automatically.
 
-### ClientAdapter
+### ClientComboboxAdapter
 
 The default. Filters registered items locally using substring matching (case-insensitive). Pass custom `filter` options to override the matching logic:
 
 ```ts
-import { ComboboxClientAdapter, createCombobox } from '@vuetify/v0'
+import { ClientComboboxAdapter, createCombobox } from '@vuetify/v0'
 
 const combobox = createCombobox({
-  adapter: new ComboboxClientAdapter({
+  adapter: new ClientComboboxAdapter({
     filter: (query, value) => String(value).toLowerCase().startsWith(query.toLowerCase()),
   }),
 })
 ```
 
-### ServerAdapter
+### ServerComboboxAdapter
 
 A pass-through adapter that shows all registered items and sets `isLoading` to `false`. Use this when filtering is performed server-side — watch `combobox.query` to drive your own fetch:
 
 ```ts
-import { ComboboxServerAdapter, createCombobox, useCombobox } from '@vuetify/v0'
+import { ServerComboboxAdapter, createCombobox, useCombobox } from '@vuetify/v0'
 import { watch } from 'vue'
 
-const combobox = createCombobox({ adapter: new ComboboxServerAdapter() })
+const combobox = createCombobox({ adapter: new ServerComboboxAdapter() })
 
 // In a component that injects the context:
 const { query } = useCombobox()

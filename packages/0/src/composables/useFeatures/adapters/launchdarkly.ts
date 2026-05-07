@@ -1,5 +1,5 @@
 /**
- * @module LaunchDarklyFeatureAdapter
+ * @module LaunchDarklyFeaturesAdapter
  *
  * @remarks
  * LaunchDarkly adapter for feature flags.
@@ -9,11 +9,16 @@
 import { isBoolean } from '#v0/utilities'
 
 // Types
-import type { FeaturesAdapterFlags, FeaturesAdapterInterface } from '../generic'
+import type { FeaturesAdapterFlags } from './adapter'
 import type { LDClient } from 'launchdarkly-js-client-sdk'
 
-export class LaunchDarklyFeatureAdapter implements FeaturesAdapterInterface {
-  constructor (private client: LDClient) {}
+// Adapters
+import { FeaturesAdapter } from './adapter'
+
+export class LaunchDarklyFeaturesAdapter extends FeaturesAdapter {
+  constructor (private client: LDClient) {
+    super()
+  }
 
   setup (onUpdate: (flags: FeaturesAdapterFlags) => void): FeaturesAdapterFlags {
     const collect = (): FeaturesAdapterFlags => {

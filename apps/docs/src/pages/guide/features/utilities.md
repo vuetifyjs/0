@@ -398,10 +398,12 @@ if (!isNullOrUndefined(x)) {
 | `isNullOrUndefined(x)` | `null \| undefined` |
 | `isPrimitive(x)` | `string \| number \| boolean` |
 | `isSymbol(x)` | `symbol` |
-| `isNaN(x)` | `number` (only the NaN value) |
+| `isNaN(x)` | `number` (only the NaN value)[^isnan-vs-global] |
+
+[^isnan-vs-global]: `isNaN` here uses `Number.isNaN()` internally — it does not coerce strings like the global `isNaN()`. `isNaN("foo")` returns `false`, not `true`.
 
 > [!TIP]
-> Prefer these over raw comparisons. `isNaN` uses `Number.isNaN()` internally—it won't coerce strings like the global `isNaN()`.
+> Prefer these over raw comparisons.
 
 ## Helpers
 

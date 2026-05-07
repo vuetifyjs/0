@@ -262,7 +262,8 @@ describe('rating', () => {
       })
     })
 
-    describe('aRIA attributes', () => {
+    // eslint-disable-next-line vitest/prefer-lowercase-title
+    describe('ARIA attributes', () => {
       it('should have role=slider', async () => {
         const { rootProps, wait } = mountRating()
         await wait()
@@ -647,6 +648,89 @@ describe('rating', () => {
         expect(itemProps(2).isHighlighted).toBe(true)
         expect(itemProps(3).isHighlighted).toBe(false)
         expect(itemProps(4).isHighlighted).toBe(false)
+      })
+    })
+
+    describe('half-mode pointermove', () => {
+      it('should set hoveredValue to index - 0.5 when pointer is left of midpoint', async () => {
+        const model = ref(0)
+        const { rootProps, itemProps, wait } = mountRating({
+          model,
+          props: { half: true },
+        })
+        await wait()
+
+        // clientX=10 in a 100px-wide rect at left=0 → midpoint at 50, so left half
+        const event = new PointerEvent('pointermove', { clientX: 10 })
+        Object.defineProperty(event, 'currentTarget', {
+          value: { getBoundingClientRect: () => ({ left: 0, width: 100 }) },
+        })
+        itemProps(2).attrs.onPointermove(event)
+        await wait()
+
+        // index is 3 (1-based), left half → hoveredValue = 3 - 0.5 = 2.5
+        expect(rootProps().value).toBe(2.5)
+      })
+
+      it('should set hoveredValue to index when pointer is right of midpoint', async () => {
+        const model = ref(0)
+        const { rootProps, itemProps, wait } = mountRating({
+          model,
+          props: { half: true },
+        })
+        await wait()
+
+        // clientX=80 in 100px-wide rect at left=0 → past midpoint, right half
+        const event = new PointerEvent('pointermove', { clientX: 80 })
+        Object.defineProperty(event, 'currentTarget', {
+          value: { getBoundingClientRect: () => ({ left: 0, width: 100 }) },
+        })
+        itemProps(2).attrs.onPointermove(event)
+        await wait()
+
+        // index is 3 (1-based), right half → hoveredValue = 3
+        expect(rootProps().value).toBe(3)
+      })
+
+      it('should set hoveredValue to index in non-half mode', async () => {
+        const model = ref(0)
+        const { rootProps, itemProps, wait } = mountRating({ model })
+        await wait()
+
+        const event = new PointerEvent('pointermove', { clientX: 10 })
+        Object.defineProperty(event, 'currentTarget', {
+          value: { getBoundingClientRect: () => ({ left: 0, width: 100 }) },
+        })
+        itemProps(2).attrs.onPointermove(event)
+        await wait()
+
+        // Non-half mode → hoveredValue = full index (3)
+        expect(rootProps().value).toBe(3)
+      })
+
+      it('should reset hoveredValue on pointerleave so item state derives from value', async () => {
+        const model = ref(2)
+        const { rootProps, itemProps, wait } = mountRating({ model })
+        await wait()
+
+        // Hover over item 4
+        const event = new PointerEvent('pointermove', { clientX: 50 })
+        Object.defineProperty(event, 'currentTarget', {
+          value: { getBoundingClientRect: () => ({ left: 0, width: 100 }) },
+        })
+        itemProps(3).attrs.onPointermove(event)
+        await wait()
+
+        expect(rootProps().value).toBe(4)
+        expect(rootProps().isHovering).toBe(true)
+
+        // Leave
+        rootProps().attrs.onPointerleave()
+        await wait()
+
+        // Display value reverts to model value
+        expect(rootProps().value).toBe(2)
+        expect(rootProps().isHovering).toBe(false)
       })
     })
   })

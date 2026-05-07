@@ -17,9 +17,9 @@ related:
 
 # useRules
 
-<DocsPageFeatures :frontmatter />
-
 Validation rule management with Standard Schema support and custom aliases.
+
+<DocsPageFeatures :frontmatter />
 
 ## Installation
 

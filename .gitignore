@@ -47,6 +47,7 @@ apps/docs/build/generated/
 .claude/worktrees/
 .claude/plans/
 .claude/specs/
+.claude/scheduled_tasks.lock
 .playwright-mcp/
 .superpowers/
 .worktrees/

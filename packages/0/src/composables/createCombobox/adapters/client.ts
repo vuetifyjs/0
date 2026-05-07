@@ -15,9 +15,11 @@ import { computed, shallowRef, toRef } from 'vue'
 // Types
 import type { FilterItem, FilterMode } from '#v0/composables/createFilter'
 import type { ID } from '#v0/types'
-import type { ComboboxAdapterContext, ComboboxAdapterInterface, ComboboxAdapterResult } from './adapter'
+import type { ComboboxAdapterContext, ComboboxAdapterResult } from './adapter'
 
-export interface ClientAdapterOptions {
+import { ComboboxAdapter } from './adapter'
+
+export interface ClientComboboxAdapterOptions {
   /** Filter matching mode */
   mode?: FilterMode
   /** Object keys to match against (for object values) */
@@ -26,10 +28,11 @@ export interface ClientAdapterOptions {
   filter?: (query: string, value: unknown) => boolean
 }
 
-export class ClientAdapter implements ComboboxAdapterInterface {
-  private options: ClientAdapterOptions
+export class ClientComboboxAdapter extends ComboboxAdapter {
+  private options: ClientComboboxAdapterOptions
 
-  constructor (options: ClientAdapterOptions = {}) {
+  constructor (options: ClientComboboxAdapterOptions = {}) {
+    super()
     this.options = options
   }
 

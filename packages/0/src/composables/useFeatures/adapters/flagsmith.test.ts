@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest'
 // Types
 import type { IInitConfig } from '@flagsmith/flagsmith'
 
-import { FlagsmithFeatureAdapter } from '.'
+import { FlagsmithFeaturesAdapter } from './flagsmith'
 
 function createMockClient () {
   return {
@@ -13,14 +13,14 @@ function createMockClient () {
   }
 }
 
-describe('flagsmithFeatureAdapter', () => {
+describe('flagsmithFeaturesAdapter', () => {
   describe('constructor', () => {
     it('should accept options', () => {
       const mockClient = createMockClient()
       const options: IInitConfig = { environmentID: 'test-env' }
-      const adapter = new FlagsmithFeatureAdapter(mockClient as never, options)
+      const adapter = new FlagsmithFeaturesAdapter(mockClient as never, options)
 
-      expect(adapter).toBeInstanceOf(FlagsmithFeatureAdapter)
+      expect(adapter).toBeInstanceOf(FlagsmithFeaturesAdapter)
     })
   })
 
@@ -31,7 +31,7 @@ describe('flagsmithFeatureAdapter', () => {
         'feature-c': { enabled: true, value: 'value-c' } as never,
       })
 
-      const adapter = new FlagsmithFeatureAdapter(mockClient as never, { environmentID: 'test-env' })
+      const adapter = new FlagsmithFeaturesAdapter(mockClient as never, { environmentID: 'test-env' })
       const flags = adapter.setup(vi.fn())
 
       expect(flags).toEqual({
@@ -42,7 +42,7 @@ describe('flagsmithFeatureAdapter', () => {
     it('should subscribe to flag changes', () => {
       const mockClient = createMockClient()
       const options: IInitConfig = { environmentID: 'test-env' }
-      const adapter = new FlagsmithFeatureAdapter(mockClient as never, options)
+      const adapter = new FlagsmithFeaturesAdapter(mockClient as never, options)
 
       adapter.setup(vi.fn())
 
@@ -65,7 +65,7 @@ describe('flagsmithFeatureAdapter', () => {
         'feature-b': { enabled: false, value: null } as never,
       })
 
-      const adapter = new FlagsmithFeatureAdapter(mockClient as never, { environmentID: 'test-env' })
+      const adapter = new FlagsmithFeaturesAdapter(mockClient as never, { environmentID: 'test-env' })
       const onUpdate = vi.fn()
 
       adapter.setup(onUpdate)
@@ -82,7 +82,7 @@ describe('flagsmithFeatureAdapter', () => {
   describe('dispose', () => {
     it('should clean up subscriptions', () => {
       const mockClient = createMockClient()
-      const adapter = new FlagsmithFeatureAdapter(mockClient as never, { environmentID: 'test-env' })
+      const adapter = new FlagsmithFeaturesAdapter(mockClient as never, { environmentID: 'test-env' })
       adapter.setup(vi.fn())
       adapter.dispose()
       expect(mockClient.stopListening).toHaveBeenCalled()
@@ -90,7 +90,7 @@ describe('flagsmithFeatureAdapter', () => {
 
     it('should handle dispose before setup', () => {
       const mockClient = createMockClient()
-      const adapter = new FlagsmithFeatureAdapter(mockClient as never, { environmentID: 'test-env' })
+      const adapter = new FlagsmithFeaturesAdapter(mockClient as never, { environmentID: 'test-env' })
       expect(() => adapter.dispose()).not.toThrow()
     })
   })
@@ -103,7 +103,7 @@ describe('flagsmithFeatureAdapter', () => {
       })
       mockClient.getAllFlags.mockReturnValue({})
 
-      const adapter = new FlagsmithFeatureAdapter(mockClient as never, { environmentID: 'test-env' })
+      const adapter = new FlagsmithFeaturesAdapter(mockClient as never, { environmentID: 'test-env' })
 
       expect(() => adapter.setup(vi.fn())).toThrow('init failed')
     })
@@ -112,7 +112,7 @@ describe('flagsmithFeatureAdapter', () => {
       const mockClient = createMockClient()
       mockClient.getAllFlags.mockReturnValue(null)
 
-      const adapter = new FlagsmithFeatureAdapter(mockClient as never, { environmentID: 'test-env' })
+      const adapter = new FlagsmithFeaturesAdapter(mockClient as never, { environmentID: 'test-env' })
       const flags = adapter.setup(vi.fn())
 
       expect(flags).toEqual({})

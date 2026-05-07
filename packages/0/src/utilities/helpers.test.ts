@@ -357,6 +357,11 @@ describe('helpers', () => {
       expect(result).toEqual({ a: 1 })
     })
 
+    it('should skip non-object sources', () => {
+      const result = mergeDeep<Record<string, unknown>>({ a: 1 }, 'string' as any, 42 as any, null as any)
+      expect(result).toEqual({ a: 1 })
+    })
+
     describe('prototype pollution protection', () => {
       it('should ignore __proto__ key', () => {
         const malicious = JSON.parse('{"__proto__": {"polluted": true}}')
@@ -450,6 +455,13 @@ describe('helpers', () => {
     it('should handle boundary values', () => {
       expect(clamp(0, 0, 10)).toBe(0)
       expect(clamp(10, 0, 10)).toBe(10)
+    })
+
+    it('should return min for non-finite values', () => {
+      expect(clamp(Number.NaN, 0, 10)).toBe(0)
+      expect(clamp(Number.NaN, -5, 5)).toBe(-5)
+      expect(clamp(Number.POSITIVE_INFINITY, 0, 10)).toBe(0)
+      expect(clamp(Number.NEGATIVE_INFINITY, 0, 10)).toBe(0)
     })
   })
 

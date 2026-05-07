@@ -1,5 +1,5 @@
 ---
-paths: packages/0/src/components/**
+paths: ['packages/0/src/components/**']
 ---
 
 # Components Architecture
@@ -104,7 +104,7 @@ Standard: dual-script with imports and type exports in regular script; runtime l
 
 **Enforced rules.**
 - `defineOptions({ name: '...' })` — always required (100%). [intent:156]
-- **All imports go in `<script lang="ts">`**, never in `<script setup>`. Vue imports, composable imports, utility imports — all in regular. `<script setup>` must contain zero import statements. [intent:36, intent:157, intent:158]
+- **All imports go in `<script lang="ts">`** (preferred). Vue imports, composable imports, utility imports — all in regular. `<script setup>` should contain zero import statements. New components must follow this; some legacy Roots (`Dialog/DialogRoot.vue`, `Tabs/TabsRoot.vue`) still carry imports inside `<script setup>` pending a sweep — do not cite them as precedent. [intent:36, intent:157, intent:158]
 - Props interface and slot props interface exported from regular script. [intent:159]
 - Context `[useX, provideX]` exported from regular script. [intent:160]
 - Cleanup uses `onBeforeUnmount`, not `onUnmounted`. [intent:161, PHILOSOPHY §7.3]
@@ -209,15 +209,9 @@ const slotProps = toRef((): ComponentRootSlotProps => ({
 
 ## ARIA Pattern (WAI-ARIA compliant)
 
-Every interactive component: [intent:174]
+Every interactive component ships a correct `role`, `aria-*` state attributes, keyboard handlers, and locale-driven strings via `useLocale()` / `locale.t(key)`. `aria-disabled` is always concrete `boolean` (not `true | undefined`). Tests assert `toBeDefined()` on the locale strings, not exact values. [intent:174, intent:175, intent:176, intent:177]
 
-1. Correct `role` attribute
-2. Relevant `aria-*` state attributes
-3. `aria-disabled` when disabled — always `boolean`, not `true | undefined` [intent:175]
-4. Keyboard event handlers
-5. All user-facing strings (`aria-label`, error messages) via `useLocale()` and `locale.t(key)` — never hardcode English [intent:176]
-
-Tests assert `toBeDefined()` for locale strings, not exact values. [intent:177]
+The full ARIA vocabulary, WCAG success-criterion mapping, and worked precedents live under [WCAG Accessibility — how we apply the patterns](#wcag-accessibility--how-we-apply-the-patterns) below. Don't restate the table here.
 
 ## Disabled Pattern (three-pronged, 100% enforced)
 
@@ -249,8 +243,8 @@ Conditionally rendered: `<ComponentHiddenInput v-if="name" />`. [intent:187]
 | Strategy | When | Components |
 |----------|------|-----------|
 | Static tabindex | Single focusable element | Most components [intent:180] |
-| Roving tabindex (`useRovingFocus`) | Group keyboard navigation | Radio, Tabs, Treeview, Splitter |
-| Virtual focus (`useVirtualFocus`) | Large lists, aria-activedescendant | Combobox, Select |
+| Roving tabindex (`useRovingFocus`) | Group keyboard navigation | Treeview (`TreeviewList`). Tabs implements roving inline; new compounds should reach for `useRovingFocus` instead of hand-rolling it. |
+| Virtual focus (`useVirtualFocus`) | Large lists, aria-activedescendant | Combobox (`ComboboxControl`), Select (`SelectRoot`) |
 
 ## Keyboard Navigation Pattern (100% enforced)
 
@@ -341,11 +335,60 @@ const ticket = parentContext.register({ el })
 onBeforeUnmount(() => parentContext.unregister(ticket.id))
 ```
 
-## Tour & similar plugin-required components
+## Plugin-coordinated components
 
-Components provided by a plugin must throw without the plugin installed. `Tour` is an example: every `Tour.*` component renders through `<Atom>`, extends `AtomProps`, and types its slot via `defineSlots<{ default: (props: ...) => any }>()`. [intent:334, intent:336, intent:337]
+Some compounds depend on a global plugin context for cross-instance coordination — toast queues, snackbar regions, tooltip warmup windows. The canonical precedent on master:
 
-`Tour.Content` applies `attrs` to its `Atom` element and exposes them via slot props (same pattern as `DialogContent`). [intent:339]
+- **Snackbar** — `Snackbar/SnackbarQueue.vue` calls `useNotifications(namespace)` to read the queue; without `app.use(createNotificationsPlugin())` the call falls back via the trinity's `fallback` factory. The compound itself stays headless: every `Snackbar.*` component renders through `<Atom>`, extends `AtomProps`, and types its slot via `defineSlots<{ default: (props: ...) => any }>()`.
+
+[intent:334, intent:336, intent:337]
+
+Sub-components apply `attrs` to their `Atom` element and expose them via slot props (same pattern as `DialogContent`). [intent:339]
+
+## Cross-cutting sub-component patterns
+
+### `inheritAttrs: false` + `useAttrs()` + `mergeProps`
+
+The dominant **forwarded-attrs** pattern across compound sub-components:
+
+```ts
+defineOptions({ name: 'CheckboxRoot', inheritAttrs: false })
+
+const attrs = useAttrs()
+
+// ...
+
+const slotProps = toRef((): CheckboxRootSlotProps => ({
+  attrs: { /* role, aria-*, data-*, on* */ },
+  // ...
+}))
+```
+
+```vue
+<template>
+  <Atom v-bind="mergeProps(attrs, slotProps.attrs)">
+    <slot v-bind="slotProps" />
+  </Atom>
+</template>
+```
+
+`inheritAttrs: false` stops Vue from auto-applying parent-supplied attributes to the root element; `useAttrs()` captures them; `mergeProps(attrs, slotProps.attrs)` merges parent attrs with the component's own ARIA/data/handler bundle so duplicate event handlers chain instead of clobbering. Used in `CheckboxRoot`, `ButtonRoot`, `Form`, `Avatar/AvatarImage`, `Carousel/CarouselNext`, `NumberField/NumberFieldDecrement`, `Combobox/ComboboxError`, `Input/InputControl`, and most other compound sub-components. New compounds should adopt it unless there is a specific reason not to.
+
+### `defineSlots<{ default: (props: …) => any }>()`
+
+Compound sub-components declare their slot signature with `defineSlots`. Required for Volar slot type inference; without it, consumer templates have no IntelliSense on `v-slot="{ ... }"`.
+
+```ts
+defineSlots<{
+  default: (props: DialogContentSlotProps) => any
+}>()
+```
+
+Precedents: `Dialog/DialogContent.vue:72`, `Splitter/SplitterPanel.vue:73`, `Carousel/CarouselItem.vue:81`. Mandatory for any new compound sub-component that exposes slot props.
+
+### Optional context injection
+
+`useTreeviewItem(namespace, null)` and `useTreeviewList(namespace, null)` (see `Treeview/TreeviewItem.vue:63,71`) demonstrate the canonical pattern for **optional** context — pass `null` as the fallback to `createContext`-returned consumers and the call returns `undefined` instead of throwing when no provider exists. Use this when a component supports both standalone and nested usage (Treeview items can be top-level or descendants; Toggle can be standalone or grouped). New compounds should reach for the optional injection pattern over try/catch wrappers.
 
 ## WCAG Accessibility — how we apply the patterns
 
@@ -377,16 +420,16 @@ PHILOSOPHY §5.5 mandates that every interactive component ships correct `role`,
 | **2.1.2 No Keyboard Trap** | Focus can leave modals | Dialog `role="dialog"` + focus return via `useRovingFocus` | `packages/0/src/composables/useRovingFocus/` |
 | **2.4.3 Focus Order** | Predictable focus order | Roving tabindex + `useVirtualFocus` for lists | Radio, Tabs, Combobox |
 | **2.4.7 Focus Visible** | Focused element visible | v0 emits `:focus-visible` data, consumer styles | `data-focused` (when applicable), CSS `:focus-visible` selector |
-| **3.3.1 Error Identification** | Errors linked to inputs | `createInput()` surfaces `errors` ref; component binds `aria-describedby` to error node | `packages/0/src/composables/createInput/`, `packages/0/src/components/TextField/` |
+| **3.3.1 Error Identification** | Errors linked to inputs | `createInput()` surfaces `errors` ref; component binds `aria-describedby` to error node | `packages/0/src/composables/createInput/`, `packages/0/src/components/Input/`, `packages/0/src/components/NumberField/` |
 | **4.1.2 Name, Role, Value** | Accessible name, role, and value | `useLocale()` for names, explicit `role`, state via `aria-*` / `data-*` | All interactive components |
 | **4.1.3 Status Messages** | Live region announcements | `CarouselLiveRegion` pattern; `role="status"` or `aria-live` | `packages/0/src/components/Carousel/CarouselLiveRegion.vue` |
 
 ### Worked examples (consult these when building a new interactive component)
 
-- **`createCombobox` / Combobox components** — `role="combobox"`, `aria-expanded`, `aria-activedescendant` for virtual focus, `aria-autocomplete="list"`. Demonstrates WCAG 2.1.1 (keyboard), 4.1.2 (name/role/value), 1.3.1 (relationships).
-- **`createTabs` / Tabs components** — `role="tablist"` on Root, `role="tab"` + `aria-selected` + `aria-controls` on Item, `role="tabpanel"` + `aria-labelledby` on Content. Demonstrates WCAG 2.1.1, 2.4.3 (focus order), 1.3.1.
+- **`createCombobox` / Combobox components** — `role="combobox"`, `aria-expanded`, `aria-activedescendant` for virtual focus (`useVirtualFocus`), `aria-autocomplete="list"`. Demonstrates WCAG 2.1.1 (keyboard), 4.1.2 (name/role/value), 1.3.1 (relationships).
+- **`createStep` / Tabs components** — `role="tablist"` on Root, `role="tab"` + `aria-selected` + `aria-controls` on Item, `role="tabpanel"` + `aria-labelledby` on Content. Tabs implements roving focus inline (does not call `useRovingFocus`). Demonstrates WCAG 2.1.1, 2.4.3 (focus order), 1.3.1.
 - **`createSlider` / Slider components** — `role="slider"`, `aria-valuemin` / `aria-valuemax` / `aria-valuenow`, `aria-orientation`, `aria-valuetext` for formatted announcements. Demonstrates WCAG 4.1.2, 1.3.1.
-- **`createInput` / TextField** — `<label>` linkage via `for`/`id`, `aria-describedby` for help/error, `aria-invalid` when validation fails, hidden input pattern for native form submission. Demonstrates WCAG 3.3.1, 3.3.3, 1.3.1.
+- **`createInput` / Input components** — `<label>` linkage via `for`/`id`, `aria-describedby` for help/error, `aria-invalid` when validation fails. `NumberField` extends the pattern with `createNumeric` and the hidden input mechanism for native form submission. Demonstrates WCAG 3.3.1, 3.3.3, 1.3.1.
 
 ### Cross-reference with WCAG success criteria when building
 
@@ -432,19 +475,17 @@ const el = toRef(() => toElement(atomRef.value?.element) ?? null)
 ```
 
 - **Name the `useTemplateRef` holder** `atomRef` (single Atom) or `{role}Ref` / `{role}Atom` (multiple). It holds an `AtomExpose` wrapper, not an `HTMLElement` — never suffix it with `El`. Precedents: `Image/ImageRoot.vue:93` (`atomRef`), `Splitter/SplitterRoot.vue:112` (`rootAtom`), `Tabs/TabsItem.vue:88` (`rootRef`), `Snackbar/SnackbarQueue.vue:80` (`container`). **Anti-precedent**: `Carousel/CarouselNext.vue:57`, `CarouselItem.vue:79`, `CarouselLiveRegion.vue:64` use `rootEl` for the AtomExpose holder — that name belongs to the toRef-derived element, not the ref-of-wrapper.
-- **Always** route the access through `toElement` (`#v0/composables/toElement`). The raw `as HTMLElement | null | undefined` cast bypasses the normalization layer that handles ref-vs-direct-element variants and is the bug-family flagged in the saved-memory `toElement-template-refs.md`. Tabs, Treeview, and similar components carry the legacy raw-cast form pending a sweep.
+- **Always** route the access through `toElement` (`#v0/composables/toElement`). The raw `as HTMLElement | null | undefined` cast bypasses the normalization layer that handles ref-vs-direct-element variants and is the bug-family flagged in the saved-memory `toElement-template-refs.md`.
 - **Wrap in `toRef(() => ...)`** so downstream consumers (`watch`, `useResizeObserver`, `useIntersectionObserver`, popover attach) get a reactive ref instead of a snapshot.
 - **`?? null` only — no `as HTMLElement | null` cast on the ref.** `toElement` returns `Element | undefined`. The historical pattern `as HTMLElement | null ?? null` (Image / Carousel × 4) papers over both transitions with a single misleading cast — TS thinks it's `HTMLElement | null` but the runtime value is `Element | null` after the coalesce. Drop the cast: write `toElement(...) ?? null` and let the ref be `Ref<Element | null>`. If a consumer needs HTMLElement-specific properties (`offsetWidth`, `offsetHeight`), cast at the use site (`(el.value as HTMLElement).offsetWidth`) — the boundary cast is honest about what's happening.
 - **Name the resulting element ref `el`** when the SFC has only one Atom, or `{position}El` (`rootEl`, `triggerEl`) when there are multiple. Never `elementRef` or `atomElement` — single-word `el` is the precedent across Image, Carousel × 4, Overflow.
 
-Worked precedents (current form):
+Worked precedents:
 
 - `packages/0/src/components/Overflow/OverflowIndicator.vue` — `el`, used for ResizeObserver and own-width measurement; HTMLElement cast at the `offsetWidth` use site only.
-
-Legacy precedents (still carrying the `as HTMLElement | null ?? null` chain pending sweep):
-
-- `packages/0/src/components/Image/ImageRoot.vue:94`
-- `packages/0/src/components/Carousel/CarouselNext.vue:72`, `CarouselPrevious.vue:72`, `CarouselProgress.vue:75`, `CarouselLiveRegion.vue:79`
+- `packages/0/src/components/Splitter/SplitterRoot.vue` — `rootEl` exposed on context as `Readonly<Ref<Element | null>>`; consumers (`SplitterPanel`, `SplitterHandle`) cast at `offsetWidth/offsetHeight` use sites.
+- `packages/0/src/components/Carousel/*` — `CarouselTicket.el` / `CarouselPartTicket.el` typed `Element`; `CarouselViewport` reads `scrollTop/scrollLeft/scrollTo` on plain Element (per spec) and casts at `offsetWidth/Height/Top/Left` slide-step measurement only.
+- `packages/0/src/components/Tabs/TabsItem.vue`, `Treeview/TreeviewItem.vue`, `Radio/RadioRoot.vue` — ticket `el` typed `Element`; `.focus()` use sites cast to `HTMLElement | undefined`.
 
 ### Naming conventions for exposed methods
 
@@ -541,7 +582,7 @@ Does the component need cross-cutting state or adapter-based config?
 │   ├─ Needs permission gating → usePermissions()
 │   │   Example: admin-only actions, role-restricted UI
 │   ├─ Needs layered z-index coordination → useStack()
-│   │   Example: Dialog, Popover, Snackbar, Tour (anything that floats)
+│   │   Example: Dialog, AlertDialog, Popover, Portal (anything that floats)
 │   ├─ Needs structured logging → useLogger()
 │   │   Example: warnings on duplicate registration, invalid config (PHILOSOPHY §9.2)
 │   ├─ Needs user notifications → useNotifications()
@@ -555,7 +596,7 @@ Does the component need cross-cutting state or adapter-based config?
 ### Real examples in source
 
 - **`useLocale()`** — called in `Dialog`, `Combobox`, `Select`, `Pagination`, every component that ships user-facing strings. Required for WCAG 4.1.2 (accessible name).
-- **`useStack()`** — called in `Dialog`, `Popover`, `Scrim`, `Tour`. Without it, floating layers fight over z-index.
+- **`useStack()`** — called in `Dialog/DialogContent.vue`, `AlertDialog/AlertDialogContent.vue`, `Portal/Portal.vue`. Without it, floating layers fight over z-index.
 - **`useLogger()`** — called inside `createRegistry`, `createSelection`, etc., for warnings. Not usually called directly in components.
 - **`useNotifications()`** — called in `Snackbar` and any component that pushes runtime notifications.
 
@@ -570,7 +611,8 @@ When uncertain, don't hook up. Adding a plugin later is a non-breaking change; r
 ## Checklist
 
 - [ ] Directory follows compound pattern (Root + sub-components + `index.ts` + `index.test.ts`) unless in the exceptions list
-- [ ] All imports in `<script lang="ts">`, zero in `<script setup>`
+- [ ] All imports in `<script lang="ts">`, zero in `<script setup>` (preferred — DialogRoot/TabsRoot legacy violations excepted; do not introduce new ones)
+- [ ] Type guards from `#v0/utilities` (`isUndefined`, `isObject`, `isString`, …) — never raw `=== undefined`, `=== null`, or `typeof x === 'object'`
 - [ ] `defineOptions({ name: '...' })` present
 - [ ] Props interface extends `AtomProps` and does not re-declare `as` / `renderless`
 - [ ] Defaults in destructuring, never in interface
@@ -588,7 +630,7 @@ When uncertain, don't hook up. Adding a plugin later is a non-breaking change; r
 - [ ] Zero utility classes; all `:style` bindings structural
 - [ ] `register()` called in setup; `unregister()` called in `onBeforeUnmount`
 - [ ] Compound sub-components propagate `AtomExpose` and add their own `{Component}Expose` interface when exposing imperative methods
-- [ ] Same-SFC Atom element access uses `toRef(() => toElement(atomRef.value?.element) as HTMLElement | null ?? null)` named `el` / `rootEl`, never a raw cast or `elementRef` name
+- [ ] Same-SFC Atom element access uses `toRef(() => toElement(atomRef.value?.element) ?? null)` named `el` / `rootEl`, never a raw cast or `elementRef` name (precedent: `Overflow/OverflowIndicator.vue:68`)
 - [ ] ARIA roles, keyboard handlers, and WCAG success criteria mapped for every interactive component
 - [ ] No raw `inject` / `provide` — context always via `createContext`
 - [ ] Global plugins hooked up only when the component genuinely depends on app-level state

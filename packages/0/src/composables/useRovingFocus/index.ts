@@ -40,7 +40,7 @@ import type { ID } from '#v0/types'
 import type { MaybeRefOrGetter, ShallowRef } from 'vue'
 
 export interface RovingItem extends TraversalItem {
-  el?: MaybeRefOrGetter<HTMLElement | null | undefined>
+  el?: MaybeRefOrGetter<Element | null | undefined>
 }
 
 export interface RovingFocusOptions {
@@ -87,7 +87,7 @@ export function useRovingFocus (
     onFocus?.(id)
 
     nextTick(() => {
-      const el = toValue(item.el)
+      const el = toValue(item.el) as HTMLElement | null | undefined
       el?.focus()
     })
 

@@ -18,9 +18,9 @@ related:
 
 # Switch
 
-<DocsPageFeatures :frontmatter />
-
 A switch for on/off state or multi-selection groups with tri-state support.
+
+<DocsPageFeatures :frontmatter />
 
 ## Usage
 

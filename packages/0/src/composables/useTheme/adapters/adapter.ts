@@ -12,19 +12,7 @@ export interface ThemeAdapterSetupContext {
   isDark: Readonly<Ref<boolean>>
 }
 
-export interface ThemeAdapterInterface {
-  setup: <T extends ThemeAdapterSetupContext>(
-    app: App,
-    context: T,
-    target?: string | HTMLElement | null,
-  ) => void
-  update: (
-    colors: Record<string, Colors>,
-    isDark?: boolean,
-  ) => void
-}
-
-export abstract class ThemeAdapter implements ThemeAdapterInterface {
+export abstract class ThemeAdapter {
   private static UNSAFE_CSS = /url\s*\(|@import|expression\s*\(|[{}]/i
   private static SAFE_IDENT = /^[a-zA-Z0-9_-]+$/
 

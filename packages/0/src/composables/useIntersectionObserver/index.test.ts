@@ -593,7 +593,7 @@ describe('useIntersectionObserver SSR', () => {
     expect(() => stop()).not.toThrow()
   })
 
-  it('useElementIntersection should return default values during SSR', async () => {
+  it('should return default values from useElementIntersection during SSR', async () => {
     vi.doMock('#v0/constants/globals', () => ({
       SUPPORTS_INTERSECTION_OBSERVER: false,
     }))

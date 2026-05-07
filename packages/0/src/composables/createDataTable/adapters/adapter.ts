@@ -8,7 +8,7 @@
  *
  * The abstract DataTableAdapter provides shared filter and sort pipelines
  * used by client-side adapters. Server adapters that delegate pipeline
- * operations externally can implement DataTableAdapterInterface directly.
+ * operations externally subclass DataTableAdapter directly.
  */
 
 // Composables
@@ -72,11 +72,6 @@ export interface DataTableAdapterResult<T extends Record<string, unknown>> {
   error?: Readonly<Ref<Error | null>>
 }
 
-/** Pipeline adapter interface for data table strategies */
-export interface DataTableAdapterInterface<T extends Record<string, unknown>> {
-  setup: (context: DataTableAdapterContext<T>) => DataTableAdapterResult<T>
-}
-
 function getNestedValue (obj: Record<string, unknown>, parts: readonly string[]): unknown {
   let result: unknown = obj
   for (const k of parts) {
@@ -109,7 +104,7 @@ function compareValues (a: unknown, b: unknown, collator?: Intl.Collator): numbe
   return collator ? collator.compare(sa, sb) : sa.localeCompare(sb)
 }
 
-export abstract class DataTableAdapter<T extends Record<string, unknown>> implements DataTableAdapterInterface<T> {
+export abstract class DataTableAdapter<T extends Record<string, unknown>> {
   /** Create the filter pipeline stage */
   protected filter (context: DataTableAdapterContext<T>) {
     const hasColumnFilters = Object.keys(context.customColumnFilters).length > 0

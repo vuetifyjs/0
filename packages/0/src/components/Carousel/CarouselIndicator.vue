@@ -92,7 +92,7 @@
   const locale = useLocale()
   const carousel = useCarouselRoot(namespace)
 
-  const el = toRef(() => toElement(rootEl.value?.element) as HTMLElement | null ?? null)
+  const el = toRef(() => toElement(rootEl.value?.element) ?? null)
   const ticket = carousel.parts.register({ type: 'indicator', el })
   onBeforeUnmount(() => ticket.unregister())
 
@@ -103,7 +103,7 @@
 
   function focusSelected () {
     nextTick(() => {
-      const container = toElement(rootEl.value?.element) as HTMLElement | null
+      const container = toElement(rootEl.value?.element)
       container?.querySelector<HTMLElement>('[tabindex="0"]')?.focus()
     })
   }

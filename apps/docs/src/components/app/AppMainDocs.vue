@@ -2,7 +2,7 @@
   import { useHead } from '@unhead/vue'
 
   // Framework
-  import { IN_BROWSER } from '@vuetify/v0'
+  import { IN_BROWSER, useHydration } from '@vuetify/v0'
 
   // Composables
   import { useAsk } from '@/composables/useAsk'
@@ -13,13 +13,13 @@
   import { computed, onBeforeUnmount, onMounted, shallowRef, toRef, useTemplateRef, watch } from 'vue'
   import { useRoute } from 'vue-router'
 
-  // Components
   import DocsToc from '../docs/DocsToc.vue'
   import DocsPageLogo from '../docs/meta/DocsPageLogo.vue'
 
   const ask = useAsk()
   const route = useRoute()
   const settings = useSettings()
+  const { isSettled } = useHydration()
   const page = shallowRef<{ frontmatter?: Record<string, unknown> }>()
   const mainRef = useTemplateRef<HTMLElement>('main')
   const pageTransition = toRef(() => settings.prefersReducedMotion.value ? undefined : 'page')
@@ -83,7 +83,7 @@
       schemas.push({
         '@context': 'https://schema.org',
         '@type': 'TechArticle',
-        'headline': pageTitle.value,
+        'headline': page.value?.frontmatter?.title,
         'description': pageDescription.value ?? '',
         'url': `https://0.vuetifyjs.com${route.path}`,
         'author': { '@type': 'Organization', 'name': 'Vuetify' },
@@ -96,7 +96,6 @@
   })
 
   // Set page-level meta from frontmatter (reactive)
-  // InferSeoMetaPlugin auto-generates og:title and og:description
   useHead({
     title: pageTitle,
     meta: toRef(() => {
@@ -121,7 +120,7 @@
     ref="main"
     :class="[
       'pa-6 ms-0 md:ms-[230px] relative z-0',
-      !settings.prefersReducedMotion.value && 'transition-[padding] duration-200',
+      isSettled.value && !settings.prefersReducedMotion.value && 'transition-[padding] duration-200',
       'data-[has-toc]:xl:pe-[232px]',
       'data-[ask-open]:xl:pe-[calc(clamp(280px,calc(100vw-230px-730px-64px),500px)+32px)]',
     ]"

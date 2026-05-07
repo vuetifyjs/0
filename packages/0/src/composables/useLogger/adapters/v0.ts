@@ -3,19 +3,21 @@ import { isFunction } from '#v0/utilities'
 
 // Types
 import type { LogLevel } from '../types'
-import type { LoggerAdapter } from './adapter'
 
 // Globals
 import { IN_BROWSER } from '#v0/constants/globals'
 
+// Adapters
+import { LoggerAdapter } from './adapter'
+
 /**
- * Vuetify0.x logger adapter implementation
+ * V0 logger adapter implementation
  *
  * This adapter provides console-based logging with proper formatting,
  * color coding, timestamps, and log level filtering for development
  * and production environments.
  */
-export class Vuetify0LoggerAdapter implements LoggerAdapter {
+export class V0LoggerAdapter extends LoggerAdapter {
   private prefix: string
   private colors: boolean
   private timestamps: boolean
@@ -25,6 +27,7 @@ export class Vuetify0LoggerAdapter implements LoggerAdapter {
     colors?: boolean
     timestamps?: boolean
   } = {}) {
+    super()
     this.prefix = options.prefix || 'v0'
     this.colors = options.colors !== false
     this.timestamps = options.timestamps !== false

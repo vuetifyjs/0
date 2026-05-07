@@ -16,18 +16,18 @@ function setup (options: Parameters<typeof createNumberField>[0] = {}) {
 
 describe('createNumberField', () => {
   describe('value', () => {
-    it('defaults to null', () => {
+    it('should default to null', () => {
       const field = setup()
       expect(field.value.value).toBeNull()
     })
 
-    it('accepts initial value', () => {
+    it('should accept initial value', () => {
       const value = ref<number | null>(42)
       const field = setup({ value })
       expect(field.value.value).toBe(42)
     })
 
-    it('accepts external ref', () => {
+    it('should accept external ref', () => {
       const value = ref<number | null>(10)
       const field = setup({ value })
       value.value = 20
@@ -36,19 +36,19 @@ describe('createNumberField', () => {
   })
 
   describe('increment / decrement', () => {
-    it('increments by step', () => {
+    it('should increment by step', () => {
       const field = setup({ value: ref(10), min: 0, max: 100, step: 5 })
       field.increment()
       expect(field.value.value).toBe(15)
     })
 
-    it('decrements by step', () => {
+    it('should decrement by step', () => {
       const field = setup({ value: ref(10), min: 0, max: 100, step: 5 })
       field.decrement()
       expect(field.value.value).toBe(5)
     })
 
-    it('supports multiplier', () => {
+    it('should support multiplier', () => {
       const field = setup({ value: ref(50), min: 0, max: 100, step: 1 })
       field.increment(10)
       expect(field.value.value).toBe(60)
@@ -56,19 +56,19 @@ describe('createNumberField', () => {
       expect(field.value.value).toBe(55)
     })
 
-    it('clamps at max', () => {
+    it('should clamp at max', () => {
       const field = setup({ value: ref(98), min: 0, max: 100, step: 5 })
       field.increment()
       expect(field.value.value).toBe(100)
     })
 
-    it('clamps at min', () => {
+    it('should clamp at min', () => {
       const field = setup({ value: ref(2), min: 0, max: 100, step: 5 })
       field.decrement()
       expect(field.value.value).toBe(0)
     })
 
-    it('no-ops when disabled', () => {
+    it('should no-op when disabled', () => {
       const field = setup({ value: ref(10), disabled: true })
       field.increment()
       expect(field.value.value).toBe(10)
@@ -76,7 +76,7 @@ describe('createNumberField', () => {
       expect(field.value.value).toBe(10)
     })
 
-    it('no-ops when readonly', () => {
+    it('should no-op when readonly', () => {
       const field = setup({ value: ref(10), readonly: true })
       field.increment()
       expect(field.value.value).toBe(10)
@@ -84,50 +84,69 @@ describe('createNumberField', () => {
       expect(field.value.value).toBe(10)
     })
 
-    it('initializes from null using clamped 0', () => {
+    it('should initialize from null using clamped 0', () => {
       const field = setup({ min: 0, max: 100, step: 1 })
       expect(field.value.value).toBeNull()
       field.increment()
       expect(field.value.value).toBe(0)
     })
 
-    it('initializes from null clamped to min when min > 0', () => {
+    it('should initialize from null clamped to min when min > 0', () => {
       const field = setup({ min: 10, max: 100, step: 1 })
       field.increment()
       expect(field.value.value).toBe(10)
     })
 
-    it('initializes from null clamped to max when max < 0', () => {
+    it('should initialize from null clamped to max when max < 0', () => {
       const field = setup({ min: -100, max: -10, step: 1 })
       field.increment()
       expect(field.value.value).toBe(-10)
     })
+
+    // Regression: a NaN/Infinity-valued ref used to flow into numeric.up/down,
+    // which silently snapped to min via snap()'s !Number.isFinite early-return —
+    // user expected a step forward but got a teleport to min. Use a range where
+    // initialize() (clamp(0, min, max)) and snap-to-min disagree: with min=-5
+    // initialize returns 0, the old behaviour returned -5.
+    it('should re-initialize when value is NaN', () => {
+      const value = ref<number | null>(Number.NaN)
+      const field = setup({ value, min: -5, max: 100, step: 1 })
+      field.increment()
+      expect(field.value.value).toBe(0)
+    })
+
+    it('should re-initialize when value is Infinity', () => {
+      const value = ref<number | null>(Number.POSITIVE_INFINITY)
+      const field = setup({ value, min: -5, max: 100, step: 1 })
+      field.decrement()
+      expect(field.value.value).toBe(0)
+    })
   })
 
   describe('canIncrement / canDecrement', () => {
-    it('returns true when within range', () => {
+    it('should return true when within range', () => {
       const field = setup({ value: ref(50), min: 0, max: 100 })
       expect(field.canIncrement.value).toBe(true)
       expect(field.canDecrement.value).toBe(true)
     })
 
-    it('returns false at max', () => {
+    it('should return false at max', () => {
       const field = setup({ value: ref(100), min: 0, max: 100 })
       expect(field.canIncrement.value).toBe(false)
     })
 
-    it('returns false at min', () => {
+    it('should return false at min', () => {
       const field = setup({ value: ref(0), min: 0, max: 100 })
       expect(field.canDecrement.value).toBe(false)
     })
 
-    it('returns true for null value', () => {
+    it('should return true for null value', () => {
       const field = setup({ min: 0, max: 100 })
       expect(field.canIncrement.value).toBe(true)
       expect(field.canDecrement.value).toBe(true)
     })
 
-    it('updates reactively', () => {
+    it('should update reactively', () => {
       const value = ref<number | null>(99)
       const field = setup({ value, min: 0, max: 100, step: 1 })
       expect(field.canIncrement.value).toBe(true)
@@ -137,19 +156,19 @@ describe('createNumberField', () => {
   })
 
   describe('floor / ceil', () => {
-    it('sets value to min', () => {
+    it('should set value to min', () => {
       const field = setup({ value: ref(50), min: 0, max: 100 })
       field.floor()
       expect(field.value.value).toBe(0)
     })
 
-    it('sets value to max', () => {
+    it('should set value to max', () => {
       const field = setup({ value: ref(50), min: 0, max: 100 })
       field.ceil()
       expect(field.value.value).toBe(100)
     })
 
-    it('no-ops when disabled', () => {
+    it('should no-op when disabled', () => {
       const field = setup({ value: ref(50), min: 0, max: 100, disabled: true })
       field.floor()
       expect(field.value.value).toBe(50)
@@ -157,7 +176,7 @@ describe('createNumberField', () => {
       expect(field.value.value).toBe(50)
     })
 
-    it('no-ops when readonly', () => {
+    it('should no-op when readonly', () => {
       const field = setup({ value: ref(50), min: 0, max: 100, readonly: true })
       field.floor()
       expect(field.value.value).toBe(50)
@@ -167,12 +186,12 @@ describe('createNumberField', () => {
   })
 
   describe('formatValue / parse', () => {
-    it('formats with default locale', () => {
+    it('should format with default locale', () => {
       const field = setup()
       expect(field.formatValue(1234.5)).toBe('1,234.5')
     })
 
-    it('formats with currency', () => {
+    it('should format with currency', () => {
       const field = setup({
         locale: 'en-US',
         format: { style: 'currency', currency: 'USD' },
@@ -180,40 +199,46 @@ describe('createNumberField', () => {
       expect(field.formatValue(42.5)).toBe('$42.50')
     })
 
-    it('parses formatted number', () => {
+    it('should parse formatted number', () => {
       const field = setup({ locale: 'en-US' })
       expect(field.parse('1,234.5')).toBe(1234.5)
     })
 
-    it('parses empty string to null', () => {
+    it('should parse empty string to null', () => {
       const field = setup()
       expect(field.parse('')).toBeNull()
     })
 
-    it('parses invalid string to null', () => {
+    it('should parse invalid string to null', () => {
       const field = setup()
       expect(field.parse('abc')).toBeNull()
     })
 
-    it('parses negative numbers', () => {
+    it('should parse negative numbers', () => {
       const field = setup({ locale: 'en-US' })
       expect(field.parse('-42')).toBe(-42)
+    })
+
+    it('should parse comma decimal separator for locales like de-DE', () => {
+      const field = setup({ locale: 'de-DE' })
+      // de-DE uses ',' as decimal separator and '.' as thousands separator
+      expect(field.parse('1.234,5')).toBe(1234.5)
     })
   })
 
   describe('display', () => {
-    it('formats value reactively', () => {
+    it('should format value reactively', () => {
       const value = ref<number | null>(1234)
       const field = setup({ value, locale: 'en-US' })
       expect(field.display.value).toBe('1,234')
     })
 
-    it('returns empty string for null', () => {
+    it('should return empty string for null', () => {
       const field = setup()
       expect(field.display.value).toBe('')
     })
 
-    it('updates when value changes', () => {
+    it('should update when value changes', () => {
       const value = ref<number | null>(10)
       const field = setup({ value, locale: 'en-US' })
       expect(field.display.value).toBe('10')
@@ -223,28 +248,28 @@ describe('createNumberField', () => {
   })
 
   describe('commit', () => {
-    it('snaps value', () => {
+    it('should snap value', () => {
       const value = ref<number | null>(13)
       const field = setup({ value, min: 0, max: 100, step: 5 })
       field.commit()
       expect(field.value.value).toBe(15)
     })
 
-    it('clamps value by default', () => {
+    it('should clamp value by default', () => {
       const value = ref<number | null>(150)
       const field = setup({ value, min: 0, max: 100, step: 1 })
       field.commit()
       expect(field.value.value).toBe(100)
     })
 
-    it('skips clamping when clamp is false', () => {
+    it('should skip clamping when clamp is false', () => {
       const value = ref<number | null>(150)
       const field = setup({ value, min: 0, max: 100, step: 1, clamp: false })
       field.commit()
       expect(field.value.value).toBe(150)
     })
 
-    it('no-ops for null value', () => {
+    it('should no-op for null value', () => {
       const field = setup({ min: 0, max: 100 })
       field.commit()
       expect(field.value.value).toBeNull()
@@ -252,28 +277,28 @@ describe('createNumberField', () => {
   })
 
   describe('numeric context', () => {
-    it('exposes numeric properties', () => {
+    it('should expose numeric properties', () => {
       const field = setup({ min: 0, max: 100, step: 5 })
       expect(field.numeric.min).toBe(0)
       expect(field.numeric.max).toBe(100)
       expect(field.numeric.step).toBe(5)
     })
 
-    it('exposes snap', () => {
+    it('should expose snap', () => {
       const field = setup({ min: 0, max: 100, step: 10 })
       expect(field.numeric.snap(13)).toBe(10)
     })
   })
 
   describe('input context', () => {
-    it('exposes input state', () => {
+    it('should expose input state', () => {
       const field = setup()
       expect(field.input.isDirty.value).toBe(false)
       expect(field.input.isFocused.value).toBe(false)
       expect(field.input.isPristine.value).toBe(true)
     })
 
-    it('tracks disabled reactively', () => {
+    it('should track disabled reactively', () => {
       const disabled = shallowRef(false)
       const field = setup({ disabled })
       expect(field.input.isDisabled.value).toBe(false)
@@ -281,7 +306,7 @@ describe('createNumberField', () => {
       expect(field.input.isDisabled.value).toBe(true)
     })
 
-    it('tracks readonly reactively', () => {
+    it('should track readonly reactively', () => {
       const readonly = shallowRef(false)
       const field = setup({ readonly })
       expect(field.input.isReadonly.value).toBe(false)
@@ -289,7 +314,7 @@ describe('createNumberField', () => {
       expect(field.input.isReadonly.value).toBe(true)
     })
 
-    it('dirty returns true for non-null value', () => {
+    it('should return true from dirty for non-null value', () => {
       const value = ref<number | null>(null)
       const field = setup({ value })
       expect(field.input.isDirty.value).toBe(false)
@@ -297,7 +322,7 @@ describe('createNumberField', () => {
       expect(field.input.isDirty.value).toBe(true)
     })
 
-    it('uses Object.is for pristine equality', () => {
+    it('should use Object.is for pristine equality', () => {
       const value = ref<number | null>(null)
       const field = setup({ value })
       expect(field.input.isPristine.value).toBe(true)

@@ -15,7 +15,7 @@ export interface NestedTicketInput<V = unknown> extends GroupTicketInput<V> {
   /** Whether this ticket is initially active */
   active?: boolean
   /** Reference to the DOM element for focus management */
-  el?: MaybeRefOrGetter<HTMLElement | null | undefined>
+  el?: MaybeRefOrGetter<Element | null | undefined>
 }
 
 /**
@@ -28,7 +28,7 @@ export type NestedTicket<Z extends NestedTicketInput = NestedTicketInput> = Grou
   /** ID of the parent ticket, or undefined if this is a root item. Static — set at registration time. */
   parentId: ID | undefined
   /** Reference to the DOM element for focus management */
-  el: MaybeRefOrGetter<HTMLElement | null | undefined> | undefined
+  el: MaybeRefOrGetter<Element | null | undefined> | undefined
   /** Whether this ticket is currently open/expanded */
   isOpen: Readonly<Ref<boolean>>
   /** Whether this ticket is currently active/highlighted */

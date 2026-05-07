@@ -69,7 +69,7 @@
   const locale = useLocale()
   const carousel = useCarouselRoot(namespace)
 
-  const el = toRef(() => toElement(rootEl.value?.element) as HTMLElement | null ?? null)
+  const el = toRef(() => toElement(rootEl.value?.element) ?? null)
   const ticket = carousel.parts.register({ type: 'previous', el })
   onBeforeUnmount(() => ticket.unregister())
 

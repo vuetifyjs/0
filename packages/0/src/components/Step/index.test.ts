@@ -714,16 +714,16 @@ describe('step', () => {
 
       mount(defineComponent({
         render: () => [
-          h(Step.Root as any, { namespace: 'step-1' }, () =>
-            h(Step.Item as any, { value: 'item-1', namespace: 'step-1' }, {
+          h(Step.Root as any, { namespace: 'v0:step-1' }, () =>
+            h(Step.Item as any, { value: 'item-1', namespace: 'v0:step-1' }, {
               default: (props: any) => {
                 step1ItemProps = props
                 return h('div', 'Step 1 Item')
               },
             }),
           ),
-          h(Step.Root as any, { namespace: 'step-2' }, () =>
-            h(Step.Item as any, { value: 'item-1', namespace: 'step-2' }, {
+          h(Step.Root as any, { namespace: 'v0:step-2' }, () =>
+            h(Step.Item as any, { value: 'item-1', namespace: 'v0:step-2' }, {
               default: (props: any) => {
                 step2ItemProps = props
                 return h('div', 'Step 2 Item')
@@ -745,7 +745,8 @@ describe('step', () => {
     })
   })
 
-  describe('sSR / Hydration', () => {
+  // eslint-disable-next-line vitest/prefer-lowercase-title
+  describe('SSR / Hydration', () => {
     it('should render to string on server without errors', async () => {
       const app = createSSRApp(defineComponent({
         render: () =>

@@ -86,8 +86,8 @@
 
   const step = createStep({
     disabled: toRef(() => disabled),
-    enroll,
-    mandatory,
+    enroll: toRef(() => enroll),
+    mandatory: toRef(() => mandatory),
     events: true,
   })
 

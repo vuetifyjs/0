@@ -1,5 +1,5 @@
 ---
-paths: packages/0/src/composables/**
+paths: ['packages/0/src/composables/**']
 ---
 
 # Composables Architecture
@@ -80,14 +80,14 @@ export interface FooOptions extends RegistryOptions {
 
 export interface FooContext<
   Z extends FooTicketInput = FooTicketInput,
-  E extends FooTicket<Z> = FooTicket<Z>,
+  E extends RegistryTicket & Z = RegistryTicket & Z,
 > extends Omit<RegistryContext<Z, E>, 'register'> {
   register: (registration?: Partial<Z>) => E
 }
 
 export function createFoo <
   Z extends FooTicketInput = FooTicketInput,
-  E extends FooTicket<Z> = FooTicket<Z>,
+  E extends RegistryTicket & Z = RegistryTicket & Z,
 > (options: FooOptions = {}): FooContext<Z, E> {
   const { disabled, namespace = 'v0:foo' } = options
   const registry = createRegistry<Z, E>(options)
@@ -195,7 +195,7 @@ See PHILOSOPHY §2.9 for the three-way split (throw / warn / return) and the ful
 | Composable type | Cleanup |
 |-----------------|---------|
 | DOM observers, event listeners | `onScopeDispose(cleanup)` [intent:139] |
-| Performance-critical DOM observers | `onScopeDispose(cleanup, true)` — deferred [intent:140] |
+| Composables that may run outside a Vue setup (tests, manual scopes) | `onScopeDispose(cleanup, true)` — `failSilently: true` suppresses the no-active-scope warning [intent:140] |
 | Pure data structures, computed state | No cleanup needed (Vue handles it) [intent:141] |
 
 ## Composition Patterns (4 canonical styles)
@@ -238,6 +238,27 @@ export const [createXContext, createXPlugin, useX] = createPluginContext('v0:x',
 
 Used by `useTheme`, `useLocale`, `useLogger`, `useStack`, and friends.
 
+#### Fallback contract — required for every plugin
+
+Any `useX` whose docs promise it works without `app.use(createXPlugin())` must pass a `fallback: (namespace) => Context` factory to `createPluginContext`. Without it, calling `useX()` outside an installed app throws an injection error — the docs FAQ promise breaks silently.
+
+The worked example is `useLogger`:
+
+```ts
+// packages/0/src/composables/useLogger/index.ts
+export const [createLoggerContext, createLoggerPlugin, useLogger] =
+  createPluginContext<LoggerContextOptions, LoggerContext>(
+    'v0:logger',
+    options => createLogger(options),
+    {
+      fallback: ns => createFallbackLogger(ns),
+      // ...
+    },
+  )
+```
+
+When the fallback is in place, `useLogger()` returns synthesized defaults instead of throwing. Sibling plugins that follow the same convention: `useLocale` (`createLocaleFallback`), `useHydration` (`createFallbackHydration`). If a plugin **must** be installed (e.g., it depends on caller-provided adapters with no defensible default — `useDate`), omit the fallback and let injection throw; document that explicitly on the docs page so the failure is loud, not silent.
+
 ### 4. Adapter (pluggable implementation)
 
 Swappable behavior via adapter interface: [intent:145]
@@ -262,10 +283,10 @@ The adapter pattern shows up in two distinct situations. They look similar in so
 **Examples in source:**
 
 - **`useLocale`** — ships `V0LocaleAdapter` by default, plus adapters that proxy to `vue-i18n`, `@intlify/unplugin-vue-i18n`, or any other translation library the consumer already uses. [intent:107]
-- **`useDate`** — ships no default; every consumer picks from adapters backed by `date-fns`, `dayjs`, or the native `Intl` API, because there is no universally correct default date library.
+- **`useDate`** — bundles an opt-in `V0DateAdapter` (Intl-backed) under `useDate/adapters/v0.ts`, but the plugin requires an explicit adapter selection (no default install). Implementation.md classifies this as the "Required (throw)" fallback strategy — pick one of the bundled v0 / `date-fns` / `dayjs` adapters at install time.
 - **`useLogger`** — ships `V0LoggerAdapter` (console-based) by default, plus `PinoLoggerAdapter`, `ConsolaLoggerAdapter` for structured logging integrations.
-- **`useStorage`** — ships `V0StorageAdapter` (localStorage), plus `MemoryStorageAdapter` (SSR-safe fallback), plus third-party-branded adapters for cookie / IndexedDB backends.
-- **`useNotifications`** — ships `V0NotificationsAdapter` (in-memory queue) by default, with adapters for external notification services.
+- **`useStorage`** — ships `MemoryStorageAdapter` (SSR-safe fallback) under `useStorage/adapters/memory.ts`; `useStorage` itself reaches for `window.localStorage` when running in the browser, swapping in the memory adapter under SSR.
+- **`useNotifications`** — ships no `V0`-prefixed default; consumers pick a third-party-branded adapter (`KnockNotificationsAdapter`, `NovuNotificationsAdapter`) at install time.
 
 **Interface contract.** Every adapter interface is defined in the composable's `adapters/index.ts` and includes optional lifecycle hooks:
 
@@ -327,12 +348,12 @@ const table = createDataTable({
 Both composables are covered in PHILOSOPHY §6.6 and §6.7. Repeating the when-to-use summary here for composable authors:
 
 - **`useProxyModel(context, model, { multiple? })`** — when your composable/component owns a `createModel`-derived context internally and exposes v-model externally. Registry must be created with `events: true` so late-registering tickets can sync. [intent:182, intent:309]
-- **`useProxyRegistry(registry, { deep? })`** — when you want a reactive `{ keys, values, entries, size }` snapshot of a registry for template iteration. Never substitute `reactive: true` on the registry — that breaks `values()` cache-backed dep tracking (PHILOSOPHY §4.4). [intent:253, intent:254]
+- **`useProxyRegistry(registry, { deep? })`** — when you want a reactive `{ keys, values, entries, size }` snapshot of a registry for template iteration. The registry must be created with `events: true` (the proxy subscribes to `register:ticket`, `unregister:ticket`, `update:ticket`, `clear:registry`, `reindex:registry`); the proxy itself only accepts `{ deep?: boolean }`. Use `deep: true` when consumers will mutate ticket fields and need the snapshot to track those mutations. [intent:253, intent:254]
 
 ## Dependency Layers (PHILOSOPHY §6)
 
 ```
-Layer 0: Foundation (no v0 deps)
+Layer 0: Foundation (minimal, foundational deps only)
   createContext, createRegistry, createModel, createNumeric,
   createObserver, createPlugin, createTrinity,
   toArray, toElement, toReactive,
@@ -346,13 +367,28 @@ Layer 2: Complex orchestrators
   createCombobox, createDataTable
 ```
 
-**Never depend upward.** Foundation must not import from Layer 1+. [intent:146]
+**Layer 0 is "no upward deps", not "no v0 deps at all".** Foundation primitives are allowed to lean on a small core of Layer-0 siblings — for example, `createObserver` uses `useHydration`, `createRegistry` uses `useLogger` (per the §9.2 Layer-0 console exception), and `useEventListener` uses `toArray`. The bright line is direction: foundation must never import from Layer 1+. [intent:146]
 
 ## Registry System (PHILOSOPHY §6)
 
 `createRegistry` is the foundational factory. Returns an enhanced Map with indexing, caching, and event hooks. Manages tickets with `id`, `index`, `value`, `valueIsIndex`. [intent:96]
 
-Extension is always via `...spread`. 100% consistent across all 27 registry-based composables. [intent:147]
+Extension is always via `...spread`. 100% consistent across every registry-based composable in the package. [intent:147]
+
+### Lazy reindex contract
+
+Methods that compute or read canonical index/catalog state must drain pending reindex at entry:
+
+```ts
+function move (id: ID, toIndex: number) {
+  if (needsReindex) reindex()
+  // ...
+}
+```
+
+This applies to `register`, `upsert`, `browse`, `lookup`, `move`, `seek`. Operations whose self-removal logic uses the ticket's own (potentially stale) `index` field — `unregister`, `offboard` — do not need the drain because they reference fields set at registration. The lazy pattern's invariant: any method that observes `index`, `directory`, `catalog`, or computes a new position from `collection.size` must reindex first; writers that delete by ticket-local data may defer.
+
+When extending `createRegistry` with new accessors, add the `if (needsReindex) reindex()` guard at entry whenever the method observes `index`, `value` (under `valueIsIndex`), or position-derived state.
 
 ## Plugins and Reactive Defaults
 
@@ -402,9 +438,8 @@ Both deliver reactive iteration; they're complementary, not competing. Pick base
 | Want | Use |
 |---|---|
 | Reactive iteration **plus** per-ticket field mutations via `upsert` | `reactive: true` on the registry |
-| Reactive iteration without wrapping each ticket in a proxy | `useProxyRegistry(registry, { events: true })` |
-| `{ deep: true }` tracking on registered tickets | `useProxyRegistry(registry, { deep: true })` |
-| Reactive snapshot driven by explicit registry events | `useProxyRegistry` |
+| Reactive snapshot of `{ keys, values, entries, size }` driven by registry events | `useProxyRegistry(registry)` (registry constructed with `events: true`) |
+| The same snapshot, with `deep` tracking on each registered ticket | `useProxyRegistry(registry, { deep: true })` |
 
 `createGroup` bakes in `useProxyRegistry` internally for its derived reactive selection state; plugins like `useTheme` bake in `reactive: true` for the ticket-level mutation path. The choice is per-composable, based on which capability the contract needs.
 
@@ -412,7 +447,7 @@ Both deliver reactive iteration; they're complementary, not competing. Pick base
 
 | Composable type | Guard |
 |-----------------|-------|
-| Needs global/injected context | `instanceExists()` check with fallback [intent:148] |
+| Needs global/injected context | `instanceExists()` check with fallback [intent:148] (today still `@internal` in `utilities/instance.ts` — promotion to public API for Vapor is decided but not yet landed) |
 | Pure utilities | No check — works anywhere [intent:149] |
 | Vue framework integration | `hasInjectionContext()` check [intent:150] |
 

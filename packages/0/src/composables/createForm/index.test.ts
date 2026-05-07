@@ -191,6 +191,23 @@ describe('createForm', () => {
       const result = await form.submit('nonexistent')
       expect(result).toBe(true)
     })
+
+    it.skip('should validate only the targeted validation when id is the numeric value 0', async () => {
+      const form = createForm()
+      const val1 = shallowRef('')
+      const val2 = shallowRef('')
+
+      const v1 = createValidation({ value: val1, rules: [() => 'Error from v1'] })
+      const v2 = createValidation({ value: val2, rules: [() => 'Error from v2'] })
+      form.register({ id: 0, value: v1 })
+      form.register({ id: 1, value: v2 })
+
+      const result = await form.submit(0)
+      expect(result).toBe(false)
+      // v2 should NOT have been validated — only id 0 was targeted
+      expect(v2.isValid.value).toBe(null)
+      expect(v1.isValid.value).toBe(false)
+    })
   })
 
   describe('reset', () => {

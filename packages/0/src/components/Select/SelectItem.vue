@@ -48,11 +48,12 @@
       'id': string
       'role': 'option'
       'aria-selected': boolean
-      'aria-disabled': boolean | undefined
+      'aria-disabled': boolean
       'data-selected': true | undefined
       'data-highlighted': '' | undefined
       'data-disabled': true | undefined
       'data-id': string
+      'onClick': () => void
     }
   }
 </script>
@@ -74,7 +75,7 @@
 
   const context = useSelectContext(namespace)
 
-  const ticket = context.selection.register({ id, value, disabled })
+  const ticket = context.selection.register({ id, value, disabled: () => toValue(disabled) ?? false })
 
   const elementId = `${context.id}-option-${ticket.id}`
   const isSelected = toRef(() => toValue(ticket.isSelected))
@@ -99,11 +100,12 @@
       'id': elementId,
       'role': 'option',
       'aria-selected': isSelected.value,
-      'aria-disabled': isDisabled.value || undefined,
+      'aria-disabled': isDisabled.value,
       'data-selected': isSelected.value || undefined,
       'data-highlighted': isHighlighted.value ? '' : undefined,
       'data-disabled': isDisabled.value || undefined,
       'data-id': String(ticket.id),
+      'onClick': onClick,
     },
   }))
 </script>
@@ -112,7 +114,6 @@
   <Atom
     :as
     v-bind="slotProps.attrs"
-    @click="onClick"
   >
     <slot v-bind="slotProps" />
   </Atom>

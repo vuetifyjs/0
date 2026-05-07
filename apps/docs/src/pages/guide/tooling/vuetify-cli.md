@@ -308,7 +308,7 @@ Use `--reporter json` to integrate with CI/CD pipelines or custom tooling:
 vuetify analyze --reporter json --output report.json
 ```
 
-> [!ASKAI] How can I use the analyze command to plan a Vuetify migration?
+> [!ASKAI] What does the analyze command output and how do I share the report with my team?
 
 ### upgrade
 

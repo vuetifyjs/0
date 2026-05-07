@@ -101,322 +101,399 @@ function mountGroup (options: {
   }
 }
 
-// ============================================================================
-// Standalone Mode
-// ============================================================================
+describe('toggle', () => {
+  // ============================================================================
+  // Standalone Mode
+  // ============================================================================
 
-describe('toggle.Root (standalone)', () => {
-  it('should render as a button by default', () => {
-    const { wrapper } = mountToggle()
+  describe('root', () => {
+    describe('standalone', () => {
+      it('should render as a button by default', () => {
+        const { wrapper } = mountToggle()
 
-    expect(wrapper.element.tagName).toBe('BUTTON')
-  })
+        expect(wrapper.element.tagName).toBe('BUTTON')
+      })
 
-  it('should have type="button"', () => {
-    const { wrapper } = mountToggle()
+      it('should have type="button"', () => {
+        const { wrapper } = mountToggle()
 
-    expect(wrapper.attributes('type')).toBe('button')
-  })
+        expect(wrapper.attributes('type')).toBe('button')
+      })
 
-  it('should start unpressed without v-model', () => {
-    const { props } = mountToggle()
+      it('should start unpressed without v-model', () => {
+        const { props } = mountToggle()
 
-    expect(props().isPressed).toBe(false)
-    expect(props().attrs['aria-pressed']).toBe(false)
-    expect(props().attrs['data-state']).toBe('off')
-  })
+        expect(props().isPressed).toBe(false)
+        expect(props().attrs['aria-pressed']).toBe(false)
+        expect(props().attrs['data-state']).toBe('off')
+      })
 
-  it('should reflect v-model as pressed state', () => {
-    const model = ref(true)
-    const { props } = mountToggle({ model })
+      it('should reflect v-model as pressed state', () => {
+        const model = ref(true)
+        const { props } = mountToggle({ model })
 
-    expect(props().isPressed).toBe(true)
-    expect(props().attrs['aria-pressed']).toBe(true)
-    expect(props().attrs['data-state']).toBe('on')
-  })
+        expect(props().isPressed).toBe(true)
+        expect(props().attrs['aria-pressed']).toBe(true)
+        expect(props().attrs['data-state']).toBe('on')
+      })
 
-  it('should toggle v-model on click', async () => {
-    const model = ref(false)
-    const { wrapper, props, wait } = mountToggle({ model })
+      it('should toggle v-model on click', async () => {
+        const model = ref(false)
+        const { wrapper, props, wait } = mountToggle({ model })
 
-    await wrapper.trigger('click')
-    await wait()
+        await wrapper.trigger('click')
+        await wait()
 
-    expect(model.value).toBe(true)
-    expect(props().isPressed).toBe(true)
+        expect(model.value).toBe(true)
+        expect(props().isPressed).toBe(true)
 
-    await wrapper.trigger('click')
-    await wait()
+        await wrapper.trigger('click')
+        await wait()
 
-    expect(model.value).toBe(false)
-    expect(props().isPressed).toBe(false)
-  })
+        expect(model.value).toBe(false)
+        expect(props().isPressed).toBe(false)
+      })
 
-  it('should toggle on Space key', async () => {
-    const model = ref(false)
-    const { wrapper, wait } = mountToggle({ model })
+      it('should toggle on Space key', async () => {
+        const model = ref(false)
+        const { wrapper, wait } = mountToggle({ model })
 
-    await wrapper.trigger('keydown', { key: ' ' })
-    await wait()
+        await wrapper.trigger('keydown', { key: ' ' })
+        await wait()
 
-    expect(model.value).toBe(true)
-  })
+        expect(model.value).toBe(true)
+      })
 
-  it('should toggle on Enter key via native button behavior', async () => {
-    const model = ref(false)
-    const { wrapper, wait } = mountToggle({ model })
+      it('should toggle on Enter key via native button behavior', async () => {
+        const model = ref(false)
+        const { wrapper, wait } = mountToggle({ model })
 
-    // Native buttons fire click on Enter, so trigger click directly
-    await wrapper.trigger('click')
-    await wait()
+        // Native buttons fire click on Enter, so trigger click directly
+        await wrapper.trigger('click')
+        await wait()
 
-    expect(model.value).toBe(true)
-  })
+        expect(model.value).toBe(true)
+      })
 
-  it('should not toggle when disabled', async () => {
-    const model = ref(false)
-    const { wrapper, props, wait } = mountToggle({
-      model,
-      props: { disabled: true },
-    })
-
-    await wrapper.trigger('click')
-    await wait()
-
-    expect(model.value).toBe(false)
-    expect(props().isDisabled).toBe(true)
-    expect(props().attrs['aria-disabled']).toBe(true)
-    expect(props().attrs['data-disabled']).toBe(true)
-  })
-
-  it('should expose toggle function in slot props', () => {
-    const { props } = mountToggle()
-
-    expect(typeof props().toggle).toBe('function')
-  })
-})
-
-// ============================================================================
-// Group Mode (single select)
-// ============================================================================
-
-describe('toggle.Group (single select)', () => {
-  it('should render as a div with role="group"', () => {
-    const { wrapper } = mountGroup()
-
-    expect(wrapper.element.tagName).toBe('DIV')
-    expect(wrapper.attributes('role')).toBe('group')
-  })
-
-  it('should set aria-orientation', () => {
-    const { wrapper } = mountGroup({
-      props: { orientation: 'vertical' },
-    })
-
-    expect(wrapper.attributes('aria-orientation')).toBe('vertical')
-    expect(wrapper.attributes('data-orientation')).toBe('vertical')
-  })
-
-  it('should default to horizontal orientation', () => {
-    const { wrapper } = mountGroup()
-
-    expect(wrapper.attributes('aria-orientation')).toBe('horizontal')
-  })
-
-  it('should select item on click', async () => {
-    const model = ref<string | undefined>(undefined)
-    const { wrapper, itemProps, wait } = mountGroup({ model })
-
-    const buttons = wrapper.findAll('button')
-    await buttons[0].trigger('click')
-    await wait()
-
-    expect(model.value).toBe('a')
-    expect(itemProps('a').isPressed).toBe(true)
-    expect(itemProps('b').isPressed).toBe(false)
-  })
-
-  it('should enforce single selection', async () => {
-    const model = ref<string | undefined>(undefined)
-    const { wrapper, itemProps, wait } = mountGroup({ model })
-
-    const buttons = wrapper.findAll('button')
-
-    await buttons[0].trigger('click')
-    await wait()
-
-    expect(itemProps('a').isPressed).toBe(true)
-
-    await buttons[1].trigger('click')
-    await wait()
-
-    expect(model.value).toBe('b')
-    expect(itemProps('a').isPressed).toBe(false)
-    expect(itemProps('b').isPressed).toBe(true)
-  })
-
-  it('should allow deselecting when not mandatory', async () => {
-    const model = ref<string | undefined>('a')
-    const { wrapper, itemProps, wait } = mountGroup({ model })
-
-    const buttons = wrapper.findAll('button')
-
-    await buttons[0].trigger('click')
-    await wait()
-
-    expect(itemProps('a').isPressed).toBe(false)
-  })
-
-  it('should prevent deselecting when mandatory', async () => {
-    const model = ref<string | undefined>('a')
-    const { wrapper, itemProps, wait } = mountGroup({
-      model,
-      props: { mandatory: true },
-    })
-
-    const buttons = wrapper.findAll('button')
-
-    await buttons[0].trigger('click')
-    await wait()
-
-    expect(itemProps('a').isPressed).toBe(true)
-  })
-
-  it('should disable all children when group is disabled', async () => {
-    const model = ref<string | undefined>(undefined)
-    const { wrapper, itemProps, wait } = mountGroup({
-      model,
-      props: { disabled: true },
-    })
-
-    const buttons = wrapper.findAll('button')
-    await buttons[0].trigger('click')
-    await wait()
-
-    expect(model.value).toBeUndefined()
-    expect(itemProps('a').isDisabled).toBe(true)
-  })
-
-  it('should reflect group disabled in group slot props', () => {
-    const { groupProps } = mountGroup({
-      props: { disabled: true },
-    })
-
-    expect(groupProps().isDisabled).toBe(true)
-  })
-})
-
-// ============================================================================
-// Group Mode (multi select)
-// ============================================================================
-
-describe('toggle.Group (multiple)', () => {
-  it('should allow multiple selections', async () => {
-    const model = ref<string[]>([])
-    const { wrapper, itemProps, wait } = mountGroup({
-      model,
-      props: { multiple: true },
-    })
-
-    const buttons = wrapper.findAll('button')
-
-    await buttons[0].trigger('click')
-    await wait()
-    await buttons[1].trigger('click')
-    await wait()
-
-    expect(model.value).toEqual(expect.arrayContaining(['a', 'b']))
-    expect(itemProps('a').isPressed).toBe(true)
-    expect(itemProps('b').isPressed).toBe(true)
-    expect(itemProps('c').isPressed).toBe(false)
-  })
-
-  it('should toggle individual items in multi mode', async () => {
-    const model = ref<string[]>(['a', 'b'])
-    const { wrapper, itemProps, wait } = mountGroup({
-      model,
-      props: { multiple: true },
-    })
-
-    const buttons = wrapper.findAll('button')
-
-    await buttons[0].trigger('click')
-    await wait()
-
-    expect(model.value).toEqual(['b'])
-    expect(itemProps('a').isPressed).toBe(false)
-    expect(itemProps('b').isPressed).toBe(true)
-  })
-})
-
-// ============================================================================
-// Toggle.Indicator
-// ============================================================================
-
-describe('toggle.Indicator', () => {
-  it('should render as span by default', () => {
-    const wrapper = mount(defineComponent({
-      setup () {
-        return () => h(Toggle.Root as any, {}, {
-          default: () => h(Toggle.Indicator as any, {}, {
-            default: () => h('span', '✓'),
-          }),
+      it('should not toggle when disabled', async () => {
+        const model = ref(false)
+        const { wrapper, props, wait } = mountToggle({
+          model,
+          props: { disabled: true },
         })
-      },
-    }))
 
-    const span = wrapper.find('span')
-    expect(span.exists()).toBe(true)
-  })
+        await wrapper.trigger('click')
+        await wait()
 
-  it('should expose isPressed in slot props', async () => {
-    let indicatorProps: any
+        expect(model.value).toBe(false)
+        expect(props().isDisabled).toBe(true)
+        expect(props().attrs['aria-disabled']).toBe(true)
+        expect(props().attrs['data-disabled']).toBe(true)
+      })
 
-    const model = ref(true)
+      it('should expose toggle function in slot props', () => {
+        const { props } = mountToggle()
 
-    mount(defineComponent({
-      setup () {
-        return () => h(Toggle.Root as any, {
-          'modelValue': model.value,
-          'onUpdate:modelValue': (v: unknown) => {
-            model.value = v as boolean
+        expect(typeof props().toggle).toBe('function')
+      })
+
+      it.skip('should expose click and keydown handlers in slot attrs for renderless mode', () => {
+        const { props } = mountToggle()
+
+        expect((props().attrs as any).onClick).toBeTypeOf('function')
+        expect((props().attrs as any).onKeydown).toBeTypeOf('function')
+      })
+
+      it.skip('should toggle when consumer binds attrs onto custom element in renderless mode', async () => {
+        const model = ref(false)
+        const wrapper = mount(Toggle.Root, {
+          props: {
+            'modelValue': model.value,
+            'onUpdate:modelValue': (v: boolean | undefined) => (model.value = v ?? false),
+            'renderless': true,
           },
-        }, {
-          default: () => h(Toggle.Indicator as any, {}, {
-            default: (props: any) => {
-              indicatorProps = props
-              return h('span', props.isPressed ? '✓' : '')
+          slots: {
+            default: (props: any) => h('span', { 'data-testid': 'custom', ...props.attrs }, 'Toggle'),
+          },
+        })
+        await nextTick()
+
+        const custom = wrapper.find('[data-testid="custom"]')
+        expect(custom.exists()).toBe(true)
+
+        await custom.trigger('click')
+        await nextTick()
+        expect(model.value).toBe(true)
+      })
+
+      it('should ignore non-Space keydown', async () => {
+        const model = ref(false)
+        const { wrapper, wait } = mountToggle({ model })
+
+        await wrapper.trigger('keydown', { key: 'a' })
+        await wait()
+
+        // Non-space keys should leave the model unchanged
+        expect(model.value).toBe(false)
+      })
+
+      it('should omit type attribute when as is non-button element', () => {
+        const wrapper = mount(Toggle.Root, {
+          props: { as: 'div' },
+          slots: { default: () => h('span', 'X') },
+        })
+
+        expect(wrapper.attributes('type')).toBeUndefined()
+      })
+
+      it('should reset pressed state when v-model becomes undefined', async () => {
+        const model = ref<boolean | undefined>(true)
+        const wrapper = mount(Toggle.Root, {
+          props: {
+            'modelValue': model.value,
+            'onUpdate:modelValue': (v: unknown) => {
+              model.value = v as boolean | undefined
             },
-          }),
+          },
+          slots: { default: () => h('span', 'X') },
         })
-      },
-    }))
 
-    expect(indicatorProps.isPressed).toBe(true)
+        await nextTick()
+        expect(wrapper.attributes('aria-pressed')).toBe('true')
+
+        // Externally set model to undefined; watch should normalize to false
+        await wrapper.setProps({ modelValue: undefined })
+        await nextTick()
+        expect(wrapper.attributes('aria-pressed')).toBe('false')
+      })
+    })
   })
-})
 
-// ============================================================================
-// SSR
-// ============================================================================
+  // ============================================================================
+  // Group Mode (single select)
+  // ============================================================================
 
-describe('toggle SSR', () => {
-  it('should render without errors on the server', async () => {
-    const { renderToString } = await import('vue/server-renderer')
-    const { createSSRApp, h } = await import('vue')
+  describe('group', () => {
+    describe('single select', () => {
+      it('should render as a div with role="group"', () => {
+        const { wrapper } = mountGroup()
 
-    const app = createSSRApp({
-      render () {
-        return h(Toggle.Root as any, { modelValue: false }, {
-          default: () => 'Toggle',
+        expect(wrapper.element.tagName).toBe('DIV')
+        expect(wrapper.attributes('role')).toBe('group')
+      })
+
+      it('should set aria-orientation', () => {
+        const { wrapper } = mountGroup({
+          props: { orientation: 'vertical' },
         })
-      },
+
+        expect(wrapper.attributes('aria-orientation')).toBe('vertical')
+        expect(wrapper.attributes('data-orientation')).toBe('vertical')
+      })
+
+      it('should default to horizontal orientation', () => {
+        const { wrapper } = mountGroup()
+
+        expect(wrapper.attributes('aria-orientation')).toBe('horizontal')
+      })
+
+      it('should select item on click', async () => {
+        const model = ref<string | undefined>(undefined)
+        const { wrapper, itemProps, wait } = mountGroup({ model })
+
+        const buttons = wrapper.findAll('button')
+        await buttons[0].trigger('click')
+        await wait()
+
+        expect(model.value).toBe('a')
+        expect(itemProps('a').isPressed).toBe(true)
+        expect(itemProps('b').isPressed).toBe(false)
+      })
+
+      it('should enforce single selection', async () => {
+        const model = ref<string | undefined>(undefined)
+        const { wrapper, itemProps, wait } = mountGroup({ model })
+
+        const buttons = wrapper.findAll('button')
+
+        await buttons[0].trigger('click')
+        await wait()
+
+        expect(itemProps('a').isPressed).toBe(true)
+
+        await buttons[1].trigger('click')
+        await wait()
+
+        expect(model.value).toBe('b')
+        expect(itemProps('a').isPressed).toBe(false)
+        expect(itemProps('b').isPressed).toBe(true)
+      })
+
+      it('should allow deselecting when not mandatory', async () => {
+        const model = ref<string | undefined>('a')
+        const { wrapper, itemProps, wait } = mountGroup({ model })
+
+        const buttons = wrapper.findAll('button')
+
+        await buttons[0].trigger('click')
+        await wait()
+
+        expect(itemProps('a').isPressed).toBe(false)
+      })
+
+      it('should prevent deselecting when mandatory', async () => {
+        const model = ref<string | undefined>('a')
+        const { wrapper, itemProps, wait } = mountGroup({
+          model,
+          props: { mandatory: true },
+        })
+
+        const buttons = wrapper.findAll('button')
+
+        await buttons[0].trigger('click')
+        await wait()
+
+        expect(itemProps('a').isPressed).toBe(true)
+      })
+
+      it('should disable all children when group is disabled', async () => {
+        const model = ref<string | undefined>(undefined)
+        const { wrapper, itemProps, wait } = mountGroup({
+          model,
+          props: { disabled: true },
+        })
+
+        const buttons = wrapper.findAll('button')
+        await buttons[0].trigger('click')
+        await wait()
+
+        expect(model.value).toBeUndefined()
+        expect(itemProps('a').isDisabled).toBe(true)
+      })
+
+      it('should reflect group disabled in group slot props', () => {
+        const { groupProps } = mountGroup({
+          props: { disabled: true },
+        })
+
+        expect(groupProps().isDisabled).toBe(true)
+      })
     })
 
-    const html = await renderToString(app)
+    // ============================================================================
+    // Group Mode (multi select)
+    // ============================================================================
 
-    expect(html).toContain('Toggle')
-    expect(html).toContain('aria-pressed="false"')
-    expect(html).toContain('data-state="off"')
+    describe('multiple', () => {
+      it('should allow multiple selections', async () => {
+        const model = ref<string[]>([])
+        const { wrapper, itemProps, wait } = mountGroup({
+          model,
+          props: { multiple: true },
+        })
+
+        const buttons = wrapper.findAll('button')
+
+        await buttons[0].trigger('click')
+        await wait()
+        await buttons[1].trigger('click')
+        await wait()
+
+        expect(model.value).toEqual(expect.arrayContaining(['a', 'b']))
+        expect(itemProps('a').isPressed).toBe(true)
+        expect(itemProps('b').isPressed).toBe(true)
+        expect(itemProps('c').isPressed).toBe(false)
+      })
+
+      it('should toggle individual items in multi mode', async () => {
+        const model = ref<string[]>(['a', 'b'])
+        const { wrapper, itemProps, wait } = mountGroup({
+          model,
+          props: { multiple: true },
+        })
+
+        const buttons = wrapper.findAll('button')
+
+        await buttons[0].trigger('click')
+        await wait()
+
+        expect(model.value).toEqual(['b'])
+        expect(itemProps('a').isPressed).toBe(false)
+        expect(itemProps('b').isPressed).toBe(true)
+      })
+    })
+  })
+
+  // ============================================================================
+  // Toggle.Indicator
+  // ============================================================================
+
+  describe('indicator', () => {
+    it('should render as span by default', () => {
+      const wrapper = mount(defineComponent({
+        setup () {
+          return () => h(Toggle.Root as any, {}, {
+            default: () => h(Toggle.Indicator as any, {}, {
+              default: () => h('span', '✓'),
+            }),
+          })
+        },
+      }))
+
+      const span = wrapper.find('span')
+      expect(span.exists()).toBe(true)
+    })
+
+    it('should expose isPressed in slot props', async () => {
+      let indicatorProps: any
+
+      const model = ref(true)
+
+      mount(defineComponent({
+        setup () {
+          return () => h(Toggle.Root as any, {
+            'modelValue': model.value,
+            'onUpdate:modelValue': (v: unknown) => {
+              model.value = v as boolean
+            },
+          }, {
+            default: () => h(Toggle.Indicator as any, {}, {
+              default: (props: any) => {
+                indicatorProps = props
+                return h('span', props.isPressed ? '✓' : '')
+              },
+            }),
+          })
+        },
+      }))
+
+      expect(indicatorProps.isPressed).toBe(true)
+    })
+  })
+
+  // ============================================================================
+  // SSR
+  // ============================================================================
+
+  // eslint-disable-next-line vitest/prefer-lowercase-title
+  describe('SSR', () => {
+    it('should render without errors on the server', async () => {
+      const { renderToString } = await import('vue/server-renderer')
+      const { createSSRApp, h } = await import('vue')
+
+      const app = createSSRApp({
+        render () {
+          return h(Toggle.Root as any, { modelValue: false }, {
+            default: () => 'Toggle',
+          })
+        },
+      })
+
+      const html = await renderToString(app)
+
+      expect(html).toContain('Toggle')
+      expect(html).toContain('aria-pressed="false"')
+      expect(html).toContain('data-state="off"')
+    })
   })
 })

@@ -54,7 +54,7 @@
       'type': 'button' | undefined
       'role': 'checkbox'
       'aria-checked': boolean | 'mixed'
-      'aria-disabled': boolean | undefined
+      'aria-disabled': boolean
       'aria-label': string | undefined
       'aria-labelledby': string | undefined
       'aria-describedby': string | undefined
@@ -152,7 +152,7 @@
       'type': as === 'button' ? 'button' : undefined,
       'role': 'checkbox',
       'aria-checked': isMixed.value ? 'mixed' : isAllSelected.value,
-      'aria-disabled': isDisabled.value || undefined,
+      'aria-disabled': isDisabled.value,
       'aria-label': label || undefined,
       'aria-labelledby': ariaLabelledby || undefined,
       'aria-describedby': ariaDescribedby || undefined,

@@ -15,9 +15,9 @@ related:
 
 # Security Disclosure
 
-<DocsPageFeatures :frontmatter />
-
 The Vuetify team takes security seriously. We appreciate your efforts to responsibly disclose vulnerabilities and will make every effort to acknowledge your contributions.
+
+<DocsPageFeatures :frontmatter />
 
 ## Reporting a Vulnerability
 

@@ -76,7 +76,7 @@
   } = defineProps<SelectionItemProps<V>>()
 
   const selection = useSelectionRoot(namespace)
-  const ticket = selection.register({ id, value, disabled })
+  const ticket = selection.register({ id, value, disabled: () => toValue(disabled) ?? false })
   const isDisabled = toRef(() => toValue(ticket.disabled) || toValue(selection.disabled))
 
   onBeforeUnmount(() => {

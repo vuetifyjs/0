@@ -1,9 +1,3 @@
-// Components
-import DocsCodeGroup from '@/components/docs/DocsCodeGroup.vue'
-import DocsExample from '@/components/docs/DocsExample.vue'
-import DocsNavigator from '@/components/docs/DocsNavigator.vue'
-import DocsPageFeatures from '@/components/docs/meta/DocsPageFeatures.vue'
-
 // Utilities
 import { defineAsyncComponent } from 'vue'
 
@@ -11,9 +5,9 @@ import { defineAsyncComponent } from 'vue'
 import type { App } from 'vue'
 
 export default function app (app: App) {
-  app.component('DocsPageFeatures', DocsPageFeatures)
-  app.component('DocsNavigator', DocsNavigator)
-  app.component('DocsExample', DocsExample)
-  app.component('DocsCodeGroup', DocsCodeGroup)
+  app.component('DocsPageFeatures', defineAsyncComponent(() => import('@/components/docs/meta/DocsPageFeatures.vue')))
+  app.component('DocsNavigator', defineAsyncComponent(() => import('@/components/docs/DocsNavigator.vue')))
+  app.component('DocsExample', defineAsyncComponent(() => import('@/components/docs/DocsExample.vue')))
+  app.component('DocsCodeGroup', defineAsyncComponent(() => import('@/components/docs/DocsCodeGroup.vue')))
   app.component('DocsMermaid', defineAsyncComponent(() => import('@/components/docs/DocsMermaid.vue')))
 }

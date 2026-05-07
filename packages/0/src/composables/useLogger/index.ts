@@ -29,7 +29,7 @@
 import { createPluginContext } from '#v0/composables/createPlugin'
 
 // Adapters
-import { Vuetify0LoggerAdapter } from '#v0/composables/useLogger/adapters'
+import { V0LoggerAdapter } from '#v0/composables/useLogger/adapters'
 
 // Types
 import type { LoggerAdapter } from '#v0/composables/useLogger/adapters'
@@ -42,10 +42,10 @@ import { __LOGGER_ENABLED__, IN_BROWSER } from '#v0/constants/globals'
 export {
   ConsolaLoggerAdapter,
   PinoLoggerAdapter,
-  Vuetify0LoggerAdapter,
+  V0LoggerAdapter,
 } from '#v0/composables/useLogger/adapters'
 
-export type { LoggerAdapter } from '#v0/composables/useLogger/adapters'
+export { LoggerAdapter } from '#v0/composables/useLogger/adapters'
 
 export type { LogLevel } from '#v0/composables/useLogger/types'
 
@@ -102,7 +102,7 @@ export interface LoggerPluginOptions extends LoggerContextOptions {}
  */
 export function createLogger (options: LoggerOptions = {}): LoggerContext {
   const {
-    adapter = new Vuetify0LoggerAdapter({ prefix: options.prefix }),
+    adapter = new V0LoggerAdapter({ prefix: options.prefix }),
     level: initialLevel = 'info',
     enabled: initialEnabled = __LOGGER_ENABLED__,
   } = options

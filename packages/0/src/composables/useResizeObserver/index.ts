@@ -183,6 +183,7 @@ export function useElementSize (target: MaybeElementRef): UseElementSizeReturn {
     target,
     entries => {
       const entry = entries[0]
+      /* v8 ignore next 4 -- defensive: ResizeObserver always passes an entry array with at least one entry */
       if (entry) {
         width.value = entry.contentRect.width
         height.value = entry.contentRect.height

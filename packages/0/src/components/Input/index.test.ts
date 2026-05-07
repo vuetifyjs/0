@@ -781,7 +781,8 @@ describe('input', () => {
     })
   })
 
-  describe('sSR / hydration', () => {
+  // eslint-disable-next-line vitest/prefer-lowercase-title
+  describe('SSR / hydration', () => {
     it('should render on server without errors', async () => {
       const app = createSSRApp(defineComponent({
         render () {

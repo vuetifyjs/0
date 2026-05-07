@@ -647,16 +647,16 @@ describe('breadcrumbs', () => {
 
       mount(defineComponent({
         render: () => [
-          h(Breadcrumbs.Root as never, { namespace: 'nav-1' }, {
+          h(Breadcrumbs.Root as never, { namespace: 'v0:nav-1' }, {
             default: (props: Record<string, unknown>) => {
               rootProps1 = props
-              return h(Breadcrumbs.Item as never, { namespace: 'nav-1' }, () => 'Item 1')
+              return h(Breadcrumbs.Item as never, { namespace: 'v0:nav-1' }, () => 'Item 1')
             },
           }),
-          h(Breadcrumbs.Root as never, { namespace: 'nav-2' }, {
+          h(Breadcrumbs.Root as never, { namespace: 'v0:nav-2' }, {
             default: (props: Record<string, unknown>) => {
               rootProps2 = props
-              return h(Breadcrumbs.Item as never, { namespace: 'nav-2' }, () => 'Item 2')
+              return h(Breadcrumbs.Item as never, { namespace: 'v0:nav-2' }, () => 'Item 2')
             },
           }),
         ],
@@ -884,7 +884,8 @@ describe('breadcrumbs', () => {
     })
   })
 
-  describe('sSR / Hydration', () => {
+  // eslint-disable-next-line vitest/prefer-lowercase-title
+  describe('SSR / Hydration', () => {
     it('should render to string on server without errors', async () => {
       const app = createSSRApp(defineComponent({
         render: () =>
@@ -963,527 +964,527 @@ describe('breadcrumbs', () => {
       wrapper.unmount()
     })
   })
-})
 
-// Additional coverage: overflow behavior
-describe('overflow behavior', () => {
-  let resizeObserverCallback: ResizeObserverCallback | null = null
-  let resizeObserverTarget: Element | null = null
+  // Additional coverage: overflow behavior
+  describe('overflow behavior', () => {
+    let resizeObserverCallback: ResizeObserverCallback | null = null
+    let resizeObserverTarget: Element | null = null
 
-  class TestResizeObserver {
-    constructor (cb: ResizeObserverCallback) {
-      resizeObserverCallback = cb
+    class TestResizeObserver {
+      constructor (cb: ResizeObserverCallback) {
+        resizeObserverCallback = cb
+      }
+
+      observe (el: Element) {
+        resizeObserverTarget = el
+      }
+
+      unobserve () {}
+      disconnect () {}
     }
 
-    observe (el: Element) {
-      resizeObserverTarget = el
-    }
-
-    unobserve () {}
-    disconnect () {}
-  }
-
-  beforeEach(() => {
-    vi.stubGlobal('ResizeObserver', TestResizeObserver)
-    resizeObserverCallback = null
-    resizeObserverTarget = null
-  })
-
-  afterEach(() => {
-    vi.unstubAllGlobals()
-  })
-
-  function triggerResize (width: number, height = 0): void {
-    if (!resizeObserverCallback || !resizeObserverTarget) return
-    const rect = {
-      width,
-      height,
-      top: 0,
-      left: 0,
-      right: width,
-      bottom: height,
-      x: 0,
-      y: 0,
-      toJSON: () => ({}),
-    } as DOMRectReadOnly
-    resizeObserverCallback(
-      [{
-        contentRect: rect,
-        target: resizeObserverTarget,
-        borderBoxSize: [],
-        contentBoxSize: [],
-        devicePixelContentBoxSize: [],
-      }],
-      {} as ResizeObserver,
-    )
-  }
-
-  function mountOverflowTree (options: {
-    itemCount?: number
-    withEllipsis?: boolean
-  } = {}) {
-    const { itemCount = 4, withEllipsis = true } = options
-
-    let ctx: any
-
-    const Spy = defineComponent({
-      setup () {
-        ctx = useBreadcrumbsRoot('v0:breadcrumbs')
-        return () => null
-      },
+    beforeEach(() => {
+      vi.stubGlobal('ResizeObserver', TestResizeObserver)
+      resizeObserverCallback = null
+      resizeObserverTarget = null
     })
 
-    const wrapper = mount(Breadcrumbs.Root, {
-      slots: {
-        default: () => {
-          const children: ReturnType<typeof h>[] = []
-          for (let i = 0; i < itemCount; i++) {
-            children.push(h(Breadcrumbs.Item as never, { key: `item-${i}` }, () => `Item ${i}`))
-            if (i < itemCount - 1) {
-              children.push(h(Breadcrumbs.Divider as never, { key: `div-${i}` }))
-            }
-          }
-          if (withEllipsis) {
-            children.push(h(Breadcrumbs.Ellipsis as never, { key: 'ellipsis' }))
-          }
-          children.push(h(Spy, { key: 'spy' }))
-          return children
+    afterEach(() => {
+      vi.unstubAllGlobals()
+    })
+
+    function triggerResize (width: number, height = 0): void {
+      if (!resizeObserverCallback || !resizeObserverTarget) return
+      const rect = {
+        width,
+        height,
+        top: 0,
+        left: 0,
+        right: width,
+        bottom: height,
+        x: 0,
+        y: 0,
+        toJSON: () => ({}),
+      } as DOMRectReadOnly
+      resizeObserverCallback(
+        [{
+          contentRect: rect,
+          target: resizeObserverTarget,
+          borderBoxSize: [],
+          contentBoxSize: [],
+          devicePixelContentBoxSize: [],
+        }],
+        {} as ResizeObserver,
+      )
+    }
+
+    function mountOverflowTree (options: {
+      itemCount?: number
+      withEllipsis?: boolean
+    } = {}) {
+      const { itemCount = 4, withEllipsis = true } = options
+
+      let ctx: any
+
+      const Spy = defineComponent({
+        setup () {
+          ctx = useBreadcrumbsRoot('v0:breadcrumbs')
+          return () => null
         },
-      },
+      })
+
+      const wrapper = mount(Breadcrumbs.Root, {
+        slots: {
+          default: () => {
+            const children: ReturnType<typeof h>[] = []
+            for (let i = 0; i < itemCount; i++) {
+              children.push(h(Breadcrumbs.Item as never, { key: `item-${i}` }, () => `Item ${i}`))
+              if (i < itemCount - 1) {
+                children.push(h(Breadcrumbs.Divider as never, { key: `div-${i}` }))
+              }
+            }
+            if (withEllipsis) {
+              children.push(h(Breadcrumbs.Ellipsis as never, { key: 'ellipsis' }))
+            }
+            children.push(h(Spy, { key: 'spy' }))
+            return children
+          },
+        },
+      })
+
+      return { wrapper, context: () => ctx }
+    }
+
+    it('should hide ellipsis and show content when capacity is sufficient', async () => {
+      const { context } = mountOverflowTree({ itemCount: 4, withEllipsis: true })
+      await nextTick()
+      const ctx = context()
+      // Trigger overflow then restore
+      triggerResize(5)
+      await nextTick()
+      triggerResize(0)
+      await nextTick()
+      for (const t of ctx.group.values()) {
+        if (t.type === 'ellipsis') {
+          expect(t.isSelected.value).toBe(false)
+        } else {
+          expect(t.isSelected.value).toBe(true)
+        }
+      }
     })
 
-    return { wrapper, context: () => ctx }
-  }
+    it('should keep first pair visible during overflow', async () => {
+      const { context } = mountOverflowTree({ itemCount: 4, withEllipsis: true })
+      await nextTick()
+      const ctx = context()
+      // With 7 content + gap=8 + zero-width, capacity=1 at width=5
+      triggerResize(5)
+      await nextTick()
+      const content = ctx.group.values().filter((t: { type: string }) => t.type !== 'ellipsis')
+      expect(content[0]!.isSelected.value).toBe(true)
+      expect(content[1]!.isSelected.value).toBe(true)
+    })
 
-  it('should hide ellipsis and show content when capacity is sufficient', async () => {
-    const { context } = mountOverflowTree({ itemCount: 4, withEllipsis: true })
-    await nextTick()
-    const ctx = context()
-    // Trigger overflow then restore
-    triggerResize(5)
-    await nextTick()
-    triggerResize(0)
-    await nextTick()
-    for (const t of ctx.group.values()) {
-      if (t.type === 'ellipsis') {
-        expect(t.isSelected.value).toBe(false)
-      } else {
-        expect(t.isSelected.value).toBe(true)
+    it('should show last content item when capacity is 0', async () => {
+      const { context } = mountOverflowTree({ itemCount: 3, withEllipsis: true })
+      await nextTick()
+      const ctx = context()
+      // Force capacity=0: set reserved > width via ellipsisWidth
+      ctx.ellipsisWidth.value = 50
+      triggerResize(50)
+      await nextTick()
+      expect(ctx.overflow.capacity.value).toBe(0)
+      const content = ctx.group.values().filter((t: { type: string }) => t.type !== 'ellipsis')
+      expect(content.at(-1)!.isSelected.value).toBe(true)
+    })
+
+    it('should manage visibility via group select/unselect in capacity=0 branch', async () => {
+      const { context } = mountOverflowTree({ itemCount: 3, withEllipsis: true })
+      await nextTick()
+      const ctx = context()
+      // Force capacity=0 by making reserved > width
+      ctx.ellipsisWidth.value = 100
+      triggerResize(50)
+      await nextTick()
+      expect(ctx.overflow.capacity.value).toBe(0)
+      // In capacity=0 branch, specific visibility logic runs
+      const content = ctx.group.values().filter((t: { type: string }) => t.type !== 'ellipsis')
+      // Last content item should always be shown
+      expect(content.at(-1)!.isSelected.value).toBe(true)
+    })
+
+    it('should hide ellipsis when width < fI + gap + eW + gap', async () => {
+      const { context } = mountOverflowTree({ itemCount: 3, withEllipsis: true })
+      await nextTick()
+      const ctx = context()
+      const el = document.createElement('div')
+      Object.defineProperty(el, 'offsetWidth', { value: 10 })
+      document.body.append(el)
+      ctx.measureElement(0, 'item', el)
+      ctx.ellipsisWidth.value = 10
+      await nextTick()
+      triggerResize(20)
+      await nextTick()
+      for (const t of ctx.group.values()) {
+        if (t.type === 'ellipsis') {
+          expect(t.isSelected.value).toBe(false)
+        }
       }
+      el.remove()
+    })
+
+    it('should handle measureElement with non-first indices routing to overflow pool', async () => {
+      const { context } = mountOverflowTree({ itemCount: 2, withEllipsis: false })
+      await nextTick()
+      const ctx = context()
+      // Calling measureElement with a higher index routes to overflow.measure
+      const el = document.createElement('div')
+      Object.defineProperty(el, 'offsetWidth', { value: 15 })
+      document.body.append(el)
+      expect(() => ctx.measureElement(10, 'item', el)).not.toThrow()
+      expect(() => ctx.measureElement(10, 'divider', el)).not.toThrow()
+      // Unmeasure
+      ctx.measureElement(10, 'item', undefined)
+      ctx.measureElement(10, 'divider', undefined)
+      el.remove()
+    })
+
+    it('should exercise measureElement routing', async () => {
+      const { context } = mountOverflowTree({ itemCount: 2, withEllipsis: false })
+      await nextTick()
+      const ctx = context()
+      const el = document.createElement('div')
+      Object.defineProperty(el, 'offsetWidth', { value: 15 })
+      document.body.append(el)
+      expect(() => ctx.measureElement(0, 'item', el)).not.toThrow()
+      expect(() => ctx.measureElement(0, 'divider', el)).not.toThrow()
+      expect(() => ctx.measureElement(5, 'item', el)).not.toThrow()
+      ctx.measureElement(0, 'item', undefined)
+      ctx.measureElement(0, 'divider', undefined)
+      el.remove()
+    })
+
+    it('should handle overflow width transitions', async () => {
+      const { context } = mountOverflowTree({ itemCount: 5, withEllipsis: true })
+      await nextTick()
+      const ctx = context()
+      expect(ctx.overflow.capacity.value).toBe(Infinity)
+      // Force non-Infinity capacity
+      triggerResize(5)
+      await nextTick()
+      expect(ctx.overflow.capacity.value).toBeLessThan(Infinity)
+      // Restore to Infinity
+      triggerResize(0)
+      await nextTick()
+      expect(ctx.overflow.capacity.value).toBe(Infinity)
+    })
+
+    it('should exercise reserved width with non-zero values', async () => {
+      const { context } = mountOverflowTree({ itemCount: 4, withEllipsis: true })
+      await nextTick()
+      const ctx = context()
+      const el = document.createElement('div')
+      Object.defineProperty(el, 'offsetWidth', { value: 20 })
+      document.body.append(el)
+      ctx.measureElement(0, 'item', el)
+      ctx.measureElement(0, 'divider', el)
+      ctx.ellipsisWidth.value = 15
+      await nextTick()
+      expect(ctx.ellipsisWidth.value).toBe(15)
+      el.remove()
+    })
+
+    /**
+     * Helper to create an element that works with measureToRef in happy-dom.
+     * Sets inline margin styles so getComputedStyle returns parseable values.
+     */
+    function createMeasurableElement (width: number): HTMLElement {
+      const el = document.createElement('div')
+      el.style.marginLeft = '0px'
+      el.style.marginRight = '0px'
+      Object.defineProperty(el, 'offsetWidth', { value: width, configurable: true })
+      document.body.append(el)
+      return el
     }
-  })
 
-  it('should keep first pair visible during overflow', async () => {
-    const { context } = mountOverflowTree({ itemCount: 4, withEllipsis: true })
-    await nextTick()
-    const ctx = context()
-    // With 7 content + gap=8 + zero-width, capacity=1 at width=5
-    triggerResize(5)
-    await nextTick()
-    const content = ctx.group.values().filter((t: { type: string }) => t.type !== 'ellipsis')
-    expect(content[0]!.isSelected.value).toBe(true)
-    expect(content[1]!.isSelected.value).toBe(true)
-  })
+    it('should trigger reserved() with all three widths non-zero', async () => {
+      const { context } = mountOverflowTree({ itemCount: 4, withEllipsis: true })
+      await nextTick()
+      const ctx = context()
 
-  it('should show last content item when capacity is 0', async () => {
-    const { context } = mountOverflowTree({ itemCount: 3, withEllipsis: true })
-    await nextTick()
-    const ctx = context()
-    // Force capacity=0: set reserved > width via ellipsisWidth
-    ctx.ellipsisWidth.value = 50
-    triggerResize(50)
-    await nextTick()
-    expect(ctx.overflow.capacity.value).toBe(0)
-    const content = ctx.group.values().filter((t: { type: string }) => t.type !== 'ellipsis')
-    expect(content.at(-1)!.isSelected.value).toBe(true)
-  })
+      const el = createMeasurableElement(30)
 
-  it('should manage visibility via group select/unselect in capacity=0 branch', async () => {
-    const { context } = mountOverflowTree({ itemCount: 3, withEllipsis: true })
-    await nextTick()
-    const ctx = context()
-    // Force capacity=0 by making reserved > width
-    ctx.ellipsisWidth.value = 100
-    triggerResize(50)
-    await nextTick()
-    expect(ctx.overflow.capacity.value).toBe(0)
-    // In capacity=0 branch, specific visibility logic runs
-    const content = ctx.group.values().filter((t: { type: string }) => t.type !== 'ellipsis')
-    // Last content item should always be shown
-    expect(content.at(-1)!.isSelected.value).toBe(true)
-  })
+      // measureElement(0, 'item') goes through measureToRef -> firstItemWidth
+      ctx.measureElement(0, 'item', el)
+      // measureElement(0, 'divider') goes through measureToRef -> firstDividerWidth
+      ctx.measureElement(0, 'divider', el)
+      ctx.ellipsisWidth.value = 25
+      await nextTick()
 
-  it('should hide ellipsis when width < fI + gap + eW + gap', async () => {
-    const { context } = mountOverflowTree({ itemCount: 3, withEllipsis: true })
-    await nextTick()
-    const ctx = context()
-    const el = document.createElement('div')
-    Object.defineProperty(el, 'offsetWidth', { value: 10 })
-    document.body.append(el)
-    ctx.measureElement(0, 'item', el)
-    ctx.ellipsisWidth.value = 10
-    await nextTick()
-    triggerResize(20)
-    await nextTick()
-    for (const t of ctx.group.values()) {
-      if (t.type === 'ellipsis') {
-        expect(t.isSelected.value).toBe(false)
+      // reserved = fI(30)+gap(8) + fD(30)+gap(8) + eW(25)+gap(8) = 109
+      // Set width so available < 0 => capacity = 0
+      triggerResize(50)
+      await nextTick()
+
+      expect(ctx.overflow.capacity.value).toBe(0)
+      el.remove()
+    })
+
+    it('should exercise overflow branch with capacity=0 and proper reserved', async () => {
+      // 4 items + 3 dividers = 7 content + 1 ellipsis
+      // measuredCount = max(0, 7-2) = 5; capacity=0 < 5 triggers overflow
+      const { context } = mountOverflowTree({ itemCount: 4, withEllipsis: true })
+      await nextTick()
+      const ctx = context()
+
+      const el = createMeasurableElement(20)
+      ctx.measureElement(0, 'item', el)
+      ctx.measureElement(0, 'divider', el)
+      ctx.ellipsisWidth.value = 20
+      await nextTick()
+
+      // reserved = 20+8+20+8+20+8 = 84; width=80 => available=-4 => capacity=0
+      triggerResize(80)
+      await nextTick()
+
+      expect(ctx.overflow.capacity.value).toBe(0)
+
+      // Ellipsis should be shown (line 192)
+      for (const t of ctx.group.values()) {
+        if (t.type === 'ellipsis') {
+          expect(t.isSelected.value).toBe(true)
+        }
       }
-    }
-    el.remove()
-  })
 
-  it('should handle measureElement with non-first indices routing to overflow pool', async () => {
-    const { context } = mountOverflowTree({ itemCount: 2, withEllipsis: false })
-    await nextTick()
-    const ctx = context()
-    // Calling measureElement with a higher index routes to overflow.measure
-    const el = document.createElement('div')
-    Object.defineProperty(el, 'offsetWidth', { value: 15 })
-    document.body.append(el)
-    expect(() => ctx.measureElement(10, 'item', el)).not.toThrow()
-    expect(() => ctx.measureElement(10, 'divider', el)).not.toThrow()
-    // Unmeasure
-    ctx.measureElement(10, 'item', undefined)
-    ctx.measureElement(10, 'divider', undefined)
-    el.remove()
-  })
+      // First pair (contentTickets[0], contentTickets[1]) should be shown (lines 194-196)
+      const content = ctx.group.values().filter((t: { type: string }) => t.type !== 'ellipsis')
+      expect(content[0]!.isSelected.value).toBe(true)
 
-  it('should exercise measureElement routing', async () => {
-    const { context } = mountOverflowTree({ itemCount: 2, withEllipsis: false })
-    await nextTick()
-    const ctx = context()
-    const el = document.createElement('div')
-    Object.defineProperty(el, 'offsetWidth', { value: 15 })
-    document.body.append(el)
-    expect(() => ctx.measureElement(0, 'item', el)).not.toThrow()
-    expect(() => ctx.measureElement(0, 'divider', el)).not.toThrow()
-    expect(() => ctx.measureElement(5, 'item', el)).not.toThrow()
-    ctx.measureElement(0, 'item', undefined)
-    ctx.measureElement(0, 'divider', undefined)
-    el.remove()
-  })
+      // Last content item should be shown (line 219)
+      expect(content.at(-1)!.isSelected.value).toBe(true)
 
-  it('should handle overflow width transitions', async () => {
-    const { context } = mountOverflowTree({ itemCount: 5, withEllipsis: true })
-    await nextTick()
-    const ctx = context()
-    expect(ctx.overflow.capacity.value).toBe(Infinity)
-    // Force non-Infinity capacity
-    triggerResize(5)
-    await nextTick()
-    expect(ctx.overflow.capacity.value).toBeLessThan(Infinity)
-    // Restore to Infinity
-    triggerResize(0)
-    await nextTick()
-    expect(ctx.overflow.capacity.value).toBe(Infinity)
-  })
+      el.remove()
+    })
 
-  it('should exercise reserved width with non-zero values', async () => {
-    const { context } = mountOverflowTree({ itemCount: 4, withEllipsis: true })
-    await nextTick()
-    const ctx = context()
-    const el = document.createElement('div')
-    Object.defineProperty(el, 'offsetWidth', { value: 20 })
-    document.body.append(el)
-    ctx.measureElement(0, 'item', el)
-    ctx.measureElement(0, 'divider', el)
-    ctx.ellipsisWidth.value = 15
-    await nextTick()
-    expect(ctx.ellipsisWidth.value).toBe(15)
-    el.remove()
-  })
+    it('should hide middle items in overflow (capacity=0)', async () => {
+      // 5 items + 4 dividers = 9 content
+      const { context } = mountOverflowTree({ itemCount: 5, withEllipsis: true })
+      await nextTick()
+      const ctx = context()
 
-  /**
-   * Helper to create an element that works with measureToRef in happy-dom.
-   * Sets inline margin styles so getComputedStyle returns parseable values.
-   */
-  function createMeasurableElement (width: number): HTMLElement {
-    const el = document.createElement('div')
-    el.style.marginLeft = '0px'
-    el.style.marginRight = '0px'
-    Object.defineProperty(el, 'offsetWidth', { value: width, configurable: true })
-    document.body.append(el)
-    return el
-  }
+      const el = createMeasurableElement(15)
+      ctx.measureElement(0, 'item', el)
+      ctx.measureElement(0, 'divider', el)
+      ctx.ellipsisWidth.value = 15
+      await nextTick()
 
-  it('should trigger reserved() with all three widths non-zero', async () => {
-    const { context } = mountOverflowTree({ itemCount: 4, withEllipsis: true })
-    await nextTick()
-    const ctx = context()
+      // reserved = 15+8+15+8+15+8 = 69; width=60 => capacity=0
+      triggerResize(60)
+      await nextTick()
 
-    const el = createMeasurableElement(30)
+      expect(ctx.overflow.capacity.value).toBe(0)
 
-    // measureElement(0, 'item') goes through measureToRef -> firstItemWidth
-    ctx.measureElement(0, 'item', el)
-    // measureElement(0, 'divider') goes through measureToRef -> firstDividerWidth
-    ctx.measureElement(0, 'divider', el)
-    ctx.ellipsisWidth.value = 25
-    await nextTick()
-
-    // reserved = fI(30)+gap(8) + fD(30)+gap(8) + eW(25)+gap(8) = 109
-    // Set width so available < 0 => capacity = 0
-    triggerResize(50)
-    await nextTick()
-
-    expect(ctx.overflow.capacity.value).toBe(0)
-    el.remove()
-  })
-
-  it('should exercise overflow branch with capacity=0 and proper reserved', async () => {
-    // 4 items + 3 dividers = 7 content + 1 ellipsis
-    // measuredCount = max(0, 7-2) = 5; capacity=0 < 5 triggers overflow
-    const { context } = mountOverflowTree({ itemCount: 4, withEllipsis: true })
-    await nextTick()
-    const ctx = context()
-
-    const el = createMeasurableElement(20)
-    ctx.measureElement(0, 'item', el)
-    ctx.measureElement(0, 'divider', el)
-    ctx.ellipsisWidth.value = 20
-    await nextTick()
-
-    // reserved = 20+8+20+8+20+8 = 84; width=80 => available=-4 => capacity=0
-    triggerResize(80)
-    await nextTick()
-
-    expect(ctx.overflow.capacity.value).toBe(0)
-
-    // Ellipsis should be shown (line 192)
-    for (const t of ctx.group.values()) {
-      if (t.type === 'ellipsis') {
-        expect(t.isSelected.value).toBe(true)
+      // Pool items (indices 2..7) should be hidden except last
+      const content = ctx.group.values().filter((t: { type: string }) => t.type !== 'ellipsis')
+      let hiddenCount = 0
+      for (let i = 2; i < content.length - 1; i++) {
+        if (!content[i]!.isSelected.value) hiddenCount++
       }
-    }
+      expect(hiddenCount).toBeGreaterThan(0)
 
-    // First pair (contentTickets[0], contentTickets[1]) should be shown (lines 194-196)
-    const content = ctx.group.values().filter((t: { type: string }) => t.type !== 'ellipsis')
-    expect(content[0]!.isSelected.value).toBe(true)
+      el.remove()
+    })
 
-    // Last content item should be shown (line 219)
-    expect(content.at(-1)!.isSelected.value).toBe(true)
+    it('should hide first divider when w < reserved + fD in capacity=0', async () => {
+      const { context } = mountOverflowTree({ itemCount: 4, withEllipsis: true })
+      await nextTick()
+      const ctx = context()
 
-    el.remove()
-  })
+      const el = createMeasurableElement(20)
+      ctx.measureElement(0, 'item', el)
+      ctx.measureElement(0, 'divider', el)
+      ctx.ellipsisWidth.value = 20
+      await nextTick()
 
-  it('should hide middle items in overflow (capacity=0)', async () => {
-    // 5 items + 4 dividers = 9 content
-    const { context } = mountOverflowTree({ itemCount: 5, withEllipsis: true })
-    await nextTick()
-    const ctx = context()
+      // fI=20, fD=20, eW=20, gap=8
+      // reserved = 20+8+20+8+20+8 = 84; fD=20
+      // w < reserved + fD = 84+20 = 104 => need w < 104 AND w > 0 for non-Infinity
+      // And available = w - 84 < 0 => w < 84 for capacity=0
+      triggerResize(60)
+      await nextTick()
 
-    const el = createMeasurableElement(15)
-    ctx.measureElement(0, 'item', el)
-    ctx.measureElement(0, 'divider', el)
-    ctx.ellipsisWidth.value = 15
-    await nextTick()
+      expect(ctx.overflow.capacity.value).toBe(0)
 
-    // reserved = 15+8+15+8+15+8 = 69; width=60 => capacity=0
-    triggerResize(60)
-    await nextTick()
+      // w=60 < reserved(84) + fD(20) = 104 => hide contentTickets[1]
+      const content = ctx.group.values().filter((t: { type: string }) => t.type !== 'ellipsis')
+      expect(content[1]!.isSelected.value).toBe(false)
 
-    expect(ctx.overflow.capacity.value).toBe(0)
+      el.remove()
+    })
 
-    // Pool items (indices 2..7) should be hidden except last
-    const content = ctx.group.values().filter((t: { type: string }) => t.type !== 'ellipsis')
-    let hiddenCount = 0
-    for (let i = 2; i < content.length - 1; i++) {
-      if (!content[i]!.isSelected.value) hiddenCount++
-    }
-    expect(hiddenCount).toBeGreaterThan(0)
+    it('should hide ellipsis when w < fI + gap + eW + gap in capacity=0', async () => {
+      const { context } = mountOverflowTree({ itemCount: 3, withEllipsis: true })
+      await nextTick()
+      const ctx = context()
 
-    el.remove()
-  })
+      const el = createMeasurableElement(20)
+      ctx.measureElement(0, 'item', el)
+      ctx.measureElement(0, 'divider', el)
+      ctx.ellipsisWidth.value = 20
+      await nextTick()
 
-  it('should hide first divider when w < reserved + fD in capacity=0', async () => {
-    const { context } = mountOverflowTree({ itemCount: 4, withEllipsis: true })
-    await nextTick()
-    const ctx = context()
+      // fI=20, eW=20, gap=8
+      // w < fI+gap+eW+gap = 20+8+20+8 = 56
+      triggerResize(40)
+      await nextTick()
 
-    const el = createMeasurableElement(20)
-    ctx.measureElement(0, 'item', el)
-    ctx.measureElement(0, 'divider', el)
-    ctx.ellipsisWidth.value = 20
-    await nextTick()
+      expect(ctx.overflow.capacity.value).toBe(0)
 
-    // fI=20, fD=20, eW=20, gap=8
-    // reserved = 20+8+20+8+20+8 = 84; fD=20
-    // w < reserved + fD = 84+20 = 104 => need w < 104 AND w > 0 for non-Infinity
-    // And available = w - 84 < 0 => w < 84 for capacity=0
-    triggerResize(60)
-    await nextTick()
-
-    expect(ctx.overflow.capacity.value).toBe(0)
-
-    // w=60 < reserved(84) + fD(20) = 104 => hide contentTickets[1]
-    const content = ctx.group.values().filter((t: { type: string }) => t.type !== 'ellipsis')
-    expect(content[1]!.isSelected.value).toBe(false)
-
-    el.remove()
-  })
-
-  it('should hide ellipsis when w < fI + gap + eW + gap in capacity=0', async () => {
-    const { context } = mountOverflowTree({ itemCount: 3, withEllipsis: true })
-    await nextTick()
-    const ctx = context()
-
-    const el = createMeasurableElement(20)
-    ctx.measureElement(0, 'item', el)
-    ctx.measureElement(0, 'divider', el)
-    ctx.ellipsisWidth.value = 20
-    await nextTick()
-
-    // fI=20, eW=20, gap=8
-    // w < fI+gap+eW+gap = 20+8+20+8 = 56
-    triggerResize(40)
-    await nextTick()
-
-    expect(ctx.overflow.capacity.value).toBe(0)
-
-    // Ellipsis should be hidden
-    for (const t of ctx.group.values()) {
-      if (t.type === 'ellipsis') {
-        expect(t.isSelected.value).toBe(false)
+      // Ellipsis should be hidden
+      for (const t of ctx.group.values()) {
+        if (t.type === 'ellipsis') {
+          expect(t.isSelected.value).toBe(false)
+        }
       }
-    }
 
-    el.remove()
-  })
+      el.remove()
+    })
 
-  it('should hide first item when w < fI + gap in capacity=0', async () => {
-    const { context } = mountOverflowTree({ itemCount: 3, withEllipsis: true })
-    await nextTick()
-    const ctx = context()
+    it('should hide first item when w < fI + gap in capacity=0', async () => {
+      const { context } = mountOverflowTree({ itemCount: 3, withEllipsis: true })
+      await nextTick()
+      const ctx = context()
 
-    const el = createMeasurableElement(20)
-    ctx.measureElement(0, 'item', el)
-    ctx.measureElement(0, 'divider', el)
-    ctx.ellipsisWidth.value = 20
-    await nextTick()
+      const el = createMeasurableElement(20)
+      ctx.measureElement(0, 'item', el)
+      ctx.measureElement(0, 'divider', el)
+      ctx.ellipsisWidth.value = 20
+      await nextTick()
 
-    // fI=20, gap=8 => w < 28
-    triggerResize(10)
-    await nextTick()
+      // fI=20, gap=8 => w < 28
+      triggerResize(10)
+      await nextTick()
 
-    expect(ctx.overflow.capacity.value).toBe(0)
+      expect(ctx.overflow.capacity.value).toBe(0)
 
-    // First content item should be hidden
-    const content = ctx.group.values().find((t: { type: string }) => t.type !== 'ellipsis')
-    expect(content!.isSelected.value).toBe(false)
+      // First content item should be hidden
+      const content = ctx.group.values().find((t: { type: string }) => t.type !== 'ellipsis')
+      expect(content!.isSelected.value).toBe(false)
 
-    el.remove()
-  })
+      el.remove()
+    })
 
-  it('should transition from overflow back to sufficient capacity', async () => {
-    const { context } = mountOverflowTree({ itemCount: 4, withEllipsis: true })
-    await nextTick()
-    const ctx = context()
+    it('should transition from overflow back to sufficient capacity', async () => {
+      const { context } = mountOverflowTree({ itemCount: 4, withEllipsis: true })
+      await nextTick()
+      const ctx = context()
 
-    const el = createMeasurableElement(15)
-    ctx.measureElement(0, 'item', el)
-    ctx.measureElement(0, 'divider', el)
-    ctx.ellipsisWidth.value = 15
-    await nextTick()
+      const el = createMeasurableElement(15)
+      ctx.measureElement(0, 'item', el)
+      ctx.measureElement(0, 'divider', el)
+      ctx.ellipsisWidth.value = 15
+      await nextTick()
 
-    // First trigger overflow (capacity=0)
-    triggerResize(30)
-    await nextTick()
-    expect(ctx.overflow.capacity.value).toBe(0)
+      // First trigger overflow (capacity=0)
+      triggerResize(30)
+      await nextTick()
+      expect(ctx.overflow.capacity.value).toBe(0)
 
-    // Then restore: width=0 => capacity=Infinity
-    triggerResize(0)
-    await nextTick()
-    expect(ctx.overflow.capacity.value).toBe(Infinity)
+      // Then restore: width=0 => capacity=Infinity
+      triggerResize(0)
+      await nextTick()
+      expect(ctx.overflow.capacity.value).toBe(Infinity)
 
-    // All content should be shown, ellipsis hidden (lines 185-189)
-    for (const t of ctx.group.values()) {
-      if (t.type === 'ellipsis') {
-        expect(t.isSelected.value).toBe(false)
-      } else {
-        expect(t.isSelected.value).toBe(true)
+      // All content should be shown, ellipsis hidden (lines 185-189)
+      for (const t of ctx.group.values()) {
+        if (t.type === 'ellipsis') {
+          expect(t.isSelected.value).toBe(false)
+        } else {
+          expect(t.isSelected.value).toBe(true)
+        }
       }
-    }
 
-    el.remove()
-  })
+      el.remove()
+    })
 
-  it('should exercise overflow with pool items and non-zero capacity', async () => {
-    // 5 items + 4 dividers = 9 content; measuredCount = max(0, 9-2) = 7
-    const { context } = mountOverflowTree({ itemCount: 5, withEllipsis: true })
-    await nextTick()
-    const ctx = context()
+    it('should exercise overflow with pool items and non-zero capacity', async () => {
+      // 5 items + 4 dividers = 9 content; measuredCount = max(0, 9-2) = 7
+      const { context } = mountOverflowTree({ itemCount: 5, withEllipsis: true })
+      await nextTick()
+      const ctx = context()
 
-    const el = createMeasurableElement(10)
-    ctx.measureElement(0, 'item', el)
-    ctx.measureElement(0, 'divider', el)
-    ctx.ellipsisWidth.value = 10
+      const el = createMeasurableElement(10)
+      ctx.measureElement(0, 'item', el)
+      ctx.measureElement(0, 'divider', el)
+      ctx.ellipsisWidth.value = 10
 
-    // Also measure pool items so variable mode capacity is non-zero but < measuredCount
-    for (let i = 2; i <= 8; i++) {
-      ctx.overflow.measure(i, el)
-    }
-    await nextTick()
-
-    // reserved = 10+8+10+8+10+8 = 54
-    // Pool: 7 items at width=10, gap=8, reversed
-    // For capacity=2: item8(10) + item7(10+8=18) = 28 <= available
-    // item6(10+8=18) would be 46
-    // Need available ~ 28..45 for capacity=2; width = 54+28..54+45 = 82..99
-    triggerResize(82)
-    await nextTick()
-
-    const capacity = ctx.overflow.capacity.value
-    // capacity should be small (overflow mode: capacity < measuredCount=7)
-    expect(capacity).toBeGreaterThanOrEqual(1)
-    expect(capacity).toBeLessThan(7)
-
-    // Ellipsis should be selected
-    for (const t of ctx.group.values()) {
-      if (t.type === 'ellipsis') {
-        expect(t.isSelected.value).toBe(true)
+      // Also measure pool items so variable mode capacity is non-zero but < measuredCount
+      for (let i = 2; i <= 8; i++) {
+        ctx.overflow.measure(i, el)
       }
-    }
+      await nextTick()
 
-    el.remove()
-  })
+      // reserved = 10+8+10+8+10+8 = 54
+      // Pool: 7 items at width=10, gap=8, reversed
+      // For capacity=2: item8(10) + item7(10+8=18) = 28 <= available
+      // item6(10+8=18) would be 46
+      // Need available ~ 28..45 for capacity=2; width = 54+28..54+45 = 82..99
+      triggerResize(82)
+      await nextTick()
 
-  it('should select separator divider before shown item in overflow', async () => {
-    // Content: item0(0), div0(1), item1(2), div1(3), item2(4), div2(5), item3(6), div3(7), item4(8)
-    // poolStart=2, measuredCount = max(0, 9-2) = 7
-    const { context } = mountOverflowTree({ itemCount: 5, withEllipsis: true })
-    await nextTick()
-    const ctx = context()
+      const capacity = ctx.overflow.capacity.value
+      // capacity should be small (overflow mode: capacity < measuredCount=7)
+      expect(capacity).toBeGreaterThanOrEqual(1)
+      expect(capacity).toBeLessThan(7)
 
-    const el = createMeasurableElement(10)
-    ctx.measureElement(0, 'item', el)
-    ctx.measureElement(0, 'divider', el)
-    ctx.ellipsisWidth.value = 10
+      // Ellipsis should be selected
+      for (const t of ctx.group.values()) {
+        if (t.type === 'ellipsis') {
+          expect(t.isSelected.value).toBe(true)
+        }
+      }
 
-    // Measure pool items so capacity is finite
-    for (let i = 2; i <= 8; i++) {
-      ctx.overflow.measure(i, el)
-    }
-    await nextTick()
+      el.remove()
+    })
 
-    // For capacity=1: available=10, width=54+10=64 to 54+27=81
-    // showStart = 8-1+1 = 8 (item4), sep = 7 (div3)
-    triggerResize(64)
-    await nextTick()
+    it('should select separator divider before shown item in overflow', async () => {
+      // Content: item0(0), div0(1), item1(2), div1(3), item2(4), div2(5), item3(6), div3(7), item4(8)
+      // poolStart=2, measuredCount = max(0, 9-2) = 7
+      const { context } = mountOverflowTree({ itemCount: 5, withEllipsis: true })
+      await nextTick()
+      const ctx = context()
 
-    const capacity = ctx.overflow.capacity.value
-    expect(capacity).toBe(1)
+      const el = createMeasurableElement(10)
+      ctx.measureElement(0, 'item', el)
+      ctx.measureElement(0, 'divider', el)
+      ctx.ellipsisWidth.value = 10
 
-    const content = ctx.group.values().filter((t: { type: string }) => t.type !== 'ellipsis')
+      // Measure pool items so capacity is finite
+      for (let i = 2; i <= 8; i++) {
+        ctx.overflow.measure(i, el)
+      }
+      await nextTick()
 
-    // contentTickets[8] = item4 should be selected (it's the shown item)
-    expect(content[8]!.isSelected.value).toBe(true)
+      // For capacity=1: available=10, width=54+10=64 to 54+27=81
+      // showStart = 8-1+1 = 8 (item4), sep = 7 (div3)
+      triggerResize(64)
+      await nextTick()
 
-    // contentTickets[7] = div3 should be selected as separator (lines 213-215)
-    expect(content[7]!.isSelected.value).toBe(true)
+      const capacity = ctx.overflow.capacity.value
+      expect(capacity).toBe(1)
 
-    // contentTickets[6] = item3 should be hidden (unselected)
-    expect(content[6]!.isSelected.value).toBe(false)
+      const content = ctx.group.values().filter((t: { type: string }) => t.type !== 'ellipsis')
 
-    el.remove()
+      // contentTickets[8] = item4 should be selected (it's the shown item)
+      expect(content[8]!.isSelected.value).toBe(true)
+
+      // contentTickets[7] = div3 should be selected as separator (lines 213-215)
+      expect(content[7]!.isSelected.value).toBe(true)
+
+      // contentTickets[6] = item3 should be hidden (unselected)
+      expect(content[6]!.isSelected.value).toBe(false)
+
+      el.remove()
+    })
   })
 })

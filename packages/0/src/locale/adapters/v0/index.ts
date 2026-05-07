@@ -3,7 +3,7 @@
  *
  * @example
  * ```ts
- * import { Vuetify0LocaleAdapter } from '@vuetify/v0/locale/adapters/v0'
+ * import { V0LocaleAdapter } from '@vuetify/v0/locale/adapters/v0'
  * ```
  */
 

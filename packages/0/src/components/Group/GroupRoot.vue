@@ -92,8 +92,8 @@
 
   const group = createGroup({
     disabled: toRef(() => disabled),
-    enroll,
-    mandatory,
+    enroll: toRef(() => enroll),
+    mandatory: toRef(() => mandatory),
     events: true,
   })
 

@@ -525,7 +525,7 @@ describe('useResizeObserver SSR', () => {
     expect(() => stop()).not.toThrow()
   })
 
-  it('useElementSize should return zero dimensions during SSR', async () => {
+  it('should return zero dimensions from useElementSize during SSR', async () => {
     vi.doMock('#v0/constants/globals', () => ({
       SUPPORTS_OBSERVER: false,
     }))

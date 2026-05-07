@@ -2,8 +2,10 @@
 import { isObject } from '#v0/utilities'
 
 // Types
-import type { LocaleAdapter } from '../adapter'
 import type { Composer } from 'vue-i18n'
+
+// Adapters
+import { LocaleAdapter } from './adapter'
 
 /**
  * Locale adapter that delegates to a vue-i18n instance.
@@ -13,10 +15,11 @@ import type { Composer } from 'vue-i18n'
  * preserving all vue-i18n features: pluralization, linked
  * messages, datetime/number formatting, etc.
  */
-export class VueI18nLocaleAdapter implements LocaleAdapter {
+export class VueI18nLocaleAdapter extends LocaleAdapter {
   private composer: Composer
 
   constructor (i18n: { global: Composer }) {
+    super()
     this.composer = i18n.global
   }
 

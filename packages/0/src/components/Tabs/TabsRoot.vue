@@ -23,7 +23,7 @@
   /** Ticket for tab items with element reference for focus management */
   export interface TabsTicket extends StepTicket {
     /** Element reference for roving tabindex focus management */
-    el?: MaybeRefOrGetter<HTMLElement | null | undefined>
+    el?: MaybeRefOrGetter<Element | null | undefined>
   }
 
   /** Activation mode alias for Tabs component API */
@@ -133,8 +133,8 @@
 
   const step = createStep({
     disabled: toRef(() => disabled),
-    enroll,
-    mandatory,
+    enroll: toRef(() => enroll),
+    mandatory: toRef(() => mandatory),
     circular,
     events: true,
   })

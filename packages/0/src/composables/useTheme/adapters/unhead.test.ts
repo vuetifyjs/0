@@ -65,6 +65,152 @@ describe('v0UnheadThemeAdapter', () => {
       scope.stop()
       mockInBrowser.value = true
     })
+
+    it('should fall back to provides.head when usehead is missing', () => {
+      mockInBrowser.value = false
+      const head = createMockHead()
+      const app = {
+        _context: {
+          provides: { head }, // no `usehead` key
+        },
+        _container: null,
+      } as unknown as App
+      const context = createMockContext()
+      const adapter = new V0UnheadThemeAdapter()
+
+      const scope = effectScope()
+      scope.run(() => adapter.setup(app, context))
+
+      expect(head.push).toHaveBeenCalled()
+
+      scope.stop()
+      mockInBrowser.value = true
+    })
+
+    it('should skip push when no head provider is available', () => {
+      mockInBrowser.value = false
+      const app = {
+        _context: { provides: {} },
+        _container: null,
+      } as unknown as App
+      const context = createMockContext()
+      const adapter = new V0UnheadThemeAdapter()
+
+      // Should not throw — early-returns when head is missing
+      const scope = effectScope()
+      expect(() => scope.run(() => adapter.setup(app, context))).not.toThrow()
+
+      scope.stop()
+      mockInBrowser.value = true
+    })
+
+    it('should emit empty htmlAttrs when selectedId is null', () => {
+      mockInBrowser.value = false
+      const head = createMockHead()
+      const app = createMockApp(head)
+      const context = createMockContext()
+      context.selectedId.value = null
+      const adapter = new V0UnheadThemeAdapter()
+
+      const scope = effectScope()
+      scope.run(() => adapter.setup(app, context))
+
+      expect(head.push).toHaveBeenCalledWith({
+        htmlAttrs: { 'data-theme': '' },
+        style: [{ innerHTML: expect.any(String), id: 'v0-theme-stylesheet' }],
+      })
+
+      scope.stop()
+      mockInBrowser.value = true
+    })
+
+    it('should accept HTMLElement target', () => {
+      const head = createMockHead()
+      const app = createMockApp(head)
+      const context = createMockContext()
+      const adapter = new V0UnheadThemeAdapter()
+      const el = document.createElement('div')
+
+      const scope = effectScope()
+      scope.run(() => adapter.setup(app, context, el))
+
+      expect(el.dataset.theme).toBe('light')
+
+      scope.stop()
+    })
+
+    it('should accept selector string target', () => {
+      const head = createMockHead()
+      const app = createMockApp(head)
+      const context = createMockContext()
+      const adapter = new V0UnheadThemeAdapter()
+
+      const el = document.createElement('div')
+      el.id = 'theme-target'
+      document.body.append(el)
+
+      const scope = effectScope()
+      scope.run(() => adapter.setup(app, context, '#theme-target'))
+
+      expect(el.dataset.theme).toBe('light')
+
+      el.remove()
+      scope.stop()
+    })
+
+    it('should not set data-theme when selectedId is null', async () => {
+      const head = createMockHead()
+      const app = createMockApp(head)
+      const context = createMockContext()
+      context.selectedId.value = null
+      const adapter = new V0UnheadThemeAdapter()
+      const el = document.createElement('div')
+
+      const scope = effectScope()
+      scope.run(() => adapter.setup(app, context, el))
+
+      // Without selectedId, dataset.theme stays unset
+      expect(el.dataset.theme).toBeUndefined()
+
+      scope.stop()
+    })
+
+    it('should fall back through #app and document.body when no target provided', () => {
+      const head = createMockHead()
+      const app = createMockApp(head)
+      const context = createMockContext()
+      const adapter = new V0UnheadThemeAdapter()
+
+      const scope = effectScope()
+      // No target — falls through app._container (null) → #app (none) → document.body
+      scope.run(() => adapter.setup(app, context))
+
+      expect(document.body.dataset.theme).toBe('light')
+
+      delete document.body.dataset.theme
+      scope.stop()
+    })
+
+    it('should emit empty string for null id in watcher', async () => {
+      const head = createMockHead()
+      const app = createMockApp(head)
+      const context = createMockContext()
+      const adapter = new V0UnheadThemeAdapter()
+
+      const scope = effectScope()
+      scope.run(() => adapter.setup(app, context))
+
+      head.patch.mockClear()
+      // Switch to null — the watcher emits empty string for the id
+      context.selectedId.value = null
+      await nextTick()
+
+      expect(head.patch).toHaveBeenCalledWith(expect.objectContaining({
+        htmlAttrs: { 'data-theme': '' },
+      }))
+
+      scope.stop()
+    })
   })
 
   describe('patch atomicity', () => {
@@ -225,6 +371,34 @@ describe('v0UnheadThemeAdapter', () => {
       await nextTick()
 
       expect(head.patch).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('update', () => {
+    it('should patch the entry with new colors and isDark', () => {
+      const head = createMockHead()
+      const app = createMockApp(head)
+      const context = createMockContext()
+      const adapter = new V0UnheadThemeAdapter()
+
+      const scope = effectScope()
+      scope.run(() => adapter.setup(app, context, null))
+
+      head.patch.mockClear()
+
+      adapter.update({ light: { primary: '#000' } }, true)
+
+      expect(head.patch).toHaveBeenCalledTimes(1)
+      const call = head.patch.mock.calls[0]![0]
+      expect(call).toHaveProperty('style')
+      expect(call.style[0].id).toBe('v0-theme-stylesheet')
+    })
+
+    it('should be a no-op when no entry was created', () => {
+      const adapter = new V0UnheadThemeAdapter()
+
+      // No setup() called — entry is undefined
+      expect(() => adapter.update({ light: { primary: '#000' } })).not.toThrow()
     })
   })
 })

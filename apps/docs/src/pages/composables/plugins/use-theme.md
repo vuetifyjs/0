@@ -20,9 +20,9 @@ related:
 
 # useTheme
 
-<DocsPageFeatures :frontmatter />
-
 Theme management with multiple themes, CSS custom properties, and token alias resolution.
+
+<DocsPageFeatures :frontmatter />
 
 ## Installation
 

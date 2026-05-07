@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { Combobox, ComboboxServerAdapter, useComboboxContext } from '@vuetify/v0'
+  import { Combobox, ServerComboboxAdapter, useComboboxContext } from '@vuetify/v0'
   import { defineComponent, shallowRef, watch } from 'vue'
 
   const SearchWatcher = defineComponent({
@@ -12,7 +12,7 @@
   })
 
   const selected = shallowRef<string>()
-  const adapter = new ComboboxServerAdapter()
+  const adapter = new ServerComboboxAdapter()
 
   const ALL_COLORS = [
     { id: 'red', label: 'Red' },

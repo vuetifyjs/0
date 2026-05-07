@@ -29,20 +29,18 @@ import { createPluginContext } from '#v0/composables/createPlugin'
 import { createTokens } from '#v0/composables/createTokens'
 
 // Adapters
-import { Vuetify0PermissionAdapter } from '#v0/composables/usePermissions/adapters'
+import { V0PermissionsAdapter } from '#v0/composables/usePermissions/adapters'
 
 // Transformers
 import { toArray } from '#v0/composables/toArray'
 
 // Types
 import type { TokenContext, TokenOptions, TokenTicket } from '#v0/composables/createTokens'
-import type { PermissionAdapter } from '#v0/composables/usePermissions/adapters'
+import type { PermissionsAdapter } from '#v0/composables/usePermissions/adapters'
 import type { ID } from '#v0/types'
 
 // Exports
-export { PermissionAdapter } from '#v0/composables/usePermissions/adapters'
-
-export type { PermissionAdapterInterface } from '#v0/composables/usePermissions/adapters'
+export { PermissionsAdapter } from '#v0/composables/usePermissions/adapters'
 
 export interface PermissionTicket extends TokenTicket<boolean | ((context: Record<string, unknown>) => boolean)> {}
 
@@ -51,7 +49,7 @@ export interface PermissionContext<Z extends PermissionTicket = PermissionTicket
 }
 
 export interface PermissionOptions extends TokenOptions {
-  adapter?: PermissionAdapter
+  adapter?: PermissionsAdapter
   permissions?: Record<ID, [string | string[], string | string[], (boolean | ((context: Record<string, unknown>) => boolean))?][]>
 }
 
@@ -85,7 +83,7 @@ export interface PermissionPluginOptions extends PermissionContextOptions {}
  * ```
  */
 export function createPermissions (_options: PermissionOptions = {}): PermissionContext {
-  const { adapter = new Vuetify0PermissionAdapter(), permissions = {}, ...options } = _options
+  const { adapter = new V0PermissionsAdapter(), permissions = {}, ...options } = _options
 
   const record: Record<string, Record<string, Record<string, boolean | ((context: Record<string, unknown>) => boolean)>>> = {}
   for (const role in permissions) {

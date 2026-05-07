@@ -3,10 +3,13 @@ import { isObject, isString, isUndefined } from '#v0/utilities'
 
 // Types
 import type { ID } from '#v0/types'
-import type { LocaleAdapter, LocaleAdapterContext } from './adapter'
+import type { LocaleAdapterContext } from './adapter'
 
 // Globals
 import { IN_BROWSER } from '#v0/constants/globals'
+
+// Adapters
+import { LocaleAdapter } from './adapter'
 
 /**
  * Default locale adapter for @vuetify/v0.
@@ -14,10 +17,11 @@ import { IN_BROWSER } from '#v0/constants/globals'
  * Handles the full translation pipeline: key lookup via tokens,
  * fallback chain, token reference resolution, and placeholder interpolation.
  */
-export class Vuetify0LocaleAdapter implements LocaleAdapter {
+export class V0LocaleAdapter extends LocaleAdapter {
   private context: LocaleAdapterContext
 
   constructor (context: LocaleAdapterContext) {
+    super()
     this.context = context
   }
 

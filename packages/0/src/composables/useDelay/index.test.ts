@@ -11,6 +11,7 @@ describe('useDelay', () => {
   })
 
   afterEach(() => {
+    vi.useRealTimers()
     vi.restoreAllMocks()
   })
 

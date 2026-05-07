@@ -26,7 +26,7 @@
 
   // Utilities
   import { isUndefined } from '#v0/utilities'
-  import { shallowRef, toRef, watch } from 'vue'
+  import { onBeforeUnmount, shallowRef, toRef, watch } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -75,17 +75,22 @@
   // This ensures screen readers detect the content change
   // @see https://tetralogical.com/blog/2024/05/01/why-are-my-live-regions-not-working/
   /* v8 ignore start -- watch fires after mount, setTimeout callback requires timer */
+  let pending: ReturnType<typeof setTimeout> | undefined
+
   watch(() => pagination.page.value, (page, prevPage) => {
     // Skip initial render (no previous value means first mount)
     if (isUndefined(prevPage)) return
 
-    setTimeout(() => {
+    clearTimeout(pending)
+    pending = setTimeout(() => {
       text.value = locale.t(
         'Pagination.status',
         { page, pages: pagination.pages },
       )
     }, 100)
   })
+
+  onBeforeUnmount(() => clearTimeout(pending))
   /* v8 ignore stop */
 
   const slotProps = toRef((): PaginationStatusSlotProps => ({

@@ -273,7 +273,7 @@ function useFoo () {
 
 **Why.** v0 runs under SSR. An unguarded `window.x` crashes the server build. The gate is one line and composes through adapters.
 
-**Canonical example.** `packages/0/src/composables/useStorage/index.ts:105` — `IN_BROWSER ? window.localStorage : new MemoryAdapter()`.
+**Canonical example.** `packages/0/src/composables/useStorage/index.ts:105` — `IN_BROWSER ? window.localStorage : new MemoryStorageAdapter()`.
 
 **Known soft-violations.** `packages/0/src/composables/useClickOutside/index.ts:346-350`, `packages/0/src/composables/useHotkey/index.ts:159`, `packages/0/src/composables/createCombobox/index.ts:187` — each reads `document.*` inside a browser-only handler. Safe in practice, but the rule is per-composable, not per-call-site. Add the guard.
 
@@ -793,7 +793,7 @@ Use `Extensible<T>` for enums that must retain autocomplete while accepting arbi
 export type NotificationSeverity = Extensible<'info' | 'warning' | 'error' | 'success'>
 ```
 
-Also used by `createRegistry` for event-name keys at `packages/0/src/composables/createRegistry/index.ts:464,494,517`.
+Also used by `createRegistry` for event-name keys on its `on` / `off` / `emit` signatures (see `packages/0/src/composables/createRegistry/index.ts`).
 
 **Anti-example (do not do this).**
 ```ts

@@ -8,7 +8,7 @@
  * @example
  * ```ts
  * import { createStoragePlugin, useStorage } from '@vuetify/v0/storage'
- * import { MemoryAdapter } from '@vuetify/v0/storage/adapters'
+ * import { MemoryStorageAdapter } from '@vuetify/v0/storage/adapters'
  * ```
  */
 

@@ -6,10 +6,10 @@ export interface RtlAdapterSetupContext {
   toggle: () => void
 }
 
-export interface RtlAdapter {
-  setup: <T extends RtlAdapterSetupContext>(
+export abstract class RtlAdapter {
+  abstract setup<T extends RtlAdapterSetupContext>(
     app: App,
     context: T,
     target?: string | HTMLElement | null,
-  ) => void
+  ): void
 }
