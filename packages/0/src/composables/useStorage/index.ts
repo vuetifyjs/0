@@ -135,10 +135,12 @@ export function createStorage<
     try {
       const parsed = serializer.read(raw)
 
-      // TTL check: expired entries are treated as absent
-      if (ttl && isObject(parsed) && '__v0' in parsed && '__v' in parsed) {
+      // Always unwrap v0's own envelope (identified by the __v0 discriminator)
+      // so legacy values written under a previous `ttl` config keep reading
+      // correctly after the option is removed.
+      if (isObject(parsed) && '__v0' in parsed && '__v' in parsed) {
         const envelope = parsed as { __v0: number, __v: unknown, __t: number }
-        if (Date.now() - envelope.__t > ttl) {
+        if (ttl && Date.now() - envelope.__t > ttl) {
           adapter?.removeItem(prefixedKey)
           return undefined
         }
