@@ -8,7 +8,23 @@ import { IN_BROWSER } from '@vuetify/v0'
 import { getPrefersReducedMotion } from '@/composables/useSettings'
 
 // Types
-import type { RouterOptions } from 'vue-router'
+import type { RouteLocationNormalized, RouterOptions } from 'vue-router'
+
+let isInitialNavigation = true
+
+function readPersistedPosition (to: RouteLocationNormalized) {
+  // sessionStorage is keyed by path (no hash) to match useScrollPersist —
+  // useToc rewrites the URL hash via replaceState, so a key that includes
+  // the hash would drift from what was saved.
+  const persistKey = history.state?.key ?? to.path
+  const raw = sessionStorage.getItem(`scroll:${persistKey}`)
+  if (!raw) return null
+  try {
+    return JSON.parse(raw) as { left: number, top: number }
+  } catch {
+    return null
+  }
+}
 
 const routerOptions: Omit<RouterOptions, 'history'> = {
   routes: setupLayouts(routes),
@@ -21,6 +37,17 @@ const routerOptions: Omit<RouterOptions, 'history'> = {
 
     // If the user navigated via browser back/forward, restore their position
     if (savedPosition) return savedPosition
+
+    // On refresh (the very first scrollBehavior call after page load),
+    // honor the position saved by useScrollPersist instead of re-snapping
+    // to the URL hash. Subsequent in-session navigations skip this so a
+    // RouterLink to `/page#foo` still scrolls to #foo even if /page has a
+    // stale entry from earlier in the session.
+    if (isInitialNavigation) {
+      isInitialNavigation = false
+      const persisted = readPersistedPosition(to)
+      if (persisted) return persisted
+    }
 
     // If navigating to a hash (anchor), scroll to that element
     // Delay to allow DOM to settle after hydration
