@@ -2,7 +2,6 @@
   import apiData from 'virtual:api'
 
   // Composables
-  import { provideApiFilter } from '@/composables/useApiFilter'
   import { useApiHelpers } from '@/composables/useApiHelpers'
   import { useSettings } from '@/composables/useSettings'
   import { useSyncedRef } from '@/composables/useSyncedRef'
@@ -24,7 +23,6 @@
   const settings = useSettings()
   const helpers = useApiHelpers()
   const showInlineApi = useSyncedRef(settings.showInlineApi)
-  provideApiFilter()
 
   const pageType = toRef(() => {
     const path = route.path
@@ -93,8 +91,6 @@
     />
 
     <template v-if="showInlineApi">
-      <DocsApiSearch />
-
       <template
         v-for="api in componentApis"
         :key="api.name"
@@ -159,8 +155,6 @@
     />
 
     <template v-if="showInlineApi">
-      <DocsApiSearch />
-
       <DocsApiSection
         anchor-id="functions"
         class="mt-8"

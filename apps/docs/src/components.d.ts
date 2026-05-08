@@ -100,7 +100,6 @@ declare module 'vue' {
     DocsApiHoverSection: typeof import('./components/docs/DocsApiHoverSection.vue')['default']
     DocsApiIndex: typeof import('./components/docs/DocsApiIndex.vue')['default']
     DocsApiLinks: typeof import('./components/docs/DocsApiLinks.vue')['default']
-    DocsApiSearch: typeof import('./components/docs/DocsApiSearch.vue')['default']
     DocsApiSection: typeof import('./components/docs/DocsApiSection.vue')['default']
     DocsAsk: typeof import('./components/docs/DocsAsk.vue')['default']
     DocsAskForm: typeof import('./components/docs/DocsAskForm.vue')['default']

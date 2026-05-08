@@ -1,13 +1,4 @@
 <script setup lang="ts">
-  // Composables
-  import { useApiFilter } from '@/composables/useApiFilter'
-
-  // Utilities
-  import { toRef } from 'vue'
-
-  // Types
-  import type { ApiItem } from '@/composables/useApiFilter'
-
   const props = defineProps<{
     anchorId: string
     title: string
@@ -15,22 +6,10 @@
     kind: 'prop' | 'event' | 'slot' | 'function' | 'option' | 'property' | 'method'
     class?: string
   }>()
-
-  const filter = useApiFilter()
-  const items = toRef(() => (props.items ?? []) as ApiItem[])
-  const filtered = filter.apply(filter.query, items)
-
-  const hasQuery = toRef(() => String(filter.query.value ?? '').trim().length > 0)
-
-  const visible = toRef(() => {
-    if (!props.items?.length) return false
-    if (filtered.items.value.length > 0) return true
-    return !hasQuery.value
-  })
 </script>
 
 <template>
-  <template v-if="visible">
+  <template v-if="props.items?.length">
     <DocsHeaderAnchor
       :id="anchorId"
       :class="$props.class"
@@ -40,7 +19,7 @@
 
     <div class="space-y-4">
       <DocsApiCard
-        v-for="item in filtered.items.value"
+        v-for="item in props.items"
         :key="item.name"
         :item="(item as never)"
         :kind
