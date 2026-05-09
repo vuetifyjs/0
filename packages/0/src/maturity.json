@@ -116,6 +116,11 @@
       "since": "0.1.0",
       "category": "data"
     },
+    "createSortable": {
+      "level": "draft",
+      "since": null,
+      "category": "data"
+    },
     "createProgress": {
       "level": "preview",
       "since": null,

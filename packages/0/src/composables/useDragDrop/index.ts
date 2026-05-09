@@ -553,6 +553,12 @@ export function useDragDrop<Z extends DragType = DragType> (
           watch(el, refresh, { immediate: true, flush: 'post' })
           useResizeObserver(el, refresh)
           useMutationObserver(el, refresh, { childList: true })
+          // Refresh on drag start — cached rects go stale after scroll between
+          // observer-triggered updates. This catches the "open page → scroll →
+          // start dragging" flow where the cache was captured pre-scroll.
+          watch(() => active.value?.id, id => {
+            if (id) refresh()
+          })
         }
 
         watch(el, current => {

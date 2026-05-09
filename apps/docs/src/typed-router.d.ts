@@ -366,6 +366,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/composables/data/create-sortable': RouteRecordInfo<
+      '/composables/data/create-sortable',
+      '/composables/data/create-sortable',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/composables/data/create-virtual': RouteRecordInfo<
       '/composables/data/create-virtual',
       '/composables/data/create-virtual',
@@ -1350,6 +1357,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/data/create-pagination.md': {
       routes:
         | '/composables/data/create-pagination'
+      views:
+        | never
+    }
+    'src/pages/composables/data/create-sortable.md': {
+      routes:
+        | '/composables/data/create-sortable'
       views:
         | never
     }
