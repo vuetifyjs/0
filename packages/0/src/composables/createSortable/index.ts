@@ -257,18 +257,18 @@ export function createSortable<
     if (toValue(disabled)) return
     const currentSize = model.size
     if (ids.length !== currentSize) {
-      logger.warn(`[createSortable] reorder: expected ${currentSize} ids, got ${ids.length}`)
+      logger.warn(`Reorder expected ${currentSize} ids, got ${ids.length}.`)
       return
     }
     const known = new Set(model.keys())
     const seen = new Set<ID>()
     for (const id of ids) {
       if (!known.has(id)) {
-        logger.warn(`[createSortable] reorder: unknown id "${String(id)}"`)
+        logger.warn(`Reorder contains unknown id "${String(id)}".`)
         return
       }
       if (seen.has(id)) {
-        logger.warn(`[createSortable] reorder: duplicate id "${String(id)}"`)
+        logger.warn(`Reorder contains duplicate id "${String(id)}".`)
         return
       }
       seen.add(id)
