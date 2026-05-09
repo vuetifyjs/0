@@ -76,8 +76,8 @@ describe('createSortable', () => {
     it('should emit move:ticket with from/to when index changes', () => {
       const sortable = createSortable<StringTicket>()
       const a = sortable.register({ value: 'a' })
-      const b = sortable.register({ value: 'b' })
-      const c = sortable.register({ value: 'c' })
+      sortable.register({ value: 'b' })
+      sortable.register({ value: 'c' })
 
       const events: Array<{ ticketId: ID, from: number, to: number }> = []
       sortable.on('move:ticket', payload => {
@@ -88,9 +88,6 @@ describe('createSortable', () => {
 
       expect(events).toHaveLength(1)
       expect(events[0]).toEqual({ ticketId: a.id, from: 0, to: 2 })
-
-      void b
-      void c
     })
 
     it('should not emit move:ticket when toIndex equals current index', () => {
@@ -321,10 +318,9 @@ describe('createSortable', () => {
       const a = sortable.register({ value: 'a', disabled: true })
       const b = sortable.register({ value: 'b' })
 
-      const movedIds: Array<string | number> = []
+      const movedIds: ID[] = []
       sortable.on('move:ticket', payload => {
-        const p = payload as { ticket: { id: string | number } }
-        movedIds.push(p.ticket.id)
+        movedIds.push(payload.ticket.id)
       })
 
       sortable.reorder([b.id, a.id])

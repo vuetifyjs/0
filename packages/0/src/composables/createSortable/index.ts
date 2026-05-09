@@ -14,8 +14,13 @@
  * @example
  * ```ts
  * import { createSortable } from '@vuetify/v0'
+ * import type { SortableTicketInput } from '@vuetify/v0'
  *
- * const sortable = createSortable<{ id: number; label: string }>()
+ * interface TaskTicket extends SortableTicketInput {
+ *   value: { id: number; label: string }
+ * }
+ *
+ * const sortable = createSortable<TaskTicket>()
  * const a = sortable.register({ value: { id: 1, label: 'A' } })
  * const b = sortable.register({ value: { id: 2, label: 'B' } })
  *
@@ -45,7 +50,11 @@ import type { MaybeRefOrGetter } from 'vue'
  *
  * @example
  * ```ts
- * const sortable = createSortable<{ id: number; label: string }>()
+ * interface TaskTicket extends SortableTicketInput {
+ *   value: { id: number; label: string }
+ * }
+ *
+ * const sortable = createSortable<TaskTicket>()
  * sortable.register({ value: { id: 1, label: 'A' } })
  * ```
  */
@@ -69,7 +78,7 @@ export type SortableTicket<Z extends SortableTicketInput = SortableTicketInput> 
  * })
  * ```
  */
-export interface SortableOptions extends ModelOptions {
+export interface SortableOptions extends Omit<ModelOptions, 'events'> {
   /**
    * Mutation gate. When truthy, `move` / `swap` / `reorder` silently no-op.
    *
@@ -113,7 +122,7 @@ export interface SortableMovePayload<E extends SortableTicket = SortableTicket> 
 export interface SortableContext<
   Z extends SortableTicketInput = SortableTicketInput,
   E extends SortableTicket<Z> = SortableTicket<Z>,
-> extends Omit<ModelContext<Z, E>, 'on' | 'off'> {
+> extends Omit<ModelContext<Z, E>, 'on' | 'off' | 'move'> {
   /**
    * Subscribe to the typed `move:ticket` event with a strongly-typed payload.
    *
@@ -126,6 +135,22 @@ export interface SortableContext<
    */
   on: ((event: 'move:ticket', cb: (data: SortableMovePayload<E>) => void) => void) & (<K extends Extensible<RegistryEventName>>(event: K, cb: RegistryEventCallback<E, K>) => void)
   off: ((event: 'move:ticket', cb: (data: SortableMovePayload<E>) => void) => void) & (<K extends Extensible<RegistryEventName>>(event: K, cb: RegistryEventCallback<E, K>) => void)
+  /**
+   * Move a ticket to a target index. Other tickets shift to fill.
+   * Emits `move:ticket` once when the index actually changes — a move whose
+   * `toIndex` already equals the ticket's current index is a no-op.
+   * No-ops when the root sortable is disabled or when the ticket is disabled.
+   *
+   * @param id Ticket id to move.
+   * @param toIndex Target index (zero-based).
+   * @returns The moved ticket, or `undefined` when the move was gated or the id is unknown.
+   *
+   * @example
+   * ```ts
+   * sortable.move(ticket.id, 2)
+   * ```
+   */
+  move: (id: ID, toIndex: number) => E | undefined
   /**
    * Swap two tickets' positions. Emits `move:ticket` twice — once per ticket.
    * No-ops when the root sortable is disabled or when either ticket is disabled.
@@ -176,8 +201,7 @@ export function createSortable<
   E extends SortableTicket<Z> = SortableTicket<Z>,
 > (_options: SortableOptions = {}): SortableContext<Z, E> {
   const { disabled, ...options } = _options
-  // Force events: true so move:ticket always emits.
-  // Spread options first so consumer cannot defeat the contract.
+  // move:ticket emission requires events: true.
   const model = createModel<Z, E>({ ...options, events: true, disabled })
 
   // Internal: bypasses disabled gates. move/swap pre-check; reorder ignores per-ticket disabled.
@@ -220,7 +244,7 @@ export function createSortable<
 
   function reorder (ids: ID[]): void {
     if (toValue(disabled)) return
-    const currentSize = model.values().length
+    const currentSize = model.size
     if (ids.length !== currentSize) {
       throw new Error(`[createSortable] reorder: expected ${currentSize} ids, got ${ids.length}`)
     }
