@@ -27,7 +27,7 @@ Headless ordered-list primitive that owns a registry of value-bearing tickets an
 
 `createSortable` extends `createModel` with mutation primitives over the canonical order. Drag-and-drop wiring composes with [useDragDrop](/composables/system/use-drag-drop); keyboard reorder composes with [useVirtualFocus](/composables/system/use-virtual-focus). Consumers can drive sortable from buttons, gestures, server reconciliation, or undo/redo by calling its mutation methods.
 
-```ts
+```ts collapse
 import { createSortable } from '@vuetify/v0'
 
 import type { SortableTicketInput } from '@vuetify/v0'
@@ -81,22 +81,21 @@ The composable adds four things on top of `createModel`:
 > [!TIP]
 > The composable always enables `events: true` on the underlying registry, so `move:ticket` works out of the box and `useProxyRegistry` snapshots track moves without extra configuration. Consumer-supplied `events: false` is overridden — sortable's `move:ticket` contract requires events to be on.
 
-## Disabling reorder
+## Reactivity
 
-`disabled` works at two scopes:
+createSortable's surface is mostly imperative — `move`, `swap`, and `reorder` mutate the registry and the reactive updates flow downstream through registry events. The composable bakes in `events: true` so `move:ticket` and the standard registry events fire without extra setup.
 
-- **Root** (`createSortable({ disabled: true })`) — no-ops `move`, `swap`, `reorder`. Useful for whole-list states like "sprint locked" or "view-only mode."
-- **Per-ticket** (`register({ value, disabled: true })`) — no-ops `move(id, ...)` for that ticket and any `swap` that involves it. `reorder` **does NOT** honor per-ticket `disabled` — it's a bulk operation declaring the canonical order, and applying that order may relocate disabled tickets. If you want disabled tickets pinned during a `reorder`, exclude their ids from the array.
+| Property/Method | Reactive | Notes |
+| - | :-: | - |
+| `size` | <AppSuccessIcon /> | Getter — tracks registry count via `useProxyRegistry` or `reactive: true` |
+| `disabled` (option) | <AppSuccessIcon /> | `MaybeRefOrGetter<boolean>` — flipping it re-enables `move` / `swap` / `reorder` |
+| `move:ticket` event | <AppSuccessIcon /> | Subscribe via `on()`; payload is `SortableMovePayload<E>` with `{ ticket, from, to }` |
+| `move(id, toIndex)` | - | Imperative; returns the moved ticket or `undefined` when gated |
+| `swap(a, b)` | - | Imperative; emits `move:ticket` twice in a batch |
+| `reorder(ids)` | - | Imperative; logs a warning and no-ops on size/unknown/duplicate violations |
 
-Registration is NEVER gated. `register`, `onboard`, and `unregister` work regardless of `disabled` state.
-
-```ts
-const sortable = createSortable<Todo>({
-  disabled: toRef(() => isReadOnlyMode.value),
-})
-
-sortable.move(id, 0)   // no-op when disabled.value === true
-```
+> [!TIP] Reactive iteration
+> `useProxyRegistry(sortable)` returns a reactive `{ keys, values, entries, size }` snapshot driven by registry events. Templates that iterate it stay in sync with `move`, `swap`, and `reorder` automatically. See [Reactive snapshot for templates](#reactive-snapshot-for-templates).
 
 ## Examples
 
@@ -129,6 +128,18 @@ The natural use case. Pair `createSortable` with `useDragDrop`: each item regist
 :::
 
 ## Recipes
+
+### Disabling reorder
+
+`disabled` works at two scopes. **Root** (`createSortable({ disabled })`) no-ops `move`, `swap`, and `reorder` for the whole list. **Per-ticket** (`register({ value, disabled: true })`) no-ops `move` and `swap` for that ticket. `reorder` **bypasses** per-ticket `disabled` — it's a bulk operation declaring the canonical order; if you want disabled tickets pinned, exclude their ids from the array. Registration is never gated.
+
+```ts
+const sortable = createSortable<Todo>({
+  disabled: toRef(() => isReadOnlyMode.value),
+})
+
+sortable.move(id, 0)   // no-op when disabled.value === true
+```
 
 ### Server-reconciled order
 
