@@ -33,6 +33,7 @@
 
 // Composables
 import { createModel } from '#v0/composables/createModel'
+import { useLogger } from '#v0/composables/useLogger'
 
 // Utilities
 import { toValue } from 'vue'
@@ -114,6 +115,17 @@ export interface SortableMovePayload<E extends SortableTicket = SortableTicket> 
 }
 
 /**
+ * Listener-binding signature for a sortable instance — a typed overload for
+ * `move:ticket` plus the registry's generic event channel.
+ *
+ * @template E Output ticket type.
+ */
+export type SortableEventListener<E extends SortableTicket = SortableTicket> = {
+  (event: 'move:ticket', cb: (data: SortableMovePayload<E>) => void): void
+  <K extends Extensible<RegistryEventName>>(event: K, cb: RegistryEventCallback<E, K>): void
+}
+
+/**
  * Public API of a sortable instance.
  *
  * @template Z Input ticket type.
@@ -133,8 +145,8 @@ export interface SortableContext<
    * })
    * ```
    */
-  on: ((event: 'move:ticket', cb: (data: SortableMovePayload<E>) => void) => void) & (<K extends Extensible<RegistryEventName>>(event: K, cb: RegistryEventCallback<E, K>) => void)
-  off: ((event: 'move:ticket', cb: (data: SortableMovePayload<E>) => void) => void) & (<K extends Extensible<RegistryEventName>>(event: K, cb: RegistryEventCallback<E, K>) => void)
+  on: SortableEventListener<E>
+  off: SortableEventListener<E>
   /**
    * Move a ticket to a target index. Other tickets shift to fill.
    * Emits `move:ticket` once when the index actually changes — a move whose
@@ -168,9 +180,12 @@ export interface SortableContext<
    * Set the canonical order in one shot.
    *
    * @param ids Permutation of currently-registered ticket ids.
-   * @throws When `ids` length differs from registry size or contains an unknown id.
    *
    * @remarks
+   * Validates `ids.length === registry.size` and that every id is unique and known.
+   * Logs a warning via `useLogger()` and silently no-ops if any check fails — drag
+   * handlers that race against concurrent unregisters won't crash.
+   *
    * Honors root `disabled` (whole call no-ops). Per-ticket `disabled` is **ignored** —
    * `reorder` is a bulk operation declaring the canonical order, and applying that
    * order may move disabled tickets. If you want disabled tickets pinned, exclude
@@ -201,30 +216,20 @@ export function createSortable<
   E extends SortableTicket<Z> = SortableTicket<Z>,
 > (_options: SortableOptions = {}): SortableContext<Z, E> {
   const { disabled, ...options } = _options
-  // move:ticket emission requires events: true.
   const model = createModel<Z, E>({ ...options, events: true, disabled })
-
-  // Internal: bypasses disabled gates. move/swap pre-check; reorder ignores per-ticket disabled.
-  // Optional fromOverride lets reorder pass pre-loop indices so emits reflect bulk
-  // semantics (every id whose final position differs from initial gets a move:ticket),
-  // independent of registry-side reindex displacement during the loop.
-  function emitMove (id: ID, toIndex: number, fromOverride?: number): E | undefined {
-    const ticket = model.get(id)
-    if (!ticket) return undefined
-    const from = fromOverride ?? ticket.index
-    const result = model.move(id, toIndex)
-    if (result && result.index !== from) {
-      model.emit('move:ticket', { ticket: result, from, to: result.index })
-    }
-    return result
-  }
+  const logger = useLogger()
 
   function move (id: ID, toIndex: number): E | undefined {
     if (toValue(disabled)) return undefined
     const ticket = model.get(id)
     if (!ticket) return undefined
     if (toValue(ticket.disabled)) return undefined
-    return emitMove(id, toIndex)
+    const from = ticket.index
+    const result = model.move(id, toIndex)
+    if (result && result.index !== from) {
+      model.emit('move:ticket', { ticket: result, from, to: result.index })
+    }
+    return result
   }
 
   function swap (a: ID, b: ID): void {
@@ -237,8 +242,14 @@ export function createSortable<
     const indexA = ta.index
     const indexB = tb.index
     model.batch(() => {
-      emitMove(a, indexB, indexA)
-      emitMove(b, indexA, indexB)
+      const ra = model.move(a, indexB)
+      if (ra && ra.index !== indexA) {
+        model.emit('move:ticket', { ticket: ra, from: indexA, to: ra.index })
+      }
+      const rb = model.move(b, indexA)
+      if (rb && rb.index !== indexB) {
+        model.emit('move:ticket', { ticket: rb, from: indexB, to: rb.index })
+      }
     })
   }
 
@@ -246,16 +257,19 @@ export function createSortable<
     if (toValue(disabled)) return
     const currentSize = model.size
     if (ids.length !== currentSize) {
-      throw new Error(`[createSortable] reorder: expected ${currentSize} ids, got ${ids.length}`)
+      logger.warn(`[createSortable] reorder: expected ${currentSize} ids, got ${ids.length}`)
+      return
     }
     const known = new Set(model.keys())
     const seen = new Set<ID>()
     for (const id of ids) {
       if (!known.has(id)) {
-        throw new Error(`[createSortable] reorder: unknown id "${String(id)}"`)
+        logger.warn(`[createSortable] reorder: unknown id "${String(id)}"`)
+        return
       }
       if (seen.has(id)) {
-        throw new Error(`[createSortable] reorder: duplicate id "${String(id)}"`)
+        logger.warn(`[createSortable] reorder: duplicate id "${String(id)}"`)
+        return
       }
       seen.add(id)
     }
@@ -269,7 +283,11 @@ export function createSortable<
     }
     model.batch(() => {
       for (const [index, id] of ids.entries()) {
-        emitMove(id, index, froms.get(id))
+        const from = froms.get(id)!
+        const result = model.move(id, index)
+        if (result && result.index !== from) {
+          model.emit('move:ticket', { ticket: result, from, to: result.index })
+        }
       }
     })
   }

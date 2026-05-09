@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 // Types
 import type { ID } from '#v0/types'
@@ -186,28 +186,49 @@ describe('createSortable', () => {
       expect(sortable.get(b.id)!.index).toBe(2)
     })
 
-    it('should throw when ids length differs from registry size', () => {
+    it('should warn and no-op when ids length differs from registry size', () => {
+      const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
       const sortable = createSortable<StringTicket>()
       const a = sortable.register({ value: 'a' })
-      sortable.register({ value: 'b' })
+      const b = sortable.register({ value: 'b' })
 
-      expect(() => sortable.reorder([a.id])).toThrow(/expected 2 ids, got 1/)
+      sortable.reorder([a.id])
+
+      expect(sortable.get(a.id)!.index).toBe(0)
+      expect(sortable.get(b.id)!.index).toBe(1)
+      expect(spy).toHaveBeenCalledTimes(1)
+      expect(spy).toHaveBeenCalledWith(expect.stringContaining('expected 2 ids, got 1'))
+      spy.mockRestore()
     })
 
-    it('should throw when ids contain an unknown id', () => {
+    it('should warn and no-op when ids contain an unknown id', () => {
+      const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
       const sortable = createSortable<StringTicket>()
       const a = sortable.register({ value: 'a' })
-      sortable.register({ value: 'b' })
+      const b = sortable.register({ value: 'b' })
 
-      expect(() => sortable.reorder([a.id, 'nope'])).toThrow(/unknown id/)
+      sortable.reorder([a.id, 'nope'])
+
+      expect(sortable.get(a.id)!.index).toBe(0)
+      expect(sortable.get(b.id)!.index).toBe(1)
+      expect(spy).toHaveBeenCalledTimes(1)
+      expect(spy).toHaveBeenCalledWith(expect.stringContaining('unknown id'))
+      spy.mockRestore()
     })
 
-    it('should throw when ids contain duplicates', () => {
+    it('should warn and no-op when ids contain duplicates', () => {
+      const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
       const sortable = createSortable<StringTicket>()
       const a = sortable.register({ value: 'a' })
-      sortable.register({ value: 'b' })
+      const b = sortable.register({ value: 'b' })
 
-      expect(() => sortable.reorder([a.id, a.id])).toThrow(/duplicate/)
+      sortable.reorder([a.id, a.id])
+
+      expect(sortable.get(a.id)!.index).toBe(0)
+      expect(sortable.get(b.id)!.index).toBe(1)
+      expect(spy).toHaveBeenCalledTimes(1)
+      expect(spy).toHaveBeenCalledWith(expect.stringContaining('duplicate'))
+      spy.mockRestore()
     })
 
     it('should be a no-op when given the current order', () => {
