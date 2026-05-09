@@ -34,7 +34,8 @@ import { toValue } from 'vue'
 
 // Types
 import type { ModelContext, ModelOptions, ModelTicket, ModelTicketInput } from '#v0/composables/createModel'
-import type { ID } from '#v0/types'
+import type { RegistryEventCallback, RegistryEventName } from '#v0/composables/createRegistry'
+import type { Extensible, ID } from '#v0/types'
 import type { MaybeRefOrGetter } from 'vue'
 
 /**
@@ -48,7 +49,7 @@ import type { MaybeRefOrGetter } from 'vue'
  * sortable.register({ value: { id: 1, label: 'A' } })
  * ```
  */
-export interface SortableTicketInput<V = unknown> extends ModelTicketInput<V> {}
+export type SortableTicketInput<V = unknown> = ModelTicketInput<V>
 
 /**
  * Output ticket returned by `register` / `onboard` / `get`.
@@ -73,13 +74,11 @@ export interface SortableOptions extends ModelOptions {
    * Mutation gate. When truthy, `move` / `swap` / `reorder` silently no-op.
    *
    * @default false
-   * @remarks Overrides the inherited `createModel` semantics. In `createModel`,
-   * `disabled` is a UI hint; in sortable, the dominant verb is movement, so
-   * `disabled` gates movement directly. Per-ticket `disabled` is honored at the
-   * `move` and `swap` call sites for that ticket. `reorder` **bypasses**
-   * per-ticket `disabled` — it's a bulk operation declaring the canonical order,
-   * and applying that order may relocate disabled tickets. `register` / `onboard` /
-   * `unregister` are NEVER gated — those are composition, not user-driven reorder.
+   * @remarks Per-ticket `disabled` is honored at the `move` and `swap` call sites
+   * for that ticket. `reorder` **bypasses** per-ticket `disabled` — it's a bulk
+   * operation declaring the canonical order, and applying that order may relocate
+   * disabled tickets. `register` / `onboard` / `unregister` are NEVER gated —
+   * those are composition, not user-driven reorder.
    *
    * @example
    * ```ts
@@ -114,7 +113,19 @@ export interface SortableMovePayload<E extends SortableTicket = SortableTicket> 
 export interface SortableContext<
   Z extends SortableTicketInput = SortableTicketInput,
   E extends SortableTicket<Z> = SortableTicket<Z>,
-> extends ModelContext<Z, E> {
+> extends Omit<ModelContext<Z, E>, 'on' | 'off'> {
+  /**
+   * Subscribe to the typed `move:ticket` event with a strongly-typed payload.
+   *
+   * @example
+   * ```ts
+   * sortable.on('move:ticket', ({ ticket, from, to }) => {
+   *   console.log(ticket.id, from, to)
+   * })
+   * ```
+   */
+  on: ((event: 'move:ticket', cb: (data: SortableMovePayload<E>) => void) => void) & (<K extends Extensible<RegistryEventName>>(event: K, cb: RegistryEventCallback<E, K>) => void)
+  off: ((event: 'move:ticket', cb: (data: SortableMovePayload<E>) => void) => void) & (<K extends Extensible<RegistryEventName>>(event: K, cb: RegistryEventCallback<E, K>) => void)
   /**
    * Swap two tickets' positions. Emits `move:ticket` twice — once per ticket.
    * No-ops when the root sortable is disabled or when either ticket is disabled.
@@ -165,9 +176,9 @@ export function createSortable<
   E extends SortableTicket<Z> = SortableTicket<Z>,
 > (_options: SortableOptions = {}): SortableContext<Z, E> {
   const { disabled, ...options } = _options
-  // Bake in events: true so `move:ticket` works by default. Consumer can still
-  // override via `options.events = false` if they really want a silent registry.
-  const model = createModel<Z, E>({ events: true, disabled, ...options })
+  // Force events: true so move:ticket always emits.
+  // Spread options first so consumer cannot defeat the contract.
+  const model = createModel<Z, E>({ ...options, events: true, disabled })
 
   // Internal: bypasses disabled gates. move/swap pre-check; reorder ignores per-ticket disabled.
   // Optional fromOverride lets reorder pass pre-loop indices so emits reflect bulk
@@ -214,10 +225,15 @@ export function createSortable<
       throw new Error(`[createSortable] reorder: expected ${currentSize} ids, got ${ids.length}`)
     }
     const known = new Set(model.keys())
+    const seen = new Set<ID>()
     for (const id of ids) {
       if (!known.has(id)) {
         throw new Error(`[createSortable] reorder: unknown id "${String(id)}"`)
       }
+      if (seen.has(id)) {
+        throw new Error(`[createSortable] reorder: duplicate id "${String(id)}"`)
+      }
+      seen.add(id)
     }
     // Capture initial indices so emits reflect the bulk semantic — every ticket
     // whose final position differs from where it started gets a move:ticket,

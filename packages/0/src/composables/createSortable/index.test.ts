@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 // Types
 import type { ID } from '#v0/types'
-import type { SortableMovePayload, SortableTicketInput } from './index'
+import type { SortableTicketInput } from './index'
 
 import { createSortable } from './index'
 
@@ -80,8 +80,7 @@ describe('createSortable', () => {
       const c = sortable.register({ value: 'c' })
 
       const events: Array<{ ticketId: ID, from: number, to: number }> = []
-      sortable.on('move:ticket', data => {
-        const payload = data as SortableMovePayload
+      sortable.on('move:ticket', payload => {
         events.push({ ticketId: payload.ticket.id, from: payload.from, to: payload.to })
       })
 
@@ -136,8 +135,7 @@ describe('createSortable', () => {
       const c = sortable.register({ value: 'c' })
 
       const events: Array<{ ticketId: ID, from: number, to: number }> = []
-      sortable.on('move:ticket', data => {
-        const payload = data as SortableMovePayload
+      sortable.on('move:ticket', payload => {
         events.push({ ticketId: payload.ticket.id, from: payload.from, to: payload.to })
       })
 
@@ -205,6 +203,14 @@ describe('createSortable', () => {
       sortable.register({ value: 'b' })
 
       expect(() => sortable.reorder([a.id, 'nope'])).toThrow(/unknown id/)
+    })
+
+    it('should throw when ids contain duplicates', () => {
+      const sortable = createSortable<StringTicket>()
+      const a = sortable.register({ value: 'a' })
+      sortable.register({ value: 'b' })
+
+      expect(() => sortable.reorder([a.id, a.id])).toThrow(/duplicate/)
     })
 
     it('should be a no-op when given the current order', () => {
