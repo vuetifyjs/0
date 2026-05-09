@@ -56,7 +56,7 @@ sortable.reorder([b.id, a.id, c.id])
 
 ## Architecture
 
-`createSortable` extends `createModel`, which extends `createRegistry`. The full inherited surface (`register`, `onboard`, `unregister`, `lookup`, `browse`, `seek`, `keys`, `values`, `entries`, `clear`, `on`, `off`, `emit`, `batch`, `disabled`, `isSelected`) is available unchanged.
+`createSortable` extends `createModel`, which extends `createRegistry`. All methods inherited from those layers are available unchanged, except `on` and `off` — those are extended with typed overloads for the `move:ticket` event. See [createModel](/composables/selection/create-model) and [createRegistry](/composables/registration/create-registry) for the full inherited surface.
 
 ```mermaid "Sortable Hierarchy"
 flowchart TD
@@ -69,16 +69,17 @@ flowchart TD
   reorder -- "emits" --> moveEvent
 ```
 
-The composable adds three things on top of `createModel`:
+The composable adds four things on top of `createModel`:
 
 | Addition | Layer | Purpose |
 |---|---|---|
 | `move` override | sortable | Wraps `registry.move` to emit `move:ticket` with `{ ticket, from, to }` |
 | `swap(a, b)` | sortable | Two batched `move` calls; emits two `move:ticket` events |
-| `reorder(ids)` | sortable | Strict permutation set; throws on length mismatch or unknown id |
+| `reorder(ids)` | sortable | Strict permutation set; throws on length mismatch, unknown id, or duplicate id |
+| Typed `on` / `off` | sortable | Overloads narrow `move:ticket` callback payload to `SortableMovePayload<E>` |
 
 > [!TIP]
-> The composable bakes `events: true` into the underlying registry by default, so `move:ticket` works out of the box and `useProxyRegistry` snapshots track moves without extra configuration.
+> The composable always enables `events: true` on the underlying registry, so `move:ticket` works out of the box and `useProxyRegistry` snapshots track moves without extra configuration. Consumer-supplied `events: false` is overridden — sortable's `move:ticket` contract requires events to be on.
 
 ## Disabling reorder
 
@@ -97,30 +98,33 @@ const sortable = createSortable<Todo>({
 sortable.move(id, 0)   // no-op when disabled.value === true
 ```
 
-`createSortable` overrides the inherited `createModel` semantics for `disabled`. In `createModel`, `disabled` is a UI hint; in sortable, the dominant verb is movement, so `disabled` gates movement directly.
-
 ## Examples
+
+::: example
+/composables/create-sortable/basic
 
 ### Button-driven reorder
 
 The simplest case — register items, expose up/down buttons, call `move(id, ticket.index ± 1)`. No DnD, no event subscriptions, no helper composable. This is the API surface area you actually need 80% of the time.
 
-::: example
-/composables/create-sortable/basic
 :::
-
-### Drag-and-drop reorder
-
-The natural use case. Pair `createSortable` with `useDragDrop`: each item registers as a draggable, the list registers as a drop zone, and the zone's `onDrop` callback maps the drop position to a `sortable.move` call.
 
 ::: example
 /composables/create-sortable/dnd/data.ts
 /composables/create-sortable/dnd/DraggableItem.vue
 /composables/create-sortable/dnd/DnDSortable.vue
 
-### DnD-driven sortable
+### Drag-and-drop reorder
 
-`createSortable` owns the order; `useDragDrop` owns the input modality. The integration is one zone callback — `(drag, position) => sortable.move(drag.value, position.index ?? 0)`.
+The natural use case. Pair `createSortable` with `useDragDrop`: each item registers as a draggable, the list registers as a drop zone, and the zone's `onDrop` callback maps the drop position to a `sortable.move` call. createSortable owns the order; useDragDrop owns the input modality.
+
+**File breakdown:**
+
+| File | Role |
+|------|------|
+| `data.ts` | Initial item dataset |
+| `DraggableItem.vue` | Per-item draggable registration |
+| `DnDSortable.vue` | Container with drop zone, indicator, and `onDrop → sortable.move` wiring |
 
 :::
 
