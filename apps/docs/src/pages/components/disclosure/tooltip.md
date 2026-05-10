@@ -31,7 +31,11 @@ Headless description tooltip with hover and focus triggers, configurable open/cl
 
 ## Anatomy
 
-```vue playground collapse
+```vue Anatomy playground
+<script setup lang="ts">
+  import { Tooltip } from '@vuetify/v0'
+</script>
+
 <template>
   <Tooltip>
     <Tooltip.Root>
@@ -78,8 +82,8 @@ The strict WAI-ARIA APG tooltip pattern forbids interactive content; if you need
 | Concern | Behavior |
 |---------|----------|
 | Role | Content renders `role="tooltip"` |
-| Linkage | Activator gets `aria-describedby={contentId}` while open |
-| Keyboard | Focus opens instantly (no delay), Escape closes, Enter / Space close (the underlying control activates) |
+| Linkage | Activator always carries `aria-describedby={contentId}` so screen readers announce the description on focus |
+| Keyboard | Focus opens instantly (no delay), Escape closes; Enter / Space activate the underlying control, which closes via click |
 | Touch | Tooltips are not shown on touch interactions per the WAI-ARIA APG |
 | Hoverable content | Off by default; opt-in with `interactive` on `<Tooltip.Root>` |
 
@@ -95,13 +99,13 @@ Touch devices have no hover state, and showing a tooltip on tap competes with wh
 
 Install the plugin: `app.use(createTooltipPlugin({ openDelay: 500 }))`. Every `<Tooltip.Root>` reads from the region — wrap a subtree in `<Tooltip>` for region-specific overrides.
 
-??? Why doesn't `<Tooltip.Activator>` open when I focus it via mouse click?
+??? Why doesn't Tooltip.Activator open when I focus it via mouse click?
 
 The activator suppresses focus-driven opens that arrive within ~50 ms of a `pointerdown`, so a click doesn't double-trigger as both click-close and focus-open. Keyboard-driven focus (Tab) opens instantly.
 
 ??? How do I render a non-button activator?
 
-`<Tooltip.Activator>` defaults to `as="button"`; pass `as="a"`, `as="div"`, etc. to render a different element. Always ensure the activator is keyboard-focusable (`tabindex="0"` on a non-button if needed).
+The activator defaults to `as="button"`; pass `as="a"`, `as="div"`, etc. to render a different element. Always ensure the activator is keyboard-focusable (`tabindex="0"` on a non-button if needed).
 
 :::
 

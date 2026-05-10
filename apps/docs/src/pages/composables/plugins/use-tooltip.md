@@ -66,7 +66,7 @@ flowchart LR
 | `disabled` | `Readonly<Ref<boolean>>` | Region-wide disabled flag |
 | `isAnyOpen` | `Readonly<Ref<boolean>>` | True when any registered tooltip is currently open |
 | `shouldSkipOpenDelay` | `() => boolean` | Whether the next open should bypass the delay |
-| `register` | `(input: { id: ID }) => RegistryTicket` | Track a newly-opened tooltip |
+| `register` | `(input?: Partial<RegistryTicketInput>) => RegistryTicket` | Track a newly-opened tooltip |
 | `unregister` | `(id: ID) => void` | Untrack a closed tooltip |
 
 ## Examples

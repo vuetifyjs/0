@@ -1,13 +1,16 @@
-<!--
-  @module Tooltip
-
-  @see https://0.vuetifyjs.com/components/disclosure/tooltip
-
-  @remarks
-  Scoped tooltip-defaults provider. Mirrors `<Theme>` and `<Locale>`.
-  Optional — `<Tooltip.Root>` works without a wrapper when the plugin
-  default values are sufficient.
--->
+/**
+ * @module Tooltip
+ *
+ * @see https://0.vuetifyjs.com/components/disclosure/tooltip
+ *
+ * @remarks
+ * Scoped tooltip-defaults provider. Mirrors the Theme and Locale providers.
+ * Overrides openDelay, closeDelay, skipDelay, and disabled for descendants;
+ * the underlying registry and warmup window are shared with the parent
+ * context (and ultimately with the plugin), so a single open tooltip primes
+ * warmup across every scope. Optional — Tooltip.Root works without a wrapper
+ * when the plugin defaults are sufficient.
+ */
 
 <script lang="ts">
   // Components

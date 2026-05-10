@@ -1,15 +1,15 @@
-<!--
-  @module TooltipContent
-
-  @see https://0.vuetifyjs.com/components/disclosure/tooltip
-
-  @remarks
-  Tooltip content surface. Renders `role="tooltip"`, the native popover
-  attribute, anchor positioning styles, and direction data attributes.
-  In `interactive` mode (set on `<Tooltip.Root>`), pointer enter/leave
-  handlers cancel and re-arm the close timer so the user can move into
-  the content without dismissing it.
--->
+/**
+ * @module TooltipContent
+ *
+ * @see https://0.vuetifyjs.com/components/disclosure/tooltip
+ *
+ * @remarks
+ * Tooltip content surface. Renders role="tooltip", the native popover
+ * attribute, anchor positioning styles, and direction data attributes.
+ * In interactive mode (set on Tooltip.Root), pointer enter/leave handlers
+ * cancel and re-arm the close timer so the user can move into the content
+ * without dismissing it.
+ */
 
 <script lang="ts">
   // Components
@@ -19,6 +19,9 @@
 
   // Utilities
   import { mergeProps, toRef, useAttrs, useTemplateRef } from 'vue'
+
+  // Transformers
+  import { toElement } from '#v0/composables/toElement'
 
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
@@ -30,7 +33,16 @@
   export interface TooltipContentSlotProps {
     isOpen: boolean
     isInteractive: boolean
-    attrs: Record<string, unknown>
+    attrs: {
+      'id': string
+      'role': 'tooltip'
+      'popover': ''
+      'data-state': 'closed' | 'delayed-open' | 'instant-open'
+      'data-side': 'top' | 'bottom' | 'left' | 'right' | undefined
+      'data-interactive': true | undefined
+      'onPointerenter'?: (e: PointerEvent) => void
+      'onPointerleave'?: (e: PointerEvent) => void
+    }
     styles: Record<string, string>
   }
 </script>
@@ -40,6 +52,7 @@
 
   const attrs = useAttrs()
   const atomRef = useTemplateRef<AtomExpose>('atom')
+  const el = toRef(() => toElement(atomRef.value?.element) ?? null)
 
   defineSlots<{
     default: (props: TooltipContentSlotProps) => any
@@ -53,7 +66,7 @@
 
   const root = useTooltipRoot(namespace)
 
-  root.attach(() => (atomRef.value?.element as HTMLElement | null | undefined) ?? null)
+  root.attach(() => (el.value ?? undefined) as HTMLElement | undefined)
 
   function onPointerenter () {
     if (!root.isInteractive.value) return

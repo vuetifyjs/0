@@ -14,7 +14,7 @@
       <Tooltip.Content
         class="flex gap-2 px-3 py-2 rounded bg-on-surface text-surface text-xs shadow-md"
       >
-        <button class="underline" @click="$event.target.dispatchEvent(new Event('click'))">Edit</button>
+        <button class="underline">Edit</button>
         <button class="underline">Delete</button>
       </Tooltip.Content>
     </Tooltip.Root>

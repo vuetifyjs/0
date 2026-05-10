@@ -17,6 +17,7 @@ describe('tooltip', () => {
   })
 
   afterEach(() => {
+    vi.useRealTimers()
     vi.restoreAllMocks()
   })
 
@@ -79,7 +80,7 @@ describe('tooltip', () => {
       const wrapper = mount(defineComponent({
         setup () {
           return () =>
-            h(Tooltip.Root, { defaultOpen: true }, () => [
+            h(Tooltip.Root, { modelValue: true }, () => [
               h(Tooltip.Activator, null, () => 'Trigger'),
               h(Tooltip.Content, null, () => 'Tip'),
             ])

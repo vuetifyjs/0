@@ -1,14 +1,14 @@
-<!--
-  @module TooltipRoot
-
-  @see https://0.vuetifyjs.com/components/disclosure/tooltip
-
-  @remarks
-  Compound root for a single tooltip instance. Composes `usePopover`
-  for state and anchor positioning, layers `useDelay` for region-aware
-  open/close transitions, and registers with the `useTooltip` region
-  context for skip-window coordination.
--->
+/**
+ * @module TooltipRoot
+ *
+ * @see https://0.vuetifyjs.com/components/disclosure/tooltip
+ *
+ * @remarks
+ * Compound root for a single tooltip instance. Composes usePopover for
+ * state and anchor positioning, layers useDelay for region-aware open
+ * and close transitions, and registers with the useTooltip region context
+ * for skip-window coordination.
+ */
 
 <script lang="ts">
   // Components
@@ -27,11 +27,9 @@
   // Types
   import type { AtomProps } from '#v0/components/Atom'
   import type { ID } from '#v0/types'
-  import type { Ref } from 'vue'
+  import type { Ref, ShallowRef } from 'vue'
 
   export interface TooltipRootProps extends AtomProps {
-    open?: boolean
-    defaultOpen?: boolean
     openDelay?: number
     closeDelay?: number
     disabled?: boolean
@@ -48,11 +46,11 @@
 
   export interface TooltipRootContext {
     id: string
-    isOpen: Ref<boolean>
+    isOpen: ShallowRef<boolean>
     isDisabled: Readonly<Ref<boolean>>
     isInteractive: Readonly<Ref<boolean>>
-    dataState: Readonly<Ref<'open' | 'closed' | 'delayed-open' | 'instant-open'>>
-    dataSide: Readonly<Ref<'top' | 'bottom' | 'left' | 'right'>>
+    dataState: Readonly<Ref<'closed' | 'delayed-open' | 'instant-open'>>
+    dataSide: Readonly<Ref<'top' | 'bottom' | 'left' | 'right' | undefined>>
     open: () => void
     close: () => void
     cancel: () => void
@@ -72,10 +70,13 @@
     default: (props: TooltipRootSlotProps) => any
   }>()
 
+  defineEmits<{
+    'update:model-value': [value: boolean]
+  }>()
+
   const {
     as = 'div',
     renderless,
-    defaultOpen = false,
     openDelay,
     closeDelay,
     disabled = false,
@@ -85,22 +86,18 @@
     namespace = 'v0:tooltip',
   } = defineProps<TooltipRootProps>()
 
-  const model = defineModel<boolean>('open', { default: undefined })
+  const isOpen = defineModel<boolean>({ default: false })
 
   const region = useTooltip()
 
   const isDisabled = toRef(() => disabled || region.disabled.value)
-  const isInteractive = toRef(() => interactive)
-
-  const isOpen: Ref<boolean> = isUndefined(model.value)
-    ? shallowRef(defaultOpen)
-    : (model as Ref<boolean>)
 
   const popover = usePopover({ isOpen, positionArea, positionTry })
 
   const skippedDelay = shallowRef(false)
 
   const delay = useDelay(direction => {
+    if (direction && isDisabled.value) return
     isOpen.value = direction
     skippedDelay.value = false
   }, {
@@ -108,7 +105,7 @@
     closeDelay: toRef(() => closeDelay ?? region.closeDelay.value),
   })
 
-  function _open () {
+  function open () {
     if (isDisabled.value) return
     if (region.shouldSkipOpenDelay()) {
       skippedDelay.value = true
@@ -120,11 +117,11 @@
     delay.start(true)
   }
 
-  function _close () {
+  function close () {
     delay.start(false)
   }
 
-  function _cancel () {
+  function cancel () {
     delay.stop()
   }
 
@@ -144,28 +141,29 @@
     if (!isUndefined(ticketId)) region.unregister(ticketId)
   })
 
-  const dataState = toRef((): 'open' | 'closed' | 'delayed-open' | 'instant-open' => {
+  const dataState = toRef((): 'closed' | 'delayed-open' | 'instant-open' => {
     if (!isOpen.value) return 'closed'
     if (skippedDelay.value) return 'instant-open'
     return 'delayed-open'
   })
 
-  const dataSide = toRef((): 'top' | 'bottom' | 'left' | 'right' => {
+  const dataSide = toRef((): 'top' | 'bottom' | 'left' | 'right' | undefined => {
     const area = positionArea.split(' ')[0]
-    if (area === 'top' || area === 'bottom' || area === 'left' || area === 'right') return area
-    return 'top'
+    return area === 'top' || area === 'bottom' || area === 'left' || area === 'right'
+      ? area
+      : undefined
   })
 
   const context: TooltipRootContext = {
     id: popover.id,
     isOpen,
     isDisabled,
-    isInteractive,
+    isInteractive: toRef(() => interactive),
     dataState,
     dataSide,
-    open: _open,
-    close: _close,
-    cancel: _cancel,
+    open,
+    close,
+    cancel,
     contentAttrs: popover.contentAttrs,
     contentStyles: popover.contentStyles,
     anchorStyles: popover.anchorStyles,

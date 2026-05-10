@@ -1,13 +1,15 @@
-<!--
-  @module TooltipActivator
-
-  @see https://0.vuetifyjs.com/components/disclosure/tooltip
-
-  @remarks
-  Tooltip trigger element. Binds pointer / focus / escape events and
-  exposes them on slot `attrs` for renderless usage. Touch interactions
-  are suppressed per WAI-ARIA APG; keyboard focus is always instant.
--->
+/**
+ * @module TooltipActivator
+ *
+ * @see https://0.vuetifyjs.com/components/disclosure/tooltip
+ *
+ * @remarks
+ * Tooltip trigger element. Binds pointer, focus, and escape events and
+ * exposes them on slot attrs for renderless usage. Touch interactions
+ * are suppressed per WAI-ARIA APG. Keyboard focus respects openDelay
+ * the same as hover, but is exempt from the pointerdown suppression
+ * window so a click that incidentally moves focus does not double-trigger.
+ */
 
 <script lang="ts">
   // Components
@@ -16,10 +18,10 @@
   import { useTooltipRoot } from './TooltipRoot.vue'
 
   // Composables
-  import { useEventListener } from '#v0/composables/useEventListener'
+  import { useDocumentEventListener } from '#v0/composables/useEventListener'
 
   // Utilities
-  import { mergeProps, shallowRef, toRef, useAttrs } from 'vue'
+  import { mergeProps, toRef, useAttrs } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -32,8 +34,8 @@
     isOpen: boolean
     isDisabled: boolean
     attrs: {
-      'aria-describedby': string | undefined
-      'data-state': 'open' | 'closed' | 'delayed-open' | 'instant-open'
+      'aria-describedby': string
+      'data-state': 'closed' | 'delayed-open' | 'instant-open'
       'data-disabled': true | undefined
       'onPointerenter': (e: PointerEvent) => void
       'onPointerleave': (e: PointerEvent) => void
@@ -63,8 +65,8 @@
 
   const root = useTooltipRoot(namespace)
 
-  const recentPointerdownAt = shallowRef(0)
   const POINTERDOWN_FOCUS_WINDOW = 50
+  let recentPointerdownAt = 0
 
   function onPointerenter (e: PointerEvent) {
     if (e.pointerType === 'touch') return
@@ -78,11 +80,11 @@
 
   function onPointerdown (e: PointerEvent) {
     if (e.pointerType === 'touch') return
-    recentPointerdownAt.value = Date.now()
+    recentPointerdownAt = Date.now()
   }
 
   function onFocus () {
-    if ((Date.now() - recentPointerdownAt.value) < POINTERDOWN_FOCUS_WINDOW) return
+    if ((Date.now() - recentPointerdownAt) < POINTERDOWN_FOCUS_WINDOW) return
     root.cancel()
     root.open()
   }
@@ -97,24 +99,20 @@
   }
 
   function onKeydown (e: KeyboardEvent) {
-    if (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ') {
+    if (e.key === 'Escape') {
       root.close()
     }
   }
 
-  useEventListener<KeyboardEvent>(
-    () => globalThis.document?.documentElement,
-    'keydown',
-    e => {
-      if (e.key === 'Escape' && root.isOpen.value) root.close()
-    },
-  )
+  useDocumentEventListener('keydown', (e: KeyboardEvent) => {
+    if (e.key === 'Escape' && root.isOpen.value) root.close()
+  })
 
   const slotProps = toRef((): TooltipActivatorSlotProps => ({
     isOpen: root.isOpen.value,
     isDisabled: root.isDisabled.value,
     attrs: {
-      'aria-describedby': root.isOpen.value ? root.id : undefined,
+      'aria-describedby': root.id,
       'data-state': root.dataState.value,
       'data-disabled': root.isDisabled.value || undefined,
       'onPointerenter': onPointerenter,
