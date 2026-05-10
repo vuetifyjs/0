@@ -1,11 +1,11 @@
 <script setup lang="ts">
-  import { shallowRef } from 'vue'
+  import { computed, shallowRef } from 'vue'
   import { toHighlight } from '@vuetify/v0'
 
   const query = shallowRef('lorem')
   const text = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.'
 
-  const chunks = toHighlight({ text, query })
+  const chunks = computed(() => toHighlight(text, query))
 </script>
 
 <template>

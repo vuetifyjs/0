@@ -17,7 +17,7 @@
     [63, 68], // dozen
   ]
 
-  const chunks = toHighlight({ text, matches })
+  const chunks = toHighlight(text, undefined, { matches })
 </script>
 
 <template>

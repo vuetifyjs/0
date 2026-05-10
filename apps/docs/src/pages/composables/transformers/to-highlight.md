@@ -2,7 +2,7 @@
 title: toHighlight - Text Search Highlighting for Vue 3
 meta:
   - name: description
-    content: Pure Vue 3 transformer that splits text into matched and unmatched chunks given a query string or pre-computed match ranges. No DOM, no state — just a ComputedRef<HighlightChunk[]>.
+    content: Pure Vue 3 transformer that splits text into matched and unmatched chunks given a query string or pre-computed match ranges. No DOM, no state, no reactivity — just a HighlightChunk array. Wrap in computed() for reactive recomputation.
   - name: keywords
     content: highlight, text search, mark, query, search terms, Vue 3, headless, transformer, filter, autocomplete, MatchRange
 features:
@@ -18,20 +18,19 @@ related:
 
 # toHighlight
 
-Pure transformer that splits text into matched and unmatched chunks. Returns a `ComputedRef<HighlightChunk[]>` — render it however you like.
+Pure transformer that splits text into matched and unmatched chunks. Returns a plain `HighlightChunk[]` — wrap the call in `computed()` for reactive recomputation.
 
 <DocsPageFeatures :frontmatter />
 
 ## Usage
 
 ```ts collapse
+import { computed } from 'vue'
 import { toHighlight } from '@vuetify/v0'
 
-const chunks = toHighlight({
-  text: () => props.text,
-  query: () => props.query,
-  ignoreCase: true,
-})
+const chunks = computed(() =>
+  toHighlight(() => props.text, () => props.query, { ignoreCase: true })
+)
 // chunks.value → [{ text: 'Hello ', match: false }, { text: 'World', match: true }]
 ```
 
@@ -56,20 +55,21 @@ flowchart LR
 
 ## Reactivity
 
-`toHighlight` returns a **`ComputedRef<HighlightChunk[]>`**. The chunks array recomputes
-whenever any of its `MaybeRefOrGetter` inputs change — `text`, `query`, `matches`, `matchAll`,
-`ignoreCase` are all read through `toValue`, so refs and getters track automatically.
+`toHighlight` is a pure transformer — it reads each input through `toValue` once and
+returns a plain `HighlightChunk[]`. To make the result track upstream changes, wrap the
+call in `computed()` (or any reactive scope). The function itself creates no reactivity.
 
 | Behavior | Reactive | Notes |
 | - | :-: | - |
-| Reading `chunks.value` | <AppSuccessIcon /> | Standard `ComputedRef` access |
-| Mutating `text`, `query`, `matches` | <AppSuccessIcon /> | Refs and getters tracked through `toValue` |
-| Toggling `ignoreCase` or `matchAll` | <AppSuccessIcon /> | Same `MaybeRefOrGetter` contract |
+| Calling `toHighlight(text, query)` | <AppErrorIcon /> | One-shot snapshot at call time |
+| Wrapping in `computed(() => toHighlight(...))` | <AppSuccessIcon /> | Re-runs when tracked refs change |
+| Passing refs or getters as arguments | <AppSuccessIcon /> | `toValue` unwraps them on every call |
 | Mutating returned chunks | <AppErrorIcon /> | Treat the array as derived; do not mutate |
 
 > [!TIP] Reach for plain values, refs, or getters
-> Every option accepts `MaybeRefOrGetter<T>`. Pass a literal for static input, a `Ref` for
-> v-model integration, or a getter (`() => props.text`) for prop-driven reactivity.
+> Every input accepts `MaybeRefOrGetter<T>`. Pass a literal for static input, a `Ref` for
+> v-model integration, or a getter (`() => props.text`) for prop-driven reactivity. Wrap
+> the call in `computed()` when you want the result to update automatically.
 
 ## Examples
 
@@ -78,11 +78,12 @@ whenever any of its `MaybeRefOrGetter` inputs change — `text`, `query`, `match
 
 ### Search input
 
-Live query against a paragraph. `toHighlight` returns a `ComputedRef` that recomputes
-whenever any reactive input changes — swap the `query` ref and the chunks update instantly
-without any manual wiring. Each `HighlightChunk` carries `{ text, match }`, so you control
-the full rendering: use a native `<mark>` for semantics and screen-reader compatibility,
-a `<strong>` for bold-only, or whatever your design calls for.
+Live query against a paragraph. The example wraps `toHighlight` in `computed()` so the
+chunks update instantly when the `query` ref changes — swap the search term and the
+markup re-renders without any manual wiring. Each `HighlightChunk` carries
+`{ text, match }`, so you control the full rendering: use a native `<mark>` for semantics
+and screen-reader compatibility, a `<strong>` for bold-only, or whatever your design
+calls for.
 
 Matching is case-insensitive by default (`ignoreCase: true`). Set `ignoreCase: false` to
 respect the exact casing in the source text.
@@ -175,13 +176,13 @@ the output is the same as if you had supplied the canonical sorted, non-overlapp
 
 ??? What happens when neither query nor matches is provided?
 
-The returned `ComputedRef` resolves to a single `[{ text: sourceText, match: false }]`
-chunk — the full string with no highlights. Safe to iterate without any guard.
+The function returns a single `[{ text: sourceText, match: false }]` chunk — the full
+string with no highlights. Safe to iterate without any guard.
 
 ??? Is it SSR-safe?
 
-Yes. `toHighlight` is a pure computed value with no DOM access. It is safe to call
-during SSR.
+Yes. `toHighlight` is a pure function with no DOM access and no reactive state. It is
+safe to call during SSR.
 :::
 
 <DocsApi />
