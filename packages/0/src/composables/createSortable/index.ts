@@ -146,6 +146,20 @@ export interface SortableContext<
    * ```
    */
   on: SortableEventListener<E>
+  /**
+   * Unsubscribe from a `move:ticket` listener. Must be called with the same callback reference used to subscribe.
+   *
+   * @example
+   * ```ts
+   * function onMove ({ ticket, from, to }: SortableMovePayload) {
+   *   console.log(ticket.id, from, to)
+   * }
+   *
+   * sortable.on('move:ticket', onMove)
+   * // later...
+   * sortable.off('move:ticket', onMove)
+   * ```
+   */
   off: SortableEventListener<E>
   /**
    * Move a ticket to a target index. Other tickets shift to fill.
