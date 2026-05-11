@@ -51,6 +51,9 @@ const LOOKUP_VALUE_10K = 'value-5000'
 const LOOKUP_INDEX_1K = 500
 const LOOKUP_INDEX_10K = 5000
 
+const PERMUTATION_1K = ITEMS_1K.map(item => item.id).toReversed()
+const PERMUTATION_10K = ITEMS_10K.map(item => item.id).toReversed()
+
 // =============================================================================
 // BENCHMARKS
 // =============================================================================
@@ -189,6 +192,18 @@ describe('createRegistry benchmarks', () => {
       const registry = createRegistry()
       registry.onboard(ITEMS_10K)
       registry.offboard(halfIds10k)
+    })
+
+    bench('Reorder reverse (1,000 items)', () => {
+      const registry = createRegistry()
+      registry.onboard(ITEMS_1K)
+      registry.reorder(PERMUTATION_1K)
+    })
+
+    bench('Reorder reverse (10,000 items)', () => {
+      const registry = createRegistry()
+      registry.onboard(ITEMS_10K)
+      registry.reorder(PERMUTATION_10K)
     })
   })
 
