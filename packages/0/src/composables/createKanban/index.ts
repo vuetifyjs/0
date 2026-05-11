@@ -57,11 +57,17 @@ import type {
 import type { Extensible, ID } from '#v0/types'
 import type { MaybeRefOrGetter } from 'vue'
 
+const REGISTRY_FIELDS = /* @__PURE__ */ new Set(['id', 'index', 'valueIsIndex', 'unregister', 'isSelected'])
+
 /**
  * Options accepted by `createKanban`.
  *
  * @example
  * ```ts
+ * import { createKanban } from '@vuetify/v0'
+ * import { shallowRef, toRef } from 'vue'
+ *
+ * const isReadOnly = shallowRef(false)
  * const kanban = createKanban({ disabled: toRef(() => isReadOnly.value) })
  * ```
  */
@@ -83,6 +89,8 @@ export interface KanbanOptions extends Omit<SortableOptions, 'events'> {
  *
  * @example
  * ```ts
+ * import type { KanbanColumnTicketInput, SortableTicketInput } from '@vuetify/v0'
+ *
  * interface CardTicket extends SortableTicketInput {
  *   value: { title: string }
  * }
@@ -114,6 +122,9 @@ export interface KanbanColumnTicketInput<
  *
  * @example
  * ```ts
+ * import { createKanban } from '@vuetify/v0'
+ *
+ * const kanban = createKanban()
  * const todo = kanban.columns.register({ value: { title: 'Todo' } })
  * todo.items.register({ value: { title: 'Write spec' } })
  * console.log(todo.id, todo.value.title, todo.items.size)
@@ -129,6 +140,10 @@ export type KanbanColumnTicket<
  *
  * @example
  * ```ts
+ * import { createKanban } from '@vuetify/v0'
+ *
+ * const kanban = createKanban()
+ *
  * kanban.on('transfer:ticket', ({ ticket, from, to, toIndex }) => {
  *   console.log(ticket.id, from, '→', to, '@', toIndex)
  * })
@@ -150,6 +165,10 @@ export interface KanbanTransferPayload<
  *
  * @example
  * ```ts
+ * import { createKanban } from '@vuetify/v0'
+ *
+ * const kanban = createKanban()
+ *
  * kanban.on('transfer:ticket', ({ ticket, from, to, toIndex }) => {
  *   console.log(ticket.id, from, '→', to, '@', toIndex)
  * })
@@ -175,6 +194,17 @@ export type KanbanEventListener<
  *
  * @example
  * ```ts
+ * import { createKanban } from '@vuetify/v0'
+ * import type { KanbanColumnTicketInput, SortableTicketInput } from '@vuetify/v0'
+ *
+ * interface CardTicket extends SortableTicketInput {
+ *   value: { title: string }
+ * }
+ *
+ * interface BoardColumn extends KanbanColumnTicketInput<CardTicket> {
+ *   value: { title: string }
+ * }
+ *
  * const kanban = createKanban<CardTicket, BoardColumn>()
  *
  * const [todo, done] = kanban.columns.onboard([
@@ -198,12 +228,30 @@ export interface KanbanContext<
   /**
    * Column registry. Use this for column register / unregister / move / swap / reorder.
    *
+   * @remarks
+   * Unregistering a column disposes its `items` sortable — all of the column's
+   * tickets are dropped and any subscribers attached to `column.items` are
+   * cleared. The internal cleanup runs before consumer-registered
+   * `unregister:ticket` handlers, so you cannot rescue items from inside that
+   * callback. To preserve items, move them before calling `unregister`.
+   *
    * @example
    * ```ts
+   * import { createKanban } from '@vuetify/v0'
+   *
    * const kanban = createKanban<CardTicket, BoardColumn>()
    * const todo = kanban.columns.register({ value: { title: 'Todo' } })
    * todo.items.register({ value: { title: 'Write spec' } })
    * kanban.columns.move(todo.id, 1)
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Reflow items into a fallback column before disposing the source column.
+   * for (const item of todo.items.values()) {
+   *   trash.items.register({ id: item.id, value: item.value })
+   * }
+   * todo.unregister()
    * ```
    */
   columns: SortableContext<ColZ, KanbanColumnTicket<ItemZ, ColZ>>
@@ -216,6 +264,12 @@ export interface KanbanContext<
    *
    * @example
    * ```ts
+   * import { createKanban } from '@vuetify/v0'
+   *
+   * const kanban = createKanban()
+   * const [todo, done] = kanban.columns.onboard([{ value: 'Todo' }, { value: 'Done' }])
+   * const card = todo.items.register({ value: 'Write spec' })
+   *
    * const moved = kanban.transfer(card.id, done.id, 0)
    * if (moved) console.log('landed at', moved.index)
    *
@@ -225,10 +279,16 @@ export interface KanbanContext<
    */
   transfer: (id: ID, toColumnId: ID, toIndex: number) => SortableTicket<ItemZ> | undefined
   /**
-   * Subscribe to kanban-level events. Today: `transfer:ticket` for cross-column moves.
+   * Subscribe to kanban-level events such as `transfer:ticket`. Registry events
+   * from the columns registry (e.g. `register:ticket`, `unregister:ticket`)
+   * are also reachable through this listener.
    *
    * @example
    * ```ts
+   * import { createKanban } from '@vuetify/v0'
+   *
+   * const kanban = createKanban()
+   *
    * kanban.on('transfer:ticket', ({ ticket, from, to, fromIndex, toIndex }) => {
    *   console.log(ticket.id, from, '→', to, '@', toIndex)
    * })
@@ -241,6 +301,11 @@ export interface KanbanContext<
    *
    * @example
    * ```ts
+   * import { createKanban } from '@vuetify/v0'
+   * import type { KanbanTransferPayload } from '@vuetify/v0'
+   *
+   * const kanban = createKanban<CardTicket>()
+   *
    * function onTransfer (data: KanbanTransferPayload<CardTicket>) {
    *   console.log(data.ticket.id)
    * }
@@ -261,6 +326,9 @@ export interface KanbanContext<
  *
  * @example
  * ```ts
+ * import { createKanban } from '@vuetify/v0'
+ * import type { KanbanColumnTicketInput, SortableTicketInput } from '@vuetify/v0'
+ *
  * interface CardTicket extends SortableTicketInput {
  *   value: { title: string }
  * }
@@ -296,8 +364,8 @@ export function createKanban<
 
   const bus = createRegistry({ events: true })
 
-  const on = ((event: string, cb: (data: unknown) => void) => bus.on(event, cb)) as KanbanEventListener<ItemZ, ColZ>
-  const off = ((event: string, cb: (data: unknown) => void) => bus.off(event, cb)) as KanbanEventListener<ItemZ, ColZ>
+  const on = bus.on as unknown as KanbanEventListener<ItemZ, ColZ>
+  const off = bus.off as unknown as KanbanEventListener<ItemZ, ColZ>
 
   const columns: SortableContext<ColZ, KanbanColumnTicket<ItemZ, ColZ>> = {
     ..._columns,
@@ -325,13 +393,11 @@ export function createKanban<
       return _columns.batch(() => registrations.map(reg => columns.register(reg)))
     },
     upsert (id: ID, patch: Partial<ColZ> = {}, event?: string): KanbanColumnTicket<ItemZ, ColZ> {
-      if (isUndefined(_columns.get(id))) {
-        return columns.register({ ...patch, id } as Partial<ColZ>)
-      }
-      return _columns.upsert(id, patch, event)
+      return isUndefined(_columns.get(id))
+        ? columns.register({ ...patch, id } as Partial<ColZ>)
+        : _columns.upsert(id, patch, event)
     },
-    // size is a getter; the `..._columns` spread above evaluates the getter once
-    // at construction time. Re-declare it here so reads track _columns.size live.
+    // Re-declared so reads track _columns.size live; the spread above froze the value.
     get size () {
       return _columns.size
     },
@@ -346,13 +412,13 @@ export function createKanban<
     if (isUndefined(accept)) return true
     try {
       const result: unknown = accept(ticket, from, toIndex)
-      if (isObject(result) && isFunction((result as { then?: unknown }).then)) {
-        logger.warn('createKanban.transfer: accept predicate returned a thenable; async predicates are not supported — treating as reject')
+      if (isObject(result) && 'then' in result && isFunction(result.then)) {
+        logger.warn('accept predicate returned a thenable; async predicates are not supported — treating as reject')
         return false
       }
       return Boolean(result)
     } catch (error) {
-      logger.error('createKanban.transfer: accept predicate threw; treating as reject', error)
+      logger.error('accept predicate threw; treating as reject', error)
       return false
     }
   }
@@ -369,25 +435,25 @@ export function createKanban<
   function transfer (id: ID, toColumnId: ID, toIndex: number): SortableTicket<ItemZ> | undefined {
     const fromColumnId = lookup.get(id)?.value
     if (isUndefined(fromColumnId)) {
-      logger.warn(`createKanban.transfer: unknown ticket id "${String(id)}"`)
+      logger.warn(`unknown ticket id "${String(id)}"`)
       return undefined
     }
 
     const source = columns.get(fromColumnId)
     if (!source) {
-      logger.warn(`createKanban.transfer: unknown source column id "${String(fromColumnId)}"`)
+      logger.warn(`unknown source column id "${String(fromColumnId)}"`)
       return undefined
     }
 
-    const dest = columns.get(toColumnId)
-    if (!dest) {
-      logger.warn(`createKanban.transfer: unknown destination column id "${String(toColumnId)}"`)
+    const destination = columns.get(toColumnId)
+    if (!destination) {
+      logger.warn(`unknown destination column id "${String(toColumnId)}"`)
       return undefined
     }
 
     const ticket = source.items.get(id)
     if (!ticket) {
-      logger.warn(`createKanban.transfer: ticket "${String(id)}" missing from source column "${String(fromColumnId)}"`)
+      logger.warn(`ticket "${String(id)}" missing from source column "${String(fromColumnId)}"`)
       return undefined
     }
 
@@ -397,38 +463,35 @@ export function createKanban<
       return source.items.move(id, toIndex)
     }
 
-    if (toValue(disabled)) return undefined
-    if (toValue(source.disabled)) return undefined
-    if (toValue(dest.disabled)) return undefined
-    if (toValue(ticket.disabled)) return undefined
-
-    if (!safeAccept(dest.accept, ticket, fromColumnId, toIndex)) return undefined
-
-    // Guard against corrupted-lookup state (duplicate id in two columns).
-    if (!isUndefined(dest.items.get(id))) {
-      logger.warn(`createKanban.transfer: id "${String(id)}" already exists in destination column "${String(toColumnId)}"`)
+    if (toValue(disabled) || toValue(source.disabled) || toValue(destination.disabled) || toValue(ticket.disabled)) {
       return undefined
     }
 
-    const REGISTRY_FIELDS = new Set(['id', 'index', 'valueIsIndex', 'unregister', 'isSelected'])
-    const captured: Partial<ItemZ> = {} as Partial<ItemZ>
-    for (const key of Object.keys(ticket as object)) {
-      if (REGISTRY_FIELDS.has(key)) continue
-      ;(captured as Record<string, unknown>)[key] = (ticket as unknown as Record<string, unknown>)[key]
+    if (!safeAccept(destination.accept, ticket, fromColumnId, toIndex)) return undefined
+
+    // Guard against corrupted-lookup state (duplicate id in two columns).
+    if (!isUndefined(destination.items.get(id))) {
+      logger.warn(`id "${String(id)}" already exists in destination column "${String(toColumnId)}"`)
+      return undefined
     }
 
-    let reg: SortableTicket<ItemZ> | undefined
-    let result: SortableTicket<ItemZ> | undefined
+    // See memory/createKanban-registry-field-denylist.md — escalate to a registry primitive when a second consumer needs this pattern.
+    const captured = Object.fromEntries(
+      Object.entries(ticket).filter(([key]) => !REGISTRY_FIELDS.has(key)),
+    ) as Partial<ItemZ>
 
-    dest.items.batch(() => {
+    let registered: SortableTicket<ItemZ> | undefined
+    let moved: SortableTicket<ItemZ> | undefined
+
+    destination.items.batch(() => {
       source.items.unregister(id)
-      reg = dest.items.register({ ...captured, id } as Partial<ItemZ>)
-      result = reg.index === toIndex ? reg : dest.items.move(reg.id, toIndex)
+      registered = destination.items.register({ ...captured, id } as Partial<ItemZ>)
+      moved = registered.index === toIndex ? registered : destination.items.move(registered.id, toIndex)
     })
 
     // Move-correction may no-op (e.g., reactive disabled flipped); fall back to
     // the registered ticket since the transfer landed regardless.
-    const final = result ?? reg
+    const final = moved ?? registered
     if (final) {
       bus.emit('transfer:ticket', {
         ticket: final,
