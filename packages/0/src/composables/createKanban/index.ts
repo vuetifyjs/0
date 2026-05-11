@@ -399,8 +399,7 @@ export function createKanban<
       })
 
       items.on('register:ticket', t => {
-        lookup.get(t.id)?.unregister()
-        lookup.register({ id: t.id, value: ticket.id })
+        lookup.upsert(t.id, { value: ticket.id })
       })
 
       items.on('unregister:ticket', t => {
