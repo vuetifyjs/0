@@ -305,9 +305,9 @@ registry.register({ id: 'item1', value: item })
 ### ❌ Recreating Composables
 ```ts
 // BAD - Creating composables inside computed/watch
-const computed(() => {
+const count = computed(() => {
   const selection = createSelection() // New instance every time!
-  return selection.selected.value
+  return selection.selected.value.size
 })
 
 // Problems:
@@ -431,3 +431,77 @@ grep -r "inject(" --include="*.vue" --include="*.ts"
 # Find window checks
 grep -r "typeof window" --include="*.vue" --include="*.ts"
 ```
+
+---
+
+## Lifecycle Gotchas
+
+### Register in setup, not onMounted
+
+```ts
+// Wrong — sibling index is wrong by the time the registry updates
+onMounted(() => {
+  const ticket = single.register({ id, value })
+})
+
+// Right — register synchronously so index order matches DOM order
+const ticket = single.register({ id, value })
+```
+
+Items registered in `onMounted` fire after all siblings have already registered and the parent has potentially already selected a default. This causes off-by-one indices, incorrect initial selection, and `useProxyRegistry` rendering in the wrong order.
+
+---
+
+### Unregister in onBeforeUnmount, not onUnmounted
+
+```ts
+// Wrong — context may already be torn down by the time onUnmounted fires
+onUnmounted(() => single.unregister(ticket.id))
+
+// Right — context is still reachable in onBeforeUnmount
+onBeforeUnmount(() => single.unregister(ticket.id))
+```
+
+---
+
+### createContext key must contain a colon
+
+```ts
+// Wrong — ambiguous, may collide with other libraries
+export const [useRoot, provideRoot] = createContext('accordion')
+
+// Right — namespaced with colon separator
+export const [useRoot, provideRoot] = createContext('v0:accordion')
+```
+
+Keys without `:` violate v0's §9.3 contract and will throw in strict mode.
+
+---
+
+### Never create composables inside computed or watch
+
+```ts
+// Wrong — creates a new registry on every reactive update
+const group = computed(() => createGroup())
+
+// Right — call composables once at setup time
+const group = createGroup()
+```
+
+Composables set up their own internal reactive state on creation. Calling them inside `computed` or `watch` creates orphaned instances that accumulate on every re-run and are never cleaned up.
+
+---
+
+### Pass props as getters into composables
+
+```ts
+const { gap } = defineProps<{ gap?: number }>()
+
+// Wrong — captures gap at setup time; prop changes are ignored
+createOverflow({ gap })
+
+// Right — getter re-reads the current prop value on every recompute
+createOverflow({ gap: () => gap })
+```
+
+Any composable option typed as `MaybeRefOrGetter<T>` must receive a getter, not a destructured value.

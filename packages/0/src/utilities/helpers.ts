@@ -116,6 +116,31 @@ export function isObject (item: unknown): item is Record<string, unknown> {
 }
 
 /**
+ * Checks if a value is a thenable (any object with a `.then` method).
+ * Duck-typed — matches both native Promises and any Promise-like.
+ *
+ * @param item The value to check
+ * @returns True if the value has a callable `then` property
+ *
+ * @example
+ * ```ts
+ * isThenable(Promise.resolve())     // true
+ * isThenable({ then: () => {} })    // true
+ * isThenable({})                    // false
+ * isThenable('string')              // false
+ * ```
+ *
+ * @remarks Use this when duck-typing async behavior — for example, rejecting
+ * a callback that returned a Promise-like when only synchronous returns are
+ * supported. If you specifically want native Promise instances, use
+ * `instanceof Promise` directly.
+ */
+/* #__NO_SIDE_EFFECTS__ */
+export function isThenable (item: unknown): item is { then: Function } {
+  return isObject(item) && 'then' in item && isFunction(item.then)
+}
+
+/**
  * Checks if a value is an array
  *
  * @param item The value to check

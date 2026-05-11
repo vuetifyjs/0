@@ -26,7 +26,7 @@ import { useResizeObserver } from '#v0/composables/useResizeObserver'
 import { KeyboardAdapter, PointerAdapter } from './adapters'
 
 // Utilities
-import { isArray, isFunction, isNull, isObject, isUndefined, useId } from '#v0/utilities'
+import { isArray, isFunction, isNull, isThenable, isUndefined, useId } from '#v0/utilities'
 import { computed, effectScope, onScopeDispose, onWatcherCleanup, shallowReadonly, shallowRef, toRef, toValue, watch } from 'vue'
 
 // Types
@@ -500,7 +500,7 @@ export function useDragDrop<Z extends DragType = DragType> (
       if (isUndefined(accept)) return true
       if (isArray(accept)) return accept.includes(drag.type)
       const result: unknown = accept(drag)
-      if (isObject(result) && isFunction(result.then)) {
+      if (isThenable(result)) {
         logger.warn('useDragDrop accept predicate returned a thenable; async predicates are not supported — treating as reject')
         return false
       }
