@@ -28,6 +28,21 @@ describe('createKanban', () => {
       expect(typeof kanban.on).toBe('function')
       expect(typeof kanban.off).toBe('function')
     })
+
+    it('should expose a live kanban.columns.size getter', () => {
+      const kanban = createKanban<CardInput, ColumnInput>()
+
+      expect(kanban.columns.size).toBe(0)
+
+      kanban.columns.register({ value: { title: 'Todo' } })
+      expect(kanban.columns.size).toBe(1)
+
+      const done = kanban.columns.register({ value: { title: 'Done' } })
+      expect(kanban.columns.size).toBe(2)
+
+      done.unregister()
+      expect(kanban.columns.size).toBe(1)
+    })
   })
 
   describe('columns.register', () => {
