@@ -222,50 +222,44 @@ export function createKanban<
   // Per-column subscription cleanups, keyed by column id.
   const cleanups = new Map<ID, () => void>()
 
-  function registerColumn (registration?: Partial<ColZ>): KanbanColumnTicket<ItemZ, ColZ> {
-    // Declared up front so the items disabled closure can reference the live ticket.
-    let ticket!: KanbanColumnTicket<ItemZ, ColZ>
-
-    const items = createSortable<ItemZ>({
-      disabled: () => !!toValue(disabled) || !!toValue(ticket?.disabled),
-    })
-
-    function onItemRegister (t: SortableTicket<ItemZ>): void {
-      if (!isUndefined(lookup.get(t.id))) lookup.unregister(t.id)
-      lookup.register({ id: t.id, value: ticket.id })
-    }
-    function onItemUnregister (t: SortableTicket<ItemZ>): void {
-      if (!isUndefined(lookup.get(t.id))) lookup.unregister(t.id)
-    }
-    items.on('register:ticket', onItemRegister)
-    items.on('unregister:ticket', onItemUnregister)
-
-    ticket = _columns.register({ ...registration, items } as unknown as Partial<ColZ>) as KanbanColumnTicket<ItemZ, ColZ>
-
-    cleanups.set(ticket.id, () => {
-      items.off('register:ticket', onItemRegister)
-      items.off('unregister:ticket', onItemUnregister)
-    })
-
-    return ticket
-  }
-
-  function onboardColumns (registrations: Partial<ColZ>[]): KanbanColumnTicket<ItemZ, ColZ>[] {
-    return _columns.batch(() => registrations.map(reg => registerColumn(reg)))
-  }
-
-  function upsertColumn (id: ID, patch: Partial<ColZ> = {}, event?: string): KanbanColumnTicket<ItemZ, ColZ> {
-    if (isUndefined(_columns.get(id))) {
-      return registerColumn({ ...patch, id } as Partial<ColZ>)
-    }
-    return _columns.upsert(id, patch, event) as KanbanColumnTicket<ItemZ, ColZ>
-  }
-
   const columns: SortableContext<ColZ, KanbanColumnTicket<ItemZ, ColZ>> = {
     ..._columns,
-    register: registerColumn,
-    onboard: onboardColumns,
-    upsert: upsertColumn,
+    register (registration?: Partial<ColZ>): KanbanColumnTicket<ItemZ, ColZ> {
+      // Declared up front so the items disabled closure can reference the live ticket.
+      let ticket!: KanbanColumnTicket<ItemZ, ColZ>
+
+      const items = createSortable<ItemZ>({
+        disabled: () => !!toValue(disabled) || !!toValue(ticket?.disabled),
+      })
+
+      function onItemRegister (t: SortableTicket<ItemZ>): void {
+        if (!isUndefined(lookup.get(t.id))) lookup.unregister(t.id)
+        lookup.register({ id: t.id, value: ticket.id })
+      }
+      function onItemUnregister (t: SortableTicket<ItemZ>): void {
+        if (!isUndefined(lookup.get(t.id))) lookup.unregister(t.id)
+      }
+      items.on('register:ticket', onItemRegister)
+      items.on('unregister:ticket', onItemUnregister)
+
+      ticket = _columns.register({ ...registration, items } as unknown as Partial<ColZ>) as KanbanColumnTicket<ItemZ, ColZ>
+
+      cleanups.set(ticket.id, () => {
+        items.off('register:ticket', onItemRegister)
+        items.off('unregister:ticket', onItemUnregister)
+      })
+
+      return ticket
+    },
+    onboard (registrations: Partial<ColZ>[]): KanbanColumnTicket<ItemZ, ColZ>[] {
+      return _columns.batch(() => registrations.map(reg => columns.register(reg)))
+    },
+    upsert (id: ID, patch: Partial<ColZ> = {}, event?: string): KanbanColumnTicket<ItemZ, ColZ> {
+      if (isUndefined(_columns.get(id))) {
+        return columns.register({ ...patch, id } as Partial<ColZ>)
+      }
+      return _columns.upsert(id, patch, event) as KanbanColumnTicket<ItemZ, ColZ>
+    },
     // size is a getter; the `..._columns` spread above evaluates the getter once
     // at construction time. Re-declare it here so reads track _columns.size live.
     get size () {
