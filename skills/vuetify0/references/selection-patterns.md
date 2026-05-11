@@ -16,7 +16,7 @@ For exclusive selection - tabs, theme pickers, accordion panels.
 
 ### Basic Usage
 ```ts
-import { createSingle } from '@vuetify/v0/composables'
+import { createSingle } from '@vuetify/v0'
 
 const single = createSingle()
 
@@ -56,8 +56,8 @@ const tabs = createSingle({ mandatory: 'keep' })
   </div>
 </template>
 
-<script setup>
-import { createSingle } from '@vuetify/v0/composables'
+<script setup lang="ts">
+import { createSingle } from '@vuetify/v0'
 
 const themes = [
   { id: 'light', value: 'Light' },
@@ -81,7 +81,7 @@ For multiple independent selections - tags, filters, permissions.
 
 ### Basic Usage
 ```ts
-import { createSelection } from '@vuetify/v0/composables'
+import { createSelection } from '@vuetify/v0'
 
 const selection = createSelection({ multiple: true })
 
@@ -110,7 +110,9 @@ selection.selected.value     // Set(['tag1', 'tag2'])
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
+import { createSelection } from '@vuetify/v0'
+
 const availableTags = ['vue', 'typescript', 'css', 'javascript']
 const selection = createSelection({ multiple: true })
 
@@ -127,7 +129,7 @@ For grouped selection with "select all" functionality - data tables, file manage
 
 ### Basic Usage
 ```ts
-import { createGroup } from '@vuetify/v0/composables'
+import { createGroup } from '@vuetify/v0'
 
 const group = createGroup()
 
@@ -138,13 +140,12 @@ users.forEach(user => {
 
 // Group operations
 group.selectAll()   // Select everything
-group.deselectAll() // Clear selection
+group.unselectAll() // Clear selection
 group.toggleAll()   // Smart toggle based on current state
 
 // Tri-state logic
-group.isEmpty   // true if nothing selected
-group.isAll     // true if everything selected  
-group.isMixed   // true if partially selected
+group.isAllSelected // true if everything selected
+group.isMixed       // true if partially selected
 ```
 
 ### Data Table Example
@@ -156,7 +157,7 @@ group.isMixed   // true if partially selected
         <th>
           <input 
             type="checkbox"
-            :checked="group.isAll"
+            :checked="group.isAllSelected"
             :indeterminate="group.isMixed"
             @click="group.toggleAll()"
           />
@@ -181,8 +182,8 @@ group.isMixed   // true if partially selected
   </table>
 </template>
 
-<script setup>
-import { createGroup } from '@vuetify/v0/composables'
+<script setup lang="ts">
+import { createGroup } from '@vuetify/v0'
 
 const users = [
   { id: 1, name: 'John', email: 'john@example.com' },
@@ -204,11 +205,10 @@ For sequential navigation - wizards, carousels, onboarding flows.
 
 ### Basic Usage
 ```ts
-import { createStep } from '@vuetify/v0/composables'
+import { createStep } from '@vuetify/v0'
 
 const stepper = createStep({ 
   circular: true,  // Allow wrap-around
-  length: 5        // Total steps
 })
 
 // Navigation
@@ -216,12 +216,10 @@ stepper.next()    // Go forward
 stepper.prev()    // Go backward
 stepper.first()   // Jump to start
 stepper.last()    // Jump to end
-stepper.go(3)     // Jump to specific step
 
 // State
-stepper.current.value  // Current step index
-stepper.isFirst       // At beginning
-stepper.isLast        // At end
+stepper.selectedIndex.value  // Current step index (-1 if none selected)
+stepper.selectedId.value     // Id of the current step
 ```
 
 ### Wizard Example
@@ -234,8 +232,8 @@ stepper.isLast        // At end
         v-for="(step, index) in steps"
         :key="index"
         :class="{ 
-          active: stepper.current.value === index,
-          completed: stepper.current.value > index 
+          active: stepper.selectedIndex.value === index,
+          completed: stepper.selectedIndex.value > index 
         }"
       >
         {{ step.title }}
@@ -250,14 +248,14 @@ stepper.isLast        // At end
     <!-- Navigation -->
     <div class="step-nav">
       <button 
-        :disabled="stepper.isFirst" 
+        :disabled="stepper.selectedIndex.value <= 0" 
         @click="stepper.prev()"
       >
         Previous
       </button>
       
       <button 
-        :disabled="stepper.isLast"
+        :disabled="stepper.selectedIndex.value >= steps.length - 1"
         @click="stepper.next()"
       >
         Next
@@ -266,8 +264,8 @@ stepper.isLast        // At end
   </div>
 </template>
 
-<script setup>
-import { createStep } from '@vuetify/v0/composables'
+<script setup lang="ts">
+import { createStep } from '@vuetify/v0'
 import { computed } from 'vue'
 
 const steps = [
@@ -276,9 +274,12 @@ const steps = [
   { title: 'Review', component: 'ReviewStep' }
 ]
 
-const stepper = createStep({ length: steps.length })
+const stepper = createStep()
 
-const currentStep = computed(() => steps[stepper.current.value])
+steps.forEach((step, index) => stepper.register({ id: String(index), value: step }))
+stepper.first()
+
+const currentStep = computed(() => steps[stepper.selectedIndex.value] ?? steps[0])
 </script>
 ```
 
@@ -288,14 +289,14 @@ const currentStep = computed(() => steps[stepper.current.value])
 For hierarchical data like file trees:
 
 ```ts
-import { createNested } from '@vuetify/v0/composables'
+import { createNested } from '@vuetify/v0'
 
 const tree = createNested()
 
 // Register parent-child relationships
-tree.register({ id: 'folder1', parent: null })
-tree.register({ id: 'file1', parent: 'folder1' })
-tree.register({ id: 'file2', parent: 'folder1' })
+tree.register({ id: 'folder1', value: 'Folder' })
+tree.register({ id: 'file1', value: 'File 1', parentId: 'folder1' })
+tree.register({ id: 'file2', value: 'File 2', parentId: 'folder1' })
 
 // Selecting parent auto-selects children
 tree.select('folder1') // Also selects file1, file2
@@ -315,17 +316,19 @@ watch(() => selection.selected.value, (selected) => {
 
 ### Persistent Selection
 ```ts
-import { useStorage } from '@vuetify/v0/composables'
+import { createSelection, useStorage } from '@vuetify/v0'
 
 const selection = createSelection({ multiple: true })
-const storage = useStorage('selected-items', [])
+const storage = useStorage()
+const stored = storage.get<string[]>('selected-items', [])
 
-// Sync selection with localStorage
-watchEffect(() => {
-  storage.value = Array.from(selection.selected.value)
+// Restore saved selection on mount
+onMounted(() => {
+  stored.value.forEach(id => selection.select(id))
 })
 
-onMounted(() => {
-  storage.value.forEach(id => selection.select(id))
+// Persist selection changes
+watch(() => selection.selected.value, selected => {
+  stored.value = Array.from(selected)
 })
 ```
