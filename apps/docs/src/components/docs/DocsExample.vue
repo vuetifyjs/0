@@ -196,7 +196,7 @@
 
 <template>
   <div class="relative my-6" :class="peek && !hasMultipleFiles && 'mb-10'">
-    <div class="border border-divider rounded-lg [&>*:first-child]:rounded-t-lg [&>*:last-child]:rounded-b-lg [&>*:last-child]:overflow-hidden">
+    <div class="border border-divider rounded-lg overflow-clip [&>*:first-child]:rounded-t-lg [&>*:last-child]:rounded-b-lg">
       <!-- Description -->
       <DocsExampleDescription
         v-if="hasDescription || title"
@@ -268,7 +268,7 @@
       </div>
 
       <!-- Code toggle button -->
-      <div v-if="!peek && (resolvedCode || displayFiles?.length)" class="border-t border-divider bg-surface-tint">
+      <div v-if="!peek && (resolvedCode || displayFiles?.length)" class="sticky top-[calc(48px+var(--app-banner-h,0px))] z-2 border-t border-b border-divider bg-glass-surface">
         <button
           :aria-controls="`${uid}-code`"
           :aria-expanded="showCode"
@@ -292,7 +292,7 @@
       <!-- Single-file toolbar (visible when code expanded, not in peek mode) -->
       <div
         v-if="showCode && resolvedCode && !hasMultipleFiles"
-        class="flex items-center gap-2 px-3 py-3 bg-surface border-t border-divider min-h-12"
+        class="sticky top-[calc(48px+var(--app-banner-h,0px)+45px)] z-1 flex items-center gap-2 px-3 py-3 bg-glass-surface border-b border-divider min-h-12"
       >
         <span
           v-if="fileName"
@@ -346,120 +346,118 @@
       </div>
 
       <!-- Multi-file tabs (invisible while skeleton shows, so code can load) -->
-      <div
-        v-if="showCode && hasMultipleFiles"
-        :class="showSkeleton && 'invisible h-0 overflow-hidden'"
-      >
-        <Tabs.Root v-model="selectedTab">
-          <!-- Tab list with overflow -->
-          <div
-            ref="tabs-container"
-            class="flex items-center gap-2 px-3 py-3 bg-surface border-t border-divider min-h-12"
-          >
-            <template v-if="!combinedView">
-              <Tabs.List class="contents" label="Example files">
-                <Tabs.Item
-                  v-for="(f, i) in displayFiles"
+      <Tabs.Root v-if="showCode && hasMultipleFiles" v-model="selectedTab">
+        <!-- Tab list with overflow (sticky) -->
+        <div
+          ref="tabs-container"
+          class="sticky top-[calc(48px+var(--app-banner-h,0px)+45px)] z-1 flex items-center gap-2 px-3 py-3 bg-glass-surface border-b border-divider min-h-12"
+          :class="showSkeleton && 'invisible h-0 overflow-hidden'"
+        >
+          <template v-if="!combinedView">
+            <Tabs.List class="contents" label="Example files">
+              <Tabs.Item
+                v-for="(f, i) in displayFiles"
+                :key="f.name"
+                :ref="(el: unknown) => overflow.measure(i, (el as ComponentPublicInstance)?.$el)"
+                class="h-[30px] px-2 text-xs font-medium rounded whitespace-nowrap inline-flex items-center cursor-pointer"
+                :class="[
+                  i >= visibleCount ? 'invisible absolute' : '',
+                  f.name === selectedTab
+                    ? 'bg-primary text-on-primary border border-transparent'
+                    : 'bg-surface-tint border border-divider text-on-surface-tint hover:bg-surface-variant'
+                ]"
+                :value="f.name"
+              >
+                {{ f.name }}
+              </Tabs.Item>
+            </Tabs.List>
+
+            <!-- Dropdown for hidden files -->
+            <Select.Root
+              v-if="hiddenFiles.length > 0"
+              :model-value="hiddenFiles.some(f => f.name === selectedTab) ? selectedTab : undefined"
+              @update:model-value="selectedTab = String($event)"
+            >
+              <Select.Activator
+                aria-label="Additional files"
+                class="ml-1 h-[30px] px-2 text-xs font-medium bg-surface-tint border border-divider rounded text-on-surface cursor-pointer inline-flex items-center gap-1"
+              >
+                <Select.Value v-slot="{ selectedValue }">{{ selectedValue }}</Select.Value>
+                <Select.Placeholder>+{{ hiddenFiles.length }} more</Select.Placeholder>
+                <Select.Cue v-slot="{ isOpen }" class="text-[10px] opacity-50">{{ isOpen ? '&#x25B4;' : '&#x25BE;' }}</Select.Cue>
+              </Select.Activator>
+
+              <Select.Content class="p-1 rounded-lg border border-divider bg-surface shadow-lg" :style="{ minWidth: 'anchor-size(width)' }">
+                <Select.Item
+                  v-for="f in hiddenFiles"
+                  :id="f.name"
                   :key="f.name"
-                  :ref="(el: unknown) => overflow.measure(i, (el as ComponentPublicInstance)?.$el)"
-                  class="h-[30px] px-2 text-xs font-medium rounded whitespace-nowrap inline-flex items-center cursor-pointer"
-                  :class="[
-                    i >= visibleCount ? 'invisible absolute' : '',
-                    f.name === selectedTab
-                      ? 'bg-primary text-on-primary border border-transparent'
-                      : 'bg-surface-tint border border-divider text-on-surface-tint hover:bg-surface-variant'
-                  ]"
+                  v-slot="{ isSelected, isHighlighted }"
                   :value="f.name"
                 >
-                  {{ f.name }}
-                </Tabs.Item>
-              </Tabs.List>
-
-              <!-- Dropdown for hidden files -->
-              <Select.Root
-                v-if="hiddenFiles.length > 0"
-                :model-value="hiddenFiles.some(f => f.name === selectedTab) ? selectedTab : undefined"
-                @update:model-value="selectedTab = String($event)"
-              >
-                <Select.Activator
-                  aria-label="Additional files"
-                  class="ml-1 h-[30px] px-2 text-xs font-medium bg-surface-tint border border-divider rounded text-on-surface cursor-pointer inline-flex items-center gap-1"
-                >
-                  <Select.Value v-slot="{ selectedValue }">{{ selectedValue }}</Select.Value>
-                  <Select.Placeholder>+{{ hiddenFiles.length }} more</Select.Placeholder>
-                  <Select.Cue v-slot="{ isOpen }" class="text-[10px] opacity-50">{{ isOpen ? '&#x25B4;' : '&#x25BE;' }}</Select.Cue>
-                </Select.Activator>
-
-                <Select.Content class="p-1 rounded-lg border border-divider bg-surface shadow-lg" :style="{ minWidth: 'anchor-size(width)' }">
-                  <Select.Item
-                    v-for="f in hiddenFiles"
-                    :id="f.name"
-                    :key="f.name"
-                    v-slot="{ isSelected, isHighlighted }"
-                    :value="f.name"
+                  <div
+                    class="px-3 py-1.5 rounded-md cursor-default select-none text-xs font-mono"
+                    :class="[
+                      isHighlighted ? 'bg-primary text-on-primary'
+                      : isSelected ? 'text-primary font-medium'
+                        : 'text-on-surface hover:bg-surface-variant',
+                    ]"
                   >
-                    <div
-                      class="px-3 py-1.5 rounded-md cursor-default select-none text-xs font-mono"
-                      :class="[
-                        isHighlighted ? 'bg-primary text-on-primary'
-                        : isSelected ? 'text-primary font-medium'
-                          : 'text-on-surface hover:bg-surface-variant',
-                      ]"
-                    >
-                      {{ f.name }}
-                    </div>
-                  </Select.Item>
-                </Select.Content>
-              </Select.Root>
-            </template>
+                    {{ f.name }}
+                  </div>
+                </Select.Item>
+              </Select.Content>
+            </Select.Root>
+          </template>
 
-            <span
-              v-else
-              class="px-2 py-1 text-xs font-medium inline-flex items-center line-height-relaxed text-on-surface-variant opacity-60 border border-transparent"
+          <span
+            v-else
+            class="px-2 py-1 text-xs font-medium inline-flex items-center line-height-relaxed text-on-surface-variant opacity-60 border border-transparent"
+          >
+            All files
+          </span>
+
+          <div class="ml-auto flex items-center gap-1">
+            <button
+              class="size-[30px] rounded text-on-surface-variant hover:bg-surface-variant transition-colors inline-flex items-center justify-center"
+              title="Reset example"
+              type="button"
+              @click="onReset"
             >
-              All files
-            </span>
+              <AppIcon icon="restart" :size="16" />
+            </button>
 
-            <div class="ml-auto flex items-center gap-1">
-              <button
-                class="size-[30px] rounded text-on-surface-variant hover:bg-surface-variant transition-colors inline-flex items-center justify-center"
-                title="Reset example"
-                type="button"
-                @click="onReset"
-              >
-                <AppIcon icon="restart" :size="16" />
-              </button>
+            <button
+              class="size-[30px] rounded text-on-surface-variant hover:bg-surface-variant transition-colors inline-flex items-center justify-center"
+              title="Open in Playground"
+              type="button"
+              @click="openAllInPlayground"
+            >
+              <AppIcon icon="vuetify-play" :size="16" />
+            </button>
 
-              <button
-                class="size-[30px] rounded text-on-surface-variant hover:bg-surface-variant transition-colors inline-flex items-center justify-center"
-                title="Open in Playground"
-                type="button"
-                @click="openAllInPlayground"
-              >
-                <AppIcon icon="vuetify-play" :size="16" />
-              </button>
+            <button
+              class="size-[30px] rounded text-on-surface-variant hover:bg-surface-variant transition-colors inline-flex items-center justify-center"
+              title="Open in Bin"
+              type="button"
+              @click="openAllInBin"
+            >
+              <AppIcon icon="vuetify-bin" :size="16" />
+            </button>
 
-              <button
-                class="size-[30px] rounded text-on-surface-variant hover:bg-surface-variant transition-colors inline-flex items-center justify-center"
-                title="Open in Bin"
-                type="button"
-                @click="openAllInBin"
-              >
-                <AppIcon icon="vuetify-bin" :size="16" />
-              </button>
-
-              <button
-                class="size-[30px] rounded text-on-surface-variant hover:bg-surface-variant transition-colors inline-flex items-center justify-center"
-                :title="combinedView ? 'Split files' : 'Combine files'"
-                type="button"
-                @click="combinedView = !combinedView"
-              >
-                <AppIcon :icon="combinedView ? 'split' : 'combine'" :size="16" />
-              </button>
-            </div>
+            <button
+              class="size-[30px] rounded text-on-surface-variant hover:bg-surface-variant transition-colors inline-flex items-center justify-center"
+              :title="combinedView ? 'Split files' : 'Combine files'"
+              type="button"
+              @click="combinedView = !combinedView"
+            >
+              <AppIcon :icon="combinedView ? 'split' : 'combine'" :size="16" />
+            </button>
           </div>
+        </div>
 
-          <!-- Tabbed panels (single file view) -->
+        <!-- Tab panels -->
+        <div :class="showSkeleton && 'invisible h-0 overflow-hidden'">
           <template v-if="!combinedView">
             <Tabs.Panel
               v-for="f in displayFiles"
@@ -490,8 +488,8 @@
               :title="f.name"
             />
           </template>
-        </Tabs.Root>
-      </div>
+        </div>
+      </Tabs.Root>
     </div>
 
     <!-- Peek expand button -->

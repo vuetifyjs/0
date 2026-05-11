@@ -475,7 +475,6 @@
   /* DocsExample code block styling */
   .docs-example-code .shiki {
     border: none;
-    border-top: thin solid var(--v0-divider);
     border-radius: 0;
     margin-bottom: 0;
   }
