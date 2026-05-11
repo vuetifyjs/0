@@ -261,9 +261,6 @@ export function createKanban<
   const on = ((event: string, cb: (data: unknown) => void) => bus.on(event, cb)) as KanbanEventListener<ItemZ, ColZ>
   const off = ((event: string, cb: (data: unknown) => void) => bus.off(event, cb)) as KanbanEventListener<ItemZ, ColZ>
 
-  // Per-column subscription cleanups, keyed by column id.
-  const cleanups = new Map<ID, () => void>()
-
   const columns: SortableContext<ColZ, KanbanColumnTicket<ItemZ, ColZ>> = {
     ..._columns,
     register (registration?: Partial<ColZ>): KanbanColumnTicket<ItemZ, ColZ> {
@@ -274,22 +271,15 @@ export function createKanban<
         disabled: () => !!toValue(disabled) || !!toValue(ticket?.disabled),
       })
 
-      function onRegister (t: SortableTicket<ItemZ>): void {
+      items.on('register:ticket', t => {
         if (!isUndefined(lookup.get(t.id))) lookup.unregister(t.id)
         lookup.register({ id: t.id, value: ticket.id })
-      }
-      function onUnregister (t: SortableTicket<ItemZ>): void {
+      })
+      items.on('unregister:ticket', t => {
         if (!isUndefined(lookup.get(t.id))) lookup.unregister(t.id)
-      }
-      items.on('register:ticket', onRegister)
-      items.on('unregister:ticket', onUnregister)
+      })
 
       ticket = _columns.register({ ...registration, items } as unknown as Partial<ColZ>)
-
-      cleanups.set(ticket.id, () => {
-        items.off('register:ticket', onRegister)
-        items.off('unregister:ticket', onUnregister)
-      })
 
       return ticket
     },
@@ -330,11 +320,7 @@ export function createKanban<
   }
 
   columns.on('unregister:ticket', column => {
-    const cleanup = cleanups.get(column.id)
-    if (!isUndefined(cleanup)) {
-      cleanup()
-      cleanups.delete(column.id)
-    }
+    column.items.dispose()
     // Drain any lookup entries still pointing at this column.
     // Snapshot first to avoid mutation-during-iteration.
     const entries = lookup.values()
