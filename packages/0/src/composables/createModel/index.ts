@@ -455,11 +455,11 @@ export function createModel<
     return registry.batch(() => registrations.map(r => register(r)))
   }
 
-  function offboard (ids: ID[]) {
+  function offboard (ids: ID[]): Partial<Z>[] {
     for (const id of ids) {
       selectedIds.delete(id)
     }
-    registry.offboard(ids)
+    return registry.offboard(ids)
   }
 
   function reset () {

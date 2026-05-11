@@ -201,7 +201,7 @@ export function createGroup<
 > (_options: GroupOptions = {}): R {
   const { mandatory = false, multiple = true, ...options } = _options
   const selection = createSelection<Z, E>({ ...options, mandatory, multiple, events: true })
-  const proxy = useProxyRegistry<E>(selection)
+  const proxy = useProxyRegistry<Z, E>(selection)
   const mixedIds = shallowReactive(new Set<ID>())
 
   const selectedIndexes = computed(() => new Set(resolveIndexes(selection.selectedItems.value)))
@@ -279,11 +279,11 @@ export function createGroup<
     selection.unregister(id)
   }
 
-  function offboard (ids: ID[]) {
+  function offboard (ids: ID[]): Partial<Z>[] {
     for (const id of ids) {
       mixedIds.delete(id)
     }
-    selection.offboard(ids)
+    return selection.offboard(ids)
   }
 
   function onboard (registrations: Partial<Z>[]): E[] {

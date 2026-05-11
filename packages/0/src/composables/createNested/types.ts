@@ -90,7 +90,7 @@ export type NestedRegistration<Z extends NestedTicketInput = NestedTicketInput> 
 export interface NestedContext<
   Z extends NestedTicketInput = NestedTicketInput,
   E extends NestedTicket<Z> = NestedTicket<Z>,
-> extends Omit<GroupContext<Z, E>, 'register' | 'onboard' | 'select' | 'unselect' | 'toggle'> {
+> extends Omit<GroupContext<Z, E>, 'register' | 'onboard' | 'offboard' | 'select' | 'unselect' | 'toggle'> {
   /** Map of parent IDs to arrays of child IDs. Use register/unregister to modify. */
   readonly children: ReadonlyMap<ID, readonly ID[]>
   /** Map of child IDs to their parent ID (or undefined for roots). Use register/unregister to modify. */

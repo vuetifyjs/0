@@ -576,10 +576,19 @@ export interface RegistryContext<
   */
   onboard: (registrations: Partial<Z & RegistryTicket>[]) => E[]
   /**
-   * Offboard multiple tickets at once
+   * Offboard multiple tickets at once, returning the input shapes that were removed.
    *
    * @param ids An array of ticket IDs to unregister.
-   * @remarks Unregisters multiple tickets in a single operation with optimized reindexing.
+   * @returns An array of `Partial<Z>` — the inputs that were registered, with
+   * registry-managed fields (`index`, `valueIsIndex`, `unregister`) stripped.
+   * The `id` is preserved only when `valueIsIndex` was false (i.e. the user
+   * supplied a meaningful value); otherwise the id is stripped so the receiving
+   * registry can assign a fresh one. Order matches the input `ids` array. Missing
+   * ids are silently skipped — the returned array may be shorter than `ids`.
+   * @remarks Unregisters multiple tickets in a single operation with optimized
+   * reindexing. The inverse of `onboard`: onboard takes inputs and returns outputs;
+   * offboard takes ids and returns the inputs back. Pair with `onboard` on a
+   * different registry to move tickets across registries.
    *
    * @see https://0.vuetifyjs.com/composables/registration/create-registry
    *
@@ -595,12 +604,17 @@ export interface RegistryContext<
    *   { id: 'ticket-3', value: 'value-3' },
    * ])
    *
-   * registry.offboard(['ticket-1', 'ticket-3'])
+   * const removed = registry.offboard(['ticket-1', 'ticket-3'])
    *
    * console.log(registry.size) // 1
+   * console.log(removed) // [{ id: 'ticket-1', value: 'value-1' }, { id: 'ticket-3', value: 'value-3' }]
+   *
+   * // Move to another registry
+   * const other = createRegistry()
+   * other.onboard(removed)
    * ```
   */
-  offboard: (ids: ID[]) => void
+  offboard: (ids: ID[]) => Partial<Z>[]
   /**
    * The number of tickets in the registry
    *
@@ -1056,10 +1070,26 @@ export function createRegistry<
     return batch(() => registrations.map(registration => register(registration)))
   }
 
-  function offboard (ids: ID[]) {
-    batch(() => {
-      const removed: E[] = []
+  // Strip registry-managed fields off an output ticket to produce its input shape.
+  // `id` is preserved only when the user supplied a meaningful value; otherwise
+  // the id was auto-generated and stripping it lets the receiving registry assign
+  // a fresh one.
+  function toInput (ticket: E): Partial<Z> {
+    const input = { ...ticket } as Record<string, unknown>
+    delete input.index
+    delete input.valueIsIndex
+    delete input.unregister
+    if (ticket.valueIsIndex) {
+      delete input.id
+      delete input.value
+    }
+    return input as Partial<Z>
+  }
 
+  function offboard (ids: ID[]): Partial<Z>[] {
+    const removed: E[] = []
+
+    batch(() => {
       for (const id of ids) {
         const ticket = collection.get(id)
         if (!ticket) continue
@@ -1083,6 +1113,11 @@ export function createRegistry<
 
       needsReindex = true
     })
+
+    // TODO: this builds an array even when the caller discards the return value.
+    // Trivial today (offboard isn't a hot path), revisit if profiling shows
+    // allocation pressure on bulk-clear workloads.
+    return removed.map(ticket => toInput(ticket))
   }
 
   function move (id: ID, toIndex: number): E | undefined {
