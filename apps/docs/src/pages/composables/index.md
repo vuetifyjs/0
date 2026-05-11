@@ -311,6 +311,7 @@ Composables for filtering, sorting, paginating, and virtualizing collections.
 | - | - |
 | [createDataTable](/composables/data/create-data-table) | Composable data table with sort, filter, paginate, select, and expand |
 | [createFilter](/composables/data/create-filter) | Filter arrays based on search queries |
+| [createKanban](/composables/data/create-kanban) | Two-level sortable orchestrator (columns + items) |
 | [createPagination](/composables/data/create-pagination) | Pagination state with navigation methods |
 | [createSortable](/composables/data/create-sortable) | Ordered-list state with `move` / `swap` / `reorder` and a `disabled` mutation gate |
 | [createVirtual](/composables/data/create-virtual) | Virtual scrolling for large lists |

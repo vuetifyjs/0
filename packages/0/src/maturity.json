@@ -111,6 +111,10 @@
       "since": "0.1.0",
       "category": "data"
     },
+    "createKanban": {
+      "level": "draft",
+      "category": "data"
+    },
     "createPagination": {
       "level": "preview",
       "since": "0.1.0",
