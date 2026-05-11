@@ -195,7 +195,7 @@ kanban.transfer(id, doing.id, 0)
 ```ts
 kanban.on('transfer:ticket', ({ ticket, from, to, fromIndex, toIndex }) => {
   // Persist the new board state to a backend
-  saveMove({ itemId: ticket.id, fromColumn: from, toColumn: to, toIndex })
+  persist({ itemId: ticket.id, fromColumn: from, toColumn: to, toIndex })
 })
 ```
 
