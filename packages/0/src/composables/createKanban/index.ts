@@ -104,11 +104,32 @@ export interface KanbanColumnTicketInput<
   ItemZ extends SortableTicketInput = SortableTicketInput,
   V = unknown,
 > extends SortableTicketInput<V> {
+  /**
+   * Per-column mutation gate. When truthy, transfers into and out of this
+   * column are blocked, and the column's inner `items` sortable is disabled
+   * (move / swap / reorder no-op). Column-level operations on
+   * `kanban.columns` are unaffected — those are gated by the kanban-level
+   * `disabled`.
+   *
+   * @default false
+   */
   disabled?: MaybeRefOrGetter<boolean>
   /**
    * Predicate veto for incoming transfers. Synchronous boolean return:
    * `true` accepts; `false` rejects (silent no-op). Async predicates are
    * rejected at runtime with a warning.
+   *
+   * @param ticket The item being transferred (from the source column).
+   * @param from The source column id.
+   * @param toIndex The target index inside this destination column.
+   *
+   * @example
+   * ```ts
+   * const review = kanban.columns.register({
+   *   value: { title: 'Review' },
+   *   accept: (ticket, from) => from !== archiveColumn.id,
+   * })
+   * ```
    */
   accept?: (ticket: SortableTicket<ItemZ>, from: ID, toIndex: number) => boolean
 }
