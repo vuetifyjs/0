@@ -141,6 +141,79 @@ describe('createRegistry', () => {
       expect(listener).toHaveBeenCalledTimes(2)
     })
 
+    it('should return removed inputs preserving id when valueIsIndex is false', () => {
+      const registry = createRegistry()
+
+      registry.onboard([
+        { id: 'a', value: 'alpha' },
+        { id: 'b', value: 'beta' },
+        { id: 'c', value: 'gamma' },
+      ])
+
+      const removed = registry.offboard(['a', 'c'])
+
+      expect(removed).toHaveLength(2)
+      expect(removed[0]).toEqual({ id: 'a', value: 'alpha' })
+      expect(removed[1]).toEqual({ id: 'c', value: 'gamma' })
+    })
+
+    it('should strip id and value from returned input when valueIsIndex is true', () => {
+      const registry = createRegistry()
+
+      const auto = registry.register({})
+
+      const [removed] = registry.offboard([auto.id])
+
+      expect(removed).toBeDefined()
+      expect(removed).not.toHaveProperty('id')
+      expect(removed).not.toHaveProperty('value')
+      expect(removed).not.toHaveProperty('index')
+      expect(removed).not.toHaveProperty('valueIsIndex')
+      expect(removed).not.toHaveProperty('unregister')
+    })
+
+    it('should preserve user-added fields on returned inputs', () => {
+      interface Custom { id?: string, value?: string, label?: string, tag?: number }
+      const registry = createRegistry<Custom>()
+
+      registry.register({ id: 'a', value: 'alpha', label: 'A', tag: 1 })
+
+      const [removed] = registry.offboard(['a'])
+
+      expect(removed).toEqual({ id: 'a', value: 'alpha', label: 'A', tag: 1 })
+    })
+
+    it('should skip missing ids in returned array', () => {
+      const registry = createRegistry()
+
+      registry.onboard([{ id: 'a', value: 'alpha' }])
+
+      const removed = registry.offboard(['a', 'missing'])
+
+      expect(removed).toHaveLength(1)
+      expect(removed[0]).toEqual({ id: 'a', value: 'alpha' })
+    })
+
+    it('should support round-trip onboard → offboard → onboard across registries', () => {
+      const source = createRegistry<{ id?: string, value?: string }>()
+      const destination = createRegistry<{ id?: string, value?: string }>()
+
+      source.onboard([
+        { id: 'a', value: 'alpha' },
+        { id: 'b', value: 'beta' },
+      ])
+
+      const inputs = source.offboard(['a', 'b'])
+      const tickets = destination.onboard(inputs)
+
+      expect(source.size).toBe(0)
+      expect(destination.size).toBe(2)
+      expect(tickets[0].id).toBe('a')
+      expect(tickets[0].value).toBe('alpha')
+      expect(tickets[1].id).toBe('b')
+      expect(tickets[1].value).toBe('beta')
+    })
+
     it('should honor explicit valueIsIndex on register', () => {
       const registry = createRegistry()
       const ticket = registry.register({ id: 'a', value: 5, valueIsIndex: true })
