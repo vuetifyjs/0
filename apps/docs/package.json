@@ -18,6 +18,7 @@
     "@types/markdown-it-attrs": "catalog:",
     "@types/markdown-it-footnote": "catalog:",
     "@unhead/vue": "catalog:",
+    "@vue/test-utils": "catalog:",
     "markdown-it": "catalog:",
     "markdown-it-anchor": "catalog:",
     "markdown-it-attrs": "catalog:",

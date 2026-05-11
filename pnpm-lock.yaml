@@ -398,6 +398,9 @@ importers:
       '@unhead/vue':
         specifier: 'catalog:'
         version: 2.1.13(vue@3.5.33(typescript@6.0.3))
+      '@vue/test-utils':
+        specifier: 'catalog:'
+        version: 2.4.10(@vue/compiler-dom@3.5.33)(@vue/server-renderer@3.5.33(vue@3.5.33(typescript@6.0.3)))(vue@3.5.33(typescript@6.0.3))
       markdown-it:
         specifier: 'catalog:'
         version: 14.1.1
@@ -9949,7 +9952,7 @@ snapshots:
       domhandler: 5.0.3
       htmlparser2: 10.1.0
       picocolors: 1.1.1
-      postcss: 8.5.8
+      postcss: 8.5.14
       postcss-media-query-parser: 0.2.3
     optional: true
 
@@ -13335,7 +13338,7 @@ snapshots:
 
   unhead@2.1.12:
     dependencies:
-      hookable: 6.1.0
+      hookable: 6.1.1
 
   unhead@2.1.13:
     dependencies:
