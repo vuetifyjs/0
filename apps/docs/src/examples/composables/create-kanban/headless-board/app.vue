@@ -14,7 +14,10 @@
 
   todo.items.register({ value: { title: 'Write spec', assignee: 'Maria' } })
   todo.items.register({ value: { title: 'Write plan', assignee: 'John' } })
+  todo.items.register({ value: { title: 'Review PRs', assignee: 'Alex' } })
+  todo.items.register({ value: { title: 'Refine onboarding', assignee: 'Sam' } })
   doing.items.register({ value: { title: 'Implement', assignee: 'Maria' } })
+  doing.items.register({ value: { title: 'Polish UI', assignee: 'Alex' } })
 
   const view = useKanbanView(kanban)
 
@@ -28,6 +31,9 @@
     status.value = `Moved "${ticket.value.title}" from ${fromName} → ${toName}`
   })
 
+  // Cross-column moves use kanban.transfer; intra-column reorder goes through
+  // the column's own sortable via column.items.move — two channels, two events
+  // (transfer:ticket on the kanban bus, move:ticket on the column's items bus).
   function next (cardId: ID, columnId: ID): void {
     const index = view.columns.values.findIndex(col => col.id === columnId)
     const target = view.columns.values[index + 1]
@@ -38,6 +44,22 @@
     const index = view.columns.values.findIndex(col => col.id === columnId)
     const target = view.columns.values[index - 1]
     if (target) kanban.transfer(cardId, target.id, target.items.size)
+  }
+
+  function up (cardId: ID, columnId: ID): void {
+    const column = view.columns.values.find(col => col.id === columnId)
+    if (!column) return
+    const ticket = column.items.get(cardId)
+    if (!ticket || ticket.index === 0) return
+    column.items.move(cardId, ticket.index - 1)
+  }
+
+  function down (cardId: ID, columnId: ID): void {
+    const column = view.columns.values.find(col => col.id === columnId)
+    if (!column) return
+    const ticket = column.items.get(cardId)
+    if (!ticket || ticket.index === column.items.size - 1) return
+    column.items.move(cardId, ticket.index + 1)
   }
 </script>
 
@@ -59,33 +81,47 @@
           <li
             v-for="item in view.items.get(column.id)?.values ?? []"
             :key="item.id"
-            class="group rounded-md border border-divider bg-surface-tint px-3 py-2 text-sm"
+            class="group relative rounded-md border border-divider bg-surface-tint px-3 py-2 text-sm"
           >
-            <div class="flex items-start justify-between gap-2">
-              <div class="min-w-0 flex-1">
-                <div class="font-medium truncate">{{ item.value.title }}</div>
-                <div class="text-xs text-on-surface-variant">{{ item.value.assignee }}</div>
-              </div>
+            <div class="font-medium">{{ item.value.title }}</div>
+            <div class="text-xs text-on-surface-variant">{{ item.value.assignee }}</div>
 
-              <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button
-                  aria-label="Move to previous column"
-                  class="rounded px-1.5 py-0.5 text-xs hover:bg-surface-variant disabled:opacity-30 disabled:hover:bg-transparent"
-                  :disabled="column.id === view.columns.values[0]?.id"
-                  @click="previous(item.id, column.id)"
-                >
-                  ←
-                </button>
+            <div class="absolute top-1 right-1 flex gap-0.5 rounded bg-surface/90 backdrop-blur-sm shadow-sm opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity">
+              <button
+                aria-label="Move to previous column"
+                class="rounded px-1.5 py-0.5 text-xs hover:bg-surface-variant disabled:opacity-30 disabled:hover:bg-transparent"
+                :disabled="column.id === view.columns.values[0]?.id"
+                @click="previous(item.id, column.id)"
+              >
+                ←
+              </button>
 
-                <button
-                  aria-label="Move to next column"
-                  class="rounded px-1.5 py-0.5 text-xs hover:bg-surface-variant disabled:opacity-30 disabled:hover:bg-transparent"
-                  :disabled="column.id === view.columns.values[view.columns.values.length - 1]?.id"
-                  @click="next(item.id, column.id)"
-                >
-                  →
-                </button>
-              </div>
+              <button
+                aria-label="Move up within column"
+                class="rounded px-1.5 py-0.5 text-xs hover:bg-surface-variant disabled:opacity-30 disabled:hover:bg-transparent"
+                :disabled="item.index === 0"
+                @click="up(item.id, column.id)"
+              >
+                ↑
+              </button>
+
+              <button
+                aria-label="Move down within column"
+                class="rounded px-1.5 py-0.5 text-xs hover:bg-surface-variant disabled:opacity-30 disabled:hover:bg-transparent"
+                :disabled="item.index === column.items.size - 1"
+                @click="down(item.id, column.id)"
+              >
+                ↓
+              </button>
+
+              <button
+                aria-label="Move to next column"
+                class="rounded px-1.5 py-0.5 text-xs hover:bg-surface-variant disabled:opacity-30 disabled:hover:bg-transparent"
+                :disabled="column.id === view.columns.values[view.columns.values.length - 1]?.id"
+                @click="next(item.id, column.id)"
+              >
+                →
+              </button>
             </div>
           </li>
         </ul>
@@ -98,7 +134,7 @@
 
     <p class="text-xs text-on-surface-variant min-h-4">
       <span v-if="status">{{ status }}</span>
-      <span v-else class="opacity-60">Hover a card and click → to transfer it.</span>
+      <span v-else class="opacity-60">Hover a card to reveal controls: ← → transfer between columns, ↑ ↓ reorder within a column.</span>
     </p>
   </div>
 </template>
