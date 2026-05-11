@@ -39,7 +39,7 @@ import { createSortable } from '#v0/composables/createSortable'
 import { useLogger } from '#v0/composables/useLogger'
 
 // Utilities
-import { isFunction, isObject, isUndefined } from '#v0/utilities'
+import { isThenable, isUndefined } from '#v0/utilities'
 import { toValue } from 'vue'
 
 // Types
@@ -434,7 +434,7 @@ export function createKanban<
     if (isUndefined(accept)) return true
     try {
       const result: unknown = accept(ticket, from, toIndex)
-      if (isObject(result) && 'then' in result && isFunction(result.then)) {
+      if (isThenable(result)) {
         logger.warn('accept predicate returned a thenable; async predicates are not supported — treating as reject')
         return false
       }
