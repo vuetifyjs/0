@@ -57,8 +57,6 @@ import type {
 import type { Extensible, ID } from '#v0/types'
 import type { MaybeRefOrGetter } from 'vue'
 
-const REGISTRY_FIELDS = /* @__PURE__ */ new Set(['id', 'index', 'valueIsIndex', 'unregister', 'isSelected'])
-
 /**
  * Options accepted by `createKanban`.
  *
@@ -496,17 +494,13 @@ export function createKanban<
       return undefined
     }
 
-    // See memory/createKanban-registry-field-denylist.md — escalate to a registry primitive when a second consumer needs this pattern.
-    const captured = Object.fromEntries(
-      Object.entries(ticket).filter(([key]) => !REGISTRY_FIELDS.has(key)),
-    ) as Partial<ItemZ>
-
     let registered: SortableTicket<ItemZ> | undefined
     let moved: SortableTicket<ItemZ> | undefined
 
     destination.items.batch(() => {
-      source.items.unregister(id)
-      registered = destination.items.register({ ...captured, id } as Partial<ItemZ>)
+      const [input] = source.items.offboard([id])
+      if (isUndefined(input)) return
+      registered = destination.items.register(input)
       moved = registered.index === toIndex ? registered : destination.items.move(registered.id, toIndex)
     })
 
