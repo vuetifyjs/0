@@ -415,6 +415,29 @@ export interface RegistryContext<
   */
   move: (id: ID, toIndex: number) => E | undefined
   /**
+   * Reorder the registry to match a canonical permutation of ids in one pass.
+   *
+   * @param ids A full permutation of the currently-registered ticket ids.
+   *
+   * @remarks
+   * Bulk equivalent of calling `move` n times, but does the rebuild once
+   * (O(n) total rather than O(n²)). Silently no-ops when `ids.length !== size`
+   * or any id is unknown — caller is responsible for validation and warnings.
+   * Emits `reindex:registry` once on completion; does not emit per-ticket
+   * `update:ticket` events.
+   *
+   * @example
+   * ```ts
+   * const registry = createRegistry()
+   * registry.onboard([{ id: 'a' }, { id: 'b' }, { id: 'c' }])
+   *
+   * registry.reorder(['c', 'a', 'b'])
+   *
+   * console.log(registry.keys()) // ['c', 'a', 'b']
+   * ```
+   */
+  reorder: (ids: ID[]) => void
+  /**
    * Seek for a ticket based on direction and optional predicate
    *
    * @param direction The scan direction (`'first'` = forward, `'last'` = backward). Defaults to `'first'`.
@@ -1151,6 +1174,28 @@ export function createRegistry<
     })
   }
 
+  function reorder (ids: ID[]): void {
+    if (needsReindex) reindex()
+
+    if (ids.length !== collection.size) return
+
+    const entries: [ID, E][] = []
+    for (const id of ids) {
+      const ticket = collection.get(id)
+      if (!ticket) return
+      entries.push([id, ticket])
+    }
+
+    batch(() => {
+      collection.clear()
+      for (const [id, ticket] of entries) {
+        collection.set(id, ticket)
+      }
+      minDirtyIndex = 0
+      reindex()
+    })
+  }
+
   function seek (
     direction: 'first' | 'last' = 'first',
     from?: number,
@@ -1205,6 +1250,7 @@ export function createRegistry<
     unregister,
     reindex,
     move,
+    reorder,
     seek,
     batch,
     onboard,

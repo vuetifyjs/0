@@ -1340,6 +1340,86 @@ describe('createRegistry', () => {
     })
   })
 
+  describe('reorder functionality', () => {
+    it('should reorder tickets to match a canonical permutation', () => {
+      const registry = createRegistry()
+      registry.onboard([
+        { id: 'a', value: 'alpha' },
+        { id: 'b', value: 'beta' },
+        { id: 'c', value: 'gamma' },
+      ])
+      registry.reorder(['c', 'a', 'b'])
+      expect(registry.keys()).toEqual(['c', 'a', 'b'])
+      expect(registry.get('c')?.index).toBe(0)
+      expect(registry.get('a')?.index).toBe(1)
+      expect(registry.get('b')?.index).toBe(2)
+    })
+
+    it('should silently no-op when ids length does not match size', () => {
+      const registry = createRegistry()
+      registry.onboard([{ id: 'a' }, { id: 'b' }, { id: 'c' }])
+      registry.reorder(['a', 'b'])
+      expect(registry.keys()).toEqual(['a', 'b', 'c'])
+    })
+
+    it('should silently no-op when any id is unknown', () => {
+      const registry = createRegistry()
+      registry.onboard([{ id: 'a' }, { id: 'b' }, { id: 'c' }])
+      registry.reorder(['a', 'b', 'missing'])
+      expect(registry.keys()).toEqual(['a', 'b', 'c'])
+    })
+
+    it('should update catalog and directory after reorder', () => {
+      const registry = createRegistry()
+      registry.onboard([
+        { id: 'a', value: 'alpha' },
+        { id: 'b', value: 'beta' },
+        { id: 'c', value: 'gamma' },
+      ])
+      registry.reorder(['c', 'a', 'b'])
+      expect(registry.lookup(0)).toBe('c')
+      expect(registry.lookup(1)).toBe('a')
+      expect(registry.lookup(2)).toBe('b')
+      expect(registry.browse('alpha')).toEqual(['a'])
+      expect(registry.browse('gamma')).toEqual(['c'])
+    })
+
+    it('should emit reindex:registry once', () => {
+      const registry = createRegistry({ events: true })
+      registry.onboard([{ id: 'a' }, { id: 'b' }, { id: 'c' }])
+
+      const handler = vi.fn()
+      registry.on('reindex:registry', handler)
+
+      registry.reorder(['c', 'b', 'a'])
+
+      expect(handler).toHaveBeenCalledTimes(1)
+    })
+
+    it('should not emit per-ticket update:ticket events', () => {
+      const registry = createRegistry({ events: true })
+      registry.onboard([{ id: 'a' }, { id: 'b' }, { id: 'c' }])
+
+      const handler = vi.fn()
+      registry.on('update:ticket', handler)
+
+      registry.reorder(['c', 'b', 'a'])
+
+      expect(handler).not.toHaveBeenCalled()
+    })
+
+    it('should trigger lazy reindex before reorder', () => {
+      const registry = createRegistry()
+      registry.onboard([{ id: 'a' }, { id: 'b' }, { id: 'c' }, { id: 'd' }])
+      registry.offboard(['b'])
+      registry.reorder(['d', 'a', 'c'])
+      expect(registry.keys()).toEqual(['d', 'a', 'c'])
+      expect(registry.get('d')?.index).toBe(0)
+      expect(registry.get('a')?.index).toBe(1)
+      expect(registry.get('c')?.index).toBe(2)
+    })
+  })
+
   describe('reactive option', () => {
     it('should create reactive collection when enabled', () => {
       const registry = createRegistry({ reactive: true })
