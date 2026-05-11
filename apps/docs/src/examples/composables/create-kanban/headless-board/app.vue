@@ -1,6 +1,7 @@
 <script setup lang="ts">
+  import { mdiChevronDown, mdiChevronLeft, mdiChevronRight, mdiChevronUp } from '@mdi/js'
   import { createKanban } from '@vuetify/v0'
-  import { shallowRef } from 'vue'
+  import { shallowRef, toRef } from 'vue'
 
   import type { ID } from '@vuetify/v0'
   import { useKanbanView } from './useKanbanView'
@@ -8,7 +9,7 @@
 
   const kanban = createKanban<Card, Column>()
 
-  const todo = kanban.columns.register({ value: { title: 'Todo', tone: 'bg-surface-variant' } })
+  const todo = kanban.columns.register({ value: { title: 'Todo', tone: 'bg-on-surface-variant' } })
   const doing = kanban.columns.register({ value: { title: 'Doing', tone: 'bg-info' } })
   kanban.columns.register({ value: { title: 'Done', tone: 'bg-success' } })
 
@@ -21,50 +22,108 @@
 
   const view = useKanbanView(kanban)
 
-  // kanban.on('transfer:ticket') fires after every successful cross-column move.
-  // Payload: { ticket, from, to, fromIndex, toIndex } — all IDs are column ids
-  // except ticket.id which is the item id.
+  const selected = shallowRef<ID | null>(null)
+
+  const selectedColumn = toRef(() => {
+    if (!selected.value) return null
+    return view.columns.values.find(col =>
+      view.items.get(col.id)?.values.some(item => item.id === selected.value),
+    ) ?? null
+  })
+
+  const selectedTicket = toRef(() =>
+    selected.value && selectedColumn.value
+      ? selectedColumn.value.items.get(selected.value) ?? null
+      : null,
+  )
+
+  function onSelect (id: ID) {
+    selected.value = selected.value === id ? null : id
+  }
+
   const status = shallowRef('')
   kanban.on('transfer:ticket', ({ ticket, from, to }) => {
     const fromName = view.columns.values.find(col => col.id === from)?.value.title ?? '?'
     const toName = view.columns.values.find(col => col.id === to)?.value.title ?? '?'
-    status.value = `Moved "${ticket.value.title}" from ${fromName} → ${toName}`
+    status.value = `Moved "${ticket.value.title}" from ${fromName} to ${toName}`
   })
 
-  // Cross-column moves use kanban.transfer; intra-column reorder goes through
-  // the column's own sortable via column.items.move — two channels, two events
-  // (transfer:ticket on the kanban bus, move:ticket on the column's items bus).
-  function next (cardId: ID, columnId: ID): void {
-    const index = view.columns.values.findIndex(col => col.id === columnId)
+  function next (): void {
+    if (!selected.value || !selectedColumn.value) return
+    const index = view.columns.values.findIndex(col => col.id === selectedColumn.value!.id)
     const target = view.columns.values[index + 1]
-    if (target) kanban.transfer(cardId, target.id, target.items.size)
+    if (target) kanban.transfer(selected.value, target.id, target.items.size)
   }
 
-  function previous (cardId: ID, columnId: ID): void {
-    const index = view.columns.values.findIndex(col => col.id === columnId)
+  function previous (): void {
+    if (!selected.value || !selectedColumn.value) return
+    const index = view.columns.values.findIndex(col => col.id === selectedColumn.value!.id)
     const target = view.columns.values[index - 1]
-    if (target) kanban.transfer(cardId, target.id, target.items.size)
+    if (target) kanban.transfer(selected.value, target.id, target.items.size)
   }
 
-  function up (cardId: ID, columnId: ID): void {
-    const column = view.columns.values.find(col => col.id === columnId)
-    if (!column) return
-    const ticket = column.items.get(cardId)
-    if (!ticket || ticket.index === 0) return
-    column.items.move(cardId, ticket.index - 1)
+  function up (): void {
+    if (!selected.value || !selectedColumn.value || !selectedTicket.value) return
+    if (selectedTicket.value.index === 0) return
+    selectedColumn.value.items.move(selected.value, selectedTicket.value.index - 1)
   }
 
-  function down (cardId: ID, columnId: ID): void {
-    const column = view.columns.values.find(col => col.id === columnId)
-    if (!column) return
-    const ticket = column.items.get(cardId)
-    if (!ticket || ticket.index === column.items.size - 1) return
-    column.items.move(cardId, ticket.index + 1)
+  function down (): void {
+    if (!selected.value || !selectedColumn.value || !selectedTicket.value) return
+    if (selectedTicket.value.index === selectedColumn.value.items.size - 1) return
+    selectedColumn.value.items.move(selected.value, selectedTicket.value.index + 1)
   }
 </script>
 
 <template>
   <div class="flex flex-col gap-3">
+    <div class="flex items-center gap-2 rounded-lg border border-divider bg-surface px-3 py-2">
+      <span class="flex-1 text-sm text-on-surface-variant">
+        <template v-if="selected && selectedColumn">
+          <span class="font-medium text-on-surface">{{ selectedTicket?.value.title }}</span>
+          <span class="ml-1">in {{ selectedColumn.value.title }}</span>
+        </template>
+
+        <span v-else class="opacity-60">Select a card to move it</span>
+      </span>
+
+      <button
+        aria-label="Move to previous column"
+        class="rounded p-1 hover:bg-surface-variant disabled:opacity-30 disabled:hover:bg-transparent"
+        :disabled="!selected || selectedColumn?.id === view.columns.values[0]?.id"
+        @click="previous"
+      >
+        <svg class="size-4" viewBox="0 0 24 24"><path :d="mdiChevronLeft" fill="currentColor" /></svg>
+      </button>
+
+      <button
+        aria-label="Move up within column"
+        class="rounded p-1 hover:bg-surface-variant disabled:opacity-30 disabled:hover:bg-transparent"
+        :disabled="!selected || selectedTicket?.index === 0"
+        @click="up"
+      >
+        <svg class="size-4" viewBox="0 0 24 24"><path :d="mdiChevronUp" fill="currentColor" /></svg>
+      </button>
+
+      <button
+        aria-label="Move down within column"
+        class="rounded p-1 hover:bg-surface-variant disabled:opacity-30 disabled:hover:bg-transparent"
+        :disabled="!selected || selectedTicket?.index === selectedColumn!.items.size - 1"
+        @click="down"
+      >
+        <svg class="size-4" viewBox="0 0 24 24"><path :d="mdiChevronDown" fill="currentColor" /></svg>
+      </button>
+
+      <button
+        aria-label="Move to next column"
+        class="rounded p-1 hover:bg-surface-variant disabled:opacity-30 disabled:hover:bg-transparent"
+        :disabled="!selected || selectedColumn?.id === view.columns.values[view.columns.values.length - 1]?.id"
+        @click="next"
+      >
+        <svg class="size-4" viewBox="0 0 24 24"><path :d="mdiChevronRight" fill="currentColor" /></svg>
+      </button>
+    </div>
+
     <div class="grid gap-3 grid-cols-[repeat(auto-fit,minmax(200px,1fr))]">
       <div
         v-for="column in view.columns.values"
@@ -81,48 +140,14 @@
           <li
             v-for="item in view.items.get(column.id)?.values ?? []"
             :key="item.id"
-            class="group relative rounded-md border border-divider bg-surface-tint px-3 py-2 text-sm"
+            class="cursor-pointer rounded-md border px-3 py-2 text-sm transition-colors"
+            :class="item.id === selected
+              ? 'border-primary bg-primary/10'
+              : 'border-divider bg-surface-tint hover:border-primary/40'"
+            @click="onSelect(item.id)"
           >
             <div class="font-medium">{{ item.value.title }}</div>
             <div class="text-xs text-on-surface-variant">{{ item.value.assignee }}</div>
-
-            <div class="absolute top-1 right-1 flex gap-0.5 rounded bg-surface/90 backdrop-blur-sm shadow-sm opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity">
-              <button
-                aria-label="Move to previous column"
-                class="rounded px-1.5 py-0.5 text-xs hover:bg-surface-variant disabled:opacity-30 disabled:hover:bg-transparent"
-                :disabled="column.id === view.columns.values[0]?.id"
-                @click="previous(item.id, column.id)"
-              >
-                ←
-              </button>
-
-              <button
-                aria-label="Move up within column"
-                class="rounded px-1.5 py-0.5 text-xs hover:bg-surface-variant disabled:opacity-30 disabled:hover:bg-transparent"
-                :disabled="item.index === 0"
-                @click="up(item.id, column.id)"
-              >
-                ↑
-              </button>
-
-              <button
-                aria-label="Move down within column"
-                class="rounded px-1.5 py-0.5 text-xs hover:bg-surface-variant disabled:opacity-30 disabled:hover:bg-transparent"
-                :disabled="item.index === column.items.size - 1"
-                @click="down(item.id, column.id)"
-              >
-                ↓
-              </button>
-
-              <button
-                aria-label="Move to next column"
-                class="rounded px-1.5 py-0.5 text-xs hover:bg-surface-variant disabled:opacity-30 disabled:hover:bg-transparent"
-                :disabled="column.id === view.columns.values[view.columns.values.length - 1]?.id"
-                @click="next(item.id, column.id)"
-              >
-                →
-              </button>
-            </div>
           </li>
         </ul>
 
@@ -134,7 +159,7 @@
 
     <p class="text-xs text-on-surface-variant min-h-4">
       <span v-if="status">{{ status }}</span>
-      <span v-else class="opacity-60">Hover a card to reveal controls: ← → transfer between columns, ↑ ↓ reorder within a column.</span>
+      <span v-else class="opacity-60">Click a card to select it, then use the controls above to move it.</span>
     </p>
   </div>
 </template>
