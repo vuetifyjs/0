@@ -1,7 +1,8 @@
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Utilities
 import { isUndefined } from '#v0/utilities'
+import { shallowRef, toRef } from 'vue'
 
 // Types
 import type { SortableTicketInput } from '#v0/composables/createSortable'
@@ -18,6 +19,10 @@ interface ColumnInput extends KanbanColumnTicketInput<CardInput> {
 }
 
 describe('createKanban', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
   describe('shape', () => {
     it('should expose columns sortable, transfer, on, off', () => {
       const kanban = createKanban()
@@ -103,6 +108,25 @@ describe('createKanban', () => {
 
       expect(typeof todo.items.register).toBe('function')
       expect(todo.items.size).toBe(0)
+    })
+
+    it('should preserve items sortable when upserting an existing column id', () => {
+      const kanban = createKanban<CardInput, ColumnInput>()
+      const todo = kanban.columns.upsert('todo-1', { value: { title: 'Todo' } })
+      const card = todo.items.register({ value: { title: 'a' } })
+
+      const updated = kanban.columns.upsert('todo-1', { value: { title: 'In Progress' } })
+
+      expect(updated.value.title).toBe('In Progress')
+      expect(updated.items).toBe(todo.items)
+      expect(updated.items.get(card.id)?.id).toBe(card.id)
+    })
+
+    it('should accept an empty registrations array in onboard', () => {
+      const kanban = createKanban<CardInput, ColumnInput>()
+      const result = kanban.columns.onboard([])
+      expect(result).toEqual([])
+      expect(kanban.columns.size).toBe(0)
     })
 
     it('should support kanban.columns.swap to swap column positions', () => {
@@ -367,6 +391,72 @@ describe('createKanban', () => {
       expect(acceptSpy).not.toHaveBeenCalled()
     })
 
+    it('should clamp same-column transfer toIndex above column size to the end', () => {
+      const kanban = createKanban<CardInput, ColumnInput>()
+      const todo = kanban.columns.register({ value: { title: 'Todo' } })
+      const a = todo.items.register({ value: { title: 'a' } })
+      todo.items.register({ value: { title: 'b' } })
+
+      const moved = kanban.transfer(a.id, todo.id, 99)
+
+      expect(moved?.id).toBe(a.id)
+      expect(moved?.index).toBe(1)
+      expect(todo.items.values().map(t => t.value.title)).toEqual(['b', 'a'])
+    })
+
+    it('should track reactive kanban-level disabled flips', () => {
+      const flag = shallowRef(false)
+      const kanban = createKanban<CardInput, ColumnInput>({ disabled: toRef(() => flag.value) })
+      const todo = kanban.columns.register({ value: { title: 'Todo' } })
+      const done = kanban.columns.register({ value: { title: 'Done' } })
+      const a = todo.items.register({ value: { title: 'a' } })
+
+      flag.value = true
+      expect(kanban.transfer(a.id, done.id, 0)).toBeUndefined()
+      expect(done.items.size).toBe(0)
+
+      flag.value = false
+      const moved = kanban.transfer(a.id, done.id, 0)
+      expect(moved?.id).toBe(a.id)
+      expect(done.items.size).toBe(1)
+    })
+
+    it('should track reactive column-level disabled flips', () => {
+      const flag = shallowRef(false)
+      const kanban = createKanban<CardInput, ColumnInput>()
+      const todo = kanban.columns.register({
+        value: { title: 'Todo' },
+        disabled: toRef(() => flag.value),
+      })
+      const done = kanban.columns.register({ value: { title: 'Done' } })
+      const a = todo.items.register({ value: { title: 'a' } })
+
+      flag.value = true
+      expect(kanban.transfer(a.id, done.id, 0)).toBeUndefined()
+
+      flag.value = false
+      expect(kanban.transfer(a.id, done.id, 0)?.id).toBe(a.id)
+    })
+
+    it('should warn and return undefined when the destination already contains the id', () => {
+      const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+      const kanban = createKanban<CardInput, ColumnInput>()
+      const todo = kanban.columns.register({ value: { title: 'Todo' } })
+      const done = kanban.columns.register({ value: { title: 'Done' } })
+
+      // Register the same id in done first so the lookup points at done, then
+      // also into todo. lookup.upsert overwrites — final mapping is dup → todo.
+      done.items.register({ id: 'dup', value: { title: 'b' } })
+      todo.items.register({ id: 'dup', value: { title: 'a' } })
+
+      // lookup says todo; source.get(dup) succeeds; destination (done) already has dup.
+      expect(kanban.transfer('dup', done.id, 0)).toBeUndefined()
+      expect(spy).toHaveBeenCalledWith(expect.stringContaining('already exists in destination'))
+
+      spy.mockRestore()
+    })
+
     it('should clamp toIndex above destination size to the end', () => {
       const kanban = createKanban<CardInput, ColumnInput>()
       const todo = kanban.columns.register({ value: { title: 'Todo' } })
@@ -467,6 +557,7 @@ describe('createKanban', () => {
 
       // Non-existent id should warn (lookup correctly returns undefined for stale keys).
       expect(kanban.transfer(b.id, done.id, 0)).toBeUndefined()
+      expect(spy).toHaveBeenCalledTimes(1)
       expect(spy).toHaveBeenCalledWith(expect.stringContaining('unknown ticket id'))
 
       spy.mockRestore()

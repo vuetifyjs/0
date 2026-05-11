@@ -43,18 +43,14 @@ import { isThenable, isUndefined } from '#v0/utilities'
 import { toValue } from 'vue'
 
 // Types
-import type {
-  RegistryEventCallback,
-  RegistryEventName,
-  RegistryTicketInput,
-} from '#v0/composables/createRegistry'
+import type { RegistryTicketInput } from '#v0/composables/createRegistry'
 import type {
   SortableContext,
   SortableOptions,
   SortableTicket,
   SortableTicketInput,
 } from '#v0/composables/createSortable'
-import type { Extensible, ID } from '#v0/types'
+import type { ID } from '#v0/types'
 import type { MaybeRefOrGetter } from 'vue'
 
 /**
@@ -179,8 +175,9 @@ export interface KanbanTransferPayload<
 }
 
 /**
- * Listener signature: typed overload for `transfer:ticket` plus the columns'
- * underlying registry event channel.
+ * Listener signature for the kanban-level `transfer:ticket` event. Registry
+ * events (`register:ticket`, `unregister:ticket`, etc.) live on the columns
+ * registry — subscribe via `kanban.columns.on(...)` rather than `kanban.on(...)`.
  *
  * @example
  * ```ts
@@ -191,22 +188,11 @@ export interface KanbanTransferPayload<
  * kanban.on('transfer:ticket', ({ ticket, from, to, toIndex }) => {
  *   console.log(ticket.id, from, '→', to, '@', toIndex)
  * })
- *
- * kanban.on('register:ticket', column => {
- *   console.log('column registered:', column.id)
- * })
  * ```
  */
 export type KanbanEventListener<
   ItemZ extends SortableTicketInput = SortableTicketInput,
-  ColZ extends KanbanColumnTicketInput<ItemZ> = KanbanColumnTicketInput<ItemZ>,
-> = {
-  (event: 'transfer:ticket', cb: (data: KanbanTransferPayload<ItemZ>) => void): void
-  <K extends Extensible<RegistryEventName>>(
-    event: K,
-    cb: RegistryEventCallback<KanbanColumnTicket<ItemZ, ColZ>, K>,
-  ): void
-}
+> = (event: 'transfer:ticket', cb: (data: KanbanTransferPayload<ItemZ>) => void) => void
 
 /**
  * Public context returned by `createKanban`.
@@ -275,8 +261,9 @@ export interface KanbanContext<
    */
   columns: SortableContext<ColZ, KanbanColumnTicket<ItemZ, ColZ>>
   /**
-   * Move an item across columns. Same-column transfer (`toColumnId === source`)
-   * collapses to `column.items.move` and does not emit `transfer:ticket`.
+   * Move an item across columns. Same-column transfer (where `toColumnId`
+   * matches the item's current column) collapses to `column.items.move` and
+   * does not emit `transfer:ticket`.
    *
    * Returns the moved ticket, or `undefined` when gated (kanban / source / destination /
    * item disabled, destination.accept rejected, unknown id, duplicate destination id).
@@ -298,9 +285,11 @@ export interface KanbanContext<
    */
   transfer: (id: ID, toColumnId: ID, toIndex: number) => SortableTicket<ItemZ> | undefined
   /**
-   * Subscribe to kanban-level events such as `transfer:ticket`. Registry events
-   * from the columns registry (e.g. `register:ticket`, `unregister:ticket`)
-   * are also reachable through this listener.
+   * Subscribe to the kanban-level `transfer:ticket` event, fired after each
+   * successful cross-column move. Registry events (`register:ticket`,
+   * `unregister:ticket`, `move:ticket`) live on the columns registry — use
+   * `kanban.columns.on(...)` for those, or `column.items.on(...)` for
+   * per-column intra-column reorder events.
    *
    * @example
    * ```ts
@@ -313,10 +302,10 @@ export interface KanbanContext<
    * })
    * ```
    */
-  on: KanbanEventListener<ItemZ, ColZ>
+  on: KanbanEventListener<ItemZ>
   /**
-   * Unsubscribe from a kanban-level event. Must be called with the same callback
-   * reference used to subscribe.
+   * Unsubscribe from the `transfer:ticket` event. Must be called with the same
+   * callback reference used to subscribe.
    *
    * @example
    * ```ts
@@ -334,7 +323,7 @@ export interface KanbanContext<
    * kanban.off('transfer:ticket', onTransfer)
    * ```
    */
-  off: KanbanEventListener<ItemZ, ColZ>
+  off: KanbanEventListener<ItemZ>
 }
 
 /**
@@ -383,8 +372,8 @@ export function createKanban<
 
   const bus = createRegistry({ events: true })
 
-  const on = bus.on as unknown as KanbanEventListener<ItemZ, ColZ>
-  const off = bus.off as unknown as KanbanEventListener<ItemZ, ColZ>
+  const on = bus.on as unknown as KanbanEventListener<ItemZ>
+  const off = bus.off as unknown as KanbanEventListener<ItemZ>
 
   const columns: SortableContext<ColZ, KanbanColumnTicket<ItemZ, ColZ>> = {
     ..._columns,

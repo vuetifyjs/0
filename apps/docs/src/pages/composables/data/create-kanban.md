@@ -18,7 +18,7 @@ related:
 
 # createKanban
 
-Headless data-flow management for two-level sortable boards. Owns one column registry plus a per-column item registry, plus a single `transfer` primitive for moving items across columns.
+Headless two-level board state for columns of cards, with column reorder, in-column reorder, and a cross-column `transfer` primitive. Pure logic — no drag-and-drop, no keyboard, no DOM — so consumers can drive it from any input modality.
 
 <DocsPageFeatures :frontmatter />
 
@@ -84,7 +84,7 @@ The composable adds the following on top of two `createSortable` instances:
 | `columns` | A `createSortable` that owns the column order. Each registered ticket carries a `items` field — its own inner `createSortable`. |
 | `column.items` | Per-column `createSortable`, created when the column is registered. Unregistered when the column unregisters. |
 | `transfer(id, toColumnId, toIndex)` | Cross-column move. Same-column calls collapse to `column.items.move` — no `transfer:ticket` event fires. |
-| `on` / `off` | Subscribe to the `transfer:ticket` event or to standard registry events on `columns`. |
+| `on` / `off` | Subscribe to the `transfer:ticket` event. For column register/unregister/move events, subscribe via `kanban.columns.on(...)` instead. |
 | `lookup` (internal) | `createRegistry` mapping item id → column id. Maintained by per-column items-bus subscriptions. |
 | `bus` (internal) | `createRegistry` used as an event bus for `transfer:ticket`. |
 
@@ -99,8 +99,8 @@ The composable adds the following on top of two `createSortable` instances:
 | `ticket.disabled` (per-item-ticket option) | <AppSuccessIcon /> | `MaybeRefOrGetter<boolean>` — prevents that specific item from being transferred or moved |
 | `column.accept` (per-column-ticket option) | - | Synchronous predicate `(ticket, from, toIndex) => boolean`. Called before each cross-column transfer into this column. Async predicates log a warning and are treated as reject. |
 | `transfer:ticket` event | <AppSuccessIcon /> | Fires after a successful cross-column move. Payload: `{ ticket, from, to, fromIndex, toIndex }`. Does not fire for same-column moves. |
-| `move:ticket` on `kanban.columns` | <AppSuccessIcon /> | Fires when a column is reordered via `kanban.columns.move`, `swap`, or `reorder`. |
-| `move:ticket` on `column.items` | <AppSuccessIcon /> | Fires when an item is reordered within a column. Not fired for cross-column transfers — those emit `transfer:ticket` instead. |
+| `move:ticket` on `kanban.columns` | <AppSuccessIcon /> | Fires when a column is reordered via `kanban.columns.move`, `swap`, or `reorder`. Subscribe via `kanban.columns.on('move:ticket', ...)` — not `kanban.on(...)`. |
+| `move:ticket` on `column.items` | <AppSuccessIcon /> | Fires when an item is reordered within a column. Subscribe via `column.items.on('move:ticket', ...)`. Not fired for cross-column transfers — those emit `transfer:ticket` instead. |
 
 ## Examples
 
@@ -115,7 +115,7 @@ A complete kanban board driven entirely by `kanban.transfer(id, toColumnId, toIn
 
 Three files make up the example. `types.ts` declares the domain: a `Card` extends `SortableTicketInput` with `{ title, assignee }`, a `Column` extends `KanbanColumnTicketInput<Card>` with `{ title, tone }`. Splitting types out is a small thing that pays off the moment a second component on the page needs to reference them.
 
-`useKanbanView.ts` is the reusable bit. `useProxyRegistry` registers an `onScopeDispose` callback, so it must be called inside a setup scope — a `v-for` template can't call it directly. The helper wraps the two-level reactive iteration pattern every kanban consumer reaches for: a column proxy plus a `Map<ID, ProxyRegistryContext<Card>>` for per-column items, kept in sync with column register/unregister events. Drop the file into your own app verbatim; nothing in it is kanban-specific beyond the `Card`/`Column` types it references.
+`useKanbanView.ts` is the reusable bit. It allocates one `useProxyRegistry` per column up front and caches it in a `Map<ID, ProxyRegistryContext<Card>>` — much cheaper than computing a fresh proxy inside every `v-for` render. Column register/unregister events keep the map in sync. Drop the file into your own app verbatim; nothing in it is kanban-specific beyond the `Card`/`Column` types it references.
 
 `app.vue` is the demo entry. It seeds three columns, two cards in Todo, one in Doing, then wires `← →` buttons that drive `kanban.transfer`. A subscriber on the kanban-level `transfer:ticket` event renders a status line under the board — a sanity-check that moves are flowing through the proper channel rather than mutating refs out-of-band.
 
@@ -248,5 +248,29 @@ todo.items.on('move:ticket', ({ ticket, from, to }) => {
 ```
 
 Cross-column transfers do NOT fire `move:ticket` on either column's items bus. They fire `transfer:ticket` on the kanban bus after the batch closes. If you need to observe every positional change regardless of whether it crossed a column boundary, subscribe to both event types.
+
+## FAQ
+
+::: faq
+??? Why doesn't `kanban.on('register:ticket', ...)` fire when a column is registered?
+
+`kanban.on` is a narrow channel for the kanban-level `transfer:ticket` event only. Registry events live on the columns registry — subscribe via `kanban.columns.on('register:ticket', cb)` for column lifecycle, or `column.items.on('register:ticket', cb)` for per-column item lifecycle.
+
+??? Why doesn't `transfer:ticket` fire on a same-column move?
+
+Same-column `kanban.transfer(id, fromColumnId, toIndex)` collapses to `column.items.move(id, toIndex)`. The intra-column reorder fires `move:ticket` on that column's items bus instead. Subscribe to both `kanban.on('transfer:ticket', ...)` and `column.items.on('move:ticket', ...)` if you need to observe every positional change.
+
+??? Why doesn't my `column.accept` predicate run on same-column reorders?
+
+`accept` is a cross-column gate. Same-column moves collapse to `column.items.move` and bypass `accept` entirely. If you need a veto on intra-column moves, gate the move at the call site or use `column.disabled` / per-item `disabled`.
+
+??? Can `column.accept` return a Promise?
+
+No. Async predicates log a warning and are treated as a rejection. Resolve any async work outside of `accept` and gate the transfer call yourself.
+
+??? When should I use `kanban.transfer` vs `column.items.move`?
+
+Use `kanban.transfer(id, toColumnId, toIndex)` whenever the destination column might differ from the source — it resolves the source column from the internal `lookup` registry and emits `transfer:ticket` for cross-column moves. Use `column.items.move(id, toIndex)` directly when you already know the move is intra-column and want to skip the cross-column gates.
+:::
 
 <DocsApi />
