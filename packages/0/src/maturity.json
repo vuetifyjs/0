@@ -612,6 +612,11 @@
       "since": "0.1.0",
       "category": "utilities"
     },
+    "isThenable": {
+      "level": "preview",
+      "since": null,
+      "category": "utilities"
+    },
     "isUndefined": {
       "level": "stable",
       "since": "0.1.0",
