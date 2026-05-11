@@ -280,8 +280,8 @@ export interface KanbanContext<
    * Move an item across columns. Same-column transfer (`toColumnId === source`)
    * collapses to `column.items.move` and does not emit `transfer:ticket`.
    *
-   * Returns the moved ticket, or `undefined` when gated (kanban / source / dest /
-   * item disabled, dest.accept rejected, unknown id, duplicate dest id).
+   * Returns the moved ticket, or `undefined` when gated (kanban / source / destination /
+   * item disabled, destination.accept rejected, unknown id, duplicate destination id).
    *
    * @example
    * ```ts
@@ -425,7 +425,7 @@ export function createKanban<
     },
   }
 
-  function safeAccept (
+  function isAccepted (
     accept: ColZ['accept'],
     ticket: SortableTicket<ItemZ>,
     from: ID,
@@ -489,7 +489,7 @@ export function createKanban<
       return undefined
     }
 
-    if (!safeAccept(destination.accept, ticket, fromColumnId, toIndex)) return undefined
+    if (!isAccepted(destination.accept, ticket, fromColumnId, toIndex)) return undefined
 
     // Guard against corrupted-lookup state (duplicate id in two columns).
     if (!isUndefined(destination.items.get(id))) {
