@@ -84,7 +84,7 @@ describe('createOtp', () => {
       const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
       otp.accepts('1')
       otp.accepts('2')
-      expect(spy).toHaveBeenCalled()
+      expect(spy).toHaveBeenCalledTimes(1)
       spy.mockRestore()
     })
   })
