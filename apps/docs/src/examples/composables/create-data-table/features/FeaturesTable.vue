@@ -4,7 +4,6 @@
   import { employees } from './data'
 
   const table = createDataTable({
-    items: employees,
     columns,
     groupBy: 'department',
     openAll: true,
@@ -15,14 +14,16 @@
     pagination: { itemsPerPage: 20 },
   })
 
-  function sortIcon (key: string) {
+  table.onboard(employees.map(value => ({ id: value.id, value })))
+
+  function arrow (key: string) {
     const dir = table.sort.direction(key)
     if (dir === 'asc') return '↑'
     if (dir === 'desc') return '↓'
     return ''
   }
 
-  function formatSalary (value: number) {
+  function format (value: number) {
     return `$${value.toLocaleString()}`
   }
 </script>
@@ -74,7 +75,7 @@
               @click="table.sort.toggle(col.key)"
             >
               {{ col.title }}
-              <span class="ml-1 text-xs opacity-50">{{ sortIcon(col.key) }}</span>
+              <span class="ml-1 text-xs opacity-50">{{ arrow(col.key) }}</span>
             </th>
           </tr>
         </thead>
@@ -111,7 +112,7 @@
 
                 <td class="px-4 py-3">{{ item.name }}</td>
                 <td class="px-4 py-3">{{ item.department }}</td>
-                <td class="px-4 py-3 font-mono">{{ formatSalary(item.salary) }}</td>
+                <td class="px-4 py-3 font-mono">{{ format(item.salary) }}</td>
 
                 <td class="px-4 py-3">
                   <span

@@ -717,6 +717,43 @@ onBeforeUnmount(() => {
 
 Used in `Progress*`, `Splitter*`, and any compound whose sub-components need to coexist with consumer-supplied attributes. The outer `Atom` is where these are ultimately bound — sub-components do not forward `attrs` onto their own children, which is why the "never spread `attrs` on a non-renderless child" rule (§3.5) holds.
 
+### 6.10 Collection composables: no `items` option
+
+**Rule.** A composable that owns a collection of values exposes `register` / `onboard` / `unregister`. It does not accept an `items` option in its factory. Row identity, order, and per-row state live in the registry — never on a parallel array threaded in through options. [intent:351]
+
+**Why.** A single source of truth: the registry owns the rows. An `items` option splits ownership between the consumer's array and the composable's internal state, which forces every pipeline stage to re-derive identity. Registry-based composables also dodge `MaybeRefOrGetter<T[]>` plumbing — tickets are reactive by construction, so the composable does not have to `toValue()` an external ref on every recompute. Composition stays uniform: components and composables built on top get the same `register` / `onboard` surface they already use for `createSortable` and the selection chain. Tickets emitted by `unregister` / `offboard` can be moved between registries without re-deriving identity. [intent:352]
+
+**Before (wrong).**
+
+```ts
+const table = createDataTable({
+  items: users,
+  columns: [...],
+  itemValue: 'id',
+})
+```
+
+**After (right).**
+
+```ts
+const table = createDataTable({ columns: [...] })
+
+// Bulk register at setup
+table.onboard(users.map(value => ({ id: value.id, value })))
+
+// Or one at a time
+const ticket = table.register({ id: user.id, value: user })
+
+// Remove rows
+ticket.unregister()
+table.unregister(user.id)
+table.clear()
+```
+
+Callers who want domain-stable identity pass `id` explicitly — same pattern as `createSortable`. Omit `id` and the registry auto-generates one via `useId()`. Consumers with a reactive items source watch it themselves and call `clear()` + `onboard()` (or maintain `register` / `unregister` incrementally); the composable does not auto-sync from an external ref.
+
+**Composables that follow this rule.** `createRegistry`, `createModel`, `createSelection`, `createSingle`, `createGroup`, `createStep`, `createNested`, `createSortable`, `createKanban`, `createQueue`, `createTimeline`, `createTokens`. `createDataTable` and `createDataGrid` predate the convention and have been brought in line — `items` and `itemValue` are gone; consumers `onboard` rows on the returned context. [intent:353]
+
 ---
 
 ## 7. Events & lifecycle
@@ -1328,7 +1365,7 @@ Reason: §2.8, [intent:151]. Auto-increment breaks SSR hydration.
 | 3 API shape | returns, args, names, slots, comments | 22 |
 | 4 Reactivity | primitives, readonly, options, scope | 22 |
 | 5 Headless | operational definition | 10 |
-| 6 Registries | context, tickets, useProxyModel, useProxyRegistry, mergeProps | 14 |
+| 6 Registries | context, tickets, useProxyModel, useProxyRegistry, mergeProps, collection composables | 17 |
 | 7 Events & lifecycle | binding, mounting, cleanup, toggle scope | 7 |
 | 8 Types | any, readonly-ref, MRG, generics, slot guards | 8 |
 | 9 Errors | throw/warn/return, logger, SSR | 9 |

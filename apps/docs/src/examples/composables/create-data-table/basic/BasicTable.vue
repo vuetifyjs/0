@@ -4,12 +4,13 @@
   import { users } from './data'
 
   const table = createDataTable({
-    items: users,
     columns,
     pagination: { itemsPerPage: 5 },
   })
 
-  function sortIcon (key: string) {
+  table.onboard(users.map(value => ({ id: value.id, value })))
+
+  function arrow (key: string) {
     const dir = table.sort.direction(key)
     if (dir === 'asc') return '↑'
     if (dir === 'desc') return '↓'
@@ -38,7 +39,7 @@
               @click="table.sort.toggle(col.key)"
             >
               {{ col.title }}
-              <span class="ml-1 text-xs opacity-50">{{ sortIcon(col.key) }}</span>
+              <span class="ml-1 text-xs opacity-50">{{ arrow(col.key) }}</span>
             </th>
           </tr>
         </thead>

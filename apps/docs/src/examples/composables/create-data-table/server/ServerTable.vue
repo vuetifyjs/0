@@ -1,47 +1,41 @@
 <script setup lang="ts">
   import { createDataTable, ServerDataTableAdapter } from '@vuetify/v0'
   import { shallowRef, watch } from 'vue'
-  import { fetchUsers } from './api'
+  import { fetch } from './api'
   import { columns } from './columns'
 
-  import type { User } from './api'
-
-  const serverItems = shallowRef<User[]>([])
-  const totalCount = shallowRef(0)
-  const isLoading = shallowRef(false)
+  const total = shallowRef(0)
+  const loading = shallowRef(false)
 
   const table = createDataTable({
-    items: serverItems,
     columns,
     pagination: { itemsPerPage: 5 },
-    adapter: new ServerDataTableAdapter({
-      total: totalCount,
-      loading: isLoading,
-    }),
+    adapter: new ServerDataTableAdapter({ total, loading }),
   })
 
-  async function loadData () {
-    isLoading.value = true
+  async function load () {
+    loading.value = true
 
-    const result = await fetchUsers(
+    const result = await fetch(
       table.query.value,
       table.sort.columns.value,
       table.pagination.page.value,
       table.pagination.itemsPerPage,
     )
 
-    totalCount.value = result.total
-    serverItems.value = result.items
-    isLoading.value = false
+    total.value = result.total
+    table.clear()
+    table.onboard(result.items.map(value => ({ id: value.id, value })))
+    loading.value = false
   }
 
   watch(
     [table.query, table.sort.columns, table.pagination.page],
-    () => loadData(),
+    () => load(),
     { immediate: true },
   )
 
-  function sortIcon (key: string) {
+  function arrow (key: string) {
     const dir = table.sort.direction(key)
     if (dir === 'asc') return '↑'
     if (dir === 'desc') return '↓'
@@ -82,7 +76,7 @@
               @click="table.sort.toggle(col.key)"
             >
               {{ col.title }}
-              <span class="ml-1 text-xs opacity-50">{{ sortIcon(col.key) }}</span>
+              <span class="ml-1 text-xs opacity-50">{{ arrow(col.key) }}</span>
             </th>
           </tr>
         </thead>
@@ -109,7 +103,7 @@
 
     <div class="flex items-center justify-between text-sm">
       <span class="opacity-60">
-        {{ totalCount }} total
+        {{ total }} total
       </span>
 
       <div class="flex gap-1">

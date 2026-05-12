@@ -2,20 +2,21 @@
   import { createDataTable, VirtualDataTableAdapter, createVirtual } from '@vuetify/v0'
   import { computed } from 'vue'
   import { columns } from './columns'
-  import { generateUsers } from './data'
+  import { generate } from './data'
 
-  const items = generateUsers(1000)
+  const items = generate(1000)
 
   const table = createDataTable({
-    items,
     columns,
     adapter: new VirtualDataTableAdapter(),
   })
 
+  table.onboard(items.map(value => ({ id: value.id, value })))
+
   const virtual = createVirtual(table.items, { itemHeight: 40 })
   const {
     element,
-    items: virtualItems,
+    items: visible,
     offset,
     size,
     scroll,
@@ -24,10 +25,10 @@
   const stats = computed(() => ({
     total: items.length,
     filtered: table.items.value.length,
-    rendered: virtualItems.value.length,
+    rendered: visible.value.length,
   }))
 
-  function sortIcon (key: string) {
+  function arrow (key: string) {
     const dir = table.sort.direction(key)
     if (dir === 'asc') return '↑'
     if (dir === 'desc') return '↓'
@@ -67,7 +68,7 @@
                 @click="table.sort.toggle(col.key)"
               >
                 {{ col.title }}
-                <span class="ml-1 text-xs opacity-50">{{ sortIcon(col.key) }}</span>
+                <span class="ml-1 text-xs opacity-50">{{ arrow(col.key) }}</span>
               </th>
             </tr>
           </thead>
@@ -76,7 +77,7 @@
             <tr :style="{ height: `${offset}px` }" />
 
             <tr
-              v-for="item in virtualItems"
+              v-for="item in visible"
               :key="item.raw.id"
               class="h-[40px] hover:bg-surface-tint transition-colors"
             >

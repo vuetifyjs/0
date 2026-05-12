@@ -22,21 +22,25 @@ Composable data table built on v0 primitives. Composes sorting, filtering, pagin
 
 <DocsPageFeatures :frontmatter />
 
+> [!TIP]
+> Rows are registered through the registry surface, not passed as an `items` option. Call `table.onboard(rows.map(value => ({ id: value.id, value })))` after construction, or register rows one at a time with `table.register({ id, value })`. The ticket id IS the row identifier — selection, expansion, and grouping all key off it.
+
 ## Usage
 
-Pass `items` and `columns` to get a fully reactive data table with search, sort, and pagination ready to use.
+Construct the table with `columns`, then register rows via `onboard` (bulk) or `register` (one at a time). Each row becomes a ticket keyed by the `id` you supply — that id is what `selection.toggle`, `expansion.toggle`, and `unregister` accept.
 
 ```ts collapse
 import { createDataTable } from '@vuetify/v0'
 
 const table = createDataTable({
-  items: users,
   columns: [
     { key: 'name', title: 'Name', sortable: true, filterable: true },
     { key: 'email', title: 'Email', sortable: true, filterable: true },
     { key: 'role', title: 'Role', sortable: true },
   ],
 })
+
+table.onboard(users.map(value => ({ id: value.id, value })))
 
 // Search
 table.search('john')
@@ -50,6 +54,12 @@ table.pagination.next()
 
 // Select rows
 table.selection.toggle('user-1')
+
+// Add / remove rows after setup
+const ticket = table.register({ id: 'user-99', value: user })
+ticket.unregister()           // remove via returned ticket
+table.unregister('user-1')    // remove by id
+table.clear()                 // wipe all rows
 ```
 
 ::: example
@@ -70,22 +80,23 @@ Use `createDataTableContext` to share a data table instance across a component t
 ```ts
 import { createDataTableContext } from '@vuetify/v0'
 
-const [useUsersTable, provideUsersTable, usersTable] =
+const [useUsersTable, provideUsersTable, context] =
   createDataTableContext({
     namespace: 'app:users',
-    items: users,
     columns: [
       { key: 'name', title: 'Name', sortable: true },
       { key: 'email', title: 'Email' },
     ],
   })
 
+context.onboard(users.map(value => ({ id: value.id, value })))
+
 // In parent component
 provideUsersTable()
 
 // In child component (e.g., a toolbar or pagination control)
 const table = useUsersTable()
-table.sort('name', 'asc')
+table.sort.toggle('name')
 ```
 
 ## Adapters
@@ -117,10 +128,11 @@ import { createDataTable } from '@vuetify/v0'
 import { ClientDataTableAdapter } from '@vuetify/v0/data-table/adapters/client'
 
 const table = createDataTable({
-  items: users,
   columns,
   adapter: new ClientDataTableAdapter(), // default — not required
 })
+
+table.onboard(users.map(value => ({ id: value.id, value })))
 ```
 
 ### ServerDataTableAdapter
@@ -146,24 +158,35 @@ graph LR
 - `allItems`, `filteredItems`, `sortedItems`, and `items` all point to the same source (no client-side processing)
 - Exposes `loading` and `error` via `table.loading` and `table.error`
 
+Server-backed tables don't hold a long-lived `items` ref — instead, the fetch handler calls `table.clear()` and `table.onboard(...)` whenever a new page of results comes back. The registry becomes the single source of truth for what the table renders, and the adapter's `total` / `loading` / `error` refs drive pagination and UI state.
+
 ```ts
 import { createDataTable } from '@vuetify/v0'
 import { ServerDataTableAdapter } from '@vuetify/v0/data-table/adapters/server'
 
+const total = shallowRef(0)
+const loading = shallowRef(false)
+const error = shallowRef<Error | null>(null)
+
 const table = createDataTable({
-  items: serverItems,
   columns,
-  adapter: new ServerDataTableAdapter({
-    total: totalCount,
-    loading: isLoading,
-    error: fetchError,
-  }),
+  adapter: new ServerDataTableAdapter({ total, loading, error }),
 })
+
+async function load () {
+  loading.value = true
+  const result = await fetch(/* query, sorts, page */)
+  total.value = result.total
+  table.clear()
+  table.onboard(result.items.map(value => ({ id: value.id, value })))
+  loading.value = false
+}
 
 // Watch query/sort/page to trigger API calls
 watch(
   [table.query, table.sort.columns, table.pagination.page],
-  () => fetchData()
+  () => load(),
+  { immediate: true },
 )
 ```
 
@@ -186,10 +209,11 @@ import { createDataTable, createVirtual } from '@vuetify/v0'
 import { VirtualDataTableAdapter } from '@vuetify/v0/data-table/adapters/virtual'
 
 const table = createDataTable({
-  items: largeDataset,
   columns,
   adapter: new VirtualDataTableAdapter(),
 })
+
+table.onboard(rows.map(value => ({ id: value.id, value })))
 
 // Wrap table.items with createVirtual for rendering
 const virtual = createVirtual(table.items, { itemHeight: 40 })
@@ -203,7 +227,6 @@ Toggle sort cycles through directions. Configure with `mandate` and `firstSortOr
 
 ```ts
 const table = createDataTable({
-  items,
   columns: [
     { key: 'name', sortable: true },
     { key: 'age', sortable: true, sort: (a, b) => Number(a) - Number(b) },
@@ -212,6 +235,8 @@ const table = createDataTable({
   firstSortOrder: 'desc',   // First click sorts descending
   sortMultiple: true,        // Enable multi-column sort
 })
+
+table.onboard(items.map(value => ({ id: value.id, value })))
 
 table.sort.toggle('name')
 table.sort.direction('name')     // 'asc' | 'desc' | 'none'
@@ -227,7 +252,6 @@ Search filters across all `filterable` columns. Use per-column `filter` for cust
 
 ```ts
 const table = createDataTable({
-  items,
   columns: [
     { key: 'name', filterable: true },
     { key: 'status', filterable: true, filter: (value, query) => {
@@ -235,6 +259,8 @@ const table = createDataTable({
     }},
   ],
 })
+
+table.onboard(items.map(value => ({ id: value.id, value })))
 
 table.search('active')
 ```
@@ -251,11 +277,12 @@ Control row selection with the `selectStrategy` option.
 
 ```ts
 const table = createDataTable({
-  items,
   columns,
   selectStrategy: 'page',
   itemSelectable: 'canSelect',  // Disable selection for rows where canSelect is falsy
 })
+
+table.onboard(items.map(value => ({ id: value.id, value })))
 
 table.selection.toggle('row-1')
 table.selection.isSelected('row-1')     // true
@@ -271,10 +298,11 @@ Expand rows to reveal detail content.
 
 ```ts
 const table = createDataTable({
-  items,
   columns,
   expandMultiple: false,  // Only one row expanded at a time
 })
+
+table.onboard(items.map(value => ({ id: value.id, value })))
 
 table.expansion.toggle('row-1')
 table.expansion.isExpanded('row-1')  // true
@@ -288,11 +316,12 @@ Group rows by a column value.
 
 ```ts
 const table = createDataTable({
-  items,
   columns,
   groupBy: 'department',
   openAll: true,  // Auto-open all groups
 })
+
+table.onboard(items.map(value => ({ id: value.id, value })))
 
 table.grouping.groups.value  // [{ key: 'Engineering', value: 'Engineering', items: [...] }]
 table.grouping.toggle('Engineering')
@@ -303,10 +332,10 @@ table.grouping.closeAll()
 
 ## Reactivity
 
-| Property | Reactive | Notes |
+| Property / Method | Reactive | Notes |
 | - | :-: | - |
-| `items` | <AppSuccessIcon /> | Computed — final visible items |
-| `allItems` | <AppSuccessIcon /> | Computed — raw unprocessed items |
+| `items` | <AppSuccessIcon /> | Computed — final visible items (projected from registry tickets) |
+| `allItems` | <AppSuccessIcon /> | Computed — every registered row, unfiltered/unsorted |
 | `filteredItems` | <AppSuccessIcon /> | Computed — items after filtering |
 | `sortedItems` | <AppSuccessIcon /> | Computed — items after filter + sort |
 | `query` | <AppSuccessIcon /> | ShallowRef — current search query (readonly) |
@@ -321,6 +350,10 @@ table.grouping.closeAll()
 | `total` | <AppSuccessIcon /> | Computed — total row count |
 | `loading` | <AppSuccessIcon /> | Computed — adapter loading state |
 | `error` | <AppSuccessIcon /> | Computed — adapter error state |
+| `register(input)` | — | Method — adds a single ticket, mutates the registry (downstream refs recompute) |
+| `onboard(inputs)` | — | Method — bulk register, mutates the registry |
+| `unregister(id)` | — | Method — removes a ticket by id |
+| `clear()` | — | Method — wipes every ticket (useful before re-fetching server data) |
 
 ## Examples
 

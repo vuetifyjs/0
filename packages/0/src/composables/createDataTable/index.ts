@@ -8,6 +8,10 @@
  * reimplementing their logic. Uses createGroup's tri-state for sort direction
  * and delegates the data pipeline (filter, sort, paginate) to an adapter.
  *
+ * Rows are managed via an internal registry — register / onboard / unregister.
+ * Row identity is the ticket id (caller-supplied or auto-generated). The
+ * factory no longer accepts an `items` option.
+ *
  * Key features:
  * - Adapter pattern for pipeline strategy (client, server, virtual)
  * - Sort via createGroup tri-state: selected=asc, mixed=desc, unselected=none
@@ -23,9 +27,12 @@
  * import { createDataTable } from '@vuetify/v0'
  *
  * const table = createDataTable({
- *   items: [{ id: 1, name: 'Alice' }, { id: 2, name: 'Bob' }],
  *   columns: [{ key: 'name', title: 'Name', sortable: true }],
  * })
+ * table.onboard([
+ *   { id: 1, value: { id: 1, name: 'Alice' } },
+ *   { id: 2, value: { id: 2, name: 'Bob' } },
+ * ])
  * table.sort.toggle('name')
  * ```
  */
@@ -33,6 +40,7 @@
 // Composables
 import { useContext } from '#v0/composables/createContext'
 import { createGroup } from '#v0/composables/createGroup'
+import { createRegistry } from '#v0/composables/createRegistry'
 import { createTrinity } from '#v0/composables/createTrinity'
 import { useLocale } from '#v0/composables/useLocale'
 
@@ -43,17 +51,18 @@ import { ClientDataTableAdapter } from './adapters/v0'
 import { extractLeaves, resolveHeaders } from './columns'
 
 // Utilities
-import { isNumber, isNullOrUndefined, isString } from '#v0/utilities'
+import { isNullOrUndefined } from '#v0/utilities'
 import { computed, shallowReactive, shallowReadonly, shallowRef, toRef, watch } from 'vue'
 
 // Types
 import type { FilterOptions } from '#v0/composables/createFilter'
 import type { PaginationContext, PaginationOptions } from '#v0/composables/createPagination'
+import type { RegistryContext, RegistryTicket, RegistryTicketInput } from '#v0/composables/createRegistry'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { ID } from '#v0/types'
 import type { DataTableAdapter, SortDirection, SortEntry } from './adapters/adapter'
 import type { InternalHeader } from './columns'
-import type { MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
+import type { Ref, ShallowRef } from 'vue'
 
 // Re-export adapter types
 export { DataTableAdapter } from './adapters'
@@ -69,6 +78,26 @@ export type { ColumnNode, InternalHeader } from './columns'
 export type KeysOfType<T, V> = { [K in keyof T]: T[K] extends V ? K : never }[keyof T] & string
 
 export type SelectStrategy = 'single' | 'page' | 'all'
+
+/**
+ * Input shape passed to `register` / `onboard` on a data table.
+ *
+ * @template T Row value type.
+ *
+ * @example
+ * ```ts
+ * const table = createDataTable<User>({ columns })
+ * table.register({ id: user.id, value: user })
+ * ```
+ */
+export type DataTableTicketInput<T extends Record<string, unknown>> = RegistryTicketInput<T>
+
+/**
+ * Output ticket returned by `register` / `onboard` / `get`.
+ *
+ * @template T Row value type.
+ */
+export type DataTableTicket<T extends Record<string, unknown>> = RegistryTicket<T> & DataTableTicketInput<T>
 
 export interface DataTableColumn<T extends Record<string, unknown> = Record<string, unknown>> {
   readonly key: string
@@ -166,12 +195,8 @@ export interface DataTableExpansion {
 }
 
 export interface DataTableOptions<T extends Record<string, unknown>> {
-  /** Source items */
-  items: MaybeRefOrGetter<T[]>
   /** Column definitions */
   columns: readonly DataTableColumn<T>[]
-  /** Property used as row identifier. Must resolve to a string or number value. @default 'id' */
-  itemValue?: KeysOfType<T, ID>
   /** Filter options (keys derived from columns) */
   filter?: Omit<FilterOptions, 'keys'>
   /** Pagination options (size derived from pipeline) */
@@ -198,7 +223,8 @@ export interface DataTableOptions<T extends Record<string, unknown>> {
   adapter?: DataTableAdapter<T>
 }
 
-export interface DataTableContext<T extends Record<string, unknown>> {
+export interface DataTableContext<T extends Record<string, unknown>>
+  extends RegistryContext<DataTableTicketInput<T>, DataTableTicket<T>> {
   /** Final paginated items for rendering */
   items: Readonly<Ref<readonly T[]>>
   /** Raw unprocessed items */
@@ -243,24 +269,31 @@ export interface DataTableContextOptions<T extends Record<string, unknown>> exte
  * Creates a data table instance with sort controls, selection, and an
  * adapter-driven data pipeline.
  *
+ * Rows are managed via the embedded registry: `register({ id, value })` for
+ * a single row, `onboard([...])` for bulk, `unregister(id)` / `clear()` for
+ * removal. Row identity is the ticket id; pass it explicitly when the caller
+ * wants to address rows by a domain identifier (e.g. selection toggles).
+ *
  * Must be called inside a component `setup()` or a Vue effect scope.
  * Calling at module scope in SSR environments causes request state leakage.
  *
  * @param options Data table options
- * @returns Data table context with pipeline stages and controls
+ * @returns Data table context with pipeline stages, controls, and registry surface
  *
  * @example
  * ```ts
  * import { createDataTable } from '@vuetify/v0'
  *
- * const table = createDataTable({
- *   items: users,
+ * const table = createDataTable<User>({
  *   columns: [
  *     { key: 'name', title: 'Name', sortable: true, filterable: true },
  *     { key: 'email', title: 'Email', sortable: true, filterable: true },
  *     { key: 'age', title: 'Age', sortable: true },
  *   ],
  * })
+ *
+ * // Register rows (id is the row identifier)
+ * table.onboard(users.map(value => ({ id: value.id, value })))
  *
  * // Search
  * table.search('john')
@@ -269,22 +302,19 @@ export interface DataTableContextOptions<T extends Record<string, unknown>> exte
  * table.sort.toggle('name')          // asc
  * table.sort.toggle('name')          // desc
  * table.sort.toggle('name')          // none
- * console.log(table.sort.columns.value) // [{ key: 'name', direction: 'asc' }]
  *
  * // Paginate
  * table.pagination.next()
  *
- * // Select rows
- * table.selection.toggle('user-1')
+ * // Select rows by ticket id
+ * table.selection.toggle(1)
  * ```
  */
 export function createDataTable<T extends Record<string, unknown>> (
   options: DataTableOptions<T>,
 ): DataTableContext<T> {
   const {
-    items: _items,
     columns,
-    itemValue = 'id' as KeysOfType<T, ID>,
     filter: filterOptions = {},
     pagination: paginationOptions = {},
     sortMultiple = false,
@@ -298,6 +328,11 @@ export function createDataTable<T extends Record<string, unknown>> (
     locale: initialLocale,
     adapter = new ClientDataTableAdapter<T>(),
   } = options
+
+  const registry = createRegistry<DataTableTicketInput<T>, DataTableTicket<T>>({
+    events: true,
+    reactive: true,
+  })
 
   const _query = shallowRef('')
 
@@ -433,6 +468,11 @@ export function createDataTable<T extends Record<string, unknown>> (
     if (col.filter) filters[col.key] = col.filter
   }
 
+  // Pipeline source: row values projected from the registry's tickets in
+  // registration order. Adapters still read this as `context.items` and the
+  // existing pipeline (filter → sort → paginate) is unchanged.
+  const registryItems = toRef(() => registry.values().map(t => t.value as T))
+
   const {
     allItems,
     filteredItems,
@@ -443,7 +483,7 @@ export function createDataTable<T extends Record<string, unknown>> (
     loading = toRef(() => false) as Readonly<Ref<boolean>>,
     error = toRef(() => null) as Readonly<Ref<Error | null>>,
   } = adapter.setup({
-    items: _items,
+    items: registryItems,
     search: _query,
     filterableKeys: filterable,
     sortBy,
@@ -456,17 +496,21 @@ export function createDataTable<T extends Record<string, unknown>> (
 
   const selectedIds = shallowReactive(new Set<ID>())
 
+  // Reverse lookup: row → ticket id. Uses the registry's catalog (O(1)) so
+  // selection/expansion can derive ids from items returned by the pipeline.
   function rowId (item: T): ID {
-    const value = item[itemValue]
-    if (isString(value) || isNumber(value)) return value
-    throw new Error(`[v0:data-table] itemValue "${itemValue}" must resolve to a string or number`)
+    const ids = registry.browse(item)
+    if (isNullOrUndefined(ids) || ids.length === 0) {
+      throw new Error('[v0:data-table] item is not registered')
+    }
+    return ids[0]!
   }
 
   const selectableIds = computed(() => {
     if (!itemSelectable) return null
     const ids = new Set<ID>()
-    for (const item of allItems.value) {
-      if (item[itemSelectable]) ids.add(rowId(item))
+    for (const ticket of registry.values()) {
+      if (ticket.value[itemSelectable]) ids.add(ticket.id)
     }
     return ids
   })
@@ -602,16 +646,14 @@ export function createDataTable<T extends Record<string, unknown>> (
       opened.add(group.key)
     }
 
-    // Async items may not be available yet — watch for first non-empty groups
-    if (groups.value.length === 0) {
-      const stop = watch(groups, newGroups => {
-        if (newGroups.length === 0) return
-        for (const group of newGroups) {
-          opened.add(group.key)
-        }
-        stop()
-      })
-    }
+    // Rows may be registered after construction — watch for new groups and
+    // auto-open them as they appear. `flush: 'sync'` keeps openAll
+    // synchronous from the consumer's perspective.
+    watch(groups, newGroups => {
+      for (const group of newGroups) {
+        opened.add(group.key)
+      }
+    }, { flush: 'sync' })
   }
 
   const grouping: DataTableGrouping<T> = {
@@ -643,6 +685,7 @@ export function createDataTable<T extends Record<string, unknown>> (
   }
 
   return {
+    ...registry,
     items: visible,
     allItems,
     filteredItems,
@@ -660,6 +703,9 @@ export function createDataTable<T extends Record<string, unknown>> (
     total,
     loading,
     error,
+    get size () {
+      return registry.size
+    },
   }
 }
 
@@ -675,7 +721,6 @@ export function createDataTable<T extends Record<string, unknown>> (
  *
  * const [useDataTable, provideDataTable, context] = createDataTableContext({
  *   namespace: 'app:users',
- *   items: users,
  *   columns: [
  *     { key: 'name', title: 'Name', sortable: true },
  *   ],
@@ -683,6 +728,7 @@ export function createDataTable<T extends Record<string, unknown>> (
  *
  * // Parent component
  * provideDataTable()
+ * context.onboard(users.map(value => ({ id: value.id, value })))
  *
  * // Child component
  * const table = useDataTable()

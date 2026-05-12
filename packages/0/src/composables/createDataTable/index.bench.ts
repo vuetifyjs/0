@@ -14,7 +14,7 @@ import { bench, describe } from 'vitest'
 import { createDataTable, ClientDataTableAdapter, VirtualDataTableAdapter } from './index'
 
 // Types
-import type { DataTableColumn, DataTableOptions } from './index'
+import type { DataTableColumn, DataTableOptions, DataTableTicketInput } from './index'
 
 // =============================================================================
 // FIXTURES - Created once, reused across read-only benchmarks
@@ -65,12 +65,20 @@ const COLUMNS_WITH_FILTER: DataTableColumn<BenchmarkRow>[] = [
 const SEARCH_QUERY_1K = 'User 500'
 const SEARCH_QUERY_10K = 'User 5000'
 
-function createTable (overrides: Partial<DataTableOptions<BenchmarkRow>> = {}) {
-  return createDataTable<BenchmarkRow>({
-    items: overrides.items ?? ROWS_1K,
-    columns: overrides.columns ?? COLUMNS,
-    ...overrides,
+function toInputs (rows: readonly BenchmarkRow[]): DataTableTicketInput<BenchmarkRow>[] {
+  return rows.map(value => ({ id: value.id, value }))
+}
+
+function createTable (
+  options: Partial<DataTableOptions<BenchmarkRow>> & { items?: readonly BenchmarkRow[] } = {},
+) {
+  const { items: rows = ROWS_1K, columns: cols = COLUMNS, ...rest } = options
+  const table = createDataTable<BenchmarkRow>({
+    columns: cols,
+    ...rest,
   })
+  table.onboard(toInputs(rows))
+  return table
 }
 
 // =============================================================================

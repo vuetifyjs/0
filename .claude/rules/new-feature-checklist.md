@@ -189,3 +189,4 @@ Prefer extending an existing pattern over creating a new one.
 - [ ] Feature appears in `apps/docs/build/generated/api-whitelist.ts` after build
 - [ ] `<DocsApi />` renders on the new docs page
 - [ ] Maturity level matches the promotion criteria table (don't self-promote to `stable` or `mature` — those require a maintainer)
+- [ ] Collection composable surface uses `register` / `onboard` (no `items` option) — see PHILOSOPHY §6.10
