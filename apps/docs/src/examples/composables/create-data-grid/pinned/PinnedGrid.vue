@@ -155,7 +155,7 @@
       class="border border-divider rounded-lg overflow-x-auto"
       data-grid
     >
-      <table class="w-full text-sm min-w-[900px] table-fixed">
+      <table class="w-full text-sm min-w-[1100px] table-fixed">
         <thead>
           <tr class="border-b border-divider">
             <th

@@ -86,6 +86,26 @@ flowchart TD
 | `rows` | `shallowRef<ID[]>` | Post-sort row reordering, inserted by the grid adapter pre-pagination |
 | `spans` | computed map | Row span resolution and hidden-cell tracking |
 
+## Reactivity
+
+| Property | Reactive | Notes |
+| - | :-: | - |
+| `items` | <AppSuccessIcon /> | Final visible items (paginated) |
+| `allItems` | <AppSuccessIcon /> | Raw unprocessed items |
+| `filteredItems` | <AppSuccessIcon /> | Items after filtering |
+| `sortedItems` | <AppSuccessIcon /> | Items after filter + sort + order |
+| `layout.columns` | <AppSuccessIcon /> | Resolved columns with size/offset |
+| `layout.pinned` | <AppSuccessIcon /> | Pin region breakdown |
+| `editing.active` | <AppSuccessIcon /> | Currently edited cell |
+| `editing.error` | <AppSuccessIcon /> | Validation error string |
+| `editing.dirty` | <AppSuccessIcon /> | Uncommitted edits map |
+| `rows.order` | <AppSuccessIcon /> | Current row ordering |
+| `spans` | <AppSuccessIcon /> | Row span map |
+| `headers` | <AppSuccessIcon /> | 2D header grid |
+| `sort.columns` | <AppSuccessIcon /> | Current sort entries |
+| `pagination.page` | <AppSuccessIcon /> | Current page |
+| `total` | <AppSuccessIcon /> | Total row count |
+
 ## Adapters
 
 Grid adapters extend the data table adapters with row ordering inserted between sort and pagination.
@@ -146,6 +166,86 @@ const grid = createDataGrid({
   adapter: new VirtualGridAdapter(grid.rows.order, 'id'),
 })
 ```
+
+## Examples
+
+::: example
+/composables/create-data-grid/pinned/PinnedGrid.vue
+/composables/create-data-grid/pinned/columns.ts
+/composables/create-data-grid/pinned/data.ts
+
+### Column Pinning & Resizing
+
+A financial data grid with 10 columns that requires horizontal scrolling. Ticker is pinned left, sector pinned right — the center columns scroll independently with drag-to-resize handles.
+
+**File breakdown:**
+
+| File | Role |
+|------|------|
+| `PinnedGrid.vue` | Financial spreadsheet with sticky pinned columns, resize handles, and formatted numbers |
+| `columns.ts` | 10 columns with ticker pinned left, sector pinned right |
+| `data.ts` | 12 stocks across Tech, Healthcare, Finance, Energy, and Consumer sectors |
+
+**Key patterns:**
+
+- `layout.pinned` splits columns into `left`, `scrollable`, and `right` regions with independent offsets
+- `layout.resize(key, delta)` adjusts a column and its neighbor to maintain total width
+- `layout.pin(key, position)` moves columns between regions dynamically
+- `layout.reset()` restores initial sizes, order, and pins
+
+:::
+
+::: example
+/composables/create-data-grid/editing/EditableGrid.vue
+/composables/create-data-grid/editing/columns.ts
+/composables/create-data-grid/editing/data.ts
+
+### Cell Editing
+
+An inventory management grid where editing is the primary workflow. Product name, price, and quantity are editable — invalid values show inline errors and block commit.
+
+**File breakdown:**
+
+| File | Role |
+|------|------|
+| `EditableGrid.vue` | Click-to-edit cells with focus ring, Enter/Escape keyboard handling, and edit history log |
+| `columns.ts` | Columns with `editable: true` and `validate` functions for name, price, and quantity |
+| `data.ts` | 8 products across electronics, accessories, and peripherals |
+
+**Key patterns:**
+
+- `editing.edit(row, column)` activates a cell for editing
+- `editing.commit(value)` validates first — only `true` from the validator allows the edit through
+- `editing.error` persists until the value passes validation or the user cancels
+- `onEdit` callback receives the full item for context-aware updates
+
+:::
+
+::: example
+/composables/create-data-grid/spanning/SpanningGrid.vue
+/composables/create-data-grid/spanning/columns.ts
+/composables/create-data-grid/spanning/data.ts
+
+### Row Spanning
+
+A team schedule grid where department cells span all members in that department. Day columns show availability status with color-coded indicators.
+
+**File breakdown:**
+
+| File | Role |
+|------|------|
+| `SpanningGrid.vue` | Schedule grid with department spanning and color-coded day cells |
+| `columns.ts` | Department, member, and Mon–Fri day columns |
+| `data.ts` | 10 team members across 3 departments with weekly availability |
+
+**Key patterns:**
+
+- `rowSpanning(item, column)` returns the number of rows a cell should span
+- `spans.value` provides a Map of `rowID → column → { rowSpan, hidden }`
+- Cells with `hidden: true` are skipped in rendering — the cell above covers them
+- Spans are clamped to remaining visible rows and never cross page boundaries
+
+:::
 
 ## Recipes
 
@@ -273,105 +373,5 @@ grid.headers.value
 // [[{ key: 'name', rowspan: 2 }, { key: 'contact', colspan: 2 }],
 //  [{ key: 'email' }, { key: 'phone' }]]
 ```
-
-## Reactivity
-
-| Property | Reactive | Notes |
-| - | :-: | - |
-| `items` | <AppSuccessIcon /> | Final visible items (paginated) |
-| `allItems` | <AppSuccessIcon /> | Raw unprocessed items |
-| `filteredItems` | <AppSuccessIcon /> | Items after filtering |
-| `sortedItems` | <AppSuccessIcon /> | Items after filter + sort + order |
-| `layout.columns` | <AppSuccessIcon /> | Resolved columns with size/offset |
-| `layout.pinned` | <AppSuccessIcon /> | Pin region breakdown |
-| `editing.active` | <AppSuccessIcon /> | Currently edited cell |
-| `editing.error` | <AppSuccessIcon /> | Validation error string |
-| `editing.dirty` | <AppSuccessIcon /> | Uncommitted edits map |
-| `rows.order` | <AppSuccessIcon /> | Current row ordering |
-| `spans` | <AppSuccessIcon /> | Row span map |
-| `headers` | <AppSuccessIcon /> | 2D header grid |
-| `sort.columns` | <AppSuccessIcon /> | Current sort entries |
-| `pagination.page` | <AppSuccessIcon /> | Current page |
-| `total` | <AppSuccessIcon /> | Total row count |
-
-## Examples
-
-::: example
-/composables/create-data-grid/pinned/PinnedGrid.vue
-/composables/create-data-grid/pinned/columns.ts
-/composables/create-data-grid/pinned/data.ts
-
-### Column Pinning & Resizing
-
-A financial data grid with 10 columns that requires horizontal scrolling. Ticker is pinned left, sector pinned right — the center columns scroll independently with drag-to-resize handles.
-
-**File breakdown:**
-
-| File | Role |
-|------|------|
-| `PinnedGrid.vue` | Financial spreadsheet with sticky pinned columns, resize handles, and formatted numbers |
-| `columns.ts` | 10 columns with ticker pinned left, sector pinned right |
-| `data.ts` | 12 stocks across Tech, Healthcare, Finance, Energy, and Consumer sectors |
-
-**Key patterns:**
-
-- `layout.pinned` splits columns into `left`, `scrollable`, and `right` regions with independent offsets
-- `layout.resize(key, delta)` adjusts a column and its neighbor to maintain total width
-- `layout.pin(key, position)` moves columns between regions dynamically
-- `layout.reset()` restores initial sizes, order, and pins
-
-:::
-
-::: example
-/composables/create-data-grid/editing/EditableGrid.vue
-/composables/create-data-grid/editing/columns.ts
-/composables/create-data-grid/editing/data.ts
-
-### Cell Editing
-
-An inventory management grid where editing is the primary workflow. Product name, price, and quantity are editable — invalid values show inline errors and block commit.
-
-**File breakdown:**
-
-| File | Role |
-|------|------|
-| `EditableGrid.vue` | Click-to-edit cells with focus ring, Enter/Escape keyboard handling, and edit history log |
-| `columns.ts` | Columns with `editable: true` and `validate` functions for name, price, and quantity |
-| `data.ts` | 8 products across electronics, accessories, and peripherals |
-
-**Key patterns:**
-
-- `editing.edit(row, column)` activates a cell for editing
-- `editing.commit(value)` validates first — only `true` from the validator allows the edit through
-- `editing.error` persists until the value passes validation or the user cancels
-- `onEdit` callback receives the full item for context-aware updates
-
-:::
-
-::: example
-/composables/create-data-grid/spanning/SpanningGrid.vue
-/composables/create-data-grid/spanning/columns.ts
-/composables/create-data-grid/spanning/data.ts
-
-### Row Spanning
-
-A team schedule grid where department cells span all members in that department. Day columns show availability status with color-coded indicators.
-
-**File breakdown:**
-
-| File | Role |
-|------|------|
-| `SpanningGrid.vue` | Schedule grid with department spanning and color-coded day cells |
-| `columns.ts` | Department, member, and Mon–Fri day columns |
-| `data.ts` | 10 team members across 3 departments with weekly availability |
-
-**Key patterns:**
-
-- `rowSpanning(item, column)` returns the number of rows a cell should span
-- `spans.value` provides a Map of `rowID → column → { rowSpan, hidden }`
-- Cells with `hidden: true` are skipped in rendering — the cell above covers them
-- Spans are clamped to remaining visible rows and never cross page boundaries
-
-:::
 
 <DocsApi />
