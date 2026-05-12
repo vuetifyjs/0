@@ -30,12 +30,12 @@ import { createGroup } from '#v0/composables/createGroup'
 import { createTrinity } from '#v0/composables/createTrinity'
 import { useLogger } from '#v0/composables/useLogger'
 
+// Transformers
+import { toArray } from '#v0/composables/toArray'
+
 // Utilities
 import { isUndefined, resolveIds, resolveIndexes, useId } from '#v0/utilities'
 import { computed, shallowReactive, toRef, toValue } from 'vue'
-
-// Transformers
-import { toArray } from '#v0/composables/toArray'
 
 // Types
 import type { GroupTicketInput } from '#v0/composables/createGroup'

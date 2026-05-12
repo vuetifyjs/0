@@ -23,12 +23,12 @@
   import { createRegistry } from '#v0/composables/createRegistry'
   import { createSelection } from '#v0/composables/createSelection'
 
+  // Transformers
+  import { toElement } from '#v0/composables/toElement'
+
   // Utilities
   import { clamp, isNull, isNullOrUndefined, isUndefined } from '#v0/utilities'
   import { mergeProps, shallowRef, toRef, toValue, useAttrs, useTemplateRef, watch } from 'vue'
-
-  // Transformers
-  import { toElement } from '#v0/composables/toElement'
 
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'

@@ -15,7 +15,7 @@ export type { SliderRootContext, SliderRootProps, SliderRootSlotProps } from './
 export type { SliderThumbProps, SliderThumbSlotProps, SliderThumbState } from './SliderThumb.vue'
 export type { SliderTrackProps, SliderTrackSlotProps } from './SliderTrack.vue'
 
-// Components
+// Context
 import HiddenInput from './SliderHiddenInput.vue'
 import Range from './SliderRange.vue'
 import Root from './SliderRoot.vue'

@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { Select } from './index'
+
 // Utilities
 import { mount } from '@vue/test-utils'
 import { defineComponent, h, nextTick, ref } from 'vue'
-
-import { Select } from './index'
 
 // Mock showPopover/hidePopover — not supported in happy-dom
 beforeEach(() => {

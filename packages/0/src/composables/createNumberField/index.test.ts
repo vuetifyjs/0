@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
 
+import { createNumberField } from './index'
+
 // Utilities
 import { ref, shallowRef } from 'vue'
-
-import { createNumberField } from './index'
 
 vi.mock('vue', async () => {
   const actual = await vi.importActual('vue')

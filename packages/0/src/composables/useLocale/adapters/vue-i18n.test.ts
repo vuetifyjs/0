@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { VueI18nLocaleAdapter } from './vue-i18n'
+
 // Types
 import type { Composer } from 'vue-i18n'
-
-import { VueI18nLocaleAdapter } from './vue-i18n'
 
 function createMockI18n (): { global: Composer } {
   const composer = {

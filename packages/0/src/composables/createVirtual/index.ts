@@ -35,6 +35,9 @@ import { useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
 import { useResizeObserver } from '#v0/composables/useResizeObserver'
 
+// Constants
+import { IN_BROWSER } from '#v0/constants/globals'
+
 // Utilities
 import { clamp, isFunction, isNumber } from '#v0/utilities'
 import { computed, onScopeDispose, readonly, ref, shallowRef, watch } from 'vue'
@@ -42,9 +45,6 @@ import { computed, onScopeDispose, readonly, ref, shallowRef, watch } from 'vue'
 // Types
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { ComputedRef, Ref, ShallowRef } from 'vue'
-
-// Constants
-import { IN_BROWSER } from '#v0/constants/globals'
 
 export type VirtualDirection = 'forward' | 'reverse'
 export type VirtualState = 'loading' | 'empty' | 'error' | 'ok'

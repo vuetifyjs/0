@@ -12,12 +12,16 @@
   // Components
   import { Atom } from '#v0/components/Atom'
 
+  // Context
   import { useSplitterRoot } from './SplitterRoot.vue'
 
   // Composables
   import { useDocumentEventListener } from '#v0/composables/useEventListener'
   import { useRaf } from '#v0/composables/useRaf'
   import { useToggleScope } from '#v0/composables/useToggleScope'
+
+  // Constants
+  import { IN_BROWSER } from '#v0/constants/globals'
 
   // Utilities
   import { isNullOrUndefined } from '#v0/utilities'
@@ -26,9 +30,6 @@
   // Types
   import type { AtomProps } from '#v0/components/Atom'
   import type { SplitterOrientation } from './SplitterRoot.vue'
-
-  // Constants
-  import { IN_BROWSER } from '#v0/constants/globals'
 
   export interface SplitterHandleProps extends AtomProps {
     disabled?: boolean

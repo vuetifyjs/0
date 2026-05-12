@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { createBreadcrumbs, createBreadcrumbsContext, useBreadcrumbs } from './index'
+
 // Utilities
 import { inject, provide } from 'vue'
 
 // Types
 import type { App } from 'vue'
-
-import { createBreadcrumbs, createBreadcrumbsContext, useBreadcrumbs } from './index'
 
 vi.mock('vue', async () => {
   const actual = await vi.importActual('vue')

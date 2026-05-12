@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
 
+import { FlagsmithFeaturesAdapter } from './flagsmith'
+
 // Types
 import type { IInitConfig } from '@flagsmith/flagsmith'
-
-import { FlagsmithFeaturesAdapter } from './flagsmith'
 
 function createMockClient () {
   return {

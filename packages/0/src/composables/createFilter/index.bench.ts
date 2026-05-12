@@ -10,10 +10,10 @@
 
 import { bench, describe } from 'vitest'
 
+import { createFilter } from './index'
+
 // Utilities
 import { ref } from 'vue'
-
-import { createFilter } from './index'
 
 // =============================================================================
 // FIXTURES - Created once, reused across read-only benchmarks

@@ -11,18 +11,18 @@
 import { useEventListener } from '#v0/composables/useEventListener'
 import { useLogger } from '#v0/composables/useLogger'
 
+// Globals
+import { IN_BROWSER } from '#v0/constants/globals'
+
+// Adapters
+import { DragDropAdapter } from './adapter'
+
 // Utilities
 import { isNull } from '#v0/utilities'
 
 // Types
 import type { DragType } from '../'
 import type { DragDropAdapterContext } from './adapter'
-
-// Globals
-import { IN_BROWSER } from '#v0/constants/globals'
-
-// Adapters
-import { DragDropAdapter } from './adapter'
 
 function isEditable (element: Element | null): boolean {
   if (isNull(element)) return false

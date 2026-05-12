@@ -10,14 +10,14 @@
 
 import { bench, describe, vi } from 'vitest'
 
+import { createVirtual } from './index'
+
 // Utilities
 import { ref } from 'vue'
 
 // Types
 import type { VirtualContext } from './index'
 import type { Ref } from 'vue'
-
-import { createVirtual } from './index'
 
 // =============================================================================
 // MOCKS - Required for lifecycle-dependent code

@@ -1,7 +1,4 @@
 <script setup lang="ts">
-  // Stores
-  import { useAuthStore } from '@vuetify/auth'
-
   // Framework
   import { Avatar, useFeatures, useRtl, useStack, useStorage } from '@vuetify/v0'
 
@@ -12,6 +9,9 @@
   import { useCustomThemes } from '@/composables/useCustomThemes'
   import { useLevelFilterContext } from '@/composables/useLevelFilter'
   import { useSettings } from '@/composables/useSettings'
+
+  // Stores
+  import { useAuthStore } from '@vuetify/auth'
 
   // Utilities
   import { onUnmounted, toRef, useTemplateRef, watch } from 'vue'

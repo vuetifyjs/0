@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { useToggleScope } from './index'
+
 // Utilities
 import { effectScope, nextTick, onScopeDispose, ref, watch } from 'vue'
-
-import { useToggleScope } from './index'
 
 describe('useToggleScope', () => {
   beforeEach(() => {

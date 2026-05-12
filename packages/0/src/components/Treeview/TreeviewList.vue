@@ -13,11 +13,15 @@
   // Components
   import { Atom } from '#v0/components/Atom'
 
+  // Context
   import { useTreeviewRoot } from './TreeviewRoot.vue'
 
   // Composables
   import { createContext } from '#v0/composables/createContext'
   import { useRovingFocus } from '#v0/composables/useRovingFocus'
+
+  // Constants
+  import { IN_BROWSER } from '#v0/constants/globals'
 
   // Utilities
   import { isNullOrUndefined } from '#v0/utilities'
@@ -26,9 +30,6 @@
   // Types
   import type { RovingFocusReturn } from '#v0/composables/useRovingFocus'
   import type { TreeviewListProps, TreeviewListSlotProps } from './types'
-
-  // Constants
-  import { IN_BROWSER } from '#v0/constants/globals'
 
   export type TreeviewListContext = RovingFocusReturn
 

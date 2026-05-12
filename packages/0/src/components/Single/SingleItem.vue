@@ -55,7 +55,7 @@
 </script>
 
 <script lang="ts" setup generic="V = unknown">
-  // Components
+  // Context
   import { useSingleRoot } from './SingleRoot.vue'
 
   // Utilities

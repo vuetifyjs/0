@@ -66,7 +66,7 @@
 </script>
 
 <script setup lang="ts">
-  // Components
+  // Context
   import { useCheckboxGroup } from './CheckboxGroup.vue'
   import { provideCheckboxRoot } from './CheckboxRoot.vue'
 

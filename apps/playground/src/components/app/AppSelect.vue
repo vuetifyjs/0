@@ -2,7 +2,7 @@
   // Framework
   import { isArray, Select } from '@vuetify/v0'
 
-  // Components
+  // Context
   import AppIcon from './AppIcon.vue'
 
   // Utilities

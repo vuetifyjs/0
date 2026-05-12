@@ -7,11 +7,11 @@ import DocsMarkup from '@/components/docs/DocsMarkup.vue'
 // Composables
 import { SettingsPlugin } from '@/composables/useSettings'
 
-// Types
-import type { App } from 'vue'
-
 import _app from './app'
 import zero from './zero'
+
+// Types
+import type { App } from 'vue'
 // Plugins
 import './analytics'
 

@@ -4,11 +4,11 @@ import { createApiTransformer } from '@build/shiki-api-transformer'
 // Composables
 import { useHighlighter } from './useHighlighter'
 
-// Types
-import type { ShikiTransformer } from 'shiki'
-
 // Constants
 import { SHIKI_THEMES } from '@/constants/shiki'
+
+// Types
+import type { ShikiTransformer } from 'shiki'
 
 export interface CodeHighlightOptions {
   code: string

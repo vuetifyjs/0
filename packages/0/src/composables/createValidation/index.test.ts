@@ -4,10 +4,10 @@ import { describe, expect, it, vi } from 'vitest'
 import { createForm, useForm } from '#v0/composables/createForm'
 import { createRules, useRules } from '#v0/composables/useRules'
 
+import { createValidation } from './index'
+
 // Utilities
 import { effectScope, nextTick, shallowRef } from 'vue'
-
-import { createValidation } from './index'
 
 vi.mock('#v0/composables/useRules', async () => {
   const actual = await vi.importActual('#v0/composables/useRules')

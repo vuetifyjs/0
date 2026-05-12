@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { createSelection, createSelectionContext, useSelection } from './index'
+
 // Utilities
 import { inject, ref } from 'vue'
 
 // Types
 import type { SelectionTicketInput } from './index'
-
-import { createSelection, createSelectionContext, useSelection } from './index'
 
 vi.mock('vue', async () => {
   const actual = await vi.importActual('vue')

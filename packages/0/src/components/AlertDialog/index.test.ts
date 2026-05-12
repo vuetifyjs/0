@@ -4,11 +4,11 @@ import { renderToString } from 'vue/server-renderer'
 // Composables
 import { createStackPlugin } from '#v0/composables/useStack'
 
+import { AlertDialog } from './index'
+
 // Utilities
 import { mount } from '@vue/test-utils'
 import { createSSRApp, defineComponent, h, nextTick, ref } from 'vue'
-
-import { AlertDialog } from './index'
 
 let stackPlugin: ReturnType<typeof createStackPlugin>
 

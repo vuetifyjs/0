@@ -1,10 +1,10 @@
 import { describe, expect, it, vi } from 'vitest'
 
+import { Splitter, SplitterHandle, SplitterPanel, SplitterRoot } from './index'
+
 // Utilities
 import { mount } from '@vue/test-utils'
 import { h, nextTick, ref } from 'vue'
-
-import { Splitter, SplitterHandle, SplitterPanel, SplitterRoot } from './index'
 
 function twoPanel (options: {
   orientation?: 'horizontal' | 'vertical'

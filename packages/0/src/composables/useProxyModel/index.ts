@@ -26,12 +26,12 @@
  * ```
  */
 
+// Transformers
+import { toArray } from '#v0/composables/toArray'
+
 // Utilities
 import { isArray, isFunction } from '#v0/utilities'
 import { onScopeDispose, toValue, watch } from 'vue'
-
-// Transformers
-import { toArray } from '#v0/composables/toArray'
 
 // Types
 import type { MaybeRefOrGetter, Ref } from 'vue'

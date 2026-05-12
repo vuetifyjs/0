@@ -13,15 +13,15 @@
 // Composables
 import { createPagination } from '#v0/composables/createPagination'
 
+// Base
+import { DataTableAdapter } from './adapter'
+
 // Utilities
 import { toRef, toValue, watch } from 'vue'
 
 // Types
 import type { DataTableAdapterContext, DataTableAdapterResult } from './adapter'
 import type { MaybeRefOrGetter } from 'vue'
-
-// Base
-import { DataTableAdapter } from './adapter'
 
 export interface ServerDataTableAdapterOptions {
   /** Total number of items on the server (for pagination calculation) */

@@ -14,7 +14,8 @@
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
-  // Composables
+
+  // Context
   import { useCollapsible } from './CollapsibleRoot.vue'
 
   // Utilities

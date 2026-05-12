@@ -10,10 +10,10 @@
 
 import { bench, describe } from 'vitest'
 
+import { createRegistry } from './index'
+
 // Types
 import type { RegistryContext, RegistryTicket } from './index'
-
-import { createRegistry } from './index'
 
 // =============================================================================
 // FIXTURES - Created once, reused across read-only benchmarks

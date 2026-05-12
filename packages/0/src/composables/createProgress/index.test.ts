@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { createProgress, createProgressContext, useProgress } from './index'
+
 // Utilities
 import { inject, provide, shallowRef, toValue } from 'vue'
 
 // Types
 import type { ProgressOptions } from './index'
-
-import { createProgress, createProgressContext, useProgress } from './index'
 
 vi.mock('vue', async () => {
   const actual = await vi.importActual('vue')

@@ -1,14 +1,14 @@
 import { describe, expect, it } from 'vitest'
 import { renderToString } from 'vue/server-renderer'
 
+import { Switch } from './index'
+
 // Utilities
 import { mount } from '@vue/test-utils'
 import { createSSRApp, defineComponent, h, nextTick, ref, type Ref } from 'vue'
 
 // Types
 import type { VueWrapper } from '@vue/test-utils'
-
-import { Switch } from './index'
 
 // ============================================================================
 // Test Helpers

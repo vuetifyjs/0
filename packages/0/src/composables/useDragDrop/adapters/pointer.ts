@@ -11,15 +11,15 @@
 import { useEventListener } from '#v0/composables/useEventListener'
 import { useLogger } from '#v0/composables/useLogger'
 
-// Types
-import type { DragType, DraggableTicket } from '../'
-import type { DragDropAdapterContext } from './adapter'
-
 // Globals
 import { IN_BROWSER } from '#v0/constants/globals'
 
 // Adapters
 import { DragDropAdapter } from './adapter'
+
+// Types
+import type { DragType, DraggableTicket } from '../'
+import type { DragDropAdapterContext } from './adapter'
 
 export interface PointerAdapterOptions {
   /** Drag-activation distance in px (default 0 — start on pointerdown). */

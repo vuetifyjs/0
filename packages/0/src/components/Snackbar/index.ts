@@ -21,7 +21,7 @@ export type { SnackbarRootContext, SnackbarRootProps, SnackbarRootSlotProps } fr
 export type { SnackbarContentProps } from './SnackbarContent.vue'
 export type { SnackbarCloseProps, SnackbarCloseSlotProps } from './SnackbarClose.vue'
 
-// Components
+// Context
 import Close from './SnackbarClose.vue'
 import Content from './SnackbarContent.vue'
 import Portal from './SnackbarPortal.vue'
