@@ -38,6 +38,7 @@ Check this table **before writing custom logic**. Match by problem, not by keywo
 | Slider / range / knob state | `createSlider` | forms |
 | Autocomplete / combobox | `createCombobox` | forms |
 | Spin-button numeric input | `createNumberField` / `createNumeric` | forms |
+| One-time-password / verification-code value | `createOtp` | forms |
 | Paginated or virtualized list | `createPagination`, `createVirtual` | data |
 | Sortable / filterable table | `createDataTable`, `createFilter` | data |
 | Breadcrumb trail derived from route | `createBreadcrumbs` | utilities |
