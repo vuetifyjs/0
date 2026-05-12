@@ -421,10 +421,10 @@ export interface RegistryContext<
    *
    * @remarks
    * Bulk equivalent of calling `move` n times, but does the rebuild once
-   * (O(n) total rather than O(n²)). Silently no-ops when `ids.length !== size`
-   * or any id is unknown — caller is responsible for validation and warnings.
-   * Emits `reindex:registry` once on completion; does not emit per-ticket
-   * `update:ticket` events.
+   * (O(n) total rather than O(n²)). Silently no-ops when `ids.length !== size`,
+   * when any id is unknown, or when `ids` contains duplicates — caller is
+   * responsible for validation and warnings. Emits `reindex:registry` once on
+   * completion; does not emit per-ticket `update:ticket` events.
    *
    * @example
    * ```ts
@@ -1179,10 +1179,13 @@ export function createRegistry<
 
     if (ids.length !== collection.size) return
 
+    const seen = new Set<ID>()
     const entries: [ID, E][] = []
     for (const id of ids) {
+      if (seen.has(id)) return
       const ticket = collection.get(id)
       if (!ticket) return
+      seen.add(id)
       entries.push([id, ticket])
     }
 

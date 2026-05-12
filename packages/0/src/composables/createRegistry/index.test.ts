@@ -1369,6 +1369,14 @@ describe('createRegistry', () => {
       expect(registry.keys()).toEqual(['a', 'b', 'c'])
     })
 
+    it('should silently no-op when ids contain duplicates', () => {
+      const registry = createRegistry()
+      registry.onboard([{ id: 'a' }, { id: 'b' }, { id: 'c' }])
+      registry.reorder(['a', 'a', 'a'])
+      expect(registry.keys()).toEqual(['a', 'b', 'c'])
+      expect(registry.size).toBe(3)
+    })
+
     it('should update catalog and directory after reorder', () => {
       const registry = createRegistry()
       registry.onboard([
