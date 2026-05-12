@@ -102,7 +102,7 @@
       "category": "forms"
     },
     "createOtp": {
-      "level": "draft",
+      "level": "preview",
       "since": null,
       "category": "forms"
     },
