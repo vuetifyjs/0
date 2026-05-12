@@ -433,10 +433,8 @@ export function createKanban<
 
   columns.on('unregister:ticket', column => {
     column.items.dispose()
-    // Snapshot before iterating: lookup.unregister mutates the underlying collection.
-    const entries = lookup.values()
-    for (const t of entries) {
-      if (t.value === column.id) lookup.unregister(t.id)
+    for (const t of lookup.values()) {
+      if (t.value === column.id) t.unregister()
     }
   })
 
