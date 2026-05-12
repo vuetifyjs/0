@@ -422,6 +422,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/composables/forms/create-otp': RouteRecordInfo<
+      '/composables/forms/create-otp',
+      '/composables/forms/create-otp',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/composables/forms/create-rating': RouteRecordInfo<
       '/composables/forms/create-rating',
       '/composables/forms/create-rating',
@@ -1412,6 +1419,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/forms/create-numeric.md': {
       routes:
         | '/composables/forms/create-numeric'
+      views:
+        | never
+    }
+    'src/pages/composables/forms/create-otp.md': {
+      routes:
+        | '/composables/forms/create-otp'
       views:
         | never
     }
