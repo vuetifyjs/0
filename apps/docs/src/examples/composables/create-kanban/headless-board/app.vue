@@ -44,8 +44,8 @@
 
   const status = shallowRef('')
   kanban.on('transfer:ticket', ({ ticket, from, to }) => {
-    const fromName = view.columns.values.find(col => col.id === from)?.value.title ?? '?'
-    const toName = view.columns.values.find(col => col.id === to)?.value.title ?? '?'
+    const fromName = kanban.columns.get(from)?.value.title ?? '?'
+    const toName = kanban.columns.get(to)?.value.title ?? '?'
     status.value = `Moved "${ticket.value.title}" from ${fromName} to ${toName}`
   })
 
