@@ -8,4 +8,4 @@
 
 // Types
 
-export { ServerAdapter as ServerGridAdapter, type ServerAdapterOptions as ServerGridAdapterOptions } from '#v0/composables/createDataTable'
+export { ServerDataTableAdapter as ServerGridAdapter, type ServerDataTableAdapterOptions as ServerGridAdapterOptions } from '#v0/composables/createDataTable'

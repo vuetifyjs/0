@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
 
+import { createRowSpanning } from './spanning'
+
 // Utilities
 import { computed } from 'vue'
-
-import { createRowSpanning } from './spanning'
 
 describe('createRowSpanning', () => {
   it('returns empty map when no rowSpanning function', () => {

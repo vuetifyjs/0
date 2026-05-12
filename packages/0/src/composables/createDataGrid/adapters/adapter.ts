@@ -7,8 +7,8 @@
  */
 
 export type {
+  DataTableAdapter,
   DataTableAdapterContext,
-  DataTableAdapterInterface,
   DataTableAdapterResult,
   SortDirection,
   SortEntry,

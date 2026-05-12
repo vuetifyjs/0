@@ -126,6 +126,7 @@
         :value="grid.query.value"
         @input="grid.search(($event.target as HTMLInputElement).value)"
       >
+
       <button
         class="px-3 py-1.5 text-xs border border-divider rounded hover:bg-surface-tint"
         @click="grid.layout.reset()"
@@ -155,6 +156,7 @@
             >
               <div class="flex items-center gap-1">
                 <span class="truncate">{{ label(col.key) }}</span>
+
                 <svg
                   v-if="grid.sort.direction(col.key) !== 'none'"
                   class="w-3 h-3 shrink-0"
@@ -213,6 +215,7 @@
                     @input="input = ($event.target as HTMLInputElement).value"
                     @keydown.enter="grid.editing.commit(input)"
                   >
+
                   <span v-if="grid.editing.error.value" class="text-[10px] text-error">
                     {{ grid.editing.error.value }}
                   </span>
@@ -229,6 +232,7 @@
                       :style="{ width: item.progress + '%' }"
                     />
                   </div>
+
                   <span class="tabular-nums text-on-surface/50 w-6 text-right">{{ item.progress }}%</span>
                 </div>
               </template>
@@ -256,6 +260,7 @@
               <template v-else-if="col.key === 'due'">
                 <div class="flex items-center gap-1">
                   <span class="tabular-nums">{{ item.due.slice(5) }}</span>
+
                   <div class="flex flex-col ml-auto">
                     <button
                       class="opacity-0 group-hover:opacity-40 hover:!opacity-100 disabled:!opacity-10"
@@ -266,6 +271,7 @@
                         <path :d="mdiChevronUp" fill="currentColor" />
                       </svg>
                     </button>
+
                     <button
                       class="opacity-0 group-hover:opacity-40 hover:!opacity-100 disabled:!opacity-10"
                       :disabled="index === grid.items.value.length - 1"
@@ -291,6 +297,7 @@
 
     <div class="flex items-center justify-between text-xs text-on-surface/60">
       <span>{{ grid.total.value }} projects</span>
+
       <div class="flex items-center gap-1">
         <button
           class="px-2 py-1 border border-divider rounded hover:bg-surface-tint disabled:op-30"
@@ -299,7 +306,9 @@
         >
           Prev
         </button>
+
         <span class="px-2 tabular-nums">{{ grid.pagination.page.value }} / {{ grid.pagination.pages }}</span>
+
         <button
           class="px-2 py-1 border border-divider rounded hover:bg-surface-tint disabled:op-30"
           :disabled="grid.pagination.isLast.value"

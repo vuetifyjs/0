@@ -18,10 +18,10 @@
 
 import { bench, describe } from 'vitest'
 
+import { createDataGrid } from './index'
+
 // Types
 import type { DataGridColumn, DataGridOptions } from './index'
-
-import { createDataGrid } from './index'
 
 // =============================================================================
 // FIXTURES - Created once, reused across read-only benchmarks

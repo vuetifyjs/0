@@ -7,7 +7,7 @@
  * sort and pagination.
  */
 
-export type { DataTableAdapterContext, DataTableAdapterInterface, DataTableAdapterResult, SortDirection, SortEntry } from './adapter'
+export type { DataTableAdapter, DataTableAdapterContext, DataTableAdapterResult, SortDirection, SortEntry } from './adapter'
 export { ClientGridAdapter } from './client'
 export { ServerGridAdapter } from './server'
 export type { ServerGridAdapterOptions } from './server'

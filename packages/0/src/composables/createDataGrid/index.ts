@@ -18,12 +18,18 @@ import { createTrinity } from '#v0/composables/createTrinity'
 // Adapters
 import { ClientGridAdapter } from './adapters'
 
+// Grid modules
+import { createCellEditing } from './editing'
+import { createColumnLayout } from './layout'
+import { createRowOrdering } from './ordering'
+import { createRowSpanning } from './spanning'
+
 // Utilities
 import { isFunction, isUndefined } from '#v0/utilities'
 import { watch } from 'vue'
 
 // Types
-import type { DataTableAdapterInterface, DataTableContext, KeysOfType } from '#v0/composables/createDataTable'
+import type { DataTableAdapter, DataTableContext, KeysOfType } from '#v0/composables/createDataTable'
 import type { FilterOptions } from '#v0/composables/createFilter'
 import type { PaginationOptions } from '#v0/composables/createPagination'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
@@ -33,12 +39,6 @@ import type { CellEditing } from './editing'
 import type { ColumnLayout, GridColumnDef } from './layout'
 import type { SpanEntry } from './spanning'
 import type { App, ComputedRef, MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
-
-// Grid modules
-import { createCellEditing } from './editing'
-import { createColumnLayout } from './layout'
-import { createRowOrdering } from './ordering'
-import { createRowSpanning } from './spanning'
 
 export type { ColumnLayout, GridColumnDef, PinnedRegion, PinPosition, ResolvedColumn } from './layout'
 export type { ActiveCell, CellEditing, CellEditingOptions, EditableColumn } from './editing'
@@ -65,7 +65,7 @@ export interface DataGridOptions<T extends Record<string, unknown>> {
   items: MaybeRefOrGetter<T[]>
   columns: readonly DataGridColumn<T>[]
   itemValue?: KeysOfType<T, ID>
-  adapter?: DataTableAdapterInterface<T>
+  adapter?: DataTableAdapter<T>
   filter?: Omit<FilterOptions, 'keys'>
   pagination?: Omit<PaginationOptions, 'size'>
   sortMultiple?: boolean

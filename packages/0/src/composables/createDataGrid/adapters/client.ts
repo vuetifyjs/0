@@ -10,6 +10,8 @@
 import { DataTableAdapter } from '#v0/composables/createDataTable'
 import { createPagination } from '#v0/composables/createPagination'
 
+import { applyOrder } from './order'
+
 // Utilities
 import { computed, toRef, watch } from 'vue'
 
@@ -17,8 +19,6 @@ import { computed, toRef, watch } from 'vue'
 import type { DataTableAdapterContext, DataTableAdapterResult } from '#v0/composables/createDataTable'
 import type { ID } from '#v0/types'
 import type { ShallowRef } from 'vue'
-
-import { applyOrder } from './order'
 
 export class ClientGridAdapter<T extends Record<string, unknown>> extends DataTableAdapter<T> {
   private rowOrder: ShallowRef<ID[]>
