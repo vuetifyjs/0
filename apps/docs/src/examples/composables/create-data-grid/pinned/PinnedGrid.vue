@@ -1,7 +1,10 @@
 <script setup lang="ts">
-  import { shallowRef } from 'vue'
-  import { mdiArrowUp, mdiArrowDown, mdiPinOutline, mdiPinOffOutline } from '@mdi/js'
+  import { computed, shallowRef } from 'vue'
+
+  import { mdiArrowDown, mdiArrowUp, mdiChartLine, mdiPin, mdiPinOffOutline, mdiPinOutline, mdiRefresh } from '@mdi/js'
+
   import { createDataGrid, useEventListener, useToggleScope } from '@vuetify/v0'
+
   import { columns } from './columns'
   import { stocks } from './data'
 
@@ -65,9 +68,15 @@
   function onPin (key: string) {
     const col = grid.layout.columns.value.find(c => c.key === key)
     if (!col) return
-    if (col.pinned === 'left') grid.layout.pin(key, false)
+    if (col.pinned === 'left') grid.layout.pin(key, 'right')
     else if (col.pinned === 'right') grid.layout.pin(key, false)
     else grid.layout.pin(key, 'left')
+  }
+
+  function pinTitle (pinned: 'left' | 'right' | false) {
+    if (pinned === 'left') return 'Pinned left — click to pin right'
+    if (pinned === 'right') return 'Pinned right — click to unpin'
+    return 'Click to pin left'
   }
 
   function formatVolume (value: number) {
@@ -81,25 +90,65 @@
     if (value >= 1000) return `$${(value / 1000).toFixed(1)}B`
     return `$${value}M`
   }
+
+  const numericKeys = new Set(['price', 'change', 'volume', 'cap', 'pe', 'eps', 'dividend'])
+
+  function isNumeric (key: string) {
+    return numericKeys.has(key)
+  }
+
+  const stats = computed(() => {
+    const items = grid.items.value
+    const gainers = items.filter(s => s.change > 0).length
+    const losers = items.filter(s => s.change < 0).length
+    const volume = items.reduce((sum, s) => sum + s.volume, 0)
+    return { gainers, losers, volume }
+  })
+
+  const pinnedSummary = computed(() => {
+    const { left, scrollable, right } = grid.layout.pinned.value
+    return { left: left.length, scrollable: scrollable.length, right: right.length }
+  })
 </script>
 
 <template>
   <div class="flex flex-col gap-3">
-    <div class="flex items-center gap-2">
-      <input
-        class="flex-1 px-3 py-1.5 text-sm border border-divider rounded bg-surface text-on-surface placeholder:text-on-surface-variant outline-none focus:border-primary"
-        placeholder="Search stocks..."
-        type="text"
-        :value="grid.query.value"
-        @input="grid.search(($event.target as HTMLInputElement).value)"
-      >
+    <div class="flex items-center justify-between flex-wrap gap-2">
+      <div class="flex items-center gap-2 text-sm">
+        <svg class="w-4 h-4 text-on-surface-variant" viewBox="0 0 24 24">
+          <path :d="mdiChartLine" fill="currentColor" />
+        </svg>
 
-      <button
-        class="px-3 py-1.5 text-sm border border-divider rounded hover:bg-surface-tint"
-        @click="grid.layout.reset()"
-      >
-        Reset Layout
-      </button>
+        <span class="font-medium">Market overview</span>
+
+        <span class="text-xs text-on-surface-variant ml-2">
+          <span class="tabular-nums text-success">{{ stats.gainers }}↑</span>
+          ·
+          <span class="tabular-nums text-error">{{ stats.losers }}↓</span>
+          · Vol <span class="tabular-nums">{{ formatVolume(stats.volume) }}</span>
+        </span>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <input
+          class="px-3 py-1 text-xs border border-divider rounded bg-surface text-on-surface placeholder:text-on-surface-variant outline-none focus:border-primary w-44"
+          placeholder="Filter ticker or company…"
+          type="text"
+          :value="grid.query.value"
+          @input="grid.search(($event.target as HTMLInputElement).value)"
+        >
+
+        <button
+          class="flex items-center gap-1 px-2 py-1 text-xs border border-divider rounded hover:bg-surface-tint"
+          @click="grid.layout.reset()"
+        >
+          <svg class="w-3 h-3" viewBox="0 0 24 24">
+            <path :d="mdiRefresh" fill="currentColor" />
+          </svg>
+
+          Reset
+        </button>
+      </div>
     </div>
 
     <div
@@ -117,7 +166,7 @@
                 col.pinned ? 'bg-surface-tint' : 'bg-surface',
                 col.pinned === 'left' ? 'border-r border-divider' : '',
                 col.pinned === 'right' ? 'border-l border-divider' : '',
-                ['price', 'change', 'volume', 'cap', 'pe', 'eps', 'dividend'].includes(col.key) ? 'text-right' : 'text-left',
+                isNumeric(col.key) ? 'text-right' : 'text-left',
               ]"
               :style="{
                 width: col.size + '%',
@@ -130,15 +179,19 @@
             >
               <div
                 class="flex items-center gap-1"
-                :class="['price', 'change', 'volume', 'cap', 'pe', 'eps', 'dividend'].includes(col.key) ? 'justify-end' : ''"
+                :class="isNumeric(col.key) ? 'justify-end' : ''"
               >
                 <button
-                  class="shrink-0 opacity-0 group-hover:opacity-60 hover:!opacity-100 transition-opacity"
-                  :title="col.pinned ? 'Unpin' : 'Pin left'"
+                  class="shrink-0 transition-opacity"
+                  :class="col.pinned ? 'opacity-80 text-primary' : 'opacity-0 group-hover:opacity-60 hover:!opacity-100'"
+                  :title="pinTitle(col.pinned)"
                   @click.stop="onPin(col.key)"
                 >
                   <svg class="w-3.5 h-3.5" viewBox="0 0 24 24">
-                    <path :d="col.pinned ? mdiPinOffOutline : mdiPinOutline" fill="currentColor" />
+                    <path
+                      :d="col.pinned === 'left' ? mdiPin : col.pinned === 'right' ? mdiPinOffOutline : mdiPinOutline"
+                      fill="currentColor"
+                    />
                   </svg>
                 </button>
 
@@ -179,7 +232,7 @@
                 col.pinned ? 'bg-surface-tint' : 'bg-surface',
                 col.pinned === 'left' ? 'border-r border-divider' : '',
                 col.pinned === 'right' ? 'border-l border-divider' : '',
-                ['price', 'change', 'volume', 'cap', 'pe', 'eps', 'dividend'].includes(col.key) ? 'text-right font-mono tabular-nums' : '',
+                isNumeric(col.key) ? 'text-right font-mono tabular-nums' : '',
               ]"
               :style="{
                 width: col.size + '%',
@@ -230,6 +283,28 @@
           </tr>
         </tbody>
       </table>
+    </div>
+
+    <div class="flex items-center gap-3 text-xs text-on-surface-variant">
+      <span class="tabular-nums">{{ grid.items.value.length }} of {{ stocks.length }} stocks</span>
+
+      <span class="text-divider">·</span>
+
+      <span class="flex items-center gap-1">
+        <svg class="w-3 h-3" viewBox="0 0 24 24">
+          <path :d="mdiPin" fill="currentColor" />
+        </svg>
+
+        <span class="tabular-nums">{{ pinnedSummary.left }} left</span>
+        <span>·</span>
+        <span class="tabular-nums">{{ pinnedSummary.scrollable }} scrollable</span>
+        <span>·</span>
+        <span class="tabular-nums">{{ pinnedSummary.right }} right</span>
+      </span>
+
+      <span class="text-divider">·</span>
+
+      <span>Hover headers to pin, drag handles to resize</span>
     </div>
   </div>
 </template>

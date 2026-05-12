@@ -60,6 +60,32 @@ grid.layout.reset()            // restore initial layout
 /composables/create-data-grid/basic/data.ts
 :::
 
+## Architecture
+
+`createDataGrid` is a composition of [createDataTable](/composables/data/create-data-table) plus four grid-specific modules. The table owns the data pipeline (filter, sort, paginate); the grid layers column layout, cell editing, row ordering, and row spanning on top. Row ordering is inserted between sort and pagination via a grid adapter so reorders survive sort changes when `preserveRowOrder` is set.
+
+```mermaid "createDataGrid Architecture"
+flowchart TD
+  createDataGrid:::primary --> table["createDataTable (pipeline)"]
+  createDataGrid --> layout["layout (createRegistry + createGroup)"]
+  createDataGrid --> editing["editing (createCellEditing)"]
+  createDataGrid --> ordering["rows (createRowOrdering)"]
+  createDataGrid --> spanning["spans (createRowSpanning)"]
+  table --> adapter["GridAdapter (Client / Server / Virtual)"]
+  ordering -. "ShallowRef&lt;ID[]&gt;" .-> adapter
+  layout --> pin["pin / resize / reorder"]
+  editing --> edit["edit / commit / cancel + validate"]
+  spanning --> span["computed span map (hidden cell tracking)"]
+```
+
+| Module | Built on | Purpose |
+| - | - | - |
+| `table` (spread) | `createDataTable` | Search, sort, filter, paginate, total — all v-modeled through |
+| `layout` | `createRegistry` + `createGroup` | Column ordering, tri-region pinning, percentage sizing, delta-based resize |
+| `editing` | internal factory | Click-to-edit lifecycle, per-column validation, dirty tracking |
+| `rows` | `shallowRef<ID[]>` | Post-sort row reordering, inserted by the grid adapter pre-pagination |
+| `spans` | computed map | Row span resolution and hidden-cell tracking |
+
 ## Adapters
 
 Grid adapters extend the data table adapters with row ordering inserted between sort and pagination.
@@ -121,7 +147,7 @@ const grid = createDataGrid({
 })
 ```
 
-## Features
+## Recipes
 
 ### Column Layout
 
