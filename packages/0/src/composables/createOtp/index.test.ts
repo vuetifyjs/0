@@ -22,7 +22,7 @@ describe('createOtp', () => {
       expect(otp.length.value).toBe(6)
       expect(otp.input).toBeDefined()
       expect(otp.isComplete.value).toBe(false)
-      expect(typeof otp.setAt).toBe('function')
+      expect(typeof otp.put).toBe('function')
       expect(typeof otp.paste).toBe('function')
       expect(typeof otp.clear).toBe('function')
       expect(typeof otp.fill).toBe('function')
@@ -90,44 +90,44 @@ describe('createOtp', () => {
     })
   })
 
-  describe('setAt', () => {
+  describe('put', () => {
     it('should write a single character at the index', () => {
       const otp = setup()
-      otp.setAt(0, '4')
+      otp.put(0, '4')
       expect(otp.value.value).toBe('4')
     })
 
     it('should write at the configured length boundary', () => {
       const otp = setup({ length: 4 })
       otp.fill('12')
-      otp.setAt(2, '3')
-      otp.setAt(3, '4')
+      otp.put(2, '3')
+      otp.put(3, '4')
       expect(otp.value.value).toBe('1234')
     })
 
     it('should silently drop out-of-range indices', () => {
       const otp = setup({ length: 4 })
-      otp.setAt(-1, '1')
-      otp.setAt(4, '1')
+      otp.put(-1, '1')
+      otp.put(4, '1')
       expect(otp.value.value).toBe('')
     })
 
     it('should truncate to-the-end when char is empty', () => {
       const otp = setup()
       otp.fill('12345')
-      otp.setAt(2, '')
+      otp.put(2, '')
       expect(otp.value.value).toBe('12')
     })
 
     it('should use the first character when multi-char is passed', () => {
       const otp = setup({ pattern: 'alphanumeric' })
-      otp.setAt(0, 'ab')
+      otp.put(0, 'ab')
       expect(otp.value.value).toBe('a')
     })
 
     it('should drop characters that fail the pattern', () => {
       const otp = setup() // numeric default
-      otp.setAt(0, 'a')
+      otp.put(0, 'a')
       expect(otp.value.value).toBe('')
     })
   })
@@ -193,7 +193,7 @@ describe('createOtp', () => {
       expect(otp.isComplete.value).toBe(false)
       otp.fill('123')
       expect(otp.isComplete.value).toBe(false)
-      otp.setAt(3, '4')
+      otp.put(3, '4')
       expect(otp.isComplete.value).toBe(true)
     })
 
@@ -201,7 +201,7 @@ describe('createOtp', () => {
       const otp = setup({ length: 4 })
       otp.fill('1234')
       expect(otp.isComplete.value).toBe(true)
-      otp.setAt(3, '')
+      otp.put(3, '')
       expect(otp.isComplete.value).toBe(false)
     })
   })
@@ -210,18 +210,18 @@ describe('createOtp', () => {
     it('should no-op mutations when disabled is true', () => {
       const disabled = shallowRef(true)
       const otp = setup({ disabled })
-      otp.setAt(0, '1')
+      otp.put(0, '1')
       otp.paste('123')
       otp.fill('999')
       expect(otp.value.value).toBe('')
       disabled.value = false
-      otp.setAt(0, '1')
+      otp.put(0, '1')
       expect(otp.value.value).toBe('1')
     })
 
     it('should no-op mutations when readonly is true', () => {
       const otp = setup({ readonly: true })
-      otp.setAt(0, '1')
+      otp.put(0, '1')
       otp.paste('123')
       otp.fill('999')
       otp.clear()
@@ -264,7 +264,7 @@ describe('createOtp', () => {
       otp.fill('1234')
       await Promise.resolve()
       expect(otp.input.errors.value).toContain('v0.otp.rejected')
-      otp.setAt(0, '9')
+      otp.put(0, '9')
       expect(otp.input.errors.value).not.toContain('v0.otp.rejected')
     })
 
@@ -309,7 +309,7 @@ describe('createOtp', () => {
       })
       otp.fill('1234')
       await Promise.resolve()
-      otp.setAt(0, '9')
+      otp.put(0, '9')
       expect(otp.value.value).toBe('1234')
       resolve(false)
       await Promise.resolve()

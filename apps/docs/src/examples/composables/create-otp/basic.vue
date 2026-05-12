@@ -11,7 +11,7 @@
 
   function onInput (index: number, event: Event) {
     const target = event.target as HTMLInputElement
-    otp.setAt(index, target.value)
+    otp.put(index, target.value)
     if (otp.value.value.length > index) {
       const next = inputs.value?.[index + 1]
       next?.focus()
@@ -22,7 +22,7 @@
   function onKey (index: number, event: KeyboardEvent) {
     if (event.key !== 'Backspace' || (event.target as HTMLInputElement).value) return
     event.preventDefault()
-    otp.setAt(Math.max(0, index - 1), '')
+    otp.put(Math.max(0, index - 1), '')
     inputs.value?.[Math.max(0, index - 1)]?.focus()
   }
 

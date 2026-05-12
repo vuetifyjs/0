@@ -23,7 +23,7 @@
  *   },
  * })
  *
- * otp.setAt(0, '4')
+ * otp.put(0, '4')
  * otp.paste('12345', 1) // returns 5; value becomes '412345'
  * otp.isComplete.value  // true
  * ```
@@ -99,7 +99,7 @@ export interface OtpOptions extends Omit<InputOptions<string>, 'value'> {
  * ```ts
  * const otp = createOtp({ length: 6 })
  *
- * otp.setAt(0, '4')
+ * otp.put(0, '4')
  * otp.paste('12345', 1) // returns 5
  * otp.isComplete.value  // true
  * otp.clear()
@@ -110,7 +110,7 @@ export interface OtpContext {
   length: Readonly<Ref<number>>
   input: InputContext<string>
   isComplete: Readonly<Ref<boolean>>
-  setAt: (index: number, char: string) => void
+  put: (index: number, char: string) => void
   paste: (text: string, index?: number) => number
   clear: () => void
   fill: (text: string) => void
@@ -191,7 +191,7 @@ export function createOtp (options: OtpOptions = {}): OtpContext {
     }
   }
 
-  function setAt (index: number, char: string): void {
+  function put (index: number, char: string): void {
     if (isLocked()) return
     clearRejection()
     const max = toValue(lengthRef)
@@ -294,7 +294,7 @@ export function createOtp (options: OtpOptions = {}): OtpContext {
     length: lengthRef,
     input,
     isComplete,
-    setAt,
+    put,
     paste,
     clear,
     fill,
