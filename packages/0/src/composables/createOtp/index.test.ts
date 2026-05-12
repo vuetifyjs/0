@@ -89,4 +89,101 @@ describe('createOtp', () => {
       spy.mockRestore()
     })
   })
+
+  describe('setAt', () => {
+    it('should write a single character at the index', () => {
+      const otp = setup()
+      otp.setAt(0, '4')
+      expect(otp.value.value).toBe('4')
+    })
+
+    it('should write at the configured length boundary', () => {
+      const otp = setup({ length: 4 })
+      otp.fill('12')
+      otp.setAt(2, '3')
+      otp.setAt(3, '4')
+      expect(otp.value.value).toBe('1234')
+    })
+
+    it('should silently drop out-of-range indices', () => {
+      const otp = setup({ length: 4 })
+      otp.setAt(-1, '1')
+      otp.setAt(4, '1')
+      expect(otp.value.value).toBe('')
+    })
+
+    it('should truncate to-the-end when char is empty', () => {
+      const otp = setup()
+      otp.fill('12345')
+      otp.setAt(2, '')
+      expect(otp.value.value).toBe('12')
+    })
+
+    it('should use the first character when multi-char is passed', () => {
+      const otp = setup({ pattern: 'alphanumeric' })
+      otp.setAt(0, 'ab')
+      expect(otp.value.value).toBe('a')
+    })
+
+    it('should drop characters that fail the pattern', () => {
+      const otp = setup() // numeric default
+      otp.setAt(0, 'a')
+      expect(otp.value.value).toBe('')
+    })
+  })
+
+  describe('paste', () => {
+    it('should distribute filtered characters and return the count consumed', () => {
+      const otp = setup({ length: 6 })
+      const count = otp.paste('123456')
+      expect(count).toBe(6)
+      expect(otp.value.value).toBe('123456')
+    })
+
+    it('should filter rejected characters before distribution', () => {
+      const otp = setup({ length: 6 })
+      const count = otp.paste('12-34-56')
+      expect(count).toBe(6)
+      expect(otp.value.value).toBe('123456')
+    })
+
+    it('should splice into the existing value at the given index', () => {
+      const otp = setup({ length: 6 })
+      otp.fill('12')
+      const count = otp.paste('34', 2)
+      expect(count).toBe(2)
+      expect(otp.value.value).toBe('1234')
+    })
+
+    it('should clip to length when paste would overflow', () => {
+      const otp = setup({ length: 4 })
+      const count = otp.paste('123456')
+      expect(count).toBe(4)
+      expect(otp.value.value).toBe('1234')
+    })
+
+    it('should return 0 when every character is rejected', () => {
+      const otp = setup({ length: 4 })
+      const count = otp.paste('abc')
+      expect(count).toBe(0)
+      expect(otp.value.value).toBe('')
+    })
+  })
+
+  describe('clear', () => {
+    it('should empty the joined value', () => {
+      const otp = setup()
+      otp.fill('1234')
+      otp.clear()
+      expect(otp.value.value).toBe('')
+    })
+  })
+
+  describe('fill', () => {
+    it('should replace the joined value with filtered, length-clipped input', () => {
+      const otp = setup({ length: 4 })
+      otp.fill('1-2-3-4-5')
+      expect(otp.value.value).toBe('1234')
+    })
+  })
 })

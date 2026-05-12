@@ -166,18 +166,54 @@ export function createOtp (options: OtpOptions = {}): OtpContext {
     return compile(toValue(pattern)).test(char)
   }
 
+  function filterAccepted (text: string): string {
+    let out = ''
+    for (const ch of text) {
+      if (accepts(ch)) out += ch
+    }
+    return out
+  }
+
+  function setAt (index: number, char: string): void {
+    const max = toValue(lengthRef)
+    if (index < 0 || index >= max) return
+    if (char === '') {
+      value.value = value.value.slice(0, index)
+      return
+    }
+    const first = char[0]
+    if (!accepts(first)) return
+    const current = value.value
+    const head = current.slice(0, index)
+    const tail = current.slice(index + 1)
+    value.value = (head + first + tail).slice(0, max)
+  }
+
+  function paste (text: string, index = 0): number {
+    const max = toValue(lengthRef)
+    const start = clamp(index, 0, max)
+    const filtered = filterAccepted(text)
+    if (filtered.length === 0) return 0
+    const head = value.value.slice(0, start)
+    const next = (head + filtered).slice(0, max)
+    value.value = next
+    return next.length - head.length
+  }
+
+  function clear (): void {
+    value.value = ''
+  }
+
+  function fill (text: string): void {
+    const max = toValue(lengthRef)
+    value.value = filterAccepted(text).slice(0, max)
+  }
+
   // Placeholders — fleshed out in subsequent tasks.
-  void clamp
   void watch
   void onComplete
 
   const isComplete = shallowRef(false)
-  function setAt (_index: number, _char: string): void {}
-  function paste (_text: string, _index = 0): number {
-    return 0
-  }
-  function clear (): void {}
-  function fill (_text: string): void {}
 
   return {
     value,
