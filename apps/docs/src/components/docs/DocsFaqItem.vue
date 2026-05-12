@@ -2,13 +2,23 @@
   // Framework
   import { ExpansionPanel } from '@vuetify/v0'
 
-  defineProps<{
+  // Context
+  import { useFaqFilter } from './DocsFaq.vue'
+
+  // Utilities
+  import { toRef } from 'vue'
+
+  const { question } = defineProps<{
     question: string
   }>()
+
+  const filter = useFaqFilter()
+  const result = filter.apply(filter.query, () => [question])
+  const visible = toRef(() => result.items.value.length > 0)
 </script>
 
 <template>
-  <ExpansionPanel.Root>
+  <ExpansionPanel.Root v-show="visible">
     <ExpansionPanel.Activator
       v-slot="{ isSelected }"
       class="w-full list-item-bordered flex items-center gap-3 text-left"

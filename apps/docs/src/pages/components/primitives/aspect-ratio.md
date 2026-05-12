@@ -143,7 +143,7 @@ inline style and no semantics of its own. Any ARIA attributes belong on the
 content inside. Pass `as` to change the element when a different semantic
 wrapper is needed (e.g. `as="figure"`).
 
-## Questions
+## FAQ
 
 ::: faq
 

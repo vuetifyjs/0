@@ -84,7 +84,7 @@ Toggle content with a CSS-driven enter/exit animation. `isMounted` drives `v-if`
 
 :::
 
-## Questions
+## FAQ
 
 ::: faq
 ??? How does usePresence relate to useLazy?
