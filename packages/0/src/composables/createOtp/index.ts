@@ -174,7 +174,12 @@ export function createOtp (options: OtpOptions = {}): OtpContext {
     return out
   }
 
+  function isLocked (): boolean {
+    return toValue(disabled) || toValue(_readonly)
+  }
+
   function setAt (index: number, char: string): void {
+    if (isLocked()) return
     const max = toValue(lengthRef)
     if (index < 0 || index >= max) return
     if (char === '') {
@@ -190,6 +195,7 @@ export function createOtp (options: OtpOptions = {}): OtpContext {
   }
 
   function paste (text: string, index = 0): number {
+    if (isLocked()) return 0
     const max = toValue(lengthRef)
     const start = clamp(index, 0, max)
     const filtered = filterAccepted(text)
@@ -201,10 +207,12 @@ export function createOtp (options: OtpOptions = {}): OtpContext {
   }
 
   function clear (): void {
+    if (isLocked()) return
     value.value = ''
   }
 
   function fill (text: string): void {
+    if (isLocked()) return
     const max = toValue(lengthRef)
     value.value = filterAccepted(text).slice(0, max)
   }
@@ -213,7 +221,16 @@ export function createOtp (options: OtpOptions = {}): OtpContext {
   void watch
   void onComplete
 
-  const isComplete = shallowRef(false)
+  const isComplete = toRef(() => {
+    const max = toValue(lengthRef)
+    const v = value.value
+    if (v.length !== max) return false
+    const re = compile(toValue(pattern))
+    for (const ch of v) {
+      if (!re.test(ch)) return false
+    }
+    return true
+  })
 
   return {
     value,

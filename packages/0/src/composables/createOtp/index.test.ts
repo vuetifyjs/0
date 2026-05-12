@@ -186,4 +186,46 @@ describe('createOtp', () => {
       expect(otp.value.value).toBe('1234')
     })
   })
+
+  describe('isComplete', () => {
+    it('should be false until the value reaches length', () => {
+      const otp = setup({ length: 4 })
+      expect(otp.isComplete.value).toBe(false)
+      otp.fill('123')
+      expect(otp.isComplete.value).toBe(false)
+      otp.setAt(3, '4')
+      expect(otp.isComplete.value).toBe(true)
+    })
+
+    it('should drop back to false when the value shrinks', () => {
+      const otp = setup({ length: 4 })
+      otp.fill('1234')
+      expect(otp.isComplete.value).toBe(true)
+      otp.setAt(3, '')
+      expect(otp.isComplete.value).toBe(false)
+    })
+  })
+
+  describe('disabled / readonly gating', () => {
+    it('should no-op mutations when disabled is true', () => {
+      const disabled = shallowRef(true)
+      const otp = setup({ disabled })
+      otp.setAt(0, '1')
+      otp.paste('123')
+      otp.fill('999')
+      expect(otp.value.value).toBe('')
+      disabled.value = false
+      otp.setAt(0, '1')
+      expect(otp.value.value).toBe('1')
+    })
+
+    it('should no-op mutations when readonly is true', () => {
+      const otp = setup({ readonly: true })
+      otp.setAt(0, '1')
+      otp.paste('123')
+      otp.fill('999')
+      otp.clear()
+      expect(otp.value.value).toBe('')
+    })
+  })
 })
