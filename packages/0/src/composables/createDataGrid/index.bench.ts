@@ -79,12 +79,17 @@ const COLUMNS_EDITABLE: DataGridColumn<BenchmarkRow>[] = [
 const SEARCH_QUERY_1K = 'User 500'
 const SEARCH_QUERY_10K = 'User 5000'
 
-function createGrid (overrides: Partial<DataGridOptions<BenchmarkRow>> = {}) {
-  return createDataGrid<BenchmarkRow>({
-    items: overrides.items ?? ROWS_1K,
-    columns: overrides.columns ?? COLUMNS,
-    ...overrides,
+function createGrid (
+  overrides: Partial<DataGridOptions<BenchmarkRow>> & { items?: BenchmarkRow[] } = {},
+) {
+  const { items: _items, ...rest } = overrides
+  const items = _items ?? ROWS_1K
+  const grid = createDataGrid<BenchmarkRow>({
+    columns: COLUMNS,
+    ...rest,
   })
+  grid.onboard(items.map(value => ({ id: value.id, value })))
+  return grid
 }
 
 // =============================================================================

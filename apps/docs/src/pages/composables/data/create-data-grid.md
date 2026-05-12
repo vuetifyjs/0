@@ -25,13 +25,15 @@ A data grid composable that layers column layout, cell editing, row ordering, an
 
 ## Usage
 
-Pass `items` and `columns` with `size` percentages to get a grid with column layout management, search, sort, and pagination.
+Pass `columns` with `size` percentages to construct a grid, then register rows via the inherited registry surface to get column layout management, search, sort, and pagination.
+
+> [!TIP]
+> Rows are registered, not passed as an option. Call `grid.onboard(rows.map(value => ({ id: value.id, value })))` (or `grid.register({ id, value })` per row) after construction — the grid owns row identity and order through the registry inherited from [createDataTable](/composables/data/create-data-table).
 
 ```ts collapse
 import { createDataGrid } from '@vuetify/v0'
 
 const grid = createDataGrid({
-  items: projects,
   columns: [
     { key: 'name', title: 'Project', sortable: true, filterable: true, size: 22 },
     { key: 'status', title: 'Status', sortable: true, size: 12 },
@@ -40,6 +42,9 @@ const grid = createDataGrid({
     { key: 'budget', title: 'Budget', sortable: true, size: 10 },
   ],
 })
+
+// Register rows through the inherited registry surface
+grid.onboard(projects.map(value => ({ id: value.id, value })))
 
 // Inherited from createDataTable
 grid.search('alice')
@@ -91,7 +96,7 @@ flowchart TD
 | Property | Reactive | Notes |
 | - | :-: | - |
 | `items` | <AppSuccessIcon /> | Final visible items (paginated) |
-| `allItems` | <AppSuccessIcon /> | Raw unprocessed items |
+| `allItems` | <AppSuccessIcon /> | Raw unprocessed items (projected from registered tickets) |
 | `filteredItems` | <AppSuccessIcon /> | Items after filtering |
 | `sortedItems` | <AppSuccessIcon /> | Items after filter + sort + order |
 | `layout.columns` | <AppSuccessIcon /> | Resolved columns with size/offset |
@@ -129,10 +134,11 @@ graph LR
 import { createDataGrid } from '@vuetify/v0'
 
 const grid = createDataGrid({
-  items: employees,
   columns,
   // ClientGridAdapter is the default — not required
 })
+
+grid.onboard(employees.map(value => ({ id: value.id, value })))
 
 // Row ordering
 grid.rows.move(0, 3)  // move row 0 to position 3
@@ -147,10 +153,12 @@ Pass-through adapter for API-driven grids. Re-exports the data table's `ServerAd
 import { createDataGrid, ServerGridAdapter } from '@vuetify/v0'
 
 const grid = createDataGrid({
-  items: serverItems,
   columns,
   adapter: new ServerGridAdapter({ total: totalCount, loading: isLoading }),
 })
+
+// Push server-returned rows into the grid as they arrive
+grid.onboard(serverItems.map(value => ({ id: value.id, value })))
 ```
 
 ### VirtualGridAdapter
@@ -161,10 +169,11 @@ Client-side filter/sort/order without pagination slicing. All items are passed t
 import { createDataGrid, VirtualGridAdapter } from '@vuetify/v0'
 
 const grid = createDataGrid({
-  items: largeDataset,
   columns,
-  adapter: new VirtualGridAdapter(grid.rows.order, 'id'),
+  adapter: new VirtualGridAdapter(grid.rows.order),
 })
+
+grid.onboard(largeDataset.map(value => ({ id: value.id, value })))
 ```
 
 ## Examples
@@ -255,13 +264,14 @@ Columns are sized as percentages (0–100) and can be pinned, resized, and reord
 
 ```ts
 const grid = createDataGrid({
-  items,
   columns: [
     { key: 'name', size: 30, pinned: 'left', minSize: 15, maxSize: 50 },
     { key: 'email', size: 40 },
     { key: 'status', size: 30, pinned: 'right' },
   ],
 })
+
+grid.onboard(rows.map(value => ({ id: value.id, value })))
 
 // Pin regions
 grid.layout.pinned.value      // { left: [...], scrollable: [...], right: [...] }
@@ -285,7 +295,6 @@ Click-to-edit with validation. Does not mutate source data — commit fires a ca
 
 ```ts
 const grid = createDataGrid({
-  items,
   columns: [
     {
       key: 'email',
@@ -303,6 +312,8 @@ const grid = createDataGrid({
   },
 })
 
+grid.onboard(rows.map(value => ({ id: value.id, value })))
+
 grid.editing.edit(1, 'email')     // Activate cell
 grid.editing.commit('new@email')  // Validate and save
 grid.editing.cancel()             // Discard
@@ -316,7 +327,9 @@ grid.editing.dirty.value          // Map of uncommitted edits
 Post-sort row ordering for drag-and-drop reordering.
 
 ```ts
-const grid = createDataGrid({ items, columns })
+const grid = createDataGrid({ columns })
+
+grid.onboard(rows.map(value => ({ id: value.id, value })))
 
 grid.rows.move(0, 3)           // Move row from index 0 to 3
 grid.rows.order.value          // Current ID-based order
@@ -332,13 +345,14 @@ Merge cells vertically using a spanning function.
 
 ```ts
 const grid = createDataGrid({
-  items,
   columns,
   rowSpanning: (item, column) => {
     if (column === 'department') return 3  // span 3 rows
     return 1
   },
 })
+
+grid.onboard(rows.map(value => ({ id: value.id, value })))
 
 // Span map: item ID → column key → { rowSpan, hidden }
 grid.spans.value.get(1)?.get('department')
@@ -354,7 +368,6 @@ Column definitions support nesting for grouped headers. Layout and data pipeline
 
 ```ts
 const grid = createDataGrid({
-  items,
   columns: [
     { key: 'name', title: 'Name', size: 30 },
     {
@@ -367,6 +380,8 @@ const grid = createDataGrid({
     },
   ],
 })
+
+grid.onboard(rows.map(value => ({ id: value.id, value })))
 
 // headers: 2D array with colspan/rowspan for <thead> rendering
 grid.headers.value

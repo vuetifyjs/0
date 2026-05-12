@@ -7,7 +7,6 @@
   import { schedule } from './data'
 
   const grid = createDataGrid({
-    items: schedule,
     columns,
     rowSpanning (item, column) {
       if (column !== 'department') return 1
@@ -22,6 +21,8 @@
       return count
     },
   })
+
+  grid.onboard(schedule.map(value => ({ id: value.id, value })))
 
   function dotClass (status: string) {
     if (status === 'available') return 'bg-success'

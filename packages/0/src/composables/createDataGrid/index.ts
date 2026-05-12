@@ -8,18 +8,22 @@
  * and row spanning on top of a createDataTable pipeline. Uses a ClientGridAdapter
  * so row ordering is applied post-sort, pre-pagination.
  *
+ * Rows are registered through the inherited registry surface (`register`,
+ * `onboard`, `unregister`, `clear`) — they are not passed as an `items`
+ * option to the factory.
+ *
  * Follows the trinity pattern for dependency injection.
  *
  * @example
  * ```ts
  * const grid = createDataGrid({
- *   items: rows,
  *   columns: [
  *     { key: 'name', sortable: true },
  *     { key: 'progress', editable: true },
  *   ],
  * })
  *
+ * grid.onboard(rows.map(value => ({ id: value.id, value })))
  * grid.layout.pin('name', 'left')
  * grid.editing.edit(row.id, 'progress')
  * ```
@@ -45,7 +49,7 @@ import { isFunction, isUndefined } from '#v0/utilities'
 import { watch } from 'vue'
 
 // Types
-import type { DataTableAdapter, DataTableContext, KeysOfType } from '#v0/composables/createDataTable'
+import type { DataTableAdapter, DataTableContext } from '#v0/composables/createDataTable'
 import type { FilterOptions } from '#v0/composables/createFilter'
 import type { PaginationOptions } from '#v0/composables/createPagination'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
@@ -54,7 +58,7 @@ import type { ID } from '#v0/types'
 import type { CellEditing } from './editing'
 import type { ColumnLayout, GridColumnDef } from './layout'
 import type { SpanEntry } from './spanning'
-import type { App, ComputedRef, MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
+import type { App, ComputedRef, Ref, ShallowRef } from 'vue'
 
 export type { ColumnLayout, GridColumnDef, PinnedRegion, PinPosition, ResolvedColumn } from './layout'
 export type { ActiveCell, CellEditing, CellEditingOptions, EditableColumn } from './editing'
@@ -78,9 +82,7 @@ export interface DataGridColumn<T extends Record<string, unknown> = Record<strin
 }
 
 export interface DataGridOptions<T extends Record<string, unknown>> {
-  items: MaybeRefOrGetter<T[]>
   columns: readonly DataGridColumn<T>[]
-  itemValue?: KeysOfType<T, ID>
   adapter?: DataTableAdapter<T>
   filter?: Omit<FilterOptions, 'keys'>
   pagination?: Omit<PaginationOptions, 'size'>
@@ -118,13 +120,16 @@ export interface DataGridContextOptions<T extends Record<string, unknown>> exten
  * Creates a data grid instance with layout, editing, row ordering, and spanning
  * layered on top of the createDataTable pipeline.
  *
+ * Rows live on the inherited registry surface — register them with
+ * `grid.onboard(rows.map(value => ({ id: value.id, value })))` or
+ * `grid.register({ id, value })`.
+ *
  * @param options Data grid options
  * @returns Data grid context
  *
  * @example
  * ```ts
  * const grid = createDataGrid({
- *   items: rows,
  *   columns: [
  *     { key: 'name', sortable: true },
  *     { key: 'progress', editable: true, validate: v => Number(v) >= 0 || 'must be positive' },
@@ -132,6 +137,7 @@ export interface DataGridContextOptions<T extends Record<string, unknown>> exten
  *   pagination: { initial: 1 },
  * })
  *
+ * grid.onboard(rows.map(value => ({ id: value.id, value })))
  * grid.layout.pin('name', 'left')
  * grid.rows.move(2, 0)
  * grid.editing.edit(row.id, 'progress')
@@ -141,9 +147,7 @@ export function createDataGrid<T extends Record<string, unknown>> (
   options: DataGridOptions<T>,
 ): DataGridContext<T> {
   const {
-    items,
     columns,
-    itemValue = 'id' as KeysOfType<T, ID>,
     adapter: customAdapter,
     filter,
     pagination,
@@ -155,12 +159,10 @@ export function createDataGrid<T extends Record<string, unknown>> (
 
   const leaves = extractLeaves(columns)
   const ordering = createRowOrdering()
-  const adapter = customAdapter ?? new ClientGridAdapter<T>(ordering.order, itemValue)
+  const adapter = customAdapter ?? new ClientGridAdapter<T>(ordering.order)
 
   const table = createDataTable<T>({
-    items,
     columns,
-    itemValue,
     filter,
     pagination,
     sortMultiple,
@@ -184,9 +186,7 @@ export function createDataGrid<T extends Record<string, unknown>> (
     }))
 
   function lookup (row: ID): T | undefined {
-    return table.allItems.value.find(
-      i => (i[itemValue] as ID) === row,
-    )
+    return table.get(row)?.value
   }
 
   const editing = createCellEditing({
@@ -203,7 +203,6 @@ export function createDataGrid<T extends Record<string, unknown>> (
   const spans = createRowSpanning<T>({
     items: table.items as Ref<readonly T[]>,
     columns: leaves.map(col => col.key),
-    itemKey: itemValue,
     rowSpanning,
   })
   return {
@@ -217,6 +216,9 @@ export function createDataGrid<T extends Record<string, unknown>> (
     editing,
     spans,
     virtual: null,
+    get size () {
+      return table.size
+    },
   }
 }
 
@@ -228,14 +230,14 @@ export function createDataGrid<T extends Record<string, unknown>> (
  *
  * @example
  * ```ts
- * const [useDataGrid, provideDataGrid] = createDataGridContext({
- *   items: rows,
+ * const [useDataGrid, provideDataGrid, grid] = createDataGridContext({
  *   columns,
  *   namespace: 'v0:projects',
  * })
  *
+ * grid.onboard(rows.map(value => ({ id: value.id, value })))
  * provideDataGrid()
- * const grid = useDataGrid()
+ * const ctx = useDataGrid()
  * ```
  */
 export function createDataGridContext<T extends Record<string, unknown>> (

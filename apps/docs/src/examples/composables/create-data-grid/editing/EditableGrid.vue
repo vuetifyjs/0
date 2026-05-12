@@ -22,7 +22,6 @@
   const editRef = useTemplateRef<HTMLInputElement>('edit-input')
 
   const grid = createDataGrid({
-    items: products,
     columns,
     editing: {
       onEdit (row, column, value) {
@@ -40,6 +39,8 @@
       },
     },
   })
+
+  grid.onboard(products.map(value => ({ id: value.id, value })))
 
   function cellKey (row: ID, column: string) {
     return `${row}:${column}`

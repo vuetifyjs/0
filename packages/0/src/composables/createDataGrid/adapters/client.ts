@@ -24,7 +24,7 @@ export class ClientGridAdapter<T extends Record<string, unknown>> extends DataTa
   private rowOrder: ShallowRef<ID[]>
   private itemKey: string
 
-  constructor (rowOrder: ShallowRef<ID[]>, itemKey: string) {
+  constructor (rowOrder: ShallowRef<ID[]>, itemKey = 'id') {
     super()
     this.rowOrder = rowOrder
     this.itemKey = itemKey

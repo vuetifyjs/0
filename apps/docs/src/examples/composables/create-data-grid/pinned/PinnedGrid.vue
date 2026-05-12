@@ -9,9 +9,10 @@
   import { stocks } from './data'
 
   const grid = createDataGrid({
-    items: stocks,
     columns,
   })
+
+  grid.onboard(stocks.map(value => ({ id: value.id, value })))
 
   const resizing = shallowRef<string | null>(null)
   let startX = 0

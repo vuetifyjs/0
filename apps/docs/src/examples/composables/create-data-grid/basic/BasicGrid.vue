@@ -13,7 +13,6 @@
   import { projects } from './data'
 
   const grid = createDataGrid({
-    items: projects,
     columns,
     rowReordering: true,
     editing: {
@@ -27,6 +26,8 @@
       },
     },
   })
+
+  grid.onboard(projects.map(value => ({ id: value.id, value })))
 
   // -- Resize --
   const resizing = shallowRef<string | null>(null)
