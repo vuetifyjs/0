@@ -282,6 +282,20 @@ describe('createOtp', () => {
       expect(onComplete).toHaveBeenCalledTimes(2)
       expect(otp.value.value).toBe('1234')
     })
+
+    it('should clear value and warn when onComplete throws', async () => {
+      const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      const otp = setup({ length: 4, onComplete: () => {
+        throw new Error('boom')
+      } })
+      otp.fill('1234')
+      await Promise.resolve()
+      expect(otp.value.value).toBe('')
+      expect(otp.input.errors.value).toContain('v0.otp.rejected')
+      expect(spy).toHaveBeenCalledTimes(1)
+      expect(spy).toHaveBeenCalledWith(expect.stringContaining('onComplete threw'))
+      spy.mockRestore()
+    })
   })
 
   describe('onComplete (async)', () => {
@@ -314,6 +328,22 @@ describe('createOtp', () => {
       await Promise.resolve()
       expect(otp.value.value).toBe('1234')
       expect(otp.input.errors.value).toEqual([])
+    })
+
+    it('should clear value and warn when onComplete returns a rejected promise', async () => {
+      const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      const otp = setup({
+        length: 4,
+        onComplete: () => Promise.reject(new Error('network error')),
+      })
+      otp.fill('1234')
+      await Promise.resolve()
+      await Promise.resolve()
+      expect(otp.value.value).toBe('')
+      expect(otp.input.errors.value).toContain('v0.otp.rejected')
+      expect(spy).toHaveBeenCalledTimes(1)
+      expect(spy).toHaveBeenCalledWith(expect.stringContaining('onComplete rejected'))
+      spy.mockRestore()
     })
   })
 })

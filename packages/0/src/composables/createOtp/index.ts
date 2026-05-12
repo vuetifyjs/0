@@ -234,6 +234,11 @@ export function createOtp (options: OtpOptions = {}): OtpContext {
     value.value = filterAccepted(text).slice(0, max)
   }
 
+  // Track the last value that triggered onComplete to detect repeated completion edges.
+  // Watching isComplete directly misses cycles where value clears then refills within
+  // the same flush tick (old === new === true, Vue skips the callback).
+  let lastCompleted = ''
+
   function reject (): void {
     errorRef.value = true
     errorMessagesRef.value = ['v0.otp.rejected']
@@ -251,11 +256,6 @@ export function createOtp (options: OtpOptions = {}): OtpContext {
     }
     return true
   })
-
-  // Track the last value that triggered onComplete to detect repeated completion edges.
-  // Watching isComplete directly misses cycles where value clears then refills within
-  // the same flush tick (old === new === true, Vue skips the callback).
-  let lastCompleted = ''
 
   watch(value, next => {
     if (!onComplete) return
