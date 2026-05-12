@@ -228,4 +228,77 @@ describe('createOtp', () => {
       expect(otp.value.value).toBe('')
     })
   })
+
+  describe('onComplete (sync)', () => {
+    it('should fire once on the false → true edge', async () => {
+      const onComplete = vi.fn()
+      const otp = setup({ length: 4, onComplete })
+      otp.fill('1234')
+      await Promise.resolve()
+      expect(onComplete).toHaveBeenCalledTimes(1)
+      expect(onComplete).toHaveBeenCalledWith('1234')
+    })
+
+    it('should fire again on a subsequent false → true cycle', async () => {
+      const onComplete = vi.fn()
+      const otp = setup({ length: 4, onComplete })
+      otp.fill('1234')
+      await Promise.resolve()
+      otp.clear()
+      otp.fill('5678')
+      await Promise.resolve()
+      expect(onComplete).toHaveBeenCalledTimes(2)
+    })
+
+    it('should clear value and set error when sync onComplete returns false', async () => {
+      const otp = setup({ length: 4, onComplete: () => false })
+      otp.fill('1234')
+      await Promise.resolve()
+      expect(otp.value.value).toBe('')
+      expect(otp.input.isValid.value).toBe(false)
+      expect(otp.input.errors.value).toContain('v0.otp.rejected')
+    })
+
+    it('should clear error state on the next mutation', async () => {
+      const otp = setup({ length: 4, onComplete: () => false })
+      otp.fill('1234')
+      await Promise.resolve()
+      expect(otp.input.errors.value).toContain('v0.otp.rejected')
+      otp.setAt(0, '9')
+      expect(otp.input.errors.value).not.toContain('v0.otp.rejected')
+    })
+  })
+
+  describe('onComplete (async)', () => {
+    it('should no-op mutations and clear value on async rejection', async () => {
+      let resolve!: (ok: boolean) => void
+      const otp = setup({
+        length: 4,
+        onComplete: () => new Promise<boolean>(r => {
+          resolve = r
+        }),
+      })
+      otp.fill('1234')
+      await Promise.resolve()
+      otp.setAt(0, '9')
+      expect(otp.value.value).toBe('1234')
+      resolve(false)
+      await Promise.resolve()
+      await Promise.resolve()
+      expect(otp.value.value).toBe('')
+      expect(otp.input.errors.value).toContain('v0.otp.rejected')
+    })
+
+    it('should leave the value intact on async accept', async () => {
+      const otp = setup({
+        length: 4,
+        onComplete: () => Promise.resolve(true),
+      })
+      otp.fill('1234')
+      await Promise.resolve()
+      await Promise.resolve()
+      expect(otp.value.value).toBe('1234')
+      expect(otp.input.errors.value).toEqual([])
+    })
+  })
 })

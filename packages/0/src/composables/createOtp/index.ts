@@ -174,12 +174,22 @@ export function createOtp (options: OtpOptions = {}): OtpContext {
     return out
   }
 
+  const isPending = shallowRef(false)
+
   function isLocked (): boolean {
-    return toValue(disabled) || toValue(_readonly)
+    return toValue(disabled) || toValue(_readonly) || isPending.value
+  }
+
+  function clearRejection (): void {
+    if (errorRef.value || errorMessagesRef.value) {
+      errorRef.value = false
+      errorMessagesRef.value = undefined
+    }
   }
 
   function setAt (index: number, char: string): void {
     if (isLocked()) return
+    clearRejection()
     const max = toValue(lengthRef)
     if (index < 0 || index >= max) return
     if (char === '') {
@@ -196,6 +206,7 @@ export function createOtp (options: OtpOptions = {}): OtpContext {
 
   function paste (text: string, index = 0): number {
     if (isLocked()) return 0
+    clearRejection()
     const max = toValue(lengthRef)
     const start = clamp(index, 0, max)
     const filtered = filterAccepted(text)
@@ -208,18 +219,22 @@ export function createOtp (options: OtpOptions = {}): OtpContext {
 
   function clear (): void {
     if (isLocked()) return
+    clearRejection()
     value.value = ''
   }
 
   function fill (text: string): void {
     if (isLocked()) return
+    clearRejection()
     const max = toValue(lengthRef)
     value.value = filterAccepted(text).slice(0, max)
   }
 
-  // Placeholders — fleshed out in subsequent tasks.
-  void watch
-  void onComplete
+  function reject (): void {
+    errorRef.value = true
+    errorMessagesRef.value = ['v0.otp.rejected']
+    value.value = ''
+  }
 
   const isComplete = toRef(() => {
     const max = toValue(lengthRef)
@@ -230,6 +245,43 @@ export function createOtp (options: OtpOptions = {}): OtpContext {
       if (!re.test(ch)) return false
     }
     return true
+  })
+
+  // Track the last value that triggered onComplete to detect repeated completion edges.
+  // Watching isComplete directly misses cycles where value clears then refills within
+  // the same flush tick (old === new === true, Vue skips the callback).
+  let lastCompleted = ''
+
+  watch(value, next => {
+    if (!onComplete) return
+    if (!isComplete.value) return
+    if (toValue(disabled) || toValue(_readonly)) return
+    if (next === lastCompleted) return
+    lastCompleted = next
+    let result: ReturnType<NonNullable<OtpOptions['onComplete']>>
+    try {
+      result = onComplete(next)
+    } catch (error) {
+      logger.warn(`createOtp: onComplete threw — ${(error as Error).message}`)
+      reject()
+      return
+    }
+    if (result instanceof Promise) {
+      isPending.value = true
+      result.then(
+        ok => {
+          isPending.value = false
+          if (ok === false) reject()
+        },
+        error => {
+          isPending.value = false
+          logger.warn(`createOtp: onComplete rejected — ${(error as Error).message}`)
+          reject()
+        },
+      )
+      return
+    }
+    if (result === false) reject()
   })
 
   return {
