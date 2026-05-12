@@ -1,6 +1,6 @@
 <script setup lang="ts">
   import { mdiChevronDown, mdiChevronLeft, mdiChevronRight, mdiChevronUp } from '@mdi/js'
-  import { createKanban } from '@vuetify/v0'
+  import { Button, createKanban } from '@vuetify/v0'
   import { shallowRef, toRef } from 'vue'
 
   import type { ID } from '@vuetify/v0'
@@ -87,41 +87,49 @@
         <span v-else class="opacity-60">Select a card to move it</span>
       </span>
 
-      <button
+      <Button.Root
         aria-label="Move to previous column"
-        class="rounded p-1 hover:bg-surface-variant disabled:opacity-30 disabled:hover:bg-transparent"
+        class="inline-flex items-center justify-center rounded p-1 hover:bg-surface-variant data-disabled:opacity-30 data-disabled:hover:bg-transparent"
         :disabled="!selected || selectedColumn?.id === view.columns.values[0]?.id"
         @click="previous"
       >
-        <svg class="size-4" viewBox="0 0 24 24"><path :d="mdiChevronLeft" fill="currentColor" /></svg>
-      </button>
+        <Button.Icon>
+          <svg class="size-4" viewBox="0 0 24 24"><path :d="mdiChevronLeft" fill="currentColor" /></svg>
+        </Button.Icon>
+      </Button.Root>
 
-      <button
+      <Button.Root
         aria-label="Move up within column"
-        class="rounded p-1 hover:bg-surface-variant disabled:opacity-30 disabled:hover:bg-transparent"
+        class="inline-flex items-center justify-center rounded p-1 hover:bg-surface-variant data-disabled:opacity-30 data-disabled:hover:bg-transparent"
         :disabled="!selected || selectedTicket?.index === 0"
         @click="up"
       >
-        <svg class="size-4" viewBox="0 0 24 24"><path :d="mdiChevronUp" fill="currentColor" /></svg>
-      </button>
+        <Button.Icon>
+          <svg class="size-4" viewBox="0 0 24 24"><path :d="mdiChevronUp" fill="currentColor" /></svg>
+        </Button.Icon>
+      </Button.Root>
 
-      <button
+      <Button.Root
         aria-label="Move down within column"
-        class="rounded p-1 hover:bg-surface-variant disabled:opacity-30 disabled:hover:bg-transparent"
+        class="inline-flex items-center justify-center rounded p-1 hover:bg-surface-variant data-disabled:opacity-30 data-disabled:hover:bg-transparent"
         :disabled="!selected || selectedTicket?.index === selectedColumn!.items.size - 1"
         @click="down"
       >
-        <svg class="size-4" viewBox="0 0 24 24"><path :d="mdiChevronDown" fill="currentColor" /></svg>
-      </button>
+        <Button.Icon>
+          <svg class="size-4" viewBox="0 0 24 24"><path :d="mdiChevronDown" fill="currentColor" /></svg>
+        </Button.Icon>
+      </Button.Root>
 
-      <button
+      <Button.Root
         aria-label="Move to next column"
-        class="rounded p-1 hover:bg-surface-variant disabled:opacity-30 disabled:hover:bg-transparent"
+        class="inline-flex items-center justify-center rounded p-1 hover:bg-surface-variant data-disabled:opacity-30 data-disabled:hover:bg-transparent"
         :disabled="!selected || selectedColumn?.id === view.columns.values[view.columns.values.length - 1]?.id"
         @click="next"
       >
-        <svg class="size-4" viewBox="0 0 24 24"><path :d="mdiChevronRight" fill="currentColor" /></svg>
-      </button>
+        <Button.Icon>
+          <svg class="size-4" viewBox="0 0 24 24"><path :d="mdiChevronRight" fill="currentColor" /></svg>
+        </Button.Icon>
+      </Button.Root>
     </div>
 
     <div class="grid gap-3 grid-cols-[repeat(auto-fit,minmax(200px,1fr))]">

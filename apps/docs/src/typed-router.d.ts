@@ -359,6 +359,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/composables/data/create-kanban': RouteRecordInfo<
+      '/composables/data/create-kanban',
+      '/composables/data/create-kanban',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/composables/data/create-pagination': RouteRecordInfo<
       '/composables/data/create-pagination',
       '/composables/data/create-pagination',
@@ -1351,6 +1358,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/data/create-filter.md': {
       routes:
         | '/composables/data/create-filter'
+      views:
+        | never
+    }
+    'src/pages/composables/data/create-kanban.md': {
+      routes:
+        | '/composables/data/create-kanban'
       views:
         | never
     }
