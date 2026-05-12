@@ -53,6 +53,22 @@ import type { MaybeRefOrGetter, Ref } from 'vue'
  */
 export type OtpPattern = 'numeric' | 'alphanumeric' | 'alphabetic' | RegExp
 
+/**
+ * Options accepted by `createOtp`.
+ *
+ * @example
+ * ```ts
+ * const otp = createOtp({
+ *   length: 6,
+ *   pattern: 'numeric',
+ *   disabled: false,
+ *   onComplete: async value => {
+ *     const ok = await verify(value)
+ *     return ok
+ *   },
+ * })
+ * ```
+ */
 export interface OtpOptions extends Omit<InputOptions<string>, 'value'> {
   /** Number of characters. @default 6 */
   length?: MaybeRefOrGetter<number>
@@ -75,6 +91,20 @@ export interface OtpOptions extends Omit<InputOptions<string>, 'value'> {
   onComplete?: (value: string) => boolean | void | Promise<boolean | void>
 }
 
+/**
+ * Reactive context returned by `createOtp`. Consumers index into `value`
+ * for per-character rendering and call the mutation helpers to drive state.
+ *
+ * @example
+ * ```ts
+ * const otp = createOtp({ length: 6 })
+ *
+ * otp.setAt(0, '4')
+ * otp.paste('12345', 1) // returns 5
+ * otp.isComplete.value  // true
+ * otp.clear()
+ * ```
+ */
 export interface OtpContext {
   value: Ref<string>
   length: Readonly<Ref<number>>
