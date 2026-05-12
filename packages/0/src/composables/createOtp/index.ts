@@ -34,7 +34,7 @@ import { createInput } from '#v0/composables/createInput'
 import { useLogger } from '#v0/composables/useLogger'
 
 // Utilities
-import { clamp } from '#v0/utilities'
+import { clamp, isString } from '#v0/utilities'
 import { shallowRef, toRef, toValue, watch } from 'vue'
 
 // Types
@@ -153,7 +153,7 @@ export function createOtp (options: OtpOptions = {}): OtpContext {
   const warned = new WeakSet<RegExp>()
 
   function compile (resolved: OtpPattern): RegExp {
-    if (typeof resolved === 'string') return PRESETS[resolved]
+    if (isString(resolved)) return PRESETS[resolved]
     if (__DEV__ && !warned.has(resolved) && (resolved.test('aa') || resolved.test('00'))) {
       warned.add(resolved)
       logger.warn('createOtp: pattern matches multi-character input; per-character matching may behave unexpectedly')

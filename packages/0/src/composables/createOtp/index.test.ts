@@ -85,6 +85,7 @@ describe('createOtp', () => {
       otp.accepts('1')
       otp.accepts('2')
       expect(spy).toHaveBeenCalledTimes(1)
+      expect(spy).toHaveBeenCalledWith(expect.stringContaining('multi-character'))
       spy.mockRestore()
     })
   })
