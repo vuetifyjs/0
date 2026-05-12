@@ -110,7 +110,7 @@
     return columns.find(c => c.key === key)?.title ?? key
   }
 
-  function progressColor (v: number) {
+  function tint (v: number) {
     if (v > 70) return 'bg-success'
     if (v >= 30) return 'bg-warning'
     return 'bg-error'
@@ -229,7 +229,7 @@
                   <div class="flex-1 h-1 bg-on-surface/10 rounded-full overflow-hidden">
                     <div
                       class="h-full rounded-full"
-                      :class="progressColor(item.progress)"
+                      :class="tint(item.progress)"
                       :style="{ width: item.progress + '%' }"
                     />
                   </div>

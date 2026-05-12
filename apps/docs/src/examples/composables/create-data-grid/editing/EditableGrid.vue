@@ -98,12 +98,12 @@
     },
   )
 
-  function formatPrice (value: unknown) {
+  function money (value: unknown) {
     return `$${Number(value).toFixed(2)}`
   }
 
-  const totalValue = computed(() => products.reduce((sum, p) => sum + p.price * p.quantity, 0))
-  const lowStock = computed(() => products.filter(p => p.quantity < 50).length)
+  const total = computed(() => products.reduce((sum, p) => sum + p.price * p.quantity, 0))
+  const low = computed(() => products.filter(p => p.quantity < 50).length)
 </script>
 
 <template>
@@ -121,7 +121,7 @@
 
         <div class="flex items-center gap-1.5">
           <span class="text-on-surface-variant">Inventory value</span>
-          <span class="tabular-nums font-medium">${{ totalValue.toFixed(0) }}</span>
+          <span class="tabular-nums font-medium">${{ total.toFixed(0) }}</span>
         </div>
 
         <div class="flex items-center gap-1.5">
@@ -129,9 +129,9 @@
 
           <span
             class="tabular-nums font-medium px-1.5 rounded-full text-xs"
-            :class="lowStock > 0 ? 'bg-warning/15 text-warning' : 'text-on-surface-variant'"
+            :class="low > 0 ? 'bg-warning/15 text-warning' : 'text-on-surface-variant'"
           >
-            {{ lowStock }}
+            {{ low }}
           </span>
         </div>
       </div>
@@ -254,7 +254,7 @@
                   class="inline-flex items-center gap-1"
                   :class="isEdited(item.id as ID, col.key) ? 'text-primary font-medium' : ''"
                 >
-                  <template v-if="col.key === 'price'">{{ formatPrice(item[col.key]) }}</template>
+                  <template v-if="col.key === 'price'">{{ money(item[col.key]) }}</template>
                   <template v-else-if="col.key === 'quantity'">{{ item[col.key] }}</template>
                   <template v-else>{{ item[col.key] }}</template>
 

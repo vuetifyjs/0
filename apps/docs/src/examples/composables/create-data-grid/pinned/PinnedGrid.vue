@@ -75,33 +75,33 @@
     return 'Click to pin left'
   }
 
-  function formatVolume (value: number) {
+  function volume (value: number) {
     if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}M`
     if (value >= 1000) return `${(value / 1000).toFixed(0)}K`
     return String(value)
   }
 
-  function formatCap (value: number) {
+  function cap (value: number) {
     if (value >= 1_000_000) return `$${(value / 1_000_000).toFixed(1)}T`
     if (value >= 1000) return `$${(value / 1000).toFixed(1)}B`
     return `$${value}M`
   }
 
-  const numericKeys = new Set(['price', 'change', 'volume', 'cap', 'pe', 'eps', 'dividend'])
+  const numeric = new Set(['price', 'change', 'volume', 'cap', 'pe', 'eps', 'dividend'])
 
   function isNumeric (key: string) {
-    return numericKeys.has(key)
+    return numeric.has(key)
   }
 
   const stats = computed(() => {
     const items = grid.items.value
-    const gainers = items.filter(s => s.change > 0).length
-    const losers = items.filter(s => s.change < 0).length
-    const volume = items.reduce((sum, s) => sum + s.volume, 0)
-    return { gainers, losers, volume }
+    const up = items.filter(s => s.change > 0).length
+    const down = items.filter(s => s.change < 0).length
+    const vol = items.reduce((sum, s) => sum + s.volume, 0)
+    return { up, down, vol }
   })
 
-  const pinnedSummary = computed(() => {
+  const summary = computed(() => {
     const { left, scrollable, right } = grid.layout.pinned.value
     return { left: left.length, scrollable: scrollable.length, right: right.length }
   })
@@ -118,10 +118,10 @@
         <span class="font-medium">Market overview</span>
 
         <span class="text-xs text-on-surface-variant ml-2">
-          <span class="tabular-nums text-success">{{ stats.gainers }}↑</span>
+          <span class="tabular-nums text-success">{{ stats.up }}↑</span>
           ·
-          <span class="tabular-nums text-error">{{ stats.losers }}↓</span>
-          · Vol <span class="tabular-nums">{{ formatVolume(stats.volume) }}</span>
+          <span class="tabular-nums text-error">{{ stats.down }}↓</span>
+          · Vol <span class="tabular-nums">{{ volume(stats.vol) }}</span>
         </span>
       </div>
 
@@ -253,11 +253,11 @@
               </template>
 
               <template v-else-if="col.key === 'volume'">
-                {{ formatVolume(item.volume) }}
+                {{ volume(item.volume) }}
               </template>
 
               <template v-else-if="col.key === 'cap'">
-                {{ formatCap(item.cap) }}
+                {{ cap(item.cap) }}
               </template>
 
               <template v-else-if="col.key === 'pe'">
@@ -291,11 +291,11 @@
           <path :d="mdiPin" fill="currentColor" />
         </svg>
 
-        <span class="tabular-nums">{{ pinnedSummary.left }} left</span>
+        <span class="tabular-nums">{{ summary.left }} left</span>
         <span>·</span>
-        <span class="tabular-nums">{{ pinnedSummary.scrollable }} scrollable</span>
+        <span class="tabular-nums">{{ summary.scrollable }} scrollable</span>
         <span>·</span>
-        <span class="tabular-nums">{{ pinnedSummary.right }} right</span>
+        <span class="tabular-nums">{{ summary.right }} right</span>
       </span>
 
       <span class="text-divider">·</span>

@@ -24,7 +24,7 @@
 
   grid.onboard(schedule.map(value => ({ id: value.id, value })))
 
-  function dotClass (status: string) {
+  function dot (status: string) {
     if (status === 'available') return 'bg-success'
     if (status === 'busy') return 'bg-warning'
     return 'bg-on-surface-variant/40'
@@ -34,20 +34,20 @@
     return member.split(' ').map(part => part[0]).join('').slice(0, 2)
   }
 
-  function avatarColor (member: string) {
+  function tint (member: string) {
     const colors = ['bg-primary/20 text-primary', 'bg-info/20 text-info', 'bg-success/20 text-success', 'bg-warning/20 text-warning', 'bg-error/20 text-error']
     const sum = [...member].reduce((acc, char) => acc + (char.codePointAt(0) ?? 0), 0)
     return colors[sum % colors.length]
   }
 
+  const days = ['mon', 'tue', 'wed', 'thu', 'fri']
+
   const summary = ['available', 'busy', 'off'].map(status => ({
     status,
     count: schedule.reduce((total, item) => {
-      return total + ['mon', 'tue', 'wed', 'thu', 'fri'].filter(day => item[day as 'mon'] === status).length
+      return total + days.filter(day => item[day as 'mon'] === status).length
     }, 0),
   }))
-
-  const dayColumns = ['mon', 'tue', 'wed', 'thu', 'fri']
 </script>
 
 <template>
@@ -67,7 +67,7 @@
           :key="entry.status"
           class="flex items-center gap-1.5"
         >
-          <span class="w-1.5 h-1.5 rounded-full" :class="dotClass(entry.status)" />
+          <span class="w-1.5 h-1.5 rounded-full" :class="dot(entry.status)" />
           <span class="capitalize text-on-surface-variant">{{ entry.status }}</span>
           <span class="tabular-nums font-medium">{{ entry.count }}</span>
         </div>
@@ -82,7 +82,7 @@
               v-for="col in grid.layout.columns.value"
               :key="col.key"
               class="px-3 py-2.5 text-left font-medium text-xs uppercase tracking-wide text-on-surface-variant"
-              :class="dayColumns.includes(col.key) ? 'text-center' : ''"
+              :class="days.includes(col.key) ? 'text-center' : ''"
               :style="{ width: col.size + '%' }"
             >
               {{ columns.find(c => c.key === col.key)?.title }}
@@ -102,7 +102,7 @@
                 class="px-3 py-2"
                 :class="{
                   'bg-surface-tint/60 font-medium align-middle border-r border-divider text-xs uppercase tracking-wide text-on-surface-variant': col.key === 'department' && (grid.spans.value.get(item.id as number)?.get(col.key)?.rowSpan ?? 1) > 1,
-                  'text-center': dayColumns.includes(col.key),
+                  'text-center': days.includes(col.key),
                 }"
                 :rowspan="grid.spans.value.get(item.id as number)?.get(col.key)?.rowSpan"
                 :style="{ width: col.size + '%' }"
@@ -115,7 +115,7 @@
                   <div class="flex items-center gap-2">
                     <div
                       class="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-semibold shrink-0"
-                      :class="avatarColor(item.member)"
+                      :class="tint(item.member)"
                     >
                       {{ initials(item.member) }}
                     </div>
@@ -127,7 +127,7 @@
                 <template v-else>
                   <span
                     class="inline-flex w-2 h-2 rounded-full"
-                    :class="dotClass(item[col.key] as string)"
+                    :class="dot(item[col.key] as string)"
                     :title="item[col.key] as string"
                   />
                 </template>
