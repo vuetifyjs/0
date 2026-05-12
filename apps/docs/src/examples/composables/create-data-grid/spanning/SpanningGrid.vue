@@ -79,8 +79,8 @@
       </div>
     </div>
 
-    <div class="border border-divider rounded-lg overflow-hidden">
-      <table class="w-full text-sm">
+    <div class="border border-divider rounded-lg overflow-x-auto">
+      <table class="w-full text-sm min-w-[720px] table-fixed">
         <thead>
           <tr class="border-b border-divider bg-surface-tint">
             <th
