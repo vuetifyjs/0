@@ -1,9 +1,13 @@
 <script setup lang="ts">
   // Composables
   import { GROUP_DESCRIPTIONS, TIER_CONFIG, type NormalizedGroup, type Tier } from '@/composables/useBenchmarkData'
+  import { useBenchmarkHistory } from '@/composables/useBenchmarkHistory'
 
   // Utilities
   import { computed, toRef } from 'vue'
+
+  // Types
+  import type { HistoryPoint } from '@/composables/useBenchmarkHistory'
 
   const props = defineProps<{
     group: NormalizedGroup
@@ -21,6 +25,20 @@
     const parts = props.group.name.split(' > ')
     const key = parts.at(-1)!.toLowerCase()
     return GROUP_DESCRIPTIONS[key]
+  })
+
+  const { history } = useBenchmarkHistory(() => props.group.composable)
+
+  const historyByBench = toRef(() => {
+    const h = history.value
+    if (!h) return null
+    const match = h.groups.find(g => g.name === props.group.name)
+    if (!match) return null
+    const map = new Map<string, { points: HistoryPoint[], delta: number }>()
+    for (const bench of match.benchmarks) {
+      map.set(bench.name, { points: bench.points, delta: bench.delta })
+    }
+    return map
   })
 </script>
 
@@ -85,6 +103,14 @@
                 vs Fastest
               </th>
 
+              <th
+                v-if="historyByBench"
+                class="text-right text-xs font-medium text-on-surface-variant px-4 py-2 hidden lg:table-cell"
+                scope="col"
+              >
+                Trend
+              </th>
+
               <th class="text-right text-xs font-medium text-on-surface-variant px-4 py-2 hidden md:table-cell" scope="col">
                 Margin
               </th>
@@ -97,6 +123,8 @@
               :key="b.id"
               :benchmark="b"
               class="px-4"
+              :history-delta="historyByBench?.get(b.name)?.delta"
+              :history-points="historyByBench?.get(b.name)?.points"
               :is-fastest="b.diffFromFastest === null"
             />
           </tbody>

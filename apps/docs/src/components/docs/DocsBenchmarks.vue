@@ -68,8 +68,6 @@
       >View benchmark source↗</a>
     </p>
 
-    <BenchmarkHistory :composable="itemName" />
-
     <BenchmarkExplorer
       collapsed
       :composable="itemName"
