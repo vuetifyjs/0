@@ -99,6 +99,8 @@
     }
   }, { immediate: true })
 
+  const root = useTemplateRef<HTMLElement>('root')
+
   // Overflow detection for file tabs
   const tabsContainer = useTemplateRef<HTMLElement>('tabs-container')
   const overflow = createOverflow({
@@ -158,7 +160,11 @@
   )
 
   function toggleCode () {
+    const wasOpen = showCode.value
     showCode.value = !showCode.value
+    if (wasOpen && root.value && root.value.getBoundingClientRect().top < 0) {
+      root.value.scrollIntoView({ block: 'start' })
+    }
   }
 
   function onReset () {
@@ -195,7 +201,12 @@
 </script>
 
 <template>
-  <div class="relative my-6" :class="peek && !hasMultipleFiles && 'mb-10'">
+  <div
+    ref="root"
+    class="relative my-6"
+    :class="peek && !hasMultipleFiles && 'mb-10'"
+    style="--docs-example-toggle-h: 45px;"
+  >
     <div class="border border-divider rounded-lg overflow-clip [&>*:first-child]:rounded-t-lg [&>*:last-child]:rounded-b-lg">
       <!-- Description -->
       <DocsExampleDescription
@@ -268,7 +279,11 @@
       </div>
 
       <!-- Code toggle button -->
-      <div v-if="!peek && (resolvedCode || displayFiles?.length)" class="sticky top-[calc(48px+var(--app-banner-h,0px))] z-2 border-t border-b border-divider bg-glass-surface">
+      <div
+        v-if="!peek && (resolvedCode || displayFiles?.length)"
+        class="sticky top-[calc(48px+var(--app-banner-h,0px))] z-2 border-t border-divider bg-glass-surface"
+        :class="showCode && 'border-b'"
+      >
         <button
           :aria-controls="`${uid}-code`"
           :aria-expanded="showCode"
@@ -292,7 +307,7 @@
       <!-- Single-file toolbar (visible when code expanded, not in peek mode) -->
       <div
         v-if="showCode && resolvedCode && !hasMultipleFiles"
-        class="sticky top-[calc(48px+var(--app-banner-h,0px)+45px)] z-1 flex items-center gap-2 px-3 py-3 bg-glass-surface border-b border-divider min-h-12"
+        class="sticky top-[calc(48px+var(--app-banner-h,0px)+var(--docs-example-toggle-h,45px))] z-1 flex items-center gap-2 px-3 py-3 bg-glass-surface border-b border-divider min-h-12"
       >
         <span
           v-if="fileName"
@@ -350,7 +365,7 @@
         <!-- Tab list with overflow (sticky) -->
         <div
           ref="tabs-container"
-          class="sticky top-[calc(48px+var(--app-banner-h,0px)+45px)] z-1 flex items-center gap-2 px-3 py-3 bg-glass-surface border-b border-divider min-h-12"
+          class="sticky top-[calc(48px+var(--app-banner-h,0px)+var(--docs-example-toggle-h,45px))] z-1 flex items-center gap-2 px-3 py-3 bg-glass-surface border-b border-divider min-h-12"
           :class="showSkeleton && 'invisible h-0 overflow-hidden'"
         >
           <template v-if="!combinedView">
