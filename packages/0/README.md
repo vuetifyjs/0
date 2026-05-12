@@ -168,6 +168,7 @@ Base data structures that most other composables build upon:
 
 - [`createDataTable`](https://0.vuetifyjs.com/composables/data/create-data-table) - Data table with sort, filter, pagination, row selection, grouping, and adapter pattern
 - [`createFilter`](https://0.vuetifyjs.com/composables/data/create-filter) - Reactive array filtering with multiple modes
+- [`createKanban`](https://0.vuetifyjs.com/composables/data/create-kanban) - Two-level sortable orchestrator (columns + items)
 - [`createPagination`](https://0.vuetifyjs.com/composables/data/create-pagination) - Lightweight page navigation
 - [`createSortable`](https://0.vuetifyjs.com/composables/data/create-sortable) - Ordered-list state with `move` / `swap` / `reorder` and a `disabled` mutation gate
 - [`createVirtual`](https://0.vuetifyjs.com/composables/data/create-virtual) - Virtual scrolling for large lists

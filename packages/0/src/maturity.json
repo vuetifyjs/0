@@ -111,6 +111,11 @@
       "since": "0.1.0",
       "category": "data"
     },
+    "createKanban": {
+      "level": "preview",
+      "since": null,
+      "category": "data"
+    },
     "createPagination": {
       "level": "preview",
       "since": "0.1.0",
@@ -539,6 +544,10 @@
       "category": "disclosure"
     },
     "DataGrid": {
+      "level": "draft",
+      "category": "data"
+    },
+    "Kanban": {
       "level": "draft",
       "category": "data"
     },
