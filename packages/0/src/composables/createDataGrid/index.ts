@@ -1,12 +1,28 @@
 /**
  * @module createDataGrid
  *
+ * @see https://0.vuetifyjs.com/composables/data/create-data-grid
+ *
  * @remarks
  * Main factory that wires together column layout, cell editing, row ordering,
  * and row spanning on top of a createDataTable pipeline. Uses a ClientGridAdapter
  * so row ordering is applied post-sort, pre-pagination.
  *
  * Follows the trinity pattern for dependency injection.
+ *
+ * @example
+ * ```ts
+ * const grid = createDataGrid({
+ *   items: rows,
+ *   columns: [
+ *     { key: 'name', sortable: true },
+ *     { key: 'progress', editable: true },
+ *   ],
+ * })
+ *
+ * grid.layout.pin('name', 'left')
+ * grid.editing.edit(row.id, 'progress')
+ * ```
  */
 
 // Composables
@@ -104,6 +120,22 @@ export interface DataGridContextOptions<T extends Record<string, unknown>> exten
  *
  * @param options Data grid options
  * @returns Data grid context
+ *
+ * @example
+ * ```ts
+ * const grid = createDataGrid({
+ *   items: rows,
+ *   columns: [
+ *     { key: 'name', sortable: true },
+ *     { key: 'progress', editable: true, validate: v => Number(v) >= 0 || 'must be positive' },
+ *   ],
+ *   pagination: { initial: 1 },
+ * })
+ *
+ * grid.layout.pin('name', 'left')
+ * grid.rows.move(2, 0)
+ * grid.editing.edit(row.id, 'progress')
+ * ```
  */
 export function createDataGrid<T extends Record<string, unknown>> (
   options: DataGridOptions<T>,
@@ -192,7 +224,19 @@ export function createDataGrid<T extends Record<string, unknown>> (
  * Creates a data grid context with dependency injection support.
  *
  * @param options Data grid context options including namespace
- * @returns A trinity tuple: [useDataGrid, provideDataGrid, defaultContext]
+ * @returns A trinity tuple: [useDataGridContext, provideDataGridContext, defaultContext]
+ *
+ * @example
+ * ```ts
+ * const [useDataGrid, provideDataGrid] = createDataGridContext({
+ *   items: rows,
+ *   columns,
+ *   namespace: 'v0:projects',
+ * })
+ *
+ * provideDataGrid()
+ * const grid = useDataGrid()
+ * ```
  */
 export function createDataGridContext<T extends Record<string, unknown>> (
   _options: DataGridContextOptions<T>,
@@ -216,6 +260,14 @@ export function createDataGridContext<T extends Record<string, unknown>> (
  *
  * @param namespace The namespace for the data grid context. @default 'v0:data-grid'
  * @returns The current data grid context
+ *
+ * @example
+ * ```ts
+ * const grid = useDataGrid<Project>()
+ *
+ * grid.layout.pin('id', 'left')
+ * grid.rows.reset()
+ * ```
  */
 export function useDataGrid<T extends Record<string, unknown>> (
   namespace = 'v0:data-grid',

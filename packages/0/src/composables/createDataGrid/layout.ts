@@ -20,7 +20,7 @@ import { createGroup } from '#v0/composables/createGroup'
 import { createRegistry } from '#v0/composables/createRegistry'
 
 // Utilities
-import { clamp } from '#v0/utilities'
+import { clamp, isUndefined } from '#v0/utilities'
 import { shallowReactive, toRef } from 'vue'
 
 // Types
@@ -96,15 +96,15 @@ interface ColumnTicketInput extends RegistryTicketInput {
 
 function distributeEven (leaves: GridColumnDef[]): Map<string, number> {
   const map = new Map<string, number>()
-  const explicit = leaves.filter(c => c.size !== undefined)
-  const implicit = leaves.filter(c => c.size === undefined)
+  const explicit = leaves.filter(c => !isUndefined(c.size))
+  const implicit = leaves.filter(c => isUndefined(c.size))
 
   const used = explicit.reduce((sum, c) => sum + c.size!, 0)
   const remainder = Math.max(0, 100 - used)
   const share = implicit.length > 0 ? remainder / implicit.length : 0
 
   for (const col of leaves) {
-    map.set(col.key, col.size === undefined ? share : col.size)
+    map.set(col.key, isUndefined(col.size) ? share : col.size)
   }
 
   return map
@@ -138,7 +138,7 @@ export function createColumnLayout (defs: readonly GridColumnDef[]): ColumnLayou
   }
 
   // Registry manages column collection and ordering
-  const registry = createRegistry<ColumnTicketInput>()
+  const registry = createRegistry<ColumnTicketInput>({ reactive: true })
   registry.onboard(
     leaves.map(col => ({
       id: col.key,
