@@ -11,6 +11,8 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AlertAction: typeof import('./../../packages/0/src/components/Alert/AlertAction.vue')['default']
+    AlertDescription: typeof import('./../../packages/0/src/components/Alert/AlertDescription.vue')['default']
     AlertDialogAction: typeof import('./../../packages/0/src/components/AlertDialog/AlertDialogAction.vue')['default']
     AlertDialogActivator: typeof import('./../../packages/0/src/components/AlertDialog/AlertDialogActivator.vue')['default']
     AlertDialogCancel: typeof import('./../../packages/0/src/components/AlertDialog/AlertDialogCancel.vue')['default']
@@ -19,6 +21,9 @@ declare module 'vue' {
     AlertDialogDescription: typeof import('./../../packages/0/src/components/AlertDialog/AlertDialogDescription.vue')['default']
     AlertDialogRoot: typeof import('./../../packages/0/src/components/AlertDialog/AlertDialogRoot.vue')['default']
     AlertDialogTitle: typeof import('./../../packages/0/src/components/AlertDialog/AlertDialogTitle.vue')['default']
+    AlertIcon: typeof import('./../../packages/0/src/components/Alert/AlertIcon.vue')['default']
+    AlertRoot: typeof import('./../../packages/0/src/components/Alert/AlertRoot.vue')['default']
+    AlertTitle: typeof import('./../../packages/0/src/components/Alert/AlertTitle.vue')['default']
     AspectRatio: typeof import('./../../packages/0/src/components/AspectRatio/AspectRatio.vue')['default']
     Atom: typeof import('./../../packages/0/src/components/Atom/Atom.vue')['default']
     AvatarFallback: typeof import('./../../packages/0/src/components/Avatar/AvatarFallback.vue')['default']
@@ -95,6 +100,9 @@ declare module 'vue' {
     NumberFieldIncrement: typeof import('./../../packages/0/src/components/NumberField/NumberFieldIncrement.vue')['default']
     NumberFieldRoot: typeof import('./../../packages/0/src/components/NumberField/NumberFieldRoot.vue')['default']
     NumberFieldScrub: typeof import('./../../packages/0/src/components/NumberField/NumberFieldScrub.vue')['default']
+    OverflowIndicator: typeof import('./../../packages/0/src/components/Overflow/OverflowIndicator.vue')['default']
+    OverflowItem: typeof import('./../../packages/0/src/components/Overflow/OverflowItem.vue')['default']
+    OverflowRoot: typeof import('./../../packages/0/src/components/Overflow/OverflowRoot.vue')['default']
     PaginationEllipsis: typeof import('./../../packages/0/src/components/Pagination/PaginationEllipsis.vue')['default']
     PaginationFirst: typeof import('./../../packages/0/src/components/Pagination/PaginationFirst.vue')['default']
     PaginationItem: typeof import('./../../packages/0/src/components/Pagination/PaginationItem.vue')['default']

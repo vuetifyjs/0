@@ -1,3 +1,6 @@
+// Framework
+import { Vuetify0DateAdapter } from '@vuetify/v0/date'
+
 // Types
 import type { App } from 'vue'
 
@@ -15,6 +18,11 @@ export function registerPlugins (app: App) {
   app.use(createHydrationPlugin())
 
   app.use(createLoggerPlugin())
+
+  app.use(createDatePlugin({
+    adapter: new Vuetify0DateAdapter(),
+    locales: { en: 'en-US' },
+  }))
 
   app.use(
     createBreakpointsPlugin({

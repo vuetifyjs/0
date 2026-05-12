@@ -40,7 +40,7 @@
     if (!prefix) return []
 
     return Object.entries(data.components)
-      .filter(([name]) => name.startsWith(prefix))
+      .filter(([name]) => name === prefix || name.startsWith(`${prefix}.`))
       .map(([, api]) => api)
       .toSorted((a, b) => {
         if (a.name.endsWith('Root')) return -1
