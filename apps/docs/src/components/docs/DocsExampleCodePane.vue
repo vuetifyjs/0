@@ -85,7 +85,7 @@
 <template>
   <div
     ref="container"
-    class="docs-example-code relative bg-pre group"
+    class="docs-example-code relative isolate bg-pre group"
     :class="{
       'docs-example-code--wrap': lineWrap,
       'docs-example-code--expanded': !shouldPeek || expanded,
