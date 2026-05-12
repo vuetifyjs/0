@@ -267,6 +267,21 @@ describe('createOtp', () => {
       otp.setAt(0, '9')
       expect(otp.input.errors.value).not.toContain('v0.otp.rejected')
     })
+
+    it('should fire onComplete again when the same value is re-entered after rejection', async () => {
+      let allow = false
+      const onComplete = vi.fn(() => allow)
+      const otp = setup({ length: 4, onComplete })
+      otp.fill('1234')
+      await Promise.resolve()
+      expect(onComplete).toHaveBeenCalledTimes(1)
+      expect(otp.value.value).toBe('')
+      allow = true
+      otp.fill('1234')
+      await Promise.resolve()
+      expect(onComplete).toHaveBeenCalledTimes(2)
+      expect(otp.value.value).toBe('1234')
+    })
   })
 
   describe('onComplete (async)', () => {

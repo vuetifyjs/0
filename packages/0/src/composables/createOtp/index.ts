@@ -174,6 +174,10 @@ export function createOtp (options: OtpOptions = {}): OtpContext {
     return out
   }
 
+  // While an async onComplete is pending, mutation helpers no-op via `isLocked()`.
+  // The spec also wants `input.isValidating` to reflect this state; today
+  // createInput doesn't accept an external isValidating source. Tracked as a
+  // follow-up — wire `isValidating: isPending` once createInput supports it.
   const isPending = shallowRef(false)
 
   function isLocked (): boolean {
@@ -233,6 +237,7 @@ export function createOtp (options: OtpOptions = {}): OtpContext {
   function reject (): void {
     errorRef.value = true
     errorMessagesRef.value = ['v0.otp.rejected']
+    lastCompleted = ''
     value.value = ''
   }
 
@@ -255,7 +260,7 @@ export function createOtp (options: OtpOptions = {}): OtpContext {
   watch(value, next => {
     if (!onComplete) return
     if (!isComplete.value) return
-    if (toValue(disabled) || toValue(_readonly)) return
+    if (isLocked()) return
     if (next === lastCompleted) return
     lastCompleted = next
     let result: ReturnType<NonNullable<OtpOptions['onComplete']>>
