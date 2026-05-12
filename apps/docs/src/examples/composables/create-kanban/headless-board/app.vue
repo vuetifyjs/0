@@ -27,16 +27,13 @@
 
   const selectedColumn = toRef(() => {
     if (!selected.value) return null
-    return view.columns.values.find(col =>
-      view.items.get(col.id)?.values.some(item => item.id === selected.value),
-    ) ?? null
+    return view.columns.values.find(col => col.items.has(selected.value!)) ?? null
   })
 
-  const selectedTicket = toRef(() =>
-    selected.value && selectedColumn.value
-      ? selectedColumn.value.items.get(selected.value) ?? null
-      : null,
-  )
+  const selectedTicket = toRef(() => {
+    if (!selectedColumn.value || !selected.value) return null
+    return selectedColumn.value.items.get(selected.value) ?? null
+  })
 
   function onSelect (id: ID) {
     selected.value = selected.value === id ? null : id
@@ -51,15 +48,13 @@
 
   function next (): void {
     if (!selected.value || !selectedColumn.value) return
-    const index = view.columns.values.findIndex(col => col.id === selectedColumn.value!.id)
-    const target = view.columns.values[index + 1]
+    const target = view.columns.values[selectedColumn.value.index + 1]
     if (target) kanban.transfer(selected.value, target.id, target.items.size)
   }
 
   function previous (): void {
     if (!selected.value || !selectedColumn.value) return
-    const index = view.columns.values.findIndex(col => col.id === selectedColumn.value!.id)
-    const target = view.columns.values[index - 1]
+    const target = view.columns.values[selectedColumn.value.index - 1]
     if (target) kanban.transfer(selected.value, target.id, target.items.size)
   }
 
@@ -91,7 +86,7 @@
       <Button.Root
         aria-label="Move to previous column"
         class="inline-flex items-center justify-center rounded p-1 hover:bg-surface-variant data-disabled:opacity-30 data-disabled:hover:bg-transparent"
-        :disabled="!selected || selectedColumn?.id === view.columns.values[0]?.id"
+        :disabled="!selected || selectedColumn?.index === 0"
         @click="previous"
       >
         <Button.Icon>
@@ -124,7 +119,7 @@
       <Button.Root
         aria-label="Move to next column"
         class="inline-flex items-center justify-center rounded p-1 hover:bg-surface-variant data-disabled:opacity-30 data-disabled:hover:bg-transparent"
-        :disabled="!selected || selectedColumn?.id === view.columns.values[view.columns.values.length - 1]?.id"
+        :disabled="!selected || selectedColumn?.index === view.columns.size - 1"
         @click="next"
       >
         <Button.Icon>
@@ -145,7 +140,7 @@
           <span class="ml-auto text-xs text-on-surface-variant">{{ column.items.size }}</span>
         </header>
 
-        <ul v-if="(view.items.get(column.id)?.values.length ?? 0) > 0" class="flex flex-col gap-2 px-3 pb-3">
+        <ul v-if="column.items.size > 0" class="flex flex-col gap-2 px-3 pb-3">
           <li
             v-for="item in view.items.get(column.id)?.values ?? []"
             :key="item.id"
