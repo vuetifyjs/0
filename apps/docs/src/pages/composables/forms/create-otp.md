@@ -1,10 +1,10 @@
 ---
 title: createOtp - One-Time Password Composable
 meta:
-  - name: description
-    content: Composable for fixed-length one-time-password and verification-code state with pattern-gated entry and decisional completion hook for Vue 3.
-  - name: keywords
-    content: createOtp, otp, pin input, verification code, composable, Vue 3, headless
+- name: description
+  content: Composable for fixed-length one-time-password and verification-code state with pattern-gated entry and decisional completion hook for Vue 3.
+- name: keywords
+  content: createOtp, otp, pin input, verification code, composable, Vue 3, headless
 features:
   category: Composable
   label: 'E: createOtp'
@@ -17,9 +17,9 @@ related:
 
 # createOtp
 
-Manage a fixed-length one-time-password or verification-code value with pattern-gated entry, length-based completion detection, and a decisional async hook. Headless — your component owns rendering, focus, and event wiring.
-
 <DocsPageFeatures :frontmatter />
+
+Manage a fixed-length one-time-password or verification-code value with pattern-gated entry, length-based completion detection, and a decisional async hook. Headless — your component owns rendering, focus, and event wiring.
 
 ## Usage
 
@@ -60,6 +60,25 @@ flowchart TD
 
 Layer 2 orchestrator. Aggregates createInput for validation, dirty tracking, and ARIA wiring. No registry, no focus traversal, no observers — rendering, per-element refs, and keyboard wiring are the consumer's responsibility.
 
+## Reactivity
+
+| Property | Type | Reactive |
+| - | - | - |
+| `value` | `Ref<string>` | Yes |
+| `length` | `Readonly<Ref<number>>` | Yes |
+| `input` | `InputContext<string>` | Yes (delegated) |
+| `isComplete` | `Readonly<Ref<boolean>>` | Yes |
+
+| Method | Signature | Effect |
+| - | - | - |
+| `setAt` | `(index: number, char: string) => void` | Writes one character at `index`; empty `char` truncates from `index`. |
+| `paste` | `(text: string, index?: number) => number` | Filters and splices, returns the count consumed. |
+| `clear` | `() => void` | Empties the joined value. |
+| `fill` | `(text: string) => void` | Replaces the joined value (filtered + clipped). |
+| `accepts` | `(char: string) => boolean` | Exposes the pattern test so consumers can guard `beforeinput`. |
+
+Every helper is gated on the configured `disabled` and `readonly` options, and on the internal pending state while an async `onComplete` is in flight.
+
 ## Patterns
 
 | Pattern | Matches |
@@ -86,7 +105,13 @@ Layer 2 orchestrator. Aggregates createInput for validation, dirty tracking, and
 
 ### Six-Input Numeric OTP
 
-A minimal six-input numeric OTP. The consumer's component owns the inputs, refs, and focus advance; `createOtp` owns the state. Note how `paste` returns the number of characters consumed, so a single pasted code distributes across the inputs and the next focus target is straightforward to compute. The example also demonstrates Backspace handling and the data-attribute styling pattern used across v0 examples.
+A minimal six-input numeric OTP. The consumer's component owns the inputs, the template refs, and the per-element focus advance; `createOtp` owns the state, the pattern contract, and the length contract underneath. This is the headless-contract acid test: every visible behavior is replayable by writing markup against `value`, `length`, and `accepts`, with no slot tickets or focus indices baked into the composable.
+
+When to reach for this over a single wide `<input maxlength="6">`: when the design calls for boxed per-character slots, when the consumer needs to react to per-position events (highlighting the focused position, animating fills), or when paste-handling deserves first-class treatment. For a single-input rendering of the same state, the same `createOtp` underneath works without modification — only the markup changes.
+
+Tradeoffs to know about. The example wires focus advance manually because focus is rendering territory; consumers preferring roving focus across the inputs can wrap the `<input>`s in `useRovingFocus` without changing the state model. The `paste` helper returns the count consumed so the consumer can choose where to land focus after distribution — the example moves to the next still-empty slot, but other strategies (stay put, focus the last input, focus the submit button) are equally valid.
+
+Related: see [createInput](/composables/forms/create-input) for the validation, error, and field-state surface that `createOtp` aggregates underneath, and [createValidation](/composables/forms/create-validation) for the `rules` array that flows through unchanged.
 
 :::
 
