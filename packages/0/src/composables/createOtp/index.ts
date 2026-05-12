@@ -144,18 +144,34 @@ export function createOtp (options: OtpOptions = {}): OtpContext {
 
   const lengthRef = toRef(() => toValue(length))
 
+  const PRESETS: Record<Exclude<OtpPattern, RegExp>, RegExp> = {
+    numeric: /^[0-9]$/,
+    alphanumeric: /^[a-zA-Z0-9]$/,
+    alphabetic: /^[a-zA-Z]$/,
+  }
+
+  const warned = new WeakSet<RegExp>()
+
+  function compile (resolved: OtpPattern): RegExp {
+    if (typeof resolved === 'string') return PRESETS[resolved]
+    if (__DEV__ && !warned.has(resolved) && (resolved.test('aa') || resolved.test('00'))) {
+      warned.add(resolved)
+      logger.warn('createOtp: pattern matches multi-character input; per-character matching may behave unexpectedly')
+    }
+    return resolved
+  }
+
+  function accepts (char: string): boolean {
+    if (char.length !== 1) return false
+    return compile(toValue(pattern)).test(char)
+  }
+
   // Placeholders — fleshed out in subsequent tasks.
-  void logger
   void clamp
   void watch
   void onComplete
-  void pattern
 
   const isComplete = shallowRef(false)
-
-  function accepts (_char: string): boolean {
-    return false
-  }
   function setAt (_index: number, _char: string): void {}
   function paste (_text: string, _index = 0): number {
     return 0
