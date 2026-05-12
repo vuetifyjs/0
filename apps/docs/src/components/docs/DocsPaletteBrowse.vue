@@ -7,6 +7,7 @@
   import { md2 } from '@vuetify/v0/palettes/md2'
   import { radix } from '@vuetify/v0/palettes/radix'
   import { tailwind } from '@vuetify/v0/palettes/tailwind'
+  import { vuetify0 } from '@vuetify/v0/palettes/vuetify0'
 
   // Composables
   import { useClipboard } from '@/composables/useClipboard'
@@ -21,6 +22,7 @@
   }
 
   const PALETTES: Record<string, PaletteEntry> = {
+    vuetify0: { label: 'Vuetify0', data: vuetify0 as Record<string, Record<string, string>>, namespace: 'v0' },
     tailwind: { label: 'Tailwind', data: tailwind as Record<string, Record<string, string>>, namespace: 'tw' },
     md1: { label: 'MD1', data: md1 as Record<string, Record<string, string>>, namespace: 'md1' },
     md2: { label: 'MD2', data: md2 as Record<string, Record<string, string>>, namespace: 'md2' },
@@ -29,7 +31,7 @@
     ant: { label: 'Ant Design', data: ant as Record<string, Record<string, string>>, namespace: 'ant' },
   }
 
-  const selected = shallowRef('tailwind')
+  const selected = shallowRef('vuetify0')
   const clicks = ref(new Map<string, string>())
   const { copied, copy } = useClipboard()
 

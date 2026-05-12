@@ -57,6 +57,7 @@
       "./palettes/md2": "./dist/palettes/md2/index.mjs",
       "./palettes/radix": "./dist/palettes/radix/index.mjs",
       "./palettes/tailwind": "./dist/palettes/tailwind/index.mjs",
+      "./palettes/vuetify0": "./dist/palettes/vuetify0/index.mjs",
       "./permissions": "./dist/permissions/index.mjs",
       "./permissions/adapters": "./dist/permissions/adapters/index.mjs",
       "./permissions/adapters/v0": "./dist/permissions/adapters/v0/index.mjs",
@@ -267,6 +268,10 @@
     "./palettes/tailwind": {
       "development": "./src/palettes/tailwind/index.ts",
       "default": "./dist/palettes/tailwind/index.mjs"
+    },
+    "./palettes/vuetify0": {
+      "development": "./src/palettes/vuetify0/index.ts",
+      "default": "./dist/palettes/vuetify0/index.mjs"
     },
     "./permissions": {
       "development": "./src/permissions/index.ts",

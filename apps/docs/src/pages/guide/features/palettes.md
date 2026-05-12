@@ -30,6 +30,7 @@ v0 ships pre-built color data from popular design systems and generator adapters
 
 | Import | Source | Hues | Shades |
 | - | - | - | - |
+| `@vuetify/v0/palettes/vuetify0` | Vuetify0 brand | 11 | 50-950 |
 | `@vuetify/v0/palettes/md1` | Material Design 1 | 16 | 50-900, A100-A700 |
 | `@vuetify/v0/palettes/md2` | Material Design 2 | 19 | 50-900, A100-A700 |
 | `@vuetify/v0/palettes/material` | Material Design 3 | 6 groups | tones 0-100 |
