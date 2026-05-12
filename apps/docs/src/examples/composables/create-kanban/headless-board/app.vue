@@ -3,8 +3,9 @@
   import { Button, createKanban } from '@vuetify/v0'
   import { shallowRef, toRef } from 'vue'
 
-  import type { ID } from '@vuetify/v0'
   import { useKanbanView } from './useKanbanView'
+
+  import type { ID } from '@vuetify/v0'
   import type { Card, Column } from './types'
 
   const kanban = createKanban<Card, Column>()
