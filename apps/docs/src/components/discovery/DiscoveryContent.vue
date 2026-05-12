@@ -2,7 +2,7 @@
   // Framework
   import { IN_BROWSER, isNullOrUndefined, useBreakpoints, useLogger } from '@vuetify/v0'
 
-  // Components
+  // Context
   import { useDiscoveryRootContext } from './DiscoveryRoot.vue'
 
   // Composables

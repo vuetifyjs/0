@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { createKanban } from './index'
+
 // Utilities
 import { isUndefined } from '#v0/utilities'
 import { shallowRef, toRef } from 'vue'
@@ -7,8 +9,6 @@ import { shallowRef, toRef } from 'vue'
 // Types
 import type { SortableTicketInput } from '#v0/composables/createSortable'
 import type { KanbanColumnTicketInput } from './index'
-
-import { createKanban } from './index'
 
 interface CardInput extends SortableTicketInput {
   value: { title: string }

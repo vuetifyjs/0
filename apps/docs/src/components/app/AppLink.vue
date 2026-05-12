@@ -2,15 +2,15 @@
   // Framework
   import { Atom } from '@vuetify/v0'
 
+  // Constants
+  import { EXTERNAL_LINK_SUFFIX } from '@/constants/links'
+
   // Utilities
   import { toRef } from 'vue'
   import { RouterLink } from 'vue-router'
 
   // Types
   import type { AtomProps } from '@vuetify/v0'
-
-  // Constants
-  import { EXTERNAL_LINK_SUFFIX } from '@/constants/links'
 
   export interface AppLinkProps extends AtomProps {
     /** Link destination - internal path or external URL */

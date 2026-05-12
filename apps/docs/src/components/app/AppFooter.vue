@@ -6,12 +6,12 @@
   import { useSettings } from '@/composables/useSettings'
   import { useThemeToggle } from '@/composables/useThemeToggle'
 
-  // Utilities
-  import { toRef, useTemplateRef } from 'vue'
-
   // Stores
   import { useAppStore } from '@/stores/app'
   import { useReleasesStore } from '@/stores/releases'
+
+  // Utilities
+  import { toRef, useTemplateRef } from 'vue'
 
   defineProps<{
     inset?: boolean

@@ -1,15 +1,15 @@
+// Globals
+import { IN_BROWSER } from '#v0/constants/globals'
+
+// Adapters
+import { LocaleAdapter } from './adapter'
+
 // Utilities
 import { isObject, isString, isUndefined } from '#v0/utilities'
 
 // Types
 import type { ID } from '#v0/types'
 import type { LocaleAdapterContext } from './adapter'
-
-// Globals
-import { IN_BROWSER } from '#v0/constants/globals'
-
-// Adapters
-import { LocaleAdapter } from './adapter'
 
 /**
  * Default locale adapter for @vuetify/v0.

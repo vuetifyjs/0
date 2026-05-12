@@ -1,11 +1,11 @@
 import { describe, expect, it, vi } from 'vitest'
 import { renderToString } from 'vue/server-renderer'
 
+import { Pagination } from './index'
+
 // Utilities
 import { mount } from '@vue/test-utils'
 import { createSSRApp, defineComponent, h, nextTick, ref } from 'vue'
-
-import { Pagination } from './index'
 
 describe('pagination', () => {
   describe('root', () => {

@@ -1,10 +1,10 @@
 import { afterEach, describe, expect, it } from 'vitest'
 
+import { Slider } from './index'
+
 // Utilities
 import { mount } from '@vue/test-utils'
 import { defineComponent, h, nextTick, ref } from 'vue'
-
-import { Slider } from './index'
 
 interface MountResult {
   wrapper: ReturnType<typeof mount>

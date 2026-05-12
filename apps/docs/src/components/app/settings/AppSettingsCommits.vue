@@ -2,11 +2,13 @@
   // Framework
   import { createStorage, useLogger } from '@vuetify/v0'
 
+  import { CACHE_TTL } from '@/constants/cache'
+
+  // Stores
+  import { useAppStore } from '@/stores/app'
+
   // Utilities
   import { onMounted } from 'vue'
-
-  import { CACHE_TTL } from '@/constants/cache'
-  import { useAppStore } from '@/stores/app'
 
   const storage = createStorage({ prefix: 'v0-commit:', ttl: CACHE_TTL })
 

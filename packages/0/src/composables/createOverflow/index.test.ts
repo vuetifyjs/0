@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { createOverflow, createOverflowContext, useOverflow } from './index'
+
 // Utilities
 import { nextTick, ref, shallowRef } from 'vue'
-
-import { createOverflow, createOverflowContext, useOverflow } from './index'
 
 const mockIsHydrated = ref(true)
 vi.mock('#v0/composables/useHydration', () => ({

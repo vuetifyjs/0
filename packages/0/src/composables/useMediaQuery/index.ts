@@ -29,14 +29,14 @@
 // Composables
 import { useHydration } from '#v0/composables/useHydration'
 
+// Constants
+import { IN_BROWSER, SUPPORTS_MATCH_MEDIA } from '#v0/constants/globals'
+
 // Utilities
 import { onScopeDispose, shallowReadonly, shallowRef, toRef, toValue, watch } from 'vue'
 
 // Types
 import type { MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
-
-// Constants
-import { IN_BROWSER, SUPPORTS_MATCH_MEDIA } from '#v0/constants/globals'
 
 export interface MediaQueryContext {
   /** Whether the media query currently matches */

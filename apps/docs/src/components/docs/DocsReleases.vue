@@ -5,17 +5,18 @@
   // Framework
   import { createFilter, IN_BROWSER, Popover, useDate } from '@vuetify/v0'
 
-  // Components
+  // Context
   import DocsSkeleton from './DocsSkeleton.vue'
 
   // Composables
   import { useClipboard } from '@/composables/useClipboard'
 
+  // Stores
+  import { type Release, useReleasesStore } from '@/stores/releases'
+
   // Utilities
   import { computed, onBeforeMount, onScopeDispose, shallowRef, toRef, watch } from 'vue'
   import { useRoute, useRouter } from 'vue-router'
-
-  import { type Release, useReleasesStore } from '@/stores/releases'
 
   const emojis: Record<string, string> = {
     '+1': '👍',

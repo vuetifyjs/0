@@ -1,14 +1,14 @@
-// Utilities
-import { isFunction } from '#v0/utilities'
-
-// Types
-import type { LogLevel } from '../types'
-
 // Globals
 import { IN_BROWSER } from '#v0/constants/globals'
 
 // Adapters
 import { LoggerAdapter } from './adapter'
+
+// Utilities
+import { isFunction } from '#v0/utilities'
+
+// Types
+import type { LogLevel } from '../types'
 
 /**
  * V0 logger adapter implementation

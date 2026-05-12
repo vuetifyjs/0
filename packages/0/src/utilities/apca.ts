@@ -1,7 +1,7 @@
+import { hexToRgb } from './color'
+
 // Types
 import type { RGB } from './color'
-
-import { hexToRgb } from './color'
 
 const Rco = 0.212_672_9
 const Gco = 0.715_152_2

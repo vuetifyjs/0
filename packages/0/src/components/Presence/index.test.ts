@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest'
 
+import { Presence } from './index'
+
 // Utilities
 import { mount } from '@vue/test-utils'
 import { defineComponent, h, nextTick } from 'vue'
-
-import { Presence } from './index'
 
 describe('presence', () => {
   describe('rendering', () => {

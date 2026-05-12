@@ -18,7 +18,7 @@ export type { SwitchSelectAllProps, SwitchSelectAllSlotProps } from './SwitchSel
 export type { SwitchThumbProps, SwitchThumbSlotProps } from './SwitchThumb.vue'
 export type { SwitchTrackProps, SwitchTrackSlotProps } from './SwitchTrack.vue'
 
-// Components
+// Context
 import Group from './SwitchGroup.vue'
 import HiddenInput from './SwitchHiddenInput.vue'
 import Root from './SwitchRoot.vue'

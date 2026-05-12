@@ -2,12 +2,12 @@
   // Composables
   import { TIER_CONFIG } from '@/composables/useBenchmarkData'
 
+  import metrics from '@/data/metrics.json'
+
   // Utilities
   import { resolveItemName } from '@/utilities/strings'
   import { computed, toRef } from 'vue'
   import { useRoute } from 'vue-router'
-
-  import metrics from '@/data/metrics.json'
 
   const tiers = (['good', 'fast', 'blazing', 'slow'] as const).map(t => [t, TIER_CONFIG[t]] as const)
 

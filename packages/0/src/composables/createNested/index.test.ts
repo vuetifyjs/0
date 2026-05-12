@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
 
+import { createNested } from './index'
+
 // Types
 import type { NestedRegistration } from './types'
-
-import { createNested } from './index'
 
 describe('createNested', () => {
   describe('parent-child relationship management', () => {

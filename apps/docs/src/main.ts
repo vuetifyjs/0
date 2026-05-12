@@ -4,7 +4,7 @@ import { handleHotUpdate } from 'vue-router/auto-routes'
 // Framework
 import { useLogger } from '@vuetify/v0'
 
-// Components
+// Context
 import App from './App.vue'
 
 // Composables

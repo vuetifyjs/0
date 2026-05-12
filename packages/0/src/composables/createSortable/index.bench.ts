@@ -10,10 +10,10 @@
 
 import { bench, describe } from 'vitest'
 
+import { createSortable } from './index'
+
 // Types
 import type { SortableContext, SortableTicket, SortableTicketInput } from './index'
-
-import { createSortable } from './index'
 
 interface BenchmarkItem {
   id: string

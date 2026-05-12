@@ -25,6 +25,9 @@ import { useResizeObserver } from '#v0/composables/useResizeObserver'
 // Adapters
 import { KeyboardAdapter, PointerAdapter } from './adapters'
 
+// Globals
+import { IN_BROWSER } from '#v0/constants/globals'
+
 // Utilities
 import { isArray, isFunction, isNull, isThenable, isUndefined, useId } from '#v0/utilities'
 import { computed, effectScope, onScopeDispose, onWatcherCleanup, shallowReadonly, shallowRef, toRef, toValue, watch } from 'vue'
@@ -38,9 +41,6 @@ import type {
 import type { Extensible, ID } from '#v0/types'
 import type { DragDropAdapter, DragDropAdapterContext, DragDropAdapterEmit } from './adapters'
 import type { EffectScope, MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
-
-// Globals
-import { IN_BROWSER } from '#v0/constants/globals'
 
 // Exports
 export { DragDropAdapter, KeyboardAdapter, PointerAdapter } from './adapters'

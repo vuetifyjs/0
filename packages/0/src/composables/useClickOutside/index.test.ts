@@ -1,9 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { useClickOutside as createClickOutside } from './index'
+
 // Utilities
 import { effectScope, getCurrentScope, nextTick, ref } from 'vue'
-
-import { useClickOutside as createClickOutside } from './index'
 
 // useClickOutside installs document pointerdown/pointerup listeners through
 // useEventListener inside an onScopeDispose(stop, true) — failSilently

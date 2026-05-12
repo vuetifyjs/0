@@ -1,10 +1,10 @@
 import { describe, expect, it, vi } from 'vitest'
 
+import { createSortable } from './index'
+
 // Types
 import type { ID } from '#v0/types'
 import type { SortableTicketInput } from './index'
-
-import { createSortable } from './index'
 
 interface StringTicket extends SortableTicketInput {
   value: string

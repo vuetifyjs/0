@@ -1,9 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { ConsolaLoggerAdapter } from './consola'
+
 // Types
 import type { LoggerAdapter } from './adapter'
-
-import { ConsolaLoggerAdapter } from './consola'
 
 describe('consolaLoggerAdapter', () => {
   let mockConsola: LoggerAdapter

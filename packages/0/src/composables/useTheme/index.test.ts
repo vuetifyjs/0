@@ -6,13 +6,13 @@ import { createStoragePlugin, useStorage } from '#v0/composables/useStorage'
 // Adapters
 import { V0StyleSheetThemeAdapter } from './adapters/v0'
 
+import { createTheme, createThemePlugin, useTheme } from './index'
+
 // Utilities
 import { createApp, nextTick } from 'vue'
 
 // Types
 import type { ThemeContext } from './index'
-
-import { createTheme, createThemePlugin, useTheme } from './index'
 
 vi.mock('#v0/constants/globals', () => ({
   IN_BROWSER: true,

@@ -1,5 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { DragDropAdapter, KeyboardAdapter, PointerAdapter, useDragDrop as createDragDrop } from './'
+
 // Utilities
 import { mount } from '@vue/test-utils'
 import { effectScope, getCurrentScope, isRef, nextTick, shallowRef } from 'vue'
@@ -10,8 +12,6 @@ import type {
   DragDropAdapterEmit,
   DragType,
 } from './'
-
-import { DragDropAdapter, KeyboardAdapter, PointerAdapter, useDragDrop as createDragDrop } from './'
 
 // useDragDrop installs document keydown/pointerdown/pointermove/pointerup
 // listeners through its adapters. Without an enclosing effectScope, every

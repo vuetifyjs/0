@@ -1,16 +1,18 @@
 <script setup lang="ts">
   // Components
   import DocsCard from '@/components/docs/DocsCard.vue'
+
+  // Context
   import SkillMasteredBadge from './SkillMasteredBadge.vue'
+
+  // Stores
+  import { useSkillzStore } from '@/stores/skillz'
 
   // Utilities
   import { toRef } from 'vue'
 
   // Types
   import type { SkillMeta } from '@/types/skill'
-
-  // Stores
-  import { useSkillzStore } from '@/stores/skillz'
 
   const props = defineProps<{
     skill: SkillMeta

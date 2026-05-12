@@ -26,14 +26,14 @@
  * ```
  */
 
-// Types
-import type { NotificationInput, NotificationSeverity, NotificationTicket, NotificationsAdapterContext } from '../index'
-
 // Globals
 import { IN_BROWSER } from '#v0/constants/globals'
 
 // Adapters
 import { NotificationsAdapter } from './adapter'
+
+// Types
+import type { NotificationInput, NotificationSeverity, NotificationTicket, NotificationsAdapterContext } from '../index'
 
 /** Minimal Novu notification shape. Uses type-only imports to avoid bundling the SDK. */
 export interface NovuNotification {

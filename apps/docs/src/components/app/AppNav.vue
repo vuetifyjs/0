@@ -12,15 +12,15 @@
   import { createNavNested } from '@/composables/useNavNested'
   import { useSettings } from '@/composables/useSettings'
 
+  // Stores
+  import { useAppStore } from '@/stores/app'
+
   // Utilities
   import { computed, onMounted, shallowRef, useTemplateRef, watch } from 'vue'
   import { useRoute } from 'vue-router'
 
   // Types
   import type { NavItem, NavItemLink } from '@/stores/app'
-
-  // Stores
-  import { useAppStore } from '@/stores/app'
 
   const settings = useSettings()
   const devmode = useFeatures().get('devmode')!

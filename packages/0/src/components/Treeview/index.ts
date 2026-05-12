@@ -34,7 +34,7 @@ export { default as TreeviewRoot } from './TreeviewRoot.vue'
 export type { TreeviewSelectAllProps, TreeviewSelectAllSlotProps } from './types'
 export { default as TreeviewSelectAll } from './TreeviewSelectAll.vue'
 
-// Components
+// Context
 import Activator from './TreeviewActivator.vue'
 import Checkbox from './TreeviewCheckbox.vue'
 import Content from './TreeviewContent.vue'

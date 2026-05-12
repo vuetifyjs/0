@@ -1,4 +1,4 @@
-// Components
+// Context
 import Activator from './DiscoveryActivator.vue'
 import Content from './DiscoveryContent.vue'
 import Description from './DiscoveryDescription.vue'

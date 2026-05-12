@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
 
+import { createSlider } from './index'
+
 // Types
 import type { SliderOptions } from './index'
-
-import { createSlider } from './index'
 
 function setup (options?: SliderOptions) {
   const slider = createSlider(options)

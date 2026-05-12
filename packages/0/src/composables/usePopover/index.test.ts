@@ -1,9 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { usePopover } from './index'
+
 // Utilities
 import { effectScope, shallowRef } from 'vue'
-
-import { usePopover } from './index'
 
 describe('usePopover', () => {
   beforeEach(() => {

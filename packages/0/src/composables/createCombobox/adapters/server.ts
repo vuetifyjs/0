@@ -10,14 +10,14 @@
  * and provides filtered items reactively.
  */
 
+import { ComboboxAdapter } from './adapter'
+
 // Utilities
 import { shallowRef, toRef } from 'vue'
 
 // Types
 import type { ID } from '#v0/types'
 import type { ComboboxAdapterContext, ComboboxAdapterResult } from './adapter'
-
-import { ComboboxAdapter } from './adapter'
 
 export class ServerComboboxAdapter extends ComboboxAdapter {
   setup (context: ComboboxAdapterContext): ComboboxAdapterResult {

@@ -23,15 +23,15 @@
  * ```
  */
 
+// Constants
+import { IN_BROWSER } from '#v0/constants/globals'
+
 // Utilities
 import { isUndefined } from '#v0/utilities'
 import { onScopeDispose, shallowRef, toValue } from 'vue'
 
 // Types
 import type { MaybeRefOrGetter, ShallowRef } from 'vue'
-
-// Constants
-import { IN_BROWSER } from '#v0/constants/globals'
 
 export interface TimerOptions {
   /**

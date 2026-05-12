@@ -16,7 +16,7 @@ export type { BreadcrumbsListProps, BreadcrumbsListSlotProps } from './Breadcrum
 export type { BreadcrumbsPageProps, BreadcrumbsPageSlotProps } from './BreadcrumbsPage.vue'
 export type { BreadcrumbsRootContext, BreadcrumbsRootProps, BreadcrumbsRootSlotProps, BreadcrumbsTicket, BreadcrumbsTicketType } from './BreadcrumbsRoot.vue'
 
-// Components
+// Context
 import Divider from './BreadcrumbsDivider.vue'
 import Ellipsis from './BreadcrumbsEllipsis.vue'
 import Item from './BreadcrumbsItem.vue'

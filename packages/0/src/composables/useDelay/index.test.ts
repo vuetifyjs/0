@@ -1,9 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { useDelay } from './index'
+
 // Utilities
 import { effectScope, shallowRef } from 'vue'
-
-import { useDelay } from './index'
 
 describe('useDelay', () => {
   beforeEach(() => {

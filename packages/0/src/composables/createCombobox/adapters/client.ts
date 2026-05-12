@@ -9,6 +9,8 @@
 // Composables
 import { createFilter } from '#v0/composables/createFilter'
 
+import { ComboboxAdapter } from './adapter'
+
 // Utilities
 import { computed, shallowRef, toRef } from 'vue'
 
@@ -16,8 +18,6 @@ import { computed, shallowRef, toRef } from 'vue'
 import type { FilterItem, FilterMode } from '#v0/composables/createFilter'
 import type { ID } from '#v0/types'
 import type { ComboboxAdapterContext, ComboboxAdapterResult } from './adapter'
-
-import { ComboboxAdapter } from './adapter'
 
 export interface ClientComboboxAdapterOptions {
   /** Filter matching mode */

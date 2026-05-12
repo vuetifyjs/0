@@ -1,9 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { createQueue, createQueueContext, useQueue } from './index'
+
 // Utilities
 import { inject, provide } from 'vue'
-
-import { createQueue, createQueueContext, useQueue } from './index'
 
 vi.mock('vue', async () => {
   const actual = await vi.importActual('vue')

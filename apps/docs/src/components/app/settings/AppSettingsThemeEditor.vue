@@ -5,10 +5,10 @@
   // Composables
   import { useCustomThemes, type CustomTheme } from '@/composables/useCustomThemes'
 
+  import { themes, type ThemeDefinition } from '@/themes'
+
   // Utilities
   import { reactive, toRef, watch } from 'vue'
-
-  import { themes, type ThemeDefinition } from '@/themes'
 
   const props = defineProps<{
     theme?: ThemeDefinition | null

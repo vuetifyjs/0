@@ -22,6 +22,9 @@
   import { createOverflow } from '#v0/composables/createOverflow'
   import { useLocale } from '#v0/composables/useLocale'
 
+  // Constants
+  import { IN_BROWSER } from '#v0/constants/globals'
+
   // Utilities
   import { isNull } from '#v0/utilities'
   import { shallowRef, toRef, useTemplateRef, watch } from 'vue'
@@ -31,9 +34,6 @@
   import type { ID } from '#v0/types'
   import type { BreadcrumbsRootContext, BreadcrumbsTicket } from './types'
   import type { ShallowRef } from 'vue'
-
-  // Constants
-  import { IN_BROWSER } from '#v0/constants/globals'
 
   export type { BreadcrumbsRootContext, BreadcrumbsTicket, BreadcrumbsTicketType } from './types'
 

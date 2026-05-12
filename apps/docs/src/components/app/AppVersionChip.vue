@@ -2,12 +2,12 @@
   // Framework
   import { IN_BROWSER } from '@vuetify/v0'
 
+  // Stores
+  import { useReleasesStore } from '@/stores/releases'
+
   // Utilities
   import { onMounted, toRef } from 'vue'
   import { useRoute } from 'vue-router'
-
-  // Stores
-  import { useReleasesStore } from '@/stores/releases'
 
   const FRESH_WINDOW_MS = 2 * 24 * 60 * 60 * 1000
 

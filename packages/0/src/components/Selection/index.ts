@@ -5,7 +5,7 @@ export { default as SelectionRoot } from './SelectionRoot.vue'
 export type { SelectionItemProps, SelectionItemSlotProps } from './SelectionItem.vue'
 export type { SelectionRootProps, SelectionRootSlotProps } from './SelectionRoot.vue'
 
-// Components
+// Context
 import Item from './SelectionItem.vue'
 import Root from './SelectionRoot.vue'
 

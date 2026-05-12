@@ -21,7 +21,7 @@ export type { ProgressRootContext, ProgressRootProps, ProgressRootSlotProps } fr
 export type { ProgressTrackProps, ProgressTrackSlotProps } from './ProgressTrack.vue'
 export type { ProgressValueProps, ProgressValueSlotProps } from './ProgressValue.vue'
 
-// Components
+// Context
 import Buffer from './ProgressBuffer.vue'
 import Fill from './ProgressFill.vue'
 import HiddenInput from './ProgressHiddenInput.vue'

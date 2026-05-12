@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { NumberField } from './index'
+
 // Utilities
 import { flushPromises, mount } from '@vue/test-utils'
 import { h, nextTick, ref } from 'vue'
@@ -7,8 +9,6 @@ import { h, nextTick, ref } from 'vue'
 // Types
 import type { NumberFieldRootSlotProps } from './index'
 import type { VueWrapper } from '@vue/test-utils'
-
-import { NumberField } from './index'
 
 // NumberFieldIncrement/Decrement install document pointerup/pointercancel
 // listeners via useDocumentEventListener whenever a press is held. Without

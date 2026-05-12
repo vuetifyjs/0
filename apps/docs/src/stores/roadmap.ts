@@ -2,13 +2,13 @@
 // Framework
 import { createStorage, isArray, useLogger } from '@vuetify/v0'
 
+import { CACHE_TTL } from '@/constants/cache'
+
 // Utilities
 import { defineStore } from 'pinia'
 
 // Types
 import type { components as octokitComponents } from '@octokit/openapi-types'
-
-import { CACHE_TTL } from '@/constants/cache'
 
 type GitHubMilestone = octokitComponents['schemas']['milestone']
 type GitHubIssue = octokitComponents['schemas']['issue']

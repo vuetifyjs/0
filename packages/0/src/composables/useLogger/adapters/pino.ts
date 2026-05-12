@@ -1,8 +1,8 @@
-// Utilities
-import { isObject } from '#v0/utilities'
-
 // Adapters
 import { LoggerAdapter } from './adapter'
+
+// Utilities
+import { isObject } from '#v0/utilities'
 
 /**
  * Pino logger adapter implementation

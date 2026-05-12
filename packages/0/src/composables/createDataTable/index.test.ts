@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { createDataTable, createDataTableContext, useDataTable, ServerDataTableAdapter, VirtualDataTableAdapter } from './index'
+
 // Utilities
 import { inject, nextTick, provide, ref } from 'vue'
 
 // Types
 import type { DataTableColumn, DataTableOptions } from './index'
-
-import { createDataTable, createDataTableContext, useDataTable, ServerDataTableAdapter, VirtualDataTableAdapter } from './index'
 
 vi.mock('vue', async () => {
   const actual = await vi.importActual('vue')

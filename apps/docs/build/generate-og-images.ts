@@ -6,11 +6,11 @@ import { dirname, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { Worker } from 'node:worker_threads'
 
-// Types
-import type { Frontmatter } from './frontmatter'
-
 import { getApiNamesGrouped } from './api-names'
 import { parseFrontmatter } from './frontmatter'
+
+// Types
+import type { Frontmatter } from './frontmatter'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const PAGES_DIR = resolve(__dirname, '../src/pages')
