@@ -55,14 +55,9 @@
   }
 
   function canResize (key: string) {
-    const { left, scrollable, right } = grid.layout.pinned.value
-    const region = left.some(c => c.key === key)
-      ? left
-      : (right.some(c => c.key === key)
-        ? right
-        : scrollable)
-    const index = region.findIndex(c => c.key === key)
-    return index !== -1 && index < region.length - 1
+    const cols = grid.layout.columns.value
+    const index = cols.findIndex(c => c.key === key)
+    return index !== -1 && index < cols.length - 1
   }
 
   function onPin (key: string) {
@@ -155,7 +150,7 @@
       class="border border-divider rounded-lg overflow-x-auto"
       data-grid
     >
-      <table class="w-full text-sm min-w-[1100px] table-fixed">
+      <table class="w-full text-sm min-w-[1100px] table-fixed" style="overflow: visible">
         <thead>
           <tr class="border-b border-divider">
             <th

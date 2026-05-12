@@ -23,12 +23,6 @@
     },
   })
 
-  function statusClass (status: string) {
-    if (status === 'available') return 'bg-success/15 text-success'
-    if (status === 'busy') return 'bg-warning/15 text-warning'
-    return 'bg-surface-variant/50 text-on-surface-variant'
-  }
-
   function dotClass (status: string) {
     if (status === 'available') return 'bg-success'
     if (status === 'busy') return 'bg-warning'
@@ -131,12 +125,10 @@
 
                 <template v-else>
                   <span
-                    class="inline-flex items-center gap-1.5 text-xs px-2 py-0.5 rounded-full"
-                    :class="statusClass(item[col.key] as string)"
-                  >
-                    <span class="w-1.5 h-1.5 rounded-full" :class="dotClass(item[col.key] as string)" />
-                    {{ item[col.key] }}
-                  </span>
+                    class="inline-flex w-2 h-2 rounded-full"
+                    :class="dotClass(item[col.key] as string)"
+                    :title="item[col.key] as string"
+                  />
                 </template>
               </td>
             </template>

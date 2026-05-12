@@ -222,19 +222,16 @@ export function createColumnLayout (defs: readonly GridColumnDef[]): ColumnLayou
     // Read from cached pinned.value instead of resolve() + split()
     const { left, scrollable, right } = pinned.value
     const all = [...left, ...scrollable, ...right]
-    const col = all.find(c => c.key === key)
-    if (!col || !col.resizable) return
+    const target = all.find(c => c.key === key)
+    if (!target || !target.resizable) return
 
-    let peers: ResolvedColumn[]
-    if (col.pinned === 'left') peers = left
-    else if (col.pinned === 'right') peers = right
-    else peers = scrollable
+    // Pick the neighbor in display order. Pinned columns at the trailing edge
+    // of their region fall through to the first column of the next region so
+    // they remain resizable.
+    const allIndex = all.findIndex(c => c.key === key)
+    if (allIndex === -1 || allIndex === all.length - 1) return
 
-    const index = peers.findIndex(c => c.key === key)
-    if (index === -1 || index === peers.length - 1) return
-
-    const target = peers[index]!
-    const neighbor = peers[index + 1]!
+    const neighbor = all[allIndex + 1]!
 
     const total = target.size + neighbor.size
     const lower = Math.max(target.minSize, total - neighbor.maxSize)
