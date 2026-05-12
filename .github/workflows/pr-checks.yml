@@ -6,6 +6,9 @@ on:
   push:
     branches: [master]
 
+permissions:
+  contents: read
+
 jobs:
   prepare:
     runs-on: ubuntu-latest
@@ -77,6 +80,9 @@ jobs:
 
   changes:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
     outputs:
       docs: ${{ steps.filter.outputs.docs }}
       playground: ${{ steps.filter.outputs.playground }}
@@ -121,6 +127,9 @@ jobs:
   pkg-pr-new:
     needs: [build]
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
       - uses: actions/checkout@v6
       - uses: ./.github/actions/setup

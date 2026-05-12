@@ -393,8 +393,6 @@ export class V0DateAdapter extends DateAdapter<PlainDateTime> {
       .replace(/MM/g, 'mm')
       .replace(/DD/g, 'dd')
       .replace(/HH/g, 'hh')
-      .replace(/mm/g, 'mm')
-      .replace(/ss/g, 'ss')
   }
 
   formatNumber (numberToFormat: string): string {
