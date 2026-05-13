@@ -468,10 +468,10 @@ export function createDataTable<T extends Record<string, unknown>> (
     if (col.filter) filters[col.key] = col.filter
   }
 
-  // Pipeline source: row values projected from the registry's tickets in
-  // registration order. Adapters still read this as `context.items` and the
-  // existing pipeline (filter → sort → paginate) is unchanged.
-  const registryItems = toRef(() => registry.values().map(t => t.value as T))
+  // Row values projected from registry tickets in registration order — the
+  // adapter consumes this as its `items` input and runs the filter → sort →
+  // paginate pipeline against it.
+  const source = toRef(() => registry.values().map(t => t.value as T))
 
   const {
     allItems,
@@ -483,7 +483,7 @@ export function createDataTable<T extends Record<string, unknown>> (
     loading = toRef(() => false) as Readonly<Ref<boolean>>,
     error = toRef(() => null) as Readonly<Ref<Error | null>>,
   } = adapter.setup({
-    items: registryItems,
+    items: source,
     search: _query,
     filterableKeys: filterable,
     sortBy,
