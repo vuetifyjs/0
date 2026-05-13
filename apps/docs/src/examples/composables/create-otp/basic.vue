@@ -29,7 +29,7 @@
   function onPaste (index: number, event: ClipboardEvent) {
     event.preventDefault()
     const text = event.clipboardData?.getData('text') ?? ''
-    const consumed = otp.paste(text, index)
+    const consumed = otp.distribute(text, index)
     const target = Math.min(index + consumed, otp.length.value - 1)
     inputs.value?.[target]?.focus()
   }

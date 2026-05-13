@@ -23,7 +23,7 @@ describe('createOtp', () => {
       expect(otp.input).toBeDefined()
       expect(otp.isComplete.value).toBe(false)
       expect(typeof otp.put).toBe('function')
-      expect(typeof otp.paste).toBe('function')
+      expect(typeof otp.distribute).toBe('function')
       expect(typeof otp.clear).toBe('function')
       expect(typeof otp.fill).toBe('function')
       expect(typeof otp.accepts).toBe('function')
@@ -132,17 +132,17 @@ describe('createOtp', () => {
     })
   })
 
-  describe('paste', () => {
+  describe('distribute', () => {
     it('should distribute filtered characters and return the count consumed', () => {
       const otp = setup({ length: 6 })
-      const count = otp.paste('123456')
+      const count = otp.distribute('123456')
       expect(count).toBe(6)
       expect(otp.value.value).toBe('123456')
     })
 
     it('should filter rejected characters before distribution', () => {
       const otp = setup({ length: 6 })
-      const count = otp.paste('12-34-56')
+      const count = otp.distribute('12-34-56')
       expect(count).toBe(6)
       expect(otp.value.value).toBe('123456')
     })
@@ -150,21 +150,21 @@ describe('createOtp', () => {
     it('should splice into the existing value at the given index', () => {
       const otp = setup({ length: 6 })
       otp.fill('12')
-      const count = otp.paste('34', 2)
+      const count = otp.distribute('34', 2)
       expect(count).toBe(2)
       expect(otp.value.value).toBe('1234')
     })
 
-    it('should clip to length when paste would overflow', () => {
+    it('should clip to length when distribute would overflow', () => {
       const otp = setup({ length: 4 })
-      const count = otp.paste('123456')
+      const count = otp.distribute('123456')
       expect(count).toBe(4)
       expect(otp.value.value).toBe('1234')
     })
 
     it('should return 0 when every character is rejected', () => {
       const otp = setup({ length: 4 })
-      const count = otp.paste('abc')
+      const count = otp.distribute('abc')
       expect(count).toBe(0)
       expect(otp.value.value).toBe('')
     })
@@ -211,7 +211,7 @@ describe('createOtp', () => {
       const disabled = shallowRef(true)
       const otp = setup({ disabled })
       otp.put(0, '1')
-      otp.paste('123')
+      otp.distribute('123')
       otp.fill('999')
       expect(otp.value.value).toBe('')
       disabled.value = false
@@ -222,7 +222,7 @@ describe('createOtp', () => {
     it('should no-op mutations when readonly is true', () => {
       const otp = setup({ readonly: true })
       otp.put(0, '1')
-      otp.paste('123')
+      otp.distribute('123')
       otp.fill('999')
       otp.clear()
       expect(otp.value.value).toBe('')

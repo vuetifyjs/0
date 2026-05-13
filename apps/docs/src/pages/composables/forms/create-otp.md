@@ -36,7 +36,7 @@ const otp = createOtp({
 })
 
 otp.put(0, '4')            // single character at a position
-otp.paste('123456')        // distributes filtered characters
+otp.distribute('123456')   // distributes filtered characters
 otp.value.value            // '412345' joined string
 otp.isComplete.value       // true when length reached and all chars valid
 otp.accepts('a')           // false under 'numeric'
@@ -72,7 +72,7 @@ Layer 2 orchestrator. Aggregates createInput for validation, dirty tracking, and
 | Method | Signature | Effect |
 | - | - | - |
 | `put` | `(index: number, char: string) => void` | Writes one character at `index`; empty `char` truncates from `index`. |
-| `paste` | `(text: string, index?: number) => number` | Filters and splices, returns the count consumed. |
+| `distribute` | `(text: string, index?: number) => number` | Filters and splices, returns the count consumed. |
 | `clear` | `() => void` | Empties the joined value. |
 | `fill` | `(text: string) => void` | Replaces the joined value (filtered + clipped). |
 | `accepts` | `(char: string) => boolean` | Exposes the pattern test so consumers can guard `beforeinput`. |
@@ -92,8 +92,8 @@ Every helper is gated on the configured `disabled` and `readonly` options, and o
 
 ## Behavior
 
-- `put(index, char)` writes a single character at a position. Empty `char` truncates the joined value to `value.slice(0, index)` — matching the Backspace mental model. Multi-character `char` is reduced to its first character (use `paste` for distribution).
-- `paste(text, index = 0)` filters `text` through `accepts`, splices the filtered characters in at `index`, clips the result to `length`, and returns the count consumed so consumers can decide where to advance focus.
+- `put(index, char)` writes a single character at a position. Empty `char` truncates the joined value to `value.slice(0, index)` — matching the Backspace mental model. Multi-character `char` is reduced to its first character (use `distribute` for multi-character input).
+- `distribute(text, index = 0)` filters `text` through `accepts`, splices the filtered characters in at `index`, clips the result to `length`, and returns the count consumed so consumers can decide where to advance focus.
 - `isComplete` is true when the joined value reaches `length` and every character passes `accepts`. A watcher fires `onComplete(value)` exactly once on the false → true edge.
 - `onComplete` is decisional. Return / resolve `false` to reject — `createOtp` clears the value and surfaces `v0.otp.rejected` through `input.errors`. The error clears automatically on the next mutation.
 - While an async `onComplete` is pending, mutation helpers no-op so the user can't race the verification.
@@ -109,7 +109,7 @@ A minimal six-input numeric OTP. The consumer's component owns the inputs, the t
 
 When to reach for this over a single wide `<input maxlength="6">`: when the design calls for boxed per-character slots, when the consumer needs to react to per-position events (highlighting the focused position, animating fills), or when paste-handling deserves first-class treatment. For a single-input rendering of the same state, the same `createOtp` underneath works without modification — only the markup changes.
 
-Tradeoffs to know about. The example wires focus advance manually because focus is rendering territory; consumers preferring roving focus across the inputs can wrap the `<input>`s in `useRovingFocus` without changing the state model. The `paste` helper returns the count consumed so the consumer can choose where to land focus after distribution — the example moves to the next still-empty slot, but other strategies (stay put, focus the last input, focus the submit button) are equally valid.
+Tradeoffs to know about. The example wires focus advance manually because focus is rendering territory; consumers preferring roving focus across the inputs can wrap the `<input>`s in `useRovingFocus` without changing the state model. The `distribute` helper returns the count consumed so the consumer can choose where to land focus after the characters land — the example moves to the next still-empty slot, but other strategies (stay put, focus the last input, focus the submit button) are equally valid.
 
 Related: see [createInput](/composables/forms/create-input) for the validation, error, and field-state surface that `createOtp` aggregates underneath, and [createValidation](/composables/forms/create-validation) for the `rules` array that flows through unchanged.
 

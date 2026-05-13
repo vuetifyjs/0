@@ -124,7 +124,7 @@ const otp = createOtp({
 })
 
 otp.put(0, '4')
-otp.paste('123456') // returns count consumed
+otp.distribute('123456') // returns count consumed
 otp.value.value     // joined string
 otp.isComplete.value
 ```
