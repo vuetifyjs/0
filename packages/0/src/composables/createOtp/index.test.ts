@@ -428,6 +428,7 @@ describe('createOtp', () => {
 
     it('should accept a thenable that is not a native Promise', async () => {
       const onComplete = vi.fn(() => ({
+        // eslint-disable-next-line unicorn/no-thenable
         then (onfulfilled?: ((v: boolean) => unknown) | null) {
           onfulfilled?.(true)
         },
