@@ -26,11 +26,11 @@
  * ```
  */
 
-// Globals
-import { IN_BROWSER } from '#v0/constants/globals'
-
 // Composables
 import { useDocumentEventListener, useWindowEventListener } from '#v0/composables/useEventListener'
+
+// Globals
+import { IN_BROWSER } from '#v0/constants/globals'
 
 // Utilities
 import { isUndefined } from '#v0/utilities'
