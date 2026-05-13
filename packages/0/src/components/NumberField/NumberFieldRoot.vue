@@ -17,7 +17,7 @@
 
   // Utilities
   import { useId } from '#v0/utilities'
-  import { mergeProps, nextTick, toRef, useAttrs, watch } from 'vue'
+  import { mergeProps, nextTick, toRef, toValue, useAttrs, watch } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -234,8 +234,8 @@
     locale,
     format: formatOptions,
     clamp: shouldClamp,
-    disabled,
-    readonly: _readonly,
+    disabled: () => toValue(disabled),
+    readonly: () => toValue(_readonly),
     min,
     max,
     step,

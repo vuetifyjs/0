@@ -487,7 +487,7 @@ export function createNotifications (
    *
    * notifications.readAll()
    *
-   * console.log(notifications.values().every(t => t.readAt !== null)) // true
+   * console.log(notifications.values().every(t => !isNull(t.readAt))) // true
    * ```
    */
   function readAll () {
@@ -521,7 +521,7 @@ export function createNotifications (
    *
    * notifications.archiveAll()
    *
-   * console.log(notifications.values().every(t => t.archivedAt !== null)) // true
+   * console.log(notifications.values().every(t => !isNull(t.archivedAt))) // true
    * ```
    */
   function archiveAll () {

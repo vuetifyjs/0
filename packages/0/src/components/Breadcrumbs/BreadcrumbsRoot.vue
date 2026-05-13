@@ -112,7 +112,7 @@
 
   const overflow = createOverflow({
     container: () => containerRef.value?.element as Element | undefined,
-    gap,
+    gap: () => gap,
     reserved: () => {
       let r = 0
       if (firstItemWidth.value > 0) r += firstItemWidth.value + gap
