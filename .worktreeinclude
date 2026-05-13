@@ -1,0 +1,12 @@
+# Docs dev server config
+apps/docs/.env.local
+
+# Any future env locals
+.env.local
+.env.*.local
+
+# Local Claude Code permissions
+.claude/settings.local.json
+
+# Scratchpad for in-progress experimentation
+dev/src/Playground.vue
