@@ -23,30 +23,36 @@ Composable data table built on v0 primitives. Composes sorting, filtering, pagin
 <DocsPageFeatures :frontmatter />
 
 > [!TIP]
-> Rows are registered through the registry surface, not passed as an `items` option. Call `onboard` for bulk registration or `register` for one row at a time — the ticket id IS the row identifier, so selection, expansion, and grouping all key off it.
+> Rows **and** columns are registered through the registry surface, not passed as factory options. Call `onboard` for bulk registration or `register` for one entry at a time — for rows the ticket id IS the row identifier, so selection, expansion, and grouping all key off it; for columns the `id` field is what `sort.toggle`, the filter pipeline, and the adapter all key off.
 >
 > ```ts
-> // Bulk
+> // Columns (live under table.columns)
+> table.columns.onboard([
+>   { id: 'name', title: 'Name', sortable: true },
+>   { id: 'email', title: 'Email', filterable: true },
+> ])
+>
+> // Rows (top-level — bulk)
 > table.onboard(rows.map(value => ({ id: value.id, value })))
 >
-> // One at a time
+> // Rows — one at a time
 > table.register({ id, value })
 > ```
 
 ## Usage
 
-Construct the table with `columns`, then register rows via `onboard` (bulk) or `register` (one at a time). Each row becomes a ticket keyed by the `id` you supply — that id is what `selection.toggle`, `expansion.toggle`, and `unregister` accept.
+Construct the table, then register columns via `table.columns.onboard` and rows via `table.onboard`. Each row becomes a ticket keyed by the `id` you supply — that id is what `selection.toggle`, `expansion.toggle`, and `unregister` accept. Columns are keyed by their own `id` field; that is what `sort.toggle` and the filter pipeline match against.
 
 ```ts collapse
 import { createDataTable } from '@vuetify/v0'
 
-const table = createDataTable({
-  columns: [
-    { key: 'name', title: 'Name', sortable: true, filterable: true },
-    { key: 'email', title: 'Email', sortable: true, filterable: true },
-    { key: 'role', title: 'Role', sortable: true },
-  ],
-})
+const table = createDataTable<User>()
+
+table.columns.onboard([
+  { id: 'name', title: 'Name', sortable: true, filterable: true },
+  { id: 'email', title: 'Email', sortable: true, filterable: true },
+  { id: 'role', title: 'Role', sortable: true },
+])
 
 table.onboard(users.map(value => ({ id: value.id, value })))
 
@@ -68,6 +74,11 @@ const ticket = table.register({ id: 'user-99', value: user })
 ticket.unregister()           // remove via returned ticket
 table.unregister('user-1')    // remove by id
 table.clear()                 // wipe all rows
+
+// Add / remove columns after setup
+table.columns.register({ id: 'actions', title: '' })
+table.columns.unregister('actions')
+table.columns.clear()
 ```
 
 ::: example
@@ -89,13 +100,14 @@ Use `createDataTableContext` to share a data table instance across a component t
 import { createDataTableContext } from '@vuetify/v0'
 
 const [useUsersTable, provideUsersTable, context] =
-  createDataTableContext({
+  createDataTableContext<User>({
     namespace: 'app:users',
-    columns: [
-      { key: 'name', title: 'Name', sortable: true },
-      { key: 'email', title: 'Email' },
-    ],
   })
+
+context.columns.onboard([
+  { id: 'name', title: 'Name', sortable: true },
+  { id: 'email', title: 'Email' },
+])
 
 context.onboard(users.map(value => ({ id: value.id, value })))
 
@@ -135,11 +147,11 @@ graph LR
 import { createDataTable } from '@vuetify/v0'
 import { ClientDataTableAdapter } from '@vuetify/v0/data-table/adapters/client'
 
-const table = createDataTable({
-  columns,
+const table = createDataTable<User>({
   adapter: new ClientDataTableAdapter(), // default — not required
 })
 
+table.columns.onboard(columns)
 table.onboard(users.map(value => ({ id: value.id, value })))
 ```
 
@@ -176,10 +188,11 @@ const total = shallowRef(0)
 const loading = shallowRef(false)
 const error = shallowRef<Error | null>(null)
 
-const table = createDataTable({
-  columns,
+const table = createDataTable<User>({
   adapter: new ServerDataTableAdapter({ total, loading, error }),
 })
+
+table.columns.onboard(columns)
 
 async function load () {
   loading.value = true
@@ -216,11 +229,11 @@ graph LR
 import { createDataTable, createVirtual } from '@vuetify/v0'
 import { VirtualDataTableAdapter } from '@vuetify/v0/data-table/adapters/virtual'
 
-const table = createDataTable({
-  columns,
+const table = createDataTable<User>({
   adapter: new VirtualDataTableAdapter(),
 })
 
+table.columns.onboard(columns)
 table.onboard(rows.map(value => ({ id: value.id, value })))
 
 // Wrap table.items with createVirtual for rendering
@@ -234,15 +247,16 @@ const virtual = createVirtual(table.items, { itemHeight: 40 })
 Toggle sort cycles through directions. Configure with `mandate` and `firstSortOrder`.
 
 ```ts
-const table = createDataTable({
-  columns: [
-    { key: 'name', sortable: true },
-    { key: 'age', sortable: true, sort: (a, b) => Number(a) - Number(b) },
-  ],
+const table = createDataTable<User>({
   mandate: true,             // asc → desc → asc (never clears)
   firstSortOrder: 'desc',   // First click sorts descending
   sortMultiple: true,        // Enable multi-column sort
 })
+
+table.columns.onboard([
+  { id: 'name', sortable: true },
+  { id: 'age', sortable: true, sort: (a, b) => Number(a) - Number(b) },
+])
 
 table.onboard(items.map(value => ({ id: value.id, value })))
 
@@ -259,14 +273,14 @@ table.sort.reset()               // Clear all sort state
 Search filters across all `filterable` columns. Use per-column `filter` for custom logic.
 
 ```ts
-const table = createDataTable({
-  columns: [
-    { key: 'name', filterable: true },
-    { key: 'status', filterable: true, filter: (value, query) => {
-      return String(value).toLowerCase() === query.toLowerCase()
-    }},
-  ],
-})
+const table = createDataTable<User>()
+
+table.columns.onboard([
+  { id: 'name', filterable: true },
+  { id: 'status', filterable: true, filter: (value, query) => {
+    return String(value).toLowerCase() === query.toLowerCase()
+  } },
+])
 
 table.onboard(items.map(value => ({ id: value.id, value })))
 
@@ -284,12 +298,12 @@ Control row selection with the `selectStrategy` option.
 | `'all'` | `selectAll`/`toggleAll` operate on all filtered items |
 
 ```ts
-const table = createDataTable({
-  columns,
+const table = createDataTable<User>({
   selectStrategy: 'page',
   itemSelectable: 'canSelect',  // Disable selection for rows where canSelect is falsy
 })
 
+table.columns.onboard(columns)
 table.onboard(items.map(value => ({ id: value.id, value })))
 
 table.selection.toggle('row-1')
@@ -305,11 +319,11 @@ table.selection.isMixed.value           // false
 Expand rows to reveal detail content.
 
 ```ts
-const table = createDataTable({
-  columns,
+const table = createDataTable<User>({
   expandMultiple: false,  // Only one row expanded at a time
 })
 
+table.columns.onboard(columns)
 table.onboard(items.map(value => ({ id: value.id, value })))
 
 table.expansion.toggle('row-1')
@@ -318,17 +332,41 @@ table.expansion.expandAll()
 table.expansion.collapseAll()
 ```
 
+### Dynamic columns
+
+Columns are a registry, so they can be added, removed, or replaced at any point — not just at construction. `leaves`, `headers`, the sort group, and the filter pipeline all react to column changes. Use this for user-toggled visibility, plugin-injected columns, or columns that arrive asynchronously with their schema.
+
+```ts
+const table = createDataTable<User>()
+
+// Initial columns
+table.columns.onboard([
+  { id: 'name', title: 'Name', sortable: true },
+  { id: 'email', title: 'Email' },
+])
+
+// Later: add a column at runtime
+table.columns.register({ id: 'actions', title: '' })
+
+// Remove a column — drops it from headers, leaves, and sort state
+table.columns.unregister('email')
+
+// Replace the column set entirely
+table.columns.clear()
+table.columns.onboard(nextColumns)
+```
+
 ### Grouping
 
 Group rows by a column value.
 
 ```ts
-const table = createDataTable({
-  columns,
+const table = createDataTable<Employee>({
   groupBy: 'department',
   openAll: true,  // Auto-open all groups
 })
 
+table.columns.onboard(columns)
 table.onboard(items.map(value => ({ id: value.id, value })))
 
 table.grouping.groups.value  // [{ key: 'Engineering', value: 'Engineering', items: [...] }]
@@ -346,6 +384,9 @@ table.grouping.closeAll()
 | `allItems` | <AppSuccessIcon /> | Computed — every registered row, unfiltered/unsorted |
 | `filteredItems` | <AppSuccessIcon /> | Computed — items after filtering |
 | `sortedItems` | <AppSuccessIcon /> | Computed — items after filter + sort |
+| `columns` | <AppSuccessIcon /> | RegistryContext — reactive column registry (`columns.values()` drives `leaves` and `headers`) |
+| `leaves` | <AppSuccessIcon /> | Computed — leaf columns (no children) used by the data pipeline |
+| `headers` | <AppSuccessIcon /> | Computed — 2D header grid with colspan/rowspan for rendering thead |
 | `query` | <AppSuccessIcon /> | ShallowRef — current search query (readonly) |
 | `sort.columns` | <AppSuccessIcon /> | Computed — current sort entries |
 | `pagination.page` | <AppSuccessIcon /> | ShallowRef — current page |
@@ -358,10 +399,14 @@ table.grouping.closeAll()
 | `total` | <AppSuccessIcon /> | Computed — total row count |
 | `loading` | <AppSuccessIcon /> | Computed — adapter loading state |
 | `error` | <AppSuccessIcon /> | Computed — adapter error state |
-| `register(input)` | — | Method — adds a single ticket, mutates the registry (downstream refs recompute) |
-| `onboard(inputs)` | — | Method — bulk register, mutates the registry |
-| `unregister(id)` | — | Method — removes a ticket by id |
-| `clear()` | — | Method — wipes every ticket (useful before re-fetching server data) |
+| `register(input)` | — | Method — adds a single row ticket, mutates the row registry (downstream refs recompute) |
+| `onboard(inputs)` | — | Method — bulk register rows |
+| `unregister(id)` | — | Method — removes a row ticket by id |
+| `clear()` | — | Method — wipes every row ticket (useful before re-fetching server data) |
+| `columns.register(input)` | — | Method — adds a single column ticket (reactively updates `leaves`, `headers`, sort group, filter pipeline) |
+| `columns.onboard(inputs)` | — | Method — bulk register columns |
+| `columns.unregister(id)` | — | Method — removes a column by id; drops it from sort state |
+| `columns.clear()` | — | Method — wipes every column |
 
 ## Examples
 
@@ -380,12 +425,12 @@ A data table backed by a simulated API. The `ServerDataTableAdapter` delegates a
 |------|------|
 | `ServerTable.vue` | Table with loading state, search, sort, and pagination |
 | `columns.ts` | Column definitions |
-| `api.ts` | Simulated server with `fetchUsers()` that filters/sorts/paginates a dataset |
+| `api.ts` | Simulated server with `fetchPage()` that filters/sorts/paginates a dataset |
 
 **Key patterns:**
 
 - `ServerDataTableAdapter` receives `total` and `loading` refs so the table knows the full dataset size without holding it client-side
-- A `watch` on `[table.query, table.sort.columns, table.pagination.page]` triggers `fetchUsers()` whenever the user interacts
+- A `watch` on `[table.query, table.sort.columns, table.pagination.page]` triggers `fetchPage()` whenever the user interacts
 - The simulated API applies search, sort, and pagination server-side, returning only the current page of results
 
 :::

@@ -7,10 +7,10 @@
   const items = generate(1000)
 
   const table = createDataTable({
-    columns,
     adapter: new VirtualDataTableAdapter(),
   })
 
+  table.columns.onboard(columns)
   table.onboard(items.map(value => ({ id: value.id, value })))
 
   const virtual = createVirtual(table.items, { itemHeight: 40 })
@@ -28,8 +28,8 @@
     rendered: visible.value.length,
   }))
 
-  function arrow (key: string) {
-    const dir = table.sort.direction(key)
+  function arrow (id: string) {
+    const dir = table.sort.direction(id)
     if (dir === 'asc') return '↑'
     if (dir === 'desc') return '↓'
     return ''
@@ -62,13 +62,13 @@
           <thead class="sticky top-0 z-10 bg-surface">
             <tr class="border-b border-divider bg-surface-tint">
               <th
-                v-for="col in columns"
-                :key="col.key"
+                v-for="col in table.columns.values()"
+                :key="col.id"
                 class="px-4 py-3 text-left font-medium cursor-pointer select-none hover:text-primary transition-colors"
-                @click="table.sort.toggle(col.key)"
+                @click="table.sort.toggle(col.id)"
               >
                 {{ col.title }}
-                <span class="ml-1 text-xs opacity-50">{{ arrow(col.key) }}</span>
+                <span class="ml-1 text-xs opacity-50">{{ arrow(col.id) }}</span>
               </th>
             </tr>
           </thead>

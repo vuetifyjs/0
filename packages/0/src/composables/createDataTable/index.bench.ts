@@ -14,7 +14,7 @@ import { bench, describe } from 'vitest'
 import { createDataTable, ClientDataTableAdapter, VirtualDataTableAdapter } from './index'
 
 // Types
-import type { DataTableColumn, DataTableOptions, DataTableTicketInput } from './index'
+import type { DataTableColumnTicketInput, DataTableOptions, DataTableTicketInput } from './index'
 
 // =============================================================================
 // FIXTURES - Created once, reused across read-only benchmarks
@@ -45,20 +45,20 @@ function generateRows (count: number): BenchmarkRow[] {
 const ROWS_1K: BenchmarkRow[] = generateRows(1000)
 const ROWS_10K: BenchmarkRow[] = generateRows(10_000)
 
-const COLUMNS: DataTableColumn<BenchmarkRow>[] = [
-  { key: 'name', title: 'Name', sortable: true, filterable: true },
-  { key: 'email', title: 'Email', sortable: true, filterable: true },
-  { key: 'department', title: 'Department', sortable: true },
-  { key: 'salary', title: 'Salary', sortable: true, sort: (a, b) => Number(a) - Number(b) },
-  { key: 'active', title: 'Active' },
+const COLUMNS: DataTableColumnTicketInput<BenchmarkRow>[] = [
+  { id: 'name', title: 'Name', sortable: true, filterable: true },
+  { id: 'email', title: 'Email', sortable: true, filterable: true },
+  { id: 'department', title: 'Department', sortable: true },
+  { id: 'salary', title: 'Salary', sortable: true, sort: (a, b) => Number(a) - Number(b) },
+  { id: 'active', title: 'Active' },
 ]
 
-const COLUMNS_WITH_FILTER: DataTableColumn<BenchmarkRow>[] = [
-  { key: 'name', title: 'Name', sortable: true, filterable: true, filter: (v, q) => String(v).toLowerCase().startsWith(q) },
-  { key: 'email', title: 'Email', sortable: true, filterable: true },
-  { key: 'department', title: 'Department', sortable: true },
-  { key: 'salary', title: 'Salary', sortable: true, sort: (a, b) => Number(a) - Number(b) },
-  { key: 'active', title: 'Active' },
+const COLUMNS_WITH_FILTER: DataTableColumnTicketInput<BenchmarkRow>[] = [
+  { id: 'name', title: 'Name', sortable: true, filterable: true, filter: (v, q) => String(v).toLowerCase().startsWith(q) },
+  { id: 'email', title: 'Email', sortable: true, filterable: true },
+  { id: 'department', title: 'Department', sortable: true },
+  { id: 'salary', title: 'Salary', sortable: true, sort: (a, b) => Number(a) - Number(b) },
+  { id: 'active', title: 'Active' },
 ]
 
 // Lookup targets (middle of dataset)
@@ -70,13 +70,14 @@ function toInputs (rows: readonly BenchmarkRow[]): DataTableTicketInput<Benchmar
 }
 
 function createTable (
-  options: Partial<DataTableOptions<BenchmarkRow>> & { items?: readonly BenchmarkRow[] } = {},
+  options: Partial<DataTableOptions<BenchmarkRow>> & {
+    items?: readonly BenchmarkRow[]
+    columns?: DataTableColumnTicketInput<BenchmarkRow>[]
+  } = {},
 ) {
   const { items: rows = ROWS_1K, columns: cols = COLUMNS, ...rest } = options
-  const table = createDataTable<BenchmarkRow>({
-    columns: cols,
-    ...rest,
-  })
+  const table = createDataTable<BenchmarkRow>({ ...rest })
+  table.columns.onboard(cols)
   table.onboard(toInputs(rows))
   return table
 }

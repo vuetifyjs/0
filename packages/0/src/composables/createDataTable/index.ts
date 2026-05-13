@@ -8,9 +8,11 @@
  * reimplementing their logic. Uses createGroup's tri-state for sort direction
  * and delegates the data pipeline (filter, sort, paginate) to an adapter.
  *
- * Rows are managed via an internal registry — register / onboard / unregister.
- * Row identity is the ticket id (caller-supplied or auto-generated). The
- * factory no longer accepts an `items` option.
+ * Rows and columns are both managed via internal registries. Call
+ * `table.columns.onboard([...])` / `table.columns.register({...})` to add
+ * columns and `table.onboard([...])` / `table.register({...})` for rows.
+ * Row identity is the ticket id (caller-supplied or auto-generated); column
+ * identity is the caller-supplied `id` (required — no auto-generation).
  *
  * Key features:
  * - Adapter pattern for pipeline strategy (client, server, virtual)
@@ -26,13 +28,18 @@
  * ```ts
  * import { createDataTable } from '@vuetify/v0'
  *
- * const table = createDataTable({
- *   columns: [{ key: 'name', title: 'Name', sortable: true }],
- * })
- * table.onboard([
- *   { id: 1, value: { id: 1, name: 'Alice' } },
- *   { id: 2, value: { id: 2, name: 'Bob' } },
+ * const table = createDataTable<User>()
+ *
+ * table.columns.onboard([
+ *   { id: 'name', title: 'Name', sortable: true },
+ *   { id: 'email', title: 'Email', filterable: true },
  * ])
+ *
+ * table.onboard([
+ *   { id: 1, value: { id: 1, name: 'Alice', email: 'alice@test.com' } },
+ *   { id: 2, value: { id: 2, name: 'Bob', email: 'bob@test.com' } },
+ * ])
+ *
  * table.sort.toggle('name')
  * ```
  */
@@ -59,7 +66,7 @@ import type { FilterOptions } from '#v0/composables/createFilter'
 import type { PaginationContext, PaginationOptions } from '#v0/composables/createPagination'
 import type { RegistryContext, RegistryTicket, RegistryTicketInput } from '#v0/composables/createRegistry'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
-import type { ID } from '#v0/types'
+import type { Extensible, ID } from '#v0/types'
 import type { DataTableAdapter, SortDirection, SortEntry } from './adapters/adapter'
 import type { InternalHeader } from './columns'
 import type { Ref, ShallowRef } from 'vue'
@@ -80,48 +87,90 @@ export type KeysOfType<T, V> = { [K in keyof T]: T[K] extends V ? K : never }[ke
 export type SelectStrategy = 'single' | 'page' | 'all'
 
 /**
- * Input shape passed to `register` / `onboard` on a data table.
+ * Input shape passed to `register` / `onboard` on a data table's row registry.
  *
  * @template T Row value type.
  *
  * @example
  * ```ts
- * const table = createDataTable<User>({ columns })
+ * const table = createDataTable<User>()
  * table.register({ id: user.id, value: user })
  * ```
  */
 export type DataTableTicketInput<T extends Record<string, unknown>> = RegistryTicketInput<T>
 
 /**
- * Output ticket returned by `register` / `onboard` / `get`.
+ * Output ticket returned by row `register` / `onboard` / `get`.
  *
  * @template T Row value type.
  */
 export type DataTableTicket<T extends Record<string, unknown>> = RegistryTicket<T> & DataTableTicketInput<T>
 
-export interface DataTableColumn<T extends Record<string, unknown> = Record<string, unknown>> {
-  readonly key: string
-  readonly title?: string
-  readonly sortable?: boolean
-  readonly filterable?: boolean
-  /** Custom sort comparator for this column */
-  readonly sort?: (a: unknown, b: unknown) => number
-  /** Custom filter function for this column */
-  readonly filter?: (value: unknown, query: string) => boolean
-  readonly children?: readonly DataTableColumn<T>[]
+/**
+ * Input shape passed to `table.columns.register` / `table.columns.onboard`.
+ *
+ * `id` is required and acts as the column identifier — selection, sort, and
+ * filter all key off it. The `Extensible<keyof T & string>` shape preserves
+ * autocomplete for the row's own keys while still accepting arbitrary strings
+ * for derived columns (computed totals, action columns, etc.).
+ *
+ * @template T Row value type.
+ *
+ * @example
+ * ```ts
+ * import { createDataTable } from '@vuetify/v0'
+ *
+ * interface User { id: number, name: string, email: string }
+ *
+ * const table = createDataTable<User>()
+ * table.columns.register({ id: 'name', title: 'Name', sortable: true })
+ * table.columns.register({
+ *   id: 'actions',
+ *   title: '',
+ *   sortable: false,
+ * })
+ * ```
+ */
+export interface DataTableColumnTicketInput<T extends Record<string, unknown> = Record<string, unknown>>
+  extends RegistryTicketInput {
+  /** Column identifier. Required — selection / sort / filter all key off it. */
+  id: Extensible<keyof T & string>
+  /** Display title rendered in the header cell. */
+  title?: string
+  /** Allow this column to participate in the sort pipeline. */
+  sortable?: boolean
+  /** Allow this column to participate in the filter pipeline. */
+  filterable?: boolean
+  /** Custom per-column sort comparator. */
+  sort?: (a: unknown, b: unknown) => number
+  /** Custom per-column filter predicate. */
+  filter?: (value: unknown, query: string) => boolean
+  /** Header-group children (recursive). Children are NOT separately registered. */
+  children?: readonly DataTableColumnTicketInput<T>[]
 }
+
+/**
+ * Output ticket returned by `table.columns.register` / `table.columns.onboard`.
+ *
+ * Combines the standard registry ticket fields (`index`, `valueIsIndex`,
+ * `unregister`) with the column-shape fields from {@link DataTableColumnTicketInput}.
+ *
+ * @template T Row value type.
+ */
+export type DataTableColumnTicket<T extends Record<string, unknown> = Record<string, unknown>>
+  = RegistryTicket<DataTableColumnTicketInput<T>['value']> & DataTableColumnTicketInput<T>
 
 export interface DataTableSort {
   /** Toggle sort for a column: none → asc → desc → none */
-  toggle: (key: string) => void
+  toggle: (id: string) => void
   /** Current sort columns derived from group state */
   columns: Readonly<Ref<SortEntry[]>>
   /** Order of sort columns (for multi-sort priority) */
   order: readonly string[]
-  /** Get sort direction for a specific column key */
-  direction: (key: string) => SortDirection
+  /** Get sort direction for a specific column id */
+  direction: (id: string) => SortDirection
   /** Get sort priority index (0-based), or -1 if not sorted */
-  priority: (key: string) => number
+  priority: (id: string) => number
   /** Reset all sort state */
   reset: () => void
 }
@@ -195,8 +244,6 @@ export interface DataTableExpansion {
 }
 
 export interface DataTableOptions<T extends Record<string, unknown>> {
-  /** Column definitions */
-  columns: readonly DataTableColumn<T>[]
   /** Filter options (keys derived from columns) */
   filter?: Omit<FilterOptions, 'keys'>
   /** Pagination options (size derived from pipeline) */
@@ -211,7 +258,7 @@ export interface DataTableOptions<T extends Record<string, unknown>> {
   selectStrategy?: SelectStrategy
   /** Property that controls per-row selectability */
   itemSelectable?: keyof T & string
-  /** Column key to group rows by */
+  /** Column id to group rows by */
   groupBy?: keyof T & string
   /** Auto-open all groups on creation. @default false */
   openAll?: boolean
@@ -233,11 +280,15 @@ export interface DataTableContext<T extends Record<string, unknown>>
   filteredItems: Readonly<Ref<readonly T[]>>
   /** Items after filtering and sorting */
   sortedItems: Readonly<Ref<readonly T[]>>
-  /** Column definitions */
-  columns: readonly DataTableColumn<T>[]
-  /** Leaf columns (no children) used by the data pipeline */
-  leaves: readonly DataTableColumn<T>[]
-  /** 2D header grid with colspan/rowspan for rendering thead */
+  /**
+   * Column registry. Use `columns.register({...})`, `columns.onboard([...])`,
+   * `columns.unregister(id)`, and `columns.clear()` to manage columns. The
+   * registry is reactive — `leaves` and `headers` recompute when it mutates.
+   */
+  columns: RegistryContext<DataTableColumnTicketInput<T>, DataTableColumnTicket<T>>
+  /** Leaf columns (no children) used by the data pipeline. Reactive. */
+  leaves: Readonly<Ref<readonly DataTableColumnTicket<T>[]>>
+  /** 2D header grid with colspan/rowspan for rendering thead. Reactive. */
   headers: Readonly<Ref<InternalHeader[][]>>
   /** Set the search query */
   search: (value: string) => void
@@ -269,52 +320,47 @@ export interface DataTableContextOptions<T extends Record<string, unknown>> exte
  * Creates a data table instance with sort controls, selection, and an
  * adapter-driven data pipeline.
  *
- * Rows are managed via the embedded registry: `register({ id, value })` for
- * a single row, `onboard([...])` for bulk, `unregister(id)` / `clear()` for
- * removal. Row identity is the ticket id; pass it explicitly when the caller
- * wants to address rows by a domain identifier (e.g. selection toggles).
+ * Rows and columns are both managed via internal registries. Use
+ * `table.columns.register({ id, ... })` / `table.columns.onboard([...])` to
+ * add columns and `table.register({ id, value })` / `table.onboard([...])`
+ * for rows. Removing entries from the column registry reactively updates
+ * `leaves`, `headers`, the sort group, and the filter pipeline.
  *
  * Must be called inside a component `setup()` or a Vue effect scope.
  * Calling at module scope in SSR environments causes request state leakage.
  *
- * @param options Data table options
+ * @param options Data table options (all optional)
  * @returns Data table context with pipeline stages, controls, and registry surface
  *
  * @example
  * ```ts
  * import { createDataTable } from '@vuetify/v0'
  *
- * const table = createDataTable<User>({
- *   columns: [
- *     { key: 'name', title: 'Name', sortable: true, filterable: true },
- *     { key: 'email', title: 'Email', sortable: true, filterable: true },
- *     { key: 'age', title: 'Age', sortable: true },
- *   ],
- * })
+ * const table = createDataTable<User>()
  *
- * // Register rows (id is the row identifier)
+ * table.columns.onboard([
+ *   { id: 'name', title: 'Name', sortable: true, filterable: true },
+ *   { id: 'email', title: 'Email', sortable: true, filterable: true },
+ *   { id: 'age', title: 'Age', sortable: true },
+ * ])
+ *
  * table.onboard(users.map(value => ({ id: value.id, value })))
  *
- * // Search
  * table.search('john')
  *
- * // Sort
- * table.sort.toggle('name')          // asc
- * table.sort.toggle('name')          // desc
- * table.sort.toggle('name')          // none
+ * table.sort.toggle('name')
+ * table.sort.toggle('name')
+ * table.sort.toggle('name')
  *
- * // Paginate
  * table.pagination.next()
  *
- * // Select rows by ticket id
  * table.selection.toggle(1)
  * ```
  */
 export function createDataTable<T extends Record<string, unknown>> (
-  options: DataTableOptions<T>,
+  options: DataTableOptions<T> = {},
 ): DataTableContext<T> {
   const {
-    columns,
     filter: filterOptions = {},
     pagination: paginationOptions = {},
     sortMultiple = false,
@@ -330,6 +376,11 @@ export function createDataTable<T extends Record<string, unknown>> (
   } = options
 
   const registry = createRegistry<DataTableTicketInput<T>, DataTableTicket<T>>({
+    events: true,
+    reactive: true,
+  })
+
+  const columns = createRegistry<DataTableColumnTicketInput<T>, DataTableColumnTicket<T>>({
     events: true,
     reactive: true,
   })
@@ -350,29 +401,45 @@ export function createDataTable<T extends Record<string, unknown>> (
     return initialLocale
   })
 
-  const leaves = extractLeaves(columns)
-  const headers = toRef(() => resolveHeaders(columns))
+  const leaves = toRef(() => extractLeaves(columns.values()))
+  const headers = toRef(() => resolveHeaders(columns.values()))
 
-  const sortable = leaves.filter(col => col.sortable === true)
+  const sortable = toRef(() => leaves.value.filter(col => col.sortable === true))
 
   const group = createGroup({ multiple: sortMultiple })
-
-  // Register sortable columns as tickets
-  group.onboard(
-    sortable.map(col => ({ id: col.key, value: col.key })),
-  )
 
   // Track sort order for multi-sort priority
   const order = shallowReactive<string[]>([])
 
+  // Reconcile the sort group with the live set of sortable columns. New
+  // columns get onboarded; removed columns get unregistered and any sort
+  // state keyed to them is dropped from the order/mixed sets.
+  watch(sortable, next => {
+    const ids = new Set<string>()
+    for (const col of next) ids.add(String(col.id))
+
+    for (const id of group.keys()) {
+      const key = String(id)
+      if (!ids.has(key)) {
+        group.unregister(id)
+        const index = order.indexOf(key)
+        if (index !== -1) order.splice(index, 1)
+      }
+    }
+
+    for (const id of ids) {
+      if (!group.has(id)) group.register({ id, value: id })
+    }
+  }, { flush: 'sync', immediate: true })
+
   // Sort cycle depends on firstSortOrder and mandate:
   // firstSortOrder='asc':  none → asc → desc → none  (or → asc with mandate)
   // firstSortOrder='desc': none → desc → asc → none  (or → desc with mandate)
-  function toggle (key: string) {
-    if (!group.has(key)) return
+  function toggle (id: string) {
+    if (!group.has(id)) return
 
-    const isAsc = group.selectedIds.has(key)
-    const isDesc = group.mixed(key)
+    const isAsc = group.selectedIds.has(id)
+    const isDesc = group.mixed(id)
 
     function clearOthers () {
       if (!sortMultiple) {
@@ -382,17 +449,17 @@ export function createDataTable<T extends Record<string, unknown>> (
     }
 
     function setAsc () {
-      group.unmix(key)
-      group.select(key)
+      group.unmix(id)
+      group.select(id)
     }
     function setDesc () {
-      group.unselect(key)
-      group.mix(key)
+      group.unselect(id)
+      group.mix(id)
     }
     function setNone () {
-      group.unselect(key)
-      group.unmix(key)
-      const index = order.indexOf(key)
+      group.unselect(id)
+      group.unmix(id)
+      const index = order.indexOf(id)
       if (index !== -1) order.splice(index, 1)
     }
 
@@ -401,7 +468,7 @@ export function createDataTable<T extends Record<string, unknown>> (
       clearOthers()
       if (firstSortOrder === 'desc') setDesc()
       else setAsc()
-      order.push(key)
+      order.push(id)
     } else if (isAsc) {
       // asc is last step when firstSortOrder='desc'
       if (firstSortOrder === 'desc' && !mandate) setNone()
@@ -416,25 +483,25 @@ export function createDataTable<T extends Record<string, unknown>> (
   const sortBy = computed<SortEntry[]>(() => {
     const result: SortEntry[] = []
 
-    for (const key of order) {
-      if (group.selectedIds.has(key)) {
-        result.push({ key, direction: 'asc' })
-      } else if (group.mixed(key)) {
-        result.push({ key, direction: 'desc' })
+    for (const id of order) {
+      if (group.selectedIds.has(id)) {
+        result.push({ key: id, direction: 'asc' })
+      } else if (group.mixed(id)) {
+        result.push({ key: id, direction: 'desc' })
       }
     }
 
     return result
   })
 
-  function direction (key: string): SortDirection {
-    if (group.selectedIds.has(key)) return 'asc'
-    if (group.mixed(key)) return 'desc'
+  function direction (id: string): SortDirection {
+    if (group.selectedIds.has(id)) return 'asc'
+    if (group.mixed(id)) return 'desc'
     return 'none'
   }
 
-  function priority (key: string): number {
-    return order.indexOf(key)
+  function priority (id: string): number {
+    return order.indexOf(id)
   }
 
   function reset () {
@@ -452,21 +519,29 @@ export function createDataTable<T extends Record<string, unknown>> (
     reset,
   }
 
-  const filterable = leaves
-    .filter(col => col.filterable === true)
-    .map(col => col.key)
+  const filterable = toRef(() => {
+    const ids: string[] = []
+    for (const col of leaves.value) {
+      if (col.filterable === true) ids.push(String(col.id))
+    }
+    return ids
+  })
 
-  // Build per-column sort comparators
-  const sorts: Partial<Record<string, (a: unknown, b: unknown) => number>> = {}
-  for (const col of leaves) {
-    if (col.sort) sorts[col.key] = col.sort
-  }
+  const customSorts = toRef(() => {
+    const sorts: Partial<Record<string, (a: unknown, b: unknown) => number>> = {}
+    for (const col of leaves.value) {
+      if (col.sort) sorts[String(col.id)] = col.sort
+    }
+    return sorts
+  })
 
-  // Build per-column filter functions
-  const filters: Partial<Record<string, (value: unknown, query: string) => boolean>> = {}
-  for (const col of leaves) {
-    if (col.filter) filters[col.key] = col.filter
-  }
+  const customColumnFilters = toRef(() => {
+    const filters: Partial<Record<string, (value: unknown, query: string) => boolean>> = {}
+    for (const col of leaves.value) {
+      if (col.filter) filters[String(col.id)] = col.filter
+    }
+    return filters
+  })
 
   // Row values projected from registry tickets in registration order — the
   // adapter consumes this as its `items` input and runs the filter → sort →
@@ -490,8 +565,8 @@ export function createDataTable<T extends Record<string, unknown>> (
     locale,
     filterOptions,
     paginationOptions,
-    customSorts: sorts,
-    customColumnFilters: filters,
+    customSorts: customSorts as Readonly<Ref<Partial<Record<keyof T & string, (a: unknown, b: unknown) => number>>>>,
+    customColumnFilters: customColumnFilters as Readonly<Ref<Partial<Record<keyof T & string, (value: unknown, query: string) => boolean>>>>,
   })
 
   const selectedIds = shallowReactive(new Set<ID>())
@@ -744,6 +819,10 @@ export function createDataTable<T extends Record<string, unknown>> (
 /**
  * Creates a data table context with dependency injection support.
  *
+ * The returned context exposes both row and column registries. Columns must
+ * be onboarded after construction — pass them via `context.columns.onboard`,
+ * not in the factory options.
+ *
  * @param options Data table context options including namespace
  * @returns A trinity tuple: [useDataTable, provideDataTable, defaultContext]
  *
@@ -751,12 +830,13 @@ export function createDataTable<T extends Record<string, unknown>> (
  * ```ts
  * import { createDataTableContext } from '@vuetify/v0'
  *
- * const [useDataTable, provideDataTable, context] = createDataTableContext({
+ * const [useDataTable, provideDataTable, context] = createDataTableContext<User>({
  *   namespace: 'app:users',
- *   columns: [
- *     { key: 'name', title: 'Name', sortable: true },
- *   ],
  * })
+ *
+ * context.columns.onboard([
+ *   { id: 'name', title: 'Name', sortable: true },
+ * ])
  *
  * // Parent component
  * provideDataTable()
@@ -767,10 +847,10 @@ export function createDataTable<T extends Record<string, unknown>> (
  * ```
  */
 export function createDataTableContext<T extends Record<string, unknown>> (
-  _options: DataTableContextOptions<T>,
+  _options: DataTableContextOptions<T> = {},
 ): ContextTrinity<DataTableContext<T>> {
   const { namespace = 'v0:data-table', ...options } = _options
-  const context = createDataTable(options)
+  const context = createDataTable<T>(options)
 
   return createTrinity<DataTableContext<T>>(namespace, context)
 }

@@ -1,11 +1,11 @@
-import type { DataTableColumn } from '@vuetify/v0'
+import type { DataTableColumnTicketInput } from '@vuetify/v0'
 import type { Employee } from './data'
 
-export const columns: DataTableColumn<Employee>[] = [
-  { key: 'name', title: 'Name', sortable: true, filterable: true },
-  { key: 'department', title: 'Department', sortable: true },
+export const columns: DataTableColumnTicketInput<Employee>[] = [
+  { id: 'name', title: 'Name', sortable: true, filterable: true },
+  { id: 'department', title: 'Department', sortable: true },
   {
-    key: 'salary',
+    id: 'salary',
     title: 'Salary',
     sortable: true,
     filterable: true,
@@ -17,5 +17,5 @@ export const columns: DataTableColumn<Employee>[] = [
       return String(value).includes(query)
     },
   },
-  { key: 'active', title: 'Status', sortable: true },
+  { id: 'active', title: 'Status', sortable: true },
 ]

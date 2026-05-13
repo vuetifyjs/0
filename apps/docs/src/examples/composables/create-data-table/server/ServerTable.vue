@@ -8,10 +8,11 @@
   const loading = shallowRef(false)
 
   const table = createDataTable({
-    columns,
     pagination: { itemsPerPage: 5 },
     adapter: new ServerDataTableAdapter({ total, loading }),
   })
+
+  table.columns.onboard(columns)
 
   async function load () {
     loading.value = true
@@ -35,8 +36,8 @@
     { immediate: true },
   )
 
-  function arrow (key: string) {
-    const dir = table.sort.direction(key)
+  function arrow (id: string) {
+    const dir = table.sort.direction(id)
     if (dir === 'asc') return '↑'
     if (dir === 'desc') return '↓'
     return ''
@@ -70,13 +71,13 @@
         <thead>
           <tr class="border-b border-divider bg-surface-tint">
             <th
-              v-for="col in columns"
-              :key="col.key"
+              v-for="col in table.columns.values()"
+              :key="col.id"
               class="px-4 py-3 text-left font-medium cursor-pointer select-none hover:text-primary transition-colors"
-              @click="table.sort.toggle(col.key)"
+              @click="table.sort.toggle(col.id)"
             >
               {{ col.title }}
-              <span class="ml-1 text-xs opacity-50">{{ arrow(col.key) }}</span>
+              <span class="ml-1 text-xs opacity-50">{{ arrow(col.id) }}</span>
             </th>
           </tr>
         </thead>

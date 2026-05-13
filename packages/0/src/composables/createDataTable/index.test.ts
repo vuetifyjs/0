@@ -6,7 +6,7 @@ import { createDataTable, createDataTableContext, useDataTable, ServerDataTableA
 import { computed, inject, nextTick, provide, ref } from 'vue'
 
 // Types
-import type { DataTableColumn, DataTableOptions, DataTableTicketInput } from './index'
+import type { DataTableColumnTicketInput, DataTableOptions, DataTableTicketInput } from './index'
 
 vi.mock('vue', async () => {
   const actual = await vi.importActual('vue')
@@ -37,12 +37,12 @@ const users: User[] = [
   { id: 5, name: 'Eve', email: 'eve@test.com', department: 'Design', salary: 105_000, active: true },
 ]
 
-const columns: DataTableColumn<User>[] = [
-  { key: 'name', title: 'Name', sortable: true, filterable: true },
-  { key: 'email', title: 'Email', sortable: true, filterable: true },
-  { key: 'department', title: 'Dept', sortable: true },
-  { key: 'salary', title: 'Salary', sortable: true, sort: (a, b) => Number(a) - Number(b) },
-  { key: 'active', title: 'Status' },
+const columns: DataTableColumnTicketInput<User>[] = [
+  { id: 'name', title: 'Name', sortable: true, filterable: true },
+  { id: 'email', title: 'Email', sortable: true, filterable: true },
+  { id: 'department', title: 'Dept', sortable: true },
+  { id: 'salary', title: 'Salary', sortable: true, sort: (a, b) => Number(a) - Number(b) },
+  { id: 'active', title: 'Status' },
 ]
 
 function toInputs<T extends { id: number }> (rows: readonly T[]): DataTableTicketInput<T & Record<string, unknown>>[] {
@@ -50,10 +50,8 @@ function toInputs<T extends { id: number }> (rows: readonly T[]): DataTableTicke
 }
 
 function createTable (overrides: Partial<DataTableOptions<User>> = {}, rows: readonly User[] = users) {
-  const table = createDataTable<User>({
-    columns,
-    ...overrides,
-  })
+  const table = createDataTable<User>({ ...overrides })
+  table.columns.onboard(columns)
   table.onboard(toInputs(rows))
   return table
 }
@@ -61,7 +59,8 @@ function createTable (overrides: Partial<DataTableOptions<User>> = {}, rows: rea
 describe('createDataTable', () => {
   describe('registry', () => {
     it('should populate allItems from onboard', () => {
-      const table = createDataTable<User>({ columns })
+      const table = createDataTable<User>()
+      table.columns.onboard(columns)
       expect(table.allItems.value.length).toBe(0)
 
       table.onboard(toInputs(users))
@@ -71,7 +70,8 @@ describe('createDataTable', () => {
     })
 
     it('should add a single row via register', () => {
-      const table = createDataTable<User>({ columns })
+      const table = createDataTable<User>()
+      table.columns.onboard(columns)
       const ticket = table.register({ id: 1, value: users[0]! })
 
       expect(table.allItems.value.length).toBe(1)
@@ -97,6 +97,90 @@ describe('createDataTable', () => {
 
       expect(table.allItems.value.length).toBe(0)
       expect(table.size).toBe(0)
+    })
+  })
+
+  describe('columns', () => {
+    it('should add a column reactively via register', () => {
+      const table = createDataTable<User>()
+      expect(table.leaves.value).toHaveLength(0)
+      expect(table.headers.value).toHaveLength(0)
+
+      table.columns.register({ id: 'name', title: 'Name', sortable: true })
+
+      expect(table.leaves.value).toHaveLength(1)
+      expect(table.leaves.value[0]!.id).toBe('name')
+      expect(table.headers.value).toHaveLength(1)
+      expect(table.headers.value[0]).toHaveLength(1)
+      expect(table.headers.value[0]![0]!.id).toBe('name')
+    })
+
+    it('should drop a column from headers, leaves, and sort group via unregister', () => {
+      const table = createTable()
+      expect(table.leaves.value.map(c => c.id)).toContain('name')
+
+      table.sort.toggle('name')
+      expect(table.sort.direction('name')).toBe('asc')
+
+      table.columns.unregister('name')
+
+      expect(table.leaves.value.map(c => c.id)).not.toContain('name')
+      expect(table.headers.value[0]!.find(h => h.id === 'name')).toBeUndefined()
+      // toggle on the unregistered key is now a no-op
+      table.sort.toggle('name')
+      expect(table.sort.direction('name')).toBe('none')
+    })
+
+    it('should let a late-registered column participate in the sort pipeline', () => {
+      const table = createDataTable<User>()
+      table.onboard(toInputs(users))
+
+      // No columns yet → sort.toggle is a no-op
+      table.sort.toggle('name')
+      expect(table.sort.columns.value).toHaveLength(0)
+
+      table.columns.onboard([
+        { id: 'name', title: 'Name', sortable: true },
+        { id: 'email', title: 'Email' },
+      ])
+
+      table.sort.toggle('name')
+      expect(table.sort.direction('name')).toBe('asc')
+      const names = table.sortedItems.value.map(i => (i as User).name)
+      expect(names).toEqual(['Alice', 'Bob', 'Carol', 'Dan', 'Eve'])
+    })
+
+    it('should expose recursive children in headers and leaves', () => {
+      const table = createDataTable<User>()
+      table.columns.register({ id: 'name', title: 'Name' })
+      table.columns.register({
+        id: 'contact',
+        title: 'Contact',
+        children: [
+          { id: 'email', title: 'Email' },
+          { id: 'department', title: 'Dept' },
+        ],
+      })
+
+      expect(table.leaves.value.map(c => c.id)).toEqual(['name', 'email', 'department'])
+      expect(table.headers.value).toHaveLength(2)
+      // name spans both header rows; contact spans two leaf columns
+      const top = table.headers.value[0]!
+      expect(top.find(h => h.id === 'name')!.rowspan).toBe(2)
+      expect(top.find(h => h.id === 'contact')!.colspan).toBe(2)
+    })
+
+    it('should drop sort state when the sorted column is unregistered', () => {
+      const table = createTable({ sortMultiple: true })
+      table.sort.toggle('name')
+      table.sort.toggle('department')
+
+      expect(table.sort.columns.value.map(s => s.key)).toEqual(['name', 'department'])
+
+      table.columns.unregister('name')
+
+      expect(table.sort.columns.value.map(s => s.key)).toEqual(['department'])
+      expect(table.sort.direction('name')).toBe('none')
     })
   })
 
@@ -537,20 +621,20 @@ describe('createDataTable', () => {
       })
 
       it('should invoke custom column filter per column', () => {
-        const table = createTable({
-          columns: [
-            {
-              key: 'name',
-              title: 'Name',
-              filterable: true,
-              filter: (value, query) => String(value).toLowerCase().startsWith(query),
-            },
-            { key: 'email', title: 'Email' },
-            { key: 'department', title: 'Dept' },
-            { key: 'salary', title: 'Salary' },
-            { key: 'active', title: 'Status' },
-          ],
-        })
+        const table = createDataTable<User>()
+        table.columns.onboard([
+          {
+            id: 'name',
+            title: 'Name',
+            filterable: true,
+            filter: (value, query) => String(value).toLowerCase().startsWith(query),
+          },
+          { id: 'email', title: 'Email' },
+          { id: 'department', title: 'Dept' },
+          { id: 'salary', title: 'Salary' },
+          { id: 'active', title: 'Status' },
+        ])
+        table.onboard(toInputs(users))
 
         // Query is lowercased by adapter; custom filter receives ('Alice', 'al')
         table.search('Al')
@@ -657,7 +741,8 @@ describe('createDataTable', () => {
 
   describe('openAll with async items', () => {
     it('should auto-open groups when items arrive', async () => {
-      const table = createDataTable<User>({ columns, groupBy: 'department', openAll: true })
+      const table = createDataTable<User>({ groupBy: 'department', openAll: true })
+      table.columns.onboard(columns)
       expect(table.grouping.groups.value.length).toBe(0)
       table.onboard(toInputs(users))
       await nextTick()
@@ -667,7 +752,8 @@ describe('createDataTable', () => {
     })
 
     it('should ignore empty watcher updates before items arrive', async () => {
-      const table = createDataTable<User>({ columns, groupBy: 'department', openAll: true })
+      const table = createDataTable<User>({ groupBy: 'department', openAll: true })
+      table.columns.onboard(columns)
 
       // No rows yet — watcher should remain quiescent
       await nextTick()
@@ -721,26 +807,25 @@ describe('createDataTable', () => {
   describe('recursive columns', () => {
     it('should use leaf columns for the data pipeline', () => {
       type Row = { id: number, name: string, email: string, phone: string }
-      const table = createDataTable<Row>({
-        columns: [
-          { key: 'name', title: 'Name', sortable: true, filterable: true },
-          {
-            key: 'contact',
-            title: 'Contact',
-            children: [
-              { key: 'email', title: 'Email', filterable: true },
-              { key: 'phone', title: 'Phone' },
-            ],
-          },
-        ],
-      })
+      const table = createDataTable<Row>()
+      table.columns.onboard([
+        { id: 'name', title: 'Name', sortable: true, filterable: true },
+        {
+          id: 'contact',
+          title: 'Contact',
+          children: [
+            { id: 'email', title: 'Email', filterable: true },
+            { id: 'phone', title: 'Phone' },
+          ],
+        },
+      ])
       table.onboard([
         { id: 1, value: { id: 1, name: 'Alice', email: 'a@b.com', phone: '555' } },
         { id: 2, value: { id: 2, name: 'Bob', email: 'b@b.com', phone: '666' } },
       ])
 
-      expect(table.leaves).toHaveLength(3)
-      expect(table.leaves.map(c => c.key)).toEqual(['name', 'email', 'phone'])
+      expect(table.leaves.value).toHaveLength(3)
+      expect(table.leaves.value.map(c => c.id)).toEqual(['name', 'email', 'phone'])
 
       table.search('a@b')
       expect(table.items.value).toHaveLength(1)
@@ -748,19 +833,18 @@ describe('createDataTable', () => {
     })
 
     it('should expose resolved 2D headers', () => {
-      const table = createDataTable({
-        columns: [
-          { key: 'name', title: 'Name' },
-          {
-            key: 'contact',
-            title: 'Contact',
-            children: [
-              { key: 'email', title: 'Email' },
-              { key: 'phone', title: 'Phone' },
-            ],
-          },
-        ],
-      })
+      const table = createDataTable()
+      table.columns.onboard([
+        { id: 'name', title: 'Name' },
+        {
+          id: 'contact',
+          title: 'Contact',
+          children: [
+            { id: 'email', title: 'Email' },
+            { id: 'phone', title: 'Phone' },
+          ],
+        },
+      ])
 
       expect(table.headers.value).toHaveLength(2)
       expect(table.headers.value[0]).toHaveLength(2)
@@ -770,12 +854,11 @@ describe('createDataTable', () => {
     })
 
     it('should produce single header row for flat columns', () => {
-      const table = createDataTable({
-        columns: [
-          { key: 'name', title: 'Name' },
-          { key: 'email', title: 'Email' },
-        ],
-      })
+      const table = createDataTable()
+      table.columns.onboard([
+        { id: 'name', title: 'Name' },
+        { id: 'email', title: 'Email' },
+      ])
 
       expect(table.headers.value).toHaveLength(1)
       expect(table.headers.value[0]).toHaveLength(2)
@@ -799,8 +882,8 @@ describe('createDataTable', () => {
 
     it('should make columns accessible on context', () => {
       const table = createTable()
-      expect(table.columns.length).toBe(5)
-      expect(table.columns[0]!.key).toBe('name')
+      expect(table.columns.size).toBe(5)
+      expect(table.columns.values()[0]!.id).toBe('name')
     })
 
     it('should default loading to false', () => {
@@ -824,7 +907,8 @@ describe('createDataTable', () => {
 
   describe('grouping after user interaction', () => {
     it('should not reopen a group the user explicitly closed when new rows arrive', async () => {
-      const table = createDataTable<User>({ columns, groupBy: 'department', openAll: true })
+      const table = createDataTable<User>({ groupBy: 'department', openAll: true })
+      table.columns.onboard(columns)
       table.onboard(toInputs(users))
       await nextTick()
       expect(table.grouping.isOpen('Engineering')).toBe(true)
@@ -842,7 +926,8 @@ describe('createDataTable', () => {
     })
 
     it('should still auto-open new group keys that arrive after construction', async () => {
-      const table = createDataTable<User>({ columns, groupBy: 'department', openAll: true })
+      const table = createDataTable<User>({ groupBy: 'department', openAll: true })
+      table.columns.onboard(columns)
       table.onboard(toInputs(users.slice(0, 2)))
       await nextTick()
       expect(table.grouping.isOpen('Engineering')).toBe(true)
@@ -860,7 +945,8 @@ describe('createDataTable', () => {
 
   describe('selection with duplicate-value tickets', () => {
     it('should select every ticket via selectAll even when tickets share a row reference', () => {
-      const table = createDataTable<User>({ columns, selectStrategy: 'all' })
+      const table = createDataTable<User>({ selectStrategy: 'all' })
+      table.columns.onboard(columns)
       const shared = users[0]!
       table.register({ id: 1, value: shared })
       table.register({ id: 2, value: shared })
@@ -873,7 +959,8 @@ describe('createDataTable', () => {
     })
 
     it('should report isAllSelected only when every duplicate-value ticket is selected', () => {
-      const table = createDataTable<User>({ columns, selectStrategy: 'all' })
+      const table = createDataTable<User>({ selectStrategy: 'all' })
+      table.columns.onboard(columns)
       const shared = users[0]!
       table.register({ id: 1, value: shared })
       table.register({ id: 2, value: shared })
@@ -925,7 +1012,8 @@ describe('createDataTable', () => {
 
   describe('size reactivity', () => {
     it('should track registration changes when read from a computed', () => {
-      const table = createDataTable<User>({ columns })
+      const table = createDataTable<User>()
+      table.columns.onboard(columns)
       const tracked = computed(() => table.size)
 
       expect(tracked.value).toBe(0)
@@ -987,10 +1075,12 @@ describe('createDataTableContext', () => {
   })
 
   it('should return trinity tuple', () => {
-    const trinity = createDataTableContext<User>({ columns })
+    const trinity = createDataTableContext<User>()
+    const [, , ctx] = trinity
+    ctx.columns.onboard(columns)
 
     expect(trinity).toHaveLength(3)
-    const [use, prov, ctx] = trinity
+    const [use, prov] = trinity
     expect(typeof use).toBe('function')
     expect(typeof prov).toBe('function')
     expect(ctx).toBeDefined()
@@ -1001,7 +1091,8 @@ describe('createDataTableContext', () => {
   })
 
   it('should call Vue provide from provideDataTable', () => {
-    const [, provideDataTable, context] = createDataTableContext<User>({ columns })
+    const [, provideDataTable, context] = createDataTableContext<User>()
+    context.columns.onboard(columns)
 
     provideDataTable()
     expect(mockProvide).toHaveBeenCalledWith('v0:data-table', context)
@@ -1019,8 +1110,8 @@ describe('createDataTableContext', () => {
   it('should support custom namespace', () => {
     const [, provideDataTable, context] = createDataTableContext<User>({
       namespace: 'custom:table',
-      columns,
     })
+    context.columns.onboard(columns)
 
     provideDataTable()
     expect(mockProvide).toHaveBeenCalledWith('custom:table', context)

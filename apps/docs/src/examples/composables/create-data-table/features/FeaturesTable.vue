@@ -4,7 +4,6 @@
   import { employees } from './data'
 
   const table = createDataTable({
-    columns,
     groupBy: 'department',
     openAll: true,
     mandate: true,
@@ -14,10 +13,11 @@
     pagination: { itemsPerPage: 20 },
   })
 
+  table.columns.onboard(columns)
   table.onboard(employees.map(value => ({ id: value.id, value })))
 
-  function arrow (key: string) {
-    const dir = table.sort.direction(key)
+  function arrow (id: string) {
+    const dir = table.sort.direction(id)
     if (dir === 'asc') return '↑'
     if (dir === 'desc') return '↓'
     return ''
@@ -69,13 +69,13 @@
             </th>
 
             <th
-              v-for="col in columns"
-              :key="col.key"
+              v-for="col in table.columns.values()"
+              :key="col.id"
               class="px-4 py-3 text-left font-medium cursor-pointer select-none hover:text-primary transition-colors"
-              @click="table.sort.toggle(col.key)"
+              @click="table.sort.toggle(col.id)"
             >
               {{ col.title }}
-              <span class="ml-1 text-xs opacity-50">{{ arrow(col.key) }}</span>
+              <span class="ml-1 text-xs opacity-50">{{ arrow(col.id) }}</span>
             </th>
           </tr>
         </thead>
@@ -86,7 +86,7 @@
               class="bg-surface-tint cursor-pointer hover:bg-surface-variant transition-colors"
               @click="table.grouping.toggle(group.key)"
             >
-              <td class="px-4 py-2 font-medium" :colspan="columns.length + 1">
+              <td class="px-4 py-2 font-medium" :colspan="table.columns.size + 1">
                 <span class="mr-2 text-xs">{{ table.grouping.isOpen(group.key) ? '−' : '+' }}</span>
                 {{ group.key }}
                 <span class="ml-2 text-xs opacity-50">({{ group.items.length }})</span>
