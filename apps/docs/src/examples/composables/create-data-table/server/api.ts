@@ -23,7 +23,7 @@ export interface FetchResult {
  * Simulates a server API call with filtering, sorting, and pagination.
  * Returns only the current page of results after a short delay.
  */
-export function fetch (
+export function fetchPage (
   query: string,
   sorts: SortEntry[],
   page: number,

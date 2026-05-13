@@ -346,7 +346,7 @@ const table = createDataTable({
 
 ### Collection composables: no `items` option
 
-A composable that owns a collection of values exposes `register` / `onboard` / `unregister`. It never accepts an `items` option in its factory — row identity, order, and per-row state live in the registry. Followed by `createRegistry`, `createModel`, `createSelection`, `createSingle`, `createGroup`, `createStep`, `createNested`, `createSortable`, `createKanban`, `createQueue`, `createTimeline`, `createTokens`, and (after the recent refactor) `createDataTable` and `createDataGrid`. Full rule and migration shape: PHILOSOPHY §6.10.
+A composable that owns a collection of values exposes `register` / `onboard` / `unregister`. It never accepts an `items` option in its factory — row identity, order, and per-row state live in the registry. Followed by `createRegistry`, `createModel`, `createSelection`, `createSingle`, `createGroup`, `createStep`, `createNested`, `createSortable`, `createKanban`, `createQueue`, `createTimeline`, `createTokens`, and (after the recent refactor) `createDataTable`. Full rule and migration shape: PHILOSOPHY §6.10.
 
 ### `useProxyModel` and `useProxyRegistry` — cross-link
 

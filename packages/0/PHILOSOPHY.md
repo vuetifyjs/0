@@ -752,7 +752,7 @@ table.clear()
 
 Callers who want domain-stable identity pass `id` explicitly — same pattern as `createSortable`. Omit `id` and the registry auto-generates one via `useId()`. Consumers with a reactive items source watch it themselves and call `clear()` + `onboard()` (or maintain `register` / `unregister` incrementally); the composable does not auto-sync from an external ref.
 
-**Composables that follow this rule.** `createRegistry`, `createModel`, `createSelection`, `createSingle`, `createGroup`, `createStep`, `createNested`, `createSortable`, `createKanban`, `createQueue`, `createTimeline`, `createTokens`. `createDataTable` and `createDataGrid` predate the convention and have been brought in line — `items` and `itemValue` are gone; consumers `onboard` rows on the returned context. [intent:353]
+**Composables that follow this rule.** `createRegistry`, `createModel`, `createSelection`, `createSingle`, `createGroup`, `createStep`, `createNested`, `createSortable`, `createKanban`, `createQueue`, `createTimeline`, `createTokens`. `createDataTable` predated the convention and has been brought in line — `items` and `itemValue` are gone; consumers `onboard` rows on the returned context. The forthcoming `createDataGrid` will follow the same shape. [intent:353]
 
 ---
 

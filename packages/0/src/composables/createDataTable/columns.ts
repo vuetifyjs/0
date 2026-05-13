@@ -4,7 +4,7 @@
  * @remarks
  * Utilities for resolving recursive column definitions into flat leaf
  * columns and 2D header grids. Used by createDataTable for header
- * rendering and by createDataGrid for column layout.
+ * rendering.
  */
 
 export interface ColumnNode {

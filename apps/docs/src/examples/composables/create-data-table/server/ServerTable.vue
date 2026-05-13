@@ -1,7 +1,7 @@
 <script setup lang="ts">
   import { createDataTable, ServerDataTableAdapter } from '@vuetify/v0'
   import { shallowRef, watch } from 'vue'
-  import { fetch } from './api'
+  import { fetchPage } from './api'
   import { columns } from './columns'
 
   const total = shallowRef(0)
@@ -16,7 +16,7 @@
   async function load () {
     loading.value = true
 
-    const result = await fetch(
+    const result = await fetchPage(
       table.query.value,
       table.sort.columns.value,
       table.pagination.page.value,

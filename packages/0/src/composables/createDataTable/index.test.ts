@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createDataTable, createDataTableContext, useDataTable, ServerDataTableAdapter, VirtualDataTableAdapter } from './index'
 
 // Utilities
-import { inject, nextTick, provide, ref } from 'vue'
+import { computed, inject, nextTick, provide, ref } from 'vue'
 
 // Types
 import type { DataTableColumn, DataTableOptions, DataTableTicketInput } from './index'
@@ -819,6 +819,164 @@ describe('createDataTable', () => {
 
       table.search('alice')
       expect(table.total.value).toBe(1)
+    })
+  })
+
+  describe('grouping after user interaction', () => {
+    it('should not reopen a group the user explicitly closed when new rows arrive', async () => {
+      const table = createDataTable<User>({ columns, groupBy: 'department', openAll: true })
+      table.onboard(toInputs(users))
+      await nextTick()
+      expect(table.grouping.isOpen('Engineering')).toBe(true)
+
+      table.grouping.close('Engineering')
+      expect(table.grouping.isOpen('Engineering')).toBe(false)
+
+      table.register({
+        id: 99,
+        value: { id: 99, name: 'Frank', email: 'frank@test.com', department: 'Engineering', salary: 80_000, active: true },
+      })
+      await nextTick()
+
+      expect(table.grouping.isOpen('Engineering')).toBe(false)
+    })
+
+    it('should still auto-open new group keys that arrive after construction', async () => {
+      const table = createDataTable<User>({ columns, groupBy: 'department', openAll: true })
+      table.onboard(toInputs(users.slice(0, 2)))
+      await nextTick()
+      expect(table.grouping.isOpen('Engineering')).toBe(true)
+      expect(table.grouping.isOpen('Sales')).toBe(false)
+
+      table.register({
+        id: 99,
+        value: { id: 99, name: 'Frank', email: 'frank@test.com', department: 'Sales', salary: 80_000, active: true },
+      })
+      await nextTick()
+
+      expect(table.grouping.isOpen('Sales')).toBe(true)
+    })
+  })
+
+  describe('selection with duplicate-value tickets', () => {
+    it('should select every ticket via selectAll even when tickets share a row reference', () => {
+      const table = createDataTable<User>({ columns, selectStrategy: 'all' })
+      const shared = users[0]!
+      table.register({ id: 1, value: shared })
+      table.register({ id: 2, value: shared })
+
+      table.selection.selectAll()
+
+      expect(table.selection.selectedIds.size).toBe(2)
+      expect(table.selection.selectedIds.has(1)).toBe(true)
+      expect(table.selection.selectedIds.has(2)).toBe(true)
+    })
+
+    it('should report isAllSelected only when every duplicate-value ticket is selected', () => {
+      const table = createDataTable<User>({ columns, selectStrategy: 'all' })
+      const shared = users[0]!
+      table.register({ id: 1, value: shared })
+      table.register({ id: 2, value: shared })
+
+      table.selection.select(1)
+      expect(table.selection.isAllSelected.value).toBe(false)
+
+      table.selection.select(2)
+      expect(table.selection.isAllSelected.value).toBe(true)
+    })
+  })
+
+  describe('selection/expansion lifecycle', () => {
+    it('should prune selectedIds when a row is unregistered', () => {
+      const table = createTable()
+      table.selection.select(1)
+      table.selection.select(2)
+      expect(table.selection.selectedIds.size).toBe(2)
+
+      table.unregister(1)
+
+      expect(table.selection.selectedIds.has(1)).toBe(false)
+      expect(table.selection.selectedIds.has(2)).toBe(true)
+    })
+
+    it('should prune expandedIds when a row is unregistered', () => {
+      const table = createTable()
+      table.expansion.expand(1)
+      table.expansion.expand(2)
+      expect(table.expansion.expandedIds.size).toBe(2)
+
+      table.unregister(1)
+
+      expect(table.expansion.expandedIds.has(1)).toBe(false)
+      expect(table.expansion.expandedIds.has(2)).toBe(true)
+    })
+
+    it('should prune both selectedIds and expandedIds on clear()', () => {
+      const table = createTable()
+      table.selection.select(1)
+      table.expansion.expand(1)
+
+      table.clear()
+
+      expect(table.selection.selectedIds.size).toBe(0)
+      expect(table.expansion.expandedIds.size).toBe(0)
+    })
+  })
+
+  describe('size reactivity', () => {
+    it('should track registration changes when read from a computed', () => {
+      const table = createDataTable<User>({ columns })
+      const tracked = computed(() => table.size)
+
+      expect(tracked.value).toBe(0)
+
+      table.register({ id: 1, value: users[0]! })
+      expect(tracked.value).toBe(1)
+
+      table.onboard(toInputs(users.slice(1, 3)))
+      expect(tracked.value).toBe(3)
+
+      table.unregister(1)
+      expect(tracked.value).toBe(2)
+
+      table.clear()
+      expect(tracked.value).toBe(0)
+    })
+  })
+
+  describe('clear() + onboard() server pattern', () => {
+    it('should resync pipeline when caller swaps the data set while a sort is active', () => {
+      const table = createTable({}, users)
+      table.sort.toggle('name')
+      expect((table.sortedItems.value[0] as User).name).toBe('Alice')
+
+      table.clear()
+      expect(table.allItems.value.length).toBe(0)
+
+      const next: User[] = [
+        { id: 10, name: 'Zoe', email: 'zoe@t.com', department: 'Sales', salary: 90_000, active: true },
+        { id: 11, name: 'Mira', email: 'mira@t.com', department: 'Sales', salary: 80_000, active: true },
+      ]
+      table.onboard(toInputs(next))
+
+      expect(table.allItems.value.length).toBe(2)
+      expect((table.sortedItems.value[0] as User).name).toBe('Mira')
+      expect((table.sortedItems.value[1] as User).name).toBe('Zoe')
+    })
+
+    it('should keep filteredItems in sync after register/unregister while a search is active', () => {
+      const table = createTable()
+      table.search('alice')
+      expect(table.filteredItems.value.length).toBe(1)
+
+      table.register({
+        id: 99,
+        value: { id: 99, name: 'Alice Cooper', email: 'cooper@test.com', department: 'Sales', salary: 70_000, active: true },
+      })
+      expect(table.filteredItems.value.length).toBe(2)
+
+      table.unregister(99)
+      expect(table.filteredItems.value.length).toBe(1)
     })
   })
 })

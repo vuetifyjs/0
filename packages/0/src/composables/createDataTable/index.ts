@@ -496,21 +496,12 @@ export function createDataTable<T extends Record<string, unknown>> (
 
   const selectedIds = shallowReactive(new Set<ID>())
 
-  // Reverse lookup: row → ticket id. Uses the registry's catalog (O(1)) so
-  // selection/expansion can derive ids from items returned by the pipeline.
-  function rowId (item: T): ID {
-    const ids = registry.browse(item)
-    if (isNullOrUndefined(ids) || ids.length === 0) {
-      throw new Error('[v0:data-table] item is not registered')
-    }
-    return ids[0]!
-  }
-
   const selectableIds = computed(() => {
     if (!itemSelectable) return null
     const ids = new Set<ID>()
     for (const ticket of registry.values()) {
-      if (ticket.value[itemSelectable]) ids.add(ticket.id)
+      const value = ticket.value
+      if (!isNullOrUndefined(value) && (value as T)[itemSelectable]) ids.add(ticket.id)
     }
     return ids
   })
@@ -526,9 +517,22 @@ export function createDataTable<T extends Record<string, unknown>> (
     return selectStrategy === 'all' ? sortedItems.value : visible.value
   })
 
-  const selectableScope = computed(() => {
-    if (!itemSelectable) return scopeItems.value
-    return scopeItems.value.filter(item => !!item[itemSelectable])
+  // Tickets whose value is currently in the active scope. Iterating tickets
+  // directly preserves ticket-id uniqueness even when two tickets share the
+  // same row value reference — going through `browse(item)` collapses both
+  // onto the first matching id.
+  const scopedTickets = computed(() => {
+    const scope = scopeItems.value
+    if (scope.length === 0) return []
+    const set = new Set<T>(scope)
+    const result: DataTableTicket<T>[] = []
+    for (const ticket of registry.values()) {
+      const value = ticket.value
+      if (isNullOrUndefined(value) || !set.has(value as T)) continue
+      if (itemSelectable && !(value as T)[itemSelectable]) continue
+      result.push(ticket)
+    }
+    return result
   })
 
   const selection: DataTableSelection = {
@@ -553,8 +557,8 @@ export function createDataTable<T extends Record<string, unknown>> (
     },
     isSelectable,
     selectAll () {
-      for (const item of selectableScope.value) {
-        selectedIds.add(rowId(item))
+      for (const ticket of scopedTickets.value) {
+        selectedIds.add(ticket.id)
       }
     },
     unselectAll () {
@@ -563,27 +567,40 @@ export function createDataTable<T extends Record<string, unknown>> (
     toggleAll () {
       if (selectStrategy === 'single') return
       if (selection.isAllSelected.value) {
-        for (const item of selectableScope.value) {
-          selectedIds.delete(rowId(item))
+        for (const ticket of scopedTickets.value) {
+          selectedIds.delete(ticket.id)
         }
       } else {
         selection.selectAll()
       }
     },
     isAllSelected: computed(() => {
-      const items = selectableScope.value
-      if (items.length === 0) return false
-      return items.every(item => selectedIds.has(rowId(item)))
+      const tickets = scopedTickets.value
+      if (tickets.length === 0) return false
+      return tickets.every(ticket => selectedIds.has(ticket.id))
     }),
     isMixed: computed(() => {
-      const items = selectableScope.value
-      if (items.length === 0) return false
-      const some = items.some(item => selectedIds.has(rowId(item)))
+      const tickets = scopedTickets.value
+      if (tickets.length === 0) return false
+      const some = tickets.some(ticket => selectedIds.has(ticket.id))
       return some && !selection.isAllSelected.value
     }),
   }
 
   const expandedIds = shallowReactive(new Set<ID>())
+
+  // Visible-scoped tickets for expandAll — visible (paginated) only.
+  const visibleTickets = computed(() => {
+    const scope = visible.value
+    if (scope.length === 0) return []
+    const set = new Set<T>(scope)
+    const result: DataTableTicket<T>[] = []
+    for (const ticket of registry.values()) {
+      const value = ticket.value
+      if (!isNullOrUndefined(value) && set.has(value as T)) result.push(ticket)
+    }
+    return result
+  })
 
   const expansion: DataTableExpansion = {
     expandedIds: expandedIds as ReadonlySet<ID>,
@@ -606,14 +623,25 @@ export function createDataTable<T extends Record<string, unknown>> (
     },
     expandAll () {
       if (!expandMultiple) return
-      for (const item of visible.value) {
-        expandedIds.add(rowId(item))
+      for (const ticket of visibleTickets.value) {
+        expandedIds.add(ticket.id)
       }
     },
     collapseAll () {
       expandedIds.clear()
     },
   }
+
+  // Prune stale selection/expansion ids when their backing ticket disappears
+  // so consumers can never observe ghost state diverging from the registry.
+  registry.on('unregister:ticket', ticket => {
+    selectedIds.delete(ticket.id)
+    expandedIds.delete(ticket.id)
+  })
+  registry.on('clear:registry', () => {
+    selectedIds.clear()
+    expandedIds.clear()
+  })
 
   const opened = shallowReactive(new Set<string>())
 
@@ -642,16 +670,20 @@ export function createDataTable<T extends Record<string, unknown>> (
   })
 
   if (openAll) {
+    // Track which keys we've already auto-opened so the watcher only opens
+    // *new* groups, never reopening a group the user explicitly closed.
+    const autoOpened = new Set<string>()
+
     for (const group of groups.value) {
       opened.add(group.key)
+      autoOpened.add(group.key)
     }
 
-    // Rows may be registered after construction — watch for new groups and
-    // auto-open them as they appear. `flush: 'sync'` keeps openAll
-    // synchronous from the consumer's perspective.
     watch(groups, newGroups => {
       for (const group of newGroups) {
+        if (autoOpened.has(group.key)) continue
         opened.add(group.key)
+        autoOpened.add(group.key)
       }
     }, { flush: 'sync' })
   }

@@ -175,7 +175,7 @@ const table = createDataTable({
 
 async function load () {
   loading.value = true
-  const result = await fetch(/* query, sorts, page */)
+  const result = await fetchPage(/* query, sorts, page */)
   total.value = result.total
   table.clear()
   table.onboard(result.items.map(value => ({ id: value.id, value })))
