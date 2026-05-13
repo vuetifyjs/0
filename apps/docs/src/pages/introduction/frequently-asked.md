@@ -10,6 +10,7 @@ features:
   level: 1
 related:
   - /introduction/getting-started
+  - /introduction/security
   - /guide
 ---
 
@@ -85,4 +86,8 @@ See the [Contributing](/introduction/contributing) page for guidelines. The proj
 ??? Where can I get help?
 
 [GitHub Issues](https://github.com/vuetifyjs/0/issues) for bug reports and feature requests, or the [Vuetify Discord](https://community.vuetifyjs.com) community for real-time chat and questions.
+
+??? How does Vuetify0 handle security and dependencies?
+
+v0 is a client-side library that makes no network requests, does no dynamic code evaluation, and ships with prototype-pollution and CSS-injection protections. The published package has no lifecycle scripts, dependencies are gated by a pnpm cooldown window before they can be installed, and Vuetify-owned CI actions are pinned to commit SHAs. The full threat model, supply-chain hardening details, CSP guidance, and private vulnerability-reporting process live on the [Security Disclosure](/introduction/security) page.
 :::

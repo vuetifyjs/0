@@ -13,6 +13,7 @@ related:
   - /composables/plugins/use-theme
   - /composables/registration/create-tokens
   - /guide/features/accessibility
+  - /introduction/security
 ---
 
 # Theming
@@ -376,3 +377,7 @@ themes: {
   background: var(--v0-surface, #ffffff);
 }
 ```
+
+### 4. Content Security Policy
+
+The default `V0StyleSheetThemeAdapter` injects theme variables via the `adoptedStyleSheets` API and works without any CSP changes. SSR setups using `V0UnheadThemeAdapter` need `style-src 'nonce-<value>'` (or `'unsafe-inline'`). Theme names and color keys are validated against a safe identifier pattern, and dangerous values are rejected. See [Security — Content Security Policy](/introduction/security#content-security-policy-csp) for the full breakdown.

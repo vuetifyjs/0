@@ -10,6 +10,7 @@ features:
   level: 1
 related:
   - /introduction/getting-started
+  - /introduction/security
 ---
 
 # Contributing
@@ -45,6 +46,10 @@ For new features:
 - Check if it's already been requested in [issues](https://github.com/vuetifyjs/0/issues)
 - Explain the use case and why it would benefit others
 - Consider if it fits the headless/composable philosophy of Vuetify0
+
+### Security Vulnerabilities
+
+Do not file public issues for security problems. See [Security Disclosure](/introduction/security) for the private reporting process, our threat model, and supply-chain hardening practices.
 
 ## Local Development
 

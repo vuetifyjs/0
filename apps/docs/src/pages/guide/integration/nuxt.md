@@ -12,6 +12,7 @@ related:
   - /introduction/getting-started
   - /guide/features/theming
   - /composables/plugins/use-hydration
+  - /introduction/security
 ---
 
 # Nuxt
@@ -91,6 +92,9 @@ The hydration plugin:
 ### Theme SSR Integration
 
 The theme plugin automatically integrates with Nuxt's `@unhead/vue` to inject styles during SSR. No additional configuration required.
+
+> [!TIP]
+> Because the Unhead adapter writes to a `<style>` tag, apps with a strict Content Security Policy need `style-src 'nonce-<value>'` (or `'unsafe-inline'`). See [Security — Content Security Policy](/introduction/security#content-security-policy-csp) for the recommended nonce-based setup.
 
 ## Theme Persistence
 
