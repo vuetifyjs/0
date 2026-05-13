@@ -23,7 +23,15 @@ Composable data table built on v0 primitives. Composes sorting, filtering, pagin
 <DocsPageFeatures :frontmatter />
 
 > [!TIP]
-> Rows are registered through the registry surface, not passed as an `items` option. Call `table.onboard(rows.map(value => ({ id: value.id, value })))` after construction, or register rows one at a time with `table.register({ id, value })`. The ticket id IS the row identifier — selection, expansion, and grouping all key off it.
+> Rows are registered through the registry surface, not passed as an `items` option. Call `onboard` for bulk registration or `register` for one row at a time — the ticket id IS the row identifier, so selection, expansion, and grouping all key off it.
+>
+> ```ts
+> // Bulk
+> table.onboard(rows.map(value => ({ id: value.id, value })))
+>
+> // One at a time
+> table.register({ id, value })
+> ```
 
 ## Usage
 
