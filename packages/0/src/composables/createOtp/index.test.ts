@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { createOtp } from './index'
 
 // Utilities
-import { shallowRef } from 'vue'
+import { nextTick, shallowRef } from 'vue'
 
 vi.mock('vue', async () => {
   const actual = await vi.importActual('vue')
@@ -266,7 +266,7 @@ describe('createOtp', () => {
       const onComplete = vi.fn()
       const otp = setup({ length: 4, onComplete })
       otp.fill('1234')
-      await Promise.resolve()
+      await nextTick()
       expect(onComplete).toHaveBeenCalledTimes(1)
       expect(onComplete).toHaveBeenCalledWith('1234')
     })
@@ -275,17 +275,17 @@ describe('createOtp', () => {
       const onComplete = vi.fn()
       const otp = setup({ length: 4, onComplete })
       otp.fill('1234')
-      await Promise.resolve()
+      await nextTick()
       otp.clear()
       otp.fill('5678')
-      await Promise.resolve()
+      await nextTick()
       expect(onComplete).toHaveBeenCalledTimes(2)
     })
 
     it('should clear value and set error when sync onComplete returns false', async () => {
       const otp = setup({ length: 4, onComplete: () => false })
       otp.fill('1234')
-      await Promise.resolve()
+      await nextTick()
       expect(otp.value.value).toBe('')
       expect(otp.input.isValid.value).toBe(false)
       expect(otp.input.errors.value).toContain('v0.otp.rejected')
@@ -294,7 +294,7 @@ describe('createOtp', () => {
     it('should clear error state on the next mutation', async () => {
       const otp = setup({ length: 4, onComplete: () => false })
       otp.fill('1234')
-      await Promise.resolve()
+      await nextTick()
       expect(otp.input.errors.value).toContain('v0.otp.rejected')
       otp.put(0, '9')
       expect(otp.input.errors.value).not.toContain('v0.otp.rejected')
@@ -305,12 +305,12 @@ describe('createOtp', () => {
       const onComplete = vi.fn(() => allow)
       const otp = setup({ length: 4, onComplete })
       otp.fill('1234')
-      await Promise.resolve()
+      await nextTick()
       expect(onComplete).toHaveBeenCalledTimes(1)
       expect(otp.value.value).toBe('')
       allow = true
       otp.fill('1234')
-      await Promise.resolve()
+      await nextTick()
       expect(onComplete).toHaveBeenCalledTimes(2)
       expect(otp.value.value).toBe('1234')
     })
@@ -321,7 +321,7 @@ describe('createOtp', () => {
         throw new Error('boom')
       } })
       otp.fill('1234')
-      await Promise.resolve()
+      await nextTick()
       expect(otp.value.value).toBe('')
       expect(otp.input.errors.value).toContain('v0.otp.rejected')
       expect(spy).toHaveBeenCalledTimes(1)
@@ -332,7 +332,7 @@ describe('createOtp', () => {
     it('should leave the value intact when sync onComplete returns undefined', async () => {
       const otp = setup({ length: 4, onComplete: () => {} })
       otp.fill('1234')
-      await Promise.resolve()
+      await nextTick()
       expect(otp.value.value).toBe('1234')
       expect(otp.input.errors.value).toEqual([])
     })
@@ -341,11 +341,11 @@ describe('createOtp', () => {
       const onComplete = vi.fn(() => true)
       const otp = setup({ length: 4, onComplete })
       otp.fill('1234')
-      await Promise.resolve()
+      await nextTick()
       expect(onComplete).toHaveBeenCalledTimes(1)
       otp.clear()
       otp.fill('1234')
-      await Promise.resolve()
+      await nextTick()
       expect(onComplete).toHaveBeenCalledTimes(2)
     })
 
@@ -355,10 +355,11 @@ describe('createOtp', () => {
         throw null
       } })
       otp.fill('1234')
-      await Promise.resolve()
+      await nextTick()
       expect(otp.value.value).toBe('')
       expect(otp.input.errors.value).toContain('v0.otp.rejected')
       expect(spy).toHaveBeenCalledTimes(1)
+      expect(spy).toHaveBeenCalledWith(expect.stringContaining('onComplete threw'))
       spy.mockRestore()
     })
   })
@@ -373,12 +374,12 @@ describe('createOtp', () => {
         }),
       })
       otp.fill('1234')
-      await Promise.resolve()
+      await nextTick()
       otp.put(0, '9')
       expect(otp.value.value).toBe('1234')
       resolve(false)
-      await Promise.resolve()
-      await Promise.resolve()
+      await nextTick()
+      await nextTick()
       expect(otp.value.value).toBe('')
       expect(otp.input.errors.value).toContain('v0.otp.rejected')
     })
@@ -389,8 +390,8 @@ describe('createOtp', () => {
         onComplete: () => Promise.resolve(true),
       })
       otp.fill('1234')
-      await Promise.resolve()
-      await Promise.resolve()
+      await nextTick()
+      await nextTick()
       expect(otp.value.value).toBe('1234')
       expect(otp.input.errors.value).toEqual([])
     })
@@ -402,8 +403,8 @@ describe('createOtp', () => {
         onComplete: () => Promise.reject(new Error('network error')),
       })
       otp.fill('1234')
-      await Promise.resolve()
-      await Promise.resolve()
+      await nextTick()
+      await nextTick()
       expect(otp.value.value).toBe('')
       expect(otp.input.errors.value).toContain('v0.otp.rejected')
       expect(spy).toHaveBeenCalledTimes(1)
@@ -418,11 +419,12 @@ describe('createOtp', () => {
         onComplete: () => Promise.reject(null),
       })
       otp.fill('1234')
-      await Promise.resolve()
-      await Promise.resolve()
+      await nextTick()
+      await nextTick()
       expect(otp.value.value).toBe('')
       expect(otp.input.errors.value).toContain('v0.otp.rejected')
       expect(spy).toHaveBeenCalledTimes(1)
+      expect(spy).toHaveBeenCalledWith(expect.stringContaining('onComplete rejected'))
       spy.mockRestore()
     })
 
@@ -435,10 +437,49 @@ describe('createOtp', () => {
       }) as PromiseLike<boolean>)
       const otp = setup({ length: 4, onComplete })
       otp.fill('1234')
-      await Promise.resolve()
-      await Promise.resolve()
+      await nextTick()
+      await nextTick()
       expect(otp.value.value).toBe('1234')
       expect(otp.input.errors.value).toEqual([])
+    })
+
+    it('should reject when a non-native thenable resolves false', async () => {
+      const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      const onComplete = vi.fn(() => ({
+        // eslint-disable-next-line unicorn/no-thenable
+        then (onfulfilled?: ((v: boolean) => unknown) | null) {
+          onfulfilled?.(false)
+        },
+      }) as PromiseLike<boolean>)
+      const otp = setup({ length: 4, onComplete })
+      otp.fill('1234')
+      await nextTick()
+      await nextTick()
+      expect(otp.value.value).toBe('')
+      expect(otp.input.errors.value).toContain('v0.otp.rejected')
+      spy.mockRestore()
+    })
+
+    it('should unblock mutations after async onComplete resolves true', async () => {
+      let resolve!: (ok: boolean) => void
+      const otp = setup({
+        length: 4,
+        onComplete: () => new Promise<boolean>(r => {
+          resolve = r
+        }),
+      })
+      otp.fill('1234')
+      await nextTick()
+      // During pending, mutations no-op
+      otp.put(0, '9')
+      expect(otp.value.value).toBe('1234')
+      // Accept the completion
+      resolve(true)
+      await nextTick()
+      await nextTick()
+      // Now mutations should work again
+      otp.put(0, '9')
+      expect(otp.value.value).toBe('9234')
     })
   })
 
@@ -458,6 +499,16 @@ describe('createOtp', () => {
       otp.fill('1234')
       expect(otp.value.value).toBe('1234')
       otp.input.reset()
+      expect(otp.value.value).toBe('')
+    })
+
+    it('should clear the rejection error when input.reset() is called', async () => {
+      const otp = setup({ length: 4, onComplete: () => false })
+      otp.fill('1234')
+      await nextTick()
+      expect(otp.input.errors.value).toContain('v0.otp.rejected')
+      otp.input.reset()
+      expect(otp.input.errors.value).not.toContain('v0.otp.rejected')
       expect(otp.value.value).toBe('')
     })
   })

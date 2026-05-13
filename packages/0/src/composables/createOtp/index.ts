@@ -297,10 +297,18 @@ export function createOtp (options: OtpOptions = {}): OtpContext {
     if (result === false) reject()
   })
 
+  const inputContext: InputContext<string> = {
+    ...input,
+    reset () {
+      clearRejection()
+      input.reset()
+    },
+  }
+
   return {
     value,
     length: lengthRef,
-    input,
+    input: inputContext,
     isComplete,
     put,
     distribute,
