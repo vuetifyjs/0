@@ -34,7 +34,7 @@ import { createInput } from '#v0/composables/createInput'
 import { useLogger } from '#v0/composables/useLogger'
 
 // Utilities
-import { clamp, isString } from '#v0/utilities'
+import { clamp, isString, isThenable } from '#v0/utilities'
 import { shallowRef, toRef, toValue, watch } from 'vue'
 
 // Types
@@ -53,6 +53,19 @@ import type { MaybeRefOrGetter, Ref } from 'vue'
  */
 export type OtpPattern = 'numeric' | 'alphanumeric' | 'alphabetic' | RegExp
 
+/* @__PURE__ */
+const PRESETS: Record<Exclude<OtpPattern, RegExp>, RegExp> = {
+  numeric: /^[0-9]$/,
+  alphanumeric: /^[a-zA-Z0-9]$/,
+  alphabetic: /^[a-zA-Z]$/,
+}
+
+function extractMessage (error: unknown): string {
+  if (error instanceof Error) return error.message
+  if (isString(error)) return error
+  return String(error)
+}
+
 /**
  * Options accepted by `createOtp`.
  *
@@ -69,7 +82,7 @@ export type OtpPattern = 'numeric' | 'alphanumeric' | 'alphabetic' | RegExp
  * })
  * ```
  */
-export interface OtpOptions extends Omit<InputOptions<string>, 'value'> {
+export interface OtpOptions extends Omit<InputOptions<string>, 'value' | 'error' | 'errorMessages'> {
   /** Number of characters. @default 6 */
   length?: MaybeRefOrGetter<number>
   /** Joined value source. @default shallowRef('') */
@@ -80,15 +93,11 @@ export interface OtpOptions extends Omit<InputOptions<string>, 'value'> {
    * @default 'numeric'
    */
   pattern?: MaybeRefOrGetter<OtpPattern>
-  /** Disabled state — mutation helpers no-op. @default false */
-  disabled?: MaybeRefOrGetter<boolean>
-  /** Readonly state — mutation helpers no-op. @default false */
-  readonly?: MaybeRefOrGetter<boolean>
   /**
    * Fire when the joined value first reaches `length`. Decisional —
    * return / resolve `false` to reject (clears value, sets error).
    */
-  onComplete?: (value: string) => boolean | void | Promise<boolean | void>
+  onComplete?: (value: string) => boolean | void | PromiseLike<boolean | void>
 }
 
 /**
@@ -144,12 +153,6 @@ export function createOtp (options: OtpOptions = {}): OtpContext {
 
   const lengthRef = toRef(() => toValue(length))
 
-  const PRESETS: Record<Exclude<OtpPattern, RegExp>, RegExp> = {
-    numeric: /^[0-9]$/,
-    alphanumeric: /^[a-zA-Z0-9]$/,
-    alphabetic: /^[a-zA-Z]$/,
-  }
-
   const warned = new WeakSet<RegExp>()
 
   function compile (resolved: OtpPattern): RegExp {
@@ -193,15 +196,16 @@ export function createOtp (options: OtpOptions = {}): OtpContext {
 
   function put (index: number, char: string): void {
     if (isLocked()) return
-    clearRejection()
     const max = toValue(lengthRef)
     if (index < 0 || index >= max) return
     if (char === '') {
+      clearRejection()
       value.value = value.value.slice(0, index)
       return
     }
     const first = char[0]
     if (!accepts(first)) return
+    clearRejection()
     const current = value.value
     const head = current.slice(0, index)
     const tail = current.slice(index + 1)
@@ -210,11 +214,11 @@ export function createOtp (options: OtpOptions = {}): OtpContext {
 
   function distribute (text: string, index = 0): number {
     if (isLocked()) return 0
-    clearRejection()
     const max = toValue(lengthRef)
     const start = clamp(index, 0, max)
     const filtered = filterAccepted(text)
     if (filtered.length === 0) return 0
+    clearRejection()
     const head = value.value.slice(0, start)
     const next = (head + filtered).slice(0, max)
     value.value = next
@@ -224,6 +228,7 @@ export function createOtp (options: OtpOptions = {}): OtpContext {
   function clear (): void {
     if (isLocked()) return
     clearRejection()
+    lastCompleted = ''
     value.value = ''
   }
 
@@ -258,8 +263,11 @@ export function createOtp (options: OtpOptions = {}): OtpContext {
   })
 
   watch(value, next => {
+    if (!isComplete.value) {
+      lastCompleted = ''
+      return
+    }
     if (!onComplete) return
-    if (!isComplete.value) return
     if (isLocked()) return
     if (next === lastCompleted) return
     lastCompleted = next
@@ -267,11 +275,11 @@ export function createOtp (options: OtpOptions = {}): OtpContext {
     try {
       result = onComplete(next)
     } catch (error) {
-      logger.warn(`createOtp: onComplete threw — ${(error as Error).message}`)
+      logger.warn(`createOtp: onComplete threw — ${extractMessage(error)}`)
       reject()
       return
     }
-    if (result instanceof Promise) {
+    if (isThenable(result)) {
       isPending.value = true
       result.then(
         ok => {
@@ -280,7 +288,7 @@ export function createOtp (options: OtpOptions = {}): OtpContext {
         },
         error => {
           isPending.value = false
-          logger.warn(`createOtp: onComplete rejected — ${(error as Error).message}`)
+          logger.warn(`createOtp: onComplete rejected — ${extractMessage(error)}`)
           reject()
         },
       )

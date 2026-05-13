@@ -88,6 +88,12 @@ describe('createOtp', () => {
       expect(spy).toHaveBeenCalledWith(expect.stringContaining('multi-character'))
       spy.mockRestore()
     })
+
+    it('should reject multi-character input', () => {
+      const otp = setup()
+      expect(otp.accepts('12')).toBe(false)
+      expect(otp.accepts('ab')).toBe(false)
+    })
   })
 
   describe('put', () => {
@@ -168,6 +174,21 @@ describe('createOtp', () => {
       expect(count).toBe(0)
       expect(otp.value.value).toBe('')
     })
+
+    it('should clamp a negative index to 0', () => {
+      const otp = setup({ length: 4 })
+      const count = otp.distribute('12', -5)
+      expect(count).toBe(2)
+      expect(otp.value.value).toBe('12')
+    })
+
+    it('should return 0 when distributing at index equal to length', () => {
+      const otp = setup({ length: 4 })
+      otp.fill('1234')
+      const count = otp.distribute('5', 4)
+      expect(count).toBe(0)
+      expect(otp.value.value).toBe('1234')
+    })
   })
 
   describe('clear', () => {
@@ -203,6 +224,17 @@ describe('createOtp', () => {
       expect(otp.isComplete.value).toBe(true)
       otp.put(3, '')
       expect(otp.isComplete.value).toBe(false)
+    })
+
+    it('should update when reactive length changes', () => {
+      const length = shallowRef(6)
+      const otp = setup({ length })
+      otp.fill('123456')
+      expect(otp.isComplete.value).toBe(true)
+      length.value = 8
+      expect(otp.isComplete.value).toBe(false)
+      otp.fill('12345678')
+      expect(otp.isComplete.value).toBe(true)
     })
   })
 
@@ -296,6 +328,39 @@ describe('createOtp', () => {
       expect(spy).toHaveBeenCalledWith(expect.stringContaining('onComplete threw'))
       spy.mockRestore()
     })
+
+    it('should leave the value intact when sync onComplete returns undefined', async () => {
+      const otp = setup({ length: 4, onComplete: () => {} })
+      otp.fill('1234')
+      await Promise.resolve()
+      expect(otp.value.value).toBe('1234')
+      expect(otp.input.errors.value).toEqual([])
+    })
+
+    it('should fire onComplete again after clear and re-entry of the same accepted value', async () => {
+      const onComplete = vi.fn(() => true)
+      const otp = setup({ length: 4, onComplete })
+      otp.fill('1234')
+      await Promise.resolve()
+      expect(onComplete).toHaveBeenCalledTimes(1)
+      otp.clear()
+      otp.fill('1234')
+      await Promise.resolve()
+      expect(onComplete).toHaveBeenCalledTimes(2)
+    })
+
+    it('should handle onComplete throwing a non-Error value without crashing', async () => {
+      const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      const otp = setup({ length: 4, onComplete: () => {
+        throw null
+      } })
+      otp.fill('1234')
+      await Promise.resolve()
+      expect(otp.value.value).toBe('')
+      expect(otp.input.errors.value).toContain('v0.otp.rejected')
+      expect(spy).toHaveBeenCalledTimes(1)
+      spy.mockRestore()
+    })
   })
 
   describe('onComplete (async)', () => {
@@ -344,6 +409,55 @@ describe('createOtp', () => {
       expect(spy).toHaveBeenCalledTimes(1)
       expect(spy).toHaveBeenCalledWith(expect.stringContaining('onComplete rejected'))
       spy.mockRestore()
+    })
+
+    it('should handle a rejected promise with a non-Error value without crashing', async () => {
+      const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      const otp = setup({
+        length: 4,
+        onComplete: () => Promise.reject(null),
+      })
+      otp.fill('1234')
+      await Promise.resolve()
+      await Promise.resolve()
+      expect(otp.value.value).toBe('')
+      expect(otp.input.errors.value).toContain('v0.otp.rejected')
+      expect(spy).toHaveBeenCalledTimes(1)
+      spy.mockRestore()
+    })
+
+    it('should accept a thenable that is not a native Promise', async () => {
+      const onComplete = vi.fn(() => ({
+        then (onfulfilled?: ((v: boolean) => unknown) | null) {
+          onfulfilled?.(true)
+        },
+      }) as PromiseLike<boolean>)
+      const otp = setup({ length: 4, onComplete })
+      otp.fill('1234')
+      await Promise.resolve()
+      await Promise.resolve()
+      expect(otp.value.value).toBe('1234')
+      expect(otp.input.errors.value).toEqual([])
+    })
+  })
+
+  describe('input passthrough', () => {
+    it('should apply rules to the joined value through createInput', async () => {
+      const otp = setup({
+        length: 4,
+        rules: [(v: unknown) => v === '1234' || 'Invalid code'],
+      })
+      otp.fill('5678')
+      await otp.input.validate()
+      expect(otp.input.errors.value).toContain('Invalid code')
+    })
+
+    it('should reset the OTP value via input.reset()', () => {
+      const otp = setup({ length: 4 })
+      otp.fill('1234')
+      expect(otp.value.value).toBe('1234')
+      otp.input.reset()
+      expect(otp.value.value).toBe('')
     })
   })
 })
