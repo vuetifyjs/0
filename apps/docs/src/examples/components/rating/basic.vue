@@ -7,7 +7,7 @@
 
 <template>
   <div class="flex flex-col items-center gap-4">
-    <Rating.Root v-slot="{ attrs }" v-model="rating" class="flex gap-1 focus:outline-none">
+    <Rating.Root v-slot="{ attrs }" v-model="rating" class="flex gap-1 focus:outline-none" renderless>
       <div v-bind="attrs" class="flex gap-0.5">
         <Rating.Item
           v-for="i in 5"
