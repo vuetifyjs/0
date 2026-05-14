@@ -60,6 +60,9 @@ const PRESETS: Record<Exclude<OtpPattern, RegExp>, RegExp> = {
   alphabetic: /^[a-zA-Z]$/,
 }
 
+/* @__PURE__ */
+const warned = new WeakSet<RegExp>()
+
 function extractMessage (error: unknown): string {
   if (error instanceof Error) return error.message
   if (isString(error)) return error
@@ -115,8 +118,22 @@ export interface OtpOptions extends Omit<InputOptions<string>, 'value' | 'error'
  * ```
  */
 export interface OtpContext {
-  value: Ref<string>
+  /**
+   * The joined OTP string. Use the mutation helpers (`put`, `distribute`,
+   * `fill`, `clear`) to update. Writing through this ref directly is
+   * intentionally prevented to preserve pattern, length, and lock invariants.
+   */
+  value: Readonly<Ref<string>>
   length: Readonly<Ref<number>>
+  /**
+   * The underlying `createInput` context — exposes ARIA IDs, validation
+   * state, focus/touched, and the `validate` / `reset` methods.
+   *
+   * Note: `input.value` aliases `OtpContext.value`. Both expose the same
+   * underlying ref; consumers may write through either but should prefer the
+   * mutation helpers (`put`, `distribute`, `fill`, `clear`) to maintain
+   * pattern, length, and lock invariants.
+   */
   input: InputContext<string>
   isComplete: Readonly<Ref<boolean>>
   put: (index: number, char: string) => void
@@ -153,7 +170,10 @@ export function createOtp (options: OtpOptions = {}): OtpContext {
 
   const lengthRef = toRef(() => toValue(length))
 
-  const warned = new WeakSet<RegExp>()
+  // Track the last value that triggered onComplete to detect repeated completion edges.
+  // Watching isComplete directly misses cycles where value clears then refills within
+  // the same flush tick (old === new === true, Vue skips the callback).
+  let lastCompleted = ''
 
   function compile (resolved: OtpPattern): RegExp {
     if (isString(resolved)) return PRESETS[resolved]
@@ -234,15 +254,14 @@ export function createOtp (options: OtpOptions = {}): OtpContext {
 
   function fill (text: string): void {
     if (isLocked()) return
-    clearRejection()
     const max = toValue(lengthRef)
-    value.value = filterAccepted(text).slice(0, max)
+    const filtered = filterAccepted(text).slice(0, max)
+    // Clear rejection on deliberate empty (fill('')) or any accepted input.
+    // Skip clearing if user provided non-empty input that was entirely rejected
+    // — preserves the rejection signal until the user enters a valid character.
+    if (text.length === 0 || filtered.length > 0) clearRejection()
+    value.value = filtered
   }
-
-  // Track the last value that triggered onComplete to detect repeated completion edges.
-  // Watching isComplete directly misses cycles where value clears then refills within
-  // the same flush tick (old === new === true, Vue skips the callback).
-  let lastCompleted = ''
 
   function reject (): void {
     errorRef.value = true
@@ -301,6 +320,7 @@ export function createOtp (options: OtpOptions = {}): OtpContext {
     ...input,
     reset () {
       clearRejection()
+      lastCompleted = ''
       input.reset()
     },
   }

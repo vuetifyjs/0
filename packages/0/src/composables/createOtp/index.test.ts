@@ -236,6 +236,16 @@ describe('createOtp', () => {
       otp.fill('12345678')
       expect(otp.isComplete.value).toBe(true)
     })
+
+    it('should drop isComplete to false when pattern change invalidates existing characters', async () => {
+      const mode = shallowRef<'numeric' | 'alphabetic'>('numeric')
+      const otp = setup({ length: 4, pattern: () => mode.value })
+      otp.fill('1234')
+      expect(otp.isComplete.value).toBe(true)
+      mode.value = 'alphabetic'
+      await nextTick()
+      expect(otp.isComplete.value).toBe(false)
+    })
   })
 
   describe('disabled / readonly gating', () => {
@@ -362,6 +372,42 @@ describe('createOtp', () => {
       expect(spy).toHaveBeenCalledWith(expect.stringContaining('onComplete threw'))
       spy.mockRestore()
     })
+
+    it('should preserve rejection error when fill receives only rejected characters', async () => {
+      const otp = setup({ length: 4, onComplete: () => false })
+      otp.fill('1234')
+      await nextTick()
+      expect(otp.input.errors.value).toContain('v0.otp.rejected')
+      otp.fill('----')
+      expect(otp.input.errors.value).toContain('v0.otp.rejected')
+      expect(otp.value.value).toBe('')
+    })
+
+    it('should clear rejection error when fill receives empty input', async () => {
+      const otp = setup({ length: 4, onComplete: () => false })
+      otp.fill('1234')
+      await nextTick()
+      expect(otp.input.errors.value).toContain('v0.otp.rejected')
+      otp.fill('')
+      expect(otp.input.errors.value).not.toContain('v0.otp.rejected')
+      expect(otp.value.value).toBe('')
+    })
+
+    it('should not fire onComplete when reactive length decrease makes value complete', async () => {
+      const length = shallowRef(4)
+      const onComplete = vi.fn(() => true)
+      const otp = setup({ length, onComplete })
+      otp.fill('12')
+      await nextTick()
+      expect(onComplete).not.toHaveBeenCalled()
+      length.value = 2
+      await nextTick()
+      // The watcher is on `value`, not on `isComplete` — length-driven completion
+      // does not trigger onComplete. Consumers driving length reactively must watch
+      // isComplete themselves if they need to react to length-induced completion.
+      expect(onComplete).not.toHaveBeenCalled()
+      expect(otp.isComplete.value).toBe(true)
+    })
   })
 
   describe('onComplete (async)', () => {
@@ -481,6 +527,38 @@ describe('createOtp', () => {
       otp.put(0, '9')
       expect(otp.value.value).toBe('9234')
     })
+
+    it('should no-op clear() while async onComplete is pending', async () => {
+      let resolve!: (ok: boolean) => void
+      const otp = setup({
+        length: 4,
+        onComplete: () => new Promise<boolean>(r => {
+          resolve = r
+        }),
+      })
+      otp.fill('1234')
+      await nextTick()
+      otp.clear()
+      expect(otp.value.value).toBe('1234')
+      resolve(true)
+      await nextTick()
+      await nextTick()
+      // Unlocked after accept; clear works now
+      otp.clear()
+      expect(otp.value.value).toBe('')
+    })
+
+    it('should leave value intact when async onComplete resolves undefined (void)', async () => {
+      const otp = setup({
+        length: 4,
+        onComplete: async () => { /* void */ },
+      })
+      otp.fill('1234')
+      await nextTick()
+      await nextTick()
+      expect(otp.value.value).toBe('1234')
+      expect(otp.input.errors.value).toEqual([])
+    })
   })
 
   describe('input passthrough', () => {
@@ -510,6 +588,18 @@ describe('createOtp', () => {
       otp.input.reset()
       expect(otp.input.errors.value).not.toContain('v0.otp.rejected')
       expect(otp.value.value).toBe('')
+    })
+
+    it('should fire onComplete again after input.reset() and same-value re-entry', async () => {
+      const onComplete = vi.fn(() => true)
+      const otp = setup({ length: 4, onComplete })
+      otp.fill('1234')
+      await nextTick()
+      expect(onComplete).toHaveBeenCalledTimes(1)
+      otp.input.reset()
+      otp.fill('1234')
+      await nextTick()
+      expect(onComplete).toHaveBeenCalledTimes(2)
     })
   })
 })
