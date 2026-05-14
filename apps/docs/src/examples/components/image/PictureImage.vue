@@ -32,7 +32,6 @@
       >
         <img
           v-bind="attrs"
-          :alt="attrs.alt"
           class="w-full h-full object-cover"
         >
       </Image.Img>

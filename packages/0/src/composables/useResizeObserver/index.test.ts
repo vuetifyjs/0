@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest'
 
+import { useElementSize, useResizeObserver } from './index'
+
 // Utilities
 import { nextTick, readonly, ref, type Ref, shallowRef } from 'vue'
-
-import { useElementSize, useResizeObserver } from './index'
 
 const mockIsHydrated = ref(false)
 vi.mock('#v0/composables/useHydration', () => ({
@@ -525,7 +525,7 @@ describe('useResizeObserver SSR', () => {
     expect(() => stop()).not.toThrow()
   })
 
-  it('useElementSize should return zero dimensions during SSR', async () => {
+  it('should return zero dimensions from useElementSize during SSR', async () => {
     vi.doMock('#v0/constants/globals', () => ({
       SUPPORTS_OBSERVER: false,
     }))

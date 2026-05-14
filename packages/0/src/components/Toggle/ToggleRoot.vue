@@ -55,10 +55,12 @@
     attrs: {
       'type': 'button' | undefined
       'aria-pressed': boolean
-      'aria-disabled': boolean | undefined
+      'aria-disabled': boolean
       'tabindex': 0 | undefined
       'data-state': 'on' | 'off'
       'data-disabled': true | undefined
+      'onClick': () => void
+      'onKeydown': (e: KeyboardEvent) => void
     }
   }
 
@@ -66,7 +68,7 @@
 </script>
 
 <script setup lang="ts" generic="V = unknown">
-  // Components
+  // Context
   import { useToggleGroup } from './ToggleGroup.vue'
 
   // Utilities
@@ -117,7 +119,7 @@
   })
 
   // Dual mode: register with group's selection composable
-  const ticket = group?.selection.register({ id, value, disabled })
+  const ticket = group?.selection.register({ id, value, disabled: () => toValue(disabled) ?? false })
 
   const isPressed = toRef(() => ticket
     ? toValue(ticket.isSelected)
@@ -170,10 +172,12 @@
     attrs: {
       'type': as === 'button' ? 'button' : undefined,
       'aria-pressed': isPressed.value,
-      'aria-disabled': isDisabled.value || undefined,
+      'aria-disabled': isDisabled.value,
       'tabindex': isDisabled.value ? undefined : 0,
       'data-state': isPressed.value ? 'on' : 'off',
       'data-disabled': isDisabled.value ? true : undefined,
+      'onClick': onClick,
+      'onKeydown': onKeydown,
     },
   }))
 </script>
@@ -183,8 +187,6 @@
     v-bind="mergeProps(attrs, slotProps.attrs)"
     :as
     :renderless
-    @click="onClick"
-    @keydown="onKeydown"
   >
     <slot v-bind="slotProps" />
   </Atom>

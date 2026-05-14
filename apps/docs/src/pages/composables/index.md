@@ -195,9 +195,11 @@ Composables consume existing context or wrap browser APIs. They're called inside
 
 | Pattern | Example | When to Use |
 | - | - | - |
-| Plugin consumers | `useTheme`, `useLocale`, `useStorage` | Reading app-level plugin state (requires plugin installation) |
+| Plugin consumers | `useTheme`, `useLocale`, `useStorage` | Reading app-level plugin state[^plugin-install] |
 | Browser wrappers | `useEventListener`, `useResizeObserver` | Safe, lifecycle-managed browser API access |
 | Behavior composables | `useHotkey`, `useClickOutside` | Adding interactive behavior to elements |
+
+[^plugin-install]: Requires the corresponding plugin installed at app level — e.g. `app.use(createThemePlugin())` for `useTheme`. See each plugin composable's page for the exact factory.
 
 ## Foundation
 
@@ -263,6 +265,8 @@ Browser API wrappers with automatic lifecycle cleanup.
 | Name | Description |
 | - | - |
 | [useClickOutside](/composables/system/use-click-outside) | Detect clicks outside an element |
+| [useDelay](/composables/system/use-delay) | Schedule open and close transitions with configurable delays |
+| [useDragDrop](/composables/system/use-drag-drop) | Headless drag-and-drop with two registries and pluggable pointer / keyboard adapters |
 | [useEventListener](/composables/system/use-event-listener) | Handle DOM events with automatic cleanup |
 | [useHotkey](/composables/system/use-hotkey) | Handle hotkey combinations and sequences |
 | [useImage](/composables/system/use-image) | Image loading state machine with deferred loading and retry |
@@ -307,7 +311,9 @@ Composables for filtering, sorting, paginating, and virtualizing collections.
 | - | - |
 | [createDataTable](/composables/data/create-data-table) | Composable data table with sort, filter, paginate, select, and expand |
 | [createFilter](/composables/data/create-filter) | Filter arrays based on search queries |
+| [createKanban](/composables/data/create-kanban) | Two-level sortable orchestrator (columns + items) |
 | [createPagination](/composables/data/create-pagination) | Pagination state with navigation methods |
+| [createSortable](/composables/data/create-sortable) | Ordered-list state with `move` / `swap` / `reorder` and a `disabled` mutation gate |
 | [createVirtual](/composables/data/create-virtual) | Virtual scrolling for large lists |
 
 ## Semantic

@@ -1,6 +1,6 @@
 <script setup lang="ts">
   import { createOverflow } from '@vuetify/v0'
-  import { shallowRef, useTemplateRef } from 'vue'
+  import { useTemplateRef } from 'vue'
 
   const tags = [
     'TypeScript', 'Vue', 'React', 'Svelte', 'Angular',
@@ -15,7 +15,6 @@
     reserved: 60,
   })
 
-  const width = shallowRef(100)
   const visible = tags.length
 
   function onRef (index: number, el: Element | null) {
@@ -25,26 +24,9 @@
 
 <template>
   <div class="space-y-4">
-    <!-- Width slider -->
-    <div>
-      <label class="block text-xs font-medium text-on-surface-variant mb-1">
-        Container width: {{ width }}%
-      </label>
-
-      <input
-        v-model.number="width"
-        class="w-full accent-primary"
-        max="100"
-        min="20"
-        type="range"
-      >
-    </div>
-
-    <!-- Container -->
     <div
       ref="container"
       class="flex items-center gap-2 overflow-hidden border border-divider rounded-lg p-3 transition-all"
-      :style="{ width: `${width}%` }"
     >
       <span
         v-for="(tag, index) in tags.slice(0, overflow.capacity.value)"
@@ -63,7 +45,6 @@
       </span>
     </div>
 
-    <!-- State -->
     <div class="border border-divider rounded-lg p-3 bg-surface-variant/30 text-xs space-y-1">
       <p>
         <span class="text-on-surface-variant">capacity: </span>

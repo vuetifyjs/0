@@ -55,9 +55,9 @@
 
   const nested = createNested({
     disabled: toRef(() => disabled),
-    enroll,
-    mandatory,
-    multiple,
+    enroll: toRef(() => enroll),
+    mandatory: toRef(() => mandatory),
+    multiple: toRef(() => multiple),
     open,
     openAll,
     reveal,

@@ -38,12 +38,12 @@ const element = toElement(el) // HTMLDivElement | undefined
 
 ```mermaid "Element Resolution"
 flowchart LR
-  input[MaybeElementRef] --> type{input type?}
-  type -- function --> call["call()"]
+  input[MaybeElementRef] --> type{"input type?"}
+  type -- function --> invoke["call()"]
   type -- "{ value }" --> unwrap[".value"]
-  type -- Element --> pass[pass-through]
-  type -- "null/undefined" --> undef[undefined]
-  call --> resolve{is Element?}
+  type -- Element --> pass["pass-through"]
+  type -- "null/undefined" --> undef["undefined"]
+  invoke --> resolve{"is Element?"}
   unwrap --> resolve
   pass --> resolve
   resolve -- yes --> output[Element]

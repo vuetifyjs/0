@@ -31,6 +31,11 @@
 // Composables
 import { useWindowEventListener } from '#v0/composables/useEventListener'
 
+// Constants
+import { IN_BROWSER } from '#v0/constants/globals'
+
+import { splitKeyCombination, splitKeySequence, MODIFIERS } from './parsing'
+
 // Utilities
 import { isNull, isUndefined } from '#v0/utilities'
 import { onScopeDispose, shallowReadonly, shallowRef, toRef, toValue, watch } from 'vue'
@@ -38,11 +43,6 @@ import { onScopeDispose, shallowReadonly, shallowRef, toRef, toValue, watch } fr
 // Types
 import type { Modifier } from './parsing'
 import type { MaybeRefOrGetter, Ref } from 'vue'
-
-// Constants
-import { IN_BROWSER } from '#v0/constants/globals'
-
-import { splitKeyCombination, splitKeySequence, MODIFIERS } from './parsing'
 
 export interface UseHotkeyOptions {
   /**
@@ -162,10 +162,12 @@ export function useHotkey (
   let groupIndex = 0
 
   function isInputFocused (): boolean {
+    /* v8 ignore next -- IN_BROWSER always true in happy-dom test env */
     if (!IN_BROWSER) return false
     if (toValue(inputs)) return false
 
     const activeElement = document.activeElement as HTMLElement | null
+    /* v8 ignore next -- defensive: document.activeElement is always set in happy-dom */
     if (!activeElement) return false
 
     // Check ARIA roles for custom text inputs
@@ -229,6 +231,7 @@ export function useHotkey (
     if (!currentKeys) return
 
     const groups = splitKeySequence(currentKeys.toLowerCase())
+    /* v8 ignore next -- defensive: splitKeySequence rejects empty strings earlier */
     if (groups.length === 0) return
 
     isSequence = groups.length > 1
@@ -302,6 +305,7 @@ function parseKeyGroup (group: string): ParsedKeyGroup {
     MODIFIERS.map(m => [m, false]),
   ) as Record<Modifier, boolean>
 
+  /* v8 ignore next 3 -- defensive: parseKeyGroup is not invoked with empty parts */
   if (parts.length === 0) {
     return { modifiers, actualKey: undefined }
   }

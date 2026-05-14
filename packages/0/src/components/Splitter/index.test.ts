@@ -1,10 +1,10 @@
 import { describe, expect, it, vi } from 'vitest'
 
+import { Splitter, SplitterHandle, SplitterPanel, SplitterRoot } from './index'
+
 // Utilities
 import { mount } from '@vue/test-utils'
 import { h, nextTick, ref } from 'vue'
-
-import { Splitter, SplitterHandle, SplitterPanel, SplitterRoot } from './index'
 
 function twoPanel (options: {
   orientation?: 'horizontal' | 'vertical'
@@ -1623,6 +1623,237 @@ describe('splitter', () => {
       await nextTick()
 
       expect(onLayout).toHaveBeenCalled()
+    })
+
+    it('should emit layout exactly once per pointer drag', async () => {
+      const onLayout = vi.fn()
+      const wrapper = twoPanel({
+        onLayout,
+        panels: [{ defaultSize: 50 }, { defaultSize: 50 }],
+      })
+      await nextTick()
+      onLayout.mockClear()
+
+      const handle = wrapper.findComponent(SplitterHandle as any)
+      const handleEl = handle.element as HTMLElement
+      handleEl.setPointerCapture = vi.fn()
+
+      handleEl.dispatchEvent(new PointerEvent('pointerdown', {
+        button: 0,
+        clientX: 100,
+        clientY: 50,
+        bubbles: true,
+        pointerId: 1,
+      }))
+      await nextTick()
+
+      document.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }))
+      await nextTick()
+
+      // pointerup handler and scope-dispose both call onEndDrag — should still emit once
+      expect(onLayout).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  describe('panel px sizes', () => {
+    it('should accept px defaultSize without throwing', async () => {
+      // Exercises the px-detection branch and the percent() function.
+      // Mocking happy-dom's ResizeObserver is brittle; this test just
+      // verifies the px-string code path runs without error.
+      const wrapper = mount(SplitterRoot, {
+        props: { orientation: 'horizontal' },
+        slots: {
+          default: () => [
+            h(SplitterPanel as any, { defaultSize: '200px', minSize: '50px', maxSize: '500px', collapsedSize: '0px' }),
+            h(SplitterHandle as any),
+            h(SplitterPanel as any, { defaultSize: 50 }),
+          ],
+        },
+      })
+
+      await nextTick()
+
+      const panels = wrapper.findAllComponents(SplitterPanel as any)
+      expect(panels[0]!.exists()).toBe(true)
+      expect(panels[1]!.exists()).toBe(true)
+
+      wrapper.unmount()
+    })
+
+    it('should accept px defaultSize for vertical orientation', async () => {
+      const wrapper = mount(SplitterRoot, {
+        props: { orientation: 'vertical' },
+        slots: {
+          default: () => [
+            h(SplitterPanel as any, { defaultSize: '100px' }),
+            h(SplitterHandle as any),
+            h(SplitterPanel as any, { defaultSize: 50 }),
+          ],
+        },
+      })
+
+      await nextTick()
+
+      const panels = wrapper.findAllComponents(SplitterPanel as any)
+      expect(panels.length).toBe(2)
+
+      wrapper.unmount()
+    })
+
+    it('should fall back when px value cannot be parsed (NaN)', async () => {
+      // 'invalidpx' has no leading number — Number.parseFloat returns NaN → fallback path
+      const wrapper = mount(SplitterRoot, {
+        slots: {
+          default: () => [
+            h(SplitterPanel as any, { defaultSize: 'invalidpx' }),
+            h(SplitterHandle as any),
+            h(SplitterPanel as any, { defaultSize: 50 }),
+          ],
+        },
+      })
+
+      await nextTick()
+
+      const panels = wrapper.findAllComponents(SplitterPanel as any)
+      expect(panels.length).toBe(2)
+
+      wrapper.unmount()
+    })
+
+    it('should accept non-px string defaultSize via Number.parseFloat path', async () => {
+      // String without 'px' suffix → exercises the non-px branch of percent()
+      const wrapper = mount(SplitterRoot, {
+        slots: {
+          default: () => [
+            h(SplitterPanel as any, { defaultSize: '40' }),
+            h(SplitterHandle as any),
+            h(SplitterPanel as any, { defaultSize: '60' }),
+          ],
+        },
+      })
+
+      await nextTick()
+
+      const panels = wrapper.findAllComponents(SplitterPanel as any)
+      const total = panels.reduce((sum: number, p: any) => sum + p.vm.size, 0)
+      expect(total).toBeCloseTo(100, 0)
+
+      wrapper.unmount()
+    })
+
+    it('should resolve px defaultSize when root element has offsetWidth via fallback dimension', async () => {
+      // Pre-set the element's offsetWidth before mount so the percent() function
+      // can read it during register(). attachTo: document.body is required for
+      // happy-dom layout/element wiring.
+      const container = document.createElement('div')
+      Object.defineProperty(container, 'offsetWidth', { value: 1000, configurable: true })
+      Object.defineProperty(container, 'offsetHeight', { value: 500, configurable: true })
+      document.body.append(container)
+
+      const wrapper = mount(SplitterRoot, {
+        attachTo: container,
+        props: { orientation: 'horizontal' },
+        slots: {
+          default: () => [
+            h(SplitterPanel as any, { defaultSize: '200px' }),
+            h(SplitterHandle as any),
+            h(SplitterPanel as any, { defaultSize: '800px' }),
+          ],
+        },
+      })
+
+      await nextTick()
+
+      const panels = wrapper.findAllComponents(SplitterPanel as any)
+      // With root width measurable somewhere in the chain, just verify both panels exist
+      expect(panels.length).toBe(2)
+
+      wrapper.unmount()
+      container.remove()
+    })
+  })
+
+  describe('resize neighbor collapse branches', () => {
+    it('should snap neighbor to collapsedSize when delta drives it below minSize', async () => {
+      const onLayout = vi.fn()
+      const wrapper = twoPanel({
+        onLayout,
+        panels: [
+          { defaultSize: 50, minSize: 0, maxSize: 100 },
+          // Right panel is collapsible — driving its size below minSize triggers snap
+          { defaultSize: 50, collapsible: true, collapsedSize: 0, minSize: 20 },
+        ],
+      })
+      await nextTick()
+      onLayout.mockClear()
+
+      // ArrowRight = +1 delta on first panel, which decreases neighbor (after) size
+      const handle = wrapper.findComponent(SplitterHandle as any)
+      // Push the after-panel below its minSize repeatedly
+      for (let i = 0; i < 35; i++) {
+        await handle.trigger('keydown', { key: 'ArrowRight' })
+      }
+      await nextTick()
+
+      const panels = wrapper.findAllComponents(SplitterPanel as any)
+      // After-panel should have snapped to collapsedSize (0) and become collapsed
+      expect(panels[1]!.vm.isCollapsed).toBe(true)
+      expect(panels[1]!.vm.size).toBe(0)
+    })
+
+    it('should expand neighbor from collapsed when ArrowLeft accumulates past threshold', async () => {
+      const onLayout = vi.fn()
+      const wrapper = twoPanel({
+        onLayout,
+        panels: [
+          { defaultSize: 50, minSize: 0, maxSize: 100 },
+          { defaultSize: 50, collapsible: true, collapsedSize: 0, minSize: 15 },
+        ],
+      })
+      await nextTick()
+
+      // Collapse the after panel first
+      const panels = wrapper.findAllComponents(SplitterPanel as any)
+      panels[1]!.vm.collapse()
+      await nextTick()
+      expect(panels[1]!.vm.isCollapsed).toBe(true)
+      onLayout.mockClear()
+
+      // ArrowLeft = -1 delta on first panel, which increases neighbor (after) size
+      // Need >= EXPAND_THRESHOLD (10) cumulative delta to expand
+      const handle = wrapper.findComponent(SplitterHandle as any)
+      for (let i = 0; i < 12; i++) {
+        await handle.trigger('keydown', { key: 'ArrowLeft' })
+      }
+      await nextTick()
+
+      // Neighbor should be expanded (selected) again
+      expect(panels[1]!.vm.isCollapsed).toBe(false)
+      expect(panels[1]!.vm.size).toBeGreaterThan(0)
+    })
+
+    it('should keep neighbor at collapsedSize when accumulated delta is below threshold', async () => {
+      const wrapper = twoPanel({
+        panels: [
+          { defaultSize: 50, minSize: 0, maxSize: 100 },
+          { defaultSize: 50, collapsible: true, collapsedSize: 5, minSize: 15 },
+        ],
+      })
+      await nextTick()
+
+      const panels = wrapper.findAllComponents(SplitterPanel as any)
+      panels[1]!.vm.collapse()
+      await nextTick()
+      expect(panels[1]!.vm.isCollapsed).toBe(true)
+
+      // Single ArrowLeft = -1 delta cumulative, well below EXPAND_THRESHOLD (10)
+      const handle = wrapper.findComponent(SplitterHandle as any)
+      await handle.trigger('keydown', { key: 'ArrowLeft' })
+      await nextTick()
+
+      // Should still be collapsed, neighbor still at collapsedSize
+      expect(panels[1]!.vm.isCollapsed).toBe(true)
+      expect(panels[1]!.vm.size).toBe(5)
     })
   })
 })

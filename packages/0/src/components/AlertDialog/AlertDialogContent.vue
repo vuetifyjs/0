@@ -57,6 +57,7 @@
 <script setup lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
+
   // Context
   import { useAlertDialogContext } from './AlertDialogRoot.vue'
 
@@ -105,7 +106,8 @@
 
   watch(context.isOpen, isOpen => {
     const element = contentRef.value?.element as HTMLDialogElement | undefined
-    if (!element) return /* v8 ignore -- defensive guard */
+    /* v8 ignore next -- defensive guard, element is always present after mount */
+    if (!element) return
 
     if (isOpen) {
       element.showModal?.()

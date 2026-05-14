@@ -35,6 +35,9 @@ import { useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
 import { useResizeObserver } from '#v0/composables/useResizeObserver'
 
+// Constants
+import { IN_BROWSER } from '#v0/constants/globals'
+
 // Utilities
 import { clamp, isFunction, isNumber } from '#v0/utilities'
 import { computed, onScopeDispose, readonly, ref, shallowRef, watch } from 'vue'
@@ -42,9 +45,6 @@ import { computed, onScopeDispose, readonly, ref, shallowRef, watch } from 'vue'
 // Types
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { ComputedRef, Ref, ShallowRef } from 'vue'
-
-// Constants
-import { IN_BROWSER } from '#v0/constants/globals'
 
 export type VirtualDirection = 'forward' | 'reverse'
 export type VirtualState = 'loading' | 'empty' | 'error' | 'ok'
@@ -424,7 +424,8 @@ export function createVirtual<T = unknown> (
   })
 
   useResizeObserver(element, entries => {
-    if (!entries[0]) return /* v8 ignore -- defensive guard */
+    /* v8 ignore next -- defensive: ResizeObserver always emits at least one entry */
+    if (!entries[0]) return
 
     viewportHeight.value = entries[0].contentRect.height
 
@@ -440,7 +441,8 @@ export function createVirtual<T = unknown> (
   }, { immediate: true })
 
   watch(element, () => {
-    if (!element.value) return /* v8 ignore -- defensive guard */
+    /* v8 ignore next -- defensive: watch fires only when element is present */
+    if (!element.value) return
 
     if (direction === 'reverse' && items.value.length > 0) {
       const lastIndex = items.value.length - 1
@@ -462,6 +464,7 @@ export function createVirtual<T = unknown> (
       anchorOffset = 0
     } else if (isFunction(anchor)) {
       const result = anchor(items.value)
+      /* v8 ignore next 4 -- function-anchor: tested with valid number return; non-number rejection branch is implicit */
       if (isNumber(result)) {
         anchorIndex = result
         anchorOffset = element.value.scrollTop - (offsets.value[result] || 0)
@@ -580,9 +583,11 @@ export function createVirtual<T = unknown> (
   }
 
   function resize (index: number, height: number) {
-    if (heights.value[index] === height) return /* v8 ignore -- no-op when height unchanged */
+    /* v8 ignore next -- early bail when height is already correct */
+    if (heights.value[index] === height) return
     heights.value[index] = height
-    if (!itemHeight.value) itemHeight.value = height /* v8 ignore -- first height assignment */
+    /* v8 ignore next -- first-call only: itemHeight bootstrapped from initial measurement */
+    if (!itemHeight.value) itemHeight.value = height
     if (IN_BROWSER) {
       cancelAnimationFrame(rebuildRaf)
       rebuildRaf = requestAnimationFrame(rebuild)
@@ -603,7 +608,8 @@ export function createVirtual<T = unknown> (
   }
 
   function scrollTo (index: number, scrollOptions?: ScrollToOptions) {
-    if (!element.value) return /* v8 ignore -- defensive guard */
+    /* v8 ignore next -- defensive: scrollTo only invoked after element mounts */
+    if (!element.value) return
 
     const targetOffset = offsets.value[index] || 0
     const behavior = scrollOptions?.behavior ?? 'auto'

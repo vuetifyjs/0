@@ -36,7 +36,10 @@ export function useScrollPersist (): void {
   })
 
   function getScrollKey () {
-    return history.state?.key ?? router.currentRoute.value.fullPath
+    // Exclude hash so saves keyed by path match what scrollBehavior reads;
+    // useToc rewrites the URL hash via replaceState, so currentRoute.fullPath
+    // alone wouldn't be reliable.
+    return history.state?.key ?? router.currentRoute.value.path
   }
 
   function savePosition () {

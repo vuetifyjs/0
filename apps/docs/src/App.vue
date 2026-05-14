@@ -1,6 +1,5 @@
 <script setup lang="ts">
-  import { InferSeoMetaPlugin } from '@unhead/addons'
-  import { injectHead, useHead } from '@unhead/vue'
+  import { useHead } from '@unhead/vue'
 
   // Framework
   import { IN_BROWSER, Scrim, useBreakpoints, useStack } from '@vuetify/v0'
@@ -18,12 +17,12 @@
   import { useSearch } from '@/composables/useSearch'
   import { useSettings } from '@/composables/useSettings'
 
+  // Stores
+  import { useAppStore } from '@/stores/app'
+
   // Utilities
   import { defineAsyncComponent, toRef, watch } from 'vue'
   import { useRoute } from 'vue-router'
-
-  // Stores
-  import { useAppStore } from '@/stores/app'
 
   const AppSettingsSheet = defineAsyncComponent(() => import('@/components/app/AppSettingsSheet.vue'))
   const DocsSearch = defineAsyncComponent(() => import('@/components/docs/DocsSearch.vue'))
@@ -64,10 +63,6 @@
     if (ask.isOpen.value && !breakpoints.lgAndUp.value) return true
     return false
   })
-
-  // Head / SEO scaffolding (unchanged)
-  const head = injectHead()
-  head.use(InferSeoMetaPlugin())
 
   const url = toRef(() => `https://0.vuetifyjs.com${route.path}`)
   const breadcrumbs = useBreadcrumbItems()
@@ -162,11 +157,11 @@
       <div :inert="isModalOpen || undefined">
         <router-view />
       </div>
+
+      <Scrim class="fixed inset-0 bg-black/30 transition-opacity" :teleport="false" />
     </div>
 
     <DocsSearch />
-
-    <Scrim class="fixed inset-0 bg-black/30 transition-opacity" :teleport="false" />
 
     <Transition :name="slideTransition">
       <AppSettingsSheet v-if="settings.isOpen.value" />
@@ -178,6 +173,10 @@
 </template>
 
 <style>
+  html {
+    scroll-padding-top: calc(48px + var(--app-banner-h, 0px) + 0.5rem);
+  }
+
   /* Scrollbar styling */
   ::-webkit-scrollbar-track {
     background: var(--v0-background);
@@ -259,7 +258,6 @@
 
     h1, h2, h3, h4, h5, h6 {
       position: relative;
-      scroll-margin-top: 5rem;
 
       > .header-anchor {
         color: inherit;
@@ -400,6 +398,60 @@
     }
   }
 
+  /* Markdown footnotes (markdown-it-footnote) */
+  .footnote-ref {
+    font-size: 0.75em;
+    line-height: 0;
+    margin-left: 0.125rem;
+  }
+
+  .footnote-ref a,
+  .footnote-ref a.v0-link {
+    color: var(--v0-primary);
+    text-decoration: none;
+  }
+
+  .footnote-ref a:hover {
+    text-decoration: underline;
+  }
+
+  .footnotes-sep {
+    margin-top: 3rem;
+    border: none;
+    border-top: 1px solid var(--v0-divider);
+  }
+
+  .footnotes {
+    margin-top: 1rem;
+    font-size: 0.875rem;
+    color: var(--v0-on-surface-variant);
+  }
+
+  .footnotes-list {
+    list-style: decimal;
+    padding-left: 1.5rem;
+  }
+
+  .footnotes-list li {
+    margin-bottom: 0.25rem;
+  }
+
+  .footnotes-list li :is(p, ul, ol) {
+    margin: 0;
+  }
+
+  .footnote-backref,
+  .footnote-backref.v0-link {
+    margin-left: 0.25rem;
+    color: var(--v0-primary);
+    text-decoration: none;
+    font-size: 0.875em;
+  }
+
+  .footnote-backref:hover {
+    text-decoration: underline;
+  }
+
   /* DocsMarkup code block styling */
   .docs-markup .shiki {
     padding-top: 2rem;
@@ -423,7 +475,6 @@
   /* DocsExample code block styling */
   .docs-example-code .shiki {
     border: none;
-    border-top: thin solid var(--v0-divider);
     border-radius: 0;
     margin-bottom: 0;
   }

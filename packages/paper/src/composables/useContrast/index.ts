@@ -12,7 +12,7 @@ function getLuminance (r: number, g: number, b: number): number {
 }
 
 function parseRgba (color: string): { r: number, g: number, b: number } | null {
-  const match = color.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+),\s*\d*\.?\d*\)$/)
+  const match = color.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*\d+(?:\.\d+)?)?\)$/)
   if (match && match[1] && match[2] && match[3]) {
     return {
       r: Number.parseInt(match[1], 10),

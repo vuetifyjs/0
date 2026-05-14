@@ -11,7 +11,7 @@ vi.mock('#v0/constants/globals', () => ({
 }))
 
 // Adapters
-import { Vuetify0DateAdapter } from './adapters/v0'
+import { V0DateAdapter } from './adapters/v0'
 
 import { createDate, createDatePlugin, useDate } from './index'
 
@@ -24,28 +24,28 @@ describe('useDate SSR', () => {
 
   describe('createDate in SSR', () => {
     it('should resolve locale from options', () => {
-      const adapter = new Vuetify0DateAdapter('en-US')
+      const adapter = new V0DateAdapter('en-US')
       const ctx = createDate({ adapter, locale: 'de-DE' })
 
       expect(ctx.locale.value).toBe('de-DE')
     })
 
     it('should fall back to adapter locale', () => {
-      const adapter = new Vuetify0DateAdapter('fr-FR')
+      const adapter = new V0DateAdapter('fr-FR')
       const ctx = createDate({ adapter })
 
       expect(ctx.locale.value).toBe('fr-FR')
     })
 
     it('should map short locale codes to full Intl strings', () => {
-      const adapter = new Vuetify0DateAdapter('en-US')
+      const adapter = new V0DateAdapter('en-US')
       const ctx = createDate({ adapter, locale: 'ja' })
 
       expect(ctx.locale.value).toBe('ja-JP')
     })
 
     it('should sync adapter locale on creation', () => {
-      const adapter = new Vuetify0DateAdapter('en-US')
+      const adapter = new V0DateAdapter('en-US')
       createDate({ adapter, locale: 'es-ES' })
 
       expect(adapter.locale).toBe('es-ES')
@@ -54,7 +54,7 @@ describe('useDate SSR', () => {
 
   describe('createDatePlugin in SSR', () => {
     it('should create a valid Vue plugin', () => {
-      const adapter = new Vuetify0DateAdapter('en-US')
+      const adapter = new V0DateAdapter('en-US')
       const plugin = createDatePlugin({ adapter })
 
       expect(plugin).toBeDefined()
@@ -62,7 +62,7 @@ describe('useDate SSR', () => {
     })
 
     it('should install on a mock app', () => {
-      const adapter = new Vuetify0DateAdapter('en-US')
+      const adapter = new V0DateAdapter('en-US')
       const plugin = createDatePlugin({ adapter })
       const mockApp = {
         provide: vi.fn(),
@@ -75,9 +75,9 @@ describe('useDate SSR', () => {
     })
   })
 
-  describe('vuetify0DateAdapter in SSR mode', () => {
+  describe('v0DateAdapter in SSR mode', () => {
     it('should return epoch when date() called without arguments', () => {
-      const adapter = new Vuetify0DateAdapter('en-US')
+      const adapter = new V0DateAdapter('en-US')
       const date = adapter.date()
 
       expect(date).not.toBeNull()
@@ -90,7 +90,7 @@ describe('useDate SSR', () => {
     })
 
     it('should return epoch for null input', () => {
-      const adapter = new Vuetify0DateAdapter('en-US')
+      const adapter = new V0DateAdapter('en-US')
       const date = adapter.date(null)
 
       expect(date).not.toBeNull()
@@ -98,7 +98,7 @@ describe('useDate SSR', () => {
     })
 
     it('should return epoch for undefined input', () => {
-      const adapter = new Vuetify0DateAdapter('en-US')
+      const adapter = new V0DateAdapter('en-US')
       const date = adapter.date(undefined)
 
       expect(date).not.toBeNull()
@@ -106,7 +106,7 @@ describe('useDate SSR', () => {
     })
 
     it('should still parse explicit date values correctly', () => {
-      const adapter = new Vuetify0DateAdapter('en-US')
+      const adapter = new V0DateAdapter('en-US')
 
       const fromString = adapter.date('2024-06-15T10:30:00')
       expect(fromString).not.toBeNull()
@@ -119,7 +119,7 @@ describe('useDate SSR', () => {
     })
 
     it('should format dates correctly in SSR', () => {
-      const adapter = new Vuetify0DateAdapter('en-US')
+      const adapter = new V0DateAdapter('en-US')
       const date = adapter.date('2024-06-15T10:30:00')!
 
       const formatted = adapter.format(date, 'year')
@@ -127,7 +127,7 @@ describe('useDate SSR', () => {
     })
 
     it('should perform date arithmetic in SSR', () => {
-      const adapter = new Vuetify0DateAdapter('en-US')
+      const adapter = new V0DateAdapter('en-US')
       const date = adapter.date('2024-06-15T10:30:00')!
 
       const nextDay = adapter.addDays(date, 1)
@@ -135,7 +135,7 @@ describe('useDate SSR', () => {
     })
 
     it('should calculate week numbers in SSR', () => {
-      const adapter = new Vuetify0DateAdapter('en-US')
+      const adapter = new V0DateAdapter('en-US')
       const date = adapter.date('2024-06-15T00:00:00')!
 
       expect(adapter.getWeek(date)).toBe(24)

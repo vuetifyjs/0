@@ -1,8 +1,8 @@
 <script setup lang="ts">
-  import { createStorageContext, MemoryAdapter, useStorage } from '@vuetify/v0'
+  import { createStorageContext, MemoryStorageAdapter, useStorage } from '@vuetify/v0'
 
   const [, provideStorage] = createStorageContext({
-    adapter: new MemoryAdapter(),
+    adapter: new MemoryStorageAdapter(),
     prefix: 'demo:',
   })
 

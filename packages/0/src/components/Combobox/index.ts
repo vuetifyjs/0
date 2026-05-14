@@ -19,7 +19,7 @@ export type { ComboboxItemProps, ComboboxItemSlotProps } from './ComboboxItem.vu
 export type { ComboboxContext } from '#v0/composables/createCombobox'
 export type { ComboboxRootProps, ComboboxRootSlotProps } from './ComboboxRoot.vue'
 
-// Components
+// Context
 import Activator from './ComboboxActivator.vue'
 import Content from './ComboboxContent.vue'
 import Control from './ComboboxControl.vue'

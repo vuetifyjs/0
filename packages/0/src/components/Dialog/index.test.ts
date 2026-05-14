@@ -1,14 +1,14 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { renderToString } from 'vue/server-renderer'
 
 // Composables
 import { createStackPlugin } from '#v0/composables/useStack'
 
+import { Dialog } from './index'
+
 // Utilities
 import { mount } from '@vue/test-utils'
 import { createSSRApp, defineComponent, h, nextTick, ref } from 'vue'
-
-import { Dialog } from './index'
 
 // Create fresh stack plugin for each test to avoid "Ticket already exists" warnings
 let stackPlugin: ReturnType<typeof createStackPlugin>
@@ -20,18 +20,31 @@ beforeEach(() => {
   stackPlugin = createStackPlugin()
 })
 
+// Track wrappers so afterEach can unmount each one — Dialog tests that mount
+// to document.body need teardown to drop the registered Stack tickets and
+// any Scrim/click-outside listeners attached during open state.
+const wrappers: { unmount: () => void }[] = []
+
+afterEach(() => {
+  while (wrappers.length > 0) {
+    wrappers.pop()!.unmount()
+  }
+})
+
 // Helper to mount with stack plugin
 function mountWithStack<T extends Parameters<typeof mount>[0]> (
   component: T,
   options: Parameters<typeof mount<T>>[1] = {},
 ) {
-  return mount(component, {
+  const wrapper = mount(component, {
     ...options,
     global: {
       ...options?.global,
       plugins: [...(options?.global?.plugins ?? []), stackPlugin],
     },
   })
+  wrappers.push(wrapper)
+  return wrapper
 }
 
 describe('dialog', () => {
@@ -132,12 +145,12 @@ describe('dialog', () => {
       it('should provide context with custom namespace', () => {
         const wrapper = mountWithStack(Dialog.Root, {
           props: {
-            namespace: 'custom-dialog',
+            namespace: 'v0:custom-dialog',
           },
           slots: {
             default: () => [
-              h(Dialog.Activator, { namespace: 'custom-dialog' }, () => 'Open'),
-              h(Dialog.Content, { namespace: 'custom-dialog' }, () => 'Content'),
+              h(Dialog.Activator, { namespace: 'v0:custom-dialog' }, () => 'Open'),
+              h(Dialog.Content, { namespace: 'v0:custom-dialog' }, () => 'Content'),
             ],
           },
         })
@@ -596,6 +609,19 @@ describe('dialog', () => {
         const close = wrapper.findComponent(Dialog.Close as any)
         expect(close.attributes('type')).toBe('button')
       })
+
+      it('should omit type attribute when as is non-button element', () => {
+        const wrapper = mountWithStack(Dialog.Root, {
+          slots: {
+            default: () => h(Dialog.Content, {}, () => [
+              h(Dialog.Close, { as: 'div' }, () => 'Close'),
+            ]),
+          },
+        })
+
+        const close = wrapper.findComponent(Dialog.Close as any)
+        expect(close.attributes('type')).toBeUndefined()
+      })
     })
 
     describe('accessibility', () => {
@@ -776,13 +802,13 @@ describe('dialog', () => {
     it('should use custom namespace for isolation', () => {
       const wrapper = mountWithStack(defineComponent({
         render: () => [
-          h(Dialog.Root, { namespace: 'dialog-1' }, () => [
-            h(Dialog.Activator, { namespace: 'dialog-1' }, () => 'Open 1'),
-            h(Dialog.Content, { namespace: 'dialog-1' }, () => 'Content 1'),
+          h(Dialog.Root, { namespace: 'v0:dialog-1' }, () => [
+            h(Dialog.Activator, { namespace: 'v0:dialog-1' }, () => 'Open 1'),
+            h(Dialog.Content, { namespace: 'v0:dialog-1' }, () => 'Content 1'),
           ]),
-          h(Dialog.Root, { namespace: 'dialog-2' }, () => [
-            h(Dialog.Activator, { namespace: 'dialog-2' }, () => 'Open 2'),
-            h(Dialog.Content, { namespace: 'dialog-2' }, () => 'Content 2'),
+          h(Dialog.Root, { namespace: 'v0:dialog-2' }, () => [
+            h(Dialog.Activator, { namespace: 'v0:dialog-2' }, () => 'Open 2'),
+            h(Dialog.Content, { namespace: 'v0:dialog-2' }, () => 'Content 2'),
           ]),
         ],
       }))
@@ -851,7 +877,8 @@ describe('dialog', () => {
     })
   })
 
-  describe('sSR / Hydration', () => {
+  // eslint-disable-next-line vitest/prefer-lowercase-title
+  describe('SSR / Hydration', () => {
     it('should render to string on server without errors', async () => {
       const app = createSSRApp(defineComponent({
         render: () =>
@@ -909,68 +936,68 @@ describe('dialog', () => {
       wrapper.unmount()
     })
   })
-})
 
-// Additional coverage tests
-describe('stack dismiss', () => {
-  it('should close dialog when model goes false', async () => {
-    const isOpen = ref(true)
+  // Additional coverage tests
+  describe('stack dismiss', () => {
+    it('should close dialog when model goes false', async () => {
+      const isOpen = ref(true)
 
-    const wrapper = mountWithStack(Dialog.Root, {
-      props: {
-        'modelValue': isOpen.value,
-        'onUpdate:modelValue': (v: unknown) => {
-          isOpen.value = v as boolean
+      const wrapper = mountWithStack(Dialog.Root, {
+        props: {
+          'modelValue': isOpen.value,
+          'onUpdate:modelValue': (v: unknown) => {
+            isOpen.value = v as boolean
+          },
         },
-      },
-      slots: {
-        default: () => h(Dialog.Content, {}, () => 'Content'),
-      },
+        slots: {
+          default: () => h(Dialog.Content, {}, () => 'Content'),
+        },
+      })
+
+      await nextTick()
+      expect(isOpen.value).toBe(true)
+
+      await wrapper.setProps({ modelValue: false })
+      await nextTick()
+
+      expect(HTMLDialogElement.prototype.close).toHaveBeenCalled()
     })
-
-    await nextTick()
-    expect(isOpen.value).toBe(true)
-
-    await wrapper.setProps({ modelValue: false })
-    await nextTick()
-
-    expect(HTMLDialogElement.prototype.close).toHaveBeenCalled()
-  })
-})
-
-describe('dialog content stack integration', () => {
-  it('should register with stack and call showModal/close on open/close', async () => {
-    const wrapper = mountWithStack(Dialog.Root, {
-      props: { modelValue: false },
-      slots: {
-        default: () => h(Dialog.Content, {}, () => 'Content'),
-      },
-    })
-
-    // Open the dialog — triggers ticket.select() (line 96) and showModal (line 107)
-    await wrapper.setProps({ modelValue: true })
-    await nextTick()
-
-    expect(HTMLDialogElement.prototype.showModal).toHaveBeenCalled()
-
-    // Close the dialog — triggers ticket.unselect() (line 98) and element.close() (line 109)
-    await wrapper.setProps({ modelValue: false })
-    await nextTick()
-
-    expect(HTMLDialogElement.prototype.close).toHaveBeenCalled()
   })
 
-  it('should call showModal on initial mount when opened', async () => {
-    mountWithStack(Dialog.Root, {
-      props: { modelValue: true },
-      slots: {
-        default: () => h(Dialog.Content, {}, () => 'Content'),
-      },
+  describe('dialog content stack integration', () => {
+    it('should register with stack and call showModal/close on open/close', async () => {
+      const wrapper = mountWithStack(Dialog.Root, {
+        props: { modelValue: false },
+        slots: {
+          default: () => h(Dialog.Content, {}, () => 'Content'),
+        },
+      })
+
+      // Open the dialog — triggers ticket.select() (line 96) and showModal (line 107)
+      await wrapper.setProps({ modelValue: true })
+      await nextTick()
+
+      expect(HTMLDialogElement.prototype.showModal).toHaveBeenCalled()
+
+      // Close the dialog — triggers ticket.unselect() (line 98) and element.close() (line 109)
+      await wrapper.setProps({ modelValue: false })
+      await nextTick()
+
+      expect(HTMLDialogElement.prototype.close).toHaveBeenCalled()
     })
 
-    await nextTick()
+    it('should call showModal on initial mount when opened', async () => {
+      mountWithStack(Dialog.Root, {
+        props: { modelValue: true },
+        slots: {
+          default: () => h(Dialog.Content, {}, () => 'Content'),
+        },
+      })
 
-    // Both the immediate watch and onMounted should call showModal
-    expect(HTMLDialogElement.prototype.showModal).toHaveBeenCalled()
+      await nextTick()
+
+      // Both the immediate watch and onMounted should call showModal
+      expect(HTMLDialogElement.prototype.showModal).toHaveBeenCalled()
+    })
   })
 })

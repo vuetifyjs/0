@@ -8,7 +8,7 @@ export type { AvatarFallbackProps, AvatarFallbackSlotProps } from './AvatarFallb
 export type { AvatarImageEmits, AvatarImageProps, AvatarImageSlotProps } from './AvatarImage.vue'
 export type { AvatarContext, AvatarRootProps, AvatarTicket } from './AvatarRoot.vue'
 
-// Components
+// Context
 import Fallback from './AvatarFallback.vue'
 import Image from './AvatarImage.vue'
 import Root from './AvatarRoot.vue'

@@ -6,7 +6,7 @@
  *
  * For the Temporal-based adapter, import from `@vuetify/v0/date`:
  * ```ts
- * import { Vuetify0DateAdapter } from '@vuetify/v0/date'
+ * import { V0DateAdapter } from '@vuetify/v0/date'
  * ```
  */
 

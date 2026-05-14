@@ -11,9 +11,12 @@
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
+
+  // Context
   import { useNumberFieldRoot } from './NumberFieldRoot.vue'
 
   // Composables
+  import { useDocumentEventListener } from '#v0/composables/useEventListener'
   import { useLocale } from '#v0/composables/useLocale'
   import { useTimer } from '#v0/composables/useTimer'
 
@@ -65,6 +68,12 @@
     delay.stop()
     spin.stop()
   }
+
+  // Pointer can be released outside the button after a drag-off; document
+  // listeners catch every pointerup so the spin always stops. stop() is
+  // idempotent so always-active listeners are safe.
+  useDocumentEventListener('pointerup', stop)
+  useDocumentEventListener('pointercancel', stop)
 
   function onPointerdown (e: PointerEvent) {
     if (isDisabled.value) return

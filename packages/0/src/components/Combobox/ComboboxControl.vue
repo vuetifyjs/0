@@ -12,6 +12,8 @@
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
+
+  // Context
   import { useComboboxContext } from './ComboboxRoot.vue'
 
   // Utilities
@@ -46,7 +48,7 @@
       'aria-describedby': string | undefined
       'aria-errormessage': string | undefined
       'aria-invalid': boolean | undefined
-      'aria-disabled': boolean | undefined
+      'aria-disabled': boolean
       'disabled': boolean | undefined
       'onInput': (e: Event) => void
       'onFocus': () => void
@@ -150,7 +152,7 @@
       'aria-describedby': context.hasDescription.value ? context.descriptionId : undefined,
       'aria-errormessage': (context.hasError.value && context.errors.value.length > 0) ? context.errorId : undefined,
       'aria-invalid': invalid.value || undefined,
-      'aria-disabled': toValue(context.disabled) || undefined,
+      'aria-disabled': toValue(context.disabled),
       'disabled': toValue(context.disabled) || undefined,
       'onInput': onInput,
       'onFocus': onFocus,

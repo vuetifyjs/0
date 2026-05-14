@@ -100,10 +100,9 @@ Step navigation state is **always reactive**. Use `selectedIndex` to derive disa
 | `selectedIndex` | <AppSuccessIcon /> | Computed — current step position |
 | `selectedItem` | <AppSuccessIcon /> | Computed — current step ticket |
 | `selectedValue` | <AppSuccessIcon /> | Computed — current step value |
-| `step(count)` | <AppErrorIcon /> | Move by `count` positions — positive forward, negative backward |
+| `step(count)` | <AppErrorIcon /> | Move by `count` positions — positive forward, negative backward[^step-wrap-clamp] |
 
-> [!TIP] step(count)
-> `step(-2)` moves back two positions; `step(3)` skips ahead three. In circular mode it wraps at both ends; in bounded mode it clamps at the first and last steps. Disabled steps are skipped automatically.
+[^step-wrap-clamp]: `step(-2)` moves back two positions; `step(3)` skips ahead three. In circular mode it wraps at both ends; in bounded mode it clamps at the first and last steps. Disabled steps are skipped automatically.
 
 > [!TIP] Navigation button state
 > Derive boundary checks from `selectedIndex` and registry size:

@@ -93,7 +93,7 @@
     },
     "createNumberField": {
       "level": "preview",
-      "since": null,
+      "since": "0.2.1",
       "category": "forms"
     },
     "createNumeric": {
@@ -111,14 +111,24 @@
       "since": "0.1.0",
       "category": "data"
     },
+    "createKanban": {
+      "level": "preview",
+      "since": null,
+      "category": "data"
+    },
     "createPagination": {
       "level": "preview",
       "since": "0.1.0",
       "category": "data"
     },
-    "createProgress": {
+    "createSortable": {
       "level": "preview",
       "since": null,
+      "category": "data"
+    },
+    "createProgress": {
+      "level": "preview",
+      "since": "0.2.1",
       "category": "semantic"
     },
     "createVirtual": {
@@ -191,6 +201,16 @@
       "since": "0.1.0",
       "category": "system"
     },
+    "useDelay": {
+      "level": "preview",
+      "since": "1.0.0-alpha.3",
+      "category": "system"
+    },
+    "useDragDrop": {
+      "level": "preview",
+      "since": null,
+      "category": "system"
+    },
     "useEventListener": {
       "level": "preview",
       "since": "0.1.0",
@@ -203,6 +223,7 @@
     },
     "useImage": {
       "level": "preview",
+      "since": "1.0.0-alpha.1",
       "category": "system"
     },
     "useIntersectionObserver": {
@@ -319,6 +340,7 @@
   "components": {
     "AspectRatio": {
       "level": "preview",
+      "since": "1.0.0-alpha.1",
       "category": "primitives"
     },
     "Atom": {
@@ -411,7 +433,7 @@
     },
     "NumberField": {
       "level": "preview",
-      "since": null,
+      "since": "0.2.1",
       "category": "forms"
     },
     "Radio": {
@@ -498,14 +520,17 @@
     },
     "Carousel": {
       "level": "preview",
+      "since": "1.0.0-alpha.1",
       "category": "semantic"
     },
     "Image": {
       "level": "preview",
+      "since": "1.0.0-alpha.1",
       "category": "semantic"
     },
     "Overflow": {
-      "level": "draft",
+      "level": "preview",
+      "since": "1.0.0-alpha.3",
       "category": "semantic"
     },
     "Pagination": {
@@ -515,6 +540,7 @@
     },
     "Progress": {
       "level": "preview",
+      "since": "0.2.1",
       "category": "semantic"
     },
     "Splitter": {
@@ -528,6 +554,10 @@
       "category": "disclosure"
     },
     "DataGrid": {
+      "level": "draft",
+      "category": "data"
+    },
+    "Kanban": {
       "level": "draft",
       "category": "data"
     },
@@ -599,6 +629,11 @@
     "isSymbol": {
       "level": "stable",
       "since": "0.1.0",
+      "category": "utilities"
+    },
+    "isThenable": {
+      "level": "preview",
+      "since": null,
       "category": "utilities"
     },
     "isUndefined": {

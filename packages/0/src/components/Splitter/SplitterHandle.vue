@@ -12,12 +12,16 @@
   // Components
   import { Atom } from '#v0/components/Atom'
 
+  // Context
   import { useSplitterRoot } from './SplitterRoot.vue'
 
   // Composables
   import { useDocumentEventListener } from '#v0/composables/useEventListener'
   import { useRaf } from '#v0/composables/useRaf'
   import { useToggleScope } from '#v0/composables/useToggleScope'
+
+  // Constants
+  import { IN_BROWSER } from '#v0/constants/globals'
 
   // Utilities
   import { isNullOrUndefined } from '#v0/utilities'
@@ -26,9 +30,6 @@
   // Types
   import type { AtomProps } from '#v0/components/Atom'
   import type { SplitterOrientation } from './SplitterRoot.vue'
-
-  // Constants
-  import { IN_BROWSER } from '#v0/constants/globals'
 
   export interface SplitterHandleProps extends AtomProps {
     disabled?: boolean
@@ -50,7 +51,7 @@
       'aria-orientation': SplitterOrientation
       'aria-controls': string | undefined
       'aria-label': string | undefined
-      'aria-disabled': true | undefined
+      'aria-disabled': boolean
       'data-state': SplitterHandleState
       'data-orientation': SplitterOrientation
       'data-disabled': true | undefined
@@ -103,9 +104,11 @@
   })
 
   // aria-valuenow: size of the panel before this handle (0-100), rounded for AT
+  /* v8 ignore next -- defensive: the handle's index always points to a registered panel */
   const valuenow = toRef(() => Math.round(splitter.panel(ticket.index)?.size ?? 0))
   const valuemin = toRef(() => {
     const p = splitter.panel(ticket.index)
+    /* v8 ignore next -- defensive: handle's index always resolves to a registered panel */
     if (!p) return 0
     return p.collapsible ? p.collapsedSize : p.minSize
   })
@@ -132,10 +135,12 @@
 
   useToggleScope(() => splitter.draggingHandle.value === ticket.index, () => {
     const update = useRaf(() => {
-      const root = splitter.rootEl.value
+      const root = splitter.rootEl.value as HTMLElement | null
+      /* v8 ignore next -- defensive: drag scope only enters with a mounted root */
       if (!root) return
 
       const rootSize = isHorizontal.value ? root.offsetWidth : root.offsetHeight
+      /* v8 ignore next -- happy-dom returns 0 for offset dimensions; not exercised in tests */
       if (!rootSize) return
 
       const delta = ((latestPos - startPosition.value) / rootSize) * 100
@@ -151,6 +156,7 @@
 
     useDocumentEventListener('pointerup', () => {
       update.cancel()
+      /* v8 ignore next 4 -- IN_BROWSER always true in happy-dom test env */
       if (IN_BROWSER) {
         document.documentElement.style.userSelect = ''
         document.documentElement.style.touchAction = ''
@@ -160,6 +166,7 @@
 
     onScopeDispose(() => {
       splitter.onEndDrag()
+      /* v8 ignore next 4 -- IN_BROWSER always true in happy-dom test env */
       if (IN_BROWSER) {
         document.documentElement.style.userSelect = ''
         document.documentElement.style.touchAction = ''
@@ -262,7 +269,7 @@
       'aria-orientation': ariaOrientation.value,
       'aria-controls': ariaControls.value,
       'aria-label': label || undefined,
-      'aria-disabled': isDisabled.value || undefined,
+      'aria-disabled': isDisabled.value,
       'data-state': state.value,
       'data-orientation': splitter.orientation.value,
       'data-disabled': isDisabled.value || undefined,

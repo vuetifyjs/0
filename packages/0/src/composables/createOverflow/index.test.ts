@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { createOverflow, createOverflowContext, useOverflow } from './index'
+
 // Utilities
 import { nextTick, ref, shallowRef } from 'vue'
-
-import { createOverflow, createOverflowContext, useOverflow } from './index'
 
 const mockIsHydrated = ref(true)
 vi.mock('#v0/composables/useHydration', () => ({
@@ -59,6 +59,14 @@ describe('createOverflow', () => {
     const result = createOverflow()
 
     expect(result.capacity.value).toBe(Infinity)
+  })
+
+  it('should not be overflowing when width is 0 even with reserved space (SSR consistency with capacity)', () => {
+    const result = createOverflow({ reserved: 20 })
+
+    // capacity says everything fits in SSR (width 0); isOverflowing must agree
+    expect(result.capacity.value).toBe(Infinity)
+    expect(result.isOverflowing.value).toBe(false)
   })
 
   it('should measure item widths', async () => {

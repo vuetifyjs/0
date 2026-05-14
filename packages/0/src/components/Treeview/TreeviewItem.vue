@@ -12,11 +12,16 @@
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
+
+  // Context
   import { useTreeviewList } from './TreeviewList.vue'
   import { useTreeviewRoot } from './TreeviewRoot.vue'
 
   // Composables
   import { createContext } from '#v0/composables/createContext'
+
+  // Transformers
+  import { toElement } from '#v0/composables/toElement'
 
   // Utilities
   import { onBeforeUnmount, shallowRef, toRef, toValue, useTemplateRef } from 'vue'
@@ -55,15 +60,13 @@
   const nested = useTreeviewRoot(namespace)
   const rootRef = useTemplateRef<AtomExpose>('root')
 
-  // Vue auto-unwraps exposed refs when accessed via template ref,
-  // but TypeScript doesn't reflect this - cast corrects the type
-  const el = toRef(() => (rootRef.value?.element as HTMLElement | null | undefined) ?? undefined)
+  const el = toRef(() => toElement(rootRef.value?.element) ?? undefined)
 
   // Get parent item context for implicit nesting (null if root-level)
   const parent = useTreeviewItem(namespace, null)
   const parentId = parent?.ticket.id
 
-  const ticket = nested.register({ id, value, disabled, parentId, el })
+  const ticket = nested.register({ id, value, disabled: () => toValue(disabled) ?? false, parentId, el })
   const isDisabled = toRef(() => toValue(ticket.disabled) || toValue(nested.disabled))
   const hasContent = shallowRef(false)
 
@@ -99,7 +102,7 @@
 <template>
   <Atom
     ref="root"
-    :aria-disabled="slotProps.isDisabled || undefined"
+    :aria-disabled="slotProps.isDisabled"
     :aria-expanded="hasContent ? slotProps.isOpen : undefined"
     :aria-level="slotProps.depth + 1"
     :aria-posinset="ticket.position()"

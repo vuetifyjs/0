@@ -12,6 +12,8 @@
 <script setup lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
+
+  // Context
   import { useTreeviewItem } from './TreeviewItem.vue'
 
   // Utilities
@@ -42,7 +44,7 @@
     attrs: {
       'role': as === 'button' ? undefined : 'button',
       'tabindex': -1,
-      'aria-disabled': item.isDisabled.value || undefined,
+      'aria-disabled': item.isDisabled.value,
       'data-disabled': item.isDisabled.value || undefined,
       'data-open': toValue(item.ticket.isOpen) || undefined,
       'disabled': as === 'button' ? item.isDisabled.value : undefined,

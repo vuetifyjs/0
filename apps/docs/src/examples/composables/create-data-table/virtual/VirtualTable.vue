@@ -1,21 +1,22 @@
 <script setup lang="ts">
-  import { createDataTable, VirtualAdapter, createVirtual } from '@vuetify/v0'
+  import { createDataTable, VirtualDataTableAdapter, createVirtual } from '@vuetify/v0'
   import { computed } from 'vue'
   import { columns } from './columns'
-  import { generateUsers } from './data'
+  import { generate } from './data'
 
-  const items = generateUsers(1000)
+  const items = generate(1000)
 
   const table = createDataTable({
-    items,
-    columns,
-    adapter: new VirtualAdapter(),
+    adapter: new VirtualDataTableAdapter(),
   })
+
+  table.columns.onboard(columns)
+  table.onboard(items.map(value => ({ id: value.id, value })))
 
   const virtual = createVirtual(table.items, { itemHeight: 40 })
   const {
     element,
-    items: virtualItems,
+    items: visible,
     offset,
     size,
     scroll,
@@ -24,11 +25,11 @@
   const stats = computed(() => ({
     total: items.length,
     filtered: table.items.value.length,
-    rendered: virtualItems.value.length,
+    rendered: visible.value.length,
   }))
 
-  function sortIcon (key: string) {
-    const dir = table.sort.direction(key)
+  function arrow (id: string) {
+    const dir = table.sort.direction(id)
     if (dir === 'asc') return '↑'
     if (dir === 'desc') return '↓'
     return ''
@@ -61,13 +62,13 @@
           <thead class="sticky top-0 z-10 bg-surface">
             <tr class="border-b border-divider bg-surface-tint">
               <th
-                v-for="col in columns"
-                :key="col.key"
+                v-for="col in table.columns.values()"
+                :key="col.id"
                 class="px-4 py-3 text-left font-medium cursor-pointer select-none hover:text-primary transition-colors"
-                @click="table.sort.toggle(col.key)"
+                @click="table.sort.toggle(col.id)"
               >
                 {{ col.title }}
-                <span class="ml-1 text-xs opacity-50">{{ sortIcon(col.key) }}</span>
+                <span class="ml-1 text-xs opacity-50">{{ arrow(col.id) }}</span>
               </th>
             </tr>
           </thead>
@@ -76,7 +77,7 @@
             <tr :style="{ height: `${offset}px` }" />
 
             <tr
-              v-for="item in virtualItems"
+              v-for="item in visible"
               :key="item.raw.id"
               class="h-[40px] hover:bg-surface-tint transition-colors"
             >

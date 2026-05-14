@@ -4,14 +4,14 @@ import { IN_BROWSER, useStorage, useTheme } from '@vuetify/v0'
 // Composables
 import { type ThemePreference, useThemeToggle } from '@/composables/useThemeToggle'
 
+// Themes
+import { themes, type ThemeDefinition, type ThemeId } from '@/themes'
+
 // Utilities
 import { computed, shallowRef, watch } from 'vue'
 
 // Types
 import type { ComputedRef } from 'vue'
-
-// Themes
-import { themes, type ThemeDefinition, type ThemeId } from '@/themes'
 
 export interface CustomTheme extends ThemeDefinition {
   custom: true

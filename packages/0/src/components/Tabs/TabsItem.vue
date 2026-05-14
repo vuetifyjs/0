@@ -23,7 +23,12 @@
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
+
+  // Context
   import { useTabsRoot } from './TabsRoot.vue'
+
+  // Transformers
+  import { toElement } from '#v0/composables/toElement'
 
   // Utilities
   import { mergeProps, nextTick, onBeforeUnmount, toRef, toValue, useAttrs, useTemplateRef } from 'vue'
@@ -66,7 +71,7 @@
       'tabindex': 0 | -1
       'aria-selected': boolean
       'aria-controls': string
-      'aria-disabled': boolean | undefined
+      'aria-disabled': boolean
       'aria-label': string | undefined
       'aria-labelledby': string | undefined
       'aria-describedby': string | undefined
@@ -105,10 +110,8 @@
 
   const tabs = useTabsRoot(namespace)
 
-  // Vue auto-unwraps exposed refs when accessed via template ref,
-  // but TypeScript doesn't reflect this - cast corrects the type
-  const el = toRef(() => (rootRef.value?.element as HTMLElement | null | undefined) ?? undefined)
-  const ticket = tabs.register({ id, value, disabled, el })
+  const el = toRef(() => toElement(rootRef.value?.element) ?? undefined)
+  const ticket = tabs.register({ id, value, disabled: () => toValue(disabled) ?? false, el })
 
   const isDisabled = toRef(() => toValue(ticket.disabled) || toValue(tabs.disabled))
 
@@ -123,7 +126,7 @@
     nextTick(() => {
       const selected = tabs.selectedItem.value
       if (selected) {
-        toValue(selected.el)?.focus()
+        (toValue(selected.el) as HTMLElement | undefined)?.focus()
       }
     })
   }
@@ -145,7 +148,7 @@
       }
       const item = all[index]
       if (item && !toValue(item.disabled)) {
-        nextTick(() => toValue(item.el)?.focus())
+        nextTick(() => (toValue(item.el) as HTMLElement | undefined)?.focus())
         return
       }
       index += direction
@@ -155,7 +158,7 @@
 
   function focusEdge (edge: 'first' | 'last') {
     const item = tabs.seek(edge)
-    if (item) nextTick(() => toValue(item.el)?.focus())
+    if (item) nextTick(() => (toValue(item.el) as HTMLElement | undefined)?.focus())
   }
 
   function onKeydown (e: KeyboardEvent) {
@@ -246,7 +249,7 @@
       'tabindex': toValue(ticket.isSelected) ? 0 : -1,
       'aria-selected': toValue(ticket.isSelected),
       'aria-controls': panelId.value,
-      'aria-disabled': toValue(isDisabled) || undefined,
+      'aria-disabled': toValue(isDisabled),
       'aria-label': ariaLabel,
       'aria-labelledby': ariaLabelledby,
       'aria-describedby': ariaDescribedby,

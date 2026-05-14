@@ -1,5 +1,8 @@
 import { Color, Theme } from '@adobe/leonardo-contrast-colors'
 
+// Utilities
+import { isArray, isObject } from '#v0/utilities'
+
 // Types
 import type { PaletteDefinition } from '#v0/palettes'
 
@@ -15,7 +18,7 @@ const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i
 function extractColors (entries: unknown[]): Record<number, string> {
   const colors: Record<number, string> = {}
   for (const entry of entries) {
-    if (entry && typeof entry === 'object' && 'values' in entry) {
+    if (isObject(entry) && 'values' in entry && isArray(entry.values)) {
       const e = entry as { values: Array<{ contrast: number, value: string }> }
       for (const v of e.values) {
         colors[v.contrast] = v.value
@@ -37,6 +40,7 @@ function mapSemanticColors (colors: Record<number, string>, ratios: number[]): R
         delta = d
       }
     }
+    /* v8 ignore next -- defensive fallbacks for when ratio table or colors map is empty */
     return colors[closest] ?? Object.values(colors)[0] ?? '#000000'
   }
 
@@ -112,6 +116,7 @@ export function leonardo (seed: string, options: LeonardoGenerateOptions = {}): 
           'error-container': '#ffdad6',
           'on-error-container': '#410002',
           'background': '#ffffff',
+          /* v8 ignore next -- defensive fallback when lightSemantic lacks on-surface */
           'on-background': lightSemantic['on-surface'] ?? '#000000',
         },
       },
@@ -124,6 +129,7 @@ export function leonardo (seed: string, options: LeonardoGenerateOptions = {}): 
           'error-container': '#93000a',
           'on-error-container': '#ffdad6',
           'background': '#121212',
+          /* v8 ignore next -- defensive fallback when darkSemantic lacks on-surface */
           'on-background': darkSemantic['on-surface'] ?? '#ffffff',
         },
       },

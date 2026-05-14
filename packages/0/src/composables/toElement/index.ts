@@ -70,14 +70,19 @@ export type MaybeElementRef =
  */
 /* #__NO_SIDE_EFFECTS__ */
 export function toElement (target: MaybeElementRef): Element | undefined {
+  if (!target) return undefined
+  // Raw element passes through first — Element shapes with their own `value`
+  // property (e.g. <li>, <button>, <input>) would otherwise be misread as a
+  // ref-like { value } and have their attribute value extracted instead.
+  if (isElement(target)) return target
   const raw = isFunction(target)
     ? target()
-    : (target && isObject(target) && 'value' in target
+    : (isObject(target) && 'value' in target
         ? target.value
         : target)
   if (!raw) return undefined
   if (isElement(raw)) return raw
   // ComponentPublicInstance — extract $el
-  if ('$el' in raw) return raw.$el as Element | undefined
+  if (isObject(raw) && '$el' in raw) return raw.$el as Element | undefined
   return undefined
 }

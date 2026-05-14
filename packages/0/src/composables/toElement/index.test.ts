@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
 
+import { toElement } from './index'
+
 // Types
 import type { MaybeElementRef } from './index'
-
-import { toElement } from './index'
 
 describe('toElement', () => {
   describe('raw elements', () => {
@@ -17,6 +17,29 @@ describe('toElement', () => {
       const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
 
       expect(toElement(svg)).toBe(svg)
+    })
+
+    // Regression: elements that own a `value` property (HTMLLIElement,
+    // HTMLButtonElement, HTMLInputElement, HTMLSelectElement, HTMLOptionElement,
+    // …) used to be misread as a ref-like { value: T } and have their
+    // attribute value extracted, then short-circuit to undefined.
+    it('should return an HTMLLIElement as-is', () => {
+      const li = document.createElement('li')
+
+      expect(toElement(li)).toBe(li)
+    })
+
+    it('should return an HTMLButtonElement as-is', () => {
+      const button = document.createElement('button')
+
+      expect(toElement(button)).toBe(button)
+    })
+
+    it('should return an HTMLInputElement as-is', () => {
+      const input = document.createElement('input')
+      input.value = 'typed text'
+
+      expect(toElement(input)).toBe(input)
     })
   })
 

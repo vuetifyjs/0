@@ -16,7 +16,7 @@ export type { CheckboxIndicatorProps, CheckboxIndicatorSlotProps } from './Check
 export type { CheckboxRootContext, CheckboxRootProps, CheckboxRootSlotProps, CheckboxState } from './CheckboxRoot.vue'
 export type { CheckboxSelectAllProps, CheckboxSelectAllSlotProps } from './CheckboxSelectAll.vue'
 
-// Components
+// Context
 import Group from './CheckboxGroup.vue'
 import HiddenInput from './CheckboxHiddenInput.vue'
 import Indicator from './CheckboxIndicator.vue'

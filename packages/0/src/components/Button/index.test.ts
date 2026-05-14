@@ -1,13 +1,13 @@
 import { describe, expect, it, vi } from 'vitest'
 
+import { Button } from './index'
+
 // Utilities
 import { mount } from '@vue/test-utils'
 import { defineComponent, h, nextTick, ref, shallowRef } from 'vue'
 
 // Types
 import type { VueWrapper } from '@vue/test-utils'
-
-import { Button } from './index'
 
 // ============================================================================
 // Test Helpers

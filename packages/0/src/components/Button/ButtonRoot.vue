@@ -14,6 +14,8 @@
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
+
+  // Context
   import { useButtonGroup } from './ButtonGroup.vue'
   import ButtonHiddenInput from './ButtonHiddenInput.vue'
 
@@ -96,7 +98,7 @@
       'type': 'button' | undefined
       'role': 'button'
       'disabled': true | undefined
-      'aria-disabled': true | undefined
+      'aria-disabled': boolean
       'aria-busy': true | undefined
       'aria-pressed': boolean | undefined
       'aria-label': string | undefined
@@ -144,7 +146,7 @@
     group = useButtonGroup(groupNamespace)
   } catch {}
 
-  const ticket = group?.register({ value, disabled })
+  const ticket = group?.register({ value, disabled: () => toValue(disabled) ?? false })
 
   const isDisabled = toRef(() => group && ticket
     ? toValue(ticket.disabled) || toValue(group.disabled)
@@ -209,7 +211,7 @@
     'type': as === 'button' ? 'button' : undefined,
     'role': 'button',
     'disabled': isDisabled.value ? true : undefined,
-    'aria-disabled': isPassive.value ? true : undefined,
+    'aria-disabled': isDisabled.value || isPassive.value,
     'aria-busy': isLoading.value ? true : undefined,
     'aria-pressed': group ? isSelected.value : undefined,
     'aria-label': ariaLabel || (isSolo.value ? locale.t('Button.label') : undefined),

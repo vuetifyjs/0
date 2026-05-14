@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { createPagination, createPaginationContext, usePagination } from './index'
+
 // Utilities
 import { inject, provide, shallowRef } from 'vue'
-
-import { createPagination, createPaginationContext, usePagination } from './index'
 
 vi.mock('vue', async () => {
   const actual = await vi.importActual('vue')
@@ -313,6 +313,43 @@ describe('createPagination', () => {
 
       const ellipsisItem = pagination.items.value.find(item => item.type === 'ellipsis')
       expect(ellipsisItem?.value).toBe('...')
+    })
+
+    it('should omit ellipsis tickets when ellipsis prop is false', () => {
+      const pagination = createPagination({ size: 1000, page: 50, visible: 5, ellipsis: false })
+
+      const items = pagination.items.value
+      expect(items.every(item => item.type !== 'ellipsis')).toBe(true)
+    })
+
+    it('should handle visible=3 layout with current in middle', () => {
+      const pagination = createPagination({ size: 100, page: 5, visible: 3, itemsPerPage: 10 })
+      // pageCount = 10, current = 5, mid = 5
+      expect(pagination.items.value).toEqual([
+        { type: 'page', value: 1 },
+        { type: 'page', value: 5 },
+        { type: 'page', value: 10 },
+      ])
+    })
+
+    it('should handle visible=3 layout with current at start (mid=2)', () => {
+      const pagination = createPagination({ size: 100, page: 1, visible: 3, itemsPerPage: 10 })
+      // current <= 1 → mid=2
+      expect(pagination.items.value).toEqual([
+        { type: 'page', value: 1 },
+        { type: 'page', value: 2 },
+        { type: 'page', value: 10 },
+      ])
+    })
+
+    it('should handle visible=3 layout with current at end (mid=pageCount-1)', () => {
+      const pagination = createPagination({ size: 100, page: 10, visible: 3, itemsPerPage: 10 })
+      // current >= pageCount → mid = pageCount - 1
+      expect(pagination.items.value).toEqual([
+        { type: 'page', value: 1 },
+        { type: 'page', value: 9 },
+        { type: 'page', value: 10 },
+      ])
     })
 
     it('should update items when page changes', () => {

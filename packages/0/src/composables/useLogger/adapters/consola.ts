@@ -1,10 +1,11 @@
-// Types
-import type { LoggerAdapter } from './adapter'
+// Adapters
+import { LoggerAdapter } from './adapter'
 
-export class ConsolaLoggerAdapter implements LoggerAdapter {
+export class ConsolaLoggerAdapter extends LoggerAdapter {
   private consola: LoggerAdapter
 
   constructor (consolaInstance: LoggerAdapter | null | undefined) {
+    super()
     if (!consolaInstance) {
       throw new Error('Consola instance is required for ConsolaLoggerAdapter')
     }

@@ -15,9 +15,9 @@ related:
 
 # License
 
-<DocsPageFeatures :frontmatter />
-
 Vuetify0 is released under the [MIT License](https://opensource.org/licenses/MIT), one of the most permissive and widely-used open source licenses.
+
+<DocsPageFeatures :frontmatter />
 
 ## What This Means
 

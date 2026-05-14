@@ -33,6 +33,9 @@
 // Composables
 import { createObserver } from '#v0/composables/createObserver'
 
+// Globals
+import { SUPPORTS_OBSERVER } from '#v0/constants/globals'
+
 // Utilities
 import { shallowReadonly, shallowRef } from 'vue'
 
@@ -40,9 +43,6 @@ import { shallowReadonly, shallowRef } from 'vue'
 import type { ObserverReturn } from '#v0/composables/createObserver'
 import type { MaybeElementRef } from '#v0/composables/toElement'
 import type { Ref } from 'vue'
-
-// Globals
-import { SUPPORTS_OBSERVER } from '#v0/constants/globals'
 
 export interface ResizeObserverEntry {
   contentRect: {
@@ -183,6 +183,7 @@ export function useElementSize (target: MaybeElementRef): UseElementSizeReturn {
     target,
     entries => {
       const entry = entries[0]
+      /* v8 ignore next 4 -- defensive: ResizeObserver always passes an entry array with at least one entry */
       if (entry) {
         width.value = entry.contentRect.width
         height.value = entry.contentRect.height
@@ -200,7 +201,7 @@ export function useElementSize (target: MaybeElementRef): UseElementSizeReturn {
   return {
     width: shallowReadonly(width),
     height: shallowReadonly(height),
-    isActive,
+    isActive: shallowReadonly(isActive),
     isPaused: shallowReadonly(isPaused),
     pause,
     resume,

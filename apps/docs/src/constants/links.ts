@@ -3,3 +3,6 @@ export const EXTERNAL_LINK_SUFFIX = '↗︎'
 
 /** Filter section of the "Using the Docs" page */
 export const SKILL_LEVELS_DOCS_HREF = '/guide/essentials/using-the-docs#skill-levels-learning-tracks'
+
+/** Maturity matrix section of the Roadmap page */
+export const MATURITY_MATRIX_HREF = '/roadmap#maturity-matrix'

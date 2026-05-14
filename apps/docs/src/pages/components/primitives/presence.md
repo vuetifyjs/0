@@ -99,7 +99,7 @@ Presence is transparent — it adds no DOM elements, ARIA attributes, or keyboar
 > [!TIP]
 > Ensure animated content respects `prefers-reduced-motion`. Presence doesn't enforce motion preferences — your CSS should handle `@media (prefers-reduced-motion: reduce)`.
 
-## Questions
+## FAQ
 
 ::: faq
 ??? Why not use Vue's Transition component?

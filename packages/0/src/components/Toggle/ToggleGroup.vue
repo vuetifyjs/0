@@ -52,7 +52,7 @@
     attrs: {
       'role': 'group'
       'aria-orientation': ToggleOrientation
-      'aria-disabled': boolean | undefined
+      'aria-disabled': boolean
       'data-orientation': ToggleOrientation
       'data-disabled': true | undefined
     }
@@ -95,16 +95,16 @@
   const selection = multiple
     ? createGroup({
       disabled: toRef(() => disabled),
-      mandatory,
+      mandatory: toRef(() => mandatory),
       events: true,
     })
     : createSingle({
       disabled: toRef(() => disabled),
-      mandatory,
+      mandatory: toRef(() => mandatory),
       events: true,
     })
 
-  useProxyModel(selection, model, { multiple })
+  useProxyModel(selection, model, { multiple: toRef(() => multiple) })
 
   provideToggleGroup(namespace, {
     disabled: toRef(() => disabled),
@@ -117,7 +117,7 @@
     attrs: {
       'role': 'group',
       'aria-orientation': orientation,
-      'aria-disabled': disabled || undefined,
+      'aria-disabled': disabled,
       'data-orientation': orientation,
       'data-disabled': disabled ? true : undefined,
     },

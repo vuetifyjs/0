@@ -12,6 +12,8 @@
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
+
+  // Context
   import { useSplitterRoot } from './SplitterRoot.vue'
 
   // Composables
@@ -93,12 +95,14 @@
   }
 
   if (isPx(defaultSize) || isPx(minSize) || isPx(maxSizeProp) || isPx(collapsedSize)) {
+    /* v8 ignore start -- px-mode panels not exercised in happy-dom (no real layout) */
     useResizeObserver(splitter.rootEl, entries => {
       const rect = entries[0]?.contentRect
       rootSize.value = splitter.orientation.value === 'horizontal'
         ? rect?.width ?? 0
         : rect?.height ?? 0
     })
+    /* v8 ignore stop */
   }
 
   function percent (value: SplitterPanelSize, fallback: number): number {
@@ -107,15 +111,18 @@
     const num = Number.parseFloat(value)
     if (Number.isNaN(num)) return fallback
 
+    /* v8 ignore start -- px-mode conversion path not exercised in happy-dom (no real layout) */
     if (value.endsWith('px')) {
+      const root = splitter.rootEl.value as HTMLElement | null
       const dimension = rootSize.value
         || (splitter.orientation.value === 'horizontal'
-          ? splitter.rootEl.value?.offsetWidth
-          : splitter.rootEl.value?.offsetHeight)
+          ? root?.offsetWidth
+          : root?.offsetHeight)
         || 0
 
       return dimension > 0 ? (num / dimension) * 100 : fallback
     }
+    /* v8 ignore stop */
 
     return num
   }

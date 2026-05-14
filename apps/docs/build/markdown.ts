@@ -3,15 +3,16 @@ import MarkdownIt from 'markdown-it'
 import Anchor from 'markdown-it-anchor'
 import Attrs from 'markdown-it-attrs'
 import Container from 'markdown-it-container'
+import Footnote from 'markdown-it-footnote'
 import { createHighlighterCore } from 'shiki/core'
 import { createJavaScriptRegexEngine } from 'shiki/engine/javascript'
 import Markdown from 'unplugin-vue-markdown/vite'
 
-// Types
-import type { BundledLanguage, BundledTheme, HighlighterGeneric } from 'shiki'
-
 // Local
 import { createApiTransformer, renderV0ApiInlineCode, renderVueApiInlineCode } from './shiki-api-transformer'
+
+// Types
+import type { BundledLanguage, BundledTheme, HighlighterGeneric } from 'shiki'
 
 // Constants
 import { EXTERNAL_LINK_SUFFIX } from '../src/constants/links'
@@ -45,6 +46,7 @@ export async function createHighlighter (): Promise<DocsHighlighter> {
 
 export function applyMarkdownPlugins (md: MarkdownIt, highlighter: DocsHighlighter) {
   md.use(Attrs)
+  md.use(Footnote)
   md.use(Anchor, {
     permalink: Anchor.permalink.headerLink({ symbol: '' }),
     slugify: (s: string) => s

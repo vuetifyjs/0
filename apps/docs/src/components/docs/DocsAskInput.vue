@@ -80,7 +80,7 @@
           aria-label="Ask a question about this page"
           class="shadow-lg"
           show-keyboard-hint
-          @focus="onFocus"
+          @pointerdown="onFocus"
           @submit="onSubmit"
         />
       </Discovery.Activator>

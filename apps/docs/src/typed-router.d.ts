@@ -14,6 +14,9 @@ import type {
   ParamValueZeroOrMore,
   ParamValueZeroOrOne,
 } from 'vue-router'
+import type {
+  _ExtractParamParserType,
+} from 'vue-router/experimental'
 
 declare module 'vue-router' {
   interface TypesConfig {
@@ -300,6 +303,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/components/semantic/overflow': RouteRecordInfo<
+      '/components/semantic/overflow',
+      '/components/semantic/overflow',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/components/semantic/pagination': RouteRecordInfo<
       '/components/semantic/pagination',
       '/components/semantic/pagination',
@@ -349,9 +359,23 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/composables/data/create-kanban': RouteRecordInfo<
+      '/composables/data/create-kanban',
+      '/composables/data/create-kanban',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/composables/data/create-pagination': RouteRecordInfo<
       '/composables/data/create-pagination',
       '/composables/data/create-pagination',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/composables/data/create-sortable': RouteRecordInfo<
+      '/composables/data/create-sortable',
+      '/composables/data/create-sortable',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -639,6 +663,20 @@ declare module 'vue-router/auto-routes' {
     '/composables/system/use-click-outside': RouteRecordInfo<
       '/composables/system/use-click-outside',
       '/composables/system/use-click-outside',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/composables/system/use-delay': RouteRecordInfo<
+      '/composables/system/use-delay',
+      '/composables/system/use-delay',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/composables/system/use-drag-drop': RouteRecordInfo<
+      '/composables/system/use-drag-drop',
+      '/composables/system/use-drag-drop',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -933,6 +971,13 @@ declare module 'vue-router/auto-routes' {
     '/guide/tooling/vuetify-mcp': RouteRecordInfo<
       '/guide/tooling/vuetify-mcp',
       '/guide/tooling/vuetify-mcp',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/health': RouteRecordInfo<
+      '/health',
+      '/health',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -1275,6 +1320,12 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/components/semantic/overflow.md': {
+      routes:
+        | '/components/semantic/overflow'
+      views:
+        | never
+    }
     'src/pages/components/semantic/pagination.md': {
       routes:
         | '/components/semantic/pagination'
@@ -1317,9 +1368,21 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/composables/data/create-kanban.md': {
+      routes:
+        | '/composables/data/create-kanban'
+      views:
+        | never
+    }
     'src/pages/composables/data/create-pagination.md': {
       routes:
         | '/composables/data/create-pagination'
+      views:
+        | never
+    }
+    'src/pages/composables/data/create-sortable.md': {
+      routes:
+        | '/composables/data/create-sortable'
       views:
         | never
     }
@@ -1566,6 +1629,18 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/system/use-click-outside.md': {
       routes:
         | '/composables/system/use-click-outside'
+      views:
+        | never
+    }
+    'src/pages/composables/system/use-delay.md': {
+      routes:
+        | '/composables/system/use-delay'
+      views:
+        | never
+    }
+    'src/pages/composables/system/use-drag-drop.md': {
+      routes:
+        | '/composables/system/use-drag-drop'
       views:
         | never
     }
@@ -1818,6 +1893,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/guide/tooling/vuetify-mcp.md': {
       routes:
         | '/guide/tooling/vuetify-mcp'
+      views:
+        | never
+    }
+    'src/pages/health.md': {
+      routes:
+        | '/health'
       views:
         | never
     }

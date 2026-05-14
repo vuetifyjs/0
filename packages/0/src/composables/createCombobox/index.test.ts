@@ -1,12 +1,12 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { createCombobox, createComboboxContext, useCombobox } from './index'
+
 // Utilities
 import { effectScope, inject, nextTick } from 'vue'
 
 // Types
 import type { EffectScope } from 'vue'
-
-import { createCombobox, createComboboxContext, useCombobox } from './index'
 
 vi.mock('vue', async () => {
   const actual = await vi.importActual('vue')
@@ -246,6 +246,22 @@ describe('createCombobox', () => {
       await nextTick()
 
       expect(ctx.filtered.value.size).toBe(2)
+    })
+
+    it('should react to ticket unregister', async () => {
+      const ctx = setup()
+      const a = ctx.selection.register({ id: 'a', value: 'Apple' })
+      ctx.selection.register({ id: 'b', value: 'Banana' })
+
+      await nextTick()
+      expect(ctx.filtered.value.size).toBe(2)
+
+      a.unregister()
+      await nextTick()
+
+      expect(ctx.filtered.value.size).toBe(1)
+      expect(ctx.filtered.value.has('a')).toBe(false)
+      expect(ctx.filtered.value.has('b')).toBe(true)
     })
   })
 })

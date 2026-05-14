@@ -55,7 +55,7 @@
 </script>
 
 <script lang="ts" setup generic="V = unknown">
-  // Components
+  // Context
   import { useSingleRoot } from './SingleRoot.vue'
 
   // Utilities
@@ -76,7 +76,7 @@
   } = defineProps<SingleItemProps<V>>()
 
   const single = useSingleRoot(namespace)
-  const ticket = single.register({ id, value, disabled })
+  const ticket = single.register({ id, value, disabled: () => toValue(disabled) ?? false })
   const isDisabled = toRef(() => toValue(ticket.disabled) || toValue(single.disabled))
 
   onBeforeUnmount(() => {

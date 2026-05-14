@@ -1,15 +1,18 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+// Composables
+import { createStoragePlugin, useStorage } from '#v0/composables/useStorage'
+
 // Adapters
 import { V0StyleSheetThemeAdapter } from './adapters/v0'
+
+import { createTheme, createThemePlugin, useTheme } from './index'
 
 // Utilities
 import { createApp, nextTick } from 'vue'
 
 // Types
 import type { ThemeContext } from './index'
-
-import { createTheme, createThemePlugin, useTheme } from './index'
 
 vi.mock('#v0/constants/globals', () => ({
   IN_BROWSER: true,
@@ -366,262 +369,400 @@ describe('createTheme', () => {
       expect(context.isDark.value).toBe(false)
     })
   })
-})
 
-describe('createThemePlugin', () => {
-  beforeEach(() => {
-    const existing = document.querySelector('#v0-theme-stylesheet')
-    if (existing) existing.remove()
+  describe('createThemePlugin', () => {
+    beforeEach(() => {
+      const existing = document.querySelector('#v0-theme-stylesheet')
+      if (existing) existing.remove()
 
-    document.body.className = ''
-  })
-
-  it('should create a Vue plugin', () => {
-    const plugin = createThemePlugin({
-      themes: {
-        light: {
-          colors: { primary: '#1976d2' },
-        },
-      },
+      document.body.className = ''
     })
 
-    expect(plugin).toBeDefined()
-    expect(plugin.install).toBeDefined()
-  })
-
-  it('should inject CSS variables into DOM', async () => {
-    let mockStyleSheets: CSSStyleSheet[] = []
-    const spy = vi.spyOn(document, 'adoptedStyleSheets', 'get').mockImplementation(() => mockStyleSheets)
-    vi.spyOn(document, 'adoptedStyleSheets', 'set').mockImplementation(v => {
-      mockStyleSheets = v as CSSStyleSheet[]
-    })
-
-    const app = createApp({
-      template: '<div>Test</div>',
-    })
-
-    app.use(
-      createThemePlugin({
-        default: 'light',
-        themes: {
-          light: {
-            colors: {
-              primary: '#1976d2',
-              secondary: '#424242',
-            },
-          },
-        },
-      }),
-    )
-
-    const container = document.createElement('div')
-    app.mount(container)
-
-    await nextTick()
-
-    expect(mockStyleSheets.length).toBeGreaterThan(0)
-    const styleContent = mockStyleSheets[0]!.cssRules?.[0]?.cssText || ''
-    expect(styleContent).toContain('--v0-primary: #1976d2')
-    expect(styleContent).toContain('--v0-secondary: #424242')
-
-    app.unmount()
-    spy.mockRestore()
-  })
-
-  it('should apply theme class to target element', async () => {
-    const app = createApp({
-      template: '<div>Test</div>',
-    })
-
-    const targetEl = document.createElement('div')
-    targetEl.id = 'theme-target'
-    document.body.append(targetEl)
-
-    app.use(
-      createThemePlugin({
-        default: 'dark',
-        target: '#theme-target',
-        themes: {
-          dark: {
-            colors: { primary: '#90caf9' },
-          },
-        },
-      }),
-    )
-
-    const container = document.createElement('div')
-    app.mount(container)
-
-    await nextTick()
-
-    expect(targetEl.dataset.theme).toBe('dark')
-
-    app.unmount()
-    targetEl.remove()
-  })
-
-  it('should update theme class when theme changes', async () => {
-    const targetEl = document.createElement('div')
-    targetEl.id = 'theme-target'
-    document.body.append(targetEl)
-
-    let themeContext: ThemeContext | undefined
-
-    const app = createApp({
-      setup () {
-        themeContext = useTheme()
-        return {}
-      },
-      template: '<div>Test</div>',
-    })
-
-    app.use(
-      createThemePlugin({
-        default: 'light',
-        target: '#theme-target',
-        themes: {
-          light: {
-            colors: { primary: '#1976d2' },
-          },
-          dark: {
-            colors: { primary: '#90caf9' },
-          },
-        },
-      }),
-    )
-
-    const container = document.createElement('div')
-    app.mount(container)
-
-    await nextTick()
-
-    expect(targetEl.dataset.theme).toBe('light')
-
-    themeContext!.select('dark')
-
-    await nextTick()
-
-    expect(targetEl.dataset.theme).toBe('dark')
-
-    app.unmount()
-    targetEl.remove()
-  })
-
-  it('should use default target when none specified', async () => {
-    const app = createApp({
-      template: '<div>Test</div>',
-    })
-
-    app.use(
-      createThemePlugin({
-        default: 'light',
+    it('should create a Vue plugin', () => {
+      const plugin = createThemePlugin({
         themes: {
           light: {
             colors: { primary: '#1976d2' },
           },
         },
-      }),
-    )
+      })
 
-    const container = document.createElement('div')
-    container.id = 'app'
-    document.body.append(container)
-    app.mount(container)
-
-    await nextTick()
-
-    const hasDataTheme = container.dataset.theme === 'light' ||
-      document.body.dataset.theme === 'light'
-    expect(hasDataTheme).toBe(true)
-
-    app.unmount()
-    container.remove()
-  })
-
-  it('should not apply classes when target is null', async () => {
-    const app = createApp({
-      template: '<div>Test</div>',
+      expect(plugin).toBeDefined()
+      expect(plugin.install).toBeDefined()
     })
 
-    app.use(
-      createThemePlugin({
-        default: 'light',
-        target: null,
-        themes: {
-          light: {
-            colors: { primary: '#1976d2' },
-          },
-        },
-      }),
-    )
-
-    const container = document.createElement('div')
-    app.mount(container)
-
-    await nextTick()
-
-    expect(document.body.classList.contains('v0-theme--light')).toBe(false)
-
-    app.unmount()
-  })
-
-  it('should use custom adapter prefix', async () => {
-    const setupFn = vi.fn()
-    const updateFn = vi.fn()
-
-    const app = createApp({
-      template: '<div>Test</div>',
-    })
-
-    app.use(
-      createThemePlugin({
-        default: 'light',
-        adapter: {
-          prefix: 'custom',
-          stylesheetId: 'custom-theme-styles',
-          rgb: false,
-          setup: setupFn,
-          update: updateFn,
-          generate: () => '',
-        } as any,
-        themes: {
-          light: {
-            colors: { primary: '#1976d2' },
-          },
-        },
-      }),
-    )
-
-    const container = document.createElement('div')
-    app.mount(container)
-
-    await nextTick()
-
-    expect(setupFn).toHaveBeenCalled()
-
-    app.unmount()
-  })
-
-  describe('nested theme context', () => {
-    it('should allow child component to override parent theme', () => {
-      let parentTheme: ThemeContext | undefined
-      let childTheme: ThemeContext | undefined
-
-      const ChildComponent = {
-        setup () {
-          childTheme = useTheme()
-          return {}
-        },
-        template: '<div>Child</div>',
-      }
+    it('should inject CSS variables into DOM', async () => {
+      let mockStyleSheets: CSSStyleSheet[] = []
+      const spy = vi.spyOn(document, 'adoptedStyleSheets', 'get').mockImplementation(() => mockStyleSheets)
+      vi.spyOn(document, 'adoptedStyleSheets', 'set').mockImplementation(v => {
+        mockStyleSheets = v as CSSStyleSheet[]
+      })
 
       const app = createApp({
-        components: { ChildComponent },
+        template: '<div>Test</div>',
+      })
+
+      app.use(
+        createThemePlugin({
+          default: 'light',
+          themes: {
+            light: {
+              colors: {
+                primary: '#1976d2',
+                secondary: '#424242',
+              },
+            },
+          },
+        }),
+      )
+
+      const container = document.createElement('div')
+      app.mount(container)
+
+      await nextTick()
+
+      expect(mockStyleSheets.length).toBeGreaterThan(0)
+      const styleContent = mockStyleSheets[0]!.cssRules?.[0]?.cssText || ''
+      expect(styleContent).toContain('--v0-primary: #1976d2')
+      expect(styleContent).toContain('--v0-secondary: #424242')
+
+      app.unmount()
+      spy.mockRestore()
+    })
+
+    it('should apply theme class to target element', async () => {
+      const app = createApp({
+        template: '<div>Test</div>',
+      })
+
+      const targetEl = document.createElement('div')
+      targetEl.id = 'theme-target'
+      document.body.append(targetEl)
+
+      app.use(
+        createThemePlugin({
+          default: 'dark',
+          target: '#theme-target',
+          themes: {
+            dark: {
+              colors: { primary: '#90caf9' },
+            },
+          },
+        }),
+      )
+
+      const container = document.createElement('div')
+      app.mount(container)
+
+      await nextTick()
+
+      expect(targetEl.dataset.theme).toBe('dark')
+
+      app.unmount()
+      targetEl.remove()
+    })
+
+    it('should update theme class when theme changes', async () => {
+      const targetEl = document.createElement('div')
+      targetEl.id = 'theme-target'
+      document.body.append(targetEl)
+
+      let themeContext: ThemeContext | undefined
+
+      const app = createApp({
         setup () {
-          parentTheme = useTheme()
+          themeContext = useTheme()
           return {}
         },
-        template: '<div><ChildComponent /></div>',
+        template: '<div>Test</div>',
+      })
+
+      app.use(
+        createThemePlugin({
+          default: 'light',
+          target: '#theme-target',
+          themes: {
+            light: {
+              colors: { primary: '#1976d2' },
+            },
+            dark: {
+              colors: { primary: '#90caf9' },
+            },
+          },
+        }),
+      )
+
+      const container = document.createElement('div')
+      app.mount(container)
+
+      await nextTick()
+
+      expect(targetEl.dataset.theme).toBe('light')
+
+      themeContext!.select('dark')
+
+      await nextTick()
+
+      expect(targetEl.dataset.theme).toBe('dark')
+
+      app.unmount()
+      targetEl.remove()
+    })
+
+    it('should use default target when none specified', async () => {
+      const app = createApp({
+        template: '<div>Test</div>',
+      })
+
+      app.use(
+        createThemePlugin({
+          default: 'light',
+          themes: {
+            light: {
+              colors: { primary: '#1976d2' },
+            },
+          },
+        }),
+      )
+
+      const container = document.createElement('div')
+      container.id = 'app'
+      document.body.append(container)
+      app.mount(container)
+
+      await nextTick()
+
+      const hasDataTheme = container.dataset.theme === 'light' ||
+        document.body.dataset.theme === 'light'
+      expect(hasDataTheme).toBe(true)
+
+      app.unmount()
+      container.remove()
+    })
+
+    it('should not apply classes when target is null', async () => {
+      const app = createApp({
+        template: '<div>Test</div>',
+      })
+
+      app.use(
+        createThemePlugin({
+          default: 'light',
+          target: null,
+          themes: {
+            light: {
+              colors: { primary: '#1976d2' },
+            },
+          },
+        }),
+      )
+
+      const container = document.createElement('div')
+      app.mount(container)
+
+      await nextTick()
+
+      expect(document.body.classList.contains('v0-theme--light')).toBe(false)
+
+      app.unmount()
+    })
+
+    it('should use custom adapter prefix', async () => {
+      const setupFn = vi.fn()
+      const updateFn = vi.fn()
+
+      const app = createApp({
+        template: '<div>Test</div>',
+      })
+
+      app.use(
+        createThemePlugin({
+          default: 'light',
+          adapter: {
+            prefix: 'custom',
+            stylesheetId: 'custom-theme-styles',
+            rgb: false,
+            setup: setupFn,
+            update: updateFn,
+            generate: () => '',
+          } as any,
+          themes: {
+            light: {
+              colors: { primary: '#1976d2' },
+            },
+          },
+        }),
+      )
+
+      const container = document.createElement('div')
+      app.mount(container)
+
+      await nextTick()
+
+      expect(setupFn).toHaveBeenCalled()
+
+      app.unmount()
+    })
+
+    describe('nested theme context', () => {
+      it('should allow child component to override parent theme', () => {
+        let parentTheme: ThemeContext | undefined
+        let childTheme: ThemeContext | undefined
+
+        const ChildComponent = {
+          setup () {
+            childTheme = useTheme()
+            return {}
+          },
+          template: '<div>Child</div>',
+        }
+
+        const app = createApp({
+          components: { ChildComponent },
+          setup () {
+            parentTheme = useTheme()
+            return {}
+          },
+          template: '<div><ChildComponent /></div>',
+        })
+
+        app.use(
+          createThemePlugin({
+            default: 'light',
+            themes: {
+              light: {
+                dark: false,
+                colors: { primary: '#1976d2' },
+              },
+              dark: {
+                dark: true,
+                colors: { primary: '#90caf9' },
+              },
+            },
+          }),
+        )
+
+        const container = document.createElement('div')
+        app.mount(container)
+
+        expect(parentTheme).toBeDefined()
+        expect(childTheme).toBeDefined()
+        expect(parentTheme!.selectedId.value).toBe('light')
+        expect(childTheme!.selectedId.value).toBe('light')
+
+        app.unmount()
+      })
+    })
+
+    describe('persist option', () => {
+      it('should restore selected theme from storage and persist updates', async () => {
+        const app1 = createApp({ render: () => null })
+        app1.use(createStoragePlugin())
+        app1.runWithContext(() => {
+          const storage = useStorage()
+          storage.set('theme', 'dark')
+        })
+
+        let theme: ThemeContext | undefined
+        app1.runWithContext(() => {
+          // intentionally empty — storage seeded above
+        })
+        app1.use(
+          createThemePlugin({
+            persist: true,
+            default: 'light',
+            themes: {
+              light: { dark: false, colors: { primary: '#1976d2' } },
+              dark: { dark: true, colors: { primary: '#90caf9' } },
+            },
+          }),
+        )
+
+        app1.runWithContext(() => {
+          theme = useTheme()
+        })
+
+        // restore() ran — selection picked up persisted value
+        expect(theme!.selectedId.value).toBe('dark')
+
+        // Mutate selection — persist watcher writes back to storage
+        theme!.select('light')
+        await nextTick()
+
+        let stored: unknown
+        app1.runWithContext(() => {
+          const storage = useStorage()
+          stored = storage.get('theme').value
+        })
+        expect(stored).toBe('light')
+      })
+    })
+  })
+
+  describe('useTheme', () => {
+    it('should return fallback when no context is provided', () => {
+      let theme: ReturnType<typeof useTheme> | undefined
+
+      const app = createApp({
+        setup () {
+          theme = useTheme()
+          return {}
+        },
+        template: '<div>Test</div>',
+      })
+
+      const container = document.createElement('div')
+      app.mount(container)
+
+      expect(theme).toBeDefined()
+      expect(theme!.isDark.value).toBe(false)
+      expect(theme!.size).toBe(0)
+      expect(theme!.colors.value).toEqual({})
+      theme!.cycle() // no-op, should not throw
+
+      app.unmount()
+    })
+
+    it('should access theme context when provided', () => {
+      let themeFromSetup: ThemeContext | undefined
+
+      const app = createApp({
+        setup () {
+          themeFromSetup = useTheme()
+          return {}
+        },
+        template: '<div>Test</div>',
+      })
+
+      app.use(
+        createThemePlugin({
+          default: 'light',
+          themes: {
+            light: {
+              colors: { primary: '#1976d2' },
+            },
+          },
+        }),
+      )
+
+      const container = document.createElement('div')
+      app.mount(container)
+
+      expect(themeFromSetup).toBeDefined()
+      expect(themeFromSetup!.selectedId.value).toBe('light')
+
+      app.unmount()
+    })
+
+    it('should update isDark when switching themes', () => {
+      let themeFromSetup: ThemeContext | undefined
+
+      const app = createApp({
+        setup () {
+          themeFromSetup = useTheme()
+          return {}
+        },
+        template: '<div>Test</div>',
       })
 
       app.use(
@@ -643,440 +784,346 @@ describe('createThemePlugin', () => {
       const container = document.createElement('div')
       app.mount(container)
 
-      expect(parentTheme).toBeDefined()
-      expect(childTheme).toBeDefined()
-      expect(parentTheme!.selectedId.value).toBe('light')
-      expect(childTheme!.selectedId.value).toBe('light')
+      expect(themeFromSetup!.isDark.value).toBe(false)
+
+      themeFromSetup!.select('dark')
+
+      expect(themeFromSetup!.isDark.value).toBe(true)
 
       app.unmount()
     })
   })
-})
 
-describe('useTheme', () => {
-  it('should return fallback when no context is provided', () => {
-    let theme: ReturnType<typeof useTheme> | undefined
+  describe('themeAdapter', () => {
+    it('should generate CSS with data-theme selectors and variables', () => {
+      const adapter = new V0StyleSheetThemeAdapter()
 
-    const app = createApp({
-      setup () {
-        theme = useTheme()
-        return {}
-      },
-      template: '<div>Test</div>',
-    })
-
-    const container = document.createElement('div')
-    app.mount(container)
-
-    expect(theme).toBeDefined()
-    expect(theme!.isDark.value).toBe(false)
-    expect(theme!.size).toBe(0)
-    expect(theme!.colors.value).toEqual({})
-    theme!.cycle() // no-op, should not throw
-
-    app.unmount()
-  })
-
-  it('should access theme context when provided', () => {
-    let themeFromSetup: ThemeContext | undefined
-
-    const app = createApp({
-      setup () {
-        themeFromSetup = useTheme()
-        return {}
-      },
-      template: '<div>Test</div>',
-    })
-
-    app.use(
-      createThemePlugin({
-        default: 'light',
-        themes: {
+      const css = adapter.generate(
+        {
           light: {
-            colors: { primary: '#1976d2' },
-          },
-        },
-      }),
-    )
-
-    const container = document.createElement('div')
-    app.mount(container)
-
-    expect(themeFromSetup).toBeDefined()
-    expect(themeFromSetup!.selectedId.value).toBe('light')
-
-    app.unmount()
-  })
-
-  it('should update isDark when switching themes', () => {
-    let themeFromSetup: ThemeContext | undefined
-
-    const app = createApp({
-      setup () {
-        themeFromSetup = useTheme()
-        return {}
-      },
-      template: '<div>Test</div>',
-    })
-
-    app.use(
-      createThemePlugin({
-        default: 'light',
-        themes: {
-          light: {
-            dark: false,
-            colors: { primary: '#1976d2' },
-          },
-          dark: {
-            dark: true,
-            colors: { primary: '#90caf9' },
-          },
-        },
-      }),
-    )
-
-    const container = document.createElement('div')
-    app.mount(container)
-
-    expect(themeFromSetup!.isDark.value).toBe(false)
-
-    themeFromSetup!.select('dark')
-
-    expect(themeFromSetup!.isDark.value).toBe(true)
-
-    app.unmount()
-  })
-})
-
-describe('themeAdapter', () => {
-  it('should generate CSS with data-theme selectors and variables', () => {
-    const adapter = new V0StyleSheetThemeAdapter()
-
-    const css = adapter.generate(
-      {
-        light: {
-          primary: '#1976d2',
-          secondary: '#424242',
-        },
-      },
-      false,
-    )
-
-    expect(css).toContain('[data-theme="light"]')
-    expect(css).toContain('--v0-primary: #1976d2')
-    expect(css).toContain('--v0-secondary: #424242')
-    expect(css).toContain('color-scheme: light')
-  })
-
-  it('should generate dark color-scheme when isDark is true', () => {
-    const adapter = new V0StyleSheetThemeAdapter()
-
-    const css = adapter.generate(
-      { dark: { primary: '#90caf9' } },
-      true,
-    )
-
-    expect(css).toContain('color-scheme: dark')
-  })
-})
-
-describe('register with colors', () => {
-  it('should register a theme with colors at runtime', () => {
-    const theme = createTheme({
-      default: 'light',
-      themes: {
-        light: { dark: false, colors: { primary: '#1976d2' } },
-      },
-    })
-
-    expect(theme.has('custom')).toBe(false)
-
-    theme.register({ id: 'custom', dark: true, colors: { primary: '#ff5722' } })
-
-    expect(theme.has('custom')).toBe(true)
-    theme.select('custom')
-    expect(theme.isDark.value).toBe(true)
-    expect(theme.colors.value.custom).toBeDefined()
-    expect(theme.colors.value.custom.primary).toBe('#ff5722')
-  })
-
-  it('should resolve palette aliases in runtime-registered themes', () => {
-    const theme = createTheme({
-      default: 'light',
-      palette: {
-        blue: { 500: '#3b82f6' },
-      },
-      themes: {
-        light: { dark: false, colors: { primary: '#1976d2' } },
-      },
-    })
-
-    theme.register({ id: 'custom', colors: { primary: '{palette.blue.500}' } })
-    theme.select('custom')
-
-    expect(theme.colors.value.custom.primary).toBe('#3b82f6')
-  })
-
-  it('should register without colors (existing behavior)', () => {
-    const theme = createTheme({
-      default: 'light',
-      themes: {
-        light: { dark: false, colors: { primary: '#1976d2' } },
-      },
-    })
-
-    theme.register({ id: 'empty' })
-
-    expect(theme.has('empty')).toBe(true)
-  })
-})
-
-describe('foreground option', () => {
-  it('should generate on-* colors when foreground is true', () => {
-    const context = createTheme({
-      foreground: true,
-      default: 'light',
-      themes: {
-        light: {
-          colors: {
             primary: '#1976d2',
-            surface: '#ffffff',
+            secondary: '#424242',
           },
         },
-      },
+        false,
+      )
+
+      expect(css).toContain('[data-theme="light"]')
+      expect(css).toContain('--v0-primary: #1976d2')
+      expect(css).toContain('--v0-secondary: #424242')
+      expect(css).toContain('color-scheme: light')
     })
 
-    const colors = context.colors.value.light
-    expect(colors['on-primary']).toBe('#ffffff')
-    expect(colors['on-surface']).toBe('#000000')
+    it('should generate dark color-scheme when isDark is true', () => {
+      const adapter = new V0StyleSheetThemeAdapter()
+
+      const css = adapter.generate(
+        { dark: { primary: '#90caf9' } },
+        true,
+      )
+
+      expect(css).toContain('color-scheme: dark')
+    })
   })
 
-  it('should not overwrite user-provided on-* colors', () => {
-    const context = createTheme({
-      foreground: true,
-      default: 'light',
-      themes: {
-        light: {
-          colors: {
-            'primary': '#1976d2',
-            'on-primary': '#ff0000',
+  describe('register with colors', () => {
+    it('should register a theme with colors at runtime', () => {
+      const theme = createTheme({
+        default: 'light',
+        themes: {
+          light: { dark: false, colors: { primary: '#1976d2' } },
+        },
+      })
+
+      expect(theme.has('custom')).toBe(false)
+
+      theme.register({ id: 'custom', dark: true, colors: { primary: '#ff5722' } })
+
+      expect(theme.has('custom')).toBe(true)
+      theme.select('custom')
+      expect(theme.isDark.value).toBe(true)
+      expect(theme.colors.value.custom).toBeDefined()
+      expect(theme.colors.value.custom.primary).toBe('#ff5722')
+    })
+
+    it('should resolve palette aliases in runtime-registered themes', () => {
+      const theme = createTheme({
+        default: 'light',
+        palette: {
+          blue: { 500: '#3b82f6' },
+        },
+        themes: {
+          light: { dark: false, colors: { primary: '#1976d2' } },
+        },
+      })
+
+      theme.register({ id: 'custom', colors: { primary: '{palette.blue.500}' } })
+      theme.select('custom')
+
+      expect(theme.colors.value.custom.primary).toBe('#3b82f6')
+    })
+
+    it('should register without colors (existing behavior)', () => {
+      const theme = createTheme({
+        default: 'light',
+        themes: {
+          light: { dark: false, colors: { primary: '#1976d2' } },
+        },
+      })
+
+      theme.register({ id: 'empty' })
+
+      expect(theme.has('empty')).toBe(true)
+    })
+  })
+
+  describe('foreground option', () => {
+    it('should generate on-* colors when foreground is true', () => {
+      const context = createTheme({
+        foreground: true,
+        default: 'light',
+        themes: {
+          light: {
+            colors: {
+              primary: '#1976d2',
+              surface: '#ffffff',
+            },
           },
         },
-      },
+      })
+
+      const colors = context.colors.value.light
+      expect(colors['on-primary']).toBe('#ffffff')
+      expect(colors['on-surface']).toBe('#000000')
     })
 
-    expect(context.colors.value.light['on-primary']).toBe('#ff0000')
-  })
-
-  it('should not generate on-* colors when foreground is false', () => {
-    const context = createTheme({
-      default: 'light',
-      themes: {
-        light: { colors: { primary: '#1976d2' } },
-      },
-    })
-
-    expect(context.colors.value.light['on-primary']).toBeUndefined()
-  })
-
-  it('should not generate on-* for on-* colors', () => {
-    const context = createTheme({
-      foreground: true,
-      default: 'light',
-      themes: {
-        light: {
-          colors: { primary: '#1976d2' },
+    it('should not overwrite user-provided on-* colors', () => {
+      const context = createTheme({
+        foreground: true,
+        default: 'light',
+        themes: {
+          light: {
+            colors: {
+              'primary': '#1976d2',
+              'on-primary': '#ff0000',
+            },
+          },
         },
-      },
+      })
+
+      expect(context.colors.value.light['on-primary']).toBe('#ff0000')
     })
 
-    const colors = context.colors.value.light
-    expect(colors['on-primary']).toBeDefined()
-    expect(colors['on-on-primary']).toBeUndefined()
-  })
-})
+    it('should not generate on-* colors when foreground is false', () => {
+      const context = createTheme({
+        default: 'light',
+        themes: {
+          light: { colors: { primary: '#1976d2' } },
+        },
+      })
 
-describe('theme fallback context', () => {
-  it('should return fallback with isDark false', () => {
-    const app = createApp({
-      setup () {
-        const theme = useTheme()
-        expect(theme.isDark.value).toBe(false)
-        return {}
-      },
-      template: '<div />',
-    })
-    const container = document.createElement('div')
-    app.mount(container)
-    app.unmount()
-  })
-
-  it('should return empty colors computed', () => {
-    const app = createApp({
-      setup () {
-        const theme = useTheme()
-        expect(theme.colors.value).toEqual({})
-        return {}
-      },
-      template: '<div />',
-    })
-    const container = document.createElement('div')
-    app.mount(container)
-    app.unmount()
-  })
-
-  it('should have size 0', () => {
-    const app = createApp({
-      setup () {
-        const theme = useTheme()
-        expect(theme.size).toBe(0)
-        return {}
-      },
-      template: '<div />',
-    })
-    const container = document.createElement('div')
-    app.mount(container)
-    app.unmount()
-  })
-
-  it('should have noop cycle', () => {
-    const app = createApp({
-      setup () {
-        const theme = useTheme()
-        expect(() => theme.cycle()).not.toThrow()
-        expect(() => theme.cycle(['a', 'b'])).not.toThrow()
-        return {}
-      },
-      template: '<div />',
-    })
-    const container = document.createElement('div')
-    app.mount(container)
-    app.unmount()
-  })
-
-  it('should return empty array from onboard', () => {
-    const app = createApp({
-      setup () {
-        const theme = useTheme()
-        const result = theme.onboard([])
-        expect(result).toEqual([])
-        return {}
-      },
-      template: '<div />',
-    })
-    const container = document.createElement('div')
-    app.mount(container)
-    app.unmount()
-  })
-})
-
-describe('theme size getter', () => {
-  it('should reflect the registry size', () => {
-    const context = createTheme({
-      themes: {
-        light: { colors: { primary: '#fff' } },
-        dark: { colors: { primary: '#000' } },
-      },
+      expect(context.colors.value.light['on-primary']).toBeUndefined()
     })
 
-    expect(context.size).toBe(2)
+    it('should not generate on-* for on-* colors', () => {
+      const context = createTheme({
+        foreground: true,
+        default: 'light',
+        themes: {
+          light: {
+            colors: { primary: '#1976d2' },
+          },
+        },
+      })
 
-    context.register({ id: 'custom', colors: { primary: '#f00' } })
-    expect(context.size).toBe(3)
+      const colors = context.colors.value.light
+      expect(colors['on-primary']).toBeDefined()
+      expect(colors['on-on-primary']).toBeUndefined()
+    })
   })
-})
 
-describe('isDark edge cases', () => {
-  it('should return false when no theme is selected', () => {
-    const context = createTheme({
-      themes: {
-        light: { dark: false, colors: { primary: '#fff' } },
-      },
+  describe('theme fallback context', () => {
+    it('should return fallback with isDark false', () => {
+      const app = createApp({
+        setup () {
+          const theme = useTheme()
+          expect(theme.isDark.value).toBe(false)
+          return {}
+        },
+        template: '<div />',
+      })
+      const container = document.createElement('div')
+      app.mount(container)
+      app.unmount()
     })
 
-    expect(context.selectedId.value).toBeUndefined()
-    expect(context.isDark.value).toBe(false)
-  })
-})
-
-describe('cycle edge cases', () => {
-  it('should select first theme when current is not in cycle list', () => {
-    const context = createTheme({
-      default: 'custom',
-      themes: {
-        custom: { colors: { primary: '#f00' } },
-        light: { colors: { primary: '#fff' } },
-        dark: { colors: { primary: '#000' } },
-      },
+    it('should return empty colors computed', () => {
+      const app = createApp({
+        setup () {
+          const theme = useTheme()
+          expect(theme.colors.value).toEqual({})
+          return {}
+        },
+        template: '<div />',
+      })
+      const container = document.createElement('div')
+      app.mount(container)
+      app.unmount()
     })
 
-    // Cycle with a list that does not contain 'custom'
-    context.cycle(['light', 'dark'])
-    expect(context.selectedId.value).toBe('light')
-  })
-
-  it('should wrap around at end of cycle', () => {
-    const context = createTheme({
-      default: 'dark',
-      themes: {
-        light: { colors: { primary: '#fff' } },
-        dark: { colors: { primary: '#000' } },
-      },
+    it('should have size 0', () => {
+      const app = createApp({
+        setup () {
+          const theme = useTheme()
+          expect(theme.size).toBe(0)
+          return {}
+        },
+        template: '<div />',
+      })
+      const container = document.createElement('div')
+      app.mount(container)
+      app.unmount()
     })
 
-    context.cycle(['light', 'dark'])
-    expect(context.selectedId.value).toBe('light')
-  })
-})
-
-describe('register with colors and tokens', () => {
-  it('should not duplicate theme if already registered', () => {
-    const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
-
-    const theme = createTheme({
-      themes: {
-        light: { colors: { primary: '#fff' } },
-      },
+    it('should have noop cycle', () => {
+      const app = createApp({
+        setup () {
+          const theme = useTheme()
+          expect(() => theme.cycle()).not.toThrow()
+          expect(() => theme.cycle(['a', 'b'])).not.toThrow()
+          return {}
+        },
+        template: '<div />',
+      })
+      const container = document.createElement('div')
+      app.mount(container)
+      app.unmount()
     })
 
-    const before = theme.size
-    theme.register({ id: 'light', colors: { primary: '#eee' } })
-
-    expect(theme.size).toBe(before)
-    expect(spy).toHaveBeenCalledTimes(1)
-    expect(spy).toHaveBeenCalledWith(expect.stringContaining('light'))
-
-    spy.mockRestore()
+    it('should return empty array from onboard', () => {
+      const app = createApp({
+        setup () {
+          const theme = useTheme()
+          const result = theme.onboard([])
+          expect(result).toEqual([])
+          return {}
+        },
+        template: '<div />',
+      })
+      const container = document.createElement('div')
+      app.mount(container)
+      app.unmount()
+    })
   })
-})
 
-describe('rgb option', () => {
-  it('should pass rgb flag to adapter during plugin setup', async () => {
-    const setupFn = vi.fn()
+  describe('theme size getter', () => {
+    it('should reflect the registry size', () => {
+      const context = createTheme({
+        themes: {
+          light: { colors: { primary: '#fff' } },
+          dark: { colors: { primary: '#000' } },
+        },
+      })
 
-    const app = createApp({ template: '<div />' })
-    app.use(createThemePlugin({
-      default: 'light',
-      adapter: {
-        prefix: 'v0',
-        stylesheetId: 'v0-theme-stylesheet',
-        rgb: false,
-        setup: setupFn,
-        update: vi.fn(),
-        generate: () => '',
-      } as any,
-      rgb: true,
-      themes: {
-        light: { colors: { primary: '#1976d2' } },
-      },
-    }))
+      expect(context.size).toBe(2)
 
-    const container = document.createElement('div')
-    app.mount(container)
+      context.register({ id: 'custom', colors: { primary: '#f00' } })
+      expect(context.size).toBe(3)
+    })
+  })
 
-    // The adapter.rgb should have been set to true before setup was called
-    expect(setupFn).toHaveBeenCalled()
+  describe('isDark edge cases', () => {
+    it('should return false when no theme is selected', () => {
+      const context = createTheme({
+        themes: {
+          light: { dark: false, colors: { primary: '#fff' } },
+        },
+      })
 
-    app.unmount()
+      expect(context.selectedId.value).toBeUndefined()
+      expect(context.isDark.value).toBe(false)
+    })
+  })
+
+  describe('cycle edge cases', () => {
+    it('should select first theme when current is not in cycle list', () => {
+      const context = createTheme({
+        default: 'custom',
+        themes: {
+          custom: { colors: { primary: '#f00' } },
+          light: { colors: { primary: '#fff' } },
+          dark: { colors: { primary: '#000' } },
+        },
+      })
+
+      // Cycle with a list that does not contain 'custom'
+      context.cycle(['light', 'dark'])
+      expect(context.selectedId.value).toBe('light')
+    })
+
+    it('should wrap around at end of cycle', () => {
+      const context = createTheme({
+        default: 'dark',
+        themes: {
+          light: { colors: { primary: '#fff' } },
+          dark: { colors: { primary: '#000' } },
+        },
+      })
+
+      context.cycle(['light', 'dark'])
+      expect(context.selectedId.value).toBe('light')
+    })
+  })
+
+  describe('register with colors and tokens', () => {
+    it('should not duplicate theme if already registered', () => {
+      const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+      const theme = createTheme({
+        themes: {
+          light: { colors: { primary: '#fff' } },
+        },
+      })
+
+      const before = theme.size
+      theme.register({ id: 'light', colors: { primary: '#eee' } })
+
+      expect(theme.size).toBe(before)
+      expect(spy).toHaveBeenCalledTimes(1)
+      expect(spy).toHaveBeenCalledWith(expect.stringContaining('light'))
+
+      spy.mockRestore()
+    })
+  })
+
+  describe('rgb option', () => {
+    it('should pass rgb flag to adapter during plugin setup', async () => {
+      const setupFn = vi.fn()
+
+      const app = createApp({ template: '<div />' })
+      app.use(createThemePlugin({
+        default: 'light',
+        adapter: {
+          prefix: 'v0',
+          stylesheetId: 'v0-theme-stylesheet',
+          rgb: false,
+          setup: setupFn,
+          update: vi.fn(),
+          generate: () => '',
+        } as any,
+        rgb: true,
+        themes: {
+          light: { colors: { primary: '#1976d2' } },
+        },
+      }))
+
+      const container = document.createElement('div')
+      app.mount(container)
+
+      // The adapter.rgb should have been set to true before setup was called
+      expect(setupFn).toHaveBeenCalled()
+
+      app.unmount()
+    })
   })
 })

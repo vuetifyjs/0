@@ -1,12 +1,12 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { createFocusTraversal } from './index'
+
 // Utilities
 import { ref } from 'vue'
 
 // Types
 import type { TraversalItem } from './index'
-
-import { createFocusTraversal } from './index'
 
 function items (...ids: string[]): () => TraversalItem[] {
   return () => ids.map(id => ({ id }))
@@ -634,7 +634,8 @@ describe('createFocusTraversal', () => {
     })
   })
 
-  describe('rTL direction handling', () => {
+  // eslint-disable-next-line vitest/prefer-lowercase-title
+  describe('RTL direction handling', () => {
     it('should flip ArrowRight to prev in RTL horizontal mode', () => {
       const activate = vi.fn()
       const traversal = createFocusTraversal(
@@ -879,7 +880,8 @@ describe('createFocusTraversal', () => {
       })
     })
 
-    describe('rTL in grid mode', () => {
+    // eslint-disable-next-line vitest/prefer-lowercase-title
+    describe('RTL in grid mode', () => {
       it('should flip ArrowRight to step -1 in RTL grid', () => {
         const activate = vi.fn()
         const traversal = createFocusTraversal(

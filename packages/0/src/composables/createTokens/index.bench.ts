@@ -10,14 +10,14 @@
 
 import { bench, describe } from 'vitest'
 
-// Types
-import type { TokenContext, TokenTicket } from './index'
-
 // Fixtures
 import TOKENS from './fixtures/tokens'
 
 // Composables
 import { createTokens } from './index'
+
+// Types
+import type { TokenContext, TokenTicket } from './index'
 
 // =============================================================================
 // FIXTURES - Created once, reused across read-only benchmarks

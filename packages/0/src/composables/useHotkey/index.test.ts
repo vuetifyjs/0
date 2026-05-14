@@ -1,12 +1,12 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
-// Utilities
-import { effectScope, ref, nextTick } from 'vue'
-
 import { normalizeKey } from './aliases'
 import { splitKeyCombination, splitKeySequence } from './parsing'
 
 import { useHotkey } from './index'
+
+// Utilities
+import { effectScope, ref, nextTick } from 'vue'
 
 describe('useHotkey', () => {
   let scope: ReturnType<typeof effectScope>
@@ -34,7 +34,7 @@ describe('useHotkey', () => {
   }
 
   describe('basic functionality', () => {
-    it('calls callback when hotkey is pressed', () => {
+    it('should call callback when hotkey is pressed', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -46,7 +46,7 @@ describe('useHotkey', () => {
       expect(callback).toHaveBeenCalledTimes(1)
     })
 
-    it('does not call callback for non-matching key', () => {
+    it('should not call callback for non-matching key', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -58,7 +58,7 @@ describe('useHotkey', () => {
       expect(callback).not.toHaveBeenCalled()
     })
 
-    it('stop() removes the listener', () => {
+    it('should remove the listener via stop()', () => {
       const callback = vi.fn()
       let stop: () => void
 
@@ -72,7 +72,7 @@ describe('useHotkey', () => {
       expect(callback).not.toHaveBeenCalled()
     })
 
-    it('cleans up on scope disposal', () => {
+    it('should clean up on scope disposal', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -85,7 +85,7 @@ describe('useHotkey', () => {
       expect(callback).not.toHaveBeenCalled()
     })
 
-    it('propagates callback exceptions', () => {
+    it('should propagate callback exceptions', () => {
       const callback = vi.fn().mockImplementation(() => {
         throw new Error('Test error')
       })
@@ -103,7 +103,7 @@ describe('useHotkey', () => {
   })
 
   describe('key combinations', () => {
-    it('handles ctrl+key', () => {
+    it('should handle ctrl+key', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -115,7 +115,7 @@ describe('useHotkey', () => {
       expect(callback).toHaveBeenCalledTimes(1)
     })
 
-    it('handles shift+key', () => {
+    it('should handle shift+key', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -127,7 +127,7 @@ describe('useHotkey', () => {
       expect(callback).toHaveBeenCalledTimes(1)
     })
 
-    it('handles alt+key', () => {
+    it('should handle alt+key', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -139,7 +139,7 @@ describe('useHotkey', () => {
       expect(callback).toHaveBeenCalledTimes(1)
     })
 
-    it('handles multiple modifiers', () => {
+    it('should handle multiple modifiers', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -151,7 +151,7 @@ describe('useHotkey', () => {
       expect(callback).toHaveBeenCalledTimes(1)
     })
 
-    it('does not trigger without required modifier', () => {
+    it('should not trigger without required modifier', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -163,7 +163,7 @@ describe('useHotkey', () => {
       expect(callback).not.toHaveBeenCalled()
     })
 
-    it('handles modifier-only hotkey', () => {
+    it('should handle modifier-only hotkey', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -175,7 +175,7 @@ describe('useHotkey', () => {
       expect(callback).toHaveBeenCalledTimes(1)
     })
 
-    it('handles multiple modifiers without key', () => {
+    it('should handle multiple modifiers without key', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -187,7 +187,7 @@ describe('useHotkey', () => {
       expect(callback).toHaveBeenCalledTimes(1)
     })
 
-    it('does not trigger modifier-only with extra modifier', () => {
+    it('should not trigger modifier-only with extra modifier', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -201,7 +201,7 @@ describe('useHotkey', () => {
   })
 
   describe('platform-aware modifiers', () => {
-    it('cmd maps to metaKey on Mac', () => {
+    it('should map cmd to metaKey on Mac', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -213,7 +213,7 @@ describe('useHotkey', () => {
       expect(callback).toHaveBeenCalledTimes(1)
     })
 
-    it('cmd maps to ctrlKey on non-Mac', () => {
+    it('should map cmd to ctrlKey on non-Mac', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -225,7 +225,7 @@ describe('useHotkey', () => {
       expect(callback).toHaveBeenCalledTimes(1)
     })
 
-    it('meta maps to metaKey on Mac', () => {
+    it('should map meta to metaKey on Mac', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -237,7 +237,7 @@ describe('useHotkey', () => {
       expect(callback).toHaveBeenCalledTimes(1)
     })
 
-    it('meta maps to ctrlKey on non-Mac', () => {
+    it('should map meta to ctrlKey on non-Mac', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -249,7 +249,7 @@ describe('useHotkey', () => {
       expect(callback).toHaveBeenCalledTimes(1)
     })
 
-    it('ctrl always maps to ctrlKey regardless of platform', () => {
+    it('should always map ctrl to ctrlKey regardless of platform', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -261,7 +261,7 @@ describe('useHotkey', () => {
       expect(callback).toHaveBeenCalledTimes(1)
     })
 
-    it('cmd on Mac does not trigger with ctrlKey', () => {
+    it('should not trigger cmd on Mac with ctrlKey', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -275,7 +275,7 @@ describe('useHotkey', () => {
   })
 
   describe('key aliases integration', () => {
-    it('handles arrow key aliases', () => {
+    it('should handle arrow key aliases', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -287,7 +287,7 @@ describe('useHotkey', () => {
       expect(callback).toHaveBeenCalledTimes(1)
     })
 
-    it('handles escape alias', () => {
+    it('should handle escape alias', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -299,7 +299,7 @@ describe('useHotkey', () => {
       expect(callback).toHaveBeenCalledTimes(1)
     })
 
-    it('handles space alias', () => {
+    it('should handle space alias', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -311,7 +311,7 @@ describe('useHotkey', () => {
       expect(callback).toHaveBeenCalledTimes(1)
     })
 
-    it('handles return alias for enter', () => {
+    it('should handle return alias for enter', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -323,7 +323,7 @@ describe('useHotkey', () => {
       expect(callback).toHaveBeenCalledTimes(1)
     })
 
-    it('handles delete alias', () => {
+    it('should handle delete alias', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -355,7 +355,7 @@ describe('useHotkey', () => {
       expect(callback).toHaveBeenCalledTimes(1)
     })
 
-    it('handles alias in combination', () => {
+    it('should handle alias in combination', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -367,7 +367,7 @@ describe('useHotkey', () => {
       expect(callback).toHaveBeenCalledTimes(1)
     })
 
-    it('handles arrow keys in sequence', () => {
+    it('should handle arrow keys in sequence', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -383,7 +383,7 @@ describe('useHotkey', () => {
   })
 
   describe('key sequences', () => {
-    it('handles two-key sequence', () => {
+    it('should handle two-key sequence', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -397,7 +397,7 @@ describe('useHotkey', () => {
       expect(callback).toHaveBeenCalledTimes(1)
     })
 
-    it('handles same key in sequence', () => {
+    it('should handle same key in sequence', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -411,7 +411,7 @@ describe('useHotkey', () => {
       expect(callback).toHaveBeenCalledTimes(1)
     })
 
-    it('resets sequence on wrong key', () => {
+    it('should reset sequence on wrong key', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -425,7 +425,7 @@ describe('useHotkey', () => {
       expect(callback).not.toHaveBeenCalled()
     })
 
-    it('resets sequence on timeout', () => {
+    it('should reset sequence on timeout', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -439,7 +439,7 @@ describe('useHotkey', () => {
       expect(callback).not.toHaveBeenCalled()
     })
 
-    it('completes sequence before timeout', () => {
+    it('should complete sequence before timeout', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -453,7 +453,7 @@ describe('useHotkey', () => {
       expect(callback).toHaveBeenCalledTimes(1)
     })
 
-    it('resets sequence at exact timeout boundary', () => {
+    it('should reset sequence at exact timeout boundary', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -467,7 +467,7 @@ describe('useHotkey', () => {
       expect(callback).not.toHaveBeenCalled()
     })
 
-    it('handles three-key sequence', () => {
+    it('should handle three-key sequence', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -484,7 +484,7 @@ describe('useHotkey', () => {
       expect(callback).toHaveBeenCalledTimes(1)
     })
 
-    it('handles three-key sequence with modifier on first key', () => {
+    it('should handle three-key sequence with modifier on first key', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -498,7 +498,7 @@ describe('useHotkey', () => {
       expect(callback).toHaveBeenCalledTimes(1)
     })
 
-    it('resets three-key sequence on wrong key at any position', () => {
+    it('should reset three-key sequence on wrong key at any position', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -518,7 +518,7 @@ describe('useHotkey', () => {
       expect(callback).toHaveBeenCalledTimes(1)
     })
 
-    it('handles timeout between any keys in three-key sequence', () => {
+    it('should handle timeout between any keys in three-key sequence', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -535,7 +535,7 @@ describe('useHotkey', () => {
   })
 
   describe('options', () => {
-    it('prevents default when preventDefault is true', () => {
+    it('should prevent default when preventDefault is true', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -549,7 +549,7 @@ describe('useHotkey', () => {
       expect(preventDefaultSpy).toHaveBeenCalled()
     })
 
-    it('does not prevent default when preventDefault is false', () => {
+    it('should not prevent default when preventDefault is false', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -563,7 +563,7 @@ describe('useHotkey', () => {
       expect(preventDefaultSpy).not.toHaveBeenCalled()
     })
 
-    it('stops propagation when stopPropagation is true', () => {
+    it('should stop propagation when stopPropagation is true', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -577,7 +577,7 @@ describe('useHotkey', () => {
       expect(stopPropagationSpy).toHaveBeenCalled()
     })
 
-    it('does not stop propagation when stopPropagation is false', () => {
+    it('should not stop propagation when stopPropagation is false', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -593,7 +593,7 @@ describe('useHotkey', () => {
   })
 
   describe('input focus detection', () => {
-    it('ignores hotkey when input is focused', () => {
+    it('should ignore hotkey when input is focused', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -610,7 +610,7 @@ describe('useHotkey', () => {
       input.remove()
     })
 
-    it('ignores hotkey when textarea is focused', () => {
+    it('should ignore hotkey when textarea is focused', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -627,7 +627,7 @@ describe('useHotkey', () => {
       textarea.remove()
     })
 
-    it('ignores hotkey when contentEditable element is focused', () => {
+    it('should ignore hotkey when contentEditable element is focused', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -645,7 +645,7 @@ describe('useHotkey', () => {
       div.remove()
     })
 
-    it('ignores hotkey when role="textbox" element is focused', () => {
+    it('should ignore hotkey when role="textbox" element is focused', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -664,7 +664,7 @@ describe('useHotkey', () => {
       div.remove()
     })
 
-    it('ignores hotkey when role="searchbox" element is focused', () => {
+    it('should ignore hotkey when role="searchbox" element is focused', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -683,7 +683,7 @@ describe('useHotkey', () => {
       div.remove()
     })
 
-    it('ignores hotkey when role="combobox" element is focused', () => {
+    it('should ignore hotkey when role="combobox" element is focused', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -702,7 +702,7 @@ describe('useHotkey', () => {
       div.remove()
     })
 
-    it('ignores hotkey when role="spinbutton" element is focused', () => {
+    it('should ignore hotkey when role="spinbutton" element is focused', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -721,7 +721,7 @@ describe('useHotkey', () => {
       div.remove()
     })
 
-    it('ignores hotkey when date input is focused', () => {
+    it('should ignore hotkey when date input is focused', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -739,7 +739,7 @@ describe('useHotkey', () => {
       input.remove()
     })
 
-    it('ignores hotkey when datetime-local input is focused', () => {
+    it('should ignore hotkey when datetime-local input is focused', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -757,7 +757,7 @@ describe('useHotkey', () => {
       input.remove()
     })
 
-    it('ignores hotkey when time input is focused', () => {
+    it('should ignore hotkey when time input is focused', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -775,7 +775,7 @@ describe('useHotkey', () => {
       input.remove()
     })
 
-    it('fires hotkey when checkbox is focused', () => {
+    it('should fire hotkey when checkbox is focused', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -793,7 +793,7 @@ describe('useHotkey', () => {
       checkbox.remove()
     })
 
-    it('fires hotkey when radio button is focused', () => {
+    it('should fire hotkey when radio button is focused', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -811,7 +811,7 @@ describe('useHotkey', () => {
       radio.remove()
     })
 
-    it('fires hotkey when inputs option is true even if input focused', () => {
+    it('should fire hotkey when inputs option is true even if input focused', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -828,7 +828,7 @@ describe('useHotkey', () => {
       input.remove()
     })
 
-    it('uses reactive inputs option', async () => {
+    it('should use reactive inputs option', async () => {
       const callback = vi.fn()
       const inputs = ref(false)
 
@@ -853,7 +853,7 @@ describe('useHotkey', () => {
   })
 
   describe('event type option', () => {
-    it('listens to keyup when event option is keyup', () => {
+    it('should listen to keyup when event option is keyup', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -869,7 +869,7 @@ describe('useHotkey', () => {
       expect(callback).toHaveBeenCalledTimes(1)
     })
 
-    it('does not listen to keydown when event is keyup', () => {
+    it('should not listen to keydown when event is keyup', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -881,7 +881,7 @@ describe('useHotkey', () => {
       expect(callback).not.toHaveBeenCalled()
     })
 
-    it('switches listener when event option changes reactively', async () => {
+    it('should switch listener when event option changes reactively', async () => {
       const callback = vi.fn()
       const event = ref<'keydown' | 'keyup'>('keydown')
 
@@ -908,7 +908,7 @@ describe('useHotkey', () => {
   })
 
   describe('reactive keys', () => {
-    it('updates when keys ref changes', async () => {
+    it('should update when keys ref changes', async () => {
       const callback = vi.fn()
       const keys = ref('a')
 
@@ -929,7 +929,7 @@ describe('useHotkey', () => {
       expect(callback).toHaveBeenCalledTimes(2)
     })
 
-    it('handles undefined keys', async () => {
+    it('should handle undefined keys', async () => {
       const callback = vi.fn()
       const keys = ref<string | undefined>('a')
 
@@ -949,7 +949,7 @@ describe('useHotkey', () => {
   })
 
   describe('pause/resume', () => {
-    it('pause() stops responding to hotkeys', () => {
+    it('should stop responding to hotkeys on pause()', () => {
       const callback = vi.fn()
       let pause: () => void
 
@@ -965,7 +965,7 @@ describe('useHotkey', () => {
       expect(callback).toHaveBeenCalledTimes(1) // still 1
     })
 
-    it('resume() re-enables hotkeys after pause', () => {
+    it('should re-enable hotkeys via resume() after pause', () => {
       const callback = vi.fn()
       let pause: () => void
       let resume: () => void
@@ -983,7 +983,7 @@ describe('useHotkey', () => {
       expect(callback).toHaveBeenCalledTimes(1)
     })
 
-    it('isPaused reflects pause state', () => {
+    it('should reflect pause state in isPaused', () => {
       let isPaused: { value: boolean }
       let pause: () => void
       let resume: () => void
@@ -1001,7 +1001,7 @@ describe('useHotkey', () => {
       expect(isPaused!.value).toBe(false)
     })
 
-    it('isActive reflects listener state', async () => {
+    it('should reflect listener state in isActive', async () => {
       const keys = ref<string | undefined>('a')
       let isActive: { value: boolean }
       let pause: () => void
@@ -1024,7 +1024,7 @@ describe('useHotkey', () => {
       expect(isActive!.value).toBe(false)
     })
 
-    it('changing keys while paused does not setup listener', async () => {
+    it('should not setup listener when changing keys while paused', async () => {
       const callback = vi.fn()
       const keys = ref('a')
       let pause: () => void
@@ -1043,7 +1043,7 @@ describe('useHotkey', () => {
       expect(callback).not.toHaveBeenCalled()
     })
 
-    it('resume after keys change uses new keys', async () => {
+    it('should use new keys on resume after keys change', async () => {
       const callback = vi.fn()
       const keys = ref('a')
       let pause: () => void
@@ -1065,7 +1065,7 @@ describe('useHotkey', () => {
       expect(callback).toHaveBeenCalledTimes(1)
     })
 
-    it('stop() mid-sequence clears timer', () => {
+    it('should clear timer on stop() mid-sequence', () => {
       const callback = vi.fn()
       let stop: () => void
 
@@ -1082,7 +1082,7 @@ describe('useHotkey', () => {
       expect(callback).not.toHaveBeenCalled()
     })
 
-    it('pause() mid-sequence clears timer', () => {
+    it('should clear timer on pause() mid-sequence', () => {
       const callback = vi.fn()
       let pause: () => void
       let resume: () => void
@@ -1104,7 +1104,7 @@ describe('useHotkey', () => {
       expect(callback).toHaveBeenCalledTimes(1)
     })
 
-    it('pause() twice then resume() works correctly', () => {
+    it('should work correctly when pause() called twice then resume()', () => {
       const callback = vi.fn()
       let pause: () => void
       let resume: () => void
@@ -1130,7 +1130,7 @@ describe('useHotkey', () => {
       expect(callback).toHaveBeenCalledTimes(1)
     })
 
-    it('stop() prevents resume() from re-enabling listener', () => {
+    it('should prevent resume() from re-enabling listener via stop()', () => {
       const callback = vi.fn()
       let stop: () => void
       let resume: () => void
@@ -1153,8 +1153,9 @@ describe('useHotkey', () => {
     })
   })
 
-  describe('sSR safety', () => {
-    it('isActive is false when keys is undefined', () => {
+  // eslint-disable-next-line vitest/prefer-lowercase-title
+  describe('SSR safety', () => {
+    it('should report isActive false when keys is undefined', () => {
       const callback = vi.fn()
       let isActive: { value: boolean }
 
@@ -1166,7 +1167,7 @@ describe('useHotkey', () => {
       expect(isActive!.value).toBe(false)
     })
 
-    it('pause/resume/stop do not throw when keys is undefined', () => {
+    it('should not throw from pause/resume/stop when keys is undefined', () => {
       const callback = vi.fn()
       let pause: () => void
       let resume: () => void
@@ -1182,7 +1183,7 @@ describe('useHotkey', () => {
       expect(() => stop!()).not.toThrow()
     })
 
-    it('handles transition from undefined to defined keys', async () => {
+    it('should handle transition from undefined to defined keys', async () => {
       const callback = vi.fn()
       const keys = ref<string | undefined>(undefined)
       let isActive: { value: boolean }
@@ -1204,35 +1205,35 @@ describe('useHotkey', () => {
 })
 
 describe('splitKeyCombination', () => {
-  it('splits simple combination', () => {
+  it('should split simple combination', () => {
     expect(splitKeyCombination('ctrl+k')).toEqual({
       keys: ['ctrl', 'k'],
       separators: ['+'],
     })
   })
 
-  it('splits multiple modifiers', () => {
+  it('should split multiple modifiers', () => {
     expect(splitKeyCombination('ctrl+shift+k')).toEqual({
       keys: ['ctrl', 'shift', 'k'],
       separators: ['+', '+'],
     })
   })
 
-  it('handles single key', () => {
+  it('should handle single key', () => {
     expect(splitKeyCombination('a')).toEqual({
       keys: ['a'],
       separators: [],
     })
   })
 
-  it('normalizes key aliases', () => {
+  it('should normalize key aliases', () => {
     expect(splitKeyCombination('control+esc')).toEqual({
       keys: ['ctrl', 'escape'],
       separators: ['+'],
     })
   })
 
-  it('parses symbol alias keys', () => {
+  it('should parse symbol alias keys', () => {
     expect(splitKeyCombination('plus')).toEqual({
       keys: ['+'],
       separators: [],
@@ -1249,7 +1250,7 @@ describe('splitKeyCombination', () => {
     })
   })
 
-  it('returns empty for invalid combinations', () => {
+  it('should return empty for invalid combinations', () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
     expect(splitKeyCombination('')).toEqual({ keys: [], separators: [] })
@@ -1258,35 +1259,35 @@ describe('splitKeyCombination', () => {
     warnSpy.mockRestore()
   })
 
-  it('handles literal minus as key', () => {
+  it('should handle literal minus as key', () => {
     expect(splitKeyCombination('ctrl+-')).toEqual({
       keys: ['ctrl', '-'],
       separators: ['+'],
     })
   })
 
-  it('handles slash separator', () => {
+  it('should handle slash separator', () => {
     expect(splitKeyCombination('ctrl/k')).toEqual({
       keys: ['ctrl', 'k'],
       separators: ['/'],
     })
   })
 
-  it('handles slash separator with aliases', () => {
+  it('should handle slash separator with aliases', () => {
     expect(splitKeyCombination('up/down')).toEqual({
       keys: ['arrowup', 'arrowdown'],
       separators: ['/'],
     })
   })
 
-  it('handles underscore separator', () => {
+  it('should handle underscore separator', () => {
     expect(splitKeyCombination('ctrl_k')).toEqual({
       keys: ['ctrl', 'k'],
       separators: ['_'],
     })
   })
 
-  it('handles mixed separators', () => {
+  it('should handle mixed separators', () => {
     expect(splitKeyCombination('ctrl+shift/k')).toEqual({
       keys: ['ctrl', 'shift', 'k'],
       separators: ['+', '/'],
@@ -1294,7 +1295,7 @@ describe('splitKeyCombination', () => {
   })
 
   describe('warnings', () => {
-    it('warns on empty combination', () => {
+    it('should warn on empty combination', () => {
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       splitKeyCombination('')
@@ -1305,7 +1306,7 @@ describe('splitKeyCombination', () => {
       warnSpy.mockRestore()
     })
 
-    it('warns on invalid leading separator', () => {
+    it('should warn on invalid leading separator', () => {
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       splitKeyCombination('+a')
@@ -1316,7 +1317,7 @@ describe('splitKeyCombination', () => {
       warnSpy.mockRestore()
     })
 
-    it('warns on double plus separator', () => {
+    it('should warn on double plus separator', () => {
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       splitKeyCombination('ctrl++k')
@@ -1337,27 +1338,47 @@ describe('splitKeyCombination', () => {
 
       warnSpy.mockRestore()
     })
+
+    it('should suppress empty-string warning when isInternal is true', () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+      const result = splitKeyCombination('', true)
+      expect(result).toEqual({ keys: [], separators: [] })
+      expect(warnSpy).not.toHaveBeenCalled()
+
+      warnSpy.mockRestore()
+    })
+
+    it('should suppress invalid-structure warning when isInternal is true', () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+      const result = splitKeyCombination('+a', true)
+      expect(result).toEqual({ keys: [], separators: [] })
+      expect(warnSpy).not.toHaveBeenCalled()
+
+      warnSpy.mockRestore()
+    })
   })
 })
 
 describe('splitKeySequence', () => {
-  it('splits simple sequence', () => {
+  it('should split simple sequence', () => {
     expect(splitKeySequence('g-h')).toEqual(['g', 'h'])
   })
 
-  it('splits sequence with combinations', () => {
+  it('should split sequence with combinations', () => {
     expect(splitKeySequence('ctrl+k-p')).toEqual(['ctrl+k', 'p'])
   })
 
-  it('handles single key (not a sequence)', () => {
+  it('should handle single key (not a sequence)', () => {
     expect(splitKeySequence('a')).toEqual(['a'])
   })
 
-  it('handles standalone literal minus in sequence', () => {
+  it('should handle standalone literal minus in sequence', () => {
     expect(splitKeySequence('-')).toEqual(['-'])
   })
 
-  it('returns empty for invalid sequences', () => {
+  it('should return empty for invalid sequences', () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
     expect(splitKeySequence('')).toEqual([])
@@ -1365,16 +1386,16 @@ describe('splitKeySequence', () => {
     warnSpy.mockRestore()
   })
 
-  it('handles literal minus in combination', () => {
+  it('should handle literal minus in combination', () => {
     expect(splitKeySequence('ctrl+-')).toEqual(['ctrl+-'])
   })
 
-  it('splits three-key sequence', () => {
+  it('should split three-key sequence', () => {
     expect(splitKeySequence('g-i-t')).toEqual(['g', 'i', 't'])
   })
 
   describe('warnings', () => {
-    it('warns on empty sequence', () => {
+    it('should warn on empty sequence', () => {
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       splitKeySequence('')
@@ -1385,7 +1406,7 @@ describe('splitKeySequence', () => {
       warnSpy.mockRestore()
     })
 
-    it('warns on invalid leading separator', () => {
+    it('should warn on invalid leading separator', () => {
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       splitKeySequence('-a')
@@ -1396,7 +1417,7 @@ describe('splitKeySequence', () => {
       warnSpy.mockRestore()
     })
 
-    it('warns on invalid trailing separator', () => {
+    it('should warn on invalid trailing separator', () => {
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       splitKeySequence('a-')
@@ -1406,37 +1427,43 @@ describe('splitKeySequence', () => {
       )
       warnSpy.mockRestore()
     })
+
+    it('should treat underscore-minus as combination, not sequence separator', () => {
+      // 'ctrl_-' -> '-' preceded by '_', prevPrev 'l' (not + or /)
+      // -> precededBySeparator = true -> minus is part of combination
+      expect(splitKeySequence('ctrl_-')).toEqual(['ctrl_-'])
+    })
   })
 })
 
 describe('normalizeKey', () => {
-  it('normalizes modifier aliases', () => {
+  it('should normalize modifier aliases', () => {
     expect(normalizeKey('control')).toBe('ctrl')
     expect(normalizeKey('command')).toBe('cmd')
     expect(normalizeKey('option')).toBe('alt')
   })
 
-  it('normalizes arrow key aliases', () => {
+  it('should normalize arrow key aliases', () => {
     expect(normalizeKey('up')).toBe('arrowup')
     expect(normalizeKey('down')).toBe('arrowdown')
     expect(normalizeKey('left')).toBe('arrowleft')
     expect(normalizeKey('right')).toBe('arrowright')
   })
 
-  it('normalizes common key aliases', () => {
+  it('should normalize common key aliases', () => {
     expect(normalizeKey('esc')).toBe('escape')
     expect(normalizeKey('space')).toBe(' ')
     expect(normalizeKey('return')).toBe('enter')
     expect(normalizeKey('del')).toBe('delete')
   })
 
-  it('normalizes symbol aliases', () => {
+  it('should normalize symbol aliases', () => {
     expect(normalizeKey('plus')).toBe('+')
     expect(normalizeKey('slash')).toBe('/')
     expect(normalizeKey('underscore')).toBe('_')
   })
 
-  it('preserves unknown keys in lowercase', () => {
+  it('should preserve unknown keys in lowercase', () => {
     expect(normalizeKey('Enter')).toBe('enter')
     expect(normalizeKey('F1')).toBe('f1')
   })

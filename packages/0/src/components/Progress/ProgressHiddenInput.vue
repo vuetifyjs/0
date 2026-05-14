@@ -7,7 +7,7 @@
  */
 
 <script lang="ts">
-  // Components
+  // Context
   import { useProgressRoot } from './ProgressRoot.vue'
 
   // Utilities

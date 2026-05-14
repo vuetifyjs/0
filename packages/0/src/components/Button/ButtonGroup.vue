@@ -89,7 +89,7 @@
   const selection = createSelection({
     disabled: toRef(() => disabled),
     multiple: toRef(() => multiple),
-    mandatory,
+    mandatory: toRef(() => mandatory),
     events: true,
   })
 

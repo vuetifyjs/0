@@ -13,6 +13,8 @@
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
+
+  // Context
   import ComboboxHiddenInput from './ComboboxHiddenInput.vue'
 
   // Composables
@@ -25,7 +27,7 @@
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
-  import type { ComboboxAdapterInterface, ComboboxContext } from '#v0/composables/createCombobox'
+  import type { ComboboxAdapter, ComboboxContext } from '#v0/composables/createCombobox'
   import type { MaybeArray, ID } from '#v0/types'
 
   export interface ComboboxRootProps extends AtomProps {
@@ -54,7 +56,7 @@
     /** Manual error messages */
     errorMessages?: MaybeArray<string>
     /** Filtering/loading adapter (client-side or server-side) */
-    adapter?: ComboboxAdapterInterface
+    adapter?: ComboboxAdapter
     /** Maps selected value to input display text. Defaults to String(value). */
     displayValue?: (value: unknown) => string
   }
@@ -122,10 +124,10 @@
     id,
     name,
     form,
-    disabled,
-    multiple,
-    mandatory,
-    strict,
+    disabled: toRef(() => disabled),
+    multiple: toRef(() => multiple),
+    mandatory: toRef(() => mandatory),
+    strict: toRef(() => strict),
     error: () => error,
     errorMessages: () => errorMessages,
     adapter,

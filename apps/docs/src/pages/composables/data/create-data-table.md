@@ -24,19 +24,20 @@ Composable data table built on v0 primitives. Composes sorting, filtering, pagin
 
 ## Usage
 
-Pass `items` and `columns` to get a fully reactive data table with search, sort, and pagination ready to use.
+Construct the table, then register columns via `table.columns.onboard` and rows via `table.onboard`. Each row becomes a ticket keyed by the `id` you supply — that id is what `selection.toggle`, `expansion.toggle`, and `unregister` accept. Columns are keyed by their own `id` field; that is what `sort.toggle` and the filter pipeline match against.
 
 ```ts collapse
 import { createDataTable } from '@vuetify/v0'
 
-const table = createDataTable({
-  items: users,
-  columns: [
-    { key: 'name', title: 'Name', sortable: true, filterable: true },
-    { key: 'email', title: 'Email', sortable: true, filterable: true },
-    { key: 'role', title: 'Role', sortable: true },
-  ],
-})
+const table = createDataTable<User>()
+
+table.columns.onboard([
+  { id: 'name', title: 'Name', sortable: true, filterable: true },
+  { id: 'email', title: 'Email', sortable: true, filterable: true },
+  { id: 'role', title: 'Role', sortable: true },
+])
+
+table.onboard(users.map(value => ({ id: value.id, value })))
 
 // Search
 table.search('john')
@@ -50,43 +51,50 @@ table.pagination.next()
 
 // Select rows
 table.selection.toggle('user-1')
+
+// Add / remove rows after setup
+const ticket = table.register({ id: 'user-99', value: user })
+ticket.unregister()           // remove via returned ticket
+table.unregister('user-1')    // remove by id
+table.clear()                 // wipe all rows
+
+// Add / remove columns after setup
+table.columns.register({ id: 'actions', title: '' })
+table.columns.unregister('actions')
+table.columns.clear()
 ```
 
-::: example
-/composables/create-data-table/basic/BasicTable.vue
-/composables/create-data-table/basic/columns.ts
-/composables/create-data-table/basic/data.ts
+## Reactivity
 
-### Basic Data Table
-
-A sortable, filterable, paginated table with row selection — wired entirely from `createDataTable`.
-
-:::
-
-## Context / DI
-
-Use `createDataTableContext` to share a data table instance across a component tree:
-
-```ts
-import { createDataTableContext } from '@vuetify/v0'
-
-const [useUsersTable, provideUsersTable, usersTable] =
-  createDataTableContext({
-    namespace: 'app:users',
-    items: users,
-    columns: [
-      { key: 'name', title: 'Name', sortable: true },
-      { key: 'email', title: 'Email' },
-    ],
-  })
-
-// In parent component
-provideUsersTable()
-
-// In child component (e.g., a toolbar or pagination control)
-const table = useUsersTable()
-table.sort('name', 'asc')
-```
+| Property / Method | Reactive | Notes |
+| - | :-: | - |
+| `items` | <AppSuccessIcon /> | Computed — final visible items (projected from registry tickets) |
+| `allItems` | <AppSuccessIcon /> | Computed — every registered row, unfiltered/unsorted |
+| `filteredItems` | <AppSuccessIcon /> | Computed — items after filtering |
+| `sortedItems` | <AppSuccessIcon /> | Computed — items after filter + sort |
+| `columns` | <AppSuccessIcon /> | RegistryContext — reactive column registry (`columns.values()` drives `leaves` and `headers`) |
+| `leaves` | <AppSuccessIcon /> | Computed — leaf columns (no children) used by the data pipeline |
+| `headers` | <AppSuccessIcon /> | Computed — 2D header grid with colspan/rowspan for rendering thead |
+| `query` | <AppSuccessIcon /> | ShallowRef — current search query (readonly) |
+| `sort.columns` | <AppSuccessIcon /> | Computed — current sort entries |
+| `pagination.page` | <AppSuccessIcon /> | ShallowRef — current page |
+| `pagination.items` | <AppSuccessIcon /> | Computed — visible page buttons |
+| `selection.selectedIds` | <AppSuccessIcon /> | `shallowReactive(Set)` — currently selected row IDs |
+| `selection.isAllSelected` | <AppSuccessIcon /> | Computed — all in scope selected |
+| `selection.isMixed` | <AppSuccessIcon /> | Computed — some but not all selected |
+| `expansion.expandedIds` | <AppSuccessIcon /> | `shallowReactive(Set)` — currently expanded row IDs |
+| `grouping.groups` | <AppSuccessIcon /> | Computed — grouped items |
+| `total` | <AppSuccessIcon /> | Computed — total row count |
+| `loading` | <AppSuccessIcon /> | Computed — adapter loading state |
+| `error` | <AppSuccessIcon /> | Computed — adapter error state |
+| `register(input)` | — | Method — adds a single row ticket, mutates the row registry (downstream refs recompute) |
+| `onboard(inputs)` | — | Method — bulk register rows |
+| `unregister(id)` | — | Method — removes a row ticket by id |
+| `clear()` | — | Method — wipes every row ticket (useful before re-fetching server data) |
+| `columns.register(input)` | — | Method — adds a single column ticket (reactively updates `leaves`, `headers`, sort group, filter pipeline) |
+| `columns.onboard(inputs)` | — | Method — bulk register columns |
+| `columns.unregister(id)` | — | Method — removes a column by id; drops it from sort state |
+| `columns.clear()` | — | Method — wipes every column |
 
 ## Adapters
 
@@ -94,11 +102,11 @@ Adapters control the data pipeline strategy. Pass one via the `adapter` option.
 
 | Adapter | Pipeline | Use Case |
 | - | - | - |
-| [ClientAdapter](#clientadapter-default) | filter → sort → paginate | Default. All processing client-side |
-| [ServerAdapter](#serveradapter) | pass-through | API-driven. Server handles filter/sort/paginate |
-| [VirtualAdapter](#virtualadapter) | filter → sort → (no paginate) | Large lists rendered with createVirtual |
+| [ClientDataTableAdapter](#clientdatatableadapter-default) | filter → sort → paginate | Default. All processing client-side |
+| [ServerDataTableAdapter](#serverdatatableadapter) | pass-through | API-driven. Server handles filter/sort/paginate |
+| [VirtualDataTableAdapter](#virtualdatatableadapter) | filter → sort → (no paginate) | Large lists rendered with createVirtual |
 
-### ClientAdapter (default)
+### ClientDataTableAdapter (default)
 
 All processing happens client-side. No constructor options — just use `createDataTable` without an `adapter` option.
 
@@ -114,16 +122,17 @@ graph LR
 
 ```ts
 import { createDataTable } from '@vuetify/v0'
-import { ClientAdapter } from '@vuetify/v0/data-table/adapters/client'
+import { ClientDataTableAdapter } from '@vuetify/v0/data-table/adapters/client'
 
-const table = createDataTable({
-  items: users,
-  columns,
-  adapter: new ClientAdapter(), // default — not required
+const table = createDataTable<User>({
+  adapter: new ClientDataTableAdapter(), // default — not required
 })
+
+table.columns.onboard(columns)
+table.onboard(users.map(value => ({ id: value.id, value })))
 ```
 
-### ServerAdapter
+### ServerDataTableAdapter
 
 Pass-through adapter for API-driven tables. The server handles all filtering, sorting, and pagination — the client only renders what it receives.
 
@@ -146,28 +155,40 @@ graph LR
 - `allItems`, `filteredItems`, `sortedItems`, and `items` all point to the same source (no client-side processing)
 - Exposes `loading` and `error` via `table.loading` and `table.error`
 
+Server-backed tables don't hold a long-lived `items` ref — instead, the fetch handler calls `table.clear()` and `table.onboard(...)` whenever a new page of results comes back. The registry becomes the single source of truth for what the table renders, and the adapter's `total` / `loading` / `error` refs drive pagination and UI state.
+
 ```ts
 import { createDataTable } from '@vuetify/v0'
-import { ServerAdapter } from '@vuetify/v0/data-table/adapters/server'
+import { ServerDataTableAdapter } from '@vuetify/v0/data-table/adapters/server'
 
-const table = createDataTable({
-  items: serverItems,
-  columns,
-  adapter: new ServerAdapter({
-    total: totalCount,
-    loading: isLoading,
-    error: fetchError,
-  }),
+const total = shallowRef(0)
+const loading = shallowRef(false)
+const error = shallowRef<Error | null>(null)
+
+const table = createDataTable<User>({
+  adapter: new ServerDataTableAdapter({ total, loading, error }),
 })
+
+table.columns.onboard(columns)
+
+async function load () {
+  loading.value = true
+  const result = await fetchPage(/* query, sorts, page */)
+  total.value = result.total
+  table.clear()
+  table.onboard(result.items.map(value => ({ id: value.id, value })))
+  loading.value = false
+}
 
 // Watch query/sort/page to trigger API calls
 watch(
   [table.query, table.sort.columns, table.pagination.page],
-  () => fetchData()
+  () => load(),
+  { immediate: true },
 )
 ```
 
-### VirtualAdapter
+### VirtualDataTableAdapter
 
 Client-side filtering and sorting without pagination slicing. All sorted items are returned for use with `createVirtual` at the rendering layer.
 
@@ -177,23 +198,41 @@ graph LR
 ```
 
 **Behavior:**
-- No constructor options — instantiate with `new VirtualAdapter()`
+- No constructor options — instantiate with `new VirtualDataTableAdapter()`
 - Resets on filter or sort changes
 - No `loading` or `error` state
 
 ```ts
 import { createDataTable, createVirtual } from '@vuetify/v0'
-import { VirtualAdapter } from '@vuetify/v0/data-table/adapters/virtual'
+import { VirtualDataTableAdapter } from '@vuetify/v0/data-table/adapters/virtual'
 
-const table = createDataTable({
-  items: largeDataset,
-  columns,
-  adapter: new VirtualAdapter(),
+const table = createDataTable<User>({
+  adapter: new VirtualDataTableAdapter(),
 })
+
+table.columns.onboard(columns)
+table.onboard(rows.map(value => ({ id: value.id, value })))
 
 // Wrap table.items with createVirtual for rendering
 const virtual = createVirtual(table.items, { itemHeight: 40 })
 ```
+
+> [!TIP]
+> Rows **and** columns are registered through the registry surface, not passed as factory options. Call `onboard` for bulk registration or `register` for one entry at a time — for rows the ticket id IS the row identifier, so selection, expansion, and grouping all key off it; for columns the `id` field is what `sort.toggle`, the filter pipeline, and the adapter all key off.
+>
+> ```ts
+> // Columns (live under table.columns)
+> table.columns.onboard([
+>   { id: 'name', title: 'Name', sortable: true },
+>   { id: 'email', title: 'Email', filterable: true },
+> ])
+>
+> // Rows (top-level — bulk)
+> table.onboard(rows.map(value => ({ id: value.id, value })))
+>
+> // Rows — one at a time
+> table.register({ id, value })
+> ```
 
 ## Features
 
@@ -202,16 +241,18 @@ const virtual = createVirtual(table.items, { itemHeight: 40 })
 Toggle sort cycles through directions. Configure with `mandate` and `firstSortOrder`.
 
 ```ts
-const table = createDataTable({
-  items,
-  columns: [
-    { key: 'name', sortable: true },
-    { key: 'age', sortable: true, sort: (a, b) => Number(a) - Number(b) },
-  ],
+const table = createDataTable<User>({
   mandate: true,             // asc → desc → asc (never clears)
   firstSortOrder: 'desc',   // First click sorts descending
   sortMultiple: true,        // Enable multi-column sort
 })
+
+table.columns.onboard([
+  { id: 'name', sortable: true },
+  { id: 'age', sortable: true, sort: (a, b) => Number(a) - Number(b) },
+])
+
+table.onboard(items.map(value => ({ id: value.id, value })))
 
 table.sort.toggle('name')
 table.sort.direction('name')     // 'asc' | 'desc' | 'none'
@@ -226,15 +267,16 @@ table.sort.reset()               // Clear all sort state
 Search filters across all `filterable` columns. Use per-column `filter` for custom logic.
 
 ```ts
-const table = createDataTable({
-  items,
-  columns: [
-    { key: 'name', filterable: true },
-    { key: 'status', filterable: true, filter: (value, query) => {
-      return String(value).toLowerCase() === query.toLowerCase()
-    }},
-  ],
-})
+const table = createDataTable<User>()
+
+table.columns.onboard([
+  { id: 'name', filterable: true },
+  { id: 'status', filterable: true, filter: (value, query) => {
+    return String(value).toLowerCase() === query.toLowerCase()
+  } },
+])
+
+table.onboard(items.map(value => ({ id: value.id, value })))
 
 table.search('active')
 ```
@@ -250,12 +292,13 @@ Control row selection with the `selectStrategy` option.
 | `'all'` | `selectAll`/`toggleAll` operate on all filtered items |
 
 ```ts
-const table = createDataTable({
-  items,
-  columns,
+const table = createDataTable<User>({
   selectStrategy: 'page',
   itemSelectable: 'canSelect',  // Disable selection for rows where canSelect is falsy
 })
+
+table.columns.onboard(columns)
+table.onboard(items.map(value => ({ id: value.id, value })))
 
 table.selection.toggle('row-1')
 table.selection.isSelected('row-1')     // true
@@ -270,11 +313,12 @@ table.selection.isMixed.value           // false
 Expand rows to reveal detail content.
 
 ```ts
-const table = createDataTable({
-  items,
-  columns,
+const table = createDataTable<User>({
   expandMultiple: false,  // Only one row expanded at a time
 })
+
+table.columns.onboard(columns)
+table.onboard(items.map(value => ({ id: value.id, value })))
 
 table.expansion.toggle('row-1')
 table.expansion.isExpanded('row-1')  // true
@@ -282,17 +326,42 @@ table.expansion.expandAll()
 table.expansion.collapseAll()
 ```
 
+### Dynamic columns
+
+Columns are a registry, so they can be added, removed, or replaced at any point — not just at construction. `leaves`, `headers`, the sort group, and the filter pipeline all react to column changes. Use this for user-toggled visibility, plugin-injected columns, or columns that arrive asynchronously with their schema.
+
+```ts
+const table = createDataTable<User>()
+
+// Initial columns
+table.columns.onboard([
+  { id: 'name', title: 'Name', sortable: true },
+  { id: 'email', title: 'Email' },
+])
+
+// Later: add a column at runtime
+table.columns.register({ id: 'actions', title: '' })
+
+// Remove a column — drops it from headers, leaves, and sort state
+table.columns.unregister('email')
+
+// Replace the column set entirely
+table.columns.clear()
+table.columns.onboard(nextColumns)
+```
+
 ### Grouping
 
 Group rows by a column value.
 
 ```ts
-const table = createDataTable({
-  items,
-  columns,
+const table = createDataTable<Employee>({
   groupBy: 'department',
   openAll: true,  // Auto-open all groups
 })
+
+table.columns.onboard(columns)
+table.onboard(items.map(value => ({ id: value.id, value })))
 
 table.grouping.groups.value  // [{ key: 'Engineering', value: 'Engineering', items: [...] }]
 table.grouping.toggle('Engineering')
@@ -301,28 +370,18 @@ table.grouping.openAll()
 table.grouping.closeAll()
 ```
 
-## Reactivity
-
-| Property | Reactive | Notes |
-| - | :-: | - |
-| `items` | <AppSuccessIcon /> | Computed — final visible items |
-| `allItems` | <AppSuccessIcon /> | Computed — raw unprocessed items |
-| `filteredItems` | <AppSuccessIcon /> | Computed — items after filtering |
-| `sortedItems` | <AppSuccessIcon /> | Computed — items after filter + sort |
-| `query` | <AppSuccessIcon /> | ShallowRef — current search query (readonly) |
-| `sort.columns` | <AppSuccessIcon /> | Computed — current sort entries |
-| `pagination.page` | <AppSuccessIcon /> | ShallowRef — current page |
-| `pagination.items` | <AppSuccessIcon /> | Computed — visible page buttons |
-| `selection.selectedIds` | <AppSuccessIcon /> | `shallowReactive(Set)` — currently selected row IDs |
-| `selection.isAllSelected` | <AppSuccessIcon /> | Computed — all in scope selected |
-| `selection.isMixed` | <AppSuccessIcon /> | Computed — some but not all selected |
-| `expansion.expandedIds` | <AppSuccessIcon /> | `shallowReactive(Set)` — currently expanded row IDs |
-| `grouping.groups` | <AppSuccessIcon /> | Computed — grouped items |
-| `total` | <AppSuccessIcon /> | Computed — total row count |
-| `loading` | <AppSuccessIcon /> | Computed — adapter loading state |
-| `error` | <AppSuccessIcon /> | Computed — adapter error state |
-
 ## Examples
+
+::: example
+/composables/create-data-table/basic/BasicTable.vue
+/composables/create-data-table/basic/columns.ts
+/composables/create-data-table/basic/data.ts
+
+### Basic Data Table
+
+A sortable, filterable, paginated table with row selection — wired entirely from `createDataTable`.
+
+:::
 
 ::: example
 /composables/create-data-table/server/ServerTable.vue
@@ -331,7 +390,7 @@ table.grouping.closeAll()
 
 ### Server Adapter
 
-A data table backed by a simulated API. The `ServerAdapter` delegates all filtering, sorting, and pagination to the server — the client only renders what it receives.
+A data table backed by a simulated API. The `ServerDataTableAdapter` delegates all filtering, sorting, and pagination to the server — the client only renders what it receives.
 
 **File breakdown:**
 
@@ -339,12 +398,12 @@ A data table backed by a simulated API. The `ServerAdapter` delegates all filter
 |------|------|
 | `ServerTable.vue` | Table with loading state, search, sort, and pagination |
 | `columns.ts` | Column definitions |
-| `api.ts` | Simulated server with `fetchUsers()` that filters/sorts/paginates a dataset |
+| `api.ts` | Simulated server with `fetchPage()` that filters/sorts/paginates a dataset |
 
 **Key patterns:**
 
-- `ServerAdapter` receives `total` and `loading` refs so the table knows the full dataset size without holding it client-side
-- A `watch` on `[table.query, table.sort.columns, table.pagination.page]` triggers `fetchUsers()` whenever the user interacts
+- `ServerDataTableAdapter` receives `total` and `loading` refs so the table knows the full dataset size without holding it client-side
+- A `watch` on `[table.query, table.sort.columns, table.pagination.page]` triggers `fetchPage()` whenever the user interacts
 - The simulated API applies search, sort, and pagination server-side, returning only the current page of results
 
 :::
@@ -382,7 +441,7 @@ A grouped table with row selection, custom numeric sort, and salary range filter
 
 ### Virtual Scrolling
 
-A table with 1,000 rows rendered through `createVirtual`. The `VirtualAdapter` skips pagination — all filtered/sorted items are passed directly to the virtual scroller.
+A table with 1,000 rows rendered through `createVirtual`. The `VirtualDataTableAdapter` skips pagination — all filtered/sorted items are passed directly to the virtual scroller.
 
 **File breakdown:**
 
@@ -394,7 +453,7 @@ A table with 1,000 rows rendered through `createVirtual`. The `VirtualAdapter` s
 
 **Key patterns:**
 
-- `VirtualAdapter` performs client-side filter and sort but returns all items (no pagination slicing)
+- `VirtualDataTableAdapter` performs client-side filter and sort but returns all items (no pagination slicing)
 - `createVirtual(table.items, { itemHeight: 40 })` handles virtualization at the rendering layer
 - The sticky `<thead>` stays visible while scrolling through virtual rows
 - Stats show rendered vs. filtered vs. total counts to demonstrate the virtual window

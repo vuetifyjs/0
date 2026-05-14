@@ -31,7 +31,7 @@ import { createSingle } from '#v0/composables/createSingle'
 import { createTokens, flatten } from '#v0/composables/createTokens'
 
 // Adapters
-import { Vuetify0LocaleAdapter } from '#v0/composables/useLocale/adapters/v0'
+import { V0LocaleAdapter } from '#v0/composables/useLocale/adapters/v0'
 
 // Types
 import type { SingleContext, SingleOptions, SingleTicket, SingleTicketInput } from '#v0/composables/createSingle'
@@ -40,9 +40,9 @@ import type { ID } from '#v0/types'
 import type { LocaleAdapter } from './adapters'
 
 // Exports
-export { Vuetify0LocaleAdapter } from '#v0/composables/useLocale/adapters'
+export { LocaleAdapter, V0LocaleAdapter } from '#v0/composables/useLocale/adapters'
 
-export type { LocaleAdapter, LocaleAdapterContext } from '#v0/composables/useLocale/adapters'
+export type { LocaleAdapterContext } from '#v0/composables/useLocale/adapters'
 
 export type LocaleRecord = TokenCollection
 
@@ -138,7 +138,7 @@ export function createLocale (_options: LocaleOptions = {}): LocaleContext {
     }
   }
 
-  const adapter = externalAdapter ?? new Vuetify0LocaleAdapter({
+  const adapter = externalAdapter ?? new V0LocaleAdapter({
     tokens,
     selectedId: registry.selectedId,
     fallbackLocale,

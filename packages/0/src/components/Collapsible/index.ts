@@ -10,6 +10,7 @@ export type { CollapsibleContentProps, CollapsibleContentSlotProps } from './Col
 export type { CollapsibleCueProps, CollapsibleCueSlotProps } from './CollapsibleCue.vue'
 export type { CollapsibleContext, CollapsibleRootProps, CollapsibleRootSlotProps } from './CollapsibleRoot.vue'
 
+// Context
 import Activator from './CollapsibleActivator.vue'
 import Content from './CollapsibleContent.vue'
 import Cue from './CollapsibleCue.vue'

@@ -14,6 +14,8 @@
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
+
+  // Context
   import { useSwitchGroup } from './SwitchGroup.vue'
   import { provideSwitchRoot } from './SwitchRoot.vue'
 
@@ -60,7 +62,7 @@
       'type': 'button' | undefined
       'role': 'switch'
       'aria-checked': boolean | 'mixed'
-      'aria-disabled': boolean | undefined
+      'aria-disabled': boolean
       'aria-label': string | undefined
       'aria-labelledby': string | undefined
       'aria-describedby': string | undefined
@@ -145,7 +147,7 @@
       'type': as === 'button' ? 'button' : undefined,
       'role': 'switch',
       'aria-checked': isMixed.value ? 'mixed' : isAllSelected.value,
-      'aria-disabled': isDisabled.value || undefined,
+      'aria-disabled': isDisabled.value,
       'aria-label': label || undefined,
       'aria-labelledby': ariaLabelledby || undefined,
       'aria-describedby': ariaDescribedby || undefined,

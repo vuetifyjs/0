@@ -1,6 +1,8 @@
 <script setup lang="ts">
   // Components
   import AppCloseButton from '@/components/app/AppCloseButton.vue'
+
+  // Context
   import { usePlayground } from './PlaygroundApp.vue'
 
   // Utilities

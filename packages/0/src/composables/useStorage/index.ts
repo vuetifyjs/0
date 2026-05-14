@@ -31,7 +31,10 @@ import { createPluginContext } from '#v0/composables/createPlugin'
 import { useWindowEventListener } from '#v0/composables/useEventListener'
 
 // Adapters
-import { MemoryAdapter } from '#v0/composables/useStorage/adapters'
+import { MemoryStorageAdapter } from '#v0/composables/useStorage/adapters'
+
+// Globals
+import { IN_BROWSER } from '#v0/constants/globals'
 
 // Utilities
 import { isArray, isNullOrUndefined, isObject } from '#v0/utilities'
@@ -40,9 +43,6 @@ import { ref, watch } from 'vue'
 // Types
 import type { StorageAdapter } from '#v0/composables/useStorage/adapters'
 import type { Ref } from 'vue'
-
-// Globals
-import { IN_BROWSER } from '#v0/constants/globals'
 
 export interface StorageContext {
   /** Check if a key exists in storage */
@@ -58,7 +58,7 @@ export interface StorageContext {
 }
 
 export interface StorageOptions {
-  /** The storage adapter to use. Defaults to localStorage in browser, MemoryAdapter otherwise */
+  /** The storage adapter to use. Defaults to localStorage in browser, MemoryStorageAdapter otherwise */
   adapter?: StorageAdapter
   /** The prefix to use for all storage keys. Defaults to 'v0:' */
   prefix?: string
@@ -79,9 +79,9 @@ export interface StorageContextOptions extends StorageOptions {
 export interface StoragePluginOptions extends StorageContextOptions {}
 
 // Exports
-export { MemoryAdapter } from '#v0/composables/useStorage/adapters'
+export { MemoryStorageAdapter, StorageAdapter } from '#v0/composables/useStorage/adapters'
 
-export type { StorageAdapter, StorageType } from '#v0/composables/useStorage/adapters'
+export type { StorageType } from '#v0/composables/useStorage/adapters'
 
 /**
  * Creates a new storage instance.
@@ -111,7 +111,7 @@ export function createStorage<
   E extends StorageContext,
 > (options: StorageOptions = {}) {
   const {
-    adapter = IN_BROWSER ? window.localStorage : new MemoryAdapter(),
+    adapter = IN_BROWSER ? window.localStorage : new MemoryStorageAdapter(),
     prefix = 'v0:',
     serializer = {
       read: JSON.parse,
@@ -135,10 +135,12 @@ export function createStorage<
     try {
       const parsed = serializer.read(raw)
 
-      // TTL check: expired entries are treated as absent
-      if (ttl && isObject(parsed) && '__v0' in parsed && '__v' in parsed) {
+      // Always unwrap v0's own envelope (identified by the __v0 discriminator)
+      // so legacy values written under a previous `ttl` config keep reading
+      // correctly after the option is removed.
+      if (isObject(parsed) && '__v0' in parsed && '__v' in parsed) {
         const envelope = parsed as { __v0: number, __v: unknown, __t: number }
-        if (Date.now() - envelope.__t > ttl) {
+        if (ttl && Date.now() - envelope.__t > ttl) {
           adapter?.removeItem(prefixedKey)
           return undefined
         }
@@ -257,7 +259,7 @@ export function createStorage<
 function createStorageFallback<
   E extends StorageContext = StorageContext,
 > (): E {
-  return createStorage<E>({ adapter: new MemoryAdapter() })
+  return createStorage<E>({ adapter: new MemoryStorageAdapter() })
 }
 
 export const [createStorageContext, createStoragePlugin, useStorage] =

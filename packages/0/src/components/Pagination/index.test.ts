@@ -1,11 +1,11 @@
 import { describe, expect, it, vi } from 'vitest'
 import { renderToString } from 'vue/server-renderer'
 
+import { Pagination } from './index'
+
 // Utilities
 import { mount } from '@vue/test-utils'
 import { createSSRApp, defineComponent, h, nextTick, ref } from 'vue'
-
-import { Pagination } from './index'
 
 describe('pagination', () => {
   describe('root', () => {
@@ -420,6 +420,36 @@ describe('pagination', () => {
         expect(itemProps.attrs.disabled).toBe(true)
         expect(itemProps.attrs.tabindex).toBe(-1)
       })
+
+      it('should not navigate when disabled item is selected', async () => {
+        const page = ref(1)
+        let itemProps: any
+
+        mount(Pagination.Root, {
+          props: {
+            'size': 100,
+            'renderless': true,
+            'modelValue': page.value,
+            'onUpdate:modelValue': (v: number) => {
+              page.value = v
+            },
+          },
+          slots: {
+            default: () =>
+              h(Pagination.Item, { value: 5, disabled: true }, {
+                default: (props: any) => {
+                  itemProps = props
+                  return h('button', 'Page 5')
+                },
+              }),
+          },
+        })
+
+        await nextTick()
+        itemProps.select()
+        await nextTick()
+        expect(page.value).toBe(1)
+      })
     })
   })
 
@@ -522,6 +552,37 @@ describe('pagination', () => {
 
       expect(page.value).toBe(1)
     })
+
+    it('should not navigate when disabled (already on first page)', async () => {
+      const page = ref(1)
+      let firstProps: any
+
+      mount(Pagination.Root, {
+        props: {
+          'size': 100,
+          'renderless': true,
+          'modelValue': page.value,
+          'onUpdate:modelValue': (v: number) => {
+            page.value = v
+          },
+        },
+        slots: {
+          default: () =>
+            h(Pagination.First, {}, {
+              default: (props: any) => {
+                firstProps = props
+                return h('button', 'First')
+              },
+            }),
+        },
+      })
+
+      await nextTick()
+      // Already on page 1 — first() should bail out
+      firstProps.first()
+      await nextTick()
+      expect(page.value).toBe(1)
+    })
   })
 
   describe('next', () => {
@@ -599,6 +660,38 @@ describe('pagination', () => {
       await nextTick()
 
       expect(page.value).toBe(2)
+    })
+
+    it('should not navigate when disabled (already on last page)', async () => {
+      const page = ref(10)
+      let nextProps: any
+
+      mount(Pagination.Root, {
+        props: {
+          'size': 100,
+          'itemsPerPage': 10,
+          'renderless': true,
+          'modelValue': page.value,
+          'onUpdate:modelValue': (v: number) => {
+            page.value = v
+          },
+        },
+        slots: {
+          default: () =>
+            h(Pagination.Next, {}, {
+              default: (props: any) => {
+                nextProps = props
+                return h('button', 'Next')
+              },
+            }),
+        },
+      })
+
+      await nextTick()
+      // Already on last page — next() should bail out
+      nextProps.next()
+      await nextTick()
+      expect(page.value).toBe(10)
     })
   })
 
@@ -785,6 +878,40 @@ describe('pagination', () => {
 
       expect(statusProps.text).toBe('Pagination.status')
 
+      vi.useRealTimers()
+    })
+
+    // Regression: the page-change watcher used to schedule setTimeout without
+    // tracking the handle, so unmounting between page change and the 100ms
+    // tick left a pending callback that mutated text on a destroyed component.
+    it('should clear pending live-region timer on unmount', async () => {
+      vi.useFakeTimers()
+      const clearSpy = vi.spyOn(globalThis, 'clearTimeout')
+
+      let rootProps: any
+      const wrapper = mount(Pagination.Root, {
+        props: { size: 100, itemsPerPage: 10, renderless: true },
+        slots: {
+          default: (props: any) => {
+            rootProps = props
+            return [h(Pagination.Status, {}, { default: () => h('div') })]
+          },
+        },
+      })
+
+      await nextTick()
+
+      // Schedule a pending timer by changing the page.
+      rootProps.next()
+      await nextTick()
+
+      const callsBeforeUnmount = clearSpy.mock.calls.length
+      wrapper.unmount()
+
+      // onBeforeUnmount must have invoked clearTimeout for the pending handle.
+      expect(clearSpy.mock.calls.length).toBeGreaterThan(callsBeforeUnmount)
+
+      clearSpy.mockRestore()
       vi.useRealTimers()
     })
   })
@@ -1159,13 +1286,13 @@ describe('pagination', () => {
 
       mount(defineComponent({
         render: () => [
-          h(Pagination.Root, { size: 100, namespace: 'pag-1', modelValue: 1, renderless: true }, {
+          h(Pagination.Root, { size: 100, namespace: 'v0:pag-1', modelValue: 1, renderless: true }, {
             default: (props: any) => {
               pag1Props = props
               return h('div', 'Pagination 1')
             },
           }),
-          h(Pagination.Root, { size: 50, namespace: 'pag-2', modelValue: 3, renderless: true }, {
+          h(Pagination.Root, { size: 50, namespace: 'v0:pag-2', modelValue: 3, renderless: true }, {
             default: (props: any) => {
               pag2Props = props
               return h('div', 'Pagination 2')
@@ -1305,6 +1432,44 @@ describe('pagination', () => {
       wrapper.unmount()
     })
 
+    it('should set role=navigation when as is not nav', async () => {
+      let slotProps: any
+
+      mount(Pagination.Root, {
+        props: { size: 100, as: 'div' },
+        slots: {
+          default: (props: any) => {
+            slotProps = props
+            return h('div', 'Content')
+          },
+        },
+      })
+
+      await nextTick()
+
+      // When `as` is not 'nav', role should be 'navigation' to maintain semantics
+      expect(slotProps.attrs.role).toBe('navigation')
+    })
+
+    it('should leave role undefined when as defaults to nav', async () => {
+      let slotProps: any
+
+      mount(Pagination.Root, {
+        props: { size: 100 },
+        slots: {
+          default: (props: any) => {
+            slotProps = props
+            return h('div', 'Content')
+          },
+        },
+      })
+
+      await nextTick()
+
+      // <nav> already conveys navigation role; explicit role omitted
+      expect(slotProps.attrs.role).toBeUndefined()
+    })
+
     it('should respect explicit totalVisible regardless of measurement state', async () => {
       let slotProps: any
 
@@ -1331,7 +1496,8 @@ describe('pagination', () => {
     })
   })
 
-  describe('sSR / Hydration', () => {
+  // eslint-disable-next-line vitest/prefer-lowercase-title
+  describe('SSR / Hydration', () => {
     it('should render to string on server without errors', async () => {
       const app = createSSRApp(defineComponent({
         render: () =>

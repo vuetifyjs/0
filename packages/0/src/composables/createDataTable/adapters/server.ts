@@ -13,14 +13,17 @@
 // Composables
 import { createPagination } from '#v0/composables/createPagination'
 
+// Base
+import { DataTableAdapter } from './adapter'
+
 // Utilities
 import { toRef, toValue, watch } from 'vue'
 
 // Types
-import type { DataTableAdapterContext, DataTableAdapterInterface, DataTableAdapterResult } from './adapter'
+import type { DataTableAdapterContext, DataTableAdapterResult } from './adapter'
 import type { MaybeRefOrGetter } from 'vue'
 
-export interface ServerAdapterOptions {
+export interface ServerDataTableAdapterOptions {
   /** Total number of items on the server (for pagination calculation) */
   total: MaybeRefOrGetter<number>
   /** Loading state (e.g., from useFetch) */
@@ -29,10 +32,11 @@ export interface ServerAdapterOptions {
   error?: MaybeRefOrGetter<Error | null>
 }
 
-export class ServerAdapter<T extends Record<string, unknown>> implements DataTableAdapterInterface<T> {
-  private options: ServerAdapterOptions
+export class ServerDataTableAdapter<T extends Record<string, unknown>> extends DataTableAdapter<T> {
+  private options: ServerDataTableAdapterOptions
 
-  constructor (options: ServerAdapterOptions) {
+  constructor (options: ServerDataTableAdapterOptions) {
+    super()
     this.options = options
   }
 

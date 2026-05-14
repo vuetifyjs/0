@@ -254,7 +254,7 @@ export function createSelection<
 
     if (isMultiple) {
       for (const id of currentIds.difference(targetIds)) {
-        model.selectedIds.delete(id)
+        unselect(id)
       }
       for (const id of targetIds.difference(currentIds)) {
         model.selectedIds.add(id)

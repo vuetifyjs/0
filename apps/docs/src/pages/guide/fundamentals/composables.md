@@ -51,7 +51,7 @@ selection.select('a')
 > [!TIP]
 > Components and composables are interchangeable. Every component uses a composable internally—you can always drop to the composable for more control.
 
-> [!ASKAI] How do I choose between composables and components for my use case?
+> [!ASKAI] Show me how to convert a Selection component usage to createSelection while keeping the same behavior.
 
 ## Quick Reactivity Note
 
@@ -263,7 +263,7 @@ ticket?.value // MyItem
 
 > [!ASKAI] Which composables should I use for a data table with filtering and pagination?
 
-## Frequently Asked Questions
+## FAQ
 
 ::: faq
 ??? Should I always use context injection or can I call factories directly?

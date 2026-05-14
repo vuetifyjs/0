@@ -77,7 +77,7 @@ flowchart TD
   CreateSelection["createSelection"]
   UseVirtualFocus["useVirtualFocus"]
   UsePopover["usePopover"]
-  Adapter["ComboboxClientAdapter / ComboboxServerAdapter"]
+  Adapter["ClientComboboxAdapter / ServerComboboxAdapter"]
   Root["Combobox.Root"]:::primary
   Activator["Combobox.Activator"]
   Control["Combobox.Control"]
@@ -136,7 +136,7 @@ Both individual items and the entire combobox can be disabled. Disabled items ar
 
 ### Server-Side Filtering
 
-Pass a `ComboboxServerAdapter` instance via the `adapter` prop to disable client-side filtering. The adapter is a pass-through — it shows all registered items and leaves filtering to the consumer. Watch `context.query` via `useComboboxContext()` to drive your own async data fetching.
+Pass a `ServerComboboxAdapter` instance via the `adapter` prop to disable client-side filtering. The adapter is a pass-through — it shows all registered items and leaves filtering to the consumer. Watch `context.query` via `useComboboxContext()` to drive your own async data fetching.
 
 :::
 
@@ -156,13 +156,13 @@ Set `name` on Root to auto-render hidden inputs for form submission — one per 
 
 ### Custom Client Filtering
 
-Pass a `ComboboxClientAdapter` with a custom `filter` function to override the default substring matching:
+Pass a `ClientComboboxAdapter` with a custom `filter` function to override the default substring matching:
 
 ```vue
 <script setup lang="ts">
-  import { Combobox, ComboboxClientAdapter } from '@vuetify/v0'
+  import { Combobox, ClientComboboxAdapter } from '@vuetify/v0'
 
-  const adapter = new ComboboxClientAdapter({
+  const adapter = new ClientComboboxAdapter({
     filter: (query, value) => String(value).toLowerCase().startsWith(query.toLowerCase()),
   })
 </script>

@@ -1,0 +1,5 @@
+export { default as indexHtmlTemplate } from './index.html?raw'
+export { default as packageJsonTemplate } from './package.json?raw'
+export { default as tsconfigTemplate } from './tsconfig.json?raw'
+export { default as unoConfigTemplate } from './uno.config.ts?raw'
+export { default as viteConfigTemplate } from './vite.config.ts?raw'

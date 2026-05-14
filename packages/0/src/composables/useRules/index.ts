@@ -32,6 +32,7 @@
 // Composables
 import { createPluginContext } from '#v0/composables/createPlugin'
 import { useLocale } from '#v0/composables/useLocale'
+import { useLogger } from '#v0/composables/useLogger'
 
 // Adapters
 import { isStandardSchema, toRule } from './adapters/standard'
@@ -108,6 +109,8 @@ function resolveAlias (
 }
 
 function createResolve (aliases: RuleAliases, locale?: { t: (key: string) => string }) {
+  const logger = useLogger()
+
   return function resolve (rules: RuleInput[]): FormValidationRule[] {
     const result: FormValidationRule[] = []
 
@@ -122,13 +125,12 @@ function createResolve (aliases: RuleAliases, locale?: { t: (key: string) => str
         continue
       }
 
-      // String alias lookup
       const predicate = aliases[rule as string]
 
       if (predicate) {
         result.push(resolveAlias(rule as string, predicate, locale))
       } else if (typeof __DEV__ !== 'undefined' && __DEV__) {
-        console.warn(`[v0 warn] Unknown validation rule alias "${rule}". Register it via rules.aliases or install a rules plugin.`)
+        logger.warn(`Unknown validation rule alias "${rule}". Register it via rules.aliases or install a rules plugin.`)
       }
     }
 

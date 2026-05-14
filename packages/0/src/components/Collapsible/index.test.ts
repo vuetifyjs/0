@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest'
 
+import { Collapsible } from './index'
+
 // Utilities
 import { mount } from '@vue/test-utils'
 import { h, nextTick, ref } from 'vue'
-
-import { Collapsible } from './index'
 
 interface MountResult {
   wrapper: ReturnType<typeof mount>
@@ -291,7 +291,8 @@ describe('collapsible', () => {
       })
     })
 
-    describe('aRIA attributes', () => {
+    // eslint-disable-next-line vitest/prefer-lowercase-title
+    describe('ARIA attributes', () => {
       it('should have aria-expanded false when closed', async () => {
         const { activatorProps, wait } = mountCollapsible()
         await wait()
@@ -334,6 +335,56 @@ describe('collapsible', () => {
         await wait()
 
         expect(activatorProps().attrs.role).toBeUndefined()
+      })
+
+      it('should set role=button when as is non-button element', async () => {
+        let activatorProps: any
+
+        mount(Collapsible.Root, {
+          slots: {
+            default: () => [
+              h(Collapsible.Activator as any, { as: 'div' }, {
+                default: (sp: any) => {
+                  activatorProps = sp
+                  return h('span', 'X')
+                },
+              }),
+              h(Collapsible.Content as any, {}, () => h('div', 'C')),
+            ],
+          },
+        })
+
+        await nextTick()
+
+        // Non-button element gets role=button instead of native
+        expect(activatorProps.attrs.role).toBe('button')
+        expect(activatorProps.attrs.type).toBeUndefined()
+        // disabled attribute is omitted on non-button elements
+        expect(activatorProps.attrs.disabled).toBeUndefined()
+      })
+
+      it('should set aria-disabled when as is non-button and disabled', async () => {
+        let activatorProps: any
+
+        mount(Collapsible.Root, {
+          props: { disabled: true },
+          slots: {
+            default: () => [
+              h(Collapsible.Activator as any, { as: 'div' }, {
+                default: (sp: any) => {
+                  activatorProps = sp
+                  return h('span', 'X')
+                },
+              }),
+              h(Collapsible.Content as any, {}, () => h('div', 'C')),
+            ],
+          },
+        })
+
+        await nextTick()
+
+        // Non-button element uses aria-disabled instead of native disabled
+        expect(activatorProps.attrs['aria-disabled']).toBe(true)
       })
     })
 
@@ -529,7 +580,8 @@ describe('collapsible', () => {
       })
     })
 
-    describe('aRIA attributes', () => {
+    // eslint-disable-next-line vitest/prefer-lowercase-title
+    describe('ARIA attributes', () => {
       it('should have role=region', async () => {
         const { contentProps, wait } = mountCollapsible()
         await wait()
@@ -642,7 +694,8 @@ describe('collapsible', () => {
       })
     })
 
-    describe('aRIA attributes', () => {
+    // eslint-disable-next-line vitest/prefer-lowercase-title
+    describe('ARIA attributes', () => {
       it('should have aria-hidden true', async () => {
         const { cueProps, wait } = mountCollapsible({ withCue: true })
         await wait()

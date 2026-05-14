@@ -6,7 +6,7 @@
  *
  * @example
  * ```ts
- * import { ClientAdapter, ServerAdapter, VirtualAdapter } from '@vuetify/v0/data-table/adapters'
+ * import { ClientDataTableAdapter, ServerDataTableAdapter, VirtualDataTableAdapter } from '@vuetify/v0/data-table/adapters'
  * ```
  */
 

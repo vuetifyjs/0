@@ -5,16 +5,16 @@ import { isArray, useTheme, useTimer } from '@vuetify/v0'
 import { decodePlaygroundHash, encodePlaygroundHash, parseVuetifyPlayTuple } from '@/composables/usePlayground'
 import { usePlaygroundSettings } from '@/composables/usePlaygroundSettings'
 
+// Data
+import { createMainTs, UNO_CONFIG_TS } from '@/data/playground-defaults'
+import { ADDONS, DEFAULT_APP, PRESETS } from '@/data/presets'
+
 // Utilities
 import { compileFile, useStore } from '@vue/repl/core'
 import { computed, onMounted, shallowRef, watch, watchEffect } from 'vue'
 
 // Types
 import type { PlaygroundHashData } from '@/composables/usePlayground'
-
-// Data
-import { createMainTs, UNO_CONFIG_TS } from '@/data/playground-defaults'
-import { ADDONS, DEFAULT_APP, PRESETS } from '@/data/presets'
 
 export function usePlaygroundFiles () {
   const theme = useTheme()

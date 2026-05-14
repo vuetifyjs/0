@@ -11,13 +11,18 @@
   import { useClipboard } from '@/composables/useClipboard'
   import { providePageMeta } from '@/composables/usePageMeta'
 
+  // Data
+  import maturityData from '#v0/maturity.json'
+  // Constants
+  import { MATURITY_MATRIX_HREF, SKILL_LEVELS_DOCS_HREF } from '@/constants/links'
+
   // Utilities
   import { useScrollToAnchor } from '@/utilities/scroll'
   import { onBeforeUnmount, shallowRef, toRef } from 'vue'
   import { useRoute } from 'vue-router'
 
-  // Constants
-  import { SKILL_LEVELS_DOCS_HREF } from '@/constants/links'
+  // Types
+  import type { PhaseConfig } from '@/composables/usePageMeta'
 
   const scroll = useScrollToAnchor()
   const logger = useLogger()
@@ -129,6 +134,16 @@
     return null
   })
 
+  const itemType = toRef(() => {
+    const github = props.frontmatter?.features?.github
+    if (!github) return null
+
+    if (github.startsWith('/composables/')) return 'composables' as const
+    if (github.startsWith('/components/')) return 'components' as const
+
+    return null
+  })
+
   // Get metrics for this item
   const itemMetrics = toRef(() => {
     const name = itemName.value
@@ -198,6 +213,71 @@
     return levelConfig[l]
   })
 
+  // Phase display config (from maturity.json)
+  const phaseConfig = {
+    draft: { icon: 'pencil', color: 'text-on-surface-variant', label: 'Draft' },
+    preview: { icon: 'flask', color: 'text-warning', label: 'Preview' },
+    stable: { icon: 'check-circle', color: 'text-success', label: 'Stable' },
+    mature: { icon: 'shield-check', color: 'text-info', label: 'Mature' },
+    deprecated: { icon: 'archive', color: 'text-error', label: 'Deprecated' },
+  } as const
+
+  interface MaturityEntry {
+    level: keyof typeof phaseConfig
+    since: string | null
+    category?: string
+    notes?: string
+  }
+
+  const phase = toRef((): PhaseConfig | null => {
+    const type = itemType.value
+    const name = itemName.value
+    if (!type || !name) return null
+
+    const bucket = (maturityData as Record<string, Record<string, MaturityEntry>>)[type]
+    const entry = bucket?.[name]
+    if (!entry) return null
+
+    const config = phaseConfig[entry.level]
+    if (!config) return null
+
+    let title: string
+    switch (entry.level) {
+      case 'draft': {
+        title = 'Planned — not yet implemented'
+        break
+      }
+      case 'preview': {
+        title = entry.since
+          ? `Implemented — API may change. Since ${entry.since}`
+          : 'Implemented — API may change. Not yet released'
+        break
+      }
+      case 'stable': {
+        title = entry.since ? `Production-ready. Stable since ${entry.since}` : 'Production-ready'
+        break
+      }
+      case 'mature': {
+        title = entry.since ? `API frozen. Mature since ${entry.since}` : 'API frozen'
+        break
+      }
+      case 'deprecated': {
+        title = entry.notes ?? 'Scheduled for removal'
+        break
+      }
+    }
+
+    return {
+      level: entry.level,
+      since: entry.since,
+      notes: entry.notes,
+      icon: config.icon,
+      color: config.color,
+      label: config.label,
+      title,
+    }
+  })
+
   // Last updated date from git history
   const date = useDate()
   const pageDate = toRef(() => {
@@ -224,6 +304,7 @@
     github,
     label,
     testFileLink,
+    phase,
     level,
     coverage,
     benchmark,
@@ -321,13 +402,23 @@
     <hr>
 
     <!-- Inline metadata -->
-    <!-- Order: Classification → Skill Level → Quality → Performance → Reference -->
+    <!-- Order: Stability → Classification → Skill Level → Quality → Performance → Reference -->
     <Discovery.Activator class="rounded-lg" :padding="8" step="page-metadata">
       <div
-        v-if="!isUndefined(renderless) || level || coverage || benchmark || lastUpdated"
+        v-if="phase || !isUndefined(renderless) || level || coverage || benchmark || lastUpdated"
         class="flex items-center flex-wrap text-xs text-on-surface-variant gap-3 md:gap-2"
       >
-        <!-- 1. Renderless - Feature classification (what is it?) -->
+        <!-- 1. Phase - Stability (can I depend on it?) -->
+        <DocsMetaItem
+          v-if="phase"
+          :color="phase.color"
+          :href="MATURITY_MATRIX_HREF"
+          :icon="phase.icon"
+          :text="phase.label"
+          :title="phase.title"
+        />
+
+        <!-- 2. Renderless - Feature classification (what is it?) -->
         <DocsMetaItem
           v-if="renderless === true"
           color="text-secondary"
@@ -344,7 +435,7 @@
           title="Component renders a DOM element by default"
         />
 
-        <!-- 2. Level - Skill level (should I use it?) -->
+        <!-- 3. Level - Skill level (should I use it?) -->
         <DocsMetaItem
           v-if="level"
           :color="level.color"
@@ -354,7 +445,7 @@
           :title="`${level.label} skill level — filter by level`"
         />
 
-        <!-- 3. Coverage - Quality signal (is it tested?) -->
+        <!-- 4. Coverage - Quality signal (is it tested?) -->
         <DocsMetaItem
           v-if="coverage && testFileLink"
           :color="coverage.color"
@@ -364,7 +455,7 @@
           :title="`Statements: ${itemMetrics?.coverage?.statements}%${itemMetrics?.coverage?.functions != null ? `, Functions: ${itemMetrics.coverage.functions}%` : ''}, Branches: ${itemMetrics?.coverage?.branches}%`"
         />
 
-        <!-- 4. Benchmark - Performance (is it fast?) -->
+        <!-- 5. Benchmark - Performance (is it fast?) -->
         <DocsMetaItem
           v-if="benchmark"
           :color="benchmark.color"
@@ -375,7 +466,7 @@
           @click.prevent="scroll.scrollToAnchor('benchmarks')"
         />
 
-        <!-- 5. Last Updated - Reference (is it maintained?) -->
+        <!-- 6. Last Updated - Reference (is it maintained?) -->
         <DocsMetaItem
           v-if="lastUpdated"
           color="text-secondary"

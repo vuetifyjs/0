@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import { renderToString } from 'vue/server-renderer'
 
+import { AspectRatio } from './index'
+
 // Utilities
 import { mount } from '@vue/test-utils'
 import { createSSRApp, defineComponent, h } from 'vue'
-
-import { AspectRatio } from './index'
 
 describe('aspectRatio', () => {
   describe('rendering', () => {
@@ -106,7 +106,8 @@ describe('aspectRatio', () => {
     })
   })
 
-  describe('sSR', () => {
+  // eslint-disable-next-line vitest/prefer-lowercase-title
+  describe('SSR', () => {
     it('should render to string without errors', async () => {
       const app = createSSRApp(defineComponent({
         render: () => h(AspectRatio, { ratio: '16 / 9' }, () => h('span', 'Content')),

@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { createFilter, createFilterContext, useFilter } from './index'
+
 // Utilities
 import { inject, provide, ref, shallowRef } from 'vue'
 
 // Types
 import type { Primitive } from './index'
-
-import { createFilter, createFilterContext, useFilter } from './index'
 
 vi.mock('vue', async () => {
   const actual = await vi.importActual('vue')
@@ -233,6 +233,18 @@ describe('createFilter', () => {
   it('should default to mode some', () => {
     const filter = createFilter()
     expect(filter.mode).toBe('some')
+  })
+
+  it('should return no matches for an unknown mode', () => {
+    // Cast bypasses the type system to exercise the fallthrough branch
+    const filter = createFilter({ mode: 'unknown' as never })
+    const items = shallowRef([
+      { name: 'apple' },
+      { name: 'banana' },
+    ])
+
+    const result = filter.apply('apple', items)
+    expect(result.items.value).toHaveLength(0)
   })
 })
 

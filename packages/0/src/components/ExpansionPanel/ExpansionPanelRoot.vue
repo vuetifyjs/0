@@ -15,6 +15,8 @@
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
+
+  // Context
   import { useExpansionPanelGroup } from './ExpansionPanelGroup.vue'
 
   // Composables
@@ -89,7 +91,7 @@
   } = defineProps<ExpansionPanelRootProps<V>>()
 
   const selection = useExpansionPanelGroup(namespace)
-  const ticket = selection.register({ id, value, disabled })
+  const ticket = selection.register({ id, value, disabled: () => toValue(disabled) ?? false })
 
   const headerId = toRef(() => `${ticket.id}-header`)
   const contentId = toRef(() => `${ticket.id}-content`)

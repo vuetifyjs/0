@@ -11,10 +11,10 @@
 
 import { bench, describe } from 'vitest'
 
-// Types
-import type { DataTableColumn, DataTableOptions } from './index'
+import { createDataTable, ClientDataTableAdapter, VirtualDataTableAdapter } from './index'
 
-import { createDataTable, ClientAdapter, VirtualAdapter } from './index'
+// Types
+import type { DataTableColumnTicketInput, DataTableOptions, DataTableTicketInput } from './index'
 
 // =============================================================================
 // FIXTURES - Created once, reused across read-only benchmarks
@@ -45,32 +45,41 @@ function generateRows (count: number): BenchmarkRow[] {
 const ROWS_1K: BenchmarkRow[] = generateRows(1000)
 const ROWS_10K: BenchmarkRow[] = generateRows(10_000)
 
-const COLUMNS: DataTableColumn<BenchmarkRow>[] = [
-  { key: 'name', title: 'Name', sortable: true, filterable: true },
-  { key: 'email', title: 'Email', sortable: true, filterable: true },
-  { key: 'department', title: 'Department', sortable: true },
-  { key: 'salary', title: 'Salary', sortable: true, sort: (a, b) => Number(a) - Number(b) },
-  { key: 'active', title: 'Active' },
+const COLUMNS: DataTableColumnTicketInput<BenchmarkRow>[] = [
+  { id: 'name', title: 'Name', sortable: true, filterable: true },
+  { id: 'email', title: 'Email', sortable: true, filterable: true },
+  { id: 'department', title: 'Department', sortable: true },
+  { id: 'salary', title: 'Salary', sortable: true, sort: (a, b) => Number(a) - Number(b) },
+  { id: 'active', title: 'Active' },
 ]
 
-const COLUMNS_WITH_FILTER: DataTableColumn<BenchmarkRow>[] = [
-  { key: 'name', title: 'Name', sortable: true, filterable: true, filter: (v, q) => String(v).toLowerCase().startsWith(q) },
-  { key: 'email', title: 'Email', sortable: true, filterable: true },
-  { key: 'department', title: 'Department', sortable: true },
-  { key: 'salary', title: 'Salary', sortable: true, sort: (a, b) => Number(a) - Number(b) },
-  { key: 'active', title: 'Active' },
+const COLUMNS_WITH_FILTER: DataTableColumnTicketInput<BenchmarkRow>[] = [
+  { id: 'name', title: 'Name', sortable: true, filterable: true, filter: (v, q) => String(v).toLowerCase().startsWith(q) },
+  { id: 'email', title: 'Email', sortable: true, filterable: true },
+  { id: 'department', title: 'Department', sortable: true },
+  { id: 'salary', title: 'Salary', sortable: true, sort: (a, b) => Number(a) - Number(b) },
+  { id: 'active', title: 'Active' },
 ]
 
 // Lookup targets (middle of dataset)
 const SEARCH_QUERY_1K = 'User 500'
 const SEARCH_QUERY_10K = 'User 5000'
 
-function createTable (overrides: Partial<DataTableOptions<BenchmarkRow>> = {}) {
-  return createDataTable<BenchmarkRow>({
-    items: overrides.items ?? ROWS_1K,
-    columns: overrides.columns ?? COLUMNS,
-    ...overrides,
-  })
+function toInputs (rows: readonly BenchmarkRow[]): DataTableTicketInput<BenchmarkRow>[] {
+  return rows.map(value => ({ id: value.id, value }))
+}
+
+function createTable (
+  options: Partial<DataTableOptions<BenchmarkRow>> & {
+    items?: readonly BenchmarkRow[]
+    columns?: DataTableColumnTicketInput<BenchmarkRow>[]
+  } = {},
+) {
+  const { items: rows = ROWS_1K, columns: cols = COLUMNS, ...rest } = options
+  const table = createDataTable<BenchmarkRow>({ ...rest })
+  table.columns.onboard(cols)
+  table.onboard(toInputs(rows))
+  return table
 }
 
 // =============================================================================
@@ -336,34 +345,34 @@ describe('createDataTable benchmarks', () => {
   })
 
   // ===========================================================================
-  // ADAPTER COMPARISON - ClientAdapter vs VirtualAdapter pipeline cost
+  // ADAPTER COMPARISON - ClientDataTableAdapter vs VirtualDataTableAdapter pipeline cost
   // Fresh fixture per iteration (required - sort/search mutations)
   // Measures: adapter-specific overhead for same dataset
   // ===========================================================================
   describe('adapter comparison', () => {
-    bench('ClientAdapter: sort + paginate (10,000 items)', () => {
+    bench('ClientDataTableAdapter: sort + paginate (10,000 items)', () => {
       const table = createTable({
         items: ROWS_10K,
-        adapter: new ClientAdapter<BenchmarkRow>(),
+        adapter: new ClientDataTableAdapter<BenchmarkRow>(),
         pagination: { itemsPerPage: 25 },
       })
       table.sort.toggle('name')
       void table.items.value
     })
 
-    bench('VirtualAdapter: sort, no pagination (10,000 items)', () => {
+    bench('VirtualDataTableAdapter: sort, no pagination (10,000 items)', () => {
       const table = createTable({
         items: ROWS_10K,
-        adapter: new VirtualAdapter<BenchmarkRow>(),
+        adapter: new VirtualDataTableAdapter<BenchmarkRow>(),
       })
       table.sort.toggle('name')
       void table.items.value
     })
 
-    bench('ClientAdapter: full pipeline (10,000 items)', () => {
+    bench('ClientDataTableAdapter: full pipeline (10,000 items)', () => {
       const table = createTable({
         items: ROWS_10K,
-        adapter: new ClientAdapter<BenchmarkRow>(),
+        adapter: new ClientDataTableAdapter<BenchmarkRow>(),
         pagination: { itemsPerPage: 25 },
       })
       table.search('User 5')
@@ -371,10 +380,10 @@ describe('createDataTable benchmarks', () => {
       void table.items.value
     })
 
-    bench('VirtualAdapter: full pipeline (10,000 items)', () => {
+    bench('VirtualDataTableAdapter: full pipeline (10,000 items)', () => {
       const table = createTable({
         items: ROWS_10K,
-        adapter: new VirtualAdapter<BenchmarkRow>(),
+        adapter: new VirtualDataTableAdapter<BenchmarkRow>(),
       })
       table.search('User 5')
       table.sort.toggle('name')

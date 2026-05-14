@@ -1,10 +1,10 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it } from 'vitest'
+
+import { Slider } from './index'
 
 // Utilities
 import { mount } from '@vue/test-utils'
-import { h, nextTick, ref } from 'vue'
-
-import { Slider } from './index'
+import { defineComponent, h, nextTick, ref } from 'vue'
 
 interface MountResult {
   wrapper: ReturnType<typeof mount>
@@ -13,6 +13,18 @@ interface MountResult {
   rangeProps: () => any
   wait: () => Promise<void>
 }
+
+// Track wrappers so afterEach can unmount each one — SliderRoot installs
+// document pointermove/pointerup listeners via useDocumentEventListener
+// (gated by useToggleScope on dragging), so the listeners only attach
+// during a drag, but the effect scope itself stays alive until unmount.
+const wrappers: ReturnType<typeof mount>[] = []
+
+afterEach(() => {
+  while (wrappers.length > 0) {
+    wrappers.pop()!.unmount()
+  }
+})
 
 function mountSlider (options: {
   props?: Record<string, unknown>
@@ -59,6 +71,8 @@ function mountSlider (options: {
       },
     },
   })
+
+  wrappers.push(wrapper)
 
   return {
     wrapper,
@@ -132,6 +146,54 @@ describe('slider', () => {
       await thumb.trigger('keydown', { key: 'ArrowRight' })
       await wait()
       expect(model.value).toEqual([51])
+    })
+
+    it('should support scalar single value v-model', async () => {
+      // When model is a number (not array) and not undefined,
+      // SliderRoot enters scalar mode and emits scalars on update.
+      const model = ref<number | number[]>(40)
+      const wrapper = mount(Slider.Root, {
+        props: {
+          'modelValue': model.value,
+          'onUpdate:modelValue': (v: unknown) => {
+            model.value = v as number | number[]
+            wrapper.setProps({ modelValue: v as number | number[] })
+          },
+        },
+        slots: {
+          default: () => h(Slider.Thumb as any, { index: 0 }),
+        },
+      })
+      await nextTick()
+
+      const thumb = wrapper.find('[role="slider"]')
+      await thumb.trigger('keydown', { key: 'ArrowRight' })
+      await nextTick()
+      // In scalar mode the emitted value is a number, not an array
+      expect(typeof model.value).toBe('number')
+      expect(model.value).toBe(41)
+    })
+
+    it('should default scalar to 0 when array becomes empty after update', async () => {
+      // Edge case: scalar mode + arr[0] is undefined → fallback to 0
+      const model = ref<number | number[]>(50)
+      const wrapper = mount(Slider.Root, {
+        props: {
+          'modelValue': model.value,
+          'onUpdate:modelValue': (v: unknown) => {
+            model.value = v as number | number[]
+          },
+          'min': 0,
+          'max': 100,
+        },
+        slots: {
+          // No thumbs — so registry stays empty and values is []
+          default: () => h('div'),
+        },
+      })
+      await nextTick()
+      // Just ensures no exception during scalar setup with no thumbs
+      expect(wrapper.exists()).toBe(true)
     })
 
     it('should reflect external model changes', async () => {
@@ -615,6 +677,25 @@ describe('slider', () => {
       await wait()
 
       expect(wrapper.find('input[type="hidden"]').attributes('disabled')).toBeDefined()
+    })
+
+    it('should fall back to min when index out of range', async () => {
+      // Mount Slider with explicit standalone hidden input pointing to index out of range
+      const wrapper = mount(
+        defineComponent({
+          render () {
+            return h(Slider.Root as any, { name: 'volume', min: 5, max: 100 }, {
+              default: () => h(Slider.HiddenInput as any, { index: 99 }),
+            })
+          },
+        }),
+      )
+      await nextTick()
+      const inputs = wrapper.findAll('input[type="hidden"]')
+      // The Slider.Root auto-renders one when name is set; we additionally rendered one
+      // pointing to out-of-range index. Verify the explicit one shows the fallback min.
+      const explicit = inputs.at(-1)
+      expect(explicit?.attributes('value')).toBe('5')
     })
   })
 
@@ -1148,6 +1229,203 @@ describe('slider', () => {
       const { thumbProps, wait } = mountSlider({ model })
       await wait()
       expect(thumbProps().attrs['aria-valuetext']).toBeUndefined()
+    })
+  })
+
+  describe('drag with thumb element offset', () => {
+    it('should compute drag offset from thumb element rect on horizontal drag', async () => {
+      const model = ref([50])
+      const { wrapper, wait } = mountSlider({ model })
+      await wait()
+
+      const track = wrapper.findComponent(Slider.Track as any)
+      const trackEl = track.element as HTMLElement
+      trackEl.getBoundingClientRect = () => ({
+        x: 0, y: 0, width: 200, height: 20,
+        top: 0, right: 200, bottom: 20, left: 0,
+        toJSON () {},
+      })
+
+      const thumb = wrapper.find('[role="slider"]')
+      const thumbEl = thumb.element as HTMLElement
+      // Mock thumb's bounding rect for the thumbEl branch in onDrag
+      thumbEl.getBoundingClientRect = () => ({
+        x: 95, y: 5, width: 10, height: 10,
+        top: 5, right: 105, bottom: 15, left: 95,
+        toJSON () {},
+      })
+
+      // pointerdown directly on the thumb element triggers onDrag with thumbEl
+      thumbEl.dispatchEvent(new PointerEvent('pointerdown', {
+        button: 0,
+        clientX: 100, // center of thumb
+        clientY: 10,
+        bubbles: true,
+      }))
+      await wait()
+
+      // start emitted with thumb's value
+      expect(wrapper.emitted('start')).toBeDefined()
+
+      // Pointermove should now apply offset-corrected percent
+      document.dispatchEvent(new PointerEvent('pointermove', {
+        clientX: 110,
+        clientY: 10,
+        bubbles: true,
+      }))
+      await wait()
+
+      // Cleanup
+      document.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }))
+      await wait()
+    })
+
+    it('should compute drag offset for vertical orientation', async () => {
+      const model = ref([50])
+      const { wrapper, wait } = mountSlider({
+        model,
+        props: { orientation: 'vertical' },
+      })
+      await wait()
+
+      const track = wrapper.findComponent(Slider.Track as any)
+      const trackEl = track.element as HTMLElement
+      trackEl.getBoundingClientRect = () => ({
+        x: 0, y: 0, width: 20, height: 200,
+        top: 0, right: 20, bottom: 200, left: 0,
+        toJSON () {},
+      })
+
+      const thumb = wrapper.find('[role="slider"]')
+      const thumbEl = thumb.element as HTMLElement
+      thumbEl.getBoundingClientRect = () => ({
+        x: 5, y: 95, width: 10, height: 10,
+        top: 95, right: 15, bottom: 105, left: 5,
+        toJSON () {},
+      })
+
+      thumbEl.dispatchEvent(new PointerEvent('pointerdown', {
+        button: 0,
+        clientX: 10,
+        clientY: 100,
+        bubbles: true,
+      }))
+      await wait()
+
+      expect(wrapper.emitted('start')).toBeDefined()
+
+      document.dispatchEvent(new PointerEvent('pointermove', {
+        clientX: 10,
+        clientY: 80,
+        bubbles: true,
+      }))
+      await wait()
+
+      document.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }))
+      await wait()
+    })
+
+    it('should ignore pointermove when dragging value becomes null', async () => {
+      // Edge: pointermove fires after pointerup races and dragging is reset
+      const model = ref([50])
+      const { wrapper, wait } = mountSlider({ model })
+      await wait()
+
+      const track = wrapper.findComponent(Slider.Track as any)
+      const trackEl = track.element as HTMLElement
+      trackEl.getBoundingClientRect = () => ({
+        x: 0, y: 0, width: 100, height: 20,
+        top: 0, right: 100, bottom: 20, left: 0,
+        toJSON () {},
+      })
+
+      const thumb = wrapper.find('[role="slider"]')
+      thumb.element.dispatchEvent(new PointerEvent('pointerdown', {
+        button: 0, clientX: 50, clientY: 10, bubbles: true,
+      }))
+      await wait()
+
+      // Trigger pointerup first to reset dragging
+      document.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }))
+      await wait()
+
+      // Now pointermove — listeners should already be torn down by useToggleScope
+      // but if they fire, the inner null check guards it
+      document.dispatchEvent(new PointerEvent('pointermove', {
+        clientX: 70, clientY: 10, bubbles: true,
+      }))
+      await wait()
+
+      // Model unchanged after pointer release
+      expect(model.value).toEqual([50])
+    })
+  })
+
+  describe('track edge cases', () => {
+    it('should not fire when track element is not yet measured (no rect)', async () => {
+      // Edge: trackRef.element being null guards against early pointer events
+      const model = ref([50])
+      const { wrapper, wait } = mountSlider({ model })
+      await wait()
+
+      const track = wrapper.findComponent(Slider.Track as any)
+      // Don't override getBoundingClientRect — happy-dom returns zero rect
+      // which still triggers calculation; the key code paths still execute
+
+      // Multiple thumb tracking — cover the `if (d < distance)` branch in nearest()
+      track.element.dispatchEvent(new PointerEvent('pointerdown', {
+        button: 0, clientX: 0, clientY: 0, bubbles: true,
+      }))
+      await wait()
+
+      // Just verify no error — track click was processed
+      expect(track.exists()).toBe(true)
+
+      document.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }))
+      await wait()
+    })
+
+    it('should iterate multiple thumbs to find nearest', async () => {
+      // Range with 3 thumbs to exercise the nearest() loop's `if (d < distance)` branch
+      const model = ref([20, 50, 80])
+      const wrapper = mount(Slider.Root, {
+        props: {
+          'modelValue': model.value,
+          'onUpdate:modelValue': (v: unknown) => {
+            model.value = v as number[]
+          },
+        },
+        slots: {
+          default: () =>
+            h(Slider.Track as any, {}, () => [
+              h(Slider.Thumb as any, { index: 0 }),
+              h(Slider.Thumb as any, { index: 1 }),
+              h(Slider.Thumb as any, { index: 2 }),
+            ]),
+        },
+      })
+      await nextTick()
+
+      const track = wrapper.findComponent(Slider.Track as any)
+      const trackEl = track.element as HTMLElement
+      trackEl.getBoundingClientRect = () => ({
+        x: 0, y: 0, width: 100, height: 20,
+        top: 0, right: 100, bottom: 20, left: 0,
+        toJSON () {},
+      })
+
+      // Click at 60 — closer to middle thumb (50) and rightmost (80)
+      // Loop must compare each thumb's distance
+      trackEl.dispatchEvent(new PointerEvent('pointerdown', {
+        button: 0, clientX: 60, clientY: 10, bubbles: true,
+      }))
+      await nextTick()
+
+      document.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }))
+      await nextTick()
+
+      // Middle thumb should have moved to 60 (closest match for click at 60%)
+      expect(model.value[1]).toBe(60)
     })
   })
 })

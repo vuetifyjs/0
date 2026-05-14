@@ -21,6 +21,8 @@
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
+
+  // Context
   import { useTabsRoot } from './TabsRoot.vue'
 
   // Utilities
@@ -47,7 +49,7 @@
       'role': 'tablist'
       'aria-orientation': TabsOrientation
       'aria-label': string | undefined
-      'aria-disabled': boolean | undefined
+      'aria-disabled': boolean
       'data-disabled': true | undefined
     }
   }
@@ -80,7 +82,7 @@
       'role': 'tablist',
       'aria-orientation': tabs.orientation.value,
       'aria-label': label,
-      'aria-disabled': isDisabled.value || undefined,
+      'aria-disabled': isDisabled.value,
       'data-disabled': isDisabled.value || undefined,
     },
   }))

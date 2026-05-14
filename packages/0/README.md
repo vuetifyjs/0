@@ -43,7 +43,7 @@ This is a **pnpm monorepo** containing:
 
 ## Requirements
 
-- **Node.js** >= 22
+- **Node.js** >= 26
 - **pnpm** >= 10.6
 - **Vue** >= 3.5.0
 
@@ -140,6 +140,7 @@ import { ... } from '@vuetify/v0/date'       // Date adapter and utilities
 | [Breadcrumbs](https://0.vuetifyjs.com/components/semantic/breadcrumbs) | Navigation breadcrumbs with overflow detection and truncation |
 | [Carousel](https://0.vuetifyjs.com/components/semantic/carousel) | Scroll-snap slide navigation with multi-slide display and drag/swipe |
 | [Image](https://0.vuetifyjs.com/components/semantic/image) | Image with placeholder, error fallback, and lazy loading |
+| [Overflow](https://0.vuetifyjs.com/components/semantic/overflow) | Responsive truncation primitive with overflow detection and indicator |
 | [Pagination](https://0.vuetifyjs.com/components/semantic/pagination) | Page navigation with semantic `<nav>` wrapper |
 | [Snackbar](https://0.vuetifyjs.com/components/semantic/snackbar) | Toast notification with queue, positioning, and auto-dismiss |
 | [Splitter](https://0.vuetifyjs.com/components/semantic/splitter) | Resizable panel layout with drag handles |
@@ -167,7 +168,9 @@ Base data structures that most other composables build upon:
 
 - [`createDataTable`](https://0.vuetifyjs.com/composables/data/create-data-table) - Data table with sort, filter, pagination, row selection, grouping, and adapter pattern
 - [`createFilter`](https://0.vuetifyjs.com/composables/data/create-filter) - Reactive array filtering with multiple modes
+- [`createKanban`](https://0.vuetifyjs.com/composables/data/create-kanban) - Two-level sortable orchestrator (columns + items)
 - [`createPagination`](https://0.vuetifyjs.com/composables/data/create-pagination) - Lightweight page navigation
+- [`createSortable`](https://0.vuetifyjs.com/composables/data/create-sortable) - Ordered-list state with `move` / `swap` / `reorder` and a `disabled` mutation gate
 - [`createVirtual`](https://0.vuetifyjs.com/composables/data/create-virtual) - Virtual scrolling for large lists
 
 #### Selection
@@ -211,6 +214,8 @@ Selection management composables built on `createRegistry`:
 #### System
 
 - [`useClickOutside`](https://0.vuetifyjs.com/composables/system/use-click-outside) - Click outside detection with cleanup
+- [`useDelay`](https://0.vuetifyjs.com/composables/system/use-delay) - Schedule open and close transitions with configurable delays
+- [`useDragDrop`](https://0.vuetifyjs.com/composables/system/use-drag-drop) - Headless drag-and-drop primitive with two registries, pluggable adapters, and accessibility-first defaults
 - [`useEventListener`](https://0.vuetifyjs.com/composables/system/use-event-listener) - Lifecycle-managed event listeners
 - [`useHotkey`](https://0.vuetifyjs.com/composables/system/use-hotkey) - Hotkey combinations and sequences
 - [`useImage`](https://0.vuetifyjs.com/composables/system/use-image) - Image loading state machine with deferred loading and retry

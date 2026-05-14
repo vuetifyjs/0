@@ -108,7 +108,7 @@ function register (input: unknown): unknown {
 
 **Exceptions.** `packages/0/src/utilities/helpers.ts` defines the guards themselves and must use primitive comparisons at its root. This is the only file that gets to.
 
-**Anti-example.** `packages/0/src/composables/createOverflow/index.ts:195` — `if (itemWidth !== undefined && uniformWidth <= 0)` should be `if (!isUndefined(itemWidth) && uniformWidth <= 0)`. Three more raw comparisons live in `packages/0/src/utilities/color.ts:17,25,30`; these are minor and should be migrated.
+**Anti-example.** `packages/0/src/composables/useNotifications/index.ts:490, 524` — `every(t => t.readAt !== null)` and `every(t => t.archivedAt !== null)` inside JSDoc `@example` blocks. These render on the docs API page and teach the wrong form to readers. Should be `!isNull(t.readAt)` / `!isNull(t.archivedAt)`. Source-code comparisons across `packages/0/src/` are clean as of this writing — the holdouts that survived are inside doc strings.
 
 **Canonical example.** `packages/0/src/composables/createDataTable/index.ts` — 10 guard calls in one file, zero raw comparisons.
 
@@ -141,7 +141,7 @@ import { createRegistry } from '../createRegistry'
 
 **Why.** Event binding couples a composable to the consumer's element tree. A composable that binds `keydown` directly picks the target for you; one that exposes `onKeydown(event)` lets the consumer decide. The second form composes; the first does not.
 
-**Allowed.** The small set of browser-primitive composables whose entire purpose is to wrap a listener: `useEventListener`, `useHotkey`, `useClickOutside`. These are the boundary. Anything that sits on top of them is a component concern.
+**Allowed.** The small set of browser-primitive composables whose entire purpose is to wrap a listener or a matched-media observer: `useEventListener`, `useHotkey`, `useClickOutside`, `useMediaQuery`. These are the boundary. Anything that sits on top of them is a component concern.
 
 **Anti-example (do not introduce).** A `createSlider` that internally binds `pointermove` to a passed `el` ref. The correct shape exposes `onPointerdown`, `onPointermove`, `onPointerup` and the `SliderThumb.vue` component wires them.
 
@@ -186,6 +186,8 @@ export function isFunction (item: unknown): item is Function {
   return typeof item === 'function'
 }
 ```
+
+**Complementary marker — `/* @__PURE__ */` on module-level allocations.** `#__NO_SIDE_EFFECTS__` covers exported functions. The complementary marker `/* @__PURE__ */` covers *module-level call expressions* whose return value is bound to a constant — `new Set([...])`, `new Map([...])`, factory calls. Without it, bundlers cannot prove the allocation is side-effect-free and retain the binding even when nothing imports it. See `packages/0/src/utilities/helpers.ts:311` (`UNSAFE_KEYS = /* @__PURE__ */ new Set([...])`) and the `INSTANCE_KEY` literal in `utilities/instance.ts` for the placement convention. New module-level allocations inside `packages/0/src/utilities/**` always carry one or the other; elsewhere in `packages/0/src/`, the marker is a hygiene recommendation rather than a hard rule, but the same logic applies to any allocation a bundler would otherwise pin.
 
 **Anti-example (do not do this).**
 ```ts
@@ -273,7 +275,7 @@ function useFoo () {
 
 **Why.** v0 runs under SSR. An unguarded `window.x` crashes the server build. The gate is one line and composes through adapters.
 
-**Canonical example.** `packages/0/src/composables/useStorage/index.ts:105` — `IN_BROWSER ? window.localStorage : new MemoryAdapter()`.
+**Canonical example.** `packages/0/src/composables/useStorage/index.ts:105` — `IN_BROWSER ? window.localStorage : new MemoryStorageAdapter()`.
 
 **Known soft-violations.** `packages/0/src/composables/useClickOutside/index.ts:346-350`, `packages/0/src/composables/useHotkey/index.ts:159`, `packages/0/src/composables/createCombobox/index.ts:187` — each reads `document.*` inside a browser-only handler. Safe in practice, but the rule is per-composable, not per-call-site. Add the guard.
 
@@ -441,7 +443,7 @@ The default is `toRef`. Reach for `computed` only when you would otherwise pay t
 - If the object is **owned by the composable** and consumers mutate nested fields: `ref({...})`.
 - If the object is **owned by the composable** and consumers only read nested fields: `ref({...})` wrapped in `readonly()` at the boundary.
 - If the object is **a flat collection** (Set, Map, or record of simple keys) that the composable mutates top-level only: `shallowReactive(new Set())`. This is the registry shape. [intent:102]
-- If you find yourself reaching for `reactive({...})`, stop. v0 uses `ref()` + destructured reads, not `reactive()`, for owned state. The only `reactive()` in source is inside `useProxyRegistry` when the caller opts into `{ deep: true }` — that is the deliberate exception, not the pattern.
+- If you find yourself reaching for `reactive({...})`, stop. v0 uses `ref()` + destructured reads, not `reactive()`, for owned state. The two deliberate exceptions in source are `useProxyRegistry` when the caller opts into `{ deep: true }`, and `toReactive` — a pure transformer whose entire contract is "unwrap a `Ref<T>` into a `reactive`-style proxy." Both are deliberate carve-outs, not the pattern.
 
 ### 4.2 Readonly at boundaries
 
@@ -479,7 +481,7 @@ Always use `.value` when reading these in templates. Never rely on Vue's auto-un
 - `packages/0/src/composables/usePopover/index.ts:173-184` — `isOpen: Ref<boolean>` for v-model bidirectional binding.
 - `packages/0/src/composables/createInput/index.ts:173-180` — `value`, `isDirty`, `isFocused`, `isTouched`, `isPristine` mutable so bound components can write.
 
-**Known bug-to-fix.** `packages/0/src/composables/useResizeObserver/index.ts:189-192` returns bare `width`, `height`, `isActive` alongside a correctly-wrapped `isPaused: shallowReadonly(isPaused)`. Consumers have no reason to write `width` or `height` — the observer owns them. The inconsistency is an oversight, not a contract. Fix by wrapping the other three in `shallowReadonly` (see §10.2 for the before/after). `useRovingFocus` and `createFocusTraversal` carry the same pattern and warrant a follow-up audit.
+**Follow-up audit.** `useRovingFocus` and `createFocusTraversal` are flagged for the same shape audit — confirm every consumer-visible ref is wrapped in `shallowReadonly` at the boundary, or, if it is intentionally mutable, declared as `ShallowRef<T>` in the return interface.
 
 **Resolution rule.** Any mutable return at a boundary must be intentional and declared in the return interface. If the type says `ShallowRef<boolean>`, the contract is "you can write this." If the type says `Readonly<Ref<boolean>>`, the contract is "do not write this." The type is load-bearing — a `shallowReadonly` wrapper on the value without updating the type is useless; a `ShallowRef<T>` type on a value nobody should mutate is a leak. [intent:252]
 
@@ -505,6 +507,20 @@ function useFoo (options: UseFooOptions = {}) {
 **Apply to.** Any reactive option the caller will want to drive from reactive state upstream — `disabled`, `readonly`, filter keys, search queries, ticket config inputs.
 
 **Do not apply to.** Configuration that is fixed at construction time — `namespace`, `events`, `adapter`. Those stay plain `T`. [intent:133]
+
+**Caller side — forwarding a destructured prop.** When a component forwards a destructured prop into a `MaybeRefOrGetter<T>` parameter, wrap it as a getter — `gap: () => gap` — never pass the value directly. With Vue 3.5+ reactive props destructure, `gap` *is* reactive when read inside a getter, but reading it inline at object-literal construction captures the value once and `toValue()` will return that snapshot forever after.
+
+```ts
+// Wrong — gap captured at setup time, prop changes never propagate
+createOverflow({ gap })
+
+// Right — toValue() inside the composable re-reads the getter on every recompute
+createOverflow({ gap: () => gap })
+```
+
+`packages/0/src/components/Overflow/OverflowRoot.vue` is the canonical worked example — `container`, `gap`, `reserved`, `reverse` all forwarded as getters.
+
+**Sibling shape — `number | ShallowRef<T>` inputs.** When a composable accepts a value that is already a `ShallowRef<T>` (typically a `defineModel` return), use `toRef(() => prop)` rather than a bare getter. The wrapped form gives the composable a stable ref identity to watch, where a getter would only re-run on dependency reads. `packages/0/src/components/Pagination/PaginationRoot.vue` — `page: toRef(() => page)` forwarded to `createPagination`, which holds the ref through its `useProxyModel` setup.
 
 ### 4.4 Registry reactivity
 
@@ -606,6 +622,10 @@ Element refs shared between sub-components must propagate through registry regis
 
 **Why.** Registry registration runs on mount and deregisters on unmount automatically. A `watchEffect` push requires manual cleanup, races with unmount order, and couples children to the Root's internal collection shape.
 
+**Carve-out — singleton 1:1 sub-components.** When the Root owns exactly one well-known sub-component (Popover's Activator, Slider's Track, Combobox's Control), the Root may expose a single boundary-typed `Readonly<Ref<Element | null>>` on its context and the sub-component writes to it directly on mount. The trade-off the registry pattern is solving (deregistration races for an unbounded set of children) does not apply when N is provably 1. The same Root must clear the field in `onBeforeUnmount` of the sub-component so the contract is symmetric.
+
+**Alternative — DOM query.** A Root that only needs the element for a one-shot read (measurement, focus on open) can query for it via the sub-component's well-known data attribute (`[data-v0-popover-activator]`) instead of holding a ref. The DOM query is acceptable for fire-and-forget reads; reactive observation (ResizeObserver, IntersectionObserver) still needs the ref so the observer can rebind across re-mounts.
+
 ### 6.4 Optional injection
 
 Composables needing global/injected context use `instanceExists()` or an equivalent soft check; falling back to a default instance, an empty context, or graceful degradation as appropriate to the composable. [intent:109, intent:148]
@@ -705,6 +725,55 @@ onBeforeUnmount(() => {
 
 Used in `Progress*`, `Splitter*`, and any compound whose sub-components need to coexist with consumer-supplied attributes. The outer `Atom` is where these are ultimately bound — sub-components do not forward `attrs` onto their own children, which is why the "never spread `attrs` on a non-renderless child" rule (§3.5) holds.
 
+### 6.10 Collection composables: no `items` option
+
+**Rule.** A composable that owns a collection of values exposes `register` / `onboard` / `unregister`. It does not accept the collection as an option in its factory. Row identity, column identity, order, and per-entry state live in the registry — never on a parallel array threaded in through options. When a composable owns *multiple* collections (e.g. `createDataTable` owns both rows and columns), each gets its own registry surface. [intent:351]
+
+**Why.** A single source of truth: the registry owns the rows. An `items` option splits ownership between the consumer's array and the composable's internal state, which forces every pipeline stage to re-derive identity. Registry-based composables also dodge `MaybeRefOrGetter<T[]>` plumbing — tickets are reactive by construction, so the composable does not have to `toValue()` an external ref on every recompute. Composition stays uniform: components and composables built on top get the same `register` / `onboard` surface they already use for `createSortable` and the selection chain. Tickets emitted by `unregister` / `offboard` can be moved between registries without re-deriving identity. [intent:352]
+
+**Before (wrong).**
+
+```ts
+const table = createDataTable({
+  items: users,
+  columns: [
+    { key: 'name', title: 'Name', sortable: true },
+    { key: 'email', title: 'Email' },
+  ],
+  itemValue: 'id',
+})
+```
+
+**After (right).**
+
+```ts
+const table = createDataTable<User>()
+
+// Columns live under table.columns
+table.columns.onboard([
+  { id: 'name', title: 'Name', sortable: true },
+  { id: 'email', title: 'Email' },
+])
+
+// Rows live at the top level
+table.onboard(users.map(value => ({ id: value.id, value })))
+
+// Or one at a time
+const ticket = table.register({ id: user.id, value: user })
+table.columns.register({ id: 'actions', title: '' })
+
+// Remove
+ticket.unregister()
+table.unregister(user.id)
+table.columns.unregister('actions')
+table.clear()
+table.columns.clear()
+```
+
+Callers who want domain-stable identity pass `id` explicitly — same pattern as `createSortable`. Omit `id` and the registry auto-generates one via `useId()`. Consumers with a reactive items source watch it themselves and call `clear()` + `onboard()` (or maintain `register` / `unregister` incrementally); the composable does not auto-sync from an external ref.
+
+**Composables that follow this rule.** `createRegistry`, `createModel`, `createSelection`, `createSingle`, `createGroup`, `createStep`, `createNested`, `createSortable`, `createKanban`, `createQueue`, `createTimeline`, `createTokens`. `createDataTable` predated the convention and has been brought in line — `items`, `itemValue`, and `columns` are all gone; consumers `onboard` rows on the returned context and columns on `table.columns`. The forthcoming `createDataGrid` will follow the same shape. [intent:353]
+
 ---
 
 ## 7. Events & lifecycle
@@ -715,7 +784,14 @@ Restated as a lifecycle rule: the component owns the element, so the component o
 
 ### 7.2 Lazy is the default
 
-Components that defer mounting default to lazy. Expose only `eager?: boolean` as the opt-in. Never expose both `lazy` and `eager`. [intent:257, intent:258]
+Components that defer the mount of **complex DOM** default to lazy. Expose only `eager?: boolean` as the opt-in. Never expose both `lazy` and `eager`. [intent:257, intent:258]
+
+**Scope.** "Complex DOM" means a sub-tree the user pays for only when an interaction opens it — Dialog content, Popover content, expanded Tabs panels, deferred Combobox lists. The point is keeping mount cost off the initial paint.
+
+**Carve-outs.** Components whose entire identity is "manage the mount lifecycle" expose their own dedicated knobs and do not follow the `eager?` shorthand:
+
+- `Image` — `<Image.Img>` mounts on load-state transitions; the `Image.Placeholder` / `Image.Fallback` slots are the visible mount surface. There is no `eager` prop because the load lifecycle is the component.
+- `Presence` — owns the `UNMOUNTED → MOUNTED → PRESENT → LEAVING → UNMOUNTED` state machine directly. `Presence` takes `present: boolean` and `lazy: boolean` separately because both are observable states, not opt-ins to a single shorthand.
 
 ### 7.3 Cleanup on unmount
 
@@ -781,7 +857,7 @@ Use `Extensible<T>` for enums that must retain autocomplete while accepting arbi
 export type NotificationSeverity = Extensible<'info' | 'warning' | 'error' | 'success'>
 ```
 
-Also used by `createRegistry` for event-name keys at `packages/0/src/composables/createRegistry/index.ts:464,494,517`.
+Also used by `createRegistry` for event-name keys on its `on` / `off` / `emit` signatures (see `packages/0/src/composables/createRegistry/index.ts`).
 
 **Anti-example (do not do this).**
 ```ts
@@ -849,11 +925,19 @@ Each exempt site must carry an inline comment explicitly citing this clause. No 
 
 Current exempt sites:
 - `packages/0/src/composables/useLogger/index.ts` — `createFallbackLogger` (logger bootstrap)
+- `packages/0/src/composables/createContext/index.ts` — namespace-validation warn (Layer 0, circular if it imported `useLogger`)
 - `packages/0/src/utilities/helpers.ts` — `useId()` SSR-dev warn (foundation dependency of useLogger)
+
+**`__DEV__` gating.** Every exempt `console.*` call site must be gated on `__DEV__` so the warning vanishes from production bundles. The non-exempt path (composables that route through `useLogger`) gates inside the logger adapter, so callers do not need to repeat the check. Direct `console.*` callers (the three exempt sites above) carry the gate inline.
 
 ### 9.3 Namespace keys contain `:`
 
 Every key passed to `createContext(key)` or `createXContext({ namespace })` must contain a colon. `v0:` prefix for production keys, `test:` prefix for test-only keys. Missing colons trigger a `[v0:context]` warning. [intent:226, intent:227]
+
+**Static-key vs dynamic-key modes.** `createContext` operates in two modes:
+
+- **Static-key mode** — the call site passes a single string (`createContext('v0:tabs')`). The namespace is fixed at module load; the `[useX, provideX]` pair injects against that one key. Used by every compound component that scopes a single context per Root (`Tabs`, `Dialog`, `Combobox`).
+- **Dynamic-key mode** — the call site passes a `{ suffix: true }` configuration, which makes the returned `useX` / `provideX` accept a runtime namespace argument. Used when a single composable services multiple disjoint subtrees within the same app (e.g., nested `Selection` providers). The colon-namespace rule still applies — the runtime argument must contain `:`, and the warning fires for keys that don't.
 
 ### 9.4 SSR gating
 
@@ -891,12 +975,12 @@ Reason: §2.3.
 
 **Before (wrong).**
 ```ts
-// packages/0/src/composables/useResizeObserver/index.ts:189-192
+// packages/0/src/composables/useResizeObserver/index.ts:201-209
 return {
-  width,            // mutable
-  height,           // mutable
-  isActive,         // mutable
-  isPaused: shallowReadonly(isPaused),   // wrapped — inconsistent
+  width: shallowReadonly(width),
+  height: shallowReadonly(height),
+  isActive,                              // mutable — inconsistent
+  isPaused: shallowReadonly(isPaused),
   pause,
   resume,
   stop,
@@ -1133,7 +1217,15 @@ Reason: §3.6, [intent:172]. `false` writes `data-disabled="false"` to the DOM, 
 <Content v-if="isOpen" />
 ```
 
-Exception: Combobox filtered items, where `v-show` is load-bearing for virtualization. Everywhere else, `v-if` for structural conditionals. Reason: [intent:188].
+**Exceptions — where `v-show` is correct.** A child component that registers a ticket with its Root must stay mounted even while invisible; `v-if` would unmount it, fire `onBeforeUnmount`, unregister the ticket, drop its measurement, and on re-include cause a measurement / capacity / visibility cascade that thrashes neighbours. Use `v-show` when state must survive the visibility flip:
+
+- **Registry-driven visibility.** `Breadcrumbs/BreadcrumbsItem.vue`, `BreadcrumbsDivider.vue`, `BreadcrumbsEllipsis.vue`, `Overflow/OverflowItem.vue` — items registered with the Root for measurement or selection must stay mounted so their ticket and width entry survive the flip.
+- **Load-state preservation.** `Avatar/AvatarImage.vue` — image load state would reset on remount.
+- **Virtualization.** `Combobox/ComboboxItem.vue` — load-bearing for the filtered list.
+
+Everywhere else, `v-if` for structural conditionals. Reason: [intent:188].
+
+Never hand-roll `:style="{ display: isHidden ? 'none' : null }"` — `v-show` already does this, captures the original `style.display` on mount, and is the canonical form readers expect.
 
 ---
 
@@ -1308,7 +1400,7 @@ Reason: §2.8, [intent:151]. Auto-increment breaks SSR hydration.
 | 3 API shape | returns, args, names, slots, comments | 22 |
 | 4 Reactivity | primitives, readonly, options, scope | 22 |
 | 5 Headless | operational definition | 10 |
-| 6 Registries | context, tickets, useProxyModel, useProxyRegistry, mergeProps | 14 |
+| 6 Registries | context, tickets, useProxyModel, useProxyRegistry, mergeProps, collection composables | 17 |
 | 7 Events & lifecycle | binding, mounting, cleanup, toggle scope | 7 |
 | 8 Types | any, readonly-ref, MRG, generics, slot guards | 8 |
 | 9 Errors | throw/warn/return, logger, SSR | 9 |

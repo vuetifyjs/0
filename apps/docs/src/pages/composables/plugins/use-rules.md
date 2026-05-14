@@ -17,9 +17,9 @@ related:
 
 # useRules
 
-<DocsPageFeatures :frontmatter />
-
 Validation rule management with Standard Schema support and custom aliases.
+
+<DocsPageFeatures :frontmatter />
 
 ## Installation
 
@@ -131,7 +131,8 @@ flowchart TD
 ::: example
 /composables/use-rules/context.ts 1
 /composables/use-rules/FormField.vue 2
-/composables/use-rules/dashboard.vue 3
+/composables/use-rules/Form.vue 3
+/composables/use-rules/dashboard.vue 4
 
 ### API Key Manager
 
@@ -139,11 +140,14 @@ This example registers 4 custom aliases (`required`, `email`, `slug`, `prefix`) 
 
 The controls let you trigger validation, prefill valid or invalid data, and reset. The state panel reflects each validation's `isValid`, error count, and active rule count in real time — showing the tri-state validation lifecycle (`null` → `true`/`false`) and how reset returns everything to its initial state.
 
+`provideRules()` and `useRules()` rely on Vue's provide/inject, which only walks up the parent chain — `inject()` does not see provides from the same component. The wrapper component (`dashboard.vue`) provides the rules context so that descendants (`Form.vue`) can resolve aliases through `createValidation` → `useRules()`. Installing `createRulesPlugin` at the app level achieves the same thing globally.
+
 | File | Role |
 |------|------|
 | `context.ts` | Defines predicate aliases via `createRulesContext` |
 | `FormField.vue` | Reusable field component — binds validation errors and border state |
-| `dashboard.vue` | Provides rules context, creates per-input validations, renders UI |
+| `Form.vue` | Creates per-input validations and renders the UI |
+| `dashboard.vue` | Provides the rules context to descendants |
 
 **Key patterns:**
 

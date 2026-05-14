@@ -1,12 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { useRovingFocus } from './index'
+
 // Utilities
 import { effectScope, nextTick, ref } from 'vue'
 
 // Types
 import type { RovingItem } from './index'
-
-import { useRovingFocus } from './index'
 
 function createKeyboardEvent (key: string, options: Partial<KeyboardEvent> = {}): KeyboardEvent {
   return new KeyboardEvent('keydown', {

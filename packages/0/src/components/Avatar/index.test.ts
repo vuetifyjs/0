@@ -1,11 +1,11 @@
 import { describe, expect, it, vi } from 'vitest'
 import { renderToString } from 'vue/server-renderer'
 
+import { Avatar } from './index'
+
 // Utilities
 import { mount } from '@vue/test-utils'
 import { createSSRApp, defineComponent, h, nextTick, ref } from 'vue'
-
-import { Avatar } from './index'
 
 describe('avatar', () => {
   describe('root', () => {
@@ -73,10 +73,10 @@ describe('avatar', () => {
       it('should provide context with custom namespace', () => {
         const wrapper = mount(Avatar.Root, {
           props: {
-            namespace: 'custom-avatar',
+            namespace: 'v0:custom-avatar',
           },
           slots: {
-            default: () => h(Avatar.Fallback, { namespace: 'custom-avatar' }, () => 'JD'),
+            default: () => h(Avatar.Fallback, { namespace: 'v0:custom-avatar' }, () => 'JD'),
           },
         })
 
@@ -601,11 +601,11 @@ describe('avatar', () => {
     it('should use custom namespace for isolation', () => {
       const wrapper = mount(defineComponent({
         render: () => [
-          h(Avatar.Root, { namespace: 'avatar-1' }, () => [
-            h(Avatar.Fallback, { namespace: 'avatar-1' }, () => 'A1'),
+          h(Avatar.Root, { namespace: 'v0:avatar-1' }, () => [
+            h(Avatar.Fallback, { namespace: 'v0:avatar-1' }, () => 'A1'),
           ]),
-          h(Avatar.Root, { namespace: 'avatar-2' }, () => [
-            h(Avatar.Fallback, { namespace: 'avatar-2' }, () => 'A2'),
+          h(Avatar.Root, { namespace: 'v0:avatar-2' }, () => [
+            h(Avatar.Fallback, { namespace: 'v0:avatar-2' }, () => 'A2'),
           ]),
         ],
       }))
@@ -617,7 +617,8 @@ describe('avatar', () => {
     })
   })
 
-  describe('sSR / Hydration', () => {
+  // eslint-disable-next-line vitest/prefer-lowercase-title
+  describe('SSR / Hydration', () => {
     it('should render to string on server without errors', async () => {
       const app = createSSRApp(defineComponent({
         render: () =>

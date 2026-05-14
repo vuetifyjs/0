@@ -6,16 +6,16 @@
  * and common transformations. All exports are tree-shakeable.
  */
 
+// Constants
+import { IN_BROWSER } from '#v0/constants/globals'
+
+import { instanceExists } from './instance'
+
 // Utilities
 import { useId as vueUseId } from 'vue'
 
 // Types
 import type { DeepPartial, ID } from '#v0/types'
-
-// Constants
-import { IN_BROWSER } from '#v0/constants/globals'
-
-import { instanceExists } from './instance'
 
 /**
  * Checks if a value is a function
@@ -113,6 +113,31 @@ export function isBoolean (item: unknown): item is boolean {
 /* #__NO_SIDE_EFFECTS__ */
 export function isObject (item: unknown): item is Record<string, unknown> {
   return typeof item === 'object' && item !== null && !Array.isArray(item)
+}
+
+/**
+ * Checks if a value is a thenable (any object with a `.then` method).
+ * Duck-typed — matches both native Promises and any Promise-like.
+ *
+ * @param item The value to check
+ * @returns True if the value has a callable `then` property
+ *
+ * @example
+ * ```ts
+ * isThenable(Promise.resolve())     // true
+ * isThenable({ then: () => {} })    // true
+ * isThenable({})                    // false
+ * isThenable('string')              // false
+ * ```
+ *
+ * @remarks Use this when duck-typing async behavior — for example, rejecting
+ * a callback that returned a Promise-like when only synchronous returns are
+ * supported. If you specifically want native Promise instances, use
+ * `instanceof Promise` directly.
+ */
+/* #__NO_SIDE_EFFECTS__ */
+export function isThenable (item: unknown): item is { then: Function } {
+  return isObject(item) && 'then' in item && isFunction(item.then)
 }
 
 /**
@@ -402,6 +427,7 @@ export function useId (): string {
  */
 /* #__NO_SIDE_EFFECTS__ */
 export function clamp (value: number, min = 0, max = 1): number {
+  if (!Number.isFinite(value)) return min
   return Math.max(min, Math.min(max, value))
 }
 

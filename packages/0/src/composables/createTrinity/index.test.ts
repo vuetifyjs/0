@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
 
+import { createTrinity } from './index'
+
 // Types
 import type { App } from 'vue'
-
-import { createTrinity } from './index'
 
 describe('createTrinity', () => {
   it('should create a singleton with use, provide, and context', () => {
@@ -28,7 +28,7 @@ describe('createTrinity', () => {
 
     const result = createContext()
 
-    expect(mockUseContext).toHaveBeenCalledOnce()
+    expect(mockUseContext).toHaveBeenCalledTimes(1)
     expect(result).toBe(mockContext)
   })
 

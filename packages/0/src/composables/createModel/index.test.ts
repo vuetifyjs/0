@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
 
+import { createModel } from './index'
+
 // Utilities
 import { ref } from 'vue'
-
-import { createModel } from './index'
 
 describe('createModel', () => {
   describe('register', () => {
@@ -631,6 +631,22 @@ describe('createModel', () => {
       const model = createModel({ disabled })
 
       expect(model.disabled).toBe(disabled)
+    })
+  })
+
+  describe('dispose', () => {
+    it('should clear selection and dispose underlying registry', () => {
+      const model = createModel()
+      model.register({ id: 'a', value: 'A' })
+      model.register({ id: 'b', value: 'B' })
+
+      expect(model.selectedIds.size).toBeGreaterThan(0)
+      expect(model.size).toBe(2)
+
+      model.dispose()
+
+      expect(model.selectedIds.size).toBe(0)
+      expect(model.size).toBe(0)
     })
   })
 })

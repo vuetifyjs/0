@@ -1,5 +1,5 @@
 ---
-paths: apps/docs/**
+paths: ['apps/docs/**']
 ---
 
 # Documentation Pages
@@ -12,6 +12,8 @@ Scope-specific mechanics for `apps/docs/**`. Covers page types, frontmatter, int
 - §3.5 Slot conventions (`v-bind="attrs"` double-fire hazard)
 - §3.6 Boolean data attributes (data-driven examples)
 - §5.5 Locale-first strings
+
+Cross-cutting authoring patterns (data-attribute styling in examples, composable-instance naming, renderless toggle) are defined in `components.md` and `composables.md` — this file scopes to docs-page mechanics only.
 
 ## Page Types
 
@@ -27,10 +29,10 @@ Scope-specific mechanics for `apps/docs/**`. Covers page types, frontmatter, int
 ---
 title: Name - Brief SEO description
 meta:
-  - name: description
-    content: 150-160 char description
-  - name: keywords
-    content: comma, separated, keywords
+- name: description
+  content: 150-160 char description
+- name: keywords
+  content: comma, separated, keywords
 features:
   category: Component | Composable
   label: 'C: Dialog'              # or 'E: createSelection'
@@ -44,7 +46,7 @@ related:
 ```
 
 - Required fields: title, meta (description + keywords), features, related. [intent:194, intent:245]
-- `meta` entries use **2-space indent** (`  - name:`, not `- name:`). [intent:193]
+- `meta` list items sit at column 0 under `meta:` (`- name:`, not `  - name:`). YAML accepts both forms; column 0 is the docs-site convention. [intent:193]
 
 ## Page Intro
 
@@ -92,7 +94,7 @@ Adapters let you swap the underlying implementation without changing your applic
 
 | Adapter | Import | Description |
 |---------|--------|-------------|
-| `Vuetify0LoggerAdapter` | `@vuetify/v0` | Console-based (default) |
+| `V0LoggerAdapter` | `@vuetify/v0` | Console-based (default) |
 | `PinoLoggerAdapter` | `@vuetify/v0/logger/adapters/pino` | Pino integration |
 | `ConsolaLoggerAdapter` | `@vuetify/v0/logger/adapters/consola` | Consola integration |
 ```
@@ -103,7 +105,11 @@ Adapters let you swap the underlying implementation without changing your applic
 2. `<DocsPageFeatures :frontmatter />` — badges from frontmatter
 3. `<DocsBrowserSupport>` — optional, for native API features
 4. **Usage** — brief intro + code fence (not a live example)
-5. **Anatomy** — Vue template tree in `` ```vue playground collapse `` ``
+5. **Anatomy** — Vue template tree in `` ```vue Anatomy playground `` `` (preferred) or `` ```vue playground `` `` (acceptable). Wrap a `<script setup lang="ts">` block that imports the component(s) so the playground link compiles cleanly, then render the component-tree shell — bare `<Component.Sub />` elements showing the available compound surface. Prefer structural shells with no runtime values, but real props are acceptable when they clarify the surface (e.g., `<ExpansionPanel.Group multiple>`). The runnable preview comes from Examples; Anatomy is the structural map. Reference: `pages/components/disclosure/expansion-panel.md`. [intent:345]
+
+> **Usage** accepts either form below — pick based on what the section needs to do:
+> - `::: example` with the `basic` file (no extension) when a runnable demo is enough on its own. Dominant practice. Example: `pages/components/semantic/breadcrumbs.md`.
+> - Code fence + prose when the page has key props or behaviors that warrant explanation before the demo. Example: `pages/components/semantic/pagination.md`.
 6. **Architecture** — optional Mermaid diagram
 7. **Examples** — `::: example` blocks, each with 2+ files
 8. **Recipes** — code fences or single-file `::: example` blocks
@@ -115,8 +121,8 @@ Adapters let you swap the underlying implementation without changing your applic
 
 | Section | Component pages | Composable pages |
 |---------|----------------|-----------------|
-| **Usage** | `::: example` with basic.vue [intent:302] | `` ```ts collapse `` `` code fence [intent:302] |
-| **Anatomy** | `` ```vue playground collapse `` `` | — |
+| **Usage** | `::: example` with `basic` (no extension) **or** code fence + prose when the page needs explanatory text before the demo [intent:302] | `` ```ts collapse `` `` code fence [intent:302] |
+| **Anatomy** | `` ```vue Anatomy playground `` `` (preferred) or `` ```vue playground `` `` — `<script setup>` import + component-tree shell [intent:345] | — |
 | **Examples** | `::: example` with 2+ files [intent:304] | `::: example` with 2+ files [intent:304] |
 | **Recipes** | Code fence or single-file `::: example` [intent:303] | Code fence or single-file `::: example` [intent:303] |
 
@@ -193,10 +199,71 @@ The same depth rule does **not** apply to `## Usage` or `## Recipes` blocks — 
 - No `index.vue` pattern. [intent:308]
 - Never `v-bind="attrs"` on children of non-renderless components — causes double-fire. Only use slot `attrs` in `renderless` mode where there is no wrapper element. [intent:206, intent:207]
 - Prefer `v-slot="{ attrs }"` shorthand over `<template #default="{ attrs }">`. [intent:272, intent:273]
+- Reactivity primitive: `shallowRef` for primitive state (booleans, numbers, strings), `ref` only for objects/arrays. Same rule as source code — see PHILOSOPHY §4.1. Examples are read by every consumer and become the de facto template; if they reach for `ref('foo')`, downstream apps will too.
 
 ### Vue code fences
 
 Any ``` ```vue ``` code fence containing component usage must wrap markup in `<template>...</template>`. Never show bare fragments. [intent:271]
+
+## Inline code in headers and links
+
+Two related restrictions on inline-code (`` ` ``) styling:
+
+- **Never use `` ` `` in markdown headers.** Write `### Understanding id vs value`, not `` ### Understanding `id` vs `value` ``. Headers feed the TOC and the URL anchor; the inline-code styling renders inconsistently across both and the anchor slug includes the surrounding characters.
+- **Never wrap link text in `` ` ``.** Write `[createOverflow](/composables/semantic/create-overflow)`, not `` [`createOverflow`](/composables/semantic/create-overflow) ``. The link styling (underline + color) already signals that the text is a code identifier; backticks layer redundant — and in many themes broken — formatting on top.
+
+Inline code in regular prose is fine and encouraged: `` `Overflow.Root` ``, `` `+N more` ``, etc.
+
+```markdown
+<!-- Wrong -->
+### Understanding `id` vs `value`
+Built on [`createOverflow`](/composables/semantic/create-overflow).
+
+<!-- Right -->
+### Understanding id vs value
+Built on [createOverflow](/composables/semantic/create-overflow).
+```
+
+## Footnotes
+
+When a table row needs a caveat that won't fit cleanly in a cell, use a Markdown footnote (`[^name]`) anchored on the cell content. Keep cells terse and let the footnote carry the qualifier — install commands, version numbers, links, exception conditions.
+
+Use a footnote when:
+
+- A parenthetical inside a cell starts breaking row alignment, or
+- A `> [!TIP]` / `> [!NOTE]` block immediately under a table is restating something that belongs to one specific row, not the whole table.
+
+Don't use a footnote for:
+
+- Information that applies to the whole table or page — that's still a TIP/NOTE block.
+- Short qualifiers (1–4 words) that read fine inline — e.g. `(zero-padded)`, `(0-indexed)`, `(includes NaN)`.
+
+**Naming:** short kebab identifiers tied to the row content, not numbered. `[^safari-anchor]`, not `[^1]` — survives reorder, scans better in source, makes the link descriptive when the footnote text is far from the anchor.
+
+```markdown
+<!-- Right -->
+| Feature | Safari | Fallback |
+|---------|--------|----------|
+| [CSS Anchor Positioning](https://...) | —[^safari-anchor] | Properties ignored |
+
+[^safari-anchor]: Not yet implemented in Safari; track at [WebKit Bug 286106](https://bugs.webkit.org/show_bug.cgi?id=286106).
+
+<!-- Wrong — caveat wedged into cell, breaks row alignment -->
+| [CSS Anchor Positioning](https://...) | — (Not yet supported in Safari; tracking at WebKit) | Properties ignored |
+
+<!-- Wrong — TIP block restating one row's caveat -->
+| [CSS Anchor Positioning](https://...) | — | Properties ignored |
+
+> [!TIP]
+> CSS Anchor Positioning is not yet supported in Safari; track at WebKit Bug 286106.
+```
+
+Real worked examples on master:
+
+- `apps/docs/src/pages/introduction/browser-support.md` — `[^safari-anchor]` on the Cutting-Edge Features table.
+- `apps/docs/src/pages/composables/index.md` — `[^plugin-install]` on the Plugin consumers row.
+- `apps/docs/src/pages/composables/plugins/use-date.md` — `[^temporal]` on the adapter's polyfill requirement.
+- `apps/docs/src/pages/guide/features/accessibility.md` — `[^pagination-nav]` and `[^popover-native]` on the ARIA attributes table.
 
 ## Markdown Directives
 
@@ -208,6 +275,7 @@ Any ``` ```vue ``` code fence containing component usage must wrap markup in `<t
 | `> [!TIP]` | Informational callout (empty tip surfaces a random tip from curated pool) [intent:340, intent:341] |
 | `> [!WARNING]` | Cautionary callout |
 | `> [!ERROR]` | Error/danger callout |
+| `[^name]` | Footnote anchor — see [Footnotes](#footnotes) |
 | `` ```vue Anatomy playground `` `` | Live anatomy preview |
 | `` ```ts collapse `` `` | Collapsible code block |
 | `` ```ts no-filename `` `` | Hide filename in code block |
@@ -259,41 +327,31 @@ Ask: **"What must the reader already know to use this page?"**
 
 | Category | Components |
 |----------|-----------|
-| `disclosure` | Dialog, ExpansionPanel, Popover, Tabs |
-| `forms` | Checkbox, Switch, Radio, Slider, Select |
-| `primitives` | Atom |
-| `semantic` | Avatar, Pagination, Breadcrumbs |
-| `providers` | (context providers) |
+| `actions` | Button, Toggle |
+| `disclosure` | AlertDialog, Collapsible, Dialog, ExpansionPanel, Popover, Tabs, Treeview |
+| `forms` | Checkbox, Combobox, Form, Input, NumberField, Radio, Rating, Select, Slider, Switch |
+| `primitives` | AspectRatio, Atom, Portal, Presence |
+| `providers` | Group, Locale, Scrim, Selection, Single, Step, Theme |
+| `semantic` | Avatar, Breadcrumbs, Carousel, Image, Overflow, Pagination, Progress, Snackbar, Splitter |
 
 ## Composable Categories [intent:218]
 
 | Category | Composables |
 |----------|------------|
-| `foundation` | createContext, createTrinity, createPlugin |
-| `registration` | createRegistry, createTokens |
-| `selection` | createSelection, createSingle, createGroup, createStep |
-| `forms` | createForm |
-| `plugins` | useTheme, useLocale, useLogger, useFeatures, usePermissions |
-| `system` | useBreakpoints, useMediaQuery, useStorage, useHydration |
-| `utilities` | useEventListener, useHotkey, useClickOutside, useLazy |
-| `reactivity` | useToggleScope, useProxyModel |
-| `transformers` | toReactive, toArray |
+| `data` | createDataTable, createFilter, createPagination, createVirtual |
+| `forms` | createCombobox, createForm, createInput, createNumberField, createNumeric, createRating, createSlider, createValidation |
+| `foundation` | createContext, createPlugin, createTrinity |
+| `plugins` | useBreakpoints, useDate, useFeatures, useHydration, useLocale, useLogger, useNotifications, usePermissions, useRtl, useRules, useStack, useStorage, useTheme |
+| `reactivity` | useProxyModel, useProxyRegistry |
+| `registration` | createQueue, createRegistry, createTimeline, createTokens |
+| `selection` | createGroup, createModel, createNested, createSelection, createSingle, createStep |
+| `semantic` | createBreadcrumbs, createOverflow, createProgress |
+| `system` | useClickOutside, useDelay, useEventListener, useHotkey, useImage, useIntersectionObserver, useLazy, useMediaQuery, useMutationObserver, usePopover, usePresence, useRaf, useResizeObserver, useRovingFocus, useTimer, useToggleScope, useVirtualFocus |
+| `transformers` | toArray, toElement, toReactive |
 
 ## Auditing
 
 When auditing docs or specs, read the rules file **line-by-line** and build a per-rule checklist first. Don't work from memory. [intent:267] Don't document "advanced" or "override" patterns without verifying they work in source. [intent:268]
-
-## Nav emphasis
-
-Internal nav links render a 5-level heatmap dot that reflects how recent the page's last git commit is. Levels bucket by age: 1 = ≤7d (green), 2 = ≤30d, 3 = ≤90d, 4 = ≤180d, 5 = >180d (red). Color is a linear `color-mix` between `--v0-success` and `--v0-error`. Only level 1 is shown by default; enabling the global `devmode` feature shows all levels on every internal link. Manual `features.emphasized: true` still forces level 1. [intent:343]
-
-## Random tips
-
-Empty `> [!TIP]` callouts are filled from a curated random pool at render time. Tip bodies render through the same markdown pipeline as doc pages (`md.renderInline`). [intent:340, intent:341]
-
-## Docs example reset
-
-The multi-file toolbar exposes a reset button that remounts the preview. Single-file examples do not have it. [intent:342]
 
 ## Playground — the interactive browser editor
 
@@ -391,7 +449,7 @@ Real worked examples:
 ## Checklist
 
 - [ ] Page path matches `{type}/{category}/{name}.md` with correct label prefix
-- [ ] Frontmatter has title, meta (2-space indent), features (with level), related
+- [ ] Frontmatter has title, meta (`- name:` at column 0), features (with level), related
 - [ ] Intro is 1-2 sentences, user-facing, no internal composable names
 - [ ] Component pages follow 11-section structure; composable pages follow 10-section structure
 - [ ] Adapter composables have Adapters section with table and custom-adapter example

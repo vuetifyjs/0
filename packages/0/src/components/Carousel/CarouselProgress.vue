@@ -13,16 +13,18 @@
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
+
+  // Context
   import { useCarouselRoot } from './CarouselRoot.vue'
 
   // Composables
   import { useLocale } from '#v0/composables/useLocale'
 
-  // Utilities
-  import { mergeProps, onBeforeUnmount, toRef, useAttrs, useTemplateRef } from 'vue'
-
   // Transformers
   import { toElement } from '#v0/composables/toElement'
+
+  // Utilities
+  import { mergeProps, onBeforeUnmount, toRef, useAttrs, useTemplateRef } from 'vue'
 
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
@@ -72,7 +74,7 @@
   const locale = useLocale()
   const carousel = useCarouselRoot(namespace)
 
-  const el = toRef(() => toElement(rootEl.value?.element) as HTMLElement | null ?? null)
+  const el = toRef(() => toElement(rootEl.value?.element) ?? null)
   const ticket = carousel.parts.register({ type: 'progress', el })
   onBeforeUnmount(() => ticket.unregister())
 

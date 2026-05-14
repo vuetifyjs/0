@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
 
+import { createSlider } from './index'
+
 // Types
 import type { SliderOptions } from './index'
-
-import { createSlider } from './index'
 
 function setup (options?: SliderOptions) {
   const slider = createSlider(options)
@@ -17,33 +17,33 @@ function setup (options?: SliderOptions) {
 
 describe('createSlider', () => {
   describe('snap', () => {
-    it('rounds to nearest step', () => {
+    it('should round to nearest step', () => {
       const { slider } = setup({ min: 0, max: 100, step: 10 })
       expect(slider.snap(13)).toBe(10)
       expect(slider.snap(17)).toBe(20)
       expect(slider.snap(15)).toBe(20)
     })
 
-    it('handles decimal steps', () => {
+    it('should handle decimal steps', () => {
       const { slider } = setup({ min: 0, max: 1, step: 0.1 })
       expect(slider.snap(0.34)).toBe(0.3)
       expect(slider.snap(0.36)).toBe(0.4)
     })
 
-    it('produces exact values for common decimal steps', () => {
+    it('should produce exact values for common decimal steps', () => {
       const { slider } = setup({ min: 0, max: 1, step: 0.1 })
       for (let i = 0; i <= 10; i++) {
         expect(slider.snap(i * 0.1)).toBe(+(i * 0.1).toFixed(1))
       }
     })
 
-    it('handles decimal steps with non-zero min', () => {
+    it('should handle decimal steps with non-zero min', () => {
       const { slider } = setup({ min: 0.05, max: 1, step: 0.1 })
       expect(slider.snap(0.16)).toBe(0.15)
       expect(slider.snap(0.34)).toBe(0.35)
     })
 
-    it('clamps to min/max', () => {
+    it('should clamp to min/max', () => {
       const { slider } = setup({ min: 0, max: 100, step: 1 })
       expect(slider.snap(-10)).toBe(0)
       expect(slider.snap(110)).toBe(100)
@@ -51,14 +51,14 @@ describe('createSlider', () => {
   })
 
   describe('fromValue', () => {
-    it('converts value to percentage', () => {
+    it('should convert value to percentage', () => {
       const { slider } = setup({ min: 0, max: 100 })
       expect(slider.fromValue(0)).toBe(0)
       expect(slider.fromValue(50)).toBe(50)
       expect(slider.fromValue(100)).toBe(100)
     })
 
-    it('handles custom min/max', () => {
+    it('should handle custom min/max', () => {
       const { slider } = setup({ min: 20, max: 80 })
       expect(slider.fromValue(20)).toBe(0)
       expect(slider.fromValue(50)).toBe(50)
@@ -67,7 +67,7 @@ describe('createSlider', () => {
   })
 
   describe('fromPercent', () => {
-    it('converts percentage to snapped value', () => {
+    it('should convert percentage to snapped value', () => {
       const { slider } = setup({ min: 0, max: 100, step: 10 })
       expect(slider.fromPercent(0)).toBe(0)
       expect(slider.fromPercent(50)).toBe(50)
@@ -76,21 +76,21 @@ describe('createSlider', () => {
   })
 
   describe('set', () => {
-    it('sets value at index', () => {
+    it('should set value at index', () => {
       const { slider, addThumb } = setup({ min: 0, max: 100, step: 1 })
       addThumb(50)
       slider.set(0, 75)
       expect(slider.values.value).toEqual([75])
     })
 
-    it('clamps value to min/max', () => {
+    it('should clamp value to min/max', () => {
       const { slider, addThumb } = setup({ min: 0, max: 100 })
       addThumb(50)
       slider.set(0, 150)
       expect(slider.values.value).toEqual([100])
     })
 
-    it('enforces minStepsBetweenThumbs', () => {
+    it('should enforce minStepsBetweenThumbs', () => {
       const { slider, addThumb } = setup({ min: 0, max: 100, step: 1, minStepsBetweenThumbs: 10 })
       addThumb(30)
       addThumb(70)
@@ -98,7 +98,7 @@ describe('createSlider', () => {
       expect(slider.values.value[0]).toBe(60)
     })
 
-    it('snaps to step', () => {
+    it('should snap to step', () => {
       const { slider, addThumb } = setup({ min: 0, max: 100, step: 5 })
       addThumb(50)
       slider.set(0, 53)
@@ -107,28 +107,28 @@ describe('createSlider', () => {
   })
 
   describe('up / down', () => {
-    it('increments by one step', () => {
+    it('should increment by one step', () => {
       const { slider, addThumb } = setup({ min: 0, max: 100, step: 5 })
       addThumb(50)
       slider.up(0)
       expect(slider.values.value).toEqual([55])
     })
 
-    it('decrements by one step', () => {
+    it('should decrement by one step', () => {
       const { slider, addThumb } = setup({ min: 0, max: 100, step: 5 })
       addThumb(50)
       slider.down(0)
       expect(slider.values.value).toEqual([45])
     })
 
-    it('supports multiplier', () => {
+    it('should support multiplier', () => {
       const { slider, addThumb } = setup({ min: 0, max: 100, step: 1 })
       addThumb(50)
       slider.up(0, 10)
       expect(slider.values.value).toEqual([60])
     })
 
-    it('clamps at boundaries', () => {
+    it('should clamp at boundaries', () => {
       const { slider, addThumb } = setup({ min: 0, max: 100, step: 10 })
       addThumb(100)
       slider.up(0)
@@ -137,14 +137,14 @@ describe('createSlider', () => {
   })
 
   describe('floor / ceil', () => {
-    it('sets to min', () => {
+    it('should set to min', () => {
       const { slider, addThumb } = setup({ min: 10, max: 90 })
       addThumb(50)
       slider.floor(0)
       expect(slider.values.value).toEqual([10])
     })
 
-    it('sets to max', () => {
+    it('should set to max', () => {
       const { slider, addThumb } = setup({ min: 10, max: 90 })
       addThumb(50)
       slider.ceil(0)
@@ -153,7 +153,7 @@ describe('createSlider', () => {
   })
 
   describe('snap with step <= 0', () => {
-    it('clamps without snapping when step is 0', () => {
+    it('should clamp without snapping when step is 0', () => {
       const { slider } = setup({ min: 0, max: 100, step: 0 })
       expect(slider.snap(50.7)).toBe(50.7)
       expect(slider.snap(-10)).toBe(0)
@@ -162,7 +162,7 @@ describe('createSlider', () => {
   })
 
   describe('fromValue with zero extent', () => {
-    it('returns 0 when min equals max', () => {
+    it('should return 0 when min equals max', () => {
       const { slider } = setup({ min: 50, max: 50 })
       expect(slider.fromValue(50)).toBe(0)
     })
@@ -207,7 +207,7 @@ describe('createSlider', () => {
   })
 
   describe('defaults', () => {
-    it('uses min=0, max=100, step=1', () => {
+    it('should use min=0, max=100, step=1', () => {
       const { slider } = setup()
       expect(slider.min).toBe(0)
       expect(slider.max).toBe(100)
@@ -216,33 +216,48 @@ describe('createSlider', () => {
   })
 
   describe('inverted', () => {
-    it('flips percent calculation', () => {
+    it('should flip percent calculation', () => {
       const { slider } = setup({ min: 0, max: 100, inverted: true })
       expect(slider.fromValue(25)).toBe(75)
       expect(slider.fromValue(0)).toBe(100)
       expect(slider.fromValue(100)).toBe(0)
     })
 
-    it('flips fromPercent', () => {
+    it('should flip fromPercent', () => {
       const { slider } = setup({ min: 0, max: 100, step: 1, inverted: true })
       expect(slider.fromPercent(75)).toBe(25)
+    })
+
+    // Regression: fromPercent used to invert before snapping, so step rounding
+    // landed on different boundaries on the inverted axis. Snap then invert
+    // keeps midpoints symmetric — 45 → 5 either way on a 0..10 step-1 slider.
+    it('should snap symmetrically under inverted', () => {
+      const opts = { min: 0, max: 10, step: 1 }
+      const { slider } = setup(opts)
+      const { slider: invSlider } = setup({ ...opts, inverted: true })
+
+      expect(slider.fromPercent(45)).toBe(5)
+      expect(invSlider.fromPercent(45)).toBe(5)
+
+      expect(slider.fromPercent(55)).toBe(6)
+      expect(invSlider.fromPercent(55)).toBe(4)
     })
   })
 
   describe('register', () => {
-    it('registers a thumb with initial value', () => {
+    it('should register a thumb with initial value', () => {
       const { slider, addThumb } = setup()
       addThumb(50)
       expect(slider.values.value).toEqual([50])
     })
 
-    it('defaults to min when no initial value', () => {
+    it('should default to min when no initial value', () => {
       const { slider, addThumb } = setup({ min: 10 })
       addThumb()
       expect(slider.values.value).toEqual([10])
     })
 
-    it('registers multiple thumbs in order', () => {
+    it('should register multiple thumbs in order', () => {
       const { slider, addThumb } = setup()
       addThumb(25)
       addThumb(75)
@@ -251,7 +266,7 @@ describe('createSlider', () => {
   })
 
   describe('unregister', () => {
-    it('removes a thumb', () => {
+    it('should remove a thumb', () => {
       const { slider, addThumb } = setup()
       const ticket = addThumb(50)
       addThumb(75)
@@ -261,7 +276,7 @@ describe('createSlider', () => {
   })
 
   describe('apply', () => {
-    it('writes to existing thumb refs', () => {
+    it('should write to existing thumb refs', () => {
       const { slider, addThumb } = setup()
       addThumb(0)
       addThumb(0)
@@ -269,7 +284,7 @@ describe('createSlider', () => {
       expect(slider.values.value).toEqual([25, 75])
     })
 
-    it('stores pending when no thumbs registered', () => {
+    it('should store pending when no thumbs registered', () => {
       const { slider, addThumb } = setup()
       slider.apply([25, 75])
       addThumb()
@@ -278,14 +293,14 @@ describe('createSlider', () => {
       expect(slider.values.value).toEqual([25, 75])
     })
 
-    it('snaps incoming values', () => {
+    it('should snap incoming values', () => {
       const { slider, addThumb } = setup({ step: 10 })
       addThumb(0)
       slider.apply([33])
       expect(slider.values.value).toEqual([30])
     })
 
-    it('skips values beyond registered thumb count', () => {
+    it('should skip values beyond registered thumb count', () => {
       const { slider, addThumb } = setup()
       addThumb(0)
       // Apply 3 values but only 1 thumb registered
@@ -293,7 +308,7 @@ describe('createSlider', () => {
       expect(slider.values.value).toEqual([25])
     })
 
-    it('handles crossover mode in apply', () => {
+    it('should handle crossover mode in apply', () => {
       const { slider, addThumb } = setup({ crossover: true })
       addThumb(0)
       addThumb(0)

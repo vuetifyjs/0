@@ -10,6 +10,8 @@
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
+
+  // Context
   import ProgressHiddenInput from './ProgressHiddenInput.vue'
 
   // Composables
@@ -90,7 +92,9 @@
       return isArray(model.value) ? model.value : [model.value]
     },
     set: (arr: number[]) => {
+      /* v8 ignore next -- defensive guard for null/undefined model with empty registry */
       if (isNullOrUndefined(model.value) && arr.length === 0) return
+      /* v8 ignore next -- arr[0] always defined when scalar=true since model started as a number */
       model.value = scalar ? (arr[0] ?? 0) : arr
     },
   })

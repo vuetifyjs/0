@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  // Components
+  // Context
   import { useDiscoveryRootContext } from './DiscoveryRoot.vue'
 
   defineOptions({ name: 'DiscoveryDescription' })

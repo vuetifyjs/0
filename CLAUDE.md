@@ -13,6 +13,7 @@ Vue 3 headless UI primitives and composables. Unstyled, logic-focused building b
 | `isFunction`, `isString`, `isNumber`, `isBoolean` | Type guards |
 | `isObject`, `isArray`, `isNull`, `isUndefined` | Type guards |
 | `isNullOrUndefined`, `isPrimitive`, `isSymbol`, `isNaN`, `isElement` | Type guards |
+| `isThenable` | Duck-typed thenable check (any object with a `.then` method) |
 | `mergeDeep(target, ...sources)` | Deep merge with `DeepPartial<T>` |
 | `useId()` | SSR-safe ID (Vue's useId in components, counter fallback) |
 | `clamp(value, min, max)` | Clamp number to range |
@@ -130,7 +131,7 @@ pnpm repo:check       # knip + sherif
 
 ## Requirements
 
-- **Node**: >=22
+- **Node**: >=26
 - **pnpm**: >=10.6
 
 ## Build Tooling

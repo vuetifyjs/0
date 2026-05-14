@@ -12,6 +12,8 @@
 <script setup lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
+
+  // Context
   import { useTreeviewItem } from './TreeviewItem.vue'
 
   // Utilities
@@ -44,7 +46,7 @@
     attrs: {
       'role': 'checkbox',
       'aria-checked': toValue(item.ticket.isMixed) ? 'mixed' as const : toValue(item.ticket.isSelected),
-      'aria-disabled': item.isDisabled.value || undefined,
+      'aria-disabled': item.isDisabled.value,
       'tabindex': -1,
       'data-selected': toValue(item.ticket.isSelected) || undefined,
       'data-disabled': item.isDisabled.value || undefined,

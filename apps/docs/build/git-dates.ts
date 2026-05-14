@@ -26,6 +26,21 @@ export function getGitDate (filePath: string): GitDate | null {
   }
 }
 
+export function getGitHistory (filePath: string): string[] {
+  try {
+    const result = execSync(
+      `git log --format="%aI" -- "${filePath}"`,
+      { cwd: ROOT_DIR, encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] },
+    ).trim()
+
+    if (!result) return []
+
+    return result.split('\n')
+  } catch {
+    return []
+  }
+}
+
 export function isRecent (iso: string | undefined | null, days: number): boolean {
   if (!iso) return false
   const then = Date.parse(iso)

@@ -66,7 +66,7 @@
 </script>
 
 <script lang="ts" setup generic="V = unknown">
-  // Components
+  // Context
   import { useGroupRoot } from './GroupRoot.vue'
 
   // Utilities
@@ -88,7 +88,7 @@
   } = defineProps<GroupItemProps<V>>()
 
   const group = useGroupRoot(namespace)
-  const ticket = group.register({ id, value, disabled, indeterminate })
+  const ticket = group.register({ id, value, disabled: () => toValue(disabled) ?? false, indeterminate: () => toValue(indeterminate) ?? false })
   const isDisabled = toRef(() => toValue(ticket.disabled) || toValue(group.disabled))
 
   onBeforeUnmount(() => {

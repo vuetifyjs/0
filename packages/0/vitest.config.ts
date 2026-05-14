@@ -26,6 +26,18 @@ export default defineConfig({
     pool: 'vmThreads',
     globals: true,
     include: ['**/*.{test,spec}.?(c|m)[jt]s?(x)'],
+    setupFiles: ['./vitest.setup.ts'],
     testTimeout: 20_000,
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json-summary'],
+      reportsDirectory: 'packages/0/coverage',
+      include: ['packages/0/src/**/*.{ts,vue}'],
+      exclude: [
+        '**/*.{test,spec,bench}.?(c|m)[jt]s',
+        '**/index.ts',
+        'packages/0/src/maturity.json',
+      ],
+    },
   },
 })

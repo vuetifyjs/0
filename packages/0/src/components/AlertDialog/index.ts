@@ -16,7 +16,7 @@ export type { AlertDialogDescriptionProps, AlertDialogDescriptionSlotProps } fro
 export type { AlertDialogContext, AlertDialogRootProps, AlertDialogRootSlotProps } from './AlertDialogRoot.vue'
 export type { AlertDialogTitleProps, AlertDialogTitleSlotProps } from './AlertDialogTitle.vue'
 
-// Components
+// Context
 import Action from './AlertDialogAction.vue'
 import Activator from './AlertDialogActivator.vue'
 import Cancel from './AlertDialogCancel.vue'

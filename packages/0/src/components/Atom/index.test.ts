@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { renderToString } from 'vue/server-renderer'
 
+import { Atom } from './index'
+
 // Utilities
 import { mount } from '@vue/test-utils'
 import { createSSRApp, defineComponent, h, nextTick } from 'vue'
@@ -8,11 +10,9 @@ import { createSSRApp, defineComponent, h, nextTick } from 'vue'
 // Types
 import type { Component } from 'vue'
 
-import { Atom } from './index'
-
 describe('atom', () => {
   describe('rendering modes', () => {
-    it('renders as div by default', () => {
+    it('should render as div by default', () => {
       const wrapper = mount(Atom, {
         slots: {
           default: 'Content',
@@ -23,7 +23,7 @@ describe('atom', () => {
       expect(wrapper.text()).toBe('Content')
     })
 
-    it('renders with custom element type', () => {
+    it('should render with custom element type', () => {
       const wrapper = mount(Atom, {
         props: {
           as: 'button',
@@ -37,7 +37,7 @@ describe('atom', () => {
       expect(wrapper.text()).toBe('Click me')
     })
 
-    it('renders as span', () => {
+    it('should render as span', () => {
       const wrapper = mount(Atom, {
         props: {
           as: 'span',
@@ -53,7 +53,7 @@ describe('atom', () => {
   })
 
   describe('renderless mode', () => {
-    it('renders slot content directly when renderless=true', () => {
+    it('should render slot content directly when renderless=true', () => {
       const wrapper = mount(Atom, {
         props: {
           renderless: true,
@@ -67,7 +67,7 @@ describe('atom', () => {
       expect(wrapper.html()).not.toContain('<div><div')
     })
 
-    it('does not create wrapper element in renderless mode', () => {
+    it('should not create wrapper element in renderless mode', () => {
       const wrapper = mount(Atom, {
         props: {
           renderless: true,
@@ -82,7 +82,7 @@ describe('atom', () => {
       expect(wrapper.text()).toBe('Content')
     })
 
-    it('renders slot content directly when as=null', () => {
+    it('should render slot content directly when as=null', () => {
       const wrapper = mount(Atom, {
         props: {
           as: null,
@@ -98,7 +98,7 @@ describe('atom', () => {
   })
 
   describe('self-closing tags', () => {
-    it('renders self-closing img tag without children', () => {
+    it('should render self-closing img tag without children', () => {
       const wrapper = mount(Atom, {
         props: {
           as: 'img',
@@ -119,7 +119,7 @@ describe('atom', () => {
       expect(wrapper.text()).toBe('')
     })
 
-    it('renders self-closing input tag', () => {
+    it('should render self-closing input tag', () => {
       const wrapper = mount(Atom, {
         props: {
           as: 'input',
@@ -136,7 +136,7 @@ describe('atom', () => {
       expect(input.attributes('placeholder')).toBe('Enter text')
     })
 
-    it('renders self-closing br tag', () => {
+    it('should render self-closing br tag', () => {
       const wrapper = mount(Atom, {
         props: {
           as: 'br',
@@ -146,7 +146,7 @@ describe('atom', () => {
       expect(wrapper.find('br').exists()).toBe(true)
     })
 
-    it('renders self-closing hr tag', () => {
+    it('should render self-closing hr tag', () => {
       const wrapper = mount(Atom, {
         props: {
           as: 'hr',
@@ -158,7 +158,7 @@ describe('atom', () => {
   })
 
   describe('attribute forwarding', () => {
-    it('forwards class attribute', () => {
+    it('should forward class attribute', () => {
       const wrapper = mount(Atom, {
         props: {
           as: 'div',
@@ -171,7 +171,7 @@ describe('atom', () => {
       expect(wrapper.classes()).toContain('custom-class')
     })
 
-    it('forwards id attribute', () => {
+    it('should forward id attribute', () => {
       const wrapper = mount(Atom, {
         props: {
           as: 'div',
@@ -184,7 +184,7 @@ describe('atom', () => {
       expect(wrapper.attributes('id')).toBe('custom-id')
     })
 
-    it('forwards data attributes', () => {
+    it('should forward data attributes', () => {
       const wrapper = mount(Atom, {
         props: {
           as: 'div',
@@ -197,7 +197,7 @@ describe('atom', () => {
       expect(wrapper.attributes('data-test')).toBe('value')
     })
 
-    it('forwards aria attributes', () => {
+    it('should forward aria attributes', () => {
       const wrapper = mount(Atom, {
         props: {
           as: 'button',
@@ -212,7 +212,7 @@ describe('atom', () => {
       expect(wrapper.attributes('aria-pressed')).toBe('true')
     })
 
-    it('forwards event handlers', async () => {
+    it('should forward event handlers', async () => {
       let clicked = false
       const wrapper = mount(Atom, {
         props: {
@@ -231,7 +231,7 @@ describe('atom', () => {
   })
 
   describe('slot props', () => {
-    it('passes attributes as slot props', () => {
+    it('should pass attributes as slot props', () => {
       const wrapper = mount(Atom, {
         props: {
           as: 'div',
@@ -248,7 +248,7 @@ describe('atom', () => {
       expect(wrapper.find('span').classes()).toContain('test-class')
     })
 
-    it('provides slot props in renderless mode', () => {
+    it('should provide slot props in renderless mode', () => {
       const wrapper = mount(Atom, {
         props: {
           renderless: true,
@@ -266,7 +266,7 @@ describe('atom', () => {
   })
 
   describe('template ref', () => {
-    it('exposes element ref for regular elements', () => {
+    it('should expose element ref for regular elements', () => {
       const wrapper = mount(Atom, {
         props: {
           as: 'button',
@@ -277,7 +277,7 @@ describe('atom', () => {
       expect(exposed.element).toBeDefined()
     })
 
-    it('exposes element ref for self-closing tags', () => {
+    it('should expose element ref for self-closing tags', () => {
       const wrapper = mount(Atom, {
         props: {
           as: 'input',
@@ -288,7 +288,7 @@ describe('atom', () => {
       expect(exposed.element).toBeDefined()
     })
 
-    it('does not expose element ref in renderless mode', () => {
+    it('should not expose element ref in renderless mode', () => {
       const wrapper = mount(Atom, {
         props: {
           renderless: true,
@@ -304,7 +304,7 @@ describe('atom', () => {
   })
 
   describe('complex element types', () => {
-    it('renders section element', () => {
+    it('should render section element', () => {
       const wrapper = mount(Atom, {
         props: {
           as: 'section',
@@ -317,7 +317,7 @@ describe('atom', () => {
       expect(wrapper.find('section').exists()).toBe(true)
     })
 
-    it('renders article element', () => {
+    it('should render article element', () => {
       const wrapper = mount(Atom, {
         props: {
           as: 'article',
@@ -330,7 +330,7 @@ describe('atom', () => {
       expect(wrapper.find('article').exists()).toBe(true)
     })
 
-    it('renders nav element', () => {
+    it('should render nav element', () => {
       const wrapper = mount(Atom, {
         props: {
           as: 'nav',
@@ -343,7 +343,7 @@ describe('atom', () => {
       expect(wrapper.find('nav').exists()).toBe(true)
     })
 
-    it('renders header element', () => {
+    it('should render header element', () => {
       const wrapper = mount(Atom, {
         props: {
           as: 'header',
@@ -356,7 +356,7 @@ describe('atom', () => {
       expect(wrapper.find('header').exists()).toBe(true)
     })
 
-    it('renders footer element', () => {
+    it('should render footer element', () => {
       const wrapper = mount(Atom, {
         props: {
           as: 'footer',
@@ -371,7 +371,7 @@ describe('atom', () => {
   })
 
   describe('edge cases', () => {
-    it('handles empty slot content', () => {
+    it('should handle empty slot content', () => {
       const wrapper = mount(Atom, {
         props: {
           as: 'div',
@@ -382,7 +382,7 @@ describe('atom', () => {
       expect(wrapper.text()).toBe('')
     })
 
-    it('handles multiple root elements in slot', () => {
+    it('should handle multiple root elements in slot', () => {
       const wrapper = mount(Atom, {
         props: {
           as: 'div',
@@ -395,7 +395,7 @@ describe('atom', () => {
       expect(wrapper.findAll('span').length).toBe(2)
     })
 
-    it('handles nested Atom components', () => {
+    it('should handle nested Atom components', () => {
       const wrapper = mount(Atom, {
         props: {
           as: 'div',
@@ -411,7 +411,7 @@ describe('atom', () => {
   })
 
   describe('type safety', () => {
-    it('accepts valid HTML element names', () => {
+    it('should accept valid HTML element names', () => {
       const elements: Array<keyof HTMLElementTagNameMap> = ['div', 'span', 'button', 'input', 'section']
 
       for (const as of elements) {
@@ -423,7 +423,8 @@ describe('atom', () => {
     })
   })
 
-  describe('sSR / Hydration', () => {
+  // eslint-disable-next-line vitest/prefer-lowercase-title
+  describe('SSR / Hydration', () => {
     it('should render to string on server without errors', async () => {
       const app = createSSRApp(defineComponent({
         render: () => h(Atom as unknown as Component, { as: 'div' }, () => 'Hello'),

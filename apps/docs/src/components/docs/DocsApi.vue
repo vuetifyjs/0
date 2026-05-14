@@ -90,37 +90,38 @@
       :component-apis
     />
 
-    <template
-      v-for="api in componentApis"
-      v-else
-      :key="api.name"
-    >
-      <DocsHeaderAnchor :id="helpers.toKebab(api.name)" class="mt-8">
-        {{ api.name }}
-      </DocsHeaderAnchor>
+    <template v-if="showInlineApi">
+      <template
+        v-for="api in componentApis"
+        :key="api.name"
+      >
+        <DocsHeaderAnchor :id="helpers.toKebab(api.name)" class="mt-8">
+          {{ api.name }}
+        </DocsHeaderAnchor>
 
-      <DocsApiSection
-        :anchor-id="`${helpers.toKebab(api.name)}-props`"
-        :items="api.props"
-        kind="prop"
-        title="Props"
-      />
+        <DocsApiSection
+          :anchor-id="`${helpers.toKebab(api.name)}-props`"
+          :items="api.props"
+          kind="prop"
+          title="Props"
+        />
 
-      <DocsApiSection
-        :anchor-id="`${helpers.toKebab(api.name)}-events`"
-        class="mt-8"
-        :items="api.events"
-        kind="event"
-        title="Events"
-      />
+        <DocsApiSection
+          :anchor-id="`${helpers.toKebab(api.name)}-events`"
+          class="mt-8"
+          :items="api.events"
+          kind="event"
+          title="Events"
+        />
 
-      <DocsApiSection
-        :anchor-id="`${helpers.toKebab(api.name)}-slots`"
-        class="mt-8"
-        :items="api.slots"
-        kind="slot"
-        title="Slots"
-      />
+        <DocsApiSection
+          :anchor-id="`${helpers.toKebab(api.name)}-slots`"
+          class="mt-8"
+          :items="api.slots"
+          kind="slot"
+          title="Slots"
+        />
+      </template>
     </template>
   </div>
 
@@ -153,7 +154,7 @@
       :composable-api
     />
 
-    <template v-else>
+    <template v-if="showInlineApi">
       <DocsApiSection
         anchor-id="functions"
         class="mt-8"

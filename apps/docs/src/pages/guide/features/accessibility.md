@@ -49,8 +49,12 @@ Every v0 component exposes an `attrs` object containing all accessibility attrib
 | Selection.Item | `aria-selected`, `aria-disabled`, `data-selected`, `data-disabled` |
 | Group.Item | `role="checkbox"`, `aria-checked`, `aria-disabled`, `data-selected`, `data-disabled`, `data-mixed` |
 | ExpansionPanel.Activator | `id`, `role`, `tabindex`, `aria-expanded`, `aria-controls`, `aria-disabled` |
-| Pagination.Root | `aria-label`, `role="navigation"` (when not using `<nav>`) |
-| Popover.Activator | `popovertarget`, `data-open` (uses native popover API) |
+| Pagination.Root | `aria-label`, `role="navigation"`[^pagination-nav] |
+| Popover.Activator | `popovertarget`, `data-open`[^popover-native] |
+
+[^pagination-nav]: `role="navigation"` is only added when the root element isn't already a `<nav>`. If you render `Pagination.Root as="nav"`, the role is omitted to avoid redundant landmark roles.
+
+[^popover-native]: `Popover.Activator` wires the [native Popover API](https://developer.mozilla.org/en-US/docs/Web/API/Popover_API) via the `popovertarget` attribute. See the [Browser Support](/introduction/browser-support) page for fallback behavior in older browsers.
 
 > [!TIP]
 > Always spread the `attrs` object from slot props onto your interactive elements. Missing ARIA attributes break screen reader support.
