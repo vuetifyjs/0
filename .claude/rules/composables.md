@@ -26,6 +26,7 @@ Scope-specific mechanics for `packages/0/src/composables/**`. Covers naming, fac
 - §6.6 `useProxyModel`
 - §6.7 `useProxyRegistry`
 - §6.8 Register / unregister lifecycle contract
+- §6.10 Collection composables: no `items` option
 - §7 Events & lifecycle
 - §9 Errors & invariants
 
@@ -343,6 +344,10 @@ const table = createDataTable({
 - The composable has exactly one correct implementation, and consumers have no reason to swap it. Example: `useHotkey` — the listener semantics are fixed.
 - You want to switch behavior based on a boolean flag. Use an option (`mode: 'client' | 'server'`) rather than dressing it up as an adapter. Adapters are for swapping *implementations*, not for flipping a known toggle.
 
+### Collection composables: no `items` option
+
+A composable that owns a collection of values exposes `register` / `onboard` / `unregister`. It never accepts an `items` option in its factory — row identity, order, and per-row state live in the registry. Followed by `createRegistry`, `createModel`, `createSelection`, `createSingle`, `createGroup`, `createStep`, `createNested`, `createSortable`, `createKanban`, `createQueue`, `createTimeline`, `createTokens`, and (after the recent refactor) `createDataTable`. Full rule and migration shape: PHILOSOPHY §6.10.
+
 ### `useProxyModel` and `useProxyRegistry` — cross-link
 
 Both composables are covered in PHILOSOPHY §6.6 and §6.7. Repeating the when-to-use summary here for composable authors:
@@ -494,3 +499,4 @@ Pure transformers (`toRef`, `toElement`, `toValue`) are fine to call inline — 
 - [ ] No DOM event binding inside the composable
 - [ ] ID generation through `useId()`
 - [ ] Trinity return only from `createTrinity` / `createContext` / `createPlugin`
+- [ ] Composable that owns a collection of values uses `register` / `onboard`, never an `items` option (PHILOSOPHY §6.10)
