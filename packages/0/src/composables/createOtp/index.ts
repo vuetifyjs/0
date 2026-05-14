@@ -53,15 +53,13 @@ import type { MaybeRefOrGetter, Ref } from 'vue'
  */
 export type OtpPattern = 'numeric' | 'alphanumeric' | 'alphabetic' | RegExp
 
-/* @__PURE__ */
 const PRESETS: Record<Exclude<OtpPattern, RegExp>, RegExp> = {
   numeric: /^[0-9]$/,
   alphanumeric: /^[a-zA-Z0-9]$/,
   alphabetic: /^[a-zA-Z]$/,
 }
 
-/* @__PURE__ */
-const warned = new WeakSet<RegExp>()
+const warned = /* @__PURE__ */ new WeakSet<RegExp>()
 
 function extractMessage (error: unknown): string {
   if (error instanceof Error) return error.message
