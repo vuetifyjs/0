@@ -9,7 +9,7 @@
 
   const text = 'Vue 3 uses a reactive system built on ES Proxy. Reactive state is declared with ref and reactive, and tracked automatically inside computed and watch callbacks.'
 
-  const chunks = computed(() => toHighlight(text, query))
+  const chunks = computed(() => toHighlight(text, query, { ignoreCase: true, matchAll: true }))
 </script>
 
 <template>

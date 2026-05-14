@@ -85,8 +85,8 @@ markup re-renders without any manual wiring. Each `HighlightChunk` carries
 and screen-reader compatibility, a `<strong>` for bold-only, or whatever your design
 calls for.
 
-Matching is case-insensitive by default (`ignoreCase: true`). Set `ignoreCase: false` to
-respect the exact casing in the source text.
+Matching is case-sensitive by default. Set `ignoreCase: true` to
+match regardless of casing in the source text.
 
 :::
 

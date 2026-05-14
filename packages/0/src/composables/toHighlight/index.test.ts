@@ -85,24 +85,25 @@ describe('toHighlight', () => {
   })
 
   describe('query string', () => {
-    it('should match case-insensitively by default', () => {
-      expect(toHighlight('Hello World', 'HELLO')[0]).toStrictEqual({ text: 'Hello', match: true })
-    })
-
-    it('should match case-sensitively when ignoreCase is false', () => {
-      expect(toHighlight('Hello World', 'HELLO', { ignoreCase: false })).toStrictEqual([
+    it('should match case-sensitively by default', () => {
+      expect(toHighlight('Hello World', 'HELLO')).toStrictEqual([
         { text: 'Hello World', match: false },
       ])
     })
 
-    it('should find every occurrence by default (matchAll: true)', () => {
-      expect(toHighlight('aa bb aa', 'aa').filter(c => c.match).map(c => c.text))
-        .toStrictEqual(['aa', 'aa'])
+    it('should match case-insensitively when ignoreCase is true', () => {
+      expect(toHighlight('Hello World', 'HELLO', { ignoreCase: true })[0])
+        .toStrictEqual({ text: 'Hello', match: true })
     })
 
-    it('should find only the first occurrence when matchAll is false', () => {
-      expect(toHighlight('aa bb aa', 'aa', { matchAll: false }).filter(c => c.match).map(c => c.text))
+    it('should find only the first occurrence by default (matchAll: false)', () => {
+      expect(toHighlight('aa bb aa', 'aa').filter(c => c.match).map(c => c.text))
         .toStrictEqual(['aa'])
+    })
+
+    it('should find every occurrence when matchAll is true', () => {
+      expect(toHighlight('aa bb aa', 'aa', { matchAll: true }).filter(c => c.match).map(c => c.text))
+        .toStrictEqual(['aa', 'aa'])
     })
 
     it('should return a single no-match chunk when query has no match', () => {

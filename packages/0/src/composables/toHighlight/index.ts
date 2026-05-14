@@ -13,7 +13,7 @@
  * ```ts
  * import { toHighlight } from '@vuetify/v0'
  *
- * const chunks = toHighlight('Hello World', 'world')
+ * const chunks = toHighlight('Hello World', 'World')
  * // [{ text: 'Hello ', match: false }, { text: 'World', match: true }]
  * ```
  */
@@ -63,8 +63,8 @@ export interface HighlightChunk {
  * import { toHighlight } from '@vuetify/v0'
  *
  * const chunks = toHighlight('Hello World', 'WORLD', {
- *   ignoreCase: false,
- *   matchAll: false,
+ *   ignoreCase: true,
+ *   matchAll: true,
  * })
  * ```
  */
@@ -159,7 +159,7 @@ function findRanges (text: string, query: string | string[], matchAll: boolean, 
  * import { computed, shallowRef } from 'vue'
  * import { toHighlight } from '@vuetify/v0'
  *
- * const query = shallowRef('world')
+ * const query = shallowRef('World')
  * const chunks = computed(() => toHighlight('Hello World', query))
  *
  * console.log(chunks.value)
@@ -175,8 +175,8 @@ export function toHighlight (
   const _text = toValue(text)
   const _query = toValue(query)
   const _matches = toValue(options.matches)
-  const matchAll = toValue(options.matchAll) ?? true
-  const ignoreCase = toValue(options.ignoreCase) ?? true
+  const matchAll = toValue(options.matchAll) ?? false
+  const ignoreCase = toValue(options.ignoreCase) ?? false
 
   if (_matches?.length) return chunkText(_text, mergeRanges(_matches))
 
