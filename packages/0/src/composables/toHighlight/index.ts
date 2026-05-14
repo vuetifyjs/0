@@ -38,7 +38,7 @@ import type { MaybeRefOrGetter } from 'vue'
  * const ranges: MatchRange[] = [[0, 5], [12, 17]]
  * ```
  */
-export type MatchRange = [number, number]
+export type MatchRange = readonly [number, number]
 
 /**
  * A contiguous chunk of source text, flagged as matched or unmatched.
@@ -75,21 +75,21 @@ export interface ToHighlightOptions {
    * Caller-supplied ranges are sorted and merged before chunking, so
    * unsorted or overlapping input is handled gracefully.
    */
-  matches?: MaybeRefOrGetter<MatchRange[] | undefined>
+  matches?: MaybeRefOrGetter<readonly MatchRange[] | undefined>
   /**
-   * Highlight every occurrence (`true`, default) or only the first per term (`false`).
+   * Highlight every occurrence (`true`) or only the first per term (`false`, default).
    * Ignored when `matches` is provided.
    */
   matchAll?: MaybeRefOrGetter<boolean>
-  /** Case-insensitive matching. Default `true`. */
+  /** Case-insensitive matching. Default `false`. */
   ignoreCase?: MaybeRefOrGetter<boolean>
 }
 
-function mergeRanges (ranges: MatchRange[]): MatchRange[] {
+function mergeRanges (ranges: readonly MatchRange[]): MatchRange[] {
   const sorted = ranges
     .filter(span => span[0] < span[1])
     .toSorted((a, b) => a[0] - b[0])
-  const merged: MatchRange[] = []
+  const merged: [number, number][] = []
 
   for (const span of sorted) {
     const last = merged.at(-1)
@@ -100,7 +100,7 @@ function mergeRanges (ranges: MatchRange[]): MatchRange[] {
   return merged
 }
 
-function chunkText (text: string, ranges: MatchRange[]): HighlightChunk[] {
+function chunkText (text: string, ranges: readonly MatchRange[]): HighlightChunk[] {
   const chunks: HighlightChunk[] = []
   let cursor = 0
 
@@ -117,11 +117,11 @@ function chunkText (text: string, ranges: MatchRange[]): HighlightChunk[] {
 
 function findRanges (text: string, query: string | string[], matchAll: boolean, ignoreCase: boolean): MatchRange[] {
   const terms = toArray(query).filter(Boolean)
-  const haystack = ignoreCase ? text.toLowerCase() : text
-  const spans: MatchRange[] = []
+  const haystack = ignoreCase ? text.toLocaleLowerCase() : text
+  const spans: [number, number][] = []
 
   for (const term of terms) {
-    const needle = ignoreCase ? term.toLowerCase() : term
+    const needle = ignoreCase ? term.toLocaleLowerCase() : term
     let index = haystack.indexOf(needle)
 
     if (index !== -1) {
