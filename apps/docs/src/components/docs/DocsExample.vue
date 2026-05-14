@@ -207,7 +207,7 @@
     :class="peek && !hasMultipleFiles && 'mb-10'"
     style="--docs-example-toggle-h: 45px;"
   >
-    <div class="border border-divider rounded-lg overflow-clip [&>*:first-child]:rounded-t-lg [&>*:last-child]:rounded-b-lg">
+    <div class="border border-divider rounded-lg [&>*:first-child]:rounded-t-lg [&>*:last-child]:rounded-b-lg">
       <!-- Description -->
       <DocsExampleDescription
         v-if="hasDescription || title"
@@ -287,7 +287,7 @@
         <button
           :aria-controls="`${uid}-code`"
           :aria-expanded="showCode"
-          class="group w-full px-4 py-3 bg-transparent border-none font-inherit text-sm cursor-pointer flex items-center gap-2 text-on-surface transition-colors"
+          class="group w-full px-4 py-3 bg-transparent border-none font-inherit text-sm cursor-pointer flex items-center gap-2 text-on-surface transition-colors rounded-b-lg"
           :class="!showCode && 'hover:bg-surface'"
           type="button"
           @click="toggleCode"
