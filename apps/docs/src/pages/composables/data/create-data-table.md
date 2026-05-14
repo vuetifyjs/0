@@ -22,23 +22,6 @@ Composable data table built on v0 primitives. Composes sorting, filtering, pagin
 
 <DocsPageFeatures :frontmatter />
 
-> [!TIP]
-> Rows **and** columns are registered through the registry surface, not passed as factory options. Call `onboard` for bulk registration or `register` for one entry at a time — for rows the ticket id IS the row identifier, so selection, expansion, and grouping all key off it; for columns the `id` field is what `sort.toggle`, the filter pipeline, and the adapter all key off.
->
-> ```ts
-> // Columns (live under table.columns)
-> table.columns.onboard([
->   { id: 'name', title: 'Name', sortable: true },
->   { id: 'email', title: 'Email', filterable: true },
-> ])
->
-> // Rows (top-level — bulk)
-> table.onboard(rows.map(value => ({ id: value.id, value })))
->
-> // Rows — one at a time
-> table.register({ id, value })
-> ```
-
 ## Usage
 
 Construct the table, then register columns via `table.columns.onboard` and rows via `table.onboard`. Each row becomes a ticket keyed by the `id` you supply — that id is what `selection.toggle`, `expansion.toggle`, and `unregister` accept. Columns are keyed by their own `id` field; that is what `sort.toggle` and the filter pipeline match against.
@@ -81,43 +64,37 @@ table.columns.unregister('actions')
 table.columns.clear()
 ```
 
-::: example
-/composables/create-data-table/basic/BasicTable.vue
-/composables/create-data-table/basic/columns.ts
-/composables/create-data-table/basic/data.ts
+## Reactivity
 
-### Basic Data Table
-
-A sortable, filterable, paginated table with row selection — wired entirely from `createDataTable`.
-
-:::
-
-## Context / DI
-
-Use `createDataTableContext` to share a data table instance across a component tree:
-
-```ts
-import { createDataTableContext } from '@vuetify/v0'
-
-const [useUsersTable, provideUsersTable, context] =
-  createDataTableContext<User>({
-    namespace: 'app:users',
-  })
-
-context.columns.onboard([
-  { id: 'name', title: 'Name', sortable: true },
-  { id: 'email', title: 'Email' },
-])
-
-context.onboard(users.map(value => ({ id: value.id, value })))
-
-// In parent component
-provideUsersTable()
-
-// In child component (e.g., a toolbar or pagination control)
-const table = useUsersTable()
-table.sort.toggle('name')
-```
+| Property / Method | Reactive | Notes |
+| - | :-: | - |
+| `items` | <AppSuccessIcon /> | Computed — final visible items (projected from registry tickets) |
+| `allItems` | <AppSuccessIcon /> | Computed — every registered row, unfiltered/unsorted |
+| `filteredItems` | <AppSuccessIcon /> | Computed — items after filtering |
+| `sortedItems` | <AppSuccessIcon /> | Computed — items after filter + sort |
+| `columns` | <AppSuccessIcon /> | RegistryContext — reactive column registry (`columns.values()` drives `leaves` and `headers`) |
+| `leaves` | <AppSuccessIcon /> | Computed — leaf columns (no children) used by the data pipeline |
+| `headers` | <AppSuccessIcon /> | Computed — 2D header grid with colspan/rowspan for rendering thead |
+| `query` | <AppSuccessIcon /> | ShallowRef — current search query (readonly) |
+| `sort.columns` | <AppSuccessIcon /> | Computed — current sort entries |
+| `pagination.page` | <AppSuccessIcon /> | ShallowRef — current page |
+| `pagination.items` | <AppSuccessIcon /> | Computed — visible page buttons |
+| `selection.selectedIds` | <AppSuccessIcon /> | `shallowReactive(Set)` — currently selected row IDs |
+| `selection.isAllSelected` | <AppSuccessIcon /> | Computed — all in scope selected |
+| `selection.isMixed` | <AppSuccessIcon /> | Computed — some but not all selected |
+| `expansion.expandedIds` | <AppSuccessIcon /> | `shallowReactive(Set)` — currently expanded row IDs |
+| `grouping.groups` | <AppSuccessIcon /> | Computed — grouped items |
+| `total` | <AppSuccessIcon /> | Computed — total row count |
+| `loading` | <AppSuccessIcon /> | Computed — adapter loading state |
+| `error` | <AppSuccessIcon /> | Computed — adapter error state |
+| `register(input)` | — | Method — adds a single row ticket, mutates the row registry (downstream refs recompute) |
+| `onboard(inputs)` | — | Method — bulk register rows |
+| `unregister(id)` | — | Method — removes a row ticket by id |
+| `clear()` | — | Method — wipes every row ticket (useful before re-fetching server data) |
+| `columns.register(input)` | — | Method — adds a single column ticket (reactively updates `leaves`, `headers`, sort group, filter pipeline) |
+| `columns.onboard(inputs)` | — | Method — bulk register columns |
+| `columns.unregister(id)` | — | Method — removes a column by id; drops it from sort state |
+| `columns.clear()` | — | Method — wipes every column |
 
 ## Adapters
 
@@ -239,6 +216,23 @@ table.onboard(rows.map(value => ({ id: value.id, value })))
 // Wrap table.items with createVirtual for rendering
 const virtual = createVirtual(table.items, { itemHeight: 40 })
 ```
+
+> [!TIP]
+> Rows **and** columns are registered through the registry surface, not passed as factory options. Call `onboard` for bulk registration or `register` for one entry at a time — for rows the ticket id IS the row identifier, so selection, expansion, and grouping all key off it; for columns the `id` field is what `sort.toggle`, the filter pipeline, and the adapter all key off.
+>
+> ```ts
+> // Columns (live under table.columns)
+> table.columns.onboard([
+>   { id: 'name', title: 'Name', sortable: true },
+>   { id: 'email', title: 'Email', filterable: true },
+> ])
+>
+> // Rows (top-level — bulk)
+> table.onboard(rows.map(value => ({ id: value.id, value })))
+>
+> // Rows — one at a time
+> table.register({ id, value })
+> ```
 
 ## Features
 
@@ -376,39 +370,18 @@ table.grouping.openAll()
 table.grouping.closeAll()
 ```
 
-## Reactivity
-
-| Property / Method | Reactive | Notes |
-| - | :-: | - |
-| `items` | <AppSuccessIcon /> | Computed — final visible items (projected from registry tickets) |
-| `allItems` | <AppSuccessIcon /> | Computed — every registered row, unfiltered/unsorted |
-| `filteredItems` | <AppSuccessIcon /> | Computed — items after filtering |
-| `sortedItems` | <AppSuccessIcon /> | Computed — items after filter + sort |
-| `columns` | <AppSuccessIcon /> | RegistryContext — reactive column registry (`columns.values()` drives `leaves` and `headers`) |
-| `leaves` | <AppSuccessIcon /> | Computed — leaf columns (no children) used by the data pipeline |
-| `headers` | <AppSuccessIcon /> | Computed — 2D header grid with colspan/rowspan for rendering thead |
-| `query` | <AppSuccessIcon /> | ShallowRef — current search query (readonly) |
-| `sort.columns` | <AppSuccessIcon /> | Computed — current sort entries |
-| `pagination.page` | <AppSuccessIcon /> | ShallowRef — current page |
-| `pagination.items` | <AppSuccessIcon /> | Computed — visible page buttons |
-| `selection.selectedIds` | <AppSuccessIcon /> | `shallowReactive(Set)` — currently selected row IDs |
-| `selection.isAllSelected` | <AppSuccessIcon /> | Computed — all in scope selected |
-| `selection.isMixed` | <AppSuccessIcon /> | Computed — some but not all selected |
-| `expansion.expandedIds` | <AppSuccessIcon /> | `shallowReactive(Set)` — currently expanded row IDs |
-| `grouping.groups` | <AppSuccessIcon /> | Computed — grouped items |
-| `total` | <AppSuccessIcon /> | Computed — total row count |
-| `loading` | <AppSuccessIcon /> | Computed — adapter loading state |
-| `error` | <AppSuccessIcon /> | Computed — adapter error state |
-| `register(input)` | — | Method — adds a single row ticket, mutates the row registry (downstream refs recompute) |
-| `onboard(inputs)` | — | Method — bulk register rows |
-| `unregister(id)` | — | Method — removes a row ticket by id |
-| `clear()` | — | Method — wipes every row ticket (useful before re-fetching server data) |
-| `columns.register(input)` | — | Method — adds a single column ticket (reactively updates `leaves`, `headers`, sort group, filter pipeline) |
-| `columns.onboard(inputs)` | — | Method — bulk register columns |
-| `columns.unregister(id)` | — | Method — removes a column by id; drops it from sort state |
-| `columns.clear()` | — | Method — wipes every column |
-
 ## Examples
+
+::: example
+/composables/create-data-table/basic/BasicTable.vue
+/composables/create-data-table/basic/columns.ts
+/composables/create-data-table/basic/data.ts
+
+### Basic Data Table
+
+A sortable, filterable, paginated table with row selection — wired entirely from `createDataTable`.
+
+:::
 
 ::: example
 /composables/create-data-table/server/ServerTable.vue
