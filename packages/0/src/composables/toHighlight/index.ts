@@ -18,11 +18,11 @@
  * ```
  */
 
-// Utilities
-import { toValue } from 'vue'
-
 // Transformers
 import { toArray } from '#v0/composables/toArray'
+
+// Utilities
+import { toValue } from 'vue'
 
 // Types
 import type { MaybeRefOrGetter } from 'vue'

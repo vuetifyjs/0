@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
 
+import { toHighlight } from './index'
+
 // Utilities
 import { computed, shallowRef } from 'vue'
-
-import { toHighlight } from './index'
 
 describe('toHighlight', () => {
   describe('pre-computed matches', () => {
