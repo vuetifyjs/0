@@ -129,12 +129,11 @@ export interface OtpContext {
    * The underlying `createInput` context — exposes ARIA IDs, validation
    * state, focus/touched, and the `validate` / `reset` methods.
    *
-   * Note: `input.value` aliases `OtpContext.value`. Both expose the same
-   * underlying ref; consumers may write through either but should prefer the
-   * mutation helpers (`put`, `distribute`, `fill`, `clear`) to maintain
-   * pattern, length, and lock invariants.
+   * Note: `input.value` aliases `OtpContext.value` and is also readonly on
+   * the public surface. Use the mutation helpers (`put`, `distribute`,
+   * `fill`, `clear`) to update.
    */
-  input: InputContext<string>
+  input: Omit<InputContext<string>, 'value'> & { value: Readonly<Ref<string>> }
   isComplete: Readonly<Ref<boolean>>
   put: (index: number, char: string) => void
   distribute: (text: string, index?: number) => number
