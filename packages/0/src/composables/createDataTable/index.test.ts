@@ -271,6 +271,32 @@ describe('createDataTable', () => {
       expect(table.sort.columns.value[0]!.key).toBe('department')
     })
 
+    it('should reset previous column direction when single-sort switches columns', () => {
+      const table = createTable()
+
+      table.sort.toggle('name')
+      expect(table.sort.direction('name')).toBe('asc')
+
+      table.sort.toggle('department')
+
+      expect(table.sort.direction('name')).toBe('none')
+      expect(table.sort.priority('name')).toBe(-1)
+      expect(table.sort.direction('department')).toBe('asc')
+    })
+
+    it('should reset previous column direction when switching from desc state', () => {
+      const table = createTable()
+
+      table.sort.toggle('name')
+      table.sort.toggle('name')
+      expect(table.sort.direction('name')).toBe('desc')
+
+      table.sort.toggle('department')
+
+      expect(table.sort.direction('name')).toBe('none')
+      expect(table.sort.direction('department')).toBe('asc')
+    })
+
     it('should return current sort direction from direction()', () => {
       const table = createTable()
       expect(table.sort.direction('name')).toBe('none')

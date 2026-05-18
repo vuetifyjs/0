@@ -46,10 +46,10 @@ export interface DataTableAdapterContext<T extends Record<string, unknown>> {
   filterOptions: Omit<FilterOptions, 'keys'>
   /** Pagination options (size excluded, derived from pipeline) */
   paginationOptions: Omit<PaginationOptions, 'size'>
-  /** Per-column custom sort comparators (reactive — tracks the columns registry) */
-  customSorts: MaybeRefOrGetter<Partial<Record<keyof T & string, (a: unknown, b: unknown) => number>>>
-  /** Per-column custom filter functions (reactive — tracks the columns registry) */
-  customColumnFilters: MaybeRefOrGetter<Partial<Record<keyof T & string, (value: unknown, query: string) => boolean>>>
+  /** Per-column custom sort comparators (reactive — tracks the columns registry). Keys are column ids, which may be `keyof T` or derived strings. */
+  customSorts: MaybeRefOrGetter<Partial<Record<string, (a: unknown, b: unknown) => number>>>
+  /** Per-column custom filter functions (reactive — tracks the columns registry). Keys are column ids, which may be `keyof T` or derived strings. */
+  customColumnFilters: MaybeRefOrGetter<Partial<Record<string, (value: unknown, query: string) => boolean>>>
 }
 
 /** Outputs returned by the adapter to createDataTable */
@@ -113,7 +113,7 @@ export abstract class DataTableAdapter<T extends Record<string, unknown>> {
       ...context.filterOptions,
       keys: [...toValue(context.filterableKeys)],
       customFilter: context.filterOptions.customFilter ?? ((query, item) => {
-        const columnFilters = toValue(context.customColumnFilters) as Record<string, (value: unknown, query: string) => boolean>
+        const columnFilters = toValue(context.customColumnFilters)
         const keys = toValue(context.filterableKeys)
         if (!isObject(item)) return false
         const q = String(isArray(query) ? query[0] : query).toLowerCase()

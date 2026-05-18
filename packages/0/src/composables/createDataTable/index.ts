@@ -81,9 +81,6 @@ export type { ServerDataTableAdapterOptions } from './adapters'
 export { computeDepth, extractLeaves, resolveHeaders } from './columns'
 export type { ColumnNode, InternalHeader } from './columns'
 
-/** Extract keys of T whose value type extends V */
-export type KeysOfType<T, V> = { [K in keyof T]: T[K] extends V ? K : never }[keyof T] & string
-
 export type SelectStrategy = 'single' | 'page' | 'all'
 
 /**
@@ -401,10 +398,10 @@ export function createDataTable<T extends Record<string, unknown>> (
     return initialLocale
   })
 
-  const leaves = toRef(() => extractLeaves(columns.values()))
-  const headers = toRef(() => resolveHeaders(columns.values()))
+  const leaves = computed(() => extractLeaves(columns.values()))
+  const headers = computed(() => resolveHeaders(columns.values()))
 
-  const sortable = toRef(() => leaves.value.filter(col => col.sortable === true))
+  const sortable = computed(() => leaves.value.filter(col => col.sortable === true))
 
   const group = createGroup({ multiple: sortMultiple })
 
@@ -443,6 +440,7 @@ export function createDataTable<T extends Record<string, unknown>> (
 
     function clearOthers () {
       if (!sortMultiple) {
+        group.unselectAll()
         group.mixedIds.clear()
         order.length = 0
       }
@@ -464,17 +462,16 @@ export function createDataTable<T extends Record<string, unknown>> (
     }
 
     if (!isAsc && !isDesc) {
-      // none → first direction
       clearOthers()
       if (firstSortOrder === 'desc') setDesc()
       else setAsc()
       order.push(id)
     } else if (isAsc) {
-      // asc is last step when firstSortOrder='desc'
+      // asc → desc (or → none when firstSortOrder='desc' && !mandate ends the cycle)
       if (firstSortOrder === 'desc' && !mandate) setNone()
       else setDesc()
     } else {
-      // desc is last step when firstSortOrder='asc'
+      // desc → asc (or → none when firstSortOrder='asc' && !mandate ends the cycle)
       if (firstSortOrder === 'asc' && !mandate) setNone()
       else setAsc()
     }
@@ -519,7 +516,7 @@ export function createDataTable<T extends Record<string, unknown>> (
     reset,
   }
 
-  const filterable = toRef(() => {
+  const filterable = computed(() => {
     const ids: string[] = []
     for (const col of leaves.value) {
       if (col.filterable === true) ids.push(String(col.id))
@@ -527,7 +524,7 @@ export function createDataTable<T extends Record<string, unknown>> (
     return ids
   })
 
-  const customSorts = toRef(() => {
+  const customSorts = computed(() => {
     const sorts: Partial<Record<string, (a: unknown, b: unknown) => number>> = {}
     for (const col of leaves.value) {
       if (col.sort) sorts[String(col.id)] = col.sort
@@ -535,7 +532,7 @@ export function createDataTable<T extends Record<string, unknown>> (
     return sorts
   })
 
-  const customColumnFilters = toRef(() => {
+  const customColumnFilters = computed(() => {
     const filters: Partial<Record<string, (value: unknown, query: string) => boolean>> = {}
     for (const col of leaves.value) {
       if (col.filter) filters[String(col.id)] = col.filter
@@ -546,7 +543,7 @@ export function createDataTable<T extends Record<string, unknown>> (
   // Row values projected from registry tickets in registration order — the
   // adapter consumes this as its `items` input and runs the filter → sort →
   // paginate pipeline against it.
-  const source = toRef(() => registry.values().map(t => t.value as T))
+  const source = computed(() => registry.values().map(t => t.value as T))
 
   const {
     allItems,
@@ -565,8 +562,8 @@ export function createDataTable<T extends Record<string, unknown>> (
     locale,
     filterOptions,
     paginationOptions,
-    customSorts: customSorts as Readonly<Ref<Partial<Record<keyof T & string, (a: unknown, b: unknown) => number>>>>,
-    customColumnFilters: customColumnFilters as Readonly<Ref<Partial<Record<keyof T & string, (value: unknown, query: string) => boolean>>>>,
+    customSorts,
+    customColumnFilters,
   })
 
   const selectedIds = shallowReactive(new Set<ID>())
