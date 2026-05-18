@@ -1,3 +1,4 @@
+import { createGenesisPlugin } from '@paper/genesis'
 import { ViteSSG } from 'vite-ssg'
 
 // Context
@@ -13,4 +14,7 @@ export const createApp = ViteSSG(
   { routes: [{ path: '/', component: Playground }] },
   async ({ app }) => {
     registerPlugins(app)
+    app.use(createGenesisPlugin({
+      theme: { target: 'body' },
+    }))
   })

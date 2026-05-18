@@ -77,19 +77,17 @@
           :data-state="state"
         >
           <span class="genesis-docs-example-preview__handle-grip" :data-state="state">
-            <slot name="handle-icon">
-              <svg
-                aria-hidden="true"
-                height="14"
-                viewBox="0 0 4 14"
-                width="4"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <circle cx="2" cy="2" r="1" />
-                <circle cx="2" cy="7" r="1" />
-                <circle cx="2" cy="12" r="1" />
-              </svg>
-            </slot>
+            <svg
+              aria-hidden="true"
+              height="14"
+              viewBox="0 0 4 14"
+              width="4"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <circle cx="2" cy="2" r="1" />
+              <circle cx="2" cy="7" r="1" />
+              <circle cx="2" cy="12" r="1" />
+            </svg>
           </span>
         </div>
       </Splitter.Handle>
@@ -101,17 +99,10 @@
 
 <style scoped>
   .genesis-docs-example-preview {
-    --genesis-docs-example-preview-bg: var(--v0-surface-tint, transparent);
-    --genesis-docs-example-preview-panel-bg: var(--v0-surface, transparent);
-    --genesis-docs-example-preview-fg: var(--v0-on-surface, inherit);
-    --genesis-docs-example-preview-divider: color-mix(in srgb, var(--v0-on-surface, currentcolor) 18%, transparent);
-    --genesis-docs-example-preview-accent: var(--v0-primary, currentcolor);
-    --genesis-docs-example-preview-accent-fg: var(--v0-on-primary, white);
-
     position: relative;
     padding: 0.5rem;
-    background: var(--genesis-docs-example-preview-bg);
-    color: var(--genesis-docs-example-preview-fg);
+    background: var(--gn-surface-tint);
+    color: var(--gn-on-surface);
   }
 
   .genesis-docs-example-preview__splitter {
@@ -123,7 +114,7 @@
     position: relative;
     min-width: 0;
     padding: 1.5rem;
-    background: var(--genesis-docs-example-preview-panel-bg);
+    background: var(--gn-surface);
     border-radius: 0.375rem;
     overflow: hidden;
   }
@@ -134,7 +125,7 @@
     width: 0.25rem;
     margin-inline: 0.25rem;
     border-radius: 9999px;
-    background: var(--genesis-docs-example-preview-divider);
+    background: var(--gn-divider);
     transition: background-color 0.15s;
     cursor: col-resize;
   }
@@ -145,7 +136,7 @@
 
   .genesis-docs-example-preview__handle:hover,
   .genesis-docs-example-preview__handle[data-state='drag'] {
-    background: var(--genesis-docs-example-preview-accent);
+    background: var(--gn-accent);
   }
 
   .genesis-docs-example-preview__handle[data-state='drag'] {
@@ -161,9 +152,9 @@
     width: 1rem;
     height: 1.5rem;
     border-radius: 0.25rem;
-    background: var(--genesis-docs-example-preview-bg);
-    color: var(--genesis-docs-example-preview-fg);
-    border: 1px solid color-mix(in srgb, var(--v0-on-surface, currentcolor) 28%, transparent);
+    background: var(--gn-surface-tint);
+    color: var(--gn-on-surface);
+    border: 1px solid var(--gn-divider);
     box-shadow: 0 1px 2px rgb(0 0 0 / 0.15);
     display: inline-flex;
     align-items: center;
@@ -185,8 +176,8 @@
     inset-inline-end: 0.5rem;
     z-index: 2;
     padding: 0.125rem 0.375rem;
-    background: var(--genesis-docs-example-preview-fg);
-    color: var(--genesis-docs-example-preview-panel-bg);
+    background: var(--gn-on-surface);
+    color: var(--gn-surface);
     border-radius: 0.25rem;
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
     font-size: 0.75rem;

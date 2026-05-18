@@ -12,10 +12,6 @@
     fileOrders?: (number | undefined)[]
     /** Show reset action button */
     showReset?: boolean
-    /** Show playground action button */
-    showPlayground?: boolean
-    /** Show bin action button */
-    showBin?: boolean
     /** Show combine/split action button */
     showCombine?: boolean
   }
@@ -32,7 +28,9 @@
   import type { ComponentPublicInstance } from 'vue'
 
   // Components
+  import { GnDocsExampleActions } from '../GnDocsExampleActions'
   import { GnDocsExampleCode } from '../GnDocsExampleCode'
+  import { GnDocsExamplePanel } from '../GnDocsExamplePanel'
 
   defineOptions({ name: 'GnDocsExampleTabs' })
 
@@ -40,15 +38,11 @@
     files,
     fileOrders,
     showReset = true,
-    showPlayground = true,
-    showBin = true,
     showCombine = true,
   } = defineProps<GnDocsExampleTabsProps>()
 
   const emit = defineEmits<{
     reset: []
-    playground: [files: GnDocsExampleFile[]]
-    bin: [files: GnDocsExampleFile[]]
     combine: [combined: boolean]
   }>()
 
@@ -67,12 +61,13 @@
     if (list?.length && !selected.value) selected.value = list[0]?.name
   }, { immediate: true })
 
-  // Overflow detection for tabs
+  // Overflow detection for tabs. `reserved` budgets space for the actions toolbar
+  // on the right (2 icon buttons run ~80px; bump if your toolbar is larger).
   const tabsContainer = useTemplateRef<HTMLElement>('tabs-container')
   const overflow = createOverflow({
     container: tabsContainer,
     gap: 4,
-    reserved: 80,
+    reserved: 90,
   })
 
   const visibleCount = computed(() => {
@@ -93,14 +88,6 @@
 
   function onReset () {
     emit('reset')
-  }
-
-  function onPlayground () {
-    emit('playground', displayFiles.value)
-  }
-
-  function onBin () {
-    emit('bin', displayFiles.value)
   }
 
   function onCombine () {
@@ -149,49 +136,62 @@
 
         <span v-else class="genesis-docs-example-tabs__all">All files</span>
 
-        <div class="genesis-docs-example-tabs__actions">
-          <slot name="actions" />
-
+        <GnDocsExampleActions label="Example actions">
           <button
             v-if="showReset"
-            class="genesis-docs-example-tabs__action"
+            aria-label="Reset example"
             title="Reset example"
             type="button"
             @click="onReset"
           >
-            <slot name="reset-icon">Reset</slot>
-          </button>
-
-          <button
-            v-if="showPlayground"
-            class="genesis-docs-example-tabs__action"
-            title="Open in Playground"
-            type="button"
-            @click="onPlayground"
-          >
-            <slot name="playground-icon">Play</slot>
-          </button>
-
-          <button
-            v-if="showBin"
-            class="genesis-docs-example-tabs__action"
-            title="Open in Bin"
-            type="button"
-            @click="onBin"
-          >
-            <slot name="bin-icon">Bin</slot>
+            <slot name="reset-icon">
+              <svg
+                aria-hidden="true"
+                fill="currentColor"
+                height="16"
+                viewBox="0 0 24 24"
+                width="16"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path d="M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z" />
+              </svg>
+            </slot>
           </button>
 
           <button
             v-if="showCombine"
-            class="genesis-docs-example-tabs__action"
+            :aria-label="combined ? 'Split files' : 'Combine files'"
             :title="combined ? 'Split files' : 'Combine files'"
             type="button"
             @click="onCombine"
           >
-            <slot :combined name="combine-icon">{{ combined ? 'Split' : 'Combine' }}</slot>
+            <slot v-if="combined" name="split-icon">
+              <svg
+                aria-hidden="true"
+                fill="currentColor"
+                height="16"
+                viewBox="0 0 24 24"
+                width="16"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path d="M12,18.17L8.83,15L7.42,16.41L12,21L16.59,16.41L15.17,15M12,5.83L15.17,9L16.58,7.59L12,3L7.41,7.59L8.83,9L12,5.83Z" />
+              </svg>
+            </slot>
+
+            <slot v-else name="combine-icon">
+              <svg
+                aria-hidden="true"
+                fill="currentColor"
+                height="16"
+                viewBox="0 0 24 24"
+                width="16"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path d="M16.59,5.41L15.17,4L12,7.17L8.83,4L7.41,5.41L12,10M7.41,18.59L8.83,20L12,16.83L15.17,20L16.58,18.59L12,14L7.41,18.59Z" />
+              </svg>
+            </slot>
           </button>
-        </div>
+        </GnDocsExampleActions>
       </div>
 
       <template v-if="!combined">
@@ -200,27 +200,31 @@
           :key="file.name"
           :value="file.name"
         >
-          <slot :file name="panel">
-            <GnDocsExampleCode
-              :code="file.code"
-              :language="file.language || file.name.split('.').pop() || 'text'"
-            />
-          </slot>
+          <GnDocsExamplePanel :file>
+            <slot :file>
+              <GnDocsExampleCode
+                :code="file.code"
+                :language="file.language || file.name.split('.').pop() || 'text'"
+              />
+            </slot>
+          </GnDocsExamplePanel>
         </Tabs.Panel>
       </template>
 
       <template v-else>
-        <slot name="combined">
-          <GnDocsExampleCode
-            v-for="file in displayFiles"
-            :key="file.name"
-            :code="file.code"
-            :file-name="file.name"
-            :language="file.language || file.name.split('.').pop() || 'text'"
-          />
-        </slot>
-
-        <!-- In combined view we keep filenames so users can tell the files apart -->
+        <GnDocsExamplePanel
+          v-for="file in displayFiles"
+          :key="file.name"
+          :file
+        >
+          <slot :file>
+            <GnDocsExampleCode
+              :code="file.code"
+              :file-name="file.name"
+              :language="file.language || file.name.split('.').pop() || 'text'"
+            />
+          </slot>
+        </GnDocsExamplePanel>
       </template>
     </Tabs.Root>
   </div>
@@ -228,14 +232,6 @@
 
 <style scoped>
   .genesis-docs-example-tabs {
-    --genesis-docs-example-tabs-bar-bg: var(--v0-surface, transparent);
-    --genesis-docs-example-tabs-tab-bg: var(--v0-surface-tint, rgb(0 0 0 / 0.04));
-    --genesis-docs-example-tabs-tab-fg: var(--v0-on-surface-tint, var(--v0-on-surface, inherit));
-    --genesis-docs-example-tabs-tab-active-bg: var(--v0-primary, currentcolor);
-    --genesis-docs-example-tabs-tab-active-fg: var(--v0-on-primary, white);
-    --genesis-docs-example-tabs-border: color-mix(in srgb, var(--v0-on-surface, currentcolor) 14%, transparent);
-    --genesis-docs-example-tabs-fg-muted: var(--v0-on-surface-variant, rgb(0 0 0 / 0.6));
-
     display: flex;
     flex-direction: column;
   }
@@ -245,8 +241,8 @@
     align-items: center;
     gap: 0.5rem;
     padding: 0.75rem;
-    background: var(--genesis-docs-example-tabs-bar-bg);
-    border-top: 1px solid var(--genesis-docs-example-tabs-border);
+    background: var(--gn-surface);
+    border-top: 1px solid var(--gn-divider);
     min-height: 3rem;
   }
 
@@ -263,20 +259,20 @@
     font-weight: 500;
     border-radius: 0.25rem;
     white-space: nowrap;
-    background: var(--genesis-docs-example-tabs-tab-bg);
-    color: var(--genesis-docs-example-tabs-tab-fg);
-    border: 1px solid var(--genesis-docs-example-tabs-border);
+    background: var(--gn-surface-tint);
+    color: var(--gn-on-surface);
+    border: 1px solid var(--gn-divider);
     cursor: pointer;
     transition: background-color 0.15s, color 0.15s;
   }
 
   .genesis-docs-example-tabs__tab:hover {
-    background: color-mix(in srgb, var(--genesis-docs-example-tabs-tab-bg), currentcolor 8%);
+    background: color-mix(in srgb, var(--gn-surface-tint), currentcolor 8%);
   }
 
   .genesis-docs-example-tabs__tab[data-selected] {
-    background: var(--genesis-docs-example-tabs-tab-active-bg);
-    color: var(--genesis-docs-example-tabs-tab-active-fg);
+    background: var(--gn-accent);
+    color: var(--gn-on-accent);
     border-color: transparent;
   }
 
@@ -292,9 +288,9 @@
     font-size: 0.75rem;
     font-weight: 500;
     border-radius: 0.25rem;
-    background: var(--genesis-docs-example-tabs-tab-bg);
-    color: var(--genesis-docs-example-tabs-tab-fg);
-    border: 1px solid var(--genesis-docs-example-tabs-border);
+    background: var(--gn-surface-tint);
+    color: var(--gn-on-surface);
+    border: 1px solid var(--gn-divider);
     cursor: pointer;
   }
 
@@ -302,36 +298,7 @@
     padding: 0.25rem 0.5rem;
     font-size: 0.75rem;
     font-weight: 500;
-    color: var(--genesis-docs-example-tabs-fg-muted);
+    color: var(--gn-on-surface-variant);
     border: 1px solid transparent;
-  }
-
-  .genesis-docs-example-tabs__actions {
-    margin-inline-start: auto;
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-  }
-
-  .genesis-docs-example-tabs__action {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 30px;
-    height: 30px;
-    padding: 0 0.5rem;
-    background: transparent;
-    color: var(--genesis-docs-example-tabs-fg-muted);
-    border: none;
-    border-radius: 0.25rem;
-    font: inherit;
-    font-size: 0.75rem;
-    cursor: pointer;
-    transition: background-color 0.15s, color 0.15s;
-  }
-
-  .genesis-docs-example-tabs__action:hover {
-    background: var(--genesis-docs-example-tabs-tab-bg);
-    color: var(--v0-on-surface, inherit);
   }
 </style>

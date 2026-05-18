@@ -84,24 +84,18 @@
 
 <style scoped>
   .genesis-docs-example-description {
-    --genesis-docs-example-description-bg: var(--v0-surface-variant, var(--v0-surface, transparent));
-    --genesis-docs-example-description-fg: var(--v0-on-surface-variant, inherit);
-    --genesis-docs-example-description-accent: var(--v0-primary, currentcolor);
-    --genesis-docs-example-description-accent-fg: var(--v0-on-primary, white);
-    --genesis-docs-example-description-border: color-mix(in srgb, var(--v0-on-surface, currentcolor) 14%, transparent);
-
     position: relative;
     padding: 1rem 1.25rem;
-    border-bottom: 1px solid var(--genesis-docs-example-description-border);
-    background: var(--genesis-docs-example-description-bg);
-    color: var(--genesis-docs-example-description-fg);
+    border-bottom: 1px solid var(--gn-divider);
+    background: var(--gn-surface-tint);
+    color: var(--gn-on-surface-variant);
   }
 
   .genesis-docs-example-description__title {
     margin: 0;
     font-size: 1.125rem;
     font-weight: 600;
-    color: var(--v0-on-surface, inherit);
+    color: var(--gn-on-surface);
   }
 
   .genesis-docs-example-description__anchor {
@@ -126,7 +120,7 @@
     bottom: 0;
     height: 3rem;
     pointer-events: none;
-    background: linear-gradient(transparent, var(--genesis-docs-example-description-bg));
+    background: linear-gradient(transparent, var(--gn-surface-tint));
   }
 
   .genesis-docs-example-description__toggle {
@@ -135,10 +129,10 @@
     top: 0.75rem;
     z-index: 1;
     padding: 0.25rem 0.5rem;
-    border: 1px solid var(--genesis-docs-example-description-border);
+    border: 1px solid var(--gn-divider);
     border-radius: 0.25rem;
     background: transparent;
-    color: var(--genesis-docs-example-description-fg);
+    color: var(--gn-on-surface-variant);
     font: inherit;
     font-size: 0.75rem;
     cursor: pointer;
@@ -146,7 +140,7 @@
   }
 
   .genesis-docs-example-description__toggle:hover {
-    background: color-mix(in srgb, var(--genesis-docs-example-description-fg) 6%, transparent);
-    border-color: color-mix(in srgb, var(--genesis-docs-example-description-fg) 28%, transparent);
+    background: color-mix(in srgb, var(--gn-on-surface-variant) 6%, transparent);
+    border-color: var(--gn-divider);
   }
 </style>

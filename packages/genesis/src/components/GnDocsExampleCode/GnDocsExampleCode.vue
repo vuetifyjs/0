@@ -12,6 +12,8 @@
     peekLines?: number
     /** Hide the internal Show more/less peek toggle (when a parent supplies its own) */
     hidePeekToggle?: boolean
+    /** Hide the internal filename badge (when a parent toolbar shows it instead) */
+    hideFilename?: boolean
   }
 </script>
 
@@ -28,6 +30,7 @@
     peek = false,
     peekLines = 6,
     hidePeekToggle = false,
+    hideFilename = false,
   } = defineProps<GnDocsExampleCodeProps>()
 
   const expanded = defineModel<boolean>('expanded', { default: false })
@@ -46,10 +49,11 @@
   <div
     class="genesis-docs-example-code"
     :data-has-filename="fileName || undefined"
+    :data-hide-filename="hideFilename || undefined"
     :data-language="language"
     :data-truncated="truncated || undefined"
   >
-    <span v-if="fileName && !truncated" class="genesis-docs-example-code__filename">
+    <span v-if="fileName && !truncated && !hideFilename" class="genesis-docs-example-code__filename">
       {{ fileName }}
     </span>
 
@@ -79,17 +83,12 @@
 
 <style scoped>
   .genesis-docs-example-code {
-    --genesis-docs-example-code-bg: var(--v0-pre, var(--v0-surface, transparent));
-    --genesis-docs-example-code-fg: var(--v0-on-surface, inherit);
-    --genesis-docs-example-code-fg-muted: var(--v0-on-surface-variant, rgb(0 0 0 / 0.6));
-    --genesis-docs-example-code-accent: var(--v0-primary, currentcolor);
-
     position: relative;
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    background: var(--genesis-docs-example-code-bg);
-    color: var(--genesis-docs-example-code-fg);
+    background: var(--gn-code-bg);
+    color: var(--gn-code-fg);
   }
 
   .genesis-docs-example-code__filename {
@@ -100,7 +99,7 @@
     padding: 0.125rem 0.375rem;
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
     font-size: 0.75rem;
-    color: var(--genesis-docs-example-code-fg-muted);
+    color: var(--gn-on-surface-variant);
     pointer-events: none;
   }
 
@@ -119,13 +118,13 @@
     white-space: pre;
   }
 
-  .genesis-docs-example-code[data-has-filename] .genesis-docs-example-code__content :deep(pre),
-  .genesis-docs-example-code[data-has-filename] .genesis-docs-example-code__fallback {
+  .genesis-docs-example-code[data-has-filename]:not([data-hide-filename]) .genesis-docs-example-code__content :deep(pre),
+  .genesis-docs-example-code[data-has-filename]:not([data-hide-filename]) .genesis-docs-example-code__fallback {
     padding-top: 2.25rem;
   }
 
   .genesis-docs-example-code__fallback {
-    color: var(--genesis-docs-example-code-fg-muted);
+    color: var(--gn-on-surface-variant);
   }
 
   .genesis-docs-example-code__fade {
@@ -134,7 +133,7 @@
     bottom: 0;
     height: 3rem;
     pointer-events: none;
-    background: linear-gradient(transparent, var(--genesis-docs-example-code-bg));
+    background: linear-gradient(transparent, var(--gn-code-bg));
   }
 
   .genesis-docs-example-code__peek-toggle {
@@ -142,7 +141,7 @@
     padding: 0.5rem 1rem;
     background: none;
     border: none;
-    color: var(--genesis-docs-example-code-accent);
+    color: var(--gn-accent);
     font: inherit;
     font-size: 0.8125rem;
     cursor: pointer;

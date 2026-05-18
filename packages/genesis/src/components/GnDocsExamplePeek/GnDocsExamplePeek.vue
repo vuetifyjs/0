@@ -38,9 +38,6 @@
 
 <style scoped>
   .genesis-docs-example-peek {
-    --genesis-docs-example-peek-bg: var(--v0-primary, currentcolor);
-    --genesis-docs-example-peek-fg: var(--v0-on-primary, white);
-
     position: absolute;
     inset-inline-start: 50%;
     bottom: -0.75rem;
@@ -52,8 +49,8 @@
     padding: 0.25rem 0.5rem;
     border: none;
     border-radius: 0.25rem;
-    background: var(--genesis-docs-example-peek-bg);
-    color: var(--genesis-docs-example-peek-fg);
+    background: var(--gn-accent);
+    color: var(--gn-on-accent);
     font: inherit;
     font-size: 0.75rem;
     cursor: pointer;
