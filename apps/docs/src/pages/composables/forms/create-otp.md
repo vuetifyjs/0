@@ -17,9 +17,9 @@ related:
 
 # createOtp
 
-<DocsPageFeatures :frontmatter />
-
 Manage a fixed-length one-time-password or verification-code value with pattern-gated entry, length-based completion detection, and a decisional async hook. Headless — your component owns rendering, focus, and event wiring.
+
+<DocsPageFeatures :frontmatter />
 
 ## Usage
 
@@ -62,20 +62,17 @@ Layer 2 orchestrator. Aggregates createInput for validation, dirty tracking, and
 
 ## Reactivity
 
-| Property | Type | Reactive |
-| - | - | - |
-| `value` | `Ref<string>` | Yes |
-| `length` | `Readonly<Ref<number>>` | Yes |
-| `input` | `InputContext<string>` | Yes (delegated) |
-| `isComplete` | `Readonly<Ref<boolean>>` | Yes |
-
-| Method | Signature | Effect |
-| - | - | - |
-| `write` | `(index: number, char: string) => void` | Writes one character at `index`; empty `char` truncates from `index`. |
-| `distribute` | `(text: string, index?: number) => number` | Filters and splices, returns the count consumed. |
-| `clear` | `() => void` | Empties the joined value. |
-| `fill` | `(text: string) => void` | Replaces the joined value (filtered + clipped). |
-| `accepts` | `(char: string) => boolean` | Exposes the pattern test so consumers can guard `beforeinput`. |
+| Property | Type | Reactive | Description |
+| - | - | :-: | - |
+| `value` | `Readonly<Ref<string>>` | <AppSuccessIcon /> | Joined OTP string. Readonly — mutate via the helpers below. |
+| `length` | `Readonly<Ref<number>>` | <AppSuccessIcon /> | Target character count from the `length` option. |
+| `input` | `InputContext<string>` | <AppSuccessIcon /> | Underlying `createInput` surface — ARIA IDs, errors, validation, focus/touched. |
+| `isComplete` | `Readonly<Ref<boolean>>` | <AppSuccessIcon /> | `true` when value reaches `length` and every character passes `accepts`. Fires `onComplete` on the false → true edge. |
+| `write(index, char)` | `(index: number, char: string) => void` | — | Writes one character at `index`. Empty `char` truncates to `value.slice(0, index)` (Backspace mental model). Multi-character `char` is reduced to the first character — use `distribute` for multi-character input. |
+| `distribute(text, index?)` | `(text: string, index?: number) => number` | — | Filters `text` through `accepts`, splices at `index` (default `0`), clips to `length`. Returns the count consumed so consumers can advance focus. |
+| `clear()` | `() => void` | — | Empties the joined value. |
+| `fill(text)` | `(text: string) => void` | — | Replaces the joined value (filtered + clipped). |
+| `accepts(char)` | `(char: string) => boolean` | — | Pattern test, exposed so consumers can guard `beforeinput`. |
 
 Every helper is gated on the configured `disabled` and `readonly` options, and on the internal pending state while an async `onComplete` is in flight.
 
@@ -89,14 +86,6 @@ Every helper is gated on the configured `disabled` and `readonly` options, and o
 | `RegExp` | Custom; tested per character |
 
 `accepts(char)` is the single point of truth and is reactive through `MaybeRefOrGetter` — toggle modes at runtime and every helper respects the new pattern on the next call.
-
-## Behavior
-
-- `write(index, char)` writes a single character at a position. Empty `char` truncates the joined value to `value.slice(0, index)` — matching the Backspace mental model. Multi-character `char` is reduced to its first character (use `distribute` for multi-character input).
-- `distribute(text, index = 0)` filters `text` through `accepts`, splices the filtered characters in at `index`, clips the result to `length`, and returns the count consumed so consumers can decide where to advance focus.
-- `isComplete` is true when the joined value reaches `length` and every character passes `accepts`. A watcher fires `onComplete(value)` exactly once on the false → true edge.
-- `onComplete` is decisional. Return / resolve `false` to reject — `createOtp` clears the value and surfaces `v0.otp.rejected` through `input.errors`. The error clears automatically on the next mutation.
-- While an async `onComplete` is pending, mutation helpers no-op so the user can't race the verification.
 
 ## Examples
 
@@ -119,13 +108,21 @@ Related: see [createInput](/composables/forms/create-input) for the validation, 
 
 ::: faq
 
-??? Why is the value a string and not Ref&lt;string[]&gt;?
+??? Why is the value a single string instead of an array?
 
 Backends and form submissions expect the joined string. Storing as an array would force two derivations on every read and break v-model compatibility with `InputContext<string>`. Per-position access is plain string indexing — `value.value[i] ?? ''` — which the consumer's component does inline when rendering.
 
 ??? Why is onComplete decisional instead of an observational event?
 
 The dominant flow is "user finished typing → verify → wrong, clear it." Folding that into the completion event collapses a state machine consumers would otherwise hand-roll. Async verification also avoids racing a separate `validate` option for who clears the value first.
+
+??? When does onComplete fire?
+
+Exactly once on the false → true edge of `isComplete` — when the value first reaches `length` with every character passing `accepts`. Mutations after completion don't re-fire it; clearing and re-completing does. The watcher dedupes via an internal sentinel that resets whenever the value drops back below complete (or on rejection), so a clear-and-refill cycle still re-fires `onComplete`.
+
+??? What happens during async verification?
+
+While an async `onComplete` is pending, every mutation helper (`write`, `distribute`, `fill`, `clear`) is a no-op — the field is effectively locked until the promise settles, so the user can't race the verifier. On rejection, the value clears and `input.errors` surfaces `v0.otp.rejected`; on the next successful mutation the rejection clears automatically.
 
 ??? Where does focus management live?
 
