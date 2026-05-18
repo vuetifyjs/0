@@ -35,7 +35,7 @@ const otp = createOtp({
   },
 })
 
-otp.put(0, '4')            // single character at a position
+otp.write(0, '4')          // single character at a position
 otp.distribute('123456')   // distributes filtered characters
 otp.value.value            // '412345' joined string
 otp.isComplete.value       // true when length reached and all chars valid
@@ -71,7 +71,7 @@ Layer 2 orchestrator. Aggregates createInput for validation, dirty tracking, and
 
 | Method | Signature | Effect |
 | - | - | - |
-| `put` | `(index: number, char: string) => void` | Writes one character at `index`; empty `char` truncates from `index`. |
+| `write` | `(index: number, char: string) => void` | Writes one character at `index`; empty `char` truncates from `index`. |
 | `distribute` | `(text: string, index?: number) => number` | Filters and splices, returns the count consumed. |
 | `clear` | `() => void` | Empties the joined value. |
 | `fill` | `(text: string) => void` | Replaces the joined value (filtered + clipped). |
@@ -92,7 +92,7 @@ Every helper is gated on the configured `disabled` and `readonly` options, and o
 
 ## Behavior
 
-- `put(index, char)` writes a single character at a position. Empty `char` truncates the joined value to `value.slice(0, index)` — matching the Backspace mental model. Multi-character `char` is reduced to its first character (use `distribute` for multi-character input).
+- `write(index, char)` writes a single character at a position. Empty `char` truncates the joined value to `value.slice(0, index)` — matching the Backspace mental model. Multi-character `char` is reduced to its first character (use `distribute` for multi-character input).
 - `distribute(text, index = 0)` filters `text` through `accepts`, splices the filtered characters in at `index`, clips the result to `length`, and returns the count consumed so consumers can decide where to advance focus.
 - `isComplete` is true when the joined value reaches `length` and every character passes `accepts`. A watcher fires `onComplete(value)` exactly once on the false → true edge.
 - `onComplete` is decisional. Return / resolve `false` to reject — `createOtp` clears the value and surfaces `v0.otp.rejected` through `input.errors`. The error clears automatically on the next mutation.

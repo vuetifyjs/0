@@ -23,7 +23,7 @@
  *   },
  * })
  *
- * otp.put(0, '4')
+ * otp.write(0, '4')
  * otp.distribute('12345', 1) // returns 5; value becomes '412345'
  * otp.isComplete.value  // true
  * ```
@@ -109,7 +109,7 @@ export interface OtpOptions extends Omit<InputOptions<string>, 'value' | 'error'
  * ```ts
  * const otp = createOtp({ length: 6 })
  *
- * otp.put(0, '4')
+ * otp.write(0, '4')
  * otp.distribute('12345', 1) // returns 5
  * otp.isComplete.value  // true
  * otp.clear()
@@ -117,7 +117,7 @@ export interface OtpOptions extends Omit<InputOptions<string>, 'value' | 'error'
  */
 export interface OtpContext {
   /**
-   * The joined OTP string. Use the mutation helpers (`put`, `distribute`,
+   * The joined OTP string. Use the mutation helpers (`write`, `distribute`,
    * `fill`, `clear`) to update. Writing through this ref directly is
    * intentionally prevented to preserve pattern, length, and lock invariants.
    */
@@ -128,12 +128,12 @@ export interface OtpContext {
    * state, focus/touched, and the `validate` / `reset` methods.
    *
    * Note: `input.value` aliases `OtpContext.value` and is also readonly on
-   * the public surface. Use the mutation helpers (`put`, `distribute`,
+   * the public surface. Use the mutation helpers (`write`, `distribute`,
    * `fill`, `clear`) to update.
    */
   input: Omit<InputContext<string>, 'value'> & { value: Readonly<Ref<string>> }
   isComplete: Readonly<Ref<boolean>>
-  put: (index: number, char: string) => void
+  write: (index: number, char: string) => void
   distribute: (text: string, index?: number) => number
   clear: () => void
   fill: (text: string) => void
@@ -211,7 +211,7 @@ export function createOtp (options: OtpOptions = {}): OtpContext {
     }
   }
 
-  function put (index: number, char: string): void {
+  function write (index: number, char: string): void {
     if (isLocked()) return
     const max = toValue(lengthRef)
     if (index < 0 || index >= max) return
@@ -327,7 +327,7 @@ export function createOtp (options: OtpOptions = {}): OtpContext {
     length: lengthRef,
     input: inputContext,
     isComplete,
-    put,
+    write,
     distribute,
     clear,
     fill,

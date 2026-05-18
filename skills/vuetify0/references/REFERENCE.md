@@ -123,7 +123,7 @@ const otp = createOtp({
   onComplete: async value => await verify(value),
 })
 
-otp.put(0, '4')
+otp.write(0, '4')
 otp.distribute('123456') // returns count consumed
 otp.value.value     // joined string
 otp.isComplete.value
