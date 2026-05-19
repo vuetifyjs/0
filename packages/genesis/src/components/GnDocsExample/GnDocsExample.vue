@@ -176,7 +176,7 @@
       </GnDocsExampleTabs>
 
       <template v-else-if="code">
-        <div class="genesis-docs-example__code-bar">
+        <div v-if="!peek" class="genesis-docs-example__code-bar">
           <span v-if="fileName" class="genesis-docs-example__code-filename">
             {{ fileName }}
           </span>
