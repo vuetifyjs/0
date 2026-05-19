@@ -59,13 +59,7 @@ const PRESETS: Record<Exclude<OtpPattern, RegExp>, RegExp> = {
   alphabetic: /^[a-zA-Z]$/,
 }
 
-const COMPILED = /* @__PURE__ */ new WeakMap<RegExp, RegExp>()
-
-function extractMessage (error: unknown): string {
-  if (error instanceof Error) return error.message
-  if (isString(error)) return error
-  return String(error)
-}
+const WARNED_PATTERNS = /* @__PURE__ */ new WeakSet<RegExp>()
 
 /**
  * Options accepted by `createOtp`.
@@ -133,6 +127,11 @@ export interface OtpContext {
    */
   input: Omit<InputContext<string>, 'value'> & { value: Readonly<Ref<string>> }
   isComplete: Readonly<Ref<boolean>>
+  /**
+   * True while an async `onComplete` is in flight. Mutation helpers no-op
+   * during this window; consumers can render a spinner against this ref.
+   */
+  isValidating: Readonly<Ref<boolean>>
   write: (index: number, char: string) => void
   distribute: (text: string, index?: number) => number
   clear: () => void
@@ -174,12 +173,12 @@ export function createOtp (options: OtpOptions = {}): OtpContext {
 
   function compile (resolved: OtpPattern): RegExp {
     if (isString(resolved)) return PRESETS[resolved]
-    const cached = COMPILED.get(resolved)
-    if (cached) return cached
-    if (__DEV__ && (resolved.test('aa') || resolved.test('00'))) {
-      logger.warn('createOtp: pattern matches multi-character input; per-character matching may behave unexpectedly')
+    if (__DEV__ && !WARNED_PATTERNS.has(resolved)) {
+      WARNED_PATTERNS.add(resolved)
+      if (resolved.test('aa') || resolved.test('00')) {
+        logger.warn('createOtp: pattern matches multi-character input; per-character matching may behave unexpectedly')
+      }
     }
-    COMPILED.set(resolved, resolved)
     return resolved
   }
 
@@ -197,9 +196,8 @@ export function createOtp (options: OtpOptions = {}): OtpContext {
   }
 
   // While an async onComplete is pending, mutation helpers no-op via `isLocked()`.
-  // The spec also wants `input.isValidating` to reflect this state; today
-  // createInput doesn't accept an external isValidating source. Tracked as a
-  // follow-up — wire `isValidating: isPending` once createInput supports it.
+  // Surfaced as `isValidating` on the returned context; once createInput accepts
+  // an external isValidating source, also wire it into `input.isValidating`.
   const isPending = shallowRef(false)
 
   function isLocked (): boolean {
@@ -264,7 +262,7 @@ export function createOtp (options: OtpOptions = {}): OtpContext {
 
   function reject (): void {
     errorRef.value = true
-    errorMessagesRef.value = ['v0.otp.rejected']
+    errorMessagesRef.value = ['Invalid code']
     lastCompleted = ''
     value.value = ''
   }
@@ -293,7 +291,7 @@ export function createOtp (options: OtpOptions = {}): OtpContext {
     try {
       result = onComplete(next)
     } catch (error) {
-      logger.warn(`createOtp: onComplete threw — ${extractMessage(error)}`)
+      logger.warn('createOtp: onComplete threw', error)
       reject()
       return
     }
@@ -306,7 +304,7 @@ export function createOtp (options: OtpOptions = {}): OtpContext {
         },
         error => {
           isPending.value = false
-          logger.warn(`createOtp: onComplete rejected — ${extractMessage(error)}`)
+          logger.warn('createOtp: onComplete rejected', error)
           reject()
         },
       )
@@ -329,6 +327,7 @@ export function createOtp (options: OtpOptions = {}): OtpContext {
     length: lengthRef,
     input: inputContext,
     isComplete,
+    isValidating: isPending,
     write,
     distribute,
     clear,

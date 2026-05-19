@@ -298,16 +298,16 @@ describe('createOtp', () => {
       await nextTick()
       expect(otp.value.value).toBe('')
       expect(otp.input.isValid.value).toBe(false)
-      expect(otp.input.errors.value).toContain('v0.otp.rejected')
+      expect(otp.input.errors.value).toContain('Invalid code')
     })
 
     it('should clear error state on the next mutation', async () => {
       const otp = setup({ length: 4, onComplete: () => false })
       otp.fill('1234')
       await nextTick()
-      expect(otp.input.errors.value).toContain('v0.otp.rejected')
+      expect(otp.input.errors.value).toContain('Invalid code')
       otp.write(0, '9')
-      expect(otp.input.errors.value).not.toContain('v0.otp.rejected')
+      expect(otp.input.errors.value).not.toContain('Invalid code')
     })
 
     it('should fire onComplete again when the same value is re-entered after rejection', async () => {
@@ -333,9 +333,9 @@ describe('createOtp', () => {
       otp.fill('1234')
       await nextTick()
       expect(otp.value.value).toBe('')
-      expect(otp.input.errors.value).toContain('v0.otp.rejected')
+      expect(otp.input.errors.value).toContain('Invalid code')
       expect(spy).toHaveBeenCalledTimes(1)
-      expect(spy).toHaveBeenCalledWith(expect.stringContaining('onComplete threw'))
+      expect(spy.mock.calls[0][0]).toEqual(expect.stringContaining('onComplete threw'))
       spy.mockRestore()
     })
 
@@ -367,9 +367,9 @@ describe('createOtp', () => {
       otp.fill('1234')
       await nextTick()
       expect(otp.value.value).toBe('')
-      expect(otp.input.errors.value).toContain('v0.otp.rejected')
+      expect(otp.input.errors.value).toContain('Invalid code')
       expect(spy).toHaveBeenCalledTimes(1)
-      expect(spy).toHaveBeenCalledWith(expect.stringContaining('onComplete threw'))
+      expect(spy.mock.calls[0][0]).toEqual(expect.stringContaining('onComplete threw'))
       spy.mockRestore()
     })
 
@@ -377,9 +377,9 @@ describe('createOtp', () => {
       const otp = setup({ length: 4, onComplete: () => false })
       otp.fill('1234')
       await nextTick()
-      expect(otp.input.errors.value).toContain('v0.otp.rejected')
+      expect(otp.input.errors.value).toContain('Invalid code')
       otp.fill('----')
-      expect(otp.input.errors.value).toContain('v0.otp.rejected')
+      expect(otp.input.errors.value).toContain('Invalid code')
       expect(otp.value.value).toBe('')
     })
 
@@ -387,9 +387,9 @@ describe('createOtp', () => {
       const otp = setup({ length: 4, onComplete: () => false })
       otp.fill('1234')
       await nextTick()
-      expect(otp.input.errors.value).toContain('v0.otp.rejected')
+      expect(otp.input.errors.value).toContain('Invalid code')
       otp.fill('')
-      expect(otp.input.errors.value).not.toContain('v0.otp.rejected')
+      expect(otp.input.errors.value).not.toContain('Invalid code')
       expect(otp.value.value).toBe('')
     })
 
@@ -427,7 +427,7 @@ describe('createOtp', () => {
       await nextTick()
       await nextTick()
       expect(otp.value.value).toBe('')
-      expect(otp.input.errors.value).toContain('v0.otp.rejected')
+      expect(otp.input.errors.value).toContain('Invalid code')
     })
 
     it('should leave the value intact on async accept', async () => {
@@ -452,9 +452,9 @@ describe('createOtp', () => {
       await nextTick()
       await nextTick()
       expect(otp.value.value).toBe('')
-      expect(otp.input.errors.value).toContain('v0.otp.rejected')
+      expect(otp.input.errors.value).toContain('Invalid code')
       expect(spy).toHaveBeenCalledTimes(1)
-      expect(spy).toHaveBeenCalledWith(expect.stringContaining('onComplete rejected'))
+      expect(spy.mock.calls[0][0]).toEqual(expect.stringContaining('onComplete rejected'))
       spy.mockRestore()
     })
 
@@ -468,9 +468,9 @@ describe('createOtp', () => {
       await nextTick()
       await nextTick()
       expect(otp.value.value).toBe('')
-      expect(otp.input.errors.value).toContain('v0.otp.rejected')
+      expect(otp.input.errors.value).toContain('Invalid code')
       expect(spy).toHaveBeenCalledTimes(1)
-      expect(spy).toHaveBeenCalledWith(expect.stringContaining('onComplete rejected'))
+      expect(spy.mock.calls[0][0]).toEqual(expect.stringContaining('onComplete rejected'))
       spy.mockRestore()
     })
 
@@ -502,7 +502,7 @@ describe('createOtp', () => {
       await nextTick()
       await nextTick()
       expect(otp.value.value).toBe('')
-      expect(otp.input.errors.value).toContain('v0.otp.rejected')
+      expect(otp.input.errors.value).toContain('Invalid code')
       spy.mockRestore()
     })
 
@@ -584,9 +584,9 @@ describe('createOtp', () => {
       const otp = setup({ length: 4, onComplete: () => false })
       otp.fill('1234')
       await nextTick()
-      expect(otp.input.errors.value).toContain('v0.otp.rejected')
+      expect(otp.input.errors.value).toContain('Invalid code')
       otp.input.reset()
-      expect(otp.input.errors.value).not.toContain('v0.otp.rejected')
+      expect(otp.input.errors.value).not.toContain('Invalid code')
       expect(otp.value.value).toBe('')
     })
 
