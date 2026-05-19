@@ -6,6 +6,9 @@
     GnDocsExamplePreview,
   } from '@paper/genesis'
 
+  // Components
+  import DocsGenesisExample from '@/components/docs/DocsGenesisExample.vue'
+
   // Composables
   import { useHighlightCode } from '@/composables/useHighlightCode'
 
@@ -107,6 +110,25 @@
           Multi-file demo — toggle code, switch tabs, try Combine.
         </div>
       </GnDocsExample>
+    </section>
+
+    <section class="space-y-2">
+      <h2 class="text-xl font-semibold">DocsGenesisExample (apps/docs wrapper)</h2>
+
+      <p class="text-xs text-on-surface-variant">
+        The opt-in apps/docs wrapper around GnDocsExample. Auto-resolves examples via <code>useExamples()</code>,
+        renders Shiki via the code slot, wires the Playground and Bin actions on multi-file mode. Drop-in
+        candidate for the existing <code>DocsExample.vue</code>.
+      </p>
+
+      <DocsGenesisExample
+        file-path="/components/snackbar/basic"
+        title="Snackbar basic example"
+      >
+        <template #description>
+          <p>Resolved component renders from <code>examples/components/snackbar/basic.vue</code>.</p>
+        </template>
+      </DocsGenesisExample>
     </section>
 
     <section class="space-y-2">

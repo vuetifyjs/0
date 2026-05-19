@@ -33,6 +33,10 @@
      * named v0 theme (e.g., "dark", "corporateIndigo"), independent of the page.
      */
     theme?: string
+    /** Show "open in playground" action button on multi-file tab toolbar */
+    showPlayground?: boolean
+    /** Show "open in bin" action button on multi-file tab toolbar */
+    showBin?: boolean
   }
 
 </script>
@@ -65,11 +69,15 @@
     disableResize = false,
     hideWidthIndicator = false,
     theme,
+    showPlayground = false,
+    showBin = false,
   } = defineProps<GnDocsExampleProps>()
 
   const emit = defineEmits<{
     reset: []
     combine: [combined: boolean]
+    playground: [files: GnDocsExampleFile[]]
+    bin: [files: GnDocsExampleFile[]]
   }>()
 
   const uid = useId()
@@ -92,6 +100,14 @@
 
   function onCombine (combined: boolean) {
     emit('combine', combined)
+  }
+
+  function onPlayground (list: GnDocsExampleFile[]) {
+    emit('playground', list)
+  }
+
+  function onBin (list: GnDocsExampleFile[]) {
+    emit('bin', list)
   }
 </script>
 
@@ -147,7 +163,11 @@
         v-if="hasMultipleFiles"
         :file-orders
         :files="files!"
+        :show-bin
+        :show-playground
+        @bin="onBin"
         @combine="onCombine"
+        @playground="onPlayground"
         @reset="onReset"
       />
 

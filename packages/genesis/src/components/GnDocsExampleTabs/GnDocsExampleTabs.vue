@@ -14,6 +14,10 @@
     showReset?: boolean
     /** Show combine/split action button */
     showCombine?: boolean
+    /** Show "open in playground" action button (emits `playground` with current files) */
+    showPlayground?: boolean
+    /** Show "open in bin" action button (emits `bin` with current files) */
+    showBin?: boolean
   }
 </script>
 
@@ -39,11 +43,15 @@
     fileOrders,
     showReset = true,
     showCombine = true,
+    showPlayground = false,
+    showBin = false,
   } = defineProps<GnDocsExampleTabsProps>()
 
   const emit = defineEmits<{
     reset: []
     combine: [combined: boolean]
+    playground: [files: GnDocsExampleFile[]]
+    bin: [files: GnDocsExampleFile[]]
   }>()
 
   const selected = defineModel<string>('selected')
@@ -94,6 +102,14 @@
     combined.value = !combined.value
     emit('combine', combined.value)
   }
+
+  function onPlayground () {
+    emit('playground', displayFiles.value)
+  }
+
+  function onBin () {
+    emit('bin', displayFiles.value)
+  }
 </script>
 
 <template>
@@ -137,6 +153,8 @@
         <span v-else class="genesis-docs-example-tabs__all">All files</span>
 
         <GnDocsExampleActions label="Example actions">
+          <slot name="actions" />
+
           <button
             v-if="showReset"
             aria-label="Reset example"
@@ -154,6 +172,48 @@
                 xmlns="http://www.w3.org/2000/svg"
               >
                 <path d="M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z" />
+              </svg>
+            </slot>
+          </button>
+
+          <button
+            v-if="showPlayground"
+            aria-label="Open in Playground"
+            title="Open in Playground"
+            type="button"
+            @click="onPlayground"
+          >
+            <slot name="playground-icon">
+              <svg
+                aria-hidden="true"
+                fill="currentColor"
+                height="16"
+                viewBox="0 0 24 24"
+                width="16"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path d="M8,5.14V19.14L19,12.14L8,5.14Z" />
+              </svg>
+            </slot>
+          </button>
+
+          <button
+            v-if="showBin"
+            aria-label="Open in Bin"
+            title="Open in Bin"
+            type="button"
+            @click="onBin"
+          >
+            <slot name="bin-icon">
+              <svg
+                aria-hidden="true"
+                fill="currentColor"
+                height="16"
+                viewBox="0 0 24 24"
+                width="16"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path d="M14,3V5H17.59L7.76,14.83L9.17,16.24L19,6.41V10H21V3M19,19H5V5H12V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19Z" />
               </svg>
             </slot>
           </button>
