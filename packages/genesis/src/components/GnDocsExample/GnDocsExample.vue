@@ -27,6 +27,12 @@
     disableResize?: boolean
     /** Hide the splitter drag-width indicator */
     hideWidthIndicator?: boolean
+    /**
+     * Scope a v0 theme to the preview content. Forwarded to GnDocsExamplePreview;
+     * applies `data-theme="<name>"` to the panel so the example renders in the
+     * named v0 theme (e.g., "dark", "corporateIndigo"), independent of the page.
+     */
+    theme?: string
   }
 
 </script>
@@ -58,6 +64,7 @@
     peekLines = 6,
     disableResize = false,
     hideWidthIndicator = false,
+    theme,
   } = defineProps<GnDocsExampleProps>()
 
   const emit = defineEmits<{
@@ -106,6 +113,7 @@
       ref="preview"
       :disable-resize
       :show-width-indicator="!hideWidthIndicator"
+      :theme
     >
       <slot />
     </GnDocsExamplePreview>

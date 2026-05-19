@@ -110,6 +110,53 @@
     </section>
 
     <section class="space-y-2">
+      <h2 class="text-xl font-semibold">Per-example theme override</h2>
+
+      <p class="text-xs text-on-surface-variant">
+        The <code class="text-xs">theme</code> prop scopes a v0 theme to the preview panel. Each example below
+        renders the same content but in a different v0 theme, regardless of the page's active theme.
+      </p>
+
+      <div class="grid gap-4">
+        <GnDocsExample
+          :code="shortCode"
+          file-name="counter.vue"
+          language="vue"
+          theme="light"
+          title="theme=&quot;light&quot;"
+        >
+          <div class="grid place-items-center min-h-24 bg-surface text-on-surface">
+            <button class="px-4 py-2 rounded bg-primary text-on-primary">Light theme</button>
+          </div>
+        </GnDocsExample>
+
+        <GnDocsExample
+          :code="shortCode"
+          file-name="counter.vue"
+          language="vue"
+          theme="dark"
+          title="theme=&quot;dark&quot;"
+        >
+          <div class="grid place-items-center min-h-24 bg-surface text-on-surface">
+            <button class="px-4 py-2 rounded bg-primary text-on-primary">Dark theme</button>
+          </div>
+        </GnDocsExample>
+
+        <GnDocsExample
+          :code="shortCode"
+          file-name="counter.vue"
+          language="vue"
+          theme="tailwind"
+          title="theme=&quot;tailwind&quot;"
+        >
+          <div class="grid place-items-center min-h-24 bg-surface text-on-surface">
+            <button class="px-4 py-2 rounded bg-primary text-on-primary">Tailwind theme</button>
+          </div>
+        </GnDocsExample>
+      </div>
+    </section>
+
+    <section class="space-y-2">
       <h2 class="text-xl font-semibold">Hand-composed with Shiki highlighter</h2>
 
       <p class="text-xs text-on-surface-variant">

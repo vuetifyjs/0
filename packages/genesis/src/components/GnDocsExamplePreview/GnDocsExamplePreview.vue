@@ -6,6 +6,13 @@
     showWidthIndicator?: boolean
     /** Disable the splitter resize affordance entirely. */
     disableResize?: boolean
+    /**
+     * Scope a v0 theme to the preview panel by name. Applies `data-theme="<name>"`
+     * to the panel div so example content inside renders in the named theme,
+     * independent of the page's theme. Theme name must match an entry in v0's
+     * theme registry (e.g., "dark", "corporateIndigo").
+     */
+    theme?: string
   }
 </script>
 
@@ -22,6 +29,7 @@
     minSize = '348px',
     showWidthIndicator = true,
     disableResize = false,
+    theme,
   } = defineProps<GnDocsExamplePreviewProps>()
 
   const resetKey = shallowRef(0)
@@ -37,7 +45,12 @@
 
 <template>
   <div class="genesis-docs-example-preview">
-    <div v-if="disableResize" ref="preview-content" class="genesis-docs-example-preview__panel">
+    <div
+      v-if="disableResize"
+      ref="preview-content"
+      class="genesis-docs-example-preview__panel"
+      :data-theme="theme"
+    >
       <slot />
     </div>
 
@@ -48,6 +61,7 @@
             ref="preview-content"
             v-bind="attrs"
             class="genesis-docs-example-preview__panel"
+            :data-theme="theme"
           >
             <slot :is-dragging :width />
 
