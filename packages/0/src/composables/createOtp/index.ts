@@ -91,6 +91,7 @@ export interface OtpOptions extends Omit<InputOptions<string>, 'value' | 'error'
   /**
    * Fire when the joined value first reaches `length`. Decisional —
    * return / resolve `false` to reject (clears value, sets error).
+   * A rejected Promise is treated as `false` and logs a warning.
    */
   onComplete?: (value: string) => boolean | void | PromiseLike<boolean | void>
 }
@@ -116,6 +117,7 @@ export interface OtpContext {
    * intentionally prevented to preserve pattern, length, and lock invariants.
    */
   value: Readonly<Ref<string>>
+  /** Resolved character count from the `length` option. */
   length: Readonly<Ref<number>>
   /**
    * The underlying `createInput` context — exposes ARIA IDs, validation
@@ -126,16 +128,34 @@ export interface OtpContext {
    * `fill`, `clear`) to update.
    */
   input: Omit<InputContext<string>, 'value'> & { value: Readonly<Ref<string>> }
+  /** True when `value` reaches `length` and every character matches `pattern`. */
   isComplete: Readonly<Ref<boolean>>
   /**
    * True while an async `onComplete` is in flight. Mutation helpers no-op
    * during this window; consumers can render a spinner against this ref.
    */
   isValidating: Readonly<Ref<boolean>>
+  /**
+   * Write a single character at `index`. Empty string clears trailing
+   * characters from `index` onward. Out-of-range indices and characters
+   * rejected by `pattern` are ignored. No-ops while locked.
+   */
   write: (index: number, char: string) => void
+  /**
+   * Splice pattern-accepted characters from `text` into `value` starting
+   * at `index`. Returns the number of characters written. No-ops while
+   * locked or when no characters pass the pattern.
+   */
   distribute: (text: string, index?: number) => number
+  /** Clear `value` and rejection state. No-ops while locked. */
   clear: () => void
+  /**
+   * Replace `value` with pattern-accepted characters from `text`, truncated
+   * to `length`. Clears rejection state on deliberate empty input or any
+   * accepted characters. No-ops while locked.
+   */
   fill: (text: string) => void
+  /** Whether `char` is a single character matching the current `pattern`. */
   accepts: (char: string) => boolean
 }
 
