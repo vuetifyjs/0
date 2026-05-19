@@ -16,10 +16,6 @@ related:
   - /components/primitives/atom
 ---
 
-<script setup lang="ts">
-  import DocsGenesisExample from '@/components/docs/DocsGenesisExample.vue'
-</script>
-
 # AspectRatio
 
 Reserves a box with a fixed width-to-height ratio using CSS `aspect-ratio`.
@@ -31,7 +27,9 @@ Reserves a box with a fixed width-to-height ratio using CSS `aspect-ratio`.
 Wrap any content whose height should track its width. The child fills the
 reserved frame — pair with `w-full h-full` or absolute positioning.
 
-<DocsGenesisExample file-path="/components/aspect-ratio/basic" peek />
+::: gn-example
+/components/aspect-ratio/basic
+:::
 
 ## Anatomy
 
@@ -47,11 +45,9 @@ reserved frame — pair with `w-full h-full` or absolute positioning.
 
 ## Examples
 
-<DocsGenesisExample
-  :file-orders="[1, 2]"
-  :file-paths="['components/aspect-ratio/ResponsiveImage.vue', 'components/aspect-ratio/responsive.vue']"
->
-  <template #description>
+::: gn-example
+/components/aspect-ratio/ResponsiveImage.vue 1
+/components/aspect-ratio/responsive.vue 2
 
 ### Compose with Image
 
@@ -100,8 +96,7 @@ loading (`loading="lazy"`) with a reserved frame.
 | `ResponsiveImage.vue` | Reusable wrapper — `AspectRatio` around `Image.Root` with placeholder, fallback, and `object-cover` image |
 | `responsive.vue` | Entry point rendering images at two different ratios side-by-side (`16 / 9` landscape and `1` square) |
 
-  </template>
-</DocsGenesisExample>
+:::
 
 ## Recipes
 

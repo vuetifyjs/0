@@ -67,63 +67,90 @@ export function applyMarkdownPlugins (md: MarkdownIt, highlighter: DocsHighlight
     },
   })
 
-  // Example container: ::: example ... ::: or ::: example collapse ... :::
-  // Lines starting with / are file paths, rest is markdown description
-  // Single file without description: renders with peek, no description slot
-  // Multiple files or with description: renders with description slot
-  // "collapse" modifier: adds collapse prop for inline expand/collapse button
-  md.use(Container, 'example', {
-    render (tokens: MarkdownToken[], index: number, _options: unknown, env: Record<string, unknown>) {
-      if (tokens[index].nesting === 1) {
-        // Mark that we're entering an example container
-        const info = (tokens[index] as MarkdownToken & { info?: string }).info?.trim() || ''
-        const isCollapse = info.includes('collapse')
-        env._inExample = true
-        env._exampleFilePaths = [] as string[]
-        env._exampleFileOrders = [] as (number | undefined)[]
-        env._exampleImports = {} as Record<string, string>
-        env._exampleCollapse = isCollapse
-        return '' // Defer opening tag until we know the file path(s)
-      }
+  // Example containers: ::: example, ::: example collapse, ::: gn-example.
+  // Lines starting with / are file paths, rest is markdown description.
+  // Single file without description: renders with peek, no description slot.
+  // Multiple files or with description: renders with description slot.
+  // "collapse" modifier: adds collapse prop for inline expand/collapse button.
+  // `gn-example` emits <DocsGenesisExample>; `example` emits <DocsExample>.
+  function renderExampleOpenWithDescription (env: Record<string, unknown>): string {
+    const paths = env._exampleFilePaths as string[]
+    const orders = env._exampleFileOrders as (number | undefined)[]
+    const hasOrders = orders?.some(o => o !== undefined)
+    const collapse = env._exampleCollapse
+    const collapseAttr = collapse ? ' collapse' : ''
+    const imports = env._exampleImports as Record<string, string>
+    const importsAttr = Object.keys(imports).length > 0
+      ? ` :imports="${JSON.stringify(imports).replace(/"/g, '\'')}"`
+      : ''
+    const exampleTag = (env._exampleTag as string) || 'DocsExample'
 
-      // Closing tag
-      const wasOpened = env._exampleOpened
-      const paths = env._exampleFilePaths as string[]
-      const orders = env._exampleFileOrders as (number | undefined)[]
-      const hasOrders = orders?.some(o => o !== undefined)
-      const collapse = env._exampleCollapse
-      const imports = env._exampleImports as Record<string, string>
+    if (paths.length === 1) {
+      return `<${exampleTag} file-path="${paths[0]}"${collapseAttr}${importsAttr}>\n<template #description>\n`
+    }
+    const pathsJson = JSON.stringify(paths).replace(/"/g, '\'')
+    const ordersAttr = hasOrders ? ` :file-orders="${JSON.stringify(orders)}"` : ''
+    return `<${exampleTag} :file-paths="${pathsJson}"${ordersAttr}${collapseAttr}${importsAttr}>\n<template #description>\n`
+  }
 
-      delete env._inExample
-      delete env._exampleFilePaths
-      delete env._exampleFileOrders
-      delete env._exampleImports
-      delete env._exampleOpened
-      delete env._examplePathPara
-      delete env._exampleCollapse
+  function renderExampleClose (env: Record<string, unknown>, fallbackTag: string): string {
+    const wasOpened = env._exampleOpened
+    const paths = env._exampleFilePaths as string[]
+    const orders = env._exampleFileOrders as (number | undefined)[]
+    const hasOrders = orders?.some(o => o !== undefined)
+    const collapse = env._exampleCollapse
+    const imports = env._exampleImports as Record<string, string>
+    const exampleTag = (env._exampleTag as string) || fallbackTag
 
-      const collapseAttr = collapse ? ' collapse' : ''
-      const importsAttr = Object.keys(imports).length > 0
-        ? ` :imports="${JSON.stringify(imports).replace(/"/g, '\'')}"`
-        : ''
+    delete env._inExample
+    delete env._exampleTag
+    delete env._exampleFilePaths
+    delete env._exampleFileOrders
+    delete env._exampleImports
+    delete env._exampleOpened
+    delete env._examplePathPara
+    delete env._exampleCollapse
 
-      // If opened with description, close the description template
-      if (wasOpened) {
-        return `</template>\n</DocsExample>\n`
-      }
+    const collapseAttr = collapse ? ' collapse' : ''
+    const importsAttr = Object.keys(imports).length > 0
+      ? ` :imports="${JSON.stringify(imports).replace(/"/g, '\'')}"`
+      : ''
 
-      // If we have paths but no description content, emit simple peek version
-      if (paths?.length === 1) {
-        return `<DocsExample file-path="${paths[0]}"${collapse ? collapseAttr : ' peek'}${importsAttr} />\n`
-      } else if (paths?.length > 1) {
-        const pathsJson = JSON.stringify(paths).replace(/"/g, '\'')
-        const ordersAttr = hasOrders ? ` :file-orders="${JSON.stringify(orders)}"` : ''
-        return `<DocsExample :file-paths="${pathsJson}"${ordersAttr}${collapseAttr}${importsAttr} />\n`
-      }
+    if (wasOpened) return `</template>\n</${exampleTag}>\n`
 
-      return ''
-    },
-  })
+    if (paths?.length === 1) {
+      return `<${exampleTag} file-path="${paths[0]}"${collapse ? collapseAttr : ' peek'}${importsAttr} />\n`
+    }
+    if (paths?.length > 1) {
+      const pathsJson = JSON.stringify(paths).replace(/"/g, '\'')
+      const ordersAttr = hasOrders ? ` :file-orders="${JSON.stringify(orders)}"` : ''
+      return `<${exampleTag} :file-paths="${pathsJson}"${ordersAttr}${collapseAttr}${importsAttr} />\n`
+    }
+
+    return ''
+  }
+
+  function registerExampleContainer (name: string, tag: string) {
+    md.use(Container, name, {
+      render (tokens: MarkdownToken[], index: number, _options: unknown, env: Record<string, unknown>) {
+        if (tokens[index].nesting === 1) {
+          const info = (tokens[index] as MarkdownToken & { info?: string }).info?.trim() || ''
+          env._inExample = true
+          env._exampleTag = tag
+          env._exampleFilePaths = [] as string[]
+          env._exampleFileOrders = [] as (number | undefined)[]
+          env._exampleImports = {} as Record<string, string>
+          env._exampleCollapse = info.includes('collapse')
+          return ''
+        }
+
+        return renderExampleClose(env, tag)
+      },
+    })
+  }
+
+  registerExampleContainer('example', 'DocsExample')
+  registerExampleContainer('gn-example', 'DocsGenesisExample')
 
   // FAQ container: ::: faq ... ::: or ::: faq single ... :::
   // Questions marked with ??? Question text
@@ -161,12 +188,14 @@ export function applyMarkdownPlugins (md: MarkdownIt, highlighter: DocsHighlight
         ? defaultHeadingOpen(tokens, index, options, env, self)
         : self.renderToken(tokens, index, options)
 
+      const exampleTag = (env._exampleTag as string) || 'DocsExample'
+
       if (paths.length === 1) {
-        return `<DocsExample file-path="${paths[0]}"${collapseAttr}${importsAttr}>\n<template #description>\n${defaultRender}`
+        return `<${exampleTag} file-path="${paths[0]}"${collapseAttr}${importsAttr}>\n<template #description>\n${defaultRender}`
       } else {
         const pathsJson = JSON.stringify(paths).replace(/"/g, '\'')
         const ordersAttr = hasOrders ? ` :file-orders="${JSON.stringify(orders)}"` : ''
-        return `<DocsExample :file-paths="${pathsJson}"${ordersAttr}${collapseAttr}${importsAttr}>\n<template #description>\n${defaultRender}`
+        return `<${exampleTag} :file-paths="${pathsJson}"${ordersAttr}${collapseAttr}${importsAttr}>\n<template #description>\n${defaultRender}`
       }
     }
 
@@ -218,22 +247,8 @@ export function applyMarkdownPlugins (md: MarkdownIt, highlighter: DocsHighlight
     // Handle example container: first non-path content, emit opening tag
     if (env._inExample && (env._exampleFilePaths as string[]).length > 0 && !env._exampleOpened) {
       env._exampleOpened = true
-      const paths = env._exampleFilePaths as string[]
-      const orders = env._exampleFileOrders as (number | undefined)[]
-      const hasOrders = orders?.some(o => o !== undefined)
-      const collapse = env._exampleCollapse
-      const collapseAttr = collapse ? ' collapse' : ''
-      const imports = env._exampleImports as Record<string, string>
-      const importsAttr = Object.keys(imports).length > 0
-        ? ` :imports="${JSON.stringify(imports).replace(/"/g, '\'')}"`
-        : ''
-      if (paths.length === 1) {
-        return `<DocsExample file-path="${paths[0]}"${collapseAttr}${importsAttr}>\n<template #description>\n` + (defaultParagraphOpen ? defaultParagraphOpen(tokens, index, options, env, self) : '<p>')
-      } else {
-        const pathsJson = JSON.stringify(paths).replace(/"/g, '\'')
-        const ordersAttr = hasOrders ? ` :file-orders="${JSON.stringify(orders)}"` : ''
-        return `<DocsExample :file-paths="${pathsJson}"${ordersAttr}${collapseAttr}${importsAttr}>\n<template #description>\n` + (defaultParagraphOpen ? defaultParagraphOpen(tokens, index, options, env, self) : '<p>')
-      }
+      const opener = renderExampleOpenWithDescription(env)
+      return opener + (defaultParagraphOpen ? defaultParagraphOpen(tokens, index, options, env, self) : '<p>')
     }
 
     // Handle FAQ questions
