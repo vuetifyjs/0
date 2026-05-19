@@ -59,7 +59,7 @@ const PRESETS: Record<Exclude<OtpPattern, RegExp>, RegExp> = {
   alphabetic: /^[a-zA-Z]$/,
 }
 
-const warned = /* @__PURE__ */ new WeakSet<RegExp>()
+const COMPILED = /* @__PURE__ */ new WeakMap<RegExp, RegExp>()
 
 function extractMessage (error: unknown): string {
   if (error instanceof Error) return error.message
@@ -174,10 +174,12 @@ export function createOtp (options: OtpOptions = {}): OtpContext {
 
   function compile (resolved: OtpPattern): RegExp {
     if (isString(resolved)) return PRESETS[resolved]
-    if (__DEV__ && !warned.has(resolved) && (resolved.test('aa') || resolved.test('00'))) {
-      warned.add(resolved)
+    const cached = COMPILED.get(resolved)
+    if (cached) return cached
+    if (__DEV__ && (resolved.test('aa') || resolved.test('00'))) {
       logger.warn('createOtp: pattern matches multi-character input; per-character matching may behave unexpectedly')
     }
+    COMPILED.set(resolved, resolved)
     return resolved
   }
 
