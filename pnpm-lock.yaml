@@ -325,6 +325,9 @@ importers:
       '@octokit/core':
         specifier: 'catalog:'
         version: 7.0.6
+      '@paper/genesis':
+        specifier: workspace:*
+        version: link:../../packages/genesis
       '@vue/repl':
         specifier: 'catalog:'
         version: 4.7.1(patch_hash=22a1e92d68b942412d71072ca179a113ff51e2ff6598767c7c954ceb4e277cbe)

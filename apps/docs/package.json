@@ -43,6 +43,7 @@
     "@mdi/js": "catalog:",
     "@octokit/core": "catalog:",
     "@vue/repl": "catalog:",
+    "@paper/genesis": "workspace:*",
     "@vuetify/auth": "catalog:",
     "@vuetify/paper": "workspace:*",
     "@vuetify/v0": "workspace:*",
