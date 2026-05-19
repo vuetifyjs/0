@@ -101,6 +101,11 @@
       "since": "0.2.0",
       "category": "forms"
     },
+    "createOtp": {
+      "level": "preview",
+      "since": null,
+      "category": "forms"
+    },
     "createDataTable": {
       "level": "preview",
       "since": "0.1.0",
@@ -434,6 +439,10 @@
     "NumberField": {
       "level": "preview",
       "since": "0.2.1",
+      "category": "forms"
+    },
+    "Otp": {
+      "level": "draft",
       "category": "forms"
     },
     "Radio": {

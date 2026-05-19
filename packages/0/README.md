@@ -189,6 +189,7 @@ Selection management composables built on `createRegistry`:
 - [`createForm`](https://0.vuetifyjs.com/composables/forms/create-form) - Form validation and state management with async rules
 - [`createInput`](https://0.vuetifyjs.com/composables/forms/create-input) - Shared form field state: validation, dirty/pristine, ARIA IDs
 - [`createNumberField`](https://0.vuetifyjs.com/composables/forms/create-number-field) - Numeric input state with formatting, stepping, and validation
+- [`createOtp`](https://0.vuetifyjs.com/composables/forms/create-otp) - OTP / verification code state with pattern-gated entry and decisional completion hook
 - [`createValidation`](https://0.vuetifyjs.com/composables/forms/create-validation) - Field-level validation with sync/async rules
 - [`createCombobox`](https://0.vuetifyjs.com/composables/forms/create-combobox) - Combobox state management with filtering and virtual focus
 - [`createRating`](https://0.vuetifyjs.com/composables/forms/create-rating) - Bounded rating value with discrete items and half-step support
