@@ -10,7 +10,7 @@ import {
 
 // Adapters
 import { GenesisStyleSheetAdapter } from './adapter'
-import { genesisColors } from './theme'
+import { genesisColors, genesisDarkColors } from './theme'
 
 // Types
 import type {
@@ -51,7 +51,8 @@ function genesisThemeDefaults (): ThemePluginOptions {
     default: 'genesis',
     adapter: new GenesisStyleSheetAdapter(),
     themes: {
-      genesis: { colors: genesisColors },
+      'genesis': { colors: genesisColors },
+      'genesis-dark': { colors: genesisDarkColors },
     },
   }
 }

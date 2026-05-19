@@ -15,6 +15,6 @@ export const createApp = ViteSSG(
   async ({ app }) => {
     registerPlugins(app)
     app.use(createGenesisPlugin({
-      theme: { target: 'body' },
+      theme: { target: 'body', default: 'genesis-dark' },
     }))
   })

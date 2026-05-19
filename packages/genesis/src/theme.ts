@@ -1,8 +1,9 @@
 /**
  * Genesis Design System — Token Definitions
  *
- * Docs-tuned palette. Single light theme. Consumers extend `themes` on
- * plugin install to add dark or alternate variants.
+ * Docs-tuned palette shipping `genesis` (light) and `genesis-dark`.
+ * Consumers select via `createGenesisPlugin({ theme: { default: 'genesis-dark' } })`
+ * or extend `themes` with their own variants.
  */
 
 export const genesisColors = {
@@ -15,6 +16,18 @@ export const genesisColors = {
   'on-accent': '#FFFFFF',
   'code-bg': '#F8F8FA',
   'code-fg': '#1A1C1E',
+} as const
+
+export const genesisDarkColors = {
+  'surface': '#171717',
+  'surface-tint': '#262626',
+  'on-surface': '#F5F5F5',
+  'on-surface-variant': '#A3A3A3',
+  'divider': '#404040',
+  'accent': '#A78BFA',
+  'on-accent': '#1A1C1E',
+  'code-bg': '#0A0A0A',
+  'code-fg': '#F5F5F5',
 } as const
 
 export type GenesisColors = typeof genesisColors

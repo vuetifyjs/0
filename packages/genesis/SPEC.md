@@ -33,7 +33,7 @@ packages/genesis/
 
 ## Tokens
 
-Generated under `[data-theme="genesis"]` as `--gn-*` CSS custom properties. Genesis ships a single light theme; consumers add dark by extending `themes` on plugin install (matches Emerald's pattern).
+Generated under `[data-theme="genesis"]` and `[data-theme="genesis-dark"]` as `--gn-*` CSS custom properties. Genesis ships **two themes** (light + dark). Consumers select with `createGenesisPlugin({ theme: { default: 'genesis-dark' } })` or extend `themes` with custom variants.
 
 | Token | Purpose |
 |---|---|
@@ -167,7 +167,7 @@ Each component has a scoped `<style>` block. All color/border references go thro
 1. Stash uncommitted changes → rebase `worktree-paper-genesis` onto `master` → restore stash
 2. Drop `@vuetify/paper` from `packages/genesis/package.json` dependencies
 3. Add `src/adapter.ts` (`GenesisStyleSheetAdapter` extends `V0StyleSheetThemeAdapter` from `@vuetify/v0`)
-4. Add `src/theme.ts` (single light theme `genesis`; dark is consumer-extended)
+4. Add `src/theme.ts` (light `genesis` + dark `genesis-dark` themes)
 5. Add `src/plugin.ts` (`createGenesisPlugin`)
 6. Update `src/index.ts` to re-export adapter / plugin / theme alongside components
 7. Retool every component's scoped CSS: `var(--v0-*)` → `var(--gn-*)`; remove the `--genesis-docs-example-*` indirection layer
