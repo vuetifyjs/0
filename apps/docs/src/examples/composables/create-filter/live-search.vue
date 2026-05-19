@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { createFilter } from '@vuetify/v0'
+  import { createFilter, toHighlight } from '@vuetify/v0'
   import { computed, shallowRef } from 'vue'
 
   const cities = [
@@ -21,11 +21,7 @@
   const filter = createFilter({ keys: ['name', 'country'] })
   const { items } = filter.apply(query, cities)
 
-  function highlight (text: string) {
-    if (!query.value) return text
-    const regex = new RegExp(`(${query.value})`, 'gi')
-    return text.replace(regex, '<mark class="bg-warning text-on-warning rounded px-0.5">$1</mark>')
-  }
+  const highlightOptions = { ignoreCase: true, matchAll: true }
 
   const hasResults = computed(() => items.value.length > 0)
 </script>
@@ -62,9 +58,21 @@
         class="px-4 py-3 flex items-center justify-between hover:bg-surface-tint transition-colors"
       >
         <div>
-          <span class="font-medium" v-html="highlight(city.name)" />
+          <span class="font-medium">
+            <template v-for="(chunk, i) in toHighlight(city.name, query, highlightOptions)" :key="i">
+              <mark v-if="chunk.match" class="bg-warning text-on-warning rounded px-0.5">{{ chunk.text }}</mark>
+              <template v-else>{{ chunk.text }}</template>
+            </template>
+          </span>
+
           <span class="mx-2 opacity-30">/</span>
-          <span class="text-sm opacity-70" v-html="highlight(city.country)" />
+
+          <span class="text-sm opacity-70">
+            <template v-for="(chunk, i) in toHighlight(city.country, query, highlightOptions)" :key="i">
+              <mark v-if="chunk.match" class="bg-warning text-on-warning rounded px-0.5">{{ chunk.text }}</mark>
+              <template v-else>{{ chunk.text }}</template>
+            </template>
+          </span>
         </div>
 
         <span class="text-sm font-mono opacity-50">{{ city.population }}</span>
