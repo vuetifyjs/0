@@ -1,10 +1,5 @@
 <script setup lang="ts">
-  import {
-    GnDocsExampleCode,
-    GnDocsExampleDescription,
-    GnDocsExamplePreview,
-    GnDocsExampleTabs,
-  } from '@paper/genesis'
+  import { GnDocsExample, GnDocsExampleCode } from '@paper/genesis'
 
   // Context
   import DocsGenesisShikiBlock from './DocsGenesisShikiBlock.vue'
@@ -15,8 +10,7 @@
   import { usePlayground } from '@/composables/usePlayground'
 
   // Utilities
-  import { toKebab } from '@/utilities/strings'
-  import { computed, shallowRef, toRef } from 'vue'
+  import { computed, toRef } from 'vue'
 
   // Types
   import type { GnDocsExampleFile } from '@paper/genesis'
@@ -67,20 +61,11 @@
   )
   const resolvedComponent = toRef(() => auto.value?.component)
 
-  // ───────────────────────── derived state ─────────────────────────
-  const hasMultipleFiles = toRef(() => (resolvedFiles.value?.length ?? 0) > 1)
-  const hasCode = toRef(() => Boolean(resolvedCode.value || resolvedFiles.value?.length))
-
   const fileName = toRef(() =>
     props.file?.split('/').pop()
-    ?? (props.filePath ? `${props.filePath.split('/').pop()}.vue` : ''),
+    ?? (props.filePath ? `${props.filePath.split('/').pop()}.vue` : undefined),
   )
   const language = toRef(() => props.file?.split('.').pop() || 'vue')
-
-  const anchorId = toRef(() => props.id ?? (props.title ? `example-${toKebab(props.title)}` : undefined))
-
-  const showCode = shallowRef(false)
-  const peekExpanded = shallowRef(false)
 
   // ───────────────────────── actions ─────────────────────────
   async function onPlayground (list: GnDocsExampleFile[]) {
@@ -94,134 +79,40 @@
     const url = await getMultiFileBinUrl(files, props.title)
     window.open(url, '_blank')
   }
-
-  function toggleCode () {
-    showCode.value = !showCode.value
-  }
 </script>
 
 <template>
-  <div class="docs-genesis-example">
-    <GnDocsExampleDescription
-      v-if="title || $slots.description"
-      :anchor-id
-      :collapse
-      :title
-    >
+  <GnDocsExample
+    :id
+    :code="resolvedCode"
+    :collapse
+    :file-name
+    :file-orders
+    :files="resolvedFiles"
+    :language
+    :peek
+    :peek-lines
+    show-bin
+    show-playground
+    :title
+    @bin="onBin"
+    @playground="onPlayground"
+  >
+    <component :is="resolvedComponent" v-if="resolvedComponent" />
+    <slot v-else />
+
+    <template v-if="$slots.description" #description>
       <slot name="description" />
-    </GnDocsExampleDescription>
+    </template>
 
-    <GnDocsExamplePreview>
-      <component :is="resolvedComponent" v-if="resolvedComponent" />
-      <slot v-else />
-    </GnDocsExamplePreview>
+    <template #code="{ code, language: codeLanguage }">
+      <DocsGenesisShikiBlock :code="code ?? ''" :language="codeLanguage ?? 'text'" />
+    </template>
 
-    <div v-if="hasCode && !peek" class="docs-genesis-example__toggle-bar">
-      <button
-        :aria-expanded="showCode"
-        class="docs-genesis-example__toggle"
-        type="button"
-        @click="toggleCode"
-      >
-        {{ showCode ? 'Hide code' : 'Show code' }}
-
-        <span v-if="hasMultipleFiles" class="docs-genesis-example__meta">
-          {{ resolvedFiles!.length }} file(s)
-        </span>
-
-        <span v-else-if="fileName || language" class="docs-genesis-example__meta">
-          {{ fileName || language }}
-        </span>
-      </button>
-    </div>
-
-    <div v-if="(showCode || peek) && hasCode" class="docs-genesis-example__code">
-      <GnDocsExampleTabs
-        v-if="hasMultipleFiles"
-        v-slot="{ file }"
-        :file-orders
-        :files="resolvedFiles!"
-        show-bin
-        show-playground
-        @bin="onBin"
-        @playground="onPlayground"
-      >
-        <GnDocsExampleCode :code="file!.code" :language="file!.language">
-          <DocsGenesisShikiBlock :code="file!.code" :language="file!.language || 'text'" />
-        </GnDocsExampleCode>
-      </GnDocsExampleTabs>
-
-      <GnDocsExampleCode
-        v-else-if="resolvedCode"
-        v-model:expanded="peekExpanded"
-        :code="resolvedCode"
-        :file-name
-        hide-peek-toggle
-        :language
-        :peek
-        :peek-lines
-      >
-        <DocsGenesisShikiBlock :code="resolvedCode" :language />
+    <template #panel="{ file }">
+      <GnDocsExampleCode :code="file.code" :file-name="file.name" :language="file.language || 'text'">
+        <DocsGenesisShikiBlock :code="file.code" :language="file.language || 'text'" />
       </GnDocsExampleCode>
-    </div>
-  </div>
+    </template>
+  </GnDocsExample>
 </template>
-
-<style scoped>
-  .docs-genesis-example {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    border: 1px solid color-mix(in srgb, var(--v0-on-surface, currentcolor) 14%, transparent);
-    border-radius: 0.5rem;
-    background: var(--v0-surface, #fff);
-    color: var(--v0-on-surface, #1a1c1e);
-    margin-block: 1.5rem;
-  }
-
-  .docs-genesis-example > *:first-child {
-    border-top-left-radius: 8px;
-    border-top-right-radius: 8px;
-  }
-
-  .docs-genesis-example > *:last-child {
-    border-bottom-left-radius: 8px;
-    border-bottom-right-radius: 8px;
-  }
-
-  .docs-genesis-example__toggle-bar {
-    border-top: 1px solid color-mix(in srgb, var(--v0-on-surface, currentcolor) 14%, transparent);
-    background: var(--v0-surface-tint, var(--v0-surface, #f5f5f8));
-  }
-
-  .docs-genesis-example__toggle {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.75rem 1rem;
-    background: transparent;
-    border: none;
-    color: inherit;
-    font: inherit;
-    font-size: 0.875rem;
-    cursor: pointer;
-    transition: background-color 0.12s;
-  }
-
-  .docs-genesis-example__toggle:hover {
-    background: var(--v0-surface, #fff);
-  }
-
-  .docs-genesis-example__meta {
-    margin-inline-start: auto;
-    color: var(--v0-on-surface-variant, rgb(0 0 0 / 0.6));
-    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    font-size: 0.8125rem;
-  }
-
-  .docs-genesis-example__code {
-    overflow: hidden;
-    border-top: 1px solid color-mix(in srgb, var(--v0-on-surface, currentcolor) 14%, transparent);
-  }
-</style>

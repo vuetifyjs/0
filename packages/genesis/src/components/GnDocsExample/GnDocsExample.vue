@@ -169,7 +169,11 @@
         @combine="onCombine"
         @playground="onPlayground"
         @reset="onReset"
-      />
+      >
+        <template v-if="$slots.panel" #default="{ file }">
+          <slot :file name="panel" />
+        </template>
+      </GnDocsExampleTabs>
 
       <template v-else-if="code">
         <div class="genesis-docs-example__code-bar">
@@ -209,7 +213,11 @@
           :language
           :peek
           :peek-lines
-        />
+        >
+          <template v-if="$slots.code" #default="scope">
+            <slot name="code" v-bind="scope" />
+          </template>
+        </GnDocsExampleCode>
       </template>
     </div>
 
