@@ -234,6 +234,7 @@
   .genesis-docs-example-tabs {
     display: flex;
     flex-direction: column;
+    overflow: hidden;
   }
 
   .genesis-docs-example-tabs__bar {
