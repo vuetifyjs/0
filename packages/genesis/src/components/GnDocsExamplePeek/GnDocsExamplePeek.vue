@@ -49,8 +49,8 @@
     padding: 0.25rem 0.5rem;
     border: none;
     border-radius: 0.25rem;
-    background: var(--gn-accent);
-    color: var(--gn-on-accent);
+    background: var(--v0-primary, #5f3aed);
+    color: var(--v0-on-primary, #fff);
     font: inherit;
     font-size: 0.75rem;
     cursor: pointer;

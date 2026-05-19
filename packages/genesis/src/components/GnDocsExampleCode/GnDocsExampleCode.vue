@@ -87,8 +87,8 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    background: var(--gn-code-bg);
-    color: var(--gn-code-fg);
+    background: var(--v0-pre, var(--v0-surface, #f8f8fa));
+    color: var(--v0-on-surface, #1a1c1e);
   }
 
   .genesis-docs-example-code__filename {
@@ -99,7 +99,7 @@
     padding: 0.125rem 0.375rem;
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
     font-size: 0.75rem;
-    color: var(--gn-on-surface-variant);
+    color: var(--v0-on-surface-variant, rgb(0 0 0 / 0.6));
     pointer-events: none;
   }
 
@@ -124,7 +124,7 @@
   }
 
   .genesis-docs-example-code__fallback {
-    color: var(--gn-on-surface-variant);
+    color: var(--v0-on-surface-variant, rgb(0 0 0 / 0.6));
   }
 
   .genesis-docs-example-code__fade {
@@ -133,7 +133,7 @@
     bottom: 0;
     height: 3rem;
     pointer-events: none;
-    background: linear-gradient(transparent, var(--gn-code-bg));
+    background: linear-gradient(transparent, var(--v0-pre, var(--v0-surface, #f8f8fa)));
   }
 
   .genesis-docs-example-code__peek-toggle {
@@ -141,7 +141,7 @@
     padding: 0.5rem 1rem;
     background: none;
     border: none;
-    color: var(--gn-accent);
+    color: var(--v0-primary, #5f3aed);
     font: inherit;
     font-size: 0.8125rem;
     cursor: pointer;

@@ -242,8 +242,8 @@
     align-items: center;
     gap: 0.5rem;
     padding: 0.75rem;
-    background: var(--gn-surface);
-    border-top: 1px solid var(--gn-divider);
+    background: var(--v0-surface, #fff);
+    border-top: 1px solid color-mix(in srgb, var(--v0-on-surface, currentcolor) 14%, transparent);
     min-height: 3rem;
   }
 
@@ -260,20 +260,20 @@
     font-weight: 500;
     border-radius: 0.25rem;
     white-space: nowrap;
-    background: var(--gn-surface-tint);
-    color: var(--gn-on-surface);
-    border: 1px solid var(--gn-divider);
+    background: var(--v0-surface-tint, var(--v0-surface, #f5f5f8));
+    color: var(--v0-on-surface, #1a1c1e);
+    border: 1px solid color-mix(in srgb, var(--v0-on-surface, currentcolor) 14%, transparent);
     cursor: pointer;
     transition: background-color 0.15s, color 0.15s;
   }
 
   .genesis-docs-example-tabs__tab:hover {
-    background: color-mix(in srgb, var(--gn-surface-tint), currentcolor 8%);
+    background: color-mix(in srgb, var(--v0-surface-tint, var(--v0-surface, #f5f5f8)), currentcolor 8%);
   }
 
   .genesis-docs-example-tabs__tab[data-selected] {
-    background: var(--gn-accent);
-    color: var(--gn-on-accent);
+    background: var(--v0-primary, #5f3aed);
+    color: var(--v0-on-primary, #fff);
     border-color: transparent;
   }
 
@@ -289,9 +289,9 @@
     font-size: 0.75rem;
     font-weight: 500;
     border-radius: 0.25rem;
-    background: var(--gn-surface-tint);
-    color: var(--gn-on-surface);
-    border: 1px solid var(--gn-divider);
+    background: var(--v0-surface-tint, var(--v0-surface, #f5f5f8));
+    color: var(--v0-on-surface, #1a1c1e);
+    border: 1px solid color-mix(in srgb, var(--v0-on-surface, currentcolor) 14%, transparent);
     cursor: pointer;
   }
 
@@ -299,7 +299,7 @@
     padding: 0.25rem 0.5rem;
     font-size: 0.75rem;
     font-weight: 500;
-    color: var(--gn-on-surface-variant);
+    color: var(--v0-on-surface-variant, rgb(0 0 0 / 0.6));
     border: 1px solid transparent;
   }
 </style>

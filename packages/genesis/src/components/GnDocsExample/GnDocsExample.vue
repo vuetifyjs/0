@@ -197,15 +197,15 @@
     position: relative;
     display: flex;
     flex-direction: column;
-    border: 1px solid var(--gn-divider);
+    border: 1px solid color-mix(in srgb, var(--v0-on-surface, currentcolor) 14%, transparent);
     border-radius: 0.5rem;
-    background: var(--gn-surface);
-    color: var(--gn-on-surface);
+    background: var(--v0-surface, #fff);
+    color: var(--v0-on-surface, #1a1c1e);
   }
 
   .genesis-docs-example__toggle-bar {
-    border-top: 1px solid var(--gn-divider);
-    background: var(--gn-surface-tint);
+    border-top: 1px solid color-mix(in srgb, var(--v0-on-surface, currentcolor) 14%, transparent);
+    background: var(--v0-surface-tint, var(--v0-surface, #f5f5f8));
   }
 
   .genesis-docs-example > *:first-child:not(.genesis-docs-example-peek) {
@@ -239,19 +239,19 @@
   }
 
   .genesis-docs-example__toggle:hover {
-    background: var(--gn-surface);
+    background: var(--v0-surface, #fff);
   }
 
   .genesis-docs-example__meta {
     margin-inline-start: auto;
-    color: var(--gn-on-surface-variant);
+    color: var(--v0-on-surface-variant, rgb(0 0 0 / 0.6));
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
     font-size: 0.8125rem;
   }
 
   .genesis-docs-example__code {
     overflow: hidden;
-    border-top: 1px solid var(--gn-divider);
+    border-top: 1px solid color-mix(in srgb, var(--v0-on-surface, currentcolor) 14%, transparent);
   }
 
   .genesis-docs-example__code-bar {
@@ -259,8 +259,8 @@
     align-items: center;
     gap: 0.5rem;
     padding: 0.75rem;
-    background: var(--gn-surface);
-    border-bottom: 1px solid var(--gn-divider);
+    background: var(--v0-surface, #fff);
+    border-bottom: 1px solid color-mix(in srgb, var(--v0-on-surface, currentcolor) 14%, transparent);
     min-height: 3rem;
   }
 
@@ -272,8 +272,8 @@
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
     font-size: 0.75rem;
     font-weight: 500;
-    color: var(--gn-on-accent);
-    background: var(--gn-accent);
+    color: var(--v0-on-primary, #fff);
+    background: var(--v0-primary, #5f3aed);
     border-radius: 0.25rem;
     white-space: nowrap;
   }

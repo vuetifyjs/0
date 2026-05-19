@@ -101,8 +101,8 @@
   .genesis-docs-example-preview {
     position: relative;
     padding: 0.5rem;
-    background: var(--gn-surface-tint);
-    color: var(--gn-on-surface);
+    background: var(--v0-surface-tint, var(--v0-surface, #f5f5f8));
+    color: var(--v0-on-surface, #1a1c1e);
   }
 
   .genesis-docs-example-preview__splitter {
@@ -114,7 +114,7 @@
     position: relative;
     min-width: 0;
     padding: 1.5rem;
-    background: var(--gn-surface);
+    background: var(--v0-surface, #fff);
     border-radius: 0.375rem;
     overflow: hidden;
   }
@@ -125,7 +125,7 @@
     width: 0.25rem;
     margin-inline: 0.25rem;
     border-radius: 9999px;
-    background: var(--gn-divider);
+    background: color-mix(in srgb, var(--v0-on-surface, currentcolor) 14%, transparent);
     transition: background-color 0.15s;
     cursor: col-resize;
   }
@@ -136,7 +136,7 @@
 
   .genesis-docs-example-preview__handle:hover,
   .genesis-docs-example-preview__handle[data-state='drag'] {
-    background: var(--gn-accent);
+    background: var(--v0-primary, #5f3aed);
   }
 
   .genesis-docs-example-preview__handle[data-state='drag'] {
@@ -152,9 +152,9 @@
     width: 1rem;
     height: 1.5rem;
     border-radius: 0.25rem;
-    background: var(--gn-surface-tint);
-    color: var(--gn-on-surface);
-    border: 1px solid var(--gn-divider);
+    background: var(--v0-surface-tint, var(--v0-surface, #f5f5f8));
+    color: var(--v0-on-surface, #1a1c1e);
+    border: 1px solid color-mix(in srgb, var(--v0-on-surface, currentcolor) 14%, transparent);
     box-shadow: 0 1px 2px rgb(0 0 0 / 0.15);
     display: inline-flex;
     align-items: center;
@@ -176,8 +176,8 @@
     inset-inline-end: 0.5rem;
     z-index: 2;
     padding: 0.125rem 0.375rem;
-    background: var(--gn-on-surface);
-    color: var(--gn-surface);
+    background: var(--v0-on-surface, #1a1c1e);
+    color: var(--v0-surface, #fff);
     border-radius: 0.25rem;
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
     font-size: 0.75rem;

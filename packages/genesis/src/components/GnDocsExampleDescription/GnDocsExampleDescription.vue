@@ -86,16 +86,16 @@
   .genesis-docs-example-description {
     position: relative;
     padding: 1rem 1.25rem;
-    border-bottom: 1px solid var(--gn-divider);
-    background: var(--gn-surface-tint);
-    color: var(--gn-on-surface-variant);
+    border-bottom: 1px solid color-mix(in srgb, var(--v0-on-surface, currentcolor) 14%, transparent);
+    background: var(--v0-surface-tint, var(--v0-surface, #f5f5f8));
+    color: var(--v0-on-surface-variant, rgb(0 0 0 / 0.6));
   }
 
   .genesis-docs-example-description__title {
     margin: 0;
     font-size: 1.125rem;
     font-weight: 600;
-    color: var(--gn-on-surface);
+    color: var(--v0-on-surface, #1a1c1e);
   }
 
   .genesis-docs-example-description__anchor {
@@ -120,7 +120,7 @@
     bottom: 0;
     height: 3rem;
     pointer-events: none;
-    background: linear-gradient(transparent, var(--gn-surface-tint));
+    background: linear-gradient(transparent, var(--v0-surface-tint, var(--v0-surface, #f5f5f8)));
   }
 
   .genesis-docs-example-description__toggle {
@@ -129,10 +129,10 @@
     top: 0.75rem;
     z-index: 1;
     padding: 0.25rem 0.5rem;
-    border: 1px solid var(--gn-divider);
+    border: 1px solid color-mix(in srgb, var(--v0-on-surface, currentcolor) 14%, transparent);
     border-radius: 0.25rem;
     background: transparent;
-    color: var(--gn-on-surface-variant);
+    color: var(--v0-on-surface-variant, rgb(0 0 0 / 0.6));
     font: inherit;
     font-size: 0.75rem;
     cursor: pointer;
@@ -140,7 +140,7 @@
   }
 
   .genesis-docs-example-description__toggle:hover {
-    background: color-mix(in srgb, var(--gn-on-surface-variant) 6%, transparent);
-    border-color: var(--gn-divider);
+    background: color-mix(in srgb, var(--v0-on-surface-variant, rgb(0 0 0 / 0.6)) 6%, transparent);
+    border-color: color-mix(in srgb, var(--v0-on-surface, currentcolor) 14%, transparent);
   }
 </style>
