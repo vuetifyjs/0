@@ -71,9 +71,17 @@ interface GenesisPluginOptions {
   storage?: StoragePluginOptions | false
   hydration?: boolean
 }
+
+export const [createGenesisThemeContext, createGenesisThemePlugin, useGenesisTheme]
 ```
 
 Shape matches `createEmeraldPlugin` deliberately — each sub-plugin can be disabled with `false`. This is not a contract Paper enforces; it's a convention emerging from sibling DSs.
+
+**Genesis owns its own theme context** via `createPluginContext('genesis:theme', …)`. This is structurally necessary: v0's `createPluginContext` install gate is keyed by namespace and silently no-ops on the second install for the same key, so if a paper DS reuses v0's `createThemePlugin` (namespace `v0:theme`), it collides with v0's own theme plugin and never injects its stylesheet. Genesis's dedicated `'genesis:theme'` namespace lets it coexist with v0's theme system — both plugins install, both adapters write to `adoptedStyleSheets`, both cascades resolve on overlapping subtrees.
+
+Consumers can reach the Genesis theme registry via `useGenesisTheme()` (separate from v0's `useTheme()`).
+
+Default `target` is `'body'` (so `data-theme="genesis"` lands on body and Genesis tokens cascade to descendants without colliding with whatever v0 set on `html` or `#app`).
 
 ## Components
 

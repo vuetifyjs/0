@@ -3,8 +3,9 @@ import {
   createHydrationPlugin,
   createLocalePlugin,
   createLoggerPlugin,
+  createPluginContext,
   createStoragePlugin,
-  createThemePlugin,
+  createTheme,
 } from '@vuetify/v0'
 
 // Adapters
@@ -13,9 +14,11 @@ import { genesisColors } from './theme'
 
 // Types
 import type {
+  ID,
   LocalePluginOptions,
   LoggerPluginOptions,
   StoragePluginOptions,
+  ThemeContext,
   ThemePluginOptions,
 } from '@vuetify/v0'
 import type { App, Plugin } from 'vue'
@@ -28,9 +31,23 @@ export interface GenesisPluginOptions {
   hydration?: boolean
 }
 
+export const [createGenesisThemeContext, createGenesisThemePlugin, useGenesisTheme]
+  = createPluginContext<ThemePluginOptions, ThemeContext>(
+    'genesis:theme',
+    options => createTheme(options),
+    {
+      setup: (context, app, { adapter = new GenesisStyleSheetAdapter(), target, rgb }) => {
+        if (rgb) adapter.rgb = true
+        adapter.setup(app, context, target)
+      },
+      persist: ctx => ctx.selectedId.value,
+      restore: (ctx, saved) => ctx.select(saved as ID),
+    },
+  )
+
 function genesisThemeDefaults (): ThemePluginOptions {
   return {
-    target: 'html',
+    target: 'body',
     default: 'genesis',
     adapter: new GenesisStyleSheetAdapter(),
     themes: {
@@ -64,7 +81,7 @@ export function createGenesisPlugin (options: GenesisPluginOptions = {}): Plugin
           ? { ...defaults, ...options.theme, themes: { ...defaults.themes, ...options.theme.themes } }
           : defaults
 
-        app.use(createThemePlugin(theme))
+        app.use(createGenesisThemePlugin(theme))
       }
     },
   }
