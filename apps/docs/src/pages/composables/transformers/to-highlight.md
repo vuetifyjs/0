@@ -6,7 +6,7 @@ meta:
   - name: keywords
     content: highlight, text search, mark, query, search terms, Vue 3, headless, transformer, filter, autocomplete, MatchRange
 features:
-  category: Composable
+  category: Transformer
   label: 'E: toHighlight'
   github: /composables/toHighlight/
   level: 1
@@ -43,10 +43,10 @@ flowchart LR
   options[Options] --> matches{matches?}
   matches -- non-empty --> normalize[sort + merge ranges]
   matches -- empty / none --> query{query?}
-  query -- truthy --> find[findRanges]
+  query -- truthy --> find[find ranges]
   query -- empty / none --> noop[full text, match: false]
   find --> ranges{matches found?}
-  ranges -- yes --> chunk[chunkText]
+  ranges -- yes --> chunk[chunk text]
   ranges -- no --> noop
   normalize --> chunk
   chunk --> chunks[HighlightChunk array]
@@ -74,66 +74,58 @@ call in `computed()` (or any reactive scope). The function itself creates no rea
 ## Examples
 
 ::: example
-/composables/to-highlight/basic
+/composables/to-highlight/messages.ts
+/composables/to-highlight/MessageRow.vue
+/composables/to-highlight/inbox.vue
 
-### Search input
+### Inbox search
 
-Live query against a paragraph. The example wraps `toHighlight` in `computed()` so the
-chunks update instantly when the `query` ref changes — swap the search term and the
-markup re-renders without any manual wiring. Each `HighlightChunk` carries
-`{ text, match }`, so you control the full rendering: use a native `<mark>` for semantics
-and screen-reader compatibility, a `<strong>` for bold-only, or whatever your design
-calls for.
+A mail-style search pane that exercises every input shape `toHighlight` accepts. The
+search `Input.Root` drives a single-term query, the saved-filter `Toggle.Root` chips
+extend that into a multi-term array, and the **Server snippets** `Switch.Root` swaps the
+body-text path from client-side substring matching to caller-supplied `MatchRange[]`
+returned by a mock backend. Every option is a real-world button you'd find on a working
+inbox, not a "demo mode" toggle.
 
-Matching is case-sensitive by default. Set `ignoreCase: true` to
-match regardless of casing in the source text.
+The `MessageRow` sub-component owns its `toHighlight` calls so the parent list stays
+dumb — pass it the resolved `terms` array and the `serverMode` flag and it decides which
+shape to feed the transformer. Pulling the per-row work into a child also means the same
+row component drops into any list with a query in scope.
 
-:::
+- **Single query** — type into the search box with no chips active. `terms` is a
+  one-element `string[]`. `toHighlight` accepts that just as happily as a bare string,
+  so this and "Multiple" share a code path. `ignoreCase: true, matchAll: true` are the
+  typical defaults for search UIs; drop either flag when stricter behavior is warranted
+  (legal text, identifier lookups).
+- **Multiple queries** — toggle on one or more saved filters. Each filter chip appends
+  its label to `terms`, the `Input` value joins them, and `toHighlight` searches each
+  term independently. Overlapping or adjacent spans collapse automatically — `['budget',
+  'budgets']` against *"budget vs budgets line item"* yields two clean highlights, not
+  four overlapping ones. Derive the array from chips, a tokenizer, an API suggestion
+  list, or a comma-split text input — anything that produces `string[]`.
+- **Pre-computed ranges** — flip **Server snippets** on. The body text now ignores
+  `query` entirely and renders from `[start, end]` pairs supplied by `snippets()` in
+  `messages.ts` — a stand-in for a real search backend (Algolia, Elasticsearch, your
+  own indexer) that returns character offsets alongside matched documents. The
+  whole-word matcher used by `snippets()` highlights different spans than client-side
+  substring matching, so the visual difference between the two modes is real, not
+  cosmetic. The matched chunks render with an underline so the source of truth is
+  obvious at a glance.
 
-::: example
-/composables/to-highlight/multiple-queries
+`MatchRange` is exported as `readonly [number, number]` where `end` is exclusive — the
+same convention as `String.prototype.slice`. Caller-supplied ranges are sorted and merged
+before chunking, so unordered or overlapping input is normalized for you.
 
-### Multiple queries
-
-Pass an array to `query` to highlight several terms at once. Overlapping or adjacent
-spans are merged into a single highlight — `['foo', 'oba']` against `'foobar'` produces
-one chunk `{ text: 'fooba', match: true }` rather than two. This matches how most
-search engines report matches and avoids nested or duplicated highlights.
-
-The example splits a comma-separated input into an array via `computed`. You can also
-derive the array from a tag list, token stream, or search-engine suggestion list — anything
-that produces `string[]`.
-
-When `matchAll` is `false`, only the first occurrence of each term is highlighted. Useful
-for "jump to first match" UI patterns where highlighting every hit would be distracting.
-
-:::
-
-::: example
-/composables/to-highlight/match-ranges
-
-### Pre-computed ranges
-
-Skip the query entirely and supply exact `[start, end]` index pairs via `matches`.
-When `matches` is a non-empty array it takes priority over `query`, and `matchAll`
-is ignored — the caller is asserting full control over which spans to highlight.
-
-Pre-computed ranges are useful when:
-
-- A full-text search engine returns character offsets directly alongside results.
-- You're combining `createFilter` from `@vuetify/v0` with its forthcoming `matches` output
-  — a single filter pass yields both the filtered items *and* their highlight spans, so you
-  don't run the query algorithm twice.
-- You need to highlight structurally identified tokens (syntax spans, named entities,
-  diff hunks) rather than substring matches.
-
-The `MatchRange` type is `[number, number]` — a `[start, end]` pair where `end` is
-exclusive (matching JavaScript's `String.prototype.slice` convention).
+| File | Role |
+|------|------|
+| `messages.ts` | Records plus a `snippets()` function that fakes a backend's offset response |
+| `MessageRow.vue` | Renders one row; owns both `toHighlight` calls (subject + body) |
+| `inbox.vue` | Entry: `Input.Root` search, `Toggle.Root` filters, `Switch.Root` mode |
 
 | Priority | Source | Condition |
 |----------|--------|-----------|
 | 1 | `matches` | non-empty array |
-| 2 | `query` | string or string[] |
+| 2 | `query` | string or `string[]` |
 | 3 | No-match fallback | neither provided |
 
 :::
@@ -148,7 +140,7 @@ ARIA attributes are needed on the wrapper element.
 > WCAG 1.4.3 (Contrast — Minimum) applies to highlighted text. Ensure sufficient contrast
 > between the mark background color and the surrounding text.
 
-## Questions
+## FAQ
 
 ::: faq
 ??? Does toHighlight preserve the original casing?

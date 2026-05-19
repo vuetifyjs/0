@@ -85,7 +85,7 @@ export interface ToHighlightOptions {
   ignoreCase?: MaybeRefOrGetter<boolean>
 }
 
-function mergeRanges (ranges: readonly MatchRange[]): MatchRange[] {
+function merge (ranges: readonly MatchRange[]): MatchRange[] {
   const sorted = ranges
     .filter(span => span[0] < span[1])
     .toSorted((a, b) => a[0] - b[0])
@@ -100,7 +100,7 @@ function mergeRanges (ranges: readonly MatchRange[]): MatchRange[] {
   return merged
 }
 
-function chunkText (text: string, ranges: readonly MatchRange[]): HighlightChunk[] {
+function chunk (text: string, ranges: readonly MatchRange[]): HighlightChunk[] {
   const chunks: HighlightChunk[] = []
   let cursor = 0
 
@@ -115,7 +115,7 @@ function chunkText (text: string, ranges: readonly MatchRange[]): HighlightChunk
   return chunks
 }
 
-function findRanges (text: string, query: string | string[], matchAll: boolean, ignoreCase: boolean): MatchRange[] {
+function find (text: string, query: string | string[], matchAll: boolean, ignoreCase: boolean): MatchRange[] {
   const terms = toArray(query).filter(Boolean)
   const haystack = ignoreCase ? text.toLocaleLowerCase() : text
   const spans: [number, number][] = []
@@ -136,7 +136,7 @@ function findRanges (text: string, query: string | string[], matchAll: boolean, 
     }
   }
 
-  return mergeRanges(spans)
+  return merge(spans)
 }
 
 /**
@@ -148,7 +148,7 @@ function findRanges (text: string, query: string | string[], matchAll: boolean, 
  * Priority: `options.matches` (when non-empty) → `query` → no-match fallback.
  *
  * @param text The source string to split.
- * @param query One or more search terms. Case sensitivity controlled by `options.ignoreCase`.
+ * @param query One or more search terms. Empty strings are ignored. Case sensitivity controlled by `options.ignoreCase`.
  * @param options Optional `matches`, `matchAll`, `ignoreCase`.
  * @returns A `HighlightChunk[]` array.
  *
@@ -178,11 +178,11 @@ export function toHighlight (
   const matchAll = toValue(options.matchAll) ?? false
   const ignoreCase = toValue(options.ignoreCase) ?? false
 
-  if (_matches?.length) return chunkText(_text, mergeRanges(_matches))
+  if (_matches?.length) return chunk(_text, merge(_matches))
 
   if (_query) {
-    const ranges = findRanges(_text, _query, matchAll, ignoreCase)
-    return ranges.length > 0 ? chunkText(_text, ranges) : [{ text: _text, match: false }]
+    const ranges = find(_text, _query, matchAll, ignoreCase)
+    return ranges.length > 0 ? chunk(_text, ranges) : [{ text: _text, match: false }]
   }
 
   return [{ text: _text, match: false }]
