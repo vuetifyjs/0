@@ -164,7 +164,7 @@ function emitPluginCall (
   return { call: `app.use(${factory}({\n${body}\n}))`, extraImports: imports }
 }
 
-export function generatePluginCalls (
+function generatePluginCalls (
   selectedPlugins: Set<string> | string[],
   pluginConfig: Record<string, unknown>,
 ): string {
@@ -1103,7 +1103,7 @@ export function toHashData (manifest: FrameworkManifest): PlaygroundHashData {
   }
 }
 
-export async function encodeHash (data: PlaygroundHashData): Promise<string> {
+async function encodeHash (data: PlaygroundHashData): Promise<string> {
   const { strToU8, strFromU8, zlibSync } = await import('fflate')
   const buffer = strToU8(JSON.stringify(data))
   const zipped = zlibSync(buffer, { level: 9 })

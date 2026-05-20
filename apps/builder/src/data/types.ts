@@ -1,29 +1,3 @@
-export interface Feature {
-  id: string
-  type: 'composable' | 'component' | 'adapter'
-  category: string
-  maturity: 'draft' | 'preview' | 'stable'
-  since: string
-  name: string
-  summary: string
-  useCases: string[]
-  dependencies: string[]
-  tags: string[]
-  icon?: string
-  description?: string
-  example?: string
-}
-
-export interface FeatureMeta {
-  name: string
-  summary: string
-  useCases: string[]
-  tags: string[]
-  icon?: string
-  description?: string
-  example?: string
-}
-
 export interface DependencyGraph {
   composables: Record<string, string[]>
   components: Record<string, string[]>

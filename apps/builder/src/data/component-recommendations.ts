@@ -6,7 +6,7 @@
 // This is a recommendation layer: it doesn't enforce dependencies (the resolver does that).
 // Components that don't exist in v0 yet (DatePicker, Calendar) are still listed —
 // they're tracked for when v0 ships them.
-export const PLUGIN_TO_COMPONENTS: Record<string, string[]> = {
+const PLUGIN_TO_COMPONENTS: Record<string, string[]> = {
   useTheme: [
     'Alert', 'Avatar', 'Badge', 'Button', 'Card', 'Checkbox', 'Chip',
     'Combobox', 'Dialog', 'Drawer', 'Form', 'Image', 'Input', 'List',
