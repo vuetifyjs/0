@@ -195,7 +195,7 @@ dist
 `
 }
 
-export function generateZip (m: ZipManifest): Uint8Array {
+function generateZip (m: ZipManifest): Uint8Array {
   const files: Record<string, Uint8Array> = {
     'my-v0-app/package.json': strToU8(generatePackageJson(m)),
     'my-v0-app/vite.config.ts': strToU8(generateViteConfig()),
