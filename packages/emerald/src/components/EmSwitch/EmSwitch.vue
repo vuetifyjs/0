@@ -1,16 +1,14 @@
 <script lang="ts">
-  import { V0Paper } from '@vuetify/paper'
-
   // Framework
-  import { SwitchRoot } from '@vuetify/v0'
+  import { Atom, SwitchRoot } from '@vuetify/v0'
 
   // Types
-  import type { V0PaperProps } from '@vuetify/paper'
+  import type { AtomProps } from '@vuetify/v0'
   import type { MaybeRefOrGetter } from 'vue'
 
   export type EmSwitchSize = 'sm' | 'md' | 'lg'
 
-  export interface EmSwitchProps extends V0PaperProps {
+  export interface EmSwitchProps extends AtomProps {
     disabled?: MaybeRefOrGetter<boolean>
     name?: string
     value?: unknown
@@ -28,19 +26,20 @@
     value,
     label,
     size = 'md',
-    ...paperProps
+    as = 'label',
+    renderless = false,
   } = defineProps<EmSwitchProps>()
 
   const model = defineModel<boolean>({ default: false })
 </script>
 
 <template>
-  <V0Paper
-    v-bind="paperProps"
-    as="label"
+  <Atom
+    :as
     class="emerald-switch"
     :data-disabled="disabled || undefined"
     :data-size="size"
+    :renderless
   >
     <SwitchRoot
       v-model="model"
@@ -55,7 +54,7 @@
         <slot v-bind="slotProps" />
       </template>
     </SwitchRoot>
-  </V0Paper>
+  </Atom>
 </template>
 
 <style>

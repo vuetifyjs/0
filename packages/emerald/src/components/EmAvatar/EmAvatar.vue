@@ -1,15 +1,13 @@
 <script lang="ts">
-  import { V0Paper } from '@vuetify/paper'
-
   // Framework
-  import { AvatarRoot } from '@vuetify/v0'
+  import { Atom, AvatarRoot } from '@vuetify/v0'
 
   // Types
-  import type { V0PaperProps } from '@vuetify/paper'
+  import type { AtomProps } from '@vuetify/v0'
 
   export type EmAvatarSize = 'sm' | 'md' | 'lg'
 
-  export interface EmAvatarProps extends V0PaperProps {
+  export interface EmAvatarProps extends AtomProps {
     size?: EmAvatarSize
   }
 </script>
@@ -21,18 +19,18 @@
 </script>
 
 <template>
-  <V0Paper
+  <Atom
     v-bind="paperProps"
     as="div"
     class="emerald-avatar"
     :data-size="size"
   >
-    <AvatarRoot>
+    <AvatarRoot class="emerald-avatar__inner">
       <template #default="slotProps">
         <slot v-bind="slotProps" />
       </template>
     </AvatarRoot>
-  </V0Paper>
+  </Atom>
 </template>
 
 <style>
@@ -41,16 +39,29 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
+  overflow: visible;
   border-radius: 9999px;
-  border: 1px solid rgb(var(--emerald-neutral-channels, 26 28 30) / 0.1);
-  background: var(--emerald-neutral-100, #f3f3f4);
+  background: transparent;
   color: var(--emerald-neutral-700);
   font-family: Manrope, system-ui, -apple-system, sans-serif;
   font-weight: 400;
   letter-spacing: 0.01em;
   user-select: none;
   flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.emerald-avatar__inner {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: inherit;
+  border: 1px solid rgb(var(--emerald-neutral-channels, 26 28 30) / 0.1);
+  background: var(--emerald-neutral-100, #f3f3f4);
   box-sizing: border-box;
 }
 

@@ -1,13 +1,11 @@
 <script lang="ts">
-  import { V0Paper } from '@vuetify/paper'
-
   // Framework
-  import { ExpansionPanelGroup } from '@vuetify/v0'
+  import { Atom, ExpansionPanelGroup } from '@vuetify/v0'
 
   // Types
-  import type { V0PaperProps } from '@vuetify/paper'
+  import type { AtomProps } from '@vuetify/v0'
 
-  export interface EmAccordionProps extends V0PaperProps {
+  export interface EmAccordionProps extends AtomProps {
     disabled?: boolean
     multiple?: boolean
     mandatory?: boolean | 'force'
@@ -21,18 +19,19 @@
     disabled = false,
     multiple = false,
     mandatory = false,
-    ...paperProps
+    as = 'div',
+    renderless = false,
   } = defineProps<EmAccordionProps>()
 
   const model = defineModel<T | T[]>()
 </script>
 
 <template>
-  <V0Paper
-    v-bind="paperProps"
-    as="div"
+  <Atom
+    :as
     class="emerald-accordion"
     :data-disabled="disabled || undefined"
+    :renderless
   >
     <ExpansionPanelGroup
       v-model="model"
@@ -44,15 +43,19 @@
         <slot v-bind="slotProps" />
       </template>
     </ExpansionPanelGroup>
-  </V0Paper>
+  </Atom>
 </template>
 
 <style>
 .emerald-accordion {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
   font-family: Manrope, system-ui, -apple-system, sans-serif;
   color: #000000;
+}
+
+/* ExpansionPanelGroup wraps items in a bare <div> — apply layout there. */
+.emerald-accordion > * {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 </style>

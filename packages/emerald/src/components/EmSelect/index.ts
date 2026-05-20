@@ -4,6 +4,9 @@ export { default as EmSelect } from './EmSelect.vue'
 export type { EmSelectActivatorProps } from './EmSelectActivator.vue'
 export { default as EmSelectActivator } from './EmSelectActivator.vue'
 
+export type { EmSelectChipsProps } from './EmSelectChips.vue'
+export { default as EmSelectChips } from './EmSelectChips.vue'
+
 export type { EmSelectContentProps } from './EmSelectContent.vue'
 export { default as EmSelectContent } from './EmSelectContent.vue'
 

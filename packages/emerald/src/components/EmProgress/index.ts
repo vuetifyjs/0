@@ -1,6 +1,9 @@
 export type { EmProgressProps, EmProgressSize } from './EmProgress.vue'
 export { default as EmProgress } from './EmProgress.vue'
 
+export type { EmProgressCircularProps } from './EmProgressCircular.vue'
+export { default as EmProgressCircular } from './EmProgressCircular.vue'
+
 export type { EmProgressFillProps } from './EmProgressFill.vue'
 export { default as EmProgressFill } from './EmProgressFill.vue'
 

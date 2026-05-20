@@ -1,16 +1,14 @@
 <script lang="ts">
-  import { V0Paper } from '@vuetify/paper'
-
   // Framework
-  import { CheckboxRoot } from '@vuetify/v0'
+  import { Atom, CheckboxRoot } from '@vuetify/v0'
 
   // Types
-  import type { V0PaperProps } from '@vuetify/paper'
+  import type { AtomProps } from '@vuetify/v0'
   import type { MaybeRefOrGetter } from 'vue'
 
   export type EmCheckboxSize = 'sm' | 'md' | 'lg'
 
-  export interface EmCheckboxProps extends V0PaperProps {
+  export interface EmCheckboxProps extends AtomProps {
     disabled?: MaybeRefOrGetter<boolean>
     indeterminate?: MaybeRefOrGetter<boolean>
     name?: string
@@ -23,6 +21,8 @@
 <script setup lang="ts">
   defineOptions({ name: 'EmCheckbox' })
 
+  const model = defineModel<boolean>({ default: false })
+
   const {
     disabled = false,
     indeterminate = false,
@@ -30,19 +30,18 @@
     value,
     label,
     size = 'md',
-    ...paperProps
+    as = 'label',
+    renderless = false,
   } = defineProps<EmCheckboxProps>()
-
-  const model = defineModel<boolean>({ default: false })
 </script>
 
 <template>
-  <V0Paper
-    v-bind="paperProps"
-    as="label"
+  <Atom
+    :as
     class="emerald-checkbox"
     :data-disabled="disabled || undefined"
     :data-size="size"
+    :renderless
   >
     <CheckboxRoot
       v-model="model"
@@ -58,7 +57,7 @@
         <slot v-bind="slotProps" />
       </template>
     </CheckboxRoot>
-  </V0Paper>
+  </Atom>
 </template>
 
 <style>

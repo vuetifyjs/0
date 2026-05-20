@@ -1,10 +1,11 @@
 <script lang="ts">
-  import { V0Paper } from '@vuetify/paper'
+  // Framework
+  import { Atom } from '@vuetify/v0'
 
   // Types
-  import type { V0PaperProps } from '@vuetify/paper'
+  import type { AtomProps } from '@vuetify/v0'
 
-  export interface EmCardProps extends V0PaperProps {
+  export interface EmCardProps extends AtomProps {
     hoverable?: boolean
   }
 </script>
@@ -16,21 +17,21 @@
 </script>
 
 <template>
-  <V0Paper
+  <Atom
     v-bind="paperProps"
     as="div"
     class="emerald-card"
     :data-hoverable="hoverable || undefined"
   >
     <slot />
-  </V0Paper>
+  </Atom>
 </template>
 
 <style>
 .emerald-card {
   display: flex;
   flex-direction: column;
-  background: linear-gradient(to bottom, #ffffff, var(--emerald-background));
+  background: linear-gradient(to bottom, #ffffff, var(--emerald-background, #faf9ff));
   border: 1px solid rgb(var(--emerald-neutral-channels, 26 28 30) / 0.1);
   border-radius: 12px;
   overflow: clip;

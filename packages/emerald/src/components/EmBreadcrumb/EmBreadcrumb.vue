@@ -1,13 +1,11 @@
 <script lang="ts">
-  import { V0Paper } from '@vuetify/paper'
-
   // Framework
-  import { BreadcrumbsRoot } from '@vuetify/v0'
+  import { Atom, BreadcrumbsRoot } from '@vuetify/v0'
 
   // Types
-  import type { V0PaperProps } from '@vuetify/paper'
+  import type { AtomProps } from '@vuetify/v0'
 
-  export interface EmBreadcrumbProps extends V0PaperProps {
+  export interface EmBreadcrumbProps extends AtomProps {
     divider?: string
     ellipsis?: string
     label?: string
@@ -26,7 +24,7 @@
 </script>
 
 <template>
-  <V0Paper
+  <Atom
     v-bind="paperProps"
     as="nav"
     class="emerald-breadcrumb"
@@ -40,7 +38,7 @@
         <slot v-bind="slotProps" />
       </template>
     </BreadcrumbsRoot>
-  </V0Paper>
+  </Atom>
 </template>
 
 <style>

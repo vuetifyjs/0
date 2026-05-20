@@ -10,6 +10,9 @@ export { default as EmCardFooter } from './EmCardFooter.vue'
 export type { EmCardHeaderProps } from './EmCardHeader.vue'
 export { default as EmCardHeader } from './EmCardHeader.vue'
 
+export type { EmCardMediaProps } from './EmCardMedia.vue'
+export { default as EmCardMedia } from './EmCardMedia.vue'
+
 export type { EmCardSubtitleProps } from './EmCardSubtitle.vue'
 export { default as EmCardSubtitle } from './EmCardSubtitle.vue'
 

@@ -31,6 +31,7 @@
 
 <template>
   <li
+    :aria-disabled="disabled || undefined"
     class="emerald-list__item"
     :class="{ 'emerald-list__item-header': header }"
     :data-active="active || undefined"

@@ -1,17 +1,13 @@
 <script lang="ts">
-  import { V0Paper } from '@vuetify/paper'
-
   // Framework
-  import { InputRoot } from '@vuetify/v0'
+  import { Atom, InputRoot } from '@vuetify/v0'
 
   // Types
-  import type { V0PaperProps } from '@vuetify/paper'
-  import type { FormValidationRule, ValidateOn } from '@vuetify/v0'
-  import type { MaybeRefOrGetter } from 'vue'
+  import type { AtomProps, FormValidationRule, ValidateOn } from '@vuetify/v0'
 
-  export interface EmTextareaProps extends V0PaperProps {
-    disabled?: MaybeRefOrGetter<boolean>
-    readonly?: MaybeRefOrGetter<boolean>
+  export interface EmTextareaProps extends AtomProps {
+    disabled?: boolean
+    readonly?: boolean
     required?: boolean
     name?: string
     label?: string
@@ -35,19 +31,20 @@
     validateOn = 'blur',
     error = false,
     errorMessages,
-    ...paperProps
+    as = 'div',
+    renderless = false,
   } = defineProps<EmTextareaProps>()
 
   const model = defineModel<string>({ default: '' })
 </script>
 
 <template>
-  <V0Paper
-    v-bind="paperProps"
-    as="div"
+  <Atom
+    :as
     class="emerald-textarea"
     :data-disabled="disabled || undefined"
     :data-error="error || undefined"
+    :renderless
   >
     <InputRoot
       v-model="model"
@@ -65,7 +62,7 @@
         <slot v-bind="slotProps" />
       </template>
     </InputRoot>
-  </V0Paper>
+  </Atom>
 </template>
 
 <style>

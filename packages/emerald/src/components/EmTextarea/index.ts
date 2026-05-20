@@ -1,8 +1,14 @@
 export type { EmTextareaProps } from './EmTextarea.vue'
 export { default as EmTextarea } from './EmTextarea.vue'
 
+export type { EmTextareaClearProps } from './EmTextareaClear.vue'
+export { default as EmTextareaClear } from './EmTextareaClear.vue'
+
 export type { EmTextareaControlProps } from './EmTextareaControl.vue'
 export { default as EmTextareaControl } from './EmTextareaControl.vue'
+
+export type { EmTextareaCounterProps } from './EmTextareaCounter.vue'
+export { default as EmTextareaCounter } from './EmTextareaCounter.vue'
 
 export type { EmTextareaDescriptionProps } from './EmTextareaDescription.vue'
 export { default as EmTextareaDescription } from './EmTextareaDescription.vue'

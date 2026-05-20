@@ -1,16 +1,14 @@
 <script lang="ts">
-  import { V0Paper } from '@vuetify/paper'
-
   // Framework
-  import { RadioRoot } from '@vuetify/v0'
+  import { Atom, RadioRoot } from '@vuetify/v0'
 
   // Types
-  import type { V0PaperProps } from '@vuetify/paper'
+  import type { AtomProps } from '@vuetify/v0'
   import type { MaybeRefOrGetter } from 'vue'
 
   export type EmRadioSize = 'sm' | 'md' | 'lg'
 
-  export interface EmRadioProps extends V0PaperProps {
+  export interface EmRadioProps extends AtomProps {
     disabled?: MaybeRefOrGetter<boolean>
     name?: string
     value?: unknown
@@ -33,7 +31,7 @@
 </script>
 
 <template>
-  <V0Paper
+  <Atom
     v-bind="paperProps"
     as="label"
     class="emerald-radio"
@@ -52,7 +50,7 @@
         <slot v-bind="slotProps" />
       </template>
     </RadioRoot>
-  </V0Paper>
+  </Atom>
 </template>
 
 <style>

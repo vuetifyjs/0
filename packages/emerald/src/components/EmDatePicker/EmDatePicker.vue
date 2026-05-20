@@ -1,10 +1,11 @@
 <script lang="ts">
-  import { V0Paper } from '@vuetify/paper'
+  // Framework
+  import { Atom } from '@vuetify/v0'
 
   // Types
-  import type { V0PaperProps } from '@vuetify/paper'
+  import type { AtomProps } from '@vuetify/v0'
 
-  export interface EmDatePickerProps extends V0PaperProps {
+  export interface EmDatePickerProps extends AtomProps {
     modelValue?: Date | null
     disabled?: boolean
   }
@@ -14,20 +15,24 @@
   defineOptions({ name: 'EmDatePicker' })
 
   // TODO(emerald): wire createCalendar/useDate once v0 ships a DatePicker primitive
-  const { disabled = false, ...paperProps } = defineProps<EmDatePickerProps>()
+  const {
+    disabled = false,
+    as = 'div',
+    renderless = false,
+  } = defineProps<EmDatePickerProps>()
 
   const model = defineModel<Date | null>({ default: null })
 </script>
 
 <template>
-  <V0Paper
-    v-bind="paperProps"
-    as="div"
+  <Atom
+    :as
     class="emerald-date-picker"
     :data-disabled="disabled || undefined"
+    :renderless
   >
     <slot :model />
-  </V0Paper>
+  </Atom>
 </template>
 
 <style>

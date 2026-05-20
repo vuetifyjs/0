@@ -39,20 +39,20 @@
 .emerald-accordion__content-inner {
   min-height: 0;
   overflow: hidden;
-  padding: 12px;
+  margin-top: 8px;
+  padding-left: 23px;
   transition: visibility 0s linear 280ms;
 }
 
 .emerald-accordion__content[data-selected] .emerald-accordion__content-inner {
   visibility: visible;
   transition-delay: 0s;
+  background: var(--emerald-primary-50, #f5f3ff);
+  border-radius: 4px;
+  padding: 8px 12px 8px 23px;
 }
 
 .emerald-accordion__content[hidden] .emerald-accordion__content-inner {
   visibility: hidden;
-}
-
-.emerald-accordion__content[data-selected] .emerald-accordion__content-inner {
-  border-top: 0.5px solid rgb(var(--emerald-neutral-channels, 26 28 30) / 0.1);
 }
 </style>

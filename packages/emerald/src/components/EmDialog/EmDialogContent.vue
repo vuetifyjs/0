@@ -1,15 +1,16 @@
 <script lang="ts">
-  import { V0Paper } from '@vuetify/paper'
-
   // Framework
-  import { DialogContent } from '@vuetify/v0'
+  import { Atom, DialogContent } from '@vuetify/v0'
 
   // Types
-  import type { V0PaperProps } from '@vuetify/paper'
+  import type { AtomProps } from '@vuetify/v0'
 
-  export interface EmDialogContentProps extends V0PaperProps {
+  export type EmDialogSize = 'sm' | 'md' | 'lg' | 'fullscreen'
+
+  export interface EmDialogContentProps extends AtomProps {
     closeOnClickOutside?: boolean
     blocking?: boolean
+    size?: EmDialogSize
   }
 </script>
 
@@ -19,6 +20,7 @@
   const {
     closeOnClickOutside = true,
     blocking = false,
+    size = 'md',
     ...paperProps
   } = defineProps<EmDialogContentProps>()
 
@@ -33,16 +35,18 @@
     :blocking
     class="emerald-dialog"
     :close-on-click-outside
+    :data-size="size"
     @cancel="emit('cancel', $event)"
     @close="emit('close', $event)"
   >
-    <V0Paper
+    <Atom
       v-bind="paperProps"
       as="div"
       class="emerald-dialog__content"
+      :data-size="size"
     >
       <slot />
-    </V0Paper>
+    </Atom>
   </DialogContent>
 </template>
 
@@ -76,5 +80,32 @@
     0 3px 8px 0 rgba(5, 0, 18, 0.13),
     0 2px 4px 0 rgba(5, 0, 18, 0.1);
   font-family: Manrope, system-ui, -apple-system, sans-serif;
+}
+
+.emerald-dialog__content[data-size="sm"] {
+  width: 400px;
+}
+
+.emerald-dialog__content[data-size="md"] {
+  width: 520px;
+}
+
+.emerald-dialog__content[data-size="lg"] {
+  width: 640px;
+}
+
+.emerald-dialog[data-size="fullscreen"] {
+  max-width: 100vw;
+  max-height: 100vh;
+  width: 100vw;
+  height: 100vh;
+}
+
+.emerald-dialog__content[data-size="fullscreen"] {
+  width: 100vw;
+  height: 100vh;
+  max-width: none;
+  border-radius: 0;
+  border: none;
 }
 </style>

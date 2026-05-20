@@ -7,6 +7,9 @@ export { default as EmListItem } from './EmListItem.vue'
 export type { EmListItemActionProps } from './EmListItemAction.vue'
 export { default as EmListItemAction } from './EmListItemAction.vue'
 
+export type { EmListItemBadgeProps } from './EmListItemBadge.vue'
+export { default as EmListItemBadge } from './EmListItemBadge.vue'
+
 export type { EmListItemBodyProps } from './EmListItemBody.vue'
 export { default as EmListItemBody } from './EmListItemBody.vue'
 

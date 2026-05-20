@@ -1,14 +1,11 @@
 <script lang="ts">
-  import { V0Paper } from '@vuetify/paper'
-
   // Framework
-  import { ComboboxRoot } from '@vuetify/v0'
+  import { Atom, ComboboxRoot } from '@vuetify/v0'
 
   // Types
-  import type { V0PaperProps } from '@vuetify/paper'
-  import type { ID } from '@vuetify/v0'
+  import type { AtomProps, ID } from '@vuetify/v0'
 
-  export interface EmAutoCompleteProps extends V0PaperProps {
+  export interface EmAutoCompleteProps extends AtomProps {
     disabled?: boolean
     multiple?: boolean
     mandatory?: boolean
@@ -30,19 +27,20 @@
     error = false,
     errorMessages,
     name,
-    ...paperProps
+    as = 'div',
+    renderless = false,
   } = defineProps<EmAutoCompleteProps>()
 
   const model = defineModel<ID | ID[]>()
 </script>
 
 <template>
-  <V0Paper
-    v-bind="paperProps"
-    as="div"
+  <Atom
+    :as
     class="emerald-auto-complete"
     :data-disabled="disabled || undefined"
     :data-error="error || undefined"
+    :renderless
   >
     <ComboboxRoot
       v-model="model"
@@ -58,7 +56,7 @@
         <slot v-bind="slotProps" />
       </template>
     </ComboboxRoot>
-  </V0Paper>
+  </Atom>
 </template>
 
 <style>

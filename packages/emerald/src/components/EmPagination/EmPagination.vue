@@ -1,13 +1,11 @@
 <script lang="ts">
-  import { V0Paper } from '@vuetify/paper'
-
   // Framework
-  import { PaginationRoot } from '@vuetify/v0'
+  import { Atom, PaginationRoot } from '@vuetify/v0'
 
   // Types
-  import type { V0PaperProps } from '@vuetify/paper'
+  import type { AtomProps } from '@vuetify/v0'
 
-  export interface EmPaginationProps extends V0PaperProps {
+  export interface EmPaginationProps extends AtomProps {
     size?: number
     totalVisible?: number
     itemsPerPage?: number
@@ -23,17 +21,18 @@
     totalVisible,
     itemsPerPage = 10,
     ellipsis = '…',
-    ...paperProps
+    as = 'nav',
+    renderless = false,
   } = defineProps<EmPaginationProps>()
 
   const page = defineModel<number>({ default: 1 })
 </script>
 
 <template>
-  <V0Paper
-    v-bind="paperProps"
-    as="nav"
+  <Atom
+    :as
     class="emerald-pagination"
+    :renderless
   >
     <PaginationRoot
       v-model="page"
@@ -46,7 +45,7 @@
         <slot v-bind="slotProps" />
       </template>
     </PaginationRoot>
-  </V0Paper>
+  </Atom>
 </template>
 
 <style>

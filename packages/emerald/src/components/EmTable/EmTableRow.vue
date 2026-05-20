@@ -1,18 +1,21 @@
 <script lang="ts">
   export interface EmTableRowProps {
     selected?: boolean
+    /** Visually mark the row as expanded (used alongside EmTableExpandRow). */
+    expanded?: boolean
   }
 </script>
 
 <script setup lang="ts">
   defineOptions({ name: 'EmTableRow' })
 
-  const { selected = false } = defineProps<EmTableRowProps>()
+  const { selected = false, expanded = false } = defineProps<EmTableRowProps>()
 </script>
 
 <template>
   <tr
     class="emerald-table__row"
+    :data-expanded="expanded || undefined"
     :data-selected="selected || undefined"
   >
     <slot />

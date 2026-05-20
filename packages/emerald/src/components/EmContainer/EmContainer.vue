@@ -1,12 +1,13 @@
 <script lang="ts">
-  import { V0Paper } from '@vuetify/paper'
+  // Framework
+  import { Atom } from '@vuetify/v0'
 
   // Types
-  import type { V0PaperProps } from '@vuetify/paper'
+  import type { AtomProps } from '@vuetify/v0'
 
   export type EmContainerSize = 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'fluid'
 
-  export interface EmContainerProps extends V0PaperProps {
+  export interface EmContainerProps extends AtomProps {
     size?: EmContainerSize
   }
 </script>
@@ -18,14 +19,14 @@
 </script>
 
 <template>
-  <V0Paper
+  <Atom
     v-bind="paperProps"
     as="div"
     class="emerald-container"
     :data-size="size"
   >
     <slot />
-  </V0Paper>
+  </Atom>
 </template>
 
 <style scoped>

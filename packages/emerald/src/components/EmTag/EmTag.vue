@@ -1,8 +1,9 @@
 <script lang="ts">
-  import { V0Paper } from '@vuetify/paper'
+  // Framework
+  import { Atom } from '@vuetify/v0'
 
   // Types
-  import type { V0PaperProps } from '@vuetify/paper'
+  import type { AtomProps } from '@vuetify/v0'
 
   export type EmTagVariant =
     | 'neutral'
@@ -16,7 +17,7 @@
 
   export type EmTagElevation = 'none' | 'sm' | 'lg'
 
-  export interface EmTagProps extends V0PaperProps {
+  export interface EmTagProps extends AtomProps {
     variant?: EmTagVariant
     tone?: EmTagTone
     elevation?: EmTagElevation
@@ -35,7 +36,7 @@
 </script>
 
 <template>
-  <V0Paper
+  <Atom
     v-bind="paperProps"
     as="span"
     class="emerald-tag"
@@ -44,7 +45,7 @@
     :data-variant="variant"
   >
     <slot />
-  </V0Paper>
+  </Atom>
 </template>
 
 <style scoped>
@@ -55,38 +56,25 @@
   gap: 4px;
   font-family: Manrope, system-ui, -apple-system, sans-serif;
   font-weight: 400;
+  font-size: 11px;
+  line-height: 18px;
+  letter-spacing: -0.02em;
   border-radius: 9999px;
   white-space: nowrap;
   border: 1px solid transparent;
   overflow: hidden;
   box-sizing: border-box;
+  height: 24px;
+  padding: 3px;
+}
+
+.emerald-tag:not(:has(svg)) {
+  padding: 2px 10px;
 }
 
 /* ─── Tone: outlined (white chip) — default ─────────── */
 .emerald-tag[data-tone="outlined"] {
-  height: 24px;
-  padding: 2px 10px 2px 6px;
   background: #ffffff;
-  font-size: 12px;
-  line-height: 15px;
-  letter-spacing: -0.01em;
-}
-
-.emerald-tag[data-tone="outlined"]:not(:has(svg)) {
-  padding: 2px 10px;
-}
-
-/* ─── Tone: tinted (filled chip) ─────────────────────── */
-.emerald-tag[data-tone="tinted"] {
-  height: 24px;
-  padding: 2px 10px 2px 6px;
-  font-size: 11px;
-  line-height: 18px;
-  letter-spacing: -0.02em;
-}
-
-.emerald-tag[data-tone="tinted"]:not(:has(svg)) {
-  padding: 2px 10px;
 }
 
 /* ─── Icon sizing (slot content) ─────────────────────── */

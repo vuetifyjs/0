@@ -33,14 +33,9 @@
 .emerald-accordion__item {
   display: flex;
   flex-direction: column;
-  border: 0.5px solid rgb(var(--emerald-neutral-channels, 26 28 30) / 0.1);
+  background: #ffffff;
+  border: 1px solid rgb(var(--emerald-neutral-channels, 26 28 30) / 0.1);
   border-radius: 6px;
-  overflow: clip;
-  background: var(--emerald-secondary-50);
-  transition: background-color 120ms ease;
-}
-
-.emerald-accordion__item[data-selected] {
-  background: var(--emerald-secondary-100);
+  padding: 12px;
 }
 </style>

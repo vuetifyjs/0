@@ -629,9 +629,6 @@ importers:
 
   packages/emerald:
     dependencies:
-      '@vuetify/paper':
-        specifier: workspace:*
-        version: link:../paper
       '@vuetify/v0':
         specifier: workspace:*
         version: link:../0

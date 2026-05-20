@@ -1,14 +1,15 @@
 <script lang="ts">
-  import { V0Paper } from '@vuetify/paper'
+  // Framework
+  import { Atom } from '@vuetify/v0'
 
   // Types
-  import type { V0PaperProps } from '@vuetify/paper'
+  import type { AtomProps } from '@vuetify/v0'
 
   export type EmBadgeVariant = 'primary' | 'success' | 'warning' | 'error' | 'info' | 'neutral'
   export type EmBadgeSize = 'sm' | 'md' | 'lg'
   export type EmBadgeShape = 'pill' | 'dot' | 'indicator' | 'count'
 
-  export interface EmBadgeProps extends V0PaperProps {
+  export interface EmBadgeProps extends AtomProps {
     variant?: EmBadgeVariant
     size?: EmBadgeSize
     shape?: EmBadgeShape
@@ -32,7 +33,7 @@
 </script>
 
 <template>
-  <V0Paper
+  <Atom
     v-bind="paperProps"
     as="span"
     class="emerald-badge"
@@ -41,7 +42,7 @@
     :data-variant="variant"
   >
     <slot />
-  </V0Paper>
+  </Atom>
 </template>
 
 <style scoped>

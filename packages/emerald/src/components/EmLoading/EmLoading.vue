@@ -1,12 +1,13 @@
 <script lang="ts">
-  import { V0Paper } from '@vuetify/paper'
+  // Framework
+  import { Atom } from '@vuetify/v0'
 
   // Types
-  import type { V0PaperProps } from '@vuetify/paper'
+  import type { AtomProps } from '@vuetify/v0'
 
   export type EmLoadingSize = 'sm' | 'md' | 'lg'
 
-  export interface EmLoadingProps extends V0PaperProps {
+  export interface EmLoadingProps extends AtomProps {
     size?: EmLoadingSize
     label?: string
   }
@@ -19,7 +20,7 @@
 </script>
 
 <template>
-  <V0Paper
+  <Atom
     :aria-label="label"
     aria-live="polite"
     as="div"
@@ -32,7 +33,7 @@
     <span v-if="$slots.default" class="emerald-loading__label">
       <slot />
     </span>
-  </V0Paper>
+  </Atom>
 </template>
 
 <style>

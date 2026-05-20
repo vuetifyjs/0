@@ -4,8 +4,14 @@ export { default as EmTextField } from './EmTextField.vue'
 export type { EmTextFieldAppendProps } from './EmTextFieldAppend.vue'
 export { default as EmTextFieldAppend } from './EmTextFieldAppend.vue'
 
+export type { EmTextFieldClearProps } from './EmTextFieldClear.vue'
+export { default as EmTextFieldClear } from './EmTextFieldClear.vue'
+
 export type { EmTextFieldControlProps } from './EmTextFieldControl.vue'
 export { default as EmTextFieldControl } from './EmTextFieldControl.vue'
+
+export type { EmTextFieldCounterProps } from './EmTextFieldCounter.vue'
+export { default as EmTextFieldCounter } from './EmTextFieldCounter.vue'
 
 export type { EmTextFieldDescriptionProps } from './EmTextFieldDescription.vue'
 export { default as EmTextFieldDescription } from './EmTextFieldDescription.vue'

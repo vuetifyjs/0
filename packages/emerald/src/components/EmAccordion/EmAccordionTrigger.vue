@@ -25,7 +25,7 @@
   justify-content: space-between;
   gap: 8px;
   width: 100%;
-  padding: 16px 12px;
+  padding: 0;
   font-family: Manrope, system-ui, -apple-system, sans-serif;
   font-weight: 600;
   font-size: 12px;
@@ -40,5 +40,9 @@
 .emerald-accordion__trigger[aria-disabled="true"] {
   cursor: not-allowed;
   opacity: 0.6;
+}
+
+.emerald-accordion__item[data-selected] .emerald-accordion__trigger {
+  color: var(--emerald-primary-500, #7c5cf6);
 }
 </style>

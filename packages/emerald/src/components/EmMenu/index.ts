@@ -10,6 +10,12 @@ export { default as EmMenuContent } from './EmMenuContent.vue'
 export type { EmMenuItemProps } from './EmMenuItem.vue'
 export { default as EmMenuItem } from './EmMenuItem.vue'
 
+export type { EmMenuItemIconProps } from './EmMenuItemIcon.vue'
+export { default as EmMenuItemIcon } from './EmMenuItemIcon.vue'
+
+export type { EmMenuItemShortcutProps } from './EmMenuItemShortcut.vue'
+export { default as EmMenuItemShortcut } from './EmMenuItemShortcut.vue'
+
 export type { EmMenuLabelProps } from './EmMenuLabel.vue'
 export { default as EmMenuLabel } from './EmMenuLabel.vue'
 

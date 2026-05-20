@@ -1,14 +1,11 @@
 <script lang="ts">
-  import { V0Paper } from '@vuetify/paper'
-
   // Framework
-  import { SelectRoot } from '@vuetify/v0'
+  import { Atom, SelectRoot } from '@vuetify/v0'
 
   // Types
-  import type { V0PaperProps } from '@vuetify/paper'
-  import type { ID } from '@vuetify/v0'
+  import type { AtomProps, ID } from '@vuetify/v0'
 
-  export interface EmSelectProps extends V0PaperProps {
+  export interface EmSelectProps extends AtomProps {
     disabled?: boolean
     multiple?: boolean
     mandatory?: boolean | 'force'
@@ -24,18 +21,19 @@
     multiple = false,
     mandatory = false,
     name,
-    ...paperProps
+    as = 'div',
+    renderless = false,
   } = defineProps<EmSelectProps>()
 
   const model = defineModel<ID | ID[] | undefined>()
 </script>
 
 <template>
-  <V0Paper
-    v-bind="paperProps"
-    as="div"
+  <Atom
+    :as
     class="emerald-select"
     :data-disabled="disabled || undefined"
+    :renderless
   >
     <SelectRoot
       v-model="model"
@@ -48,7 +46,7 @@
         <slot v-bind="slotProps" />
       </template>
     </SelectRoot>
-  </V0Paper>
+  </Atom>
 </template>
 
 <style>

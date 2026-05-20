@@ -1,16 +1,14 @@
 <script lang="ts">
-  import { V0Paper } from '@vuetify/paper'
-
   // Framework
-  import { SliderRoot } from '@vuetify/v0'
+  import { Atom, SliderRoot } from '@vuetify/v0'
 
   // Types
-  import type { V0PaperProps } from '@vuetify/paper'
+  import type { AtomProps } from '@vuetify/v0'
   import type { MaybeRefOrGetter } from 'vue'
 
   export type EmSliderOrientation = 'horizontal' | 'vertical'
 
-  export interface EmSliderProps extends V0PaperProps {
+  export interface EmSliderProps extends AtomProps {
     disabled?: MaybeRefOrGetter<boolean>
     readonly?: MaybeRefOrGetter<boolean>
     min?: number
@@ -32,18 +30,19 @@
     step = 1,
     orientation = 'horizontal',
     name,
-    ...paperProps
+    as = 'div',
+    renderless = false,
   } = defineProps<EmSliderProps>()
 
   const model = defineModel<number | number[]>({ default: 0 })
 </script>
 
 <template>
-  <V0Paper
-    v-bind="paperProps"
-    as="div"
+  <Atom
+    :as
     class="emerald-slider"
     :data-orientation="orientation"
+    :renderless
   >
     <SliderRoot
       v-model="model"
@@ -59,7 +58,7 @@
         <slot v-bind="slotProps" />
       </template>
     </SliderRoot>
-  </V0Paper>
+  </Atom>
 </template>
 
 <style>

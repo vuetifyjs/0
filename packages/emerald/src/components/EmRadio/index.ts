@@ -6,3 +6,6 @@ export { default as EmRadioGroup } from './EmRadioGroup.vue'
 
 export type { EmRadioIndicatorProps } from './EmRadioIndicator.vue'
 export { default as EmRadioIndicator } from './EmRadioIndicator.vue'
+
+export type { EmRadioLabelProps } from './EmRadioLabel.vue'
+export { default as EmRadioLabel } from './EmRadioLabel.vue'

@@ -1,6 +1,9 @@
 export type { EmToastProps, EmToastVariant } from './EmToast.vue'
 export { default as EmToast } from './EmToast.vue'
 
+export type { EmToastActionProps } from './EmToastAction.vue'
+export { default as EmToastAction } from './EmToastAction.vue'
+
 export type { EmToastBodyProps } from './EmToastBody.vue'
 export { default as EmToastBody } from './EmToastBody.vue'
 
@@ -12,6 +15,9 @@ export { default as EmToastDescription } from './EmToastDescription.vue'
 
 export type { EmToastIconProps } from './EmToastIcon.vue'
 export { default as EmToastIcon } from './EmToastIcon.vue'
+
+export type { EmToastStackPosition, EmToastStackProps } from './EmToastStack.vue'
+export { default as EmToastStack } from './EmToastStack.vue'
 
 export type { EmToastTitleProps } from './EmToastTitle.vue'
 export { default as EmToastTitle } from './EmToastTitle.vue'

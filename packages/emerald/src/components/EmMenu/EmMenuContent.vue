@@ -1,13 +1,11 @@
 <script lang="ts">
-  import { V0Paper } from '@vuetify/paper'
-
   // Framework
-  import { PopoverContent } from '@vuetify/v0'
+  import { Atom, PopoverContent } from '@vuetify/v0'
 
   // Types
-  import type { V0PaperProps } from '@vuetify/paper'
+  import type { AtomProps } from '@vuetify/v0'
 
-  export interface EmMenuContentProps extends V0PaperProps {
+  export interface EmMenuContentProps extends AtomProps {
     positionArea?: string
     positionTry?: string
   }
@@ -29,14 +27,14 @@
     :position-area
     :position-try
   >
-    <V0Paper
+    <Atom
       v-bind="paperProps"
       as="div"
       class="emerald-menu__content"
       role="menu"
     >
       <slot />
-    </V0Paper>
+    </Atom>
   </PopoverContent>
 </template>
 

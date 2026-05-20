@@ -7,6 +7,8 @@
     label?: string
     value?: unknown
     disabled?: boolean
+    numbered?: boolean
+    error?: boolean
   }
 </script>
 
@@ -18,6 +20,8 @@
     label,
     value,
     disabled = false,
+    numbered = false,
+    error = false,
   } = defineProps<EmStepperItemProps>()
 
   const step = useStepRoot('v0:step') as unknown as {
@@ -39,6 +43,7 @@
         class="emerald-stepper__item"
         :data-completed="(step.selectedIndex.value >= 0 && (step.get(slotProps.id)?.index ?? -1) < step.selectedIndex.value) || undefined"
         :data-disabled="slotProps.isDisabled || undefined"
+        :data-error="error || undefined"
         :data-selected="slotProps.isSelected || undefined"
       >
         <span class="emerald-stepper__item-card">
@@ -50,7 +55,11 @@
             />
 
             <slot v-else v-bind="slotProps">
-              <span class="emerald-stepper__item-indicator" />
+              <span v-if="numbered" class="emerald-stepper__item-number">
+                {{ (step.get(slotProps.id)?.index ?? 0) + 1 }}
+              </span>
+
+              <span v-else class="emerald-stepper__item-indicator" />
             </slot>
           </span>
         </span>
@@ -135,8 +144,9 @@
     0 3px 6px 0 rgb(var(--emerald-secondary-500-channels) / 0.09);
 }
 
-/* Completed step — success tint */
+/* Completed step — card stays white, badge tints to success-100 */
 .emerald-stepper__item[data-completed] .emerald-stepper__item-card {
+  background: #ffffff;
   border-color: var(--emerald-success-100);
   box-shadow:
     0 8px 20px 0 rgb(var(--emerald-success-channels) / 0.13),
@@ -144,12 +154,8 @@
 }
 
 .emerald-stepper__item[data-completed] .emerald-stepper__item-badge {
-  background: transparent;
-  color: var(--emerald-success-600);
-}
-
-.emerald-stepper__item[data-completed] .emerald-stepper__item-card {
-  background: var(--emerald-success-50);
+  background: var(--emerald-success-100);
+  color: var(--emerald-success-700);
 }
 
 .emerald-stepper__item[data-disabled] {
@@ -161,5 +167,35 @@
   outline: 2px solid var(--emerald-secondary-500);
   outline-offset: 2px;
   border-radius: 6px;
+}
+
+.emerald-stepper__item-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  font-size: 12px;
+  font-weight: 600;
+  color: inherit;
+  line-height: 1;
+}
+
+/* Error state — error color tint */
+.emerald-stepper__item[data-error] .emerald-stepper__item-card {
+  border-color: var(--emerald-error-200, #fecaca);
+  background: var(--emerald-error-50, #fef2f2);
+  box-shadow:
+    0 8px 20px 0 rgb(var(--emerald-error-channels, 220 38 38) / 0.13),
+    0 3px 6px 0 rgb(var(--emerald-error-channels, 220 38 38) / 0.09);
+}
+
+.emerald-stepper__item[data-error] .emerald-stepper__item-badge {
+  background: transparent;
+  color: var(--emerald-error-600, #dc2626);
+}
+
+.emerald-stepper__item[data-error] .emerald-stepper__item-label {
+  color: var(--emerald-error-600, #dc2626);
 }
 </style>

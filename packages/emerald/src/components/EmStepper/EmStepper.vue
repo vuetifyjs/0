@@ -1,16 +1,17 @@
 <script lang="ts">
-  import { V0Paper } from '@vuetify/paper'
-
   // Framework
-  import { StepRoot } from '@vuetify/v0'
+  import { Atom, StepRoot } from '@vuetify/v0'
 
   // Types
-  import type { V0PaperProps } from '@vuetify/paper'
+  import type { AtomProps } from '@vuetify/v0'
 
-  export interface EmStepperProps extends V0PaperProps {
+  export type EmStepperOrientation = 'horizontal' | 'vertical'
+
+  export interface EmStepperProps extends AtomProps {
     disabled?: boolean
     enroll?: boolean
     mandatory?: boolean | 'force'
+    orientation?: EmStepperOrientation
   }
 </script>
 
@@ -21,18 +22,21 @@
     disabled = false,
     enroll = false,
     mandatory = false,
-    ...paperProps
+    orientation = 'horizontal',
+    as = 'div',
+    renderless = false,
   } = defineProps<EmStepperProps>()
 
   const model = defineModel<T>()
 </script>
 
 <template>
-  <V0Paper
-    v-bind="paperProps"
-    as="div"
+  <Atom
+    :as
     class="emerald-stepper"
     :data-disabled="disabled || undefined"
+    :data-orientation="orientation"
+    :renderless
   >
     <StepRoot
       v-model="model"
@@ -44,7 +48,7 @@
         <slot v-bind="slotProps" />
       </template>
     </StepRoot>
-  </V0Paper>
+  </Atom>
 </template>
 
 <style>
@@ -59,5 +63,17 @@
 .emerald-stepper[data-disabled] {
   opacity: 0.6;
   pointer-events: none;
+}
+
+.emerald-stepper[data-orientation="vertical"] {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.emerald-stepper[data-orientation="vertical"] .emerald-stepper__separator {
+  width: 1px;
+  height: 24px;
+  margin-left: 18px;
 }
 </style>

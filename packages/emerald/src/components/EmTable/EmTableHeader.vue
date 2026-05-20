@@ -1,4 +1,10 @@
 <script lang="ts">
+  // Framework
+  import { usePopover } from '@vuetify/v0'
+
+  // Utilities
+  import { useTemplateRef } from 'vue'
+
   export type EmTableHeaderAlign = 'start' | 'center' | 'end'
   export type EmTableHeaderSort = 'ascending' | 'descending' | 'none'
 
@@ -27,12 +33,18 @@
     filter: []
   }>()
 
+  const popover = usePopover({ positionArea: 'bottom span-left' })
+  const contentEl = useTemplateRef<HTMLElement>('contentEl')
+  popover.attach(contentEl)
+
   function onSort () {
     if (sortable) emit('sort')
   }
 
   function onFilter () {
-    if (filterable) emit('filter')
+    if (!filterable) return
+    popover.toggle()
+    emit('filter')
   }
 </script>
 
@@ -69,13 +81,31 @@
 
       <button
         v-if="filterable"
+        :aria-controls="popover.id"
+        :aria-expanded="popover.isOpen.value"
+        aria-haspopup="dialog"
         aria-label="Filter"
         class="emerald-table__header-filter"
+        :style="popover.anchorStyles.value"
         type="button"
         @click="onFilter"
       >
         <slot name="filter-icon" />
       </button>
+
+      <div
+        v-if="filterable"
+        ref="contentEl"
+        v-bind="popover.contentAttrs.value"
+        class="emerald-table__header-filter-panel"
+        :style="popover.contentStyles.value"
+      >
+        <slot
+          :close="popover.close"
+          :is-open="popover.isOpen.value"
+          name="filter"
+        />
+      </div>
     </div>
   </th>
 </template>
@@ -176,5 +206,21 @@
 .emerald-table__header-filter:hover {
   opacity: 1;
   background: rgb(var(--emerald-neutral-channels, 26 28 30) / 0.06);
+}
+
+.emerald-table__header-filter-panel {
+  padding: 0;
+  margin: 4px 0 0;
+  background: transparent;
+  border: 0;
+  overflow: visible;
+}
+
+.emerald-table__header-filter-panel:not(:popover-open) {
+  display: none;
+}
+
+.emerald-table__header-filter-panel::backdrop {
+  background: transparent;
 }
 </style>

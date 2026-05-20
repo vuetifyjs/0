@@ -1,32 +1,44 @@
 <script lang="ts">
-  import { V0Paper } from '@vuetify/paper'
+  // Framework
+  import { Atom } from '@vuetify/v0'
 
   // Types
-  import type { V0PaperProps } from '@vuetify/paper'
+  import type { AtomProps } from '@vuetify/v0'
 
-  export interface EmTableProps extends V0PaperProps {
+  export interface EmTableProps extends AtomProps {
     bordered?: boolean
+    /** Pin the `<thead>` to the top of the wrapper during scroll. */
+    sticky?: boolean
+    /** Reduced cell padding and font-size for dense data displays. */
+    compact?: boolean
   }
 </script>
 
 <script setup lang="ts">
   defineOptions({ name: 'EmTable' })
 
-  const { bordered = true, ...paperProps } = defineProps<EmTableProps>()
+  const {
+    bordered = true,
+    sticky = false,
+    compact = false,
+    ...paperProps
+  } = defineProps<EmTableProps>()
 </script>
 
 <template>
   <div
     class="emerald-table-wrapper"
     :data-bordered="bordered || undefined"
+    :data-compact="compact || undefined"
+    :data-sticky="sticky || undefined"
   >
-    <V0Paper
+    <Atom
       v-bind="paperProps"
       as="table"
       class="emerald-table"
     >
       <slot />
-    </V0Paper>
+    </Atom>
   </div>
 </template>
 
@@ -44,6 +56,22 @@
   border-radius: 6px;
 }
 
+.emerald-table-wrapper[data-sticky] {
+  max-height: 400px;
+  overflow: auto;
+}
+
+.emerald-table-wrapper[data-sticky] .emerald-table__head .emerald-table__header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--emerald-secondary-50, #f4f7f9);
+}
+
+.emerald-table-wrapper[data-sticky][data-bordered] .emerald-table__head .emerald-table__header {
+  top: -12px;
+}
+
 .emerald-table {
   width: 100%;
   border-collapse: separate;
@@ -54,5 +82,19 @@
   letter-spacing: 0.24px;
   color: #000;
   text-align: left;
+}
+
+.emerald-table-wrapper[data-compact] .emerald-table {
+  font-size: 11px;
+  letter-spacing: 0.22px;
+}
+
+.emerald-table-wrapper[data-compact] .emerald-table__cell,
+.emerald-table-wrapper[data-compact] .emerald-table__header {
+  padding: 6px 8px;
+}
+
+.emerald-table-wrapper[data-compact] .emerald-table__row > .emerald-table__cell {
+  border-bottom-width: 0;
 }
 </style>

@@ -1,12 +1,13 @@
 <script lang="ts">
-  import { V0Paper } from '@vuetify/paper'
+  // Framework
+  import { Atom } from '@vuetify/v0'
 
   // Types
-  import type { V0PaperProps } from '@vuetify/paper'
+  import type { AtomProps } from '@vuetify/v0'
 
   export type EmProgressSize = 'sm' | 'md'
 
-  export interface EmProgressProps extends V0PaperProps {
+  export interface EmProgressProps extends AtomProps {
     value?: number
     min?: number
     max?: number
@@ -42,7 +43,7 @@
 </script>
 
 <template>
-  <V0Paper
+  <Atom
     v-bind="paperProps"
     :aria-valuemax="max"
     :aria-valuemin="min"
@@ -55,7 +56,7 @@
     :style
   >
     <slot :percent :value />
-  </V0Paper>
+  </Atom>
 </template>
 
 <style>

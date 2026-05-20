@@ -50,12 +50,13 @@
   box-shadow: 0 0 0 2px rgb(var(--emerald-primary-500-channels) / 0.12);
 }
 
-.emerald-select__activator[data-select-open] > svg:last-child {
-  transform: rotate(180deg);
-  transition: transform 180ms cubic-bezier(0.4, 0.0, 0.2, 1);
+.emerald-select__activator > svg:last-child {
+  color: rgb(var(--emerald-neutral-channels, 26 28 30) / 0.6);
+  transition: transform 180ms cubic-bezier(0.4, 0.0, 0.2, 1), color 120ms ease;
 }
 
-.emerald-select__activator > svg:last-child {
-  transition: transform 180ms cubic-bezier(0.4, 0.0, 0.2, 1);
+.emerald-select__activator[data-select-open] > svg:last-child {
+  transform: rotate(180deg);
+  color: var(--emerald-primary-500);
 }
 </style>

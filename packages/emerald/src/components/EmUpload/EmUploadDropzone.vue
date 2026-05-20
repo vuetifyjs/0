@@ -1,4 +1,7 @@
 <script lang="ts">
+  // Context
+  import { useEmUpload } from './EmUpload.vue'
+
   // Utilities
   import { shallowRef } from 'vue'
 
@@ -16,11 +19,22 @@
     drop: [files: File[]]
   }>()
 
+  const upload = useEmUpload()
+
   const dragging = shallowRef(false)
+
+  function isDisabled () {
+    return disabled || (upload?.disabled() ?? false)
+  }
+
+  function onClick () {
+    if (isDisabled()) return
+    upload?.open()
+  }
 
   function onDragOver (e: DragEvent) {
     e.preventDefault()
-    if (!disabled) dragging.value = true
+    if (!isDisabled()) dragging.value = true
   }
 
   function onDragLeave () {
@@ -30,8 +44,9 @@
   function onDrop (e: DragEvent) {
     e.preventDefault()
     dragging.value = false
-    if (disabled) return
+    if (isDisabled()) return
     const files = Array.from(e.dataTransfer?.files ?? [])
+    upload?.append(files)
     emit('drop', files)
   }
 </script>
@@ -39,8 +54,9 @@
 <template>
   <div
     class="emerald-upload__dropzone"
-    :data-disabled="disabled || undefined"
+    :data-disabled="isDisabled() || undefined"
     :data-dragging="dragging || undefined"
+    @click="onClick"
     @dragleave="onDragLeave"
     @dragover="onDragOver"
     @drop="onDrop"

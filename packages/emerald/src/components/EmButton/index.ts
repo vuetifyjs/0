@@ -1,4 +1,4 @@
-export type { EmButtonProps } from './EmButton.vue'
+export type { EmButtonProps, EmButtonSize, EmButtonVariant } from './EmButton.vue'
 export { default as EmButton } from './EmButton.vue'
 
 export type { EmButtonAppendProps } from './EmButtonAppend.vue'

@@ -31,7 +31,6 @@
     }
   },
   "dependencies": {
-    "@vuetify/paper": "workspace:*",
     "@vuetify/v0": "workspace:*"
   },
   "devDependencies": {

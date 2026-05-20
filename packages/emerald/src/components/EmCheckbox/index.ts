@@ -7,5 +7,8 @@ export { default as EmCheckboxGroup } from './EmCheckboxGroup.vue'
 export type { EmCheckboxIndicatorProps } from './EmCheckboxIndicator.vue'
 export { default as EmCheckboxIndicator } from './EmCheckboxIndicator.vue'
 
+export type { EmCheckboxLabelProps } from './EmCheckboxLabel.vue'
+export { default as EmCheckboxLabel } from './EmCheckboxLabel.vue'
+
 export type { EmCheckboxSelectAllProps } from './EmCheckboxSelectAll.vue'
 export { default as EmCheckboxSelectAll } from './EmCheckboxSelectAll.vue'

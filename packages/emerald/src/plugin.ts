@@ -16,6 +16,7 @@ import {
   primary,
   secondary,
   success,
+  tertiary,
   warning,
 } from './theme'
 
@@ -49,14 +50,15 @@ function scale (name: string, values: Scale): Scale {
 export const emeraldColors: Record<string, string> = {
   ...scale('primary', primary),
   ...scale('secondary', secondary),
+  ...scale('tertiary', tertiary),
   ...scale('success', success),
   ...scale('warning', warning),
   ...scale('error', error),
   ...scale('info', info),
   ...scale('neutral', neutral),
-  'background': '#FAF9FF',
-  'surface': '#F5F4FF',
-  'surface-tint': '#EBE9FE',
+  'background': '#F2F7FA',
+  'surface': '#FCFEFF',
+  'surface-tint': '#E5EAEE',
   'divider': '#DEE2E6',
   'on-primary': '#FFFFFF',
   'on-background': '#1A1C1E',

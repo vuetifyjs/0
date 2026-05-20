@@ -1,13 +1,11 @@
 <script lang="ts">
-  import { V0Paper } from '@vuetify/paper'
-
   // Framework
-  import { Form } from '@vuetify/v0'
+  import { Atom, Form } from '@vuetify/v0'
 
   // Types
-  import type { V0PaperProps } from '@vuetify/paper'
+  import type { AtomProps } from '@vuetify/v0'
 
-  export interface EmFormProps extends V0PaperProps {
+  export interface EmFormProps extends AtomProps {
     disabled?: boolean
     readonly?: boolean
   }
@@ -19,7 +17,8 @@
   const {
     disabled = false,
     readonly = false,
-    ...paperProps
+    as = 'div',
+    renderless = false,
   } = defineProps<EmFormProps>()
 
   const model = defineModel<boolean | null>({ default: null })
@@ -31,12 +30,12 @@
 </script>
 
 <template>
-  <V0Paper
-    v-bind="paperProps"
-    as="div"
+  <Atom
+    :as
     class="emerald-form"
     :data-disabled="disabled || undefined"
     :data-readonly="readonly || undefined"
+    :renderless
   >
     <Form
       v-model="model"
@@ -51,7 +50,7 @@
         <slot v-bind="slotProps" />
       </template>
     </Form>
-  </V0Paper>
+  </Atom>
 </template>
 
 <style>

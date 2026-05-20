@@ -1,10 +1,10 @@
 /**
  * Emerald Design System — Token Definitions
  *
- * Extracted from Juan's Figma spec (March 2026).
- * These tokens feed into UnoCSS theme config so that
- * utility classes like `bg-primary`, `text-error-600`, `rounded-lg`
- * resolve to Emerald's design language.
+ * Brand palette: hex values supplied by the design owner, scale generated
+ * by interpolating each 500-mid against white/near-black anchors. UnoCSS
+ * picks these up so `bg-primary`, `text-error-600`, etc. resolve to
+ * Emerald's design language.
  */
 
 // ──────────────────────────────────────────────
@@ -12,33 +12,48 @@
 // ──────────────────────────────────────────────
 
 export const primary = {
-  50: '#F5F3FF',
-  100: '#EDE9FE',
-  200: '#DED6FE',
-  300: '#C4B5FD',
-  400: '#A28BFA',
-  500: '#7C5CF6',
-  600: '#5F3AED',
-  700: '#4D28D9',
-  800: '#4021B6',
-  900: '#361D95',
-  950: '#221065',
-  DEFAULT: '#7C5CF6',
+  50: '#ECF7F0',
+  100: '#D1ECDB',
+  200: '#A4D8B6',
+  300: '#76C390',
+  400: '#48AD6B',
+  500: '#22724A',
+  600: '#1E633F',
+  700: '#1A5435',
+  800: '#14442A',
+  900: '#103620',
+  950: '#0A1F13',
+  DEFAULT: '#22724A',
 } as const
 
 export const secondary = {
-  50: '#F4F7F9',
-  100: '#ECF0F3',
-  200: '#DCE4E9',
-  300: '#C6D2DB',
-  400: '#AEBCCB',
-  500: '#94A3B8',
-  600: '#828FA9',
-  700: '#6F7A93',
-  800: '#5C6677',
-  900: '#4D5462',
-  950: '#2D3139',
-  DEFAULT: '#94A3B8',
+  50: '#EBF3FC',
+  100: '#D2E4F7',
+  200: '#A5CAEE',
+  300: '#78B0E5',
+  400: '#5599E1',
+  500: '#3B84DE',
+  600: '#2F6CBE',
+  700: '#275798',
+  800: '#1F4378',
+  900: '#163058',
+  950: '#0C1B33',
+  DEFAULT: '#3B84DE',
+} as const
+
+export const tertiary = {
+  50: '#F1F0FB',
+  100: '#E2E0F5',
+  200: '#C5C2EB',
+  300: '#A8A4E1',
+  400: '#918DDB',
+  500: '#7B79D6',
+  600: '#6361BD',
+  700: '#4F4D9D',
+  800: '#3D3C7B',
+  900: '#2D2B5A',
+  950: '#181734',
+  DEFAULT: '#7B79D6',
 } as const
 
 // ──────────────────────────────────────────────
@@ -46,12 +61,12 @@ export const secondary = {
 // ──────────────────────────────────────────────
 
 export const background = {
-  DEFAULT: '#FAF9FF',
+  DEFAULT: '#F2F7FA',
   dark: '#1A1C1E',
 } as const
 
 export const surface = {
-  DEFAULT: '#F5F4FF',
+  DEFAULT: '#FCFEFF',
   dark: '#1E1C28',
 } as const
 
@@ -60,63 +75,63 @@ export const surface = {
 // ──────────────────────────────────────────────
 
 export const success = {
-  50: '#F1FCF5',
-  100: '#DFF9EB',
-  200: '#C0F2D6',
-  300: '#8EE7B7',
-  400: '#56D290',
-  500: '#2FB86F',
-  600: '#219859',
-  700: '#1E7A4A',
-  800: '#1C5F3C',
-  900: '#194E34',
-  950: '#082B1B',
-  DEFAULT: '#1E7A4A',
+  50: '#E8FBF1',
+  100: '#C5F4D9',
+  200: '#92E8B6',
+  300: '#5FDC93',
+  400: '#2DD17A',
+  500: '#14B86A',
+  600: '#119955',
+  700: '#0D7B45',
+  800: '#0A5F35',
+  900: '#084A28',
+  950: '#052918',
+  DEFAULT: '#14B86A',
 } as const
 
 export const warning = {
-  50: '#FBFAEB',
-  100: '#F7F2CA',
-  200: '#F1E497',
-  300: '#E8D05C',
-  400: '#E0B92F',
-  500: '#D0A322',
-  600: '#B07D1A',
-  700: '#8F5D19',
-  800: '#774A1C',
-  900: '#663F1D',
-  950: '#3B200D',
-  DEFAULT: '#B07D1A',
+  50: '#FBF4E5',
+  100: '#F6E5BB',
+  200: '#EFCD78',
+  300: '#E6B539',
+  400: '#DC9F18',
+  500: '#C98A00',
+  600: '#A57100',
+  700: '#855B00',
+  800: '#6A4800',
+  900: '#523800',
+  950: '#2D1F00',
+  DEFAULT: '#C98A00',
 } as const
 
 export const error = {
-  50: '#FDF4F3',
-  100: '#FCE6E4',
-  200: '#FAD2CE',
-  300: '#F6B2AB',
-  400: '#EF857A',
-  500: '#E35E50',
-  600: '#CF4233',
-  700: '#C0392B',
-  800: '#902E24',
-  900: '#782C24',
-  950: '#41130E',
-  DEFAULT: '#C0392B',
+  50: '#FBECEC',
+  100: '#F4C9C9',
+  200: '#E89B9B',
+  300: '#DC6E6E',
+  400: '#D04848',
+  500: '#B83030',
+  600: '#962727',
+  700: '#7A1F1F',
+  800: '#5E1818',
+  900: '#461212',
+  950: '#260909',
+  DEFAULT: '#B83030',
 } as const
 
 export const info = {
-  50: '#F3F6FC',
-  100: '#E6EDF8',
-  200: '#C7D9F0',
-  300: '#96B8E3',
-  400: '#5E93D2',
-  500: '#3977BE',
-  600: '#2A5FA5',
-  700: '#224A82',
-  800: '#20416C',
-  900: '#1F375B',
-  950: '#000000',
-  DEFAULT: '#2A5FA5',
+  50: '#E8F2FB',
+  100: '#C8E0F7',
+  200: '#9BC8EF',
+  300: '#6DAEE6',
+  400: '#4090DE',
+  500: '#1B72D9',
+  600: '#155EB3',
+  700: '#114B8E',
+  800: '#0E3D74',
+  900: '#0B2E58',
+  950: '#061730',
+  DEFAULT: '#1B72D9',
 } as const
 
 // ──────────────────────────────────────────────
@@ -124,7 +139,7 @@ export const info = {
 // ──────────────────────────────────────────────
 
 export const border = {
-  DEFAULT: '#94A3B8',
+  DEFAULT: '#DEE2E6',
 } as const
 
 export const borderRadius = {
@@ -185,10 +200,10 @@ export const fontSize = {
 
 export const neutral = {
   DEFAULT: '#1A1C1E',
-  50: '#FAF9FF',
-  100: '#F5F4FF',
-  200: '#ECF0F3',
-  300: '#DEE2E6',
+  50: '#F8FAFB',
+  100: '#F2F7FA',
+  200: '#E5EAEE',
+  300: '#CFD6DC',
   400: '#94A3B8',
   500: '#4D5462',
   600: '#2D3139',
@@ -205,6 +220,7 @@ export const emeraldTheme = {
   colors: {
     primary,
     secondary,
+    tertiary,
     success,
     warning,
     error,

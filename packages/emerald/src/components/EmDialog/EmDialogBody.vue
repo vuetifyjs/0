@@ -21,6 +21,7 @@
   font-family: Manrope, system-ui, -apple-system, sans-serif;
   font-size: 16px;
   line-height: 24px;
+  letter-spacing: 0.32px;
   color: rgb(var(--emerald-neutral-700-channels, 30 28 40) / 0.6);
 }
 </style>

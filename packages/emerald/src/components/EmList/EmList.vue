@@ -1,10 +1,11 @@
 <script lang="ts">
-  import { V0Paper } from '@vuetify/paper'
+  // Framework
+  import { Atom } from '@vuetify/v0'
 
   // Types
-  import type { V0PaperProps } from '@vuetify/paper'
+  import type { AtomProps } from '@vuetify/v0'
 
-  export interface EmListProps extends V0PaperProps {
+  export interface EmListProps extends AtomProps {
     flat?: boolean
   }
 </script>
@@ -16,7 +17,7 @@
 </script>
 
 <template>
-  <V0Paper
+  <Atom
     v-bind="paperProps"
     as="ul"
     class="emerald-list"
@@ -24,7 +25,7 @@
     role="list"
   >
     <slot />
-  </V0Paper>
+  </Atom>
 </template>
 
 <style>

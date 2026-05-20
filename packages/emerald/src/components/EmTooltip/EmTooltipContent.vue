@@ -1,18 +1,19 @@
 <script lang="ts">
-  import { V0Paper } from '@vuetify/paper'
-
   // Framework
-  import { PopoverContent, usePopoverContext } from '@vuetify/v0'
+  import { Atom, PopoverContent, usePopoverContext } from '@vuetify/v0'
 
   // Utilities
   import { toRef } from 'vue'
 
   // Types
-  import type { V0PaperProps } from '@vuetify/paper'
+  import type { AtomProps } from '@vuetify/v0'
 
-  export interface EmTooltipContentProps extends V0PaperProps {
+  export type EmTooltipVariant = 'light' | 'dark'
+
+  export interface EmTooltipContentProps extends AtomProps {
     positionArea?: string
     positionTry?: string
+    variant?: EmTooltipVariant
   }
 </script>
 
@@ -22,6 +23,7 @@
   const {
     positionArea = 'top',
     positionTry = 'most-width top',
+    variant = 'light',
     ...paperProps
   } = defineProps<EmTooltipContentProps>()
 
@@ -36,11 +38,12 @@
     :position-area
     :position-try
   >
-    <V0Paper
+    <Atom
       v-bind="paperProps"
       as="div"
       class="emerald-tooltip__content"
       :data-side="side"
+      :data-variant="variant"
       role="tooltip"
     >
       <span class="emerald-tooltip__label">
@@ -48,7 +51,7 @@
       </span>
 
       <span aria-hidden="true" class="emerald-tooltip__arrow" />
-    </V0Paper>
+    </Atom>
   </PopoverContent>
 </template>
 
@@ -71,7 +74,8 @@
   align-items: center;
   justify-content: center;
   padding: 4px 8px;
-  background: var(--emerald-neutral-600);
+  background: var(--emerald-neutral-50, #fafafa);
+  border: 1px solid rgb(var(--emerald-neutral-channels, 26 28 30) / 0.08);
   border-radius: 6px;
   box-shadow:
     0 2px 4px 0 rgba(5, 0, 18, 0.1),
@@ -81,7 +85,7 @@
   font-weight: 400;
   line-height: normal;
   text-align: center;
-  color: #ffffff;
+  color: var(--emerald-neutral-900, #18181b);
   white-space: nowrap;
   pointer-events: none;
 }
@@ -108,7 +112,7 @@
   left: 50%;
   width: 12px;
   height: 6px;
-  background: var(--emerald-neutral-600);
+  background: var(--emerald-neutral-50, #fafafa);
   transform: translateX(-50%);
 }
 
@@ -137,5 +141,15 @@
   height: 12px;
   transform: translateY(-50%);
   clip-path: polygon(100% 0, 100% 100%, 0 50%);
+}
+
+.emerald-tooltip__content[data-variant="dark"] {
+  background: var(--emerald-neutral-900, #18181b);
+  border-color: transparent;
+  color: #ffffff;
+}
+
+.emerald-tooltip__content[data-variant="dark"] .emerald-tooltip__arrow {
+  background: var(--emerald-neutral-900, #18181b);
 }
 </style>

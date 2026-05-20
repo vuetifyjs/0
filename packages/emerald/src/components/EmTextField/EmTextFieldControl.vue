@@ -97,7 +97,7 @@
 }
 
 .emerald-text-field__control[data-state="invalid"] {
-  border-color: var(--emerald-error-500, #e5484d);
+  border-color: rgb(var(--emerald-error-500-channels, 192 57 43) / 0.5);
 }
 
 .emerald-text-field__control[data-state="invalid"]:hover:not([data-disabled]):not([data-focused]) {

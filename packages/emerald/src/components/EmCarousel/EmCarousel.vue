@@ -1,15 +1,13 @@
 <script lang="ts">
-  import { V0Paper } from '@vuetify/paper'
-
   // Framework
-  import { CarouselRoot } from '@vuetify/v0'
+  import { Atom, CarouselRoot } from '@vuetify/v0'
 
   // Types
-  import type { V0PaperProps } from '@vuetify/paper'
+  import type { AtomProps } from '@vuetify/v0'
 
   export type EmCarouselOrientation = 'horizontal' | 'vertical'
 
-  export interface EmCarouselProps extends V0PaperProps {
+  export interface EmCarouselProps extends AtomProps {
     label?: string
     disabled?: boolean
     circular?: boolean
@@ -22,6 +20,8 @@
 <script setup lang="ts" generic="T">
   defineOptions({ name: 'EmCarousel' })
 
+  const model = defineModel<T>()
+
   const {
     label,
     disabled = false,
@@ -29,19 +29,18 @@
     orientation = 'horizontal',
     perView = 1,
     autoplay = 0,
-    ...paperProps
+    as = 'div',
+    renderless = false,
   } = defineProps<EmCarouselProps>()
-
-  const model = defineModel<T>()
 </script>
 
 <template>
-  <V0Paper
-    v-bind="paperProps"
-    as="div"
+  <Atom
+    :as
     class="emerald-carousel"
     :data-disabled="disabled || undefined"
     :data-orientation="orientation"
+    :renderless
   >
     <CarouselRoot
       v-model="model"
@@ -57,7 +56,7 @@
         <slot v-bind="slotProps" />
       </template>
     </CarouselRoot>
-  </V0Paper>
+  </Atom>
 </template>
 
 <style>
