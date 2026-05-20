@@ -21,6 +21,16 @@
 </template>
 
 <style scoped>
+  /* Override the global .shiki rule (App.vue ~line 543) which adds border +
+     8px border-radius. Inside the example container we want a flush block:
+     no border, no top radius. Visual rounding comes from the parent
+     .genesis-docs-example__code (overflow: hidden + nth-last-child radius). */
+  .docs-genesis-shiki-block :deep(.shiki) {
+    border: none;
+    border-radius: 0;
+    background: transparent;
+  }
+
   .docs-genesis-shiki-block :deep(pre),
   .docs-genesis-shiki-block__fallback {
     margin: 0;
