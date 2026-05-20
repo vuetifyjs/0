@@ -1,20 +1,44 @@
+// Framework
+import { useStorage } from '@vuetify/v0'
+
 import dependencyGraph from '@/data/dependencies.json'
 import { resolve } from '@/engine/resolve'
 
 // Utilities
 import { defineStore } from 'pinia'
-import { shallowRef, toRef } from 'vue'
+import { shallowRef, toRef, watch } from 'vue'
 
 // Types
 import type { DependencyGraph } from '@/data/types'
 
 const graph = dependencyGraph as DependencyGraph
 
+interface PersistedState {
+  selectedPlugins: string[]
+  pluginConfig: Record<string, unknown>
+  selectedComponents: string[]
+  componentConfig: Record<string, unknown>
+}
+
+const STORAGE_KEY = 'builder.v1'
+
+const EMPTY_STATE: PersistedState = {
+  selectedPlugins: [],
+  pluginConfig: {},
+  selectedComponents: [],
+  componentConfig: {},
+}
+
 export const useBuilderStore = defineStore('builder', () => {
-  const selectedPlugins = shallowRef<Set<string>>(new Set())
-  const pluginConfig = shallowRef<Record<string, unknown>>({})
-  const selectedComponents = shallowRef<Set<string>>(new Set())
-  const componentConfig = shallowRef<Record<string, unknown>>({})
+  const storage = useStorage()
+  const persisted = storage.get<PersistedState>(STORAGE_KEY, EMPTY_STATE)
+
+  const initial = persisted.value ?? EMPTY_STATE
+
+  const selectedPlugins = shallowRef<Set<string>>(new Set(initial.selectedPlugins))
+  const pluginConfig = shallowRef<Record<string, unknown>>({ ...initial.pluginConfig })
+  const selectedComponents = shallowRef<Set<string>>(new Set(initial.selectedComponents))
+  const componentConfig = shallowRef<Record<string, unknown>>({ ...initial.componentConfig })
 
   const allSelected = toRef(() => [
     ...selectedPlugins.value,
@@ -76,7 +100,21 @@ export const useBuilderStore = defineStore('builder', () => {
     pluginConfig.value = {}
     selectedComponents.value = new Set()
     componentConfig.value = {}
+    storage.remove(STORAGE_KEY)
   }
+
+  watch(
+    [selectedPlugins, pluginConfig, selectedComponents, componentConfig],
+    ([plugins, pluginCfg, components, componentCfg]) => {
+      persisted.value = {
+        selectedPlugins: [...plugins],
+        pluginConfig: { ...pluginCfg },
+        selectedComponents: [...components],
+        componentConfig: { ...componentCfg },
+      }
+    },
+    { deep: true },
+  )
 
   return {
     selectedPlugins,
