@@ -7,7 +7,7 @@
   import { useBuilderStore } from '@/stores/builder'
 
   // Utilities
-  import { computed, toRef } from 'vue'
+  import { toRef } from 'vue'
   import { useRouter } from 'vue-router'
 
   const { pluginId } = defineProps<{
@@ -23,10 +23,10 @@
 
   const meta = toRef(() => getPluginById(pluginId))
 
-  const sequence = computed(() => PLUGINS.filter(p => store.isPluginSelected(p.id)))
-  const position = computed(() => sequence.value.findIndex(p => p.id === pluginId))
-  const isFirst = computed(() => position.value === 0)
-  const isLast = computed(() => position.value === sequence.value.length - 1)
+  const sequence = toRef(() => PLUGINS.filter(p => store.isPluginSelected(p.id)))
+  const position = toRef(() => sequence.value.findIndex(p => p.id === pluginId))
+  const isFirst = toRef(() => position.value === 0)
+  const isLast = toRef(() => position.value === sequence.value.length - 1)
 
   function goToPrev () {
     if (isFirst.value) {
