@@ -31,6 +31,79 @@ const FACTORY: Record<string, string> = {
 
 const PLUGIN_IDS = Object.keys(FACTORY)
 
+// Per-plugin adapter handler. The `adapter` slot in saved config is a STRING
+// (e.g. 'V0DateAdapter', 'none', 'KnockNotificationsAdapter'), but the
+// generated code must emit a class INSTANCE — JSON-stringifying it would
+// produce broken TS (`adapter: "V0DateAdapter"`). Each handler returns:
+//   - `raw`: the raw TS expression to inject into the config (or `null` to
+//     omit the adapter field entirely)
+//   - `imports`: v0 class names that need to be added to the import list
+interface AdapterEmit {
+  raw: string | null
+  imports: string[]
+}
+
+type AdapterHandler = (adapter: string | undefined) => AdapterEmit
+
+const ADAPTER_HANDLERS: Record<string, AdapterHandler> = {
+  useDate: adapter => {
+    if (adapter === 'custom') {
+      return {
+        raw: 'new CustomDateAdapter() /* TODO: implement and replace */',
+        imports: [],
+      }
+    }
+    return { raw: 'new V0DateAdapter()', imports: ['V0DateAdapter'] }
+  },
+  useLogger: adapter => {
+    if (!adapter || adapter === 'V0LoggerAdapter') {
+      return { raw: 'new V0LoggerAdapter()', imports: ['V0LoggerAdapter'] }
+    }
+    if (adapter === 'ConsolaLoggerAdapter') {
+      return {
+        raw: 'new ConsolaLoggerAdapter() /* pass your consola instance: new ConsolaLoggerAdapter(consola) */',
+        imports: ['ConsolaLoggerAdapter'],
+      }
+    }
+    if (adapter === 'PinoLoggerAdapter') {
+      return {
+        raw: 'new PinoLoggerAdapter() /* pass your pino instance: new PinoLoggerAdapter(pino()) */',
+        imports: ['PinoLoggerAdapter'],
+      }
+    }
+    return { raw: null, imports: [] }
+  },
+  useNotifications: adapter => {
+    if (!adapter || adapter === 'none') return { raw: null, imports: [] }
+    if (adapter === 'KnockNotificationsAdapter') {
+      return {
+        raw: 'new KnockNotificationsAdapter() /* TODO: pass Knock config */',
+        imports: ['KnockNotificationsAdapter'],
+      }
+    }
+    if (adapter === 'NovuNotificationsAdapter') {
+      return {
+        raw: 'new NovuNotificationsAdapter() /* TODO: pass Novu config */',
+        imports: ['NovuNotificationsAdapter'],
+      }
+    }
+    return { raw: null, imports: [] }
+  },
+  useFeatures: adapter => {
+    if (!adapter || adapter === 'none') return { raw: null, imports: [] }
+    const known = new Set([
+      'FlagsmithFeaturesAdapter',
+      'LaunchDarklyFeaturesAdapter',
+      'PostHogFeaturesAdapter',
+    ])
+    if (!known.has(adapter)) return { raw: null, imports: [] }
+    return {
+      raw: `new ${adapter}() /* TODO: pass provider-specific config */`,
+      imports: [adapter],
+    }
+  },
+}
+
 function isEmpty (value: unknown): boolean {
   if (value === null || value === undefined) return true
   if (typeof value !== 'object') return false
@@ -38,11 +111,57 @@ function isEmpty (value: unknown): boolean {
   return Object.keys(value as Record<string, unknown>).length === 0
 }
 
-function stringifyConfig (config: unknown): string {
-  // Two-space indent, then re-indent inner lines by two extra spaces
-  // so the closing brace lines up with `app.use(` indentation.
-  const json = JSON.stringify(config, null, 2)
-  return json.replaceAll('\n', '\n  ')
+function indent (text: string, spaces: number): string {
+  const pad = ' '.repeat(spaces)
+  return text.replaceAll('\n', `\n${pad}`)
+}
+
+// Format the leftover (non-adapter) config fields as a list of `key: value`
+// snippets, each line indented to sit inside an outer `{ … }` two spaces in.
+function formatRestFields (rest: Record<string, unknown>): string[] {
+  const fields: string[] = []
+  for (const [key, value] of Object.entries(rest)) {
+    const json = JSON.stringify(value, null, 2)
+    fields.push(`${key}: ${indent(json, 2)}`)
+  }
+  return fields
+}
+
+function emitPluginCall (
+  pluginId: string,
+  factory: string,
+  config: unknown,
+): { call: string, extraImports: string[] } {
+  const handler = ADAPTER_HANDLERS[pluginId]
+
+  // No adapter handling: JSON-stringify the whole config as before.
+  if (!handler) {
+    if (isEmpty(config)) return { call: `app.use(${factory}())`, extraImports: [] }
+    const json = indent(JSON.stringify(config, null, 2), 2)
+    return { call: `app.use(${factory}(${json}))`, extraImports: [] }
+  }
+
+  // Adapter-handling path: pull the adapter string off, build the raw expr,
+  // and inject it back into the emitted object alongside the JSON-ified rest.
+  const cfg = (config && typeof config === 'object' && !Array.isArray(config))
+    ? config as Record<string, unknown>
+    : {}
+
+  const adapterValue = typeof cfg.adapter === 'string' ? cfg.adapter : undefined
+  const { adapter: _omitted, ...rest } = cfg
+  void _omitted
+  const { raw, imports } = handler(adapterValue)
+
+  const fields: string[] = []
+  if (raw !== null) fields.push(`adapter: ${raw}`)
+  fields.push(...formatRestFields(rest))
+
+  if (fields.length === 0) {
+    return { call: `app.use(${factory}())`, extraImports: imports }
+  }
+
+  const body = fields.map(line => `  ${line},`).join('\n')
+  return { call: `app.use(${factory}({\n${body}\n}))`, extraImports: imports }
 }
 
 export function generatePluginCalls (
@@ -57,32 +176,32 @@ export function generatePluginCalls (
 
   for (const id of PLUGIN_IDS) {
     if (!selected.has(id)) continue
-    const factory = FACTORY[id]
-    const config = pluginConfig[id]
-
-    // useDate REQUIRES an adapter — if no saved config, emit a sensible default.
-    if (id === 'useDate') {
-      if (isEmpty(config)) {
-        lines.push(`app.use(${factory}({ adapter: new V0DateAdapter() }))`)
-      } else {
-        const merged = { adapter: '__V0DateAdapter__', ...(config as Record<string, unknown>) }
-        const json = stringifyConfig(merged).replaceAll('"__V0DateAdapter__"', 'new V0DateAdapter()')
-        lines.push(`app.use(${factory}(${json}))`)
-      }
-      continue
-    }
-
-    if (isEmpty(config)) {
-      lines.push(`app.use(${factory}())`)
-    } else {
-      lines.push(`app.use(${factory}(${stringifyConfig(config)}))`)
-    }
+    const { call } = emitPluginCall(id, FACTORY[id], pluginConfig[id])
+    lines.push(call)
   }
 
   return lines.join('\n')
 }
 
-function generatePluginImports (selected: Set<string>): string {
+function collectExtraImports (
+  selected: Set<string>,
+  pluginConfig: Record<string, unknown>,
+): string[] {
+  const extras = new Set<string>()
+
+  for (const id of PLUGIN_IDS) {
+    if (!selected.has(id)) continue
+    const { extraImports } = emitPluginCall(id, FACTORY[id], pluginConfig[id])
+    for (const name of extraImports) extras.add(name)
+  }
+
+  return [...extras]
+}
+
+function generatePluginImports (
+  selected: Set<string>,
+  pluginConfig: Record<string, unknown>,
+): string {
   const factories: string[] = []
 
   for (const id of PLUGIN_IDS) {
@@ -90,15 +209,13 @@ function generatePluginImports (selected: Set<string>): string {
     factories.push(FACTORY[id])
   }
 
-  if (factories.length === 0) {
+  const extras = collectExtraImports(selected, pluginConfig)
+
+  if (factories.length === 0 && extras.length === 0) {
     return `import { createApp } from 'vue'`
   }
 
-  const needsDateAdapter = selected.has('useDate')
-
-  const v0Imports = [...factories]
-  if (needsDateAdapter) v0Imports.push('V0DateAdapter')
-
+  const v0Imports = [...factories, ...extras]
   const formatted = v0Imports.map(name => `  ${name},`).join('\n')
 
   return `import { createApp } from 'vue'
@@ -116,7 +233,7 @@ export function generateMainTs (
     ? selectedPlugins
     : new Set(selectedPlugins)
 
-  const imports = generatePluginImports(selected)
+  const imports = generatePluginImports(selected, pluginConfig)
   const calls = generatePluginCalls(selected, pluginConfig)
 
   return `${imports}
