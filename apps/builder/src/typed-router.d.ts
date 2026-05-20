@@ -37,9 +37,30 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
-    '/wizard': RouteRecordInfo<
-      '/wizard',
-      '/wizard',
+    '/builder/': RouteRecordInfo<
+      '/builder/',
+      '/builder',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/builder/[plugin]': RouteRecordInfo<
+      '/builder/[plugin]',
+      '/builder/:plugin',
+      { plugin: ParamValue<true> },
+      { plugin: ParamValue<false> },
+      | never
+    >,
+    '/builder/components': RouteRecordInfo<
+      '/builder/components',
+      '/builder/components',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/builder/review': RouteRecordInfo<
+      '/builder/review',
+      '/builder/review',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -63,9 +84,27 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
-    'src/pages/wizard.vue': {
+    'src/pages/builder/index.vue': {
       routes:
-        | '/wizard'
+        | '/builder/'
+      views:
+        | never
+    }
+    'src/pages/builder/[plugin].vue': {
+      routes:
+        | '/builder/[plugin]'
+      views:
+        | never
+    }
+    'src/pages/builder/components.vue': {
+      routes:
+        | '/builder/components'
+      views:
+        | never
+    }
+    'src/pages/builder/review.vue': {
+      routes:
+        | '/builder/review'
       views:
         | never
     }
