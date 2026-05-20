@@ -11,41 +11,89 @@ import type { DependencyGraph } from '@/data/types'
 const graph = dependencyGraph as DependencyGraph
 
 export const useBuilderStore = defineStore('builder', () => {
-  const selected = shallowRef<Set<string>>(new Set())
+  const selectedPlugins = shallowRef<Set<string>>(new Set())
+  const pluginConfig = shallowRef<Record<string, unknown>>({})
+  const selectedComponents = shallowRef<Set<string>>(new Set())
+  const componentConfig = shallowRef<Record<string, unknown>>({})
 
-  const resolved = toRef(() => resolve([...selected.value], graph))
+  const allSelected = toRef(() => [
+    ...selectedPlugins.value,
+    ...selectedComponents.value,
+  ])
 
-  function select (id: string) {
-    if (selected.value.has(id)) return
-    selected.value = new Set([...selected.value, id])
+  const resolved = toRef(() => resolve(allSelected.value, graph))
+
+  function selectPlugin (id: string) {
+    if (selectedPlugins.value.has(id)) return
+    selectedPlugins.value = new Set([...selectedPlugins.value, id])
   }
 
-  function deselect (id: string) {
-    if (!selected.value.has(id)) return
-    const next = new Set(selected.value)
+  function deselectPlugin (id: string) {
+    if (!selectedPlugins.value.has(id)) return
+    const next = new Set(selectedPlugins.value)
     next.delete(id)
-    selected.value = next
+    selectedPlugins.value = next
+    if (id in pluginConfig.value) {
+      const { [id]: _, ...rest } = pluginConfig.value
+      pluginConfig.value = rest
+    }
   }
 
-  function toggle (id: string) {
-    selected.value.has(id) ? deselect(id) : select(id)
+  function togglePlugin (id: string) {
+    selectedPlugins.value.has(id) ? deselectPlugin(id) : selectPlugin(id)
   }
 
-  function isSelected (id: string) {
-    return selected.value.has(id)
+  function isPluginSelected (id: string) {
+    return selectedPlugins.value.has(id)
+  }
+
+  function savePluginConfig (id: string, config: unknown) {
+    pluginConfig.value = { ...pluginConfig.value, [id]: config }
+  }
+
+  function selectComponent (id: string) {
+    if (selectedComponents.value.has(id)) return
+    selectedComponents.value = new Set([...selectedComponents.value, id])
+  }
+
+  function deselectComponent (id: string) {
+    if (!selectedComponents.value.has(id)) return
+    const next = new Set(selectedComponents.value)
+    next.delete(id)
+    selectedComponents.value = next
+  }
+
+  function toggleComponent (id: string) {
+    selectedComponents.value.has(id) ? deselectComponent(id) : selectComponent(id)
+  }
+
+  function isComponentSelected (id: string) {
+    return selectedComponents.value.has(id)
   }
 
   function reset () {
-    selected.value = new Set()
+    selectedPlugins.value = new Set()
+    pluginConfig.value = {}
+    selectedComponents.value = new Set()
+    componentConfig.value = {}
   }
 
   return {
-    selected,
+    selectedPlugins,
+    pluginConfig,
+    selectedComponents,
+    componentConfig,
+    allSelected,
     resolved,
-    select,
-    deselect,
-    toggle,
-    isSelected,
+    selectPlugin,
+    deselectPlugin,
+    togglePlugin,
+    isPluginSelected,
+    savePluginConfig,
+    selectComponent,
+    deselectComponent,
+    toggleComponent,
+    isComponentSelected,
     reset,
   }
 })
