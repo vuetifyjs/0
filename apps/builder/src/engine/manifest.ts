@@ -11,6 +11,125 @@ interface PlaygroundHashData {
   }
 }
 
+// Plugin id → factory function name. Used by generateMainTs to emit
+// `app.use(createXPlugin(...))` calls for the user's selected plugins.
+const FACTORY: Record<string, string> = {
+  useTheme: 'createThemePlugin',
+  useBreakpoints: 'createBreakpointsPlugin',
+  useLocale: 'createLocalePlugin',
+  useRtl: 'createRtlPlugin',
+  useStorage: 'createStoragePlugin',
+  useHydration: 'createHydrationPlugin',
+  useLogger: 'createLoggerPlugin',
+  useStack: 'createStackPlugin',
+  useFeatures: 'createFeaturesPlugin',
+  usePermissions: 'createPermissionsPlugin',
+  useDate: 'createDatePlugin',
+  useNotifications: 'createNotificationsPlugin',
+  useRules: 'createRulesPlugin',
+}
+
+const PLUGIN_IDS = Object.keys(FACTORY)
+
+function isEmpty (value: unknown): boolean {
+  if (value === null || value === undefined) return true
+  if (typeof value !== 'object') return false
+  if (Array.isArray(value)) return value.length === 0
+  return Object.keys(value as Record<string, unknown>).length === 0
+}
+
+function stringifyConfig (config: unknown): string {
+  // Two-space indent, then re-indent inner lines by two extra spaces
+  // so the closing brace lines up with `app.use(` indentation.
+  const json = JSON.stringify(config, null, 2)
+  return json.replaceAll('\n', '\n  ')
+}
+
+export function generatePluginCalls (
+  selectedPlugins: Set<string> | string[],
+  pluginConfig: Record<string, unknown>,
+): string {
+  const selected = selectedPlugins instanceof Set
+    ? selectedPlugins
+    : new Set(selectedPlugins)
+
+  const lines: string[] = []
+
+  for (const id of PLUGIN_IDS) {
+    if (!selected.has(id)) continue
+    const factory = FACTORY[id]
+    const config = pluginConfig[id]
+
+    // useDate REQUIRES an adapter — if no saved config, emit a sensible default.
+    if (id === 'useDate') {
+      if (isEmpty(config)) {
+        lines.push(`app.use(${factory}({ adapter: new V0DateAdapter() }))`)
+      } else {
+        const merged = { adapter: '__V0DateAdapter__', ...(config as Record<string, unknown>) }
+        const json = stringifyConfig(merged).replaceAll('"__V0DateAdapter__"', 'new V0DateAdapter()')
+        lines.push(`app.use(${factory}(${json}))`)
+      }
+      continue
+    }
+
+    if (isEmpty(config)) {
+      lines.push(`app.use(${factory}())`)
+    } else {
+      lines.push(`app.use(${factory}(${stringifyConfig(config)}))`)
+    }
+  }
+
+  return lines.join('\n')
+}
+
+function generatePluginImports (selected: Set<string>): string {
+  const factories: string[] = []
+
+  for (const id of PLUGIN_IDS) {
+    if (!selected.has(id)) continue
+    factories.push(FACTORY[id])
+  }
+
+  if (factories.length === 0) {
+    return `import { createApp } from 'vue'`
+  }
+
+  const needsDateAdapter = selected.has('useDate')
+
+  const v0Imports = [...factories]
+  if (needsDateAdapter) v0Imports.push('V0DateAdapter')
+
+  const formatted = v0Imports.map(name => `  ${name},`).join('\n')
+
+  return `import { createApp } from 'vue'
+
+import {
+${formatted}
+} from '@vuetify/v0'`
+}
+
+export function generateMainTs (
+  selectedPlugins: Set<string> | string[],
+  pluginConfig: Record<string, unknown>,
+): string {
+  const selected = selectedPlugins instanceof Set
+    ? selectedPlugins
+    : new Set(selectedPlugins)
+
+  const imports = generatePluginImports(selected)
+  const calls = generatePluginCalls(selected, pluginConfig)
+
+  return `${imports}
+
+import App from './App.vue'
+
+const app = createApp(App)
+
+${calls}
+app.mount('#app')
+`
+}
+
 // Feature → category mapping for demo file generation
 const CATEGORY_MAP: Record<string, string> = {
   // Selection
