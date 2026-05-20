@@ -5,7 +5,7 @@
   import { useBuilderStore } from '@/stores/builder'
 
   // Utilities
-  import { computed, defineAsyncComponent, toRef } from 'vue'
+  import { defineAsyncComponent, toRef } from 'vue'
   import { useRoute, useRouter } from 'vue-router'
 
   const route = useRoute()
@@ -21,7 +21,7 @@
     router.replace('/builder')
   }
 
-  const Body = computed(() => meta.value ? defineAsyncComponent(meta.value.loader) : null)
+  const Body = toRef(() => meta.value ? defineAsyncComponent(meta.value.loader) : null)
 </script>
 
 <template>
