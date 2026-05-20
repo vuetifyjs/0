@@ -7,6 +7,9 @@ import { createBreakpointsPlugin, createHydrationPlugin, createStoragePlugin, cr
 // Context
 import App from './App.vue'
 
+// Router
+import { builderGuard } from '@/router/guards'
+
 // Utilities
 import { createPinia } from 'pinia'
 import { createApp } from 'vue'
@@ -21,11 +24,14 @@ function getSystemTheme (): 'light' | 'dark' {
 
 const app = createApp(App)
 
-app.use(createPinia())
-app.use(createRouter({
+const router = createRouter({
   history: createWebHistory(),
   routes: setupLayouts(routes),
-}))
+})
+
+app.use(createPinia())
+router.beforeEach(builderGuard)
+app.use(router)
 app.use(createHydrationPlugin())
 app.use(createBreakpointsPlugin({ mobileBreakpoint: 768 }))
 app.use(createStoragePlugin())
