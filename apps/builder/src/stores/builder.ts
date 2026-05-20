@@ -58,8 +58,9 @@ export const useBuilderStore = defineStore('builder', () => {
     next.delete(id)
     selectedPlugins.value = next
     if (id in pluginConfig.value) {
-      const { [id]: _, ...rest } = pluginConfig.value
-      pluginConfig.value = rest
+      const next = { ...pluginConfig.value }
+      delete next[id]
+      pluginConfig.value = next
     }
   }
 
