@@ -111,6 +111,26 @@
       <slot name="description" />
     </template>
 
+    <template #reset-icon>
+      <AppIcon icon="restart" :size="16" />
+    </template>
+
+    <template #playground-icon>
+      <AppIcon icon="vuetify-play" :size="16" />
+    </template>
+
+    <template #bin-icon>
+      <AppIcon icon="vuetify-bin" :size="16" />
+    </template>
+
+    <template #combine-icon>
+      <AppIcon icon="combine" :size="16" />
+    </template>
+
+    <template #split-icon>
+      <AppIcon icon="split" :size="16" />
+    </template>
+
     <template #code="{ code: paneCode, language: paneLanguage }">
       <div class="docs-genesis-example-pane" :class="lineWrap && 'docs-genesis-example-pane--wrap'">
         <DocsGenesisShikiBlock :code="paneCode ?? ''" :language="paneLanguage ?? 'text'" />
