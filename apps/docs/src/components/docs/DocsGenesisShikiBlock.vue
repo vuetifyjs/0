@@ -42,4 +42,8 @@
     overflow-x: auto;
     background: transparent;
   }
+
+  .docs-genesis-shiki-block :deep(pre code) {
+    padding: 0;
+  }
 </style>

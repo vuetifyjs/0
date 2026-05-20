@@ -2,12 +2,15 @@
   import { GnDocsExample, GnDocsExampleCode } from '@paper/genesis'
 
   // Context
+  import DocsCodeActions from './DocsCodeActions.vue'
   import DocsGenesisShikiBlock from './DocsGenesisShikiBlock.vue'
 
   // Composables
   import { getMultiFileBinUrl } from '@/composables/bin'
   import { useExamples } from '@/composables/useExamples'
   import { usePlayground } from '@/composables/usePlayground'
+  import { useSettings } from '@/composables/useSettings'
+  import { useSyncedRef } from '@/composables/useSyncedRef'
 
   // Utilities
   import { computed, toRef } from 'vue'
@@ -67,6 +70,9 @@
   )
   const language = toRef(() => props.file?.split('.').pop() || 'vue')
 
+  const settings = useSettings()
+  const lineWrap = useSyncedRef(settings.lineWrap)
+
   // ───────────────────────── actions ─────────────────────────
   async function onPlayground (list: GnDocsExampleFile[]) {
     const files = list.map(f => ({ name: f.name, code: f.code }))
@@ -105,14 +111,77 @@
       <slot name="description" />
     </template>
 
-    <template #code="{ code, language: codeLanguage }">
-      <DocsGenesisShikiBlock :code="code ?? ''" :language="codeLanguage ?? 'text'" />
+    <template #code="{ code: paneCode, language: paneLanguage }">
+      <div class="docs-genesis-example-pane" :class="lineWrap && 'docs-genesis-example-pane--wrap'">
+        <DocsGenesisShikiBlock :code="paneCode ?? ''" :language="paneLanguage ?? 'text'" />
+
+        <div class="docs-genesis-example-pane__actions">
+          <DocsCodeActions
+            v-model:wrap="lineWrap"
+            bin
+            :code="paneCode ?? ''"
+            :language="paneLanguage"
+            playground
+            show-copy
+            show-wrap
+            :title="fileName"
+          />
+        </div>
+      </div>
     </template>
 
-    <template #panel="{ file }">
-      <GnDocsExampleCode :code="file.code" :file-name="file.name" :language="file.language || 'text'">
-        <DocsGenesisShikiBlock :code="file.code" :language="file.language || 'text'" />
+    <template #panel="{ file: panelFile }">
+      <GnDocsExampleCode :code="panelFile.code" :file-name="panelFile.name" :language="panelFile.language || 'text'">
+        <div class="docs-genesis-example-pane" :class="lineWrap && 'docs-genesis-example-pane--wrap'">
+          <DocsGenesisShikiBlock :code="panelFile.code" :language="panelFile.language || 'text'" />
+
+          <div class="docs-genesis-example-pane__actions">
+            <DocsCodeActions
+              v-model:wrap="lineWrap"
+              bin
+              :code="panelFile.code"
+              :language="panelFile.language || 'text'"
+              show-copy
+              show-wrap
+              :title="panelFile.name"
+            />
+          </div>
+        </div>
       </GnDocsExampleCode>
     </template>
   </GnDocsExample>
 </template>
+
+<style scoped>
+  .docs-genesis-example-pane {
+    position: relative;
+  }
+
+  .docs-genesis-example-pane__actions {
+    position: absolute;
+    top: 0.75rem;
+    inset-inline-end: 0.75rem;
+    z-index: 10;
+    display: flex;
+    gap: 0.25rem;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+
+  .docs-genesis-example-pane:hover .docs-genesis-example-pane__actions,
+  .docs-genesis-example-pane:focus-within .docs-genesis-example-pane__actions {
+    opacity: 1;
+  }
+
+  @media (max-width: 767px) {
+    .docs-genesis-example-pane__actions {
+      opacity: 1;
+    }
+  }
+
+  .docs-genesis-example-pane--wrap :deep(.docs-genesis-shiki-block pre),
+  .docs-genesis-example-pane--wrap :deep(.docs-genesis-shiki-block pre code) {
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+</style>
