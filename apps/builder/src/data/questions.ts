@@ -85,6 +85,13 @@ const COMPONENT_LIBRARY: QuestionCategory[] = [
         feature: 'useLogger',
         category: 'infrastructure',
       },
+      {
+        id: 'stack',
+        title: 'Stack',
+        description: 'Z-index management for overlays (Dialog, Drawer, Menu, Popover, Tooltip, Toast)',
+        feature: 'useStack',
+        category: 'infrastructure',
+      },
     ],
   },
   {
@@ -126,6 +133,20 @@ const COMPONENT_LIBRARY: QuestionCategory[] = [
         description: 'Toast and notification system with auto-dismiss and queue management',
         feature: 'useNotifications',
         category: 'utilities',
+      },
+    ],
+  },
+  {
+    id: 'forms',
+    title: 'Forms',
+    description: 'Validation and form-state management',
+    questions: [
+      {
+        id: 'rules',
+        title: 'Rules',
+        description: 'Reusable validation rules (required, email, min, max, pattern, custom)',
+        feature: 'useRules',
+        category: 'forms',
       },
     ],
   },
