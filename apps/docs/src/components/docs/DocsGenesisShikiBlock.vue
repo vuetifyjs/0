@@ -44,6 +44,6 @@
   }
 
   .docs-genesis-shiki-block :deep(pre code) {
-    padding: 0;
+    padding: 0 0 0.5rem;
   }
 </style>
