@@ -7,7 +7,7 @@
   const router = useRouter()
 
   function onStart () {
-    router.push('/wizard')
+    router.push('/builder')
   }
 </script>
 
