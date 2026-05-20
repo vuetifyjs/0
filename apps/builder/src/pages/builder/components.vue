@@ -1,6 +1,7 @@
 <script setup lang="ts">
   import { mdiArrowLeft, mdiStar } from '@mdi/js'
 
+  import maturity from '#v0/maturity.json'
   import { recommendedFor, reasonsFor } from '@/data/component-recommendations'
   import { PLUGINS } from '@/data/plugins'
 
@@ -10,8 +11,6 @@
   // Utilities
   import { toRef } from 'vue'
   import { useRouter } from 'vue-router'
-
-  import maturity from '../../../../../packages/0/src/maturity.json'
 
   interface ComponentEntry {
     id: string

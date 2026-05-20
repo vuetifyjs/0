@@ -12,12 +12,12 @@ import {
   mdiTextBox,
 } from '@mdi/js'
 
+import maturity from '#v0/maturity.json'
+
 import dependencyGraph from './dependencies.json'
 
 // Types
 import type { DependencyGraph, Feature, FeatureMeta } from './types'
-
-import maturity from '../../../../packages/0/src/maturity.json'
 
 export const CATEGORY_ICONS: Record<string, string> = {
   foundation: mdiCube,
