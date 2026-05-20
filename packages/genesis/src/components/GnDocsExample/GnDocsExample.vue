@@ -173,6 +173,26 @@
         <template v-if="$slots.panel" #default="{ file }">
           <slot :file name="panel" />
         </template>
+
+        <template v-if="$slots['reset-icon']" #reset-icon>
+          <slot name="reset-icon" />
+        </template>
+
+        <template v-if="$slots['playground-icon']" #playground-icon>
+          <slot name="playground-icon" />
+        </template>
+
+        <template v-if="$slots['bin-icon']" #bin-icon>
+          <slot name="bin-icon" />
+        </template>
+
+        <template v-if="$slots['combine-icon']" #combine-icon>
+          <slot name="combine-icon" />
+        </template>
+
+        <template v-if="$slots['split-icon']" #split-icon>
+          <slot name="split-icon" />
+        </template>
       </GnDocsExampleTabs>
 
       <template v-else-if="code">
