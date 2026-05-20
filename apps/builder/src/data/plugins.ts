@@ -23,7 +23,7 @@ export const PLUGINS: PluginMeta[] = [
   { id: 'useStorage', slug: 'storage', title: 'Storage', category: 'infrastructure', hasConfig: true, loader: () => import('@/plugins/storage/StorageConfig.vue') },
   { id: 'useHydration', slug: 'hydration', title: 'SSR / SSG', category: 'infrastructure', hasConfig: false, loader: () => import('@/plugins/hydration/HydrationConfig.vue') },
   { id: 'useLogger', slug: 'logger', title: 'Logger', category: 'infrastructure', hasConfig: true, loader: () => import('@/plugins/logger/LoggerConfig.vue') },
-  { id: 'useStack', slug: 'stack', title: 'Stack', category: 'infrastructure', hasConfig: false, loader: () => import('@/plugins/stack/StackConfig.vue') },
+  { id: 'useStack', slug: 'stack', title: 'Stack', category: 'infrastructure', hasConfig: true, loader: () => import('@/plugins/stack/StackConfig.vue') },
   // Access
   { id: 'useFeatures', slug: 'features', title: 'Feature Flags', category: 'access', hasConfig: true, loader: () => import('@/plugins/features/FeaturesConfig.vue') },
   { id: 'usePermissions', slug: 'permissions', title: 'Permissions', category: 'access', hasConfig: true, loader: () => import('@/plugins/permissions/PermissionsConfig.vue') },
