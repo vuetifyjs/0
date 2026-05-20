@@ -303,7 +303,7 @@
     gap: 0.5rem;
     padding: 0.75rem;
     background: var(--v0-surface, #fff);
-    border-top: 1px solid color-mix(in srgb, var(--v0-on-surface, currentcolor) 14%, transparent);
+    border-bottom: 1px solid color-mix(in srgb, var(--v0-on-surface, currentcolor) 14%, transparent);
     min-height: 3rem;
   }
 
