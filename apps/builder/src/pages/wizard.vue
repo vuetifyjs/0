@@ -63,20 +63,20 @@
               v-for="question in category.questions"
               :key="question.id"
               class="p-4 rounded-lg border text-left transition-all"
-              :class="store.isSelected(question.feature)
+              :class="store.isPluginSelected(question.feature)
                 ? 'border-primary bg-primary/5 ring-1 ring-primary/20'
                 : 'border-divider bg-surface hover:border-on-surface-variant/40'"
-              :data-selected="store.isSelected(question.feature) || undefined"
-              @click="store.toggle(question.feature)"
+              :data-selected="store.isPluginSelected(question.feature) || undefined"
+              @click="store.togglePlugin(question.feature)"
             >
               <div class="flex items-start justify-between gap-2 mb-2">
                 <h4 class="font-semibold text-sm">{{ question.title }}</h4>
 
                 <div
                   class="w-5 h-5 rounded flex-shrink-0 flex items-center justify-center transition-colors"
-                  :class="store.isSelected(question.feature) ? 'bg-primary' : 'border border-divider'"
+                  :class="store.isPluginSelected(question.feature) ? 'bg-primary' : 'border border-divider'"
                 >
-                  <svg v-if="store.isSelected(question.feature)" class="w-3.5 h-3.5 text-on-primary" viewBox="0 0 24 24">
+                  <svg v-if="store.isPluginSelected(question.feature)" class="w-3.5 h-3.5 text-on-primary" viewBox="0 0 24 24">
                     <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="currentColor" />
                   </svg>
                 </div>
@@ -90,12 +90,12 @@
 
       <div class="mt-8 flex items-center justify-between">
         <span class="text-sm text-on-surface-variant">
-          {{ store.selected.size }} {{ store.selected.size === 1 ? 'plugin' : 'plugins' }} selected
+          {{ store.selectedPlugins.size }} {{ store.selectedPlugins.size === 1 ? 'plugin' : 'plugins' }} selected
         </span>
 
         <button
           class="px-6 py-2.5 bg-primary text-on-primary rounded-lg font-semibold text-sm hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
-          :disabled="store.selected.size === 0"
+          :disabled="store.selectedPlugins.size === 0"
           @click="onContinue"
         >
           Continue to Review
