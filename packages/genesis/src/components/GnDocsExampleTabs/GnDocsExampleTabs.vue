@@ -261,7 +261,7 @@
           :value="file.name"
         >
           <GnDocsExamplePanel :file>
-            <slot :file>
+            <slot :combined="false" :file>
               <GnDocsExampleCode
                 :code="file.code"
                 :language="file.language || file.name.split('.').pop() || 'text'"
@@ -277,7 +277,7 @@
           :key="file.name"
           :file
         >
-          <slot :file>
+          <slot :combined="true" :file>
             <GnDocsExampleCode
               :code="file.code"
               :file-name="file.name"

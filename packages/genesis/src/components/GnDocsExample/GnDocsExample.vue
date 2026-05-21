@@ -174,8 +174,8 @@
         @playground="onPlayground"
         @reset="onReset"
       >
-        <template v-if="$slots.panel" #default="{ file }">
-          <slot :file name="panel" />
+        <template v-if="$slots.panel" #default="{ combined, file }">
+          <slot :combined :file name="panel" />
         </template>
 
         <template v-if="$slots['reset-icon']" #reset-icon>
