@@ -1,6 +1,9 @@
 <script setup lang="ts">
   import { mdiClose, mdiPlus } from '@mdi/js'
 
+  // Framework
+  import { Button, Input } from '@vuetify/v0'
+
   import { defaultConfig } from './defaults'
 
   // Stores
@@ -94,21 +97,23 @@
             <label class="flex-1 block">
               <span class="text-xs uppercase tracking-wide text-on-surface-variant">Role</span>
 
-              <input
-                v-model="role.name"
-                class="mt-1 w-full px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm font-mono"
-                placeholder="admin"
-              >
+              <Input.Root v-model="role.name">
+                <Input.Control
+                  class="mt-1 w-full px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm font-mono"
+                  placeholder="admin"
+                />
+              </Input.Root>
             </label>
 
-            <button
+            <Button.Root
               class="self-end text-on-surface-variant hover:text-error p-2"
               :title="`Remove ${role.name || 'role'}`"
-              type="button"
               @click="removeRole(roleIndex)"
             >
-              <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiClose" fill="currentColor" /></svg>
-            </button>
+              <Button.Icon>
+                <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiClose" fill="currentColor" /></svg>
+              </Button.Icon>
+            </Button.Root>
           </div>
 
           <div class="text-xs uppercase tracking-wide text-on-surface-variant mb-2">Rules</div>
@@ -119,37 +124,41 @@
               :key="ruleIndex"
               class="grid grid-cols-[1fr_1fr_auto] gap-2 items-center"
             >
-              <input
-                v-model="rule.actions"
-                class="px-3 py-1.5 rounded-lg border border-divider bg-surface text-on-surface text-sm font-mono"
-                placeholder="read, write"
-              >
+              <Input.Root v-model="rule.actions">
+                <Input.Control
+                  class="px-3 py-1.5 rounded-lg border border-divider bg-surface text-on-surface text-sm font-mono"
+                  placeholder="read, write"
+                />
+              </Input.Root>
 
-              <input
-                v-model="rule.subjects"
-                class="px-3 py-1.5 rounded-lg border border-divider bg-surface text-on-surface text-sm font-mono"
-                placeholder="Post, Comment"
-              >
+              <Input.Root v-model="rule.subjects">
+                <Input.Control
+                  class="px-3 py-1.5 rounded-lg border border-divider bg-surface text-on-surface text-sm font-mono"
+                  placeholder="Post, Comment"
+                />
+              </Input.Root>
 
-              <button
+              <Button.Root
                 class="text-on-surface-variant hover:text-error p-1"
                 title="Remove rule"
-                type="button"
                 @click="removeRule(roleIndex, ruleIndex)"
               >
-                <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiClose" fill="currentColor" /></svg>
-              </button>
+                <Button.Icon>
+                  <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiClose" fill="currentColor" /></svg>
+                </Button.Icon>
+              </Button.Root>
             </div>
           </div>
 
-          <button
+          <Button.Root
             class="mt-3 text-sm text-primary hover:opacity-80 inline-flex items-center gap-1"
-            type="button"
             @click="addRule(roleIndex)"
           >
-            <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiPlus" fill="currentColor" /></svg>
+            <Button.Icon>
+              <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiPlus" fill="currentColor" /></svg>
+            </Button.Icon>
             Add rule
-          </button>
+          </Button.Root>
 
           <p class="mt-2 text-xs text-on-surface-variant">
             Comma-separated. Use <code class="text-xs px-1 py-0.5 rounded bg-surface-variant">*</code> as a wildcard.
@@ -157,14 +166,15 @@
         </div>
       </div>
 
-      <button
+      <Button.Root
         class="text-sm text-primary hover:opacity-80 inline-flex items-center gap-1"
-        type="button"
         @click="addRole"
       >
-        <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiPlus" fill="currentColor" /></svg>
+        <Button.Icon>
+          <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiPlus" fill="currentColor" /></svg>
+        </Button.Icon>
         Add role
-      </button>
+      </Button.Root>
 
       <div class="border border-divider rounded-lg p-4 bg-surface-variant/50">
         <div class="text-xs uppercase tracking-wide text-on-surface-variant mb-2">Conditional rules</div>
