@@ -188,6 +188,13 @@
     width: 32px;
     height: 32px;
     padding: 0;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .docs-genesis-example-pane__actions :deep(button > i) {
+    width: 16px;
+    height: 16px;
   }
 
   .docs-genesis-example-pane__actions :deep(svg) {
