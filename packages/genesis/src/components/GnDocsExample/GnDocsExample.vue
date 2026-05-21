@@ -132,6 +132,10 @@
       :theme
     >
       <slot />
+
+      <template v-if="$slots.decoration" #decoration>
+        <slot name="decoration" />
+      </template>
     </GnDocsExamplePreview>
 
     <div v-if="hasCode && !peek" class="genesis-docs-example__toggle-bar">

@@ -45,6 +45,8 @@
 
 <template>
   <div class="genesis-docs-example-preview">
+    <slot name="decoration" />
+
     <div
       v-if="disableResize"
       ref="preview-content"
