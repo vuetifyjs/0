@@ -100,6 +100,7 @@
     :peek-lines
     show-bin
     show-playground
+    :style="{ '--gn-docs-example-sticky-top': 'calc(48px + var(--app-banner-h, 0px))' }"
     :title
     @bin="onBin"
     @playground="onPlayground"
