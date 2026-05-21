@@ -1,4 +1,7 @@
 <script setup lang="ts">
+  // Framework
+  import { Checkbox, Input, NumberField } from '@vuetify/v0'
+
   import { defaultConfig } from './defaults'
 
   // Stores
@@ -50,11 +53,12 @@
       <label class="block">
         <span class="text-xs uppercase tracking-wide text-on-surface-variant">Key prefix</span>
 
-        <input
-          v-model="state.prefix"
-          class="mt-1 w-full px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm font-mono"
-          placeholder="v0:"
-        >
+        <Input.Root v-model="state.prefix">
+          <Input.Control
+            class="mt-1 w-full px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm font-mono"
+            placeholder="v0:"
+          />
+        </Input.Root>
 
         <span class="block mt-1 text-xs text-on-surface-variant">
           Prepended to all keys in storage.
@@ -63,24 +67,31 @@
 
       <div>
         <label class="flex items-center gap-2 mb-2">
-          <input
-            :checked="ttlEnabled"
-            class="w-4 h-4"
-            type="checkbox"
-            @change="onTtlToggle(($event.target as HTMLInputElement).checked)"
+          <Checkbox.Root
+            class="size-5 border rounded inline-flex items-center justify-center border-divider data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+            :model-value="ttlEnabled"
+            @update:model-value="onTtlToggle($event)"
           >
+            <Checkbox.Indicator class="text-on-primary text-sm">✓</Checkbox.Indicator>
+          </Checkbox.Root>
 
           <span class="text-sm text-on-surface">Enable TTL (auto-expire)</span>
         </label>
 
-        <input
-          v-model.number="state.ttl"
-          class="w-full px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm font-mono disabled:opacity-50"
-          :disabled="!ttlEnabled"
-          min="0"
-          placeholder="60000"
-          type="number"
-        >
+        <NumberField.Root v-model="state.ttl" class="flex w-full" :disabled="!ttlEnabled" :min="0">
+          <NumberField.Decrement class="px-3 py-2 border border-divider rounded-l-lg hover:bg-surface-tint disabled:opacity-50">
+            &minus;
+          </NumberField.Decrement>
+
+          <NumberField.Control
+            class="flex-1 px-3 py-2 border-y border-divider bg-surface text-on-surface text-sm font-mono outline-none disabled:opacity-50"
+            placeholder="60000"
+          />
+
+          <NumberField.Increment class="px-3 py-2 border border-divider rounded-r-lg hover:bg-surface-tint disabled:opacity-50">
+            +
+          </NumberField.Increment>
+        </NumberField.Root>
 
         <span class="block mt-1 text-xs text-on-surface-variant">
           Auto-expire stored values after N milliseconds.
