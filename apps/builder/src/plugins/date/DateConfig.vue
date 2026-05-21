@@ -1,6 +1,9 @@
 <script setup lang="ts">
   import { mdiClose, mdiPlus } from '@mdi/js'
 
+  // Framework
+  import { Button, Input, NumberField, Select } from '@vuetify/v0'
+
   import { DATE_ADAPTERS, defaultConfig } from './defaults'
 
   // Stores
@@ -10,7 +13,7 @@
   import { reactive } from 'vue'
 
   // Types
-  import type { DateConfig } from './defaults'
+  import type { DateAdapterKind, DateConfig } from './defaults'
 
   interface LocaleRow {
     code: string
@@ -28,6 +31,12 @@
     firstDayOfWeek: initial.firstDayOfWeek,
     locales: Object.entries(initial.locales).map<LocaleRow>(([code, intl]) => ({ code, intl })),
   })
+
+  function adapterLabel (kind: DateAdapterKind): string {
+    return kind === 'V0DateAdapter'
+      ? 'V0DateAdapter (default — Temporal-based, bundled)'
+      : 'Custom (bring your own)'
+  }
 
   function addLocale () {
     state.locales.push({ code: '', intl: '' })
@@ -69,14 +78,38 @@
       <label class="block">
         <span class="text-xs uppercase tracking-wide text-on-surface-variant">Adapter</span>
 
-        <select
-          v-model="state.adapter"
-          class="mt-1 w-full px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm"
-        >
-          <option v-for="kind in DATE_ADAPTERS" :key="kind" :value="kind">
-            {{ kind === 'V0DateAdapter' ? 'V0DateAdapter (default — Temporal-based, bundled)' : 'Custom (bring your own)' }}
-          </option>
-        </select>
+        <Select.Root v-model="state.adapter">
+          <Select.Activator class="mt-1 flex items-center justify-between w-full px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm cursor-pointer focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2">
+            <Select.Value v-slot="{ selectedValue }">
+              {{ adapterLabel(selectedValue) }}
+            </Select.Value>
+
+            <Select.Placeholder class="text-on-surface-variant">Choose an adapter…</Select.Placeholder>
+
+            <Select.Cue v-slot="{ isOpen }" class="text-xs opacity-50">
+              {{ isOpen ? '&#x25B4;' : '&#x25BE;' }}
+            </Select.Cue>
+          </Select.Activator>
+
+          <Select.Content class="p-1 rounded-lg border border-divider bg-surface shadow-lg" :style="{ minWidth: 'anchor-size(width)' }">
+            <Select.Item
+              v-for="kind in DATE_ADAPTERS"
+              :id="kind"
+              :key="kind"
+              :value="kind"
+            >
+              <template #default="{ isSelected, isHighlighted }">
+                <div
+                  class="flex items-center gap-2 px-3 py-2 rounded-md cursor-default select-none text-sm"
+                  :class="[isHighlighted ? 'bg-primary text-on-primary' : isSelected ? 'text-primary font-medium' : 'text-on-surface hover:bg-surface-variant']"
+                >
+                  <span class="w-4 text-xs" :class="isSelected ? 'visible' : 'invisible'">&#x2713;</span>
+                  {{ adapterLabel(kind) }}
+                </div>
+              </template>
+            </Select.Item>
+          </Select.Content>
+        </Select.Root>
       </label>
 
       <div v-if="state.adapter === 'custom'" class="border border-divider rounded-lg p-4 bg-surface-variant/50">
@@ -94,11 +127,12 @@
         <label class="block">
           <span class="text-xs uppercase tracking-wide text-on-surface-variant">Active locale</span>
 
-          <input
-            v-model="state.locale"
-            class="mt-1 w-full px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm font-mono"
-            placeholder="en"
-          >
+          <Input.Root v-model="state.locale">
+            <Input.Control
+              class="mt-1 w-full px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm font-mono"
+              placeholder="en"
+            />
+          </Input.Root>
 
           <span class="block mt-1 text-xs text-on-surface-variant">
             Short code matching a key in the locales table below.
@@ -108,13 +142,17 @@
         <label class="block">
           <span class="text-xs uppercase tracking-wide text-on-surface-variant">First day of week</span>
 
-          <input
-            v-model.number="state.firstDayOfWeek"
-            class="mt-1 w-full px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm font-mono"
-            max="6"
-            min="0"
-            type="number"
-          >
+          <NumberField.Root v-model="state.firstDayOfWeek" :max="6" :min="0">
+            <NumberField.Decrement class="mt-1 px-3 py-2 border border-divider rounded-l-lg hover:bg-surface-tint disabled:opacity-50">
+              &minus;
+            </NumberField.Decrement>
+
+            <NumberField.Control class="mt-1 w-full text-center border-y border-divider py-2 outline-none bg-surface text-on-surface text-sm font-mono" />
+
+            <NumberField.Increment class="mt-1 px-3 py-2 border border-divider rounded-r-lg hover:bg-surface-tint disabled:opacity-50">
+              +
+            </NumberField.Increment>
+          </NumberField.Root>
 
           <span class="block mt-1 text-xs text-on-surface-variant">
             0 = Sun, 1 = Mon, ... 6 = Sat
@@ -131,37 +169,41 @@
             :key="index"
             class="grid grid-cols-[1fr_1fr_auto] gap-2 items-center"
           >
-            <input
-              v-model="row.code"
-              class="px-3 py-1.5 rounded-lg border border-divider bg-surface text-on-surface text-sm font-mono"
-              placeholder="en"
-            >
+            <Input.Root v-model="row.code">
+              <Input.Control
+                class="px-3 py-1.5 rounded-lg border border-divider bg-surface text-on-surface text-sm font-mono"
+                placeholder="en"
+              />
+            </Input.Root>
 
-            <input
-              v-model="row.intl"
-              class="px-3 py-1.5 rounded-lg border border-divider bg-surface text-on-surface text-sm font-mono"
-              placeholder="en-US"
-            >
+            <Input.Root v-model="row.intl">
+              <Input.Control
+                class="px-3 py-1.5 rounded-lg border border-divider bg-surface text-on-surface text-sm font-mono"
+                placeholder="en-US"
+              />
+            </Input.Root>
 
-            <button
+            <Button.Root
               class="text-on-surface-variant hover:text-error p-1"
               title="Remove locale"
-              type="button"
               @click="removeLocale(index)"
             >
-              <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiClose" fill="currentColor" /></svg>
-            </button>
+              <Button.Icon>
+                <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiClose" fill="currentColor" /></svg>
+              </Button.Icon>
+            </Button.Root>
           </div>
         </div>
 
-        <button
+        <Button.Root
           class="mt-3 text-sm text-primary hover:opacity-80 inline-flex items-center gap-1"
-          type="button"
           @click="addLocale"
         >
-          <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiPlus" fill="currentColor" /></svg>
+          <Button.Icon>
+            <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiPlus" fill="currentColor" /></svg>
+          </Button.Icon>
           Add locale
-        </button>
+        </Button.Root>
       </div>
     </div>
   </PluginConfigShell>
