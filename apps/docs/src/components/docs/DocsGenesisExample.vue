@@ -107,6 +107,10 @@
     <component :is="resolvedComponent" v-if="resolvedComponent" />
     <slot v-else />
 
+    <template #decoration>
+      <AppDotGrid :coverage="60" :density="20" />
+    </template>
+
     <template v-if="$slots.description" #description>
       <slot name="description" />
     </template>
