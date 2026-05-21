@@ -1,4 +1,7 @@
 <script setup lang="ts">
+  // Framework
+  import { NumberField } from '@vuetify/v0'
+
   import { defaultConfig } from './defaults'
 
   // Stores
@@ -42,13 +45,17 @@
       <label class="block">
         <span class="text-xs uppercase tracking-wide text-on-surface-variant">Base z-index</span>
 
-        <input
-          v-model.number="state.baseZIndex"
-          class="mt-1 w-full px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm font-mono"
-          min="0"
-          placeholder="2000"
-          type="number"
-        >
+        <NumberField.Root v-model="state.baseZIndex" :min="0">
+          <NumberField.Decrement class="mt-1 px-3 py-2 border border-divider rounded-l-lg hover:bg-surface-tint disabled:opacity-50">
+            &minus;
+          </NumberField.Decrement>
+
+          <NumberField.Control class="mt-1 w-full text-center border-y border-divider py-2 outline-none bg-surface text-on-surface text-sm font-mono" />
+
+          <NumberField.Increment class="mt-1 px-3 py-2 border border-divider rounded-r-lg hover:bg-surface-tint disabled:opacity-50">
+            +
+          </NumberField.Increment>
+        </NumberField.Root>
 
         <span class="block mt-1 text-xs text-on-surface-variant">
           z-index of the first stacked overlay; subsequent overlays stack above.
@@ -58,13 +65,17 @@
       <label class="block">
         <span class="text-xs uppercase tracking-wide text-on-surface-variant">Increment</span>
 
-        <input
-          v-model.number="state.increment"
-          class="mt-1 w-full px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm font-mono"
-          min="1"
-          placeholder="10"
-          type="number"
-        >
+        <NumberField.Root v-model="state.increment" :min="1">
+          <NumberField.Decrement class="mt-1 px-3 py-2 border border-divider rounded-l-lg hover:bg-surface-tint disabled:opacity-50">
+            &minus;
+          </NumberField.Decrement>
+
+          <NumberField.Control class="mt-1 w-full text-center border-y border-divider py-2 outline-none bg-surface text-on-surface text-sm font-mono" />
+
+          <NumberField.Increment class="mt-1 px-3 py-2 border border-divider rounded-r-lg hover:bg-surface-tint disabled:opacity-50">
+            +
+          </NumberField.Increment>
+        </NumberField.Root>
 
         <span class="block mt-1 text-xs text-on-surface-variant">
           How much each overlay's z-index increases above the one below.
