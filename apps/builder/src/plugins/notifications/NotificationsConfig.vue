@@ -1,4 +1,7 @@
 <script setup lang="ts">
+  // Framework
+  import { Input, NumberField, Select } from '@vuetify/v0'
+
   import { defaultConfig, NOTIFICATIONS_ADAPTERS } from './defaults'
 
   // Stores
@@ -20,6 +23,10 @@
     namespace: initial.namespace,
     adapter: initial.adapter,
   })
+
+  function adapterLabel (adapter: typeof NOTIFICATIONS_ADAPTERS[number]): string {
+    return adapter === 'none' ? 'None (toasts work without an external service)' : adapter
+  }
 
   function onSave () {
     const config: NotificationsConfig = {
@@ -56,13 +63,17 @@
       <label class="block">
         <span class="text-xs uppercase tracking-wide text-on-surface-variant">Timeout (ms)</span>
 
-        <input
-          v-model.number="state.timeout"
-          class="mt-1 w-full px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm font-mono"
-          min="0"
-          placeholder="3000"
-          type="number"
-        >
+        <NumberField.Root v-model="state.timeout" :min="0">
+          <NumberField.Decrement class="mt-1 px-3 py-2 border border-divider rounded-l-lg hover:bg-surface-tint disabled:opacity-50">
+            &minus;
+          </NumberField.Decrement>
+
+          <NumberField.Control class="mt-1 w-full text-center border-y border-divider py-2 outline-none bg-surface text-on-surface text-sm font-mono" />
+
+          <NumberField.Increment class="mt-1 px-3 py-2 border border-divider rounded-r-lg hover:bg-surface-tint disabled:opacity-50">
+            +
+          </NumberField.Increment>
+        </NumberField.Root>
 
         <span class="block mt-1 text-xs text-on-surface-variant">
           Auto-dismiss after N milliseconds. Set to 0 for persistent toasts.
@@ -72,11 +83,12 @@
       <label class="block">
         <span class="text-xs uppercase tracking-wide text-on-surface-variant">Namespace</span>
 
-        <input
-          v-model="state.namespace"
-          class="mt-1 w-full px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm font-mono"
-          placeholder="v0:notifications"
-        >
+        <Input.Root v-model="state.namespace">
+          <Input.Control
+            class="mt-1 w-full px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm font-mono"
+            placeholder="v0:notifications"
+          />
+        </Input.Root>
 
         <span class="block mt-1 text-xs text-on-surface-variant">
           Plugin namespace (rarely changed).
@@ -86,14 +98,38 @@
       <label class="block">
         <span class="text-xs uppercase tracking-wide text-on-surface-variant">Adapter</span>
 
-        <select
-          v-model="state.adapter"
-          class="mt-1 w-full px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm"
-        >
-          <option v-for="adapter in NOTIFICATIONS_ADAPTERS" :key="adapter" :value="adapter">
-            {{ adapter === 'none' ? 'None (toasts work without an external service)' : adapter }}
-          </option>
-        </select>
+        <Select.Root v-model="state.adapter">
+          <Select.Activator class="mt-1 flex items-center justify-between w-full px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm cursor-pointer focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2">
+            <Select.Value v-slot="{ selectedValue }">
+              {{ adapterLabel(selectedValue) }}
+            </Select.Value>
+
+            <Select.Placeholder class="text-on-surface-variant">Choose an adapter…</Select.Placeholder>
+
+            <Select.Cue v-slot="{ isOpen }" class="text-xs opacity-50">
+              {{ isOpen ? '&#x25B4;' : '&#x25BE;' }}
+            </Select.Cue>
+          </Select.Activator>
+
+          <Select.Content class="p-1 rounded-lg border border-divider bg-surface shadow-lg" :style="{ minWidth: 'anchor-size(width)' }">
+            <Select.Item
+              v-for="adapter in NOTIFICATIONS_ADAPTERS"
+              :id="adapter"
+              :key="adapter"
+              :value="adapter"
+            >
+              <template #default="{ isSelected, isHighlighted }">
+                <div
+                  class="flex items-center gap-2 px-3 py-2 rounded-md cursor-default select-none text-sm"
+                  :class="[isHighlighted ? 'bg-primary text-on-primary' : isSelected ? 'text-primary font-medium' : 'text-on-surface hover:bg-surface-variant']"
+                >
+                  <span class="w-4 text-xs" :class="isSelected ? 'visible' : 'invisible'">&#x2713;</span>
+                  {{ adapterLabel(adapter) }}
+                </div>
+              </template>
+            </Select.Item>
+          </Select.Content>
+        </Select.Root>
 
         <span class="block mt-1 text-xs text-on-surface-variant">
           Optional external sync target (Knock, Novu). Toasts work without one.
