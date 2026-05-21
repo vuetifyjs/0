@@ -72,7 +72,7 @@
         resolved: store.resolved.autoIncluded,
         adapters: {},
       }
-      const url = await toPlaygroundUrl(manifest, 'https://play.vuetifyjs.com')
+      const url = await toPlaygroundUrl(manifest, 'https://v0play.vuetifyjs.com')
       window.open(url, '_blank', 'noopener')
     } finally {
       isBusy.value = false

@@ -5,10 +5,6 @@ interface PlaygroundHashData {
   files: Record<string, string>
   active?: string
   imports?: Record<string, string>
-  settings?: {
-    preset?: string
-    addons?: string
-  }
 }
 
 // Plugin id → factory function name. Used by generateMainTs to emit
@@ -272,12 +268,6 @@ const CATEGORY_MAP: Record<string, string> = {
   useResizeObserver: 'observers',
   useIntersectionObserver: 'observers',
 }
-
-// Features that imply pinia addon
-const PINIA_FEATURES = new Set(['useStorage'])
-
-// Features that imply router addon
-const ROUTER_FEATURES = new Set(['createStep'])
 
 export function generateImports (): Record<string, string> {
   return {
@@ -1078,28 +1068,13 @@ export function generateFiles (manifest: FrameworkManifest): Record<string, stri
   return files
 }
 
-function resolveAddons (features: string[]): string | undefined {
-  const addons: string[] = []
-
-  if (features.some(f => PINIA_FEATURES.has(f))) addons.push('pinia')
-  if (features.some(f => ROUTER_FEATURES.has(f))) addons.push('router')
-
-  return addons.length > 0 ? addons.join(',') : undefined
-}
-
 export function toHashData (manifest: FrameworkManifest): PlaygroundHashData {
-  const allFeatures = [...manifest.features, ...manifest.resolved]
   const files = generateFiles(manifest)
-  const addons = resolveAddons(allFeatures)
 
   return {
     files,
     active: 'src/App.vue',
     imports: generateImports(),
-    settings: {
-      preset: 'default',
-      ...(addons ? { addons } : {}),
-    },
   }
 }
 
