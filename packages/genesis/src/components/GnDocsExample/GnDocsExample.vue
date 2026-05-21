@@ -283,6 +283,10 @@
     background: var(--v0-surface-tint, var(--v0-surface, #f5f5f8));
   }
 
+  .genesis-docs-example[data-expanded] .genesis-docs-example__toggle-bar {
+    border-bottom: 1px solid color-mix(in srgb, var(--v0-on-surface, currentcolor) 14%, transparent);
+  }
+
   .genesis-docs-example > *:first-child:not(.genesis-docs-example-peek) {
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
