@@ -1,6 +1,9 @@
 <script setup lang="ts">
   import { mdiPuzzle } from '@mdi/js'
 
+  // Framework
+  import { Button } from '@vuetify/v0'
+
   // Utilities
   import { useRouter } from 'vue-router'
 
@@ -27,14 +30,16 @@
       imported on-demand and doesn't need configuration here.
     </p>
 
-    <button
+    <Button.Root
       class="px-6 py-3 bg-primary text-on-primary rounded-lg font-semibold text-sm hover:opacity-90 transition-opacity inline-flex items-center gap-2"
       @click="onStart"
     >
-      <svg class="w-4 h-4" viewBox="0 0 24 24">
-        <path :d="mdiPuzzle" fill="currentColor" />
-      </svg>
+      <Button.Icon>
+        <svg class="w-4 h-4" viewBox="0 0 24 24">
+          <path :d="mdiPuzzle" fill="currentColor" />
+        </svg>
+      </Button.Icon>
       Start configuring
-    </button>
+    </Button.Root>
   </div>
 </template>

@@ -1,6 +1,9 @@
 <script setup lang="ts">
   import { mdiArrowLeft, mdiArrowRight, mdiClose } from '@mdi/js'
 
+  // Framework
+  import { Button } from '@vuetify/v0'
+
   import { getPluginById, PLUGINS } from '@/data/plugins'
 
   // Stores
@@ -73,30 +76,36 @@
     </div>
 
     <div class="flex items-center justify-between border-t pt-6">
-      <button
+      <Button.Root
         class="text-sm text-on-surface-variant hover:text-on-surface inline-flex items-center gap-1"
         @click="goToPrev"
       >
-        <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiArrowLeft" fill="currentColor" /></svg>
+        <Button.Icon>
+          <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiArrowLeft" fill="currentColor" /></svg>
+        </Button.Icon>
         {{ isFirst ? 'Back to plugin selection' : 'Prev' }}
-      </button>
+      </Button.Root>
 
       <div class="flex items-center gap-3">
-        <button
+        <Button.Root
           class="text-sm text-on-surface-variant hover:text-on-surface inline-flex items-center gap-1"
           @click="onSkip"
         >
-          <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiClose" fill="currentColor" /></svg>
+          <Button.Icon>
+            <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiClose" fill="currentColor" /></svg>
+          </Button.Icon>
           Skip (use defaults)
-        </button>
+        </Button.Root>
 
-        <button
+        <Button.Root
           class="px-6 py-2.5 bg-primary text-on-primary rounded-lg font-semibold text-sm hover:opacity-90 transition-opacity inline-flex items-center gap-2"
           @click="onSave"
         >
           {{ isLast ? 'Save & Continue to Components' : 'Save & Next' }}
-          <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiArrowRight" fill="currentColor" /></svg>
-        </button>
+          <Button.Icon>
+            <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiArrowRight" fill="currentColor" /></svg>
+          </Button.Icon>
+        </Button.Root>
       </div>
     </div>
   </div>

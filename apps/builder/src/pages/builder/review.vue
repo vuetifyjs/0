@@ -1,6 +1,9 @@
 <script setup lang="ts">
   import { mdiArrowLeft, mdiDownload, mdiOpenInNew } from '@mdi/js'
 
+  // Framework
+  import { Button } from '@vuetify/v0'
+
   import { PLUGINS } from '@/data/plugins'
   // Engine
   import { toPlaygroundUrl } from '@/engine/manifest'
@@ -99,13 +102,15 @@
 
 <template>
   <div class="max-w-4xl mx-auto px-6 py-12">
-    <button
+    <Button.Root
       class="text-sm text-on-surface-variant hover:text-on-surface mb-6 inline-flex items-center gap-1"
       @click="onBack"
     >
-      <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiArrowLeft" fill="currentColor" /></svg>
+      <Button.Icon>
+        <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiArrowLeft" fill="currentColor" /></svg>
+      </Button.Icon>
       Back
-    </button>
+    </Button.Root>
 
     <p class="text-xs text-on-surface-variant uppercase tracking-wide mb-1">
       Review
@@ -182,39 +187,43 @@
       </section>
 
       <div class="flex flex-wrap items-center gap-3 pt-2">
-        <button
+        <Button.Root
           class="inline-flex items-center gap-2 px-4 py-2.5 bg-primary text-on-primary rounded-lg font-semibold text-sm hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
           :disabled="isBusy"
           @click="onOpenPlayground"
         >
-          <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiOpenInNew" fill="currentColor" /></svg>
+          <Button.Icon>
+            <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiOpenInNew" fill="currentColor" /></svg>
+          </Button.Icon>
           Open in Playground
-        </button>
+        </Button.Root>
 
-        <button
+        <Button.Root
           class="inline-flex items-center gap-2 px-4 py-2.5 border border-divider text-on-surface rounded-lg font-semibold text-sm hover:bg-surface-variant transition-colors"
           @click="onDownloadZip"
         >
-          <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiDownload" fill="currentColor" /></svg>
+          <Button.Icon>
+            <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiDownload" fill="currentColor" /></svg>
+          </Button.Icon>
           Download starter (.zip)
-        </button>
+        </Button.Root>
       </div>
     </div>
 
     <div class="mt-6 flex items-center justify-between">
-      <button
+      <Button.Root
         class="text-sm text-on-surface-variant hover:text-error transition-colors"
         @click="onReset"
       >
         Reset all
-      </button>
+      </Button.Root>
 
-      <button
+      <Button.Root
         class="text-sm text-on-surface-variant hover:text-on-surface transition-colors"
         @click="onBack"
       >
         Back
-      </button>
+      </Button.Root>
     </div>
   </div>
 </template>
