@@ -1,4 +1,7 @@
 <script setup lang="ts">
+  // Framework
+  import { Button, NumberField, Select } from '@vuetify/v0'
+
   import { BREAKPOINT_NAMES, defaultConfig, PRESETS } from './defaults'
 
   // Stores
@@ -66,15 +69,14 @@
         <div class="text-xs uppercase tracking-wide text-on-surface-variant mb-2">Presets</div>
 
         <div class="flex flex-wrap gap-2">
-          <button
+          <Button.Root
             v-for="name in Object.keys(PRESETS)"
             :key="name"
             class="px-3 py-1.5 rounded-lg border border-divider text-sm hover:bg-surface-variant"
-            type="button"
             @click="applyPreset(name as keyof typeof PRESETS)"
           >
             {{ name }}
-          </button>
+          </Button.Root>
         </div>
       </div>
 
@@ -89,12 +91,9 @@
           >
             <span class="w-12 font-mono text-sm text-on-surface">{{ name }}</span>
 
-            <input
-              v-model.number="state.breakpoints[name]"
-              class="flex-1 px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm font-mono"
-              min="0"
-              type="number"
-            >
+            <NumberField.Root v-model="state.breakpoints[name]" :min="0">
+              <NumberField.Control class="flex-1 px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm font-mono" />
+            </NumberField.Root>
           </div>
         </div>
       </div>
@@ -128,22 +127,48 @@
           </label>
         </div>
 
-        <select
-          v-if="mode === 'named'"
-          v-model="state.mobileBreakpoint"
-          class="w-full px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm"
-        >
-          <option v-for="name in BREAKPOINT_NAMES" :key="name" :value="name">{{ name }}</option>
-        </select>
+        <Select.Root v-if="mode === 'named'" v-model="state.mobileBreakpoint">
+          <Select.Activator class="w-full flex items-center justify-between px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm cursor-pointer focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2">
+            <Select.Value v-slot="{ selectedValue }">
+              {{ selectedValue }}
+            </Select.Value>
 
-        <input
-          v-else
-          v-model.number="state.mobileBreakpoint"
-          class="w-full px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm font-mono"
-          min="0"
-          placeholder="1145"
-          type="number"
-        >
+            <Select.Placeholder class="text-on-surface-variant">Choose…</Select.Placeholder>
+
+            <Select.Cue v-slot="{ isOpen }" class="text-xs opacity-50">
+              {{ isOpen ? '&#x25B4;' : '&#x25BE;' }}
+            </Select.Cue>
+          </Select.Activator>
+
+          <Select.Content class="p-1 rounded-lg border border-divider bg-surface shadow-lg" :style="{ minWidth: 'anchor-size(width)' }">
+            <Select.Item
+              v-for="name in BREAKPOINT_NAMES"
+              :id="name"
+              :key="name"
+              :value="name"
+            >
+              <template #default="{ isSelected, isHighlighted }">
+                <div
+                  class="flex items-center gap-2 px-3 py-2 rounded-md cursor-default select-none text-sm"
+                  :class="[
+                    isHighlighted
+                      ? 'bg-primary text-on-primary'
+                      : isSelected
+                        ? 'text-primary font-medium'
+                        : 'text-on-surface hover:bg-surface-variant',
+                  ]"
+                >
+                  <span class="w-4 text-xs" :class="isSelected ? 'visible' : 'invisible'">&#x2713;</span>
+                  {{ name }}
+                </div>
+              </template>
+            </Select.Item>
+          </Select.Content>
+        </Select.Root>
+
+        <NumberField.Root v-else v-model="state.mobileBreakpoint" :min="0">
+          <NumberField.Control class="w-full px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm font-mono" placeholder="1145" />
+        </NumberField.Root>
       </div>
     </div>
   </PluginConfigShell>
