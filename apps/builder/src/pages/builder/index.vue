@@ -1,6 +1,9 @@
 <script setup lang="ts">
   import { mdiArrowLeft } from '@mdi/js'
 
+  // Framework
+  import { Button } from '@vuetify/v0'
+
   import { getCategories } from '@/data/questions'
 
   // Stores
@@ -26,13 +29,15 @@
 
 <template>
   <div class="max-w-4xl mx-auto px-6 py-12">
-    <button
+    <Button.Root
       class="text-sm text-on-surface-variant hover:text-on-surface mb-6 inline-flex items-center gap-1"
       @click="onBack"
     >
-      <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiArrowLeft" fill="currentColor" /></svg>
+      <Button.Icon>
+        <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiArrowLeft" fill="currentColor" /></svg>
+      </Button.Icon>
       Back
-    </button>
+    </Button.Root>
 
     <p class="text-xs text-on-surface-variant uppercase tracking-wide mb-1">
       Step 1
@@ -53,7 +58,7 @@
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          <button
+          <Button.Root
             v-for="question in category.questions"
             :key="question.id"
             class="p-4 rounded-lg border text-left transition-all"
@@ -77,7 +82,7 @@
             </div>
 
             <p class="text-xs text-on-surface-variant leading-relaxed">{{ question.description }}</p>
-          </button>
+          </Button.Root>
         </div>
       </div>
     </div>
@@ -87,13 +92,13 @@
         {{ store.selectedPlugins.size }} {{ store.selectedPlugins.size === 1 ? 'plugin' : 'plugins' }} selected
       </span>
 
-      <button
+      <Button.Root
         class="px-6 py-2.5 bg-primary text-on-primary rounded-lg font-semibold text-sm hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
         :disabled="store.selectedPlugins.size === 0"
         @click="onContinue"
       >
         Continue
-      </button>
+      </Button.Root>
     </div>
   </div>
 </template>

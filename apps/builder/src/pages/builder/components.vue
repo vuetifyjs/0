@@ -1,6 +1,9 @@
 <script setup lang="ts">
   import { mdiArrowLeft, mdiStar } from '@mdi/js'
 
+  // Framework
+  import { Button } from '@vuetify/v0'
+
   import maturity from '#v0/maturity.json'
   import { recommendedFor, reasonsFor } from '@/data/component-recommendations'
   import { PLUGINS } from '@/data/plugins'
@@ -103,14 +106,17 @@
 
 <template>
   <div class="max-w-4xl mx-auto px-6 py-12">
-    <button
+    <Button.Root
       class="text-sm text-on-surface-variant hover:text-on-surface mb-6 inline-flex items-center gap-1"
       @click="onBack"
     >
-      <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiArrowLeft" fill="currentColor" /></svg>
+      <Button.Icon>
+        <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiArrowLeft" fill="currentColor" /></svg>
+      </Button.Icon>
+
       <span v-if="lastSelectedPlugin">Prev: {{ lastSelectedPlugin.title }}</span>
       <span v-else>Back</span>
-    </button>
+    </Button.Root>
 
     <p class="text-xs text-on-surface-variant uppercase tracking-wide mb-1">
       Step 3
@@ -133,7 +139,7 @@
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-        <button
+        <Button.Root
           v-for="component in recommendedList"
           :key="`rec-${component.id}`"
           class="p-3 rounded-lg border text-left transition-all"
@@ -161,7 +167,7 @@
               </svg>
             </div>
           </div>
-        </button>
+        </Button.Root>
       </div>
     </div>
 
@@ -175,7 +181,7 @@
         <h4 class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant mb-2">{{ group.title }}</h4>
 
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
-          <button
+          <Button.Root
             v-for="component in group.components"
             :key="component.id"
             class="px-3 py-2 rounded-lg border text-left transition-all flex items-center justify-between gap-2"
@@ -195,7 +201,7 @@
                 <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="currentColor" />
               </svg>
             </div>
-          </button>
+          </Button.Root>
         </div>
       </div>
     </div>
@@ -205,12 +211,12 @@
         {{ store.selectedComponents.size }} {{ store.selectedComponents.size === 1 ? 'component' : 'components' }} selected
       </span>
 
-      <button
+      <Button.Root
         class="px-6 py-2.5 bg-primary text-on-primary rounded-lg font-semibold text-sm hover:opacity-90 transition-opacity"
         @click="onContinue"
       >
         Continue to Review
-      </button>
+      </Button.Root>
     </div>
   </div>
 </template>
