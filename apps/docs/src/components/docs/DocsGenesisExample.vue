@@ -154,8 +154,13 @@
       </div>
     </template>
 
-    <template #panel="{ file: panelFile }">
-      <GnDocsExampleCode :code="panelFile.code" :file-name="panelFile.name" :language="panelFile.language || 'text'">
+    <template #panel="{ combined: isCombined, file: panelFile }">
+      <GnDocsExampleCode
+        :code="panelFile.code"
+        :file-name="panelFile.name"
+        :hide-filename="!isCombined"
+        :language="panelFile.language || 'text'"
+      >
         <div class="docs-genesis-example-pane" :class="lineWrap && 'docs-genesis-example-pane--wrap'">
           <DocsGenesisShikiBlock :code="panelFile.code" :language="panelFile.language || 'text'" />
 
