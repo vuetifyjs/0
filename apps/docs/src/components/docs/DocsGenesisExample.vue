@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { GnDocsExample, GnDocsExampleCode } from '@paper/genesis'
+  import { GnDocsExample } from '@paper/genesis'
 
   // Context
   import DocsCodeActions from './DocsCodeActions.vue'
@@ -135,7 +135,7 @@
       <AppIcon icon="split" :size="16" />
     </template>
 
-    <template #code="{ code: paneCode, language: paneLanguage }">
+    <template #code="{ code: paneCode, file: paneFile, language: paneLanguage }">
       <div class="docs-genesis-example-pane" :class="lineWrap && 'docs-genesis-example-pane--wrap'">
         <DocsGenesisShikiBlock :code="paneCode ?? ''" :language="paneLanguage ?? 'text'" />
 
@@ -145,38 +145,13 @@
             bin
             :code="paneCode ?? ''"
             :language="paneLanguage"
-            playground
+            :playground="!paneFile"
             show-copy
             show-wrap
-            :title="fileName"
+            :title="paneFile?.name ?? fileName"
           />
         </div>
       </div>
-    </template>
-
-    <template #panel="{ combined: isCombined, file: panelFile }">
-      <GnDocsExampleCode
-        :code="panelFile.code"
-        :file-name="panelFile.name"
-        :hide-filename="!isCombined"
-        :language="panelFile.language || 'text'"
-      >
-        <div class="docs-genesis-example-pane" :class="lineWrap && 'docs-genesis-example-pane--wrap'">
-          <DocsGenesisShikiBlock :code="panelFile.code" :language="panelFile.language || 'text'" />
-
-          <div class="docs-genesis-example-pane__actions">
-            <DocsCodeActions
-              v-model:wrap="lineWrap"
-              bin
-              :code="panelFile.code"
-              :language="panelFile.language || 'text'"
-              show-copy
-              show-wrap
-              :title="panelFile.name"
-            />
-          </div>
-        </div>
-      </GnDocsExampleCode>
     </template>
   </GnDocsExample>
 </template>
