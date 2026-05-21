@@ -1,4 +1,7 @@
 <script setup lang="ts">
+  // Framework
+  import { Checkbox, Input, Select } from '@vuetify/v0'
+
   import { defaultConfig, LOG_LEVELS, LOGGER_ADAPTERS } from './defaults'
 
   // Stores
@@ -47,12 +50,38 @@
         <label class="block">
           <span class="text-xs uppercase tracking-wide text-on-surface-variant">Level</span>
 
-          <select
-            v-model="state.level"
-            class="mt-1 w-full px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm"
-          >
-            <option v-for="level in LOG_LEVELS" :key="level" :value="level">{{ level }}</option>
-          </select>
+          <Select.Root v-model="state.level">
+            <Select.Activator class="mt-1 flex items-center justify-between w-full px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm cursor-pointer focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2">
+              <Select.Value v-slot="{ selectedValue }">
+                {{ selectedValue }}
+              </Select.Value>
+
+              <Select.Placeholder class="text-on-surface-variant">Choose a level…</Select.Placeholder>
+
+              <Select.Cue v-slot="{ isOpen }" class="text-xs opacity-50">
+                {{ isOpen ? '&#x25B4;' : '&#x25BE;' }}
+              </Select.Cue>
+            </Select.Activator>
+
+            <Select.Content class="p-1 rounded-lg border border-divider bg-surface shadow-lg" :style="{ minWidth: 'anchor-size(width)' }">
+              <Select.Item
+                v-for="level in LOG_LEVELS"
+                :id="level"
+                :key="level"
+                :value="level"
+              >
+                <template #default="{ isSelected, isHighlighted }">
+                  <div
+                    class="flex items-center gap-2 px-3 py-2 rounded-md cursor-default select-none text-sm"
+                    :class="[isHighlighted ? 'bg-primary text-on-primary' : isSelected ? 'text-primary font-medium' : 'text-on-surface hover:bg-surface-variant']"
+                  >
+                    <span class="w-4 text-xs" :class="isSelected ? 'visible' : 'invisible'">&#x2713;</span>
+                    {{ level }}
+                  </div>
+                </template>
+              </Select.Item>
+            </Select.Content>
+          </Select.Root>
 
           <span class="block mt-1 text-xs text-on-surface-variant">
             Minimum severity to emit. Applies globally to all namespaces.
@@ -62,12 +91,38 @@
         <label class="block">
           <span class="text-xs uppercase tracking-wide text-on-surface-variant">Adapter</span>
 
-          <select
-            v-model="state.adapter"
-            class="mt-1 w-full px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm"
-          >
-            <option v-for="adapter in LOGGER_ADAPTERS" :key="adapter" :value="adapter">{{ adapter }}</option>
-          </select>
+          <Select.Root v-model="state.adapter">
+            <Select.Activator class="mt-1 flex items-center justify-between w-full px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm cursor-pointer focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2">
+              <Select.Value v-slot="{ selectedValue }">
+                {{ selectedValue }}
+              </Select.Value>
+
+              <Select.Placeholder class="text-on-surface-variant">Choose an adapter…</Select.Placeholder>
+
+              <Select.Cue v-slot="{ isOpen }" class="text-xs opacity-50">
+                {{ isOpen ? '&#x25B4;' : '&#x25BE;' }}
+              </Select.Cue>
+            </Select.Activator>
+
+            <Select.Content class="p-1 rounded-lg border border-divider bg-surface shadow-lg" :style="{ minWidth: 'anchor-size(width)' }">
+              <Select.Item
+                v-for="adapter in LOGGER_ADAPTERS"
+                :id="adapter"
+                :key="adapter"
+                :value="adapter"
+              >
+                <template #default="{ isSelected, isHighlighted }">
+                  <div
+                    class="flex items-center gap-2 px-3 py-2 rounded-md cursor-default select-none text-sm"
+                    :class="[isHighlighted ? 'bg-primary text-on-primary' : isSelected ? 'text-primary font-medium' : 'text-on-surface hover:bg-surface-variant']"
+                  >
+                    <span class="w-4 text-xs" :class="isSelected ? 'visible' : 'invisible'">&#x2713;</span>
+                    {{ adapter }}
+                  </div>
+                </template>
+              </Select.Item>
+            </Select.Content>
+          </Select.Root>
 
           <span class="block mt-1 text-xs text-on-surface-variant">
             Bundled adapter to instantiate.
@@ -78,11 +133,12 @@
       <label class="block">
         <span class="text-xs uppercase tracking-wide text-on-surface-variant">Prefix</span>
 
-        <input
-          v-model="state.prefix"
-          class="mt-1 w-full px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm font-mono"
-          placeholder="v0"
-        >
+        <Input.Root v-model="state.prefix">
+          <Input.Control
+            class="mt-1 w-full px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm font-mono"
+            placeholder="v0"
+          />
+        </Input.Root>
 
         <span class="block mt-1 text-xs text-on-surface-variant">
           Prepended to every log message.
@@ -90,7 +146,13 @@
       </label>
 
       <label class="flex items-center gap-2">
-        <input v-model="state.enabled" class="w-4 h-4" type="checkbox">
+        <Checkbox.Root
+          v-model="state.enabled"
+          class="size-5 border rounded inline-flex items-center justify-center border-divider data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+        >
+          <Checkbox.Indicator class="text-on-primary text-sm">✓</Checkbox.Indicator>
+        </Checkbox.Root>
+
         <span class="text-sm text-on-surface">Enabled</span>
       </label>
 
