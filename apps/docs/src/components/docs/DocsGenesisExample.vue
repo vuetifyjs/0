@@ -158,6 +158,15 @@
 </template>
 
 <style scoped>
+  /* Match the AppBar's glass treatment on sticky toolbars so they read as a
+     continuous surface with the page chrome while scrolling. */
+  :deep(.genesis-docs-example__toggle-bar),
+  :deep(.genesis-docs-example__code-bar),
+  :deep(.genesis-docs-example-tabs__bar) {
+    background: var(--v0-glass-surface);
+    backdrop-filter: blur(12px);
+  }
+
   .docs-genesis-example-pane {
     position: relative;
   }
