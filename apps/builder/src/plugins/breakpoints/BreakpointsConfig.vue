@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { Button, NumberField, Select } from '@vuetify/v0'
+  import { Button, NumberField, Radio, Select } from '@vuetify/v0'
 
   import { BREAKPOINT_NAMES, defaultConfig, PRESETS } from './defaults'
 
@@ -101,31 +101,29 @@
       <div>
         <div class="text-xs uppercase tracking-wide text-on-surface-variant mb-2">Mobile breakpoint</div>
 
-        <div class="flex items-center gap-3 mb-3">
+        <Radio.Group class="flex items-center gap-3 mb-3" :model-value="mode" @update:model-value="onModeChange($event as 'named' | 'pixels')">
           <label class="flex items-center gap-2">
-            <input
-              :checked="mode === 'named'"
-              name="bp-mode"
-              type="radio"
+            <Radio.Root
+              class="size-5 border rounded-full inline-flex items-center justify-center border-divider data-[state=checked]:border-primary"
               value="named"
-              @change="onModeChange('named')"
             >
+              <Radio.Indicator class="size-2.5 rounded-full bg-primary" />
+            </Radio.Root>
 
             <span class="text-sm">Named</span>
           </label>
 
           <label class="flex items-center gap-2">
-            <input
-              :checked="mode === 'pixels'"
-              name="bp-mode"
-              type="radio"
+            <Radio.Root
+              class="size-5 border rounded-full inline-flex items-center justify-center border-divider data-[state=checked]:border-primary"
               value="pixels"
-              @change="onModeChange('pixels')"
             >
+              <Radio.Indicator class="size-2.5 rounded-full bg-primary" />
+            </Radio.Root>
 
             <span class="text-sm">Pixels</span>
           </label>
-        </div>
+        </Radio.Group>
 
         <Select.Root v-if="mode === 'named'" v-model="state.mobileBreakpoint">
           <Select.Activator class="w-full flex items-center justify-between px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm cursor-pointer focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2">
