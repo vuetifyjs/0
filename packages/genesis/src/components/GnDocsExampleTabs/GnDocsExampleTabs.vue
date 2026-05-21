@@ -261,12 +261,11 @@
           :value="file.name"
         >
           <GnDocsExamplePanel :file>
-            <slot :combined="false" :file>
-              <GnDocsExampleCode
-                :code="file.code"
-                :language="file.language || file.name.split('.').pop() || 'text'"
-              />
-            </slot>
+            <GnDocsExampleCode :code="file.code" :language="file.language || file.name.split('.').pop() || 'text'">
+              <template #default="{ code: paneCode, language: paneLanguage }">
+                <slot :code="paneCode" :combined="false" :file :language="paneLanguage" />
+              </template>
+            </GnDocsExampleCode>
           </GnDocsExamplePanel>
         </Tabs.Panel>
       </template>
@@ -277,13 +276,15 @@
           :key="file.name"
           :file
         >
-          <slot :combined="true" :file>
-            <GnDocsExampleCode
-              :code="file.code"
-              :file-name="file.name"
-              :language="file.language || file.name.split('.').pop() || 'text'"
-            />
-          </slot>
+          <GnDocsExampleCode
+            :code="file.code"
+            :file-name="file.name"
+            :language="file.language || file.name.split('.').pop() || 'text'"
+          >
+            <template #default="{ code: paneCode, language: paneLanguage }">
+              <slot :code="paneCode" :combined="true" :file :language="paneLanguage" />
+            </template>
+          </GnDocsExampleCode>
         </GnDocsExamplePanel>
       </template>
     </Tabs.Root>

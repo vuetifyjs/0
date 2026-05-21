@@ -174,8 +174,14 @@
         @playground="onPlayground"
         @reset="onReset"
       >
-        <template v-if="$slots.panel" #default="{ combined, file }">
-          <slot :combined :file name="panel" />
+        <template v-if="$slots.code" #default="{ code: paneCode, combined: paneCombined, file: paneFile, language: paneLanguage }">
+          <slot
+            :code="paneCode"
+            :combined="paneCombined"
+            :file="paneFile"
+            :language="paneLanguage"
+            name="code"
+          />
         </template>
 
         <template v-if="$slots['reset-icon']" #reset-icon>
@@ -238,8 +244,14 @@
           :peek
           :peek-lines
         >
-          <template v-if="$slots.code" #default="scope">
-            <slot name="code" v-bind="scope" />
+          <template v-if="$slots.code" #default="{ code: paneCode, language: paneLanguage }">
+            <slot
+              :code="paneCode"
+              :combined="false"
+              :file="undefined"
+              :language="paneLanguage"
+              name="code"
+            />
           </template>
         </GnDocsExampleCode>
       </template>
