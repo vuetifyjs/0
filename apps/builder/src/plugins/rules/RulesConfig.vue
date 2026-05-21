@@ -1,6 +1,9 @@
 <script setup lang="ts">
   import { mdiClose, mdiPlus } from '@mdi/js'
 
+  // Framework
+  import { Button, Input } from '@vuetify/v0'
+
   import { defaultConfig, SAMPLE_SCHEMA_JSON } from './defaults'
 
   // Stores
@@ -94,52 +97,56 @@
             :key="index"
             class="grid grid-cols-[1fr_2fr_auto] gap-2 items-center"
           >
-            <input
-              v-model="alias.name"
-              class="px-3 py-1.5 rounded-lg border border-divider bg-surface text-on-surface text-sm font-mono"
-              placeholder="required"
-            >
+            <Input.Root v-model="alias.name">
+              <Input.Control
+                class="px-3 py-1.5 rounded-lg border border-divider bg-surface text-on-surface text-sm font-mono"
+                placeholder="required"
+              />
+            </Input.Root>
 
-            <input
-              v-model="alias.description"
-              class="px-3 py-1.5 rounded-lg border border-divider bg-surface text-on-surface text-sm"
-              placeholder="value must not be empty"
-            >
+            <Input.Root v-model="alias.description">
+              <Input.Control
+                class="px-3 py-1.5 rounded-lg border border-divider bg-surface text-on-surface text-sm"
+                placeholder="value must not be empty"
+              />
+            </Input.Root>
 
-            <button
+            <Button.Root
               class="text-on-surface-variant hover:text-error p-1"
               title="Remove alias"
-              type="button"
               @click="removeAlias(index)"
             >
-              <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiClose" fill="currentColor" /></svg>
-            </button>
+              <Button.Icon>
+                <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiClose" fill="currentColor" /></svg>
+              </Button.Icon>
+            </Button.Root>
           </div>
         </div>
 
-        <button
+        <Button.Root
           class="mt-3 text-sm text-primary hover:opacity-80 inline-flex items-center gap-1"
-          type="button"
           @click="addAlias"
         >
-          <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiPlus" fill="currentColor" /></svg>
+          <Button.Icon>
+            <svg class="w-4 h-4" viewBox="0 0 24 24"><path :d="mdiPlus" fill="currentColor" /></svg>
+          </Button.Icon>
           Add alias
-        </button>
+        </Button.Root>
       </div>
 
       <div>
         <div class="flex items-center justify-between mb-2">
           <span class="text-xs uppercase tracking-wide text-on-surface-variant">Custom schema (JSON)</span>
 
-          <button
+          <Button.Root
             class="text-xs text-primary hover:opacity-80"
-            type="button"
             @click="schemaText = SAMPLE_SCHEMA_JSON"
           >
             Load sample
-          </button>
+          </Button.Root>
         </div>
 
+        <!-- v0 has no multi-line input; native textarea is the documented exception -->
         <textarea
           v-model="schemaText"
           class="w-full px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm font-mono"
