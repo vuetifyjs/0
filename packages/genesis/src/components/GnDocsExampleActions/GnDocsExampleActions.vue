@@ -33,8 +33,8 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 30px;
-    height: 30px;
+    min-width: 32px;
+    height: 32px;
     padding: 0 0.5rem;
     background: transparent;
     color: var(--v0-on-surface-variant, rgb(0 0 0 / 0.6));
