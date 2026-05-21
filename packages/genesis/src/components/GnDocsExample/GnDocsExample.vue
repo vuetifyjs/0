@@ -276,6 +276,9 @@
   }
 
   .genesis-docs-example__toggle-bar {
+    position: sticky;
+    top: var(--gn-docs-example-sticky-top, 0);
+    z-index: 2;
     border-top: 1px solid color-mix(in srgb, var(--v0-on-surface, currentcolor) 14%, transparent);
     background: var(--v0-surface-tint, var(--v0-surface, #f5f5f8));
   }
@@ -322,11 +325,14 @@
   }
 
   .genesis-docs-example__code {
-    overflow: hidden;
+    overflow: clip;
     border-top: 1px solid color-mix(in srgb, var(--v0-on-surface, currentcolor) 14%, transparent);
   }
 
   .genesis-docs-example__code-bar {
+    position: sticky;
+    top: calc(var(--gn-docs-example-sticky-top, 0px) + var(--gn-docs-example-toggle-h, 45px));
+    z-index: 1;
     display: flex;
     align-items: center;
     gap: 0.5rem;

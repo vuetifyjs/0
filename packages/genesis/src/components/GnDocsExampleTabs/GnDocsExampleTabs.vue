@@ -295,10 +295,13 @@
   .genesis-docs-example-tabs {
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    overflow: clip;
   }
 
   .genesis-docs-example-tabs__bar {
+    position: sticky;
+    top: calc(var(--gn-docs-example-sticky-top, 0px) + var(--gn-docs-example-toggle-h, 45px));
+    z-index: 1;
     display: flex;
     align-items: center;
     gap: 0.5rem;
