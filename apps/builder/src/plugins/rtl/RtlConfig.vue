@@ -1,4 +1,7 @@
 <script setup lang="ts">
+  // Framework
+  import { Checkbox, Input } from '@vuetify/v0'
+
   import { defaultConfig } from './defaults'
 
   // Stores
@@ -40,7 +43,12 @@
 
     <div class="space-y-6">
       <label class="flex items-start gap-3 p-4 border border-divider rounded-lg cursor-pointer hover:bg-surface-variant">
-        <input v-model="state.default" class="w-4 h-4 mt-1" type="checkbox">
+        <Checkbox.Root
+          v-model="state.default"
+          class="size-5 mt-1 border rounded inline-flex items-center justify-center border-divider data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+        >
+          <Checkbox.Indicator class="text-on-primary text-sm">✓</Checkbox.Indicator>
+        </Checkbox.Root>
 
         <div>
           <div class="text-sm text-on-surface">Default to right-to-left direction</div>
@@ -55,11 +63,12 @@
       <label class="block">
         <span class="text-xs uppercase tracking-wide text-on-surface-variant">Target (optional)</span>
 
-        <input
-          v-model="state.target"
-          class="mt-1 w-full px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm font-mono"
-          placeholder="Leave blank to use document.documentElement"
-        >
+        <Input.Root v-model="state.target">
+          <Input.Control
+            class="mt-1 w-full px-3 py-2 rounded-lg border border-divider bg-surface text-on-surface text-sm font-mono"
+            placeholder="Leave blank to use document.documentElement"
+          />
+        </Input.Root>
 
         <span class="block mt-1 text-xs text-on-surface-variant">
           CSS selector for the element that receives the
