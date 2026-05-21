@@ -305,7 +305,7 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.75rem;
+    padding: 0.5rem 0.75rem;
     background: var(--v0-surface, #fff);
     border-bottom: 1px solid color-mix(in srgb, var(--v0-on-surface, currentcolor) 14%, transparent);
     min-height: 3rem;
