@@ -16,7 +16,7 @@
   const store = useBuilderStore()
 
   const stored = store.pluginConfig.useLogger as LoggerConfig | undefined
-  const initial = structuredClone(stored ?? defaultConfig)
+  const initial = JSON.parse(JSON.stringify(stored ?? defaultConfig))
 
   const state = reactive<LoggerConfig>({
     level: initial.level,

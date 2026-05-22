@@ -16,7 +16,7 @@
   const store = useBuilderStore()
 
   const stored = store.pluginConfig.useBreakpoints as BreakpointsConfig | undefined
-  const initial = structuredClone(stored ?? defaultConfig)
+  const initial = JSON.parse(JSON.stringify(stored ?? defaultConfig))
 
   const state = reactive<BreakpointsConfig>({
     mobileBreakpoint: initial.mobileBreakpoint,

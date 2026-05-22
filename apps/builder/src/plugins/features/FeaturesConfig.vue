@@ -23,7 +23,7 @@
   const store = useBuilderStore()
 
   const stored = store.pluginConfig.useFeatures as FeaturesConfig | undefined
-  const initial = structuredClone(stored ?? defaultConfig)
+  const initial = JSON.parse(JSON.stringify(stored ?? defaultConfig))
 
   const state = reactive({
     adapter: initial.adapter as FeaturesAdapter,
