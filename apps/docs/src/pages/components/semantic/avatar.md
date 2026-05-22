@@ -117,4 +117,47 @@ When multiple images are present, the `priority` prop determines display order. 
 </template>
 ```
 
+## Group
+
+`Avatar.Group` collapses a row of avatars into a `+N` chip when the count exceeds `max`, or — with `responsive` — when the container runs out of width. `Avatar.Root` registers with the surrounding group automatically; nothing changes about a standalone `Avatar.Root`.
+
+::: example
+/components/avatar/group-basic
+
+### Basic group
+
+A simple stack of overlapping avatars with no truncation. Every member renders; no `max` is set and `responsive` is off, so the group exercises the registration path and shared ARIA `role="group"` labelling without any visibility math. Use this pattern when you know the member count is fixed and small — it avoids the ResizeObserver overhead that `responsive` would install.
+
+:::
+
+### Count-based truncation
+
+Set `max` to cap how many avatars render. Disabled avatars are exempt from the cap and always render. Use `priority="end"` to keep trailing avatars instead of leading ones.
+
+::: example
+/components/avatar/group-max
+
+### Max with indicator
+
+Six users with `:max="4"`; the indicator shows the hidden count. The first four avatars are visible; the remaining two are hidden by `v-show` (they stay mounted so the group can keep accurate registry bookkeeping). `Avatar.Indicator` silently renders nothing when the group is not overflowing, so no conditional wrapper is needed in the template.
+
+:::
+
+### Width-based truncation
+
+Set `responsive` to opt into width tracking. The group composes `createOverflow` under a `useToggleScope` so there is no ResizeObserver overhead when `responsive` is off. `max` and `responsive` cooperate — the effective cap is `min(max, capacityFromWidth)`.
+
+::: example
+/components/avatar/group-responsive
+
+### Responsive group
+
+Eight users in an `overflow-hidden` container; avatars truncate as the container shrinks. The indicator self-measures its own width and feeds it back to `createOverflow` so the group reserves exactly enough space for the `+N` chip — no hard-coded pixel offset required. Resize the browser window or the example pane to see the count update.
+
+:::
+
+## Indicator
+
+`Avatar.Indicator` renders the `+N` chip and exposes `count` and `hidden` on its slot. It silently renders nothing outside an `Avatar.Group` or while the group is not overflowing. Use the `hidden` array to render a tooltip listing the remaining avatars.
+
 <DocsApi />
