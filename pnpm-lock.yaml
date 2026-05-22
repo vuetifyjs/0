@@ -537,9 +537,6 @@ importers:
       '@vuetify/v0':
         specifier: workspace:*
         version: link:../packages/0
-      shiki:
-        specifier: 'catalog:'
-        version: 4.0.2
       vue:
         specifier: 'catalog:'
         version: 3.5.33(typescript@6.0.3)
