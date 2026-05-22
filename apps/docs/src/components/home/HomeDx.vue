@@ -22,6 +22,12 @@
 
   const features = [
     {
+      icon: 'vuetify-play',
+      title: 'Vuetify Play',
+      description: 'Every example opens in a live playground. No setup, no CLI.',
+      to: '/playground',
+    },
+    {
       icon: 'shield',
       title: 'Skill-Level Filtering',
       description: 'Beginner, intermediate, advanced. Docs that match your experience.',

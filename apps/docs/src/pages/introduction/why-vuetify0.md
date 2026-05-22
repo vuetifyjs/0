@@ -202,6 +202,10 @@ The docs aren't a reference manual. They're a living environment designed to mee
 
 Set your skill level — Beginner, Intermediate, or Advanced. The entire documentation adapts: navigation, page visibility, content depth. It persists across sessions and grows with you as you level up.
 
+### Interactive Playground
+
+Every example runs live in the browser. Edit code, see results instantly, and share your experiments with a single link. [Vuetify Play](/playground) for full experiments, Vuetify Bin for shareable snippets — integrated into every docs page.
+
 ### Examples as Lessons
 
 Examples aren't throwaway demos. Each one teaches a concept — multi-file, ordered, with descriptions explaining *why*, not just *what*. Open any example in the playground to experiment further.
@@ -256,6 +260,7 @@ Need to justify the choice to management? Here's what matters to them:
 | <AppIcon icon="vuetify-create" :size="20" /> | **[create-vuetify0](https://www.npmjs.com/package/create-vuetify0)** | One command, project scaffolded with v0 pre-configured |
 | <AppIcon icon="vuetify-cli" :size="20" /> | **[Vuetify CLI](/guide/tooling/vuetify-cli)** | Analyze usage, generate components, debug issues |
 | <AppIcon icon="vuetify-mcp" :size="20" /> | **[Vuetify MCP](/guide/tooling/vuetify-mcp)** | AI-native API access for Claude, Cursor, and other assistants |
+| <AppIcon icon="vuetify-play" :size="20" /> | **[Vuetify Play](/playground)** | Browser IDE for experimenting with v0 in real-time |
 | <AppIcon icon="vuetify-bin" :size="20" /> | **[Vuetify Bin](https://bin.vuetifyjs.com)** | Share runnable code snippets with a link |
 
 ## Learn by Doing
@@ -321,6 +326,7 @@ bun add @vuetify/v0
 :::
 
 - **[Install v0](/introduction/getting-started)** and start building
+- **[Explore the playground](/playground)** and experiment live
 - **[Browse composables](/guide/fundamentals/composables)** to see what's available
 
 > [!ASKAI] What v0 composables should I start with?
