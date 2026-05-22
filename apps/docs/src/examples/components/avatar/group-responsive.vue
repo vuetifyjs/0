@@ -16,6 +16,7 @@
 <template>
   <Avatar.Group
     class="flex items-center overflow-hidden"
+    :gap="-8"
     label="Team members"
     responsive
   >

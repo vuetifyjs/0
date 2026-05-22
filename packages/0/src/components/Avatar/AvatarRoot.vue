@@ -21,13 +21,18 @@
   // Composables
   import { createContext } from '#v0/composables/createContext'
   import { createSelection } from '#v0/composables/createSelection'
+  import { useResizeObserver } from '#v0/composables/useResizeObserver'
+  import { useToggleScope } from '#v0/composables/useToggleScope'
 
   // Transformers
   import { toElement } from '#v0/composables/toElement'
 
+  // Constants
+  import { IN_BROWSER } from '#v0/constants/globals'
+
   // Utilities
   import { isNullOrUndefined } from '#v0/utilities'
-  import { onBeforeUnmount, toRef, useTemplateRef } from 'vue'
+  import { onBeforeUnmount, toRef, useTemplateRef, watch } from 'vue'
 
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
@@ -92,19 +97,26 @@
 
   const ticket = group?.registry.register({
     value,
-    disabled: () => disabled,
+    disabled: toRef(() => disabled),
     el,
   })
 
-  // Wire isHidden onto the ticket so the indicator's hidden-list filter and
-  // the avatar's own v-show can read the same source of truth.
-  if (ticket) {
-    ticket.isHidden = toRef(() => !group!.isVisible(ticket.index))
+  function measure () {
+    if (!group || !IN_BROWSER || !el.value) return
+    group.itemWidth.value = (el.value as HTMLElement).offsetWidth
   }
 
-  onBeforeUnmount(() => ticket?.unregister())
+  useToggleScope(() => !!group && group.responsive.value, () => {
+    watch(el, () => measure(), { immediate: true })
+    useResizeObserver(el, () => measure())
+  })
 
-  const isHidden = toRef(() => ticket?.isHidden.value ?? false)
+  onBeforeUnmount(() => {
+    ticket?.unregister()
+    if (group) group.itemWidth.value = 0
+  })
+
+  const isHidden = toRef(() => !!ticket && !group!.isVisible(ticket.index))
   const index = toRef(() => ticket?.index ?? 0)
 
   const slotProps = toRef((): AvatarRootSlotProps => ({

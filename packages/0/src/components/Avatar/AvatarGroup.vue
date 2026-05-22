@@ -45,7 +45,6 @@
     value: V | undefined
     disabled: Readonly<Ref<boolean>>
     el: Readonly<Ref<Element | null>>
-    isHidden: Readonly<Ref<boolean>>
   }
 
   export interface AvatarGroupContext {
@@ -54,6 +53,7 @@
     responsive: Readonly<Ref<boolean>>
     priority: Readonly<Ref<AvatarGroupPriority>>
     indicatorWidth: ShallowRef<number>
+    itemWidth: ShallowRef<number>
     overflow: Readonly<ShallowRef<OverflowContext | null>>
     isOverflowing: Readonly<Ref<boolean>>
     isVisible: (index: number) => boolean
@@ -79,7 +79,8 @@
   }
 
   export interface AvatarGroupSlotProps {
-    count: number
+    /** Total number of registered, non-disabled avatars in the group */
+    total: number
     visible: number
     hidden: AvatarGroupTicket[]
     isOverflowing: boolean
@@ -118,6 +119,7 @@
 
   const registry = createRegistry<AvatarGroupTicketInput, AvatarGroupTicket>({ reactive: true })
   const indicatorWidth = shallowRef(0)
+  const itemWidth = shallowRef(0)
   const overflow = shallowRef<OverflowContext | null>(null)
 
   const containerRef = useTemplateRef<AtomExpose>('container')
@@ -127,6 +129,7 @@
       container: () => toElement(containerRef.value?.element) ?? null,
       gap: () => gap,
       reserved: indicatorWidth,
+      itemWidth,
       reverse: () => priority === 'end',
     })
     onScopeDispose(() => {
@@ -186,13 +189,14 @@
     responsive: toRef(() => responsive),
     priority: toRef(() => priority),
     indicatorWidth,
+    itemWidth,
     overflow,
     isOverflowing,
     isVisible,
   })
 
   const slotProps = toRef((): AvatarGroupSlotProps => ({
-    count: enabledCount.value,
+    total: enabledCount.value,
     visible: visibleCount.value,
     hidden: hidden.value,
     isOverflowing: isOverflowing.value,
