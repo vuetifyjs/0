@@ -30,7 +30,7 @@
   const store = useBuilderStore()
 
   const stored = store.pluginConfig.useTheme as ThemeConfig | undefined
-  const initial = structuredClone(stored ?? defaultConfig)
+  const initial = JSON.parse(JSON.stringify(stored ?? defaultConfig))
 
   const state = reactive({
     default: initial.default,

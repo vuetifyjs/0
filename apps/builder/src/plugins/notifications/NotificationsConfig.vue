@@ -16,7 +16,7 @@
   const store = useBuilderStore()
 
   const stored = store.pluginConfig.useNotifications as NotificationsConfig | undefined
-  const initial = structuredClone(stored ?? defaultConfig)
+  const initial = JSON.parse(JSON.stringify(stored ?? defaultConfig))
 
   const state = reactive<NotificationsConfig>({
     timeout: initial.timeout,

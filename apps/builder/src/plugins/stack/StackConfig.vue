@@ -16,7 +16,7 @@
   const store = useBuilderStore()
 
   const stored = store.pluginConfig.useStack as StackConfig | undefined
-  const initial = structuredClone(stored ?? defaultConfig)
+  const initial = JSON.parse(JSON.stringify(stored ?? defaultConfig))
 
   const state = reactive<StackConfig>({
     baseZIndex: initial.baseZIndex,

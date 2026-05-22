@@ -16,7 +16,7 @@
   const store = useBuilderStore()
 
   const stored = store.pluginConfig.useRtl as RtlConfig | undefined
-  const initial = structuredClone(stored ?? defaultConfig)
+  const initial = JSON.parse(JSON.stringify(stored ?? defaultConfig))
 
   const state = reactive<RtlConfig>({
     default: !!initial.default,
