@@ -102,8 +102,11 @@
   })
 
   function measure () {
-    if (!group || !IN_BROWSER || !el.value) return
-    group.itemWidth.value = (el.value as HTMLElement).offsetWidth
+    if (!group || !ticket || !IN_BROWSER || !el.value) return
+    if (ticket.index !== 0) return
+    const w = (el.value as HTMLElement).offsetWidth
+    if (w === 0) return
+    group.itemWidth.value = w
   }
 
   useToggleScope(() => !!group && group.responsive.value, () => {
@@ -113,7 +116,7 @@
 
   onBeforeUnmount(() => {
     ticket?.unregister()
-    if (group) group.itemWidth.value = 0
+    if (group && ticket?.index === 0) group.itemWidth.value = 0
   })
 
   const isHidden = toRef(() => !!ticket && !group!.isVisible(ticket.index))
