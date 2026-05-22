@@ -1,6 +1,6 @@
 <script lang="ts">
   // Types
-  import type { GnDocsExampleFile } from '../GnDocsExampleTabs'
+  import type { GnDocsExampleFile } from './GnDocsExampleTabs.vue'
 
   export interface GnDocsExampleProps {
     /** Anchor id for deep linking */
@@ -42,16 +42,16 @@
 </script>
 
 <script setup lang="ts">
+  // Context
+  import GnDocsExampleActions from './GnDocsExampleActions.vue'
+  import GnDocsExampleCode from './GnDocsExampleCode.vue'
+  import GnDocsExampleDescription from './GnDocsExampleDescription.vue'
+  import GnDocsExamplePeek from './GnDocsExamplePeek.vue'
+  import GnDocsExamplePreview from './GnDocsExamplePreview.vue'
+  import GnDocsExampleTabs from './GnDocsExampleTabs.vue'
+
   // Utilities
   import { shallowRef, toRef, useId, useTemplateRef } from 'vue'
-
-  // Components
-  import { GnDocsExampleActions } from '../GnDocsExampleActions'
-  import { GnDocsExampleCode } from '../GnDocsExampleCode'
-  import { GnDocsExampleDescription } from '../GnDocsExampleDescription'
-  import { GnDocsExamplePeek } from '../GnDocsExamplePeek'
-  import { GnDocsExamplePreview } from '../GnDocsExamplePreview'
-  import { GnDocsExampleTabs } from '../GnDocsExampleTabs'
 
   defineOptions({ name: 'GnDocsExample' })
 

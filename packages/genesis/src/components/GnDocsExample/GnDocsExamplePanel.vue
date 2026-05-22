@@ -1,6 +1,6 @@
 <script lang="ts">
   // Types
-  import type { GnDocsExampleFile } from '../GnDocsExampleTabs'
+  import type { GnDocsExampleFile } from './GnDocsExampleTabs.vue'
 
   export interface GnDocsExamplePanelProps {
     /** File metadata for this panel — passed by the parent Tabs default-slot iteration */

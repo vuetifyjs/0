@@ -25,16 +25,16 @@
   // Framework
   import { createOverflow, isUndefined, Tabs } from '@vuetify/v0'
 
+  // Context
+  import GnDocsExampleActions from './GnDocsExampleActions.vue'
+  import GnDocsExampleCode from './GnDocsExampleCode.vue'
+  import GnDocsExamplePanel from './GnDocsExamplePanel.vue'
+
   // Utilities
   import { computed, useTemplateRef, watch } from 'vue'
 
   // Types
   import type { ComponentPublicInstance } from 'vue'
-
-  // Components
-  import { GnDocsExampleActions } from '../GnDocsExampleActions'
-  import { GnDocsExampleCode } from '../GnDocsExampleCode'
-  import { GnDocsExamplePanel } from '../GnDocsExamplePanel'
 
   defineOptions({ name: 'GnDocsExampleTabs' })
 
