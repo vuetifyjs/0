@@ -47,7 +47,6 @@
 
   const props = defineProps<DocsGenesisExampleProps>()
 
-  // ───────────────────────── auto-resolve ─────────────────────────
   const examples = useExamples()
 
   const auto = computed(() => {
@@ -73,7 +72,6 @@
   const settings = useSettings()
   const lineWrap = useSyncedRef(settings.lineWrap)
 
-  // ───────────────────────── actions ─────────────────────────
   async function onPlayground (list: GnDocsExampleFile[]) {
     const files = list.map(f => ({ name: f.name, code: f.code }))
     const url = await usePlayground(files, undefined, props.imports)
