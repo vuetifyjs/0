@@ -273,8 +273,10 @@ Real worked examples on master:
 | `::: code-group` | Tabbed code blocks |
 | `::: faq` | FAQ section with `???` questions |
 | `> [!TIP]` | Informational callout (empty tip surfaces a random tip from curated pool) [intent:340, intent:341] |
+| `> [!NOTE]` | Neutral informational callout |
 | `> [!WARNING]` | Cautionary callout |
-| `> [!ERROR]` | Error/danger callout |
+| `> [!CAUTION]` | Danger/severe callout |
+| `> [!IMPORTANT]` | Critical-emphasis callout |
 | `[^name]` | Footnote anchor — see [Footnotes](#footnotes) |
 | `` ```vue Anatomy playground `` `` | Live anatomy preview |
 | `` ```ts collapse `` `` | Collapsible code block |

@@ -167,7 +167,7 @@ vuetify0(app)
 app.mount('#app')
 ```
 
-> [!INFO]
+> [!NOTE]
 > For additional plugins, theming options, and advanced configuration, see the [Guide](/guide).
 
 ## Requirements

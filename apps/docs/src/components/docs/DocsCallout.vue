@@ -31,7 +31,7 @@
    * Callout props - certain props are required based on type:
    * - type: 'askai' requires `question`
    * - type: 'tour' requires `tourId`
-   * - type: 'tip' | 'info' | 'warning' | 'error' | 'discord' have no additional required props
+   * - type: 'tip' | 'note' | 'warning' | 'caution' | 'important' | 'discord' have no additional required props
    */
   export interface DocsCalloutProps {
     type: CalloutType
