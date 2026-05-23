@@ -11,16 +11,16 @@
 
 <template>
   <Avatar.Group
-    class="flex items-center"
+    class="flex items-center justify-center"
     label="Team members"
   >
     <Avatar.Root
-      v-for="user in users"
+      v-for="(user, index) in users"
       :key="user.id"
       class="size-8 inline-flex items-center justify-center rounded-full ring-2 ring-surface text-xs font-medium text-on-primary shrink-0"
       :style="{
         backgroundColor: `oklch(0.62 0.14 ${user.hue})`,
-        marginInlineStart: '-8px',
+        marginInlineStart: index === 0 ? undefined : '-8px',
       }"
       :value="user.id"
     >
