@@ -49,7 +49,7 @@ All v0 components expose state via `data-*` attributes in the `attrs` object:
 | [Popover](/components/disclosure/popover) | <span class="whitespace-nowrap">`data-open`</span> | Activator element |
 | [Dialog](/components/disclosure/dialog) | <span class="whitespace-nowrap">`data-open`</span> | Activator element |
 
-> [!INFO]
+> [!NOTE]
 > Attributes are only present when `true`. Use `[data-selected]` not `[data-selected="true"]`.
 
 > [!ASKAI] What data attributes does Selection.Item expose and how do I style them?
