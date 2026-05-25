@@ -38,7 +38,7 @@ Two avatars showing successful image loading and graceful fallback to initials w
 
 ## Anatomy
 
-```vue Anatomy playground
+```vue Anatomy playground collapse no-filename
 <script setup lang="ts">
   import { Avatar } from '@vuetify/v0'
 </script>
@@ -49,6 +49,16 @@ Two avatars showing successful image loading and graceful fallback to initials w
 
     <Avatar.Fallback />
   </Avatar.Root>
+
+  <Avatar.Group>
+    <Avatar.Root>
+      <Avatar.Image />
+
+      <Avatar.Fallback />
+    </Avatar.Root>
+
+    <Avatar.Indicator />
+  </Avatar.Group>
 </template>
 ```
 
