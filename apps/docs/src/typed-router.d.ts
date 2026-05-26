@@ -821,6 +821,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/genesis-sandbox': RouteRecordInfo<
+      '/genesis-sandbox',
+      '/genesis-sandbox',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/guide/': RouteRecordInfo<
       '/guide/',
       '/guide',
@@ -1768,6 +1775,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/transformers/to-reactive.md': {
       routes:
         | '/composables/transformers/to-reactive'
+      views:
+        | never
+    }
+    'src/pages/genesis-sandbox.vue': {
+      routes:
+        | '/genesis-sandbox'
       views:
         | never
     }

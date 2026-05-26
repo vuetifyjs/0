@@ -20,6 +20,7 @@
     "vue-router": "catalog:"
   },
   "dependencies": {
+    "@paper/genesis": "workspace:*",
     "@vuetify/paper": "workspace:*",
     "@vuetify/v0": "workspace:*",
     "vue": "catalog:"
