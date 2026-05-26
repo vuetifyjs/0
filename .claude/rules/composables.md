@@ -479,6 +479,21 @@ const current = theme.current.value
 
 Pure transformers (`toRef`, `toElement`, `toValue`) are fine to call inline — they return values, not stateful instances. [intent:283]
 
+## `createOverflow` consumer contract
+
+`createOverflow` exposes two derived signals with different data sources:
+
+| Signal | Variable mode | Uniform mode (`itemWidth` set) |
+|---|---|---|
+| `capacity` | Sum of per-item `widths` until overflow | `floor((available - itemWidth) / (itemWidth + gap)) + 1` |
+| `isOverflowing` | `total > available` (sum of `widths`) | `widths.size > capacity` (count vs cap) |
+
+**Both signals depend on the `widths` map being populated via `measure(index, el)` — in both modes.** In variable mode the measurement values feed `total`. In uniform mode the values are stored but ignored; only the entry count matters for `isOverflowing`.
+
+**Consumer rule.** Every child must call `overflow.measure(ticket.index, el)` on mount and `overflow.measure(ticket.index, undefined)` on unmount, **regardless of mode**. The pattern in `Overflow/OverflowItem.vue:83-100` is canonical: watch `[el.value, ticket.index]` so registry reindexing after a sibling unmount re-fires measurement at the new index, and `onBeforeUnmount` clears the last index.
+
+If you skip the calls in uniform mode (treating it as "items don't need to measure because itemWidth is the width"), `capacity` will still be correct but `isOverflowing` is permanently `false`. PHILOSOPHY §10.19 spells out the anti-pattern; the AvatarGroup feature shipped with the broken signal and had to work around it client-side until the fix landed.
+
 ## Selection System — Value vs Logic Separation
 
 `createModel` is a value store; selection logic (multiple, mandatory, seek, mandate) lives in `createSelection`. [intent:285]

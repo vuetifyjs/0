@@ -1391,6 +1391,45 @@ Reason: §2.8, [intent:151]. Auto-increment breaks SSR hydration.
 
 ---
 
+### 10.19 `createOverflow` consumer that skips `measure()` in uniform mode
+
+**Before (wrong).**
+```ts
+// Consumer in uniform mode (itemWidth set) never calls overflow.measure()
+// because items are uniform — but isOverflowing reads from the measurement map.
+const overflow = createOverflow({ container, itemWidth })
+
+// Child:
+useToggleScope(() => responsive, () => {
+  // Only measures itself for itemWidth back-channel; no overflow.measure() call.
+  watch(el, () => writeSelfWidthBackToParent())
+})
+
+// Result: overflow.isOverflowing.value is permanently false even when truncated.
+```
+
+**After (right).**
+```ts
+const overflow = createOverflow({ container, itemWidth })
+
+// Child registers presence with overflow on mount / unregisters on unmount.
+// The width arg is recorded but ignored by uniform-mode capacity math —
+// only the entry count drives isOverflowing.
+watch(
+  () => [el.value, ticket.index] as const,
+  ([e, i]) => overflow.measure(i, e ?? undefined),
+  { immediate: true },
+)
+
+onBeforeUnmount(() => overflow.measure(ticket.index, undefined))
+```
+
+Reason: §6.8 lifecycle contract — the registration is what makes derived state truthful. `createOverflow` cannot infer item count from a container in renderless / Atom-wrapped trees, so consumers must signal it via `measure()` even when there's no per-item width to record. Skipping the calls works for `capacity` (driven by `itemWidth`) but silently breaks `isOverflowing`.
+
+The bug family: any composable that exposes two derived values where one is driven by a config option and the other by a registration stream — consumers who only need the first signal will silently break the second for downstream readers.
+
+---
+
 ## Appendix A — Section quick reference
 
 | Section | Theme | Count of cited intents |
@@ -1404,4 +1443,4 @@ Reason: §2.8, [intent:151]. Auto-increment breaks SSR hydration.
 | 7 Events & lifecycle | binding, mounting, cleanup, toggle scope | 7 |
 | 8 Types | any, readonly-ref, MRG, generics, slot guards | 8 |
 | 9 Errors | throw/warn/return, logger, SSR | 9 |
-| 10 Anti-patterns | 18 concrete before/after pairs | — |
+| 10 Anti-patterns | 19 concrete before/after pairs | — |

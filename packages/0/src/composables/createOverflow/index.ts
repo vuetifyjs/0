@@ -17,6 +17,20 @@
  * Use variable mode (default) for items with different widths like Breadcrumbs.
  * Use uniform mode (itemWidth option) for same-width items like Pagination buttons.
  *
+ * ## Item registration contract
+ *
+ * Every child item must call `measure(index, el)` on mount and
+ * `measure(index, undefined)` on unmount, regardless of mode. The width arg
+ * is recorded in both modes but **only consumed by uniform mode for
+ * isOverflowing's count** — capacity in uniform mode is derived purely
+ * from `itemWidth`. Variable mode uses the per-item widths for both
+ * capacity and isOverflowing.
+ *
+ * Consumers that compute their own capacity outside this composable (e.g.,
+ * with a separate registry) still need the measure() calls if they want
+ * `isOverflowing` to reflect reality — without them the count source is
+ * empty and the signal is permanently false.
+ *
  * @example
  * ```ts
  * import { useTemplateRef } from 'vue'
@@ -80,7 +94,12 @@ export interface OverflowContext {
   total: ComputedRef<number>
   /** Whether items overflow the container */
   isOverflowing: Readonly<Ref<boolean>>
-  /** Register an item's element for width measurement */
+  /**
+   * Register an item's element for width measurement. Required for every
+   * child in both modes — variable mode reads the measured widths for
+   * capacity; uniform mode reads only the entry count for isOverflowing.
+   * Pass `undefined` to unregister.
+   */
   measure: (index: number, el: Element | undefined) => void
   /** Clear all measurements */
   reset: () => void
@@ -230,6 +249,18 @@ export function createOverflow<
 
   const isOverflowing = toRef(() => {
     if (width.value === 0) return false
+
+    // Uniform mode (itemWidth set): registered count vs capacity drives the
+    // signal. Measured widths in `widths` are irrelevant — itemWidth is the
+    // canonical width. Consumers must still call measure(i, el) per item
+    // to signal presence; the width arg is recorded but ignored here.
+    if (!isUndefined(itemWidth)) {
+      const cap = capacity.value
+      if (cap === Infinity) return false
+      return widths.value.size > cap
+    }
+
+    // Variable mode: sum of measured widths vs available.
     return total.value > (width.value - toValue(reserved))
   })
 
