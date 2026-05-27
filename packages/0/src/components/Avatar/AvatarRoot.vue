@@ -115,15 +115,17 @@
   let last: number | null = null
 
   useToggleScope(() => !!group && group.responsive.value, () => {
-    // Track ticket.index too: when the index-0 avatar unmounts and the
-    // registry reindexes, the new index-0 ticket must re-measure itemWidth
-    // (its element is unchanged, so an el-only watch would never re-fire).
-    watch(() => [el.value, ticket?.index], () => measure(), { immediate: true })
     useResizeObserver(el, () => measure())
 
+    // Track ticket.index, not just el: when the index-0 avatar unmounts the
+    // registry reindexes, and the new index-0 ticket must re-run here even
+    // though its element never changed. measure() feeds itemWidth (index-0
+    // only, guarded internally); overflow.measure() keeps the group's widths
+    // map — and thus isOverflowing — in sync, clearing the stale index first.
     watch(
       () => [el.value, ticket?.index] as const,
       ([element, index]) => {
+        measure()
         if (isNullOrUndefined(index)) return
         if (!isNull(last) && last !== index) {
           group?.overflow.value?.measure(last, undefined)
