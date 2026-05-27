@@ -7,7 +7,7 @@
  *
  * TODO: Dedupe with build/markdown.ts - shared logic includes:
  * - Table wrapping (overflow-x-auto)
- * - Callout detection ([!TIP], [!INFO], etc.)
+ * - Callout detection ([!TIP], [!NOTE], etc.)
  * - Mermaid code block handling
  * - VUE_API_NAMES inline code detection
  * - Shiki themes and createApiTransformer()
@@ -66,14 +66,14 @@ function getMarked (hl: Highlighter): Marked {
         return `<div class="overflow-x-auto mb-4"><table>${thead}${tbody}</table></div>`
       },
       blockquote ({ raw }) {
-        // GitHub-style callouts: > [!TIP], > [!INFO], > [!WARNING], > [!ERROR], > [!TRY], > [!TOUR]
+        // GitHub-style callouts: > [!TIP], > [!NOTE], > [!WARNING], > [!CAUTION], > [!IMPORTANT], > [!TRY], > [!TOUR]
         const innerContent = raw
           .split('\n')
           .map(line => line.replace(/^>\s?/, ''))
           .join('\n')
           .trim()
 
-        const match = innerContent.match(/^\[!(TIP|INFO|WARNING|ERROR|TRY|TOUR)\]\s*([\s\S]*)/)
+        const match = innerContent.match(/^\[!(TIP|NOTE|WARNING|CAUTION|IMPORTANT|TRY|TOUR)\]\s*([\s\S]*)/)
         if (match) {
           const type = match[1].toLowerCase()
           const rest = match[2].trim()

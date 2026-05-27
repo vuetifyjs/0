@@ -21,7 +21,7 @@ When building a component framework, you're often reimplementing the same patter
 
 <DocsPageFeatures :frontmatter />
 
-> [!INFO] Prerequisites
+> [!NOTE] Prerequisites
 > This guide builds on concepts from [Core](/guide/fundamentals/core), [Components](/guide/fundamentals/components), and [Composables](/guide/fundamentals/composables). Read those first if you're new to v0.
 
 ## Getting Started

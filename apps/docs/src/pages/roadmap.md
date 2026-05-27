@@ -24,7 +24,7 @@ Track the development of @vuetify/v0. Milestones are organized by time horizon:
 
 <DocsRoadmap />
 
-> [!INFO] Want to help shape the future of this project? [Become a Founder Supporter](mailto:john@vuetifyjs.com?subject=Founder%20Supporter%20Inquiry) and gain a guiding voice in what we build next.
+> [!NOTE] Want to help shape the future of this project? [Become a Founder Supporter](mailto:john@vuetifyjs.com?subject=Founder%20Supporter%20Inquiry) and gain a guiding voice in what we build next.
 
 ## Alpha
 
@@ -140,6 +140,9 @@ See the [contributing guide](/introduction/contributing). PRs are welcome for bu
 ??? Where can I get help?
 
 Join the [Discord](https://community.vuetifyjs.com) community. You can also use the AI assistant built into the docs — look for the Ask AI button on any page.
+:::
+
+::: sponsor
 :::
 
 > [!DISCORD]

@@ -119,6 +119,9 @@
       "ignore": [
         "src/Playground.template.vue"
       ],
+      "ignoreDependencies": [
+        "@paper/genesis"
+      ],
       "paths": {
         "@/*": [
           "src/*"

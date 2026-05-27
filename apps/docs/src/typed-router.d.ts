@@ -821,6 +821,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/genesis-sandbox': RouteRecordInfo<
+      '/genesis-sandbox',
+      '/genesis-sandbox',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/guide/': RouteRecordInfo<
       '/guide/',
       '/guide',
@@ -1062,6 +1069,13 @@ declare module 'vue-router/auto-routes' {
     '/roadmap': RouteRecordInfo<
       '/roadmap',
       '/roadmap',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/services': RouteRecordInfo<
+      '/services',
+      '/services',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -1771,6 +1785,12 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/genesis-sandbox.vue': {
+      routes:
+        | '/genesis-sandbox'
+      views:
+        | never
+    }
     'src/pages/guide/index.md': {
       routes:
         | '/guide/'
@@ -1978,6 +1998,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/roadmap.md': {
       routes:
         | '/roadmap'
+      views:
+        | never
+    }
+    'src/pages/services.md': {
+      routes:
+        | '/services'
       views:
         | never
     }

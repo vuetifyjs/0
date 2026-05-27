@@ -27,7 +27,7 @@ Reserves a box with a fixed width-to-height ratio using CSS `aspect-ratio`.
 Wrap any content whose height should track its width. The child fills the
 reserved frame — pair with `w-full h-full` or absolute positioning.
 
-::: example
+::: gn-example
 /components/aspect-ratio/basic
 :::
 
@@ -45,7 +45,7 @@ reserved frame — pair with `w-full h-full` or absolute positioning.
 
 ## Examples
 
-::: example
+::: gn-example
 /components/aspect-ratio/ResponsiveImage.vue 1
 /components/aspect-ratio/responsive.vue 2
 

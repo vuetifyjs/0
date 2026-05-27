@@ -436,9 +436,13 @@ The documentation uses callout boxes to highlight important information:
 
 > [!TIP] Best practices and helpful hints you can apply immediately.
 
-> [!INFO] Additional context and notes for deeper understanding.
+> [!NOTE] Additional context and notes for deeper understanding.
+
+> [!IMPORTANT] Critical information you should not miss.
 
 > [!WARNING] Cautions and common mistakes to avoid.
+
+> [!CAUTION] Severe issues or destructive operations to watch out for.
 
 > [!ASKAI] How do I find the right composable for what I'm building?
 

@@ -86,3 +86,6 @@ See the [Contributing](/introduction/contributing) page for guidelines. The proj
 
 [GitHub Issues](https://github.com/vuetifyjs/0/issues) for bug reports and feature requests, or the [Vuetify Discord](https://community.vuetifyjs.com) community for real-time chat and questions.
 :::
+
+::: sponsor
+:::

@@ -62,7 +62,7 @@ app.use(
 )
 ```
 
-> [!INFO]
+> [!NOTE]
 > The `adapter` option is **required**. The `V0DateAdapter` is exported from a separate subpath (`@vuetify/v0/date`) to avoid bundling the Temporal polyfill unless explicitly used. If you don't need date functionality, simply don't install the plugin—no polyfill will be loaded.
 
 ## Usage

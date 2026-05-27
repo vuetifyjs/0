@@ -329,4 +329,7 @@ bun add @vuetify/v0
 - **[Explore the playground](/playground)** and experiment live
 - **[Browse composables](/guide/fundamentals/composables)** to see what's available
 
+::: sponsor
+:::
+
 > [!ASKAI] What v0 composables should I start with?
