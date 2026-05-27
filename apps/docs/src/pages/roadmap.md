@@ -142,4 +142,7 @@ See the [contributing guide](/introduction/contributing). PRs are welcome for bu
 Join the [Discord](https://community.vuetifyjs.com) community. You can also use the AI assistant built into the docs — look for the Ask AI button on any page.
 :::
 
+::: sponsor
+:::
+
 > [!DISCORD]

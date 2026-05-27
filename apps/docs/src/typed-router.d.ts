@@ -1073,6 +1073,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/services': RouteRecordInfo<
+      '/services',
+      '/services',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/skillz/': RouteRecordInfo<
       '/skillz/',
       '/skillz',
@@ -1991,6 +1998,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/roadmap.md': {
       routes:
         | '/roadmap'
+      views:
+        | never
+    }
+    'src/pages/services.md': {
+      routes:
+        | '/services'
       views:
         | never
     }

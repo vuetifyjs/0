@@ -152,6 +152,24 @@ export function applyMarkdownPlugins (md: MarkdownIt, highlighter: DocsHighlight
   registerExampleContainer('example', 'DocsExample')
   registerExampleContainer('gn-example', 'DocsGenesisExample')
 
+  // Sponsor container: ::: sponsor ... :::
+  // Renders the standing $1,500/mo Premier sponsor pitch
+  md.use(Container, 'sponsor', {
+    render (tokens: MarkdownToken[], index: number) {
+      if (tokens[index].nesting === 1) return '<DocsSponsor />\n'
+      return ''
+    },
+  })
+
+  // Contact container: ::: contact ... :::
+  // Renders John's bio + Calendly + sponsor button card
+  md.use(Container, 'contact', {
+    render (tokens: MarkdownToken[], index: number) {
+      if (tokens[index].nesting === 1) return '<DocsContact />\n'
+      return ''
+    },
+  })
+
   // FAQ container: ::: faq ... ::: or ::: faq single ... :::
   // Questions marked with ??? Question text
   md.use(Container, 'faq', {
