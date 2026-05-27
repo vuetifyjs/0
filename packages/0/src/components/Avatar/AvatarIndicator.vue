@@ -65,6 +65,8 @@
     namespace = 'v0:avatar:group',
   } = defineProps<AvatarIndicatorProps>()
 
+  const LABEL_KEY = 'Avatar.indicatorLabel'
+
   const group = useAvatarGroup(namespace, null)
   const locale = useLocale()
 
@@ -97,15 +99,20 @@
 
   const count = toRef(() => hidden.value.length)
 
-  const slotProps = toRef((): AvatarIndicatorSlotProps => ({
-    count: count.value,
-    hidden: hidden.value,
-    attrs: {
-      'aria-label': locale.t('Avatar.indicatorLabel', { count: count.value }),
-      'aria-live': 'polite',
-      'data-overflow-indicator': 'true',
-    },
-  }))
+  const slotProps = toRef((): AvatarIndicatorSlotProps => {
+    const translated = locale.t(LABEL_KEY, { count: count.value })
+    const ariaLabel = translated === LABEL_KEY ? `+${count.value}` : translated
+
+    return {
+      count: count.value,
+      hidden: hidden.value,
+      attrs: {
+        'aria-label': ariaLabel,
+        'aria-live': 'polite',
+        'data-overflow-indicator': 'true',
+      },
+    }
+  })
 </script>
 
 <template>
