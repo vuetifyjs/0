@@ -31,7 +31,7 @@
   import { IN_BROWSER } from '#v0/constants/globals'
 
   // Utilities
-  import { isNullOrUndefined } from '#v0/utilities'
+  import { isNull, isNullOrUndefined } from '#v0/utilities'
   import { onBeforeUnmount, toRef, useTemplateRef, watch } from 'vue'
 
   // Types
@@ -109,12 +109,31 @@
     group.itemWidth.value = w
   }
 
+  // Track the index we last reported to the group's overflow widths map so
+  // registry reindexing (after a sibling unmounts) clears the stale entry
+  // before writing the new index.
+  let last: number | null = null
+
   useToggleScope(() => !!group && group.responsive.value, () => {
     watch(el, () => measure(), { immediate: true })
     useResizeObserver(el, () => measure())
+
+    watch(
+      () => [el.value, ticket?.index] as const,
+      ([element, index]) => {
+        if (isNullOrUndefined(index)) return
+        if (!isNull(last) && last !== index) {
+          group?.overflow.value?.measure(last, undefined)
+        }
+        last = index
+        group?.overflow.value?.measure(index, element ?? undefined)
+      },
+      { immediate: true },
+    )
   })
 
   onBeforeUnmount(() => {
+    if (!isNull(last)) group?.overflow.value?.measure(last, undefined)
     ticket?.unregister()
     if (group && ticket?.index === 0) group.itemWidth.value = 0
   })
