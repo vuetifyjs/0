@@ -115,7 +115,10 @@
   let last: number | null = null
 
   useToggleScope(() => !!group && group.responsive.value, () => {
-    watch(el, () => measure(), { immediate: true })
+    // Track ticket.index too: when the index-0 avatar unmounts and the
+    // registry reindexes, the new index-0 ticket must re-measure itemWidth
+    // (its element is unchanged, so an el-only watch would never re-fire).
+    watch(() => [el.value, ticket?.index], () => measure(), { immediate: true })
     useResizeObserver(el, () => measure())
 
     watch(
