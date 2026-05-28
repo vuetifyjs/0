@@ -1,7 +1,10 @@
 import { fileURLToPath } from 'node:url'
 
+import { playwright } from '@vitest/browser-playwright'
 import Vue from 'unplugin-vue/rolldown'
 import { defineConfig } from 'vitest/config'
+
+import { commands } from './test/commands'
 
 export default defineConfig({
   resolve: {
@@ -22,25 +25,23 @@ export default defineConfig({
     __VERSION__: '"0.0.1"',
   },
   test: {
-    name: 'v0:unit',
-    projects: ['packages/*'],
-    environment: 'happy-dom',
-    pool: 'vmThreads',
+    name: 'v0:browser',
     globals: true,
-    include: ['**/*.{test,spec}.?(c|m)[jt]s?(x)'],
-    exclude: ['**/*.browser.test.{ts,tsx}'],
-    setupFiles: ['./vitest.setup.ts'],
+    include: ['**/*.browser.test.{ts,tsx}'],
     testTimeout: 20_000,
-    coverage: {
-      provider: 'v8',
-      reporter: ['text', 'json-summary'],
-      reportsDirectory: 'packages/0/coverage',
-      include: ['packages/0/src/**/*.{ts,vue}'],
-      exclude: [
-        '**/*.{test,spec,bench}.?(c|m)[jt]s',
-        '**/index.ts',
-        'packages/0/src/maturity.json',
-      ],
+    setupFiles: ['./test/setup.ts'],
+    browser: {
+      enabled: true,
+      provider: playwright({
+        actionTimeout: 5000,
+        contextOptions: {
+          reducedMotion: 'reduce',
+        },
+      }),
+      headless: !process.env.TEST_BAIL,
+      commands,
+      instances: [{ browser: 'chromium' }],
+      viewport: { width: 1280, height: 800 },
     },
   },
 })

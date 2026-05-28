@@ -13,10 +13,7 @@ import { createSSRApp, defineComponent, h, nextTick, ref } from 'vue'
 // Create fresh stack plugin for each test to avoid "Ticket already exists" warnings
 let stackPlugin: ReturnType<typeof createStackPlugin>
 
-// Mock showModal and close for happy-dom
 beforeEach(() => {
-  HTMLDialogElement.prototype.showModal = vi.fn()
-  HTMLDialogElement.prototype.close = vi.fn()
   stackPlugin = createStackPlugin()
 })
 
