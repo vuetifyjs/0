@@ -225,20 +225,21 @@ An inventory management grid where editing is the primary workflow. Product name
 
 ### Row Spanning
 
-A team schedule grid where department cells span all members in that department. Day columns show availability status with color-coded indicators.
+A portfolio holdings grid with two levels of row spanning — `account` spans every holding under an account, and `assetClass` spans every holding within an account-and-class pair. Spanned cells double as aggregation rows by showing the account or asset-class subtotal alongside the label.
 
 **File breakdown:**
 
 | File | Role |
 |------|------|
-| `SpanningGrid.vue` | Schedule grid with department spanning and color-coded day cells |
-| `columns.ts` | Department, member, and Mon–Fri day columns |
-| `data.ts` | 10 team members across 3 departments with weekly availability |
+| `SpanningGrid.vue` | Multi-level row spans, account / asset-class subtotals inside spanned cells, change-direction arrows |
+| `columns.ts` | 6 columns: account, asset class, ticker, holding, value, change |
+| `data.ts` | 11 holdings across 3 accounts (Wealth, Retirement, Trust) and 4 asset classes (Equities, Bonds, Real Estate, Cash) |
 
 **Key patterns:**
 
-- `rowSpanning(item, column)` returns the number of rows a cell should span
-- `spans.value` provides a Map of `rowID → column → { rowSpan, hidden }`
+- One `rowSpanning(item, column)` callback resolves both span levels by checking whether the next consecutive row shares the same `account` (and, for `assetClass`, the same account-and-class pair)
+- `spans.value.get(rowId).get(columnId)` returns `{ rowSpan, hidden }` — render `<td>` only when `!hidden`, and set `:rowspan` from `rowSpan`
+- Spanned cells display aggregate information (account total, asset-class subtotal) so the spanned row carries domain meaning beyond visual grouping
 - Cells with `hidden: true` are skipped in rendering — the cell above covers them
 - Spans are clamped to remaining visible rows and never cross page boundaries
 
