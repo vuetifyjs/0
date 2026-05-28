@@ -288,7 +288,7 @@ export function createDataGrid<T extends Record<string, unknown>> (
 
   const spans = createRowSpanning<T>({
     items: pageOrderedItems as Ref<readonly T[]>,
-    columns: leaves.map(col => col.id),
+    columns: () => table.leaves.value.map(col => col.id),
     rowSpanning,
   })
   return {

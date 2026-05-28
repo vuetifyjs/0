@@ -8,11 +8,11 @@
  */
 
 // Utilities
-import { computed } from 'vue'
+import { computed, toValue } from 'vue'
 
 // Types
 import type { ID } from '#v0/types'
-import type { ComputedRef, Ref } from 'vue'
+import type { ComputedRef, MaybeRefOrGetter, Ref } from 'vue'
 
 export interface SpanEntry {
   rowSpan: number
@@ -21,7 +21,7 @@ export interface SpanEntry {
 
 export interface RowSpanningOptions<T = Record<string, unknown>> {
   items: Ref<readonly T[]> | ComputedRef<readonly T[]>
-  columns: readonly string[]
+  columns: MaybeRefOrGetter<readonly string[]>
   itemKey?: string
   rowSpanning?: (item: T, column: string) => number
 }
@@ -43,17 +43,18 @@ export function createRowSpanning<T extends Record<string, unknown>> (
     if (!rowSpanning) return result
 
     const list = items.value
+    const resolved = toValue(columns)
 
     // Track which cells are covered by a span from a previous row
     // covered[colIndex] = number of remaining rows to skip
-    const covered = Array.from<number>({ length: columns.length }).fill(0)
+    const covered = Array.from<number>({ length: resolved.length }).fill(0)
 
     for (let row = 0; row < list.length; row++) {
       const item = list[row]
       const id = item[itemKey] as ID
       const cells = new Map<string, SpanEntry>()
 
-      for (const [col, column] of columns.entries()) {
+      for (const [col, column] of resolved.entries()) {
         if (covered[col] > 0) {
           cells.set(column, { rowSpan: 1, hidden: true })
           covered[col]--
