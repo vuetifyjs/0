@@ -5,7 +5,7 @@
 
 <template>
   <section class="relative my-10 px-5 py-4 sm:px-6 sm:py-5 rounded-xl border border-divider bg-surface overflow-hidden">
-    <AppDotGrid :coverage="40" :density="16" origin="bottom right" />
+    <AppDotGrid :coverage="40" origin="bottom right" />
 
     <div class="relative z-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div class="flex-1 text-center sm:text-left">

@@ -107,7 +107,7 @@
     <slot v-else />
 
     <template #decoration>
-      <AppDotGrid :coverage="60" :density="20" />
+      <AppDotGrid :coverage="60" />
     </template>
 
     <template v-if="$slots.description" #description>

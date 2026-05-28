@@ -11,7 +11,7 @@
 
 <template>
   <section class="relative my-10 px-5 py-4 sm:px-6 sm:py-5 rounded-xl border border-divider bg-surface overflow-hidden flex flex-col sm:flex-row items-center gap-6">
-    <AppDotGrid :coverage="55" :density="16" origin="bottom left" />
+    <AppDotGrid :coverage="55" origin="bottom left" />
 
     <a
       aria-label="John Leider on GitHub"

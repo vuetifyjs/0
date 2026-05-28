@@ -220,7 +220,7 @@
 
       <!-- Preview -->
       <div class="relative p-2 bg-surface-tint">
-        <AppDotGrid :coverage="60" :density="20" />
+        <AppDotGrid :coverage="60" />
 
         <Splitter.Root :key="resetKey" v-slot="{ isDragging }" class="relative w-full">
           <Splitter.Panel

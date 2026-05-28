@@ -55,7 +55,6 @@
       <AppDotGrid
         v-if="tier.dotOrigin"
         :coverage="tier.dotCoverage ?? 20"
-        :density="18"
         :origin="tier.dotOrigin"
       />
 

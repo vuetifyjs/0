@@ -562,7 +562,7 @@
         </tfoot>
       </table>
 
-      <AppDotGrid :coverage="65" :density="18" />
+      <AppDotGrid :coverage="65" />
     </div>
 
     <!-- Graduation criteria -->
