@@ -180,6 +180,28 @@ describe('createColumnLayout', () => {
       expect(scrollable.find(c => c.id === 'c')!.offset).toBe(0)
       expect(scrollable.find(c => c.id === 'd')!.offset).toBe(30)
     })
+
+    it('should compute right-region offsets from the right edge', () => {
+      // Right region offsets are measured from the right edge so they can be
+      // applied directly to CSS `right:` for sticky positioning. The rightmost
+      // column gets offset 0; preceding columns accumulate by trailing widths.
+      const { layout } = setup([
+        { id: 'a', size: 40 },
+        { id: 'b', size: 25, pinned: 'right' },
+        { id: 'c', size: 20, pinned: 'right' },
+        { id: 'd', size: 15, pinned: 'right' },
+      ])
+
+      const { right } = layout.pinned.value
+
+      // Display order within right region: b, c, d (registry order)
+      expect(right.map(c => c.id)).toEqual(['b', 'c', 'd'])
+
+      // d is rightmost → 0; c sits at d's width from the right; b at c+d
+      expect(right.find(c => c.id === 'd')!.offset).toBe(0)
+      expect(right.find(c => c.id === 'c')!.offset).toBe(15)
+      expect(right.find(c => c.id === 'b')!.offset).toBe(35)
+    })
   })
 
   describe('resize', () => {

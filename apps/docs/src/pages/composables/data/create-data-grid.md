@@ -19,16 +19,13 @@ related:
 
 # createDataGrid
 
-A data grid composable that layers column layout, cell editing, row ordering, and row spanning on top of the [createDataTable](/composables/data/create-data-table) pipeline.
+A headless data grid with column layout, cell editing, row ordering, and row spanning.
 
 <DocsPageFeatures :frontmatter />
 
 ## Usage
 
-Pass `columns` with `size` percentages to construct a grid, then register rows via the inherited registry surface to get column layout management, search, sort, and pagination.
-
-> [!TIP]
-> Rows are registered, not passed as an option. Call `grid.onboard(rows.map(value => ({ id: value.id, value })))` (or `grid.register({ id, value })` per row) after construction — the grid owns row identity and order through the registry inherited from [createDataTable](/composables/data/create-data-table).
+Pass `columns` with `size` percentages to construct a grid, then register rows to get column layout, search, sort, and pagination.
 
 ```ts collapse
 import { createDataGrid } from '@vuetify/v0'
@@ -58,12 +55,6 @@ grid.layout.resize('name', 5) // grow by 5%, neighbor shrinks
 grid.layout.reorder(0, 2)     // move column 0 to position 2
 grid.layout.reset()            // restore initial layout
 ```
-
-::: example
-/composables/create-data-grid/basic/BasicGrid.vue
-/composables/create-data-grid/basic/columns.ts
-/composables/create-data-grid/basic/data.ts
-:::
 
 ## Architecture
 

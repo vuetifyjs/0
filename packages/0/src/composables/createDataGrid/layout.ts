@@ -54,7 +54,7 @@ export interface ResolvedColumn {
   index: number
   /** Current size as a percentage */
   size: number
-  /** Cumulative offset within the column's pin region */
+  /** Distance from the column's pinning edge — left edge for left/scrollable, right edge for right. Apply directly as the CSS `left` / `right` value for sticky positioning. */
   offset: number
   pinned: PinPosition
   resizable: boolean
@@ -120,11 +120,14 @@ function distributeEven (leaves: readonly GridColumnDef[]): Map<string, number> 
   return map
 }
 
-function offsets (cols: ResolvedColumn[]): void {
+function offsets (cols: ResolvedColumn[], reverse = false): void {
   let offset = 0
-  for (const col of cols) {
-    col.offset = offset
-    offset += col.size
+  const start = reverse ? cols.length - 1 : 0
+  const step = reverse ? -1 : 1
+  const end = reverse ? -1 : cols.length
+  for (let i = start; i !== end; i += step) {
+    cols[i]!.offset = offset
+    offset += cols[i]!.size
   }
 }
 
@@ -264,7 +267,7 @@ export function createColumnLayout<T extends Record<string, unknown>> (
 
     offsets(left)
     offsets(scrollable)
-    offsets(right)
+    offsets(right, true)
 
     return { left, scrollable, right }
   }
