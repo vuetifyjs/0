@@ -163,6 +163,9 @@ export type Activation = 'automatic' | 'manual'
 export type V0ErrorDetails =
   | { code: 'V0_CONTEXT_MISSING', key: string | symbol }
   | { code: 'V0_PLUGIN_MISSING', plugin: string }
+  | { code: 'V0_PALETTE_INVALID_SEED', palette: 'material' | 'leonardo' | 'ant', seed: string }
+  | { code: 'V0_PALETTE_UNKNOWN_VARIANT', palette: 'material', variant: string }
+  | { code: 'V0_ADAPTER_INSTANCE_MISSING', adapter: string }
 
 /**
  * Union of every error code thrown by v0

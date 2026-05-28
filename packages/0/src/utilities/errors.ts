@@ -73,6 +73,10 @@ export class V0Error extends Error {
   readonly code: V0ErrorCode
   readonly key?: string | symbol
   readonly plugin?: string
+  readonly palette?: string
+  readonly seed?: string
+  readonly variant?: string
+  readonly adapter?: string
 
   constructor (message: string, details: V0ErrorDetails & { cause?: unknown }) {
     const { cause, ...rest } = details
