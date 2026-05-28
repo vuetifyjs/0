@@ -15,6 +15,9 @@
  * @see https://docs.sentry.io/platforms/javascript/configuration/integrations/linkederrors/
  */
 
+// Utilities
+import { isUndefined } from './helpers'
+
 // Types
 import type { V0ErrorCode, V0ErrorDetails } from '#v0/types'
 
@@ -73,7 +76,7 @@ export class V0Error extends Error {
 
   constructor (message: string, details: V0ErrorDetails & { cause?: unknown }) {
     const { cause, ...rest } = details
-    super(message, cause === undefined ? undefined : { cause })
+    super(message, isUndefined(cause) ? undefined : { cause })
     this.code = details.code
     Object.assign(this, rest)
   }
@@ -113,5 +116,5 @@ export function isV0Error<C extends V0ErrorCode> (
   code?: C,
 ): value is V0Error & Extract<V0ErrorDetails, { code: C }> {
   if (!(value instanceof V0Error)) return false
-  return code === undefined || value.code === code
+  return isUndefined(code) || value.code === code
 }
