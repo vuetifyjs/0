@@ -359,7 +359,7 @@ describe('v0StyleSheetThemeAdapter', () => {
         isDark,
       }
       const adapter = new V0StyleSheetThemeAdapter()
-      const updateSpy = vi.spyOn(adapter, 'update')
+      using updateSpy = vi.spyOn(adapter, 'update')
 
       const scope = effectScope()
       scope.run(() => {
@@ -449,7 +449,7 @@ describe('v0StyleSheetThemeAdapter', () => {
         isDark,
       }
       const adapter = new V0StyleSheetThemeAdapter()
-      const updateSpy = vi.spyOn(adapter, 'update')
+      using updateSpy = vi.spyOn(adapter, 'update')
 
       const scope = effectScope()
       scope.run(() => {

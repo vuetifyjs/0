@@ -80,7 +80,7 @@ describe('createRules', () => {
     })
 
     it('should skip unknown aliases', () => {
-      const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       const rules = createRules()
       const resolved = rules.resolve(['nonexistent'])
@@ -88,8 +88,6 @@ describe('createRules', () => {
       expect(resolved).toHaveLength(0)
       expect(spy).toHaveBeenCalledTimes(1)
       expect(spy).toHaveBeenCalledWith(expect.stringContaining('nonexistent'))
-
-      spy.mockRestore()
     })
   })
 

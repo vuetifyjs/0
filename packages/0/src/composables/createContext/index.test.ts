@@ -134,7 +134,7 @@ describe('createContext', () => {
     })
 
     it('should warn on non-namespaced string key in dev mode', () => {
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      using warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       createContext('no-namespace')
 
@@ -142,18 +142,14 @@ describe('createContext', () => {
       expect(warnSpy).toHaveBeenCalledWith(
         expect.stringContaining('no-namespace'),
       )
-
-      warnSpy.mockRestore()
     })
 
     it('should not warn on namespaced string key', () => {
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      using warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       createContext('v0:theme')
 
       expect(warnSpy).not.toHaveBeenCalled()
-
-      warnSpy.mockRestore()
     })
   })
 

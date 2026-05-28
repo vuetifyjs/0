@@ -1112,7 +1112,7 @@ describe('numberField', () => {
       const { scrubEl, wait } = mountNumberField({ model, withScrub: true })
       await wait()
 
-      const requestSpy = vi.spyOn(scrubEl().element as HTMLElement, 'requestPointerLock')
+      using requestSpy = vi.spyOn(scrubEl().element as HTMLElement, 'requestPointerLock')
       await scrubEl().trigger('pointerdown', { button: 0 })
       expect(requestSpy).toHaveBeenCalledTimes(1)
     })
@@ -1122,7 +1122,7 @@ describe('numberField', () => {
       const { scrubEl, wait } = mountNumberField({ model, withScrub: true })
       await wait()
 
-      const requestSpy = vi.spyOn(scrubEl().element as HTMLElement, 'requestPointerLock')
+      using requestSpy = vi.spyOn(scrubEl().element as HTMLElement, 'requestPointerLock')
       await scrubEl().trigger('pointerdown', { button: 2 })
       expect(requestSpy).not.toHaveBeenCalled()
     })
@@ -1136,7 +1136,7 @@ describe('numberField', () => {
       })
       await wait()
 
-      const requestSpy = vi.spyOn(scrubEl().element as HTMLElement, 'requestPointerLock')
+      using requestSpy = vi.spyOn(scrubEl().element as HTMLElement, 'requestPointerLock')
       await scrubEl().trigger('pointerdown', { button: 0 })
       expect(requestSpy).not.toHaveBeenCalled()
     })
@@ -1150,13 +1150,13 @@ describe('numberField', () => {
       })
       await wait()
 
-      const requestSpy = vi.spyOn(scrubEl().element as HTMLElement, 'requestPointerLock')
+      using requestSpy = vi.spyOn(scrubEl().element as HTMLElement, 'requestPointerLock')
       await scrubEl().trigger('pointerdown', { button: 0 })
       expect(requestSpy).not.toHaveBeenCalled()
     })
 
     it('should increment value when scrubbing right after locking', async () => {
-      const rafSpy = vi.spyOn(globalThis, 'requestAnimationFrame').mockImplementation((cb: any) => {
+      using rafSpy = vi.spyOn(globalThis, 'requestAnimationFrame').mockImplementation((cb: any) => {
         cb(0)
         return 1
       })
@@ -1175,11 +1175,11 @@ describe('numberField', () => {
       await wait()
 
       expect(model.value).toBeGreaterThan(5)
-      rafSpy.mockRestore()
+      expect(rafSpy).toHaveBeenCalled()
     })
 
     it('should decrement value when scrubbing left after locking', async () => {
-      const rafSpy = vi.spyOn(globalThis, 'requestAnimationFrame').mockImplementation((cb: any) => {
+      using rafSpy = vi.spyOn(globalThis, 'requestAnimationFrame').mockImplementation((cb: any) => {
         cb(0)
         return 1
       })
@@ -1198,7 +1198,7 @@ describe('numberField', () => {
       await wait()
 
       expect(model.value).toBeLessThan(5)
-      rafSpy.mockRestore()
+      expect(rafSpy).toHaveBeenCalled()
     })
 
     it('should not move value before pointerdown locks', async () => {
@@ -1222,7 +1222,7 @@ describe('numberField', () => {
     })
 
     it('should respect sensitivity prop', async () => {
-      const rafSpy = vi.spyOn(globalThis, 'requestAnimationFrame').mockImplementation((cb: any) => {
+      using rafSpy = vi.spyOn(globalThis, 'requestAnimationFrame').mockImplementation((cb: any) => {
         cb(0)
         return 1
       })
@@ -1246,7 +1246,7 @@ describe('numberField', () => {
       await scrubEl().trigger('pointermove', { movementX: 5 })
       await wait()
       expect(model.value).toBe(1)
-      rafSpy.mockRestore()
+      expect(rafSpy).toHaveBeenCalled()
     })
 
     it('should release pointer lock on pointerup', async () => {
