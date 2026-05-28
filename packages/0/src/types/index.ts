@@ -135,3 +135,46 @@ export type Extensible<T extends string> = T | (string & {})
  * ```
  */
 export type Activation = 'automatic' | 'manual'
+
+/**
+ * Discriminated union of all `Error.cause` payloads thrown by v0
+ *
+ * @remarks
+ * Every error v0 throws attaches a structured `cause` with a `code`
+ * discriminant so consumers (devtools panels, error overlays, error trackers)
+ * can identify the error stably without parsing the message string.
+ *
+ * When authoring a new v0 throw, append the literal with
+ * `satisfies V0ErrorCause` so TypeScript verifies the discriminant and the
+ * payload shape at the call site.
+ *
+ * @example
+ * ```ts
+ * try {
+ *   useContext(myKey)
+ * } catch (err) {
+ *   if (
+ *     err instanceof Error
+ *     && err.cause
+ *     && typeof err.cause === 'object'
+ *     && 'code' in err.cause
+ *   ) {
+ *     const cause = err.cause as V0ErrorCause
+ *     if (cause.code === 'V0_CONTEXT_MISSING') {
+ *       console.log('missing context key:', cause.key)
+ *     }
+ *   }
+ * }
+ * ```
+ */
+export type V0ErrorCause =
+  | { code: 'V0_CONTEXT_MISSING', key: string | symbol }
+  | { code: 'V0_PLUGIN_MISSING', plugin: string }
+
+/**
+ * Union of all error codes thrown by v0
+ *
+ * @remarks
+ * Convenience alias for the discriminant field of {@link V0ErrorCause}.
+ */
+export type V0ErrorCode = V0ErrorCause['code']

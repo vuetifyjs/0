@@ -30,6 +30,7 @@ import { isObject, isString, isSymbol, isUndefined } from '#v0/utilities'
 import { inject, provide } from 'vue'
 
 // Types
+import type { V0ErrorCause } from '#v0/types'
 import type { App, InjectionKey } from 'vue'
 
 export type ContextKey<Z> = InjectionKey<Z> | string
@@ -65,7 +66,7 @@ export function useContext<Z> (key: ContextKey<Z>, defaultValue?: Z) {
 
   if (isUndefined(context)) {
     throw new Error(`Context "${String(key)}" not found. Ensure it's provided by an ancestor.`, {
-      cause: { code: 'V0_CONTEXT_MISSING', key },
+      cause: { code: 'V0_CONTEXT_MISSING', key } satisfies V0ErrorCause,
     })
   }
 

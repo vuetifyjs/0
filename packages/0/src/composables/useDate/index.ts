@@ -51,7 +51,7 @@ import { computed, watchEffect, onScopeDispose } from 'vue'
 // Types
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { DateAdapter } from '#v0/composables/useDate/adapters'
-import type { ID } from '#v0/types'
+import type { ID, V0ErrorCause } from '#v0/types'
 import type { App, ComputedRef, Ref } from 'vue'
 
 // Exports
@@ -336,7 +336,7 @@ export function useDate<
       '  import { createDatePlugin } from \'@vuetify/v0\'\n\n' +
       '  app.use(createDatePlugin({ adapter: new V0DateAdapter() }))',
       {
-        cause: { code: 'V0_PLUGIN_MISSING', plugin: 'createDatePlugin' },
+        cause: { code: 'V0_PLUGIN_MISSING', plugin: 'createDatePlugin' } satisfies V0ErrorCause,
       },
     )
   }
