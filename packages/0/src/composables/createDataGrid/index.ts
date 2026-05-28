@@ -258,7 +258,7 @@ export function createDataGrid<T extends Record<string, unknown>> (
     )
   })
 
-  const layout = createColumnLayout(columns)
+  const layout = createColumnLayout(table.columns, columns)
 
   const editable = leaves
     .filter(col => col.editable === true || isFunction(col.editable))

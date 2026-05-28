@@ -6,9 +6,12 @@
  * pinning (left/right/scrollable regions), delta-based resizing compatible
  * with the Splitter two-panel model, and column reordering.
  *
- * Built on v0 primitives:
- * - createRegistry for column collection and ordering
- * - createGroup for pin state (tri-state: selected=left, mixed=right, unselected=none)
+ * Column existence and display order live on the table's columns registry
+ * (passed in as the first argument). The layout module reads from it and
+ * adds layout-specific state (sizes, pin group, per-column extras) that
+ * the column ticket does not carry. Late-registered columns pick up
+ * defaults via register events; removed columns have their pin/size
+ * state pruned via unregister events.
  *
  * Sizing uses percentages so it is compatible with the Splitter component.
  * Offsets are computed per-region (left, scrollable, right) independently.
@@ -17,15 +20,15 @@
 // Composables
 import { extractLeaves } from '#v0/composables/createDataTable/columns'
 import { createGroup } from '#v0/composables/createGroup'
-import { createRegistry } from '#v0/composables/createRegistry'
 
 // Utilities
 import { clamp, isUndefined } from '#v0/utilities'
 import { shallowReactive, toRef } from 'vue'
 
 // Types
+import type { DataTableColumnTicket, DataTableColumnTicketInput } from '#v0/composables/createDataTable'
 import type { ColumnNode } from '#v0/composables/createDataTable/columns'
-import type { RegistryTicketInput } from '#v0/composables/createRegistry'
+import type { RegistryContext } from '#v0/composables/createRegistry'
 import type { Ref } from 'vue'
 
 export type PinPosition = 'left' | 'right' | false
@@ -87,14 +90,21 @@ export interface ColumnLayout {
   reset: () => void
 }
 
-interface ColumnTicketInput extends RegistryTicketInput {
+interface ColumnExtras {
   minSize: number
   maxSize: number
   resizable: boolean
   reorderable: boolean
 }
 
-function distributeEven (leaves: GridColumnDef[]): Map<string, number> {
+const DEFAULT_EXTRAS: ColumnExtras = {
+  minSize: 2,
+  maxSize: 100,
+  resizable: true,
+  reorderable: true,
+}
+
+function distributeEven (leaves: readonly GridColumnDef[]): Map<string, number> {
   const map = new Map<string, number>()
   const explicit = leaves.filter(c => !isUndefined(c.size))
   const implicit = leaves.filter(c => isUndefined(c.size))
@@ -121,46 +131,101 @@ function offsets (cols: ResolvedColumn[]): void {
 /**
  * Creates a column layout manager for a data grid.
  *
- * @param defs Column definitions (may be nested; leaves are extracted)
+ * Reads column existence and display order from the table's columns
+ * registry. Layout-specific state (sizes, pin group, per-column min/max
+ * and resizable/reorderable flags) is kept locally and reconciled via
+ * register / unregister / clear events.
+ *
+ * @param cols The table's columns registry — source of truth for which
+ *             columns exist and in what order
+ * @param defs Column definitions used to seed initial sizes, pins, and
+ *             per-column extras (minSize, maxSize, resizable, reorderable)
  * @returns Column layout state and mutation methods
  */
-export function createColumnLayout (defs: readonly GridColumnDef[]): ColumnLayout {
+export function createColumnLayout<T extends Record<string, unknown>> (
+  cols: RegistryContext<DataTableColumnTicketInput<T>, DataTableColumnTicket<T>>,
+  defs: readonly GridColumnDef[],
+): ColumnLayout {
   const leaves = extractLeaves(defs)
   const initial = distributeEven(leaves)
+
+  // Lookups built once from the initial defs. Late-registered columns
+  // fall back to defaults via the register handler below.
+  const initialPins = new Map<string, PinPosition>(
+    leaves.map(c => [c.id, c.pinned ?? false]),
+  )
+
+  const extras = new Map<string, ColumnExtras>()
+  for (const col of leaves) {
+    extras.set(col.id, {
+      minSize: col.minSize ?? DEFAULT_EXTRAS.minSize,
+      maxSize: col.maxSize ?? DEFAULT_EXTRAS.maxSize,
+      resizable: col.resizable ?? DEFAULT_EXTRAS.resizable,
+      reorderable: col.reorderable ?? DEFAULT_EXTRAS.reorderable,
+    })
+  }
 
   // Initial snapshots for reset
   const snapshot = {
     sizes: new Map(initial),
-    order: leaves.map(c => c.id),
-    pins: new Map<string, PinPosition>(
-      leaves.map(c => [c.id, c.pinned ?? false]),
-    ),
+    // Top-level column order — the registry holds top-level entries; nested
+    // children move with their parent. `cols.reorder` operates on the top-
+    // level id set.
+    order: defs.map(c => c.id),
+    pins: new Map(initialPins),
   }
-
-  // Registry manages column collection and ordering
-  const registry = createRegistry<ColumnTicketInput>({ reactive: true })
-  registry.onboard(
-    leaves.map(col => ({
-      id: col.id,
-      value: col.id,
-      minSize: col.minSize ?? 2,
-      maxSize: col.maxSize ?? 100,
-      resizable: col.resizable ?? true,
-      reorderable: col.reorderable ?? true,
-    })),
-  )
 
   // Group manages pin state (selected=left, mixed=right, unselected=none)
   const group = createGroup({ multiple: true })
-  group.onboard(leaves.map(col => ({ id: col.id, value: col.id })))
-
-  for (const col of leaves) {
-    if (col.pinned === 'left') group.select(col.id)
-    else if (col.pinned === 'right') group.mix(col.id)
-  }
 
   // Sizes stored separately — they change too frequently for registry tickets
-  const sizes = shallowReactive(new Map(initial))
+  const sizes = shallowReactive(new Map<string, number>())
+
+  function seedLeaf (id: string) {
+    if (!group.has(id)) group.register({ id, value: id })
+
+    if (!extras.has(id)) extras.set(id, { ...DEFAULT_EXTRAS })
+
+    if (!sizes.has(id)) {
+      // Late registrations default to 0 — consumers can call `distribute`
+      // to rebalance once the full column set is known.
+      sizes.set(id, initial.get(id) ?? 0)
+    }
+
+    const pos = initialPins.get(id)
+    if (pos === 'left') group.select(id)
+    else if (pos === 'right') group.mix(id)
+  }
+
+  function dropLeaf (id: string) {
+    group.unregister(id)
+    extras.delete(id)
+    sizes.delete(id)
+  }
+
+  function leavesOf (ticket: DataTableColumnTicket<T>): DataTableColumnTicket<T>[] {
+    return extractLeaves([ticket])
+  }
+
+  // Seed for already-registered columns (table.columns.onboard runs before
+  // createColumnLayout in createDataGrid).
+  for (const leaf of extractLeaves(cols.values())) {
+    seedLeaf(String(leaf.id))
+  }
+
+  cols.on('register:ticket', ticket => {
+    for (const leaf of leavesOf(ticket)) seedLeaf(String(leaf.id))
+  })
+
+  cols.on('unregister:ticket', ticket => {
+    for (const leaf of leavesOf(ticket)) dropLeaf(String(leaf.id))
+  })
+
+  cols.on('clear:registry', () => {
+    group.clear()
+    extras.clear()
+    sizes.clear()
+  })
 
   function position (id: string): PinPosition {
     if (group.selectedIds.has(id)) return 'left'
@@ -169,28 +234,29 @@ export function createColumnLayout (defs: readonly GridColumnDef[]): ColumnLayou
   }
 
   function resolve (): ResolvedColumn[] {
-    return registry.values().map((ticket, index) => {
+    return extractLeaves(cols.values()).map((ticket, index) => {
       const id = String(ticket.id)
+      const meta = extras.get(id) ?? DEFAULT_EXTRAS
       return {
         id,
         index,
         size: sizes.get(id) ?? 0,
         offset: 0,
         pinned: position(id),
-        resizable: ticket.resizable,
-        reorderable: ticket.reorderable,
-        minSize: ticket.minSize,
-        maxSize: ticket.maxSize,
+        resizable: meta.resizable,
+        reorderable: meta.reorderable,
+        minSize: meta.minSize,
+        maxSize: meta.maxSize,
       }
     })
   }
 
-  function split (cols: ResolvedColumn[]): PinnedRegion {
+  function split (resolved: ResolvedColumn[]): PinnedRegion {
     const left: ResolvedColumn[] = []
     const scrollable: ResolvedColumn[] = []
     const right: ResolvedColumn[] = []
 
-    for (const col of cols) {
+    for (const col of resolved) {
       if (col.pinned === 'left') left.push(col)
       else if (col.pinned === 'right') right.push(col)
       else scrollable.push(col)
@@ -211,7 +277,7 @@ export function createColumnLayout (defs: readonly GridColumnDef[]): ColumnLayou
   })
 
   function pin (id: string, pos: PinPosition) {
-    if (!registry.has(id)) return
+    if (!cols.has(id)) return
     group.unselect(id)
     group.unmix(id)
     if (pos === 'left') group.select(id)
@@ -244,26 +310,28 @@ export function createColumnLayout (defs: readonly GridColumnDef[]): ColumnLayou
 
   function reorder (from: number, to: number) {
     if (from === to) return
-    const id = registry.lookup(from)
+    const id = cols.lookup(from)
     if (!id) return
-    registry.move(id, to)
+    cols.move(id, to)
   }
 
   function distribute (incoming: number[]) {
-    const tickets = registry.values()
+    const tickets = extractLeaves(cols.values())
     if (incoming.length !== tickets.length) return
 
     for (const [i, ticket] of tickets.entries()) {
       const id = String(ticket.id)
-      sizes.set(id, clamp(incoming[i]!, ticket.minSize, ticket.maxSize))
+      const meta = extras.get(id) ?? DEFAULT_EXTRAS
+      sizes.set(id, clamp(incoming[i]!, meta.minSize, meta.maxSize))
     }
 
     let remainder = 100 - tickets.reduce((sum, t) => sum + (sizes.get(String(t.id)) ?? 0), 0)
     for (const ticket of tickets) {
       if (remainder === 0) break
       const id = String(ticket.id)
+      const meta = extras.get(id) ?? DEFAULT_EXTRAS
       const current = sizes.get(id) ?? 0
-      const room = remainder > 0 ? ticket.maxSize - current : current - ticket.minSize
+      const room = remainder > 0 ? meta.maxSize - current : current - meta.minSize
       const adjust = remainder > 0 ? Math.min(remainder, room) : Math.max(remainder, -room)
       sizes.set(id, current + adjust)
       remainder -= adjust
@@ -275,11 +343,10 @@ export function createColumnLayout (defs: readonly GridColumnDef[]): ColumnLayou
       sizes.set(id, size)
     }
 
-    for (const [index, id] of snapshot.order.entries()) {
-      registry.move(id, index)
-    }
+    // Restore original display order via the registry's bulk reorder.
+    cols.reorder(snapshot.order)
 
-    for (const ticket of registry.values()) {
+    for (const ticket of cols.values()) {
       group.unselect(ticket.id)
       group.unmix(ticket.id)
     }

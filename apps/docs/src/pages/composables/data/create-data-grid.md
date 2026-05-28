@@ -72,7 +72,7 @@ grid.layout.reset()            // restore initial layout
 ```mermaid "createDataGrid Architecture"
 flowchart TD
   createDataGrid:::primary --> table["createDataTable (pipeline)"]
-  createDataGrid --> layout["layout (createRegistry + createGroup)"]
+  createDataGrid --> layout["layout (table.columns + createGroup)"]
   createDataGrid --> editing["editing (createCellEditing)"]
   createDataGrid --> ordering["rows (createSortable)"]
   createDataGrid --> spanning["spans (createRowSpanning)"]
@@ -86,7 +86,7 @@ flowchart TD
 | Module | Built on | Purpose |
 | - | - | - |
 | `table` (spread) | `createDataTable` | Search, sort, filter, paginate, total — all v-modeled through |
-| `layout` | `createRegistry` + `createGroup` | Column ordering, tri-region pinning, percentage sizing, delta-based resize |
+| `layout` | `table.columns` + `createGroup` | Reads column order from the table's columns registry; layers tri-region pinning, percentage sizing, and delta-based resize on top |
 | `editing` | internal factory | Click-to-edit lifecycle, per-column validation, dirty tracking |
 | `rows` | `createSortable` | Post-sort row reordering, applied to `sortedItems` before pagination slicing |
 | `spans` | computed map | Row span resolution and hidden-cell tracking |
