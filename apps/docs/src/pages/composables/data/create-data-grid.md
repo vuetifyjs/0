@@ -198,22 +198,23 @@ A financial data grid with 10 columns that requires horizontal scrolling. Ticker
 
 ### Cell Editing
 
-An inventory management grid where editing is the primary workflow. Product name, price, and quantity are editable — invalid values show inline errors and block commit.
+An inventory management grid where editing is the primary workflow. Product name, price, and quantity are editable; invalid values show inline errors and block commit. Every committed edit pushes a `{ from, to }` entry onto a [createTimeline](/composables/registration/create-timeline), which powers the Undo / Redo buttons and the history log.
 
 **File breakdown:**
 
 | File | Role |
 |------|------|
-| `EditableGrid.vue` | Click-to-edit cells with focus ring, Enter/Escape keyboard handling, and edit history log |
+| `EditableGrid.vue` | Click-to-edit cells with primary tint on the active cell, Enter / Escape / Ctrl+Z / Ctrl+Y keyboard handling, and timeline-backed history log |
 | `columns.ts` | Columns with `editable: true` and `validate` functions for name, price, and quantity |
 | `data.ts` | 8 products across electronics, accessories, and peripherals |
 
 **Key patterns:**
 
-- `editing.edit(row, column)` activates a cell for editing
+- `editing.edit(row, column)` activates a cell for editing — the cell paints `bg-primary/10` so the edit target is unmistakable
 - `editing.commit(value)` validates first — only `true` from the validator allows the edit through
 - `editing.error` persists until the value passes validation or the user cancels
-- `onEdit` callback receives the full item for context-aware updates
+- `onEdit` callback fires after a successful commit; the example pushes `{ row, column, from, to }` to a `createTimeline({ size: 50 })`
+- `timeline.undo()` / `timeline.redo()` walk the history; the example applies the recovered `from` (undo) or `to` (redo) to the row in place
 
 :::
 

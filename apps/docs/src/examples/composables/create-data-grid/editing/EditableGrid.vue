@@ -1,46 +1,69 @@
 <script setup lang="ts">
-  import { computed, nextTick, ref, useTemplateRef } from 'vue'
+  import { computed, nextTick, ref, shallowRef, useTemplateRef } from 'vue'
 
-  import { mdiArrowDown, mdiArrowUp, mdiPencilOutline, mdiPackageVariantClosed, mdiRefresh } from '@mdi/js'
+  import {
+    mdiArrowDown,
+    mdiArrowUp,
+    mdiPackageVariantClosed,
+    mdiPencilOutline,
+    mdiRedo,
+    mdiRefresh,
+    mdiUndo,
+  } from '@mdi/js'
 
-  import { createDataGrid, useClickOutside, useHotkey, useToggleScope } from '@vuetify/v0'
+  import {
+    createDataGrid,
+    createTimeline,
+    useClickOutside,
+    useHotkey,
+    useToggleScope,
+  } from '@vuetify/v0'
   import type { ID } from '@vuetify/v0'
 
   import { columns } from './columns'
   import { products } from './data'
 
-  type EditEntry = {
+  interface EditEntry {
     row: ID
     column: string
     from: unknown
     to: unknown
   }
 
-  const log = ref<EditEntry[]>([])
-  const edits = ref<Map<string, unknown>>(new Map())
   const input = ref('')
-  const editRef = useTemplateRef<HTMLInputElement>('edit-input')
+  const editRef = useTemplateRef<HTMLInputElement[]>('edit-input')
+  const canRedo = shallowRef(false)
+
+  const timeline = createTimeline<{ id?: ID, value: EditEntry }>({
+    size: 50,
+    reactive: true,
+  })
+
+  function applyValue (row: ID, column: string, value: unknown) {
+    const item = products.find(p => p.id === row)
+    if (!item) return
+    const coerced = column === 'price' || column === 'quantity' ? Number(value) : value
+    ;(item as Record<string, unknown>)[column] = coerced
+  }
 
   const grid = createDataGrid({
     columns,
     editing: {
-      onEdit (row, column, value) {
-        const item = products.find(p => p.id === row)
+      onEdit (row, column, value, item) {
         const from = item ? item[column as keyof typeof item] : undefined
-
-        edits.value.set(`${row}:${column}`, value)
-        log.value.unshift({ row, column, from, to: value })
-
-        if (item) {
-          (item as Record<string, unknown>)[column] = column === 'price' || column === 'quantity'
-            ? Number(value)
-            : value
-        }
+        timeline.register({ value: { row, column, from, to: value } })
+        applyValue(row, column, value)
+        canRedo.value = false
       },
     },
   })
 
   grid.onboard(products.map(value => ({ id: value.id, value })))
+
+  const history = computed(() => [...timeline.values()].reverse())
+  const editedCells = computed(
+    () => new Set(timeline.values().map(t => `${t.value.row}:${t.value.column}`)),
+  )
 
   function cellKey (row: ID, column: string) {
     return `${row}:${column}`
@@ -52,7 +75,7 @@
   }
 
   function isEdited (row: ID, column: string) {
-    return edits.value.has(cellKey(row, column))
+    return editedCells.value.has(cellKey(row, column))
   }
 
   function isEditable (column: string) {
@@ -60,7 +83,8 @@
   }
 
   function isSortable (column: string) {
-    return columns.find(c => c.id === column)?.sortable === true || columns.find(c => c.id === column)?.sort !== undefined
+    const col = columns.find(c => c.id === column)
+    return col?.sortable === true || col?.sort !== undefined
   }
 
   function onEdit (row: ID, column: string, value: unknown) {
@@ -70,8 +94,9 @@
     input.value = String(value ?? '')
 
     nextTick(() => {
-      editRef.value?.focus()
-      editRef.value?.select()
+      const el = editRef.value?.[0]
+      el?.focus()
+      el?.select()
     })
   }
 
@@ -83,9 +108,22 @@
     grid.editing.cancel()
   }
 
+  function onUndo () {
+    const ticket = timeline.undo()
+    if (!ticket) return
+    applyValue(ticket.value.row, ticket.value.column, ticket.value.from)
+    canRedo.value = true
+  }
+
+  function onRedo () {
+    const ticket = timeline.redo()
+    if (!ticket) return
+    applyValue(ticket.value.row, ticket.value.column, ticket.value.to)
+  }
+
   function onClear () {
-    log.value = []
-    edits.value.clear()
+    timeline.clear()
+    canRedo.value = false
   }
 
   const cell = useTemplateRef<HTMLTableCellElement>('active-cell')
@@ -97,6 +135,10 @@
       useHotkey('escape', () => onCancel(), { inputs: true })
     },
   )
+
+  useHotkey('ctrl+z', () => onUndo())
+  useHotkey('ctrl+shift+z', () => onRedo())
+  useHotkey('ctrl+y', () => onRedo())
 
   function money (value: unknown) {
     return `$${Number(value).toFixed(2)}`
@@ -138,19 +180,45 @@
 
       <div class="flex items-center gap-2">
         <div
-          v-if="edits.size > 0"
+          v-if="editedCells.size > 0"
           class="flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-primary/15 text-primary"
         >
           <svg class="w-3 h-3" viewBox="0 0 24 24">
             <path :d="mdiPencilOutline" fill="currentColor" />
           </svg>
 
-          <span class="tabular-nums">{{ edits.size }} edited</span>
+          <span class="tabular-nums">{{ editedCells.size }} edited</span>
         </div>
 
         <button
           class="flex items-center gap-1 px-2 py-1 text-xs border border-divider rounded hover:bg-surface-tint disabled:opacity-30 disabled:cursor-not-allowed"
-          :disabled="log.length === 0"
+          :disabled="timeline.size === 0"
+          title="Undo last edit (Ctrl+Z)"
+          @click="onUndo"
+        >
+          <svg class="w-3 h-3" viewBox="0 0 24 24">
+            <path :d="mdiUndo" fill="currentColor" />
+          </svg>
+
+          Undo
+        </button>
+
+        <button
+          class="flex items-center gap-1 px-2 py-1 text-xs border border-divider rounded hover:bg-surface-tint disabled:opacity-30 disabled:cursor-not-allowed"
+          :disabled="!canRedo"
+          title="Redo edit (Ctrl+Y)"
+          @click="onRedo"
+        >
+          <svg class="w-3 h-3" viewBox="0 0 24 24">
+            <path :d="mdiRedo" fill="currentColor" />
+          </svg>
+
+          Redo
+        </button>
+
+        <button
+          class="flex items-center gap-1 px-2 py-1 text-xs border border-divider rounded hover:bg-surface-tint disabled:opacity-30 disabled:cursor-not-allowed"
+          :disabled="timeline.size === 0"
           @click="onClear"
         >
           <svg class="w-3 h-3" viewBox="0 0 24 24">
@@ -218,22 +286,20 @@
               v-for="col in grid.layout.columns.value"
               :key="col.id"
               :ref="isEditing(item.id as ID, col.id) ? 'active-cell' : undefined"
-              class="px-3 py-2"
+              class="px-3 py-2 transition-colors"
               :class="[
                 col.id === 'price' || col.id === 'quantity' ? 'text-right' : 'text-left',
-                isEditable(col.id) && !isEditing(item.id as ID, col.id) ? 'cursor-text hover:bg-surface-tint transition-colors' : '',
+                isEditing(item.id as ID, col.id) ? 'bg-primary/10 text-on-primary-container' : '',
+                isEditable(col.id) && !isEditing(item.id as ID, col.id) ? 'cursor-text hover:bg-surface-tint' : '',
               ]"
-              :style="[
-                { width: col.size + '%' },
-                isEditing(item.id as ID, col.id) ? 'outline: 2px solid var(--v0-color-primary); outline-offset: -2px; border-radius: 2px;' : '',
-              ]"
+              :style="{ width: col.size + '%' }"
               @click="onEdit(item.id as ID, col.id, item[col.id])"
             >
               <template v-if="isEditing(item.id as ID, col.id)">
                 <div class="flex flex-col gap-1">
                   <input
                     ref="edit-input"
-                    class="w-full bg-transparent outline-none border-none p-0 m-0 text-sm"
+                    class="w-full bg-transparent outline-none border-none p-0 m-0 text-sm font-medium"
                     :class="col.id === 'price' || col.id === 'quantity' ? 'text-right' : 'text-left'"
                     :value="input"
                     @input="input = ($event.target as HTMLInputElement).value"
@@ -271,24 +337,24 @@
     </div>
 
     <div
-      v-if="log.length > 0"
+      v-if="timeline.size > 0"
       class="border border-divider rounded-lg overflow-hidden"
     >
       <div class="px-3 py-2 bg-surface-tint text-xs font-medium border-b border-divider flex items-center justify-between">
         <span>Edit history</span>
-        <span class="text-on-surface-variant tabular-nums">{{ log.length }}</span>
+        <span class="text-on-surface-variant tabular-nums">{{ timeline.size }} / 50</span>
       </div>
 
       <div class="divide-y divide-divider text-xs max-h-40 overflow-y-auto">
         <div
-          v-for="(entry, index) in log"
-          :key="index"
+          v-for="(entry, index) in history"
+          :key="entry.id ?? index"
           class="px-3 py-2 flex items-center gap-3"
         >
-          <span class="text-on-surface-variant w-16 truncate">{{ entry.column }}</span>
-          <span class="text-on-surface-variant line-through tabular-nums">{{ entry.from }}</span>
+          <span class="text-on-surface-variant w-16 truncate">{{ entry.value.column }}</span>
+          <span class="text-on-surface-variant line-through tabular-nums">{{ entry.value.from }}</span>
           <span class="text-on-surface-variant">&rarr;</span>
-          <span class="text-primary font-medium tabular-nums">{{ entry.to }}</span>
+          <span class="text-primary font-medium tabular-nums">{{ entry.value.to }}</span>
         </div>
       </div>
     </div>
@@ -301,7 +367,7 @@
         <path :d="mdiPencilOutline" fill="currentColor" />
       </svg>
 
-      <span>Click any editable cell (Product, Price, Qty). Enter commits, Escape cancels.</span>
+      <span>Click an editable cell (Product, Price, Qty). Enter commits, Escape cancels, Ctrl+Z / Ctrl+Y to undo or redo.</span>
     </div>
   </div>
 </template>
