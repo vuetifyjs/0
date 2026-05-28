@@ -137,17 +137,18 @@ afterEach(() => { scope?.stop() })
 
 ### Expected warnings
 
-When a test intentionally triggers a warning (error paths, duplicate registration), capture with `vi.spyOn` and **assert** it was called — never silently swallow. [intent:229]
+When a test intentionally triggers a warning (error paths, duplicate registration), capture with `using` + `vi.spyOn` and **assert** it was called — never silently swallow. The spy auto-restores when the block exits, so no manual `mockRestore()` is needed. [intent:229]
 
 ```ts
-const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
 // ... code that warns ...
 
 expect(spy).toHaveBeenCalledTimes(1)
 expect(spy).toHaveBeenCalledWith(expect.stringContaining('expected message'))
-spy.mockRestore()
 ```
+
+The `using` form relies on Vitest's `Symbol.dispose` integration (Vitest 3+) and TS `target: esnext`. Fall back to `const` + `spy.mockRestore()` only when the spy must outlive the enclosing block (e.g., set in `beforeEach`, asserted in `afterEach`).
 
 ### Vue DI mocks — `hasInjectionContext` extension
 
