@@ -543,7 +543,7 @@ describe('createLocale', () => {
     })
 
     it('should not duplicate locale if already registered', () => {
-      const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       const locale = createLocale({
         default: 'en',
@@ -556,8 +556,6 @@ describe('createLocale', () => {
       expect(locale.size).toBe(before)
       expect(spy).toHaveBeenCalledTimes(1)
       expect(spy).toHaveBeenCalledWith(expect.stringContaining('en'))
-
-      spy.mockRestore()
     })
 
     it('should register without messages (existing behavior)', () => {

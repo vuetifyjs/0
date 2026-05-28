@@ -285,18 +285,17 @@ describe('createKanban', () => {
     })
 
     it('should warn and return undefined for an unknown ticket id', () => {
-      const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
       const kanban = createKanban<CardInput, ColumnInput>()
       const todo = kanban.columns.register({ value: { title: 'Todo' } })
 
       expect(kanban.transfer('does-not-exist', todo.id, 0)).toBeUndefined()
       expect(spy).toHaveBeenCalledTimes(1)
       expect(spy).toHaveBeenCalledWith(expect.stringContaining('unknown ticket id'))
-      spy.mockRestore()
     })
 
     it('should warn and return undefined for an unknown destination column', () => {
-      const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
       const kanban = createKanban<CardInput, ColumnInput>()
       const todo = kanban.columns.register({ value: { title: 'Todo' } })
       const a = todo.items.register({ value: { title: 'a' } })
@@ -304,7 +303,6 @@ describe('createKanban', () => {
       expect(kanban.transfer(a.id, 'no-such-column', 0)).toBeUndefined()
       expect(spy).toHaveBeenCalledTimes(1)
       expect(spy).toHaveBeenCalledWith(expect.stringContaining('unknown destination column'))
-      spy.mockRestore()
     })
 
     it('should land the transferred ticket at the requested index when dest already has items', () => {
@@ -326,7 +324,7 @@ describe('createKanban', () => {
     })
 
     it('should reject and warn when dest.accept returns a thenable', () => {
-      const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       const kanban = createKanban<CardInput, ColumnInput>()
       const todo = kanban.columns.register({ value: { title: 'Todo' } })
@@ -339,7 +337,6 @@ describe('createKanban', () => {
       expect(kanban.transfer(a.id, done.id, 0)).toBeUndefined()
       expect(spy).toHaveBeenCalledTimes(1)
       expect(spy).toHaveBeenCalledWith(expect.stringContaining('thenable'))
-      spy.mockRestore()
     })
 
     it('should bind the transferred ticket\'s unregister to the destination column', () => {
@@ -357,7 +354,7 @@ describe('createKanban', () => {
     })
 
     it('should reject and log an error when dest.accept throws', () => {
-      const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      using errSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
       const kanban = createKanban<CardInput, ColumnInput>()
       const todo = kanban.columns.register({ value: { title: 'Todo' } })
@@ -372,8 +369,6 @@ describe('createKanban', () => {
       expect(kanban.transfer(a.id, done.id, 0)).toBeUndefined()
       expect(done.items.size).toBe(0)
       expect(errSpy).toHaveBeenCalledTimes(1)
-
-      errSpy.mockRestore()
     })
 
     it('should never call dest.accept on same-column transfer', () => {
@@ -439,7 +434,7 @@ describe('createKanban', () => {
     })
 
     it('should warn and return undefined when the destination already contains the id', () => {
-      const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       const kanban = createKanban<CardInput, ColumnInput>()
       const todo = kanban.columns.register({ value: { title: 'Todo' } })
@@ -453,8 +448,6 @@ describe('createKanban', () => {
       // lookup says todo; source.get(dup) succeeds; destination (done) already has dup.
       expect(kanban.transfer('dup', done.id, 0)).toBeUndefined()
       expect(spy).toHaveBeenCalledWith(expect.stringContaining('already exists in destination'))
-
-      spy.mockRestore()
     })
 
     it('should clamp toIndex above destination size to the end', () => {
@@ -510,7 +503,7 @@ describe('createKanban', () => {
 
   describe('column lifecycle', () => {
     it('should not be findable for transfer after the source column is unregistered', () => {
-      const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
       const kanban = createKanban<CardInput, ColumnInput>()
       const todo = kanban.columns.register({ value: { title: 'Todo' } })
       const done = kanban.columns.register({ value: { title: 'Done' } })
@@ -520,7 +513,6 @@ describe('createKanban', () => {
 
       expect(kanban.transfer(a.id, done.id, 0)).toBeUndefined()
       expect(spy).toHaveBeenCalledTimes(1)
-      spy.mockRestore()
     })
 
     it('should leave sibling columns untouched when one column is unregistered', () => {
@@ -537,7 +529,7 @@ describe('createKanban', () => {
     })
 
     it('should keep lookup consistent after register/unregister/transfer churn', () => {
-      const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       const kanban = createKanban<CardInput, ColumnInput>()
       const todo = kanban.columns.register({ value: { title: 'Todo' } })
@@ -559,8 +551,6 @@ describe('createKanban', () => {
       expect(kanban.transfer(b.id, done.id, 0)).toBeUndefined()
       expect(spy).toHaveBeenCalledTimes(1)
       expect(spy).toHaveBeenCalledWith(expect.stringContaining('unknown ticket id'))
-
-      spy.mockRestore()
     })
   })
 })

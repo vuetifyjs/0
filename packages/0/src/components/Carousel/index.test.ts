@@ -1769,7 +1769,7 @@ describe('carousel', () => {
 
     it('should clear pending live-region timer on unmount', async () => {
       vi.useFakeTimers()
-      const clearSpy = vi.spyOn(globalThis, 'clearTimeout')
+      using clearSpy = vi.spyOn(globalThis, 'clearTimeout')
 
       let rootProps: any
 
@@ -1795,7 +1795,6 @@ describe('carousel', () => {
 
       expect(clearSpy.mock.calls.length).toBeGreaterThan(before)
 
-      clearSpy.mockRestore()
       vi.useRealTimers()
     })
 

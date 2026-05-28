@@ -418,15 +418,13 @@ describe('createRegistry', () => {
     it('should not emit events when events option is disabled', () => {
       const registry = createRegistry({ events: false })
       const listener = vi.fn()
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      using warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       registry.on('register:ticket', listener)
       registry.register({ id: 'test' })
 
       expect(listener).not.toHaveBeenCalled()
       expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Events are disabled'))
-
-      warnSpy.mockRestore()
     })
 
     it('should emit register:ticket event when enabled', () => {
@@ -516,24 +514,20 @@ describe('createRegistry', () => {
 
     it('should warn when attempting to register listener without events enabled', () => {
       const registry = createRegistry({ events: false })
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      using warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       registry.on('register:ticket', vi.fn())
 
       expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Events are disabled'))
-
-      warnSpy.mockRestore()
     })
 
     it('should warn when attempting to remove listener without events enabled', () => {
       const registry = createRegistry({ events: false })
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      using warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       registry.off('register:ticket', vi.fn())
 
       expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Events are disabled'))
-
-      warnSpy.mockRestore()
     })
 
     it('should support multiple listeners for same event', () => {
@@ -551,7 +545,7 @@ describe('createRegistry', () => {
 
     it('should warn when listener count exceeds 100', () => {
       const registry = createRegistry({ events: true })
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      using warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       for (let index = 0; index <= 100; index++) {
         registry.on('test-event', vi.fn())
@@ -561,8 +555,6 @@ describe('createRegistry', () => {
       expect(warnSpy).toHaveBeenCalledWith(
         expect.stringContaining('101 listeners'),
       )
-
-      warnSpy.mockRestore()
     })
   })
 
@@ -788,7 +780,7 @@ describe('createRegistry', () => {
   describe('edge cases', () => {
     it('should handle registering duplicate IDs by returning existing ticket', () => {
       const registry = createRegistry()
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      using warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       const ticket1 = registry.register({ id: 'duplicate', value: 'first' })
       const ticket2 = registry.register({ id: 'duplicate', value: 'second' })
@@ -797,8 +789,6 @@ describe('createRegistry', () => {
       expect(registry.size).toBe(1)
       expect(ticket1.value).toBe('first')
       expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('already exists'))
-
-      warnSpy.mockRestore()
     })
 
     it('should handle null value in browse', () => {

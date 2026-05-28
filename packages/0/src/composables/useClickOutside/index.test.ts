@@ -1499,7 +1499,7 @@ describe('useClickOutside', () => {
         y: 100,
         toJSON: () => ({}),
       }
-      const rectSpy = vi.spyOn(target, 'getBoundingClientRect').mockReturnValue(rect)
+      using rectSpy = vi.spyOn(target, 'getBoundingClientRect').mockReturnValue(rect)
 
       useClickOutside(target, handler, { bounds: true })
       await nextTick()
@@ -1536,8 +1536,6 @@ describe('useClickOutside', () => {
       // The buggy version re-evaluated pointerdown coords against the
       // shifted rect, saw "inside", and suppressed the click.
       expect(handler).toHaveBeenCalledTimes(1)
-
-      rectSpy.mockRestore()
     })
   })
 

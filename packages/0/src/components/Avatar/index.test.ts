@@ -364,7 +364,7 @@ describe('avatar', () => {
       it('should support renderless mode with slot props', () => {
         // Suppress Vue warning about runtime directive on non-element root
         // This is expected when using v-show with renderless components
-        const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+        using warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
         let slotProps: any
 
@@ -382,8 +382,7 @@ describe('avatar', () => {
 
         expect(slotProps).toBeDefined()
         expect(wrapper.find('.custom-img').exists()).toBe(true)
-
-        warnSpy.mockRestore()
+        expect(warnSpy).toHaveBeenCalled()
       })
     })
   })

@@ -30,12 +30,12 @@ describe('createNested', () => {
 
     it('should warn when registering with non-existent parentId', () => {
       const nested = createNested()
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      using warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       nested.register({ id: 'orphan', value: 'Orphan', parentId: 'non-existent' })
 
       expect(nested.parents.get('orphan')).toBeUndefined()
-      warnSpy.mockRestore()
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('does not exist'))
     })
 
     it('should register multiple children to same parent', () => {
@@ -251,7 +251,7 @@ describe('createNested', () => {
   // walk loops forever and hangs CI workers under vmThreads + v8 coverage.
   describe.skip('circular reference protection', () => {
     it('should not infinite loop in getPath when circular parent exists', () => {
-      const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       const nested = createNested()
 
@@ -269,12 +269,10 @@ describe('createNested', () => {
       expect(path.length).toBeLessThanOrEqual(3)
       expect(spy).toHaveBeenCalledTimes(1)
       expect(spy).toHaveBeenCalledWith(expect.stringContaining('Circular'))
-
-      spy.mockRestore()
     })
 
     it('should not infinite loop in isAncestorOf when descendant is in a cycle', { timeout: 1000 }, () => {
-      const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       const nested = createNested()
 
@@ -290,8 +288,7 @@ describe('createNested', () => {
       const result = nested.isAncestorOf('c', 'a')
 
       expect(result).toBe(false)
-
-      spy.mockRestore()
+      expect(spy).toHaveBeenCalledWith(expect.stringContaining('Circular'))
     })
 
     it('should not infinite loop in getDescendants when children form a cycle', { timeout: 1000 }, () => {
@@ -329,7 +326,7 @@ describe('createNested', () => {
     })
 
     it('should not infinite loop in open() reveal when parents form a cycle', { timeout: 1000 }, () => {
-      const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       const nested = createNested({ reveal: true })
 
@@ -345,12 +342,11 @@ describe('createNested', () => {
 
       // All three should be opened and we should not hang
       expect(nested.opened('c')).toBe(true)
-
-      spy.mockRestore()
+      expect(spy).toHaveBeenCalledWith(expect.stringContaining('Circular'))
     })
 
     it('should not infinite loop in updateAncestors during cascade select when parents form a cycle', { timeout: 1000 }, () => {
-      const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       const nested = createNested()
 
@@ -365,8 +361,7 @@ describe('createNested', () => {
       nested.select('c')
 
       expect(nested.selected('c')).toBe(true)
-
-      spy.mockRestore()
+      expect(spy).toHaveBeenCalledWith(expect.stringContaining('Circular'))
     })
   })
 
@@ -2296,7 +2291,7 @@ describe('clear', () => {
 
 describe('provideNestedContext', () => {
   it('should provide context via provideNestedContext', async () => {
-    const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
     const { createNestedContext } = await import('./index')
 
@@ -2309,7 +2304,5 @@ describe('provideNestedContext', () => {
     // Should be same as default nested
     expect(result).toBe(defaultNested)
     expect(spy).toHaveBeenCalledTimes(1)
-
-    spy.mockRestore()
   })
 })
