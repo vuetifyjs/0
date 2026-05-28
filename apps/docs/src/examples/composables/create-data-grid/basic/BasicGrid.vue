@@ -35,8 +35,8 @@
   let table: HTMLElement | null = null
   let resized = false
 
-  function onResizeStart (key: string, event: PointerEvent) {
-    resizing.value = key
+  function onResizeStart (id: string, event: PointerEvent) {
+    resizing.value = id
     startX = event.clientX
     table = (event.target as HTMLElement).closest('table')
   }
@@ -61,19 +61,19 @@
     },
   )
 
-  function canResize (key: string) {
+  function canResize (id: string) {
     const { left, scrollable, right } = grid.layout.pinned.value
-    const region = left.some(c => c.key === key)
+    const region = left.some(c => c.id === id)
       ? left
-      : (right.some(c => c.key === key) ? right : scrollable)
-    const index = region.findIndex(c => c.key === key)
+      : (right.some(c => c.id === id) ? right : scrollable)
+    const index = region.findIndex(c => c.id === id)
     return index !== -1 && index < region.length - 1
   }
 
   // -- Sort --
-  function onSort (key: string) {
+  function onSort (id: string) {
     if (resized) return
-    grid.sort.toggle(key)
+    grid.sort.toggle(id)
   }
 
   // -- Editing --
@@ -82,7 +82,7 @@
   const cell = useTemplateRef<HTMLTableCellElement>('active-cell')
 
   function onEdit (row: ID, column: string, value: unknown) {
-    const col = columns.find(c => c.key === column)
+    const col = columns.find(c => c.id === column)
     if (!col?.editable) return
     grid.editing.edit(row, column)
     input.value = String(value ?? '')
@@ -106,8 +106,8 @@
   )
 
   // -- Helpers --
-  function label (key: string) {
-    return columns.find(c => c.key === key)?.title ?? key
+  function label (id: string) {
+    return columns.find(c => c.id === id)?.title ?? id
   }
 
   function tint (v: number) {
@@ -142,7 +142,7 @@
           <tr class="border-b border-divider">
             <th
               v-for="col in grid.layout.columns.value"
-              :key="col.key"
+              :key="col.id"
               class="group relative px-3 py-2 font-semibold text-left select-none overflow-hidden uppercase tracking-wider text-on-surface/60"
               :class="[
                 col.pinned ? 'bg-surface-tint border-r border-divider' : 'bg-surface',
@@ -153,27 +153,27 @@
                 left: col.pinned === 'left' ? col.offset + '%' : undefined,
                 zIndex: col.pinned ? 10 : undefined,
               }"
-              @click="onSort(col.key)"
+              @click="onSort(col.id)"
             >
               <div class="flex items-center gap-1">
-                <span class="truncate">{{ label(col.key) }}</span>
+                <span class="truncate">{{ label(col.id) }}</span>
 
                 <svg
-                  v-if="grid.sort.direction(col.key) !== 'none'"
+                  v-if="grid.sort.direction(col.id) !== 'none'"
                   class="w-3 h-3 shrink-0"
                   viewBox="0 0 24 24"
                 >
                   <path
-                    :d="grid.sort.direction(col.key) === 'asc' ? mdiArrowUp : mdiArrowDown"
+                    :d="grid.sort.direction(col.id) === 'asc' ? mdiArrowUp : mdiArrowDown"
                     fill="currentColor"
                   />
                 </svg>
               </div>
 
               <div
-                v-if="canResize(col.key)"
+                v-if="canResize(col.id)"
                 class="absolute top-0 -right-1 w-2 h-full cursor-col-resize z-20 hover:bg-primary/50"
-                @pointerdown.stop="onResizeStart(col.key, $event)"
+                @pointerdown.stop="onResizeStart(col.id, $event)"
               />
             </th>
           </tr>
@@ -187,12 +187,12 @@
           >
             <td
               v-for="col in grid.layout.columns.value"
-              :key="col.key"
-              :ref="isEditing(item.id as ID, col.key) ? 'active-cell' : undefined"
+              :key="col.id"
+              :ref="isEditing(item.id as ID, col.id) ? 'active-cell' : undefined"
               class="px-3 py-1.5 truncate"
               :class="[
                 col.pinned ? 'bg-surface-tint border-r border-divider' : '',
-                columns.find(c => c.key === col.key)?.editable && !isEditing(item.id as ID, col.key)
+                columns.find(c => c.id === col.id)?.editable && !isEditing(item.id as ID, col.id)
                   ? 'cursor-pointer hover:bg-primary/5' : '',
               ]"
               :style="{
@@ -200,18 +200,18 @@
                 position: col.pinned ? 'sticky' : undefined,
                 left: col.pinned === 'left' ? col.offset + '%' : undefined,
                 zIndex: col.pinned ? 10 : undefined,
-                outline: isEditing(item.id as ID, col.key) ? '2px solid var(--v0-color-primary)' : undefined,
-                outlineOffset: isEditing(item.id as ID, col.key) ? '-2px' : undefined,
+                outline: isEditing(item.id as ID, col.id) ? '2px solid var(--v0-color-primary)' : undefined,
+                outlineOffset: isEditing(item.id as ID, col.id) ? '-2px' : undefined,
               }"
-              @click="onEdit(item.id as ID, col.key, item[col.key])"
+              @click="onEdit(item.id as ID, col.id, item[col.id])"
             >
               <!-- Editing -->
-              <template v-if="isEditing(item.id as ID, col.key)">
+              <template v-if="isEditing(item.id as ID, col.id)">
                 <div class="flex flex-col gap-0.5">
                   <input
                     ref="edit-input"
                     class="w-full bg-transparent outline-none border-none p-0 text-xs"
-                    :class="col.key === 'budget' ? 'text-right' : ''"
+                    :class="col.id === 'budget' ? 'text-right' : ''"
                     :value="input"
                     @input="input = ($event.target as HTMLInputElement).value"
                     @keydown.enter="grid.editing.commit(input)"
@@ -224,7 +224,7 @@
               </template>
 
               <!-- Progress bar -->
-              <template v-else-if="col.key === 'progress'">
+              <template v-else-if="col.id === 'progress'">
                 <div class="flex items-center gap-1.5">
                   <div class="flex-1 h-1 bg-on-surface/10 rounded-full overflow-hidden">
                     <div
@@ -239,12 +239,12 @@
               </template>
 
               <!-- Budget -->
-              <template v-else-if="col.key === 'budget'">
+              <template v-else-if="col.id === 'budget'">
                 <span class="block text-right tabular-nums">${{ (item.budget as number).toLocaleString() }}</span>
               </template>
 
               <!-- Status pill -->
-              <template v-else-if="col.key === 'status'">
+              <template v-else-if="col.id === 'status'">
                 <span
                   class="inline-block px-1.5 py-0.5 rounded-full text-[10px] font-semibold uppercase"
                   :class="{
@@ -258,7 +258,7 @@
               </template>
 
               <!-- Row reorder (due column) -->
-              <template v-else-if="col.key === 'due'">
+              <template v-else-if="col.id === 'due'">
                 <div class="flex items-center gap-1">
                   <span class="tabular-nums">{{ item.due.slice(5) }}</span>
 
@@ -288,7 +288,7 @@
 
               <!-- Default -->
               <template v-else>
-                {{ item[col.key] }}
+                {{ item[col.id] }}
               </template>
             </td>
           </tr>

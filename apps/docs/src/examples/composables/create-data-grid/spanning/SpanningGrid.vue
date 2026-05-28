@@ -80,12 +80,12 @@
           <tr class="border-b border-divider bg-surface-tint">
             <th
               v-for="col in grid.layout.columns.value"
-              :key="col.key"
+              :key="col.id"
               class="px-3 py-2.5 text-left font-medium text-xs uppercase tracking-wide text-on-surface-variant"
-              :class="days.includes(col.key) ? 'text-center' : ''"
+              :class="days.includes(col.id) ? 'text-center' : ''"
               :style="{ width: col.size + '%' }"
             >
-              {{ columns.find(c => c.key === col.key)?.title }}
+              {{ columns.find(c => c.id === col.id)?.title }}
             </th>
           </tr>
         </thead>
@@ -96,22 +96,22 @@
             :key="item.id"
             class="hover:bg-surface-tint/40 transition-colors"
           >
-            <template v-for="col in grid.layout.columns.value" :key="col.key">
+            <template v-for="col in grid.layout.columns.value" :key="col.id">
               <td
-                v-if="!grid.spans.value.get(item.id as number)?.get(col.key)?.hidden"
+                v-if="!grid.spans.value.get(item.id as number)?.get(col.id)?.hidden"
                 class="px-3 py-2"
                 :class="{
-                  'bg-surface-tint/60 font-medium align-middle border-r border-divider text-xs uppercase tracking-wide text-on-surface-variant': col.key === 'department' && (grid.spans.value.get(item.id as number)?.get(col.key)?.rowSpan ?? 1) > 1,
-                  'text-center': days.includes(col.key),
+                  'bg-surface-tint/60 font-medium align-middle border-r border-divider text-xs uppercase tracking-wide text-on-surface-variant': col.id === 'department' && (grid.spans.value.get(item.id as number)?.get(col.id)?.rowSpan ?? 1) > 1,
+                  'text-center': days.includes(col.id),
                 }"
-                :rowspan="grid.spans.value.get(item.id as number)?.get(col.key)?.rowSpan"
+                :rowspan="grid.spans.value.get(item.id as number)?.get(col.id)?.rowSpan"
                 :style="{ width: col.size + '%' }"
               >
-                <template v-if="col.key === 'department'">
+                <template v-if="col.id === 'department'">
                   {{ item.department }}
                 </template>
 
-                <template v-else-if="col.key === 'member'">
+                <template v-else-if="col.id === 'member'">
                   <div class="flex items-center gap-2">
                     <div
                       class="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-semibold shrink-0"
@@ -127,8 +127,8 @@
                 <template v-else>
                   <span
                     class="inline-flex w-2 h-2 rounded-full"
-                    :class="dot(item[col.key] as string)"
-                    :title="item[col.key] as string"
+                    :class="dot(item[col.id] as string)"
+                    :title="item[col.id] as string"
                   />
                 </template>
               </td>

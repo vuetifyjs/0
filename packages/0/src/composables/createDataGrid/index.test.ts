@@ -29,9 +29,9 @@ describe('createDataGrid', () => {
   it('should create a grid with data table pipeline', () => {
     const grid = createDataGrid({
       columns: [
-        { key: 'name', title: 'Name', sortable: true, filterable: true, size: 30 },
-        { key: 'email', title: 'Email', filterable: true, size: 40 },
-        { key: 'age', title: 'Age', sortable: true, size: 30 },
+        { id: 'name', title: 'Name', sortable: true, filterable: true, size: 30 },
+        { id: 'email', title: 'Email', filterable: true, size: 40 },
+        { id: 'age', title: 'Age', sortable: true, size: 30 },
       ],
     })
 
@@ -44,8 +44,8 @@ describe('createDataGrid', () => {
   it('should filter items via search', () => {
     const grid = createDataGrid({
       columns: [
-        { key: 'name', filterable: true, size: 50 },
-        { key: 'email', filterable: true, size: 50 },
+        { id: 'name', filterable: true, size: 50 },
+        { id: 'email', filterable: true, size: 50 },
       ],
     })
 
@@ -59,8 +59,8 @@ describe('createDataGrid', () => {
   it('should sort through the table pipeline', () => {
     const grid = createDataGrid({
       columns: [
-        { key: 'name', sortable: true, size: 50 },
-        { key: 'age', sortable: true, size: 50 },
+        { id: 'name', sortable: true, size: 50 },
+        { id: 'age', sortable: true, size: 50 },
       ],
     })
 
@@ -74,7 +74,7 @@ describe('createDataGrid', () => {
   describe('row registry', () => {
     it('should onboard rows via the inherited registry surface', () => {
       const grid = createDataGrid({
-        columns: [{ key: 'name', size: 100 }],
+        columns: [{ id: 'name', size: 100 }],
       })
 
       expect(grid.items.value).toHaveLength(0)
@@ -87,7 +87,7 @@ describe('createDataGrid', () => {
 
     it('should register a single row and expose it through the pipeline', () => {
       const grid = createDataGrid({
-        columns: [{ key: 'name', size: 100 }],
+        columns: [{ id: 'name', size: 100 }],
       })
 
       const ticket = grid.register({ id: items[0].id, value: items[0] })
@@ -99,7 +99,7 @@ describe('createDataGrid', () => {
 
     it('should remove a row via unregister', () => {
       const grid = createDataGrid({
-        columns: [{ key: 'name', size: 100 }],
+        columns: [{ id: 'name', size: 100 }],
       })
 
       onboard(grid, items)
@@ -111,7 +111,7 @@ describe('createDataGrid', () => {
 
     it('should clear all rows', () => {
       const grid = createDataGrid({
-        columns: [{ key: 'name', size: 100 }],
+        columns: [{ id: 'name', size: 100 }],
       })
 
       onboard(grid, items)
@@ -126,8 +126,8 @@ describe('createDataGrid', () => {
     it('should initialize with correct sizes', () => {
       const grid = createDataGrid({
         columns: [
-          { key: 'name', size: 40 },
-          { key: 'email', size: 60 },
+          { id: 'name', size: 40 },
+          { id: 'email', size: 60 },
         ],
       })
 
@@ -140,13 +140,13 @@ describe('createDataGrid', () => {
     it('should support nested columns', () => {
       const grid = createDataGrid({
         columns: [
-          { key: 'name', title: 'Name', size: 30 },
+          { id: 'name', title: 'Name', size: 30 },
           {
-            key: 'contact',
+            id: 'contact',
             title: 'Contact',
             children: [
-              { key: 'email', title: 'Email', size: 40 },
-              { key: 'age', title: 'Age', size: 30 },
+              { id: 'email', title: 'Email', size: 40 },
+              { id: 'age', title: 'Age', size: 30 },
             ],
           },
         ],
@@ -169,8 +169,8 @@ describe('createDataGrid', () => {
       const onEdit = vi.fn()
       const grid = createDataGrid({
         columns: [
-          { key: 'name', size: 50, editable: true },
-          { key: 'email', size: 50 },
+          { id: 'name', size: 50, editable: true },
+          { id: 'email', size: 50 },
         ],
         editing: { onEdit },
       })
@@ -189,7 +189,7 @@ describe('createDataGrid', () => {
       const grid = createDataGrid({
         columns: [
           {
-            key: 'email',
+            id: 'email',
             size: 100,
             editable: true,
             validate: v => (typeof v === 'string' && v.includes('@')) || 'Invalid email',
@@ -211,8 +211,8 @@ describe('createDataGrid', () => {
     it('should compute a span map', () => {
       const grid = createDataGrid({
         columns: [
-          { key: 'dept', size: 50 },
-          { key: 'name', size: 50 },
+          { id: 'dept', size: 50 },
+          { id: 'name', size: 50 },
         ],
         rowSpanning: (item, column) => {
           if (column === 'dept' && (item.dept === 'Eng' || item.dept === 'Sales')) return 2

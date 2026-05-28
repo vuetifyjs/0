@@ -35,11 +35,11 @@ import { createDataGrid } from '@vuetify/v0'
 
 const grid = createDataGrid({
   columns: [
-    { key: 'name', title: 'Project', sortable: true, filterable: true, size: 22 },
-    { key: 'status', title: 'Status', sortable: true, size: 12 },
-    { key: 'assignee', title: 'Assignee', sortable: true, size: 16 },
-    { key: 'progress', title: 'Progress', sortable: true, size: 14 },
-    { key: 'budget', title: 'Budget', sortable: true, size: 10 },
+    { id: 'name', title: 'Project', sortable: true, filterable: true, size: 22 },
+    { id: 'status', title: 'Status', sortable: true, size: 12 },
+    { id: 'assignee', title: 'Assignee', sortable: true, size: 16 },
+    { id: 'progress', title: 'Progress', sortable: true, size: 14 },
+    { id: 'budget', title: 'Budget', sortable: true, size: 10 },
   ],
 })
 
@@ -198,8 +198,8 @@ A financial data grid with 10 columns that requires horizontal scrolling. Ticker
 **Key patterns:**
 
 - `layout.pinned` splits columns into `left`, `scrollable`, and `right` regions with independent offsets
-- `layout.resize(key, delta)` adjusts a column and its neighbor to maintain total width
-- `layout.pin(key, position)` moves columns between regions dynamically
+- `layout.resize(id, delta)` adjusts a column and its neighbor to maintain total width
+- `layout.pin(id, position)` moves columns between regions dynamically
 - `layout.reset()` restores initial sizes, order, and pins
 
 :::
@@ -265,9 +265,9 @@ Columns are sized as percentages (0–100) and can be pinned, resized, and reord
 ```ts
 const grid = createDataGrid({
   columns: [
-    { key: 'name', size: 30, pinned: 'left', minSize: 15, maxSize: 50 },
-    { key: 'email', size: 40 },
-    { key: 'status', size: 30, pinned: 'right' },
+    { id: 'name', size: 30, pinned: 'left', minSize: 15, maxSize: 50 },
+    { id: 'email', size: 40 },
+    { id: 'status', size: 30, pinned: 'right' },
   ],
 })
 
@@ -297,7 +297,7 @@ Click-to-edit with validation. Does not mutate source data — commit fires a ca
 const grid = createDataGrid({
   columns: [
     {
-      key: 'email',
+      id: 'email',
       editable: true,
       validate: (value, item) => {
         if (typeof value !== 'string' || !value.includes('@')) return 'Invalid email'
@@ -354,7 +354,7 @@ const grid = createDataGrid({
 
 grid.onboard(rows.map(value => ({ id: value.id, value })))
 
-// Span map: item ID → column key → { rowSpan, hidden }
+// Span map: item ID → column id → { rowSpan, hidden }
 grid.spans.value.get(1)?.get('department')
 // { rowSpan: 3, hidden: false }  — render with rowspan="3"
 
@@ -369,13 +369,13 @@ Column definitions support nesting for grouped headers. Layout and data pipeline
 ```ts
 const grid = createDataGrid({
   columns: [
-    { key: 'name', title: 'Name', size: 30 },
+    { id: 'name', title: 'Name', size: 30 },
     {
-      key: 'contact',
+      id: 'contact',
       title: 'Contact',
       children: [
-        { key: 'email', title: 'Email', size: 40 },
-        { key: 'phone', title: 'Phone', size: 30 },
+        { id: 'email', title: 'Email', size: 40 },
+        { id: 'phone', title: 'Phone', size: 30 },
       ],
     },
   ],
@@ -385,8 +385,8 @@ grid.onboard(rows.map(value => ({ id: value.id, value })))
 
 // headers: 2D array with colspan/rowspan for <thead> rendering
 grid.headers.value
-// [[{ key: 'name', rowspan: 2 }, { key: 'contact', colspan: 2 }],
-//  [{ key: 'email' }, { key: 'phone' }]]
+// [[{ id: 'name', rowspan: 2 }, { id: 'contact', colspan: 2 }],
+//  [{ id: 'email' }, { id: 'phone' }]]
 ```
 
 <DocsApi />

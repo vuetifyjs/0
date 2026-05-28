@@ -18,8 +18,8 @@
  * ```ts
  * const grid = createDataGrid({
  *   columns: [
- *     { key: 'name', sortable: true },
- *     { key: 'progress', editable: true },
+ *     { id: 'name', sortable: true },
+ *     { id: 'progress', editable: true },
  *   ],
  * })
  *
@@ -68,7 +68,7 @@ export { ClientGridAdapter, ServerGridAdapter, VirtualGridAdapter } from './adap
 export type { ServerGridAdapterOptions } from './adapters'
 
 export interface DataGridColumn<T extends Record<string, unknown> = Record<string, unknown>> extends GridColumnDef {
-  readonly key: string
+  readonly id: string
   readonly title?: string
   readonly sortable?: boolean
   readonly filterable?: boolean
@@ -131,8 +131,8 @@ export interface DataGridContextOptions<T extends Record<string, unknown>> exten
  * ```ts
  * const grid = createDataGrid({
  *   columns: [
- *     { key: 'name', sortable: true },
- *     { key: 'progress', editable: true, validate: v => Number(v) >= 0 || 'must be positive' },
+ *     { id: 'name', sortable: true },
+ *     { id: 'progress', editable: true, validate: v => Number(v) >= 0 || 'must be positive' },
  *   ],
  *   pagination: { initial: 1 },
  * })
@@ -162,12 +162,23 @@ export function createDataGrid<T extends Record<string, unknown>> (
   const adapter = customAdapter ?? new ClientGridAdapter<T>(ordering.order)
 
   const table = createDataTable<T>({
-    columns,
     filter,
     pagination,
     sortMultiple,
     adapter,
   })
+
+  // Onboard columns into the inherited table column registry so leaves,
+  // headers, sort, and filter all key off the same set of ids.
+  table.columns.onboard(columns.map(col => ({
+    id: col.id,
+    title: col.title,
+    sortable: col.sortable,
+    filterable: col.filterable,
+    sort: col.sort,
+    filter: col.filter,
+    children: col.children,
+  })))
 
   if (!preserveRowOrder) {
     watch(table.sort.columns, () => {
@@ -180,7 +191,7 @@ export function createDataGrid<T extends Record<string, unknown>> (
   const editable = leaves
     .filter(col => col.editable === true || isFunction(col.editable))
     .map(col => ({
-      key: col.key,
+      id: col.id,
       editable: col.editable as boolean | ((item: unknown) => boolean),
       validate: col.validate as ((value: unknown, item?: unknown) => string | true) | undefined,
     }))
@@ -202,7 +213,7 @@ export function createDataGrid<T extends Record<string, unknown>> (
 
   const spans = createRowSpanning<T>({
     items: table.items as Ref<readonly T[]>,
-    columns: leaves.map(col => col.key),
+    columns: leaves.map(col => col.id),
     rowSpanning,
   })
   return {

@@ -16,7 +16,7 @@ import type { ID } from '#v0/types'
 import type { Ref, ShallowRef } from 'vue'
 
 export interface EditableColumn {
-  readonly key: string
+  readonly id: string
   readonly editable?: boolean | ((item: unknown) => boolean)
   readonly validate?: (value: unknown, item?: unknown) => string | true
 }
@@ -52,7 +52,7 @@ export function createCellEditing (options: CellEditingOptions): CellEditing {
 
   const columnMap = new Map<string, EditableColumn>()
   for (const col of columns) {
-    columnMap.set(col.key, col)
+    columnMap.set(col.id, col)
   }
 
   const active = shallowRef<ActiveCell | null>(null)

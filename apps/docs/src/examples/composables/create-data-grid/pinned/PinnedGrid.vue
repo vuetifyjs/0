@@ -19,15 +19,15 @@
   let table: HTMLElement | null = null
   let resized = false
 
-  function onResizeStart (key: string, event: PointerEvent) {
-    resizing.value = key
+  function onResizeStart (id: string, event: PointerEvent) {
+    resizing.value = id
     startX = event.clientX
     table = (event.target as HTMLElement).closest('table')
   }
 
-  function onSort (key: string) {
+  function onSort (id: string) {
     if (resized) return
-    grid.sort.toggle(key)
+    grid.sort.toggle(id)
   }
 
   useToggleScope(
@@ -51,22 +51,22 @@
     },
   )
 
-  function label (key: string) {
-    return columns.find(c => c.key === key)?.title ?? key
+  function label (id: string) {
+    return columns.find(c => c.id === id)?.title ?? id
   }
 
-  function canResize (key: string) {
+  function canResize (id: string) {
     const cols = grid.layout.columns.value
-    const index = cols.findIndex(c => c.key === key)
+    const index = cols.findIndex(c => c.id === id)
     return index !== -1 && index < cols.length - 1
   }
 
-  function onPin (key: string) {
-    const col = grid.layout.columns.value.find(c => c.key === key)
+  function onPin (id: string) {
+    const col = grid.layout.columns.value.find(c => c.id === id)
     if (!col) return
-    if (col.pinned === 'left') grid.layout.pin(key, 'right')
-    else if (col.pinned === 'right') grid.layout.pin(key, false)
-    else grid.layout.pin(key, 'left')
+    if (col.pinned === 'left') grid.layout.pin(id, 'right')
+    else if (col.pinned === 'right') grid.layout.pin(id, false)
+    else grid.layout.pin(id, 'left')
   }
 
   function pinTitle (pinned: 'left' | 'right' | false) {
@@ -89,8 +89,8 @@
 
   const numeric = new Set(['price', 'change', 'volume', 'cap', 'pe', 'eps', 'dividend'])
 
-  function isNumeric (key: string) {
-    return numeric.has(key)
+  function isNumeric (id: string) {
+    return numeric.has(id)
   }
 
   const stats = computed(() => {
@@ -156,13 +156,13 @@
           <tr class="border-b border-divider">
             <th
               v-for="col in grid.layout.columns.value"
-              :key="col.key"
+              :key="col.id"
               class="group relative px-3 py-2 font-medium select-none overflow-hidden"
               :class="[
                 col.pinned ? 'bg-surface-tint' : 'bg-surface',
                 col.pinned === 'left' ? 'border-r border-divider' : '',
                 col.pinned === 'right' ? 'border-l border-divider' : '',
-                isNumeric(col.key) ? 'text-right' : 'text-left',
+                isNumeric(col.id) ? 'text-right' : 'text-left',
               ]"
               :style="{
                 width: col.size + '%',
@@ -171,17 +171,17 @@
                 right: col.pinned === 'right' ? col.offset + '%' : undefined,
                 zIndex: col.pinned ? 10 : undefined,
               }"
-              @click="onSort(col.key)"
+              @click="onSort(col.id)"
             >
               <div
                 class="flex items-center gap-1"
-                :class="isNumeric(col.key) ? 'justify-end' : ''"
+                :class="isNumeric(col.id) ? 'justify-end' : ''"
               >
                 <button
                   class="shrink-0 transition-opacity"
                   :class="col.pinned ? 'opacity-80 text-primary' : 'opacity-0 group-hover:opacity-60 hover:!opacity-100'"
                   :title="pinTitle(col.pinned)"
-                  @click.stop="onPin(col.key)"
+                  @click.stop="onPin(col.id)"
                 >
                   <svg class="w-3.5 h-3.5" viewBox="0 0 24 24">
                     <path
@@ -191,24 +191,24 @@
                   </svg>
                 </button>
 
-                <span class="truncate">{{ label(col.key) }}</span>
+                <span class="truncate">{{ label(col.id) }}</span>
 
                 <svg
-                  v-if="grid.sort.direction(col.key) !== 'none'"
+                  v-if="grid.sort.direction(col.id) !== 'none'"
                   class="w-3.5 h-3.5 shrink-0"
                   viewBox="0 0 24 24"
                 >
                   <path
-                    :d="grid.sort.direction(col.key) === 'asc' ? mdiArrowUp : mdiArrowDown"
+                    :d="grid.sort.direction(col.id) === 'asc' ? mdiArrowUp : mdiArrowDown"
                     fill="currentColor"
                   />
                 </svg>
               </div>
 
               <div
-                v-if="canResize(col.key)"
+                v-if="canResize(col.id)"
                 class="absolute top-0 -right-1 w-2 h-full cursor-col-resize z-20 hover:bg-primary/50"
-                @pointerdown.stop="onResizeStart(col.key, $event)"
+                @pointerdown.stop="onResizeStart(col.id, $event)"
               />
             </th>
           </tr>
@@ -222,13 +222,13 @@
           >
             <td
               v-for="col in grid.layout.columns.value"
-              :key="col.key"
+              :key="col.id"
               class="px-3 py-1.5 truncate"
               :class="[
                 col.pinned ? 'bg-surface-tint' : 'bg-surface',
                 col.pinned === 'left' ? 'border-r border-divider' : '',
                 col.pinned === 'right' ? 'border-l border-divider' : '',
-                isNumeric(col.key) ? 'text-right font-mono tabular-nums' : '',
+                isNumeric(col.id) ? 'text-right font-mono tabular-nums' : '',
               ]"
               :style="{
                 width: col.size + '%',
@@ -238,42 +238,42 @@
                 zIndex: col.pinned ? 10 : undefined,
               }"
             >
-              <template v-if="col.key === 'ticker'">
+              <template v-if="col.id === 'ticker'">
                 <span class="font-bold uppercase">{{ item.ticker }}</span>
               </template>
 
-              <template v-else-if="col.key === 'price'">
+              <template v-else-if="col.id === 'price'">
                 ${{ item.price.toFixed(2) }}
               </template>
 
-              <template v-else-if="col.key === 'change'">
+              <template v-else-if="col.id === 'change'">
                 <span :class="item.change >= 0 ? 'text-success' : 'text-error'">
                   {{ item.change >= 0 ? '+' : '' }}{{ item.change.toFixed(2) }}%
                 </span>
               </template>
 
-              <template v-else-if="col.key === 'volume'">
+              <template v-else-if="col.id === 'volume'">
                 {{ volume(item.volume) }}
               </template>
 
-              <template v-else-if="col.key === 'cap'">
+              <template v-else-if="col.id === 'cap'">
                 {{ cap(item.cap) }}
               </template>
 
-              <template v-else-if="col.key === 'pe'">
+              <template v-else-if="col.id === 'pe'">
                 {{ item.pe.toFixed(1) }}
               </template>
 
-              <template v-else-if="col.key === 'eps'">
+              <template v-else-if="col.id === 'eps'">
                 ${{ item.eps.toFixed(2) }}
               </template>
 
-              <template v-else-if="col.key === 'dividend'">
+              <template v-else-if="col.id === 'dividend'">
                 {{ item.dividend.toFixed(2) }}%
               </template>
 
               <template v-else>
-                {{ item[col.key] }}
+                {{ item[col.id] }}
               </template>
             </td>
           </tr>

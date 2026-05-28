@@ -56,11 +56,11 @@
   }
 
   function isEditable (column: string) {
-    return columns.find(c => c.key === column)?.editable === true
+    return columns.find(c => c.id === column)?.editable === true
   }
 
   function isSortable (column: string) {
-    return columns.find(c => c.key === column)?.sortable === true || columns.find(c => c.key === column)?.sort !== undefined
+    return columns.find(c => c.id === column)?.sortable === true || columns.find(c => c.id === column)?.sort !== undefined
   }
 
   function onEdit (row: ID, column: string, value: unknown) {
@@ -168,34 +168,34 @@
           <tr class="border-b border-divider bg-surface-tint">
             <th
               v-for="col in grid.layout.columns.value"
-              :key="col.key"
+              :key="col.id"
               class="px-3 py-2 font-medium select-none"
               :class="[
-                col.key === 'price' || col.key === 'quantity' ? 'text-right' : 'text-left',
-                isSortable(col.key) ? 'cursor-pointer hover:bg-surface' : '',
+                col.id === 'price' || col.id === 'quantity' ? 'text-right' : 'text-left',
+                isSortable(col.id) ? 'cursor-pointer hover:bg-surface' : '',
               ]"
               :style="{ width: col.size + '%' }"
-              @click="isSortable(col.key) && grid.sort.toggle(col.key)"
+              @click="isSortable(col.id) && grid.sort.toggle(col.id)"
             >
               <div
                 class="flex items-center gap-1"
-                :class="col.key === 'price' || col.key === 'quantity' ? 'justify-end' : ''"
+                :class="col.id === 'price' || col.id === 'quantity' ? 'justify-end' : ''"
               >
-                <span>{{ columns.find(c => c.key === col.key)?.title }}</span>
+                <span>{{ columns.find(c => c.id === col.id)?.title }}</span>
 
                 <svg
-                  v-if="isSortable(col.key) && grid.sort.direction(col.key) !== 'none'"
+                  v-if="isSortable(col.id) && grid.sort.direction(col.id) !== 'none'"
                   class="w-3 h-3"
                   viewBox="0 0 24 24"
                 >
                   <path
-                    :d="grid.sort.direction(col.key) === 'asc' ? mdiArrowUp : mdiArrowDown"
+                    :d="grid.sort.direction(col.id) === 'asc' ? mdiArrowUp : mdiArrowDown"
                     fill="currentColor"
                   />
                 </svg>
 
                 <span
-                  v-if="isEditable(col.key)"
+                  v-if="isEditable(col.id)"
                   class="text-[10px] text-on-surface-variant"
                   title="Editable"
                 >
@@ -216,25 +216,25 @@
           >
             <td
               v-for="col in grid.layout.columns.value"
-              :key="col.key"
-              :ref="isEditing(item.id as ID, col.key) ? 'active-cell' : undefined"
+              :key="col.id"
+              :ref="isEditing(item.id as ID, col.id) ? 'active-cell' : undefined"
               class="px-3 py-2"
               :class="[
-                col.key === 'price' || col.key === 'quantity' ? 'text-right' : 'text-left',
-                isEditable(col.key) && !isEditing(item.id as ID, col.key) ? 'cursor-text hover:bg-surface-tint transition-colors' : '',
+                col.id === 'price' || col.id === 'quantity' ? 'text-right' : 'text-left',
+                isEditable(col.id) && !isEditing(item.id as ID, col.id) ? 'cursor-text hover:bg-surface-tint transition-colors' : '',
               ]"
               :style="[
                 { width: col.size + '%' },
-                isEditing(item.id as ID, col.key) ? 'outline: 2px solid var(--v0-color-primary); outline-offset: -2px; border-radius: 2px;' : '',
+                isEditing(item.id as ID, col.id) ? 'outline: 2px solid var(--v0-color-primary); outline-offset: -2px; border-radius: 2px;' : '',
               ]"
-              @click="onEdit(item.id as ID, col.key, item[col.key])"
+              @click="onEdit(item.id as ID, col.id, item[col.id])"
             >
-              <template v-if="isEditing(item.id as ID, col.key)">
+              <template v-if="isEditing(item.id as ID, col.id)">
                 <div class="flex flex-col gap-1">
                   <input
                     ref="edit-input"
                     class="w-full bg-transparent outline-none border-none p-0 m-0 text-sm"
-                    :class="col.key === 'price' || col.key === 'quantity' ? 'text-right' : 'text-left'"
+                    :class="col.id === 'price' || col.id === 'quantity' ? 'text-right' : 'text-left'"
                     :value="input"
                     @input="input = ($event.target as HTMLInputElement).value"
                     @keydown.enter="onCommit"
@@ -252,14 +252,14 @@
               <template v-else>
                 <span
                   class="inline-flex items-center gap-1"
-                  :class="isEdited(item.id as ID, col.key) ? 'text-primary font-medium' : ''"
+                  :class="isEdited(item.id as ID, col.id) ? 'text-primary font-medium' : ''"
                 >
-                  <template v-if="col.key === 'price'">{{ money(item[col.key]) }}</template>
-                  <template v-else-if="col.key === 'quantity'">{{ item[col.key] }}</template>
-                  <template v-else>{{ item[col.key] }}</template>
+                  <template v-if="col.id === 'price'">{{ money(item[col.id]) }}</template>
+                  <template v-else-if="col.id === 'quantity'">{{ item[col.id] }}</template>
+                  <template v-else>{{ item[col.id] }}</template>
 
                   <span
-                    v-if="isEdited(item.id as ID, col.key)"
+                    v-if="isEdited(item.id as ID, col.id)"
                     class="w-1 h-1 rounded-full bg-primary"
                   />
                 </span>

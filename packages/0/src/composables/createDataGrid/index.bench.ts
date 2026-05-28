@@ -53,27 +53,27 @@ const ROWS_1K: BenchmarkRow[] = generateRows(1000)
 const ROWS_10K: BenchmarkRow[] = generateRows(10_000)
 
 const COLUMNS: DataGridColumn<BenchmarkRow>[] = [
-  { key: 'name', title: 'Name', sortable: true, filterable: true, size: 25 },
-  { key: 'email', title: 'Email', sortable: true, filterable: true, size: 30 },
-  { key: 'department', title: 'Department', sortable: true, size: 15 },
-  { key: 'salary', title: 'Salary', sortable: true, size: 15, sort: (a, b) => Number(a) - Number(b) },
-  { key: 'active', title: 'Active', size: 15 },
+  { id: 'name', title: 'Name', sortable: true, filterable: true, size: 25 },
+  { id: 'email', title: 'Email', sortable: true, filterable: true, size: 30 },
+  { id: 'department', title: 'Department', sortable: true, size: 15 },
+  { id: 'salary', title: 'Salary', sortable: true, size: 15, sort: (a, b) => Number(a) - Number(b) },
+  { id: 'active', title: 'Active', size: 15 },
 ]
 
 const COLUMNS_PINNED: DataGridColumn<BenchmarkRow>[] = [
-  { key: 'name', title: 'Name', sortable: true, size: 20, pinned: 'left' },
-  { key: 'email', title: 'Email', sortable: true, size: 25 },
-  { key: 'department', title: 'Department', sortable: true, size: 15 },
-  { key: 'salary', title: 'Salary', sortable: true, size: 15 },
-  { key: 'active', title: 'Active', size: 15, pinned: 'right' },
+  { id: 'name', title: 'Name', sortable: true, size: 20, pinned: 'left' },
+  { id: 'email', title: 'Email', sortable: true, size: 25 },
+  { id: 'department', title: 'Department', sortable: true, size: 15 },
+  { id: 'salary', title: 'Salary', sortable: true, size: 15 },
+  { id: 'active', title: 'Active', size: 15, pinned: 'right' },
 ]
 
 const COLUMNS_EDITABLE: DataGridColumn<BenchmarkRow>[] = [
-  { key: 'name', title: 'Name', size: 25, editable: true, validate: v => (typeof v === 'string' && v.length > 0) || 'Required' },
-  { key: 'email', title: 'Email', size: 25, editable: true, validate: v => (typeof v === 'string' && v.includes('@')) || 'Invalid' },
-  { key: 'department', title: 'Department', size: 20 },
-  { key: 'salary', title: 'Salary', size: 15 },
-  { key: 'active', title: 'Active', size: 15 },
+  { id: 'name', title: 'Name', size: 25, editable: true, validate: v => (typeof v === 'string' && v.length > 0) || 'Required' },
+  { id: 'email', title: 'Email', size: 25, editable: true, validate: v => (typeof v === 'string' && v.includes('@')) || 'Invalid' },
+  { id: 'department', title: 'Department', size: 20 },
+  { id: 'salary', title: 'Salary', size: 15 },
+  { id: 'active', title: 'Active', size: 15 },
 ]
 
 const SEARCH_QUERY_1K = 'User 500'
