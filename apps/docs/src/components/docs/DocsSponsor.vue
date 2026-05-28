@@ -1,9 +1,11 @@
 <script setup lang="ts">
-  import { SPECIAL_SPONSOR_PRICE } from '@/constants/sponsor'
+  import { SPECIAL_SPONSOR, SPECIAL_SPONSOR_PRICE } from '@/constants/sponsor'
+
+  const isOpen = SPECIAL_SPONSOR === null
 </script>
 
 <template>
-  <section class="relative my-10 px-5 py-4 sm:px-6 sm:py-5 rounded-xl border border-divider bg-surface overflow-hidden">
+  <section v-if="isOpen" class="relative my-10 px-5 py-4 sm:px-6 sm:py-5 rounded-xl border border-divider bg-surface overflow-hidden">
     <AppDotGrid :coverage="40" origin="bottom right" />
 
     <div class="relative z-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
