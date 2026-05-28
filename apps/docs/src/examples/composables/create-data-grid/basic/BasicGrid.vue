@@ -266,7 +266,7 @@
                     <button
                       class="opacity-0 group-hover:opacity-40 hover:!opacity-100 disabled:!opacity-10"
                       :disabled="index === 0"
-                      @click.stop="grid.rows.move(index, index - 1)"
+                      @click.stop="grid.rows.move(item.id, index - 1)"
                     >
                       <svg class="w-3 h-3" viewBox="0 0 24 24">
                         <path :d="mdiChevronUp" fill="currentColor" />
@@ -276,7 +276,7 @@
                     <button
                       class="opacity-0 group-hover:opacity-40 hover:!opacity-100 disabled:!opacity-10"
                       :disabled="index === grid.items.value.length - 1"
-                      @click.stop="grid.rows.move(index, index + 1)"
+                      @click.stop="grid.rows.move(item.id, index + 1)"
                     >
                       <svg class="w-3 h-3" viewBox="0 0 24 24">
                         <path :d="mdiChevronDown" fill="currentColor" />

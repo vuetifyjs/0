@@ -207,6 +207,119 @@ describe('createDataGrid', () => {
     })
   })
 
+  describe('row ordering', () => {
+    it('should expose registered row ids on rows.order in registration order', () => {
+      const grid = createDataGrid({
+        columns: [{ id: 'name', size: 100 }],
+      })
+
+      onboard(grid, items)
+
+      expect(grid.rows.order.value).toEqual([1, 2, 3, 4])
+    })
+
+    it('should reorder rows when rows.move is called with an id', () => {
+      const grid = createDataGrid({
+        columns: [{ id: 'name', size: 100 }],
+      })
+
+      onboard(grid, items)
+
+      grid.rows.move(1, 2)
+
+      expect(grid.rows.order.value).toEqual([2, 3, 1, 4])
+      expect(grid.items.value.map(item => item.id)).toEqual([2, 3, 1, 4])
+    })
+
+    it('should restore natural registration order on rows.reset', () => {
+      const grid = createDataGrid({
+        columns: [{ id: 'name', size: 100 }],
+      })
+
+      onboard(grid, items)
+
+      grid.rows.move(1, 2)
+      grid.rows.reset()
+
+      expect(grid.rows.order.value).toEqual([1, 2, 3, 4])
+      expect(grid.items.value.map(item => item.id)).toEqual([1, 2, 3, 4])
+    })
+
+    it('should reset row order when sort changes by default', () => {
+      const grid = createDataGrid({
+        columns: [
+          { id: 'name', sortable: true, size: 50 },
+          { id: 'age', sortable: true, size: 50 },
+        ],
+      })
+
+      onboard(grid, items)
+      grid.rows.move(1, 2)
+      expect(grid.rows.order.value).toEqual([2, 3, 1, 4])
+
+      grid.sort.toggle('age')
+
+      expect(grid.rows.order.value).toEqual([1, 2, 3, 4])
+      expect(grid.items.value[0].name).toBe('Bob') // sort applied, not user order
+    })
+
+    it('should keep row order across sort changes when preserveRowOrder is set', () => {
+      const grid = createDataGrid({
+        columns: [
+          { id: 'name', sortable: true, size: 50 },
+          { id: 'age', sortable: true, size: 50 },
+        ],
+        preserveRowOrder: true,
+      })
+
+      onboard(grid, items)
+      grid.rows.move(1, 2)
+      grid.sort.toggle('age')
+
+      expect(grid.rows.order.value).toEqual([2, 3, 1, 4])
+    })
+
+    it('should append late-registered rows at the end of rows.order', () => {
+      const grid = createDataGrid({
+        columns: [{ id: 'name', size: 100 }],
+      })
+
+      onboard(grid, items)
+      grid.rows.move(1, 2)
+      expect(grid.rows.order.value).toEqual([2, 3, 1, 4])
+
+      grid.register({ id: 5, value: { id: 5, name: 'Eve', email: 'eve@test.com', age: 22, dept: 'Eng' } })
+
+      expect(grid.rows.order.value).toEqual([2, 3, 1, 4, 5])
+    })
+
+    it('should drop unregistered rows from rows.order', () => {
+      const grid = createDataGrid({
+        columns: [{ id: 'name', size: 100 }],
+      })
+
+      onboard(grid, items)
+      grid.rows.move(1, 2)
+
+      grid.unregister(3)
+
+      expect(grid.rows.order.value).toEqual([2, 1, 4])
+    })
+
+    it('should empty rows.order when clear is called', () => {
+      const grid = createDataGrid({
+        columns: [{ id: 'name', size: 100 }],
+      })
+
+      onboard(grid, items)
+      grid.rows.move(1, 2)
+
+      grid.clear()
+
+      expect(grid.rows.order.value).toEqual([])
+    })
+  })
+
   describe('row spanning', () => {
     it('should compute a span map', () => {
       const grid = createDataGrid({

@@ -67,17 +67,17 @@ grid.layout.reset()            // restore initial layout
 
 ## Architecture
 
-`createDataGrid` is a composition of [createDataTable](/composables/data/create-data-table) plus four grid-specific modules. The table owns the data pipeline (filter, sort, paginate); the grid layers column layout, cell editing, row ordering, and row spanning on top. Row ordering is inserted between sort and pagination via a grid adapter so reorders survive sort changes when `preserveRowOrder` is set.
+`createDataGrid` is a composition of [createDataTable](/composables/data/create-data-table) plus four grid-specific modules. The table owns the data pipeline (filter, sort, paginate); the grid layers column layout, cell editing, row ordering, and row spanning on top. Row ordering is a [createSortable](/composables/data/create-sortable) instance synced to the table's row registry via `register` / `unregister` events, then applied to `sortedItems` before pagination slicing.
 
 ```mermaid "createDataGrid Architecture"
 flowchart TD
   createDataGrid:::primary --> table["createDataTable (pipeline)"]
   createDataGrid --> layout["layout (createRegistry + createGroup)"]
   createDataGrid --> editing["editing (createCellEditing)"]
-  createDataGrid --> ordering["rows (createRowOrdering)"]
+  createDataGrid --> ordering["rows (createSortable)"]
   createDataGrid --> spanning["spans (createRowSpanning)"]
-  table --> adapter["GridAdapter (Client / Server / Virtual)"]
-  ordering -. "ShallowRef&lt;ID[]&gt;" .-> adapter
+  table --> adapter["DataTableAdapter (Client / Server / Virtual)"]
+  ordering -. "id sequence" .-> createDataGrid
   layout --> pin["pin / resize / reorder"]
   editing --> edit["edit / commit / cancel + validate"]
   spanning --> span["computed span map (hidden cell tracking)"]
@@ -88,7 +88,7 @@ flowchart TD
 | `table` (spread) | `createDataTable` | Search, sort, filter, paginate, total — all v-modeled through |
 | `layout` | `createRegistry` + `createGroup` | Column ordering, tri-region pinning, percentage sizing, delta-based resize |
 | `editing` | internal factory | Click-to-edit lifecycle, per-column validation, dirty tracking |
-| `rows` | `shallowRef<ID[]>` | Post-sort row reordering, inserted by the grid adapter pre-pagination |
+| `rows` | `createSortable` | Post-sort row reordering, applied to `sortedItems` before pagination slicing |
 | `spans` | computed map | Row span resolution and hidden-cell tracking |
 
 ## Reactivity
@@ -113,17 +113,13 @@ flowchart TD
 
 ## Adapters
 
-Grid adapters extend the data table adapters with row ordering inserted between sort and pagination.
+The grid uses the standard data table adapters — row ordering is layered above the pipeline, not inside it, so any [DataTableAdapter](/composables/data/create-data-table#adapters) works without modification.
 
 | Adapter | Pipeline | Use Case |
 | - | - | - |
-| [ClientGridAdapter](#clientgridadapter-default) | filter → sort → order → paginate | Default. All processing client-side |
+| `ClientDataTableAdapter` (default) | filter → sort → paginate | All processing client-side |
 | [ServerGridAdapter](#servergridadapter) | pass-through | API-driven. Server handles everything |
-| [VirtualGridAdapter](#virtualgridadapter) | filter → sort → order → (no paginate) | Large lists with createVirtual |
-
-### ClientGridAdapter (default)
-
-Extends the client adapter with row ordering applied post-sort, pre-pagination.
+| `VirtualDataTableAdapter` | filter → sort → (no paginate) | Large lists with createVirtual |
 
 ```mermaid
 graph LR
@@ -135,19 +131,19 @@ import { createDataGrid } from '@vuetify/v0'
 
 const grid = createDataGrid({
   columns,
-  // ClientGridAdapter is the default — not required
+  // ClientDataTableAdapter is the default — not required
 })
 
 grid.onboard(employees.map(value => ({ id: value.id, value })))
 
-// Row ordering
-grid.rows.move(0, 3)  // move row 0 to position 3
-grid.rows.reset()      // clear custom ordering
+// Row ordering — id-based
+grid.rows.move(employees[0].id, 3)  // move that row to position 3
+grid.rows.reset()                    // clear custom ordering
 ```
 
 ### ServerGridAdapter
 
-Pass-through adapter for API-driven grids. Re-exports the data table's `ServerAdapter`.
+Pass-through adapter for API-driven grids. Re-exports the data table's `ServerDataTableAdapter`.
 
 ```ts
 import { createDataGrid, ServerGridAdapter } from '@vuetify/v0'
@@ -161,16 +157,16 @@ const grid = createDataGrid({
 grid.onboard(serverItems.map(value => ({ id: value.id, value })))
 ```
 
-### VirtualGridAdapter
+### Virtual scrolling
 
-Client-side filter/sort/order without pagination slicing. All items are passed to `createVirtual`.
+For large datasets, use the standard `VirtualDataTableAdapter`. Row ordering still applies; pagination slicing is skipped.
 
 ```ts
-import { createDataGrid, VirtualGridAdapter } from '@vuetify/v0'
+import { createDataGrid, VirtualDataTableAdapter } from '@vuetify/v0'
 
 const grid = createDataGrid({
   columns,
-  adapter: new VirtualGridAdapter(grid.rows.order),
+  adapter: new VirtualDataTableAdapter(),
 })
 
 grid.onboard(largeDataset.map(value => ({ id: value.id, value })))
@@ -324,15 +320,15 @@ grid.editing.dirty.value          // Map of uncommitted edits
 
 ### Row Ordering
 
-Post-sort row ordering for drag-and-drop reordering.
+Post-sort row ordering for drag-and-drop reordering. Backed by [createSortable](/composables/data/create-sortable), keyed by row id — index-based addressing was dropped because it drifts under reactive churn.
 
 ```ts
 const grid = createDataGrid({ columns })
 
 grid.onboard(rows.map(value => ({ id: value.id, value })))
 
-grid.rows.move(0, 3)           // Move row from index 0 to 3
-grid.rows.order.value          // Current ID-based order
+grid.rows.move(rowId, 3)       // Move the row with this id to position 3
+grid.rows.order.value          // Current id sequence
 grid.rows.reset()              // Clear custom ordering
 
 // Ordering resets on sort change by default

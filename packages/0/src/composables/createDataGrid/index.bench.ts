@@ -272,19 +272,19 @@ describe('createDataGrid benchmarks', () => {
   describe('row ordering', () => {
     bench('Move row (1,000 items)', () => {
       const grid = createGrid({ items: ROWS_1K })
-      grid.rows.move(0, 500)
+      grid.rows.move(ROWS_1K[0]!.id, 500)
     })
 
     bench('Move 10 rows (1,000 items)', () => {
       const grid = createGrid({ items: ROWS_1K })
       for (let i = 0; i < 10; i++) {
-        grid.rows.move(i, i + 10)
+        grid.rows.move(ROWS_1K[i]!.id, i + 10)
       }
     })
 
     bench('Reset row order (1,000 items)', () => {
       const grid = createGrid({ items: ROWS_1K })
-      grid.rows.move(0, 500)
+      grid.rows.move(ROWS_1K[0]!.id, 500)
       grid.rows.reset()
     })
   })
