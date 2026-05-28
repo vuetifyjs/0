@@ -1,14 +1,18 @@
 <script setup lang="ts">
-  type Tier = {
+  type TierBase = {
     id: 'framework' | 'app' | 'monorepo'
     name: string
     price: string
     timeline: string
     blurb: string
-    icon: string
     dotOrigin?: string
     dotCoverage?: number
   }
+
+  type Tier = TierBase & (
+    | { iconAlias: string, icon?: never }
+    | { icon: string, iconAlias?: never }
+  )
 
   const tiers: Tier[] = [
     {
@@ -16,8 +20,8 @@
       name: 'Custom framework',
       price: '$5,000',
       timeline: '1–2 weeks',
-      blurb: 'A design system on v0, themed for your brand. ~20 components, docs site, Apache-2.0 in your repo.',
-      icon: 'M17.5 12a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3M14.5 8a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3M9.5 8a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3M6.5 12a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3M12 3a9 9 0 0 0 0 18 1.5 1.5 0 0 0 1.5-1.5c0-.39-.15-.74-.39-1-.23-.27-.38-.62-.38-1a1.5 1.5 0 0 1 1.5-1.5H16a5 5 0 0 0 5-5c0-4.42-4.03-8-9-8',
+      blurb: 'A design system on v0, themed for your brand. ~20 components, docs site.',
+      iconAlias: 'vuetify-0',
     },
     {
       id: 'app',
@@ -56,7 +60,15 @@
       />
 
       <div class="relative z-10 flex items-center gap-2 mb-1">
+        <AppIcon
+          v-if="tier.iconAlias"
+          class="text-primary !opacity-100"
+          :icon="tier.iconAlias"
+          :size="20"
+        />
+
         <svg
+          v-else
           aria-hidden="true"
           class="flex-shrink-0 text-primary"
           fill="currentColor"

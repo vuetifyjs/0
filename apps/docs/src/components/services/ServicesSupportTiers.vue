@@ -33,8 +33,6 @@
       ],
       avatar: 'https://cdn.vuetifyjs.com/docs/images/avatars/galaxy.png',
       href: STRIPE_SUPPORT_GALAXY,
-      dotOrigin: 'bottom right',
-      dotCoverage: 40,
     },
     {
       id: 'cosmic',
@@ -45,6 +43,7 @@
       bullets: [
         'Everything in Galaxy',
         'Priority on reported v0 and Vuetify GitHub issues',
+        'Async code review on v0 integration questions',
       ],
       avatar: 'https://cdn.vuetifyjs.com/docs/images/avatars/cosmic.png',
       href: STRIPE_SUPPORT_COSMIC,
@@ -58,10 +57,13 @@
       bullets: [
         'Everything in Cosmic',
         'Monthly strategy session with your team and the creator',
+        'Roadmap input and feature prioritization',
       ],
       avatar: 'https://cdn.vuetifyjs.com/docs/images/avatars/multiverse.png',
       href: STRIPE_SUPPORT_MULTIVERSE,
       featured: true,
+      dotCoverage: 40,
+      dotOrigin: 'top left',
     },
   ]
 </script>
@@ -74,13 +76,12 @@
       class="relative flex flex-col p-4 rounded-xl border-2 bg-surface"
       :class="[
         tier.featured ? 'border-primary shadow-md' : 'border-divider',
-        tier.dotOrigin && 'overflow-hidden',
       ]"
     >
       <AppDotGrid
         v-if="tier.dotOrigin"
         :coverage="tier.dotCoverage ?? 20"
-        :density="18"
+        :density="16"
         :origin="tier.dotOrigin"
       />
 

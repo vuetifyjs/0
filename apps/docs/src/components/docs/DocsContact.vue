@@ -11,7 +11,7 @@
 
 <template>
   <section class="relative my-10 px-5 py-4 sm:px-6 sm:py-5 rounded-xl border border-divider bg-surface overflow-hidden flex flex-col sm:flex-row items-center gap-6">
-    <AppDotGrid :coverage="60" :density="16" origin="bottom left" />
+    <AppDotGrid :coverage="55" :density="16" origin="bottom left" />
 
     <a
       aria-label="John Leider on GitHub"
@@ -31,7 +31,7 @@
 
     <div class="relative z-10 flex-1 text-center sm:text-left">
       <h3 class="text-xl font-bold mb-1">John Leider</h3>
-      <p class="text-sm text-on-surface-variant mb-2">Creator of Vuetify and v0</p>
+      <p class="text-sm text-on-surface-variant mb-2">Creator of Vuetify</p>
 
       <p class="text-sm mb-5">
         Available for direct support subscriptions and fixed-scope project builds. Book a 30-minute intro call to talk through what you're building.
