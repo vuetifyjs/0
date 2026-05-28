@@ -156,6 +156,7 @@ declare module 'vue' {
     DocsSkeleton: typeof import('./components/docs/DocsSkeleton.vue')['default']
     DocsSkillToggle: typeof import('./components/docs/meta/DocsSkillToggle.vue')['default']
     DocsSponsor: typeof import('./components/docs/DocsSponsor.vue')['default']
+    DocsSponsorSlot: typeof import('./components/docs/DocsSponsorSlot.vue')['default']
     DocsTimeline: typeof import('./components/docs/DocsTimeline.vue')['default']
     DocsToc: typeof import('./components/docs/DocsToc.vue')['default']
     HomeAiFirst: typeof import('./components/home/HomeAiFirst.vue')['default']

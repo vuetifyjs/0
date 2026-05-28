@@ -153,7 +153,7 @@ export function applyMarkdownPlugins (md: MarkdownIt, highlighter: DocsHighlight
   registerExampleContainer('gn-example', 'DocsGenesisExample')
 
   // Sponsor container: ::: sponsor ... :::
-  // Renders the standing $1,500/mo Premier sponsor pitch
+  // Renders the $2,000/mo Special Sponsor teaser (full pitch lives at /sponsor)
   md.use(Container, 'sponsor', {
     render (tokens: MarkdownToken[], index: number) {
       if (tokens[index].nesting === 1) return '<DocsSponsor />\n'
