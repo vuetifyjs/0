@@ -335,6 +335,9 @@ export function useDate<
       '  import { V0DateAdapter } from \'@vuetify/v0/date\'\n' +
       '  import { createDatePlugin } from \'@vuetify/v0\'\n\n' +
       '  app.use(createDatePlugin({ adapter: new V0DateAdapter() }))',
+      {
+        cause: { code: 'V0_PLUGIN_MISSING', plugin: 'createDatePlugin' },
+      },
     )
   }
 

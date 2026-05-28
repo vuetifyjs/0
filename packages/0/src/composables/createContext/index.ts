@@ -64,7 +64,9 @@ export function useContext<Z> (key: ContextKey<Z>, defaultValue?: Z) {
   const context = inject<Z>(key, defaultValue as Z)
 
   if (isUndefined(context)) {
-    throw new Error(`Context "${String(key)}" not found. Ensure it's provided by an ancestor.`)
+    throw new Error(`Context "${String(key)}" not found. Ensure it's provided by an ancestor.`, {
+      cause: { code: 'V0_CONTEXT_MISSING', key },
+    })
   }
 
   return context
