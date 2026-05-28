@@ -3,17 +3,22 @@
  *
  * @remarks
  * Cell editing state management. Tracks active cell, validation errors,
- * and dirty (uncommitted) edits. Does not mutate source data — commit
- * fires a callback for the consumer to handle.
+ * and dirty (staged but uncommitted) edits. Does not mutate source data —
+ * commit fires a callback for the consumer to handle.
+ *
+ * When a `registry` is provided, editing state for rows that get
+ * unregistered (or wiped via `clear`) is pruned automatically so consumers
+ * can never observe `active` pointing at a phantom row or stale entries
+ * lingering in `dirty`.
  */
 
 // Utilities
 import { isFunction } from '#v0/utilities'
-import { ref, shallowRef } from 'vue'
+import { shallowReactive, shallowRef } from 'vue'
 
 // Types
 import type { ID } from '#v0/types'
-import type { Ref, ShallowRef } from 'vue'
+import type { ShallowReactive, ShallowRef } from 'vue'
 
 export interface EditableColumn {
   readonly id: string
@@ -21,10 +26,27 @@ export interface EditableColumn {
   readonly validate?: (value: unknown, item?: unknown) => string | true
 }
 
+/**
+ * Minimal structural type of the row registry surface that
+ * `createCellEditing` subscribes to for pruning stale state.
+ *
+ * Compatible with the registry returned by `createDataTable` / spread onto
+ * `createDataGrid`. Only the `on` method is needed here.
+ */
+/**
+ * Minimal structural shape needed from the row registry — just an event
+ * subscription channel. The listener's payload arrives as `unknown` and
+ * is narrowed inside the handler.
+ */
+export interface CellEditingRegistry {
+  on: (event: string, listener: (data: unknown) => void) => void
+}
+
 export interface CellEditingOptions {
   columns: readonly EditableColumn[]
   onEdit?: (row: ID, column: string, value: unknown) => void
   lookup?: (row: ID) => unknown
+  registry?: CellEditingRegistry
 }
 
 export interface ActiveCell {
@@ -38,7 +60,13 @@ export interface CellEditing {
   commit: (value: unknown) => void
   cancel: () => void
   error: Readonly<ShallowRef<string | null>>
-  dirty: Readonly<Ref<Map<ID, Map<string, unknown>>>>
+  /**
+   * Map of rows that have staged (uncommitted) cell values. The outer key
+   * is the row id; the inner Map is column id → staged value. Empty
+   * entries are not pre-created — consumers that want to stage a value
+   * insert their own per-row Map (or use the dirty Map's `set`).
+   */
+  dirty: Readonly<ShallowReactive<Map<ID, Map<string, unknown>>>>
 }
 
 /**
@@ -46,9 +74,21 @@ export interface CellEditing {
  *
  * @param options Cell editing configuration including columns and commit callback
  * @returns Cell editing state and controls
+ *
+ * @example
+ * ```ts
+ * const editing = createCellEditing({
+ *   columns: [{ id: 'name', editable: true }],
+ *   registry: table,
+ *   onEdit (row, column, value) { ... },
+ * })
+ *
+ * editing.edit(1, 'name')
+ * editing.commit('Alice')
+ * ```
  */
 export function createCellEditing (options: CellEditingOptions): CellEditing {
-  const { columns, onEdit, lookup } = options
+  const { columns, onEdit, lookup, registry } = options
 
   const columnMap = new Map<string, EditableColumn>()
   for (const col of columns) {
@@ -57,7 +97,7 @@ export function createCellEditing (options: CellEditingOptions): CellEditing {
 
   const active = shallowRef<ActiveCell | null>(null)
   const error = shallowRef<string | null>(null)
-  const dirty = ref(new Map<ID, Map<string, unknown>>())
+  const dirty = shallowReactive(new Map<ID, Map<string, unknown>>())
 
   function edit (row: ID, column: string) {
     const col = columnMap.get(column)
@@ -71,9 +111,6 @@ export function createCellEditing (options: CellEditingOptions): CellEditing {
     }
     error.value = null
     active.value = { row, column }
-    if (!dirty.value.has(row)) {
-      dirty.value.set(row, new Map())
-    }
   }
 
   function commit (value: unknown) {
@@ -92,11 +129,11 @@ export function createCellEditing (options: CellEditingOptions): CellEditing {
 
     onEdit?.(cell.row, cell.column, value)
 
-    // Clear dirty entry for this cell
-    const entry = dirty.value.get(cell.row)
+    // Clear any staged entry for this cell; drop the row map if now empty.
+    const entry = dirty.get(cell.row)
     if (entry) {
       entry.delete(cell.column)
-      if (entry.size === 0) dirty.value.delete(cell.row)
+      if (entry.size === 0) dirty.delete(cell.row)
     }
 
     error.value = null
@@ -104,8 +141,33 @@ export function createCellEditing (options: CellEditingOptions): CellEditing {
   }
 
   function cancel () {
+    const cell = active.value
+    if (cell) {
+      const entry = dirty.get(cell.row)
+      if (entry) {
+        entry.delete(cell.column)
+        if (entry.size === 0) dirty.delete(cell.row)
+      }
+    }
     error.value = null
     active.value = null
+  }
+
+  if (registry) {
+    registry.on('unregister:ticket', data => {
+      const ticket = data as { id: ID }
+      if (active.value?.row === ticket.id) {
+        active.value = null
+        error.value = null
+      }
+      dirty.delete(ticket.id)
+    })
+
+    registry.on('clear:registry', () => {
+      active.value = null
+      error.value = null
+      dirty.clear()
+    })
   }
 
   return {

@@ -58,13 +58,13 @@ import type { SortableTicketInput } from '#v0/composables/createSortable'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { VirtualOptions } from '#v0/composables/createVirtual'
 import type { ID } from '#v0/types'
-import type { CellEditing } from './editing'
+import type { CellEditing, CellEditingRegistry } from './editing'
 import type { ColumnLayout, GridColumnDef } from './layout'
 import type { SpanEntry } from './spanning'
 import type { App, ComputedRef, Ref } from 'vue'
 
 export type { ColumnLayout, GridColumnDef, PinnedRegion, PinPosition, ResolvedColumn } from './layout'
-export type { ActiveCell, CellEditing, CellEditingOptions, EditableColumn } from './editing'
+export type { ActiveCell, CellEditing, CellEditingOptions, CellEditingRegistry, EditableColumn } from './editing'
 export type { RowSpanningOptions, SpanEntry } from './spanning'
 export { ServerGridAdapter } from './adapters'
 export type { ServerGridAdapterOptions } from './adapters'
@@ -275,6 +275,9 @@ export function createDataGrid<T extends Record<string, unknown>> (
   const editing = createCellEditing({
     columns: editable,
     lookup,
+    // The registry's `on` is generic per event name; createCellEditing only
+    // needs the structural surface and narrows the payload inside its handler.
+    registry: table as unknown as CellEditingRegistry,
     onEdit: editingOptions?.onEdit
       ? (row, column, value) => {
           const item = lookup(row)
