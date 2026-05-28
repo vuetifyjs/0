@@ -168,11 +168,10 @@ declare module 'vue' {
     HomeEcosystem: typeof import('./components/home/HomeEcosystem.vue')['default']
     HomeFoundation: typeof import('./components/home/HomeFoundation.vue')['default']
     HomeHero: typeof import('./components/home/HomeHero.vue')['default']
+    HomeSpecialSponsor: typeof import('./components/home/HomeSpecialSponsor.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
-    ServicesContactCard: typeof import('./components/services/ServicesContactCard.vue')['default']
     ServicesProjectTiers: typeof import('./components/services/ServicesProjectTiers.vue')['default']
-    ServicesSponsorBand: typeof import('./components/services/ServicesSponsorBand.vue')['default']
     ServicesSupportTiers: typeof import('./components/services/ServicesSupportTiers.vue')['default']
     SkillCard: typeof import('./components/skillz/SkillCard.vue')['default']
     SkillCardDeck: typeof import('./components/skillz/SkillCardDeck.vue')['default']
@@ -185,5 +184,9 @@ declare module 'vue' {
     SkillPrerequisites: typeof import('./components/skillz/SkillPrerequisites.vue')['default']
     SkillzResume: typeof import('./components/skillz/SkillzResume.vue')['default']
     SkillzTour: typeof import('./components/skillz/SkillzTour.vue')['default']
+    SponsorComparison: typeof import('./components/sponsor/SponsorComparison.vue')['default']
+    SponsorCta: typeof import('./components/sponsor/SponsorCta.vue')['default']
+    SponsorHero: typeof import('./components/sponsor/SponsorHero.vue')['default']
+    SponsorIncluded: typeof import('./components/sponsor/SponsorIncluded.vue')['default']
   }
 }

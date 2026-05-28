@@ -15,6 +15,7 @@
 <template>
   <div class="home-page">
     <HomeHero />
+    <HomeSpecialSponsor />
     <HomeArchitecture />
     <HomeEcosystem />
     <HomeBenchmarks />
