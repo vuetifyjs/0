@@ -148,7 +148,7 @@ expect(spy).toHaveBeenCalledTimes(1)
 expect(spy).toHaveBeenCalledWith(expect.stringContaining('expected message'))
 ```
 
-The `using` form relies on Vitest's `Symbol.dispose` integration (Vitest 3+) and TS `target: esnext`. Fall back to `const` + `spy.mockRestore()` only when the spy must outlive the enclosing block (e.g., set in `beforeEach`, asserted in `afterEach`).
+The `using` form relies on Vitest's `Symbol.dispose` integration (Vitest 3+) and TS `target: esnext`. Background: [TC39 Explicit Resource Management proposal](https://github.com/tc39/proposal-explicit-resource-management). Fall back to `const` + `spy.mockRestore()` only when the spy must outlive the enclosing block (e.g., set in `beforeEach`, asserted in `afterEach`).
 
 ### Vue DI mocks — `hasInjectionContext` extension
 
