@@ -103,7 +103,8 @@
 
   function measure () {
     if (!group || !ticket || !IN_BROWSER || !el.value) return
-    if (ticket.index !== 0) return
+    // Any visible avatar is a valid uniform-width sample; hidden avatars report
+    // offsetWidth 0 and are skipped so they can't zero the shared itemWidth.
     const w = (el.value as HTMLElement).offsetWidth
     if (w === 0) return
     group.itemWidth.value = w
@@ -117,11 +118,9 @@
   useToggleScope(() => !!group && group.responsive.value, () => {
     useResizeObserver(el, () => measure())
 
-    // Track ticket.index, not just el: when the index-0 avatar unmounts the
-    // registry reindexes, and the new index-0 ticket must re-run here even
-    // though its element never changed. measure() feeds itemWidth (index-0
-    // only, guarded internally); overflow.measure() keeps the group's widths
-    // map — and thus isOverflowing — in sync, clearing the stale index first.
+    // el drives measurement and the overflow report; ticket.index is tracked
+    // only to re-key the overflow widths entry when the registry reindexes this
+    // ticket (index-valued registrations — a no-op for value-carrying ones).
     watch(
       () => [el.value, ticket?.index] as const,
       ([element, index]) => {
@@ -140,7 +139,6 @@
   onBeforeUnmount(() => {
     if (!isNull(last)) group?.overflow.value?.measure(last, undefined)
     ticket?.unregister()
-    if (group && ticket?.index === 0) group.itemWidth.value = 0
   })
 
   const isHidden = toRef(() => !!ticket && !group!.isVisible(ticket.index))
