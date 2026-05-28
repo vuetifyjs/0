@@ -48,7 +48,7 @@ Fixed price, fixed scope. Three flavors covering most of what people ask for. AI
 
 ## Sponsor {#sponsor}
 
-If you'd rather support v0 than buy from it, this is the highest-impact way to do it — direct brand visibility in exchange for funding the project.
+Already built on v0 and want to fund the project directly? The Special Sponsor slot is for companies whose product depends on v0 as part of their infrastructure — one company at a time gets their logo across the docs, every page, and the README. Full details on the [sponsor page](/sponsor).
 
 ::: sponsor
 :::
