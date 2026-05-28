@@ -29,11 +29,15 @@
     </div>
   </section>
 
-  <AppLink v-else class="block" no-suffix to="/sponsor">
-    <section class="home-special-sponsor relative py-4 overflow-hidden hover:bg-surface-tint transition-colors">
-      <AppDotGrid :coverage="30" origin="bottom right" />
+  <section v-else class="home-special-sponsor relative overflow-hidden">
+    <AppDotGrid :coverage="30" origin="bottom right" />
 
-      <div class="relative flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left">
+    <AppLink
+      class="relative block py-4 hover:bg-surface-tint transition-colors"
+      no-suffix
+      to="/sponsor"
+    >
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left">
         <p class="section-overline">SPECIAL SPONSOR</p>
 
         <p class="text-sm">
@@ -42,6 +46,6 @@
           <span class="ml-1">→</span>
         </p>
       </div>
-    </section>
-  </AppLink>
+    </AppLink>
+  </section>
 </template>

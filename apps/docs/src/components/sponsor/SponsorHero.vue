@@ -55,9 +55,9 @@
 
     <p class="relative section-overline mb-4">THE SPOT IS OPEN</p>
 
-    <h2 class="relative text-2xl md:text-3xl font-bold tracking-tight mb-3">
+    <p class="relative text-2xl md:text-3xl font-bold tracking-tight mb-3">
       Become the Special Sponsor
-    </h2>
+    </p>
 
     <p class="relative text-sm text-on-surface-variant mb-1">
       <span class="text-base font-semibold text-on-surface">${{ SPECIAL_SPONSOR_PRICE.toLocaleString() }}/mo</span> · One slot
