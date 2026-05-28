@@ -30,6 +30,10 @@ Headless Vue 3 UI primitives and composables for building modern applications an
 
 > **Note:** This package is in early development (pre-1.0). APIs may change between minor versions.
 
+## Special Sponsor
+
+This spot is open. v0 accepts one Special Sponsor at a time — $2,000/mo gets your logo on the docs home page, every docs page, this README, and the dedicated sponsor page. [Become the sponsor →](https://0.vuetifyjs.com/sponsor)
+
 ## Repository Structure
 
 This is a **pnpm monorepo** containing:
