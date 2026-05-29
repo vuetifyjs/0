@@ -60,7 +60,7 @@
 
   grid.onboard(products.map(value => ({ id: value.id, value })))
 
-  const history = computed(() => [...timeline.values()].reverse())
+  const history = computed(() => timeline.values().toReversed())
   const editedCells = computed(
     () => new Set(timeline.values().map(t => `${t.value.row}:${t.value.column}`)),
   )
