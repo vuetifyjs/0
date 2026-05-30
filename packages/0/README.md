@@ -30,9 +30,9 @@ Headless Vue 3 UI primitives and composables for building modern applications an
 
 > **Note:** This package is in early development (pre-1.0). APIs may change between minor versions.
 
-## Special Sponsor
+## Primary Sponsor
 
-This spot is open. v0 accepts one Special Sponsor at a time — $2,000/mo gets your logo on the v0 docs site (home page + desktop sidebar on every docs page) and this README. [Become the sponsor →](https://0.vuetifyjs.com/sponsor)
+This spot is open. Vuetify0 accepts one Primary Sponsor at a time — $2,000/mo gets your logo on the Vuetify0 docs site (home page + desktop sidebar on every docs page) and this README. [Become the Primary Sponsor →](https://0.vuetifyjs.com/sponsor)
 
 ## Repository Structure
 
@@ -298,7 +298,7 @@ pnpm validate
 
 ## Contributing
 
-v0 is in alpha — open for feedback, bug reports, and contributions. See the [Alpha Roadmap](https://0.vuetifyjs.com/roadmap#alpha) for what's planned and how to get involved.
+Vuetify0 is in alpha — open for feedback, bug reports, and contributions. See the [Alpha Roadmap](https://0.vuetifyjs.com/roadmap#alpha) for what's planned and how to get involved.
 
 ## License
 

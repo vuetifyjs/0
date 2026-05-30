@@ -1,11 +1,10 @@
 <script setup lang="ts">
   import {
-    SPECIAL_SPONSOR,
-    SPECIAL_SPONSOR_PRICE,
-    SPECIAL_SPONSOR_TIER_URL,
+    PRIMARY_SPONSOR,
+    PRIMARY_SPONSOR_TIER_URL,
   } from '@/constants/sponsor'
 
-  const sponsor = SPECIAL_SPONSOR
+  const sponsor = PRIMARY_SPONSOR
   const domain = sponsor ? new URL(sponsor.url).hostname.replace(/^www\./, '') : ''
 </script>
 
@@ -28,7 +27,7 @@
       >
     </a>
 
-    <p class="relative text-sm text-on-surface-variant mt-4 mb-6">Thank you for funding v0</p>
+    <p class="relative text-sm text-on-surface-variant mt-4 mb-6">Thank you for funding Vuetify0</p>
 
     <a
       class="relative inline-flex items-center gap-1.5 px-5 py-2.5 rounded-lg border border-divider font-semibold hover:bg-surface-tint transition-colors"
@@ -50,40 +49,43 @@
     </a>
   </section>
 
-  <section v-else class="relative my-10 px-6 py-12 rounded-2xl border border-divider bg-surface overflow-hidden text-center">
+  <section v-else class="relative my-10 px-6 py-10 rounded-2xl border border-divider bg-surface overflow-hidden text-center">
     <AppDotGrid :coverage="40" />
 
-    <p class="relative section-overline mb-4">THE SPOT IS OPEN</p>
-
-    <p class="relative text-2xl md:text-3xl font-bold tracking-tight mb-3">
-      Become the Special Sponsor
+    <p class="relative text-xl md:text-2xl tracking-tight mb-3">
+      The Primary Sponsor spot is currently open.
     </p>
 
-    <p class="relative text-sm text-on-surface-variant mb-1">
-      <span class="text-base font-semibold text-on-surface">${{ SPECIAL_SPONSOR_PRICE.toLocaleString() }}/mo</span> · One slot
+    <p class="relative text-sm text-on-surface-variant max-w-prose mx-auto mb-6">
+      One company at a time. If your product is built on Vuetify0, this is how you fund its development and share that relationship with the community.
     </p>
 
-    <p class="relative text-xs uppercase tracking-wide text-on-surface-variant mb-6">
-      No ads. No tracking. Ever.
-    </p>
-
-    <a
-      class="relative inline-flex items-center gap-1.5 px-5 py-2.5 rounded-lg bg-primary text-on-primary font-semibold hover:opacity-90 transition-opacity"
-      :href="SPECIAL_SPONSOR_TIER_URL"
-      rel="noopener"
-      target="_blank"
-    >
-      Become the sponsor
-      <svg
-        aria-hidden="true"
-        fill="currentColor"
-        height="14"
-        viewBox="0 0 24 24"
-        width="14"
-        xmlns="http://www.w3.org/2000/svg"
+    <div class="relative flex flex-wrap justify-center gap-3">
+      <a
+        class="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-lg bg-primary text-on-primary font-medium hover:opacity-90 transition-opacity"
+        href="mailto:john@vuetifyjs.com?subject=Primary%20Sponsor"
       >
-        <path d="M19 19H5V5h7V3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7h-2v7zM14 3v2h3.59L7.76 14.83l1.41 1.41L19 6.41V10h2V3h-7z" />
-      </svg>
-    </a>
+        Email to claim the slot
+      </a>
+
+      <a
+        class="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-lg border border-divider font-medium hover:bg-surface-tint transition-colors"
+        :href="PRIMARY_SPONSOR_TIER_URL"
+        rel="noopener"
+        target="_blank"
+      >
+        Sponsor on GitHub
+        <svg
+          aria-hidden="true"
+          fill="currentColor"
+          height="14"
+          viewBox="0 0 24 24"
+          width="14"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path d="M19 19H5V5h7V3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7h-2v7zM14 3v2h3.59L7.76 14.83l1.41 1.41L19 6.41V10h2V3h-7z" />
+        </svg>
+      </a>
+    </div>
   </section>
 </template>

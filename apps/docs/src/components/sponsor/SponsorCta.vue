@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { SPECIAL_SPONSOR_TIER_URL } from '@/constants/sponsor'
+  import { PRIMARY_SPONSOR_TIER_URL } from '@/constants/sponsor'
 </script>
 
 <template>
@@ -13,11 +13,18 @@
     <div class="relative flex flex-wrap justify-center gap-3">
       <a
         class="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-lg bg-primary text-on-primary font-semibold hover:opacity-90 transition-opacity"
-        :href="SPECIAL_SPONSOR_TIER_URL"
+        href="mailto:john@vuetifyjs.com?subject=Primary%20Sponsor"
+      >
+        Email to claim the slot
+      </a>
+
+      <a
+        class="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-lg border border-divider font-semibold hover:bg-surface-tint transition-colors"
+        :href="PRIMARY_SPONSOR_TIER_URL"
         rel="noopener"
         target="_blank"
       >
-        Become the sponsor
+        Sponsor on GitHub
         <svg
           aria-hidden="true"
           fill="currentColor"
@@ -28,13 +35,6 @@
         >
           <path d="M19 19H5V5h7V3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7h-2v7zM14 3v2h3.59L7.76 14.83l1.41 1.41L19 6.41V10h2V3h-7z" />
         </svg>
-      </a>
-
-      <a
-        class="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-lg border border-divider font-semibold hover:bg-surface-tint transition-colors"
-        href="mailto:john@vuetifyjs.com"
-      >
-        Email John
       </a>
     </div>
   </section>

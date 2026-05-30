@@ -1,14 +1,17 @@
 <script setup lang="ts">
-  import {
-    SPECIAL_SPONSOR,
-    SPECIAL_SPONSOR_PRICE,
-  } from '@/constants/sponsor'
+  import { PRIMARY_SPONSOR } from '@/constants/sponsor'
 
-  const sponsor = SPECIAL_SPONSOR
+  // Utilities
+  import { toRef } from 'vue'
+  import { useRoute } from 'vue-router'
+
+  const route = useRoute()
+  const sponsor = PRIMARY_SPONSOR
+  const onSponsorPage = toRef(() => route.path === '/sponsor')
 </script>
 
 <template>
-  <div v-if="sponsor" class="mt-6 p-3 rounded-lg border border-divider bg-surface">
+  <div v-if="sponsor" class="mt-3 p-3 rounded-lg border border-divider bg-surface">
     <p class="text-xs uppercase tracking-wide text-on-surface-variant mb-2">SPONSORED BY</p>
 
     <a
@@ -36,11 +39,15 @@
 
   <router-link
     v-else
-    class="block mt-6 p-3 rounded-lg border-2 border-dashed border-divider text-on-surface-variant hover:border-primary hover:text-primary transition-colors"
+    class="block mt-3 p-3 rounded-lg border border-dashed hover:border-primary hover:text-primary transition-colors"
+    :class="onSponsorPage ? 'border-primary text-primary' : 'border-divider text-on-surface-variant'"
     to="/sponsor"
   >
-    <p class="text-xs font-semibold">Your logo here</p>
-    <p class="text-xs">${{ SPECIAL_SPONSOR_PRICE.toLocaleString() }}/mo</p>
-    <p class="text-xs mt-1">Become the sponsor →</p>
+    <p class="text-xs font-semibold flex items-center gap-1">
+      <AppIcon icon="vuetify-0" size=".75rem" />
+      Your logo here
+    </p>
+
+    <p class="text-xs mt-1">Become the Primary Sponsor →</p>
   </router-link>
 </template>

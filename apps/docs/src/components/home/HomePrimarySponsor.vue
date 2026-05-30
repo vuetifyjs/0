@@ -1,11 +1,11 @@
 <script setup lang="ts">
-  import { SPECIAL_SPONSOR } from '@/constants/sponsor'
+  import { PRIMARY_SPONSOR } from '@/constants/sponsor'
 
-  const sponsor = SPECIAL_SPONSOR
+  const sponsor = PRIMARY_SPONSOR
 </script>
 
 <template>
-  <aside aria-label="Sponsorship" class="home-special-sponsor relative w-screen ml-[calc(50%-50vw)] border-y border-divider overflow-hidden">
+  <aside aria-label="Sponsorship" class="home-primary-sponsor relative w-screen ml-[calc(50%-50vw)] border-y border-divider overflow-hidden">
     <AppDotGrid :coverage="0" origin="top right" />
 
     <div v-if="sponsor" class="relative mx-auto max-w-[900px] px-4 py-4 flex flex-col sm:flex-row items-center justify-between gap-3">

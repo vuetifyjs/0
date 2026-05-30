@@ -1,7 +1,7 @@
 <script setup lang="ts">
-  import { SPECIAL_SPONSOR, SPECIAL_SPONSOR_PRICE } from '@/constants/sponsor'
+  import { PRIMARY_SPONSOR, PRIMARY_SPONSOR_PRICE } from '@/constants/sponsor'
 
-  const isOpen = SPECIAL_SPONSOR === null
+  const isOpen = PRIMARY_SPONSOR === null
 </script>
 
 <template>
@@ -21,16 +21,16 @@
           Sponsor
         </div>
 
-        <h3 class="text-xl font-bold mb-2">Fund v0, get your logo on the docs</h3>
+        <h3 class="text-xl font-bold mb-2">Fund Vuetify0, get your logo on the docs</h3>
 
         <p class="text-sm text-on-surface-variant max-w-prose">
-          For companies whose product is built on v0. Logo across the docs, every page, and the README. One sponsor at a time.
+          For companies whose product is built on Vuetify0. Logo across the docs, every page, and the README. One sponsor at a time.
         </p>
       </div>
 
       <div class="flex flex-col items-center gap-3 sm:items-end">
         <div class="flex items-baseline gap-1">
-          <span class="text-3xl font-bold">${{ SPECIAL_SPONSOR_PRICE.toLocaleString() }}</span>
+          <span class="text-3xl font-bold">${{ PRIMARY_SPONSOR_PRICE.toLocaleString() }}</span>
           <span class="text-sm text-on-surface-variant">/mo</span>
         </div>
 

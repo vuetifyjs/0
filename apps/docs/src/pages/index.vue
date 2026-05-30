@@ -15,7 +15,7 @@
 <template>
   <div class="home-page">
     <HomeHero />
-    <HomeSpecialSponsor />
+    <HomePrimarySponsor />
     <HomeArchitecture />
     <HomeEcosystem />
     <HomeBenchmarks />
@@ -36,6 +36,10 @@ meta:
   }
 
   .home-page :deep(section:last-child) {
+    border-bottom: none;
+  }
+
+  .home-page :deep(.home-hero) {
     border-bottom: none;
   }
 

@@ -582,6 +582,74 @@
     fill: var(--v0-on-primary) !important;
   }
 
+  /* Mindmap styling */
+  .docs-mermaid .mindmap-node > rect,
+  .docs-mermaid .mindmap-node > polygon,
+  .docs-mermaid .mindmap-node > circle,
+  .docs-mermaid .mindmap-node > ellipse,
+  .docs-mermaid .mindmap-node > path {
+    fill: var(--v0-surface) !important;
+    stroke: var(--v0-divider) !important;
+  }
+
+  .docs-mermaid .mindmap-node > rect {
+    rx: 8px;
+    ry: 8px;
+  }
+
+  /* Override mermaid's per-branch color rotation (.section-0, .section-1, ...) */
+  .docs-mermaid g[class*="section-"] > rect,
+  .docs-mermaid g[class*="section-"] > polygon,
+  .docs-mermaid g[class*="section-"] > circle,
+  .docs-mermaid g[class*="section-"] > ellipse,
+  .docs-mermaid g[class*="section-"] > path {
+    fill: var(--v0-surface) !important;
+    stroke: var(--v0-divider) !important;
+  }
+
+  .docs-mermaid g[class*="section-"] > rect {
+    rx: 8px;
+    ry: 8px;
+  }
+
+  /* Mindmap root node — primary-colored hub */
+  .docs-mermaid .mindmap-node.section--1 > circle,
+  .docs-mermaid .mindmap-node:has(> circle) > circle {
+    fill: var(--v0-primary) !important;
+    stroke: var(--v0-primary) !important;
+  }
+
+  /* Mermaid sizes foreignObject for the original label measurement;
+     bold text + browser rendering can push descenders past the right edge */
+  .docs-mermaid .mindmap-node foreignObject,
+  .docs-mermaid .mindmap-node foreignObject > div {
+    overflow: visible !important;
+  }
+
+  .docs-mermaid .mindmap-node.section--1 text,
+  .docs-mermaid .mindmap-node.section--1 .nodeLabel,
+  .docs-mermaid .mindmap-node:has(> circle) text,
+  .docs-mermaid .mindmap-node:has(> circle) .nodeLabel {
+    font-weight: 600 !important;
+    fill: var(--v0-on-primary) !important;
+    color: var(--v0-on-primary) !important;
+  }
+
+  .docs-mermaid .mindmap-node text,
+  .docs-mermaid .mindmap-node .nodeLabel,
+  .docs-mermaid g[class*="section-"] text,
+  .docs-mermaid g[class*="section-"] .nodeLabel {
+    fill: var(--v0-on-surface) !important;
+    color: var(--v0-on-surface) !important;
+  }
+
+  .docs-mermaid .edge,
+  .docs-mermaid path[class*="edge-"] {
+    stroke: var(--v0-primary) !important;
+    stroke-width: 1.5px !important;
+    fill: none !important;
+  }
+
   /* Semantic node classes (use with classDef in mermaid) */
   .docs-mermaid .node.primary rect,
   .docs-mermaid .node.primary polygon {
