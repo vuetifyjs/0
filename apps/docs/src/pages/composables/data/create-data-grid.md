@@ -58,7 +58,7 @@ grid.layout.reset()            // restore initial layout
 
 ## Architecture
 
-`createDataGrid` is a composition of [createDataTable](/composables/data/create-data-table) plus four grid-specific modules. The table owns the data pipeline (filter, sort, paginate); the grid layers column layout, cell editing, row ordering, and row spanning on top. Row ordering is a [createSortable](/composables/data/create-sortable) instance synced to the table's row registry via `register` / `unregister` events, then applied to `sortedItems` before pagination slicing.
+`createDataGrid` is a composition of [createDataTable](/composables/data/create-data-table) plus four grid-specific modules. The table owns the data pipeline (filter, sort, paginate); the grid layers column layout, cell editing, row ordering, and row spanning on top. Row ordering is a [createSortable](/composables/data/create-sortable) instance synced to the table's row registry via `register` / `unregister` events. It is layered in the grid's own `items` projection — over the sorted rows, before pagination — never inside the adapter. While no manual order is active, the grid passes the adapter's own page through untouched; `sortedItems` reflects filter + sort only.
 
 ```mermaid "createDataGrid Architecture"
 flowchart TD
@@ -79,17 +79,17 @@ flowchart TD
 | `table` (spread) | `createDataTable` | Search, sort, filter, paginate, total — all v-modeled through |
 | `layout` | `table.columns` + `createGroup` | Reads column order from the table's columns registry; layers tri-region pinning, percentage sizing, and delta-based resize on top |
 | `editing` | internal factory | Click-to-edit lifecycle, per-column validation, dirty tracking |
-| `rows` | `createSortable` | Post-sort row reordering, applied to `sortedItems` before pagination slicing |
+| `rows` | `createSortable` | Post-sort row reordering, layered in the grid's `items` projection over the sorted rows before pagination — not inside the adapter |
 | `spans` | computed map | Row span resolution and hidden-cell tracking |
 
 ## Reactivity
 
 | Property | Reactive | Notes |
 | - | :-: | - |
-| `items` | <AppSuccessIcon /> | Final visible items (paginated) |
+| `items` | <AppSuccessIcon /> | Final visible items (filter + sort + row order + paginate) |
 | `allItems` | <AppSuccessIcon /> | Raw unprocessed items (projected from registered tickets) |
 | `filteredItems` | <AppSuccessIcon /> | Items after filtering |
-| `sortedItems` | <AppSuccessIcon /> | Items after filter + sort + order |
+| `sortedItems` | <AppSuccessIcon /> | Items after filter + sort |
 | `layout.columns` | <AppSuccessIcon /> | Resolved columns with size/offset |
 | `layout.pinned` | <AppSuccessIcon /> | Pin region breakdown |
 | `editing.active` | <AppSuccessIcon /> | Currently edited cell |
@@ -134,7 +134,9 @@ grid.rows.reset()                    // clear custom ordering
 
 ### ServerGridAdapter
 
-Pass-through adapter for API-driven grids. Re-exports the data table's `ServerDataTableAdapter`.
+Pass-through adapter for API-driven grids — the server owns sort, filter, and pagination. Re-exports the data table's `ServerDataTableAdapter`.
+
+Onboard only the rows the server returns for the current page, and set `total` to the full server-side count. The grid renders that page on every page — onboard page 2's rows, advance `pagination.page`, and the grid surfaces them. Because the page window can sit past the locally-held rows, the grid orders the onboarded page in place rather than re-slicing it into emptiness.
 
 ```ts
 import { createDataGrid, ServerGridAdapter } from '@vuetify/v0'
@@ -144,8 +146,10 @@ const grid = createDataGrid({
   adapter: new ServerGridAdapter({ total: totalCount, loading: isLoading }),
 })
 
-// Push server-returned rows into the grid as they arrive
-grid.onboard(serverItems.map(value => ({ id: value.id, value })))
+// On every page change, clear and onboard the rows the server returned for
+// that page; keep `total` at the full server count
+grid.clear()
+grid.onboard(serverPage.map(value => ({ id: value.id, value })))
 ```
 
 ### Virtual scrolling
