@@ -43,6 +43,30 @@ describe('createCellEditing', () => {
     expect(editing.active.value).toBeNull()
   })
 
+  it('should not throw and stay inactive when a function-editable predicate cannot resolve its item', () => {
+    function editable (item: unknown) {
+      return !(item as { locked?: boolean }).locked
+    }
+    const editing = createCellEditing({
+      columns: [{ id: 'name', editable }],
+      lookup: () => undefined,
+    })
+    expect(() => editing.edit(1, 'name')).not.toThrow()
+    expect(editing.active.value).toBeNull()
+  })
+
+  it('should activate when a function-editable predicate resolves its item and returns true', () => {
+    function editable (item: unknown) {
+      return !(item as { locked?: boolean }).locked
+    }
+    const editing = createCellEditing({
+      columns: [{ id: 'name', editable }],
+      lookup: () => ({ locked: false }),
+    })
+    editing.edit(1, 'name')
+    expect(editing.active.value).toEqual({ row: 1, column: 'name' })
+  })
+
   it('should clear active cell on cancel', () => {
     const editing = createCellEditing({ columns })
     editing.edit(1, 'name')
@@ -145,6 +169,50 @@ describe('createCellEditing', () => {
 
     expect(editing.active.value).toEqual({ row: 1, column: 'name' })
     expect(editing.dirty.has(2)).toBe(false)
+  })
+
+  it('should reset internal state before invoking onEdit so a throwing handler cannot wedge the editor', () => {
+    const onEdit = vi.fn(() => {
+      throw new Error('persistence failed')
+    })
+    const editing = createCellEditing({ columns, onEdit })
+    editing.edit(1, 'name')
+    editing.dirty.set(1, new Map([['name', 'pending']]))
+
+    expect(() => editing.commit('x')).toThrow('persistence failed')
+
+    expect(onEdit).toHaveBeenCalledWith(1, 'name', 'x')
+    expect(editing.active.value).toBeNull()
+    expect(editing.error.value).toBeNull()
+    expect(editing.dirty.has(1)).toBe(false)
+  })
+
+  it('should treat an empty-string validate result as valid and commit', () => {
+    const onEdit = vi.fn()
+    const editing = createCellEditing({
+      columns: [{ id: 'name', editable: true, validate: () => '' }],
+      onEdit,
+    })
+    editing.edit(1, 'name')
+    editing.commit('whatever')
+
+    expect(onEdit).toHaveBeenCalledWith(1, 'name', 'whatever')
+    expect(editing.error.value).toBeNull()
+    expect(editing.active.value).toBeNull()
+  })
+
+  it('should block commit and set error when validate returns a non-empty string', () => {
+    const onEdit = vi.fn()
+    const editing = createCellEditing({
+      columns: [{ id: 'name', editable: true, validate: () => 'Required' }],
+      onEdit,
+    })
+    editing.edit(1, 'name')
+    editing.commit('whatever')
+
+    expect(onEdit).not.toHaveBeenCalled()
+    expect(editing.error.value).toBe('Required')
+    expect(editing.active.value).toEqual({ row: 1, column: 'name' })
   })
 
   it('should clear active, error, and dirty when the registry is cleared', () => {

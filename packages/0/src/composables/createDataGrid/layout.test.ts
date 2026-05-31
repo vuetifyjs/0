@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 // Composables
 import { createRegistry } from '#v0/composables/createRegistry'
@@ -162,6 +162,25 @@ describe('createColumnLayout', () => {
       expect(scrollable.map(c => c.id)).toEqual(['a', 'b', 'c'])
     })
 
+    it('should pin a nested leaf column at runtime', () => {
+      const { layout } = setup([
+        { id: 'name', size: 30 },
+        {
+          id: 'contact',
+          children: [
+            { id: 'email', size: 35 },
+            { id: 'phone', size: 35 },
+          ],
+        },
+      ])
+
+      // 'email' is a nested leaf — not a top-level registry entry — so the
+      // pin guard must consult the pin group, not the columns registry.
+      layout.pin('email', 'left')
+
+      expect(layout.pinned.value.left.map(c => c.id)).toEqual(['email'])
+    })
+
     it('should compute offsets independently per region', () => {
       const { layout } = setup([
         { id: 'a', size: 20, pinned: 'left' },
@@ -302,6 +321,29 @@ describe('createColumnLayout', () => {
 
       expect(layout.columns.value.map(c => c.id)).toEqual(['a', 'b'])
     })
+
+    it('should move a whole column group when reordering by a nested leaf index', () => {
+      // Leaf display order is [name, email, phone, status]. Indices 1 and 2 are
+      // the leaves of the 'contact' group. Dragging 'phone' (leaf index 2) to
+      // the front must move the whole 'contact' group, not just the leaf.
+      const { layout } = setup([
+        { id: 'name' },
+        {
+          id: 'contact',
+          children: [
+            { id: 'email' },
+            { id: 'phone' },
+          ],
+        },
+        { id: 'status' },
+      ])
+
+      expect(layout.columns.value.map(c => c.id)).toEqual(['name', 'email', 'phone', 'status'])
+
+      layout.reorder(2, 0)
+
+      expect(layout.columns.value.map(c => c.id)).toEqual(['email', 'phone', 'name', 'status'])
+    })
   })
 
   describe('reset', () => {
@@ -365,7 +407,8 @@ describe('createColumnLayout', () => {
       expect(total).toBeCloseTo(100)
     })
 
-    it('should no-op when array length mismatches', () => {
+    it('should warn and no-op when array length mismatches', () => {
+      const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
       const { layout } = setup([
         { id: 'a', size: 50 },
         { id: 'b', size: 50 },
@@ -376,19 +419,60 @@ describe('createColumnLayout', () => {
       const cols = layout.columns.value
       expect(cols.find(c => c.id === 'a')!.size).toBe(50)
       expect(cols.find(c => c.id === 'b')!.size).toBe(50)
+      expect(spy).toHaveBeenCalledTimes(1)
+      expect(spy).toHaveBeenCalledWith(expect.stringContaining('expected 2 sizes but received 1'))
+      spy.mockRestore()
     })
 
-    it('should normalize values that do not sum to 100', () => {
+    it('should normalize proportionally when values do not sum to 100', () => {
       const { layout } = setup([
         { id: 'a' },
         { id: 'b' },
       ])
 
+      // Equal inputs that undershoot 100 scale up proportionally to 50/50.
       layout.distribute([30, 30])
 
       const cols = layout.columns.value
+      expect(cols.find(c => c.id === 'a')!.size).toBeCloseTo(50)
+      expect(cols.find(c => c.id === 'b')!.size).toBeCloseTo(50)
       const total = cols.reduce((sum, c) => sum + c.size, 0)
       expect(total).toBeCloseTo(100)
+    })
+
+    it('should redistribute the residual onto columns with room', () => {
+      const { layout } = setup([
+        { id: 'a', maxSize: 30 },
+        { id: 'b' },
+      ])
+
+      // 'a' clamps to its 30 cap; the 20 it could not absorb flows to 'b'.
+      layout.distribute([50, 50])
+
+      const cols = layout.columns.value
+      expect(cols.find(c => c.id === 'a')!.size).toBeCloseTo(30)
+      expect(cols.find(c => c.id === 'b')!.size).toBeCloseTo(70)
+      const total = cols.reduce((sum, c) => sum + c.size, 0)
+      expect(total).toBeCloseTo(100)
+    })
+
+    it('should warn and clamp when constraints make 100 unreachable', () => {
+      const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      const { layout } = setup([
+        { id: 'a', maxSize: 40 },
+        { id: 'b', maxSize: 40 },
+      ])
+
+      // Both columns cap at 40, so the proportional 50/50 target clamps to
+      // 40/40 and the residual 20 cannot be placed anywhere.
+      layout.distribute([40, 40])
+
+      const cols = layout.columns.value
+      expect(cols.find(c => c.id === 'a')!.size).toBeCloseTo(40)
+      expect(cols.find(c => c.id === 'b')!.size).toBeCloseTo(40)
+      expect(spy).toHaveBeenCalledTimes(1)
+      expect(spy).toHaveBeenCalledWith(expect.stringContaining('could not reach 100'))
+      spy.mockRestore()
     })
   })
 

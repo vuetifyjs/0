@@ -20,10 +20,11 @@
 // Composables
 import { extractLeaves } from '#v0/composables/createDataTable/columns'
 import { createGroup } from '#v0/composables/createGroup'
+import { useLogger } from '#v0/composables/useLogger'
 
 // Utilities
 import { clamp, isUndefined } from '#v0/utilities'
-import { shallowReactive, toRef } from 'vue'
+import { computed, shallowReactive } from 'vue'
 
 // Types
 import type { DataTableColumnTicket, DataTableColumnTicketInput } from '#v0/composables/createDataTable'
@@ -149,6 +150,8 @@ export function createColumnLayout<T extends Record<string, unknown>> (
   cols: RegistryContext<DataTableColumnTicketInput<T>, DataTableColumnTicket<T>>,
   defs: readonly GridColumnDef[],
 ): ColumnLayout {
+  const logger = useLogger()
+
   const leaves = extractLeaves(defs)
   const initial = distributeEven(leaves)
 
@@ -272,15 +275,15 @@ export function createColumnLayout<T extends Record<string, unknown>> (
     return { left, scrollable, right }
   }
 
-  const pinned = toRef((): PinnedRegion => split(resolve()))
+  const pinned = computed((): PinnedRegion => split(resolve()))
 
-  const columns = toRef((): ResolvedColumn[] => {
+  const columns = computed((): ResolvedColumn[] => {
     const { left, scrollable, right } = pinned.value
     return [...left, ...scrollable, ...right]
   })
 
   function pin (id: string, pos: PinPosition) {
-    if (!cols.has(id)) return
+    if (!group.has(id)) return
     group.unselect(id)
     group.unmix(id)
     if (pos === 'left') group.select(id)
@@ -288,7 +291,7 @@ export function createColumnLayout<T extends Record<string, unknown>> (
   }
 
   function resize (id: string, delta: number) {
-    // Read from cached pinned.value instead of resolve() + split()
+    // Read from the cached `pinned` computed rather than recomputing resolve() + split()
     const { left, scrollable, right } = pinned.value
     const all = [...left, ...scrollable, ...right]
     const target = all.find(c => c.id === id)
@@ -313,31 +316,61 @@ export function createColumnLayout<T extends Record<string, unknown>> (
 
   function reorder (from: number, to: number) {
     if (from === to) return
-    const id = cols.lookup(from)
-    if (!id) return
-    cols.move(id, to)
+
+    // Map a leaf display index to the index of its top-level column group, so
+    // reordering moves whole groups (nested children travel with their parent).
+    const leafToTop: number[] = []
+    for (const [top, ticket] of cols.values().entries()) {
+      for (let i = 0; i < extractLeaves([ticket]).length; i++) leafToTop.push(top)
+    }
+
+    const fromTop = leafToTop[from]
+    const toTop = leafToTop[to]
+    if (isUndefined(fromTop) || isUndefined(toTop) || fromTop === toTop) return
+
+    const id = cols.lookup(fromTop)
+    if (isUndefined(id)) return
+    cols.move(id, toTop)
   }
 
   function distribute (incoming: number[]) {
     const tickets = extractLeaves(cols.values())
-    if (incoming.length !== tickets.length) return
-
-    for (const [i, ticket] of tickets.entries()) {
-      const id = String(ticket.id)
-      const meta = extras.get(id) ?? DEFAULT_EXTRAS
-      sizes.set(id, clamp(incoming[i]!, meta.minSize, meta.maxSize))
+    if (incoming.length !== tickets.length) {
+      logger.warn(`createDataGrid: distribute() expected ${tickets.length} sizes but received ${incoming.length}; ignoring.`)
+      return
     }
 
-    let remainder = 100 - tickets.reduce((sum, t) => sum + (sizes.get(String(t.id)) ?? 0), 0)
-    for (const ticket of tickets) {
-      if (remainder === 0) break
-      const id = String(ticket.id)
-      const meta = extras.get(id) ?? DEFAULT_EXTRAS
-      const current = sizes.get(id) ?? 0
-      const room = remainder > 0 ? meta.maxSize - current : current - meta.minSize
-      const adjust = remainder > 0 ? Math.min(remainder, room) : Math.max(remainder, -room)
-      sizes.set(id, current + adjust)
-      remainder -= adjust
+    const sum = incoming.reduce((acc, value) => acc + value, 0)
+    if (sum <= 0) {
+      logger.warn(`createDataGrid: distribute() received sizes summing to ${sum}; expected a positive total.`)
+      return
+    }
+
+    // Normalize proportionally to sum 100, then clamp each to its constraints.
+    const metas = tickets.map(ticket => extras.get(String(ticket.id)) ?? DEFAULT_EXTRAS)
+    let current = incoming.map((value, i) => clamp(value / sum * 100, metas[i]!.minSize, metas[i]!.maxSize))
+
+    // Redistribute the residual proportionally across columns that still have
+    // room in the residual's direction. Bounded loop guards against constraints
+    // that make 100 unreachable.
+    let residual = 100 - current.reduce((acc, value) => acc + value, 0)
+    const max = tickets.length * 2
+    for (let pass = 0; pass < max && Math.abs(residual) >= 1e-6; pass++) {
+      const room = current.map((value, i) => residual > 0 ? metas[i]!.maxSize - value : value - metas[i]!.minSize)
+      const available = room.reduce((acc, value) => acc + Math.max(0, value), 0)
+      if (available <= 0) break
+
+      current = current.map((value, i) => room[i]! <= 0 ? value : value + residual * (room[i]! / available))
+
+      residual = 100 - current.reduce((acc, value) => acc + value, 0)
+    }
+
+    if (Math.abs(residual) >= 1e-6) {
+      logger.warn(`createDataGrid: distribute() could not reach 100 within min/max constraints (off by ${residual.toFixed(2)})`)
+    }
+
+    for (const [i, ticket] of tickets.entries()) {
+      sizes.set(String(ticket.id), current[i]!)
     }
   }
 

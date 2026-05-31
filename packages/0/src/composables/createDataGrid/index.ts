@@ -56,7 +56,6 @@ import type { FilterOptions } from '#v0/composables/createFilter'
 import type { PaginationOptions } from '#v0/composables/createPagination'
 import type { SortableTicketInput } from '#v0/composables/createSortable'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
-import type { VirtualOptions } from '#v0/composables/createVirtual'
 import type { ID } from '#v0/types'
 import type { CellEditing, CellEditingRegistry } from './editing'
 import type { ColumnLayout, GridColumnDef } from './layout'
@@ -69,35 +68,6 @@ export type { RowSpanningOptions, SpanEntry } from './spanning'
 export { ServerGridAdapter } from './adapters'
 export type { ServerGridAdapterOptions } from './adapters'
 
-/* #__NO_SIDE_EFFECTS__ */
-function applyOrder<T extends Record<string, unknown>> (
-  items: readonly T[],
-  order: readonly ID[],
-  itemKey: string,
-): readonly T[] {
-  if (order.length === 0) return items
-
-  const map = new Map<ID, T>()
-  for (const item of items) {
-    map.set(item[itemKey] as ID, item)
-  }
-
-  const result: T[] = []
-  for (const id of order) {
-    const item = map.get(id)
-    if (item) result.push(item)
-  }
-
-  const ordered = new Set(order)
-  for (const item of items) {
-    if (!ordered.has(item[itemKey] as ID)) {
-      result.push(item)
-    }
-  }
-
-  return result
-}
-
 export interface DataGridColumn<T extends Record<string, unknown> = Record<string, unknown>> extends GridColumnDef {
   readonly id: string
   readonly title?: string
@@ -106,9 +76,7 @@ export interface DataGridColumn<T extends Record<string, unknown> = Record<strin
   readonly sort?: (a: unknown, b: unknown) => number
   readonly filter?: (value: unknown, query: string) => boolean
   readonly editable?: boolean | ((item: T) => boolean)
-  readonly editor?: 'text' | 'number' | 'boolean'
   readonly validate?: (value: unknown, item?: T) => string | true
-  readonly span?: (item: T) => number
   readonly children?: readonly DataGridColumn<T>[]
 }
 
@@ -118,17 +86,11 @@ export interface DataGridOptions<T extends Record<string, unknown>> {
   filter?: Omit<FilterOptions, 'keys'>
   pagination?: Omit<PaginationOptions, 'size'>
   sortMultiple?: boolean
-  pinning?: { left?: string[], right?: string[] }
-  resizing?: boolean | { min?: number, max?: number }
-  reordering?: boolean
   editing?: {
-    columns?: string[]
     onEdit?: (row: ID, column: string, value: unknown, item: T) => void
   }
-  rowReordering?: boolean
   preserveRowOrder?: boolean
   rowSpanning?: (item: T, column: string) => number
-  virtualization?: VirtualOptions
 }
 
 export interface DataGridContext<T extends Record<string, unknown>> extends DataTableContext<T> {
@@ -140,7 +102,6 @@ export interface DataGridContext<T extends Record<string, unknown>> extends Data
   }
   editing: CellEditing
   spans: ComputedRef<Map<ID, Map<string, SpanEntry>>>
-  virtual: null
 }
 
 export interface DataGridContextOptions<T extends Record<string, unknown>> extends DataGridOptions<T> {
@@ -199,11 +160,17 @@ export function createDataGrid<T extends Record<string, unknown>> (
 
   const sortable = createSortable<SortableTicketInput<ID>>()
 
-  // Tracks whether the consumer has explicitly mutated the order. Until they
-  // do, `sortable.keys()` mirrors registration order and applying it back to
-  // `sortedItems` would clobber the table's sort — so the pipeline short-
-  // circuits while `dirty` is false.
+  // Tracks whether the consumer has explicitly reordered rows. While false the
+  // grid passes the table's own sorted+paginated projection through untouched,
+  // so it stays correct for every adapter — including the server adapter, which
+  // has already paginated its result.
   const dirty = shallowRef(false)
+
+  // `createSortable` is non-reactive, so `sortable.keys()` registers no
+  // reactive dependency. `revision` is the signal that the manual order
+  // changed; folding it into `order` makes the ordered projection recompute on
+  // every move/reset, not only the first.
+  const revision = shallowRef(0)
 
   table.on('register:ticket', ticket => {
     sortable.register({ id: ticket.id, value: ticket.id })
@@ -216,6 +183,7 @@ export function createDataGrid<T extends Record<string, unknown>> (
   table.on('clear:registry', () => {
     sortable.clear()
     dirty.value = false
+    revision.value++
   })
 
   // Onboard columns into the inherited table column registry so leaves,
@@ -230,11 +198,39 @@ export function createDataGrid<T extends Record<string, unknown>> (
     children: col.children,
   })))
 
-  const order = toRef(() => sortable.keys() as ID[])
+  const order = toRef(() => {
+    void revision.value
+    return sortable.keys() as ID[]
+  })
+
+  // Sorted ticket ids parallel to `table.sortedItems`, resolved by reference
+  // identity from value back to ticket — never assumes `value.id` exists or
+  // equals the registry id.
+  const sortedIds = computed<ID[]>(() => {
+    const byValue = new Map<T, ID>()
+    for (const ticket of table.values()) byValue.set(ticket.value as T, ticket.id)
+
+    const ids: ID[] = []
+    for (const value of table.sortedItems.value) {
+      const id = byValue.get(value as T)
+      if (!isUndefined(id)) ids.push(id)
+    }
+    return ids
+  })
 
   function move (id: ID, toIndex: number) {
+    // Anchor the manual order to the currently-visible sorted order the first
+    // time the consumer reorders, so a drag preserves the active sort instead
+    // of snapping back to registration order. Filtered-out ids trail behind.
+    if (!dirty.value) {
+      const sorted = sortedIds.value
+      const seen = new Set<ID>(sorted)
+      const rest = (sortable.keys() as ID[]).filter(key => !seen.has(key))
+      sortable.reorder([...sorted, ...rest])
+    }
     sortable.move(id, toIndex)
     dirty.value = true
+    revision.value++
   }
 
   function reset () {
@@ -242,20 +238,41 @@ export function createDataGrid<T extends Record<string, unknown>> (
       sortable.reorder(table.keys() as ID[])
     }
     dirty.value = false
+    revision.value++
   }
 
   if (!preserveRowOrder) {
     watch(table.sort.columns, reset, { flush: 'sync' })
   }
 
-  const pageOrderedItems = computed(() => {
-    const ordered = dirty.value
-      ? applyOrder(table.sortedItems.value, order.value, 'id')
-      : table.sortedItems.value
-    return ordered.slice(
-      table.pagination.pageStart.value,
-      table.pagination.pageStop.value,
-    )
+  const pageOrderedItems = computed<readonly T[]>(() => {
+    // No manual order: defer to the adapter's own page projection, correct for
+    // client (sliced), server (pre-paged), and virtual (single page) alike.
+    if (!dirty.value) return table.items.value
+
+    const sorted = table.sortedItems.value
+    const ids = sortedIds.value
+
+    const byId = new Map<ID, T>()
+    for (let i = 0; i < sorted.length; i++) byId.set(ids[i]!, sorted[i] as T)
+
+    const seen = new Set<ID>(order.value)
+    const ordered: T[] = []
+    for (const id of order.value) {
+      const value = byId.get(id)
+      if (!isUndefined(value)) ordered.push(value)
+    }
+    for (const [i, element] of sorted.entries()) {
+      if (!seen.has(ids[i]!)) ordered.push(element as T)
+    }
+
+    // When the adapter has already paginated (server: total exceeds the local
+    // sorted slice), the global page window starts past `sorted`, so order the
+    // page in place rather than re-slicing into emptiness. Client/virtual keep
+    // the full set and slice to the page.
+    return table.total.value > sorted.length
+      ? ordered
+      : ordered.slice(table.pagination.pageStart.value, table.pagination.pageStop.value)
   })
 
   const layout = createColumnLayout(table.columns, columns)
@@ -302,7 +319,6 @@ export function createDataGrid<T extends Record<string, unknown>> (
     },
     editing,
     spans,
-    virtual: null,
     get size () {
       return table.size
     },

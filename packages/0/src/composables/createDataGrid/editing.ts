@@ -13,7 +13,7 @@
  */
 
 // Utilities
-import { isFunction } from '#v0/utilities'
+import { isFunction, isString, isUndefined } from '#v0/utilities'
 import { shallowReactive, shallowRef } from 'vue'
 
 // Types
@@ -31,12 +31,9 @@ export interface EditableColumn {
  * `createCellEditing` subscribes to for pruning stale state.
  *
  * Compatible with the registry returned by `createDataTable` / spread onto
- * `createDataGrid`. Only the `on` method is needed here.
- */
-/**
- * Minimal structural shape needed from the row registry — just an event
- * subscription channel. The listener's payload arrives as `unknown` and
- * is narrowed inside the handler.
+ * `createDataGrid`. Only the `on` event subscription channel is needed here;
+ * the listener's payload arrives as `unknown` and is narrowed inside the
+ * handler.
  */
 export interface CellEditingRegistry {
   on: (event: string, listener: (data: unknown) => void) => void
@@ -65,6 +62,10 @@ export interface CellEditing {
    * is the row id; the inner Map is column id → staged value. Empty
    * entries are not pre-created — consumers that want to stage a value
    * insert their own per-row Map (or use the dirty Map's `set`).
+   *
+   * `dirty` is a consumer-managed staging area for uncommitted values;
+   * `commit(value)` commits its explicit `value` argument and merely deletes
+   * the matching staged entry — it does not read or auto-flush staged values.
    */
   dirty: Readonly<ShallowReactive<Map<ID, Map<string, unknown>>>>
 }
@@ -105,7 +106,7 @@ export function createCellEditing (options: CellEditingOptions): CellEditing {
 
     if (isFunction(col.editable)) {
       const item = lookup?.(row)
-      if (!col.editable(item)) return
+      if (isUndefined(item) || !col.editable(item)) return
     } else if (col.editable !== true) {
       return
     }
@@ -119,17 +120,17 @@ export function createCellEditing (options: CellEditingOptions): CellEditing {
 
     const col = columnMap.get(cell.column)
     if (col?.validate) {
-      const item = lookup?.(cell.row)
-      const result = col.validate(value, item)
-      if (result !== true) {
+      const result = col.validate(value, lookup?.(cell.row))
+      if (result !== true && isString(result) && result.length > 0) {
         error.value = result
         return
       }
     }
 
-    onEdit?.(cell.row, cell.column, value)
-
-    // Clear any staged entry for this cell; drop the row map if now empty.
+    // Reset v0's internal edit-state machine BEFORE invoking the consumer
+    // callback. v0 owns the state machine; the consumer owns persistence.
+    // A throwing `onEdit` then propagates to the consumer without leaving
+    // the cell wedged in edit mode with stale active/error/dirty state.
     const entry = dirty.get(cell.row)
     if (entry) {
       entry.delete(cell.column)
@@ -138,6 +139,8 @@ export function createCellEditing (options: CellEditingOptions): CellEditing {
 
     error.value = null
     active.value = null
+
+    onEdit?.(cell.row, cell.column, value)
   }
 
   function cancel () {

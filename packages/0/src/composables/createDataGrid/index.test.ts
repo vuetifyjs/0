@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 
-import { createDataGrid } from './index'
+import { createDataGrid, ServerGridAdapter } from './index'
 
 vi.mock('vue', async () => {
   const actual = await vi.importActual('vue')
@@ -317,6 +317,122 @@ describe('createDataGrid', () => {
       grid.clear()
 
       expect(grid.rows.order.value).toEqual([])
+    })
+  })
+
+  describe('row ordering — regression', () => {
+    // b1: ordering must key off the registry ticket id, not value.id.
+    it('should reorder by ticket id when it differs from value.id', () => {
+      const grid = createDataGrid<{ id: number, name: string }>({
+        columns: [{ id: 'name', size: 100 }],
+      })
+
+      // Ticket ids deliberately diverge from value.id.
+      grid.register({ id: 100, value: { id: 1, name: 'Alice' } })
+      grid.register({ id: 200, value: { id: 2, name: 'Bob' } })
+      grid.register({ id: 300, value: { id: 3, name: 'Carol' } })
+
+      grid.rows.move(100, 2)
+
+      expect(grid.rows.order.value).toEqual([200, 300, 100])
+      expect(grid.items.value.map(item => item.name)).toEqual(['Bob', 'Carol', 'Alice'])
+    })
+
+    // b1: rows with no `id` field at all must still reorder.
+    it('should reorder rows whose values have no id field', () => {
+      const grid = createDataGrid<{ name: string }>({
+        columns: [{ id: 'name', size: 100 }],
+      })
+
+      const a = grid.register({ value: { name: 'Alice' } })
+      const b = grid.register({ value: { name: 'Bob' } })
+      const c = grid.register({ value: { name: 'Carol' } })
+
+      expect(grid.items.value.map(item => item.name)).toEqual(['Alice', 'Bob', 'Carol'])
+
+      grid.rows.move(a.id, 2)
+
+      expect(grid.rows.order.value).toEqual([b.id, c.id, a.id])
+      expect(grid.items.value.map(item => item.name)).toEqual(['Bob', 'Carol', 'Alice'])
+    })
+
+    // b2: a second consecutive move must recompute the ordered projection.
+    it('should recompute items on a second consecutive move', () => {
+      const grid = createDataGrid({
+        columns: [{ id: 'name', size: 100 }],
+      })
+
+      onboard(grid, items)
+
+      const a = grid.items.value.map(item => item.id)
+      expect(a).toEqual([1, 2, 3, 4])
+
+      grid.rows.move(1, 2)
+      const b = grid.items.value.map(item => item.id)
+      expect(b).toEqual([2, 3, 1, 4])
+
+      grid.rows.move(4, 0)
+      const c = grid.items.value.map(item => item.id)
+      expect(c).toEqual([4, 2, 3, 1])
+      expect(c).not.toEqual(b)
+    })
+
+    // b4: a manual move after a sort must preserve the active sort order.
+    it('should preserve the active sort when moving a row', () => {
+      const grid = createDataGrid({
+        columns: [
+          { id: 'name', sortable: true, size: 50 },
+          { id: 'age', sortable: true, size: 50 },
+        ],
+        preserveRowOrder: true,
+      })
+
+      onboard(grid, items)
+
+      grid.sort.toggle('age')
+      // Sorted by age asc: Bob(25), Dave(28), Alice(30), Carol(35) → ids [2, 4, 1, 3]
+      const sorted = grid.items.value.map(item => item.id)
+      expect(sorted).toEqual([2, 4, 1, 3])
+
+      grid.rows.move(3, 0)
+
+      const result = grid.items.value.map(item => item.id)
+      expect(result[0]).toBe(3)
+      // Remaining rows stay in the sorted order, not registration order.
+      expect(result).toEqual([3, 2, 4, 1])
+    })
+
+    // b3: server-adapter pages past page 1 must not be empty. The server adapter
+    // is handed exactly one page worth of rows (page 2) while `total` reports the
+    // full server count; the grid must surface those rows rather than re-slicing
+    // into emptiness.
+    it('should surface server-adapter page-2 rows instead of an empty slice', () => {
+      const page2 = Array.from({ length: 25 }, (_, i) => {
+        const n = 26 + i
+        return { id: n, name: `User ${n}`, age: 20 + (i % 10), dept: 'Eng' }
+      })
+
+      const grid = createDataGrid<{ id: number, name: string, age: number, dept: string }>({
+        columns: [{ id: 'name', sortable: true, size: 100 }],
+        adapter: new ServerGridAdapter({ total: 100 }),
+        pagination: { itemsPerPage: 25 },
+      })
+
+      onboard(grid, page2)
+
+      grid.pagination.next()
+      expect(grid.pagination.page.value).toBe(2)
+
+      // The server already paginated: 25 rows for page 2, total reported as 100.
+      expect(grid.items.value.length).toBe(25)
+
+      // With a manual reorder active (dirty), the grid must order the page in
+      // place — `total` (100) exceeds the local sorted slice (25), so it must
+      // not re-slice by the global page window into emptiness.
+      grid.rows.move(50, 0)
+      const ordered = grid.items.value
+      expect(ordered.length).toBe(25)
+      expect(ordered[0]!.id).toBe(50)
     })
   })
 

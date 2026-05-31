@@ -2,9 +2,10 @@
  * @module createDataGrid/adapters
  *
  * @remarks
- * Barrel for grid adapter exports. The grid uses the standard data table
- * adapters; only the server re-export carries a grid-specific alias for
- * docs continuity.
+ * Barrel for grid adapter exports. The grid reuses the standard DataTable
+ * adapters verbatim; only the server re-export carries a grid-specific alias
+ * for docs continuity. Row ordering is applied in createDataGrid's items
+ * projection (index.ts), not in any adapter.
  */
 
 export type { DataTableAdapter, DataTableAdapterContext, DataTableAdapterResult, SortDirection, SortEntry } from './adapter'

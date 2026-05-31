@@ -2,10 +2,9 @@
  * @module createDataGrid/adapters/server
  *
  * @remarks
- * Server-side grid adapter. Delegates pipeline to the server.
- * Row ordering emits a callback for the consumer to sync with the server.
+ * `ServerGridAdapter` is an alias of `ServerDataTableAdapter`, re-exported for
+ * grid import and docs continuity. The server is responsible for sort, filter,
+ * and pagination.
  */
-
-// Types
 
 export { ServerDataTableAdapter as ServerGridAdapter, type ServerDataTableAdapterOptions as ServerGridAdapterOptions } from '#v0/composables/createDataTable'
