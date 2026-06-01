@@ -84,27 +84,6 @@ flowchart TD
 | `rows` | `createSortable` | Post-sort row reordering, layered in the grid's `items` projection over the sorted rows before pagination — not inside the adapter |
 | `spans` | computed map | Row span resolution and hidden-cell tracking |
 
-## Reactivity
-
-| Property | Reactive | Notes |
-| - | :-: | - |
-| `items` | <AppSuccessIcon /> | Final visible items (filter + sort + row order + paginate) |
-| `allItems` | <AppSuccessIcon /> | Raw unprocessed items (projected from registered tickets) |
-| `filteredItems` | <AppSuccessIcon /> | Items after filtering |
-| `sortedItems` | <AppSuccessIcon /> | Items after filter + sort |
-| `layout.columns` | <AppSuccessIcon /> | Resolved columns with size/offset (render set — visible only) |
-| `layout.all` | <AppSuccessIcon /> | Every column incl. hidden, each with a `visible` flag |
-| `layout.pinned` | <AppSuccessIcon /> | Pin region breakdown |
-| `editing.active` | <AppSuccessIcon /> | Currently edited cell |
-| `editing.error` | <AppSuccessIcon /> | Validation error string |
-| `editing.dirty` | <AppSuccessIcon /> | Uncommitted edits map |
-| `rows.order` | <AppSuccessIcon /> | Current row ordering |
-| `spans` | <AppSuccessIcon /> | Row span map |
-| `headers` | <AppSuccessIcon /> | 2D header grid |
-| `sort.columns` | <AppSuccessIcon /> | Current sort entries |
-| `pagination.page` | <AppSuccessIcon /> | Current page |
-| `total` | <AppSuccessIcon /> | Total row count |
-
 ## Adapters
 
 The grid uses the standard data table adapters — row ordering is layered above the pipeline, not inside it, so any [DataTableAdapter](/composables/data/create-data-table#adapters) works without modification.
@@ -170,6 +149,27 @@ const grid = createDataGrid({
 grid.columns.onboard(columns)
 grid.onboard(largeDataset.map(value => ({ id: value.id, value })))
 ```
+
+## Reactivity
+
+| Property | Reactive | Notes |
+| - | :-: | - |
+| `items` | <AppSuccessIcon /> | Final visible items (filter + sort + row order + paginate) |
+| `allItems` | <AppSuccessIcon /> | Raw unprocessed items (projected from registered tickets) |
+| `filteredItems` | <AppSuccessIcon /> | Items after filtering |
+| `sortedItems` | <AppSuccessIcon /> | Items after filter + sort |
+| `layout.columns` | <AppSuccessIcon /> | Resolved columns with size/offset (render set — visible only) |
+| `layout.all` | <AppSuccessIcon /> | Every column incl. hidden, each with a `visible` flag |
+| `layout.pinned` | <AppSuccessIcon /> | Pin region breakdown |
+| `editing.active` | <AppSuccessIcon /> | Currently edited cell |
+| `editing.error` | <AppSuccessIcon /> | Validation error string |
+| `editing.dirty` | <AppSuccessIcon /> | Uncommitted edits map |
+| `rows.order` | <AppSuccessIcon /> | Current row ordering |
+| `spans` | <AppSuccessIcon /> | Row span map |
+| `headers` | <AppSuccessIcon /> | 2D header grid |
+| `sort.columns` | <AppSuccessIcon /> | Current sort entries |
+| `pagination.page` | <AppSuccessIcon /> | Current page |
+| `total` | <AppSuccessIcon /> | Total row count |
 
 ## Examples
 

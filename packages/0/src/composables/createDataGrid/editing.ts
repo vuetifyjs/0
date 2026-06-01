@@ -68,6 +68,19 @@ export interface ActiveCell {
   column: string
 }
 
+/**
+ * Cell editing state and controls returned by {@link createCellEditing}.
+ *
+ * @example
+ * ```ts
+ * grid.editing.edit(1, 'email')
+ * grid.editing.commit('x@y.z')
+ *
+ * grid.editing.active.value // { row: 1, column: 'email' } | null
+ * grid.editing.error.value  // 'Invalid email' | null
+ * grid.editing.dirty        // Map<ID, Map<string, unknown>> (ShallowReactive)
+ * ```
+ */
 export interface CellEditing {
   active: Readonly<ShallowRef<ActiveCell | null>>
   edit: (row: ID, column: string) => void

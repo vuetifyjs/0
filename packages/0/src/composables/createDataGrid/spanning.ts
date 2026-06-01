@@ -28,6 +28,20 @@ export interface SpanEntry {
   hidden: boolean
 }
 
+/**
+ * Options for {@link createRowSpanning}.
+ *
+ * @template T Row value type.
+ *
+ * @example
+ * ```ts
+ * const options: RowSpanningOptions<Holding> = {
+ *   items: computed(() => grid.items.value),
+ *   columns: ['group', 'ticker', 'value'],
+ *   rowSpanning: (item, column) => column === 'group' ? 3 : 1,
+ * }
+ * ```
+ */
 export interface RowSpanningOptions<T = Record<string, unknown>> {
   items: Ref<readonly T[]> | ComputedRef<readonly T[]>
   columns: MaybeRefOrGetter<readonly string[]>
@@ -44,6 +58,17 @@ export interface RowSpanningOptions<T = Record<string, unknown>> {
  *
  * @param options Row spanning configuration
  * @returns A computed map of item ID to column to SpanEntry
+ *
+ * @example
+ * ```ts
+ * const spans = createRowSpanning({
+ *   items: computed(() => grid.items.value),
+ *   columns: ['group', 'ticker', 'value'],
+ *   rowSpanning: (item, column) => column === 'group' ? 3 : 1,
+ * })
+ *
+ * spans.value.get(id)?.get('group') // { rowSpan: 3, hidden: false }
+ * ```
  */
 export function createRowSpanning<T extends Record<string, unknown>> (
   options: RowSpanningOptions<T>,
