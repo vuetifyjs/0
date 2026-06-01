@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { Combobox } from '@vuetify/v0'
+  import { Combobox, Switch } from '@vuetify/v0'
   import { shallowRef } from 'vue'
 
   const selected = shallowRef<string>()
@@ -15,8 +15,20 @@
 
 <template>
   <div class="flex flex-col gap-4 max-w-xs mx-auto">
-    <label class="flex items-center gap-2 text-sm text-on-surface">
-      <input v-model="disabled" type="checkbox">
+    <label class="flex items-center gap-2 text-sm text-on-surface cursor-pointer">
+      <Switch.Root
+        v-model="disabled"
+        class="inline-flex items-center border-none bg-transparent p-0 outline-none"
+      >
+        <Switch.Track
+          class="relative inline-flex items-center w-11 h-6 rounded-full bg-surface-variant transition-colors data-[state=checked]:bg-primary"
+        >
+          <Switch.Thumb
+            class="![visibility:visible] block size-4 rounded-full bg-white shadow-sm transition-transform translate-x-1 data-[state=checked]:translate-x-6"
+          />
+        </Switch.Track>
+      </Switch.Root>
+
       Disable entire combobox
     </label>
 
