@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { Tooltip } from '@vuetify/v0'
+  import { Button, Tooltip } from '@vuetify/v0'
 </script>
 
 <template>
@@ -14,8 +14,8 @@
       <Tooltip.Content
         class="flex gap-2 px-3 py-2 rounded bg-on-surface text-surface text-xs shadow-md"
       >
-        <button class="underline">Edit</button>
-        <button class="underline">Delete</button>
+        <Button.Root class="underline">Edit</Button.Root>
+        <Button.Root class="underline">Delete</Button.Root>
       </Tooltip.Content>
     </Tooltip.Root>
   </div>
