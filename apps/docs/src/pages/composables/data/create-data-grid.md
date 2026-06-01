@@ -79,7 +79,7 @@ flowchart TD
 | Module | Built on | Purpose |
 | - | - | - |
 | `table` (spread) | `createDataTable` | Search, sort, filter, paginate, total — all v-modeled through |
-| `layout` | `grid.columns` + `createGroup` | Reads column order and config from the column registry; layers tri-region pinning, percentage sizing, delta-based resize, and visibility (`show` / `hide` / `toggle` / `allColumns`) on top |
+| `layout` | `grid.columns` + `createGroup` | Reads column order and config from the column registry; layers tri-region pinning, percentage sizing, delta-based resize, and visibility (`show` / `hide` / `toggle` / `all`) on top |
 | `editing` | internal factory | Click-to-edit lifecycle, per-column validation, dirty tracking |
 | `rows` | `createSortable` | Post-sort row reordering, layered in the grid's `items` projection over the sorted rows before pagination — not inside the adapter |
 | `spans` | computed map | Row span resolution and hidden-cell tracking |
@@ -93,7 +93,7 @@ flowchart TD
 | `filteredItems` | <AppSuccessIcon /> | Items after filtering |
 | `sortedItems` | <AppSuccessIcon /> | Items after filter + sort |
 | `layout.columns` | <AppSuccessIcon /> | Resolved columns with size/offset (render set — visible only) |
-| `layout.allColumns` | <AppSuccessIcon /> | Every column incl. hidden, each with a `visible` flag |
+| `layout.all` | <AppSuccessIcon /> | Every column incl. hidden, each with a `visible` flag |
 | `layout.pinned` | <AppSuccessIcon /> | Pin region breakdown |
 | `editing.active` | <AppSuccessIcon /> | Currently edited cell |
 | `editing.error` | <AppSuccessIcon /> | Validation error string |
@@ -153,7 +153,7 @@ grid.columns.onboard(columns)
 // that page; keep `total` at the full server count. `grid.clear()` wipes
 // the row registry — onboarded columns are untouched.
 grid.clear()
-grid.onboard(serverPage.map(value => ({ id: value.id, value })))
+grid.onboard(rows.map(value => ({ id: value.id, value })))
 ```
 
 ### Virtual scrolling
@@ -288,7 +288,7 @@ grid.layout.reset()
 
 ### Column Visibility
 
-Hide and show columns without redistributing the remaining widths — headless, so the consumer rebalances via `distribute()` or CSS. `allColumns` surfaces every column (including hidden ones) each carrying a `visible` flag, which is exactly the shape a column chooser needs.
+Hide and show columns without redistributing the remaining widths — headless, so the consumer rebalances via `distribute()` or CSS. `all` surfaces every column (including hidden ones) each carrying a `visible` flag, which is exactly the shape a column chooser needs.
 
 ```ts collapse
 const grid = createDataGrid()
@@ -301,7 +301,7 @@ grid.layout.show('email')          // restore it
 grid.layout.toggle('email') // flip current visibility
 
 grid.layout.columns.value     // render set — visible columns only
-grid.layout.allColumns.value  // every column, each with a `visible` flag
+grid.layout.all.value  // every column, each with a `visible` flag
 ```
 
 ### Cell Editing
@@ -317,16 +317,14 @@ const grid = createDataGrid({
   },
 })
 
-grid.columns.onboard([
-  {
-    id: 'email',
-    editable: true,
-    validate: (value, item) => {
-      if (typeof value !== 'string' || !value.includes('@')) return 'Invalid email'
-      return true
-    },
+grid.columns.register({
+  id: 'email',
+  editable: true,
+  validate: (value, item) => {
+    if (typeof value !== 'string' || !value.includes('@')) return 'Invalid email'
+    return true
   },
-])
+})
 
 grid.onboard(rows.map(value => ({ id: value.id, value })))
 
