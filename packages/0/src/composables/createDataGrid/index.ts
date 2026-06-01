@@ -53,7 +53,7 @@ import type { RegistryContext } from '#v0/composables/createRegistry'
 import type { SortableTicketInput } from '#v0/composables/createSortable'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { ID } from '#v0/types'
-import type { CellEditing, CellEditingRegistry } from './editing'
+import type { CellEditing } from './editing'
 import type { ColumnLayout, PinPosition } from './layout'
 import type { SpanEntry } from './spanning'
 import type { App, ComputedRef, MaybeRefOrGetter, Ref } from 'vue'
@@ -126,6 +126,21 @@ export type DataGridColumnTicket<T extends Record<string, unknown> = Record<stri
  */
 export type DataGridColumn<T extends Record<string, unknown> = Record<string, unknown>> = DataGridColumnTicketInput<T>
 
+/**
+ * Factory options for {@link createDataGrid}. Extends {@link DataTableOptions}
+ * with cell-editing, row-spanning, and row-order-preservation config.
+ *
+ * @template T Row value type.
+ *
+ * @example
+ * ```ts
+ * const grid = createDataGrid<Product>({
+ *   editing: { onEdit (row, column, value, item) { persist(item.id, column, value) } },
+ *   rowSpanning: (item, column) => column === 'group' ? 3 : 1,
+ *   preserveRowOrder: true,
+ * })
+ * ```
+ */
 export interface DataGridOptions<T extends Record<string, unknown>> extends DataTableOptions<T> {
   editing?: {
     onEdit?: (row: ID, column: string, value: unknown, item: T) => void
@@ -134,12 +149,31 @@ export interface DataGridOptions<T extends Record<string, unknown>> extends Data
   rowSpanning?: (item: T, column: string) => number
 }
 
+/**
+ * The reactive grid instance returned by {@link createDataGrid}. Spreads the
+ * inherited {@link DataTableContext} surface and adds `layout`, `rows`,
+ * `editing`, and `spans`.
+ *
+ * @template T Row value type.
+ *
+ * @example
+ * ```ts
+ * const grid = createDataGrid<Product>()
+ *
+ * grid.layout.pin('name', 'left')
+ * grid.rows.move(id, 0)
+ * grid.editing.edit(1, 'email')
+ * grid.spans.value.get(id)?.get('group')
+ * ```
+ */
 export interface DataGridContext<T extends Record<string, unknown>> extends DataTableContext<T> {
   /**
    * Column registry, widened to the grid column ticket shape. Covariant
    * override of the inherited {@link DataTableContext.columns} (PHILOSOPHY
-   * §2.6): the wider input type is assignable where the narrower one is
-   * expected, and the runtime behavior is unchanged.
+   * §2.6): every grid-added column field (`size`, `pinned`, `editable`,
+   * `validate`, `span`, `minSize`, `maxSize`, `resizable`, `reorderable`) is
+   * optional, so the widened input still satisfies the base `register` /
+   * `onboard` signatures and runtime behavior is unchanged.
    */
   columns: RegistryContext<DataGridColumnTicketInput<T>, DataGridColumnTicket<T>>
   layout: ColumnLayout
@@ -308,9 +342,10 @@ export function createDataGrid<T extends Record<string, unknown>> (
         validate: col.validate as ((value: unknown, item?: unknown) => string | true) | undefined,
       })),
     lookup,
-    // The registry's `on` is generic per event name; createCellEditing only
-    // needs the structural surface and narrows the payload inside its handler.
-    registry: table as unknown as CellEditingRegistry,
+    // createCellEditing only needs the structural `on` / `off` surface and
+    // narrows the payload inside its handler, so the table registry satisfies
+    // CellEditingRegistry directly.
+    registry: table,
     onEdit: editingOptions?.onEdit
       ? (row, column, value) => {
           const item = lookup(row)
@@ -320,7 +355,7 @@ export function createDataGrid<T extends Record<string, unknown>> (
   })
 
   const spans = createRowSpanning<T>({
-    items: pageOrderedItems as Ref<readonly T[]>,
+    items: pageOrderedItems,
     columns: () => table.leaves.value.map(col => col.id),
     rowSpanning,
   })
