@@ -101,7 +101,7 @@ Install the plugin: `app.use(createTooltipPlugin({ openDelay: 500 }))`. Every `<
 
 ??? Why doesn't Tooltip.Activator open when I focus it via mouse click?
 
-The activator suppresses focus-driven opens that arrive within ~50 ms of a `pointerdown`, so a click doesn't double-trigger as both click-close and focus-open. Keyboard-driven focus (Tab) opens instantly.
+The activator gates focus-driven opens on `:focus-visible`. A pointer click that incidentally moves focus into the activator does not match `:focus-visible`, so it doesn't open the tooltip. Keyboard-driven focus (Tab) sets `:focus-visible` and opens the tooltip instantly.
 
 ??? How do I render a non-button activator?
 

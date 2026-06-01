@@ -60,12 +60,18 @@
     isDisabled: Readonly<Ref<boolean>>
     /** Whether the content is interactive (hoverable) */
     isInteractive: Readonly<Ref<boolean>>
-    /** Current visual state for CSS `data-state` styling */
+    /**
+     * Current visual state for CSS `data-state` styling. `delayed-open` marks
+     * an open that waited the full open delay; `instant-open` marks one opened
+     * immediately through the region skip-window (or focus) — consumers can
+     * animate the two reveals differently.
+     */
     dataState: Readonly<Ref<'closed' | 'delayed-open' | 'instant-open'>>
-    /** Resolved side the content is positioned on */
-    dataSide: Readonly<Ref<'top' | 'bottom' | 'left' | 'right' | undefined>>
-    /** Start the open transition (instant when inside the skip window) */
-    open: () => void
+    /**
+     * Start the open transition. Passing `instant` (or a region skip-window hit)
+     * opens immediately, bypassing the open delay.
+     */
+    open: (instant?: boolean) => void
     /** Start the close transition */
     close: () => void
     /** Cancel any pending open/close transition */
@@ -84,7 +90,7 @@
 </script>
 
 <script setup lang="ts">
-  defineOptions({ name: 'TooltipRoot', inheritAttrs: false })
+  defineOptions({ name: 'TooltipRoot' })
 
   defineSlots<{
     default: (props: TooltipRootSlotProps) => any
@@ -95,8 +101,7 @@
   }>()
 
   const {
-    as = 'div',
-    renderless,
+    as = null,
     openDelay,
     closeDelay,
     disabled = false,
@@ -125,9 +130,9 @@
     closeDelay: toRef(() => closeDelay ?? region.closeDelay.value),
   })
 
-  function open () {
+  function open (instant = false) {
     if (isDisabled.value) return
-    skipped.value = region.shouldSkipOpenDelay()
+    skipped.value = instant || region.shouldSkipOpenDelay()
     delay.start(true)
   }
 
@@ -141,6 +146,12 @@
 
   let registered = false
 
+  // Unlike every other compound sub-component (which registers unconditionally
+  // in setup), this Root registers on OPEN and unregisters on CLOSE: the useTooltip
+  // region registry tracks currently-open tooltips. `registry.size` is the
+  // isAnyOpen warmup signal and the `unregister:ticket` event stamps the
+  // skip-window close time, so registering once in setup would break both.
+  // The `registered` flag and the onBeforeUnmount guard are load-bearing.
   watch(isOpen, value => {
     if (value && !registered) {
       region.register({ id: popover.id })
@@ -159,20 +170,12 @@
     return isOpen.value ? (skipped.value ? 'instant-open' : 'delayed-open') : 'closed'
   })
 
-  const dataSide = toRef((): 'top' | 'bottom' | 'left' | 'right' | undefined => {
-    const area = positionArea.split(' ')[0]
-    return area === 'top' || area === 'bottom' || area === 'left' || area === 'right'
-      ? area
-      : undefined
-  })
-
   const context: TooltipRootContext = {
     id: popover.id,
     isOpen,
     isDisabled,
     isInteractive: toRef(() => interactive),
     dataState,
-    dataSide,
     open,
     close,
     cancel,
@@ -193,8 +196,7 @@
 <template>
   <Atom
     :as
-    :renderless
-    v-bind="$attrs"
+    renderless
   >
     <slot v-bind="slotProps" />
   </Atom>

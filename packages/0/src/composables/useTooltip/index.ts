@@ -27,7 +27,7 @@ import { createRegistry } from '#v0/composables/createRegistry'
 
 // Utilities
 import { isNull } from '#v0/utilities'
-import { onScopeDispose, shallowRef, toRef, toValue } from 'vue'
+import { onScopeDispose, toRef, toValue } from 'vue'
 
 // Types
 import type { RegistryTicket, RegistryTicketInput } from '#v0/composables/createRegistry'
@@ -147,7 +147,7 @@ export interface TooltipContextOptions extends TooltipOptions {
   namespace?: string
 }
 
-export type TooltipPluginOptions = TooltipContextOptions
+export interface TooltipPluginOptions extends TooltipContextOptions {}
 
 // Internal factory passed to createPluginContext below. The trinity exports
 // (`createTooltipContext`, `createTooltipPlugin`, `useTooltip`) are the
@@ -159,19 +159,19 @@ function createTooltip (options: TooltipOptions = {}): TooltipContext {
   const disabled = toRef(() => toValue(options.disabled) ?? false)
 
   const registry = createRegistry({ reactive: true, events: true })
-  const lastClosedAt = shallowRef<number | null>(null)
+  let lastClosedAt: number | null = null
 
   registry.on('unregister:ticket', () => {
-    lastClosedAt.value = Date.now()
+    lastClosedAt = Date.now()
   })
 
   const isAnyOpen = toRef(() => registry.size > 0)
 
   function shouldSkipOpenDelay (): boolean {
     if (isAnyOpen.value) return true
-    if (isNull(lastClosedAt.value)) return false
-    const elapsed = Date.now() - lastClosedAt.value
-    return elapsed >= 0 && elapsed < skipDelay.value
+    if (isNull(lastClosedAt)) return false
+    const elapsed = Date.now() - lastClosedAt
+    return elapsed < skipDelay.value
   }
 
   onScopeDispose(() => registry.dispose(), true)

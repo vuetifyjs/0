@@ -41,13 +41,101 @@ describe('tooltip', () => {
       expect(Tooltip.Root).toBeDefined()
       expect(Tooltip.Activator).toBeDefined()
       expect(Tooltip.Content).toBeDefined()
+      expect(Tooltip.Provider).toBeDefined()
+    })
+  })
+
+  describe('escape dismissal', () => {
+    it('should close on Escape via the element-bound keydown', async () => {
+      const wrapper = mountTooltip(defineComponent({
+        setup () {
+          return () =>
+            h(Tooltip.Root, { modelValue: true }, () => [
+              h(Tooltip.Activator, null, () => 'Trigger'),
+              h(Tooltip.Content, null, () => 'Tip'),
+            ])
+        },
+      }), { attachTo: document.body })
+
+      await nextTick()
+
+      const activator = wrapper.find('button')
+      expect(activator.attributes('data-state')).not.toBe('closed')
+
+      await activator.trigger('keydown', { key: 'Escape' })
+      vi.advanceTimersByTime(150)
+      await nextTick()
+
+      expect(activator.attributes('data-state')).toBe('closed')
+      wrapper.unmount()
+    })
+  })
+
+  describe('instant open', () => {
+    it('should skip the open delay when another tooltip is already open', async () => {
+      const wrapper = mountTooltip(defineComponent({
+        setup () {
+          return () => [
+            h(Tooltip.Root, { openDelay: 300 }, () => [
+              h(Tooltip.Activator, null, () => 'First'),
+              h(Tooltip.Content, null, () => 'Tip one'),
+            ]),
+            h(Tooltip.Root, { openDelay: 300 }, () => [
+              h(Tooltip.Activator, null, () => 'Second'),
+              h(Tooltip.Content, null, () => 'Tip two'),
+            ]),
+          ]
+        },
+      }), { attachTo: document.body })
+
+      const activators = wrapper.findAll('button')
+      const first = activators[0]
+      const second = activators[1]
+
+      await first.trigger('pointerenter', { pointerType: 'mouse' })
+      vi.advanceTimersByTime(300)
+      await nextTick()
+
+      expect(first.attributes('data-state')).toBe('delayed-open')
+
+      await second.trigger('pointerenter', { pointerType: 'mouse' })
+      await nextTick()
+
+      expect(second.attributes('data-state')).toBe('instant-open')
+      wrapper.unmount()
+    })
+  })
+
+  describe('provider override', () => {
+    it('should apply the provider open delay to a descendant Root', async () => {
+      const wrapper = mountTooltip(defineComponent({
+        setup () {
+          return () =>
+            h(Tooltip.Provider, { openDelay: 50 }, () => [
+              h(Tooltip.Root, null, () => [
+                h(Tooltip.Activator, null, () => 'Trigger'),
+                h(Tooltip.Content, null, () => 'Tip'),
+              ]),
+            ])
+        },
+      }), { attachTo: document.body })
+
+      const activator = wrapper.find('button')
+      await activator.trigger('pointerenter', { pointerType: 'mouse' })
+
+      expect(activator.attributes('data-state')).toBe('closed')
+
+      vi.advanceTimersByTime(50)
+      await nextTick()
+
+      expect(activator.attributes('data-state')).not.toBe('closed')
+      wrapper.unmount()
     })
   })
 
   describe('open and close', () => {
     it('should open after openDelay on activator pointerenter', async () => {
       const Harness = defineComponent({
-        components: { TR: Tooltip.Root, TA: Tooltip.Activator, TC: Tooltip.Content },
         setup () {
           return () =>
             h(Tooltip.Root, { openDelay: 300, closeDelay: 100 }, () => [

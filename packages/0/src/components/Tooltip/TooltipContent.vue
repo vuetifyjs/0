@@ -21,11 +21,8 @@
   // Utilities
   import { mergeProps, toRef, useAttrs, useTemplateRef } from 'vue'
 
-  // Transformers
-  import { toElement } from '#v0/composables/toElement'
-
   // Types
-  import type { AtomExpose, AtomProps } from '#v0/components/Atom'
+  import type { AtomProps } from '#v0/components/Atom'
 
   export interface TooltipContentProps extends AtomProps {
     namespace?: string
@@ -39,10 +36,9 @@
       'role': 'tooltip'
       'popover': ''
       'data-state': 'closed' | 'delayed-open' | 'instant-open'
-      'data-side': 'top' | 'bottom' | 'left' | 'right' | undefined
       'data-interactive': true | undefined
-      'onPointerenter'?: (e: PointerEvent) => void
-      'onPointerleave'?: (e: PointerEvent) => void
+      'onPointerenter': (e: PointerEvent) => void
+      'onPointerleave': (e: PointerEvent) => void
     }
     styles: Record<string, string>
   }
@@ -52,8 +48,7 @@
   defineOptions({ name: 'TooltipContent', inheritAttrs: false })
 
   const attrs = useAttrs()
-  const atomRef = useTemplateRef<AtomExpose>('atom')
-  const el = toRef(() => toElement(atomRef.value?.element) ?? null)
+  const atomRef = useTemplateRef('atom')
 
   defineSlots<{
     default: (props: TooltipContentSlotProps) => any
@@ -67,7 +62,7 @@
 
   const root = useTooltipRoot(namespace)
 
-  root.attach(() => (el.value ?? undefined) as HTMLElement | undefined)
+  root.attach(() => atomRef.value?.element)
 
   function onPointerenter () {
     if (!root.isInteractive.value) return
@@ -86,11 +81,9 @@
       ...root.contentAttrs.value,
       'role': 'tooltip',
       'data-state': root.dataState.value,
-      'data-side': root.dataSide.value,
       'data-interactive': root.isInteractive.value || undefined,
-      ...(root.isInteractive.value
-        ? { onPointerenter, onPointerleave }
-        : {}),
+      'onPointerenter': onPointerenter,
+      'onPointerleave': onPointerleave,
     },
     styles: root.contentStyles.value,
   }))

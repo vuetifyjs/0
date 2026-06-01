@@ -6,9 +6,9 @@
  * @remarks
  * Tooltip trigger element. Binds pointer, focus, and escape events and
  * exposes them on slot attrs for renderless usage. Touch interactions
- * are suppressed per WAI-ARIA APG. Keyboard focus respects openDelay
- * the same as hover, but is exempt from the pointerdown suppression
- * window so a click that incidentally moves focus does not double-trigger.
+ * are suppressed per WAI-ARIA APG. Keyboard focus opens the tooltip
+ * instantly (no delay), gated on :focus-visible so a mouse click that
+ * incidentally moves focus does not open the tooltip.
  */
 
 <script lang="ts">
@@ -17,9 +17,6 @@
 
   // Context
   import { useTooltipRoot } from './TooltipRoot.vue'
-
-  // Composables
-  import { useDocumentEventListener } from '#v0/composables/useEventListener'
 
   // Utilities
   import { mergeProps, toRef, useAttrs } from 'vue'
@@ -37,11 +34,12 @@
     attrs: {
       'aria-describedby': string
       'data-state': 'closed' | 'delayed-open' | 'instant-open'
-      'aria-disabled'?: boolean
+      'aria-disabled': boolean | undefined
+      'disabled': boolean | undefined
+      'type': 'button' | undefined
       'data-disabled': true | undefined
       'onPointerenter': (e: PointerEvent) => void
       'onPointerleave': (e: PointerEvent) => void
-      'onPointerdown': (e: PointerEvent) => void
       'onFocus': (e: FocusEvent) => void
       'onBlur': (e: FocusEvent) => void
       'onClick': () => void
@@ -67,9 +65,6 @@
 
   const root = useTooltipRoot(namespace)
 
-  const POINTERDOWN_FOCUS_WINDOW = 50
-  let recentPointerdownAt = 0
-
   function onPointerenter (e: PointerEvent) {
     if (e.pointerType === 'touch') return
     root.open()
@@ -80,15 +75,10 @@
     root.close()
   }
 
-  function onPointerdown (e: PointerEvent) {
-    if (e.pointerType === 'touch') return
-    recentPointerdownAt = Date.now()
-  }
-
-  function onFocus () {
-    if ((Date.now() - recentPointerdownAt) < POINTERDOWN_FOCUS_WINDOW) return
+  function onFocus (e: FocusEvent) {
+    if (!(e.target as HTMLElement).matches(':focus-visible')) return
     root.cancel()
-    root.open()
+    root.open(true)
   }
 
   function onBlur () {
@@ -106,21 +96,18 @@
     }
   }
 
-  useDocumentEventListener('keydown', (e: KeyboardEvent) => {
-    if (e.key === 'Escape' && root.isOpen.value) root.close()
-  })
-
   const slotProps = toRef((): TooltipActivatorSlotProps => ({
     isOpen: root.isOpen.value,
     isDisabled: root.isDisabled.value,
     attrs: {
       'aria-describedby': root.id,
       'data-state': root.dataState.value,
-      'aria-disabled': root.isDisabled.value || undefined,
+      'aria-disabled': as === 'button' ? undefined : root.isDisabled.value,
+      'disabled': as === 'button' ? root.isDisabled.value : undefined,
+      'type': as === 'button' ? 'button' : undefined,
       'data-disabled': root.isDisabled.value || undefined,
       'onPointerenter': onPointerenter,
       'onPointerleave': onPointerleave,
-      'onPointerdown': onPointerdown,
       'onFocus': onFocus,
       'onBlur': onBlur,
       'onClick': onClick,

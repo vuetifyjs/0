@@ -21,7 +21,7 @@
   import { useTooltip } from '#v0/composables/useTooltip'
 
   // Utilities
-  import { toRef } from 'vue'
+  import { mergeProps, toRef } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -37,6 +37,9 @@
 
   export interface TooltipProviderSlotProps {
     isAnyOpen: boolean
+    attrs: {
+      'data-disabled': true | undefined
+    }
   }
 </script>
 
@@ -71,6 +74,7 @@
 
   const slotProps = toRef((): TooltipProviderSlotProps => ({
     isAnyOpen: context.isAnyOpen.value,
+    attrs: { 'data-disabled': context.disabled.value || undefined },
   }))
 </script>
 
@@ -78,7 +82,7 @@
   <Atom
     :as
     :renderless
-    v-bind="$attrs"
+    v-bind="mergeProps($attrs, slotProps.attrs)"
   >
     <slot v-bind="slotProps" />
   </Atom>
