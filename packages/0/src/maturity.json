@@ -103,7 +103,7 @@
     },
     "createOtp": {
       "level": "preview",
-      "since": null,
+      "since": "1.0.0-alpha.5",
       "category": "forms"
     },
     "createDataTable": {
@@ -118,7 +118,7 @@
     },
     "createKanban": {
       "level": "preview",
-      "since": null,
+      "since": "1.0.0-alpha.4",
       "category": "data"
     },
     "createPagination": {
@@ -128,7 +128,7 @@
     },
     "createSortable": {
       "level": "preview",
-      "since": null,
+      "since": "1.0.0-alpha.4",
       "category": "data"
     },
     "createProgress": {
@@ -144,12 +144,12 @@
     "createBreadcrumbs": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "utilities"
+      "category": "semantic"
     },
     "createOverflow": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "utilities"
+      "category": "semantic"
     },
     "useBreakpoints": {
       "level": "preview",
@@ -213,7 +213,7 @@
     },
     "useDragDrop": {
       "level": "preview",
-      "since": null,
+      "since": "1.0.0-alpha.4",
       "category": "system"
     },
     "useEventListener": {
@@ -283,7 +283,7 @@
     },
     "toHighlight": {
       "level": "preview",
-      "since": null,
+      "since": "1.0.0-alpha.5",
       "category": "transformers"
     },
     "toReactive": {
@@ -642,7 +642,7 @@
     },
     "isThenable": {
       "level": "preview",
-      "since": null,
+      "since": "1.0.0-alpha.4",
       "category": "utilities"
     },
     "isUndefined": {
