@@ -2,6 +2,9 @@ import { describe, expect, it, vi } from 'vitest'
 
 import { createDataGrid, ServerGridAdapter } from './index'
 
+// Utilities
+import { nextTick, shallowRef } from 'vue'
+
 vi.mock('vue', async () => {
   const actual = await vi.importActual('vue')
   return {
@@ -207,6 +210,35 @@ describe('createDataGrid', () => {
     })
   })
 
+  describe('inherited table options', () => {
+    // The factory forwards every inherited DataTableOption via the rest spread,
+    // so options like groupBy are no longer silently dropped.
+    it('should forward groupBy to the underlying data table', () => {
+      const grid = createDataGrid({
+        columns: [
+          { id: 'name', size: 50 },
+          { id: 'dept', size: 50 },
+        ],
+        groupBy: 'dept',
+      })
+
+      onboard(grid, items)
+
+      const groups = grid.grouping.groups.value
+      expect(groups.map(group => group.key).toSorted()).toEqual(['Eng', 'Sales'])
+    })
+
+    it('should leave grouping empty when groupBy is not forwarded', () => {
+      const grid = createDataGrid({
+        columns: [{ id: 'name', size: 100 }],
+      })
+
+      onboard(grid, items)
+
+      expect(grid.grouping.groups.value).toHaveLength(0)
+    })
+  })
+
   describe('row ordering', () => {
     it('should expose registered row ids on rows.order in registration order', () => {
       const grid = createDataGrid({
@@ -277,6 +309,40 @@ describe('createDataGrid', () => {
       grid.sort.toggle('age')
 
       expect(grid.rows.order.value).toEqual([2, 3, 1, 4])
+    })
+
+    it('should react to a preserveRowOrder ref toggling the sort-reset watcher', async () => {
+      const preserve = shallowRef(false)
+      const grid = createDataGrid({
+        columns: [
+          { id: 'name', sortable: true, size: 50 },
+          { id: 'age', sortable: true, size: 50 },
+        ],
+        preserveRowOrder: preserve,
+      })
+
+      onboard(grid, items)
+
+      // preserve=false: the watcher is active, so a sort resets the manual move.
+      grid.rows.move(1, 2)
+      expect(grid.rows.order.value).toEqual([2, 3, 1, 4])
+      grid.sort.toggle('age')
+      expect(grid.rows.order.value).toEqual([1, 2, 3, 4])
+
+      // Flip to true: useToggleScope tears the watcher down, so the manual
+      // order now survives a subsequent sort change.
+      preserve.value = true
+      await nextTick()
+
+      // A move with the age sort active anchors to the sorted order
+      // (Bob 25, Dave 28, Alice 30, Carol 35 → [2, 4, 1, 3]); moving id 1 to
+      // its existing index 2 leaves that order intact.
+      grid.rows.move(1, 2)
+      expect(grid.rows.order.value).toEqual([2, 4, 1, 3])
+
+      // Toggling sort no longer resets the manual order — the watcher is gone.
+      grid.sort.toggle('age')
+      expect(grid.rows.order.value).toEqual([2, 4, 1, 3])
     })
 
     it('should append late-registered rows at the end of rows.order', () => {

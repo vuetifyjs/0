@@ -37,9 +37,7 @@ import { createDataTable } from '#v0/composables/createDataTable'
 import { extractLeaves } from '#v0/composables/createDataTable/columns'
 import { createSortable } from '#v0/composables/createSortable'
 import { createTrinity } from '#v0/composables/createTrinity'
-
-// Adapters
-import { ClientDataTableAdapter } from '#v0/composables/createDataTable/adapters/v0'
+import { useToggleScope } from '#v0/composables/useToggleScope'
 
 // Grid modules
 import { createCellEditing } from './editing'
@@ -48,19 +46,17 @@ import { createRowSpanning } from './spanning'
 
 // Utilities
 import { isFunction, isUndefined } from '#v0/utilities'
-import { computed, shallowRef, toRef, watch } from 'vue'
+import { computed, shallowRef, toRef, toValue, watch } from 'vue'
 
 // Types
-import type { DataTableAdapter, DataTableContext } from '#v0/composables/createDataTable'
-import type { FilterOptions } from '#v0/composables/createFilter'
-import type { PaginationOptions } from '#v0/composables/createPagination'
+import type { DataTableContext, DataTableOptions } from '#v0/composables/createDataTable'
 import type { SortableTicketInput } from '#v0/composables/createSortable'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { ID } from '#v0/types'
 import type { CellEditing, CellEditingRegistry } from './editing'
 import type { ColumnLayout, GridColumnDef } from './layout'
 import type { SpanEntry } from './spanning'
-import type { App, ComputedRef, Ref } from 'vue'
+import type { App, ComputedRef, MaybeRefOrGetter, Ref } from 'vue'
 
 export type { ColumnLayout, GridColumnDef, PinnedRegion, PinPosition, ResolvedColumn } from './layout'
 export type { ActiveCell, CellEditing, CellEditingOptions, CellEditingRegistry, EditableColumn } from './editing'
@@ -80,16 +76,12 @@ export interface DataGridColumn<T extends Record<string, unknown> = Record<strin
   readonly children?: readonly DataGridColumn<T>[]
 }
 
-export interface DataGridOptions<T extends Record<string, unknown>> {
+export interface DataGridOptions<T extends Record<string, unknown>> extends DataTableOptions<T> {
   columns: readonly DataGridColumn<T>[]
-  adapter?: DataTableAdapter<T>
-  filter?: Omit<FilterOptions, 'keys'>
-  pagination?: Omit<PaginationOptions, 'size'>
-  sortMultiple?: boolean
   editing?: {
     onEdit?: (row: ID, column: string, value: unknown, item: T) => void
   }
-  preserveRowOrder?: boolean
+  preserveRowOrder?: MaybeRefOrGetter<boolean>
   rowSpanning?: (item: T, column: string) => number
 }
 
@@ -136,41 +128,27 @@ export interface DataGridContextOptions<T extends Record<string, unknown>> exten
  * ```
  */
 export function createDataGrid<T extends Record<string, unknown>> (
-  options: DataGridOptions<T>,
+  _options: DataGridOptions<T>,
 ): DataGridContext<T> {
   const {
     columns,
-    adapter = new ClientDataTableAdapter<T>(),
-    filter,
-    pagination,
-    sortMultiple,
     editing: editingOptions,
     preserveRowOrder = false,
     rowSpanning,
-  } = options
+    ...options
+  } = _options
 
   const leaves = extractLeaves(columns)
 
-  const table = createDataTable<T>({
-    filter,
-    pagination,
-    sortMultiple,
-    adapter,
-  })
+  const table = createDataTable<T>(options)
 
-  const sortable = createSortable<SortableTicketInput<ID>>()
+  const sortable = createSortable<SortableTicketInput<ID>>({ reactive: true })
 
   // Tracks whether the consumer has explicitly reordered rows. While false the
   // grid passes the table's own sorted+paginated projection through untouched,
   // so it stays correct for every adapter — including the server adapter, which
   // has already paginated its result.
   const dirty = shallowRef(false)
-
-  // `createSortable` is non-reactive, so `sortable.keys()` registers no
-  // reactive dependency. `revision` is the signal that the manual order
-  // changed; folding it into `order` makes the ordered projection recompute on
-  // every move/reset, not only the first.
-  const revision = shallowRef(0)
 
   table.on('register:ticket', ticket => {
     sortable.register({ id: ticket.id, value: ticket.id })
@@ -183,7 +161,6 @@ export function createDataGrid<T extends Record<string, unknown>> (
   table.on('clear:registry', () => {
     sortable.clear()
     dirty.value = false
-    revision.value++
   })
 
   // Onboard columns into the inherited table column registry so leaves,
@@ -198,10 +175,7 @@ export function createDataGrid<T extends Record<string, unknown>> (
     children: col.children,
   })))
 
-  const order = toRef(() => {
-    void revision.value
-    return sortable.keys() as ID[]
-  })
+  const order = toRef(() => sortable.keys() as ID[])
 
   // Sorted ticket ids parallel to `table.sortedItems`, resolved by reference
   // identity from value back to ticket — never assumes `value.id` exists or
@@ -230,7 +204,6 @@ export function createDataGrid<T extends Record<string, unknown>> (
     }
     sortable.move(id, toIndex)
     dirty.value = true
-    revision.value++
   }
 
   function reset () {
@@ -238,12 +211,11 @@ export function createDataGrid<T extends Record<string, unknown>> (
       sortable.reorder(table.keys() as ID[])
     }
     dirty.value = false
-    revision.value++
   }
 
-  if (!preserveRowOrder) {
+  useToggleScope(() => !toValue(preserveRowOrder), () => {
     watch(table.sort.columns, reset, { flush: 'sync' })
-  }
+  })
 
   const pageOrderedItems = computed<readonly T[]>(() => {
     // No manual order: defer to the adapter's own page projection, correct for
