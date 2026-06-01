@@ -185,8 +185,6 @@ export function createCellEditing (options: CellEditingOptions): CellEditing {
     registry.on('unregister:ticket', onUnregister)
     registry.on('clear:registry', onClear)
 
-    // Unsubscribe on scope dispose. `createCellEditing` may run outside a Vue
-    // setup (tests, manual scopes), so fail silently when there's no scope.
     onScopeDispose(() => {
       registry.off('unregister:ticket', onUnregister)
       registry.off('clear:registry', onClear)
