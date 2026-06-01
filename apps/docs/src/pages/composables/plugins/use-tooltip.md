@@ -76,13 +76,13 @@ flowchart LR
 
 ### Region inspection
 
-The example surfaces the live `isAnyOpen` flag and the resolved delay defaults. Click the button to register a synthetic tooltip ticket for one second; rapid clicks keep `isAnyOpen` true and demonstrate how `shouldSkipOpenDelay` behaves through the skip-window after a close.
+The example surfaces the live `isAnyOpen` flag and the resolved delay defaults beside four `<Tooltip.Root>` instances that share one region. Hover the first item and wait out the open delay; move to a neighbor while it is still open and the next tooltip appears instantly because the region already reports one open. Leave all four and `isAnyOpen` returns to false as they close — yet for the length of the skip-window the next hover still opens instantly before the full open delay returns.
 
 Reach for `useTooltip()` directly only when you're wiring a tooltip surface that doesn't go through `<Tooltip.Root>` — most consumers should use the component family and let it call this composable internally.
 
 | File | Role |
 |------|------|
-| `basic.vue` | Inspects region state and exercises register / unregister |
+| `basic.vue` | Inspects shared region state while four tooltips coordinate their warmup |
 
 :::
 
