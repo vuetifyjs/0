@@ -25,20 +25,21 @@ A headless data grid with column layout, cell editing, row ordering, and row spa
 
 ## Usage
 
-Pass `columns` with `size` percentages to construct a grid, then register rows to get column layout, search, sort, and pagination.
+Construct a grid, onboard columns through `grid.columns` with `size` percentages, then register rows to get column layout, search, sort, and pagination. Columns are onboarded — not passed as a factory option — so the surface matches [createDataTable](/composables/data/create-data-table) and columns can be added or removed at any time.
 
 ```ts collapse
 import { createDataGrid } from '@vuetify/v0'
 
-const grid = createDataGrid({
-  columns: [
-    { id: 'name', title: 'Project', sortable: true, filterable: true, size: 22 },
-    { id: 'status', title: 'Status', sortable: true, size: 12 },
-    { id: 'assignee', title: 'Assignee', sortable: true, size: 16 },
-    { id: 'progress', title: 'Progress', sortable: true, size: 14 },
-    { id: 'budget', title: 'Budget', sortable: true, size: 10 },
-  ],
-})
+const grid = createDataGrid()
+
+// Onboard columns through the inherited column registry
+grid.columns.onboard([
+  { id: 'name', title: 'Project', sortable: true, filterable: true, size: 22 },
+  { id: 'status', title: 'Status', sortable: true, size: 12 },
+  { id: 'assignee', title: 'Assignee', sortable: true, size: 16 },
+  { id: 'progress', title: 'Progress', sortable: true, size: 14 },
+  { id: 'budget', title: 'Budget', sortable: true, size: 10 },
+])
 
 // Register rows through the inherited registry surface
 grid.onboard(projects.map(value => ({ id: value.id, value })))
@@ -53,6 +54,7 @@ grid.layout.columns.value    // ResolvedColumn[] with size, offset, pinned
 grid.layout.pin('name', 'left')
 grid.layout.resize('name', 5) // grow by 5%, neighbor shrinks
 grid.layout.reorder(0, 2)     // move column 0 to position 2
+grid.layout.hide('budget')    // exclude from the render set
 grid.layout.reset()            // restore initial layout
 ```
 
@@ -60,10 +62,12 @@ grid.layout.reset()            // restore initial layout
 
 `createDataGrid` is a composition of [createDataTable](/composables/data/create-data-table) plus four grid-specific modules. The table owns the data pipeline (filter, sort, paginate); the grid layers column layout, cell editing, row ordering, and row spanning on top. Row ordering is a [createSortable](/composables/data/create-sortable) instance synced to the table's row registry via `register` / `unregister` events. It is layered in the grid's own `items` projection — over the sorted rows, before pagination — never inside the adapter. While no manual order is active, the grid passes the adapter's own page through untouched; `sortedItems` reflects filter + sort only.
 
+Both rows **and** columns are onboarded through registries rather than passed as factory options, matching `createDataTable` (collection composables expose `register` / `onboard`, never an `items` option — PHILOSOPHY §6.10). Columns live on `grid.columns` (the table's column registry, widened to the grid column ticket shape so `size`, `pinned`, `editable`, `validate`, and `span` ride on each ticket); rows live on the inherited `grid.onboard` / `grid.register` surface. Layout, editing, and spanning all read their per-column config straight off the registered column tickets and pick up columns onboarded at any time — before or after the grid is constructed.
+
 ```mermaid "createDataGrid Architecture"
 flowchart TD
   createDataGrid:::primary --> table["createDataTable (pipeline)"]
-  createDataGrid --> layout["layout (table.columns + createGroup)"]
+  createDataGrid --> layout["layout (grid.columns + createGroup)"]
   createDataGrid --> editing["editing (createCellEditing)"]
   createDataGrid --> ordering["rows (createSortable)"]
   createDataGrid --> spanning["spans (createRowSpanning)"]
@@ -77,7 +81,7 @@ flowchart TD
 | Module | Built on | Purpose |
 | - | - | - |
 | `table` (spread) | `createDataTable` | Search, sort, filter, paginate, total — all v-modeled through |
-| `layout` | `table.columns` + `createGroup` | Reads column order from the table's columns registry; layers tri-region pinning, percentage sizing, and delta-based resize on top |
+| `layout` | `grid.columns` + `createGroup` | Reads column order and config from the column registry; layers tri-region pinning, percentage sizing, delta-based resize, and visibility (`show` / `hide` / `toggleVisible` / `allColumns`) on top |
 | `editing` | internal factory | Click-to-edit lifecycle, per-column validation, dirty tracking |
 | `rows` | `createSortable` | Post-sort row reordering, layered in the grid's `items` projection over the sorted rows before pagination — not inside the adapter |
 | `spans` | computed map | Row span resolution and hidden-cell tracking |
@@ -90,7 +94,8 @@ flowchart TD
 | `allItems` | <AppSuccessIcon /> | Raw unprocessed items (projected from registered tickets) |
 | `filteredItems` | <AppSuccessIcon /> | Items after filtering |
 | `sortedItems` | <AppSuccessIcon /> | Items after filter + sort |
-| `layout.columns` | <AppSuccessIcon /> | Resolved columns with size/offset |
+| `layout.columns` | <AppSuccessIcon /> | Resolved columns with size/offset (render set — visible only) |
+| `layout.allColumns` | <AppSuccessIcon /> | Every column incl. hidden, each with a `visible` flag |
 | `layout.pinned` | <AppSuccessIcon /> | Pin region breakdown |
 | `editing.active` | <AppSuccessIcon /> | Currently edited cell |
 | `editing.error` | <AppSuccessIcon /> | Validation error string |
@@ -120,11 +125,10 @@ graph LR
 ```ts
 import { createDataGrid } from '@vuetify/v0'
 
-const grid = createDataGrid({
-  columns,
-  // ClientDataTableAdapter is the default — not required
-})
+const grid = createDataGrid()
+// ClientDataTableAdapter is the default — no adapter option required
 
+grid.columns.onboard(columns)
 grid.onboard(employees.map(value => ({ id: value.id, value })))
 
 // Row ordering — id-based
@@ -142,12 +146,14 @@ Onboard only the rows the server returns for the current page, and set `total` t
 import { createDataGrid, ServerGridAdapter } from '@vuetify/v0'
 
 const grid = createDataGrid({
-  columns,
   adapter: new ServerGridAdapter({ total: totalCount, loading: isLoading }),
 })
 
+grid.columns.onboard(columns)
+
 // On every page change, clear and onboard the rows the server returned for
-// that page; keep `total` at the full server count
+// that page; keep `total` at the full server count. `grid.clear()` wipes
+// the row registry — onboarded columns are untouched.
 grid.clear()
 grid.onboard(serverPage.map(value => ({ id: value.id, value })))
 ```
@@ -160,10 +166,10 @@ For large datasets, use the standard `VirtualDataTableAdapter`. Row ordering sti
 import { createDataGrid, VirtualDataTableAdapter } from '@vuetify/v0'
 
 const grid = createDataGrid({
-  columns,
   adapter: new VirtualDataTableAdapter(),
 })
 
+grid.columns.onboard(columns)
 grid.onboard(largeDataset.map(value => ({ id: value.id, value })))
 ```
 
@@ -253,16 +259,16 @@ A portfolio holdings grid with two levels of row spanning — `account` spans ev
 
 ### Column Layout
 
-Columns are sized as percentages (0–100) and can be pinned, resized, and reordered.
+Columns are onboarded through `grid.columns`, sized as percentages (0–100), and can be pinned, resized, reordered, and hidden.
 
 ```ts
-const grid = createDataGrid({
-  columns: [
-    { id: 'name', size: 30, pinned: 'left', minSize: 15, maxSize: 50 },
-    { id: 'email', size: 40 },
-    { id: 'status', size: 30, pinned: 'right' },
-  ],
-})
+const grid = createDataGrid()
+
+grid.columns.onboard([
+  { id: 'name', size: 30, pinned: 'left', minSize: 15, maxSize: 50 },
+  { id: 'email', size: 40 },
+  { id: 'status', size: 30, pinned: 'right' },
+])
 
 grid.onboard(rows.map(value => ({ id: value.id, value })))
 
@@ -282,28 +288,47 @@ grid.layout.distribute([40, 35, 25])
 grid.layout.reset()
 ```
 
+### Column Visibility
+
+Hide and show columns without redistributing the remaining widths — headless, so the consumer rebalances via `distribute()` or CSS. `allColumns` surfaces every column (including hidden ones) each carrying a `visible` flag, which is exactly the shape a column chooser needs.
+
+```ts
+const grid = createDataGrid()
+
+grid.columns.onboard(columns)
+grid.onboard(rows.map(value => ({ id: value.id, value })))
+
+grid.layout.hide('email')          // exclude from the render set
+grid.layout.show('email')          // restore it
+grid.layout.toggleVisible('email') // flip current visibility
+
+grid.layout.columns.value     // render set — visible columns only
+grid.layout.allColumns.value  // every column, each with a `visible` flag
+```
+
 ### Cell Editing
 
 Click-to-edit with validation. Does not mutate source data — commit fires a callback.
 
 ```ts
 const grid = createDataGrid({
-  columns: [
-    {
-      id: 'email',
-      editable: true,
-      validate: (value, item) => {
-        if (typeof value !== 'string' || !value.includes('@')) return 'Invalid email'
-        return true
-      },
-    },
-  ],
   editing: {
     onEdit: (row, column, value, item) => {
       console.log(`Updated ${column} on row ${row} to ${value}`)
     },
   },
 })
+
+grid.columns.onboard([
+  {
+    id: 'email',
+    editable: true,
+    validate: (value, item) => {
+      if (typeof value !== 'string' || !value.includes('@')) return 'Invalid email'
+      return true
+    },
+  },
+])
 
 grid.onboard(rows.map(value => ({ id: value.id, value })))
 
@@ -320,8 +345,9 @@ grid.editing.dirty.value          // Map of uncommitted edits
 Post-sort row ordering for drag-and-drop reordering. Backed by [createSortable](/composables/data/create-sortable), keyed by row id — index-based addressing was dropped because it drifts under reactive churn.
 
 ```ts
-const grid = createDataGrid({ columns })
+const grid = createDataGrid()
 
+grid.columns.onboard(columns)
 grid.onboard(rows.map(value => ({ id: value.id, value })))
 
 grid.rows.move(rowId, 3)       // Move the row with this id to position 3
@@ -338,13 +364,13 @@ Merge cells vertically using a spanning function.
 
 ```ts
 const grid = createDataGrid({
-  columns,
   rowSpanning: (item, column) => {
     if (column === 'department') return 3  // span 3 rows
     return 1
   },
 })
 
+grid.columns.onboard(columns)
 grid.onboard(rows.map(value => ({ id: value.id, value })))
 
 // Span map: item ID → column id → { rowSpan, hidden }
@@ -360,19 +386,19 @@ grid.spans.value.get(2)?.get('department')
 Column definitions support nesting for grouped headers. Layout and data pipeline use leaf columns only.
 
 ```ts
-const grid = createDataGrid({
-  columns: [
-    { id: 'name', title: 'Name', size: 30 },
-    {
-      id: 'contact',
-      title: 'Contact',
-      children: [
-        { id: 'email', title: 'Email', size: 40 },
-        { id: 'phone', title: 'Phone', size: 30 },
-      ],
-    },
-  ],
-})
+const grid = createDataGrid()
+
+grid.columns.onboard([
+  { id: 'name', title: 'Name', size: 30 },
+  {
+    id: 'contact',
+    title: 'Contact',
+    children: [
+      { id: 'email', title: 'Email', size: 40 },
+      { id: 'phone', title: 'Phone', size: 30 },
+    ],
+  },
+])
 
 grid.onboard(rows.map(value => ({ id: value.id, value })))
 

@@ -7,11 +7,11 @@
 
   import { columns } from './columns'
   import { stocks } from './data'
+  import type { Stock } from './data'
 
-  const grid = createDataGrid({
-    columns,
-  })
+  const grid = createDataGrid<Stock>()
 
+  grid.columns.onboard(columns)
   grid.onboard(stocks.map(value => ({ id: value.id, value })))
 
   const resizing = shallowRef<string | null>(null)

@@ -1,7 +1,7 @@
-import type { DataGridColumn } from '@vuetify/v0'
+import type { DataGridColumnTicketInput } from '@vuetify/v0'
 import type { Stock } from './data'
 
-export const columns: DataGridColumn<Stock>[] = [
+export const columns: DataGridColumnTicketInput<Stock>[] = [
   { id: 'ticker', title: 'Ticker', sortable: true, size: 10, minSize: 8, pinned: 'left' },
   { id: 'company', title: 'Company', sortable: true, filterable: true, size: 17, minSize: 12 },
   { id: 'price', title: 'Price', sortable: true, size: 10, minSize: 8, sort: (a, b) => Number(a) - Number(b) },

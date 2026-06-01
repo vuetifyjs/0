@@ -1,7 +1,7 @@
-import type { DataGridColumn } from '@vuetify/v0'
+import type { DataGridColumnTicketInput } from '@vuetify/v0'
 import type { Holding } from './data'
 
-export const columns: DataGridColumn<Holding>[] = [
+export const columns: DataGridColumnTicketInput<Holding>[] = [
   { id: 'account', title: 'Account', size: 20, minSize: 14 },
   { id: 'assetClass', title: 'Asset Class', size: 16, minSize: 10 },
   { id: 'ticker', title: 'Ticker', size: 10, minSize: 8 },

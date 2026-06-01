@@ -7,9 +7,9 @@
 
   import { columns } from './columns'
   import { holdings } from './data'
+  import type { Holding } from './data'
 
-  const grid = createDataGrid({
-    columns,
+  const grid = createDataGrid<Holding>({
     rowSpanning (item, column) {
       if (column !== 'account' && column !== 'assetClass') return 1
 
@@ -27,6 +27,7 @@
     },
   })
 
+  grid.columns.onboard(columns)
   grid.onboard(holdings.map(value => ({ id: value.id, value })))
 
   function isAccountHead (id: number) {

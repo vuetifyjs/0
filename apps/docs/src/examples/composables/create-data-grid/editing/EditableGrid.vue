@@ -22,6 +22,7 @@
 
   import { columns } from './columns'
   import { products } from './data'
+  import type { Product } from './data'
 
   interface EditEntry {
     row: ID
@@ -46,8 +47,7 @@
     ;(item as Record<string, unknown>)[column] = coerced
   }
 
-  const grid = createDataGrid({
-    columns,
+  const grid = createDataGrid<Product>({
     editing: {
       onEdit (row, column, value, item) {
         const from = item ? item[column as keyof typeof item] : undefined
@@ -58,6 +58,7 @@
     },
   })
 
+  grid.columns.onboard(columns)
   grid.onboard(products.map(value => ({ id: value.id, value })))
 
   const history = computed(() => timeline.values().toReversed())
