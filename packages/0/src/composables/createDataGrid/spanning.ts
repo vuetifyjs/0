@@ -7,6 +7,12 @@
  * Spans do not cross page boundaries. Row spanning requires each item to
  * carry a defined `itemKey` value; rows without one cannot be addressed in
  * the resulting map and are skipped.
+ *
+ * @internal Consumed only by `createDataGrid`. Fully decoupled (items ref +
+ * columns + span fn — no grid/table types), so it is a latent composable.
+ * Promote it to a standalone `createRowSpanning/` composable on a second
+ * consumer. See `.claude/rules/composables.md` §"Sub-modules: inline, private
+ * sibling, or promote".
  */
 
 // Utilities

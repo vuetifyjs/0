@@ -355,6 +355,27 @@ Both composables are covered in PHILOSOPHY §6.6 and §6.7. Repeating the when-t
 - **`useProxyModel(context, model, { multiple? })`** — when your composable/component owns a `createModel`-derived context internally and exposes v-model externally. Registry must be created with `events: true` so late-registering tickets can sync. [intent:182, intent:309]
 - **`useProxyRegistry(registry, { deep? })`** — when you want a reactive `{ keys, values, entries, size }` snapshot of a registry for template iteration. The registry must be created with `events: true` (the proxy subscribes to `register:ticket`, `unregister:ticket`, `update:ticket`, `clear:registry`, `reindex:registry`); the proxy itself only accepts `{ deep?: boolean }`. Use `deep: true` when consumers will mutate ticket fields and need the snapshot to track those mutations. [intent:253, intent:254]
 
+## Sub-modules: inline, private sibling, or promote
+
+A complex composable (`createDataGrid`, `createDataTable`) is decomposed into multiple files (`layout.ts`, `editing.ts`, `spanning.ts`, `columns.ts`). A separate file is justified **only by reusability or a load-bearing separation — never by "the file got long."** For each candidate chunk, decide with this test:
+
+1. **Named, self-contained concept?** Does the chunk model a thing a user would name ("cell editing", "row spanning", "column layout") with its own state/lifecycle — not just a slice of the parent's wiring? **No → inline it** in the parent's `index.ts`. Cohesion, not line count, is the bar.
+2. **Decoupled from the parent's types?** Is its contract describable and callable using only generic/structural inputs (a structural registry, generic columns, refs, callbacks), with **zero imports of the parent's concrete types**? **No → private sibling module.** It is legitimate parent-specific glue (own file for cohesion + isolated tests); it must **never** be promoted.
+3. **A decoupled concept is a *latent composable* — is there a second consumer?** ≥1 actual or imminent second caller? **Yes → promote** to a public `createX/` composable (full New Feature Checklist: dir, barrel, `maturity.json`, docs page + example, READMEs). **No → keep as a private sibling, but mark it `@internal` with an explicit "promote on second consumer" note.** Promote on the second consumer, not speculatively — the checklist commits you to public-API stability, docs, and support.
+
+The middle state — a private sibling that is *also* a latent composable — is legitimate **only when it is explicitly marked** as such in its `@module` JSDoc. An unmarked "why is this its own file?" module is the smell this rule exists to kill: resolve it through the test above so the next author knows whether it is extraction-ready or permanent glue.
+
+Worked examples (the `createDataGrid` sub-modules):
+
+| Module | Named concept | Decoupled from parent types | Verdict |
+|---|---|---|---|
+| `createDataGrid/editing.ts` (`createCellEditing`) | yes | yes — `#v0/utilities` + `#v0/types` + Vue only | latent composable → private sibling, **marked promotion candidate** |
+| `createDataGrid/spanning.ts` (`createRowSpanning`) | yes | yes — items ref + columns + span fn | latent composable → private sibling, **marked promotion candidate** |
+| `createDataGrid/layout.ts` (`createColumnLayout`) | yes | **no** — depends on `DataTableColumnTicket` | parent-bound glue → private sibling, **never promote** |
+| `createDataTable/columns.ts` (`extractLeaves`, `resolveHeaders`) | utilities | n/a — column-tree helpers | parent-bound helpers → private sibling |
+
+Rule of thumb: **inline** when it is the parent's own logic, **promote** when a second consumer exists, and **private sibling** in between — but only with the `@internal` marking that records which of the two it is (extraction-ready vs. permanent glue).
+
 ## Dependency Layers (PHILOSOPHY §6)
 
 ```

@@ -15,6 +15,12 @@
  *
  * Sizing uses percentages so it is compatible with the Splitter component.
  * Offsets are computed per-region (left, scrollable, right) independently.
+ *
+ * @internal Private sibling of `createDataGrid`, and intentionally NOT a
+ * promotion candidate: it is bound to the table's `DataTableColumnTicket`
+ * types, so it is parent-specific glue rather than a reusable primitive. See
+ * `.claude/rules/composables.md` §"Sub-modules: inline, private sibling, or
+ * promote".
  */
 
 // Composables

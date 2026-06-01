@@ -10,6 +10,14 @@
  * unregistered (or wiped via `clear`) is pruned automatically so consumers
  * can never observe `active` pointing at a phantom row or stale entries
  * lingering in `dirty`.
+ *
+ * @internal Consumed only by `createDataGrid`. This is a fully decoupled 2D
+ * cell-edit primitive — it imports nothing from `createDataGrid` /
+ * `createDataTable` (only `#v0/utilities`, `#v0/types`, and Vue), so it is a
+ * latent composable. Promote it to a standalone `createCellEditing/`
+ * composable the moment a second consumer appears (e.g. an editable
+ * `createDataTable`). See `.claude/rules/composables.md` §"Sub-modules:
+ * inline, private sibling, or promote".
  */
 
 // Utilities
