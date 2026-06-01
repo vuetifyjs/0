@@ -15,6 +15,7 @@
   // Components
   import { Atom } from '#v0/components/Atom'
 
+  // Context
   import { useTooltipRoot } from './TooltipRoot.vue'
 
   // Composables
@@ -36,6 +37,7 @@
     attrs: {
       'aria-describedby': string
       'data-state': 'closed' | 'delayed-open' | 'instant-open'
+      'aria-disabled'?: boolean
       'data-disabled': true | undefined
       'onPointerenter': (e: PointerEvent) => void
       'onPointerleave': (e: PointerEvent) => void
@@ -114,6 +116,7 @@
     attrs: {
       'aria-describedby': root.id,
       'data-state': root.dataState.value,
+      'aria-disabled': root.isDisabled.value || undefined,
       'data-disabled': root.isDisabled.value || undefined,
       'onPointerenter': onPointerenter,
       'onPointerleave': onPointerleave,

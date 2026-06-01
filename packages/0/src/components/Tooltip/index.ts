@@ -7,7 +7,7 @@ export type { TooltipActivatorProps, TooltipActivatorSlotProps } from './Tooltip
 export type { TooltipContentProps, TooltipContentSlotProps } from './TooltipContent.vue'
 export type { TooltipRootContext, TooltipRootProps, TooltipRootSlotProps } from './TooltipRoot.vue'
 
-// Components
+// Context
 import TooltipScope from './Tooltip.vue'
 import Activator from './TooltipActivator.vue'
 import Content from './TooltipContent.vue'

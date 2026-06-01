@@ -3,7 +3,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 // Utilities
 import { createApp, defineComponent, effectScope, h } from 'vue'
 
-// Composables
 import { createTooltipContext, createTooltipPlugin, useTooltip } from './index'
 
 describe('useTooltip', () => {
@@ -102,6 +101,19 @@ describe('useTooltip', () => {
       })
       scope.stop()
     })
+
+    it('should not skip at exactly the skipDelay boundary', () => {
+      const scope = effectScope()
+      scope.run(() => {
+        const [,, ctx] = createTooltipContext({ namespace: 'v0:test-tooltip', skipDelay: 300 })
+        const ticket = ctx.register({ id: 't:1' })
+        ctx.unregister(ticket.id)
+
+        vi.advanceTimersByTime(300) // elapsed === skipDelay → boundary is exclusive ('<')
+        expect(ctx.shouldSkipOpenDelay()).toBe(false)
+      })
+      scope.stop()
+    })
   })
 
   describe('plugin install', () => {
@@ -121,6 +133,25 @@ describe('useTooltip', () => {
       app.mount(root)
 
       expect(captured?.openDelay.value).toBe(400)
+
+      app.unmount()
+    })
+
+    it('should expose default delays via fallback without plugin install', () => {
+      let captured: ReturnType<typeof useTooltip> | undefined
+
+      const Probe = defineComponent({
+        setup () {
+          captured = useTooltip()
+          return () => h('div')
+        },
+      })
+
+      const app = createApp(Probe)
+      const root = document.createElement('div')
+      app.mount(root)
+
+      expect(captured?.openDelay.value).toBe(700)
 
       app.unmount()
     })

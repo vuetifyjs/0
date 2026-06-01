@@ -7,13 +7,28 @@ import { createTooltipPlugin } from '#v0/composables/useTooltip'
 import { mount } from '@vue/test-utils'
 import { defineComponent, h, nextTick } from 'vue'
 
+// Types
+import type { MountingOptions } from '@vue/test-utils'
+import type { Component } from 'vue'
+
 import { Tooltip } from './index'
 
-const global = { plugins: [createTooltipPlugin()] }
-
 describe('tooltip', () => {
+  let plugin: ReturnType<typeof createTooltipPlugin>
+
+  function mountTooltip (component: Component, options: MountingOptions<any> = {}) {
+    return mount(component, {
+      ...options,
+      global: {
+        ...options.global,
+        plugins: [...(options.global?.plugins ?? []), plugin],
+      },
+    })
+  }
+
   beforeEach(() => {
     vi.useFakeTimers()
+    plugin = createTooltipPlugin()
   })
 
   afterEach(() => {
@@ -42,7 +57,7 @@ describe('tooltip', () => {
         },
       })
 
-      const wrapper = mount(Harness, { attachTo: document.body, global })
+      const wrapper = mountTooltip(Harness, { attachTo: document.body })
       const activator = wrapper.find('button')
       await activator.trigger('pointerenter', { pointerType: 'mouse' })
 
@@ -56,7 +71,7 @@ describe('tooltip', () => {
     })
 
     it('should suppress open on touch pointerenter', async () => {
-      const wrapper = mount(defineComponent({
+      const wrapper = mountTooltip(defineComponent({
         setup () {
           return () =>
             h(Tooltip.Root, { openDelay: 200 }, () => [
@@ -64,7 +79,7 @@ describe('tooltip', () => {
               h(Tooltip.Content, null, () => 'Tip'),
             ])
         },
-      }), { attachTo: document.body, global })
+      }), { attachTo: document.body })
 
       await wrapper.find('button').trigger('pointerenter', { pointerType: 'touch' })
       vi.advanceTimersByTime(500)
@@ -77,7 +92,7 @@ describe('tooltip', () => {
 
   describe('aria-describedby', () => {
     it('should link activator to content while open', async () => {
-      const wrapper = mount(defineComponent({
+      const wrapper = mountTooltip(defineComponent({
         setup () {
           return () =>
             h(Tooltip.Root, { modelValue: true }, () => [
@@ -85,7 +100,7 @@ describe('tooltip', () => {
               h(Tooltip.Content, null, () => 'Tip'),
             ])
         },
-      }), { attachTo: document.body, global })
+      }), { attachTo: document.body })
 
       await nextTick()
 
@@ -103,7 +118,7 @@ describe('tooltip', () => {
 
   describe('disabled', () => {
     it('should not open when disabled', async () => {
-      const wrapper = mount(defineComponent({
+      const wrapper = mountTooltip(defineComponent({
         setup () {
           return () =>
             h(Tooltip.Root, { disabled: true, openDelay: 100 }, () => [
@@ -111,13 +126,55 @@ describe('tooltip', () => {
               h(Tooltip.Content, null, () => 'Tip'),
             ])
         },
-      }), { attachTo: document.body, global })
+      }), { attachTo: document.body })
 
       await wrapper.find('button').trigger('pointerenter', { pointerType: 'mouse' })
       vi.advanceTimersByTime(500)
       await nextTick()
 
       expect(wrapper.find('button').attributes('data-state')).toBe('closed')
+      wrapper.unmount()
+    })
+  })
+
+  describe('multi-instance independence', () => {
+    it('should isolate sibling Root instances', async () => {
+      const wrapper = mountTooltip(defineComponent({
+        setup () {
+          return () => [
+            h(Tooltip.Root, { modelValue: true }, () => [
+              h(Tooltip.Activator, null, () => 'First'),
+              h(Tooltip.Content, null, () => 'Tip one'),
+            ]),
+            h(Tooltip.Root, null, () => [
+              h(Tooltip.Activator, null, () => 'Second'),
+              h(Tooltip.Content, null, () => 'Tip two'),
+            ]),
+          ]
+        },
+      }), { attachTo: document.body })
+
+      await nextTick()
+
+      const activators = wrapper.findAll('button')
+      const first = activators[0]
+      const second = activators[1]
+
+      // First Root is open and linked to its own content.
+      expect(first.attributes('data-state')).not.toBe('closed')
+      const firstDescribedBy = first.attributes('aria-describedby')
+      expect(firstDescribedBy).toBeDefined()
+
+      const firstContent = wrapper.findAll('[role="tooltip"]')[0]
+      expect(firstContent.attributes('id')).toBe(firstDescribedBy)
+
+      // Second Root stays closed and resolves its own context, so its
+      // activator links to its own content id, never the first Root's.
+      expect(second.attributes('data-state')).toBe('closed')
+      const secondDescribedBy = second.attributes('aria-describedby')
+      expect(secondDescribedBy).toBeDefined()
+      expect(secondDescribedBy).not.toBe(firstDescribedBy)
+
       wrapper.unmount()
     })
   })

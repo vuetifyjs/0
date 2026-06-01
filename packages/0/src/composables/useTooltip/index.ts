@@ -27,7 +27,7 @@ import { createRegistry } from '#v0/composables/createRegistry'
 
 // Utilities
 import { isNull } from '#v0/utilities'
-import { getCurrentScope, onScopeDispose, shallowRef, toRef, toValue } from 'vue'
+import { onScopeDispose, shallowRef, toRef, toValue } from 'vue'
 
 // Types
 import type { RegistryTicket, RegistryTicketInput } from '#v0/composables/createRegistry'
@@ -158,31 +158,23 @@ function createTooltip (options: TooltipOptions = {}): TooltipContext {
   const skipDelay = toRef(() => toValue(options.skipDelay) ?? 300)
   const disabled = toRef(() => toValue(options.disabled) ?? false)
 
-  const registry = createRegistry({ reactive: true })
+  const registry = createRegistry({ reactive: true, events: true })
   const lastClosedAt = shallowRef<number | null>(null)
+
+  registry.on('unregister:ticket', () => {
+    lastClosedAt.value = Date.now()
+  })
 
   const isAnyOpen = toRef(() => registry.size > 0)
 
   function shouldSkipOpenDelay (): boolean {
     if (isAnyOpen.value) return true
     if (isNull(lastClosedAt.value)) return false
-    const elapsed = performance.now() - lastClosedAt.value
+    const elapsed = Date.now() - lastClosedAt.value
     return elapsed >= 0 && elapsed < skipDelay.value
   }
 
-  function register (input?: Partial<RegistryTicketInput>): RegistryTicket {
-    return registry.register(input)
-  }
-
-  function unregister (id: ID): void {
-    if (!registry.has(id)) return
-    registry.unregister(id)
-    lastClosedAt.value = performance.now()
-  }
-
-  if (getCurrentScope()) {
-    onScopeDispose(() => registry.dispose())
-  }
+  onScopeDispose(() => registry.dispose(), true)
 
   return {
     openDelay,
@@ -191,8 +183,8 @@ function createTooltip (options: TooltipOptions = {}): TooltipContext {
     disabled,
     isAnyOpen,
     shouldSkipOpenDelay,
-    register,
-    unregister,
+    register: registry.register,
+    unregister: registry.unregister,
   }
 }
 

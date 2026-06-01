@@ -21,46 +21,66 @@
   import { useTooltip } from '#v0/composables/useTooltip'
 
   // Utilities
-  import { isUndefined } from '#v0/utilities'
   import { onBeforeUnmount, shallowRef, toRef, watch } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
-  import type { ID } from '#v0/types'
   import type { Ref, ShallowRef } from 'vue'
 
   export interface TooltipRootProps extends AtomProps {
+    /** Delay in ms before opening; falls back to the region delay when omitted */
     openDelay?: number
+    /** Delay in ms before closing; falls back to the region delay when omitted */
     closeDelay?: number
+    /** Whether the tooltip is disabled (also disabled when the region is) */
     disabled?: boolean
+    /** Whether the content stays open while hovered, allowing pointer interaction */
     interactive?: boolean
+    /** CSS anchor-positioning `position-area` for the content (default `top`) */
     positionArea?: string
+    /** CSS anchor-positioning `position-try` fallbacks (default `most-height top`) */
     positionTry?: string
+    /** Dependency-injection namespace (default `v0:tooltip`) */
     namespace?: string
   }
 
   export interface TooltipRootSlotProps {
+    /** Whether the tooltip is currently open */
     isOpen: boolean
+    /** Whether the tooltip is disabled */
     isDisabled: boolean
   }
 
   export interface TooltipRootContext {
+    /** Unique popover id shared between anchor and content */
     id: string
+    /** Open state, writable via v-model */
     isOpen: ShallowRef<boolean>
+    /** Whether the tooltip is disabled */
     isDisabled: Readonly<Ref<boolean>>
+    /** Whether the content is interactive (hoverable) */
     isInteractive: Readonly<Ref<boolean>>
+    /** Current visual state for CSS `data-state` styling */
     dataState: Readonly<Ref<'closed' | 'delayed-open' | 'instant-open'>>
+    /** Resolved side the content is positioned on */
     dataSide: Readonly<Ref<'top' | 'bottom' | 'left' | 'right' | undefined>>
+    /** Start the open transition (instant when inside the skip window) */
     open: () => void
+    /** Start the close transition */
     close: () => void
+    /** Cancel any pending open/close transition */
     cancel: () => void
+    /** Attributes to bind to the content element */
     contentAttrs: ReturnType<typeof usePopover>['contentAttrs']
+    /** Styles to bind to the content element */
     contentStyles: ReturnType<typeof usePopover>['contentStyles']
+    /** Styles to bind to the anchor element */
     anchorStyles: ReturnType<typeof usePopover>['anchorStyles']
+    /** Attach the anchor element to the popover */
     attach: ReturnType<typeof usePopover>['attach']
   }
 
-  export const [useTooltipRoot, provideTooltipRoot] = createContext<TooltipRootContext>()
+  export const [useTooltipRoot, provideTooltipRoot] = createContext<TooltipRootContext>({ suffix: 'root' })
 </script>
 
 <script setup lang="ts">
@@ -94,26 +114,20 @@
 
   const popover = usePopover({ isOpen, positionArea, positionTry })
 
-  const skippedDelay = shallowRef(false)
+  const skipped = shallowRef(false)
 
   const delay = useDelay(direction => {
     if (direction && isDisabled.value) return
     isOpen.value = direction
-    skippedDelay.value = false
+    if (!direction) skipped.value = false
   }, {
-    openDelay: toRef(() => openDelay ?? region.openDelay.value),
+    openDelay: toRef(() => skipped.value ? 0 : (openDelay ?? region.openDelay.value)),
     closeDelay: toRef(() => closeDelay ?? region.closeDelay.value),
   })
 
   function open () {
     if (isDisabled.value) return
-    if (region.shouldSkipOpenDelay()) {
-      skippedDelay.value = true
-      delay.stop()
-      isOpen.value = true
-      return
-    }
-    skippedDelay.value = false
+    skipped.value = region.shouldSkipOpenDelay()
     delay.start(true)
   }
 
@@ -125,26 +139,24 @@
     delay.stop()
   }
 
-  let ticketId: ID | undefined
+  let registered = false
 
   watch(isOpen, value => {
-    if (value && isUndefined(ticketId)) {
-      const ticket = region.register({ id: popover.id })
-      ticketId = ticket.id
-    } else if (!value && !isUndefined(ticketId)) {
-      region.unregister(ticketId)
-      ticketId = undefined
+    if (value && !registered) {
+      region.register({ id: popover.id })
+      registered = true
+    } else if (!value && registered) {
+      region.unregister(popover.id)
+      registered = false
     }
   }, { immediate: true })
 
   onBeforeUnmount(() => {
-    if (!isUndefined(ticketId)) region.unregister(ticketId)
+    if (registered) region.unregister(popover.id)
   })
 
   const dataState = toRef((): 'closed' | 'delayed-open' | 'instant-open' => {
-    if (!isOpen.value) return 'closed'
-    if (skippedDelay.value) return 'instant-open'
-    return 'delayed-open'
+    return isOpen.value ? (skipped.value ? 'instant-open' : 'delayed-open') : 'closed'
   })
 
   const dataSide = toRef((): 'top' | 'bottom' | 'left' | 'right' | undefined => {
