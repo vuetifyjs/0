@@ -18,7 +18,7 @@
     },
     {
       name: 'Primary Sponsor',
-      bestFor: 'Companies whose product is built on Vuetify0',
+      bestFor: 'Companies building on Vuetify0 — or building toward it',
       whatYouGet: 'Logo across the docs, README, sponsor page',
       price: '$2,000/mo · one slot',
       cta: { label: 'Become the sponsor →', to: 'mailto:john@vuetifyjs.com?subject=Primary%20Sponsor' },
