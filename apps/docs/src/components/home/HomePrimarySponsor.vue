@@ -30,7 +30,7 @@
         <p>
           <span class="section-overline">PRIMARY SPONSOR</span>
           <span class="ml-2 text-on-surface-variant">·</span>
-          <span class="ml-2 text-sm">This spot is available</span>
+          <span class="ml-2 text-sm"><AppRainbowText>This spot is available</AppRainbowText></span>
         </p>
       </div>
     </AppLink>
