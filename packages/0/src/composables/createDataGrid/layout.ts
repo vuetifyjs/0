@@ -4,17 +4,23 @@
  * @remarks
  * Manages column layout state for data grids: sizing (percentages 0-100),
  * pinning (left/right/scrollable regions), delta-based resizing compatible
- * with the Splitter two-panel model, and column reordering.
+ * with the Splitter two-panel model, column reordering, and visibility.
  *
- * Column existence and display order live on the table's columns registry
- * (passed in as the first argument). The layout module reads from it and
- * adds layout-specific state (sizes, pin group, per-column extras) that
- * the column ticket does not carry. Late-registered columns pick up
- * defaults via register events; removed columns have their pin/size
- * state pruned via unregister events.
+ * Column existence, display order, AND grid layout config (size, pin,
+ * min/max, resizable, reorderable) all live on the table's columns registry
+ * (passed in as the only argument). `createRegistry` preserves the extra
+ * grid fields on each ticket, so layout reads its config straight off the
+ * registered ticket — there is no separate defs array. Columns onboarded
+ * before OR after the layout is built are picked up identically: an initial
+ * loop seeds the already-registered set and a `register:ticket` handler seeds
+ * the rest. Removed columns have their pin/size/visibility state pruned via
+ * unregister events.
  *
  * Sizing uses percentages so it is compatible with the Splitter component.
- * Offsets are computed per-region (left, scrollable, right) independently.
+ * Offsets are computed per-region (left, scrollable, right) independently
+ * and over visible columns only — hidden columns are excluded from the
+ * render set without auto-redistribution (headless: the consumer rebalances
+ * via `distribute()` or CSS).
  *
  * @internal Private sibling of `createDataGrid`, and intentionally NOT a
  * promotion candidate: it is bound to the table's `DataTableColumnTicket`
@@ -33,9 +39,8 @@ import { clamp, isUndefined } from '#v0/utilities'
 import { computed, shallowReactive } from 'vue'
 
 // Types
-import type { DataTableColumnTicket, DataTableColumnTicketInput } from '#v0/composables/createDataTable'
 import type { ColumnNode } from '#v0/composables/createDataTable/columns'
-import type { RegistryContext } from '#v0/composables/createRegistry'
+import type { RegistryContext, RegistryTicket, RegistryTicketInput } from '#v0/composables/createRegistry'
 import type { Ref } from 'vue'
 
 export type PinPosition = 'left' | 'right' | false
@@ -68,6 +73,8 @@ export interface ResolvedColumn {
   reorderable: boolean
   minSize: number
   maxSize: number
+  /** Whether the column is part of the render set. Always `true` for render-set entries; meaningful on `allColumns`, where hidden columns surface as `false`. */
+  visible: boolean
 }
 
 export interface PinnedRegion {
@@ -77,10 +84,12 @@ export interface PinnedRegion {
 }
 
 export interface ColumnLayout {
-  /** Resolved columns for each pin region */
+  /** Resolved columns for each pin region (hidden columns excluded) */
   pinned: Readonly<Ref<PinnedRegion>>
-  /** All resolved columns in display order */
+  /** All visible resolved columns in display order (hidden columns excluded) */
   columns: Readonly<Ref<ResolvedColumn[]>>
+  /** Every column in display order, including hidden ones, each carrying a `visible` flag — for a column chooser. */
+  allColumns: Readonly<Ref<ResolvedColumn[]>>
   /** Pin a column to a region (or unpin with false) */
   pin: (id: string, position: PinPosition) => void
   /**
@@ -93,39 +102,31 @@ export interface ColumnLayout {
   reorder: (from: number, to: number) => void
   /** Replace all sizes at once and normalize to sum to 100 */
   distribute: (sizes: number[]) => void
+  /** Show a previously hidden column */
+  show: (id: string) => void
+  /** Hide a column — excludes it from the render set without redistributing */
+  hide: (id: string) => void
+  /** Toggle a column's visibility */
+  toggleVisible: (id: string) => void
   /** Restore initial sizes, order, and pins */
   reset: () => void
 }
 
-interface ColumnExtras {
+interface ColumnConfig {
+  size?: number
   minSize: number
   maxSize: number
   resizable: boolean
   reorderable: boolean
+  pinned: PinPosition
 }
 
-const DEFAULT_EXTRAS: ColumnExtras = {
+const DEFAULT_EXTRAS = {
   minSize: 2,
   maxSize: 100,
   resizable: true,
   reorderable: true,
-}
-
-function distributeEven (leaves: readonly GridColumnDef[]): Map<string, number> {
-  const map = new Map<string, number>()
-  const explicit = leaves.filter(c => !isUndefined(c.size))
-  const implicit = leaves.filter(c => isUndefined(c.size))
-
-  const used = explicit.reduce((sum, c) => sum + c.size!, 0)
-  const remainder = Math.max(0, 100 - used)
-  const share = implicit.length > 0 ? remainder / implicit.length : 0
-
-  for (const col of leaves) {
-    map.set(col.id, isUndefined(col.size) ? share : col.size)
-  }
-
-  return map
-}
+} as const
 
 function offsets (cols: ResolvedColumn[], reverse = false): void {
   let offset = 0
@@ -141,51 +142,35 @@ function offsets (cols: ResolvedColumn[], reverse = false): void {
 /**
  * Creates a column layout manager for a data grid.
  *
- * Reads column existence and display order from the table's columns
- * registry. Layout-specific state (sizes, pin group, per-column min/max
- * and resizable/reorderable flags) is kept locally and reconciled via
- * register / unregister / clear events.
+ * Reads column existence, display order, AND grid layout config (size, pin,
+ * min/max, resizable, reorderable) from the table's columns registry. The
+ * grid fields ride on each ticket — `createRegistry` preserves them — so
+ * there is no separate defs array. Visibility is layout-local view state
+ * (not a ticket field) kept here and reconciled via register / unregister /
+ * clear events.
+ *
+ * Generic over the registry's input/output ticket types so the caller's
+ * concrete grid column ticket (`DataGridColumnTicket`) flows through. Layout
+ * only ever reads from the registry (`values`, `keys`, `on`, `reorder`,
+ * `move`, `lookup`) — it never registers — so the output ticket need only be
+ * readable as a {@link GridColumnDef}.
  *
  * @param cols The table's columns registry — source of truth for which
- *             columns exist and in what order
- * @param defs Column definitions used to seed initial sizes, pins, and
- *             per-column extras (minSize, maxSize, resizable, reorderable)
+ *             columns exist, in what order, and their layout config
  * @returns Column layout state and mutation methods
  */
-export function createColumnLayout<T extends Record<string, unknown>> (
-  cols: RegistryContext<DataTableColumnTicketInput<T>, DataTableColumnTicket<T>>,
-  defs: readonly GridColumnDef[],
+export function createColumnLayout<
+  Z extends RegistryTicketInput = GridColumnDef,
+  E extends RegistryTicket & GridColumnDef & Z = RegistryTicket & GridColumnDef & Z,
+> (
+  cols: RegistryContext<Z, E>,
 ): ColumnLayout {
   const logger = useLogger()
 
-  const leaves = extractLeaves(defs)
-  const initial = distributeEven(leaves)
-
-  // Lookups built once from the initial defs. Late-registered columns
-  // fall back to defaults via the register handler below.
-  const initialPins = new Map<string, PinPosition>(
-    leaves.map(c => [c.id, c.pinned ?? false]),
-  )
-
-  const extras = new Map<string, ColumnExtras>()
-  for (const col of leaves) {
-    extras.set(col.id, {
-      minSize: col.minSize ?? DEFAULT_EXTRAS.minSize,
-      maxSize: col.maxSize ?? DEFAULT_EXTRAS.maxSize,
-      resizable: col.resizable ?? DEFAULT_EXTRAS.resizable,
-      reorderable: col.reorderable ?? DEFAULT_EXTRAS.reorderable,
-    })
-  }
-
-  // Initial snapshots for reset
-  const snapshot = {
-    sizes: new Map(initial),
-    // Top-level column order — the registry holds top-level entries; nested
-    // children move with their parent. `cols.reorder` operates on the top-
-    // level id set.
-    order: defs.map(c => c.id),
-    pins: new Map(initialPins),
-  }
+  // Per-id config snapshot captured at register time. Drives `reset` and the
+  // resolved per-column metadata. Order is derived from the registered order,
+  // never a defs array.
+  const configs = new Map<string, ColumnConfig>()
 
   // Group manages pin state (selected=left, mixed=right, unselected=none)
   const group = createGroup({ multiple: true })
@@ -193,50 +178,95 @@ export function createColumnLayout<T extends Record<string, unknown>> (
   // Sizes stored separately — they change too frequently for registry tickets
   const sizes = shallowReactive(new Map<string, number>())
 
-  function seedLeaf (id: string) {
-    if (!group.has(id)) group.register({ id, value: id })
+  // Visibility is layout-local view state. Membership = hidden; absence =
+  // visible. All columns start visible.
+  const hidden = shallowReactive(new Set<string>())
 
-    if (!extras.has(id)) extras.set(id, { ...DEFAULT_EXTRAS })
+  // Top-level column ids in first-registration order, captured as columns
+  // register. `reset` restores this order (nested children travel with their
+  // parent, so only top-level ids are tracked). No defs array involved.
+  const order: string[] = []
 
-    if (!sizes.has(id)) {
-      // Late registrations default to 0 — consumers can call `distribute`
-      // to rebalance once the full column set is known.
-      sizes.set(id, initial.get(id) ?? 0)
+  function record (id: string) {
+    if (!order.includes(id)) order.push(id)
+  }
+
+  /** Even share over the currently-registered leaves: explicit sizes are
+   *  honored, unsized columns split the remaining percentage. */
+  function share (id: string): number {
+    const leaves = extractLeaves(cols.values())
+    let used = 0
+    let unsized = 0
+    for (const leaf of leaves) {
+      const size = configs.get(String(leaf.id))?.size
+      if (isUndefined(size)) unsized++
+      else used += size
+    }
+    const own = configs.get(id)?.size
+    if (!isUndefined(own)) return own
+    const remainder = Math.max(0, 100 - used)
+    return unsized > 0 ? remainder / unsized : 0
+  }
+
+  function seedLeaf (leaf: GridColumnDef) {
+    const id = String(leaf.id)
+
+    if (!configs.has(id)) {
+      configs.set(id, {
+        size: leaf.size,
+        minSize: leaf.minSize ?? DEFAULT_EXTRAS.minSize,
+        maxSize: leaf.maxSize ?? DEFAULT_EXTRAS.maxSize,
+        resizable: leaf.resizable ?? DEFAULT_EXTRAS.resizable,
+        reorderable: leaf.reorderable ?? DEFAULT_EXTRAS.reorderable,
+        pinned: leaf.pinned ?? false,
+      })
     }
 
-    const pos = initialPins.get(id)
-    if (pos === 'left') group.select(id)
-    else if (pos === 'right') group.mix(id)
+    if (!group.has(id)) group.register({ id, value: id })
+
+    if (!sizes.has(id)) sizes.set(id, share(id))
+
+    const config = configs.get(id)!
+    if (config.pinned === 'left') group.select(id)
+    else if (config.pinned === 'right') group.mix(id)
   }
 
   function dropLeaf (id: string) {
     group.unregister(id)
-    extras.delete(id)
+    configs.delete(id)
     sizes.delete(id)
+    hidden.delete(id)
   }
 
-  function leavesOf (ticket: DataTableColumnTicket<T>): DataTableColumnTicket<T>[] {
+  function leavesOf (ticket: GridColumnDef): GridColumnDef[] {
     return extractLeaves([ticket])
   }
 
-  // Seed for already-registered columns (table.columns.onboard runs before
-  // createColumnLayout in createDataGrid).
-  for (const leaf of extractLeaves(cols.values())) {
-    seedLeaf(String(leaf.id))
+  // Seed for already-registered columns. The registry may be empty at
+  // construction (columns onboarded later) — this loop tolerates that and the
+  // register:ticket handler picks up the rest.
+  for (const ticket of cols.values()) {
+    record(String(ticket.id))
+    for (const leaf of leavesOf(ticket)) seedLeaf(leaf)
   }
 
   cols.on('register:ticket', ticket => {
-    for (const leaf of leavesOf(ticket)) seedLeaf(String(leaf.id))
+    record(String(ticket.id))
+    for (const leaf of leavesOf(ticket)) seedLeaf(leaf)
   })
 
   cols.on('unregister:ticket', ticket => {
+    const top = order.indexOf(String(ticket.id))
+    if (top !== -1) order.splice(top, 1)
     for (const leaf of leavesOf(ticket)) dropLeaf(String(leaf.id))
   })
 
   cols.on('clear:registry', () => {
     group.clear()
-    extras.clear()
+    configs.clear()
     sizes.clear()
+    hidden.clear()
+    order.length = 0
   })
 
   function position (id: string): PinPosition {
@@ -245,13 +275,17 @@ export function createColumnLayout<T extends Record<string, unknown>> (
     return false
   }
 
-  function resolve (): ResolvedColumn[] {
-    return extractLeaves(cols.values()).map((ticket, index) => {
+  function resolve (includeHidden: boolean): ResolvedColumn[] {
+    const resolved: ResolvedColumn[] = []
+    let index = 0
+    for (const ticket of extractLeaves(cols.values())) {
       const id = String(ticket.id)
-      const meta = extras.get(id) ?? DEFAULT_EXTRAS
-      return {
+      const visible = !hidden.has(id)
+      if (!includeHidden && !visible) continue
+      const meta = configs.get(id) ?? DEFAULT_EXTRAS
+      resolved.push({
         id,
-        index,
+        index: index++,
         size: sizes.get(id) ?? 0,
         offset: 0,
         pinned: position(id),
@@ -259,8 +293,10 @@ export function createColumnLayout<T extends Record<string, unknown>> (
         reorderable: meta.reorderable,
         minSize: meta.minSize,
         maxSize: meta.maxSize,
-      }
-    })
+        visible,
+      })
+    }
+    return resolved
   }
 
   function split (resolved: ResolvedColumn[]): PinnedRegion {
@@ -281,12 +317,16 @@ export function createColumnLayout<T extends Record<string, unknown>> (
     return { left, scrollable, right }
   }
 
-  const pinned = computed((): PinnedRegion => split(resolve()))
+  // Render set: visible columns only, offsets over visible.
+  const pinned = computed((): PinnedRegion => split(resolve(false)))
 
   const columns = computed((): ResolvedColumn[] => {
     const { left, scrollable, right } = pinned.value
     return [...left, ...scrollable, ...right]
   })
+
+  // Full set incl. hidden, each carrying `visible` — for a column chooser.
+  const allColumns = computed((): ResolvedColumn[] => resolve(true))
 
   function pin (id: string, pos: PinPosition) {
     if (!group.has(id)) return
@@ -353,7 +393,7 @@ export function createColumnLayout<T extends Record<string, unknown>> (
     }
 
     // Normalize proportionally to sum 100, then clamp each to its constraints.
-    const metas = tickets.map(ticket => extras.get(String(ticket.id)) ?? DEFAULT_EXTRAS)
+    const metas = tickets.map(ticket => configs.get(String(ticket.id)) ?? DEFAULT_EXTRAS)
     let current = incoming.map((value, i) => clamp(value / sum * 100, metas[i]!.minSize, metas[i]!.maxSize))
 
     // Redistribute the residual proportionally across columns that still have
@@ -380,31 +420,54 @@ export function createColumnLayout<T extends Record<string, unknown>> (
     }
   }
 
+  function show (id: string) {
+    hidden.delete(id)
+  }
+
+  function hide (id: string) {
+    hidden.add(id)
+  }
+
+  function toggleVisible (id: string) {
+    if (hidden.has(id)) hidden.delete(id)
+    else hidden.add(id)
+  }
+
   function reset () {
-    for (const [id, size] of snapshot.sizes) {
-      sizes.set(id, size)
+    // Restore sizes from the per-id config snapshot, deriving order from the
+    // registered order (not a defs array).
+    for (const ticket of extractLeaves(cols.values())) {
+      const id = String(ticket.id)
+      sizes.set(id, share(id))
     }
 
-    // Restore original display order via the registry's bulk reorder.
-    cols.reorder(snapshot.order)
+    // Restore original display order via the registry's bulk reorder. Order is
+    // the first-registration order captured at register time, never a defs array.
+    cols.reorder([...order])
+
+    hidden.clear()
 
     for (const ticket of cols.values()) {
       group.unselect(ticket.id)
       group.unmix(ticket.id)
     }
-    for (const [id, pos] of snapshot.pins) {
-      if (pos === 'left') group.select(id)
-      else if (pos === 'right') group.mix(id)
+    for (const [id, config] of configs) {
+      if (config.pinned === 'left') group.select(id)
+      else if (config.pinned === 'right') group.mix(id)
     }
   }
 
   return {
     pinned,
     columns,
+    allColumns,
     pin,
     resize,
     reorder,
     distribute,
+    show,
+    hide,
+    toggleVisible,
     reset,
   }
 }

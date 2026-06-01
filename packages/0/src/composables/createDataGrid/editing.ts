@@ -22,11 +22,11 @@
 
 // Utilities
 import { isFunction, isString, isUndefined } from '#v0/utilities'
-import { onScopeDispose, shallowReactive, shallowRef } from 'vue'
+import { onScopeDispose, shallowReactive, shallowRef, toValue } from 'vue'
 
 // Types
 import type { ID } from '#v0/types'
-import type { ShallowReactive, ShallowRef } from 'vue'
+import type { MaybeRefOrGetter, ShallowReactive, ShallowRef } from 'vue'
 
 export interface EditableColumn {
   readonly id: string
@@ -50,7 +50,14 @@ export interface CellEditingRegistry {
 }
 
 export interface CellEditingOptions {
-  columns: readonly EditableColumn[]
+  /**
+   * Editable columns, read reactively. Accepts a ref or getter so the column
+   * set can change after construction — e.g. a grid that derives editables
+   * from a live column registry. Resolved via `toValue` on every `edit` /
+   * `commit`, so newly-onboarded editable columns are picked up without
+   * re-creating the editing instance.
+   */
+  columns: MaybeRefOrGetter<readonly EditableColumn[]>
   onEdit?: (row: ID, column: string, value: unknown) => void
   lookup?: (row: ID) => unknown
   registry?: CellEditingRegistry
@@ -101,9 +108,15 @@ export interface CellEditing {
 export function createCellEditing (options: CellEditingOptions): CellEditing {
   const { columns, onEdit, lookup, registry } = options
 
-  const columnMap = new Map<string, EditableColumn>()
-  for (const col of columns) {
-    columnMap.set(col.id, col)
+  // Rebuilt on every lookup from the live `columns` source so the editable
+  // set tracks columns onboarded after this instance was created. Cheap to
+  // rebuild (bounded by column count) and avoids a watcher firing on unrelated
+  // registry churn.
+  function resolveColumn (column: string): EditableColumn | undefined {
+    for (const col of toValue(columns)) {
+      if (col.id === column) return col
+    }
+    return undefined
   }
 
   const active = shallowRef<ActiveCell | null>(null)
@@ -111,7 +124,7 @@ export function createCellEditing (options: CellEditingOptions): CellEditing {
   const dirty = shallowReactive(new Map<ID, Map<string, unknown>>())
 
   function edit (row: ID, column: string) {
-    const col = columnMap.get(column)
+    const col = resolveColumn(column)
     if (!col) return
 
     if (isFunction(col.editable)) {
@@ -128,7 +141,7 @@ export function createCellEditing (options: CellEditingOptions): CellEditing {
     const cell = active.value
     if (!cell) return
 
-    const col = columnMap.get(cell.column)
+    const col = resolveColumn(cell.column)
     if (col?.validate) {
       const result = col.validate(value, lookup?.(cell.row))
       if (result !== true && isString(result) && result.length > 0) {

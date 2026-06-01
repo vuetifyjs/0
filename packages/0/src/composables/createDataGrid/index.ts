@@ -18,12 +18,12 @@
  *
  * @example
  * ```ts
- * const grid = createDataGrid({
- *   columns: [
- *     { id: 'name', sortable: true },
- *     { id: 'progress', editable: true },
- *   ],
- * })
+ * const grid = createDataGrid()
+ *
+ * grid.columns.onboard([
+ *   { id: 'name', sortable: true },
+ *   { id: 'progress', editable: true },
+ * ])
  *
  * grid.onboard(rows.map(value => ({ id: value.id, value })))
  * grid.layout.pin('name', 'left')
@@ -34,7 +34,6 @@
 // Composables
 import { createContext, useContext } from '#v0/composables/createContext'
 import { createDataTable } from '#v0/composables/createDataTable'
-import { extractLeaves } from '#v0/composables/createDataTable/columns'
 import { createSortable } from '#v0/composables/createSortable'
 import { createTrinity } from '#v0/composables/createTrinity'
 import { useToggleScope } from '#v0/composables/useToggleScope'
@@ -49,12 +48,13 @@ import { isFunction, isUndefined } from '#v0/utilities'
 import { computed, shallowRef, toRef, toValue, watch } from 'vue'
 
 // Types
-import type { DataTableContext, DataTableOptions } from '#v0/composables/createDataTable'
+import type { DataTableColumnTicket, DataTableColumnTicketInput, DataTableContext, DataTableOptions } from '#v0/composables/createDataTable'
+import type { RegistryContext } from '#v0/composables/createRegistry'
 import type { SortableTicketInput } from '#v0/composables/createSortable'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { ID } from '#v0/types'
 import type { CellEditing, CellEditingRegistry } from './editing'
-import type { ColumnLayout, GridColumnDef } from './layout'
+import type { ColumnLayout, PinPosition } from './layout'
 import type { SpanEntry } from './spanning'
 import type { App, ComputedRef, MaybeRefOrGetter, Ref } from 'vue'
 
@@ -64,20 +64,69 @@ export type { RowSpanningOptions, SpanEntry } from './spanning'
 export { ServerGridAdapter } from './adapters'
 export type { ServerGridAdapterOptions } from './adapters'
 
-export interface DataGridColumn<T extends Record<string, unknown> = Record<string, unknown>> extends GridColumnDef {
-  readonly id: string
-  readonly title?: string
-  readonly sortable?: boolean
-  readonly filterable?: boolean
-  readonly sort?: (a: unknown, b: unknown) => number
-  readonly filter?: (value: unknown, query: string) => boolean
-  readonly editable?: boolean | ((item: T) => boolean)
-  readonly validate?: (value: unknown, item?: T) => string | true
-  readonly children?: readonly DataGridColumn<T>[]
+/**
+ * Column registration shape for `createDataGrid`. Extends the data-table
+ * column ticket input with grid-specific layout, editing, and spanning config.
+ *
+ * The extra fields ride on the column ticket — `createRegistry` preserves them
+ * via `{ ...registration }` — so layout/editing/spanning read config straight
+ * off the registered ticket. Nested `children` config rides inline on the
+ * parent ticket, mirroring `DataTableColumnTicketInput`.
+ *
+ * @template T Row value type.
+ *
+ * @example
+ * ```ts
+ * const grid = createDataGrid<Product>()
+ *
+ * grid.columns.onboard([
+ *   { id: 'name', sortable: true, size: 40, pinned: 'left' },
+ *   { id: 'price', editable: true, validate: v => Number(v) >= 0 || 'must be positive' },
+ * ])
+ * ```
+ */
+export interface DataGridColumnTicketInput<T extends Record<string, unknown> = Record<string, unknown>>
+  extends DataTableColumnTicketInput<T> {
+  /** Width as a percentage (0–100). Unset columns share remaining space equally. */
+  size?: number
+  /** Minimum width as a percentage. @default 2 */
+  minSize?: number
+  /** Maximum width as a percentage. @default 100 */
+  maxSize?: number
+  /** Pin position. @default false */
+  pinned?: PinPosition
+  /** Allow resizing. @default true */
+  resizable?: boolean
+  /** Allow reordering. @default true */
+  reorderable?: boolean
+  /** Whether cells in this column can be edited. A function gates per-row. */
+  editable?: boolean | ((item: T) => boolean)
+  /** Validate an edited value; return `true` to accept or a string error to reject. */
+  validate?: (value: unknown, item?: T) => string | true
+  /** Row span for a cell in this column. */
+  span?: (item: T) => number
+  /** Header-group children (recursive). Children are NOT separately registered. */
+  children?: readonly DataGridColumnTicketInput<T>[]
 }
 
+/**
+ * Output ticket returned by `grid.columns.register` / `grid.columns.onboard`.
+ *
+ * Combines the standard registry ticket fields (`index`, `valueIsIndex`,
+ * `unregister`) with the column-shape fields from {@link DataGridColumnTicketInput}.
+ *
+ * @template T Row value type.
+ */
+export type DataGridColumnTicket<T extends Record<string, unknown> = Record<string, unknown>>
+  = DataTableColumnTicket<T> & DataGridColumnTicketInput<T>
+
+/**
+ * @deprecated Use {@link DataGridColumnTicketInput}. Columns are now onboarded
+ * via `grid.columns.onboard([...])` rather than passed as a factory option.
+ */
+export type DataGridColumn<T extends Record<string, unknown> = Record<string, unknown>> = DataGridColumnTicketInput<T>
+
 export interface DataGridOptions<T extends Record<string, unknown>> extends DataTableOptions<T> {
-  columns: readonly DataGridColumn<T>[]
   editing?: {
     onEdit?: (row: ID, column: string, value: unknown, item: T) => void
   }
@@ -86,6 +135,13 @@ export interface DataGridOptions<T extends Record<string, unknown>> extends Data
 }
 
 export interface DataGridContext<T extends Record<string, unknown>> extends DataTableContext<T> {
+  /**
+   * Column registry, widened to the grid column ticket shape. Covariant
+   * override of the inherited {@link DataTableContext.columns} (PHILOSOPHY
+   * §2.6): the wider input type is assignable where the narrower one is
+   * expected, and the runtime behavior is unchanged.
+   */
+  columns: RegistryContext<DataGridColumnTicketInput<T>, DataGridColumnTicket<T>>
   layout: ColumnLayout
   rows: {
     order: Readonly<Ref<ID[]>>
@@ -113,13 +169,12 @@ export interface DataGridContextOptions<T extends Record<string, unknown>> exten
  *
  * @example
  * ```ts
- * const grid = createDataGrid({
- *   columns: [
- *     { id: 'name', sortable: true },
- *     { id: 'progress', editable: true, validate: v => Number(v) >= 0 || 'must be positive' },
- *   ],
- *   pagination: { initial: 1 },
- * })
+ * const grid = createDataGrid({ pagination: { initial: 1 } })
+ *
+ * grid.columns.onboard([
+ *   { id: 'name', sortable: true },
+ *   { id: 'progress', editable: true, validate: v => Number(v) >= 0 || 'must be positive' },
+ * ])
  *
  * grid.onboard(rows.map(value => ({ id: value.id, value })))
  * grid.layout.pin('name', 'left')
@@ -128,17 +183,14 @@ export interface DataGridContextOptions<T extends Record<string, unknown>> exten
  * ```
  */
 export function createDataGrid<T extends Record<string, unknown>> (
-  _options: DataGridOptions<T>,
+  _options: DataGridOptions<T> = {},
 ): DataGridContext<T> {
   const {
-    columns,
     editing: editingOptions,
     preserveRowOrder = false,
     rowSpanning,
     ...options
   } = _options
-
-  const leaves = extractLeaves(columns)
 
   const table = createDataTable<T>(options)
 
@@ -162,18 +214,6 @@ export function createDataGrid<T extends Record<string, unknown>> (
     sortable.clear()
     dirty.value = false
   })
-
-  // Onboard columns into the inherited table column registry so leaves,
-  // headers, sort, and filter all key off the same set of ids.
-  table.columns.onboard(columns.map(col => ({
-    id: col.id,
-    title: col.title,
-    sortable: col.sortable,
-    filterable: col.filterable,
-    sort: col.sort,
-    filter: col.filter,
-    children: col.children,
-  })))
 
   const order = toRef(() => sortable.keys() as ID[])
 
@@ -247,22 +287,26 @@ export function createDataGrid<T extends Record<string, unknown>> (
       : ordered.slice(table.pagination.pageStart.value, table.pagination.pageStop.value)
   })
 
-  const layout = createColumnLayout(table.columns, columns)
-
-  const editable = leaves
-    .filter(col => col.editable === true || isFunction(col.editable))
-    .map(col => ({
-      id: col.id,
-      editable: col.editable as boolean | ((item: unknown) => boolean),
-      validate: col.validate as ((value: unknown, item?: unknown) => string | true) | undefined,
-    }))
+  const layout = createColumnLayout(table.columns)
 
   function lookup (row: ID): T | undefined {
     return table.get(row)?.value
   }
 
   const editing = createCellEditing({
-    columns: editable,
+    // Read the live column registry leaves so columns onboarded after this
+    // instance was built become editable — fixes the editable-bypass where
+    // editing was seeded statically. `table.leaves` is typed as the narrower
+    // table ticket, but the grid registers `DataGridColumnTicket`s through the
+    // re-typed `grid.columns`, so `editable` / `validate` ride on each leaf at
+    // runtime; the cast recovers that grid shape.
+    columns: () => (table.leaves.value as readonly DataGridColumnTicket<T>[])
+      .filter(col => col.editable === true || isFunction(col.editable))
+      .map(col => ({
+        id: String(col.id),
+        editable: col.editable as boolean | ((item: unknown) => boolean),
+        validate: col.validate as ((value: unknown, item?: unknown) => string | true) | undefined,
+      })),
     lookup,
     // The registry's `on` is generic per event name; createCellEditing only
     // needs the structural surface and narrows the payload inside its handler.
@@ -307,10 +351,10 @@ export function createDataGrid<T extends Record<string, unknown>> (
  * @example
  * ```ts
  * const [useDataGrid, provideDataGrid, grid] = createDataGridContext({
- *   columns,
  *   namespace: 'v0:projects',
  * })
  *
+ * grid.columns.onboard(columns)
  * grid.onboard(rows.map(value => ({ id: value.id, value })))
  * provideDataGrid()
  * const ctx = useDataGrid()

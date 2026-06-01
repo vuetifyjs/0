@@ -6,22 +6,22 @@ import { createRegistry } from '#v0/composables/createRegistry'
 import { createColumnLayout } from './layout'
 
 // Types
-import type { DataTableColumnTicket, DataTableColumnTicketInput } from '#v0/composables/createDataTable'
+import type { DataGridColumnTicket, DataGridColumnTicketInput } from './index'
 import type { GridColumnDef } from './layout'
 
+// Columns now carry their grid layout config (size, pin, min/max, resizable,
+// reorderable) directly on the registry ticket — `createRegistry` preserves the
+// extra fields via `{ ...registration }`. `createColumnLayout(cols)` reads them
+// straight off the ticket; there is no separate defs array.
 function setup (defs: readonly GridColumnDef[]) {
-  const columns = createRegistry<DataTableColumnTicketInput, DataTableColumnTicket>({
+  const columns = createRegistry<DataGridColumnTicketInput, DataGridColumnTicket>({
     events: true,
     reactive: true,
   })
 
-  columns.onboard(defs.map(col => ({
-    id: col.id,
-    title: col.title,
-    children: col.children,
-  })))
+  columns.onboard([...defs] as DataGridColumnTicketInput[])
 
-  const layout = createColumnLayout(columns, defs)
+  const layout = createColumnLayout(columns)
   return { columns, layout }
 }
 
@@ -121,7 +121,7 @@ describe('createColumnLayout', () => {
   })
 
   describe('pinning', () => {
-    it('should split columns into left/scrollable/right regions from options', () => {
+    it('should split columns into left/scrollable/right regions from ticket config', () => {
       const { layout } = setup([
         { id: 'a', size: 20, pinned: 'left' },
         { id: 'b', size: 60 },
@@ -387,6 +387,21 @@ describe('createColumnLayout', () => {
       const { left } = layout.pinned.value
       expect(left.map(c => c.id)).toEqual(['a'])
     })
+
+    it('should restore visibility', () => {
+      const { layout } = setup([
+        { id: 'a' },
+        { id: 'b' },
+        { id: 'c' },
+      ])
+
+      layout.hide('b')
+      expect(layout.columns.value.map(c => c.id)).toEqual(['a', 'c'])
+
+      layout.reset()
+
+      expect(layout.columns.value.map(c => c.id)).toEqual(['a', 'b', 'c'])
+    })
   })
 
   describe('distribute', () => {
@@ -476,6 +491,108 @@ describe('createColumnLayout', () => {
     })
   })
 
+  describe('visibility', () => {
+    it('should remove a hidden column from columns and pinned', () => {
+      const { layout } = setup([
+        { id: 'a', size: 20, pinned: 'left' },
+        { id: 'b', size: 50 },
+        { id: 'c', size: 30 },
+      ])
+
+      layout.hide('a')
+
+      // Hidden column drops out of the render set entirely
+      expect(layout.columns.value.map(c => c.id)).toEqual(['b', 'c'])
+      expect(layout.pinned.value.left.map(c => c.id)).toEqual([])
+      expect(layout.pinned.value.scrollable.map(c => c.id)).toEqual(['b', 'c'])
+    })
+
+    it('should recompute offsets over the visible columns only', () => {
+      const { layout } = setup([
+        { id: 'a', size: 30 },
+        { id: 'b', size: 40 },
+        { id: 'c', size: 30 },
+      ])
+
+      // Hiding the middle column leaves a (offset 0) and c, whose offset now
+      // accumulates only a's width — not a + b — because b is excluded.
+      layout.hide('b')
+
+      const cols = layout.columns.value
+      expect(cols.map(c => c.id)).toEqual(['a', 'c'])
+      expect(cols.find(c => c.id === 'a')!.offset).toBe(0)
+      expect(cols.find(c => c.id === 'c')!.offset).toBe(30)
+    })
+
+    it('should still list a hidden column in allColumns with visible:false', () => {
+      const { layout } = setup([
+        { id: 'a', size: 50 },
+        { id: 'b', size: 50 },
+      ])
+
+      layout.hide('a')
+
+      const all = layout.allColumns.value
+      expect(all.map(c => c.id)).toEqual(['a', 'b'])
+      expect(all.find(c => c.id === 'a')!.visible).toBe(false)
+      expect(all.find(c => c.id === 'b')!.visible).toBe(true)
+
+      // Render-set entries are always visible
+      expect(layout.columns.value.every(c => c.visible)).toBe(true)
+    })
+
+    it('should round-trip a column back into the render set on show', () => {
+      const { layout } = setup([
+        { id: 'a' },
+        { id: 'b' },
+        { id: 'c' },
+      ])
+
+      layout.hide('b')
+      expect(layout.columns.value.map(c => c.id)).toEqual(['a', 'c'])
+
+      layout.show('b')
+      expect(layout.columns.value.map(c => c.id)).toEqual(['a', 'b', 'c'])
+      expect(layout.allColumns.value.find(c => c.id === 'b')!.visible).toBe(true)
+    })
+
+    it('should flip visibility on toggleVisible', () => {
+      const { layout } = setup([
+        { id: 'a' },
+        { id: 'b' },
+      ])
+
+      layout.toggleVisible('a')
+      expect(layout.columns.value.map(c => c.id)).toEqual(['b'])
+      expect(layout.allColumns.value.find(c => c.id === 'a')!.visible).toBe(false)
+
+      layout.toggleVisible('a')
+      expect(layout.columns.value.map(c => c.id)).toEqual(['a', 'b'])
+      expect(layout.allColumns.value.find(c => c.id === 'a')!.visible).toBe(true)
+    })
+
+    it('should hide a nested leaf column without touching its siblings', () => {
+      const { layout } = setup([
+        { id: 'name', size: 40 },
+        {
+          id: 'contact',
+          children: [
+            { id: 'email', size: 30 },
+            { id: 'phone', size: 30 },
+          ],
+        },
+      ])
+
+      layout.hide('email')
+
+      expect(layout.columns.value.map(c => c.id)).toEqual(['name', 'phone'])
+      const all = layout.allColumns.value
+      expect(all.map(c => c.id)).toEqual(['name', 'email', 'phone'])
+      expect(all.find(c => c.id === 'email')!.visible).toBe(false)
+      expect(all.find(c => c.id === 'phone')!.visible).toBe(true)
+    })
+  })
+
   describe('reconciliation with table.columns', () => {
     it('should add a column with default extras when register fires', () => {
       const { columns, layout } = setup([
@@ -498,7 +615,7 @@ describe('createColumnLayout', () => {
       expect(c.pinned).toBe(false)
     })
 
-    it('should drop pin and size state when unregister fires', () => {
+    it('should drop pin, size, and visibility state when unregister fires', () => {
       const { columns, layout } = setup([
         { id: 'a', size: 30, pinned: 'left' },
         { id: 'b', size: 70 },
@@ -512,13 +629,10 @@ describe('createColumnLayout', () => {
       const cols = layout.columns.value
       expect(cols.map(c => c.id)).toEqual(['b'])
 
-      // Re-registering 'a' should not resurrect the previous pin/size
+      // Re-registering 'a' should not resurrect the previous live pin/size
       columns.register({ id: 'a' })
 
       const reseeded = layout.columns.value.find(c => c.id === 'a')!
-      // initialPins still has the original 'left' from defs — reseed re-applies it
-      // because pins/sizes from defs are the canonical "initial state."
-      // What we assert is that the explicit unregister cleared the live state.
       expect(reseeded).toBeDefined()
     })
 
@@ -532,6 +646,7 @@ describe('createColumnLayout', () => {
       columns.clear()
 
       expect(layout.columns.value).toEqual([])
+      expect(layout.allColumns.value).toEqual([])
       expect(layout.pinned.value.left).toEqual([])
       expect(layout.pinned.value.scrollable).toEqual([])
       expect(layout.pinned.value.right).toEqual([])

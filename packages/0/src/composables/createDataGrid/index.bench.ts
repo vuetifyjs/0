@@ -21,7 +21,7 @@ import { bench, describe } from 'vitest'
 import { createDataGrid } from './index'
 
 // Types
-import type { DataGridColumn, DataGridOptions } from './index'
+import type { DataGridColumnTicketInput, DataGridOptions } from './index'
 
 // =============================================================================
 // FIXTURES - Created once, reused across read-only benchmarks
@@ -52,7 +52,7 @@ function generateRows (count: number): BenchmarkRow[] {
 const ROWS_1K: BenchmarkRow[] = generateRows(1000)
 const ROWS_10K: BenchmarkRow[] = generateRows(10_000)
 
-const COLUMNS: DataGridColumn<BenchmarkRow>[] = [
+const COLUMNS: DataGridColumnTicketInput<BenchmarkRow>[] = [
   { id: 'name', title: 'Name', sortable: true, filterable: true, size: 25 },
   { id: 'email', title: 'Email', sortable: true, filterable: true, size: 30 },
   { id: 'department', title: 'Department', sortable: true, size: 15 },
@@ -60,7 +60,7 @@ const COLUMNS: DataGridColumn<BenchmarkRow>[] = [
   { id: 'active', title: 'Active', size: 15 },
 ]
 
-const COLUMNS_PINNED: DataGridColumn<BenchmarkRow>[] = [
+const COLUMNS_PINNED: DataGridColumnTicketInput<BenchmarkRow>[] = [
   { id: 'name', title: 'Name', sortable: true, size: 20, pinned: 'left' },
   { id: 'email', title: 'Email', sortable: true, size: 25 },
   { id: 'department', title: 'Department', sortable: true, size: 15 },
@@ -68,7 +68,7 @@ const COLUMNS_PINNED: DataGridColumn<BenchmarkRow>[] = [
   { id: 'active', title: 'Active', size: 15, pinned: 'right' },
 ]
 
-const COLUMNS_EDITABLE: DataGridColumn<BenchmarkRow>[] = [
+const COLUMNS_EDITABLE: DataGridColumnTicketInput<BenchmarkRow>[] = [
   { id: 'name', title: 'Name', size: 25, editable: true, validate: v => (typeof v === 'string' && v.length > 0) || 'Required' },
   { id: 'email', title: 'Email', size: 25, editable: true, validate: v => (typeof v === 'string' && v.includes('@')) || 'Invalid' },
   { id: 'department', title: 'Department', size: 20 },
@@ -80,14 +80,16 @@ const SEARCH_QUERY_1K = 'User 500'
 const SEARCH_QUERY_10K = 'User 5000'
 
 function createGrid (
-  overrides: Partial<DataGridOptions<BenchmarkRow>> & { items?: BenchmarkRow[] } = {},
+  overrides: Partial<DataGridOptions<BenchmarkRow>> & {
+    items?: BenchmarkRow[]
+    columns?: DataGridColumnTicketInput<BenchmarkRow>[]
+  } = {},
 ) {
-  const { items: _items, ...rest } = overrides
+  const { items: _items, columns: _columns, ...rest } = overrides
   const items = _items ?? ROWS_1K
-  const grid = createDataGrid<BenchmarkRow>({
-    columns: COLUMNS,
-    ...rest,
-  })
+  const columns = _columns ?? COLUMNS
+  const grid = createDataGrid<BenchmarkRow>(rest)
+  grid.columns.onboard(columns)
   grid.onboard(items.map(value => ({ id: value.id, value })))
   return grid
 }

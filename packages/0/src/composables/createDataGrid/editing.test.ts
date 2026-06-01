@@ -33,18 +33,18 @@ describe('createCellEditing', () => {
   }
 
   it('should start with no active cell', () => {
-    const editing = createCellEditing({ columns })
+    const editing = createCellEditing({ columns: () => columns })
     expect(editing.active.value).toBeNull()
   })
 
   it('should set active cell on edit', () => {
-    const editing = createCellEditing({ columns })
+    const editing = createCellEditing({ columns: () => columns })
     editing.edit(1, 'name')
     expect(editing.active.value).toEqual({ row: 1, column: 'name' })
   })
 
   it('should reject non-editable columns', () => {
-    const editing = createCellEditing({ columns })
+    const editing = createCellEditing({ columns: () => columns })
     editing.edit(1, 'id')
     expect(editing.active.value).toBeNull()
   })
@@ -54,7 +54,7 @@ describe('createCellEditing', () => {
       return !(item as { locked?: boolean }).locked
     }
     const editing = createCellEditing({
-      columns: [{ id: 'name', editable }],
+      columns: () => [{ id: 'name', editable }],
       lookup: () => undefined,
     })
     expect(() => editing.edit(1, 'name')).not.toThrow()
@@ -66,7 +66,7 @@ describe('createCellEditing', () => {
       return !(item as { locked?: boolean }).locked
     }
     const editing = createCellEditing({
-      columns: [{ id: 'name', editable }],
+      columns: () => [{ id: 'name', editable }],
       lookup: () => ({ locked: false }),
     })
     editing.edit(1, 'name')
@@ -74,7 +74,7 @@ describe('createCellEditing', () => {
   })
 
   it('should clear active cell on cancel', () => {
-    const editing = createCellEditing({ columns })
+    const editing = createCellEditing({ columns: () => columns })
     editing.edit(1, 'name')
     editing.cancel()
     expect(editing.active.value).toBeNull()
@@ -82,7 +82,7 @@ describe('createCellEditing', () => {
 
   it('should call onEdit and clear active on commit', () => {
     const onEdit = vi.fn()
-    const editing = createCellEditing({ columns, onEdit })
+    const editing = createCellEditing({ columns: () => columns, onEdit })
     editing.edit(1, 'name')
     editing.commit('Alice')
     expect(onEdit).toHaveBeenCalledWith(1, 'name', 'Alice')
@@ -91,7 +91,7 @@ describe('createCellEditing', () => {
 
   it('should reject invalid value and set error on commit', () => {
     const onEdit = vi.fn()
-    const editing = createCellEditing({ columns, onEdit })
+    const editing = createCellEditing({ columns: () => columns, onEdit })
     editing.edit(1, 'email')
     editing.commit('not-an-email')
     expect(onEdit).not.toHaveBeenCalled()
@@ -101,7 +101,7 @@ describe('createCellEditing', () => {
 
   it('should accept valid value after previous error', () => {
     const onEdit = vi.fn()
-    const editing = createCellEditing({ columns, onEdit })
+    const editing = createCellEditing({ columns: () => columns, onEdit })
     editing.edit(1, 'email')
     editing.commit('not-an-email')
     expect(editing.error.value).toBe('Invalid email')
@@ -113,14 +113,14 @@ describe('createCellEditing', () => {
   })
 
   it('should track staged dirty cell values', () => {
-    const editing = createCellEditing({ columns })
+    const editing = createCellEditing({ columns: () => columns })
     editing.edit(1, 'name')
     editing.dirty.set(1, new Map([['name', 'pending']]))
     expect(editing.dirty.get(1)?.get('name')).toBe('pending')
   })
 
   it('should clear error on cancel', () => {
-    const editing = createCellEditing({ columns })
+    const editing = createCellEditing({ columns: () => columns })
     editing.edit(1, 'email')
     editing.commit('bad')
     expect(editing.error.value).toBe('Invalid email')
@@ -129,7 +129,7 @@ describe('createCellEditing', () => {
   })
 
   it('should not leak an empty dirty entry when edit is followed by cancel', () => {
-    const editing = createCellEditing({ columns })
+    const editing = createCellEditing({ columns: () => columns })
     editing.edit(1, 'name')
     editing.cancel()
     expect(editing.dirty.has(1)).toBe(false)
@@ -137,7 +137,7 @@ describe('createCellEditing', () => {
   })
 
   it('should clear the active cell entry from dirty on cancel', () => {
-    const editing = createCellEditing({ columns })
+    const editing = createCellEditing({ columns: () => columns })
     editing.dirty.set(1, new Map([['name', 'staged'], ['email', 'other@example.com']]))
     editing.edit(1, 'name')
     editing.cancel()
@@ -146,7 +146,7 @@ describe('createCellEditing', () => {
   })
 
   it('should drop the row entry on cancel when only the active cell was staged', () => {
-    const editing = createCellEditing({ columns })
+    const editing = createCellEditing({ columns: () => columns })
     editing.dirty.set(1, new Map([['name', 'staged']]))
     editing.edit(1, 'name')
     editing.cancel()
@@ -155,7 +155,7 @@ describe('createCellEditing', () => {
 
   it('should clear active and dirty when the row is unregistered', () => {
     const registry = createRegistryStub()
-    const editing = createCellEditing({ columns, registry })
+    const editing = createCellEditing({ columns: () => columns, registry })
     editing.edit(1, 'name')
     editing.dirty.set(1, new Map([['name', 'pending']]))
 
@@ -167,7 +167,7 @@ describe('createCellEditing', () => {
 
   it('should not clear active when an unrelated row is unregistered', () => {
     const registry = createRegistryStub()
-    const editing = createCellEditing({ columns, registry })
+    const editing = createCellEditing({ columns: () => columns, registry })
     editing.edit(1, 'name')
     editing.dirty.set(2, new Map([['name', 'pending']]))
 
@@ -181,7 +181,7 @@ describe('createCellEditing', () => {
     const onEdit = vi.fn(() => {
       throw new Error('persistence failed')
     })
-    const editing = createCellEditing({ columns, onEdit })
+    const editing = createCellEditing({ columns: () => columns, onEdit })
     editing.edit(1, 'name')
     editing.dirty.set(1, new Map([['name', 'pending']]))
 
@@ -196,7 +196,7 @@ describe('createCellEditing', () => {
   it('should treat an empty-string validate result as valid and commit', () => {
     const onEdit = vi.fn()
     const editing = createCellEditing({
-      columns: [{ id: 'name', editable: true, validate: () => '' }],
+      columns: () => [{ id: 'name', editable: true, validate: () => '' }],
       onEdit,
     })
     editing.edit(1, 'name')
@@ -210,7 +210,7 @@ describe('createCellEditing', () => {
   it('should block commit and set error when validate returns a non-empty string', () => {
     const onEdit = vi.fn()
     const editing = createCellEditing({
-      columns: [{ id: 'name', editable: true, validate: () => 'Required' }],
+      columns: () => [{ id: 'name', editable: true, validate: () => 'Required' }],
       onEdit,
     })
     editing.edit(1, 'name')
@@ -223,7 +223,7 @@ describe('createCellEditing', () => {
 
   it('should clear active, error, and dirty when the registry is cleared', () => {
     const registry = createRegistryStub()
-    const editing = createCellEditing({ columns, registry })
+    const editing = createCellEditing({ columns: () => columns, registry })
     editing.edit(1, 'email')
     editing.commit('bad')
     editing.dirty.set(1, new Map([['email', 'pending']]))
@@ -241,7 +241,7 @@ describe('createCellEditing', () => {
     const scope = effectScope()
     let editing!: ReturnType<typeof createCellEditing>
     scope.run(() => {
-      editing = createCellEditing({ columns, registry })
+      editing = createCellEditing({ columns: () => columns, registry })
     })
 
     editing.edit(1, 'name')
@@ -250,5 +250,20 @@ describe('createCellEditing', () => {
     // After disposal the handlers are off — a clear event no longer wipes state.
     registry.emit('clear:registry')
     expect(editing.active.value).toEqual({ row: 1, column: 'name' })
+  })
+
+  it('should pick up a column added to the getter after construction', () => {
+    const live = [{ id: 'name', editable: true }]
+    const editing = createCellEditing({ columns: () => live })
+
+    // Not yet onboarded — edit on the future column is a no-op.
+    editing.edit(1, 'price')
+    expect(editing.active.value).toBeNull()
+
+    // Onboard an editable column after the editing instance was created.
+    live.push({ id: 'price', editable: true })
+
+    editing.edit(1, 'price')
+    expect(editing.active.value).toEqual({ row: 1, column: 'price' })
   })
 })
