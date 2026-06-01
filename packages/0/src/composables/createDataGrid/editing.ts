@@ -22,7 +22,7 @@
 
 // Utilities
 import { isFunction, isString, isUndefined } from '#v0/utilities'
-import { shallowReactive, shallowRef } from 'vue'
+import { onScopeDispose, shallowReactive, shallowRef } from 'vue'
 
 // Types
 import type { ID } from '#v0/types'
@@ -39,12 +39,14 @@ export interface EditableColumn {
  * `createCellEditing` subscribes to for pruning stale state.
  *
  * Compatible with the registry returned by `createDataTable` / spread onto
- * `createDataGrid`. Only the `on` event subscription channel is needed here;
- * the listener's payload arrives as `unknown` and is narrowed inside the
- * handler.
+ * `createDataGrid`. The `on` / `off` channel is needed — handlers subscribe at
+ * setup and unsubscribe on scope dispose, so a registry that outlives the
+ * editing instance does not accumulate listeners. The payload arrives as
+ * `unknown` and is narrowed inside the handler.
  */
 export interface CellEditingRegistry {
   on: (event: string, listener: (data: unknown) => void) => void
+  off: (event: string, listener: (data: unknown) => void) => void
 }
 
 export interface CellEditingOptions {
@@ -164,21 +166,31 @@ export function createCellEditing (options: CellEditingOptions): CellEditing {
     active.value = null
   }
 
-  if (registry) {
-    registry.on('unregister:ticket', data => {
-      const ticket = data as { id: ID }
-      if (active.value?.row === ticket.id) {
-        active.value = null
-        error.value = null
-      }
-      dirty.delete(ticket.id)
-    })
-
-    registry.on('clear:registry', () => {
+  function onUnregister (data: unknown) {
+    const ticket = data as { id: ID }
+    if (active.value?.row === ticket.id) {
       active.value = null
       error.value = null
-      dirty.clear()
-    })
+    }
+    dirty.delete(ticket.id)
+  }
+
+  function onClear () {
+    active.value = null
+    error.value = null
+    dirty.clear()
+  }
+
+  if (registry) {
+    registry.on('unregister:ticket', onUnregister)
+    registry.on('clear:registry', onClear)
+
+    // Unsubscribe on scope dispose. `createCellEditing` may run outside a Vue
+    // setup (tests, manual scopes), so fail silently when there's no scope.
+    onScopeDispose(() => {
+      registry.off('unregister:ticket', onUnregister)
+      registry.off('clear:registry', onClear)
+    }, true)
   }
 
   return {

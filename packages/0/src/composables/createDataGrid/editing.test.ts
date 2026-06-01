@@ -2,6 +2,9 @@ import { describe, expect, it, vi } from 'vitest'
 
 import { createCellEditing } from './editing'
 
+// Utilities
+import { effectScope } from 'vue'
+
 // Types
 import type { ID } from '#v0/types'
 
@@ -19,6 +22,9 @@ describe('createCellEditing', () => {
         const list = listeners.get(event) ?? []
         list.push(listener)
         listeners.set(event, list)
+      },
+      off (event: string, listener: (data: unknown) => void) {
+        listeners.set(event, (listeners.get(event) ?? []).filter(l => l !== listener))
       },
       emit (event: string, data?: { id: ID }) {
         for (const listener of listeners.get(event) ?? []) listener(data)
@@ -228,5 +234,21 @@ describe('createCellEditing', () => {
     expect(editing.active.value).toBeNull()
     expect(editing.error.value).toBeNull()
     expect(editing.dirty.size).toBe(0)
+  })
+
+  it('should unsubscribe from registry events when the scope is disposed', () => {
+    const registry = createRegistryStub()
+    const scope = effectScope()
+    let editing!: ReturnType<typeof createCellEditing>
+    scope.run(() => {
+      editing = createCellEditing({ columns, registry })
+    })
+
+    editing.edit(1, 'name')
+    scope.stop()
+
+    // After disposal the handlers are off — a clear event no longer wipes state.
+    registry.emit('clear:registry')
+    expect(editing.active.value).toEqual({ row: 1, column: 'name' })
   })
 })

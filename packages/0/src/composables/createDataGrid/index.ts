@@ -308,6 +308,7 @@ export function createDataGrid<T extends Record<string, unknown>> (
     columns: () => table.leaves.value.map(col => col.id),
     rowSpanning,
   })
+
   return {
     ...table,
     items: pageOrderedItems,
