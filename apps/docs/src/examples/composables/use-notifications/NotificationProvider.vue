@@ -1,7 +1,7 @@
 <script setup lang="ts">
   import { computed, shallowRef } from 'vue'
   import { mdiClose, mdiArchiveOutline, mdiClockOutline, mdiBellOutline } from '@mdi/js'
-  import { Snackbar, useProxyRegistry } from '@vuetify/v0'
+  import { Button, Snackbar, useProxyRegistry } from '@vuetify/v0'
   import { createAppNotifications, provideNotifications } from './context'
   import type { NotificationTicket } from '@vuetify/v0'
 
@@ -83,7 +83,7 @@
 
       <!-- Inbox bell -->
       <div class="relative">
-        <button
+        <Button.Root
           class="px-3 py-1.5 bg-surface border border-divider rounded text-sm flex items-center gap-1.5"
           @click="onToggle"
         >
@@ -96,7 +96,7 @@
           >
             {{ unread.length }}
           </span>
-        </button>
+        </Button.Root>
       </div>
     </div>
 
@@ -108,9 +108,9 @@
     >
       <span class="flex-1">{{ banner.subject }}</span>
 
-      <button class="p-1 -mr-1 opacity-70 hover:opacity-100" @click.stop="notifications.unregister(banner.id)">
+      <Button.Root aria-label="Dismiss" class="p-1 -mr-1 opacity-70 hover:opacity-100" @click.stop="notifications.unregister(banner.id)">
         <svg class="w-4 h-4 pointer-events-none" viewBox="0 0 24 24"><path :d="mdiClose" fill="currentColor" /></svg>
-      </button>
+      </Button.Root>
     </div>
 
     <!-- Content area -->
@@ -131,16 +131,16 @@
       >
         <span class="flex-1">{{ ticket.subject }}</span>
 
-        <button class="p-1 -mr-1 opacity-50 hover:opacity-100" @click.stop="notifications.unregister(ticket.id)">
+        <Button.Root aria-label="Dismiss" class="p-1 -mr-1 opacity-50 hover:opacity-100" @click.stop="notifications.unregister(ticket.id)">
           <svg class="w-3.5 h-3.5 pointer-events-none" viewBox="0 0 24 24"><path :d="mdiClose" fill="currentColor" /></svg>
-        </button>
+        </Button.Root>
       </div>
     </div>
 
     <!-- Inbox panel -->
     <div v-if="open" class="border border-divider rounded-lg overflow-hidden bg-surface">
       <div class="flex border-b border-divider text-sm">
-        <button
+        <Button.Root
           v-for="t in (['unread', 'all', 'archived'] as const)"
           :key="t"
           class="flex-1 px-4 py-2 capitalize"
@@ -150,7 +150,7 @@
           {{ t }}
           <span v-if="t === 'unread' && unread.length > 0" class="ml-1 opacity-60">({{ unread.length }})</span>
           <span v-if="t === 'archived' && archived.length > 0" class="ml-1 opacity-60">({{ archived.length }})</span>
-        </button>
+        </Button.Root>
       </div>
 
       <div class="max-h-64 overflow-y-auto">
@@ -178,23 +178,23 @@
             <p v-if="ticket.body" class="text-xs opacity-60 mt-0.5 truncate">{{ ticket.body }}</p>
 
             <div class="flex gap-2 mt-1.5">
-              <button class="text-xs text-primary" @click="ticket.readAt ? ticket.unread() : ticket.read()">
+              <Button.Root class="text-xs text-primary" @click="ticket.readAt ? ticket.unread() : ticket.read()">
                 {{ ticket.readAt ? 'Mark unread' : 'Mark read' }}
-              </button>
+              </Button.Root>
 
-              <button class="text-xs opacity-40 flex items-center gap-0.5" @click="ticket.archivedAt ? ticket.unarchive() : ticket.archive()">
+              <Button.Root class="text-xs opacity-40 flex items-center gap-0.5" @click="ticket.archivedAt ? ticket.unarchive() : ticket.archive()">
                 <svg class="w-3 h-3" viewBox="0 0 24 24"><path :d="mdiArchiveOutline" fill="currentColor" /></svg>
                 {{ ticket.archivedAt ? 'Unarchive' : 'Archive' }}
-              </button>
+              </Button.Root>
 
-              <button
+              <Button.Root
                 v-if="!ticket.snoozedUntil"
                 class="text-xs opacity-40 flex items-center gap-0.5"
                 @click="onSnooze(ticket)"
               >
                 <svg class="w-3 h-3" viewBox="0 0 24 24"><path :d="mdiClockOutline" fill="currentColor" /></svg>
                 Snooze
-              </button>
+              </Button.Root>
 
               <span v-else class="text-xs opacity-40">Snoozed</span>
             </div>
@@ -207,8 +207,8 @@
       </div>
 
       <div v-if="inbox.length > 0" class="flex justify-between px-4 py-2 border-t border-divider text-xs">
-        <button class="text-primary" @click="notifications.readAll()">Mark all read</button>
-        <button class="opacity-40" @click="notifications.archiveAll()">Archive all</button>
+        <Button.Root class="text-primary" @click="notifications.readAll()">Mark all read</Button.Root>
+        <Button.Root class="opacity-40" @click="notifications.archiveAll()">Archive all</Button.Root>
       </div>
     </div>
 

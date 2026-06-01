@@ -197,7 +197,7 @@ Style interactive states without slot props:
 
 ## Accessibility
 
-The Combobox implements the [WAI-ARIA Combobox](https://www.w3.org/WAI/ARIA/apd/patterns/combobox/) pattern with a listbox popup.
+The Combobox implements the [WAI-ARIA Combobox](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/) pattern with a listbox popup.
 
 ### ARIA Attributes
 

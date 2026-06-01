@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { Collapsible } from '@vuetify/v0'
+  import { Button, Collapsible, Switch } from '@vuetify/v0'
   import { shallowRef } from 'vue'
 
   const open = shallowRef(false)
@@ -9,29 +9,41 @@
 <template>
   <div class="flex flex-col gap-4">
     <div class="flex items-center gap-2 flex-wrap">
-      <button
+      <Button.Root
         class="px-3 py-1.5 text-sm rounded-lg border border-divider hover:bg-surface-tint"
         @click="open = true"
       >
         Open
-      </button>
+      </Button.Root>
 
-      <button
+      <Button.Root
         class="px-3 py-1.5 text-sm rounded-lg border border-divider hover:bg-surface-tint"
         @click="open = false"
       >
         Close
-      </button>
+      </Button.Root>
 
-      <button
+      <Button.Root
         class="px-3 py-1.5 text-sm rounded-lg border border-divider hover:bg-surface-tint"
         @click="open = !open"
       >
         Toggle
-      </button>
+      </Button.Root>
 
-      <label class="flex items-center gap-1.5 text-sm text-on-surface-variant ml-auto">
-        <input v-model="disabled" type="checkbox">
+      <label class="flex items-center gap-1.5 text-sm text-on-surface-variant ml-auto cursor-pointer">
+        <Switch.Root
+          v-model="disabled"
+          class="inline-flex items-center border-none bg-transparent p-0 outline-none"
+        >
+          <Switch.Track
+            class="relative inline-flex items-center w-9 h-5 rounded-full bg-surface-variant transition-colors data-[state=checked]:bg-primary"
+          >
+            <Switch.Thumb
+              class="![visibility:visible] block size-3.5 rounded-full bg-white shadow-sm transition-transform translate-x-0.75 data-[state=checked]:translate-x-4.25"
+            />
+          </Switch.Track>
+        </Switch.Root>
+
         Disabled
       </label>
     </div>

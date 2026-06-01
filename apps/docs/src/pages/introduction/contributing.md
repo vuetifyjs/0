@@ -50,7 +50,7 @@ For new features:
 
 ### Prerequisites
 
-- Node.js 20.19+ or 22+
+- Node 26+ (matches .nvmrc)
 - pnpm 10.6+
 - Git
 

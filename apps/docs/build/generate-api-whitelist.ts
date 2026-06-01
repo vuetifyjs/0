@@ -20,7 +20,33 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = resolve(__dirname, '../../..')
 const COMPONENTS_DIR = resolve(ROOT, 'packages/0/src/components')
 const COMPOSABLES_DIR = resolve(ROOT, 'packages/0/src/composables')
+const COMPOSABLES_BARREL = resolve(COMPOSABLES_DIR, 'index.ts')
 const OUTPUT_FILE = resolve(__dirname, 'generated/api-whitelist.ts')
+
+/**
+ * Read the public composable surface from the barrel (index.ts).
+ *
+ * The whitelist must mirror the public API, not the filesystem. Internal-only
+ * composables (e.g., createFocusTraversal, createObserver) live in their own
+ * directories but are never re-exported, so they must not leak into the
+ * whitelist. The barrel is the single source of truth for what's public:
+ * every line is `export * from './<dirName>'`, and the directory name is the
+ * API cache key. Filtering discovery against this set keeps the whitelist in
+ * lockstep with the barrel — a new internal composable is excluded
+ * automatically, with no blocklist to maintain.
+ */
+async function getPublicComposableDirs (): Promise<Set<string>> {
+  const content = await readFile(COMPOSABLES_BARREL, 'utf8')
+  const dirs = new Set<string>()
+
+  // Matches: export * from './createSelection'
+  const reexports = content.matchAll(/export\s+\*\s+from\s+'\.\/([^']+)'/g)
+  for (const match of reexports) {
+    dirs.add(match[1])
+  }
+
+  return dirs
+}
 
 /**
  * Discover component directory names (e.g., Avatar, Popover, Dialog)
@@ -56,7 +82,10 @@ async function getComposableData (): Promise<{
 }> {
   const names = new Set<string>()
   const toDir: Record<string, string> = {}
-  const dirs = await readdir(COMPOSABLES_DIR)
+  const [dirs, publicDirs] = await Promise.all([
+    readdir(COMPOSABLES_DIR),
+    getPublicComposableDirs(),
+  ])
 
   // Pattern for composable function names we care about
   const COMPOSABLE_PATTERN = /^(use|create|to|provide)[A-Z]/
@@ -64,6 +93,10 @@ async function getComposableData (): Promise<{
   for (const dir of dirs) {
     // Composable directories start with 'use', 'create', or 'to'
     if (!dir.startsWith('use') && !dir.startsWith('create') && !dir.startsWith('to')) continue
+
+    // Only public composables (re-exported from the barrel) belong in the
+    // whitelist. Internal-only directories are skipped.
+    if (!publicDirs.has(dir)) continue
 
     const indexPath = resolve(COMPOSABLES_DIR, dir, 'index.ts')
     const content = await readFile(indexPath, 'utf8').catch(() => null)
