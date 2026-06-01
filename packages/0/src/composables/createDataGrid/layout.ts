@@ -73,7 +73,7 @@ export interface ResolvedColumn {
   reorderable: boolean
   minSize: number
   maxSize: number
-  /** Whether the column is part of the render set. Always `true` for render-set entries; meaningful on `allColumns`, where hidden columns surface as `false`. */
+  /** Whether the column is part of the render set. Always `true` for render-set entries; meaningful on `all`, where hidden columns surface as `false`. */
   visible: boolean
 }
 
@@ -89,7 +89,7 @@ export interface ColumnLayout {
   /** All visible resolved columns in display order (hidden columns excluded) */
   columns: Readonly<Ref<ResolvedColumn[]>>
   /** Every column in display order, including hidden ones, each carrying a `visible` flag — for a column chooser. */
-  allColumns: Readonly<Ref<ResolvedColumn[]>>
+  all: Readonly<Ref<ResolvedColumn[]>>
   /** Pin a column to a region (or unpin with false) */
   pin: (id: string, position: PinPosition) => void
   /**
@@ -460,7 +460,7 @@ export function createColumnLayout<
   return {
     pinned,
     columns,
-    allColumns,
+    all: allColumns,
     pin,
     resize,
     reorder,

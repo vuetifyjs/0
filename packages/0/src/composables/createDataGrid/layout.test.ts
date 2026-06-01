@@ -524,7 +524,7 @@ describe('createColumnLayout', () => {
       expect(cols.find(c => c.id === 'c')!.offset).toBe(30)
     })
 
-    it('should still list a hidden column in allColumns with visible:false', () => {
+    it('should still list a hidden column in all with visible:false', () => {
       const { layout } = setup([
         { id: 'a', size: 50 },
         { id: 'b', size: 50 },
@@ -532,7 +532,7 @@ describe('createColumnLayout', () => {
 
       layout.hide('a')
 
-      const all = layout.allColumns.value
+      const all = layout.all.value
       expect(all.map(c => c.id)).toEqual(['a', 'b'])
       expect(all.find(c => c.id === 'a')!.visible).toBe(false)
       expect(all.find(c => c.id === 'b')!.visible).toBe(true)
@@ -553,7 +553,7 @@ describe('createColumnLayout', () => {
 
       layout.show('b')
       expect(layout.columns.value.map(c => c.id)).toEqual(['a', 'b', 'c'])
-      expect(layout.allColumns.value.find(c => c.id === 'b')!.visible).toBe(true)
+      expect(layout.all.value.find(c => c.id === 'b')!.visible).toBe(true)
     })
 
     it('should flip visibility on toggle', () => {
@@ -564,11 +564,11 @@ describe('createColumnLayout', () => {
 
       layout.toggle('a')
       expect(layout.columns.value.map(c => c.id)).toEqual(['b'])
-      expect(layout.allColumns.value.find(c => c.id === 'a')!.visible).toBe(false)
+      expect(layout.all.value.find(c => c.id === 'a')!.visible).toBe(false)
 
       layout.toggle('a')
       expect(layout.columns.value.map(c => c.id)).toEqual(['a', 'b'])
-      expect(layout.allColumns.value.find(c => c.id === 'a')!.visible).toBe(true)
+      expect(layout.all.value.find(c => c.id === 'a')!.visible).toBe(true)
     })
 
     it('should hide a nested leaf column without touching its siblings', () => {
@@ -586,7 +586,7 @@ describe('createColumnLayout', () => {
       layout.hide('email')
 
       expect(layout.columns.value.map(c => c.id)).toEqual(['name', 'phone'])
-      const all = layout.allColumns.value
+      const all = layout.all.value
       expect(all.map(c => c.id)).toEqual(['name', 'email', 'phone'])
       expect(all.find(c => c.id === 'email')!.visible).toBe(false)
       expect(all.find(c => c.id === 'phone')!.visible).toBe(true)
@@ -646,7 +646,7 @@ describe('createColumnLayout', () => {
       columns.clear()
 
       expect(layout.columns.value).toEqual([])
-      expect(layout.allColumns.value).toEqual([])
+      expect(layout.all.value).toEqual([])
       expect(layout.pinned.value.left).toEqual([])
       expect(layout.pinned.value.scrollable).toEqual([])
       expect(layout.pinned.value.right).toEqual([])

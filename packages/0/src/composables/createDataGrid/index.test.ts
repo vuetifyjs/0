@@ -166,7 +166,7 @@ describe('createDataGrid', () => {
       expect(grid.headers.value[0][1].colspan).toBe(2) // contact spans 2 cols
     })
 
-    it('should expose hidden columns through allColumns and toggle visibility', () => {
+    it('should expose hidden columns through all and toggle visibility', () => {
       const grid = createDataGrid()
 
       grid.columns.onboard([
@@ -178,8 +178,8 @@ describe('createDataGrid', () => {
 
       grid.layout.hide('email')
       expect(grid.layout.columns.value.map(col => col.id)).toEqual(['name'])
-      expect(grid.layout.allColumns.value.map(col => col.id)).toEqual(['name', 'email'])
-      expect(grid.layout.allColumns.value.find(col => col.id === 'email')?.visible).toBe(false)
+      expect(grid.layout.all.value.map(col => col.id)).toEqual(['name', 'email'])
+      expect(grid.layout.all.value.find(col => col.id === 'email')?.visible).toBe(false)
 
       grid.layout.toggle('email')
       expect(grid.layout.columns.value.map(col => col.id)).toEqual(['name', 'email'])
