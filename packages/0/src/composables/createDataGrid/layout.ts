@@ -447,9 +447,10 @@ export function createColumnLayout<
 
     hidden.clear()
 
-    for (const ticket of cols.values()) {
-      group.unselect(ticket.id)
-      group.unmix(ticket.id)
+    for (const ticket of extractLeaves(cols.values())) {
+      const id = String(ticket.id)
+      group.unselect(id)
+      group.unmix(id)
     }
     for (const [id, config] of configs) {
       if (config.pinned === 'left') group.select(id)

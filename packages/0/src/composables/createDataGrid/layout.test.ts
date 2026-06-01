@@ -402,6 +402,31 @@ describe('createColumnLayout', () => {
 
       expect(layout.columns.value.map(c => c.id)).toEqual(['a', 'b', 'c'])
     })
+
+    it('should clear a runtime pin on a nested leaf column when reset', () => {
+      // Regression: reset's unselect loop iterated top-level tickets and missed
+      // leaf-keyed pins, so a runtime pin on a nested leaf survived reset.
+      const { layout } = setup([
+        {
+          id: 'contact',
+          children: [
+            { id: 'email', size: 35 },
+            { id: 'phone', size: 35 },
+          ],
+        },
+        { id: 'name', size: 30 },
+      ])
+
+      layout.pin('email', 'left')
+      expect(layout.pinned.value.left.map(c => c.id)).toContain('email')
+
+      layout.reset()
+
+      expect(layout.pinned.value.left.map(c => c.id)).not.toContain('email')
+      // Nested leaves return to the initial unpinned state.
+      expect(layout.pinned.value.left).toHaveLength(0)
+      expect(layout.pinned.value.scrollable.map(c => c.id)).toEqual(['email', 'phone', 'name'])
+    })
   })
 
   describe('distribute', () => {
@@ -634,6 +659,9 @@ describe('createColumnLayout', () => {
 
       const reseeded = layout.columns.value.find(c => c.id === 'a')!
       expect(reseeded).toBeDefined()
+      // The prior runtime 'left' pin must not resurrect on re-registration.
+      expect(layout.pinned.value.left.map(c => c.id)).not.toContain('a')
+      expect(reseeded.pinned).toBe(false)
     })
 
     it('should empty the layout when clear fires', () => {
