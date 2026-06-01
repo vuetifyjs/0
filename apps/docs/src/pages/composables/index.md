@@ -245,6 +245,7 @@ Form state management and model binding utilities.
 | [createForm](/composables/forms/create-form) | Form validation coordinator |
 | [createInput](/composables/forms/create-input) | Shared form field primitive: validation, field state, ARIA IDs |
 | [createNumberField](/composables/forms/create-number-field) | Numeric input state with formatting, parsing, and validation |
+| [createNumeric](/composables/forms/create-numeric) | Pure numeric math: clamp, snap, step, percentage, and circular wrapping |
 | [createOtp](/composables/forms/create-otp) | OTP / verification code state with pattern-gated entry and decisional completion hook |
 | [createRating](/composables/forms/create-rating) | Bounded rating value with discrete items and half-step support |
 | [createSlider](/composables/forms/create-slider) | Slider state with multi-thumb support, step snapping, and value math |
@@ -325,7 +326,7 @@ Composables for presentational and semantic components.
 | - | - |
 | [createBreadcrumbs](/composables/semantic/create-breadcrumbs) | Breadcrumb navigation with path truncation |
 | [createOverflow](/composables/semantic/create-overflow) | Compute item capacity for responsive truncation |
-| [createProgress](/composables/semantic/create-progress/) | Progress tracking with multi-segment registration |
+| [createProgress](/composables/semantic/create-progress) | Progress tracking with multi-segment registration |
 
 ## Transformers
 

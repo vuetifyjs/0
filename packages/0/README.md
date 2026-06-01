@@ -28,7 +28,7 @@
 
 Headless Vue 3 UI primitives and composables for building modern applications and design systems. `@vuetify/v0` is the foundation of the Vuetify ecosystem, offering lightweight, unstyled building blocks with full TypeScript support and accessibility features built-in.
 
-> **Note:** This package is in early development (pre-1.0). APIs may change between minor versions.
+> **Note:** v0 is in beta — the API is stabilizing toward 1.0. Some APIs may still change before the stable release.
 
 ## Primary Sponsor
 
@@ -146,6 +146,7 @@ import { ... } from '@vuetify/v0/date'       // Date adapter and utilities
 | [Image](https://0.vuetifyjs.com/components/semantic/image) | Image with placeholder, error fallback, and lazy loading |
 | [Overflow](https://0.vuetifyjs.com/components/semantic/overflow) | Responsive truncation primitive with overflow detection and indicator |
 | [Pagination](https://0.vuetifyjs.com/components/semantic/pagination) | Page navigation with semantic `<nav>` wrapper |
+| [Progress](https://0.vuetifyjs.com/components/semantic/progress) | Headless progress indicator with multi-segment and buffer support |
 | [Snackbar](https://0.vuetifyjs.com/components/semantic/snackbar) | Toast notification with queue, positioning, and auto-dismiss |
 | [Splitter](https://0.vuetifyjs.com/components/semantic/splitter) | Resizable panel layout with drag handles |
 
@@ -193,6 +194,7 @@ Selection management composables built on `createRegistry`:
 - [`createForm`](https://0.vuetifyjs.com/composables/forms/create-form) - Form validation and state management with async rules
 - [`createInput`](https://0.vuetifyjs.com/composables/forms/create-input) - Shared form field state: validation, dirty/pristine, ARIA IDs
 - [`createNumberField`](https://0.vuetifyjs.com/composables/forms/create-number-field) - Numeric input state with formatting, stepping, and validation
+- [`createNumeric`](https://0.vuetifyjs.com/composables/forms/create-numeric) - Pure numeric math primitive: clamp, snap, step, percentage, and circular wrapping
 - [`createOtp`](https://0.vuetifyjs.com/composables/forms/create-otp) - OTP / verification code state with pattern-gated entry and decisional completion hook
 - [`createValidation`](https://0.vuetifyjs.com/composables/forms/create-validation) - Field-level validation with sync/async rules
 - [`createCombobox`](https://0.vuetifyjs.com/composables/forms/create-combobox) - Combobox state management with filtering and virtual focus
@@ -204,10 +206,11 @@ Selection management composables built on `createRegistry`:
 - [`useProxyModel`](https://0.vuetifyjs.com/composables/reactivity/use-proxy-model) - Bridge selection context to component v-model
 - [`useProxyRegistry`](https://0.vuetifyjs.com/composables/reactivity/use-proxy-registry) - Convert registry Map to reactive object
 
-#### Utilities
+#### Semantic
 
-- [`createBreadcrumbs`](https://0.vuetifyjs.com/composables/utilities/create-breadcrumbs) - Breadcrumb navigation model with depth tracking and path traversal
-- [`createOverflow`](https://0.vuetifyjs.com/composables/utilities/create-overflow) - Container overflow measurement for item capacity
+- [`createBreadcrumbs`](https://0.vuetifyjs.com/composables/semantic/create-breadcrumbs) - Breadcrumb navigation model with depth tracking and path traversal
+- [`createOverflow`](https://0.vuetifyjs.com/composables/semantic/create-overflow) - Container overflow measurement for item capacity
+- [`createProgress`](https://0.vuetifyjs.com/composables/semantic/create-progress) - Progress state with multi-segment and buffer tracking
 
 #### Transformers
 
@@ -298,7 +301,7 @@ pnpm validate
 
 ## Contributing
 
-Vuetify0 is in alpha — open for feedback, bug reports, and contributions. See the [Alpha Roadmap](https://0.vuetifyjs.com/roadmap#alpha) for what's planned and how to get involved.
+Vuetify0 is in beta — open for feedback, bug reports, and contributions. See the [Roadmap](https://0.vuetifyjs.com/roadmap#beta) for what's planned and how to get involved.
 
 ## License
 
