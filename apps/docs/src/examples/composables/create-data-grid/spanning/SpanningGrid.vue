@@ -110,7 +110,7 @@
               :class="col.id === 'value' || col.id === 'change' ? 'text-right' : ''"
               :style="{ width: col.size + '%' }"
             >
-              {{ columns.find(c => c.id === col.id)?.title }}
+              {{ grid.columns.get(col.id)?.title }}
             </th>
           </tr>
         </thead>

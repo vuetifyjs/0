@@ -3,7 +3,7 @@
 
   import { mdiArrowDown, mdiArrowUp, mdiChartLine, mdiPin, mdiPinOffOutline, mdiPinOutline, mdiRefresh } from '@mdi/js'
 
-  import { createDataGrid, useEventListener, useToggleScope } from '@vuetify/v0'
+  import { createDataGrid, useDocumentEventListener, useToggleScope } from '@vuetify/v0'
 
   import { columns } from './columns'
   import { stocks } from './data'
@@ -33,14 +33,14 @@
   useToggleScope(
     () => !!resizing.value,
     () => {
-      useEventListener(document, 'pointermove', (event: PointerEvent) => {
+      useDocumentEventListener('pointermove', (event: PointerEvent) => {
         if (!resizing.value || !table) return
         const delta = ((event.clientX - startX) / table.clientWidth) * 100
         startX = event.clientX
         grid.layout.resize(resizing.value, delta)
       })
 
-      useEventListener(document, 'pointerup', () => {
+      useDocumentEventListener('pointerup', () => {
         resizing.value = null
         table = null
         resized = true
@@ -52,7 +52,7 @@
   )
 
   function label (id: string) {
-    return columns.find(c => c.id === id)?.title ?? id
+    return grid.columns.get(id)?.title ?? id
   }
 
   function canResize (id: string) {

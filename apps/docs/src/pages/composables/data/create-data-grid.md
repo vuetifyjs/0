@@ -60,9 +60,7 @@ grid.layout.reset()            // restore initial layout
 
 ## Architecture
 
-`createDataGrid` is a composition of [createDataTable](/composables/data/create-data-table) plus four grid-specific modules. The table owns the data pipeline (filter, sort, paginate); the grid layers column layout, cell editing, row ordering, and row spanning on top. Row ordering is a [createSortable](/composables/data/create-sortable) instance synced to the table's row registry via `register` / `unregister` events. It is layered in the grid's own `items` projection — over the sorted rows, before pagination — never inside the adapter. While no manual order is active, the grid passes the adapter's own page through untouched; `sortedItems` reflects filter + sort only.
-
-Both rows **and** columns are onboarded through registries rather than passed as factory options, matching `createDataTable` (collection composables expose `register` / `onboard`, never an `items` option — PHILOSOPHY §6.10). Columns live on `grid.columns` (the table's column registry, widened to the grid column ticket shape so `size`, `pinned`, `editable`, `validate`, and `span` ride on each ticket); rows live on the inherited `grid.onboard` / `grid.register` surface. Layout, editing, and spanning all read their per-column config straight off the registered column tickets and pick up columns onboarded at any time — before or after the grid is constructed.
+`createDataGrid` composes [createDataTable](/composables/data/create-data-table) — which owns the data pipeline (filter, sort, paginate) — with four grid modules: column layout, cell editing, row ordering ([createSortable](/composables/data/create-sortable)), and row spanning. Columns and rows are both onboarded through registries (`grid.columns.onboard(...)`, `grid.onboard(...)`) rather than passed as options, the same shape as createDataTable. Per-column config (`size`, `pinned`, `editable`, `validate`, `span`) rides on each column ticket, so layout, editing, and spanning read it straight off `grid.columns` and pick up columns onboarded at any time.
 
 ```mermaid "createDataGrid Architecture"
 flowchart TD
@@ -81,7 +79,7 @@ flowchart TD
 | Module | Built on | Purpose |
 | - | - | - |
 | `table` (spread) | `createDataTable` | Search, sort, filter, paginate, total — all v-modeled through |
-| `layout` | `grid.columns` + `createGroup` | Reads column order and config from the column registry; layers tri-region pinning, percentage sizing, delta-based resize, and visibility (`show` / `hide` / `toggleVisible` / `allColumns`) on top |
+| `layout` | `grid.columns` + `createGroup` | Reads column order and config from the column registry; layers tri-region pinning, percentage sizing, delta-based resize, and visibility (`show` / `hide` / `toggle` / `allColumns`) on top |
 | `editing` | internal factory | Click-to-edit lifecycle, per-column validation, dirty tracking |
 | `rows` | `createSortable` | Post-sort row reordering, layered in the grid's `items` projection over the sorted rows before pagination — not inside the adapter |
 | `spans` | computed map | Row span resolution and hidden-cell tracking |
@@ -261,7 +259,7 @@ A portfolio holdings grid with two levels of row spanning — `account` spans ev
 
 Columns are onboarded through `grid.columns`, sized as percentages (0–100), and can be pinned, resized, reordered, and hidden.
 
-```ts
+```ts collapse
 const grid = createDataGrid()
 
 grid.columns.onboard([
@@ -292,7 +290,7 @@ grid.layout.reset()
 
 Hide and show columns without redistributing the remaining widths — headless, so the consumer rebalances via `distribute()` or CSS. `allColumns` surfaces every column (including hidden ones) each carrying a `visible` flag, which is exactly the shape a column chooser needs.
 
-```ts
+```ts collapse
 const grid = createDataGrid()
 
 grid.columns.onboard(columns)
@@ -300,7 +298,7 @@ grid.onboard(rows.map(value => ({ id: value.id, value })))
 
 grid.layout.hide('email')          // exclude from the render set
 grid.layout.show('email')          // restore it
-grid.layout.toggleVisible('email') // flip current visibility
+grid.layout.toggle('email') // flip current visibility
 
 grid.layout.columns.value     // render set — visible columns only
 grid.layout.allColumns.value  // every column, each with a `visible` flag
@@ -310,7 +308,7 @@ grid.layout.allColumns.value  // every column, each with a `visible` flag
 
 Click-to-edit with validation. Does not mutate source data — commit fires a callback.
 
-```ts
+```ts collapse
 const grid = createDataGrid({
   editing: {
     onEdit: (row, column, value, item) => {
@@ -337,14 +335,14 @@ grid.editing.commit('new@email')  // Validate and save
 grid.editing.cancel()             // Discard
 grid.editing.active.value         // { row: 1, column: 'email' } | null
 grid.editing.error.value          // 'Invalid email' | null
-grid.editing.dirty.value          // Map of uncommitted edits
+grid.editing.dirty                // Map of uncommitted edits (ShallowReactive, no .value)
 ```
 
 ### Row Ordering
 
 Post-sort row ordering for drag-and-drop reordering. Backed by [createSortable](/composables/data/create-sortable), keyed by row id — index-based addressing was dropped because it drifts under reactive churn.
 
-```ts
+```ts collapse
 const grid = createDataGrid()
 
 grid.columns.onboard(columns)
@@ -362,7 +360,7 @@ grid.rows.reset()              // Clear custom ordering
 
 Merge cells vertically using a spanning function.
 
-```ts
+```ts collapse
 const grid = createDataGrid({
   rowSpanning: (item, column) => {
     if (column === 'department') return 3  // span 3 rows
@@ -385,7 +383,7 @@ grid.spans.value.get(2)?.get('department')
 
 Column definitions support nesting for grouped headers. Layout and data pipeline use leaf columns only.
 
-```ts
+```ts collapse
 const grid = createDataGrid()
 
 grid.columns.onboard([

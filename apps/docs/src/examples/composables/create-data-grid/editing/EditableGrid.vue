@@ -41,7 +41,7 @@
   })
 
   function applyValue (row: ID, column: string, value: unknown) {
-    const item = products.find(p => p.id === row)
+    const item = grid.get(row)?.value
     if (!item) return
     const coerced = column === 'price' || column === 'quantity' ? Number(value) : value
     ;(item as Record<string, unknown>)[column] = coerced
@@ -80,11 +80,11 @@
   }
 
   function isEditable (column: string) {
-    return columns.find(c => c.id === column)?.editable === true
+    return grid.columns.get(column)?.editable === true
   }
 
   function isSortable (column: string) {
-    const col = columns.find(c => c.id === column)
+    const col = grid.columns.get(column)
     return col?.sortable === true || col?.sort !== undefined
   }
 
@@ -250,7 +250,7 @@
                 class="flex items-center gap-1"
                 :class="col.id === 'price' || col.id === 'quantity' ? 'justify-end' : ''"
               >
-                <span>{{ columns.find(c => c.id === col.id)?.title }}</span>
+                <span>{{ grid.columns.get(col.id)?.title }}</span>
 
                 <svg
                   v-if="isSortable(col.id) && grid.sort.direction(col.id) !== 'none'"
