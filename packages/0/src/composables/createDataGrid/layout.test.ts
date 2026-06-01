@@ -556,17 +556,17 @@ describe('createColumnLayout', () => {
       expect(layout.allColumns.value.find(c => c.id === 'b')!.visible).toBe(true)
     })
 
-    it('should flip visibility on toggleVisible', () => {
+    it('should flip visibility on toggle', () => {
       const { layout } = setup([
         { id: 'a' },
         { id: 'b' },
       ])
 
-      layout.toggleVisible('a')
+      layout.toggle('a')
       expect(layout.columns.value.map(c => c.id)).toEqual(['b'])
       expect(layout.allColumns.value.find(c => c.id === 'a')!.visible).toBe(false)
 
-      layout.toggleVisible('a')
+      layout.toggle('a')
       expect(layout.columns.value.map(c => c.id)).toEqual(['a', 'b'])
       expect(layout.allColumns.value.find(c => c.id === 'a')!.visible).toBe(true)
     })

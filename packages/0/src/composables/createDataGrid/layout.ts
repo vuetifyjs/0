@@ -107,7 +107,7 @@ export interface ColumnLayout {
   /** Hide a column — excludes it from the render set without redistributing */
   hide: (id: string) => void
   /** Toggle a column's visibility */
-  toggleVisible: (id: string) => void
+  toggle: (id: string) => void
   /** Restore initial sizes, order, and pins */
   reset: () => void
 }
@@ -428,7 +428,7 @@ export function createColumnLayout<
     hidden.add(id)
   }
 
-  function toggleVisible (id: string) {
+  function toggle (id: string) {
     if (hidden.has(id)) hidden.delete(id)
     else hidden.add(id)
   }
@@ -467,7 +467,7 @@ export function createColumnLayout<
     distribute,
     show,
     hide,
-    toggleVisible,
+    toggle,
     reset,
   }
 }

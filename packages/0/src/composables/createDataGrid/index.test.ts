@@ -181,7 +181,7 @@ describe('createDataGrid', () => {
       expect(grid.layout.allColumns.value.map(col => col.id)).toEqual(['name', 'email'])
       expect(grid.layout.allColumns.value.find(col => col.id === 'email')?.visible).toBe(false)
 
-      grid.layout.toggleVisible('email')
+      grid.layout.toggle('email')
       expect(grid.layout.columns.value.map(col => col.id)).toEqual(['name', 'email'])
     })
   })
