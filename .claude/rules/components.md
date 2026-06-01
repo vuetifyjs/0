@@ -331,7 +331,9 @@ Type re-export at the top, JSDoc, single default at the bottom. No compound obje
 
 ### Region/scope providers belong to the compound, never the namespace
 
-A wrapper that supplies shared defaults or context to a compound family's Roots (delay defaults, a selection group, a notification queue) is a **dotted member** of the compound — `Component.Group`, `Component.Provider`, `Component.Queue` — living in its own `Component<Member>.vue` file and named-exported like any other sub-component. It is **never** the bare renderable `<Component>`, and the compound is never made renderable via `Object.assign` to host it. Precedent: `ExpansionPanel.Group`, `Toggle.Group`, `Switch.Group`, `Radio.Group`, `Checkbox.Group`, `Button.Group`, `Snackbar.Queue`, `Tooltip.Provider`.
+A wrapper that supplies shared defaults or context to a compound family's Roots (delay defaults, a selection group, a notification queue) is a **dotted member** of the compound — living in its own `Component<Member>.vue` file and named-exported like any other sub-component. It is **never** the bare renderable `<Component>`, and the compound is never made renderable via `Object.assign` to host it. Precedent: `ExpansionPanel.Group`, `Toggle.Group`, `Switch.Group`, `Radio.Group`, `Checkbox.Group`, `Button.Group`, `Snackbar.Queue`.
+
+**Naming.** Name the member with the **domain noun** for what it coordinates — `.Group` (a selection group), `.Queue` (a notification queue). When the member is a *pure* context/defaults provider with no domain verb of its own, `.Provider` is acceptable: `Tooltip.Provider` is the first such case (it only supplies region delay defaults and warmup coordination), and the name deliberately mirrors the upstream `Tooltip.Provider` the warmup pattern is modeled on. Prefer a domain noun where one fits; reach for `.Provider` only for a defaults-only wrapper.
 
 [intent:185]
 

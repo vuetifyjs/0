@@ -23,6 +23,7 @@
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
+  import type { TooltipState } from './TooltipRoot.vue'
 
   export interface TooltipActivatorProps extends AtomProps {
     namespace?: string
@@ -33,7 +34,7 @@
     isDisabled: boolean
     attrs: {
       'aria-describedby': string
-      'data-state': 'closed' | 'delayed-open' | 'instant-open'
+      'data-state': TooltipState
       'aria-disabled': boolean | undefined
       'disabled': boolean | undefined
       'type': 'button' | undefined

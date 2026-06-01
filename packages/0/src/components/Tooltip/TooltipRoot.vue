@@ -25,7 +25,10 @@
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
+  import type { PopoverReturn } from '#v0/composables/usePopover'
   import type { Ref, ShallowRef } from 'vue'
+
+  export type TooltipState = 'closed' | 'delayed-open' | 'instant-open'
 
   export interface TooltipRootProps extends AtomProps {
     /** Delay in ms before opening; falls back to the region delay when omitted */
@@ -66,7 +69,7 @@
      * immediately through the region skip-window (or focus) — consumers can
      * animate the two reveals differently.
      */
-    dataState: Readonly<Ref<'closed' | 'delayed-open' | 'instant-open'>>
+    dataState: Readonly<Ref<TooltipState>>
     /**
      * Start the open transition. Passing `instant` (or a region skip-window hit)
      * opens immediately, bypassing the open delay.
@@ -77,13 +80,13 @@
     /** Cancel any pending open/close transition */
     cancel: () => void
     /** Attributes to bind to the content element */
-    contentAttrs: ReturnType<typeof usePopover>['contentAttrs']
+    contentAttrs: PopoverReturn['contentAttrs']
     /** Styles to bind to the content element */
-    contentStyles: ReturnType<typeof usePopover>['contentStyles']
+    contentStyles: PopoverReturn['contentStyles']
     /** Styles to bind to the anchor element */
-    anchorStyles: ReturnType<typeof usePopover>['anchorStyles']
+    anchorStyles: PopoverReturn['anchorStyles']
     /** Attach the anchor element to the popover */
-    attach: ReturnType<typeof usePopover>['attach']
+    attach: PopoverReturn['attach']
   }
 
   export const [useTooltipRoot, provideTooltipRoot] = createContext<TooltipRootContext>({ suffix: 'root' })
@@ -166,7 +169,7 @@
     if (registered) region.unregister(popover.id)
   })
 
-  const dataState = toRef((): 'closed' | 'delayed-open' | 'instant-open' => {
+  const dataState = toRef((): TooltipState => {
     return isOpen.value ? (skipped.value ? 'instant-open' : 'delayed-open') : 'closed'
   })
 

@@ -23,6 +23,7 @@
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
+  import type { TooltipState } from './TooltipRoot.vue'
 
   export interface TooltipContentProps extends AtomProps {
     namespace?: string
@@ -35,7 +36,7 @@
       'id': string
       'role': 'tooltip'
       'popover': ''
-      'data-state': 'closed' | 'delayed-open' | 'instant-open'
+      'data-state': TooltipState
       'data-interactive': true | undefined
       'onPointerenter': (e: PointerEvent) => void
       'onPointerleave': (e: PointerEvent) => void
