@@ -279,17 +279,59 @@ When a composable uses `useProxyModel`, its underlying registry/model must have 
 
 Never `export *` from `.vue` files — breaks Volar slot type inference. [intent:184, intent:338]
 
-```ts
-// Named exports for tree-shaking
-export type { ComponentRootProps, ComponentRootSlotProps } from './ComponentRoot.vue'
-export { default as ComponentRoot } from './ComponentRoot.vue'
-export { useComponentRoot, provideComponentRoot } from './ComponentRoot.vue'
+A barrel is one of two shapes — **compound** or **single** — chosen by whether the component exposes dotted sub-components. Audited 100% consistent across all 39 component barrels (the one historical violator, Tooltip's `Object.assign`, was normalized to this canon).
 
-// Object compound export for dot notation
-import ComponentRoot from './ComponentRoot.vue'
-import ComponentItem from './ComponentItem.vue'
-export const Component = { Root: ComponentRoot, Item: ComponentItem }
+### Compound (Root + sub-components)
+
+```ts
+// 1. Named default re-export per sub-component; co-locate the Root's context fns
+//    with the Root default. Never `export *` from a .vue.
+export { default as ComponentItem } from './ComponentItem.vue'
+export { provideComponentRoot, useComponentRoot } from './ComponentRoot.vue'
+export { default as ComponentRoot } from './ComponentRoot.vue'
+
+// 2. All `export type` re-exports grouped in one block after the named exports.
+export type { ComponentItemProps, ComponentItemSlotProps } from './ComponentItem.vue'
+export type { ComponentRootContext, ComponentRootProps, ComponentRootSlotProps } from './ComponentRoot.vue'
+
+// Context
+import Item from './ComponentItem.vue'
+import Root from './ComponentRoot.vue'
+
+/**
+ * Component compound.
+ *
+ * @see …
+ * @example …
+ */
+export const Component = {
+  /** Single instance root. @example … */ Root,
+  /** A repeated item. @example … */ Item,
+}
 ```
+
+- The compound is a **plain object literal** built from short-aliased default imports. **Never `Object.assign`**, and never re-bind the compound name to a `.vue` default — the namespace object is *not* a renderable component. `<Component>` (bare) is invalid; only `<Component.Root>` renders.
+- Every member of the literal carries a one-line `/** */` with `@example` (it surfaces in `<DocsApi />`). Member order is anatomy/usage order — the Root (or the outer region provider) first — not alphabetical.
+- `// Context` is the (de-facto, slightly misnamed) header over the short-aliased sub-component imports — keep it for family consistency.
+- `perfectionist/sort-imports` settles ordering *within* each export/import block; run `pnpm lint:fix`, don't hand-author order.
+
+### Single (one renderable component — providers like Theme/Locale/Scrim, primitives like Atom/Form/Portal)
+
+```ts
+export type { ComponentProps, ComponentSlotProps } from './Component.vue'
+
+/**
+ * @see …
+ * @example …
+ */
+export { default as Component } from './Component.vue'
+```
+
+Type re-export at the top, JSDoc, single default at the bottom. No compound object, no `// Context` imports, no provide/use.
+
+### Region/scope providers belong to the compound, never the namespace
+
+A wrapper that supplies shared defaults or context to a compound family's Roots (delay defaults, a selection group, a notification queue) is a **dotted member** of the compound — `Component.Group`, `Component.Provider`, `Component.Queue` — living in its own `Component<Member>.vue` file and named-exported like any other sub-component. It is **never** the bare renderable `<Component>`, and the compound is never made renderable via `Object.assign` to host it. Precedent: `ExpansionPanel.Group`, `Toggle.Group`, `Switch.Group`, `Radio.Group`, `Checkbox.Group`, `Button.Group`, `Snackbar.Queue`, `Tooltip.Provider`.
 
 [intent:185]
 

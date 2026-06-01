@@ -92,7 +92,7 @@ Reach for `useTooltip()` directly only when you're wiring a tooltip surface that
 
 ??? Why is the registry global instead of per-region?
 
-Skip-window coordination is most useful when neighbors across UI regions cooperate — once any tooltip in the app is open, you want toolbar tooltips and content tooltips to all skip their delay. Splintering the registry per `<Tooltip>` scope-wrapper would force consumers to choose between scoped defaults and shared coordination; the current design gives you both.
+Skip-window coordination is most useful when neighbors across UI regions cooperate — once any tooltip in the app is open, you want toolbar tooltips and content tooltips to all skip their delay. Splintering the registry per `<Tooltip.Provider>` scope-wrapper would force consumers to choose between scoped defaults and shared coordination; the current design gives you both.
 
 ??? Can I install useTooltip without using `<Tooltip.Root>`?
 

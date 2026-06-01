@@ -37,16 +37,16 @@ Headless description tooltip with hover and focus triggers, configurable open/cl
 </script>
 
 <template>
-  <Tooltip>
+  <Tooltip.Provider>
     <Tooltip.Root>
       <Tooltip.Activator />
       <Tooltip.Content />
     </Tooltip.Root>
-  </Tooltip>
+  </Tooltip.Provider>
 </template>
 ```
 
-The bare `<Tooltip>` is the optional scope wrapper — it overrides delay defaults for descendants. Skip it when the plugin defaults are sufficient.
+`<Tooltip.Provider>` is the optional scope wrapper — it overrides delay defaults for descendants. Skip it when the plugin defaults are sufficient.
 
 ## Architecture
 
@@ -97,7 +97,7 @@ Touch devices have no hover state, and showing a tooltip on tap competes with wh
 
 ??? How do I share delay defaults across an app?
 
-Install the plugin: `app.use(createTooltipPlugin({ openDelay: 500 }))`. Every `<Tooltip.Root>` reads from the region — wrap a subtree in `<Tooltip>` for region-specific overrides.
+Install the plugin: `app.use(createTooltipPlugin({ openDelay: 500 }))`. Every `<Tooltip.Root>` reads from the region — wrap a subtree in `<Tooltip.Provider>` for region-specific overrides.
 
 ??? Why doesn't Tooltip.Activator open when I focus it via mouse click?
 

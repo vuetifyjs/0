@@ -1,5 +1,5 @@
 /**
- * @module Tooltip
+ * @module TooltipProvider
  *
  * @see https://0.vuetifyjs.com/components/disclosure/tooltip
  *
@@ -27,7 +27,7 @@
   import type { AtomProps } from '#v0/components/Atom'
   import type { TooltipContext } from '#v0/composables/useTooltip'
 
-  export interface TooltipProps extends AtomProps {
+  export interface TooltipProviderProps extends AtomProps {
     openDelay?: number
     closeDelay?: number
     skipDelay?: number
@@ -35,16 +35,16 @@
     namespace?: string
   }
 
-  export interface TooltipSlotProps {
+  export interface TooltipProviderSlotProps {
     isAnyOpen: boolean
   }
 </script>
 
 <script setup lang="ts">
-  defineOptions({ name: 'Tooltip', inheritAttrs: false })
+  defineOptions({ name: 'TooltipProvider', inheritAttrs: false })
 
   defineSlots<{
-    default: (props: TooltipSlotProps) => any
+    default: (props: TooltipProviderSlotProps) => any
   }>()
 
   const {
@@ -55,7 +55,7 @@
     skipDelay,
     disabled,
     namespace = 'v0:tooltip',
-  } = defineProps<TooltipProps>()
+  } = defineProps<TooltipProviderProps>()
 
   const parent = useTooltip()
 
@@ -69,7 +69,7 @@
 
   provideContext(namespace, context)
 
-  const slotProps = toRef((): TooltipSlotProps => ({
+  const slotProps = toRef((): TooltipProviderSlotProps => ({
     isAnyOpen: context.isAnyOpen.value,
   }))
 </script>
