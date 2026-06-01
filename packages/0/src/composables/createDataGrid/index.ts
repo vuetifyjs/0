@@ -327,19 +327,21 @@ export function createDataGrid<T extends Record<string, unknown>> (
     return table.get(row)?.value
   }
 
-  const editing = createCellEditing({
+  const editing = createCellEditing<T>({
     // Read the live column registry leaves so columns onboarded after this
     // instance was built become editable — fixes the editable-bypass where
     // editing was seeded statically. `table.leaves` is typed as the narrower
-    // table ticket, but the grid registers `DataGridColumnTicket`s through the
-    // re-typed `grid.columns`, so `editable` / `validate` ride on each leaf at
-    // runtime; the cast recovers that grid shape.
+    // `DataTableColumnTicket<T>`, but the grid registers `DataGridColumnTicket`s
+    // through `grid.columns`, so `editable` / `validate` ride on each leaf at
+    // runtime; the lone `DataGridColumnTicket<T>` downcast recovers that grid
+    // shape, after which the fields flow to `createCellEditing<T>` with no
+    // per-field casts.
     columns: () => (table.leaves.value as readonly DataGridColumnTicket<T>[])
       .filter(col => col.editable === true || isFunction(col.editable))
       .map(col => ({
         id: String(col.id),
-        editable: col.editable as boolean | ((item: unknown) => boolean),
-        validate: col.validate as ((value: unknown, item?: unknown) => string | true) | undefined,
+        editable: col.editable,
+        validate: col.validate,
       })),
     lookup,
     // createCellEditing only needs the structural `on` / `off` surface and

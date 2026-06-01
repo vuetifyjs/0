@@ -14,7 +14,12 @@
  * @internal Consumed only by `createDataGrid`. This is a fully decoupled 2D
  * cell-edit primitive — it imports nothing from `createDataGrid` /
  * `createDataTable` (only `#v0/utilities`, `#v0/types`, and Vue), so it is a
- * latent composable. Promote it to a standalone `createCellEditing/`
+ * latent composable. It is parameterized over a row type `T` (defaulting to
+ * `unknown`), but a type parameter is not an import — the primitive stays
+ * fully decoupled from the grid's concrete ticket types and deliberately
+ * row-agnostic: `T` is intentionally unconstrained, so do not narrow it to
+ * the grid's `Record<string, unknown>` when promoting. Promote it to a
+ * standalone `createCellEditing/`
  * composable the moment a second consumer appears (e.g. an editable
  * `createDataTable`). See `.claude/rules/composables.md` §"Sub-modules:
  * inline, private sibling, or promote".
@@ -28,10 +33,10 @@ import { onScopeDispose, shallowReactive, shallowRef, toValue } from 'vue'
 import type { ID } from '#v0/types'
 import type { MaybeRefOrGetter, ShallowReactive, ShallowRef } from 'vue'
 
-export interface EditableColumn {
+export interface EditableColumn<T = unknown> {
   readonly id: string
-  readonly editable?: boolean | ((item: unknown) => boolean)
-  readonly validate?: (value: unknown, item?: unknown) => string | true
+  readonly editable?: boolean | ((item: T) => boolean)
+  readonly validate?: (value: unknown, item?: T) => string | true
 }
 
 /**
@@ -49,7 +54,7 @@ export interface CellEditingRegistry {
   off: (event: string, listener: (data: unknown) => void) => void
 }
 
-export interface CellEditingOptions {
+export interface CellEditingOptions<T = unknown> {
   /**
    * Editable columns, read reactively. Accepts a ref or getter so the column
    * set can change after construction — e.g. a grid that derives editables
@@ -57,9 +62,9 @@ export interface CellEditingOptions {
    * `commit`, so newly-onboarded editable columns are picked up without
    * re-creating the editing instance.
    */
-  columns: MaybeRefOrGetter<readonly EditableColumn[]>
+  columns: MaybeRefOrGetter<readonly EditableColumn<T>[]>
   onEdit?: (row: ID, column: string, value: unknown) => void
-  lookup?: (row: ID) => unknown
+  lookup?: (row: ID) => T | undefined
   registry?: CellEditingRegistry
 }
 
@@ -118,14 +123,14 @@ export interface CellEditing {
  * editing.commit('Alice')
  * ```
  */
-export function createCellEditing (options: CellEditingOptions): CellEditing {
+export function createCellEditing<T = unknown> (options: CellEditingOptions<T>): CellEditing {
   const { columns, onEdit, lookup, registry } = options
 
   // Rebuilt on every lookup from the live `columns` source so the editable
   // set tracks columns onboarded after this instance was created. Cheap to
   // rebuild (bounded by column count) and avoids a watcher firing on unrelated
   // registry churn.
-  function resolveColumn (column: string): EditableColumn | undefined {
+  function resolveColumn (column: string): EditableColumn<T> | undefined {
     for (const col of toValue(columns)) {
       if (col.id === column) return col
     }
