@@ -15,7 +15,7 @@ related:
 
 # Sponsor Vuetify0
 
-One primary sponsor at a time. A way for the company whose product depends on Vuetify0 to fund the project directly and have that relationship visible across the docs and the repo.
+The most prominent placement in Vuetify0 — one company at a time, at the top of the docs and the README. A way for the team building on Vuetify0, or building toward it, to fund the project directly and make that relationship visible.
 
 <DocsPageFeatures :frontmatter />
 
@@ -27,22 +27,22 @@ One primary sponsor at a time. A way for the company whose product depends on Vu
 
 ## Why sponsor Vuetify0
 
-**For the company that's already built on Vuetify0.**
+**For teams building on Vuetify0 — or building toward it.**
 
-The Primary Sponsor slot isn't for companies looking for ad placement — Vuetify0 doesn't run ads, and there are no plans to. It's for the company whose product depends on Vuetify0 as part of its infrastructure: the team that ships against `@vuetify/v0` in production, files issues, and has a vested interest in the framework staying healthy and actively maintained.
+The Primary Sponsor slot is the most prominent placement in the Vuetify0 ecosystem — one company, at the top of the docs and the README, the name associated with the framework. It isn't ad inventory; Vuetify0 doesn't run ads, and there are no plans to. It's for the team whose product runs on `@vuetify/v0`, or is being built to: the people shipping against it in production or planning a build on top of it, filing issues, with a direct stake in the framework staying healthy and actively maintained.
 
 > [!NOTE]
 > Vuetify0 is the foundation for Vuetify 5 and the Paper design system family. Sponsoring Vuetify0 directly funds work that touches the entire ecosystem — not just the piece you're using today.
 
-If that's you, sponsoring funds the OSS work directly and makes that dependency visible — to your engineering org, to prospective hires, and to other teams evaluating Vuetify0 for the same reasons you did.
+If that's you, sponsoring funds the work directly and makes the relationship visible — to your engineering org, to prospective hires, and to every other team evaluating Vuetify0 for the same reasons you are.
 
-One slot at a time. Most teams using Vuetify0 don't need this; they need [Services](/services). The Primary Sponsor slot is for the rare case where Vuetify0 is core to your product, and "we sponsor this" is a more accurate description of the relationship than "we use it."
+One slot at a time, so it stays the flagship — your logo is never lost in a wall of backers. Take it when Vuetify0 is core enough to your product that "we sponsor this" describes the relationship better than "we use it." That case is often strongest for the team betting on Vuetify0 now: you lock in the association early, help steer where the framework goes, and put your brand in front of the Vue audience while you build. If what you need is hands-on help rather than visibility, that's [Services](/services) — and the two stack.
 
 ### For your management
 
 Forward this page to whoever signs the budget. The case in plain terms:
 
-- **Continuity.** You already depend on Vuetify0. A recurring sponsorship insulates your team from the common open-source failure modes — maintainer burnout, project stagnation, abrupt direction changes.
+- **Continuity.** You're building on Vuetify0. A recurring sponsorship insulates your team from the common open-source failure modes — maintainer burnout, project stagnation, abrupt direction changes.
 - **Visibility.** Logo placement on the Vuetify0 docs reaches every engineer evaluating Vue infrastructure — the same audience as your recruiting pipeline.
 - **Simple accounting.** Single recurring charge through GitHub Sponsors. No procurement, no vendor onboarding. Books as a sponsorship line, not a software license.
 - **No lock-in.** Cancel anytime; the relationship reverts to standard MIT use of the framework, no contract obligation.
