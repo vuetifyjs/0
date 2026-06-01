@@ -6,7 +6,7 @@ import { createRowSpanning } from './spanning'
 import { computed } from 'vue'
 
 describe('createRowSpanning', () => {
-  it('returns empty map when no rowSpanning function', () => {
+  it('should return an empty map when no rowSpanning function is supplied', () => {
     const spans = createRowSpanning({
       items: computed(() => []),
       columns: ['a', 'b'],
@@ -14,7 +14,7 @@ describe('createRowSpanning', () => {
     expect(spans.value.size).toBe(0)
   })
 
-  it('computes span map for visible items', () => {
+  it('should compute span map for visible items', () => {
     const items = computed(() => [
       { id: 1, category: 'A', name: 'X' },
       { id: 2, category: 'A', name: 'Y' },
@@ -37,7 +37,7 @@ describe('createRowSpanning', () => {
     expect(spans.value.get(1)?.get('name')).toEqual({ rowSpan: 1, hidden: false })
   })
 
-  it('coerces a NaN span to 1 without hiding following rows', () => {
+  it('should coerce a NaN span to 1 without hiding following rows', () => {
     const items = computed(() => [
       { id: 1, qty: 'x' },
       { id: 2, qty: 'y' },
@@ -101,7 +101,7 @@ describe('createRowSpanning', () => {
     expect(spans.value.get(3)?.get('category')).toEqual({ rowSpan: 1, hidden: false })
   })
 
-  it('does not span beyond visible items', () => {
+  it('should not span beyond visible items', () => {
     const items = computed(() => [
       { id: 1, category: 'A' },
       { id: 2, category: 'A' },

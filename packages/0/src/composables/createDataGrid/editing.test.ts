@@ -145,6 +145,15 @@ describe('createCellEditing', () => {
     expect(editing.dirty.get(1)?.get('email')).toBe('other@example.com')
   })
 
+  it('should remove only the committed cell from dirty and retain co-staged siblings', () => {
+    const editing = createCellEditing({ columns: () => columns })
+    editing.dirty.set(1, new Map([['name', 'staged'], ['email', 'other@example.com']]))
+    editing.edit(1, 'name')
+    editing.commit('newName')
+    expect(editing.dirty.get(1)?.has('name')).toBe(false)
+    expect(editing.dirty.get(1)?.get('email')).toBe('other@example.com')
+  })
+
   it('should drop the row entry on cancel when only the active cell was staged', () => {
     const editing = createCellEditing({ columns: () => columns })
     editing.dirty.set(1, new Map([['name', 'staged']]))

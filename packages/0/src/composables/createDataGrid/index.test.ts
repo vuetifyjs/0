@@ -123,6 +123,16 @@ describe('createDataGrid', () => {
       expect(grid.size).toBe(0)
       expect(grid.items.value).toHaveLength(0)
     })
+
+    it('should not throw when reset is called on a grid with no rows', () => {
+      const grid = createDataGrid()
+
+      grid.columns.onboard([{ id: 'name', size: 100 }])
+
+      // No rows onboarded — sortable.size is 0, so reset's reorder is skipped.
+      expect(() => grid.rows.reset()).not.toThrow()
+      expect(grid.rows.order.value).toEqual([])
+    })
   })
 
   describe('column layout', () => {
@@ -392,6 +402,40 @@ describe('createDataGrid', () => {
       // Toggling sort no longer resets the manual order — the watcher is gone.
       grid.sort.toggle('age')
       expect(grid.rows.order.value).toEqual([2, 4, 1, 3])
+    })
+
+    it('should re-arm sort-reset when preserveRowOrder toggles back to false', async () => {
+      const preserve = shallowRef(false)
+      const grid = createDataGrid({
+        preserveRowOrder: preserve,
+      })
+
+      grid.columns.onboard([
+        { id: 'name', sortable: true, size: 50 },
+        { id: 'age', sortable: true, size: 50 },
+      ])
+
+      onboard(grid, items)
+
+      // Flip to true: useToggleScope tears down the sort-reset watcher.
+      preserve.value = true
+      await nextTick()
+
+      grid.rows.move(1, 2)
+      expect(grid.rows.order.value).toEqual([2, 3, 1, 4])
+      grid.sort.toggle('age')
+      // Manual order survives — the watcher is torn down.
+      expect(grid.rows.order.value).toEqual([2, 3, 1, 4])
+
+      // Flip back to false: useToggleScope re-enters and re-arms the watcher.
+      preserve.value = false
+      await nextTick()
+
+      grid.rows.move(4, 0)
+      expect(grid.rows.order.value).toEqual([4, 2, 3, 1])
+      grid.sort.toggle('age')
+      // The re-armed watcher now resets the manual order on the next sort change.
+      expect(grid.rows.order.value).toEqual([1, 2, 3, 4])
     })
 
     it('should append late-registered rows at the end of rows.order', () => {
