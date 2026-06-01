@@ -43,6 +43,7 @@ declare module 'vue' {
     AppPaletteRadixButton: typeof import('./components/app/theme/palette/AppPaletteRadixButton.vue')['default']
     AppPaletteTailwindButton: typeof import('./components/app/theme/palette/AppPaletteTailwindButton.vue')['default']
     AppPaletteVuetify0Button: typeof import('./components/app/theme/palette/AppPaletteVuetify0Button.vue')['default']
+    AppRainbowText: typeof import('./components/app/AppRainbowText.vue')['default']
     AppSearchInline: typeof import('./components/app/AppSearchInline.vue')['default']
     AppSettings: typeof import('./components/app/AppSettings.vue')['default']
     AppSettingsColorInput: typeof import('./components/app/settings/AppSettingsColorInput.vue')['default']
