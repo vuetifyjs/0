@@ -244,20 +244,24 @@
     measureElement,
   })
 
-  const slotProps = toRef((): BreadcrumbsRootSlotProps => ({
-    isOverflowing: overflow.isOverflowing.value,
-    capacity: overflow.capacity.value,
-    total: group.size,
-    depth: breadcrumbs.depth.value,
-    isRoot: breadcrumbs.isRoot.value,
-    first: breadcrumbs.first,
-    prev: breadcrumbs.prev,
-    select: breadcrumbs.select,
-    attrs: {
-      'aria-label': label ?? locale.t('Breadcrumbs.label'),
-      'role': as === 'nav' ? undefined : 'navigation',
-    },
-  }))
+  const slotProps = toRef((): BreadcrumbsRootSlotProps => {
+    const bc = locale.t('Breadcrumbs.label')
+
+    return {
+      isOverflowing: overflow.isOverflowing.value,
+      capacity: overflow.capacity.value,
+      total: group.size,
+      depth: breadcrumbs.depth.value,
+      isRoot: breadcrumbs.isRoot.value,
+      first: breadcrumbs.first,
+      prev: breadcrumbs.prev,
+      select: breadcrumbs.select,
+      attrs: {
+        'aria-label': label ?? (bc === 'Breadcrumbs.label' ? 'Breadcrumb' : bc),
+        'role': as === 'nav' ? undefined : 'navigation',
+      },
+    }
+  })
 </script>
 
 <template>

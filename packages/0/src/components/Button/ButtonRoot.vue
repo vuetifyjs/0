@@ -207,23 +207,27 @@
 
   provideButtonRoot(namespace, context)
 
-  const elementAttrs = toRef((): ButtonRootSlotProps['attrs'] => ({
-    'type': as === 'button' ? 'button' : undefined,
-    'role': 'button',
-    'disabled': isDisabled.value ? true : undefined,
-    'aria-disabled': isDisabled.value || isPassive.value,
-    'aria-busy': isLoading.value ? true : undefined,
-    'aria-pressed': group ? isSelected.value : undefined,
-    'aria-label': ariaLabel || (isSolo.value ? locale.t('Button.label') : undefined),
-    'tabindex': isDisabled.value ? -1 : 0,
-    'data-loading': isLoading.value ? true : undefined,
-    'data-passive': isPassive.value ? true : undefined,
-    'data-readonly': isReadonly.value ? true : undefined,
-    'data-disabled': isDisabled.value ? true : undefined,
-    'data-selected': group && isSelected.value ? true : undefined,
-    'data-solo': isSolo.value ? true : undefined,
-    'onClick': ticket ? onClick : undefined,
-  }))
+  const elementAttrs = toRef((): ButtonRootSlotProps['attrs'] => {
+    const label = locale.t('Button.label')
+
+    return {
+      'type': as === 'button' ? 'button' : undefined,
+      'role': 'button',
+      'disabled': isDisabled.value ? true : undefined,
+      'aria-disabled': isDisabled.value || isPassive.value,
+      'aria-busy': isLoading.value ? true : undefined,
+      'aria-pressed': group ? isSelected.value : undefined,
+      'aria-label': ariaLabel || (isSolo.value ? (label === 'Button.label' ? 'Button' : label) : undefined),
+      'tabindex': isDisabled.value ? -1 : 0,
+      'data-loading': isLoading.value ? true : undefined,
+      'data-passive': isPassive.value ? true : undefined,
+      'data-readonly': isReadonly.value ? true : undefined,
+      'data-disabled': isDisabled.value ? true : undefined,
+      'data-selected': group && isSelected.value ? true : undefined,
+      'data-solo': isSolo.value ? true : undefined,
+      'onClick': ticket ? onClick : undefined,
+    }
+  })
 
   const slotProps = toRef((): ButtonRootSlotProps => ({
     isLoading: isLoading.value,

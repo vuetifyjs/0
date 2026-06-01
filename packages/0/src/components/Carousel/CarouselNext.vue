@@ -90,20 +90,24 @@
     }
   }
 
-  const slotProps = toRef((): CarouselNextSlotProps => ({
-    isDisabled: isDisabled.value,
-    isAtEdge: isAtEdge.value,
-    attrs: {
-      'type': as === 'button' ? 'button' : undefined,
-      'aria-label': locale.t('Carousel.next'),
-      'aria-controls': viewportId,
-      'aria-disabled': isDisabled.value,
-      'disabled': as === 'button' ? isDisabled.value : undefined,
-      'data-disabled': isDisabled.value || undefined,
-      'data-edge': isAtEdge.value || undefined,
-      'onClick': onClick,
-    },
-  }))
+  const slotProps = toRef((): CarouselNextSlotProps => {
+    const ariaLabel = locale.t('Carousel.next')
+
+    return {
+      isDisabled: isDisabled.value,
+      isAtEdge: isAtEdge.value,
+      attrs: {
+        'type': as === 'button' ? 'button' : undefined,
+        'aria-label': ariaLabel === 'Carousel.next' ? 'Next slide' : ariaLabel,
+        'aria-controls': viewportId,
+        'aria-disabled': isDisabled.value,
+        'disabled': as === 'button' ? isDisabled.value : undefined,
+        'data-disabled': isDisabled.value || undefined,
+        'data-edge': isAtEdge.value || undefined,
+        'onClick': onClick,
+      },
+    }
+  })
 </script>
 
 <template>

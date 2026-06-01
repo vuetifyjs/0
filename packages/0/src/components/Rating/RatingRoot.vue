@@ -169,28 +169,32 @@
 
   provideRatingRoot(namespace, context)
 
-  const slotProps = toRef((): RatingRootSlotProps => ({
-    value: displayValue.value,
-    items: rating.items.value,
-    isHovering: isHovering.value,
-    isDisabled: isDisabled.value,
-    isReadonly: isReadonly.value,
-    attrs: {
-      'role': 'slider',
-      'tabindex': isDisabled.value ? -1 : 0,
-      'aria-valuenow': rating.value.value,
-      'aria-valuemin': 0,
-      'aria-valuemax': rating.size,
-      'aria-valuetext': locale.t('Rating.valueText', { value: rating.value.value, size: rating.size }),
-      'aria-disabled': isDisabled.value ? true : undefined,
-      'aria-readonly': isReadonly.value ? true : undefined,
-      'data-disabled': isDisabled.value ? true : undefined,
-      'data-readonly': isReadonly.value ? true : undefined,
-      'data-hovering': isHovering.value ? true : undefined,
-      'onKeydown': onKeydown,
-      'onPointerleave': onPointerleave,
-    },
-  }))
+  const slotProps = toRef((): RatingRootSlotProps => {
+    const valueText = locale.t('Rating.valueText', { value: rating.value.value, size: rating.size })
+
+    return {
+      value: displayValue.value,
+      items: rating.items.value,
+      isHovering: isHovering.value,
+      isDisabled: isDisabled.value,
+      isReadonly: isReadonly.value,
+      attrs: {
+        'role': 'slider',
+        'tabindex': isDisabled.value ? -1 : 0,
+        'aria-valuenow': rating.value.value,
+        'aria-valuemin': 0,
+        'aria-valuemax': rating.size,
+        'aria-valuetext': valueText === 'Rating.valueText' ? `${rating.value.value} of ${rating.size}` : valueText,
+        'aria-disabled': isDisabled.value ? true : undefined,
+        'aria-readonly': isReadonly.value ? true : undefined,
+        'data-disabled': isDisabled.value ? true : undefined,
+        'data-readonly': isReadonly.value ? true : undefined,
+        'data-hovering': isHovering.value ? true : undefined,
+        'onKeydown': onKeydown,
+        'onPointerleave': onPointerleave,
+      },
+    }
+  })
 </script>
 
 <template>

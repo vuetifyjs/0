@@ -56,13 +56,17 @@
     context.onDismiss()
   }
 
-  const slotProps = toRef((): SnackbarCloseSlotProps => ({
-    attrs: {
-      'type': as === 'button' ? 'button' : undefined,
-      'aria-label': locale.t('Snackbar.close'),
-      'onClick': onClick,
-    },
-  }))
+  const slotProps = toRef((): SnackbarCloseSlotProps => {
+    const close = locale.t('Snackbar.close')
+
+    return {
+      attrs: {
+        'type': as === 'button' ? 'button' : undefined,
+        'aria-label': close === 'Snackbar.close' ? 'Close' : close,
+        'onClick': onClick,
+      },
+    }
+  })
 </script>
 
 <template>

@@ -93,9 +93,12 @@
   const isSelected = toRef(() => pagination.page.value === value)
 
   const ariaLabel = toRef(() => {
+    const currentPage = locale.t('Pagination.currentPage', { page: value })
+    const goToPage = locale.t('Pagination.goToPage', { page: value })
+
     return isSelected.value
-      ? locale.t('Pagination.currentPage', { page: value })
-      : locale.t('Pagination.goToPage', { page: value })
+      ? (currentPage === 'Pagination.currentPage' ? `Page ${value}` : currentPage)
+      : (goToPage === 'Pagination.goToPage' ? `Go to page ${value}` : goToPage)
   })
 
   function select () {

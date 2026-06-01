@@ -237,31 +237,35 @@
 
   provideCarouselRoot(namespace, context)
 
-  const slotProps = toRef((): CarouselRootSlotProps => ({
-    isDisabled: toValue(step.disabled),
-    orientation,
-    perView,
-    first: step.first,
-    last: step.last,
-    next,
-    prev,
-    step: step.step,
-    select: step.select,
-    isAutoplay: timer?.isActive.value ?? false,
-    isPaused: timer?.isPaused.value ?? false,
-    remaining: timer?.remaining.value ?? 0,
-    play,
-    stop,
-    pause,
-    resume,
-    attrs: {
-      'role': 'region',
-      'aria-roledescription': 'carousel',
-      'aria-label': label ?? locale.t('Carousel.label'),
-      'aria-disabled': toValue(step.disabled),
-      'data-disabled': toValue(step.disabled) || undefined,
-    },
-  }))
+  const slotProps = toRef((): CarouselRootSlotProps => {
+    const ariaLabel = locale.t('Carousel.label')
+
+    return {
+      isDisabled: toValue(step.disabled),
+      orientation,
+      perView,
+      first: step.first,
+      last: step.last,
+      next,
+      prev,
+      step: step.step,
+      select: step.select,
+      isAutoplay: timer?.isActive.value ?? false,
+      isPaused: timer?.isPaused.value ?? false,
+      remaining: timer?.remaining.value ?? 0,
+      play,
+      stop,
+      pause,
+      resume,
+      attrs: {
+        'role': 'region',
+        'aria-roledescription': 'carousel',
+        'aria-label': label ?? (ariaLabel === 'Carousel.label' ? 'Carousel' : ariaLabel),
+        'aria-disabled': toValue(step.disabled),
+        'data-disabled': toValue(step.disabled) || undefined,
+      },
+    }
+  })
 </script>
 
 <template>

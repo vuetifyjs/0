@@ -59,13 +59,17 @@
     context.close()
   }
 
-  const slotProps = toRef((): DialogCloseSlotProps => ({
-    isOpen: context.isOpen.value,
-    attrs: {
-      'type': as === 'button' ? 'button' : undefined,
-      'aria-label': locale.t('Dialog.close'),
-    },
-  }))
+  const slotProps = toRef((): DialogCloseSlotProps => {
+    const close = locale.t('Dialog.close')
+
+    return {
+      isOpen: context.isOpen.value,
+      attrs: {
+        'type': as === 'button' ? 'button' : undefined,
+        'aria-label': close === 'Dialog.close' ? 'Close' : close,
+      },
+    }
+  })
 </script>
 
 <template>

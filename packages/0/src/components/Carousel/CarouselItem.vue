@@ -115,28 +115,32 @@
     'scroll-snap-align': 'start' as const,
   }
 
-  const slotProps = toRef((): CarouselItemSlotProps => ({
-    id: String(ticket.id),
-    isSelected: toValue(ticket.isSelected),
-    isActive: isActive.value,
-    isDisabled: isDisabled.value,
-    index: ticket.index,
-    select: ticket.select,
-    unselect: ticket.unselect,
-    toggle: ticket.toggle,
-    attrs: {
-      'id': `${carousel.rootId}-slide-${ticket.index}`,
-      'role': 'group',
-      'aria-roledescription': 'slide',
-      'aria-label': locale.t('Carousel.slide', { current: ticket.index + 1, size: carousel.size }),
-      'aria-hidden': isActive.value ? undefined : true,
-      'data-selected': toValue(ticket.isSelected) || undefined,
-      'data-active': isActive.value || undefined,
-      'data-disabled': isDisabled.value || undefined,
-      'data-index': ticket.index,
-      'style': slideStyle,
-    },
-  }))
+  const slotProps = toRef((): CarouselItemSlotProps => {
+    const ariaLabel = locale.t('Carousel.slide', { current: ticket.index + 1, size: carousel.size })
+
+    return {
+      id: String(ticket.id),
+      isSelected: toValue(ticket.isSelected),
+      isActive: isActive.value,
+      isDisabled: isDisabled.value,
+      index: ticket.index,
+      select: ticket.select,
+      unselect: ticket.unselect,
+      toggle: ticket.toggle,
+      attrs: {
+        'id': `${carousel.rootId}-slide-${ticket.index}`,
+        'role': 'group',
+        'aria-roledescription': 'slide',
+        'aria-label': ariaLabel === 'Carousel.slide' ? `Slide ${ticket.index + 1} of ${carousel.size}` : ariaLabel,
+        'aria-hidden': isActive.value ? undefined : true,
+        'data-selected': toValue(ticket.isSelected) || undefined,
+        'data-active': isActive.value || undefined,
+        'data-disabled': isDisabled.value || undefined,
+        'data-index': ticket.index,
+        'style': slideStyle,
+      },
+    }
+  })
 </script>
 
 <template>
