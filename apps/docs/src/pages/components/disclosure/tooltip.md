@@ -95,9 +95,13 @@ The strict WAI-ARIA APG tooltip pattern forbids interactive content; if you need
 
 Touch devices have no hover state, and showing a tooltip on tap competes with whatever action the underlying control performs. Both React Aria and the WAI-ARIA Authoring Practices Guide recommend skipping tooltips on touch and ensuring the UI is usable without them. v0 follows this guidance.
 
-??? How do I share delay defaults across an app?
+??? How do I set default open and close delays?
 
-Install the plugin: `app.use(createTooltipPlugin({ openDelay: 500 }))`. Every `<Tooltip.Root>` reads from the region — wrap a subtree in `<Tooltip.Provider>` for region-specific overrides.
+Three layers, widest to narrowest, and the narrower one wins. App-wide: install the plugin — `app.use(createTooltipPlugin({ openDelay: 500, closeDelay: 150 }))`. One tooltip: set props on its Root — `<Tooltip.Root :open-delay="0">`. A whole region: wrap it in `<Tooltip.Provider>` (see below). Warmup coordination stays shared across every layer.
+
+??? When should I use Tooltip.Provider instead of the plugin?
+
+They are not alternatives — the plugin is the app-wide default, and `<Tooltip.Provider>` overrides the delays (and `disabled`) for a subtree, layering on top of the plugin. Its real value is reaching tooltips inside components you do not author: disable every tooltip in a panel for a compact mode, make a third-party widget's tooltips instant, or give one section different timing — none of which Root props can do (you do not own those Roots) and the plugin cannot do (it is global). If you write the Roots yourself, set the prop on them instead. With no plugin installed it still works, falling back to the documented defaults.
 
 ??? Why doesn't Tooltip.Activator open when I focus it via mouse click?
 
