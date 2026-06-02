@@ -10,9 +10,6 @@
   import { useSearch } from '@/composables/useSearch'
   import { useSettings } from '@/composables/useSettings'
 
-  // Constants
-  import { GITHUB_SPONSORS_ECOSYSTEM } from '@/constants/services'
-
   // Stores
   import { useAuthStore } from '@vuetify/auth'
 
