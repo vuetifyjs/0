@@ -115,18 +115,6 @@
 
       <a
         v-if="isHomePage || settings.showSocialLinks.value"
-        aria-label="Sponsor v0 (opens in new tab)"
-        class="bg-[#bf3989] text-white pa-1 inline-flex rounded opacity-90 hover:opacity-100"
-        :href="GITHUB_SPONSORS_ECOSYSTEM"
-        rel="noopener noreferrer"
-        target="_blank"
-        title="Sponsor v0"
-      >
-        <AppIcon class="!opacity-100" icon="heart" />
-      </a>
-
-      <a
-        v-if="isHomePage || settings.showSocialLinks.value"
         aria-label="Discord Community (opens in new tab)"
         class="bg-[#5865F2] text-white pa-1 inline-flex rounded opacity-90 hover:opacity-100"
         href="https://discord.gg/vK6T89eNP7"
