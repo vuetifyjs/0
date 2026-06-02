@@ -160,14 +160,6 @@
     }
   }
 
-  // Sort indicator
-  function sortIcon (key: string): string {
-    const dir = table.sort.direction(key)
-    if (dir === 'asc') return '\u2191'
-    if (dir === 'desc') return '\u2193'
-    return ''
-  }
-
   // Weighted color blend for a group
   function blend (items: Record<string, unknown>[]): string {
     const counts: Record<Level, number> = { draft: 0, preview: 0, stable: 0, mature: 0, deprecated: 0 }
@@ -406,7 +398,14 @@
               @click="col.sortable ? table.sort.toggle(col.key) : undefined"
             >
               {{ col.title }}
-              <span v-if="col.sortable" class="ml-0.5 text-primary">{{ sortIcon(col.key) }}</span>
+              <AppIcon
+                v-if="col.sortable && table.sort.direction(col.key) !== 'none'"
+                aria-hidden="true"
+                class="ml-0.5 text-primary transition-transform"
+                :class="table.sort.direction(col.key) === 'asc' ? '-rotate-90' : 'rotate-90'"
+                icon="chevron-right"
+                :size="14"
+              />
             </th>
           </tr>
 
