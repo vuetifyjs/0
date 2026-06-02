@@ -18,6 +18,7 @@ declare module 'vue' {
     AppBreadcrumbs: typeof import('./components/app/AppBreadcrumbs.vue')['default']
     AppBrowserIcon: typeof import('./components/app/AppBrowserIcon.vue')['default']
     AppBurst: typeof import('./components/app/AppBurst.vue')['default']
+    AppChevron: typeof import('./components/app/AppChevron.vue')['default']
     AppChip: typeof import('./components/app/AppChip.vue')['default']
     AppCloseButton: typeof import('./components/app/AppCloseButton.vue')['default']
     AppCopyright: typeof import('./components/app/AppCopyright.vue')['default']

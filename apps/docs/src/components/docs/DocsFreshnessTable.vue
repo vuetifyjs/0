@@ -94,12 +94,7 @@
           </Select.Value>
 
           <Select.Cue v-slot="{ isOpen }" class="inline-flex items-center opacity-60">
-            <AppIcon
-              class="transition-transform"
-              :class="isOpen ? '-rotate-90' : 'rotate-90'"
-              icon="chevron-right"
-              :size="14"
-            />
+            <AppChevron :open="isOpen" :size="14" vertical />
           </Select.Cue>
         </Select.Activator>
 
