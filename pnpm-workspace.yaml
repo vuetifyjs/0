@@ -87,7 +87,7 @@ catalog:
 
 catalogMode: strict
 
-minimumReleaseAge: 4320
+minimumReleaseAge: 20160
 
 minimumReleaseAgeExclude:
   - '@vuetify/auth'
