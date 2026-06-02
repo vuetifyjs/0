@@ -80,8 +80,8 @@ flowchart TD
 | `positionArea` | `string` | `'bottom'` | CSS `position-area` value — controls where the content appears relative to the anchor |
 | `positionTry` | `string` | `'most-width bottom'` | CSS `position-try-fallbacks` value — fallback positions when the primary area overflows |
 | `isOpen` | `Ref<boolean>` | — | External ref for bidirectional open state (e.g., from `defineModel`) |
-| `showDelay` | `number` | `0` | Milliseconds to wait before showing the popover (hover/focus use cases) |
-| `hideDelay` | `number` | `0` | Milliseconds to wait before hiding the popover (prevents premature close on mouse leave) |
+| `openDelay` | `MaybeRefOrGetter<number>` | `0` | Milliseconds to wait before opening the popover |
+| `closeDelay` | `MaybeRefOrGetter<number>` | `0` | Milliseconds to wait before closing the popover |
 
 ## Reactivity
 
@@ -91,6 +91,7 @@ flowchart TD
 | `open()` | - | Open the popover |
 | `close()` | - | Close the popover |
 | `toggle()` | - | Toggle open/close |
+| `cancel()` | - | Cancel any pending open or close transition |
 | `attach(el)` | - | Wire native show/hide watch + toggle event sync to a content element |
 | `anchorStyles` | <AppSuccessIcon /> | Readonly Ref, CSS `anchor-name` for the activator element |
 | `contentAttrs` | <AppSuccessIcon /> | Readonly Ref, `id` and `popover` attribute for the content element |
