@@ -28,7 +28,7 @@
     <PinnedToolbar :grid :stats :volume />
 
     <div
-      class="border border-divider rounded-lg overflow-hidden"
+      class="border border-divider rounded-lg overflow-hidden bg-surface"
       data-grid
     >
       <div class="overflow-x-auto">
@@ -41,9 +41,8 @@
               <th
                 v-for="col in grid.layout.columns.value"
                 :key="col.id"
-                class="group relative px-3 py-2 font-medium select-none overflow-hidden"
+                class="group relative px-3 py-2 font-medium select-none bg-surface-tint"
                 :class="[
-                  col.pinned ? 'bg-surface-tint' : 'bg-surface',
                   col.pinned === 'left' ? 'border-r border-divider' : '',
                   col.pinned === 'right' ? 'border-l border-divider' : '',
                   isNumeric(col.id) ? 'text-right' : 'text-left',
@@ -103,14 +102,14 @@
             <tr
               v-for="item in grid.items.value"
               :key="item.id"
-              class="hover:bg-surface-tint transition-colors"
+              class="group hover:bg-surface-tint transition-colors"
             >
               <td
                 v-for="col in grid.layout.columns.value"
                 :key="col.id"
                 class="px-3 py-1.5 truncate"
                 :class="[
-                  col.pinned ? 'bg-surface-tint' : 'bg-surface',
+                  col.pinned ? 'bg-surface group-hover:bg-surface-tint' : '',
                   col.pinned === 'left' ? 'border-r border-divider' : '',
                   col.pinned === 'right' ? 'border-l border-divider' : '',
                   isNumeric(col.id) ? 'text-right font-mono tabular-nums' : '',
@@ -159,7 +158,7 @@
                 </template>
 
                 <template v-else>
-                  {{ item[col.id] }}
+                  {{ item[col.id as keyof typeof item] }}
                 </template>
               </td>
             </tr>
