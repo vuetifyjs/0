@@ -62,7 +62,7 @@
                   :class="isNumeric(col.id) ? 'justify-end' : ''"
                 >
                   <button
-                    class="shrink-0 transition-opacity"
+                    class="shrink-0"
                     :class="col.pinned ? 'opacity-80 text-primary' : 'opacity-0 group-hover:opacity-60 hover:!opacity-100'"
                     :title="pinTitle(col.pinned)"
                     @click.stop="onPin(col.id)"
@@ -102,7 +102,7 @@
             <tr
               v-for="item in grid.items.value"
               :key="item.id"
-              class="group hover:bg-surface-tint transition-colors"
+              class="group hover:bg-surface-tint"
             >
               <td
                 v-for="col in grid.layout.columns.value"

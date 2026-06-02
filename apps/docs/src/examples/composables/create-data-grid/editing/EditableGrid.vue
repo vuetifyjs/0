@@ -104,7 +104,7 @@
               v-for="col in grid.layout.columns.value"
               :key="col.id"
               :ref="isEditing(item.id as ID, col.id) ? 'active-cell' : undefined"
-              class="px-3 py-2 transition-colors"
+              class="px-3 py-2"
               :class="[
                 col.id === 'price' || col.id === 'quantity' ? 'text-right' : 'text-left',
                 isEditing(item.id as ID, col.id) ? 'bg-primary/10 text-on-primary-container' : '',

@@ -77,7 +77,7 @@
             <tr
               v-for="(item, index) in grid.items.value"
               :key="item.id"
-              class="border-b border-divider/40 hover:bg-surface-tint/40 transition-colors"
+              class="border-b border-divider/40 hover:bg-surface-tint/40"
               :class="index === 0 || isAccountHead(item.id as number) ? 'border-t border-divider' : ''"
             >
               <template v-for="col in grid.layout.columns.value" :key="col.id">
