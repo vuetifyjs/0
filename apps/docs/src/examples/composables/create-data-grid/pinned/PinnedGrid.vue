@@ -1,9 +1,9 @@
 <script setup lang="ts">
-  import { computed, shallowRef } from 'vue'
+  import { computed, shallowRef, useTemplateRef } from 'vue'
 
   import { mdiArrowDown, mdiArrowUp, mdiChartLine, mdiPin, mdiPinOffOutline, mdiPinOutline, mdiRefresh } from '@mdi/js'
 
-  import { createDataGrid, useDocumentEventListener, useToggleScope } from '@vuetify/v0'
+  import { createDataGrid, useDocumentEventListener, useResizeObserver, useToggleScope } from '@vuetify/v0'
 
   import { columns } from './columns'
   import { stocks } from './data'
@@ -18,6 +18,20 @@
   let startX = 0
   let table: HTMLElement | null = null
   let resized = false
+
+  // Sticky offsets must match the table's real pixel width: the layout offsets
+  // are a percentage of the table, but a sticky `left`/`right` percentage
+  // resolves against the scroll viewport, which is narrower once the table
+  // overflows — so pinned columns past the first would drift. Resolve to px.
+  const tableEl = useTemplateRef<HTMLTableElement>('table-el')
+  const tableWidth = shallowRef(0)
+  useResizeObserver(tableEl, ([entry]) => {
+    tableWidth.value = entry.contentRect.width
+  })
+
+  function inset (offset: number) {
+    return tableWidth.value * offset / 100 + 'px'
+  }
 
   function onResizeStart (id: string, event: PointerEvent) {
     resizing.value = id
@@ -148,137 +162,143 @@
     </div>
 
     <div
-      class="border border-divider rounded-lg overflow-x-auto"
+      class="border border-divider rounded-lg overflow-hidden"
       data-grid
     >
-      <table class="w-full text-sm min-w-[1100px] table-fixed" style="overflow: visible">
-        <thead>
-          <tr class="border-b border-divider">
-            <th
-              v-for="col in grid.layout.columns.value"
-              :key="col.id"
-              class="group relative px-3 py-2 font-medium select-none overflow-hidden"
-              :class="[
-                col.pinned ? 'bg-surface-tint' : 'bg-surface',
-                col.pinned === 'left' ? 'border-r border-divider' : '',
-                col.pinned === 'right' ? 'border-l border-divider' : '',
-                isNumeric(col.id) ? 'text-right' : 'text-left',
-              ]"
-              :style="{
-                width: col.size + '%',
-                position: col.pinned ? 'sticky' : undefined,
-                left: col.pinned === 'left' ? col.offset + '%' : undefined,
-                right: col.pinned === 'right' ? col.offset + '%' : undefined,
-                zIndex: col.pinned ? 10 : undefined,
-              }"
-              @click="onSort(col.id)"
-            >
-              <div
-                class="flex items-center gap-1"
-                :class="isNumeric(col.id) ? 'justify-end' : ''"
+      <div class="overflow-x-auto">
+        <table
+          ref="table-el"
+          class="w-full text-sm min-w-[1100px] table-fixed"
+          style="overflow: visible"
+        >
+          <thead>
+            <tr class="border-b border-divider">
+              <th
+                v-for="col in grid.layout.columns.value"
+                :key="col.id"
+                class="group relative px-3 py-2 font-medium select-none overflow-hidden"
+                :class="[
+                  col.pinned ? 'bg-surface-tint' : 'bg-surface',
+                  col.pinned === 'left' ? 'border-r border-divider' : '',
+                  col.pinned === 'right' ? 'border-l border-divider' : '',
+                  isNumeric(col.id) ? 'text-right' : 'text-left',
+                ]"
+                :style="{
+                  width: col.size + '%',
+                  position: col.pinned ? 'sticky' : undefined,
+                  left: col.pinned === 'left' ? inset(col.offset) : undefined,
+                  right: col.pinned === 'right' ? inset(col.offset) : undefined,
+                  zIndex: col.pinned ? 10 : undefined,
+                }"
+                @click="onSort(col.id)"
               >
-                <button
-                  class="shrink-0 transition-opacity"
-                  :class="col.pinned ? 'opacity-80 text-primary' : 'opacity-0 group-hover:opacity-60 hover:!opacity-100'"
-                  :title="pinTitle(col.pinned)"
-                  @click.stop="onPin(col.id)"
+                <div
+                  class="flex items-center gap-1"
+                  :class="isNumeric(col.id) ? 'justify-end' : ''"
                 >
-                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24">
+                  <button
+                    class="shrink-0 transition-opacity"
+                    :class="col.pinned ? 'opacity-80 text-primary' : 'opacity-0 group-hover:opacity-60 hover:!opacity-100'"
+                    :title="pinTitle(col.pinned)"
+                    @click.stop="onPin(col.id)"
+                  >
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24">
+                      <path
+                        :d="col.pinned === 'left' ? mdiPin : col.pinned === 'right' ? mdiPinOffOutline : mdiPinOutline"
+                        fill="currentColor"
+                      />
+                    </svg>
+                  </button>
+
+                  <span class="truncate">{{ label(col.id) }}</span>
+
+                  <svg
+                    v-if="grid.sort.direction(col.id) !== 'none'"
+                    class="w-3.5 h-3.5 shrink-0"
+                    viewBox="0 0 24 24"
+                  >
                     <path
-                      :d="col.pinned === 'left' ? mdiPin : col.pinned === 'right' ? mdiPinOffOutline : mdiPinOutline"
+                      :d="grid.sort.direction(col.id) === 'asc' ? mdiArrowUp : mdiArrowDown"
                       fill="currentColor"
                     />
                   </svg>
-                </button>
+                </div>
 
-                <span class="truncate">{{ label(col.id) }}</span>
+                <div
+                  v-if="canResize(col.id)"
+                  class="absolute top-0 -right-1 w-2 h-full cursor-col-resize z-20 hover:bg-primary/50"
+                  @pointerdown.stop="onResizeStart(col.id, $event)"
+                />
+              </th>
+            </tr>
+          </thead>
 
-                <svg
-                  v-if="grid.sort.direction(col.id) !== 'none'"
-                  class="w-3.5 h-3.5 shrink-0"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    :d="grid.sort.direction(col.id) === 'asc' ? mdiArrowUp : mdiArrowDown"
-                    fill="currentColor"
-                  />
-                </svg>
-              </div>
-
-              <div
-                v-if="canResize(col.id)"
-                class="absolute top-0 -right-1 w-2 h-full cursor-col-resize z-20 hover:bg-primary/50"
-                @pointerdown.stop="onResizeStart(col.id, $event)"
-              />
-            </th>
-          </tr>
-        </thead>
-
-        <tbody class="divide-y divide-divider">
-          <tr
-            v-for="item in grid.items.value"
-            :key="item.id"
-            class="hover:bg-surface-tint transition-colors"
-          >
-            <td
-              v-for="col in grid.layout.columns.value"
-              :key="col.id"
-              class="px-3 py-1.5 truncate"
-              :class="[
-                col.pinned ? 'bg-surface-tint' : 'bg-surface',
-                col.pinned === 'left' ? 'border-r border-divider' : '',
-                col.pinned === 'right' ? 'border-l border-divider' : '',
-                isNumeric(col.id) ? 'text-right font-mono tabular-nums' : '',
-              ]"
-              :style="{
-                width: col.size + '%',
-                position: col.pinned ? 'sticky' : undefined,
-                left: col.pinned === 'left' ? col.offset + '%' : undefined,
-                right: col.pinned === 'right' ? col.offset + '%' : undefined,
-                zIndex: col.pinned ? 10 : undefined,
-              }"
+          <tbody class="divide-y divide-divider">
+            <tr
+              v-for="item in grid.items.value"
+              :key="item.id"
+              class="hover:bg-surface-tint transition-colors"
             >
-              <template v-if="col.id === 'ticker'">
-                <span class="font-bold uppercase">{{ item.ticker }}</span>
-              </template>
+              <td
+                v-for="col in grid.layout.columns.value"
+                :key="col.id"
+                class="px-3 py-1.5 truncate"
+                :class="[
+                  col.pinned ? 'bg-surface-tint' : 'bg-surface',
+                  col.pinned === 'left' ? 'border-r border-divider' : '',
+                  col.pinned === 'right' ? 'border-l border-divider' : '',
+                  isNumeric(col.id) ? 'text-right font-mono tabular-nums' : '',
+                ]"
+                :style="{
+                  width: col.size + '%',
+                  position: col.pinned ? 'sticky' : undefined,
+                  left: col.pinned === 'left' ? inset(col.offset) : undefined,
+                  right: col.pinned === 'right' ? inset(col.offset) : undefined,
+                  zIndex: col.pinned ? 10 : undefined,
+                }"
+              >
+                <template v-if="col.id === 'ticker'">
+                  <span class="font-bold uppercase">{{ item.ticker }}</span>
+                </template>
 
-              <template v-else-if="col.id === 'price'">
-                ${{ item.price.toFixed(2) }}
-              </template>
+                <template v-else-if="col.id === 'price'">
+                  ${{ item.price.toFixed(2) }}
+                </template>
 
-              <template v-else-if="col.id === 'change'">
-                <span :class="item.change >= 0 ? 'text-success' : 'text-error'">
-                  {{ item.change >= 0 ? '+' : '' }}{{ item.change.toFixed(2) }}%
-                </span>
-              </template>
+                <template v-else-if="col.id === 'change'">
+                  <span :class="item.change >= 0 ? 'text-success' : 'text-error'">
+                    {{ item.change >= 0 ? '+' : '' }}{{ item.change.toFixed(2) }}%
+                  </span>
+                </template>
 
-              <template v-else-if="col.id === 'volume'">
-                {{ volume(item.volume) }}
-              </template>
+                <template v-else-if="col.id === 'volume'">
+                  {{ volume(item.volume) }}
+                </template>
 
-              <template v-else-if="col.id === 'cap'">
-                {{ cap(item.cap) }}
-              </template>
+                <template v-else-if="col.id === 'cap'">
+                  {{ cap(item.cap) }}
+                </template>
 
-              <template v-else-if="col.id === 'pe'">
-                {{ item.pe.toFixed(1) }}
-              </template>
+                <template v-else-if="col.id === 'pe'">
+                  {{ item.pe.toFixed(1) }}
+                </template>
 
-              <template v-else-if="col.id === 'eps'">
-                ${{ item.eps.toFixed(2) }}
-              </template>
+                <template v-else-if="col.id === 'eps'">
+                  ${{ item.eps.toFixed(2) }}
+                </template>
 
-              <template v-else-if="col.id === 'dividend'">
-                {{ item.dividend.toFixed(2) }}%
-              </template>
+                <template v-else-if="col.id === 'dividend'">
+                  {{ item.dividend.toFixed(2) }}%
+                </template>
 
-              <template v-else>
-                {{ item[col.id] }}
-              </template>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+                <template v-else>
+                  {{ item[col.id] }}
+                </template>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
 
     <div class="flex items-center gap-3 text-xs text-on-surface-variant">
