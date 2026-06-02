@@ -1,12 +1,17 @@
 <script setup lang="ts">
-  import { Button, Tooltip } from '@vuetify/v0'
+  import { Button, Tooltip, useTimer } from '@vuetify/v0'
   import { shallowRef } from 'vue'
   import TooltipButton from './TooltipButton.vue'
 
   const copied = shallowRef(false)
 
+  const reset = useTimer(() => {
+    copied.value = false
+  }, { duration: 3000 })
+
   function onCopy () {
     copied.value = true
+    reset.start()
   }
 </script>
 
