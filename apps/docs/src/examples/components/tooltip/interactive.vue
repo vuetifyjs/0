@@ -19,20 +19,22 @@
       </Tooltip.Activator>
 
       <Tooltip.Content
-        class="flex items-center gap-1 p-1 rounded-lg bg-on-surface text-surface shadow-lg"
+        class="rounded-lg bg-on-surface text-surface shadow-lg"
         :style="{ margin: '6px 0' }"
       >
-        <Button.Root
-          class="px-2.5 py-1 rounded text-xs hover:bg-surface/15 data-[copied]:text-success"
-          :data-copied="copied || undefined"
-          @click="onCopy"
-        >
-          {{ copied ? 'Copied!' : 'Copy link' }}
-        </Button.Root>
+        <div class="flex items-center gap-1 p-1">
+          <Button.Root
+            class="px-2.5 py-1 rounded text-xs hover:bg-surface/15 data-[copied]:text-success"
+            :data-copied="copied || undefined"
+            @click="onCopy"
+          >
+            {{ copied ? 'Copied!' : 'Copy link' }}
+          </Button.Root>
 
-        <Button.Root class="px-2.5 py-1 rounded text-xs hover:bg-surface/15">
-          Open
-        </Button.Root>
+          <Button.Root class="px-2.5 py-1 rounded text-xs hover:bg-surface/15">
+            Open
+          </Button.Root>
+        </div>
       </Tooltip.Content>
     </Tooltip.Root>
   </div>
