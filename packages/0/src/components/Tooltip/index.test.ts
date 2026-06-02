@@ -3,6 +3,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 // Composables
 import { createTooltipPlugin } from '#v0/composables/useTooltip'
 
+import { Tooltip } from './index'
+
 // Utilities
 import { mount } from '@vue/test-utils'
 import { defineComponent, h, nextTick } from 'vue'
@@ -10,8 +12,6 @@ import { defineComponent, h, nextTick } from 'vue'
 // Types
 import type { MountingOptions } from '@vue/test-utils'
 import type { Component } from 'vue'
-
-import { Tooltip } from './index'
 
 describe('tooltip', () => {
   let plugin: ReturnType<typeof createTooltipPlugin>
