@@ -7,7 +7,7 @@
   import { useThemeToggle } from '@/composables/useThemeToggle'
 
   // Constants
-  import { GITHUB_SPONSORS_ECOSYSTEM } from '@/constants/services'
+  import { GITHUB_SPONSORS } from '@/constants/services'
 
   // Stores
   import { useAppStore } from '@/stores/app'
@@ -31,7 +31,7 @@
   const links = [
     { icon: 'discord', href: 'https://discord.gg/vK6T89eNP7', label: 'Discord', bg: 'bg-discord' },
     { icon: 'github', href: 'https://github.com/vuetifyjs/0', label: 'GitHub', bg: 'bg-[#24292f]' },
-    { icon: 'heart', href: GITHUB_SPONSORS_ECOSYSTEM, label: 'Sponsor', bg: 'bg-[#bf3989]' },
+    { icon: 'heart', href: GITHUB_SPONSORS, label: 'Sponsor', bg: 'bg-[#bf3989]' },
   ]
 
   const latest = toRef(() => releases.releases[0])
