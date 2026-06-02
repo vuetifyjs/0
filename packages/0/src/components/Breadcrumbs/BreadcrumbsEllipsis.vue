@@ -84,8 +84,8 @@
 
       const el = element as HTMLElement
       const style = getComputedStyle(el)
-      const marginX = Number.parseFloat(style.marginLeft) + Number.parseFloat(style.marginRight)
-      context.ellipsisWidth.value = el.offsetWidth + marginX
+      const marginX = (Number.parseFloat(style.marginLeft) || 0) + (Number.parseFloat(style.marginRight) || 0)
+      context.ellipsisWidth.value = (el.offsetWidth || 0) + marginX
     },
     { immediate: true },
   )
