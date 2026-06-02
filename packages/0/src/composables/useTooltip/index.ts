@@ -148,9 +148,6 @@ export interface TooltipContextOptions extends TooltipOptions {
 
 export interface TooltipPluginOptions extends TooltipContextOptions {}
 
-// Internal factory passed to createPluginContext below. The trinity exports
-// (`createTooltipContext`, `createTooltipPlugin`, `useTooltip`) are the
-// public surface; this factory stays unexported to keep one entry point.
 function createTooltip (options: TooltipOptions = {}): TooltipContext {
   const openDelay = toRef(() => toValue(options.openDelay) ?? 700)
   const closeDelay = toRef(() => toValue(options.closeDelay) ?? 150)
