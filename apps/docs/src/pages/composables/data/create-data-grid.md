@@ -173,7 +173,7 @@ grid.onboard(largeDataset.map(value => ({ id: value.id, value })))
 
 ## Examples
 
-::: gn-example
+::: example
 /composables/create-data-grid/pinned/data.ts
 /composables/create-data-grid/pinned/columns.ts
 /composables/create-data-grid/pinned/usePinnedGrid.ts
@@ -205,7 +205,7 @@ A financial data grid with 10 columns that requires horizontal scrolling. Ticker
 
 :::
 
-::: gn-example
+::: example
 /composables/create-data-grid/editing/data.ts
 /composables/create-data-grid/editing/columns.ts
 /composables/create-data-grid/editing/useEditableGrid.ts
@@ -238,7 +238,7 @@ An inventory management grid where editing is the primary workflow. Product name
 
 :::
 
-::: gn-example
+::: example
 /composables/create-data-grid/spanning/data.ts
 /composables/create-data-grid/spanning/columns.ts
 /composables/create-data-grid/spanning/useSpanningGrid.ts
