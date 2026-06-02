@@ -238,4 +238,170 @@ describe('tooltip', () => {
       wrapper.unmount()
     })
   })
+
+  describe('activator interactions', () => {
+    function mountOpen (props: Record<string, unknown> = {}) {
+      return mountTooltip(defineComponent({
+        setup () {
+          return () =>
+            h(Tooltip.Root, { modelValue: true, closeDelay: 100, ...props }, () => [
+              h(Tooltip.Activator, null, () => 'Trigger'),
+              h(Tooltip.Content, null, () => 'Tip'),
+            ])
+        },
+      }), { attachTo: document.body })
+    }
+
+    it('should close on mouse pointerleave', async () => {
+      const wrapper = mountOpen()
+      await nextTick()
+      const activator = wrapper.find('button')
+      expect(activator.attributes('data-state')).not.toBe('closed')
+
+      await activator.trigger('pointerleave', { pointerType: 'mouse' })
+      vi.advanceTimersByTime(100)
+      await nextTick()
+
+      expect(activator.attributes('data-state')).toBe('closed')
+      wrapper.unmount()
+    })
+
+    it('should ignore pointerleave on touch', async () => {
+      const wrapper = mountOpen()
+      await nextTick()
+      const activator = wrapper.find('button')
+
+      await activator.trigger('pointerleave', { pointerType: 'touch' })
+      vi.advanceTimersByTime(200)
+      await nextTick()
+
+      expect(activator.attributes('data-state')).not.toBe('closed')
+      wrapper.unmount()
+    })
+
+    it('should open instantly on keyboard focus', async () => {
+      const wrapper = mountTooltip(defineComponent({
+        setup () {
+          return () =>
+            h(Tooltip.Root, { openDelay: 300 }, () => [
+              h(Tooltip.Activator, null, () => 'Trigger'),
+              h(Tooltip.Content, null, () => 'Tip'),
+            ])
+        },
+      }), { attachTo: document.body })
+
+      const activator = wrapper.find('button')
+      vi.spyOn(activator.element, 'matches').mockImplementation((selector: string) => selector === ':focus-visible')
+
+      await activator.trigger('focus')
+      await nextTick()
+
+      expect(activator.attributes('data-state')).toBe('instant-open')
+      wrapper.unmount()
+    })
+
+    it('should not open on focus without :focus-visible', async () => {
+      const wrapper = mountTooltip(defineComponent({
+        setup () {
+          return () =>
+            h(Tooltip.Root, { openDelay: 300 }, () => [
+              h(Tooltip.Activator, null, () => 'Trigger'),
+              h(Tooltip.Content, null, () => 'Tip'),
+            ])
+        },
+      }), { attachTo: document.body })
+
+      const activator = wrapper.find('button')
+      vi.spyOn(activator.element, 'matches').mockReturnValue(false)
+
+      await activator.trigger('focus')
+      vi.advanceTimersByTime(500)
+      await nextTick()
+
+      expect(activator.attributes('data-state')).toBe('closed')
+      wrapper.unmount()
+    })
+
+    it('should close on blur', async () => {
+      const wrapper = mountOpen()
+      await nextTick()
+      const activator = wrapper.find('button')
+
+      await activator.trigger('blur')
+      vi.advanceTimersByTime(100)
+      await nextTick()
+
+      expect(activator.attributes('data-state')).toBe('closed')
+      wrapper.unmount()
+    })
+
+    it('should close on click', async () => {
+      const wrapper = mountOpen()
+      await nextTick()
+      const activator = wrapper.find('button')
+
+      await activator.trigger('click')
+      vi.advanceTimersByTime(100)
+      await nextTick()
+
+      expect(activator.attributes('data-state')).toBe('closed')
+      wrapper.unmount()
+    })
+  })
+
+  describe('interactive content', () => {
+    function mountInteractive (interactive: boolean) {
+      return mountTooltip(defineComponent({
+        setup () {
+          return () =>
+            h(Tooltip.Root, { modelValue: true, interactive, closeDelay: 100 }, () => [
+              h(Tooltip.Activator, null, () => 'Trigger'),
+              h(Tooltip.Content, null, () => 'Tip'),
+            ])
+        },
+      }), { attachTo: document.body })
+    }
+
+    it('should stay open when the pointer enters interactive content', async () => {
+      const wrapper = mountInteractive(true)
+      await nextTick()
+      const activator = wrapper.find('button')
+      const content = wrapper.find('[role="tooltip"]')
+
+      // Leaving the activator schedules a close, entering content cancels it.
+      await activator.trigger('pointerleave', { pointerType: 'mouse' })
+      await content.trigger('pointerenter', { pointerType: 'mouse' })
+      vi.advanceTimersByTime(100)
+      await nextTick()
+
+      expect(activator.attributes('data-state')).not.toBe('closed')
+      wrapper.unmount()
+    })
+
+    it('should close when the pointer leaves interactive content', async () => {
+      const wrapper = mountInteractive(true)
+      await nextTick()
+      const content = wrapper.find('[role="tooltip"]')
+
+      await content.trigger('pointerleave', { pointerType: 'mouse' })
+      vi.advanceTimersByTime(100)
+      await nextTick()
+
+      expect(wrapper.find('button').attributes('data-state')).toBe('closed')
+      wrapper.unmount()
+    })
+
+    it('should ignore content pointer events when not interactive', async () => {
+      const wrapper = mountInteractive(false)
+      await nextTick()
+      const content = wrapper.find('[role="tooltip"]')
+
+      await content.trigger('pointerleave', { pointerType: 'mouse' })
+      vi.advanceTimersByTime(200)
+      await nextTick()
+
+      expect(wrapper.find('button').attributes('data-state')).not.toBe('closed')
+      wrapper.unmount()
+    })
+  })
 })
