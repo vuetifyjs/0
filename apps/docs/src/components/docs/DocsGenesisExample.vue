@@ -156,8 +156,9 @@
 </template>
 
 <style scoped>
-  /* Match the AppBar's glass treatment on sticky toolbars so they read as a
-     continuous surface with the page chrome while scrolling. */
+  /* Skin the example surfaces with the AppBar's glass treatment so the
+     description and the sticky toolbars read as continuous page chrome. */
+  :deep(.genesis-docs-example-description),
   :deep(.genesis-docs-example__toggle-bar),
   :deep(.genesis-docs-example__code-bar),
   :deep(.genesis-docs-example-tabs__bar) {
