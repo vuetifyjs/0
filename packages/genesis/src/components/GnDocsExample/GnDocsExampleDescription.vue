@@ -87,7 +87,7 @@
 <style scoped>
   .genesis-docs-example-description {
     position: relative;
-    padding: 1rem 1.25rem;
+    padding: 1rem 1.25rem 0;
     border-bottom: 1px solid color-mix(in srgb, var(--v0-on-surface, currentcolor) 14%, transparent);
     background: var(--v0-surface-tint, var(--v0-surface, #f5f5f8));
     color: var(--v0-on-surface-variant, rgb(0 0 0 / 0.6));
