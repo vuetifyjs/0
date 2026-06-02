@@ -41,7 +41,6 @@ describe('tooltip', () => {
       expect(Tooltip.Root).toBeDefined()
       expect(Tooltip.Activator).toBeDefined()
       expect(Tooltip.Content).toBeDefined()
-      expect(Tooltip.Provider).toBeDefined()
     })
   })
 
@@ -102,33 +101,6 @@ describe('tooltip', () => {
       await nextTick()
 
       expect(second.attributes('data-state')).toBe('instant-open')
-      wrapper.unmount()
-    })
-  })
-
-  describe('provider override', () => {
-    it('should apply the provider open delay to a descendant Root', async () => {
-      const wrapper = mountTooltip(defineComponent({
-        setup () {
-          return () =>
-            h(Tooltip.Provider, { openDelay: 50 }, () => [
-              h(Tooltip.Root, null, () => [
-                h(Tooltip.Activator, null, () => 'Trigger'),
-                h(Tooltip.Content, null, () => 'Tip'),
-              ]),
-            ])
-        },
-      }), { attachTo: document.body })
-
-      const activator = wrapper.find('button')
-      await activator.trigger('pointerenter', { pointerType: 'mouse' })
-
-      expect(activator.attributes('data-state')).toBe('closed')
-
-      vi.advanceTimersByTime(50)
-      await nextTick()
-
-      expect(activator.attributes('data-state')).not.toBe('closed')
       wrapper.unmount()
     })
   })

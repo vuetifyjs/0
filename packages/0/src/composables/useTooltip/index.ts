@@ -10,8 +10,7 @@
  * "warmup" pattern from React Aria / Radix).
  *
  * Use the plugin form (`app.use(createTooltipPlugin())`) for app-wide
- * defaults, or the `<Tooltip.Provider>` component for region-scoped
- * overrides.
+ * defaults.
  *
  * @example
  * ```ts
