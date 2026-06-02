@@ -22,6 +22,9 @@
   import { createOverflow } from '#v0/composables/createOverflow'
   import { useLocale } from '#v0/composables/useLocale'
 
+  // Constants
+  import { IN_BROWSER } from '#v0/constants/globals'
+
   // Utilities
   import { isNull } from '#v0/utilities'
   import { shallowRef, toRef, useTemplateRef, watch } from 'vue'
@@ -31,9 +34,6 @@
   import type { ID } from '#v0/types'
   import type { BreadcrumbsRootContext, BreadcrumbsTicket } from './types'
   import type { ShallowRef } from 'vue'
-
-  // Constants
-  import { IN_BROWSER } from '#v0/constants/globals'
 
   export type { BreadcrumbsRootContext, BreadcrumbsTicket, BreadcrumbsTicketType } from './types'
 
@@ -112,7 +112,7 @@
 
   const overflow = createOverflow({
     container: () => containerRef.value?.element as Element | undefined,
-    gap,
+    gap: () => gap,
     reserved: () => {
       let r = 0
       if (firstItemWidth.value > 0) r += firstItemWidth.value + gap
@@ -137,8 +137,8 @@
     }
     const htmlEl = el as HTMLElement
     const style = getComputedStyle(htmlEl)
-    const marginX = Number.parseFloat(style.marginLeft) + Number.parseFloat(style.marginRight)
-    target.value = htmlEl.offsetWidth + marginX
+    const marginX = (Number.parseFloat(style.marginLeft) || 0) + (Number.parseFloat(style.marginRight) || 0)
+    target.value = (htmlEl.offsetWidth || 0) + marginX
   }
 
   function measureElement (index: number, type: 'item' | 'divider', el: Element | undefined) {

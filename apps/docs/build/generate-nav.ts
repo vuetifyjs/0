@@ -3,13 +3,13 @@ import { glob } from 'node:fs/promises'
 import { basename, dirname, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-// Types
-import type { Frontmatter } from './frontmatter'
-import type { Plugin, ViteDevServer } from 'vite'
-
 import { getApiNamesGrouped } from './api-names'
 import { parseFrontmatter } from './frontmatter'
 import { getGitDate } from './git-dates'
+
+// Types
+import type { Frontmatter } from './frontmatter'
+import type { Plugin, ViteDevServer } from 'vite'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const PAGES_DIR = resolve(__dirname, '../src/pages')
@@ -85,6 +85,7 @@ const STANDALONE: Record<string, { order: number, name: string }> = {
   'releases.md': { order: 1, name: 'Release Notes' },
   'roadmap.md': { order: 1.1, name: 'Roadmap' },
   'skillz/index.md': { order: 1.2, name: 'Skillz' },
+  'services.md': { order: 1.3, name: 'Services' },
 }
 
 function getNavName (frontmatter: Frontmatter, filename: string): string {

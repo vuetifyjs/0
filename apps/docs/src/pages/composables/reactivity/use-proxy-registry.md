@@ -65,7 +65,7 @@ flowchart LR
 > [!TIP] Deep vs shallow
 > Pass `{ deep: true }` for `reactive()`, or omit for `shallowReactive()` (default). Shallow is more performant when ticket internals don't need tracking.
 
-## Frequently Asked Questions
+## FAQ
 
 ::: faq
 ??? Why does the registry need `events: true`?

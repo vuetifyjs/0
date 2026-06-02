@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest'
 
+import { ServerComboboxAdapter } from './server'
+
 // Utilities
 import { shallowRef } from 'vue'
 
 // Types
 import type { SelectionTicket } from '#v0/composables/createSelection'
 import type { ComboboxAdapterContext } from './adapter'
-
-import { ServerComboboxAdapter } from './server'
 
 function createContext (
   items: SelectionTicket[] = [],

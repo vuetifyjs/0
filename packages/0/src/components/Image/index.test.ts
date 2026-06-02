@@ -1,11 +1,11 @@
 import { describe, expect, it, vi } from 'vitest'
 import { renderToString } from 'vue/server-renderer'
 
+import { Image } from './index'
+
 // Utilities
 import { mount } from '@vue/test-utils'
 import { createSSRApp, defineComponent, h, nextTick } from 'vue'
-
-import { Image } from './index'
 
 describe('image', () => {
   describe('root', () => {
@@ -139,7 +139,7 @@ describe('image', () => {
       })
 
       it('should warn when lazy is combined with renderless', () => {
-        const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+        using warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
         mount(Image.Root, {
           props: { src: '/photo.jpg', lazy: true, renderless: true },
@@ -148,8 +148,6 @@ describe('image', () => {
 
         expect(warnSpy).toHaveBeenCalledTimes(1)
         expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('`lazy` requires a wrapper element'))
-
-        warnSpy.mockRestore()
       })
     })
   })

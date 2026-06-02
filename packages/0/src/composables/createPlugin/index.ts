@@ -148,7 +148,7 @@ function getPersistedStorage (): PersistedStorage {
  *   createPluginContext('v0:logger', options => createLogger(options), {
  *     fallback: ns => createFallbackLogger(ns),
  *     setup: (context) => {
- *       if (__DEV__ && IN_BROWSER) (window as any).__v0Logger__ = context
+ *       if (__DEV__ && IN_BROWSER) (window as Window & { __v0Logger__?: typeof context }).__v0Logger__ = context
  *     },
  *   })
  * ```

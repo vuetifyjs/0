@@ -1,9 +1,9 @@
 import { describe, expect, it, vi, afterEach } from 'vitest'
 
+import { instanceExists, instanceName } from './instance'
+
 // Types
 import type * as Vue from 'vue'
-
-import { instanceExists, instanceName } from './instance'
 
 const mocks = vi.hoisted(() => ({
   getCurrentInstance: vi.fn(),

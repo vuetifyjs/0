@@ -16,12 +16,12 @@
   import { useSearch } from '@/composables/useSearch'
   import { useSettings } from '@/composables/useSettings'
 
+  // Stores
+  import { useSkillzStore } from '@/stores/skillz'
+
   // Utilities
   import { computed, toRef } from 'vue'
   import { useRouter } from 'vue-router'
-
-  // Stores
-  import { useSkillzStore } from '@/stores/skillz'
 
   definePage({
     meta: {

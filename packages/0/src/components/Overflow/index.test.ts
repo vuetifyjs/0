@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { Overflow, useOverflowRoot } from './index'
+
 // Utilities
 import { mount } from '@vue/test-utils'
 import { defineComponent, h, nextTick } from 'vue'
@@ -11,8 +13,6 @@ import type {
   OverflowRootContext,
   OverflowRootSlotProps,
 } from './index'
-
-import { Overflow, useOverflowRoot } from './index'
 
 let resizeObserverCallback: ResizeObserverCallback | null = null
 let resizeObserverTarget: Element | null = null

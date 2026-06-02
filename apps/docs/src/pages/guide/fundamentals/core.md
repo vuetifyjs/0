@@ -256,7 +256,7 @@ wizard.last()   // Jump to end
 
 > [!ASKAI] How do I handle scoped contexts for nested components without prop drilling?
 
-## Frequently Asked Questions
+## FAQ
 
 ::: faq
 ??? Why use createContext instead of Vue's provide/inject directly?

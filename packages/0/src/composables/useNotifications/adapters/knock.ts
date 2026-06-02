@@ -24,14 +24,14 @@
  * ```
  */
 
-// Types
-import type { NotificationInput, NotificationsAdapterContext, NotificationTicket } from '../index'
-
 // Globals
 import { IN_BROWSER } from '#v0/constants/globals'
 
 // Adapters
 import { NotificationsAdapter } from './adapter'
+
+// Types
+import type { NotificationInput, NotificationsAdapterContext, NotificationTicket } from '../index'
 
 /** Minimal Knock feed item shape. Uses type-only imports to avoid bundling the SDK. */
 export interface KnockFeedItem {

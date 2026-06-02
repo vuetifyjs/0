@@ -317,7 +317,7 @@ In renderless mode, you're responsible for applying attrs to your custom element
 > [!WARNING]
 > When using renderless mode, ensure your custom element is accessible. A `<div>` needs explicit `role`, `tabindex`, and keyboard event handlers to match what a native `<button>` provides for free.
 
-## Questions
+## FAQ
 
 ::: faq
 ??? When would I use Atom directly vs just using a v0 component?

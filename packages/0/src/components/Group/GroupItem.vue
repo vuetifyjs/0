@@ -66,7 +66,7 @@
 </script>
 
 <script lang="ts" setup generic="V = unknown">
-  // Components
+  // Context
   import { useGroupRoot } from './GroupRoot.vue'
 
   // Utilities

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { createVirtual } from '@vuetify/v0'
+  import { Button, createVirtual } from '@vuetify/v0'
   import { computed, shallowRef } from 'vue'
 
   const items = shallowRef(
@@ -55,13 +55,13 @@
         @keyup.enter="onJumpTo"
       >
 
-      <button class="px-3 py-1 border border-divider rounded hover:bg-surface-tint" @click="onJumpTo">
+      <Button.Root class="px-3 py-1 border border-divider rounded hover:bg-surface-tint" @click="onJumpTo">
         Jump
-      </button>
+      </Button.Root>
 
-      <button class="px-3 py-1 border border-divider rounded hover:bg-surface-tint" @click="addItems">
+      <Button.Root class="px-3 py-1 border border-divider rounded hover:bg-surface-tint" @click="addItems">
         Add 100
-      </button>
+      </Button.Root>
 
       <span class="text-on-surface opacity-60 ml-auto">
         {{ stats.rendered }} (rendered) / {{ stats.total }}

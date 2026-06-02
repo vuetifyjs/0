@@ -87,7 +87,7 @@ catalog:
 
 catalogMode: strict
 
-minimumReleaseAge: 4320
+minimumReleaseAge: 20160
 
 minimumReleaseAgeExclude:
   - '@vuetify/auth'
@@ -105,6 +105,10 @@ onlyBuiltDependencies:
   - esbuild
   - simple-git-hooks
   - unrs-resolver
+
+ignoredBuiltDependencies:
+  - core-js
+  - protobufjs
 
 patchedDependencies:
   '@vue/repl@4.7.1': patches/@vue__repl@4.7.1.patch

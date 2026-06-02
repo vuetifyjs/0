@@ -1,5 +1,5 @@
 export * from './components'
 export * from './composables'
 export * from './constants'
-export type { ID } from './types'
+export type { ID, V0ErrorCode, V0ErrorDetails } from './types'
 export * from './utilities'

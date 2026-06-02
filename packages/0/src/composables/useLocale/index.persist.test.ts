@@ -3,10 +3,10 @@ import { describe, expect, it } from 'vitest'
 // Composables
 import { createStoragePlugin, useStorage } from '#v0/composables/useStorage'
 
+import { createLocalePlugin, useLocale } from './index'
+
 // Utilities
 import { createApp, nextTick } from 'vue'
-
-import { createLocalePlugin, useLocale } from './index'
 
 describe('useLocale persist/restore', () => {
   it('should restore a persisted locale before setup', () => {

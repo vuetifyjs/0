@@ -1,13 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { createStorage, createStorageContext, createStoragePlugin, useStorage } from './index'
+
 // Utilities
 import { nextTick, provide } from 'vue'
 
 // Types
 import type { StorageAdapter } from './index'
 import type { createApp } from 'vue'
-
-import { createStorage, createStorageContext, createStoragePlugin, useStorage } from './index'
 
 vi.mock('vue', async () => {
   const actual = await vi.importActual('vue')
@@ -158,15 +158,13 @@ describe('createStorage', () => {
 
     it('should handle serialization errors gracefully', () => {
       mockAdapter.getItem.mockReturnValue('invalid-json{')
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      using consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
       const storage = createStorage({ adapter: mockAdapter, prefix: 'test:' })
       const username = storage.get('username', 'default')
 
       expect(username.value).toBe('default')
       expect(consoleSpy).toHaveBeenCalled()
-
-      consoleSpy.mockRestore()
     })
 
     it('should use custom serializer', async () => {
@@ -470,7 +468,7 @@ describe('createStorage', () => {
         }),
         removeItem: vi.fn(),
       }
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      using consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
       const storage = createStorage({ adapter: failAdapter as unknown as StorageAdapter, prefix: 'test:' })
       const val = storage.get('key', 'default')
       val.value = 'new-value'
@@ -479,7 +477,6 @@ describe('createStorage', () => {
         expect.stringContaining('[v0:storage] Failed to write key'),
         expect.any(Error),
       )
-      consoleSpy.mockRestore()
     })
 
     it('should no-op when removing a key that was never created', () => {

@@ -1,14 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { renderToString } from 'vue/server-renderer'
 
+import { Scrim } from './index'
+
 // Utilities
 import { mount } from '@vue/test-utils'
 import { computed, createSSRApp, defineComponent, h, nextTick, shallowRef } from 'vue'
 
 // Types
 import type { StackTicket } from '#v0/composables/useStack'
-
-import { Scrim } from './index'
 
 // Mock useStack
 const mockSelectedItems = shallowRef(new Set<StackTicket>())

@@ -2,6 +2,9 @@
   // Components
   import { Discovery } from '@/components/discovery'
 
+  // Context
+  import DocsSponsorSlot from './DocsSponsorSlot.vue'
+
   // Composables
   import { useAsk } from '@/composables/useAsk'
   import { useSettings } from '@/composables/useSettings'
@@ -89,5 +92,7 @@
         </li>
       </ul>
     </nav>
+
+    <DocsSponsorSlot />
   </Discovery.Activator>
 </template>

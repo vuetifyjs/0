@@ -144,7 +144,7 @@ A design system with four token categories — color palettes, semantic aliases,
 
 :::
 
-## Frequently Asked Questions
+## FAQ
 
 ::: faq
 ??? What's the difference between `depth: Infinity` and `flat: true`?

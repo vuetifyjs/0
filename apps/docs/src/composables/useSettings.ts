@@ -59,7 +59,7 @@ const DEFAULTS: DocSettings = {
   lineWrap: false,
   reduceMotion: 'system',
   packageManager: 'pnpm',
-  showInlineApi: true,
+  showInlineApi: false,
   showSkillFilter: true,
   showThemeToggle: true,
   showSocialLinks: true,

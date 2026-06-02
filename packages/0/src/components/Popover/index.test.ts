@@ -1,14 +1,14 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { renderToString } from 'vue/server-renderer'
 
+import { Popover } from './index'
+
 // Utilities
 import { mount as baseMount } from '@vue/test-utils'
 import { createSSRApp, defineComponent, h, nextTick } from 'vue'
 
 // Types
 import type { mount as mountType } from '@vue/test-utils'
-
-import { Popover } from './index'
 
 // Popover/Scrim register click-outside and focus-trap listeners on document
 // when open. Without unmount the underlying effect scope persists across tests.

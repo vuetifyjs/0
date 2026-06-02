@@ -10,7 +10,7 @@ export type { ImageImgEmits, ImageImgProps, ImageImgSlotProps } from './ImageImg
 export type { ImagePlaceholderProps, ImagePlaceholderSlotProps } from './ImagePlaceholder.vue'
 export type { ImageContext, ImageRootProps, ImageRootSlotProps } from './ImageRoot.vue'
 
-// Components
+// Context
 import Fallback from './ImageFallback.vue'
 import Img from './ImageImg.vue'
 import Placeholder from './ImagePlaceholder.vue'

@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest'
 
+import { useElementSize, useResizeObserver } from './index'
+
 // Utilities
 import { nextTick, readonly, ref, type Ref, shallowRef } from 'vue'
-
-import { useElementSize, useResizeObserver } from './index'
 
 const mockIsHydrated = ref(false)
 vi.mock('#v0/composables/useHydration', () => ({

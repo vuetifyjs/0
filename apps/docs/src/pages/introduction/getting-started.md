@@ -167,7 +167,7 @@ vuetify0(app)
 app.mount('#app')
 ```
 
-> [!INFO]
+> [!NOTE]
 > For additional plugins, theming options, and advanced configuration, see the [Guide](/guide).
 
 ## Requirements
@@ -482,5 +482,12 @@ Now that v0 is installed, choose your path:
 
 > [!TIP]
 > Use `Cmd+/` on any documentation page to ask AI questions about v0.
+
+## Support v0
+
+v0 is built and maintained in the open. If it's useful to you or your team, sponsoring funds the work and keeps it moving — and need a hand shipping? The [Services](/services) page covers direct support plans and fixed-scope project builds.
+
+::: sponsor
+:::
 
 > [!DISCORD]

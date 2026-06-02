@@ -2,11 +2,11 @@
   // Framework
   import { SplitterHandle, useSplitterRoot } from '@vuetify/v0'
 
-  // Utilities
-  import { watch } from 'vue'
-
   // Constants
   import { IN_BROWSER } from '#v0/constants/globals'
+
+  // Utilities
+  import { watch } from 'vue'
 
   const {
     direction,

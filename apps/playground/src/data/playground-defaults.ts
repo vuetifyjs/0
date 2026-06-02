@@ -33,6 +33,12 @@ export function createMainTs (defaultTheme: 'light' | 'dark' = 'light', options?
   if (options?.vuetify) {
     extraImports.push(`import { createVuetify } from 'vuetify'`)
     extraSetup.push(
+      // Pre-declare Vuetify's cascade-layer order before any other styles can.
+      // The vuetify-labs.css <link> below loads async — meanwhile createVuetify()
+      // synchronously injects <style>@layer vuetify-utilities{…}</style>. Without
+      // this preamble, vuetify-utilities ends up declared before vuetify-components
+      // and components beat helpers in the cascade.
+      `document.head.insertAdjacentHTML('afterbegin', '<style>@layer vuetify-core,vuetify-components,vuetify-overrides,vuetify-utilities,vuetify-final;</style>')`,
       `const link = document.createElement('link')`,
       `link.rel = 'stylesheet'`,
       `link.setAttribute('data-preset-css', 'vuetify')`,

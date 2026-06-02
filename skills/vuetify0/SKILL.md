@@ -38,6 +38,7 @@ Check this table **before writing custom logic**. Match by problem, not by keywo
 | Slider / range / knob state | `createSlider` | forms |
 | Autocomplete / combobox | `createCombobox` | forms |
 | Spin-button numeric input | `createNumberField` / `createNumeric` | forms |
+| One-time-password / verification-code value | `createOtp` | forms |
 | Paginated or virtualized list | `createPagination`, `createVirtual` | data |
 | Sortable / filterable table | `createDataTable`, `createFilter` | data |
 | Breadcrumb trail derived from route | `createBreadcrumbs` | utilities |
@@ -137,7 +138,7 @@ Sub-components talk to the root via `createContext`. Never prop-drill state betw
 - `@vuetify/paper` — styling primitives that depend on v0
 - `vuetify` v4 — Material Design framework, integrates v0 via minor releases
 
-When the user asks to "style" a v0 component or build a design system, point them at `@vuetify/paper` or a Paper-based design system (e.g., Emerald, Codex). Keep v0 itself headless.
+When the user asks to "style" a v0 component or build a design system, point them at `@vuetify/paper` or a Paper-based design system (e.g., Emerald, Helix). Keep v0 itself headless.
 
 ## Vuetify MCP
 
@@ -162,3 +163,5 @@ Useful tools (fully qualified names required):
 - Selection patterns (single, multi, group, nested, step): [references/selection-patterns.md](references/selection-patterns.md)
 - Component compound patterns: [references/component-examples.md](references/component-examples.md)
 - Anti-patterns and migrations: [references/anti-patterns.md](references/anti-patterns.md)
+- Layer decisions (component vs composable vs both): [references/layer-decisions.md](references/layer-decisions.md)
+- Authoring guide (build a new compound component): [references/authoring-guide.md](references/authoring-guide.md)

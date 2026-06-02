@@ -1,11 +1,11 @@
+// Adapters
+import { LocaleAdapter } from './adapter'
+
 // Utilities
 import { isObject } from '#v0/utilities'
 
 // Types
 import type { Composer } from 'vue-i18n'
-
-// Adapters
-import { LocaleAdapter } from './adapter'
 
 /**
  * Locale adapter that delegates to a vue-i18n instance.

@@ -7,7 +7,7 @@
 
   const {
     coverage = 15,
-    density = 24,
+    density = 20,
     origin = 'bottom left',
   } = defineProps<{
     coverage?: number

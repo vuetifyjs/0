@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { createStep, createStepContext, useStep } from './index'
+
 // Utilities
 import { type App, inject, provide } from 'vue'
 
 // Types
 import type { StepTicketInput } from './index'
-
-import { createStep, createStepContext, useStep } from './index'
 
 vi.mock('vue', async () => {
   const actual = await vi.importActual('vue')

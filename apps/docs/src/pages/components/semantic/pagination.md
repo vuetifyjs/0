@@ -13,7 +13,7 @@ features:
   level: 2
 related:
   - /composables/data/create-pagination
-  - /composables/utilities/create-overflow
+  - /composables/semantic/create-overflow
 ---
 
 # Pagination

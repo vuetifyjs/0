@@ -17,12 +17,12 @@
   import { useSearch } from '@/composables/useSearch'
   import { useSettings } from '@/composables/useSettings'
 
+  // Stores
+  import { useAppStore } from '@/stores/app'
+
   // Utilities
   import { defineAsyncComponent, toRef, watch } from 'vue'
   import { useRoute } from 'vue-router'
-
-  // Stores
-  import { useAppStore } from '@/stores/app'
 
   const AppSettingsSheet = defineAsyncComponent(() => import('@/components/app/AppSettingsSheet.vue'))
   const DocsSearch = defineAsyncComponent(() => import('@/components/docs/DocsSearch.vue'))
@@ -475,7 +475,6 @@
   /* DocsExample code block styling */
   .docs-example-code .shiki {
     border: none;
-    border-top: thin solid var(--v0-divider);
     border-radius: 0;
     margin-bottom: 0;
   }

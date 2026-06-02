@@ -29,11 +29,11 @@
   // Composables
   import { useDiscovery } from '@/composables/useDiscovery'
 
-  // Utilities
-  import { onBeforeUnmount, toRef, useAttrs, useTemplateRef, watch } from 'vue'
-
   // Types
   import { SKILL_LEVEL_META } from '@/types/skill'
+
+  // Utilities
+  import { onBeforeUnmount, toRef, useAttrs, useTemplateRef, watch } from 'vue'
 
   defineOptions({ name: 'DocsDiscoveryStep', inheritAttrs: false })
 

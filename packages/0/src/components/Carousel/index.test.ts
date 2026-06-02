@@ -1,14 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { renderToString } from 'vue/server-renderer'
 
+import { useCarouselRoot, Carousel } from './index'
+
 // Utilities
 import { mount as baseMount } from '@vue/test-utils'
 import { createSSRApp, defineComponent, h, nextTick, ref } from 'vue'
 
 // Types
 import type { mount as mountType } from '@vue/test-utils'
-
-import { useCarouselRoot, Carousel } from './index'
 
 // CarouselViewport binds document mousemove/mouseup via
 // useDocumentEventListener gated by useToggleScope on snapDisabled. Even
@@ -1769,7 +1769,7 @@ describe('carousel', () => {
 
     it('should clear pending live-region timer on unmount', async () => {
       vi.useFakeTimers()
-      const clearSpy = vi.spyOn(globalThis, 'clearTimeout')
+      using clearSpy = vi.spyOn(globalThis, 'clearTimeout')
 
       let rootProps: any
 
@@ -1795,7 +1795,6 @@ describe('carousel', () => {
 
       expect(clearSpy.mock.calls.length).toBeGreaterThan(before)
 
-      clearSpy.mockRestore()
       vi.useRealTimers()
     })
 

@@ -87,7 +87,7 @@ Portal is transparent — it adds no DOM elements, ARIA attributes, or keyboard 
 > [!TIP]
 > When teleporting interactive content (modals, menus, notifications), ensure it has proper ARIA roles, keyboard handling, and focus management. Portal handles *where* content renders, not *how* it behaves.
 
-## Questions
+## FAQ
 
 ::: faq
 ??? When should I use Portal vs native Teleport?

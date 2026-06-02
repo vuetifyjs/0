@@ -9,7 +9,7 @@ export type { RatingHiddenInputProps } from './RatingHiddenInput.vue'
 export type { RatingItemProps, RatingItemSlotProps } from './RatingItem.vue'
 export type { RatingRootContext, RatingRootProps, RatingRootSlotProps } from './RatingRoot.vue'
 
-// Components
+// Context
 import HiddenInput from './RatingHiddenInput.vue'
 import Item from './RatingItem.vue'
 import Root from './RatingRoot.vue'

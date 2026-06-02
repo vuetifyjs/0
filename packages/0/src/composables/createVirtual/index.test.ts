@@ -1,10 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { createVirtual, createVirtualContext, useVirtual } from './index'
+
 // Utilities
 import { mount } from '@vue/test-utils'
 import { effectScope, nextTick, shallowRef, defineComponent } from 'vue'
-
-import { createVirtual, createVirtualContext, useVirtual } from './index'
 
 const realDocument = globalThis.document
 
@@ -833,7 +833,7 @@ describe('useVirtual consumer', () => {
   })
 
   it('should throw when context is not provided', () => {
-    const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
     expect(() => {
       const TestComponent = defineComponent({
@@ -847,7 +847,6 @@ describe('useVirtual consumer', () => {
     }).toThrow()
 
     expect(spy).toHaveBeenCalledTimes(1)
-    spy.mockRestore()
   })
 })
 

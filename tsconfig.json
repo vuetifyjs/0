@@ -8,6 +8,9 @@
       "path": "./packages/paper"
     },
     {
+      "path": "./packages/genesis"
+    },
+    {
       "path": "./apps/docs"
     },
     {

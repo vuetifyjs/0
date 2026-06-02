@@ -5,6 +5,8 @@
   // Components
   import AppIcon from '@/components/app/AppIcon.vue'
   import { Discovery } from '@/components/discovery'
+
+  // Context
   import DocsAskMessage from './DocsAskMessage.vue'
 
   // Composables

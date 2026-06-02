@@ -14,7 +14,11 @@
   // Components
   import { Atom } from '#v0/components/Atom'
 
+  // Context
   import { useBreadcrumbsRoot } from './BreadcrumbsRoot.vue'
+
+  // Constants
+  import { IN_BROWSER } from '#v0/constants/globals'
 
   // Utilities
   import { onBeforeUnmount, toRef, useTemplateRef, watch } from 'vue'
@@ -22,9 +26,6 @@
   // Types
   import type { AtomProps } from '#v0/components/Atom'
   import type { ID } from '#v0/types'
-
-  // Constants
-  import { IN_BROWSER } from '#v0/constants/globals'
 
   export interface BreadcrumbsEllipsisProps extends AtomProps {
     /** Namespace for dependency injection */
@@ -83,8 +84,8 @@
 
       const el = element as HTMLElement
       const style = getComputedStyle(el)
-      const marginX = Number.parseFloat(style.marginLeft) + Number.parseFloat(style.marginRight)
-      context.ellipsisWidth.value = el.offsetWidth + marginX
+      const marginX = (Number.parseFloat(style.marginLeft) || 0) + (Number.parseFloat(style.marginRight) || 0)
+      context.ellipsisWidth.value = (el.offsetWidth || 0) + marginX
     },
     { immediate: true },
   )

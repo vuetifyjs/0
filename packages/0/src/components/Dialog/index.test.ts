@@ -4,11 +4,11 @@ import { renderToString } from 'vue/server-renderer'
 // Composables
 import { createStackPlugin } from '#v0/composables/useStack'
 
+import { Dialog } from './index'
+
 // Utilities
 import { mount } from '@vue/test-utils'
 import { createSSRApp, defineComponent, h, nextTick, ref } from 'vue'
-
-import { Dialog } from './index'
 
 // Create fresh stack plugin for each test to avoid "Ticket already exists" warnings
 let stackPlugin: ReturnType<typeof createStackPlugin>

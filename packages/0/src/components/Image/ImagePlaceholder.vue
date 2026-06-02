@@ -13,7 +13,7 @@
   // Components
   import { Atom } from '#v0/components/Atom'
 
-  // Composables
+  // Context
   import { useImageRoot } from './ImageRoot.vue'
 
   // Utilities

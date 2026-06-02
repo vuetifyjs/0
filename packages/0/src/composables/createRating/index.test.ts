@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { createRating, createRatingContext, useRating } from '.'
+
 // Utilities
 import { inject, provide, shallowRef } from 'vue'
-
-import { createRating, createRatingContext, useRating } from '.'
 
 vi.mock('vue', async () => {
   const actual = await vi.importActual('vue')

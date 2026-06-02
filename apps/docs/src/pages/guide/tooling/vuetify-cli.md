@@ -249,7 +249,7 @@ bunx @vuetify/cli docs
 
 :::
 
-> [!INFO]
+> [!NOTE]
 > The CLI auto-detects your installed Vuetify version and opens the correct documentation site.
 
 ### analyze

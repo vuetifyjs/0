@@ -1,12 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { createContext, provideContext, useContext } from './index'
+
 // Utilities
+import { isV0Error, V0Error } from '#v0/utilities'
 import { inject, provide } from 'vue'
 
 // Types
 import type { App, InjectionKey } from 'vue'
-
-import { createContext, provideContext, useContext } from './index'
 
 vi.mock('vue', () => ({
   provide: vi.fn(),
@@ -67,6 +68,25 @@ describe('createContext', () => {
       expect(() => injectContext()).toThrow(
         'Context "v0:missing-key" not found. Ensure it\'s provided by an ancestor.',
       )
+    })
+
+    it('should throw a V0Error tagged V0_CONTEXT_MISSING with the key payload', () => {
+      mockInject.mockReturnValue(undefined)
+
+      const [injectContext] = createContext('v0:missing-key')
+
+      let caught: unknown
+      try {
+        injectContext()
+      } catch (error) {
+        caught = error
+      }
+      expect(caught).toBeInstanceOf(V0Error)
+      expect(isV0Error(caught, 'V0_CONTEXT_MISSING')).toBe(true)
+      if (isV0Error(caught, 'V0_CONTEXT_MISSING')) {
+        expect(caught.code).toBe('V0_CONTEXT_MISSING')
+        expect(caught.key).toBe('v0:missing-key')
+      }
     })
 
     it('should handle symbol key in error message', () => {
@@ -134,7 +154,7 @@ describe('createContext', () => {
     })
 
     it('should warn on non-namespaced string key in dev mode', () => {
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      using warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       createContext('no-namespace')
 
@@ -142,18 +162,14 @@ describe('createContext', () => {
       expect(warnSpy).toHaveBeenCalledWith(
         expect.stringContaining('no-namespace'),
       )
-
-      warnSpy.mockRestore()
     })
 
     it('should not warn on namespaced string key', () => {
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      using warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       createContext('v0:theme')
 
       expect(warnSpy).not.toHaveBeenCalled()
-
-      warnSpy.mockRestore()
     })
   })
 

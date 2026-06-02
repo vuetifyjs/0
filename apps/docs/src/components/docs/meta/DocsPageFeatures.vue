@@ -11,6 +11,11 @@
   import { useClipboard } from '@/composables/useClipboard'
   import { providePageMeta } from '@/composables/usePageMeta'
 
+  // Data
+  import maturityData from '#v0/maturity.json'
+  // Constants
+  import { MATURITY_MATRIX_HREF, SKILL_LEVELS_DOCS_HREF } from '@/constants/links'
+
   // Utilities
   import { useScrollToAnchor } from '@/utilities/scroll'
   import { onBeforeUnmount, shallowRef, toRef } from 'vue'
@@ -18,11 +23,6 @@
 
   // Types
   import type { PhaseConfig } from '@/composables/usePageMeta'
-
-  // Data
-  import maturityData from '#v0/maturity.json'
-  // Constants
-  import { MATURITY_MATRIX_HREF, SKILL_LEVELS_DOCS_HREF } from '@/constants/links'
 
   const scroll = useScrollToAnchor()
   const logger = useLogger()

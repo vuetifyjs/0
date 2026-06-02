@@ -38,7 +38,7 @@ Two avatars showing successful image loading and graceful fallback to initials w
 
 ## Anatomy
 
-```vue Anatomy playground
+```vue Anatomy playground collapse no-filename
 <script setup lang="ts">
   import { Avatar } from '@vuetify/v0'
 </script>
@@ -49,6 +49,16 @@ Two avatars showing successful image loading and graceful fallback to initials w
 
     <Avatar.Fallback />
   </Avatar.Root>
+
+  <Avatar.Group>
+    <Avatar.Root>
+      <Avatar.Image />
+
+      <Avatar.Fallback />
+    </Avatar.Root>
+
+    <Avatar.Indicator />
+  </Avatar.Group>
 </template>
 ```
 
@@ -116,5 +126,26 @@ When multiple images are present, the `priority` prop determines display order. 
   </Avatar.Root>
 </template>
 ```
+
+## Examples
+
+::: example
+/components/avatar/members.ts
+/components/avatar/team.vue
+
+### Team roster
+
+A realistic project-members panel — the kind of header you'd find on a Slack channel, GitHub team page, or Jira project view. The row fills the available chrome width and collapses into a `+N` chip when there isn't enough room. The chip's `title` lists everyone who's currently hidden, so the truncation never costs the reader information.
+
+The data lives in a separate module so the component stays focused on composition and ARIA. Each member is registered with `:value="member"` rather than just an id, which makes `Avatar.Indicator`'s `hidden` slot prop directly useful — the tooltip resolves names without a separate lookup. The negative `marginInlineStart` is skipped on the first child via the `(member, index)` form so the leading avatar doesn't hang off the container's left edge.
+
+`responsive` opts the group into `createOverflow` under a `useToggleScope`, so groups that don't need width tracking pay nothing. The indicator self-measures its width and writes it back via `reserved` on `createOverflow`, so the group always carves out exactly enough room for the chip — no hard-coded pixel reserve needed. Drag the example pane's resize handle to watch the visible count adjust.
+
+| File | Role |
+|------|------|
+| `members.ts` | Member type + sample data; the kind of array your API would return |
+| `team.vue` | Panel UI — labelled `Avatar.Group` with hover tooltips on every avatar and the `+N` chip |
+
+:::
 
 <DocsApi />

@@ -93,12 +93,17 @@
     },
     "createNumberField": {
       "level": "preview",
-      "since": null,
+      "since": "0.2.1",
       "category": "forms"
     },
     "createNumeric": {
       "level": "preview",
       "since": "0.2.0",
+      "category": "forms"
+    },
+    "createOtp": {
+      "level": "preview",
+      "since": "1.0.0-alpha.5",
       "category": "forms"
     },
     "createDataTable": {
@@ -111,6 +116,11 @@
       "since": "0.1.0",
       "category": "data"
     },
+    "createKanban": {
+      "level": "preview",
+      "since": "1.0.0-alpha.4",
+      "category": "data"
+    },
     "createPagination": {
       "level": "preview",
       "since": "0.1.0",
@@ -118,12 +128,12 @@
     },
     "createSortable": {
       "level": "preview",
-      "since": null,
+      "since": "1.0.0-alpha.4",
       "category": "data"
     },
     "createProgress": {
       "level": "preview",
-      "since": null,
+      "since": "0.2.1",
       "category": "semantic"
     },
     "createVirtual": {
@@ -134,12 +144,12 @@
     "createBreadcrumbs": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "utilities"
+      "category": "semantic"
     },
     "createOverflow": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "utilities"
+      "category": "semantic"
     },
     "useBreakpoints": {
       "level": "preview",
@@ -203,12 +213,12 @@
     },
     "useDelay": {
       "level": "preview",
-      "since": null,
+      "since": "1.0.0-alpha.3",
       "category": "system"
     },
     "useDragDrop": {
       "level": "preview",
-      "since": null,
+      "since": "1.0.0-alpha.4",
       "category": "system"
     },
     "useEventListener": {
@@ -223,6 +233,7 @@
     },
     "useImage": {
       "level": "preview",
+      "since": "1.0.0-alpha.1",
       "category": "system"
     },
     "useIntersectionObserver": {
@@ -273,6 +284,11 @@
     "toElement": {
       "level": "preview",
       "since": "0.1.0",
+      "category": "transformers"
+    },
+    "toHighlight": {
+      "level": "preview",
+      "since": "1.0.0-alpha.5",
       "category": "transformers"
     },
     "toReactive": {
@@ -334,6 +350,7 @@
   "components": {
     "AspectRatio": {
       "level": "preview",
+      "since": "1.0.0-alpha.1",
       "category": "primitives"
     },
     "Atom": {
@@ -426,7 +443,11 @@
     },
     "NumberField": {
       "level": "preview",
-      "since": null,
+      "since": "0.2.1",
+      "category": "forms"
+    },
+    "Otp": {
+      "level": "draft",
       "category": "forms"
     },
     "Radio": {
@@ -514,15 +535,17 @@
     },
     "Carousel": {
       "level": "preview",
+      "since": "1.0.0-alpha.1",
       "category": "semantic"
     },
     "Image": {
       "level": "preview",
+      "since": "1.0.0-alpha.1",
       "category": "semantic"
     },
     "Overflow": {
       "level": "preview",
-      "since": null,
+      "since": "1.0.0-alpha.3",
       "category": "semantic"
     },
     "Pagination": {
@@ -532,6 +555,7 @@
     },
     "Progress": {
       "level": "preview",
+      "since": "0.2.1",
       "category": "semantic"
     },
     "Splitter": {
@@ -545,6 +569,10 @@
       "category": "disclosure"
     },
     "DataGrid": {
+      "level": "draft",
+      "category": "data"
+    },
+    "Kanban": {
       "level": "draft",
       "category": "data"
     },
@@ -616,6 +644,11 @@
     "isSymbol": {
       "level": "stable",
       "since": "0.1.0",
+      "category": "utilities"
+    },
+    "isThenable": {
+      "level": "preview",
+      "since": "1.0.0-alpha.4",
       "category": "utilities"
     },
     "isUndefined": {

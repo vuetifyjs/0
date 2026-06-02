@@ -81,7 +81,7 @@ Components with meaningful HTML defaults. Render semantic elements by default bu
 | [Image](/components/semantic/image) | Image with placeholder, error fallback, and lazy loading |
 | [Overflow](/components/semantic/overflow) | Responsive truncation primitive |
 | [Pagination](/components/semantic/pagination) | Page navigation with semantic `<nav>` wrapper |
-| [Progress](/components/semantic/progress/) | Headless progress bar with multi-segment and buffer support |
+| [Progress](/components/semantic/progress) | Headless progress bar with multi-segment and buffer support |
 | [Snackbar](/components/semantic/snackbar) | Toast notification with queue, positioning, and auto-dismiss |
 | [Splitter](/components/semantic/splitter) | Resizable panel layout with drag handles |
 

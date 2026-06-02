@@ -1,11 +1,11 @@
 import { describe, expect, it, vi } from 'vitest'
 import { renderToString } from 'vue/server-renderer'
 
+import { Pagination } from './index'
+
 // Utilities
 import { mount } from '@vue/test-utils'
 import { createSSRApp, defineComponent, h, nextTick, ref } from 'vue'
-
-import { Pagination } from './index'
 
 describe('pagination', () => {
   describe('root', () => {
@@ -886,7 +886,7 @@ describe('pagination', () => {
     // tick left a pending callback that mutated text on a destroyed component.
     it('should clear pending live-region timer on unmount', async () => {
       vi.useFakeTimers()
-      const clearSpy = vi.spyOn(globalThis, 'clearTimeout')
+      using clearSpy = vi.spyOn(globalThis, 'clearTimeout')
 
       let rootProps: any
       const wrapper = mount(Pagination.Root, {
@@ -911,7 +911,6 @@ describe('pagination', () => {
       // onBeforeUnmount must have invoked clearTimeout for the pending handle.
       expect(clearSpy.mock.calls.length).toBeGreaterThan(callsBeforeUnmount)
 
-      clearSpy.mockRestore()
       vi.useRealTimers()
     })
   })

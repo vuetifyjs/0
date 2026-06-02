@@ -5,15 +5,15 @@
  * Flagsmith adapter for feature flags.
  */
 
+// Adapters
+import { FeaturesAdapter } from './adapter'
+
 // Utilities
 import { isNullOrUndefined } from '#v0/utilities'
 
 // Types
 import type { FeaturesAdapterFlags } from './adapter'
 import type { IFlagsmith, IInitConfig, IFlags, LoadingState, IRetrieveInfo } from '@flagsmith/flagsmith'
-
-// Adapters
-import { FeaturesAdapter } from './adapter'
 
 export class FlagsmithFeaturesAdapter extends FeaturesAdapter {
   private client: IFlagsmith

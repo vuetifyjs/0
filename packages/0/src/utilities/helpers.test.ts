@@ -7,6 +7,7 @@ import {
   isNumber,
   isBoolean,
   isObject,
+  isThenable,
   isArray,
   isNull,
   isNullOrUndefined,
@@ -133,6 +134,44 @@ describe('helpers', () => {
         expect(isObject(new Date())).toBe(true)
         expect(isObject(new Map())).toBe(true)
         expect(isObject(/regex/)).toBe(true)
+      })
+    })
+
+    describe('isThenable', () => {
+      it('should return true for native Promises', () => {
+        expect(isThenable(Promise.resolve())).toBe(true)
+        expect(isThenable(Promise.reject(new Error('test')).catch(() => {}))).toBe(true)
+        expect(isThenable(new Promise<void>(resolve => resolve()))).toBe(true)
+      })
+
+      it('should return true for duck-typed thenables', () => {
+        /* eslint-disable unicorn/no-thenable -- intentionally constructing fake thenables to exercise the guard */
+        expect(isThenable({ then: () => {} })).toBe(true)
+        expect(isThenable({ then () {} })).toBe(true)
+        expect(isThenable({ then: () => 'value', extra: 1 })).toBe(true)
+        /* eslint-enable unicorn/no-thenable */
+      })
+
+      it('should return false for plain objects without then', () => {
+        expect(isThenable({})).toBe(false)
+        expect(isThenable({ value: 1 })).toBe(false)
+        /* eslint-disable unicorn/no-thenable -- intentionally constructing invalid thenables to exercise the guard */
+        expect(isThenable({ then: 'not a function' })).toBe(false)
+        expect(isThenable({ then: 42 })).toBe(false)
+        /* eslint-enable unicorn/no-thenable */
+      })
+
+      it('should return false for null and undefined', () => {
+        expect(isThenable(null)).toBe(false)
+        expect(isThenable(undefined)).toBe(false)
+      })
+
+      it('should return false for primitives and other non-objects', () => {
+        expect(isThenable('then')).toBe(false)
+        expect(isThenable(123)).toBe(false)
+        expect(isThenable(true)).toBe(false)
+        expect(isThenable(() => {})).toBe(false)
+        expect(isThenable([])).toBe(false)
       })
     })
 

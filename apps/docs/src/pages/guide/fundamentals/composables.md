@@ -263,7 +263,7 @@ ticket?.value // MyItem
 
 > [!ASKAI] Which composables should I use for a data table with filtering and pagination?
 
-## Frequently Asked Questions
+## FAQ
 
 ::: faq
 ??? Should I always use context injection or can I call factories directly?

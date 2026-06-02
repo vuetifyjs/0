@@ -26,6 +26,7 @@ Scope-specific mechanics for `packages/0/src/composables/**`. Covers naming, fac
 - §6.6 `useProxyModel`
 - §6.7 `useProxyRegistry`
 - §6.8 Register / unregister lifecycle contract
+- §6.10 Collection composables: no `items` option
 - §7 Events & lifecycle
 - §9 Errors & invariants
 
@@ -257,6 +258,8 @@ export const [createLoggerContext, createLoggerPlugin, useLogger] =
   )
 ```
 
+> `useLogger` additionally wraps the generated consumer in a hand-written function to support an optional scope key (see its source); the snippet above shows the fallback wiring it still uses, not its literal export shape.
+
 When the fallback is in place, `useLogger()` returns synthesized defaults instead of throwing. Sibling plugins that follow the same convention: `useLocale` (`createLocaleFallback`), `useHydration` (`createFallbackHydration`). If a plugin **must** be installed (e.g., it depends on caller-provided adapters with no defensible default — `useDate`), omit the fallback and let injection throw; document that explicitly on the docs page so the failure is loud, not silent.
 
 ### 4. Adapter (pluggable implementation)
@@ -342,6 +345,10 @@ const table = createDataTable({
 
 - The composable has exactly one correct implementation, and consumers have no reason to swap it. Example: `useHotkey` — the listener semantics are fixed.
 - You want to switch behavior based on a boolean flag. Use an option (`mode: 'client' | 'server'`) rather than dressing it up as an adapter. Adapters are for swapping *implementations*, not for flipping a known toggle.
+
+### Collection composables: no `items` option
+
+A composable that owns a collection of values exposes `register` / `onboard` / `unregister`. It never accepts an `items` option in its factory — row identity, order, and per-row state live in the registry. Followed by `createRegistry`, `createModel`, `createSelection`, `createSingle`, `createGroup`, `createStep`, `createNested`, `createSortable`, `createKanban`, `createQueue`, `createTimeline`, `createTokens`, and (after the recent refactor) `createDataTable`. Full rule and migration shape: PHILOSOPHY §6.10.
 
 ### `useProxyModel` and `useProxyRegistry` — cross-link
 
@@ -474,6 +481,21 @@ const current = theme.current.value
 
 Pure transformers (`toRef`, `toElement`, `toValue`) are fine to call inline — they return values, not stateful instances. [intent:283]
 
+## `createOverflow` consumer contract
+
+`createOverflow` exposes two derived signals with different data sources:
+
+| Signal | Variable mode | Uniform mode (`itemWidth` set) |
+|---|---|---|
+| `capacity` | Sum of per-item `widths` until overflow | `floor((available - itemWidth) / (itemWidth + gap)) + 1` |
+| `isOverflowing` | `total > available` (sum of `widths`) | `widths.size > capacity` (count vs cap) |
+
+**Both signals depend on the `widths` map being populated via `measure(index, el)` — in both modes.** In variable mode the measurement values feed `total`. In uniform mode the values are stored but ignored; only the entry count matters for `isOverflowing`.
+
+**Consumer rule.** Every child must call `overflow.measure(ticket.index, el)` on mount and `overflow.measure(ticket.index, undefined)` on unmount, **regardless of mode**. The pattern in `Overflow/OverflowItem.vue:83-100` is canonical: watch `[el.value, ticket.index]` so registry reindexing after a sibling unmount re-fires measurement at the new index, and `onBeforeUnmount` clears the last index.
+
+If you skip the calls in uniform mode (treating it as "items don't need to measure because itemWidth is the width"), `capacity` will still be correct but `isOverflowing` is permanently `false`. PHILOSOPHY §10.19 spells out the anti-pattern; the AvatarGroup feature shipped with the broken signal and had to work around it client-side until the fix landed.
+
 ## Selection System — Value vs Logic Separation
 
 `createModel` is a value store; selection logic (multiple, mandatory, seek, mandate) lives in `createSelection`. [intent:285]
@@ -494,3 +516,4 @@ Pure transformers (`toRef`, `toElement`, `toValue`) are fine to call inline — 
 - [ ] No DOM event binding inside the composable
 - [ ] ID generation through `useId()`
 - [ ] Trinity return only from `createTrinity` / `createContext` / `createPlugin`
+- [ ] Composable that owns a collection of values uses `register` / `onboard`, never an `items` option (PHILOSOPHY §6.10)

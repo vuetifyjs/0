@@ -6,13 +6,13 @@ import { createStoragePlugin, useStorage } from '#v0/composables/useStorage'
 // Adapters
 import { V0StyleSheetThemeAdapter } from './adapters/v0'
 
+import { createTheme, createThemePlugin, useTheme } from './index'
+
 // Utilities
 import { createApp, nextTick } from 'vue'
 
 // Types
 import type { ThemeContext } from './index'
-
-import { createTheme, createThemePlugin, useTheme } from './index'
 
 vi.mock('#v0/constants/globals', () => ({
   IN_BROWSER: true,
@@ -393,8 +393,8 @@ describe('createTheme', () => {
 
     it('should inject CSS variables into DOM', async () => {
       let mockStyleSheets: CSSStyleSheet[] = []
-      const spy = vi.spyOn(document, 'adoptedStyleSheets', 'get').mockImplementation(() => mockStyleSheets)
-      vi.spyOn(document, 'adoptedStyleSheets', 'set').mockImplementation(v => {
+      using spy = vi.spyOn(document, 'adoptedStyleSheets', 'get').mockImplementation(() => mockStyleSheets)
+      using setSpy = vi.spyOn(document, 'adoptedStyleSheets', 'set').mockImplementation(v => {
         mockStyleSheets = v as CSSStyleSheet[]
       })
 
@@ -426,8 +426,10 @@ describe('createTheme', () => {
       expect(styleContent).toContain('--v0-primary: #1976d2')
       expect(styleContent).toContain('--v0-secondary: #424242')
 
+      expect(spy).toHaveBeenCalled()
+      expect(setSpy).toHaveBeenCalled()
+
       app.unmount()
-      spy.mockRestore()
     })
 
     it('should apply theme class to target element', async () => {
@@ -1077,7 +1079,7 @@ describe('createTheme', () => {
 
   describe('register with colors and tokens', () => {
     it('should not duplicate theme if already registered', () => {
-      const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       const theme = createTheme({
         themes: {
@@ -1091,8 +1093,6 @@ describe('createTheme', () => {
       expect(theme.size).toBe(before)
       expect(spy).toHaveBeenCalledTimes(1)
       expect(spy).toHaveBeenCalledWith(expect.stringContaining('light'))
-
-      spy.mockRestore()
     })
   })
 

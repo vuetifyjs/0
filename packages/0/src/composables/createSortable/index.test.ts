@@ -1,10 +1,10 @@
 import { describe, expect, it, vi } from 'vitest'
 
+import { createSortable } from './index'
+
 // Types
 import type { ID } from '#v0/types'
 import type { SortableTicketInput } from './index'
-
-import { createSortable } from './index'
 
 interface StringTicket extends SortableTicketInput {
   value: string
@@ -187,7 +187,7 @@ describe('createSortable', () => {
     })
 
     it('should warn and no-op when ids length differs from registry size', () => {
-      const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
       const sortable = createSortable<StringTicket>()
       const a = sortable.register({ value: 'a' })
       const b = sortable.register({ value: 'b' })
@@ -198,11 +198,10 @@ describe('createSortable', () => {
       expect(sortable.get(b.id)!.index).toBe(1)
       expect(spy).toHaveBeenCalledTimes(1)
       expect(spy).toHaveBeenCalledWith(expect.stringContaining('expected 2 ids, got 1'))
-      spy.mockRestore()
     })
 
     it('should warn and no-op when ids contain an unknown id', () => {
-      const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
       const sortable = createSortable<StringTicket>()
       const a = sortable.register({ value: 'a' })
       const b = sortable.register({ value: 'b' })
@@ -213,11 +212,10 @@ describe('createSortable', () => {
       expect(sortable.get(b.id)!.index).toBe(1)
       expect(spy).toHaveBeenCalledTimes(1)
       expect(spy).toHaveBeenCalledWith(expect.stringContaining('unknown id'))
-      spy.mockRestore()
     })
 
     it('should warn and no-op when ids contain duplicates', () => {
-      const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
       const sortable = createSortable<StringTicket>()
       const a = sortable.register({ value: 'a' })
       const b = sortable.register({ value: 'b' })
@@ -228,7 +226,6 @@ describe('createSortable', () => {
       expect(sortable.get(b.id)!.index).toBe(1)
       expect(spy).toHaveBeenCalledTimes(1)
       expect(spy).toHaveBeenCalledWith(expect.stringContaining('duplicate'))
-      spy.mockRestore()
     })
 
     it('should be a no-op when given the current order', () => {

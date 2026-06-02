@@ -1,6 +1,6 @@
 {
   "name": "@vuetify-private/docs",
-  "version": "1.0.0-alpha.3",
+  "version": "1.0.0-alpha.5",
   "private": true,
   "type": "module",
   "scripts": {
@@ -42,6 +42,7 @@
     "@js-temporal/polyfill": "catalog:",
     "@mdi/js": "catalog:",
     "@octokit/core": "catalog:",
+    "@paper/genesis": "workspace:*",
     "@vue/repl": "catalog:",
     "@vuetify/auth": "catalog:",
     "@vuetify/paper": "workspace:*",

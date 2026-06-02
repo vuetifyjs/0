@@ -3,11 +3,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 // Adapters
 import { ClientComboboxAdapter } from '#v0/composables/createCombobox/adapters/client'
 
+import { Combobox } from './index'
+
 // Utilities
 import { mount } from '@vue/test-utils'
 import { defineComponent, h, nextTick, ref } from 'vue'
-
-import { Combobox } from './index'
 
 // Mock showPopover/hidePopover — not supported in happy-dom
 beforeEach(() => {
@@ -1441,6 +1441,10 @@ describe('combobox', () => {
       const value = { foo: 'bar' }
       let ctx: { open: () => void } | undefined
 
+      // modelValue is typed String | Number | Array; passing an object to
+      // exercise JSON serialization makes Vue warn on the prop type. Silence it.
+      using warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
       const wrapper = mount(
         defineComponent({
           render () {
@@ -1473,6 +1477,7 @@ describe('combobox', () => {
       expect(hidden.exists()).toBe(true)
       // Object values should be serialized to JSON
       expect((hidden.element as HTMLInputElement).value).toBe(JSON.stringify(value))
+      expect(warn).toHaveBeenCalled()
     })
 
     it('should render empty string for null selection values', async () => {

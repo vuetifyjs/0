@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { renderToString } from 'vue/server-renderer'
 
+import { Input } from './index'
+
 // Utilities
 import { flushPromises, mount } from '@vue/test-utils'
 import { createSSRApp, defineComponent, h, nextTick, ref } from 'vue'
@@ -8,8 +10,6 @@ import { createSSRApp, defineComponent, h, nextTick, ref } from 'vue'
 // Types
 import type { InputRootSlotProps } from './index'
 import type { VueWrapper } from '@vue/test-utils'
-
-import { Input } from './index'
 
 interface MountResult {
   wrapper: VueWrapper

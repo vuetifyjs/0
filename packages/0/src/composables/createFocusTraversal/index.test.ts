@@ -1,12 +1,12 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { createFocusTraversal } from './index'
+
 // Utilities
 import { ref } from 'vue'
 
 // Types
 import type { TraversalItem } from './index'
-
-import { createFocusTraversal } from './index'
 
 function items (...ids: string[]): () => TraversalItem[] {
   return () => ids.map(id => ({ id }))
@@ -510,7 +510,7 @@ describe('createFocusTraversal', () => {
       traversal.activeId.value = 'a'
 
       const event = createKeyboardEvent('ArrowDown')
-      const spy = vi.spyOn(event, 'preventDefault')
+      using spy = vi.spyOn(event, 'preventDefault')
 
       traversal.onKeydown(event)
 
@@ -522,7 +522,7 @@ describe('createFocusTraversal', () => {
       const traversal = createFocusTraversal(items('a', 'b', 'c'), activate)
 
       const event = createKeyboardEvent('Tab')
-      const spy = vi.spyOn(event, 'preventDefault')
+      using spy = vi.spyOn(event, 'preventDefault')
 
       traversal.onKeydown(event)
 

@@ -1,12 +1,12 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
-// Utilities
-import { effectScope, ref, nextTick } from 'vue'
-
 import { normalizeKey } from './aliases'
 import { splitKeyCombination, splitKeySequence } from './parsing'
 
 import { useHotkey } from './index'
+
+// Utilities
+import { effectScope, ref, nextTick } from 'vue'
 
 describe('useHotkey', () => {
   let scope: ReturnType<typeof effectScope>
@@ -1251,12 +1251,11 @@ describe('splitKeyCombination', () => {
   })
 
   it('should return empty for invalid combinations', () => {
-    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    using warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
     expect(splitKeyCombination('')).toEqual({ keys: [], separators: [] })
     expect(splitKeyCombination('+a')).toEqual({ keys: [], separators: [] })
-
-    warnSpy.mockRestore()
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Invalid hotkey combination'))
   })
 
   it('should handle literal minus as key', () => {
@@ -1296,67 +1295,58 @@ describe('splitKeyCombination', () => {
 
   describe('warnings', () => {
     it('should warn on empty combination', () => {
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      using warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       splitKeyCombination('')
 
       expect(warnSpy).toHaveBeenCalledWith(
         expect.stringContaining('Invalid hotkey combination'),
       )
-      warnSpy.mockRestore()
     })
 
     it('should warn on invalid leading separator', () => {
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      using warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       splitKeyCombination('+a')
 
       expect(warnSpy).toHaveBeenCalledWith(
         expect.stringContaining('Invalid hotkey combination'),
       )
-      warnSpy.mockRestore()
     })
 
     it('should warn on double plus separator', () => {
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      using warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       splitKeyCombination('ctrl++k')
 
       expect(warnSpy).toHaveBeenCalledWith(
         expect.stringContaining('Invalid hotkey combination'),
       )
-      warnSpy.mockRestore()
     })
 
     it.each(['/', '/a', 'a/', '//', 'ctrl//'])('warns on invalid slash structure: %s', value => {
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      using warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       expect(splitKeyCombination(value)).toEqual({ keys: [], separators: [] })
       expect(warnSpy).toHaveBeenCalledWith(
         expect.stringContaining('Invalid hotkey combination'),
       )
-
-      warnSpy.mockRestore()
     })
 
     it('should suppress empty-string warning when isInternal is true', () => {
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      using warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       const result = splitKeyCombination('', true)
       expect(result).toEqual({ keys: [], separators: [] })
       expect(warnSpy).not.toHaveBeenCalled()
-
-      warnSpy.mockRestore()
     })
 
     it('should suppress invalid-structure warning when isInternal is true', () => {
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      using warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       const result = splitKeyCombination('+a', true)
       expect(result).toEqual({ keys: [], separators: [] })
       expect(warnSpy).not.toHaveBeenCalled()
-
-      warnSpy.mockRestore()
     })
   })
 })
@@ -1379,11 +1369,10 @@ describe('splitKeySequence', () => {
   })
 
   it('should return empty for invalid sequences', () => {
-    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    using warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
     expect(splitKeySequence('')).toEqual([])
-
-    warnSpy.mockRestore()
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Invalid hotkey sequence'))
   })
 
   it('should handle literal minus in combination', () => {
@@ -1396,36 +1385,33 @@ describe('splitKeySequence', () => {
 
   describe('warnings', () => {
     it('should warn on empty sequence', () => {
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      using warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       splitKeySequence('')
 
       expect(warnSpy).toHaveBeenCalledWith(
         expect.stringContaining('Invalid hotkey sequence'),
       )
-      warnSpy.mockRestore()
     })
 
     it('should warn on invalid leading separator', () => {
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      using warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       splitKeySequence('-a')
 
       expect(warnSpy).toHaveBeenCalledWith(
         expect.stringContaining('Invalid hotkey sequence'),
       )
-      warnSpy.mockRestore()
     })
 
     it('should warn on invalid trailing separator', () => {
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      using warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       splitKeySequence('a-')
 
       expect(warnSpy).toHaveBeenCalledWith(
         expect.stringContaining('Invalid hotkey sequence'),
       )
-      warnSpy.mockRestore()
     })
 
     it('should treat underscore-minus as combination, not sequence separator', () => {

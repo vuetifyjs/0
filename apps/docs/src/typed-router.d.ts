@@ -359,6 +359,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/composables/data/create-kanban': RouteRecordInfo<
+      '/composables/data/create-kanban',
+      '/composables/data/create-kanban',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/composables/data/create-pagination': RouteRecordInfo<
       '/composables/data/create-pagination',
       '/composables/data/create-pagination',
@@ -411,6 +418,13 @@ declare module 'vue-router/auto-routes' {
     '/composables/forms/create-numeric': RouteRecordInfo<
       '/composables/forms/create-numeric',
       '/composables/forms/create-numeric',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/composables/forms/create-otp': RouteRecordInfo<
+      '/composables/forms/create-otp',
+      '/composables/forms/create-otp',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -793,6 +807,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/composables/transformers/to-highlight': RouteRecordInfo<
+      '/composables/transformers/to-highlight',
+      '/composables/transformers/to-highlight',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/composables/transformers/to-reactive': RouteRecordInfo<
       '/composables/transformers/to-reactive',
       '/composables/transformers/to-reactive',
@@ -1045,6 +1066,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/services': RouteRecordInfo<
+      '/services',
+      '/services',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/skillz/': RouteRecordInfo<
       '/skillz/',
       '/skillz',
@@ -1057,6 +1085,13 @@ declare module 'vue-router/auto-routes' {
       '/skillz/:id',
       { id: ParamValue<true> },
       { id: ParamValue<false> },
+      | never
+    >,
+    '/sponsor': RouteRecordInfo<
+      '/sponsor',
+      '/sponsor',
+      Record<never, never>,
+      Record<never, never>,
       | never
     >,
   }
@@ -1354,6 +1389,12 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/composables/data/create-kanban.md': {
+      routes:
+        | '/composables/data/create-kanban'
+      views:
+        | never
+    }
     'src/pages/composables/data/create-pagination.md': {
       routes:
         | '/composables/data/create-pagination'
@@ -1399,6 +1440,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/forms/create-numeric.md': {
       routes:
         | '/composables/forms/create-numeric'
+      views:
+        | never
+    }
+    'src/pages/composables/forms/create-otp.md': {
+      routes:
+        | '/composables/forms/create-otp'
       views:
         | never
     }
@@ -1726,6 +1773,12 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/composables/transformers/to-highlight.md': {
+      routes:
+        | '/composables/transformers/to-highlight'
+      views:
+        | never
+    }
     'src/pages/composables/transformers/to-reactive.md': {
       routes:
         | '/composables/transformers/to-reactive'
@@ -1942,6 +1995,12 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/services.md': {
+      routes:
+        | '/services'
+      views:
+        | never
+    }
     'src/pages/skillz/index.md': {
       routes:
         | '/skillz/'
@@ -1951,6 +2010,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/skillz.[id].vue': {
       routes:
         | '/skillz.[id]'
+      views:
+        | never
+    }
+    'src/pages/sponsor.md': {
+      routes:
+        | '/sponsor'
       views:
         | never
     }

@@ -1,13 +1,13 @@
 import { describe, expect, it, vi } from 'vitest'
 
+import { Button } from './index'
+
 // Utilities
 import { mount } from '@vue/test-utils'
 import { defineComponent, h, nextTick, ref, shallowRef } from 'vue'
 
 // Types
 import type { VueWrapper } from '@vue/test-utils'
-
-import { Button } from './index'
 
 // ============================================================================
 // Test Helpers
@@ -658,7 +658,7 @@ describe('button', () => {
     })
 
     it('should serialize object values to JSON', () => {
-      const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       const wrapper = mount(Button.Root, {
         slots: {
@@ -668,8 +668,6 @@ describe('button', () => {
 
       expect(wrapper.find('input').attributes('value')).toBe('{"foo":"bar"}')
       expect(spy).toHaveBeenCalledTimes(1)
-
-      spy.mockRestore()
     })
   })
 })

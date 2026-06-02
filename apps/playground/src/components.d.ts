@@ -34,6 +34,7 @@ declare module 'vue' {
     PlaygroundMenuBar: typeof import('./components/playground/app/PlaygroundMenuBar.vue')['default']
     PlaygroundOpenDialog: typeof import('./components/playground/app/PlaygroundOpenDialog.vue')['default']
     PlaygroundSettings: typeof import('./components/playground/settings/PlaygroundSettings.vue')['default']
+    PlaygroundSettingsExport: typeof import('./components/playground/settings/PlaygroundSettingsExport.vue')['default']
     PlaygroundSettingsPresets: typeof import('./components/playground/settings/PlaygroundSettingsPresets.vue')['default']
     PlaygroundSettingsVersions: typeof import('./components/playground/settings/PlaygroundSettingsVersions.vue')['default']
     PlaygroundSplitterHandle: typeof import('./components/playground/app/PlaygroundSplitterHandle.vue')['default']

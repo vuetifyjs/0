@@ -32,6 +32,9 @@
   import { createRegistry } from '#v0/composables/createRegistry'
   import { useLocale } from '#v0/composables/useLocale'
 
+  // Constants
+  import { IN_BROWSER } from '#v0/constants/globals'
+
   // Utilities
   import { isNullOrUndefined } from '#v0/utilities'
   import { computed, shallowRef, toRef, useTemplateRef, watch } from 'vue'
@@ -40,9 +43,6 @@
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
   import type { PaginationContext, PaginationTicket } from '#v0/composables/createPagination'
   import type { RegistryContext } from '#v0/composables/createRegistry'
-
-  // Constants
-  import { IN_BROWSER } from '#v0/constants/globals'
 
   export const [usePaginationRoot, providePaginationRoot] = createContext<PaginationContext>()
   export const [usePaginationControls, providePaginationControls] = createContext<RegistryContext>({ suffix: 'controls' })
@@ -151,10 +151,10 @@
     requestAnimationFrame(() => {
       const rootStyle = getComputedStyle(root)
       const style = getComputedStyle(el)
-      const marginX = Number.parseFloat(style.marginLeft) + Number.parseFloat(style.marginRight)
+      const marginX = (Number.parseFloat(style.marginLeft) || 0) + (Number.parseFloat(style.marginRight) || 0)
       const gapX = Number.parseFloat(rootStyle.gap) || 0
 
-      itemWidth.value = el.offsetWidth + marginX
+      itemWidth.value = (el.offsetWidth || 0) + marginX
       itemGap.value = gapX
     })
   }, { flush: 'post' })

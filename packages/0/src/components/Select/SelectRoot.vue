@@ -14,6 +14,7 @@
   // Components
   import { Atom } from '#v0/components/Atom'
 
+  // Context
   import SelectHiddenInput from './SelectHiddenInput.vue'
 
   // Composables
@@ -22,6 +23,9 @@
   import { usePopover } from '#v0/composables/usePopover'
   import { useProxyModel } from '#v0/composables/useProxyModel'
   import { useVirtualFocus } from '#v0/composables/useVirtualFocus'
+
+  // Globals
+  import { IN_BROWSER } from '#v0/constants/globals'
 
   // Utilities
   import { isUndefined, useId } from '#v0/utilities'
@@ -34,9 +38,6 @@
   import type { VirtualFocusReturn } from '#v0/composables/useVirtualFocus'
   import type { ID } from '#v0/types'
   import type { MaybeRefOrGetter, Ref } from 'vue'
-
-  // Globals
-  import { IN_BROWSER } from '#v0/constants/globals'
 
   export interface SelectContext {
     /** Whether the dropdown is open */

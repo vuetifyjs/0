@@ -15,11 +15,13 @@
 <template>
   <div class="home-page">
     <HomeHero />
+    <HomePrimarySponsor />
     <HomeArchitecture />
     <HomeEcosystem />
     <HomeBenchmarks />
     <HomeAiFirst />
     <HomeFoundation />
+    <HomeSponsor />
     <HomeCta />
   </div>
 </template>
@@ -35,6 +37,10 @@ meta:
   }
 
   .home-page :deep(section:last-child) {
+    border-bottom: none;
+  }
+
+  .home-page :deep(.home-hero) {
     border-bottom: none;
   }
 

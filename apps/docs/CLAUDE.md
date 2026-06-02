@@ -139,7 +139,7 @@ build/
 
 | Component | Purpose |
 |-----------|---------|
-| `DocsCallout` | GitHub-style callouts (`> [!TIP]`, `> [!WARNING]`, `> [!ERROR]`, `> [!ASKAI]`) |
+| `DocsCallout` | GitHub-style callouts (`> [!TIP]`, `> [!NOTE]`, `> [!WARNING]`, `> [!CAUTION]`, `> [!IMPORTANT]`, `> [!ASKAI]`) |
 | `DocsExample` | Live examples from `examples/` with code |
 | `DocsMarkup` | Syntax-highlighted code blocks |
 | `DocsApi` | Auto-generated API tables with inline/links toggle |
@@ -194,7 +194,7 @@ import BasicExampleRaw from '@/examples/components/tabs/basic.vue?raw'
 - UnoCSS utilities for all styling
 - Prefer markdown for documentation pages
 - **Examples**: Use `::: example` blocks in `.md` pages for live demos; use `<DocsExample>` directly only in `.vue` pages
-- **Callouts**: Use `> [!TIP]`, `> [!WARNING]`, `> [!ERROR]` for alerts. Use `> [!ASKAI] question` to prompt Ask AI—phrase as a question the user would ask (e.g., "How do I add validation?"), not a question to the user. Use `> [!TOUR] tour-id` to embed a clickable tour callout—the tour name and description are pulled from the discovery registry automatically.
+- **Callouts**: Use `> [!TIP]`, `> [!NOTE]`, `> [!WARNING]`, `> [!CAUTION]`, `> [!IMPORTANT]` for alerts (GitHub-aligned). Use `> [!ASKAI] question` to prompt Ask AI—phrase as a question the user would ask (e.g., "How do I add validation?"), not a question to the user. Use `> [!TOUR] tour-id` to embed a clickable tour callout—the tour name and description are pulled from the discovery registry automatically.
 - **Vue code in markdown fences**: Indent `<script>` and `<style>` content by 2 spaces for visual alignment with `<template>`
 - Examples: `src/examples/components/{component}/` or `src/examples/composables/{composable}/`
 - Component docs: `pages/components/{category}/{component}.md`

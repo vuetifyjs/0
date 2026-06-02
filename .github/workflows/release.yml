@@ -16,11 +16,22 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Verify tag is on master
+        env:
+          TAG_SHA: ${{ github.sha }}
+          TAG_NAME: ${{ github.ref_name }}
+        run: |
+          git fetch origin master
+          if ! git merge-base --is-ancestor "$TAG_SHA" origin/master; then
+            echo "::error::Tag $TAG_NAME ($TAG_SHA) is not an ancestor of origin/master. Refusing to release from an off-master commit."
+            exit 1
+          fi
+
       - name: Install pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6
 
       - name: Set node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: lts/*
           cache: pnpm
