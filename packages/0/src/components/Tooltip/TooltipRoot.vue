@@ -149,12 +149,10 @@
 
   let registered = false
 
-  // Unlike every other compound sub-component (which registers unconditionally
-  // in setup), this Root registers on OPEN and unregisters on CLOSE: the useTooltip
-  // region registry tracks currently-open tooltips. `registry.size` is the
-  // isAnyOpen warmup signal and the `unregister:ticket` event stamps the
-  // skip-window close time, so registering once in setup would break both.
-  // The `registered` flag and the onBeforeUnmount guard are load-bearing.
+  // Unlike every other compound sub-component (which registers in setup), this
+  // Root registers on OPEN and unregisters on CLOSE: the useTooltip registry IS
+  // the set of open tooltips — registry.size drives isAnyOpen and unregister
+  // stamps the skip-window close time. Moving this to setup silently breaks both.
   watch(isOpen, value => {
     if (value && !registered) {
       region.register({ id: popover.id })
