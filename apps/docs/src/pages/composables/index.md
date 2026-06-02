@@ -304,6 +304,7 @@ Application-level features installable via Vue plugins.
 | [useStack](/composables/plugins/use-stack) | Overlay z-index stacking with automatic calculation and scrim integration |
 | [useStorage](/composables/plugins/use-storage) | Reactive browser storage interface |
 | [useTheme](/composables/plugins/use-theme) | Theme management with CSS custom properties |
+| [useTour](/composables/plugins/use-tour) | Guided tour orchestration with step navigation and validation gates |
 
 ## Data
 
