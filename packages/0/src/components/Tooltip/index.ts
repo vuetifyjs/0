@@ -37,6 +37,10 @@ export const Tooltip = {
    *
    * @example
    * ```vue
+   * <script lang="ts" setup>
+   *   import { Tooltip } from '@vuetify/v0'
+   * </script>
+   *
    * <template>
    *   <Tooltip.Root>
    *     <Tooltip.Activator>Hover me</Tooltip.Activator>
@@ -51,6 +55,10 @@ export const Tooltip = {
    *
    * @example
    * ```vue
+   * <script lang="ts" setup>
+   *   import { Tooltip } from '@vuetify/v0'
+   * </script>
+   *
    * <template>
    *   <Tooltip.Activator>Hover me</Tooltip.Activator>
    * </template>
@@ -62,6 +70,10 @@ export const Tooltip = {
    *
    * @example
    * ```vue
+   * <script lang="ts" setup>
+   *   import { Tooltip } from '@vuetify/v0'
+   * </script>
+   *
    * <template>
    *   <Tooltip.Content>Helpful description</Tooltip.Content>
    * </template>
