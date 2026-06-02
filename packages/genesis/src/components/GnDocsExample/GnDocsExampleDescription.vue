@@ -116,6 +116,25 @@
     transition: max-height 0.3s ease-out;
   }
 
+  /* The body renders forwarded markdown prose. Match the legacy
+     DocsExampleDescription's compact heading scale so a `### Title` inside the
+     description reads as a heading, not body text. */
+  .genesis-docs-example-description__body :deep(h3) {
+    margin: 0 0 0.5rem;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--v0-on-surface, #1a1c1e);
+  }
+
+  .genesis-docs-example-description__body :deep(h4),
+  .genesis-docs-example-description__body :deep(h5),
+  .genesis-docs-example-description__body :deep(h6) {
+    margin: 0 0 0.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--v0-on-surface, #1a1c1e);
+  }
+
   .genesis-docs-example-description__fade {
     position: absolute;
     inset-inline: 0;
