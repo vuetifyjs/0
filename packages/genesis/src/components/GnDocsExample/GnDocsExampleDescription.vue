@@ -110,7 +110,7 @@
   }
 
   .genesis-docs-example-description__body {
-    margin-top: 0.25rem;
+    margin-top: 0;
     font-size: 0.875rem;
     line-height: 1.5;
     transition: max-height 0.3s ease-out;
