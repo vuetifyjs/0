@@ -37,16 +37,12 @@ Headless description tooltip with hover and focus triggers, configurable open/cl
 </script>
 
 <template>
-  <Tooltip.Provider>
-    <Tooltip.Root>
-      <Tooltip.Activator />
-      <Tooltip.Content />
-    </Tooltip.Root>
-  </Tooltip.Provider>
+  <Tooltip.Root>
+    <Tooltip.Activator />
+    <Tooltip.Content />
+  </Tooltip.Root>
 </template>
 ```
-
-`<Tooltip.Provider>` is the optional scope wrapper — it overrides delay defaults for descendants. Skip it when the plugin defaults are sufficient.
 
 ## Architecture
 
@@ -97,11 +93,7 @@ Touch devices have no hover state, and showing a tooltip on tap competes with wh
 
 ??? How do I set default open and close delays?
 
-Three layers, widest to narrowest, and the narrower one wins. App-wide: install the plugin — `app.use(createTooltipPlugin({ openDelay: 500, closeDelay: 150 }))`. One tooltip: set props on its Root — `<Tooltip.Root :open-delay="0">`. A whole region: wrap it in `<Tooltip.Provider>` (see below). Warmup coordination stays shared across every layer.
-
-??? When should I use Tooltip.Provider instead of the plugin?
-
-They are not alternatives — the plugin is the app-wide default, and `<Tooltip.Provider>` overrides the delays (and `disabled`) for a subtree, layering on top of the plugin. Its real value is reaching tooltips inside components you do not author: disable every tooltip in a panel for a compact mode, make a third-party widget's tooltips instant, or give one section different timing — none of which Root props can do (you do not own those Roots) and the plugin cannot do (it is global). If you write the Roots yourself, set the prop on them instead. With no plugin installed it still works, falling back to the documented defaults.
+Two layers, and the narrower one wins. App-wide: install the plugin — `app.use(createTooltipPlugin({ openDelay: 500, closeDelay: 150 }))`. One tooltip: set props on its Root — `<Tooltip.Root :open-delay="0">`. Warmup coordination stays shared across every tooltip through the plugin registry. With no plugin installed it still works, falling back to the documented defaults.
 
 ??? Why doesn't Tooltip.Activator open when I focus it via mouse click?
 
