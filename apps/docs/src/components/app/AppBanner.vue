@@ -16,7 +16,7 @@
   if (!notifications.has('alpha-banner')) {
     notifications.register({
       id: 'alpha-banner',
-      subject: 'Vuetify0 is now in alpha!',
+      subject: 'Vuetify0 is now in beta!',
       severity: 'warning',
       data: { type: 'banner' },
     })

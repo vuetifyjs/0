@@ -119,11 +119,13 @@
     :data-peek="peek || undefined"
   >
     <GnDocsExampleDescription
-      v-if="title"
+      v-if="title || $slots.description"
       :anchor-id="id"
       :collapse
       :title
-    />
+    >
+      <slot name="description" />
+    </GnDocsExampleDescription>
 
     <GnDocsExamplePreview
       ref="preview"

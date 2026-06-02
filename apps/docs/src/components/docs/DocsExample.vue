@@ -399,7 +399,10 @@
               >
                 <Select.Value v-slot="{ selectedValue }">{{ selectedValue }}</Select.Value>
                 <Select.Placeholder>+{{ hiddenFiles.length }} more</Select.Placeholder>
-                <Select.Cue v-slot="{ isOpen }" class="text-[10px] opacity-50">{{ isOpen ? '&#x25B4;' : '&#x25BE;' }}</Select.Cue>
+
+                <Select.Cue v-slot="{ isOpen }" class="opacity-50">
+                  <AppChevron :open="isOpen" :size="12" vertical />
+                </Select.Cue>
               </Select.Activator>
 
               <Select.Content class="p-1 rounded-lg border border-divider bg-surface shadow-lg" :style="{ minWidth: 'anchor-size(width)' }">
@@ -517,7 +520,7 @@
       @click="peekExpanded = !peekExpanded"
     >
       <span>{{ peekExpanded ? 'Collapse' : 'Expand' }}</span>
-      <AppIcon :icon="peekExpanded ? 'up' : 'down'" :size="14" />
+      <AppChevron :open="peekExpanded" :size="14" vertical />
     </button>
   </div>
 </template>

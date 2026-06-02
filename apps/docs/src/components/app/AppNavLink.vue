@@ -143,11 +143,7 @@
         type="button"
         @click.stop="onToggle"
       >
-        <AppIcon
-          aria-hidden="true"
-          :icon="isOpen ? 'chevron-down' : 'chevron-right'"
-          size="14"
-        />
+        <AppChevron :open="isOpen" />
 
         <span class="sr-only">
           {{ isOpen ? 'Collapse' : 'Expand' }} {{ name }}

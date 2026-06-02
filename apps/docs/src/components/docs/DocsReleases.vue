@@ -187,11 +187,7 @@
 
         <span v-else class="opacity-50">Select a release...</span>
 
-        <AppIcon
-          class="ml-auto opacity-50"
-          :icon="open ? 'chevron-up' : 'chevron-down'"
-          :size="20"
-        />
+        <AppChevron class="ml-auto opacity-50" :open :size="20" vertical />
 
         <div
           v-if="store.isLoading"
