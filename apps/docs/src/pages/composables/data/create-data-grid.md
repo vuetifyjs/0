@@ -174,9 +174,12 @@ grid.onboard(largeDataset.map(value => ({ id: value.id, value })))
 ## Examples
 
 ::: example
-/composables/create-data-grid/pinned/PinnedGrid.vue
-/composables/create-data-grid/pinned/columns.ts
 /composables/create-data-grid/pinned/data.ts
+/composables/create-data-grid/pinned/columns.ts
+/composables/create-data-grid/pinned/usePinnedGrid.ts
+/composables/create-data-grid/pinned/PinnedToolbar.vue
+/composables/create-data-grid/pinned/PinnedFooter.vue
+/composables/create-data-grid/pinned/PinnedGrid.vue
 
 ### Column Pinning & Resizing
 
@@ -186,9 +189,12 @@ A financial data grid with 10 columns that requires horizontal scrolling. Ticker
 
 | File | Role |
 |------|------|
-| `PinnedGrid.vue` | Financial spreadsheet with sticky pinned columns, resize handles, and formatted numbers |
-| `columns.ts` | 10 columns with ticker pinned left, sector pinned right |
 | `data.ts` | 12 stocks across Tech, Healthcare, Finance, Energy, and Consumer sectors |
+| `columns.ts` | 10 columns with ticker pinned left, sector pinned right |
+| `usePinnedGrid.ts` | Layout logic — pin/unpin, drag-resize, pixel sticky offsets, and the up/down/volume stats |
+| `PinnedToolbar.vue` | Market-overview header with the ticker filter and reset |
+| `PinnedFooter.vue` | Row count plus the left / scrollable / right pin-region summary |
+| `PinnedGrid.vue` | The spreadsheet table — sticky pinned columns, resize handles, formatted numbers |
 
 **Key patterns:**
 
@@ -200,9 +206,12 @@ A financial data grid with 10 columns that requires horizontal scrolling. Ticker
 :::
 
 ::: example
-/composables/create-data-grid/editing/EditableGrid.vue
-/composables/create-data-grid/editing/columns.ts
 /composables/create-data-grid/editing/data.ts
+/composables/create-data-grid/editing/columns.ts
+/composables/create-data-grid/editing/useEditableGrid.ts
+/composables/create-data-grid/editing/EditToolbar.vue
+/composables/create-data-grid/editing/EditHistory.vue
+/composables/create-data-grid/editing/EditableGrid.vue
 
 ### Cell Editing
 
@@ -212,9 +221,12 @@ An inventory management grid where editing is the primary workflow. Product name
 
 | File | Role |
 |------|------|
-| `EditableGrid.vue` | Click-to-edit cells with primary tint on the active cell, Enter / Escape / Ctrl+Z / Ctrl+Y keyboard handling, and timeline-backed history log |
-| `columns.ts` | Columns with `editable: true` and `validate` functions for name, price, and quantity |
 | `data.ts` | 8 products across electronics, accessories, and peripherals |
+| `columns.ts` | All columns `editable` + `sortable`, with `validate` functions |
+| `useEditableGrid.ts` | Editing state — grid + createTimeline, edit / commit / cancel and undo / redo handlers |
+| `EditToolbar.vue` | Inventory stats, edited-count chip, and Undo / Redo / Clear controls |
+| `EditHistory.vue` | The timeline-backed edit history log |
+| `EditableGrid.vue` | The editable table — click-to-edit cells with Enter / Escape / Ctrl+Z keyboard handling |
 
 **Key patterns:**
 
@@ -227,9 +239,10 @@ An inventory management grid where editing is the primary workflow. Product name
 :::
 
 ::: example
-/composables/create-data-grid/spanning/SpanningGrid.vue
-/composables/create-data-grid/spanning/columns.ts
 /composables/create-data-grid/spanning/data.ts
+/composables/create-data-grid/spanning/columns.ts
+/composables/create-data-grid/spanning/useSpanningGrid.ts
+/composables/create-data-grid/spanning/SpanningGrid.vue
 
 ### Row Spanning
 
@@ -239,9 +252,10 @@ A portfolio holdings grid with two levels of row spanning — `account` spans ev
 
 | File | Role |
 |------|------|
-| `SpanningGrid.vue` | Multi-level row spans, account / asset-class subtotals inside spanned cells, change-direction arrows |
-| `columns.ts` | 6 columns: account, asset class, ticker, holding, value, change |
 | `data.ts` | 11 holdings across 3 accounts (Wealth, Retirement, Trust) and 4 asset classes (Equities, Bonds, Real Estate, Cash) |
+| `columns.ts` | 6 columns: account, asset class, ticker, holding, value, change (pinned right) |
+| `useSpanningGrid.ts` | Spanning logic — the `rowSpanning` callback and account / asset-class aggregation helpers |
+| `SpanningGrid.vue` | The table — multi-level row spans, subtotals in spanned cells, the pinned Today column |
 
 **Key patterns:**
 

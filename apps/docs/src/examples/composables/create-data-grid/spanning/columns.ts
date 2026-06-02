@@ -7,5 +7,5 @@ export const columns: DataGridColumnTicketInput<Holding>[] = [
   { id: 'ticker', title: 'Ticker', size: 10, minSize: 8 },
   { id: 'name', title: 'Holding', size: 26, minSize: 14 },
   { id: 'value', title: 'Value', size: 16, minSize: 10 },
-  { id: 'change', title: 'Today', size: 12, minSize: 8 },
+  { id: 'change', title: 'Today', size: 12, minSize: 8, pinned: 'right' },
 ]

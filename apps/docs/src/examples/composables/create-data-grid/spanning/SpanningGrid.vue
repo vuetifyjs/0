@@ -1,73 +1,21 @@
 <script setup lang="ts">
-  import { computed } from 'vue'
+  import { useSpanningGrid } from './useSpanningGrid'
 
-  import { mdiArrowDownThin, mdiArrowUpThin, mdiBank, mdiChartLine, mdiMinusThick } from '@mdi/js'
-
-  import { createDataGrid } from '@vuetify/v0'
-
-  import { columns } from './columns'
-  import { holdings } from './data'
-  import type { Holding } from './data'
-
-  const grid = createDataGrid<Holding>({
-    rowSpanning (item, column) {
-      if (column !== 'account' && column !== 'assetClass') return 1
-
-      const index = holdings.findIndex(h => h.id === item.id)
-      let count = 1
-
-      while (index + count < holdings.length) {
-        const next = holdings[index + count]
-        if (next.account !== item.account) break
-        if (column === 'assetClass' && next.assetClass !== item.assetClass) break
-        count++
-      }
-
-      return count
-    },
-  })
-
-  grid.columns.onboard(columns)
-  grid.onboard(holdings.map(value => ({ id: value.id, value })))
-
-  function isAccountHead (id: number) {
-    const span = grid.spans.value.get(id)?.get('account')
-    return span && !span.hidden && span.rowSpan > 1
-  }
-
-  function isClassHead (id: number) {
-    const span = grid.spans.value.get(id)?.get('assetClass')
-    return span && !span.hidden
-  }
-
-  function money (value: number) {
-    return value.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 })
-  }
-
-  function accountTotal (account: string) {
-    return holdings.filter(h => h.account === account).reduce((sum, h) => sum + h.value, 0)
-  }
-
-  function classTotal (account: string, assetClass: string) {
-    return holdings
-      .filter(h => h.account === account && h.assetClass === assetClass)
-      .reduce((sum, h) => sum + h.value, 0)
-  }
-
-  const portfolio = computed(() => holdings.reduce((sum, h) => sum + h.value, 0))
-  const accountsCount = computed(() => new Set(holdings.map(h => h.account)).size)
-
-  function changeIcon (change: number) {
-    if (change > 0) return mdiArrowUpThin
-    if (change < 0) return mdiArrowDownThin
-    return mdiMinusThick
-  }
-
-  function changeColor (change: number) {
-    if (change > 0) return 'text-success'
-    if (change < 0) return 'text-error'
-    return 'text-on-surface-variant'
-  }
+  const {
+    grid,
+    holdings,
+    mdiBank,
+    mdiChartLine,
+    isAccountHead,
+    isClassHead,
+    money,
+    accountTotal,
+    classTotal,
+    portfolio,
+    accountsCount,
+    changeIcon,
+    changeColor,
+  } = useSpanningGrid()
 </script>
 
 <template>
@@ -99,7 +47,7 @@
       </div>
     </div>
 
-    <div class="border border-divider rounded-lg overflow-hidden">
+    <div class="border border-divider rounded-lg overflow-hidden bg-surface">
       <div class="overflow-x-auto">
         <table class="w-full text-sm min-w-[760px] table-fixed">
           <thead>
@@ -108,8 +56,16 @@
                 v-for="col in grid.layout.columns.value"
                 :key="col.id"
                 class="px-3 py-2.5 text-left font-medium text-xs uppercase tracking-wide text-on-surface-variant"
-                :class="col.id === 'value' || col.id === 'change' ? 'text-right' : ''"
-                :style="{ width: col.size + '%' }"
+                :class="[
+                  col.id === 'value' || col.id === 'change' ? 'text-right' : '',
+                  col.pinned === 'right' ? 'bg-surface-tint border-l border-divider' : '',
+                ]"
+                :style="{
+                  width: col.size + '%',
+                  position: col.pinned === 'right' ? 'sticky' : undefined,
+                  right: col.pinned === 'right' ? '0px' : undefined,
+                  zIndex: col.pinned === 'right' ? 10 : undefined,
+                }"
               >
                 {{ grid.columns.get(col.id)?.title }}
               </th>
@@ -135,9 +91,15 @@
                     col.id === 'assetClass' && isClassHead(item.id as number)
                       ? 'align-top bg-surface-tint/40 border-r border-divider/60'
                       : '',
+                    col.pinned === 'right' ? 'bg-surface border-l border-divider' : '',
                   ]"
                   :rowspan="grid.spans.value.get(item.id as number)?.get(col.id)?.rowSpan"
-                  :style="{ width: col.size + '%' }"
+                  :style="{
+                    width: col.size + '%',
+                    position: col.pinned === 'right' ? 'sticky' : undefined,
+                    right: col.pinned === 'right' ? '0px' : undefined,
+                    zIndex: col.pinned === 'right' ? 10 : undefined,
+                  }"
                 >
                   <template v-if="col.id === 'account'">
                     <div class="flex items-start gap-2">

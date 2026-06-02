@@ -1,165 +1,31 @@
 <script setup lang="ts">
-  import { computed, shallowRef, useTemplateRef } from 'vue'
+  import { mdiArrowDown, mdiArrowUp, mdiPin, mdiPinOffOutline, mdiPinOutline } from '@mdi/js'
 
-  import { mdiArrowDown, mdiArrowUp, mdiChartLine, mdiPin, mdiPinOffOutline, mdiPinOutline, mdiRefresh } from '@mdi/js'
-
-  import { createDataGrid, useDocumentEventListener, useResizeObserver, useToggleScope } from '@vuetify/v0'
-
-  import { columns } from './columns'
+  import PinnedFooter from './PinnedFooter.vue'
+  import PinnedToolbar from './PinnedToolbar.vue'
   import { stocks } from './data'
-  import type { Stock } from './data'
+  import { usePinnedGrid } from './usePinnedGrid'
 
-  const grid = createDataGrid<Stock>()
-
-  grid.columns.onboard(columns)
-  grid.onboard(stocks.map(value => ({ id: value.id, value })))
-
-  const resizing = shallowRef<string | null>(null)
-  let startX = 0
-  let table: HTMLElement | null = null
-  let resized = false
-
-  // Sticky offsets must match the table's real pixel width: the layout offsets
-  // are a percentage of the table, but a sticky `left`/`right` percentage
-  // resolves against the scroll viewport, which is narrower once the table
-  // overflows — so pinned columns past the first would drift. Resolve to px.
-  const tableEl = useTemplateRef<HTMLTableElement>('table-el')
-  const tableWidth = shallowRef(0)
-  useResizeObserver(tableEl, ([entry]) => {
-    tableWidth.value = entry.contentRect.width
-  })
-
-  function inset (offset: number) {
-    return tableWidth.value * offset / 100 + 'px'
-  }
-
-  function onResizeStart (id: string, event: PointerEvent) {
-    resizing.value = id
-    startX = event.clientX
-    table = (event.target as HTMLElement).closest('table')
-  }
-
-  function onSort (id: string) {
-    if (resized) return
-    grid.sort.toggle(id)
-  }
-
-  useToggleScope(
-    () => !!resizing.value,
-    () => {
-      useDocumentEventListener('pointermove', (event: PointerEvent) => {
-        if (!resizing.value || !table) return
-        const delta = ((event.clientX - startX) / table.clientWidth) * 100
-        startX = event.clientX
-        grid.layout.resize(resizing.value, delta)
-      })
-
-      useDocumentEventListener('pointerup', () => {
-        resizing.value = null
-        table = null
-        resized = true
-        requestAnimationFrame(() => {
-          resized = false
-        })
-      })
-    },
-  )
-
-  function label (id: string) {
-    return grid.columns.get(id)?.title ?? id
-  }
-
-  function canResize (id: string) {
-    const cols = grid.layout.columns.value
-    const index = cols.findIndex(c => c.id === id)
-    return index !== -1 && index < cols.length - 1
-  }
-
-  function onPin (id: string) {
-    const col = grid.layout.columns.value.find(c => c.id === id)
-    if (!col) return
-    if (col.pinned === 'left') grid.layout.pin(id, 'right')
-    else if (col.pinned === 'right') grid.layout.pin(id, false)
-    else grid.layout.pin(id, 'left')
-  }
-
-  function pinTitle (pinned: 'left' | 'right' | false) {
-    if (pinned === 'left') return 'Pinned left — click to pin right'
-    if (pinned === 'right') return 'Pinned right — click to unpin'
-    return 'Click to pin left'
-  }
-
-  function volume (value: number) {
-    if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}M`
-    if (value >= 1000) return `${(value / 1000).toFixed(0)}K`
-    return String(value)
-  }
-
-  function cap (value: number) {
-    if (value >= 1_000_000) return `$${(value / 1_000_000).toFixed(1)}T`
-    if (value >= 1000) return `$${(value / 1000).toFixed(1)}B`
-    return `$${value}M`
-  }
-
-  const numeric = new Set(['price', 'change', 'volume', 'cap', 'pe', 'eps', 'dividend'])
-
-  function isNumeric (id: string) {
-    return numeric.has(id)
-  }
-
-  const stats = computed(() => {
-    const items = grid.items.value
-    const up = items.filter(s => s.change > 0).length
-    const down = items.filter(s => s.change < 0).length
-    const vol = items.reduce((sum, s) => sum + s.volume, 0)
-    return { up, down, vol }
-  })
-
-  const summary = computed(() => {
-    const { left, scrollable, right } = grid.layout.pinned.value
-    return { left: left.length, scrollable: scrollable.length, right: right.length }
-  })
+  const {
+    grid,
+    inset,
+    onResizeStart,
+    onSort,
+    label,
+    canResize,
+    onPin,
+    pinTitle,
+    volume,
+    cap,
+    isNumeric,
+    stats,
+    summary,
+  } = usePinnedGrid()
 </script>
 
 <template>
   <div class="flex flex-col gap-3">
-    <div class="flex items-center justify-between flex-wrap gap-2">
-      <div class="flex items-center gap-2 text-sm">
-        <svg class="w-4 h-4 text-on-surface-variant" viewBox="0 0 24 24">
-          <path :d="mdiChartLine" fill="currentColor" />
-        </svg>
-
-        <span class="font-medium">Market overview</span>
-
-        <span class="text-xs text-on-surface-variant ml-2">
-          <span class="tabular-nums text-success">{{ stats.up }}↑</span>
-          ·
-          <span class="tabular-nums text-error">{{ stats.down }}↓</span>
-          · Vol <span class="tabular-nums">{{ volume(stats.vol) }}</span>
-        </span>
-      </div>
-
-      <div class="flex items-center gap-2">
-        <input
-          class="px-3 py-1 text-xs border border-divider rounded bg-surface text-on-surface placeholder:text-on-surface-variant outline-none focus:border-primary w-44"
-          placeholder="Filter ticker or company…"
-          type="text"
-          :value="grid.query.value"
-          @input="grid.search(($event.target as HTMLInputElement).value)"
-        >
-
-        <button
-          class="flex items-center gap-1 px-2 py-1 text-xs border border-divider rounded hover:bg-surface-tint"
-          @click="grid.layout.reset()"
-        >
-          <svg class="w-3 h-3" viewBox="0 0 24 24">
-            <path :d="mdiRefresh" fill="currentColor" />
-          </svg>
-
-          Reset
-        </button>
-      </div>
-    </div>
+    <PinnedToolbar :grid :stats :volume />
 
     <div
       class="border border-divider rounded-lg overflow-hidden"
@@ -301,26 +167,10 @@
       </div>
     </div>
 
-    <div class="flex items-center gap-3 text-xs text-on-surface-variant">
-      <span class="tabular-nums">{{ grid.items.value.length }} of {{ stocks.length }} stocks</span>
-
-      <span class="text-divider">·</span>
-
-      <span class="flex items-center gap-1">
-        <svg class="w-3 h-3" viewBox="0 0 24 24">
-          <path :d="mdiPin" fill="currentColor" />
-        </svg>
-
-        <span class="tabular-nums">{{ summary.left }} left</span>
-        <span>·</span>
-        <span class="tabular-nums">{{ summary.scrollable }} scrollable</span>
-        <span>·</span>
-        <span class="tabular-nums">{{ summary.right }} right</span>
-      </span>
-
-      <span class="text-divider">·</span>
-
-      <span>Hover headers to pin, drag handles to resize</span>
-    </div>
+    <PinnedFooter
+      :summary
+      :total="stocks.length"
+      :visible-count="grid.items.value.length"
+    />
   </div>
 </template>
