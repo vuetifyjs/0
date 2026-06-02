@@ -10,6 +10,9 @@
   import { useSearch } from '@/composables/useSearch'
   import { useSettings } from '@/composables/useSettings'
 
+  // Constants
+  import { GITHUB_SPONSORS_ECOSYSTEM } from '@/constants/services'
+
   // Stores
   import { useAuthStore } from '@vuetify/auth'
 
@@ -109,6 +112,18 @@
       <AppSkillFilter v-if="!isHomePage && settings.showSkillFilter.value && breakpoints.width.value >= 440" />
 
       <AppThemeToggle v-if="isHomePage || settings.showThemeToggle.value" />
+
+      <a
+        v-if="isHomePage || settings.showSocialLinks.value"
+        aria-label="Sponsor v0 (opens in new tab)"
+        class="bg-[#bf3989] text-white pa-1 inline-flex rounded opacity-90 hover:opacity-100"
+        :href="GITHUB_SPONSORS_ECOSYSTEM"
+        rel="noopener noreferrer"
+        target="_blank"
+        title="Sponsor v0"
+      >
+        <AppIcon class="!opacity-100" icon="heart" />
+      </a>
 
       <a
         v-if="isHomePage || settings.showSocialLinks.value"

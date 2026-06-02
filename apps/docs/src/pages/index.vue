@@ -21,6 +21,7 @@
     <HomeBenchmarks />
     <HomeAiFirst />
     <HomeFoundation />
+    <HomeSponsor />
     <HomeCta />
   </div>
 </template>

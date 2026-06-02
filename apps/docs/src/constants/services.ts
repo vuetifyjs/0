@@ -6,6 +6,9 @@ export const STRIPE_SUPPORT_MULTIVERSE = 'https://buy.stripe.com/9B600k4xu7sxeCB
 /** GitHub Sponsors page (general) */
 export const GITHUB_SPONSORS = 'https://github.com/sponsors/johnleider'
 
+/** GitHub Sponsors deep link to the $1,500/mo ecosystem-sponsor tier */
+export const GITHUB_SPONSORS_ECOSYSTEM = 'https://github.com/sponsors/johnleider/sponsorships?tier_id=366'
+
 /** Calendly booking URL for the 30-minute intro / scoping call */
 export const CALENDLY_INTRO_CALL = 'https://calendly.com/vuetify/conference-call-30-min'
 

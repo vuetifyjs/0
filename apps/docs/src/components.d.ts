@@ -172,6 +172,7 @@ declare module 'vue' {
     HomeHero: typeof import('./components/home/HomeHero.vue')['default']
     HomePrimarySponsor: typeof import('./components/home/HomePrimarySponsor.vue')['default']
     HomeSpecialSponsor: typeof import('./components/home/HomeSpecialSponsor.vue')['default']
+    HomeSponsor: typeof import('./components/home/HomeSponsor.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     ServicesProjectTiers: typeof import('./components/services/ServicesProjectTiers.vue')['default']
