@@ -344,6 +344,41 @@ describe('createColumnLayout', () => {
 
       expect(layout.columns.value.map(c => c.id)).toEqual(['email', 'phone', 'name', 'status'])
     })
+
+    it('should reorder by visible display index when a column is hidden', () => {
+      // Full leaf order [a, b, c, d]. Hiding 'b' makes the visible display set
+      // [a, c, d]. reorder(0, 1) targets the visible indices, so it moves 'a'
+      // past 'c' (visible index 1) — never touching the hidden 'b'.
+      const { layout } = setup([
+        { id: 'a' },
+        { id: 'b' },
+        { id: 'c' },
+        { id: 'd' },
+      ])
+
+      layout.hide('b')
+      expect(layout.columns.value.map(c => c.id)).toEqual(['a', 'c', 'd'])
+
+      layout.reorder(0, 1)
+
+      expect(layout.columns.value.map(c => c.id)).toEqual(['c', 'a', 'd'])
+      // 'b' was untouched by the move; revealing it restores the full order
+      // with the registry-level move ([a,b,c,d] -> move a to 2 -> [b,c,a,d]).
+      layout.show('b')
+      expect(layout.columns.value.map(c => c.id)).toEqual(['b', 'c', 'a', 'd'])
+    })
+
+    it('should no-op when the moving column is not reorderable', () => {
+      const { layout } = setup([
+        { id: 'a', reorderable: false },
+        { id: 'b' },
+        { id: 'c' },
+      ])
+
+      layout.reorder(0, 2)
+
+      expect(layout.columns.value.map(c => c.id)).toEqual(['a', 'b', 'c'])
+    })
   })
 
   describe('reset', () => {
@@ -638,6 +673,43 @@ describe('createColumnLayout', () => {
       expect(c.resizable).toBe(true)
       expect(c.reorderable).toBe(true)
       expect(c.pinned).toBe(false)
+    })
+
+    it('should rebalance all unsized columns as they onboard incrementally', () => {
+      const { columns, layout } = setup([
+        { id: 'a' },
+      ])
+
+      expect(layout.columns.value.find(c => c.id === 'a')!.size).toBe(100)
+
+      columns.register({ id: 'b' })
+      columns.register({ id: 'c' })
+
+      const cols = layout.columns.value
+      expect(cols.map(c => c.id)).toEqual(['a', 'b', 'c'])
+      // Each late unsized column re-splits the remainder, so the visible sizes
+      // sum to 100 instead of starving newcomers at 0.
+      for (const col of cols) expect(col.size).toBeCloseTo(100 / 3)
+      const total = cols.reduce((sum, c) => sum + c.size, 0)
+      expect(total).toBeCloseTo(100)
+    })
+
+    it('should leave explicitly-sized columns untouched while rebalancing newcomers', () => {
+      const { columns, layout } = setup([
+        { id: 'a', size: 40 },
+        { id: 'b' },
+      ])
+
+      // 'b' alone splits the remaining 60.
+      expect(layout.columns.value.find(c => c.id === 'b')!.size).toBe(60)
+
+      columns.register({ id: 'c' })
+
+      const cols = layout.columns.value
+      // 'a' keeps its explicit 40; 'b' and 'c' share the remaining 60.
+      expect(cols.find(c => c.id === 'a')!.size).toBe(40)
+      expect(cols.find(c => c.id === 'b')!.size).toBe(30)
+      expect(cols.find(c => c.id === 'c')!.size).toBe(30)
     })
 
     it('should drop pin, size, and visibility state when unregister fires', () => {

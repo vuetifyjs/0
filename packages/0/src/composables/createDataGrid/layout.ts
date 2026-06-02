@@ -98,7 +98,11 @@ export interface ColumnLayout {
    * No-op for the last column in its region or non-resizable columns.
    */
   resize: (id: string, delta: number) => void
-  /** Move a column from one display-order index to another */
+  /**
+   * Move a column from one display-order index to another. Indices address
+   * the visible display set (matching `columns`), so hidden columns are not
+   * counted. No-op if the resolved top-level group has `reorderable: false`.
+   */
   reorder: (from: number, to: number) => void
   /** Replace all sizes at once and normalize to sum to 100 */
   distribute: (sizes: number[]) => void
@@ -225,6 +229,15 @@ export function createColumnLayout<
     if (!group.has(id)) group.register({ id, value: id })
 
     if (!sizes.has(id)) sizes.set(id, share(id))
+
+    // Rebalance already-seeded auto-sized leaves so a late unsized column
+    // re-splits the remainder. Skip leaves not yet in `configs` (still mid-seed
+    // during construction/incremental registration) — pre-empting them with a
+    // share() snapshot would block their real size from ever landing.
+    for (const other of extractLeaves(cols.values())) {
+      const otherId = String(other.id)
+      if (configs.has(otherId) && isUndefined(configs.get(otherId)?.size)) sizes.set(otherId, share(otherId))
+    }
 
     const config = configs.get(id)!
     if (config.pinned === 'left') group.select(id)
@@ -363,16 +376,35 @@ export function createColumnLayout<
   function reorder (from: number, to: number) {
     if (from === to) return
 
-    // Map a leaf display index to the index of its top-level column group, so
-    // reordering moves whole groups (nested children travel with their parent).
+    // Build the ordered full leaf-id list alongside a map from each leaf's
+    // full index to its top-level column group, so reordering moves whole
+    // groups (nested children travel with their parent).
+    const tops = [...cols.values()]
+    const ids: string[] = []
     const leafToTop: number[] = []
-    for (const [top, ticket] of cols.values().entries()) {
-      for (let i = 0; i < extractLeaves([ticket]).length; i++) leafToTop.push(top)
+    for (const [top, ticket] of tops.entries()) {
+      for (const leaf of extractLeaves([ticket])) {
+        ids.push(String(leaf.id))
+        leafToTop.push(top)
+      }
     }
 
-    const fromTop = leafToTop[from]
-    const toTop = leafToTop[to]
+    // from/to index the visible display set (what `columns` exposes), not the
+    // full leaf list — translate through the visible subset before mapping to
+    // top-level groups. With nothing hidden, visible === ids, so this is a
+    // no-op translation and behaves identically to indexing the leaf list.
+    const visible = ids.filter(id => !hidden.has(id))
+    const fromId = visible[from]
+    const toId = visible[to]
+    if (isUndefined(fromId) || isUndefined(toId)) return
+
+    const fromTop = leafToTop[ids.indexOf(fromId)]
+    const toTop = leafToTop[ids.indexOf(toId)]
     if (isUndefined(fromTop) || isUndefined(toTop) || fromTop === toTop) return
+
+    // Gate on the TOP-LEVEL group's reorderable: for flat columns that is the
+    // column itself; for a group the header's config governs the whole move.
+    if (tops[fromTop]?.reorderable === false) return
 
     const id = cols.lookup(fromTop)
     if (isUndefined(id)) return
