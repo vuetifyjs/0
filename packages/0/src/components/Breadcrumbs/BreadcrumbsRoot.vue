@@ -137,8 +137,8 @@
     }
     const htmlEl = el as HTMLElement
     const style = getComputedStyle(htmlEl)
-    const marginX = Number.parseFloat(style.marginLeft) + Number.parseFloat(style.marginRight)
-    target.value = htmlEl.offsetWidth + marginX
+    const marginX = (Number.parseFloat(style.marginLeft) || 0) + (Number.parseFloat(style.marginRight) || 0)
+    target.value = (htmlEl.offsetWidth || 0) + marginX
   }
 
   function measureElement (index: number, type: 'item' | 'divider', el: Element | undefined) {

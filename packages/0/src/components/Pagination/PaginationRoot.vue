@@ -151,10 +151,10 @@
     requestAnimationFrame(() => {
       const rootStyle = getComputedStyle(root)
       const style = getComputedStyle(el)
-      const marginX = Number.parseFloat(style.marginLeft) + Number.parseFloat(style.marginRight)
+      const marginX = (Number.parseFloat(style.marginLeft) || 0) + (Number.parseFloat(style.marginRight) || 0)
       const gapX = Number.parseFloat(rootStyle.gap) || 0
 
-      itemWidth.value = el.offsetWidth + marginX
+      itemWidth.value = (el.offsetWidth || 0) + marginX
       itemGap.value = gapX
     })
   }, { flush: 'post' })

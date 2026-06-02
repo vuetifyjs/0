@@ -79,8 +79,8 @@
       return
     }
     const style = getComputedStyle(el.value)
-    const marginX = Number.parseFloat(style.marginLeft) + Number.parseFloat(style.marginRight)
-    group.indicatorWidth.value = (el.value as HTMLElement).offsetWidth + marginX
+    const marginX = (Number.parseFloat(style.marginLeft) || 0) + (Number.parseFloat(style.marginRight) || 0)
+    group.indicatorWidth.value = ((el.value as HTMLElement).offsetWidth || 0) + marginX
   }
 
   useToggleScope(() => !!group && group.responsive.value, () => {
