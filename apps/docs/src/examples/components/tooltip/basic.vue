@@ -13,6 +13,7 @@
 
       <Tooltip.Content
         class="px-2 py-1 rounded text-xs bg-on-surface text-surface shadow-md"
+        :style="{ margin: '6px 0' }"
       >
         Helpful description
       </Tooltip.Content>
