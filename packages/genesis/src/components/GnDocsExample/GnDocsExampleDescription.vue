@@ -4,7 +4,7 @@
     title?: string
     /** Anchor id rendered on the heading for deep-linking */
     anchorId?: string
-    /** Collapse the description with an expand toggle */
+    /** Accepted for API compatibility; the description always collapses behind an expand toggle */
     collapse?: boolean
   }
 </script>
@@ -18,7 +18,6 @@
   const {
     title,
     anchorId,
-    collapse = false,
   } = defineProps<GnDocsExampleDescriptionProps>()
 
   defineEmits<{
@@ -29,7 +28,10 @@
   const expanded = defineModel<boolean>('expanded', { default: false })
 
   const hasContent = toRef(() => !!slots.default)
-  const truncated = toRef(() => collapse && !expanded.value && hasContent.value)
+  // Truncate by default with an always-available toggle, matching the legacy
+  // DocsExampleDescription. `collapse` is a boolean prop, so it casts to false
+  // when absent — gating truncation on it would make long prose never collapse.
+  const truncated = toRef(() => !expanded.value && hasContent.value)
   const maxHeight = shallowRef('4.5rem')
 
   function onToggle () {
@@ -70,7 +72,7 @@
     <div v-if="truncated" aria-hidden="true" class="genesis-docs-example-description__fade" />
 
     <button
-      v-if="hasContent && collapse"
+      v-if="hasContent"
       :aria-expanded="expanded ? 'true' : 'false'"
       :aria-label="expanded ? 'Collapse description' : 'Expand description'"
       class="genesis-docs-example-description__toggle"
