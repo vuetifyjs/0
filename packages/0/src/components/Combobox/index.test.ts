@@ -1441,6 +1441,10 @@ describe('combobox', () => {
       const value = { foo: 'bar' }
       let ctx: { open: () => void } | undefined
 
+      // modelValue is typed String | Number | Array; passing an object to
+      // exercise JSON serialization makes Vue warn on the prop type. Silence it.
+      using warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
       const wrapper = mount(
         defineComponent({
           render () {
@@ -1473,6 +1477,7 @@ describe('combobox', () => {
       expect(hidden.exists()).toBe(true)
       // Object values should be serialized to JSON
       expect((hidden.element as HTMLInputElement).value).toBe(JSON.stringify(value))
+      expect(warn).toHaveBeenCalled()
     })
 
     it('should render empty string for null selection values', async () => {

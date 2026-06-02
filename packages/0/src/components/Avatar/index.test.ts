@@ -48,6 +48,11 @@ describe('avatar', () => {
       })
 
       it('should support renderless mode', () => {
+        // The Root's `v-show` is a no-op on a renderless Atom (the consumer
+        // owns the rendered element), so Vue warns about a runtime directive
+        // on a non-element root. Silence the expected, benign warning.
+        using warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
         const wrapper = mount(Avatar.Root, {
           props: {
             renderless: true,
@@ -58,6 +63,7 @@ describe('avatar', () => {
         })
 
         expect(wrapper.find('.custom-root').exists()).toBe(true)
+        expect(warn).toHaveBeenCalled()
       })
     })
 
