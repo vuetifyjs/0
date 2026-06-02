@@ -4,12 +4,13 @@
  * @remarks
  * Computes a row span map from visible items. For each cell, determines
  * rowSpan and whether it's hidden (covered by a span from a previous row).
- * Spans do not cross page boundaries. Row spanning requires each item to
- * carry a defined `itemKey` value; rows without one cannot be addressed in
- * the resulting map and are skipped.
+ * Spans do not cross page boundaries. Each row is addressed by a key: either a
+ * `key(item, index)` projection (the grid passes the registry ticket id) or,
+ * absent that, the row's `itemKey` value. Rows whose resolved key is
+ * `undefined` cannot be addressed in the resulting map and are skipped.
  *
  * @internal Consumed only by `createDataGrid`. Fully decoupled (items ref +
- * columns + span fn — no grid/table types), so it is a latent composable.
+ * columns + key + span fn — no grid/table types), so it is a latent composable.
  * Promote it to a standalone `createRowSpanning/` composable on a second
  * consumer. See `.claude/rules/composables.md` §"Sub-modules: inline, private
  * sibling, or promote".
@@ -38,7 +39,7 @@ export interface SpanEntry {
  * const options: RowSpanningOptions<Holding> = {
  *   items: computed(() => grid.items.value),
  *   columns: ['group', 'ticker', 'value'],
- *   rowSpanning: (item, column) => column === 'group' ? 3 : 1,
+ *   span: (item, column) => column === 'group' ? 3 : 1,
  * }
  * ```
  */
@@ -46,11 +47,23 @@ export interface RowSpanningOptions<T = Record<string, unknown>> {
   items: Ref<readonly T[]> | ComputedRef<readonly T[]>
   columns: MaybeRefOrGetter<readonly string[]>
   /**
-   * Property used to identify each row in the span map. Rows whose value for
-   * this key is `undefined` are skipped, since their spans can't be addressed.
+   * Projects the row key from its item and index. Takes precedence over
+   * `itemKey` — the grid passes the registry ticket id so the span map shares
+   * identity with the rest of the grid. Rows whose projected key is
+   * `undefined` are skipped, since their spans can't be addressed.
+   */
+  key?: (item: T, index: number) => ID | undefined
+  /**
+   * Property used to identify each row in the span map when `key` is absent.
+   * Rows whose value for this key is `undefined` are skipped, since their
+   * spans can't be addressed.
    */
   itemKey?: string
-  rowSpanning?: (item: T, column: string) => number
+  /**
+   * Resolves the row span for a cell. Return a value < 1 (or `NaN`) to span a
+   * single row. When absent, no spans are produced.
+   */
+  span?: (item: T, column: string) => number
 }
 
 /**
@@ -64,7 +77,7 @@ export interface RowSpanningOptions<T = Record<string, unknown>> {
  * const spans = createRowSpanning({
  *   items: computed(() => grid.items.value),
  *   columns: ['group', 'ticker', 'value'],
- *   rowSpanning: (item, column) => column === 'group' ? 3 : 1,
+ *   span: (item, column) => column === 'group' ? 3 : 1,
  * })
  *
  * spans.value.get(id)?.get('group') // { rowSpan: 3, hidden: false }
@@ -73,12 +86,12 @@ export interface RowSpanningOptions<T = Record<string, unknown>> {
 export function createRowSpanning<T extends Record<string, unknown>> (
   options: RowSpanningOptions<T>,
 ): ComputedRef<Map<ID, Map<string, SpanEntry>>> {
-  const { items, columns, itemKey = 'id', rowSpanning } = options
+  const { items, columns, key, itemKey = 'id', span } = options
 
   return computed(() => {
     const result = new Map<ID, Map<string, SpanEntry>>()
 
-    if (!rowSpanning) return result
+    if (!span) return result
 
     const list = items.value
     const resolved = toValue(columns)
@@ -89,7 +102,7 @@ export function createRowSpanning<T extends Record<string, unknown>> (
 
     for (let row = 0; row < list.length; row++) {
       const item = list[row]
-      const id = item[itemKey] as ID
+      const id = key ? key(item, row) : item[itemKey] as ID
 
       // A row that can't be identified gets no span entry, and must not
       // participate as a coverage source — skip before computing spans.
@@ -102,14 +115,14 @@ export function createRowSpanning<T extends Record<string, unknown>> (
           cells.set(column, { rowSpan: 1, hidden: true })
           covered[col]--
         } else {
-          const raw = rowSpanning(item, column)
-          const span = Math.min(
+          const raw = span(item, column)
+          const rowSpan = Math.min(
             Math.max(1, isNaN(raw) ? 1 : raw),
             list.length - row, // clamp to remaining rows
           )
-          cells.set(column, { rowSpan: span, hidden: false })
-          if (span > 1) {
-            covered[col] = span - 1
+          cells.set(column, { rowSpan, hidden: false })
+          if (rowSpan > 1) {
+            covered[col] = rowSpan - 1
           }
         }
       }

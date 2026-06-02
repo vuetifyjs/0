@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 
-import { createDataGrid, ServerGridAdapter } from './index'
+import { createDataGrid, createDataGridContext, ServerGridAdapter } from './index'
 
 // Utilities
 import { nextTick, shallowRef } from 'vue'
@@ -618,6 +618,121 @@ describe('createDataGrid', () => {
       expect(spans.get(2)?.get('dept')?.hidden).toBe(true)
       expect(spans.get(3)?.get('dept')?.rowSpan).toBe(2)
       expect(spans.get(4)?.get('dept')?.hidden).toBe(true)
+    })
+  })
+
+  describe('row spanning — regression', () => {
+    // Spans must key off the registry ticket id, never value.id. With ticket
+    // ids deliberately diverging from value.id, the span map is addressed by
+    // ticket id (101) and never by value.id (1).
+    it('should key spans by ticket id when it differs from value.id', () => {
+      const grid = createDataGrid<{ id: number, dept: string, name: string }>({
+        rowSpanning: (item, column) => (column === 'dept' && item.dept === 'Eng' ? 2 : 1),
+      })
+
+      grid.columns.onboard([
+        { id: 'dept', size: 50 },
+        { id: 'name', size: 50 },
+      ])
+
+      grid.register({ id: 101, value: { id: 1, dept: 'Eng', name: 'Alice' } })
+      grid.register({ id: 102, value: { id: 2, dept: 'Eng', name: 'Bob' } })
+
+      const spans = grid.spans.value
+      expect(spans.get(101)?.get('dept')?.rowSpan).toBe(2)
+      expect(spans.get(102)?.get('dept')?.hidden).toBe(true)
+      // Keyed by ticket id (101/102), not value.id (1/2).
+      expect(spans.has(1)).toBe(false)
+      expect(spans.has(2)).toBe(false)
+    })
+
+    // Rows whose value has no `id` field must still produce spans — proof that
+    // span identity no longer depends on value.id, only on the ticket id.
+    it('should produce spans for rows whose values have no id field', () => {
+      const grid = createDataGrid<{ dept: string, name: string }>({
+        rowSpanning: () => 1,
+      })
+
+      grid.columns.onboard([
+        { id: 'dept', size: 50 },
+        { id: 'name', size: 50 },
+      ])
+
+      grid.register({ id: 'r1', value: { dept: 'Eng', name: 'A' } })
+
+      expect(grid.spans.value.get('r1')?.get('dept')).toBeDefined()
+    })
+
+    // Two tickets sharing one value object reference must not collide: distinct
+    // ticket-id keys, no dropped row across a move.
+    it('should keep all rows when two tickets share one value reference', () => {
+      const grid = createDataGrid<{ dept: string }>({
+        rowSpanning: () => 1,
+      })
+
+      grid.columns.onboard([{ id: 'dept', size: 100 }])
+
+      const value = { dept: 'Eng' }
+      grid.onboard([{ id: 1, value }, { id: 2, value }])
+
+      expect(grid.items.value).toHaveLength(2)
+      expect(grid.spans.value.size).toBe(2)
+
+      grid.rows.move(1, 1)
+
+      expect(grid.items.value).toHaveLength(2)
+      expect(grid.spans.value.size).toBe(2)
+    })
+
+    // A per-column `col.span` must produce spans even when no global rowSpanning
+    // option is supplied — the previous early-return left the map empty.
+    it('should produce spans from a column span with no global rowSpanning', () => {
+      const grid = createDataGrid()
+
+      grid.columns.onboard([
+        { id: 'dept', size: 50, span: () => 2 },
+        { id: 'name', size: 50 },
+      ])
+
+      onboard(grid, items)
+
+      const spans = grid.spans.value
+      expect(spans.get(1)?.get('dept')?.rowSpan).toBe(2)
+      expect(spans.get(2)?.get('dept')?.hidden).toBe(true)
+      expect(spans.get(1)?.get('name')?.rowSpan).toBe(1)
+    })
+
+    // A per-column `col.span` takes precedence over the global rowSpanning option.
+    it('should let a column span override the global rowSpanning', () => {
+      const grid = createDataGrid({
+        rowSpanning: () => 3,
+      })
+
+      grid.columns.onboard([
+        { id: 'dept', size: 50, span: () => 2 },
+        { id: 'name', size: 50 },
+      ])
+
+      onboard(grid, items)
+
+      // dept resolves through col.span (2), not the global rowSpanning (3).
+      expect(grid.spans.value.get(1)?.get('dept')?.rowSpan).toBe(2)
+    })
+  })
+
+  describe('context factory', () => {
+    it('should not throw when called with no arguments', () => {
+      expect(() => createDataGridContext()).not.toThrow()
+    })
+
+    it('should expose a working default context from the no-arg factory', () => {
+      const [, , grid] = createDataGridContext<{ id: number, dept: string }>()
+
+      grid.columns.onboard([{ id: 'dept', size: 100 }])
+      grid.register({ id: 1, value: { id: 1, dept: 'Eng' } })
+
+      expect(grid.layout.columns.value.map(col => col.id)).toEqual(['dept'])
+      expect(grid.spans.value.get(1)?.get('dept')).toBeDefined()
     })
   })
 })
