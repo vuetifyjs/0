@@ -303,6 +303,15 @@ pnpm validate
 
 Vuetify0 is in beta — open for feedback, bug reports, and contributions. See the [Roadmap](https://0.vuetifyjs.com/roadmap#beta) for what's planned and how to get involved.
 
+## Supporting Vuetify
+
+Vuetify0 is an MIT-licensed open source project. Its ongoing development is made possible by the support of sponsors and backers. If you'd like to join them, please consider:
+
+- [Sponsor on GitHub](https://github.com/sponsors/johnleider)
+- [Donate via Open Collective](https://opencollective.com/vuetify)
+
+For direct support plans and fixed-scope project builds, see [Vuetify Services](https://0.vuetifyjs.com/services).
+
 ## License
 
 [MIT License](./LICENSE.md)
