@@ -34,8 +34,7 @@
       <div class="overflow-x-auto">
         <table
           ref="table-el"
-          class="w-full text-sm min-w-[1100px] table-fixed"
-          style="overflow: visible"
+          class="w-full text-sm min-w-[1100px] table-fixed !overflow-visible !border-none"
         >
           <thead>
             <tr class="border-b border-divider">
@@ -55,6 +54,7 @@
                   left: col.pinned === 'left' ? inset(col.offset) : undefined,
                   right: col.pinned === 'right' ? inset(col.offset) : undefined,
                   zIndex: col.pinned ? 10 : undefined,
+                  boxShadow: col.pinned === 'left' ? '4px 0 6px -4px rgb(0 0 0 / 0.2)' : col.pinned === 'right' ? '-4px 0 6px -4px rgb(0 0 0 / 0.2)' : undefined,
                 }"
                 @click="onSort(col.id)"
               >
@@ -121,6 +121,7 @@
                   left: col.pinned === 'left' ? inset(col.offset) : undefined,
                   right: col.pinned === 'right' ? inset(col.offset) : undefined,
                   zIndex: col.pinned ? 10 : undefined,
+                  boxShadow: col.pinned === 'left' ? '4px 0 6px -4px rgb(0 0 0 / 0.2)' : col.pinned === 'right' ? '-4px 0 6px -4px rgb(0 0 0 / 0.2)' : undefined,
                 }"
               >
                 <template v-if="col.id === 'ticker'">

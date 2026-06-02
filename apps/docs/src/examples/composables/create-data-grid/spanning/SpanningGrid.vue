@@ -47,7 +47,7 @@
       </div>
     </div>
 
-    <div class="border border-divider rounded-lg overflow-hidden bg-surface">
+    <div class="border border-divider rounded-lg overflow-hidden bg-surface" data-grid>
       <div class="overflow-x-auto">
         <table class="w-full text-sm min-w-[760px] table-fixed">
           <thead>
@@ -65,6 +65,7 @@
                   position: col.pinned === 'right' ? 'sticky' : undefined,
                   right: col.pinned === 'right' ? '0px' : undefined,
                   zIndex: col.pinned === 'right' ? 10 : undefined,
+                  boxShadow: col.pinned === 'right' ? '-4px 0 6px -4px rgb(0 0 0 / 0.2)' : undefined,
                 }"
               >
                 {{ grid.columns.get(col.id)?.title }}
@@ -99,6 +100,7 @@
                     position: col.pinned === 'right' ? 'sticky' : undefined,
                     right: col.pinned === 'right' ? '0px' : undefined,
                     zIndex: col.pinned === 'right' ? 10 : undefined,
+                    boxShadow: col.pinned === 'right' ? '-4px 0 6px -4px rgb(0 0 0 / 0.2)' : undefined,
                   }"
                 >
                   <template v-if="col.id === 'account'">

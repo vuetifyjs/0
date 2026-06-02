@@ -48,7 +48,7 @@
       @undo="onUndo"
     />
 
-    <div class="border border-divider rounded-lg overflow-hidden">
+    <div class="border border-divider rounded-lg overflow-hidden" data-grid>
       <table class="w-full text-sm border-collapse">
         <thead>
           <tr class="border-b border-divider bg-surface-tint">
