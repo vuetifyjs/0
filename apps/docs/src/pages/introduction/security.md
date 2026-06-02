@@ -100,10 +100,13 @@ flowchart LR
 These measures protect the integrity of `@vuetify/v0` from source to consumer:
 
 - **Lockfile committed** — `pnpm-lock.yaml` is version-controlled, ensuring reproducible installs
-- **Dependency cooldown** — pnpm `minimum-release-age` enforces a waiting period before newly published dependency versions can be installed, giving time for compromised packages to be detected
+- **Dependency cooldown** — pnpm's `minimumReleaseAge` (set in `pnpm-workspace.yaml`) enforces a release-age waiting period before a newly published dependency version can be installed, giving time for a compromised release to be detected and pulled. First-party Vuetify packages and the dev/build toolchain (linters, the bundler, CI preview tooling) are exempt via `minimumReleaseAgeExclude`, as they are either published by us or never ship in a consumer's runtime bundle
 - **Pinned CI actions** — Vuetify-owned GitHub Actions are pinned to commit SHAs, not mutable branch refs, preventing silent changes via force-push
 - **Scoped package** — published under the `@vuetify` npm org, reducing typosquatting risk
 - **No lifecycle scripts** — no `postinstall` or `preinstall` scripts that could execute arbitrary code at install time
+
+> [!IMPORTANT]
+> The current dependency release-age cooldown is **14 days** — a newly published version of any non-exempt dependency must be at least 14 days old before it can be installed.
 
 ### Security Properties
 
