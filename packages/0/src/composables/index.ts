@@ -2,6 +2,7 @@
 export * from './createBreadcrumbs'
 export * from './createCombobox'
 export * from './createContext'
+export * from './createDataGrid'
 export * from './createDataTable'
 export * from './createFilter'
 export * from './createForm'

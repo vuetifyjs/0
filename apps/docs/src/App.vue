@@ -368,7 +368,11 @@
       padding: 0.5rem 1rem;
     }
 
-    table {
+    /* Prose tables only. Self-styled grid examples opt out via [data-grid] on
+       their wrapper — otherwise this rule's specificity (0,1,1) overrides their
+       own utility classes (0,1,0) and double-borders the table. Bare example
+       tables (no wrapper) still get this default styling. */
+    table:not([data-grid] table) {
       width: 100%;
       background-color: var(--v0-surface);
       border-collapse: separate;
@@ -376,25 +380,25 @@
       border-radius: 0.5rem;
       border: thin solid var(--v0-divider);
       overflow: hidden;
-    }
 
-    th, td {
-      padding: 0.5rem 0.75rem;
-      border-bottom: thin solid var(--v0-divider);
-      border-right: thin solid var(--v0-divider);
-    }
+      th, td {
+        padding: 0.5rem 0.75rem;
+        border-bottom: thin solid var(--v0-divider);
+        border-right: thin solid var(--v0-divider);
+      }
 
-    th {
-      background-color: var(--v0-surface-tint);
-      font-weight: 600;
-    }
+      th {
+        background-color: var(--v0-surface-tint);
+        font-weight: 600;
+      }
 
-    th:last-child, td:last-child {
-      border-right: none;
-    }
+      th:last-child, td:last-child {
+        border-right: none;
+      }
 
-    tr:last-child td {
-      border-bottom: none;
+      tr:last-child td {
+        border-bottom: none;
+      }
     }
   }
 

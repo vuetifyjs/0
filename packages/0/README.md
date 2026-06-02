@@ -172,6 +172,7 @@ Base data structures that most other composables build upon:
 
 #### Data
 
+- [`createDataGrid`](https://0.vuetifyjs.com/composables/data/create-data-grid) - Headless data grid layering column layout, cell editing, row ordering, and row spanning on top of createDataTable
 - [`createDataTable`](https://0.vuetifyjs.com/composables/data/create-data-table) - Data table with sort, filter, pagination, row selection, grouping, and adapter pattern
 - [`createFilter`](https://0.vuetifyjs.com/composables/data/create-filter) - Reactive array filtering with multiple modes
 - [`createKanban`](https://0.vuetifyjs.com/composables/data/create-kanban) - Two-level sortable orchestrator (columns + items)
