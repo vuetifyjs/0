@@ -106,6 +106,10 @@ onlyBuiltDependencies:
   - simple-git-hooks
   - unrs-resolver
 
+ignoredBuiltDependencies:
+  - core-js
+  - protobufjs
+
 patchedDependencies:
   '@vue/repl@4.7.1': patches/@vue__repl@4.7.1.patch
   vite-ssg@28.3.0: patches/vite-ssg@28.3.0.patch
