@@ -44,7 +44,7 @@
     const item = grid.get(row)?.value
     if (!item) return
     const coerced = column === 'price' || column === 'quantity' ? Number(value) : value
-    ;(item as Record<string, unknown>)[column] = coerced
+    grid.upsert(row, { value: { ...item, [column]: coerced } })
   }
 
   const grid = createDataGrid<Product>({
@@ -145,8 +145,8 @@
     return `$${Number(value).toFixed(2)}`
   }
 
-  const total = computed(() => products.reduce((sum, p) => sum + p.price * p.quantity, 0))
-  const low = computed(() => products.filter(p => p.quantity < 50).length)
+  const total = computed(() => grid.allItems.value.reduce((sum, p) => sum + p.price * p.quantity, 0))
+  const low = computed(() => grid.allItems.value.filter(p => p.quantity < 50).length)
 </script>
 
 <template>
