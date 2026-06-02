@@ -42,8 +42,6 @@ import type { GroupContext, GroupOptions, GroupTicket, GroupTicketInput } from '
 import type { RuleInput } from '#v0/composables/useRules'
 import type { MaybeRefOrGetter, ShallowRef } from 'vue'
 
-export type { FormValidationRule } from '#v0/composables/createForm'
-
 /**
  * Input type for validation tickets.
  * Each ticket represents a single validation rule.

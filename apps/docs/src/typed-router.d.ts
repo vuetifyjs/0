@@ -828,13 +828,6 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
-    '/genesis-sandbox': RouteRecordInfo<
-      '/genesis-sandbox',
-      '/genesis-sandbox',
-      Record<never, never>,
-      Record<never, never>,
-      | never
-    >,
     '/guide/': RouteRecordInfo<
       '/guide/',
       '/guide',
@@ -1099,6 +1092,13 @@ declare module 'vue-router/auto-routes' {
       '/skillz/:id',
       { id: ParamValue<true> },
       { id: ParamValue<false> },
+      | never
+    >,
+    '/sponsor': RouteRecordInfo<
+      '/sponsor',
+      '/sponsor',
+      Record<never, never>,
+      Record<never, never>,
       | never
     >,
   }
@@ -1798,12 +1798,6 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
-    'src/pages/genesis-sandbox.vue': {
-      routes:
-        | '/genesis-sandbox'
-      views:
-        | never
-    }
     'src/pages/guide/index.md': {
       routes:
         | '/guide/'
@@ -2029,6 +2023,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/skillz.[id].vue': {
       routes:
         | '/skillz.[id]'
+      views:
+        | never
+    }
+    'src/pages/sponsor.md': {
+      routes:
+        | '/sponsor'
       views:
         | never
     }

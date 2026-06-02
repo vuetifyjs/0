@@ -26,7 +26,7 @@
  */
 
 // Utilities
-import { isObject, isString, isSymbol, isUndefined } from '#v0/utilities'
+import { isObject, isString, isSymbol, isUndefined, V0Error } from '#v0/utilities'
 import { inject, provide } from 'vue'
 
 // Types
@@ -64,7 +64,10 @@ export function useContext<Z> (key: ContextKey<Z>, defaultValue?: Z) {
   const context = inject<Z>(key, defaultValue as Z)
 
   if (isUndefined(context)) {
-    throw new Error(`Context "${String(key)}" not found. Ensure it's provided by an ancestor.`)
+    throw new V0Error(`Context "${String(key)}" not found. Ensure it's provided by an ancestor.`, {
+      code: 'V0_CONTEXT_MISSING',
+      key,
+    })
   }
 
   return context

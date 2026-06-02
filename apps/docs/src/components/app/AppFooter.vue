@@ -6,6 +6,9 @@
   import { useSettings } from '@/composables/useSettings'
   import { useThemeToggle } from '@/composables/useThemeToggle'
 
+  // Constants
+  import { GITHUB_SPONSORS_ECOSYSTEM } from '@/constants/services'
+
   // Stores
   import { useAppStore } from '@/stores/app'
   import { useReleasesStore } from '@/stores/releases'
@@ -28,6 +31,7 @@
   const links = [
     { icon: 'discord', href: 'https://discord.gg/vK6T89eNP7', label: 'Discord', bg: 'bg-discord' },
     { icon: 'github', href: 'https://github.com/vuetifyjs/0', label: 'GitHub', bg: 'bg-[#24292f]' },
+    { icon: 'heart', href: GITHUB_SPONSORS_ECOSYSTEM, label: 'Sponsor', bg: 'bg-[#bf3989]' },
   ]
 
   const latest = toRef(() => releases.releases[0])
@@ -108,6 +112,15 @@
       </div>
 
       <div class="flex items-center gap-4">
+        <router-link
+          class="text-sm opacity-60 hover:opacity-100 hover:text-primary transition-opacity"
+          to="/services"
+        >
+          Services
+        </router-link>
+
+        <div class="hidden md:block w-px h-5 bg-divider" />
+
         <a
           v-for="link in links"
           :key="link.icon"

@@ -258,6 +258,8 @@ export const [createLoggerContext, createLoggerPlugin, useLogger] =
   )
 ```
 
+> `useLogger` additionally wraps the generated consumer in a hand-written function to support an optional scope key (see its source); the snippet above shows the fallback wiring it still uses, not its literal export shape.
+
 When the fallback is in place, `useLogger()` returns synthesized defaults instead of throwing. Sibling plugins that follow the same convention: `useLocale` (`createLocaleFallback`), `useHydration` (`createFallbackHydration`). If a plugin **must** be installed (e.g., it depends on caller-provided adapters with no defensible default — `useDate`), omit the fallback and let injection throw; document that explicitly on the docs page so the failure is loud, not silent.
 
 ### 4. Adapter (pluggable implementation)

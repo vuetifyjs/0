@@ -2,7 +2,7 @@
 
 The Vuetify team takes security seriously. We appreciate your efforts to responsibly disclose vulnerabilities and will make every effort to acknowledge your contributions.
 
-For the full threat model, security properties, and CSP guidance, see the [Security documentation](https://0.vuetifyjs.com/introduction/security).
+For the full threat model, security properties, supply-chain hardening, and CSP guidance, see the [Security documentation](https://0.vuetifyjs.com/introduction/security).
 
 ## Reporting a Vulnerability
 
@@ -36,6 +36,16 @@ When we receive a security report, we will:
 - Release fixes to npm as quickly as possible
 
 Internally, security incidents are handled according to a formal Incident Response Plan that defines severity classification, response timelines, and escalation procedures.
+
+## Supply Chain
+
+We harden the path from source to published package:
+
+- **Dependency cooldown** — a newly published dependency version must age **14 days** before it can be installed (first-party and dev/build toolchain packages are exempt), giving time for a compromised release to be detected and pulled.
+- **Committed lockfile** — `pnpm-lock.yaml` is version-controlled for reproducible installs.
+- **Pinned CI actions** — Vuetify-owned GitHub Actions are pinned to commit SHAs, not mutable branch refs.
+
+See the [Security documentation](https://0.vuetifyjs.com/introduction/security#supply-chain-hardening) for the full breakdown.
 
 ## Scope
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { createSelection } from '@vuetify/v0'
+  import { Button, createSelection } from '@vuetify/v0'
   import { computed } from 'vue'
 
   const files = [
@@ -36,18 +36,18 @@
         {{ selection.selectedIds.size }} selected
       </span>
 
-      <button
+      <Button.Root
         class="text-xs px-2 py-1 rounded border border-divider text-on-surface-variant hover:bg-surface-tint transition-colors disabled:opacity-40"
         :disabled="selection.selectedIds.size === 0"
         @click="selection.reset()"
       >
         Clear
-      </button>
+      </Button.Root>
     </div>
 
     <!-- File list -->
     <div class="border border-divider rounded-lg overflow-hidden divide-y divide-divider">
-      <button
+      <Button.Root
         v-for="ticket in tickets"
         :key="ticket.id"
         class="w-full flex items-center gap-3 px-3 py-2.5 text-left transition-colors"
@@ -86,7 +86,7 @@
 
         <!-- Size -->
         <span class="text-xs text-on-surface-variant">{{ ticket.value.size }}</span>
-      </button>
+      </Button.Root>
     </div>
 
     <!-- Status -->
@@ -94,9 +94,9 @@
       Selected: {{ totalSize }}
       <span v-if="selection.selectedIds.size > 0">
         &middot;
-        <button class="text-primary hover:underline" @click="selection.reset()">
+        <Button.Root class="text-primary hover:underline" @click="selection.reset()">
           Deselect all
-        </button>
+        </Button.Root>
       </span>
     </p>
   </div>

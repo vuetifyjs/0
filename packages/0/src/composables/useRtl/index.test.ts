@@ -316,7 +316,7 @@ describe('createRtl', () => {
       it('should not install twice on the same app', async () => {
         const { createApp, nextTick: nt } = await import('vue')
 
-        const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+        using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
         const setupFn = vi.fn()
         const customAdapter = { setup: setupFn }
@@ -336,8 +336,6 @@ describe('createRtl', () => {
         expect(spy).toHaveBeenCalledTimes(1)
 
         app.unmount()
-
-        spy.mockRestore()
       })
     })
 

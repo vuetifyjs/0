@@ -183,8 +183,8 @@ export function createOverflow<
     if (!IN_BROWSER) return
 
     const style = getComputedStyle(el)
-    const marginX = Number.parseFloat(style.marginLeft) + Number.parseFloat(style.marginRight)
-    const w = (el as HTMLElement).offsetWidth + marginX
+    const marginX = (Number.parseFloat(style.marginLeft) || 0) + (Number.parseFloat(style.marginRight) || 0)
+    const w = ((el as HTMLElement).offsetWidth || 0) + marginX
 
     if (widths.value.get(index) !== w) {
       widths.value = new Map(widths.value).set(index, w)

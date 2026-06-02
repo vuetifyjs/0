@@ -6,6 +6,9 @@ import { V0DateAdapter } from './adapters/v0'
 
 import { createDate, createDateContext, createDatePlugin, useDate } from './index'
 
+// Utilities
+import { isV0Error, V0Error } from '#v0/utilities'
+
 describe('createDate', () => {
   describe('v0DateAdapter', () => {
     let adapter: V0DateAdapter
@@ -1591,6 +1594,21 @@ describe('createDate', () => {
 
     it('should throw with helpful error message', () => {
       expect(() => useDate()).toThrow('createDatePlugin')
+    })
+
+    it('should throw a V0Error tagged V0_PLUGIN_MISSING with the plugin payload', () => {
+      let caught: unknown
+      try {
+        useDate()
+      } catch (error) {
+        caught = error
+      }
+      expect(caught).toBeInstanceOf(V0Error)
+      expect(isV0Error(caught, 'V0_PLUGIN_MISSING')).toBe(true)
+      if (isV0Error(caught, 'V0_PLUGIN_MISSING')) {
+        expect(caught.code).toBe('V0_PLUGIN_MISSING')
+        expect(caught.plugin).toBe('createDatePlugin')
+      }
     })
   })
 

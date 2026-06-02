@@ -5,7 +5,7 @@
   import maturityData from '#v0/maturity.json'
 
   // Utilities
-  import { toRef } from 'vue'
+  import { toRef, watch } from 'vue'
   import { RouterLink } from 'vue-router'
 
   // Types
@@ -122,22 +122,30 @@
   })
 
   const table = createDataTable<MaturityItem>({
-    items: filtered,
-    columns: [
-      { key: 'name', title: 'Name', sortable: true, filterable: true },
-      { key: 'type', title: 'Type', sortable: true, filterable: true },
-      { key: 'category', title: 'Category', sortable: true, filterable: true },
-      {
-        key: 'levelOrder',
-        title: 'Level',
-        sortable: true,
-        sort: (a, b) => (a as number) - (b as number),
-      },
-      { key: 'since', title: 'Since', sortable: true },
-    ],
     groupBy: 'category',
     pagination: { itemsPerPage: 100 },
   })
+
+  table.columns.onboard([
+    { id: 'name', title: 'Name', sortable: true, filterable: true },
+    { id: 'type', title: 'Type', sortable: true, filterable: true },
+    { id: 'category', title: 'Category', sortable: true, filterable: true },
+    {
+      id: 'levelOrder',
+      title: 'Level',
+      sortable: true,
+      sort: (a, b) => (a as number) - (b as number),
+    },
+    { id: 'since', title: 'Since', sortable: true },
+  ])
+
+  // The type/level chips filter externally into `filtered`; the table's
+  // pipeline (search, sort, group) runs off its row registry, so re-onboard
+  // the current set whenever the chip selection changes.
+  watch(filtered, items => {
+    table.clear()
+    table.onboard(items.map(item => ({ id: item.id, value: item })))
+  }, { immediate: true })
 
   function onSearch (event: Event) {
     table.search((event.target as HTMLInputElement).value)
@@ -158,14 +166,6 @@
     } else {
       table.grouping.openAll()
     }
-  }
-
-  // Sort indicator
-  function sortIcon (key: string): string {
-    const dir = table.sort.direction(key)
-    if (dir === 'asc') return '\u2191'
-    if (dir === 'desc') return '\u2193'
-    return ''
   }
 
   // Weighted color blend for a group
@@ -399,19 +399,26 @@
         <thead>
           <tr v-if="anyOpen" class="relative z-1 bg-background">
             <th
-              v-for="col in table.columns"
-              :key="col.key"
+              v-for="col in table.leaves.value"
+              :key="col.id"
               class="py-2 text-left text-xs font-semibold text-on-surface-variant uppercase tracking-wide cursor-pointer select-none hover:text-on-surface transition-colors"
-              :class="col.key === 'name' ? '!pl-[34px] pr-4' : 'px-4'"
-              @click="col.sortable ? table.sort.toggle(col.key) : undefined"
+              :class="col.id === 'name' ? '!pl-[34px] pr-4' : 'px-4'"
+              @click="col.sortable ? table.sort.toggle(col.id) : undefined"
             >
               {{ col.title }}
-              <span v-if="col.sortable" class="ml-0.5 text-primary">{{ sortIcon(col.key) }}</span>
+              <AppIcon
+                v-if="col.sortable && table.sort.direction(col.id) !== 'none'"
+                aria-hidden="true"
+                class="ml-0.5 text-primary transition-transform"
+                :class="table.sort.direction(col.id) === 'asc' ? '-rotate-90' : 'rotate-90'"
+                icon="chevron-right"
+                :size="14"
+              />
             </th>
           </tr>
 
           <tr v-else class="relative z-1 bg-background">
-            <th class="py-2 px-4 text-left text-xs font-normal text-on-surface-variant/50 italic" :colspan="table.columns.length">
+            <th class="py-2 px-4 text-left text-xs font-normal text-on-surface-variant/50 italic" :colspan="table.leaves.value.length">
               <div class="flex items-center gap-2">
                 Select a group to see individual items
                 <span class="flex-1" />
@@ -429,7 +436,7 @@
           <!-- Group divider -->
           <tbody v-if="index > 0">
             <tr>
-              <td class="!p-0" :colspan="table.columns.length">
+              <td class="!p-0" :colspan="table.leaves.value.length">
                 <hr class="border-divider m-0">
               </td>
             </tr>
@@ -441,7 +448,7 @@
               class="cursor-pointer transition-colors hover:bg-surface-variant/30"
               @click="table.grouping.toggle(group.key)"
             >
-              <td class="px-4 py-2.5" :colspan="table.columns.length">
+              <td class="px-4 py-2.5" :colspan="table.leaves.value.length">
                 <div class="flex items-center gap-2 text-sm font-semibold text-on-surface">
                   <AppIcon
                     class="transition-transform"
@@ -530,7 +537,7 @@
         <!-- Empty state -->
         <tbody v-if="table.grouping.groups.value.length === 0">
           <tr>
-            <td class="px-4 py-8 text-center text-on-surface-variant text-sm" :colspan="table.columns.length">
+            <td class="px-4 py-8 text-center text-on-surface-variant text-sm" :colspan="table.leaves.value.length">
               No items match your search or filters.
             </td>
           </tr>
@@ -539,7 +546,7 @@
         <!-- Total row -->
         <tfoot>
           <tr class="bg-surface-tint">
-            <td class="px-4 py-3" :colspan="table.columns.length">
+            <td class="px-4 py-3" :colspan="table.leaves.value.length">
               <div class="flex flex-wrap items-center gap-3 text-xs text-on-surface-variant">
                 <span
                   v-for="(config, key) in levels"

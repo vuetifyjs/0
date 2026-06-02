@@ -3,11 +3,20 @@
   "version": "1.0.0-alpha.5",
   "description": "A meta UI framework for building applications, component libraries, and design systems with Vue 3",
   "license": "MIT",
+  "funding": [
+    {
+      "type": "github",
+      "url": "https://github.com/sponsors/johnleider"
+    },
+    {
+      "type": "opencollective",
+      "url": "https://opencollective.com/vuetify"
+    }
+  ],
   "types": "./dist/index.d.mts",
   "type": "module",
   "files": [
-    "dist",
-    "SKILL.md"
+    "dist"
   ],
   "repository": {
     "type": "git",

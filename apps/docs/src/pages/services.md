@@ -1,10 +1,10 @@
 ---
-title: Vuetify Services - Hire the creator of v0
+title: Vuetify Services - Hire the creator of Vuetify0
 meta:
   - name: description
-    content: Hire the creator of v0. Subscribe for direct support, or hire him for a fixed-scope custom framework, app, or monorepo on Vuetify0.
+    content: Hire the creator of Vuetify0. Subscribe for direct support, or hire him for a fixed-scope custom framework, app, or monorepo on Vuetify0.
   - name: keywords
-    content: vuetify services, v0 services, hire vuetify, custom framework, custom app, vuetify monorepo, discord support
+    content: vuetify services, Vuetify0 services, hire vuetify, custom framework, custom app, vuetify monorepo, discord support
 features:
   level: 1
 related:
@@ -15,7 +15,7 @@ related:
 
 # Vuetify Services
 
-Hire the creator of v0. Subscribe for direct support, or hire me for a fixed-scope project — just one person, building software to keep v0 going.
+Hire the creator of Vuetify0. Subscribe for direct support, or hire me for a fixed-scope project — just one person, building software to keep Vuetify0 going.
 
 <DocsPageFeatures :frontmatter />
 
@@ -24,7 +24,7 @@ Hire the creator of v0. Subscribe for direct support, or hire me for a fixed-sco
 
 ## Direct Support {#support}
 
-Subscribe to a monthly support plan and get direct chat access. Same plans Vuetify sells for enterprise support — v0 questions land in the same channels.
+Subscribe to a monthly support plan and get direct chat access. Same plans Vuetify sells for enterprise support — Vuetify0 questions land in the same channels.
 
 <ServicesSupportTiers />
 
@@ -48,7 +48,7 @@ Fixed price, fixed scope. Three flavors covering most of what people ask for. AI
 
 ## Sponsor {#sponsor}
 
-If you'd rather support v0 than buy from it, this is the highest-impact way to do it — direct brand visibility in exchange for funding the project.
+Already built on Vuetify0 and want to fund the project directly? The Primary Sponsor slot is for companies whose product depends on Vuetify0 as part of their infrastructure — one company at a time gets their logo across the docs, every page, and the README. Full details on the [sponsor page](/sponsor).
 
 ::: sponsor
 :::

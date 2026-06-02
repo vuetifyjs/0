@@ -2,9 +2,9 @@
 title: Roadmap - Vuetify0 Development Timeline
 meta:
   - name: description
-    content: Track upcoming features, releases, milestones, and maturity status for @vuetify/v0 headless UI library. v0 enters alpha on April 7, 2026.
+    content: Track upcoming features, releases, milestones, and maturity status for @vuetify/v0 headless UI library. v0 is in beta following its April 7, 2026 alpha.
   - name: keywords
-    content: vuetify0, roadmap, alpha, timeline, milestones, releases, features, maturity, stability, Vue 3, v0, headless ui
+    content: vuetify0, roadmap, beta, alpha, timeline, milestones, releases, features, maturity, stability, Vue 3, v0, headless ui
 features:
   level: 1
 related:
@@ -26,27 +26,27 @@ Track the development of @vuetify/v0. Milestones are organized by time horizon:
 
 > [!NOTE] Want to help shape the future of this project? [Become a Founder Supporter](mailto:john@vuetifyjs.com?subject=Founder%20Supporter%20Inquiry) and gain a guiding voice in what we build next.
 
-## Alpha
+## Beta
 
-**Launching April 7, 2026.** A headless UI framework for Vue 3 — composables and components that handle the logic so you can own the design. No opinions on styling. No markup you can't change. Just primitives that work.
+**Now in beta.** A headless UI framework for Vue 3 — composables and components that handle the logic so you can own the design. No opinions on styling. No markup you can't change. Just primitives that work.
 
-We're opening v0 for feedback, bug reports, and contributions. Your input shapes what gets locked in for v1.
+Alpha opened on April 7, 2026 for feedback, bug reports, and contributions. With beta, the focus shifts to stability and locking in the APIs for v1.
 
 ### Road to v1
 
 <DocsTimeline :milestones="[
-  { id: 'alpha', label: 'Alpha', date: 'April 7, 2026', description: 'Open for feedback, bug reports, and contributions. APIs mostly stable, may evolve.', active: true },
-  { id: 'beta', label: 'Beta', date: 'June 2026', description: 'API freeze. Focus shifts to stability, documentation, and edge cases.' },
+  { id: 'alpha', label: 'Alpha', date: 'April 7, 2026', description: 'Opened for feedback, bug reports, and contributions. APIs mostly stable, may evolve.' },
+  { id: 'beta', label: 'Beta', date: 'June 2026', description: 'API freeze. Focus shifts to stability, documentation, and edge cases.', active: true },
   { id: 'v1', label: 'v1.0', date: 'July 2026', description: 'Milestone-driven. Ships when the milestones are met.' },
 ]" />
 
-### What alpha means
+### What beta means
 
 This isn't a proof of concept. v0 is feature-complete enough to build with and evaluate seriously.
 
-- **APIs are mostly stable.** They may evolve based on community feedback, but the foundation is solid.
+- **APIs are freezing.** The foundation is solid and the surface is settling as we lock things in for v1.
 - **v0 is being built directly into Vuetify.** The composables and patterns here are the same ones powering Vuetify's next generation. This isn't a side project — it's the core.
-- **Your feedback matters now.** Alpha is when design decisions are still open. Once we hit beta, APIs freeze. If something feels wrong, this is the time to say so.
+- **Your feedback still matters.** Alpha was when design decisions were wide open; beta is the last window to flag anything before APIs lock for v1. If something feels wrong, this is the time to say so.
 
 ### Try v0
 
@@ -84,7 +84,7 @@ Whether you want to explore in the browser, scaffold a project, or integrate wit
 </div>
 
 > [!TIP]
-> Want a complete working reference? [DevKey](/guide/integration/devkey) is the example project shipped with Alpha — a full Vue 3 + Vite + UnoCSS app built on `@vuetify/v0`. Clone it, or run `pnpm create vuetify0` to scaffold your own copy.
+> Want a complete working reference? [DevKey](/guide/integration/devkey) is the example project that ships with v0 — a full Vue 3 + Vite + UnoCSS app built on `@vuetify/v0`. Clone it, or run `pnpm create vuetify0` to scaffold your own copy.
 
 ### Get involved
 
@@ -111,11 +111,11 @@ v0 is the foundation layer being built directly into Vuetify's next generation. 
 
 ??? Can I use v0 in production?
 
-Yes, with the understanding that APIs may evolve during alpha. The core is solid and is already being used to build Vuetify itself. If you're comfortable with occasional minor adjustments as things stabilize, v0 is ready to build with.
+Yes, with the understanding that APIs are still settling during beta. The core is solid and is already being used to build Vuetify itself. If you're comfortable with occasional minor adjustments as things stabilize, v0 is ready to build with.
 
-??? Will APIs break during alpha?
+??? Will APIs break during beta?
 
-APIs are mostly stable. Breaking changes are possible but will be documented in release notes. The goal of alpha is to gather feedback before locking APIs at beta.
+APIs are mostly stable and freezing for v1. Breaking changes are still possible but will be documented in release notes. Alpha gathered the feedback; beta is where APIs lock down.
 
 ??? What styling framework should I use with v0?
 

@@ -65,6 +65,21 @@ Once the plugin is installed, use the `useLogger` composable in any component:
 </template>
 ```
 
+## Scoped logging
+
+When several composables share the app-level logger, their output blends together with no easy way to tell which one emitted what. Pass a scope key to `useLogger` to tag every message from that caller with a `[scope]` segment, layered after the plugin prefix:
+
+```ts no-filename
+import { useLogger } from '@vuetify/v0'
+
+const logger = useLogger('createKanban')
+
+logger.warn('drop rejected')
+// → [v0 warn] [createKanban] drop rejected
+```
+
+`useLogger()` with no argument is unchanged — it returns the plugin-configured logger as-is. A scoped logger shares the plugin's level, enabled state, and adapter; only the message prefix differs, so re-leveling or disabling the shared logger affects every scope. A blank scope key is treated as no scope. Without a plugin installed, `useLogger` falls back to a console logger and still appends the `[scope]` segment, so output stays attributable.
+
 ## Adapters
 
 Adapters let you swap the underlying logging implementation without changing your application code.

@@ -243,9 +243,13 @@ describe('createPluginContext', () => {
       () => ({ value: 1 }),
     )
 
+    // Calling the consumer outside a component setup makes Vue's inject()
+    // warn; the throw is what we assert. Silence the incidental warning.
+    using warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
     expect(() => useX()).toThrow(
       'Context "v0:no-fallback" not found. Ensure it\'s provided by an ancestor.',
     )
+    expect(warn).toHaveBeenCalled()
   })
 
   describe('persist/restore', () => {

@@ -471,7 +471,7 @@ describe('snackbar', () => {
 
   describe('integration', () => {
     it('should render Portal > Queue > Root > Content + Close', () => {
-      const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       const [, provide, context] = createNotificationsContext()
       context.send({ subject: 'File uploaded', id: 'upload-1' })
@@ -504,8 +504,6 @@ describe('snackbar', () => {
       expect(wrapper.findComponent(Snackbar.Content as any).text()).toBe('File uploaded')
       expect(wrapper.findComponent(Snackbar.Close as any).attributes('aria-label')).toBeDefined()
       expect(spy).toHaveBeenCalledTimes(1)
-
-      spy.mockRestore()
     })
   })
 })
