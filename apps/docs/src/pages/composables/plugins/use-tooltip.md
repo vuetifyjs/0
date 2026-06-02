@@ -28,11 +28,13 @@ Region-scoped coordination plugin for tooltip open/close delays. Holds shared `o
 import { createTooltipPlugin, useTooltip } from '@vuetify/v0'
 
 // App-wide defaults
-app.use(createTooltipPlugin({
-  openDelay: 500,
-  closeDelay: 150,
-  skipDelay: 300,
-}))
+app.use(
+  createTooltipPlugin({
+    openDelay: 500,
+    closeDelay: 150,
+    skipDelay: 300,
+  })
+)
 
 // Inside a component
 const region = useTooltip()
