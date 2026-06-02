@@ -127,12 +127,14 @@
     canRedo.value = false
   }
 
-  const cell = useTemplateRef<HTMLTableCellElement>('active-cell')
+  // `active-cell` sits inside v-for, so the template ref resolves to an array;
+  // useClickOutside needs the element itself, hence the `[0]` getter.
+  const cell = useTemplateRef<HTMLTableCellElement[]>('active-cell')
 
   useToggleScope(
     () => !!grid.editing.active.value,
     () => {
-      useClickOutside(cell, () => onCancel())
+      useClickOutside(() => cell.value?.[0], () => onCommit())
       useHotkey('escape', () => onCancel(), { inputs: true })
     },
   )
@@ -368,7 +370,7 @@
         <path :d="mdiPencilOutline" fill="currentColor" />
       </svg>
 
-      <span>Click an editable cell (Product, Price, Qty). Enter commits, Escape cancels, Ctrl+Z / Ctrl+Y to undo or redo.</span>
+      <span>Click any cell to edit. Enter or clicking away commits, Escape cancels, Ctrl+Z / Ctrl+Y to undo or redo.</span>
     </div>
   </div>
 </template>
