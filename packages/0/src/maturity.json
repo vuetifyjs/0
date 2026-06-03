@@ -108,7 +108,7 @@
     },
     "createDataGrid": {
       "level": "preview",
-      "since": null,
+      "since": "1.0.0-beta.0",
       "category": "data"
     },
     "createDataTable": {
@@ -208,7 +208,7 @@
     },
     "useTooltip": {
       "level": "preview",
-      "since": null,
+      "since": "1.0.0-beta.0",
       "category": "plugins"
     },
     "useClickOutside": {
@@ -521,7 +521,7 @@
     },
     "Tooltip": {
       "level": "preview",
-      "since": null,
+      "since": "1.0.0-beta.0",
       "category": "disclosure"
     },
     "Alert": {

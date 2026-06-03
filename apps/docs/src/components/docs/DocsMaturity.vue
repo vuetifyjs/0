@@ -3,6 +3,7 @@
   import { createDataTable, createGroup, createSingle } from '@vuetify/v0'
 
   import maturityData from '#v0/maturity.json'
+  import { releaseAlias } from '@/constants/releases'
 
   // Utilities
   import { toRef, watch } from 'vue'
@@ -345,7 +346,7 @@
                 >{{ item.type }}</span>
 
                 <span v-if="item.since" class="text-[10px] text-on-surface-variant font-mono">
-                  v{{ item.since }}
+                  {{ releaseAlias(item.since) }}
                 </span>
               </div>
             </div>
@@ -526,7 +527,7 @@
                   class="text-primary no-underline hover:underline whitespace-nowrap"
                   :href="`/releases/?version=v${item.since}`"
                   target="_blank"
-                >v{{ item.since }} ↗</a>
+                >{{ releaseAlias(item.since) }} ↗</a>
 
                 <span v-else class="text-on-surface-variant/50">—</span>
               </td>
