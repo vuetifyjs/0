@@ -31,7 +31,7 @@
   <Discovery.Activator
     v-if="toc.headings.value.length > 0 && !ask.isOpen.value"
     as="aside"
-    class="hidden xl:block rounded-lg fixed end-4 top-25 w-[200px] max-h-[calc(100vh-145px)] overflow-y-auto text-sm"
+    class="hidden xl:block rounded-lg fixed end-4 top-[calc(48px+var(--app-banner-h,24px)+28px)] w-[200px] max-h-[calc(100vh-121px-var(--app-banner-h,24px))] overflow-y-auto text-sm"
     :padding="8"
     step="toc"
   >
