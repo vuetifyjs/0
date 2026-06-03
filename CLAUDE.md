@@ -40,19 +40,9 @@ Vue 3 headless UI primitives and composables. Unstyled, logic-focused building b
 | `SUPPORTS_INTERSECTION_OBSERVER` | IntersectionObserver availability |
 | `SUPPORTS_MUTATION_OBSERVER` | MutationObserver availability |
 
-### Check Existing Composables (`#v0/composables`)
+### Check Existing Composables & Components (`#v0/composables`, `#v0/components`)
 
-**Foundation**: `createContext`, `createTrinity`, `createPlugin`
-**Registry**: `createRegistry`, `useProxyRegistry`
-**Selection**: `createSelection`, `createSingle`, `createGroup`, `createStep`, `createModel`, `createNested`
-**Observers**: `useResizeObserver`, `useIntersectionObserver`, `useMutationObserver`
-**Events**: `useEventListener`, `useHotkey`, `useClickOutside`
-**Reactivity**: `useProxyModel`, `useToggleScope`, `toReactive`, `toArray`, `toElement`
-**Plugins**: `useFeatures`, `usePermissions`, `useTheme`, `useLocale`, `useLogger`, `useNotifications`, `useRtl`, `useStack`, `useRules`
-**Data**: `createFilter`, `createPagination`, `createVirtual`, `useDate`, `createForm`, `createQueue`, `createTimeline`, `createTokens`, `createDataTable`
-**Browser**: `useBreakpoints`, `useMediaQuery`, `useStorage`, `useHydration`, `createOverflow`, `useLazy`, `usePopover`, `usePresence`, `useRaf`, `useTimer`
-**Forms**: `createValidation`, `createCombobox`, `createSlider`, `createInput`, `createNumeric`, `createRating`
-**Focus**: `useVirtualFocus`, `useRovingFocus`, `createFocusTraversal`, `createBreadcrumbs`
+Before building anything, consult the `vuetify0` skill's `SKILL.md` — invoke the **`vuetify0`** skill (Skill tool). Its **"Decision table — reach for these first"** maps each task (selection, validation, registries, virtual scroll, popovers, focus, etc.) to the composable/component to use, and `references/layer-decisions.md` covers the component-vs-composable-vs-both call. Use it to decide **what** to reach for and **when** — don't reinvent a primitive v0 already ships. The skill is the source of truth; this file does not duplicate the inventory.
 
 ## Path Alias
 
