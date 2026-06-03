@@ -5,12 +5,15 @@
   export interface AppRainbowTextProps {
     /** Color stops spread across the text — each letter lands on a different hue. */
     colors?: string[]
+    /** Seconds to wait before starting the sheen animation (stagger multiple instances). */
+    delay?: number
     /** Seconds for one full cycle (a quick sheen sweep, then a pause before the next). */
     duration?: number
   }
 
   const {
     colors = ['#ff2d55', '#ff9500', '#ffcc00', '#34c759', '#5ac8fa', '#af52de'],
+    delay = 2,
     duration = 4,
   } = defineProps<AppRainbowTextProps>()
 
@@ -24,7 +27,7 @@
 <template>
   <span
     class="app-rainbow-text"
-    :style="{ backgroundImage: layers, animationDuration: `${duration}s` }"
+    :style="{ backgroundImage: layers, animationDuration: `${duration}s`, animationDelay: `${delay}s` }"
   >
     <slot />
   </span>
