@@ -127,6 +127,22 @@ export default vuetify({
   ignores: ['**/export-templates/package.json'],
 },
 {
+  // Enforce V0Error over bare Error for throw sites in the core package.
+  // This prevents contributors from accidentally bypassing the typed error
+  // registry (V0ErrorDetails) that gives consumers a stable code discriminant.
+  name: 'vuetify/no-bare-error-throw',
+  files: ['packages/0/src/**/*.ts'],
+  ignores: ['packages/0/src/**/*.test.ts', 'packages/0/src/**/*.bench.ts'],
+  rules: {
+    'no-restricted-syntax': ['error',
+      {
+        selector: 'ThrowStatement > NewExpression[callee.name="Error"]',
+        message: 'Use V0Error with a code from V0ErrorDetails instead of bare Error. See packages/0/src/utilities/errors.ts.',
+      },
+    ],
+  },
+},
+{
   name: 'vuetify/no-v0-imports',
   files: ['packages/paper/**/*.{ts,js,vue}', 'app/**/*.{ts,js,vue}'],
   rules: {
