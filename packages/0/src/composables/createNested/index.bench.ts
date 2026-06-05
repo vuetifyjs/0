@@ -192,13 +192,16 @@ describe('createNested benchmarks', () => {
   // ===========================================================================
   // OPEN/CLOSE OPERATIONS - Expand/collapse state
   // 1K benches: fresh fixture per iteration (setup cost is acceptable)
-  // 10K benches: shared fixture — open/expandAll on already-open nodes and
-  //   collapseAll on already-closed nodes are idempotent at state level,
-  //   isolating the O(depth) guard / O(n) scan from O(n) onboard setup cost
+  // 10K benches: shared fixtures — open/expandAll on already-open nodes still
+  //   run their full O(depth)/O(n) body (no early-return), isolating the
+  //   operation from O(n) onboard setup. collapseAll empties openedIds, so a
+  //   collapsed fixture would measure nothing — it alternates collapse↔expand
+  //   on a dedicated fixture instead, keeping every iteration a full O(n) pass
   // ===========================================================================
   describe('open/close operations', () => {
-    const tree10kCollapsed = createPopulatedNested(TREE_10K)
     const tree10kExpanded = createPopulatedNestedWithOpen(TREE_10K)
+    const tree10kToggle = createPopulatedNestedWithOpen(TREE_10K)
+    let collapsed = false
 
     bench('Open single node (1,000 tree items)', () => {
       const nested = createPopulatedNested(TREE_1K)
@@ -234,7 +237,9 @@ describe('createNested benchmarks', () => {
     })
 
     bench('Collapse all (10,000 tree items)', () => {
-      tree10kCollapsed.collapseAll()
+      if (collapsed) tree10kToggle.expandAll()
+      else tree10kToggle.collapseAll()
+      collapsed = !collapsed
     })
   })
 
