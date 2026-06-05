@@ -56,6 +56,7 @@ declare module 'vue' {
     AppSettingsSheet: typeof import('./components/app/AppSettingsSheet.vue')['default']
     AppSettingsSingleSelect: typeof import('./components/app/settings/AppSettingsSingleSelect.vue')['default']
     AppSettingsSkillLevel: typeof import('./components/app/settings/AppSettingsSkillLevel.vue')['default']
+    AppSettingsSlider: typeof import('./components/app/settings/AppSettingsSlider.vue')['default']
     AppSettingsTheme: typeof import('./components/app/settings/AppSettingsTheme.vue')['default']
     AppSettingsThemeCarousel: typeof import('./components/app/settings/AppSettingsThemeCarousel.vue')['default']
     AppSettingsThemeEditor: typeof import('./components/app/settings/AppSettingsThemeEditor.vue')['default']
