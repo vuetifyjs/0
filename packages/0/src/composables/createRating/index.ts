@@ -39,6 +39,9 @@ import { computed, isRef, shallowRef, toRef, toValue } from 'vue'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { ComputedRef, MaybeRefOrGetter, Ref, ShallowRef, WritableComputedRef } from 'vue'
 
+// Upper bound on generated items; guards against an unbounded allocation from a hostile `size`
+const MAX_SIZE = 1000
+
 export type RatingItemState = 'full' | 'half' | 'empty'
 
 export interface RatingItemDescriptor {
@@ -162,8 +165,9 @@ export function createRating<
 
   const items = computed<RatingItemDescriptor[]>(() => {
     const current = value.value
+    const count = clamp(Math.floor(toValue(_size)), 0, MAX_SIZE)
 
-    return range(toValue(_size), 1).map(i => ({
+    return range(count, 1).map(i => ({
       value: i,
       state: getState(i, current),
     }))
