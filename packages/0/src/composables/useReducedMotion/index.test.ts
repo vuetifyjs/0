@@ -14,7 +14,7 @@ class TestMediaQueryList {
 
   constructor (matches: boolean, fire: (cb: (matches: boolean) => void) => void) {
     this.matches = matches
-    fire((m) => {
+    fire(m => {
       this.matches = m
       for (const l of this.listeners) l({ matches: m })
     })
@@ -39,7 +39,9 @@ beforeEach(() => {
   lastFireCallback = null
   vi.stubGlobal('matchMedia', (query: string) => {
     if (query === '(prefers-reduced-motion: reduce)') {
-      return new TestMediaQueryList(mediaQueryMatches, cb => { lastFireCallback = cb })
+      return new TestMediaQueryList(mediaQueryMatches, cb => {
+        lastFireCallback = cb
+      })
     }
     return new TestMediaQueryList(false, () => {})
   })
