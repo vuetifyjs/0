@@ -8,6 +8,7 @@ export interface LocaleAdapterContext {
   selectedId: Ref<ID | null | undefined>
   fallbackLocale: ID | undefined
   has: (id: ID) => boolean
+  onMissing?: (key: string, ...params: unknown[]) => string | undefined
 }
 
 export abstract class LocaleAdapter {

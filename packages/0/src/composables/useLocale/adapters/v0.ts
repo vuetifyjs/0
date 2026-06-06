@@ -43,6 +43,11 @@ export class V0LocaleAdapter extends LocaleAdapter {
       }
     }
 
+    if (this.context.onMissing) {
+      const fallback = this.context.onMissing(key, ...params)
+      if (isString(fallback)) return fallback
+    }
+
     return this.interpolate(key, params)
   }
 
