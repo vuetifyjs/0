@@ -769,6 +769,11 @@ export function createRegistry<
   const directory = new Map<number, ID>()
   const cache = new Map<'keys' | 'values' | 'entries', unknown[]>()
   const listeners = new Map<string, Set<InternalEventCallback>>()
+  // Ordered list of IDs – the canonical position sequence.  Splicing this
+  // array is all that move() needs; Map insertion order is no longer load-bearing.
+  // Made reactive when the registry is reactive so that keys()/values()/entries()
+  // re-evaluate whenever the order changes (register, move, reorder, etc.).
+  const order = (reactive ? shallowReactive([] as ID[]) : []) as ID[]
 
   let indexDependentCount = 0
   let needsReindex = false
@@ -902,12 +907,16 @@ export function createRegistry<
   }
 
   function keys (): readonly ID[] {
-    if (reactive) return Array.from(collection.keys())
+    if (reactive) {
+      // `order` is shallowReactive, so reading it here registers the dependency.
+      // Effects re-evaluate when order is mutated (register, unregister, move, …).
+      return order.slice()
+    }
 
     const cached = cache.get('keys')
     if (!isUndefined(cached)) return cached as readonly ID[]
 
-    const out = Array.from(collection.keys())
+    const out = order.slice()
 
     cache.set('keys', out)
 
@@ -915,12 +924,14 @@ export function createRegistry<
   }
 
   function values (): readonly E[] {
-    if (reactive) return Array.from(collection.values())
+    if (reactive) {
+      return order.map(id => collection.get(id)!)
+    }
 
     const cached = cache.get('values')
     if (!isUndefined(cached)) return cached as readonly E[]
 
-    const out = Array.from(collection.values())
+    const out = order.map(id => collection.get(id)!)
 
     cache.set('values', out)
 
@@ -928,12 +939,14 @@ export function createRegistry<
   }
 
   function entries (): readonly [ID, E][] {
-    if (reactive) return Array.from(collection.entries())
+    if (reactive) {
+      return order.map(id => [id, collection.get(id)!] as [ID, E])
+    }
 
     const cached = cache.get('entries')
     if (!isUndefined(cached)) return cached as readonly [ID, E][]
 
-    const out = Array.from(collection.entries())
+    const out = order.map(id => [id, collection.get(id)!] as [ID, E])
 
     cache.set('entries', out)
 
@@ -941,6 +954,7 @@ export function createRegistry<
   }
 
   function clear () {
+    order.length = 0
     collection.clear()
     catalog.clear()
     directory.clear()
@@ -988,13 +1002,8 @@ export function createRegistry<
 
     invalidate()
 
-    let index = 0
-
-    for (const ticket of collection.values()) {
-      if (index < startIndex) {
-        index++
-        continue
-      }
+    for (let i = startIndex; i < order.length; i++) {
+      const ticket = collection.get(order[i]!)!
 
       if (startIndex > 0) {
         directory.delete(ticket.index)
@@ -1004,16 +1013,14 @@ export function createRegistry<
         if (startIndex > 0) {
           unassign(ticket.value, ticket.id)
         }
-        ticket.value = index
+        ticket.value = i
         assign(ticket.value, ticket.id)
       } else if (startIndex === 0) {
         assign(ticket.value, ticket.id)
       }
 
-      ticket.index = index
-      directory.set(index, ticket.id)
-
-      index++
+      ticket.index = i
+      directory.set(i, ticket.id)
     }
 
     needsReindex = false
@@ -1054,6 +1061,7 @@ export function createRegistry<
     const ticket = reactive ? shallowReactive(input) : input
 
     collection.set(ticket.id, ticket)
+    order.push(ticket.id)
     directory.set(ticket.index, ticket.id)
 
     assign(ticket.value, ticket.id)
@@ -1072,6 +1080,8 @@ export function createRegistry<
       indexDependentCount--
     }
 
+    const orderPos = order.indexOf(ticket.id)
+    if (orderPos !== -1) order.splice(orderPos, 1)
     collection.delete(ticket.id)
     directory.delete(ticket.index)
     unassign(ticket.value, ticket.id)
@@ -1110,25 +1120,37 @@ export function createRegistry<
   }
 
   function offboard (ids: ID[]): Partial<Z>[] {
+    // Collect valid tickets before any mutations so we know what to remove.
     const removed: E[] = []
+    const removedIds = new Set<ID>()
+    for (const id of ids) {
+      const ticket = collection.get(id)
+      if (ticket) {
+        removed.push(ticket)
+        removedIds.add(id)
+      }
+    }
+
+    if (removed.length === 0) return []
 
     batch(() => {
-      for (const id of ids) {
-        const ticket = collection.get(id)
-        if (!ticket) continue
+      // Compact order FIRST so that Vue sync effects triggered by the subsequent
+      // Map mutations see a consistent snapshot (no dangling IDs in order).
+      let w = 0
+      for (let r = 0; r < order.length; r++) {
+        if (!removedIds.has(order[r]!)) order[w++] = order[r]!
+      }
+      order.length = w
 
+      for (const ticket of removed) {
         if (ticket.valueIsIndex) {
           indexDependentCount--
         }
-
         minDirtyIndex = Math.min(minDirtyIndex, ticket.index)
         collection.delete(ticket.id)
         directory.delete(ticket.index)
         unassign(ticket.value, ticket.id)
-        removed.push(ticket)
       }
-
-      if (removed.length === 0) return
 
       for (const ticket of removed) {
         emit('unregister:ticket', ticket)
@@ -1151,22 +1173,14 @@ export function createRegistry<
 
     const size = collection.size
     const target = clamp(toIndex, 0, size - 1)
+    const from = ticket.index
 
-    if (ticket.index === target) return ticket
+    if (from === target) return ticket
 
     return batch(() => {
-      const items = Array.from(collection.entries())
-      const fromIndex = items.findIndex(([key]) => key === id)
-      const [entry] = items.splice(fromIndex, 1)
-
-      items.splice(target, 0, entry!)
-
-      collection.clear()
-      for (const [key, value] of items) {
-        collection.set(key, value)
-      }
-
-      minDirtyIndex = Math.min(ticket.index, target)
+      order.splice(from, 1)
+      order.splice(target, 0, id)
+      minDirtyIndex = Math.min(from, target)
       reindex()
       emit('update:ticket', ticket)
 
@@ -1180,19 +1194,15 @@ export function createRegistry<
     if (ids.length !== collection.size) return
 
     const seen = new Set<ID>()
-    const entries: [ID, E][] = []
     for (const id of ids) {
       if (seen.has(id)) return
-      const ticket = collection.get(id)
-      if (!ticket) return
+      if (!collection.has(id)) return
       seen.add(id)
-      entries.push([id, ticket])
     }
 
     batch(() => {
-      collection.clear()
-      for (const [id, ticket] of entries) {
-        collection.set(id, ticket)
+      for (let i = 0; i < ids.length; i++) {
+        order[i] = ids[i]!
       }
       minDirtyIndex = 0
       reindex()
