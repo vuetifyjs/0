@@ -1201,8 +1201,8 @@ export function createRegistry<
     }
 
     batch(() => {
-      for (let i = 0; i < ids.length; i++) {
-        order[i] = ids[i]!
+      for (const [i, id] of ids.entries()) {
+        order[i] = id!
       }
       minDirtyIndex = 0
       reindex()
