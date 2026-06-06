@@ -548,11 +548,21 @@ export function createDataTable<T extends Record<string, unknown>> (
   // Using an event-driven counter rather than registry reactive mode avoids
   // allocating a shallowReactive proxy for every row ticket.
   const _rowVersion = shallowRef(0)
-  registry.on('register:ticket', () => { _rowVersion.value++ })
-  registry.on('unregister:ticket', () => { _rowVersion.value++ })
-  registry.on('update:ticket', () => { _rowVersion.value++ })
-  registry.on('clear:registry', () => { _rowVersion.value++ })
-  registry.on('reindex:registry', () => { _rowVersion.value++ })
+  registry.on('register:ticket', () => {
+    _rowVersion.value++
+  })
+  registry.on('unregister:ticket', () => {
+    _rowVersion.value++
+  })
+  registry.on('update:ticket', () => {
+    _rowVersion.value++
+  })
+  registry.on('clear:registry', () => {
+    _rowVersion.value++
+  })
+  registry.on('reindex:registry', () => {
+    _rowVersion.value++
+  })
 
   // Row values projected from registry tickets in registration order — the
   // adapter consumes this as its `items` input and runs the filter → sort →
