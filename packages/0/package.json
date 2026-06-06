@@ -50,6 +50,7 @@
       "./locale/adapters": "./dist/locale/adapters/index.mjs",
       "./locale/adapters/v0": "./dist/locale/adapters/v0/index.mjs",
       "./locale/adapters/vue-i18n": "./dist/locale/adapters/vue-i18n/index.mjs",
+      "./locale/messages/en": "./dist/locale/messages/en/index.mjs",
       "./logger": "./dist/logger/index.mjs",
       "./logger/adapters": "./dist/logger/adapters/index.mjs",
       "./logger/adapters/consola": "./dist/logger/adapters/consola/index.mjs",
@@ -212,6 +213,10 @@
     "./locale/adapters/vue-i18n": {
       "development": "./src/locale/adapters/vue-i18n/index.ts",
       "default": "./dist/locale/adapters/vue-i18n/index.mjs"
+    },
+    "./locale/messages/en": {
+      "development": "./src/locale/messages/en/index.ts",
+      "default": "./dist/locale/messages/en/index.mjs"
     },
     "./logger": {
       "development": "./src/logger/index.ts",

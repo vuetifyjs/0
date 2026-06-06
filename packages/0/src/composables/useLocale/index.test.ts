@@ -682,5 +682,113 @@ describe('createLocale', () => {
       const adapter = createAdapter({ en: { msg: '{0} and {1}' } }, 'en')
       expect(adapter.t('msg', 'first')).toBe('first and {1}')
     })
+
+    it('should call onMissing when key is not found in any locale', () => {
+      const onMissing = vi.fn().mockReturnValue('Custom fallback')
+      const adapter = new V0LocaleAdapter({
+        tokens: createTokens({ en: { hello: 'Hello' } }),
+        selectedId: shallowRef('en') as any,
+        fallbackLocale: undefined,
+        onMissing,
+        has: id => String(id) === 'en',
+      })
+
+      expect(adapter.t('missing.key')).toBe('Custom fallback')
+      expect(onMissing).toHaveBeenCalledWith('missing.key')
+    })
+
+    it('should not call onMissing when key is found in selected locale', () => {
+      const onMissing = vi.fn()
+      const adapter = new V0LocaleAdapter({
+        tokens: createTokens({ en: { hello: 'Hello' } }),
+        selectedId: shallowRef('en') as any,
+        fallbackLocale: undefined,
+        onMissing,
+        has: id => String(id) === 'en',
+      })
+
+      expect(adapter.t('hello')).toBe('Hello')
+      expect(onMissing).not.toHaveBeenCalled()
+    })
+
+    it('should not call onMissing when key is found in fallback locale', () => {
+      const onMissing = vi.fn()
+      const adapter = new V0LocaleAdapter({
+        tokens: createTokens({ en: { hello: 'Hello' }, fr: {} }),
+        selectedId: shallowRef('fr') as any,
+        fallbackLocale: 'en',
+        onMissing,
+        has: id => ['en', 'fr'].includes(String(id)),
+      })
+
+      expect(adapter.t('hello')).toBe('Hello')
+      expect(onMissing).not.toHaveBeenCalled()
+    })
+
+    it('should fall through to key when onMissing returns undefined', () => {
+      const adapter = new V0LocaleAdapter({
+        tokens: createTokens({}),
+        selectedId: shallowRef(null) as any,
+        fallbackLocale: undefined,
+        onMissing: () => undefined,
+        has: () => false,
+      })
+
+      expect(adapter.t('some.key')).toBe('some.key')
+    })
+  })
+
+  describe('createLocale onMissing option', () => {
+    it('should call onMissing for keys not found in configured messages', () => {
+      const locale = createLocale({
+        default: 'en',
+        messages: { en: { hello: 'Hello' } },
+        onMissing: key => `[${key}]`,
+      })
+
+      expect(locale.t('hello')).toBe('Hello')
+      expect(locale.t('Dialog.close')).toBe('[Dialog.close]')
+    })
+
+    it('should fall through to raw key when onMissing returns undefined', () => {
+      const locale = createLocale({
+        default: 'en',
+        messages: { en: { hello: 'Hello' } },
+        onMissing: () => undefined,
+      })
+
+      expect(locale.t('missing')).toBe('missing')
+    })
+  })
+
+  describe('createLocaleFallback English defaults', () => {
+    it('should return English label for known component keys', () => {
+      mockHasInjectionContext.mockReturnValue(false)
+      const locale = useLocale()
+
+      expect(locale.t('Dialog.close')).toBe('Close')
+      expect(locale.t('Snackbar.close')).toBe('Dismiss')
+      expect(locale.t('NumberField.increment')).toBe('Increment')
+      expect(locale.t('NumberField.decrement')).toBe('Decrement')
+      expect(locale.t('Pagination.next')).toBe('Next page')
+      expect(locale.t('Pagination.prev')).toBe('Previous page')
+    })
+
+    it('should interpolate params in English fallback strings', () => {
+      mockHasInjectionContext.mockReturnValue(false)
+      const locale = useLocale()
+
+      expect(locale.t('Rating.valueText', { value: 3, size: 5 })).toBe('3 of 5 stars')
+      expect(locale.t('Pagination.goToPage', { page: 4 })).toBe('Go to page 4')
+      expect(locale.t('Carousel.slide', { current: 2, size: 6 })).toBe('Slide 2 of 6')
+    })
+
+    it('should still return key for unknown keys', () => {
+      mockHasInjectionContext.mockReturnValue(false)
+      const locale = useLocale()
+
+      expect(locale.t('hello')).toBe('hello')
+      expect(locale.t('nested.key')).toBe('nested.key')
+    })
   })
 })
