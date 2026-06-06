@@ -6,15 +6,18 @@ import { createReducedMotion, createReducedMotionPlugin, useReducedMotion } from
 import { createApp, nextTick } from 'vue'
 
 let mediaQueryMatches = false
-let lastMediaQueryList: TestMediaQueryList | null = null
+let lastFireCallback: ((matches: boolean) => void) | null = null
 
 class TestMediaQueryList {
   matches: boolean
   private listeners: Array<(e: { matches: boolean }) => void> = []
 
-  constructor (matches: boolean) {
+  constructor (matches: boolean, fire: (cb: (matches: boolean) => void) => void) {
     this.matches = matches
-    lastMediaQueryList = this
+    fire((m) => {
+      this.matches = m
+      for (const l of this.listeners) l({ matches: m })
+    })
   }
 
   addEventListener (_: string, cb: (e: { matches: boolean }) => void) {
@@ -23,11 +26,6 @@ class TestMediaQueryList {
 
   removeEventListener (_: string, cb: (e: { matches: boolean }) => void) {
     this.listeners = this.listeners.filter(l => l !== cb)
-  }
-
-  fire (matches: boolean) {
-    this.matches = matches
-    for (const l of this.listeners) l({ matches })
   }
 }
 
@@ -38,12 +36,12 @@ vi.mock('#v0/constants/globals', () => ({
 
 beforeEach(() => {
   mediaQueryMatches = false
-  lastMediaQueryList = null
+  lastFireCallback = null
   vi.stubGlobal('matchMedia', (query: string) => {
     if (query === '(prefers-reduced-motion: reduce)') {
-      return new TestMediaQueryList(mediaQueryMatches)
+      return new TestMediaQueryList(mediaQueryMatches, cb => { lastFireCallback = cb })
     }
-    return new TestMediaQueryList(false)
+    return new TestMediaQueryList(false, () => {})
   })
 })
 
@@ -121,7 +119,7 @@ describe('createReducedMotion', () => {
       const ctx = createReducedMotion({ mode: 'system' })
       expect(ctx.reduced.value).toBe(false)
 
-      lastMediaQueryList!.fire(true)
+      lastFireCallback!(true)
       await nextTick()
       expect(ctx.reduced.value).toBe(true)
     })
