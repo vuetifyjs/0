@@ -372,9 +372,13 @@ export function createDataTable<T extends Record<string, unknown>> (
     adapter = new ClientDataTableAdapter<T>(),
   } = options
 
+  // Row registry is intentionally non-reactive: the adapter pipeline reads rows
+  // through the `source` computed (see below), so per-row shallowReactive proxies
+  // buy nothing and add ~10k allocations for large tables.  Registry events keep
+  // `source` up-to-date instead.
   const registry = createRegistry<DataTableTicketInput<T>, DataTableTicket<T>>({
     events: true,
-    reactive: true,
+    reactive: false,
   })
 
   const columns = createRegistry<DataTableColumnTicketInput<T>, DataTableColumnTicket<T>>({
@@ -540,10 +544,23 @@ export function createDataTable<T extends Record<string, unknown>> (
     return filters
   })
 
+  // Bump whenever the row set changes (add / remove / reorder / update).
+  // Using an event-driven counter rather than registry reactive mode avoids
+  // allocating a shallowReactive proxy for every row ticket.
+  const _rowVersion = shallowRef(0)
+  registry.on('register:ticket', () => { _rowVersion.value++ })
+  registry.on('unregister:ticket', () => { _rowVersion.value++ })
+  registry.on('update:ticket', () => { _rowVersion.value++ })
+  registry.on('clear:registry', () => { _rowVersion.value++ })
+  registry.on('reindex:registry', () => { _rowVersion.value++ })
+
   // Row values projected from registry tickets in registration order — the
   // adapter consumes this as its `items` input and runs the filter → sort →
   // paginate pipeline against it.
-  const source = computed(() => registry.values().map(t => t.value as T))
+  const source = computed(() => {
+    void _rowVersion.value
+    return registry.values().map(t => t.value as T)
+  })
 
   const {
     allItems,
@@ -808,6 +825,7 @@ export function createDataTable<T extends Record<string, unknown>> (
     loading,
     error,
     get size () {
+      void _rowVersion.value
       return registry.size
     },
   }
