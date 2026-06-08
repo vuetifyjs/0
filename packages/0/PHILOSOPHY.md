@@ -585,7 +585,7 @@ Interactive inputs with a `name` prop render a `<ComponentHiddenInput>`: `inert`
 
 ### 5.5 Locale-first strings
 
-Every user-facing string (`aria-label`, error messages, day-of-week names, month names) goes through `useLocale()` and `locale.t(key)`. Never hardcode English. Tests assert `toBeDefined()`, not exact strings. [intent:176, intent:177]
+Every user-facing string (`aria-label`, error messages, day-of-week names, month names) goes through `useLocale()` and `locale.t(key)` — a consumer-supplied locale always wins. Because v0 ships no default message bundle, `locale.t(key)` returns the key verbatim when unresolved, and a raw key such as `Dialog.close` is not an acceptable accessible name. Components therefore coalesce to a concise English default when `t()` returns the key unchanged (`const close = locale.t('Dialog.close'); close === 'Dialog.close' ? 'Close' : close`). That default is the out-of-box accessibility floor: it lives at the call site, never as a shipped message bundle and never as a parameter on `t()`, and localization still overrides it. Tests assert `toBeDefined()`, not exact strings. [intent:176, intent:177]
 
 ---
 

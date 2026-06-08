@@ -185,26 +185,30 @@
     itemsPerPage: () => itemsPerPage,
   })
 
-  const slotProps = toRef((): PaginationRootSlotProps => ({
-    page: pagination.page.value,
-    size: pagination.size,
-    pages: pagination.pages,
-    itemsPerPage: pagination.itemsPerPage,
-    items: pagination.items.value,
-    pageStart: pagination.pageStart.value,
-    pageStop: pagination.pageStop.value,
-    isFirst: pagination.isFirst.value,
-    isLast: pagination.isLast.value,
-    first: pagination.first,
-    last: pagination.last,
-    next: pagination.next,
-    prev: pagination.prev,
-    select: pagination.select,
-    attrs: {
-      'aria-label': locale.t('Pagination.label'),
-      'role': as === 'nav' ? undefined : 'navigation',
-    },
-  }))
+  const slotProps = toRef((): PaginationRootSlotProps => {
+    const label = locale.t('Pagination.label')
+
+    return {
+      page: pagination.page.value,
+      size: pagination.size,
+      pages: pagination.pages,
+      itemsPerPage: pagination.itemsPerPage,
+      items: pagination.items.value,
+      pageStart: pagination.pageStart.value,
+      pageStop: pagination.pageStop.value,
+      isFirst: pagination.isFirst.value,
+      isLast: pagination.isLast.value,
+      first: pagination.first,
+      last: pagination.last,
+      next: pagination.next,
+      prev: pagination.prev,
+      select: pagination.select,
+      attrs: {
+        'aria-label': label === 'Pagination.label' ? 'Pagination' : label,
+        'role': as === 'nav' ? undefined : 'navigation',
+      },
+    }
+  })
 
   providePaginationRoot(namespace, pagination)
   providePaginationControls(namespace, controls)

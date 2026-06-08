@@ -88,19 +88,23 @@
     pagination.prev()
   }
 
-  const slotProps = toRef((): PaginationPrevSlotProps => ({
-    isDisabled: isDisabled.value,
-    prev,
-    attrs: {
-      'aria-label': locale.t('Pagination.prev'),
-      'aria-disabled': isDisabled.value,
-      'data-disabled': isDisabled.value || undefined,
-      'disabled': as === 'button' ? isDisabled.value : undefined,
-      'tabindex': isDisabled.value ? -1 : 0,
-      'type': as === 'button' ? 'button' : undefined,
-      'onClick': prev,
-    },
-  }))
+  const slotProps = toRef((): PaginationPrevSlotProps => {
+    const label = locale.t('Pagination.prev')
+
+    return {
+      isDisabled: isDisabled.value,
+      prev,
+      attrs: {
+        'aria-label': label === 'Pagination.prev' ? 'Previous page' : label,
+        'aria-disabled': isDisabled.value,
+        'data-disabled': isDisabled.value || undefined,
+        'disabled': as === 'button' ? isDisabled.value : undefined,
+        'tabindex': isDisabled.value ? -1 : 0,
+        'type': as === 'button' ? 'button' : undefined,
+        'onClick': prev,
+      },
+    }
+  })
 
   onBeforeUnmount(() => controls.unregister(id))
 </script>

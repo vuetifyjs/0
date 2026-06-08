@@ -88,19 +88,23 @@
     pagination.next()
   }
 
-  const slotProps = toRef((): PaginationNextSlotProps => ({
-    isDisabled: isDisabled.value,
-    next,
-    attrs: {
-      'aria-label': locale.t('Pagination.next'),
-      'aria-disabled': isDisabled.value,
-      'data-disabled': isDisabled.value || undefined,
-      'disabled': as === 'button' ? isDisabled.value : undefined,
-      'tabindex': isDisabled.value ? -1 : 0,
-      'type': as === 'button' ? 'button' : undefined,
-      'onClick': next,
-    },
-  }))
+  const slotProps = toRef((): PaginationNextSlotProps => {
+    const label = locale.t('Pagination.next')
+
+    return {
+      isDisabled: isDisabled.value,
+      next,
+      attrs: {
+        'aria-label': label === 'Pagination.next' ? 'Next page' : label,
+        'aria-disabled': isDisabled.value,
+        'data-disabled': isDisabled.value || undefined,
+        'disabled': as === 'button' ? isDisabled.value : undefined,
+        'tabindex': isDisabled.value ? -1 : 0,
+        'type': as === 'button' ? 'button' : undefined,
+        'onClick': next,
+      },
+    }
+  })
 
   onBeforeUnmount(() => controls.unregister(id))
 </script>

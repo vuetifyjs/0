@@ -164,6 +164,7 @@
     const items: CarouselIndicatorItem[] = Array.from({ length: size }, (_, i) => {
       const isSelected = i === selected
       const isActive = i >= selected && i < selected + perView
+      const ariaLabel = locale.t('Carousel.indicator', { current: i + 1, size })
 
       return {
         index: i,
@@ -174,7 +175,7 @@
           'tabindex': isSelected ? 0 : -1,
           'aria-selected': isSelected,
           'aria-controls': `${carousel.rootId}-slide-${i}`,
-          'aria-label': locale.t('Carousel.indicator', { current: i + 1, size }),
+          'aria-label': ariaLabel === 'Carousel.indicator' ? `Go to slide ${i + 1} of ${size}` : ariaLabel,
           'data-selected': isSelected || undefined,
           'data-active': isActive || undefined,
           'onClick' () {
@@ -185,13 +186,15 @@
       }
     })
 
+    const ariaLabel = locale.t('Carousel.indicators')
+
     return {
       size,
       selectedIndex: selected,
       items,
       attrs: {
         'role': 'tablist',
-        'aria-label': label ?? locale.t('Carousel.indicators'),
+        'aria-label': label ?? (ariaLabel === 'Carousel.indicators' ? 'Slides' : ariaLabel),
         'aria-orientation': carousel.orientation.value,
       },
     }
