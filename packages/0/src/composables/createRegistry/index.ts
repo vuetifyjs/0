@@ -773,6 +773,13 @@ export function createRegistry<
   // array is all that move() needs; Map insertion order is no longer load-bearing.
   // Made reactive when the registry is reactive so that keys()/values()/entries()
   // re-evaluate whenever the order changes (register, move, reorder, etc.).
+  //
+  // Invariant: every id in `order` is also a key in `collection` at every
+  // observable point — each mutation updates the two in lockstep (collection.set
+  // before order.push on register; order spliced before collection.delete on
+  // unregister/offboard), so even a flush:'sync' watcher never sees an order id
+  // missing from the Map. This is what lets values()/entries() assert
+  // `collection.get(id)!` below.
   const order = (reactive ? shallowReactive([] as ID[]) : []) as ID[]
 
   let indexDependentCount = 0
@@ -1092,6 +1099,10 @@ export function createRegistry<
       indexDependentCount--
     }
 
+    // O(n) locate + splice. ticket.index can't be used as the position — this
+    // method defers reindex (lazy contract), so the index may be stale. Single
+    // removals are cheap; bulk removal should go through offboard(), which
+    // compacts order in one O(n) pass instead of N indexOf scans.
     const orderPos = order.indexOf(ticket.id)
     if (orderPos !== -1) order.splice(orderPos, 1)
     collection.delete(ticket.id)
@@ -1133,9 +1144,13 @@ export function createRegistry<
 
   function offboard (ids: ID[]): Partial<Z>[] {
     // Collect valid tickets before any mutations so we know what to remove.
+    // Dedupe up front: a repeated id must not double-decrement indexDependentCount
+    // or emit `unregister:ticket` twice. The old delete-then-get loop was
+    // incidentally dedupe-safe; reading all tickets first is not.
     const removed: E[] = []
     const removedIds = new Set<ID>()
     for (const id of ids) {
+      if (removedIds.has(id)) continue
       const ticket = collection.get(id)
       if (ticket) {
         removed.push(ticket)

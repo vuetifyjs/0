@@ -141,6 +141,30 @@ describe('createRegistry', () => {
       expect(listener).toHaveBeenCalledTimes(2)
     })
 
+    it('should dedupe repeated ids within a single offboard call', () => {
+      const registry = createRegistry({ events: true })
+      const listener = vi.fn()
+
+      // No explicit value → valueIsIndex true, so removal touches indexDependentCount.
+      registry.onboard([{ id: 'a' }, { id: 'b' }, { id: 'c' }])
+
+      registry.on('unregister:ticket', listener)
+      const removed = registry.offboard(['a', 'a'])
+
+      // The repeated id is removed once — not double-counted into a second
+      // indexDependentCount decrement or a second unregister emit.
+      expect(removed).toHaveLength(1)
+      expect(listener).toHaveBeenCalledTimes(1)
+      expect(registry.size).toBe(2)
+      expect(registry.keys()).toEqual(['b', 'c'])
+
+      // lookup() drains the deferred reindex; survivors renumber cleanly.
+      expect(registry.lookup(0)).toBe('b')
+      expect(registry.lookup(1)).toBe('c')
+      expect(registry.get('b')?.index).toBe(0)
+      expect(registry.get('c')?.index).toBe(1)
+    })
+
     it('should return removed inputs preserving id when valueIsIndex is false', () => {
       const registry = createRegistry()
 
