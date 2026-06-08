@@ -778,6 +778,7 @@ export function createRegistry<
   let indexDependentCount = 0
   let needsReindex = false
   let minDirtyIndex = Infinity
+  let maxDirtyIndex = -Infinity
   let isBatching = false
   let batched: Array<{ event: string, data: unknown }> = []
 
@@ -962,6 +963,7 @@ export function createRegistry<
     indexDependentCount = 0
     needsReindex = false
     minDirtyIndex = Infinity
+    maxDirtyIndex = -Infinity
     emit('clear:registry')
   }
 
@@ -993,29 +995,38 @@ export function createRegistry<
   }
 
   function reindex () {
-    const startIndex = minDirtyIndex === Infinity ? 0 : minDirtyIndex
-
-    if (startIndex === 0) {
-      catalog.clear()
-      directory.clear()
-    }
+    // The dirty window is [start..end]. `minDirtyIndex === Infinity` means "no
+    // lower bound recorded" (renumber from 0); `maxDirtyIndex === -Infinity`
+    // means "no upper bound recorded" (renumber to the end) — the case for
+    // removals and full reorders, where every trailing index shifts.
+    const size = order.length
+    const start = minDirtyIndex === Infinity ? 0 : minDirtyIndex
+    const end = maxDirtyIndex === -Infinity ? size - 1 : Math.min(maxDirtyIndex, size - 1)
+    const full = start === 0 && end === size - 1
 
     invalidate()
 
-    for (let i = startIndex; i < order.length; i++) {
+    if (full) {
+      catalog.clear()
+      directory.clear()
+    } else {
+      // Clear stale window entries before reassigning. Two passes are required
+      // because a single delete-then-set pass would clobber a freshly-set slot
+      // when the dirty window is a non-monotonic permutation (e.g. a mid-list move).
+      for (let i = start; i <= end; i++) {
+        const ticket = collection.get(order[i]!)!
+        directory.delete(ticket.index)
+        if (ticket.valueIsIndex) unassign(ticket.value, ticket.id)
+      }
+    }
+
+    for (let i = start; i <= end; i++) {
       const ticket = collection.get(order[i]!)!
 
-      if (startIndex > 0) {
-        directory.delete(ticket.index)
-      }
-
       if (ticket.valueIsIndex) {
-        if (startIndex > 0) {
-          unassign(ticket.value, ticket.id)
-        }
         ticket.value = i
         assign(ticket.value, ticket.id)
-      } else if (startIndex === 0) {
+      } else if (full) {
         assign(ticket.value, ticket.id)
       }
 
@@ -1025,6 +1036,7 @@ export function createRegistry<
 
     needsReindex = false
     minDirtyIndex = Infinity
+    maxDirtyIndex = -Infinity
     emit('reindex:registry')
   }
 
@@ -1180,7 +1192,11 @@ export function createRegistry<
     return batch(() => {
       order.splice(from, 1)
       order.splice(target, 0, id)
+
+      // Bound the reindex to the [from..target] window: only those indices
+      // changed, so reindex() touches O(distance) tickets instead of the tail.
       minDirtyIndex = Math.min(from, target)
+      maxDirtyIndex = Math.max(from, target)
       reindex()
       emit('update:ticket', ticket)
 
@@ -1205,6 +1221,7 @@ export function createRegistry<
         order[i] = id!
       }
       minDirtyIndex = 0
+      maxDirtyIndex = -Infinity
       reindex()
     })
   }

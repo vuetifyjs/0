@@ -115,7 +115,7 @@ Each branch extends the base ticket pattern with domain-specific capabilities. S
 | `register(ticket)` | Add a ticket to the registry |
 | `unregister(id)` | Remove a ticket by ID |
 | `upsert(id, partial)` | Register or update a ticket |
-| `move(id, index)` | Reorder a ticket to a new index position |
+| `move(id, index)` | Move a ticket to a new index position; reindexes only the affected `[from..to]` span |
 | `reorder(ids)` | Reorder the registry to match a canonical permutation in one O(n) pass |
 | `onboard(tickets)` | Batch-register an array of tickets |
 | `offboard(ids)` | Batch-unregister an array of IDs |
