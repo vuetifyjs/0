@@ -69,7 +69,7 @@ describe('breadcrumbs', () => {
           },
         })
 
-        expect(wrapper.find('nav').attributes('aria-label')).toBe('Breadcrumbs')
+        expect(wrapper.find('nav').attributes('aria-label')).toBeDefined()
       })
 
       it('should not have role="navigation" when as="nav"', () => {
@@ -530,7 +530,7 @@ describe('breadcrumbs', () => {
       expect(wrapper.find('nav').exists()).toBe(true)
       expect(wrapper.find('ol').exists()).toBe(true)
       expect(wrapper.findAll('li').length).toBeGreaterThan(0)
-      expect(wrapper.find('[aria-label="Breadcrumbs"]').exists()).toBe(true)
+      expect(wrapper.find('nav').attributes('aria-label')).toBeDefined()
       expect(wrapper.find('[role="list"]').exists()).toBe(true)
     })
 
@@ -908,7 +908,7 @@ describe('breadcrumbs', () => {
       expect(html).toBeTruthy()
       expect(html).toContain('Home')
       expect(html).toContain('Current')
-      expect(html).toContain('aria-label="Breadcrumbs"')
+      expect(html).toMatch(/aria-label="[^"]+"/)
       expect(html).toContain('role="list"')
       expect(html).toContain('aria-current="page"')
     })

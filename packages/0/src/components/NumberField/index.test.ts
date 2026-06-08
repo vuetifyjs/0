@@ -1,5 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+// Messages
+import en from '#v0/locale/messages/en'
+
 import { NumberField } from './index'
 
 // Utilities
@@ -111,8 +114,8 @@ function mountNumberField (options: {
     wrapper,
     rootProps: () => capturedRootProps,
     controlEl: () => wrapper.find('[role="spinbutton"]'),
-    incrementEl: () => wrapper.find('[aria-label="Increment"]'),
-    decrementEl: () => wrapper.find('[aria-label="Decrement"]'),
+    incrementEl: () => wrapper.find(`[aria-label="${en.NumberField.increment}"]`),
+    decrementEl: () => wrapper.find(`[aria-label="${en.NumberField.decrement}"]`),
     errorEl: () => wrapper.find('[aria-live="polite"]'),
     scrubEl: () => wrapper.find('label'),
     wait: () => nextTick(),
