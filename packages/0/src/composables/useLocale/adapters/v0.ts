@@ -1,15 +1,16 @@
 // Globals
 import { IN_BROWSER } from '#v0/constants/globals'
 
-// Adapters
 import { LocaleAdapter } from './adapter'
 
 // Utilities
-import { isObject, isString, isUndefined } from '#v0/utilities'
+import { isString } from '#v0/utilities'
 
 // Types
 import type { ID } from '#v0/types'
 import type { LocaleAdapterContext } from './adapter'
+
+import { interpolate } from '../interpolate'
 
 /**
  * Default locale adapter for @vuetify/v0.
@@ -28,18 +29,18 @@ export class V0LocaleAdapter extends LocaleAdapter {
   t (key: string, ...params: unknown[]): string {
     const locale = this.context.selectedId.value
 
-    if (!locale) return this.interpolate(key, params)
+    if (!locale) return interpolate(key, params)
 
     const message = this.context.tokens.get(`${locale}.${key}`)?.value
 
     if (isString(message)) {
-      return this.interpolate(this.resolve(locale, message), params)
+      return interpolate(this.resolve(locale, message), params)
     }
 
     if (this.context.fallbackLocale) {
       const fbMessage = this.context.tokens.get(`${this.context.fallbackLocale}.${key}`)?.value
       if (isString(fbMessage)) {
-        return this.interpolate(this.resolve(this.context.fallbackLocale, fbMessage), params)
+        return interpolate(this.resolve(this.context.fallbackLocale, fbMessage), params)
       }
     }
 
@@ -48,7 +49,7 @@ export class V0LocaleAdapter extends LocaleAdapter {
       if (isString(fallback)) return fallback
     }
 
-    return this.interpolate(key, params)
+    return interpolate(key, params)
   }
 
   n (value: number): string {
@@ -79,28 +80,5 @@ export class V0LocaleAdapter extends LocaleAdapter {
 
       return match
     })
-  }
-
-  private interpolate (message: string, args: unknown[]): string {
-    let result = message
-    let rest = args
-
-    if (rest.length > 0 && isObject(rest[0])) {
-      const variables = rest[0] as Record<string, unknown>
-      result = result.replace(/{([a-zA-Z][a-zA-Z0-9_]*)}/g, (match, name) => {
-        return isUndefined(variables[name]) ? match : String(variables[name])
-      })
-      rest = rest.slice(1)
-    }
-
-    result = result.replace(/\{(\d+)\}/g, (match, index) => {
-      const i = Number.parseInt(index, 10)
-      if (!isUndefined(rest[i])) {
-        return String(rest[i])
-      }
-      return match
-    })
-
-    return result
   }
 }

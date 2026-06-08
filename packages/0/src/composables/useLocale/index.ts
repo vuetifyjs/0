@@ -29,12 +29,16 @@
 import { createPluginContext } from '#v0/composables/createPlugin'
 import { createSingle } from '#v0/composables/createSingle'
 import { createTokens, flatten } from '#v0/composables/createTokens'
+import { interpolate } from '#v0/composables/useLocale/interpolate'
 
 // Adapters
 import { V0LocaleAdapter } from '#v0/composables/useLocale/adapters/v0'
 
 // Messages
 import en from '#v0/locale/messages/en'
+
+// Utilities
+import { isObject, isString } from '#v0/utilities'
 
 // Types
 import type { SingleContext, SingleOptions, SingleTicket, SingleTicketInput } from '#v0/composables/createSingle'
@@ -114,13 +118,16 @@ export interface LocaleOptions<Z extends LocaleRecord = LocaleRecord> extends Si
   /**
    * Called when a key has no translation in the active locale and the fallback
    * chain is exhausted. Return a string to use as the label, or `undefined` to
-   * fall through to the raw key. Useful for providing default English strings
-   * without wiring up the full locale adapter.
+   * fall through to the raw key. Useful for providing default strings without
+   * wiring up the full locale adapter.
+   *
+   * Keys are passed in dotted form (`'Dialog.close'`), so a backing dictionary
+   * must be keyed the same way — the bundled `en` messages are nested, not flat.
    *
    * @example
    * ```ts
-   * import en from '@vuetify/v0/locale/messages/en'
-   * createLocalePlugin({ onMissing: key => en[key] })
+   * const defaults: Record<string, string> = { 'Dialog.close': 'Close' }
+   * createLocalePlugin({ onMissing: key => defaults[key] })
    * ```
    */
   onMissing?: (key: string, ...params: unknown[]) => string | undefined
@@ -192,32 +199,12 @@ export function createLocale (_options: LocaleOptions = {}): LocaleContext {
 }
 
 function lookupEn (key: string, ...params: unknown[]): string {
-  const parts = key.split('.')
   let node: unknown = en
-  for (const part of parts) {
-    if (node === null || typeof node !== 'object') return key
-    node = (node as Record<string, unknown>)[part]
+  for (const part of key.split('.')) {
+    if (!isObject(node)) return key
+    node = node[part]
   }
-  if (typeof node !== 'string') return key
-  // Reuse V0LocaleAdapter interpolation by creating a minimal adapter instance
-  return _interpolate(node, params)
-}
-
-function _interpolate (message: string, args: unknown[]): string {
-  let result = message
-  let rest = args
-  if (rest.length > 0 && rest[0] !== null && typeof rest[0] === 'object') {
-    const vars = rest[0] as Record<string, unknown>
-    result = result.replace(/{([a-zA-Z][a-zA-Z0-9_]*)}/g, (match, name) =>
-      vars[name] === undefined ? match : String(vars[name]),
-    )
-    rest = rest.slice(1)
-  }
-  result = result.replace(/\{(\d+)\}/g, (match, index) => {
-    const i = Number.parseInt(index, 10)
-    return rest[i] === undefined ? match : String(rest[i])
-  })
-  return result
+  return isString(node) ? interpolate(node, params) : key
 }
 
 export function createLocaleFallback (): LocaleContext {
