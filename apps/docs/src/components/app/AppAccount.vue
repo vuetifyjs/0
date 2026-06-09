@@ -27,7 +27,6 @@
     { name: 'Discord', provider: 'discord', icon: 'discord', bg: '#5865F2' },
     { name: 'Google', provider: 'google', icon: 'google', bg: '#4285F4' },
     { name: 'Open Collective', provider: 'opencollective', icon: 'opencollective', bg: '#7FADF2' },
-    { name: 'Shopify', provider: 'shopify', icon: 'shopify', bg: '#96BF48' },
   ]
 </script>
 
