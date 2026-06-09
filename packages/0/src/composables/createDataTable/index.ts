@@ -375,6 +375,7 @@ export function createDataTable<T extends Record<string, unknown>> (
   const registry = createRegistry<DataTableTicketInput<T>, DataTableTicket<T>>({
     events: true,
     reactive: true,
+    reactiveTickets: false,
   })
 
   const columns = createRegistry<DataTableColumnTicketInput<T>, DataTableColumnTicket<T>>({

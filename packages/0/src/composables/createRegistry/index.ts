@@ -726,6 +726,17 @@ export interface RegistryOptions {
    * ```
   */
   reactive?: boolean
+  /**
+   * Wrap each registered ticket in `shallowReactive` so that mutations to its
+   * properties are observable by Vue effects.
+   *
+   * @default same as `reactive`
+   * @remarks Set to `false` together with `reactive: true` when you need the
+   * collection to be observable (adds/removes re-trigger computed) but do not
+   * need per-ticket property reactivity. This avoids the proxy-allocation cost
+   * for large sets of items that are read, not mutated in place.
+   */
+  reactiveTickets?: boolean
 }
 
 export interface RegistryContextOptions extends RegistryOptions {
@@ -763,6 +774,7 @@ export function createRegistry<
 
   const events = options?.events ?? false
   const reactive = options?.reactive ?? false
+  const reactiveTickets = options?.reactiveTickets ?? reactive
 
   const collection = reactive ? shallowReactive(new Map<ID, E>()) : new Map<ID, E>()
   const catalog = new Map<unknown, ID[]>()
@@ -1068,7 +1080,7 @@ export function createRegistry<
       unregister: () => unregister(id),
     } as E
 
-    const ticket = reactive ? shallowReactive(input) : input
+    const ticket = reactiveTickets ? shallowReactive(input) : input
 
     collection.set(ticket.id, ticket)
     order.push(ticket)
