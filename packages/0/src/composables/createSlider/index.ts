@@ -19,11 +19,10 @@
  *
  * @example
  * ```ts
- * import { shallowRef } from 'vue'
  * import { createSlider } from '@vuetify/v0'
  *
  * const slider = createSlider({ min: 0, max: 100, step: 5 })
- * slider.register({ value: shallowRef(25) })
+ * slider.register({ value: 25 })
  * slider.set(0, 60)
  * ```
  */
