@@ -116,10 +116,16 @@
     if (!el.value) return 0
     if ((isVertical.value ? height.value : width.value) === 0) return 0
 
-    const first = toValue((carousel.seek('first') as CarouselTicket | undefined)?.el) as HTMLElement | undefined
-    const second = toValue((carousel.seek('first', 1) as CarouselTicket | undefined)?.el) as HTMLElement | undefined
+    const firstTicket = carousel.seek('first') as CarouselTicket | undefined
+    const first = toValue(firstTicket?.el) as HTMLElement | undefined
 
-    if (!first) return 0
+    if (!firstTicket || !first) return 0
+
+    // seek('first') skips disabled items, so a literal `1` offset collides with
+    // the first slide when leading slides are disabled (both resolve to the same
+    // element → slideStep 0). Measure from the first slide's own index instead.
+    const second = toValue((carousel.seek('first', firstTicket.index + 1) as CarouselTicket | undefined)?.el) as HTMLElement | undefined
+
     /* v8 ignore next 3 -- happy-dom returns 0 for offset* so layout-dependent branches never reach here */
     if (!second) return isVertical.value ? first.offsetHeight : first.offsetWidth
     return isVertical.value ? second.offsetTop - first.offsetTop : second.offsetLeft - first.offsetLeft
