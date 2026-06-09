@@ -282,9 +282,7 @@ Bare `Error` is forbidden in `packages/0/src` source by the `vuetify/no-bare-err
 
 **Why.** v0 runs under SSR. An unguarded `window.x` crashes the server build. The gate is one line and composes through adapters.
 
-**Canonical example.** `packages/0/src/composables/useStorage/index.ts:105` — `IN_BROWSER ? window.localStorage : new MemoryStorageAdapter()`.
-
-**Known soft-violations.** `packages/0/src/composables/useClickOutside/index.ts:346-350`, `packages/0/src/composables/useHotkey/index.ts:159`, `packages/0/src/composables/createCombobox/index.ts:187` — each reads `document.*` inside a browser-only handler. Safe in practice, but the rule is per-composable, not per-call-site. Add the guard.
+**Canonical example.** `packages/0/src/composables/useStorage/index.ts:114` — `IN_BROWSER ? window.localStorage : new MemoryStorageAdapter()`.
 
 ---
 
