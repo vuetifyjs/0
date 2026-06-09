@@ -155,8 +155,8 @@ When destructuring the options object, the rest variable is `options`, never `mo
 
 ```ts
 // Right
-function createFoo (options: FooOptions = {}) {
-  const { disabled, namespace = 'v0:foo', ...rest } = options
+function createFoo (_options: FooOptions = {}) {
+  const { disabled, namespace = 'v0:foo', ...options } = _options
 }
 ```
 

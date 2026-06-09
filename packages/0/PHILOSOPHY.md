@@ -334,8 +334,8 @@ Choose 3.1.3 only when there is literally one useful return. Any time you reach 
 
 ```ts
 // Right
-function createSelection <Z, E> (options: SelectionOptions = {}): SelectionContext<Z, E> {
-  const { multiple, mandatory, ...rest } = options
+function createSelection <Z, E> (_options: SelectionOptions = {}): SelectionContext<Z, E> {
+  const { multiple, mandatory, ...options } = _options
   const model = createModel(options)
   // ...
 }
