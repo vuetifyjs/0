@@ -94,6 +94,33 @@ describe('createTokens', () => {
         expect(context.resolve('rtl')).toEqual({ value: true, variation: 'toggle' })
         expect(context.resolve('complex')).toEqual({ inner: { leaf: '#FFFFFF' } })
       })
+
+      it('should not flatten prototype-pollution keys into token ids', () => {
+        // JSON.parse creates OWN "__proto__"/"constructor" properties — an
+        // object literal would set the prototype instead — modelling untrusted
+        // token input. Pre-guard these surfaced as registrable token ids.
+        const malicious = JSON.parse(
+          '{"__proto__":{"$value":"#bad"},"constructor":{"$value":"#bad"},"prototype":{"$value":"#bad"},"color":{"$value":"#fff"}}',
+        ) as TokenCollection
+
+        const ids = flatten(malicious).map(token => token.id)
+
+        expect(ids).toContain('color')
+        expect(ids).not.toContain('__proto__')
+        expect(ids).not.toContain('constructor')
+        expect(ids).not.toContain('prototype')
+      })
+
+      it('should skip inherited keys when flattening', () => {
+        const base = { inherited: { $value: '#bad' } }
+        const tokens: Record<string, unknown> = Object.create(base)
+        tokens.color = { $value: '#fff' }
+
+        const ids = flatten(tokens as TokenCollection).map(token => token.id)
+
+        expect(ids).toContain('color')
+        expect(ids).not.toContain('inherited')
+      })
     })
 
     describe('alias resolution', () => {
