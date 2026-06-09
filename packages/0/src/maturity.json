@@ -331,6 +331,11 @@
       "since": "0.1.9",
       "category": "system"
     },
+    "useReducedMotion": {
+      "level": "preview",
+      "since": null,
+      "category": "plugins"
+    },
     "useRtl": {
       "level": "preview",
       "since": "0.1.7",
