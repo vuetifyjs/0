@@ -34,10 +34,11 @@
         >
           ▶
         </ExpansionPanel.Cue>
+
         <span class="font-medium text-on-surface">{{ panel.title }}</span>
       </ExpansionPanel.Activator>
 
-      <ExpansionPanel.Content renderless #default="{ isSelected }">
+      <ExpansionPanel.Content v-slot="{ isSelected }" renderless>
         <Transition name="expand">
           <div v-if="isSelected">
             <div class="p-4">
@@ -50,6 +51,7 @@
                     <th class="text-left p-2 font-semibold text-on-surface">Price</th>
                   </tr>
                 </thead>
+
                 <tbody>
                   <tr
                     v-for="row in panel.rows"
