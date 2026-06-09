@@ -31,7 +31,7 @@ import { IN_BROWSER } from '#v0/constants/globals'
 import { NotificationsAdapter } from './adapter'
 
 // Types
-import type { NotificationInput, NotificationsAdapterContext, NotificationTicket } from '../index'
+import type { NotificationTicketInput, NotificationsAdapterContext, NotificationTicket } from '../index'
 
 /** Minimal Knock feed item shape. Uses type-only imports to avoid bundling the SDK. */
 export interface KnockFeedItem {
@@ -63,7 +63,7 @@ export interface KnockFeed {
 
 function noop () {}
 
-function mapItem (item: KnockFeedItem): NotificationInput {
+function mapItem (item: KnockFeedItem): NotificationTicketInput {
   const subject = item.blocks?.find(b => b.name === 'subject')?.rendered
   const body = item.blocks?.find(b => b.name === 'body')?.rendered
 

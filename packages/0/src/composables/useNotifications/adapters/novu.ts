@@ -33,7 +33,7 @@ import { IN_BROWSER } from '#v0/constants/globals'
 import { NotificationsAdapter } from './adapter'
 
 // Types
-import type { NotificationInput, NotificationSeverity, NotificationTicket, NotificationsAdapterContext } from '../index'
+import type { NotificationTicketInput, NotificationSeverity, NotificationTicket, NotificationsAdapterContext } from '../index'
 
 /** Minimal Novu notification shape. Uses type-only imports to avoid bundling the SDK. */
 export interface NovuNotification {
@@ -80,7 +80,7 @@ function defaultSeverity (s: string): NotificationSeverity | undefined {
 
 function noop () {}
 
-function mapItem (item: NovuNotification, resolveSeverity: (s: string) => NotificationSeverity | undefined): NotificationInput {
+function mapItem (item: NovuNotification, resolveSeverity: (s: string) => NotificationSeverity | undefined): NotificationTicketInput {
   return {
     id: item.id,
     subject: item.subject,

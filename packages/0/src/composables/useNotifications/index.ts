@@ -44,7 +44,7 @@ import type { NotificationsAdapter } from './adapters/adapter'
 export type NotificationSeverity = Extensible<'info' | 'warning' | 'error' | 'success'>
 
 /** Input shape for creating a notification via {@link send} or {@link register}. */
-export interface NotificationInput extends RegistryTicketInput {
+export interface NotificationTicketInput extends RegistryTicketInput {
   /** Notification headline. */
   subject?: string
   /** Extended message body. */
@@ -61,7 +61,7 @@ export interface NotificationInput extends RegistryTicketInput {
  * Hydrated notification with lifecycle state and convenience methods.
  * Returned by {@link send}, {@link register}, and {@link onboard}.
  */
-export type NotificationTicket<Z extends NotificationInput = NotificationInput> = RegistryTicket & Z & {
+export type NotificationTicket<Z extends NotificationTicketInput = NotificationTicketInput> = RegistryTicket & Z & {
   /** When the notification was created. */
   createdAt: Date
   /** When the notification was marked as read, or `null` if unread. */
@@ -95,7 +95,7 @@ export type NotificationTicket<Z extends NotificationInput = NotificationInput> 
  * notification creation and event subscription for outbound sync.
  */
 export interface NotificationsAdapterContext<
-  Z extends NotificationInput = NotificationInput,
+  Z extends NotificationTicketInput = NotificationTicketInput,
   E extends NotificationTicket<Z> = NotificationTicket<Z>,
 > {
   /** Create a notification and enqueue for toast display. Use for real-time inbound items. */
@@ -116,7 +116,7 @@ export interface NotificationsOptions extends RegistryOptions {
 
 /** Full notification context returned by {@link createNotifications} and {@link useNotifications}. */
 export interface NotificationsContext<
-  Z extends NotificationInput = NotificationInput,
+  Z extends NotificationTicketInput = NotificationTicketInput,
   E extends NotificationTicket<Z> = NotificationTicket<Z>,
 > extends RegistryContext<E> {
   /** Create a notification and enqueue for toast display. */
@@ -176,7 +176,7 @@ export function createNotifications (
    * @returns A partial ticket with timestamps, lifecycle methods, and an ID.
    * @internal Used by {@link send}, {@link register}, and {@link onboard}.
    */
-  function hydrate (input: NotificationInput): Partial<NotificationTicket> {
+  function hydrate (input: NotificationTicketInput): Partial<NotificationTicket> {
     const id = input.id ?? useId()
     const now = new Date()
 
@@ -232,7 +232,7 @@ export function createNotifications (
    * ticket.dismiss() // removes from toast queue, keeps in registry
    * ```
    */
-  function send (input: NotificationInput): NotificationTicket {
+  function send (input: NotificationTicketInput): NotificationTicket {
     const ticket = registry.register(hydrate(input))
 
     queue.register(isUndefined(input.timeout) ? { id: ticket.id } : { id: ticket.id, timeout: input.timeout })
@@ -270,7 +270,7 @@ export function createNotifications (
    * ticket.archive()
    * ```
    */
-  function register (input: NotificationInput): NotificationTicket {
+  function register (input: NotificationTicketInput): NotificationTicket {
     return registry.register(hydrate(input))
   }
 
@@ -302,7 +302,7 @@ export function createNotifications (
    * console.log(notifications.values().length) // 2 (in registry)
    * ```
    */
-  function onboard (inputs: NotificationInput[]): NotificationTicket[] {
+  function onboard (inputs: NotificationTicketInput[]): NotificationTicket[] {
     return registry.batch(() => inputs.map(input => register(input)))
   }
 
