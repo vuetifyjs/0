@@ -618,7 +618,7 @@ RegistryTicketInput
   └── FormTicketInput
 ```
 
-Every ticket has the base interface `{ id: ID, index: number, value: unknown, valueIsIndex: boolean }`. [intent:96] Extensions spread the parent; they never override it. [intent:101]
+Every ticket has the base interface `{ id: ID, index: number, value: unknown, valueIsIndex: boolean, unregister: () => void }`. [intent:96] Extensions spread the parent; they never override it. [intent:101]
 
 ### 6.3 Element refs via registry
 
