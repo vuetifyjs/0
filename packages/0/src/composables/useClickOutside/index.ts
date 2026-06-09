@@ -314,7 +314,7 @@ export function useClickOutside (
   /**
    * Handle pointerdown - store initial target and position.
    */
-  function onPointerDown (event: PointerEvent) {
+  function onPointerdown (event: PointerEvent) {
     if (isPaused.value) return
     if (event.defaultPrevented) return
 
@@ -329,7 +329,7 @@ export function useClickOutside (
   /**
    * Handle pointerup - check if it's an outside click.
    */
-  function onPointerUp (event: PointerEvent) {
+  function onPointerup (event: PointerEvent) {
     if (isPaused.value) return
     if (event.defaultPrevented) return
     if (!initialTarget) return
@@ -377,8 +377,8 @@ export function useClickOutside (
   /* v8 ignore stop */
 
   function setup () {
-    cleanupPointerDown = useDocumentEventListener('pointerdown', onPointerDown, capture)
-    cleanupPointerUp = useDocumentEventListener('pointerup', onPointerUp, capture)
+    cleanupPointerDown = useDocumentEventListener('pointerdown', onPointerdown, capture)
+    cleanupPointerUp = useDocumentEventListener('pointerup', onPointerup, capture)
 
     if (!detectIframe) return
 
