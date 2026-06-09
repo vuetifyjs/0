@@ -132,14 +132,14 @@ export interface FormContextOptions extends FormOptions {
  * form.reset()
  * ```
  */
-export function createForm (options: FormOptions = {}): FormContext {
+export function createForm (_options: FormOptions = {}): FormContext {
   const {
     disabled = false,
     readonly = false,
-    ..._options
-  } = options
+    ...options
+  } = _options
 
-  const registry = createRegistry<FormTicket>({ ..._options, reactive: true })
+  const registry = createRegistry<FormTicket>({ ...options, reactive: true })
 
   const isValidating = computed(() => {
     for (const ticket of registry.values()) {
