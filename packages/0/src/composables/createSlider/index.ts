@@ -445,27 +445,27 @@ export function createSlider (options: SliderOptions = {}): SliderContext {
     min = 0,
     max = 100,
     step = 1,
-    disabled: disabledProp = false,
-    readonly: readonlyProp = false,
-    orientation: orientationProp = 'horizontal',
-    inverted: invertedProp = false,
+    disabled: _disabled = false,
+    readonly: _readonly = false,
+    orientation: _orientation = 'horizontal',
+    inverted: _inverted = false,
     minStepsBetweenThumbs = 0,
     crossover = false,
     range = false,
   } = options
 
   const model = createModel<SliderTicketInput, ModelTicket<SliderTicketInput>>({
-    disabled: disabledProp,
+    disabled: _disabled,
     multiple: true,
     events: true,
   })
 
   const numeric = createNumeric({ min, max, step })
 
-  const disabled = toRef(() => toValue(disabledProp))
-  const readonly = toRef(() => toValue(readonlyProp))
-  const orientation = toRef(() => toValue(orientationProp))
-  const inverted = toRef(() => toValue(invertedProp))
+  const disabled = toRef(() => toValue(_disabled))
+  const readonly = toRef(() => toValue(_readonly))
+  const orientation = toRef(() => toValue(_orientation))
+  const inverted = toRef(() => toValue(_inverted))
 
   let pending: number[] | null = null
 
