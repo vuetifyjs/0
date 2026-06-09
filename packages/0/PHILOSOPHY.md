@@ -532,15 +532,15 @@ createOverflow({ gap: () => gap })
 
 `reactive: true` on a registry wraps the internal collection as `shallowReactive` and each registered ticket as a `shallowReactive` proxy. When this option is set, `values()` / `keys()` / `entries()` skip their result cache and re-iterate on every call, so Vue's dep tracking holds across computed re-runs. Template iteration, `registry.size` reads, `get(id)` reads, and per-ticket field mutations via `upsert` all propagate to consumers. [intent:253]
 
-`useProxyRegistry(registry, { events: true })` exposes `proxy.values` / `proxy.keys` / `proxy.entries` / `proxy.size` as properties on a shallow-reactive object, updated from `register:ticket` / `unregister:ticket` / `update:ticket` / `clear:registry` / `reindex:registry` events. It does not wrap the tickets themselves, and supports `{ deep: true }` for nested tracking. [intent:254]
+`useProxyRegistry(registry)` (on a registry created with `events: true`) exposes `proxy.values` / `proxy.keys` / `proxy.entries` / `proxy.size` as properties on a shallow-reactive object, updated from `register:ticket` / `unregister:ticket` / `update:ticket` / `clear:registry` / `reindex:registry` events. It does not wrap the tickets themselves, and supports `{ deep: true }` for nested tracking. [intent:254]
 
 Both are valid and complementary. Pick based on the consumer's actual need:
 
 | Want | Use |
 |---|---|
 | Reactive iteration **plus** per-ticket field mutations via `upsert` | `reactive: true` on the registry |
-| Reactive iteration without wrapping each ticket in a proxy | `useProxyRegistry(registry, { events: true })` |
-| `{ deep: true }` tracking on registered tickets | `useProxyRegistry(registry, { deep: true, events: true })` |
+| Reactive iteration without wrapping each ticket in a proxy | `useProxyRegistry(registry)` |
+| `{ deep: true }` tracking on registered tickets | `useProxyRegistry(registry, { deep: true })` |
 | Explicit event-driven snapshot semantics, no registry-level reactivity | `useProxyRegistry` |
 
 Plugins bake one or the other in internally — see `.claude/rules/composables.md` "Plugins and Reactive Defaults" for the convention. Primitives expose the choice to callers.
