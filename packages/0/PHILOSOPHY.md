@@ -177,10 +177,10 @@ return {
 
 **Why.** Consumers import from a flat barrel. Without the marker, bundlers retain every utility the barrel touches. Meta-frameworks with 64 composables and 37 components cannot afford a lazy barrel.
 
-**Canonical example.** `packages/0/src/utilities/helpers.ts:27,44,64,82,108,126,144,164,189,209` — every exported guard carries the comment directly above the function declaration.
+**Canonical example.** `packages/0/src/utilities/helpers.ts:32,49,69,87,113,138,156,174,194,219` — every exported guard carries the comment directly above the function declaration.
 
 ```ts
-// packages/0/src/utilities/helpers.ts:27-30
+// packages/0/src/utilities/helpers.ts:32-35
 /* #__NO_SIDE_EFFECTS__ */
 export function isFunction (item: unknown): item is Function {
   return typeof item === 'function'
