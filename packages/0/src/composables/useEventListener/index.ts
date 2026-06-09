@@ -26,8 +26,8 @@
  */
 
 // Transformers
-// Framework
-import { toArray } from '#v0/composables'
+import { toArray } from '#v0/composables/toArray'
+
 // Globals
 import { IN_BROWSER } from '#v0/constants/globals'
 
