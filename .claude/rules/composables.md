@@ -206,9 +206,9 @@ See PHILOSOPHY §2.9 for the three-way split (throw / warn / return) and the ful
 Child spreads parent and adds or overrides: [intent:142]
 
 ```ts
-// packages/0/src/composables/createSelection/index.ts:286
+// packages/0/src/composables/createSelection/index.ts:296
 const model = createModel(options)
-return { ...model, selectedIds, select, toggle, /* ... */ }
+return { ...model, multiple, register, onboard, unselect, toggle, apply, mandate, seek }
 ```
 
 Used by the selection chain: `createModel → createSelection → { createSingle → createStep, createGroup → createNested }`.
