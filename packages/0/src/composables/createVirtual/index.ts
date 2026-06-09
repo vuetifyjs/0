@@ -35,7 +35,7 @@ import { useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
 import { useResizeObserver } from '#v0/composables/useResizeObserver'
 
-// Constants
+// Globals
 import { IN_BROWSER } from '#v0/constants/globals'
 
 // Utilities

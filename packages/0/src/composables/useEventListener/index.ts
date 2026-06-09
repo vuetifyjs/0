@@ -28,7 +28,7 @@
 // Transformers
 // Framework
 import { toArray } from '#v0/composables'
-// Constants
+// Globals
 import { IN_BROWSER } from '#v0/constants/globals'
 
 // Utilities

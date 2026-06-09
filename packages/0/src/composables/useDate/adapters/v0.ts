@@ -16,7 +16,7 @@
 // Polyfill
 import { Temporal } from '@js-temporal/polyfill'
 
-// Constants
+// Globals
 import { IN_BROWSER } from '#v0/constants/globals'
 
 // Adapters
