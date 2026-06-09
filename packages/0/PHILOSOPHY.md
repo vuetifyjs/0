@@ -853,9 +853,9 @@ export interface UseFooOptions {
 
 ### 8.5 `Extensible<T>`
 
-Use `Extensible<T>` for enums that must retain autocomplete while accepting arbitrary string extensions. The trick is `T | (string & {})` — see `packages/0/src/types/index.ts:124`. Without `& {}`, TypeScript collapses `'a' | 'b' | string` down to `string` and drops the autocomplete.
+Use `Extensible<T>` for enums that must retain autocomplete while accepting arbitrary string extensions. The trick is `T | (string & {})` — see `packages/0/src/types/index.ts:116`. Without `& {}`, TypeScript collapses `'a' | 'b' | string` down to `string` and drops the autocomplete.
 
-**Canonical example.** `packages/0/src/composables/useNotifications/index.ts:34`:
+**Canonical example.** `packages/0/src/composables/useNotifications/index.ts:43`:
 
 ```ts
 export type NotificationSeverity = Extensible<'info' | 'warning' | 'error' | 'success'>
