@@ -1327,7 +1327,7 @@ describe('numberField', () => {
       expect(captured.attrs['data-readonly']).toBeUndefined()
     })
 
-    it.skip('should expose pointer event handlers in slot attrs for renderless mode', async () => {
+    it('should expose pointer event handlers in slot attrs for renderless mode', async () => {
       const model = ref<number | null>(5)
       let captured: any
       mount(NumberField.Root, {
@@ -1350,7 +1350,7 @@ describe('numberField', () => {
       expect(captured.attrs.onPointerup).toBeTypeOf('function')
     })
 
-    it.skip('should support renderless mode with bound slot attrs', async () => {
+    it('should support renderless mode with bound slot attrs', async () => {
       const rafSpy = vi.spyOn(globalThis, 'requestAnimationFrame').mockImplementation((cb: any) => {
         cb(0)
         return 1
