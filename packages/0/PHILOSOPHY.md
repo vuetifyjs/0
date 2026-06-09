@@ -153,7 +153,7 @@ import { createRegistry } from '../createRegistry'
 
 **Why.** Spread guarantees the child remains substitutable for the parent in types. The 27 registry-based composables all compose this way; consumers who hold a reference to the parent type can upgrade to the child type without refactoring call sites.
 
-**Canonical example.** `packages/0/src/composables/createSelection/index.ts:286-294` — spreads `createModel`, adds `multiple`, `toggle`, `apply`, `mandate`.
+**Canonical example.** `packages/0/src/composables/createSelection/index.ts:296-309` — spreads `createModel`, adds `multiple`, `toggle`, `apply`, `mandate`.
 
 ```ts
 return {
@@ -297,7 +297,7 @@ Three allowable return shapes, in order of prevalence:
 **3.1.1 Plain object.** The dominant shape. Used by ~51 of 63 composable directories. Returned from every selection, registry, model, data, and browser composable that is not a trinity builder itself.
 
 ```ts
-// packages/0/src/composables/createSelection/index.ts:286
+// packages/0/src/composables/createSelection/index.ts:296
 return {
   ...model,
   multiple,
