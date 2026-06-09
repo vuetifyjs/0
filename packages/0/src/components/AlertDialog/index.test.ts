@@ -625,7 +625,7 @@ describe('alertDialog', () => {
       expect(close.attributes('type')).toBeUndefined()
     })
 
-    it.skip('should expose onClick in slot attrs so renderless mode works', async () => {
+    it('should expose onClick in slot attrs so renderless mode works', async () => {
       const isOpen = ref(true)
       let captured: any
 

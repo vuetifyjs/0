@@ -24,6 +24,7 @@
     attrs: {
       'type': 'button' | undefined
       'aria-label': string
+      'onClick': () => void
     }
   }
 </script>
@@ -64,6 +65,7 @@
     attrs: {
       'type': as === 'button' ? 'button' : undefined,
       'aria-label': locale.t('AlertDialog.close'),
+      'onClick': onClick,
     },
   }))
 </script>
@@ -72,7 +74,6 @@
   <Atom
     :as
     v-bind="slotProps.attrs"
-    @click="onClick"
   >
     <slot v-bind="slotProps" />
   </Atom>
