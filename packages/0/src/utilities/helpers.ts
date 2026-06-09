@@ -173,7 +173,7 @@ export function isArray (item: unknown): item is unknown[] {
  */
 /* #__NO_SIDE_EFFECTS__ */
 export function isElement (item: unknown): item is Element {
-  return item instanceof Element
+  return typeof Element !== 'undefined' && item instanceof Element
 }
 
 /**
