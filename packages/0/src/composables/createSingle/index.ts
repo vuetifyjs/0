@@ -142,8 +142,11 @@ export function createSingle<
   E extends SingleTicket<Z> = SingleTicket<Z>,
   R extends SingleContext<Z, E> = SingleContext<Z, E>,
 > (_options: SingleOptions = {}): R {
-  const { mandatory = false, multiple = false, ...options } = _options
-  const registry = createSelection<Z, E>({ ...options, mandatory, multiple })
+  // createSingle is single-selection by contract. SingleOptions extends
+  // SelectionOptions so `multiple` is type-allowed, but it must never reach
+  // createSelection — force single mode regardless of what the caller passed.
+  const { mandatory = false, ...options } = _options
+  const registry = createSelection<Z, E>({ ...options, mandatory, multiple: false })
 
   const selectedId = toRef(() => registry.selectedIds.values().next().value)
   const selectedItem = toRef(() => registry.selectedItems.value.values().next().value)
