@@ -331,8 +331,7 @@ export function createTokens<
 /**
  * Creates a new token context.
  *
- * @param namespace The namespace for the token context.
- * @param tokens The tokens to use.
+ * @param options The options for the token context.
  * @template Z The type of the token ticket.
  * @template E The type of the token context.
  * @returns A new token context.
