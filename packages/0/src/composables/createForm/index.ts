@@ -35,7 +35,7 @@ import { createTrinity } from '#v0/composables/createTrinity'
 import { toArray } from '#v0/composables/toArray'
 
 // Utilities
-import { isNull } from '#v0/utilities'
+import { isNull, isUndefined } from '#v0/utilities'
 import { computed, hasInjectionContext } from 'vue'
 
 // Types
@@ -171,7 +171,7 @@ export function createForm (options: FormOptions = {}): FormContext {
   }
 
   async function submit (id?: ID | ID[]): Promise<boolean> {
-    const ids = id ? toArray(id) : [...registry.keys()]
+    const ids = isUndefined(id) ? [...registry.keys()] : toArray(id)
     const results = await Promise.all(
       ids.map(async key => {
         const ticket = registry.get(key)
