@@ -48,7 +48,11 @@ export class ClientComboboxAdapter extends ComboboxAdapter {
     })
 
     const values = toRef(() => context.items.value.map(t => t.value as FilterItem))
-    const { items: filteredValues } = filter.apply(context.query, values)
+    // Match against the trimmed query, consistent with the empty-query guard
+    // below and createFilter's own blank check. A padded query like ' an' would
+    // otherwise match nothing even though items contain the substring 'an'.
+    const trimmedQuery = toRef(() => String(context.query.value).trim())
+    const { items: filteredValues } = filter.apply(trimmedQuery, values)
 
     const filtered = computed(() => {
       const q = String(context.query.value).trim()
