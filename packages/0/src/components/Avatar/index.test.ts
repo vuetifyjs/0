@@ -335,6 +335,35 @@ describe('avatar', () => {
         // After both load, the one with higher priority should be selected
         expect(highPriorityImage?.isVisible()).toBe(true)
       })
+
+      it('should keep the higher priority image selected when a lower priority image loads last', async () => {
+        const wrapper = mount(Avatar.Root, {
+          slots: {
+            default: () => [
+              h(Avatar.Image, { src: '/low-priority.jpg', priority: 1 }),
+              h(Avatar.Image, { src: '/high-priority.jpg', priority: 10 }),
+              h(Avatar.Fallback, {}, () => 'JD'),
+            ],
+          },
+        })
+
+        const images = wrapper.findAllComponents(Avatar.Image as any)
+        const lowPriorityImage = images[0]
+        const highPriorityImage = images[1]
+
+        // Reverse load order: high priority loads first, low priority loads LAST.
+        // Pre-fix, the last image to load won via ticket.select(), so the lower
+        // priority image wrongly took over the selection. Selection drives the
+        // v-show, so the higher priority image must stay visible.
+        await highPriorityImage?.trigger('load')
+        await lowPriorityImage?.trigger('load')
+        await nextTick()
+        await nextTick()
+
+        // Selection drives the v-show: the selected image has no display:none.
+        expect(String(highPriorityImage?.attributes('style'))).not.toContain('display: none')
+        expect(String(lowPriorityImage?.attributes('style'))).toContain('display: none')
+      })
     })
 
     describe('slot props', () => {
