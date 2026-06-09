@@ -601,7 +601,7 @@ Every user-facing string (`aria-label`, error messages, day-of-week names, month
 |-----------|------|
 | `createContext` | Subtree DI with a strict key namespace. Returns a `[useX, provideX]` pair or a dynamic-key pair when a `suffix` is passed. [intent:119] |
 | `createRegistry` | Indexed ticket store with value-is-index semantics. Foundation for all registered-child patterns. [intent:96] |
-| `createTrinity` | Return-tuple builder. Invoked by `createContext` and `createPlugin`; rarely called directly outside foundation code. [intent:80] |
+| `createTrinity` | Return-tuple builder. Consumes `createContext`; invoked by `createPlugin`. Rarely called directly outside foundation code. [intent:80] |
 | `createPlugin` / `createPluginContext` | App-level singleton with install hook, adapter wiring, optional persist/restore. [intent:120, intent:144] |
 
 ### 6.2 Ticket hierarchy
