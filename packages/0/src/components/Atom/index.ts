@@ -10,13 +10,13 @@ export type { AtomExpose, AtomProps, AtomSlots } from './Atom.vue'
  * <script lang="ts" setup>
  *   import { Atom } from '@vuetify/v0'
  *
- *   function handleClick() {
+ *   function onClick() {
  *     console.log('clicked')
  *   }
  * </script>
  *
  * <template>
- *   <Atom as="button" @click="handleClick">
+ *   <Atom as="button" @click="onClick">
  *     Click me
  *   </Atom>
  * </template>
