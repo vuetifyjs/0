@@ -76,8 +76,7 @@ export interface PermissionPluginOptions extends PermissionContextOptions {}
  * ```ts
  * import { createPermissions } from '@vuetify/v0'
  *
- * const [usePermissions, providePermissions] = createPermissions({
- *   namespace: 'v0:permissions',
+ * const permissions = createPermissions({
  *   permissions: {
  *     admin: [['read', 'users']],
  *     editor: [['edit', 'posts']],
