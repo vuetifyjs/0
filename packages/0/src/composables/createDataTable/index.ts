@@ -71,7 +71,7 @@ import type { DataTableAdapter, SortDirection, SortEntry } from './adapters/adap
 import type { InternalHeader } from './columns'
 import type { Ref, ShallowRef } from 'vue'
 
-// Re-export adapter types
+// Exports
 export { DataTableAdapter } from './adapters'
 export type { DataTableAdapterContext, DataTableAdapterResult, SortDirection, SortEntry } from './adapters'
 export { ClientDataTableAdapter, ServerDataTableAdapter, VirtualDataTableAdapter } from './adapters'

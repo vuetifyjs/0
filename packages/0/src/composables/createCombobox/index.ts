@@ -56,6 +56,7 @@ import type { MaybeArray, ID } from '#v0/types'
 import type { ComboboxAdapter } from './adapters'
 import type { MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
 
+// Exports
 export { ClientComboboxAdapter, ComboboxAdapter, ServerComboboxAdapter } from './adapters'
 export type { ClientComboboxAdapterOptions, ComboboxAdapterContext, ComboboxAdapterResult } from './adapters'
 
