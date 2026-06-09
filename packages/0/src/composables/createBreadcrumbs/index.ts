@@ -1,7 +1,7 @@
 /**
  * @module createBreadcrumbs
  *
- * @see https://0.vuetifyjs.com/composables/utilities/create-breadcrumbs
+ * @see https://0.vuetifyjs.com/composables/semantic/create-breadcrumbs
  *
  * @remarks
  * Breadcrumb navigation composable built on createSingle.
