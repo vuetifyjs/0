@@ -21,7 +21,7 @@
   import { useImage } from '#v0/composables/useImage'
 
   // Utilities
-  import { onBeforeUnmount, toRef, watch } from 'vue'
+  import { onBeforeUnmount, toRef, toValue, watch } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -102,18 +102,31 @@
     emit('error', e)
   }
 
+  // Select the highest-priority loaded (enabled, type: 'image') ticket, falling
+  // back to the first enabled ticket (the fallback) when none has loaded. A
+  // plain ticket.select() would let the last image to load win and ignore
+  // priority — the registry is `multiple: false`, so select() clears + adds.
+  function selectBest () {
+    let best: typeof ticket | undefined
+    for (const candidate of context.values()) {
+      if (candidate.type !== 'image' || toValue(candidate.disabled)) continue
+      if (!best || (candidate.priority ?? 0) > (best.priority ?? 0)) best = candidate
+    }
+    const target = best ?? context.seek('first')
+    if (target) context.select(target.id)
+  }
+
   watch(image.isLoaded, isLoaded => {
     if (isLoaded) {
       ticket.disabled = false
-      ticket.select()
+      selectBest()
     }
   })
 
   watch(image.isError, isError => {
     if (isError) {
       ticket.disabled = true
-      const first = context.seek('first')
-      if (first) context.select(first.id)
+      selectBest()
     }
   })
 
