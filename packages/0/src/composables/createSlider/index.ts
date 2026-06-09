@@ -45,6 +45,8 @@ export interface SliderTicketInput extends ModelTicketInput<ShallowRef<number>> 
   value: ShallowRef<number>
 }
 
+export type SliderTicket = ModelTicket<SliderTicketInput>
+
 /**
  * Configuration options for createSlider.
  *
@@ -148,7 +150,7 @@ export interface SliderOptions {
  * @see {@link createModel} for the base model API (collection, selectedIds, etc.)
  */
 export interface SliderContext extends Omit<
-  ModelContext<SliderTicketInput, ModelTicket<SliderTicketInput>>,
+  ModelContext<SliderTicketInput, SliderTicket>,
   'values' | 'selectedValues' | 'apply' | 'disabled' | 'register'
 > {
   /**
@@ -234,7 +236,7 @@ export interface SliderContext extends Omit<
    * console.log(slider.values.value) // [50]
    * ```
    */
-  register: (input?: number | { value: number }) => ModelTicket<SliderTicketInput>
+  register: (input?: number | { value: number }) => SliderTicket
   /**
    * Unregister a thumb by ticket ID.
    *
@@ -454,7 +456,7 @@ export function createSlider (options: SliderOptions = {}): SliderContext {
     range = false,
   } = options
 
-  const model = createModel<SliderTicketInput, ModelTicket<SliderTicketInput>>({
+  const model = createModel<SliderTicketInput, SliderTicket>({
     disabled: _disabled,
     multiple: true,
     events: true,
@@ -490,7 +492,7 @@ export function createSlider (options: SliderOptions = {}): SliderContext {
     return inverted.value ? numeric.max - (value - numeric.min) : value
   }
 
-  function register (input?: number | { value: number }): ModelTicket<SliderTicketInput> {
+  function register (input?: number | { value: number }): SliderTicket {
     const initialValue = isObject(input) ? input.value : input
     const thumbIndex = thumbs.value.length
     const pendingValue = pending?.[thumbIndex]
@@ -584,7 +586,7 @@ export function createSlider (options: SliderOptions = {}): SliderContext {
     set(index, max)
   }
 
-  function onboard (registrations: (number | { value: number } | Partial<SliderTicketInput>)[]): ModelTicket<SliderTicketInput>[] {
+  function onboard (registrations: (number | { value: number } | Partial<SliderTicketInput>)[]): SliderTicket[] {
     return model.batch(() => registrations.map(r => register(r as number | { value: number })))
   }
 
