@@ -485,7 +485,7 @@ Always use `useId()` from `#v0/utilities`. Never auto-increment. SSR-safe. [inte
 
 ## Events and Lifecycle
 
-See PHILOSOPHY §2.5 for the DOM-event rule. Scope-specific reminder: the only composables exempt from it are the three browser-primitive wrappers — `useEventListener`, `useHotkey`, `useClickOutside`. Anything else that reaches for `addEventListener` is in the wrong file.
+See PHILOSOPHY §2.5 for the DOM-event rule. Scope-specific reminder: the only composables exempt from it are the four browser-primitive wrappers — `useEventListener`, `useHotkey`, `useClickOutside`, `useMediaQuery`. Anything else that reaches for `addEventListener` is in the wrong file.
 
 ## Naming Instance (PHILOSOPHY §3.3)
 
