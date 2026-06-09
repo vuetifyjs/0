@@ -428,7 +428,15 @@ export function createNested (_options: NestedOptions = {}): NestedContext {
     while (!isUndefined(parentId)) {
       const childIds = children.get(parentId)
       if (childIds && childIds.length > 0) {
-        const allSelected = childIds.every(cid => selectedIds.has(cid))
+        // Exclude disabled children from the "all selected" test — a disabled
+        // child can never be selected, so counting it would trap the parent in
+        // the mixed state forever. Mirrors select()'s disabled skip and
+        // createGroup.isAllSelected's selectable-items filter.
+        const enabledIds = childIds.filter(cid => {
+          const child = group.get(cid)
+          return !child || !toValue(child.disabled)
+        })
+        const allSelected = enabledIds.length > 0 && enabledIds.every(cid => selectedIds.has(cid))
         const someSelected = !allSelected && childIds.some(cid => selectedIds.has(cid) || mixedIds.has(cid))
 
         if (allSelected) {

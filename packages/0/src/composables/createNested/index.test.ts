@@ -1682,6 +1682,21 @@ describe('disabled state blocking', () => {
     expect(nested.selected('child-2')).toBe(false)
   })
 
+  it('should fully select an ancestor when all enabled children are selected despite a disabled sibling', () => {
+    const nested = createNested()
+
+    nested.register({ id: 'root', value: 'Root' })
+    nested.register({ id: 'child-1', value: 'Child 1', parentId: 'root' })
+    nested.register({ id: 'child-2', value: 'Child 2', parentId: 'root', disabled: true })
+
+    // Selecting the only enabled child must promote root to fully selected,
+    // not leave it trapped in the mixed state by the unselectable disabled sibling.
+    nested.select('child-1')
+
+    expect(nested.selected('root')).toBe(true)
+    expect(nested.mixed('root')).toBe(false)
+  })
+
   it('should skip disabled items in expandAll', () => {
     const nested = createNested()
 
