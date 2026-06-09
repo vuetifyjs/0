@@ -209,6 +209,33 @@ describe('zones.register', () => {
     expect(zone.willAccept.value).toBe(true)
     expect(accept).toHaveBeenCalledTimes(1)
   })
+
+  it('should not leak an effect scope when registering a duplicate zone id', () => {
+    using warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const scope = effectScope()
+
+    scope.run(() => {
+      const dnd = useDragDrop({ adapters: [] })
+      const el = shallowRef<HTMLElement | null>(null)
+
+      dnd.zones.register({ id: 'zone', el, accept: ['card'] })
+
+      // The source allocates one non-detached effect scope per zone, attached
+      // as a child of the active scope. Read that live child array.
+      const children = (scope as unknown as { scopes?: unknown[] }).scopes ?? []
+      const before = children.length
+      expect(before).toBeGreaterThan(0)
+
+      // Pre-fix a duplicate id allocated a second scope and overwrote
+      // scopes.set(id) without stopping the original, orphaning it as a
+      // permanent child whose observers leak past teardown.
+      dnd.zones.register({ id: 'zone', el, accept: ['card'] })
+      expect(children.length).toBe(before)
+    })
+
+    scope.stop()
+    expect(warn).toHaveBeenCalled()
+  })
 })
 
 function makeFocusableEl (id: string): HTMLElement {
