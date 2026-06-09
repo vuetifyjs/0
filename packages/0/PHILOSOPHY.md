@@ -307,7 +307,7 @@ return {
 }
 ```
 
-**3.1.2 Trinity tuple.** `[useX, provideX, defaultX]as const` (registries) or `[createXContext, createXPlugin, useX] as const` (plugins). Returned from exactly three foundation factories: `createTrinity`, `createContext`, `createPlugin`. Every other "trinity-using" composable *consumes* these internally and returns a plain object. [intent:80, intent:119, intent:120]
+**3.1.2 Trinity tuple.** `[useX, provideX, defaultX] as const` (registries) or `[createXContext, createXPlugin, useX] as const` (plugins). Returned from exactly three foundation factories: `createTrinity`, `createContext`, `createPlugin`. Every other "trinity-using" composable *consumes* these internally and returns a plain object. [intent:80, intent:119, intent:120]
 
 ```ts
 // packages/0/src/composables/createTrinity/index.ts:100-104
