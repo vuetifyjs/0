@@ -82,7 +82,7 @@ export interface PaginationOptions {
   itemsPerPage?: MaybeRefOrGetter<number>
   /** Total number of items. @default 0 */
   size?: MaybeRefOrGetter<number>
-  /** Maximum visible page buttons. @default 5 */
+  /** Maximum visible page buttons. @default 7 */
   visible?: MaybeRefOrGetter<number>
   /** Ellipsis character. @default '…' */
   ellipsis?: string | false
