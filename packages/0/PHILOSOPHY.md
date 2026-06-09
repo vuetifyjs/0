@@ -549,7 +549,7 @@ Plugins bake one or the other in internally — see `.claude/rules/composables.m
 ### 4.5 Scope cleanup contract
 
 - DOM observers and event listeners use `onScopeDispose(cleanup)`. [intent:139]
-- Performance-critical DOM observers use deferred cleanup: `onScopeDispose(cleanup, true)`. [intent:140]
+- Composables that may run outside a Vue setup scope (tests, manual scopes) pass `failSilently`: `onScopeDispose(cleanup, true)` — the `true` suppresses the no-active-scope warning, not a perf/deferred toggle. [intent:140]
 - Pure data structures and computed state need no cleanup — Vue's effect scope handles them. [intent:141]
 - Conditional cleanup: use `useToggleScope(source, fn)` when side effects should only run while a reactive boolean is true. When the boolean flips false, the entire scope is torn down (watchers stop, event listeners detach, `onScopeDispose` fires) without manual bookkeeping. Canonical: `packages/0/src/composables/useToggleScope/index.ts`.
 
