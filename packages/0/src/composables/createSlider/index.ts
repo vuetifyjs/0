@@ -486,8 +486,8 @@ export function createSlider (options: SliderOptions = {}): SliderContext {
     return inverted.value ? 100 - p : p
   }
 
-  function fromPercent (p: number): number {
-    const value = numeric.fromPercent(p)
+  function fromPercent (percent: number): number {
+    const value = numeric.fromPercent(percent)
     return inverted.value ? numeric.max - (value - numeric.min) : value
   }
 
