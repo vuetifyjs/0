@@ -321,7 +321,6 @@ return [
 **3.1.3 Single value / function.** Pass-through transformers and event composables:
 - `useEventListener` → cleanup `stop: () => void`
 - `toArray`, `toElement`, `toReactive` → value or proxy
-- `useMutationObserver` → underlying observer
 - `useRaf` → augmented function via `Object.assign`
 
 Choose 3.1.3 only when there is literally one useful return. Any time you reach for a tuple other than a trinity, switch to a plain object with named keys.
