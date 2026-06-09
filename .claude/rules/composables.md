@@ -211,7 +211,7 @@ const model = createModel(options)
 return { ...model, selectedIds, select, toggle, /* ... */ }
 ```
 
-Used by the selection chain: `createModel → createSelection → createSingle → createGroup → createStep`.
+Used by the selection chain: `createModel → createSelection → { createSingle → createStep, createGroup → createNested }`.
 
 ### 2. Aggregation (multi-system orchestrator)
 
@@ -391,7 +391,7 @@ Layer 1: Single-layer deps
   useBreakpoints, useLocale, useTheme, useRules, etc.
 
 Layer 2: Complex orchestrators
-  createSelection → createSingle → createGroup → createStep
+  createSelection → { createSingle → createStep, createGroup → createNested }
   createCombobox, createDataTable
 ```
 
