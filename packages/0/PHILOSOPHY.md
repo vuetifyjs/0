@@ -897,11 +897,11 @@ return [useX, provideX, context]
 Registry-based composables carry two generic parameters: `Z extends FooTicketInput` (input shape) and `E extends FooTicket<Z>` (output shape). Consumers parameterize once at the call site; the composable internally threads `Z` and `E` through every return-type contract.
 
 ```ts
-// packages/0/src/composables/createSelection/index.ts
-export function createSelection <
-  Z extends SelectionTicketInput = SelectionTicketInput,
-  E extends SelectionTicket<Z> = SelectionTicket<Z>,
-> (options: SelectionOptions = {}): SelectionContext<Z, E>
+// packages/0/src/composables/createSortable/index.ts
+export function createSortable<
+  Z extends SortableTicketInput = SortableTicketInput,
+  E extends SortableTicket<Z> = SortableTicket<Z>,
+> (_options: SortableOptions = {}): SortableContext<Z, E>
 ```
 
 ### 8.8 Slot type guardrails
