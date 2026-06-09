@@ -1880,6 +1880,26 @@ describe('numberField', () => {
       expect(rule).toHaveBeenCalled()
     })
 
+    it('should not validate on input before the first error in eager mode', async () => {
+      const model = ref<number | null>(5)
+      const rule = vi.fn(() => true)
+      const { wrapper, wait } = mountNumberField({
+        model,
+        props: { rules: [rule], validateOn: 'eager input' },
+      })
+      await wait()
+      await flushPromises()
+      rule.mockClear()
+
+      // A passing input change before any error must NOT validate in eager
+      // mode — eager re-validates on input only once an error exists.
+      await wrapper.setProps({ modelValue: 7 })
+      await wait()
+      await flushPromises()
+
+      expect(rule).not.toHaveBeenCalled()
+    })
+
     it('should accept input modifier in validateOn string', async () => {
       const model = ref<number | null>(5)
       const rule = vi.fn(() => true)
