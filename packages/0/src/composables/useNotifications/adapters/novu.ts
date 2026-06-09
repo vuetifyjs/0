@@ -93,7 +93,7 @@ function mapItem (item: NovuNotification, resolveSeverity: (s: string) => Notifi
 export class NovuNotificationsAdapter extends NotificationsAdapter {
   private resolveSeverity: (s: string) => NotificationSeverity | undefined
   private ids = new Set<string>()
-  private ctx: NotificationsAdapterContext | undefined
+  private context: NotificationsAdapterContext | undefined
   private disposed = false
   private unsubscribers: Array<() => void> = []
 
@@ -108,16 +108,16 @@ export class NovuNotificationsAdapter extends NotificationsAdapter {
     this.resolveSeverity = options.severity ?? defaultSeverity
   }
 
-  setup (_ctx: NotificationsAdapterContext) {
-    this.ctx = _ctx
+  setup (context: NotificationsAdapterContext) {
+    this.context = context
     this.disposed = false
 
-    // Inbound: real-time new notifications -> ctx.send()
+    // Inbound: real-time new notifications -> context.send()
     const unsub = this.novu.on('notifications.notification_received', (data: unknown) => {
       const item = data as NovuNotification
       if (this.disposed || !item?.id || this.ids.has(item.id)) return
       this.ids.add(item.id)
-      this.ctx!.send(mapItem(item, this.resolveSeverity))
+      this.context!.send(mapItem(item, this.resolveSeverity))
     })
 
     this.unsubscribers.push(unsub)
@@ -129,7 +129,7 @@ export class NovuNotificationsAdapter extends NotificationsAdapter {
         for (const item of data?.notifications ?? []) {
           if (!item.id || this.ids.has(item.id)) continue
           this.ids.add(item.id)
-          this.ctx!.register(mapItem(item, this.resolveSeverity))
+          this.context!.register(mapItem(item, this.resolveSeverity))
         }
       }).catch(noop)
     }
@@ -160,11 +160,11 @@ export class NovuNotificationsAdapter extends NotificationsAdapter {
       if (this.ids.has(id)) this.novu.notifications.unarchive({ notificationId: id }).catch(noop)
     }
 
-    this.ctx.on('notification:read', this.onRead)
-    this.ctx.on('notification:unread', this.onUnread)
-    this.ctx.on('notification:seen', this.onSeen)
-    this.ctx.on('notification:archived', this.onArchived)
-    this.ctx.on('notification:unarchived', this.onUnarchived)
+    this.context.on('notification:read', this.onRead)
+    this.context.on('notification:unread', this.onUnread)
+    this.context.on('notification:seen', this.onSeen)
+    this.context.on('notification:archived', this.onArchived)
+    this.context.on('notification:unarchived', this.onUnarchived)
   }
 
   dispose () {
@@ -172,13 +172,13 @@ export class NovuNotificationsAdapter extends NotificationsAdapter {
     for (const unsub of this.unsubscribers) unsub()
     this.unsubscribers.length = 0
 
-    if (this.ctx) {
+    if (this.context) {
       /* v8 ignore next 5 -- handlers always assigned during setup; guards are defensive */
-      if (this.onRead) this.ctx.off('notification:read', this.onRead)
-      if (this.onUnread) this.ctx.off('notification:unread', this.onUnread)
-      if (this.onSeen) this.ctx.off('notification:seen', this.onSeen)
-      if (this.onArchived) this.ctx.off('notification:archived', this.onArchived)
-      if (this.onUnarchived) this.ctx.off('notification:unarchived', this.onUnarchived)
+      if (this.onRead) this.context.off('notification:read', this.onRead)
+      if (this.onUnread) this.context.off('notification:unread', this.onUnread)
+      if (this.onSeen) this.context.off('notification:seen', this.onSeen)
+      if (this.onArchived) this.context.off('notification:archived', this.onArchived)
+      if (this.onUnarchived) this.context.off('notification:unarchived', this.onUnarchived)
     }
 
     this.ids.clear()
