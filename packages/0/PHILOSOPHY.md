@@ -943,7 +943,7 @@ Every key passed to `createContext(key)` or `createXContext({ namespace })` must
 **Static-key vs dynamic-key modes.** `createContext` operates in two modes:
 
 - **Static-key mode** — the call site passes a single string (`createContext('v0:tabs')`). The namespace is fixed at module load; the `[useX, provideX]` pair injects against that one key. Used by every compound component that scopes a single context per Root (`Tabs`, `Dialog`, `Combobox`).
-- **Dynamic-key mode** — the call site passes a `{ suffix: true }` configuration, which makes the returned `useX` / `provideX` accept a runtime namespace argument. Used when a single composable services multiple disjoint subtrees within the same app (e.g., nested `Selection` providers). The colon-namespace rule still applies — the runtime argument must contain `:`, and the warning fires for keys that don't.
+- **Dynamic-key mode** — the call site passes an options object or omits the positional key (`createContext({ suffix: 'item' })` or `createContext()`), which makes the returned `useX` / `provideX` accept a runtime namespace argument; `suffix` is an optional string appended to that runtime key (`key:suffix`). Used when a single composable services multiple disjoint subtrees within the same app (e.g., nested `Selection` providers). The `[v0:context]` colon warning is static-key-mode only (gated on `isString(keyOrOptions)`); the dynamic branch performs no colon check on the runtime key.
 
 ### 9.4 SSR gating
 
