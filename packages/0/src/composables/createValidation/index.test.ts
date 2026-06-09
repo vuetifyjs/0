@@ -378,7 +378,7 @@ describe('createValidation', () => {
       expect(firstResult).toBe(false)
     })
 
-    it.skip('should not let an in-flight validate overwrite state set by a later no-rules call', async () => {
+    it('should not let an in-flight validate overwrite state set by a later no-rules call', async () => {
       let resolveSlow: ((val: string | boolean) => void) | undefined
       function slowRule (_v: unknown) {
         return new Promise<string | boolean>(r => {
