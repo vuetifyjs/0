@@ -108,7 +108,7 @@ function register (input: unknown): unknown {
 
 **Exceptions.** `packages/0/src/utilities/helpers.ts` defines the guards themselves and must use primitive comparisons at its root. This is the only file that gets to.
 
-**Anti-example.** `packages/0/src/composables/useNotifications/index.ts:490, 524` — `every(t => t.readAt !== null)` and `every(t => t.archivedAt !== null)` inside JSDoc `@example` blocks. These render on the docs API page and teach the wrong form to readers. Should be `!isNull(t.readAt)` / `!isNull(t.archivedAt)`. Source-code comparisons across `packages/0/src/` are clean as of this writing — the holdouts that survived are inside doc strings.
+**Anti-example.** `every(t => t.readAt !== null)` — a raw `!== null` comparison; the guard form is `every(t => !isNull(t.readAt))`. Both source-code and JSDoc `@example` comparisons across `packages/0/src/` are clean as of this writing.
 
 **Canonical example.** `packages/0/src/composables/createDataTable/index.ts` — 10 guard calls in one file, zero raw comparisons.
 
