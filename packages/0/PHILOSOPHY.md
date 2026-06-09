@@ -483,9 +483,9 @@ Always use `.value` when reading these in templates. Never rely on Vue's auto-un
 
 **Intentional mutable returns.** Some composables return *mutable* refs by design because the consumer is expected to write to them. The return interface types them as `ShallowRef<T>` (or `Ref<T>`) so the write contract is visible at the type level:
 
-- `packages/0/src/composables/useTimer/index.ts:187-196` — `remaining`, `isActive`, `isPaused` typed as `ShallowRef<...>` in `TimerContext`. Consumers pause and resume by writing.
-- `packages/0/src/composables/usePopover/index.ts:173-184` — `isOpen: Ref<boolean>` for v-model bidirectional binding.
-- `packages/0/src/composables/createInput/index.ts:173-180` — `value`, `isDirty`, `isFocused`, `isTouched`, `isPristine` mutable so bound components can write.
+- `packages/0/src/composables/useTimer/index.ts:68,70,72` — `remaining`, `isActive`, `isPaused` typed as `ShallowRef<...>` in `TimerContext`. Consumers pause and resume by writing.
+- `packages/0/src/composables/usePopover/index.ts:58` — `isOpen: Ref<boolean>` for v-model bidirectional binding.
+- `packages/0/src/composables/createInput/index.ts:90,94,98` — `value`, `isFocused`, `isTouched` mutable so bound components can write; `isDirty` / `isPristine` are `Readonly<Ref<boolean>>` (do not write).
 
 **Follow-up audit.** `useRovingFocus` and `createFocusTraversal` are flagged for the same shape audit — confirm every consumer-visible ref is wrapped in `shallowReadonly` at the boundary, or, if it is intentionally mutable, declared as `ShallowRef<T>` in the return interface.
 
