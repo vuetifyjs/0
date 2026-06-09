@@ -146,12 +146,12 @@ export interface NotificationsContext<
 }
 
 export function createNotifications (
-  options: NotificationsOptions = {},
+  _options: NotificationsOptions = {},
 ): NotificationsContext {
-  const { timeout = 3000, ...registryOptions } = options
+  const { timeout = 3000, ...options } = _options
 
   const registry = createRegistry<NotificationTicket>({
-    ...registryOptions,
+    ...options,
     events: true,
     reactive: true,
   })
