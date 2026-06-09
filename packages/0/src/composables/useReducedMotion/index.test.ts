@@ -9,7 +9,7 @@ vi.mock('#v0/constants/globals', () => ({
 import { V0ReducedMotionAdapter } from './adapters/v0'
 
 // Utilities
-import { computed, effectScope, hasInjectionContext, nextTick, shallowRef } from 'vue'
+import { effectScope, hasInjectionContext, nextTick } from 'vue'
 
 vi.mock('vue', async () => {
   const actual = await vi.importActual('vue')
@@ -41,7 +41,7 @@ function mockMatchMedia (matches: boolean) {
       listeners.delete(handler)
     }),
     dispatchChange: (value: boolean) => {
-      listeners.forEach(fn => fn({ matches: value }))
+      for (const fn of listeners) fn({ matches: value })
     },
   }
   window.matchMedia = vi.fn(() => mql as unknown as MediaQueryList)
@@ -89,9 +89,9 @@ describe('createReducedMotion', () => {
   })
 })
 
-describe('V0ReducedMotionAdapter', () => {
+describe('v0ReducedMotionAdapter', () => {
   it('sets body dataset on setup', () => {
-    const mql = mockMatchMedia(false)
+    mockMatchMedia(false)
     const scope = effectScope()
     scope.run(() => {
       const adapter = new V0ReducedMotionAdapter()
