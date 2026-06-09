@@ -24,9 +24,8 @@
  * ```
  */
 
-// Foundational
-import { createPluginContext } from '#v0/composables/createPlugin'
 // Composables
+import { createPluginContext } from '#v0/composables/createPlugin'
 import { createQueue } from '#v0/composables/createQueue'
 import { createRegistry } from '#v0/composables/createRegistry'
 
