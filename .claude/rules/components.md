@@ -279,7 +279,7 @@ When a composable uses `useProxyModel`, its underlying registry/model must have 
 
 Never `export *` from `.vue` files — breaks Volar slot type inference. [intent:184, intent:338]
 
-A barrel is one of two shapes — **compound** or **single** — chosen by whether the component exposes dotted sub-components. Audited 100% consistent across all 39 component barrels (the one historical violator, Tooltip's `Object.assign`, was normalized to this canon).
+A barrel is one of two shapes — **compound** or **single** — chosen by whether the component exposes dotted sub-components. Audited 100% consistent across all 40 component barrels (the one historical violator, Tooltip's `Object.assign`, was normalized to this canon).
 
 ### Compound (Root + sub-components)
 
