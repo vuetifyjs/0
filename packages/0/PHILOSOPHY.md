@@ -1080,7 +1080,7 @@ function createThing () {
 }
 ```
 
-Reason: §3.1. Tuples are reserved for the three foundation trinity builders. Everything else returns a plain object with named keys.
+Reason: §3.1. Tuples are reserved for the foundation builders — `createTrinity` and `createPlugin` return the trinity, `createContext` returns the `[useX, provideX]` pair. Everything else returns a plain object with named keys.
 
 ---
 
