@@ -239,7 +239,7 @@ export interface ModelContext<
   /**
    * Register a new ticket
    *
-   * @param ticket Partial ticket data. ID is auto-generated if not provided. Disabled defaults to `false`.
+   * @param registration Partial ticket data. ID is auto-generated if not provided. Disabled defaults to `false`.
    * @returns The registered ticket with `isSelected` computed ref attached.
    * @remarks Delegates to `registry.register()` after adding model-specific fields (`disabled`, `isSelected`).
    *
