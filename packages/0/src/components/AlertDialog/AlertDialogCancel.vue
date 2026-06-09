@@ -27,6 +27,7 @@
       'type': 'button' | undefined
       'disabled': boolean | undefined
       'data-disabled': '' | undefined
+      'onClick': () => void
     }
   }
 </script>
@@ -66,6 +67,7 @@
       'type': as === 'button' ? 'button' : undefined,
       'disabled': disabled || undefined,
       'data-disabled': disabled ? '' : undefined,
+      'onClick': onClick,
     },
   }))
 </script>
@@ -74,7 +76,6 @@
   <Atom
     :as
     v-bind="slotProps.attrs"
-    @click="onClick"
   >
     <slot v-bind="slotProps" />
   </Atom>

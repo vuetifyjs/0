@@ -27,6 +27,7 @@
       'aria-haspopup': 'dialog'
       'aria-expanded': boolean
       'data-open': true | undefined
+      'onClick': () => void
     }
   }
 </script>
@@ -65,6 +66,7 @@
       'aria-haspopup': 'dialog',
       'aria-expanded': context.isOpen.value,
       'data-open': context.isOpen.value || undefined,
+      'onClick': onClick,
     },
   }))
 </script>
@@ -73,7 +75,6 @@
   <Atom
     :as
     v-bind="slotProps.attrs"
-    @click="onClick"
   >
     <slot v-bind="slotProps" />
   </Atom>

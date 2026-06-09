@@ -43,6 +43,7 @@
       'disabled': boolean | undefined
       'data-disabled': '' | undefined
       'data-pending': '' | undefined
+      'onClick': () => void
     }
   }
 </script>
@@ -103,6 +104,7 @@
       'disabled': disabled || undefined,
       'data-disabled': disabled ? '' : undefined,
       'data-pending': context.isPending.value ? '' : undefined,
+      'onClick': onClick,
     },
   }))
 </script>
@@ -111,7 +113,6 @@
   <Atom
     :as
     v-bind="slotProps.attrs"
-    @click="onClick"
   >
     <slot v-bind="slotProps" />
   </Atom>
