@@ -533,6 +533,13 @@ export function useDragDrop<Z extends DragType = DragType> (
     ..._zones,
     register (registration: DropZoneTicketInput<Z>): DropZoneTicket {
       const id = registration.id ?? useId()
+      // A duplicate id is rejected by the registry below (warn + return the
+      // existing ticket). Bail before allocating an effectScope/observers —
+      // otherwise scopes.set(id, …) overwrites the live scope without stopping
+      // it, leaking the original zone's observers past teardown.
+      if (_zones.has(id)) {
+        return _zones.register(registration as unknown as Partial<DropZoneTicketInput<Z> & RegistryTicket>) as DropZoneTicket
+      }
       const el = toRef(() => toValue(registration.el))
       const isOver = toRef(() => active.value?.over === id)
       const willAccept = toRef(() => safeAccept(registration.accept, active.value))
