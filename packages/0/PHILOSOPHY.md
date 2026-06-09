@@ -640,7 +640,7 @@ Composables needing global/injected context use `instanceExists()` or an equival
 
 **Rule.** Components and composables never call Vue's raw `inject` / `provide` directly. Subtree DI always flows through `createContext(key)`, which returns a `[useX, provideX]` pair with namespace validation, optional-injection support, and a `[v0:context]` warning when the key lacks a `:`. [intent:119, intent:226, intent:227]
 
-**Current state.** `packages/0/src/` uses raw `inject`/`provide` in exactly two non-test locations: `composables/createContext/index.ts:20` (the factory that implements the wrapper itself) and `composables/createPlugin/index.ts:23` (the plugin context factory, which wraps `inject` for app-level singletons). Both are foundational — they define the contract every caller consumes. No component or user-facing composable imports `inject`/`provide` from Vue.
+**Current state.** `packages/0/src/` uses raw `inject`/`provide` in exactly two non-test locations: `composables/createContext/index.ts:30` (the factory that implements the wrapper itself) and `composables/createPlugin/index.ts:34` (the plugin context factory, which wraps `inject` for app-level singletons). Both are foundational — they define the contract every caller consumes. No component or user-facing composable imports `inject`/`provide` from Vue.
 
 **Canonical example (component side).**
 ```ts
