@@ -262,10 +262,17 @@ function useFoo () {
 // Right — throw on missing required context
 function useFoo () {
   const ctx = inject(key)
-  if (!ctx) throw new Error('useFoo must be called within FooProvider')
+  if (isUndefined(ctx)) {
+    throw new V0Error('useFoo must be called within FooProvider', {
+      code: 'V0_CONTEXT_MISSING',
+      key,
+    })
+  }
   return ctx
 }
 ```
+
+Bare `Error` is forbidden in `packages/0/src` source by the `vuetify/no-bare-error-throw` ESLint config (a `no-restricted-syntax` rule over `packages/0/src/**/*.ts`). Throw a `V0Error` with a code from `V0ErrorDetails` (`packages/0/src/utilities/errors.ts`) instead — see `createContext` for the canonical form.
 
 ---
 
