@@ -105,7 +105,7 @@ export interface TimelineContextOptions extends TimelineOptions {
 /**
  * Creates a new timeline instance.
  *
- * @param _options The options for the timeline instance.
+ * @param options The options for the timeline instance.
  * @template Z The type of the timeline ticket.
  * @template E The type of the timeline context.
  * @returns A new timeline instance.
