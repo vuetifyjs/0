@@ -1256,13 +1256,13 @@ export function createRegistry<
     if (direction === 'last') {
       const start = isUndefined(index) ? tickets.length - 1 : index
       for (let i = start; i >= 0; i--) {
-        const ticket = tickets[i]!
+        const ticket = tickets[i]
         if (!predicate || predicate(ticket)) return ticket
       }
     } else {
       const start = isUndefined(index) ? 0 : index
       for (let i = start; i < tickets.length; i++) {
-        const ticket = tickets[i]!
+        const ticket = tickets[i]
         if (!predicate || predicate(ticket)) return ticket
       }
     }
