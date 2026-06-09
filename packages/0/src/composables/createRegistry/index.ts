@@ -769,18 +769,9 @@ export function createRegistry<
   const directory = new Map<number, ID>()
   const cache = new Map<'keys' | 'values' | 'entries', unknown[]>()
   const listeners = new Map<string, Set<InternalEventCallback>>()
-  // Ordered list of IDs – the canonical position sequence.  Splicing this
-  // array is all that move() needs; Map insertion order is no longer load-bearing.
-  // Made reactive when the registry is reactive so that keys()/values()/entries()
-  // re-evaluate whenever the order changes (register, move, reorder, etc.).
-  //
-  // Invariant: every id in `order` is also a key in `collection` at every
-  // observable point — each mutation updates the two in lockstep (collection.set
-  // before order.push on register; order spliced before collection.delete on
-  // unregister/offboard), so even a flush:'sync' watcher never sees an order id
-  // missing from the Map. This is what lets values()/entries() assert
-  // `collection.get(id)!` below.
-  const order = (reactive ? shallowReactive([] as ID[]) : []) as ID[]
+  // Canonical position sequence, kept in lockstep with `collection`. Holds
+  // ticket refs so values()/entries()/reindex() read them without a Map lookup.
+  const order = (reactive ? shallowReactive([] as E[]) : []) as E[]
 
   let indexDependentCount = 0
   let needsReindex = false
@@ -918,13 +909,13 @@ export function createRegistry<
     if (reactive) {
       // `order` is shallowReactive, so reading it here registers the dependency.
       // Effects re-evaluate when order is mutated (register, unregister, move, …).
-      return order.slice()
+      return order.map(ticket => ticket.id)
     }
 
     const cached = cache.get('keys')
     if (!isUndefined(cached)) return cached as readonly ID[]
 
-    const out = order.slice()
+    const out = order.map(ticket => ticket.id)
 
     cache.set('keys', out)
 
@@ -933,13 +924,13 @@ export function createRegistry<
 
   function values (): readonly E[] {
     if (reactive) {
-      return order.map(id => collection.get(id)!)
+      return order.slice()
     }
 
     const cached = cache.get('values')
     if (!isUndefined(cached)) return cached as readonly E[]
 
-    const out = order.map(id => collection.get(id)!)
+    const out = order.slice()
 
     cache.set('values', out)
 
@@ -948,13 +939,13 @@ export function createRegistry<
 
   function entries (): readonly [ID, E][] {
     if (reactive) {
-      return order.map(id => [id, collection.get(id)!] as [ID, E])
+      return order.map(ticket => [ticket.id, ticket] as [ID, E])
     }
 
     const cached = cache.get('entries')
     if (!isUndefined(cached)) return cached as readonly [ID, E][]
 
-    const out = order.map(id => [id, collection.get(id)!] as [ID, E])
+    const out = order.map(ticket => [ticket.id, ticket] as [ID, E])
 
     cache.set('entries', out)
 
@@ -1021,14 +1012,14 @@ export function createRegistry<
       // because a single delete-then-set pass would clobber a freshly-set slot
       // when the dirty window is a non-monotonic permutation (e.g. a mid-list move).
       for (let i = start; i <= end; i++) {
-        const ticket = collection.get(order[i]!)!
+        const ticket = order[i]
         directory.delete(ticket.index)
         if (ticket.valueIsIndex) unassign(ticket.value, ticket.id)
       }
     }
 
     for (let i = start; i <= end; i++) {
-      const ticket = collection.get(order[i]!)!
+      const ticket = order[i]
 
       if (ticket.valueIsIndex) {
         ticket.value = i
@@ -1080,7 +1071,7 @@ export function createRegistry<
     const ticket = reactive ? shallowReactive(input) : input
 
     collection.set(ticket.id, ticket)
-    order.push(ticket.id)
+    order.push(ticket)
     directory.set(ticket.index, ticket.id)
 
     assign(ticket.value, ticket.id)
@@ -1103,7 +1094,7 @@ export function createRegistry<
     // method defers reindex (lazy contract), so the index may be stale. Single
     // removals are cheap; bulk removal should go through offboard(), which
     // compacts order in one O(n) pass instead of N indexOf scans.
-    const orderPos = order.indexOf(ticket.id)
+    const orderPos = order.indexOf(ticket)
     if (orderPos !== -1) order.splice(orderPos, 1)
     collection.delete(ticket.id)
     directory.delete(ticket.index)
@@ -1164,8 +1155,8 @@ export function createRegistry<
       // Compact order FIRST so that Vue sync effects triggered by the subsequent
       // Map mutations see a consistent snapshot (no dangling IDs in order).
       let w = 0
-      for (let r = 0; r < order.length; r++) {
-        if (!removedIds.has(order[r]!)) order[w++] = order[r]!
+      for (const ticket of order) {
+        if (!removedIds.has(ticket.id)) order[w++] = ticket
       }
       order.length = w
 
@@ -1206,7 +1197,7 @@ export function createRegistry<
 
     return batch(() => {
       order.splice(from, 1)
-      order.splice(target, 0, id)
+      order.splice(target, 0, ticket)
 
       // Bound the reindex to the [from..target] window: only those indices
       // changed, so reindex() touches O(distance) tickets instead of the tail.
@@ -1225,15 +1216,18 @@ export function createRegistry<
     if (ids.length !== collection.size) return
 
     const seen = new Set<ID>()
+    const next: E[] = []
     for (const id of ids) {
       if (seen.has(id)) return
-      if (!collection.has(id)) return
+      const ticket = collection.get(id)
+      if (!ticket) return
       seen.add(id)
+      next.push(ticket)
     }
 
     batch(() => {
-      for (const [i, id] of ids.entries()) {
-        order[i] = id!
+      for (const [i, ticket] of next.entries()) {
+        order[i] = ticket
       }
       minDirtyIndex = 0
       maxDirtyIndex = -Infinity
