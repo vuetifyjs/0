@@ -81,8 +81,8 @@ This is the proactive half. `feedback_bug_family_audit` is the reactive half: af
 RegistryTicketInput
   ├── ModelTicketInput
   │     ├── SelectionTicketInput
-  │     │     ├── SingleTicketInput
-  │     │     └── StepTicketInput
+  │     │     └── SingleTicketInput
+  │     │           └── StepTicketInput
   │     └── GroupTicketInput
   │           └── NestedTicketInput
   ├── QueueTicketInput

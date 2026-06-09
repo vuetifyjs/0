@@ -612,8 +612,8 @@ Every user-facing string (`aria-label`, error messages, day-of-week names, month
 RegistryTicketInput
   ├── ModelTicketInput
   │     ├── SelectionTicketInput
-  │     │     ├── SingleTicketInput
-  │     │     └── StepTicketInput
+  │     │     └── SingleTicketInput
+  │     │           └── StepTicketInput
   │     └── GroupTicketInput
   │           └── NestedTicketInput
   ├── QueueTicketInput
