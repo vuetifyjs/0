@@ -201,7 +201,10 @@ describe('createSlider', () => {
       addThumb(0)
       addThumb(100)
       slider.apply([50, 55])
-      expect(slider.values.value[0]).toBe(45)
+      // Forward sweep: the first thumb keeps its requested value and the second
+      // is pushed up to satisfy minStepsBetweenThumbs (gap 10), rather than
+      // pulling the first thumb down. Matches set()'s written-prev anchoring.
+      expect(slider.values.value[0]).toBe(50)
       expect(slider.values.value[1]).toBe(60)
     })
   })
