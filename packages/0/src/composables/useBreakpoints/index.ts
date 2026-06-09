@@ -109,7 +109,7 @@ function createDefaultBreakpoints () {
  * ```ts
  * import { createBreakpoints } from '@vuetify/v0'
  *
- * export const [useBreakpoints, provideBreakpoints] = createBreakpoints({
+ * const breakpoints = createBreakpoints({
  *   namespace: 'v0:breakpoints',
  *   mobileBreakpoint: 'md',
  *   breakpoints: {

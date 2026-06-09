@@ -256,8 +256,7 @@ export interface ThemePluginOptions extends ThemeContextOptions {
  * ```ts
  * import { createTheme } from '@vuetify/v0'
  *
- * export const [useTheme, provideTheme] = createTheme({
- *   namespace: 'v0:theme',
+ * const theme = createTheme({
  *   default: 'light',
  *   themes: {
  *     light: {

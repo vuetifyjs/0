@@ -113,8 +113,7 @@ export interface FeaturePluginOptions extends FeatureContextOptions {
  * ```ts
  * import { createFeatures } from '@vuetify/v0'
  *
- * const [useFeatures, provideFeaturesContext, context] = createFeatures({
- *   namespace: 'v0:features',
+ * const features = createFeatures({
  *   features: {
  *     'dark-mode': true,
  *     'theme-color': { $variation: 'blue' },
