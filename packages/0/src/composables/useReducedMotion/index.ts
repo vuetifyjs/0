@@ -8,13 +8,14 @@
  * `prefers-reduced-motion` media query.
  *
  * Key features:
- * - Three-way `mode`: `'system'` (honour OS setting), `'always'` (force reduce),
+ * - Three-way `mode`: `'system'` (honor OS setting), `'always'` (force reduce),
  *   `'never'` (force full motion)
- * - Reactive `reduced` boolean — true when motion should be minimised
- * - `current` reflects the effective OS-level value regardless of mode override
- * - Side-effects `document.body.dataset.reducedMotion = 'reduce' | 'no-preference'`
- *   when installed as a plugin, so CSS selectors and Paper/Vuetify can react
- * - SSR-safe: resolves to `false` server-side
+ * - Reactive `isReduced` boolean — true when motion should be minimized
+ * - When installed as a plugin, the default `V0ReducedMotionAdapter` writes
+ *   `document.body.dataset.reducedMotion = 'reduce' | 'no-preference'` in the browser
+ *   and renders the same attribute via `@unhead` on the server, so CSS selectors and
+ *   Paper/Vuetify can react — even before hydration
+ * - SSR-safe: no `window`/`document` access on the server
  *
  * @example
  * ```ts
@@ -25,8 +26,8 @@
  *
  * // consume anywhere
  * const motion = useReducedMotion()
- * console.log(motion.reduced.value) // true | false
- * motion.setMode('never') // override
+ * console.log(motion.isReduced.value) // true | false
+ * motion.select('never') // override
  * ```
  */
 
@@ -34,29 +35,30 @@
 import { createPluginContext } from '#v0/composables/createPlugin'
 import { usePrefersReducedMotion } from '#v0/composables/useMediaQuery'
 
-// Constants
-import { IN_BROWSER } from '#v0/constants/globals'
+// Adapters
+import { V0ReducedMotionAdapter } from '#v0/composables/useReducedMotion/adapters'
 
 // Utilities
-import { computed, shallowRef, watch } from 'vue'
+import { shallowReadonly, shallowRef, toRef } from 'vue'
 
 // Types
-import type { ComputedRef, Ref, ShallowRef } from 'vue'
+import type { ReducedMotionAdapter } from './adapters'
+import type { Ref, ShallowRef } from 'vue'
+
+// Exports
+export { ReducedMotionAdapter, V0ReducedMotionAdapter } from '#v0/composables/useReducedMotion/adapters'
+
+export type { ReducedMotionAdapterSetupContext } from '#v0/composables/useReducedMotion/adapters'
 
 export type ReducedMotionMode = 'system' | 'always' | 'never'
 
 export interface ReducedMotionContext {
-  /** The current mode. `'system'` defers to the OS media query. */
-  readonly mode: Readonly<ShallowRef<ReducedMotionMode>>
-  /** `true` when motion should be minimised, considering the active `mode`. */
-  readonly reduced: ComputedRef<boolean>
-  /**
-   * The raw OS media query result, regardless of `mode`.
-   * Useful for analytics or diagnostic displays.
-   */
-  readonly current: Readonly<Ref<boolean>>
-  /** Change the active mode at runtime. */
-  setMode: (mode: ReducedMotionMode) => void
+  /** The active mode. `'system'` defers to the OS media query. Change it with `select`. */
+  readonly selectedMode: Readonly<ShallowRef<ReducedMotionMode>>
+  /** `true` when motion should be minimized, considering the active `selectedMode`. */
+  readonly isReduced: Readonly<Ref<boolean>>
+  /** Set the active mode. */
+  select: (mode: ReducedMotionMode) => void
 }
 
 export interface ReducedMotionOptions {
@@ -67,12 +69,20 @@ export interface ReducedMotionOptions {
    * - `'never'` — never reduce, overrides OS setting
    */
   mode?: ReducedMotionMode
+  /** Adapter for framework-specific side-effects. Defaults to `V0ReducedMotionAdapter`. */
+  adapter?: ReducedMotionAdapter
 }
 
 export interface ReducedMotionPluginOptions extends ReducedMotionOptions {
   namespace?: string
   persist?: boolean
 }
+
+// Per-context media-query teardown. createReducedMotion() registers its
+// usePrefersReducedMotion listener via onScopeDispose (cleaned by the caller's
+// scope in standalone use), but the plugin factory runs outside any effect
+// scope, so the plugin's setup must dispose it explicitly on app unmount.
+const teardowns = /* @__PURE__ */ new WeakMap<ReducedMotionContext, () => void>()
 
 /**
  * Creates a standalone reduced-motion context.
@@ -81,30 +91,32 @@ export interface ReducedMotionPluginOptions extends ReducedMotionOptions {
  * @returns A `ReducedMotionContext`.
  */
 export function createReducedMotion (options: ReducedMotionOptions = {}): ReducedMotionContext {
-  const mode = shallowRef<ReducedMotionMode>(options.mode ?? 'system')
+  const selectedMode = shallowRef<ReducedMotionMode>(options.mode ?? 'system')
 
-  const { matches: systemReduced } = usePrefersReducedMotion()
-  const current = systemReduced as Readonly<Ref<boolean>>
+  const media = usePrefersReducedMotion()
 
-  const reduced = computed<boolean>(() => {
-    if (mode.value === 'always') return true
-    if (mode.value === 'never') return false
-    return current.value
+  const isReduced = toRef(() => {
+    if (selectedMode.value === 'always') return true
+    if (selectedMode.value === 'never') return false
+    return media.matches.value
   })
 
-  function setMode (value: ReducedMotionMode): void {
-    mode.value = value
+  function select (value: ReducedMotionMode) {
+    selectedMode.value = value
   }
 
-  return { mode, reduced, current, setMode }
+  const context: ReducedMotionContext = { selectedMode: shallowReadonly(selectedMode), isReduced, select }
+
+  teardowns.set(context, media.stop)
+
+  return context
 }
 
 function createReducedMotionFallback (): ReducedMotionContext {
   return {
-    mode: shallowRef('system'),
-    reduced: computed(() => false),
-    current: shallowRef(false),
-    setMode: () => {},
+    selectedMode: shallowReadonly(shallowRef<ReducedMotionMode>('system')),
+    isReduced: shallowRef(false),
+    select: () => {},
   }
 }
 
@@ -114,16 +126,20 @@ export const [createReducedMotionContext, createReducedMotionPlugin, useReducedM
     options => createReducedMotion(options),
     {
       fallback: () => createReducedMotionFallback(),
-      setup: (context, app) => {
-        if (!IN_BROWSER) return
-
-        function sync (reduced: boolean): void {
-          document.body.dataset.reducedMotion = reduced ? 'reduce' : 'no-preference'
+      persist: context => context.selectedMode.value,
+      restore: (context, saved) => {
+        if (saved === 'system' || saved === 'always' || saved === 'never') {
+          context.select(saved)
         }
+      },
+      setup: (context, app, { adapter = new V0ReducedMotionAdapter() }) => {
+        const teardown = teardowns.get(context)
+        if (teardown) app.onUnmount(teardown)
 
-        sync(context.reduced.value)
-        const stop = watch(context.reduced, sync)
-        app.onUnmount(stop)
+        adapter.setup(app, context)
+
+        const dispose = adapter.dispose
+        if (dispose) app.onUnmount(dispose)
       },
     },
   )
