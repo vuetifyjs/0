@@ -133,7 +133,12 @@ export function createTimeline<
   Z extends TimelineTicket = TimelineTicket,
   E extends TimelineContext<Z> = TimelineContext<Z>,
 > (_options: TimelineOptions = {}): E {
-  const { size = 10, ...options } = _options
+  const { size: _size = 10, ...options } = _options
+  // Sanitize to an integer >= 1: a non-positive size makes the capacity check
+  // `registry.size < size` skip the early return and `seek('first')!` lie on an
+  // empty registry; a fractional size makes `overflow.length === size` never
+  // match, growing the overflow buffer without bound.
+  const size = Math.max(1, Math.floor(_size))
   const registry = createRegistry<Z>(options)
 
   const stack: Z[] = []
