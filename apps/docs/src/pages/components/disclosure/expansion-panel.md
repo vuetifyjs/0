@@ -35,6 +35,19 @@ Multiple expandable panels with accordion behavior and a multi-expand mode that 
 
 :::
 
+## Animated transitions
+
+Use `renderless` on `ExpansionPanel.Content` to take full control of rendering. Pair it with Vue's `<Transition>` and `interpolate-size: allow-keywords` to animate the panel open and close without JavaScript height measurements.
+
+::: example
+/components/expansion-panel/transition
+
+### Transition with table content
+
+Accordion with a smooth height transition. The `renderless` prop exposes an `isSelected` slot prop so `v-if` drives the enter/leave cycle.
+
+:::
+
 ## Anatomy
 
 ```vue Anatomy playground
