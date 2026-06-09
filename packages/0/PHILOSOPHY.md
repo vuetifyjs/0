@@ -894,7 +894,7 @@ return [useX, provideX, context]
 
 ### 8.7 Generic bounds
 
-Registry-based composables carry two generic parameters: `Z extends FooTicketInput` (input shape) and `E extends FooTicket<Z>` (output shape). Consumers parameterize once at the call site; the composable internally threads `Z` and `E` through every return-type contract.
+Registry-based composables carry `Z extends FooTicketInput` (input shape) and `E extends FooTicket<Z>` (output shape); consumers parameterize once at the call site and the composable threads `Z` and `E` through every return-type contract. Factories in the selection chain (`createModel`, `createSelection`, `createSingle`, `createGroup`, `createStep`) add a third generic `R extends FooContext<Z, E>` so subclasses can override the return type; leaf factories (`createSortable`, `createKanban`, `createTimeline`, `createTokens`) stop at `Z` and `E`.
 
 ```ts
 // packages/0/src/composables/createSortable/index.ts
