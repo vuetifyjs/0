@@ -90,7 +90,7 @@ export function createPlugin<Z extends Plugin = Plugin> (options: PluginOptions)
         options.setup?.(app)
       })
     },
-  } as Z
+  } satisfies Plugin as Z
 }
 
 export interface PluginContextConfig<O, E> {

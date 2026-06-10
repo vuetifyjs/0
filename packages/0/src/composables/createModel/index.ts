@@ -378,7 +378,7 @@ export function createModel<
 
   const selectedValues = computed(() => {
     return new Set(
-      Array.from(selectedItems.value).map(item => toValue(item.value)),
+      Array.from(selectedItems.value).map(item => toValue(item.value) as E['value'] extends Ref<infer U> ? U : E['value']),
     )
   })
 
@@ -503,5 +503,5 @@ export function createModel<
     get size () {
       return registry.size
     },
-  } as unknown as R
+  } satisfies ModelContext<Z, E> as unknown as R
 }

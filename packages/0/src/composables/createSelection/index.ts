@@ -306,7 +306,7 @@ export function createSelection<
     get size () {
       return model.size
     },
-  } as R
+  } satisfies SelectionContext<Z, E> as R
 }
 
 /**
