@@ -187,6 +187,20 @@ describe('createKanban', () => {
       expect(done.items.get(a.id)?.index).toBe(0)
     })
 
+    it('should preserve the id when transferring a value-as-index item', () => {
+      const kanban = createKanban()
+      const todo = kanban.columns.register({})
+      const done = kanban.columns.register({})
+      // No explicit value → a value-as-index ticket, whose id offboard strips.
+      const a = todo.items.register({})
+
+      const moved = kanban.transfer(a.id, done.id, 0)
+
+      expect(moved?.id).toBe(a.id)
+      expect(todo.items.get(a.id)).toBeUndefined()
+      expect(done.items.get(a.id)?.id).toBe(a.id)
+    })
+
     it('should fire transfer:ticket with the full payload', () => {
       const { kanban, todo, done, a } = setup()
 
