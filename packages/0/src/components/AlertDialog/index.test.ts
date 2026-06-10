@@ -651,7 +651,13 @@ describe('alertDialog', () => {
       await nextTick()
       expect(captured.attrs.onClick).toBeTypeOf('function')
 
-      await wrapper.find('[data-testid="custom-close"]').trigger('click')
+      // Renderless must not render a wrapper element of its own —
+      // the consumer's element is the root, not a child of a <button>
+      const custom = wrapper.find('[data-testid="custom-close"]')
+      expect(custom.element.parentElement?.tagName).not.toBe('BUTTON')
+      expect(wrapper.findAll('[aria-label]')).toHaveLength(1)
+
+      await custom.trigger('click')
       expect(isOpen.value).toBe(false)
     })
   })
