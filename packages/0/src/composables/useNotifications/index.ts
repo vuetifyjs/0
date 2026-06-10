@@ -42,6 +42,9 @@ import type { NotificationsAdapter } from './adapters/adapter'
 /** Notification urgency level. Maps to ARIA roles: `'error'`/`'warning'` → `role="alert"`, `'info'`/`'success'` → `role="status"`. Extensible — custom values like `'critical'` are allowed with autocomplete for defaults. */
 export type NotificationSeverity = Extensible<'info' | 'warning' | 'error' | 'success'>
 
+/** @deprecated Renamed to `NotificationTicketInput` (FooTicketInput/FooTicket pair rule); will be removed at 1.0.0 final. */
+export type NotificationInput = NotificationTicketInput
+
 /** Input shape for creating a notification via {@link send} or {@link register}. */
 export interface NotificationTicketInput extends RegistryTicketInput {
   /** Notification headline. */
