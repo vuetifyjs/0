@@ -68,6 +68,7 @@
     as = 'button',
     namespace = 'v0:alert-dialog',
     disabled = false,
+    renderless,
   } = defineProps<AlertDialogActionProps>()
 
   const emit = defineEmits<AlertDialogActionEmits>()
@@ -112,6 +113,7 @@
 <template>
   <Atom
     :as
+    :renderless
     v-bind="slotProps.attrs"
   >
     <slot v-bind="slotProps" />
