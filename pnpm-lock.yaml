@@ -621,7 +621,7 @@ importers:
   packages/genesis:
     dependencies:
       '@vuetify/v0':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../0
       vue:
         specifier: '>=3.5.0'

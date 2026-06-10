@@ -31,7 +31,7 @@
     }
   },
   "dependencies": {
-    "@vuetify/v0": "workspace:*"
+    "@vuetify/v0": "workspace:^"
   },
   "devDependencies": {
     "tsdown": "catalog:",
