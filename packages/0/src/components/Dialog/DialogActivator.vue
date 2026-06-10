@@ -27,6 +27,7 @@
       'aria-haspopup': 'dialog'
       'aria-expanded': boolean
       'data-open': true | undefined
+      'onClick': () => void
     }
   }
 </script>
@@ -50,6 +51,7 @@
   const {
     as = 'button',
     namespace = 'v0:dialog',
+    renderless,
   } = defineProps<DialogActivatorProps>()
 
   const context = useDialogContext(namespace)
@@ -65,6 +67,7 @@
       'aria-haspopup': 'dialog',
       'aria-expanded': context.isOpen.value,
       'data-open': context.isOpen.value || undefined,
+      'onClick': onClick,
     },
   }))
 </script>
@@ -72,8 +75,8 @@
 <template>
   <Atom
     :as
+    :renderless
     v-bind="slotProps.attrs"
-    @click="onClick"
   >
     <slot v-bind="slotProps" />
   </Atom>
