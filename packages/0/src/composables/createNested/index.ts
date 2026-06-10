@@ -156,7 +156,13 @@ export function createNested (_options: NestedOptions = {}): NestedContext {
       // Runs AFTER single-open so ancestors stay open alongside the target
       if (revealOnOpen) {
         let parentId = parents.get(id)
+        const visited = new Set<ID>([id])
         while (!isUndefined(parentId)) {
+          if (visited.has(parentId)) {
+            logger.warn(`Circular parent reference detected at "${parentId}".`)
+            break
+          }
+          visited.add(parentId)
           openedIds.add(parentId)
           parentId = parents.get(parentId)
         }
@@ -320,10 +326,16 @@ export function createNested (_options: NestedOptions = {}): NestedContext {
     if (!initial) return descendants
 
     const queue: ID[] = initial.slice()
+    const visited = new Set<ID>([id])
     let index = 0
 
     while (index < queue.length) {
       const currentId = queue[index++]!
+      if (visited.has(currentId)) {
+        logger.warn(`Circular child reference detected at "${currentId}".`)
+        continue
+      }
+      visited.add(currentId)
       descendants.push(currentId)
       const childIds = children.get(currentId)
       if (childIds) {
@@ -354,8 +366,14 @@ export function createNested (_options: NestedOptions = {}): NestedContext {
     if (ancestorId === descendantId) return false
 
     let currentId: ID | undefined = parents.get(descendantId)
+    const visited = new Set<ID>([descendantId])
     while (!isUndefined(currentId)) {
       if (currentId === ancestorId) return true
+      if (visited.has(currentId)) {
+        logger.warn(`Circular parent reference detected at "${currentId}".`)
+        return false
+      }
+      visited.add(currentId)
       currentId = parents.get(currentId)
     }
     return false
@@ -402,8 +420,15 @@ export function createNested (_options: NestedOptions = {}): NestedContext {
     const result: NestedTicket[] = []
     const rootItems = Array.from(rootIds)
 
+    const visited = new Set<ID>()
+
     function walk (ids: ID[]) {
       for (const id of ids) {
+        if (visited.has(id)) {
+          logger.warn(`Circular child reference detected at "${id}".`)
+          continue
+        }
+        visited.add(id)
         const item = group.get(id) as NestedTicket | undefined
         if (!item) continue
         result.push(item)
@@ -425,7 +450,13 @@ export function createNested (_options: NestedOptions = {}): NestedContext {
   function updateAncestors (id: ID): void {
     const { selectedIds, mixedIds } = group
     let parentId = parents.get(id)
+    const visited = new Set<ID>([id])
     while (!isUndefined(parentId)) {
+      if (visited.has(parentId)) {
+        logger.warn(`Circular parent reference detected at "${parentId}".`)
+        break
+      }
+      visited.add(parentId)
       const childIds = children.get(parentId)
       if (childIds && childIds.length > 0) {
         // Exclude disabled children from the "all selected" test — a disabled
