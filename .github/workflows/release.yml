@@ -40,11 +40,6 @@ jobs:
       - name: Install
         run: pnpm install
 
-      - name: GitHub release
-        run: pnpm conventional-github-releaser -p vuetify
-        env:
-          CONVENTIONAL_GITHUB_RELEASER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Build
         run: pnpm build
 
@@ -54,3 +49,9 @@ jobs:
 
       - name: Publish to NPM
         run: pnpm -r publish --access public --no-git-checks
+
+      # Runs last so a red build/publish never mints a GitHub release
+      - name: GitHub release
+        run: pnpm conventional-github-releaser -p vuetify
+        env:
+          CONVENTIONAL_GITHUB_RELEASER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
