@@ -1061,6 +1061,17 @@ describe('createDataTable', () => {
       table.unregister(1)
       expect(names.value).toEqual(['Bob'])
     })
+
+    it('should reflect a reorder in items', () => {
+      const table = createDataTable<User>()
+      table.columns.onboard(columns)
+      table.onboard(toInputs(users.slice(0, 3)))
+      expect(table.items.value.map(item => item.name)).toEqual(['Alice', 'Bob', 'Carol'])
+
+      table.reorder([3, 1, 2])
+
+      expect(table.items.value.map(item => item.name)).toEqual(['Carol', 'Alice', 'Bob'])
+    })
   })
 
   describe('size reactivity', () => {
