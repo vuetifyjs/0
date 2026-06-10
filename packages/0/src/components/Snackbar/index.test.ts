@@ -29,6 +29,11 @@ function mountWithStack<T extends Parameters<typeof mount>[0]> (
   })
 }
 
+function makeNotificationsPlugin () {
+  const [, provide, context] = createNotificationsContext()
+  return { context, install: (app: any) => app.runWithContext(() => provide(context, app)) }
+}
+
 describe('snackbar', () => {
   describe('portal', () => {
     it('should render content inline when teleport=false', () => {
@@ -214,11 +219,6 @@ describe('snackbar', () => {
   })
 
   describe('queue', () => {
-    function makeNotificationsPlugin () {
-      const [, provide, context] = createNotificationsContext()
-      return { context, install: (app: any) => app.runWithContext(() => provide(context, app)) }
-    }
-
     it('should expose items via slot', async () => {
       const { context, install } = makeNotificationsPlugin()
       let slotProps: any
@@ -466,6 +466,89 @@ describe('snackbar', () => {
       expect(context.queue.values()[0]?.isPaused).toBe(true)
 
       wrapper.unmount()
+    })
+  })
+
+  describe('renderless', () => {
+    it('should render no wrapper and carry role in slot attrs on root', () => {
+      let captured: any
+
+      const wrapper = mount(Snackbar.Root, {
+        props: { renderless: true },
+        slots: {
+          default: (props: any) => {
+            captured = props
+            return h('span', { 'data-testid': 'custom-root', ...props.attrs }, 'Saved')
+          },
+        },
+      })
+
+      const custom = wrapper.find('span')
+      expect(captured.attrs.role).toBe('status')
+      expect(custom.exists()).toBe(true)
+      expect(custom.attributes('role')).toBe('status')
+      expect(wrapper.findAll('[role="status"]')).toHaveLength(1)
+      expect(wrapper.findAll('div')).toHaveLength(0)
+    })
+
+    it('should expose onClick in slot attrs so renderless mode works on close', async () => {
+      let captured: any
+
+      const wrapper = mount(Snackbar.Root, {
+        props: { id: 'test-id' },
+        slots: {
+          default: () => h(Snackbar.Close, { renderless: true }, {
+            default: (props: any) => {
+              captured = props
+              return h('span', { 'data-testid': 'custom-close', ...props.attrs }, 'X')
+            },
+          }),
+        },
+      })
+
+      expect(captured.attrs.onClick).toBeTypeOf('function')
+
+      const custom = wrapper.find('[data-testid="custom-close"]')
+      expect(custom.element.parentElement?.tagName).not.toBe('BUTTON')
+      expect(wrapper.findAll('[aria-label]')).toHaveLength(1)
+
+      await custom.trigger('click')
+      expect(wrapper.emitted('dismiss')![0]).toEqual(['test-id'])
+    })
+
+    it('should expose pause handlers in slot attrs so renderless mode works on queue', async () => {
+      const { context, install } = makeNotificationsPlugin()
+      context.send({ subject: 'Test', timeout: 5000 })
+      let captured: any
+
+      const wrapper = mount(Snackbar.Queue, {
+        props: { renderless: true },
+        global: { plugins: [stackPlugin, { install }] },
+        slots: {
+          default: (props: any) => {
+            captured = props
+            return h('section', { 'data-testid': 'custom-queue', ...props.attrs })
+          },
+        },
+      })
+
+      const custom = wrapper.find('section')
+      expect(captured.attrs.onMouseenter).toBeTypeOf('function')
+      expect(captured.attrs.onFocusin).toBeTypeOf('function')
+      expect(custom.exists()).toBe(true)
+      expect(wrapper.findAll('div')).toHaveLength(0)
+
+      await custom.trigger('mouseenter')
+      expect(context.queue.values()[0]?.isPaused).toBe(true)
+
+      await custom.trigger('mouseleave')
+      expect(context.queue.values()[0]?.isPaused).toBe(false)
+
+      await custom.trigger('focusin')
+      expect(context.queue.values()[0]?.isPaused).toBe(true)
+
+      await custom.trigger('focusout', { relatedTarget: null })
+      expect(context.queue.values()[0]?.isPaused).toBe(false)
     })
   })
 

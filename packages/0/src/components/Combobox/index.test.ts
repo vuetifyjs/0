@@ -1517,4 +1517,174 @@ describe('combobox', () => {
       expect((hidden.element as HTMLInputElement).value).toBe('')
     })
   })
+
+  describe('renderless', () => {
+    async function createRenderless (options: {
+      'modelValue'?: unknown
+      'onUpdate:modelValue'?: (v: unknown) => void
+      'adapter'?: InstanceType<typeof ClientComboboxAdapter>
+    } = {}) {
+      const captured: Record<string, any> = {}
+      let context: { open: () => void, close: () => void }
+
+      const wrapper = mount(
+        defineComponent({
+          render () {
+            return h(Combobox.Root as any, options, {
+              default: (sp: typeof context) => {
+                context = sp
+                return [
+                  h(Combobox.Activator as any, { renderless: true }, {
+                    default: (activator: any) => {
+                      captured.activator = activator
+                      return h('div', { 'data-testid': 'activator', ...activator.attrs }, [
+                        h(Combobox.Control as any, { renderless: true, placeholder: 'Search' }, {
+                          default: (control: any) => {
+                            captured.control = control
+                            return h('input', { 'data-testid': 'control', ...control.attrs })
+                          },
+                        }),
+                        h(Combobox.Cue as any, { renderless: true }, {
+                          default: (cue: any) => {
+                            captured.cue = cue
+                            return h('span', { 'data-testid': 'cue', ...cue.attrs })
+                          },
+                        }),
+                      ])
+                    },
+                  }),
+                  h(Combobox.Content as any, { renderless: true, eager: true }, {
+                    default: (content: any) => {
+                      captured.content = content
+                      return h('ul', { 'data-testid': 'content', ...content.attrs }, [
+                        ...['Apple', 'Banana', 'Cherry'].map(value =>
+                          h(Combobox.Item as any, { key: value, value, renderless: true }, {
+                            default: (item: any) => {
+                              captured[value] = item
+                              return h('li', { 'data-testid': `item-${value}`, ...item.attrs }, value)
+                            },
+                          }),
+                        ),
+                        h(Combobox.Empty as any, { renderless: true }, {
+                          default: () => h('li', { 'data-testid': 'empty' }, 'No results'),
+                        }),
+                      ])
+                    },
+                  }),
+                ]
+              },
+            })
+          },
+        }),
+        { attachTo: document.body },
+      )
+
+      wrappers.push(wrapper)
+      await nextTick()
+
+      return {
+        wrapper,
+        captured,
+        open: () => context!.open(),
+        close: () => context!.close(),
+      }
+    }
+
+    it('should forward the combobox contract to a renderless control', async () => {
+      const { wrapper, captured } = await createRenderless()
+
+      const control = wrapper.find('[data-testid="control"]')
+      expect(control.exists()).toBe(true)
+      expect(wrapper.findAll('input')).toHaveLength(1)
+      expect(control.attributes('role')).toBe('combobox')
+      expect(control.attributes('aria-haspopup')).toBe('listbox')
+      expect(control.attributes('aria-controls')).toBe(captured.content.attrs.id)
+      expect(control.attributes('placeholder')).toBe('Search')
+      expect(captured.control.attrs.onInput).toBeTypeOf('function')
+      expect(captured.control.attrs.onFocus).toBeTypeOf('function')
+      expect(captured.control.attrs.onKeydown).toBeTypeOf('function')
+
+      await control.trigger('focus')
+      await nextTick()
+
+      expect(control.attributes('aria-expanded')).toBe('true')
+    })
+
+    it('should forward the listbox contract to renderless content', async () => {
+      const { wrapper, captured } = await createRenderless()
+
+      const listboxes = wrapper.findAll('[role="listbox"]')
+      expect(listboxes).toHaveLength(1)
+      expect(listboxes[0]!.element.tagName).toBe('UL')
+      expect(captured.content.attrs.id).toBeDefined()
+      expect(captured.content.attrs.popover).toBe('manual')
+      expect(captured.content.attrs['aria-labelledby']).toBe(captured.control.attrs.id)
+      expect(captured.content.attrs.style['position-anchor']).toMatch(/^--/)
+    })
+
+    it('should forward the option contract to renderless items', async () => {
+      const selected = ref<string>()
+      const { wrapper, captured } = await createRenderless({
+        'modelValue': selected.value,
+        'onUpdate:modelValue': v => {
+          selected.value = v as string
+        },
+      })
+
+      const options = wrapper.findAll('[role="option"]')
+      expect(options).toHaveLength(3)
+      expect(options.every(o => o.element.tagName === 'LI')).toBe(true)
+      expect(captured.Apple.attrs.onClick).toBeTypeOf('function')
+      expect(captured.Apple.attrs['aria-selected']).toBe(false)
+
+      await wrapper.find('[data-testid="item-Apple"]').trigger('click')
+      await nextTick()
+
+      expect(selected.value).toBe('Apple')
+      expect(wrapper.find('[data-testid="item-Apple"]').attributes('data-selected')).toBe('true')
+    })
+
+    it('should forward anchor styles to a renderless activator', async () => {
+      const { wrapper, captured, open } = await createRenderless()
+
+      expect(wrapper.findAll('[data-state]')).toHaveLength(2)
+      expect(captured.activator.attrs['data-state']).toBe('closed')
+      expect(captured.activator.attrs.style.anchorName).toMatch(/^--/)
+
+      open()
+      await nextTick()
+
+      expect(wrapper.find('[data-testid="activator"]').attributes('data-state')).toBe('open')
+    })
+
+    it('should forward the toggle handler to a renderless cue', async () => {
+      const { wrapper, captured } = await createRenderless()
+
+      expect(captured.cue.attrs['aria-hidden']).toBe(true)
+      expect(captured.cue.attrs.onClick).toBeTypeOf('function')
+
+      await wrapper.find('[data-testid="cue"]').trigger('click')
+      await nextTick()
+
+      expect(wrapper.find('[data-testid="control"]').attributes('aria-expanded')).toBe('true')
+    })
+
+    it('should render renderless empty state without a wrapper', async () => {
+      const { wrapper, open } = await createRenderless({
+        adapter: new ClientComboboxAdapter(),
+      })
+
+      open()
+      await nextTick()
+
+      const control = wrapper.find('[data-testid="control"]')
+      await control.setValue('zzz')
+      await control.trigger('input')
+      await nextTick()
+
+      const empty = wrapper.find('[data-testid="empty"]')
+      expect(empty.exists()).toBe(true)
+      expect(empty.element.parentElement?.dataset.testid).toBe('content')
+    })
+  })
 })

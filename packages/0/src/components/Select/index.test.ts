@@ -1211,6 +1211,102 @@ describe('select', () => {
       expect(wrapper.find('.child').exists()).toBe(true)
     })
 
+    it('should render Select.Content without a wrapper and expose the listbox contract in renderless mode', async () => {
+      let captured: any
+      const wrapper = mount(
+        defineComponent({
+          render () {
+            return h(Select.Root as any, { multiple: true }, {
+              default: () => h(Select.Content as any, { eager: true, renderless: true }, {
+                default: (props: any) => {
+                  captured = props
+                  return h('ul', props.attrs)
+                },
+              }),
+            })
+          },
+        }),
+      )
+
+      await nextTick()
+
+      const lists = wrapper.findAll('[role="listbox"]')
+      expect(lists).toHaveLength(1)
+      expect(lists[0]!.element.tagName).toBe('UL')
+      expect(lists[0]!.element.parentElement?.getAttribute('role')).toBeNull()
+      expect(captured.attrs.role).toBe('listbox')
+      expect(captured.attrs.popover).toBe('')
+      expect(captured.attrs['aria-multiselectable']).toBe(true)
+      expect(captured.attrs.tabindex).toBe(-1)
+      expect(captured.attrs.id).toBeDefined()
+      expect(captured.attrs.style).toBeDefined()
+    })
+
+    it('should render Select.Item without a wrapper and expose the option contract in renderless mode', async () => {
+      let captured: any
+      const wrapper = mount(
+        defineComponent({
+          render () {
+            return h(Select.Root as any, {}, {
+              default: () => h(Select.Content as any, { eager: true }, {
+                default: () => h(Select.Item as any, { value: 'Apple', renderless: true }, {
+                  default: (props: any) => {
+                    captured = props
+                    return h('li', props.attrs, 'Apple')
+                  },
+                }),
+              }),
+            })
+          },
+        }),
+      )
+
+      await nextTick()
+
+      const options = wrapper.findAll('[role="option"]')
+      expect(options).toHaveLength(1)
+      expect(options[0]!.element.tagName).toBe('LI')
+      expect(options[0]!.element.parentElement?.getAttribute('role')).toBe('listbox')
+      expect(captured.attrs.role).toBe('option')
+      expect(captured.attrs['aria-selected']).toBe(false)
+      expect(captured.attrs.onClick).toBeTypeOf('function')
+
+      await wrapper.find('li').trigger('click')
+      expect(captured.isSelected).toBe(true)
+    })
+
+    it('should render Select.Activator without a wrapper and expose anchor styles in renderless mode', async () => {
+      let captured: any
+      const wrapper = mount(
+        defineComponent({
+          render () {
+            return h(Select.Root as any, {}, {
+              default: () => h(Select.Activator as any, { renderless: true }, {
+                default: (props: any) => {
+                  captured = props
+                  return h('button', props.attrs, 'Open')
+                },
+              }),
+            })
+          },
+        }),
+      )
+
+      await nextTick()
+
+      const activators = wrapper.findAll('[role="combobox"]')
+      expect(activators).toHaveLength(1)
+      expect(activators[0]!.element.tagName).toBe('BUTTON')
+      expect(activators[0]!.element.parentElement?.getAttribute('role')).toBeNull()
+      expect(captured.attrs.role).toBe('combobox')
+      expect(captured.attrs.style.anchorName).toBeDefined()
+      expect(captured.attrs.onClick).toBeTypeOf('function')
+      expect(captured.attrs.onKeydown).toBeTypeOf('function')
+
+      await wrapper.find('button').trigger('click')
+      expect(captured.isOpen).toBe(true)
+    })
+
     it('should use activator id from root', async () => {
       const { wrapper } = await createSelect({ id: 'my-select' })
 

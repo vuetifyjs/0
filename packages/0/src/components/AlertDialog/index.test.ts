@@ -415,6 +415,30 @@ describe('alertDialog', () => {
       outsideEl.remove()
       HTMLDialogElement.prototype.getBoundingClientRect = originalGetBoundingClientRect
     })
+
+    it('should expose the modal contract in slot attrs so renderless mode works', async () => {
+      let captured: any
+
+      const wrapper = mountWithStack(AlertDialog.Root, {
+        props: { modelValue: true },
+        slots: {
+          default: () => h(AlertDialog.Content, { renderless: true }, {
+            default: (props: any) => {
+              captured = props
+              return h('section', { 'data-testid': 'custom-content', ...props.attrs }, 'Content')
+            },
+          }),
+        },
+      })
+
+      await nextTick()
+      expect(captured.attrs.role).toBe('alertdialog')
+      expect(captured.attrs['aria-modal']).toBe('true')
+
+      const custom = wrapper.find('[data-testid="custom-content"]')
+      expect(custom.element.parentElement?.tagName).not.toBe('DIALOG')
+      expect(wrapper.findAll('[role="alertdialog"]')).toHaveLength(1)
+    })
   })
 
   describe('title', () => {
@@ -444,6 +468,30 @@ describe('alertDialog', () => {
       const title = wrapper.findComponent(AlertDialog.Title as any)
       expect(title.attributes('id')).toBe('test-alert-title')
     })
+
+    it('should expose id in slot attrs so renderless mode works', () => {
+      let captured: any
+
+      const wrapper = mountWithStack(AlertDialog.Root, {
+        props: { id: 'test-alert' },
+        slots: {
+          default: () => h(AlertDialog.Content, {}, () => [
+            h(AlertDialog.Title, { renderless: true }, {
+              default: (props: any) => {
+                captured = props
+                return h('span', { 'data-testid': 'custom-title', ...props.attrs }, 'Title')
+              },
+            }),
+          ]),
+        },
+      })
+
+      expect(captured.attrs.id).toBe('test-alert-title')
+
+      const custom = wrapper.find('[data-testid="custom-title"]')
+      expect(custom.element.parentElement?.tagName).not.toBe('H2')
+      expect(wrapper.findAll('#test-alert-title')).toHaveLength(1)
+    })
   })
 
   describe('description', () => {
@@ -472,6 +520,30 @@ describe('alertDialog', () => {
 
       const description = wrapper.findComponent(AlertDialog.Description as any)
       expect(description.attributes('id')).toBe('test-alert-description')
+    })
+
+    it('should expose id in slot attrs so renderless mode works', () => {
+      let captured: any
+
+      const wrapper = mountWithStack(AlertDialog.Root, {
+        props: { id: 'test-alert' },
+        slots: {
+          default: () => h(AlertDialog.Content, {}, () => [
+            h(AlertDialog.Description, { renderless: true }, {
+              default: (props: any) => {
+                captured = props
+                return h('span', { 'data-testid': 'custom-description', ...props.attrs }, 'Description')
+              },
+            }),
+          ]),
+        },
+      })
+
+      expect(captured.attrs.id).toBe('test-alert-description')
+
+      const custom = wrapper.find('[data-testid="custom-description"]')
+      expect(custom.element.parentElement?.tagName).not.toBe('P')
+      expect(wrapper.findAll('#test-alert-description')).toHaveLength(1)
     })
   })
 

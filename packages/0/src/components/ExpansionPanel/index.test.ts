@@ -1321,5 +1321,25 @@ describe('expansionPanel', () => {
       expect(cue.exists()).toBe(true)
       expect(cue.attributes('aria-hidden')).toBe('true')
     })
+
+    it('should not render a wrapper element when renderless', () => {
+      const wrapper = mount(ExpansionPanel.Group, {
+        slots: {
+          default: () =>
+            h(
+              ExpansionPanel.Root as any,
+              { id: 'item-1', value: 'value-1' },
+              () => h(ExpansionPanel.Cue, { renderless: true }, {
+                default: (props: any) => h('i', { 'data-testid': 'custom', ...props.attrs }, 'cue'),
+              }),
+            ),
+        },
+      })
+
+      const custom = wrapper.find('[data-testid="custom"]')
+      expect(custom.attributes('aria-hidden')).toBe('true')
+      expect(custom.attributes('data-state')).toBe('closed')
+      expect(wrapper.find('span').exists()).toBe(false)
+    })
   })
 })

@@ -403,6 +403,41 @@ describe('treeview', () => {
       })
     })
 
+    describe('renderless', () => {
+      it('should expose treeitem attrs in slot props so renderless mode works', async () => {
+        let captured: any
+
+        const wrapper = mount(Treeview.Root, {
+          props: {
+            modelValue: ['item-1'],
+          },
+          slots: {
+            default: () =>
+              h(Treeview.List as any, {}, () =>
+                h(Treeview.Item as any, { value: 'item-1', renderless: true }, {
+                  default: (props: any) => {
+                    captured = props
+                    return h('div', { 'data-testid': 'custom-item', ...props.attrs }, 'Item')
+                  },
+                }),
+              ),
+          },
+        })
+
+        await nextTick()
+
+        expect(captured.attrs.role).toBe('treeitem')
+
+        const custom = wrapper.find('[data-testid="custom-item"]')
+        expect(wrapper.find('li').exists()).toBe(false)
+        expect(custom.element.parentElement?.tagName).toBe('UL')
+        expect(custom.attributes('role')).toBe('treeitem')
+        expect(custom.attributes('aria-level')).toBe('1')
+        expect(custom.attributes('aria-selected')).toBe('true')
+        expect(custom.attributes('tabindex')).toBe('0')
+      })
+    })
+
     describe('disabled state', () => {
       it('should be disabled when item disabled=true', async () => {
         let itemProps: any

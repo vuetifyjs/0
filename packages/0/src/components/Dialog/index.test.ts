@@ -336,6 +336,30 @@ describe('dialog', () => {
 
         expect(wrapper.find('p').text()).toBe('Dialog content')
       })
+
+      it('should expose the modal contract in slot attrs so renderless mode works', async () => {
+        let captured: any
+
+        const wrapper = mountWithStack(Dialog.Root, {
+          props: { modelValue: true },
+          slots: {
+            default: () => h(Dialog.Content, { renderless: true }, {
+              default: (props: any) => {
+                captured = props
+                return h('section', { 'data-testid': 'custom-content', ...props.attrs }, 'Content')
+              },
+            }),
+          },
+        })
+
+        await nextTick()
+        expect(captured.attrs.role).toBe('dialog')
+        expect(captured.attrs['aria-modal']).toBe('true')
+
+        const custom = wrapper.find('[data-testid="custom-content"]')
+        expect(custom.element.parentElement?.tagName).not.toBe('DIALOG')
+        expect(wrapper.findAll('[role="dialog"]')).toHaveLength(1)
+      })
     })
 
     describe('accessibility', () => {
@@ -720,6 +744,30 @@ describe('dialog', () => {
         const title = wrapper.findComponent(Dialog.Title as any)
         expect(title.element.tagName).toBe('SPAN')
       })
+
+      it('should expose id in slot attrs so renderless mode works', () => {
+        let captured: any
+
+        const wrapper = mountWithStack(Dialog.Root, {
+          props: { id: 'test-dialog' },
+          slots: {
+            default: () => h(Dialog.Content, {}, () => [
+              h(Dialog.Title, { renderless: true }, {
+                default: (props: any) => {
+                  captured = props
+                  return h('span', { 'data-testid': 'custom-title', ...props.attrs }, 'Title')
+                },
+              }),
+            ]),
+          },
+        })
+
+        expect(captured.attrs.id).toBe('test-dialog-title')
+
+        const custom = wrapper.find('[data-testid="custom-title"]')
+        expect(custom.element.parentElement?.tagName).not.toBe('H2')
+        expect(wrapper.findAll('#test-dialog-title')).toHaveLength(1)
+      })
     })
 
     describe('accessibility', () => {
@@ -765,6 +813,30 @@ describe('dialog', () => {
 
         const description = wrapper.findComponent(Dialog.Description as any)
         expect(description.element.tagName).toBe('SPAN')
+      })
+
+      it('should expose id in slot attrs so renderless mode works', () => {
+        let captured: any
+
+        const wrapper = mountWithStack(Dialog.Root, {
+          props: { id: 'test-dialog' },
+          slots: {
+            default: () => h(Dialog.Content, {}, () => [
+              h(Dialog.Description, { renderless: true }, {
+                default: (props: any) => {
+                  captured = props
+                  return h('span', { 'data-testid': 'custom-description', ...props.attrs }, 'Description')
+                },
+              }),
+            ]),
+          },
+        })
+
+        expect(captured.attrs.id).toBe('test-dialog-description')
+
+        const custom = wrapper.find('[data-testid="custom-description"]')
+        expect(custom.element.parentElement?.tagName).not.toBe('P')
+        expect(wrapper.findAll('#test-dialog-description')).toHaveLength(1)
       })
     })
 
