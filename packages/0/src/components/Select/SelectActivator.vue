@@ -40,6 +40,8 @@
       'aria-haspopup': 'listbox'
       'aria-controls': string
       'data-open': true | undefined
+      'onClick': () => void
+      'onKeydown': (e: KeyboardEvent) => void
     }
   }
 </script>
@@ -121,6 +123,8 @@
       'aria-haspopup': 'listbox',
       'aria-controls': context.listboxId,
       'data-open': context.isOpen.value || undefined,
+      onClick,
+      onKeydown,
     },
   }))
 </script>
@@ -131,8 +135,6 @@
     :as
     :style
     v-bind="slotProps.attrs"
-    @click="onClick"
-    @keydown="onKeydown"
   >
     <slot v-bind="slotProps" />
   </Atom>
