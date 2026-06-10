@@ -2764,7 +2764,7 @@ describe('carousel', () => {
       expect(slide1Props.isSelected).toBe(true)
     })
 
-    it.skip('should not advance past maxStart when next() called in non-circular mode with perView', async () => {
+    it('should not advance past maxStart when next() called in non-circular mode with perView', async () => {
       const selected = ref<string>('a')
 
       let rootProps: any
