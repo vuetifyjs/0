@@ -35,19 +35,6 @@ Multiple expandable panels with accordion behavior and a multi-expand mode that 
 
 :::
 
-## Animated transitions
-
-Use `renderless` on `ExpansionPanel.Content` to take full control of rendering. Pair it with Vue's `<Transition>` and `interpolate-size: allow-keywords` to animate the panel open and close without JavaScript height measurements.
-
-::: example
-/components/expansion-panel/transition
-
-### Transition with table content
-
-Accordion with a smooth height transition. The `renderless` prop exposes an `isSelected` slot prop so `v-if` drives the enter/leave cycle.
-
-:::
-
 ## Anatomy
 
 ```vue Anatomy playground
@@ -89,5 +76,23 @@ For instances where you need to wrap the activator in a heading element **(h3)**
   </ExpansionPanel.Group>
 </template>
 ```
+
+## Examples
+
+::: example
+/components/expansion-panel/transition
+
+### Animated Transitions
+
+By default, ExpansionPanel.Content toggles visibility with the `hidden` attribute — instant, but not animatable. To animate the open and close, add `renderless` to ExpansionPanel.Content and render your own element: the slot exposes `isSelected` to drive a `v-if` inside Vue's `<Transition>`, and an `attrs` object you must bind to your replacement element so it keeps the component's accessibility contract (`role="region"`, the `id` targeted by the activator's `aria-controls`, and `aria-labelledby`).
+
+The height animation itself needs no JavaScript measurements. CSS `interpolate-size: allow-keywords` lets `max-height` transition to and from the intrinsic `max-content` keyword, so panels of any content size animate smoothly. Padding lives on an inner wrapper rather than the transitioned element — animating `max-height` on the padded element would make the content jump at the ends of the transition.
+
+Reach for this pattern whenever panel content deserves a smooth reveal — tables, long text, nested forms. If you only need the default show and hide behavior, skip `renderless` entirely; the non-renderless Content keeps its element mounted and is the simpler, more accessible default for static content.
+
+:::
+
+> [!NOTE]
+> [interpolate-size](https://developer.mozilla.org/en-US/docs/Web/CSS/interpolate-size) is currently a Chromium-only CSS feature (Chrome and Edge 129+). Other browsers skip the animation and open the panel instantly — the content itself works everywhere.
 
 <DocsApi />
