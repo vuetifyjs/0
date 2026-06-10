@@ -55,6 +55,7 @@
     as = 'div',
     namespace = 'v0:combobox',
     eager = false,
+    renderless,
   } = defineProps<ComboboxContentProps>()
 
   const context = useComboboxContext(namespace)
@@ -84,10 +85,9 @@
       'aria-multiselectable': context.multiple || undefined,
       'popover': 'manual',
       'tabindex': -1,
+      'style': context.popover.contentStyles.value,
     },
   }))
-
-  const style = toRef(() => context.popover.contentStyles.value)
 </script>
 
 <template>
@@ -95,7 +95,7 @@
     ref="content"
     v-bind="slotProps.attrs"
     :as
-    :style
+    :renderless
   >
     <slot v-if="hasContent" v-bind="slotProps" />
   </Atom>
