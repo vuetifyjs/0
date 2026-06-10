@@ -101,7 +101,7 @@ export function createNested (_options: NestedOptions = {}): NestedContext {
   const mandatoryOption = _options.mandatory ?? false
   const multipleOption = _options.multiple ?? true
 
-  const group = createGroup(options)
+  const group = createGroup<NestedTicketInput, NestedTicket>(options)
   const logger = useLogger()
 
   const children = shallowReactive(new Map<ID, ID[]>())
@@ -883,7 +883,7 @@ export function createNested (_options: NestedOptions = {}): NestedContext {
     get size () {
       return group.size
     },
-  } as unknown as NestedContext
+  } satisfies NestedContext
 
   return context
 }

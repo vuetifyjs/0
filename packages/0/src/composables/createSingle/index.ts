@@ -36,7 +36,7 @@ import { toRef } from 'vue'
 import type { SelectionContext, SelectionContextOptions, SelectionOptions, SelectionTicket, SelectionTicketInput } from '#v0/composables/createSelection'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { ID } from '#v0/types'
-import type { ComputedRef } from 'vue'
+import type { Ref } from 'vue'
 
 /**
  * Input type for single selection tickets.
@@ -60,10 +60,10 @@ export interface SingleContext<
   Z extends SingleTicketInput = SingleTicketInput,
   E extends SingleTicket<Z> = SingleTicket<Z>,
 > extends Omit<SelectionContext<Z, E>, 'register' | 'onboard'> {
-  selectedId: ComputedRef<ID | undefined>
-  selectedIndex: ComputedRef<number>
-  selectedItem: ComputedRef<E | undefined>
-  selectedValue: ComputedRef<E['value'] | undefined>
+  selectedId: Readonly<Ref<ID | undefined>>
+  selectedIndex: Readonly<Ref<number>>
+  selectedItem: Readonly<Ref<E | undefined>>
+  selectedValue: Readonly<Ref<E['value'] | undefined>>
   /** Register a new ticket (accepts input type, returns output type) */
   register: (ticket?: Partial<Z>) => E
   /** Onboard multiple tickets at once */
@@ -162,7 +162,7 @@ export function createSingle<
     get size () {
       return registry.size
     },
-  } as R
+  } satisfies SingleContext<Z, E> as R
 }
 
 /**
