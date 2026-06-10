@@ -979,6 +979,29 @@ describe('select', () => {
   })
 
   describe('root slot props', () => {
+    it('should expose onClick and onKeydown in Select.Activator slot attrs', () => {
+      let captured: any
+      mount(
+        defineComponent({
+          render () {
+            return h(Select.Root as any, {}, {
+              default: () => h(Select.Activator as any, {}, {
+                default: (props: any) => {
+                  captured = props
+                  return h('button', 'open')
+                },
+              }),
+            })
+          },
+        }),
+      )
+
+      // Pre-fix these handlers lived on @click/@keydown directives (lost in
+      // renderless mode); they must be exposed through slot attrs instead.
+      expect(captured.attrs.onClick).toBeTypeOf('function')
+      expect(captured.attrs.onKeydown).toBeTypeOf('function')
+    })
+
     it('should expose isOpen, open, close, toggle, id, isDisabled', async () => {
       let rootSlotProps: any
 
