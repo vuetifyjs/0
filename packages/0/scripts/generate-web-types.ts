@@ -183,8 +183,9 @@ async function run () {
     },
   }
 
-  // Ensure the output dir at write time — tsdown runs concurrently and its
-  // dist clean can race a dir created at startup
+  // Create the output dir right before writing: tsdown's build wipes dist/
+  // (clean defaults to true), and `pnpm generate:web-types` may run standalone
+  // before dist/ exists.
   mkdirSync(OUTPUT_DIR, { recursive: true })
 
   writeFileSync(resolve(OUTPUT_DIR, 'web-types.json'), JSON.stringify(webTypes, null, 2))
