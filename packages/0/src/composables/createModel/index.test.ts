@@ -427,9 +427,27 @@ describe('createModel', () => {
       model.apply(['updated'])
 
       expect(valueRef.value).toBe('updated')
-      // After ref write, apply still falls through to browse/clear
-      // Browse resolves by raw value, not ref — so selectedIds is cleared
-      expect(model.selectedIds.size).toBe(0)
+      // The ref write is the application — selection is kept so the next
+      // apply keeps writing (browse can't resolve a ref-keyed catalog entry)
+      expect(model.selected('item-1')).toBe(true)
+      expect(Array.from(model.selectedValues.value)).toContain('updated')
+
+      model.apply(['second'])
+
+      expect(valueRef.value).toBe('second')
+      expect(model.selected('item-1')).toBe(true)
+    })
+
+    it('should not clobber a selected ref with an undefined apply', () => {
+      const model = createModel()
+      const valueRef = ref('original')
+      model.register({ id: 'item-1', value: valueRef })
+      model.select('item-1')
+
+      model.apply([undefined])
+
+      expect(valueRef.value).toBe('original')
+      expect(model.selected('item-1')).toBe(true)
     })
 
     it('should resolve by browse for static values', () => {
