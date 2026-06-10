@@ -364,6 +364,8 @@ export interface VirtualContextOptions extends VirtualOptions {
  * </template>
  * ```
  */
+const FALLBACK_HEIGHT = 40
+
 export function createVirtual<T = unknown> (
   items: Ref<readonly T[]>,
   _options: VirtualOptions = {},
@@ -385,6 +387,10 @@ export function createVirtual<T = unknown> (
 
   const element = ref<HTMLElement>()
   const itemHeight = shallowRef(Number.parseFloat(String(_itemHeight || 0)))
+
+  function estimate () {
+    return itemHeight.value || FALLBACK_HEIGHT
+  }
   const heights = shallowRef<(number | null)[]>([])
   const offsets = shallowRef<number[]>([])
   const first = shallowRef(0)
@@ -435,7 +441,9 @@ export function createVirtual<T = unknown> (
   watch(items, newItems => {
     captureAnchor()
     const length = newItems.length
-    const newHeights = heights.value.length === length ? heights.value : Array.from({ length }, () => null)
+    // Preserve measured prefix; prepends misattribute until re-measured
+    const old = heights.value
+    const newHeights = old.length === length ? old : Array.from({ length }, (_, i) => (i < old.length ? old[i]! : null))
     if (heights.value !== newHeights) heights.value = newHeights as (number | null)[]
     rebuild()
   }, { immediate: true })
@@ -446,7 +454,7 @@ export function createVirtual<T = unknown> (
 
     if (direction === 'reverse' && items.value.length > 0) {
       const lastIndex = items.value.length - 1
-      const totalHeight = (offsets.value[lastIndex] || 0) + (heights.value[lastIndex] || itemHeight.value)
+      const totalHeight = (offsets.value[lastIndex] || 0) + (heights.value[lastIndex] || estimate())
       element.value.scrollTop = totalHeight
     }
 
@@ -502,7 +510,7 @@ export function createVirtual<T = unknown> (
     let offset = 0
     for (let i = 0; i < length; i++) {
       newOffsets[i] = offset
-      offset += heights.value[i] || itemHeight.value
+      offset += heights.value[i] || estimate()
     }
 
     if (offsets.value !== newOffsets) offsets.value = newOffsets
@@ -530,7 +538,7 @@ export function createVirtual<T = unknown> (
   function update () {
     if (!element.value) return
     const viewport = viewportHeight.value || cachedViewport
-    if (!viewport || !itemHeight.value) return
+    if (!viewport) return
 
     const scrollTop = element.value.scrollTop || 0
     const length = items.value.length
@@ -545,7 +553,7 @@ export function createVirtual<T = unknown> (
     last.value = end
     offset.value = offsets.value[start] || 0
     const lastIndex = length - 1
-    const totalHeight = (offsets.value[lastIndex] || 0) + (heights.value[lastIndex] || itemHeight.value)
+    const totalHeight = (offsets.value[lastIndex] || 0) + (heights.value[lastIndex] || estimate())
     size.value = totalHeight - (offsets.value[end] || totalHeight)
   }
 
@@ -621,14 +629,14 @@ export function createVirtual<T = unknown> (
     switch (block) {
       case 'center': {
         const viewport = viewportHeight.value || cachedViewport
-        const itemH = heights.value[index] || itemHeight.value
+        const itemH = heights.value[index] || estimate()
         scrollTop = targetOffset - (viewport / 2) + (itemH / 2) + extraOffset
 
         break
       }
       case 'end': {
         const viewport = viewportHeight.value || cachedViewport
-        const itemH = heights.value[index] || itemHeight.value
+        const itemH = heights.value[index] || estimate()
         scrollTop = targetOffset - viewport + itemH + extraOffset
 
         break
@@ -636,7 +644,7 @@ export function createVirtual<T = unknown> (
       case 'nearest': {
         const viewport = viewportHeight.value || cachedViewport
         const currentScroll = element.value.scrollTop
-        const itemH = heights.value[index] || itemHeight.value
+        const itemH = heights.value[index] || estimate()
 
         if (targetOffset < currentScroll) {
           scrollTop = targetOffset + extraOffset
@@ -667,7 +675,7 @@ export function createVirtual<T = unknown> (
     anchorOffset = 0
     if (element.value && direction === 'reverse' && items.value.length > 0) {
       const lastIndex = items.value.length - 1
-      const totalHeight = (offsets.value[lastIndex] || 0) + (heights.value[lastIndex] || itemHeight.value)
+      const totalHeight = (offsets.value[lastIndex] || 0) + (heights.value[lastIndex] || estimate())
       element.value.scrollTop = totalHeight
     }
   }
