@@ -52,10 +52,11 @@ table.pagination.next()
 // Select rows
 table.selection.toggle('user-1')
 
-// Add / remove rows after setup
+// Add / remove / update rows after setup
 const ticket = table.register({ id: 'user-99', value: user })
 ticket.unregister()           // remove via returned ticket
 table.unregister('user-1')    // remove by id
+table.upsert('user-2', { value: updated })  // replace a row's value
 table.clear()                 // wipe all rows
 
 // Add / remove columns after setup
@@ -90,11 +91,14 @@ table.columns.clear()
 | `register(input)` | — | Method — adds a single row ticket, mutates the row registry (downstream refs recompute) |
 | `onboard(inputs)` | — | Method — bulk register rows |
 | `unregister(id)` | — | Method — removes a row ticket by id |
+| `upsert(id, patch)` | — | Method — replaces a row's value; the pipeline re-runs. The sanctioned row-update path — mutating `ticket.value` in place does not re-run the pipeline |
 | `clear()` | — | Method — wipes every row ticket (useful before re-fetching server data) |
 | `columns.register(input)` | — | Method — adds a single column ticket (reactively updates `leaves`, `headers`, sort group, filter pipeline) |
 | `columns.onboard(inputs)` | — | Method — bulk register columns |
 | `columns.unregister(id)` | — | Method — removes a column by id; drops it from sort state |
 | `columns.clear()` | — | Method — wipes every column |
+
+The row registry itself is non-reactive for performance — registering ten thousand rows allocates no per-row proxies. Mutations propagate to the pipeline through registry events, so always iterate rows via `items` / `allItems` (or the other pipeline refs) in templates and computeds, never via raw `table.values()`, and update a row via `table.upsert(id, { value })` rather than mutating the row object in place. The column registry stays fully reactive.
 
 ## Adapters
 

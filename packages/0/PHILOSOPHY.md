@@ -540,6 +540,9 @@ Both are valid and complementary. Pick based on the consumer's actual need:
 | Reactive iteration without wrapping each ticket in a proxy | `useProxyRegistry(registry)` |
 | `{ deep: true }` tracking on registered tickets | `useProxyRegistry(registry, { deep: true })` |
 | Explicit event-driven snapshot semantics, no registry-level reactivity | `useProxyRegistry` |
+| Unbounded collection iterated only by internal derived computeds | Non-reactive registry + version signal (below) |
+
+**Version signal for unbounded collections.** When the collection is unbounded and iteration is confined to a handful of internal computeds, `reactive: true` pays for a `shallowReactive` proxy per ticket that nothing reads. Instead, keep the registry non-reactive (`events: true`), bump a `shallowRef` counter on `register:ticket` / `unregister:ticket` / `update:ticket` / `clear:registry` / `reindex:registry`, and read the counter at the top of **every** computed that iterates the registry — one missed computed caches permanently. Under this pattern `upsert` is the sanctioned mutation path (it emits `update:ticket`); in-place ticket field writes do not propagate. Canonical: `createDataTable`'s row registry — consumers iterate rows through `items` / `allItems`, never raw `table.values()` in a template or computed. The column registry stays `reactive: true` because columns are bounded and consumer-iterated.
 
 Plugins bake one or the other in internally — see `.claude/rules/composables.md` "Plugins and Reactive Defaults" for the convention. Primitives expose the choice to callers.
 
@@ -733,7 +736,7 @@ Used in `Progress*`, `Splitter*`, and any compound whose sub-components need to 
 
 **Rule.** A composable that owns a collection of values exposes `register` / `onboard` / `unregister`. It does not accept the collection as an option in its factory. Row identity, column identity, order, and per-entry state live in the registry — never on a parallel array threaded in through options. When a composable owns *multiple* collections (e.g. `createDataTable` owns both rows and columns), each gets its own registry surface. [intent:351]
 
-**Why.** A single source of truth: the registry owns the rows. An `items` option splits ownership between the consumer's array and the composable's internal state, which forces every pipeline stage to re-derive identity. Registry-based composables also dodge `MaybeRefOrGetter<T[]>` plumbing — tickets are reactive by construction, so the composable does not have to `toValue()` an external ref on every recompute. Composition stays uniform: components and composables built on top get the same `register` / `onboard` surface they already use for `createSortable` and the selection chain. Tickets emitted by `unregister` / `offboard` can be moved between registries without re-deriving identity. [intent:352]
+**Why.** A single source of truth: the registry owns the rows. An `items` option splits ownership between the consumer's array and the composable's internal state, which forces every pipeline stage to re-derive identity. Registry-based composables also dodge `MaybeRefOrGetter<T[]>` plumbing — mutations propagate by construction (reactive proxies or registry events, see §4.4), so the composable does not have to `toValue()` an external ref on every recompute. Composition stays uniform: components and composables built on top get the same `register` / `onboard` surface they already use for `createSortable` and the selection chain. Tickets emitted by `unregister` / `offboard` can be moved between registries without re-deriving identity. [intent:352]
 
 **Before (wrong).**
 

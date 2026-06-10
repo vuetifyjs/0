@@ -13,6 +13,9 @@
  * columns and `table.onboard([...])` / `table.register({...})` for rows.
  * Row identity is the ticket id (caller-supplied or auto-generated); column
  * identity is the caller-supplied `id` (required — no auto-generation).
+ * The row registry is non-reactive: iterate rows via `items` / `allItems`
+ * and update a row via `upsert(id, { value })` — never mutate a ticket's
+ * value in place or iterate raw `values()` in templates or computeds.
  *
  * Key features:
  * - Adapter pattern for pipeline strategy (client, server, virtual)
@@ -374,7 +377,7 @@ export function createDataTable<T extends Record<string, unknown>> (
 
   const registry = createRegistry<DataTableTicketInput<T>, DataTableTicket<T>>({
     events: true,
-    reactive: true,
+    reactive: false,
   })
 
   const columns = createRegistry<DataTableColumnTicketInput<T>, DataTableColumnTicket<T>>({
@@ -540,10 +543,31 @@ export function createDataTable<T extends Record<string, unknown>> (
     return filters
   })
 
+  // Every computed iterating the non-reactive row registry must read this first.
+  const _rowVersion = shallowRef(0)
+  registry.on('register:ticket', () => {
+    _rowVersion.value++
+  })
+  registry.on('unregister:ticket', () => {
+    _rowVersion.value++
+  })
+  registry.on('update:ticket', () => {
+    _rowVersion.value++
+  })
+  registry.on('clear:registry', () => {
+    _rowVersion.value++
+  })
+  registry.on('reindex:registry', () => {
+    _rowVersion.value++
+  })
+
   // Row values projected from registry tickets in registration order — the
   // adapter consumes this as its `items` input and runs the filter → sort →
   // paginate pipeline against it.
-  const source = computed(() => registry.values().map(t => t.value as T))
+  const source = computed(() => {
+    void _rowVersion.value
+    return registry.values().map(t => t.value as T)
+  })
 
   const {
     allItems,
@@ -569,6 +593,7 @@ export function createDataTable<T extends Record<string, unknown>> (
   const selectedIds = shallowReactive(new Set<ID>())
 
   const selectableIds = computed(() => {
+    void _rowVersion.value
     if (!itemSelectable) return null
     const ids = new Set<ID>()
     for (const ticket of registry.values()) {
@@ -594,6 +619,7 @@ export function createDataTable<T extends Record<string, unknown>> (
   // same row value reference — going through `browse(item)` collapses both
   // onto the first matching id.
   const scopedTickets = computed(() => {
+    void _rowVersion.value
     const scope = scopeItems.value
     if (scope.length === 0) return []
     const set = new Set<T>(scope)
@@ -663,6 +689,7 @@ export function createDataTable<T extends Record<string, unknown>> (
 
   // Visible-scoped tickets for expandAll — visible (paginated) only.
   const visibleTickets = computed(() => {
+    void _rowVersion.value
     const scope = visible.value
     if (scope.length === 0) return []
     const set = new Set<T>(scope)
@@ -808,6 +835,7 @@ export function createDataTable<T extends Record<string, unknown>> (
     loading,
     error,
     get size () {
+      void _rowVersion.value
       return registry.size
     },
   }
