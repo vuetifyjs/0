@@ -182,6 +182,33 @@ describe('dialog', () => {
     })
   })
 
+  describe('renderless onClick handlers', () => {
+    it('should expose onClick in slot attrs for activator and close', () => {
+      const captured: Record<string, any> = {}
+      function capture (key: string) {
+        return (props: any) => {
+          captured[key] = props
+          return h('button', key)
+        }
+      }
+
+      mountWithStack(Dialog.Root, {
+        props: { modelValue: true },
+        slots: {
+          default: () => [
+            h(Dialog.Activator as any, {}, { default: capture('activator') }),
+            h(Dialog.Close as any, {}, { default: capture('close') }),
+          ],
+        },
+      })
+
+      // Pre-fix the click handler lived on an `@click` directive (lost in
+      // renderless mode); it must be exposed through slot attrs instead.
+      expect(captured.activator.attrs.onClick).toBeTypeOf('function')
+      expect(captured.close.attrs.onClick).toBeTypeOf('function')
+    })
+  })
+
   describe('activator', () => {
     describe('rendering', () => {
       it('should render as button by default', () => {

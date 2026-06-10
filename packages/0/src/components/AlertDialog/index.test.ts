@@ -99,6 +99,35 @@ describe('alertDialog', () => {
     })
   })
 
+  describe('renderless onClick handlers', () => {
+    it('should expose onClick in slot attrs for activator, action, and cancel', () => {
+      const captured: Record<string, any> = {}
+      function capture (key: string) {
+        return (props: any) => {
+          captured[key] = props
+          return h('button', key)
+        }
+      }
+
+      mountWithStack(AlertDialog.Root, {
+        props: { modelValue: true },
+        slots: {
+          default: () => [
+            h(AlertDialog.Activator as any, {}, { default: capture('activator') }),
+            h(AlertDialog.Action as any, {}, { default: capture('action') }),
+            h(AlertDialog.Cancel as any, {}, { default: capture('cancel') }),
+          ],
+        },
+      })
+
+      // Pre-fix the click handler lived on an `@click` directive (lost in
+      // renderless mode); it must be exposed through slot attrs instead.
+      expect(captured.activator.attrs.onClick).toBeTypeOf('function')
+      expect(captured.action.attrs.onClick).toBeTypeOf('function')
+      expect(captured.cancel.attrs.onClick).toBeTypeOf('function')
+    })
+  })
+
   describe('activator', () => {
     it('should render as button by default', () => {
       const wrapper = mountWithStack(AlertDialog.Root, {
