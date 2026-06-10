@@ -331,6 +331,7 @@ export function createNotifications (
    * ```
    */
   function read (id: ID) {
+    if (!registry.has(id)) return
     registry.upsert(id, { readAt: new Date() } as Partial<NotificationTicket>, 'notification:read')
   }
 
@@ -352,6 +353,7 @@ export function createNotifications (
    * ```
    */
   function unread (id: ID) {
+    if (!registry.has(id)) return
     registry.upsert(id, { readAt: null } as Partial<NotificationTicket>, 'notification:unread')
   }
 
@@ -376,6 +378,7 @@ export function createNotifications (
    * ```
    */
   function seen (id: ID) {
+    if (!registry.has(id)) return
     registry.upsert(id, { seenAt: new Date() } as Partial<NotificationTicket>, 'notification:seen')
   }
 
@@ -397,6 +400,7 @@ export function createNotifications (
    * ```
    */
   function archive (id: ID) {
+    if (!registry.has(id)) return
     registry.upsert(id, { archivedAt: new Date() } as Partial<NotificationTicket>, 'notification:archived')
   }
 
@@ -418,6 +422,7 @@ export function createNotifications (
    * ```
    */
   function unarchive (id: ID) {
+    if (!registry.has(id)) return
     registry.upsert(id, { archivedAt: null } as Partial<NotificationTicket>, 'notification:unarchived')
   }
 
@@ -443,6 +448,7 @@ export function createNotifications (
    * ```
    */
   function snooze (id: ID, until: Date) {
+    if (!registry.has(id)) return
     registry.upsert(id, { snoozedUntil: until } as Partial<NotificationTicket>, 'notification:snoozed')
   }
 
@@ -464,6 +470,7 @@ export function createNotifications (
    * ```
    */
   function wake (id: ID) {
+    if (!registry.has(id)) return
     registry.upsert(id, { snoozedUntil: null } as Partial<NotificationTicket>, 'notification:unsnoozed')
   }
 

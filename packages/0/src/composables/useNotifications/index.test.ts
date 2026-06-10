@@ -145,7 +145,7 @@ describe('createNotifications', () => {
       })
     })
 
-    it.skip('should no-op when state mutations are called with a non-existent id', () => {
+    it('should no-op when state mutations are called with a non-existent id', () => {
       withScope(() => {
         const notifications = createNotifications()
 
