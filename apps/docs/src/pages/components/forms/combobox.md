@@ -109,7 +109,7 @@ flowchart TD
 
 ### Multi-Select
 
-Set `multiple` on Root to enable multi-selection. The dropdown stays open after each selection and the query clears so the user can keep searching. `v-model` binds to an array of IDs. Render selected chips or tags using the `selected` model value directly.
+Set `multiple` on Root to enable multi-selection. The dropdown stays open after each selection and the query clears so the user can keep searching. `v-model` binds to an array of item values (the `value` prop of each selected item). Render selected chips or tags using the `selected` model value directly.
 
 :::
 
