@@ -109,6 +109,21 @@ describe('createFocusTraversal', () => {
       expect(traversal.activeId.value).toBeUndefined()
       expect(activate).not.toHaveBeenCalled()
     })
+
+    it('should reach an enabled item beyond ceil(length/stride) hops in circular mode', () => {
+      // Circular stride 2 over 7 items visits every position in 7 hops, not the
+      // ceil(7/2)=4 the old bound assumed. The only enabled item (i5) lands at
+      // hop 5, so the old bound stopped before ever checking it.
+      const traversal = createFocusTraversal(
+        itemsWithDisabled(['i0', true], ['i1', true], ['i2', true], ['i3', true], ['i4', true], ['i5'], ['i6', true]),
+        () => {},
+        { circular: true },
+      )
+      traversal.activeId.value = 'i0'
+      traversal.step(2)
+
+      expect(traversal.activeId.value).toBe('i5')
+    })
   })
 
   describe('next / prev', () => {
