@@ -346,13 +346,13 @@ app.use(createNotificationsPlugin({ adapter: new MyBackendAdapter() }))
 
 ### Custom Ticket Fields
 
-Extend `NotificationInput` to add domain-specific fields. Pass the type parameter through the adapter and plugin:
+Extend `NotificationTicketInput` to add domain-specific fields. Pass the type parameter through the adapter and plugin:
 
 ```ts
 import { NotificationsAdapter } from '@vuetify/v0/notifications'
-import type { NotificationInput, NotificationsAdapterContext } from '@vuetify/v0'
+import type { NotificationTicketInput, NotificationsAdapterContext } from '@vuetify/v0'
 
-interface AppNotification extends NotificationInput {
+interface AppNotification extends NotificationTicketInput {
   priority: 'low' | 'medium' | 'high'
   imageUrl?: string
 }
