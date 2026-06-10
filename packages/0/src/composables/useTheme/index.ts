@@ -50,7 +50,7 @@ import type { ComputedRef, Ref } from 'vue'
 // Exports
 export { V0StyleSheetThemeAdapter, V0UnheadThemeAdapter } from '#v0/composables/useTheme/adapters'
 
-export type { ThemeAdapter } from '#v0/composables/useTheme/adapters'
+export { ThemeAdapter } from '#v0/composables/useTheme/adapters'
 
 export type Colors = {
   [key: string]: string
