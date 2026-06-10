@@ -689,8 +689,8 @@ describe('select', () => {
       const value = { id: 1 }
       let ctx: { open: () => void } | undefined
 
-      // modelValue is typed String | Number | Array; passing an object to
-      // exercise JSON serialization makes Vue warn on the prop type. Silence it.
+      // The model is generic — object values are a legal type and must not
+      // trigger a prop-type warning (regression pin for the old ID-typed model)
       using warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       const wrapper = mount(
@@ -723,7 +723,7 @@ describe('select', () => {
       const hidden = wrapper.find('input[type="hidden"]')
       expect(hidden.exists()).toBe(true)
       expect((hidden.element as HTMLInputElement).value).toBe(JSON.stringify(value))
-      expect(warn).toHaveBeenCalled()
+      expect(warn).not.toHaveBeenCalled()
     })
 
     it('should render empty string for null values in hidden input', async () => {
