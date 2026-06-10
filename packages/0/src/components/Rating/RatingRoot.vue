@@ -116,8 +116,10 @@
 
   const rating = createRating({
     value: model,
-    size,
-    half,
+    // Wrap reactive props as getters — createRating reads size/half via
+    // toValue(), so bare scalar snapshots would freeze them at mount.
+    size: toRef(() => size),
+    half: toRef(() => half),
   })
 
   // Hover tracking — UI concern, not in composable
