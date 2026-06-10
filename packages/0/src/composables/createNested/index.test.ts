@@ -247,9 +247,7 @@ describe('createNested', () => {
     })
   })
 
-  // skip: cycle-detection guards live in a parallel branch; in master the
-  // walk loops forever and hangs CI workers under vmThreads + v8 coverage.
-  describe.skip('circular reference protection', () => {
+  describe('circular reference protection', () => {
     it('should not infinite loop in getPath when circular parent exists', () => {
       using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
