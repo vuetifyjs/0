@@ -143,6 +143,33 @@ describe('expansionPanel', () => {
 
         expect(capturedProps.isDisabled.value).toBe(true)
       })
+
+      it('should not preventDefault on keydown for a disabled panel', () => {
+        let activatorProps: any
+
+        mount(ExpansionPanel.Group, {
+          props: { multiple: true },
+          slots: {
+            default: () => h(ExpansionPanel.Root as any, { id: 'item-1', value: 'value-1', disabled: true }, {
+              default: () => h(ExpansionPanel.Activator as any, {}, {
+                default: (ap: any) => {
+                  activatorProps = ap
+                  return 'Header'
+                },
+              }),
+            }),
+          },
+        })
+
+        const event = new KeyboardEvent('keydown', { key: 'Enter', cancelable: true })
+
+        // toggle() already guards ticket-disabled, so the click path is a no-op
+        // either way. The observable fix is that keydown now returns early on a
+        // disabled panel instead of running preventDefault + toggle.
+        activatorProps.attrs.onKeydown(event)
+
+        expect(event.defaultPrevented).toBe(false)
+      })
     })
 
     describe('slot props', () => {
