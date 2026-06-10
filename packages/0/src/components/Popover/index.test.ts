@@ -282,6 +282,36 @@ describe('popover', () => {
         expect(anchorProps.attrs['data-open']).toBe(true)
       })
     })
+
+    describe('renderless', () => {
+      it('should expose anchor attrs and style in slot props so renderless mode works', async () => {
+        let anchorProps: any
+
+        const wrapper = mount(Popover.Root, {
+          props: { id: 'test-popover' },
+          slots: {
+            default: () => h('div', [
+              h(Popover.Activator, { renderless: true }, {
+                default: (props: any) => {
+                  anchorProps = props
+                  return h('button', { 'data-testid': 'custom', ...props.attrs }, 'Toggle')
+                },
+              }),
+            ]),
+          },
+        })
+
+        await nextTick()
+
+        expect(anchorProps.attrs.popovertarget).toBe('test-popover')
+        expect(anchorProps.attrs.style.anchorName).toBe('--test-popover')
+
+        const custom = wrapper.find('[data-testid="custom"]')
+        expect(custom.attributes('popovertarget')).toBe('test-popover')
+        expect(custom.element.parentElement?.tagName).toBe('DIV')
+        expect(wrapper.findAll('button')).toHaveLength(1)
+      })
+    })
   })
 
   describe('content', () => {
@@ -438,6 +468,41 @@ describe('popover', () => {
         await content.trigger('beforetoggle', { newState: 'open' })
 
         expect(beforetoggle).toHaveBeenCalled()
+      })
+    })
+
+    describe('renderless', () => {
+      it('should expose popover attrs, style, and onBeforetoggle in slot props so renderless mode works', async () => {
+        let contentProps: any
+
+        const wrapper = mount(Popover.Root, {
+          props: { id: 'test-popover' },
+          slots: {
+            default: () => h('div', [
+              h(Popover.Content, { renderless: true }, {
+                default: (props: any) => {
+                  contentProps = props
+                  return h('div', { 'data-testid': 'custom', ...props.attrs }, 'Content')
+                },
+              }),
+            ]),
+          },
+        })
+
+        await nextTick()
+
+        expect(contentProps.attrs.popover).toBe('')
+        expect(contentProps.attrs.style).toBeDefined()
+        expect(contentProps.attrs.onBeforetoggle).toBeTypeOf('function')
+
+        const custom = wrapper.find('[data-testid="custom"]')
+        expect(custom.attributes('id')).toBe('test-popover')
+        expect(wrapper.findAll('[popover]')).toHaveLength(1)
+
+        await custom.trigger('beforetoggle', { newState: 'open' })
+
+        const content = wrapper.findComponent(Popover.Content as any)
+        expect(content.emitted('beforetoggle')).toHaveLength(1)
       })
     })
   })

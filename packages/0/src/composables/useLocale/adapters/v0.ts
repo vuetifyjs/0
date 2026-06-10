@@ -64,12 +64,14 @@ export class V0LocaleAdapter extends LocaleAdapter {
 
       if (visited.has(path)) return match
 
-      visited.add(path)
-
       const resolved = this.context.tokens.get(path)?.value
 
       if (isString(resolved)) {
-        return this.resolve(target, resolved, visited)
+        // Branch with a copy of `visited` so sibling references to the same
+        // token resolve independently; only ancestor paths (carried down the
+        // copy) count as cycles. A shared, mutated set would drop the second
+        // `{app}` in `'{app} loves {app}'`.
+        return this.resolve(target, resolved, new Set(visited).add(path))
       }
 
       return match

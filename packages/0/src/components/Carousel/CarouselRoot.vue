@@ -176,10 +176,13 @@
   useProxyModel(step, model, { multiple: false })
 
   function next () {
-    if (circular && perView > 1) {
+    if (perView > 1) {
       const maxStart = Math.max(0, step.size - perView)
       if (step.selectedIndex.value >= maxStart) {
-        step.first()
+        // At the perView edge: wrap to the start in circular mode, otherwise
+        // clamp. Advancing further would show a partial final view (fewer than
+        // perView slides) — the same edge CarouselNext disables its button at.
+        if (circular) step.first()
         return
       }
     }

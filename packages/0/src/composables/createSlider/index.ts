@@ -522,22 +522,29 @@ export function createSlider (options: SliderOptions = {}): SliderContext {
       return
     }
 
-    for (let index = 0; index < snapped.length; index++) {
+    const gap = minStepsBetweenThumbs * step
+    let written: number | undefined
+
+    for (const [index, element] of snapped.entries()) {
       const ticket = thumbs.value[index]
       if (!ticket || !isRef(ticket.value)) continue
 
-      let constrained = snapped[index]!
+      let constrained = element!
 
-      if (!crossover) {
-        const gap = minStepsBetweenThumbs * step
-        const prev = index > 0 ? snapped[index - 1] : undefined
-        const following = index < snapped.length - 1 ? snapped[index + 1] : undefined
-
-        if (!isUndefined(prev)) constrained = Math.max(constrained, prev + gap)
-        if (!isUndefined(following)) constrained = Math.min(constrained, following - gap)
+      // Forward sweep: push each thumb at least `gap` past the previously
+      // written thumb, so apply() always satisfies minStepsBetweenThumbs. The
+      // old two-sided clamp anchored off the *raw* incoming neighbours, so a
+      // middle thumb's `following - gap` upper bound could fall below its
+      // `prev + gap` lower bound and shrink the gap below the minimum with 3+
+      // thumbs (e.g. apply([10,12,14]) gap 10 -> [2,4,22]). Mirrors set(),
+      // which anchors its prev constraint off the live written value.
+      if (!crossover && !isUndefined(written)) {
+        constrained = Math.max(constrained, written + gap)
       }
 
-      ticket.value.value = clamp(constrained, min, max)
+      constrained = clamp(constrained, min, max)
+      ticket.value.value = constrained
+      written = constrained
     }
   }
 

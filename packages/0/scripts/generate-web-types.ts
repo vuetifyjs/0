@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, writeFileSync, readFileSync } from 'node:fs'
+import { mkdirSync, writeFileSync, readFileSync } from 'node:fs'
 import { readdir, stat } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -11,11 +11,6 @@ const PACKAGE_ROOT = resolve(ROOT, 'packages/0')
 const COMPONENTS_DIR = resolve(PACKAGE_ROOT, 'src/components')
 const OUTPUT_DIR = resolve(PACKAGE_ROOT, 'dist/json')
 const TSCONFIG = resolve(PACKAGE_ROOT, 'tsconfig.json')
-
-// Ensure output dir exists
-if (!existsSync(OUTPUT_DIR)) {
-  mkdirSync(OUTPUT_DIR, { recursive: true })
-}
 
 // Read package.json for version
 const packageJson = JSON.parse(readFileSync(resolve(PACKAGE_ROOT, 'package.json'), 'utf8'))
@@ -187,6 +182,11 @@ async function run () {
       },
     },
   }
+
+  // Create the output dir right before writing: tsdown's build wipes dist/
+  // (clean defaults to true), and `pnpm generate:web-types` may run standalone
+  // before dist/ exists.
+  mkdirSync(OUTPUT_DIR, { recursive: true })
 
   writeFileSync(resolve(OUTPUT_DIR, 'web-types.json'), JSON.stringify(webTypes, null, 2))
 

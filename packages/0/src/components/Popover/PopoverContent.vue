@@ -33,6 +33,8 @@
     attrs: {
       id: string
       popover: ''
+      style: Record<string, string>
+      onBeforetoggle: (e: ToggleEvent) => void
     }
   }
 </script>
@@ -58,6 +60,7 @@
     id: _id,
     positionArea,
     positionTry,
+    renderless,
   } = defineProps<PopoverContentProps>()
 
   const emit = defineEmits<PopoverContentEmits>()
@@ -92,6 +95,8 @@
     attrs: {
       id: id.value,
       popover: '',
+      style: style.value,
+      onBeforetoggle: onBeforeToggle,
     },
   }))
 </script>
@@ -100,9 +105,8 @@
   <Atom
     ref="ref"
     :as
-    :style
+    :renderless
     v-bind="slotProps.attrs"
-    @beforetoggle="onBeforeToggle"
   >
     <slot v-bind="slotProps" />
   </Atom>

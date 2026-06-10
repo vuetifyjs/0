@@ -53,8 +53,12 @@
   } = defineProps<PortalProps>()
 
   const stack = useStack()
+  // `disabled` is the Teleport toggle (render inline) — bound on <Teleport>
+  // below. It must NOT reach the stack ticket, whose `disabled` means
+  // selection-disabled: forwarding it makes ticket.select() a no-op, so an
+  // inline portal is excluded from the stack (z-index pins to base, inline
+  // portals collide, no dismiss/scrim coordination).
   const ticket = stack.register({
-    disabled,
     blocking,
     onDismiss: () => emit('close'),
   })

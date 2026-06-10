@@ -40,11 +40,6 @@ jobs:
       - name: Install
         run: pnpm install
 
-      - name: GitHub release
-        run: pnpm conventional-github-releaser -p vuetify
-        env:
-          CONVENTIONAL_GITHUB_RELEASER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Build
         run: pnpm build
 
@@ -52,5 +47,41 @@ jobs:
       - name: Update NPM
         run: npm install -g npm@latest
 
+      # Substrate only. @vuetify/v0 + @vuetify/paper version in lockstep and ship
+      # from this tag; @paper/* design systems are versioned and released
+      # independently. Allowlist is explicit on purpose — a new substrate package
+      # must be added here; a new design system must NOT.
       - name: Publish to NPM
-        run: pnpm -r publish --access public --no-git-checks
+        run: pnpm --filter @vuetify/v0 --filter @vuetify/paper publish --access public --no-git-checks
+
+      # Fail loud if either substrate package's tagged version did not actually
+      # land on npm (e.g. a partial `-r publish`, which once left paper ~4h
+      # behind v0). Tag-agnostic: asserts the exact version exists, not a dist-tag.
+      - name: Verify substrate published
+        run: |
+          set -euo pipefail
+          for pkg in packages/0 packages/paper; do
+            name=$(node -p "require('./$pkg/package.json').name")
+            version=$(node -p "require('./$pkg/package.json').version")
+            echo "Verifying $name@$version on npm..."
+            found=0
+            for attempt in 1 2 3 4 5; do
+              if npm view "$name@$version" version >/dev/null 2>&1; then
+                found=1
+                break
+              fi
+              echo "  not visible yet (attempt $attempt), retrying in 5s"
+              sleep 5
+            done
+            if [ "$found" -ne 1 ]; then
+              echo "::error::$name@$version is missing from npm — the substrate publish did not complete."
+              exit 1
+            fi
+            echo "  confirmed $name@$version"
+          done
+
+      # Runs last so a red build/publish/verify never mints a GitHub release
+      - name: GitHub release
+        run: pnpm conventional-github-releaser -p vuetify
+        env:
+          CONVENTIONAL_GITHUB_RELEASER_TOKEN: ${{ secrets.GITHUB_TOKEN }}

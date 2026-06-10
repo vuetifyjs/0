@@ -47,7 +47,7 @@
     default: (props: SnackbarCloseSlotProps) => any
   }>()
 
-  const { as = 'button', namespace = 'v0:notifications' } = defineProps<SnackbarCloseProps>()
+  const { as = 'button', namespace = 'v0:notifications', renderless } = defineProps<SnackbarCloseProps>()
 
   const context = useSnackbarRootContext(namespace)
   const locale = useLocale()
@@ -67,8 +67,9 @@
 
 <template>
   <Atom
-    v-bind="slotProps.attrs"
     :as
+    :renderless
+    v-bind="slotProps.attrs"
   >
     <slot v-bind="slotProps" />
   </Atom>

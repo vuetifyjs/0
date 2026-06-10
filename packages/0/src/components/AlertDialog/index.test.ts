@@ -99,6 +99,35 @@ describe('alertDialog', () => {
     })
   })
 
+  describe('renderless onClick handlers', () => {
+    it('should expose onClick in slot attrs for activator, action, and cancel', () => {
+      const captured: Record<string, any> = {}
+      function capture (key: string) {
+        return (props: any) => {
+          captured[key] = props
+          return h('button', key)
+        }
+      }
+
+      mountWithStack(AlertDialog.Root, {
+        props: { modelValue: true },
+        slots: {
+          default: () => [
+            h(AlertDialog.Activator as any, {}, { default: capture('activator') }),
+            h(AlertDialog.Action as any, {}, { default: capture('action') }),
+            h(AlertDialog.Cancel as any, {}, { default: capture('cancel') }),
+          ],
+        },
+      })
+
+      // Pre-fix the click handler lived on an `@click` directive (lost in
+      // renderless mode); it must be exposed through slot attrs instead.
+      expect(captured.activator.attrs.onClick).toBeTypeOf('function')
+      expect(captured.action.attrs.onClick).toBeTypeOf('function')
+      expect(captured.cancel.attrs.onClick).toBeTypeOf('function')
+    })
+  })
+
   describe('activator', () => {
     it('should render as button by default', () => {
       const wrapper = mountWithStack(AlertDialog.Root, {
@@ -386,6 +415,30 @@ describe('alertDialog', () => {
       outsideEl.remove()
       HTMLDialogElement.prototype.getBoundingClientRect = originalGetBoundingClientRect
     })
+
+    it('should expose the modal contract in slot attrs so renderless mode works', async () => {
+      let captured: any
+
+      const wrapper = mountWithStack(AlertDialog.Root, {
+        props: { modelValue: true },
+        slots: {
+          default: () => h(AlertDialog.Content, { renderless: true }, {
+            default: (props: any) => {
+              captured = props
+              return h('section', { 'data-testid': 'custom-content', ...props.attrs }, 'Content')
+            },
+          }),
+        },
+      })
+
+      await nextTick()
+      expect(captured.attrs.role).toBe('alertdialog')
+      expect(captured.attrs['aria-modal']).toBe('true')
+
+      const custom = wrapper.find('[data-testid="custom-content"]')
+      expect(custom.element.parentElement?.tagName).not.toBe('DIALOG')
+      expect(wrapper.findAll('[role="alertdialog"]')).toHaveLength(1)
+    })
   })
 
   describe('title', () => {
@@ -415,6 +468,30 @@ describe('alertDialog', () => {
       const title = wrapper.findComponent(AlertDialog.Title as any)
       expect(title.attributes('id')).toBe('test-alert-title')
     })
+
+    it('should expose id in slot attrs so renderless mode works', () => {
+      let captured: any
+
+      const wrapper = mountWithStack(AlertDialog.Root, {
+        props: { id: 'test-alert' },
+        slots: {
+          default: () => h(AlertDialog.Content, {}, () => [
+            h(AlertDialog.Title, { renderless: true }, {
+              default: (props: any) => {
+                captured = props
+                return h('span', { 'data-testid': 'custom-title', ...props.attrs }, 'Title')
+              },
+            }),
+          ]),
+        },
+      })
+
+      expect(captured.attrs.id).toBe('test-alert-title')
+
+      const custom = wrapper.find('[data-testid="custom-title"]')
+      expect(custom.element.parentElement?.tagName).not.toBe('H2')
+      expect(wrapper.findAll('#test-alert-title')).toHaveLength(1)
+    })
   })
 
   describe('description', () => {
@@ -443,6 +520,30 @@ describe('alertDialog', () => {
 
       const description = wrapper.findComponent(AlertDialog.Description as any)
       expect(description.attributes('id')).toBe('test-alert-description')
+    })
+
+    it('should expose id in slot attrs so renderless mode works', () => {
+      let captured: any
+
+      const wrapper = mountWithStack(AlertDialog.Root, {
+        props: { id: 'test-alert' },
+        slots: {
+          default: () => h(AlertDialog.Content, {}, () => [
+            h(AlertDialog.Description, { renderless: true }, {
+              default: (props: any) => {
+                captured = props
+                return h('span', { 'data-testid': 'custom-description', ...props.attrs }, 'Description')
+              },
+            }),
+          ]),
+        },
+      })
+
+      expect(captured.attrs.id).toBe('test-alert-description')
+
+      const custom = wrapper.find('[data-testid="custom-description"]')
+      expect(custom.element.parentElement?.tagName).not.toBe('P')
+      expect(wrapper.findAll('#test-alert-description')).toHaveLength(1)
     })
   })
 
@@ -625,7 +726,7 @@ describe('alertDialog', () => {
       expect(close.attributes('type')).toBeUndefined()
     })
 
-    it.skip('should expose onClick in slot attrs so renderless mode works', async () => {
+    it('should expose onClick in slot attrs so renderless mode works', async () => {
       const isOpen = ref(true)
       let captured: any
 
@@ -651,7 +752,13 @@ describe('alertDialog', () => {
       await nextTick()
       expect(captured.attrs.onClick).toBeTypeOf('function')
 
-      await wrapper.find('[data-testid="custom-close"]').trigger('click')
+      // Renderless must not render a wrapper element of its own —
+      // the consumer's element is the root, not a child of a <button>
+      const custom = wrapper.find('[data-testid="custom-close"]')
+      expect(custom.element.parentElement?.tagName).not.toBe('BUTTON')
+      expect(wrapper.findAll('[aria-label]')).toHaveLength(1)
+
+      await custom.trigger('click')
       expect(isOpen.value).toBe(false)
     })
   })

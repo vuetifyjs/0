@@ -1327,7 +1327,7 @@ describe('numberField', () => {
       expect(captured.attrs['data-readonly']).toBeUndefined()
     })
 
-    it.skip('should expose pointer event handlers in slot attrs for renderless mode', async () => {
+    it('should expose pointer event handlers in slot attrs for renderless mode', async () => {
       const model = ref<number | null>(5)
       let captured: any
       mount(NumberField.Root, {
@@ -1350,7 +1350,7 @@ describe('numberField', () => {
       expect(captured.attrs.onPointerup).toBeTypeOf('function')
     })
 
-    it.skip('should support renderless mode with bound slot attrs', async () => {
+    it('should support renderless mode with bound slot attrs', async () => {
       const rafSpy = vi.spyOn(globalThis, 'requestAnimationFrame').mockImplementation((cb: any) => {
         cb(0)
         return 1
@@ -1878,6 +1878,26 @@ describe('numberField', () => {
       await flushPromises()
 
       expect(rule).toHaveBeenCalled()
+    })
+
+    it('should not validate on input before the first error in eager mode', async () => {
+      const model = ref<number | null>(5)
+      const rule = vi.fn(() => true)
+      const { wrapper, wait } = mountNumberField({
+        model,
+        props: { rules: [rule], validateOn: 'eager input' },
+      })
+      await wait()
+      await flushPromises()
+      rule.mockClear()
+
+      // A passing input change before any error must NOT validate in eager
+      // mode — eager re-validates on input only once an error exists.
+      await wrapper.setProps({ modelValue: 7 })
+      await wait()
+      await flushPromises()
+
+      expect(rule).not.toHaveBeenCalled()
     })
 
     it('should accept input modifier in validateOn string', async () => {

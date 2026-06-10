@@ -1,6 +1,6 @@
 {
   "name": "@vuetify/v0",
-  "version": "1.0.0-beta.0",
+  "version": "1.0.0-beta.1",
   "description": "A meta UI framework for building applications, component libraries, and design systems with Vue 3",
   "license": "MIT",
   "funding": [
@@ -24,7 +24,7 @@
     "directory": "packages/0"
   },
   "scripts": {
-    "build": "concurrently --names tsdown,webtypes --kill-others-on-fail --prefix-colors cyan,magenta 'pnpm build:tsdown' 'pnpm build:web-types'",
+    "build": "pnpm build:tsdown && pnpm build:web-types",
     "build:tsdown": "tsdown",
     "build:web-types": "tsx scripts/generate-web-types.ts",
     "generate:web-types": "tsx scripts/generate-web-types.ts",
@@ -123,7 +123,6 @@
     "@material/material-color-utilities": "catalog:",
     "@vue/compiler-dom": "catalog:",
     "@vue/test-utils": "catalog:",
-    "concurrently": "catalog:",
     "launchdarkly-js-client-sdk": "catalog:",
     "posthog-js": "catalog:",
     "tsdown": "catalog:",

@@ -140,6 +140,10 @@ export function createValidation (_options: ValidationOptions = {}): ValidationC
   }
 
   async function validate (_value: unknown = UNSET, silent = false): Promise<boolean> {
+    // Bump generation up-front so every call — including the no-active-rules
+    // path below — invalidates any in-flight validation. Otherwise a slow rule
+    // resolving after a later no-rules call would overwrite the newer state.
+    const gen = ++generation
     const val = _value === UNSET ? toValue(valueSource) : _value
     const activeRules: FormValidationRule[] = []
 
@@ -148,11 +152,14 @@ export function createValidation (_options: ValidationOptions = {}): ValidationC
     }
 
     if (activeRules.length === 0) {
-      if (!silent) isValid.value = true
+      if (!silent) {
+        errors.value = []
+        isValid.value = true
+        isValidating.value = false
+      }
       return true
     }
 
-    const gen = ++generation
     if (!silent) isValidating.value = true
 
     try {

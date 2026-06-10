@@ -84,6 +84,20 @@ describe('rating', () => {
 
         expect(rootProps().items).toHaveLength(10)
       })
+
+      it('should react to size prop changes', async () => {
+        const { wrapper, rootProps, wait } = mountRating({ size: 5 })
+        await wait()
+        expect(rootProps().items).toHaveLength(5)
+
+        await wrapper.setProps({ size: 8 })
+        await wait()
+
+        // Pre-fix, size was passed to createRating as a bare scalar (frozen at
+        // mount), so changing the prop didn't grow the items; the toRef wrapper
+        // keeps it reactive.
+        expect(rootProps().items).toHaveLength(8)
+      })
     })
 
     describe('v-model', () => {

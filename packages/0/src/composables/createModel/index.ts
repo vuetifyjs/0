@@ -214,12 +214,13 @@ export interface ModelContext<
    *
    * @param values Array of values to apply. Only `values[0]` is used (single-value store).
    * @param options Optional. Accepted for interface compatibility with `createSelection`; ignored at this layer.
-   * @remarks Used internally by `useProxyModel` to sync a ref with the model. Executes two steps sequentially:
+   * @remarks Used internally by `useProxyModel` to sync a ref with the model. Two paths:
    * 1. **Ref write**: Writes `values[0]` to any selected ticket whose value is a ref.
-   * 2. **Browse resolution**: Clears `selectedIds`, resolves `values[0]` via `registry.browse()`, and selects the match.
-   *
-   * For ref-valued tickets, browse typically finds no match (the catalog indexes by the ref object,
-   * not the unwrapped value), so `selectedIds` will be empty after apply.
+   *    The write is the application — the selection is kept and browse is skipped
+   *    (the catalog indexes the ref object, not the unwrapped value). An `undefined`
+   *    value leaves the ref untouched.
+   * 2. **Browse resolution**: Otherwise clears `selectedIds`, resolves `values[0]`
+   *    via `registry.browse()`, and selects the match.
    *
    * @see https://0.vuetifyjs.com/composables/selection/create-model
    *
@@ -377,7 +378,7 @@ export function createModel<
 
   const selectedValues = computed(() => {
     return new Set(
-      Array.from(selectedItems.value).map(item => toValue(item.value)),
+      Array.from(selectedItems.value).map(item => toValue(item.value) as E['value'] extends Ref<infer U> ? U : E['value']),
     )
   })
 
@@ -411,13 +412,18 @@ export function createModel<
   function apply (values: unknown[], _options?: { multiple?: boolean }): void {
     const value = values[0]
 
-    // If the selected ticket's value is a ref, update it directly
+    // Browse indexes the ref object, not the unwrapped value, so a ref write
+    // IS the application — keep the selection. Skip undefined so an empty
+    // v-model init doesn't clobber the store ref.
+    let written = false
     for (const id of selectedIds) {
       const item = registry.get(id)
       if (!item || !isRef(item.value)) continue
 
-      item.value.value = value
+      if (!isUndefined(value)) item.value.value = value
+      written = true
     }
+    if (written) return
 
     // Fallback: browse resolution for static values
     if (!toValue(multiple)) selectedIds.clear()
@@ -497,5 +503,5 @@ export function createModel<
     get size () {
       return registry.size
     },
-  } as unknown as R
+  } satisfies ModelContext<Z, E> as unknown as R
 }
