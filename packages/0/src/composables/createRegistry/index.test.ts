@@ -7,6 +7,7 @@ import { computed, isReactive, nextTick, shallowRef, watchEffect } from 'vue'
 
 // Types
 import type { ID } from '#v0/types'
+import type { RegistryTicketInput } from './index'
 
 describe('createRegistry', () => {
   describe('registration', () => {
@@ -255,6 +256,71 @@ describe('createRegistry', () => {
       expect(explicit.valueIsIndex).toBe(false)
     })
 
+    it('should ignore a supplied index and append when registering', () => {
+      const registry = createRegistry()
+      const a = registry.register({ id: 'a' })
+      const b = registry.register({ id: 'b' })
+      const c = registry.register({ id: 'c', index: 0 })
+      const d = registry.register({ id: 'd', index: 99 })
+
+      expect(registry.keys()).toEqual(['a', 'b', 'c', 'd'])
+      expect(registry.lookup(0)).toBe('a')
+      expect(registry.lookup(2)).toBe('c')
+      expect(registry.lookup(99)).toBeUndefined()
+      expect(registry.values()[2]?.id).toBe('c')
+      expect(a.index).toBe(0)
+      expect(b.index).toBe(1)
+      expect(c.index).toBe(2)
+      expect(d.index).toBe(3)
+    })
+
+    it('should keep order and collection consistent when moving after a registration with a supplied index', () => {
+      const registry = createRegistry()
+      registry.register({ id: 'a' })
+      registry.register({ id: 'b' })
+      registry.register({ id: 'c', index: 0 })
+
+      registry.move('c', 0)
+
+      expect(registry.keys()).toEqual(['c', 'a', 'b'])
+      expect(registry.keys().length).toBe(registry.size)
+      expect(new Set(registry.keys()).size).toBe(registry.size)
+      for (const id of ['a', 'b', 'c']) {
+        expect(registry.has(id)).toBe(true)
+      }
+      for (const [index, ticket] of registry.values().entries()) {
+        expect(ticket.index).toBe(index)
+        expect(registry.lookup(index)).toBe(ticket.id)
+      }
+    })
+
+    it('should ignore a supplied index when upserting a missing id', () => {
+      const registry = createRegistry<RegistryTicketInput & { index?: number }>()
+      registry.register({ id: 'a' })
+      registry.register({ id: 'b' })
+      registry.upsert('c', { index: 0 })
+
+      expect(registry.keys()).toEqual(['a', 'b', 'c'])
+      expect(registry.lookup(0)).toBe('a')
+      expect(registry.get('c')?.index).toBe(2)
+    })
+
+    it('should append a re-registered ticket that carries a stale index', () => {
+      const registry = createRegistry()
+      registry.register({ id: 'a' })
+      const b = registry.register({ id: 'b' })
+      registry.register({ id: 'c' })
+
+      registry.unregister('b')
+      const again = registry.register({ ...b })
+
+      expect(again.index).toBe(2)
+      expect(registry.keys()).toEqual(['a', 'c', 'b'])
+      expect(registry.lookup(0)).toBe('a')
+      expect(registry.lookup(2)).toBe('b')
+      expect(new Set(registry.keys()).size).toBe(registry.size)
+    })
+
     it('should not remove an item if unregistering a non-existent id', () => {
       const registry = createRegistry()
       const tickets = registry.onboard([
@@ -282,7 +348,8 @@ describe('createRegistry', () => {
 
     it('should lookup an items ID by index', () => {
       const registry = createRegistry()
-      registry.register({ id: 'lookup-me', index: 1 })
+      registry.register({ id: 'zero' })
+      registry.register({ id: 'lookup-me' })
 
       const found = registry.lookup(1)
 
@@ -316,8 +383,8 @@ describe('createRegistry', () => {
       registry.register({ id: 'item-2', index: 3, value: 'value-2' })
       registry.register({ id: 'item-3', index: 4 })
 
-      expect(registry.lookup(2)).toBe('item-1')
-      expect(registry.get('item-1')?.index).toBe(2)
+      expect(registry.lookup(2)).toBe('item-3')
+      expect(registry.get('item-1')?.index).toBe(0)
 
       registry.reindex()
 
@@ -1076,6 +1143,58 @@ describe('createRegistry', () => {
 
       // Events emitted after batch completes
       expect(clearListener).toHaveBeenCalledTimes(1)
+    })
+
+    it('should keep keys, values, and entries coherent after a listener mutates during batch dispatch', () => {
+      const registry = createRegistry({ events: true })
+      let mutated = false
+
+      registry.on('register:ticket', () => {
+        registry.keys()
+        registry.values()
+        registry.entries()
+      })
+      registry.on('register:ticket', () => {
+        if (mutated) return
+        mutated = true
+        registry.register({ id: 'extra' })
+      })
+
+      registry.batch(() => {
+        registry.register({ id: 'item-1' })
+      })
+
+      expect(registry.size).toBe(2)
+      expect(registry.keys().length).toBe(2)
+      expect(registry.values().length).toBe(2)
+      expect(registry.entries().length).toBe(2)
+      expect(registry.keys()).toContain('extra')
+    })
+
+    it('should keep caches coherent after a clear:registry listener mutates during batch dispatch', () => {
+      const registry = createRegistry({ events: true })
+      registry.register({ id: 'item-1' })
+
+      let seeded = false
+      registry.on('clear:registry', () => {
+        registry.keys()
+        registry.values()
+        registry.entries()
+      })
+      registry.on('clear:registry', () => {
+        if (seeded) return
+        seeded = true
+        registry.register({ id: 'seed' })
+      })
+
+      registry.batch(() => {
+        registry.clear()
+      })
+
+      expect(registry.size).toBe(1)
+      expect(registry.keys()).toEqual(['seed'])
+      expect(registry.values().length).toBe(1)
+      expect(registry.entries().length).toBe(1)
     })
 
     it('should update valueIsIndex and catalog on upsert', () => {
