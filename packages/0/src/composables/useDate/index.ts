@@ -55,7 +55,7 @@ import type { ID } from '#v0/types'
 import type { App, ComputedRef, Ref } from 'vue'
 
 // Exports
-export type { DateAdapter } from '#v0/composables/useDate/adapters'
+export { DateAdapter } from '#v0/composables/useDate/adapters'
 
 export interface DateContext<Z> {
   /** The date adapter instance */
@@ -246,9 +246,9 @@ export function createDate<
 export function createDateContext<
   Z,
   E extends DateContext<Z> = DateContext<Z>,
-> (options: DateContextOptions<Z>): ContextTrinity<E> {
-  const { namespace = 'v0:date', ...dateOptions } = options
-  const context = createDate<Z, E>(dateOptions)
+> (_options: DateContextOptions<Z>): ContextTrinity<E> {
+  const { namespace = 'v0:date', ...options } = _options
+  const context = createDate<Z, E>(options)
 
   return createTrinity<E>(namespace, context)
 }
@@ -280,9 +280,9 @@ export function createDateContext<
 export function createDatePlugin<
   Z,
   E extends DateContext<Z> = DateContext<Z>,
-> (options: DatePluginOptions<Z>) {
-  const { namespace = 'v0:date', ...dateOptions } = options
-  const [, provideDateContext, context] = createDateContext<Z, E>({ namespace, ...dateOptions })
+> (_options: DatePluginOptions<Z>) {
+  const { namespace = 'v0:date', ...options } = _options
+  const [, provideDateContext, context] = createDateContext<Z, E>({ namespace, ...options })
 
   return createPlugin({
     namespace,

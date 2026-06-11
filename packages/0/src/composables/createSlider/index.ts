@@ -19,11 +19,10 @@
  *
  * @example
  * ```ts
- * import { shallowRef } from 'vue'
  * import { createSlider } from '@vuetify/v0'
  *
  * const slider = createSlider({ min: 0, max: 100, step: 5 })
- * slider.register({ value: shallowRef(25) })
+ * slider.register({ value: 25 })
  * slider.set(0, 60)
  * ```
  */
@@ -44,6 +43,8 @@ import type { ComputedRef, MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
 export interface SliderTicketInput extends ModelTicketInput<ShallowRef<number>> {
   value: ShallowRef<number>
 }
+
+export type SliderTicket = ModelTicket<SliderTicketInput>
 
 /**
  * Configuration options for createSlider.
@@ -148,7 +149,7 @@ export interface SliderOptions {
  * @see {@link createModel} for the base model API (collection, selectedIds, etc.)
  */
 export interface SliderContext extends Omit<
-  ModelContext<SliderTicketInput, ModelTicket<SliderTicketInput>>,
+  ModelContext<SliderTicketInput, SliderTicket>,
   'values' | 'selectedValues' | 'apply' | 'disabled' | 'register'
 > {
   /**
@@ -234,7 +235,7 @@ export interface SliderContext extends Omit<
    * console.log(slider.values.value) // [50]
    * ```
    */
-  register: (input?: number | { value: number }) => ModelTicket<SliderTicketInput>
+  register: (input?: number | { value: number }) => SliderTicket
   /**
    * Unregister a thumb by ticket ID.
    *
@@ -445,27 +446,27 @@ export function createSlider (options: SliderOptions = {}): SliderContext {
     min = 0,
     max = 100,
     step = 1,
-    disabled: disabledProp = false,
-    readonly: readonlyProp = false,
-    orientation: orientationProp = 'horizontal',
-    inverted: invertedProp = false,
+    disabled: _disabled = false,
+    readonly: _readonly = false,
+    orientation: _orientation = 'horizontal',
+    inverted: _inverted = false,
     minStepsBetweenThumbs = 0,
     crossover = false,
     range = false,
   } = options
 
-  const model = createModel<SliderTicketInput, ModelTicket<SliderTicketInput>>({
-    disabled: disabledProp,
+  const model = createModel<SliderTicketInput, SliderTicket>({
+    disabled: _disabled,
     multiple: true,
     events: true,
   })
 
   const numeric = createNumeric({ min, max, step })
 
-  const disabled = toRef(() => toValue(disabledProp))
-  const readonly = toRef(() => toValue(readonlyProp))
-  const orientation = toRef(() => toValue(orientationProp))
-  const inverted = toRef(() => toValue(invertedProp))
+  const disabled = toRef(() => toValue(_disabled))
+  const readonly = toRef(() => toValue(_readonly))
+  const orientation = toRef(() => toValue(_orientation))
+  const inverted = toRef(() => toValue(_inverted))
 
   let pending: number[] | null = null
 
@@ -485,12 +486,12 @@ export function createSlider (options: SliderOptions = {}): SliderContext {
     return inverted.value ? 100 - p : p
   }
 
-  function fromPercent (p: number): number {
-    const value = numeric.fromPercent(p)
+  function fromPercent (percent: number): number {
+    const value = numeric.fromPercent(percent)
     return inverted.value ? numeric.max - (value - numeric.min) : value
   }
 
-  function register (input?: number | { value: number }): ModelTicket<SliderTicketInput> {
+  function register (input?: number | { value: number }): SliderTicket {
     const initialValue = isObject(input) ? input.value : input
     const thumbIndex = thumbs.value.length
     const pendingValue = pending?.[thumbIndex]
@@ -591,7 +592,7 @@ export function createSlider (options: SliderOptions = {}): SliderContext {
     set(index, max)
   }
 
-  function onboard (registrations: (number | { value: number } | Partial<SliderTicketInput>)[]): ModelTicket<SliderTicketInput>[] {
+  function onboard (registrations: (number | { value: number } | Partial<SliderTicketInput>)[]): SliderTicket[] {
     return model.batch(() => registrations.map(r => register(r as number | { value: number })))
   }
 

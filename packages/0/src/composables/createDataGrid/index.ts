@@ -58,6 +58,7 @@ import type { ColumnLayout, PinPosition } from './layout'
 import type { SpanEntry } from './spanning'
 import type { App, ComputedRef, MaybeRefOrGetter, Ref } from 'vue'
 
+// Exports
 export type { ColumnLayout, GridColumnDef, PinnedRegion, PinPosition, ResolvedColumn } from './layout'
 export type { ActiveCell, CellEditing, CellEditingOptions, CellEditingRegistry, EditableColumn } from './editing'
 export type { RowSpanningOptions, SpanEntry } from './spanning'

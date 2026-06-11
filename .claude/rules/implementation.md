@@ -81,8 +81,8 @@ This is the proactive half. `feedback_bug_family_audit` is the reactive half: af
 RegistryTicketInput
   ├── ModelTicketInput
   │     ├── SelectionTicketInput
-  │     │     ├── SingleTicketInput
-  │     │     └── StepTicketInput
+  │     │     └── SingleTicketInput
+  │     │           └── StepTicketInput
   │     └── GroupTicketInput
   │           └── NestedTicketInput
   ├── QueueTicketInput
@@ -137,7 +137,7 @@ return {
 }
 ```
 
-This is the single mechanism by which `createModel → createSelection → createSingle → createGroup → createStep` remain type-substitutable.
+This is the single mechanism by which `createModel → createSelection → { createSingle → createStep, createGroup → createNested }` remain type-substitutable.
 
 ## Reactive Collections (PHILOSOPHY §4.1)
 

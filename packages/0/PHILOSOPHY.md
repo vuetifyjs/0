@@ -108,7 +108,7 @@ function register (input: unknown): unknown {
 
 **Exceptions.** `packages/0/src/utilities/helpers.ts` defines the guards themselves and must use primitive comparisons at its root. This is the only file that gets to.
 
-**Anti-example.** `packages/0/src/composables/useNotifications/index.ts:490, 524` — `every(t => t.readAt !== null)` and `every(t => t.archivedAt !== null)` inside JSDoc `@example` blocks. These render on the docs API page and teach the wrong form to readers. Should be `!isNull(t.readAt)` / `!isNull(t.archivedAt)`. Source-code comparisons across `packages/0/src/` are clean as of this writing — the holdouts that survived are inside doc strings.
+**Anti-example.** `every(t => t.readAt !== null)` — a raw `!== null` comparison; the guard form is `every(t => !isNull(t.readAt))`. Both source-code and JSDoc `@example` comparisons across `packages/0/src/` are clean as of this writing.
 
 **Canonical example.** `packages/0/src/composables/createDataTable/index.ts` — 10 guard calls in one file, zero raw comparisons.
 
@@ -153,7 +153,7 @@ import { createRegistry } from '../createRegistry'
 
 **Why.** Spread guarantees the child remains substitutable for the parent in types. The 27 registry-based composables all compose this way; consumers who hold a reference to the parent type can upgrade to the child type without refactoring call sites.
 
-**Canonical example.** `packages/0/src/composables/createSelection/index.ts:286-294` — spreads `createModel`, adds `multiple`, `toggle`, `apply`, `mandate`.
+**Canonical example.** `packages/0/src/composables/createSelection/index.ts:296-309` — spreads `createModel`, adds `multiple`, `toggle`, `apply`, `mandate`.
 
 ```ts
 return {
@@ -177,10 +177,10 @@ return {
 
 **Why.** Consumers import from a flat barrel. Without the marker, bundlers retain every utility the barrel touches. Meta-frameworks with 64 composables and 37 components cannot afford a lazy barrel.
 
-**Canonical example.** `packages/0/src/utilities/helpers.ts:27,44,64,82,108,126,144,164,189,209` — every exported guard carries the comment directly above the function declaration.
+**Canonical example.** `packages/0/src/utilities/helpers.ts:32,49,69,87,113,138,156,174,194,219` — every exported guard carries the comment directly above the function declaration.
 
 ```ts
-// packages/0/src/utilities/helpers.ts:27-30
+// packages/0/src/utilities/helpers.ts:32-35
 /* #__NO_SIDE_EFFECTS__ */
 export function isFunction (item: unknown): item is Function {
   return typeof item === 'function'
@@ -262,10 +262,17 @@ function useFoo () {
 // Right — throw on missing required context
 function useFoo () {
   const ctx = inject(key)
-  if (!ctx) throw new Error('useFoo must be called within FooProvider')
+  if (isUndefined(ctx)) {
+    throw new V0Error('useFoo must be called within FooProvider', {
+      code: 'V0_CONTEXT_MISSING',
+      key,
+    })
+  }
   return ctx
 }
 ```
+
+Bare `Error` is forbidden in `packages/0/src` source by the `vuetify/no-bare-error-throw` ESLint config (a `no-restricted-syntax` rule over `packages/0/src/**/*.ts`). Throw a `V0Error` with a code from `V0ErrorDetails` (`packages/0/src/utilities/errors.ts`) instead — see `createContext` for the canonical form.
 
 ---
 
@@ -275,9 +282,7 @@ function useFoo () {
 
 **Why.** v0 runs under SSR. An unguarded `window.x` crashes the server build. The gate is one line and composes through adapters.
 
-**Canonical example.** `packages/0/src/composables/useStorage/index.ts:105` — `IN_BROWSER ? window.localStorage : new MemoryStorageAdapter()`.
-
-**Known soft-violations.** `packages/0/src/composables/useClickOutside/index.ts:346-350`, `packages/0/src/composables/useHotkey/index.ts:159`, `packages/0/src/composables/createCombobox/index.ts:187` — each reads `document.*` inside a browser-only handler. Safe in practice, but the rule is per-composable, not per-call-site. Add the guard.
+**Canonical example.** `packages/0/src/composables/useStorage/index.ts:114` — `IN_BROWSER ? window.localStorage : new MemoryStorageAdapter()`.
 
 ---
 
@@ -290,7 +295,7 @@ Three allowable return shapes, in order of prevalence:
 **3.1.1 Plain object.** The dominant shape. Used by ~51 of 63 composable directories. Returned from every selection, registry, model, data, and browser composable that is not a trinity builder itself.
 
 ```ts
-// packages/0/src/composables/createSelection/index.ts:286
+// packages/0/src/composables/createSelection/index.ts:296
 return {
   ...model,
   multiple,
@@ -300,10 +305,10 @@ return {
 }
 ```
 
-**3.1.2 Trinity tuple.** `[useX, provideX, defaultX]as const` (registries) or `[createXContext, createXPlugin, useX] as const` (plugins). Returned from exactly three foundation factories: `createTrinity`, `createContext`, `createPlugin`. Every other "trinity-using" composable *consumes* these internally and returns a plain object. [intent:80, intent:119, intent:120]
+**3.1.2 Trinity tuple.** `[useX, provideX, defaultX] as const` (registries) or `[createXContext, createXPlugin, useX] as const` (plugins). Returned from exactly two foundation factories: `createTrinity` and `createPlugin`. `createContext` returns the `[useX, provideX]` pair that `createTrinity` consumes and extends into the trinity. Every other "trinity-using" composable *consumes* these internally and returns a plain object. [intent:80, intent:119, intent:120]
 
 ```ts
-// packages/0/src/composables/createTrinity/index.ts:92-97
+// packages/0/src/composables/createTrinity/index.ts:100-104
 return [
   keyOrUseContext,
   (_context: Z = context, app?: App): Z => provideContext(_context, app),
@@ -314,7 +319,6 @@ return [
 **3.1.3 Single value / function.** Pass-through transformers and event composables:
 - `useEventListener` → cleanup `stop: () => void`
 - `toArray`, `toElement`, `toReactive` → value or proxy
-- `useMutationObserver` → underlying observer
 - `useRaf` → augmented function via `Object.assign`
 
 Choose 3.1.3 only when there is literally one useful return. Any time you reach for a tuple other than a trinity, switch to a plain object with named keys.
@@ -327,8 +331,8 @@ Choose 3.1.3 only when there is literally one useful return. Any time you reach 
 
 ```ts
 // Right
-function createSelection <Z, E> (options: SelectionOptions = {}): SelectionContext<Z, E> {
-  const { multiple, mandatory, ...rest } = options
+function createSelection <Z, E> (_options: SelectionOptions = {}): SelectionContext<Z, E> {
+  const { multiple, mandatory, ...options } = _options
   const model = createModel(options)
   // ...
 }
@@ -477,9 +481,9 @@ Always use `.value` when reading these in templates. Never rely on Vue's auto-un
 
 **Intentional mutable returns.** Some composables return *mutable* refs by design because the consumer is expected to write to them. The return interface types them as `ShallowRef<T>` (or `Ref<T>`) so the write contract is visible at the type level:
 
-- `packages/0/src/composables/useTimer/index.ts:187-196` — `remaining`, `isActive`, `isPaused` typed as `ShallowRef<...>` in `TimerContext`. Consumers pause and resume by writing.
-- `packages/0/src/composables/usePopover/index.ts:173-184` — `isOpen: Ref<boolean>` for v-model bidirectional binding.
-- `packages/0/src/composables/createInput/index.ts:173-180` — `value`, `isDirty`, `isFocused`, `isTouched`, `isPristine` mutable so bound components can write.
+- `packages/0/src/composables/useTimer/index.ts:68,70,72` — `remaining`, `isActive`, `isPaused` typed as `ShallowRef<...>` in `TimerContext`. Consumers pause and resume by writing.
+- `packages/0/src/composables/usePopover/index.ts:58` — `isOpen: Ref<boolean>` for v-model bidirectional binding.
+- `packages/0/src/composables/createInput/index.ts:90,94,98` — `value`, `isFocused`, `isTouched` mutable so bound components can write; `isDirty` / `isPristine` are `Readonly<Ref<boolean>>` (do not write).
 
 **Follow-up audit.** `useRovingFocus` and `createFocusTraversal` are flagged for the same shape audit — confirm every consumer-visible ref is wrapped in `shallowReadonly` at the boundary, or, if it is intentionally mutable, declared as `ShallowRef<T>` in the return interface.
 
@@ -526,15 +530,15 @@ createOverflow({ gap: () => gap })
 
 `reactive: true` on a registry wraps the internal collection as `shallowReactive` and each registered ticket as a `shallowReactive` proxy. When this option is set, `values()` / `keys()` / `entries()` skip their result cache and re-iterate on every call, so Vue's dep tracking holds across computed re-runs. Template iteration, `registry.size` reads, `get(id)` reads, and per-ticket field mutations via `upsert` all propagate to consumers. [intent:253]
 
-`useProxyRegistry(registry, { events: true })` exposes `proxy.values` / `proxy.keys` / `proxy.entries` / `proxy.size` as properties on a shallow-reactive object, updated from `register:ticket` / `unregister:ticket` / `update:ticket` / `clear:registry` / `reindex:registry` events. It does not wrap the tickets themselves, and supports `{ deep: true }` for nested tracking. [intent:254]
+`useProxyRegistry(registry)` (on a registry created with `events: true`) exposes `proxy.values` / `proxy.keys` / `proxy.entries` / `proxy.size` as properties on a shallow-reactive object, updated from `register:ticket` / `unregister:ticket` / `update:ticket` / `clear:registry` / `reindex:registry` events. It does not wrap the tickets themselves, and supports `{ deep: true }` for nested tracking. [intent:254]
 
 Both are valid and complementary. Pick based on the consumer's actual need:
 
 | Want | Use |
 |---|---|
 | Reactive iteration **plus** per-ticket field mutations via `upsert` | `reactive: true` on the registry |
-| Reactive iteration without wrapping each ticket in a proxy | `useProxyRegistry(registry, { events: true })` |
-| `{ deep: true }` tracking on registered tickets | `useProxyRegistry(registry, { deep: true, events: true })` |
+| Reactive iteration without wrapping each ticket in a proxy | `useProxyRegistry(registry)` |
+| `{ deep: true }` tracking on registered tickets | `useProxyRegistry(registry, { deep: true })` |
 | Explicit event-driven snapshot semantics, no registry-level reactivity | `useProxyRegistry` |
 
 Plugins bake one or the other in internally — see `.claude/rules/composables.md` "Plugins and Reactive Defaults" for the convention. Primitives expose the choice to callers.
@@ -542,7 +546,7 @@ Plugins bake one or the other in internally — see `.claude/rules/composables.m
 ### 4.5 Scope cleanup contract
 
 - DOM observers and event listeners use `onScopeDispose(cleanup)`. [intent:139]
-- Performance-critical DOM observers use deferred cleanup: `onScopeDispose(cleanup, true)`. [intent:140]
+- Composables that may run outside a Vue setup scope (tests, manual scopes) pass `failSilently`: `onScopeDispose(cleanup, true)` — the `true` suppresses the no-active-scope warning, not a perf/deferred toggle. [intent:140]
 - Pure data structures and computed state need no cleanup — Vue's effect scope handles them. [intent:141]
 - Conditional cleanup: use `useToggleScope(source, fn)` when side effects should only run while a reactive boolean is true. When the boolean flips false, the entire scope is torn down (watchers stop, event listeners detach, `onScopeDispose` fires) without manual bookkeeping. Canonical: `packages/0/src/composables/useToggleScope/index.ts`.
 
@@ -597,7 +601,7 @@ Every user-facing string (`aria-label`, error messages, day-of-week names, month
 |-----------|------|
 | `createContext` | Subtree DI with a strict key namespace. Returns a `[useX, provideX]` pair or a dynamic-key pair when a `suffix` is passed. [intent:119] |
 | `createRegistry` | Indexed ticket store with value-is-index semantics. Foundation for all registered-child patterns. [intent:96] |
-| `createTrinity` | Return-tuple builder. Invoked by `createContext` and `createPlugin`; rarely called directly outside foundation code. [intent:80] |
+| `createTrinity` | Return-tuple builder. Consumes `createContext`; invoked by `createPlugin`. Rarely called directly outside foundation code. [intent:80] |
 | `createPlugin` / `createPluginContext` | App-level singleton with install hook, adapter wiring, optional persist/restore. [intent:120, intent:144] |
 
 ### 6.2 Ticket hierarchy
@@ -606,15 +610,15 @@ Every user-facing string (`aria-label`, error messages, day-of-week names, month
 RegistryTicketInput
   ├── ModelTicketInput
   │     ├── SelectionTicketInput
-  │     │     ├── SingleTicketInput
-  │     │     └── StepTicketInput
+  │     │     └── SingleTicketInput
+  │     │           └── StepTicketInput
   │     └── GroupTicketInput
   │           └── NestedTicketInput
   ├── QueueTicketInput
   └── FormTicketInput
 ```
 
-Every ticket has the base interface `{ id: ID, index: number, value: unknown, valueIsIndex: boolean }`. [intent:96] Extensions spread the parent; they never override it. [intent:101]
+Every ticket has the base interface `{ id: ID, index: number, value: unknown, valueIsIndex: boolean, unregister: () => void }`. [intent:96] Extensions spread the parent; they never override it. [intent:101]
 
 ### 6.3 Element refs via registry
 
@@ -634,7 +638,7 @@ Composables needing global/injected context use `instanceExists()` or an equival
 
 **Rule.** Components and composables never call Vue's raw `inject` / `provide` directly. Subtree DI always flows through `createContext(key)`, which returns a `[useX, provideX]` pair with namespace validation, optional-injection support, and a `[v0:context]` warning when the key lacks a `:`. [intent:119, intent:226, intent:227]
 
-**Current state.** `packages/0/src/` uses raw `inject`/`provide` in exactly two non-test locations: `composables/createContext/index.ts:20` (the factory that implements the wrapper itself) and `composables/createPlugin/index.ts:23` (the plugin context factory, which wraps `inject` for app-level singletons). Both are foundational — they define the contract every caller consumes. No component or user-facing composable imports `inject`/`provide` from Vue.
+**Current state.** `packages/0/src/` uses raw `inject`/`provide` in exactly two non-test locations: `composables/createContext/index.ts:30` (the factory that implements the wrapper itself) and `composables/createPlugin/index.ts:34` (the plugin context factory, which wraps `inject` for app-level singletons). Both are foundational — they define the contract every caller consumes. No component or user-facing composable imports `inject`/`provide` from Vue.
 
 **Canonical example (component side).**
 ```ts
@@ -772,7 +776,7 @@ table.columns.clear()
 
 Callers who want domain-stable identity pass `id` explicitly — same pattern as `createSortable`. Omit `id` and the registry auto-generates one via `useId()`. Consumers with a reactive items source watch it themselves and call `clear()` + `onboard()` (or maintain `register` / `unregister` incrementally); the composable does not auto-sync from an external ref.
 
-**Composables that follow this rule.** `createRegistry`, `createModel`, `createSelection`, `createSingle`, `createGroup`, `createStep`, `createNested`, `createSortable`, `createKanban`, `createQueue`, `createTimeline`, `createTokens`. `createDataTable` predated the convention and has been brought in line — `items`, `itemValue`, and `columns` are all gone; consumers `onboard` rows on the returned context and columns on `table.columns`. The forthcoming `createDataGrid` will follow the same shape. [intent:353]
+**Composables that follow this rule.** `createRegistry`, `createModel`, `createSelection`, `createSingle`, `createGroup`, `createStep`, `createNested`, `createSortable`, `createKanban`, `createQueue`, `createTimeline`, `createTokens`, `createDataGrid`. `createDataTable` predated the convention and has been brought in line — `items`, `itemValue`, and `columns` are all gone; consumers `onboard` rows on the returned context and columns on `table.columns`. [intent:353]
 
 ---
 
@@ -849,9 +853,9 @@ export interface UseFooOptions {
 
 ### 8.5 `Extensible<T>`
 
-Use `Extensible<T>` for enums that must retain autocomplete while accepting arbitrary string extensions. The trick is `T | (string & {})` — see `packages/0/src/types/index.ts:124`. Without `& {}`, TypeScript collapses `'a' | 'b' | string` down to `string` and drops the autocomplete.
+Use `Extensible<T>` for enums that must retain autocomplete while accepting arbitrary string extensions. The trick is `T | (string & {})` — see `packages/0/src/types/index.ts:116`. Without `& {}`, TypeScript collapses `'a' | 'b' | string` down to `string` and drops the autocomplete.
 
-**Canonical example.** `packages/0/src/composables/useNotifications/index.ts:34`:
+**Canonical example.** `packages/0/src/composables/useNotifications/index.ts:43`:
 
 ```ts
 export type NotificationSeverity = Extensible<'info' | 'warning' | 'error' | 'success'>
@@ -890,14 +894,14 @@ return [useX, provideX, context]
 
 ### 8.7 Generic bounds
 
-Registry-based composables carry two generic parameters: `Z extends FooTicketInput` (input shape) and `E extends FooTicket<Z>` (output shape). Consumers parameterize once at the call site; the composable internally threads `Z` and `E` through every return-type contract.
+Registry-based composables carry `Z extends FooTicketInput` (input shape) and `E extends FooTicket<Z>` (output shape); consumers parameterize once at the call site and the composable threads `Z` and `E` through every return-type contract. Factories in the selection chain (`createModel`, `createSelection`, `createSingle`, `createGroup`, `createStep`) add a third generic `R extends FooContext<Z, E>` so subclasses can override the return type; leaf factories (`createSortable`, `createKanban`, `createTimeline`, `createTokens`) stop at `Z` and `E`.
 
 ```ts
-// packages/0/src/composables/createSelection/index.ts
-export function createSelection <
-  Z extends SelectionTicketInput = SelectionTicketInput,
-  E extends SelectionTicket<Z> = SelectionTicket<Z>,
-> (options: SelectionOptions = {}): SelectionContext<Z, E>
+// packages/0/src/composables/createSortable/index.ts
+export function createSortable<
+  Z extends SortableTicketInput = SortableTicketInput,
+  E extends SortableTicket<Z> = SortableTicket<Z>,
+> (_options: SortableOptions = {}): SortableContext<Z, E>
 ```
 
 ### 8.8 Slot type guardrails
@@ -937,7 +941,7 @@ Every key passed to `createContext(key)` or `createXContext({ namespace })` must
 **Static-key vs dynamic-key modes.** `createContext` operates in two modes:
 
 - **Static-key mode** — the call site passes a single string (`createContext('v0:tabs')`). The namespace is fixed at module load; the `[useX, provideX]` pair injects against that one key. Used by every compound component that scopes a single context per Root (`Tabs`, `Dialog`, `Combobox`).
-- **Dynamic-key mode** — the call site passes a `{ suffix: true }` configuration, which makes the returned `useX` / `provideX` accept a runtime namespace argument. Used when a single composable services multiple disjoint subtrees within the same app (e.g., nested `Selection` providers). The colon-namespace rule still applies — the runtime argument must contain `:`, and the warning fires for keys that don't.
+- **Dynamic-key mode** — the call site passes an options object or omits the positional key (`createContext({ suffix: 'item' })` or `createContext()`), which makes the returned `useX` / `provideX` accept a runtime namespace argument; `suffix` is an optional string appended to that runtime key (`key:suffix`). Used when a single composable services multiple disjoint subtrees within the same app (e.g., nested `Selection` providers). The `[v0:context]` colon warning is static-key-mode only (gated on `isString(keyOrOptions)`); the dynamic branch performs no colon check on the runtime key.
 
 ### 9.4 SSR gating
 
@@ -1076,7 +1080,7 @@ function createThing () {
 }
 ```
 
-Reason: §3.1. Tuples are reserved for the three foundation trinity builders. Everything else returns a plain object with named keys.
+Reason: §3.1. Tuples are reserved for the foundation builders — `createTrinity` and `createPlugin` return the trinity, `createContext` returns the `[useX, provideX]` pair. Everything else returns a plain object with named keys.
 
 ---
 

@@ -5,7 +5,7 @@
  * PostHog adapter for feature flags.
  */
 
-// Constants
+// Globals
 import { IN_BROWSER } from '#v0/constants/globals'
 
 // Adapters

@@ -293,9 +293,9 @@ export interface QueueContextOptions extends QueueOptions {
  *
  * @example
  * ```ts
- * import { useQueue } from '@vuetify/v0'
+ * import { createQueue } from '@vuetify/v0'
  *
- * const queue = useQueue()
+ * const queue = createQueue()
  *
  * // Register an ticket with default timeout (3000ms)
  * const ticket1 = queue.register({ value: 'Ticket 1' })

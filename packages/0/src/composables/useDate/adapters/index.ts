@@ -10,5 +10,5 @@
  * ```
  */
 
-// Types
-export type { DateAdapter } from './adapter'
+// Adapters
+export { DateAdapter } from './adapter'

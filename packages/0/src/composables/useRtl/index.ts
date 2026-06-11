@@ -37,9 +37,9 @@ import type { RtlAdapter } from './adapters'
 import type { Ref } from 'vue'
 
 // Exports
-export { V0RtlAdapter } from '#v0/composables/useRtl/adapters'
+export { RtlAdapter, V0RtlAdapter } from '#v0/composables/useRtl/adapters'
 
-export type { RtlAdapter, RtlAdapterSetupContext } from '#v0/composables/useRtl/adapters'
+export type { RtlAdapterSetupContext } from '#v0/composables/useRtl/adapters'
 
 export interface RtlContext {
   /** Writable ref — true = RTL, false = LTR */

@@ -155,8 +155,8 @@ When destructuring the options object, the rest variable is `options`, never `mo
 
 ```ts
 // Right
-function createFoo (options: FooOptions = {}) {
-  const { disabled, namespace = 'v0:foo', ...rest } = options
+function createFoo (_options: FooOptions = {}) {
+  const { disabled, namespace = 'v0:foo', ...options } = _options
 }
 ```
 
@@ -206,12 +206,12 @@ See PHILOSOPHY §2.9 for the three-way split (throw / warn / return) and the ful
 Child spreads parent and adds or overrides: [intent:142]
 
 ```ts
-// packages/0/src/composables/createSelection/index.ts:286
+// packages/0/src/composables/createSelection/index.ts:296
 const model = createModel(options)
-return { ...model, selectedIds, select, toggle, /* ... */ }
+return { ...model, multiple, register, onboard, unselect, toggle, apply, mandate, seek }
 ```
 
-Used by the selection chain: `createModel → createSelection → createSingle → createGroup → createStep`.
+Used by the selection chain: `createModel → createSelection → { createSingle → createStep, createGroup → createNested }`.
 
 ### 2. Aggregation (multi-system orchestrator)
 
@@ -391,7 +391,7 @@ Layer 1: Single-layer deps
   useBreakpoints, useLocale, useTheme, useRules, etc.
 
 Layer 2: Complex orchestrators
-  createSelection → createSingle → createGroup → createStep
+  createSelection → { createSingle → createStep, createGroup → createNested }
   createCombobox, createDataTable
 ```
 
@@ -485,7 +485,7 @@ Always use `useId()` from `#v0/utilities`. Never auto-increment. SSR-safe. [inte
 
 ## Events and Lifecycle
 
-See PHILOSOPHY §2.5 for the DOM-event rule. Scope-specific reminder: the only composables exempt from it are the three browser-primitive wrappers — `useEventListener`, `useHotkey`, `useClickOutside`. Anything else that reaches for `addEventListener` is in the wrong file.
+See PHILOSOPHY §2.5 for the DOM-event rule. Scope-specific reminder: the only composables exempt from it are the four browser-primitive wrappers — `useEventListener`, `useHotkey`, `useClickOutside`, `useMediaQuery`. Anything else that reaches for `addEventListener` is in the wrong file.
 
 ## Naming Instance (PHILOSOPHY §3.3)
 
