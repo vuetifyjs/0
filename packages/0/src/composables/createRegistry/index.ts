@@ -62,7 +62,7 @@ export interface RegistryTicket<V = unknown> {
   /**
    * The index of the ticket in the registry.
    *
-   * @remarks Automatically managed by the registry. Updated during reindexing. It's not recommended to manually set this.
+   * @remarks Automatically managed by the registry. Assigned at registration and updated during reindexing; a supplied index is ignored — use `move()` to position a ticket. It's not recommended to manually set this.
    */
   index: number
   /** The value associated with the ticket. If not provided, it defaults to the index. */
@@ -327,7 +327,7 @@ export interface RegistryContext<
    * Register a new ticket
    *
    * @param ticket The partial ticket data to register.
-   * @remarks If no ID is provided, a unique ID will be generated automatically. If no value is provided, it defaults to the ticket's index. This operation invalidates cached results from `keys()`, `values()`, and `entries()`.
+   * @remarks If no ID is provided, a unique ID will be generated automatically. If no value is provided, it defaults to the ticket's index. The index is always assigned by the registry — a supplied index is ignored; use `move()` to position a ticket. This operation invalidates cached results from `keys()`, `values()`, and `entries()`.
    *
    * @see https://0.vuetifyjs.com/composables/registration/create-registry
    *
@@ -663,7 +663,7 @@ export interface RegistryContext<
    *
    * @param fn The function containing batch operations.
    * @returns The return value of the batch function.
-   * @remarks Useful for bulk operations like onboard(). Invalidation and events happen once at the end, not after each operation.
+   * @remarks Useful for bulk operations like onboard(). Cache invalidation and events are deferred to the end of the batch instead of running after each operation.
    *
    * @see https://0.vuetifyjs.com/composables/registration/create-registry
    *
@@ -989,6 +989,7 @@ export function createRegistry<
     } finally {
       isBatching = false
       batched = []
+      cache.clear()
     }
   }
 
@@ -1051,7 +1052,7 @@ export function createRegistry<
     }
 
     const valueIsUndefined = isUndefined(registration.value)
-    const index = registration.index ?? size
+    const index = size
     const value = valueIsUndefined ? index : registration.value
     const valueIsIndex = registration.valueIsIndex ?? valueIsUndefined
 
