@@ -13,6 +13,9 @@
  * columns and `table.onboard([...])` / `table.register({...})` for rows.
  * Row identity is the ticket id (caller-supplied or auto-generated); column
  * identity is the caller-supplied `id` (required — no auto-generation).
+ * The row registry is non-reactive: iterate rows via `items` / `allItems`
+ * and update a row via `upsert(id, { value })` — never mutate a ticket's
+ * value in place or iterate raw `values()` in templates or computeds.
  *
  * Key features:
  * - Adapter pattern for pipeline strategy (client, server, virtual)
@@ -50,6 +53,7 @@ import { createGroup } from '#v0/composables/createGroup'
 import { createRegistry } from '#v0/composables/createRegistry'
 import { createTrinity } from '#v0/composables/createTrinity'
 import { useLocale } from '#v0/composables/useLocale'
+import { useProxyRegistry } from '#v0/composables/useProxyRegistry'
 
 // Adapters
 import { ClientDataTableAdapter } from './adapters/v0'
@@ -374,8 +378,10 @@ export function createDataTable<T extends Record<string, unknown>> (
 
   const registry = createRegistry<DataTableTicketInput<T>, DataTableTicket<T>>({
     events: true,
-    reactive: true,
+    reactive: false,
   })
+
+  const proxy = useProxyRegistry<DataTableTicketInput<T>, DataTableTicket<T>>(registry)
 
   const columns = createRegistry<DataTableColumnTicketInput<T>, DataTableColumnTicket<T>>({
     events: true,
@@ -543,7 +549,7 @@ export function createDataTable<T extends Record<string, unknown>> (
   // Row values projected from registry tickets in registration order — the
   // adapter consumes this as its `items` input and runs the filter → sort →
   // paginate pipeline against it.
-  const source = computed(() => registry.values().map(t => t.value as T))
+  const source = computed(() => proxy.values.map(t => t.value as T))
 
   const {
     allItems,
@@ -571,7 +577,7 @@ export function createDataTable<T extends Record<string, unknown>> (
   const selectableIds = computed(() => {
     if (!itemSelectable) return null
     const ids = new Set<ID>()
-    for (const ticket of registry.values()) {
+    for (const ticket of proxy.values) {
       const value = ticket.value
       if (!isNullOrUndefined(value) && (value as T)[itemSelectable]) ids.add(ticket.id)
     }
@@ -598,7 +604,7 @@ export function createDataTable<T extends Record<string, unknown>> (
     if (scope.length === 0) return []
     const set = new Set<T>(scope)
     const result: DataTableTicket<T>[] = []
-    for (const ticket of registry.values()) {
+    for (const ticket of proxy.values) {
       const value = ticket.value
       if (isNullOrUndefined(value) || !set.has(value as T)) continue
       if (itemSelectable && !(value as T)[itemSelectable]) continue
@@ -667,7 +673,7 @@ export function createDataTable<T extends Record<string, unknown>> (
     if (scope.length === 0) return []
     const set = new Set<T>(scope)
     const result: DataTableTicket<T>[] = []
-    for (const ticket of registry.values()) {
+    for (const ticket of proxy.values) {
       const value = ticket.value
       if (!isNullOrUndefined(value) && set.has(value as T)) result.push(ticket)
     }
@@ -808,7 +814,7 @@ export function createDataTable<T extends Record<string, unknown>> (
     loading,
     error,
     get size () {
-      return registry.size
+      return proxy.size
     },
   }
 }

@@ -457,7 +457,7 @@ This split is why `useTheme` and `useLocale` work fine even though their reactiv
 
 ### Escape hatch for unbounded collections
 
-For plugins whose registries can grow without bound (notifications, data tables, logs, queues), `reactive: true` is still the right default but consider exposing an explicit opt-out on the plugin options. The shape is "bake in reactive behavior, let the consumer turn it off if they hit a scale wall." `useNotifications` is the canonical example.
+For plugins whose registries can grow without bound (notifications, logs, queues), `reactive: true` with an explicit opt-out on the plugin options is the right shape when consumers iterate the registry directly — "bake in reactive behavior, let the consumer turn it off if they hit a scale wall." `useNotifications` is the canonical example. When iteration is confined to internal derived computeds, skip registry reactivity entirely and wrap the registry in `useProxyRegistry` instead (PHILOSOPHY §4.4) — `createDataTable`'s row registry is the canonical example.
 
 ### `useProxyRegistry` vs `reactive: true`
 
