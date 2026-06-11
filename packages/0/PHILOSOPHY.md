@@ -151,7 +151,7 @@ import { createRegistry } from '../createRegistry'
 
 **Statement.** Composable extension happens by `{ ...parent, newProperty }`. Never redefine a property the parent already exposed. [intent:101, intent:142, intent:147]
 
-**Why.** Spread guarantees the child remains substitutable for the parent in types. The 27 registry-based composables all compose this way; consumers who hold a reference to the parent type can upgrade to the child type without refactoring call sites.
+**Why.** Spread guarantees the child remains substitutable for the parent in types. The 27 registry-based composables all compose this way; consumers who hold a reference to the parent type can upgrade to the child type without refactoring call sites. Spread copies accessors by value — a parent's `get size ()` arrives as a data property frozen at spread time — so any accessor the child surface needs must be re-declared after the spread (`get size () { return model.size }`).
 
 **Canonical example.** `packages/0/src/composables/createSelection/index.ts:296-309` — spreads `createModel`, adds `multiple`, `toggle`, `apply`, `mandate`.
 

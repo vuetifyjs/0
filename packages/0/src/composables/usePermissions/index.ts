@@ -113,6 +113,9 @@ export function createPermissions (_options: PermissionOptions = {}): Permission
   return {
     ...tokens,
     can,
+    get size () {
+      return tokens.size
+    },
   } as PermissionContext
 }
 

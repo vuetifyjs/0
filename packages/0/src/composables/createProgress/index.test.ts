@@ -74,6 +74,14 @@ describe('createProgress', () => {
       const ticket = progress.register()
       expect(ticket.id).toBeDefined()
     })
+
+    it('should track size for segments registered after creation', () => {
+      const progress = setup()
+      progress.register()
+      progress.register()
+      progress.register()
+      expect(progress.size).toBe(3)
+    })
   })
 
   describe('total', () => {
