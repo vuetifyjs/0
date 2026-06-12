@@ -61,12 +61,6 @@ export abstract class ThemeAdapter {
     return isUndefined(a) ? `${r}, ${g}, ${b}` : `${r}, ${g}, ${b}, ${a}`
   }
 
-  /**
-   * Teardown registered by `setup`. Called once via `app.onUnmount` on the
-   * plugin path and available as a reachable handle on standalone paths.
-   */
-  dispose?: () => void
-
   abstract setup<T extends ThemeAdapterSetupContext>(
     app: App,
     context: T,
