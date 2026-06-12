@@ -372,6 +372,51 @@ describe('v0UnheadThemeAdapter', () => {
 
       expect(head.patch).not.toHaveBeenCalled()
     })
+
+    it('should stop watcher and call entry.dispose when adapter.dispose() is called in browser mode', async () => {
+      const entryDispose = vi.fn()
+      const head = {
+        push: vi.fn(() => ({ patch: vi.fn(), dispose: entryDispose })),
+      }
+      const app = createMockApp(head)
+      const context = createMockContext()
+      const adapter = new V0UnheadThemeAdapter()
+
+      const scope = effectScope()
+      scope.run(() => adapter.setup(app, context, null))
+
+      expect(adapter.dispose).toBeDefined()
+      adapter.dispose?.()
+
+      context.selectedId.value = 'dark'
+      await nextTick()
+
+      expect(entryDispose).toHaveBeenCalledTimes(1)
+    })
+
+    it('should call entry.dispose when adapter.dispose() is called in SSR mode', () => {
+      mockInBrowser.value = false
+
+      const entryDispose = vi.fn()
+      const head = {
+        push: vi.fn(() => ({ patch: vi.fn(), dispose: entryDispose })),
+      }
+      const app = {
+        _context: { provides: { usehead: head } },
+        _container: null,
+      } as unknown as App
+      const context = createMockContext()
+      const adapter = new V0UnheadThemeAdapter()
+
+      adapter.setup(app, context, null)
+
+      expect(adapter.dispose).toBeDefined()
+      adapter.dispose?.()
+
+      expect(entryDispose).toHaveBeenCalledTimes(1)
+
+      mockInBrowser.value = true
+    })
   })
 
   describe('update', () => {

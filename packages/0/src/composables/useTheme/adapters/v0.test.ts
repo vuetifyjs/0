@@ -141,6 +141,19 @@ describe('v0StyleSheetThemeAdapter', () => {
       scope.stop()
     })
 
+    it('should assign entry.dispose to adapter.dispose when entry has dispose', () => {
+      mockInBrowser.value = false
+      const entryDispose = vi.fn()
+      const headMock = { push: vi.fn(() => ({ dispose: entryDispose })) }
+      const app = createMockApp(headMock)
+      const context = createMockContext()
+      const adapter = new V0StyleSheetThemeAdapter()
+
+      adapter.setup(app, context)
+
+      expect(adapter.dispose).toBe(entryDispose)
+    })
+
     it('should not call update in SSR', () => {
       mockInBrowser.value = false
       const adapter = new V0StyleSheetThemeAdapter()
