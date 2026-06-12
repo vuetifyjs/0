@@ -736,6 +736,35 @@ describe('createTheme', () => {
         })
         expect(stored).toBe('light')
       })
+
+      it('should ignore non-id persisted values', () => {
+        const app = createApp({ render: () => null })
+        app.use(createStoragePlugin())
+        app.runWithContext(() => {
+          const storage = useStorage()
+          storage.set('theme', { selected: 'dark' })
+        })
+
+        app.use(
+          createThemePlugin({
+            persist: true,
+            default: 'light',
+            themes: {
+              light: { dark: false, colors: { primary: '#1976d2' } },
+              dark: { dark: true, colors: { primary: '#90caf9' } },
+            },
+          }),
+        )
+
+        let theme: ThemeContext | undefined
+        app.runWithContext(() => {
+          theme = useTheme()
+        })
+
+        expect(theme!.selectedId.value).toBe('light')
+
+        app.unmount()
+      })
     })
   })
 

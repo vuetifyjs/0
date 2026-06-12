@@ -154,6 +154,18 @@ describe('v0StyleSheetThemeAdapter', () => {
       expect(adapter.dispose).toBe(entryDispose)
     })
 
+    it('should leave dispose unset when head entry has no dispose', () => {
+      mockInBrowser.value = false
+      const headMock = { push: vi.fn(() => ({})) }
+      const app = createMockApp(headMock)
+      const context = createMockContext()
+      const adapter = new V0StyleSheetThemeAdapter()
+
+      adapter.setup(app, context)
+
+      expect(adapter.dispose).toBeUndefined()
+    })
+
     it('should not call update in SSR', () => {
       mockInBrowser.value = false
       const adapter = new V0StyleSheetThemeAdapter()

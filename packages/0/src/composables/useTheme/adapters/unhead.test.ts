@@ -417,6 +417,26 @@ describe('v0UnheadThemeAdapter', () => {
 
       mockInBrowser.value = true
     })
+
+    it('should tolerate entries without patch or dispose', () => {
+      mockInBrowser.value = false
+      const head = {
+        push: vi.fn(() => ({})),
+      }
+      const app = {
+        _context: { provides: { usehead: head } },
+        _container: null,
+      } as unknown as App
+      const context = createMockContext()
+      const adapter = new V0UnheadThemeAdapter()
+
+      adapter.setup(app, context, null)
+
+      expect(() => adapter.update(context.colors.value, context.isDark.value)).not.toThrow()
+      expect(() => adapter.dispose?.()).not.toThrow()
+
+      mockInBrowser.value = true
+    })
   })
 
   describe('update', () => {
