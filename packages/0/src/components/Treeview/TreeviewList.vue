@@ -29,6 +29,7 @@
 
   // Types
   import type { RovingFocusReturn } from '#v0/composables/useRovingFocus'
+  import type { ID } from '#v0/types'
   import type { TreeviewListProps, TreeviewListSlotProps } from './types'
 
   export type TreeviewListContext = RovingFocusReturn
@@ -116,7 +117,51 @@
     }
   }
 
+  const FOCUSABLE = 'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]'
+
+  function focusableChildren (el: HTMLElement): HTMLElement[] {
+    return Array.from(el.querySelectorAll<HTMLElement>(FOCUSABLE))
+      .filter(child =>
+        child.getAttribute('tabindex') !== '-1'
+        && child.closest('[role="treeitem"]') === el,
+      )
+  }
+
+  function nextItemId (id: ID | undefined): ID | undefined {
+    if (isNullOrUndefined(id)) return undefined
+    const visible = nested.visibleItems()
+    const i = visible.findIndex(item => item.id === id)
+    return i === -1 ? undefined : visible.slice(i + 1).find(item => !toValue(item.disabled))?.id
+  }
+
   function onKeydown (e: KeyboardEvent) {
+    const target = e.target as HTMLElement
+    const itemEl = target.closest<HTMLElement>('[role="treeitem"]')
+    const onItem = target === e.currentTarget || target.getAttribute('role') === 'treeitem'
+
+    if (e.key === 'Tab') {
+      if (!itemEl) return
+      const controls = focusableChildren(itemEl)
+      if (controls.length === 0) return
+      if (!e.shiftKey && onItem) {
+        e.preventDefault()
+        controls[0]!.focus()
+      } else if (!e.shiftKey && target === controls.at(-1)) {
+        const next = nextItemId(roving.focusedId.value)
+        if (!isNullOrUndefined(next)) {
+          e.preventDefault()
+          roving.focus(next)
+        }
+      } else if (e.shiftKey && target === controls[0]) {
+        e.preventDefault()
+        itemEl.focus()
+      }
+      return
+    }
+
+    // Let controls within item handle their own navigation
+    if (!onItem) return
+
     const id = roving.focusedId.value
     const ticket = isNullOrUndefined(id) ? undefined : nested.get(id)
     const rtl = isRtl(e)
