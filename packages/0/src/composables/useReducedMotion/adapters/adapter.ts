@@ -11,7 +11,9 @@ export abstract class ReducedMotionAdapter {
   /**
    * Teardown for any side-effects started in `setup`. The plugin registers this on
    * `app.onUnmount`, so adapter effects are cleaned up even though `setup` runs
-   * outside an effect scope (where `onScopeDispose` would silently no-op).
+   * outside an effect scope (where `onScopeDispose` would silently no-op). It is
+   * read lazily at app unmount, so adapters may assign it at any point during or
+   * after `setup`.
    */
   dispose?: () => void
 
