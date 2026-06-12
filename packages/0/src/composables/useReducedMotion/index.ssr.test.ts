@@ -11,18 +11,21 @@ vi.mock('#v0/constants/globals', () => ({
   SUPPORTS_MATCH_MEDIA: false,
 }))
 
+// Composables
+import { createStoragePlugin, MemoryStorageAdapter, useStorage } from '#v0/composables/useStorage'
+
 import { createReducedMotionPlugin, useReducedMotion } from './index'
 
 // Utilities
-import { createApp } from 'vue'
+import { createApp, nextTick } from 'vue'
 
 afterEach(() => {
-  delete (document.body.dataset as Record<string, unknown>).reducedMotion
+  delete document.body.dataset.reducedMotion
 })
 
 describe('useReducedMotion SSR', () => {
   it('should not write document.body.dataset.reducedMotion in SSR', () => {
-    delete (document.body.dataset as Record<string, unknown>).reducedMotion
+    delete document.body.dataset.reducedMotion
 
     const app = createApp({ setup: () => () => null })
     app.use(createReducedMotionPlugin({ mode: 'always' }))
@@ -47,7 +50,7 @@ describe('useReducedMotion SSR', () => {
 
   it('should render data-reduced-motion via @unhead under SSR', () => {
     const dispose = vi.fn()
-    const push = vi.fn(() => ({ dispose }))
+    const push = vi.fn(() => ({ dispose, patch: vi.fn() }))
 
     const app = createApp({ setup: () => () => null })
     app.provide('usehead', { push })
@@ -65,7 +68,7 @@ describe('useReducedMotion SSR', () => {
   })
 
   it('should push no-preference via @unhead for non-reducing modes under SSR', () => {
-    const push = vi.fn(() => ({ dispose: vi.fn() }))
+    const push = vi.fn(() => ({ dispose: vi.fn(), patch: vi.fn() }))
 
     const app = createApp({ setup: () => () => null })
     app.provide('usehead', { push })
@@ -80,7 +83,7 @@ describe('useReducedMotion SSR', () => {
   })
 
   it('should resolve @unhead via the head provide key too', () => {
-    const push = vi.fn(() => ({ dispose: vi.fn() }))
+    const push = vi.fn(() => ({ dispose: vi.fn(), patch: vi.fn() }))
 
     const app = createApp({ setup: () => () => null })
     app.provide('head', { push })
@@ -88,6 +91,52 @@ describe('useReducedMotion SSR', () => {
     app.mount(document.createElement('div'))
 
     expect(push).toHaveBeenCalledTimes(1)
+
+    app.unmount()
+  })
+
+  it('should patch the @unhead entry when the mode changes during SSR', async () => {
+    const patch = vi.fn()
+    const push = vi.fn(() => ({ dispose: vi.fn(), patch }))
+
+    const app = createApp({ setup: () => () => null })
+    app.provide('usehead', { push })
+    app.use(createReducedMotionPlugin({ mode: 'never' }))
+    app.mount(document.createElement('div'))
+
+    app.runWithContext(() => {
+      const ctx = useReducedMotion()
+      ctx.select('always')
+    })
+
+    await nextTick()
+
+    expect(patch).toHaveBeenCalledWith({
+      bodyAttrs: { 'data-reduced-motion': 'reduce' },
+    })
+
+    app.unmount()
+  })
+
+  it('should render a restored persisted mode in the initial @unhead push', () => {
+    const push = vi.fn(() => ({ dispose: vi.fn(), patch: vi.fn() }))
+
+    const app = createApp({ render: () => null })
+    app.use(createStoragePlugin({ adapter: new MemoryStorageAdapter() }))
+
+    // Pre-seed storage with 'always' so restore() runs before the adapter pushes
+    app.runWithContext(() => {
+      const storage = useStorage()
+      storage.set('reduced-motion', 'always')
+    })
+
+    app.provide('usehead', { push })
+    app.use(createReducedMotionPlugin({ persist: true }))
+    app.mount(document.createElement('div'))
+
+    expect(push).toHaveBeenCalledWith({
+      bodyAttrs: { 'data-reduced-motion': 'reduce' },
+    })
 
     app.unmount()
   })

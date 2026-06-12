@@ -6,7 +6,11 @@ import { createStoragePlugin, MemoryStorageAdapter, useStorage } from '#v0/compo
 import { createReducedMotion, createReducedMotionPlugin, ReducedMotionAdapter, useReducedMotion } from './index'
 
 // Utilities
-import { createApp, nextTick } from 'vue'
+import { createApp, effectScope, nextTick } from 'vue'
+
+// Types
+import type { ReducedMotionOptions } from './index'
+import type { EffectScope } from 'vue'
 
 let mediaQueryMatches = false
 let lastFireCallback: ((matches: boolean) => void) | null = null
@@ -52,25 +56,40 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.unstubAllGlobals()
-  delete (document.body.dataset as Record<string, unknown>).reducedMotion
+  delete document.body.dataset.reducedMotion
 })
 
 describe('createReducedMotion', () => {
+  let scope: EffectScope
+
+  function setup (options: ReducedMotionOptions = {}) {
+    let ctx: ReturnType<typeof createReducedMotion>
+    scope = effectScope()
+    scope.run(() => {
+      ctx = createReducedMotion(options)
+    })
+    return ctx!
+  }
+
+  afterEach(() => {
+    scope?.stop()
+  })
+
   describe('mode: system', () => {
     it('should default to system mode', () => {
-      const ctx = createReducedMotion()
+      const ctx = setup()
       expect(ctx.selectedMode.value).toBe('system')
     })
 
     it('should return false when OS prefers no reduction', () => {
       mediaQueryMatches = false
-      const ctx = createReducedMotion()
+      const ctx = setup()
       expect(ctx.isReduced.value).toBe(false)
     })
 
     it('should return true when OS prefers reduction', () => {
       mediaQueryMatches = true
-      const ctx = createReducedMotion()
+      const ctx = setup()
       expect(ctx.isReduced.value).toBe(true)
     })
   })
@@ -78,7 +97,7 @@ describe('createReducedMotion', () => {
   describe('mode: always', () => {
     it('should force isReduced=true regardless of OS', () => {
       mediaQueryMatches = false
-      const ctx = createReducedMotion({ mode: 'always' })
+      const ctx = setup({ mode: 'always' })
       expect(ctx.isReduced.value).toBe(true)
     })
   })
@@ -86,7 +105,7 @@ describe('createReducedMotion', () => {
   describe('mode: never', () => {
     it('should force isReduced=false regardless of OS', () => {
       mediaQueryMatches = true
-      const ctx = createReducedMotion({ mode: 'never' })
+      const ctx = setup({ mode: 'never' })
       expect(ctx.isReduced.value).toBe(false)
     })
   })
@@ -94,7 +113,7 @@ describe('createReducedMotion', () => {
   describe('mode', () => {
     it('should update isReduced reactively when mode changes', async () => {
       mediaQueryMatches = true
-      const ctx = createReducedMotion({ mode: 'never' })
+      const ctx = setup({ mode: 'never' })
       expect(ctx.isReduced.value).toBe(false)
 
       ctx.select('system')
@@ -104,7 +123,7 @@ describe('createReducedMotion', () => {
 
     it('should switch from always to never', async () => {
       mediaQueryMatches = false
-      const ctx = createReducedMotion({ mode: 'always' })
+      const ctx = setup({ mode: 'always' })
       expect(ctx.isReduced.value).toBe(true)
 
       ctx.select('never')
@@ -114,12 +133,39 @@ describe('createReducedMotion', () => {
 
     it('should react to OS media query changes in system mode', async () => {
       mediaQueryMatches = false
-      const ctx = createReducedMotion({ mode: 'system' })
+      const ctx = setup({ mode: 'system' })
       expect(ctx.isReduced.value).toBe(false)
 
       lastFireCallback!(true)
       await nextTick()
       expect(ctx.isReduced.value).toBe(true)
+    })
+  })
+
+  describe('lifecycle', () => {
+    it('should remove the media listener when the owning scope stops', async () => {
+      mediaQueryMatches = false
+      const ctx = setup()
+      expect(ctx.isReduced.value).toBe(false)
+
+      scope.stop()
+
+      lastFireCallback!(true)
+      await nextTick()
+      expect(ctx.isReduced.value).toBe(false)
+    })
+
+    it('should stop OS tracking when dispose is called', async () => {
+      mediaQueryMatches = false
+      const ctx = setup()
+
+      ctx.dispose()
+
+      lastFireCallback!(true)
+      await nextTick()
+      expect(ctx.isReduced.value).toBe(false)
+
+      expect(() => ctx.dispose()).not.toThrow()
     })
   })
 })
@@ -280,6 +326,12 @@ describe('persist/restore', () => {
     expect(ctx!.selectedMode.value).toBe('always')
   })
 
+  it('should throw when persist is enabled without the storage plugin', () => {
+    const app = createApp({ render: () => null })
+
+    expect(() => app.use(createReducedMotionPlugin({ persist: true }))).toThrow('v0:storage')
+  })
+
   it('should honor a custom namespace', () => {
     let ctx: ReturnType<typeof useReducedMotion> | undefined
 
@@ -305,6 +357,11 @@ describe('useReducedMotion (fallback)', () => {
     const ctx = useReducedMotion()
     expect(ctx.isReduced.value).toBe(false)
     expect(ctx.selectedMode.value).toBe('system')
+
+    ctx.select('always')
+    expect(ctx.selectedMode.value).toBe('system')
+
+    expect(() => ctx.dispose()).not.toThrow()
   })
 })
 
@@ -347,7 +404,7 @@ describe('adapters', () => {
     expect(document.body.dataset.reducedMotion).toBe('no-preference')
 
     app.unmount()
-    delete (document.body.dataset as Record<string, unknown>).reducedMotion
+    delete document.body.dataset.reducedMotion
 
     // Watch is disposed → a later mode change no longer writes the dataset.
     ctx!.select('always')
@@ -367,11 +424,15 @@ describe('adapters', () => {
     app.use(createReducedMotionPlugin({ mode: 'system' }))
     app.mount(document.createElement('div'))
 
+    lastFireCallback!(true)
+    await nextTick()
+    expect(ctx!.isReduced.value).toBe(true)
+
     app.unmount()
 
     // Media-query listener removed → a later OS change does not flip isReduced.
-    lastFireCallback!(true)
+    lastFireCallback!(false)
     await nextTick()
-    expect(ctx!.isReduced.value).toBe(false)
+    expect(ctx!.isReduced.value).toBe(true)
   })
 })
