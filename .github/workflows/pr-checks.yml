@@ -108,11 +108,18 @@ jobs:
         env:
           VITE_API_SERVER_URL: ${{ vars.API_SERVER_URL }}
           SKIP_OG_IMAGES: '1'
-      - name: Link Checker
+      - name: Link Checker (internal only)
         uses: lycheeverse/lychee-action@v2
         with:
           lycheeVersion: v0.22.0
-          args: --config lychee.toml './apps/docs/dist'
+          # --offline skips all remote URLs; the remap folds https://0.vuetifyjs.com
+          # self-links (canonical/og tags) onto the local dist so they are validated
+          # as files. External link health runs weekly in link-check.yml instead.
+          args: >-
+            --config lychee.toml
+            --offline
+            --remap 'https://0\.vuetifyjs\.com(.*) file://${{ github.workspace }}/apps/docs/dist$1'
+            './apps/docs/dist'
           fail: true
 
   playground-check:
