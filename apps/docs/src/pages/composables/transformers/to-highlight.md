@@ -9,7 +9,7 @@ features:
   category: Transformer
   label: 'E: toHighlight'
   github: /composables/toHighlight/
-  level: 1
+  level: 2
 related:
   - /composables/data/create-filter
   - /components/forms/combobox
