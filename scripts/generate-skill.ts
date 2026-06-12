@@ -166,6 +166,26 @@ function remarks (content: string): string | undefined {
   return sentence(tail.split(/\n\s*\n/)[0])
 }
 
+/** Whether text contains only whitespace and comments. Linear scan — an equivalent regex is ambiguous and superlinear on slash runs. */
+function trivia (text: string): boolean {
+  let index = 0
+  while (index < text.length) {
+    if (/\s/.test(text[index])) {
+      index++
+    } else if (text.startsWith('/*', index)) {
+      const end = text.indexOf('*/', index + 2)
+      if (end === -1) return false
+      index = end + 2
+    } else if (text.startsWith('//', index)) {
+      const end = text.indexOf('\n', index)
+      index = end === -1 ? text.length : end + 1
+    } else {
+      return false
+    }
+  }
+  return true
+}
+
 /** First sentence of the JSDoc block directly above the named export. */
 function jsdoc (content: string, name: string): string | undefined {
   const declaration = new RegExp(String.raw`^export (?:async )?(?:function|class|const|let) ${name}\b`, 'm')
@@ -176,8 +196,7 @@ function jsdoc (content: string, name: string): string | undefined {
   if (open === -1) return undefined
   const close = head.indexOf('*/', open)
   if (close === -1) return undefined
-  const between = head.slice(close + 2)
-  if (!/^(?:\s|\/\*[^]*?\*\/|\/\/[^\n]*)*$/.test(between)) return undefined
+  if (!trivia(head.slice(close + 2))) return undefined
   const body = head.slice(open + 3, close).replace(/^\s*\* ?/gm, '')
   const paragraph = body.split(/\n\s*\n/).map(part => part.trim()).find(part => part && !part.startsWith('@'))
   if (!paragraph) return undefined
