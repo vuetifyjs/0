@@ -269,6 +269,7 @@ describe('createRtl', () => {
         mockHasInjectionContext.mockReturnValue(false)
         const rtl = useRtl()
         expect(rtl.isRtl.value).toBe(false)
+        expect(() => rtl.dispose()).not.toThrow()
       })
     })
 
