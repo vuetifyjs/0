@@ -19,6 +19,11 @@ export abstract class ThemeAdapter {
   public stylesheetId = 'v0-theme-stylesheet'
   public prefix: string
   public rgb = false
+  /**
+   * Teardown registered by `setup`. Called once via `app.onUnmount` on the
+   * plugin path and available as a reachable handle on standalone paths.
+   */
+  dispose?: () => void
 
   constructor (prefix: string) {
     this.prefix = prefix
