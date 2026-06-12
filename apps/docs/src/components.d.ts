@@ -47,6 +47,7 @@ declare module 'vue' {
     AppRainbowText: typeof import('./components/app/AppRainbowText.vue')['default']
     AppSearchInline: typeof import('./components/app/AppSearchInline.vue')['default']
     AppSettings: typeof import('./components/app/AppSettings.vue')['default']
+    AppSettingsCodeSize: typeof import('./components/app/settings/AppSettingsCodeSize.vue')['default']
     AppSettingsColorInput: typeof import('./components/app/settings/AppSettingsColorInput.vue')['default']
     AppSettingsCommits: typeof import('./components/app/settings/AppSettingsCommits.vue')['default']
     AppSettingsHeader: typeof import('./components/app/settings/AppSettingsHeader.vue')['default']
