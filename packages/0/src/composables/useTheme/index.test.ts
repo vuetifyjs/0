@@ -412,6 +412,23 @@ describe('createTheme', () => {
       expect(disposeFn).toHaveBeenCalledTimes(1)
     })
 
+    it('should not throw when adapter has no dispose on app.unmount', async () => {
+      const customAdapter = {
+        setup: vi.fn(),
+        update: vi.fn(),
+        rgb: false,
+      }
+
+      const app = createApp({ template: '<div />' })
+      app.use(createThemePlugin({ adapter: customAdapter as any }))
+
+      const container = document.createElement('div')
+      app.mount(container)
+      await nextTick()
+
+      expect(() => app.unmount()).not.toThrow()
+    })
+
     it('should inject CSS variables into DOM', async () => {
       let mockStyleSheets: CSSStyleSheet[] = []
       using spy = vi.spyOn(document, 'adoptedStyleSheets', 'get').mockImplementation(() => mockStyleSheets)

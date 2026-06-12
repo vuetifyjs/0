@@ -355,6 +355,22 @@ describe('createRtl', () => {
         expect(disposeFn).toHaveBeenCalledTimes(1)
       })
 
+      it('should not throw when adapter has no dispose on app.unmount', async () => {
+        const { createApp, nextTick: nt } = await import('vue')
+
+        const customAdapter = { setup: vi.fn() }
+
+        const plugin = createRtlPlugin({ adapter: customAdapter as any })
+        const app = createApp({ template: '<div />' })
+        app.use(plugin)
+
+        const container = document.createElement('div')
+        app.mount(container)
+        await nt()
+
+        expect(() => app.unmount()).not.toThrow()
+      })
+
       it('should not install twice on the same app', async () => {
         const { createApp, nextTick: nt } = await import('vue')
 
