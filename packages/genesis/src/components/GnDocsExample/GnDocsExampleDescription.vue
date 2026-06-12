@@ -149,19 +149,22 @@
     inset-inline-end: 0.75rem;
     top: 0.75rem;
     z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
     padding: 0.25rem 0.5rem;
-    border: 1px solid color-mix(in srgb, var(--v0-on-surface, currentcolor) 14%, transparent);
+    border: none;
     border-radius: 0.25rem;
-    background: transparent;
-    color: var(--v0-on-surface-variant, rgb(0 0 0 / 0.6));
+    background: var(--v0-primary, #5f3aed);
+    color: var(--v0-on-primary, #fff);
     font: inherit;
     font-size: 0.75rem;
     cursor: pointer;
-    transition: background-color 0.15s, border-color 0.15s;
+    transition: opacity 0.15s;
+    touch-action: manipulation;
   }
 
   .genesis-docs-example-description__toggle:hover {
-    background: color-mix(in srgb, var(--v0-on-surface-variant, rgb(0 0 0 / 0.6)) 6%, transparent);
-    border-color: color-mix(in srgb, var(--v0-on-surface, currentcolor) 14%, transparent);
+    opacity: 0.85;
   }
 </style>
