@@ -207,6 +207,39 @@ describe('createPluginContext', () => {
     expect(factory).toHaveBeenCalledWith({ prefix: 'my-prefix' })
   })
 
+  it('should not invoke factory until plugin is installed', () => {
+    const factory = vi.fn(() => ({ value: 'lazy' }))
+
+    const [, createXPlugin] = createPluginContext(
+      'v0:lazy-factory-test',
+      factory,
+    )
+
+    createXPlugin()
+    expect(factory).not.toHaveBeenCalled()
+
+    const plugin = createXPlugin()
+    expect(factory).not.toHaveBeenCalled()
+
+    plugin.install(mockApp)
+    expect(factory).toHaveBeenCalledTimes(1)
+  })
+
+  it('should not invoke factory for a plugin created but never installed', () => {
+    const factory = vi.fn(() => ({ value: 'uninstalled' }))
+
+    const [, createXPlugin] = createPluginContext(
+      'v0:never-installed-test',
+      factory,
+    )
+
+    createXPlugin()
+    createXPlugin()
+    createXPlugin()
+
+    expect(factory).not.toHaveBeenCalled()
+  })
+
   it('should call setup callback on plugin install', () => {
     const setup = vi.fn()
 
