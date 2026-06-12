@@ -254,6 +254,7 @@ Plugin-capable composables following the trinity pattern:
 - [`useLogger`](https://0.vuetifyjs.com/composables/plugins/use-logger) - Logging adapter (consola/pino/custom)
 - [`useNotifications`](https://0.vuetifyjs.com/composables/plugins/use-notifications) - Toast/snackbar queue management with positioning
 - [`usePermissions`](https://0.vuetifyjs.com/composables/plugins/use-permissions) - RBAC/ABAC permission system
+- [`useReducedMotion`](https://0.vuetifyjs.com/composables/plugins/use-reduced-motion) - Respect or override the prefers-reduced-motion media query
 - [`useRtl`](https://0.vuetifyjs.com/composables/plugins/use-rtl) - Right-to-left text direction detection and management
 - [`useRules`](https://0.vuetifyjs.com/composables/plugins/use-rules) - Validation rule adapter with built-in rule library
 - [`useStack`](https://0.vuetifyjs.com/composables/plugins/use-stack) - Overlay z-index stacking with automatic scrim coordination

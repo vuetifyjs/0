@@ -149,26 +149,27 @@ This is the single mechanism by which `createModel → createSelection → { cre
 
 Caching iterations is a perf rule, not a style rule: invalidate in the registry's own mutation hooks so consumers never observe stale keys.
 
-## Adapter Pattern (PHILOSOPHY §5.2)
+## Adapter Pattern
 
 Adapters enable framework-agnostic logic. Located in `composables/useX/adapters/`. [intent:105]
 
 **Standard structure.**
 
 ```ts
-// adapters/index.ts
+// adapters/adapter.ts — abstract contract
 export abstract class FooAdapter {
-  setup?: (context: FooAdapterContext) => void
+  /** Optional teardown; read lazily at app unmount, so it may be assigned during or after setup. */
   dispose?: () => void
+  abstract setup (app: App, context: FooAdapterSetupContext): void
   // domain-specific methods
 }
 
-// adapters/v0.ts — default
-export class V0FooAdapter extends FooAdapter { ... }
-
-// adapters/pino.ts — third-party integration
-export class PinoLoggerAdapter extends LoggerAdapter { ... }
+// adapters/index.ts — pure barrel
+export { FooAdapter } from './adapter'
+export { V0FooAdapter } from './v0'
 ```
+
+setup's argument shape varies by family — data adapters (Combobox, DataTable) take context-only and may return a result; DOM-side-effect plugin adapters (Theme, Rtl, ReducedMotion) take `(app, context)`.
 
 **Naming.** Default adapters are `V0`-prefixed (`V0FooAdapter`, `V0LoggerAdapter`, `V0LocaleAdapter`). Mode adapters (SSR fallback, strategy variants) use a descriptive prefix (`MemoryStorageAdapter`, `ClientComboboxAdapter`, `ServerDataTableAdapter`). Third-party adapters use their original branding (`PinoLoggerAdapter`, `ConsolaLoggerAdapter`, `PostHogFeaturesAdapter`). [intent:106, intent:107]
 
@@ -176,23 +177,36 @@ export class PinoLoggerAdapter extends LoggerAdapter { ... }
 
 **Input-source adapters (carve-out).** Some composables expose a list of adapters that are *all* installed simultaneously, each wrapping a distinct input modality (e.g., `PointerAdapter` + `KeyboardAdapter` for `useDragDrop`). Each adapter implements the same `setup` / `dispose` contract; the factory iterates the array and installs every one. Naming: `<Source>Adapter` — no `Vuetify0` prefix because the source name *is* the distinguishing identity, not a brand. Reserved for input/output modalities; do not use this carve-out to pick between competing libraries (use the default-vs-third-party split above for that).
 
-**Lifecycle.** When an adapter has `setup`, call it inside the plugin's setup phase and register `dispose` on app unmount:
+**Lifecycle.** When an adapter has `setup`, call it inside the plugin's setup phase and register `dispose` on app unmount — late-bound and unconditional, so adapters may assign `dispose` lazily during or after `setup`:
 
 ```ts
-// In createXPlugin install():
-adapter.setup(context)
-if (adapter.dispose) app.onUnmount(() => adapter.dispose!())
+// In the createPluginContext setup hook:
+adapter.setup(app, context)
+app.onUnmount(() => adapter.dispose?.())
 ```
 [intent:108]
+
+**Unhead resolution (SSR head adapters).** Adapters that render server-side head state resolve unhead by duck-typing the app's provides — never by importing `@unhead` types into package source:
+
+```ts
+const head = (app._context?.provides?.usehead ?? app._context?.provides?.head) as Head | undefined
+
+if (head?.push) {
+  const entry = head.push({ bodyAttrs: { /* ... */ } })
+  this.dispose = () => entry.dispose?.()
+}
+```
+
+Type the seam with module-private structural interfaces (`Head`, `HeadEntry` — see `useReducedMotion/adapters/v0.ts` for the canonical shape, including reactive updates via `entry.patch?.()`); `provides` is `Record<string | symbol, any>`, so an untyped read disables type-checking on the entire server branch. Used by `useReducedMotion`, `useRtl`, and both `useTheme` adapters — the older sites still read it untyped; sweep pending.
 
 **Fallback strategy — pick one per composable.** [intent:109]
 
 | Strategy | Example | When |
 |----------|---------|------|
 | Required (throw) | `useDate` | Logic is meaningless without the adapter |
-| Default instance | `useLogger`, `useStorage` | A reasonable default exists in v0 |
-| Empty context | `useTheme`, `useFeatures` | Functional but no-op without config |
-| Graceful degradation | `useLocale`, `useRtl` | Partial functionality possible |
+| Default instance | `useLogger`, `useStorage`, `useTheme`, `useRtl` | A reasonable default exists in v0 |
+| Empty context | `useFeatures` | Functional but no-op without config |
+| Graceful degradation | `useLocale` | Partial functionality possible |
 
 ## SSR Support (PHILOSOPHY §2.10)
 
