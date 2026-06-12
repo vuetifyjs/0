@@ -541,6 +541,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/composables/plugins/use-reduced-motion': RouteRecordInfo<
+      '/composables/plugins/use-reduced-motion',
+      '/composables/plugins/use-reduced-motion',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/composables/plugins/use-rtl': RouteRecordInfo<
       '/composables/plugins/use-rtl',
       '/composables/plugins/use-rtl',
@@ -1563,6 +1570,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/plugins/use-permissions.md': {
       routes:
         | '/composables/plugins/use-permissions'
+      views:
+        | never
+    }
+    'src/pages/composables/plugins/use-reduced-motion.md': {
+      routes:
+        | '/composables/plugins/use-reduced-motion'
       views:
         | never
     }
