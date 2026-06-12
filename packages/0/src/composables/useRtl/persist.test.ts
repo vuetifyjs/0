@@ -1,12 +1,16 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 vi.mock('#v0/constants/globals', () => ({
   IN_BROWSER: true,
 }))
 
+// Composables
 import { createStoragePlugin, useStorage } from '#v0/composables/useStorage'
-import { createApp, nextTick } from 'vue'
+
 import { createRtlPlugin } from './index'
+
+// Utilities
+import { createApp, nextTick } from 'vue'
 
 describe('createRtlPlugin persist/restore', () => {
   it('should restore boolean persisted value via real storage', async () => {
