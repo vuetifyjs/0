@@ -239,6 +239,39 @@ export const [createXContext, createXPlugin, useX] = createPluginContext('v0:x',
 
 Used by `useTheme`, `useLocale`, `useLogger`, `useStack`, and friends.
 
+#### Options tiers — required shape
+
+Plugin composables declare three option tiers. `namespace` lives on the context options, `persist` on the plugin options — never inlined together:
+
+```ts
+export interface FooOptions { /* factory options */ }
+
+export interface FooContextOptions extends FooOptions {
+  namespace?: string
+}
+
+export interface FooPluginOptions extends FooContextOptions {
+  persist?: boolean
+}
+```
+
+This is the standard shape across the plugin family (`useTheme`, `useRtl`, `useReducedMotion`, …); `useNotifications` and `useBreakpoints` predate the convention — don't copy their flat shape into new plugins.
+
+#### Persist/restore validation
+
+`restore` callbacks must validate the persisted value before applying it — a type guard or literal-union check, never `saved as T`. Storage contents are user-tamperable and survive schema drift:
+
+```ts
+// packages/0/src/composables/useReducedMotion/index.ts
+restore: (context, saved) => {
+  if (saved === 'system' || saved === 'always' || saved === 'never') {
+    context.select(saved)
+  }
+},
+```
+
+`useLocale`, `useTheme`, and `useRtl` still blind-cast (`saved as ID` / `saved as boolean`) — sweep pending; don't add new blind casts.
+
 #### Fallback contract — required for every plugin
 
 Any `useX` whose docs promise it works without `app.use(createXPlugin())` must pass a `fallback: (namespace) => Context` factory to `createPluginContext`. Without it, calling `useX()` outside an installed app throws an injection error — the docs FAQ promise breaks silently.
@@ -260,7 +293,9 @@ export const [createLoggerContext, createLoggerPlugin, useLogger] =
 
 > `useLogger` additionally wraps the generated consumer in a hand-written function to support an optional scope key (see its source); the snippet above shows the fallback wiring it still uses, not its literal export shape.
 
-When the fallback is in place, `useLogger()` returns synthesized defaults instead of throwing. Sibling plugins that follow the same convention: `useLocale` (`createLocaleFallback`), `useHydration` (`createFallbackHydration`). If a plugin **must** be installed (e.g., it depends on caller-provided adapters with no defensible default — `useDate`), omit the fallback and let injection throw; document that explicitly on the docs page so the failure is loud, not silent.
+When the fallback is in place, `useLogger()` returns synthesized defaults instead of throwing. Nearly every plugin composable follows the convention (`useStack` hand-rolls an equivalent lazy-singleton fallback outside it). If a plugin **must** be installed (e.g., it depends on caller-provided adapters with no defensible default — `useDate`), omit the fallback and let injection throw; document that explicitly on the docs page so the failure is loud, not silent.
+
+**Naming.** Fallback factories use the suffix form `create<X>Fallback` (`createLocaleFallback`, `createThemeFallback`, `createReducedMotionFallback`); `createFallbackLogger` and `createFallbackHydration` are grandfathered exceptions — don't mimic them.
 
 ### 4. Adapter (pluggable implementation)
 
@@ -291,16 +326,13 @@ The adapter pattern shows up in two distinct situations. They look similar in so
 - **`useStorage`** — ships `MemoryStorageAdapter` (SSR-safe fallback) under `useStorage/adapters/memory.ts`; `useStorage` itself reaches for `window.localStorage` when running in the browser, swapping in the memory adapter under SSR.
 - **`useNotifications`** — ships no `V0`-prefixed default; consumers pick a third-party-branded adapter (`KnockNotificationsAdapter`, `NovuNotificationsAdapter`) at install time.
 
-**Interface contract.** Every adapter interface is defined in the composable's `adapters/index.ts` and includes optional lifecycle hooks:
+**Adapter contract.** Every adapter contract is an abstract class defined in the composable's `adapters/adapter.ts` (re-exported through the `adapters/index.ts` barrel); lifecycle hooks (`setup`, `dispose?`) appear on adapters with install-time side effects:
 
 ```ts
-// packages/0/src/composables/useLocale/adapters/index.ts (illustrative)
-export interface LocaleAdapter {
-  setup?: (context: LocaleAdapterContext) => void
-  dispose?: () => void
-  t: (key: string, params?: Record<string, unknown>) => string
-  n: (value: number, options?: Intl.NumberFormatOptions) => string
-  // ... domain-specific methods
+// packages/0/src/composables/useLocale/adapters/adapter.ts
+export abstract class LocaleAdapter {
+  abstract t (key: string, ...params: unknown[]): string
+  abstract n (value: number): string
 }
 ```
 
