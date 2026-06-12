@@ -470,6 +470,27 @@ describe('snackbar', () => {
   })
 
   describe('renderless', () => {
+    it('should render no wrapper and carry zIndex style in slot attrs on portal', () => {
+      let captured: any
+
+      const wrapper = mountWithStack(Snackbar.Portal, {
+        props: { teleport: false, renderless: true },
+        slots: {
+          default: (props: any) => {
+            captured = props
+            return h('section', { 'data-testid': 'custom-portal', ...props.attrs }, 'Toasts')
+          },
+        },
+      })
+
+      const custom = wrapper.find('[data-testid="custom-portal"]')
+      expect(custom.exists()).toBe(true)
+      expect(wrapper.findAll('[data-testid="custom-portal"]')).toHaveLength(1)
+      expect(wrapper.findAll('div')).toHaveLength(0)
+      expect(captured.attrs.style.zIndex).toBe(captured.zIndex)
+      expect((custom.element as HTMLElement).style.zIndex).toBe(String(captured.zIndex))
+    })
+
     it('should render no wrapper and carry role in slot attrs on root', () => {
       let captured: any
 

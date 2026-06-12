@@ -16,6 +16,9 @@
   import { Atom } from '#v0/components/Atom'
   import { Portal } from '#v0/components/Portal'
 
+  // Utilities
+  import { mergeProps } from 'vue'
+
   // Types
   import type { AtomProps } from '#v0/components/Atom'
 
@@ -27,6 +30,10 @@
   export interface SnackbarPortalSlotProps {
     /** Calculated z-index from useStack */
     zIndex: number
+    /** Attributes to bind to the portal element */
+    attrs: {
+      style: { zIndex: number }
+    }
   }
 </script>
 
@@ -39,15 +46,25 @@
 
   const {
     as = 'div',
+    renderless,
     teleport = 'body',
   } = defineProps<SnackbarPortalProps>()
+
+  function getSlotProps (zIndex: number): SnackbarPortalSlotProps {
+    return {
+      zIndex,
+      attrs: {
+        style: { zIndex },
+      },
+    }
+  }
 </script>
 
 <template>
   <Portal :disabled="teleport === false" :to="teleport || 'body'">
     <template #default="{ zIndex }">
-      <Atom :as :style="{ zIndex }" v-bind="$attrs">
-        <slot v-bind="{ zIndex }" />
+      <Atom :as :renderless v-bind="mergeProps($attrs, getSlotProps(zIndex).attrs)">
+        <slot v-bind="getSlotProps(zIndex)" />
       </Atom>
     </template>
   </Portal>
