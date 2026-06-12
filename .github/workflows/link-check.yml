@@ -1,0 +1,66 @@
+name: Link Check
+
+on:
+  schedule:
+    - cron: '0 9 * * 1' # Mondays 09:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  link-check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write # peter-evans/create-issue-from-file
+    steps:
+      - uses: actions/checkout@v6
+      - uses: vuetifyjs/setup-action@fb6949e3ee1041636b7fa9eef3c7694ff31840b8 # master
+      - run: pnpm run build:docs
+        env:
+          VITE_API_SERVER_URL: ${{ vars.API_SERVER_URL }}
+          SKIP_OG_IMAGES: '1'
+      - name: Restore lychee cache
+        uses: actions/cache@v4
+        with:
+          path: .lycheecache
+          key: cache-lychee-${{ github.sha }}
+          restore-keys: cache-lychee-
+      - name: Link Checker (full)
+        id: lychee
+        uses: lycheeverse/lychee-action@v2
+        with:
+          lycheeVersion: v0.22.0
+          # Full internal + external pass. 429 accepted: rate limiting is not
+          # link rot. Default accept set is 100..=103,200..=299 — keep it when
+          # extending.
+          args: >-
+            --config lychee.toml
+            --cache
+            --max-cache-age 3d
+            --cache-exclude-status '429,500..'
+            --max-retries 5
+            --retry-wait-time 5
+            --accept '100..=103,200..=299,429'
+            './apps/docs/dist'
+          fail: false
+      - name: Find existing report issue
+        id: existing
+        if: steps.lychee.outputs.exit_code != 0
+        run: |
+          number="$(gh issue list --repo "$GITHUB_REPOSITORY" --label documentation --state open --search 'Link checker report in:title' --json number --jq '.[0].number // empty')"
+          echo "number=${number}" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - name: Create or update report issue
+        if: steps.lychee.outputs.exit_code != 0
+        uses: peter-evans/create-issue-from-file@v5
+        with:
+          title: Link checker report
+          content-filepath: ./lychee/out.md
+          issue-number: ${{ steps.existing.outputs.number }}
+          labels: documentation
+      - name: Surface broken links in run status
+        if: steps.lychee.outputs.exit_code != 0
+        run: exit 1
