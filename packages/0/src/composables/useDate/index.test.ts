@@ -1,8 +1,7 @@
-import { Temporal } from '@js-temporal/polyfill'
 import { describe, it, expect, beforeEach } from 'vitest'
 
 // Adapters
-import { V0DateAdapter } from './adapters/v0'
+import { Temporal, V0DateAdapter } from './adapters/v0'
 
 import { createDate, createDateContext, createDatePlugin, useDate } from './index'
 

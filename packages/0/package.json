@@ -15,6 +15,8 @@
   ],
   "types": "./dist/index.d.mts",
   "type": "module",
+  "sideEffects": false,
+  "web-types": "./dist/json/web-types.json",
   "files": [
     "dist"
   ],
@@ -86,7 +88,8 @@
   "peerDependencies": {
     "@adobe/leonardo-contrast-colors": ">=1.0.0",
     "@ant-design/colors": ">=7.0.0",
-    "@flagsmith/flagsmith": "^11.0.0",
+    "@flagsmith/flagsmith": ">=11.0.0",
+    "@js-temporal/polyfill": ">=0.5.0",
     "@material/material-color-utilities": ">=0.3.0",
     "launchdarkly-js-client-sdk": "^3.0.0",
     "posthog-js": "^1.0.0",
@@ -95,6 +98,9 @@
   },
   "peerDependenciesMeta": {
     "@flagsmith/flagsmith": {
+      "optional": true
+    },
+    "@js-temporal/polyfill": {
       "optional": true
     },
     "launchdarkly-js-client-sdk": {
@@ -120,6 +126,7 @@
     "@adobe/leonardo-contrast-colors": "catalog:",
     "@ant-design/colors": "catalog:",
     "@flagsmith/flagsmith": "catalog:",
+    "@js-temporal/polyfill": "catalog:",
     "@material/material-color-utilities": "catalog:",
     "@vue/compiler-dom": "catalog:",
     "@vue/test-utils": "catalog:",
@@ -333,8 +340,5 @@
       "development": "./src/index.ts",
       "default": "./dist/browser/index.js"
     }
-  },
-  "optionalDependencies": {
-    "@js-temporal/polyfill": "catalog:"
   }
 }
