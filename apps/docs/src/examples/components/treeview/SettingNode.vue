@@ -74,8 +74,8 @@
         role="switch"
         tabindex="0"
         @click.stop="onToggle(node)"
-        @keydown.space.stop.prevent="onToggle(node)"
         @keydown.enter.stop.prevent="onToggle(node)"
+        @keydown.space.stop.prevent="onToggle(node)"
       >
         <span
           class="absolute size-3.5 rounded-full bg-white shadow-sm transition-transform duration-150"
