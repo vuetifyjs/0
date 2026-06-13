@@ -913,6 +913,41 @@ describe('treeview', () => {
 
         expect(itemProps.isSelected).toBe(!initial)
       })
+
+      it('should not intercept keys originating from embedded interactive controls', async () => {
+        let switchClicked = 0
+
+        const wrapper = mount(Treeview.Root, {
+          slots: {
+            default: () =>
+              h(Treeview.List as any, {}, () =>
+                h(Treeview.Item as any, { value: 'item' }, () => [
+                  h(Treeview.Activator, {}, () => 'Label'),
+                  h('span', {
+                    role: 'switch',
+                    'aria-checked': 'false',
+                    onClick: () => switchClicked++,
+                    onKeydown: (e: KeyboardEvent) => {
+                      if (e.key === ' ') switchClicked++
+                    },
+                  }),
+                ]),
+              ),
+          },
+        })
+
+        await nextTick()
+
+        const switchEl = wrapper.find('[role="switch"]')
+        // Dispatch the keydown event on the switch element itself so it bubbles
+        // to the list with e.target = switchEl.element (not treeitem).
+        const spaceEvent = new KeyboardEvent('keydown', { key: ' ', bubbles: true })
+        switchEl.element.dispatchEvent(spaceEvent)
+        await nextTick()
+
+        // The treeview should have passed the event through; the switch handler fired.
+        expect(switchClicked).toBe(1)
+      })
     })
 
     describe('slot props', () => {
