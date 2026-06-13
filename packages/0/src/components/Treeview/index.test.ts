@@ -924,10 +924,10 @@ describe('treeview', () => {
                 h(Treeview.Item as any, { value: 'item' }, () => [
                   h(Treeview.Activator, {}, () => 'Label'),
                   h('span', {
-                    role: 'switch',
+                    'role': 'switch',
                     'aria-checked': 'false',
-                    onClick: () => switchClicked++,
-                    onKeydown: (e: KeyboardEvent) => {
+                    'onClick': () => switchClicked++,
+                    'onKeydown': (e: KeyboardEvent) => {
                       if (e.key === ' ') switchClicked++
                     },
                   }),
