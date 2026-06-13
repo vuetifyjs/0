@@ -117,6 +117,12 @@
   }
 
   function onKeydown (e: KeyboardEvent) {
+    // When the event bubbles from a child element that is NOT a treeitem (e.g. an
+    // embedded switch or combobox inside a row), let that element handle its own
+    // key events rather than intercepting them at the tree level.
+    const target = e.target as Element
+    if (target !== e.currentTarget && target.getAttribute('role') !== 'treeitem') return
+
     const id = roving.focusedId.value
     const ticket = isNullOrUndefined(id) ? undefined : nested.get(id)
     const rtl = isRtl(e)
