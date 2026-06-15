@@ -193,6 +193,12 @@ export interface ThemeContext<
   register: (registration?: Partial<Z>) => E
   /** Bulk-register multiple themes in a single batch. */
   onboard: (registrations: Partial<Z>[]) => E[]
+  /**
+   * Release adapter resources (watchers, stylesheet, unhead entries).
+   * Called automatically on `app.unmount` when using the plugin path.
+   * Call manually when using a standalone context (`createThemeContext`).
+   */
+  dispose: () => void
 }
 
 export interface ThemeOptions<Z extends ThemeRecord = ThemeRecord> extends RegistryOptions {
@@ -363,6 +369,7 @@ export function createTheme (_options: ThemeOptions = {}): ThemeContext {
     register,
     onboard,
     cycle,
+    dispose: () => {},
     get size () {
       return registry.size
     },
@@ -376,6 +383,7 @@ function createThemeFallback (): ThemeContext {
     isDark: shallowRef(false),
     cycle: () => {},
     onboard: () => [],
+    dispose: () => {},
   } as unknown as ThemeContext
 }
 
@@ -388,8 +396,11 @@ export const [createThemeContext, createThemePlugin, useTheme] =
       setup: (context, app, { adapter = new V0StyleSheetThemeAdapter(), target, rgb }) => {
         if (rgb) adapter.rgb = true
         adapter.setup(app, context, target)
+        app.onUnmount(() => adapter.dispose?.())
       },
       persist: ctx => ctx.selectedId.value,
-      restore: (ctx, saved) => ctx.select(saved as ID),
+      restore: (ctx, saved) => {
+        if (typeof saved === 'string' || typeof saved === 'number') ctx.select(saved)
+      },
     },
   )

@@ -166,6 +166,29 @@ describe('createRtl', () => {
       const isRtl = ssrShallowRef(false)
       expect(() => adapter.setup(mockApp, { isRtl, toggle: () => {} }, undefined)).not.toThrow()
     })
+
+    it('should assign entry.dispose to adapter.dispose when entry has dispose', async () => {
+      vi.resetModules()
+
+      vi.doMock('#v0/constants/globals', () => ({
+        IN_BROWSER: false,
+      }))
+
+      const { V0RtlAdapter: SSRAdapter } = await import('./adapters/v0')
+      const { shallowRef: ssrShallowRef } = await import('vue')
+
+      const entryDispose = vi.fn()
+      const pushFn = vi.fn(() => ({ dispose: entryDispose }))
+      const mockApp = {
+        _context: { provides: { usehead: { push: pushFn } } },
+      } as any
+
+      const adapter = new SSRAdapter()
+      const isRtl = ssrShallowRef(true)
+      adapter.setup(mockApp, { isRtl, toggle: () => {} }, undefined)
+
+      expect(adapter.dispose).toBe(entryDispose)
+    })
   })
 
   describe('useRtl', () => {
@@ -246,6 +269,7 @@ describe('createRtl', () => {
         mockHasInjectionContext.mockReturnValue(false)
         const rtl = useRtl()
         expect(rtl.isRtl.value).toBe(false)
+        expect(() => rtl.dispose()).not.toThrow()
       })
     })
 
@@ -311,6 +335,41 @@ describe('createRtl', () => {
 
         app.unmount()
         el.remove()
+      })
+
+      it('should call adapter.dispose on app.unmount', async () => {
+        const { createApp, nextTick: nt } = await import('vue')
+
+        const disposeFn = vi.fn()
+        const customAdapter = { setup: vi.fn(), dispose: disposeFn }
+
+        const plugin = createRtlPlugin({ adapter: customAdapter as any })
+        const app = createApp({ template: '<div />' })
+        app.use(plugin)
+
+        const container = document.createElement('div')
+        app.mount(container)
+        await nt()
+
+        expect(disposeFn).not.toHaveBeenCalled()
+        app.unmount()
+        expect(disposeFn).toHaveBeenCalledTimes(1)
+      })
+
+      it('should not throw when adapter has no dispose on app.unmount', async () => {
+        const { createApp, nextTick: nt } = await import('vue')
+
+        const customAdapter = { setup: vi.fn() }
+
+        const plugin = createRtlPlugin({ adapter: customAdapter as any })
+        const app = createApp({ template: '<div />' })
+        app.use(plugin)
+
+        const container = document.createElement('div')
+        app.mount(container)
+        await nt()
+
+        expect(() => app.unmount()).not.toThrow()
       })
 
       it('should not install twice on the same app', async () => {
