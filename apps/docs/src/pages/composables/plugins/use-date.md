@@ -23,7 +23,7 @@ Date manipulation using the Temporal API with locale-aware formatting and adapte
 
 ## Installation
 
-The built-in `V0DateAdapter` requires the `@js-temporal/polyfill` package:
+The built-in `V0DateAdapter` uses the runtime's native Temporal implementation when available. Runtimes without native Temporal need the `@js-temporal/polyfill` optional peer:
 
 ::: code-group no-filename
 
@@ -46,7 +46,7 @@ bun add @js-temporal/polyfill
 :::
 
 > [!TIP]
-> The Temporal API is a Stage 3 [TC39 proposal](https://github.com/tc39/proposal-temporal). Once browsers ship native support, the polyfill will no longer be required.
+> The Temporal API is a Stage 3 [TC39 proposal](https://github.com/tc39/proposal-temporal). The adapter prefers native Temporal and only falls back to the polyfill — once every runtime you target ships native support, the polyfill is no longer required.
 
 Then install the date plugin with an adapter:
 
@@ -86,7 +86,7 @@ Adapters let you swap the underlying date library without changing your applicat
 |---------|--------|-------------|
 | `V0DateAdapter` | `@vuetify/v0/date` | [Temporal API](https://tc39.es/proposal-temporal/docs/) adapter[^temporal] |
 
-[^temporal]: Requires the [@js-temporal/polyfill](https://www.npmjs.com/package/@js-temporal/polyfill) package until native Temporal ships in all evergreen browsers. Install with `pnpm add @js-temporal/polyfill`.
+[^temporal]: Uses native Temporal when the runtime provides it; otherwise requires the [@js-temporal/polyfill](https://www.npmjs.com/package/@js-temporal/polyfill) optional peer. Install with `pnpm add @js-temporal/polyfill`.
 
 ### DateAdapter Interface
 

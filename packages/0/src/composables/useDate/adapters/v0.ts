@@ -7,14 +7,17 @@
  *
  * Implements the full date-io IUtils interface for industry compatibility.
  *
- * Requires native Temporal support or @js-temporal/polyfill.
+ * Uses the runtime's native Temporal implementation when present, falling back
+ * to the @js-temporal/polyfill optional peer. The polyfill import is static, so
+ * runtimes without native Temporal must have the peer installed to load this
+ * module.
  *
  * @see https://tc39.es/proposal-temporal/docs/
  * @see https://github.com/dmtrKovalenko/date-io
  */
 
 // Polyfill
-import { Temporal } from '@js-temporal/polyfill'
+import { Temporal as polyfill } from '@js-temporal/polyfill'
 
 // Globals
 import { IN_BROWSER } from '#v0/constants/globals'
@@ -25,7 +28,10 @@ import { DateAdapter } from './adapter'
 // Utilities
 import { isFunction, isNull, isNullOrUndefined, isNumber, isString } from '#v0/utilities'
 
-type PlainDateTime = Temporal.PlainDateTime
+/** Resolved Temporal implementation — native when the runtime provides it, polyfill otherwise. */
+export const Temporal = (globalThis as unknown as { Temporal?: typeof polyfill }).Temporal ?? polyfill
+
+type PlainDateTime = polyfill.PlainDateTime
 
 /** Single regex for token replacement in formatByString */
 const FORMAT_TOKEN_REGEX = /YYYY|YY|MMMM|MMM|MM|M|dddd|ddd|DD|D|HH|H|hh|h|mm|m|ss|s|A|a/g
