@@ -3,6 +3,10 @@
   import { getBinUrl } from '@/composables/bin'
   import { useClipboard } from '@/composables/useClipboard'
   import { usePlayground } from '@/composables/usePlayground'
+  import { CODE_SIZES } from '@/composables/useSettings'
+
+  // Types
+  import type { CodeSize } from '@/composables/useSettings'
 
   const props = defineProps<{
     code: string
@@ -14,9 +18,16 @@
     bin?: boolean
     showCopy?: boolean
     showWrap?: boolean
+    showSize?: boolean
   }>()
 
   const wrap = defineModel<boolean>('wrap', { default: false })
+  const size = defineModel<CodeSize>('size', { default: 'small' })
+
+  function onSize () {
+    const index = CODE_SIZES.indexOf(size.value)
+    size.value = CODE_SIZES[(index + 1) % CODE_SIZES.length]!
+  }
 
   const clipboard = useClipboard()
 
@@ -53,6 +64,15 @@
       title="Open in Vuetify Bin"
       type="button"
       @click="openInBin"
+    />
+
+    <AppIconButton
+      v-if="showSize"
+      :aria-label="`Code size: ${size}. Click to cycle`"
+      :icon="`size-${size}`"
+      :title="`Code size: ${size}`"
+      type="button"
+      @click="onSize"
     />
 
     <AppIconButton

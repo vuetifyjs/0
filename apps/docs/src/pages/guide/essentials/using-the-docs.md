@@ -273,8 +273,11 @@ Hover over the code block to reveal action buttons:
 |--------|--------|
 | <span class="whitespace-nowrap"><AppIcon icon="vuetify-play" :size="16" class="inline-block align-text-bottom" /> **Play**</span> | Open in Vuetify Play with full editing environment |
 | <span class="whitespace-nowrap"><AppIcon icon="vuetify-bin" :size="16" class="inline-block align-text-bottom" /> **Bin**</span> | Open in Vuetify Bin for sharing |
+| <span class="whitespace-nowrap"><AppIcon icon="size-small" :size="16" class="inline-block align-text-bottom" /> **Size**</span> | Cycle code text size between small, medium, and large[^size-examples] |
 | <span class="whitespace-nowrap"><AppIcon icon="wrap" :size="16" class="inline-block align-text-bottom" /> **Wrap**</span> | Toggle line wrapping for long lines |
 | <span class="whitespace-nowrap"><AppIcon icon="copy" :size="16" class="inline-block align-text-bottom" /> **Copy**</span> | Copy code to clipboard (checkmark confirms success) |
+
+[^size-examples]: The button appears on example code panes; the setting itself applies to every code block and can also be changed from the [settings panel](#code-size).
 
 ### Code Groups
 
@@ -497,6 +500,20 @@ Toggle line wrapping for long lines in code blocks:
 
 ```ts
 const veryLongVariableName = someFunction(argumentOne, argumentTwo, argumentThree, argumentFour, argumentFive)
+```
+
+### Code Size
+
+Set the font size for code blocks across the docs — the same setting the size button on example code panes cycles through:
+
+<div class="max-w-xs mb-6">
+  <AppSettingsCodeSize />
+</div>
+
+```ts
+function greet (name: string) {
+  return `Hello, ${name}!`
+}
 ```
 
 ### API Reference

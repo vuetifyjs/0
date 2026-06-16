@@ -71,6 +71,7 @@
 
   const settings = useSettings()
   const lineWrap = useSyncedRef(settings.lineWrap)
+  const size = settings.codeSize
 
   async function onPlayground (list: GnDocsExampleFile[]) {
     const files = list.map(f => ({ name: f.name, code: f.code }))
@@ -135,17 +136,22 @@
     </template>
 
     <template #code="{ code: paneCode, file: paneFile, language: paneLanguage }">
-      <div class="docs-genesis-example-pane" :class="lineWrap && 'docs-genesis-example-pane--wrap'">
+      <div
+        class="docs-genesis-example-pane"
+        :class="lineWrap && 'docs-genesis-example-pane--wrap'"
+      >
         <DocsGenesisShikiBlock :code="paneCode ?? ''" :language="paneLanguage ?? 'text'" />
 
         <div class="docs-genesis-example-pane__actions">
           <DocsCodeActions
+            v-model:size="size"
             v-model:wrap="lineWrap"
             bin
             :code="paneCode ?? ''"
             :language="paneLanguage"
             :playground="!paneFile"
             show-copy
+            show-size
             show-wrap
             :title="paneFile?.name ?? fileName"
           />

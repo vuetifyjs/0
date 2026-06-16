@@ -36,7 +36,7 @@
     margin: 0;
     padding: 1rem;
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    font-size: 0.8125rem;
+    font-size: var(--docs-code-size, 0.8125rem);
     line-height: 1.6;
     white-space: pre;
     overflow-x: auto;
