@@ -15,7 +15,7 @@
   const props = defineProps<{
     options: SingleSelectOption<T>[]
     ariaLabel: string
-    layout?: 'grid' | 'list' | 'radio' | 'group'
+    layout?: 'grid' | 'list' | 'radio'
     columns?: number
     mono?: boolean
   }>()
@@ -80,32 +80,6 @@
         single.selectedId.value === option.id
           ? 'bg-primary/10 text-primary'
           : 'hover:bg-surface-variant text-on-surface',
-      ]"
-      role="radio"
-      type="button"
-      @click="single.select(option.id)"
-    >
-      <AppIcon v-if="option.icon" :icon="option.icon" size="16" />
-      <span>{{ option.label }}</span>
-    </button>
-  </div>
-
-  <!-- Button group layout (CodeSize) -->
-  <div
-    v-else-if="layout === 'group'"
-    :aria-label
-    class="flex items-center gap-0.5 border border-divider rounded-lg p-0.5 bg-surface"
-    role="radiogroup"
-  >
-    <button
-      v-for="option in options"
-      :key="option.id"
-      :aria-checked="single.selectedId.value === option.id"
-      :class="[
-        'flex-1 flex items-center justify-center gap-2 px-2.5 py-1 text-xs font-medium rounded-md transition-colors',
-        single.selectedId.value === option.id
-          ? 'bg-primary text-on-primary'
-          : 'text-on-surface-variant hover:text-on-surface',
       ]"
       role="radio"
       type="button"
