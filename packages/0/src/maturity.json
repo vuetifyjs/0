@@ -596,6 +596,26 @@
     }
   },
   "utilities": {
+    "apca": {
+      "level": "preview",
+      "since": "0.1.11",
+      "category": "utilities"
+    },
+    "clamp": {
+      "level": "stable",
+      "since": "0.0.15",
+      "category": "utilities"
+    },
+    "foreground": {
+      "level": "preview",
+      "since": "0.1.11",
+      "category": "utilities"
+    },
+    "hexToRgb": {
+      "level": "preview",
+      "since": "0.1.11",
+      "category": "utilities"
+    },
     "isArray": {
       "level": "stable",
       "since": "0.1.0",
@@ -664,6 +684,36 @@
     "isUndefined": {
       "level": "stable",
       "since": "0.1.0",
+      "category": "utilities"
+    },
+    "isV0Error": {
+      "level": "preview",
+      "since": "1.0.0-beta.0",
+      "category": "utilities"
+    },
+    "mergeDeep": {
+      "level": "stable",
+      "since": "0.0.1",
+      "category": "utilities"
+    },
+    "range": {
+      "level": "stable",
+      "since": "0.0.15",
+      "category": "utilities"
+    },
+    "rgbToHex": {
+      "level": "preview",
+      "since": "0.1.11",
+      "category": "utilities"
+    },
+    "useId": {
+      "level": "stable",
+      "since": "0.0.24",
+      "category": "utilities"
+    },
+    "V0Error": {
+      "level": "preview",
+      "since": "1.0.0-beta.0",
       "category": "utilities"
     }
   }

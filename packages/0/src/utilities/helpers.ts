@@ -308,6 +308,7 @@ export function isNaN (item: unknown): item is number {
 }
 
 // Keys that could lead to prototype pollution
+// @internal
 export const UNSAFE_KEYS = /* @__PURE__ */ new Set(['__proto__', 'constructor', 'prototype'])
 
 function isPlainObject (value: unknown): value is Record<string, unknown> {
@@ -454,6 +455,8 @@ export function range (length: number, start = 0): number[] {
 /**
  * Resolves an iterable of IDs to their items via a getter,
  * filtering out any that return undefined.
+ *
+ * @internal
  */
 /* #__NO_SIDE_EFFECTS__ */
 export function resolveIds<E> (ids: Iterable<ID>, getter: (id: ID) => E | undefined): E[] {
@@ -464,6 +467,8 @@ export function resolveIds<E> (ids: Iterable<ID>, getter: (id: ID) => E | undefi
 
 /**
  * Extracts defined index values from an iterable of items.
+ *
+ * @internal
  */
 /* #__NO_SIDE_EFFECTS__ */
 export function resolveIndexes (items: Iterable<{ index?: number }>): number[] {

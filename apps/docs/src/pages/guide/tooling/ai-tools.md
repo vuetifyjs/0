@@ -96,6 +96,65 @@ WebFetch https://0.vuetifyjs.com/SKILL.md
 - Summary lookup table
 - Links to [REFERENCE.md](/references/REFERENCE.md) for detailed API examples
 
+## Making Agents Actually Use v0
+
+Docs access alone isn't enough. An agent only looks things up when it feels uncertain — and a model trained before v0 existed doesn't feel uncertain writing generic Vue. It will fluently hand-roll selection state, focus traps, or virtual scrolling without ever checking whether v0 provides them. The fix is to move v0 knowledge from on-demand recall to ambient context, plus a deterministic trigger.
+
+> [!ASKAI] Set up my agent harness so it always uses v0 primitives instead of hand-rolling Vue logic.
+
+### 1. Put a surface map in always-loaded context
+
+Add an inventory of v0 exports — every name with a one-line purpose — to a file your agent loads on every session (`CLAUDE.md`, `.cursorrules`, `AGENTS.md`). An agent can't reach for `createSelection` if it doesn't know the name exists; once the name is in context, fetching the full guide via MCP or SKILL.md follows naturally.
+
+Generate it from the MCP server (`get_vuetify0_exports_list`) or copy the lookup table from [SKILL.md](/SKILL.md), then keep a section like:
+
+```markdown
+## v0 Surface Map
+If a name below covers the need, use it — never hand-roll an equivalent.
+- createSelection — multi/single selection with mandatory guards
+- createForm — form state + field coordination
+- useHotkey — keyboard shortcuts
+- useVirtual — virtual scrolling for large lists
+<!-- ...full export list... -->
+```
+
+### 2. Add a deterministic reminder hook
+
+Context-file instructions degrade over long sessions; hooks don't. In Claude Code, a `PreToolUse` hook fires every time the agent edits a file — including edits made by subagents — and can't be rationalized away. In `.claude/settings.json`:
+
+```json
+{
+  "hooks": {
+    "PreToolUse": [{
+      "matcher": "Edit|Write",
+      "hooks": [{ "type": "command", "command": ".claude/hooks/v0-reminder.sh", "timeout": 5 }]
+    }]
+  }
+}
+```
+
+And `.claude/hooks/v0-reminder.sh` (injects once per session, only for Vue/TS files):
+
+```bash
+#!/usr/bin/env bash
+input=$(cat)
+file=$(jq -r '.tool_input.file_path // empty' <<< "$input")
+case "$file" in
+  *.vue|*.ts|*.tsx)
+    mark="${TMPDIR:-/tmp}/v0-reminder-$(jq -r '.session_id' <<< "$input")"
+    if [ ! -e "$mark" ]; then
+      touch "$mark"
+      printf '%s' '{"hookSpecificOutput":{"hookEventName":"PreToolUse","additionalContext":"Check the v0 surface map in CLAUDE.md before writing Vue logic — never hand-roll a primitive @vuetify/v0 already provides."}}'
+    fi
+    ;;
+esac
+exit 0
+```
+
+### 3. Let the type checker catch what slips through
+
+Hallucinated v0 APIs fail to compile. Run `vue-tsc --noEmit` (or `tsc --noEmit`) as a verification step before accepting agent-written code — it converts "plausible but wrong" into a hard error the agent can fix itself.
+
 ## What's Included
 
 **llms.txt** contains categorized links to:
