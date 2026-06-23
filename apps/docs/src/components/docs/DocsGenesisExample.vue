@@ -187,26 +187,6 @@
     transition: opacity 0.15s;
   }
 
-  /* Normalize DocsCodeActions buttons to match GnDocsExampleActions toolbar:
-     32x32 hit target, 16x16 icon. */
-  .docs-genesis-example-pane__actions :deep(button) {
-    width: 32px;
-    height: 32px;
-    padding: 0;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .docs-genesis-example-pane__actions :deep(button > i) {
-    width: 16px;
-    height: 16px;
-  }
-
-  .docs-genesis-example-pane__actions :deep(svg) {
-    width: 16px;
-    height: 16px;
-  }
-
   .docs-genesis-example-pane:hover .docs-genesis-example-pane__actions,
   .docs-genesis-example-pane:focus-within .docs-genesis-example-pane__actions {
     opacity: 1;
