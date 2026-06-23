@@ -27,6 +27,26 @@ jobs:
             exit 1
           fi
 
+      # Catches a release where the version bump moved only the root
+      # package.json and left the publishable packages behind — what shipped
+      # v1.0.0-beta.2: bumpp silently ignores the `files` list from a config
+      # file and bumps only the root, so the publish then no-ops (pnpm skips
+      # already-published versions) while every step stays green. Asserts the
+      # substrate versions equal the tag before we spend time installing.
+      - name: Verify package versions match tag
+        env:
+          TAG_NAME: ${{ github.ref_name }}
+        run: |
+          expected="${TAG_NAME#v}"
+          for pkg in packages/0 packages/paper; do
+            actual=$(sed -nE 's/.*"version": *"([^"]+)".*/\1/p' "$pkg/package.json" | head -1)
+            if [ "$actual" != "$expected" ]; then
+              echo "::error::$pkg/package.json is $actual but tag is v$expected — the publishable packages were not bumped. Use the 'pnpm release' scripts (which pass the substrate package.json paths to bumpp positionally), then re-tag."
+              exit 1
+            fi
+            echo "$pkg matches tag ($actual)"
+          done
+
       - name: Install pnpm
         uses: pnpm/action-setup@v6
 
