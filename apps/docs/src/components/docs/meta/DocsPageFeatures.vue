@@ -278,6 +278,21 @@
     }
   })
 
+  // Deep-link the stability chip into the roadmap's maturity matrix, carrying
+  // the feature's category + name so the matrix auto-expands that group and
+  // highlights this feature's row instead of stranding the reader.
+  const maturityHref = toRef(() => {
+    const type = itemType.value
+    const name = itemName.value
+    if (!type || !name) return MATURITY_MATRIX_HREF
+
+    const bucket = (maturityData as Record<string, Record<string, MaturityEntry>>)[type]
+    const category = bucket?.[name]?.category
+    if (!category) return MATURITY_MATRIX_HREF
+
+    return `/roadmap?category=${encodeURIComponent(category)}&feature=${encodeURIComponent(name)}#maturity-matrix`
+  })
+
   // Last updated date from git history
   const date = useDate()
   const pageDate = toRef(() => {
@@ -412,7 +427,7 @@
         <DocsMetaItem
           v-if="phase"
           :color="phase.color"
-          :href="MATURITY_MATRIX_HREF"
+          :href="maturityHref"
           :icon="phase.icon"
           :text="phase.label"
           :title="phase.title"
