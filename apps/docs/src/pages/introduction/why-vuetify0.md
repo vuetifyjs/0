@@ -142,7 +142,7 @@ Built-in adapters ship for the most common integrations:
 | `useLogger` | `ConsolaLoggerAdapter` | [Consola](https://github.com/unjs/consola) universal logging |
 | `useLocale` | `VueI18nLocaleAdapter` | [Vue I18n](https://vue-i18n.intlify.dev) internationalization |
 | `useFeatures` | `LaunchDarklyFeaturesAdapter` | [LaunchDarkly](https://launchdarkly.com) feature flags |
-| `useFeatures` | `FlagsmithFeaturesAdapter` | [Flagsmith](https://flagsmith.com) feature flags |
+| `useFeatures` | `FlagsmithFeaturesAdapter` | [Flagsmith](https://www.flagsmith.com) feature flags |
 | `useFeatures` | `PostHogFeaturesAdapter` | [PostHog](https://posthog.com) feature flags and analytics |
 | `useNotifications` | `KnockNotificationsAdapter` | [Knock](https://knock.app) notification feeds |
 | `useNotifications` | `NovuNotificationsAdapter` | [Novu](https://novu.co) notification infrastructure |

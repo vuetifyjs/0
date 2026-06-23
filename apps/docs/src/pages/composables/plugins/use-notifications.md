@@ -194,7 +194,7 @@ Adapters let you swap the underlying notification service without changing your 
 
 ### Knock
 
-[Knock](https://knock.app) is a notification infrastructure platform with feeds, preferences, and multi-channel delivery. Install their [JavaScript SDK](https://docs.knock.app/sdks/javascript/overview) to get started. Supports both inbound (feed → notifications) and outbound (read/archive → Knock API).
+[Knock](https://knock.app) is a notification infrastructure platform with feeds, preferences, and multi-channel delivery. Install their [JavaScript SDK](https://docs.knock.app/in-app-ui/javascript/sdk/overview) to get started. Supports both inbound (feed → notifications) and outbound (read/archive → Knock API).
 
 ::: code-group no-filename
 
@@ -251,7 +251,7 @@ export const feed = knock.feeds.initialize(
 
 ### Novu
 
-[Novu](https://novu.co) is an open-source notification infrastructure with in-app feeds, digests, and multi-channel delivery. Install their [JavaScript SDK](https://docs.novu.co/sdks/javascript) to get started. Supports both inbound (feed → notifications) and outbound (read/unread/seen/archive/unarchive → Novu API).
+[Novu](https://novu.co) is an open-source notification infrastructure with in-app feeds, digests, and multi-channel delivery. Install their [JavaScript SDK](https://docs.novu.co/platform/sdks/javascript) to get started. Supports both inbound (feed → notifications) and outbound (read/unread/seen/archive/unarchive → Novu API).
 
 The adapter maps Novu severity strings to `NotificationSeverity` by default: `critical`/`high` → `error`, `medium` → `warning`, `low` → `info`. Pass a custom `severity` function to override.
 

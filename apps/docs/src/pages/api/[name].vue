@@ -91,7 +91,7 @@
           'programmingLanguage': 'TypeScript',
           'runtimePlatform': 'Vue 3',
           'codeRepository': 'https://github.com/vuetifyjs/0',
-          'license': 'https://opensource.org/licenses/MIT',
+          'license': 'https://opensource.org/license/MIT',
         }),
       }]
       : [],

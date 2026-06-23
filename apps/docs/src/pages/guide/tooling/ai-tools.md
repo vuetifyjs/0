@@ -37,7 +37,7 @@ v0 provides machine-readable documentation files following the [llms.txt](https:
 
 ## Usage
 
-Install SKILL.md via [skills.sh](https://skills.sh) — works with Claude Code, Cursor, Windsurf, Codex, and [35+ agents](https://github.com/vercel-labs/skills#supported-agents):
+Install SKILL.md via [skills.sh](https://www.skills.sh) — works with Claude Code, Cursor, Windsurf, Codex, and [35+ agents](https://github.com/vercel-labs/skills#supported-agents):
 
 ```bash
 npx skills add vuetifyjs/0
@@ -166,7 +166,7 @@ Hallucinated v0 APIs fail to compile. Run `vue-tsc --noEmit` (or `tsc --noEmit`)
 
 **llms-full.txt** includes the complete content of every documentation page, stripped of Vue components and frontmatter for cleaner LLM consumption.
 
-**SKILL.md** is a compact reference optimized for AI coding assistants. It focuses on decision trees, code conventions, anti-patterns, and the composition hierarchy. Detailed API examples live in a separate [REFERENCE.md](/references/REFERENCE.md) that agents load on demand. Install via [skills.sh](https://skills.sh) (`npx skills add vuetifyjs/0`) to make it available across Claude Code, Cursor, Windsurf, and 35+ other agents.
+**SKILL.md** is a compact reference optimized for AI coding assistants. It focuses on decision trees, code conventions, anti-patterns, and the composition hierarchy. Detailed API examples live in a separate [REFERENCE.md](/references/REFERENCE.md) that agents load on demand. Install via [skills.sh](https://www.skills.sh) (`npx skills add vuetifyjs/0`) to make it available across Claude Code, Cursor, Windsurf, and 35+ other agents.
 
 ## How It Works
 
