@@ -213,7 +213,7 @@
     wrap,
     locale,
     format: formatOptions,
-    clamp: shouldClamp,
+    clamp: shouldClamp = true,
     rules = [],
     validateOn = 'blur',
     error = false,

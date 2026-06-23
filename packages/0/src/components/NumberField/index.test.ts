@@ -1620,6 +1620,42 @@ describe('numberField', () => {
       expect(model.value).toBe(100)
     })
 
+    it('should clamp an out-of-range typed value to max by default on blur', async () => {
+      const model = ref<number | null>(5)
+      const { controlEl, wait } = mountNumberField({
+        model,
+        props: { min: 0, max: 200, step: 5 },
+      })
+      await wait()
+
+      await controlEl().trigger('focus')
+      const input = controlEl().element as HTMLInputElement
+      input.value = '999'
+      input.dispatchEvent(new Event('input', { bubbles: true }))
+      await wait()
+      input.dispatchEvent(new FocusEvent('blur'))
+      await wait()
+      expect(model.value).toBe(200)
+    })
+
+    it('should snap without clamping to max when clamp is false', async () => {
+      const model = ref<number | null>(5)
+      const { controlEl, wait } = mountNumberField({
+        model,
+        props: { min: 0, max: 200, step: 5, clamp: false },
+      })
+      await wait()
+
+      await controlEl().trigger('focus')
+      const input = controlEl().element as HTMLInputElement
+      input.value = '999'
+      input.dispatchEvent(new Event('input', { bubbles: true }))
+      await wait()
+      input.dispatchEvent(new FocusEvent('blur'))
+      await wait()
+      expect(model.value).toBe(1000)
+    })
+
     it('should leap on PageUp', async () => {
       const model = ref<number | null>(0)
       const { controlEl, wait } = mountNumberField({
