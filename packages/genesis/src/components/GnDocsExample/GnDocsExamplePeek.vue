@@ -48,7 +48,8 @@
     gap: 0.25rem;
     padding: 0.25rem 0.5rem;
     border: none;
-    border-radius: 0.25rem;
+    border-radius: 0.75rem;
+    corner-shape: squircle;
     background: var(--v0-primary, #5f3aed);
     color: var(--v0-on-primary, #fff);
     font: inherit;
