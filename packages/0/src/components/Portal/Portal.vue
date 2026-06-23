@@ -25,6 +25,8 @@
     disabled?: boolean
     /** Block scrim close. @default false */
     blocking?: boolean
+    /** Whether a scrim/backdrop should back this portal. @default true */
+    scrim?: boolean
   }
 
   export interface PortalSlotProps {
@@ -50,6 +52,7 @@
     to = 'body',
     disabled = false,
     blocking = false,
+    scrim = true,
   } = defineProps<PortalProps>()
 
   const stack = useStack()
@@ -60,6 +63,7 @@
   // portals collide, no dismiss/scrim coordination).
   const ticket = stack.register({
     blocking,
+    scrim,
     onDismiss: () => emit('close'),
   })
   ticket.select()
