@@ -39,6 +39,10 @@ npm install -D vitest @vue/test-utils happy-dom
 yarn add -D vitest @vue/test-utils happy-dom
 ```
 
+```bash bun
+bun add -D vitest @vue/test-utils happy-dom
+```
+
 :::
 
 Configure Vitest to use happy-dom:
