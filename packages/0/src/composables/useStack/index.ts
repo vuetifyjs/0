@@ -212,13 +212,18 @@ export function createStack (_options: StackOptions = {}): StackContext {
     multiple: true,
   })
 
-  const isActive = toRef(() => selection.selectedIds.size > 0)
+  // Non-modal overlays (scrim: false — snackbars, toasts) still stack for
+  // z-index but must not count as an active modal: isActive/top/scrimZIndex/
+  // isBlocking drive backdrop + scroll-lock, which a toast must never trigger.
+  function selectedScrims () {
+    return Array.from(selection.selectedIds)
+      .map(id => selection.get(id) as StackTicket | undefined)
+      .filter((ticket): ticket is StackTicket => !!ticket && ticket.scrim !== false)
+  }
 
-  const top = toRef(() => {
-    const ids = Array.from(selection.selectedIds)
-    if (ids.length === 0) return undefined
-    return selection.get(ids.at(-1)!) as StackTicket | undefined
-  })
+  const isActive = toRef(() => selectedScrims().length > 0)
+
+  const top = toRef(() => selectedScrims().at(-1))
 
   const scrimZIndex = toRef(() => {
     const ticket = top.value
