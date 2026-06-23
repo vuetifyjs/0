@@ -24,17 +24,10 @@ Animation-agnostic mount lifecycle for conditional content.
 
 ## Usage
 
-`v-if` removes elements from the DOM immediately — there's no way to animate them out. Vue's `<Transition>` solves this for CSS transitions, but it's opinionated about how animation works and doesn't compose well with headless components.
+The Presence component and `usePresence` composable manage the mount lifecycle of conditional content. They provide a four-state machine that handles lazy mounting, exit animation delay, and unmounting.
 
-Presence fills this gap. It keeps content in the DOM during an exit phase, exposes a `done()` callback you call when your animation finishes, then removes the content. It doesn't care how you animate — CSS keyframes, Web Animations API, GSAP, or nothing at all.
-
-::: example
+::: gn-example
 /components/presence/basic
-
-### Basic
-
-Side-by-side comparison of `v-if` and Presence. The left panel vanishes instantly. The right panel animates out, stays in the DOM during the exit, then unmounts when `done()` fires. Both use the same boolean — the only difference is how removal works.
-
 :::
 
 ## Anatomy
