@@ -7,13 +7,14 @@
      * Accessible label. Forwarded to `Button.Root`'s `ariaLabel` prop, not as a
      * fallthrough attribute: a slotted icon makes every action button a solo
      * icon button, and `Button.Root` overrides a fallthrough `aria-label` with
-     * its locale default for solo buttons.
+     * its locale default for solo buttons. Declared camelCase so the consumer's
+     * `aria-label` attribute resolves to this prop rather than falling through.
      */
-    'aria-label'?: string
+    ariaLabel?: string
     /** Native tooltip text. */
-    'title'?: string
+    title?: string
     /** Native button type. */
-    'type'?: 'button' | 'submit' | 'reset'
+    type?: 'button' | 'submit' | 'reset'
   }
 </script>
 
@@ -21,7 +22,7 @@
   defineOptions({ name: 'GnActionButton' })
 
   const {
-    'aria-label': label,
+    ariaLabel,
     title,
     type = 'button',
   } = defineProps<GnActionButtonProps>()
@@ -29,7 +30,7 @@
 
 <template>
   <Button.Root
-    :aria-label="label"
+    :aria-label
     class="genesis-action-button"
     :title
     :type
@@ -40,7 +41,8 @@
   </Button.Root>
 </template>
 
-<style scoped>
+<!-- Unscoped: a scoped rule's data-v never lands on Button.Root's multi-root <button>. -->
+<style>
   .genesis-action-button {
     display: inline-flex;
     align-items: center;
@@ -69,8 +71,8 @@
     justify-content: center;
   }
 
-  .genesis-action-button__icon :deep(svg),
-  .genesis-action-button__icon :deep(i) {
+  .genesis-action-button__icon svg,
+  .genesis-action-button__icon i {
     width: 16px;
     height: 16px;
   }
