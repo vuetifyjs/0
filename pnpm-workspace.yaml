@@ -32,7 +32,7 @@ catalog:
   '@vue/tsconfig': ^0.9.1
   '@vuetify/auth': 0.1.8
   '@vuetify/github-releaser': ^4.0.3
-  bumpp: ^11.0.1
+  bumpp: ^11.1.0
   client-zip: ^2.5.0
   conventional-changelog-vuetify: ^2.0.2
   eslint: ^10.3.0
