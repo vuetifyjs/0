@@ -41,7 +41,7 @@ DevKey pairs `@vuetify/v0` with a minimal but production-shaped toolchain so you
 | Layer | Choice |
 | - | - |
 | Framework | [Vue 3.5+](https://vuejs.org) |
-| Build tool | [Vite 8](https://vitejs.dev) |
+| Build tool | [Vite 8](https://vite.dev) |
 | Language | [TypeScript](https://www.typescriptlang.org) |
 | UI primitives | [@vuetify/v0](https://www.npmjs.com/package/@vuetify/v0) |
 | Styling | [UnoCSS](https://unocss.dev) |

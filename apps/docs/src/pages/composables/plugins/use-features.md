@@ -91,12 +91,12 @@ Adapters let you swap the underlying feature flag provider without changing your
 | Adapter | Import | Description |
 |---------|--------|-------------|
 | `PostHogFeaturesAdapter` | `@vuetify/v0/features/adapters/posthog` | [PostHog](https://posthog.com/) integration |
-| `FlagsmithFeaturesAdapter` | `@vuetify/v0/features/adapters/flagsmith` | [Flagsmith](https://flagsmith.com/) integration |
+| `FlagsmithFeaturesAdapter` | `@vuetify/v0/features/adapters/flagsmith` | [Flagsmith](https://www.flagsmith.com/) integration |
 | `LaunchDarklyFeaturesAdapter` | `@vuetify/v0/features/adapters/launchdarkly` | [LaunchDarkly](https://launchdarkly.com/) integration |
 
 ### Flagsmith
 
-[Flagsmith](https://flagsmith.com/) is an open-source feature flag platform. Requires the `@flagsmith/flagsmith` package.
+[Flagsmith](https://www.flagsmith.com/) is an open-source feature flag platform. Requires the `@flagsmith/flagsmith` package.
 
 ::: code-group no-filename
 
