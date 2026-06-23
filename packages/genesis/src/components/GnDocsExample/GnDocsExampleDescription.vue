@@ -10,6 +10,9 @@
 </script>
 
 <script setup lang="ts">
+  // Context
+  import GnDocsExamplePeek from './GnDocsExamplePeek.vue'
+
   // Utilities
   import { shallowRef, toRef, useSlots } from 'vue'
 
@@ -33,10 +36,6 @@
   // when absent — gating truncation on it would make long prose never collapse.
   const truncated = toRef(() => !expanded.value && hasContent.value)
   const maxHeight = shallowRef('4.5rem')
-
-  function onToggle () {
-    expanded.value = !expanded.value
-  }
 </script>
 
 <template>
@@ -71,26 +70,37 @@
 
     <div v-if="truncated" aria-hidden="true" class="genesis-docs-example-description__fade" />
 
-    <button
+    <GnDocsExamplePeek
       v-if="hasContent"
-      :aria-expanded="expanded ? 'true' : 'false'"
-      :aria-label="expanded ? 'Collapse description' : 'Expand description'"
-      class="genesis-docs-example-description__toggle"
-      type="button"
-      @click="onToggle"
+      v-slot="{ expanded: open }"
+      v-model:expanded="expanded"
+      collapsed-label="Expand description"
+      expanded-label="Collapse description"
     >
-      {{ expanded ? 'Collapse' : 'Expand' }}
-    </button>
+      {{ open ? 'Collapse' : 'Expand' }}
+    </GnDocsExamplePeek>
   </div>
 </template>
 
 <style scoped>
   .genesis-docs-example-description {
     position: relative;
+    /* The expand pill overflows below the description onto the preview. A
+       consumer glass treatment (backdrop-filter) turns the description into a
+       stacking context that would otherwise trap the pill behind the following
+       preview, so lift it above. */
+    z-index: 2;
     padding: 1rem 1.25rem 0;
     border-bottom: 1px solid color-mix(in srgb, var(--v0-on-surface, currentcolor) 14%, transparent);
     background: var(--v0-surface-tint, var(--v0-surface, #f5f5f8));
     color: var(--v0-on-surface-variant, rgb(0 0 0 / 0.6));
+  }
+
+  /* GnDocsExamplePeek nudges itself further down when expanded (good for the
+     single-file code peek). The description pill should stay pinned to the
+     border, so neutralize that drift here only. */
+  .genesis-docs-example-description :deep(.genesis-docs-example-peek[data-expanded]) {
+    bottom: -0.75rem;
   }
 
   .genesis-docs-example-description__title {
@@ -142,29 +152,5 @@
     height: 3rem;
     pointer-events: none;
     background: linear-gradient(transparent, var(--v0-surface-tint, var(--v0-surface, #f5f5f8)));
-  }
-
-  .genesis-docs-example-description__toggle {
-    position: absolute;
-    inset-inline-end: 0.75rem;
-    top: 0.75rem;
-    z-index: 1;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-    padding: 0.25rem 0.5rem;
-    border: none;
-    border-radius: 0.25rem;
-    background: var(--v0-primary, #5f3aed);
-    color: var(--v0-on-primary, #fff);
-    font: inherit;
-    font-size: 0.75rem;
-    cursor: pointer;
-    transition: opacity 0.15s;
-    touch-action: manipulation;
-  }
-
-  .genesis-docs-example-description__toggle:hover {
-    opacity: 0.85;
   }
 </style>
