@@ -22,7 +22,7 @@ import { createInput } from '#v0/composables/createInput'
 import { createNumeric } from '#v0/composables/createNumeric'
 
 // Utilities
-import { clamp, isNull } from '#v0/utilities'
+import { clamp, isNull, isNullOrUndefined } from '#v0/utilities'
 import { ref, toRef, toValue } from 'vue'
 
 // Types
@@ -82,8 +82,8 @@ export interface NumberFieldContext {
   formatValue: (value: number) => string
   /** Parse locale-formatted text to a number or null. */
   parse: (text: string) => number | null
-  /** Snap and optionally clamp the current value. Pass `next` to avoid reading the stale model on the same tick as a write. */
-  commit: (next?: number | null) => void
+  /** Snap and optionally clamp the current value. Pass `v` to avoid reading the stale model on the same tick as a write. */
+  commit: (v?: number | null) => void
 }
 
 export function createNumberField (options: NumberFieldOptions = {}): NumberFieldContext {
@@ -205,11 +205,11 @@ export function createNumberField (options: NumberFieldOptions = {}): NumberFiel
     return Number.isNaN(result) ? null : result
   }
 
-  function commit (next?: number | null): void {
+  function commit (v?: number | null): void {
     // Use the provided value when available — avoids reading a stale model on
     // the same tick as a write (parent-bound v-model hasn't round-tripped yet).
-    const val = arguments.length === 0 ? value.value : next as number | null
-    if (isNull(val)) return
+    const val = arguments.length === 0 ? value.value : v as number | null
+    if (isNullOrUndefined(val)) return
     if (!shouldClamp && (val < numeric.min || val > numeric.max)) {
       // Snap to nearest step without clamping to [min, max]
       if (numeric.step > 0 && Number.isFinite(numeric.min)) {
