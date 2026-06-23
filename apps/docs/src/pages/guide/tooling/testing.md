@@ -12,7 +12,7 @@ meta:
 related:
   - /guide/tooling/ai-tools
   - /guide/tooling/vuetify-cli
-  - /guide/essentials/types
+  - /guide/features/types
 ---
 
 # Testing
@@ -129,25 +129,27 @@ v0 throws structured errors that carry a typed `code` discriminant. Use `isV0Err
 
 ```ts
 import { expect, it } from 'vitest'
-import { isV0Error, V0Error } from '@vuetify/v0'
-import { useTheme } from '@vuetify/v0'
+import { isV0Error, useDate, V0Error } from '@vuetify/v0'
 
-it('should throw V0_CONTEXT_MISSING when theme plugin is absent', () => {
+it('should throw V0_PLUGIN_MISSING when the date plugin is absent', () => {
   let caught: unknown
   try {
-    useTheme()
+    useDate()
   } catch (err) {
     caught = err
   }
 
   expect(caught).toBeInstanceOf(V0Error)
-  expect(isV0Error(caught, 'V0_CONTEXT_MISSING')).toBe(true)
-  if (isV0Error(caught, 'V0_CONTEXT_MISSING')) {
-    // TypeScript now knows caught.key exists
-    expect(caught.key).toBeDefined()
+  expect(isV0Error(caught, 'V0_PLUGIN_MISSING')).toBe(true)
+  if (isV0Error(caught, 'V0_PLUGIN_MISSING')) {
+    // TypeScript now knows caught.plugin exists
+    expect(caught.plugin).toBe('createDatePlugin')
   }
 })
 ```
+
+> [!NOTE]
+> Plugin-backed composables differ on whether they throw. `useDate()` throws `V0_PLUGIN_MISSING` when no provider is installed, but composables that ship a fallback — such as `useTheme()` — return synthesized defaults instead of throwing. Assert against a composable that actually throws.
 
 ### Error codes
 
