@@ -22,8 +22,8 @@ packages/genesis/
 │       ├── GnDocsExampleCode/
 │       ├── GnDocsExampleTabs/
 │       ├── GnDocsExamplePanel/
-│       ├── GnDocsExamplePeek/
-│       └── GnDocsExampleActions/
+│       ├── GnDocsExampleActions/
+│       └── GnPeek/
 ```
 
 No `GnDocsIcon`, no `adapter.ts`, no `plugin.ts`, no `theme.ts`. Genesis is just components.
@@ -82,8 +82,20 @@ interface GnDocsExampleProps {
 | `GnDocsExampleCode` | Single code pane; peek truncation; `<slot :code :language :file-name>` for highlighter (default: `<pre>` fallback) |
 | `GnDocsExampleTabs` | Tab list + overflow dropdown for hidden tabs; reset and combine action buttons; `<slot name="reset-icon">`, `<slot name="combine-icon">`, `<slot name="split-icon">` with inline-SVG defaults |
 | `GnDocsExamplePanel` | Wraps one file's code pane content; provides the structural row inside a tab |
-| `GnDocsExamplePeek` | Bottom-anchored expand toggle for peek mode |
 | `GnDocsExampleActions` | Toolbar host; renders an `aria-label`-ed group around action buttons |
+
+### `GnPeek` — standalone peek toggle
+
+A bottom-anchored expand/collapse pill (squircle, `--v0-primary`). **Not** a `GnDocsExample` sub-component — it's a top-level Genesis primitive, consumed by `GnDocsExampleDescription`, `GnDocsExample` (single-file peek mode), and docs-site code blocks.
+
+```ts
+interface GnPeekProps {
+  expandedLabel?: string   // default: 'Collapse'
+  collapsedLabel?: string  // default: 'Expand'
+}
+```
+
+`v-model:expanded` drives state; the default slot exposes `{ expanded }` for custom label/icon content (text-only by default).
 
 ## Icon strategy
 
@@ -94,7 +106,7 @@ Action buttons expose icon slots with inline `<svg>` defaults using MDI paths.
 | `GnDocsExample` | `reset-icon` (single-file mode reset button) | refresh |
 | `GnDocsExampleTabs` | `reset-icon`, `combine-icon`, `split-icon` | refresh / unfold-less / unfold-more |
 
-`GnDocsExamplePeek` is text-only.
+`GnPeek` is text-only (default slot for label/icon content).
 
 ```vue
 <GnDocsExampleTabs>

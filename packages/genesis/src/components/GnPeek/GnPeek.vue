@@ -1,18 +1,19 @@
 <script lang="ts">
-  export interface GnDocsExamplePeekProps {
-    /** Force collapsed/expanded label */
+  export interface GnPeekProps {
+    /** Label shown while expanded */
     expandedLabel?: string
+    /** Label shown while collapsed */
     collapsedLabel?: string
   }
 </script>
 
 <script setup lang="ts">
-  defineOptions({ name: 'GnDocsExamplePeek' })
+  defineOptions({ name: 'GnPeek' })
 
   const {
     expandedLabel = 'Collapse',
     collapsedLabel = 'Expand',
-  } = defineProps<GnDocsExamplePeekProps>()
+  } = defineProps<GnPeekProps>()
 
   const expanded = defineModel<boolean>('expanded', { default: false })
 
@@ -25,7 +26,7 @@
   <button
     :aria-expanded="expanded ? 'true' : 'false'"
     :aria-label="expanded ? expandedLabel : collapsedLabel"
-    class="genesis-docs-example-peek"
+    class="genesis-peek"
     :data-expanded="expanded || undefined"
     type="button"
     @click="onToggle"
@@ -37,7 +38,7 @@
 </template>
 
 <style scoped>
-  .genesis-docs-example-peek {
+  .genesis-peek {
     position: absolute;
     inset-inline-start: 50%;
     bottom: -0.75rem;
@@ -59,11 +60,11 @@
     touch-action: manipulation;
   }
 
-  .genesis-docs-example-peek:hover {
+  .genesis-peek:hover {
     opacity: 0.85;
   }
 
-  .genesis-docs-example-peek[data-expanded] {
+  .genesis-peek[data-expanded] {
     bottom: -1.5rem;
   }
 </style>
