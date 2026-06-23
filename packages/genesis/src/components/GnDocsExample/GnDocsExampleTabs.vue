@@ -36,6 +36,8 @@
   // Types
   import type { ComponentPublicInstance } from 'vue'
 
+  import GnActionButton from '../GnActionButton/GnActionButton.vue'
+
   defineOptions({ name: 'GnDocsExampleTabs' })
 
   const {
@@ -155,11 +157,10 @@
         <GnDocsExampleActions label="Example actions">
           <slot name="actions" />
 
-          <button
+          <GnActionButton
             v-if="showReset"
             aria-label="Reset example"
             title="Reset example"
-            type="button"
             @click="onReset"
           >
             <slot name="reset-icon">
@@ -174,13 +175,12 @@
                 <path d="M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z" />
               </svg>
             </slot>
-          </button>
+          </GnActionButton>
 
-          <button
+          <GnActionButton
             v-if="showPlayground"
             aria-label="Open in Playground"
             title="Open in Playground"
-            type="button"
             @click="onPlayground"
           >
             <slot name="playground-icon">
@@ -195,13 +195,12 @@
                 <path d="M8,5.14V19.14L19,12.14L8,5.14Z" />
               </svg>
             </slot>
-          </button>
+          </GnActionButton>
 
-          <button
+          <GnActionButton
             v-if="showBin"
             aria-label="Open in Bin"
             title="Open in Bin"
-            type="button"
             @click="onBin"
           >
             <slot name="bin-icon">
@@ -216,13 +215,12 @@
                 <path d="M14,3V5H17.59L7.76,14.83L9.17,16.24L19,6.41V10H21V3M19,19H5V5H12V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19Z" />
               </svg>
             </slot>
-          </button>
+          </GnActionButton>
 
-          <button
+          <GnActionButton
             v-if="showCombine"
             :aria-label="combined ? 'Split files' : 'Combine files'"
             :title="combined ? 'Split files' : 'Combine files'"
-            type="button"
             @click="onCombine"
           >
             <slot v-if="combined" name="split-icon">
@@ -250,7 +248,7 @@
                 <path d="M16.59,5.41L15.17,4L12,7.17L8.83,4L7.41,5.41L12,10M7.41,18.59L8.83,20L12,16.83L15.17,20L16.58,18.59L12,14L7.41,18.59Z" />
               </svg>
             </slot>
-          </button>
+          </GnActionButton>
         </GnDocsExampleActions>
       </div>
 
