@@ -21,6 +21,36 @@ Scopes a locale to a component subtree for localized sections of your app.
 
 <DocsPageFeatures :frontmatter />
 
+## Installation
+
+Install the Locale plugin in your app’s entry point:
+
+```ts main.ts collapse
+import { createApp } from 'vue'
+import { createLocalePlugin } from '@vuetify/v0'
+import App from './App.vue'
+
+const app = createApp(App)
+
+app.use(
+  createLocalePlugin({
+    default: 'en',
+    messages: {
+      en: {
+        hello: 'Hello',
+        welcome: 'Welcome, {name}!',
+      },
+      es: {
+        hello: 'Hola',
+        welcome: '¡Bienvenido, {name}!',
+      },
+    },
+  })
+)
+
+app.mount('#app')
+```
+
 ## Usage
 
 Wrap any section of your template in `<Locale>` to override the active locale for that subtree. Children calling `useLocale()` will see the scoped locale as the current selection, and `t()` / `n()` calls will resolve against the scoped locale — not the parent's.
@@ -40,27 +70,19 @@ Wrap any section of your template in `<Locale>` to override the active locale fo
 
 ## Anatomy
 
-```vue Anatomy playground
+```vue Anatomy no-filename
 <script setup lang="ts">
   import { Locale } from '@vuetify/v0'
 </script>
 
 <template>
-  <!-- Wrapper mode (default) -->
-  <Locale locale="fr">
-    <div>French-scoped content</div>
-  </Locale>
-
-  <!-- Renderless mode -->
-  <Locale locale="es" renderless v-slot="{ attrs }">
-    <section v-bind="attrs">Custom element</section>
-  </Locale>
+  <Locale />
 </template>
 ```
 
 ## Examples
 
-::: example
+::: gn-example
 /components/locale/LocaleCard.vue 1
 /components/locale/LocaleSection.vue 2
 /components/locale/scoped-override.vue 3
