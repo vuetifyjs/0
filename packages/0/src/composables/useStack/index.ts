@@ -57,6 +57,15 @@ export interface StackTicketInput extends SelectionTicketInput {
    * Use for critical dialogs requiring explicit user action.
    */
   blocking?: boolean
+  /**
+   * Whether this overlay should be backed by a scrim/backdrop
+   *
+   * @default true
+   * @remarks When false, the overlay still participates in z-index stacking
+   * but `Scrim` skips rendering a backdrop for it. Use for non-modal overlays
+   * (snackbars, toasts, tooltips) that need layering without dimming.
+   */
+  scrim?: boolean
 }
 
 /**
@@ -71,6 +80,10 @@ export type StackTicket<Z extends StackTicketInput = StackTicketInput> = Selecti
    * Whether this overlay blocks scrim dismissal
    */
   blocking: boolean
+  /**
+   * Whether this overlay is backed by a scrim/backdrop
+   */
+  scrim: boolean
   /**
    * The calculated z-index for this overlay
    *
@@ -221,6 +234,7 @@ export function createStack (_options: StackOptions = {}): StackContext {
   function register (input: Partial<StackTicketInput> = {} as Partial<StackTicketInput>): StackTicket {
     const id = input.id ?? useId()
     const blocking = input.blocking ?? false
+    const scrim = input.scrim ?? true
     const onDismiss = input.onDismiss
 
     const zIndex = toRef(() => {
@@ -243,6 +257,7 @@ export function createStack (_options: StackOptions = {}): StackContext {
 
     const ticket = selection.register({
       blocking,
+      scrim,
       onDismiss,
       zIndex,
       globalTop,
