@@ -996,6 +996,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/guide/tooling/testing': RouteRecordInfo<
+      '/guide/tooling/testing',
+      '/guide/tooling/testing',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/guide/tooling/vuetify-cli': RouteRecordInfo<
       '/guide/tooling/vuetify-cli',
       '/guide/tooling/vuetify-cli',
@@ -1960,6 +1967,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/guide/tooling/ai-tools.md': {
       routes:
         | '/guide/tooling/ai-tools'
+      views:
+        | never
+    }
+    'src/pages/guide/tooling/testing.md': {
+      routes:
+        | '/guide/tooling/testing'
       views:
         | never
     }
