@@ -175,18 +175,14 @@ export function createPluginContext<
   function createXPlugin (_options: O = {} as O): Plugin {
     const { namespace = defaultNamespace, persist: shouldPersist, ...options } = _options as O & { namespace?: string, persist?: boolean }
 
-    // context is set inside provide (at install time) and read inside setup (which
-    // always runs after provide). The definite assignment assertion is safe because
-    // createPlugin guarantees provide → setup ordering and the INSTALLED guard
-    // prevents setup from running without a prior provide call.
+    // Created lazily inside provide (install time) so a never-installed or skipped
+    // duplicate-namespace plugin allocates no live resources.
+    // https://github.com/vuetifyjs/0/issues/338
     let context!: E
 
     return createPlugin({
       namespace,
       provide: app => {
-        // Lazy: run the factory at install time, not at createXPlugin() call time.
-        // This prevents allocating live resources (watchers, matchMedia listeners,
-        // unhead entries) for plugins that are created but never installed.
         const [, provide, ctx] = createXContext({ ...options, namespace } as O)
         context = ctx
         provide(context, app)
@@ -202,14 +198,19 @@ export function createPluginContext<
       },
       setup: (config?.setup || shouldPersist)
         ? app => {
-          config?.setup?.(context, app, options as Omit<O, 'namespace' | 'persist'>)
+          // Capture once: provide ran first and set context for this app. Reusing the
+          // same plugin object on another app reassigns the shared binding, so the
+          // persist watch must close over this local, not the outer `context`.
+          const ctx = context
+
+          config?.setup?.(ctx, app, options as Omit<O, 'namespace' | 'persist'>)
 
           if (shouldPersist && config?.persist) {
             const storage = getPersistedStorage()
             const key = deriveKey(namespace)
             const stored = storage.get(key)
             const stop = watch(
-              () => config.persist!(context),
+              () => config.persist!(ctx),
               val => {
                 stored.value = val
               },

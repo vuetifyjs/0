@@ -240,6 +240,20 @@ describe('createPluginContext', () => {
     expect(factory).not.toHaveBeenCalled()
   })
 
+  it('should not run a second factory when a duplicate namespace is installed', () => {
+    const first = vi.fn(() => ({ value: 'first' }))
+    const second = vi.fn(() => ({ value: 'second' }))
+
+    const [, createFirst] = createPluginContext('v0:duplicate-namespace-test', first)
+    const [, createSecond] = createPluginContext('v0:duplicate-namespace-test', second)
+
+    createFirst().install(mockApp)
+    createSecond().install(mockApp)
+
+    expect(first).toHaveBeenCalledTimes(1)
+    expect(second).not.toHaveBeenCalled()
+  })
+
   it('should call setup callback on plugin install', () => {
     const setup = vi.fn()
 
@@ -420,6 +434,50 @@ describe('createPluginContext', () => {
       app.use(createXPlugin())
 
       expect(restore).not.toHaveBeenCalled()
+    })
+
+    it('should persist each app independently when one plugin object is reused', async () => {
+      const stateA = shallowRef('a-initial')
+      const stateB = shallowRef('b-initial')
+
+      let installCount = 0
+
+      const [, createXPlugin] = createPluginContext<
+        { namespace?: string, persist?: boolean },
+        { state: typeof stateA }
+      >(
+        'v0:multi-app-isolation-test',
+        () => ({ state: installCount++ === 0 ? stateA : stateB }),
+        {
+          persist: context => context.state.value,
+          restore: (context, saved) => {
+            context.state.value = saved as string
+          },
+        },
+      )
+
+      // The same plugin object installed on two apps. Each install runs the factory
+      // again, so each app owns a distinct context; the persist watch must track the
+      // context that provide created for that app, not the most-recently-installed one.
+      const plugin = createXPlugin({ persist: true })
+
+      const appA = createApp({ render: () => null })
+      appA.use(createStoragePlugin())
+      appA.use(plugin)
+
+      const appB = createApp({ render: () => null })
+      appB.use(createStoragePlugin())
+      appB.use(plugin)
+
+      stateA.value = 'a-updated'
+      await nextTick()
+
+      let storedA: unknown
+      appA.runWithContext(() => {
+        storedA = useStorage().get('multi-app-isolation-test').value
+      })
+
+      expect(storedA).toBe('a-updated')
     })
   })
 })
