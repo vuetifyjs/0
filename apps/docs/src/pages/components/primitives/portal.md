@@ -27,13 +27,8 @@ Renderless teleport wrapper with automatic z-index stacking.
 
 Portal wraps Vue's `<Teleport>` with automatic `useStack` integration. Content is teleported to `body` by default and receives a `zIndex` via slot props for proper overlay ordering.
 
-::: example
+::: gn-example
 /components/portal/basic
-
-### Basic
-
-Toggle a floating element that teleports to the body on desktop or renders inline on mobile. Uses `disabled` with `useBreakpoints` for responsive behavior. Portal registers with the stack and provides `zIndex` for proper layering.
-
 :::
 
 ## Anatomy
@@ -47,38 +42,6 @@ Toggle a floating element that teleports to the body on desktop or renders inlin
   <Portal />
 </template>
 ```
-
-## Architecture
-
-Portal is a thin abstraction over two existing v0 systems:
-
-```mermaid "Portal Flow"
-flowchart LR
-  Portal["Portal"]:::primary
-  Teleport["Vue Teleport"]
-  Stack["useStack"]
-
-  Portal --> Teleport
-  Portal --> Stack
-
-  Teleport -->|"to prop"| Target["Target (body)"]
-  Stack -->|"register()"| ZIndex["zIndex slot prop"]
-```
-
-When mounted, Portal registers a stack ticket. The ticket's computed `zIndex` is exposed as a slot prop. When the component unmounts, the ticket is automatically cleaned up via scope disposal.
-
-The `disabled` prop controls teleporting — when `true`, content renders inline instead of being teleported. Stack registration is always active regardless of `disabled` state.
-
-## Examples
-
-::: example
-/components/portal/stacking
-
-### Stacking
-
-Each Portal registers its own stack ticket. Add multiple layers to see how `useStack` assigns incrementing `zIndex` values — each new Portal layers above the previous one. Layers can be dismissed via the close button or programmatically. The `zIndex` slot prop updates reactively as layers are added and removed.
-
-:::
 
 ## Accessibility
 
