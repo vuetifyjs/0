@@ -1,13 +1,13 @@
 <script setup lang="ts">
   // Framework
-  import { createDataTable, createGroup, createSingle } from '@vuetify/v0'
+  import { createDataTable, createGroup, createSingle, isString, toHighlight } from '@vuetify/v0'
 
   import maturityData from '#v0/maturity.json'
   import { releaseAlias } from '@/constants/releases'
 
   // Utilities
-  import { toRef, watch } from 'vue'
-  import { RouterLink } from 'vue-router'
+  import { onMounted, toRef, watch } from 'vue'
+  import { RouterLink, useRoute } from 'vue-router'
 
   // Types
   type Level = 'draft' | 'preview' | 'stable' | 'mature' | 'deprecated'
@@ -151,6 +151,23 @@
   function onSearch (event: Event) {
     table.search((event.target as HTMLInputElement).value)
   }
+
+  // Feature pages deep-link here with `?category=&feature=` so the reader's
+  // category is auto-expanded and their feature's row is highlighted, instead
+  // of being buried among collapsed groups.
+  const route = useRoute()
+
+  const feature = toRef(() => {
+    const value = route.query.feature
+    return isString(value) ? value : ''
+  })
+
+  onMounted(() => {
+    const category = route.query.category
+    if (isString(category) && category) {
+      table.grouping.open(category)
+    }
+  })
 
   const anyOpen = toRef(() => {
     return table.grouping.groups.value.some(g => table.grouping.isOpen(g.key))
@@ -332,7 +349,10 @@
           >
             <div class="flex-1 min-w-0">
               <div class="text-sm font-medium text-on-surface truncate">
-                {{ item.name }}
+                <template v-for="(chunk, position) in toHighlight(item.name, feature, { ignoreCase: true })" :key="position">
+                  <mark v-if="chunk.match" class="bg-warning text-on-warning rounded px-0.5">{{ chunk.text }}</mark>
+                  <template v-else>{{ chunk.text }}</template>
+                </template>
               </div>
 
               <div class="flex items-center gap-2 mt-1">
@@ -487,7 +507,12 @@
                   :is="(item as MaturityItem).level === 'draft' ? 'span' : RouterLink"
                   :class="(item as MaturityItem).level === 'draft' ? 'text-on-surface-variant' : 'text-primary no-underline hover:underline transition-colors'"
                   :to="(item as MaturityItem).level !== 'draft' ? item.path : undefined"
-                >{{ item.name }}</component>
+                >
+                  <template v-for="(chunk, position) in toHighlight(item.name, feature, { ignoreCase: true })" :key="position">
+                    <mark v-if="chunk.match" class="bg-warning text-on-warning rounded px-0.5">{{ chunk.text }}</mark>
+                    <template v-else>{{ chunk.text }}</template>
+                  </template>
+                </component>
               </td>
 
               <!-- Type badge -->
