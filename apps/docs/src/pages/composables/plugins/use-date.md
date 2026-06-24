@@ -46,7 +46,7 @@ bun add @js-temporal/polyfill
 :::
 
 > [!TIP]
-> The Temporal API is a Stage 3 [TC39 proposal](https://github.com/tc39/proposal-temporal). The adapter prefers native Temporal and only falls back to the polyfill — once every runtime you target ships native support, the polyfill is no longer required.
+> The Temporal API reached [Stage 4](https://github.com/tc39/proposal-temporal) (finished) at TC39 in January 2026 and is part of ECMAScript 2026. The adapter prefers native Temporal and only falls back to the polyfill — once every runtime you target ships native support, the polyfill is no longer required.
 
 Then install the date plugin with an adapter:
 
