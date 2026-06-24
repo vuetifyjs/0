@@ -217,8 +217,8 @@
   const phaseConfig = {
     draft: { icon: 'pencil', color: 'text-on-surface-variant', label: 'Draft' },
     preview: { icon: 'flask', color: 'text-warning', label: 'Preview' },
-    stable: { icon: 'check-circle', color: 'text-success', label: 'Stable' },
-    mature: { icon: 'shield-check', color: 'text-info', label: 'Mature' },
+    stable: { icon: 'check-circle', color: 'text-info', label: 'Stable' },
+    mature: { icon: 'shield-check', color: 'text-success', label: 'Mature' },
     deprecated: { icon: 'archive', color: 'text-error', label: 'Deprecated' },
   } as const
 
