@@ -1,0 +1,33 @@
+name: Changeset reminder
+
+# Nudges a PR that changes packages/* source but forgot `pnpm changeset`, so the
+# change isn't silently dropped from the next release's version bump + notes.
+#
+# Uses pull_request_target so the comment also posts on fork PRs (the default
+# GITHUB_TOKEN only gets pull-requests: write on forks via this event). SAFE:
+# checkout takes the trusted base branch (never the PR head), and the only thing
+# that runs is our own script, which reads the PR's file LIST through the API and
+# comments — no untrusted PR code is ever checked out or executed.
+on:
+  pull_request_target:
+    branches: [master]
+    types: [opened, synchronize, reopened]
+
+permissions:
+  pull-requests: write
+
+concurrency:
+  group: changeset-reminder-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  remind:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6 # base branch (master) — trusted, NOT the PR head
+      - name: Changeset reminder
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+        run: node scripts/changeset-reminder.js
