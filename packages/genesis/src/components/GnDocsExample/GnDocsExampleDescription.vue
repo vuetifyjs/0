@@ -96,13 +96,6 @@
     color: var(--v0-on-surface-variant, rgb(0 0 0 / 0.6));
   }
 
-  /* GnPeek nudges itself further down when expanded (good for the
-     single-file code peek). The description pill should stay pinned to the
-     border, so neutralize that drift here only. */
-  .genesis-docs-example-description :deep(.genesis-peek[data-expanded]) {
-    bottom: -0.75rem;
-  }
-
   .genesis-docs-example-description__title {
     margin: 0;
     font-size: 1.125rem;
