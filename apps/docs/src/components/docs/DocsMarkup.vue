@@ -43,7 +43,7 @@
 </script>
 
 <template>
-  <div class="relative my-4" :class="shouldCollapse && !expanded && 'mb-8'">
+  <div class="relative my-4" :class="shouldCollapse && 'mb-8'">
     <div
       class="docs-markup relative group"
       :class="[
@@ -71,17 +71,6 @@
           show-wrap
           :title
         />
-
-        <button
-          v-if="shouldCollapse && expanded"
-          aria-label="Collapse code"
-          class="inline-flex items-center justify-center size-7 text-on-primary bg-primary rounded cursor-pointer transition-200 hover:bg-primary/85"
-          title="Collapse code"
-          type="button"
-          @click="expanded = false"
-        >
-          <AppIcon icon="fullscreen-exit" :size="16" />
-        </button>
       </div>
 
       <div
@@ -95,12 +84,14 @@
     </div>
 
     <GnPeek
-      v-if="shouldCollapse && !expanded"
+      v-if="shouldCollapse"
+      v-slot="{ expanded: open }"
       v-model:expanded="expanded"
       collapsed-label="Expand code"
+      expanded-label="Collapse code"
     >
-      <span>Expand</span>
-      <AppIcon icon="down" :size="14" />
+      <span>{{ open ? 'Collapse' : 'Expand' }}</span>
+      <AppIcon :icon="open ? 'up' : 'down'" :size="14" />
     </GnPeek>
   </div>
 </template>
