@@ -10,11 +10,11 @@
 </script>
 
 <script setup lang="ts">
-  // Context
-  import GnDocsExamplePeek from './GnDocsExamplePeek.vue'
-
   // Utilities
   import { shallowRef, toRef, useSlots } from 'vue'
+
+  // Context
+  import GnPeek from '../GnPeek/GnPeek.vue'
 
   defineOptions({ name: 'GnDocsExampleDescription' })
 
@@ -70,7 +70,7 @@
 
     <div v-if="truncated" aria-hidden="true" class="genesis-docs-example-description__fade" />
 
-    <GnDocsExamplePeek
+    <GnPeek
       v-if="hasContent"
       v-slot="{ expanded: open }"
       v-model:expanded="expanded"
@@ -78,7 +78,7 @@
       expanded-label="Collapse description"
     >
       {{ open ? 'Collapse' : 'Expand' }}
-    </GnDocsExamplePeek>
+    </GnPeek>
   </div>
 </template>
 
@@ -96,10 +96,10 @@
     color: var(--v0-on-surface-variant, rgb(0 0 0 / 0.6));
   }
 
-  /* GnDocsExamplePeek nudges itself further down when expanded (good for the
+  /* GnPeek nudges itself further down when expanded (good for the
      single-file code peek). The description pill should stay pinned to the
      border, so neutralize that drift here only. */
-  .genesis-docs-example-description :deep(.genesis-docs-example-peek[data-expanded]) {
+  .genesis-docs-example-description :deep(.genesis-peek[data-expanded]) {
     bottom: -0.75rem;
   }
 

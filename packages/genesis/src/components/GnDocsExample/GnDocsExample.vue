@@ -46,7 +46,6 @@
   import GnDocsExampleActions from './GnDocsExampleActions.vue'
   import GnDocsExampleCode from './GnDocsExampleCode.vue'
   import GnDocsExampleDescription from './GnDocsExampleDescription.vue'
-  import GnDocsExamplePeek from './GnDocsExamplePeek.vue'
   import GnDocsExamplePreview from './GnDocsExamplePreview.vue'
   import GnDocsExampleTabs from './GnDocsExampleTabs.vue'
 
@@ -54,6 +53,7 @@
   import { shallowRef, toRef, useId, useTemplateRef } from 'vue'
 
   import GnActionButton from '../GnActionButton/GnActionButton.vue'
+  import GnPeek from '../GnPeek/GnPeek.vue'
 
   defineOptions({ name: 'GnDocsExample' })
 
@@ -260,7 +260,7 @@
       </template>
     </div>
 
-    <GnDocsExamplePeek
+    <GnPeek
       v-if="peek && !hasMultipleFiles && hasCode"
       v-model:expanded="peekExpanded"
     />
@@ -290,17 +290,17 @@
     border-bottom: 1px solid color-mix(in srgb, var(--v0-on-surface, currentcolor) 14%, transparent);
   }
 
-  .genesis-docs-example > *:first-child:not(.genesis-docs-example-peek) {
+  .genesis-docs-example > *:first-child:not(.genesis-peek) {
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
   }
 
-  .genesis-docs-example > *:nth-last-child(1 of :not(.genesis-docs-example-peek)) {
+  .genesis-docs-example > *:nth-last-child(1 of :not(.genesis-peek)) {
     border-bottom-left-radius: 8px;
     border-bottom-right-radius: 8px;
   }
 
-  .genesis-docs-example > *:nth-last-child(1 of :not(.genesis-docs-example-peek)) .genesis-docs-example__toggle {
+  .genesis-docs-example > *:nth-last-child(1 of :not(.genesis-peek)) .genesis-docs-example__toggle {
     border-bottom-left-radius: 8px;
     border-bottom-right-radius: 8px;
   }

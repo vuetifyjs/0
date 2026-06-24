@@ -1,4 +1,7 @@
 <script setup lang="ts">
+  // Components
+  import { GnPeek } from '@paper/genesis'
+
   // Composables
   import { useSettings } from '@/composables/useSettings'
   import { useSyncedRef } from '@/composables/useSyncedRef'
@@ -91,16 +94,14 @@
       <div v-if="shouldCollapse && !expanded" class="docs-markup-fade absolute inset-x-0 bottom-0 h-16 rounded-b-2 pointer-events-none" />
     </div>
 
-    <button
+    <GnPeek
       v-if="shouldCollapse && !expanded"
-      aria-label="Expand code"
-      class="absolute -bottom-3 left-1/2 -translate-x-1/2 z-10 inline-flex items-center justify-center gap-1 px-2 py-1 text-xs text-on-primary bg-primary rounded cursor-pointer transition-200 hover:bg-primary/85 touch-action-manipulation"
-      type="button"
-      @click="expanded = true"
+      v-model:expanded="expanded"
+      collapsed-label="Expand code"
     >
       <span>Expand</span>
       <AppIcon icon="down" :size="14" />
-    </button>
+    </GnPeek>
   </div>
 </template>
 
