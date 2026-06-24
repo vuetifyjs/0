@@ -8,6 +8,8 @@ autoInstallPeers: true
 catalog:
   '@adobe/leonardo-contrast-colors': ^1.1.0
   '@ant-design/colors': ^8.0.1
+  '@changesets/changelog-github': ^0.7.0
+  '@changesets/cli': ^2.31.0
   '@flagsmith/flagsmith': ^11.0.0
   '@js-temporal/polyfill': 0.5.1
   '@material/material-color-utilities': ^0.4.0
