@@ -37,6 +37,7 @@
     "repo:sherif": "sherif",
     "repo:check": "pnpm repo:knip && pnpm repo:sherif",
     "validate": "pnpm lint && pnpm typecheck && pnpm test:run",
+    "changeset": "changeset",
     "release": "bumpp",
     "release:prepare": "pnpm validate && pnpm build",
     "release:patch": "bumpp patch",
@@ -49,6 +50,8 @@
     "pre-push": "pnpm lint:fix && pnpm typecheck && pnpm test:run && pnpm repo:check"
   },
   "devDependencies": {
+    "@changesets/changelog-github": "catalog:",
+    "@changesets/cli": "catalog:",
     "@js-temporal/polyfill": "catalog:",
     "@tsconfig/node24": "catalog:",
     "@types/node": "catalog:",
