@@ -89,10 +89,11 @@ pnpm typecheck        # All packages
 pnpm lint:fix         # Always use lint:fix, not lint
 pnpm validate         # lint + typecheck + test
 
-# Release
-pnpm release:prepare  # Pre-release validation
-pnpm release:patch    # Bump patch
-pnpm release:minor    # Bump minor
+# Release (Changesets)
+pnpm changeset        # Author a changeset for your PR (run per change)
+pnpm release:prepare  # Pre-release validation (validate + build)
+# Publishing is automated: pushing to master opens a "Version Packages" PR;
+# merging it builds, publishes to npm via OIDC, and creates the GitHub releases.
 
 # Repo health
 pnpm repo:check       # knip + sherif
