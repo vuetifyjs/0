@@ -56,15 +56,11 @@
     font: inherit;
     font-size: 0.75rem;
     cursor: pointer;
-    transition: opacity 0.15s, bottom 0.15s;
+    transition: opacity 0.15s;
     touch-action: manipulation;
   }
 
   .genesis-peek:hover {
     opacity: 0.85;
-  }
-
-  .genesis-peek[data-expanded] {
-    bottom: -1.5rem;
   }
 </style>
