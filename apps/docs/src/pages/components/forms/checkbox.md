@@ -24,40 +24,18 @@ A checkbox for boolean state or multi-selection groups with tri-state support.
 
 ## Usage
 
-::: example
+::: gn-example
 /components/checkbox/basic
-
-### Basic Checkbox
-
-A standalone checkbox with checkmark indicator and label.
-
 :::
 
 ## Anatomy
 
-```vue Anatomy playground collapse no-filename
+```vue Anatomy no-filename
 <script setup lang="ts">
   import { Checkbox } from '@vuetify/v0'
 </script>
 
 <template>
-  <!-- Standalone -->
-  <Checkbox.Root>
-    <Checkbox.Indicator />
-  </Checkbox.Root>
-
-  <!-- Group -->
-  <Checkbox.Group>
-    <Checkbox.Root>
-      <Checkbox.Indicator />
-    </Checkbox.Root>
-
-    <Checkbox.Root>
-      <Checkbox.Indicator />
-    </Checkbox.Root>
-  </Checkbox.Group>
-
-  <!-- Group with Select All -->
   <Checkbox.Group>
     <Checkbox.SelectAll>
       <Checkbox.Indicator />
@@ -66,34 +44,35 @@ A standalone checkbox with checkmark indicator and label.
     <Checkbox.Root>
       <Checkbox.Indicator />
     </Checkbox.Root>
-  </Checkbox.Group>
-
-  <!-- With form submission -->
-  <Checkbox.Root>
-    <Checkbox.Indicator />
 
     <Checkbox.HiddenInput />
-  </Checkbox.Root>
+  </Checkbox.Group>
 </template>
 ```
 
 ## Examples
 
-::: example
+::: gn-example
 /components/checkbox/group
 
 ### Checkbox Group
 
-Multi-select checkbox group with three fruit options showing the selected state.
+`Checkbox.Group` wraps `Checkbox.Root` items and manages multi-selection state via an array-based v-model. Each `Checkbox.Root` registers automatically with the nearest parent group — no wiring required. The group's v-model collects the `value` prop of every checked item.
+
+Reach for this pattern whenever you need a list of independent boolean choices — tag pickers, feature toggles, permission sets — and want the aggregate selection as an array. The group handles enrollment and deselection; individual checkboxes still respond to their own `disabled` prop.
 
 :::
 
-::: example
+::: gn-example
 /components/checkbox/indeterminate
 
 ### Select All Pattern
 
-A "select all" checkbox with tri-state behavior (checked, unchecked, indeterminate) over nested items.
+`Checkbox.SelectAll` is a purpose-built sub-component that binds to the group's aggregate tri-state — checked when all items are selected, unchecked when none are, and indeterminate when some are. It calls `toggleAll` internally, so it does not register as a group item and does not appear in the v-model array.
+
+The `Checkbox.Indicator` inside `SelectAll` receives an `isMixed` slot prop you can use to swap between a checkmark and a dash (or any other visual). Use `data-[state=indeterminate]` on the outer element to drive CSS — the example shows how to apply the same primary color to both fully-checked and indeterminate states so the control always stands out against unchecked siblings.
+
+Use this whenever you need a "select all / deselect all" header checkbox above a list of independently toggleable items.
 
 :::
 

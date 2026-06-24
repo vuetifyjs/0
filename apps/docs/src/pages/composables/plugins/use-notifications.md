@@ -137,7 +137,7 @@ The `severity` field categorizes notifications by urgency. It maps to ARIA live 
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/use-notifications/context.ts 1
 /composables/use-notifications/NotificationProvider.vue 2
 /composables/use-notifications/NotificationConsumer.vue 3

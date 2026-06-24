@@ -104,12 +104,16 @@ Locale selection is reactive via `createSingle`. Translation methods return stat
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/use-locale/locale-switcher
 
 ### Locale Switcher
 
-Switch between English, Spanish, and Japanese — translated strings, navigation items, and formatted numbers all update reactively.
+Three locales (English, Spanish, Japanese) registered via `createLocaleContext` with structured message dictionaries. Clicking a language button calls `locale.select(id)` and every translated string re-renders immediately. The example covers all four interpolation forms the built-in `V0LocaleAdapter` supports: named replacement (`{ name }`), positional replacement (`{0}`), multi-placeholder (`{ count, total }`), and nested key lookup (`nav.home`). The number at the bottom is formatted through `locale.n()`, which delegates to `Intl.NumberFormat` using the active locale's BCP 47 code, so separators and decimal points change per locale.
+
+The locale is held in `createSingle` under the hood — `locale.selectedId` is the reactive source of truth that drives all translation calls. `locale.keys()` iterates registered locale IDs for the language buttons without hard-coding them.
+
+This pattern is the self-contained alternative to the Installation approach: `createLocaleContext` scopes the locale to a subtree via provide/inject instead of installing it app-wide, which is useful for isolated demos and multi-tenant apps where sections can have independent locale contexts. For a vue-i18n integration or a custom adapter, see the Adapters section below. For component-level locale overrides, see the [Locale](/components/providers/locale) component.
 
 :::
 

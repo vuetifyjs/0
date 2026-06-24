@@ -173,7 +173,7 @@ grid.onboard(largeDataset.map(value => ({ id: value.id, value })))
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/create-data-grid/pinned/data.ts
 /composables/create-data-grid/pinned/columns.ts
 /composables/create-data-grid/pinned/usePinnedGrid.ts
@@ -185,7 +185,7 @@ grid.onboard(largeDataset.map(value => ({ id: value.id, value })))
 
 A financial data grid with 10 columns that requires horizontal scrolling. Ticker is pinned left, sector pinned right — the center columns scroll independently with drag-to-resize handles.
 
-**File breakdown:**
+`layout.pinned` splits columns into `left`, `scrollable`, and `right` regions with independent sticky offsets so each region scrolls correctly without overlapping. `layout.resize(id, delta)` adjusts a column and its neighbor inversely to maintain the 100% total width. `layout.pin(id, position)` moves a column between regions at runtime — the ticker-filter toolbar button demonstrates this. `layout.reset()` restores the initial sizes, order, and pins declared in `columns.ts`.
 
 | File | Role |
 |------|------|
@@ -196,16 +196,9 @@ A financial data grid with 10 columns that requires horizontal scrolling. Ticker
 | `PinnedFooter.vue` | Row count plus the left / scrollable / right pin-region summary |
 | `PinnedGrid.vue` | The spreadsheet table — sticky pinned columns, resize handles, formatted numbers |
 
-**Key patterns:**
-
-- `layout.pinned` splits columns into `left`, `scrollable`, and `right` regions with independent offsets
-- `layout.resize(id, delta)` adjusts a column and its neighbor to maintain total width
-- `layout.pin(id, position)` moves columns between regions dynamically
-- `layout.reset()` restores initial sizes, order, and pins
-
 :::
 
-::: example
+::: gn-example
 /composables/create-data-grid/editing/data.ts
 /composables/create-data-grid/editing/columns.ts
 /composables/create-data-grid/editing/useEditableGrid.ts
@@ -217,7 +210,7 @@ A financial data grid with 10 columns that requires horizontal scrolling. Ticker
 
 An inventory management grid where editing is the primary workflow. Product name, price, and quantity are editable; invalid values show inline errors and block commit. Every committed edit pushes a `{ from, to }` entry onto a [createTimeline](/composables/registration/create-timeline), which powers the Undo / Redo buttons and the history log.
 
-**File breakdown:**
+`editing.edit(row, column)` activates a cell — the active cell is highlighted so the edit target is unmistakable. `editing.commit(value)` runs the column's `validate` function first; the commit only lands when the validator returns `true`, and `editing.error` holds the rejection string until the value passes or the user cancels. The `onEdit` callback fires after each successful commit and is where `useEditableGrid.ts` pushes `{ row, column, from, to }` to a `createTimeline({ size: 50 })` for history. `timeline.undo()` and `timeline.redo()` walk the bounded stack; the handler applies the recovered `from` (undo) or `to` (redo) back to the row via `grid.upsert`.
 
 | File | Role |
 |------|------|
@@ -228,17 +221,9 @@ An inventory management grid where editing is the primary workflow. Product name
 | `EditHistory.vue` | The timeline-backed edit history log |
 | `EditableGrid.vue` | The editable table — click-to-edit cells with Enter / Escape / Ctrl+Z keyboard handling |
 
-**Key patterns:**
-
-- `editing.edit(row, column)` activates a cell for editing — the cell paints `bg-primary/10` so the edit target is unmistakable
-- `editing.commit(value)` validates first — only `true` from the validator allows the edit through
-- `editing.error` persists until the value passes validation or the user cancels
-- `onEdit` callback fires after a successful commit; the example pushes `{ row, column, from, to }` to a `createTimeline({ size: 50 })`
-- `timeline.undo()` / `timeline.redo()` walk the history; the example applies the recovered `from` (undo) or `to` (redo) to the row in place
-
 :::
 
-::: example
+::: gn-example
 /composables/create-data-grid/spanning/data.ts
 /composables/create-data-grid/spanning/columns.ts
 /composables/create-data-grid/spanning/useSpanningGrid.ts
@@ -248,7 +233,7 @@ An inventory management grid where editing is the primary workflow. Product name
 
 A portfolio holdings grid with two levels of row spanning — `account` spans every holding under an account, and `assetClass` spans every holding within an account-and-class pair. Spanned cells double as aggregation rows by showing the account or asset-class subtotal alongside the label.
 
-**File breakdown:**
+One `rowSpanning(item, column)` callback in `useSpanningGrid.ts` resolves both span levels by checking whether the next consecutive row shares the same `account` (and, for `assetClass`, the same account-and-class pair). The resulting span map is consumed in the template via `spans.value.get(rowId)?.get(columnId)`, which returns `{ rowSpan, hidden }`. The template skips `<td>` entirely when `hidden` is true — the spanning cell above covers it — and sets `:rowspan="rowSpan"` otherwise. Spans are clamped to remaining visible rows and never cross page boundaries.
 
 | File | Role |
 |------|------|
@@ -256,14 +241,6 @@ A portfolio holdings grid with two levels of row spanning — `account` spans ev
 | `columns.ts` | 6 columns: account, asset class, ticker, holding, value, change (pinned right) |
 | `useSpanningGrid.ts` | Spanning logic — the `rowSpanning` callback and account / asset-class aggregation helpers |
 | `SpanningGrid.vue` | The table — multi-level row spans, subtotals in spanned cells, the pinned Today column |
-
-**Key patterns:**
-
-- One `rowSpanning(item, column)` callback resolves both span levels by checking whether the next consecutive row shares the same `account` (and, for `assetClass`, the same account-and-class pair)
-- `spans.value.get(rowId).get(columnId)` returns `{ rowSpan, hidden }` — render `<td>` only when `!hidden`, and set `:rowspan` from `rowSpan`
-- Spanned cells display aggregate information (account total, asset-class subtotal) so the spanned row carries domain meaning beyond visual grouping
-- Cells with `hidden: true` are skipped in rendering — the cell above covers them
-- Spans are clamped to remaining visible rows and never cross page boundaries
 
 :::
 

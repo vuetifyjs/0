@@ -131,12 +131,18 @@ When the query is an array, each mode controls how multiple queries are matched 
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/create-filter/live-search
 
 ### Live Search with Highlighting
 
-Filter a list of cities by typing a name or country. Matching text is highlighted in the results.
+A city search that filters 12 records by both name and country simultaneously, with matching characters highlighted inline. Typing "usa" returns all three American cities; typing "sin" returns Singapore.
+
+The filter is configured with `keys: ['name', 'country']`, so both fields are checked against a single query — no mode flag needed because `some` (the default) already matches any value in either key. The filtered output is a `computed` ref returned from `filter.apply(query, cities)`, so the list re-renders with no extra watcher on your part.
+
+Highlighting is handled by `toHighlight(text, query, { ignoreCase: true, matchAll: true })`, a pure transformer that returns an array of `{ text, match }` chunks. The template walks the chunks with `v-for`, wrapping matched segments in a `<mark>` element. This is completely decoupled from the filter itself — you can swap out `toHighlight` for any renderer without touching the filter logic.
+
+Reach for this pattern whenever you have a fixed in-memory dataset and want instant search without a backend. For paginated or server-side filtering see [createDataTable](/composables/data/create-data-table); for filtering within a larger data pipeline see the `createFilter` options section above.
 
 :::
 

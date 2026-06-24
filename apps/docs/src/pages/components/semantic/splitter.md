@@ -25,29 +25,22 @@ A headless component for building resizable panel layouts with drag handles and 
 
 The Splitter provides resizable panels separated by draggable handles. Panel sizes are specified as percentages and must sum to 100.
 
-::: example
+::: gn-example
 /components/splitter/basic
-
-### Two-Panel Splitter
-
-Horizontal split with a drag handle and min-size constraints on each panel.
-
 :::
 
 ## Anatomy
 
-```vue Anatomy playground
+```vue Anatomy no-filename
 <script setup lang="ts">
   import { Splitter } from '@vuetify/v0'
 </script>
 
 <template>
   <Splitter.Root>
-    <Splitter.Panel :default-size="50" />
-
+    <Splitter.Panel />
     <Splitter.Handle />
-
-    <Splitter.Panel :default-size="50" />
+    <Splitter.Panel />
   </Splitter.Root>
 </template>
 ```
@@ -60,7 +53,7 @@ Splitters compose naturally — place a `Splitter.Root` inside any panel to buil
 
 This IDE-style workspace demonstrates the pattern with two levels of nesting: a horizontal splitter divides the sidebar from the main content area, and a vertical splitter inside the content panel separates the code editor from a live preview.
 
-::: example
+::: gn-example
 /components/splitter/resize-handle.vue 1
 /components/splitter/playground.vue 2
 

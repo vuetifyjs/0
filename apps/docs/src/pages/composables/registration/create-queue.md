@@ -117,7 +117,7 @@ queue.register({ value: 'Sticky', timeout: -1 })   // must be dismissed
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/create-queue/context.ts
 /composables/create-queue/UploadProvider.vue
 /composables/create-queue/UploadConsumer.vue

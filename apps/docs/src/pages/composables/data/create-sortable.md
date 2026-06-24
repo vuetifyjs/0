@@ -99,25 +99,31 @@ createSortable's surface is mostly imperative — `move`, `swap`, and `reorder` 
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/create-sortable/basic
 
 ### Button-driven reorder
 
-The simplest case — register items, expose up/down buttons, call `move(id, ticket.index ± 1)`. No DnD, no event subscriptions, no helper composable. This is the API surface area you actually need 80% of the time.
+Four tasks registered via `onboard`, rendered in order, each with an up-arrow and down-arrow button. That is the complete surface: `sortable.move(ticket.id, ticket.index - 1)` and `sortable.move(ticket.id, ticket.index + 1)`.
+
+The template iterates `proxy.values` from `useProxyRegistry(sortable)`, which returns a reactive array that updates whenever the registry order changes — no manual `watch`, no state duplication. Up and down buttons disable themselves at the edges via `:disabled="ticket.index === 0"` and `:disabled="ticket.index === proxy.size - 1"`, so the boundary check lives entirely in the template without any helper logic.
+
+A CSS `TransitionGroup` with a `.list-move` transition on `transform` gives the animated slide on each reorder. The transition only needs one CSS class — the browser handles the intermediate frames.
+
+Reach for this pattern for any user-ordered list where drag is unnecessary: priority queues, column choosers, sidebar section ordering. Upgrade to the DnD example below when pointer dragging is required.
 
 :::
 
-::: example
+::: gn-example
 /composables/create-sortable/dnd/data.ts
 /composables/create-sortable/dnd/DraggableItem.vue
 /composables/create-sortable/dnd/DnDSortable.vue
 
 ### Drag-and-drop reorder
 
-The natural use case. Pair `createSortable` with `useDragDrop`: each item registers as a draggable, the list registers as a drop zone, and the zone's `onDrop` callback maps the drop position to a `sortable.move` call. createSortable owns the order; useDragDrop owns the input modality.
+The natural use case. Pair `createSortable` with `useDragDrop`: each item registers as a draggable, the list registers as a drop zone, and the zone's `onDrop` callback maps the drop position to a `sortable.move` call. `createSortable` owns the order; `useDragDrop` owns the input modality.
 
-**File breakdown:**
+The split is intentional — it keeps the two primitives independently testable and lets you swap the DnD layer (mouse, touch, keyboard) without touching the order state. `DraggableItem.vue` calls `dnd.draggables.register` per item; `DnDSortable.vue` calls `dnd.zones.register` on the container with an `onDrop` handler that calls `sortable.move(drag.id, position.index ?? 0)`. The drop position is provided by `useDragDrop` — `sortable` never touches the pointer event.
 
 | File | Role |
 |------|------|

@@ -238,7 +238,7 @@ The composable does not produce attribute objects — consumers wire data attrib
 
 ## Examples
 
-::: example collapse
+::: gn-example collapse
 /composables/use-drag-drop/DragItem.vue 1
 /composables/use-drag-drop/DropList.vue 2
 /composables/use-drag-drop/basic.vue 3

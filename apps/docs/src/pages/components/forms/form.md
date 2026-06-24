@@ -27,18 +27,13 @@ A form wrapper that coordinates validation across child input fields and handles
 
 Wrap your inputs in `<Form>`. Native `<button type="submit">` and `<button type="reset">` work as expected.
 
-::: example
+::: gn-example
 /components/form/basic
-
-### Form with Validation
-
-Email and password fields with validation rules, submit/reset buttons, and success feedback on completion.
-
 :::
 
 ## Anatomy
 
-```vue Anatomy playground collapse no-filename
+```vue Anatomy no-filename
 <script setup lang="ts">
   import { Form, Input } from '@vuetify/v0'
 </script>

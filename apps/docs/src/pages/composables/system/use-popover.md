@@ -99,12 +99,14 @@ flowchart TD
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/use-popover/anchor-positioning
 
 ### CSS Anchor Positioning
 
-A popover positioned relative to its trigger using the native Popover API and CSS anchor positioning, demonstrating `anchorStyles`, `contentAttrs`, and `contentStyles`.
+A button-triggered panel that positions itself below the activator using the native Popover API and CSS anchor positioning. The example shows the three-part spread: `anchorStyles` goes on the trigger (sets the `anchor-name` CSS property), `contentAttrs` goes on the popover element (sets `id` and the `popover` attribute), and `contentStyles` goes on the popover element (sets `position-anchor` and `position-area`). `attach(content)` wires the native `toggle` event back to `isOpen` so the state stays in sync even if the browser closes the popover on focus-loss or back-navigation.
+
+The `positionTry: 'flip-block'` option tells the browser to try flipping to the opposite side when the popover would overflow the viewport — no JavaScript position math required. Call `toggle()` from the button's click handler to open and close programmatically. The status indicator at the bottom reads `isOpen` directly to show the live state. For the full compound-component surface that composes `usePopover` with slots and transitions, see [Popover](/components/disclosure/popover); for a click-outside close handler that pairs naturally with any popover, see [useClickOutside](/composables/system/use-click-outside).
 
 :::
 

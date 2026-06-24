@@ -91,17 +91,21 @@ Each segment is a model ticket whose value is a `ShallowRef<number>`. All segmen
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/create-progress/useUpload.ts 1
 /composables/create-progress/upload.vue 2
 
 ### File Upload Tracker
 
-Demonstrates standalone `createProgress` usage — no component needed. Each uploaded file registers a segment and simulates progress via a timer.
+A multi-file upload simulator that drives both per-file and aggregate progress bars from a single `createProgress` instance, with no component layer required. Each click of "Add file" calls `progress.register()` to create a new segment ticket, then a `setInterval` increments `ticket.value.value` at random steps — the `total` and `percent` refs on the instance recompute automatically because each segment's value is a `ShallowRef<number>`.
+
+The `useUpload.ts` composable wraps `createProgress` in domain terms: it owns the timer pool, exposes `upload(name)` / `clear()`, re-exports `fromValue` for percentage formatting, and cleans up all timers on unmount. `upload.vue` consumes it without knowing anything about the registry internals — it only reads `files`, `percent`, and `isIndeterminate`. This separation is the pattern to follow when you want to share progress state across components via `createProgressContext`.
+
+`isIndeterminate` flips to `true` once all segments are cleared (`clear()`), which a real progress bar component would use to switch to an indeterminate animation. `fromValue` normalizes a raw segment value against `[min, max]` so each file's bar width is a percentage independent of whatever `max` you configured.
 
 | File | Role |
 |------|------|
-| `useUpload.ts` | Composable — wraps createProgress with file-upload semantics |
+| `useUpload.ts` | Composable — wraps createProgress with file-upload semantics, timer management, and cleanup |
 | `upload.vue` | Demo — add files and watch individual + aggregate progress |
 
 :::

@@ -26,13 +26,8 @@ A composable that extends `createSingle` for breadcrumb navigation with automati
 
 The `createBreadcrumbs` composable manages an ordered path of items. When you select an earlier item, everything after it is removed. Use `values()` to iterate the current trail for rendering.
 
-::: example
+::: gn-example
 /composables/create-breadcrumbs/basic
-
-### Breadcrumb Navigation
-
-A clickable file-path breadcrumb trail — selecting an earlier crumb truncates everything after it.
-
 :::
 
 ## Context / DI
@@ -86,7 +81,7 @@ Breadcrumb state is **always reactive**. All derived properties update automatic
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/create-breadcrumbs/file-explorer/FileExplorer.vue
 /composables/create-breadcrumbs/file-explorer/tree.ts
 

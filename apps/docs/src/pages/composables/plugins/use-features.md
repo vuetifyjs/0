@@ -317,12 +317,16 @@ Feature flags inherit reactivity from `createGroup`. Selection state is reactive
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/use-features/feature-flags
 
 ### Feature Flag Panel
 
-Toggle boolean and variation feature flags at runtime, using ticket `isSelected`, `select()`, `unselect()`, and `variation()` to read and control which features are active.
+A runtime flag dashboard built from `createFeaturesContext` with six pre-registered flags — four boolean and two with `$variation` values. Each row reads `ticket.isSelected` for visual state and calls `features.toggle(ticket.id)` on click. The "Enable all" / "Disable all" buttons exercise `selectAll()` and `unselectAll()` from the underlying `createGroup` layer. The counter at the top derives enabled count from `features.selectedIds.size`.
+
+The variation lookup panel at the bottom demonstrates `features.variation(id, fallback)`: `search` returns `'v2'`, `layout` returns `'grid'`, and `missing` returns the supplied fallback `'fallback'` because no such flag exists. This is the key distinction from boolean flags — a variation flag can be enabled *and* carry a string payload that determines *which* variant to render.
+
+Reach for this when you need a dev panel to audit and override flags locally, or as a template for a LaunchDarkly / Flagsmith / PostHog adapter integration where the same UI surface is driven by remote flag state instead of static configuration. See the Adapters section for how to swap the built-in context for an external provider.
 
 :::
 

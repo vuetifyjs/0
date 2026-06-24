@@ -38,18 +38,13 @@ The two core props are `size` (total item count) and `items-per-page` (items per
 </template>
 ```
 
-::: example
+::: gn-example
 /components/pagination/basic
-
-### Pagination Controls
-
-First, prev, next, and last buttons with ellipsis support across 200 items.
-
 :::
 
 ## Anatomy
 
-```vue Anatomy playground
+```vue Anatomy no-filename
 <script setup lang="ts">
   import { Pagination } from '@vuetify/v0'
 </script>
@@ -57,17 +52,11 @@ First, prev, next, and last buttons with ellipsis support across 200 items.
 <template>
   <Pagination.Root>
     <Pagination.Status />
-
     <Pagination.First />
-
     <Pagination.Prev />
-
     <Pagination.Ellipsis />
-
     <Pagination.Item />
-
     <Pagination.Next />
-
     <Pagination.Last />
   </Pagination.Root>
 </template>

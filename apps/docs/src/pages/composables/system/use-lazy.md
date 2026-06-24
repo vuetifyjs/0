@@ -59,12 +59,18 @@ stateDiagram-v2
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/use-lazy/basic
 
 ### Lazy Content Panel
 
-A collapsible panel that defers rendering until first open (800ms simulated delay), with a loading state while content initializes.
+A collapsible panel that defers DOM rendering until the first time it opens, then simulates an 800 ms async content load before rendering a 50-item list.
+
+The core of the pattern is `hasContent`, which starts `false` and flips to `true` after `isOpen` is first set to `true`. The template gates the entire content subtree on `hasContent` inside a `<template v-if>`, so Vue never mounts the heavy list until it's actually needed. A `watch` on `hasContent` kicks off the simulated fetch — the actual content is a `shallowRef<string[]>` that starts empty and is populated after the timeout.
+
+`onAfterLeave` is wired to the `<Transition>`'s `@after-leave` event. When the panel closes and its leave animation completes, `isBooted` resets to `false` — causing `hasContent` to go back to `false`. The `watch` on `isBooted` clears `items` at the same time, so re-opening the panel triggers a fresh load. Omit this hook if you want the content to survive close/reopen cycles (for example, a settings panel whose form state should persist).
+
+Reach for `useLazy` whenever deferred mounting matters: dialogs, drawers, accordion sections, or any content that is conditionally shown and expensive to mount. The `delay` and `eager` options (not used in this example) add a debounce floor and an always-mounted escape hatch — see the "Delay" and "Eager Mode" sections below.
 
 :::
 

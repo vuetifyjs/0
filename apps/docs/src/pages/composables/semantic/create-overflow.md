@@ -106,12 +106,16 @@ flowchart LR
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/create-overflow/tag-overflow
 
 ### Tag Overflow
 
-A tag list that hides tags when they overflow the container, showing a count badge for hidden items, driven by the reactive `capacity` value.
+A 12-tag list that hides items when they overflow the container width, replacing them with a `+N more` count badge. Resizing the browser window — or embedding this example in a narrower panel — causes `capacity` to recalculate in real time via `ResizeObserver`, and the visible slice and badge update reactively.
+
+The example shows the two key integration points: `overflow.measure(index, el)` is called via a ref callback for each rendered tag so `createOverflow` can track each element's width independently; `tags.slice(0, overflow.capacity.value)` drives the rendered list; and `overflow.isOverflowing.value` controls whether the badge appears. The `reserved: 60` option holds back 60px for the badge itself so it never gets clipped.
+
+Reach for this when a fixed container must show as many items as possible and degrade gracefully — nav bars, tag lists, breadcrumb trails with an overflow menu. For the inverse (computing a virtual scroll viewport), see [createVirtual](/composables/data/create-virtual); for the pre-built component wrapper, see [Overflow](/components/semantic/overflow).
 
 :::
 

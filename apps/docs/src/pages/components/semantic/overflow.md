@@ -48,7 +48,7 @@ Headless responsive truncation primitive. Children render until the container ru
 
 ## Anatomy
 
-```vue Anatomy playground
+```vue Anatomy no-filename
 <script setup lang="ts">
   import { Overflow } from '@vuetify/v0'
 </script>
@@ -56,7 +56,6 @@ Headless responsive truncation primitive. Children render until the container ru
 <template>
   <Overflow.Root>
     <Overflow.Item />
-
     <Overflow.Indicator />
   </Overflow.Root>
 </template>
@@ -64,7 +63,7 @@ Headless responsive truncation primitive. Children render until the container ru
 
 ## Examples
 
-::: example
+::: gn-example
 /components/overflow/basic
 
 ### Tags
@@ -73,12 +72,9 @@ The canonical use case. As the container shrinks, trailing tags hide and an indi
 
 The container needs `overflow: hidden` so the natural layout doesn't push items out of frame before the component can react. The indicator's slot exposes `count`; you control its rendering completely.
 
-| File | Role |
-|------|------|
-| `basic.vue` | Tag row that overflows when the container narrows |
 :::
 
-::: example
+::: gn-example
 /components/overflow/avatar-group/users.ts 1
 /components/overflow/avatar-group/avatar-group.vue 2
 
@@ -94,7 +90,7 @@ Because each avatar has the same width, the trailing avatars drop in predictable
 | `avatar-group.vue` | Overlapping avatar stack with `+N` indicator |
 :::
 
-::: example
+::: gn-example
 /components/overflow/popover
 
 ### Popover of hidden items
@@ -103,12 +99,9 @@ Because each avatar has the same width, the trailing avatars drop in predictable
 
 This is the same pattern used by GitHub's repo language list and Linear's project tag list. The indicator only renders when overflow occurs, so the popover trigger naturally appears and disappears with the available space.
 
-| File | Role |
-|------|------|
-| `popover.vue` | Indicator wrapping a Popover with hidden items |
 :::
 
-::: example
+::: gn-example
 /components/overflow/priority-end
 
 ### End priority
@@ -117,9 +110,6 @@ When the latest items matter most — chat reactions, recent activity, message l
 
 Place the `Overflow.Indicator` first in source order so it renders to the left of the visible items. One tradeoff to keep in mind: the indicator's `aria-live="polite"` region announces before the items it summarizes, so screen-reader users hear "+3 earlier" *before* the most recent entries. That's usually correct for the "show me what's new, but tell me how much I missed" reading model — but if your use case needs the items announced first, prefer `priority="start"` and place the indicator at the end. For breadcrumb-style "first + last, hide middle" bisecting, reach for [Breadcrumbs](/components/semantic/breadcrumbs) instead — `Overflow` is deliberately one-sided.
 
-| File | Role |
-|------|------|
-| `priority-end.vue` | Recent-messages style with end priority |
 :::
 
 ## Recipes

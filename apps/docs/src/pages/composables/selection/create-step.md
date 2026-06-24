@@ -114,12 +114,18 @@ Step navigation state is **always reactive**. Use `selectedIndex` to derive disa
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/create-step/stepper
 
 ### Multi-Step Stepper
 
-Numbered steps with a progress bar, clickable navigation, and a disabled step that auto-skips.
+A five-step checkout flow built on `createStep`, showing bounded navigation, a disabled step that is automatically skipped, and a CSS progress line derived entirely from `selectedIndex`.
+
+`stepper.onboard()` registers five steps mapped from the data array; the Payment step carries `disabled: true` so `next()` and `prev()` skip it automatically without any manual guard in the template. `stepper.first()` is called after registration to land on Cart immediately. Two `computed` refs, `isFirst` and `isLast`, are derived from `currentIndex` and `stepper.size`; they drive the `disabled` attribute on the Prev/First and Next/Last buttons respectively, so edge states are handled declaratively.
+
+The animated progress line is a single `<div>` whose `width` style is `(currentIndex / (steps.length - 1)) * 100%` — no extra reactive variable required because `selectedIndex` is already a computed ref. Each step circle reads the same `currentIndex` to pick among three CSS classes: completed (filled, checkmark icon), active (filled, ring, scaled up), and upcoming (outlined, hover effect). The disabled step gets a dashed border and a strikethrough label.
+
+Clicking a step circle calls `stepper.select(step.id)` directly, providing non-linear navigation alongside the linear Prev/Next buttons. In circular mode the same API wraps at the ends instead of clamping — useful for carousels and theme pickers. For single-selection without navigation methods, see [createSingle](/composables/selection/create-single).
 
 :::
 

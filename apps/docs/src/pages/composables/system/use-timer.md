@@ -71,23 +71,27 @@ The timer tracks three internal values: `startedAt` (timestamp when the current 
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/use-timer/countdown
 
 ### Countdown
 
-A 10-second countdown timer demonstrating all four controls — start, stop, pause, resume — with a progress bar driven by the reactive `remaining` value.
+A 10-second countdown timer that exercises all four controls — start, stop, pause, resume — and displays the reactive `remaining` value as both a seconds readout and a progress bar. `toRef(() => Math.ceil(remaining.value / 1000))` converts the millisecond ref to a human-readable ceiling count; `toRef(() => (remaining.value / duration) * 100)` drives the bar width. Three state badges at the bottom reflect `isActive`, `isPaused`, and the raw `remaining` ms so you can watch all three change as you operate the controls.
+
+The pause/resume behavior is the main teaching point: pausing captures the remaining budget so resume continues from exactly where it left off. Stopping resets the timer so start begins a fresh 10-second run. Reach for this pattern for user-facing delays (auto-dismiss dialogs, OTP expiry, resend-code cooldowns) where the user may need to pause and resume. For auto-dismissing queued notifications, see the Toast Notifications example below; for interval-based work (polling, animation ticks), use `repeat: true`.
 
 :::
 
-::: example
+::: gn-example
 /composables/use-timer/useToast.ts 2
 /composables/use-timer/Toast.vue 3
 /composables/use-timer/toasts.vue 1
 
 ### Toast Notifications
 
-Auto-dismissing notifications where each toast owns its own `useTimer`. Hovering a toast pauses its countdown, and the progress bar reflects the remaining time.
+Auto-dismissing toast notifications where each `Toast.vue` instance owns its own `useTimer`. The timer fires the `onDismiss` callback when the duration elapses, removing the toast from the list. Hovering pauses the countdown via `@pointerenter="pause"` and resumes it via `@pointerleave="resume"`, giving users time to read without losing the notification. A shrinking progress bar driven by `remaining` makes the remaining time visible without any polling or watchers.
+
+The key design point is one timer per toast, not a single shared timer. Each toast tracks its own independent countdown so toasts added at different times dismiss independently. `useToast.ts` stores the toast array and provides `add` and `dismiss` helpers; `toasts.vue` wires the trigger buttons to `add()` and passes `onDismiss` as a prop to each `Toast.vue`. This composition pattern generalizes to any queue of items that each need their own timed lifecycle — drag-to-dismiss sheets, loading overlays with a timeout, or step-through tutorials. For the underlying queue primitive, see [createQueue](/composables/registration/create-queue).
 
 | File | Role |
 |------|------|

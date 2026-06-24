@@ -25,18 +25,13 @@ A radio button for single-selection groups with roving focus and shared v-model 
 
 ## Usage
 
-::: example
+::: gn-example
 /components/radio/group
-
-### Radio Group
-
-Three size options with shared single-selection state showing the active value.
-
 :::
 
 ## Anatomy
 
-```vue Anatomy playground collapse no-filename
+```vue Anatomy no-filename
 <script setup lang="ts">
   import { Radio } from '@vuetify/v0'
 </script>
@@ -45,24 +40,6 @@ Three size options with shared single-selection state showing the active value.
   <Radio.Group>
     <Radio.Root>
       <Radio.Indicator />
-    </Radio.Root>
-
-    <Radio.Root>
-      <Radio.Indicator />
-    </Radio.Root>
-  </Radio.Group>
-
-  <!-- With form submission -->
-  <Radio.Group>
-    <Radio.Root>
-      <Radio.Indicator />
-
-      <Radio.HiddenInput />
-    </Radio.Root>
-
-    <Radio.Root>
-      <Radio.Indicator />
-
       <Radio.HiddenInput />
     </Radio.Root>
   </Radio.Group>
@@ -71,12 +48,16 @@ Three size options with shared single-selection state showing the active value.
 
 ## Examples
 
-::: example
+::: gn-example
 /components/radio/mandatory
 
 ### Mandatory Selection
 
-Plan options (free, pro, enterprise) with `mandatory="force"` that auto-selects the first non-disabled item on mount.
+The `mandatory="force"` prop auto-selects the first non-disabled item when the group mounts and prevents the user from deselecting the active option. This example shows three pricing tiers — Free, Pro, and Enterprise — where the first tier is automatically selected on mount.
+
+Reach for `mandatory="force"` when a selection must always be present: a plan picker where "none selected" is not a valid state, or a settings group that requires a default. Plain `mandatory` (without `"force"`) prevents deselection once something has been chosen, but does not auto-select on mount — useful when you only want to guard against accidental deselection.
+
+To preselect a specific item instead of always taking the first, initialize `v-model` with the desired `value` rather than using `mandatory="force"`.
 
 :::
 

@@ -26,38 +26,22 @@ Headless compound component for toast and snackbar notifications. Pairs with `us
 
 A single snackbar — render directly when you control the lifecycle yourself.
 
-::: example
+::: gn-example
 /components/snackbar/basic
-
-### Single Snackbar
-
-A single snackbar with show/dismiss controls and a success status message.
-
 :::
 
 ## Anatomy
 
-```vue Anatomy playground collapse
+```vue Anatomy no-filename
 <script setup lang="ts">
   import { Snackbar } from '@vuetify/v0'
 </script>
 
 <template>
-  <!-- Standalone -->
-  <Snackbar.Portal>
-    <Snackbar.Root>
-      <Snackbar.Content />
-
-      <Snackbar.Close />
-    </Snackbar.Root>
-  </Snackbar.Portal>
-
-  <!-- Queue-driven -->
   <Snackbar.Portal>
     <Snackbar.Queue>
       <Snackbar.Root>
         <Snackbar.Content />
-
         <Snackbar.Close />
       </Snackbar.Root>
     </Snackbar.Queue>
@@ -69,17 +53,18 @@ A single snackbar with show/dismiss controls and a success status message.
 
 ### Notification queue
 
-`Snackbar.Queue` connects to `useNotifications` and exposes queue items newest-first. `Snackbar.Close` auto-wires dismiss to the nearest `Snackbar.Root` — no `@click` needed.
+`Snackbar.Queue` connects to `useNotifications` and exposes queue items newest-first via its default slot `{ items }`. Each item carries the full notification ticket — `id`, `severity`, `subject`, and a `dismiss()` method — so you can apply severity-specific classes or drive any custom layout without coupling to the queue internals.
+
+`Snackbar.Close` auto-wires dismiss to the nearest `Snackbar.Root` — no `@click` needed. Pass `:id="item.id"` to `Snackbar.Root` inside a queue loop so each root tracks its own ticket; the queue slot surfaces items newest-first, making index 0 the most recent.
+
+The example below builds a stacked toast surface: toasts fan out on hover and collapse back to a peek when the pointer leaves. The stacking geometry — translate, scale, opacity per depth — is pure consumer CSS applied via `itemStyle(i)`; `Snackbar.Queue` itself is layout-agnostic. Auto-dismiss pauses while any item is hovered or focused (WCAG 2.2.1), which you get for free from `useNotifications`.
+
+Reach for `Snackbar.Queue` when your app routes notifications through `useNotifications`. For transient one-off messages where you control visibility directly, use `Snackbar.Root` without a queue (see Usage above).
 
 > [!WARNING] Inside a `Snackbar.Queue`, clicking `Snackbar.Close` permanently removes the notification from both the queue and the registry. To remove from the toast surface while keeping the notification in the inbox, call `ticket.dismiss()` directly on the [NotificationTicket](/composables/plugins/use-notifications#notificationticket).
 
-::: example
+::: gn-example
 /components/snackbar/queue
-
-### Notification Queue
-
-Queued toasts cycling through info, success, warning, and error severity with stacking behavior.
-
 :::
 
 ## Recipes

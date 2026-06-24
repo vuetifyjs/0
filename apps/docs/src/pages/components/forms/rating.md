@@ -26,18 +26,13 @@ Headless rating input with hover preview, keyboard navigation, and half-step sup
 
 Rating supports whole and half-star modes. Items expose their state via data attributes for CSS-only styling.
 
-::: example
+::: gn-example
 /components/rating/basic
-
-### Star Rating
-
-A 5-star rating with hover preview and filled/empty star display.
-
 :::
 
 ## Anatomy
 
-```vue Anatomy playground collapse no-filename
+```vue Anatomy no-filename
 <script setup lang="ts">
   import { Rating } from '@vuetify/v0'
 </script>
@@ -45,7 +40,6 @@ A 5-star rating with hover preview and filled/empty star display.
 <template>
   <Rating.Root>
     <Rating.Item />
-
     <Rating.HiddenInput />
   </Rating.Root>
 </template>
@@ -53,20 +47,28 @@ A 5-star rating with hover preview and filled/empty star display.
 
 ## Examples
 
-::: example
+::: gn-example
 /components/rating/basic
 
 ### Basic
 
-Click a star to set the rating. Hover to preview. Keyboard: Arrow keys to adjust, Home for 0, End for max.
+A 5-star rating widget driven by `Rating.Root` (which provides `role="slider"` semantics) with five `Rating.Item` children rendered as buttons. Each item receives a `state` slot prop — `"full"`, `"half"`, or `"empty"` — used here to switch between a filled star (★) and an empty star outline (☆) with amber/muted coloring. Hover updates a live preview before committing; clicking commits the value to the `v-model`.
+
+Keyboard users can increment or decrement the rating with arrow keys, jump to 0 with `Home`, and jump to the maximum with `End` — all handled by `Rating.Root` without extra event listeners. The current numeric value is tracked in a `shallowRef` and displayed below the widget.
+
+Reach for this pattern whenever you need a compact, accessible star rating in a review form, product listing, or feedback widget.
+
 :::
 
-::: example
+::: gn-example
 /components/rating/half-stars
 
 ### Half Stars
 
-Enable `half` prop for 0.5-step precision. Hover over the left or right half of a star to preview half values.
+Adds the `half` prop to `Rating.Root`, enabling 0.5-step precision (values like 2.5 or 3.5). Each `Rating.Item` receives three possible states — `"full"`, `"half"`, and `"empty"` — and the half state is rendered by layering a clipped filled star over an empty outline to show the left half filled. Hovering over the left portion of a star previews a half value; the right portion previews the full value.
+
+This pattern is useful for product ratings or reviews where half-star granularity matters. The initial value is set to 2.5, demonstrating that pre-set fractional values render correctly before any user interaction. The step increment/decrement via arrow keys also steps by 0.5 when `half` is enabled.
+
 :::
 
 ## Accessibility

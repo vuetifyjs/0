@@ -26,38 +26,13 @@ A component for creating accordion-style expansion panels with proper ARIA suppo
 
 The ExpansionPanel component provides a wrapper and item pattern for managing expansion state in accordion-style interfaces. It uses the `createSelection` composable internally and provides full v-model support with automatic state synchronization.
 
-::: example
+::: gn-example
 /components/expansion-panel/basic
-
-### Accordion Panels
-
-Multiple expandable panels with accordion behavior and a multi-expand mode that allows several panels open at once.
-
 :::
 
 ## Anatomy
 
-```vue Anatomy playground
-<script setup lang="ts">
-  import { ExpansionPanel } from '@vuetify/v0'
-</script>
-
-<template>
-  <ExpansionPanel.Group>
-    <ExpansionPanel.Root>
-      <ExpansionPanel.Activator>
-        <ExpansionPanel.Cue />
-      </ExpansionPanel.Activator>
-
-      <ExpansionPanel.Content />
-    </ExpansionPanel.Root>
-  </ExpansionPanel.Group>
-</template>
-```
-
-For instances where you need to wrap the activator in a heading element **(h3)** for semantic purposes and WAI-ARIA, use the [ExpansionPanel.Header](#expansionpanelheader) component:
-
-```vue AnatomyWithHeader playground
+```vue Anatomy no-filename
 <script setup lang="ts">
   import { ExpansionPanel } from '@vuetify/v0'
 </script>
@@ -79,12 +54,12 @@ For instances where you need to wrap the activator in a heading element **(h3)**
 
 ## Examples
 
-::: example
+::: gn-example
 /components/expansion-panel/transition
 
 ### Animated Transitions
 
-By default, ExpansionPanel.Content toggles visibility with the `hidden` attribute — instant, but not animatable. To animate the open and close, add `renderless` to ExpansionPanel.Content and render your own element: the slot exposes `isSelected` to drive a `v-if` inside Vue's `<Transition>`, and an `attrs` object you must bind to your replacement element so it keeps the component's accessibility contract (`role="region"`, the `id` targeted by the activator's `aria-controls`, and `aria-labelledby`).
+By default, `ExpansionPanel.Content` toggles visibility with the `hidden` attribute — instant, but not animatable. To animate the open and close, add `renderless` to `ExpansionPanel.Content` and render your own element: the slot exposes `isSelected` to drive a `v-if` inside Vue's `<Transition>`, and an `attrs` object you must bind to your replacement element so it keeps the component's accessibility contract (`role="region"`, the `id` targeted by the activator's `aria-controls`, and `aria-labelledby`).
 
 The height animation itself needs no JavaScript measurements. CSS `interpolate-size: allow-keywords` lets `max-height` transition to and from the intrinsic `max-content` keyword, so panels of any content size animate smoothly. Padding lives on an inner wrapper rather than the transitioned element — animating `max-height` on the padded element would make the content jump at the ends of the transition.
 

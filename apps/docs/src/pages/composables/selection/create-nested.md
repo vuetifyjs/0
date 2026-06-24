@@ -80,12 +80,18 @@ flowchart TD
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/create-nested/basic
 
 ### Collapsible Navigation Tree
 
-A nested tree with expand/collapse all, multi-select checkboxes, and visual parent/child relationship indicators.
+A navigation sidebar built with `createNested` demonstrating inline child registration, expand/collapse controls, and multi-select checkboxes with indeterminate parent state — all in a single file.
+
+`onboard()` accepts a recursive `children` array, so the entire four-level tree (Getting Started → Components → Inputs → individual inputs) is registered in one call. `nav.open('getting-started')` preselects the first branch on mount. The `getVisibleNodes()` function walks `nav.children` and short-circuits at any node where `nav.opened(id)` is false, producing a flat list of currently visible IDs; the template iterates this flat list and uses `nav.getDepth(id)` to calculate left-padding, so depth-based indentation requires no extra state.
+
+Each row renders a checkbox that calls `nav.toggle(id)` on click (stopping propagation so the row's expand-toggle doesn't fire at the same time). Parent checkboxes show the mixed/indeterminate state via `nav.mixed(id)` — a check mark for fully selected, a dash for mixed, empty for unselected — which is automatically maintained by `createNested`'s cascade logic. `expandAll()` and `collapseAll()` are wired to the toolbar buttons with no additional logic.
+
+Reach for this when you need a sidebar nav, file browser, or category tree where nodes expand independently and selection can cascade through parent-child relationships. For flat multi-select without hierarchy, [createGroup](/composables/selection/create-group) is lighter. For three selection strategies (cascade, independent, leaf), see the `selection` option on [createNested](/composables/selection/create-nested).
 
 :::
 

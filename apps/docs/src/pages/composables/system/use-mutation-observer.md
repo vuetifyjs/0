@@ -98,12 +98,14 @@ flowchart TD
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/use-mutation-observer/basic
 
 ### DOM Mutation Logger
 
-Add and remove child elements, toggle attributes, and observe the mutation log in real time, with pause/resume and clear controls.
+An interactive sandbox that fires three distinct mutation types at the Mutation Observer: `childList` changes when children are added or removed via the Add/Remove buttons; `attributes` changes when the Toggle Attribute button flips `data-highlighted` on the root; and `characterData` changes propagate up from any descendant text node thanks to `subtree: true`. Every batch of `MutationRecord` objects that the callback receives is appended to a color-coded log entry below the target, labeled by type and detail.
+
+The example exercises `pause()` and `resume()` so you can see that mutations fired while the observer is paused are silently dropped — the log does not catch up when observing resumes. The `isPaused` ref drives the button label reactively without any extra watcher. Use this pattern in performance-sensitive trees where you need to defer observation during bulk DOM writes, then resume once the work is complete. For size-change tracking, prefer [useResizeObserver](/composables/system/use-resize-observer); for DOM-presence detection, prefer [useIntersectionObserver](/composables/system/use-intersection-observer).
 
 :::
 

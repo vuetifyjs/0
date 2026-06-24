@@ -103,12 +103,18 @@ flowchart LR
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/create-pagination/paginated-list
 
 ### Paginated List
 
-Category-filtered list with page navigation controls, demonstrating `select()`, `next()`, `prev()`, and reactive `pageStart`/`pageStop` slicing.
+A 47-item list split into pages of 6, with First / Prev / numbered pages / Next / Last controls and a live status line showing the current range.
+
+The pagination is created once with `{ size: 47, itemsPerPage: 6 }`. The visible slice is a `computed` that reads `pageStart.value` and `pageStop.value` and calls `Array.slice` — no adapter, no data table, just the two index getters. This is the canonical pattern for paginating a plain array: `createPagination` owns the math, your `computed` owns the slice.
+
+The page-button strip iterates `pagination.items.value`, which returns `PaginationTicket[]` — each is either `{ type: 'page', value: number }` or `{ type: 'ellipsis', value: '…' }`. The template branches on `item.type` and calls `pagination.select(item.value)` on click. First / Prev / Next / Last buttons bind their `disabled` prop to `isFirst.value` or `isLast.value` and call the matching navigation method directly.
+
+Reach for this standalone composable when you already have a full in-memory array and only need page navigation — no sorting or filtering required. For a full data pipeline with sorting, filtering, and server-side support, see [createDataTable](/composables/data/create-data-table). For the pre-built `Pagination` component that wraps this composable, see [Pagination](/components/semantic/pagination).
 
 :::
 

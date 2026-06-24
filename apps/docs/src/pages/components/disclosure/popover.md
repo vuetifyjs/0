@@ -34,14 +34,25 @@ A headless component for creating popovers and tooltips using modern CSS anchor 
 
 The Popover component leverages the CSS Anchor Positioning API to create popovers, tooltips, and dropdown menus without JavaScript-based positioning. It provides v-model support for open/closed state management.
 
-::: example
+::: gn-example
 /components/popover/basic
-
-### Anchored Popover
-
-A simple popover positioned via CSS anchor positioning, opened and closed by a button trigger.
-
 :::
+
+## Anatomy
+
+```vue Anatomy no-filename
+<script setup lang="ts">
+  import { Popover } from '@vuetify/v0'
+</script>
+
+<template>
+  <Popover.Root>
+    <Popover.Activator />
+
+    <Popover.Content />
+  </Popover.Root>
+</template>
+```
 
 ## Features
 
@@ -69,22 +80,6 @@ Use `position-try` to specify fallback positions when the preferred position doe
   <Popover.Content position-area="bottom" position-try="most-width bottom">
     Tooltip content
   </Popover.Content>
-</template>
-```
-
-## Anatomy
-
-```vue Anatomy playground
-<script setup lang="ts">
-  import { Popover } from '@vuetify/v0'
-</script>
-
-<template>
-  <Popover.Root>
-    <Popover.Activator />
-
-    <Popover.Content />
-  </Popover.Root>
 </template>
 ```
 

@@ -170,12 +170,16 @@ const canEdit = computed(() => permissions.can(user.role, 'edit', 'post'))
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/use-permissions/role-checker
 
 ### Role Checker
 
-Displays a matrix of resource/action permissions per role, using `can()` inside a `computed` to reactively reflect the active role's access level.
+A permission matrix that maps three roles (`admin`, `editor`, `viewer`) against two subjects (`user`, `post`) and three actions (`read`, `write`, `delete`). Switching the active role re-evaluates every cell immediately, because `can()` is called inside a `toRef` that recomputes whenever `role` changes — no explicit `computed` or watcher needed.
+
+The bottom panel surfaces the context-aware edge case: `editor` is denied `delete` on `post` by default, but allowed when `{ isOwner: true }` is passed as the fourth argument to `can()`. This demonstrates how condition callbacks in the permission tuples (`(ctx) => ctx.isOwner === true`) receive the runtime context object and gate access dynamically — without any changes to the role definition.
+
+Reach for this pattern when you need to preview the full access profile of a role at a glance — useful in admin settings panels, permission editors, or audit dashboards. For integrating with a backend auth system rather than static tuples, implement a custom `PermissionsAdapter` that delegates to your existing `can()` API (see the Adapters section above).
 
 :::
 

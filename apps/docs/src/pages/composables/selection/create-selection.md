@@ -108,7 +108,7 @@ Selection state is **always reactive**. Collection methods follow the base `crea
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/create-selection/context.ts 2
 /composables/create-selection/BookmarkProvider.vue 3
 /composables/create-selection/BookmarkConsumer.vue 4
@@ -116,7 +116,13 @@ Selection state is **always reactive**. Collection methods follow the base `crea
 
 ### Bookmark Manager
 
-Multi-component bookmark manager using provide/inject. The provider creates and shares the selection context; consumers read and toggle selections independently.
+A full bookmark manager spread across three components, demonstrating `createSelection` paired with `createContext` to share selection state via provide/inject without prop-drilling.
+
+`context.ts` defines the `BookmarkContext` interface — which extends `SelectionContext` and adds `pinnedIds`, `stats`, and pin/unpin helpers — then exports the `createContext` tuple `[useBookmarks, provideBookmarks]`. `BookmarkProvider.vue` calls `createBookmarks()` (which calls `createSelection({ multiple: true, events: true })`), seeds seven items including one disabled entry, builds the extended context object, and calls `provideBookmarks()` to make it available to all descendants. It is a renderless wrapper: its template is just `<slot />`. `BookmarkConsumer.vue` injects the context with `useBookmarks()` and uses `useProxyRegistry` to iterate tickets reactively — it never holds a reference to the selection instance directly.
+
+The consumer exposes tag-based filtering via a local `filter` ref and derived `filtered` computed, select-all and clear-all bulk actions, an add-bookmark form, a pin/unpin button per row, and a live stats bar. All selection mutations go through `bookmarks.toggle()`, `bookmarks.select()`, and `bookmarks.unselect()` — the same API whether you're in the consumer or anywhere else in the tree.
+
+This pattern is the right shape when a selection instance needs to be created in one component but read or mutated in unrelated components below it. Compare to the single-file [File Picker](#file-picker) below for the simpler, no-DI alternative when everything lives in one component.
 
 | File | Role |
 |------|------|
@@ -127,12 +133,18 @@ Multi-component bookmark manager using provide/inject. The provider creates and 
 
 :::
 
-::: example
+::: gn-example
 /composables/create-selection/file-picker
 
 ### File Picker
 
-Multi-selectable file list with disabled states, demonstrating `mandatory`, `select()`, `unselect()`, and the `isSelected` ticket property.
+A multi-selectable file list showing how `createSelection` handles disabled items, ticket self-methods, and a reactive status bar — all without any external state.
+
+`createSelection({ multiple: true })` is called once; `onboard()` registers eight items in a single pass, passing each file's `disabled` flag directly into the ticket input so the LICENSE entry is inert from the start. The template iterates the returned `tickets` array — each ticket carries `isSelected`, `toggle()`, and `disabled` — so the row click handler and checkbox styling read directly from `ticket.isSelected.value` and `ticket.disabled` with no index lookups. A `computed` over `selection.selectedValues.value` formats the combined size string in the status bar, updating reactively as the selection changes.
+
+`selection.reset()` is wired to both the toolbar "Clear" button and the inline "Deselect all" link, demonstrating that the same method works from anywhere. The `Button.Root` component wraps each row to give it accessible keyboard focus and `disabled` semantics without native `<button>` element constraints.
+
+Reach for this pattern when the item list is defined up front and you want each item to manage its own selected state via ticket methods. If the list needs to be shared across components, see the [Bookmark Manager](#bookmark-manager) example above for the provider/consumer split.
 
 :::
 

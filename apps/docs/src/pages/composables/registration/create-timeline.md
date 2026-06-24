@@ -92,7 +92,7 @@ flowchart TD
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/create-timeline/context.ts 2
 /composables/create-timeline/CanvasProvider.vue 3
 /composables/create-timeline/CanvasConsumer.vue 4

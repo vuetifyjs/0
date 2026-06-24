@@ -185,7 +185,7 @@ The `persist` return value is stored under the plugin namespace key (e.g. `v0:th
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/create-plugin/plugin.ts 2
 /composables/create-plugin/DashboardProvider.vue 3
 /composables/create-plugin/DashboardConsumer.vue 4
@@ -193,7 +193,11 @@ The `persist` return value is stored under the plugin namespace key (e.g. `v0:th
 
 ### Dashboard Features
 
-This example demonstrates how to create a plugin that manages feature flag state using `createPlugin`, `createContext`, and `createGroup`. The plugin composes a group for selection state instead of reimplementing toggle logic.
+A four-file plugin example showing how `createPlugin`, `createContext`, and `createGroup` compose to manage feature-flag state for a dashboard. `plugin.ts` is the factory: it calls `createGroup()`, bulk-registers five feature toggles with `onboard()`, pre-selects two via `group.select(['animations', 'notifications'])`, assembles a `DashboardContext` object (app name, locale ref, locales list, and the group instance), and calls `provideDashboard(context)` through the `[useDashboard, provideDashboard]` tuple produced by `createContext`. A commented-out block shows how the same code would be wrapped in `createPlugin()` for `app.use()` in a real app — for sandbox purposes the factory returns the context object directly.
+
+`DashboardProvider.vue` creates the plugin instance and calls `provideContext` in a single `setup` call, then renders only a slot. `DashboardConsumer.vue` destructures `{ group, locale, locales, app }` from `useDashboard()` and renders a feature grid — each feature is a ticket with `toggle()`, `isSelected`, and `value` — alongside a locale selector that writes directly to `context.locale`. The critical pattern: the consumer never imports from the provider; it only imports from `plugin.ts`. `dashboard.vue` composes the two.
+
+The example illustrates the primary reason to compose `createGroup` inside a plugin rather than manage selection state ad hoc: the group handles toggle logic, mandatory enforcement, select-all, and unselect-all without any custom bookkeeping. The plugin is the factory; the group is the logic layer; the context is the contract. For plugin contexts that need persistence across page reloads, see the [Persistence](/composables/foundation/create-plugin#persistence) section.
 
 ```mermaid "Plugin Architecture"
 graph LR

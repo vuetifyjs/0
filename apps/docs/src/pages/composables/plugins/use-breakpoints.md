@@ -128,12 +128,16 @@ Breakpoints are **range-based**, not exact pixel matches. The `name` is the **hi
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/use-breakpoints/responsive-layout
 
 ### Responsive Layout Detection
 
-Live viewport dimensions, active breakpoint name, and mobile/desktop flags — confirms JS and CSS breakpoints align.
+A live instrument panel for viewport state: the active breakpoint name, pixel dimensions, and the `isMobile` boolean update in real time as you resize or zoom. The grid of per-breakpoint flags (`xs` through `xxl`) shows which one is active at a glance.
+
+The bottom panel is the most diagnostic part. It reads both the JS composable (`name`) and a raw `window.matchMedia` check (`cssBreakpoint`) and flags any disagreement. Under normal conditions they always agree; a mismatch surfaces only when browser zoom rounding causes `window.innerWidth` and `matchMedia` to diverge — exactly the scenario the composable's `matchMedia`-based approach is designed to handle. `window.innerWidth` is shown alongside for comparison.
+
+Reach for this when onboarding a new set of custom breakpoints into `createBreakpointsPlugin` — paste in your thresholds and resize to confirm the JS flags and your CSS `@media` rules fire at the same boundaries. For server-side viewport assumptions, see the SSR options below. For a pure CSS-only signal, see [useMediaQuery](/composables/system/use-media-query).
 
 :::
 

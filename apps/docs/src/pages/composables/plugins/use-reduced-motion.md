@@ -180,7 +180,7 @@ In the default `system` mode the server cannot read the OS preference, so the in
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/use-reduced-motion/basic
 
 ### Mode Switching
@@ -189,9 +189,6 @@ Toggle between the three modes and watch `isReduced` flip. The bouncing dot stop
 
 The raw OS readout — pulled from `usePrefersReducedMotion` — shows what the system reports independent of the override. Surface it in a settings panel so users can compare their system preference against what the app is actually applying.
 
-| File | Role |
-|------|------|
-| `basic.vue` | Mode switcher, reactive `isReduced` chip, and a data-attribute-gated animation |
 :::
 
 <DocsApi />

@@ -128,7 +128,7 @@ flowchart TD
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/use-rules/context.ts 1
 /composables/use-rules/FormField.vue 2
 /composables/use-rules/Form.vue 3

@@ -27,13 +27,13 @@ Numeric input with increment/decrement buttons, drag-to-scrub, and locale-aware 
 
 NumberField renders a spinbutton input with optional increment, decrement, and scrub controls. Wire it up with `v-model` for two-way binding.
 
-::: example
+::: gn-example
 /components/number-field/basic
 :::
 
 ## Anatomy
 
-```vue Anatomy playground collapse no-filename
+```vue Anatomy no-filename
 <script setup lang="ts">
   import { NumberField } from '@vuetify/v0'
 </script>
@@ -87,20 +87,30 @@ flowchart TD
 
 ## Examples
 
-::: example
+::: gn-example
 /components/number-field/currency
 
 ### Currency Formatting
 
-Locale-aware currency display using `Intl.NumberFormat`. The `format` prop accepts any `Intl.NumberFormatOptions`, and the `Scrub` label allows drag-to-adjust the value.
+Two `NumberField` instances side by side demonstrate different `Intl.NumberFormatOptions` styles: `style: 'currency'` for a USD amount and `style: 'unit'` with `unit: 'percent'` for a tip percentage. The `format` prop accepts any valid `Intl.NumberFormatOptions` object — the component reformats on blur and parses the locale-specific string back to a number on focus, stripping currency symbols and group separators automatically.
+
+Both fields expose `NumberField.Scrub` as the label element. Dragging horizontally on the label adjusts the value without clicking the increment/decrement buttons — the cursor shows `ew-resize` to signal this. The scrub uses the Pointer Lock API for unbounded movement so the cursor does not hit screen edges.
+
+Reach for this pattern when you need a numeric input that presents formatted output (totals, budgets, quantities with units) but still requires a machine-readable `number` value in v-model.
+
 :::
 
-::: example
+::: gn-example
 /components/number-field/scrub
 
 ### Design Tool Scrub
 
-Figma-style property inputs where the label acts as a scrub control. Drag horizontally on any label to adjust its value. Uses the Pointer Lock API for unbounded movement.
+Four property inputs (X, Y, W, H) arranged in a two-column grid, each with a single-letter `NumberField.Scrub` label. Dragging any label adjusts its field's value and the preview rectangle updates live via a `toRef`-derived style object.
+
+This pattern mirrors Figma-style property panels: the scrub label is the primary interaction surface and no increment/decrement buttons are present. Each field uses `step: 1` and `min: 0` on W/H to prevent negative dimensions. The `tabular-nums` class on `Control` keeps digits from shifting width as values change.
+
+Use this layout whenever you have multiple tightly-grouped numeric properties and want drag-to-adjust as the primary input method, with direct keyboard entry as the fallback.
+
 :::
 
 ## Recipes

@@ -131,22 +131,27 @@ Theme selection and computed colors are reactive. Switching themes automatically
 
 ## Examples
 
-### Color Studio
-
-::: example
+::: gn-example
 /composables/use-theme/context.ts 1
 /composables/use-theme/Preview.vue 2
 /composables/use-theme/color-studio.vue 3
 
 ### Color Studio
 
-A theme explorer using `createTheme` with a shared palette of token aliases. Switch between predefined themes, inspect resolved colors, and register new themes at runtime.
+A full theme explorer built on `useTheme` with four pre-registered themes sharing a common palette of token aliases. `context.ts` defines the palette (a nested object of color shades) and registers each theme's color map as aliases that reference palette tokens — so changing one palette shade propagates to every theme that references it.
+
+The swatch grid iterates `theme.colors.value[theme.selectedId.value]` to show all resolved colors for the active theme. Clicking a swatch copies the hex value to the clipboard via a short-lived `copied` ref, demonstrating that `useTheme` returns plain objects from `colors` rather than reactive refs — the resolved values are stable strings that can be handed directly to clipboard APIs or inline styles.
+
+The "Register" buttons at the bottom call `theme.register({ id, dark, colors })` at runtime — themes do not need to be declared at plugin install time. Registering a theme that already exists is a no-op; `theme.has(id)` guards the call and falls through to `theme.select(id)` instead. Use `theme.cycle()` without arguments to advance through all registered themes in insertion order, or pass an array to restrict the cycle to a subset.
+
+Reach for `useTheme` when you need to read the active theme's colors in script (e.g. to pass to a canvas renderer or a charting library), or when you want to register themes at runtime from user preferences. For subtree theme isolation — a component tree with its own independent theme — see the [Theme provider](/components/providers/theme). For the token alias system that powers multi-theme color resolution, see [createTokens](/composables/registration/create-tokens).
 
 | File | Role |
 |------|------|
-| `context.ts` | Creates `createTheme` with palette aliases and four themes |
-| `Preview.vue` | Mini app UI that renders using resolved theme colors |
-| `color-studio.vue` | Theme selector, swatch grid, and dynamic registration |
+| `context.ts` | Defines palette aliases and registers four themes via `createThemeContext` |
+| `Preview.vue` | Mini app UI that renders using resolved theme colors passed as props |
+| `color-studio.vue` | Theme selector, swatch grid, palette token inspector, and dynamic registration |
+
 :::
 
 <DocsApi />

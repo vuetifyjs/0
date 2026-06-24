@@ -75,12 +75,16 @@ stateDiagram-v2
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/use-presence/basic
 
 ### CSS Transition
 
-Toggle content with a CSS-driven enter/exit animation. `isMounted` drives `v-if`, `state` drives the transition classes, and `done()` is called on `transitionend` to signal the leaving cycle is complete.
+A toggle button that reveals a card with a CSS fade-and-slide enter/exit animation, demonstrating how `usePresence` separates mount lifetime from visual state. `isMounted` drives the `v-if` so the element is absent from the DOM when fully invisible; `state` drives the UnoCSS utility classes — the card is `opacity-100 translate-y-0` in the `present` state and `opacity-0 -translate-y-2` in any other state, letting the CSS `transition-all` handle the animation.
+
+The critical detail is `immediate: false` paired with `done()` on `transitionend`. When `immediate` is `true` (the default), `usePresence` auto-resolves the leaving state on the next microtask — fast enough for content with no exit animation, but it races CSS transitions. Setting `immediate: false` hands control to the caller: `done()` is called only when the `transitionend` event fires on the content element itself (`e.target === e.currentTarget` guards against bubbling from children). Until `done()` is called, the element stays mounted so the transition completes before unmounting. `lazy: true` keeps the card out of the DOM entirely on first render, deferring the first mount until the button is clicked.
+
+Reach for this pattern when you need a CSS or WAAPI exit animation before the element leaves the DOM. If you only need lazy mounting with no exit delay, use `lazy: true` without `immediate: false` — the default behavior unmounts immediately. For the compound component that wraps this composable with slot-based transitions, see [Presence](/components/primitives/presence).
 
 :::
 

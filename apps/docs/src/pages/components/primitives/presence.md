@@ -67,21 +67,29 @@ The `mounted` state lasts one tick, giving the browser a frame to apply initial 
 
 ## Examples
 
-::: example
+::: gn-example
 /components/presence/animation
 
 ### Re-Entry
 
-Toggle rapidly during the exit animation. Presence cancels the leave and returns to `present` without unmounting and remounting — the element stays in the DOM and the exit animation is interrupted cleanly.
+This example uses `immediate: false` so Presence waits for `done()` before unmounting, giving CSS `@keyframes` animations time to complete. The exit animation runs while `isLeaving` is `true`; `animationend` calls `done()` to trigger the unmount.
+
+Toggle rapidly during the exit animation. Presence detects that `present` has flipped back to `true` while still in the `leaving` state, cancels the leave, and transitions directly back to `present` — no unmount and remount cycle, no animation glitch. The in-DOM element continues from wherever it was visually.
+
+This re-entry behavior is important when animations are driven by `data-state` attribute selectors (`[data-state="mounted"]`, `[data-state="leaving"]`), which Presence sets automatically via `attrs`. CSS handles the visual interruption naturally because the element never leaves the DOM.
 
 :::
 
-::: example
+::: gn-example
 /components/presence/lazy
 
 ### Lazy Mounting
 
-With `lazy`, content is not mounted until `v-model` is first `true`. The event log shows the full mount/unmount lifecycle — notice that nothing happens until the first toggle.
+By default, Presence mounts content immediately when `v-model` becomes `true` for the first time. The `lazy` prop changes this: content is not mounted at all until the first truthy transition — subsequent hide/show cycles keep the content in the DOM and toggle its `data-state` attribute rather than mounting and unmounting on every change.
+
+The mount counter tracks `@enter` events. After the first toggle, it increments to 1 and stays there no matter how many times you hide and show. This is the key difference from `v-if`: `v-if` destroys and recreates the component subtree on every toggle; `lazy` mounts once and hides via state.
+
+Reach for `lazy` when the content is expensive to initialize (deep component trees, heavy computations on `onMounted`) and you want to pay the setup cost once rather than on every open.
 
 :::
 

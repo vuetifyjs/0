@@ -27,18 +27,13 @@ A component for creating accessible tabbed interfaces with proper ARIA support a
 
 The Tabs component provides a compound pattern for building accessible tab interfaces. It uses the `createStep` composable internally for navigation and provides full v-model support with automatic state synchronization.
 
-::: example
+::: gn-example
 /components/tabs/basic
-
-### Tab Navigation
-
-Profile, password, and billing tabs with content switching via v-model binding.
-
 :::
 
 ## Anatomy
 
-```vue Anatomy playground no-filename
+```vue Anatomy no-filename
 <script setup lang="ts">
   import { Tabs } from '@vuetify/v0'
 </script>
@@ -46,10 +41,10 @@ Profile, password, and billing tabs with content switching via v-model binding.
 <template>
   <Tabs.Root>
     <Tabs.List>
-      <Tabs.Item>Tab</Tabs.Item>
+      <Tabs.Item />
     </Tabs.List>
 
-    <Tabs.Panel>Content</Tabs.Panel>
+    <Tabs.Panel />
   </Tabs.Root>
 </template>
 ```

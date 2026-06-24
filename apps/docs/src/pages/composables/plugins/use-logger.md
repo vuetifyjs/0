@@ -238,12 +238,16 @@ The logger exposes only functions — no reactive properties. All interactions a
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/use-logger/log-console
 
 ### Log Console
 
-Interactive logger level control with live console output, demonstrating `debug()`, `info()`, `warn()`, and `error()` across all log levels.
+An interactive devtools console that exercises the full `useLogger` API surface in a single screen. The top row of level buttons calls `logger.level(lvl)` to raise or lower the minimum threshold at runtime — messages below the active level are silenced even if the button is clicked. The row of log-action buttons calls each method directly (`trace()`, `debug()`, `info()`, `warn()`, `error()`, `fatal()`), capturing the formatted line in a local `logs` array so output is visible in the panel without opening the browser console.
+
+The Enabled/Disabled toggle calls `logger.enable()` and `logger.disable()`, which silence all output globally regardless of level — useful for testing that production builds produce no console noise. `logger.current()` and `logger.enabled()` read current state back without side effects.
+
+The example is self-contained via `createLoggerContext` so it works without the app-level plugin. In production you would replace `createLoggerContext` with `createLoggerPlugin` in your entry point and a Pino or Consola adapter for structured output. Scoped loggers (see the "Scoped logging" section above) follow the same imperative API — they inherit the level and enabled state from the shared plugin instance, so toggling via `logger.level()` here would affect all scoped instances too.
 
 :::
 
