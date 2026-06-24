@@ -144,8 +144,7 @@
   "ignoreDependencies": [
     "@js-temporal/polyfill",
     "@vue/repl",
-    "@vuetify/paper",
-    "conventional-changelog-vuetify"
+    "@vuetify/paper"
   ],
   "ignoreExportsUsedInFile": {
     "interface": true,
