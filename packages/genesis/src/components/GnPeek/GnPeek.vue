@@ -34,6 +34,20 @@
     <slot :expanded>
       {{ expanded ? expandedLabel : collapsedLabel }}
     </slot>
+
+    <slot :expanded name="icon">
+      <svg
+        aria-hidden="true"
+        class="genesis-peek__chevron"
+        fill="currentColor"
+        height="14"
+        viewBox="0 0 24 24"
+        width="14"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z" />
+      </svg>
+    </slot>
   </button>
 </template>
 
@@ -56,7 +70,7 @@
     font: inherit;
     font-size: 0.75rem;
     cursor: pointer;
-    transition: opacity 0.15s, bottom 0.15s;
+    transition: opacity 0.15s;
     touch-action: manipulation;
   }
 
@@ -64,7 +78,11 @@
     opacity: 0.85;
   }
 
-  .genesis-peek[data-expanded] {
-    bottom: -1.5rem;
+  .genesis-peek__chevron {
+    transition: transform 0.15s;
+  }
+
+  .genesis-peek[data-expanded] .genesis-peek__chevron {
+    transform: rotate(180deg);
   }
 </style>
