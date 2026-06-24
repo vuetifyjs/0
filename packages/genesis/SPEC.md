@@ -95,7 +95,7 @@ interface GnPeekProps {
 }
 ```
 
-`v-model:expanded` drives state; the default slot exposes `{ expanded }` for custom label/icon content (text-only by default).
+`v-model:expanded` drives state. The default slot exposes `{ expanded }` for the label; a separate `icon` slot defaults to an inline chevron that rotates 180° when expanded. Both slots are overridable.
 
 ## Icon strategy
 
@@ -105,8 +105,7 @@ Action buttons expose icon slots with inline `<svg>` defaults using MDI paths.
 |---|---|---|
 | `GnDocsExample` | `reset-icon` (single-file mode reset button) | refresh |
 | `GnDocsExampleTabs` | `reset-icon`, `combine-icon`, `split-icon` | refresh / unfold-less / unfold-more |
-
-`GnPeek` is text-only (default slot for label/icon content).
+| `GnPeek` | `icon` (chevron, rotates when expanded) | chevron-down |
 
 ```vue
 <GnDocsExampleTabs>

@@ -90,8 +90,7 @@
       collapsed-label="Expand code"
       expanded-label="Collapse code"
     >
-      <span>{{ open ? 'Collapse' : 'Expand' }}</span>
-      <AppIcon :icon="open ? 'up' : 'down'" :size="14" />
+      {{ open ? 'Collapse' : 'Expand' }}
     </GnPeek>
   </div>
 </template>
