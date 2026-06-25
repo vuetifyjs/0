@@ -33,9 +33,6 @@ import { createTokens, flatten } from '#v0/composables/createTokens'
 // Adapters
 import { V0LocaleAdapter } from '#v0/composables/useLocale/adapters/v0'
 
-// Messages
-import en from '#v0/locale/messages/en'
-
 // Types
 import type { SingleContext, SingleOptions, SingleTicket, SingleTicketInput } from '#v0/composables/createSingle'
 import type { TokenCollection } from '#v0/composables/createTokens'
@@ -85,6 +82,24 @@ export interface LocaleContext<
    * ```
    */
   t: (key: string, ...params: unknown[]) => string
+  /**
+   * Translate a message key only if it exists, otherwise return `undefined`.
+   *
+   * Unlike {@link t}, `ti` ("translate if exists") never echoes the raw key on a
+   * miss. This lets components supply their own inline English default with the
+   * nullish-coalescing operator instead of relying on bundled fallback messages.
+   *
+   * @param key - The message key to look up
+   * @param params - Optional named params object, followed by positional params
+   * @returns The translated and interpolated message, or `undefined` if missing
+   *
+   * @example
+   * ```ts
+   * // Falls back to an inline default when the key is not translated
+   * locale.ti('Pagination.next') ?? 'Next page'
+   * ```
+   */
+  ti: (key: string, ...params: unknown[]) => string | undefined
   n: (value: number) => string
   /**
    * Register a locale with optional messages.
@@ -111,19 +126,6 @@ export interface LocaleOptions<Z extends LocaleRecord = LocaleRecord> extends Si
   default?: ID
   fallback?: ID
   messages?: Record<ID, Z>
-  /**
-   * Called when a key has no translation in the active locale and the fallback
-   * chain is exhausted. Return a string to use as the label, or `undefined` to
-   * fall through to the raw key. Useful for providing default English strings
-   * without wiring up the full locale adapter.
-   *
-   * @example
-   * ```ts
-   * import en from '@vuetify/v0/locale/messages/en'
-   * createLocalePlugin({ onMissing: key => en[key] })
-   * ```
-   */
-  onMissing?: (key: string, ...params: unknown[]) => string | undefined
 }
 export interface LocaleContextOptions extends LocaleOptions {
   namespace?: string
@@ -142,7 +144,7 @@ export interface LocalePluginOptions extends LocaleContextOptions {
  * @see https://0.vuetifyjs.com/composables/plugins/use-locale
  */
 export function createLocale (_options: LocaleOptions = {}): LocaleContext {
-  const { adapter: externalAdapter, messages = {}, fallback: fallbackLocale, onMissing, ...options } = _options
+  const { adapter: externalAdapter, messages = {}, fallback: fallbackLocale, ...options } = _options
   const tokens = createTokens(messages)
   const registry = createSingle({ ...options, reactive: true })
 
@@ -158,12 +160,15 @@ export function createLocale (_options: LocaleOptions = {}): LocaleContext {
     tokens,
     selectedId: registry.selectedId,
     fallbackLocale,
-    onMissing,
     has: id => registry.has(id),
   })
 
   function t (key: string, ...params: unknown[]): string {
     return adapter.t(key, ...params)
+  }
+
+  function ti (key: string, ...params: unknown[]): string | undefined {
+    return adapter.ti(key, ...params)
   }
 
   function n (value: number): string {
@@ -183,6 +188,7 @@ export function createLocale (_options: LocaleOptions = {}): LocaleContext {
   return {
     ...registry,
     t,
+    ti,
     n,
     register,
     get size () {
@@ -191,29 +197,11 @@ export function createLocale (_options: LocaleOptions = {}): LocaleContext {
   } as LocaleContext
 }
 
-function lookupEn (key: string, ...params: unknown[]): string {
-  const parts = key.split('.')
-  let node: unknown = en
-  for (const part of parts) {
-    if (!node || typeof node !== 'object') return key
-    node = (node as Record<string, unknown>)[part]
-  }
-  if (typeof node !== 'string') return key
-  return _interpolate(node, params)
-}
-
-function _interpolate (message: string, args: unknown[]): string {
-  if (args.length === 0 || typeof args[0] !== 'object' || args[0] === null) return message
-  const vars = args[0] as Record<string, unknown>
-  return message.replace(/{([a-zA-Z][a-zA-Z0-9_]*)}/g, (match, name) =>
-    vars[name] === undefined ? match : String(vars[name]),
-  )
-}
-
 export function createLocaleFallback (): LocaleContext {
   return {
     size: 0,
-    t: (key: string, ...params: unknown[]) => lookupEn(key, ...params),
+    t: (key: string) => key,
+    ti: () => undefined,
     n: String,
   } as unknown as LocaleContext
 }

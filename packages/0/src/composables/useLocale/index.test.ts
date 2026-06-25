@@ -293,6 +293,7 @@ describe('createLocale', () => {
       it('should accept custom adapter', () => {
         const customAdapter = {
           t: (key: string) => key,
+          ti: () => undefined,
           n: String,
         }
         const plugin = createLocalePlugin({
@@ -584,44 +585,15 @@ describe('createLocale', () => {
   })
 
   describe('createLocaleFallback', () => {
-    it('should return key from t() when key is not in English messages', () => {
+    it('should echo the key from t() and return undefined from ti()', () => {
       mockHasInjectionContext.mockReturnValue(false)
       const locale = useLocale()
 
       expect(locale.t('hello')).toBe('hello')
       expect(locale.t('nested.key')).toBe('nested.key')
-    })
-
-    it('should return English string from t() when key exists in en messages', () => {
-      mockHasInjectionContext.mockReturnValue(false)
-      const locale = useLocale()
-
-      expect(locale.t('Button.label')).toBe('Button')
-      expect(locale.t('Breadcrumbs.label')).toBe('Breadcrumbs')
-      expect(locale.t('NumberField.increment')).toBe('Increment')
-    })
-
-    it('should interpolate named params in English messages', () => {
-      mockHasInjectionContext.mockReturnValue(false)
-      const locale = useLocale()
-
-      expect(locale.t('Avatar.indicatorLabel', { count: 3 })).toBe('+3 more')
-      expect(locale.t('Pagination.status', { page: 2, pages: 10 })).toBe('Page 2 of 10')
-    })
-
-    it('should leave unreplaced placeholders when named param is missing', () => {
-      mockHasInjectionContext.mockReturnValue(false)
-      const locale = useLocale()
-
-      expect(locale.t('Avatar.indicatorLabel')).toBe('+{count} more')
-    })
-
-    it('should return key when mid-traversal encounters a non-object node', () => {
-      mockHasInjectionContext.mockReturnValue(false)
-      const locale = useLocale()
-
-      // Button.label = 'Button' (string), so Button.label.extra has no further path
-      expect(locale.t('Button.label.extra')).toBe('Button.label.extra')
+      expect(locale.t('Button.label')).toBe('Button.label')
+      expect(locale.ti('anything')).toBeUndefined()
+      expect(locale.ti('Pagination.next')).toBeUndefined()
     })
 
     it('should return string from n()', () => {
@@ -714,123 +686,69 @@ describe('createLocale', () => {
       const adapter = createAdapter({ en: { msg: '{0} and {1}' } }, 'en')
       expect(adapter.t('msg', 'first')).toBe('first and {1}')
     })
-
-    it('should call onMissing when key is not found in any locale', () => {
-      const onMissing = vi.fn().mockReturnValue('Custom fallback')
-      const adapter = new V0LocaleAdapter({
-        tokens: createTokens({ en: { hello: 'Hello' } }),
-        selectedId: shallowRef('en') as any,
-        fallbackLocale: undefined,
-        onMissing,
-        has: id => String(id) === 'en',
-      })
-
-      expect(adapter.t('missing.key')).toBe('Custom fallback')
-      expect(onMissing).toHaveBeenCalledWith('missing.key')
-    })
-
-    it('should not call onMissing when key is found in selected locale', () => {
-      const onMissing = vi.fn()
-      const adapter = new V0LocaleAdapter({
-        tokens: createTokens({ en: { hello: 'Hello' } }),
-        selectedId: shallowRef('en') as any,
-        fallbackLocale: undefined,
-        onMissing,
-        has: id => String(id) === 'en',
-      })
-
-      expect(adapter.t('hello')).toBe('Hello')
-      expect(onMissing).not.toHaveBeenCalled()
-    })
-
-    it('should not call onMissing when key is found in fallback locale', () => {
-      const onMissing = vi.fn()
-      const adapter = new V0LocaleAdapter({
-        tokens: createTokens({ en: { hello: 'Hello' }, fr: {} }),
-        selectedId: shallowRef('fr') as any,
-        fallbackLocale: 'en',
-        onMissing,
-        has: id => ['en', 'fr'].includes(String(id)),
-      })
-
-      expect(adapter.t('hello')).toBe('Hello')
-      expect(onMissing).not.toHaveBeenCalled()
-    })
-
-    it('should fall through to key when onMissing returns undefined', () => {
-      const adapter = new V0LocaleAdapter({
-        tokens: createTokens({}),
-        selectedId: shallowRef(null) as any,
-        fallbackLocale: undefined,
-        onMissing: () => undefined,
-        has: () => false,
-      })
-
-      expect(adapter.t('some.key')).toBe('some.key')
-    })
   })
 
-  describe('createLocale onMissing option', () => {
-    it('should call onMissing for keys not found in configured messages', () => {
+  describe('ti', () => {
+    function createAdapter (messages: Record<string, Record<string, string>>, locale?: string, fallback?: string) {
+      const tokens = createTokens(messages)
+
+      return new V0LocaleAdapter({
+        tokens,
+        selectedId: shallowRef(locale) as any,
+        fallbackLocale: fallback,
+        has: id => String(id) in messages,
+      })
+    }
+
+    it('should return the translated string when the key exists in the selected locale', () => {
+      const adapter = createAdapter({ en: { hello: 'Hello' } }, 'en')
+      expect(adapter.ti('hello')).toBe('Hello')
+    })
+
+    it('should return the fallback-locale string when only the fallback has the key', () => {
+      const adapter = createAdapter(
+        {
+          en: { goodbye: 'Goodbye' },
+          fr: { hello: 'Bonjour' },
+        },
+        'fr',
+        'en',
+      )
+
+      expect(adapter.ti('goodbye')).toBe('Goodbye')
+    })
+
+    it('should return undefined when the key is missing everywhere', () => {
+      const adapter = createAdapter(
+        {
+          en: { hello: 'Hello' },
+          fr: { hello: 'Bonjour' },
+        },
+        'fr',
+        'en',
+      )
+
+      expect(adapter.ti('nonexistent')).toBeUndefined()
+    })
+
+    it('should return undefined when no locale is selected', () => {
+      const adapter = createAdapter({ en: { hello: 'Hello' } })
+      expect(adapter.ti('hello')).toBeUndefined()
+    })
+
+    it('should interpolate named params for a found key', () => {
+      const adapter = createAdapter({ en: { greet: 'Hello {name}' } }, 'en')
+      expect(adapter.ti('greet', { name: 'World' })).toBe('Hello World')
+    })
+
+    it('should interpolate params through createLocale.ti', () => {
       const locale = createLocale({
         default: 'en',
-        messages: { en: { hello: 'Hello' } },
-        onMissing: key => `[${key}]`,
+        messages: { en: { greeting: 'Hello {name}' } },
       })
 
-      expect(locale.t('hello')).toBe('Hello')
-      expect(locale.t('Dialog.close')).toBe('[Dialog.close]')
-    })
-
-    it('should fall through to raw key when onMissing returns undefined', () => {
-      const locale = createLocale({
-        default: 'en',
-        messages: { en: { hello: 'Hello' } },
-        onMissing: () => undefined,
-      })
-
-      expect(locale.t('missing')).toBe('missing')
-    })
-  })
-
-  describe('createLocaleFallback English defaults', () => {
-    it('should return English label for known component keys', () => {
-      mockHasInjectionContext.mockReturnValue(false)
-      const locale = useLocale()
-
-      expect(locale.t('Dialog.close')).toBe('Close')
-      expect(locale.t('Snackbar.close')).toBe('Dismiss')
-      expect(locale.t('NumberField.increment')).toBe('Increment')
-      expect(locale.t('NumberField.decrement')).toBe('Decrement')
-      expect(locale.t('Pagination.next')).toBe('Next page')
-      expect(locale.t('Pagination.prev')).toBe('Previous page')
-    })
-
-    it('should interpolate params in English fallback strings', () => {
-      mockHasInjectionContext.mockReturnValue(false)
-      const locale = useLocale()
-
-      expect(locale.t('Rating.valueText', { value: 3, size: 5 })).toBe('3 of 5 stars')
-      expect(locale.t('Pagination.goToPage', { page: 4 })).toBe('Go to page 4')
-      expect(locale.t('Carousel.slide', { current: 2, size: 6 })).toBe('Slide 2 of 6')
-    })
-
-    it('should still return key for unknown keys', () => {
-      mockHasInjectionContext.mockReturnValue(false)
-      const locale = useLocale()
-
-      expect(locale.t('hello')).toBe('hello')
-      expect(locale.t('nested.key')).toBe('nested.key')
-    })
-
-    it('should return English string unchanged when non-object or null arg is passed', () => {
-      mockHasInjectionContext.mockReturnValue(false)
-      const locale = useLocale()
-
-      // Non-object first arg: interpolation skipped, return message as-is
-      expect(locale.t('Button.label', 42 as any)).toBe('Button')
-      // Null first arg: interpolation skipped, return message as-is
-      expect(locale.t('Button.label', null as any)).toBe('Button')
+      expect(locale.ti('greeting', { name: 'John' })).toBe('Hello John')
+      expect(locale.ti('missing')).toBeUndefined()
     })
   })
 })

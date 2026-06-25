@@ -100,8 +100,7 @@
   const count = toRef(() => hidden.value.length)
 
   const slotProps = toRef((): AvatarIndicatorSlotProps => {
-    const translated = locale.t(LABEL_KEY, { count: count.value })
-    const ariaLabel = translated === LABEL_KEY ? `+${count.value}` : translated
+    const ariaLabel = locale.ti(LABEL_KEY, { count: count.value }) ?? `+${count.value} more`
 
     return {
       count: count.value,

@@ -9,10 +9,6 @@
  * passing it to `createLocalePlugin` satisfies WCAG 4.1.2 Name, Role, Value
  * without writing custom translations.
  *
- * They are also used internally by `createLocaleFallback()` so that
- * unconfigured applications receive meaningful labels instead of raw key
- * strings.
- *
  * @example
  * ```ts
  * import en from '@vuetify/v0/locale/messages/en'
