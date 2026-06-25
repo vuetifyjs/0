@@ -118,7 +118,7 @@ Set `multiple` on Root to enable multi-selection. The dropdown stays open after 
 
 ### Strict Mode
 
-Set `strict` on Root to enforce valid selections. When the dropdown closes without a matching item being selected, the input reverts to the last confirmed selection (or clears if nothing was selected). Use this when free-text values are not allowed.
+By default the Combobox accepts free-text values: confirming the input with **Enter** or **Tab** when the typed text matches no option commits it as a new value, and `v-model` receives the typed string. Set `strict` on Root to disable this — unmatched text is discarded on confirm and only registered options can be selected. Reach for `strict` when the field must resolve to a known option (an editable Select); leave it off for tag- or freeform-style inputs.
 
 :::
 
@@ -221,16 +221,16 @@ The Combobox implements the [WAI-ARIA Combobox](https://www.w3.org/WAI/ARIA/apg/
 | `aria-live` | `polite` | Error |
 
 > [!TIP]
-> `aria-autocomplete="both"` is set automatically when `strict` is enabled, signaling that the input value will revert to a valid option on close.
+> `aria-autocomplete="both"` is set automatically when `strict` is enabled (versus `"list"` when free-text is allowed), signaling to assistive tech that the field resolves to one of the listed options.
 
 ### Keyboard Navigation
 
 | Key | Action |
 |-----|--------|
 | `ArrowDown` / `ArrowUp` | Open dropdown, or move highlight down / up |
-| `Enter` | Select highlighted item |
-| `Escape` | Close dropdown |
-| `Tab` | Close dropdown and move focus |
+| `Enter` | Select highlighted item, or commit the typed value (unless `strict`) |
+| `Escape` | Close dropdown and discard the typed value |
+| `Tab` | Accept the highlighted item or commit the typed value, then move focus |
 | `Home` | Move highlight to first item |
 | `End` | Move highlight to last item |
 
