@@ -242,6 +242,11 @@ class MyLocaleAdapter extends LocaleAdapter {
     return myProvider.translate(key, params)
   }
 
+  ti (key: string, ...params: unknown[]): string | undefined {
+    // Same lookup as t(), but return undefined when the key is missing
+    return myProvider.has(key) ? myProvider.translate(key, params) : undefined
+  }
+
   n (value: number): string {
     return new Intl.NumberFormat('en-US').format(value)
   }
@@ -281,6 +286,7 @@ flowchart LR
 ```ts
 abstract class LocaleAdapter {
   abstract t (key: string, ...params: unknown[]): string
+  abstract ti (key: string, ...params: unknown[]): string | undefined
   abstract n (value: number): string
 }
 ```
