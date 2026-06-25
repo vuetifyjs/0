@@ -90,16 +90,23 @@ rating.select(4)
 ## Examples
 
 ::: gn-example
-/composables/create-rating/basic
+/composables/create-rating/useStarRating.ts 1
+/composables/create-rating/StarRating.vue 2
+/composables/create-rating/star-rating.vue 3
 
-### Basic
+### Star Rating With Hover Preview
 
-A five-star rating widget that demonstrates the two interaction paths `createRating` supports: direct selection by clicking a star (`rating.select(item.value)`) and sequential navigation with `prev()` / `next()`. The `items` computed ref yields one object per star with a `state` of `'full'` or `'empty'`, which the template maps to filled and outline star characters.
+A half-star review widget built directly on `createRating` — no Rating component. It demonstrates the three things the composable gives you for free: an `items` array whose `state` is already resolved to `full`, `half`, or `empty`; half-step values via `half: true` (so `select(2.5)` is valid and the mid-point star renders half-filled); and `isFirst` / `isLast` boundary guards that disable the step buttons at 0 and 5. The component reads `state` per star and clips a filled glyph over an outline to draw the half, while `select` and the `next` / `prev` steppers commit the value.
 
-`isFirst` and `isLast` disable the Prev/Next buttons at the boundaries (0 and 5), mirroring the `canDown` / `canUp` pattern from `createNumeric` — both derive from a `value` clamped to `[0, size]`. There is no half-step mode here; enabling `half: true` would produce a step of 0.5 and items with a `'half'` state for the mid-point star.
+The interesting detail is how hover preview stays honest without any hand-rolled math. The composable holds two `createRating` instances: one for the committed value, and a second whose `value` is bound to a `hover` ref. While the pointer is over the stars, `display` reads the preview instance's `items`; on `mouseleave` it falls back to the committed instance's `items`. Both renderings come straight from `createRating`, so the full/half/empty logic is never duplicated. DOM events (`mouseenter`, `click`, `mouseleave`) live in the component; the value math lives in the composable, keeping the composable headless.
 
-The composable has no DOM dependencies and no built-in rendering, so the template is entirely user-controlled. Reach for this over a custom reactive number when you need the `items` array with per-item state already computed, `isFirst`/`isLast` boundary guards, and the step abstraction for keyboard navigation. For half-star precision or a read-only display, the same composable serves both — only the `select` calls and the `state` rendering branch need to change. See the [Rating component](/components/forms/rating) for the full WAI-ARIA spin-button implementation built on this composable.
+Reach for `createRating` over a plain reactive number whenever you want per-item state, half steps, and clamped boundaries handed to you. It has no DOM dependencies, so the same instance backs an editable widget, a compact read-only display, or a server-submitted score. For the fully accessible spin-button treatment, see the [Rating component](/components/forms/rating); for related bounded-value math, see [createNumeric](/composables/forms/create-numeric) and [createSlider](/composables/forms/create-slider).
 
+| File | Role |
+|------|------|
+| `useStarRating.ts` | Owns two createRating instances (committed + hover preview), exposes display, label, and submit/reset |
+| `StarRating.vue` | Renders the half-clippable stars and step buttons; binds hover and click events |
+| `star-rating.vue` | Entry point — creates the composable, wires the view, and shows the submitted score |
 :::
 
 ::: faq

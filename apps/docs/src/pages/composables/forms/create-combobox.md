@@ -239,18 +239,23 @@ const combobox = useCombobox('my-combobox')
 ## Examples
 
 ::: gn-example
-/composables/create-combobox/basic
+/composables/create-combobox/useCountrySearch.ts 1
+/composables/create-combobox/CountryAutocomplete.vue 2
+/composables/create-combobox/country-autocomplete.vue 3
 
-### Basic Combobox
+### Country Autocomplete
 
-A filterable fruit picker that exercises the full combobox coordination loop: the `selection` registry holds all seven fruits, `ClientComboboxAdapter` filters the visible set on every keystroke, and `cursor` (the `useVirtualFocus` surface) tracks the keyboard-highlighted item independently of the actual DOM focus.
+A fully custom country picker built directly on `createCombobox` with the default [ClientComboboxAdapter](/composables/forms/create-combobox). The composable registers a dozen countries into the underlying `selection` registry; the adapter filters the visible set on every keystroke, and `cursor` (the [useVirtualFocus](/composables/system/use-virtual-focus) surface) tracks the keyboard-highlighted row independently of real DOM focus. A separate panel mirrors the confirmed selection, so the example shows both halves of an autocomplete: the typeahead input and the value display it feeds.
 
-The example wires three event handlers manually — `onInput`, `onKeydown`, and `@focus` — to show exactly what `createCombobox` expects from the host component: it owns no DOM events itself. Arrow keys call `cursor.next()` / `cursor.prev()`; Enter reads `cursor.highlightedId` and routes to `combobox.select(id)`; Escape calls `combobox.close()`. With `strict: true`, closing without a match reverts the query to the last confirmed selection.
+State and view are split deliberately. `useCountrySearch` owns the data and the coordinated state — it returns the `combobox` context plus a `selected` getter derived from `selection.selectedIds` — while `CountryAutocomplete` owns the markup and the DOM events. The composable never touches events; the component wires `onInput`, `onKeydown`, and `@focus` to drive the context, exactly mirroring how `createCombobox` expects a host to feed it. Arrow keys call `cursor.next()` / `cursor.prev()`, Enter reads `cursor.highlightedId` and routes to `select(id)`, and Escape calls `close()`. Closing resets `query` and `pristine`, so the `display` getter falls back to the last selected ticket — the input reverts to the confirmed selection without any extra option.
 
-ARIA attributes (`role="combobox"`, `aria-controls`, `aria-expanded`, `aria-autocomplete`) are set on the `<input>` manually using the IDs vended by `combobox.inputId` and `combobox.listboxId`, so the WAI-ARIA combobox pattern is satisfied without the composable touching the DOM. Each option row sets `role="option"`, `aria-selected`, and a stable `id` keyed off `combobox.id` so screen readers can correlate the input's `aria-activedescendant` with the highlighted row.
+ARIA wiring is manual but mechanical: `role="combobox"`, `aria-controls`, `aria-expanded`, `aria-autocomplete`, and `aria-activedescendant` are set on the input from the IDs the context vends (`inputId`, `listboxId`, `id`), and each option row carries `role="option"`, `aria-selected`, and a stable per-option id so screen readers can correlate the highlighted row. Reach for this approach when you need full control over the markup; prefer the [Combobox component](/components/forms/combobox) when the defaults suffice, and see [createSelection](/composables/selection/create-selection) for the selection layer underneath.
 
-Reach for this example when building a fully custom autocomplete — use the [Combobox component](/components/forms/combobox) instead when you don't need to control every detail of the markup.
-
+| File | Role |
+|------|------|
+| `useCountrySearch.ts` | Creates the combobox, registers countries, derives the selected country |
+| `CountryAutocomplete.vue` | Renders the input and listbox; owns the keyboard and input events |
+| `country-autocomplete.vue` | Wires the composable to the component and shows the selected-value panel |
 :::
 
 <DocsApi />

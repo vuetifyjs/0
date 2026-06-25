@@ -81,18 +81,25 @@ flowchart TD
 ## Examples
 
 ::: gn-example
-/composables/create-nested/basic
+/composables/create-nested/context.ts 1
+/composables/create-nested/FileTreeProvider.vue 2
+/composables/create-nested/FileTreeExplorer.vue 3
+/composables/create-nested/file-explorer.vue 4
 
-### Collapsible Navigation Tree
+### File Tree Explorer
 
-A navigation sidebar built with `createNested` demonstrating inline child registration, expand/collapse controls, and multi-select checkboxes with indeterminate parent state — all in a single file.
+A file-tree explorer split across the provider/consumer pattern, showing how `createNested` coordinates expand/collapse state and cascading selection over a hierarchy. `context.ts` is the only file that touches the composable: it pairs `createNested({ selection: 'cascade' })` with a `createContext` tuple, declares the per-node `FileMeta` (a label plus a `folder`/`file` kind stored as the ticket `value`), and exposes a typed `toRegistration` mapper that turns a plain nested `FileNode[]` into the recursive `children` shape `onboard()` expects. `FileTreeProvider.vue` instantiates the tree, batch-registers the whole structure with one `onboard()` call, opens the root, and provides the context augmented with a typed `meta(id)` reader and a `stats` computed. `FileTreeExplorer.vue` injects that context and renders the UI without ever knowing how the tree was built.
 
-`onboard()` accepts a recursive `children` array, so the entire four-level tree (Getting Started → Components → Inputs → individual inputs) is registered in one call. `nav.open('getting-started')` preselects the first branch on mount. The `getVisibleNodes()` function walks `nav.children` and short-circuits at any node where `nav.opened(id)` is false, producing a flat list of currently visible IDs; the template iterates this flat list and uses `nav.getDepth(id)` to calculate left-padding, so depth-based indentation requires no extra state.
+The consumer flattens the tree for rendering with a small `walk()` helper that reads `children.get(id)` and short-circuits wherever `opened(id)` is false, so collapsed branches contribute nothing to the visible list; `getDepth(id)` then drives left-padding, so indentation needs no extra bookkeeping. Selection is the headline: each row uses a standalone [Checkbox](/components/forms/checkbox) bound to `selected(id)` with `:indeterminate="mixed(id)"`, and clicking it calls `toggle(id)`. Because the instance runs in cascade mode, toggling a folder selects or clears every descendant while ancestors automatically resolve to selected, mixed, or empty — the indeterminate dash you see on a partially-selected folder is maintained entirely by the composable, not by the example. `expandAll()` and `collapseAll()` wire straight to the toolbar.
 
-Each row renders a checkbox that calls `nav.toggle(id)` on click (stopping propagation so the row's expand-toggle doesn't fire at the same time). Parent checkboxes show the mixed/indeterminate state via `nav.mixed(id)` — a check mark for fully selected, a dash for mixed, empty for unselected — which is automatically maintained by `createNested`'s cascade logic. `expandAll()` and `collapseAll()` are wired to the toolbar buttons with no additional logic.
+Reach for this pattern when you need a file browser, sidebar nav, or category picker where branches expand independently and a parent's checkbox should reflect its children. The provider/consumer split keeps the consumer reusable against any context that satisfies the interface. For flat multi-select without hierarchy, [createGroup](/composables/selection/create-group) is lighter; for a batteries-included tree with focus and ARIA wired up, see the [Treeview](/components/disclosure/treeview) component. Switch the `selection` option to `independent` or `leaf` to change how toggling a folder propagates.
 
-Reach for this when you need a sidebar nav, file browser, or category tree where nodes expand independently and selection can cascade through parent-child relationships. For flat multi-select without hierarchy, [createGroup](/composables/selection/create-group) is lighter. For three selection strategies (cascade, independent, leaf), see the `selection` option on [createNested](/composables/selection/create-nested).
-
+| File | Role |
+|------|------|
+| `context.ts` | Creates the nested instance and `createContext` tuple, defines `FileMeta` plus the `toRegistration` mapper and `source` data |
+| `FileTreeProvider.vue` | Instantiates the tree, batch-registers via `onboard()`, and provides the context with `meta()` and `stats` |
+| `FileTreeExplorer.vue` | Consumes the context to render rows, drive cascade selection, and flatten visible nodes |
+| `file-explorer.vue` | Entry point composing the provider around the explorer |
 :::
 
 ## Options

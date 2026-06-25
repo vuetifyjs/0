@@ -248,19 +248,26 @@ The date context provides minimal reactivity, with the adapter being a static in
 
 ## Examples
 
-The following examples demonstrate common date operations using the default Temporal adapter:
+The following example builds a complete, interactive date surface from adapter calls alone — no DatePicker component required.
 
 ::: gn-example
-/composables/use-date/calendar
+/composables/use-date/useCalendar.ts 1
+/composables/use-date/CalendarGrid.vue 2
+/composables/use-date/month-calendar.vue 3
 
-### Interactive Calendar
+### Interactive month calendar
 
-A navigable month/year calendar built entirely from adapter calls. `getWeekArray()` produces the 2D week grid; `getWeekdays('narrow')` drives the column headers; `getPreviousMonth()` and `getNextMonth()` handle navigation; `isSameDay()` and `isSameMonth()` power the today highlight and greyed-out overflow cells. The grid is held at exactly five rows by padding short months with the first row of the next month.
+A navigable month grid with click-to-select, built entirely from the adapter. `useCalendar.ts` calls `useDate()` once and owns all the date math: `getWeekArray()` produces the 2D week grid, `getWeekdays('narrow')` drives the column headers, `getPreviousMonth()` and `getNextMonth()` handle navigation, and `isSameDay()` / `isSameMonth()` power the today ring, the selected fill, and the greyed-out overflow cells. The grid renders as many week rows as the month spans — four to six — straight from `getWeekArray()`, so every in-month day stays visible and the calendar never truncates a long month or borrows days from the wrong neighbouring week.
 
-The example exercises the structural half of the adapter interface — the part that builds calendar grids and navigates between months — rather than the formatting presets shown in the Usage example above. `getDate()` extracts the day number for each cell, and `format(current, 'monthAndYear')` renders the header.
+The composable precomputes each `weeks` cell into a flat `{ date, day, today, selected, outside }` record, so `CalendarGrid.vue` renders the surface from plain props — `weekdays`, `weeks`, `monthYear`, plus the `prev`, `next`, `today`, and `select` callbacks — without ever touching the adapter directly. The entry instantiates the calendar once and reads `selectedLabel` and `locale` for the summary panel. This is the structural half of the adapter interface — building and navigating grids — rather than the formatting presets shown in the Usage example above.
 
-Reach for this pattern when building a DatePicker, DateRangePicker, or any calendar surface where the adapter needs to own the grid layout. The adapter is locale-aware by default: `getWeekdays` and the month name both respond to the locale set at plugin install time. For locale-switching at runtime, see [useLocale](/composables/plugins/use-locale) and the locale integration section below.
+Reach for this pattern when building a DatePicker, DateRangePicker, or any calendar surface where the adapter should own the grid layout. The adapter is locale-aware by default: `getWeekdays` and the month name both respond to the locale set at plugin install time, so switching the active locale via [useLocale](/composables/plugins/use-locale) reformats the calendar with no extra code. See the locale integration section below for how the two plugins sync.
 
+| File | Role |
+|------|------|
+| `useCalendar.ts` | Wraps `useDate()`; owns month/selection state and exposes weekday labels, precomputed week cells, and navigation callbacks |
+| `CalendarGrid.vue` | Renders the weekday headers and day buttons from its props; styles today, selected, and outside-month cells via data attributes |
+| `month-calendar.vue` | Entry point — instantiates the calendar, wires it to the grid, and shows the selected date and active locale |
 :::
 
 ## Locale Integration

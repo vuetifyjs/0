@@ -212,29 +212,23 @@ Context-level state is fully reactive. Rule tickets inherit selection reactivity
 ## Examples
 
 ::: gn-example
-/composables/create-validation/async-validation
+/composables/create-validation/useEmailField.ts 1
+/composables/create-validation/EmailField.vue 2
+/composables/create-validation/email-field.vue 3
 
-### Async Validation
+### Standalone Field Validation
 
-A username availability checker with four rules — two synchronous (required, min-length), one format check, and one async rule that simulates a 800 ms network call against a hard-coded set of taken usernames. The rules run in order and short-circuit on the first failure, so the async rule only fires when the earlier guards pass.
+A "build your own field" example that wires `createValidation` straight to a plain input — no `Input` component, no parent form. The composable owns the email value as the validation source (`value: email`), mixes two synchronous rules (required, format) with one async rule that simulates a 700 ms availability check, and exposes a derived `status` so the UI never has to read the tri-state `isValid` directly. All active rules run concurrently, and the async availability rule guards itself on sync validity — re-checking required and format before awaiting — so the network call only fires for well-formed input.
 
-`isValidating` drives a spinning border and hides the "Available" badge while the promise is in flight. Once it settles, `isValid` flips to `true` or `false` and `errors` updates in one tick. Generation-based race safety means a second "Check Availability" click while the first is pending silently discards the stale result — the state panel at the bottom makes this visible by showing live rule counts and the `isValidating` flag.
+Validation is driven on blur rather than on every keystroke: `onBlur()` flips a `touched` flag and calls `validate()`, while a `watch` on the value resets the result the moment the user edits a field they have already checked. `isValidating` powers the pending spinner and `errors` renders the message list, all settling in a single tick thanks to the composable's generation-based race safety — a second blur while a check is pending discards the stale result. The state panel underneath surfaces `status`, `isValid`, `isValidating`, `touched`, and the error count live so the policy is observable.
 
-The pattern for an input that validates on demand (rather than on blur) is to reset on `@input` and call `validate()` explicitly — the example follows this: typing resets to `null`, clicking "Check Availability" triggers the full rule chain. See [createInput](/composables/forms/create-input) for the blur-based validation policy and [createForm](/composables/forms/create-form) for coordinating multiple validations across a submit button.
+Reach for this pattern when you need validation on a control the `Input` component does not cover, or when validation has to coordinate with surrounding state you already own. For the batteries-included field that integrates the same engine, see [createInput](/composables/forms/create-input); to aggregate many fields behind one submit button, see [createForm](/composables/forms/create-form); for alias-based rule registration, see [useRules](/composables/plugins/use-rules).
 
-:::
-
-::: gn-example
-/composables/create-validation/toggle-rules
-
-### Enabling and Disabling Rules
-
-A password strength checker with four named rules (length, uppercase, number, special character) registered via `onboard()`, which returns one ticket per rule. Each ticket carries the selection methods from `createGroup` — `isSelected`, `select()`, `unselect()`, and `toggle()` — so the checkbox list can toggle rules directly without routing through the parent validation context.
-
-Only selected rules run during `validate()`. Unchecking a rule removes it from the active set immediately; the next validation call skips it entirely. The rule count line below the controls reads `selectedIds.size` and `size` live to show how many rules are active at any moment.
-
-This pattern is useful for progressive disclosure in forms (show additional constraints as the user advances) or for conditional rules that depend on other field values. For rules that should always run, the simpler `rules: [...]` option in the constructor is sufficient. See [createValidation](/composables/forms/create-validation#enabling-and-disabling-rules) for the full enabling/disabling API and [useRules](/composables/plugins/use-rules) for alias-based rule registration.
-
+| File | Role |
+|------|------|
+| `useEmailField.ts` | Owns the value, the `createValidation` instance (sync + async rules), the blur handler, and a derived status |
+| `EmailField.vue` | Presentational field — renders the input, pending spinner, availability badge, and error list |
+| `email-field.vue` | Entry — wires the composable to the field and shows a live validation-state panel |
 :::
 
 <DocsApi />

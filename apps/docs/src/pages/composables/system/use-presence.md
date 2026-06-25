@@ -76,16 +76,23 @@ stateDiagram-v2
 ## Examples
 
 ::: gn-example
-/composables/use-presence/basic
+/composables/use-presence/useAccordion.ts 1
+/composables/use-presence/AccordionPanel.vue 2
+/composables/use-presence/accordion.vue 3
 
-### CSS Transition
+### Animated Accordion
 
-A toggle button that reveals a card with a CSS fade-and-slide enter/exit animation, demonstrating how `usePresence` separates mount lifetime from visual state. `isMounted` drives the `v-if` so the element is absent from the DOM when fully invisible; `state` drives the UnoCSS utility classes — the card is `opacity-100 translate-y-0` in the `present` state and `opacity-0 -translate-y-2` in any other state, letting the CSS `transition-all` handle the animation.
+A single-open FAQ accordion where every panel drives its own `usePresence` instance, so each region is fully absent from the DOM when collapsed and animates in and out with CSS keyframes. The composable owns only the demo state — the panel list and which `id` is active — while the reusable panel component owns the mount lifecycle. Opening one panel collapses the previous one, which means two presence machines run at once: one entering, one leaving. This is the case a plain `v-show` cannot handle, because the leaving panel must stay mounted long enough to finish its exit animation before it is removed.
 
-The critical detail is `immediate: false` paired with `done()` on `transitionend`. When `immediate` is `true` (the default), `usePresence` auto-resolves the leaving state on the next microtask — fast enough for content with no exit animation, but it races CSS transitions. Setting `immediate: false` hands control to the caller: `done()` is called only when the `transitionend` event fires on the content element itself (`e.target === e.currentTarget` guards against bubbling from children). Until `done()` is called, the element stays mounted so the transition completes before unmounting. `lazy: true` keeps the card out of the DOM entirely on first render, deferring the first mount until the button is clicked.
+The pattern hinges on `immediate: false` together with `done()`. With the default `immediate: true`, `usePresence` auto-resolves the `leaving` state on the next microtask — fine for content with no exit animation, but it races a CSS animation. Setting `immediate: false` hands timing control to the panel: `isMounted` gates the `v-if`, `state` is reflected onto a `data-state` attribute that selects the enter or leave keyframe, and `done()` is called from `animationend` only while `isLeaving` is true (so the enter animation's own `animationend` is ignored). Until `done()` runs, the element stays mounted and the exit animation completes cleanly.
 
-Reach for this pattern when you need a CSS or WAAPI exit animation before the element leaves the DOM. If you only need lazy mounting with no exit delay, use `lazy: true` without `immediate: false` — the default behavior unmounts immediately. For the compound component that wraps this composable with slot-based transitions, see [Presence](/components/primitives/presence).
+Reach for this when each item needs an independent enter/exit animation before it leaves the DOM. If you only need deferred first mount with no exit delay, pass `lazy: true` and leave `immediate` at its default. For the compound component that wraps this composable with slot-based transitions, see [Presence](/components/primitives/presence); for the simpler defer-until-first-open case, see [useLazy](/composables/system/use-lazy).
 
+| File | Role |
+|------|------|
+| `useAccordion.ts` | Owns the panel data and the active-id state with a toggle |
+| `AccordionPanel.vue` | Drives one `usePresence` instance and resolves the CSS exit via `done()` |
+| `accordion.vue` | Wires the composable to the panels and renders the headers |
 :::
 
 ## FAQ

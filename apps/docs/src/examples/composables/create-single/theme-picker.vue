@@ -1,58 +1,16 @@
 <script setup lang="ts">
-  import { createSingle } from '@vuetify/v0'
-  import { toRef } from 'vue'
+  import ThemeSwatches from './ThemeSwatches.vue'
+  import { useThemePicker } from './useThemePicker'
 
-  interface Theme {
-    name: string
-    bg: string
-    fg: string
-    accent: string
-  }
-
-  const themes: Theme[] = [
-    { name: 'Ocean', bg: '#0f172a', fg: '#e2e8f0', accent: '#38bdf8' },
-    { name: 'Forest', bg: '#14532d', fg: '#dcfce7', accent: '#4ade80' },
-    { name: 'Sunset', bg: '#431407', fg: '#fed7aa', accent: '#fb923c' },
-    { name: 'Lavender', bg: '#2e1065', fg: '#e9d5ff', accent: '#a78bfa' },
-    { name: 'Slate', bg: '#1e293b', fg: '#cbd5e1', accent: '#94a3b8' },
-  ]
-
-  const picker = createSingle({ mandatory: true })
-  const tickets = picker.onboard(
-    themes.map(t => ({ id: t.name.toLowerCase(), value: t })),
-  )
-  picker.seek('first')?.select()
-
-  const selected = toRef(() => picker.selectedValue.value as Theme | undefined)
+  const picker = useThemePicker()
+  const { selected, selectedId, selectedIndex, count } = picker
 </script>
 
 <template>
   <div class="space-y-4">
-    <!-- Theme cards -->
-    <div class="grid grid-cols-5 gap-2">
-      <button
-        v-for="ticket in tickets"
-        :key="ticket.id"
-        class="rounded-lg p-3 text-center transition-all border-2"
-        :class="ticket.isSelected.value
-          ? 'border-primary scale-105 shadow-md'
-          : 'border-transparent hover:border-divider'"
-        :style="{
-          backgroundColor: ticket.value.bg,
-          color: ticket.value.fg,
-        }"
-        @click="ticket.select()"
-      >
-        <div
-          class="size-6 rounded-full mx-auto mb-2"
-          :style="{ backgroundColor: ticket.value.accent }"
-        />
+    <ThemeSwatches :picker />
 
-        <span class="text-xs font-medium">{{ ticket.value.name }}</span>
-      </button>
-    </div>
-
-    <!-- Preview -->
+    <!-- Live preview of the one active theme -->
     <div
       v-if="selected"
       class="rounded-lg p-4 transition-colors"
@@ -83,18 +41,18 @@
       </div>
     </div>
 
-    <!-- State -->
+    <!-- State readout from the singular computed properties -->
     <div class="text-xs text-on-surface-variant space-y-0.5">
       <p>
-        selectedId: <span class="text-on-surface font-medium">{{ picker.selectedId.value }}</span>
+        selectedId: <span class="text-on-surface font-medium">{{ selectedId }}</span>
       </p>
 
       <p>
-        selectedIndex: <span class="text-on-surface font-medium">{{ picker.selectedIndex.value }}</span>
+        selectedIndex: <span class="text-on-surface font-medium">{{ selectedIndex }}</span>
       </p>
 
       <p>
-        registered: <span class="text-on-surface font-medium">{{ picker.size }}</span>
+        registered: <span class="text-on-surface font-medium">{{ count }}</span>
       </p>
     </div>
   </div>
