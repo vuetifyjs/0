@@ -97,7 +97,9 @@
         case 'Enter': {
           e.preventDefault()
           const highlighted = context.cursor.highlightedId.value
-          if (!isUndefined(highlighted)) {
+          if (isUndefined(highlighted)) {
+            context.commit()
+          } else {
             context.select(highlighted)
           }
           break
@@ -108,7 +110,12 @@
           break
         }
         case 'Tab': {
-          context.close()
+          const highlighted = context.cursor.highlightedId.value
+          if (isUndefined(highlighted)) {
+            context.commit()
+          } else {
+            context.select(highlighted)
+          }
           break
         }
         case 'ArrowDown':
