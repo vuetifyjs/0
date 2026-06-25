@@ -23,7 +23,7 @@
     "test:bench:json": "vitest bench --run --outputJson apps/docs/public/benchmarks.json",
     "bench": "vitest --reporter=default bench",
     "metrics": "pnpm test:coverage && pnpm test:bench:json && node scripts/generate-metrics.js",
-    "skill": "tsx scripts/generate-skill.ts",
+    "skill": "node scripts/generate-skill.ts",
     "typecheck": "pnpm --filter=\"./packages/*\" typecheck",
     "typecheck:0": "pnpm --filter=\"./packages/0\" typecheck",
     "typecheck:paper": "pnpm --filter=\"./packages/paper\" typecheck",
@@ -40,7 +40,7 @@
     "changeset": "changeset",
     "release": "pnpm build && changeset publish",
     "release:prepare": "pnpm validate && pnpm build",
-    "postinstall": "tsx apps/docs/build/generate-api-whitelist.ts && node scripts/init-dev.js",
+    "postinstall": "node apps/docs/build/generate-api-whitelist.ts && node scripts/init-dev.js",
     "prepare": "simple-git-hooks"
   },
   "simple-git-hooks": {
@@ -62,7 +62,6 @@
     "pkg-pr-new": "catalog:",
     "sherif": "catalog:",
     "simple-git-hooks": "catalog:",
-    "tsx": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:",
     "vue-tsc": "catalog:"
