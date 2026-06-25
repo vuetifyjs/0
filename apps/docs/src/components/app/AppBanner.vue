@@ -12,7 +12,11 @@
 
   const notifications = useNotifications()
 
-  // Seed banner notification (repla
+  // Snooze persistence is owned by the notifications plugin (persist: true in
+  // plugins/index.ts). This view seeds the banner, renders it, and triggers
+  // snooze/dismiss — banner.snooze() is persisted and restored by the plugin.
+  const SNOOZE_MS = 7 * 24 * 60 * 60 * 1000
+
   if (!notifications.has('alpha-banner')) {
     notifications.register({
       id: 'alpha-banner',
@@ -27,10 +31,18 @@
   })
 
   const dismissed = shallowRef(false)
-  const visible = toRef(() => banner.value && !dismissed.value)
+  const snoozed = toRef(() => {
+    const until = banner.value?.snoozedUntil
+    return !!until && until.getTime() > Date.now()
+  })
+  const visible = toRef(() => banner.value && !dismissed.value && !snoozed.value)
 
   function onDismiss () {
     dismissed.value = true
+  }
+
+  function onSnooze () {
+    banner.value?.snooze(new Date(Date.now() + SNOOZE_MS))
   }
 
   // Sync banner height to CSS variable so AppBar, AppNav, and layouts can adapt
@@ -57,12 +69,22 @@
       {{ banner?.subject }} <span class="hidden md:inline">See the <RouterLink class="underline underline-offset-2" to="/roadmap#beta">roadmap</RouterLink> for details.</span>
     </div>
 
-    <button
-      aria-label="Dismiss banner"
-      class="absolute end-2 opacity-60 hover:opacity-100 transition-opacity"
-      @click="onDismiss"
-    >
-      <AppIcon icon="close" :size="10" />
-    </button>
+    <div class="absolute end-2 flex items-center gap-2">
+      <button
+        aria-label="Snooze banner for a week"
+        class="opacity-60 hover:opacity-100 transition-opacity"
+        @click="onSnooze"
+      >
+        <AppIcon icon="clock" :size="11" />
+      </button>
+
+      <button
+        aria-label="Dismiss banner"
+        class="opacity-60 hover:opacity-100 transition-opacity"
+        @click="onDismiss"
+      >
+        <AppIcon icon="close" :size="10" />
+      </button>
+    </div>
   </Atom>
 </template>
