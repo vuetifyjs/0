@@ -238,12 +238,18 @@ const combobox = useCombobox('my-combobox')
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/create-combobox/basic
 
 ### Basic Combobox
 
-A filterable fruit picker demonstrating keyboard navigation (arrow keys, Enter, Escape), virtual focus for highlighting, query-driven filtering, and ARIA combobox attributes.
+A filterable fruit picker that exercises the full combobox coordination loop: the `selection` registry holds all seven fruits, `ClientComboboxAdapter` filters the visible set on every keystroke, and `cursor` (the `useVirtualFocus` surface) tracks the keyboard-highlighted item independently of the actual DOM focus.
+
+The example wires three event handlers manually — `onInput`, `onKeydown`, and `@focus` — to show exactly what `createCombobox` expects from the host component: it owns no DOM events itself. Arrow keys call `cursor.next()` / `cursor.prev()`; Enter reads `cursor.highlightedId` and routes to `combobox.select(id)`; Escape calls `combobox.close()`. With `strict: true`, closing without a match reverts the query to the last confirmed selection.
+
+ARIA attributes (`role="combobox"`, `aria-controls`, `aria-expanded`, `aria-autocomplete`) are set on the `<input>` manually using the IDs vended by `combobox.inputId` and `combobox.listboxId`, so the WAI-ARIA combobox pattern is satisfied without the composable touching the DOM. Each option row sets `role="option"`, `aria-selected`, and a stable `id` keyed off `combobox.id` so screen readers can correlate the input's `aria-activedescendant` with the highlighted row.
+
+Reach for this example when building a fully custom autocomplete — use the [Combobox component](/components/forms/combobox) instead when you don't need to control every detail of the markup.
 
 :::
 

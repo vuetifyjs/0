@@ -113,12 +113,18 @@ flowchart TD
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/use-hotkey/command-palette
 
 ### Command Palette
 
-A searchable command palette (Cmd+J) with arrow-key navigation, filtered results, and per-command shortcuts.
+A searchable command palette (Cmd+J / Ctrl+J) built with `useHotkey`, `Dialog`, and `useToggleScope`. Three layers of hotkey registration work together: a global `cmd+j` binding opens the palette unconditionally; inside the palette, per-command shortcuts (`cmd+l`, `cmd+s`, …) fire while the user types in the search field thanks to `{ inputs: true }`; and arrow-key navigation moves the selection through filtered results.
+
+`useToggleScope` is the key composition pattern: scoped hotkeys — navigation and per-command shortcuts — are registered only while `isOpen` is `true`, and automatically torn down when the palette closes. This prevents global key conflicts and avoids manual cleanup.
+
+The `computed` filtered list re-derives on every `query` change, and a `watch` on `filtered` resets `selectedIndex` to `0` so the highlight never sits on a stale position. Platform awareness is handled with `IN_BROWSER && navigator.userAgent.includes('Mac')` to display the correct modifier key label.
+
+Reach for `useHotkey` + `useToggleScope` whenever a UI surface needs context-sensitive shortcuts that exist only while it is open — command palettes, modals, sidebars, and feature-specific shortcut overlays all benefit from this shape. For simpler one-shot bindings without scope gating, call `useHotkey` directly. For element-level keyboard handling (arrow keys inside a listbox, roving focus), see [useRovingFocus](/composables/system/use-roving-focus).
 
 :::
 

@@ -27,47 +27,13 @@ A compound component for building accessible hierarchical tree interfaces with e
 
 The Treeview component provides a compound pattern for building accessible tree structures. It uses the `createNested` composable internally for hierarchical state management — tracking parent-child relationships, open/close state, and cascade selection.
 
-::: example
+::: gn-example
 /components/treeview/basic
-
-### Hierarchical Tree
-
-A categorized tree with expand/collapse and multi-select checkboxes.
-
 :::
 
 ## Anatomy
 
-```vue Anatomy playground no-filename collapse
-<script setup lang="ts">
-  import { Treeview } from '@vuetify/v0'
-</script>
-
-<template>
-  <Treeview.Root>
-    <Treeview.List>
-      <Treeview.Item>
-        <Treeview.Activator>
-          <Treeview.Cue />
-          Label
-        </Treeview.Activator>
-
-        <Treeview.Content>
-          <Treeview.Group>
-            <Treeview.Item>
-              <Treeview.Activator>Leaf</Treeview.Activator>
-            </Treeview.Item>
-          </Treeview.Group>
-        </Treeview.Content>
-      </Treeview.Item>
-    </Treeview.List>
-  </Treeview.Root>
-</template>
-```
-
-For trees with selection, add [Treeview.Checkbox](#treeviewcheckbox) and [Treeview.Indicator](#treeviewindicator):
-
-```vue AnatomyWithSelection playground no-filename collapse
+```vue Anatomy no-filename
 <script setup lang="ts">
   import { Treeview } from '@vuetify/v0'
 </script>
@@ -84,11 +50,9 @@ For trees with selection, add [Treeview.Checkbox](#treeviewcheckbox) and [Treevi
           <Treeview.Indicator />
         </Treeview.Checkbox>
 
-        Label
-
         <Treeview.Content>
           <Treeview.Group>
-            <Treeview.Item>Leaf</Treeview.Item>
+            <Treeview.Item />
           </Treeview.Group>
         </Treeview.Content>
       </Treeview.Item>
@@ -97,7 +61,30 @@ For trees with selection, add [Treeview.Checkbox](#treeviewcheckbox) and [Treevi
 </template>
 ```
 
-## Configuration
+## Examples
+
+::: gn-example
+/components/treeview/SettingNode.vue 2
+/components/treeview/settings-panel.vue 1
+
+### Settings Panel
+
+The Settings Panel demonstrates building a real-world tree UI from reactive data — categories with children that can be opened and closed, leaf nodes that activate a detail pane on click, and in-tree functional controls (toggles and selects) that modify the underlying data without leaving the tree.
+
+`SettingNode.vue` handles both categories and leaves in a single recursive component: categories render a `Treeview.Activator` wrapping a chevron, while leaves render a `<button>` that calls `activate()` from the `Item` slot and emits upward. The `--v0-treeview-depth` CSS variable drives `padding-left` on each row, so indentation scales automatically with nesting depth — no manual level counting needed.
+
+The "Experimental" category uses `:disabled` on `Treeview.Item` and is styled via `[data-disabled]` in scoped CSS. The active row is highlighted via `[data-active]` — the `activate` slot method sets this state independently of selection, making it suitable for single-item focus patterns like settings panels, file explorers, and inspector trees.
+
+For trees where the primary interaction is multi-select (not activation), prefer cascade selection with `Treeview.Checkbox` and `Treeview.Indicator` — see the [Cascade Selection recipe](#cascade-selection) below.
+
+| File | Role |
+|------|------|
+| `SettingNode.vue` | Recursive node component rendering categories and leaf settings |
+| `settings-panel.vue` | Root tree with reactive settings data and a detail pane |
+
+:::
+
+## Recipes
 
 ### Expansion Mode
 
@@ -167,27 +154,6 @@ Set `reveal` to automatically open all ancestor nodes when a descendant is opene
 </template>
 ```
 
-## Examples
-
-::: example
-/components/treeview/SettingNode.vue 2
-/components/treeview/settings-panel.vue 1
-
-### Settings Panel
-
-A settings tree with functional controls built from reactive data. Click any setting to activate it and view its description in the detail pane.
-
-- **Activation** — `activate` from the `Item` slot highlights the current item. Style the active row with `[data-active]`.
-- **Functional controls** — toggles and `<select>` dropdowns modify the reactive data directly.
-- **Disabled** — `:disabled` on `Treeview.Item` greys out the "Experimental" category. Style with `[data-disabled]`.
-- **Depth indentation** — `--v0-treeview-depth` CSS variable on each item drives `padding-left`, no manual nesting needed.
-- **Open/closed** — `isOpen` slot prop on `Item` rotates the chevron via a CSS class.
-- **Recursive rendering** — `SettingNode.vue` handles both categories and leaves, recursing through `Treeview.Group` for nested children.
-
-:::
-
-## Recipes
-
 ### Cascade Selection
 
 Add `v-model` to `Treeview.Root` for cascade selection. Use `Treeview.Checkbox` and `Treeview.Indicator` for tri-state checkboxes. Use `Treeview.SelectAll` for a tree-wide toggle.
@@ -235,7 +201,7 @@ Add `v-model` to `Treeview.Root` for cascade selection. Use `Treeview.Checkbox` 
 </template>
 ```
 
-## Styling with Data Attributes
+### Styling with Data Attributes
 
 All sub-components expose data attributes for CSS-driven state styling:
 

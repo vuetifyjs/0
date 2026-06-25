@@ -25,13 +25,13 @@ A headless progress bar component for building determinate, indeterminate, and b
 
 The Progress supports single-value and multi-segment modes. Bind a number for a single bar, or an array for multiple segments.
 
-::: example
+::: gn-example
 /components/progress/basic
 :::
 
 ## Anatomy
 
-```vue Anatomy playground
+```vue Anatomy no-filename
 <script setup lang="ts">
   import { Progress } from '@vuetify/v0'
 </script>
@@ -39,15 +39,11 @@ The Progress supports single-value and multi-segment modes. Bind a number for a 
 <template>
   <Progress.Root>
     <Progress.Label />
-
     <Progress.Track>
       <Progress.Fill />
-
       <Progress.Buffer />
     </Progress.Track>
-
     <Progress.Value />
-
     <Progress.HiddenInput />
   </Progress.Root>
 </template>
@@ -55,7 +51,7 @@ The Progress supports single-value and multi-segment modes. Bind a number for a 
 
 ## Examples
 
-::: example
+::: gn-example
 /components/progress/StorageBar.vue 1
 /components/progress/storage.vue 2
 
@@ -78,7 +74,7 @@ Multi-segment progress bar showing disk usage by category. Each `Progress.Fill` 
 
 :::
 
-::: example
+::: gn-example
 /components/progress/MediaProgress.vue 1
 /components/progress/media.vue 2
 

@@ -27,27 +27,20 @@ A headless component for managing selection state in collections with support fo
 
 The Selection component provides a wrapper and item pattern for managing selection state in collections. It uses the `createSelection` composable internally and provides full v-model support with automatic state synchronization.
 
-::: example
+::: gn-example
 /components/selection/basic
-
-### Basic Multi-Selection
-
-Button items with shared multi-selection state via array v-model binding.
-
 :::
 
 ## Anatomy
 
-```vue Anatomy playground
+```vue Anatomy no-filename
 <script setup lang="ts">
   import { Selection } from '@vuetify/v0'
 </script>
 
 <template>
   <Selection.Root>
-    <Selection.Item value="apple" />
-
-    <Selection.Item value="banana" />
+    <Selection.Item />
   </Selection.Root>
 </template>
 ```

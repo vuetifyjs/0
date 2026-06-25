@@ -75,7 +75,7 @@ stateDiagram-v2
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/use-image/basic
 
 ### Basic usage
@@ -88,7 +88,7 @@ The example surfaces the `status` ref as a live label and includes buttons that 
 
 :::
 
-::: example
+::: gn-example
 /composables/use-image/useLazyImage.ts 1
 /composables/use-image/LazyImage.vue 2
 /composables/use-image/lazy.vue 3
@@ -126,7 +126,7 @@ Under the hood `<Image.Root lazy>` does exactly this; the custom composable exis
 
 :::
 
-::: example
+::: gn-example
 /composables/use-image/RetryableImage.vue 1
 /composables/use-image/retry.vue 2
 

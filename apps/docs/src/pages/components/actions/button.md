@@ -27,13 +27,13 @@ Headless button with loading state, toggle group support, and icon accessibility
 
 The Button component renders as a native `<button>` by default (or an anchor, router-link, etc. via the `as` prop). It provides four distinct interaction states for controlling click behavior and visual feedback.
 
-::: example
+::: gn-example
 /components/button/basic
 :::
 
 ## Anatomy
 
-```vue Anatomy playground collapse no-filename
+```vue Anatomy no-filename
 <script setup lang="ts">
   import { Button } from '@vuetify/v0'
 </script>
@@ -41,9 +41,7 @@ The Button component renders as a native `<button>` by default (or an anchor, ro
 <template>
   <Button.Root>
     <Button.Icon />
-
     <Button.Content />
-
     <Button.Loading />
   </Button.Root>
 
@@ -66,13 +64,8 @@ Button supports four states that block click events. Each state has a distinct s
 | **passive** | Yes | Yes | Yes | Kept | Temporarily unavailable |
 | **loading** | Yes | Yes | Yes | Kept | Waiting for async operation |
 
-::: example
+::: gn-example
 /components/button/states
-
-### Button States
-
-Disabled, readonly, passive, and loading states with visual styling for each.
-
 :::
 
 ### Data Attributes
@@ -98,13 +91,8 @@ The loading state has a built-in 1-second grace period before showing loading UI
 
 Use `Button.Loading` and `Button.Content` to swap between loading and default content:
 
-::: example
+::: gn-example
 /components/button/loading
-
-### Loading State with Grace Period
-
-Loading spinner with a grace period before it appears, swapping between spinner and label with opacity transitions.
-
 :::
 
 `Button.Loading` and `Button.Content` conditionally render based on the loading state. Only one is visible at a time — `Content` by default, `Loading` after the grace period elapses.
@@ -113,13 +101,8 @@ Loading spinner with a grace period before it appears, swapping between spinner 
 
 Wrap buttons in `Button.Group` for toggle behavior with v-model support. Each `Button.Root` needs a `value` prop to participate in selection.
 
-::: example
+::: gn-example
 /components/button/group
-
-### Button Group Toggle
-
-Text alignment toggle group with v-model binding showing the active selection.
-
 :::
 
 `Button.Group` supports `multiple` for multi-select and `mandatory` to prevent deselecting the last item:
@@ -145,13 +128,8 @@ Text alignment toggle group with v-model binding showing the active selection.
 
 Use `Button.Icon` to wrap icon content. It sets `aria-hidden="true"` on itself and detects icon-only buttons — warning in dev when `aria-label` is missing on Root.
 
-::: example
+::: gn-example
 /components/button/icon
-
-### Icon Buttons
-
-Button with icon and label, and an icon-only button with `aria-label` for accessibility.
-
 :::
 
 ### Form Submission

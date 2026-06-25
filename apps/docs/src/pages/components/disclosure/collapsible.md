@@ -26,18 +26,13 @@ A single-item disclosure toggle for showing and hiding content.
 
 The Collapsible component provides a simple open/closed toggle for a single content region. It supports `v-model` for controlled state and exposes `data-state` attributes for CSS-driven styling.
 
-::: example
+::: gn-example
 /components/collapsible/basic
-
-### Basic Collapsible
-
-A simple collapsible section with a rotating chevron cue and toggled content.
-
 :::
 
 ## Anatomy
 
-```vue Anatomy playground
+```vue Anatomy no-filename
 <script setup lang="ts">
   import { Collapsible } from '@vuetify/v0'
 </script>
@@ -47,7 +42,6 @@ A simple collapsible section with a rotating chevron cue and toggled content.
     <Collapsible.Activator>
       <Collapsible.Cue />
     </Collapsible.Activator>
-
     <Collapsible.Content />
   </Collapsible.Root>
 </template>
@@ -57,24 +51,27 @@ A simple collapsible section with a rotating chevron cue and toggled content.
 
 ### Controlled
 
-Use `v-model` to control the open state externally. The `disabled` prop prevents interaction.
+Bind `v-model` to a `shallowRef<boolean>` to take full control of the open state from outside the component. This is useful when an external trigger — a "Expand all" button, a route change, or a parent form reset — needs to drive the collapsible without the user clicking the activator directly.
 
-::: example
+The example wires up three buttons (Open, Close, Toggle) that mutate the same `open` ref, and a Switch that toggles the `disabled` prop. When `disabled` is true, the activator becomes non-interactive and both the Root and Activator receive `data-disabled` for CSS styling.
+
+Without `v-model`, the component manages its own internal state starting from `false` (closed). Add `:default-open="true"` to start open in uncontrolled mode.
+
+::: gn-example
 /components/collapsible/controlled
-
-### Controlled Collapsible
-
-Externally controlled open/close/toggle buttons with a disabled state.
-
 :::
 
-::: example
+::: gn-example
 /components/collapsible/FaqItem.vue 1
 /components/collapsible/faq.vue 2
 
 ### FAQ
 
-Build a reusable FAQ component by wrapping Collapsible in a custom `FaqItem` component. Each item is an independent Collapsible instance — they don't coordinate with each other.
+Each FAQ item is an independent `Collapsible.Root` — they share no state, so opening one never collapses another. The example extracts `FaqItem.vue` as a reusable wrapper that accepts a `question` prop and a default slot for the answer, keeping the entry-point file (`faq.vue`) a clean data-driven list.
+
+`Collapsible.Cue` inside the activator automatically mirrors the `data-state` of its parent Root, so the chevron rotation is wired up with a single CSS transition class — no slot prop or manual binding needed.
+
+When you need "only one open at a time" behavior, reach for [ExpansionPanel](/components/disclosure/expansion-panel) instead. It coordinates selection across all panels through a shared parent context, making accordion mode a one-prop change.
 
 | File | Role |
 |------|------|
@@ -82,7 +79,9 @@ Build a reusable FAQ component by wrapping Collapsible in a custom `FaqItem` com
 | `faq.vue` | Entry point rendering items from data |
 :::
 
-## Collapsible vs ExpansionPanel
+## Recipes
+
+### Collapsible vs ExpansionPanel
 
 Both components handle expanding and collapsing content, but they solve different problems:
 

@@ -34,14 +34,28 @@ A headless modal dialog component using the native HTML dialog element.
 
 The Dialog component leverages the native `showModal()` API for proper modal behavior including focus trapping, backdrop rendering, and escape key handling. It provides v-model support for open/closed state management.
 
-::: example
+::: gn-example
 /components/dialog/basic
-
-### Basic Modal Dialog
-
-A modal dialog with title, description, and cancel/confirm buttons using the native HTML `<dialog>` element.
-
 :::
+
+## Anatomy
+
+```vue Anatomy no-filename
+<script setup lang="ts">
+  import { Dialog } from '@vuetify/v0'
+</script>
+
+<template>
+  <Dialog.Root>
+    <Dialog.Activator />
+    <Dialog.Content>
+      <Dialog.Title />
+      <Dialog.Description />
+      <Dialog.Close />
+    </Dialog.Content>
+  </Dialog.Root>
+</template>
+```
 
 ## Features
 
@@ -66,28 +80,6 @@ The `blocking` prop disables scrim-based dismissal entirely — the dialog can o
   <Dialog.Content blocking>
     <!-- No scrim, no click-outside close — must use Dialog.Close or v-model -->
   </Dialog.Content>
-</template>
-```
-
-## Anatomy
-
-```vue Anatomy playground
-<script setup lang="ts">
-  import { Dialog } from '@vuetify/v0'
-</script>
-
-<template>
-  <Dialog.Root>
-    <Dialog.Activator />
-
-    <Dialog.Content>
-      <Dialog.Title />
-
-      <Dialog.Description />
-
-      <Dialog.Close />
-    </Dialog.Content>
-  </Dialog.Root>
 </template>
 ```
 

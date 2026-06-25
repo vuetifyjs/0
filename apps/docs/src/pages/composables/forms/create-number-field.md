@@ -100,12 +100,17 @@ flowchart TD
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/create-number-field/basic
 
 ### Basic
 
-Standalone composable usage without the NumberField component. Demonstrates increment, decrement, formatting, and boundary state.
+A standalone counter (0–100, step 1) that shows the three reactive surfaces `createNumberField` provides without the `NumberField` component. `field.display` holds the formatted string rendered in the center; `field.canDecrement` and `field.canIncrement` disable the buttons at the boundaries, eliminating any manual `value <= min` guards in the template.
+
+The example does not wire a `value` ref, so `createNumberField` manages its own internal ref starting at `null`. The raw value appears below the display string as `Raw: null` until the first interaction. Separating `value` (the numeric source of truth) from `display` (the Intl-formatted string) is the key pattern: formatters, currency symbols, and thousands separators live in `display` and never touch the number stored in `value`.
+
+Reach for the [NumberField component](/components/forms/number-field) when you need the full field surface (labels, errors, accessible spin-button). Use `createNumberField` directly when you need the math and formatting without the component's markup constraints, or when composing a custom numeric control. For pure step math without formatting or field state, see [createNumeric](/composables/forms/create-numeric).
+
 :::
 
 ::: faq

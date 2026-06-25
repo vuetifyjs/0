@@ -28,18 +28,13 @@ Headless dropdown select with single and multi-selection, keyboard navigation, a
 
 The Select component provides a compound pattern for building accessible dropdown selects. It supports `v-model` for both single values and arrays (multi-select mode).
 
-::: example
+::: gn-example
 /components/select/basic
-
-### Basic Select
-
-A single-select color dropdown with placeholder text and selected value display.
-
 :::
 
 ## Anatomy
 
-```vue Anatomy playground collapse no-filename
+```vue Anatomy no-filename
 <script setup lang="ts">
   import { Select } from '@vuetify/v0'
 </script>
@@ -49,7 +44,6 @@ A single-select color dropdown with placeholder text and selected value display.
     <Select.Activator>
       <Select.Value />
       <Select.Placeholder />
-
       <Select.Cue />
     </Select.Activator>
 
@@ -90,21 +84,29 @@ flowchart TD
 
 ## Examples
 
-::: example
+::: gn-example
 /components/select/disabled
 
 ### Disabled States
 
-Both individual items and the entire select can be disabled. Disabled items are skipped by virtual focus keyboard navigation. The `disabled` prop on Root prevents the dropdown from opening.
+This example demonstrates two levels of disabling: individual items within the list (XL and 2XL sizes are marked `disabled` on their `Select.Item`) and the entire select control via the `disabled` prop on `Select.Root`. A `Switch.Root` at the top of the demo lets you toggle the whole-select disabled state at runtime.
+
+Disabled items remain visible in the dropdown but are skipped by virtual focus keyboard navigation — arrow keys jump over them as if they weren't there. The `isDisabled` slot prop (exposed by each item's default slot) lets you apply visual treatment such as strikethrough and reduced opacity without needing extra state.
+
+Disabling the entire `Select.Root` prevents the dropdown from opening; pair this with visual styling on the `Activator` (opacity, cursor) to communicate the non-interactive state to the user.
 
 :::
 
-::: example
+::: gn-example
 /components/select/multiple
 
 ### Multi-Select
 
-Set `multiple` on Root to enable multi-selection. The dropdown stays open after each selection. `v-model` binds to an array of item values (the `value` prop of each selected item). The Value slot receives `selectedValues` for rendering chips, tags, or comma-separated text.
+Setting `multiple` on `Select.Root` switches the `v-model` binding from a single value to an array of item values. The dropdown stays open after each selection so the user can pick multiple fruits without reopening. The `Select.Value` component receives a `selectedValues` array in its default slot, used here to render each selection as a chip with primary background coloring.
+
+`Select.Placeholder` hides automatically once at least one value is selected. The `Select.Cue` arrow is pushed to the trailing edge with `ms-auto` to stay in position regardless of how many chips are showing.
+
+Reach for multi-select when the field accepts several independent choices — tag pickers, filter panels, permission editors. For ordered or ranked selections where order matters, combine with a custom drag-to-reorder chip list.
 
 :::
 

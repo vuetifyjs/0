@@ -376,18 +376,28 @@ table.grouping.closeAll()
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/create-data-table/basic/BasicTable.vue
 /composables/create-data-table/basic/columns.ts
 /composables/create-data-table/basic/data.ts
 
 ### Basic Data Table
 
-A sortable, filterable, paginated table with row selection — wired entirely from `createDataTable`.
+A three-column table of 8 users — name, email, role — with a live search input, sortable column headers, and prev/next pagination at 5 rows per page.
+
+`columns.ts` marks all three columns `sortable: true` and the name and email columns `filterable: true`. The table is created with `{ pagination: { itemsPerPage: 5 } }`, then rows are onboarded in one `table.onboard(users.map(...))` call. From that point, the template reads `table.items.value` directly — the pipeline (filter → sort → paginate) runs automatically on every `table.search()` or `table.sort.toggle()` call.
+
+The sort header uses a local `arrow()` helper that reads `table.sort.direction(id)` to pick `↑`, `↓`, or an empty string. No external sort-state variable is needed; the table owns it. The pagination row reads `table.pagination.isFirst.value` and `table.pagination.isLast.value` to disable the boundary buttons, and reads `table.pagination.page.value` and `table.pagination.pages` for the `n / total` counter.
+
+| File | Role |
+|------|------|
+| `BasicTable.vue` | Table with search input, sortable headers, and pagination |
+| `columns.ts` | Column definitions — sortable and filterable flags per column |
+| `data.ts` | 8-user dataset with id, name, email, and role |
 
 :::
 
-::: example
+::: gn-example
 /composables/create-data-table/server/ServerTable.vue
 /composables/create-data-table/server/columns.ts
 /composables/create-data-table/server/api.ts
@@ -396,23 +406,17 @@ A sortable, filterable, paginated table with row selection — wired entirely fr
 
 A data table backed by a simulated API. The `ServerDataTableAdapter` delegates all filtering, sorting, and pagination to the server — the client only renders what it receives.
 
-**File breakdown:**
-
 | File | Role |
 |------|------|
 | `ServerTable.vue` | Table with loading state, search, sort, and pagination |
 | `columns.ts` | Column definitions |
 | `api.ts` | Simulated server with `fetchPage()` that filters/sorts/paginates a dataset |
 
-**Key patterns:**
-
-- `ServerDataTableAdapter` receives `total` and `loading` refs so the table knows the full dataset size without holding it client-side
-- A `watch` on `[table.query, table.sort.columns, table.pagination.page]` triggers `fetchPage()` whenever the user interacts
-- The simulated API applies search, sort, and pagination server-side, returning only the current page of results
+The key difference from the client-side adapter is that the client never holds the full dataset. Instead, `total` and `loading` refs are passed to `ServerDataTableAdapter` so the table knows the full dataset size for pagination without materializing it locally. A `watch` on `[table.query, table.sort.columns, table.pagination.page]` fires `fetchPage()` whenever the user interacts — the handler calls `table.clear()` then `table.onboard(page.items)` to swap in the new result set. The simulated `api.ts` applies search, sort, and pagination server-side, returning only the current page.
 
 :::
 
-::: example
+::: gn-example
 /composables/create-data-table/features/FeaturesTable.vue
 /composables/create-data-table/features/columns.ts
 /composables/create-data-table/features/data.ts
@@ -421,24 +425,17 @@ A data table backed by a simulated API. The `ServerDataTableAdapter` delegates a
 
 A grouped table with row selection, custom numeric sort, and salary range filtering. Rows with `active: false` cannot be selected.
 
-**File breakdown:**
-
 | File | Role |
 |------|------|
 | `FeaturesTable.vue` | Grouped table with checkboxes, collapsible groups, and status badges |
 | `columns.ts` | Columns with custom `sort` (numeric) and `filter` (range queries like `>100000`) |
 | `data.ts` | Employee dataset with departments, salaries, and active status |
 
-**Key patterns:**
-
-- `groupBy: 'department'` groups rows automatically — `openAll: true` opens all groups on creation
-- `table.grouping.isOpen(key)` checks visibility, `toggle(key)` flips it
-- `itemSelectable: 'active'` disables checkboxes for inactive employees
-- `mandate: true` ensures a sort column is always active (never clears to unsorted)
+`groupBy: 'department'` groups rows automatically — `openAll: true` opens all groups on creation. `table.grouping.isOpen(key)` checks visibility and `toggle(key)` flips it, so collapsible group rows render with no extra state variable. `itemSelectable: 'active'` disables checkboxes for inactive employees — the field name is a key into the row's value object and the table reads it directly. `mandate: true` ensures a sort column is always active (the sort never clears to unsorted on repeated clicks). The salary column's custom `filter` function parses range operators (`>100000`, `<80000`) so the search box doubles as a range query field.
 
 :::
 
-::: example
+::: gn-example
 /composables/create-data-table/virtual/VirtualTable.vue
 /composables/create-data-table/virtual/columns.ts
 /composables/create-data-table/virtual/data.ts
@@ -447,20 +444,13 @@ A grouped table with row selection, custom numeric sort, and salary range filter
 
 A table with 1,000 rows rendered through `createVirtual`. The `VirtualDataTableAdapter` skips pagination — all filtered/sorted items are passed directly to the virtual scroller.
 
-**File breakdown:**
-
 | File | Role |
 |------|------|
 | `VirtualTable.vue` | Virtual-scrolled table with sticky header and sort controls |
 | `columns.ts` | Column definitions with custom numeric sort for the score column |
 | `data.ts` | Generator that creates 1,000 sample user records |
 
-**Key patterns:**
-
-- `VirtualDataTableAdapter` performs client-side filter and sort but returns all items (no pagination slicing)
-- `createVirtual(table.items, { itemHeight: 40 })` handles virtualization at the rendering layer
-- The sticky `<thead>` stays visible while scrolling through virtual rows
-- Stats show rendered vs. filtered vs. total counts to demonstrate the virtual window
+`VirtualDataTableAdapter` performs client-side filter and sort but skips pagination slicing — `table.items` holds all sorted rows. `createVirtual(table.items, { itemHeight: 40 })` then virtualizes at the rendering layer: only the rows in the current viewport window are mounted. The sticky `<thead>` stays visible while scrolling through virtual rows. The stats line shows rendered vs. filtered vs. total counts so the windowing effect is visible. For larger datasets at variable row heights, see `resize(index, height)` in [createVirtual](/composables/data/create-virtual).
 
 :::
 

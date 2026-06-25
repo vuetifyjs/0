@@ -142,12 +142,16 @@ The `get()` method returns reactive refs that sync with storage automatically.
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/use-storage/persistent-settings
 
 ### Persistent Settings
 
-A settings panel that survives page refreshes using `useStorage` with a memory adapter, showing reactive `get()` refs with deep-watch auto-persistence.
+A settings panel with four independently persisted keys — `name`, `theme`, `count`, and `items` — each returned from `storage.get()` as a reactive `Ref`. Writing to any ref (e.g. incrementing `count.value++` or pushing to `items.value`) is sufficient to persist the value; there is no explicit `set()` call because the refs are watched with `{ deep: true }` internally.
+
+The `items` key demonstrates deep-watch auto-persistence on an array: adding or removing elements triggers the watcher and serializes the new array to storage in a single write. The `has('count')` readout at the bottom shows how to distinguish "key present with a stored value" from "key absent, returning default" — useful when you need to detect a first visit vs. a returning user.
+
+The example uses `MemoryStorageAdapter` for isolation, but swapping in `localStorage` or `sessionStorage` requires only changing the adapter at plugin-install time. In a real app the panel's state would survive page refreshes with `localStorage`. Reach for `useStorage` over raw `localStorage` calls whenever you want reactive refs, a shared prefix, TTL expiration, or SSR safety without writing the serialization layer yourself. See [useHydration](/composables/plugins/use-hydration) for coordinating storage reads with SSR hydration.
 
 :::
 

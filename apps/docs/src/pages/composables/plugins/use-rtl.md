@@ -224,12 +224,16 @@ export const [useLocalRtl, provideLocalRtl, localRtl] =
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/use-rtl/direction-toggle
 
 ### Direction Toggle
 
-Live RTL/LTR switcher showing `isRtl` toggling the `dir` attribute and text-alignment classes in real time.
+A live RTL/LTR switcher that calls `toggle()` from `useRtl()` and binds the resulting direction string to a container's `dir` attribute. Because `isRtl` is a writable ref, the template derives `direction` via `toRef(() => isRtl.value ? 'rtl' : 'ltr')` and uses it both for the `dir` prop and for conditionally rendering Arabic vs. English copy.
+
+The card inside the panel demonstrates how the browser's native bidirectional layout engine handles the flip: the avatar, name, and action buttons all reflow without any CSS overrides because they're positioned with flexbox and the `dir` attribute propagates automatically to descendants. This is the cheapest way to test whether your own components are already direction-aware — no special `rtl:` variants or logical properties needed if the flex container gets the right `dir`.
+
+Reach for `useRtl()` when you need to read or imperatively change the active direction from script. For locale-linked RTL (e.g. Arabic or Hebrew auto-sets `isRtl`), wire a watcher between `useLocale().selectedId` and `isRtl` inside a custom adapter. For subtree-scoped direction that is isolated from the app-level flag, see `createRtlContext` in the Subtree Overrides section above.
 
 :::
 

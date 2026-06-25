@@ -29,18 +29,13 @@ A headless component for creating responsive breadcrumb navigation with proper A
 
 The Breadcrumbs component provides a compound component pattern for building navigation trails. It uses `createBreadcrumbs`, `createGroup`, and `createOverflow` internally.
 
-::: example
+::: gn-example
 /components/breadcrumbs/basic
-
-### Basic Breadcrumb Trail
-
-A simple breadcrumb with dividers and an ellipsis component for overflow.
-
 :::
 
 ## Anatomy
 
-```vue playground
+```vue Anatomy no-filename
 <script setup lang="ts">
   import { Breadcrumbs } from '@vuetify/v0'
 </script>
@@ -51,13 +46,9 @@ A simple breadcrumb with dividers and an ellipsis component for overflow.
       <Breadcrumbs.Item>
         <Breadcrumbs.Link />
       </Breadcrumbs.Item>
-
       <Breadcrumbs.Divider />
-
       <Breadcrumbs.Ellipsis />
-
       <Breadcrumbs.Divider />
-
       <Breadcrumbs.Item>
         <Breadcrumbs.Page />
       </Breadcrumbs.Item>
@@ -98,7 +89,7 @@ The Root creates three internal composables: `createBreadcrumbs` manages the nav
 
 ## Examples
 
-::: example
+::: gn-example
 /components/breadcrumbs/overflow
 
 ### Responsive Overflow
@@ -115,7 +106,7 @@ Drag the slider to shrink the container and watch items collapse into the ellips
 
 :::
 
-::: example
+::: gn-example
 /components/breadcrumbs/mobile
 
 ### Mobile Overflow
@@ -126,7 +117,7 @@ The container below is capped at `max-w-sm` to simulate a mobile viewport. On ac
 
 :::
 
-::: example
+::: gn-example
 /components/breadcrumbs/AppBreadcrumbs.vue
 /components/breadcrumbs/useBreadcrumbItems.ts
 

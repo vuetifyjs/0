@@ -26,18 +26,13 @@ A headless confirmation dialog that seeks user input before proceeding. Features
 
 AlertDialog mirrors Dialog but with stricter defaults: no close on click outside, no close on escape. The Action component provides a deferred close pattern for async confirmation flows.
 
-::: example
+::: gn-example
 /components/alert-dialog/basic
-
-### Confirmation Dialog
-
-A confirmation dialog with title, description, and cancel/delete action buttons.
-
 :::
 
 ## Anatomy
 
-```vue Anatomy playground
+```vue Anatomy no-filename
 <script setup lang="ts">
   import { AlertDialog } from '@vuetify/v0'
 </script>
@@ -45,16 +40,11 @@ A confirmation dialog with title, description, and cancel/delete action buttons.
 <template>
   <AlertDialog.Root>
     <AlertDialog.Activator />
-
     <AlertDialog.Content>
       <AlertDialog.Title />
-
       <AlertDialog.Description />
-
       <AlertDialog.Close />
-
       <AlertDialog.Cancel />
-
       <AlertDialog.Action />
     </AlertDialog.Content>
   </AlertDialog.Root>
@@ -63,17 +53,16 @@ A confirmation dialog with title, description, and cancel/delete action buttons.
 
 ## Examples
 
-### Async confirmation
-
-Use the `wait()`/`close()` pattern to keep the dialog open during async operations. The `isPending` slot prop tracks loading state.
-
-::: example
-/components/alert-dialog/async
-
 ### Async Confirmation
 
-Uses `wait()`/`close()` to hold the dialog open during an async operation, showing a loading state.
+The `AlertDialog.Action` component emits an `@action` event with an `AlertDialogActionEvent` payload. Call `e.wait()` at the top of your handler to hold the dialog open while the async work runs, then call `e.close()` once it completes. The `isPending` slot prop on `AlertDialog.Action` flips to `true` immediately after `wait()` is called, letting you swap button labels or show a spinner without managing a separate `shallowRef`.
 
+This pattern keeps the dialog in a locked state during the operation — the user cannot dismiss it, and escape is already blocked by default. Use it for any action where the consequence of double-submission or premature dismissal is dangerous (permanent deletion, irreversible writes).
+
+Compare with a plain Dialog approach, where you would manage loading state yourself and wire up a separate `shallowRef`. The `wait()`/`close()` contract removes that boilerplate and ensures the dialog stays open exactly as long as needed.
+
+::: gn-example
+/components/alert-dialog/async
 :::
 
 ## Accessibility

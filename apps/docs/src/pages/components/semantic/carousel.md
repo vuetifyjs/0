@@ -27,13 +27,13 @@ Headless carousel built on CSS scroll-snap with multi-slide display and partial-
 
 The Carousel provides slide navigation with native drag/swipe via CSS scroll-snap. Slides register with a step context for programmatic navigation.
 
-::: example
+::: gn-example
 /components/carousel/basic
 :::
 
 ## Anatomy
 
-```vue Anatomy playground no-filename
+```vue Anatomy no-filename
 <script setup lang="ts">
   import { Carousel } from '@vuetify/v0'
 </script>
@@ -43,7 +43,6 @@ The Carousel provides slide navigation with native drag/swipe via CSS scroll-sna
     <Carousel.Viewport>
       <Carousel.Item />
     </Carousel.Viewport>
-
     <Carousel.Indicator />
     <Carousel.Previous />
     <Carousel.Next />
@@ -55,42 +54,38 @@ The Carousel provides slide navigation with native drag/swipe via CSS scroll-sna
 
 ## Examples
 
-### Indicator
-
-Dot indicators show which slide is active and allow direct navigation. The `Carousel.Indicator` exposes an `items` array via slot props — render each dot with `v-bind="item.attrs"` for built-in keyboard navigation and ARIA.
-
-::: example
+::: gn-example
 /components/carousel/indicator
 
 ### Dot Navigation
 
-Indicators between Previous/Next buttons with roving tabindex and `aria-controls` linking each dot to its slide.
+`Carousel.Indicator` renders a `role="tablist"` container and exposes an `items` array via its default slot. Each item carries `attrs` that wire up `role="tab"`, `aria-selected`, `aria-controls` (linking to the corresponding slide), and roving tabindex — bind them directly with `v-bind="item.attrs"` to get keyboard navigation for free.
+
+This example overlays Previous/Next buttons alongside the dot strip. Styling active dots with `data-[selected]:bg-primary` keeps the interaction purely CSS-driven — no slot-prop threading required. Reach for this layout whenever your design needs visible pagination alongside directional controls.
 
 :::
 
-### Multi-Slide Display
-
-Show multiple slides at once with the `per-view` prop. This is useful for card grids, skill lists, or product carousels where users can browse items in groups.
-
-::: example
+::: gn-example
 /components/carousel/multi-slide
 
 ### Three Slides Per View
 
-A circular carousel showing 3 slides at once with a 12px gap between them.
+The `per-view` prop sets how many slides are visible simultaneously. The Viewport measures its own padding and gap from the DOM, then computes each slide's flex-basis automatically — no manual width math needed.
+
+This example pairs `:per-view="3"` with `:autoplay="3000"` and a `Switch` to toggle autoplay. `circular` is enabled so navigation wraps from the last group back to the first. Reach for multi-slide when building card grids, skill lists, or product carousels where users should see context before committing to a slide.
+
+The `flex-[0_0_calc((100%-1.5rem)/3)]` utility on each item aligns the visual width with the `gap-3` between slides so snap points align correctly.
 
 :::
 
-### Peek
-
-Add padding to the viewport to reveal a portion of adjacent slides, signaling to the user that more content is available and encouraging drag/swipe interaction.
-
-::: example
+::: gn-example
 /components/carousel/peek
 
 ### Partial Slide Visibility
 
-A carousel with 48px peek on each side showing portions of adjacent slides.
+Horizontal `px-12` padding on `Carousel.Viewport` creates 48px of visible bleed on each side, revealing the edges of adjacent slides. This gives users a strong affordance that more content exists and that dragging will reveal it — without requiring explicit Previous/Next buttons.
+
+Peek is a pure CSS technique: the viewport clips at its own bounds, so the padding carves space inside the scroll container while the overflowing slide content bleeds in from both sides. Use it for photo galleries, onboarding flows, or any context where a visual "pull" toward the next item improves engagement.
 
 :::
 

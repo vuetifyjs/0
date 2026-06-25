@@ -31,56 +31,24 @@ The Toggle component supports two modes:
 - **Standalone mode**: Use `v-model` on `Toggle.Root` for simple boolean on/off state
 - **Group mode**: Wrap in `Toggle.Group` for single or multi-select with value-based selection
 
-::: example
+::: gn-example
 /components/toggle/basic
-
-### Basic Toggle
-
-A standalone bookmark toggle with icon and label driven by v-model.
-
 :::
 
 ## Anatomy
 
-```vue Anatomy playground collapse no-filename
+```vue Anatomy no-filename
 <script setup lang="ts">
   import { Toggle } from '@vuetify/v0'
 </script>
 
 <template>
-  <!-- Standalone -->
   <Toggle.Root>
     <Toggle.Indicator />
   </Toggle.Root>
 
-  <!-- Group (single select) -->
   <Toggle.Group>
-    <Toggle.Root>
-      <Toggle.Indicator />
-    </Toggle.Root>
-
-    <Toggle.Root>
-      <Toggle.Indicator />
-    </Toggle.Root>
-
-    <Toggle.Root>
-      <Toggle.Indicator />
-    </Toggle.Root>
-  </Toggle.Group>
-
-  <!-- Group (multi select) -->
-  <Toggle.Group multiple>
-    <Toggle.Root>
-      <Toggle.Indicator />
-    </Toggle.Root>
-
-    <Toggle.Root>
-      <Toggle.Indicator />
-    </Toggle.Root>
-
-    <Toggle.Root>
-      <Toggle.Indicator />
-    </Toggle.Root>
+    <Toggle.Root />
   </Toggle.Group>
 </template>
 ```
@@ -89,28 +57,26 @@ A standalone bookmark toggle with icon and label driven by v-model.
 
 ### Toolbar
 
-Use `Toggle.Group` with `multiple` to build a formatting toolbar. Each toggle operates independently — any combination can be active.
+`Toggle.Group` with `multiple` lets any combination of items be active simultaneously — deselecting one never affects the others. This is the right pattern for formatting toolbars (bold, italic, underline, strikethrough) where selections are orthogonal and additive.
 
-::: example
+Each `Toggle.Root` carries a `value` prop; the group's `v-model` holds an array of all currently active values. Style the active state with the `data-[state=on]:` selector — no slot props needed for pure CSS styling.
+
+Reach for `multiple` mode when the choices are independent. For mutually exclusive options (only one active at a time), omit `multiple` and add `mandatory` — see View Switcher below.
+
+::: gn-example
 /components/toggle/toolbar
-
-### Formatting Toolbar
-
-Multi-select bold, italic, underline, and strikethrough toggles that apply text formatting.
-
 :::
 
 ### View Switcher
 
-Use `Toggle.Group` with `mandatory` for mutually exclusive options like layout switchers. The `mandatory` prop prevents deselecting all items.
+`Toggle.Group` with `mandatory` enforces that exactly one item stays active — clicking the currently active toggle is a no-op rather than deselecting it. Use this for layout or mode switchers where an unselected state has no meaning (grid vs. list, map vs. satellite).
 
-::: example
+Without `multiple`, the group's `v-model` holds a single string value rather than an array. The example drives layout rendering directly from the selected value, switching between a grid and a list layout for a folder collection.
+
+For an "always one active" variant that also allows deselection, omit `mandatory` and handle the `undefined` model value explicitly.
+
+::: gn-example
 /components/toggle/view-switcher
-
-### View Switcher
-
-Mandatory single-select toggle between grid and list views controlling layout display.
-
 :::
 
 ## Accessibility

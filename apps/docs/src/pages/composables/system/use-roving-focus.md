@@ -107,18 +107,22 @@ flowchart TD
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/use-roving-focus/Grid.vue 1
 /composables/use-roving-focus/grid.vue 2
 
 ### Color Grid
 
-2D grid navigation with the `columns` option. Arrow keys navigate in two dimensions, Home/End are row-scoped, Ctrl+Home/End jump to absolute first/last.
+A 24-swatch material color palette arranged in a 6-column grid, demonstrating `useRovingFocus` in 2D mode. Passing `columns: 6` enables full grid navigation: left/right arrow keys step one swatch, up/down step one row (±6), Home and End jump to the first and last swatch in the current row, and Ctrl+Home/Ctrl+End jump to the absolute first and last swatch. The `circular: true` option wraps navigation so the focus cycles back to the start when it reaches either end.
+
+`Grid.vue` is a reusable component that accepts a `swatches` prop and exposes `v-model` for the selected swatch. It registers each swatch by element reference using a `querySelector` on the grid container, and passes the IDs back through `isTabbable` to set `tabindex="0"` on exactly one swatch at a time. The `onFocus` callback fires whenever keyboard navigation lands on a swatch and immediately updates the model — so selection and keyboard focus stay in sync without a separate event handler. `grid.vue` wires the 24 swatches and the `v-model` together in a minimal entry point.
+
+Reach for grid mode any time your items form a logical 2D structure: color pickers, emoji grids, calendar date cells, data table cells. For strictly linear focus (toolbar buttons, menu items, tabs), use `orientation: 'horizontal'` or `'vertical'` without `columns`. To pair keyboard focus with selection state from a composable, see the [createSingle](/composables/selection/create-single) decision table.
 
 | File | Role |
 |------|------|
-| `Grid.vue` | Color swatch grid with 2D keyboard navigation |
-| `grid.vue` | Entry point rendering a material color palette |
+| `Grid.vue` | Reusable swatch grid with 2D keyboard navigation |
+| `grid.vue` | Entry point rendering the material color palette |
 :::
 
 <DocsApi />

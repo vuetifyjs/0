@@ -104,12 +104,16 @@ const { isHydrated } = useHydration()
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/use-hydration/hydration-state
 
 ### Hydration State
 
-Displays the live `isHydrated` and `isSettled` states as the component mounts and the next tick resolves, illustrating the SSR hydration lifecycle.
+A live view of the two-phase hydration lifecycle. Two indicator cards show `isHydrated` and `isSettled` turning from false to true as the component mounts and the subsequent `nextTick` resolves. A combined status banner below derives a three-state label — `pending`, `hydrated`, `settled` — from both refs together using `toRef`. A step-progress row at the bottom maps the abstract phases (`SSR → hydrate() → nextTick → settle()`) to the current status so the sequence is visible rather than implied.
+
+The example uses `createLoggerContext` internally — just `createHydrationPlugin`, `useHydration`, and `toRef` — so it exercises only the public API. In a real SSR app the component loads in the `pending` state and transitions through `hydrated` to `settled` in under a frame; in a client-only app the fallback context makes both refs immediately true, which is also what this example shows when the plugin is not installed. That fallback behaviour is documented in the "Fallback Hydration" section above.
+
+Reach for `isSettled` (not just `isHydrated`) as the gate for CSS transitions and animations: `isHydrated` fires on mount, but the browser hasn't painted yet at that point, so transition classes applied immediately are suppressed. `isSettled` fires one tick later, after paint, and avoids the flash.
 
 :::
 

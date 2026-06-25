@@ -89,12 +89,17 @@ rating.select(4)
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/create-rating/basic
 
 ### Basic
 
-Standalone rating with navigation controls. Click a star or use the prev/next buttons.
+A five-star rating widget that demonstrates the two interaction paths `createRating` supports: direct selection by clicking a star (`rating.select(item.value)`) and sequential navigation with `prev()` / `next()`. The `items` computed ref yields one object per star with a `state` of `'full'` or `'empty'`, which the template maps to filled and outline star characters.
+
+`isFirst` and `isLast` disable the Prev/Next buttons at the boundaries (0 and 5), mirroring the `canDown` / `canUp` pattern from `createNumeric` — both derive from a `value` clamped to `[0, size]`. There is no half-step mode here; enabling `half: true` would produce a step of 0.5 and items with a `'half'` state for the mid-point star.
+
+The composable has no DOM dependencies and no built-in rendering, so the template is entirely user-controlled. Reach for this over a custom reactive number when you need the `items` array with per-item state already computed, `isFirst`/`isLast` boundary guards, and the step abstraction for keyboard navigation. For half-star precision or a read-only display, the same composable serves both — only the `select` calls and the `state` rendering branch need to change. See the [Rating component](/components/forms/rating) for the full WAI-ARIA spin-button implementation built on this composable.
+
 :::
 
 ::: faq

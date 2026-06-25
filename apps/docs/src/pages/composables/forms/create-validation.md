@@ -211,21 +211,29 @@ Context-level state is fully reactive. Rule tickets inherit selection reactivity
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/create-validation/async-validation
 
 ### Async Validation
 
-Username availability check with async rules and generation-based race safety. Demonstrates `isValidating` spinner, error display, and tri-state `isValid`.
+A username availability checker with four rules — two synchronous (required, min-length), one format check, and one async rule that simulates a 800 ms network call against a hard-coded set of taken usernames. The rules run in order and short-circuit on the first failure, so the async rule only fires when the earlier guards pass.
+
+`isValidating` drives a spinning border and hides the "Available" badge while the promise is in flight. Once it settles, `isValid` flips to `true` or `false` and `errors` updates in one tick. Generation-based race safety means a second "Check Availability" click while the first is pending silently discards the stale result — the state panel at the bottom makes this visible by showing live rule counts and the `isValidating` flag.
+
+The pattern for an input that validates on demand (rather than on blur) is to reset on `@input` and call `validate()` explicitly — the example follows this: typing resets to `null`, clicking "Check Availability" triggers the full rule chain. See [createInput](/composables/forms/create-input) for the blur-based validation policy and [createForm](/composables/forms/create-form) for coordinating multiple validations across a submit button.
 
 :::
 
-::: example
+::: gn-example
 /composables/create-validation/toggle-rules
 
 ### Enabling and Disabling Rules
 
-Toggle individual validation rules on/off at runtime using the selection API inherited from `createGroup`.
+A password strength checker with four named rules (length, uppercase, number, special character) registered via `onboard()`, which returns one ticket per rule. Each ticket carries the selection methods from `createGroup` — `isSelected`, `select()`, `unselect()`, and `toggle()` — so the checkbox list can toggle rules directly without routing through the parent validation context.
+
+Only selected rules run during `validate()`. Unchecking a rule removes it from the active set immediately; the next validation call skips it entirely. The rule count line below the controls reads `selectedIds.size` and `size` live to show how many rules are active at any moment.
+
+This pattern is useful for progressive disclosure in forms (show additional constraints as the user advances) or for conditional rules that depend on other field values. For rules that should always run, the simpler `rules: [...]` option in the constructor is sufficient. See [createValidation](/composables/forms/create-validation#enabling-and-disabling-rules) for the full enabling/disabling API and [useRules](/composables/plugins/use-rules) for alias-based rule registration.
 
 :::
 

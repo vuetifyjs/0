@@ -122,7 +122,7 @@ flowchart TD
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/create-tokens/tokens.ts 1
 /composables/create-tokens/design-system.vue 2
 

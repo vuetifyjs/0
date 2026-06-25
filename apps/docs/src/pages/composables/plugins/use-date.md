@@ -69,13 +69,8 @@ app.use(
 
 Once the plugin is installed, use the `useDate` composable in any component:
 
-::: example
+::: gn-example
 /composables/use-date/basic
-
-### Date Format Presets
-
-Today's date rendered in multiple formats — fullDate, shortDate, weekday, and time — using the current locale.
-
 :::
 
 ## Adapters
@@ -255,12 +250,16 @@ The date context provides minimal reactivity, with the adapter being a static in
 
 The following examples demonstrate common date operations using the default Temporal adapter:
 
-::: example
+::: gn-example
 /composables/use-date/calendar
 
 ### Interactive Calendar
 
-A navigable month/year calendar with prev/next controls, today highlighted, and a consistent 5-week grid.
+A navigable month/year calendar built entirely from adapter calls. `getWeekArray()` produces the 2D week grid; `getWeekdays('narrow')` drives the column headers; `getPreviousMonth()` and `getNextMonth()` handle navigation; `isSameDay()` and `isSameMonth()` power the today highlight and greyed-out overflow cells. The grid is held at exactly five rows by padding short months with the first row of the next month.
+
+The example exercises the structural half of the adapter interface — the part that builds calendar grids and navigates between months — rather than the formatting presets shown in the Usage example above. `getDate()` extracts the day number for each cell, and `format(current, 'monthAndYear')` renders the header.
+
+Reach for this pattern when building a DatePicker, DateRangePicker, or any calendar surface where the adapter needs to own the grid layout. The adapter is locale-aware by default: `getWeekdays` and the month name both respond to the locale set at plugin install time. For locale-switching at runtime, see [useLocale](/composables/plugins/use-locale) and the locale integration section below.
 
 :::
 

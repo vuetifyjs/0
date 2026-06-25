@@ -255,7 +255,7 @@ This is how Pagination components register their elements for width measurement,
 
 ## Examples
 
-::: example
+::: gn-example
 /components/atom/AppButton.vue 1
 /components/atom/polymorphic.vue 2
 

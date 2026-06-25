@@ -24,46 +24,26 @@ A switch for on/off state or multi-selection groups with tri-state support.
 
 ## Usage
 
-::: example
+::: gn-example
 /components/switch/basic
-
-### Basic Switch
-
-A standalone boolean switch with label and slide animation.
-
 :::
 
 ## Anatomy
 
-```vue Anatomy playground collapse no-filename
+```vue Anatomy no-filename
 <script setup lang="ts">
   import { Switch } from '@vuetify/v0'
 </script>
 
 <template>
-  <!-- Standalone -->
   <Switch.Root>
     <Switch.Track>
       <Switch.Thumb />
     </Switch.Track>
+
+    <Switch.HiddenInput />
   </Switch.Root>
 
-  <!-- Group -->
-  <Switch.Group>
-    <Switch.Root>
-      <Switch.Track>
-        <Switch.Thumb />
-      </Switch.Track>
-    </Switch.Root>
-
-    <Switch.Root>
-      <Switch.Track>
-        <Switch.Thumb />
-      </Switch.Track>
-    </Switch.Root>
-  </Switch.Group>
-
-  <!-- Group with Select All -->
   <Switch.Group>
     <Switch.SelectAll>
       <Switch.Track>
@@ -77,43 +57,34 @@ A standalone boolean switch with label and slide animation.
       </Switch.Track>
     </Switch.Root>
   </Switch.Group>
-
-  <!-- With form submission -->
-  <Switch.Root>
-    <Switch.Track>
-      <Switch.Thumb />
-    </Switch.Track>
-
-    <Switch.HiddenInput />
-  </Switch.Root>
 </template>
 ```
 
 ## Examples
 
-::: example
+::: gn-example
 /components/switch/group
 
 ### Switch Group
 
-Multi-select switch group managing an array of connectivity options (WiFi, Bluetooth, Location).
+A `Switch.Group` wrapping three `Switch.Root` items for WiFi, Bluetooth, and Location Services — the group's `v-model` is an array of string values, each item contributing its `value` prop when toggled on. Toggling a switch adds or removes its value from the array; the current selection is displayed as a comma-separated list below.
+
+`Switch.Group` uses the same multi-selection logic as [Group](/components/providers/group) under the hood: the array v-model and tri-state batch operations are all inherited from `createGroup`. Reach for this pattern for settings panels, feature flags, or any list of independent on/off controls that need to share a single model.
 
 :::
 
-::: example
+::: gn-example
 /components/switch/indeterminate
 
 ### Select-All Switch
 
-A "select all" switch with indeterminate state over nested permission toggles.
+Combines a `Switch.SelectAll` with three nested `Switch.Root` items to demonstrate tri-state group management. `Switch.SelectAll` is not a group item — it doesn't register with the selection context and doesn't contribute a value to the array. Instead, it reads the group's `isAllSelected` and `isMixed` states and calls `toggleAll` on click, making it a pure control lever over the group.
+
+When all permissions are enabled, `SelectAll` renders as checked. When none are enabled, it renders as unchecked. When some are enabled, it renders as indeterminate — exposing `aria-checked="mixed"` and `data-state="indeterminate"` so screen readers announce the partial state and CSS can apply a distinct visual (here, an intermediate thumb position at `translate-x-3.5`).
+
+The individual permission items (Camera, Microphone, Notifications) are indented under the SelectAll to signal their parent/child relationship visually.
 
 :::
-
-The `SelectAll` component:
-- Binds to the group's `isAllSelected` and `isMixed` state
-- Calls `toggleAll` on click
-- Does NOT register as a group item
-- Sets `aria-checked="mixed"` and `data-state="indeterminate"` when partially selected
 
 ## Recipes
 

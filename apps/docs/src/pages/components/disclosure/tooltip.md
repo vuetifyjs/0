@@ -25,13 +25,13 @@ Headless description tooltip with hover and focus triggers, configurable open/cl
 
 ## Usage
 
-::: example
+::: gn-example
 /components/tooltip/basic
 :::
 
 ## Anatomy
 
-```vue Anatomy playground
+```vue Anatomy no-filename
 <script setup lang="ts">
   import { Tooltip } from '@vuetify/v0'
 </script>
@@ -58,7 +58,7 @@ flowchart LR
 
 ## Examples
 
-::: example
+::: gn-example
 /components/tooltip/TooltipButton.vue 1
 /components/tooltip/toolbar.vue 2
 

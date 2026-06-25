@@ -30,38 +30,27 @@ A headless provider for exclusive single-selection — selecting an item automat
 
 The Single component is a specialization of Selection that enforces single-selection behavior. When an item is selected, any previously selected item is automatically deselected.
 
-::: example
+::: gn-example
 /components/single/basic
-
-### Single-Select Group
-
-Three size options that behave as an exclusive choice — selecting one deselects the rest. Each item binds its slot `attrs`, so selection state drives styling through the `data-selected` attribute.
-
 :::
 
 ## Anatomy
 
-```vue Anatomy playground
+```vue Anatomy no-filename
 <script setup lang="ts">
   import { Single } from '@vuetify/v0'
 </script>
 
 <template>
   <Single.Root>
-    <Single.Item value="option-1" v-slot="{ attrs }">
-      <button v-bind="attrs">Option 1</button>
-    </Single.Item>
-
-    <Single.Item value="option-2" v-slot="{ attrs }">
-      <button v-bind="attrs">Option 2</button>
-    </Single.Item>
+    <Single.Item />
   </Single.Root>
 </template>
 ```
 
 ## Examples
 
-::: example
+::: gn-example
 /components/single/mandatory
 
 ### Mandatory Selection

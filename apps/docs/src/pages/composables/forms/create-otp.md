@@ -89,7 +89,7 @@ Every helper is gated on the configured `disabled` and `readonly` options, and o
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/create-otp/basic
 
 ### Six-Input Numeric OTP

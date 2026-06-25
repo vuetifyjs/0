@@ -141,12 +141,16 @@ Form-level state is fully reactive.
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/create-form/contact-form
 
 ### Contact Form
 
-A contact form with field validation using `createValidation`, demonstrating `submit()`, `reset()`, and aggregate `isValid`/`isValidating` state.
+A three-field contact form (name, email, message) where each field owns its own `createValidation` instance and registers with the form manually via `form.register()`. Submitting calls `form.submit()`, which runs every registered validation in parallel and returns a boolean that the example uses to decide whether to show the success state.
+
+The aggregate `form.isValid` reflects tri-state logic: `null` before any submission, `true` when all validations pass, `false` when at least one fails. The status bar at the bottom reads this ref through a `toRef` derivation so it updates reactively as the user corrects errors. `form.reset()` re-arms all validations to `null` and the caller is responsible for clearing the value refs separately — that split is intentional, since the form composable never holds values directly.
+
+This pattern (manual `register` calls) is the non-component path. When validations are created inside a component tree that has a parent form context, auto-registration replaces `form.register()` entirely. See the [createFormContext](/composables/forms/create-form#context--di) section for the DI path. The [Form component](/components/forms/form) wraps both paths behind a single compound-component API if you don't need raw composable access.
 
 :::
 
