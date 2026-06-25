@@ -195,29 +195,19 @@ function lookupEn (key: string, ...params: unknown[]): string {
   const parts = key.split('.')
   let node: unknown = en
   for (const part of parts) {
-    if (node === null || typeof node !== 'object') return key
+    if (!node || typeof node !== 'object') return key
     node = (node as Record<string, unknown>)[part]
   }
   if (typeof node !== 'string') return key
-  // Reuse V0LocaleAdapter interpolation by creating a minimal adapter instance
   return _interpolate(node, params)
 }
 
 function _interpolate (message: string, args: unknown[]): string {
-  let result = message
-  let rest = args
-  if (rest.length > 0 && rest[0] !== null && typeof rest[0] === 'object') {
-    const vars = rest[0] as Record<string, unknown>
-    result = result.replace(/{([a-zA-Z][a-zA-Z0-9_]*)}/g, (match, name) =>
-      vars[name] === undefined ? match : String(vars[name]),
-    )
-    rest = rest.slice(1)
-  }
-  result = result.replace(/\{(\d+)\}/g, (match, index) => {
-    const i = Number.parseInt(index, 10)
-    return rest[i] === undefined ? match : String(rest[i])
-  })
-  return result
+  if (!args.length || typeof args[0] !== 'object' || args[0] === null) return message
+  const vars = args[0] as Record<string, unknown>
+  return message.replace(/{([a-zA-Z][a-zA-Z0-9_]*)}/g, (match, name) =>
+    vars[name] === undefined ? match : String(vars[name]),
+  )
 }
 
 export function createLocaleFallback (): LocaleContext {

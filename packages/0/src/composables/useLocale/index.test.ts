@@ -822,5 +822,15 @@ describe('createLocale', () => {
       expect(locale.t('hello')).toBe('hello')
       expect(locale.t('nested.key')).toBe('nested.key')
     })
+
+    it('should return English string unchanged when non-object or null arg is passed', () => {
+      mockHasInjectionContext.mockReturnValue(false)
+      const locale = useLocale()
+
+      // Non-object first arg: interpolation skipped, return message as-is
+      expect(locale.t('Button.label', 42 as any)).toBe('Button')
+      // Null first arg: interpolation skipped, return message as-is
+      expect(locale.t('Button.label', null as any)).toBe('Button')
+    })
   })
 })
