@@ -1,3 +1,5 @@
+import maturityData from '#v0/maturity.json'
+
 /** Maturity ladder shared by DocsMaturity (roadmap matrix) and DocsPageFeatures (stability chip). */
 export type Level = 'draft' | 'preview' | 'stable' | 'mature' | 'deprecated'
 
@@ -41,3 +43,22 @@ export const MATURITY_LEVELS: Record<Level, LevelDisplay> = {
 }
 
 export const LEVEL_KEYS = Object.keys(MATURITY_LEVELS) as Level[]
+
+export type MaturityCountKey = 'composable' | 'component' | 'utility' | 'total'
+
+function countShipped (bucket: Record<string, MaturityEntry>): number {
+  return Object.values(bucket).filter(entry => entry.level !== 'draft').length
+}
+
+const data = maturityData as MaturityData
+const composable = countShipped(data.composables)
+const component = countShipped(data.components)
+const utility = countShipped(data.utilities)
+
+/** Counts of shipped (non-draft) features by type, derived from `maturity.json` — the single inventory source. */
+export const MATURITY_COUNTS: Record<MaturityCountKey, number> = {
+  composable,
+  component,
+  utility,
+  total: composable + component + utility,
+}

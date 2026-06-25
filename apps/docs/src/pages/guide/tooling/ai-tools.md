@@ -160,8 +160,8 @@ Hallucinated v0 APIs fail to compile. Run `vue-tsc --noEmit` (or `tsc --noEmit`)
 **llms.txt** contains categorized links to:
 
 - 10 guide pages (introduction, theming, accessibility, etc.)
-- 9 headless components (Atom, Avatar, Pagination, etc.)
-- 34 composables across 7 categories
+- <DocsCount type="component" /> headless components (Atom, Avatar, Pagination, etc.)
+- <DocsCount type="composable" /> composables across 7 categories
 - FAQ and contributing guides
 
 **llms-full.txt** includes the complete content of every documentation page, stripped of Vue components and frontmatter for cleaner LLM consumption.

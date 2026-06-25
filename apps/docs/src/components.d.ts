@@ -120,6 +120,7 @@ declare module 'vue' {
     DocsCodeActions: typeof import('./components/docs/DocsCodeActions.vue')['default']
     DocsCodeGroup: typeof import('./components/docs/DocsCodeGroup.vue')['default']
     DocsContact: typeof import('./components/docs/DocsContact.vue')['default']
+    DocsCount: typeof import('./components/docs/DocsCount.vue')['default']
     DocsDiscoveryStep: typeof import('./components/docs/DocsDiscoveryStep.vue')['default']
     DocsExample: typeof import('./components/docs/DocsExample.vue')['default']
     DocsExampleCodePane: typeof import('./components/docs/DocsExampleCodePane.vue')['default']
