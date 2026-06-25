@@ -113,7 +113,7 @@ Pass `:teleport="false"` to render the portal inline instead of teleporting to `
 | Live region | `Snackbar.Root` defaults to `role="status"`. Override with `role="alert"` for urgent notifications. No `aria-live` on `Portal` to avoid nesting conflicts. |
 | `role="status"` | Implicit `aria-live="polite"` — screen reader waits for idle. Use for confirmations and info. |
 | `role="alert"` | Implicit `aria-live="assertive"` — screen reader interrupts. Use for errors and warnings. |
-| Close button | `aria-label="Close"` hardcoded on `Snackbar.Close`. |
+| Close button | `Snackbar.Close` renders an inline default `aria-label` of `"Dismiss"`, localizable via the `Snackbar.close` key. |
 | Timing | Auto-dismiss pauses on hover and focus (WCAG 2.2.1). Tabbing into a snackbar pauses the queue; focus leaving the container resumes it. |
 | Focus | No focus trap — snackbars are non-modal. |
 

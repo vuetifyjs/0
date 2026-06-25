@@ -4,6 +4,8 @@ import { renderToString } from 'vue/server-renderer'
 // Composables
 import { createStackPlugin } from '#v0/composables/useStack'
 
+import { createLocalePlugin } from '#v0/composables'
+
 import { Dialog } from './index'
 
 // Utilities
@@ -687,6 +689,45 @@ describe('dialog', () => {
 
         const close = wrapper.findComponent(Dialog.Close as any)
         expect(close.attributes('aria-label')).toBeDefined()
+      })
+
+      it('should fall back to the inline default aria-label when no locale plugin is configured', () => {
+        const wrapper = mountWithStack(Dialog.Root, {
+          slots: {
+            default: () => h(Dialog.Content, {}, () => [
+              h(Dialog.Close, {}, () => 'Close'),
+            ]),
+          },
+        })
+
+        const close = wrapper.findComponent(Dialog.Close as any)
+        expect(close.attributes('aria-label')).toBe('Close')
+      })
+
+      it('should use the translated locale string for aria-label when one is registered', () => {
+        const plugin = createLocalePlugin({
+          default: 'en',
+          messages: {
+            en: {
+              Dialog: {
+                close: 'Schließen',
+              },
+            },
+          },
+        })
+
+        const wrapper = mountWithStack(Dialog.Root, {
+          global: { plugins: [plugin] },
+          slots: {
+            default: () => h(Dialog.Content, {}, () => [
+              h(Dialog.Close, {}, () => 'Close'),
+            ]),
+          },
+        })
+
+        const close = wrapper.findComponent(Dialog.Close as any)
+        expect(close.attributes('aria-label')).not.toBe('Close')
+        expect(close.attributes('aria-label')).toBe('Schließen')
       })
     })
 

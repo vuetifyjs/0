@@ -185,8 +185,8 @@ The Carousel implements the [WAI-ARIA Carousel Pattern](https://www.w3.org/WAI/A
 | Root | `role="region"`, `aria-roledescription="carousel"`, `aria-label`, `aria-disabled` |
 | Viewport | `aria-live="polite"` |
 | Slide | `role="group"`, `aria-roledescription="slide"`, `aria-label="N of M"` |
-| Previous | `aria-label` via locale, `aria-controls` links to viewport |
-| Next | `aria-label` via locale, `aria-controls` links to viewport |
+| Previous | `aria-label` defaults to `"Previous slide"` (`Carousel.prev` key, localizable), `aria-controls` links to viewport |
+| Next | `aria-label` defaults to `"Next slide"` (`Carousel.next` key, localizable), `aria-controls` links to viewport |
 | Indicator | `role="tablist"` container with `aria-orientation`, `role="tab"` per dot, `aria-selected` |
 | Progress | `role="progressbar"`, `aria-valuenow`, `aria-valuemin`, `aria-valuemax` |
 | LiveRegion | `role="status"`, `aria-live="polite"`, `aria-atomic` |

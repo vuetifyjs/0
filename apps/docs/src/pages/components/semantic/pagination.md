@@ -69,7 +69,7 @@ The two core props are `size` (total item count) and `items-per-page` (items per
 
 The Pagination component renders semantic HTML and manages ARIA attributes automatically:
 
-- Wraps controls in a `<nav>` element with `aria-label="pagination"` for landmark navigation
+- Wraps controls in a `<nav>` element whose `aria-label` defaults to `"Pagination"` (localizable via the `Pagination.label` key) for landmark navigation
 - Current page button is marked with `aria-current="page"` so screen readers announce it as the active page
 - Arrow keys navigate between page buttons; Enter and Space select the focused page
 - Page changes are announced to screen readers via `aria-live` region updates

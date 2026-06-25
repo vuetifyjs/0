@@ -78,6 +78,53 @@ Once the plugin is installed, use the `useLocale` composable in any component:
 </template>
 ```
 
+## Translation
+
+Look up a message key with `t()` or `ti()`. Both run the same pipeline — selected locale, then the `fallback` locale, then placeholder interpolation — and differ only in what they return when the key is missing.
+
+| Method | On a miss | Reach for it when |
+| - | - | - |
+| `t(key, ...params)` | Echoes the raw `key` back | A visible string is always wanted and the key itself is an acceptable last resort |
+| `ti(key, ...params)` | Returns `undefined` | You want to supply your own fallback string inline |
+
+### Translate if exists
+
+`ti()` ("translate if exists") never echoes the key. Pair it with the nullish-coalescing operator to provide an inline default — the pattern every v0 component uses for its accessible names:
+
+```vue no-filename TranslateIfExists
+<script setup lang="ts">
+  import { useLocale } from '@vuetify/v0'
+
+  const locale = useLocale()
+</script>
+
+<template>
+  <nav :aria-label="locale.ti('Pagination.label') ?? 'Pagination'">
+    ...
+  </nav>
+</template>
+```
+
+When an app installs the Locale plugin with a `Pagination.label` translation, the component uses it; when an app installs no locale messages at all, the component still renders a real English accessible name (`'Pagination'`) and satisfies [WCAG 4.1.2 Name, Role, Value](https://www.w3.org/WAI/WCAG21/Understanding/name-role-value.html). Because the default lives at the call site, no English strings are bundled into the runtime fallback — calling `t('Pagination.label')` on the same missing key would render the literal `'Pagination.label'`, which is exactly the unhelpful output `ti()` avoids.
+
+### Bundled English messages
+
+The inline `ti(key) ?? '...'` idiom keeps a sensible default at each call site. If you would rather register full, centralized English coverage for v0's own component keys, import the optional `@vuetify/v0/locale/messages/en` map. It is a plain object of every key v0 components look up, and it is never pulled into the runtime unless you import it:
+
+```ts main.ts
+import en from '@vuetify/v0/locale/messages/en'
+import { createLocalePlugin } from '@vuetify/v0'
+
+app.use(
+  createLocalePlugin({
+    messages: { en },
+    default: 'en',
+  })
+)
+```
+
+Use it as a starting point for a new translation — copy the shape, swap the values for your language — or register it as-is to give every v0 component a complete English baseline.
+
 ## Architecture
 
 `useLocale` extends `createSingle` for locale selection with message interpolation:
@@ -199,6 +246,11 @@ class MyLocaleAdapter extends LocaleAdapter {
     return myProvider.translate(key, params)
   }
 
+  ti (key: string, ...params: unknown[]): string | undefined {
+    // Same lookup as t(), but return undefined when the key is missing
+    return myProvider.has(key) ? myProvider.translate(key, params) : undefined
+  }
+
   n (value: number): string {
     return new Intl.NumberFormat('en-US').format(value)
   }
@@ -238,6 +290,7 @@ flowchart LR
 ```ts
 abstract class LocaleAdapter {
   abstract t (key: string, ...params: unknown[]): string
+  abstract ti (key: string, ...params: unknown[]): string | undefined
   abstract n (value: number): string
 }
 ```
