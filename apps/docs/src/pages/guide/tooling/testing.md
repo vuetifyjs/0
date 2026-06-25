@@ -3,7 +3,7 @@ title: Testing Guide - Unit and Component Testing for v0
 features:
   label: Testing
   order: 4
-  level: 1
+  level: 2
 meta:
   - name: description
     content: Test v0-based code with Vitest and @vue/test-utils. Covers setup, Vue DI mocking, plugin mocking, fake timers, SSR-only tests, and asserting v0 errors and warnings.
