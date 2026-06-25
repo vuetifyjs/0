@@ -69,6 +69,58 @@ The `blocking` prop disables scrim-based dismissal entirely — the dialog can o
 </template>
 ```
 
+## Known Limitations
+
+### Overlays inside a modal dialog (Snackbar, Tooltip, Popover)
+
+The native `<dialog>` element with `showModal()` promotes itself to the browser's **top layer** — a rendering surface that sits above all normal document content. This has one important consequence: any overlay rendered _outside_ the dialog (e.g., a `Snackbar.Portal` teleported to `body`, or a `Tooltip` inside a portal) will appear **below** the dialog, not above it.
+
+This is a browser-level constraint, not a v0 bug. The two ways to work around it are:
+
+**Option 1 — Render the overlay inside the dialog element**
+
+Place `Snackbar.Portal` (or any overlay) as a direct child of `Dialog.Content`. The content will render inside the native `<dialog>` element, which is already in the top layer:
+
+```vue
+<template>
+  <Dialog.Root v-model="open">
+    <Dialog.Content>
+      <Dialog.Title>Settings</Dialog.Title>
+      <!-- ... dialog body ... -->
+
+      <!-- Snackbars that must appear inside this dialog -->
+      <Snackbar.Portal :teleport="false">
+        <Snackbar.Queue>
+          <!-- render queue items here -->
+        </Snackbar.Queue>
+      </Snackbar.Portal>
+    </Dialog.Content>
+  </Dialog.Root>
+</template>
+```
+
+`teleport="false"` renders the portal inline (no teleport to body), so it stays inside the `<dialog>` element and inherits the top-layer context.
+
+**Option 2 — Use a custom teleport target inside the dialog**
+
+If you need to keep your snackbar queue outside the dialog tree but still render inside the top layer when a dialog is open, anchor the queue to a `<div>` placed inside the dialog:
+
+```vue
+<template>
+  <Dialog.Root v-model="open">
+    <Dialog.Content>
+      <!-- ... dialog body ... -->
+      <div id="dialog-toast-anchor" style="position: fixed; inset-block-end: 1rem; inset-inline-end: 1rem;" />
+    </Dialog.Content>
+  </Dialog.Root>
+
+  <!-- This portal re-targets to inside the dialog when it is open -->
+  <Snackbar.Portal :teleport="open ? '#dialog-toast-anchor' : 'body'">
+    <Snackbar.Queue><!-- ... --></Snackbar.Queue>
+  </Snackbar.Portal>
+</template>
+```
+
 ## Anatomy
 
 ```vue Anatomy playground
