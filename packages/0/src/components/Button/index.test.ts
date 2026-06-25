@@ -625,6 +625,32 @@ describe('button', () => {
       await nextTick()
       expect(wrapper.find('button').attributes('aria-label')).toBe('Close')
     })
+
+    it('should not auto-set aria-label in renderless mode even when solo (regression #330)', async () => {
+      const wrapper = mount(Button.Root, {
+        props: { renderless: true },
+        slots: {
+          default: (p: any) =>
+            h('button', p.attrs, [
+              h(Button.Icon as any, {}, { default: () => h('span', '✕') }),
+            ]),
+        },
+      })
+
+      await nextTick()
+      expect(wrapper.find('button').attributes('aria-label')).toBeUndefined()
+    })
+
+    it('should not auto-set aria-label when button has visible text (no icon, non-renderless)', async () => {
+      const wrapper = mount(Button.Root, {
+        slots: {
+          default: () => h(Button.Content as any, {}, { default: () => 'Save & Next' }),
+        },
+      })
+
+      await nextTick()
+      expect(wrapper.find('button').attributes('aria-label')).toBeUndefined()
+    })
   })
 
   describe('hidden input', () => {
