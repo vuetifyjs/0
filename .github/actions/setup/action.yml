@@ -3,8 +3,8 @@ description: pnpm, node, and install dependencies (assumes repo is already check
 runs:
   using: composite
   steps:
-    - uses: pnpm/action-setup@v4
-    - uses: actions/setup-node@v4
+    - uses: pnpm/action-setup@v6
+    - uses: actions/setup-node@v6
       with:
         node-version: lts/*
         cache: pnpm
