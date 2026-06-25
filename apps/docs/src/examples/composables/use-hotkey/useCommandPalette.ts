@@ -2,6 +2,8 @@ import { useHotkey, useToggleScope } from '@vuetify/v0'
 import { IN_BROWSER } from '@vuetify/v0/constants'
 import { computed, shallowRef, watch } from 'vue'
 
+import type { InjectionKey } from 'vue'
+
 export interface Command {
   id: string
   label: string
@@ -78,3 +80,5 @@ export function useCommandPalette () {
 }
 
 export type CommandPalette = ReturnType<typeof useCommandPalette>
+
+export const PALETTE_KEY: InjectionKey<CommandPalette> = Symbol('command-palette')

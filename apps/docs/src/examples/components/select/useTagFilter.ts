@@ -23,7 +23,7 @@ export function useTagFilter () {
     for (const article of articles) {
       for (const tag of article.tags) all.add(tag)
     }
-    return Array.from(all).sort()
+    return Array.from(all).toSorted()
   })
 
   // An article matches when it carries every active tag (AND semantics)

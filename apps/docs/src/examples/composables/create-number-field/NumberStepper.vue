@@ -3,9 +3,10 @@
   import { shallowRef } from 'vue'
   import type { NumberFieldContext } from '@vuetify/v0'
 
-  const { field, label } = defineProps<{
+  const { field, label, commit } = defineProps<{
     field: NumberFieldContext
     label: string
+    commit: (value: number) => void
   }>()
 
   const draft = shallowRef<string | null>(null)
@@ -20,8 +21,7 @@
 
   function onBlur () {
     if (!isNull(draft.value)) {
-      field.value.value = field.parse(draft.value)
-      field.commit()
+      commit(field.parse(draft.value))
     }
     draft.value = null
   }

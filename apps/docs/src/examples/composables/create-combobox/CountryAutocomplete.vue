@@ -1,11 +1,13 @@
 <script setup lang="ts">
-  import type { ComboboxContext } from '@vuetify/v0'
   import type { Country } from './useCountrySearch'
+  import { inject } from 'vue'
+  import { COMBOBOX_KEY } from './useCountrySearch'
 
-  const { combobox, countries } = defineProps<{
-    combobox: ComboboxContext
+  const { countries } = defineProps<{
     countries: Country[]
   }>()
+
+  const combobox = inject(COMBOBOX_KEY)!
 
   function onInput (event: Event) {
     combobox.query.value = (event.target as HTMLInputElement).value

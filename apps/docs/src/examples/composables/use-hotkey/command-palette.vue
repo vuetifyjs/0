@@ -1,13 +1,17 @@
 <script setup lang="ts">
+  import { provide } from 'vue'
+
   import CommandPalette from './CommandPalette.vue'
-  import { useCommandPalette } from './useCommandPalette'
+  import { PALETTE_KEY, useCommandPalette } from './useCommandPalette'
 
   const palette = useCommandPalette()
+
+  provide(PALETTE_KEY, palette)
 </script>
 
 <template>
   <div class="space-y-4 text-center">
-    <CommandPalette :palette />
+    <CommandPalette />
 
     <p class="h-5 text-sm text-on-surface-variant">
       <template v-if="palette.lastAction.value">

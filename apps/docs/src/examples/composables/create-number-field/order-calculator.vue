@@ -4,13 +4,23 @@
   import { useOrder } from './useOrder'
 
   const { priceField, quantityField, total, reset } = useOrder()
+
+  function onPrice (v: number) {
+    priceField.value.value = v
+    priceField.commit()
+  }
+
+  function onQuantity (v: number) {
+    quantityField.value.value = v
+    quantityField.commit()
+  }
 </script>
 
 <template>
   <div class="max-w-md mx-auto flex flex-col gap-4 p-4 rounded-xl border border-divider bg-surface">
     <div class="flex flex-wrap items-end gap-4">
-      <NumberStepper :field="priceField" label="Unit price" />
-      <NumberStepper :field="quantityField" label="Quantity" />
+      <NumberStepper :commit="onPrice" :field="priceField" label="Unit price" />
+      <NumberStepper :commit="onQuantity" :field="quantityField" label="Quantity" />
     </div>
 
     <div class="flex items-center justify-between border-t border-divider pt-3">

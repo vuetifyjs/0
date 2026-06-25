@@ -1,10 +1,10 @@
 <script setup lang="ts">
   import { Dialog } from '@vuetify/v0'
-  import { useTemplateRef, watch } from 'vue'
+  import { inject, useTemplateRef, watch } from 'vue'
 
-  import type { CommandPalette } from './useCommandPalette'
+  import { PALETTE_KEY } from './useCommandPalette'
 
-  const { palette } = defineProps<{ palette: CommandPalette }>()
+  const palette = inject(PALETTE_KEY)!
 
   const inputRef = useTemplateRef('input')
 

@@ -1,5 +1,9 @@
+import type { ComboboxContext } from '@vuetify/v0'
+import type { InjectionKey } from 'vue'
 import { createCombobox } from '@vuetify/v0'
 import { toRef } from 'vue'
+
+export const COMBOBOX_KEY: InjectionKey<ComboboxContext> = Symbol('country-combobox')
 
 export interface Country {
   id: string
