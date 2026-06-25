@@ -5,9 +5,6 @@
   // Composables
   import { useAsk } from '@/composables/useAsk'
 
-  // Constants
-  import { MATURITY_COUNTS } from '@/constants/maturity'
-
   // Utilities
   import { onMounted, shallowRef } from 'vue'
 
@@ -123,20 +120,6 @@
         <div class="stat-number">0</div>
         <div class="stat-label">Style Opinions</div>
       </div>
-
-      <div class="hidden md:block w-px bg-divider" />
-
-      <router-link to="/composables">
-        <div class="stat-number">{{ MATURITY_COUNTS.composable }}</div>
-        <div class="stat-label">Composables</div>
-      </router-link>
-
-      <div class="hidden md:block w-px bg-divider" />
-
-      <router-link to="/components">
-        <div class="stat-number">{{ MATURITY_COUNTS.component }}</div>
-        <div class="stat-label">Components</div>
-      </router-link>
     </div>
   </section>
 </template>
