@@ -142,9 +142,13 @@
     "**/*.d.ts"
   ],
   "ignoreDependencies": [
+    "@changesets/cli",
     "@js-temporal/polyfill",
     "@vue/repl",
     "@vuetify/paper"
+  ],
+  "ignoreBinaries": [
+    "changeset"
   ],
   "ignoreExportsUsedInFile": {
     "interface": true,
