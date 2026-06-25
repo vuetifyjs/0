@@ -60,6 +60,9 @@ catalogs:
     '@types/markdown-it-attrs':
       specifier: ^4.1.3
       version: 4.1.3
+    '@types/markdown-it-container':
+      specifier: ^4.0.0
+      version: 4.0.0
     '@types/markdown-it-footnote':
       specifier: ^3.0.4
       version: 3.0.4
@@ -383,6 +386,9 @@ importers:
       '@types/markdown-it-attrs':
         specifier: 'catalog:'
         version: 4.1.3
+      '@types/markdown-it-container':
+        specifier: 'catalog:'
+        version: 4.0.0
       '@types/markdown-it-footnote':
         specifier: 'catalog:'
         version: 3.0.4
@@ -2931,6 +2937,9 @@ packages:
 
   '@types/markdown-it-attrs@4.1.3':
     resolution: {integrity: sha512-1JsseFdHD6rQHsPcy4W3xx/whxvZ09Z+CqPpnOtrGtpmkFW07N11q7oM383//LtoKv54yn+HGnk6r4ZHUTHJVg==}
+
+  '@types/markdown-it-container@4.0.0':
+    resolution: {integrity: sha512-GmD8OECLfzPHv8VyvFRzslqdwXoDBJ2H40fxXFjrarbqvJZSB/BJKZXN5e3k7Mx7GQanSNzTYhzeS3H9o0gAOw==}
 
   '@types/markdown-it-footnote@3.0.4':
     resolution: {integrity: sha512-XJ6n+v+2u+2gmYLSHcxyoNT/YrgrKvHuDJQlykFjuxCQCr86P2/fx1V6/0lcKxv5cSIlCaJ6sUcNS3zDI7I+LA==}
@@ -9086,6 +9095,10 @@ snapshots:
   '@types/linkify-it@5.0.0': {}
 
   '@types/markdown-it-attrs@4.1.3':
+    dependencies:
+      '@types/markdown-it': 14.1.2
+
+  '@types/markdown-it-container@4.0.0':
     dependencies:
       '@types/markdown-it': 14.1.2
 
