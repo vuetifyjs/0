@@ -1,3 +1,4 @@
+// Types
 import type { AtomProps } from '@vuetify/v0'
 
 export interface IconProps extends AtomProps {

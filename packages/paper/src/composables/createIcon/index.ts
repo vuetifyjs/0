@@ -19,7 +19,10 @@
  * ```
  */
 
+// Framework
 import { createTokens, createTokensContext } from '@vuetify/v0'
+
+// Types
 import type { TokenCollection } from '@vuetify/v0'
 
 export const ICON_NAMESPACE = 'paper:icons'
