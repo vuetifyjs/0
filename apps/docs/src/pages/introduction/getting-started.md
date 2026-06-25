@@ -129,7 +129,7 @@ bun add @vuetify/v0
 
 Create a plugin file to configure v0:
 
-```ts src/plugins/vuetify0.ts
+```ts src/plugins/vuetify0.ts collapse
 import { createThemePlugin } from '@vuetify/v0'
 import type { App } from 'vue'
 
@@ -179,7 +179,7 @@ app.mount('#app')
 
 Import and use components directly - no plugin installation required:
 
-```vue QuickStart.vue playground no-filename
+```vue QuickStart.vue playground no-filename collapse
 <script setup lang="ts">
   import { ExpansionPanel } from '@vuetify/v0'
   import { shallowRef } from 'vue'
