@@ -582,6 +582,10 @@
       "level": "draft",
       "category": "data"
     },
+    "DataTable": {
+      "level": "draft",
+      "category": "data"
+    },
     "Kanban": {
       "level": "draft",
       "category": "data"
