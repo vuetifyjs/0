@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { Avatar, useFeatures, useRtl, useStack, useStorage } from '@vuetify/v0'
+  import { Avatar, useFeatures, useRtl, useStack } from '@vuetify/v0'
 
   // Components
   import { Discovery } from '@/components/discovery'
@@ -19,7 +19,6 @@
   const auth = useAuthStore()
   const features = useFeatures()
   const rtl = useRtl()
-  const storage = useStorage()
   const settings = useSettings()
   const levelFilter = useLevelFilterContext()
   const stack = useStack()
@@ -59,10 +58,6 @@
   watch(sheetRef, el => {
     if (!el) return
     el.focus()
-  })
-
-  watch(() => devmode.isSelected.value, isSelected => {
-    storage.set('devmode', isSelected)
   })
 
   function onKeydown (e: KeyboardEvent) {
