@@ -14,7 +14,7 @@ related:
 
 # Composables
 
-Type-safe composables for headless UI. Components wrap these composables—you can use either approach.
+Type-safe composables for headless UI — <DocsCount type="composable" /> of them. Components wrap these composables—you can use either approach.
 
 <DocsPageFeatures :frontmatter />
 
