@@ -22,12 +22,16 @@ jobs:
       - name: Install pnpm
         uses: pnpm/action-setup@v6
 
+      # No registry-url on purpose: tokenless OIDC publishing (npm >= 11.5.1)
+      # resolves the public registry itself. Setting registry-url makes setup-node
+      # write an `.npmrc` `//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}` line;
+      # with NODE_AUTH_TOKEN unset that empty token can 401 ("need: BASIC") instead
+      # of falling through to OIDC.
       - name: Set node
         uses: actions/setup-node@v6
         with:
           node-version-file: .nvmrc
           cache: pnpm
-          registry-url: 'https://registry.npmjs.org'
 
       - name: Install
         run: pnpm install --frozen-lockfile

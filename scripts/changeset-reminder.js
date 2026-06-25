@@ -30,13 +30,16 @@ This PR changes \`packages/*\` source but has no changeset, so it won't be in th
 pnpm changeset
 \`\`\`
 
-Pick the affected package(s) (\`@vuetify/v0\` carries \`@vuetify/paper\` automatically), a bump type, and a short summary, then commit the generated \`.changeset/*.md\`. Docs-only, chore, or CI PRs can ignore this.`
+Pick the affected package(s) — \`@vuetify/v0\` carries \`@vuetify/paper\` automatically; \`@paper/genesis\` (and other \`@paper/*\` design systems) version separately — a bump type, and a short summary, then commit the generated \`.changeset/*.md\`. Docs-only, chore, or CI PRs can ignore this.`
 const skip = `${MARKER}\nℹ️ No \`packages/*\` source changes detected — a changeset isn't required for this PR.`
 
 const body = hasChangeset ? found : (touchesSource ? missing : skip)
 
 const comments = JSON.parse(gh(['api', '--paginate', `repos/${repo}/issues/${pr}/comments`]))
-const existing = comments.find(comment => comment.body.includes(MARKER))
+// Match only this bot's own sticky comment: anchor the marker at the start (not a
+// substring) and require a Bot author, so a user comment quoting the marker can't
+// be hijacked/PATCHed in place of ours.
+const existing = comments.find(comment => comment.user?.type === 'Bot' && comment.body.startsWith(MARKER))
 
 if (existing) {
   // Keep the existing comment in sync (e.g. ⚠️ -> ✅ once a changeset is added).
