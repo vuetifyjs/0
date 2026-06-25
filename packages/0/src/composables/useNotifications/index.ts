@@ -30,7 +30,7 @@ import { createQueue } from '#v0/composables/createQueue'
 import { createRegistry } from '#v0/composables/createRegistry'
 
 // Utilities
-import { isFunction, isNull, isUndefined, useId } from '#v0/utilities'
+import { isArray, isFunction, isNull, isNullOrUndefined, isObject, isString, isUndefined, useId } from '#v0/utilities'
 
 // Types
 import type { QueueContext } from '#v0/composables/createQueue'
@@ -568,6 +568,43 @@ export function createNotifications (
 export interface NotificationsPluginOptions extends NotificationsOptions {
   namespace?: string
   adapter?: NotificationsAdapter
+  /** Persist the notification registry to storage and restore it on load. @default false */
+  persist?: boolean
+}
+
+/** Serializable snapshot of a notification's durable state. */
+interface PersistedNotification {
+  id: ID
+  subject?: string
+  body?: string
+  severity?: NotificationSeverity
+  data?: Record<string, unknown>
+  timeout?: number
+  createdAt: string | null
+  readAt: string | null
+  seenAt: string | null
+  archivedAt: string | null
+  snoozedUntil: string | null
+}
+
+function toPersisted (ticket: NotificationTicket): PersistedNotification {
+  return {
+    id: ticket.id,
+    subject: ticket.subject,
+    body: ticket.body,
+    severity: ticket.severity,
+    data: ticket.data,
+    timeout: ticket.timeout,
+    createdAt: ticket.createdAt?.toISOString() ?? null,
+    readAt: ticket.readAt?.toISOString() ?? null,
+    seenAt: ticket.seenAt?.toISOString() ?? null,
+    archivedAt: ticket.archivedAt?.toISOString() ?? null,
+    snoozedUntil: ticket.snoozedUntil?.toISOString() ?? null,
+  }
+}
+
+function toDate (value: unknown): Date | null {
+  return isString(value) ? new Date(value) : null
 }
 
 // Fallback
@@ -683,6 +720,32 @@ export const [createNotificationsContext, createNotificationsPlugin, useNotifica
     options => createNotifications(options),
     {
       fallback: () => createNotificationsFallback(),
+      persist: context => context.values().map(toPersisted),
+      restore: (context, saved) => {
+        if (!isArray(saved)) return
+
+        for (const entry of saved) {
+          if (!isObject(entry) || isNullOrUndefined(entry.id)) continue
+
+          const persisted = entry as unknown as PersistedNotification
+          const ticket = context.register({
+            id: persisted.id,
+            subject: persisted.subject,
+            body: persisted.body,
+            severity: persisted.severity,
+            data: persisted.data,
+            timeout: persisted.timeout,
+          })
+
+          context.upsert(ticket.id, {
+            createdAt: toDate(persisted.createdAt) ?? ticket.createdAt,
+            readAt: toDate(persisted.readAt),
+            seenAt: toDate(persisted.seenAt),
+            archivedAt: toDate(persisted.archivedAt),
+            snoozedUntil: toDate(persisted.snoozedUntil),
+          } as Partial<NotificationTicket>)
+        }
+      },
       setup: (context, app, options) => {
         app.onUnmount(() => {
           context.dispose()
