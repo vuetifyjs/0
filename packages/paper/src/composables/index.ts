@@ -1,3 +1,4 @@
+export * from './createIcon'
 export * from './useBorder'
 export * from './useColor'
 export * from './useContrast'
