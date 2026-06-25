@@ -13,8 +13,9 @@
 
   // Data
   import maturityData from '#v0/maturity.json'
-  // Constants
   import { MATURITY_MATRIX_HREF, SKILL_LEVELS_DOCS_HREF } from '@/constants/links'
+  // Constants
+  import { MATURITY_LEVELS } from '@/constants/maturity'
 
   // Utilities
   import { useScrollToAnchor } from '@/utilities/scroll'
@@ -23,6 +24,7 @@
 
   // Types
   import type { PhaseConfig } from '@/composables/usePageMeta'
+  import type { MaturityData } from '@/constants/maturity'
 
   const scroll = useScrollToAnchor()
   const logger = useLogger()
@@ -213,32 +215,16 @@
     return levelConfig[l]
   })
 
-  // Phase display config (from maturity.json)
-  const phaseConfig = {
-    draft: { icon: 'pencil', color: 'text-on-surface-variant', label: 'Draft' },
-    preview: { icon: 'flask', color: 'text-warning', label: 'Preview' },
-    stable: { icon: 'check-circle', color: 'text-info', label: 'Stable' },
-    mature: { icon: 'shield-check', color: 'text-success', label: 'Mature' },
-    deprecated: { icon: 'archive', color: 'text-error', label: 'Deprecated' },
-  } as const
-
-  interface MaturityEntry {
-    level: keyof typeof phaseConfig
-    since: string | null
-    category?: string
-    notes?: string
-  }
-
   const phase = toRef((): PhaseConfig | null => {
     const type = itemType.value
     const name = itemName.value
     if (!type || !name) return null
 
-    const bucket = (maturityData as Record<string, Record<string, MaturityEntry>>)[type]
+    const bucket = (maturityData as MaturityData)[type]
     const entry = bucket?.[name]
     if (!entry) return null
 
-    const config = phaseConfig[entry.level]
+    const config = MATURITY_LEVELS[entry.level]
     if (!config) return null
 
     let title: string
@@ -269,10 +255,10 @@
 
     return {
       level: entry.level,
-      since: entry.since,
+      since: entry.since ?? null,
       notes: entry.notes,
       icon: config.icon,
-      color: config.color,
+      color: config.class,
       label: config.label,
       title,
     }
@@ -286,7 +272,7 @@
     const name = itemName.value
     if (!type || !name) return MATURITY_MATRIX_HREF
 
-    const bucket = (maturityData as Record<string, Record<string, MaturityEntry>>)[type]
+    const bucket = (maturityData as MaturityData)[type]
     const category = bucket?.[name]?.category
     if (!category) return MATURITY_MATRIX_HREF
 

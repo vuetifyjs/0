@@ -3,6 +3,7 @@
   import { createDataTable, createGroup, createSingle, isString, toHighlight } from '@vuetify/v0'
 
   import maturityData from '#v0/maturity.json'
+  import { LEVEL_KEYS as levelKeys, MATURITY_LEVELS as levels } from '@/constants/maturity'
   import { releaseAlias } from '@/constants/releases'
 
   // Utilities
@@ -10,7 +11,8 @@
   import { RouterLink, useRoute } from 'vue-router'
 
   // Types
-  type Level = 'draft' | 'preview' | 'stable' | 'mature' | 'deprecated'
+  import type { Level, MaturityData } from '@/constants/maturity'
+
   type ItemType = 'composable' | 'component' | 'utility'
 
   interface MaturityItem extends Record<string, unknown> {
@@ -19,7 +21,7 @@
     type: ItemType
     category: string
     level: Level
-    since?: string
+    since?: string | null
     levelOrder: number
     path: string
   }
@@ -28,21 +30,13 @@
     return name.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()
   }
 
-  const levels: Record<Level, { icon: string, color: string, label: string, order: number }> = {
-    draft: { icon: 'circle-outline', color: '#9ca3af', label: 'Draft', order: 0 },
-    preview: { icon: 'beaker', color: '#f59e0b', label: 'Preview', order: 1 },
-    stable: { icon: 'shield', color: '#3b82f6', label: 'Stable', order: 2 },
-    mature: { icon: 'check-decagram', color: '#22c55e', label: 'Mature', order: 3 },
-    deprecated: { icon: 'alert-circle', color: '#ef4444', label: 'Deprecated', order: 4 },
-  }
-
-  const levelKeys: Level[] = ['draft', 'preview', 'stable', 'mature', 'deprecated']
+  const data = maturityData as MaturityData
 
   // Flatten JSON into MaturityItem[]
   function flatten (): MaturityItem[] {
     const result: MaturityItem[] = []
 
-    for (const [name, entry] of Object.entries(maturityData.composables)) {
+    for (const [name, entry] of Object.entries(data.composables)) {
       result.push({
         id: `composable-${name}`,
         name,
@@ -50,12 +44,12 @@
         category: entry.category,
         level: entry.level,
         since: entry.since,
-        levelOrder: levels[entry.level as Level]?.order ?? -1,
+        levelOrder: levels[entry.level]?.order ?? -1,
         path: `/composables/${entry.category}/${kebab(name)}`,
       })
     }
 
-    for (const [name, entry] of Object.entries(maturityData.components)) {
+    for (const [name, entry] of Object.entries(data.components)) {
       result.push({
         id: `component-${name}`,
         name,
@@ -63,12 +57,12 @@
         category: entry.category,
         level: entry.level,
         since: entry.since,
-        levelOrder: levels[entry.level as Level]?.order ?? -1,
+        levelOrder: levels[entry.level]?.order ?? -1,
         path: `/components/${entry.category}/${kebab(name)}`,
       })
     }
 
-    for (const [name, entry] of Object.entries(maturityData.utilities)) {
+    for (const [name, entry] of Object.entries(data.utilities)) {
       result.push({
         id: `utility-${name}`,
         name,
@@ -76,7 +70,7 @@
         category: entry.category,
         level: entry.level,
         since: entry.since,
-        levelOrder: levels[entry.level as Level]?.order ?? -1,
+        levelOrder: levels[entry.level]?.order ?? -1,
         path: '/utilities',
       })
     }
