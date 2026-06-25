@@ -4,6 +4,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createNotificationsContext } from '#v0/composables/useNotifications'
 import { createStackPlugin } from '#v0/composables/useStack'
 
+import { createLocalePlugin } from '#v0/composables'
+
 import { Snackbar } from './index'
 
 // Utilities
@@ -162,6 +164,35 @@ describe('snackbar', () => {
       })
       const close = wrapper.findComponent(Snackbar.Close as any)
       expect(close.attributes('aria-label')).toBeDefined()
+    })
+
+    it('should fall back to the inline default aria-label when no locale plugin is configured', () => {
+      const wrapper = mount(Snackbar.Root, {
+        slots: { default: () => h(Snackbar.Close) },
+      })
+      const close = wrapper.findComponent(Snackbar.Close as any)
+      expect(close.attributes('aria-label')).toBe('Dismiss')
+    })
+
+    it('should use the translated locale string for aria-label when one is registered', () => {
+      const plugin = createLocalePlugin({
+        default: 'en',
+        messages: {
+          en: {
+            Snackbar: {
+              close: 'Verwerfen',
+            },
+          },
+        },
+      })
+
+      const wrapper = mount(Snackbar.Root, {
+        global: { plugins: [plugin] },
+        slots: { default: () => h(Snackbar.Close) },
+      })
+      const close = wrapper.findComponent(Snackbar.Close as any)
+      expect(close.attributes('aria-label')).not.toBe('Dismiss')
+      expect(close.attributes('aria-label')).toBe('Verwerfen')
     })
 
     it('should render as button with type="button"', () => {

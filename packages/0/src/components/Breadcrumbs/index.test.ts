@@ -1,6 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { renderToString } from 'vue/server-renderer'
 
+// Composables
+import { createLocalePlugin } from '#v0/composables'
+
 import { Breadcrumbs, useBreadcrumbsRoot } from './index'
 
 // Utilities
@@ -70,6 +73,29 @@ describe('breadcrumbs', () => {
         })
 
         expect(wrapper.find('nav').attributes('aria-label')).toBe('Breadcrumbs')
+      })
+
+      it('should use the translated locale string for aria-label when one is registered', () => {
+        const plugin = createLocalePlugin({
+          default: 'en',
+          messages: {
+            en: {
+              Breadcrumbs: {
+                label: 'Brotkrumen',
+              },
+            },
+          },
+        })
+
+        const wrapper = mount(Breadcrumbs.Root, {
+          global: { plugins: [plugin] },
+          slots: {
+            default: () => h('div', 'Content'),
+          },
+        })
+
+        expect(wrapper.find('nav').attributes('aria-label')).not.toBe('Breadcrumbs')
+        expect(wrapper.find('nav').attributes('aria-label')).toBe('Brotkrumen')
       })
 
       it('should not have role="navigation" when as="nav"', () => {

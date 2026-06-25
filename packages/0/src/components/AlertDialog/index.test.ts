@@ -4,6 +4,8 @@ import { renderToString } from 'vue/server-renderer'
 // Composables
 import { createStackPlugin } from '#v0/composables/useStack'
 
+import { createLocalePlugin } from '#v0/composables'
+
 import { AlertDialog } from './index'
 
 // Utilities
@@ -687,6 +689,45 @@ describe('alertDialog', () => {
 
       const close = wrapper.findComponent(AlertDialog.Close as any)
       expect(close.attributes('aria-label')).toBeDefined()
+    })
+
+    it('should fall back to the inline default aria-label when no locale plugin is configured', () => {
+      const wrapper = mountWithStack(AlertDialog.Root, {
+        slots: {
+          default: () => h(AlertDialog.Content, {}, () => [
+            h(AlertDialog.Close, {}, () => 'X'),
+          ]),
+        },
+      })
+
+      const close = wrapper.findComponent(AlertDialog.Close as any)
+      expect(close.attributes('aria-label')).toBe('Close')
+    })
+
+    it('should use the translated locale string for aria-label when one is registered', () => {
+      const plugin = createLocalePlugin({
+        default: 'en',
+        messages: {
+          en: {
+            AlertDialog: {
+              close: 'Schließen',
+            },
+          },
+        },
+      })
+
+      const wrapper = mountWithStack(AlertDialog.Root, {
+        global: { plugins: [plugin] },
+        slots: {
+          default: () => h(AlertDialog.Content, {}, () => [
+            h(AlertDialog.Close, {}, () => 'X'),
+          ]),
+        },
+      })
+
+      const close = wrapper.findComponent(AlertDialog.Close as any)
+      expect(close.attributes('aria-label')).not.toBe('Close')
+      expect(close.attributes('aria-label')).toBe('Schließen')
     })
 
     it('should close dialog on click', async () => {

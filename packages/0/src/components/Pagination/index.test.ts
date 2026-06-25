@@ -1,6 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
 import { renderToString } from 'vue/server-renderer'
 
+// Composables
+import { createLocalePlugin } from '#v0/composables'
+
 import { Pagination } from './index'
 
 // Utilities
@@ -336,6 +339,61 @@ describe('pagination', () => {
         expect(itemProps.attrs.type).toBe('button')
         expect(typeof itemProps.attrs.onClick).toBe('function')
       })
+
+      it('should fall back to the inline default goToPage aria-label when no locale plugin is configured', async () => {
+        let itemProps: any
+
+        mount(Pagination.Root, {
+          props: { size: 100, renderless: true },
+          slots: {
+            default: () =>
+              h(Pagination.Item, { value: 2 }, {
+                default: (props: any) => {
+                  itemProps = props
+                  return h('button', 'Page 2')
+                },
+              }),
+          },
+        })
+
+        await nextTick()
+
+        expect(itemProps.attrs['aria-label']).toBe('Go to page 2')
+      })
+
+      it('should use the translated, interpolated goToPage aria-label when registered', async () => {
+        const plugin = createLocalePlugin({
+          default: 'en',
+          messages: {
+            en: {
+              Pagination: {
+                goToPage: 'Gehe zu Seite {page}',
+              },
+            },
+          },
+        })
+
+        let itemProps: any
+
+        mount(Pagination.Root, {
+          props: { size: 100, renderless: true },
+          global: { plugins: [plugin] },
+          slots: {
+            default: () =>
+              h(Pagination.Item, { value: 2 }, {
+                default: (props: any) => {
+                  itemProps = props
+                  return h('button', 'Page 2')
+                },
+              }),
+          },
+        })
+
+        await nextTick()
+
+        expect(itemProps.attrs['aria-label']).not.toBe('Go to page 2')
+        expect(itemProps.attrs['aria-label']).toBe('Gehe zu Seite 2')
+      })
     })
 
     describe('selection', () => {
@@ -607,6 +665,61 @@ describe('pagination', () => {
       expect(nextProps).toBeDefined()
       expect(typeof nextProps.isDisabled).toBe('boolean')
       expect(typeof nextProps.next).toBe('function')
+    })
+
+    it('should fall back to the inline default aria-label when no locale plugin is configured', async () => {
+      let nextProps: any
+
+      mount(Pagination.Root, {
+        props: { size: 100, renderless: true },
+        slots: {
+          default: () =>
+            h(Pagination.Next, {}, {
+              default: (props: any) => {
+                nextProps = props
+                return h('button', 'Next')
+              },
+            }),
+        },
+      })
+
+      await nextTick()
+
+      expect(nextProps.attrs['aria-label']).toBe('Next page')
+    })
+
+    it('should use the translated locale string for aria-label when one is registered', async () => {
+      const plugin = createLocalePlugin({
+        default: 'en',
+        messages: {
+          en: {
+            Pagination: {
+              next: 'Nächste Seite',
+            },
+          },
+        },
+      })
+
+      let nextProps: any
+
+      mount(Pagination.Root, {
+        props: { size: 100, renderless: true },
+        global: { plugins: [plugin] },
+        slots: {
+          default: () =>
+            h(Pagination.Next, {}, {
+              default: (props: any) => {
+                nextProps = props
+                return h('button', 'Next')
+              },
+            }),
+        },
+      })
+
+      await nextTick()
+
+      expect(nextProps.attrs['aria-label']).not.toBe('Next page')
+      expect(nextProps.attrs['aria-label']).toBe('Nächste Seite')
     })
 
     it('should be disabled when on last page', async () => {
