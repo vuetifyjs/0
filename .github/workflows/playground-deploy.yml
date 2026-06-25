@@ -17,7 +17,7 @@ jobs:
           fetch-depth: 0
       - uses: vuetifyjs/setup-action@cb5ac088588387e65433a762de90c0b06d878677 # master
       - run: pnpm run build:play
-      - uses: vuetifyjs/coolify-action@f24a3716773c4c238e67c4bf0319c410bafc52de # master
+      - uses: vuetifyjs/coolify-action@37a9c5a532f4c489e941d43edffd73fd2af00ec2 # master
         with:
           imageName: v0-playground
           dockerfilePath: ./apps/playground/Dockerfile
