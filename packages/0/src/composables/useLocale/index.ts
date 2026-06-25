@@ -203,7 +203,7 @@ function lookupEn (key: string, ...params: unknown[]): string {
 }
 
 function _interpolate (message: string, args: unknown[]): string {
-  if (!args.length || typeof args[0] !== 'object' || args[0] === null) return message
+  if (args.length === 0 || typeof args[0] !== 'object' || args[0] === null) return message
   const vars = args[0] as Record<string, unknown>
   return message.replace(/{([a-zA-Z][a-zA-Z0-9_]*)}/g, (match, name) =>
     vars[name] === undefined ? match : String(vars[name]),
