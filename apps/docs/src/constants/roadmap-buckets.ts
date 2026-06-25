@@ -22,11 +22,11 @@ export interface ResolvedFeature {
  * is never edited for planning. Unknown ids are surfaced by `auditBuckets()`.
  */
 export const ROADMAP_BUCKETS: Record<string, string[]> = {
-  'v1.1.0': ['DataTable', 'DataGrid'],
+  'v1.1.0': ['DataTable', 'DataGrid', 'Alert'],
   'v1.2.0': ['Tour'],
   'v1.3.0': ['Virtualizer', 'Kanban', 'Otp'],
   'v1.4.0': ['TimePicker'],
-  'v1.5.0': ['DatePicker', 'DateRangePicker', 'Alert'],
+  'v1.5.0': ['DatePicker', 'DateRangePicker'],
 }
 
 function kebab (name: string): string {
