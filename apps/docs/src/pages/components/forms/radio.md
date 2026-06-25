@@ -49,16 +49,23 @@ A radio button for single-selection groups with roving focus and shared v-model 
 ## Examples
 
 ::: gn-example
-/components/radio/mandatory
+/components/radio/useShipping.ts 1
+/components/radio/ShippingOptions.vue 2
+/components/radio/shipping-options.vue 3
 
-### Mandatory Selection
+### Checkout Shipping Selector
 
-The `mandatory="force"` prop auto-selects the first non-disabled item when the group mounts and prevents the user from deselecting the active option. This example shows three pricing tiers — Free, Pro, and Enterprise — where the first tier is automatically selected on mount.
+A checkout step where the customer picks exactly one shipping method. Each option is a full-width selectable card carrying a label, an ETA, and a price, and the chosen method drives a live order summary — selected method, shipping cost, and a computed total layered on top of a fixed cart subtotal. Submitting the form turns the selection into a confirmed order; resetting returns to the default method.
 
-Reach for `mandatory="force"` when a selection must always be present: a plan picker where "none selected" is not a valid state, or a settings group that requires a default. Plain `mandatory` (without `"force"`) prevents deselection once something has been chosen, but does not auto-select on mount — useful when you only want to guard against accidental deselection.
+The single-select behavior comes straight from `Radio.Group`: its v-model holds one value at a time, and picking a new card replaces the previous selection. The group is initialized with `standard` preselected and marked `mandatory` so the customer can switch methods but never clear the choice back to "none" — `Radio.Root` exposes `select`, not `toggle`, so clicking the active card is a no-op rather than a deselect. Form participation is handled entirely by the `name` prop on `Radio.Group`: it cascades to every `Radio.Root`, which auto-renders a hidden native input under the shared name, so the selected value posts with the form without any manual `Radio.HiddenInput` placement. The cards style themselves with `has-[:checked]:border-primary` against that auto-rendered input — no JavaScript class toggling.
 
-To preselect a specific item instead of always taking the first, initialize `v-model` with the desired `value` rather than using `mandatory="force"`.
+Reach for this pattern whenever a small, fixed set of mutually exclusive options must always resolve to one answer: shipping tiers, payment methods, subscription cadences. Keep the option data and derived totals in the `use*` composable, the radio markup in a reusable component, and the wiring plus order summary in the entry. If you instead want the first option auto-selected on mount with no initial v-model value, set `mandatory="force"` on the group rather than preselecting a value. For the underlying single-selection primitive, see [createSingle](/composables/selection/create-single); for the multi-select counterpart, see [Checkbox](/components/forms/checkbox).
 
+| File | Role |
+|------|------|
+| `useShipping.ts` | Composable — shipping methods, selected method state, derived shipping/total, submit/reset |
+| `ShippingOptions.vue` | Reusable component — renders the `Form` with a mandatory, named `Radio.Group` of selectable cards |
+| `shipping-options.vue` | Entry — wires the composable to the form and renders the live order summary + confirmation panel |
 :::
 
 ## Recipes
@@ -142,7 +149,7 @@ Navigation automatically skips disabled items and wraps around.
 
 ??? How do I make a radio option mandatory?
 
-Clicking an already-selected radio does not deselect it because `Radio.Root` exposes `select`, not `toggle` — the v-model can still be cleared programmatically. Set `mandatory="force"` on `Radio.Group` if you want the first non-disabled item auto-selected on mount. See the Mandatory Selection example above.
+Clicking an already-selected radio does not deselect it because `Radio.Root` exposes `select`, not `toggle` — the v-model can still be cleared programmatically. Set `mandatory="force"` on `Radio.Group` if you want the first non-disabled item auto-selected on mount. The Checkout Shipping Selector example above takes the alternative approach: it preselects a default value and marks the group `mandatory`.
 
 ??? Why does my form submission miss the selected radio value?
 

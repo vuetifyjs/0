@@ -85,29 +85,23 @@ flowchart TD
 ## Examples
 
 ::: gn-example
-/components/select/disabled
+/components/select/useTagFilter.ts 1
+/components/select/TagFilter.vue 2
+/components/select/tag-filter.vue 3
 
-### Disabled States
+### Multi-Select Tag Filter
 
-This example demonstrates two levels of disabling: individual items within the list (XL and 2XL sizes are marked `disabled` on their `Select.Item`) and the entire select control via the `disabled` prop on `Select.Root`. A `Switch.Root` at the top of the demo lets you toggle the whole-select disabled state at runtime.
+This example wires a multi-select dropdown to a live list. Adding `multiple` to `Select.Root` switches the `v-model` binding from a single value to an array, and the dropdown stays open after each pick so the user can stack several tags in one pass. The selected tags surface as chips inside the `Select.Activator` via the `selectedValues` slot prop on `Select.Value`, and those same tags drive a reactive filter over the article list below — pick a tag and the list narrows, remove it and the list widens again. When no article carries every active tag, an empty state explains how to recover.
 
-Disabled items remain visible in the dropdown but are skipped by virtual focus keyboard navigation — arrow keys jump over them as if they weren't there. The `isDisabled` slot prop (exposed by each item's default slot) lets you apply visual treatment such as strikethrough and reduced opacity without needing extra state.
+The interesting detail is the relationship between `Select.Item`'s `id` and `value` props. The `id` is the registry key used for virtual focus and ARIA wiring; the `value` is what syncs to `v-model`. Here both are the tag string, which keeps the model array identical to the chip labels and to the filter predicate — no lookup table needed. Filtering, the tag universe, and the AND-match predicate all live in the `useTagFilter` composable, so the markup component stays declarative. The `name` prop on `Select.Root` auto-renders a hidden input per selected value, making the filter submittable inside a real form without ever placing a hidden-input sub-component by hand.
 
-Disabling the entire `Select.Root` prevents the dropdown from opening; pair this with visual styling on the `Activator` (opacity, cursor) to communicate the non-interactive state to the user.
+Reach for this pattern whenever a field accepts several independent choices that shape what's shown elsewhere — tag pickers, faceted search, permission editors. For single-choice fields drop `multiple` and bind a scalar; for free-text entry that creates new options on the fly, prefer [Combobox](/components/forms/combobox) instead. The selection logic underneath comes from [createSelection](/composables/selection/create-selection); the dropdown positioning from [Popover](/components/disclosure/popover).
 
-:::
-
-::: gn-example
-/components/select/multiple
-
-### Multi-Select
-
-Setting `multiple` on `Select.Root` switches the `v-model` binding from a single value to an array of item values. The dropdown stays open after each selection so the user can pick multiple fruits without reopening. The `Select.Value` component receives a `selectedValues` array in its default slot, used here to render each selection as a chip with primary background coloring.
-
-`Select.Placeholder` hides automatically once at least one value is selected. The `Select.Cue` arrow is pushed to the trailing edge with `ms-auto` to stay in position regardless of how many chips are showing.
-
-Reach for multi-select when the field accepts several independent choices — tag pickers, filter panels, permission editors. For ordered or ranked selections where order matters, combine with a custom drag-to-reorder chip list.
-
+| File | Role |
+|------|------|
+| `useTagFilter.ts` | Owns the article corpus, derives the tag universe, and computes the AND-matched results from the active tags |
+| `TagFilter.vue` | Renders the multi-select Select compound, surfacing chips in the activator and binding the tag array via `defineModel` |
+| `tag-filter.vue` | Wires the composable to the component and renders the filtered article list with its empty state |
 :::
 
 ## Recipes

@@ -55,28 +55,24 @@ The Toggle component supports two modes:
 
 ## Examples
 
-### Toolbar
-
-`Toggle.Group` with `multiple` lets any combination of items be active simultaneously — deselecting one never affects the others. This is the right pattern for formatting toolbars (bold, italic, underline, strikethrough) where selections are orthogonal and additive.
-
-Each `Toggle.Root` carries a `value` prop; the group's `v-model` holds an array of all currently active values. Style the active state with the `data-[state=on]:` selector — no slot props needed for pure CSS styling.
-
-Reach for `multiple` mode when the choices are independent. For mutually exclusive options (only one active at a time), omit `multiple` and add `mandatory` — see View Switcher below.
-
 ::: gn-example
-/components/toggle/toolbar
-:::
+/components/toggle/useEditorFormat.ts 1
+/components/toggle/FormatToolbar.vue 2
+/components/toggle/format-toolbar.vue 3
 
-### View Switcher
+### Formatting toolbar
 
-`Toggle.Group` with `mandatory` enforces that exactly one item stays active — clicking the currently active toggle is a no-op rather than deselecting it. Use this for layout or mode switchers where an unselected state has no meaning (grid vs. list, map vs. satellite).
+This editor toolbar combines both group modes in one surface. The bold/italic/underline marks use a `Toggle.Group` with `multiple`, so any combination can be active at once and its `v-model` is an array of pressed values. Text alignment uses a second `Toggle.Group` without `multiple` but with `mandatory`, so exactly one of left/center/right is always selected and its `v-model` is a single string. A live preview paragraph reflects every choice in real time.
 
-Without `multiple`, the group's `v-model` holds a single string value rather than an array. The example drives layout rendering directly from the selected value, switching between a grid and a list layout for a folder collection.
+Internally `multiple` switches the group to [createGroup](/composables/selection/create-group) (array model) while the plain group uses [createSingle](/composables/selection/create-single) (single model); `mandatory` makes clicking the active alignment a no-op instead of clearing it, so the preview is never left unaligned. Each `Toggle.Root` carries a `value` selection key, and its pressed state surfaces as `data-state="on"` — the styling here is pure CSS via the `data-[state=on]:` variant, no slot props required. The composable owns the `marks` array and `align` string plus the tool metadata, the reusable component renders the two groups, and the entry composes the preview and a clear action.
 
-For an "always one active" variant that also allows deselection, omit `mandatory` and handle the `undefined` model value explicitly.
+Reach for `multiple` when choices are independent and additive, and for `mandatory` single-select when an unselected state is meaningless. Toggle is UI state, not form data — it has no `name` prop and no hidden input, so for values you intend to submit use [Checkbox](/components/forms/checkbox) instead.
 
-::: gn-example
-/components/toggle/view-switcher
+| File | Role |
+|------|------|
+| `useEditorFormat.ts` | Owns the marks/align state, tool metadata, and derived preview classes and summary |
+| `FormatToolbar.vue` | Renders the multiple marks group and the mandatory alignment group |
+| `format-toolbar.vue` | Wires the composable to the toolbar and renders the live preview |
 :::
 
 ## Accessibility

@@ -63,27 +63,23 @@ A switch for on/off state or multi-selection groups with tri-state support.
 ## Examples
 
 ::: gn-example
-/components/switch/group
+/components/switch/useSettings.ts 1
+/components/switch/SettingsPanel.vue 2
+/components/switch/settings-panel.vue 3
 
-### Switch Group
+### App Settings Panel
 
-A `Switch.Group` wrapping three `Switch.Root` items for WiFi, Bluetooth, and Location Services — the group's `v-model` is an array of string values, each item contributing its `value` prop when toggled on. Toggling a switch adds or removes its value from the array; the current selection is displayed as a comma-separated list below.
+A notification preferences panel that groups four independent switches under a master "Enable all" lever and submits the result through a `Form`. Each `Switch.Root` carries a `name` prop, so v0 auto-renders a hidden native input and the toggled values participate in `FormData` — there is no `Switch.HiddenInput` to place by hand. The panel pairs each switch with a label and a line of helper text, and a summary line below echoes the saved selection.
 
-`Switch.Group` uses the same multi-selection logic as [Group](/components/providers/group) under the hood: the array v-model and tri-state batch operations are all inherited from `createGroup`. Reach for this pattern for settings panels, feature flags, or any list of independent on/off controls that need to share a single model.
+The interesting piece is the master toggle. `Switch.SelectAll` is not a group item — it never registers a value into the array v-model. Instead it reads the group's aggregate `isAllSelected` / `isMixed` state and calls `toggleAll`, so it renders checked when every setting is on, unchecked when all are off, and indeterminate (`aria-checked="mixed"`, `data-state="indeterminate"`) when only some are on. The tri-state and batch operations come straight from [createGroup](/composables/selection/create-group) — the same multi-selection logic that powers [Group](/components/providers/group). The thumb is animated through `data-[state=...]` variants on the `Switch.Track` rather than a transform from the off position, because `Switch.Thumb` is `visibility: hidden` when off and cannot animate in from there.
 
-:::
+Reach for this pattern for any settings surface — notification preferences, feature flags, privacy controls — where a list of independent on/off toggles needs a single shared model, a select-all lever, and form submission. Because `Form`'s `@submit` is pass-through (it fires on every native submit regardless of validity), the handler guards on `payload.valid` before committing the saved state. See [Form](/components/forms/form) for the validation surface and [Checkbox](/components/forms/checkbox) for the equivalent committed-selection control.
 
-::: gn-example
-/components/switch/indeterminate
-
-### Select-All Switch
-
-Combines a `Switch.SelectAll` with three nested `Switch.Root` items to demonstrate tri-state group management. `Switch.SelectAll` is not a group item — it doesn't register with the selection context and doesn't contribute a value to the array. Instead, it reads the group's `isAllSelected` and `isMixed` states and calls `toggleAll` on click, making it a pure control lever over the group.
-
-When all permissions are enabled, `SelectAll` renders as checked. When none are enabled, it renders as unchecked. When some are enabled, it renders as indeterminate — exposing `aria-checked="mixed"` and `data-state="indeterminate"` so screen readers announce the partial state and CSS can apply a distinct visual (here, an intermediate thumb position at `translate-x-3.5`).
-
-The individual permission items (Camera, Microphone, Notifications) are indented under the SelectAll to signal their parent/child relationship visually.
-
+| File | Role |
+|------|------|
+| `useSettings.ts` | Composable — setting definitions, the enabled-array model, and the guarded save/reset logic |
+| `SettingsPanel.vue` | Reusable component — renders the `Form`, the `Switch.Group` with a `SelectAll` master and per-row label + helper text, owns the UnoCSS classes |
+| `settings-panel.vue` | Entry — wires the composable to the panel and renders the saved-state summary line |
 :::
 
 ## Recipes
