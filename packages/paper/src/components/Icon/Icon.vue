@@ -1,4 +1,4 @@
-<script lang="ts">
+<script setup lang="ts">
   // Framework
   import { Atom } from '@vuetify/v0'
 
@@ -11,10 +11,6 @@
   // Types
   import type { IconProps, IconSlotProps } from './types'
 
-  export type { IconProps, IconSlotProps }
-</script>
-
-<script lang="ts" setup>
   defineOptions({ name: 'PaperIcon' })
 
   defineSlots<{
