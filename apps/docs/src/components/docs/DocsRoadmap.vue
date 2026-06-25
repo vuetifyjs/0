@@ -6,12 +6,17 @@
   import DocsProgressBar from './DocsProgressBar.vue'
   import DocsSkeleton from './DocsSkeleton.vue'
 
+  import { MATURITY_LEVELS as levels } from '@/constants/maturity'
+
   // Stores
   import { type Milestone, type TimeHorizon, useRoadmapStore } from '@/stores/roadmap'
 
   // Utilities
   import { computed, onBeforeMount, watch } from 'vue'
-  import { useRoute, useRouter } from 'vue-router'
+  import { RouterLink, useRoute, useRouter } from 'vue-router'
+
+  // Types
+  import type { FeatureType } from '@/constants/roadmap-buckets'
 
   const route = useRoute()
   const router = useRouter()
@@ -24,6 +29,12 @@
     { key: 'later', label: 'Later', icon: 'telescope' },
     { key: 'done', label: 'Completed', icon: 'check-circle' },
   ]
+
+  const typeIcon: Record<FeatureType, string> = {
+    composable: 'code',
+    component: 'puzzle',
+    utility: 'typescript',
+  }
 
   const groupedMilestones = computed(() => {
     return horizons.map(h => ({
@@ -248,6 +259,26 @@
                       {{ line }}
                     </li>
                   </ul>
+                </div>
+
+                <!-- Planned features -->
+                <div v-if="milestone.features?.length" class="px-4 py-3 border-b border-divider">
+                  <div class="text-xs font-semibold uppercase tracking-wide opacity-60 mb-2">Planned features</div>
+
+                  <div class="flex flex-wrap gap-2">
+                    <component
+                      :is="feature.level === 'draft' ? 'span' : RouterLink"
+                      v-for="feature in milestone.features"
+                      :key="feature.id"
+                      class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border no-underline"
+                      :class="feature.level === 'draft' ? 'cursor-default' : 'hover:bg-surface-tint transition-colors'"
+                      :style="{ borderColor: levels[feature.level].color, color: levels[feature.level].color }"
+                      :to="feature.level !== 'draft' ? feature.path : undefined"
+                    >
+                      <AppIcon :icon="typeIcon[feature.type]" :size="12" />
+                      {{ feature.name }}
+                    </component>
+                  </div>
                 </div>
 
                 <!-- Loading issues -->

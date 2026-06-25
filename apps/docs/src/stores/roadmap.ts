@@ -3,6 +3,7 @@
 import { createStorage, isArray, useLogger } from '@vuetify/v0'
 
 import { CACHE_TTL } from '@/constants/cache'
+import { type ResolvedFeature, auditBuckets, featuresFor } from '@/constants/roadmap-buckets'
 
 // Utilities
 import { defineStore } from 'pinia'
@@ -19,6 +20,7 @@ export interface Milestone extends GitHubMilestone {
   horizon: TimeHorizon
   issues?: GitHubIssue[]
   issuesLoading?: boolean
+  features?: ResolvedFeature[]
 }
 
 interface State {
@@ -91,10 +93,14 @@ export const useRoadmapStore = defineStore('roadmap', {
     async fetch () {
       if (this.milestones.length > 0) return // Already fetched
 
+      const unknown = auditBuckets()
+      if (unknown.length > 0) logger.warn('Roadmap bucket references unknown maturity ids', unknown)
+
       // Check cache first
       const cached = storage.get<Milestone[] | null>('milestones', null)
       if (isArray(cached.value)) {
-        this.milestones = cached.value
+        // Re-resolve features on read so bucket edits reflect without waiting for cache TTL.
+        this.milestones = cached.value.map(m => ({ ...m, features: featuresFor(m.title) }))
         return
       }
 
@@ -127,7 +133,7 @@ export const useRoadmapStore = defineStore('roadmap', {
         this.milestones = [
           ...assignHorizons(openMilestones),
           ...closedMilestones.map(m => ({ ...m, horizon: 'done' as TimeHorizon })),
-        ]
+        ].map(m => ({ ...m, features: featuresFor(m.title) }))
 
         storage.set('milestones', this.milestones)
       } catch (error: unknown) {
