@@ -5,7 +5,7 @@
  * because the transformer runs client-side. This script generates
  * the lists from the filesystem at build time.
  *
- * Run manually: pnpm tsx apps/docs/build/generate-api-whitelist.ts
+ * Run manually: node apps/docs/build/generate-api-whitelist.ts
  * Or automatically via the Vite plugin in vite.config.ts
  */
 
