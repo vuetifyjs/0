@@ -584,12 +584,44 @@ describe('createLocale', () => {
   })
 
   describe('createLocaleFallback', () => {
-    it('should return key from t()', () => {
+    it('should return key from t() when key is not in English messages', () => {
       mockHasInjectionContext.mockReturnValue(false)
       const locale = useLocale()
 
       expect(locale.t('hello')).toBe('hello')
       expect(locale.t('nested.key')).toBe('nested.key')
+    })
+
+    it('should return English string from t() when key exists in en messages', () => {
+      mockHasInjectionContext.mockReturnValue(false)
+      const locale = useLocale()
+
+      expect(locale.t('Button.label')).toBe('Button')
+      expect(locale.t('Breadcrumbs.label')).toBe('Breadcrumbs')
+      expect(locale.t('NumberField.increment')).toBe('Increment')
+    })
+
+    it('should interpolate named params in English messages', () => {
+      mockHasInjectionContext.mockReturnValue(false)
+      const locale = useLocale()
+
+      expect(locale.t('Avatar.indicatorLabel', { count: 3 })).toBe('+3 more')
+      expect(locale.t('Pagination.status', { page: 2, pages: 10 })).toBe('Page 2 of 10')
+    })
+
+    it('should leave unreplaced placeholders when named param is missing', () => {
+      mockHasInjectionContext.mockReturnValue(false)
+      const locale = useLocale()
+
+      expect(locale.t('Avatar.indicatorLabel')).toBe('+{count} more')
+    })
+
+    it('should return key when mid-traversal encounters a non-object node', () => {
+      mockHasInjectionContext.mockReturnValue(false)
+      const locale = useLocale()
+
+      // Button.label = 'Button' (string), so Button.label.extra has no further path
+      expect(locale.t('Button.label.extra')).toBe('Button.label.extra')
     })
 
     it('should return string from n()', () => {
