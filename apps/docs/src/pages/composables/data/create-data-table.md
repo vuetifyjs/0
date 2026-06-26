@@ -65,41 +65,6 @@ table.columns.unregister('actions')
 table.columns.clear()
 ```
 
-## Reactivity
-
-| Property / Method | Reactive | Notes |
-| - | :-: | - |
-| `items` | <AppSuccessIcon /> | Computed — final visible items (projected from registry tickets) |
-| `allItems` | <AppSuccessIcon /> | Computed — every registered row, unfiltered/unsorted |
-| `filteredItems` | <AppSuccessIcon /> | Computed — items after filtering |
-| `sortedItems` | <AppSuccessIcon /> | Computed — items after filter + sort |
-| `columns` | <AppSuccessIcon /> | RegistryContext — reactive column registry (`columns.values()` drives `leaves` and `headers`) |
-| `leaves` | <AppSuccessIcon /> | Computed — leaf columns (no children) used by the data pipeline |
-| `headers` | <AppSuccessIcon /> | Computed — 2D header grid with colspan/rowspan for rendering thead |
-| `query` | <AppSuccessIcon /> | ShallowRef — current search query (readonly) |
-| `sort.columns` | <AppSuccessIcon /> | Computed — current sort entries |
-| `pagination.page` | <AppSuccessIcon /> | ShallowRef — current page |
-| `pagination.items` | <AppSuccessIcon /> | Computed — visible page buttons |
-| `selection.selectedIds` | <AppSuccessIcon /> | `shallowReactive(Set)` — currently selected row IDs |
-| `selection.isAllSelected` | <AppSuccessIcon /> | Computed — all in scope selected |
-| `selection.isMixed` | <AppSuccessIcon /> | Computed — some but not all selected |
-| `expansion.expandedIds` | <AppSuccessIcon /> | `shallowReactive(Set)` — currently expanded row IDs |
-| `grouping.groups` | <AppSuccessIcon /> | Computed — grouped items |
-| `total` | <AppSuccessIcon /> | Computed — total row count |
-| `loading` | <AppSuccessIcon /> | Computed — adapter loading state |
-| `error` | <AppSuccessIcon /> | Computed — adapter error state |
-| `register(input)` | — | Method — adds a single row ticket, mutates the row registry (downstream refs recompute) |
-| `onboard(inputs)` | — | Method — bulk register rows |
-| `unregister(id)` | — | Method — removes a row ticket by id |
-| `upsert(id, patch)` | — | Method — replaces a row's value; the pipeline re-runs. The sanctioned row-update path — mutating `ticket.value` in place does not re-run the pipeline |
-| `clear()` | — | Method — wipes every row ticket (useful before re-fetching server data) |
-| `columns.register(input)` | — | Method — adds a single column ticket (reactively updates `leaves`, `headers`, sort group, filter pipeline) |
-| `columns.onboard(inputs)` | — | Method — bulk register columns |
-| `columns.unregister(id)` | — | Method — removes a column by id; drops it from sort state |
-| `columns.clear()` | — | Method — wipes every column |
-
-The row registry itself is non-reactive for performance — registering ten thousand rows allocates no per-row proxies. Mutations propagate to the pipeline through registry events, so always iterate rows via `items` / `allItems` (or the other pipeline refs) in templates and computeds, never via raw `table.values()`, and update a row via `table.upsert(id, { value })` rather than mutating the row object in place. The column registry stays fully reactive.
-
 ## Adapters
 
 Adapters control the data pipeline strategy. Pass one via the `adapter` option.
@@ -238,7 +203,122 @@ const virtual = createVirtual(table.items, { itemHeight: 40 })
 > table.register({ id, value })
 > ```
 
-## Features
+## Reactivity
+
+| Property / Method | Reactive | Notes |
+| - | :-: | - |
+| `items` | <AppSuccessIcon /> | Computed — final visible items (projected from registry tickets) |
+| `allItems` | <AppSuccessIcon /> | Computed — every registered row, unfiltered/unsorted |
+| `filteredItems` | <AppSuccessIcon /> | Computed — items after filtering |
+| `sortedItems` | <AppSuccessIcon /> | Computed — items after filter + sort |
+| `columns` | <AppSuccessIcon /> | RegistryContext — reactive column registry (`columns.values()` drives `leaves` and `headers`) |
+| `leaves` | <AppSuccessIcon /> | Computed — leaf columns (no children) used by the data pipeline |
+| `headers` | <AppSuccessIcon /> | Computed — 2D header grid with colspan/rowspan for rendering thead |
+| `query` | <AppSuccessIcon /> | ShallowRef — current search query (readonly) |
+| `sort.columns` | <AppSuccessIcon /> | Computed — current sort entries |
+| `pagination.page` | <AppSuccessIcon /> | ShallowRef — current page |
+| `pagination.items` | <AppSuccessIcon /> | Computed — visible page buttons |
+| `selection.selectedIds` | <AppSuccessIcon /> | `shallowReactive(Set)` — currently selected row IDs |
+| `selection.isAllSelected` | <AppSuccessIcon /> | Computed — all in scope selected |
+| `selection.isMixed` | <AppSuccessIcon /> | Computed — some but not all selected |
+| `expansion.expandedIds` | <AppSuccessIcon /> | `shallowReactive(Set)` — currently expanded row IDs |
+| `grouping.groups` | <AppSuccessIcon /> | Computed — grouped items |
+| `total` | <AppSuccessIcon /> | Computed — total row count |
+| `loading` | <AppSuccessIcon /> | Computed — adapter loading state |
+| `error` | <AppSuccessIcon /> | Computed — adapter error state |
+| `register(input)` | — | Method — adds a single row ticket, mutates the row registry (downstream refs recompute) |
+| `onboard(inputs)` | — | Method — bulk register rows |
+| `unregister(id)` | — | Method — removes a row ticket by id |
+| `upsert(id, patch)` | — | Method — replaces a row's value; the pipeline re-runs. The sanctioned row-update path — mutating `ticket.value` in place does not re-run the pipeline |
+| `clear()` | — | Method — wipes every row ticket (useful before re-fetching server data) |
+| `columns.register(input)` | — | Method — adds a single column ticket (reactively updates `leaves`, `headers`, sort group, filter pipeline) |
+| `columns.onboard(inputs)` | — | Method — bulk register columns |
+| `columns.unregister(id)` | — | Method — removes a column by id; drops it from sort state |
+| `columns.clear()` | — | Method — wipes every column |
+
+The row registry itself is non-reactive for performance — registering ten thousand rows allocates no per-row proxies. Mutations propagate to the pipeline through registry events, so always iterate rows via `items` / `allItems` (or the other pipeline refs) in templates and computeds, never via raw `table.values()`, and update a row via `table.upsert(id, { value })` rather than mutating the row object in place. The column registry stays fully reactive.
+
+## Examples
+
+::: gn-example
+/composables/create-data-table/basic/BasicTable.vue
+/composables/create-data-table/basic/columns.ts
+/composables/create-data-table/basic/data.ts
+
+### Basic Data Table
+
+A three-column table of 8 users — name, email, role — with a live search input, sortable column headers, and prev/next pagination at 5 rows per page.
+
+`columns.ts` marks all three columns `sortable: true` and the name and email columns `filterable: true`. The table is created with `{ pagination: { itemsPerPage: 5 } }`, then rows are onboarded in one `table.onboard(users.map(...))` call. From that point, the template reads `table.items.value` directly — the pipeline (filter → sort → paginate) runs automatically on every `table.search()` or `table.sort.toggle()` call.
+
+The sort header uses a local `arrow()` helper that reads `table.sort.direction(id)` to pick `↑`, `↓`, or an empty string. No external sort-state variable is needed; the table owns it. The pagination row reads `table.pagination.isFirst.value` and `table.pagination.isLast.value` to disable the boundary buttons, and reads `table.pagination.page.value` and `table.pagination.pages` for the `n / total` counter.
+
+| File | Role |
+|------|------|
+| `BasicTable.vue` | Table with search input, sortable headers, and pagination |
+| `columns.ts` | Column definitions — sortable and filterable flags per column |
+| `data.ts` | 8-user dataset with id, name, email, and role |
+
+:::
+
+::: gn-example
+/composables/create-data-table/server/ServerTable.vue
+/composables/create-data-table/server/columns.ts
+/composables/create-data-table/server/api.ts
+
+### Server Adapter
+
+A data table backed by a simulated API. The `ServerDataTableAdapter` delegates all filtering, sorting, and pagination to the server — the client only renders what it receives.
+
+| File | Role |
+|------|------|
+| `ServerTable.vue` | Table with loading state, search, sort, and pagination |
+| `columns.ts` | Column definitions |
+| `api.ts` | Simulated server with `fetchPage()` that filters/sorts/paginates a dataset |
+
+The key difference from the client-side adapter is that the client never holds the full dataset. Instead, `total` and `loading` refs are passed to `ServerDataTableAdapter` so the table knows the full dataset size for pagination without materializing it locally. A `watch` on `[table.query, table.sort.columns, table.pagination.page]` fires `fetchPage()` whenever the user interacts — the handler calls `table.clear()` then `table.onboard(page.items)` to swap in the new result set. The simulated `api.ts` applies search, sort, and pagination server-side, returning only the current page.
+
+:::
+
+::: gn-example
+/composables/create-data-table/features/FeaturesTable.vue
+/composables/create-data-table/features/columns.ts
+/composables/create-data-table/features/data.ts
+
+### Grouping, Selection & Custom Sort
+
+A grouped table with row selection, custom numeric sort, and salary range filtering. Rows with `active: false` cannot be selected.
+
+| File | Role |
+|------|------|
+| `FeaturesTable.vue` | Grouped table with checkboxes, collapsible groups, and status badges |
+| `columns.ts` | Columns with custom `sort` (numeric) and `filter` (range queries like `>100000`) |
+| `data.ts` | Employee dataset with departments, salaries, and active status |
+
+`groupBy: 'department'` groups rows automatically — `openAll: true` opens all groups on creation. `table.grouping.isOpen(key)` checks visibility and `toggle(key)` flips it, so collapsible group rows render with no extra state variable. `itemSelectable: 'active'` disables checkboxes for inactive employees — the field name is a key into the row's value object and the table reads it directly. `mandate: true` ensures a sort column is always active (the sort never clears to unsorted on repeated clicks). The salary column's custom `filter` function parses range operators (`>100000`, `<80000`) so the search box doubles as a range query field.
+
+:::
+
+::: gn-example
+/composables/create-data-table/virtual/VirtualTable.vue
+/composables/create-data-table/virtual/columns.ts
+/composables/create-data-table/virtual/data.ts
+
+### Virtual Scrolling
+
+A table with 1,000 rows rendered through `createVirtual`. The `VirtualDataTableAdapter` skips pagination — all filtered/sorted items are passed directly to the virtual scroller.
+
+| File | Role |
+|------|------|
+| `VirtualTable.vue` | Virtual-scrolled table with sticky header and sort controls |
+| `columns.ts` | Column definitions with custom numeric sort for the score column |
+| `data.ts` | Generator that creates 1,000 sample user records |
+
+`VirtualDataTableAdapter` performs client-side filter and sort but skips pagination slicing — `table.items` holds all sorted rows. `createVirtual(table.items, { itemHeight: 40 })` then virtualizes at the rendering layer: only the rows in the current viewport window are mounted. The sticky `<thead>` stays visible while scrolling through virtual rows. The stats line shows rendered vs. filtered vs. total counts so the windowing effect is visible. For larger datasets at variable row heights, see `resize(index, height)` in [createVirtual](/composables/data/create-virtual).
+
+:::
+
+## Recipes
 
 ### Sorting
 
@@ -373,85 +453,5 @@ table.grouping.isOpen('Engineering')
 table.grouping.openAll()
 table.grouping.closeAll()
 ```
-
-## Examples
-
-::: gn-example
-/composables/create-data-table/basic/BasicTable.vue
-/composables/create-data-table/basic/columns.ts
-/composables/create-data-table/basic/data.ts
-
-### Basic Data Table
-
-A three-column table of 8 users — name, email, role — with a live search input, sortable column headers, and prev/next pagination at 5 rows per page.
-
-`columns.ts` marks all three columns `sortable: true` and the name and email columns `filterable: true`. The table is created with `{ pagination: { itemsPerPage: 5 } }`, then rows are onboarded in one `table.onboard(users.map(...))` call. From that point, the template reads `table.items.value` directly — the pipeline (filter → sort → paginate) runs automatically on every `table.search()` or `table.sort.toggle()` call.
-
-The sort header uses a local `arrow()` helper that reads `table.sort.direction(id)` to pick `↑`, `↓`, or an empty string. No external sort-state variable is needed; the table owns it. The pagination row reads `table.pagination.isFirst.value` and `table.pagination.isLast.value` to disable the boundary buttons, and reads `table.pagination.page.value` and `table.pagination.pages` for the `n / total` counter.
-
-| File | Role |
-|------|------|
-| `BasicTable.vue` | Table with search input, sortable headers, and pagination |
-| `columns.ts` | Column definitions — sortable and filterable flags per column |
-| `data.ts` | 8-user dataset with id, name, email, and role |
-
-:::
-
-::: gn-example
-/composables/create-data-table/server/ServerTable.vue
-/composables/create-data-table/server/columns.ts
-/composables/create-data-table/server/api.ts
-
-### Server Adapter
-
-A data table backed by a simulated API. The `ServerDataTableAdapter` delegates all filtering, sorting, and pagination to the server — the client only renders what it receives.
-
-| File | Role |
-|------|------|
-| `ServerTable.vue` | Table with loading state, search, sort, and pagination |
-| `columns.ts` | Column definitions |
-| `api.ts` | Simulated server with `fetchPage()` that filters/sorts/paginates a dataset |
-
-The key difference from the client-side adapter is that the client never holds the full dataset. Instead, `total` and `loading` refs are passed to `ServerDataTableAdapter` so the table knows the full dataset size for pagination without materializing it locally. A `watch` on `[table.query, table.sort.columns, table.pagination.page]` fires `fetchPage()` whenever the user interacts — the handler calls `table.clear()` then `table.onboard(page.items)` to swap in the new result set. The simulated `api.ts` applies search, sort, and pagination server-side, returning only the current page.
-
-:::
-
-::: gn-example
-/composables/create-data-table/features/FeaturesTable.vue
-/composables/create-data-table/features/columns.ts
-/composables/create-data-table/features/data.ts
-
-### Grouping, Selection & Custom Sort
-
-A grouped table with row selection, custom numeric sort, and salary range filtering. Rows with `active: false` cannot be selected.
-
-| File | Role |
-|------|------|
-| `FeaturesTable.vue` | Grouped table with checkboxes, collapsible groups, and status badges |
-| `columns.ts` | Columns with custom `sort` (numeric) and `filter` (range queries like `>100000`) |
-| `data.ts` | Employee dataset with departments, salaries, and active status |
-
-`groupBy: 'department'` groups rows automatically — `openAll: true` opens all groups on creation. `table.grouping.isOpen(key)` checks visibility and `toggle(key)` flips it, so collapsible group rows render with no extra state variable. `itemSelectable: 'active'` disables checkboxes for inactive employees — the field name is a key into the row's value object and the table reads it directly. `mandate: true` ensures a sort column is always active (the sort never clears to unsorted on repeated clicks). The salary column's custom `filter` function parses range operators (`>100000`, `<80000`) so the search box doubles as a range query field.
-
-:::
-
-::: gn-example
-/composables/create-data-table/virtual/VirtualTable.vue
-/composables/create-data-table/virtual/columns.ts
-/composables/create-data-table/virtual/data.ts
-
-### Virtual Scrolling
-
-A table with 1,000 rows rendered through `createVirtual`. The `VirtualDataTableAdapter` skips pagination — all filtered/sorted items are passed directly to the virtual scroller.
-
-| File | Role |
-|------|------|
-| `VirtualTable.vue` | Virtual-scrolled table with sticky header and sort controls |
-| `columns.ts` | Column definitions with custom numeric sort for the score column |
-| `data.ts` | Generator that creates 1,000 sample user records |
-
-`VirtualDataTableAdapter` performs client-side filter and sort but skips pagination slicing — `table.items` holds all sorted rows. `createVirtual(table.items, { itemHeight: 40 })` then virtualizes at the rendering layer: only the rows in the current viewport window are mounted. The sticky `<thead>` stays visible while scrolling through virtual rows. The stats line shows rendered vs. filtered vs. total counts so the windowing effect is visible. For larger datasets at variable row heights, see `resize(index, height)` in [createVirtual](/composables/data/create-virtual).
-
-:::
 
 <DocsApi />

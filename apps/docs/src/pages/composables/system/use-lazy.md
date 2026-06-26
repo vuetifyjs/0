@@ -82,7 +82,9 @@ This is the canonical pattern for tabbed dashboards, wizard steps, and any layou
 
 :::
 
-## Delay
+## Recipes
+
+### Delay
 
 Use the `delay` option to defer the first mount by a fixed number of milliseconds. This prevents a flash of content for operations that complete very quickly:
 
@@ -91,7 +93,7 @@ const { hasContent } = useLazy(isOpen, { delay: 200 })
 // Content only mounts if isOpen stays true for 200ms
 ```
 
-## Eager Mode
+### Eager Mode
 
 Use the `eager` option to render content immediately without waiting for activation:
 
@@ -109,7 +111,7 @@ const { hasContent } = useLazy(isOpen, {
 })
 ```
 
-## Transition Integration
+### Transition Integration
 
 The `onAfterLeave` callback resets the lazy state after the leave transition completes (unless eager mode is enabled):
 

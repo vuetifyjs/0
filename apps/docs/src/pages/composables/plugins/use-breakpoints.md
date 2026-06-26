@@ -148,7 +148,9 @@ The composable reads its instance once and exposes derived refs; the presentatio
 | `responsive-dashboard.vue` | Entry that renders the breakpoint instrument strip and wires the composable to the grid |
 :::
 
-## SSR Support
+## Recipes
+
+### SSR Support
 
 By default, useBreakpoints returns `xs` / width `0` on the server. Pass `ssr` options to render at a known viewport size:
 

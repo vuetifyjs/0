@@ -57,7 +57,7 @@ The Dialog component leverages the native `showModal()` API for proper modal beh
 </template>
 ```
 
-## Features
+## Recipes
 
 ### Click-Outside Dismissal
 
@@ -83,9 +83,11 @@ The `blocking` prop disables scrim-based dismissal entirely — the dialog can o
 </template>
 ```
 
-## Known Limitations
+## FAQ
 
-### Overlays inside a modal dialog (Snackbar, Tooltip, Popover)
+### Known Limitations
+
+#### Overlays inside a modal dialog (Snackbar, Tooltip, Popover)
 
 The native `<dialog>` element with `showModal()` promotes itself to the browser's **top layer** — a rendering surface that sits above all normal document content. This has one important consequence: any overlay rendered _outside_ the dialog (e.g., a `Snackbar.Portal` teleported to `body`, or a `Tooltip` inside a portal) will appear **below** the dialog, not above it.
 

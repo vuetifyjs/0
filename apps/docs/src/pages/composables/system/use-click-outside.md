@@ -55,25 +55,6 @@ flowchart TD
   useClickOutside --> Popovers
 ```
 
-## Multiple Targets
-
-Pass an array of refs to ignore clicks inside any of them:
-
-```ts
-import { useClickOutside } from '@vuetify/v0'
-import { useTemplateRef } from 'vue'
-
-const trigger = useTemplateRef('trigger')
-const panel = useTemplateRef('panel')
-
-// Clicks inside EITHER trigger or panel are ignored
-useClickOutside([trigger, panel], () => {
-  console.log('Clicked outside both elements')
-})
-```
-
-The `target` parameter accepts `MaybeArray<ClickOutsideTarget>` — a single ref/getter or an array of refs/getters.
-
 ## Options
 
 | Option | Type | Default | Description |
@@ -113,5 +94,26 @@ The example uses `useClickOutside` in its simplest form: one ref target and one 
 Reach for this when dismissing a popover, dropdown, or context menu on outside click. For elements where the event target doesn't reliably reflect DOM containment — such as native `<dialog>` backdrops — pass `{ bounds: true }` to switch to bounding-rect detection instead.
 
 :::
+
+## Recipes
+
+### Multiple Targets
+
+Pass an array of refs to ignore clicks inside any of them:
+
+```ts
+import { useClickOutside } from '@vuetify/v0'
+import { useTemplateRef } from 'vue'
+
+const trigger = useTemplateRef('trigger')
+const panel = useTemplateRef('panel')
+
+// Clicks inside EITHER trigger or panel are ignored
+useClickOutside([trigger, panel], () => {
+  console.log('Clicked outside both elements')
+})
+```
+
+The `target` parameter accepts `MaybeArray<ClickOutsideTarget>` — a single ref/getter or an array of refs/getters.
 
 <DocsApi />

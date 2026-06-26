@@ -51,62 +51,9 @@ combobox.query.value = 'ch'
 // combobox.filtered.value === Set { 'cherry' }
 ```
 
-## Architecture
+## Context / DI
 
-`createCombobox` orchestrates four independent primitives without extending their chains — it composes them. The adapter translates queries into a filtered set; virtual focus uses that set to skip hidden items.
-
-```mermaid "createCombobox Architecture"
-flowchart TD
-  createSelection["createSelection"]
-  useVirtualFocus["useVirtualFocus"]
-  usePopover["usePopover"]
-  Adapter["ClientComboboxAdapter / ServerComboboxAdapter"]
-  createCombobox["createCombobox"]:::primary
-  query["query (ShallowRef)"]
-  pristine["pristine (ShallowRef)"]
-  filtered["filtered (Ref<Set>)"]
-
-  createSelection --> createCombobox
-  useVirtualFocus --> createCombobox
-  usePopover --> createCombobox
-  Adapter --> createCombobox
-  createCombobox --> query
-  createCombobox --> pristine
-  createCombobox --> filtered
-```
-
-## Reactivity
-
-| Property | Type | Reactive | Notes |
-| - | - | :-: | - |
-| `query` | `ShallowRef<string>` | <AppSuccessIcon /> | Current input text |
-| `pristine` | `ShallowRef<boolean>` | <AppSuccessIcon /> | `true` after selection; `false` once user types |
-| `filtered` | `Ref<Set<ID>>` | <AppSuccessIcon /> | IDs that pass the current filter |
-| `isEmpty` | `Ref<boolean>` | <AppSuccessIcon /> | `true` when filtered set is empty |
-| `isLoading` | `ShallowRef<boolean>` | <AppSuccessIcon /> | Forwarded from adapter |
-| `isOpen` | `ShallowRef<boolean>` | <AppSuccessIcon /> | Popover open state |
-| `selection` | `SelectionContext` | — | Full selection API |
-| `popover` | `PopoverReturn` | — | Popover positioning API |
-| `cursor` | `VirtualFocusReturn` | — | Keyboard focus API |
-| `inputEl` | `ShallowRef<HTMLElement \| null>` | <AppSuccessIcon /> | Reference to the `<input>` element |
-
-## Options
-
-```ts
-interface ComboboxOptions {
-  multiple?: MaybeRefOrGetter<boolean>   // Enable multi-select
-  mandatory?: MaybeRefOrGetter<boolean>  // Prevent deselecting last item
-  disabled?: MaybeRefOrGetter<boolean>   // Disable all interaction
-  strict?: MaybeRefOrGetter<boolean>     // Revert query on close if no match
-  adapter?: ComboboxAdapter              // Filtering strategy (default: ClientComboboxAdapter)
-  displayValue?: (value: unknown) => string  // Format selected value for display in input
-  id?: string                            // Base ID for ARIA attributes
-  name?: string                          // Hidden input name for form submission
-  form?: string                          // Associated form ID
-}
-```
-
-## Context Object
+### Context Object
 
 `createCombobox` returns a `ComboboxContext` with the following API surface:
 
@@ -125,6 +72,26 @@ interface ComboboxOptions {
 | `disabled` | `MaybeRefOrGetter<boolean>` | Disabled option ref |
 | `name` | `string \| undefined` | Form field name |
 | `form` | `string \| undefined` | Associated form ID |
+
+### Dependency Injection
+
+Use `createComboboxContext` to get a DI-aware trinity for component-based setups:
+
+```ts
+import { createComboboxContext, useCombobox } from '@vuetify/v0'
+
+// In a Root component
+const [useMyCombobox, provideMyCombobox, context] = createComboboxContext({
+  namespace: 'my-combobox',
+  strict: true,
+})
+provideMyCombobox(context)
+
+// In any child component
+const combobox = useCombobox('my-combobox')
+```
+
+`useCombobox(namespace?)` injects the nearest combobox context (default namespace: `'v0:combobox'`).
 
 ## Adapters
 
@@ -180,61 +147,60 @@ watch(query, async q => {
 > [!TIP]
 > See the [Combobox server example](/components/forms/combobox#server-side-filtering) for a complete integration.
 
-## Strict Mode
+## Architecture
 
-When `strict: true`, closing the dropdown without an active selection reverts the query:
+`createCombobox` orchestrates four independent primitives without extending their chains — it composes them. The adapter translates queries into a filtered set; virtual focus uses that set to skip hidden items.
 
-- If an item is selected, `query` resets to that item's label.
-- If nothing is selected, `query` resets to `''`.
+```mermaid "createCombobox Architecture"
+flowchart TD
+  createSelection["createSelection"]
+  useVirtualFocus["useVirtualFocus"]
+  usePopover["usePopover"]
+  Adapter["ClientComboboxAdapter / ServerComboboxAdapter"]
+  createCombobox["createCombobox"]:::primary
+  query["query (ShallowRef)"]
+  pristine["pristine (ShallowRef)"]
+  filtered["filtered (Ref<Set>)"]
 
-Non-strict mode (default) leaves whatever text the user typed in place.
-
-> [!TIP]
-> `aria-autocomplete="both"` is set automatically on the input when `strict` is enabled, per the WAI-ARIA combobox pattern.
-
-## Pristine Flag
-
-`pristine` tracks whether the query reflects the current selection or is a live filter:
-
-- Starts as `true` (no user input yet).
-- Becomes `false` when the user types — the adapter receives the raw query.
-- Resets to `true` after a selection (`select(id)`), so reopening the dropdown always shows all items instead of the previous typed query.
-
-```ts
-// The adapter receives `search`, not `query` directly
-const search = toRef(() => pristine.value ? '' : query.value)
-const { filtered } = adapter.setup({ query: search, items })
+  createSelection --> createCombobox
+  useVirtualFocus --> createCombobox
+  usePopover --> createCombobox
+  Adapter --> createCombobox
+  createCombobox --> query
+  createCombobox --> pristine
+  createCombobox --> filtered
 ```
 
-## Multi-Select Behavior
-
-In `multiple` mode, `select(id)` differs from single mode:
-
-- Toggles the item (select → deselect on second click) via `selection.toggle()`.
-- Clears the query so the user can search for the next item.
-- Keeps the dropdown open.
-- Highlights the clicked item via `cursor.highlight(id)` so ArrowDown continues from that position.
-- Refocuses the input so keyboard navigation continues immediately.
-
-## Dependency Injection
-
-Use `createComboboxContext` to get a DI-aware trinity for component-based setups:
+## Options
 
 ```ts
-import { createComboboxContext, useCombobox } from '@vuetify/v0'
-
-// In a Root component
-const [useMyCombobox, provideMyCombobox, context] = createComboboxContext({
-  namespace: 'my-combobox',
-  strict: true,
-})
-provideMyCombobox(context)
-
-// In any child component
-const combobox = useCombobox('my-combobox')
+interface ComboboxOptions {
+  multiple?: MaybeRefOrGetter<boolean>   // Enable multi-select
+  mandatory?: MaybeRefOrGetter<boolean>  // Prevent deselecting last item
+  disabled?: MaybeRefOrGetter<boolean>   // Disable all interaction
+  strict?: MaybeRefOrGetter<boolean>     // Revert query on close if no match
+  adapter?: ComboboxAdapter              // Filtering strategy (default: ClientComboboxAdapter)
+  displayValue?: (value: unknown) => string  // Format selected value for display in input
+  id?: string                            // Base ID for ARIA attributes
+  name?: string                          // Hidden input name for form submission
+  form?: string                          // Associated form ID
+}
 ```
 
-`useCombobox(namespace?)` injects the nearest combobox context (default namespace: `'v0:combobox'`).
+## Reactivity
+
+| Property | Type | Reactive | Notes |
+| - | - | :-: | - |
+| `query` | `ShallowRef<string>` | <AppSuccessIcon /> | Current input text |
+| `pristine` | `ShallowRef<boolean>` | <AppSuccessIcon /> | `true` after selection; `false` once user types |
+| `filtered` | `Ref<Set<ID>>` | <AppSuccessIcon /> | IDs that pass the current filter |
+| `isEmpty` | `Ref<boolean>` | <AppSuccessIcon /> | `true` when filtered set is empty |
+| `isLoading` | `ShallowRef<boolean>` | <AppSuccessIcon /> | Forwarded from adapter |
+| `isOpen` | `ShallowRef<boolean>` | <AppSuccessIcon /> | Popover open state |
+| `selection` | `SelectionContext` | — | Full selection API |
+| `popover` | `PopoverReturn` | — | Popover positioning API |
+| `cursor` | `VirtualFocusReturn` | — | Keyboard focus API |
+| `inputEl` | `ShallowRef<HTMLElement \| null>` | <AppSuccessIcon /> | Reference to the `<input>` element |
 
 ## Examples
 
@@ -257,5 +223,43 @@ ARIA wiring is manual but mechanical: `role="combobox"`, `aria-controls`, `aria-
 | `CountryAutocomplete.vue` | Renders the input and listbox; owns the keyboard and input events |
 | `country-autocomplete.vue` | Wires the composable to the component and shows the selected-value panel |
 :::
+
+## Recipes
+
+### Strict Mode
+
+When `strict: true`, closing the dropdown without an active selection reverts the query:
+
+- If an item is selected, `query` resets to that item's label.
+- If nothing is selected, `query` resets to `''`.
+
+Non-strict mode (default) leaves whatever text the user typed in place.
+
+> [!TIP]
+> `aria-autocomplete="both"` is set automatically on the input when `strict` is enabled, per the WAI-ARIA combobox pattern.
+
+### Pristine Flag
+
+`pristine` tracks whether the query reflects the current selection or is a live filter:
+
+- Starts as `true` (no user input yet).
+- Becomes `false` when the user types — the adapter receives the raw query.
+- Resets to `true` after a selection (`select(id)`), so reopening the dropdown always shows all items instead of the previous typed query.
+
+```ts
+// The adapter receives `search`, not `query` directly
+const search = toRef(() => pristine.value ? '' : query.value)
+const { filtered } = adapter.setup({ query: search, items })
+```
+
+### Multi-Select Behavior
+
+In `multiple` mode, `select(id)` differs from single mode:
+
+- Toggles the item (select → deselect on second click) via `selection.toggle()`.
+- Clears the query so the user can search for the next item.
+- Keeps the dropdown open.
+- Highlights the clicked item via `cursor.highlight(id)` so ArrowDown continues from that position.
+- Refocuses the input so keyboard navigation continues immediately.
 
 <DocsApi />

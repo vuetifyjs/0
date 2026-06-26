@@ -54,7 +54,7 @@ The Popover component leverages the CSS Anchor Positioning API to create popover
 </template>
 ```
 
-## Features
+## Recipes
 
 ### Positioning
 

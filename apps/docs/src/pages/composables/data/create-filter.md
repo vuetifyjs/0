@@ -71,6 +71,18 @@ const { items: filtered } = filter.apply(query, products)
 
 Returns the standard trinity `[useSearchFilter, provideSearchFilter, searchFilter]`. The third element gives standalone access without injection — useful for testing and server-side use.
 
+## Architecture
+
+`createFilter` provides pure filtering logic with context support:
+
+```mermaid "Filter Flow"
+flowchart LR
+  query[query ref] --> apply
+  items[items ref] --> apply
+  filter[createFilter]:::primary --> apply
+  apply --> computed[filtered items]
+```
+
 ## Options
 
 | Option | Type | Default | Notes |
@@ -93,29 +105,7 @@ const filter = createFilter({
 })
 ```
 
-## Architecture
-
-`createFilter` provides pure filtering logic with context support:
-
-```mermaid "Filter Flow"
-flowchart LR
-  query[query ref] --> apply
-  items[items ref] --> apply
-  filter[createFilter]:::primary --> apply
-  apply --> computed[filtered items]
-```
-
-## Reactivity
-
-| Property/Method | Reactive | Notes |
-| - | :-: | - |
-| `query` | <AppSuccessIcon /> | ShallowRef, updated on each `apply()` |
-| `items` (from apply) | <AppSuccessIcon /> | Computed, filters reactively |
-
-> [!TIP] Reactive filtering
-> Both the query and items passed to `apply()` can be reactive. The filtered result automatically updates when either changes.
-
-## Filter Modes
+### Filter Modes
 
 When the query is an array, each mode controls how multiple queries are matched against item values:
 
@@ -128,6 +118,16 @@ When the query is an array, each mode controls how multiple queries are matched 
 
 > [!TIP] some vs union
 > `some` and `union` both pass when any query matches, but `some` checks each value independently while `union` joins all values into a single string. The difference matters when a match spans multiple fields.
+
+## Reactivity
+
+| Property/Method | Reactive | Notes |
+| - | :-: | - |
+| `query` | <AppSuccessIcon /> | ShallowRef, updated on each `apply()` |
+| `items` (from apply) | <AppSuccessIcon /> | Computed, filters reactively |
+
+> [!TIP] Reactive filtering
+> Both the query and items passed to `apply()` can be reactive. The filtered result automatically updates when either changes.
 
 ## Examples
 

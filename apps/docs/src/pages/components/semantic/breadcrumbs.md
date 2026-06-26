@@ -210,11 +210,11 @@ Override the ellipsis globally on Root or per-instance:
 </template>
 ```
 
-## Plugins
+### Plugins
 
 Breadcrumbs integrates with v0's plugin system for internationalization.
 
-### Locale
+#### Locale
 
 The Root renders the navigation landmark's `aria-label` as `ti('Breadcrumbs.label') ?? 'Breadcrumbs'`. When the Locale plugin resolves the `Breadcrumbs.label` key it uses your translation; without any configuration it falls back to the inline English default `"Breadcrumbs"`.
 

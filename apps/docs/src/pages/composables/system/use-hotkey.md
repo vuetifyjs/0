@@ -63,7 +63,21 @@ The `useHotkey` composable registers hotkey handlers on the window with automati
 </template>
 ```
 
-## Key Aliases
+## Architecture
+
+`useHotkey` builds on `useEventListener` for keyboard event handling:
+
+```mermaid "Hotkey Hierarchy"
+flowchart TD
+  useEventListener --> useHotkey
+  useHotkey --> Combinations["ctrl+k, cmd+s"]
+  useHotkey --> Sequences["g-h, g-i"]
+  useHotkey --> Components["Command Palette, Shortcuts"]
+```
+
+## Options
+
+### Key Aliases
 
 Key strings are normalized before matching, so you can use human-friendly names instead of exact `KeyboardEvent.key` values:
 
@@ -89,18 +103,6 @@ useHotkey('esc', close)
 
 useHotkey('ctrl+plus', zoomIn)   // matches Ctrl ++
 useHotkey('cmd+minus', zoomOut)  // matches Cmd +-
-```
-
-## Architecture
-
-`useHotkey` builds on `useEventListener` for keyboard event handling:
-
-```mermaid "Hotkey Hierarchy"
-flowchart TD
-  useEventListener --> useHotkey
-  useHotkey --> Combinations["ctrl+k, cmd+s"]
-  useHotkey --> Sequences["g-h, g-i"]
-  useHotkey --> Components["Command Palette, Shortcuts"]
 ```
 
 ## Reactivity

@@ -75,7 +75,7 @@ When the topmost overlay has `blocking: true`, the scrim will not dismiss on cli
 </template>
 ```
 
-## Inline Rendering
+### Inline Rendering
 
 By default, Scrim teleports to `body`. Disable teleport for inline rendering:
 
@@ -88,7 +88,7 @@ By default, Scrim teleports to `body`. Disable teleport for inline rendering:
 </template>
 ```
 
-### Custom Stack Context
+#### Custom Stack Context
 
 For isolated overlay systems, create a custom stack and provide it via Vue's injection system:
 
@@ -107,7 +107,7 @@ For isolated overlay systems, create a custom stack and provide it via Vue's inj
 </template>
 ```
 
-### Transitions
+#### Transitions
 
 The default transition is `fade`. Customize with the `transition` prop:
 

@@ -61,7 +61,26 @@ app.use(createAnalyticsPlugin({ trackPageviews: true }))
 </script>
 ```
 
-## Low-level API
+## Architecture
+
+`createPlugin` wraps `createContext` for Vue plugin registration:
+
+```mermaid "Plugin Architecture"
+flowchart LR
+  subgraph Plugin
+    A[namespace]
+    B[provide]
+    C[setup]
+  end
+
+  createContext --> B
+  A --> install
+  B --> install
+  C --> install
+  install --> app.runWithContext
+```
+
+### Low-level API
 
 Use `createPlugin` directly when you need fine-grained control over plugin setup, or when composing with existing `createContext` instances:
 
@@ -93,95 +112,6 @@ export function createMyPlugin () {
 
 > [!TIP]
 > The **setup** and **provide** hooks are separated for semantic purposes — `provide` is for DI context, `setup` is for side effects (watchers, adapters, globals).
-
-## Architecture
-
-`createPlugin` wraps `createContext` for Vue plugin registration:
-
-```mermaid "Plugin Architecture"
-flowchart LR
-  subgraph Plugin
-    A[namespace]
-    B[provide]
-    C[setup]
-  end
-
-  createContext --> B
-  A --> install
-  B --> install
-  C --> install
-  install --> app.runWithContext
-```
-
-## Persistence
-
-Plugins can automatically save and restore state across page reloads using `useStorage`. Add `persist` and `restore` hooks to the plugin config, then consumers opt in with `persist: true`.
-
-### Plugin author
-
-Define what to save and how to restore in the `createPluginContext` config:
-
-```ts collapse no-filename
-import { createPluginContext } from '@vuetify/v0'
-
-export const [createThemeContext, createThemePlugin, useTheme] =
-  createPluginContext('v0:theme', createTheme, {
-    setup: (context, app, options) => {
-      // adapter setup...
-    },
-    // Return the value to save — called reactively
-    persist: ctx => ctx.selectedId.value,
-    // Apply saved value on load — called before setup
-    restore: (ctx, saved) => ctx.select(saved),
-  })
-```
-
-### Consumer
-
-```ts no-filename
-app.use(createThemePlugin({ persist: true }))
-```
-
-When `persist: true` is passed, the plugin automatically:
-
-1. Reads from `useStorage` using the plugin namespace as key
-2. Calls `restore` with the saved value before `setup` runs
-3. Watches the `persist` return value and writes changes to storage
-
-> [!TIP]
-> The `default` option becomes the true default — it's only used when no persisted value exists.
-
-### Lifecycle
-
-```mermaid "Persist Lifecycle"
-flowchart LR
-  A[provide] --> B[restore]
-  B --> C[setup]
-  C --> D["watch(persist)"]
-```
-
-The critical ordering is **restore before setup**. This means adapters (like the theme CSS variable injector) see the correct restored state on their first run — no flash of wrong values.
-
-### Hook signatures
-
-```ts
-interface PluginContextConfig<O, E> {
-  /** Return the value to persist — called reactively inside a watch source */
-  persist?: (context: E) => unknown
-  /** Restore previously persisted state — called before setup */
-  restore?: (context: E, saved: unknown) => void
-}
-```
-
-The `persist` return value is stored under the plugin namespace key (e.g. `v0:theme`). `restore` receives whatever was stored — cast to the expected type inside the hook.
-
-### Built-in support
-
-| Plugin | Persists | Storage key |
-|--------|----------|-------------|
-| `createThemePlugin` | Selected theme ID | `v0:theme` |
-| `createRtlPlugin` | RTL direction | `v0:rtl` |
-| `createLocalePlugin` | Selected locale | `v0:locale` |
 
 ## Examples
 
@@ -224,5 +154,77 @@ graph LR
 - Consumers import only from `plugin.ts`, never from the Provider
 
 :::
+
+## Recipes
+
+### Persistence
+
+Plugins can automatically save and restore state across page reloads using `useStorage`. Add `persist` and `restore` hooks to the plugin config, then consumers opt in with `persist: true`.
+
+#### Plugin author
+
+Define what to save and how to restore in the `createPluginContext` config:
+
+```ts collapse no-filename
+import { createPluginContext } from '@vuetify/v0'
+
+export const [createThemeContext, createThemePlugin, useTheme] =
+  createPluginContext('v0:theme', createTheme, {
+    setup: (context, app, options) => {
+      // adapter setup...
+    },
+    // Return the value to save — called reactively
+    persist: ctx => ctx.selectedId.value,
+    // Apply saved value on load — called before setup
+    restore: (ctx, saved) => ctx.select(saved),
+  })
+```
+
+#### Consumer
+
+```ts no-filename
+app.use(createThemePlugin({ persist: true }))
+```
+
+When `persist: true` is passed, the plugin automatically:
+
+1. Reads from `useStorage` using the plugin namespace as key
+2. Calls `restore` with the saved value before `setup` runs
+3. Watches the `persist` return value and writes changes to storage
+
+> [!TIP]
+> The `default` option becomes the true default — it's only used when no persisted value exists.
+
+#### Lifecycle
+
+```mermaid "Persist Lifecycle"
+flowchart LR
+  A[provide] --> B[restore]
+  B --> C[setup]
+  C --> D["watch(persist)"]
+```
+
+The critical ordering is **restore before setup**. This means adapters (like the theme CSS variable injector) see the correct restored state on their first run — no flash of wrong values.
+
+#### Hook signatures
+
+```ts
+interface PluginContextConfig<O, E> {
+  /** Return the value to persist — called reactively inside a watch source */
+  persist?: (context: E) => unknown
+  /** Restore previously persisted state — called before setup */
+  restore?: (context: E, saved: unknown) => void
+}
+```
+
+The `persist` return value is stored under the plugin namespace key (e.g. `v0:theme`). `restore` receives whatever was stored — cast to the expected type inside the hook.
+
+#### Built-in support
+
+| Plugin | Persists | Storage key |
+|--------|----------|-------------|
+| `createThemePlugin` | Selected theme ID | `v0:theme` |
+| `createRtlPlugin` | RTL direction | `v0:rtl` |
+| `createLocalePlugin` | Selected locale | `v0:locale` |
 
 <DocsApi />

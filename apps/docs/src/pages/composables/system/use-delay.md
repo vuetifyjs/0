@@ -93,13 +93,15 @@ Reach for this pattern when you want a tooltip or popover that respects hover in
 
 :::
 
-## Key Features
+## Recipes
 
-### Lifecycle Vocabulary
+### Key Features
+
+#### Lifecycle Vocabulary
 
 `useDelay` exposes the same lifecycle surface as `useTimer` (`start`, `stop`, `pause`, `resume`, `isActive`, `isPaused`, `remaining`) and adds an `isOpening` direction flag. Consumers that already know `useTimer` get the same shape with one extra dimension — direction.
 
-### Reactive Delays
+#### Reactive Delays
 
 `openDelay` and `closeDelay` accept any `MaybeRefOrGetter<number>`. Resolution happens when `start()` is called, so updates after start do not affect the in-flight delay.
 
@@ -114,7 +116,7 @@ const delay = useDelay({
 })
 ```
 
-### Minimum Delay Floor
+#### Minimum Delay Floor
 
 Pass `minDelay` to `start()` to enforce a floor on the resolved delay. Useful for transient feedback like toasts where the close delay must not be shorter than the time the content has been visible.
 
@@ -126,7 +128,7 @@ await delay.start(true)
 await delay.start(false, { minDelay: 500 })
 ```
 
-### Re-Start Behavior
+#### Re-Start Behavior
 
 Calling `start()` while another delay is pending cancels the previous timer and resolves the previous promise with the *new* direction. Awaiting code sees a single source of truth — the latest intent — instead of stale resolutions.
 
@@ -136,7 +138,7 @@ delay.start(true)
 delay.start(false) // previous promise resolves false, new close delay begins
 ```
 
-### Pause and Resume
+#### Pause and Resume
 
 Pause preserves the remaining delay; resume continues from where pause left off. Useful for hover-driven UI where the user briefly interacts with the panel itself and you don't want the auto-close timer to keep counting.
 
@@ -152,7 +154,7 @@ delay.pause() // remaining ≈ 700ms
 delay.resume() // fires after ~700 more ms
 ```
 
-### Automatic Cleanup
+#### Automatic Cleanup
 
 The pending timer clears on scope disposal — no manual cleanup needed.
 

@@ -82,7 +82,7 @@ flowchart LR
   C --> Fallback
 ```
 
-## Plugin Trinity
+### Plugin Trinity
 
 When building a Vue plugin, use [`createPluginContext`](/composables/foundation/create-plugin) instead of wiring `createContext + createTrinity` manually. It generates the same trinity tuple from a factory function with far less boilerplate:
 

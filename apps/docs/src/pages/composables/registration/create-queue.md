@@ -76,7 +76,9 @@ flowchart TD
   createQueue --> first[first item active]
 ```
 
-## Timeout Behavior
+## Options
+
+### Timeout Behavior
 
 The `timeout` option controls how long a ticket stays in the queue before auto-removal:
 

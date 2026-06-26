@@ -52,17 +52,7 @@ flowchart LR
   extract --> output
 ```
 
-## Reactivity
-
-`toElement` is a **pure transformer function**. It does not track reactivity or return reactive values.
-
-> [!TIP] Use inside computed for reactivity
-> Wrap in `computed()` if you need reactive element resolution:
-```ts
-const resolved = computed(() => toElement(targetRef))
-```
-
-## Supported Input Types
+### Supported Input Types
 
 | Input | Result |
 | - | - |
@@ -75,6 +65,16 @@ const resolved = computed(() => toElement(targetRef))
 
 > [!TIP] Structural typing
 > Uses `{ readonly value: T }` instead of Vue's nominal `Ref<T>` to avoid type mismatches across Vue versions.
+
+## Reactivity
+
+`toElement` is a **pure transformer function**. It does not track reactivity or return reactive values.
+
+> [!TIP] Use inside computed for reactivity
+> Wrap in `computed()` if you need reactive element resolution:
+```ts
+const resolved = computed(() => toElement(targetRef))
+```
 
 ## Examples
 
