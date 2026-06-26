@@ -101,9 +101,11 @@ The key design point is one timer per toast, not a single shared timer. Each toa
 
 :::
 
-## Key Features
+## Recipes
 
-### One-Shot vs Repeating
+### Key Features
+
+#### One-Shot vs Repeating
 
 By default, the timer fires once and stops. Set `repeat: true` for an interval that restarts after each fire:
 
@@ -115,7 +117,7 @@ const delay = useTimer(() => save(), { duration: 3000 })
 const poll = useTimer(() => refresh(), { duration: 5000, repeat: true })
 ```
 
-### Pause and Resume
+#### Pause and Resume
 
 Pause preserves the remaining time. Resume continues from where it left off:
 
@@ -132,7 +134,7 @@ timer.resume()
 // fires after ~7 more seconds
 ```
 
-### Restart Behavior
+#### Restart Behavior
 
 Calling `start()` while already running restarts from full duration:
 
@@ -142,7 +144,7 @@ timer.start()  // starts 5s countdown
 timer.start()  // restarts — fires in 5s, not 3s
 ```
 
-### Automatic Cleanup
+#### Automatic Cleanup
 
 The timer clears on scope disposal — no manual cleanup needed:
 

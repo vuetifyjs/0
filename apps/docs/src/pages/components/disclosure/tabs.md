@@ -49,19 +49,7 @@ The Tabs component provides a compound pattern for building accessible tab inter
 </template>
 ```
 
-## Features
-
-### Keyboard Navigation
-
-The component implements full WAI-ARIA keyboard support. Keyboard behavior depends on the activation mode:
-
-| Key | Automatic | Manual |
-| - | - | - |
-| Arrow Left/Right (horizontal) | Moves focus **and** activates tab | Moves focus only |
-| Arrow Up/Down (vertical) | Moves focus **and** activates tab | Moves focus only |
-| Home | Focuses **and** activates first tab | Focuses first tab only |
-| End | Focuses **and** activates last tab | Focuses last tab only |
-| Enter/Space | — | Activates the focused tab |
+## Recipes
 
 ### Activation Modes
 
@@ -116,5 +104,19 @@ Set `enroll` to auto-select the first registered tab. Useful when tabs are rende
   </Tabs.Root>
 </template>
 ```
+
+## Accessibility
+
+### Keyboard Navigation
+
+The component implements full WAI-ARIA keyboard support. Keyboard behavior depends on the activation mode:
+
+| Key | Automatic | Manual |
+| - | - | - |
+| Arrow Left/Right (horizontal) | Moves focus **and** activates tab | Moves focus only |
+| Arrow Up/Down (vertical) | Moves focus **and** activates tab | Moves focus only |
+| Home | Focuses **and** activates first tab | Focuses first tab only |
+| End | Focuses **and** activates last tab | Focuses last tab only |
+| Enter/Space | — | Activates the focused tab |
 
 <DocsApi />

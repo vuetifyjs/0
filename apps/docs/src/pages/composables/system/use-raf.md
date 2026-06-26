@@ -73,9 +73,11 @@ A tall scrollable container that tracks three metrics — `scrollTop` in pixels,
 
 :::
 
-## Key Features
+## Recipes
 
-### Cancel-Then-Request Pattern
+### Key Features
+
+#### Cancel-Then-Request Pattern
 
 Each call cancels any pending frame before requesting a new one. This deduplicates rapid calls, ensuring only the latest request executes:
 
@@ -90,7 +92,7 @@ update()
 update()
 ```
 
-### Automatic Cleanup
+#### Automatic Cleanup
 
 The composable automatically cancels pending frames when the Vue scope is disposed (component unmount, effect scope stop):
 
@@ -99,7 +101,7 @@ The composable automatically cancels pending frames when the Vue scope is dispos
 const update = useRaf(callback)
 ```
 
-### SSR Safe
+#### SSR Safe
 
 The composable is a no-op in non-browser environments. `isActive` always returns `false` during SSR.
 

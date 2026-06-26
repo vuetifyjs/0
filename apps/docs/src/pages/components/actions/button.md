@@ -53,36 +53,6 @@ The Button component renders as a native `<button>` by default (or an anchor, ro
 </template>
 ```
 
-## Interaction States
-
-Button supports four states that block click events. Each state has a distinct semantic meaning:
-
-| State | Click blocked | Focusable | Hoverable | Tab order | Use case |
-|-------|:---:|:---:|:---:|:---:|---|
-| **disabled** | Yes | No | No | Removed | Button is not applicable |
-| **readonly** | Yes | Yes | Yes | Kept | Display-only, no action needed |
-| **passive** | Yes | Yes | Yes | Kept | Temporarily unavailable |
-| **loading** | Yes | Yes | Yes | Kept | Waiting for async operation |
-
-::: gn-example
-/components/button/states
-:::
-
-### Data Attributes
-
-Each state sets a corresponding `data-*` attribute on the element for CSS styling:
-
-| Attribute | When set |
-|-----------|----------|
-| `data-disabled` | `disabled` prop is true |
-| `data-readonly` | `readonly` prop is true |
-| `data-passive` | `passive` prop is true |
-| `data-loading` | Loading grace period has elapsed |
-| `data-selected` | Button is selected in a group |
-
-> [!TIP]
-> `disabled` uses native `disabled` attribute and removes the button from tab order. `passive` uses `aria-disabled="true"` instead — the button stays focusable and screen readers announce it as disabled.
-
 ## Recipes
 
 ### Loading with Grace Period
@@ -166,6 +136,36 @@ Use `Button.HiddenInput` inside a group to submit toggle state with forms. It re
   </Form>
 </template>
 ```
+
+### Interaction States
+
+Button supports four states that block click events. Each state has a distinct semantic meaning:
+
+| State | Click blocked | Focusable | Hoverable | Tab order | Use case |
+|-------|:---:|:---:|:---:|:---:|---|
+| **disabled** | Yes | No | No | Removed | Button is not applicable |
+| **readonly** | Yes | Yes | Yes | Kept | Display-only, no action needed |
+| **passive** | Yes | Yes | Yes | Kept | Temporarily unavailable |
+| **loading** | Yes | Yes | Yes | Kept | Waiting for async operation |
+
+::: gn-example
+/components/button/states
+:::
+
+#### Data Attributes
+
+Each state sets a corresponding `data-*` attribute on the element for CSS styling:
+
+| Attribute | When set |
+|-----------|----------|
+| `data-disabled` | `disabled` prop is true |
+| `data-readonly` | `readonly` prop is true |
+| `data-passive` | `passive` prop is true |
+| `data-loading` | Loading grace period has elapsed |
+| `data-selected` | Button is selected in a group |
+
+> [!TIP]
+> `disabled` uses native `disabled` attribute and removes the button from tab order. `passive` uses `aria-disabled="true"` instead — the button stays focusable and screen readers announce it as disabled.
 
 ## Accessibility
 

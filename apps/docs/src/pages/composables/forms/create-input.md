@@ -72,6 +72,28 @@ graph TD
     D --> J[descriptionId / errorId]
 ```
 
+### Generic Types
+
+createInput is generic over the value type:
+
+```ts no-filename
+// String (default) — for text inputs
+createInput({ value: ref('') })
+
+// Number | null — for numeric inputs
+createInput<number | null>({
+  value: ref<number | null>(null),
+  dirty: v => v !== null,
+  equals: (a, b) => Object.is(a, b),
+})
+
+// ID | ID[] — for select inputs
+createInput<ID | ID[]>({
+  value: ref<ID[]>([]),
+  dirty: v => Array.isArray(v) ? v.length > 0 : v != null,
+})
+```
+
 ## Reactivity
 
 | Property | Type | Description |
@@ -95,28 +117,6 @@ graph TD
 
 > [!TIP]
 > `isDirty` and `isPristine` are not inverses. A pre-filled form field is dirty AND pristine. A cleared field is not-dirty AND not-pristine.
-
-## Generic Types
-
-createInput is generic over the value type:
-
-```ts no-filename
-// String (default) — for text inputs
-createInput({ value: ref('') })
-
-// Number | null — for numeric inputs
-createInput<number | null>({
-  value: ref<number | null>(null),
-  dirty: v => v !== null,
-  equals: (a, b) => Object.is(a, b),
-})
-
-// ID | ID[] — for select inputs
-createInput<ID | ID[]>({
-  value: ref<ID[]>([]),
-  dirty: v => Array.isArray(v) ? v.length > 0 : v != null,
-})
-```
 
 ## Examples
 

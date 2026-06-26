@@ -101,7 +101,9 @@ Nest `<Locale>` components to create layered locale contexts. Each card reads it
 > [!TIP] Scoped translations
 > `t()` and `n()` are fully scoped. A `<Locale locale="fr">` subtree resolves all translations against the French messages, even when nested inside another `<Locale>` override. Each scope is independent.
 
-## Renderless Mode
+## Recipes
+
+### Renderless Mode
 
 When `renderless` is set, the component does not render a wrapper element. Instead, it passes `attrs` (including `data-locale` and `lang`) via the slot scope for you to bind to your own element:
 

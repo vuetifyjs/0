@@ -60,6 +60,19 @@ flowchart TD
 
 Layer 2 orchestrator. Aggregates createInput for validation, dirty tracking, and ARIA wiring. No registry, no focus traversal, no observers — rendering, per-element refs, and keyboard wiring are the consumer's responsibility.
 
+## Options
+
+### Patterns
+
+| Pattern | Matches |
+| - | - |
+| `'numeric'` | `[0-9]` |
+| `'alphanumeric'` | `[a-zA-Z0-9]` |
+| `'alphabetic'` | `[a-zA-Z]` |
+| `RegExp` | Custom; tested per character |
+
+`accepts(char)` is the single point of truth and is reactive through `MaybeRefOrGetter` — toggle modes at runtime and every helper respects the new pattern on the next call.
+
 ## Reactivity
 
 | Property | Type | Reactive | Description |
@@ -75,17 +88,6 @@ Layer 2 orchestrator. Aggregates createInput for validation, dirty tracking, and
 | `accepts(char)` | `(char: string) => boolean` | — | Pattern test, exposed so consumers can guard `beforeinput`. |
 
 Every helper is gated on the configured `disabled` and `readonly` options, and on the internal pending state while an async `onComplete` is in flight.
-
-## Patterns
-
-| Pattern | Matches |
-| - | - |
-| `'numeric'` | `[0-9]` |
-| `'alphanumeric'` | `[a-zA-Z0-9]` |
-| `'alphabetic'` | `[a-zA-Z]` |
-| `RegExp` | Custom; tested per character |
-
-`accepts(char)` is the single point of truth and is reactive through `MaybeRefOrGetter` — toggle modes at runtime and every helper respects the new pattern on the next call.
 
 ## Examples
 

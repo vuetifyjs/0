@@ -117,6 +117,8 @@ Adapters let you swap the underlying implementation without changing your applic
 10. **FAQ** — `::: faq` container with `???` questions
 11. `<DocsApi />` — auto-generated API reference
 
+Providers that require plugin setup (`locale`, `scrim`) prepend an optional **Installation** section before **Usage**. Section order is canonical: pages omit sections they don't need but never reorder them. Bespoke H2 headings are folded to H3 under the nearest canonical parent — default **Recipes**; keyboard/ARIA content → **Accessibility**; limitations/gotchas → **FAQ**.
+
 ## Section Content Rules
 
 | Section | Component pages | Composable pages |
@@ -131,13 +133,20 @@ Adapters let you swap the underlying implementation without changing your applic
 1. **H1 title** — composable name
 2. `<DocsPageFeatures :frontmatter />`
 3. **Intro** — 1-2 sentences (see Page Intro rules)
-4. **Usage** — `` ```ts collapse `` `` block
-5. **Architecture** — Mermaid diagram showing composable hierarchy
-6. **Adapters** — if the composable accepts adapters
-7. **Reactivity** — table of reactive properties/methods
-8. **Examples** — `::: gn-example` with live demos
-9. **FAQ** — `::: faq` container
-10. `<DocsApi />` — auto-generated API reference
+4. **Installation** — plugins only; `createXPlugin` setup in `main.ts`
+5. **Usage** — `` ```ts collapse `` `` block
+6. **Context / DI** — provide/inject + `createXContext`, when present
+7. **Adapters** — if the composable accepts adapters (before **Architecture** — choosing an adapter is a setup-time decision)
+8. **Architecture** — Mermaid diagram showing composable hierarchy
+9. **Options** — config-object reference, when present
+10. **Reactivity** — table of reactive properties/methods
+11. **Examples** — `::: gn-example` with live demos
+12. **Recipes** — code fences or single-file `::: gn-example`, when present
+13. **Accessibility** — ARIA / keyboard, when the composable exposes an a11y surface
+14. **FAQ** — `::: faq` container
+15. `<DocsApi />` — auto-generated API reference
+
+Section order is canonical: pages omit sections they don't need but never reorder them. Bespoke H2 headings are folded to H3 under the nearest canonical parent (default **Recipes**).
 
 ## Examples
 

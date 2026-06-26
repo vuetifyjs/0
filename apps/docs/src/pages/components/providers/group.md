@@ -44,7 +44,7 @@ The Group component is a specialization of Selection that enforces multi-selecti
 </template>
 ```
 
-## Features
+## Recipes
 
 ### Batch Operations
 

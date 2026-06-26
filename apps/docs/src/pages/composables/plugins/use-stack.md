@@ -138,7 +138,9 @@ Open multiple overlays to see z-index layering in action. This pattern applies d
 
 :::
 
-## Scrim Integration
+## Recipes
+
+### Scrim Integration
 
 Use the `Scrim` component alongside `useStack` to provide a backdrop for your overlays. The Scrim automatically positions itself below the topmost overlay:
 

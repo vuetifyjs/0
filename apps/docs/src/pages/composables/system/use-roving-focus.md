@@ -66,7 +66,19 @@ Keyboard navigation for composite widgets where arrow keys move focus between it
 </template>
 ```
 
-## useRovingFocus vs useVirtualFocus
+## Architecture
+
+`useRovingFocus` builds on `useEventListener` for keydown handling. It is a standalone composable — not part of the registry/selection hierarchy — making it composable alongside `createSingle` or `createSelection` for widgets that separate focus from selection (e.g., listboxes, selects).
+
+```mermaid "Roving Focus Architecture"
+flowchart TD
+  useEventListener --> useRovingFocus
+  useRovingFocus --> Linear["Linear: toolbar, menu, tabs"]
+  useRovingFocus --> Grid["Grid: calendar, color picker, data table"]
+  useRovingFocus --> Composed["+ createSingle = listbox/select"]
+```
+
+### useRovingFocus vs useVirtualFocus
 
 Both manage keyboard navigation, but they use different focus strategies:
 
@@ -79,18 +91,6 @@ Both manage keyboard navigation, but they use different focus strategies:
 | **Keyboard pattern** | Items are real focusable elements | Items are virtual — only one DOM node has focus |
 
 Choose `useRovingFocus` when items are real interactive elements (buttons, links). Choose `useVirtualFocus` when a single input drives a list of options that aren't individually focusable.
-
-## Architecture
-
-`useRovingFocus` builds on `useEventListener` for keydown handling. It is a standalone composable — not part of the registry/selection hierarchy — making it composable alongside `createSingle` or `createSelection` for widgets that separate focus from selection (e.g., listboxes, selects).
-
-```mermaid "Roving Focus Architecture"
-flowchart TD
-  useEventListener --> useRovingFocus
-  useRovingFocus --> Linear["Linear: toolbar, menu, tabs"]
-  useRovingFocus --> Grid["Grid: calendar, color picker, data table"]
-  useRovingFocus --> Composed["+ createSingle = listbox/select"]
-```
 
 ## Reactivity
 
