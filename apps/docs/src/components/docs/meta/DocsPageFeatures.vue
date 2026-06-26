@@ -11,6 +11,12 @@
   import { useClipboard } from '@/composables/useClipboard'
   import { providePageMeta } from '@/composables/usePageMeta'
 
+  // Data
+  import maturityData from '#v0/maturity.json'
+  import { MATURITY_MATRIX_HREF, SKILL_LEVELS_DOCS_HREF } from '@/constants/links'
+  // Constants
+  import { MATURITY_LEVELS } from '@/constants/maturity'
+
   // Utilities
   import { useScrollToAnchor } from '@/utilities/scroll'
   import { onBeforeUnmount, shallowRef, toRef } from 'vue'
@@ -18,11 +24,7 @@
 
   // Types
   import type { PhaseConfig } from '@/composables/usePageMeta'
-
-  // Data
-  import maturityData from '#v0/maturity.json'
-  // Constants
-  import { MATURITY_MATRIX_HREF, SKILL_LEVELS_DOCS_HREF } from '@/constants/links'
+  import type { MaturityData } from '@/constants/maturity'
 
   const scroll = useScrollToAnchor()
   const logger = useLogger()
@@ -213,32 +215,16 @@
     return levelConfig[l]
   })
 
-  // Phase display config (from maturity.json)
-  const phaseConfig = {
-    draft: { icon: 'pencil', color: 'text-on-surface-variant', label: 'Draft' },
-    preview: { icon: 'flask', color: 'text-warning', label: 'Preview' },
-    stable: { icon: 'check-circle', color: 'text-success', label: 'Stable' },
-    mature: { icon: 'shield-check', color: 'text-info', label: 'Mature' },
-    deprecated: { icon: 'archive', color: 'text-error', label: 'Deprecated' },
-  } as const
-
-  interface MaturityEntry {
-    level: keyof typeof phaseConfig
-    since: string | null
-    category?: string
-    notes?: string
-  }
-
   const phase = toRef((): PhaseConfig | null => {
     const type = itemType.value
     const name = itemName.value
     if (!type || !name) return null
 
-    const bucket = (maturityData as Record<string, Record<string, MaturityEntry>>)[type]
+    const bucket = (maturityData as MaturityData)[type]
     const entry = bucket?.[name]
     if (!entry) return null
 
-    const config = phaseConfig[entry.level]
+    const config = MATURITY_LEVELS[entry.level]
     if (!config) return null
 
     let title: string
@@ -269,13 +255,28 @@
 
     return {
       level: entry.level,
-      since: entry.since,
+      since: entry.since ?? null,
       notes: entry.notes,
       icon: config.icon,
-      color: config.color,
+      color: config.class,
       label: config.label,
       title,
     }
+  })
+
+  // Deep-link the stability chip into the roadmap's maturity matrix, carrying
+  // the feature's category + name so the matrix auto-expands that group and
+  // highlights this feature's row instead of stranding the reader.
+  const maturityHref = toRef(() => {
+    const type = itemType.value
+    const name = itemName.value
+    if (!type || !name) return MATURITY_MATRIX_HREF
+
+    const bucket = (maturityData as MaturityData)[type]
+    const category = bucket?.[name]?.category
+    if (!category) return MATURITY_MATRIX_HREF
+
+    return `/roadmap?category=${encodeURIComponent(category)}&feature=${encodeURIComponent(name)}#maturity-matrix`
   })
 
   // Last updated date from git history
@@ -412,7 +413,7 @@
         <DocsMetaItem
           v-if="phase"
           :color="phase.color"
-          :href="MATURITY_MATRIX_HREF"
+          :href="maturityHref"
           :icon="phase.icon"
           :text="phase.label"
           :title="phase.title"

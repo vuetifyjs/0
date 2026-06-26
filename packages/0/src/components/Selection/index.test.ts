@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import { renderToString } from 'vue/server-renderer'
 
+import { Selection } from './index'
+
 // Utilities
 import { mount } from '@vue/test-utils'
 import { createSSRApp, defineComponent, h, nextTick, ref } from 'vue'
-
-import { Selection } from './index'
 
 describe('selection', () => {
   describe('root', () => {
@@ -91,6 +91,46 @@ describe('selection', () => {
         expect(selected.value).toBe('item-2')
         expect(item1Props.isSelected).toBe(false)
         expect(item2Props.isSelected).toBe(true)
+      })
+
+      it('should not toggle off a selected disabled item via onClick', async () => {
+        let itemProps: any
+
+        const Host = defineComponent({
+          setup () {
+            const disabled = ref(false)
+            return { disabled }
+          },
+          render () {
+            return h(Selection.Root as any, null, {
+              default: () => h(Selection.Item as any, { value: 'item-1', disabled: this.disabled }, {
+                default: (props: any) => {
+                  itemProps = props
+                  return h('div', 'Item 1')
+                },
+              }),
+            })
+          },
+        })
+
+        const wrapper = mount(Host)
+        await nextTick()
+
+        // Select the item while it is still enabled.
+        itemProps.select()
+        await nextTick()
+        expect(itemProps.isSelected).toBe(true)
+
+        // Now disable the selected item, then click it. Pre-fix onClick was
+        // `ticket.toggle`, which routes to unselect — honouring only group-disabled,
+        // not ticket-disabled — so a selected disabled item toggled off on click.
+        // The guard now blocks it.
+        wrapper.vm.disabled = true
+        await nextTick()
+
+        itemProps.attrs.onClick()
+        await nextTick()
+        expect(itemProps.isSelected).toBe(true)
       })
 
       it('should set aria-multiselectable to false', () => {

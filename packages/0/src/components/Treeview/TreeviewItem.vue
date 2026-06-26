@@ -12,17 +12,19 @@
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
+
+  // Context
   import { useTreeviewList } from './TreeviewList.vue'
   import { useTreeviewRoot } from './TreeviewRoot.vue'
 
   // Composables
   import { createContext } from '#v0/composables/createContext'
 
-  // Utilities
-  import { onBeforeUnmount, shallowRef, toRef, toValue, useTemplateRef } from 'vue'
-
   // Transformers
   import { toElement } from '#v0/composables/toElement'
+
+  // Utilities
+  import { onBeforeUnmount, shallowRef, toRef, toValue, useTemplateRef } from 'vue'
 
   // Types
   import type { AtomExpose } from '#v0/components/Atom'
@@ -94,27 +96,30 @@
     close: ticket.close,
     activate: ticket.activate,
     deactivate: ticket.deactivate,
+    attrs: {
+      'role': 'treeitem',
+      'aria-disabled': toValue(isDisabled),
+      'aria-expanded': hasContent.value ? toValue(ticket.isOpen) : undefined,
+      'aria-level': toValue(ticket.depth) + 1,
+      'aria-posinset': ticket.position(),
+      'aria-selected': toValue(ticket.isSelected),
+      'aria-setsize': ticket.siblings().length,
+      'data-active': toValue(ticket.isActive) || undefined,
+      'data-disabled': toValue(isDisabled) || undefined,
+      'data-open': toValue(ticket.isOpen) || undefined,
+      'data-selected': toValue(ticket.isSelected) || undefined,
+      'tabindex': roving ? (roving.isTabbable(ticket.id) ? 0 : -1) : undefined,
+      'style': { '--v0-treeview-depth': toValue(ticket.depth) },
+    },
   }))
 </script>
 
 <template>
   <Atom
     ref="root"
-    :aria-disabled="slotProps.isDisabled"
-    :aria-expanded="hasContent ? slotProps.isOpen : undefined"
-    :aria-level="slotProps.depth + 1"
-    :aria-posinset="ticket.position()"
-    :aria-selected="slotProps.isSelected"
-    :aria-setsize="ticket.siblings().length"
+    v-bind="slotProps.attrs"
     :as
-    :data-active="slotProps.isActive || undefined"
-    :data-disabled="slotProps.isDisabled || undefined"
-    :data-open="slotProps.isOpen || undefined"
-    :data-selected="slotProps.isSelected || undefined"
     :renderless
-    role="treeitem"
-    :style="{ '--v0-treeview-depth': slotProps.depth }"
-    :tabindex="roving ? (roving.isTabbable(ticket.id) ? 0 : -1) : undefined"
   >
     <slot v-bind="slotProps" />
   </Atom>

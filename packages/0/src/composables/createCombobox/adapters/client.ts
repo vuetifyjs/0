@@ -9,6 +9,8 @@
 // Composables
 import { createFilter } from '#v0/composables/createFilter'
 
+import { ComboboxAdapter } from './adapter'
+
 // Utilities
 import { computed, shallowRef, toRef } from 'vue'
 
@@ -16,8 +18,6 @@ import { computed, shallowRef, toRef } from 'vue'
 import type { FilterItem, FilterMode } from '#v0/composables/createFilter'
 import type { ID } from '#v0/types'
 import type { ComboboxAdapterContext, ComboboxAdapterResult } from './adapter'
-
-import { ComboboxAdapter } from './adapter'
 
 export interface ClientComboboxAdapterOptions {
   /** Filter matching mode */
@@ -48,7 +48,11 @@ export class ClientComboboxAdapter extends ComboboxAdapter {
     })
 
     const values = toRef(() => context.items.value.map(t => t.value as FilterItem))
-    const { items: filteredValues } = filter.apply(context.query, values)
+    // Match against the trimmed query, consistent with the empty-query guard
+    // below and createFilter's own blank check. A padded query like ' an' would
+    // otherwise match nothing even though items contain the substring 'an'.
+    const trimmed = toRef(() => String(context.query.value).trim())
+    const { items: filteredValues } = filter.apply(trimmed, values)
 
     const filtered = computed(() => {
       const q = String(context.query.value).trim()

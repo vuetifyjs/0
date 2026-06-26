@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { Select } from './index'
+
 // Utilities
 import { mount } from '@vue/test-utils'
 import { defineComponent, h, nextTick, ref } from 'vue'
-
-import { Select } from './index'
 
 // Mock showPopover/hidePopover — not supported in happy-dom
 beforeEach(() => {
@@ -689,6 +689,10 @@ describe('select', () => {
       const value = { id: 1 }
       let ctx: { open: () => void } | undefined
 
+      // The model is generic — object values are a legal type and must not
+      // trigger a prop-type warning (regression pin for the old ID-typed model)
+      using warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
       const wrapper = mount(
         defineComponent({
           render () {
@@ -719,6 +723,7 @@ describe('select', () => {
       const hidden = wrapper.find('input[type="hidden"]')
       expect(hidden.exists()).toBe(true)
       expect((hidden.element as HTMLInputElement).value).toBe(JSON.stringify(value))
+      expect(warn).not.toHaveBeenCalled()
     })
 
     it('should render empty string for null values in hidden input', async () => {
@@ -974,6 +979,29 @@ describe('select', () => {
   })
 
   describe('root slot props', () => {
+    it('should expose onClick and onKeydown in Select.Activator slot attrs', () => {
+      let captured: any
+      mount(
+        defineComponent({
+          render () {
+            return h(Select.Root as any, {}, {
+              default: () => h(Select.Activator as any, {}, {
+                default: (props: any) => {
+                  captured = props
+                  return h('button', 'open')
+                },
+              }),
+            })
+          },
+        }),
+      )
+
+      // Pre-fix these handlers lived on @click/@keydown directives (lost in
+      // renderless mode); they must be exposed through slot attrs instead.
+      expect(captured.attrs.onClick).toBeTypeOf('function')
+      expect(captured.attrs.onKeydown).toBeTypeOf('function')
+    })
+
     it('should expose isOpen, open, close, toggle, id, isDisabled', async () => {
       let rootSlotProps: any
 
@@ -1181,6 +1209,102 @@ describe('select', () => {
       })
 
       expect(wrapper.find('.child').exists()).toBe(true)
+    })
+
+    it('should render Select.Content without a wrapper and expose the listbox contract in renderless mode', async () => {
+      let captured: any
+      const wrapper = mount(
+        defineComponent({
+          render () {
+            return h(Select.Root as any, { multiple: true }, {
+              default: () => h(Select.Content as any, { eager: true, renderless: true }, {
+                default: (props: any) => {
+                  captured = props
+                  return h('ul', props.attrs)
+                },
+              }),
+            })
+          },
+        }),
+      )
+
+      await nextTick()
+
+      const lists = wrapper.findAll('[role="listbox"]')
+      expect(lists).toHaveLength(1)
+      expect(lists[0]!.element.tagName).toBe('UL')
+      expect(lists[0]!.element.parentElement?.getAttribute('role')).toBeNull()
+      expect(captured.attrs.role).toBe('listbox')
+      expect(captured.attrs.popover).toBe('')
+      expect(captured.attrs['aria-multiselectable']).toBe(true)
+      expect(captured.attrs.tabindex).toBe(-1)
+      expect(captured.attrs.id).toBeDefined()
+      expect(captured.attrs.style).toBeDefined()
+    })
+
+    it('should render Select.Item without a wrapper and expose the option contract in renderless mode', async () => {
+      let captured: any
+      const wrapper = mount(
+        defineComponent({
+          render () {
+            return h(Select.Root as any, {}, {
+              default: () => h(Select.Content as any, { eager: true }, {
+                default: () => h(Select.Item as any, { value: 'Apple', renderless: true }, {
+                  default: (props: any) => {
+                    captured = props
+                    return h('li', props.attrs, 'Apple')
+                  },
+                }),
+              }),
+            })
+          },
+        }),
+      )
+
+      await nextTick()
+
+      const options = wrapper.findAll('[role="option"]')
+      expect(options).toHaveLength(1)
+      expect(options[0]!.element.tagName).toBe('LI')
+      expect(options[0]!.element.parentElement?.getAttribute('role')).toBe('listbox')
+      expect(captured.attrs.role).toBe('option')
+      expect(captured.attrs['aria-selected']).toBe(false)
+      expect(captured.attrs.onClick).toBeTypeOf('function')
+
+      await wrapper.find('li').trigger('click')
+      expect(captured.isSelected).toBe(true)
+    })
+
+    it('should render Select.Activator without a wrapper and expose anchor styles in renderless mode', async () => {
+      let captured: any
+      const wrapper = mount(
+        defineComponent({
+          render () {
+            return h(Select.Root as any, {}, {
+              default: () => h(Select.Activator as any, { renderless: true }, {
+                default: (props: any) => {
+                  captured = props
+                  return h('button', props.attrs, 'Open')
+                },
+              }),
+            })
+          },
+        }),
+      )
+
+      await nextTick()
+
+      const activators = wrapper.findAll('[role="combobox"]')
+      expect(activators).toHaveLength(1)
+      expect(activators[0]!.element.tagName).toBe('BUTTON')
+      expect(activators[0]!.element.parentElement?.getAttribute('role')).toBeNull()
+      expect(captured.attrs.role).toBe('combobox')
+      expect(captured.attrs.style.anchorName).toBeDefined()
+      expect(captured.attrs.onClick).toBeTypeOf('function')
+      expect(captured.attrs.onKeydown).toBeTypeOf('function')
+
+      await wrapper.find('button').trigger('click')
+      expect(captured.isOpen).toBe(true)
     })
 
     it('should use activator id from root', async () => {

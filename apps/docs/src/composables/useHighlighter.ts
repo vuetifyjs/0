@@ -1,14 +1,14 @@
 // Framework
 import { useLogger } from '@vuetify/v0'
 
+// Constants
+import { SHIKI_THEME_IMPORTS } from '@/constants/shiki'
+
 // Utilities
 import { shallowRef, type ShallowRef } from 'vue'
 
 // Types
 import type { HighlighterCore } from 'shiki/core'
-
-// Constants
-import { SHIKI_THEME_IMPORTS } from '@/constants/shiki'
 
 export interface UseHighlighterReturn {
   highlighter: ShallowRef<HighlighterCore | null>

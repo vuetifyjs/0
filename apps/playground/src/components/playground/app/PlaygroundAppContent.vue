@@ -2,7 +2,7 @@
   // Framework
   import { SplitterRoot, useBreakpoints, useStorage } from '@vuetify/v0'
 
-  // Components
+  // Context
   import { usePlayground } from './PlaygroundApp.vue'
 
   // Utilities

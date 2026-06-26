@@ -65,12 +65,6 @@ timeline.register({ id: 'action-1', value: 'Created item' })
 timeline.undo()
 ```
 
-## Options
-
-| Option | Type | Default | Notes |
-| - | - | - | - |
-| `size` | `number` | `10` | Maximum number of entries in the active timeline. When exceeded, the oldest entry moves to an internal overflow buffer — it remains accessible via `undo()` but no longer counts against the limit |
-
 ## Architecture
 
 `createTimeline` extends `createRegistry` with bounded history and overflow management:
@@ -83,6 +77,12 @@ flowchart TD
   createTimeline --> cursor[history cursor]
 ```
 
+## Options
+
+| Option | Type | Default | Notes |
+| - | - | - | - |
+| `size` | `number` | `10` | Maximum number of entries in the active timeline. When exceeded, the oldest entry moves to an internal overflow buffer — it remains accessible via `undo()` but no longer counts against the limit |
+
 ## Reactivity
 
 `createTimeline` uses **minimal reactivity** like its parent `createRegistry`. History state is managed internally without reactive primitives.
@@ -92,7 +92,7 @@ flowchart TD
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/create-timeline/context.ts 2
 /composables/create-timeline/CanvasProvider.vue 3
 /composables/create-timeline/CanvasConsumer.vue 4

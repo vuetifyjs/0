@@ -26,16 +26,25 @@ A headless component for navigation through multi-step processes like wizards an
 
 The Step component extends Single with navigation methods for moving through a sequence of items. It provides methods for first, last, next, previous, and step-by-count navigation with automatic disabled item skipping.
 
-::: example
+::: gn-example
 /components/step/basic
-
-### Step Wizard
-
-A 3-step wizard with next/previous navigation buttons and per-step content rendering.
-
 :::
 
-## Features
+## Anatomy
+
+```vue Anatomy no-filename
+<script setup lang="ts">
+  import { Step } from '@vuetify/v0'
+</script>
+
+<template>
+  <Step.Root>
+    <Step.Item />
+  </Step.Root>
+</template>
+```
+
+## Recipes
 
 ### Navigation Methods
 
@@ -72,22 +81,6 @@ Disabled items are automatically skipped by `next`, `prev`, and `step`. Use this
     <Step.Item value="shipping" :disabled="!needsShipping">Shipping</Step.Item>
 
     <Step.Item value="confirm">Confirm</Step.Item>
-  </Step.Root>
-</template>
-```
-
-## Anatomy
-
-```vue Anatomy playground
-<script setup lang="ts">
-  import { Step } from '@vuetify/v0'
-</script>
-
-<template>
-  <Step.Root>
-    <Step.Item value="step-1" />
-
-    <Step.Item value="step-2" />
   </Step.Root>
 </template>
 ```

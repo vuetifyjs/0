@@ -93,13 +93,23 @@
     },
     "createNumberField": {
       "level": "preview",
-      "since": null,
+      "since": "0.2.1",
       "category": "forms"
     },
     "createNumeric": {
       "level": "preview",
       "since": "0.2.0",
       "category": "forms"
+    },
+    "createOtp": {
+      "level": "preview",
+      "since": "1.0.0-alpha.5",
+      "category": "forms"
+    },
+    "createDataGrid": {
+      "level": "preview",
+      "since": "1.0.0-beta.0",
+      "category": "data"
     },
     "createDataTable": {
       "level": "preview",
@@ -111,6 +121,11 @@
       "since": "0.1.0",
       "category": "data"
     },
+    "createKanban": {
+      "level": "preview",
+      "since": "1.0.0-alpha.4",
+      "category": "data"
+    },
     "createPagination": {
       "level": "preview",
       "since": "0.1.0",
@@ -118,12 +133,12 @@
     },
     "createSortable": {
       "level": "preview",
-      "since": null,
+      "since": "1.0.0-alpha.4",
       "category": "data"
     },
     "createProgress": {
       "level": "preview",
-      "since": null,
+      "since": "0.2.1",
       "category": "semantic"
     },
     "createVirtual": {
@@ -134,12 +149,12 @@
     "createBreadcrumbs": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "utilities"
+      "category": "semantic"
     },
     "createOverflow": {
       "level": "preview",
       "since": "0.1.0",
-      "category": "utilities"
+      "category": "semantic"
     },
     "useBreakpoints": {
       "level": "preview",
@@ -191,6 +206,11 @@
       "since": "0.1.0",
       "category": "plugins"
     },
+    "useTooltip": {
+      "level": "preview",
+      "since": "1.0.0-beta.0",
+      "category": "plugins"
+    },
     "useClickOutside": {
       "level": "preview",
       "since": "0.1.0",
@@ -198,12 +218,12 @@
     },
     "useDelay": {
       "level": "preview",
-      "since": null,
+      "since": "1.0.0-alpha.3",
       "category": "system"
     },
     "useDragDrop": {
       "level": "preview",
-      "since": null,
+      "since": "1.0.0-alpha.4",
       "category": "system"
     },
     "useEventListener": {
@@ -218,6 +238,7 @@
     },
     "useImage": {
       "level": "preview",
+      "since": "1.0.0-alpha.1",
       "category": "system"
     },
     "useIntersectionObserver": {
@@ -270,6 +291,11 @@
       "since": "0.1.0",
       "category": "transformers"
     },
+    "toHighlight": {
+      "level": "preview",
+      "since": "1.0.0-alpha.5",
+      "category": "transformers"
+    },
     "toReactive": {
       "level": "preview",
       "since": "0.1.0",
@@ -305,6 +331,11 @@
       "since": "0.1.9",
       "category": "system"
     },
+    "useReducedMotion": {
+      "level": "preview",
+      "since": null,
+      "category": "plugins"
+    },
     "useRtl": {
       "level": "preview",
       "since": "0.1.7",
@@ -329,6 +360,7 @@
   "components": {
     "AspectRatio": {
       "level": "preview",
+      "since": "1.0.0-alpha.1",
       "category": "primitives"
     },
     "Atom": {
@@ -421,7 +453,11 @@
     },
     "NumberField": {
       "level": "preview",
-      "since": null,
+      "since": "0.2.1",
+      "category": "forms"
+    },
+    "Otp": {
+      "level": "draft",
       "category": "forms"
     },
     "Radio": {
@@ -489,7 +525,8 @@
       "category": "semantic"
     },
     "Tooltip": {
-      "level": "draft",
+      "level": "preview",
+      "since": "1.0.0-beta.0",
       "category": "disclosure"
     },
     "Alert": {
@@ -508,15 +545,17 @@
     },
     "Carousel": {
       "level": "preview",
+      "since": "1.0.0-alpha.1",
       "category": "semantic"
     },
     "Image": {
       "level": "preview",
+      "since": "1.0.0-alpha.1",
       "category": "semantic"
     },
     "Overflow": {
       "level": "preview",
-      "since": null,
+      "since": "1.0.0-alpha.3",
       "category": "semantic"
     },
     "Pagination": {
@@ -526,6 +565,7 @@
     },
     "Progress": {
       "level": "preview",
+      "since": "0.2.1",
       "category": "semantic"
     },
     "Splitter": {
@@ -542,6 +582,14 @@
       "level": "draft",
       "category": "data"
     },
+    "DataTable": {
+      "level": "draft",
+      "category": "data"
+    },
+    "Kanban": {
+      "level": "draft",
+      "category": "data"
+    },
     "Virtualizer": {
       "level": "draft",
       "category": "data"
@@ -552,6 +600,26 @@
     }
   },
   "utilities": {
+    "apca": {
+      "level": "preview",
+      "since": "0.1.11",
+      "category": "utilities"
+    },
+    "clamp": {
+      "level": "stable",
+      "since": "0.0.15",
+      "category": "utilities"
+    },
+    "foreground": {
+      "level": "preview",
+      "since": "0.1.11",
+      "category": "utilities"
+    },
+    "hexToRgb": {
+      "level": "preview",
+      "since": "0.1.11",
+      "category": "utilities"
+    },
     "isArray": {
       "level": "stable",
       "since": "0.1.0",
@@ -612,9 +680,44 @@
       "since": "0.1.0",
       "category": "utilities"
     },
+    "isThenable": {
+      "level": "preview",
+      "since": "1.0.0-alpha.4",
+      "category": "utilities"
+    },
     "isUndefined": {
       "level": "stable",
       "since": "0.1.0",
+      "category": "utilities"
+    },
+    "isV0Error": {
+      "level": "preview",
+      "since": "1.0.0-beta.0",
+      "category": "utilities"
+    },
+    "mergeDeep": {
+      "level": "stable",
+      "since": "0.0.1",
+      "category": "utilities"
+    },
+    "range": {
+      "level": "stable",
+      "since": "0.0.15",
+      "category": "utilities"
+    },
+    "rgbToHex": {
+      "level": "preview",
+      "since": "0.1.11",
+      "category": "utilities"
+    },
+    "useId": {
+      "level": "stable",
+      "since": "0.0.24",
+      "category": "utilities"
+    },
+    "V0Error": {
+      "level": "preview",
+      "since": "1.0.0-beta.0",
       "category": "utilities"
     }
   }

@@ -13,10 +13,10 @@ import { bench, describe } from 'vitest'
 // Composables
 import { createRegistry } from '#v0/composables/createRegistry'
 
+import { useProxyRegistry } from './index'
+
 // Utilities
 import { effectScope } from 'vue'
-
-import { useProxyRegistry } from './index'
 
 // =============================================================================
 // FIXTURES - Created once, reused across read-only benchmarks
@@ -180,6 +180,51 @@ describe('useProxyRegistry benchmarks', () => {
       const { registry, dispose } = createFixture(10_000)
       registry.upsert('item-5000', { value: 'updated' })
       dispose()
+    })
+  })
+
+  // ===========================================================================
+  // BULK REGISTRATION - load many items while the proxy is ALREADY listening
+  // Fresh fixture per iteration (required - mutations change state)
+  // onboard() is batched: the registry replays events after the collection is
+  //   stable and values() is cached, so even the eager path was O(n). The lazy
+  //   rewrite is a constant-factor win here.
+  // register() one-by-one is unbatched: each call invalidates the cache and
+  //   dispatches immediately, so the eager path rebuilt a growing snapshot per
+  //   call (O(n^2)). The lazy rewrite makes it O(n). This is the regression
+  //   sentinel — a revert to eager rebuilds tanks the 10,000 case by ~300x.
+  // ===========================================================================
+  describe('bulk registration', () => {
+    bench('Onboard 1,000 items (proxy attached)', () => {
+      const scope = effectScope()
+      const registry = createRegistry({ events: true })
+      scope.run(() => useProxyRegistry(registry))
+      registry.onboard(ITEMS_1K)
+      scope.stop()
+    })
+
+    bench('Onboard 10,000 items (proxy attached)', () => {
+      const scope = effectScope()
+      const registry = createRegistry({ events: true })
+      scope.run(() => useProxyRegistry(registry))
+      registry.onboard(ITEMS_10K)
+      scope.stop()
+    })
+
+    bench('Register 1,000 items one-by-one (proxy attached)', () => {
+      const scope = effectScope()
+      const registry = createRegistry({ events: true })
+      scope.run(() => useProxyRegistry(registry))
+      for (const item of ITEMS_1K) registry.register(item)
+      scope.stop()
+    })
+
+    bench('Register 10,000 items one-by-one (proxy attached)', () => {
+      const scope = effectScope()
+      const registry = createRegistry({ events: true })
+      scope.run(() => useProxyRegistry(registry))
+      for (const item of ITEMS_10K) registry.register(item)
+      scope.stop()
     })
   })
 })

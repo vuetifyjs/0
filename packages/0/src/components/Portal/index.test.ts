@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest'
 
+import { Portal } from './index'
+
 // Utilities
 import { mount } from '@vue/test-utils'
 import { defineComponent, h, nextTick } from 'vue'
-
-import { Portal } from './index'
 
 describe('portal', () => {
   describe('rendering', () => {
@@ -117,6 +117,39 @@ describe('portal', () => {
       const wrapper = mount(Host)
 
       expect(zIndexes[0]).toBe(2000)
+      expect(zIndexes[1]).toBe(2010)
+
+      wrapper.unmount()
+    })
+
+    it('should still occupy a stack slot when rendered inline (disabled)', () => {
+      const zIndexes: number[] = []
+
+      const Host = defineComponent({
+        setup () {
+          return () => [
+            h(Portal, { disabled: true }, {
+              default: (props: any) => {
+                zIndexes[0] = props.zIndex
+                return h('div', 'Inline')
+              },
+            }),
+            h(Portal, null, {
+              default: (props: any) => {
+                zIndexes[1] = props.zIndex
+                return h('div', 'Teleported')
+              },
+            }),
+          ]
+        },
+      })
+
+      const wrapper = mount(Host)
+
+      // The inline (disabled) portal still registers AND selects into the stack,
+      // so the second portal stacks above it. Pre-fix, forwarding `disabled`
+      // (the Teleport toggle) to the stack ticket made its select() a no-op, so
+      // it took no slot and the second portal collapsed onto the base z-index.
       expect(zIndexes[1]).toBe(2010)
 
       wrapper.unmount()

@@ -33,7 +33,7 @@
 </script>
 
 <script setup lang="ts">
-  // Components
+  // Context
   import { useToggleRoot } from './ToggleRoot.vue'
 
   // Utilities

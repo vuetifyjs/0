@@ -1,0 +1,16 @@
+# Docs dev server config
+apps/docs/.env.local
+
+# Any future env locals
+.env.local
+.env.*.local
+
+# Local Claude Code permissions
+.claude/settings.local.json
+
+# Scratchpad for in-progress experimentation
+dev/src/Playground.vue
+
+# Generated docs API whitelist — vite.config imports it; repo:knip can't load
+# the config without it, failing the pre-push gauntlet in a fresh worktree
+apps/docs/build/generated/api-whitelist.ts

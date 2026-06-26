@@ -13,7 +13,7 @@ export type { RadioHiddenInputProps } from './RadioHiddenInput.vue'
 export type { RadioIndicatorProps, RadioIndicatorSlotProps } from './RadioIndicator.vue'
 export type { RadioRootContext, RadioRootProps, RadioRootSlotProps, RadioState } from './RadioRoot.vue'
 
-// Components
+// Context
 import Group from './RadioGroup.vue'
 import HiddenInput from './RadioHiddenInput.vue'
 import Indicator from './RadioIndicator.vue'

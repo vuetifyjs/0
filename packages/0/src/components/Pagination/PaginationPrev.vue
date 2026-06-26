@@ -11,6 +11,8 @@
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
+
+  // Context
   import { usePaginationControls, usePaginationRoot } from './PaginationRoot.vue'
 
   // Composables
@@ -90,7 +92,7 @@
     isDisabled: isDisabled.value,
     prev,
     attrs: {
-      'aria-label': locale.t('Pagination.prev'),
+      'aria-label': locale.ti('Pagination.prev') ?? 'Previous page',
       'aria-disabled': isDisabled.value,
       'data-disabled': isDisabled.value || undefined,
       'disabled': as === 'button' ? isDisabled.value : undefined,

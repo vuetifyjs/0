@@ -49,6 +49,6 @@ The project team will review and investigate all complaints, responding in a way
 
 ## Attribution
 
-This Code of Conduct is adapted from the [Contributor Covenant](http://contributor-covenant.org), version 1.4.
+This Code of Conduct is adapted from the [Contributor Covenant](https://www.contributor-covenant.org), version 1.4.
 
 View the full [CODE_OF_CONDUCT.md](https://github.com/vuetifyjs/0/blob/master/CODE_OF_CONDUCT.md) on GitHub.

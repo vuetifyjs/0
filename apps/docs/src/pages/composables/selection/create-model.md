@@ -91,7 +91,7 @@ Value state is **always reactive**. Collection methods follow the base `createRe
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/create-model/createCompound.ts
 /composables/create-model/compound.vue
 @import @mdi/js
@@ -127,7 +127,7 @@ This pattern is the foundation for compound inputs like forms, filters, and conf
 
 :::
 
-::: example
+::: gn-example
 /composables/create-model/model.ts
 /composables/create-model/ColorProvider.vue
 /composables/create-model/ColorConsumer.vue

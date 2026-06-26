@@ -2,13 +2,13 @@
   // Components
   import DocsBadge from '@/components/docs/DocsBadge.vue'
 
+  import { SKILL_LEVEL_META } from '@/types/skill'
+
   // Utilities
   import { toRef } from 'vue'
 
   // Types
   import type { SkillLevel } from '@/types/skill'
-
-  import { SKILL_LEVEL_META } from '@/types/skill'
 
   const {
     level,

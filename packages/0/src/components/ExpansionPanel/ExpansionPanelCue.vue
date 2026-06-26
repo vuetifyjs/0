@@ -12,6 +12,8 @@
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
+
+  // Context
   import { useExpansionPanelRoot } from './ExpansionPanelRoot.vue'
 
   // Utilities
@@ -43,6 +45,7 @@
   const {
     as = 'span',
     namespace = 'v0:expansion-panel',
+    renderless,
   } = defineProps<ExpansionPanelCueProps>()
 
   const context = useExpansionPanelRoot(namespace)
@@ -59,6 +62,7 @@
 <template>
   <Atom
     :as
+    :renderless
     v-bind="slotProps.attrs"
   >
     <slot v-bind="slotProps" />

@@ -82,7 +82,7 @@ flowchart LR
   C --> Fallback
 ```
 
-## Plugin Trinity
+### Plugin Trinity
 
 When building a Vue plugin, use [`createPluginContext`](/composables/foundation/create-plugin) instead of wiring `createContext + createTrinity` manually. It generates the same trinity tuple from a factory function with far less boilerplate:
 
@@ -99,7 +99,7 @@ export const [createThemeContext, createThemePlugin, useTheme] =
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/create-trinity/toasts.ts 2
 /composables/create-trinity/ToastProvider.vue 3
 /composables/create-trinity/ToastConsumer.vue 4
@@ -107,7 +107,11 @@ export const [createThemeContext, createThemePlugin, useTheme] =
 
 ### Toast Notification System
 
-A toast notification system split into four files demonstrating real-world trinity usage:
+A toast notification system across four files that demonstrates the full trinity pattern end-to-end. `toasts.ts` contains the only call to `createTrinity` — it builds a `shallowReactive` toast array, `push` / `dismiss` / `clear` methods, and a 4-second auto-dismiss timer, then passes `useContext` and `provideContext` (wrapped from `createContext`) into `createTrinity` to produce the exported `[useToasts, provideToasts, toastsContext]` tuple. `ToastProvider.vue` calls `provideToasts()` with no arguments and renders only a slot — the trinity's fallback context means the provider needs no props. `ToastConsumer.vue` destructures `{ toasts, push, dismiss, clear }` from `useToasts()` and drives a type-styled stack with quick-fire presets, a custom message composer, and an active-count display. `toast-system.vue` composes the two components, completing the pattern.
+
+The bottom "Trinity tuple breakdown" panel inside the consumer renders all three tuple members by name — `useToasts`, `provideToasts`, `toastsContext` — making the three roles concrete. Notice that `ToastConsumer` never imports from `ToastProvider.vue`; it only imports from `toasts.ts`. That separation is the point: context is the contract, not the provider component.
+
+Reach for `createTrinity` when you want a shared singleton *without* a Vue plugin — state that doesn't need `app.use()` lifecycle hooks but still needs typed provide/inject. For plugin-backed state (theme, locale, storage), prefer [createPluginContext](/composables/foundation/create-plugin), which generates the same tuple plus install hooks.
 
 | File | Role |
 |------|------|

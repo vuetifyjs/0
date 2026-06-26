@@ -1,13 +1,13 @@
 import { describe, expect, it, vi } from 'vitest'
 
+import { ClientComboboxAdapter } from './client'
+
 // Utilities
 import { shallowRef } from 'vue'
 
 // Types
 import type { SelectionTicket } from '#v0/composables/createSelection'
 import type { ComboboxAdapterContext } from './adapter'
-
-import { ClientComboboxAdapter } from './client'
 
 function createContext (
   items: SelectionTicket[] = [],
@@ -124,6 +124,25 @@ describe('clientComboboxAdapter', () => {
 
       expect(result.filtered.value.has('a')).toBe(true)
       expect(result.filtered.value.has('b')).toBe(false)
+    })
+  })
+
+  describe('whitespace query', () => {
+    it('should match against a whitespace-padded query', () => {
+      const adapter = new ClientComboboxAdapter()
+      const items = [
+        makeTicket('a', 'Apple'),
+        makeTicket('b', 'Banana'),
+        makeTicket('c', 'Cherry'),
+      ]
+      const ctx = createContext(items, '  an  ')
+      const result = adapter.setup(ctx)
+
+      // Pre-fix, filter.apply matched against the raw padded query, so '  an  '
+      // matched nothing even though 'Banana' contains 'an'.
+      expect(result.filtered.value.has('b')).toBe(true)
+      expect(result.filtered.value.has('a')).toBe(false)
+      expect(result.filtered.value.has('c')).toBe(false)
     })
   })
 })

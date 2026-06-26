@@ -36,8 +36,8 @@ export interface DataTableAdapterContext<T extends Record<string, unknown>> {
   items: MaybeRefOrGetter<T[]>
   /** Search query ref */
   search: ShallowRef<string>
-  /** Column keys eligible for filtering */
-  filterableKeys: readonly string[]
+  /** Column ids eligible for filtering (reactive — tracks the columns registry) */
+  filterableKeys: MaybeRefOrGetter<readonly string[]>
   /** Current sort state derived from sort controls */
   sortBy: Readonly<Ref<SortEntry[]>>
   /** Locale for sorting (reactive, from useLocale or options) */
@@ -46,10 +46,10 @@ export interface DataTableAdapterContext<T extends Record<string, unknown>> {
   filterOptions: Omit<FilterOptions, 'keys'>
   /** Pagination options (size excluded, derived from pipeline) */
   paginationOptions: Omit<PaginationOptions, 'size'>
-  /** Per-column custom sort comparators */
-  customSorts: Partial<Record<keyof T & string, (a: unknown, b: unknown) => number>>
-  /** Per-column custom filter functions */
-  customColumnFilters: Partial<Record<keyof T & string, (value: unknown, query: string) => boolean>>
+  /** Per-column custom sort comparators (reactive — tracks the columns registry). Keys are column ids, which may be `keyof T` or derived strings. */
+  customSorts: MaybeRefOrGetter<Partial<Record<string, (a: unknown, b: unknown) => number>>>
+  /** Per-column custom filter functions (reactive — tracks the columns registry). Keys are column ids, which may be `keyof T` or derived strings. */
+  customColumnFilters: MaybeRefOrGetter<Partial<Record<string, (value: unknown, query: string) => boolean>>>
 }
 
 /** Outputs returned by the adapter to createDataTable */
@@ -107,36 +107,32 @@ function compareValues (a: unknown, b: unknown, collator?: Intl.Collator): numbe
 export abstract class DataTableAdapter<T extends Record<string, unknown>> {
   /** Create the filter pipeline stage */
   protected filter (context: DataTableAdapterContext<T>) {
-    const hasColumnFilters = Object.keys(context.customColumnFilters).length > 0
+    // `customFilter` closes over the reactive maps so column registry mutations
+    // are observed at filter-call time rather than at setup time.
+    const filterOptions: FilterOptions = {
+      ...context.filterOptions,
+      keys: [...toValue(context.filterableKeys)],
+      customFilter: context.filterOptions.customFilter ?? ((query, item) => {
+        const columnFilters = toValue(context.customColumnFilters)
+        const keys = toValue(context.filterableKeys)
+        if (!isObject(item)) return false
+        const q = String(isArray(query) ? query[0] : query).toLowerCase()
+        if (!q) return true
+        const obj = item as Record<string, unknown>
 
-    // When per-column filters exist and no global customFilter, compose them
-    const filterOptions: FilterOptions = hasColumnFilters && !context.filterOptions.customFilter
-      ? {
-          ...context.filterOptions,
-          keys: [...context.filterableKeys],
-          customFilter: (query, item) => {
-            if (!isObject(item)) return false
-            const q = String(isArray(query) ? query[0] : query).toLowerCase()
-            if (!q) return true
-            const obj = item as Record<string, unknown>
+        for (const key of keys) {
+          const customFn = columnFilters[key]
 
-            for (const key of context.filterableKeys) {
-              const customFn = context.customColumnFilters[key]
-
-              if (customFn) {
-                if (customFn(obj[key], q)) return true
-              } else {
-                const val = obj[key]
-                if (!isNullOrUndefined(val) && String(val).toLowerCase().includes(q)) return true
-              }
-            }
-            return false
-          },
+          if (customFn) {
+            if (customFn(obj[key], q)) return true
+          } else {
+            const val = obj[key]
+            if (!isNullOrUndefined(val) && String(val).toLowerCase().includes(q)) return true
+          }
         }
-      : {
-          ...context.filterOptions,
-          keys: [...context.filterableKeys],
-        }
+        return false
+      }),
+    }
 
     const filter = createFilter(filterOptions)
 
@@ -151,18 +147,20 @@ export abstract class DataTableAdapter<T extends Record<string, unknown>> {
     filteredItems: Readonly<Ref<readonly T[]>>,
     sortBy: Readonly<Ref<SortEntry[]>>,
     locale?: Readonly<Ref<string | undefined>>,
-    customSorts?: Partial<Record<string, (a: unknown, b: unknown) => number>>,
+    customSorts?: MaybeRefOrGetter<Partial<Record<string, (a: unknown, b: unknown) => number>>>,
   ): Readonly<Ref<readonly T[]>> {
     return computed(() => {
       const entries = sortBy.value
       if (entries.length === 0) return filteredItems.value
+
+      const sorts = toValue(customSorts) ?? {}
 
       // Pre-resolve: split nested keys once, create collator once
       const collator = new Intl.Collator(locale?.value)
       const resolved = entries.map(({ key, direction }) => ({
         parts: key.split('.'),
         direction,
-        custom: customSorts?.[key],
+        custom: sorts[key],
       }))
 
       return filteredItems.value.toSorted((a, b) => {

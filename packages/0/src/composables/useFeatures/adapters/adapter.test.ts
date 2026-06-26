@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
 
+import { FeaturesAdapter } from './adapter'
+
 // Types
 import type { FeaturesAdapterFlags } from './adapter'
-
-import { FeaturesAdapter } from './adapter'
 
 class GenericTestAdapter extends FeaturesAdapter {
   setup (onUpdate: (flags: FeaturesAdapterFlags) => void): FeaturesAdapterFlags {
@@ -56,7 +56,7 @@ describe('featuresAdapter', () => {
   describe('dispose', () => {
     it('should clean up subscriptions', () => {
       const adapter = new GenericTestAdapter()
-      const disposeSpy = vi.spyOn(adapter, 'dispose')
+      using disposeSpy = vi.spyOn(adapter, 'dispose')
 
       adapter.dispose()
 

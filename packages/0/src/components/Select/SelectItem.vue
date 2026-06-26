@@ -12,6 +12,8 @@
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
+
+  // Context
   import { useSelectContext } from './SelectRoot.vue'
 
   // Utilities
@@ -68,6 +70,7 @@
   const {
     as = 'div',
     namespace = 'v0:select',
+    renderless,
     id,
     value,
     disabled,
@@ -113,6 +116,7 @@
 <template>
   <Atom
     :as
+    :renderless
     v-bind="slotProps.attrs"
   >
     <slot v-bind="slotProps" />

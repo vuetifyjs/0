@@ -1,7 +1,7 @@
+import { materialPalette, tailwindPalette } from './palettes'
+
 // Types
 import type { App } from 'vue'
-
-import { materialPalette, tailwindPalette } from './palettes'
 
 export function registerPlugins (app: App) {
   app.use(

@@ -24,11 +24,11 @@
     default: () => any
   }>()
 
-  const { as = 'div' } = defineProps<SnackbarContentProps>()
+  const { as = 'div', renderless } = defineProps<SnackbarContentProps>()
 </script>
 
 <template>
-  <Atom :as>
+  <Atom :as :renderless>
     <slot />
   </Atom>
 </template>

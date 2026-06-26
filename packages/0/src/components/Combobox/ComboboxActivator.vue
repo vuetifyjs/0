@@ -11,6 +11,8 @@
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
+
+  // Context
   import { useComboboxContext } from './ComboboxRoot.vue'
 
   // Utilities
@@ -30,6 +32,7 @@
     /** Attributes to bind to the activator element */
     attrs: {
       'data-state': 'open' | 'closed'
+      'style': Record<string, string>
     }
   }
 </script>
@@ -44,16 +47,16 @@
   const {
     as = 'div',
     namespace = 'v0:combobox',
+    renderless,
   } = defineProps<ComboboxActivatorProps>()
 
   const context = useComboboxContext(namespace)
-
-  const style = toRef(() => context.popover.anchorStyles.value)
 
   const slotProps = toRef((): ComboboxActivatorSlotProps => ({
     isOpen: context.isOpen.value,
     attrs: {
       'data-state': context.isOpen.value ? 'open' : 'closed',
+      'style': context.popover.anchorStyles.value,
     },
   }))
 </script>
@@ -62,7 +65,7 @@
   <Atom
     v-bind="slotProps.attrs"
     :as
-    :style
+    :renderless
   >
     <slot v-bind="slotProps" />
   </Atom>

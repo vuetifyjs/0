@@ -37,12 +37,12 @@ import { createSelection } from '#v0/composables/createSelection'
 import { createTrinity } from '#v0/composables/createTrinity'
 import { useProxyRegistry } from '#v0/composables/useProxyRegistry'
 
+// Transformers
+import { toArray } from '#v0/composables/toArray'
+
 // Utilities
 import { resolveIds, resolveIndexes, useId } from '#v0/utilities'
 import { computed, shallowReactive, toRef, toValue } from 'vue'
-
-// Transformers
-import { toArray } from '#v0/composables/toArray'
 
 // Types
 import type { SelectionContext, SelectionContextOptions, SelectionOptions, SelectionTicket, SelectionTicketInput } from '#v0/composables/createSelection'
@@ -100,7 +100,7 @@ export interface GroupContext<
   /** Check if a ticket is in mixed/indeterminate state by ID */
   mixed: (id: ID) => boolean
   /** Whether no items are currently selected */
-  isNoneSelected: ComputedRef<boolean>
+  isNoneSelected: Readonly<Ref<boolean>>
   /** Whether all selectable (non-disabled) items are selected */
   isAllSelected: ComputedRef<boolean>
   /** Whether some but not all selectable items are selected */
@@ -201,7 +201,7 @@ export function createGroup<
 > (_options: GroupOptions = {}): R {
   const { mandatory = false, multiple = true, ...options } = _options
   const selection = createSelection<Z, E>({ ...options, mandatory, multiple, events: true })
-  const proxy = useProxyRegistry<E>(selection)
+  const proxy = useProxyRegistry<Z, E>(selection)
   const mixedIds = shallowReactive(new Set<ID>())
 
   const selectedIndexes = computed(() => new Set(resolveIndexes(selection.selectedItems.value)))
@@ -279,11 +279,11 @@ export function createGroup<
     selection.unregister(id)
   }
 
-  function offboard (ids: ID[]) {
+  function offboard (ids: ID[]): Partial<Z>[] {
     for (const id of ids) {
       mixedIds.delete(id)
     }
-    selection.offboard(ids)
+    return selection.offboard(ids)
   }
 
   function onboard (registrations: Partial<Z>[]): E[] {
@@ -360,7 +360,7 @@ export function createGroup<
     get size () {
       return selection.size
     },
-  } as unknown as R
+  } satisfies GroupContext<Z, E> as unknown as R
 }
 
 /**

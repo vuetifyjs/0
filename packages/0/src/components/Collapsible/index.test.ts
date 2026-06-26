@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest'
 
+import { Collapsible } from './index'
+
 // Utilities
 import { mount } from '@vue/test-utils'
 import { h, nextTick, ref } from 'vue'
-
-import { Collapsible } from './index'
 
 interface MountResult {
   wrapper: ReturnType<typeof mount>
@@ -735,6 +735,26 @@ describe('collapsible', () => {
         await wait()
 
         expect(cueProps().isOpen).toBe(true)
+      })
+    })
+
+    describe('renderless', () => {
+      it('should not render a wrapper element when renderless', async () => {
+        const wrapper = mount(Collapsible.Root, {
+          slots: {
+            default: () => h(Collapsible.Cue as any, { renderless: true }, {
+              default: (props: any) => h('i', { 'data-testid': 'custom', ...props.attrs }, '▼'),
+            }),
+          },
+        })
+
+        await nextTick()
+
+        const custom = wrapper.find('[data-testid="custom"]')
+        expect(custom.attributes('aria-hidden')).toBe('true')
+        expect(custom.attributes('data-state')).toBe('closed')
+        expect(wrapper.find('span').exists()).toBe(false)
+        expect(wrapper.findAll('[aria-hidden]')).toHaveLength(1)
       })
     })
   })

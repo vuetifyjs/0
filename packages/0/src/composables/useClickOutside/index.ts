@@ -37,19 +37,19 @@ import {
   useWindowEventListener,
 } from '#v0/composables/useEventListener'
 
+// Transformers
+import { toArray } from '#v0/composables/toArray'
+
+// Globals
+import { IN_BROWSER } from '#v0/constants/globals'
+
 // Utilities
 import { isElement, isFunction, isNull, isNullOrUndefined, isString } from '#v0/utilities'
 import { onScopeDispose, shallowReadonly, shallowRef, toRef, toValue } from 'vue'
 
-// Transformers
-import { toArray } from '#v0/composables/toArray'
-
 // Types
 import type { MaybeArray } from '#v0/types'
 import type { MaybeRefOrGetter, Ref } from 'vue'
-
-// Globals
-import { IN_BROWSER } from '#v0/constants/globals'
 
 export type ClickOutsideElement = HTMLElement | null | undefined
 export type ClickOutsideTarget = MaybeRefOrGetter<ClickOutsideElement>
@@ -314,7 +314,7 @@ export function useClickOutside (
   /**
    * Handle pointerdown - store initial target and position.
    */
-  function onPointerDown (event: PointerEvent) {
+  function onPointerdown (event: PointerEvent) {
     if (isPaused.value) return
     if (event.defaultPrevented) return
 
@@ -329,7 +329,7 @@ export function useClickOutside (
   /**
    * Handle pointerup - check if it's an outside click.
    */
-  function onPointerUp (event: PointerEvent) {
+  function onPointerup (event: PointerEvent) {
     if (isPaused.value) return
     if (event.defaultPrevented) return
     if (!initialTarget) return
@@ -377,8 +377,8 @@ export function useClickOutside (
   /* v8 ignore stop */
 
   function setup () {
-    cleanupPointerDown = useDocumentEventListener('pointerdown', onPointerDown, capture)
-    cleanupPointerUp = useDocumentEventListener('pointerup', onPointerUp, capture)
+    cleanupPointerDown = useDocumentEventListener('pointerdown', onPointerdown, capture)
+    cleanupPointerUp = useDocumentEventListener('pointerup', onPointerup, capture)
 
     if (!detectIframe) return
 

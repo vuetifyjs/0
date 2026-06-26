@@ -29,9 +29,13 @@
 // Composables
 import { createPluginContext } from '#v0/composables/createPlugin'
 import { useWindowEventListener } from '#v0/composables/useEventListener'
+import { useLogger } from '#v0/composables/useLogger'
 
 // Adapters
 import { MemoryStorageAdapter } from '#v0/composables/useStorage/adapters'
+
+// Globals
+import { IN_BROWSER } from '#v0/constants/globals'
 
 // Utilities
 import { isArray, isNullOrUndefined, isObject } from '#v0/utilities'
@@ -40,9 +44,6 @@ import { ref, watch } from 'vue'
 // Types
 import type { StorageAdapter } from '#v0/composables/useStorage/adapters'
 import type { Ref } from 'vue'
-
-// Globals
-import { IN_BROWSER } from '#v0/constants/globals'
 
 export interface StorageContext {
   /** Check if a key exists in storage */
@@ -120,6 +121,8 @@ export function createStorage<
     ttl,
   } = options
 
+  const logger = useLogger()
+
   const cache = new Map<string, Ref<unknown>>()
   const watchers = new Map<string, () => void>()
 
@@ -149,7 +152,7 @@ export function createStorage<
 
       return parsed
     } catch (error) {
-      console.error(`[v0:storage] Failed to parse stored value for key "${prefixedKey}":`, error)
+      logger.error(`[v0:storage] Failed to parse stored value for key "${prefixedKey}":`, error)
       return undefined
     }
   }
@@ -160,7 +163,7 @@ export function createStorage<
     try {
       adapter?.setItem(prefixedKey, serializer.write(wrapped))
     } catch (error) {
-      console.error(`[v0:storage] Failed to write key "${prefixedKey}":`, error)
+      logger.error(`[v0:storage] Failed to write key "${prefixedKey}":`, error)
     }
   }
 

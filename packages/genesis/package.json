@@ -1,0 +1,41 @@
+{
+  "name": "@paper/genesis",
+  "version": "1.0.0-beta.2",
+  "description": "Genesis Design System — minimal docs primitives extracted from the v0 docs site",
+  "license": "MIT",
+  "types": "./dist/index.d.mts",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "typecheck": "vue-tsc --noEmit --incremental"
+  },
+  "peerDependencies": {
+    "vue": ">=3.5.0"
+  },
+  "exports": {
+    ".": {
+      "development": "./src/index.ts",
+      "default": "./dist/index.mjs"
+    },
+    "./package.json": "./package.json",
+    "./style.css": "./dist/style.css"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": "./dist/index.mjs",
+      "./package.json": "./package.json",
+      "./style.css": "./dist/style.css"
+    }
+  },
+  "dependencies": {
+    "@vuetify/v0": "workspace:^"
+  },
+  "devDependencies": {
+    "tsdown": "catalog:",
+    "typescript": "catalog:",
+    "unplugin-vue": "catalog:"
+  }
+}

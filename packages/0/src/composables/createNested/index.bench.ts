@@ -10,10 +10,10 @@
 
 import { bench, describe } from 'vitest'
 
+import { createNested } from './index'
+
 // Types
 import type { NestedContext, NestedRegistration, NestedTicket } from './types'
-
-import { createNested } from './index'
 
 // =============================================================================
 // FIXTURES - Created once, reused across read-only benchmarks
@@ -191,18 +191,25 @@ describe('createNested benchmarks', () => {
 
   // ===========================================================================
   // OPEN/CLOSE OPERATIONS - Expand/collapse state
-  // Fresh fixture per iteration (required - mutations change state)
-  // Measures: setup + operation cost
+  // 1K benches: fresh fixture per iteration (setup cost is acceptable)
+  // 10K benches: shared fixtures — open/expandAll on already-open nodes still
+  //   run their full O(depth)/O(n) body (no early-return), isolating the
+  //   operation from O(n) onboard setup. collapseAll empties openedIds, so a
+  //   collapsed fixture would measure nothing — it alternates collapse↔expand
+  //   on a dedicated fixture instead, keeping every iteration a full O(n) pass
   // ===========================================================================
   describe('open/close operations', () => {
+    const tree10kExpanded = createPopulatedNestedWithOpen(TREE_10K)
+    const tree10kToggle = createPopulatedNestedWithOpen(TREE_10K)
+    let collapsed = false
+
     bench('Open single node (1,000 tree items)', () => {
       const nested = createPopulatedNested(TREE_1K)
       nested.open(LOOKUP_ROOT_TREE)
     })
 
     bench('Open single node (10,000 tree items)', () => {
-      const nested = createPopulatedNested(TREE_10K)
-      nested.open(LOOKUP_ROOT_TREE)
+      tree10kExpanded.open(LOOKUP_ROOT_TREE)
     })
 
     bench('Close single node (1,000 tree items)', () => {
@@ -221,8 +228,7 @@ describe('createNested benchmarks', () => {
     })
 
     bench('Expand all (10,000 tree items)', () => {
-      const nested = createPopulatedNested(TREE_10K)
-      nested.expandAll()
+      tree10kExpanded.expandAll()
     })
 
     bench('Collapse all (1,000 tree items)', () => {
@@ -231,17 +237,23 @@ describe('createNested benchmarks', () => {
     })
 
     bench('Collapse all (10,000 tree items)', () => {
-      const nested = createPopulatedNestedWithOpen(TREE_10K)
-      nested.collapseAll()
+      if (collapsed) tree10kToggle.expandAll()
+      else tree10kToggle.collapseAll()
+      collapsed = !collapsed
     })
   })
 
   // ===========================================================================
   // SELECTION OPERATIONS - Cascading selection
-  // Fresh fixture per iteration (required - mutations change state)
-  // Measures: setup + cascading selection cost
+  // 1K benches: fresh fixture per iteration (setup cost is acceptable)
+  // 10K benches: shared fixture — select/selectAll on already-selected items
+  //   cause no state changes but still perform the full O(n) descendant
+  //   traversal, isolating cascade cost from O(n) onboard setup cost
   // ===========================================================================
   describe('selection operations', () => {
+    const tree10kAllSelected = createPopulatedNested(TREE_10K)
+    tree10kAllSelected.selectAll()
+
     bench('Select leaf node (1,000 tree items)', () => {
       const nested = createPopulatedNested(TREE_1K)
       nested.select(LOOKUP_ID_TREE_1K)
@@ -253,8 +265,7 @@ describe('createNested benchmarks', () => {
     })
 
     bench('Select root node with cascade (10,000 tree items)', () => {
-      const nested = createPopulatedNested(TREE_10K)
-      nested.select(LOOKUP_ROOT_TREE)
+      tree10kAllSelected.select(LOOKUP_ROOT_TREE)
     })
 
     bench('Unselect root node with cascade (1,000 tree items)', () => {
@@ -274,8 +285,7 @@ describe('createNested benchmarks', () => {
     })
 
     bench('Select all via selectAll (10,000 tree items)', () => {
-      const nested = createPopulatedNested(TREE_10K)
-      nested.selectAll()
+      tree10kAllSelected.selectAll()
     })
   })
 

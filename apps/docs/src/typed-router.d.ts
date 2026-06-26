@@ -121,6 +121,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/components/disclosure/tooltip': RouteRecordInfo<
+      '/components/disclosure/tooltip',
+      '/components/disclosure/tooltip',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/components/disclosure/treeview': RouteRecordInfo<
       '/components/disclosure/treeview',
       '/components/disclosure/treeview',
@@ -345,6 +352,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/composables/data/create-data-grid': RouteRecordInfo<
+      '/composables/data/create-data-grid',
+      '/composables/data/create-data-grid',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/composables/data/create-data-table': RouteRecordInfo<
       '/composables/data/create-data-table',
       '/composables/data/create-data-table',
@@ -355,6 +369,13 @@ declare module 'vue-router/auto-routes' {
     '/composables/data/create-filter': RouteRecordInfo<
       '/composables/data/create-filter',
       '/composables/data/create-filter',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/composables/data/create-kanban': RouteRecordInfo<
+      '/composables/data/create-kanban',
+      '/composables/data/create-kanban',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -411,6 +432,13 @@ declare module 'vue-router/auto-routes' {
     '/composables/forms/create-numeric': RouteRecordInfo<
       '/composables/forms/create-numeric',
       '/composables/forms/create-numeric',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/composables/forms/create-otp': RouteRecordInfo<
+      '/composables/forms/create-otp',
+      '/composables/forms/create-otp',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -513,6 +541,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/composables/plugins/use-reduced-motion': RouteRecordInfo<
+      '/composables/plugins/use-reduced-motion',
+      '/composables/plugins/use-reduced-motion',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/composables/plugins/use-rtl': RouteRecordInfo<
       '/composables/plugins/use-rtl',
       '/composables/plugins/use-rtl',
@@ -544,6 +579,13 @@ declare module 'vue-router/auto-routes' {
     '/composables/plugins/use-theme': RouteRecordInfo<
       '/composables/plugins/use-theme',
       '/composables/plugins/use-theme',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/composables/plugins/use-tooltip': RouteRecordInfo<
+      '/composables/plugins/use-tooltip',
+      '/composables/plugins/use-tooltip',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -793,6 +835,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/composables/transformers/to-highlight': RouteRecordInfo<
+      '/composables/transformers/to-highlight',
+      '/composables/transformers/to-highlight',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/composables/transformers/to-reactive': RouteRecordInfo<
       '/composables/transformers/to-reactive',
       '/composables/transformers/to-reactive',
@@ -947,6 +996,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/guide/tooling/testing': RouteRecordInfo<
+      '/guide/tooling/testing',
+      '/guide/tooling/testing',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/guide/tooling/vuetify-cli': RouteRecordInfo<
       '/guide/tooling/vuetify-cli',
       '/guide/tooling/vuetify-cli',
@@ -1045,6 +1101,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/services': RouteRecordInfo<
+      '/services',
+      '/services',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/skillz/': RouteRecordInfo<
       '/skillz/',
       '/skillz',
@@ -1057,6 +1120,13 @@ declare module 'vue-router/auto-routes' {
       '/skillz/:id',
       { id: ParamValue<true> },
       { id: ParamValue<false> },
+      | never
+    >,
+    '/sponsor': RouteRecordInfo<
+      '/sponsor',
+      '/sponsor',
+      Record<never, never>,
+      Record<never, never>,
       | never
     >,
   }
@@ -1147,6 +1217,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/components/disclosure/tabs.md': {
       routes:
         | '/components/disclosure/tabs'
+      views:
+        | never
+    }
+    'src/pages/components/disclosure/tooltip.md': {
+      routes:
+        | '/components/disclosure/tooltip'
       views:
         | never
     }
@@ -1342,6 +1418,12 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/composables/data/create-data-grid.md': {
+      routes:
+        | '/composables/data/create-data-grid'
+      views:
+        | never
+    }
     'src/pages/composables/data/create-data-table.md': {
       routes:
         | '/composables/data/create-data-table'
@@ -1351,6 +1433,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/data/create-filter.md': {
       routes:
         | '/composables/data/create-filter'
+      views:
+        | never
+    }
+    'src/pages/composables/data/create-kanban.md': {
+      routes:
+        | '/composables/data/create-kanban'
       views:
         | never
     }
@@ -1399,6 +1487,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/forms/create-numeric.md': {
       routes:
         | '/composables/forms/create-numeric'
+      views:
+        | never
+    }
+    'src/pages/composables/forms/create-otp.md': {
+      routes:
+        | '/composables/forms/create-otp'
       views:
         | never
     }
@@ -1486,6 +1580,12 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/composables/plugins/use-reduced-motion.md': {
+      routes:
+        | '/composables/plugins/use-reduced-motion'
+      views:
+        | never
+    }
     'src/pages/composables/plugins/use-rtl.md': {
       routes:
         | '/composables/plugins/use-rtl'
@@ -1513,6 +1613,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/plugins/use-theme.md': {
       routes:
         | '/composables/plugins/use-theme'
+      views:
+        | never
+    }
+    'src/pages/composables/plugins/use-tooltip.md': {
+      routes:
+        | '/composables/plugins/use-tooltip'
       views:
         | never
     }
@@ -1726,6 +1832,12 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/composables/transformers/to-highlight.md': {
+      routes:
+        | '/composables/transformers/to-highlight'
+      views:
+        | never
+    }
     'src/pages/composables/transformers/to-reactive.md': {
       routes:
         | '/composables/transformers/to-reactive'
@@ -1858,6 +1970,12 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/guide/tooling/testing.md': {
+      routes:
+        | '/guide/tooling/testing'
+      views:
+        | never
+    }
     'src/pages/guide/tooling/vuetify-cli.md': {
       routes:
         | '/guide/tooling/vuetify-cli'
@@ -1942,6 +2060,12 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/services.md': {
+      routes:
+        | '/services'
+      views:
+        | never
+    }
     'src/pages/skillz/index.md': {
       routes:
         | '/skillz/'
@@ -1951,6 +2075,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/skillz.[id].vue': {
       routes:
         | '/skillz.[id]'
+      views:
+        | never
+    }
+    'src/pages/sponsor.md': {
+      routes:
+        | '/sponsor'
       views:
         | never
     }

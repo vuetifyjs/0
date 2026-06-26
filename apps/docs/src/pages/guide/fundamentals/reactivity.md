@@ -423,7 +423,7 @@ See [Benchmarks](/guide/fundamentals/benchmarks) for detailed measurements and m
 
 > [!ASKAI] Should I use useProxyRegistry or events for a list of 500 items that updates every few seconds?
 
-## Frequently Asked Questions
+## FAQ
 
 ::: faq
 ??? Why doesn't v0 just make everything reactive like Vue?

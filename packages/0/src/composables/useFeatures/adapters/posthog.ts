@@ -5,18 +5,18 @@
  * PostHog adapter for feature flags.
  */
 
+// Globals
+import { IN_BROWSER } from '#v0/constants/globals'
+
+// Adapters
+import { FeaturesAdapter } from './adapter'
+
 // Utilities
 import { isBoolean, isNullOrUndefined } from '#v0/utilities'
 
 // Types
 import type { FeaturesAdapterFlags } from './adapter'
 import type { PostHog } from 'posthog-js'
-
-// Constants
-import { IN_BROWSER } from '#v0/constants/globals'
-
-// Adapters
-import { FeaturesAdapter } from './adapter'
 
 export class PostHogFeaturesAdapter extends FeaturesAdapter {
   constructor (private client: PostHog) {

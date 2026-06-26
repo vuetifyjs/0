@@ -5,7 +5,7 @@
  * Knock adapter for useNotifications.
  * Bridges a Knock feed instance with the notification system.
  *
- * Inbound: Maps real-time feed events to ctx.send()
+ * Inbound: Maps real-time feed events to context.send()
  * Outbound: Listens to notification:read and notification:archived
  *           events and calls feed.markAsRead/markAsArchived
  *
@@ -24,14 +24,14 @@
  * ```
  */
 
-// Types
-import type { NotificationInput, NotificationsAdapterContext, NotificationTicket } from '../index'
-
 // Globals
 import { IN_BROWSER } from '#v0/constants/globals'
 
 // Adapters
 import { NotificationsAdapter } from './adapter'
+
+// Types
+import type { NotificationTicketInput, NotificationsAdapterContext, NotificationTicket } from '../index'
 
 /** Minimal Knock feed item shape. Uses type-only imports to avoid bundling the SDK. */
 export interface KnockFeedItem {
@@ -63,7 +63,7 @@ export interface KnockFeed {
 
 function noop () {}
 
-function mapItem (item: KnockFeedItem): NotificationInput {
+function mapItem (item: KnockFeedItem): NotificationTicketInput {
   const subject = item.blocks?.find(b => b.name === 'subject')?.rendered
   const body = item.blocks?.find(b => b.name === 'body')?.rendered
 
@@ -77,7 +77,7 @@ function mapItem (item: KnockFeedItem): NotificationInput {
 
 export class KnockNotificationsAdapter extends NotificationsAdapter {
   private items = new Map<string, KnockFeedItem>()
-  private ctx: NotificationsAdapterContext | undefined
+  private context: NotificationsAdapterContext | undefined
   private onReceived: ((data: unknown) => void) | undefined
   private onPage: ((data: unknown) => void) | undefined
   private onRead: ((data: unknown) => void) | undefined
@@ -87,8 +87,8 @@ export class KnockNotificationsAdapter extends NotificationsAdapter {
     super()
   }
 
-  setup (_ctx: NotificationsAdapterContext) {
-    this.ctx = _ctx
+  setup (context: NotificationsAdapterContext) {
+    this.context = context
 
     // Inbound: real-time → send (toast + registry)
     this.onReceived = (data: unknown) => {
@@ -97,7 +97,7 @@ export class KnockNotificationsAdapter extends NotificationsAdapter {
       for (const item of payload.items) {
         if (this.items.has(item.id)) continue
         this.items.set(item.id, item)
-        this.ctx!.send(mapItem(item))
+        this.context!.send(mapItem(item))
       }
     }
 
@@ -108,7 +108,7 @@ export class KnockNotificationsAdapter extends NotificationsAdapter {
       for (const item of payload.items) {
         if (this.items.has(item.id)) continue
         this.items.set(item.id, item)
-        this.ctx!.register(mapItem(item))
+        this.context!.register(mapItem(item))
       }
     }
 
@@ -131,16 +131,16 @@ export class KnockNotificationsAdapter extends NotificationsAdapter {
       if (item) this.feed.markAsArchived(item).catch(noop)
     }
 
-    this.ctx.on('notification:read', this.onRead)
-    this.ctx.on('notification:archived', this.onArchived)
+    this.context.on('notification:read', this.onRead)
+    this.context.on('notification:archived', this.onArchived)
   }
 
   dispose () {
-    if (!this.ctx) return
+    if (!this.context) return
     this.feed.off('items.received.realtime', this.onReceived!)
     this.feed.off('items.received.page', this.onPage!)
-    this.ctx.off('notification:read', this.onRead!)
-    this.ctx.off('notification:archived', this.onArchived!)
+    this.context.off('notification:read', this.onRead!)
+    this.context.off('notification:archived', this.onArchived!)
     this.items.clear()
     this.feed.teardown()
   }

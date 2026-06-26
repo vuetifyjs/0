@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { createOverflow, createOverflowContext, useOverflow } from './index'
+
 // Utilities
 import { nextTick, ref, shallowRef } from 'vue'
-
-import { createOverflow, createOverflowContext, useOverflow } from './index'
 
 const mockIsHydrated = ref(true)
 vi.mock('#v0/composables/useHydration', () => ({
@@ -340,6 +340,125 @@ describe('createOverflow', () => {
     await nextTick()
 
     expect(result.capacity.value).toBe(0)
+  })
+
+  describe('uniform mode isOverflowing', () => {
+    function setup () {
+      const result = createOverflow({ itemWidth: 50, reserved: 0 })
+      const container = document.createElement('div')
+      result.container.value = container
+      return result
+    }
+
+    async function size (width: number) {
+      await nextTick()
+      resizeCallback?.([{ contentRect: { width, height: 50 } }])
+      await nextTick()
+    }
+
+    function present (result: ReturnType<typeof createOverflow>, ids: number[]) {
+      // Items signal presence via measure() — the width arg is ignored for
+      // uniform-mode capacity but the entry count drives isOverflowing.
+      const el = document.createElement('div')
+      Object.defineProperty(el, 'offsetWidth', { value: 50 })
+      vi.spyOn(window, 'getComputedStyle').mockReturnValue({
+        marginLeft: '0px',
+        marginRight: '0px',
+      } as CSSStyleDeclaration)
+      for (const id of ids) result.measure(id, el)
+    }
+
+    it('should report isOverflowing when registered count exceeds capacity', async () => {
+      const result = setup()
+      await size(100)
+      // capacity = floor(100 / 50) = 2
+      expect(result.capacity.value).toBe(2)
+
+      present(result, [0, 1])
+      expect(result.isOverflowing.value).toBe(false)
+
+      present(result, [0, 1, 2])
+      expect(result.isOverflowing.value).toBe(true)
+    })
+
+    it('should report not overflowing when count is at capacity', async () => {
+      const result = setup()
+      await size(150)
+      // capacity = floor(150 / 50) = 3
+      expect(result.capacity.value).toBe(3)
+
+      present(result, [0, 1, 2])
+      expect(result.isOverflowing.value).toBe(false)
+    })
+
+    it('should report not overflowing when no items are registered', async () => {
+      const result = setup()
+      await size(100)
+      expect(result.isOverflowing.value).toBe(false)
+    })
+
+    it('should react to an item unregistering', async () => {
+      const result = setup()
+      await size(100)
+      present(result, [0, 1, 2])
+      expect(result.isOverflowing.value).toBe(true)
+
+      result.measure(2, undefined)
+      expect(result.isOverflowing.value).toBe(false)
+    })
+
+    it('should derive isOverflowing from count in uniform mode (ignoring measured per-item widths)', async () => {
+      // In uniform mode, items signal presence by calling measure(i, el).
+      // The width arg is irrelevant — itemWidth × count is the canonical math.
+      // This test passes a deliberately-wrong offsetWidth (0) to prove the
+      // count drives isOverflowing, not summed measurements.
+      const result = setup()
+      await size(100)
+
+      const el = document.createElement('div')
+      Object.defineProperty(el, 'offsetWidth', { value: 0 })
+      vi.spyOn(window, 'getComputedStyle').mockReturnValue({
+        marginLeft: '0px',
+        marginRight: '0px',
+      } as CSSStyleDeclaration)
+
+      result.measure(0, el)
+      result.measure(1, el)
+      result.measure(2, el)
+
+      // capacity = 100 / 50 = 2, count = 3 → must report overflowing
+      expect(result.capacity.value).toBe(2)
+      expect(result.isOverflowing.value).toBe(true)
+    })
+
+    it('should stay false when capacity is Infinity (SSR / itemWidth not measured)', async () => {
+      const itemWidth = shallowRef(0)
+      const result = createOverflow({ itemWidth, reserved: 0 })
+      const container = document.createElement('div')
+      result.container.value = container
+      await size(100)
+
+      present(result, [0, 1, 2, 3, 4])
+      expect(result.capacity.value).toBe(Infinity)
+      expect(result.isOverflowing.value).toBe(false)
+    })
+
+    it('should react to itemWidth changes via reactive option', async () => {
+      const itemWidth = shallowRef(50)
+      const result = createOverflow({ itemWidth, reserved: 0 })
+      const container = document.createElement('div')
+      result.container.value = container
+      await size(100)
+
+      present(result, [0, 1, 2])
+      // capacity = floor(100 / 50) = 2, count = 3 → overflowing
+      expect(result.isOverflowing.value).toBe(true)
+
+      // Shrink itemWidth → capacity grows, no longer overflows
+      itemWidth.value = 25
+      // capacity = floor(100 / 25) = 4, count = 3 → fits
+      expect(result.isOverflowing.value).toBe(false)
+    })
   })
 
   it('should return Infinity when itemWidth option provided but value is 0 (not measured yet)', async () => {
@@ -720,10 +839,9 @@ describe('useOverflow', () => {
   })
 
   it('should throw when context is not provided', () => {
-    const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
     expect(() => useOverflow()).toThrow()
     expect(spy).toHaveBeenCalledTimes(1)
-    spy.mockRestore()
   })
 })
 

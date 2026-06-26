@@ -11,6 +11,8 @@
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
+
+  // Context
   import { useSnackbarQueueContext } from './SnackbarQueue.vue'
 
   // Composables
@@ -59,7 +61,7 @@
     default: (props: SnackbarRootSlotProps) => any
   }>()
 
-  const { as = 'div', namespace = 'v0:notifications', id = useId() } = defineProps<SnackbarRootProps>()
+  const { as = 'div', namespace = 'v0:notifications', id = useId(), renderless } = defineProps<SnackbarRootProps>()
 
   const queue = useSnackbarQueueContext(namespace, null)
 
@@ -82,7 +84,11 @@
 </script>
 
 <template>
-  <Atom v-bind="slotProps.attrs" :as>
+  <Atom
+    :as
+    :renderless
+    v-bind="slotProps.attrs"
+  >
     <slot v-bind="slotProps" />
   </Atom>
 </template>

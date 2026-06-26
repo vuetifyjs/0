@@ -82,6 +82,24 @@ export interface LocaleContext<
    * ```
    */
   t: (key: string, ...params: unknown[]) => string
+  /**
+   * Translate a message key only if it exists, otherwise return `undefined`.
+   *
+   * Unlike {@link t}, `ti` ("translate if exists") never echoes the raw key on a
+   * miss. This lets components supply their own inline English default with the
+   * nullish-coalescing operator instead of relying on bundled fallback messages.
+   *
+   * @param key - The message key to look up
+   * @param params - Optional named params object, followed by positional params
+   * @returns The translated and interpolated message, or `undefined` if missing
+   *
+   * @example
+   * ```ts
+   * // Falls back to an inline default when the key is not translated
+   * locale.ti('Pagination.next') ?? 'Next page'
+   * ```
+   */
+  ti: (key: string, ...params: unknown[]) => string | undefined
   n: (value: number) => string
   /**
    * Register a locale with optional messages.
@@ -149,6 +167,10 @@ export function createLocale (_options: LocaleOptions = {}): LocaleContext {
     return adapter.t(key, ...params)
   }
 
+  function ti (key: string, ...params: unknown[]): string | undefined {
+    return adapter.ti(key, ...params)
+  }
+
   function n (value: number): string {
     return adapter.n(value)
   }
@@ -166,6 +188,7 @@ export function createLocale (_options: LocaleOptions = {}): LocaleContext {
   return {
     ...registry,
     t,
+    ti,
     n,
     register,
     get size () {
@@ -178,6 +201,7 @@ export function createLocaleFallback (): LocaleContext {
   return {
     size: 0,
     t: (key: string) => key,
+    ti: () => undefined,
     n: String,
   } as unknown as LocaleContext
 }

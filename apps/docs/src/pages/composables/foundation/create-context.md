@@ -117,7 +117,7 @@ flowchart TD
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/create-context/context.ts
 /composables/create-context/NotificationProvider.vue
 /composables/create-context/NotificationConsumer.vue
@@ -125,7 +125,11 @@ flowchart TD
 
 ### Notification System
 
-This example demonstrates the provider/consumer pattern using `createContext`. The context acts as a contract between components that produce state and components that consume it.
+A four-file notification system that shows the canonical `createContext` provider/consumer split. `context.ts` is the only file that calls `createContext` — it defines the `NotificationContext` interface (a `ShallowReactive<Notification[]>` array plus `notify`, `dismiss`, and `clear` methods) and exports the `[useNotifications, provideNotifications]` tuple. `NotificationProvider.vue` creates the reactive state and method implementations, passes the assembled object to `provideNotifications()`, then renders only a slot — it is an invisible wrapper with no visual output. `NotificationConsumer.vue` destructures all four members from `useNotifications()` and drives a color-coded notification list: four buttons fire `random(type)` which picks a message at random and calls `notify()`; clicking a notification card calls `dismiss(id)` to splice it out; "Clear" calls `clear()` to empty the array. `notifications.vue` composes the two components.
+
+The key architectural choice is that `NotificationConsumer` imports exclusively from `context.ts`, never from the provider. This means the consumer is reusable: drop it inside any provider that satisfies the `NotificationContext` interface and it works without modification — the same contract that makes testing straightforward, since a test can `provideNotifications()` a stub context without mounting the full provider tree.
+
+`shallowReactive` is used for the notifications array (not `ref`) because the array is mutated in place via `push` and `splice` — Vue's reactivity tracks those mutations without needing to replace the reference. For contexts that wrap composables from the selection or registry layer instead of raw reactive state, the same file-separation pattern applies.
 
 ```mermaid "Provider/Consumer Data Flow"
 graph LR

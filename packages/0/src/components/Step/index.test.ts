@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import { renderToString } from 'vue/server-renderer'
 
+import { Step } from './index'
+
 // Utilities
 import { mount } from '@vue/test-utils'
 import { createSSRApp, defineComponent, h, nextTick, ref } from 'vue'
-
-import { Step } from './index'
 
 describe('step', () => {
   describe('root', () => {
@@ -104,6 +104,46 @@ describe('step', () => {
         expect(item1Props.isSelected).toBe(true)
         expect(item2Props.isSelected).toBe(false)
         expect(item3Props.isSelected).toBe(false)
+      })
+
+      it('should not toggle off a selected disabled item via onClick', async () => {
+        let itemProps: any
+
+        const Host = defineComponent({
+          setup () {
+            const disabled = ref(false)
+            return { disabled }
+          },
+          render () {
+            return h(Step.Root as any, null, {
+              default: () => h(Step.Item as any, { value: 'step-1', disabled: this.disabled }, {
+                default: (props: any) => {
+                  itemProps = props
+                  return h('div', 'Step 1')
+                },
+              }),
+            })
+          },
+        })
+
+        const wrapper = mount(Host)
+        await nextTick()
+
+        // Select the item while it is still enabled.
+        itemProps.select()
+        await nextTick()
+        expect(itemProps.isSelected).toBe(true)
+
+        // Now disable the selected item, then click it. Pre-fix onClick was
+        // `ticket.toggle`, which routes to unselect — honouring only group-disabled,
+        // not ticket-disabled — so a selected disabled item toggled off on click.
+        // The guard now blocks it.
+        wrapper.vm.disabled = true
+        await nextTick()
+
+        itemProps.attrs.onClick()
+        await nextTick()
+        expect(itemProps.isSelected).toBe(true)
       })
 
       it('should navigate to last item with last()', async () => {

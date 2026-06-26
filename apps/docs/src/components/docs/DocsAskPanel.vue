@@ -5,6 +5,8 @@
   // Components
   import AppIcon from '@/components/app/AppIcon.vue'
   import { Discovery } from '@/components/discovery'
+
+  // Context
   import DocsAskMessage from './DocsAskMessage.vue'
 
   // Composables
@@ -152,7 +154,7 @@
       isDesktop && fullscreen
         ? 'fixed inset-4 rounded-lg border border-divider shadow-lg'
         : isDesktop
-          ? 'fixed end-4 top-23 w-[clamp(280px,calc(100vw-230px-730px-64px),500px)] h-[calc(100vh-137px)] rounded-lg border border-divider shadow-lg'
+          ? 'fixed end-4 top-[calc(48px+var(--app-banner-h,24px)+20px)] w-[clamp(280px,calc(100vw-230px-730px-64px),500px)] h-[calc(100vh-113px-var(--app-banner-h,24px))] rounded-lg border border-divider shadow-lg'
           : 'fixed inset-0',
     ]"
     :role="isDesktop ? 'complementary' : 'dialog'"

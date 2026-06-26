@@ -93,12 +93,14 @@ flowchart TD
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/use-resize-observer/responsive-grid
 
 ### Responsive Grid
 
-A manually resizable container that adapts from 1 to 3 columns based on its own width, with live dimension readout.
+A drag-resizable container with a card grid that recalculates its column count based on the container's own width, not the viewport. The `useResizeObserver` callback writes the `contentRect.width` into a `shallowRef`; a `computed` maps width ranges to column counts (1 below 400 px, 2 from 400–600 px, 3 above 600 px). The dimension badge in the top-right corner shows the live pixel values so you can see the breakpoints as you drag the right edge.
+
+This component-query pattern is the key use case for `useResizeObserver` over CSS media queries: the container can be placed at any width in the page and still respond correctly to its own available space, independent of the viewport. It is also the recommended approach for charts, virtual lists, and any element whose internal layout depends on its measured size rather than a global breakpoint. For tracking element visibility rather than size, see [useIntersectionObserver](/composables/system/use-intersection-observer).
 
 :::
 

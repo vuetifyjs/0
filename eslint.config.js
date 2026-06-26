@@ -45,22 +45,24 @@ export default vuetify({
         { group: 'framework', commentAbove: 'Framework' },
         { newlinesBetween: 1 },
         { group: 'components', commentAbove: 'Components' },
-        { newlinesBetween: 'ignore' },
-        'context',
+        { newlinesBetween: 1 },
+        { group: 'context', commentAbove: 'Context' },
         { newlinesBetween: 1 },
         { group: 'composables', commentAbove: 'Composables' },
         { newlinesBetween: 1 },
         { group: 'adapters', commentAbove: 'Adapters' },
         { newlinesBetween: 1 },
-        { group: 'utilities', commentAbove: 'Utilities' },
-        { newlinesBetween: 1 },
         { group: 'transformers', commentAbove: 'Transformers' },
-        { newlinesBetween: 1 },
-        { group: 'type', commentAbove: 'Types' },
         { newlinesBetween: 1 },
         'internal',
         'sibling',
         'index',
+        { newlinesBetween: 1 },
+        { group: 'stores', commentAbove: 'Stores' },
+        { newlinesBetween: 1 },
+        { group: 'utilities', commentAbove: 'Utilities' },
+        { newlinesBetween: 1 },
+        { group: 'type', commentAbove: 'Types' },
       ],
       customGroups: [
         { groupName: 'framework', modifiers: ['value'], elementNamePattern: '^@vuetify/v0' },
@@ -69,6 +71,7 @@ export default vuetify({
         { groupName: 'context', modifiers: ['value'], elementNamePattern: String.raw`^\./.*\.vue$` },
         { groupName: 'transformers', modifiers: ['value'], elementNamePattern: '/to[A-Z]' },
         { groupName: 'composables', modifiers: ['value'], elementNamePattern: ['/composables/', '/use[A-Z]'] },
+        { groupName: 'stores', modifiers: ['value'], elementNamePattern: ['/stores/', '/stores$', '^@vuetify/auth$'] },
         { groupName: 'utilities', modifiers: ['value'], elementNamePattern: ['/utilities', '/utils', '/helpers', '^vue$', '^vue-router$', '^pinia$', '^@vue/'] },
       ],
     }],
@@ -122,6 +125,38 @@ export default vuetify({
 },
 {
   ignores: ['**/export-templates/package.json'],
+},
+{
+  // Enforce V0Error over bare Error for throw sites in the core package.
+  // This prevents contributors from accidentally bypassing the typed error
+  // registry (V0ErrorDetails) that gives consumers a stable code discriminant.
+  name: 'vuetify/no-bare-error-throw',
+  files: ['packages/0/src/**/*.ts'],
+  ignores: ['packages/0/src/**/*.test.ts', 'packages/0/src/**/*.bench.ts'],
+  rules: {
+    'no-restricted-syntax': ['error',
+      {
+        selector: 'ThrowStatement > NewExpression[callee.name="Error"]',
+        message: 'Use V0Error with a code from V0ErrorDetails instead of bare Error. See packages/0/src/utilities/errors.ts.',
+      },
+    ],
+  },
+},
+{
+  name: 'vuetify/locale-ti-requires-fallback',
+  files: ['packages/0/src/components/**/*.vue'],
+  rules: {
+    'no-restricted-syntax': ['error',
+      {
+        selector: 'CallExpression[callee.name="withDefaults"]',
+        message: 'Use destructuring with defaults instead of withDefaults.',
+      },
+      {
+        selector: 'CallExpression[callee.property.name="ti"]:not(LogicalExpression[operator="??"] > CallExpression[callee.property.name="ti"])',
+        message: 'locale.ti() must be guarded with a `?? \'<inline English default>\'` so unconfigured apps get an accessible name. See packages/0/src/locale/messages/en for canonical strings.',
+      },
+    ],
+  },
 },
 {
   name: 'vuetify/no-v0-imports',

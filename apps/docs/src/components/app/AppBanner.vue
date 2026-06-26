@@ -16,7 +16,7 @@
   if (!notifications.has('alpha-banner')) {
     notifications.register({
       id: 'alpha-banner',
-      subject: 'Vuetify0 is now in alpha!',
+      subject: 'Vuetify0 is now in beta!',
       severity: 'warning',
       data: { type: 'banner' },
     })
@@ -54,7 +54,7 @@
     <AppIcon icon="vuetify-0" :size="14" />
 
     <div>
-      {{ banner?.subject }} <span class="hidden md:inline">See the <RouterLink class="underline underline-offset-2" to="/roadmap#alpha">roadmap</RouterLink> for details.</span>
+      {{ banner?.subject }} <span class="hidden md:inline">See the <RouterLink class="underline underline-offset-2" to="/roadmap#beta">roadmap</RouterLink> for details.</span>
     </div>
 
     <button

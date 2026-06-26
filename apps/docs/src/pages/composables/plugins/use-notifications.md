@@ -75,114 +75,6 @@ Once the plugin is installed, use the `useNotifications` composable in any compo
 </template>
 ```
 
-## Architecture
-
-`createNotifications` layers notification semantics on top of the registry and queue primitives, with plugin installation via `createPluginContext`:
-
-```mermaid "Notification Architecture"
-flowchart TB
-  subgraph Primitives
-    Registry[createRegistry]
-    Queue[createQueue]
-  end
-
-  subgraph Notifications
-    Core[createNotifications]
-    Plugin[createNotificationsPlugin]
-    Use[useNotifications]
-  end
-
-  subgraph Integration
-    Adapter["Adapter (Knock, Novu)"]
-    Events["Events (notification:read, etc.)"]
-  end
-
-  Registry --> Core
-  Queue --> Core
-  Core --> Plugin
-  Plugin --> Use
-  Adapter -.->|inbound: send| Core
-  Core -.->|outbound: events| Events
-  Events -.-> Adapter
-```
-
-## Severity Levels
-
-The `severity` field categorizes notifications by urgency. It maps to ARIA live region roles automatically:
-
-| Value | ARIA role | Use for |
-|-------|-----------|---------|
-| `'error'` | `role="alert"` | Failures, errors, destructive outcomes |
-| `'warning'` | `role="alert"` | Degraded state, approaching limits |
-| `'info'` | `role="status"` | Neutral updates, background activity |
-| `'success'` | `role="status"` | Completed actions, positive outcomes |
-
-`NotificationSeverity` is extensible — custom values like `'critical'` are accepted with autocomplete for the four defaults.
-
-## API
-
-| Method | Description |
-|--------|-------------|
-| `send(input)` | Create notification + enqueue for toast display |
-| `register(input)` | Create notification in registry only (no toast). Use for historical items |
-| `queue` | Queue context — `queue.values()`, `queue.pause()`, `queue.resume()` |
-| `read(id)` / `unread(id)` | Toggle read state |
-| `seen(id)` | Mark as seen |
-| `archive(id)` / `unarchive(id)` | Toggle archive state |
-| `snooze(id, until)` / `wake(id)` | Snooze with expiry |
-| `readAll()` / `archiveAll()` | Bulk operations |
-| `onboard(items)` | Bulk-register enriched notifications into registry (no toast) |
-| `clear()` | Remove all notifications from the registry |
-| `dispose()` | Tear down event listeners and clear the registry |
-
-## Examples
-
-::: example
-/composables/use-notifications/context.ts 1
-/composables/use-notifications/NotificationProvider.vue 2
-/composables/use-notifications/NotificationConsumer.vue 3
-/composables/use-notifications/inbox.vue 4
-@import @mdi/js
-
-### Notification Center
-
-A single `createNotifications` instance powering four notification surfaces through the `data.type` field:
-
-| Surface | Type | Behavior |
-|---------|------|----------|
-| **Banner** | `'banner'` | Persistent, dismissible, max 1 visible. System announcements, trial expiry |
-| **Toast** | `'toast'` | Auto-dismissing via `timeout`. Action feedback: "Changes saved" |
-| **Inline** | `'inline'` | Contextual, embedded in page content. Rate limits, degraded service |
-| **Inbox** | `'inbox'` or none | Full lifecycle — read, archive, snooze. Collaboration, CI alerts |
-
-The `data` bag drives routing — the composable doesn't care how notifications render. Each surface filters `items` by `data.type`.
-
-| File | Role |
-|------|------|
-| `context.ts` | Wraps `createNotifications` with `createContext` for provide/inject |
-| `NotificationProvider.vue` | Renders all surfaces: banners, inbox dropdown, snackbar stack |
-| `NotificationConsumer.vue` | Triggers notifications — simulates real app events |
-| `inbox.vue` | Entry point wiring provider and consumer |
-
-Click **Simulate Event** repeatedly to cycle through banner, snackbar, and inbox notifications. Open the **Inbox** to interact with read/archive/snooze. Notice how `seen` (badge count) and `read` (visual weight) are distinct — mirroring GitHub and Slack.
-
-```mermaid "Notification Lifecycle"
-stateDiagram-v2
-  [*] --> Unseen: send()
-  Unseen --> Unread: inbox opened (seen)
-  Unread --> Read: mark read
-  Read --> Unread: mark unread
-  Read --> Archived: archive
-  Unread --> Archived: archive
-  Unread --> Snoozed: snooze(until)
-  Snoozed --> Unread: wake
-  Read --> [*]: dismiss()
-  Unread --> [*]: dismiss()
-  Archived --> [*]: dismiss()
-```
-
-:::
-
 ## Adapters
 
 Adapters let you swap the underlying notification service without changing your application code.
@@ -194,7 +86,7 @@ Adapters let you swap the underlying notification service without changing your 
 
 ### Knock
 
-[Knock](https://knock.app) is a notification infrastructure platform with feeds, preferences, and multi-channel delivery. Install their [JavaScript SDK](https://docs.knock.app/sdks/javascript/overview) to get started. Supports both inbound (feed → notifications) and outbound (read/archive → Knock API).
+[Knock](https://knock.app) is a notification infrastructure platform with feeds, preferences, and multi-channel delivery. Install their [JavaScript SDK](https://docs.knock.app/in-app-ui/javascript/sdk/overview) to get started. Supports both inbound (feed → notifications) and outbound (read/archive → Knock API).
 
 ::: code-group no-filename
 
@@ -251,7 +143,7 @@ export const feed = knock.feeds.initialize(
 
 ### Novu
 
-[Novu](https://novu.co) is an open-source notification infrastructure with in-app feeds, digests, and multi-channel delivery. Install their [JavaScript SDK](https://docs.novu.co/sdks/javascript) to get started. Supports both inbound (feed → notifications) and outbound (read/unread/seen/archive/unarchive → Novu API).
+[Novu](https://novu.co) is an open-source notification infrastructure with in-app feeds, digests, and multi-channel delivery. Install their [JavaScript SDK](https://docs.novu.co/platform/sdks/javascript) to get started. Supports both inbound (feed → notifications) and outbound (read/unread/seen/archive/unarchive → Novu API).
 
 The adapter maps Novu severity strings to `NotificationSeverity` by default: `critical`/`high` → `error`, `medium` → `warning`, `low` → `info`. Pass a custom `severity` function to override.
 
@@ -346,13 +238,13 @@ app.use(createNotificationsPlugin({ adapter: new MyBackendAdapter() }))
 
 ### Custom Ticket Fields
 
-Extend `NotificationInput` to add domain-specific fields. Pass the type parameter through the adapter and plugin:
+Extend `NotificationTicketInput` to add domain-specific fields. Pass the type parameter through the adapter and plugin:
 
 ```ts
 import { NotificationsAdapter } from '@vuetify/v0/notifications'
-import type { NotificationInput, NotificationsAdapterContext } from '@vuetify/v0'
+import type { NotificationTicketInput, NotificationsAdapterContext } from '@vuetify/v0'
 
-interface AppNotification extends NotificationInput {
+interface AppNotification extends NotificationTicketInput {
   priority: 'low' | 'medium' | 'high'
   imageUrl?: string
 }
@@ -376,5 +268,117 @@ app.use(createNotificationsPlugin<AppNotification>({ adapter: new MyBackendAdapt
 Custom fields are preserved on the ticket and accessible anywhere you inject the notifications context.
 
 > [!ASKAI] How do I write a custom adapter for my backend?
+
+## Architecture
+
+`createNotifications` layers notification semantics on top of the registry and queue primitives, with plugin installation via `createPluginContext`:
+
+```mermaid "Notification Architecture"
+flowchart TB
+  subgraph Primitives
+    Registry[createRegistry]
+    Queue[createQueue]
+  end
+
+  subgraph Notifications
+    Core[createNotifications]
+    Plugin[createNotificationsPlugin]
+    Use[useNotifications]
+  end
+
+  subgraph Integration
+    Adapter["Adapter (Knock, Novu)"]
+    Events["Events (notification:read, etc.)"]
+  end
+
+  Registry --> Core
+  Queue --> Core
+  Core --> Plugin
+  Plugin --> Use
+  Adapter -.->|inbound: send| Core
+  Core -.->|outbound: events| Events
+  Events -.-> Adapter
+```
+
+## Reactivity
+
+### API
+
+| Method | Description |
+|--------|-------------|
+| `send(input)` | Create notification + enqueue for toast display |
+| `register(input)` | Create notification in registry only (no toast). Use for historical items |
+| `queue` | Queue context — `queue.values()`, `queue.pause()`, `queue.resume()` |
+| `read(id)` / `unread(id)` | Toggle read state |
+| `seen(id)` | Mark as seen |
+| `archive(id)` / `unarchive(id)` | Toggle archive state |
+| `snooze(id, until)` / `wake(id)` | Snooze with expiry |
+| `readAll()` / `archiveAll()` | Bulk operations |
+| `onboard(items)` | Bulk-register enriched notifications into registry (no toast) |
+| `clear()` | Remove all notifications from the registry |
+| `dispose()` | Tear down event listeners and clear the registry |
+
+## Examples
+
+::: gn-example
+/composables/use-notifications/context.ts 1
+/composables/use-notifications/NotificationProvider.vue 2
+/composables/use-notifications/NotificationConsumer.vue 3
+/composables/use-notifications/inbox.vue 4
+@import @mdi/js
+
+### Notification Center
+
+A single `createNotifications` instance powering four notification surfaces through the `data.type` field:
+
+| Surface | Type | Behavior |
+|---------|------|----------|
+| **Banner** | `'banner'` | Persistent, dismissible, max 1 visible. System announcements, trial expiry |
+| **Toast** | `'toast'` | Auto-dismissing via `timeout`. Action feedback: "Changes saved" |
+| **Inline** | `'inline'` | Contextual, embedded in page content. Rate limits, degraded service |
+| **Inbox** | `'inbox'` or none | Full lifecycle — read, archive, snooze. Collaboration, CI alerts |
+
+The `data` bag drives routing — the composable doesn't care how notifications render. Each surface filters `items` by `data.type`.
+
+| File | Role |
+|------|------|
+| `context.ts` | Wraps `createNotifications` with `createContext` for provide/inject |
+| `NotificationProvider.vue` | Renders all surfaces: banners, inbox dropdown, snackbar stack |
+| `NotificationConsumer.vue` | Triggers notifications — simulates real app events |
+| `inbox.vue` | Entry point wiring provider and consumer |
+
+Click **Simulate Event** repeatedly to cycle through banner, snackbar, and inbox notifications. Open the **Inbox** to interact with read/archive/snooze. Notice how `seen` (badge count) and `read` (visual weight) are distinct — mirroring GitHub and Slack.
+
+```mermaid "Notification Lifecycle"
+stateDiagram-v2
+  [*] --> Unseen: send()
+  Unseen --> Unread: inbox opened (seen)
+  Unread --> Read: mark read
+  Read --> Unread: mark unread
+  Read --> Archived: archive
+  Unread --> Archived: archive
+  Unread --> Snoozed: snooze(until)
+  Snoozed --> Unread: wake
+  Read --> [*]: dismiss()
+  Unread --> [*]: dismiss()
+  Archived --> [*]: dismiss()
+```
+
+:::
+
+## Recipes
+
+### Severity Levels
+
+The `severity` field categorizes notifications by urgency. It maps to ARIA live region roles automatically:
+
+| Value | ARIA role | Use for |
+|-------|-----------|---------|
+| `'error'` | `role="alert"` | Failures, errors, destructive outcomes |
+| `'warning'` | `role="alert"` | Degraded state, approaching limits |
+| `'info'` | `role="status"` | Neutral updates, background activity |
+| `'success'` | `role="status"` | Completed actions, positive outcomes |
+
+`NotificationSeverity` is extensible — custom values like `'critical'` are accepted with autocomplete for the four defaults.
 
 <DocsApi />

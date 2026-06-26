@@ -1,11 +1,11 @@
+import { PermissionsAdapter } from './adapter'
+
 // Utilities
 import { isFunction } from '#v0/utilities'
 
 // Types
 import type { ID } from '#v0/types'
 import type { PermissionContext, PermissionTicket } from '..'
-
-import { PermissionsAdapter } from './adapter'
 
 export class V0PermissionsAdapter extends PermissionsAdapter {
   constructor () {

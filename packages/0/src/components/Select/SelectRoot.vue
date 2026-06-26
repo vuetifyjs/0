@@ -14,6 +14,7 @@
   // Components
   import { Atom } from '#v0/components/Atom'
 
+  // Context
   import SelectHiddenInput from './SelectHiddenInput.vue'
 
   // Composables
@@ -22,6 +23,9 @@
   import { usePopover } from '#v0/composables/usePopover'
   import { useProxyModel } from '#v0/composables/useProxyModel'
   import { useVirtualFocus } from '#v0/composables/useVirtualFocus'
+
+  // Globals
+  import { IN_BROWSER } from '#v0/constants/globals'
 
   // Utilities
   import { isUndefined, useId } from '#v0/utilities'
@@ -34,9 +38,6 @@
   import type { VirtualFocusReturn } from '#v0/composables/useVirtualFocus'
   import type { ID } from '#v0/types'
   import type { MaybeRefOrGetter, Ref } from 'vue'
-
-  // Globals
-  import { IN_BROWSER } from '#v0/constants/globals'
 
   export interface SelectContext {
     /** Whether the dropdown is open */
@@ -71,8 +72,8 @@
     toggle: () => void
     /** Select an item by ID, closing dropdown in single-select mode */
     select: (id: ID) => void
-    /** Raw model value for fallback display before items register */
-    modelValue: Ref<ID | ID[] | undefined>
+    /** Raw model value for fallback display before items register. Carries ticket values (type-erased at the compound boundary) */
+    modelValue: Ref<unknown>
   }
 
   export interface SelectRootProps extends AtomProps {
@@ -115,7 +116,7 @@
   export const [useSelectContext, provideSelectContext] = createContext<SelectContext>()
 </script>
 
-<script setup lang="ts">
+<script lang="ts" setup generic="T = unknown">
   defineOptions({ name: 'SelectRoot' })
 
   defineSlots<{
@@ -123,7 +124,7 @@
   }>()
 
   defineEmits<{
-    'update:model-value': [value: ID | ID[]]
+    'update:model-value': [value: T | T[]]
   }>()
 
   const {
@@ -137,7 +138,7 @@
     mandatory = false,
   } = defineProps<SelectRootProps>()
 
-  const model = defineModel<ID | ID[]>()
+  const model = defineModel<T | T[]>()
 
   const id = _id ?? useId()
   const listboxId = `${id}-listbox`

@@ -1,13 +1,13 @@
 import { describe, expect, it, vi } from 'vitest'
 
+import { createNotifications, createNotificationsPlugin, useNotifications } from './index'
+
 // Utilities
 import { createApp, effectScope } from 'vue'
 
 // Types
 import type { ID } from '#v0/types'
 import type { NotificationsAdapterContext, NotificationTicket } from './index'
-
-import { createNotifications, createNotificationsPlugin, useNotifications } from './index'
 
 function withScope<T> (fn: () => T): T {
   const scope = effectScope()
@@ -145,7 +145,7 @@ describe('createNotifications', () => {
       })
     })
 
-    it.skip('should no-op when state mutations are called with a non-existent id', () => {
+    it('should no-op when state mutations are called with a non-existent id', () => {
       withScope(() => {
         const notifications = createNotifications()
 

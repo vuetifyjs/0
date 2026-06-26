@@ -13,6 +13,8 @@
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
+
+  // Context
   import { useSelectContext } from './SelectRoot.vue'
 
   // Utilities
@@ -53,6 +55,7 @@
   const {
     as = 'span',
     namespace = 'v0:select',
+    renderless,
   } = defineProps<SelectValueProps>()
 
   const context = useSelectContext(namespace)
@@ -84,7 +87,7 @@
 </script>
 
 <template>
-  <Atom v-if="hasValue" :as>
+  <Atom v-if="hasValue" :as :renderless>
     <slot v-bind="slotProps">
       {{ values[0] }}
     </slot>

@@ -6,10 +6,10 @@ import { createTokens } from '#v0/composables/createTokens'
 // Adapters
 import { V0LocaleAdapter } from './adapters/v0'
 
+import { createLocale, createLocaleContext, createLocalePlugin, useLocale } from './index'
+
 // Utilities
 import { hasInjectionContext, inject, provide, shallowRef } from 'vue'
-
-import { createLocale, createLocaleContext, createLocalePlugin, useLocale } from './index'
 
 vi.mock('vue', async () => {
   const actual = await vi.importActual('vue')
@@ -194,7 +194,7 @@ describe('createLocale', () => {
         expect(result).toContain('{')
       })
 
-      it.skip('should resolve the same token reference multiple times in one message', () => {
+      it('should resolve the same token reference multiple times in one message', () => {
         const locale = createLocale({
           default: 'en',
           messages: {
@@ -293,6 +293,7 @@ describe('createLocale', () => {
       it('should accept custom adapter', () => {
         const customAdapter = {
           t: (key: string) => key,
+          ti: () => undefined,
           n: String,
         }
         const plugin = createLocalePlugin({
@@ -543,7 +544,7 @@ describe('createLocale', () => {
     })
 
     it('should not duplicate locale if already registered', () => {
-      const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       const locale = createLocale({
         default: 'en',
@@ -556,8 +557,6 @@ describe('createLocale', () => {
       expect(locale.size).toBe(before)
       expect(spy).toHaveBeenCalledTimes(1)
       expect(spy).toHaveBeenCalledWith(expect.stringContaining('en'))
-
-      spy.mockRestore()
     })
 
     it('should register without messages (existing behavior)', () => {
@@ -586,12 +585,15 @@ describe('createLocale', () => {
   })
 
   describe('createLocaleFallback', () => {
-    it('should return key from t()', () => {
+    it('should echo the key from t() and return undefined from ti()', () => {
       mockHasInjectionContext.mockReturnValue(false)
       const locale = useLocale()
 
       expect(locale.t('hello')).toBe('hello')
       expect(locale.t('nested.key')).toBe('nested.key')
+      expect(locale.t('Button.label')).toBe('Button.label')
+      expect(locale.ti('anything')).toBeUndefined()
+      expect(locale.ti('Pagination.next')).toBeUndefined()
     })
 
     it('should return string from n()', () => {
@@ -683,6 +685,70 @@ describe('createLocale', () => {
     it('should leave unmatched positional placeholders intact', () => {
       const adapter = createAdapter({ en: { msg: '{0} and {1}' } }, 'en')
       expect(adapter.t('msg', 'first')).toBe('first and {1}')
+    })
+  })
+
+  describe('ti', () => {
+    function createAdapter (messages: Record<string, Record<string, string>>, locale?: string, fallback?: string) {
+      const tokens = createTokens(messages)
+
+      return new V0LocaleAdapter({
+        tokens,
+        selectedId: shallowRef(locale) as any,
+        fallbackLocale: fallback,
+        has: id => String(id) in messages,
+      })
+    }
+
+    it('should return the translated string when the key exists in the selected locale', () => {
+      const adapter = createAdapter({ en: { hello: 'Hello' } }, 'en')
+      expect(adapter.ti('hello')).toBe('Hello')
+    })
+
+    it('should return the fallback-locale string when only the fallback has the key', () => {
+      const adapter = createAdapter(
+        {
+          en: { goodbye: 'Goodbye' },
+          fr: { hello: 'Bonjour' },
+        },
+        'fr',
+        'en',
+      )
+
+      expect(adapter.ti('goodbye')).toBe('Goodbye')
+    })
+
+    it('should return undefined when the key is missing everywhere', () => {
+      const adapter = createAdapter(
+        {
+          en: { hello: 'Hello' },
+          fr: { hello: 'Bonjour' },
+        },
+        'fr',
+        'en',
+      )
+
+      expect(adapter.ti('nonexistent')).toBeUndefined()
+    })
+
+    it('should return undefined when no locale is selected', () => {
+      const adapter = createAdapter({ en: { hello: 'Hello' } })
+      expect(adapter.ti('hello')).toBeUndefined()
+    })
+
+    it('should interpolate named params for a found key', () => {
+      const adapter = createAdapter({ en: { greet: 'Hello {name}' } }, 'en')
+      expect(adapter.ti('greet', { name: 'World' })).toBe('Hello World')
+    })
+
+    it('should interpolate params through createLocale.ti', () => {
+      const locale = createLocale({
+        default: 'en',
+        messages: { en: { greeting: 'Hello {name}' } },
+      })
+
+      expect(locale.ti('greeting', { name: 'John' })).toBe('Hello John')
+      expect(locale.ti('missing')).toBeUndefined()
     })
   })
 })

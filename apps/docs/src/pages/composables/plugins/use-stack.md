@@ -115,45 +115,32 @@ Stack state and ticket properties are reactive for automatic UI updates.
 
 ## Examples
 
-::: example
-/composables/use-stack/context.ts
-/composables/use-stack/StackProvider.vue
-/composables/use-stack/StackConsumer.vue
-/composables/use-stack/overlays.vue
+::: gn-example
+/composables/use-stack/context.ts 1
+/composables/use-stack/StackProvider.vue 2
+/composables/use-stack/StackConsumer.vue 3
+/composables/use-stack/overlays.vue 4
 
 ### Overlay Stack
 
-This example demonstrates overlay stacking with `createStack`. Each overlay gets an automatically calculated z-index, and the scrim appears below the topmost overlay.
+Three overlays — Settings, Confirm, and Alert — share a single `createStack` instance scoped to the example via `provide('v0:stack', stack)`. Each overlay registers with `stack.register({ onDismiss })` and calls `ticket.select()` / `ticket.unselect()` to activate or deactivate. The stack computes `ticket.zIndex` automatically based on registration order, so the third overlay always renders above the second.
 
-```mermaid "Stack Data Flow"
-graph LR
-  A["context.ts"]:::info -->|"provideStack()"| B["StackProvider"]:::success
-  A -->|"useOverlays()"| C["StackConsumer"]:::warning
-  B -->|"wraps"| C
-```
+`StackProvider` creates the isolated stack and wires the `Scrim` component alongside it — Scrim reads from the same context, so its z-index is always coordinated with the topmost overlay without any manual calculation. The Alert overlay uses `blocking: true`, which prevents dismissal via the scrim click (`ticket.globalTop` is still `true`, but the stack's `isBlocking` flag tells the scrim to ignore pointer events).
 
-**File breakdown:**
+Open multiple overlays to see z-index layering in action. This pattern applies directly to any overlay surface — dialogs, drawers, notification toasts — because the stacking logic lives entirely in `createStack`, not in the overlay components themselves. For SSR, install `createStackPlugin` at app level instead of calling `createStack` directly. See [Scrim](/components/providers/scrim) for the backdrop component and [createRegistry](/composables/registration/create-registry) for the underlying registry pattern.
 
 | File | Role |
 |------|------|
-| `context.ts` | Defines overlay context with open/close methods |
-| `StackProvider.vue` | Provides stack context and renders scrim |
-| `StackConsumer.vue` | Displays buttons to open overlays at different stack levels |
+| `context.ts` | Defines the overlay shape and provides a typed context via `createContext` |
+| `StackProvider.vue` | Creates an isolated `createStack`, provides it to descendants, and renders the Scrim |
+| `StackConsumer.vue` | Renders buttons to open each overlay and displays their active z-index |
 | `overlays.vue` | Entry point that composes Provider around Consumer |
-
-**Key patterns:**
-
-- `stack.register({ onDismiss })` creates a ticket for the overlay
-- `ticket.select()` / `ticket.unselect()` activates/deactivates the overlay
-- `ticket.globalTop` determines if this overlay should handle escape key
-- `ticket.zIndex` provides the z-index value
-- Scrim reads from the stack context to position below the top overlay
-
-Click a button to open an overlay. Open multiple overlays to observe z-index layering.
 
 :::
 
-## Scrim Integration
+## Recipes
+
+### Scrim Integration
 
 Use the `Scrim` component alongside `useStack` to provide a backdrop for your overlays. The Scrim automatically positions itself below the topmost overlay:
 

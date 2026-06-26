@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { renderToString } from 'vue/server-renderer'
 
+import { Input } from './index'
+
 // Utilities
 import { flushPromises, mount } from '@vue/test-utils'
 import { createSSRApp, defineComponent, h, nextTick, ref } from 'vue'
@@ -8,8 +10,6 @@ import { createSSRApp, defineComponent, h, nextTick, ref } from 'vue'
 // Types
 import type { InputRootSlotProps } from './index'
 import type { VueWrapper } from '@vue/test-utils'
-
-import { Input } from './index'
 
 interface MountResult {
   wrapper: VueWrapper
@@ -730,11 +730,14 @@ describe('input', () => {
         },
       })
 
-      // Initial input change — eager only triggers when already invalid
+      // A passing input keystroke before the first error must NOT validate in
+      // eager mode — eager re-validates on input only once an error exists.
+      // flushPromises is required: validate() is async, so without it this
+      // asserts before validation could resolve and passes vacuously.
       await wrapper.setProps({ modelValue: 'a' })
       await wait()
+      await flushPromises()
 
-      // Not invalid yet, so eager doesn't trigger
       expect(props().isValid).toBeNull()
     })
 

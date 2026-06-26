@@ -2,7 +2,7 @@
   // Framework
   import { IN_BROWSER, isNullOrUndefined, useBreakpoints, useLogger } from '@vuetify/v0'
 
-  // Components
+  // Context
   import { useDiscoveryRootContext } from './DiscoveryRoot.vue'
 
   // Composables
@@ -68,13 +68,26 @@
       positionArea: 'right',
       alignSelf: 'anchor-center',
     },
-    center: {
-      positionArea: 'center',
-    },
   }
 
   const style = toRef(() => {
     const currentPlacement = activePlacement.value
+
+    // The last step has no activator, so no element carries the anchor-name.
+    // position-area: center silently no-ops without a resolvable anchor and the
+    // inset collapses the box to the top-left corner, so center on the viewport.
+    if (currentPlacement === 'center') {
+      return {
+        position: 'fixed' as const,
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: 'max-content',
+        height: 'max-content',
+        maxHeight: `calc(100vh - ${offset * 2}px)`,
+        overflow: noOverflow ? 'visible' : 'auto',
+      }
+    }
 
     if (supportsAnchor) {
       return {
@@ -98,7 +111,6 @@
       top: { top: `${offset}px`, left: '50%', transform: 'translateX(-50%)' },
       left: { top: '50%', left: `${offset}px`, transform: 'translateY(-50%)' },
       right: { top: '50%', right: `${offset}px`, transform: 'translateY(-50%)' },
-      center: { top: '50%', left: '50%', transform: 'translate(-50%, -50%)' },
     }
     return {
       ...base,

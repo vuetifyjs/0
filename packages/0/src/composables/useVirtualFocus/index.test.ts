@@ -491,7 +491,7 @@ describe('useVirtualFocus', () => {
       result!.highlight('item-0')
 
       const event = createKeyboardEvent('ArrowDown')
-      const spy = vi.spyOn(event, 'preventDefault')
+      using spy = vi.spyOn(event, 'preventDefault')
       result!.onKeydown(event)
 
       expect(spy).toHaveBeenCalled()
@@ -505,7 +505,7 @@ describe('useVirtualFocus', () => {
       })
 
       const event = createKeyboardEvent('a')
-      const spy = vi.spyOn(event, 'preventDefault')
+      using spy = vi.spyOn(event, 'preventDefault')
       result!.onKeydown(event)
 
       expect(spy).not.toHaveBeenCalled()
@@ -675,7 +675,7 @@ describe('useVirtualFocus', () => {
     it('should attach keydown listener to target when provided', () => {
       const target = createElement('target')
       target.scrollIntoView = vi.fn()
-      const spy = vi.spyOn(target, 'addEventListener')
+      using spy = vi.spyOn(target, 'addEventListener')
 
       scope.run(() => {
         useVirtualFocus(() => items, { control, target })
@@ -685,7 +685,7 @@ describe('useVirtualFocus', () => {
     })
 
     it('should attach keydown listener to control when target is not provided', () => {
-      const spy = vi.spyOn(control, 'addEventListener')
+      using spy = vi.spyOn(control, 'addEventListener')
 
       scope.run(() => {
         useVirtualFocus(() => items, { control })

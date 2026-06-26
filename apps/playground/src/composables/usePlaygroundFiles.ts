@@ -5,16 +5,16 @@ import { isArray, useTheme, useTimer } from '@vuetify/v0'
 import { decodePlaygroundHash, encodePlaygroundHash, parseVuetifyPlayTuple } from '@/composables/usePlayground'
 import { usePlaygroundSettings } from '@/composables/usePlaygroundSettings'
 
+// Data
+import { createMainTs, UNO_CONFIG_TS } from '@/data/playground-defaults'
+import { ADDONS, DEFAULT_APP, PRESETS } from '@/data/presets'
+
 // Utilities
 import { compileFile, useStore } from '@vue/repl/core'
 import { computed, onMounted, shallowRef, watch, watchEffect } from 'vue'
 
 // Types
 import type { PlaygroundHashData } from '@/composables/usePlayground'
-
-// Data
-import { createMainTs, UNO_CONFIG_TS } from '@/data/playground-defaults'
-import { ADDONS, DEFAULT_APP, PRESETS } from '@/data/presets'
 
 export function usePlaygroundFiles () {
   const theme = useTheme()
@@ -92,6 +92,15 @@ export function usePlaygroundFiles () {
         }
         delete decoded.files['src/links.json']
         delete decoded.files['src/import-map.json']
+      }
+
+      // Pre-declare Vuetify's cascade-layer order so it is established before any
+      // other style enters the cascade. createVuetify() synchronously injects
+      // <style>@layer vuetify-utilities{…}</style>, while the vuetify-labs.css
+      // <link> is appended async — without this preamble vuetify-utilities ends
+      // up declared before vuetify-components and components beat helpers.
+      if (decoded.files['src/setup.ts']?.includes('vuetify-labs.css')) {
+        decoded.files['src/setup.ts'] = `document.head.insertAdjacentHTML('afterbegin', '<style>@layer vuetify-core,vuetify-components,vuetify-overrides,vuetify-utilities,vuetify-final;</style>')\n${decoded.files['src/setup.ts']}`
       }
 
       await loadExample(decoded.files, decoded.active)

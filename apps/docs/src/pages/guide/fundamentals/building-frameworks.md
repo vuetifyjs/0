@@ -21,7 +21,7 @@ When building a component framework, you're often reimplementing the same patter
 
 <DocsPageFeatures :frontmatter />
 
-> [!INFO] Prerequisites
+> [!NOTE] Prerequisites
 > This guide builds on concepts from [Core](/guide/fundamentals/core), [Components](/guide/fundamentals/components), and [Composables](/guide/fundamentals/composables). Read those first if you're new to v0.
 
 ## Getting Started
@@ -163,7 +163,7 @@ Registry internals aren't directly exposed for template iteration. `useProxyRegi
 
 Use v0's composables directly when you need complex state management—selection, navigation, validation—but want full control over rendering.
 
-::: example
+::: gn-example
 /guide/building-frameworks/pattern-a/tabs-basic
 
 ### Behavior-Focused Tabs
@@ -176,7 +176,7 @@ Custom tabs using `createSingle` and `useProxyRegistry` with ARIA attributes and
 
 v0 composables handle state; you add the interaction layer:
 
-::: example
+::: gn-example
 /guide/building-frameworks/pattern-a/tabs-keyboard
 
 ### Keyboard Navigation
@@ -189,7 +189,7 @@ Arrow key, Home, and End key support added to the tabs above.
 
 Use `createGroup` for checkbox-style multi-selection with tri-state support:
 
-::: example
+::: gn-example
 /guide/building-frameworks/pattern-a/accordion
 
 ### Multi-Select Accordion
@@ -208,7 +208,7 @@ Wrap v0's headless components with your design system's styling. v0 handles beha
 
 The `Atom` component provides polymorphic rendering via the `as` prop—render as any HTML element while keeping your component's API consistent:
 
-::: example
+::: gn-example
 /guide/building-frameworks/pattern-b/button
 
 ### Polymorphic Button
@@ -224,7 +224,7 @@ An Atom-based button with BEM class names and style/size/color variants.
 
 Wrap v0's compound components with custom CSS. The components expose data attributes like `data-state` for styling different states:
 
-::: example
+::: gn-example
 /guide/building-frameworks/pattern-b/card
 
 ### Styled ExpansionPanel
@@ -237,7 +237,7 @@ ExpansionPanel wrapped with custom CSS targeting data attributes and slot props 
 
 v0's form components handle focus, keyboard interaction, and ARIA attributes. Apply your styles via classes:
 
-::: example
+::: gn-example
 /guide/building-frameworks/pattern-b/input
 
 ### Styled Checkbox
@@ -250,7 +250,7 @@ Checkbox wrapped with label and description, styled via data attributes for chec
 
 v0's plugins follow Vue's [plugin pattern](https://vuejs.org/guide/reusability/plugins.html) with additional structure for namespaced context provision.
 
-::: example
+::: gn-example
 /guide/building-frameworks/plugins/setup
 
 ### Plugin Access
@@ -317,7 +317,7 @@ const { isHydrated } = useHydration()
 
 The `isHydrated` shallowRef is `false` during SSR and becomes `true` after the root component mounts. This prevents hydration mismatches when rendering browser-dependent content.
 
-::: example
+::: gn-example
 /guide/building-frameworks/ssr/hydration-guard
 
 ### SSR Hydration Guard
@@ -330,7 +330,7 @@ Using `useHydration()` and `IN_BROWSER` to safely defer browser-only rendering u
 
 v0 uses generics extensively. When extending composables, provide your custom ticket and context types:
 
-::: example
+::: gn-example
 /guide/building-frameworks/typescript/type-extension
 
 ### Type Extension
@@ -345,7 +345,7 @@ Vue's [shallowReactive](https://vuejs.org/api/reactivity-advanced.html#shallowre
 
 To see everything come together, we've included a complete example library that demonstrates the patterns in this guide.
 
-::: example
+::: gn-example
 /guide/building-frameworks/my-ui/demo
 
 ### Complete Design System

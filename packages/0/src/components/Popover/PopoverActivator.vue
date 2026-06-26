@@ -25,6 +25,7 @@
       'popovertarget': string
       'type': 'button' | undefined
       'data-open': true | undefined
+      'style': Record<string, string>
     }
   }
 </script>
@@ -32,6 +33,7 @@
 <script setup lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
+
   // Context
   import { usePopoverContext } from './PopoverRoot.vue'
 
@@ -44,7 +46,7 @@
     default: (props: PopoverActivatorSlotProps) => any
   }>()
 
-  const { as = 'button', target } = defineProps<PopoverActivatorProps>()
+  const { as = 'button', renderless, target } = defineProps<PopoverActivatorProps>()
 
   const context = usePopoverContext()
 
@@ -63,6 +65,7 @@
       'popovertarget': toValue(popovertarget),
       'type': as === 'button' ? 'button' : undefined,
       'data-open': context.isOpen.value || undefined,
+      'style': style.value,
     },
   }))
 </script>
@@ -70,7 +73,7 @@
 <template>
   <Atom
     :as
-    :style
+    :renderless
     v-bind="slotProps.attrs"
   >
     <slot v-bind="slotProps" />

@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { useToggleScope } from './index'
+
 // Utilities
 import { effectScope, nextTick, onScopeDispose, ref, watch } from 'vue'
-
-import { useToggleScope } from './index'
 
 describe('useToggleScope', () => {
   beforeEach(() => {
@@ -271,7 +271,7 @@ describe('useToggleScope', () => {
     await nextTick()
     expect(controls.isActive.value).toBe(true)
 
-    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    using warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
     // Attempt to modify (should fail silently or throw in strict mode)
     // @ts-expect-error - isActive should be readonly
@@ -279,8 +279,7 @@ describe('useToggleScope', () => {
 
     // Value should remain unchanged
     expect(controls.isActive.value).toBe(true)
-
-    warnSpy.mockRestore()
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('readonly'), expect.anything())
   })
 
   it('should prevent duplicate start calls', async () => {

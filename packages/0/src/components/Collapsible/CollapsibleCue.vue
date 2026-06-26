@@ -12,6 +12,8 @@
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
+
+  // Context
   import { useCollapsible } from './CollapsibleRoot.vue'
 
   // Utilities
@@ -43,6 +45,7 @@
   const {
     as = 'span',
     namespace = 'v0:collapsible',
+    renderless,
   } = defineProps<CollapsibleCueProps>()
 
   const context = useCollapsible(namespace)
@@ -59,6 +62,7 @@
 <template>
   <Atom
     :as
+    :renderless
     v-bind="slotProps.attrs"
   >
     <slot v-bind="slotProps" />

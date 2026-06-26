@@ -1,6 +1,6 @@
 {
   "name": "@vuetify-private/docs",
-  "version": "1.0.0-alpha.3",
+  "version": "1.0.0-beta.2",
   "private": true,
   "type": "module",
   "scripts": {
@@ -16,6 +16,7 @@
     "@shikijs/themes": "catalog:",
     "@types/markdown-it": "catalog:",
     "@types/markdown-it-attrs": "catalog:",
+    "@types/markdown-it-container": "catalog:",
     "@types/markdown-it-footnote": "catalog:",
     "@unhead/vue": "catalog:",
     "@vue/test-utils": "catalog:",
@@ -43,6 +44,7 @@
     "@js-temporal/polyfill": "catalog:",
     "@mdi/js": "catalog:",
     "@octokit/core": "catalog:",
+    "@paper/genesis": "workspace:*",
     "@vue/repl": "catalog:",
     "@vuetify/auth": "catalog:",
     "@vuetify/paper": "workspace:*",

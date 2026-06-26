@@ -1,13 +1,13 @@
 import { describe, expect, it, vi } from 'vitest'
 
+import { KnockNotificationsAdapter } from './knock'
+
 // Utilities
 import { effectScope } from 'vue'
 
 // Types
 import type { NotificationsAdapterContext } from '../index'
 import type { KnockFeed, KnockFeedItem } from './knock'
-
-import { KnockNotificationsAdapter } from './knock'
 
 import { createNotifications } from '../index'
 

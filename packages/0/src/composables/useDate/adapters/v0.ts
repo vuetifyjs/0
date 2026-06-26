@@ -7,25 +7,31 @@
  *
  * Implements the full date-io IUtils interface for industry compatibility.
  *
- * Requires native Temporal support or @js-temporal/polyfill.
+ * Uses the runtime's native Temporal implementation when present, falling back
+ * to the @js-temporal/polyfill optional peer. The polyfill import is static, so
+ * runtimes without native Temporal must have the peer installed to load this
+ * module.
  *
  * @see https://tc39.es/proposal-temporal/docs/
  * @see https://github.com/dmtrKovalenko/date-io
  */
 
 // Polyfill
-import { Temporal } from '@js-temporal/polyfill'
+import { Temporal as polyfill } from '@js-temporal/polyfill'
 
-// Utilities
-import { isFunction, isNull, isNullOrUndefined, isNumber, isString } from '#v0/utilities'
-
-// Constants
+// Globals
 import { IN_BROWSER } from '#v0/constants/globals'
 
 // Adapters
 import { DateAdapter } from './adapter'
 
-type PlainDateTime = Temporal.PlainDateTime
+// Utilities
+import { isFunction, isNull, isNullOrUndefined, isNumber, isString } from '#v0/utilities'
+
+/** Resolved Temporal implementation — native when the runtime provides it, polyfill otherwise. */
+export const Temporal = (globalThis as unknown as { Temporal?: typeof polyfill }).Temporal ?? polyfill
+
+type PlainDateTime = polyfill.PlainDateTime
 
 /** Single regex for token replacement in formatByString */
 const FORMAT_TOKEN_REGEX = /YYYY|YY|MMMM|MMM|MM|M|dddd|ddd|DD|D|HH|H|hh|h|mm|m|ss|s|A|a/g
@@ -393,8 +399,6 @@ export class V0DateAdapter extends DateAdapter<PlainDateTime> {
       .replace(/MM/g, 'mm')
       .replace(/DD/g, 'dd')
       .replace(/HH/g, 'hh')
-      .replace(/mm/g, 'mm')
-      .replace(/ss/g, 'ss')
   }
 
   formatNumber (numberToFormat: string): string {

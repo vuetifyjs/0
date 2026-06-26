@@ -9,9 +9,6 @@ import Layouts from 'vite-plugin-vue-layouts-next'
 import generateSitemap from 'vite-ssg-sitemap'
 import VueRouter from 'vue-router/vite'
 
-// Types
-import type { ViteSSGOptions } from 'vite-ssg'
-
 import { getApiSlugs } from './build/api-names'
 import copyMarkdownPlugin from './build/copy-markdown'
 import generateApiPlugin from './build/generate-api'
@@ -27,6 +24,9 @@ import generateTipsPlugin from './build/generate-tips'
 import Markdown from './build/markdown'
 import { getSkillzSlugs } from './build/skillz-tours'
 import pkg from './package.json' with { type: 'json' }
+
+// Types
+import type { ViteSSGOptions } from 'vite-ssg'
 
 export default defineConfig({
   optimizeDeps: {
@@ -139,9 +139,11 @@ export default defineConfig({
       '@build': fileURLToPath(new URL('build', import.meta.url)),
       '@vuetify/v0': fileURLToPath(new URL('../../packages/0/src', import.meta.url)),
       '@vuetify/paper': fileURLToPath(new URL('../../packages/paper/src', import.meta.url)),
+      '@paper/genesis': fileURLToPath(new URL('../../packages/genesis/src', import.meta.url)),
       // internal
       '#v0': fileURLToPath(new URL('../../packages/0/src', import.meta.url)),
       '#paper': fileURLToPath(new URL('../../packages/paper/src', import.meta.url)),
+      '#genesis': fileURLToPath(new URL('../../packages/genesis/src', import.meta.url)),
     },
   },
   server: {

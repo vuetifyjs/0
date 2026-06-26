@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import { renderToString } from 'vue/server-renderer'
 
+import { ExpansionPanel } from './index'
+
 // Utilities
 import { mount } from '@vue/test-utils'
 import { createSSRApp, defineComponent, h, nextTick, ref } from 'vue'
-
-import { ExpansionPanel } from './index'
 
 describe('expansionPanel', () => {
   describe('root', () => {
@@ -142,6 +142,33 @@ describe('expansionPanel', () => {
         })
 
         expect(capturedProps.isDisabled.value).toBe(true)
+      })
+
+      it('should not preventDefault on keydown for a disabled panel', () => {
+        let activatorProps: any
+
+        mount(ExpansionPanel.Group, {
+          props: { multiple: true },
+          slots: {
+            default: () => h(ExpansionPanel.Root as any, { id: 'item-1', value: 'value-1', disabled: true }, {
+              default: () => h(ExpansionPanel.Activator as any, {}, {
+                default: (ap: any) => {
+                  activatorProps = ap
+                  return 'Header'
+                },
+              }),
+            }),
+          },
+        })
+
+        const event = new KeyboardEvent('keydown', { key: 'Enter', cancelable: true })
+
+        // toggle() already guards ticket-disabled, so the click path is a no-op
+        // either way. The observable fix is that keydown now returns early on a
+        // disabled panel instead of running preventDefault + toggle.
+        activatorProps.attrs.onKeydown(event)
+
+        expect(event.defaultPrevented).toBe(false)
       })
     })
 
@@ -1293,6 +1320,26 @@ describe('expansionPanel', () => {
       const cue = wrapper.findComponent(ExpansionPanel.Cue as any)
       expect(cue.exists()).toBe(true)
       expect(cue.attributes('aria-hidden')).toBe('true')
+    })
+
+    it('should not render a wrapper element when renderless', () => {
+      const wrapper = mount(ExpansionPanel.Group, {
+        slots: {
+          default: () =>
+            h(
+              ExpansionPanel.Root as any,
+              { id: 'item-1', value: 'value-1' },
+              () => h(ExpansionPanel.Cue, { renderless: true }, {
+                default: (props: any) => h('i', { 'data-testid': 'custom', ...props.attrs }, 'cue'),
+              }),
+            ),
+        },
+      })
+
+      const custom = wrapper.find('[data-testid="custom"]')
+      expect(custom.attributes('aria-hidden')).toBe('true')
+      expect(custom.attributes('data-state')).toBe('closed')
+      expect(wrapper.find('span').exists()).toBe(false)
     })
   })
 })

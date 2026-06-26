@@ -19,6 +19,9 @@
  * ```
  */
 
+// Globals
+import { IN_BROWSER } from '#v0/constants/globals'
+
 // Utilities
 import { isUndefined } from '#v0/utilities'
 import { shallowRef, toValue } from 'vue'
@@ -26,9 +29,6 @@ import { shallowRef, toValue } from 'vue'
 // Types
 import type { ID } from '#v0/types'
 import type { MaybeRefOrGetter, ShallowRef } from 'vue'
-
-// Constants
-import { IN_BROWSER } from '#v0/constants/globals'
 
 export interface TraversalItem {
   id: ID
@@ -99,8 +99,12 @@ export function createFocusTraversal (
     const direction = stride > 0 ? 1 : -1
     const absStride = Math.abs(stride)
     let index = current + stride
-    // Max attempts: for stride=1 check all items, for larger strides check proportionally
-    const maxHops = Math.ceil(length / absStride)
+    // Bounded: each hop advances absStride slots toward a boundary, so the line
+    // is exhausted in ceil(length / absStride) hops. Circular: each hop lands on a
+    // fresh position until the stride cycle closes — up to `length` hops (e.g.
+    // stride 2 over 7 items visits all 7 positions) — so every position must be
+    // checkable, otherwise a reachable enabled item beyond the bound is missed.
+    const maxHops = circular ? length : Math.ceil(length / absStride)
     let hops = 0
 
     if (circular) {

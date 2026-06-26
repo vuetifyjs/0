@@ -1,14 +1,17 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { renderToString } from 'vue/server-renderer'
 
+// Composables
+import { createLocalePlugin } from '#v0/composables'
+
+import { useCarouselRoot, Carousel } from './index'
+
 // Utilities
 import { mount as baseMount } from '@vue/test-utils'
 import { createSSRApp, defineComponent, h, nextTick, ref } from 'vue'
 
 // Types
 import type { mount as mountType } from '@vue/test-utils'
-
-import { useCarouselRoot, Carousel } from './index'
 
 // CarouselViewport binds document mousemove/mouseup via
 // useDocumentEventListener gated by useToggleScope on snapDisabled. Even
@@ -469,6 +472,59 @@ describe('carousel', () => {
         expect(slide1Props.attrs['aria-label']).toBeDefined()
         expect(slide2Props.attrs['aria-label']).toBeDefined()
         expect(slide3Props.attrs['aria-label']).toBeDefined()
+      })
+
+      it('should fall back to the inline default slide aria-label when no locale plugin is configured', async () => {
+        let slideProps: any
+
+        mount(Carousel.Root, {
+          slots: {
+            default: () =>
+              h(Carousel.Item as any, { value: 'slide-1' }, {
+                default: (props: any) => {
+                  slideProps = props
+                  return h('div', 'Slide')
+                },
+              }),
+          },
+        })
+
+        await nextTick()
+
+        expect(slideProps.attrs['aria-label']).toBe('Slide 1 of 1')
+      })
+
+      it('should use the translated, interpolated slide aria-label when registered', async () => {
+        const plugin = createLocalePlugin({
+          default: 'en',
+          messages: {
+            en: {
+              Carousel: {
+                slide: 'Folie {current} von {size}',
+              },
+            },
+          },
+        })
+
+        let slideProps: any
+
+        mount(Carousel.Root, {
+          global: { plugins: [plugin] },
+          slots: {
+            default: () =>
+              h(Carousel.Item as any, { value: 'slide-1' }, {
+                default: (props: any) => {
+                  slideProps = props
+                  return h('div', 'Slide')
+                },
+              }),
+          },
+        })
+
+        await nextTick()
+
+        expect(slideProps.attrs['aria-label']).not.toBe('Slide 1 of 1')
+        expect(slideProps.attrs['aria-label']).toBe('Folie 1 von 1')
       })
     })
 
@@ -1769,7 +1825,7 @@ describe('carousel', () => {
 
     it('should clear pending live-region timer on unmount', async () => {
       vi.useFakeTimers()
-      const clearSpy = vi.spyOn(globalThis, 'clearTimeout')
+      using clearSpy = vi.spyOn(globalThis, 'clearTimeout')
 
       let rootProps: any
 
@@ -1795,7 +1851,6 @@ describe('carousel', () => {
 
       expect(clearSpy.mock.calls.length).toBeGreaterThan(before)
 
-      clearSpy.mockRestore()
       vi.useRealTimers()
     })
 
@@ -2765,7 +2820,7 @@ describe('carousel', () => {
       expect(slide1Props.isSelected).toBe(true)
     })
 
-    it.skip('should not advance past maxStart when next() called in non-circular mode with perView', async () => {
+    it('should not advance past maxStart when next() called in non-circular mode with perView', async () => {
       const selected = ref<string>('a')
 
       let rootProps: any
@@ -2870,6 +2925,49 @@ describe('carousel', () => {
       })
 
       expect(rootProps.attrs['aria-label']).toBeDefined()
+    })
+
+    it('should fall back to the inline default label when no locale plugin is configured', async () => {
+      let rootProps: any
+
+      mount(Carousel.Root, {
+        slots: {
+          default: (props: any) => {
+            rootProps = props
+            return h('div', 'Content')
+          },
+        },
+      })
+
+      expect(rootProps.attrs['aria-label']).toBe('Carousel')
+    })
+
+    it('should use the translated locale string for aria-label when one is registered', async () => {
+      const plugin = createLocalePlugin({
+        default: 'en',
+        messages: {
+          en: {
+            Carousel: {
+              label: 'Karussell',
+            },
+          },
+        },
+      })
+
+      let rootProps: any
+
+      mount(Carousel.Root, {
+        global: { plugins: [plugin] },
+        slots: {
+          default: (props: any) => {
+            rootProps = props
+            return h('div', 'Content')
+          },
+        },
+      })
+
+      expect(rootProps.attrs['aria-label']).not.toBe('Carousel')
+      expect(rootProps.attrs['aria-label']).toBe('Karussell')
     })
   })
 

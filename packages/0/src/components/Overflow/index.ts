@@ -9,7 +9,7 @@ export type { OverflowItemProps, OverflowItemSlotProps } from './OverflowItem.vu
 export type { OverflowRootProps, OverflowRootSlotProps } from './OverflowRoot.vue'
 export type { OverflowPriority, OverflowRootContext, OverflowTicket, OverflowTicketInput } from './types'
 
-// Components
+// Context
 import Indicator from './OverflowIndicator.vue'
 import Item from './OverflowItem.vue'
 import Root from './OverflowRoot.vue'

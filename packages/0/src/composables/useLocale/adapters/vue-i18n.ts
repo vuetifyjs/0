@@ -1,11 +1,11 @@
+// Adapters
+import { LocaleAdapter } from './adapter'
+
 // Utilities
 import { isObject } from '#v0/utilities'
 
 // Types
 import type { Composer } from 'vue-i18n'
-
-// Adapters
-import { LocaleAdapter } from './adapter'
 
 /**
  * Locale adapter that delegates to a vue-i18n instance.
@@ -31,6 +31,10 @@ export class VueI18nLocaleAdapter extends LocaleAdapter {
     return params.length > 0
       ? this.composer.t(key, params)
       : this.composer.t(key)
+  }
+
+  ti (key: string, ...params: unknown[]): string | undefined {
+    return this.composer.te(key) ? this.t(key, ...params) : undefined
   }
 
   n (value: number): string {

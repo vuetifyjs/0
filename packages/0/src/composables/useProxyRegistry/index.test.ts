@@ -3,10 +3,10 @@ import { describe, expect, it, vi } from 'vitest'
 // Composables
 import { createRegistry } from '#v0/composables/createRegistry'
 
+import { useProxyRegistry } from './index'
+
 // Utilities
 import { effectScope } from 'vue'
-
-import { useProxyRegistry } from './index'
 
 describe('useProxyRegistry', () => {
   describe('basic functionality', () => {

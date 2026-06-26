@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { createSingle, createSingleContext, useSingle } from './index'
+
 // Utilities
 import { type App, inject, provide, ref } from 'vue'
 
 // Types
 import type { SingleTicketInput } from './index'
-
-import { createSingle, createSingleContext, useSingle } from './index'
 
 vi.mock('vue', async () => {
   const actual = await vi.importActual('vue')
@@ -65,7 +65,7 @@ describe('createSingle', () => {
         expect(single.selectedId.value).toBe('item-1')
       })
 
-      it.skip('should ignore explicit multiple:true and still enforce single selection', () => {
+      it('should ignore explicit multiple:true and still enforce single selection', () => {
         // SelectionOptions.multiple is type-allowed because SingleOptions extends
         // SelectionOptions, but createSingle's contract is single-selection-only.
         const single = createSingle({ multiple: true })

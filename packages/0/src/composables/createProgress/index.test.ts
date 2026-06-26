@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { createProgress, createProgressContext, useProgress } from './index'
+
 // Utilities
 import { inject, provide, shallowRef, toValue } from 'vue'
 
 // Types
 import type { ProgressOptions } from './index'
-
-import { createProgress, createProgressContext, useProgress } from './index'
 
 vi.mock('vue', async () => {
   const actual = await vi.importActual('vue')
@@ -73,6 +73,14 @@ describe('createProgress', () => {
       const progress = setup()
       const ticket = progress.register()
       expect(ticket.id).toBeDefined()
+    })
+
+    it('should track size for segments registered after creation', () => {
+      const progress = setup()
+      progress.register()
+      progress.register()
+      progress.register()
+      expect(progress.size).toBe(3)
     })
   })
 

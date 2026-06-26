@@ -1,15 +1,18 @@
 <script setup lang="ts">
   // Framework
-  import { createDataTable, createGroup, createSingle } from '@vuetify/v0'
-
-  // Utilities
-  import { toRef } from 'vue'
-  import { RouterLink } from 'vue-router'
+  import { createDataTable, createGroup, createSingle, isString, toHighlight } from '@vuetify/v0'
 
   import maturityData from '#v0/maturity.json'
+  import { LEVEL_KEYS as levelKeys, MATURITY_LEVELS as levels } from '@/constants/maturity'
+  import { releaseAlias } from '@/constants/releases'
+
+  // Utilities
+  import { onMounted, toRef, watch } from 'vue'
+  import { RouterLink, useRoute } from 'vue-router'
 
   // Types
-  type Level = 'draft' | 'preview' | 'stable' | 'mature' | 'deprecated'
+  import type { Level, MaturityData } from '@/constants/maturity'
+
   type ItemType = 'composable' | 'component' | 'utility'
 
   interface MaturityItem extends Record<string, unknown> {
@@ -18,7 +21,7 @@
     type: ItemType
     category: string
     level: Level
-    since?: string
+    since?: string | null
     levelOrder: number
     path: string
   }
@@ -27,21 +30,13 @@
     return name.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()
   }
 
-  const levels: Record<Level, { icon: string, color: string, label: string, order: number }> = {
-    draft: { icon: 'circle-outline', color: '#9ca3af', label: 'Draft', order: 0 },
-    preview: { icon: 'beaker', color: '#f59e0b', label: 'Preview', order: 1 },
-    stable: { icon: 'shield', color: '#3b82f6', label: 'Stable', order: 2 },
-    mature: { icon: 'check-decagram', color: '#22c55e', label: 'Mature', order: 3 },
-    deprecated: { icon: 'alert-circle', color: '#ef4444', label: 'Deprecated', order: 4 },
-  }
-
-  const levelKeys: Level[] = ['draft', 'preview', 'stable', 'mature', 'deprecated']
+  const data = maturityData as MaturityData
 
   // Flatten JSON into MaturityItem[]
   function flatten (): MaturityItem[] {
     const result: MaturityItem[] = []
 
-    for (const [name, entry] of Object.entries(maturityData.composables)) {
+    for (const [name, entry] of Object.entries(data.composables)) {
       result.push({
         id: `composable-${name}`,
         name,
@@ -49,12 +44,12 @@
         category: entry.category,
         level: entry.level,
         since: entry.since,
-        levelOrder: levels[entry.level as Level]?.order ?? -1,
+        levelOrder: levels[entry.level]?.order ?? -1,
         path: `/composables/${entry.category}/${kebab(name)}`,
       })
     }
 
-    for (const [name, entry] of Object.entries(maturityData.components)) {
+    for (const [name, entry] of Object.entries(data.components)) {
       result.push({
         id: `component-${name}`,
         name,
@@ -62,12 +57,12 @@
         category: entry.category,
         level: entry.level,
         since: entry.since,
-        levelOrder: levels[entry.level as Level]?.order ?? -1,
+        levelOrder: levels[entry.level]?.order ?? -1,
         path: `/components/${entry.category}/${kebab(name)}`,
       })
     }
 
-    for (const [name, entry] of Object.entries(maturityData.utilities)) {
+    for (const [name, entry] of Object.entries(data.utilities)) {
       result.push({
         id: `utility-${name}`,
         name,
@@ -75,7 +70,7 @@
         category: entry.category,
         level: entry.level,
         since: entry.since,
-        levelOrder: levels[entry.level as Level]?.order ?? -1,
+        levelOrder: levels[entry.level]?.order ?? -1,
         path: '/utilities',
       })
     }
@@ -122,26 +117,51 @@
   })
 
   const table = createDataTable<MaturityItem>({
-    items: filtered,
-    columns: [
-      { key: 'name', title: 'Name', sortable: true, filterable: true },
-      { key: 'type', title: 'Type', sortable: true, filterable: true },
-      { key: 'category', title: 'Category', sortable: true, filterable: true },
-      {
-        key: 'levelOrder',
-        title: 'Level',
-        sortable: true,
-        sort: (a, b) => (a as number) - (b as number),
-      },
-      { key: 'since', title: 'Since', sortable: true },
-    ],
     groupBy: 'category',
     pagination: { itemsPerPage: 100 },
   })
 
+  table.columns.onboard([
+    { id: 'name', title: 'Name', sortable: true, filterable: true },
+    { id: 'type', title: 'Type', sortable: true, filterable: true },
+    { id: 'category', title: 'Category', sortable: true, filterable: true },
+    {
+      id: 'levelOrder',
+      title: 'Level',
+      sortable: true,
+      sort: (a, b) => (a as number) - (b as number),
+    },
+    { id: 'since', title: 'Since', sortable: true },
+  ])
+
+  // The type/level chips filter externally into `filtered`; the table's
+  // pipeline (search, sort, group) runs off its row registry, so re-onboard
+  // the current set whenever the chip selection changes.
+  watch(filtered, items => {
+    table.clear()
+    table.onboard(items.map(item => ({ id: item.id, value: item })))
+  }, { immediate: true })
+
   function onSearch (event: Event) {
     table.search((event.target as HTMLInputElement).value)
   }
+
+  // Feature pages deep-link here with `?category=&feature=` so the reader's
+  // category is auto-expanded and their feature's row is highlighted, instead
+  // of being buried among collapsed groups.
+  const route = useRoute()
+
+  const feature = toRef(() => {
+    const value = route.query.feature
+    return isString(value) ? value : ''
+  })
+
+  onMounted(() => {
+    const category = route.query.category
+    if (isString(category) && category) {
+      table.grouping.open(category)
+    }
+  })
 
   const anyOpen = toRef(() => {
     return table.grouping.groups.value.some(g => table.grouping.isOpen(g.key))
@@ -158,14 +178,6 @@
     } else {
       table.grouping.openAll()
     }
-  }
-
-  // Sort indicator
-  function sortIcon (key: string): string {
-    const dir = table.sort.direction(key)
-    if (dir === 'asc') return '\u2191'
-    if (dir === 'desc') return '\u2193'
-    return ''
   }
 
   // Weighted color blend for a group
@@ -331,7 +343,10 @@
           >
             <div class="flex-1 min-w-0">
               <div class="text-sm font-medium text-on-surface truncate">
-                {{ item.name }}
+                <template v-for="(chunk, position) in toHighlight(item.name, feature, { ignoreCase: true })" :key="position">
+                  <mark v-if="chunk.match" class="bg-warning text-on-warning rounded px-0.5">{{ chunk.text }}</mark>
+                  <template v-else>{{ chunk.text }}</template>
+                </template>
               </div>
 
               <div class="flex items-center gap-2 mt-1">
@@ -345,7 +360,7 @@
                 >{{ item.type }}</span>
 
                 <span v-if="item.since" class="text-[10px] text-on-surface-variant font-mono">
-                  v{{ item.since }}
+                  {{ releaseAlias(item.since) }}
                 </span>
               </div>
             </div>
@@ -399,19 +414,26 @@
         <thead>
           <tr v-if="anyOpen" class="relative z-1 bg-background">
             <th
-              v-for="col in table.columns"
-              :key="col.key"
+              v-for="col in table.leaves.value"
+              :key="col.id"
               class="py-2 text-left text-xs font-semibold text-on-surface-variant uppercase tracking-wide cursor-pointer select-none hover:text-on-surface transition-colors"
-              :class="col.key === 'name' ? '!pl-[34px] pr-4' : 'px-4'"
-              @click="col.sortable ? table.sort.toggle(col.key) : undefined"
+              :class="col.id === 'name' ? '!pl-[34px] pr-4' : 'px-4'"
+              @click="col.sortable ? table.sort.toggle(col.id) : undefined"
             >
               {{ col.title }}
-              <span v-if="col.sortable" class="ml-0.5 text-primary">{{ sortIcon(col.key) }}</span>
+              <AppIcon
+                v-if="col.sortable && table.sort.direction(col.id) !== 'none'"
+                aria-hidden="true"
+                class="ml-0.5 text-primary transition-transform"
+                :class="table.sort.direction(col.id) === 'asc' ? '-rotate-90' : 'rotate-90'"
+                icon="chevron-right"
+                :size="14"
+              />
             </th>
           </tr>
 
           <tr v-else class="relative z-1 bg-background">
-            <th class="py-2 px-4 text-left text-xs font-normal text-on-surface-variant/50 italic" :colspan="table.columns.length">
+            <th class="py-2 px-4 text-left text-xs font-normal text-on-surface-variant/50 italic" :colspan="table.leaves.value.length">
               <div class="flex items-center gap-2">
                 Select a group to see individual items
                 <span class="flex-1" />
@@ -429,7 +451,7 @@
           <!-- Group divider -->
           <tbody v-if="index > 0">
             <tr>
-              <td class="!p-0" :colspan="table.columns.length">
+              <td class="!p-0" :colspan="table.leaves.value.length">
                 <hr class="border-divider m-0">
               </td>
             </tr>
@@ -441,7 +463,7 @@
               class="cursor-pointer transition-colors hover:bg-surface-variant/30"
               @click="table.grouping.toggle(group.key)"
             >
-              <td class="px-4 py-2.5" :colspan="table.columns.length">
+              <td class="px-4 py-2.5" :colspan="table.leaves.value.length">
                 <div class="flex items-center gap-2 text-sm font-semibold text-on-surface">
                   <AppIcon
                     class="transition-transform"
@@ -479,7 +501,12 @@
                   :is="(item as MaturityItem).level === 'draft' ? 'span' : RouterLink"
                   :class="(item as MaturityItem).level === 'draft' ? 'text-on-surface-variant' : 'text-primary no-underline hover:underline transition-colors'"
                   :to="(item as MaturityItem).level !== 'draft' ? item.path : undefined"
-                >{{ item.name }}</component>
+                >
+                  <template v-for="(chunk, position) in toHighlight(item.name, feature, { ignoreCase: true })" :key="position">
+                    <mark v-if="chunk.match" class="bg-warning text-on-warning rounded px-0.5">{{ chunk.text }}</mark>
+                    <template v-else>{{ chunk.text }}</template>
+                  </template>
+                </component>
               </td>
 
               <!-- Type badge -->
@@ -519,7 +546,7 @@
                   class="text-primary no-underline hover:underline whitespace-nowrap"
                   :href="`/releases/?version=v${item.since}`"
                   target="_blank"
-                >v{{ item.since }} ↗</a>
+                >{{ releaseAlias(item.since) }} ↗</a>
 
                 <span v-else class="text-on-surface-variant/50">—</span>
               </td>
@@ -530,7 +557,7 @@
         <!-- Empty state -->
         <tbody v-if="table.grouping.groups.value.length === 0">
           <tr>
-            <td class="px-4 py-8 text-center text-on-surface-variant text-sm" :colspan="table.columns.length">
+            <td class="px-4 py-8 text-center text-on-surface-variant text-sm" :colspan="table.leaves.value.length">
               No items match your search or filters.
             </td>
           </tr>
@@ -539,7 +566,7 @@
         <!-- Total row -->
         <tfoot>
           <tr class="bg-surface-tint">
-            <td class="px-4 py-3" :colspan="table.columns.length">
+            <td class="px-4 py-3" :colspan="table.leaves.value.length">
               <div class="flex flex-wrap items-center gap-3 text-xs text-on-surface-variant">
                 <span
                   v-for="(config, key) in levels"
@@ -562,7 +589,7 @@
         </tfoot>
       </table>
 
-      <AppDotGrid :coverage="65" :density="18" />
+      <AppDotGrid :coverage="65" />
     </div>
 
     <!-- Graduation criteria -->

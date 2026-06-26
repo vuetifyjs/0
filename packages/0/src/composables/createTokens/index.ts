@@ -33,7 +33,7 @@ import { createTrinity } from '#v0/composables/createTrinity'
 import { useLogger } from '#v0/composables/useLogger'
 
 // Utilities
-import { isObject, isString, isUndefined } from '#v0/utilities'
+import { isObject, isString, isUndefined, UNSAFE_KEYS } from '#v0/utilities'
 
 // Types
 import type { RegistryContext, RegistryContextOptions, RegistryOptions, RegistryTicket } from '#v0/composables/createRegistry'
@@ -331,8 +331,7 @@ export function createTokens<
 /**
  * Creates a new token context.
  *
- * @param namespace The namespace for the token context.
- * @param tokens The tokens to use.
+ * @param options The options for the token context.
  * @template Z The type of the token ticket.
  * @template E The type of the token context.
  * @returns A new token context.
@@ -405,6 +404,7 @@ export function flatten (tokens: TokenCollection, prefix = '', flat = false): Fl
 
     const meta: Record<string, unknown> = {}
     for (const k in currentTokens) {
+      if (!Object.prototype.hasOwnProperty.call(currentTokens, k)) continue
       if (k.startsWith('$')) meta[k] = (currentTokens as Record<string, unknown>)[k]
     }
 
@@ -413,6 +413,11 @@ export function flatten (tokens: TokenCollection, prefix = '', flat = false): Fl
     }
 
     for (const key in currentTokens) {
+      // Skip inherited keys and prototype-pollution sinks so a polluted
+      // Object.prototype (or a caller-supplied `constructor`/`prototype` token)
+      // can't leak in as a registered token id. Mirrors mergeDeep.
+      if (!Object.prototype.hasOwnProperty.call(currentTokens, key)) continue
+      if (UNSAFE_KEYS.has(key)) continue
       if (key.startsWith('$')) continue
 
       const value = (currentTokens as Record<string, unknown>)[key]
@@ -429,6 +434,8 @@ export function flatten (tokens: TokenCollection, prefix = '', flat = false): Fl
         const inner = value.$value
         if (isObject(inner) && !flat) {
           for (const innerKey in inner) {
+            if (!Object.prototype.hasOwnProperty.call(inner, innerKey)) continue
+            if (UNSAFE_KEYS.has(innerKey)) continue
             if (innerKey.startsWith('$')) continue
 
             const child = inner[innerKey]

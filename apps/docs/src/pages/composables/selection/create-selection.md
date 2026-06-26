@@ -108,7 +108,7 @@ Selection state is **always reactive**. Collection methods follow the base `crea
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/create-selection/context.ts 2
 /composables/create-selection/BookmarkProvider.vue 3
 /composables/create-selection/BookmarkConsumer.vue 4
@@ -116,7 +116,13 @@ Selection state is **always reactive**. Collection methods follow the base `crea
 
 ### Bookmark Manager
 
-Multi-component bookmark manager using provide/inject. The provider creates and shares the selection context; consumers read and toggle selections independently.
+A full bookmark manager spread across three components, demonstrating `createSelection` paired with `createContext` to share selection state via provide/inject without prop-drilling.
+
+`context.ts` defines the `BookmarkContext` interface — which extends `SelectionContext` and adds `pinnedIds`, `stats`, and pin/unpin helpers — then exports the `createContext` tuple `[useBookmarks, provideBookmarks]`. `BookmarkProvider.vue` calls `createBookmarks()` (which calls `createSelection({ multiple: true, events: true })`), seeds seven items including one disabled entry, builds the extended context object, and calls `provideBookmarks()` to make it available to all descendants. It is a renderless wrapper: its template is just `<slot />`. `BookmarkConsumer.vue` injects the context with `useBookmarks()` and uses `useProxyRegistry` to iterate tickets reactively — it never holds a reference to the selection instance directly.
+
+The consumer exposes tag-based filtering via a local `filter` ref and derived `filtered` computed, select-all and clear-all bulk actions, an add-bookmark form, a pin/unpin button per row, and a live stats bar. All selection mutations go through `bookmarks.toggle()`, `bookmarks.select()`, and `bookmarks.unselect()` — the same API whether you're in the consumer or anywhere else in the tree.
+
+This pattern is the right shape when a selection instance needs to be created in one component but read or mutated in unrelated components below it. Compare to the [Playlist Builder](#playlist-builder) below for the no-DI alternative — the same selection API driven from a plain composable, with no provide/inject.
 
 | File | Role |
 |------|------|
@@ -127,12 +133,24 @@ Multi-component bookmark manager using provide/inject. The provider creates and 
 
 :::
 
-::: example
-/composables/create-selection/file-picker
+::: gn-example
+/composables/create-selection/useTracklist.ts 1
+/composables/create-selection/TrackList.vue 2
+/composables/create-selection/track-list.vue 3
 
-### File Picker
+### Playlist Builder
 
-Multi-selectable file list with disabled states, demonstrating `mandatory`, `select()`, `unselect()`, and the `isSelected` ticket property.
+A multi-select track list with a select-all lever and a bulk "add to queue" action, built on `createSelection` directly — no `createContext`, no provide/inject. State lives in a plain composable and is passed down as a single prop, the simplest way to share a selection instance between two components.
+
+`useTracklist.ts` calls `createSelection({ multiple: true })` once and `onboard()`s seven tracks in a single pass, mapping each track's `unavailable` flag onto the ticket's `disabled` input so the inert row can never be selected. It exposes the returned `tickets` array plus a few derived signals: `count` (a `toRef` over `selectedIds.size`), `allSelected` (a `toRef` that folds every selectable ticket's `isSelected`), and the bulk operations `toggleAll`, `enqueue`, and `clearQueue`. `enqueue()` reads `selection.selectedValues.value` — the reactive Set of selected track objects — then calls `selection.reset()` to clear the selection in one shot.
+
+`TrackList.vue` is purely presentational: it receives the composable's return value as a `tracklist` prop and renders the toolbar and rows, reading `ticket.isSelected.value`, calling `ticket.toggle()` per row, and driving the header checkbox from `allSelected` / `toggleAll`. Reach for this shape when selection state needs to live above the markup but a full context provider would be overkill; when the instance must be reachable from unrelated parts of the tree instead, see the [Bookmark Manager](#bookmark-manager) above for the provide/inject split. Related: [createSingle](/composables/selection/create-single) for single-select and [createGroup](/composables/selection/create-group) for tri-state select-all.
+
+| File | Role |
+|------|------|
+| `useTracklist.ts` | Owns the track data, selection instance, derived signals, and bulk actions |
+| `TrackList.vue` | Presentational list and toolbar driven by the composable's return value |
+| `track-list.vue` | Entry point wiring the composable to the list and rendering the queue summary |
 
 :::
 

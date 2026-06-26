@@ -9,7 +9,7 @@ export type { TabsListProps, TabsListSlotProps } from './TabsList.vue'
 export type { TabsItemProps, TabsItemSlotProps } from './TabsItem.vue'
 export type { TabsPanelProps, TabsPanelSlotProps } from './TabsPanel.vue'
 
-// Components
+// Context
 import Item from './TabsItem.vue'
 import List from './TabsList.vue'
 import Panel from './TabsPanel.vue'

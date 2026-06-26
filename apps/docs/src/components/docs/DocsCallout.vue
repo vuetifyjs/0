@@ -13,6 +13,12 @@
   import { useSettings } from '@/composables/useSettings'
   import { useTips } from '@/composables/useTips'
 
+  // Config
+  import { type CalloutType, getCalloutConfig } from './calloutConfig'
+
+  // Stores
+  import { useSkillzStore } from '@/stores/skillz'
+
   // Utilities
   import { Comment, computed, onMounted, shallowRef, toRef, useSlots } from 'vue'
   import { useRouter } from 'vue-router'
@@ -21,17 +27,11 @@
   import type { CompiledTip } from '@build/generate-tips'
   import type { VNode } from 'vue'
 
-  // Stores
-  import { useSkillzStore } from '@/stores/skillz'
-
-  // Config
-  import { type CalloutType, getCalloutConfig } from './calloutConfig'
-
   /**
    * Callout props - certain props are required based on type:
    * - type: 'askai' requires `question`
    * - type: 'tour' requires `tourId`
-   * - type: 'tip' | 'info' | 'warning' | 'error' | 'discord' have no additional required props
+   * - type: 'tip' | 'note' | 'warning' | 'caution' | 'important' | 'discord' have no additional required props
    */
   export interface DocsCalloutProps {
     type: CalloutType

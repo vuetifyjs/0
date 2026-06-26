@@ -25,8 +25,11 @@ import { useResizeObserver } from '#v0/composables/useResizeObserver'
 // Adapters
 import { KeyboardAdapter, PointerAdapter } from './adapters'
 
+// Globals
+import { IN_BROWSER } from '#v0/constants/globals'
+
 // Utilities
-import { isArray, isFunction, isNull, isObject, isUndefined, useId } from '#v0/utilities'
+import { isArray, isFunction, isNull, isThenable, isUndefined, useId } from '#v0/utilities'
 import { computed, effectScope, onScopeDispose, onWatcherCleanup, shallowReadonly, shallowRef, toRef, toValue, watch } from 'vue'
 
 // Types
@@ -38,9 +41,6 @@ import type {
 import type { Extensible, ID } from '#v0/types'
 import type { DragDropAdapter, DragDropAdapterContext, DragDropAdapterEmit } from './adapters'
 import type { EffectScope, MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
-
-// Globals
-import { IN_BROWSER } from '#v0/constants/globals'
 
 // Exports
 export { DragDropAdapter, KeyboardAdapter, PointerAdapter } from './adapters'
@@ -500,7 +500,7 @@ export function useDragDrop<Z extends DragType = DragType> (
       if (isUndefined(accept)) return true
       if (isArray(accept)) return accept.includes(drag.type)
       const result: unknown = accept(drag)
-      if (isObject(result) && isFunction(result.then)) {
+      if (isThenable(result)) {
         logger.warn('useDragDrop accept predicate returned a thenable; async predicates are not supported — treating as reject')
         return false
       }
@@ -533,6 +533,13 @@ export function useDragDrop<Z extends DragType = DragType> (
     ..._zones,
     register (registration: DropZoneTicketInput<Z>): DropZoneTicket {
       const id = registration.id ?? useId()
+      // A duplicate id is rejected by the registry below (warn + return the
+      // existing ticket). Bail before allocating an effectScope/observers —
+      // otherwise scopes.set(id, …) overwrites the live scope without stopping
+      // it, leaking the original zone's observers past teardown.
+      if (_zones.has(id)) {
+        return _zones.register(registration as unknown as Partial<DropZoneTicketInput<Z> & RegistryTicket>) as DropZoneTicket
+      }
       const el = toRef(() => toValue(registration.el))
       const isOver = toRef(() => active.value?.over === id)
       const willAccept = toRef(() => safeAccept(registration.accept, active.value))

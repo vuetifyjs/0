@@ -1,8 +1,8 @@
-import type { DataTableColumn } from '@vuetify/v0'
+import type { DataTableColumnTicketInput } from '@vuetify/v0'
 import type { User } from './data'
 
-export const columns: DataTableColumn<User>[] = [
-  { key: 'name', title: 'Name', sortable: true, filterable: true },
-  { key: 'email', title: 'Email', sortable: true, filterable: true },
-  { key: 'score', title: 'Score', sortable: true, sort: (a: unknown, b: unknown) => Number(a) - Number(b) },
+export const columns: DataTableColumnTicketInput<User>[] = [
+  { id: 'name', title: 'Name', sortable: true, filterable: true },
+  { id: 'email', title: 'Email', sortable: true, filterable: true },
+  { id: 'score', title: 'Score', sortable: true, sort: (a: unknown, b: unknown) => Number(a) - Number(b) },
 ]

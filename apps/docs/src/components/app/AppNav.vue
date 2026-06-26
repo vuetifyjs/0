@@ -12,15 +12,15 @@
   import { createNavNested } from '@/composables/useNavNested'
   import { useSettings } from '@/composables/useSettings'
 
+  // Stores
+  import { useAppStore } from '@/stores/app'
+
   // Utilities
-  import { computed, onMounted, shallowRef, useTemplateRef, watch } from 'vue'
+  import { computed, nextTick, onMounted, shallowRef, useTemplateRef, watch } from 'vue'
   import { useRoute } from 'vue-router'
 
   // Types
   import type { NavItem, NavItemLink } from '@/stores/app'
-
-  // Stores
-  import { useAppStore } from '@/stores/app'
 
   const settings = useSettings()
   const devmode = useFeatures().get('devmode')!
@@ -105,22 +105,18 @@
     else ticket.unselect()
   }, { immediate: true })
 
-  // Scroll active link into view after nav sections are ready
-  watch(scrollEnabled, enabled => {
+  // Scroll active link into view on load and on every navigation.
+  // scrollEnabled gates the initial restore; route.path drives subsequent navigation.
+  watch([scrollEnabled, () => route.path], async ([enabled]) => {
     if (!enabled || !IN_BROWSER) return
+    // Wait for reveal/expand to reconcile so the active link exists and is positioned
+    await nextTick()
     const root = document.querySelector('#main-navigation')
-    const scroller = root?.querySelector<HTMLElement>('.nav-scroll')
-    // Find the exact route match, not just any active ancestor
-    const activeLink = scroller?.querySelector<HTMLElement>(`a[href="${route.path}"]`)
-    if (activeLink && scroller) {
-      const navRect = scroller.getBoundingClientRect()
-      const linkRect = activeLink.getBoundingClientRect()
-      // Only scroll if link is outside visible area
-      if (linkRect.top < navRect.top || linkRect.bottom > navRect.bottom) {
-        const linkRelativeTop = linkRect.top - navRect.top + scroller.scrollTop
-        scroller.scrollTop = Math.max(0, linkRelativeTop - 100) // 100px from top, not centered
-      }
-    }
+    // Match the exact route by attribute (not a CSS selector) so a special character in route.path can't throw
+    const links = root ? [...root.querySelectorAll<HTMLElement>('a[href]')] : []
+    const activeLink = links.find(link => link.getAttribute('href') === route.path)
+    // block: 'nearest' scrolls the .nav-scroll container the minimum amount, and is a no-op when already visible
+    activeLink?.scrollIntoView({ block: 'nearest' })
   }, { immediate: true })
 
   useClickOutside(

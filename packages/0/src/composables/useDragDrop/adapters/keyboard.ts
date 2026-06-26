@@ -11,18 +11,18 @@
 import { useEventListener } from '#v0/composables/useEventListener'
 import { useLogger } from '#v0/composables/useLogger'
 
+// Globals
+import { IN_BROWSER } from '#v0/constants/globals'
+
+// Adapters
+import { DragDropAdapter } from './adapter'
+
 // Utilities
 import { isNull } from '#v0/utilities'
 
 // Types
 import type { DragType } from '../'
 import type { DragDropAdapterContext } from './adapter'
-
-// Globals
-import { IN_BROWSER } from '#v0/constants/globals'
-
-// Adapters
-import { DragDropAdapter } from './adapter'
 
 function isEditable (element: Element | null): boolean {
   if (isNull(element)) return false
@@ -71,7 +71,7 @@ export class KeyboardAdapter<Z extends DragType = DragType> extends DragDropAdap
     if (!IN_BROWSER) return
 
     // Arrow form so `this.locate` / `this.activate` / `this.step` resolve on the adapter instance.
-    const onKeyDown = (event: KeyboardEvent) => {
+    const onKeydown = (event: KeyboardEvent) => {
       const focused = document.activeElement
       if (event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) return
       if (isEditable(focused)) return
@@ -135,7 +135,7 @@ export class KeyboardAdapter<Z extends DragType = DragType> extends DragDropAdap
       }
     }
 
-    const stop = useEventListener(document, 'keydown', onKeyDown)
+    const stop = useEventListener(document, 'keydown', onKeydown)
     this.cleanup = () => stop()
   }
 }

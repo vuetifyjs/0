@@ -57,6 +57,15 @@ export interface StackTicketInput extends SelectionTicketInput {
    * Use for critical dialogs requiring explicit user action.
    */
   blocking?: boolean
+  /**
+   * Whether this overlay should be backed by a scrim/backdrop
+   *
+   * @default true
+   * @remarks When false, the overlay still participates in z-index stacking
+   * but `Scrim` skips rendering a backdrop for it. Use for non-modal overlays
+   * (snackbars, toasts, tooltips) that need layering without dimming.
+   */
+  scrim?: boolean
 }
 
 /**
@@ -71,6 +80,10 @@ export type StackTicket<Z extends StackTicketInput = StackTicketInput> = Selecti
    * Whether this overlay blocks scrim dismissal
    */
   blocking: boolean
+  /**
+   * Whether this overlay is backed by a scrim/backdrop
+   */
+  scrim: boolean
   /**
    * The calculated z-index for this overlay
    *
@@ -199,13 +212,18 @@ export function createStack (_options: StackOptions = {}): StackContext {
     multiple: true,
   })
 
-  const isActive = toRef(() => selection.selectedIds.size > 0)
+  // Non-modal overlays (scrim: false — snackbars, toasts) still stack for
+  // z-index but must not count as an active modal: isActive/top/scrimZIndex/
+  // isBlocking drive backdrop + scroll-lock, which a toast must never trigger.
+  function selectedScrims () {
+    return Array.from(selection.selectedIds)
+      .map(id => selection.get(id) as StackTicket | undefined)
+      .filter((ticket): ticket is StackTicket => !!ticket && ticket.scrim !== false)
+  }
 
-  const top = toRef(() => {
-    const ids = Array.from(selection.selectedIds)
-    if (ids.length === 0) return undefined
-    return selection.get(ids.at(-1)!) as StackTicket | undefined
-  })
+  const isActive = toRef(() => selectedScrims().length > 0)
+
+  const top = toRef(() => selectedScrims().at(-1))
 
   const scrimZIndex = toRef(() => {
     const ticket = top.value
@@ -221,6 +239,7 @@ export function createStack (_options: StackOptions = {}): StackContext {
   function register (input: Partial<StackTicketInput> = {} as Partial<StackTicketInput>): StackTicket {
     const id = input.id ?? useId()
     const blocking = input.blocking ?? false
+    const scrim = input.scrim ?? true
     const onDismiss = input.onDismiss
 
     const zIndex = toRef(() => {
@@ -243,6 +262,7 @@ export function createStack (_options: StackOptions = {}): StackContext {
 
     const ticket = selection.register({
       blocking,
+      scrim,
       onDismiss,
       zIndex,
       globalTop,

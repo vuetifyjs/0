@@ -50,7 +50,7 @@ import type { ComputedRef, Ref } from 'vue'
 // Exports
 export { V0StyleSheetThemeAdapter, V0UnheadThemeAdapter } from '#v0/composables/useTheme/adapters'
 
-export type { ThemeAdapter } from '#v0/composables/useTheme/adapters'
+export { ThemeAdapter } from '#v0/composables/useTheme/adapters'
 
 export type Colors = {
   [key: string]: string
@@ -193,6 +193,12 @@ export interface ThemeContext<
   register: (registration?: Partial<Z>) => E
   /** Bulk-register multiple themes in a single batch. */
   onboard: (registrations: Partial<Z>[]) => E[]
+  /**
+   * Release adapter resources (watchers, stylesheet, unhead entries).
+   * Called automatically on `app.unmount` when using the plugin path.
+   * Call manually when using a standalone context (`createThemeContext`).
+   */
+  dispose: () => void
 }
 
 export interface ThemeOptions<Z extends ThemeRecord = ThemeRecord> extends RegistryOptions {
@@ -256,8 +262,7 @@ export interface ThemePluginOptions extends ThemeContextOptions {
  * ```ts
  * import { createTheme } from '@vuetify/v0'
  *
- * export const [useTheme, provideTheme] = createTheme({
- *   namespace: 'v0:theme',
+ * const theme = createTheme({
  *   default: 'light',
  *   themes: {
  *     light: {
@@ -364,6 +369,7 @@ export function createTheme (_options: ThemeOptions = {}): ThemeContext {
     register,
     onboard,
     cycle,
+    dispose: () => {},
     get size () {
       return registry.size
     },
@@ -377,6 +383,7 @@ function createThemeFallback (): ThemeContext {
     isDark: shallowRef(false),
     cycle: () => {},
     onboard: () => [],
+    dispose: () => {},
   } as unknown as ThemeContext
 }
 
@@ -389,8 +396,11 @@ export const [createThemeContext, createThemePlugin, useTheme] =
       setup: (context, app, { adapter = new V0StyleSheetThemeAdapter(), target, rgb }) => {
         if (rgb) adapter.rgb = true
         adapter.setup(app, context, target)
+        app.onUnmount(() => adapter.dispose?.())
       },
       persist: ctx => ctx.selectedId.value,
-      restore: (ctx, saved) => ctx.select(saved as ID),
+      restore: (ctx, saved) => {
+        if (typeof saved === 'string' || typeof saved === 'number') ctx.select(saved)
+      },
     },
   )

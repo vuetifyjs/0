@@ -41,43 +41,34 @@ Wrap any section of your template in `<Theme>` to override the active theme for 
 
 ## Anatomy
 
-```vue Anatomy playground
+```vue Anatomy no-filename
 <script setup lang="ts">
   import { Theme } from '@vuetify/v0'
 </script>
 
 <template>
-  <!-- Wrapper mode (default) -->
-  <Theme theme="dark">
-    <div>Dark-scoped content</div>
-  </Theme>
-
-  <!-- Polymorphic rendering -->
-  <Theme theme="dark" as="section">
-    <div>Renders as section element</div>
-  </Theme>
-
-  <!-- Renderless mode -->
-  <Theme theme="dark" renderless v-slot="{ attrs }">
-    <section v-bind="attrs">Custom element</section>
-  </Theme>
+  <Theme />
 </template>
 ```
 
 ## Examples
 
-::: example
+::: gn-example
 /components/theme/ThemeCard.vue 1
 /components/theme/scoped-override.vue 2
 
 ### Scoped Override
 
-Nest `<Theme>` components to create layered theme contexts. Each section applies `data-theme` to its wrapper, scoping the active theme for that subtree.
+`Theme` wraps a subtree in a scoped theme context. Descendant calls to `useTheme()` resolve to the overridden theme without affecting anything outside the wrapper. The component applies a `data-theme` attribute to its wrapper element, which CSS variable declarations can target to inject the correct token values.
+
+This example sets up a `light` root context via `createThemeContext`, then places two independent `<Theme theme="dark">` overrides alongside it. The second override nests a `<Theme theme="light">` inside — demonstrating that nesting is arbitrary-depth and each level sees only its nearest ancestor's scope, not the global default.
+
+Reach for this pattern when a page section, card, sidebar, or marketing block needs a different theme from the surrounding app — dark headers, promotional banners, or inverted footers are common cases. The `ThemeCard` helper renders the active theme's color swatches, making it easy to confirm the correct scope is resolved at each level.
 
 | File | Role |
 |------|------|
-| `ThemeCard.vue` | Displays theme colors for the given theme prop |
-| `scoped-override.vue` | Entry — sets up themes and nests scoped overrides |
+| `ThemeCard.vue` | Displays the color palette for a given theme — used as a visual probe at each scope level |
+| `scoped-override.vue` | Entry — bootstraps the theme context and nests scoped overrides at multiple levels |
 :::
 
 ## Recipes

@@ -1,13 +1,24 @@
 {
   "name": "@vuetify/v0",
-  "version": "1.0.0-alpha.3",
+  "version": "1.0.0-beta.3",
   "description": "A meta UI framework for building applications, component libraries, and design systems with Vue 3",
   "license": "MIT",
+  "funding": [
+    {
+      "type": "github",
+      "url": "https://github.com/sponsors/johnleider"
+    },
+    {
+      "type": "opencollective",
+      "url": "https://opencollective.com/vuetify"
+    }
+  ],
   "types": "./dist/index.d.mts",
   "type": "module",
+  "sideEffects": false,
+  "web-types": "./dist/json/web-types.json",
   "files": [
-    "dist",
-    "SKILL.md"
+    "dist"
   ],
   "repository": {
     "type": "git",
@@ -15,10 +26,10 @@
     "directory": "packages/0"
   },
   "scripts": {
-    "build": "concurrently --names tsdown,webtypes --kill-others-on-fail --prefix-colors cyan,magenta 'pnpm build:tsdown' 'pnpm build:web-types'",
+    "build": "pnpm build:tsdown && pnpm build:web-types",
     "build:tsdown": "tsdown",
-    "build:web-types": "tsx scripts/generate-web-types.ts",
-    "generate:web-types": "tsx scripts/generate-web-types.ts",
+    "build:web-types": "node scripts/generate-web-types.ts",
+    "generate:web-types": "node scripts/generate-web-types.ts",
     "typecheck": "vue-tsc --noEmit --incremental"
   },
   "publishConfig": {
@@ -41,6 +52,7 @@
       "./locale/adapters": "./dist/locale/adapters/index.mjs",
       "./locale/adapters/v0": "./dist/locale/adapters/v0/index.mjs",
       "./locale/adapters/vue-i18n": "./dist/locale/adapters/vue-i18n/index.mjs",
+      "./locale/messages/en": "./dist/locale/messages/en/index.mjs",
       "./logger": "./dist/logger/index.mjs",
       "./logger/adapters": "./dist/logger/adapters/index.mjs",
       "./logger/adapters/consola": "./dist/logger/adapters/consola/index.mjs",
@@ -77,7 +89,8 @@
   "peerDependencies": {
     "@adobe/leonardo-contrast-colors": ">=1.0.0",
     "@ant-design/colors": ">=7.0.0",
-    "@flagsmith/flagsmith": "^11.0.0",
+    "@flagsmith/flagsmith": ">=11.0.0",
+    "@js-temporal/polyfill": ">=0.5.0",
     "@material/material-color-utilities": ">=0.3.0",
     "launchdarkly-js-client-sdk": "^3.0.0",
     "posthog-js": "^1.0.0",
@@ -86,6 +99,9 @@
   },
   "peerDependenciesMeta": {
     "@flagsmith/flagsmith": {
+      "optional": true
+    },
+    "@js-temporal/polyfill": {
       "optional": true
     },
     "launchdarkly-js-client-sdk": {
@@ -111,14 +127,13 @@
     "@adobe/leonardo-contrast-colors": "catalog:",
     "@ant-design/colors": "catalog:",
     "@flagsmith/flagsmith": "catalog:",
+    "@js-temporal/polyfill": "catalog:",
     "@material/material-color-utilities": "catalog:",
     "@vue/compiler-dom": "catalog:",
     "@vue/test-utils": "catalog:",
-    "concurrently": "catalog:",
     "launchdarkly-js-client-sdk": "catalog:",
     "posthog-js": "catalog:",
     "tsdown": "catalog:",
-    "tsx": "catalog:",
     "typescript": "catalog:",
     "unplugin-vue": "catalog:",
     "vue": "catalog:",
@@ -203,6 +218,10 @@
     "./locale/adapters/vue-i18n": {
       "development": "./src/locale/adapters/vue-i18n/index.ts",
       "default": "./dist/locale/adapters/vue-i18n/index.mjs"
+    },
+    "./locale/messages/en": {
+      "development": "./src/locale/messages/en/index.ts",
+      "default": "./dist/locale/messages/en/index.mjs"
     },
     "./logger": {
       "development": "./src/logger/index.ts",
@@ -325,8 +344,5 @@
       "development": "./src/index.ts",
       "default": "./dist/browser/index.js"
     }
-  },
-  "optionalDependencies": {
-    "@js-temporal/polyfill": "catalog:"
   }
 }

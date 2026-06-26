@@ -1,13 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { V0StyleSheetThemeAdapter } from './v0'
+
 // Utilities
 import { computed, effectScope, nextTick, ref } from 'vue'
 
 // Types
 import type { ThemeAdapterSetupContext } from './adapter'
 import type { App } from 'vue'
-
-import { V0StyleSheetThemeAdapter } from './v0'
 
 const mockInBrowser = vi.hoisted(() => ({ value: false }))
 
@@ -139,6 +139,31 @@ describe('v0StyleSheetThemeAdapter', () => {
       }).not.toThrow()
 
       scope.stop()
+    })
+
+    it('should assign entry.dispose to adapter.dispose when entry has dispose', () => {
+      mockInBrowser.value = false
+      const entryDispose = vi.fn()
+      const headMock = { push: vi.fn(() => ({ dispose: entryDispose })) }
+      const app = createMockApp(headMock)
+      const context = createMockContext()
+      const adapter = new V0StyleSheetThemeAdapter()
+
+      adapter.setup(app, context)
+
+      expect(adapter.dispose).toBe(entryDispose)
+    })
+
+    it('should leave dispose unset when head entry has no dispose', () => {
+      mockInBrowser.value = false
+      const headMock = { push: vi.fn(() => ({})) }
+      const app = createMockApp(headMock)
+      const context = createMockContext()
+      const adapter = new V0StyleSheetThemeAdapter()
+
+      adapter.setup(app, context)
+
+      expect(adapter.dispose).toBeUndefined()
     })
 
     it('should not call update in SSR', () => {
@@ -359,7 +384,7 @@ describe('v0StyleSheetThemeAdapter', () => {
         isDark,
       }
       const adapter = new V0StyleSheetThemeAdapter()
-      const updateSpy = vi.spyOn(adapter, 'update')
+      using updateSpy = vi.spyOn(adapter, 'update')
 
       const scope = effectScope()
       scope.run(() => {
@@ -449,7 +474,7 @@ describe('v0StyleSheetThemeAdapter', () => {
         isDark,
       }
       const adapter = new V0StyleSheetThemeAdapter()
-      const updateSpy = vi.spyOn(adapter, 'update')
+      using updateSpy = vi.spyOn(adapter, 'update')
 
       const scope = effectScope()
       scope.run(() => {

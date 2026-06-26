@@ -17,23 +17,25 @@
 
   // Components
   import { Atom } from '#v0/components/Atom'
+
+  // Context
   import { useOverflowRoot } from './OverflowRoot.vue'
 
   // Composables
   import { useResizeObserver } from '#v0/composables/useResizeObserver'
 
-  // Utilities
-  import { computed, onBeforeUnmount, toRef, useTemplateRef, watch } from 'vue'
-
   // Transformers
   import { toElement } from '#v0/composables/toElement'
+
+  // Constants
+  import { IN_BROWSER } from '#v0/constants/globals'
+
+  // Utilities
+  import { computed, onBeforeUnmount, toRef, useTemplateRef, watch } from 'vue'
 
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
   import type { OverflowTicket } from './types'
-
-  // Constants
-  import { IN_BROWSER } from '#v0/constants/globals'
 
   export interface OverflowIndicatorProps extends AtomProps {
     /** Namespace for dependency injection */
@@ -73,8 +75,8 @@
       return
     }
     const style = getComputedStyle(el.value)
-    const marginX = Number.parseFloat(style.marginLeft) + Number.parseFloat(style.marginRight)
-    root.indicatorWidth.value = (el.value as HTMLElement).offsetWidth + marginX
+    const marginX = (Number.parseFloat(style.marginLeft) || 0) + (Number.parseFloat(style.marginRight) || 0)
+    root.indicatorWidth.value = ((el.value as HTMLElement).offsetWidth || 0) + marginX
   }
 
   watch(el, () => measure(), { immediate: true })

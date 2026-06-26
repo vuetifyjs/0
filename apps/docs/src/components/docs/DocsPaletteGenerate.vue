@@ -5,7 +5,7 @@
   import { leonardo as generateLeonardo } from '@vuetify/v0/palettes/leonardo/generate'
   import { material as generateMaterial } from '@vuetify/v0/palettes/material/generate'
 
-  // Components
+  // Context
   import DocsPalettePreview from './DocsPalettePreview.vue'
 
   // Composables

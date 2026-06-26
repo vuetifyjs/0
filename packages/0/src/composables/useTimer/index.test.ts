@@ -1,9 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { useTimer } from './index'
+
 // Utilities
 import { effectScope } from 'vue'
-
-import { useTimer } from './index'
 
 describe('useTimer', () => {
   beforeEach(() => {

@@ -31,86 +31,48 @@ The Toggle component supports two modes:
 - **Standalone mode**: Use `v-model` on `Toggle.Root` for simple boolean on/off state
 - **Group mode**: Wrap in `Toggle.Group` for single or multi-select with value-based selection
 
-::: example
+::: gn-example
 /components/toggle/basic
-
-### Basic Toggle
-
-A standalone bookmark toggle with icon and label driven by v-model.
-
 :::
 
 ## Anatomy
 
-```vue Anatomy playground collapse no-filename
+```vue Anatomy no-filename
 <script setup lang="ts">
   import { Toggle } from '@vuetify/v0'
 </script>
 
 <template>
-  <!-- Standalone -->
   <Toggle.Root>
     <Toggle.Indicator />
   </Toggle.Root>
 
-  <!-- Group (single select) -->
   <Toggle.Group>
-    <Toggle.Root>
-      <Toggle.Indicator />
-    </Toggle.Root>
-
-    <Toggle.Root>
-      <Toggle.Indicator />
-    </Toggle.Root>
-
-    <Toggle.Root>
-      <Toggle.Indicator />
-    </Toggle.Root>
-  </Toggle.Group>
-
-  <!-- Group (multi select) -->
-  <Toggle.Group multiple>
-    <Toggle.Root>
-      <Toggle.Indicator />
-    </Toggle.Root>
-
-    <Toggle.Root>
-      <Toggle.Indicator />
-    </Toggle.Root>
-
-    <Toggle.Root>
-      <Toggle.Indicator />
-    </Toggle.Root>
+    <Toggle.Root />
   </Toggle.Group>
 </template>
 ```
 
 ## Examples
 
-### Toolbar
+::: gn-example
+/components/toggle/useEditorFormat.ts 1
+/components/toggle/FormatToolbar.vue 2
+/components/toggle/format-toolbar.vue 3
 
-Use `Toggle.Group` with `multiple` to build a formatting toolbar. Each toggle operates independently — any combination can be active.
+### Formatting toolbar
 
-::: example
-/components/toggle/toolbar
+This editor toolbar combines both group modes in one surface. The bold/italic/underline marks use a `Toggle.Group` with `multiple`, so any combination can be active at once and its `v-model` is an array of pressed values. Text alignment uses a second `Toggle.Group` without `multiple` but with `mandatory`, so exactly one of left/center/right is always selected and its `v-model` is a single string. A live preview paragraph reflects every choice in real time.
 
-### Formatting Toolbar
+Internally `multiple` switches the group to [createGroup](/composables/selection/create-group) (array model) while the plain group uses [createSingle](/composables/selection/create-single) (single model); `mandatory` makes clicking the active alignment a no-op instead of clearing it, so the preview is never left unaligned. Each `Toggle.Root` carries a `value` selection key, and its pressed state surfaces as `data-state="on"` — the styling here is pure CSS via the `data-[state=on]:` variant, no slot props required. The composable owns the `marks` array and `align` string plus the tool metadata, the reusable component renders the two groups, and the entry composes the preview and a clear action.
 
-Multi-select bold, italic, underline, and strikethrough toggles that apply text formatting.
+Reach for `multiple` when choices are independent and additive, and for `mandatory` single-select when an unselected state is meaningless. Toggle is UI state, not form data — it has no `name` prop and no hidden input, so for values you intend to submit use [Checkbox](/components/forms/checkbox) instead.
 
-:::
-
-### View Switcher
-
-Use `Toggle.Group` with `mandatory` for mutually exclusive options like layout switchers. The `mandatory` prop prevents deselecting all items.
-
-::: example
-/components/toggle/view-switcher
-
-### View Switcher
-
-Mandatory single-select toggle between grid and list views controlling layout display.
-
+| File | Role |
+|------|------|
+| `useEditorFormat.ts` | Owns the marks/align state, tool metadata, and derived preview classes and summary |
+| `FormatToolbar.vue` | Renders the multiple marks group and the mandatory alignment group |
+| `format-toolbar.vue` | Wires the composable to the toolbar and renders the live preview |
 :::
 
 ## Accessibility

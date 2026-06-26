@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import { renderToString } from 'vue/server-renderer'
 
+import { Treeview } from './index'
+
 // Utilities
 import { mount } from '@vue/test-utils'
 import { createSSRApp, defineComponent, h, nextTick, ref } from 'vue'
-
-import { Treeview } from './index'
 
 describe('treeview', () => {
   describe('root', () => {
@@ -400,6 +400,41 @@ describe('treeview', () => {
 
         const item = wrapper.findComponent(Treeview.Item as any)
         expect(item.attributes('data-disabled')).toBe('true')
+      })
+    })
+
+    describe('renderless', () => {
+      it('should expose treeitem attrs in slot props so renderless mode works', async () => {
+        let captured: any
+
+        const wrapper = mount(Treeview.Root, {
+          props: {
+            modelValue: ['item-1'],
+          },
+          slots: {
+            default: () =>
+              h(Treeview.List as any, {}, () =>
+                h(Treeview.Item as any, { value: 'item-1', renderless: true }, {
+                  default: (props: any) => {
+                    captured = props
+                    return h('div', { 'data-testid': 'custom-item', ...props.attrs }, 'Item')
+                  },
+                }),
+              ),
+          },
+        })
+
+        await nextTick()
+
+        expect(captured.attrs.role).toBe('treeitem')
+
+        const custom = wrapper.find('[data-testid="custom-item"]')
+        expect(wrapper.find('li').exists()).toBe(false)
+        expect(custom.element.parentElement?.tagName).toBe('UL')
+        expect(custom.attributes('role')).toBe('treeitem')
+        expect(custom.attributes('aria-level')).toBe('1')
+        expect(custom.attributes('aria-selected')).toBe('true')
+        expect(custom.attributes('tabindex')).toBe('0')
       })
     })
 
@@ -877,6 +912,41 @@ describe('treeview', () => {
         await nextTick()
 
         expect(itemProps.isSelected).toBe(!initial)
+      })
+
+      it('should not intercept keys originating from embedded interactive controls', async () => {
+        let switchClicked = 0
+
+        const wrapper = mount(Treeview.Root, {
+          slots: {
+            default: () =>
+              h(Treeview.List as any, {}, () =>
+                h(Treeview.Item as any, { value: 'item' }, () => [
+                  h(Treeview.Activator, {}, () => 'Label'),
+                  h('span', {
+                    'role': 'switch',
+                    'aria-checked': 'false',
+                    'onClick': () => switchClicked++,
+                    'onKeydown': (e: KeyboardEvent) => {
+                      if (e.key === ' ') switchClicked++
+                    },
+                  }),
+                ]),
+              ),
+          },
+        })
+
+        await nextTick()
+
+        const switchEl = wrapper.find('[role="switch"]')
+        // Dispatch the keydown event on the switch element itself so it bubbles
+        // to the list with e.target = switchEl.element (not treeitem).
+        const spaceEvent = new KeyboardEvent('keydown', { key: ' ', bubbles: true })
+        switchEl.element.dispatchEvent(spaceEvent)
+        await nextTick()
+
+        // The treeview should have passed the event through; the switch handler fired.
+        expect(switchClicked).toBe(1)
       })
     })
 

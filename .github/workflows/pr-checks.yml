@@ -6,6 +6,9 @@ on:
   push:
     branches: [master]
 
+permissions:
+  contents: read
+
 jobs:
   prepare:
     runs-on: ubuntu-latest
@@ -77,11 +80,14 @@ jobs:
 
   changes:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
     outputs:
       docs: ${{ steps.filter.outputs.docs }}
       playground: ${{ steps.filter.outputs.playground }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: dorny/paths-filter@v3
         id: filter
         with:
@@ -96,17 +102,24 @@ jobs:
     if: ${{ needs.changes.outputs.docs == 'true' && github.event_name == 'pull_request' }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: vuetifyjs/setup-action@fb6949e3ee1041636b7fa9eef3c7694ff31840b8 # master
+      - uses: actions/checkout@v6
+      - uses: vuetifyjs/setup-action@cb5ac088588387e65433a762de90c0b06d878677 # master
       - run: pnpm run build:docs
         env:
           VITE_API_SERVER_URL: ${{ vars.API_SERVER_URL }}
           SKIP_OG_IMAGES: '1'
-      - name: Link Checker
+      - name: Link Checker (internal only)
         uses: lycheeverse/lychee-action@v2
         with:
           lycheeVersion: v0.22.0
-          args: --config lychee.toml './apps/docs/dist'
+          # --offline skips all remote URLs; the remap folds https://0.vuetifyjs.com
+          # self-links (canonical/og tags) onto the local dist so they are validated
+          # as files. External link health runs weekly in link-check.yml instead.
+          args: >-
+            --config lychee.toml
+            --offline
+            --remap 'https://0\.vuetifyjs\.com(.*) file://${{ github.workspace }}/apps/docs/dist$1'
+            './apps/docs/dist'
           fail: true
 
   playground-check:
@@ -114,13 +127,16 @@ jobs:
     if: ${{ needs.changes.outputs.playground == 'true' && github.event_name == 'pull_request' }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: vuetifyjs/setup-action@fb6949e3ee1041636b7fa9eef3c7694ff31840b8 # master
+      - uses: actions/checkout@v6
+      - uses: vuetifyjs/setup-action@cb5ac088588387e65433a762de90c0b06d878677 # master
       - run: pnpm run build:play
 
   pkg-pr-new:
     needs: [build]
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
       - uses: actions/checkout@v6
       - uses: ./.github/actions/setup

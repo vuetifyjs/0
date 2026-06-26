@@ -49,7 +49,7 @@
 </script>
 
 <template>
-  <section class="home-hero relative text-center py-24 md:py-32 lg:py-40">
+  <section class="home-hero relative text-center py-16 md:py-20 lg:py-24">
 
     <img
       alt="Vuetify0 Logo"
@@ -71,7 +71,7 @@
       Headless, composable-first components for Vue with AI-integrated docs, published benchmarks, and the backing of Vuetify.
     </p>
 
-    <div class="relative flex flex-col items-center gap-6 mb-16">
+    <div class="relative flex flex-col items-center gap-6 mb-10">
       <div class="grid grid-cols-2 md:flex gap-4 justify-center">
         <router-link
           class="home-hero-cta-primary px-8 py-3.5 bg-primary text-on-primary rounded-xl font-semibold text-lg text-center whitespace-nowrap transition-all duration-150"

@@ -25,15 +25,15 @@
  * ```
  */
 
+// Globals
+import { IN_BROWSER } from '#v0/constants/globals'
+
 // Utilities
 import { isUndefined } from '#v0/utilities'
 import { onScopeDispose, shallowRef, toRef } from 'vue'
 
 // Types
 import type { Ref } from 'vue'
-
-// Constants
-import { IN_BROWSER } from '#v0/constants/globals'
 
 export interface UseRafReturn {
   /** Request animation frame (cancels pending) */

@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { VueI18nLocaleAdapter } from './vue-i18n'
+
 // Types
 import type { Composer } from 'vue-i18n'
-
-import { VueI18nLocaleAdapter } from './vue-i18n'
 
 function createMockI18n (): { global: Composer } {
   const composer = {
@@ -27,7 +27,52 @@ describe('vueI18nLocaleAdapter', () => {
 
       expect(adapter).toBeInstanceOf(VueI18nLocaleAdapter)
       expect(typeof adapter.t).toBe('function')
+      expect(typeof adapter.ti).toBe('function')
       expect(typeof adapter.n).toBe('function')
+    })
+  })
+
+  describe('ti()', () => {
+    it('should return the composer translation when the key exists', () => {
+      const composer = {
+        te: vi.fn(() => true),
+        t: vi.fn(() => 'translated'),
+        n: vi.fn(String),
+      } as unknown as Composer
+      const adapter = new VueI18nLocaleAdapter({ global: composer })
+
+      const result = adapter.ti('hello')
+
+      expect(composer.te).toHaveBeenCalledWith('hello')
+      expect(result).toBe('translated')
+    })
+
+    it('should forward params to composer.t when the key exists', () => {
+      const composer = {
+        te: vi.fn(() => true),
+        t: vi.fn(() => 'translated'),
+        n: vi.fn(String),
+      } as unknown as Composer
+      const adapter = new VueI18nLocaleAdapter({ global: composer })
+
+      adapter.ti('greet', { name: 'World' })
+
+      expect(composer.t).toHaveBeenCalledWith('greet', { name: 'World' })
+    })
+
+    it('should return undefined when the key does not exist', () => {
+      const composer = {
+        te: vi.fn(() => false),
+        t: vi.fn(() => 'translated'),
+        n: vi.fn(String),
+      } as unknown as Composer
+      const adapter = new VueI18nLocaleAdapter({ global: composer })
+
+      const result = adapter.ti('missing')
+
+      expect(composer.te).toHaveBeenCalledWith('missing')
+      expect(result).toBeUndefined()
+      expect(composer.t).not.toHaveBeenCalled()
     })
   })
 

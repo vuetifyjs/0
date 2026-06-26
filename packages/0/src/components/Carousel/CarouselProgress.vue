@@ -13,16 +13,18 @@
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
+
+  // Context
   import { useCarouselRoot } from './CarouselRoot.vue'
 
   // Composables
   import { useLocale } from '#v0/composables/useLocale'
 
-  // Utilities
-  import { mergeProps, onBeforeUnmount, toRef, useAttrs, useTemplateRef } from 'vue'
-
   // Transformers
   import { toElement } from '#v0/composables/toElement'
+
+  // Utilities
+  import { mergeProps, onBeforeUnmount, toRef, useAttrs, useTemplateRef } from 'vue'
 
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
@@ -100,8 +102,8 @@
         'aria-valuenow': percent,
         'aria-valuemin': 0,
         'aria-valuemax': 100,
-        'aria-valuetext': locale.t('Carousel.progress', { percent }),
-        'aria-label': locale.t('Carousel.progressLabel'),
+        'aria-valuetext': locale.ti('Carousel.progress', { percent }) ?? `${percent}% complete`,
+        'aria-label': locale.ti('Carousel.progressLabel') ?? 'Carousel progress',
         'data-state': state.value,
         'style': { width: `${percent}%` },
       },

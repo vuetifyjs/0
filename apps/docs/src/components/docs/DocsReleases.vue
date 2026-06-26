@@ -5,17 +5,18 @@
   // Framework
   import { createFilter, IN_BROWSER, Popover, useDate } from '@vuetify/v0'
 
-  // Components
+  // Context
   import DocsSkeleton from './DocsSkeleton.vue'
 
   // Composables
   import { useClipboard } from '@/composables/useClipboard'
 
+  // Stores
+  import { type Release, useReleasesStore } from '@/stores/releases'
+
   // Utilities
   import { computed, onBeforeMount, onScopeDispose, shallowRef, toRef, watch } from 'vue'
   import { useRoute, useRouter } from 'vue-router'
-
-  import { type Release, useReleasesStore } from '@/stores/releases'
 
   const emojis: Record<string, string> = {
     '+1': '👍',
@@ -186,11 +187,7 @@
 
         <span v-else class="opacity-50">Select a release...</span>
 
-        <AppIcon
-          class="ml-auto opacity-50"
-          :icon="open ? 'chevron-up' : 'chevron-down'"
-          :size="20"
-        />
+        <AppChevron class="ml-auto opacity-50" :open :size="20" vertical />
 
         <div
           v-if="store.isLoading"

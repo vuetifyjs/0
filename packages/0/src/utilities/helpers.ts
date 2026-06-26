@@ -6,16 +6,16 @@
  * and common transformations. All exports are tree-shakeable.
  */
 
+// Constants
+import { IN_BROWSER } from '#v0/constants/globals'
+
+import { instanceExists } from './instance'
+
 // Utilities
 import { useId as vueUseId } from 'vue'
 
 // Types
 import type { DeepPartial, ID } from '#v0/types'
-
-// Constants
-import { IN_BROWSER } from '#v0/constants/globals'
-
-import { instanceExists } from './instance'
 
 /**
  * Checks if a value is a function
@@ -116,6 +116,31 @@ export function isObject (item: unknown): item is Record<string, unknown> {
 }
 
 /**
+ * Checks if a value is a thenable (any object with a `.then` method).
+ * Duck-typed — matches both native Promises and any Promise-like.
+ *
+ * @param item The value to check
+ * @returns True if the value has a callable `then` property
+ *
+ * @example
+ * ```ts
+ * isThenable(Promise.resolve())     // true
+ * isThenable({ then: () => {} })    // true
+ * isThenable({})                    // false
+ * isThenable('string')              // false
+ * ```
+ *
+ * @remarks Use this when duck-typing async behavior — for example, rejecting
+ * a callback that returned a Promise-like when only synchronous returns are
+ * supported. If you specifically want native Promise instances, use
+ * `instanceof Promise` directly.
+ */
+/* #__NO_SIDE_EFFECTS__ */
+export function isThenable (item: unknown): item is { then: Function } {
+  return isObject(item) && 'then' in item && isFunction(item.then)
+}
+
+/**
  * Checks if a value is an array
  *
  * @param item The value to check
@@ -148,7 +173,7 @@ export function isArray (item: unknown): item is unknown[] {
  */
 /* #__NO_SIDE_EFFECTS__ */
 export function isElement (item: unknown): item is Element {
-  return item instanceof Element
+  return typeof Element !== 'undefined' && item instanceof Element
 }
 
 /**
@@ -283,7 +308,8 @@ export function isNaN (item: unknown): item is number {
 }
 
 // Keys that could lead to prototype pollution
-const UNSAFE_KEYS = /* @__PURE__ */ new Set(['__proto__', 'constructor', 'prototype'])
+// @internal
+export const UNSAFE_KEYS = /* @__PURE__ */ new Set(['__proto__', 'constructor', 'prototype'])
 
 function isPlainObject (value: unknown): value is Record<string, unknown> {
   if (typeof value !== 'object' || value === null || Array.isArray(value)) return false
@@ -429,6 +455,8 @@ export function range (length: number, start = 0): number[] {
 /**
  * Resolves an iterable of IDs to their items via a getter,
  * filtering out any that return undefined.
+ *
+ * @internal
  */
 /* #__NO_SIDE_EFFECTS__ */
 export function resolveIds<E> (ids: Iterable<ID>, getter: (id: ID) => E | undefined): E[] {
@@ -439,6 +467,8 @@ export function resolveIds<E> (ids: Iterable<ID>, getter: (id: ID) => E | undefi
 
 /**
  * Extracts defined index values from an iterable of items.
+ *
+ * @internal
  */
 /* #__NO_SIDE_EFFECTS__ */
 export function resolveIndexes (items: Iterable<{ index?: number }>): number[] {

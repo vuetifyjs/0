@@ -91,12 +91,12 @@ Adapters let you swap the underlying feature flag provider without changing your
 | Adapter | Import | Description |
 |---------|--------|-------------|
 | `PostHogFeaturesAdapter` | `@vuetify/v0/features/adapters/posthog` | [PostHog](https://posthog.com/) integration |
-| `FlagsmithFeaturesAdapter` | `@vuetify/v0/features/adapters/flagsmith` | [Flagsmith](https://flagsmith.com/) integration |
+| `FlagsmithFeaturesAdapter` | `@vuetify/v0/features/adapters/flagsmith` | [Flagsmith](https://www.flagsmith.com/) integration |
 | `LaunchDarklyFeaturesAdapter` | `@vuetify/v0/features/adapters/launchdarkly` | [LaunchDarkly](https://launchdarkly.com/) integration |
 
 ### Flagsmith
 
-[Flagsmith](https://flagsmith.com/) is an open-source feature flag platform. Requires the `@flagsmith/flagsmith` package.
+[Flagsmith](https://www.flagsmith.com/) is an open-source feature flag platform. Requires the `@flagsmith/flagsmith` package.
 
 ::: code-group no-filename
 
@@ -317,13 +317,28 @@ Feature flags inherit reactivity from `createGroup`. Selection state is reactive
 
 ## Examples
 
-::: example
-/composables/use-features/feature-flags
+::: gn-example
+/composables/use-features/context.ts 1
+/composables/use-features/FeatureProvider.vue 2
+/composables/use-features/FeaturePanel.vue 3
+/composables/use-features/FeaturePreview.vue 4
+/composables/use-features/feature-flags.vue 5
 
-### Feature Flag Panel
+### Feature flag admin panel
 
-Toggle boolean and variation feature flags at runtime, using ticket `isSelected`, `select()`, `unselect()`, and `variation()` to read and control which features are active.
+A provider/consumer demo where one features context drives two independent consumers: an admin panel that mutates flags and a storefront preview that reacts live. `FeatureProvider` calls `createFeaturesContext` with a scoped namespace and provides it through its default slot, so every descendant resolves the same flag registry without prop-drilling. Five flags are registered up front — three boolean and two carrying a `$variation` payload — and the variation flags auto-enable because their `$value` is `true`.
 
+The panel reads `useProxyRegistry` to iterate tickets reactively, flips boolean flags with `features.toggle(id)`, and changes a variation with `features.sync({ [id]: { $value, $variation } })` — preserving the current enabled state by reading `features.selectedIds.has(id)`. The preview consumes the same context but never mutates it: it derives a reactive map from `ticket.isSelected` and `features.variation(id)`, then gates the beta banner, dark theme, checkout label, and grid-vs-list layout off that map. Because both consumers inject one registry, a toggle in the panel re-renders the preview on the next tick.
+
+Reach for this split when flag-editing UI and flag-consuming UI live in different parts of the tree, or as a template for an adapter integration where remote flag state from [usePermissions](/composables/plugins/use-permissions) or a service like LaunchDarkly replaces the static config. See the Adapters section for swapping the built-in context for an external provider, and [createTokens](/composables/registration/create-tokens) for how variation payloads are stored.
+
+| File | Role |
+|------|------|
+| `context.ts` | Shared namespace, flag metadata, and the config builder |
+| `FeatureProvider.vue` | Creates the features context and provides it via slot |
+| `FeaturePanel.vue` | Admin consumer that toggles flags and picks variations |
+| `FeaturePreview.vue` | Gated consumer that reacts to flags and variations live |
+| `feature-flags.vue` | Entry that wraps the provider around both consumers |
 :::
 
 <DocsApi />

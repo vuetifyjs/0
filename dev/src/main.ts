@@ -1,7 +1,8 @@
 import { ViteSSG } from 'vite-ssg'
 
-// Components
+// Context
 import App from './App.vue'
+import CreateOverflowDemo from './CreateOverflowDemo.vue'
 import Playground from './Playground.vue'
 
 import 'virtual:uno.css'
@@ -10,7 +11,12 @@ import { registerPlugins } from './plugins'
 
 export const createApp = ViteSSG(
   App,
-  { routes: [{ path: '/', component: Playground }] },
+  {
+    routes: [
+      { path: '/', component: Playground },
+      { path: '/create-overflow', component: CreateOverflowDemo },
+    ],
+  },
   async ({ app }) => {
     registerPlugins(app)
   })

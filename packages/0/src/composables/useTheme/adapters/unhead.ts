@@ -2,9 +2,14 @@
  * @module useTheme/adapters/unhead
  */
 
+// Globals
+import { IN_BROWSER } from '#v0/constants/globals'
+
+import { ThemeAdapter } from './adapter'
+
 // Utilities
 import { isNull, isString } from '#v0/utilities'
-import { onScopeDispose, watch } from 'vue'
+import { watch } from 'vue'
 
 // Types
 import type { ID } from '#v0/types'
@@ -12,10 +17,20 @@ import type { Colors } from '../index'
 import type { ThemeAdapterSetupContext } from './adapter'
 import type { App } from 'vue'
 
-// Globals
-import { IN_BROWSER } from '#v0/constants/globals'
+// Structural @unhead seam — duck-typed so v0 takes no dependency on @unhead types.
+interface ThemeHeadInput {
+  htmlAttrs?: { 'data-theme': string }
+  style?: Array<{ innerHTML: string, id: string }>
+}
 
-import { ThemeAdapter } from './adapter'
+interface HeadEntry {
+  dispose?: () => void
+  patch?: (input: ThemeHeadInput) => void
+}
+
+interface Head {
+  push: (input: ThemeHeadInput) => HeadEntry
+}
 
 export interface V0UnheadThemeOptions {
   stylesheetId?: string
@@ -30,7 +45,7 @@ export interface V0UnheadThemeOptions {
  * Requires @unhead/vue to be installed in the app.
  */
 export class V0UnheadThemeAdapter extends ThemeAdapter {
-  private entry?: { patch: (input: Record<string, unknown>) => void }
+  private entry?: HeadEntry
 
   constructor (options: V0UnheadThemeOptions = {}) {
     super(options.prefix ?? 'v0')
@@ -42,7 +57,7 @@ export class V0UnheadThemeAdapter extends ThemeAdapter {
     context: T,
     target?: string | HTMLElement | null,
   ): void {
-    const head = app._context?.provides?.usehead ?? app._context?.provides?.head
+    const head = (app._context?.provides?.usehead ?? app._context?.provides?.head) as Head | undefined
 
     if (head?.push) {
       const id = context.selectedId.value
@@ -83,7 +98,7 @@ export class V0UnheadThemeAdapter extends ThemeAdapter {
             targetEl.dataset.theme = themeStr
           }
 
-          this.entry?.patch({
+          this.entry?.patch?.({
             htmlAttrs: { 'data-theme': themeStr },
             style: [{
               innerHTML: this.generate(colors, isDark),
@@ -93,7 +108,12 @@ export class V0UnheadThemeAdapter extends ThemeAdapter {
         },
       )
 
-      onScopeDispose(stopWatch, true)
+      this.dispose = () => {
+        stopWatch()
+        this.entry?.dispose?.()
+      }
+    } else {
+      this.dispose = () => this.entry?.dispose?.()
     }
   }
 
@@ -103,7 +123,7 @@ export class V0UnheadThemeAdapter extends ThemeAdapter {
   ): void {
     if (!this.entry) return
 
-    this.entry.patch({
+    this.entry.patch?.({
       style: [{
         innerHTML: this.generate(colors, isDark),
         id: this.stylesheetId,

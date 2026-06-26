@@ -28,6 +28,8 @@
 <script setup lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
+
+  // Context
   import { useDialogContext } from './DialogRoot.vue'
 
   // Utilities
@@ -42,6 +44,7 @@
   const {
     as = 'p',
     namespace = 'v0:dialog',
+    renderless,
   } = defineProps<DialogDescriptionProps>()
 
   const context = useDialogContext(namespace)
@@ -56,6 +59,7 @@
 <template>
   <Atom
     :as
+    :renderless
     v-bind="slotProps.attrs"
   >
     <slot v-bind="slotProps" />

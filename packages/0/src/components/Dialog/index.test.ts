@@ -4,11 +4,13 @@ import { renderToString } from 'vue/server-renderer'
 // Composables
 import { createStackPlugin } from '#v0/composables/useStack'
 
+import { createLocalePlugin } from '#v0/composables'
+
+import { Dialog } from './index'
+
 // Utilities
 import { mount } from '@vue/test-utils'
 import { createSSRApp, defineComponent, h, nextTick, ref } from 'vue'
-
-import { Dialog } from './index'
 
 // Create fresh stack plugin for each test to avoid "Ticket already exists" warnings
 let stackPlugin: ReturnType<typeof createStackPlugin>
@@ -182,6 +184,33 @@ describe('dialog', () => {
     })
   })
 
+  describe('renderless onClick handlers', () => {
+    it('should expose onClick in slot attrs for activator and close', () => {
+      const captured: Record<string, any> = {}
+      function capture (key: string) {
+        return (props: any) => {
+          captured[key] = props
+          return h('button', key)
+        }
+      }
+
+      mountWithStack(Dialog.Root, {
+        props: { modelValue: true },
+        slots: {
+          default: () => [
+            h(Dialog.Activator as any, {}, { default: capture('activator') }),
+            h(Dialog.Close as any, {}, { default: capture('close') }),
+          ],
+        },
+      })
+
+      // Pre-fix the click handler lived on an `@click` directive (lost in
+      // renderless mode); it must be exposed through slot attrs instead.
+      expect(captured.activator.attrs.onClick).toBeTypeOf('function')
+      expect(captured.close.attrs.onClick).toBeTypeOf('function')
+    })
+  })
+
   describe('activator', () => {
     describe('rendering', () => {
       it('should render as button by default', () => {
@@ -308,6 +337,30 @@ describe('dialog', () => {
         })
 
         expect(wrapper.find('p').text()).toBe('Dialog content')
+      })
+
+      it('should expose the modal contract in slot attrs so renderless mode works', async () => {
+        let captured: any
+
+        const wrapper = mountWithStack(Dialog.Root, {
+          props: { modelValue: true },
+          slots: {
+            default: () => h(Dialog.Content, { renderless: true }, {
+              default: (props: any) => {
+                captured = props
+                return h('section', { 'data-testid': 'custom-content', ...props.attrs }, 'Content')
+              },
+            }),
+          },
+        })
+
+        await nextTick()
+        expect(captured.attrs.role).toBe('dialog')
+        expect(captured.attrs['aria-modal']).toBe('true')
+
+        const custom = wrapper.find('[data-testid="custom-content"]')
+        expect(custom.element.parentElement?.tagName).not.toBe('DIALOG')
+        expect(wrapper.findAll('[role="dialog"]')).toHaveLength(1)
       })
     })
 
@@ -637,6 +690,45 @@ describe('dialog', () => {
         const close = wrapper.findComponent(Dialog.Close as any)
         expect(close.attributes('aria-label')).toBeDefined()
       })
+
+      it('should fall back to the inline default aria-label when no locale plugin is configured', () => {
+        const wrapper = mountWithStack(Dialog.Root, {
+          slots: {
+            default: () => h(Dialog.Content, {}, () => [
+              h(Dialog.Close, {}, () => 'Close'),
+            ]),
+          },
+        })
+
+        const close = wrapper.findComponent(Dialog.Close as any)
+        expect(close.attributes('aria-label')).toBe('Close')
+      })
+
+      it('should use the translated locale string for aria-label when one is registered', () => {
+        const plugin = createLocalePlugin({
+          default: 'en',
+          messages: {
+            en: {
+              Dialog: {
+                close: 'Schließen',
+              },
+            },
+          },
+        })
+
+        const wrapper = mountWithStack(Dialog.Root, {
+          global: { plugins: [plugin] },
+          slots: {
+            default: () => h(Dialog.Content, {}, () => [
+              h(Dialog.Close, {}, () => 'Close'),
+            ]),
+          },
+        })
+
+        const close = wrapper.findComponent(Dialog.Close as any)
+        expect(close.attributes('aria-label')).not.toBe('Close')
+        expect(close.attributes('aria-label')).toBe('Schließen')
+      })
     })
 
     describe('click handling', () => {
@@ -693,6 +785,30 @@ describe('dialog', () => {
         const title = wrapper.findComponent(Dialog.Title as any)
         expect(title.element.tagName).toBe('SPAN')
       })
+
+      it('should expose id in slot attrs so renderless mode works', () => {
+        let captured: any
+
+        const wrapper = mountWithStack(Dialog.Root, {
+          props: { id: 'test-dialog' },
+          slots: {
+            default: () => h(Dialog.Content, {}, () => [
+              h(Dialog.Title, { renderless: true }, {
+                default: (props: any) => {
+                  captured = props
+                  return h('span', { 'data-testid': 'custom-title', ...props.attrs }, 'Title')
+                },
+              }),
+            ]),
+          },
+        })
+
+        expect(captured.attrs.id).toBe('test-dialog-title')
+
+        const custom = wrapper.find('[data-testid="custom-title"]')
+        expect(custom.element.parentElement?.tagName).not.toBe('H2')
+        expect(wrapper.findAll('#test-dialog-title')).toHaveLength(1)
+      })
     })
 
     describe('accessibility', () => {
@@ -738,6 +854,30 @@ describe('dialog', () => {
 
         const description = wrapper.findComponent(Dialog.Description as any)
         expect(description.element.tagName).toBe('SPAN')
+      })
+
+      it('should expose id in slot attrs so renderless mode works', () => {
+        let captured: any
+
+        const wrapper = mountWithStack(Dialog.Root, {
+          props: { id: 'test-dialog' },
+          slots: {
+            default: () => h(Dialog.Content, {}, () => [
+              h(Dialog.Description, { renderless: true }, {
+                default: (props: any) => {
+                  captured = props
+                  return h('span', { 'data-testid': 'custom-description', ...props.attrs }, 'Description')
+                },
+              }),
+            ]),
+          },
+        })
+
+        expect(captured.attrs.id).toBe('test-dialog-description')
+
+        const custom = wrapper.find('[data-testid="custom-description"]')
+        expect(custom.element.parentElement?.tagName).not.toBe('P')
+        expect(wrapper.findAll('#test-dialog-description')).toHaveLength(1)
       })
     })
 

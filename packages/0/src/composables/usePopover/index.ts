@@ -5,32 +5,31 @@
  *
  * @remarks
  * Composable for native popover API behavior with CSS anchor positioning.
- * Manages open/close state, anchor styles, content attributes, and
- * bidirectional sync between reactive state and native popover events.
+ * Manages open/close state, anchor styles, content attributes, bidirectional
+ * sync between reactive state and native popover events, and configurable
+ * open / close delays via `useDelay`.
  *
  * Key features:
  * - Native popover API (showPopover/hidePopover)
  * - CSS anchor positioning (position-area, position-try-fallbacks)
+ * - Reactive open/close delays via `useDelay`
  * - Toggle event sync for native state changes
  * - SSR-safe (no DOM ops outside browser)
  * - Optional external isOpen ref for v-model integration
- *
- * Perfect for building select, combobox, tooltip, and menu components
- * without wrapping the Popover compound component.
  *
  * @example
  * ```ts
  * import { usePopover } from '@vuetify/v0'
  *
- * const popover = usePopover()
+ * const popover = usePopover({ openDelay: 200, closeDelay: 100 })
  * popover.open()
  * popover.toggle()
  * ```
  */
 
 // Composables
+import { useDelay } from '#v0/composables/useDelay'
 import { useEventListener } from '#v0/composables/useEventListener'
-import { useTimer } from '#v0/composables/useTimer'
 
 // Utilities
 import { useId } from '#v0/utilities'
@@ -48,10 +47,10 @@ export interface PopoverOptions {
   positionTry?: string
   /** External ref for bidirectional open state (e.g., from defineModel) */
   isOpen?: Ref<boolean>
-  /** Delay in ms before showing the popover. @default 0 */
-  showDelay?: number
-  /** Delay in ms before hiding the popover. @default 0 */
-  hideDelay?: number
+  /** Delay in ms before opening the popover. @default 0 */
+  openDelay?: MaybeRefOrGetter<number>
+  /** Delay in ms before closing the popover. @default 0 */
+  closeDelay?: MaybeRefOrGetter<number>
 }
 
 export interface PopoverReturn {
@@ -59,12 +58,14 @@ export interface PopoverReturn {
   isOpen: Ref<boolean>
   /** Unique ID for the popover */
   id: string
-  /** Open the popover */
+  /** Open the popover (respects openDelay) */
   open: () => void
-  /** Close the popover */
+  /** Close the popover (respects closeDelay) */
   close: () => void
   /** Toggle open/close */
   toggle: () => void
+  /** Cancel any pending open or close transition */
+  cancel: () => void
   /** Styles to spread on the activator element (anchor-name) */
   anchorStyles: Readonly<Ref<Record<string, string>>>
   /** Attrs to spread on the content element (id, popover) */
@@ -80,42 +81,23 @@ export function usePopover (options: PopoverOptions = {}): PopoverReturn {
     id: _id,
     positionArea = 'bottom',
     positionTry = 'most-width bottom',
-    showDelay = 0,
-    hideDelay = 0,
+    openDelay,
+    closeDelay,
   } = options
 
   const id = _id ?? useId()
   const isOpen = options.isOpen ?? shallowRef(false)
 
-  const showTimer = showDelay > 0
-    ? useTimer(() => {
-        isOpen.value = true
-      }, { duration: showDelay })
-    : undefined
-  const hideTimer = hideDelay > 0
-    ? useTimer(() => {
-        isOpen.value = false
-      }, { duration: hideDelay })
-    : undefined
+  const delay = useDelay(direction => {
+    isOpen.value = direction
+  }, { openDelay, closeDelay })
 
   function open () {
-    hideTimer?.stop()
-
-    if (showTimer) {
-      showTimer.start()
-    } else {
-      isOpen.value = true
-    }
+    delay.start(true)
   }
 
   function close () {
-    showTimer?.stop()
-
-    if (hideTimer) {
-      hideTimer.start()
-    } else {
-      isOpen.value = false
-    }
+    delay.start(false)
   }
 
   function toggle () {
@@ -124,6 +106,10 @@ export function usePopover (options: PopoverOptions = {}): PopoverReturn {
     } else {
       open()
     }
+  }
+
+  function cancel () {
+    delay.stop()
   }
 
   const anchorStyles = toRef(() => ({
@@ -149,13 +135,12 @@ export function usePopover (options: PopoverOptions = {}): PopoverReturn {
     onMounted(() => {
       const element = toValue(el)
       if (isOpen.value) {
-        element?.showPopover()
+        element?.showPopover?.()
       }
     })
 
     watch(isOpen, value => {
       const element = toValue(el)
-      // Guard against operations on disconnected elements (e.g., during unmount)
       if (!element?.isConnected) return
       if (value === element.matches?.(':popover-open')) return
 
@@ -171,7 +156,6 @@ export function usePopover (options: PopoverOptions = {}): PopoverReturn {
       'toggle',
       (e: ToggleEvent) => {
         const element = toValue(el)
-        // Guard against events firing during unmount
         if (!element?.isConnected) return
         isOpen.value = e.newState === 'open'
       },
@@ -185,6 +169,7 @@ export function usePopover (options: PopoverOptions = {}): PopoverReturn {
     open,
     close,
     toggle,
+    cancel,
     anchorStyles,
     contentAttrs,
     contentStyles,

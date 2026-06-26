@@ -1,13 +1,5 @@
 import { describe, expect, it } from 'vitest'
 
-// Utilities
-import { mount } from '@vue/test-utils'
-import { h, nextTick, ref } from 'vue'
-
-// Types
-import type { ProgressRootSlotProps } from './index'
-import type { VueWrapper } from '@vue/test-utils'
-
 import {
   Progress,
   ProgressBuffer,
@@ -17,6 +9,14 @@ import {
   ProgressTrack,
   ProgressValue,
 } from './index'
+
+// Utilities
+import { mount } from '@vue/test-utils'
+import { h, nextTick, ref } from 'vue'
+
+// Types
+import type { ProgressRootSlotProps } from './index'
+import type { VueWrapper } from '@vue/test-utils'
 
 interface MountResult {
   wrapper: VueWrapper

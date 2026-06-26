@@ -12,6 +12,8 @@
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
+
+  // Context
   import { usePaginationItems, usePaginationRoot } from './PaginationRoot.vue'
 
   // Composables
@@ -92,8 +94,8 @@
 
   const ariaLabel = toRef(() => {
     return isSelected.value
-      ? locale.t('Pagination.currentPage', { page: value })
-      : locale.t('Pagination.goToPage', { page: value })
+      ? locale.ti('Pagination.currentPage', { page: value }) ?? `Page ${value}, current`
+      : locale.ti('Pagination.goToPage', { page: value }) ?? `Go to page ${value}`
   })
 
   function select () {

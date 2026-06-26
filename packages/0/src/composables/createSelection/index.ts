@@ -253,11 +253,11 @@ export function createSelection<
     }
 
     if (isMultiple) {
-      for (const id of currentIds.difference(targetIds)) {
-        unselect(id)
+      for (const id of currentIds) {
+        if (!targetIds.has(id)) unselect(id)
       }
-      for (const id of targetIds.difference(currentIds)) {
-        model.selectedIds.add(id)
+      for (const id of targetIds) {
+        if (!currentIds.has(id)) model.selectedIds.add(id)
       }
     } else {
       const next = targetIds.values().next().value
@@ -306,7 +306,7 @@ export function createSelection<
     get size () {
       return model.size
     },
-  } as R
+  } satisfies SelectionContext<Z, E> as R
 }
 
 /**

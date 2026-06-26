@@ -11,6 +11,8 @@
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
+
+  // Context
   import { usePaginationControls, usePaginationRoot } from './PaginationRoot.vue'
 
   // Composables
@@ -90,7 +92,7 @@
     isDisabled: isDisabled.value,
     last,
     attrs: {
-      'aria-label': locale.t('Pagination.last'),
+      'aria-label': locale.ti('Pagination.last') ?? 'Last page',
       'aria-disabled': isDisabled.value,
       'data-disabled': isDisabled.value || undefined,
       'disabled': as === 'button' ? isDisabled.value : undefined,

@@ -14,6 +14,8 @@
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
+
+  // Context
   import { useButtonGroup } from './ButtonGroup.vue'
   import ButtonHiddenInput from './ButtonHiddenInput.vue'
 
@@ -212,7 +214,7 @@
     'aria-disabled': isDisabled.value || isPassive.value,
     'aria-busy': isLoading.value ? true : undefined,
     'aria-pressed': group ? isSelected.value : undefined,
-    'aria-label': ariaLabel || (isSolo.value ? locale.t('Button.label') : undefined),
+    'aria-label': ariaLabel || (!renderless && isSolo.value ? (locale.ti('Button.label') ?? 'Button') : undefined),
     'tabindex': isDisabled.value ? -1 : 0,
     'data-loading': isLoading.value ? true : undefined,
     'data-passive': isPassive.value ? true : undefined,

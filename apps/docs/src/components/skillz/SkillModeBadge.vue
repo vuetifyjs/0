@@ -2,13 +2,13 @@
   // Components
   import DocsBadge from '@/components/docs/DocsBadge.vue'
 
+  import { SKILL_MODE_META } from '@/types/skill'
+
   // Utilities
   import { toRef } from 'vue'
 
   // Types
   import type { SkillMode } from '@/types/skill'
-
-  import { SKILL_MODE_META } from '@/types/skill'
 
   const {
     mode,

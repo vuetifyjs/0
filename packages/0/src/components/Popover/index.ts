@@ -6,7 +6,7 @@ export type { PopoverActivatorProps, PopoverActivatorSlotProps } from './Popover
 export type { PopoverContentEmits, PopoverContentProps, PopoverContentSlotProps } from './PopoverContent.vue'
 export type { PopoverContext, PopoverRootProps, PopoverRootSlotProps } from './PopoverRoot.vue'
 
-// Components
+// Context
 import Activator from './PopoverActivator.vue'
 import Content from './PopoverContent.vue'
 import Root from './PopoverRoot.vue'

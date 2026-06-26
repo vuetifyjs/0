@@ -13,6 +13,8 @@
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
+
+  // Context
   import { useComboboxContext } from './ComboboxRoot.vue'
 
   // Utilities
@@ -45,6 +47,7 @@
   const {
     as = 'span',
     namespace = 'v0:combobox',
+    renderless,
   } = defineProps<ComboboxCueProps>()
 
   const context = useComboboxContext(namespace)
@@ -67,6 +70,7 @@
   <Atom
     v-bind="slotProps.attrs"
     :as
+    :renderless
   >
     <slot v-bind="slotProps" />
   </Atom>

@@ -1,12 +1,13 @@
 import { describe, expect, it } from 'vitest'
 
 // Composables
+import { createModel } from '#v0/composables/createModel'
 import { createSelection } from '#v0/composables/createSelection'
 
-// Utilities
-import { ref } from 'vue'
-
 import { useProxyModel } from './index'
+
+// Utilities
+import { ref, shallowRef } from 'vue'
 
 describe('useProxyModel', () => {
   it('should sync model when selection changes', () => {
@@ -25,6 +26,27 @@ describe('useProxyModel', () => {
     selection.unselect('item-1')
     selection.select('item-2')
     expect(model.value).toBe('value-2')
+  })
+
+  it('should keep a ref-valued ticket syncing across writes (bidirectional store)', () => {
+    const model = createModel({ events: true })
+    const value = shallowRef('original')
+    model.register({ id: 'fruit', value })
+
+    const vmodel = shallowRef()
+    useProxyModel(model, vmodel)
+
+    // Init pass with an empty v-model must not clobber the store ref
+    expect(value.value).toBe('original')
+    expect(model.selected('fruit')).toBe(true)
+
+    vmodel.value = 'banana'
+    expect(vmodel.value).toBe('banana')
+    expect(value.value).toBe('banana')
+
+    vmodel.value = 'cherry'
+    expect(vmodel.value).toBe('cherry')
+    expect(value.value).toBe('cherry')
   })
 
   it('should sync selection when model changes', () => {

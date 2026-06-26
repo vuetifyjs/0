@@ -13,12 +13,17 @@ export interface ThemeAdapterSetupContext {
 }
 
 export abstract class ThemeAdapter {
-  private static UNSAFE_CSS = /url\s*\(|@import|expression\s*\(|[{}]/i
+  private static UNSAFE_CSS = /url\s*\(|@import|expression\s*\(|[{}<>]/i
   private static SAFE_IDENT = /^[a-zA-Z0-9_-]+$/
 
   public stylesheetId = 'v0-theme-stylesheet'
   public prefix: string
   public rgb = false
+  /**
+   * Teardown registered by `setup`. Called once via `app.onUnmount` on the
+   * plugin path and available as a reachable handle on standalone paths.
+   */
+  dispose?: () => void
 
   constructor (prefix: string) {
     this.prefix = prefix

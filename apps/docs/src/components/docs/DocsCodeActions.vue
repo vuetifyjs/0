@@ -1,8 +1,15 @@
 <script setup lang="ts">
+  // Framework
+  import { GnActionButton } from '@paper/genesis'
+
   // Composables
   import { getBinUrl } from '@/composables/bin'
   import { useClipboard } from '@/composables/useClipboard'
   import { usePlayground } from '@/composables/usePlayground'
+  import { CODE_SIZES } from '@/composables/useSettings'
+
+  // Types
+  import type { CodeSize } from '@/composables/useSettings'
 
   const props = defineProps<{
     code: string
@@ -14,9 +21,16 @@
     bin?: boolean
     showCopy?: boolean
     showWrap?: boolean
+    showSize?: boolean
   }>()
 
   const wrap = defineModel<boolean>('wrap', { default: false })
+  const size = defineModel<CodeSize>('size', { default: 'small' })
+
+  function onSize () {
+    const index = CODE_SIZES.indexOf(size.value)
+    size.value = CODE_SIZES[(index + 1) % CODE_SIZES.length]!
+  }
 
   const clipboard = useClipboard()
 
@@ -37,40 +51,49 @@
 
 <template>
   <div class="flex gap-1">
-    <AppIconButton
+    <GnActionButton
       v-if="playground"
       aria-label="Open in Vuetify Play"
-      icon="vuetify-play"
       title="Open in Vuetify Play"
-      type="button"
       @click="openInPlayground"
-    />
+    >
+      <AppIcon icon="vuetify-play" :size="16" />
+    </GnActionButton>
 
-    <AppIconButton
+    <GnActionButton
       v-if="bin"
       aria-label="Open in Vuetify Bin"
-      icon="vuetify-bin"
       title="Open in Vuetify Bin"
-      type="button"
       @click="openInBin"
-    />
+    >
+      <AppIcon icon="vuetify-bin" :size="16" />
+    </GnActionButton>
 
-    <AppIconButton
+    <GnActionButton
+      v-if="showSize"
+      :aria-label="`Code size: ${size}. Click to cycle`"
+      :title="`Code size: ${size}`"
+      @click="onSize"
+    >
+      <AppIcon :icon="`size-${size}`" :size="16" />
+    </GnActionButton>
+
+    <GnActionButton
       v-if="showWrap"
       :aria-label="wrap ? 'Disable line wrap' : 'Enable line wrap'"
-      :icon="wrap ? 'nowrap' : 'wrap'"
       :title="wrap ? 'Disable line wrap' : 'Enable line wrap'"
-      type="button"
       @click="wrap = !wrap"
-    />
+    >
+      <AppIcon :icon="wrap ? 'nowrap' : 'wrap'" :size="16" />
+    </GnActionButton>
 
-    <AppIconButton
+    <GnActionButton
       v-if="showCopy"
       :aria-label="!clipboard.copied.value ? 'Copy code' : 'Copied'"
-      :icon="!clipboard.copied.value ? 'copy' : 'success'"
       :title="!clipboard.copied.value ? 'Copy code' : 'Copied'"
-      type="button"
       @click="copyCode"
-    />
+    >
+      <AppIcon :icon="!clipboard.copied.value ? 'copy' : 'success'" :size="16" />
+    </GnActionButton>
   </div>
 </template>

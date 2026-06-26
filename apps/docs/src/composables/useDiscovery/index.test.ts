@@ -1,13 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { createDiscovery } from './index'
+
 // Types
 import type {
   DiscoveryContext,
   DiscoveryTour,
   DiscoveryTourStep,
 } from './index'
-
-import { createDiscovery } from './index'
 
 /**
  * Mock setup for import.meta.glob functions used in useDiscovery

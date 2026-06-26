@@ -66,7 +66,7 @@
 </script>
 
 <script lang="ts" setup generic="V = unknown">
-  // Components
+  // Context
   import { useGroupRoot } from './GroupRoot.vue'
 
   // Utilities
@@ -91,6 +91,14 @@
   const ticket = group.register({ id, value, disabled: () => toValue(disabled) ?? false, indeterminate: () => toValue(indeterminate) ?? false })
   const isDisabled = toRef(() => toValue(ticket.disabled) || toValue(group.disabled))
 
+  // ticket.toggle() routes to unselect for a selected item, which honours only
+  // the group's disabled (not the ticket's) — guard so a disabled item can't be
+  // toggled off via click. Per the enforced components.md handler rule.
+  function onClick () {
+    if (toValue(isDisabled)) return
+    ticket.toggle()
+  }
+
   onBeforeUnmount(() => {
     group.unregister(ticket.id)
   })
@@ -114,7 +122,7 @@
       'data-selected': toValue(ticket.isSelected) || undefined,
       'data-disabled': toValue(isDisabled) || undefined,
       'data-mixed': toValue(ticket.isMixed) || undefined,
-      'onClick': ticket.toggle,
+      'onClick': onClick,
     },
   }))
 </script>

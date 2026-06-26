@@ -26,38 +26,22 @@ Headless compound component for toast and snackbar notifications. Pairs with `us
 
 A single snackbar — render directly when you control the lifecycle yourself.
 
-::: example
+::: gn-example
 /components/snackbar/basic
-
-### Single Snackbar
-
-A single snackbar with show/dismiss controls and a success status message.
-
 :::
 
 ## Anatomy
 
-```vue Anatomy playground collapse
+```vue Anatomy no-filename
 <script setup lang="ts">
   import { Snackbar } from '@vuetify/v0'
 </script>
 
 <template>
-  <!-- Standalone -->
-  <Snackbar.Portal>
-    <Snackbar.Root>
-      <Snackbar.Content />
-
-      <Snackbar.Close />
-    </Snackbar.Root>
-  </Snackbar.Portal>
-
-  <!-- Queue-driven -->
   <Snackbar.Portal>
     <Snackbar.Queue>
       <Snackbar.Root>
         <Snackbar.Content />
-
         <Snackbar.Close />
       </Snackbar.Root>
     </Snackbar.Queue>
@@ -67,19 +51,24 @@ A single snackbar with show/dismiss controls and a success status message.
 
 ## Examples
 
-### Notification queue
+::: gn-example
+/components/snackbar/useToasts.ts 1
+/components/snackbar/ToastHost.vue 2
+/components/snackbar/toast-host.vue 3
 
-`Snackbar.Queue` connects to `useNotifications` and exposes queue items newest-first. `Snackbar.Close` auto-wires dismiss to the nearest `Snackbar.Root` — no `@click` needed.
+### Toast notifications with undo
 
-> [!WARNING] Inside a `Snackbar.Queue`, clicking `Snackbar.Close` permanently removes the notification from both the queue and the registry. To remove from the toast surface while keeping the notification in the inbox, call `ticket.dismiss()` directly on the [NotificationTicket](/composables/plugins/use-notifications#notificationticket).
+`Snackbar.Queue` connects to `useNotifications` by namespace and exposes its items newest-first through the default slot. A single `ToastHost` is mounted once near the root; anywhere else in the app, `useToasts().notify()` or `remove()` pushes a notification and the host renders it. Each toast auto-dismisses on the `timeout` passed to `send`, the stack pauses while hovered or focused (WCAG 2.2.1) for free, and `Snackbar.Close` dismisses without any `@click` wiring.
 
-::: example
-/components/snackbar/queue
+The undo affordance rides along on the notification's `data` payload: `remove()` deletes a file, then sends a toast carrying `data.undo` — a closure that splices the file back at its original index. The host reads that closure off the ticket and renders an Undo button beside Close. Undo restores the file and calls `ticket.dismiss()`, which removes the toast from the display queue only, whereas `Snackbar.Close` inside a queue permanently unregisters the notification from both the queue and the registry. Reach for `dismiss()` when the item should survive in an inbox.
 
-### Notification Queue
+Reach for the queue whenever notifications flow through [useNotifications](/composables/plugins/use-notifications); for a transient one-off message you control directly, render a `Snackbar.Root` without a queue (see Usage). The display surface is layout-agnostic — the stacking here is a plain flex column of consumer-styled cards, built on the [createQueue](/composables/registration/create-queue) primitive underneath.
 
-Queued toasts cycling through info, success, warning, and error severity with stacking behavior.
-
+| File | Role |
+|------|------|
+| `useToasts.ts` | Owns the notifications instance and the deletable file list; exposes notify, remove, and the undo restore closure |
+| `ToastHost.vue` | Renders the Snackbar.Queue surface — a stacked column of severity-styled toasts, each with a Close and a conditional Undo button |
+| `toast-host.vue` | Demo entry — action buttons and a file list wired to the composable, plus the mounted ToastHost |
 :::
 
 ## Recipes
@@ -128,7 +117,7 @@ Pass `:teleport="false"` to render the portal inline instead of teleporting to `
 | Live region | `Snackbar.Root` defaults to `role="status"`. Override with `role="alert"` for urgent notifications. No `aria-live` on `Portal` to avoid nesting conflicts. |
 | `role="status"` | Implicit `aria-live="polite"` — screen reader waits for idle. Use for confirmations and info. |
 | `role="alert"` | Implicit `aria-live="assertive"` — screen reader interrupts. Use for errors and warnings. |
-| Close button | `aria-label="Close"` hardcoded on `Snackbar.Close`. |
+| Close button | `Snackbar.Close` renders an inline default `aria-label` of `"Dismiss"`, localizable via the `Snackbar.close` key. |
 | Timing | Auto-dismiss pauses on hover and focus (WCAG 2.2.1). Tabbing into a snackbar pauses the queue; focus leaving the container resumes it. |
 | Focus | No focus trap — snackbars are non-modal. |
 

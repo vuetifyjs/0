@@ -55,7 +55,7 @@
 </script>
 
 <script lang="ts" setup generic="V = unknown">
-  // Components
+  // Context
   import { useStepRoot } from './StepRoot.vue'
 
   // Utilities
@@ -79,6 +79,14 @@
   const ticket = step.register({ id, value, disabled: () => toValue(disabled) ?? false })
   const isDisabled = toRef(() => toValue(ticket.disabled) || toValue(step.disabled))
 
+  // ticket.toggle() routes to unselect for a selected item, which honours only
+  // the group's disabled (not the ticket's) — guard so a disabled item can't be
+  // toggled off via click. Per the enforced components.md handler rule.
+  function onClick () {
+    if (toValue(isDisabled)) return
+    ticket.toggle()
+  }
+
   onBeforeUnmount(() => {
     step.unregister(ticket.id)
   })
@@ -97,7 +105,7 @@
       'aria-disabled': toValue(isDisabled),
       'data-selected': toValue(ticket.isSelected) || undefined,
       'data-disabled': toValue(isDisabled) || undefined,
-      'onClick': ticket.toggle,
+      'onClick': onClick,
     },
   }))
 </script>

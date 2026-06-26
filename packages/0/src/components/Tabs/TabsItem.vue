@@ -23,13 +23,15 @@
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
-  import { useTabsRoot } from './TabsRoot.vue'
 
-  // Utilities
-  import { mergeProps, nextTick, onBeforeUnmount, toRef, toValue, useAttrs, useTemplateRef } from 'vue'
+  // Context
+  import { useTabsRoot } from './TabsRoot.vue'
 
   // Transformers
   import { toElement } from '#v0/composables/toElement'
+
+  // Utilities
+  import { mergeProps, nextTick, onBeforeUnmount, toRef, toValue, useAttrs, useTemplateRef } from 'vue'
 
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'

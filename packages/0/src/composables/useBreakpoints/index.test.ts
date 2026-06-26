@@ -3,13 +3,13 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 // Composables
 import { useHydration } from '#v0/composables/useHydration'
 
+import { createBreakpoints, createBreakpointsPlugin, useBreakpoints } from './index'
+
 // Utilities
 import { getCurrentInstance, hasInjectionContext, onMounted, onScopeDispose, shallowRef } from 'vue'
 
 // Types
 import type { App } from 'vue'
-
-import { createBreakpoints, createBreakpointsPlugin, useBreakpoints } from './index'
 
 // Mock Vue functions
 vi.mock('vue', async () => {

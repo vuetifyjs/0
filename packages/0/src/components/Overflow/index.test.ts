@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { Overflow, useOverflowRoot } from './index'
+
 // Utilities
 import { mount } from '@vue/test-utils'
 import { defineComponent, h, nextTick } from 'vue'
@@ -12,18 +14,22 @@ import type {
   OverflowRootSlotProps,
 } from './index'
 
-import { Overflow, useOverflowRoot } from './index'
-
-let resizeObserverCallback: ResizeObserverCallback | null = null
-let resizeObserverTarget: Element | null = null
+// Track every ResizeObserver created during a test. Multiple observers may
+// exist per test (container + indicator), so we cannot use a single module-level
+// slot — the indicator's observer would overwrite the container's and triggerResize
+// would fire the wrong callback, preventing width.value from being set.
+const resizeObservers: Array<{ cb: ResizeObserverCallback, target: Element | null }> = []
 
 class TestResizeObserver {
+  private entry: { cb: ResizeObserverCallback, target: Element | null }
+
   constructor (cb: ResizeObserverCallback) {
-    resizeObserverCallback = cb
+    this.entry = { cb, target: null }
+    resizeObservers.push(this.entry)
   }
 
   observe (el: Element) {
-    resizeObserverTarget = el
+    this.entry.target = el
   }
 
   unobserve () {}
@@ -31,17 +37,20 @@ class TestResizeObserver {
 }
 
 beforeEach(() => {
+  resizeObservers.length = 0
   vi.stubGlobal('ResizeObserver', TestResizeObserver)
-  resizeObserverCallback = null
-  resizeObserverTarget = null
 })
 
 afterEach(() => {
   vi.unstubAllGlobals()
 })
 
+// Always fire the FIRST registered observer (the container's). Later observers
+// belong to the indicator or other children and should not receive container
+// resize events.
 function triggerResize (width: number, height = 0): void {
-  if (!resizeObserverCallback || !resizeObserverTarget) return
+  const first = resizeObservers[0]
+  if (!first?.cb || !first.target) return
   const rect = {
     width,
     height,
@@ -53,10 +62,10 @@ function triggerResize (width: number, height = 0): void {
     y: 0,
     toJSON: () => ({}),
   } as DOMRectReadOnly
-  resizeObserverCallback(
+  first.cb(
     [{
       contentRect: rect,
-      target: resizeObserverTarget,
+      target: first.target,
       borderBoxSize: [],
       contentBoxSize: [],
       devicePixelContentBoxSize: [],

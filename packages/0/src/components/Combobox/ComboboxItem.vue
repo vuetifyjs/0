@@ -15,6 +15,8 @@
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
+
+  // Context
   import { useComboboxContext } from './ComboboxRoot.vue'
 
   // Utilities
@@ -76,6 +78,7 @@
     id,
     value,
     disabled,
+    renderless,
   } = defineProps<ComboboxItemProps<V>>()
 
   const context = useComboboxContext(namespace)
@@ -122,6 +125,7 @@
     v-show="isFiltered"
     v-bind="slotProps.attrs"
     :as
+    :renderless
   >
     <slot v-bind="slotProps" />
   </Atom>

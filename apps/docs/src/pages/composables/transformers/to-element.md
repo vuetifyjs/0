@@ -52,17 +52,7 @@ flowchart LR
   extract --> output
 ```
 
-## Reactivity
-
-`toElement` is a **pure transformer function**. It does not track reactivity or return reactive values.
-
-> [!TIP] Use inside computed for reactivity
-> Wrap in `computed()` if you need reactive element resolution:
-```ts
-const resolved = computed(() => toElement(targetRef))
-```
-
-## Supported Input Types
+### Supported Input Types
 
 | Input | Result |
 | - | - |
@@ -76,14 +66,26 @@ const resolved = computed(() => toElement(targetRef))
 > [!TIP] Structural typing
 > Uses `{ readonly value: T }` instead of Vue's nominal `Ref<T>` to avoid type mismatches across Vue versions.
 
+## Reactivity
+
+`toElement` is a **pure transformer function**. It does not track reactivity or return reactive values.
+
+> [!TIP] Use inside computed for reactivity
+> Wrap in `computed()` if you need reactive element resolution:
+```ts
+const resolved = computed(() => toElement(targetRef))
+```
+
 ## Examples
 
-::: example
+::: gn-example
 /composables/to-element/basic
 
 ### Source Type Resolver
 
-Switch between input types (ref, getter, raw element, null) to see how `toElement` resolves each to a DOM element or undefined.
+An interactive resolver that passes four different input shapes to `toElement` and displays the resolved element, its tag name, and its id. The Ref button feeds a `useTemplateRef` — the most common case when working with template refs. Getter wraps the same ref in an arrow function (`() => target.value`), showing that getters are called and their return value inspected. Raw Element passes `target.value` directly — already an `HTMLElement`, so it passes through unchanged. Null demonstrates the graceful `undefined` return for absent references.
+
+Reach for `toElement` whenever a composable or utility function accepts a flexible element source — `usePopover`, `useClickOutside`, and similar system composables all normalize their target argument through this function internally. The structural `{ readonly value: T }` typing means it accepts refs from any Vue version without nominal type mismatches. Because it is a pure synchronous call, wrap it in `toRef(() => toElement(source))` for reactive element tracking that re-resolves whenever the source changes — useful when the target ref may be `null` initially and populated after mount.
 
 :::
 

@@ -1,15 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import fixtureTokens from './fixtures/tokens'
+
+import { createTokens, createTokensContext, flatten, useTokens } from './index'
+
 // Utilities
 import { mount } from '@vue/test-utils'
 import { computed, defineComponent, nextTick, ref } from 'vue'
 
 // Types
 import type { TokenAlias, TokenCollection } from './index'
-
-import fixtureTokens from './fixtures/tokens'
-
-import { createTokens, createTokensContext, flatten, useTokens } from './index'
 
 describe('createTokens', () => {
   describe('createTokensContext', () => {
@@ -93,6 +93,33 @@ describe('createTokens', () => {
 
         expect(context.resolve('rtl')).toEqual({ value: true, variation: 'toggle' })
         expect(context.resolve('complex')).toEqual({ inner: { leaf: '#FFFFFF' } })
+      })
+
+      it('should not flatten prototype-pollution keys into token ids', () => {
+        // JSON.parse creates OWN "__proto__"/"constructor" properties — an
+        // object literal would set the prototype instead — modelling untrusted
+        // token input. Pre-guard these surfaced as registrable token ids.
+        const malicious = JSON.parse(
+          '{"__proto__":{"$value":"#bad"},"constructor":{"$value":"#bad"},"prototype":{"$value":"#bad"},"color":{"$value":"#fff"}}',
+        ) as TokenCollection
+
+        const ids = flatten(malicious).map(token => token.id)
+
+        expect(ids).toContain('color')
+        expect(ids).not.toContain('__proto__')
+        expect(ids).not.toContain('constructor')
+        expect(ids).not.toContain('prototype')
+      })
+
+      it('should skip inherited keys when flattening', () => {
+        const base = { inherited: { $value: '#bad' } }
+        const tokens: Record<string, unknown> = Object.create(base)
+        tokens.color = { $value: '#fff' }
+
+        const ids = flatten(tokens as TokenCollection).map(token => token.id)
+
+        expect(ids).toContain('color')
+        expect(ids).not.toContain('inherited')
       })
     })
 
@@ -178,14 +205,12 @@ describe('createTokens', () => {
       })
 
       it('should return undefined for non-existent tokens', () => {
-        const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+        using warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
         const context = createTokensContext({ namespace: 'test:tokens', tokens: {} })[2]
 
         expect(context.resolve('nonexistent')).toBeUndefined()
         expect(context.resolve('{nonexistent}')).toBeUndefined()
         expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Alias not found'))
-
-        warnSpy.mockRestore()
       })
     })
 
@@ -1123,15 +1148,14 @@ describe('createTokens', () => {
           accent: { $value: '{primary}' },
         }
         const context = createTokens(tokens)
-        const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+        using warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
         expect(context.resolve('accent')).toBe('#007BFF')
 
         context.unregister('primary')
 
         expect(context.resolve('accent')).toBeUndefined()
-
-        warnSpy.mockRestore()
+        expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Alias not found'))
       })
 
       it('should remove token with dependencies', () => {
@@ -1141,15 +1165,13 @@ describe('createTokens', () => {
           accent: { $value: '{primary}' },
         }
         const context = createTokens(tokens)
-        const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+        using warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
         context.unregister('primary')
 
         expect(context.collection.has('primary')).toBe(false)
         expect(context.resolve('accent')).toBeUndefined()
         expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Alias not found'))
-
-        warnSpy.mockRestore()
       })
     })
   })
@@ -1163,14 +1185,12 @@ describe('createTokens', () => {
         }
 
         const context = createTokens(tokens)
-        const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+        using warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
         // Should return undefined and not cause stack overflow
         const result = context.resolve('a')
         expect(result).toBeUndefined()
         expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Circular alias detected'))
-
-        warnSpy.mockRestore()
       })
 
       it('should detect and prevent indirect circular references', () => {
@@ -1181,14 +1201,12 @@ describe('createTokens', () => {
         }
 
         const context = createTokens(tokens)
-        const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+        using warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
         // Should return undefined and not cause stack overflow
         const result = context.resolve('a')
         expect(result).toBeUndefined()
         expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Circular alias detected'))
-
-        warnSpy.mockRestore()
       })
     })
 
@@ -2044,14 +2062,12 @@ describe('createTokens', () => {
         }
 
         const context = createTokens(tokens)
-        const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+        using warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
         // Trying to access colors.primary.foo where primary is a string
         const result = context.resolve('colors.primary.foo')
         expect(result).toBeUndefined()
         expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Path not found'))
-
-        warnSpy.mockRestore()
       })
 
       it('should fail when path tries to access segment on number primitive', () => {
@@ -2062,13 +2078,11 @@ describe('createTokens', () => {
         }
 
         const context = createTokens(tokens)
-        const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+        using warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
         const result = context.resolve('metrics.count.value')
         expect(result).toBeUndefined()
         expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Path not found'))
-
-        warnSpy.mockRestore()
       })
 
       it('should fail when accessing nested path through boolean', () => {
@@ -2079,13 +2093,11 @@ describe('createTokens', () => {
         }
 
         const context = createTokens(tokens)
-        const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+        using warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
         const result = context.resolve('flags.enabled.state')
         expect(result).toBeUndefined()
         expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Path not found'))
-
-        warnSpy.mockRestore()
       })
 
       it('should handle object with $value when continuing path', () => {
@@ -2167,13 +2179,11 @@ describe('createTokens', () => {
         }
 
         const context = createTokens(tokens)
-        const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+        using warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
         const result = context.resolve('a')
         expect(result).toBeUndefined()
         expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Circular alias detected'))
-
-        warnSpy.mockRestore()
       })
     })
 
@@ -2906,13 +2916,12 @@ describe('createTokens', () => {
 
       // Offboard primary
       context.offboard(['primary'])
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      using warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       // accent should now be undefined because primary was removed and cache was cleared
       expect(context.resolve('accent')).toBeUndefined()
       expect(context.size).toBe(2)
-
-      warnSpy.mockRestore()
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Alias not found'))
     })
 
     it('should clear cache on move', () => {
@@ -3668,7 +3677,7 @@ describe('createTokens', () => {
       }
 
       const context = createTokensContext({ namespace: 'test:tokens', tokens })[2]
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      using warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       const resolvedBefore = context.resolve('accent')
       expect(resolvedBefore).toBe('#007BFF')
@@ -3677,8 +3686,7 @@ describe('createTokens', () => {
 
       const resolvedAfter = context.resolve('accent')
       expect(resolvedAfter).toBeUndefined()
-
-      warnSpy.mockRestore()
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Alias not found'))
     })
 
     it('should cache both curly-brace and plain token formats independently', () => {
@@ -3719,7 +3727,7 @@ describe('createTokens', () => {
       }
 
       const context = createTokensContext({ namespace: 'test:tokens', tokens })[2]
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      using warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       const first = context.resolve('a')
       const second = context.resolve('a')
@@ -3728,8 +3736,6 @@ describe('createTokens', () => {
       expect(second).toBeUndefined()
       // Cache stores undefined for circular aliases, second resolve returns from cache
       expect(warnSpy).toHaveBeenCalledTimes(1)
-
-      warnSpy.mockRestore()
     })
   })
 

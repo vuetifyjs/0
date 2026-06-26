@@ -7,7 +7,9 @@ import {
   isNumber,
   isBoolean,
   isObject,
+  isThenable,
   isArray,
+  isElement,
   isNull,
   isNullOrUndefined,
   isUndefined,
@@ -136,6 +138,44 @@ describe('helpers', () => {
       })
     })
 
+    describe('isThenable', () => {
+      it('should return true for native Promises', () => {
+        expect(isThenable(Promise.resolve())).toBe(true)
+        expect(isThenable(Promise.reject(new Error('test')).catch(() => {}))).toBe(true)
+        expect(isThenable(new Promise<void>(resolve => resolve()))).toBe(true)
+      })
+
+      it('should return true for duck-typed thenables', () => {
+        /* eslint-disable unicorn/no-thenable -- intentionally constructing fake thenables to exercise the guard */
+        expect(isThenable({ then: () => {} })).toBe(true)
+        expect(isThenable({ then () {} })).toBe(true)
+        expect(isThenable({ then: () => 'value', extra: 1 })).toBe(true)
+        /* eslint-enable unicorn/no-thenable */
+      })
+
+      it('should return false for plain objects without then', () => {
+        expect(isThenable({})).toBe(false)
+        expect(isThenable({ value: 1 })).toBe(false)
+        /* eslint-disable unicorn/no-thenable -- intentionally constructing invalid thenables to exercise the guard */
+        expect(isThenable({ then: 'not a function' })).toBe(false)
+        expect(isThenable({ then: 42 })).toBe(false)
+        /* eslint-enable unicorn/no-thenable */
+      })
+
+      it('should return false for null and undefined', () => {
+        expect(isThenable(null)).toBe(false)
+        expect(isThenable(undefined)).toBe(false)
+      })
+
+      it('should return false for primitives and other non-objects', () => {
+        expect(isThenable('then')).toBe(false)
+        expect(isThenable(123)).toBe(false)
+        expect(isThenable(true)).toBe(false)
+        expect(isThenable(() => {})).toBe(false)
+        expect(isThenable([])).toBe(false)
+      })
+    })
+
     describe('isArray', () => {
       it('should return true for arrays', () => {
         expect(isArray([])).toBe(true)
@@ -150,6 +190,34 @@ describe('helpers', () => {
         expect(isArray({})).toBe(false)
         expect(isArray('array')).toBe(false)
         expect(isArray({ length: 3 })).toBe(false)
+      })
+    })
+
+    describe('isElement', () => {
+      it('should return true for DOM elements', () => {
+        expect(isElement(document.createElement('div'))).toBe(true)
+        expect(isElement(document.body)).toBe(true)
+      })
+
+      it('should return false for non-elements', () => {
+        expect(isElement(null)).toBe(false)
+        expect(isElement(undefined)).toBe(false)
+        expect(isElement({})).toBe(false)
+        expect(isElement('div')).toBe(false)
+      })
+
+      it('should return false instead of throwing when Element is undefined (SSR/SSG)', () => {
+        const ElementCtor = globalThis.Element
+        // Simulate a non-DOM server runtime where `Element` is not a global.
+        // Pre-guard, `item instanceof Element` threw a ReferenceError here,
+        // crashing SSG on every observer-using docs page.
+        Reflect.deleteProperty(globalThis, 'Element')
+        try {
+          expect(() => isElement({})).not.toThrow()
+          expect(isElement({})).toBe(false)
+        } finally {
+          globalThis.Element = ElementCtor
+        }
       })
     })
 

@@ -12,6 +12,8 @@
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
+
+  // Context
   import { useSelectContext } from './SelectRoot.vue'
 
   // Utilities
@@ -38,6 +40,9 @@
       'aria-haspopup': 'listbox'
       'aria-controls': string
       'data-open': true | undefined
+      'style': Record<string, string>
+      'onClick': () => void
+      'onKeydown': (e: KeyboardEvent) => void
     }
   }
 </script>
@@ -52,6 +57,7 @@
   const {
     as = 'button',
     namespace = 'v0:select',
+    renderless,
   } = defineProps<SelectActivatorProps>()
 
   const context = useSelectContext(namespace)
@@ -107,8 +113,6 @@
     }
   }
 
-  const style = toRef(() => context.popover.anchorStyles.value)
-
   const slotProps = toRef((): SelectActivatorSlotProps => ({
     isOpen: context.isOpen.value,
     attrs: {
@@ -119,6 +123,9 @@
       'aria-haspopup': 'listbox',
       'aria-controls': context.listboxId,
       'data-open': context.isOpen.value || undefined,
+      'style': context.popover.anchorStyles.value,
+      onClick,
+      onKeydown,
     },
   }))
 </script>
@@ -127,10 +134,8 @@
   <Atom
     ref="activator"
     :as
-    :style
+    :renderless
     v-bind="slotProps.attrs"
-    @click="onClick"
-    @keydown="onKeydown"
   >
     <slot v-bind="slotProps" />
   </Atom>

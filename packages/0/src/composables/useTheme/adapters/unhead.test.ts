@@ -1,13 +1,13 @@
 import { describe, expect, it, vi } from 'vitest'
 
+import { V0UnheadThemeAdapter } from './unhead'
+
 // Utilities
 import { computed, effectScope, nextTick, ref } from 'vue'
 
 // Types
 import type { ThemeAdapterSetupContext } from './adapter'
 import type { App } from 'vue'
-
-import { V0UnheadThemeAdapter } from './unhead'
 
 const mockInBrowser = vi.hoisted(() => ({ value: true }))
 
@@ -371,6 +371,71 @@ describe('v0UnheadThemeAdapter', () => {
       await nextTick()
 
       expect(head.patch).not.toHaveBeenCalled()
+    })
+
+    it('should stop watcher and call entry.dispose when adapter.dispose() is called in browser mode', async () => {
+      const entryDispose = vi.fn()
+      const head = {
+        push: vi.fn(() => ({ patch: vi.fn(), dispose: entryDispose })),
+      }
+      const app = createMockApp(head)
+      const context = createMockContext()
+      const adapter = new V0UnheadThemeAdapter()
+
+      const scope = effectScope()
+      scope.run(() => adapter.setup(app, context, null))
+
+      expect(adapter.dispose).toBeDefined()
+      adapter.dispose?.()
+
+      context.selectedId.value = 'dark'
+      await nextTick()
+
+      expect(entryDispose).toHaveBeenCalledTimes(1)
+    })
+
+    it('should call entry.dispose when adapter.dispose() is called in SSR mode', () => {
+      mockInBrowser.value = false
+
+      const entryDispose = vi.fn()
+      const head = {
+        push: vi.fn(() => ({ patch: vi.fn(), dispose: entryDispose })),
+      }
+      const app = {
+        _context: { provides: { usehead: head } },
+        _container: null,
+      } as unknown as App
+      const context = createMockContext()
+      const adapter = new V0UnheadThemeAdapter()
+
+      adapter.setup(app, context, null)
+
+      expect(adapter.dispose).toBeDefined()
+      adapter.dispose?.()
+
+      expect(entryDispose).toHaveBeenCalledTimes(1)
+
+      mockInBrowser.value = true
+    })
+
+    it('should tolerate entries without patch or dispose', () => {
+      mockInBrowser.value = false
+      const head = {
+        push: vi.fn(() => ({})),
+      }
+      const app = {
+        _context: { provides: { usehead: head } },
+        _container: null,
+      } as unknown as App
+      const context = createMockContext()
+      const adapter = new V0UnheadThemeAdapter()
+
+      adapter.setup(app, context, null)
+
+      expect(() => adapter.update(context.colors.value, context.isDark.value)).not.toThrow()
+      expect(() => adapter.dispose?.()).not.toThrow()
+
+      mockInBrowser.value = true
     })
   })
 

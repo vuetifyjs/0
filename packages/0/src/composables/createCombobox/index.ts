@@ -37,12 +37,15 @@ import { useVirtualFocus } from '#v0/composables/useVirtualFocus'
 // Adapters
 import { ClientComboboxAdapter } from './adapters'
 
+// Transformers
+import { toArray } from '#v0/composables/toArray'
+
+// Globals
+import { IN_BROWSER } from '#v0/constants/globals'
+
 // Utilities
 import { isUndefined, useId } from '#v0/utilities'
 import { computed, shallowRef, toRef, toValue, watch } from 'vue'
-
-// Transformers
-import { toArray } from '#v0/composables/toArray'
 
 // Types
 import type { SelectionContext } from '#v0/composables/createSelection'
@@ -53,9 +56,7 @@ import type { MaybeArray, ID } from '#v0/types'
 import type { ComboboxAdapter } from './adapters'
 import type { MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
 
-// Globals
-import { IN_BROWSER } from '#v0/constants/globals'
-
+// Exports
 export { ClientComboboxAdapter, ComboboxAdapter, ServerComboboxAdapter } from './adapters'
 export type { ClientComboboxAdapterOptions, ComboboxAdapterContext, ComboboxAdapterResult } from './adapters'
 
@@ -316,10 +317,10 @@ export function createCombobox (options: ComboboxOptions = {}): ComboboxContext 
  * ```
  */
 export function createComboboxContext (
-  options: ComboboxOptions & { namespace?: string } = {},
+  _options: ComboboxOptions & { namespace?: string } = {},
 ): ContextTrinity<ComboboxContext> {
-  const { namespace = 'v0:combobox', ...rest } = options
-  const context = createCombobox(rest)
+  const { namespace = 'v0:combobox', ...options } = _options
+  const context = createCombobox(options)
 
   return createTrinity<ComboboxContext>(namespace, context)
 }

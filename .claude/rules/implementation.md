@@ -58,6 +58,21 @@ Before writing a new helper, check `#v0/utilities`. Available today:
 
 All helpers carry `/* #__NO_SIDE_EFFECTS__ */` and are tree-shakeable. Module-level allocating constants (e.g., a top-level `new Set([...])`) carry `/* @__PURE__ */` instead — see `utilities/helpers.ts` (the `UNSAFE_KEYS` set) and `utilities/instance.ts` (the `INSTANCE_KEY` literal) for the placement convention. Never add a new utility that introduces a top-level side effect — the barrel cannot absorb it. [PHILOSOPHY §2.7]
 
+## Security primitives — reuse, never reinvent
+
+A headless lib exposes a small, fixed set of injection / DoS sinks, and v0 already ships the guard for each. When you write code in one of these shapes, reach for the existing primitive. Every gap found in the 2026-06-04 security audit was a sibling that missed the guard its twin already had. [user-feedback:2026-06-04]
+
+| When you… | Guard | Has it / missed it |
+|-----------|-------|--------------------|
+| Build a plain object keyed by caller- or registry-supplied strings | Skip keys in `UNSAFE_KEYS` (`#v0/utilities`) — `__proto__` / `constructor` / `prototype` | `mergeDeep` has it; `usePermissions` didn't |
+| Interpolate a value into a CSS string or `<style>` text | Mirror `ThemeAdapter` — validate keys with `SAFE_IDENT`, reject values matching `UNSAFE_CSS` (`useTheme/adapters/adapter.ts`) | v0 `ThemeAdapter` has it; paper `useTheme` didn't |
+| Build a `querySelector` string from a runtime id or value | Wrap the dynamic part in `CSS.escape()` | `createCombobox`, `Select` have it |
+| Allocate an array from a caller-controlled count (`range(n)`, …) | Bound it — `clamp(Math.floor(n), 0, CAP)`, or the `n > Number.MAX_SAFE_INTEGER → []` guard | `createPagination` has it; `createRating` didn't |
+
+`UNSAFE_KEYS` is importable from `#v0/utilities`; the `ThemeAdapter` CSS sanitizer is a `private static` pattern to mirror, not import. Registry / selection / nested / tokens keyed state is `Map`-based and prototype-pollution-immune by construction — keep it that way; never swap a keyed `Map` for a plain `{}` index.
+
+This is the proactive half. `feedback_bug_family_audit` is the reactive half: after fixing one of these, grep the sibling family for the same shape before calling it done.
+
 ## Ticket Pattern (PHILOSOPHY §6.2)
 
 "Tickets" are the currency of every registry. The hierarchy:
@@ -66,8 +81,8 @@ All helpers carry `/* #__NO_SIDE_EFFECTS__ */` and are tree-shakeable. Module-le
 RegistryTicketInput
   ├── ModelTicketInput
   │     ├── SelectionTicketInput
-  │     │     ├── SingleTicketInput
-  │     │     └── StepTicketInput
+  │     │     └── SingleTicketInput
+  │     │           └── StepTicketInput
   │     └── GroupTicketInput
   │           └── NestedTicketInput
   ├── QueueTicketInput
@@ -122,7 +137,7 @@ return {
 }
 ```
 
-This is the single mechanism by which `createModel → createSelection → createSingle → createGroup → createStep` remain type-substitutable.
+This is the single mechanism by which `createModel → createSelection → { createSingle → createStep, createGroup → createNested }` remain type-substitutable.
 
 ## Reactive Collections (PHILOSOPHY §4.1)
 
@@ -134,26 +149,27 @@ This is the single mechanism by which `createModel → createSelection → creat
 
 Caching iterations is a perf rule, not a style rule: invalidate in the registry's own mutation hooks so consumers never observe stale keys.
 
-## Adapter Pattern (PHILOSOPHY §5.2)
+## Adapter Pattern
 
 Adapters enable framework-agnostic logic. Located in `composables/useX/adapters/`. [intent:105]
 
 **Standard structure.**
 
 ```ts
-// adapters/index.ts
+// adapters/adapter.ts — abstract contract
 export abstract class FooAdapter {
-  setup?: (context: FooAdapterContext) => void
+  /** Optional teardown; read lazily at app unmount, so it may be assigned during or after setup. */
   dispose?: () => void
+  abstract setup (app: App, context: FooAdapterSetupContext): void
   // domain-specific methods
 }
 
-// adapters/v0.ts — default
-export class V0FooAdapter extends FooAdapter { ... }
-
-// adapters/pino.ts — third-party integration
-export class PinoLoggerAdapter extends LoggerAdapter { ... }
+// adapters/index.ts — pure barrel
+export { FooAdapter } from './adapter'
+export { V0FooAdapter } from './v0'
 ```
+
+setup's argument shape varies by family — data adapters (Combobox, DataTable) take context-only and may return a result; DOM-side-effect plugin adapters (Theme, Rtl, ReducedMotion) take `(app, context)`.
 
 **Naming.** Default adapters are `V0`-prefixed (`V0FooAdapter`, `V0LoggerAdapter`, `V0LocaleAdapter`). Mode adapters (SSR fallback, strategy variants) use a descriptive prefix (`MemoryStorageAdapter`, `ClientComboboxAdapter`, `ServerDataTableAdapter`). Third-party adapters use their original branding (`PinoLoggerAdapter`, `ConsolaLoggerAdapter`, `PostHogFeaturesAdapter`). [intent:106, intent:107]
 
@@ -161,23 +177,36 @@ export class PinoLoggerAdapter extends LoggerAdapter { ... }
 
 **Input-source adapters (carve-out).** Some composables expose a list of adapters that are *all* installed simultaneously, each wrapping a distinct input modality (e.g., `PointerAdapter` + `KeyboardAdapter` for `useDragDrop`). Each adapter implements the same `setup` / `dispose` contract; the factory iterates the array and installs every one. Naming: `<Source>Adapter` — no `Vuetify0` prefix because the source name *is* the distinguishing identity, not a brand. Reserved for input/output modalities; do not use this carve-out to pick between competing libraries (use the default-vs-third-party split above for that).
 
-**Lifecycle.** When an adapter has `setup`, call it inside the plugin's setup phase and register `dispose` on app unmount:
+**Lifecycle.** When an adapter has `setup`, call it inside the plugin's setup phase and register `dispose` on app unmount — late-bound and unconditional, so adapters may assign `dispose` lazily during or after `setup`:
 
 ```ts
-// In createXPlugin install():
-adapter.setup(context)
-if (adapter.dispose) app.onUnmount(() => adapter.dispose!())
+// In the createPluginContext setup hook:
+adapter.setup(app, context)
+app.onUnmount(() => adapter.dispose?.())
 ```
 [intent:108]
+
+**Unhead resolution (SSR head adapters).** Adapters that render server-side head state resolve unhead by duck-typing the app's provides — never by importing `@unhead` types into package source:
+
+```ts
+const head = (app._context?.provides?.usehead ?? app._context?.provides?.head) as Head | undefined
+
+if (head?.push) {
+  const entry = head.push({ bodyAttrs: { /* ... */ } })
+  this.dispose = () => entry.dispose?.()
+}
+```
+
+Type the seam with module-private structural interfaces (`Head`, `HeadEntry` — see `useReducedMotion/adapters/v0.ts` for the canonical shape, including reactive updates via `entry.patch?.()`); `provides` is `Record<string | symbol, any>`, so an untyped read disables type-checking on the entire server branch. Used by `useReducedMotion`, `useRtl`, and both `useTheme` adapters — the older sites still read it untyped; sweep pending.
 
 **Fallback strategy — pick one per composable.** [intent:109]
 
 | Strategy | Example | When |
 |----------|---------|------|
 | Required (throw) | `useDate` | Logic is meaningless without the adapter |
-| Default instance | `useLogger`, `useStorage` | A reasonable default exists in v0 |
-| Empty context | `useTheme`, `useFeatures` | Functional but no-op without config |
-| Graceful degradation | `useLocale`, `useRtl` | Partial functionality possible |
+| Default instance | `useLogger`, `useStorage`, `useTheme`, `useRtl` | A reasonable default exists in v0 |
+| Empty context | `useFeatures` | Functional but no-op without config |
+| Graceful degradation | `useLocale` | Partial functionality possible |
 
 ## SSR Support (PHILOSOPHY §2.10)
 

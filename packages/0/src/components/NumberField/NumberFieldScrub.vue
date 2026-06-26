@@ -10,6 +10,8 @@
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
+
+  // Context
   import { useNumberFieldRoot } from './NumberFieldRoot.vue'
 
   // Composables
@@ -34,6 +36,9 @@
       'style': { cursor: string }
       'data-disabled': true | undefined
       'data-readonly': true | undefined
+      'onPointerdown': (e: PointerEvent) => void
+      'onPointermove': (e: PointerEvent) => void
+      'onPointerup': () => void
     }
   }
 </script>
@@ -97,27 +102,21 @@
     document.exitPointerLock()
   }
 
-  const scrubAttrs = toRef((): Record<string, unknown> => ({
-    'style': { cursor: 'ew-resize' },
-    'data-disabled': root.isDisabled.value ? true : undefined,
-    'data-readonly': root.isReadonly.value ? true : undefined,
-    onPointerdown,
-    onPointermove,
-    onPointerup,
-  }))
-
   const slotProps = toRef((): NumberFieldScrubSlotProps => ({
     attrs: {
       'style': { cursor: 'ew-resize' },
       'data-disabled': root.isDisabled.value ? true : undefined,
       'data-readonly': root.isReadonly.value ? true : undefined,
+      onPointerdown,
+      onPointermove,
+      onPointerup,
     },
   }))
 </script>
 
 <template>
   <Atom
-    v-bind="mergeProps(attrs, scrubAttrs)"
+    v-bind="mergeProps(attrs, slotProps.attrs)"
     :as
     :renderless
   >

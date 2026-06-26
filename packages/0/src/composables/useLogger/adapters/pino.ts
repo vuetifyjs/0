@@ -1,8 +1,8 @@
-// Utilities
-import { isObject } from '#v0/utilities'
-
 // Adapters
 import { LoggerAdapter } from './adapter'
+
+// Utilities
+import { isObject, V0Error } from '#v0/utilities'
 
 /**
  * Pino logger adapter implementation
@@ -26,7 +26,10 @@ export class PinoLoggerAdapter extends LoggerAdapter {
   constructor (pinoInstance: PinoInstance | null | undefined) {
     super()
     if (!pinoInstance) {
-      throw new Error('Pino instance is required for PinoLoggerAdapter')
+      throw new V0Error('Pino instance is required for PinoLoggerAdapter', {
+        code: 'V0_ADAPTER_INSTANCE_MISSING',
+        adapter: 'PinoLoggerAdapter',
+      })
     }
     this.pino = pinoInstance
   }

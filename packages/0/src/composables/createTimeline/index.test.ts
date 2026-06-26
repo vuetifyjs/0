@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { createTimeline, createTimelineContext, useTimeline } from './index'
+
 // Utilities
 import { inject, provide } from 'vue'
-
-import { createTimeline, createTimelineContext, useTimeline } from './index'
 
 vi.mock('vue', async () => {
   const actual = await vi.importActual('vue')
@@ -34,6 +34,35 @@ describe('createTimeline', () => {
     expect(timeline.values()).toHaveLength(15)
     expect(timeline.values()[0]!.value).toEqual(6)
     expect(timeline.values()[14]!.value).toEqual(20)
+  })
+
+  it('should sanitize a non-positive size to at least 1', () => {
+    const timeline = createTimeline({ size: 0 })
+
+    // Pre-fix, `registry.size < 0` was always false, so the first register hit
+    // seek('first')! on an empty registry and threw on `undefined.id`.
+    expect(() => {
+      timeline.register({ id: 'a', value: 'a' })
+      timeline.register({ id: 'b', value: 'b' })
+    }).not.toThrow()
+    expect(timeline.size).toBe(1)
+  })
+
+  it('should floor a fractional size', () => {
+    const timeline = createTimeline({ size: 3.5 })
+    for (let i = 0; i < 5; i++) timeline.register({ id: `item${i}`, value: i })
+
+    // floor(3.5) = 3; pre-fix the `3 < 3.5` check let a fourth item in.
+    expect(timeline.size).toBe(3)
+  })
+
+  it('should fall back to the default size for NaN', () => {
+    const timeline = createTimeline({ size: Number.NaN })
+    for (let i = 0; i < 12; i++) timeline.register({ id: `item${i}`, value: i })
+
+    // NaN falls back to the default 10; pre-fix `registry.size < NaN` was always
+    // false, throwing on the first register.
+    expect(timeline.size).toBe(10)
   })
 
   it('should undo the last action', () => {

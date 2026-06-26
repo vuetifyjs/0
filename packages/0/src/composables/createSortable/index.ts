@@ -146,6 +146,20 @@ export interface SortableContext<
    * ```
    */
   on: SortableEventListener<E>
+  /**
+   * Unsubscribe from a `move:ticket` listener. Must be called with the same callback reference used to subscribe.
+   *
+   * @example
+   * ```ts
+   * function onMove ({ ticket, from, to }: SortableMovePayload) {
+   *   console.log(ticket.id, from, to)
+   * }
+   *
+   * sortable.on('move:ticket', onMove)
+   * // later...
+   * sortable.off('move:ticket', onMove)
+   * ```
+   */
   off: SortableEventListener<E>
   /**
    * Move a ticket to a target index. Other tickets shift to fill.
@@ -273,21 +287,18 @@ export function createSortable<
       }
       seen.add(id)
     }
-    // Capture initial indices so emits reflect the bulk semantic — every ticket
-    // whose final position differs from where it started gets a move:ticket,
-    // independent of registry-side reindex displacement during the loop.
     const froms = new Map<ID, number>()
     for (const id of ids) {
       const ticket = model.get(id)
       if (ticket) froms.set(id, ticket.index)
     }
     model.batch(() => {
+      model.reorder(ids)
       for (const [index, id] of ids.entries()) {
         const from = froms.get(id)!
-        const result = model.move(id, index)
-        if (result && result.index !== from) {
-          model.emit('move:ticket', { ticket: result, from, to: result.index })
-        }
+        if (from === index) continue
+        const ticket = model.get(id)
+        if (ticket) model.emit('move:ticket', { ticket, from, to: index })
       }
     })
   }

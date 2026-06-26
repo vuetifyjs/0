@@ -112,13 +112,14 @@ Each branch extends the base ticket pattern with domain-specific capabilities. S
 
 | Method | Notes |
 | - | - |
-| `register(ticket)` | Add a ticket to the registry |
+| `register(ticket)` | Append a ticket to the registry; a supplied `index` is ignored — use `move()` to position |
 | `unregister(id)` | Remove a ticket by ID |
 | `upsert(id, partial)` | Register or update a ticket |
-| `move(id, index)` | Reorder a ticket to a new index position |
+| `move(id, index)` | Move a ticket to a new index position; reindexes only the affected `[from..to]` span |
+| `reorder(ids)` | Reorder the registry to match a canonical permutation in one O(n) pass |
 | `onboard(tickets)` | Batch-register an array of tickets |
 | `offboard(ids)` | Batch-unregister an array of IDs |
-| `batch(fn)` | Run multiple mutations with a single cache invalidation and deferred events |
+| `batch(fn)` | Run multiple mutations with deferred cache invalidation and events |
 | `get(id)` | Retrieve a ticket by ID |
 | `has(id)` | Check whether a ticket ID is registered |
 | `browse(value)` | Reverse-lookup — find ticket ID(s) by value |
@@ -135,7 +136,7 @@ Each branch extends the base ticket pattern with domain-specific capabilities. S
 
 ## Examples
 
-::: example
+::: gn-example
 /composables/create-registry/context.ts
 /composables/create-registry/TaskProvider.vue
 /composables/create-registry/TaskConsumer.vue

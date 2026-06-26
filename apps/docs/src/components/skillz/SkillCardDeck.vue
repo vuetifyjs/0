@@ -1,14 +1,14 @@
 <script setup lang="ts">
-  // Components
+  // Context
   import SkillCard from './SkillCard.vue'
+
+  import { SKILL_TRACK_META } from '@/types/skill'
 
   // Utilities
   import { computed } from 'vue'
 
   // Types
   import type { SkillMeta, SkillTrack } from '@/types/skill'
-
-  import { SKILL_TRACK_META } from '@/types/skill'
 
   const props = defineProps<{
     items: SkillMeta[]
@@ -35,7 +35,7 @@
 <template>
   <div v-if="skillsByTrack.length > 0" class="mt-8 flex flex-col gap-10">
     <div v-for="{ track, meta, skills } in skillsByTrack" :key="track">
-      <h2 class="m-0 mb-1 text-xl">{{ meta.label }}</h2>
+      <h2 :id="track" class="m-0 mb-1 text-xl">{{ meta.label }}</h2>
       <p class="m-0 mb-4 text-sm text-on-surface-variant">{{ meta.description }}</p>
 
       <div class="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-4">

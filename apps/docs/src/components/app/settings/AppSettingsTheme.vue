@@ -5,11 +5,11 @@
   import { useSettings } from '@/composables/useSettings'
   import { useThemeToggle } from '@/composables/useThemeToggle'
 
-  // Utilities
-  import { computed } from 'vue'
-
   // Themes
   import { exportThemeAsVuetifyConfig, type ThemeId } from '@/themes'
+
+  // Utilities
+  import { computed } from 'vue'
 
   const toggle = useThemeToggle()
   const customThemes = useCustomThemes()
@@ -125,6 +125,25 @@
             description="Decorative dots in the corner"
             label="Dot grid pattern"
           />
+
+          <AppSettingsSlider
+            v-if="settings.showDotGrid.value"
+            v-model="settings.dotGridIntensity.value"
+            class="ml-4"
+            description="Connecting-line strength"
+            label="Line intensity"
+            :max="2"
+            :min="0"
+            :step="0.05"
+          >
+            <template #preview>
+              <div class="relative h-20 rounded-md overflow-hidden border bg-background">
+                <div class="absolute inset-0" style="transform: scale(2.2); transform-origin: center">
+                  <AppDotGrid :coverage="0" />
+                </div>
+              </div>
+            </template>
+          </AppSettingsSlider>
 
           <AppSettingsToggle
             v-model="settings.showMeshGrid.value"

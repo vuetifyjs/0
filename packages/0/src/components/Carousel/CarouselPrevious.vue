@@ -12,16 +12,18 @@
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
+
+  // Context
   import { useCarouselRoot } from './CarouselRoot.vue'
 
   // Composables
   import { useLocale } from '#v0/composables/useLocale'
 
-  // Utilities
-  import { mergeProps, onBeforeUnmount, toRef, toValue, useAttrs, useTemplateRef } from 'vue'
-
   // Transformers
   import { toElement } from '#v0/composables/toElement'
+
+  // Utilities
+  import { mergeProps, onBeforeUnmount, toRef, toValue, useAttrs, useTemplateRef } from 'vue'
 
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
@@ -89,7 +91,7 @@
     isAtEdge: isAtEdge.value,
     attrs: {
       'type': as === 'button' ? 'button' : undefined,
-      'aria-label': locale.t('Carousel.prev'),
+      'aria-label': locale.ti('Carousel.prev') ?? 'Previous slide',
       'aria-controls': viewportId,
       'aria-disabled': isDisabled.value,
       'disabled': as === 'button' ? isDisabled.value : undefined,

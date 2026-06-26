@@ -5,11 +5,11 @@
   // Composables
   import { useSettings } from '@/composables/useSettings'
 
-  // Utilities
-  import { useRouter } from 'vue-router'
-
   // Data
   import { themes } from '@/themes/index'
+
+  // Utilities
+  import { useRouter } from 'vue-router'
 
   const settings = useSettings()
   const router = useRouter()

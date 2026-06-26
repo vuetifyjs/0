@@ -10,10 +10,10 @@
 
 import { bench, describe } from 'vitest'
 
+import { createRegistry } from './index'
+
 // Types
 import type { RegistryContext, RegistryTicket } from './index'
-
-import { createRegistry } from './index'
 
 // =============================================================================
 // FIXTURES - Created once, reused across read-only benchmarks
@@ -43,6 +43,15 @@ function createPopulatedRegistry (count: number): RegistryContext<RegistryTicket
   return registry
 }
 
+// Reactive variant: keys()/values()/entries() skip the read cache and recompute
+// on every call, so these fixtures isolate the uncached O(n) read cost.
+function createReactiveRegistry (count: number): RegistryContext<RegistryTicket> {
+  const registry = createRegistry({ reactive: true })
+  const items = count === 1000 ? ITEMS_1K : ITEMS_10K
+  registry.onboard(items.slice(0, count))
+  return registry
+}
+
 // Lookup targets (middle of registry for realistic access pattern)
 const LOOKUP_ID_1K = 'item-500'
 const LOOKUP_ID_10K = 'item-5000'
@@ -50,6 +59,9 @@ const LOOKUP_VALUE_1K = 'value-500'
 const LOOKUP_VALUE_10K = 'value-5000'
 const LOOKUP_INDEX_1K = 500
 const LOOKUP_INDEX_10K = 5000
+
+const PERMUTATION_1K = ITEMS_1K.map(item => item.id).toReversed()
+const PERMUTATION_10K = ITEMS_10K.map(item => item.id).toReversed()
 
 // =============================================================================
 // BENCHMARKS
@@ -190,6 +202,18 @@ describe('createRegistry benchmarks', () => {
       registry.onboard(ITEMS_10K)
       registry.offboard(halfIds10k)
     })
+
+    bench('Reorder reverse (1,000 items)', () => {
+      const registry = createRegistry()
+      registry.onboard(ITEMS_1K)
+      registry.reorder(PERMUTATION_1K)
+    })
+
+    bench('Reorder reverse (10,000 items)', () => {
+      const registry = createRegistry()
+      registry.onboard(ITEMS_10K)
+      registry.reorder(PERMUTATION_10K)
+    })
   })
 
   // ===========================================================================
@@ -234,6 +258,72 @@ describe('createRegistry benchmarks', () => {
     bench('Access entries 100 times (10,000 items, cached)', () => {
       for (let i = 0; i < 100; i++) {
         registry10k.entries()
+      }
+    })
+  })
+
+  // ===========================================================================
+  // REACTIVE ACCESS - Uncached recompute path (reactive: true bypasses the cache)
+  // Shared fixture (safe - read-only operations, no state changes)
+  // Measures: full O(n) recompute of keys/values/entries on every call (the
+  // `computed access` group above measures the cached path), plus the combined
+  // snapshot rebuild useProxyRegistry performs (keys + values + entries together)
+  // on each version bump (#280) — the read shape that dominates once a reactive
+  // registry is consumed from a template or computed.
+  // ===========================================================================
+  describe('reactive access', () => {
+    const reactive1k = createReactiveRegistry(1000)
+    const reactive10k = createReactiveRegistry(10_000)
+
+    bench('Access keys 100 times (1,000 items, reactive)', () => {
+      for (let i = 0; i < 100; i++) {
+        reactive1k.keys()
+      }
+    })
+
+    bench('Access keys 100 times (10,000 items, reactive)', () => {
+      for (let i = 0; i < 100; i++) {
+        reactive10k.keys()
+      }
+    })
+
+    bench('Access values 100 times (1,000 items, reactive)', () => {
+      for (let i = 0; i < 100; i++) {
+        reactive1k.values()
+      }
+    })
+
+    bench('Access values 100 times (10,000 items, reactive)', () => {
+      for (let i = 0; i < 100; i++) {
+        reactive10k.values()
+      }
+    })
+
+    bench('Access entries 100 times (1,000 items, reactive)', () => {
+      for (let i = 0; i < 100; i++) {
+        reactive1k.entries()
+      }
+    })
+
+    bench('Access entries 100 times (10,000 items, reactive)', () => {
+      for (let i = 0; i < 100; i++) {
+        reactive10k.entries()
+      }
+    })
+
+    bench('Rebuild snapshot 100 times (1,000 items, reactive)', () => {
+      for (let i = 0; i < 100; i++) {
+        reactive1k.keys()
+        reactive1k.values()
+        reactive1k.entries()
+      }
+    })
+
+    bench('Rebuild snapshot 100 times (10,000 items, reactive)', () => {
+      for (let i = 0; i < 100; i++) {
+        reactive10k.keys()
+        reactive10k.values()
+        reactive10k.entries()
       }
     })
   })
