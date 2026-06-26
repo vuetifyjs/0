@@ -143,16 +143,23 @@ The `get()` method returns reactive refs that sync with storage automatically.
 ## Examples
 
 ::: gn-example
-/composables/use-storage/persistent-settings
+/composables/use-storage/useSettings.ts 1
+/composables/use-storage/SettingsPanel.vue 2
+/composables/use-storage/settings-panel.vue 3
 
-### Persistent Settings
+### Persistent Settings Panel
 
-A settings panel with four independently persisted keys — `name`, `theme`, `count`, and `items` — each returned from `storage.get()` as a reactive `Ref`. Writing to any ref (e.g. incrementing `count.value++` or pushing to `items.value`) is sufficient to persist the value; there is no explicit `set()` call because the refs are watched with `{ deep: true }` internally.
+A settings panel built directly on `createStorage` — the standalone factory behind the plugin. The `name` and `theme` fields are reactive refs returned from `storage.get()` with a default; writing to either ref is enough to persist it, because `get()` watches the value with `{ deep: true }` internally. There is no explicit `set()` call for these — editing the input or picking a theme writes through automatically. A separate "draft note" demonstrates the explicit lifecycle: `set()` to persist, `has()` to check presence, and `remove()` to drop the key.
 
-The `items` key demonstrates deep-watch auto-persistence on an array: adding or removing elements triggers the watcher and serializes the new array to storage in a single write. The `has('count')` readout at the bottom shows how to distinguish "key present with a stored value" from "key absent, returning default" — useful when you need to detect a first visit vs. a returning user.
+The draft is the interesting part. It is held in a local `shallowRef` buffer and only copied into storage when you click Save, so `has('note')` honestly reports whether a draft has been persisted rather than merely cached. Because `has()` returns a plain boolean snapshot — it is not reactive, per the Reactivity table above — the composable re-reads it into a reactive `saved` flag after every `set()` and `remove()`. Forget calls `remove()` to delete the key and clears the buffer, flipping `saved` back to `false`.
 
-The example uses `MemoryStorageAdapter` for isolation, but swapping in `localStorage` or `sessionStorage` requires only changing the adapter at plugin-install time. In a real app the panel's state would survive page refreshes with `localStorage`. Reach for `useStorage` over raw `localStorage` calls whenever you want reactive refs, a shared prefix, TTL expiration, or SSR safety without writing the serialization layer yourself. See [useHydration](/composables/plugins/use-hydration) for coordinating storage reads with SSR hydration.
+The example uses `MemoryStorageAdapter` for isolation; swapping in `localStorage` or `sessionStorage` is a one-line adapter change and makes the panel survive page refreshes. Reach for the storage layer over raw `localStorage` calls whenever you want reactive refs, a shared key prefix, TTL expiration, or SSR safety without hand-writing serialization. With the plugin installed you would call [useStorage](/composables/plugins/use-storage) instead of `createStorage` to share one instance app-wide; see [useHydration](/composables/plugins/use-hydration) and the [plugins guide](/guide/fundamentals/plugins) for coordinating storage reads with SSR hydration.
 
+| File | Role |
+|------|------|
+| `useSettings.ts` | Wraps `createStorage`, exposing persisted `name` and `theme` refs plus the draft buffer and `save` / `forget` / `reset` behavior |
+| `SettingsPanel.vue` | Presentational panel built on `Input` and `Button` that binds the settings and triggers the save and forget actions |
+| `settings-panel.vue` | Entry that instantiates the composable, wires it to the panel, and renders the live stored snapshot |
 :::
 
 <DocsApi />

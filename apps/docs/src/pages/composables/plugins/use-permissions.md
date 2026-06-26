@@ -171,16 +171,27 @@ const canEdit = computed(() => permissions.can(user.role, 'edit', 'post'))
 ## Examples
 
 ::: gn-example
-/composables/use-permissions/role-checker
+/composables/use-permissions/context.ts 1
+/composables/use-permissions/AccessProvider.vue 2
+/composables/use-permissions/Sidebar.vue 3
+/composables/use-permissions/Workspace.vue 4
+/composables/use-permissions/access-control.vue 5
 
-### Role Checker
+### Role-Based Workspace
 
-A permission matrix that maps three roles (`admin`, `editor`, `viewer`) against two subjects (`user`, `post`) and three actions (`read`, `write`, `delete`). Switching the active role re-evaluates every cell immediately, because `can()` is called inside a `toRef` that recomputes whenever `role` changes — no explicit `computed` or watcher needed.
+An RBAC workspace where a single role switcher drives two independent consumers at once. `AccessProvider` builds the permission map with `createPermissionsContext` and provides it under a custom namespace; both `Sidebar` and `Workspace` inject that same context with `usePermissions(NAMESPACE)` and gate their UI through `can()`. Switching roles reflows the navigation (which sections are visible) and the toolbar (which actions are enabled) simultaneously, because each `can()` call lives inside a `toRef` or a method that reads the reactive `role` prop.
 
-The bottom panel surfaces the context-aware edge case: `editor` is denied `delete` on `post` by default, but allowed when `{ isOwner: true }` is passed as the fourth argument to `can()`. This demonstrates how condition callbacks in the permission tuples (`(ctx) => ctx.isOwner === true`) receive the runtime context object and gate access dynamically — without any changes to the role definition.
+The toolbar surfaces the context-aware edge case. An editor is denied `publish` by default, but the permission tuple `['publish', 'documents', context => context.isOwner === true]` re-evaluates dynamically when ownership context is supplied as the fourth argument to `can()`. Toggling the owner switch flips the publish button without touching the role definition — the difference between static role checks (RBAC) and attribute-driven conditions (ABAC).
 
-Reach for this pattern when you need to preview the full access profile of a role at a glance — useful in admin settings panels, permission editors, or audit dashboards. For integrating with a backend auth system rather than static tuples, implement a custom `PermissionsAdapter` that delegates to your existing `can()` API (see the Adapters section above).
+Reach for this provider/consumer split when several disconnected parts of a screen must honor the same access rules — admin shells, document editors, settings panels. The provider owns the rule set once; every descendant reads it through injection rather than threading permissions down as props. To resolve permissions from a backend instead of static tuples, supply a custom [PermissionsAdapter](#adapters); to drive flag-based UI variations the same way, see [useFeatures](/composables/plugins/use-features).
 
+| File | Role |
+|------|------|
+| `context.ts` | Shared namespace, role list, section and action data, and the permission rule map |
+| `AccessProvider.vue` | Creates the permissions context and provides it to the subtree |
+| `Sidebar.vue` | Consumer that filters navigation sections by `can(role, 'view', …)` |
+| `Workspace.vue` | Consumer that enables document actions, including the owner-gated publish check |
+| `access-control.vue` | Entry point that owns the role state and wraps both consumers in the provider |
 :::
 
 <DocsApi />

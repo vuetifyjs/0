@@ -100,14 +100,23 @@ flowchart TD
 ## Examples
 
 ::: gn-example
-/composables/use-popover/anchor-positioning
+/composables/use-popover/useMenu.ts 1
+/composables/use-popover/MenuButton.vue 2
+/composables/use-popover/menu-button.vue 3
 
-### CSS Anchor Positioning
+### Dropdown Menu
 
-A button-triggered panel that positions itself below the activator using the native Popover API and CSS anchor positioning. The example shows the three-part spread: `anchorStyles` goes on the trigger (sets the `anchor-name` CSS property), `contentAttrs` goes on the popover element (sets `id` and the `popover` attribute), and `contentStyles` goes on the popover element (sets `position-anchor` and `position-area`). `attach(content)` wires the native `toggle` event back to `isOpen` so the state stays in sync even if the browser closes the popover on focus-loss or back-navigation.
+A custom account menu built directly on `usePopover`, without the compound Popover component. The composable owns the popover instance and the menu data, the presentational component renders the trigger and the panel, and the entry wires them together and reports the chosen action. This is the shape to reach for when you want full control over a menu, select, or combobox surface rather than the slots and transitions of [Popover](/components/disclosure/popover).
 
-The `positionTry: 'flip-block'` option tells the browser to try flipping to the opposite side when the popover would overflow the viewport — no JavaScript position math required. Call `toggle()` from the button's click handler to open and close programmatically. The status indicator at the bottom reads `isOpen` directly to show the live state. For the full compound-component surface that composes `usePopover` with slots and transitions, see [Popover](/components/disclosure/popover); for a click-outside close handler that pairs naturally with any popover, see [useClickOutside](/composables/system/use-click-outside).
+The example exercises the full three-part spread that `usePopover` returns. `anchorStyles` goes on the trigger, where it sets the CSS `anchor-name` the panel positions against; `contentAttrs` goes on the panel and applies its `id` plus the native `popover` attribute; and `contentStyles` carries the CSS anchor-positioning rules — `position-anchor`, `position-area`, and the `position-try-fallbacks` produced by `positionTry: 'flip-block'`, which lets the browser flip the panel above the trigger when there is no room below, with no JavaScript position math. Because `contentAttrs` registers an auto popover, the browser handles light dismiss for free: clicking outside or pressing Escape closes the panel.
 
+`MenuButton.vue` calls `attach(content)` with a template ref to the panel element. That single call wires the native `toggle` event back into `isOpen`, so when the browser closes the popover on light dismiss the reactive state stays in sync. Selecting an item calls `close()` and records the choice; the trigger reads `isOpen` to rotate its caret. For the close-on-outside-click behavior wired manually rather than through the native popover, see [useClickOutside](/composables/system/use-click-outside); the open and close delays come from [useDelay](/composables/system/use-delay).
+
+| File | Role |
+|------|------|
+| `useMenu.ts` | Creates the popover, owns the menu items, and closes on select |
+| `MenuButton.vue` | Renders the trigger and panel; calls `attach` to sync native state |
+| `menu-button.vue` | Wires the composable to the component and shows the chosen action |
 :::
 
 <DocsApi />

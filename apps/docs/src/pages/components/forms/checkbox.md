@@ -53,34 +53,24 @@ A checkbox for boolean state or multi-selection groups with tri-state support.
 ## Examples
 
 ::: gn-example
-/components/checkbox/group
+/components/checkbox/useInboxSelection.ts 1
+/components/checkbox/InboxList.vue 2
+/components/checkbox/inbox-selection.vue 3
 
-### Checkbox Group
+### Inbox Bulk-Select with Action Bar
 
-`Checkbox.Group` wraps `Checkbox.Root` items and manages multi-selection state via an array-based v-model. Each `Checkbox.Root` registers automatically with the nearest parent group — no wiring required. The group's v-model collects the `value` prop of every checked item.
+An email-style triage list that shows the full multi-select surface working together: `Checkbox.Group` holds an array v-model of selected message ids, each row is a `Checkbox.Root` bound to `:value="email.id"`, and a `Checkbox.SelectAll` header drives the whole list. Selecting a few rows puts the header into its tri-state — checked when every row is selected, empty when none are, and indeterminate when the selection is partial. The `Checkbox.Indicator` inside `SelectAll` reads the `isMixed` slot prop to swap a dash for the checkmark, and the same primary fill is applied to both `data-[state=checked]` and `data-[state=indeterminate]` so the header always reads as "active" against unchecked siblings.
 
-Reach for this pattern whenever you need a list of independent boolean choices — tag pickers, feature toggles, permission sets — and want the aggregate selection as an array. The group handles enrollment and deselection; individual checkboxes still respond to their own `disabled` prop.
+The interesting detail is how little wiring the group needs. `Checkbox.Root` items auto-register with the nearest `Checkbox.Group`, so the v-model array is the single source of truth — the live count, the conditional action bar, and the `archive` / `remove` handlers all derive from that one array. The action bar operates on the selected ids and then clears the selection. Row backgrounds light up through the `has-[[data-state=checked]]` selector rather than a JS-driven class, keeping the styling declarative. For per-item form submission, add a `name` to each `Checkbox.Root` (which auto-renders its hidden input) — see the Form Integration recipe below.
 
+Reach for this whenever a list needs a header "select all" plus per-row toggles and batch actions — mail clients, file managers, data-grid row selection. For the underlying multi-select logic, see [createGroup](/composables/selection/create-group); for the provider primitive the group is built on, see [Group](/components/providers/group); for single-choice variants, see [Radio](/components/forms/radio).
+
+| File | Role |
+|------|------|
+| `useInboxSelection.ts` | Composable — email data, selection array, count, and archive/delete/reset behavior |
+| `InboxList.vue` | Reusable component — renders the `Checkbox.Group` with a tri-state `SelectAll`, per-row `Checkbox.Root` items, and the bulk action bar |
+| `inbox-selection.vue` | Entry — wires the composable to the list and adds the status line + reset chrome |
 :::
-
-::: gn-example
-/components/checkbox/indeterminate
-
-### Select All Pattern
-
-`Checkbox.SelectAll` is a purpose-built sub-component that binds to the group's aggregate tri-state — checked when all items are selected, unchecked when none are, and indeterminate when some are. It calls `toggleAll` internally, so it does not register as a group item and does not appear in the v-model array.
-
-The `Checkbox.Indicator` inside `SelectAll` receives an `isMixed` slot prop you can use to swap between a checkmark and a dash (or any other visual). Use `data-[state=indeterminate]` on the outer element to drive CSS — the example shows how to apply the same primary color to both fully-checked and indeterminate states so the control always stands out against unchecked siblings.
-
-Use this whenever you need a "select all / deselect all" header checkbox above a list of independently toggleable items.
-
-:::
-
-The `SelectAll` component:
-- Binds to the group's `isAllSelected` and `isMixed` state
-- Calls `toggleAll` on click
-- Does NOT register as a group item
-- Sets `aria-checked="mixed"` and `data-state="indeterminate"` when partially selected
 
 ## Recipes
 

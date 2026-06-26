@@ -122,7 +122,7 @@ A full bookmark manager spread across three components, demonstrating `createSel
 
 The consumer exposes tag-based filtering via a local `filter` ref and derived `filtered` computed, select-all and clear-all bulk actions, an add-bookmark form, a pin/unpin button per row, and a live stats bar. All selection mutations go through `bookmarks.toggle()`, `bookmarks.select()`, and `bookmarks.unselect()` — the same API whether you're in the consumer or anywhere else in the tree.
 
-This pattern is the right shape when a selection instance needs to be created in one component but read or mutated in unrelated components below it. Compare to the single-file [File Picker](#file-picker) below for the simpler, no-DI alternative when everything lives in one component.
+This pattern is the right shape when a selection instance needs to be created in one component but read or mutated in unrelated components below it. Compare to the [Playlist Builder](#playlist-builder) below for the no-DI alternative — the same selection API driven from a plain composable, with no provide/inject.
 
 | File | Role |
 |------|------|
@@ -134,17 +134,23 @@ This pattern is the right shape when a selection instance needs to be created in
 :::
 
 ::: gn-example
-/composables/create-selection/file-picker
+/composables/create-selection/useTracklist.ts 1
+/composables/create-selection/TrackList.vue 2
+/composables/create-selection/track-list.vue 3
 
-### File Picker
+### Playlist Builder
 
-A multi-selectable file list showing how `createSelection` handles disabled items, ticket self-methods, and a reactive status bar — all without any external state.
+A multi-select track list with a select-all lever and a bulk "add to queue" action, built on `createSelection` directly — no `createContext`, no provide/inject. State lives in a plain composable and is passed down as a single prop, the simplest way to share a selection instance between two components.
 
-`createSelection({ multiple: true })` is called once; `onboard()` registers eight items in a single pass, passing each file's `disabled` flag directly into the ticket input so the LICENSE entry is inert from the start. The template iterates the returned `tickets` array — each ticket carries `isSelected`, `toggle()`, and `disabled` — so the row click handler and checkbox styling read directly from `ticket.isSelected.value` and `ticket.disabled` with no index lookups. A `computed` over `selection.selectedValues.value` formats the combined size string in the status bar, updating reactively as the selection changes.
+`useTracklist.ts` calls `createSelection({ multiple: true })` once and `onboard()`s seven tracks in a single pass, mapping each track's `unavailable` flag onto the ticket's `disabled` input so the inert row can never be selected. It exposes the returned `tickets` array plus a few derived signals: `count` (a `toRef` over `selectedIds.size`), `allSelected` (a `toRef` that folds every selectable ticket's `isSelected`), and the bulk operations `toggleAll`, `enqueue`, and `clearQueue`. `enqueue()` reads `selection.selectedValues.value` — the reactive Set of selected track objects — then calls `selection.reset()` to clear the selection in one shot.
 
-`selection.reset()` is wired to both the toolbar "Clear" button and the inline "Deselect all" link, demonstrating that the same method works from anywhere. The `Button.Root` component wraps each row to give it accessible keyboard focus and `disabled` semantics without native `<button>` element constraints.
+`TrackList.vue` is purely presentational: it receives the composable's return value as a `tracklist` prop and renders the toolbar and rows, reading `ticket.isSelected.value`, calling `ticket.toggle()` per row, and driving the header checkbox from `allSelected` / `toggleAll`. Reach for this shape when selection state needs to live above the markup but a full context provider would be overkill; when the instance must be reachable from unrelated parts of the tree instead, see the [Bookmark Manager](#bookmark-manager) above for the provide/inject split. Related: [createSingle](/composables/selection/create-single) for single-select and [createGroup](/composables/selection/create-group) for tri-state select-all.
 
-Reach for this pattern when the item list is defined up front and you want each item to manage its own selected state via ticket methods. If the list needs to be shared across components, see the [Bookmark Manager](#bookmark-manager) example above for the provider/consumer split.
+| File | Role |
+|------|------|
+| `useTracklist.ts` | Owns the track data, selection instance, derived signals, and bulk actions |
+| `TrackList.vue` | Presentational list and toolbar driven by the composable's return value |
+| `track-list.vue` | Entry point wiring the composable to the list and rendering the queue summary |
 
 :::
 

@@ -129,16 +129,23 @@ Breakpoints are **range-based**, not exact pixel matches. The `name` is the **hi
 ## Examples
 
 ::: gn-example
-/composables/use-breakpoints/responsive-layout
+/composables/use-breakpoints/useDashboard.ts 1
+/composables/use-breakpoints/DashboardGrid.vue 2
+/composables/use-breakpoints/responsive-dashboard.vue 3
 
-### Responsive Layout Detection
+### Responsive Dashboard Layout
 
-A live instrument panel for viewport state: the active breakpoint name, pixel dimensions, and the `isMobile` boolean update in real time as you resize or zoom. The grid of per-breakpoint flags (`xs` through `xxl`) shows which one is active at a glance.
+This example wires `useBreakpoints` into a live analytics dashboard whose card grid reflows as the viewport changes — one column on phones, scaling up to four columns on wide screens. The instrument strip above the grid reads the reactive `name`, `width`, `height`, and `isMobile` values directly, while the row of chips lights up the active per-breakpoint flag (`xs` through `xxl`). Everything updates automatically as you resize or zoom, with no manual listeners.
 
-The bottom panel is the most diagnostic part. It reads both the JS composable (`name`) and a raw `window.matchMedia` check (`cssBreakpoint`) and flags any disagreement. Under normal conditions they always agree; a mismatch surfaces only when browser zoom rounding causes `window.innerWidth` and `matchMedia` to diverge — exactly the scenario the composable's `matchMedia`-based approach is designed to handle. `window.innerWidth` is shown alongside for comparison.
+The teaching point is making layout decisions in JavaScript. `useDashboard.ts` maps the active breakpoint name to a column count, so the component renders a different structure per breakpoint rather than relying solely on CSS `@media` rules. Reach for this when a layout choice can't be expressed in CSS alone — picking a column count, swapping a menu for a dialog, virtualizing only on small screens, or conditionally mounting an expensive widget. Because detection runs through `window.matchMedia`, the JS flags fire at exactly the same boundaries as your CSS breakpoints, even under browser zoom.
 
-Reach for this when onboarding a new set of custom breakpoints into `createBreakpointsPlugin` — paste in your thresholds and resize to confirm the JS flags and your CSS `@media` rules fire at the same boundaries. For server-side viewport assumptions, see the SSR options below. For a pure CSS-only signal, see [useMediaQuery](/composables/system/use-media-query).
+The composable reads its instance once and exposes derived refs; the presentational `DashboardGrid.vue` translates the column count into a grid class, keeping breakpoint logic out of the markup. The plugin must be installed for reactive updates (see Installation above), and for server rendering pass `ssr` dimensions so the first paint matches the client. For a lower-level, CSS-only signal without named breakpoints, see [useMediaQuery](/composables/system/use-media-query).
 
+| File | Role |
+|------|------|
+| `useDashboard.ts` | Consumes `useBreakpoints`, owns the widget data, and derives the column count plus the active-flag map |
+| `DashboardGrid.vue` | Presentational grid that reflows its columns from the derived count |
+| `responsive-dashboard.vue` | Entry that renders the breakpoint instrument strip and wires the composable to the grid |
 :::
 
 ## SSR Support

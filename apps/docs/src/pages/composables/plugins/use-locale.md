@@ -152,16 +152,23 @@ Locale selection is reactive via `createSingle`. Translation methods return stat
 ## Examples
 
 ::: gn-example
-/composables/use-locale/locale-switcher
+/composables/use-locale/LocaleScope.vue 1
+/composables/use-locale/LocalePanel.vue 2
+/composables/use-locale/locale-scopes.vue 3
 
-### Locale Switcher
+### Nested Locale Scopes
 
-Three locales (English, Spanish, Japanese) registered via `createLocaleContext` with structured message dictionaries. Clicking a language button calls `locale.select(id)` and every translated string re-renders immediately. The example covers all four interpolation forms the built-in `V0LocaleAdapter` supports: named replacement (`{ name }`), positional replacement (`{0}`), multi-placeholder (`{ count, total }`), and nested key lookup (`nav.home`). The number at the bottom is formatted through `locale.n()`, which delegates to `Intl.NumberFormat` using the active locale's BCP 47 code, so separators and decimal points change per locale.
+`createLocaleContext` provides a locale to a subtree via provide/inject instead of installing it app-wide. Because every scope provides under the same injection key, a nested scope shadows its parent: a consumer reads the nearest provider above it, so an embedded widget can run an entirely different language and message set than the page around it. Here the outer shell defaults to English (with Spanish and Japanese) while the inner checkout widget defaults to French (with German), and switching one panel's language never touches the other.
 
-The locale is held in `createSingle` under the hood — `locale.selectedId` is the reactive source of truth that drives all translation calls. `locale.keys()` iterates registered locale IDs for the language buttons without hard-coding them.
+`LocaleScope.vue` is a thin provider — it calls `createLocaleContext` with a `default` locale and a `messages` dictionary, then renders its slot. `LocalePanel.vue` is the consumer: it calls `useLocale()` to resolve whichever scope wraps it and exercises every form the built-in `V0LocaleAdapter` supports — named replacement (`{ name }`), positional replacement (`{0}`), multi-placeholder (`{ count, total }`), and nested key lookup (`nav.home`). The amount line nests `locale.n()` inside `locale.t()`, so the number is formatted by `Intl.NumberFormat` for the active locale before being interpolated into the translated string.
 
-This pattern is the self-contained alternative to the Installation approach: `createLocaleContext` scopes the locale to a subtree via provide/inject instead of installing it app-wide, which is useful for isolated demos and multi-tenant apps where sections can have independent locale contexts. For a vue-i18n integration or a custom adapter, see the Adapters section below. For component-level locale overrides, see the [Locale](/components/providers/locale) component.
+Reach for scoped contexts over the app-wide [Installation](#installation) plugin when sections of a page need independent locales — multi-tenant dashboards, embedded third-party widgets, or isolated docs demos. For a vue-i18n integration or a custom adapter, see the Adapters section below. For component-level locale overrides, see the [Locale](/components/providers/locale) component.
 
+| File | Role |
+|------|------|
+| `LocaleScope.vue` | Provider — creates a locale context from `default` + `messages` props and provides it to its slot |
+| `LocalePanel.vue` | Consumer — injects `useLocale()` and renders the switcher, translations, and number format |
+| `locale-scopes.vue` | Entry — nests a widget scope inside the app scope to show the two read independently |
 :::
 
 ## Adapters

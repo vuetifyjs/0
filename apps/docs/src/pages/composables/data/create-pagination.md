@@ -104,18 +104,25 @@ flowchart LR
 ## Examples
 
 ::: gn-example
-/composables/create-pagination/paginated-list
+/composables/create-pagination/usePaginatedList.ts 1
+/composables/create-pagination/PaginatedTable.vue 2
+/composables/create-pagination/paginated-list.vue 3
 
 ### Paginated List
 
-A 47-item list split into pages of 6, with First / Prev / numbered pages / Next / Last controls and a live status line showing the current range.
+A 47-row employee directory split into pages, with a rows-per-page selector, First / Prev / numbered pages / Next / Last controls, and a live "showing X–Y of Z" readout. The composable owns the dataset and pagination math; the table component is purely presentational; the entry wires the two together and renders the status line.
 
-The pagination is created once with `{ size: 47, itemsPerPage: 6 }`. The visible slice is a `computed` that reads `pageStart.value` and `pageStop.value` and calls `Array.slice` — no adapter, no data table, just the two index getters. This is the canonical pattern for paginating a plain array: `createPagination` owns the math, your `computed` owns the slice.
+The composable creates the instance once with a reactive `itemsPerPage` — a `shallowRef` passed straight into the options, so changing rows-per-page recomputes `pages`, `items`, `pageStart`, and `pageStop` automatically. The visible slice is a single `computed` that reads `pageStart.value` and `pageStop.value` and calls `Array.slice` — no adapter, no data table, just the two index getters. This is the canonical pattern for paginating a plain in-memory array: `createPagination` owns the math, your `computed` owns the slice, and `resize` resets to the first page after a size change.
 
-The page-button strip iterates `pagination.items.value`, which returns `PaginationTicket[]` — each is either `{ type: 'page', value: number }` or `{ type: 'ellipsis', value: '…' }`. The template branches on `item.type` and calls `pagination.select(item.value)` on click. First / Prev / Next / Last buttons bind their `disabled` prop to `isFirst.value` or `isLast.value` and call the matching navigation method directly.
+The page-button strip iterates `pagination.items.value`, which returns `PaginationTicket[]` — each is either `{ type: 'page', value: number }` or `{ type: 'ellipsis', value: '…' }`. The template branches on `item.type` and calls `pagination.select(item.value)` on click, while First / Prev / Next / Last bind their `disabled` prop to `isFirst.value` or `isLast.value` and call the matching navigation method directly.
 
-Reach for this standalone composable when you already have a full in-memory array and only need page navigation — no sorting or filtering required. For a full data pipeline with sorting, filtering, and server-side support, see [createDataTable](/composables/data/create-data-table). For the pre-built `Pagination` component that wraps this composable, see [Pagination](/components/semantic/pagination).
+Reach for this standalone composable when you already have a full in-memory array and only need page navigation — no sorting or filtering required. For a full data pipeline with sorting, filtering, and server-side support, see [createDataTable](/composables/data/create-data-table). For the pre-built Pagination component that wraps this composable, see [Pagination](/components/semantic/pagination).
 
+| File | Role |
+|------|------|
+| `usePaginatedList.ts` | Owns the dataset, the reactive page size, the pagination instance, and the visible-slice computed |
+| `PaginatedTable.vue` | Presentational table: renders rows, the rows-per-page selector, and the navigation controls |
+| `paginated-list.vue` | Entry — calls the composable, renders the table, and shows the range readout |
 :::
 
 <DocsApi />

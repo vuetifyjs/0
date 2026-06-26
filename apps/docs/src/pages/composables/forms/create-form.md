@@ -142,16 +142,25 @@ Form-level state is fully reactive.
 ## Examples
 
 ::: gn-example
-/composables/create-form/contact-form
+/composables/create-form/context.ts 1
+/composables/create-form/ContactProvider.vue 2
+/composables/create-form/ContactForm.vue 3
+/composables/create-form/contact-form.vue 4
 
 ### Contact Form
 
-A three-field contact form (name, email, message) where each field owns its own `createValidation` instance and registers with the form manually via `form.register()`. Submitting calls `form.submit()`, which runs every registered validation in parallel and returns a boolean that the example uses to decide whether to show the success state.
+A three-field contact form (name, email, message) wired entirely by hand — no [Form component](/components/forms/form), no [Input](/components/forms/input). A thin provider creates the form with `createForm()` and shares it through [createContext](/composables/foundation/create-context), so the form is owned at one boundary and consumed below. The consumer builds a `createValidation` per field, binds each to a value getter, and registers it with `form.register({ value })`. This is the raw coordination path: the form is a pure registry of validations, and the consumer drives it directly.
 
-The aggregate `form.isValid` reflects tri-state logic: `null` before any submission, `true` when all validations pass, `false` when at least one fails. The status bar at the bottom reads this ref through a `toRef` derivation so it updates reactively as the user corrects errors. `form.reset()` re-arms all validations to `null` and the caller is responsible for clearing the value refs separately — that split is intentional, since the form composable never holds values directly.
+Submitting calls `form.submit()`, which runs every registered validation in parallel and resolves to a boolean the example uses to gate the success state. The aggregate `form.isValid` is tri-state — `null` before the first submit, `true` when all fields pass, `false` when any fails — read through a `toRef` derivation so the status bar tracks it reactively, while `form.isValidating` disables the submit button during async rules. `form.size` reports how many validations are registered.
 
-This pattern (manual `register` calls) is the non-component path. When validations are created inside a component tree that has a parent form context, auto-registration replaces `form.register()` entirely. See the [createFormContext](/composables/forms/create-form#context--di) section for the DI path. The [Form component](/components/forms/form) wraps both paths behind a single compound-component API if you don't need raw composable access.
+Because `createForm` never holds field values itself, `form.reset()` only re-arms the validations to `null`; the consumer clears its own value object separately. That split is deliberate and is the main tradeoff of the composable path versus the component path. Reach for this when you need a custom field surface or non-standard layout; if you don't need raw access, the [Form component](/components/forms/form) wraps registration, submit, and reset behind a single compound API, and validations created inside its tree auto-register via the [createFormContext](/composables/forms/create-form#context--di) injection — no manual `form.register()` at all. See [createValidation](/composables/forms/create-validation) for per-field rule details.
 
+| File | Role |
+|------|------|
+| `context.ts` | Creates the form context tuple and a `createContactForm` factory |
+| `ContactProvider.vue` | Creates the form and provides it to the subtree |
+| `ContactForm.vue` | Injects the form, registers a validation per field, renders inputs and aggregate state |
+| `contact-form.vue` | Entry point wrapping the provider around the consumer |
 :::
 
 <DocsApi />

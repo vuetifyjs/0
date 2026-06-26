@@ -126,20 +126,23 @@ flowchart LR
 ## Examples
 
 ::: gn-example
-/composables/create-virtual/basic
+/composables/create-virtual/useDirectory.ts 1
+/composables/create-virtual/VirtualDirectory.vue 2
+/composables/create-virtual/directory.vue 3
 
-### 10,000-Item Virtual List
+### Virtualized Employee Directory
 
-A 10,000-item list that mounts only the rows visible in its 300 px scroll container at any given moment — typically under 15 nodes — regardless of how many items the source array holds.
+A 10,000-row employee directory that mounts only the rows visible inside its scroll container — typically under twenty nodes — no matter how large the source array grows. The toolbar reads out how many rows are rendered versus the total, so you can watch the render count stay in the low double digits while the dataset balloons.
 
-`createVirtual(items, { itemHeight: 40 })` returns `element`, `items` (the visible slice), `offset` (top-spacer height), `size` (bottom-spacer height), `scroll`, and `scrollTo`. The template wires `ref="element"` to the scroll container, uses `@scroll="scroll"` to notify the composable on each scroll event, and sandwiches the rendered items between two spacer `<div>`s sized by `offset` and `size` — this is how the browser's native scrollbar stays proportional to the full list without rendering all rows.
+`createVirtual(rows, { itemHeight: 44 })` returns `element`, `items` (the visible slice, each `{ raw, index }`), `offset` (top-spacer height), `size` (bottom-spacer height), `scroll`, and `scrollTo`. The view component binds `ref="element"` to the scroll container, calls `@scroll="scroll"` to schedule a visible-range recalculation, and sandwiches the rendered rows between two spacer elements sized by `offset` and `size` — that pair of spacers is what keeps the native scrollbar proportional to the full list without ever mounting every row. The jump control is a [NumberField](/components/forms/number-field) whose value drives `scrollTo(index, { behavior: 'smooth' })`, with the index bounded by the v0 `clamp` utility so it can never point past the data.
 
-The Jump to input calls `scrollTo(index)` by item number, which snaps the viewport to that row. The Add 100 button appends new items by replacing `items.value` with a new array; the virtual scroller picks up the change because it watches the source ref.
+The example is split so each layer is reusable in isolation. `useDirectory.ts` is a DOM-free data source that owns the row array and a grow operation; `VirtualDirectory.vue` accepts any `rows` array and applies the windowing — `createVirtual` watches the reactive prop, so appending rows reflows the scroller automatically. Reach for `createVirtual` whenever rendering the whole list would cause layout thrash or memory pressure (rule of thumb: 500+ fixed-height rows, fewer when each row is complex). For variable-height rows call `resize(index, height)` after each row measures itself; to filter or sort before virtualizing, pair it with [createFilter](/composables/data/create-filter) or [createDataTable](/composables/data/create-data-table).
 
-The stats line in the toolbar shows how many rows are currently rendered versus the total. On a typical desktop viewport the render count stays in the single digits no matter how many items are in the list.
-
-Reach for `createVirtual` whenever rendering the full list would cause layout thrash or memory pressure — rule of thumb is 500+ items at fixed height, lower when items are complex. For variable-height items use `resize(index, height)` to notify the composable after each row measures itself. For filtering and sorting before virtualization see [createDataTable](/composables/data/create-data-table) with `VirtualDataTableAdapter`.
-
+| File | Role |
+|------|------|
+| `useDirectory.ts` | DOM-free data source: owns the 10,000-row array and an append operation |
+| `VirtualDirectory.vue` | Applies `createVirtual` to the rows prop; renders the windowed list, jump control, and rendered-vs-total stat |
+| `directory.vue` | Entry: wires the data source to the view and adds the grow-dataset chrome |
 :::
 
 <DocsApi />
