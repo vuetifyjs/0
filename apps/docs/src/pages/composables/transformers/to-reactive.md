@@ -74,4 +74,22 @@ Reach for `toReactive` when you have a `ref`-wrapped object and want to eliminat
 
 :::
 
+## FAQ
+
+::: faq
+
+??? Do writes to the proxy update the underlying ref?
+
+Yes. Setting a property on the proxy writes through to the source `ref.value`, so `watch` on the original ref still fires and other consumers see the change.
+
+??? Does toReactive work with Map and Set?
+
+Yes. `get`, `set`, and iteration over `Map` and `Set` (and array index access) all unwrap ref values stored inside them.
+
+??? Why would I use this for a composable's return value?
+
+Returning `toReactive(ref({ name: '', age: 0 }))` lets callers read `state.name` instead of `state.name.value`, keeping the consuming code free of `.value` noise while staying reactive.
+
+:::
+
 <DocsApi />

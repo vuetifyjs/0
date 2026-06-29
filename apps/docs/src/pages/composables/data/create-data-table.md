@@ -454,4 +454,34 @@ table.grouping.openAll()
 table.grouping.closeAll()
 ```
 
+## FAQ
+
+::: faq
+
+??? Which adapter should I use?
+
+The default `ClientDataTableAdapter` runs filter, sort, and paginate client-side. Switch to `ServerDataTableAdapter` when your API owns those operations, or `VirtualDataTableAdapter` to skip pagination and feed all sorted rows to [createVirtual](/composables/data/create-virtual).
+
+??? Why doesn't mutating a row object in place update the table?
+
+The row registry is non-reactive so registering thousands of rows allocates no per-row proxies. Update a row with `table.upsert(id, { value })`, which re-runs the pipeline — mutating `ticket.value` directly does not.
+
+??? Can I add or remove columns after the table is created?
+
+Yes. Columns are a registry — call `table.columns.register(...)`, `unregister(id)`, or `clear()` at any time, and `leaves`, `headers`, sort state, and the filter pipeline all react.
+
+??? What's the difference between the `page` and `all` select strategies?
+
+With `selectStrategy: 'page'` (default) `selectAll` / `toggleAll` act on the visible page; `'all'` acts on every filtered item; `'single'` allows one row at a time. Pair it with `itemSelectable` to disable selection for rows where a named field is falsy.
+
+??? How do I enable multi-column sorting?
+
+Pass `sortMultiple: true`. `sort.toggle(id)` then stacks columns by priority — read `sort.order` for the priority array and `sort.columns` for the active `{ key, direction }` entries.
+
+??? How do I group rows by a column?
+
+Pass `groupBy: 'department'` (add `openAll: true` to expand every group on creation). Read `grouping.groups` for the grouped items, and call `grouping.toggle(key)` / `grouping.isOpen(key)` to drive collapsible group rows.
+
+:::
+
 <DocsApi />

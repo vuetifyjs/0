@@ -227,4 +227,26 @@ The `persist` return value is stored under the plugin namespace key (e.g. `v0:th
 | `createRtlPlugin` | RTL direction | `v0:rtl` |
 | `createLocalePlugin` | Selected locale | `v0:locale` |
 
+## FAQ
+
+::: faq
+
+??? When should I use `createPluginContext` instead of `createPlugin`?
+
+`createPluginContext` generates the full `[createXContext, createXPlugin, useX]` tuple from a factory function — use it for most plugins. Drop to `createPlugin` directly only when you need fine-grained control over setup, or are composing with an existing [createContext](/composables/foundation/create-context) instance.
+
+??? What's the difference between the `provide` and `setup` hooks?
+
+`provide` is for DI context — it calls your `provideXContext()`. `setup` is for everything else: side effects like watchers, adapters, and globals. They're separated for semantic clarity.
+
+??? How do I persist plugin state across page reloads?
+
+Add `persist` and `restore` hooks to the plugin config and have consumers opt in with `persist: true`. The plugin reads and writes through `useStorage` under the plugin namespace, calling `restore` with the saved value before `setup` runs so adapters never flash wrong values.
+
+??? Why does my `default` option seem ignored after a reload?
+
+With `persist: true`, a previously persisted value wins on load — `default` is only used when no persisted value exists yet. `restore` runs before `setup` and applies the saved value, so `default` is the true fallback, not an override.
+
+:::
+
 <DocsApi />

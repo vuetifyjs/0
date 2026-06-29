@@ -121,4 +121,22 @@ When `renderless` is set, the component does not render a wrapper element. Inste
 </template>
 ```
 
+## FAQ
+
+::: faq
+
+??? Does `<Locale>` change my whole app's locale?
+
+No. It only overrides the active locale for its subtree — descendant `useLocale()`, `t()`, and `n()` calls resolve to the scoped locale, and the rest of the app is unaffected. Set the app-wide default in `createLocalePlugin`.
+
+??? Do nested `<Locale>` overrides stack or resolve independently?
+
+Each scope is independent. A `<Locale locale="fr">` subtree resolves all translations against the French messages even when nested inside another override, and each level sees only its nearest ancestor's scope.
+
+??? How do I scope a locale without adding a wrapper element?
+
+Set `renderless` and bind the `attrs` slot prop (which includes `data-locale` and `lang`) to your own element.
+
+:::
+
 <DocsApi />

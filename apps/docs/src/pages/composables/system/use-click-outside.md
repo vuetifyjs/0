@@ -116,4 +116,26 @@ useClickOutside([trigger, panel], () => {
 
 The `target` parameter accepts `MaybeArray<ClickOutsideTarget>` — a single ref/getter or an array of refs/getters.
 
+## FAQ
+
+::: faq
+
+??? Why isn't a click on my native `<dialog>` backdrop detected?
+
+Backdrop clicks report the `<dialog>` itself as the event target, so DOM-containment checks always pass. Pass `{ bounds: true }` to switch to bounding-rect detection, which tests the click coordinates against the element's rectangle instead.
+
+??? How do I keep my trigger button from dismissing its own panel?
+
+Pass an array of targets — `useClickOutside([trigger, panel], cb)` — and clicks inside either are treated as inside. Alternatively wrap the trigger and panel in one element and pass that single ref.
+
+??? Why doesn't a drag that ends outside the element fire the callback?
+
+Detection is two-phase (`pointerdown` → `pointerup`) and both must land outside. A drag that starts inside and releases outside is ignored, which keeps text selection and slider drags from triggering a false dismiss.
+
+??? How do I temporarily suspend outside-click detection?
+
+Call `pause()` to stop detection while preserving state, then `resume()` to re-enable it; `stop()` removes the listeners for good. `isActive` reflects whether detection is currently running.
+
+:::
+
 <DocsApi />

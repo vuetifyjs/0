@@ -153,4 +153,30 @@ The timer clears on scope disposal — no manual cleanup needed:
 const timer = useTimer(handler, { duration: 1000 })
 ```
 
+## FAQ
+
+::: faq
+
+??? What's the difference between useTimer and useRaf?
+
+`useTimer` is a `setTimeout`-based delay or interval with pause/resume and remaining-time tracking — reach for it for user-facing delays like auto-dismiss or cooldowns. [useRaf](/composables/system/use-raf) throttles a callback to animation frames, for per-frame work like scroll or animation updates.
+
+??? Does pausing lose the remaining time?
+
+No. `pause()` captures the remaining budget and `resume()` continues from exactly where it left off, not from the full duration.
+
+??? What happens if I call start() while the timer is already running?
+
+It restarts from the full duration. A timer started for 5s that you `start()` again after 2s will fire 5s later, not 3s.
+
+??? How do I make the timer repeat instead of firing once?
+
+Pass `repeat: true`. By default the timer is one-shot — it fires once and `isActive` becomes `false`; with `repeat` it restarts after each fire until you call `stop()`.
+
+??? What replaced the old debounce utility?
+
+`useTimer` did. It provides the same delay behavior plus pause/resume, repeat support, and automatic cleanup on scope disposal.
+
+:::
+
 <DocsApi />

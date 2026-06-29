@@ -89,6 +89,8 @@ AlertDialog uses `role="alertdialog"` instead of `role="dialog"`, signaling to a
 
 Focus moves to the Cancel button on open, as it represents the safest action. This follows the WAI-ARIA alertdialog pattern where destructive actions should not receive initial focus.
 
+## FAQ
+
 ::: faq
 
 ??? How is AlertDialog different from Dialog?

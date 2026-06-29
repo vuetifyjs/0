@@ -180,6 +180,8 @@ Increment and Decrement buttons use `tabindex="-1"` to keep them out of the tab 
 | `End` | Set to maximum |
 | `Enter` | Commit the typed value |
 
+## FAQ
+
 ::: faq
 
 ??? How does formatting work?

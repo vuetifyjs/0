@@ -101,6 +101,8 @@ Rating.Root provides `role="slider"` with `aria-valuenow`, `aria-valuemin`, `ari
 | `data-disabled` | present/absent | Inherited from root |
 | `data-readonly` | present/absent | Inherited from root |
 
+## FAQ
+
 ::: faq
 
 ??? How do I use custom icons instead of text characters?

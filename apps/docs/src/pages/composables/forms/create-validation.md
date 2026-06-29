@@ -231,4 +231,30 @@ Reach for this pattern when you need validation on a control the `Input` compone
 | `email-field.vue` | Entry — wires the composable to the field and shows a live validation-state panel |
 :::
 
+## FAQ
+
+::: faq
+
+??? Can I use a Zod or Valibot schema as a rule?
+
+Yes. Any [Standard Schema](https://standardschema.dev)-compliant schema works without an adapter — pass the schema object directly in `rules` and it's auto-detected alongside function rules and alias strings.
+
+??? How do I check validity without showing errors in the UI?
+
+Pass `silent` as the second argument: `validate(value, true)`. It returns the boolean result while leaving `errors` and `isValid` unchanged.
+
+??? How does createValidation differ from createForm?
+
+createValidation owns one input's rules and validity state; [createForm](/composables/forms/create-form) is a registry that coordinates `submit` and `reset` across many validations. A validation created inside a form's tree auto-registers with it.
+
+??? How do I turn a rule off without removing it?
+
+Each rule is a `createGroup` ticket — call `unselect()` on it to deactivate (so `validate()` skips it) and `select()` to re-enable. Register rules inactive from the start with `enroll: false`.
+
+??? What happens if a new validation starts before the previous async one finishes?
+
+The stale result is discarded. Async validation uses a generation counter, so only the latest `validate()` call updates `errors` and `isValid` — a second blur while a check is pending won't clobber the state with an outdated result.
+
+:::
+
 <DocsApi />

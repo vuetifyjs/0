@@ -120,6 +120,8 @@ Reach for this pattern when you need numeric input with custom markup the compon
 | `order-calculator.vue` | Wires the composable to two steppers and shows the live total |
 :::
 
+## FAQ
+
 ::: faq
 
 ??? How does parsing handle different locales?

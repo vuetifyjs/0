@@ -151,4 +151,30 @@ Reach for this pattern whenever you have a fixed in-memory dataset and want inst
 | `product-browser.vue` | Entry point — instantiates the composable and wires its state into the browser component |
 :::
 
+## FAQ
+
+::: faq
+
+??? What's the difference between `some` and `union` mode?
+
+Both pass when any query matches, but `some` tests each field value independently while `union` joins all values into a single string first. The distinction matters when a match spans multiple fields.
+
+??? How do I limit filtering to specific object fields?
+
+Pass `keys: ['name', 'email']` in the options. When `keys` is omitted, every value on the item is checked.
+
+??? When should I use createFilter vs createDataTable?
+
+createFilter is pure in-memory filtering logic — reach for it for instant client-side search. When the dataset outgrows memory, or you also need sorting, pagination, and server support, move to [createDataTable](/composables/data/create-data-table).
+
+??? How do I replace the built-in matching with my own logic?
+
+Pass a `customFilter: (query, item) => boolean` predicate. It bypasses `keys` and `mode` entirely, so you own the comparison — e.g. a `startsWith` prefix match instead of the default substring check.
+
+??? Why don't the filter modes change anything for a single-string query?
+
+`mode` only governs how *multiple* queries match, so it takes effect when the query is an array. Split a multi-word string into an array (e.g. on whitespace) to make `some`, `every`, `union`, and `intersection` behave differently.
+
+:::
+
 <DocsApi />

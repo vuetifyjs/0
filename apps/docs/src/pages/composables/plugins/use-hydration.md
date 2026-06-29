@@ -119,4 +119,22 @@ const { isHydrated } = useHydration()
 > [!TIP]
 > The fallback is also what SSR-aware composables like `useResizeObserver` use internally — they call `useHydration()` to defer observation until after hydration, but work correctly even in environments where the plugin isn't installed.
 
+## FAQ
+
+::: faq
+
+??? What's the difference between `isHydrated` and `isSettled`?
+
+`isHydrated` flips true once the root component mounts — use it to gate browser-only features. `isSettled` flips true one tick later, after the browser has painted; gate CSS transitions and animations on it so the first frame isn't suppressed.
+
+??? Why do both refs start `true` when I haven't installed the plugin?
+
+Without `createHydrationPlugin`, `useHydration()` returns a fallback context where both `isHydrated` and `isSettled` are immediately `true`. This lets `isHydrated`-gated components work in client-only apps with no setup.
+
+??? How do SSR-aware composables like useResizeObserver use this?
+
+They call `useHydration()` internally to defer observation until after hydration, avoiding mismatches. The same fallback means they still work even when the plugin isn't installed.
+
+:::
+
 <DocsApi />

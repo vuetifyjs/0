@@ -154,4 +154,30 @@ Reach for `useTheme` when you need to read the active theme's colors in script (
 
 :::
 
+## FAQ
+
+::: faq
+
+??? Which theme adapter should I use for an SSR or static-generated app?
+
+Use `V0UnheadThemeAdapter` (from `@vuetify/v0/theme/adapters/unhead`) — it renders the correct `data-theme` and `<style>` in the initial HTML via Unhead, avoiding a flash of the wrong theme on hydration. The default `V0StyleSheetThemeAdapter` is SPA-only.
+
+??? Can I register themes at runtime instead of at install?
+
+Yes — `theme.register({ id, dark, colors })` adds a theme after install (e.g. from user preferences). Registering an existing id is a no-op, so guard with `theme.has(id)` and fall through to `theme.select(id)`.
+
+??? When should I use useTheme vs the Theme provider?
+
+useTheme manages the app-wide theme. Reach for the [Theme](/components/providers/theme) provider when a subtree needs its own independent theme isolated from the rest of the app.
+
+??? How do I toggle between two themes when more are registered?
+
+`cycle()` with no arguments advances through every registered theme in insertion order; pass an array — `cycle(['light', 'dark'])` — to restrict the rotation to a subset. Use `select(id)` to jump straight to a specific theme.
+
+??? How do themes share a common palette?
+
+Register each theme's colors as token aliases that reference shared palette tokens, resolved through [createTokens](/composables/registration/create-tokens). Changing one palette shade then propagates to every theme that references it, instead of editing each theme's colors by hand.
+
+:::
+
 <DocsApi />

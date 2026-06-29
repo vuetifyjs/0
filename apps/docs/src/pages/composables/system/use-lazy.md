@@ -129,4 +129,22 @@ The `onAfterLeave` callback resets the lazy state after the leave transition com
 
 This allows memory to be reclaimed when the content is hidden, while preserving the content during the leave animation.
 
+## FAQ
+
+::: faq
+
+??? What's the difference between useLazy and usePresence?
+
+useLazy defers a subtree's first mount until it's activated, and can tear it back down later. [usePresence](/composables/system/use-presence) orchestrates enter and leave animations for content that is already mounting. Reach for useLazy to skip render cost, usePresence to animate transitions.
+
+??? How do I reclaim memory when lazy content closes?
+
+Wire `onAfterLeave` into a `Transition`'s `@after-leave`. It resets `isBooted` once the leave animation finishes, so the subtree unmounts — at the cost of re-mounting on the next open. Omit it to keep content alive after first boot.
+
+??? Can I render the content immediately and bypass the lazy gate?
+
+Yes — pass `{ eager: true }` and `hasContent` is always `true`. `eager` also accepts a ref or getter, so you can drive lazy behavior from a prop.
+
+:::
+
 <DocsApi />

@@ -104,4 +104,30 @@ This component-query pattern is the key use case for `useResizeObserver` over CS
 
 :::
 
+## FAQ
+
+::: faq
+
+??? When should I use useResizeObserver instead of a CSS media query?
+
+Use it for component (container) queries — when an element's layout depends on its own measured width rather than the viewport. A media query only reacts to the global viewport, so the same component placed in a narrow column won't adapt.
+
+??? How do I pause observing without tearing the observer down?
+
+Call `pause()` to stop receiving callbacks and `resume()` to continue with the same observer. Use `stop()` only when you want to disconnect permanently.
+
+??? Can I read width and height without writing a callback?
+
+Yes. `useElementSize` builds on `useResizeObserver` and exposes reactive `width` and `height` refs directly.
+
+??? What's the difference between useResizeObserver and useIntersectionObserver?
+
+`useResizeObserver` reports an element's size changes; [useIntersectionObserver](/composables/system/use-intersection-observer) reports when it enters or leaves the viewport. Reach for resize when layout depends on measured dimensions, intersection when it depends on visibility.
+
+??? How do I measure the border-box instead of the content-box?
+
+Pass `box: 'border-box'`. The default `'content-box'` excludes padding and borders; `'border-box'` includes them.
+
+:::
+
 <DocsApi />

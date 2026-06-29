@@ -74,4 +74,22 @@ Reach for single-open mode when answers are long and you want the reader focused
 | `faq-accordion.vue` | Wires the composable to the accordion and adds the status line and collapse control |
 :::
 
+## FAQ
+
+::: faq
+
+??? How do I allow multiple panels to stay open at once?
+
+By default the Group is single-open. Add `multiple` to `ExpansionPanel.Group` and bind its `v-model` to an array — it's built on [createSelection](/composables/selection/create-selection), so the same `mandatory` and `enroll` options apply.
+
+??? When should I use ExpansionPanel instead of Collapsible?
+
+ExpansionPanel coordinates a set of sibling panels — opening one can collapse the others. For a single standalone disclosure with no sibling coordination, reach for [Collapsible](/components/disclosure/collapsible) instead.
+
+??? How do I rotate the chevron when a panel opens?
+
+`ExpansionPanel.Cue` emits `data-state="open"` / `data-state="closed"` on its element. Style it with a data-attribute utility like `data-[state=open]:rotate-180` — no JavaScript class toggling needed.
+
+:::
+
 <DocsApi />

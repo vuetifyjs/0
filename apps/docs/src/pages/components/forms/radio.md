@@ -145,6 +145,8 @@ Arrow keys provide circular navigation within a radio group:
 
 Navigation automatically skips disabled items and wraps around.
 
+## FAQ
+
 ::: faq
 
 ??? How do I make a radio option mandatory?

@@ -132,6 +132,8 @@ Collapsible follows the [WAI-ARIA Disclosure pattern](https://www.w3.org/WAI/ARI
 
 All three sub-components expose `data-state="open"` or `data-state="closed"` for CSS-driven styling without JavaScript. The Root and Activator also expose `data-disabled` when the `disabled` prop is set.
 
+## FAQ
+
 ::: faq
 
 ??? When should I use `data-state` vs slot props for styling?

@@ -406,30 +406,29 @@ When switching locales via `useLocale`, the date adapter automatically updates i
 
 ## FAQ
 
-### Known Limitations
+::: faq
 
-- **parse() format parameter**: The `parse()` method's format parameter is currently ignored. The Temporal API doesn't provide built-in format parsing. The method delegates to `date()` which handles ISO 8601 strings. For custom format parsing, use a library like date-fns or luxon with a custom adapter.
+??? Why does parse()'s format parameter seem to be ignored?
 
-#### SSR and Hydration
+The `parse()` method's format parameter is currently ignored — the Temporal API doesn't provide built-in format parsing, so the method delegates to `date()`, which handles ISO 8601 strings. For custom format parsing, use a library like date-fns or luxon with a [custom adapter](#custom-adapters).
 
-> [!WARNING]
-> Date formatting can cause hydration mismatches in SSR applications. Server and client environments may produce different formatted output due to timezone differences.
+??? Why do my formatted dates differ between the server and the client?
 
-**SSR Behavior for `adapter.date()`:**
-- Browser: Returns current time via `Temporal.Now.plainDateTimeISO()`
-- Server: Returns epoch (1970-01-01T00:00:00) for deterministic rendering
+Date formatting can cause hydration mismatches in SSR applications because the server and client environments may produce different formatted output. Two effects are at play:
 
-This is intentional to prevent hydration mismatches. For SSR apps needing current time, pass `Date.now()` explicitly.
+- **`adapter.date()` is environment-dependent by design.** In the browser it returns the current time via `Temporal.Now.plainDateTimeISO()`; on the server it returns the epoch (`1970-01-01T00:00:00`) for deterministic rendering. This is intentional, to prevent hydration mismatches — if an SSR app needs the current time, pass `Date.now()` explicitly.
+- **`Intl.DateTimeFormat` uses the system timezone.** Server environments (often UTC) and client browsers (the user's local timezone) produce different formatted strings.
 
-**Timezone-dependent formatting:** `Intl.DateTimeFormat` uses the system timezone. Server environments (often UTC) and client browsers (user's local timezone) produce different formatted strings.
+??? How do I avoid date hydration mismatches in SSR?
 
-**Solutions:**
+Pick whichever fits your setup:
+
 1. **Nuxt/SSR:** Wrap formatted dates in `<ClientOnly>`:
    ```vue
    <template>
      <ClientOnly>
-      <span>{{ adapter.format(date, 'fullDate') }}</span>
-    </ClientOnly>
+       <span>{{ adapter.format(date, 'fullDate') }}</span>
+     </ClientOnly>
    </template>
    ```
 
@@ -451,6 +450,20 @@ This is intentional to prevent hydration mismatches. For SSR apps needing curren
    </script>
    ```
 
-3. **Server timezone:** Set `TZ=UTC` environment variable on your server for consistent baseline
+3. **Server timezone:** Set `TZ=UTC` environment variable on your server for consistent baseline.
+
+??? Do I need to install the Temporal polyfill?
+
+Only if a runtime you target lacks native Temporal. `V0DateAdapter` prefers the runtime's native implementation and falls back to [@js-temporal/polyfill](https://www.npmjs.com/package/@js-temporal/polyfill) when it's missing — once every target ships native Temporal, the polyfill is no longer required.
+
+??? Can I use date-fns, luxon, or dayjs instead of Temporal?
+
+Yes. The adapter pattern decouples date operations from the library — extend `DateAdapter<T>` (the page's `DateFnsAdapter` shows the shape) and pass it as the `adapter` option to `createDatePlugin`. Only `V0DateAdapter` ships built-in; other libraries need a custom adapter.
+
+??? What's the difference between `format()` and `formatByString()`?
+
+`format()` takes a named preset (`fullDate`, `shortDate`, `monthAndYear`, …) and is locale-aware. `formatByString()` takes an explicit token string (`YYYY-MM-DD`, `HH:mm`, …) for exact, hand-built output. Reach for presets first; drop to tokens when you need a specific layout.
+
+:::
 
 <DocsApi />
