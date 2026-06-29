@@ -655,12 +655,14 @@ describe('snackbar', () => {
         slots: { default: () => h('div', { class: 'snack' }) },
         attachTo: document.body,
       })
-      await nextTick()
-      expect(dialogEl.querySelector('.snack')).not.toBeNull()
-
-      wrapper.unmount()
-      modal.unselect()
-      dialogEl.remove()
+      try {
+        await nextTick()
+        expect(dialogEl.querySelector('.snack')).not.toBeNull()
+      } finally {
+        wrapper.unmount()
+        modal.unselect()
+        dialogEl.remove()
+      }
     })
 
     it('still renders inline with teleport=false', () => {

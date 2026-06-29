@@ -365,12 +365,14 @@ describe('portal', () => {
         slots: { default: () => h('div', { class: 'portaled' }) },
         attachTo: document.body,
       })
-      await nextTick()
-      expect(dialogEl.querySelector('.portaled')).not.toBeNull()
-
-      wrapper.unmount()
-      modal.unselect()
-      dialogEl.remove()
+      try {
+        await nextTick()
+        expect(dialogEl.querySelector('.portaled')).not.toBeNull()
+      } finally {
+        wrapper.unmount()
+        modal.unselect()
+        dialogEl.remove()
+      }
     })
 
     it('falls back to body when no modal is open', async () => {
@@ -379,9 +381,12 @@ describe('portal', () => {
         slots: { default: () => h('div', { class: 'portaled-body' }) },
         attachTo: document.body,
       })
-      await nextTick()
-      expect(document.body.querySelector('.portaled-body')).not.toBeNull()
-      wrapper.unmount()
+      try {
+        await nextTick()
+        expect(document.body.querySelector('.portaled-body')).not.toBeNull()
+      } finally {
+        wrapper.unmount()
+      }
     })
   })
 })
