@@ -84,7 +84,7 @@ flowchart LR
 
 ### Plugin Trinity
 
-When building a Vue plugin, use [`createPluginContext`](/composables/foundation/create-plugin) instead of wiring `createContext + createTrinity` manually. It generates the same trinity tuple from a factory function with far less boilerplate:
+When building a Vue plugin, use [createPluginContext](/composables/foundation/create-plugin) instead of wiring `createContext + createTrinity` manually. It generates the same trinity tuple from a factory function with far less boilerplate:
 
 ```ts no-filename
 // Manual (createTrinity) — needed for non-plugin state
