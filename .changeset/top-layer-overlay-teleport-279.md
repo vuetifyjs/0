@@ -9,3 +9,4 @@ A native modal `<dialog>` (`showModal()`) is promoted to the browser **top layer
 - `Snackbar.Portal` now defaults `teleport` to `'top-layer'`, mounting into the topmost open modal `<dialog>` when one is open and falling back to `body` otherwise. `teleport="body"` (always body) and `:teleport="false"` (render inline) remain escape hatches.
 - `Portal` accepts a new `to="top-layer"` token that resolves to the topmost modal element, or `body` when no modal is open.
 - `useStack` exposes a new `topElement` context field and an `el` option on `register()`, so modal dialogs publish their element as the teleport target.
+- `useClickOutside` bounds mode no longer treats a strict DOM descendant as an outside click, so clicking an overlay teleported into a `<dialog>` (e.g. a Snackbar and its close button) no longer dismisses the dialog. Backdrop clicks (target is the dialog itself) still close it.
